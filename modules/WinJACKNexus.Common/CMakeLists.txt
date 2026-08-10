@@ -49,4 +49,6 @@ target_link_libraries(WinJACKNexus.Common PUBLIC
 target_sources(WinJACKNexus.Common PRIVATE
     include/WinJACKNexus/Common/Version.cpp
     include/WinJACKNexus/Common/UI/NexusLookAndFeel.cpp
+    include/WinJACKNexus/Common/UI/AudioLed.cpp
+    include/WinJACKNexus/Common/UI/MidiLed.cpp
     include/WinJACKNexus/Common/App/SingleInstanceGuard.cpp)

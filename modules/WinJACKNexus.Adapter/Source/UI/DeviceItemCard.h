@@ -2,6 +2,10 @@
 
 #include <juce_gui_basics/juce_gui_basics.h>
 
+#include <WinJACKNexus/Common/UI/AudioLed.h>
+#include <WinJACKNexus/Common/UI/MidiLed.h>
+#include "../Engine/MockEngine.h"
+
 namespace wjn::adapter
 {
 
@@ -22,6 +26,7 @@ public:
     using VoidCallback = std::function<void (DeviceItemCard&)>;
 
     DeviceItemCard (Data data, RenameCallback onRename, VoidCallback onPause, VoidCallback onRemove);
+    ~DeviceItemCard() override;
 
     const Data& getData() const noexcept { return data; }
     void setPaused (bool shouldPause);
@@ -42,6 +47,10 @@ private:
     juce::TextEditor clientNameEditor;
     juce::ToggleButton pauseButton;
     juce::TextButton removeButton;
+    wjn::common::AudioLed audioLed;
+    wjn::common::MidiLed midiLed;
+    MockEngine mockEngine;
+    bool midiMode = false;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DeviceItemCard)
 };

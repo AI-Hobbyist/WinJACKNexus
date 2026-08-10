@@ -22,8 +22,24 @@ juce::String fromUtf8 (const char* value)
 DeviceItemCard::DeviceItemCard (Data itemData, RenameCallback onRename,
                                 VoidCallback onPause, VoidCallback onRemove)
     : data (std::move (itemData)), renameCallback (std::move (onRename)),
-      pauseCallback (std::move (onPause)), removeCallback (std::move (onRemove))
+      pauseCallback (std::move (onPause)), removeCallback (std::move (onRemove)),
+      midiMode (data.driver.containsIgnoreCase ("MIDI"))
 {
+    addAndMakeVisible (audioLed);
+    addAndMakeVisible (midiLed);
+    audioLed.setVisible (! midiMode);
+    midiLed.setVisible (midiMode);
+
+    mockEngine.setAudioCallback ([this] (float level, bool clipping)
+    {
+        audioLed.setLevel (level, clipping);
+    });
+    mockEngine.setMidiCallback ([this]
+    {
+        midiLed.trigger();
+    });
+    mockEngine.start (midiMode);
+
     addAndMakeVisible (clientNameEditor);
     clientNameEditor.setText (data.clientName, juce::dontSendNotification);
     clientNameEditor.setJustification (juce::Justification::centred);
@@ -58,6 +74,10 @@ DeviceItemCard::DeviceItemCard (Data itemData, RenameCallback onRename,
     pauseButton.onClick = [this]
     {
         data.paused = pauseButton.getToggleState();
+        if (data.paused)
+            mockEngine.stop();
+        else
+            mockEngine.start (midiMode);
         if (pauseCallback != nullptr)
             pauseCallback (*this);
         repaint();
@@ -70,6 +90,11 @@ DeviceItemCard::DeviceItemCard (Data itemData, RenameCallback onRename,
         if (removeCallback != nullptr)
             removeCallback (*this);
     };
+}
+
+DeviceItemCard::~DeviceItemCard()
+{
+    mockEngine.stop();
 }
 
 void DeviceItemCard::setPaused (bool shouldPause)
@@ -107,6 +132,10 @@ void DeviceItemCard::paint (juce::Graphics& g)
 void DeviceItemCard::resized()
 {
     auto area = getLocalBounds().reduced (10, 8);
+    auto ledArea = area.removeFromLeft (30);
+    audioLed.setBounds (ledArea.reduced (3));
+    midiLed.setBounds (ledArea.reduced (3));
+    area.removeFromLeft (10);
     removeButton.setBounds (area.removeFromRight (56));
     area.removeFromRight (8);
     pauseButton.setBounds (area.removeFromRight (62));
