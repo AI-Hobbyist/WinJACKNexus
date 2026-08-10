@@ -20,4 +20,11 @@ NexusLookAndFeel::NexusLookAndFeel()
     setColour (juce::Label::textColourId, theme::primaryText);
 }
 
+juce::Font NexusLookAndFeel::getPopupMenuFont()
+{
+    return juce::Font (juce::FontOptions()
+                           .withName (juce::Font::getSystemUIFontName())
+                           .withPointHeight (13.0f));
+}
+
 } // namespace wjn::common

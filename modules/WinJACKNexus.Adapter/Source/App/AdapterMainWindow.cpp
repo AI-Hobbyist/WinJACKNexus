@@ -28,9 +28,9 @@ public:
         if (event.mods.isPopupMenu())
         {
             juce::PopupMenu menu;
-            menu.addItem (1, "显示/隐藏窗口");
+            menu.addItem (1, juce::String::fromUTF8 ("显示/隐藏窗口"));
             menu.addSeparator();
-            menu.addItem (2, "退出");
+            menu.addItem (2, juce::String::fromUTF8 ("退出"));
             menu.showMenuAsync (juce::PopupMenu::Options(),
                                 [this] (int result)
                                 {

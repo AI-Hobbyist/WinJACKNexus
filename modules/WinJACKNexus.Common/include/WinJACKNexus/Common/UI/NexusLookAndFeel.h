@@ -10,6 +10,8 @@ class NexusLookAndFeel final : public juce::LookAndFeel_V4
 public:
     NexusLookAndFeel();
 
+    juce::Font getPopupMenuFont() override;
+
 private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (NexusLookAndFeel)
 };
