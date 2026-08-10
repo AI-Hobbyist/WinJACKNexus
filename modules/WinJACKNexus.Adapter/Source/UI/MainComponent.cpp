@@ -81,8 +81,16 @@ private:
             [] (DeviceItemCard&) {},
             [this] (DeviceItemCard& card)
             {
-                cards.removeObject (&card, true);
-                layoutCards();
+                juce::Component::SafePointer<DeviceListSection> section (this);
+                juce::Component::SafePointer<DeviceItemCard> cardToRemove (&card);
+                juce::MessageManager::callAsync ([section, cardToRemove]
+                {
+                    if (section == nullptr || cardToRemove == nullptr)
+                        return;
+
+                    section->cards.removeObject (cardToRemove, true);
+                    section->layoutCards();
+                });
             });
 
         cards.add (card);
