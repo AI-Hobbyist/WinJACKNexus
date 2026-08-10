@@ -1,13 +1,14 @@
 #pragma once
 
 #include <juce_gui_basics/juce_gui_basics.h>
+#include <juce_gui_extra/juce_gui_extra.h>
 
 namespace wjn::adapter
 {
 
-/** 主窗口（DocumentWindow）。
- *  M1.1 将扩展：系统托盘图标、最小化挂载、关闭 → 托盘而非退出等行为。
- */
+class AdapterTrayIcon;
+
+/** 主窗口与系统托盘入口。 */
 class AdapterMainWindow final : public juce::DocumentWindow
 {
 public:
@@ -18,6 +19,8 @@ public:
     void closeButtonPressed() override;
 
 private:
+    std::unique_ptr<AdapterTrayIcon> trayIcon;
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AdapterMainWindow)
 };
 

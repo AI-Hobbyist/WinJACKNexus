@@ -47,4 +47,6 @@ target_link_libraries(WinJACKNexus.Common PUBLIC
 # 源码（骨架阶段：仅 Version 占位，保证静态库可编译、架构可被 codegraph 索引）
 # ---------------------------------------------------------------------------
 target_sources(WinJACKNexus.Common PRIVATE
-    include/WinJACKNexus/Common/Version.cpp)
+    include/WinJACKNexus/Common/Version.cpp
+    include/WinJACKNexus/Common/UI/NexusLookAndFeel.cpp
+    include/WinJACKNexus/Common/App/SingleInstanceGuard.cpp)

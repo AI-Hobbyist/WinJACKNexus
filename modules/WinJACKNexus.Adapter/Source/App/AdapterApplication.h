@@ -1,6 +1,8 @@
 #pragma once
 
 #include <juce_gui_basics/juce_gui_basics.h>
+#include <WinJACKNexus/Common/App/SingleInstanceGuard.h>
+#include <WinJACKNexus/Common/UI/NexusLookAndFeel.h>
 
 namespace wjn::adapter
 {
@@ -9,10 +11,7 @@ class AdapterMainWindow;
 
 /** Adapter 应用本体（JUCEApplication 子类）。
  *
- *  骨架阶段：仅创建/销毁主窗口。
- *  M1.1 将补充：
- *    - 单实例锁（Named Mutex "WinJACK_Nexus_Adapter_Lock"，唤醒既有窗口）
- *    - 系统托盘挂载
+ *  M1.1：创建主题、单实例锁与主窗口。
  */
 class AdapterApplication final : public juce::JUCEApplication
 {
@@ -30,6 +29,8 @@ public:
     void anotherInstanceStarted (const juce::String& commandLine) override;
 
 private:
+    wjn::common::NexusLookAndFeel lookAndFeel;
+    wjn::common::SingleInstanceGuard instanceGuard;
     std::unique_ptr<AdapterMainWindow> mainWindow;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AdapterApplication)

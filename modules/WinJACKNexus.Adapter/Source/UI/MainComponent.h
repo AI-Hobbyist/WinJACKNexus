@@ -22,6 +22,8 @@ public:
     void resized() override;
 
 private:
+    juce::TabbedComponent tabs { juce::TabbedButtonBar::TabsAtTop };
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
 };
 

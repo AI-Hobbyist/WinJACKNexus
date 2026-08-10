@@ -19,13 +19,20 @@ const juce::String AdapterApplication::getApplicationVersion()
 
 bool AdapterApplication::moreThanOneInstanceAllowed()
 {
-    // 骨架阶段允许多实例；M1.1 起由 SingleInstanceGuard（Named Mutex）接管，
-    // 此处将返回 false。
+    // 由 Common 的命名互斥量处理，避免 JUCE 内部使用另一套实例标识。
     return true;
 }
 
 void AdapterApplication::initialise (const juce::String& /*commandLine*/)
 {
+    juce::LookAndFeel::setDefaultLookAndFeel (&lookAndFeel);
+
+    if (! instanceGuard.acquire ("WinJACK_Nexus_Adapter_Lock", getApplicationName()))
+    {
+        quit();
+        return;
+    }
+
     mainWindow = std::make_unique<AdapterMainWindow> (getApplicationName());
     mainWindow->setVisible (true);
 }
@@ -33,6 +40,7 @@ void AdapterApplication::initialise (const juce::String& /*commandLine*/)
 void AdapterApplication::shutdown()
 {
     mainWindow.reset();
+    juce::LookAndFeel::setDefaultLookAndFeel (nullptr);
 }
 
 void AdapterApplication::systemRequestedQuit()
@@ -42,7 +50,7 @@ void AdapterApplication::systemRequestedQuit()
 
 void AdapterApplication::anotherInstanceStarted (const juce::String& /*commandLine*/)
 {
-    // M1.1 起：收到唤醒消息时置顶既有窗口。
+    wjn::common::SingleInstanceGuard::bringExistingWindowToFront (getApplicationName());
 }
 
 } // namespace wjn::adapter
