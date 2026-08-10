@@ -11,6 +11,7 @@ public:
     NexusLookAndFeel();
 
     juce::Font getPopupMenuFont() override;
+    juce::Font getTextButtonFont (juce::TextButton&, int buttonHeight) override;
 
 private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (NexusLookAndFeel)

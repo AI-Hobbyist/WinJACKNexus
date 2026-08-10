@@ -27,6 +27,8 @@ target_sources(WinJACKNexus.Adapter PRIVATE
     Source/Main.cpp
     Source/App/AdapterApplication.cpp
     Source/App/AdapterMainWindow.cpp
+    Source/UI/CascadeDeviceSelector.cpp
+    Source/UI/DeviceItemCard.cpp
     Source/UI/MainComponent.cpp)
 
 target_link_libraries(WinJACKNexus.Adapter PRIVATE

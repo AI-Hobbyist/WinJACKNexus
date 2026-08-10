@@ -27,4 +27,11 @@ juce::Font NexusLookAndFeel::getPopupMenuFont()
                            .withPointHeight (13.0f));
 }
 
+juce::Font NexusLookAndFeel::getTextButtonFont (juce::TextButton&, int buttonHeight)
+{
+    return juce::Font (juce::FontOptions (juce::Font::getSystemUIFontName(),
+                                          juce::jmin (14.0f, juce::jmax (11.0f, buttonHeight * 0.45f)),
+                                          juce::Font::plain));
+}
+
 } // namespace wjn::common
