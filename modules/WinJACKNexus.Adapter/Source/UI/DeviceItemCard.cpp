@@ -26,6 +26,7 @@ DeviceItemCard::DeviceItemCard (Data itemData, RenameCallback onRename,
 {
     addAndMakeVisible (clientNameEditor);
     clientNameEditor.setText (data.clientName, juce::dontSendNotification);
+    clientNameEditor.setJustification (juce::Justification::centred);
     clientNameEditor.setFont (systemFont (14.0f));
     clientNameEditor.setColour (juce::TextEditor::textColourId, wjn::common::theme::primaryText);
     clientNameEditor.setColour (juce::TextEditor::backgroundColourId, wjn::common::theme::darkCanvas);

@@ -1,5 +1,7 @@
 #include "CascadeDeviceSelector.h"
 
+#include <juce_audio_devices/juce_audio_devices.h>
+
 namespace wjn::adapter
 {
 namespace
@@ -22,6 +24,31 @@ void showAsync (juce::PopupMenu menu, juce::Component& target,
 void CascadeDeviceSelector::show (juce::Component& target, Callback callback)
 {
     showDriverMenu (target, std::move (callback));
+}
+
+void CascadeDeviceSelector::showMidi (juce::Component& target, bool input, Callback callback)
+{
+    juce::PopupMenu menu;
+    const auto devices = input ? juce::MidiInput::getAvailableDevices()
+                               : juce::MidiOutput::getAvailableDevices();
+
+    for (int index = 0; index < devices.size(); ++index)
+        menu.addItem (index + 1, devices[index].name);
+
+    if (devices.isEmpty())
+        menu.addItem (1, text ("未找到 MIDI 设备"), false, false);
+
+    showAsync (std::move (menu), target,
+               [callback = std::move (callback), devices, input] (int result) mutable
+               {
+                   if (result < 1 || result > devices.size())
+                       return;
+
+                   callback ({ text ("WinMM / WinRT MIDI"),
+                               input ? text ("Input") : text ("Output"),
+                               devices[result - 1].name,
+                               0 });
+               });
 }
 
 void CascadeDeviceSelector::showDriverMenu (juce::Component& target, Callback callback)

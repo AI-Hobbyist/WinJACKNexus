@@ -22,8 +22,8 @@ juce::String fromUtf8 (const char* value)
 class DeviceListSection final : public juce::Component
 {
 public:
-    explicit DeviceListSection (juce::String title)
-        : sectionTitle (std::move (title))
+    DeviceListSection (juce::String title, bool midi = false)
+        : sectionTitle (std::move (title)), isMidi (midi)
     {
         addAndMakeVisible (titleLabel);
         titleLabel.setText (sectionTitle, juce::dontSendNotification);
@@ -34,10 +34,15 @@ public:
         addButton.setButtonText (fromUtf8 ("添加设备"));
         addButton.onClick = [this]
         {
-            CascadeDeviceSelector::show (*this, [this] (CascadeDeviceSelector::Selection selection)
+            auto addSelection = [this] (CascadeDeviceSelector::Selection selection)
             {
                 addDevice (std::move (selection));
-            });
+            };
+
+            if (isMidi)
+                CascadeDeviceSelector::showMidi (*this, sectionTitle.startsWith ("IN"), std::move (addSelection));
+            else
+                CascadeDeviceSelector::show (*this, std::move (addSelection));
         };
 
         addAndMakeVisible (viewport);
@@ -117,6 +122,7 @@ private:
     }
 
     juce::String sectionTitle;
+    bool isMidi = false;
     juce::Label titleLabel;
     juce::TextButton addButton;
     juce::Viewport viewport;
@@ -129,8 +135,8 @@ private:
 class TabPage final : public juce::Component
 {
 public:
-    TabPage (juce::String inputTitle, juce::String outputTitle)
-        : inputSection (std::move (inputTitle)), outputSection (std::move (outputTitle))
+    TabPage (juce::String inputTitle, juce::String outputTitle, bool midi = false)
+        : inputSection (std::move (inputTitle), midi), outputSection (std::move (outputTitle), midi)
     {
         addAndMakeVisible (inputSection);
         addAndMakeVisible (outputSection);
@@ -172,7 +178,8 @@ MainComponent::MainComponent()
     tabs.addTab ("System MIDI",
                  wjn::common::theme::rackPanel,
                  new TabPage (fromUtf8 ("IN  |  WinMM / WinRT MIDI"),
-                              fromUtf8 ("OUT  |  WinMM / WinRT MIDI")),
+                              fromUtf8 ("OUT  |  WinMM / WinRT MIDI"),
+                              true),
                  true);
 
     addAndMakeVisible (tabs);

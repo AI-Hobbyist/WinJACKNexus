@@ -19,6 +19,7 @@ public:
     using Callback = std::function<void (Selection)>;
 
     static void show (juce::Component& target, Callback callback);
+    static void showMidi (juce::Component& target, bool input, Callback callback);
 
 private:
     static void showDriverMenu (juce::Component& target, Callback callback);
