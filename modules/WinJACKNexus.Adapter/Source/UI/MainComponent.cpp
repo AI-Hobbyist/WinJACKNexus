@@ -45,6 +45,13 @@ public:
                 CascadeDeviceSelector::show (*this, std::move (addSelection));
         };
 
+            addAndMakeVisible (refreshButton);
+            refreshButton.setButtonText (fromUtf8 ("刷新列表"));
+            refreshButton.onClick = [this]
+            {
+                refreshDeviceList();
+            };
+
         addAndMakeVisible (viewport);
         viewport.setViewedComponent (&listContent, false);
         viewport.setScrollBarsShown (true, false);
@@ -63,14 +70,23 @@ public:
     {
         auto area = getLocalBounds().reduced (12);
         auto header = area.removeFromTop (32);
-        titleLabel.setBounds (header.removeFromLeft (header.getWidth() - 110));
         addButton.setBounds (header.removeFromRight (104));
+        header.removeFromRight (8);
+        refreshButton.setBounds (header.removeFromRight (104));
+        header.removeFromRight (8);
+        titleLabel.setBounds (header);
         area.removeFromTop (8);
         viewport.setBounds (area);
         layoutCards();
     }
 
 private:
+    void refreshDeviceList()
+    {
+        repaint();
+        listContent.repaint();
+    }
+
     void addDevice (CascadeDeviceSelector::Selection selection)
     {
         DeviceItemCard::Data data;
@@ -125,6 +141,7 @@ private:
     bool isMidi = false;
     juce::Label titleLabel;
     juce::TextButton addButton;
+    juce::TextButton refreshButton;
     juce::Viewport viewport;
     juce::Component listContent;
     juce::OwnedArray<DeviceItemCard> cards;
