@@ -95,6 +95,8 @@ DeviceItemCard::DeviceItemCard (Data itemData, RenameCallback onRename,
 DeviceItemCard::~DeviceItemCard()
 {
     mockEngine.stop();
+    mockEngine.setAudioCallback (nullptr);
+    mockEngine.setMidiCallback (nullptr);
 }
 
 void DeviceItemCard::setPaused (bool shouldPause)

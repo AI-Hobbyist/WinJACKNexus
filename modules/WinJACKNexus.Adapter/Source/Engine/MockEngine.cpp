@@ -33,8 +33,6 @@ void MockEngine::start (bool shouldUseMidi)
 void MockEngine::stop()
 {
     stopTimer();
-    audioCallback = nullptr;
-    midiCallback = nullptr;
 }
 
 void MockEngine::timerCallback()

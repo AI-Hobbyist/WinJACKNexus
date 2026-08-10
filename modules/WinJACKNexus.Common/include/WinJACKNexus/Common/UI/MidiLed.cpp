@@ -27,7 +27,9 @@ void MidiLed::timerCallback()
 
 void MidiLed::paint (juce::Graphics& g)
 {
-    auto bounds = getLocalBounds().toFloat().reduced (2.0f);
+    auto bounds = getLocalBounds().toFloat();
+    const auto diameter = juce::jmax (0.0f, juce::jmin (bounds.getWidth(), bounds.getHeight()) - 4.0f);
+    bounds = bounds.withSizeKeepingCentre (diameter, diameter);
     const auto glow = theme::ledMidiActivity;
     const auto intensity = juce::jmax (0.12f, level);
 

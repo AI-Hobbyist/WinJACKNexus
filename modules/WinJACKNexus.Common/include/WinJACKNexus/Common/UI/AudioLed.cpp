@@ -27,7 +27,10 @@ void AudioLed::timerCallback()
     if (peakHoldMs > 0)
         peakHoldMs = juce::jmax (0, peakHoldMs - 40);
     else
+    {
+        clipping = false;
         peak *= 0.88f;
+    }
 
     if (level < 0.01f)
         level = 0.0f;
@@ -38,7 +41,9 @@ void AudioLed::timerCallback()
 
 void AudioLed::paint (juce::Graphics& g)
 {
-    auto bounds = getLocalBounds().toFloat().reduced (2.0f);
+    auto bounds = getLocalBounds().toFloat();
+    const auto diameter = juce::jmax (0.0f, juce::jmin (bounds.getWidth(), bounds.getHeight()) - 4.0f);
+    bounds = bounds.withSizeKeepingCentre (diameter, diameter);
     const auto glow = clipping ? theme::ledClipping : theme::ledActiveGreen;
     const auto intensity = juce::jmax (0.18f, level);
 
@@ -58,13 +63,6 @@ void AudioLed::paint (juce::Graphics& g)
     g.setColour (juce::Colours::white.withAlpha (0.48f * intensity));
     g.fillEllipse (bounds.reduced (5.0f).translated (-2.0f, -2.0f));
 
-    if (peak > 0.05f)
-    {
-        auto peakBounds = bounds.withY (bounds.getY() + (1.0f - peak) * bounds.getHeight())
-                                .withHeight (2.0f);
-        g.setColour (peakHoldMs > 0 ? theme::ledClipping : theme::ledWarning);
-        g.fillRoundedRectangle (peakBounds, 1.0f);
-    }
 }
 
 } // namespace wjn::common
