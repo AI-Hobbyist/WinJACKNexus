@@ -48,7 +48,21 @@ target_link_libraries(WinJACKNexus.Common PUBLIC
 # ---------------------------------------------------------------------------
 target_sources(WinJACKNexus.Common PRIVATE
     include/WinJACKNexus/Common/Version.cpp
+    include/WinJACKNexus/Common/Audio/AudioEngine.cpp
+    include/WinJACKNexus/Common/Audio/JackClient.cpp
+    include/WinJACKNexus/Common/Audio/JackAudioBackend.cpp
     include/WinJACKNexus/Common/UI/NexusLookAndFeel.cpp
     include/WinJACKNexus/Common/UI/AudioLed.cpp
     include/WinJACKNexus/Common/UI/MidiLed.cpp
     include/WinJACKNexus/Common/App/SingleInstanceGuard.cpp)
+
+include(CTest)
+
+if(BUILD_TESTING)
+    add_executable(WinJACKNexus.Common.AudioEngineTests
+        tests/AudioEngineTests.cpp)
+    target_link_libraries(WinJACKNexus.Common.AudioEngineTests
+        PRIVATE WinJACKNexus.Common)
+    add_test(NAME WinJACKNexus.Common.AudioEngineTests
+        COMMAND WinJACKNexus.Common.AudioEngineTests)
+endif()

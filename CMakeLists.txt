@@ -25,6 +25,8 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS YES)
 
+include(CTest)
+
 # 源文件统一以 UTF-8 处理（工程注释含中文，MSVC 默认按本地代码页解析会产生 C4819/误读）
 if(MSVC)
     add_compile_options(/utf-8)
