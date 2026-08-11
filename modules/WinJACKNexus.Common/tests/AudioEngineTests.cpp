@@ -44,6 +44,14 @@ int main()
             || !nearlyEqual(outputRight[index], inputRight[index]))
             return fail("Running engine must pass through audio");
 
+    context.frameCount = -1;
+    engine.process(context);
+    context.frameCount = 4;
+    engine.prepare({48000.0, -1, -2, -2});
+    if (engine.getSnapshot().blockSize != 0 || engine.getSnapshot().inputChannels != 0
+        || engine.getSnapshot().outputChannels != 0)
+        return fail("Invalid settings must be clamped");
+
     std::cout << "AudioEngine tests passed\n";
     return 0;
 }

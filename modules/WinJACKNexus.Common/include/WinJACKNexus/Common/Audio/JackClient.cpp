@@ -63,8 +63,18 @@ bool JackClient::configurePorts(const juce::StringArray& inputNames,
     inputPortCount = 0;
     outputPortCount = 0;
 
-    return registerPorts(inputNames, JackPortIsInput, inputPorts, inputPortCount)
-        && registerPorts(outputNames, JackPortIsOutput, outputPorts, outputPortCount);
+    if (!registerPorts(inputNames, JackPortIsInput, inputPorts, inputPortCount))
+        return false;
+
+    if (!registerPorts(outputNames, JackPortIsOutput, outputPorts, outputPortCount))
+    {
+        for (int index = 0; index < inputPortCount; ++index)
+            jack_port_unregister(client, inputPorts[static_cast<size_t>(index)]);
+        inputPortCount = 0;
+        return false;
+    }
+
+    return true;
 }
 
 bool JackClient::activate() noexcept
@@ -93,6 +103,8 @@ void JackClient::close() noexcept
     client = nullptr;
     inputPortCount = 0;
     outputPortCount = 0;
+    callback = nullptr;
+    callbackUserData = nullptr;
     connected.store(false, std::memory_order_release);
 }
 
@@ -177,6 +189,9 @@ bool JackClient::registerPorts(const juce::StringArray& names, unsigned long fla
         if (port == nullptr)
         {
             setError("Unable to register JACK audio port");
+            for (int index = 0; index < count; ++index)
+                jack_port_unregister(client, destination[static_cast<size_t>(index)]);
+            count = 0;
             return false;
         }
         destination[static_cast<size_t>(count++)] = port;

@@ -51,6 +51,9 @@ target_sources(WinJACKNexus.Common PRIVATE
     include/WinJACKNexus/Common/Audio/AudioEngine.cpp
     include/WinJACKNexus/Common/Audio/JackClient.cpp
     include/WinJACKNexus/Common/Audio/JackAudioBackend.cpp
+    include/WinJACKNexus/Common/Audio/MeterEngine.cpp
+    include/WinJACKNexus/Common/Audio/SilenceDetector.cpp
+    include/WinJACKNexus/Common/Midi/MidiEventQueue.cpp
     include/WinJACKNexus/Common/UI/NexusLookAndFeel.cpp
     include/WinJACKNexus/Common/UI/AudioLed.cpp
     include/WinJACKNexus/Common/UI/MidiLed.cpp
@@ -65,4 +68,25 @@ if(BUILD_TESTING)
         PRIVATE WinJACKNexus.Common)
     add_test(NAME WinJACKNexus.Common.AudioEngineTests
         COMMAND WinJACKNexus.Common.AudioEngineTests)
+
+    add_executable(WinJACKNexus.Common.MeterEngineTests
+        tests/MeterEngineTests.cpp)
+    target_link_libraries(WinJACKNexus.Common.MeterEngineTests
+        PRIVATE WinJACKNexus.Common)
+    add_test(NAME WinJACKNexus.Common.MeterEngineTests
+        COMMAND WinJACKNexus.Common.MeterEngineTests)
+
+    add_executable(WinJACKNexus.Common.SilenceDetectorTests
+        tests/SilenceDetectorTests.cpp)
+    target_link_libraries(WinJACKNexus.Common.SilenceDetectorTests
+        PRIVATE WinJACKNexus.Common)
+    add_test(NAME WinJACKNexus.Common.SilenceDetectorTests
+        COMMAND WinJACKNexus.Common.SilenceDetectorTests)
+
+    add_executable(WinJACKNexus.Common.MidiAndFifoTests
+        tests/MidiAndFifoTests.cpp)
+    target_link_libraries(WinJACKNexus.Common.MidiAndFifoTests
+        PRIVATE WinJACKNexus.Common)
+    add_test(NAME WinJACKNexus.Common.MidiAndFifoTests
+        COMMAND WinJACKNexus.Common.MidiAndFifoTests)
 endif()

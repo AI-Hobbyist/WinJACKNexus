@@ -9,9 +9,9 @@ namespace wjn::common
 void AudioEngine::prepare(const EffectiveAudioSettings& settings) noexcept
 {
     snapshot.sampleRate = settings.sampleRate;
-    snapshot.blockSize = settings.blockSize;
-    snapshot.inputChannels = settings.inputChannels;
-    snapshot.outputChannels = settings.outputChannels;
+    snapshot.blockSize = std::max(0, settings.blockSize);
+    snapshot.inputChannels = std::max(0, settings.inputChannels);
+    snapshot.outputChannels = std::max(0, settings.outputChannels);
     running.store(false, std::memory_order_release);
 }
 
@@ -37,7 +37,10 @@ AudioEngine::Snapshot AudioEngine::getSnapshot() const noexcept
 
 void AudioEngine::process(AudioProcessContext& context) noexcept
 {
-    const auto channels = std::min(context.inputChannels, context.outputChannels);
+    if (context.frameCount <= 0 || snapshot.blockSize <= 0)
+        return;
+
+    const auto channels = std::max(0, std::min(context.inputChannels, context.outputChannels));
     const auto frames = std::min(context.frameCount, snapshot.blockSize);
 
     for (int channel = 0; channel < context.outputChannels; ++channel)
