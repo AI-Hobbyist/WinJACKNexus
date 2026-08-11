@@ -8,8 +8,12 @@ namespace wjn::common
 bool JackAudioInput::open(const juce::String& clientName, int channels, int blockSize) noexcept
 {
     close();
-    if (channels < 0 || channels > maxChannels || blockSize <= 0 || blockSize > JackClient::maxBlockFrames)
+    if (channels < 0 || blockSize <= 0 || blockSize > JackClient::maxBlockFrames)
         return false;
+    buffers->resize(static_cast<size_t>(channels));
+    bufferPointers.resize(static_cast<size_t>(channels));
+    for (int index = 0; index < channels; ++index)
+        bufferPointers[static_cast<size_t>(index)] = (*buffers)[static_cast<size_t>(index)].data();
     if (!client.open(clientName, blockSize))
         return false;
 

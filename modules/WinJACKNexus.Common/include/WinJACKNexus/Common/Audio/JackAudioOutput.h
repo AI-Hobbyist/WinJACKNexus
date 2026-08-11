@@ -5,6 +5,7 @@
 #include <array>
 #include <atomic>
 #include <memory>
+#include <vector>
 
 namespace wjn::common
 {
@@ -12,12 +13,7 @@ namespace wjn::common
 class JackAudioOutput final
 {
 public:
-    static constexpr int maxChannels = JackClient::maxPorts;
-
-    JackAudioOutput()
-        : buffers(std::make_unique<BufferStorage>())
-    {
-    }
+    JackAudioOutput() = default;
 
     bool open(const juce::String& clientName, int channels, int blockSize) noexcept;
     bool start() noexcept;
@@ -29,12 +25,12 @@ public:
     void submitBlock(const float* const* inputs, int channels, int frames) noexcept;
 
 private:
-    using BufferStorage = std::array<std::array<float, JackClient::maxBlockFrames>, maxChannels>;
+    using BufferStorage = std::vector<std::array<float, JackClient::maxBlockFrames>>;
     static void process(const float* const*, int, float* const* outputs,
                         int outputChannels, int frames, void* userData) noexcept;
 
     JackClient client;
-    std::unique_ptr<BufferStorage> buffers;
+    std::unique_ptr<BufferStorage> buffers = std::make_unique<BufferStorage>();
     std::atomic<int> pendingFrames { 0 };
     std::atomic<int> pendingChannels { 0 };
     int channelCount = 0;

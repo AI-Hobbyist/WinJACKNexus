@@ -8,7 +8,7 @@
 
 - 在 `WinJACKNexus.Common` 建立 `AudioDeviceSettings`、`EffectiveAudioSettings` 和 `AudioProcessContext`。
 - 建立 `AudioBackend` 接口和 `JackAudioBackend` 实现。
-- 建立固定容量 `JackClient`：最多 32 个音频端口，JACK process 回调只使用预注册端口指针数组，不进行容器扩容或文件 I/O。
+- 建立动态端口 `JackClient`：不设置应用侧端口数量上限，端口和 process 回调指针数组只在控制线程配置阶段扩容，JACK process 回调不进行容器扩容或文件 I/O。
 - 建立 `JackAudioInput` 和 `JackAudioOutput`：分别负责真实 JACK 音频输入接收与输出写入，输出无提交 block 时按 block 清零。
 - 建立 `JackMidiInput` 和 `JackMidiOutput`：支持真实 JACK MIDI 端口、frame offset、固定容量事件队列和原子丢事件计数。
 - 支持 JACK 音频 input/output 端口注册、采样率/缓冲区回调、xrun 计数、激活/停用和关闭。

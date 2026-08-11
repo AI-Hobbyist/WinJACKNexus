@@ -49,30 +49,34 @@ bool JackClient::open(const juce::String& clientName, int expectedBlockSize) noe
 bool JackClient::configurePorts(const juce::StringArray& inputNames,
                                 const juce::StringArray& outputNames) noexcept
 {
-    if (client == nullptr || running.load(std::memory_order_acquire)
-        || inputNames.size() > maxPorts || outputNames.size() > maxPorts)
+    if (client == nullptr || running.load(std::memory_order_acquire))
     {
         setError("JACK ports can only be configured while the client is stopped");
         return false;
     }
 
-    for (int index = 0; index < inputPortCount; ++index)
-        jack_port_unregister(client, inputPorts[static_cast<size_t>(index)]);
-    for (int index = 0; index < outputPortCount; ++index)
-        jack_port_unregister(client, outputPorts[static_cast<size_t>(index)]);
-    inputPortCount = 0;
-    outputPortCount = 0;
+    for (auto* port : inputPorts)
+        jack_port_unregister(client, port);
+    for (auto* port : outputPorts)
+        jack_port_unregister(client, port);
+    inputPorts.clear();
+    outputPorts.clear();
+    inputBuffers.clear();
+    outputBuffers.clear();
 
-    if (!registerPorts(inputNames, JackPortIsInput, inputPorts, inputPortCount))
+    if (!registerPorts(inputNames, JackPortIsInput, inputPorts))
         return false;
 
-    if (!registerPorts(outputNames, JackPortIsOutput, outputPorts, outputPortCount))
+    if (!registerPorts(outputNames, JackPortIsOutput, outputPorts))
     {
-        for (int index = 0; index < inputPortCount; ++index)
-            jack_port_unregister(client, inputPorts[static_cast<size_t>(index)]);
-        inputPortCount = 0;
+        for (auto* port : inputPorts)
+            jack_port_unregister(client, port);
+        inputPorts.clear();
         return false;
     }
+
+    inputBuffers.resize(inputPorts.size());
+    outputBuffers.resize(outputPorts.size());
 
     return true;
 }
@@ -101,8 +105,10 @@ void JackClient::close() noexcept
     if (client != nullptr)
         jack_client_close(client);
     client = nullptr;
-    inputPortCount = 0;
-    outputPortCount = 0;
+    inputPorts.clear();
+    outputPorts.clear();
+    inputBuffers.clear();
+    outputBuffers.clear();
     callback = nullptr;
     callbackUserData = nullptr;
     connected.store(false, std::memory_order_release);
@@ -132,14 +138,13 @@ int JackClient::processCallback(jack_nframes_t frameCount, void* userData) noexc
     if (owner == nullptr || owner->callback == nullptr || frameCount > maxBlockFrames)
         return 0;
 
-    std::array<const float*, maxPorts> inputs {};
-    std::array<float*, maxPorts> outputs {};
-    for (int index = 0; index < owner->inputPortCount; ++index)
-        inputs[static_cast<size_t>(index)] = static_cast<const float*>(jack_port_get_buffer(owner->inputPorts[static_cast<size_t>(index)], frameCount));
-    for (int index = 0; index < owner->outputPortCount; ++index)
-        outputs[static_cast<size_t>(index)] = static_cast<float*>(jack_port_get_buffer(owner->outputPorts[static_cast<size_t>(index)], frameCount));
+    for (size_t index = 0; index < owner->inputPorts.size(); ++index)
+        owner->inputBuffers[index] = static_cast<const float*>(jack_port_get_buffer(owner->inputPorts[index], frameCount));
+    for (size_t index = 0; index < owner->outputPorts.size(); ++index)
+        owner->outputBuffers[index] = static_cast<float*>(jack_port_get_buffer(owner->outputPorts[index], frameCount));
 
-    owner->callback(inputs.data(), owner->inputPortCount, outputs.data(), owner->outputPortCount,
+    owner->callback(owner->inputBuffers.data(), static_cast<int>(owner->inputBuffers.size()),
+                    owner->outputBuffers.data(), static_cast<int>(owner->outputBuffers.size()),
                     static_cast<int>(frameCount), owner->callbackUserData);
     owner->callbackCount.fetch_add(1, std::memory_order_relaxed);
     return 0;
@@ -180,8 +185,7 @@ void JackClient::shutdownCallback(void* userData) noexcept
 }
 
 bool JackClient::registerPorts(const juce::StringArray& names, unsigned long flags,
-                               std::array<jack_port_t*, maxPorts>& destination,
-                               int& count) noexcept
+                               std::vector<jack_port_t*>& destination) noexcept
 {
     for (const auto& name : names)
     {
@@ -189,12 +193,12 @@ bool JackClient::registerPorts(const juce::StringArray& names, unsigned long fla
         if (port == nullptr)
         {
             setError("Unable to register JACK audio port");
-            for (int index = 0; index < count; ++index)
-                jack_port_unregister(client, destination[static_cast<size_t>(index)]);
-            count = 0;
+            for (auto* registeredPort : destination)
+                jack_port_unregister(client, registeredPort);
+            destination.clear();
             return false;
         }
-        destination[static_cast<size_t>(count++)] = port;
+        destination.push_back(port);
     }
     return true;
 }

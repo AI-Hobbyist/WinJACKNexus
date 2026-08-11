@@ -1,7 +1,7 @@
 #pragma once
 
-#include <array>
 #include <atomic>
+#include <vector>
 
 #include <juce_core/juce_core.h>
 #include <jack/jack.h>
@@ -12,7 +12,6 @@ namespace wjn::common
 class JackClient final
 {
 public:
-    static constexpr int maxPorts = 32;
     static constexpr int maxBlockFrames = 8192;
 
     struct Status
@@ -54,15 +53,14 @@ private:
     static void shutdownCallback(void* userData) noexcept;
 
     bool registerPorts(const juce::StringArray& names, unsigned long flags,
-                       std::array<jack_port_t*, maxPorts>& destination,
-                       int& count) noexcept;
+                       std::vector<jack_port_t*>& destination) noexcept;
     void setError(const char* message) noexcept;
 
     jack_client_t* client = nullptr;
-    std::array<jack_port_t*, maxPorts> inputPorts {};
-    std::array<jack_port_t*, maxPorts> outputPorts {};
-    int inputPortCount = 0;
-    int outputPortCount = 0;
+    std::vector<jack_port_t*> inputPorts;
+    std::vector<jack_port_t*> outputPorts;
+    std::vector<const float*> inputBuffers;
+    std::vector<float*> outputBuffers;
     ProcessCallback callback = nullptr;
     void* callbackUserData = nullptr;
     std::atomic<bool> connected { false };

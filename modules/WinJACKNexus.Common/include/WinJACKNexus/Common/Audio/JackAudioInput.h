@@ -4,6 +4,7 @@
 
 #include <array>
 #include <memory>
+#include <vector>
 
 namespace wjn::common
 {
@@ -13,14 +14,7 @@ class JackAudioInput final
 public:
     using BlockCallback = void (*)(const float* const* inputs, int channels,
                                     int frames, void* userData) noexcept;
-    static constexpr int maxChannels = JackClient::maxPorts;
-
-    JackAudioInput()
-        : buffers(std::make_unique<BufferStorage>())
-    {
-        for (int index = 0; index < maxChannels; ++index)
-            bufferPointers[static_cast<size_t>(index)] = (*buffers)[static_cast<size_t>(index)].data();
-    }
+    JackAudioInput() = default;
 
     bool open(const juce::String& clientName, int channels, int blockSize) noexcept;
     bool start(BlockCallback callback, void* userData) noexcept;
@@ -32,13 +26,13 @@ public:
     const float* getChannelData(int channel) const noexcept;
 
 private:
-    using BufferStorage = std::array<std::array<float, JackClient::maxBlockFrames>, maxChannels>;
+    using BufferStorage = std::vector<std::array<float, JackClient::maxBlockFrames>>;
     static void process(const float* const* inputs, int inputChannels,
                         float* const*, int, int frames, void* userData) noexcept;
 
     JackClient client;
-    std::unique_ptr<BufferStorage> buffers;
-    std::array<const float*, maxChannels> bufferPointers {};
+    std::unique_ptr<BufferStorage> buffers = std::make_unique<BufferStorage>();
+    std::vector<const float*> bufferPointers;
     BlockCallback callback = nullptr;
     void* callbackUserData = nullptr;
     int channelCount = 0;

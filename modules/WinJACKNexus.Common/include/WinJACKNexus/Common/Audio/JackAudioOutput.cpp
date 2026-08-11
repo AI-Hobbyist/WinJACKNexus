@@ -9,8 +9,9 @@ namespace wjn::common
 bool JackAudioOutput::open(const juce::String& clientName, int channels, int blockSize) noexcept
 {
     close();
-    if (channels < 0 || channels > maxChannels || blockSize <= 0 || blockSize > JackClient::maxBlockFrames)
+    if (channels < 0 || blockSize <= 0 || blockSize > JackClient::maxBlockFrames)
         return false;
+    buffers->resize(static_cast<size_t>(channels));
     if (!client.open(clientName, blockSize))
         return false;
 
@@ -52,7 +53,7 @@ void JackAudioOutput::submitBlock(const float* const* inputs, int channels, int 
 {
     if (inputs == nullptr || frames <= 0 || frames > JackClient::maxBlockFrames)
         return;
-    const auto copiedChannels = (std::min)({ channels, channelCount, maxChannels });
+    const auto copiedChannels = (std::min)(channels, channelCount);
     for (int channel = 0; channel < copiedChannels; ++channel)
         if (inputs[channel] != nullptr)
             std::memcpy((*buffers)[static_cast<size_t>(channel)].data(), inputs[channel],
