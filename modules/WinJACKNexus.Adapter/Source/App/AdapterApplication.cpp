@@ -25,6 +25,7 @@ bool AdapterApplication::moreThanOneInstanceAllowed()
 
 void AdapterApplication::initialise (const juce::String& /*commandLine*/)
 {
+    lookAndFeel.setTheme (wjn::common::ThemeContext {});
     juce::LookAndFeel::setDefaultLookAndFeel (&lookAndFeel);
 
     if (! instanceGuard.acquire ("WinJACK_Nexus_Adapter_Lock", getApplicationName()))

@@ -68,6 +68,16 @@ target_sources(WinJACKNexus.Common PRIVATE
     include/WinJACKNexus/Common/UI/NexusLookAndFeel.cpp
     include/WinJACKNexus/Common/UI/AudioLed.cpp
     include/WinJACKNexus/Common/UI/MidiLed.cpp
+    include/WinJACKNexus/Common/UI/ThemeContext.cpp
+    include/WinJACKNexus/Common/UI/ThemePackage.cpp
+    include/WinJACKNexus/Common/UI/ThemeAssetCache.cpp
+    include/WinJACKNexus/Common/UI/FontManager.cpp
+    include/WinJACKNexus/Common/UI/MeterComponent.cpp
+    include/WinJACKNexus/Common/UI/ChannelCard.cpp
+    include/WinJACKNexus/Common/UI/MixerChannelStripComponent.cpp
+    include/WinJACKNexus/Common/UI/SpatialPannerComponent.cpp
+    include/WinJACKNexus/Common/Localization/TextCatalog.cpp
+    include/WinJACKNexus/Common/Localization/LocaleManager.cpp
     include/WinJACKNexus/Common/App/SingleInstanceGuard.cpp)
 
 include(CTest)
@@ -107,4 +117,11 @@ if(BUILD_TESTING)
         PRIVATE WinJACKNexus.Common)
     add_test(NAME WinJACKNexus.Common.M1IntegrationBoundaryTests
         COMMAND WinJACKNexus.Common.M1IntegrationBoundaryTests)
+
+    add_executable(WinJACKNexus.Common.M2UiTests
+        tests/M2UiTests.cpp)
+    target_link_libraries(WinJACKNexus.Common.M2UiTests
+        PRIVATE WinJACKNexus.Common)
+    add_test(NAME WinJACKNexus.Common.M2UiTests
+        COMMAND WinJACKNexus.Common.M2UiTests)
 endif()
