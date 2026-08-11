@@ -17,6 +17,10 @@ project(WinJACKNexus.Common VERSION 0.1.0 LANGUAGES CXX)
 
 add_library(WinJACKNexus.Common STATIC)
 
+if(MSVC)
+    target_compile_definitions(WinJACKNexus.Common PUBLIC NOMINMAX)
+endif()
+
 target_include_directories(WinJACKNexus.Common PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
@@ -51,9 +55,16 @@ target_sources(WinJACKNexus.Common PRIVATE
     include/WinJACKNexus/Common/Audio/AudioEngine.cpp
     include/WinJACKNexus/Common/Audio/JackClient.cpp
     include/WinJACKNexus/Common/Audio/JackAudioBackend.cpp
+    include/WinJACKNexus/Common/Audio/JackAudioInput.cpp
+    include/WinJACKNexus/Common/Audio/JackAudioOutput.cpp
     include/WinJACKNexus/Common/Audio/MeterEngine.cpp
     include/WinJACKNexus/Common/Audio/SilenceDetector.cpp
     include/WinJACKNexus/Common/Midi/MidiEventQueue.cpp
+    include/WinJACKNexus/Common/MIDI/JackMidiInput.cpp
+    include/WinJACKNexus/Common/MIDI/JackMidiOutput.cpp
+    include/WinJACKNexus/Common/DSP/LevelMeterProbe.cpp
+    include/WinJACKNexus/Common/Metering/LoudnessPresetLibrary.cpp
+    include/WinJACKNexus/Common/IO/CsvLogWriter.cpp
     include/WinJACKNexus/Common/UI/NexusLookAndFeel.cpp
     include/WinJACKNexus/Common/UI/AudioLed.cpp
     include/WinJACKNexus/Common/UI/MidiLed.cpp
@@ -89,4 +100,11 @@ if(BUILD_TESTING)
         PRIVATE WinJACKNexus.Common)
     add_test(NAME WinJACKNexus.Common.MidiAndFifoTests
         COMMAND WinJACKNexus.Common.MidiAndFifoTests)
+
+    add_executable(WinJACKNexus.Common.M1IntegrationBoundaryTests
+        tests/M1IntegrationBoundaryTests.cpp)
+    target_link_libraries(WinJACKNexus.Common.M1IntegrationBoundaryTests
+        PRIVATE WinJACKNexus.Common)
+    add_test(NAME WinJACKNexus.Common.M1IntegrationBoundaryTests
+        COMMAND WinJACKNexus.Common.M1IntegrationBoundaryTests)
 endif()
