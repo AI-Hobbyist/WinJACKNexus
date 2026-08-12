@@ -433,6 +433,40 @@ Jack Meter Bridge/
 
 **验收**：MeterBridge 不依赖 Mixer 或 Adapter 即可运行；真实 JACK 输入能驱动通道计量、历史记录和 CSV 导出；Common 中不存在 MeterBridge 的窗口或应用状态。
 
+## 十三、WinJACKNexus 模块落地边界
+
+### M4.1 目标目录与应用迁移
+
+MeterBridge 的应用层目标目录为：
+
+```text
+modules/WinJACKNexus.MeterBridge/
+  CMakeLists.txt
+  Resources/
+  Source/
+    Main.cpp
+    App/
+      MeterBridgeApplication.h/.cpp
+      MeterBridgeMainWindow.h/.cpp
+    Model/
+      MeterProject.h/.cpp
+      MeterChannelModel.h/.cpp
+    UI/
+      MeterBridgeMainComponent.h/.cpp
+      MeterChannelCard.h/.cpp
+      HistoryWindow.h/.cpp
+      SettingsDialog.h/.cpp
+```
+
+迁移 `ref/Jack Meter Bridge` 时，`Main.cpp`、`MainComponent.*`、设置编辑器、历史窗口/曲线、分组/通道管理、响度预设选择、CSV 工作流、图标和资源属于 MeterBridge。`JackClient`、`MeterEngine`、`SilenceDetector`、`MeterFrame`、历史数据类型和 CSV 底层能力只通过 Common 使用，不在 MeterBridge 重复实现。
+
+### M4.2 应用级测试与独立运行
+
+- MeterBridge 单测覆盖 `MeterFrame` 展示适配、通道/分组模型、静音重置、历史窗口数据、CSV 配置和 `.meter` 存档。
+- UI 验收覆盖正常电平、无信号、静音、Peak hold、历史曲线、CSV 导出、窄窗口和 `Common + MeterBridge` 主题覆盖。
+- MeterBridge 必须能够单独启动、连接 JACK 和关闭，不要求 Mixer 或 Adapter 同时运行。
+- 与 Adapter、Mixer 并行运行时，JACK client/port 命名、线程生命周期和资源释放必须符合 Common 的跨 APP 约定。
+
 ---
 
 ## 附录

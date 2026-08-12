@@ -2,22 +2,13 @@
 
 > 文档状态：待审阅
 >
-> 目标：将 `ref/` 下已验证或可复用的实现纳入 WinJACKNexus，形成一个公用库和三个可独立运行的 APP：`Common`、`Adapter`、`Mixer`、`MeterBridge`。
+> 目标：将 `ref/` 下可跨应用复用的实时音频、JACK、MIDI、DSP、计量和通用 UI 能力纳入 `WinJACKNexus.Common`。
 >
 > 当前实施范围：本文只负责 `WinJACKNexus.Common` 的 M0-M2 合并工作；Adapter、Mixer、MeterBridge 以及跨模块 M6 收尾任务分别记录在对应开发文档中。
 
 ## 1. 合并结论
 
-本次合并不直接把两个 ref 工程作为子项目长期并存，而是按职责迁移代码、重新命名目标，并统一到顶层 `WinJACKNexus` 的 CMake 和命名空间约定中。
-
-| 目标模块 | 来源 | 合并后的职责 |
-|---|---|---|
-| `WinJACKNexus.Common` | 当前 Common、`ref/Jack Meter Bridge` 的真实 JACK/计量实现、`ref/PureMixer` 的音频/DSP 基础和通用自绘控件 | 跨应用复用的实时音频能力、JACK 封装、DSP/计量数据模型、无锁数据交换、通用 JUCE 控件和主题 |
-| `WinJACKNexus.Adapter` | 当前 Adapter，后续复用 Common 的 JACK/设备能力 | Windows WDM/WASAPI/WinMM 与 JACK 之间的设备桥接和设备管理界面 |
-| `WinJACKNexus.Mixer` | `ref/PureMixer`，名称由 PureMixer 改为 Mixer | 面向用户的混音器应用、混音图配置、通道条界面、路由和混音器工作流 |
-| `WinJACKNexus.MeterBridge` | `ref/Jack Meter Bridge` 的应用层、设置、历史和计量界面 | 独立运行的 JACK 输入监测、响度/峰值分析、历史曲线和 CSV 导出 APP |
-
-`ref/Jack Meter Bridge` 拆分为两部分：已经可用的真实 JACK 流处理、计量算法和通用数据能力迁入 Common；原来的整窗界面、应用入口、设置、历史曲线、CSV 工作流和资源迁入独立的 `MeterBridge` APP。`MeterBridge` 直接使用 Common，但不依赖 Mixer 或 Adapter。
+本次合并不直接把两个 ref 工程作为子项目长期并存，而是只将满足 Common 复用条件的代码迁入 `WinJACKNexus.Common`，统一到顶层 CMake 和 `wjn::common` 命名空间约定中。Adapter、Mixer、MeterBridge 的应用层迁移和产品工作流分别由对应开发文档负责。
 
 ## 2. 已核实的现状
 
@@ -28,29 +19,9 @@
 - Common 已暴露 JUCE 和 `third_party/JACK2/include`，并链接 `libjack64.lib`；源码目前主要是版本、主题、LED 和单实例占位/基础实现。
 - 既有命名空间约定为 `wjn::common` 和 `wjn::adapter`。
 
-### 2.2 `ref/PureMixer`
+### 2.2 ref 工程的 Common 候选
 
-`ref/PureMixer/CMakeLists.txt` 已将代码分成三类：
-
-- `PureMixerCore`：`AudioEngine`、`NullAudioBackend`、`GainStage`、`LevelMeterProbe`、`Panner`、`MixerGraph`、`SoloMuteResolver`。
-- `PureMixer`：`MainWindow`、`PureMixerApplication`、`MixerConsoleView`。
-- `PureMixerEngineTests`：引擎 smoke tests。
-
-因此它目前虽然是界面原型，但已经提供了可复用的音频后端抽象、DSP、混音图和测试入口。其真实 JACK 后端不能以 `NullAudioBackend` 代替，应由 Jack Meter Bridge 的 `JackClient` 能力补齐。
-
-### 2.3 `ref/Jack Meter Bridge`
-
-已确认的主要实现边界：
-
-- `src/audio/JackClient.*`：JACK client 生命周期、端口和实时 process 回调。
-- `src/audio/MeterEngine.*`：实时 Peak/RMS/响度相关计量处理。
-- `src/audio/SilenceDetector.*`：静音阈值和持续时间判断。
-- `src/history/HistoryTypes.h`：历史数据类型。
-- `src/io/CsvLogWriter.*`：后台 CSV 记录。
-- `src/presets/LoudnessPresetLibrary.h`：响度/真峰值预设。
-- `src/settings/SettingsEditors.h`、`src/MainComponent.*`：应用级设置和完整 Meter Bridge 界面。
-
-其中 `MeterEngine`、`JackClient`、`SilenceDetector`、历史数据和导出能力具备跨应用复用价值；`MainComponent.cpp` 中的 `MeterComponent`、`ChannelCard`、布局和对话框则需要拆分后再进入 Common，不能继续以单个超大应用组件的形式迁移。
+`ref/PureMixer` 和 `ref/Jack Meter Bridge` 的应用入口、窗口、页面、配置和产品工作流不在本文实施。只有其中可跨 APP 复用的音频后端抽象、JACK client、DSP、MeterFrame、静音检测、历史数据契约、CSV 后台写入和通用绘制逻辑，按第 4 节归入 Common；其余内容分别由 Mixer 和 MeterBridge 文档负责。
 
 ## 3. 目标目录和模块边界
 
@@ -121,66 +92,7 @@ Common 预留统一的自定义主题包入口。主题包扩展名固定为 `.n
 
 Common 内置并统一提供两套 LCD 专用字体：`LCD/zpix.ttf` 和 `LCD/DS-DIGI.TTF`。其中 zpix 用于通用 LCD 风格文本和控件读数，DS-DIGI 用于纯数显 LCD 场景。`Adapter`、`Mixer`、`MeterBridge` 默认通过 Common 使用这两套字体显示电平、状态、计时和硬件感控件内容；字体加载、字体族解析、缓存和回退由 Common 负责，APP 不得各自复制或注册字体。
 
-### 3.2 Mixer
-
-新增 `modules/WinJACKNexus.Mixer`，目标名和产品显示名统一为 `WinJACKNexus.Mixer` / `Mixer`：
-
-```text
-modules/WinJACKNexus.Mixer/
-  CMakeLists.txt
-  Source/
-    Main.cpp
-    App/
-      MixerApplication.h/.cpp
-      MixerMainWindow.h/.cpp
-    Model/
-      MixerProject.h/.cpp
-      MixerViewState.h
-    UI/
-      MixerConsoleView.h/.cpp
-      MixerMainComponent.h/.cpp
-    Engine/
-      MixerSession.h/.cpp
-```
-
-迁移自 `PureMixer` 的应用入口、窗口、混音器页面和用户交互进入 Mixer。Mixer 只依赖 Common，不再保留 `PureMixerCore` 这个独立 target，也不在 Mixer 内复制 `AudioEngine`、DSP 或电平计量实现。
-
-### 3.3 MeterBridge
-
-新增 `modules/WinJACKNexus.MeterBridge`，target 和 APP 名称统一为 `WinJACKNexus.MeterBridge` / `MeterBridge`：
-
-```text
-modules/WinJACKNexus.MeterBridge/
-  CMakeLists.txt
-  Resources/
-  Source/
-    Main.cpp
-    App/
-      MeterBridgeApplication.h/.cpp
-      MeterBridgeMainWindow.h/.cpp
-    Model/
-      MeterProject.h/.cpp
-      MeterChannelModel.h/.cpp
-    UI/
-      MeterBridgeMainComponent.h/.cpp
-      MeterChannelCard.h/.cpp
-      HistoryWindow.h/.cpp
-      SettingsDialog.h/.cpp
-```
-
-迁移自 `ref/Jack Meter Bridge` 的 `Main.cpp`、`MainComponent.*`、设置编辑器、历史窗口/曲线、预设选择、CSV 操作和资源进入 MeterBridge。MeterBridge 的音频采集、MeterFrame、静音检测、历史数据和 CSV 底层能力全部通过 Common 使用；MeterBridge 的配置、窗口布局和应用工作流留在自身。
-
-MeterBridge 是完整独立 APP，不是 Common 的 UI 示例，也不是 Mixer 的一个页面。它可以在不启动 Mixer 或 Adapter 的情况下连接 JACK 并完成监测。
-
-### 3.4 Adapter
-
-Adapter 保持现有模块名称和职责。迁移完成后：
-
-- 设备枚举、WASAPI/WinMM 适配、设备节点和 Adapter 配置继续留在 Adapter 或 Common 中已有的 Windows 音频抽象中。
-- JACK client、无锁队列、采样率/缓冲区契约等底层能力统一调用 Common。
-- Adapter UI 继续使用 Common 的主题、LED 和通用控件，但不直接依赖 Mixer 的模型或页面。
-
-## 4. 代码归属清单
+## 4. Common 代码归属清单
 
 ### 4.1 直接迁入 Common，保留或小幅改名
 
@@ -204,27 +116,6 @@ Adapter 保持现有模块名称和职责。迁移完成后：
 | `PureMixer` / 当前 Common 的自绘 LED、主题、LookAndFeel | `Common/UI/*` | 合并颜色和绘制规范，保留现有 Common API 优先 |
 | `Jack Meter Bridge/MainComponent.cpp` 中可独立的 Meter 绘制逻辑 | `Common/UI/MeterComponent.*` | 从窗口和卡片状态中拆出可复用控件 |
 | 新增主题包加载与资源缓存 | `Common/UI/ThemePackage.*`、`ThemeAssetCache.*` | 读取 `.netheme` ZIP、解析主题 JSON、加载颜色和贴图，并向各 APP 提供统一主题上下文 |
-
-### 4.2 迁入 Mixer，保留应用级逻辑
-
-- `ref/PureMixer/Source/App/PureMixerApplication.*`
-- `ref/PureMixer/Source/App/MainWindow.*`
-- `ref/PureMixer/Source/UI/Views/MixerConsoleView.*`
-- `PureMixer` 的混音器页面布局、通道条组合、快捷操作和界面状态。
-- `PureMixer` 的 `NullAudioBackend`：仅作为 Mixer 的开发/测试后端，不作为 Common 的生产默认后端。
-
-### 4.3 迁入 MeterBridge，保留应用级逻辑
-
-- `ref/Jack Meter Bridge/src/Main.cpp`：迁移并改名为 `MeterBridge` 应用入口。
-- `ref/Jack Meter Bridge/src/MainComponent.*`：拆分为 MeterBridge 主组件、通道卡片和历史入口。
-- `ref/Jack Meter Bridge/src/settings/SettingsEditors.h`：保留 MeterBridge 的设置编辑界面；无 UI 配置模型按需下沉 Common。
-- `ref/Jack Meter Bridge` 的历史曲线、通道/分组管理、响度预设选择、重置逻辑和 CSV 导出工作流。
-- `ref/Jack Meter Bridge` 的图标和资源：归属 MeterBridge，不进入 Common。
-
-### 4.4 暂不迁移或需单独评估
-
-- `PureMixer` 中尚未接入真实设备的原型行为：先保留 Null backend，待 Common 的 JACK/Adapter 后端契约稳定后再接线。
-- 与 VST2/VST3 SDK 相关内容：本次不纳入，除非后续明确提出插件宿主需求。
 
 ## 5. 关键设计决策
 
@@ -539,12 +430,12 @@ Common 预留以下能力，具体类名可在实现阶段调整但职责不变�
 
 ## 6. 实施阶段
 
-> 本文只保留 Common 的 M0-M2。后续阶段文档索引：
+> 本文只保留 Common 的 M0-M2。各 APP 的应用层实施文档：
 >
-> - M3 Mixer：`WinJACKNexus.Mixer_开发计划书.md`
-> - M4 MeterBridge：`WinJACKNexus.MeterBridge_开发计划书.md`
-> - M5 Mixer 真实 JACK 流：`WinJACKNexus.Mixer_开发计划书.md`
-> - M6 跨模块收尾：`WinJACKNexus_M6_收尾计划.md`
+> - Adapter：`WinJACKNexus.Adapter_开发计划书.md`
+> - Mixer：`WinJACKNexus.Mixer_开发计划书.md`
+> - MeterBridge：`WinJACKNexus.MeterBridge_开发计划书.md`
+> - 跨模块收尾：`WinJACKNexus_M6_收尾计划.md`
 
 ### M0：基线与依赖确认
 
@@ -608,8 +499,6 @@ flowchart TD
 | Common 控件风格单测 | 默认 `flat` token、状态切换、焦点环、尺寸/圆角边界、无贴图纯 JUCE 绘制回退和新增控件基类约束 |
 | Common 文案单测 | `.lang` JSON/schema 校验、UTF-8、`zh-CN` 文案查询、Common/模块覆盖、参数占位符、专用名词白名单、缺失文案回退和普通英文文案扫描 |
 | Common 语言切换集成 | 语言切换、无效文件回退、上一份有效目录保留、消息线程刷新和实时线程隔离 |
-| Mixer 单测 | MixerGraph 路由、通道布局、增益/声像、空后端 smoke test |
-| MeterBridge 单测 | MeterFrame 展示适配、通道/分组模型、静音重置、历史窗口数据和 CSV 配置 |
 | JACK 音频集成 | client 激活/停用、输入/输出端口注册、真实音频 block、音频回环/测试源、xrun、采样率/缓冲区变化、重连 |
 | JACK MIDI 集成 | MIDI input/output 端口注册、事件读取/发送、frame offset、回环、事件容量上限和丢事件计数 |
 | UI 手工验收 | 控件无数据、正常电平、过载 peak hold、窄窗口、横向滚动、历史和 CSV 操作 |
@@ -618,9 +507,7 @@ flowchart TD
 | 主题包验收 | `.netheme` ZIP 加载、Common 基础主题、Adapter/Mixer/MeterBridge 模块覆盖、颜色替换、贴图替换、主题切换和默认样式回退 |
 | LCD 字体验收 | 三个 APP 的通用 LCD 控件默认使用 `LCD/zpix.ttf`，纯数显控件默认使用 `LCD/DS-DIGI.TTF`；字体加载失败时仍能启动并按用途回退 |
 | 主题包安全 | 路径逃逸、重复路径、超大 ZIP、超大图片、JSON 深度/资源数量限制和不支持版本均被拒绝并回退 |
-| 独立运行 | Adapter、Mixer、MeterBridge 均可单独启动、单独关闭，不要求其他 APP 同时运行 |
 | 真实数据测试 | 使用 jackd、JACK 音频端口和 JACK MIDI 端口完成 Common 的音频回环、真实输出、MIDI 回环和外部设备输入输出测试 |
-| 并行运行 | Adapter、Mixer 与 MeterBridge 同时运行时，JACK client/port 命名、线程生命周期和资源释放正确 |
 
 ## 9. 主要风险和处理方式
 
@@ -642,20 +529,17 @@ flowchart TD
 | JUCE target/版本差异 | 沿用顶层 JUCE 9 target 和 C++20；不复制 ref 工程各自的 `add_subdirectory` |
 | Windows 延迟加载与 DLL 部署差异 | 以当前 Common 的 `libjack64.lib` 链接约定为准，单独验证运行时 DLL 与 jackd 环境 |
 | ref 代码许可或资源不可直接合并 | M0 逐项核对许可证和资源来源，必要时重绘或替换资源 |
-| 过早删除可用参考实现 | M5 前保留 ref，使用迁移后的测试和手工验收结果作为删除条件 |
+| 过早删除可用参考实现 | M6 前保留 ref，使用各模块迁移后的测试和手工验收结果作为删除条件 |
 
 ## 10. 本计划明确不做的事
 
 - 不把所有 UI 代码都塞入 Common；窗口、页面、配置流程和产品工作流仍属于应用层。
 - 不在本次计划中引入 VST2/VST3 插件宿主。
 - 不在真实 JACK 后端完成前删除 `NullAudioBackend`；它保留为开发和测试替身。
-- 不因合并计划顺手重做 Adapter 的既有界面和设备功能。
+- Adapter、Mixer、MeterBridge 的应用界面、配置流程、应用级测试和产品工作流不在本文实施；详见各自开发计划和 M6 收尾计划。
 
-## 11. 审阅后需要确认的决策
+## 11. Common 审阅后需要确认的决策
 
-1. `Mixer` 的最终 target 名是否采用 `WinJACKNexus.Mixer`，还是仅采用 `WinJACKNexus.MixerApp`。
-2. `MeterBridge` 的最终 target 名是否采用 `WinJACKNexus.MeterBridge`，产品显示名是否保持 `MeterBridge`。
-3. Common 中 `Metering` 与 `DSP` 的目录边界是否按本计划执行。
-4. Mixer 项目配置是否沿用独立 `.mixer` JSON 格式，MeterBridge 是否继续使用独立 `.meter` 配置。
-5. `.netheme` 的 manifest/主题 JSON schema 版本是否由 WinJACKNexus 统一维护，以及是否需要主题签名/哈希校验。
-6. 是否在 Common 中提供统一的 JACK client 基类，以便三个 APP 共用生命周期约定。
+1. Common 中 `Metering` 与 `DSP` 的目录边界是否按本计划执行。
+2. `.netheme` 的 manifest/主题 JSON schema 版本是否由 WinJACKNexus 统一维护，以及是否需要主题签名/哈希校验。
+3. 是否在 Common 中提供统一的 JACK client 基类，以便各 APP 共用生命周期约定。

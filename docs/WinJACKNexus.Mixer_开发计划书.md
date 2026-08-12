@@ -1436,3 +1436,38 @@ The prototype is complete; the next work is implementation, not further prototyp
 6. 进行 Mono/Stereo/5.1/7.1 等通道布局验证，并确认 Adapter、Mixer 与 MeterBridge 同时运行时的 client/port 命名不冲突。
 
 **验收**：真实 JACK 音频可完成输入、混音、输出和计量闭环；真实 JACK MIDI 可完成输入、映射/回环和输出；无 JACK 服务时能给出可理解的错误状态，不崩溃且 Null backend 仍可用于开发。
+
+## 8. WinJACKNexus 模块落地边界
+
+### 8.1 目标目录与应用迁移
+
+Mixer 的应用层目标目录为：
+
+```text
+modules/WinJACKNexus.Mixer/
+  CMakeLists.txt
+  Source/
+    Main.cpp
+    App/
+      MixerApplication.h/.cpp
+      MixerMainWindow.h/.cpp
+    Model/
+      MixerProject.h/.cpp
+      MixerViewState.h
+    UI/
+      MixerConsoleView.h/.cpp
+      MixerMainComponent.h/.cpp
+    Engine/
+      MixerSession.h/.cpp
+```
+
+迁移 `ref/PureMixer` 时，以下内容属于 Mixer：应用入口、主窗口、混音器页面、通道条组合、快捷操作、界面状态和项目工作流。`NullAudioBackend` 只保留为 Mixer 的开发/测试后端，不作为 Common 的生产默认后端。
+
+Mixer 只依赖 Common，不保留 `PureMixerCore` 独立 target，也不在 Mixer 内复制 Common 已提供的 `AudioEngine`、DSP、JACK、MIDI 或电平计量实现。target、命名空间、窗口标题、资源和测试名称统一使用 `WinJACKNexus.Mixer` / `Mixer`。
+
+### 8.2 应用级测试与独立运行
+
+- Mixer 单测覆盖 `MixerGraph` 路由、通道布局、增益/声像、空后端 smoke test、项目状态和 `.mixer` 配置。
+- Mixer UI 验收覆盖无数据、正常电平、过载 Peak hold、窄窗口、横向滚动、历史和 CSV 操作，以及 `Common + Mixer` 主题覆盖。
+- Mixer 必须能够单独启动和关闭，不要求 Adapter 或 MeterBridge 同时运行。
+- 与 Adapter、MeterBridge 并行运行时，Mixer 的 JACK client/port 命名、线程生命周期和资源释放必须符合 Common 的跨 APP 约定。

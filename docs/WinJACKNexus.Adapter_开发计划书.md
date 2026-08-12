@@ -584,3 +584,23 @@ AdapterApplication::initialise()
 | Client 重命名在 JACK2 无直接 API | 图谱名无法更新 | 关闭重建策略 + 服务端自增后缀（0.3 已核实） |
 | 反作弊环境拒绝未签名驱动 | 无法运行 | 纯 WASAPI + WinMM + 外部官方 jackd，无自签驱动依赖 |
 | 实时回调中做非 RT 操作 | Xrun | 所有分配/锁在 process 回调外完成；FIFO 无锁 SPSC |
+
+---
+
+## 十一、WinJACKNexus Common 合并边界
+
+### 11.1 Adapter 应用职责
+
+Adapter 继续负责 Windows WDM/WASAPI/WinMM 设备枚举、设备节点、设备卡片、桥接配置、`.adapter` 存档和系统托盘/单实例工作流。Adapter 不负责实现通用 JACK client、通用音频引擎、通用 MIDI 队列、MeterFrame、主题包、字体或语言目录。
+
+迁移后 Adapter 只通过 Common 使用 JACK client、音频输入/输出端口、MIDI 端口、无锁数据契约、采样率和 buffer-size 生命周期；WASAPI/WinMM 到 JACK 的设备适配和桥接策略仍属于 Adapter。
+
+### 11.2 目标目录与命名
+
+Adapter 继续使用现有 `modules/WinJACKNexus.Adapter` target、`wjn::adapter` 命名空间和 Adapter 应用资源。Common 的 UI 控件、主题上下文、`LCD/zpix.ttf`、`LCD/DS-DIGI.TTF` 和 `zh-CN` 文案由 Adapter 消费，不在 Adapter 内复制注册或实现。
+
+### 11.3 Common 合并后的验收
+
+- Adapter 的设备枚举、WASAPI/WinMM 桥接、`.adapter` 存档、Mock/真实引擎和 LED 状态行为通过本计划阶段一、阶段二验收。
+- Adapter 单独启动、关闭和重新连接时，不依赖 Mixer 或 MeterBridge；与其他 APP 并行运行时遵守 Common 的 JACK client/port 命名和生命周期规则。
+- Adapter 的用户界面默认使用简体中文，并使用 `Common + Adapter` 的主题覆盖；普通文案不绕过 Common 的文案查询入口。
