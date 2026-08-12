@@ -28,6 +28,13 @@ void AdapterApplication::initialise (const juce::String& /*commandLine*/)
     lookAndFeel.setTheme (wjn::common::ThemeContext {});
     juce::LookAndFeel::setDefaultLookAndFeel (&lookAndFeel);
 
+    const auto resources = juce::File::getSpecialLocation(juce::File::currentApplicationFile)
+        .getParentDirectory();
+    juce::String resourceError;
+    fontManager.loadBuiltIns(resources.getChildFile("LCD"), resourceError);
+    localeManager.load(resources.getChildFile("locales/zh-CN.lang"),
+                       resources.getChildFile("locales/Adapter/zh-CN.lang"), resourceError);
+
     if (! instanceGuard.acquire ("WinJACK_Nexus_Adapter_Lock", getApplicationName()))
     {
         quit();

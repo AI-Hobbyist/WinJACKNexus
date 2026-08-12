@@ -9,6 +9,7 @@ class FontManager
 {
 public:
     bool loadBuiltIns(const juce::File& lcdDirectory, juce::String& error);
+    bool loadOverride(const juce::String& logicalId, const juce::File& file, juce::String& error);
     juce::Typeface::Ptr getTypeface(const juce::String& logicalId) const;
     juce::Font getFont(const juce::String& logicalId, float height, int style = juce::Font::plain) const;
 

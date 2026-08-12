@@ -1,7 +1,7 @@
 # WinJACKNexus M2 进度分析
 
 > 分析日期：2026-08-12
-> 对应提交：`f0c1d74`（基础实现）；本次 M2 收尾改动待提交
+> 对应提交：`f0c1d74`（基础实现）；M2 收尾第二批待提交
 > 对照文档：[WinJACKNexus_合并计划书.md](WinJACKNexus_合并计划书.md) § M2
 
 ## 1. 结论
@@ -28,6 +28,7 @@
 - 主题包 `manifest.json` 的 schema/version 校验。
 - 主题包条目数量、单文件解压大小和压缩包大小限制。
 - 先加载 `Common/theme.json`，再按 manifest 的 `defaultModule` 加载模块覆盖主题。
+- JSON 最大嵌套深度和 manifest 资源索引数量校验。
 
 已有默认 flat 风格的颜色和绘制路径，Common 控件不依赖具体应用窗口或业务模型。
 
@@ -38,6 +39,7 @@
 - `common:lcd-zpix` 逻辑字体 ID。
 - `common:lcd-ds-digi` 逻辑字体 ID。
 - 字体加载失败时返回系统字体回退。
+- 支持受大小限制的逻辑字体覆盖加载。
 - 适配 JUCE 9 的内存字体加载 API。
 
 根目录 `LCD/` 中的 `zpix.ttf` 和 `DS-DIGI.TTF` 已纳入 Adapter Debug 构建输出；Common 仍通过 `FontManager::loadBuiltIns` 接收资源目录，尚未建立独立的 Common 安装包产物。
@@ -49,9 +51,11 @@
 - `TextCatalog`：语言 JSON schema 基础校验、字符串查询、模板占位符替换和 fallback catalog。
 - `LocaleManager`：Common catalog 与模块 catalog 的加载及回退链。
 
-当前已验证 `zh-CN` 测试数据能够解析和查询，但尚未建立项目级 `.lang` 资源目录，也尚未把 Adapter、Mixer、MeterBridge 的普通用户文案全部迁移到 catalog。
+当前已验证项目级 `zh-CN` 和 Adapter 模块级语言资源能够解析和查询；Mixer、MeterBridge 的普通用户文案仍由各自 APP 开发阶段迁移到 catalog。
 
 本次收尾已建立 `locales/zh-CN.lang` 和 `locales/Adapter/zh-CN.lang`，并复制到 Adapter Debug 输出目录。Mixer/MeterBridge 语言资源仍由各自 APP 开发阶段建立。
+
+第二批已补充模板占位符格式拒绝、已加载 key 查询、语言成功切换回调和无效语言文件不覆盖当前有效目录的行为。
 
 ### 2.4 PureMixer 自绘控件提取
 
@@ -82,13 +86,13 @@
 |---|---|---|
 | 1. 提取 MeterComponent | 已完成基础版 | 已进入 Common，但仍需补齐更完整的 tooltip、历史/分组等应用层配合 |
 | 2. 合并 Theme/LookAndFeel/LED 规则 | 部分完成 | Common token 和 LookAndFeel 已接入；Adapter 仍大量直接使用旧 `theme::` 常量 |
-| 3. ThemePackage/Context/AssetCache | 收尾基础完成 | 已支持 JSON、ZIP、manifest、Common/defaultModule 覆盖、路径校验、条目数量和压缩大小限制；JSON 深度、资源索引和完整模块选择 API 仍未完成 |
-| 4. FontManager 和三个 APP 默认字体 | Common/Adapter 基础完成 | API、系统字体回退、LCD 字体资源和 Adapter Debug 输出已完成；Mixer/MeterBridge 接入由各自模块计划负责 |
+| 3. ThemePackage/Context/AssetCache | 第二批完成 | 已支持 JSON、ZIP、manifest、Common/defaultModule 覆盖、路径校验、条目数量、压缩大小、JSON 深度和资源索引限制；完整资源解码索引仍由后续主题包管理器负责 |
+| 4. FontManager 和三个 APP 默认字体 | Common/Adapter 基础完成 | API、系统字体回退、LCD 字体资源、受限字体覆盖和 Adapter Debug 输出已完成；Mixer/MeterBridge 接入由各自模块计划负责 |
 | 5. ChannelCard/ChannelStrip 骨架 | 已完成基础版 | Common 控件和回调接口已建立；尚未接入 Mixer/MeterBridge 产品页面 |
 | 6. 统一 flat 控件风格 | 部分完成 | 新控件使用 Common token；既有 Adapter 控件和未来 APP 控件尚未全部切换到统一 token |
 | 7. 三个 APP 主题合并结果 | 未完成 | 当前只有 Adapter 初始化默认主题的接入；Mixer 和 MeterBridge 尚未建立 |
 | 8. `.lang` 解析和 Common/模块覆盖 | Common/Adapter 基础完成 | 解析、查询、fallback API、项目级 Common 资源和 Adapter 覆盖文件已建立；Mixer/MeterBridge 文案迁移由各自模块计划负责 |
-| 9. 语言切换/诊断/占位符校验/实时线程隔离 | 部分完成 | 加载在非实时路径；已有模板替换，但缺少占位符一致性校验、缺失键诊断、语言切换刷新和无效文件保留策略 |
+| 9. 语言切换/诊断/占位符校验/实时线程隔离 | Common 基础完成 | 已增加占位符格式拒绝、key 查询、成功切换回调和失败时保留当前目录；UI 消息线程接入和完整缺失文案扫描仍由 APP 集成阶段完成 |
 | 10. 控件状态和手工验收 | 基础自动测试完成 | 已有 1 个 M2 窄测试；主题切换、无信号/静音/过载、窄窗口、字体失败、三个 APP 手工验收尚未完成 |
 
 ## 4. 当前未完成项和边界
@@ -109,17 +113,17 @@
 - Mixer/MeterBridge 尚未建立各自模块级 `.lang` 资源。
 - Adapter 中仍存在直接写死或直接使用旧主题常量的用户界面路径。
 - 缺少普通英文文案扫描和中文完整性检查。
-- 主题包尚未完成 JSON 深度、资源索引、字体覆盖和完整安全限制矩阵。
+- 主题包剩余完整资源解码索引、主题切换 UI 刷新和全量安全限制手工矩阵。
 
 ### 4.3 测试缺口
 
 当前通过的 M2 测试属于基础 API/状态测试，尚未覆盖：
 
-- `.netheme` manifest 和 Common/模块主题覆盖合并。
-- 重复路径、超大 ZIP、超大图片、JSON 深度和资源数量限制（当前已覆盖路径、条目数量、单文件和压缩包大小）。
-- zpix/DS-DIGI 实际字体加载、损坏字体和字体用途回退。
+- `.netheme` manifest、Common/模块主题覆盖、JSON 深度和资源索引限制。
+- 重复路径、超大 ZIP、超大图片、资源数量限制和损坏 JSON。
+- zpix/DS-DIGI 实际字体加载、受限字体覆盖、损坏字体和字体用途回退。
 - 主题切换后的现有控件刷新。
-- 语言切换、无效语言文件回退、占位符不一致和缺失键诊断。
+- 语言切换回调、无效语言文件回退、占位符格式拒绝和已加载 key 查询。
 - 无信号、静音、过载、Peak Hold、窄窗口的控件级视觉/手工验收。
 - Adapter、Mixer、MeterBridge 同时运行时的主题、字体和资源隔离。
 
@@ -144,13 +148,16 @@ WinJACKNexus.Common.M2UiTests                    PASS
 LCD/zpix.ttf 与 LCD/DS-DIGI.TTF 加载测试            PASS
 Common + Adapter zh-CN.lang fallback 测试           PASS
 Adapter Debug 资源复制（字体/语言文件）              PASS
+主题 JSON 深度/资源索引限制测试                      PASS
+字体覆盖大小/逻辑 ID 校验测试                        PASS
+语言占位符拒绝/切换回调/已加载 key 查询测试            PASS
 ```
 
 CodeGraph 已能够索引本次新增的 `ThemeContext`、`ThemePackage`、`ThemeAssetCache`、`FontManager`、`TextCatalog`、`LocaleManager`、`MeterComponent`、`ChannelCard`、`MixerChannelStripComponent` 和 `SpatialPannerComponent`，并识别 M2 测试对控件和主题 API 的调用关系。
 
 ## 6. Git 和资源状态
 
-- M2 基础代码提交：`f0c1d74`；本次 M2 收尾改动待提交。
+- M2 基础代码提交：`f0c1d74`；收尾第二批待提交。
 - 当前分支：`main`。
 - 文档生成前，`f0c1d74` 尚未推送到 `origin/main`。
 - `ref/` 和 `third_party/` 保持未跟踪，未加入忽略规则，也不进入本次文档提交。
@@ -160,7 +167,7 @@ CodeGraph 已能够索引本次新增的 `ThemeContext`、`ThemePackage`、`Them
 
 建议将下一阶段拆成两个明确工作包：
 
-1. **M2 收尾第二批**：补充 JSON 深度、资源索引、字体覆盖、语言切换刷新、无效文件保留策略和 Adapter 手工验收。
-2. **M3/M4 应用迁移**：分别建立 Mixer 和 MeterBridge，迁移应用入口和产品工作流，只复用 Common 控件与数据契约；各 APP 的 `.lang` 资源在对应模块计划中建立。
+1. **M3/M4 应用迁移**：分别建立 Mixer 和 MeterBridge，迁移应用入口和产品工作流，只复用 Common 控件与数据契约；各 APP 的 `.lang` 资源在对应模块计划中建立。
+2. **跨 APP M2 手工验收**：在各模块建立后验证主题、字体、语言资源隔离和消息线程刷新。
 
-当前更准确的状态是“Common M2 基础设施和 Adapter 资源基础完成，跨 APP 集成与完整手工验收待完成”。
+当前更准确的状态是“Common M2 收尾第二批完成，Adapter 资源基础完成；Mixer/MeterBridge 集成和跨 APP 手工验收待后续模块阶段完成”。

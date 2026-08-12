@@ -8,6 +8,46 @@ namespace
 constexpr int maxEntries = 128;
 constexpr juce::int64 maxEntryBytes = 8 * 1024 * 1024;
 constexpr juce::int64 maxArchiveBytes = 64 * 1024 * 1024;
+constexpr int maxJsonDepth = 16;
+constexpr int maxIndexedResources = 128;
+
+bool validateJsonDepth(const juce::var& value, int depth)
+{
+    if (depth > maxJsonDepth)
+        return false;
+    if (const auto* object = value.getDynamicObject())
+    {
+        for (const auto& property : object->getProperties())
+            if (! validateJsonDepth(property.value, depth + 1))
+                return false;
+    }
+    else if (const auto* array = value.getArray())
+    {
+        for (const auto& item : *array)
+            if (! validateJsonDepth(item, depth + 1))
+                return false;
+    }
+    return true;
+}
+
+bool validateResourceIndex(const juce::var& manifest)
+{
+    const auto resources = manifest.getProperty("resources", {});
+    if (! resources.isVoid())
+    {
+        const auto* array = resources.getArray();
+        if (array == nullptr || array->size() > maxIndexedResources)
+            return false;
+        for (const auto& item : *array)
+            if (! item.isString() || ! ThemePackage::validatePath(item.toString()))
+                return false;
+    }
+    if (const auto* fonts = manifest.getProperty("fonts", {}).getDynamicObject())
+        for (const auto& property : fonts->getProperties())
+            if (! property.value.isString() || ! ThemePackage::validatePath(property.value.toString()))
+                return false;
+    return true;
+}
 
 bool loadJsonEntry(juce::ZipFile& archive, const juce::String& path, juce::var& result)
 {
@@ -64,7 +104,9 @@ bool ThemePackage::load(const juce::File& file, ThemeContext& context, juce::Str
         if (! loadJsonEntry(archive, "manifest.json", manifest)
             || ! manifest.isObject()
             || manifest.getProperty("schema", {}).toString() != "WinJACKNexus.ThemePackage"
-            || static_cast<int>(manifest.getProperty("version", 0)) != 1)
+            || static_cast<int>(manifest.getProperty("version", 0)) != 1
+            || ! validateJsonDepth(manifest, 0)
+            || ! validateResourceIndex(manifest))
         {
             error = "主题包 manifest 缺失或版本无效";
             return false;
@@ -78,7 +120,7 @@ bool ThemePackage::load(const juce::File& file, ThemeContext& context, juce::Str
             return false;
         }
 
-        if (! context.applyJson(commonTheme))
+        if (! validateJsonDepth(commonTheme, 0) || ! context.applyJson(commonTheme))
         {
             error = "主题版本或格式无效";
             return false;
@@ -88,7 +130,7 @@ bool ThemePackage::load(const juce::File& file, ThemeContext& context, juce::Str
         {
             juce::var moduleTheme;
             if (loadJsonEntry(archive, module + "/theme.json", moduleTheme)
-                && ! context.applyJson(moduleTheme))
+                && (! validateJsonDepth(moduleTheme, 0) || ! context.applyJson(moduleTheme)))
             {
                 error = "模块主题版本或格式无效";
                 return false;
@@ -101,7 +143,7 @@ bool ThemePackage::load(const juce::File& file, ThemeContext& context, juce::Str
         json = juce::JSON::parse(file);
     }
 
-    if (! context.applyJson(json))
+    if (! validateJsonDepth(json, 0) || ! context.applyJson(json))
     {
         error = "主题版本或格式无效";
         return false;

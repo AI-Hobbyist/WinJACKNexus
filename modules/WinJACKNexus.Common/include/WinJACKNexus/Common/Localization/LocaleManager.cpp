@@ -21,6 +21,8 @@ bool LocaleManager::load(const juce::File& commonFile, const juce::File& moduleF
     {
         active = std::move(common);
     }
+    if (changeCallback)
+        changeCallback();
     return true;
 }
 

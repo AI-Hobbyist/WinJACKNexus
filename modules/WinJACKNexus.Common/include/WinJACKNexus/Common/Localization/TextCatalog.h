@@ -20,12 +20,15 @@ public:
     juce::String text(const juce::String& key, const juce::String& fallback = {}) const;
     juce::String format(const juce::String& key, const juce::NamedValueSet& values,
                         const juce::String& fallback = {}) const;
+    bool hasKey(const juce::String& key) const noexcept;
+    const juce::StringArray& diagnostics() const noexcept { return diagnosticMessages; }
     bool isLoaded() const noexcept { return loaded; }
 
 private:
     std::map<juce::String, juce::String> strings;
     std::map<juce::String, juce::String> templates;
     std::unique_ptr<TextCatalog> fallbackCatalog;
+    juce::StringArray diagnosticMessages;
     bool loaded = false;
 };
 

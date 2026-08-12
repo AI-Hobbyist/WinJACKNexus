@@ -3,10 +3,37 @@
 namespace wjn::common
 {
 
+namespace
+{
+bool validPlaceholders(const juce::String& text, juce::StringArray& diagnostics, const juce::String& key)
+{
+    int position = 0;
+    while ((position = text.indexOf(position, "{")) >= 0)
+    {
+        const auto end = text.indexOf(position + 1, "}");
+        if (end < 0 || end == position + 1)
+        {
+            diagnostics.add("语言模板占位符无效：" + key);
+            return false;
+        }
+        if (text.substring(position + 1, end).containsAnyOf("{}"))
+        {
+            diagnostics.add("语言模板占位符嵌套：" + key);
+            return false;
+        }
+        position = end + 1;
+    }
+    return true;
+}
+}
+
 bool TextCatalog::load(const juce::File& file, juce::String& error)
 {
     error.clear();
     loaded = false;
+    strings.clear();
+    templates.clear();
+    diagnosticMessages.clear();
     if (! file.existsAsFile())
     {
         error = "语言文件不存在";
@@ -31,9 +58,23 @@ bool TextCatalog::load(const juce::File& file, juce::String& error)
             for (const auto& property : templateObject->getProperties())
                 if (property.value.isString())
                     templates[property.name.toString()] = property.value.toString();
+    for (const auto& pair : templates)
+        validPlaceholders(pair.second, diagnosticMessages, pair.first);
+    if (! diagnosticMessages.isEmpty())
+    {
+        error = diagnosticMessages.joinIntoString("；");
+        return false;
+    }
     }
     loaded = true;
     return true;
+}
+
+bool TextCatalog::hasKey(const juce::String& key) const noexcept
+{
+    return strings.find(key) != strings.end()
+        || templates.find(key) != templates.end()
+        || (fallbackCatalog != nullptr && fallbackCatalog->hasKey(key));
 }
 
 void TextCatalog::setFallback(TextCatalog fallback)
@@ -63,6 +104,8 @@ juce::String TextCatalog::format(const juce::String& key, const juce::NamedValue
         const auto& value = values.getName(index);
         result = result.replace("{" + value.toString() + "}", values.getValueAt(index).toString());
     }
+    if (result.containsChar('{') || result.containsChar('}'))
+        return fallback;
     return result;
 }
 

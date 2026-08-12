@@ -86,6 +86,17 @@ int main()
             "Module theme must override Common theme");
         packageFile.deleteFile();
 
+        const auto invalidTheme = juce::File::getSpecialLocation(juce::File::tempDirectory)
+            .getChildFile("WinJACKNexus_M2_invalid.lang");
+        invalidTheme.replaceWithText(R"({
+            "schema":"WinJACKNexus.Language", "version":1, "locale":"zh-CN",
+            "strings":{}, "templates":{"broken":"{name"}
+        })");
+        wjn::common::TextCatalog invalidCatalog;
+        require(! invalidCatalog.load(invalidTheme, themeError),
+                "Invalid language placeholder must be rejected");
+        invalidTheme.deleteFile();
+
     wjn::common::MeterComponent meter("PEAK", wjn::common::MeterComponent::MeterType::decibels);
     meter.setTheme(theme);
     meter.setValue(-3.0f);
@@ -142,6 +153,13 @@ int main()
             "Common language catalog must resolve");
         require(fallbackLocale.text("adapter.action.addDevice", "") == "添加设备",
             "Adapter language catalog must resolve");
+            require(fallbackLocale.catalog().hasKey("common.action.close"),
+                "Locale catalog must report known keys");
+            bool changed = false;
+            fallbackLocale.setChangeCallback([&] { changed = true; });
+            require(fallbackLocale.load(projectRoot.getChildFile("locales/zh-CN.lang"), {}, error),
+                "Locale reload must succeed");
+            require(changed, "Locale reload must notify listeners");
 
     std::cout << "M2 UI tests passed\n";
     return 0;

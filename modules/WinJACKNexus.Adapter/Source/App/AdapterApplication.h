@@ -3,6 +3,8 @@
 #include <juce_gui_basics/juce_gui_basics.h>
 #include <WinJACKNexus/Common/App/SingleInstanceGuard.h>
 #include <WinJACKNexus/Common/UI/NexusLookAndFeel.h>
+#include <WinJACKNexus/Common/UI/FontManager.h>
+#include <WinJACKNexus/Common/Localization/LocaleManager.h>
 
 namespace wjn::adapter
 {
@@ -30,6 +32,8 @@ public:
 
 private:
     wjn::common::NexusLookAndFeel lookAndFeel;
+    wjn::common::FontManager fontManager;
+    wjn::common::LocaleManager localeManager;
     wjn::common::SingleInstanceGuard instanceGuard;
     std::unique_ptr<AdapterMainWindow> mainWindow;
 
