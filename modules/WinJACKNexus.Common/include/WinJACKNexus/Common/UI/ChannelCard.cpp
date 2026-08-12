@@ -5,7 +5,8 @@ namespace wjn::common
 
 ChannelCard::ChannelCard(int channelIndex)
 {
-    channelName.setText("输入 " + juce::String(channelIndex + 1), juce::dontSendNotification);
+    channelName.setText(juce::String::fromUTF8("输入 ") + juce::String(channelIndex + 1),
+                        juce::dontSendNotification);
     channelName.setJustificationType(juce::Justification::centred);
     channelName.setEditable(true, false, false);
     addAndMakeVisible(channelName);
@@ -13,6 +14,8 @@ ChannelCard::ChannelCard(int channelIndex)
     addAndMakeVisible(recordButton);
     for (auto* meter : { &peak, &rms, &truePeak, &momentary, &shortTerm, &integrated, &range })
         addAndMakeVisible(meter);
+    resetButton.setButtonText(juce::String::fromUTF8("重置"));
+    recordButton.setButtonText(juce::String::fromUTF8("记录"));
     resetButton.onClick = [this] { if (onReset != nullptr) onReset(*this); };
     recordButton.onClick = [this] { if (onRecord != nullptr) onRecord(*this); };
     presetBox.addItem("EBU R128", 1);

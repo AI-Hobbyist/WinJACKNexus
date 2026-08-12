@@ -66,6 +66,17 @@ target_sources(WinJACKNexus.Common PRIVATE
     include/WinJACKNexus/Common/Metering/LoudnessPresetLibrary.cpp
     include/WinJACKNexus/Common/IO/CsvLogWriter.cpp
     include/WinJACKNexus/Common/UI/NexusLookAndFeel.cpp
+    include/WinJACKNexus/Common/UI/OnOffSwitch.cpp
+    include/WinJACKNexus/Common/UI/SettingsSlider.cpp
+    include/WinJACKNexus/Common/UI/RotaryControl.cpp
+    include/WinJACKNexus/Common/UI/VerticalFaderControl.cpp
+    include/WinJACKNexus/Common/UI/SegmentedMeterControl.cpp
+    include/WinJACKNexus/Common/UI/EqCurveEditor.cpp
+    include/WinJACKNexus/Common/UI/TransferCurveEditor.cpp
+    include/WinJACKNexus/Common/UI/RouteSelectorControl.cpp
+    include/WinJACKNexus/Common/UI/ToggleBadgeControl.cpp
+    include/WinJACKNexus/Common/UI/MeterHistoryChart.cpp
+    include/WinJACKNexus/Common/UI/LcdDisplayControl.cpp
     include/WinJACKNexus/Common/UI/AudioLed.cpp
     include/WinJACKNexus/Common/UI/MidiLed.cpp
     include/WinJACKNexus/Common/UI/ThemeContext.cpp
@@ -83,6 +94,24 @@ target_sources(WinJACKNexus.Common PRIVATE
 include(CTest)
 
 if(BUILD_TESTING)
+    juce_add_gui_app(WinJACKNexus.Common.ControlsDemo
+        PRODUCT_NAME "WinJACKNexus.Common.ControlsDemo"
+        VERSION ${PROJECT_VERSION}
+        COMPANY_NAME "AI-Hobbyist")
+    target_sources(WinJACKNexus.Common.ControlsDemo PRIVATE
+        tests/ControlsDemoMain.cpp
+        tests/ControlsDemoComponent.cpp)
+    target_include_directories(WinJACKNexus.Common.ControlsDemo PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests)
+    target_link_libraries(WinJACKNexus.Common.ControlsDemo PRIVATE
+        WinJACKNexus.Common
+        juce::juce_recommended_config_flags
+        juce::juce_recommended_warning_flags
+        juce::juce_core
+        juce::juce_events
+        juce::juce_graphics
+        juce::juce_gui_basics)
+
     add_executable(WinJACKNexus.Common.AudioEngineTests
         tests/AudioEngineTests.cpp)
     target_link_libraries(WinJACKNexus.Common.AudioEngineTests

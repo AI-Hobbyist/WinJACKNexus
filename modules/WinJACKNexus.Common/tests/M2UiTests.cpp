@@ -3,6 +3,8 @@
 #include <WinJACKNexus/Common/UI/FontManager.h>
 #include <WinJACKNexus/Common/UI/MeterComponent.h>
 #include <WinJACKNexus/Common/UI/MixerChannelStripComponent.h>
+#include <WinJACKNexus/Common/UI/OnOffSwitch.h>
+#include <WinJACKNexus/Common/UI/SettingsSlider.h>
 #include <WinJACKNexus/Common/UI/SpatialPannerComponent.h>
 #include <WinJACKNexus/Common/UI/ThemeContext.h>
 #include <WinJACKNexus/Common/UI/ThemePackage.h>
@@ -103,6 +105,29 @@ int main()
     meter.setPreset(-23.0f, 1.0f, -1.0f);
     meter.setSize(64, 180);
     require(meter.getWidth() == 64, "Meter must accept a stable size");
+
+    wjn::common::OnOffSwitch onOffSwitch;
+    onOffSwitch.setTheme(theme);
+    onOffSwitch.setSize(40, 24);
+    bool switchChanged = false;
+    onOffSwitch.setStateChangeCallback([&](bool value) { switchChanged = value; });
+    onOffSwitch.setToggleState(true, juce::sendNotificationSync);
+    require(onOffSwitch.getToggleState() && switchChanged,
+            "On/off switch must update state and notify listeners");
+    onOffSwitch.setToggleState(false, juce::dontSendNotification);
+    require(! onOffSwitch.getToggleState(), "On/off switch must support silent state changes");
+
+    wjn::common::SettingsSlider settingsSlider;
+    settingsSlider.setTheme(theme);
+    settingsSlider.setRange(-10.0, 10.0, 1.0);
+    settingsSlider.setSize(160, 24);
+    bool sliderChanged = false;
+    settingsSlider.setValueChangeCallback([&](double value) { sliderChanged = value == 5.0; });
+    settingsSlider.setValue(5.4, juce::sendNotificationSync);
+    require(settingsSlider.getValue() == 5.0 && sliderChanged,
+            "Settings slider must quantize values and notify listeners");
+    settingsSlider.setValue(100.0, juce::dontSendNotification);
+    require(settingsSlider.getValue() == 10.0, "Settings slider must clamp to its range");
 
     wjn::common::ChannelCard card(0);
     card.setTheme(theme);

@@ -24,8 +24,8 @@ public:
 
 private:
     juce::Label channelName;
-    juce::TextButton resetButton { "重置" };
-    juce::TextButton recordButton { "记录" };
+    juce::TextButton resetButton { juce::String::fromUTF8("重置") };
+    juce::TextButton recordButton { juce::String::fromUTF8("记录") };
     juce::ComboBox presetBox;
     MeterComponent peak { "PEAK", MeterComponent::MeterType::decibels };
     MeterComponent rms { "RMS", MeterComponent::MeterType::decibels };
