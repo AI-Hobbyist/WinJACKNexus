@@ -120,6 +120,8 @@ if(BUILD_TESTING)
 
     add_executable(WinJACKNexus.Common.M2UiTests
         tests/M2UiTests.cpp)
+    target_compile_definitions(WinJACKNexus.Common.M2UiTests
+        PRIVATE WINJACKNEXUS_SOURCE_DIR="${CMAKE_SOURCE_DIR}")
     target_link_libraries(WinJACKNexus.Common.M2UiTests
         PRIVATE WinJACKNexus.Common)
     add_test(NAME WinJACKNexus.Common.M2UiTests
