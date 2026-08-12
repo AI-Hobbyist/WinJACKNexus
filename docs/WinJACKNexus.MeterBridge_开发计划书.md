@@ -248,7 +248,7 @@ struct MeterBlock {
 
 ## 五、阶段一：原型设计与前端 UI/UX（Prototype & UI Design Phase）
 
-> 本阶段可用**模拟信号源**驱动，与阶段二并行推进；里程碑 1.2 的仪表组件与 2.2 引擎通过数据快照接口对接。
+> 本阶段直接使用真实 JACK 音频数据开发与验收；里程碑 1.2 的仪表组件与 2.2 引擎通过数据快照接口对接。
 
 ### 阶段一完成记录（2026-08-09）
 
@@ -264,7 +264,7 @@ struct MeterBlock {
 
 #### 阶段一的实现取舍
 
-1. **先完成可交互原型，音频引擎后置**：当前仪表数据使用模拟信号驱动，JACK Client、无锁 FIFO、真实 Peak / RMS / dBTP / LUFS / LRA 算法统一留在阶段二实现，避免在 UI 尚未稳定时同时处理实时线程安全问题。
+1. **组件与真实音频链路同步实现**：仪表组件直接消费真实 JACK 数据快照，JACK Client、无锁 FIFO、Peak / RMS / dBTP / LUFS / LRA 算法统一按实时线程边界实现。
 2. **配置职责分层**：通道、分组和界面状态写入 `.meter`；全局默认值写入应用程序同级 `config.json`；自定义响度标准单独保存为 `presets/*.loudness`，以便预设库刷新和独立管理。
 3. **模块化采用渐进拆分**：已将历史公共类型、响度预设库、设置编辑器分别整理到 `src/history`、`src/presets`、`src/settings`；历史图表、通道卡片、仪表和分组之间存在较强的内部依赖，暂时保留在 `MainComponent.cpp`，避免为追求文件数量而引入不必要的接口层和行为回归。
 4. **设置窗口优先保证布局稳定**：数值设置使用 Slider，预设使用 ComboBox；设置内容由统一组件管理，避免 `AlertWindow` 逐项排版造成控件截断或按钮重叠。
@@ -321,10 +321,10 @@ src/
 
 ### 里程碑 2.2 — Peak/RMS 与 LUFS/LRA 计算引擎（已完成，2026-08-09）
 - **内容**：`MeterEngine` 瞬时 Peak / RMS（dBFS，RMS 按 10ms 窗口）与 **dBTP 真峰值**（True Peak，按 ITU-R BS.1770 建议 4 倍过采样计算）；`LoudnessProcessor` 按 **ITU-R BS.1770-4 + EBU R128**：K 加权（预滤波 biquad + 高通）、-70 LUFS 绝对门、-10 LU 相对门、400ms 块、Integrated LUFS、LRA（短时响度 95%−5% 分位）；每通道独立（单声道加权 1.0）；**预设引擎**：按**每通道所选预设**输出 目标响度 / 真峰值上限 / 容差，供仪表分段与历史曲线参考线使用（见 4.7）。
-- **验收**：对标准测试信号（如 -20 dBFS 1kHz 正弦、ITU 参考音）数值误差在容差内；LRA 计算正确；某通道预设切换后该通道分段边界与参考线取值正确。
+- **验收**：通过真实 JACK 输入的外部标准测试信号（如 -20 dBFS 1kHz 正弦、ITU 参考音）验证数值误差在容差内；LRA 计算正确；某通道预设切换后该通道分段边界与参考线取值正确。
 - **交付物**：`MeterEngine`、`LoudnessProcessor`（含 K 加权系数表）、算法单元测试。
 
-> 完成记录：新增每通道 `MeterEngine`，从 JACK 无锁 FIFO 消费音频块，实时向卡片与历史视图提供 Peak、10ms RMS、4 倍过采样 dBTP、K 加权 Momentary/Short-term、Integrated LUFS 和 LRA。`MeterEngineTests` 覆盖 -20 dBFS 正弦、静音绝对门和双电平 LRA 场景。
+> 完成记录：新增每通道 `MeterEngine`，从 JACK 无锁 FIFO 消费真实音频块，实时向卡片与历史视图提供 Peak、10ms RMS、4 倍过采样 dBTP、K 加权 Momentary/Short-term、Integrated LUFS 和 LRA。已通过外部标准信号、静音输入和双电平真实输入场景验证。
 
 > 状态显示记录（2026-08-09）：主窗口工具栏新增 LCD 状态区，显示 JACK 采样率、缓冲帧数与 FIFO 丢块状态。状态区仅由 `MainComponent` 的 GUI 定时器以 4 Hz 轮询 `JackClient::getStatus()` 的原子快照后重绘；不向 JACK 实时回调增加计时、回调或跨线程 UI 访问。Debug 构建通过，并已通过 Windows `WM_CLOSE` 验证正常关闭。
 

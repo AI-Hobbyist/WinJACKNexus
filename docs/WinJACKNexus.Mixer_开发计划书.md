@@ -2,18 +2,18 @@
 
 > Project: **PureMixer**
 > Positioning: **A Lightweight & Decoupled Virtual Audio Mixer**
-> Stack: **JUCE Framework (C++20), Native JACK2 API, ASIO SDK, juce::dsp**
+> Stack: **JUCE Framework (C++20), Native JACK2 API, juce::dsp**
 > Planning baseline: the repository currently contains third-party JUCE sources but no product engine or UI implementation. This plan treats PureMixer as a greenfield application built around a real-time-safe audio engine.
 
 ## 1. Executive Summary
 
-PureMixer is a high-performance digital mixer focused on **control routing and signal processing decoupling**. Its goal is not to become a VST host, DAW, or effect-rack environment. Instead, it provides a deterministic virtual console that connects physical or virtual audio I/O through JACK2 or ASIO, applies lightweight built-in DSP, exposes precise routing control, and keeps CPU usage low under dense channel and metering workloads.
+PureMixer is a high-performance digital mixer focused on **control routing and signal processing decoupling**. Its goal is not to become a VST host, DAW, or effect-rack environment. Instead, it provides a deterministic virtual console that connects physical or virtual audio I/O through JACK2, applies lightweight built-in DSP, exposes precise routing control, and keeps CPU usage low under dense channel and metering workloads.
 
 The core design philosophy is:
 
 - **No external VST hosting burden**: built-in gain, EQ, filter, pan, send, metering, and summing are first-class engine features. Plugin scan, plugin sandboxing, plugin delay compensation, and third-party plugin UI lifecycle are intentionally out of scope for the first architecture.
 - **Realtime audio first**: the audio callback must not allocate, lock, perform blocking I/O, invoke UI code, parse configuration, or resize containers. All dynamic changes are prepared on non-audio threads and committed to the audio thread through immutable snapshots or lock-free queues.
-- **Backend isolation**: JACK2 and ASIO are treated as interchangeable device backends behind a strict `AudioBackend` boundary. The mixer engine should not contain backend-specific routing, callback, or device enumeration logic.
+- **JACK isolation**: JACK2 is accessed behind a strict `AudioBackend` boundary. The mixer engine should not contain JACK-specific routing, callback, or device enumeration logic.
 - **Control/data separation**: UI controls write normalized parameter intents into a control layer. The DSP graph consumes sample-accurate or block-smoothed parameter state. UI redraw frequency and audio processing frequency are independent.
 - **Channel-format awareness**: channel strips are not hardcoded as mono/stereo. Mono, Stereo, 2.1, 5.1, and 7.1 are represented by explicit channel layouts and bus maps, allowing panning, metering, aux sends, and master summing to adapt to the active format.
 - **Operational UI modes**: the product must work as a normal embedded desktop application, a detachable floating meter bridge, a tray-resident background mixer, and a secondary-display kiosk console.
@@ -21,7 +21,7 @@ The core design philosophy is:
 The planned system has five main subsystems:
 
 - `AudioEngine`: realtime mixer graph, channel state snapshots, DSP execution, summing, meter extraction.
-- `BackendLayer`: native JACK2 and ASIO adapters plus device/session lifecycle.
+- `BackendLayer`: native JACK2 adapter plus JACK client/session lifecycle.
 - `ControlModel`: user-facing parameters, automation-ready state, validation, serialization, undoable edits.
 - `UI`: JUCE vector channel strips, meter rendering, floating windows, tray integration, kiosk mode.
 - `Persistence`: `.mixer` JSON project files, backend preferences, channel layout templates, window layout state.
@@ -44,7 +44,6 @@ Source/
     AudioBackend.h
     AudioSettings.h/.cpp
     JackAudioBackend.h/.cpp
-    AsioAudioBackend.h/.cpp
     DeviceClock.h
     RealtimeTypes.h
   Mixer/
@@ -232,7 +231,7 @@ Prohibited in the audio callback:
 - UI callbacks, component invalidation, window creation, or popup creation.
 - JSON/XML parsing or project serialization.
 
-### 2.4 Backend Layer: JACK2 and ASIO Isolation
+### 2.4 Backend Layer: JACK2 Isolation
 
 Define one backend interface:
 
@@ -271,13 +270,11 @@ Audio device and performance settings:
 - Buffer Size changes may affect latency, CPU headroom, and meter update smoothness; the UI should display expected latency in milliseconds.
 - Changing Sample Rate invalidates DSP coefficients and meter integration windows, so all filters, EQ processors, panners, and meter probes must be re-prepared.
 
-Backend-specific policy:
+JACK2 policy:
 
 | Backend | Sample Rate behavior | Buffer Size behavior |
 | --- | --- | --- |
 | JACK2 | Follow JACK server effective sample rate; display as externally controlled unless the platform integration can request a server change | Follow JACK server buffer size; react to JACK buffer-size callbacks |
-| ASIO | Request selected sample rate when supported by the driver; otherwise use driver panel or report unsupported value | Request selected buffer size when supported, or open ASIO control panel for driver-owned settings |
-| Null/Test | Fully controlled by test configuration | Fully controlled by test configuration |
 
 JACK2 adapter responsibilities:
 
@@ -324,15 +321,7 @@ Binding rules:
 - When a matching port appears later, reconnect automatically only if the user's auto-reconnect policy allows it.
 - Manual rebinding in the UI must add the previous name to `fallbackAliases` so future launches can recover from driver, bridge, or session-manager naming changes.
 
-ASIO adapter responsibilities:
-
-- ASIO driver loading through the Steinberg ASIO SDK.
-- Device enumeration, channel capability discovery, buffer switch callbacks.
-- Sample format conversion where required.
-- Driver panel invocation from UI thread only.
-- Recovery from device reset and driver removal.
-
-The engine receives only normalized interleaved or planar buffers defined by `AudioBufferView`. Backend-specific buffer ownership and callback formats are hidden.
+The engine receives only normalized interleaved or planar buffers defined by `AudioBufferView`; JACK buffer ownership and callback formats are hidden.
 
 ### 2.5 Thread Model
 
@@ -456,7 +445,7 @@ Default empty project semantics:
 - Create zero Input channels, zero Aux channels, and zero Submix channels.
 - Always create one non-deletable `MasterChannelState`.
 - The default Master is Stereo, named `Master`, with fader at `0 dB`, mute off, quick EQ flat, 80Hz low-cut off, parametric EQ present but inactive, and Peak/RMS meter enabled.
-- The Master output binding may be `null` until the user selects a JACK/ASIO output, or it may be auto-bound to the backend's default stereo output when an explicit auto-bind preference is enabled.
+  - The Master output binding may be `null` until the user selects a JACK output, or it may be auto-bound to the server's default stereo output when an explicit auto-bind preference is enabled.
 
 The `.mixer` file should persist:
 
@@ -469,7 +458,7 @@ The `.mixer` file should persist:
 - Gain, fader, mute, solo, low-cut, quick EQ, parametric EQ, pan, and spatial pan states.
 - Aux channel list and full Aux send matrix including On/Off, send level, independent pan, and Pre/Post state.
 - Submix channel list and direct output-target assignments.
-- JACK/ASIO backend selection and backend port bindings.
+  - JACK backend and JACK port bindings.
 - JACK dynamic interface-name metadata: stable IDs, canonical names, display names, fallback aliases, direction, and expected channel index.
 - Window layout, selected skin package reference, floating meter configuration, tray preference, and kiosk display choice.
 
@@ -831,7 +820,7 @@ Each Submix Channel provides:
   - Another downstream Submix.
   - Backend physical/virtual output.
 - Optional participation in Solo/Mute resolution according to console policy.
-- Same JACK/ASIO dynamic output binding behavior as Master and Aux when routed directly to backend output.
+  - Same JACK dynamic output binding behavior as Master and Aux when routed directly to a JACK output.
 
 Routing rules:
 
@@ -961,11 +950,10 @@ The main mixer view is an operational console, not a landing page. It should pri
 
 Audio Settings panel:
 
-- Backend selector: JACK2, ASIO, or Null/Test when available.
-- Sample Rate selector with common values such as 44.1kHz, 48kHz, 88.2kHz, 96kHz, and backend-reported supported rates.
-- Buffer Size selector with backend-reported block sizes and a latency readout in milliseconds.
-- JACK mode clearly labels Sample Rate and Buffer Size as externally controlled when they are owned by the JACK server.
-- ASIO mode provides driver-specific controls and an Open Driver Panel action where the driver owns the setting.
+- Backend: JACK2, with the active server's reported sample rate and buffer size.
+- Sample Rate display showing the JACK server's effective sample rate.
+- Buffer Size display showing the JACK server's effective block size and calculated latency in milliseconds.
+- JACK settings clearly label Sample Rate and Buffer Size as externally controlled when they are owned by the JACK server.
 - Applying changes must show whether the backend will restart, whether audio will momentarily stop, and what effective values were accepted.
 
 ### 4.2 Vector Component System
@@ -1130,9 +1118,7 @@ Goal: create the realtime-safe audio engine boundary before adding visible mixer
 Deliverables:
 
 - `AudioBackend` interface.
-- Null/test backend for deterministic offline processing tests.
 - Initial JACK2 backend adapter with dynamic client/port name discovery.
-- Initial ASIO backend adapter stub or Windows-only implementation depending on SDK availability.
 - `AudioDeviceSettings` model for requested/effective sample rate and buffer size.
 - `AudioEngine` with prepare/start/stop and immutable snapshot swap.
 - Default empty project with one non-deletable Stereo Master channel.
@@ -1140,7 +1126,7 @@ Deliverables:
 
 Acceptance criteria:
 
-- Engine can process silent and generated test buffers offline.
+- Engine can process real JACK input blocks and preserve silence correctly when the connected input is silent.
 - Backend callbacks call only engine realtime APIs.
 - Sample-rate and buffer-size changes trigger backend/control-thread reconfiguration and DSP re-prepare outside the audio callback.
 - No allocations or locks in the steady-state process callback.
@@ -1310,7 +1296,7 @@ Deliverables:
 - CPU profiling under representative channel counts.
 - Realtime allocation/lock audit.
 - Backend disconnect/reconnect recovery.
-- Sample-rate and buffer-size change tests for JACK callbacks, ASIO requested settings, DSP re-prepare, and `.mixer` restore.
+- Sample-rate and buffer-size change tests for JACK callbacks, DSP re-prepare, and `.mixer` restore.
 - JACK dynamic interface-name regression tests covering renamed ports, recreated clients, unresolved bindings, and auto-reconnect policy.
 - Stress tests for Aux matrix rebuilds.
 - Crash-safe `.mixer` project save with temporary-file write and atomic replacement.
@@ -1323,9 +1309,9 @@ Acceptance criteria:
 - Stable CPU usage under agreed benchmark sessions.
 - No known realtime allocations in steady-state processing.
 - Backend errors surface clearly to UI without crashing the engine.
-- Session restore from `.mixer` accurately recreates channel layouts, sends, Submix routing, EQ, windows, backend choices, and dynamic JACK binding aliases.
+- Session restore from `.mixer` accurately recreates channel layouts, sends, Submix routing, EQ, windows, and dynamic JACK binding aliases.
 - Session restore reselects the saved skin package when available and falls back to the built-in default skin when unavailable.
-- Session restore applies requested sample rate and buffer size where supported, while displaying backend-effective values when different.
+- Session restore displays the active JACK server sample rate and buffer size after reconnect.
 
 ### Suggested Benchmark Targets
 
@@ -1342,10 +1328,10 @@ Initial performance targets should be validated and adjusted on real hardware:
 
 PureMixer is considered ready for first public preview when:
 
-- JACK2 and ASIO backend paths are usable on their target platforms.
+- JACK2 backend path is usable with the target JACK server configurations.
 - New empty projects include a non-deletable Stereo Master with fader, EQ, and Peak/RMS meter.
 - Input, Aux, Submix, and Master channel strips support the specified controls.
-- Audio Settings support sample-rate and buffer-size configuration with JACK/ASIO-specific behavior.
+- Audio Settings display JACK server sample-rate and buffer-size state and handle JACK-specific reconnect behavior.
 - Mono, Stereo, 2.1, 5.1, and 7.1 layouts are represented in the model and routed predictably.
 - Aux sends are dynamic, independently pannable, and support Pre/Post switching.
 - Input/Aux channel outputs can be assigned directly to Submix channels, and Submix routing prevents cycles.

@@ -186,7 +186,6 @@ WinJACKNexus/
             │   ├── DeviceNode.h/.cpp           # 设备数据模型
             │   └── DeviceRegistry.h/.cpp       # 动态节点管理
             └── Engine/
-                ├── MockEngine.h/.cpp           # 阶段一模拟引擎
                 └── RealEngine.h/.cpp           # 阶段二真实引擎
 ```
 
@@ -264,8 +263,8 @@ WinJACKNexus/
 
 ## 四、推进阶段与子里程碑（Milestones）
 
-### 阶段一：原型设计与模拟数据（Prototype & Mock Engine）
-> **目标**：在完全不挂接真实 WASAPI/JACK 底层的情况下，完成全套 GUI 交互、数据结构建模、状态机渲染与 JSON 序列化闭环。
+### 阶段一：真实设备接入与 GUI 基础（Real Device Foundation）
+> **目标**：直接基于真实 WASAPI、WinMM 和 JACK 数据完成 GUI 交互、数据结构建模、状态机渲染与 JSON 序列化闭环。
 
 #### 子里程碑 1.1：全局 GUI 骨架与 16 进制主题构建
 - 在 `WinJACKNexus.Common` 完成基于 16 进制颜色的 Component 样式库与 `NexusLookAndFeel` 定义（`Theme.h` + LookAndFeel）。
@@ -285,14 +284,14 @@ WinJACKNexus/
 - System MIDI 的添加设备菜单直接平铺当前 MIDI 输入/输出设备；无设备时显示禁用提示。
 - **验收**：可手动添加、删除、暂停设备卡片；改名即时生效并刷新显示；MIDI 设备可从平铺菜单选择；编译通过并完成应用启动回归验证。
 
-#### 子里程碑 1.3：模拟数据源与 LED 矢量绘制渲染器（已完成）
-- 构建 Mock Audio/MIDI Engine（`MockEngine`）：定时器模拟正弦波、随机峰值及 MIDI Activity 事件。
+#### 子里程碑 1.3：真实数据驱动与 LED 矢量绘制渲染器
+- 将 WASAPI、WinMM 和 JACK 的真实音频/MIDI 数据接入设备卡片状态模型。
 - 编写基于 16 进制颜色规范的矢量 LED 绘制类（`AudioLed` / `MidiLed`）：
   - 音频 LED：Peak Hold（1.5 秒红灯挂留）+ 平滑淡出算法。
   - MIDI LED：基于 Envelope Decay（80ms 指数衰减）的随节奏脉冲闪烁算法。
 - LED 视觉参考顶部图片：圆形灯体、柔和外发光、高光反射，以及红/绿/蓝/白/暖白的信号状态表现。
-- 设备卡片集成 LED 状态灯；暂停卡片时停止模拟信号，恢复后继续更新。
-- **验收**：Mock 数据正确驱动 LED 变色/挂留/衰减；颜色与 §二 规范逐一对齐；编译通过并完成应用启动回归验证。
+- 设备卡片集成 LED 状态灯；暂停卡片时停止对应真实设备数据，恢复后继续更新。
+- **验收**：真实音频/MIDI 数据正确驱动 LED 变色/挂留/衰减；颜色与 §二 规范逐一对齐；编译通过并完成应用启动回归验证。
 
 #### 子里程碑 1.4：JSON (.adapter) 存档逻辑实现
 - 设计 `.adapter` JSON Data Schema（`AdapterConfig`，见 §七）。
@@ -301,7 +300,7 @@ WinJACKNexus/
 - **验收**：保存 → 重开 → 恢复一致；JSON 人类可读、可手工编辑。
 
 ### 阶段二：真实逻辑接入与底层引擎（Real Engine Integration）
-> **目标**：剥离 Mock 数据，将核心逻辑挂接至真正的 WASAPI、WinMM 和 libjack，确保实时安全性。
+> **目标**：完善真实 WASAPI、WinMM 和 libjack 数据链路，确保实时安全性。
 
 #### 子里程碑 2.1：libjack 节点封装与动态 Client 管理
 - 在 `WinJACKNexus.Common` 编写纯 C++ / libjack 封装类 `JackClientBase`，支持按需动态创建与销毁独立 `jack_client_t`。
@@ -549,7 +548,7 @@ AdapterApplication::initialise()
 |---|---|---|
 | M1.1 | GUI 骨架 + 16 进制主题 + 单实例 + 托盘 | 3 – 4 |
 | M1.2 | 级联菜单 + 设备卡片 | 3 – 4 |
-| M1.3 | Mock 引擎 + LED 矢量渲染 | 2 – 3 |
+| M1.3 | 真实数据接入 + LED 矢量渲染 | 2 – 3 |
 | M1.4 | JSON (.adapter) 存档 | 2 |
 | **阶段一小计** | | **10 – 13** |
 | M2.1 | libjack 封装 + 动态 Client 管理 | 4 – 5 |
@@ -601,6 +600,6 @@ Adapter 继续使用现有 `modules/WinJACKNexus.Adapter` target、`wjn::adapter
 
 ### 11.3 Common 合并后的验收
 
-- Adapter 的设备枚举、WASAPI/WinMM 桥接、`.adapter` 存档、Mock/真实引擎和 LED 状态行为通过本计划阶段一、阶段二验收。
+- Adapter 的设备枚举、WASAPI/WinMM 桥接、`.adapter` 存档、真实引擎和 LED 状态行为通过本计划阶段一、阶段二验收。
 - Adapter 单独启动、关闭和重新连接时，不依赖 Mixer 或 MeterBridge；与其他 APP 并行运行时遵守 Common 的 JACK client/port 命名和生命周期规则。
 - Adapter 的用户界面默认使用简体中文，并使用 `Common + Adapter` 的主题覆盖；普通文案不绕过 Common 的文案查询入口。

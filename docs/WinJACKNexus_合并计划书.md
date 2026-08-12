@@ -149,8 +149,7 @@ JACK process 回调中禁止分配、加锁、文件 I/O、UI 调用和容器扩
 Common 必须提供可直接用于真实数据测试的最小测试路径，不依赖某个 APP 的完整界面：
 
 1. 音频输入输出回环：注册一组 JACK input/output ports，把输入 block 原样或经过可选增益后写入输出，验证真实 JACK 连接、通道数量、采样率和 block-size。
-2. 音频输出测试源：提供控制线程配置的静音、固定电平或正弦测试源；测试源参数在 block 边界提交，不能在 process 回调动态分配。
-3. MIDI 输入输出回环：收到 JACK MIDI 事件后按配置原样转发到 JACK MIDI output，保留 `frameOffset` 和 payload，便于用外部 MIDI 键盘、虚拟 MIDI 端口或 JACK MIDI 工具验证。
+2. MIDI 输入输出回环：收到 JACK MIDI 事件后按配置原样转发到 JACK MIDI output，保留 `frameOffset` 和 payload，便于用外部 MIDI 键盘、虚拟 MIDI 端口或 JACK MIDI 工具验证。
 4. 端口状态监测：记录连接、断开、xrun、输入丢包、输出欠载和 MIDI 丢事件计数，状态通过原子快照提供给 UI/测试代码。
 5. 最小独立测试工具或测试入口：在 Common 测试中支持无 UI 的 loopback；在具备 JACK 服务时执行真实端口集成测试，未运行 JACK 时只执行不依赖服务的单元测试。
 
@@ -499,7 +498,7 @@ flowchart TD
 | Common 控件风格单测 | 默认 `flat` token、状态切换、焦点环、尺寸/圆角边界、无贴图纯 JUCE 绘制回退和新增控件基类约束 |
 | Common 文案单测 | `.lang` JSON/schema 校验、UTF-8、`zh-CN` 文案查询、Common/模块覆盖、参数占位符、专用名词白名单、缺失文案回退和普通英文文案扫描 |
 | Common 语言切换集成 | 语言切换、无效文件回退、上一份有效目录保留、消息线程刷新和实时线程隔离 |
-| JACK 音频集成 | client 激活/停用、输入/输出端口注册、真实音频 block、音频回环/测试源、xrun、采样率/缓冲区变化、重连 |
+| JACK 音频集成 | client 激活/停用、输入/输出端口注册、真实音频 block、音频回环、xrun、采样率/缓冲区变化、重连 |
 | JACK MIDI 集成 | MIDI input/output 端口注册、事件读取/发送、frame offset、回环、事件容量上限和丢事件计数 |
 | UI 手工验收 | 控件无数据、正常电平、过载 peak hold、窄窗口、横向滚动、历史和 CSV 操作 |
 | 扁平风格验收 | Adapter、Mixer、MeterBridge 的按钮、开关、滑块、旋钮、LED、电平表、卡片和后续自绘控件保持统一 flat 视觉；无高光拟物、厚重阴影或不一致圆角 |
