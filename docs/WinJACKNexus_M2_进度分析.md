@@ -1,7 +1,7 @@
 # WinJACKNexus M2 进度分析
 
 > 分析日期：2026-08-12
-> 对应提交：`f0c1d74`（基础实现）；M2 收尾第二批待提交
+> 对应提交：`f0c1d74`（基础实现）；M2 收尾第二批：`89a7fce`
 > 对照文档：[WinJACKNexus_合并计划书.md](WinJACKNexus_合并计划书.md) § M2
 
 ## 1. 结论
@@ -157,7 +157,7 @@ CodeGraph 已能够索引本次新增的 `ThemeContext`、`ThemePackage`、`Them
 
 ## 6. Git 和资源状态
 
-- M2 基础代码提交：`f0c1d74`；收尾第二批待提交。
+- M2 基础代码提交：`f0c1d74`；收尾第二批提交：`89a7fce`。
 - 当前分支：`main`。
 - 文档生成前，`f0c1d74` 尚未推送到 `origin/main`。
 - `ref/` 和 `third_party/` 保持未跟踪，未加入忽略规则，也不进入本次文档提交。
