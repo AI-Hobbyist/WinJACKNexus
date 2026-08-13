@@ -66,6 +66,7 @@ target_sources(WinJACKNexus.Common PRIVATE
     include/WinJACKNexus/Common/Metering/LoudnessPresetLibrary.cpp
     include/WinJACKNexus/Common/IO/CsvLogWriter.cpp
     include/WinJACKNexus/Common/UI/NexusLookAndFeel.cpp
+    include/WinJACKNexus/Common/UI/CommonControls.cpp
     include/WinJACKNexus/Common/UI/OnOffSwitch.cpp
     include/WinJACKNexus/Common/UI/SettingsSlider.cpp
     include/WinJACKNexus/Common/UI/RotaryControl.cpp

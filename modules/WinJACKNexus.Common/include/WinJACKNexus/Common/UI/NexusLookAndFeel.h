@@ -16,8 +16,15 @@ public:
     void setTheme(const ThemeContext& newTheme);
     void setFontManager(const FontManager* newFontManager) noexcept;
 
+    juce::Font getLcdFont (float height, int style = juce::Font::plain) const;
     juce::Font getPopupMenuFont() override;
     juce::Font getTextButtonFont (juce::TextButton&, int buttonHeight) override;
+    juce::Font getTabButtonFont (juce::TabBarButton&, float height) override;
+    void drawTabButton (juce::TabBarButton&, juce::Graphics&, bool isMouseOver,
+                        bool isMouseDown) override;
+    void drawTabbedButtonBarBackground (juce::TabbedButtonBar&, juce::Graphics&) override;
+    void drawTabAreaBehindFrontButton (juce::TabbedButtonBar&, juce::Graphics&, int width,
+                                       int height) override;
 
 private:
     ThemeContext theme;

@@ -1,6 +1,7 @@
 #include "AdapterMainWindow.h"
 
 #include "../UI/MainComponent.h"
+#include <WinJACKNexus/Common/UI/CommonControls.h>
 #include <WinJACKNexus/Common/UI/Theme.h>
 
 namespace wjn::adapter
@@ -27,11 +28,11 @@ public:
     {
         if (event.mods.isPopupMenu())
         {
-            juce::PopupMenu menu;
+            wjn::common::NexusPopupMenu menu;
             menu.addItem (1, juce::String::fromUTF8 ("显示/隐藏窗口"));
             menu.addSeparator();
             menu.addItem (2, juce::String::fromUTF8 ("退出"));
-            menu.showMenuAsync (juce::PopupMenu::Options(),
+            menu.showMenuAsync (wjn::common::NexusPopupMenu::Options(),
                                 [this] (int result)
                                 {
                                     if (result == 1)

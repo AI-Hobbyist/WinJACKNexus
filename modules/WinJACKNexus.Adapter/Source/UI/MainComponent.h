@@ -2,6 +2,8 @@
 
 #include <juce_gui_basics/juce_gui_basics.h>
 
+#include <WinJACKNexus/Common/UI/CommonControls.h>
+
 namespace wjn::adapter
 {
 
@@ -22,7 +24,7 @@ public:
     void resized() override;
 
 private:
-    juce::TabbedComponent tabs { juce::TabbedButtonBar::TabsAtTop };
+    wjn::common::NexusTabbedComponent tabs { juce::TabbedButtonBar::TabsAtTop };
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
 };

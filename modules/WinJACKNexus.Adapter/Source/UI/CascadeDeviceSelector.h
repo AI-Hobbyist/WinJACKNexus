@@ -14,6 +14,7 @@ public:
         juce::String streamType;
         juce::String device;
         int channels = 2;
+        bool midi = false;
     };
 
     using Callback = std::function<void (Selection)>;

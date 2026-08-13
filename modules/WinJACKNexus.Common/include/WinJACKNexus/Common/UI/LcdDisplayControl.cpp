@@ -1,5 +1,7 @@
 #include "LcdDisplayControl.h"
 
+#include "NexusLookAndFeel.h"
+
 namespace wjn::common
 {
 
@@ -34,9 +36,12 @@ void LcdDisplayControl::paint(juce::Graphics& g)
 
     if (contentPainter != nullptr)
     {
-        const auto lcdFont = juce::Font(juce::FontOptions()
-                                            .withName(juce::Font::getDefaultMonospacedFontName())
-                                            .withPointHeight(10.0f));
+        auto lcdFont = juce::Font (juce::FontOptions (juce::Font::getDefaultMonospacedFontName(),
+                                                      10.0f, juce::Font::plain));
+        if (const auto* nexusLookAndFeel =
+                dynamic_cast<const NexusLookAndFeel*> (&getLookAndFeel()))
+            lcdFont = nexusLookAndFeel->getLcdFont (10.0f);
+
         contentPainter(g, screen.toFloat().reduced(6.0f, 5.0f), lcdFont, juce::Colour(0xff142216));
     }
 }

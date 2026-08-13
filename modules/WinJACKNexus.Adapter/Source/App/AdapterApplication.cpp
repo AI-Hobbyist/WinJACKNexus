@@ -32,6 +32,7 @@ void AdapterApplication::initialise (const juce::String& /*commandLine*/)
         .getParentDirectory();
     juce::String resourceError;
     fontManager.loadBuiltIns(resources.getChildFile("LCD"), resourceError);
+    lookAndFeel.setFontManager (&fontManager);
     localeManager.load(resources.getChildFile("locales/zh-CN.lang"),
                        resources.getChildFile("locales/Adapter/zh-CN.lang"), resourceError);
 

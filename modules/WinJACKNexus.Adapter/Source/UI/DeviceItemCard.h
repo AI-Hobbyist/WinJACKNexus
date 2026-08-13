@@ -3,7 +3,10 @@
 #include <juce_gui_basics/juce_gui_basics.h>
 
 #include <WinJACKNexus/Common/UI/AudioLed.h>
+#include <WinJACKNexus/Common/UI/CommonControls.h>
+#include <WinJACKNexus/Common/UI/LcdDisplayControl.h>
 #include <WinJACKNexus/Common/UI/MidiLed.h>
+#include <WinJACKNexus/Common/UI/OnOffSwitch.h>
 #include "../Engine/MockEngine.h"
 
 namespace wjn::adapter
@@ -19,6 +22,7 @@ public:
         juce::String streamType;
         juce::String device;
         int channels = 2;
+        bool midi = false;
         bool paused = false;
     };
 
@@ -36,20 +40,26 @@ public:
 
 private:
     void commitName();
+    void configureLcd();
+    void setAudioLevel (float level, bool clipping);
+    void paintLcd (juce::Graphics&, juce::Rectangle<float>, const juce::Font&, juce::Colour);
+    void paintAudioLcd (juce::Graphics&, juce::Rectangle<float>, const juce::Font&, juce::Colour);
+    void paintMidiLcd (juce::Graphics&, juce::Rectangle<float>, const juce::Font&, juce::Colour);
 
     Data data;
     RenameCallback renameCallback;
     VoidCallback pauseCallback;
     VoidCallback removeCallback;
-    juce::Label modeLabel;
-    juce::Label deviceLabel;
-    juce::Label sampleRateLabel;
-    juce::TextEditor clientNameEditor;
-    juce::ToggleButton pauseButton;
-    juce::TextButton removeButton;
+    wjn::common::NexusTextEditor clientNameEditor;
+    wjn::common::OnOffSwitch pauseSwitch;
+    wjn::common::NexusButton removeButton;
     wjn::common::AudioLed audioLed;
+    wjn::common::LcdDisplayControl lcdDisplay;
     wjn::common::MidiLed midiLed;
     MockEngine mockEngine;
+    juce::Array<float> audioLevels;
+    int midiPulse = 0;
+    bool audioClipping = false;
     bool midiMode = false;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DeviceItemCard)

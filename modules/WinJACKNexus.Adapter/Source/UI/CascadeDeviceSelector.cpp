@@ -2,6 +2,8 @@
 
 #include <juce_audio_devices/juce_audio_devices.h>
 
+#include <WinJACKNexus/Common/UI/CommonControls.h>
+
 namespace wjn::adapter
 {
 namespace
@@ -12,10 +14,10 @@ juce::String text (const char* value)
     return juce::String::fromUTF8 (value);
 }
 
-void showAsync (juce::PopupMenu menu, juce::Component& target,
+void showAsync (wjn::common::NexusPopupMenu menu, juce::Component& target,
                 std::function<void (int)> callback)
 {
-    menu.showMenuAsync (juce::PopupMenu::Options().withTargetComponent (&target),
+    menu.showMenuAsync (wjn::common::NexusPopupMenu::Options().withTargetComponent (&target),
                         std::move (callback));
 }
 
@@ -28,7 +30,7 @@ void CascadeDeviceSelector::show (juce::Component& target, Callback callback)
 
 void CascadeDeviceSelector::showMidi (juce::Component& target, bool input, Callback callback)
 {
-    juce::PopupMenu menu;
+    wjn::common::NexusPopupMenu menu;
     const auto devices = input ? juce::MidiInput::getAvailableDevices()
                                : juce::MidiOutput::getAvailableDevices();
 
@@ -47,13 +49,14 @@ void CascadeDeviceSelector::showMidi (juce::Component& target, bool input, Callb
                    callback ({ text ("WinMM / WinRT MIDI"),
                                input ? text ("Input") : text ("Output"),
                                devices[result - 1].name,
-                               0 });
+                               0,
+                               true });
                });
 }
 
 void CascadeDeviceSelector::showDriverMenu (juce::Component& target, Callback callback)
 {
-    juce::PopupMenu menu;
+    wjn::common::NexusPopupMenu menu;
     menu.addItem (1, "WASAPI");
     menu.addItem (2, "MME");
     menu.addItem (3, "KS");
@@ -72,7 +75,7 @@ void CascadeDeviceSelector::showDriverMenu (juce::Component& target, Callback ca
 void CascadeDeviceSelector::showStreamMenu (juce::Component& target, Callback callback,
                                             juce::String driver)
 {
-    juce::PopupMenu menu;
+    wjn::common::NexusPopupMenu menu;
     menu.addItem (1, text ("Playback"));
     menu.addItem (2, text ("Record"));
 
@@ -88,7 +91,7 @@ void CascadeDeviceSelector::showStreamMenu (juce::Component& target, Callback ca
 void CascadeDeviceSelector::showDeviceMenu (juce::Component& target, Callback callback,
                                             juce::String driver, juce::String streamType)
 {
-    juce::PopupMenu menu;
+    wjn::common::NexusPopupMenu menu;
     menu.addItem (1, text ("系统默认设备"));
     menu.addItem (2, text ("扬声器 / 耳机"));
     menu.addItem (3, text ("麦克风 / 线路输入"));
@@ -112,7 +115,7 @@ void CascadeDeviceSelector::showChannelMenu (juce::Component& target, Callback c
                                              juce::String driver, juce::String streamType,
                                              juce::String device)
 {
-    juce::PopupMenu menu;
+    wjn::common::NexusPopupMenu menu;
     menu.addItem (1, text ("自动（按驱动获取）"));
     menu.addItem (2, "1");
     menu.addItem (3, "2");
