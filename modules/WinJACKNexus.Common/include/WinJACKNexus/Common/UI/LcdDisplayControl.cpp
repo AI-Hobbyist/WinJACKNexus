@@ -14,6 +14,14 @@ void LcdDisplayControl::setContentPainter(ContentPainter newContentPainter)
 }
 void LcdDisplayControl::setAccent(juce::Colour newAccent) { accent = newAccent; repaint(); }
 void LcdDisplayControl::setTheme(const ThemeContext& newTheme) { theme = newTheme; repaint(); }
+void LcdDisplayControl::setPowered(bool shouldBePowered)
+{
+    if (powered == shouldBePowered)
+        return;
+
+    powered = shouldBePowered;
+    repaint();
+}
 
 void LcdDisplayControl::paint(juce::Graphics& g)
 {
@@ -27,6 +35,9 @@ void LcdDisplayControl::paint(juce::Graphics& g)
     g.drawRect(outer, 1);
     g.setColour(juce::Colour(0xff080c09));
     g.fillRect(outer.reduced(3));
+
+    if (! powered)
+        return;
 
     const auto screen = outer.reduced(7, 6);
     g.setColour(juce::Colour(0xff8eae7b));

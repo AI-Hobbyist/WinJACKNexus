@@ -33,3 +33,14 @@ M6 只在所有模块功能完成并通过各自验收后执行。执行前保�
 - M3 Mixer 模块建立并改名完成。
 - M4 MeterBridge 独立 APP 建立完成。
 - M5 Mixer 真实 JACK 流接入完成。
+
+## 5. 当前收尾判断（2026-08-15）
+
+M6 目前仍未进入执行阶段。当前状态如下：
+
+- M1 Common 音频/JACK/MIDI 基础和 M2 Common 主题、字体、本地化基础已完成；对应自动测试和构建记录已写入 M1/M2 文档。
+- Adapter 已完成真实 WASAPI/JACK/MIDI 桥接的主要代码路径、连续重采样、逐声道 LCD、设备选择修正及 WASAPI shared/exclusive 模式接入，但 `.adapter` 存档、完整三 Tab 工作流、真实外部回环和长时间稳定性验收仍未完成。
+- M3 Mixer、M4 MeterBridge 和 M5 Mixer 真实 JACK 流仍未达到本计划的前置条件，因此不能开始删除或归档 `ref/` 内容。
+- `ref/`、`third_party/` 和本地构建目录仅作为参考、依赖和验证环境保留；它们不属于本次产品源码提交范围。
+
+进入 M6 前仍需完成：Adapter 自身验收、Mixer/MeterBridge 建立及验收、跨 APP 完整 Debug 构建和 CTest、真实 JACK 音频/MIDI 长时间测试，以及文档/安装产物/许可记录的最终复核。

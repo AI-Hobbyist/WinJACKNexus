@@ -70,7 +70,7 @@
 
 请将计划书严格划分为以下两大阶段及其子里程碑：
 
-#### 阶段一：原型设计与模拟数据（Prototype & Mock Engine）
+#### 阶段一：真实设备接入与 GUI 基础（Real Device Foundation）
 *目标：在完全不挂接真实 WASAPI/JACK 底层的情况下，完成全套 GUI 交互、数据结构建模、状态机渲染与 JSON 序列化闭环。*
 
 - **子里程碑 1.1：全局 GUI 骨架与 16 进制主题构建**
@@ -80,8 +80,8 @@
 - **子里程碑 1.2：级联菜单与卡片列表 UI 组件化**
   - 编写 4 层级联菜单选择器（`驱动 -> 类型 -> 设备 -> 声道数`，默认自动根据驱动获取通道数）。
   - 编写设备卡片组件（Device Item Card），包含：自定义 Client 名称编辑框（支持失焦/回车保存）、端口模式标签、采样率显示、删除/暂停按钮。
-- **子里程碑 1.3：模拟数据源与 LED 矢量绘制渲染器**
-  - 构建 Mock Audio/MIDI Engine，使用定时器模拟产生正弦波、随机峰值及 MIDI Activity 事件。
+- **子里程碑 1.3：真实数据驱动与 LED 矢量绘制渲染器**
+  - 接入真实 WASAPI、WinMM 和 JACK 音频/MIDI 数据，驱动 LED 状态。
   - 编写基于 16 进制颜色规范的矢量 LED 绘制类：
     - 音频 LED 实现 Peak Hold（1.5 秒红灯挂留）与平滑淡出算法。
     - MIDI LED 实现基于 Envelope Decay（80ms 指数衰减）的随节奏脉冲闪烁算法。
@@ -91,7 +91,7 @@
   - 实现配置文件的“导出保存”、“导入恢复”与“新建配置”完整数据流测试。
 
 #### 阶段二：真实逻辑接入与底层引擎（Real Engine Integration）
-*目标：剥离 Mock 数据，将核心逻辑挂接至真正的 WASAPI、WinMM 和 libjack，确保实时安全性。*
+*目标：完善真实 WASAPI、WinMM 和 libjack 数据链路，确保实时安全性。*
 
 - **子里程碑 2.1：libjack 节点封装与动态 Client 管理**
   - 在 `WinJACKNexus.Common` 中编写纯 C++ / libjack 封装类，支持按需动态创建与销毁独立的 `jack_client_t`。

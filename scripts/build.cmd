@@ -7,6 +7,7 @@ setlocal
 
 set "VCVARS=D:\Program Files\Microsoft Visual Studio\18\Community\VC\Auxiliary\Build\vcvars64.bat"
 set "NINJA=C:\Qt\Tools\Ninja\ninja.exe"
+set "VSLANG=1033"
 
 if not exist "%VCVARS%" (
     echo [ERROR] vcvars64.bat not found: %VCVARS%

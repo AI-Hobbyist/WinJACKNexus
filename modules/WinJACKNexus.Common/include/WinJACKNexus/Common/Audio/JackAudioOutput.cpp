@@ -9,22 +9,24 @@ namespace wjn::common
 bool JackAudioOutput::open(const juce::String& clientName, int channels, int blockSize) noexcept
 {
     close();
-    if (channels < 0 || blockSize <= 0 || blockSize > JackClient::maxBlockFrames)
+    if (channels < 1 || channels > maxChannels || blockSize <= 0 || blockSize > JackClient::maxBlockFrames)
         return false;
-    buffers->resize(static_cast<size_t>(channels));
     if (!client.open(clientName, blockSize))
         return false;
 
     juce::StringArray names;
     for (int index = 0; index < channels; ++index)
         names.add("out_" + juce::String(index + 1));
-    if (!client.configurePorts(names, {}))
+    if (!client.configurePorts({}, names))
     {
         client.close();
         return false;
     }
     channelCount = channels;
-    pendingFrames.store(0, std::memory_order_release);
+    blocks.reset();
+    readBlock.channels = 0;
+    readBlock.frames = 0;
+    readOffset = 0;
     return true;
 }
 
@@ -40,9 +42,11 @@ void JackAudioOutput::close() noexcept
 {
     stop();
     client.close();
-    pendingFrames.store(0, std::memory_order_release);
-    pendingChannels.store(0, std::memory_order_release);
+    blocks.reset();
     channelCount = 0;
+    readBlock.channels = 0;
+    readBlock.frames = 0;
+    readOffset = 0;
 }
 
 bool JackAudioOutput::isOpen() const noexcept { return client.getStatus().connected; }
@@ -53,15 +57,16 @@ void JackAudioOutput::submitBlock(const float* const* inputs, int channels, int 
 {
     if (inputs == nullptr || frames <= 0 || frames > JackClient::maxBlockFrames)
         return;
-    const auto copiedChannels = (std::min)(channels, channelCount);
+    const auto copiedChannels = (std::min)({ channels, channelCount, maxChannels });
+    writeBlock.channels = copiedChannels;
+    writeBlock.frames = frames;
     for (int channel = 0; channel < copiedChannels; ++channel)
         if (inputs[channel] != nullptr)
-            std::memcpy((*buffers)[static_cast<size_t>(channel)].data(), inputs[channel],
+            std::memcpy(writeBlock.samples[static_cast<size_t>(channel)].data(), inputs[channel],
                         static_cast<size_t>(frames) * sizeof(float));
     for (int channel = copiedChannels; channel < channelCount; ++channel)
-        std::fill_n((*buffers)[static_cast<size_t>(channel)].data(), frames, 0.0f);
-    pendingChannels.store(copiedChannels, std::memory_order_relaxed);
-    pendingFrames.store(frames, std::memory_order_release);
+        std::fill_n(writeBlock.samples[static_cast<size_t>(channel)].data(), frames, 0.0f);
+    blocks.push(writeBlock);
 }
 
 void JackAudioOutput::process(const float* const*, int, float* const* outputs,
@@ -70,18 +75,38 @@ void JackAudioOutput::process(const float* const*, int, float* const* outputs,
     auto* owner = static_cast<JackAudioOutput*>(userData);
     if (owner == nullptr || outputs == nullptr || frames <= 0)
         return;
-    const auto availableFrames = owner->pendingFrames.exchange(0, std::memory_order_acq_rel);
-    const auto availableChannels = owner->pendingChannels.load(std::memory_order_relaxed);
-    const auto copiedFrames = (std::min)(frames, availableFrames);
-    const auto copiedChannels = (std::min)({ outputChannels, availableChannels, owner->channelCount });
     for (int channel = 0; channel < outputChannels; ++channel)
     {
         if (outputs[channel] == nullptr)
             continue;
         std::fill_n(outputs[channel], frames, 0.0f);
-        if (channel < copiedChannels)
-            std::memcpy(outputs[channel], (*owner->buffers)[static_cast<size_t>(channel)].data(),
-                        static_cast<size_t>(copiedFrames) * sizeof(float));
+    }
+
+    int outputOffset = 0;
+    while (outputOffset < frames)
+    {
+        if (owner->readOffset >= owner->readBlock.frames)
+        {
+            if (! owner->blocks.pop (owner->readBlock))
+                break;
+            owner->readOffset = 0;
+        }
+
+        const auto copiedFrames = (std::min) (frames - outputOffset,
+                                              owner->readBlock.frames - owner->readOffset);
+        const auto copiedChannels = (std::min) ({ outputChannels, owner->readBlock.channels,
+                                                   owner->channelCount });
+        for (int channel = 0; channel < copiedChannels; ++channel)
+        {
+            if (outputs[channel] == nullptr)
+                continue;
+            std::memcpy (outputs[channel] + outputOffset,
+                         owner->readBlock.samples[static_cast<size_t> (channel)].data()
+                             + owner->readOffset,
+                         static_cast<size_t> (copiedFrames) * sizeof (float));
+        }
+        owner->readOffset += copiedFrames;
+        outputOffset += copiedFrames;
     }
 }
 

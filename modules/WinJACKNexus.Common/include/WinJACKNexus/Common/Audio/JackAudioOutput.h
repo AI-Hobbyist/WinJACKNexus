@@ -1,9 +1,9 @@
 #pragma once
 
 #include "JackClient.h"
+#include <WinJACKNexus/Common/IO/SpscRingBuffer.h>
 
 #include <array>
-#include <atomic>
 #include <memory>
 #include <vector>
 
@@ -13,6 +13,8 @@ namespace wjn::common
 class JackAudioOutput final
 {
 public:
+    static constexpr int maxChannels = 8;
+
     JackAudioOutput() = default;
 
     bool open(const juce::String& clientName, int channels, int blockSize) noexcept;
@@ -25,15 +27,22 @@ public:
     void submitBlock(const float* const* inputs, int channels, int frames) noexcept;
 
 private:
-    using BufferStorage = std::vector<std::array<float, JackClient::maxBlockFrames>>;
+    struct AudioBlock
+    {
+        int channels = 0;
+        int frames = 0;
+        std::array<std::array<float, JackClient::maxBlockFrames>, maxChannels> samples {};
+    };
+
     static void process(const float* const*, int, float* const* outputs,
                         int outputChannels, int frames, void* userData) noexcept;
 
     JackClient client;
-    std::unique_ptr<BufferStorage> buffers = std::make_unique<BufferStorage>();
-    std::atomic<int> pendingFrames { 0 };
-    std::atomic<int> pendingChannels { 0 };
+    AudioBlock writeBlock;
+    AudioBlock readBlock;
+    SpscRingBuffer<AudioBlock, 4> blocks;
     int channelCount = 0;
+    int readOffset = 0;
 };
 
 } // namespace wjn::common

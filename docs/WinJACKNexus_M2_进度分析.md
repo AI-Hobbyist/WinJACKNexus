@@ -171,3 +171,14 @@ CodeGraph 已能够索引本次新增的 `ThemeContext`、`ThemePackage`、`Them
 2. **跨 APP M2 手工验收**：在各模块建立后验证主题、字体、语言资源隔离和消息线程刷新。
 
 当前更准确的状态是“Common M2 收尾第二批完成，Adapter 资源基础完成；Mixer/MeterBridge 集成和跨 APP 手工验收待后续模块阶段完成”。
+
+## 8. 2026-08-15 当前进度补充
+
+M2 仍保持“Common/Adapter 基础完成、跨 APP 集成未完成”的结论。本轮在 Adapter 侧进一步确认并落地了以下接入：
+
+- Adapter 使用 Common 的通用控件、主题和中文资源基础；设备菜单、设备卡片、LCD 文案和状态提示已统一处理 UTF-8 中文显示。
+- 设备卡片的音频 LCD 已按真实输入逐声道显示电平；多声道标签支持自动识别的输入/输出通道数量，并限制在当前桥接支持的最多 8 声道。
+- `locales/Adapter/zh-CN.lang` 继续作为 Adapter 模块覆盖资源；本轮未宣称 Mixer/MeterBridge 的模块语言资源或完整语言切换 UI 已完成。
+- Adapter 当前真实设备链路的状态和未完成边界记录在 `WinJACKNexus.Adapter_开发计划书.md` 的 2026-08-15 状态表中。
+
+本轮验证：Adapter 在 `build-ninja` 中通过 MSVC/Ninja 编译链接，相关源文件编辑器诊断无错误，`git diff --check` 通过。主题切换、全套 APP 视觉验收、Mixer/MeterBridge 接入和完整手工验收仍未完成。

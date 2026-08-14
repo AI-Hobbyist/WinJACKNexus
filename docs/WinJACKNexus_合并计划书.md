@@ -1,6 +1,6 @@
 # WinJACKNexus Ref 模块合并计划书
 
-> 文档状态：待审阅
+> 文档状态：M0-M2 Common 基础已实施；Adapter 应用接入和跨 APP 收尾进行中
 >
 > 目标：将 `ref/` 下可跨应用复用的实时音频、JACK、MIDI、DSP、计量和通用 UI 能力纳入 `WinJACKNexus.Common`。
 >
@@ -91,6 +91,13 @@ Common 的 JACK 能力必须同时覆盖真实音频输入、真实音频输出�
 Common 预留统一的自定义主题包入口。主题包扩展名固定为 `.netheme`，本质是一个 ZIP 文件，包含主题 JSON 和图片/贴图资产；主题加载、解析、颜色覆盖、资源缓存和回退规则由 Common 提供，三个 APP 只选择主题并消费 Common 的主题上下文。
 
 Common 内置并统一提供两套 LCD 专用字体：`LCD/zpix.ttf` 和 `LCD/DS-DIGI.TTF`。其中 zpix 用于通用 LCD 风格文本和控件读数，DS-DIGI 用于纯数显 LCD 场景。`Adapter`、`Mixer`、`MeterBridge` 默认通过 Common 使用这两套字体显示电平、状态、计时和硬件感控件内容；字体加载、字体族解析、缓存和回退由 Common 负责，APP 不得各自复制或注册字体。
+
+### 2.3 当前实施快照（2026-08-15）
+
+- M1 Common 音频/JACK/MIDI 基础能力已完成，并继续用于 Adapter 的真实桥接；实时路径的缓存和跨 block 消费修正已记录在 `WinJACKNexus_M1_实施记录.md`。
+- M2 Common 主题、字体、本地化和通用控件基础已完成，Adapter 已接入基础资源和控件；Mixer/MeterBridge 尚未建立完整应用模块。
+- Adapter 已进入真实逻辑联调阶段：WASAPI/JACK/MIDI、连续重采样、逐声道 LCD、自动声道检测以及 WASAPI 共享/非独占与独占模式已实现，但真实设备手工验收、`.adapter` 存档、长时间稳定性和完整三 Tab 工作流仍未完成。
+- M6 尚未开始最终清理；`ref/`、`third_party/` 和本地构建目录继续保留在工作区，不能作为本次产品源码提交内容。
 
 ## 4. Common 代码归属清单
 

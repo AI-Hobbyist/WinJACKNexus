@@ -28,9 +28,11 @@ target_sources(WinJACKNexus.Adapter PRIVATE
     Source/App/AdapterApplication.cpp
     Source/App/AdapterMainWindow.cpp
     Source/Engine/MockEngine.cpp
+    Source/Engine/RealEngine.cpp
     Source/UI/CascadeDeviceSelector.cpp
     Source/UI/DeviceItemCard.cpp
-    Source/UI/MainComponent.cpp)
+    Source/UI/MainComponent.cpp
+    Source/DebugTrace.h)
 
 target_link_libraries(WinJACKNexus.Adapter PRIVATE
     WinJACKNexus.Common

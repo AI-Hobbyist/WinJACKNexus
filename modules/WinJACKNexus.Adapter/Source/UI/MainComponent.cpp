@@ -2,6 +2,7 @@
 
 #include "CascadeDeviceSelector.h"
 #include "DeviceItemCard.h"
+#include "../DebugTrace.h"
 #include <WinJACKNexus/Common/UI/CommonControls.h>
 #include <WinJACKNexus/Common/UI/Theme.h>
 
@@ -18,8 +19,10 @@ juce::String fromUtf8 (const char* value)
 class DeviceListSection final : public wjn::common::NexusPanel
 {
 public:
-    DeviceListSection (juce::String title, bool midi = false)
-        : sectionTitle (std::move (title)), isMidi (midi)
+    DeviceListSection (juce::String title, bool input, juce::StringArray& deviceIdentifiers,
+                       bool midi = false, bool virtualAudio = false)
+        : sectionTitle (std::move (title)), isInput (input), isMidi (midi), isVirtual (virtualAudio),
+          addedDeviceIdentifiers (deviceIdentifiers)
     {
         addAndMakeVisible (titleLabel);
         titleLabel.setText (sectionTitle, juce::dontSendNotification);
@@ -35,17 +38,21 @@ public:
             };
 
             if (isMidi)
-                CascadeDeviceSelector::showMidi (*this, sectionTitle.startsWith ("IN"), std::move (addSelection));
+                CascadeDeviceSelector::showMidi (*this, isInput, addedDeviceIdentifiers,
+                                                 std::move (addSelection));
+            else if (isVirtual)
+                CascadeDeviceSelector::showVirtual (*this, isInput, addedDeviceIdentifiers,
+                                                    std::move (addSelection));
             else
-                CascadeDeviceSelector::show (*this, std::move (addSelection));
+                CascadeDeviceSelector::show (*this, addedDeviceIdentifiers, std::move (addSelection));
         };
 
-            addAndMakeVisible (refreshButton);
-            refreshButton.setButtonText (fromUtf8 ("刷新列表"));
-            refreshButton.onClick = [this]
-            {
-                refreshDeviceList();
-            };
+        addAndMakeVisible (refreshButton);
+        refreshButton.setButtonText (fromUtf8 ("刷新列表"));
+        refreshButton.onClick = [this]
+        {
+            refreshDeviceList();
+        };
 
         addAndMakeVisible (viewport);
         viewport.setViewedComponent (&listContent, false);
@@ -76,14 +83,37 @@ private:
 
     void addDevice (CascadeDeviceSelector::Selection selection)
     {
+        debug::trace ("addDevice begin section=" + debug::pointerText (this)
+                      + " midi=" + juce::String (selection.midi ? 1 : 0)
+                      + " input=" + juce::String (isInput ? 1 : 0)
+                      + " device=" + selection.device
+                      + " identifier=" + selection.deviceIdentifier
+                      + " channels=" + juce::String (selection.channels));
+        const auto deviceIdentifier = selection.deviceIdentifier.isNotEmpty() ? selection.deviceIdentifier
+                                              : selection.device;
+        if (addedDeviceIdentifiers.contains (deviceIdentifier))
+        {
+            debug::trace ("addDevice duplicate identifier=" + deviceIdentifier);
+            return;
+        }
+
         DeviceItemCard::Data data;
         data.clientName = makeClientName (selection.streamType, selection.midi);
         data.driver = selection.driver;
         data.streamType = selection.streamType;
         data.device = selection.device;
+        if (selection.midi)
+            data.midiDeviceIdentifier = selection.deviceIdentifier;
+        else
+            data.audioDeviceName = selection.deviceIdentifier;
         data.channels = selection.channels;
         data.midi = selection.midi;
+        data.input = isInput;
+        data.wasapiMode = selection.wasapiMode;
+        addedDeviceIdentifiers.add (deviceIdentifier);
+        debug::trace ("addDevice data ready client=" + data.clientName);
 
+        debug::trace ("addDevice before card new");
         auto* card = new DeviceItemCard (
             std::move (data),
             [] (DeviceItemCard&, juce::String) {},
@@ -97,14 +127,21 @@ private:
                     if (section == nullptr || cardToRemove == nullptr)
                         return;
 
+                    const auto& data = cardToRemove->getData();
+                    const auto identifier = data.midi ? data.midiDeviceIdentifier : data.audioDeviceName;
+                    section->addedDeviceIdentifiers.removeString (identifier.isNotEmpty() ? identifier : data.device);
                     section->cards.removeObject (cardToRemove, true);
                     section->layoutCards();
                 });
             });
+        debug::trace ("addDevice after card new card=" + debug::pointerText (card));
 
         cards.add (card);
+        debug::trace ("addDevice after cards.add count=" + juce::String (cards.size()));
         listContent.addAndMakeVisible (card);
+        debug::trace ("addDevice after listContent.addAndMakeVisible");
         layoutCards();
+        debug::trace ("addDevice complete");
     }
 
     juce::String makeClientName (const juce::String& streamType, bool midi) const
@@ -115,8 +152,11 @@ private:
             return prefix + juce::String (cards.size() + 1).paddedLeft ('0', 2);
         }
 
-        const auto isInput = streamType == "Record";
-        const auto prefix = isInput ? "WDM_AudioIn_" : "WDM_AudioOut_";
+        const auto isVirtualInput = streamType == "Loopback";
+        const auto isPhysicalInput = streamType == "Record";
+        const auto prefix = isVirtualInput ? "WDM_VirtualIn_"
+                                           : (isPhysicalInput ? "WDM_AudioIn_" :
+                                              (streamType == "Injector" ? "WDM_VirtualOut_" : "WDM_AudioOut_"));
         return prefix + juce::String (cards.size() + 1).paddedLeft ('0', 2);
     }
 
@@ -132,13 +172,16 @@ private:
     }
 
     juce::String sectionTitle;
+    bool isInput = false;
     bool isMidi = false;
+    bool isVirtual = false;
     wjn::common::NexusLabel titleLabel;
     wjn::common::NexusButton addButton;
     wjn::common::NexusButton refreshButton;
     wjn::common::NexusViewport viewport;
     juce::Component listContent;
     juce::OwnedArray<DeviceItemCard> cards;
+    juce::StringArray& addedDeviceIdentifiers;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DeviceListSection)
 };
@@ -146,8 +189,10 @@ private:
 class TabPage final : public juce::Component
 {
 public:
-    TabPage (juce::String inputTitle, juce::String outputTitle, bool midi = false)
-        : inputSection (std::move (inputTitle), midi), outputSection (std::move (outputTitle), midi)
+    TabPage (juce::String inputTitle, juce::String outputTitle,
+             juce::StringArray& deviceIdentifiers, bool midi = false, bool virtualAudio = false)
+                : inputSection (std::move (inputTitle), true, deviceIdentifiers, midi, virtualAudio),
+                    outputSection (std::move (outputTitle), false, deviceIdentifiers, midi, virtualAudio)
     {
         addAndMakeVisible (inputSection);
         addAndMakeVisible (outputSection);
@@ -176,20 +221,16 @@ MainComponent::MainComponent()
     tabs.setTabBarDepth (42);
     tabs.setOutline (0);
 
-    tabs.addTab ("Physical Audio",
+    tabs.addTab (fromUtf8 ("系统音频"),
                  wjn::common::theme::rackPanel,
-                 new TabPage (fromUtf8 ("IN  |  WASAPI Capture"),
-                              fromUtf8 ("OUT  |  WASAPI Render")),
+                 new TabPage (fromUtf8 ("输入  |  WASAPI 捕获"),
+                              fromUtf8 ("输出  |  WASAPI 渲染"), addedDeviceIdentifiers),
                  true);
-    tabs.addTab ("Virtual / Playback",
+    tabs.addTab (fromUtf8 ("系统 MIDI"),
                  wjn::common::theme::rackPanel,
-                 new TabPage (fromUtf8 ("IN  |  WASAPI Loopback"),
-                              fromUtf8 ("OUT  |  Virtual Injector")),
-                 true);
-    tabs.addTab ("System MIDI",
-                 wjn::common::theme::rackPanel,
-                 new TabPage (fromUtf8 ("IN  |  WinMM / WinRT MIDI"),
-                              fromUtf8 ("OUT  |  WinMM / WinRT MIDI"),
+                 new TabPage (fromUtf8 ("输入  |  WinMM / WinRT MIDI"),
+                              fromUtf8 ("输出  |  WinMM / WinRT MIDI"),
+                              addedDeviceIdentifiers,
                               true),
                  true);
 

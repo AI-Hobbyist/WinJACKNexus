@@ -20,7 +20,7 @@ bool JackAudioInput::open(const juce::String& clientName, int channels, int bloc
     juce::StringArray names;
     for (int index = 0; index < channels; ++index)
         names.add("in_" + juce::String(index + 1));
-    if (!client.configurePorts({}, names))
+    if (!client.configurePorts(names, {}))
     {
         client.close();
         return false;

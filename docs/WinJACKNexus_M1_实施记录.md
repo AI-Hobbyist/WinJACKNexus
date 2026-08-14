@@ -56,3 +56,11 @@
 - `JackAudioBackend`/`JackClient` 保留通用双向 backend；`JackAudioInput`、`JackAudioOutput` 提供独立真实端口角色，避免应用直接操作 JACK C API。
 - `JackMidiInput`、`JackMidiOutput` 已提供真实 JACK MIDI 端口和事件读写；外部设备回环、SysEx 分片和端口连接拓扑属于手工集成验收范围。
 - `CsvLogWriter`、预设文件和历史数据只在非实时线程使用，不进入 JACK process 回调。
+
+## M1 后续维护记录（2026-08-15）
+
+- `JackAudioOutput` 增加跨 JACK block 的持续读取偏移，避免提交 block 与 JACK 回调 block 边界不一致时插入静音或重复消费。
+- `JackAudioInput`、`JackAudioOutput` 和 `SpscRingBuffer` 的生命周期/缓存路径继续保持控制线程预配置、实时回调无动态扩容的约束。
+- Adapter 已使用 Common 的真实 JACK 音频输入/输出和 MIDI 输入/输出包装；Common 侧本轮修正已在 Adapter 目标的 MSVC/Ninja 链接中验证。
+
+本记录不扩大 M1 的验收结论：真实外部 JACK 音频/MIDI 端口回环、长时间稳定性和跨应用拓扑仍属于手工集成验收范围。

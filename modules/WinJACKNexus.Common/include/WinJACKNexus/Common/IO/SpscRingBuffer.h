@@ -62,7 +62,7 @@ private:
         return index + 1 == Capacity ? 0 : index + 1;
     }
 
-    std::array<Value, Capacity> values {};
+    std::array<Value, Capacity> values;
     std::atomic<size_t> readIndex { 0 };
     std::atomic<size_t> writeIndex { 0 };
 };

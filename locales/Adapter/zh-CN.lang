@@ -8,8 +8,7 @@
   "strings": {
     "adapter.action.addDevice": "添加设备",
     "adapter.action.refresh": "刷新设备",
-    "adapter.section.physicalAudio": "物理音频",
-    "adapter.section.virtualAudio": "虚拟/播放音频",
+    "adapter.section.physicalAudio": "系统音频",
     "adapter.section.systemMidi": "系统 MIDI"
   },
   "templates": {}

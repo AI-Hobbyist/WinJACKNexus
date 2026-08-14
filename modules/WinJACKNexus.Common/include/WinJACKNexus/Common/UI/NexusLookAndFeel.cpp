@@ -119,11 +119,32 @@ void NexusLookAndFeel::drawTabbedButtonBarBackground (juce::TabbedButtonBar& bar
     g.fillRect (bar.getLocalBounds());
 }
 
-void NexusLookAndFeel::drawTabAreaBehindFrontButton (juce::TabbedButtonBar&,
+void NexusLookAndFeel::drawTabAreaBehindFrontButton (juce::TabbedButtonBar& bar,
                                                       juce::Graphics& g, int width, int height)
 {
-    g.setColour (theme.colour ("darkCanvas"));
-    g.fillRect (0, 0, width, height);
+    g.setColour (theme.colour ("border"));
+
+    switch (bar.getOrientation())
+    {
+        case juce::TabbedButtonBar::TabsAtTop:
+            g.fillRect (0, height - 1, width, 1);
+            break;
+
+        case juce::TabbedButtonBar::TabsAtBottom:
+            g.fillRect (0, 0, width, 1);
+            break;
+
+        case juce::TabbedButtonBar::TabsAtLeft:
+            g.fillRect (width - 1, 0, 1, height);
+            break;
+
+        case juce::TabbedButtonBar::TabsAtRight:
+            g.fillRect (0, 0, 1, height);
+            break;
+
+        default:
+            break;
+    }
 }
 
 } // namespace wjn::common

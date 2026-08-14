@@ -25,6 +25,7 @@ public:
 
 private:
     wjn::common::NexusTabbedComponent tabs { juce::TabbedButtonBar::TabsAtTop };
+    juce::StringArray addedDeviceIdentifiers;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
 };

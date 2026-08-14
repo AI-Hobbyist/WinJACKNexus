@@ -16,6 +16,11 @@ project(WinJACKNexus
     HOMEPAGE_URL "https://github.com/AI-Hobbyist/WinJACKNexus"
     LANGUAGES C CXX)
 
+if(MSVC AND CMAKE_GENERATOR MATCHES "Ninja")
+    set(CMAKE_CL_SHOWINCLUDES_PREFIX "注意: 包含文件: " CACHE STRING
+        "MSVC /showIncludes prefix used by Ninja dependency scanning" FORCE)
+endif()
+
 # ---------------------------------------------------------------------------
 # 全局编译标准
 # ---------------------------------------------------------------------------

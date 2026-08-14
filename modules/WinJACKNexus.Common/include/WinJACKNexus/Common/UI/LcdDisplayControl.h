@@ -20,6 +20,7 @@ public:
     void setContentPainter(ContentPainter newContentPainter);
     void setAccent(juce::Colour newAccent);
     void setTheme(const ThemeContext& newTheme);
+    void setPowered(bool shouldBePowered);
 
     void paint(juce::Graphics&) override;
 
@@ -27,6 +28,7 @@ private:
     ContentPainter contentPainter;
     juce::Colour accent { 0xff8de3ff };
     ThemeContext theme;
+    bool powered = true;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LcdDisplayControl)
 };

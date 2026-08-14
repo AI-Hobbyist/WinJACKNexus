@@ -1,4 +1,5 @@
 #include "DeviceItemCard.h"
+#include "../DebugTrace.h"
 
 #include <cmath>
 
@@ -31,12 +32,19 @@ float levelRatio (float level)
     return juce::jlimit (0.0f, 1.0f, (decibels + 60.0f) / 63.0f);
 }
 
+bool isInputStream (const juce::String& streamType)
+{
+    return streamType == "Record" || streamType == "Loopback";
+}
+
 juce::String channelName (int index)
 {
-    static const char* const surroundNames[] { "FL", "FR", "C", "LFE", "SL", "SR", "SBL", "SBR" };
+    static const char* const surroundNames[] {
+        "前左", "前右", "中置", "低频", "后左", "后右", "后环左", "后环右"
+    };
     return index < juce::numElementsInArray (surroundNames)
-               ? juce::String (surroundNames[index])
-               : "CH " + juce::String (index + 1);
+               ? fromUtf8 (surroundNames[index])
+               : fromUtf8 ("声道 ") + juce::String (index + 1);
 }
 
 void drawDbScale (juce::Graphics& g, juce::Rectangle<float> bounds,
@@ -83,47 +91,53 @@ DeviceItemCard::DeviceItemCard (Data itemData, RenameCallback onRename,
       pauseCallback (std::move (onPause)), removeCallback (std::move (onRemove)),
       midiMode (data.midi)
 {
+        debug::trace ("card ctor body begin card=" + debug::pointerText (this)
+                                    + " midi=" + juce::String (data.midi ? 1 : 0)
+                                    + " channels=" + juce::String (data.channels));
     for (int index = 0; index < juce::jmax (1, data.channels); ++index)
     audioLevels.add (0.0f);
+        debug::trace ("card after audioLevels size=" + juce::String (audioLevels.size()));
 
     addAndMakeVisible (audioLed);
     addAndMakeVisible (midiLed);
     audioLed.setVisible (! midiMode);
     midiLed.setVisible (midiMode);
+        debug::trace ("card after leds");
 
-    mockEngine.setAudioCallback ([this] (float level, bool clipping)
+    realEngine.setAudioCallback ([this] (const RealEngine::AudioLevels& levels,
+                                         float level, bool clipping)
     {
-        setAudioLevel (level, clipping);
+        setAudioLevel (levels, level, clipping);
     });
-    mockEngine.setMidiCallback ([this]
+    realEngine.setMidiCallback ([this] (const std::array<float, 16>& levels)
     {
-        ++midiPulse;
+        setMidiLevels (levels);
         midiLed.trigger();
         lcdDisplay.repaint();
     });
+    debug::trace ("card after engine callbacks");
 
     addAndMakeVisible (clientNameEditor);
     clientNameEditor.setText (data.clientName, juce::dontSendNotification);
     clientNameEditor.onReturnKey = [this] { commitName(); };
     clientNameEditor.onFocusLost = [this] { commitName(); };
+    debug::trace ("card after client editor");
 
     addAndMakeVisible (lcdDisplay);
     configureLcd();
-    mockEngine.start (midiMode);
+    lcdDisplay.setPowered (false);
+    debug::trace ("card after lcd");
 
     addAndMakeVisible (pauseSwitch);
-    pauseSwitch.setToggleState (! data.paused, juce::dontSendNotification);
+    data.paused = true;
+    pauseSwitch.setToggleState (false, juce::dontSendNotification);
     pauseSwitch.setStateChangeCallback ([this] (bool isOn)
     {
-        data.paused = ! isOn;
-        if (data.paused)
-            mockEngine.stop();
-        else
-            mockEngine.start (midiMode);
+        setPaused (! isOn);
         if (pauseCallback != nullptr)
             pauseCallback (*this);
-        repaint();
     });
+    debug::trace ("card after pause switch");
 
     addAndMakeVisible (removeButton);
     removeButton.setButtonText (fromUtf8 ("删除"));
@@ -132,13 +146,14 @@ DeviceItemCard::DeviceItemCard (Data itemData, RenameCallback onRename,
         if (removeCallback != nullptr)
             removeCallback (*this);
     };
+    debug::trace ("card ctor complete");
 }
 
 DeviceItemCard::~DeviceItemCard()
 {
-    mockEngine.stop();
-    mockEngine.setAudioCallback (nullptr);
-    mockEngine.setMidiCallback (nullptr);
+    realEngine.stop();
+    realEngine.setAudioCallback (nullptr);
+    realEngine.setMidiCallback (nullptr);
 }
 
 void DeviceItemCard::configureLcd()
@@ -151,17 +166,32 @@ void DeviceItemCard::configureLcd()
     });
 }
 
-void DeviceItemCard::setAudioLevel (float level, bool clipping)
+void DeviceItemCard::setAudioLevel (const RealEngine::AudioLevels& levels,
+                                    float level, bool clipping)
 {
     audioClipping = clipping;
     audioLed.setLevel (level, clipping);
 
     for (int index = 0; index < audioLevels.size(); ++index)
     {
-        const auto variation = 0.82f + 0.14f * std::sin (0.7f * static_cast<float> (index + 1));
-        audioLevels.set (index, juce::jlimit (0.0f, 1.0f, level * variation));
+        const auto channelLevel = index < static_cast<int> (levels.size())
+                                     ? levels[static_cast<size_t> (index)]
+                                     : 0.0f;
+        audioLevels.set (index, juce::jlimit (0.0f, 1.0f, channelLevel));
     }
 
+    lcdDisplay.repaint();
+}
+
+void DeviceItemCard::setMidiLevels (const std::array<float, 16>& levels)
+{
+    midiLevels = levels;
+    lcdDisplay.repaint();
+}
+
+void DeviceItemCard::clearMidiLevels()
+{
+    midiLevels.fill (0.0f);
     lcdDisplay.repaint();
 }
 
@@ -182,12 +212,13 @@ void DeviceItemCard::paintAudioLcd (juce::Graphics& g, juce::Rectangle<float> bo
     auto header = bounds.removeFromTop (18.0f);
     auto deviceHeader = header.removeFromLeft (header.getWidth() * 0.42f);
     auto sampleHeader = header.removeFromLeft (header.getWidth() * 0.55f);
-    drawLcdText (g, data.device + "  " + (data.streamType == "Record" ? "IN" : "OUT"),
+    drawLcdText (g, data.device + "  " + fromUtf8 (isInputStream (data.streamType) ? "输入" : "输出"),
                  deviceHeader, headerFont, ink, juce::Justification::centredLeft, true);
-    drawLcdText (g, "PCM 48.0kHz", sampleHeader, headerFont, ink, juce::Justification::centred, true);
+    drawLcdText (g, fromUtf8 ("采样率 48.0 kHz"), sampleHeader, headerFont, ink,
+                 juce::Justification::centred, true);
     const auto currentLevel = audioLevels.isEmpty() ? 0.0f : audioLevels.getFirst();
     const auto currentDb = 20.0f * std::log10 (juce::jmax (0.001f, currentLevel));
-    drawLcdText (g, "VOL " + juce::String (currentDb, 1) + "dB",
+    drawLcdText (g, fromUtf8 ("音量 ") + juce::String (currentDb, 1) + " dB",
                  header, headerFont, ink, juce::Justification::centredRight, true);
 
     bounds.removeFromTop (3.0f);
@@ -202,7 +233,9 @@ void DeviceItemCard::paintAudioLcd (juce::Graphics& g, juce::Rectangle<float> bo
             const auto row = meterArea.withY (meterArea.getY() + rowHeight * index)
                                        .withHeight (rowHeight);
             const auto level = index < audioLevels.size() ? audioLevels[index] : 0.0f;
-            drawHorizontalMeter (g, row, channelCount == 1 ? "MONO" : (index == 0 ? "L" : "R"),
+            drawHorizontalMeter (g, row, channelCount == 1 ? fromUtf8 ("单声道")
+                                                            : (index == 0 ? fromUtf8 ("左")
+                                                                          : fromUtf8 ("右")),
                                  level, smallFont, ink);
         }
 
@@ -254,7 +287,7 @@ void DeviceItemCard::paintAudioLcd (juce::Graphics& g, juce::Rectangle<float> bo
         }
     }
 
-    drawLcdText (g, audioClipping ? "CLIP" : "LEVEL",
+    drawLcdText (g, audioClipping ? fromUtf8 ("削波") : fromUtf8 ("电平"),
                  scale, smallFont, ink, juce::Justification::centredRight);
 }
 
@@ -267,8 +300,10 @@ void DeviceItemCard::paintMidiLcd (juce::Graphics& g, juce::Rectangle<float> bou
     auto deviceHeader = header.removeFromLeft (header.getWidth() * 0.38f);
     auto modeHeader = header.removeFromLeft (header.getWidth() * 0.48f);
     drawLcdText (g, data.device, deviceHeader, headerFont, ink, juce::Justification::centredLeft, true);
-    drawLcdText (g, "CH MODE : OMNI", modeHeader, headerFont, ink, juce::Justification::centred, true);
-    drawLcdText (g, "BANK A", header, headerFont, ink, juce::Justification::centredRight, true);
+    drawLcdText (g, fromUtf8 ("通道模式：全通道"), modeHeader, headerFont, ink,
+                 juce::Justification::centred, true);
+    drawLcdText (g, fromUtf8 ("音色库 A"), header, headerFont, ink,
+                 juce::Justification::centredRight, true);
 
     bounds.removeFromTop (3.0f);
     const auto scaleColumn = bounds.removeFromLeft (28.0f);
@@ -285,7 +320,6 @@ void DeviceItemCard::paintMidiLcd (juce::Graphics& g, juce::Rectangle<float> bou
 
     constexpr int midiChannelCount = 16;
     const auto columnWidth = meterArea.getWidth() / static_cast<float> (midiChannelCount);
-    const auto activeChannel = midiPulse % midiChannelCount;
     for (int index = 0; index < midiChannelCount; ++index)
     {
         const auto column = meterArea.withX (meterArea.getX() + index * columnWidth)
@@ -298,8 +332,7 @@ void DeviceItemCard::paintMidiLcd (juce::Graphics& g, juce::Rectangle<float> bou
         g.setColour (ink.withAlpha (0.24f));
         g.drawRect (meter, 1.0f);
 
-        const auto level = index == activeChannel ? 0.92f
-                                                   : 0.14f + 0.04f * static_cast<float> ((index + midiPulse) % 4);
+        const auto level = midiLevels[static_cast<size_t> (index)];
         constexpr int segmentCount = 8;
         const auto filledSegments = static_cast<int> (std::ceil (level * segmentCount));
         const auto segmentHeight = meter.getHeight() / static_cast<float> (segmentCount);
@@ -315,13 +348,22 @@ void DeviceItemCard::paintMidiLcd (juce::Graphics& g, juce::Rectangle<float> bou
         }
     }
 
-    drawLcdText (g, "MIDI CHANNELS", scale, smallFont, ink, juce::Justification::centredRight);
+    drawLcdText (g, fromUtf8 ("MIDI 通道"), scale, smallFont, ink, juce::Justification::centredRight);
 }
 
 void DeviceItemCard::setPaused (bool shouldPause)
 {
     data.paused = shouldPause;
     pauseSwitch.setToggleState (! shouldPause, juce::dontSendNotification);
+    lcdDisplay.setPowered (! shouldPause);
+    if (data.paused)
+    {
+        realEngine.stop();
+        clearMidiLevels();
+    }
+    else
+        realEngine.start ({ data.clientName, data.midiDeviceIdentifier, data.audioDeviceName,
+                    data.channels, data.midi, data.input, data.wasapiMode });
     repaint();
     lcdDisplay.repaint();
 }
@@ -345,6 +387,11 @@ void DeviceItemCard::commitName()
 
 void DeviceItemCard::paint (juce::Graphics& g)
 {
+    if (! firstPaintTraced)
+    {
+        firstPaintTraced = true;
+        debug::trace ("card first paint card=" + debug::pointerText (this));
+    }
     g.setColour (data.paused ? wjn::common::theme::border : wjn::common::theme::rackPanel);
     g.fillRoundedRectangle (getLocalBounds().toFloat(), 4.0f);
     g.setColour (data.paused ? wjn::common::theme::secondaryText : wjn::common::theme::border);
@@ -353,6 +400,13 @@ void DeviceItemCard::paint (juce::Graphics& g)
 
 void DeviceItemCard::resized()
 {
+    const auto traceFirstResize = ! firstResizeTraced;
+    if (traceFirstResize)
+    {
+        firstResizeTraced = true;
+        debug::trace ("card first resized begin card=" + debug::pointerText (this)
+                      + " bounds=" + getBounds().toString());
+    }
     auto area = getLocalBounds().reduced (10, 8);
     auto header = area.removeFromTop (30);
     auto ledArea = header.removeFromLeft (30);
@@ -366,6 +420,8 @@ void DeviceItemCard::resized()
     clientNameEditor.setBounds (header);
     area.removeFromTop (6);
     lcdDisplay.setBounds (area);
+    if (traceFirstResize)
+        debug::trace ("card first resized complete card=" + debug::pointerText (this));
 }
 
 } // namespace wjn::adapter
