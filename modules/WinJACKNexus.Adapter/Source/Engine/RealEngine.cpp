@@ -213,7 +213,7 @@ bool RealEngine::startEngine()
             return false;
         }
 
-        startTimerHz (20);
+        active.store (true, std::memory_order_release);
         return true;
     }
 
@@ -227,8 +227,9 @@ bool RealEngine::startEngine()
         if (systemMidiInput != nullptr)
             systemMidiInput->start();
 
-        startTimerHz (20);
-        return jackReady || systemMidiInput != nullptr;
+        const auto ready = jackReady || systemMidiInput != nullptr;
+        active.store (ready, std::memory_order_release);
+        return ready;
     }
 
     if (configuration.midiDeviceIdentifier.isNotEmpty())
@@ -236,13 +237,13 @@ bool RealEngine::startEngine()
 
     const auto jackReady = jackMidiInput.open (configuration.clientName, "in")
                         && jackMidiInput.start();
-    startTimerHz (20);
-    return jackReady || systemMidiOutput != nullptr;
+    const auto ready = jackReady || systemMidiOutput != nullptr;
+    active.store (ready, std::memory_order_release);
+    return ready;
 }
 
 void RealEngine::stop()
 {
-    stopTimer();
     signalThreadShouldExit();
     stopThread (-1);
     stopEngine();
@@ -250,7 +251,7 @@ void RealEngine::stop()
 
 void RealEngine::stopEngine()
 {
-    stopTimer();
+    active.store (false, std::memory_order_release);
     if (systemMidiInput != nullptr)
         systemMidiInput->stop();
     systemMidiInput.reset();
@@ -660,8 +661,11 @@ void RealEngine::publishMidiMessage (const juce::MidiMessage& message) noexcept
     pendingMidiEvents.fetch_add (1, std::memory_order_relaxed);
 }
 
-void RealEngine::timerCallback()
+void RealEngine::refresh()
 {
+    if (! active.load (std::memory_order_acquire))
+        return;
+
     if (! configuration.midi)
     {
         if (audioCallback != nullptr)

@@ -166,6 +166,18 @@ public:
         }
     }
 
+    void refresh()
+    {
+        for (auto* card : cards)
+            card->refresh();
+    }
+
+    void releaseClients()
+    {
+        for (auto* card : cards)
+            card->releaseClient();
+    }
+
 private:
     void refreshDeviceList()
     {
@@ -324,6 +336,18 @@ public:
         outputSection.restoreMappings (mappings);
     }
 
+    void refresh()
+    {
+        inputSection.refresh();
+        outputSection.refresh();
+    }
+
+    void releaseClients()
+    {
+        inputSection.releaseClients();
+        outputSection.releaseClients();
+    }
+
     void resized() override
     {
         auto area = getLocalBounds().reduced (16);
@@ -420,18 +444,24 @@ MainComponent::MainComponent()
         refreshConfigurationList();
     }
     setSize (960, 640);
-    startTimerHz (4);
+    startTimerHz (20);
 }
 
 MainComponent::~MainComponent()
 {
     stopTimer();
+    for (int index = 0; index < tabs.getNumTabs(); ++index)
+        if (auto* tab = dynamic_cast<TabPage*> (tabs.getTabContentComponent (index)))
+            tab->releaseClients();
     openGlAcceleration.detach();
 }
 
 void MainComponent::timerCallback()
 {
     openGlAcceleration.update (*this);
+    for (int index = 0; index < tabs.getNumTabs(); ++index)
+        if (auto* tab = dynamic_cast<TabPage*> (tabs.getTabContentComponent (index)))
+            tab->refresh();
 }
 
 juce::File MainComponent::getGlobalConfigFile() const

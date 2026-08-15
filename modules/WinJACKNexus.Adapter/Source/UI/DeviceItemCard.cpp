@@ -163,9 +163,14 @@ DeviceItemCard::DeviceItemCard (Data itemData, RenameCallback onRename,
 
 DeviceItemCard::~DeviceItemCard()
 {
-    realEngine.stop();
+    releaseClient();
+}
+
+void DeviceItemCard::releaseClient()
+{
     realEngine.setAudioCallback (nullptr);
     realEngine.setMidiCallback (nullptr);
+    realEngine.stop();
 }
 
 void DeviceItemCard::configureLcd()
@@ -182,6 +187,10 @@ void DeviceItemCard::setAudioLevel (const RealEngine::AudioLevels& levels,
                                     float level, bool clipping,
                                     const RealEngine::AudioStatus& status)
 {
+    auto changed = audioClipping != clipping
+                || audioStatus.wdmSampleRate != status.wdmSampleRate
+                || audioStatus.jackSampleRate != status.jackSampleRate
+                || audioStatus.resampling != status.resampling;
     audioClipping = clipping;
     audioStatus = status;
     audioLed.setLevel (level, clipping);
@@ -191,22 +200,42 @@ void DeviceItemCard::setAudioLevel (const RealEngine::AudioLevels& levels,
         const auto channelLevel = index < static_cast<int> (levels.size())
                                      ? levels[static_cast<size_t> (index)]
                                      : 0.0f;
-        audioLevels.set (index, juce::jlimit (0.0f, 1.0f, channelLevel));
+        const auto limitedLevel = juce::jlimit (0.0f, 1.0f, channelLevel);
+        changed = changed || audioLevels[index] != limitedLevel;
+        audioLevels.set (index, limitedLevel);
     }
 
-    repaintLcdIfDue();
+    if (changed)
+        repaintLcdIfDue();
+}
+
+void DeviceItemCard::refresh()
+{
+    realEngine.refresh();
+    audioLed.update();
+    midiLed.update();
 }
 
 void DeviceItemCard::setMidiLevels (const std::array<float, 16>& levels)
 {
+    auto changed = false;
+    for (size_t index = 0; index < midiLevels.size(); ++index)
+        changed = changed || midiLevels[index] != levels[index];
+
     midiLevels = levels;
-    repaintLcdIfDue();
+    if (changed)
+        repaintLcdIfDue();
 }
 
 void DeviceItemCard::clearMidiLevels()
 {
+    auto changed = false;
+    for (const auto level : midiLevels)
+        changed = changed || level != 0.0f;
+
     midiLevels.fill (0.0f);
-    repaintLcdIfDue();
+    if (changed)
+        repaintLcdIfDue();
 }
 
 void DeviceItemCard::repaintLcdIfDue()

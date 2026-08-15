@@ -43,6 +43,8 @@ public:
     const Data& getData() const noexcept { return data; }
     void setChannels (int channelCount);
     void setPaused (bool shouldPause);
+    void refresh();
+    void releaseClient();
     bool renameClient (const juce::String& clientName) { return realEngine.renameClient (clientName); }
 
     void paint (juce::Graphics& g) override;

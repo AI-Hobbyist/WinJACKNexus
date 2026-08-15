@@ -8,20 +8,26 @@ namespace wjn::common
 MidiLed::MidiLed()
 {
     setOpaque (false);
-    startTimerHz (25);
 }
 
 void MidiLed::trigger()
 {
+    repaintPending = repaintPending || level != 1.0f;
     level = 1.0f;
 }
 
-void MidiLed::timerCallback()
+void MidiLed::update()
 {
-    level *= 0.76f;
+    const auto previousLevel = level;
+    level *= 0.71f;
     if (level < 0.01f)
         level = 0.0f;
-    repaint();
+
+    if (repaintPending || previousLevel != level)
+    {
+        repaintPending = false;
+        repaint();
+    }
 }
 
 void MidiLed::paint (juce::Graphics& g)

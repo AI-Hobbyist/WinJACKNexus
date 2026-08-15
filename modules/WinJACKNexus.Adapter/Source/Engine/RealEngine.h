@@ -19,7 +19,6 @@ namespace wjn::adapter
 {
 
 class RealEngine final : private juce::Thread,
-                         private juce::Timer,
                          private juce::MidiInputCallback,
                          private juce::AudioIODeviceCallback
 {
@@ -56,6 +55,7 @@ public:
     bool start (Configuration configuration);
     bool renameClient (const juce::String& clientName);
     void stop();
+    void refresh();
 
 private:
     void run() override;
@@ -74,7 +74,6 @@ private:
                                            const juce::AudioIODeviceCallbackContext&) override;
     void audioDeviceAboutToStart (juce::AudioIODevice*) override;
     void audioDeviceStopped() override;
-    void timerCallback() override;
     bool startAudioDevice();
     void resetResamplers() noexcept;
     void compactCaptureInput() noexcept;
@@ -128,6 +127,7 @@ private:
     std::atomic<float> audioPeak { 0.0f };
     std::array<std::atomic<float>, maxAudioChannels> audioPeaks {};
     std::atomic<bool> audioClipping { false };
+    std::atomic<bool> active { false };
     std::atomic<juce::uint64> pendingMidiEvents { 0 };
     juce::uint64 deliveredMidiEvents = 0;
     std::array<std::atomic<float>, 16> midiLevels {};
