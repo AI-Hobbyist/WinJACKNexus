@@ -99,7 +99,7 @@ void MeterProject::ensureDefaults()
 juce::var MeterProject::toJson() const
 {
     auto root = juce::DynamicObject::Ptr (new juce::DynamicObject());
-    root->setProperty ("format", "JackMeterBridgeConfig");
+    root->setProperty ("format", "WinJACKNexus.MeterBridge");
     root->setProperty ("version", 1);
     root->setProperty ("channelLimit", channelLimit);
     root->setProperty ("historyWindowSeconds", historyWindowSeconds);
@@ -160,7 +160,9 @@ bool MeterProject::fromJson(const juce::var& value, juce::String& error)
     }
 
     const auto format = root->getProperty ("format").toString();
-    if (format.isNotEmpty() && format != "JackMeterBridgeConfig")
+    if (format.isNotEmpty()
+        && format != "WinJACKNexus.MeterBridge"
+        && format != "JackMeterBridgeConfig")
     {
         error = "Unsupported MeterBridge configuration format";
         return false;

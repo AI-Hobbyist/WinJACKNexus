@@ -47,6 +47,8 @@ void MeterBridgeApplication::initialise (const juce::String& /*commandLine*/)
 
 void MeterBridgeApplication::shutdown()
 {
+    if (mainWindow != nullptr)
+        mainWindow->prepareForShutdown();
     mainWindow.reset();
     juce::LookAndFeel::setDefaultLookAndFeel (nullptr);
 }

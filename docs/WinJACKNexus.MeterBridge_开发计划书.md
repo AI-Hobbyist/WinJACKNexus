@@ -176,7 +176,7 @@ struct MeterBlock {
 
 ```json
 {
-  "format": "JackMeterBridgeConfig",
+  "format": "WinJACKNexus.MeterBridge",
   "version": 1,
   "historyWindowSeconds": 600,
   "silenceResetThresholdDB": -60.0,

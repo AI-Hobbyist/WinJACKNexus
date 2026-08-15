@@ -36,6 +36,7 @@ public:
     explicit MeterBridgeMainComponent (const wjn::common::TextCatalog& locale);
     ~MeterBridgeMainComponent() override;
 
+    void prepareForShutdown();
     void paint (juce::Graphics& g) override;
     void resized() override;
 
@@ -136,6 +137,7 @@ private:
     juce::String statusLineOne;
     juce::String statusLineTwo;
     juce::int64 lastJackAttemptMs = 0;
+    bool shutdownPrepared = false;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MeterBridgeMainComponent)
 };

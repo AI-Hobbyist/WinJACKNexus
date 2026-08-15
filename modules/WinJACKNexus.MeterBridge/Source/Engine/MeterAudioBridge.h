@@ -26,7 +26,6 @@ public:
 
     bool connect (const juce::StringArray& inputNames);
     void disconnect();
-    void prepareForProcessExit() noexcept;
     bool pop (int channelIndex, AudioBlock& block) noexcept;
     void resetQueues() noexcept;
     wjn::common::JackClient::Status getStatus() const noexcept;

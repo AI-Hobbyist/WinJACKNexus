@@ -13,6 +13,7 @@ public:
     MeterBridgeMainWindow (const juce::String& name, const wjn::common::TextCatalog& locale);
     ~MeterBridgeMainWindow() override;
 
+    void prepareForShutdown();
     void closeButtonPressed() override;
 
 private:

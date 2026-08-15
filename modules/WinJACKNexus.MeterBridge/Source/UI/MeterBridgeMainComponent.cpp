@@ -253,10 +253,19 @@ MeterBridgeMainComponent::MeterBridgeMainComponent (const wjn::common::TextCatal
 
 MeterBridgeMainComponent::~MeterBridgeMainComponent()
 {
+    prepareForShutdown();
+}
+
+void MeterBridgeMainComponent::prepareForShutdown()
+{
+    if (shutdownPrepared)
+        return;
+
+    shutdownPrepared = true;
     stopTimer();
     cardsContent.removeMouseListener (this);
+    audioBridge.disconnect();
     openGlAcceleration.detach();
-    audioBridge.prepareForProcessExit();
 }
 
 void MeterBridgeMainComponent::paint (juce::Graphics& g)

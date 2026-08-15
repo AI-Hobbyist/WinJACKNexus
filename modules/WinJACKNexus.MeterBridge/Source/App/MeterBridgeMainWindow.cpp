@@ -22,6 +22,12 @@ MeterBridgeMainWindow::MeterBridgeMainWindow (const juce::String& name,
 
 MeterBridgeMainWindow::~MeterBridgeMainWindow() = default;
 
+void MeterBridgeMainWindow::prepareForShutdown()
+{
+    if (auto* content = dynamic_cast<MeterBridgeMainComponent*> (getContentComponent()))
+        content->prepareForShutdown();
+}
+
 void MeterBridgeMainWindow::closeButtonPressed()
 {
     juce::JUCEApplication::getInstance()->systemRequestedQuit();

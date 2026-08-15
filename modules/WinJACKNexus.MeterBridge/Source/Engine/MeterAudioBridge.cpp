@@ -30,7 +30,7 @@ bool MeterAudioBridge::connect (const juce::StringArray& inputNames)
     else
     {
         disconnect();
-        if (! jackClient->open ("JackMeterBridge", maxAudioFrames))
+        if (! jackClient->open ("MeterBridge", maxAudioFrames))
             return false;
     }
 
@@ -61,18 +61,11 @@ bool MeterAudioBridge::connect (const juce::StringArray& inputNames)
 void MeterAudioBridge::disconnect()
 {
     if (jackClient != nullptr)
+    {
+        jackClient->setProcessCallback (nullptr, nullptr);
         jackClient->close();
+    }
     audioState.reset();
-}
-
-void MeterAudioBridge::prepareForProcessExit() noexcept
-{
-    if (jackClient == nullptr)
-        return;
-
-    jackClient->setProcessCallback (nullptr, nullptr);
-    jackClient.release();
-    audioState.release();
 }
 
 bool MeterAudioBridge::pop (int channelIndex, AudioBlock& block) noexcept
