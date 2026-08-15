@@ -18,7 +18,9 @@ project(WinJACKNexus.Adapter VERSION 0.1.0 LANGUAGES CXX)
 juce_add_gui_app(WinJACKNexus.Adapter
     PRODUCT_NAME "WinJACKNexus.Adapter"
     VERSION ${PROJECT_VERSION}
-    COMPANY_NAME "AI-Hobbyist")
+    COMPANY_NAME "AI-Hobbyist"
+    ICON_BIG "${CMAKE_SOURCE_DIR}/logos/adapter_transparent.png"
+    ICON_SMALL "${CMAKE_SOURCE_DIR}/logos/adapter_transparent.png")
 
 target_include_directories(WinJACKNexus.Adapter PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/Source)
