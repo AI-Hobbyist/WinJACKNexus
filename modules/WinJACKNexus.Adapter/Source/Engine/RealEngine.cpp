@@ -213,7 +213,7 @@ bool RealEngine::startEngine()
             return false;
         }
 
-        startTimerHz (30);
+        startTimerHz (20);
         return true;
     }
 
@@ -227,7 +227,7 @@ bool RealEngine::startEngine()
         if (systemMidiInput != nullptr)
             systemMidiInput->start();
 
-        startTimerHz (30);
+        startTimerHz (20);
         return jackReady || systemMidiInput != nullptr;
     }
 
@@ -236,7 +236,7 @@ bool RealEngine::startEngine()
 
     const auto jackReady = jackMidiInput.open (configuration.clientName, "in")
                         && jackMidiInput.start();
-    startTimerHz (30);
+    startTimerHz (20);
     return jackReady || systemMidiOutput != nullptr;
 }
 

@@ -172,6 +172,7 @@ struct MeterBlock {
 - 后缀 `.meter`，内部为标准 JSON；`juce::JSON` / `juce::DynamicObject` 编解码。
 - 字段：格式标识、版本、通道数量、通道名称、分组归属、历史窗口时间、重置阈值参数、**每通道自动记录开关（`record`，默认关闭）**、**通道数上限（`channelLimit`，默认 32，最大 4096）**、**每通道响度预设（通道字段 `presetId`，默认 `ebu_r128`）与全局自定义预设列表（`customPresets`）**。
 - 启动自动恢复 UI 状态；提供"保存/另存为/加载"入口。
+- 工程预设使用 `.meter` JSON 文件，保存到应用程序同级 `meter_saves/`；主界面提供工程预设保存和列表加载，加载后恢复通道、分组、参数、记录状态与每通道响度预设。
 
 ```json
 {
@@ -260,12 +261,12 @@ struct MeterBlock {
 | 1.2 分段固色柱状图 Component | 已完成 | Peak、RMS、dBTP、Momentary、Short-term、Integrated、LRA 七个仪表；分段颜色、预设联动、窄窗口下 M / S / I 缩写和 Tooltip。 |
 | 1.3 通道/分组管理 UI | 已完成 | 通道增删、通道重命名、分组创建与重命名、通道分组选择、卡片拖动排序、卡片与分组颜色。通道上限可配置为 1~4096，默认 32。 |
 | 1.4 历史图表弹窗 | 已完成 | 扫描 / 滚动模式、多指标显隐、图例、预设参考线、时间窗口滑块、CSV 导出、历史数据悬浮查看。 |
-| 1.5 `.meter` 编解码与状态恢复 | 已完成 | `.meter` JSON 保存 / 加载、启动自动恢复、通道 / 分组 / 颜色 / 预设 / Record 状态持久化；应用同级 `config.json` 全局设置；自定义 `.loudness` 预设和 `presets` 刷新。 |
+| 1.5 `.meter` 编解码与状态恢复 | 已完成 | `.meter` JSON 保存 / 加载、启动自动恢复、通道 / 分组 / 颜色 / 预设 / Record 状态持久化；应用同级 `config.json` 全局设置；自定义 `.loudness` 预设和 `loudness_saves` 刷新；工程预设和 `meter_saves` 列表加载。 |
 
 #### 阶段一的实现取舍
 
 1. **组件与真实音频链路同步实现**：仪表组件直接消费真实 JACK 数据快照，JACK Client、无锁 FIFO、Peak / RMS / dBTP / LUFS / LRA 算法统一按实时线程边界实现。
-2. **配置职责分层**：通道、分组和界面状态写入 `.meter`；全局默认值写入应用程序同级 `config.json`；自定义响度标准单独保存为 `presets/*.loudness`，以便预设库刷新和独立管理。
+2. **配置职责分层**：通道、分组和界面状态写入 `.meter`；全局默认值写入应用程序同级 `config.json`；自定义响度标准单独保存为 `loudness_saves/*.loudness`，工程预设保存为 `meter_saves/*.meter`，两个目录分别刷新和管理。
 3. **模块化采用渐进拆分**：已将历史公共类型、响度预设库、设置编辑器分别整理到 `src/history`、`src/presets`、`src/settings`；历史图表、通道卡片、仪表和分组之间存在较强的内部依赖，暂时保留在 `MainComponent.cpp`，避免为追求文件数量而引入不必要的接口层和行为回归。
 4. **设置窗口优先保证布局稳定**：数值设置使用 Slider，预设使用 ComboBox；设置内容由统一组件管理，避免 `AlertWindow` 逐项排版造成控件截断或按钮重叠。
 5. **当前验收以构建与启动稳定为主**：已完成 MSVC + Ninja Debug 编译、诊断检查和启动检查；真实 JACK 路由、标准测试信号精度、实时线程性能和长时间稳定性测试纳入阶段二。
@@ -279,7 +280,8 @@ src/
 ├─ MainComponent.h
 ├─ history/
 │  └─ HistoryTypes.h
-├─ presets/
+├─ loudness_saves/
+├─ meter_saves/
 │  └─ LoudnessPresetLibrary.h
 └─ settings/
   └─ SettingsEditors.h

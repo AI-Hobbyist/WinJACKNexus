@@ -12,11 +12,13 @@ class MeterComponent final : public juce::Component
 public:
     enum class MeterType { decibels, truePeak, loudness, range };
 
-    MeterComponent(juce::String label, MeterType type, float minimum = -60.0f, float maximum = 12.0f);
+    MeterComponent(juce::String label, MeterType type, float minimum = -60.0f,
+                   float maximum = 12.0f, float barThickness = 0.0f);
     void setValue(float value);
     void resetValue(float value);
     void setPeakHoldDuration(float seconds);
     void setPreset(float targetLufs, float toleranceLu, float truePeakMaxDbtp);
+    void setBarThickness(float pixels) noexcept;
     void setTheme(const ThemeContext& theme);
     void paint(juce::Graphics&) override;
 
@@ -35,6 +37,7 @@ private:
     float targetLufs = -23.0f;
     float toleranceLu = 1.0f;
     float truePeakMaxDbtp = -1.0f;
+    float barThickness = 0.0f;
     ThemeContext theme;
 };
 

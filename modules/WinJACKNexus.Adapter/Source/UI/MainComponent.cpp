@@ -378,11 +378,13 @@ MainComponent::MainComponent()
         loadSelectedConfiguration();
     };
 
-    settingsButton.setButtonText (fromUtf8 ("设备筛选设置"));
+    settingsButton.setButtonText (fromUtf8 ("全局设置"));
     settingsButton.onClick = [this]
     {
         showAudioFilterSettingsDialog();
     };
+
+    loadGlobalSettings();
 
     tabs.addTab (fromUtf8 ("系统音频"),
                  wjn::common::theme::rackPanel,
@@ -418,9 +420,72 @@ MainComponent::MainComponent()
         refreshConfigurationList();
     }
     setSize (960, 640);
+    startTimerHz (4);
 }
 
-MainComponent::~MainComponent() = default;
+MainComponent::~MainComponent()
+{
+    stopTimer();
+    openGlAcceleration.detach();
+}
+
+void MainComponent::timerCallback()
+{
+    openGlAcceleration.update (*this);
+}
+
+juce::File MainComponent::getGlobalConfigFile() const
+{
+    return juce::File::getSpecialLocation (juce::File::currentApplicationFile)
+        .getParentDirectory().getChildFile ("config.json");
+}
+
+bool MainComponent::loadGlobalSettings()
+{
+    const auto file = getGlobalConfigFile();
+    if (! file.existsAsFile())
+        return false;
+
+    const auto parsed = juce::JSON::parse (file);
+    const auto* root = parsed.getDynamicObject();
+    if (root == nullptr)
+        return false;
+
+    const auto format = root->getProperty ("format").toString();
+    if (format.isNotEmpty() && format != "WinJACKNexus.AdapterGlobalConfig")
+        return false;
+
+    CascadeDeviceSelector::AudioDeviceFilterSettings loaded;
+    loaded.virtualDevicePattern = root->hasProperty ("virtualDevicePattern")
+        ? root->getProperty ("virtualDevicePattern").toString() : loaded.virtualDevicePattern;
+    loaded.inputDevicePattern = root->hasProperty ("inputDevicePattern")
+        ? root->getProperty ("inputDevicePattern").toString() : loaded.inputDevicePattern;
+    loaded.outputDevicePattern = root->hasProperty ("outputDevicePattern")
+        ? root->getProperty ("outputDevicePattern").toString() : loaded.outputDevicePattern;
+    if (! CascadeDeviceSelector::areFilterPatternsValid (loaded))
+        return false;
+
+    audioDeviceFilterSettings = std::move (loaded);
+    const auto openGlEnabled = root->hasProperty ("openGlAccelerationEnabled")
+        && static_cast<bool> (root->getProperty ("openGlAccelerationEnabled"));
+    openGlAcceleration.setEnabled (openGlEnabled);
+    return true;
+}
+
+bool MainComponent::saveGlobalSettings() const
+{
+    auto root = juce::DynamicObject::Ptr (new juce::DynamicObject());
+    root->setProperty ("format", "WinJACKNexus.AdapterGlobalConfig");
+    root->setProperty ("version", 1);
+    root->setProperty ("virtualDevicePattern", audioDeviceFilterSettings.virtualDevicePattern);
+    root->setProperty ("inputDevicePattern", audioDeviceFilterSettings.inputDevicePattern);
+    root->setProperty ("outputDevicePattern", audioDeviceFilterSettings.outputDevicePattern);
+    root->setProperty ("openGlAccelerationEnabled", openGlAcceleration.isRequested());
+
+    const auto file = getGlobalConfigFile();
+    file.getParentDirectory().createDirectory();
+    return file.replaceWithText (juce::JSON::toString (juce::var (root), false));
+}
 
 void MainComponent::createNewConfiguration()
 {
@@ -627,8 +692,8 @@ void MainComponent::resized()
 
 void MainComponent::showAudioFilterSettingsDialog()
 {
-    auto* alert = new juce::AlertWindow (fromUtf8 ("虚拟声卡筛选设置"),
-                                         fromUtf8 ("命中虚拟设备正则的设备按输入/输出正则筛选，其他设备保留。"),
+    auto* alert = new juce::AlertWindow (fromUtf8 ("全局设置"),
+                                         fromUtf8 ("配置设备筛选规则和界面渲染选项。"),
                                          juce::MessageBoxIconType::NoIcon,
                                          this);
     alert->addTextEditor ("virtualDevicePattern", audioDeviceFilterSettings.virtualDevicePattern,
@@ -637,6 +702,12 @@ void MainComponent::showAudioFilterSettingsDialog()
                           fromUtf8 ("录制设备正则"));
     alert->addTextEditor ("outputDevicePattern", audioDeviceFilterSettings.outputDevicePattern,
                           fromUtf8 ("播放设备正则"));
+    auto* openGlAccelerationToggle = new juce::ToggleButton();
+    openGlAccelerationToggle->setButtonText (fromUtf8 ("OpenGL 加速"));
+    openGlAccelerationToggle->setToggleState (openGlAcceleration.isRequested(),
+                                              juce::dontSendNotification);
+    openGlAccelerationToggle->setSize (320, 24);
+    alert->addCustomComponent (openGlAccelerationToggle);
     alert->addButton (fromUtf8 ("应用"), 1,
                       juce::KeyPress (juce::KeyPress::returnKey, 0, 0));
     alert->addButton (fromUtf8 ("取消"), 0,
@@ -644,8 +715,9 @@ void MainComponent::showAudioFilterSettingsDialog()
 
     juce::Component::SafePointer<MainComponent> safeThis (this);
     alert->enterModalState (true,
-                            juce::ModalCallbackFunction::create ([safeThis, alert] (int result) mutable
+                            juce::ModalCallbackFunction::create ([safeThis, alert, openGlAccelerationToggle] (int result) mutable
                             {
+                                const std::unique_ptr<juce::ToggleButton> toggleGuard (openGlAccelerationToggle);
                                 if (safeThis == nullptr || result != 1)
                                     return;
 
@@ -667,6 +739,9 @@ void MainComponent::showAudioFilterSettingsDialog()
                                 }
 
                                 safeThis->audioDeviceFilterSettings = std::move (updated);
+                                safeThis->openGlAcceleration.setEnabled (openGlAccelerationToggle->getToggleState());
+                                if (! safeThis->saveGlobalSettings())
+                                    safeThis->showConfigurationError (fromUtf8 ("全局设置保存失败，请检查文件路径和权限。"));
                             }),
                             true);
 }

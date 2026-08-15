@@ -5,6 +5,85 @@
 namespace wjn::common
 {
 
+namespace
+{
+
+struct SavedPortConnections
+{
+    juce::String shortName;
+    juce::StringArray sourcePorts;
+};
+
+using SavedPortConnectionsList = std::vector<SavedPortConnections>;
+
+SavedPortConnectionsList savePortConnections (const std::vector<jack_port_t*>& ports)
+{
+    SavedPortConnectionsList savedConnections;
+    savedConnections.reserve (ports.size());
+    for (auto* port : ports)
+    {
+        SavedPortConnections saved;
+        if (port == nullptr)
+        {
+            savedConnections.push_back (std::move (saved));
+            continue;
+        }
+
+        if (const auto* shortName = jack_port_short_name (port))
+            saved.shortName = shortName;
+        if (const auto* connectedPorts = jack_port_get_connections (port))
+        {
+            for (size_t index = 0; connectedPorts[index] != nullptr; ++index)
+                saved.sourcePorts.add (connectedPorts[index]);
+            jack_free (const_cast<char**> (connectedPorts));
+        }
+        savedConnections.push_back (std::move (saved));
+    }
+    return savedConnections;
+}
+
+void restorePortConnections (jack_client_t* client,
+                             const std::vector<jack_port_t*>& ports,
+                             const SavedPortConnectionsList& savedConnections,
+                             bool localPortIsInput)
+{
+    if (client == nullptr)
+        return;
+
+    std::vector<bool> restored (savedConnections.size(), false);
+    for (size_t index = 0; index < ports.size(); ++index)
+    {
+        const auto* destination = ports[index] != nullptr ? jack_port_name (ports[index]) : nullptr;
+        const auto* shortName = ports[index] != nullptr ? jack_port_short_name (ports[index]) : nullptr;
+        if (destination == nullptr || shortName == nullptr)
+            continue;
+
+        auto savedIndex = savedConnections.size();
+        for (size_t candidate = 0; candidate < savedConnections.size(); ++candidate)
+            if (! restored[candidate] && savedConnections[candidate].shortName == shortName)
+            {
+                savedIndex = candidate;
+                break;
+            }
+        if (savedIndex == savedConnections.size() && index < savedConnections.size()
+            && ! restored[index])
+            savedIndex = index;
+        if (savedIndex == savedConnections.size())
+            continue;
+
+        restored[savedIndex] = true;
+        for (const auto& source : savedConnections[savedIndex].sourcePorts)
+        {
+            if (localPortIsInput)
+                jack_connect (client, source.toRawUTF8(), destination);
+            else
+                jack_connect (client, destination, source.toRawUTF8());
+        }
+    }
+}
+
+} // namespace
+
 JackClient::~JackClient()
 {
     close();
@@ -55,6 +134,40 @@ bool JackClient::configurePorts(const juce::StringArray& inputNames,
         return false;
     }
 
+    const auto renamePorts = [this] (const juce::StringArray& names,
+                                     std::vector<jack_port_t*>& ports,
+                                     std::vector<juce::String>& currentNames) noexcept
+    {
+        if (names.size() != static_cast<int> (ports.size()))
+            return true;
+
+        for (int index = 0; index < names.size(); ++index)
+        {
+            if (currentNames[static_cast<size_t> (index)] == names[index])
+                continue;
+            if (jack_port_rename (client, ports[static_cast<size_t> (index)], names[index].toRawUTF8()) != 0)
+            {
+                setError ("Unable to rename JACK audio port");
+                return false;
+            }
+        }
+        currentNames.assign (names.begin(), names.end());
+        return true;
+    };
+
+    const auto sameInputCount = inputNames.size() == static_cast<int> (inputPorts.size());
+    const auto sameOutputCount = outputNames.size() == static_cast<int> (outputPorts.size());
+    if (sameInputCount && sameOutputCount)
+    {
+        if (! renamePorts (inputNames, inputPorts, inputPortNames)
+            || ! renamePorts (outputNames, outputPorts, outputPortNames))
+            return false;
+        return true;
+    }
+
+    const auto savedInputConnections = savePortConnections (inputPorts);
+    const auto savedOutputConnections = savePortConnections (outputPorts);
+
     for (auto* port : inputPorts)
         jack_port_unregister(client, port);
     for (auto* port : outputPorts)
@@ -81,6 +194,9 @@ bool JackClient::configurePorts(const juce::StringArray& inputNames,
     outputBuffers.resize(outputPorts.size());
     inputPortNames.assign(inputNames.begin(), inputNames.end());
     outputPortNames.assign(outputNames.begin(), outputNames.end());
+
+    restorePortConnections (client, inputPorts, savedInputConnections, true);
+    restorePortConnections (client, outputPorts, savedOutputConnections, false);
 
     return true;
 }

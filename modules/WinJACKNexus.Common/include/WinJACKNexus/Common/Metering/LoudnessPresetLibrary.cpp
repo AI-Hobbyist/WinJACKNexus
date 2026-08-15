@@ -34,8 +34,8 @@ void LoudnessPresetLibrary::addBuiltin(const juce::String& id, const juce::Strin
 
 juce::File LoudnessPresetLibrary::getPresetDirectory() const
 {
-    return juce::File::getSpecialLocation(juce::File::currentExecutableFile)
-        .getParentDirectory().getChildFile("presets");
+    return juce::File::getSpecialLocation(juce::File::currentApplicationFile)
+    .getParentDirectory().getChildFile("loudness_saves");
 }
 
 void LoudnessPresetLibrary::refresh()
@@ -70,7 +70,10 @@ bool LoudnessPresetLibrary::saveCustom(juce::String name, LoudnessPreset values)
     if (name.isEmpty())
         return false;
     auto id = "custom_" + name.toLowerCase().replaceCharacters(" \\/:*?\"<>|", "__________").substring(0, 48);
-    auto file = getPresetDirectory().getChildFile(id + ".loudness");
+    const auto directory = getPresetDirectory();
+    if (! directory.createDirectory())
+        return false;
+    auto file = directory.getChildFile(id + ".loudness");
     auto object = juce::DynamicObject::Ptr(new juce::DynamicObject());
     object->setProperty("format", "WinJACKNexusLoudnessPreset");
     object->setProperty("version", 1);

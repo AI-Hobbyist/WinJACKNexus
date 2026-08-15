@@ -16,6 +16,7 @@ public:
     void setRange(double minimum, double maximum, double interval = 0.0);
     void setValue(double newValue, juce::NotificationType notification);
     double getValue() const noexcept;
+    void setTextValueSuffix(juce::String suffix);
     void setValueChangeCallback(std::function<void(double)> callback);
 
     void paint(juce::Graphics&) override;
@@ -24,6 +25,7 @@ public:
     void mouseDrag(const juce::MouseEvent&) override;
 
 private:
+    juce::Rectangle<float> getTrackBounds() const noexcept;
     void setValueFromPosition(float x, juce::NotificationType notification);
     void notifyValueChanged(juce::NotificationType notification);
 
@@ -32,6 +34,7 @@ private:
     double maximum = 1.0;
     double interval = 0.0;
     double value = 0.0;
+    juce::String textValueSuffix;
     float dragStartX = 0.0f;
     double dragStartValue = 0.0;
     std::function<void(double)> valueChangeCallback;

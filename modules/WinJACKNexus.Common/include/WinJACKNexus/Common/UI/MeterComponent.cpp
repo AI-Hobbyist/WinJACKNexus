@@ -3,9 +3,10 @@
 namespace wjn::common
 {
 
-MeterComponent::MeterComponent(juce::String newLabel, MeterType newType, float newMinimum, float newMaximum)
+MeterComponent::MeterComponent(juce::String newLabel, MeterType newType, float newMinimum,
+                                                             float newMaximum, float newBarThickness)
     : label(std::move(newLabel)), type(newType), value(newMinimum), heldValue(newMinimum),
-      minValue(newMinimum), maxValue(newMaximum)
+            minValue(newMinimum), maxValue(newMaximum), barThickness(juce::jmax(0.0f, newBarThickness))
 {
 }
 
@@ -49,6 +50,12 @@ void MeterComponent::setPreset(float newTargetLufs, float newToleranceLu, float 
     repaint();
 }
 
+void MeterComponent::setBarThickness(float pixels) noexcept
+{
+    barThickness = juce::jlimit(0.0f, 256.0f, pixels);
+    repaint();
+}
+
 void MeterComponent::setTheme(const ThemeContext& newTheme)
 {
     theme = newTheme;
@@ -67,7 +74,10 @@ void MeterComponent::paint(juce::Graphics& g)
     auto area = getLocalBounds().toFloat();
     const auto labelArea = area.removeFromTop(18.0f);
     const auto valueArea = area.removeFromBottom(20.0f);
-    const auto meterArea = area.reduced(2.0f, 0.0f);
+    auto meterArea = area.reduced(2.0f, 0.0f);
+    if (barThickness > 0.0f && barThickness < meterArea.getWidth())
+        meterArea = meterArea.withWidth(barThickness)
+                     .withCentre(meterArea.getCentre());
     g.setColour(theme.colour("primaryText").withAlpha(0.8f));
     g.setFont(juce::FontOptions(11.0f));
     g.drawFittedText(label, labelArea.toNearestInt(), juce::Justification::centred, 1);
@@ -77,6 +87,9 @@ void MeterComponent::paint(juce::Graphics& g)
     auto range = maximum() - minimum();
     auto fill = [this, &g, &meterArea, range](float low, float high, juce::Colour colour)
     {
+        high = juce::jmin (high, value);
+        if (high <= low)
+            return;
         const auto start = juce::jlimit(0.0f, 1.0f, (low - minimum()) / range);
         const auto end = juce::jlimit(0.0f, 1.0f, (high - minimum()) / range);
         if (end <= start)

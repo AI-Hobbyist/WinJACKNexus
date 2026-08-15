@@ -27,6 +27,19 @@ public:
         return true;
     }
 
+    template <typename Writer>
+    bool pushWith (Writer&& writer) noexcept
+    {
+        const auto write = writeIndex.load(std::memory_order_relaxed);
+        const auto next = increment(write);
+        if (next == readIndex.load(std::memory_order_acquire))
+            return false;
+
+        writer (values[write]);
+        writeIndex.store(next, std::memory_order_release);
+        return true;
+    }
+
     bool pop(Value& value) noexcept
     {
         const auto read = readIndex.load(std::memory_order_relaxed);

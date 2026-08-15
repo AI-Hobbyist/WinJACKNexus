@@ -5,6 +5,13 @@
 namespace wjn::common
 {
 
+namespace
+{
+
+constexpr float valueTextWidth = 76.0f;
+
+}
+
 SettingsSlider::SettingsSlider()
 {
     setWantsKeyboardFocus(true);
@@ -46,6 +53,12 @@ double SettingsSlider::getValue() const noexcept
     return value;
 }
 
+void SettingsSlider::setTextValueSuffix(juce::String suffix)
+{
+    textValueSuffix = std::move(suffix);
+    repaint();
+}
+
 void SettingsSlider::setValueChangeCallback(std::function<void(double)> callback)
 {
     valueChangeCallback = std::move(callback);
@@ -54,10 +67,11 @@ void SettingsSlider::setValueChangeCallback(std::function<void(double)> callback
 void SettingsSlider::paint(juce::Graphics& graphics)
 {
     const auto bounds = getLocalBounds().toFloat().reduced(2.0f, 4.0f);
+    const auto trackBounds = getTrackBounds();
     const auto trackHeight = juce::jmin(4.0f, bounds.getHeight());
-    const auto track = juce::Rectangle<float>(bounds.getX(),
-                                              bounds.getCentreY() - trackHeight * 0.5f,
-                                              bounds.getWidth(),
+    const auto track = juce::Rectangle<float>(trackBounds.getX(),
+                                              trackBounds.getCentreY() - trackHeight * 0.5f,
+                                              trackBounds.getWidth(),
                                               trackHeight);
     const auto accent = theme.colour("accent");
     const auto ratio = maximum > minimum
@@ -78,11 +92,23 @@ void SettingsSlider::paint(juce::Graphics& graphics)
     graphics.setColour(theme.colour("primaryText"));
     graphics.fillRoundedRectangle(thumb, 2.0f);
 
+    graphics.setFont(juce::FontOptions(11.0f));
+    graphics.drawFittedText(juce::String(value, interval < 1.0 ? 1 : 0) + textValueSuffix,
+                            bounds.withLeft(trackBounds.getRight() + 4.0f).toNearestInt(),
+                            juce::Justification::centredRight, 1);
+
     if (hasKeyboardFocus(true))
     {
         graphics.setColour(accent.withAlpha(0.8f));
         graphics.drawRoundedRectangle(bounds, 2.0f, 1.0f);
     }
+}
+
+juce::Rectangle<float> SettingsSlider::getTrackBounds() const noexcept
+{
+    const auto bounds = getLocalBounds().toFloat().reduced(2.0f, 4.0f);
+    return bounds.withRight(juce::jmax(bounds.getX() + 1.0f,
+                                       bounds.getRight() - valueTextWidth));
 }
 
 bool SettingsSlider::keyPressed(const juce::KeyPress& key)
@@ -122,7 +148,7 @@ void SettingsSlider::mouseDown(const juce::MouseEvent& event)
 
 void SettingsSlider::mouseDrag(const juce::MouseEvent& event)
 {
-    const auto trackWidth = juce::jmax(1.0f, static_cast<float>(getWidth() - 4));
+    const auto trackWidth = juce::jmax(1.0f, getTrackBounds().getWidth());
     const auto delta = static_cast<float>(event.position.x) - dragStartX;
     const auto valueDelta = static_cast<double>(delta / trackWidth) * (maximum - minimum);
     setValue(dragStartValue + valueDelta, juce::sendNotificationSync);
@@ -130,8 +156,9 @@ void SettingsSlider::mouseDrag(const juce::MouseEvent& event)
 
 void SettingsSlider::setValueFromPosition(float x, juce::NotificationType notification)
 {
-    const auto trackWidth = juce::jmax(1.0f, static_cast<float>(getWidth() - 4));
-    const auto ratio = juce::jlimit(0.0f, 1.0f, (x - 2.0f) / trackWidth);
+    const auto trackBounds = getTrackBounds();
+    const auto trackWidth = juce::jmax(1.0f, trackBounds.getWidth());
+    const auto ratio = juce::jlimit(0.0f, 1.0f, (x - trackBounds.getX()) / trackWidth);
     setValue(minimum + static_cast<double>(ratio) * (maximum - minimum), notification);
 }
 

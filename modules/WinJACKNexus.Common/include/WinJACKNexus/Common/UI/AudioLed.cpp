@@ -8,7 +8,7 @@ namespace wjn::common
 AudioLed::AudioLed()
 {
     setOpaque (false);
-    startTimerHz (25);
+    startTimerHz (20);
 }
 
 void AudioLed::setLevel (float newLevel, bool shouldClip)

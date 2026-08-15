@@ -33,7 +33,8 @@ target_link_libraries(WinJACKNexus.Common PUBLIC
     juce::juce_audio_devices
     juce::juce_events
     juce::juce_graphics
-    juce::juce_gui_basics)
+    juce::juce_gui_basics
+    juce::juce_opengl)
 
 # ---------------------------------------------------------------------------
 # JACK2（third_party/JACK2）
@@ -80,6 +81,7 @@ target_sources(WinJACKNexus.Common PRIVATE
     include/WinJACKNexus/Common/UI/ToggleBadgeControl.cpp
     include/WinJACKNexus/Common/UI/MeterHistoryChart.cpp
     include/WinJACKNexus/Common/UI/LcdDisplayControl.cpp
+    include/WinJACKNexus/Common/UI/OpenGLAcceleration.cpp
     include/WinJACKNexus/Common/UI/AudioLed.cpp
     include/WinJACKNexus/Common/UI/MidiLed.cpp
     include/WinJACKNexus/Common/UI/ThemeContext.cpp

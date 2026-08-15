@@ -6,6 +6,7 @@
 #include "CascadeDeviceSelector.h"
 #include <WinJACKNexus/Common/UI/CommonControls.h>
 #include <WinJACKNexus/Common/Serialization/AdapterConfig.h>
+#include <WinJACKNexus/Common/UI/OpenGLAcceleration.h>
 
 namespace wjn::adapter
 {
@@ -16,7 +17,8 @@ namespace wjn::adapter
  *  M1.1 将实现：TabbedComponent（Physical Audio / Virtual Playback / System MIDI），
  *  每页内 In | Out 上下分割；并接入 WinJACKNexus.Common 的 Theme 色板。
  */
-class MainComponent final : public juce::Component
+class MainComponent final : public juce::Component,
+                             private juce::Timer
 {
 public:
     MainComponent();
@@ -27,7 +29,11 @@ public:
     void resized() override;
 
 private:
+    void timerCallback() override;
     void showAudioFilterSettingsDialog();
+    juce::File getGlobalConfigFile() const;
+    bool loadGlobalSettings();
+    bool saveGlobalSettings() const;
     void createNewConfiguration();
     void openConfiguration();
     void saveConfiguration();
@@ -52,6 +58,7 @@ private:
     juce::ComboBox configurationSelector;
     wjn::common::NexusButton settingsButton;
     wjn::common::NexusTabbedComponent tabs { juce::TabbedButtonBar::TabsAtTop };
+    wjn::common::OpenGLAcceleration openGlAcceleration;
     bool updatingConfigurationSelector = false;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)

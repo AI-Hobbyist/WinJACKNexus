@@ -47,10 +47,14 @@ add_subdirectory(third_party/JUCE)
 # ---------------------------------------------------------------------------
 add_subdirectory(modules/WinJACKNexus.Common)
 add_subdirectory(modules/WinJACKNexus.Adapter)
+add_subdirectory(modules/WinJACKNexus.MeterBridge)
 
 add_custom_target(WinJACKNexus.CommonResources ALL
     COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:WinJACKNexus.Adapter>/LCD"
     COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:WinJACKNexus.Adapter>/locales/Adapter"
+    COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:WinJACKNexus.MeterBridge>/LCD"
+    COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:WinJACKNexus.MeterBridge>/locales"
+    COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:WinJACKNexus.MeterBridge>/locales/MeterBridge"
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
         "${CMAKE_SOURCE_DIR}/LCD/zpix.ttf"
         "$<TARGET_FILE_DIR:WinJACKNexus.Adapter>/LCD/zpix.ttf"
@@ -63,9 +67,23 @@ add_custom_target(WinJACKNexus.CommonResources ALL
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
         "${CMAKE_SOURCE_DIR}/locales/Adapter/zh-CN.lang"
         "$<TARGET_FILE_DIR:WinJACKNexus.Adapter>/locales/Adapter/zh-CN.lang"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${CMAKE_SOURCE_DIR}/LCD/zpix.ttf"
+        "$<TARGET_FILE_DIR:WinJACKNexus.MeterBridge>/LCD/zpix.ttf"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${CMAKE_SOURCE_DIR}/LCD/DS-DIGI.TTF"
+        "$<TARGET_FILE_DIR:WinJACKNexus.MeterBridge>/LCD/DS-DIGI.TTF"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${CMAKE_SOURCE_DIR}/locales/zh-CN.lang"
+        "$<TARGET_FILE_DIR:WinJACKNexus.MeterBridge>/locales/zh-CN.lang"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${CMAKE_SOURCE_DIR}/locales/MeterBridge/zh-CN.lang"
+        "$<TARGET_FILE_DIR:WinJACKNexus.MeterBridge>/locales/MeterBridge/zh-CN.lang"
     DEPENDS
         WinJACKNexus.Adapter
+        WinJACKNexus.MeterBridge
         "${CMAKE_SOURCE_DIR}/LCD/zpix.ttf"
         "${CMAKE_SOURCE_DIR}/LCD/DS-DIGI.TTF"
         "${CMAKE_SOURCE_DIR}/locales/zh-CN.lang"
+        "${CMAKE_SOURCE_DIR}/locales/MeterBridge/zh-CN.lang"
         "${CMAKE_SOURCE_DIR}/locales/Adapter/zh-CN.lang")
