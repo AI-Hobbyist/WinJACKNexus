@@ -15,6 +15,11 @@ cmake_minimum_required(VERSION 3.22)
 
 project(WinJACKNexus.Adapter VERSION 0.1.0 LANGUAGES CXX)
 
+juce_add_binary_data(WinJACKNexus.AdapterResources
+    NAMESPACE AdapterBinaryData
+    HEADER_NAME AdapterBinaryData.h
+    SOURCES "${CMAKE_SOURCE_DIR}/logos/adapter_transparent.png")
+
 juce_add_gui_app(WinJACKNexus.Adapter
     PRODUCT_NAME "WinJACKNexus.Adapter"
     VERSION ${PROJECT_VERSION}
@@ -37,6 +42,7 @@ target_sources(WinJACKNexus.Adapter PRIVATE
     Source/DebugTrace.h)
 
 target_link_libraries(WinJACKNexus.Adapter PRIVATE
+    WinJACKNexus.AdapterResources
     WinJACKNexus.Common
     juce::juce_recommended_config_flags
     juce::juce_recommended_warning_flags

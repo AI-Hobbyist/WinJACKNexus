@@ -1,8 +1,8 @@
 #include "AdapterMainWindow.h"
 
 #include "../UI/MainComponent.h"
+#include <AdapterBinaryData.h>
 #include <WinJACKNexus/Common/UI/CommonControls.h>
-#include <WinJACKNexus/Common/UI/Theme.h>
 
 namespace wjn::adapter
 {
@@ -13,13 +13,9 @@ public:
     explicit AdapterTrayIcon (AdapterMainWindow& ownerWindow)
         : owner (ownerWindow)
     {
-        juce::Image image (juce::Image::ARGB, 16, 16, true);
-        juce::Graphics graphics (image);
-        graphics.setColour (wjn::common::theme::activeTab);
-        graphics.fillRoundedRectangle (1.0f, 1.0f, 14.0f, 14.0f, 3.0f);
-        graphics.setColour (wjn::common::theme::primaryText);
-        graphics.fillRect (4, 5, 8, 2);
-        graphics.fillRect (4, 9, 8, 2);
+        const auto image = juce::ImageFileFormat::loadFrom (
+            AdapterBinaryData::adapter_transparent_png,
+            AdapterBinaryData::adapter_transparent_pngSize);
         setIconImage (image, image);
         setIconTooltip ("WinJACKNexus.Adapter");
     }
@@ -73,13 +69,7 @@ AdapterMainWindow::AdapterMainWindow (const juce::String& name)
 
     setVisible (true);
     toFront (true);
-
-    juce::Component::SafePointer<AdapterMainWindow> safeThis (this);
-    juce::MessageManager::callAsync ([safeThis]() mutable
-    {
-        if (safeThis != nullptr && safeThis->trayIcon == nullptr)
-            safeThis->trayIcon = std::make_unique<AdapterTrayIcon> (*safeThis);
-    });
+    trayIcon = std::make_unique<AdapterTrayIcon> (*this);
 }
 
 AdapterMainWindow::~AdapterMainWindow() = default;
