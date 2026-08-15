@@ -49,6 +49,11 @@ void JackAudioOutput::close() noexcept
     readOffset = 0;
 }
 
+bool JackAudioOutput::rename(const juce::String& clientName) noexcept
+{
+    return client.rename (clientName);
+}
+
 bool JackAudioOutput::isOpen() const noexcept { return client.getStatus().connected; }
 JackClient::Status JackAudioOutput::getStatus() const noexcept { return client.getStatus(); }
 const juce::String& JackAudioOutput::getLastError() const noexcept { return client.getLastError(); }
@@ -64,6 +69,8 @@ void JackAudioOutput::submitBlock(const float* const* inputs, int channels, int 
         if (inputs[channel] != nullptr)
             std::memcpy(writeBlock.samples[static_cast<size_t>(channel)].data(), inputs[channel],
                         static_cast<size_t>(frames) * sizeof(float));
+        else
+            std::fill_n(writeBlock.samples[static_cast<size_t>(channel)].data(), frames, 0.0f);
     for (int channel = copiedChannels; channel < channelCount; ++channel)
         std::fill_n(writeBlock.samples[static_cast<size_t>(channel)].data(), frames, 0.0f);
     blocks.push(writeBlock);

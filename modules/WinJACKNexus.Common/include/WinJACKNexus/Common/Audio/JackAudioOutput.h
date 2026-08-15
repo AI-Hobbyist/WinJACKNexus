@@ -21,6 +21,7 @@ public:
     bool start() noexcept;
     void stop() noexcept;
     void close() noexcept;
+    bool rename(const juce::String& clientName) noexcept;
     bool isOpen() const noexcept;
     JackClient::Status getStatus() const noexcept;
     const juce::String& getLastError() const noexcept;
@@ -40,7 +41,7 @@ private:
     JackClient client;
     AudioBlock writeBlock;
     AudioBlock readBlock;
-    SpscRingBuffer<AudioBlock, 4> blocks;
+    SpscRingBuffer<AudioBlock, 8> blocks;
     int channelCount = 0;
     int readOffset = 0;
 };

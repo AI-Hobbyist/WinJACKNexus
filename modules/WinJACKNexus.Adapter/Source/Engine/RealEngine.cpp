@@ -53,6 +53,11 @@ double advanceInputPhase (double inputPhase, double speedRatio, int outputFrames
     return phase;
 }
 
+bool sampleRatesMatch (double first, double second) noexcept
+{
+    return first > 0.0 && second > 0.0 && std::abs (first - second) < 0.5;
+}
+
 } // namespace
 
 RealEngine::RealEngine()
@@ -83,6 +88,69 @@ bool RealEngine::start (Configuration newConfiguration)
     stop();
     configuration = std::move (newConfiguration);
     startThread();
+    return true;
+}
+
+bool RealEngine::renameClient (const juce::String& newClientName)
+{
+    const auto requestedName = newClientName.trim();
+    if (requestedName.isEmpty())
+        return false;
+
+    if (isThreadRunning())
+        waitForThreadToExit (-1);
+
+    const auto audioClientIsOpen = configuration.input ? audioOutput.isOpen() : audioInput.isOpen();
+    const auto midiClientIsOpen = configuration.input ? jackMidiOutput.isOpen() : jackMidiInput.isOpen();
+    if ((! configuration.midi && ! audioClientIsOpen)
+        || (configuration.midi && ! midiClientIsOpen))
+    {
+        configuration.clientName = requestedName;
+        return true;
+    }
+
+    if (configuration.midi)
+    {
+        if (systemMidiInput != nullptr)
+            systemMidiInput->stop();
+
+        const auto renamed = configuration.input ? jackMidiOutput.rename (requestedName)
+                                                  : jackMidiInput.rename (requestedName);
+        if (! renamed)
+        {
+            if (systemMidiInput != nullptr)
+                systemMidiInput->start();
+            return false;
+        }
+
+        configuration.clientName = requestedName;
+        if (systemMidiInput != nullptr)
+            systemMidiInput->start();
+        return true;
+    }
+
+    if (windowsAudioDevice != nullptr)
+        windowsAudioDevice->stop();
+
+    const auto renamed = configuration.input ? audioOutput.rename (requestedName)
+                                              : audioInput.rename (requestedName);
+    if (! renamed)
+    {
+        if (windowsAudioDevice != nullptr)
+            windowsAudioDevice->start (this);
+        return false;
+    }
+
+    configuration.clientName = requestedName;
+    if (windowsAudioDevice != nullptr)
+    {
+        windowsAudioDevice->start (this);
+        if (! windowsAudioDevice->isPlaying())
+        {
+            stopEngine();
+            return false;
+        }
+    }
     return true;
 }
 
@@ -205,20 +273,13 @@ void RealEngine::processAudio (const float* const* inputs, int channels,
                                int frames, void* userData) noexcept
 {
     auto* owner = static_cast<RealEngine*> (userData);
-    if (owner == nullptr || inputs == nullptr || channels <= 0 || frames <= 0)
+    if (owner == nullptr || channels <= 0 || frames <= 0)
         return;
 
-    auto* destination = &owner->jackToDeviceWriteBlock;
-    destination->channels = (std::min)(channels, maxAudioChannels);
-    const auto requestedFrames = static_cast<double> (frames) * owner->deviceSampleRate
-                                 / owner->jackSampleRate + owner->renderOutputFrameRemainder;
-    destination->frames = juce::jlimit (1, AudioBlock::maxFrames,
-                                        static_cast<int> (std::floor (requestedFrames)));
-    owner->renderOutputFrameRemainder = requestedFrames - destination->frames;
     float peak = 0.0f;
     for (int channel = 0; channel < maxAudioChannels; ++channel)
     {
-        const auto* samples = channel < channels ? inputs[channel] : nullptr;
+        const auto* samples = inputs != nullptr && channel < channels ? inputs[channel] : nullptr;
         auto channelPeak = 0.0f;
         if (samples != nullptr)
         {
@@ -230,28 +291,112 @@ void RealEngine::processAudio (const float* const* inputs, int channels,
 
         owner->audioPeaks[static_cast<size_t> (channel)].store (
             channelPeak, std::memory_order_release);
-
-        if (channel < destination->channels)
-        {
-            if (samples != nullptr)
-            {
-            owner->renderResamplers[static_cast<size_t>(channel)].process (
-                owner->jackSampleRate / owner->deviceSampleRate, samples,
-                destination->samples[static_cast<size_t>(channel)].data(), destination->frames,
-                frames, 0);
-            }
-            else
-            {
-                std::fill_n (destination->samples[static_cast<size_t> (channel)].data(),
-                             destination->frames, 0.0f);
-            }
-        }
     }
 
-    owner->jackToDeviceBlocks.push(*destination);
+    owner->appendRenderInput (inputs, channels, frames);
+    owner->processRenderAudio();
     owner->audioPeak.store (peak, std::memory_order_release);
     if (peak >= 1.0f)
         owner->audioClipping.store (true, std::memory_order_release);
+}
+
+void RealEngine::appendRenderInput (const float* const* inputs, int channels,
+                                    int frames) noexcept
+{
+    compactRenderInput();
+    auto writableFrames = captureInputCapacity - renderInputFrames;
+    if (writableFrames < frames)
+    {
+        processRenderAudio();
+        compactRenderInput();
+        writableFrames = captureInputCapacity - renderInputFrames;
+    }
+
+    const auto copiedFrames = (std::min) (frames, writableFrames);
+    if (copiedFrames <= 0)
+        return;
+
+    renderInputChannels = (std::min) (channels, maxAudioChannels);
+    for (int channel = 0; channel < maxAudioChannels; ++channel)
+    {
+        auto* destination = renderInputSamples[static_cast<size_t> (channel)].data()
+                          + renderInputFrames;
+        const auto* source = inputs != nullptr && channel < channels ? inputs[channel] : nullptr;
+        if (source != nullptr)
+            std::memcpy (destination, source, static_cast<size_t> (copiedFrames) * sizeof (float));
+        else
+            std::fill_n (destination, copiedFrames, 0.0f);
+    }
+    renderInputFrames += copiedFrames;
+}
+
+void RealEngine::compactRenderInput() noexcept
+{
+    if (renderInputReadOffset == 0)
+        return;
+
+    if (renderInputFrames > 0)
+    {
+        for (int channel = 0; channel < maxAudioChannels; ++channel)
+            std::memmove (renderInputSamples[static_cast<size_t> (channel)].data(),
+                          renderInputSamples[static_cast<size_t> (channel)].data()
+                              + renderInputReadOffset,
+                          static_cast<size_t> (renderInputFrames) * sizeof (float));
+    }
+    renderInputReadOffset = 0;
+}
+
+void RealEngine::processRenderAudio() noexcept
+{
+    if (renderInputChannels <= 0 || renderInputFrames <= 0
+        || deviceSampleRate <= 0.0 || jackSampleRate <= 0.0)
+        return;
+
+    const auto ratesMatch = sampleRatesMatch (deviceSampleRate, jackSampleRate);
+    const auto speedRatio = jackSampleRate / deviceSampleRate;
+    while (renderInputFrames > 0
+           && jackToDeviceBlocks.size() < jackToDeviceBlocks.capacity())
+    {
+        const auto targetFrames = ratesMatch
+            ? (std::min) (renderInputFrames, AudioBlock::maxFrames)
+            : countAvailableOutputFrames (renderInputFrames, speedRatio,
+                                           renderInputPhase, AudioBlock::maxFrames);
+        if (targetFrames <= 0)
+            return;
+
+        jackToDeviceWriteBlock.channels = renderInputChannels;
+        jackToDeviceWriteBlock.frames = targetFrames;
+        auto consumedInputFrames = 0;
+        for (int channel = 0; channel < renderInputChannels; ++channel)
+        {
+            const auto* source = renderInputSamples[static_cast<size_t> (channel)].data()
+                               + renderInputReadOffset;
+            auto* destination = jackToDeviceWriteBlock.samples[static_cast<size_t> (channel)].data();
+            if (ratesMatch)
+            {
+                std::copy_n (source, targetFrames, destination);
+                consumedInputFrames = targetFrames;
+            }
+            else
+            {
+                const auto consumed = renderResamplers[static_cast<size_t> (channel)].process (
+                    speedRatio, source, destination, targetFrames,
+                    renderInputFrames, 0);
+                if (channel == 0)
+                    consumedInputFrames = consumed;
+            }
+        }
+
+        if (! jackToDeviceBlocks.push (jackToDeviceWriteBlock))
+            return;
+
+        if (! ratesMatch)
+            renderInputPhase = advanceInputPhase (renderInputPhase, speedRatio, targetFrames);
+        renderInputReadOffset += consumedInputFrames;
+        renderInputFrames -= consumedInputFrames;
+        if (renderInputFrames == 0)
+            renderInputReadOffset = 0;
+    }
 }
 
 bool RealEngine::startAudioDevice()
@@ -409,11 +554,14 @@ void RealEngine::processCaptureAudio (int channels) noexcept
         || deviceSampleRate <= 0.0 || jackSampleRate <= 0.0)
         return;
 
+    const auto ratesMatch = sampleRatesMatch (deviceSampleRate, jackSampleRate);
     const auto speedRatio = deviceSampleRate / jackSampleRate;
     while (true)
     {
-        const auto targetFrames = countAvailableOutputFrames (
-            captureInputFrames, speedRatio, captureInputPhase, AudioBlock::maxFrames);
+        const auto targetFrames = ratesMatch
+            ? (std::min) (captureInputFrames, AudioBlock::maxFrames)
+            : countAvailableOutputFrames (captureInputFrames, speedRatio,
+                                           captureInputPhase, AudioBlock::maxFrames);
         if (targetFrames <= 0)
             return;
 
@@ -424,15 +572,25 @@ void RealEngine::processCaptureAudio (int channels) noexcept
         {
             const auto* source = (*captureInputSamples)[static_cast<size_t> (channel)].data()
                                + captureInputReadOffset;
-            const auto consumed = captureResamplers[static_cast<size_t> (channel)].process (
-                speedRatio, source,
-                deviceToJackBlock.samples[static_cast<size_t> (channel)].data(), targetFrames,
-                captureInputFrames, 0);
-            if (channel == 0)
-                consumedInputFrames = consumed;
+            if (ratesMatch)
+            {
+                std::copy_n (source, targetFrames,
+                             deviceToJackBlock.samples[static_cast<size_t> (channel)].data());
+                consumedInputFrames = targetFrames;
+            }
+            else
+            {
+                const auto consumed = captureResamplers[static_cast<size_t> (channel)].process (
+                    speedRatio, source,
+                    deviceToJackBlock.samples[static_cast<size_t> (channel)].data(), targetFrames,
+                    captureInputFrames, 0);
+                if (channel == 0)
+                    consumedInputFrames = consumed;
+            }
         }
 
-        captureInputPhase = advanceInputPhase (captureInputPhase, speedRatio, targetFrames);
+        if (! ratesMatch)
+            captureInputPhase = advanceInputPhase (captureInputPhase, speedRatio, targetFrames);
         captureInputReadOffset += consumedInputFrames;
         captureInputFrames -= consumedInputFrames;
         if (captureInputFrames == 0)
@@ -461,10 +619,13 @@ void RealEngine::resetResamplers() noexcept
     jackToDeviceReadBlock.channels = 0;
     jackToDeviceReadBlock.frames = 0;
     renderReadOffset = 0;
+    renderInputChannels = 0;
+    renderInputReadOffset = 0;
+    renderInputFrames = 0;
+    renderInputPhase = 1.0;
     captureInputReadOffset = 0;
     captureInputFrames = 0;
     captureInputPhase = 1.0;
-    renderOutputFrameRemainder = 0.0;
 }
 
 void RealEngine::handleIncomingMidiMessage (juce::MidiInput*, const juce::MidiMessage& message)
@@ -509,7 +670,12 @@ void RealEngine::timerCallback()
             AudioLevels levels {};
             for (size_t index = 0; index < levels.size(); ++index)
                 levels[index] = audioPeaks[index].load (std::memory_order_acquire);
-            audioCallback (levels, audioPeak.load (std::memory_order_acquire), clipping);
+            const AudioStatus status {
+                deviceSampleRate,
+                jackSampleRate,
+                ! sampleRatesMatch (deviceSampleRate, jackSampleRate)
+            };
+            audioCallback (levels, audioPeak.load (std::memory_order_acquire), clipping, status);
         }
         return;
     }

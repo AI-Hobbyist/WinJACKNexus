@@ -40,6 +40,7 @@ public:
     bool activate() noexcept;
     void deactivate() noexcept;
     void close() noexcept;
+    bool rename(const juce::String& newClientName) noexcept;
 
     void setProcessCallback(ProcessCallback callback, void* userData) noexcept;
     Status getStatus() const noexcept;
@@ -59,6 +60,8 @@ private:
     jack_client_t* client = nullptr;
     std::vector<jack_port_t*> inputPorts;
     std::vector<jack_port_t*> outputPorts;
+    std::vector<juce::String> inputPortNames;
+    std::vector<juce::String> outputPortNames;
     std::vector<const float*> inputBuffers;
     std::vector<float*> outputBuffers;
     ProcessCallback callback = nullptr;

@@ -61,6 +61,8 @@ bool JackClient::configurePorts(const juce::StringArray& inputNames,
         jack_port_unregister(client, port);
     inputPorts.clear();
     outputPorts.clear();
+    inputPortNames.clear();
+    outputPortNames.clear();
     inputBuffers.clear();
     outputBuffers.clear();
 
@@ -77,6 +79,8 @@ bool JackClient::configurePorts(const juce::StringArray& inputNames,
 
     inputBuffers.resize(inputPorts.size());
     outputBuffers.resize(outputPorts.size());
+    inputPortNames.assign(inputNames.begin(), inputNames.end());
+    outputPortNames.assign(outputNames.begin(), outputNames.end());
 
     return true;
 }
@@ -107,11 +111,127 @@ void JackClient::close() noexcept
     client = nullptr;
     inputPorts.clear();
     outputPorts.clear();
+    inputPortNames.clear();
+    outputPortNames.clear();
     inputBuffers.clear();
     outputBuffers.clear();
     callback = nullptr;
     callbackUserData = nullptr;
     connected.store(false, std::memory_order_release);
+}
+
+bool JackClient::rename(const juce::String& newClientName) noexcept
+{
+    const auto requestedName = newClientName.trim();
+    if (client == nullptr || requestedName.isEmpty())
+    {
+        setError("Unable to rename an unopened JACK client");
+        return false;
+    }
+
+    const auto* currentName = jack_get_client_name (client);
+    const auto currentClientName = currentName != nullptr
+        ? juce::String::fromUTF8 (currentName)
+        : juce::String();
+    if (currentClientName == requestedName)
+        return true;
+
+    const auto wasRunning = running.load (std::memory_order_acquire);
+    const auto expectedBlockSize = blockSize.load (std::memory_order_acquire);
+    const auto savedCallback = callback;
+    auto* const savedCallbackUserData = callbackUserData;
+    const auto savedInputNames = inputPortNames;
+    const auto savedOutputNames = outputPortNames;
+    std::vector<std::vector<juce::String>> inputConnections (inputPorts.size());
+    std::vector<std::vector<juce::String>> outputConnections (outputPorts.size());
+
+    const auto captureConnections = [] (const std::vector<jack_port_t*>& ports,
+                                        std::vector<std::vector<juce::String>>& connections)
+    {
+        for (size_t index = 0; index < ports.size(); ++index)
+        {
+            if (ports[index] == nullptr)
+                continue;
+
+            const auto* connectedPorts = jack_port_get_connections (ports[index]);
+            if (connectedPorts == nullptr)
+                continue;
+
+            for (size_t connectionIndex = 0; connectedPorts[connectionIndex] != nullptr;
+                 ++connectionIndex)
+                connections[index].emplace_back (
+                    juce::String::fromUTF8 (connectedPorts[connectionIndex]));
+
+            jack_free (const_cast<char**> (connectedPorts));
+        }
+    };
+
+    captureConnections (inputPorts, inputConnections);
+    captureConnections (outputPorts, outputConnections);
+
+    deactivate();
+    if (client != nullptr)
+        jack_client_close (client);
+    client = nullptr;
+    inputPorts.clear();
+    outputPorts.clear();
+    inputPortNames.clear();
+    outputPortNames.clear();
+    inputBuffers.clear();
+    outputBuffers.clear();
+    connected.store (false, std::memory_order_release);
+
+    juce::StringArray inputNames;
+    for (const auto& name : savedInputNames)
+        inputNames.add (name);
+    juce::StringArray outputNames;
+    for (const auto& name : savedOutputNames)
+        outputNames.add (name);
+
+    if (! open (requestedName, expectedBlockSize)
+        || ! configurePorts (inputNames, outputNames))
+    {
+        close();
+        callback = savedCallback;
+        callbackUserData = savedCallbackUserData;
+        return false;
+    }
+
+    callback = savedCallback;
+    callbackUserData = savedCallbackUserData;
+
+    if (wasRunning && ! activate())
+    {
+        close();
+        return false;
+    }
+
+    const auto restoreConnections = [this] (const std::vector<jack_port_t*>& ports,
+                                            const std::vector<std::vector<juce::String>>& connections,
+                                            bool localPortIsInput)
+    {
+        for (size_t index = 0; index < ports.size(); ++index)
+        {
+            if (ports[index] == nullptr)
+                continue;
+
+            const auto* localPortName = jack_port_name (ports[index]);
+            if (localPortName == nullptr)
+                continue;
+
+            for (const auto& connectedPort : connections[index])
+            {
+                if (localPortIsInput)
+                    jack_connect (client, connectedPort.toRawUTF8(), localPortName);
+                else
+                    jack_connect (client, localPortName, connectedPort.toRawUTF8());
+            }
+        }
+    };
+
+    restoreConnections (inputPorts, inputConnections, true);
+    restoreConnections (outputPorts, outputConnections, false);
+    return true;
 }
 
 void JackClient::setProcessCallback(ProcessCallback newCallback, void* userData) noexcept

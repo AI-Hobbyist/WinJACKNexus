@@ -14,7 +14,6 @@ MidiLed::MidiLed()
 void MidiLed::trigger()
 {
     level = 1.0f;
-    repaint();
 }
 
 void MidiLed::timerCallback()

@@ -3,6 +3,7 @@
 #include "../Midi/MidiEventQueue.h"
 
 #include <atomic>
+#include <vector>
 
 #include <juce_core/juce_core.h>
 #include <jack/jack.h>
@@ -18,6 +19,7 @@ public:
     bool start() noexcept;
     void stop() noexcept;
     void close() noexcept;
+    bool rename(const juce::String& clientName) noexcept;
     bool isOpen() const noexcept;
     bool push(const MidiEvent& event) noexcept;
     bool push(uint32_t frameOffset, const uint8_t* data, size_t size) noexcept;
@@ -31,6 +33,8 @@ private:
 
     jack_client_t* client = nullptr;
     jack_port_t* port = nullptr;
+    juce::String clientName;
+    juce::String portName;
     MidiEventQueue queue;
     std::atomic<bool> connected { false };
     std::atomic<bool> running { false };

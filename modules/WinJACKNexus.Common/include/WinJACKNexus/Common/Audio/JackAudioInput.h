@@ -20,6 +20,7 @@ public:
     bool start(BlockCallback callback, void* userData) noexcept;
     void stop() noexcept;
     void close() noexcept;
+    bool rename(const juce::String& clientName) noexcept;
     bool isOpen() const noexcept;
     JackClient::Status getStatus() const noexcept;
     const juce::String& getLastError() const noexcept;

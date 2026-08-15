@@ -32,9 +32,9 @@ float levelRatio (float level)
     return juce::jlimit (0.0f, 1.0f, (decibels + 60.0f) / 63.0f);
 }
 
-bool isInputStream (const juce::String& streamType)
+juce::String formatSampleRate (double sampleRate)
 {
-    return streamType == "Record" || streamType == "Loopback";
+    return sampleRate > 0.0 ? juce::String (sampleRate / 1000.0, 1) + " kHz" : "--";
 }
 
 juce::String channelName (int index)
@@ -105,15 +105,15 @@ DeviceItemCard::DeviceItemCard (Data itemData, RenameCallback onRename,
         debug::trace ("card after leds");
 
     realEngine.setAudioCallback ([this] (const RealEngine::AudioLevels& levels,
-                                         float level, bool clipping)
+                                         float level, bool clipping,
+                                         const RealEngine::AudioStatus& status)
     {
-        setAudioLevel (levels, level, clipping);
+        setAudioLevel (levels, level, clipping, status);
     });
     realEngine.setMidiCallback ([this] (const std::array<float, 16>& levels)
     {
         setMidiLevels (levels);
         midiLed.trigger();
-        lcdDisplay.repaint();
     });
     debug::trace ("card after engine callbacks");
 
@@ -122,6 +122,18 @@ DeviceItemCard::DeviceItemCard (Data itemData, RenameCallback onRename,
     clientNameEditor.onReturnKey = [this] { commitName(); };
     clientNameEditor.onFocusLost = [this] { commitName(); };
     debug::trace ("card after client editor");
+
+    addAndMakeVisible (channelSelector);
+    channelSelector.setTooltip (fromUtf8 ("声道数"));
+    for (int channelCount = 1; channelCount <= RealEngine::maxAudioChannels; ++channelCount)
+        channelSelector.addItem (juce::String (channelCount), channelCount);
+    channelSelector.setVisible (! midiMode);
+    channelSelector.setSelectedId (juce::jlimit (1, RealEngine::maxAudioChannels, data.channels),
+                                   juce::dontSendNotification);
+    channelSelector.onChange = [this]
+    {
+        setChannels (channelSelector.getSelectedId());
+    };
 
     addAndMakeVisible (lcdDisplay);
     configureLcd();
@@ -167,9 +179,11 @@ void DeviceItemCard::configureLcd()
 }
 
 void DeviceItemCard::setAudioLevel (const RealEngine::AudioLevels& levels,
-                                    float level, bool clipping)
+                                    float level, bool clipping,
+                                    const RealEngine::AudioStatus& status)
 {
     audioClipping = clipping;
+    audioStatus = status;
     audioLed.setLevel (level, clipping);
 
     for (int index = 0; index < audioLevels.size(); ++index)
@@ -180,18 +194,49 @@ void DeviceItemCard::setAudioLevel (const RealEngine::AudioLevels& levels,
         audioLevels.set (index, juce::jlimit (0.0f, 1.0f, channelLevel));
     }
 
-    lcdDisplay.repaint();
+    repaintLcdIfDue();
 }
 
 void DeviceItemCard::setMidiLevels (const std::array<float, 16>& levels)
 {
     midiLevels = levels;
-    lcdDisplay.repaint();
+    repaintLcdIfDue();
 }
 
 void DeviceItemCard::clearMidiLevels()
 {
     midiLevels.fill (0.0f);
+    repaintLcdIfDue();
+}
+
+void DeviceItemCard::repaintLcdIfDue()
+{
+    constexpr auto minimumIntervalMs = static_cast<juce::uint32> (50);
+    const auto now = juce::Time::getMillisecondCounter();
+    if (now - lastLcdRepaintTime < minimumIntervalMs)
+        return;
+
+    lastLcdRepaintTime = now;
+    lcdDisplay.repaint();
+}
+
+void DeviceItemCard::setChannels (int channelCount)
+{
+    if (midiMode)
+        return;
+
+    const auto newChannelCount = juce::jlimit (1, RealEngine::maxAudioChannels, channelCount);
+    if (data.channels == newChannelCount)
+        return;
+
+    const auto wasPaused = data.paused;
+    data.channels = newChannelCount;
+    audioLevels.clear();
+    for (int index = 0; index < data.channels; ++index)
+        audioLevels.add (0.0f);
+
+    channelSelector.setSelectedId (data.channels, juce::dontSendNotification);
+    setPaused (wasPaused);
     lcdDisplay.repaint();
 }
 
@@ -212,9 +257,14 @@ void DeviceItemCard::paintAudioLcd (juce::Graphics& g, juce::Rectangle<float> bo
     auto header = bounds.removeFromTop (18.0f);
     auto deviceHeader = header.removeFromLeft (header.getWidth() * 0.42f);
     auto sampleHeader = header.removeFromLeft (header.getWidth() * 0.55f);
-    drawLcdText (g, data.device + "  " + fromUtf8 (isInputStream (data.streamType) ? "输入" : "输出"),
+    drawLcdText (g, data.device + "  " + fromUtf8 (data.input ? "输入" : "输出"),
                  deviceHeader, headerFont, ink, juce::Justification::centredLeft, true);
-    drawLcdText (g, fromUtf8 ("采样率 48.0 kHz"), sampleHeader, headerFont, ink,
+    const auto sampleStatus = fromUtf8 ("WDM采样率 ") + formatSampleRate (audioStatus.wdmSampleRate)
+                             + fromUtf8 (" | JACK采样率 ")
+                             + formatSampleRate (audioStatus.jackSampleRate)
+                             + fromUtf8 (" | 重采样 ")
+                             + fromUtf8 (audioStatus.resampling ? "是" : "否");
+    drawLcdText (g, sampleStatus, sampleHeader, smallFont, ink,
                  juce::Justification::centred, true);
     const auto currentLevel = audioLevels.isEmpty() ? 0.0f : audioLevels.getFirst();
     const auto currentDb = 20.0f * std::log10 (juce::jmax (0.001f, currentLevel));
@@ -359,6 +409,11 @@ void DeviceItemCard::setPaused (bool shouldPause)
     if (data.paused)
     {
         realEngine.stop();
+        for (int index = 0; index < audioLevels.size(); ++index)
+            audioLevels.set (index, 0.0f);
+        audioStatus = {};
+        audioClipping = false;
+        audioLed.setLevel (0.0f, false);
         clearMidiLevels();
     }
     else
@@ -379,9 +434,11 @@ void DeviceItemCard::commitName()
 
     if (name != data.clientName)
     {
-        data.clientName = name;
-        if (renameCallback != nullptr)
-            renameCallback (*this, name);
+        const auto renamed = renameCallback == nullptr || renameCallback (*this, name);
+        if (renamed)
+            data.clientName = name;
+        else
+            clientNameEditor.setText (data.clientName, juce::dontSendNotification);
     }
 }
 
@@ -416,6 +473,8 @@ void DeviceItemCard::resized()
     removeButton.setBounds (header.removeFromRight (58));
     header.removeFromRight (8);
     pauseSwitch.setBounds (header.removeFromRight (50));
+    header.removeFromRight (10);
+    channelSelector.setBounds (header.removeFromRight (62));
     header.removeFromRight (10);
     clientNameEditor.setBounds (header);
     area.removeFromTop (6);

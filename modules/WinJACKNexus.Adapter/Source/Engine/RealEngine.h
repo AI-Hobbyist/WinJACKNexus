@@ -37,7 +37,15 @@ public:
 
     static constexpr int maxAudioChannels = wjn::common::JackAudioOutput::maxChannels;
     using AudioLevels = std::array<float, maxAudioChannels>;
-    using AudioCallback = std::function<void (const AudioLevels&, float, bool)>;
+    struct AudioStatus
+    {
+        double wdmSampleRate = 0.0;
+        double jackSampleRate = 0.0;
+        bool resampling = false;
+    };
+
+    using AudioCallback = std::function<void (const AudioLevels&, float, bool,
+                                              const AudioStatus&)>;
     using MidiCallback = std::function<void (const std::array<float, 16>&)>;
 
     RealEngine();
@@ -46,6 +54,7 @@ public:
     void setAudioCallback (AudioCallback callback);
     void setMidiCallback (MidiCallback callback);
     bool start (Configuration configuration);
+    bool renameClient (const juce::String& clientName);
     void stop();
 
 private:
@@ -54,6 +63,10 @@ private:
     void stopEngine();
     static void processAudio (const float* const* inputs, int channels,
                               int frames, void* userData) noexcept;
+    void appendRenderInput (const float* const* inputs, int channels,
+                            int frames) noexcept;
+    void compactRenderInput() noexcept;
+    void processRenderAudio() noexcept;
     void publishMidiMessage (const juce::MidiMessage& message) noexcept;
     void handleIncomingMidiMessage (juce::MidiInput*, const juce::MidiMessage& message) override;
     void audioDeviceIOCallbackWithContext (const float* const* inputs, int inputChannels,
@@ -101,13 +114,17 @@ private:
     std::array<juce::LagrangeInterpolator, wjn::common::JackAudioOutput::maxChannels> captureResamplers;
     std::array<juce::LagrangeInterpolator, wjn::common::JackAudioOutput::maxChannels> renderResamplers;
     std::unique_ptr<CaptureInputStorage> captureInputSamples;
+    CaptureInputStorage renderInputSamples {};
+    int renderInputChannels = 0;
+    int renderInputReadOffset = 0;
+    int renderInputFrames = 0;
+    double renderInputPhase = 1.0;
     int captureInputReadOffset = 0;
     int captureInputFrames = 0;
     double captureInputPhase = 1.0;
     int renderReadOffset = 0;
     double deviceSampleRate = 48000.0;
     double jackSampleRate = 48000.0;
-    double renderOutputFrameRemainder = 0.0;
     std::atomic<float> audioPeak { 0.0f };
     std::array<std::atomic<float>, maxAudioChannels> audioPeaks {};
     std::atomic<bool> audioClipping { false };

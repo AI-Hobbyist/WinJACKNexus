@@ -18,7 +18,6 @@ void AudioLed::setLevel (float newLevel, bool shouldClip)
     clipping = shouldClip;
     if (clipping)
         peakHoldMs = 1500;
-    repaint();
 }
 
 void AudioLed::timerCallback()

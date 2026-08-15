@@ -5,7 +5,8 @@
 #    include/WinJACKNexus/Common/
 #      UI/           Theme.h、NexusLookAndFeel、AudioLed/MidiLed（M1.1）
 #      IO/           SpscRingBuffer、Resampler（M2.2/M2.3）
-#      Bridge/       JackClientBase、JackAudioClient、JackMidiClient（M2.1）
+#      Audio/        JackClient、JackAudioInput、JackAudioOutput（M2.1）
+#      MIDI/         JackMidiInput、JackMidiOutput（M2.1）
 #      Serialization/AdapterConfig（M1.4）
 #      Audio/        WasapiAsyncDevice、WinMidiListener（M2.2/M2.4）
 #      App/          SingleInstanceGuard（M1.1）
@@ -57,6 +58,7 @@ target_sources(WinJACKNexus.Common PRIVATE
     include/WinJACKNexus/Common/Audio/JackAudioBackend.cpp
     include/WinJACKNexus/Common/Audio/JackAudioInput.cpp
     include/WinJACKNexus/Common/Audio/JackAudioOutput.cpp
+    include/WinJACKNexus/Common/Serialization/AdapterConfig.cpp
     include/WinJACKNexus/Common/Audio/MeterEngine.cpp
     include/WinJACKNexus/Common/Audio/SilenceDetector.cpp
     include/WinJACKNexus/Common/Midi/MidiEventQueue.cpp
@@ -156,4 +158,11 @@ if(BUILD_TESTING)
         PRIVATE WinJACKNexus.Common)
     add_test(NAME WinJACKNexus.Common.M2UiTests
         COMMAND WinJACKNexus.Common.M2UiTests)
+
+    add_executable(WinJACKNexus.Common.AdapterConfigTests
+        tests/AdapterConfigTests.cpp)
+    target_link_libraries(WinJACKNexus.Common.AdapterConfigTests
+        PRIVATE WinJACKNexus.Common)
+    add_test(NAME WinJACKNexus.Common.AdapterConfigTests
+        COMMAND WinJACKNexus.Common.AdapterConfigTests)
 endif()

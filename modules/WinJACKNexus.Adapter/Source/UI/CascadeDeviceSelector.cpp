@@ -1,5 +1,7 @@
 #include "CascadeDeviceSelector.h"
 
+#include <regex>
+
 #include <juce_audio_devices/juce_audio_devices.h>
 
 #include <WinJACKNexus/Common/Audio/JackAudioOutput.h>
@@ -46,22 +48,53 @@ int detectWdmChannelCount (const juce::String& streamType, const juce::String& d
     return juce::jlimit (1, wjn::common::JackAudioOutput::maxChannels, channelNames.size());
 }
 
+bool matchesPattern (const juce::String& value, const juce::String& pattern)
+{
+    if (pattern.isEmpty())
+        return false;
+
+    try
+    {
+        const std::regex expression (pattern.toStdString(), std::regex::icase);
+        return std::regex_search (value.toStdString(), expression);
+    }
+    catch (const std::regex_error&)
+    {
+        return false;
+    }
+}
+
+bool isDeviceAllowed (const juce::String& deviceName, bool wantsInput,
+                      const CascadeDeviceSelector::AudioDeviceFilterSettings& settings)
+{
+    if (! matchesPattern (deviceName, settings.virtualDevicePattern))
+        return true;
+
+    const auto& directionPattern = wantsInput ? settings.inputDevicePattern
+                                              : settings.outputDevicePattern;
+    return directionPattern.isEmpty() || matchesPattern (deviceName, directionPattern);
+}
+
 } // namespace
 
-void CascadeDeviceSelector::show (juce::Component& target,
-                                  const juce::StringArray& excludedDeviceIdentifiers, Callback callback)
+void CascadeDeviceSelector::show (juce::Component& target, bool input,
+                                  const juce::StringArray& excludedDeviceIdentifiers,
+                                  AudioDeviceFilterSettings settings, Callback callback)
 {
-    showDriverMenu (target, excludedDeviceIdentifiers, std::move (callback));
+    showDriverMenu (target, input, excludedDeviceIdentifiers, std::move (settings),
+                    std::move (callback));
 }
 
 void CascadeDeviceSelector::showVirtual (juce::Component& target, bool input,
-                                         const juce::StringArray& excludedDeviceIdentifiers, Callback callback)
+                                         const juce::StringArray& excludedDeviceIdentifiers,
+                                         Callback callback)
 {
     showVirtualDeviceMenu (target, std::move (callback), input, excludedDeviceIdentifiers);
 }
 
 void CascadeDeviceSelector::showMidi (juce::Component& target, bool input,
-                                      const juce::StringArray& excludedDeviceIdentifiers, Callback callback)
+                                      const juce::StringArray& excludedDeviceIdentifiers,
+                                      Callback callback)
 {
     wjn::common::NexusPopupMenu menu;
     const auto devices = input ? juce::MidiInput::getAvailableDevices()
@@ -93,8 +126,31 @@ void CascadeDeviceSelector::showMidi (juce::Component& target, bool input,
                });
 }
 
+bool CascadeDeviceSelector::areFilterPatternsValid (const AudioDeviceFilterSettings& settings)
+{
+    const auto isValid = [] (const juce::String& pattern)
+    {
+        if (pattern.isEmpty())
+            return true;
+
+        try
+        {
+            std::regex (pattern.toStdString(), std::regex::icase);
+            return true;
+        }
+        catch (const std::regex_error&)
+        {
+            return false;
+        }
+    };
+
+    return isValid (settings.virtualDevicePattern)
+        && isValid (settings.inputDevicePattern)
+        && isValid (settings.outputDevicePattern);
+}
+
 void CascadeDeviceSelector::showVirtualDeviceMenu (juce::Component& target, Callback callback, bool input,
-                                                    const juce::StringArray& excludedDeviceIdentifiers)
+                                                   juce::StringArray excludedDeviceIdentifiers)
 {
     wjn::common::NexusPopupMenu menu;
     const char* const inputDevices[] {
@@ -128,49 +184,35 @@ void CascadeDeviceSelector::showVirtualDeviceMenu (juce::Component& target, Call
                });
 }
 
-void CascadeDeviceSelector::showDriverMenu (juce::Component& target,
-                                            const juce::StringArray& excludedDeviceIdentifiers, Callback callback)
+void CascadeDeviceSelector::showDriverMenu (juce::Component& target, bool input,
+                                            juce::StringArray excludedDeviceIdentifiers,
+                                            AudioDeviceFilterSettings settings, Callback callback)
 {
     wjn::common::NexusPopupMenu menu;
     menu.addItem (1, text ("WASAPI（共享 / 非独占）"));
     menu.addItem (2, text ("WASAPI（独占）"));
 
     showAsync (std::move (menu), target,
-               [&target, callback = std::move (callback), excludedDeviceIdentifiers] (int result) mutable
+               [&target, input, excludedDeviceIdentifiers = std::move (excludedDeviceIdentifiers),
+                settings = std::move (settings), callback = std::move (callback)] (int result) mutable
                {
                    if (result == 1 || result == 2)
                    {
                        const auto wasapiMode = result == 1 ? juce::WASAPIDeviceMode::shared
                                                            : juce::WASAPIDeviceMode::exclusive;
-                       showStreamMenu (target, excludedDeviceIdentifiers, std::move (callback),
-                                       "WASAPI", wasapiMode);
+                       showDeviceMenu (target, std::move (callback), "WASAPI",
+                                       input ? "Record" : "Playback", wasapiMode,
+                                       std::move (excludedDeviceIdentifiers),
+                                       std::move (settings));
                    }
-               });
-}
-
-void CascadeDeviceSelector::showStreamMenu (juce::Component& target,
-                                            const juce::StringArray& excludedDeviceIdentifiers, Callback callback,
-                                            juce::String driver, juce::WASAPIDeviceMode wasapiMode)
-{
-    wjn::common::NexusPopupMenu menu;
-    menu.addItem (1, text ("播放"));
-    menu.addItem (2, text ("录音"));
-
-    showAsync (std::move (menu), target,
-               [&target, callback = std::move (callback), driver, wasapiMode,
-                excludedDeviceIdentifiers] (int result) mutable
-               {
-                   if (result == 1 || result == 2)
-                       showDeviceMenu (target, std::move (callback), driver,
-                                       result == 1 ? "Playback" : "Record", excludedDeviceIdentifiers,
-                                       wasapiMode);
                });
 }
 
 void CascadeDeviceSelector::showDeviceMenu (juce::Component& target, Callback callback,
                                             juce::String driver, juce::String streamType,
-                                            const juce::StringArray& excludedDeviceIdentifiers,
-                                            juce::WASAPIDeviceMode wasapiMode)
+                                            juce::WASAPIDeviceMode wasapiMode,
+                                            juce::StringArray excludedDeviceIdentifiers,
+                                            AudioDeviceFilterSettings settings)
 {
     wjn::common::NexusPopupMenu menu;
     std::unique_ptr<juce::AudioIODeviceType> deviceType (
@@ -179,12 +221,14 @@ void CascadeDeviceSelector::showDeviceMenu (juce::Component& target, Callback ca
         deviceType->scanForDevices();
 
     const auto wantsInput = streamType == "Record";
-    const auto devices = deviceType != nullptr ? deviceType->getDeviceNames (wantsInput)
-                                               : juce::StringArray();
     juce::StringArray availableDevices;
-    for (const auto& device : devices)
-        if (! excludedDeviceIdentifiers.contains (device))
-            availableDevices.add (device);
+    if (deviceType != nullptr)
+    {
+        for (const auto& deviceName : deviceType->getDeviceNames (wantsInput))
+            if (! excludedDeviceIdentifiers.contains (deviceName)
+                && isDeviceAllowed (deviceName, wantsInput, settings))
+                availableDevices.add (deviceName);
+    }
 
     for (int index = 0; index < availableDevices.size(); ++index)
         menu.addItem (index + 1, availableDevices[index]);

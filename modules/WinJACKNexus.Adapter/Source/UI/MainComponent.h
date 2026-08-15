@@ -1,8 +1,11 @@
 #pragma once
 
 #include <juce_gui_basics/juce_gui_basics.h>
+#include <juce_gui_extra/juce_gui_extra.h>
 
+#include "CascadeDeviceSelector.h"
 #include <WinJACKNexus/Common/UI/CommonControls.h>
+#include <WinJACKNexus/Common/Serialization/AdapterConfig.h>
 
 namespace wjn::adapter
 {
@@ -24,8 +27,32 @@ public:
     void resized() override;
 
 private:
+    void showAudioFilterSettingsDialog();
+    void createNewConfiguration();
+    void openConfiguration();
+    void saveConfiguration();
+    void chooseConfigurationFile(bool saveAs);
+    juce::File getAdapterSavesDirectory() const;
+    void refreshConfigurationList();
+    void loadSelectedConfiguration();
+    bool loadConfigurationFile(const juce::File& file, bool showError);
+    bool saveConfigurationToFile(const juce::File& file);
+    void applyConfiguration(const wjn::common::AdapterConfig& configuration);
+    wjn::common::AdapterConfig collectConfiguration();
+    void showConfigurationError(const juce::String& message);
+
+    CascadeDeviceSelector::AudioDeviceFilterSettings audioDeviceFilterSettings;
+    juce::File currentConfigurationFile;
+    juce::Array<juce::File> configurationFiles;
+    std::unique_ptr<juce::FileChooser> configurationFileChooser;
+    wjn::common::NexusButton newConfigurationButton;
+    wjn::common::NexusButton openConfigurationButton;
+    wjn::common::NexusButton saveConfigurationButton;
+    wjn::common::NexusButton refreshConfigurationButton;
+    juce::ComboBox configurationSelector;
+    wjn::common::NexusButton settingsButton;
     wjn::common::NexusTabbedComponent tabs { juce::TabbedButtonBar::TabsAtTop };
-    juce::StringArray addedDeviceIdentifiers;
+    bool updatingConfigurationSelector = false;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
 };

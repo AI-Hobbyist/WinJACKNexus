@@ -49,6 +49,11 @@ void JackAudioInput::close() noexcept
     channelCount = 0;
 }
 
+bool JackAudioInput::rename(const juce::String& clientName) noexcept
+{
+    return client.rename (clientName);
+}
+
 bool JackAudioInput::isOpen() const noexcept { return client.getStatus().connected; }
 JackClient::Status JackAudioInput::getStatus() const noexcept { return client.getStatus(); }
 const juce::String& JackAudioInput::getLastError() const noexcept { return client.getLastError(); }
