@@ -23,7 +23,7 @@ bool AdapterApplication::moreThanOneInstanceAllowed()
     return true;
 }
 
-void AdapterApplication::initialise (const juce::String& /*commandLine*/)
+void AdapterApplication::initialise (const juce::String& commandLine)
 {
     lookAndFeel.setTheme (wjn::common::ThemeContext {});
     juce::LookAndFeel::setDefaultLookAndFeel (&lookAndFeel);
@@ -42,7 +42,10 @@ void AdapterApplication::initialise (const juce::String& /*commandLine*/)
         return;
     }
 
-    mainWindow = std::make_unique<AdapterMainWindow> (getApplicationName());
+    juce::StringArray tokens;
+    tokens.addTokens (commandLine, " \t\r\n", "\"");
+    mainWindow = std::make_unique<AdapterMainWindow> (getApplicationName(),
+                                                      tokens.contains ("--aggregate"));
     mainWindow->setVisible (true);
 }
 

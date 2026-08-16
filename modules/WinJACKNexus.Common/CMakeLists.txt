@@ -56,6 +56,7 @@ target_sources(WinJACKNexus.Common PRIVATE
     include/WinJACKNexus/Common/Version.cpp
     include/WinJACKNexus/Common/Audio/AudioEngine.cpp
     include/WinJACKNexus/Common/Audio/JackClient.cpp
+    include/WinJACKNexus/Common/Audio/JackClientHub.cpp
     include/WinJACKNexus/Common/Audio/JackAudioBackend.cpp
     include/WinJACKNexus/Common/Audio/JackAudioInput.cpp
     include/WinJACKNexus/Common/Audio/JackAudioOutput.cpp

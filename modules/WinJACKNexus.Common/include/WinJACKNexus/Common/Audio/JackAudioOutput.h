@@ -1,6 +1,7 @@
 #pragma once
 
 #include "JackClient.h"
+#include "JackClientHub.h"
 #include <WinJACKNexus/Common/IO/SpscRingBuffer.h>
 
 #include <array>
@@ -18,6 +19,8 @@ public:
     JackAudioOutput() = default;
 
     bool open(const juce::String& clientName, int channels, int blockSize) noexcept;
+    bool open(JackClientHub& hub, const juce::String& clientName,
+              int channels, int blockSize) noexcept;
     bool start() noexcept;
     void stop() noexcept;
     void close() noexcept;
@@ -39,6 +42,8 @@ private:
                         int outputChannels, int frames, void* userData) noexcept;
 
     JackClient client;
+    JackClientHub* hub = nullptr;
+    JackClientHub::PortHandle hubHandle = JackClientHub::invalidPortHandle;
     AudioBlock writeBlock;
     AudioBlock readBlock;
     SpscRingBuffer<AudioBlock, 8> blocks;

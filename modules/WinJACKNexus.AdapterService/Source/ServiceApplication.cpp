@@ -403,7 +403,8 @@ void ServiceApplication::finishStartup()
     logger.info ("Configuration synchronized: added=" + juce::String (result.synchronization.added)
                  + ", removed=" + juce::String (result.synchronization.removed));
 
-    runtime = std::make_unique<ServiceRuntime> (std::move (result.config));
+    runtime = std::make_unique<ServiceRuntime> (std::move (result.config),
+                                                ClientEngineFactory {}, options.aggregate);
     if (! runtime->start())
     {
         finishInitialiseWithError (6, "ServiceRuntime 启动失败");

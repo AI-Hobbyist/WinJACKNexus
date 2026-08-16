@@ -47,8 +47,11 @@ std::unique_ptr<ClientEngine> makeRealClientEngine()
 }
 
 ClientRuntime::ClientRuntime (ServiceClient newConfiguration,
-                              std::unique_ptr<ClientEngine> newEngine)
-    : configuration (std::move (newConfiguration)), engine (std::move (newEngine))
+                                                            std::unique_ptr<ClientEngine> newEngine,
+                                                            wjn::common::JackClientHub* newJackHub,
+                                                            juce::String newJackHubClientName)
+        : configuration (std::move (newConfiguration)), engine (std::move (newEngine)),
+            jackHub (newJackHub), jackHubClientName (std::move (newJackHubClientName))
 {
 }
 
@@ -107,28 +110,30 @@ void ClientRuntime::stop()
 }
 
 ClientEngine::Configuration ClientRuntime::makeEngineConfiguration (
-    const ServiceClient& client)
+    const ServiceClient& client) const
 {
-    ClientEngine::Configuration configuration;
-    configuration.clientName = client.clientName;
-    configuration.midi = client.kind.equalsIgnoreCase ("Midi");
-    configuration.input = client.direction.equalsIgnoreCase ("In");
-    configuration.wasapiMode = client.wasapiMode.equalsIgnoreCase ("exclusive")
+    ClientEngine::Configuration engineConfiguration;
+    engineConfiguration.clientName = client.clientName;
+    engineConfiguration.midi = client.kind.equalsIgnoreCase ("Midi");
+    engineConfiguration.input = client.direction.equalsIgnoreCase ("In");
+    engineConfiguration.wasapiMode = client.wasapiMode.equalsIgnoreCase ("exclusive")
                                    ? juce::WASAPIDeviceMode::exclusive
                                    : juce::WASAPIDeviceMode::shared;
+    engineConfiguration.jackClientHub = jackHub;
+    engineConfiguration.jackHubClientName = jackHubClientName;
 
-    if (configuration.midi)
+    if (engineConfiguration.midi)
     {
-        configuration.midiDeviceIdentifier = client.guid;
+        engineConfiguration.midiDeviceIdentifier = client.guid;
     }
     else
     {
-        configuration.audioDeviceName = client.guid;
+        engineConfiguration.audioDeviceName = client.guid;
         if (! client.channels.empty())
-            configuration.channels = static_cast<int> (client.channels.size());
+            engineConfiguration.channels = static_cast<int> (client.channels.size());
     }
 
-    return configuration;
+    return engineConfiguration;
 }
 
 } // namespace wjn::adapter::service

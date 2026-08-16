@@ -187,6 +187,12 @@ bool RealEngine::startEngine()
     for (auto& level : midiLevels)
         level.store (0.0f, std::memory_order_release);
 
+    if (configuration.jackClientHub != nullptr
+        && ! configuration.jackClientHub->getStatus().connected
+        && ! configuration.jackClientHub->open (configuration.jackHubClientName,
+                                                wjn::common::JackClient::maxBlockFrames))
+        return false;
+
     if (! configuration.midi)
     {
         if (configuration.input)
@@ -197,11 +203,17 @@ bool RealEngine::startEngine()
 
         const auto channels = juce::jlimit (1, wjn::common::JackAudioOutput::maxChannels,
                                             configuration.channels);
-        const auto jackOpened = configuration.input
-            ? audioOutput.open (configuration.clientName, channels,
-                                wjn::common::JackClient::maxBlockFrames)
-            : audioInput.open (configuration.clientName, channels,
-                               wjn::common::JackClient::maxBlockFrames);
+        const auto jackOpened = configuration.jackClientHub != nullptr
+            ? (configuration.input
+                ? audioOutput.open (*configuration.jackClientHub, configuration.clientName,
+                                    channels, wjn::common::JackClient::maxBlockFrames)
+                : audioInput.open (*configuration.jackClientHub, configuration.clientName,
+                                   channels, wjn::common::JackClient::maxBlockFrames))
+            : (configuration.input
+                ? audioOutput.open (configuration.clientName, channels,
+                                    wjn::common::JackClient::maxBlockFrames)
+                : audioInput.open (configuration.clientName, channels,
+                                   wjn::common::JackClient::maxBlockFrames));
         if (! jackOpened)
         {
             stopEngine();
@@ -235,12 +247,17 @@ bool RealEngine::startEngine()
         if (configuration.midiDeviceIdentifier.isNotEmpty())
             systemMidiInput = juce::MidiInput::openDevice (configuration.midiDeviceIdentifier, this);
 
-        const auto jackReady = jackMidiOutput.open (configuration.clientName, "out")
+        const auto jackReady = configuration.jackClientHub != nullptr
+            ? jackMidiOutput.open (*configuration.jackClientHub, configuration.clientName,
+                                   wjn::common::JackClientHub::midiPortName (
+                                       configuration.clientName))
+            : jackMidiOutput.open (configuration.clientName, "out");
+        const auto jackStarted = jackReady
                             && jackMidiOutput.start();
         if (systemMidiInput != nullptr)
             systemMidiInput->start();
 
-        const auto ready = jackReady || systemMidiInput != nullptr;
+        const auto ready = jackStarted || systemMidiInput != nullptr;
         active.store (ready, std::memory_order_release);
         return ready;
     }
@@ -248,9 +265,14 @@ bool RealEngine::startEngine()
     if (configuration.midiDeviceIdentifier.isNotEmpty())
         systemMidiOutput = juce::MidiOutput::openDevice (configuration.midiDeviceIdentifier);
 
-    const auto jackReady = jackMidiInput.open (configuration.clientName, "in")
+    const auto jackReady = configuration.jackClientHub != nullptr
+        ? jackMidiInput.open (*configuration.jackClientHub, configuration.clientName,
+                              wjn::common::JackClientHub::midiPortName (
+                                  configuration.clientName))
+        : jackMidiInput.open (configuration.clientName, "in");
+    const auto jackStarted = jackReady
                         && jackMidiInput.start();
-    const auto ready = jackReady || systemMidiOutput != nullptr;
+    const auto ready = jackStarted || systemMidiOutput != nullptr;
     active.store (ready, std::memory_order_release);
     return ready;
 }

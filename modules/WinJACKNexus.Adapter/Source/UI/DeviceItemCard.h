@@ -37,7 +37,9 @@ public:
     using RenameCallback = std::function<bool (DeviceItemCard&, juce::String)>;
     using VoidCallback = std::function<void (DeviceItemCard&)>;
 
-    DeviceItemCard (Data data, RenameCallback onRename, VoidCallback onPause, VoidCallback onRemove);
+    DeviceItemCard (Data data, wjn::common::JackClientHub* jackHub,
+                    juce::String jackHubClientName, RenameCallback onRename,
+                    VoidCallback onPause, VoidCallback onRemove);
     ~DeviceItemCard() override;
 
     const Data& getData() const noexcept { return data; }
@@ -76,6 +78,8 @@ private:
     wjn::common::LcdDisplayControl lcdDisplay;
     wjn::common::MidiLed midiLed;
     RealEngine realEngine;
+    wjn::common::JackClientHub* jackHub = nullptr;
+    juce::String jackHubClientName;
     juce::Array<float> audioLevels;
     std::array<float, 16> midiLevels {};
     RealEngine::AudioStatus audioStatus;

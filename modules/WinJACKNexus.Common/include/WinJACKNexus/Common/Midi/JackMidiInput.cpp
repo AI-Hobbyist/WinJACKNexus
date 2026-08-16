@@ -37,8 +37,38 @@ bool JackMidiInput::open(const juce::String& newClientName, const juce::String& 
     return true;
 }
 
+bool JackMidiInput::open(JackClientHub& newHub, const juce::String& newClientName,
+                         const juce::String& newPortName) noexcept
+{
+    close();
+    const auto requestedClientName = newClientName.trim();
+    const auto requestedPortName = newPortName.trim();
+    const auto handle = newHub.registerMidiPort(requestedPortName, JackPortIsInput,
+                                                 &JackMidiInput::processHub, this);
+    if (handle == JackClientHub::invalidPortHandle)
+        return false;
+
+    hub = &newHub;
+    hubHandle = handle;
+    clientName = requestedClientName;
+    portName = requestedPortName;
+    connected.store(true, std::memory_order_release);
+    lastError.clear();
+    return true;
+}
+
 bool JackMidiInput::start() noexcept
 {
+    if (hub != nullptr)
+    {
+        if (! hub->start(hubHandle))
+        {
+            setError("Unable to activate JACK MIDI input");
+            return false;
+        }
+        running.store(true, std::memory_order_release);
+        return true;
+    }
     if (client == nullptr || jack_activate(client) != 0)
     {
         setError("Unable to activate JACK MIDI input");
@@ -51,17 +81,23 @@ bool JackMidiInput::start() noexcept
 void JackMidiInput::stop() noexcept
 {
     running.store(false, std::memory_order_release);
-    if (client != nullptr)
+    if (hub != nullptr)
+        hub->stop(hubHandle);
+    else if (client != nullptr)
         jack_deactivate(client);
 }
 
 void JackMidiInput::close() noexcept
 {
     stop();
+    if (hub != nullptr)
+        hub->unregister(hubHandle);
     if (client != nullptr)
         jack_client_close(client);
     client = nullptr;
     port = nullptr;
+    hub = nullptr;
+    hubHandle = JackClientHub::invalidPortHandle;
     clientName.clear();
     portName.clear();
     connected.store(false, std::memory_order_release);
@@ -75,6 +111,18 @@ bool JackMidiInput::rename(const juce::String& newClientName) noexcept
     {
         setError("Unable to rename an unopened JACK MIDI input");
         return false;
+    }
+
+    if (hub != nullptr)
+    {
+        const auto renamed = hub->renameMidiPort(hubHandle,
+                                                 JackClientHub::midiPortName(requestedClientName));
+        if (renamed)
+        {
+            clientName = requestedClientName;
+            portName = JackClientHub::midiPortName(requestedClientName);
+        }
+        return renamed;
     }
 
     const auto* currentName = jack_get_client_name(client);
@@ -145,27 +193,47 @@ bool JackMidiInput::rename(const juce::String& newClientName) noexcept
     return true;
 }
 
-bool JackMidiInput::isOpen() const noexcept { return connected.load(std::memory_order_acquire); }
+bool JackMidiInput::isOpen() const noexcept
+{
+    return hub != nullptr ? hub->isRouteOpen(hubHandle)
+                          : connected.load(std::memory_order_acquire);
+}
 bool JackMidiInput::pop(MidiEvent& event) noexcept { return queue.pop(event); }
 juce::uint64 JackMidiInput::getDroppedEventCount() const noexcept { return droppedEvents.load(std::memory_order_relaxed); }
-const juce::String& JackMidiInput::getLastError() const noexcept { return lastError; }
+const juce::String& JackMidiInput::getLastError() const noexcept
+{
+    return hub != nullptr ? hub->getLastError() : lastError;
+}
 
 int JackMidiInput::process(jack_nframes_t frames, void* userData) noexcept
 {
     auto* owner = static_cast<JackMidiInput*>(userData);
     if (owner == nullptr || owner->port == nullptr)
         return 0;
-    auto* buffer = jack_port_get_buffer(owner->port, frames);
+    owner->processBuffer(jack_port_get_buffer(owner->port, frames), frames);
+    return 0;
+}
+
+void JackMidiInput::processHub(void* buffer, jack_nframes_t frames, void* userData) noexcept
+{
+    auto* owner = static_cast<JackMidiInput*>(userData);
+    if (owner != nullptr)
+        owner->processBuffer(buffer, frames);
+}
+
+void JackMidiInput::processBuffer(void* buffer, jack_nframes_t) noexcept
+{
+    if (buffer == nullptr)
+        return;
     const auto count = jack_midi_get_event_count(buffer);
     for (uint32_t index = 0; index < count; ++index)
     {
         jack_midi_event_t event {};
         if (jack_midi_event_get(&event, buffer, index) != 0
             || event.size > MidiEvent::maxBytes
-            || !owner->queue.push(MidiEvent::make(event.time, event.buffer, event.size)))
-            owner->droppedEvents.fetch_add(1, std::memory_order_relaxed);
+            || !queue.push(MidiEvent::make(event.time, event.buffer, event.size)))
+            droppedEvents.fetch_add(1, std::memory_order_relaxed);
     }
-    return 0;
 }
 
 void JackMidiInput::shutdown(void* userData) noexcept

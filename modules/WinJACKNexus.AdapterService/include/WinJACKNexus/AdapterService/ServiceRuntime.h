@@ -23,7 +23,8 @@ class ServiceRuntime final
 {
 public:
     explicit ServiceRuntime (ServiceConfig configuration,
-                             ClientEngineFactory engineFactory = {});
+                             ClientEngineFactory engineFactory = {},
+                             bool aggregateMode = false);
     ~ServiceRuntime();
 
     bool start();
@@ -52,6 +53,9 @@ private:
 
     ServiceConfig config;
     ClientEngineFactory engineFactory;
+    bool aggregateMode = false;
+    std::unique_ptr<wjn::common::JackClientHub> inputHub;
+    std::unique_ptr<wjn::common::JackClientHub> outputHub;
     std::atomic<ServiceRuntimeState> runtimeState { ServiceRuntimeState::idle };
     std::atomic<bool> stopRequested { false };
     std::size_t nextClientIndex = 0;

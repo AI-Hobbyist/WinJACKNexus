@@ -30,17 +30,56 @@ bool JackAudioOutput::open(const juce::String& clientName, int channels, int blo
     return true;
 }
 
+bool JackAudioOutput::open(JackClientHub& newHub, const juce::String& clientName,
+                           int channels, int blockSize) noexcept
+{
+    close();
+    if (channels < 1 || channels > maxChannels
+        || channels > JackClientHub::maxPortsPerGroup
+        || blockSize <= 0 || blockSize > JackClient::maxBlockFrames)
+        return false;
+
+    juce::StringArray names;
+    for (int index = 0; index < channels; ++index)
+        names.add(JackClientHub::audioPortName(clientName, index));
+
+    const auto handle = newHub.registerAudioPorts({}, names, &JackAudioOutput::process, this);
+    if (handle == JackClientHub::invalidPortHandle)
+        return false;
+
+    hub = &newHub;
+    hubHandle = handle;
+    channelCount = channels;
+    blocks.reset();
+    readBlock.channels = 0;
+    readBlock.frames = 0;
+    readOffset = 0;
+    return true;
+}
+
 bool JackAudioOutput::start() noexcept
 {
+    if (hub != nullptr)
+        return hub->start(hubHandle);
     client.setProcessCallback(&JackAudioOutput::process, this);
     return client.activate();
 }
 
-void JackAudioOutput::stop() noexcept { client.deactivate(); }
+void JackAudioOutput::stop() noexcept
+{
+    if (hub != nullptr)
+        hub->stop(hubHandle);
+    else
+        client.deactivate();
+}
 
 void JackAudioOutput::close() noexcept
 {
     stop();
+    if (hub != nullptr)
+        hub->unregister(hubHandle);
+    hub = nullptr;
+    hubHandle = JackClientHub::invalidPortHandle;
     client.close();
     blocks.reset();
     channelCount = 0;
@@ -51,12 +90,30 @@ void JackAudioOutput::close() noexcept
 
 bool JackAudioOutput::rename(const juce::String& clientName) noexcept
 {
+    if (hub != nullptr)
+    {
+        juce::StringArray names;
+        for (int index = 0; index < channelCount; ++index)
+            names.add(JackClientHub::audioPortName(clientName, index));
+        return hub->renameAudioPorts(hubHandle, {}, names);
+    }
     return client.rename (clientName);
 }
 
-bool JackAudioOutput::isOpen() const noexcept { return client.getStatus().connected; }
-JackClient::Status JackAudioOutput::getStatus() const noexcept { return client.getStatus(); }
-const juce::String& JackAudioOutput::getLastError() const noexcept { return client.getLastError(); }
+bool JackAudioOutput::isOpen() const noexcept
+{
+    return hub != nullptr ? hub->isRouteOpen(hubHandle) : client.getStatus().connected;
+}
+
+JackClient::Status JackAudioOutput::getStatus() const noexcept
+{
+    return hub != nullptr ? hub->getStatus() : client.getStatus();
+}
+
+const juce::String& JackAudioOutput::getLastError() const noexcept
+{
+    return hub != nullptr ? hub->getLastError() : client.getLastError();
+}
 
 void JackAudioOutput::submitBlock(const float* const* inputs, int channels, int frames) noexcept
 {

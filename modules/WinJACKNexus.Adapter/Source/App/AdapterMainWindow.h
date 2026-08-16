@@ -12,7 +12,7 @@ class AdapterTrayIcon;
 class AdapterMainWindow final : public juce::DocumentWindow
 {
 public:
-    explicit AdapterMainWindow (const juce::String& name);
+    explicit AdapterMainWindow (const juce::String& name, bool aggregateMode);
     ~AdapterMainWindow() override;
 
     // DocumentWindow

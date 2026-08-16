@@ -26,9 +26,9 @@ int main()
     const auto defaultFile = juce::File::getCurrentWorkingDirectory()
                                  .getChildFile ("default.json");
     const auto parsed = CommandLineOptions::parse (
-        "--quiet --config \"config folder/adapter service.json\"", defaultFile);
-    require (parsed.valid && parsed.quiet,
-             "Quiet mode and a valid config path must be parsed");
+        "--quiet --aggregate --config \"config folder/adapter service.json\"", defaultFile);
+    require (parsed.valid && parsed.quiet && parsed.aggregate,
+             "Quiet mode, aggregate mode and a valid config path must be parsed");
     require (parsed.configFile == juce::File::getCurrentWorkingDirectory()
                                       .getChildFile ("config folder/adapter service.json"),
              "Relative config paths must resolve from the working directory");
@@ -57,6 +57,10 @@ int main()
     const auto unknown = CommandLineOptions::parse ("--unsupported", defaultFile);
     require (! unknown.valid && unknown.error.isNotEmpty(),
              "Unknown options must be rejected");
+
+    const auto usage = CommandLineOptions::usage ("AdapterService.exe");
+    require (usage.contains ("--aggregate"),
+             "Usage text must document aggregate mode");
 
     const auto mutexName = "WinJACKNexus.AdapterService.CommandLineOptionsTests";
     ServiceInstanceGuard first;

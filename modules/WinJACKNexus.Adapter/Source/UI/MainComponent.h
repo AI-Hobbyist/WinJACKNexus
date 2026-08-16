@@ -7,6 +7,7 @@
 
 #include "CascadeDeviceSelector.h"
 #include <WinJACKNexus/Common/UI/CommonControls.h>
+#include <WinJACKNexus/Common/Audio/JackClientHub.h>
 #include <WinJACKNexus/Common/Serialization/AdapterConfig.h>
 #include <WinJACKNexus/Common/UI/OpenGLAcceleration.h>
 
@@ -25,7 +26,7 @@ class MainComponent final : public juce::Component,
                              private juce::Timer
 {
 public:
-    MainComponent();
+    explicit MainComponent (bool aggregateMode = false);
     ~MainComponent() override;
 
     // Component
@@ -63,6 +64,9 @@ private:
     wjn::common::NexusButton refreshConfigurationButton;
     juce::ComboBox configurationSelector;
     wjn::common::NexusButton settingsButton;
+    bool aggregateMode = false;
+    std::unique_ptr<wjn::common::JackClientHub> inputHub;
+    std::unique_ptr<wjn::common::JackClientHub> outputHub;
     wjn::common::NexusTabbedComponent tabs { juce::TabbedButtonBar::TabsAtTop };
     wjn::common::OpenGLAcceleration openGlAcceleration;
     bool updatingConfigurationSelector = false;

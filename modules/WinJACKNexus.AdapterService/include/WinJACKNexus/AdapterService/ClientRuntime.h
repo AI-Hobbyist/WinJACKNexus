@@ -40,7 +40,9 @@ enum class ClientRuntimeState
 class ClientRuntime final
 {
 public:
-    ClientRuntime (ServiceClient client, std::unique_ptr<ClientEngine> engine);
+    ClientRuntime (ServiceClient client, std::unique_ptr<ClientEngine> engine,
+                   wjn::common::JackClientHub* jackHub = nullptr,
+                   juce::String jackHubClientName = {});
 
     bool start();
     bool tryCompleteStart() noexcept;
@@ -53,10 +55,12 @@ public:
     ClientRuntimeState state() const noexcept { return runtimeState; }
 
 private:
-    static ClientEngine::Configuration makeEngineConfiguration (const ServiceClient& client);
+    ClientEngine::Configuration makeEngineConfiguration (const ServiceClient& client) const;
 
     ServiceClient configuration;
     std::unique_ptr<ClientEngine> engine;
+    wjn::common::JackClientHub* jackHub = nullptr;
+    juce::String jackHubClientName;
     ClientRuntimeState runtimeState = ClientRuntimeState::pending;
 };
 

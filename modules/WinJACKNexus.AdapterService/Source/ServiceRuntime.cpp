@@ -9,11 +9,19 @@ namespace wjn::adapter::service
 {
 
 ServiceRuntime::ServiceRuntime (ServiceConfig newConfiguration,
-                                ClientEngineFactory newEngineFactory)
-    : config (std::move (newConfiguration)), engineFactory (std::move (newEngineFactory))
+                                ClientEngineFactory newEngineFactory,
+                                bool newAggregateMode)
+    : config (std::move (newConfiguration)), engineFactory (std::move (newEngineFactory)),
+      aggregateMode (newAggregateMode)
 {
     if (! engineFactory)
         engineFactory = [] { return makeRealClientEngine(); };
+
+    if (aggregateMode)
+    {
+        inputHub = std::make_unique<wjn::common::JackClientHub>();
+        outputHub = std::make_unique<wjn::common::JackClientHub>();
+    }
 }
 
 ServiceRuntime::~ServiceRuntime()
@@ -160,8 +168,26 @@ void ServiceRuntime::advanceStart()
             continue;
         }
 
+        wjn::common::JackClientHub* jackHub = nullptr;
+        juce::String jackHubClientName;
+        if (aggregateMode)
+        {
+            const auto isInput = client.direction.equalsIgnoreCase ("In");
+            jackHub = isInput ? inputHub.get() : outputHub.get();
+            jackHubClientName = isInput ? "WDM_Input_Hub" : "WDM_Output_Hub";
+            if (jackHub != nullptr && ! jackHub->getStatus().connected
+                && ! jackHub->open (jackHubClientName,
+                                    wjn::common::JackClient::maxBlockFrames))
+            {
+                failedClients.add (client.clientName);
+                continue;
+            }
+        }
+
         startingClient = std::make_unique<ClientRuntime> (std::move (client),
-                                                          std::move (engine));
+                                                          std::move (engine),
+                                                          jackHub,
+                                                          std::move (jackHubClientName));
         if (! startingClient->start())
         {
             failedClients.add (startingClient->client().clientName);

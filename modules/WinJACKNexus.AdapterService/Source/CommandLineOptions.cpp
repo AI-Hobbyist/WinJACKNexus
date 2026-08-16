@@ -38,6 +38,10 @@ CommandLineOptions CommandLineOptions::parse (const juce::String& commandLine,
         {
             options.quiet = true;
         }
+        else if (token == "--aggregate")
+        {
+            options.aggregate = true;
+        }
         else if (token == "--help" || token == "-h")
         {
             options.showHelp = true;
@@ -86,7 +90,7 @@ juce::File CommandLineOptions::defaultConfigurationFile()
 juce::String CommandLineOptions::usage (const juce::String& executableName)
 {
     return "Usage: " + executableName
-         + " [--quiet] [--config <path>] [--help] [--version]";
+            + " [--quiet] [--aggregate] [--config <path>] [--help] [--version]";
 }
 
 } // namespace wjn::adapter::service

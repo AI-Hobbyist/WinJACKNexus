@@ -53,14 +53,14 @@ private:
     AdapterMainWindow& owner;
 };
 
-AdapterMainWindow::AdapterMainWindow (const juce::String& name)
+AdapterMainWindow::AdapterMainWindow (const juce::String& name, bool aggregateMode)
     : DocumentWindow (name,
                       juce::Desktop::getInstance().getDefaultLookAndFeel()
                           .findColour (ResizableWindow::backgroundColourId),
                       DocumentWindow::allButtons)
 {
     setUsingNativeTitleBar (true);
-    setContentOwned (new MainComponent(), true);
+    setContentOwned (new MainComponent (aggregateMode), true);
     setSize (960, 640);
 
     centreWithSize (getWidth(), getHeight());

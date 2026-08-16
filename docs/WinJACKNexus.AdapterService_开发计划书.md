@@ -22,6 +22,7 @@
 - 新设备在下次重启时自动补充到配置文件。
 - 已配置但重启时找不到的设备默认标记为 `missing` 并保留预设，也可通过全局开关自动移除。
 - 支持 `--quiet` 静默启动并显示系统托盘图标。
+- 支持 `--aggregate` 按输入/输出方向聚合 JACK Client。
 - AdapterService 与 JACK 服务端必须运行在同一个用户 Session 中。
 
 ---
@@ -58,7 +59,22 @@ AdapterService.exe --quiet --config D:\Config\adapter_service.json
 - 托盘退出必须进入统一的串行客户端卸载流程。
 - 托盘模式不改变音频、MIDI 或 JACK 数据路径。
 
-### 2.3 当前用户 Session 运行约束
+### 2.3 `--aggregate` 按方向聚合模式
+
+```text
+AdapterService.exe --aggregate
+AdapterService.exe --aggregate --quiet --config D:\Config\adapter_service.json
+```
+
+行为：
+
+- 默认不传 `--aggregate` 时保持一设备一 JACK Client，兼容原有配置和连接方式。
+- 传入 `--aggregate` 后，输入方向设备共享 `WDM_Input_Hub`，输出方向设备共享 `WDM_Output_Hub`，按方向最多建立两个 JACK Client。
+- 音频端口名称为原客户端名加声道号，例如 `WDM_AudioIn_01_1`；MIDI 端口名称为原客户端名加 `_MIDI`，例如 `WDM_MidiOut_01_MIDI`。
+- 设备的 Windows I/O、音频 FIFO、重采样器和 MIDI 队列仍由各自的 `RealEngine` 持有；聚合只改变 JACK 端口归属。
+- 配置中的 `clientName` 仍是设备逻辑名称。聚合模式下修改名称只重命名该设备端口，不重命名方向 Hub Client。
+
+### 2.4 当前用户 Session 运行约束
 
 AdapterService 只支持当前登录用户的交互式 Session：
 
@@ -68,7 +84,7 @@ AdapterService 只支持当前登录用户的交互式 Session：
 - 不支持用户未登录时的无人值守运行，也不支持跨 Session 连接 JACK。
 - `--quiet` 只在当前用户 Session 创建托盘图标，不创建 Adapter 主窗口。
 
-### 2.4 JACK2 开发与运行依赖
+### 2.5 JACK2 开发与运行依赖
 
 AdapterService 在开发/编译阶段使用 `third_party/JACK2/include` 中的头文件，以及 `third_party/JACK2/lib/*.lib` 作为链接输入。发布和实际运行不需要随应用携带 `libjack64.dll`；真实 JACK 连接由外部 JACK 服务环境提供。
 
@@ -311,6 +327,8 @@ AdapterService 不使用 Adapter 的 `adapter_saves` 目录和 `.adapter` 存档
 
 JACK 重名冲突继续由 JACK2 服务端处理，Service 记录请求名称和启动结果。
 
+传入 `--aggregate` 时，上述名称作为设备端口名称的前缀使用；JACK Client 固定为 `WDM_Input_Hub` 和 `WDM_Output_Hub`，音频追加 `_1`、`_2` 等声道号，MIDI 追加 `_MIDI`。未传参数时仍按上述名称分别创建设备 Client。
+
 ### 6.6 文件写入
 
 配置保存使用临时文件替换策略：
@@ -410,6 +428,14 @@ ServiceRuntime
 └── ClientRuntime[]
       └── std::unique_ptr<RealEngine>
 ```
+聚合模式额外持有：
+
+```text
+ServiceRuntime
+├── JackClientHub (输入)
+└── JackClientHub (输出)
+```
+
 
 `ClientRuntime` 持有：
 
@@ -637,6 +663,7 @@ AdapterService 不需要：
 
 - 实现单客户端运行时容器。
 - 实现严格串行启动。
+- 实现可选的 `--aggregate` 输入/输出双 Hub 与设备端口命名。
 - 实现启动完成等待。
 - 实现启动失败后继续处理。
 - 实现约 20 Hz 的 `refresh()` 调度。
@@ -648,6 +675,7 @@ AdapterService 不需要：
 - 实现默认控制台入口。
 - 实现 `--quiet` 静默托盘模式。
 - 实现 `--config` 路径覆盖。
+- 实现 `--aggregate` 按方向聚合 JACK Client。
 - 实现 Service 专用 Named Mutex。
 
 阶段四当前实现细节：
@@ -658,6 +686,7 @@ AdapterService 不需要：
 - 托盘菜单显示运行状态并提供退出操作。
 - 重复实例使用 `WinJACK_Nexus_AdapterService_Lock` Named Mutex 拒绝，不查找或置前窗口。
 - 支持 `--help`、`--version`、`--config <path>`、`--config=<path>` 和未知参数错误退出。
+- `--aggregate` 已接入 `ServiceRuntime`，按 `In` / `Out` 方向选择共享 Hub；默认模式保持一设备一 Client。
 
 ### 阶段五：安装与回归（进行中）
 
@@ -676,7 +705,7 @@ AdapterService 不需要：
 - `WinJACKNexus.AdapterService.ServiceRuntimeTests` 通过。
 - `WinJACKNexus.AdapterBackend`、`WinJACKNexus.Adapter` 与 AdapterService 相关目标联编通过。
 
-仍待手工验收：真实 JACK/WASAPI/MIDI 设备链路、控制台长时间运行、托盘退出和同一用户 Session 下的启动配置。
+仍待手工验收：默认和 `--aggregate` 两种模式下的真实 JACK/WASAPI/MIDI 设备链路、输入/输出 Hub 端口拓扑、端口重命名后的外部连接、控制台长时间运行、托盘退出和同一用户 Session 下的启动配置。
 
 ---
 
@@ -721,6 +750,8 @@ AdapterService 不需要：
 - 重启后丢失设备默认保留为 `status = "missing"`，开启 `autoRemoveLostDevices` 时才从配置文件移除。
 - 禁用设备不会创建 JACK Client。
 - 自定义 Client 名称在重启后继续生效。
+- `--aggregate` 只产生输入/输出两个方向 Hub Client，设备端口名称带原客户端名和声道号。
+- 聚合模式下设备重命名只改变对应设备端口，Hub Client 名称保持不变。
 - WASAPI 采样率不一致时重采样链路正常。
 - MIDI 输入和输出链路正常。
 - 计划任务仅在用户登录时启动，并与 JACK 使用同一用户 Session。
@@ -743,5 +774,7 @@ AdapterService 不需要：
 - 跨用户或跨 Session 的 JACK 连接。
 - 运行时热插拔重建。
 - 在线配置编辑器。
+
+本计划新增的 `--aggregate` 仅改变 JACK Client 的组织方式，不改变设备发现、配置同步、串行启动/停止和 Windows 音频/MIDI 处理边界。
 
 本文件只定义 AdapterService 的设计、模块边界、实施顺序和验收标准，实际源码实现按阶段逐步进行。

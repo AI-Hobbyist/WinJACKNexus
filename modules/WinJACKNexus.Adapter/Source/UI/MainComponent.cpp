@@ -46,9 +46,12 @@ class DeviceListSection final : public wjn::common::NexusPanel
 public:
     DeviceListSection (juce::String title, bool input,
                                              CascadeDeviceSelector::AudioDeviceFilterSettings& audioFilterSettings,
-                       bool midi = false, bool virtualAudio = false)
+                       bool midi = false, bool virtualAudio = false,
+                       wjn::common::JackClientHub* sharedHub = nullptr,
+                       juce::String sharedHubClientName = {})
                 : sectionTitle (std::move (title)), isInput (input), filterSettings (audioFilterSettings),
-                    isMidi (midi), isVirtual (virtualAudio)
+                    isMidi (midi), isVirtual (virtualAudio), jackHub (sharedHub),
+                    jackHubClientName (std::move (sharedHubClientName))
     {
         addAndMakeVisible (titleLabel);
         titleLabel.setText (sectionTitle, juce::dontSendNotification);
@@ -233,6 +236,8 @@ private:
         debug::trace ("addCard before card new");
         auto* card = new DeviceItemCard (
             std::move (data),
+            jackHub,
+            jackHubClientName,
             [] (DeviceItemCard& card, juce::String name)
             {
                 return card.renameClient (name);
@@ -304,6 +309,8 @@ private:
     CascadeDeviceSelector::AudioDeviceFilterSettings& filterSettings;
     bool isMidi = false;
     bool isVirtual = false;
+    wjn::common::JackClientHub* jackHub = nullptr;
+    juce::String jackHubClientName;
     wjn::common::NexusLabel titleLabel;
     wjn::common::NexusButton addButton;
     wjn::common::NexusButton refreshButton;
@@ -320,9 +327,15 @@ class TabPage final : public juce::Component
 public:
     TabPage (juce::String inputTitle, juce::String outputTitle,
              CascadeDeviceSelector::AudioDeviceFilterSettings& filterSettings,
-             bool midi = false, bool virtualAudio = false)
-                : inputSection (std::move (inputTitle), true, filterSettings, midi, virtualAudio),
-                    outputSection (std::move (outputTitle), false, filterSettings, midi, virtualAudio)
+                 bool midi = false, bool virtualAudio = false,
+                 wjn::common::JackClientHub* inputHub = nullptr,
+                 juce::String inputHubClientName = {},
+                 wjn::common::JackClientHub* outputHub = nullptr,
+                 juce::String outputHubClientName = {})
+                     : inputSection (std::move (inputTitle), true, filterSettings, midi, virtualAudio,
+                                          inputHub, std::move (inputHubClientName)),
+                          outputSection (std::move (outputTitle), false, filterSettings, midi, virtualAudio,
+                                              outputHub, std::move (outputHubClientName))
     {
         addAndMakeVisible (inputSection);
         addAndMakeVisible (outputSection);
@@ -373,8 +386,14 @@ private:
 
 } // namespace
 
-MainComponent::MainComponent()
+MainComponent::MainComponent (bool newAggregateMode)
+    : aggregateMode (newAggregateMode)
 {
+    if (aggregateMode)
+    {
+        inputHub = std::make_unique<wjn::common::JackClientHub>();
+        outputHub = std::make_unique<wjn::common::JackClientHub>();
+    }
     tabs.setTabBarDepth (42);
     tabs.setOutline (0);
 
@@ -421,14 +440,18 @@ MainComponent::MainComponent()
                  wjn::common::theme::rackPanel,
                  new TabPage (fromUtf8 ("输入  |  WASAPI 捕获"),
                               fromUtf8 ("输出  |  WASAPI 渲染"),
-                              audioDeviceFilterSettings),
+                              audioDeviceFilterSettings, false, false,
+                              inputHub.get(), "WDM_Input_Hub",
+                              outputHub.get(), "WDM_Output_Hub"),
                  true);
     tabs.addTab (fromUtf8 ("系统 MIDI"),
                  wjn::common::theme::rackPanel,
                  new TabPage (fromUtf8 ("输入  |  WinMM / WinRT MIDI"),
                               fromUtf8 ("输出  |  WinMM / WinRT MIDI"),
                               audioDeviceFilterSettings,
-                              true),
+                              true, false,
+                              inputHub.get(), "WDM_Input_Hub",
+                              outputHub.get(), "WDM_Output_Hub"),
                  true);
 
     addAndMakeVisible (newConfigurationButton);

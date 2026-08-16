@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../Midi/MidiEventQueue.h"
+#include "../Audio/JackClientHub.h"
 
 #include <atomic>
 #include <vector>
@@ -16,6 +17,8 @@ class JackMidiOutput final
 {
 public:
     bool open(const juce::String& clientName, const juce::String& portName) noexcept;
+    bool open(JackClientHub& hub, const juce::String& clientName,
+              const juce::String& portName) noexcept;
     bool start() noexcept;
     void stop() noexcept;
     void close() noexcept;
@@ -28,11 +31,15 @@ public:
 
 private:
     static int process(jack_nframes_t frames, void* userData) noexcept;
+    static void processHub(void* buffer, jack_nframes_t frames, void* userData) noexcept;
+    void processBuffer(void* buffer, jack_nframes_t frames) noexcept;
     static void shutdown(void* userData) noexcept;
     void setError(const char* message) noexcept;
 
     jack_client_t* client = nullptr;
     jack_port_t* port = nullptr;
+    JackClientHub* hub = nullptr;
+    JackClientHub::PortHandle hubHandle = JackClientHub::invalidPortHandle;
     juce::String clientName;
     juce::String portName;
     MidiEventQueue queue;

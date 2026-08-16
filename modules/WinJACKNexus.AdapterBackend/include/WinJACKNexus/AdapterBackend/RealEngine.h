@@ -11,6 +11,7 @@
 
 #include <WinJACKNexus/Common/Audio/JackAudioInput.h>
 #include <WinJACKNexus/Common/Audio/JackAudioOutput.h>
+#include <WinJACKNexus/Common/Audio/JackClientHub.h>
 #include <WinJACKNexus/Common/IO/SpscRingBuffer.h>
 #include <WinJACKNexus/Common/Midi/JackMidiInput.h>
 #include <WinJACKNexus/Common/Midi/JackMidiOutput.h>
@@ -32,6 +33,8 @@ public:
         bool midi = false;
         bool input = false;
         juce::WASAPIDeviceMode wasapiMode = juce::WASAPIDeviceMode::shared;
+        wjn::common::JackClientHub* jackClientHub = nullptr;
+        juce::String jackHubClientName;
     };
 
     static constexpr int maxAudioChannels = wjn::common::JackAudioOutput::maxChannels;

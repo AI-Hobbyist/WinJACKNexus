@@ -85,10 +85,12 @@ void drawHorizontalMeter (juce::Graphics& g, juce::Rectangle<float> row,
 
 } // namespace
 
-DeviceItemCard::DeviceItemCard (Data itemData, RenameCallback onRename,
-                                VoidCallback onPause, VoidCallback onRemove)
+DeviceItemCard::DeviceItemCard (Data itemData, wjn::common::JackClientHub* newJackHub,
+                                                                juce::String newJackHubClientName, RenameCallback onRename,
+                                                                VoidCallback onPause, VoidCallback onRemove)
     : data (std::move (itemData)), renameCallback (std::move (onRename)),
       pauseCallback (std::move (onPause)), removeCallback (std::move (onRemove)),
+            jackHub (newJackHub), jackHubClientName (std::move (newJackHubClientName)),
       midiMode (data.midi)
 {
         debug::trace ("card ctor body begin card=" + debug::pointerText (this)
@@ -180,7 +182,8 @@ bool DeviceItemCard::startClient()
     lcdDisplay.setPowered (true);
     const auto started = realEngine.start ({ data.clientName, data.midiDeviceIdentifier,
                                              data.audioDeviceName, data.channels, data.midi,
-                                             data.input, data.wasapiMode });
+                                             data.input, data.wasapiMode,
+                                             jackHub, jackHubClientName });
     repaint();
     lcdDisplay.repaint();
     return started;

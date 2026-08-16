@@ -1,6 +1,6 @@
 # WinJACK Nexus - Adapter 模块核心开发与落地执行计划书
 
-> **版本**：1.1　**日期**：2026-08-15　**状态**：实施中（当前实现基线）
+> **版本**：1.2　**日期**：2026-08-16　**状态**：实施中（当前实现基线）
 >
 > **文档定位**：WinJACKNexus 套件首个核心独立模块 `WinJACKNexus.Adapter` 的工业级开发与落地执行计划书。全面总结 Windows WDM 与 JACK 接口解耦、实时无锁架构、线程安全及动态节点管理的讨论成果，并给出 CMake 目录结构、C++ 数据结构定义、UI 布局伪代码、`.adapter` JSON 样例与开发时间表评估。
 
@@ -66,7 +66,7 @@
 2. **首开发模块**：`WinJACKNexus.Adapter`（独立的单实例 GUI 应用程序）
 3. **跨模块共享库**：`WinJACKNexus.Common`（无锁环形缓冲区封装、自定义 JSON 序列化工具、JUCE 与 libjack 的 Bridge 抽象类、16 进制 UI 主题样式库）
 4. **纯粹 Backend 限制**：除 Windows 侧接入 WDM/WASAPI/WinMM 外，系统内部所有音频与 MIDI 接口**仅支持原生 JACK Backend**（依赖 `libjack` C API）。
-5. **独立 Client 架构**：每个被添加的 Windows 设备（物理/虚拟、音频/MIDI）都独立注册为一个标准的 JACK Client（**一设备一 Client**，绝不合并为单一 Client）。
+5. **双模式 Client 架构**：默认每个被添加的 Windows 设备（物理/虚拟、音频/MIDI）独立注册为一个标准的 JACK Client（**一设备一 Client**）；传入 `--aggregate` 后，输入方向设备共享输入 Hub、输出方向设备共享输出 Hub，按方向最多建立两个 JACK Client。
 
 ### 1.2 数据流总览
 
@@ -194,6 +194,12 @@ WinJACKNexus/
 ### 1.8 构建环境规范
 - CMake（VS2022 MSVC）+ Ninja；JUCE 通过 `add_subdirectory(third_party/JUCE)` + `juce_add_gui_app` / `juce_add_library` 集成。
 - 开发/编译期将 `libjack64.lib` 链入 `WinJACKNexus.Common`（`target_link_libraries` + 头文件 include 目录）；`.lib` 和头文件不作为运行时资源发布，运行不需要 `libjack64.dll`。
+
+### 1.9 `--aggregate` 按方向聚合模式
+- Adapter 默认不传参数时保持一设备一 JACK Client，现有配置、连接和重命名语义不变。
+- 传入 `--aggregate` 后，音频和 MIDI 共用方向 Hub：输入方向使用 `WDM_Input_Hub`，输出方向使用 `WDM_Output_Hub`；每个设备仍保留独立的 Windows 设备、FIFO、重采样器和 MIDI 队列。
+- 音频端口使用设备当前 Client 名称加声道号，例如 `WDM_AudioIn_01_1`、`WDM_AudioIn_01_2`；MIDI 端口使用 `WDM_MidiIn_01_MIDI`。设备重命名只重命名该设备的端口，不重命名共享 Hub Client。
+- 聚合模式只改变 JACK Client/端口组织方式，不改变输入输出方向、配置存档、串行启动和卡片暂停逻辑。
 
 ---
 
@@ -360,19 +366,20 @@ WinJACKNexus/
 | 1.2 级联菜单与设备卡片 | 完成 | 支持 WASAPI 共享/独占、方向化设备平铺、MIDI、虚拟设备菜单，设备去重、默认暂停、删除、重命名编辑和自动声道选项；筛选设置与同名双工边界已落地。完整应用启动/交互回归仍需手工确认，但不影响代码完成状态。 |
 | 1.3 真实数据与 LED | 完成 | 真实 WASAPI、JACK、WinMM MIDI 和卡片 LED/LCD 数据链路已接入；音频峰值按声道传递，MIDI 通道电平也已接入。本轮已完成音频卡片的 WDM/JACK 采样率状态显示、逐声道电平显示及映射后音频手工确认；削波挂留、MIDI 节奏和长时间运行验收待完成。 |
 | 1.4 `.adapter` 存档 | 完成 | 已实现 `AdapterConfig` JSON 序列化/反序列化、默认系统音频 Out 设备（默认 2 声道）、`adapter_saves` 多存档选择/刷新/最近存档自动加载、主界面新建/打开/保存、按 Tab/方向恢复卡片和非暂停卡片恢复运行；音频卡片支持实时声道切换，重采样状态不写入 JSON；Common 单元测试覆盖内存往返、文件往返、默认配置、不保存重采样状态及旧版 guid-only 兼容。真实设备恢复和用户手工回归仍需确认，但不影响代码完成状态。 |
-| 2.1 JACK 节点封装 | 完成 | Common 已提供真实 JACK 音频输入/输出和 MIDI 输入/输出包装，Adapter 为每个设备使用独立桥接对象；已实现关闭重建式 Client 重命名、端口重注册、原有连接恢复和 UI 卡片改名接入。外部图谱连接、重名后缀及完整拓扑仍需连接真实 `jackd` 手工验收。 |
+| 2.1 JACK 节点封装 | 完成 | Common 已提供真实 JACK 音频输入/输出和 MIDI 输入/输出包装，Adapter 默认按设备使用独立 Client，并新增 `--aggregate` 的输入/输出双 Hub 路径；聚合模式端口按设备名和声道号注册，设备重命名只更新设备端口。关闭重建式 Client 重命名、端口重注册、原有连接恢复和 UI 卡片改名接入已完成。外部图谱连接、重名后缀、聚合拓扑及完整真实设备回归仍需连接 `jackd` 手工验收。 |
 | 2.2 WASAPI/FIFO 桥接 | 完成 | WASAPI 捕获/渲染、预分配 SPSC 缓存、静音路径和 JACK 双向桥接已接入；本轮已完成真实设备映射后的音频手工确认，默认 shared 共享模式和 exclusive 独占模式均保留。长时间运行和极端设备组合验收待完成，但桥接代码已完成。 |
 | 2.3 连续重采样 | 完成 | 输入和输出均使用跨回调/跨 block 保留状态的 `LagrangeInterpolator` 路径；已修复未消费帧丢失、队列满时错误推进状态和空通道旧数据等问题，并完成映射后音频验证，原有微小滋啦噪音已消失。长时间稳定性验收待后续完成。 |
 | 2.4 WinMM MIDI → JACK MIDI | 完成 | WinMM/WinRT MIDI 输入输出、JACK MIDI 桥接和 16 通道 LCD 电平已接入；外部 MIDI 端口零延迟和长时间稳定性待验收，但桥接代码已完成。 |
 | 2.5 联调与稳定性 | 未完成 | 尚未完成 8 小时长跑、ASan/VLD 泄漏审查、Xrun 统计验收及反作弊环境兼容性验证。 |
+| `--aggregate` 按方向聚合 | 完成 | Adapter 入口解析 `--aggregate`，输入/输出页面分别共享 `WDM_Input_Hub` / `WDM_Output_Hub`；音频端口使用 `原客户端名_声道号`，MIDI 端口使用 `原客户端名_MIDI`，不传参数仍为一设备一 Client。JACK 服务端、真实设备和端口连接仍待手工验收。 |
 | WASAPI 模式扩展 | 完成 | 菜单已提供 `WASAPI（共享 / 非独占）` 和 `WASAPI（独占）`；模式贯穿设备枚举、自动声道检测和真实设备打开，默认仍为 shared。 |
 | 系统音频菜单方向化增强 | 完成 | 输入卡片只显示录制设备，输出卡片只显示播放设备；移除 WASAPI 下的 Playback/Record 中间菜单，保留后续声道选择。 |
 | 虚拟声卡筛选增强 | 完成 | 提供运行时设置对话框；默认匹配 `virtual audio cable`，按 `Line` 编号最后一位奇偶将命中设备分配到录制或播放方向。 |
 | 设备去重增强 | 完成 | 输入/输出区域分别维护已添加标识；WASAPI、虚拟设备和 MIDI 菜单隐藏已添加项，删除卡片后释放标识，同名双工设备可分别添加。 |
 
-本轮完成状态（2026-08-15）：系统音频输入卡片默认使用 `WDM_AudioIn_xx`，输出卡片继续使用 `WDM_AudioOut_xx`；LCD 显示 `WDM 采样率 | JACK 采样率 | 是否正在重采样`；真实 WASAPI/JACK 映射后的音频已手工确认正常，原有微小滋啦噪音已修复。同时完成了系统音频方向化菜单、WASAPI 共享/独占模式贯通、虚拟声卡正则筛选设置、按区域设备去重增强、2.1 的 JACK Client 关闭重建式重命名/端口重注册/连接恢复，以及 1.4 的 `.adapter` JSON 存档、默认输出设备和主界面新建/打开/保存流程。该结论覆盖本轮代码路径、配置往返测试与构建验证，不代表 8 小时长跑、ASan/VLD、Xrun、完整 MIDI 验收、真实 JACK 图谱/重命名回归和真实设备菜单回归已经完成。
+本轮完成状态（2026-08-16）：系统音频输入卡片默认使用 `WDM_AudioIn_xx`，输出卡片继续使用 `WDM_AudioOut_xx`；LCD 显示 `WDM 采样率 | JACK 采样率 | 是否正在重采样`；真实 WASAPI/JACK 映射后的音频已手工确认正常，原有微小滋啦噪音已修复。同时完成了系统音频方向化菜单、WASAPI 共享/独占模式贯通、虚拟声卡正则筛选设置、按区域设备去重增强、2.1 的 JACK Client 关闭重建式重命名/端口重注册/连接恢复、`--aggregate` 双 Hub 接入，以及 1.4 的 `.adapter` JSON 存档、默认输出设备和主界面新建/打开/保存流程。该结论覆盖本轮代码路径、配置往返测试与构建验证，不代表 8 小时长跑、ASan/VLD、Xrun、完整 MIDI 验收、聚合模式真实 JACK 图谱/端口连接和真实设备菜单回归已经完成。
 
-本状态表中的“已实现/已接入”表示代码路径和构建已完成，不等同于真实硬件验收通过。当前已验证 `WinJACKNexus.Adapter` 在 `build-ninja` 中通过 MSVC/Ninja 编译链接，相关编辑器诊断无错误，`git diff --check` 通过。
+本状态表中的“已实现/已接入”表示代码路径和构建已完成，不等同于真实硬件验收通过。当前已验证 `WinJACKNexus.Common`、`WinJACKNexus.AdapterBackend`、`WinJACKNexus.Adapter` 和 `WinJACKNexus.AdapterService` 在 `build-ninja` 中通过 MSVC/Ninja 编译链接，相关编辑器诊断无错误；AdapterService 的配置同步、串行运行时和命令行参数测试通过。真实 JACK/WASAPI/MIDI 设备及 `--aggregate` 端口拓扑仍需手工确认。
 
 ---
 

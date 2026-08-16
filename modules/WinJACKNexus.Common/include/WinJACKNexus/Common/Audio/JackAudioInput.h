@@ -1,6 +1,7 @@
 #pragma once
 
 #include "JackClient.h"
+#include "JackClientHub.h"
 
 #include <array>
 #include <memory>
@@ -17,6 +18,8 @@ public:
     JackAudioInput() = default;
 
     bool open(const juce::String& clientName, int channels, int blockSize) noexcept;
+    bool open(JackClientHub& hub, const juce::String& clientName,
+              int channels, int blockSize) noexcept;
     bool start(BlockCallback callback, void* userData) noexcept;
     void stop() noexcept;
     void close() noexcept;
@@ -32,6 +35,8 @@ private:
                         float* const*, int, int frames, void* userData) noexcept;
 
     JackClient client;
+    JackClientHub* hub = nullptr;
+    JackClientHub::PortHandle hubHandle = JackClientHub::invalidPortHandle;
     std::unique_ptr<BufferStorage> buffers = std::make_unique<BufferStorage>();
     std::vector<const float*> bufferPointers;
     BlockCallback callback = nullptr;

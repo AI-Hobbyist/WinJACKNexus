@@ -8,6 +8,7 @@ namespace wjn::adapter::service
 struct CommandLineOptions
 {
     bool quiet = false;
+    bool aggregate = false;
     bool showHelp = false;
     bool showVersion = false;
     bool valid = true;
