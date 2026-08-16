@@ -193,8 +193,8 @@ private:
         }
         chart.setSeries (std::move (series));
         chart.setHistoryAvailable (! visibleSamples.empty());
-                chart.setValueRange ("+12 dBFS/LUFS", "-60 dBFS/LUFS");
-                chart.setValueScale (-60.0f, 12.0f, "dBFS/LUFS");
+                chart.setValueRange ("+12 dB", "-60 dB");
+                chart.setValueScale (-60.0f, 12.0f, "dB");
         chart.setSecondaryValueRange ("72 LU", "0 LU");
                 chart.setSecondaryValueScale (0.0f, 72.0f, "LU");
         chart.setReferenceLines ({
