@@ -19,8 +19,8 @@
 |---|---|---|
 | JUCE | `third_party/JUCE` 存在，顶层通过 `add_subdirectory` 集成；许可证为 JUCE 9 双许可证说明 | 可用于主工程构建，迁移时保留许可证要求 |
 | JACK2 头文件 | `third_party/JACK2/include/jack/` 存在，包括 `jack.h`、`midiport.h`、`ringbuffer.h` 等 | 可作为 Common JACK/MIDI API 基线 |
-| JACK2 MSVC 导入库 | `third_party/JACK2/lib/libjack64.lib` 存在 | Common 当前按该路径链接 |
-| JACK2 运行时 | `third_party/JACK2/libjack64.dll`、`libjackserver64.dll` 存在 | 运行时由 JACK2 环境提供；主工程不在 M0 复制 DLL |
+| JACK2 MSVC 导入库 | `third_party/JACK2/lib/libjack64.lib` 存在 | 仅作为开发/编译期链接输入，Common 当前按该路径链接 |
+| JACK2 运行时 | 工作区可见 JACK2 运行环境文件 | 应用运行和 Release 发布不需要随包提供 `libjack64.dll`；真实 JACK 联调使用外部 JACK 服务环境 |
 | VST SDK | `third_party/vst2sdk`、`third_party/vst3sdk` 存在 | M0 仅保留依赖，不纳入本次迁移 |
 
 当前 `.gitignore` 未忽略 `third_party/`，因此这些依赖保持未追踪但仍可被 CodeGraph 扫描；不要新增忽略规则。
@@ -58,13 +58,13 @@
 
 - `ref/Jack Meter Bridge/LICENSE`：项目代码为 MIT License，迁移时保留版权和许可文本。
 - `third_party/JUCE/LICENSE.md`：JUCE 9 双 AGPLv3/商业许可及依赖说明。
-- JACK2 头文件包含其 LGPL/GPL 许可声明；导入库和运行时文件按 JACK2 发行包许可处理。
+- JACK2 头文件包含其 LGPL/GPL 许可声明；开发/编译期导入库及外部 JACK 运行环境文件按 JACK2 发行包许可处理。
 - 字体许可/来源尚未在仓库中核实，列为阻塞项。
 
 ## 7. M0 验收状态
 
 - [x] 主工程 CMake 配置入口与 Debug 构建路径已核对。
-- [x] JUCE/JACK2 头文件、导入库和运行时文件已核对。
+- [x] JUCE/JACK2 开发期头文件和导入库已核对，并明确应用运行/发布不需要 `libjack64.dll`。
 - [x] ref 的 Meter、SilenceDetector、PureMixer engine 测试入口已记录。
 - [x] 两份 LCD 字体的存在性、可解析字体族和哈希已记录。
 - [x] `.lang` 基础契约已锁定为 `zh-CN`、UTF-8 JSON、模块覆盖回退链。

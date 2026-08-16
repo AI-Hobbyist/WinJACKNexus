@@ -1470,6 +1470,10 @@ void MeterBridgeMainComponent::resized()
     auto toolbar = area.removeFromTop (60);
     toolbarPanel.setBounds (toolbar);
     auto controls = toolbar.reduced (8, 6);
+    settingsButton.setBounds (controls.removeFromRight (62));
+    controls.removeFromRight (6);
+    statusLcd.setBounds (controls.removeFromRight (232));
+    controls.removeFromRight (6);
     saveButton.setBounds (controls.removeFromLeft (62));
     controls.removeFromLeft (4);
     loadButton.setBounds (controls.removeFromLeft (62));
@@ -1491,9 +1495,6 @@ void MeterBridgeMainComponent::resized()
     resetAllButton.setBounds (controls.removeFromLeft (82));
     controls.removeFromLeft (4);
     globalHistoryButton.setBounds (controls.removeFromLeft (82));
-    settingsButton.setBounds (controls.removeFromRight (62));
-    controls.removeFromRight (6);
-    statusLcd.setBounds (controls.removeFromRight (232).reduced (0, 4));
     area.removeFromTop (10);
     cardsViewport.setBounds (area);
     layoutCards();

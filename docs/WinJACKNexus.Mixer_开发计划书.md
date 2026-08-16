@@ -18,6 +18,11 @@ The core design philosophy is:
 - **Channel-format awareness**: channel strips are not hardcoded as mono/stereo. Mono, Stereo, 2.1, 5.1, and 7.1 are represented by explicit channel layouts and bus maps, allowing panning, metering, aux sends, and master summing to adapt to the active format.
 - **Operational UI modes**: the product must work as a normal embedded desktop application, a detachable floating meter bridge, a tray-resident background mixer, and a secondary-display kiosk console.
 
+### 1.1 JACK2 Development and Runtime Dependency
+
+- Development and build environments use the JACK2 headers under `third_party/JACK2/include` and the `.lib` files under `third_party/JACK2/lib` as compile/link inputs.
+- The application does not require `libjack64.dll` to run or to be included in the Release package. Real JACK integration is tested against the externally provided JACK service environment.
+
 The planned system has five main subsystems:
 
 - `AudioEngine`: realtime mixer graph, channel state snapshots, DSP execution, summing, meter extraction.

@@ -5,7 +5,9 @@ project(WinJACKNexus.MeterBridge VERSION 0.1.0 LANGUAGES CXX)
 juce_add_gui_app(WinJACKNexus.MeterBridge
     PRODUCT_NAME "WinJACKNexus.MeterBridge"
     VERSION ${PROJECT_VERSION}
-    COMPANY_NAME "AI-Hobbyist")
+    COMPANY_NAME "AI-Hobbyist"
+    ICON_BIG "${CMAKE_SOURCE_DIR}/logos/meterbridge_transparent.png"
+    ICON_SMALL "${CMAKE_SOURCE_DIR}/logos/meterbridge_transparent.png")
 
 target_include_directories(WinJACKNexus.MeterBridge PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/Source)

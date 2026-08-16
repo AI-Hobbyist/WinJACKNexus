@@ -37,11 +37,11 @@
 | 组件 | 选择 | 说明 |
 |---|---|---|
 | GUI 框架 | JUCE 9.0.0 | `third_party/JUCE`，以 CMake 集成（`add_subdirectory`） |
-| 音频后端 | JACK2 C API | `third_party/JACK2`，链接 `lib/libjack64.lib`，部署 `libjack64.dll` |
+| 音频后端 | JACK2 C API | 开发/编译阶段使用 `third_party/JACK2/include` 头文件和 `lib/libjack64.lib`；运行/发布不需要 `libjack64.dll` |
 | 模块 | `juce_core` `juce_events` `juce_graphics` `juce_gui_basics` `juce_audio_basics` `juce_audio_devices` `juce_audio_processors` `juce_dsp` `juce_data_structures` `juce_opengl` | `AbstractFifo`（juce_core）、OpenGL（juce_opengl）、K 加权滤波参考（juce_dsp） |
-| 构建 | CMake ≥ 3.22 + MSVC + Ninja | 贴合既有工具链；`libjack64.dll` 通过 CMake 拷贝到输出目录 |
+| 构建 | CMake ≥ 3.22 + MSVC + Ninja | 贴合既有工具链；JACK2 头文件和 `.lib` 仅用于开发/编译，Release 输出不复制 `libjack64.dll` |
 
-> **关键架构依据**：JUCE 9 的 `juce_audio_devices` 原生支持 Windows JACK（`juce_JackAudio.cpp` 用 `LoadLibraryA("libjack64.dll")` + `GetProcAddress` 动态加载）。但本项目按需求采用**直接 JACK Client**：自定义 `JackClient` 封装直链 `libjack64.lib`，在 JACK 实时回调中采集端口缓冲，经 `juce::AbstractFifo` 无锁传递，以获取对端口/连接的完全控制。
+> **关键架构依据**：JUCE 9 的 `juce_audio_devices` 原生支持 Windows JACK（`juce_JackAudio.cpp` 可通过 `LoadLibraryA("libjack64.dll")` + `GetProcAddress` 动态加载）。但本项目按需求采用**直接 JACK Client**：自定义 `JackClient` 封装 JACK C API，在 JACK 实时回调中采集端口缓冲，经 `juce::AbstractFifo` 无锁传递，以获取对端口/连接的完全控制。JACK2 头文件和 `.lib` 仅用于开发/编译，应用运行和 Release 发布不需要 `libjack64.dll`。
 
 ---
 
@@ -317,7 +317,7 @@ src/
 ## 六、阶段二：底层音频引擎与逻辑设计（Audio Engine & Core Logic Phase）
 
 ### 里程碑 2.1 — JACK Client 与无锁环形缓冲
-- **内容**：`JackClient` 封装（直链 `libjack64.lib`）：`jack_client_open`（`JackNoStartServer`）→ 按通道名注册输入端口（默认 `In1/In2…`，端口短名 = 通道名，见 4.2 命名规范）→ `jack_set_process_callback` → `jack_activate`；JACK 连线完全由 qjackctl/Patchbay 管理；**通道重命名时调用 `jack_port_rename` 同步端口短名（清洗非法字符，保留已有连接）**；RT 回调内零分配零锁，写 `juce::AbstractFifo`；处理采样率/缓冲变更与断线恢复；DLL 缺失/服务器未启动的友好提示。
+- **内容**：`JackClient` 封装（开发/编译阶段使用 `libjack64.lib` 和 JACK2 头文件）：`jack_client_open`（`JackNoStartServer`）→ 按通道名注册输入端口（默认 `In1/In2…`，端口短名 = 通道名，见 4.2 命名规范）→ `jack_set_process_callback` → `jack_activate`；JACK 连线完全由 qjackctl/Patchbay 管理；**通道重命名时调用 `jack_port_rename` 同步端口短名（清洗非法字符，保留已有连接）**；RT 回调内零分配零锁，写 `juce::AbstractFifo`；处理采样率/缓冲变更与断线恢复；JACK 服务未启动时给出友好提示。
 - **验收**：qjackctl 可见客户端与 N 路输入端口；连接后数据流正常；断开/重连不崩溃。
 - **交付物**：`JackClient`、`AbstractFifo` 队列、JACK 连接/生命周期管理。
 
@@ -358,8 +358,6 @@ src/
 ```
 WinJACKNexus.Meterbridge/
 ├── CMakeLists.txt                 # 主工程：集成 third_party/JUCE + JACK
-├── cmake/
-│   └── CopyJackDll.cmake          # 拷贝 libjack64.dll 到输出目录
 ├── src/
 │   ├── Main.cpp / MainComponent.h/.cpp
 │   ├── audio/JackClient.h/.cpp    # 里程碑 2.1
@@ -391,7 +389,7 @@ WinJACKNexus.Meterbridge/
 
 | 风险 | 对策 |
 |---|---|
-| JACK 服务器未运行 / DLL 缺失 | 启动检测 + 友好提示；`JackNoStartServer` 策略 |
+| JACK 服务器未运行 | 启动检测 + 友好提示；`JackNoStartServer` 策略；不把 `libjack64.dll` 作为运行时发布依赖 |
 | RT 线程性能（分配/锁） | 回调内零分配；`AbstractFifo` 单写单读；预分配缓冲 |
 | 长时间运行内存增长 | 环形缓冲固定上限；历史窗口淘汰策略 |
 | Windows JACK2 下偶发 `0xc0000374` 堆损坏 | 当前 LCD 已与实时回调和退出生命周期隔离，关闭验证通过；仍需使用原生调试器在首次堆损坏处捕获调用栈，定位 JACK 客户端/回调生命周期中的根因。 |

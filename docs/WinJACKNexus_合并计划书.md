@@ -16,7 +16,7 @@
 
 - 顶层 CMake 已统一使用 C++20，并通过 `add_subdirectory(third_party/JUCE)` 集成 JUCE。
 - 当前已有 `WinJACKNexus.Common` 静态库和 `WinJACKNexus.Adapter` GUI 应用。
-- Common 已暴露 JUCE 和 `third_party/JACK2/include`，并链接 `libjack64.lib`；源码目前主要是版本、主题、LED 和单实例占位/基础实现。
+- Common 已暴露 JUCE 和 `third_party/JACK2/include`；开发/编译阶段通过 `third_party/JACK2/lib/*.lib` 提供链接输入，运行和发布不需要随应用携带 `libjack64.dll`。源码目前主要是版本、主题、LED 和单实例占位/基础实现。
 - 既有命名空间约定为 `wjn::common` 和 `wjn::adapter`。
 
 ### 2.2 ref 工程的 Common 候选
@@ -445,8 +445,10 @@ Common 预留以下能力，具体类名可在实现阶段调整但职责不变�
 
 ### M0：基线与依赖确认
 
+> **JACK2 依赖口径**：开发/编译阶段使用 `third_party/JACK2/include` 中的头文件和 `third_party/JACK2/lib/*.lib`；应用运行和 Release 发布不需要 `libjack64.dll`，不将其作为应用安装包依赖。真实 JACK 联调使用外部 JACK 服务环境。
+
 1. 锁定当前 Adapter/Common 可构建基线。
-2. 确认 `third_party/JUCE`、`third_party/JACK2` 的链接和运行时 DLL 部署规则。
+2. 确认 `third_party/JUCE`、`third_party/JACK2` 的开发期头文件和 `.lib` 链接规则，以及发布运行不携带 `libjack64.dll` 的规则。
 3. 记录两个 ref 工程中已通过的 Meter、SilenceDetector 和 PureMixer engine 测试。
 4. 确认 `LCD/zpix.ttf`、`LCD/DS-DIGI.TTF` 的字体格式、字体族名称、授权/来源说明和安装/打包位置。
 5. 确定 `.lang` 的 JSON schema、UTF-8 编码、支持的语言区域列表、语言文件安装位置和翻译维护责任。
@@ -533,7 +535,7 @@ flowchart TD
 | 自绘控件携带应用状态 | 把数据、绘制配置、业务回调拆开，控件不拥有引擎 |
 | JACK 回调中出现分配或锁 | M1 建立实时线程约束和测试/代码审查门槛，结构变化走预构建快照 |
 | JUCE target/版本差异 | 沿用顶层 JUCE 9 target 和 C++20；不复制 ref 工程各自的 `add_subdirectory` |
-| Windows 延迟加载与 DLL 部署差异 | 以当前 Common 的 `libjack64.lib` 链接约定为准，单独验证运行时 DLL 与 jackd 环境 |
+| JACK2 开发库与运行环境口径 | 仅在开发/编译阶段使用 JACK2 头文件与 `.lib`；Release/运行不要求 `libjack64.dll`，真实 JACK 服务按外部 `jackd` 环境单独验证 |
 | ref 代码许可或资源不可直接合并 | M0 逐项核对许可证和资源来源，必要时重绘或替换资源 |
 | 过早删除可用参考实现 | M6 前保留 ref，使用各模块迁移后的测试和手工验收结果作为删除条件 |
 
@@ -542,6 +544,7 @@ flowchart TD
 - 不把所有 UI 代码都塞入 Common；窗口、页面、配置流程和产品工作流仍属于应用层。
 - 不在本次计划中引入 VST2/VST3 插件宿主。
 - 不在真实 JACK 后端完成前删除 `NullAudioBackend`；它保留为开发和测试替身。
+- 不把 JACK2 头文件或 `.lib` 当作运行时发布文件；Release 包不复制 `libjack64.dll`。
 - Adapter、Mixer、MeterBridge 的应用界面、配置流程、应用级测试和产品工作流不在本文实施；详见各自开发计划和 M6 收尾计划。
 
 ## 11. Common 审阅后需要确认的决策

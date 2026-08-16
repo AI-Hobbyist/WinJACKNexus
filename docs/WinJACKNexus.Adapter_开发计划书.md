@@ -26,13 +26,13 @@
 
 ### 0.1 工作区现状
 - 工程已具备 `WinJACKNexus.Common` 与 `WinJACKNexus.Adapter` 源码、CMake 构建配置和 Adapter 独立 GUI 应用。
-- `third_party/` 继续提供 `JUCE`、`JACK2` 和 `vst3sdk` 依赖；当前 Adapter 使用 JUCE、JACK2 导入库和 Common 共享代码。
+- `third_party/` 继续提供 `JUCE`、`JACK2` 和 `vst3sdk` 依赖；当前 Adapter 在开发/编译阶段使用 JUCE、JACK2 头文件、`.lib` 和 Common 共享代码，运行和发布不需要随应用携带 `libjack64.dll`。
 - 当前实现重点已从 GUI 骨架推进到真实 WASAPI、JACK、WinMM/WinRT MIDI 桥接、实时重采样、设备卡片交互和 `.adapter` 配置存档；长时间稳定性仍未完成。
 
 ### 0.2 依赖路径核实（实测）
 - JACK2 开发库：`third_party\JACK2\lib\libjack64.lib` ✅（另有 `libjacknet64.lib`、`libjackserver64.lib`）
 - JACK2 头文件：`third_party\JACK2\include\jack\`（16 个头文件：`jack.h`、`midiport.h`、`ringbuffer.h`、`types.h`、`weakjack.h`、`session.h`、`metadata.h` 等）✅
-- 实际运行**不需要** `libjack64.dll`（静态链入导入库，服务端为外部独立 `jackd`）。
+- 开发/编译阶段使用 `third_party\JACK2\include\jack\` 头文件和 `third_party\JACK2\lib\*.lib`；实际运行和 Release 发布**不需要** `libjack64.dll`，JACK 服务端为外部独立 `jackd`。
 
 ### 0.3 关键 JACK2 API 核实（代码中确证）
 | API | 位置 | 用途 |
@@ -55,7 +55,7 @@
 | 计划书交付 | 落盘为工作区 `.md`（本文件，位于 `docs/`） |
 | JACK 服务端模式 | 外部独立 `jackd`（JACK2 Windows） |
 | 构建工具链 | CMake + MSVC（VS2022）+ Ninja，JUCE 走 `add_subdirectory` |
-| 运行依赖 | 不依赖 `libjack64.dll`，仅链入 `libjack64.lib` |
+| 开发/编译与运行依赖 | 开发/编译阶段使用 `third_party\JACK2\include` 头文件和 `third_party\JACK2\lib\libjack64.lib`；实际运行不需要 `libjack64.dll` |
 
 ---
 
@@ -142,7 +142,7 @@ WinJACKNexus/
 │   ├── JUCE/                             # add_subdirectory 集成
 │   ├── JACK2/
 │   │   ├── include/jack/                 # 头文件（16 个）
-│   │   └── lib/libjack64.lib             # 导入库（运行时不需 dll）
+  │   │   └── lib/libjack64.lib             # 开发/编译期导入库（运行时不需 DLL）
 │   └── vst3sdk/                          # 本模块不使用
 └── modules/
     ├── WinJACKNexus.Common/              # 跨模块共享库
@@ -193,7 +193,7 @@ WinJACKNexus/
 
 ### 1.8 构建环境规范
 - CMake（VS2022 MSVC）+ Ninja；JUCE 通过 `add_subdirectory(third_party/JUCE)` + `juce_add_gui_app` / `juce_add_library` 集成。
-- `libjack64.lib` 以导入库形式链入 `WinJACKNexus.Common`（`target_link_libraries` + 头文件 include 目录）。
+- 开发/编译期将 `libjack64.lib` 链入 `WinJACKNexus.Common`（`target_link_libraries` + 头文件 include 目录）；`.lib` 和头文件不作为运行时资源发布，运行不需要 `libjack64.dll`。
 
 ---
 

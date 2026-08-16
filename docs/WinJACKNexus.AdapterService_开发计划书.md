@@ -68,6 +68,10 @@ AdapterService 只支持当前登录用户的交互式 Session：
 - 不支持用户未登录时的无人值守运行，也不支持跨 Session 连接 JACK。
 - `--quiet` 只在当前用户 Session 创建托盘图标，不创建 Adapter 主窗口。
 
+### 2.4 JACK2 开发与运行依赖
+
+AdapterService 在开发/编译阶段使用 `third_party/JACK2/include` 中的头文件，以及 `third_party/JACK2/lib/*.lib` 作为链接输入。发布和实际运行不需要随应用携带 `libjack64.dll`；真实 JACK 连接由外部 JACK 服务环境提供。
+
 ---
 
 ## 三、设备范围
