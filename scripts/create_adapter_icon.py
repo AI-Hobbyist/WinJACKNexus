@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import argparse
 from collections import deque
 from pathlib import Path
 
@@ -84,27 +85,37 @@ def make_square_icon(image: Image.Image) -> Image.Image:
     return result
 
 
-def main() -> None:
-    if not SOURCE.is_file():
-        raise FileNotFoundError(f"Missing source icon: {SOURCE}")
+def create_icon(source: Path, ico_destination: Path, png_destination: Path) -> None:
+    if not source.is_file():
+        raise FileNotFoundError(f"Missing source icon: {source}")
 
-    ICO_DESTINATION.parent.mkdir(parents=True, exist_ok=True)
-    with Image.open(SOURCE) as source_image:
+    with Image.open(source) as source_image:
         prepared = make_square_icon(remove_edge_connected_background(source_image))
 
+    png_destination.parent.mkdir(parents=True, exist_ok=True)
+    ico_destination.parent.mkdir(parents=True, exist_ok=True)
     prepared.resize((256, 256), Image.Resampling.LANCZOS).save(
-        PNG_DESTINATION,
+        png_destination,
         format="PNG",
     )
     prepared.save(
-        ICO_DESTINATION,
+        ico_destination,
         format="ICO",
         sizes=[(size, size) for size in ICON_SIZES],
     )
     print(
-        f"Created {ICO_DESTINATION} and {PNG_DESTINATION} "
-        f"from {SOURCE} with sizes: {', '.join(map(str, ICON_SIZES))}"
+        f"Created {ico_destination} and {png_destination} "
+        f"from {source} with sizes: {', '.join(map(str, ICON_SIZES))}"
     )
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Remove icon backgrounds and create app assets")
+    parser.add_argument("--source", type=Path, default=SOURCE)
+    parser.add_argument("--ico-destination", type=Path, default=ICO_DESTINATION)
+    parser.add_argument("--png-destination", type=Path, default=PNG_DESTINATION)
+    arguments = parser.parse_args()
+    create_icon(arguments.source, arguments.ico_destination, arguments.png_destination)
 
 
 if __name__ == "__main__":

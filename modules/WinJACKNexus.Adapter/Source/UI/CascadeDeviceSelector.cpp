@@ -1,9 +1,9 @@
 #include "CascadeDeviceSelector.h"
 
-#include <regex>
-
 #include <juce_audio_devices/juce_audio_devices.h>
 
+#include <WinJACKNexus/AdapterBackend/DeviceEnumerator.h>
+#include <WinJACKNexus/AdapterBackend/DeviceFilter.h>
 #include <WinJACKNexus/Common/Audio/JackAudioOutput.h>
 #include <WinJACKNexus/Common/UI/CommonControls.h>
 
@@ -22,57 +22,6 @@ void showAsync (wjn::common::NexusPopupMenu menu, juce::Component& target,
 {
     menu.showMenuAsync (wjn::common::NexusPopupMenu::Options().withTargetComponent (&target),
                         std::move (callback));
-}
-
-int detectWdmChannelCount (const juce::String& streamType, const juce::String& deviceName,
-                           juce::WASAPIDeviceMode wasapiMode)
-{
-    const auto wantsInput = streamType == "Record";
-    if (deviceName.isEmpty() || (! wantsInput && streamType != "Playback"))
-        return 2;
-
-    std::unique_ptr<juce::AudioIODeviceType> deviceType (
-        juce::AudioIODeviceType::createAudioIODeviceType_WASAPI (wasapiMode));
-    if (deviceType == nullptr)
-        return 2;
-
-    deviceType->scanForDevices();
-    std::unique_ptr<juce::AudioIODevice> device (
-        deviceType->createDevice (wantsInput ? juce::String() : deviceName,
-                                  wantsInput ? deviceName : juce::String()));
-    if (device == nullptr)
-        return 2;
-
-    const auto channelNames = wantsInput ? device->getInputChannelNames()
-                                         : device->getOutputChannelNames();
-    return juce::jlimit (1, wjn::common::JackAudioOutput::maxChannels, channelNames.size());
-}
-
-bool matchesPattern (const juce::String& value, const juce::String& pattern)
-{
-    if (pattern.isEmpty())
-        return false;
-
-    try
-    {
-        const std::regex expression (pattern.toStdString(), std::regex::icase);
-        return std::regex_search (value.toStdString(), expression);
-    }
-    catch (const std::regex_error&)
-    {
-        return false;
-    }
-}
-
-bool isDeviceAllowed (const juce::String& deviceName, bool wantsInput,
-                      const CascadeDeviceSelector::AudioDeviceFilterSettings& settings)
-{
-    if (! matchesPattern (deviceName, settings.virtualDevicePattern))
-        return true;
-
-    const auto& directionPattern = wantsInput ? settings.inputDevicePattern
-                                              : settings.outputDevicePattern;
-    return directionPattern.isEmpty() || matchesPattern (deviceName, directionPattern);
 }
 
 } // namespace
@@ -97,8 +46,7 @@ void CascadeDeviceSelector::showMidi (juce::Component& target, bool input,
                                       Callback callback)
 {
     wjn::common::NexusPopupMenu menu;
-    const auto devices = input ? juce::MidiInput::getAvailableDevices()
-                               : juce::MidiOutput::getAvailableDevices();
+    const auto devices = wjn::adapter::backend::enumerateMidiDevices (input);
 
     juce::Array<juce::MidiDeviceInfo> availableDevices;
     for (const auto& device : devices)
@@ -128,25 +76,7 @@ void CascadeDeviceSelector::showMidi (juce::Component& target, bool input,
 
 bool CascadeDeviceSelector::areFilterPatternsValid (const AudioDeviceFilterSettings& settings)
 {
-    const auto isValid = [] (const juce::String& pattern)
-    {
-        if (pattern.isEmpty())
-            return true;
-
-        try
-        {
-            std::regex (pattern.toStdString(), std::regex::icase);
-            return true;
-        }
-        catch (const std::regex_error&)
-        {
-            return false;
-        }
-    };
-
-    return isValid (settings.virtualDevicePattern)
-        && isValid (settings.inputDevicePattern)
-        && isValid (settings.outputDevicePattern);
+    return wjn::adapter::backend::areAudioFilterPatternsValid (settings);
 }
 
 void CascadeDeviceSelector::showVirtualDeviceMenu (juce::Component& target, Callback callback, bool input,
@@ -215,20 +145,12 @@ void CascadeDeviceSelector::showDeviceMenu (juce::Component& target, Callback ca
                                             AudioDeviceFilterSettings settings)
 {
     wjn::common::NexusPopupMenu menu;
-    std::unique_ptr<juce::AudioIODeviceType> deviceType (
-        juce::AudioIODeviceType::createAudioIODeviceType_WASAPI (wasapiMode));
-    if (deviceType != nullptr)
-        deviceType->scanForDevices();
-
     const auto wantsInput = streamType == "Record";
     juce::StringArray availableDevices;
-    if (deviceType != nullptr)
-    {
-        for (const auto& deviceName : deviceType->getDeviceNames (wantsInput))
-            if (! excludedDeviceIdentifiers.contains (deviceName)
-                && isDeviceAllowed (deviceName, wantsInput, settings))
-                availableDevices.add (deviceName);
-    }
+    for (const auto& device : wjn::adapter::backend::enumerateWasapiDevices (wantsInput, wasapiMode))
+        if (! excludedDeviceIdentifiers.contains (device.identifier)
+            && wjn::adapter::backend::isAudioDeviceAllowed (device.name, wantsInput, settings))
+            availableDevices.add (device.name);
 
     for (int index = 0; index < availableDevices.size(); ++index)
         menu.addItem (index + 1, availableDevices[index]);
@@ -265,7 +187,8 @@ void CascadeDeviceSelector::showChannelMenu (juce::Component& target, Callback c
                {
                    if (result >= 1 && result <= 6)
                    {
-                       const int channels[] { detectWdmChannelCount (streamType, deviceIdentifier, wasapiMode),
+                       const int channels[] { wjn::adapter::backend::detectWasapiChannelCount (
+                                                  deviceIdentifier, streamType == "Record", wasapiMode),
                                               1, 2, 4, 6, 8 };
                        callback ({ driver, streamType, device, deviceIdentifier, channels[result - 1],
                                    false, wasapiMode });

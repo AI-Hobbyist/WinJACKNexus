@@ -53,6 +53,8 @@ public:
     void setAudioCallback (AudioCallback callback);
     void setMidiCallback (MidiCallback callback);
     bool start (Configuration configuration);
+    bool isStartComplete() const noexcept;
+    bool isActive() const noexcept;
     bool renameClient (const juce::String& clientName);
     void stop();
     void refresh();
@@ -128,6 +130,7 @@ private:
     std::array<std::atomic<float>, maxAudioChannels> audioPeaks {};
     std::atomic<bool> audioClipping { false };
     std::atomic<bool> active { false };
+    std::atomic<bool> startComplete { true };
     std::atomic<juce::uint64> pendingMidiEvents { 0 };
     juce::uint64 deliveredMidiEvents = 0;
     std::array<std::atomic<float>, 16> midiLevels {};

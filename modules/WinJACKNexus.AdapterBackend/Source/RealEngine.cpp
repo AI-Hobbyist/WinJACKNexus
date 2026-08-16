@@ -1,5 +1,5 @@
-#include "RealEngine.h"
-#include "../DebugTrace.h"
+#include <WinJACKNexus/AdapterBackend/RealEngine.h>
+#include <WinJACKNexus/AdapterBackend/DebugTrace.h>
 
 #include <algorithm>
 #include <cmath>
@@ -87,8 +87,21 @@ bool RealEngine::start (Configuration newConfiguration)
 {
     stop();
     configuration = std::move (newConfiguration);
-    startThread();
-    return true;
+    startComplete.store (false, std::memory_order_release);
+    const auto started = startThread();
+    if (! started)
+        startComplete.store (true, std::memory_order_release);
+    return started;
+}
+
+bool RealEngine::isStartComplete() const noexcept
+{
+    return startComplete.load (std::memory_order_acquire);
+}
+
+bool RealEngine::isActive() const noexcept
+{
+    return active.load (std::memory_order_acquire);
 }
 
 bool RealEngine::renameClient (const juce::String& newClientName)
@@ -156,11 +169,11 @@ bool RealEngine::renameClient (const juce::String& newClientName)
 
 void RealEngine::run()
 {
-    if (threadShouldExit())
-        return;
-
-    if (! startEngine() || threadShouldExit())
+    const auto started = ! threadShouldExit() && startEngine();
+    if (! started || threadShouldExit())
         stopEngine();
+
+    startComplete.store (true, std::memory_order_release);
 }
 
 bool RealEngine::startEngine()
@@ -247,6 +260,7 @@ void RealEngine::stop()
     signalThreadShouldExit();
     stopThread (-1);
     stopEngine();
+    startComplete.store (true, std::memory_order_release);
 }
 
 void RealEngine::stopEngine()

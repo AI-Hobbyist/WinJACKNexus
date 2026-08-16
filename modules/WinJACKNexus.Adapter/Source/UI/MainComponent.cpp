@@ -2,7 +2,7 @@
 
 #include "CascadeDeviceSelector.h"
 #include "DeviceItemCard.h"
-#include "../DebugTrace.h"
+#include <WinJACKNexus/AdapterBackend/DebugTrace.h>
 #include <WinJACKNexus/Common/UI/CommonControls.h>
 #include <WinJACKNexus/Common/UI/Theme.h>
 #include <juce_gui_extra/juce_gui_extra.h>
@@ -135,7 +135,8 @@ public:
         layoutCards();
     }
 
-    void restoreMappings (const std::vector<wjn::common::ClientMapping>& mappings)
+    void restoreMappings (const std::vector<wjn::common::ClientMapping>& mappings,
+                          std::vector<DeviceItemCard*>& clientsToStart)
     {
         clearCards();
         for (const auto& mapping : mappings)
@@ -162,7 +163,7 @@ public:
             else
                 data.audioDeviceName = mapping.guid.isNotEmpty() ? mapping.guid : mapping.device;
 
-            addCard (std::move (data));
+            addCard (std::move (data), &clientsToStart);
         }
     }
 
@@ -220,7 +221,7 @@ private:
         addCard (std::move (data));
     }
 
-    void addCard (DeviceItemCard::Data data)
+    void addCard (DeviceItemCard::Data data, std::vector<DeviceItemCard*>* clientsToStart = nullptr)
     {
         const auto deviceIdentifier = data.midi ? data.midiDeviceIdentifier : data.audioDeviceName;
         const auto identifier = deviceIdentifier.isNotEmpty() ? deviceIdentifier : data.device;
@@ -262,7 +263,12 @@ private:
         debug::trace ("addCard after listContent.addAndMakeVisible");
         layoutCards();
         if (shouldStart)
-            card->setPaused (false);
+        {
+            if (clientsToStart != nullptr)
+                clientsToStart->push_back (card);
+            else
+                card->setPaused (false);
+        }
         debug::trace ("addCard complete");
     }
 
@@ -330,10 +336,11 @@ public:
         return mappings;
     }
 
-    void restoreMappings (const std::vector<wjn::common::ClientMapping>& mappings)
+    void restoreMappings (const std::vector<wjn::common::ClientMapping>& mappings,
+                          std::vector<DeviceItemCard*>& clientsToStart)
     {
-        inputSection.restoreMappings (mappings);
-        outputSection.restoreMappings (mappings);
+        inputSection.restoreMappings (mappings, clientsToStart);
+        outputSection.restoreMappings (mappings, clientsToStart);
     }
 
     void refresh()
@@ -433,6 +440,39 @@ MainComponent::MainComponent()
     addAndMakeVisible (tabs);
 
     refreshConfigurationList();
+    setSize (960, 640);
+    startTimerHz (20);
+    juce::Component::SafePointer<MainComponent> safeThis (this);
+    juce::MessageManager::callAsync ([safeThis]
+    {
+        if (safeThis != nullptr)
+            safeThis->loadMostRecentConfiguration();
+    });
+}
+
+MainComponent::~MainComponent()
+{
+    stopTimer();
+    loadingConfiguration = false;
+    clientsToStart.clear();
+    startingClient = nullptr;
+    for (int index = 0; index < tabs.getNumTabs(); ++index)
+        if (auto* tab = dynamic_cast<TabPage*> (tabs.getTabContentComponent (index)))
+            tab->releaseClients();
+    openGlAcceleration.detach();
+}
+
+void MainComponent::timerCallback()
+{
+    openGlAcceleration.update (*this);
+    advanceClientLoading();
+    for (int index = 0; index < tabs.getNumTabs(); ++index)
+        if (auto* tab = dynamic_cast<TabPage*> (tabs.getTabContentComponent (index)))
+            tab->refresh();
+}
+
+void MainComponent::loadMostRecentConfiguration()
+{
     const auto mostRecentConfiguration = configurationFiles.isEmpty()
                                              ? juce::File()
                                              : configurationFiles.getFirst();
@@ -443,25 +483,6 @@ MainComponent::MainComponent()
         currentConfigurationFile = {};
         refreshConfigurationList();
     }
-    setSize (960, 640);
-    startTimerHz (20);
-}
-
-MainComponent::~MainComponent()
-{
-    stopTimer();
-    for (int index = 0; index < tabs.getNumTabs(); ++index)
-        if (auto* tab = dynamic_cast<TabPage*> (tabs.getTabContentComponent (index)))
-            tab->releaseClients();
-    openGlAcceleration.detach();
-}
-
-void MainComponent::timerCallback()
-{
-    openGlAcceleration.update (*this);
-    for (int index = 0; index < tabs.getNumTabs(); ++index)
-        if (auto* tab = dynamic_cast<TabPage*> (tabs.getTabContentComponent (index)))
-            tab->refresh();
 }
 
 juce::File MainComponent::getGlobalConfigFile() const
@@ -665,10 +686,47 @@ void MainComponent::chooseConfigurationFile (bool saveAs)
 
 void MainComponent::applyConfiguration (const wjn::common::AdapterConfig& configuration)
 {
+    loadingConfiguration = true;
+    tabs.setEnabled (false);
+    clientsToStart.clear();
+    nextClientToStart = 0;
+    startingClient = nullptr;
+
+    for (int index = 0; index < tabs.getNumTabs(); ++index)
+        if (auto* tab = dynamic_cast<TabPage*> (tabs.getTabContentComponent (index)))
+            tab->releaseClients();
+
     if (auto* audioPage = dynamic_cast<TabPage*> (tabs.getTabContentComponent (0)))
-        audioPage->restoreMappings (configuration.clients);
+        audioPage->restoreMappings (configuration.clients, clientsToStart);
     if (auto* midiPage = dynamic_cast<TabPage*> (tabs.getTabContentComponent (1)))
-        midiPage->restoreMappings (configuration.clients);
+        midiPage->restoreMappings (configuration.clients, clientsToStart);
+    advanceClientLoading();
+}
+
+void MainComponent::advanceClientLoading()
+{
+    if (! loadingConfiguration)
+        return;
+
+    if (startingClient != nullptr)
+    {
+        if (! startingClient->isClientStartComplete())
+            return;
+
+        startingClient = nullptr;
+    }
+
+    if (nextClientToStart >= clientsToStart.size())
+    {
+        clientsToStart.clear();
+        loadingConfiguration = false;
+        tabs.setEnabled (true);
+        return;
+    }
+
+    startingClient = clientsToStart[nextClientToStart++];
+    if (! startingClient->startClient())
+        startingClient = nullptr;
 }
 
 wjn::common::AdapterConfig MainComponent::collectConfiguration()

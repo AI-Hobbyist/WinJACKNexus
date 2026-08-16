@@ -1,10 +1,10 @@
-# Jack Meter Bridge 项目计划书
+# WinJACKNexus.Meterbridge 项目计划书
 
 ## 文档信息
 
 | 项目 | 内容 |
 |---|---|
-| 项目名称 | Jack Meter Bridge（基于 JUCE + JACK 的自定义通道电平表桥） |
+| 项目名称 | WinJACKNexus.Meterbridge（基于 JUCE + JACK 的自定义通道电平表桥） |
 | 目标平台 | Windows 10/11（x64） |
 | 框架/依赖 | JUCE 9.0.0（`third_party/JUCE`）、JACK2 Windows 发行版（`third_party/JACK2`） |
 | 构建系统 | CMake ≥ 3.22 + MSVC + Ninja |
@@ -55,7 +55,7 @@ flowchart LR
         A["音频设备 (system:capture_1..N)"]
         B["JACK 图形路由 (qjackctl/Patchbay)"]
     end
-    subgraph App["Jack Meter Bridge 应用"]
+    subgraph App["WinJACKNexus.Meterbridge 应用"]
         subgraph RT["① JACK RT 回调线程"]
             JC["JackClient<br/>(jack_process 回调)"]
             ENG["MeterEngine<br/>Peak/RMS/LUFS 瞬时计算"]
@@ -356,7 +356,7 @@ src/
 ## 七、项目目录结构（规划）
 
 ```
-Jack Meter Bridge/
+WinJACKNexus.Meterbridge/
 ├── CMakeLists.txt                 # 主工程：集成 third_party/JUCE + JACK
 ├── cmake/
 │   └── CopyJackDll.cmake          # 拷贝 libjack64.dll 到输出目录
@@ -460,7 +460,7 @@ modules/WinJACKNexus.MeterBridge/
       SettingsDialog.h/.cpp
 ```
 
-迁移 `ref/Jack Meter Bridge` 时，`Main.cpp`、`MainComponent.*`、设置编辑器、历史窗口/曲线、分组/通道管理、响度预设选择、CSV 工作流、图标和资源属于 MeterBridge。`JackClient`、`MeterEngine`、`SilenceDetector`、`MeterFrame`、历史数据类型和 CSV 底层能力只通过 Common 使用，不在 MeterBridge 重复实现。
+迁移 `ref/WinJACKNexus.Meterbridge` 时，`Main.cpp`、`MainComponent.*`、设置编辑器、历史窗口/曲线、分组/通道管理、响度预设选择、CSV 工作流、图标和资源属于 MeterBridge。`JackClient`、`MeterEngine`、`SilenceDetector`、`MeterFrame`、历史数据类型和 CSV 底层能力只通过 Common 使用，不在 MeterBridge 重复实现。
 
 ### M4.2 应用级测试与独立运行
 

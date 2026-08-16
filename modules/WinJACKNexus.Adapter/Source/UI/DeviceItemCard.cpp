@@ -1,5 +1,5 @@
 #include "DeviceItemCard.h"
-#include "../DebugTrace.h"
+#include <WinJACKNexus/AdapterBackend/DebugTrace.h>
 
 #include <cmath>
 
@@ -171,6 +171,24 @@ void DeviceItemCard::releaseClient()
     realEngine.setAudioCallback (nullptr);
     realEngine.setMidiCallback (nullptr);
     realEngine.stop();
+}
+
+bool DeviceItemCard::startClient()
+{
+    data.paused = false;
+    pauseSwitch.setToggleState (true, juce::dontSendNotification);
+    lcdDisplay.setPowered (true);
+    const auto started = realEngine.start ({ data.clientName, data.midiDeviceIdentifier,
+                                             data.audioDeviceName, data.channels, data.midi,
+                                             data.input, data.wasapiMode });
+    repaint();
+    lcdDisplay.repaint();
+    return started;
+}
+
+bool DeviceItemCard::isClientStartComplete() const noexcept
+{
+    return realEngine.isStartComplete();
 }
 
 void DeviceItemCard::configureLcd()
@@ -446,8 +464,7 @@ void DeviceItemCard::setPaused (bool shouldPause)
         clearMidiLevels();
     }
     else
-        realEngine.start ({ data.clientName, data.midiDeviceIdentifier, data.audioDeviceName,
-                    data.channels, data.midi, data.input, data.wasapiMode });
+        startClient();
     repaint();
     lcdDisplay.repaint();
 }

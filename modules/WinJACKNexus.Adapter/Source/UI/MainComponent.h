@@ -3,6 +3,8 @@
 #include <juce_gui_basics/juce_gui_basics.h>
 #include <juce_gui_extra/juce_gui_extra.h>
 
+#include <vector>
+
 #include "CascadeDeviceSelector.h"
 #include <WinJACKNexus/Common/UI/CommonControls.h>
 #include <WinJACKNexus/Common/Serialization/AdapterConfig.h>
@@ -10,6 +12,8 @@
 
 namespace wjn::adapter
 {
+
+class DeviceItemCard;
 
 /** 顶层内容组件。
  *
@@ -42,6 +46,8 @@ private:
     void refreshConfigurationList();
     void loadSelectedConfiguration();
     bool loadConfigurationFile(const juce::File& file, bool showError);
+    void loadMostRecentConfiguration();
+    void advanceClientLoading();
     bool saveConfigurationToFile(const juce::File& file);
     void applyConfiguration(const wjn::common::AdapterConfig& configuration);
     wjn::common::AdapterConfig collectConfiguration();
@@ -60,6 +66,10 @@ private:
     wjn::common::NexusTabbedComponent tabs { juce::TabbedButtonBar::TabsAtTop };
     wjn::common::OpenGLAcceleration openGlAcceleration;
     bool updatingConfigurationSelector = false;
+    bool loadingConfiguration = false;
+    std::vector<DeviceItemCard*> clientsToStart;
+    size_t nextClientToStart = 0;
+    DeviceItemCard* startingClient = nullptr;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
 };

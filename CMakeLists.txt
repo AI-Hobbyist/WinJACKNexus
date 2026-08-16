@@ -46,6 +46,8 @@ add_subdirectory(third_party/JUCE)
 # 模块
 # ---------------------------------------------------------------------------
 add_subdirectory(modules/WinJACKNexus.Common)
+add_subdirectory(modules/WinJACKNexus.AdapterBackend)
+add_subdirectory(modules/WinJACKNexus.AdapterService)
 add_subdirectory(modules/WinJACKNexus.Adapter)
 add_subdirectory(modules/WinJACKNexus.MeterBridge)
 

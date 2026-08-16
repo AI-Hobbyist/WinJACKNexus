@@ -1,0 +1,26 @@
+{
+  "schema": "WinJACKNexus.Language",
+  "version": 1,
+  "locale": "zh-CN",
+  "displayName": "简体中文",
+  "module": "AdapterService",
+  "fallbackLocale": "zh-CN",
+  "strings": {
+    "adapterService.progress.title": "WinJACKNexus 适配器服务",
+    "adapterService.progress.scanning": "正在扫描音频和 MIDI 设备...",
+    "adapterService.progress.readingConfig": "正在读取服务配置...",
+    "adapterService.progress.startingClients": "正在启动 JACK 客户端...",
+    "adapterService.progress.cancelLoading": "正在停止加载...",
+    "adapterService.progress.unloading": "正在卸载 JACK 客户端...",
+    "adapterService.progress.unloaded": "卸载完成",
+    "adapterService.status.running": "运行中，活动客户端：",
+    "adapterService.status.starting": "正在启动",
+    "adapterService.status.stopping": "正在卸载",
+    "adapterService.status.stopped": "已停止",
+    "adapterService.status.idle": "空闲",
+    "adapterService.status.unknown": "未知状态",
+    "adapterService.menu.status": "当前状态：",
+    "adapterService.action.exit": "退出"
+  },
+  "templates": {}
+}

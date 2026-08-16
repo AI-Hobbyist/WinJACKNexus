@@ -3,18 +3,15 @@
 #include <juce_gui_basics/juce_gui_basics.h>
 #include <juce_audio_devices/juce_audio_devices.h>
 
+#include <WinJACKNexus/AdapterBackend/DeviceFilter.h>
+
 namespace wjn::adapter
 {
 
 class CascadeDeviceSelector final
 {
 public:
-    struct AudioDeviceFilterSettings
-    {
-        juce::String virtualDevicePattern = "virtual audio cable";
-        juce::String inputDevicePattern = R"(\bLine\s*\d*[13579]\b)";
-        juce::String outputDevicePattern = R"(\bLine\s*\d*[02468]\b)";
-    };
+    using AudioDeviceFilterSettings = wjn::adapter::backend::AudioDeviceFilterSettings;
 
     struct Selection
     {

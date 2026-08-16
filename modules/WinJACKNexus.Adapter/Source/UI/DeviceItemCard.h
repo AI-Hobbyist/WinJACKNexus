@@ -9,7 +9,7 @@
 #include <WinJACKNexus/Common/UI/LcdDisplayControl.h>
 #include <WinJACKNexus/Common/UI/MidiLed.h>
 #include <WinJACKNexus/Common/UI/OnOffSwitch.h>
-#include "../Engine/RealEngine.h"
+#include <WinJACKNexus/AdapterBackend/RealEngine.h>
 
 namespace wjn::adapter
 {
@@ -43,6 +43,8 @@ public:
     const Data& getData() const noexcept { return data; }
     void setChannels (int channelCount);
     void setPaused (bool shouldPause);
+    bool startClient();
+    bool isClientStartComplete() const noexcept;
     void refresh();
     void releaseClient();
     bool renameClient (const juce::String& clientName) { return realEngine.renameClient (clientName); }

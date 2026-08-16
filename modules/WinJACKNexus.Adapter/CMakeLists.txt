@@ -35,14 +35,13 @@ target_sources(WinJACKNexus.Adapter PRIVATE
     Source/App/AdapterApplication.cpp
     Source/App/AdapterMainWindow.cpp
     Source/Engine/MockEngine.cpp
-    Source/Engine/RealEngine.cpp
     Source/UI/CascadeDeviceSelector.cpp
     Source/UI/DeviceItemCard.cpp
-    Source/UI/MainComponent.cpp
-    Source/DebugTrace.h)
+    Source/UI/MainComponent.cpp)
 
 target_link_libraries(WinJACKNexus.Adapter PRIVATE
     WinJACKNexus.AdapterResources
+    WinJACKNexus.AdapterBackend
     WinJACKNexus.Common
     juce::juce_recommended_config_flags
     juce::juce_recommended_warning_flags
