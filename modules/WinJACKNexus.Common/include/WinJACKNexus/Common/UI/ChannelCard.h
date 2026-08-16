@@ -34,6 +34,7 @@ public:
     void setPreset(float targetLufs, float toleranceLu, float truePeakMaxDbtp);
     void setMeterValues(const MeterValues& values);
     void resetMeterValues(const MeterValues& values);
+    float getTruePeakValue() const noexcept;
     void setMeterThickness(float pixels) noexcept;
     void setPeakHoldDuration(float seconds);
     void setRecordState(bool shouldRecord, juce::NotificationType notification = juce::dontSendNotification);

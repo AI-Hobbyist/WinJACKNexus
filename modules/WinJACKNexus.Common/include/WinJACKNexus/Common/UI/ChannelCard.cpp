@@ -99,6 +99,7 @@ void ChannelCard::resetMeterValues(const MeterValues& values)
     integrated.resetValue(values.integratedLufs);
     range.resetValue(values.lraLu);
 }
+float ChannelCard::getTruePeakValue() const noexcept { return truePeak.getValue(); }
 void ChannelCard::setMeterThickness(float pixels) noexcept
 {
     for (auto* meter : { &peak, &rms, &truePeak, &momentary, &shortTerm, &integrated, &range })

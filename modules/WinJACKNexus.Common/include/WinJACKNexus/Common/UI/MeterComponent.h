@@ -16,6 +16,7 @@ public:
                    float maximum = 12.0f, float barThickness = 0.0f);
     void setValue(float value);
     void resetValue(float value);
+    float getValue() const noexcept;
     void setPeakHoldDuration(float seconds);
     void setPreset(float targetLufs, float toleranceLu, float truePeakMaxDbtp);
     void setBarThickness(float pixels) noexcept;

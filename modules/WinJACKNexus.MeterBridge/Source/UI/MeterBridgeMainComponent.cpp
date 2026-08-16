@@ -849,7 +849,7 @@ void MeterBridgeMainComponent::consumeAudio()
         {
             histories[index].push_back ({ juce::Time::getCurrentTime(), {
                 latestValues[index].peakDbfs, latestValues[index].rmsDbfs,
-                latestValues[index].truePeakDbtp, latestValues[index].momentaryLufs,
+                cards[index]->getTruePeakValue(), latestValues[index].momentaryLufs,
                 latestValues[index].shortTermLufs, latestValues[index].integratedLufs,
                 latestValues[index].lraLu } });
             lastHistoryTimesMs[index] = nowMs;

@@ -35,6 +35,11 @@ void MeterComponent::resetValue(float newValue)
     repaint();
 }
 
+float MeterComponent::getValue() const noexcept
+{
+    return value;
+}
+
 void MeterComponent::setPeakHoldDuration(float seconds)
 {
     peakHoldSeconds = juce::jlimit(0.0f, 60.0f, seconds);
