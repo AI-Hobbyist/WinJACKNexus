@@ -946,7 +946,7 @@ void MeterBridgeMainComponent::writeCsvRecord (int index, const wjn::common::Met
     const auto line = juce::Time::getCurrentTime().toISO8601 (true) + ","
                     + juce::String (values.peakDbfs, 3) + ","
                     + juce::String (values.rmsDbfs, 3) + ","
-                    + juce::String (values.truePeakDbtp, 3) + ","
+                    + juce::String (cards[static_cast<size_t> (index)]->getTruePeakValue(), 3) + ","
                     + juce::String (values.momentaryLufs, 3) + ","
                     + juce::String (values.shortTermLufs, 3) + ","
                     + juce::String (values.integratedLufs, 3) + ","
