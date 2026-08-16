@@ -174,7 +174,7 @@ private:
             locale.text ("meterbridge.history.lra", "LRA")
         };
         const std::array<float, 7> minimums { -60.0f, -60.0f, -60.0f, -60.0f, -60.0f, -60.0f, 0.0f };
-        const std::array<float, 7> maximums { 12.0f, 12.0f, 12.0f, 0.0f, 0.0f, 0.0f, 72.0f };
+        const std::array<float, 7> maximums { 12.0f, 12.0f, 12.0f, 12.0f, 12.0f, 12.0f, 72.0f };
         std::vector<wjn::common::MeterHistoryChart::Series> series;
         for (size_t metric = 0; metric < names.size(); ++metric)
         {
@@ -193,12 +193,14 @@ private:
         }
         chart.setSeries (std::move (series));
         chart.setHistoryAvailable (! visibleSamples.empty());
-        chart.setValueRange ("+12 dB", "-60 dB");
+                chart.setValueRange ("+12 dBFS/LUFS", "-60 dBFS/LUFS");
+                chart.setValueScale (-60.0f, 12.0f, "dBFS/LUFS");
         chart.setSecondaryValueRange ("72 LU", "0 LU");
+                chart.setSecondaryValueScale (0.0f, 72.0f, "LU");
         chart.setReferenceLines ({
                         { locale.text ("meterbridge.history.target", "目标") + " " + juce::String (preset.targetLufs, 1),
                             juce::Colour (0xfff39c12),
-              preset.targetLufs, -60.0f, 0.0f },
+              preset.targetLufs, -60.0f, 12.0f },
                         { locale.text ("meterbridge.history.truePeakReference", "TP") + " "
                                     + juce::String (preset.truePeakMaxDbtp, 1), juce::Colour (0xffc0392b),
               preset.truePeakMaxDbtp, -60.0f, 12.0f }
