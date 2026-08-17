@@ -6,6 +6,8 @@ namespace wjn::common
 SegmentedMeterControl::SegmentedMeterControl(juce::String initialLabel, juce::Colour initialAccent)
     : label(std::move(initialLabel)), accent(initialAccent) {}
 
+void SegmentedMeterControl::setLabel(juce::String newLabel) { label = std::move(newLabel); repaint(); }
+void SegmentedMeterControl::setAccent(juce::Colour newAccent) { accent = newAccent; repaint(); }
 void SegmentedMeterControl::setLevel(float newLevel) { level = juce::jlimit(0.0f, 1.0f, newLevel); repaint(); }
 void SegmentedMeterControl::setHold(float newHold) { hold = juce::jlimit(0.0f, 1.0f, newHold); repaint(); }
 void SegmentedMeterControl::setTheme(const ThemeContext& newTheme) { theme = newTheme; repaint(); }

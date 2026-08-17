@@ -12,6 +12,8 @@ class SegmentedMeterControl final : public juce::Component
 public:
     SegmentedMeterControl(juce::String label = {}, juce::Colour accent = juce::Colour(0xff8de3ff));
 
+    void setLabel(juce::String newLabel);
+    void setAccent(juce::Colour newAccent);
     void setLevel(float newLevel);
     float getLevel() const noexcept { return level; }
     void setHold(float newHold);

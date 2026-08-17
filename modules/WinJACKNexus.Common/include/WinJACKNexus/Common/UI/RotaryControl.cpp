@@ -34,12 +34,53 @@ void RotaryControl::setLabel(juce::String newLabel) { label = std::move(newLabel
 void RotaryControl::setSuffix(juce::String newSuffix) { suffix = std::move(newSuffix); repaint(); }
 void RotaryControl::setAccent(juce::Colour newAccent) { accent = newAccent; repaint(); }
 void RotaryControl::setTheme(const ThemeContext& newTheme) { theme = newTheme; repaint(); }
+void RotaryControl::setCompactStyle(bool shouldUseCompactStyle) { compactStyle = shouldUseCompactStyle; repaint(); }
+void RotaryControl::setValueTextFormatter(std::function<juce::String(double)> formatter)
+{
+    valueTextFormatter = std::move(formatter);
+    repaint();
+}
 void RotaryControl::setValueChangeCallback(std::function<void(double)> callback) { valueChangeCallback = std::move(callback); }
+void RotaryControl::setContextMenuCallback(std::function<void()> callback) { contextMenuCallback = std::move(callback); }
+
+juce::String RotaryControl::valueText() const
+{
+    if (valueTextFormatter != nullptr)
+        return valueTextFormatter(value);
+
+    return juce::String(value, maximum - minimum < 20.0 ? 2 : 1) + suffix;
+}
 
 void RotaryControl::paint(juce::Graphics& g)
 {
     if (getWidth() <= 0 || getHeight() <= 0)
         return;
+
+    if (compactStyle)
+    {
+        const auto dialBounds = juce::Rectangle<float>(getLocalBounds().withSizeKeepingCentre(34, 34).withY(2).toFloat());
+        const auto centre = dialBounds.getCentre();
+        const auto normalised = maximum > minimum ? static_cast<float>((value - minimum) / (maximum - minimum)) : 0.0f;
+        const auto angle = juce::jmap(juce::jlimit(0.0f, 1.0f, normalised), -2.35f, 2.35f);
+
+        g.setColour(juce::Colour(0xff111418));
+        g.fillEllipse(dialBounds);
+        g.setColour(juce::Colour(0xff4c5664));
+        g.drawEllipse(dialBounds, 1.2f);
+        g.setColour(accent);
+        g.drawLine(centre.x, centre.y,
+                   centre.x + std::sin(angle) * 12.0f,
+                   centre.y - std::cos(angle) * 12.0f,
+                   2.0f);
+
+        g.setColour(juce::Colour(0xffd6dde6));
+        g.setFont(juce::FontOptions(8.0f, juce::Font::bold));
+        const auto labelY = juce::jmin(getHeight() - 12, juce::roundToInt(dialBounds.getBottom()) + 3);
+        g.drawText(valueIsBeingAdjusted ? valueText() : label,
+               getLocalBounds().withY(labelY).withHeight(juce::jmax(0, getHeight() - labelY)),
+               juce::Justification::centred);
+        return;
+    }
 
     const auto dialBounds = juce::Rectangle<float>(getLocalBounds().withSizeKeepingCentre(44, 44).withY(2).toFloat());
     const auto centre = dialBounds.getCentre();
@@ -56,15 +97,21 @@ void RotaryControl::paint(juce::Graphics& g)
 
     g.setColour(theme.colour("secondaryText"));
     g.setFont(juce::FontOptions(8.5f, juce::Font::bold));
-    g.drawText(label, getLocalBounds().withY(48).withHeight(12), juce::Justification::centred);
-    g.setColour(accent);
-    g.setFont(juce::FontOptions(9.0f, juce::Font::bold));
-    g.drawText(juce::String(value, maximum - minimum < 20.0 ? 2 : 1) + suffix,
-               getLocalBounds().withY(60).withHeight(16), juce::Justification::centred);
+    g.drawText(valueIsBeingAdjusted ? valueText() : label,
+               getLocalBounds().withY(48).withHeight(12), juce::Justification::centred);
 }
 
 void RotaryControl::mouseDown(const juce::MouseEvent& event)
 {
+    if (event.mods.isPopupMenu())
+    {
+        if (contextMenuCallback != nullptr)
+            contextMenuCallback();
+        return;
+    }
+
+    valueIsBeingAdjusted = true;
+    repaint();
     valueOnMouseDown = value;
     dragStartY = event.position.y;
 }
@@ -72,6 +119,12 @@ void RotaryControl::mouseDown(const juce::MouseEvent& event)
 void RotaryControl::mouseDrag(const juce::MouseEvent& event)
 {
     updateFromDrag(dragStartY - event.position.y);
+}
+
+void RotaryControl::mouseUp(const juce::MouseEvent&)
+{
+    valueIsBeingAdjusted = false;
+    repaint();
 }
 
 void RotaryControl::mouseDoubleClick(const juce::MouseEvent&)

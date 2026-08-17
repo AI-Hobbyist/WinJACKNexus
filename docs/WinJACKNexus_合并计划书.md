@@ -439,7 +439,7 @@ Common 预留以下能力，具体类名可在实现阶段调整但职责不变�
 > 本文只保留 Common 的 M0-M2。各 APP 的应用层实施文档：
 >
 > - Adapter：`WinJACKNexus.Adapter_开发计划书.md`
-> - Mixer：`WinJACKNexus.Mixer_开发计划书.md`
+> - Mixer：`WinJACKNexus.MixerPro_开发计划书.md`
 > - MeterBridge：`WinJACKNexus.MeterBridge_开发计划书.md`
 > - 跨模块收尾：`WinJACKNexus_M6_收尾计划.md`
 

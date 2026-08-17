@@ -4,6 +4,7 @@
 #  模块：
 #    - WinJACKNexus.Common   跨模块共享库（JUCE + libjack Bridge、无锁 FIFO、主题等）
 #    - WinJACKNexus.Adapter  首个独立 GUI 应用（单实例、暗黑 3 Tab 机架）
+#    - WinJACKNexus.MixerPro JACK2-only 多通道混音应用
 #
 #  依赖：third_party/JUCE（add_subdirectory 集成）、third_party/JACK2（导入库）
 # ==============================================================================
@@ -50,6 +51,7 @@ add_subdirectory(modules/WinJACKNexus.AdapterBackend)
 add_subdirectory(modules/WinJACKNexus.AdapterService)
 add_subdirectory(modules/WinJACKNexus.Adapter)
 add_subdirectory(modules/WinJACKNexus.MeterBridge)
+add_subdirectory(modules/WinJACKNexus.MixerPro)
 
 add_custom_target(WinJACKNexus.CommonResources ALL
     COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:WinJACKNexus.Adapter>/LCD"
@@ -57,6 +59,7 @@ add_custom_target(WinJACKNexus.CommonResources ALL
     COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:WinJACKNexus.MeterBridge>/LCD"
     COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:WinJACKNexus.MeterBridge>/locales"
     COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:WinJACKNexus.MeterBridge>/locales/MeterBridge"
+    COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:WinJACKNexus.MixerPro>/locales/Mixer"
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
         "${CMAKE_SOURCE_DIR}/LCD/zpix.ttf"
         "$<TARGET_FILE_DIR:WinJACKNexus.Adapter>/LCD/zpix.ttf"
@@ -81,11 +84,19 @@ add_custom_target(WinJACKNexus.CommonResources ALL
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
         "${CMAKE_SOURCE_DIR}/locales/MeterBridge/zh-CN.lang"
         "$<TARGET_FILE_DIR:WinJACKNexus.MeterBridge>/locales/MeterBridge/zh-CN.lang"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${CMAKE_SOURCE_DIR}/locales/zh-CN.lang"
+        "$<TARGET_FILE_DIR:WinJACKNexus.MixerPro>/locales/zh-CN.lang"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${CMAKE_SOURCE_DIR}/locales/Mixer/zh-CN.lang"
+        "$<TARGET_FILE_DIR:WinJACKNexus.MixerPro>/locales/Mixer/zh-CN.lang"
     DEPENDS
         WinJACKNexus.Adapter
         WinJACKNexus.MeterBridge
+        WinJACKNexus.MixerPro
         "${CMAKE_SOURCE_DIR}/LCD/zpix.ttf"
         "${CMAKE_SOURCE_DIR}/LCD/DS-DIGI.TTF"
         "${CMAKE_SOURCE_DIR}/locales/zh-CN.lang"
         "${CMAKE_SOURCE_DIR}/locales/MeterBridge/zh-CN.lang"
-        "${CMAKE_SOURCE_DIR}/locales/Adapter/zh-CN.lang")
+        "${CMAKE_SOURCE_DIR}/locales/Adapter/zh-CN.lang"
+        "${CMAKE_SOURCE_DIR}/locales/Mixer/zh-CN.lang")

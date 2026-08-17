@@ -41,7 +41,7 @@ target_link_libraries(WinJACKNexus.Common PUBLIC
 #   头文件路径现在即暴露；libjack64.lib 为 MSVC COFF 导入库。
 #   Bridge/ 下真正使用 libjack 符号（M2.1）时方才参与链接，此处先链入无碍。
 # ---------------------------------------------------------------------------
-set(WINJACK_JACK2_DIR "${CMAKE_SOURCE_DIR}/third_party/JACK2")
+set(WINJACK_JACK2_DIR "${CMAKE_CURRENT_LIST_DIR}/../../third_party/JACK2")
 
 target_include_directories(WinJACKNexus.Common PUBLIC
     "${WINJACK_JACK2_DIR}/include")
@@ -75,7 +75,9 @@ target_sources(WinJACKNexus.Common PRIVATE
     include/WinJACKNexus/Common/UI/SettingsSlider.cpp
     include/WinJACKNexus/Common/UI/RotaryControl.cpp
     include/WinJACKNexus/Common/UI/VerticalFaderControl.cpp
+    include/WinJACKNexus/Common/UI/HorizontalSliderControl.cpp
     include/WinJACKNexus/Common/UI/SegmentedMeterControl.cpp
+    include/WinJACKNexus/Common/UI/MultiChannelMeterControl.cpp
     include/WinJACKNexus/Common/UI/EqCurveEditor.cpp
     include/WinJACKNexus/Common/UI/TransferCurveEditor.cpp
     include/WinJACKNexus/Common/UI/RouteSelectorControl.cpp
