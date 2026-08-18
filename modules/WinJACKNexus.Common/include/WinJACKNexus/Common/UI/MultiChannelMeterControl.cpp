@@ -142,7 +142,7 @@ void MultiChannelMeterControl::paint(juce::Graphics& g)
 
     auto title = getLocalBounds().removeFromTop(14);
     g.setColour(text);
-    g.setFont(juce::FontOptions(8.0f, juce::Font::bold));
+    g.setFont(systemUiFont(8.0f, juce::Font::bold));
     g.drawText(showsOutput ? "OUT" : "IN", title, juce::Justification::centred);
 
     const std::array<const char*, maxChannels> labels { channelCount == 1 ? "M" : "L", "R", "C", "F", "s", "S", "r", "R" };
@@ -160,7 +160,7 @@ void MultiChannelMeterControl::paint(juce::Graphics& g)
         auto meter = cell.withSizeKeepingCentre(juce::jmin(14, juce::jmax(4, cell.getWidth() - 2)), cell.getHeight()).reduced(0, 4);
 
         g.setColour(text);
-        g.setFont(juce::FontOptions(channelCount > 2 ? 6.0f : 8.0f, juce::Font::bold));
+        g.setFont(systemUiFont(channelCount > 2 ? 6.0f : 8.0f, juce::Font::bold));
         g.drawText(labels[static_cast<size_t>(channel)], label, juce::Justification::centred);
         g.setColour(juce::Colour(0xff101318));
         g.fillRoundedRectangle(meter.toFloat(), 3.0f);
@@ -176,7 +176,7 @@ void MultiChannelMeterControl::paint(juce::Graphics& g)
         g.setColour(juce::Colour(0xff111418));
         g.fillRoundedRectangle(valueBox.toFloat(), 3.0f);
         g.setColour(overload ? juce::Colour(0xffff5b58) : accent);
-        g.setFont(juce::FontOptions(8.0f, juce::Font::bold));
+        g.setFont(systemUiFont(8.0f, juce::Font::bold));
         g.drawText(juce::String(juce::roundToInt(peak[static_cast<size_t>(channel)])), valueBox, juce::Justification::centred);
     }
 }

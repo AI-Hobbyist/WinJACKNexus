@@ -74,7 +74,7 @@ void RotaryControl::paint(juce::Graphics& g)
                    2.0f);
 
         g.setColour(juce::Colour(0xffd6dde6));
-        g.setFont(juce::FontOptions(8.0f, juce::Font::bold));
+        g.setFont(systemUiFont(8.0f, juce::Font::bold));
         const auto labelY = juce::jmin(getHeight() - 12, juce::roundToInt(dialBounds.getBottom()) + 3);
         g.drawText(valueIsBeingAdjusted ? valueText() : label,
                getLocalBounds().withY(labelY).withHeight(juce::jmax(0, getHeight() - labelY)),
@@ -96,7 +96,7 @@ void RotaryControl::paint(juce::Graphics& g)
                centre.y - std::cos(angle) * 15.0f, 2.0f);
 
     g.setColour(theme.colour("secondaryText"));
-    g.setFont(juce::FontOptions(8.5f, juce::Font::bold));
+    g.setFont(systemUiFont(8.5f, juce::Font::bold));
     g.drawText(valueIsBeingAdjusted ? valueText() : label,
                getLocalBounds().withY(48).withHeight(12), juce::Justification::centred);
 }

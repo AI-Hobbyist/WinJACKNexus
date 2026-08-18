@@ -3,7 +3,7 @@
 #include "Audio/CommonJackMixerRuntime.h"
 
 #include <WinJACKNexus/Common/Localization/LocaleManager.h>
-#include <WinJACKNexus/Common/UI/HorizontalSliderControl.h>
+#include <WinJACKNexus/Common/UI/Theme.h>
 
 #include <cmath>
 
@@ -12,6 +12,8 @@ namespace mixerpro
 
 namespace
 {
+using wjn::common::systemUiFont;
+
 float meterValueToDb(float value) noexcept
 {
     return value > 0.000001f ? juce::jmax(-60.0f, 20.0f * std::log10(value)) : -60.0f;
@@ -27,6 +29,13 @@ juce::String formatStereoPan(double value)
     return (clamped < 0.0 ? "L" : "R") + juce::String(percentage) + "%";
 }
 
+juce::String localize(const wjn::common::LocaleManager& localeManager,
+                     const char* key,
+                     const char* fallback)
+{
+    return localeManager.text(key, fallback);
+}
+
 std::array<float, 8> meterValuesToDb(const std::array<float, wjn::common::MeterFrame::maxChannels>& values,
                                      int channelCount) noexcept
 {
@@ -37,7 +46,10 @@ std::array<float, 8> meterValuesToDb(const std::array<float, wjn::common::MeterF
     return result;
 }
 
-void paintSharedSpatialPannerPreview(juce::Graphics& g, juce::Rectangle<int> bounds, juce::StringRef layout)
+void paintSharedSpatialPannerPreview(juce::Graphics& g,
+                                     juce::Rectangle<int> bounds,
+                                     juce::StringRef layout,
+                                     juce::StringRef spatialLabel)
 {
     if (bounds.getWidth() < 48 || bounds.getHeight() < 24)
         return;
@@ -64,10 +76,10 @@ void paintSharedSpatialPannerPreview(juce::Graphics& g, juce::Rectangle<int> bou
 
     auto text = bounds.reduced(4, 4);
     g.setColour(juce::Colour(0xfff1f4f7));
-    g.setFont(juce::FontOptions(10.0f, juce::Font::bold));
-    g.drawText(layout + " Spatial", text.removeFromTop(13), juce::Justification::centredLeft);
+    g.setFont(systemUiFont(10.0f, juce::Font::bold));
+    g.drawText(layout + " " + spatialLabel, text.removeFromTop(13), juce::Justification::centredLeft);
     g.setColour(juce::Colour(0xff8de3ff));
-    g.setFont(juce::FontOptions(8.0f, juce::Font::bold));
+    g.setFont(systemUiFont(8.0f, juce::Font::bold));
     g.drawText("X +0.24  Y -0.32", text.removeFromTop(11), juce::Justification::centredLeft);
 
     auto meters = text.removeFromTop(10).reduced(0, 1);
@@ -110,8 +122,12 @@ void addSectionGap(juce::Graphics& g, juce::Rectangle<int>& bounds, int height =
 class MixerConsoleView::SpatialPannerSettingsComponent final : public juce::Component
 {
 public:
-    SpatialPannerSettingsComponent(bool isSevenOneIn, const wjn::common::ThemeContext& themeIn)
-        : isSevenOne(isSevenOneIn), theme(themeIn)
+    SpatialPannerSettingsComponent(bool isSevenOneIn,
+                                   const wjn::common::ThemeContext& themeIn,
+                                   wjn::common::LocaleManager& localeManagerIn)
+        : isSevenOne(isSevenOneIn),
+          theme(themeIn),
+          localeManager(localeManagerIn)
     {
         spatialControl.setCompactPreview(false);
         spatialControl.setTheme(theme);
@@ -177,13 +193,17 @@ public:
 
         auto bounds = getLocalBounds().reduced(18);
         g.setColour(juce::Colour(0xfff1f4f7));
-        g.setFont(juce::FontOptions(18.0f, juce::Font::bold));
+        g.setFont(systemUiFont(18.0f, juce::Font::bold));
         const auto layoutName = isSevenOne ? "7.1" : "5.1";
-        g.drawText(juce::String(layoutName) + " Spatial Panner", bounds.removeFromTop(30), juce::Justification::centredLeft);
+        g.drawText(localize(localeManager, "mixer.spatial.title", "{layout} Spatial Panner")
+                       .replace("{layout}", layoutName),
+                   bounds.removeFromTop(30), juce::Justification::centredLeft);
 
         g.setColour(juce::Colour(0xff8de3ff));
-        g.setFont(juce::FontOptions(11.0f, juce::Font::bold));
-        g.drawText(juce::String(layoutName) + " coordinate editor prototype", bounds.removeFromTop(22), juce::Justification::centredLeft);
+        g.setFont(systemUiFont(11.0f, juce::Font::bold));
+        g.drawText(localize(localeManager, "mixer.spatial.subtitle", "{layout} coordinate editor")
+                       .replace("{layout}", layoutName),
+                   bounds.removeFromTop(22), juce::Justification::centredLeft);
 
         auto pannerRow = bounds.removeFromTop(300);
         auto channelMeters = pannerRow.removeFromRight(182).reduced(6, 0);
@@ -193,26 +213,30 @@ public:
         g.drawRoundedRectangle(channelMeters.toFloat(), 6.0f, 1.0f);
         auto meterTitle = channelMeters.reduced(7, 8).removeFromTop(16);
         g.setColour(juce::Colour(0xfff1f4f7));
-        g.setFont(juce::FontOptions(10.0f, juce::Font::bold));
-        g.drawText("OUTPUT", meterTitle, juce::Justification::centred);
+        g.setFont(systemUiFont(10.0f, juce::Font::bold));
+        g.drawText(localize(localeManager, "mixer.spatial.output", "OUTPUT"),
+               meterTitle, juce::Justification::centred);
 
         auto toggleRow = bounds.removeFromTop(34).reduced(4, 3);
         auto toggleArea = toggleRow.removeFromLeft(210);
         g.setColour(juce::Colour(0xffc9d1da));
-        g.setFont(juce::FontOptions(11.0f, juce::Font::bold));
-        g.drawText("Intensity Curve", toggleArea.removeFromLeft(130), juce::Justification::centredLeft);
+        g.setFont(systemUiFont(11.0f, juce::Font::bold));
+        g.drawText(localize(localeManager, "mixer.spatial.intensityCurve", "Intensity Curve"),
+               toggleArea.removeFromLeft(130), juce::Justification::centredLeft);
 
         auto controls = bounds.reduced(4, 8);
         drawReadout(g, controls.removeFromTop(28), "X", juce::String(sourcePosition.x * 2.0f - 1.0f, 2));
         drawReadout(g, controls.removeFromTop(28), "Y", juce::String(sourcePosition.y * 2.0f - 1.0f, 2));
         drawReadout(g, controls.removeFromTop(28), "Z", "+0.18");
-        drawReadout(g, controls.removeFromTop(28), "Divergence", "42%");
+        drawReadout(g, controls.removeFromTop(28),
+                localize(localeManager, "mixer.spatial.divergence", "Divergence"), "42%");
     }
 
 private:
     bool isSevenOne = false;
     bool showIntensityGraph = true;
     wjn::common::ThemeContext theme;
+    wjn::common::LocaleManager& localeManager;
     juce::Point<float> sourcePosition { 0.62f, 0.34f };
     std::array<juce::Rectangle<int>, 4> readoutBounds {};
     wjn::common::SpatialPannerComponent spatialControl { false };
@@ -225,7 +249,7 @@ private:
         auto box = bounds.removeFromLeft(120).reduced(0, 3);
 
         g.setColour(juce::Colour(0xffc9d1da));
-        g.setFont(juce::FontOptions(12.0f, juce::Font::bold));
+        g.setFont(systemUiFont(12.0f, juce::Font::bold));
         g.drawText(label, name, juce::Justification::centredLeft);
         g.setColour(juce::Colour(0xff101318));
         g.fillRoundedRectangle(box.toFloat(), 4.0f);
@@ -242,7 +266,7 @@ private:
 
         auto content = bounds.reduced(7, 8);
         g.setColour(juce::Colour(0xfff1f4f7));
-        g.setFont(juce::FontOptions(10.0f, juce::Font::bold));
+        g.setFont(systemUiFont(10.0f, juce::Font::bold));
         g.drawText("OUTPUT", content.removeFromTop(16), juce::Justification::centred);
 
         const std::array<const char*, 8> names { "L", "C", "R", "LFE", "Ls", "Rs", "Lrs", "Rrs" };
@@ -258,7 +282,7 @@ private:
             const auto i = static_cast<size_t>(channelIndex);
             auto cell = meterArea.removeFromLeft(cellWidth).reduced(2, 0);
             g.setColour(juce::Colour(0xffc9d1da));
-            g.setFont(juce::FontOptions(7.0f, juce::Font::bold));
+            g.setFont(systemUiFont(7.0f, juce::Font::bold));
             g.drawText(names[i], cell.removeFromTop(14), juce::Justification::centred);
 
             auto readout = cell.removeFromBottom(13);
@@ -288,7 +312,7 @@ private:
             g.setColour(juce::Colour(0xfff6f8fb));
             g.fillRect(rail.getX() + 1, peakY, juce::jmax(1, rail.getWidth() - 2), 2);
             g.setColour(juce::Colour(0xff8de3ff));
-            g.setFont(juce::FontOptions(7.0f, juce::Font::bold));
+            g.setFont(systemUiFont(7.0f, juce::Font::bold));
             g.drawText(readouts[i], readout, juce::Justification::centred);
         }
     }
@@ -297,14 +321,18 @@ private:
 class MixerConsoleView::SpatialPannerSettingsWindow final : public juce::DocumentWindow
 {
 public:
-    SpatialPannerSettingsWindow(bool isSevenOne, const wjn::common::ThemeContext& theme)
-        : DocumentWindow(juce::String("MixerPro ") + (isSevenOne ? "7.1" : "5.1") + " Spatial Panner",
+    SpatialPannerSettingsWindow(bool isSevenOne,
+                                const wjn::common::ThemeContext& theme,
+                                wjn::common::LocaleManager& localeManager)
+        : DocumentWindow(localize(localeManager,
+                                  isSevenOne ? "mixer.spatial.windowTitle71" : "mixer.spatial.windowTitle51",
+                                  isSevenOne ? "MixerPro 7.1 Spatial Panner" : "MixerPro 5.1 Spatial Panner"),
                          juce::Colour(0xff17191c),
                          juce::DocumentWindow::closeButton)
     {
         setUsingNativeTitleBar(true);
         setResizable(true, true);
-        setContentOwned(new SpatialPannerSettingsComponent(isSevenOne, theme), true);
+        setContentOwned(new SpatialPannerSettingsComponent(isSevenOne, theme, localeManager), true);
         centreWithSize(520, 430);
         setVisible(true);
     }
@@ -324,33 +352,52 @@ public:
     using LevelChangeCallback = std::function<void(int, double)>;
 
     explicit AuxSendSettingsComponent(const wjn::common::ThemeContext& themeIn,
+                                      wjn::common::LocaleManager& localeManagerIn,
                                       const std::array<double, 3>& initialLevels,
                                       LevelChangeCallback levelChangeCallbackIn)
-        : theme(themeIn), levelChangeCallback(std::move(levelChangeCallbackIn))
+        : theme(themeIn),
+          localeManager(localeManagerIn),
+          levelChangeCallback(std::move(levelChangeCallbackIn))
     {
         const auto accent = juce::Colour(0xfff0c84b);
-        const std::array<juce::String, 3> targets { "Stereo Aux Bus", "5.1 Aux Bus", "7.1 Aux Bus" };
+        const std::array<juce::String, 3> targets {
+            localize(localeManager, "mixer.aux.stereoBus", "Stereo Aux Bus"),
+            localize(localeManager, "mixer.aux.bus51", "5.1 Aux Bus"),
+            localize(localeManager, "mixer.aux.bus71", "7.1 Aux Bus")
+        };
         const std::array<int, 3> channelCounts { 2, 6, 8 };
         const std::array<bool, 3> preStates { false, true, false };
         const std::array<float, 3> peakSeeds { -12.0f, -9.0f, -14.0f };
 
         for (size_t index = 0; index < rowCount; ++index)
         {
-            configureToggle(enabledControls[index], "ON", true, accent,
+            configureToggle(enabledControls[index], localize(localeManager, "mixer.control.on", "ON"), true, accent,
                             [this, index](bool active)
             {
-                enabledControls[index].setText(active ? "ON" : "OFF");
+                enabledControls[index].setText(localize(localeManager,
+                                                        active ? "mixer.control.on" : "mixer.control.off",
+                                                        active ? "ON" : "OFF"));
                 repaint();
             });
-            configureToggle(preControls[index], preStates[index] ? "PRE" : "POST", preStates[index], accent,
+            configureToggle(preControls[index],
+                            preStates[index]
+                                ? localize(localeManager, "mixer.aux.pre", "PRE")
+                                : localize(localeManager, "mixer.aux.post", "POST"),
+                            preStates[index], accent,
                             [this, index](bool active)
             {
-                preControls[index].setText(active ? "PRE" : "POST");
+                preControls[index].setText(active
+                                                ? localize(localeManager, "mixer.aux.pre", "PRE")
+                                                : localize(localeManager, "mixer.aux.post", "POST"));
                 repaint();
             });
 
-            targetControls[index].setLabel("Target");
-            targetControls[index].setOptions({ targets[index], "Master", "JACK Aux " + juce::String(static_cast<int>(index + 1)) });
+            targetControls[index].setLabel(localize(localeManager, "mixer.aux.target", "Target"));
+            targetControls[index].setOptions({
+                targets[index],
+                localize(localeManager, "mixer.aux.master", "Master"),
+                localize(localeManager, "mixer.aux.jackAux", "JACK Aux {index}")
+                    .replace("{index}", juce::String(static_cast<int>(index + 1))) });
             targetControls[index].setSelectedIndex(0);
             targetControls[index].setAccent(accent);
             targetControls[index].setTheme(theme);
@@ -358,7 +405,7 @@ public:
 
             levelControls[index].setRange(-60.0, 12.0);
             levelControls[index].setValue(initialLevels[index], juce::dontSendNotification);
-            levelControls[index].setLabel("LEVEL");
+            levelControls[index].setLabel(localize(localeManager, "mixer.aux.level", "LEVEL"));
             levelControls[index].setSuffix(" dB");
             levelControls[index].setAccent(accent);
             levelControls[index].setTheme(theme);
@@ -375,14 +422,18 @@ public:
             addAndMakeVisible(levelControls[index]);
 
             addAndMakeVisible(meterSourceControls[index]);
-            meterSourceControls[index].setText(outputMeters[index] ? "OUT" : "IN");
+            meterSourceControls[index].setText(outputMeters[index]
+                                                   ? localize(localeManager, "mixer.control.output", "OUT")
+                                                   : localize(localeManager, "mixer.control.input", "IN"));
             meterSourceControls[index].setToggleState(outputMeters[index], juce::dontSendNotification);
             meterSourceControls[index].setAccent(accent);
             meterSourceControls[index].setTheme(theme);
             meterSourceControls[index].setStateChangeCallback([this, index](bool active)
             {
                 outputMeters[index] = active;
-                meterSourceControls[index].setText(active ? "OUT" : "IN");
+                meterSourceControls[index].setText(active
+                                                       ? localize(localeManager, "mixer.control.output", "OUT")
+                                                       : localize(localeManager, "mixer.control.input", "IN"));
                 meters[index].setShowsOutput(active, juce::dontSendNotification);
                 repaint();
             });
@@ -405,7 +456,7 @@ public:
         addAndMakeVisible(panControl);
         panControl.setRange(-1.0, 1.0);
         panControl.setValue(0.0, juce::dontSendNotification);
-        panControl.setLabel("PAN");
+        panControl.setLabel(localize(localeManager, "mixer.control.pan", "PAN"));
         panControl.setAccent(accent);
         panControl.setTheme(theme);
         panControl.setValueTextFormatter(formatStereoPan);
@@ -424,7 +475,7 @@ public:
                 if (spatialPannerWindow == nullptr || spatialPannerWindowIsSevenOne != isSevenOne)
                 {
                     spatialPannerWindow.reset();
-                    spatialPannerWindow = std::make_unique<SpatialPannerSettingsWindow>(isSevenOne, theme);
+                    spatialPannerWindow = std::make_unique<SpatialPannerSettingsWindow>(isSevenOne, theme, localeManager);
                     spatialPannerWindowIsSevenOne = isSevenOne;
                 }
                 spatialPannerWindow->setVisible(true);
@@ -466,21 +517,28 @@ public:
 
         auto bounds = getLocalBounds().reduced(18);
         g.setColour(juce::Colour(0xfff1f4f7));
-        g.setFont(juce::FontOptions(18.0f, juce::Font::bold));
-        g.drawText("Aux Send Settings - Input 5.1", bounds.removeFromTop(30), juce::Justification::centredLeft);
+        g.setFont(systemUiFont(18.0f, juce::Font::bold));
+        g.drawText(localize(localeManager, "mixer.aux.title", "Aux Send Settings - Input 5.1"),
+               bounds.removeFromTop(30), juce::Justification::centredLeft);
 
         g.setColour(juce::Colour(0xffc9d1da));
-        g.setFont(juce::FontOptions(11.0f));
-        g.drawText("Detailed send matrix lives here; channel strip shows only the first three send knobs.",
+        g.setFont(systemUiFont(11.0f));
+        g.drawText(localize(localeManager,
+                    "mixer.aux.subtitle",
+                    "Detailed send matrix lives here; channel strip shows only the first three send knobs."),
                    bounds.removeFromTop(24),
                    juce::Justification::centredLeft);
-
-        bounds.removeFromTop(8);
-        drawStereoAux(g, bounds.removeFromTop(158), "AUX 1 - Stereo Reverb", -12, 0.42f, true, false, 0);
-        bounds.removeFromTop(14);
-        drawSurroundAux(g, bounds.removeFromTop(158), "AUX 2 - 5.1 Foldout", -9, true, true, "5.1 Aux Bus", "5.1", 6, 1);
-        bounds.removeFromTop(14);
-        drawSurroundAux(g, bounds.removeFromTop(158), "AUX 3 - 7.1 Surround FX", -14, true, false, "7.1 Aux Bus", "7.1", 8, 2);
+        drawStereoAux(g, bounds.removeFromTop(158),
+                  localize(localeManager, "mixer.aux.rowStereo", "AUX 1 - Stereo Reverb"),
+                  -12, 0.42f, true, false, 0);
+        drawSurroundAux(g, bounds.removeFromTop(158),
+                localize(localeManager, "mixer.aux.row51", "AUX 2 - 5.1 Foldout"),
+                -9, true, true,
+                localize(localeManager, "mixer.aux.bus51", "5.1 Aux Bus"), "5.1", 6, 1);
+        drawSurroundAux(g, bounds.removeFromTop(158),
+                localize(localeManager, "mixer.aux.row71", "AUX 3 - 7.1 Surround FX"),
+                -14, true, false,
+                localize(localeManager, "mixer.aux.bus71", "7.1 Aux Bus"), "7.1", 8, 2);
     }
 
 private:
@@ -563,7 +621,7 @@ private:
         g.setColour(juce::Colour(0xff3a414c));
         g.drawRoundedRectangle(bounds.toFloat(), 6.0f, 1.0f);
         g.setColour(juce::Colour(0xfff0c84b));
-        g.setFont(juce::FontOptions(13.0f, juce::Font::bold));
+        g.setFont(systemUiFont(13.0f, juce::Font::bold));
         g.drawText(title, bounds.reduced(12).removeFromTop(22), juce::Justification::centredLeft);
     }
 
@@ -572,14 +630,14 @@ private:
         g.setColour(active ? juce::Colour(0xff1f4936) : juce::Colour(0xff111418));
         g.fillRoundedRectangle(bounds.toFloat(), 4.0f);
         g.setColour(active ? juce::Colour(0xff42d96f) : juce::Colour(0xff6c7480));
-        g.setFont(juce::FontOptions(10.0f, juce::Font::bold));
+        g.setFont(systemUiFont(10.0f, juce::Font::bold));
         g.drawText(text, bounds, juce::Justification::centred);
     }
 
     static void drawValue(juce::Graphics& g, juce::Rectangle<int> bounds, juce::StringRef label, juce::StringRef value)
     {
         g.setColour(juce::Colour(0xffc9d1da));
-        g.setFont(juce::FontOptions(11.0f, juce::Font::bold));
+        g.setFont(systemUiFont(11.0f, juce::Font::bold));
         g.drawText(label, bounds.removeFromLeft(86), juce::Justification::centredLeft);
         g.setColour(juce::Colour(0xff101318));
         g.fillRoundedRectangle(bounds.reduced(0, 4).toFloat(), 4.0f);
@@ -608,7 +666,7 @@ private:
                    2.0f);
 
         g.setColour(juce::Colour(0xffd6dde6));
-        g.setFont(juce::FontOptions(10.0f, juce::Font::bold));
+        g.setFont(systemUiFont(10.0f, juce::Font::bold));
         g.drawText(label, juce::Rectangle<int>(centreX - 34, original.getY() + 53, 68, 12), juce::Justification::centred);
         g.setColour(juce::Colour(0xff8de3ff));
         g.drawText(valueText, juce::Rectangle<int>(centreX - 34, original.getY() + 64, 68, 12), juce::Justification::centred);
@@ -632,10 +690,16 @@ private:
         controlsBlock.removeFromTop(6);
         controlsBlock.removeFromTop(30);
 
-        drawSectionLabel(g, valueBlock.removeFromTop(16), "AUX VALUE", juce::Justification::centred);
+        drawSectionLabel(g,
+                 valueBlock.removeFromTop(16),
+                 localize(localeManager, "mixer.control.auxValue", "AUX VALUE"),
+                 juce::Justification::centred);
         valueBlock.removeFromTop(76);
 
-        drawSectionLabel(g, pannerBlock.removeFromTop(16), "PANNER", juce::Justification::centred);
+        drawSectionLabel(g,
+                 pannerBlock.removeFromTop(16),
+                 localize(localeManager, "mixer.aux.panner", "PANNER"),
+                 juce::Justification::centred);
         pannerBlock.removeFromTop(76);
 
         drawMeterShell(g, outputBlock);
@@ -670,10 +734,16 @@ private:
         controlsBlock.removeFromTop(6);
         controlsBlock.removeFromTop(30);
 
-        drawSectionLabel(g, valueBlock.removeFromTop(16), "AUX VALUE", juce::Justification::centred);
+        drawSectionLabel(g,
+                 valueBlock.removeFromTop(16),
+                 localize(localeManager, "mixer.control.auxValue", "AUX VALUE"),
+                 juce::Justification::centred);
         valueBlock.removeFromTop(76);
 
-        drawSectionLabel(g, pannerBlock.removeFromTop(16), "PANNER", juce::Justification::centred);
+        drawSectionLabel(g,
+                 pannerBlock.removeFromTop(16),
+                 localize(localeManager, "mixer.aux.panner", "PANNER"),
+                 juce::Justification::centred);
         pannerBlock.removeFromTop(70);
 
         drawMeterShell(g, outputBlock);
@@ -740,7 +810,7 @@ private:
 
         auto content = bounds.reduced(12);
         g.setColour(juce::Colour(0xfff0c84b));
-        g.setFont(juce::FontOptions(13.0f, juce::Font::bold));
+        g.setFont(systemUiFont(13.0f, juce::Font::bold));
         g.drawText("SURROUND AUX CHANNEL WINDOW EXAMPLE", content.removeFromTop(22), juce::Justification::centredLeft);
 
         auto controls = content.removeFromLeft(190);
@@ -769,7 +839,7 @@ private:
         g.setColour(juce::Colour(0xff8de3ff));
         g.fillEllipse(static_cast<float>(icon.getCentreX()) + 1.0f, static_cast<float>(icon.getCentreY()) - 5.0f, 10.0f, 10.0f);
         g.setColour(juce::Colour(0xfff1f4f7));
-        g.setFont(juce::FontOptions(11.0f, juce::Font::bold));
+        g.setFont(systemUiFont(11.0f, juce::Font::bold));
         g.drawText("5.1 Spatial Panner", button.removeFromTop(24), juce::Justification::centredLeft);
         g.setColour(juce::Colour(0xff8de3ff));
         g.drawText("OPEN PANNER", button, juce::Justification::centredLeft);
@@ -782,7 +852,7 @@ private:
         {
             auto row = meters.removeFromTop(18);
             g.setColour(juce::Colour(0xffc9d1da));
-            g.setFont(juce::FontOptions(9.0f, juce::Font::bold));
+            g.setFont(systemUiFont(9.0f, juce::Font::bold));
             g.drawText(names[i], row.removeFromLeft(28), juce::Justification::centredLeft);
             auto rail = row.reduced(0, 5);
             g.setColour(juce::Colour(0xff101318));
@@ -795,14 +865,14 @@ private:
     static void drawSectionLabel(juce::Graphics& g, juce::Rectangle<int> bounds, juce::StringRef text, juce::Justification justification)
     {
         g.setColour(juce::Colour(0xff8a94a3));
-        g.setFont(juce::FontOptions(9.0f, juce::Font::bold));
+        g.setFont(systemUiFont(9.0f, juce::Font::bold));
         g.drawText(text, bounds, justification);
     }
 
     static void drawTargetBox(juce::Graphics& g, juce::Rectangle<int> bounds, juce::StringRef label, juce::StringRef value)
     {
         g.setColour(juce::Colour(0xffc9d1da));
-        g.setFont(juce::FontOptions(10.0f, juce::Font::bold));
+        g.setFont(systemUiFont(10.0f, juce::Font::bold));
         g.drawText(label, bounds.removeFromLeft(52), juce::Justification::centredLeft);
         g.setColour(juce::Colour(0xff101318));
         g.fillRoundedRectangle(bounds.reduced(0, 5).toFloat(), 4.0f);
@@ -811,6 +881,7 @@ private:
     }
 
     wjn::common::ThemeContext theme;
+    wjn::common::LocaleManager& localeManager;
     std::array<wjn::common::ToggleBadgeControl, rowCount> enabledControls;
     std::array<wjn::common::ToggleBadgeControl, rowCount> preControls;
     std::array<wjn::common::RouteSelectorControl, rowCount> targetControls;
@@ -832,13 +903,15 @@ class MixerConsoleView::AuxSendSettingsWindow final : public juce::DocumentWindo
 {
 public:
     explicit AuxSendSettingsWindow(const wjn::common::ThemeContext& theme,
+                                   wjn::common::LocaleManager& localeManager,
                                    const std::array<double, 3>& initialLevels,
                                    AuxSendSettingsComponent::LevelChangeCallback levelChangeCallback)
-        : DocumentWindow("MixerPro Aux Send Settings", juce::Colour(0xff17191c), juce::DocumentWindow::closeButton)
+        : DocumentWindow(localize(localeManager, "mixer.aux.windowTitle", "MixerPro Aux Send Settings"),
+                         juce::Colour(0xff17191c), juce::DocumentWindow::closeButton)
     {
         setUsingNativeTitleBar(true);
         setResizable(true, true);
-        auto* content = new AuxSendSettingsComponent(theme, initialLevels, std::move(levelChangeCallback));
+        auto* content = new AuxSendSettingsComponent(theme, localeManager, initialLevels, std::move(levelChangeCallback));
         setContentOwned(content, true);
         settingsComponent = content;
         centreWithSize(760, 650);
@@ -872,8 +945,11 @@ public:
     using AllChannelBandValues = std::array<ChannelBandValues, 8>;
     using GainChangeCallback = std::function<void(int, int, double)>;
 
-    explicit ParametricEqSettingsComponent(int requestedChannelCount)
-        : channelCount(juce::jlimit(1, 8, requestedChannelCount)), perChannelMode(channelCount > 1)
+        explicit ParametricEqSettingsComponent(int requestedChannelCount,
+                                               wjn::common::LocaleManager& localeManagerIn)
+            : channelCount(juce::jlimit(1, 8, requestedChannelCount)),
+              perChannelMode(channelCount > 1),
+              localeManager(localeManagerIn)
     {
         const std::array<float, 4> frequencies { 80.0f, 620.0f, 2400.0f, 10000.0f };
         const std::array<float, 4> gains { 2.5f, -3.0f, 1.5f, 3.0f };
@@ -882,8 +958,13 @@ public:
         for (int i = 0; i < static_cast<int> (bands.size()); ++i)
         {
             auto& band = bands[static_cast<size_t> (i)];
-            band.name = "Band " + juce::String (i + 1);
-            band.type = i == 0 ? "Low Shelf" : (i == 3 ? "High Shelf" : "Bell");
+            band.name = localize(localeManager, "mixer.eq.band", "Band {index}")
+                .replace("{index}", juce::String(i + 1));
+            band.type = i == 0
+                ? localize(localeManager, "mixer.eq.lowShelf", "Low Shelf")
+                : (i == 3
+                       ? localize(localeManager, "mixer.eq.highShelf", "High Shelf")
+                       : localize(localeManager, "mixer.eq.bell", "Bell"));
             const std::array<juce::Colour, 4> bandColours {
                 juce::Colour(0xff4bb7ff), juce::Colour(0xfff0c84b),
                 juce::Colour(0xff9bdf73), juce::Colour(0xffff7b9a)
@@ -944,8 +1025,10 @@ public:
         auto bounds = getLocalBounds().reduced(18);
 
         g.setColour(juce::Colour(0xfff1f4f7));
-        g.setFont(juce::FontOptions(18.0f, juce::Font::bold));
-        g.drawText("Parametric EQ - " + layoutName(), bounds.removeFromTop(30), juce::Justification::centredLeft);
+        g.setFont(systemUiFont(18.0f, juce::Font::bold));
+        g.drawText(localize(localeManager, "mixer.eq.title", "Parametric EQ - {layout}")
+                       .replace("{layout}", layoutName()),
+                   bounds.removeFromTop(30), juce::Justification::centredLeft);
 
         if (channelCount > 1)
             drawChannelSelector(g, bounds.removeFromTop(28));
@@ -956,8 +1039,8 @@ public:
         auto outputMeter = graphPanel.removeFromRight(48);
         graphPanel.removeFromRight(6);
         graphBounds = graphPanel;
-        drawEqSideMeter(g, inputMeter, "IN", 0.74f, 0.82f);
-        drawEqSideMeter(g, outputMeter, "OUT", 0.68f, 0.76f);
+        drawEqSideMeter(g, inputMeter, localize(localeManager, "mixer.control.input", "IN"), 0.74f, 0.82f);
+        drawEqSideMeter(g, outputMeter, localize(localeManager, "mixer.control.output", "OUT"), 0.68f, 0.76f);
         drawEqGraph(g, graphBounds);
 
         bounds.removeFromTop(4);
@@ -1024,6 +1107,7 @@ private:
     int selectedChannel = -1;
     bool perChannelMode = true;
     bool loadingChannelValues = false;
+        wjn::common::LocaleManager& localeManager;
     GainChangeCallback gainChangeCallback;
 
     static juce::String channelName(int index)
@@ -1036,11 +1120,12 @@ private:
     {
         switch (channelCount)
         {
-            case 1: return "Input Mono";
-            case 2: return "Input Stereo";
-            case 6: return "Input 5.1";
-            case 8: return "Input 7.1";
-            default: return juce::String(channelCount) + " Channel";
+                case 1: return localize(localeManager, "mixer.layout.inputMono", "Input Mono");
+                case 2: return localize(localeManager, "mixer.layout.inputStereo", "Input Stereo");
+                case 6: return localize(localeManager, "mixer.layout.input51", "Input 5.1");
+                case 8: return localize(localeManager, "mixer.layout.input71", "Input 7.1");
+                default: return localize(localeManager, "mixer.layout.channel", "{count} Channel")
+                    .replace("{count}", juce::String(channelCount));
         }
     }
 
@@ -1051,23 +1136,28 @@ private:
         g.fillRoundedRectangle(bounds.toFloat(), 4.0f);
         g.setColour(active ? accent : juce::Colour(0xff6c7480));
         g.drawRoundedRectangle(bounds.toFloat(), 4.0f, 1.0f);
-        g.setFont(juce::FontOptions(9.0f, juce::Font::bold));
+        g.setFont(systemUiFont(9.0f, juce::Font::bold));
         g.drawText(text, bounds, juce::Justification::centred);
     }
 
     void drawChannelSelector(juce::Graphics& g, juce::Rectangle<int> bounds)
     {
         g.setColour(juce::Colour(0xff8a94a3));
-        g.setFont(juce::FontOptions(9.0f, juce::Font::bold));
-        g.drawText("CHANNEL CONTROL", bounds.removeFromLeft(114), juce::Justification::centredLeft);
+        g.setFont(systemUiFont(9.0f, juce::Font::bold));
+            g.drawText(localize(localeManager, "mixer.control.channel", "CHANNEL CONTROL"),
+                       bounds.removeFromLeft(114), juce::Justification::centredLeft);
         perChannelToggleBounds = bounds.removeFromLeft(64).reduced(0, 3);
-        drawChannelTab(g, perChannelToggleBounds, "PER-CH", perChannelMode);
+            drawChannelTab(g, perChannelToggleBounds,
+                           localize(localeManager, "mixer.control.perChannel", "PER-CH"), perChannelMode);
         bounds.removeFromLeft(8);
         const auto tabCount = perChannelMode ? channelCount + 1 : 1;
         for (int i = 0; i < tabCount; ++i)
         {
             channelTabBounds[static_cast<size_t>(i)] = bounds.removeFromLeft(i == tabCount - 1 ? juce::jmin(52, bounds.getWidth()) : 48).reduced(2, 3);
-            drawChannelTab(g, channelTabBounds[static_cast<size_t>(i)], i == 0 ? "ALL" : channelName(i - 1), selectedChannel == i - 1);
+                drawChannelTab(g,
+                               channelTabBounds[static_cast<size_t>(i)],
+                               i == 0 ? localize(localeManager, "mixer.control.all", "ALL") : channelName(i - 1),
+                               selectedChannel == i - 1);
         }
     }
 
@@ -1229,7 +1319,7 @@ private:
         }
 
         g.setColour(juce::Colour(0xffc9d1da));
-        g.setFont(juce::FontOptions(9.0f, juce::Font::bold));
+        g.setFont(systemUiFont(9.0f, juce::Font::bold));
         g.drawText("20 Hz", graph.withWidth(60).withY(graph.getBottom() - 14), juce::Justification::centredLeft);
         g.drawText("20 kHz", graph.withLeft(graph.getRight() - 60).withY(graph.getBottom() - 14), juce::Justification::centredRight);
         g.drawText("+12 dB", bounds.reduced(4).removeFromTop(18), juce::Justification::centredRight);
@@ -1248,7 +1338,7 @@ private:
         g.drawRoundedRectangle(bounds.toFloat(), 5.0f, 1.0f);
         auto title = bounds.removeFromTop(18);
         g.setColour(juce::Colour(0xffc9d1da));
-        g.setFont(juce::FontOptions(9.0f, juce::Font::bold));
+        g.setFont(systemUiFont(9.0f, juce::Font::bold));
         g.drawText(label, title, juce::Justification::centred);
 
         auto rail = bounds.withSizeKeepingCentre(16, bounds.getHeight() - 16).reduced(0, 8);
@@ -1286,7 +1376,7 @@ private:
 
         auto content = bounds.reduced(10, 6);
         g.setColour(juce::Colour(0xfff1f4f7));
-        g.setFont(juce::FontOptions(12.0f, juce::Font::bold));
+        g.setFont(systemUiFont(12.0f, juce::Font::bold));
         g.drawText(band.name, content.removeFromLeft(70), juce::Justification::centredLeft);
         drawCell(g, content.removeFromLeft(106), band.type);
     }
@@ -1296,7 +1386,7 @@ private:
         g.setColour(juce::Colour(0xff101318));
         g.fillRoundedRectangle(bounds.reduced(4, 5).toFloat(), 4.0f);
         g.setColour(juce::Colour(0xffc9d1da));
-        g.setFont(juce::FontOptions(11.0f, juce::Font::bold));
+        g.setFont(systemUiFont(11.0f, juce::Font::bold));
         g.drawText(text, bounds.reduced(8, 5), juce::Justification::centred);
     }
 };
@@ -1305,13 +1395,16 @@ class MixerConsoleView::ParametricEqSettingsWindow final : public juce::Document
 {
 public:
     explicit ParametricEqSettingsWindow(int channelCount,
+                                        wjn::common::LocaleManager& localeManagerIn,
                                         const ParametricEqSettingsComponent::AllChannelBandValues& initialValues,
                                         ParametricEqSettingsComponent::GainChangeCallback gainChangeCallback)
-        : DocumentWindow("MixerPro Parametric EQ", juce::Colour(0xff17191c), juce::DocumentWindow::closeButton), layoutChannelCount(channelCount)
+                : DocumentWindow(localize(localeManagerIn, "mixer.eq.windowTitle", "MixerPro Parametric EQ"),
+                                                 juce::Colour(0xff17191c), juce::DocumentWindow::closeButton),
+                    layoutChannelCount(channelCount)
     {
         setUsingNativeTitleBar(true);
         setResizable(true, true);
-        auto* content = new ParametricEqSettingsComponent(channelCount);
+        auto* content = new ParametricEqSettingsComponent(channelCount, localeManagerIn);
         content->setChannelBandValues(initialValues);
         content->setGainChangeCallback(std::move(gainChangeCallback));
         setContentOwned(content, true);
@@ -1341,11 +1434,16 @@ class MixerConsoleView::DynamicsSettingsComponent final : public juce::Component
 public:
     using ThresholdValues = std::array<double, 2>;
     using ThresholdChangeCallback = std::function<void(int, double)>;
+    using GainValues = std::array<double, 2>;
+    using GainChangeCallback = std::function<void(int, double)>;
 
-    explicit DynamicsSettingsComponent(int requestedChannelCount, const wjn::common::ThemeContext& themeIn)
+        explicit DynamicsSettingsComponent(int requestedChannelCount,
+                                                                             const wjn::common::ThemeContext& themeIn,
+                                                                             wjn::common::LocaleManager& localeManagerIn)
         : channelCount(juce::jlimit(1, 8, requestedChannelCount)),
           perChannelMode(channelCount > 1),
-          theme(themeIn)
+                    theme(themeIn),
+                    localeManager(localeManagerIn)
     {
         addAndMakeVisible(perChannelControl);
         addAndMakeVisible(dynOnControl);
@@ -1354,15 +1452,15 @@ public:
         addAndMakeVisible(meterSourceControl);
         addAndMakeVisible(compressorEnabledControl);
         addAndMakeVisible(gateEnabledControl);
-        addAndMakeVisible(thresholdSlider);
-        addAndMakeVisible(rangeSlider);
+        addAndMakeVisible(inputGainControl);
+        addAndMakeVisible(outputGainControl);
 
         for (auto& control : compressorControls)
             addAndMakeVisible(control);
         for (auto& control : gateControls)
             addAndMakeVisible(control);
 
-        configureToggle(perChannelControl, "PER-CH", perChannelMode, juce::Colour(0xff42d96f),
+            configureToggle(perChannelControl, localize(localeManager, "mixer.control.perChannel", "PER-CH"), perChannelMode, juce::Colour(0xff42d96f),
                         [this](bool active)
         {
             perChannelMode = active;
@@ -1372,51 +1470,48 @@ public:
             resized();
             repaint();
         });
-        configureToggle(dynOnControl, "DYN ON", true, juce::Colour(0xff42d96f),
+            configureToggle(dynOnControl, localize(localeManager, "mixer.control.dynamics", "DYN"), true, juce::Colour(0xff42d96f),
                         [this](bool) { repaint(); });
-        configureToggle(listenControl, "LISTEN", false, juce::Colour(0xff42d96f),
+            configureToggle(listenControl, localize(localeManager, "mixer.control.listen", "LISTEN"), false, juce::Colour(0xff42d96f),
                         [this](bool) { repaint(); });
-        configureToggle(sidechainControl, "SIDECHAIN", false, juce::Colour(0xff42d96f),
+            configureToggle(sidechainControl, localize(localeManager, "mixer.control.sidechain", "SIDECHAIN"), false, juce::Colour(0xff42d96f),
                         [this](bool) { repaint(); });
-        configureToggle(meterSourceControl, "OUT", meterShowsOutput, juce::Colour(0xff42d96f),
+            configureToggle(meterSourceControl, localize(localeManager, "mixer.control.output", "OUT"), meterShowsOutput, juce::Colour(0xff42d96f),
                         [this](bool active)
         {
             meterShowsOutput = active;
             repaint();
         });
-        configureToggle(compressorEnabledControl, "ON", true, juce::Colour(0xff8de3ff),
+            configureToggle(compressorEnabledControl, localize(localeManager, "mixer.control.on", "ON"), true, juce::Colour(0xff8de3ff),
                         [this](bool) { repaint(); });
-        configureToggle(gateEnabledControl, "ON", true, juce::Colour(0xff42d96f),
+            configureToggle(gateEnabledControl, localize(localeManager, "mixer.control.on", "ON"), true, juce::Colour(0xff42d96f),
                         [this](bool) { repaint(); });
 
         const auto compressorAccent = juce::Colour(0xff8de3ff);
-        configureKnob(compressorControls[0], "THRESH", -60.0f, 0.0f, -18.0f, " dB", compressorAccent);
-        configureKnob(compressorControls[1], "RATIO", 1.0f, 20.0f, 4.0f, ":1", compressorAccent);
-        configureKnob(compressorControls[2], "MAKEUP", -12.0f, 12.0f, 2.5f, " dB", compressorAccent);
-        configureKnob(compressorControls[3], "ATTACK", 0.0f, 1000.0f, 18.0f, " ms", compressorAccent);
-        configureKnob(compressorControls[4], "RELEASE", 0.0f, 1000.0f, 120.0f, " ms", compressorAccent);
-        configureKnob(compressorControls[5], "KNEE", 0.0f, 24.0f, 6.0f, " dB", compressorAccent);
+            configureKnob(compressorControls[0], localize(localeManager, "mixer.control.threshold", "THRESH"), -60.0f, 0.0f, -18.0f, " dB", compressorAccent);
+            configureKnob(compressorControls[1], localize(localeManager, "mixer.control.ratio", "RATIO"), 1.0f, 20.0f, 4.0f, ":1", compressorAccent);
+            configureKnob(compressorControls[2], localize(localeManager, "mixer.control.makeup", "MAKEUP"), -12.0f, 12.0f, 2.5f, " dB", compressorAccent);
+            configureKnob(compressorControls[3], localize(localeManager, "mixer.control.attack", "ATTACK"), 0.0f, 1000.0f, 18.0f, " ms", compressorAccent);
+            configureKnob(compressorControls[4], localize(localeManager, "mixer.control.release", "RELEASE"), 0.0f, 1000.0f, 120.0f, " ms", compressorAccent);
+            configureKnob(compressorControls[5], localize(localeManager, "mixer.control.knee", "KNEE"), 0.0f, 24.0f, 6.0f, " dB", compressorAccent);
 
         const auto gateAccent = juce::Colour(0xff42d96f);
-        configureKnob(gateControls[0], "THRESH", -60.0f, 0.0f, -42.0f, " dB", gateAccent);
-        configureKnob(gateControls[1], "RANGE", -60.0f, 0.0f, -28.0f, " dB", gateAccent);
-        configureKnob(gateControls[2], "HOLD", 0.0f, 500.0f, 80.0f, " ms", gateAccent);
-        configureKnob(gateControls[3], "ATTACK", 0.0f, 1000.0f, 4.0f, " ms", gateAccent);
-        configureKnob(gateControls[4], "RELEASE", 0.0f, 1000.0f, 180.0f, " ms", gateAccent);
-        configureKnob(gateControls[5], "MODE", 0.0f, 1.0f, 0.52f, {}, gateAccent);
+            configureKnob(gateControls[0], localize(localeManager, "mixer.control.threshold", "THRESH"), -60.0f, 0.0f, -42.0f, " dB", gateAccent);
+            configureKnob(gateControls[1], localize(localeManager, "mixer.control.range", "RANGE"), -60.0f, 0.0f, -28.0f, " dB", gateAccent);
+            configureKnob(gateControls[2], localize(localeManager, "mixer.control.hold", "HOLD"), 0.0f, 500.0f, 80.0f, " ms", gateAccent);
+            configureKnob(gateControls[3], localize(localeManager, "mixer.control.attack", "ATTACK"), 0.0f, 1000.0f, 4.0f, " ms", gateAccent);
+            configureKnob(gateControls[4], localize(localeManager, "mixer.control.release", "RELEASE"), 0.0f, 1000.0f, 180.0f, " ms", gateAccent);
+            configureKnob(gateControls[5], localize(localeManager, "mixer.control.mode", "MODE"), 0.0f, 1.0f, 0.52f, {}, gateAccent);
 
-        thresholdSlider.setRange(0.0f, 1.0f);
-        thresholdSlider.setValue(0.46f, juce::dontSendNotification);
-        thresholdSlider.setAccent(compressorAccent);
-        thresholdSlider.setTheme(theme);
-        thresholdSlider.setValueChangeCallback([this](float) { repaint(); });
-        rangeSlider.setRange(0.0f, 1.0f);
-        rangeSlider.setValue(0.68f, juce::dontSendNotification);
-        rangeSlider.setAccent(juce::Colour(0xffd8df39));
-        rangeSlider.setTheme(theme);
-        rangeSlider.setValueChangeCallback([this](float) { repaint(); });
+            configureKnob(inputGainControl, localize(localeManager, "mixer.control.gain", "GAIN"), -12.0f, 12.0f, 0.0f, " dB", compressorAccent);
+            configureKnob(outputGainControl, localize(localeManager, "mixer.control.gain", "GAIN"), -60.0f, 12.0f, 0.0f, " dB", compressorAccent);
 
-        const std::array<juce::String, 4> meterLabels { "INPUT", "GR", "GATE", "OUTPUT" };
+            const std::array<juce::String, 4> meterLabels {
+                localize(localeManager, "mixer.dynamics.inputLevel", "INPUT"),
+                localize(localeManager, "mixer.dynamics.compMeter", "COMP"),
+                localize(localeManager, "mixer.dynamics.expMeter", "EXP"),
+                localize(localeManager, "mixer.dynamics.outputLevel", "OUTPUT")
+            };
         const std::array<juce::Colour, 4> meterAccents {
             juce::Colour(0xff8de3ff), juce::Colour(0xffe0bf35),
             juce::Colour(0xff42d96f), juce::Colour(0xff8de3ff)
@@ -1431,12 +1526,19 @@ public:
             signalMeters[index].setTheme(theme);
             signalMeters[index].setLevel(meterLevels[index]);
             signalMeters[index].setHold(meterHolds[index]);
+            signalMeters[index].setValueTextFormatter([](float level)
+            {
+                const auto db = juce::roundToInt(juce::jmap(juce::jlimit(0.0f, 1.0f, level), 0.0f, 1.0f, -60.0f, 0.0f));
+                return juce::String(db) + " dB";
+            });
         }
 
         for (size_t index = 0; index < channelTabs.size(); ++index)
         {
             addAndMakeVisible(channelTabs[index]);
-            channelTabs[index].setText(index == 0 ? "ALL" : channelName(static_cast<int>(index - 1)));
+                channelTabs[index].setText(index == 0
+                                               ? localize(localeManager, "mixer.control.all", "ALL")
+                                               : channelName(static_cast<int>(index - 1)));
             channelTabs[index].setAccent(juce::Colour(0xff42d96f));
             channelTabs[index].setTheme(theme);
             channelTabs[index].setStateChangeCallback([this, index](bool active)
@@ -1474,6 +1576,30 @@ public:
         {
             if (thresholdChangeCallback != nullptr)
                 thresholdChangeCallback(1, value);
+            repaint();
+        });
+    }
+
+    void setGainValues(const GainValues& values)
+    {
+        inputGainControl.setValue(values[0], juce::dontSendNotification);
+        outputGainControl.setValue(values[1], juce::dontSendNotification);
+        repaint();
+    }
+
+    void setGainChangeCallback(GainChangeCallback callback)
+    {
+        gainChangeCallback = std::move(callback);
+        inputGainControl.setValueChangeCallback([this](double value)
+        {
+            if (gainChangeCallback != nullptr)
+                gainChangeCallback(0, value);
+            repaint();
+        });
+        outputGainControl.setValueChangeCallback([this](double value)
+        {
+            if (gainChangeCallback != nullptr)
+                gainChangeCallback(1, value);
             repaint();
         });
     }
@@ -1525,17 +1651,22 @@ public:
         meterSourceControl.setBounds(utilityRow.removeFromLeft(54).reduced(0, 3));
 
         bounds.removeFromTop(10);
-        auto controls = bounds.removeFromRight(348);
-        bounds.removeFromRight(12);
-        auto graph = bounds.removeFromTop(260);
-        layoutTransferControls(graph, thresholdSlider, rangeSlider);
-        bounds.removeFromTop(12);
-        layoutMeterControls(bounds, signalMeters);
+        const auto gap = 12;
+        const auto availableWidth = bounds.getWidth() - gap * 3;
+        const auto outerColumnWidth = juce::jmax(140, availableWidth / 5);
+        const auto processorColumnWidth = juce::jmax(1, (availableWidth - outerColumnWidth * 2) / 2);
+        auto inputColumn = bounds.removeFromLeft(outerColumnWidth);
+        bounds.removeFromLeft(gap);
+        auto compressorColumn = bounds.removeFromLeft(processorColumnWidth);
+        bounds.removeFromLeft(gap);
+        auto gateColumn = bounds.removeFromLeft(processorColumnWidth);
+        bounds.removeFromLeft(gap);
+        auto outputColumn = bounds;
 
-        auto compressor = controls.removeFromTop(238);
-        layoutProcessorControls(compressor, compressorControls, compressorEnabledControl);
-        controls.removeFromTop(12);
-        layoutProcessorControls(controls, gateControls, gateEnabledControl);
+        layoutMeterGainColumn(inputColumn, signalMeters[0], inputGainControl, false);
+        layoutProcessorColumn(compressorColumn, compressorControls, compressorEnabledControl, signalMeters[1]);
+        layoutProcessorColumn(gateColumn, gateControls, gateEnabledControl, signalMeters[2]);
+        layoutMeterGainColumn(outputColumn, signalMeters[3], outputGainControl, true);
     }
 
     void paint(juce::Graphics& g) override
@@ -1544,11 +1675,14 @@ public:
         auto bounds = getLocalBounds().reduced(18);
 
         g.setColour(juce::Colour(0xfff1f4f7));
-        g.setFont(juce::FontOptions(20.0f, juce::Font::bold));
-        g.drawText("Compressor / Gate", bounds.removeFromTop(32), juce::Justification::centredLeft);
+        g.setFont(systemUiFont(20.0f, juce::Font::bold));
+            g.drawText(localize(localeManager, "mixer.dynamics.title", "Compressor / Gate"),
+                       bounds.removeFromTop(32), juce::Justification::centredLeft);
         g.setColour(juce::Colour(0xff8de3ff));
-        g.setFont(juce::FontOptions(11.0f));
-        g.drawText("Full dynamics processor · " + layoutName(), bounds.removeFromTop(22), juce::Justification::centredLeft);
+        g.setFont(systemUiFont(11.0f));
+            g.drawText(localize(localeManager, "mixer.dynamics.subtitle", "Full dynamics processor - {layout}")
+                           .replace("{layout}", layoutName()),
+                       bounds.removeFromTop(22), juce::Justification::centredLeft);
 
         if (channelCount > 1)
             drawChannelSelector(g, bounds.removeFromTop(28));
@@ -1562,34 +1696,48 @@ public:
         utilityRow.removeFromLeft(8);
         utilityRow.removeFromLeft(54);
         g.setColour(juce::Colour(0xff8a94a3));
-        g.setFont(juce::FontOptions(10.0f, juce::Font::bold));
-        g.drawText("DUAL STAGE DYNAMICS", utilityRow, juce::Justification::centredRight);
+        g.setFont(systemUiFont(10.0f, juce::Font::bold));
+            g.drawText(localize(localeManager, "mixer.dynamics.dualStage", "DUAL STAGE DYNAMICS"),
+                   utilityRow, juce::Justification::centredRight);
         bounds.removeFromTop(10);
 
-        auto controls = bounds.removeFromRight(348);
-        bounds.removeFromRight(12);
-        auto graph = bounds.removeFromTop(260);
-        drawTransferGraph(g, graph);
-        bounds.removeFromTop(12);
-        drawMeterPanel(g, bounds, meterShowsOutput);
+        const auto gap = 12;
+        const auto availableWidth = bounds.getWidth() - gap * 3;
+        const auto outerColumnWidth = juce::jmax(140, availableWidth / 5);
+        const auto processorColumnWidth = juce::jmax(1, (availableWidth - outerColumnWidth * 2) / 2);
+        auto inputColumn = bounds.removeFromLeft(outerColumnWidth);
+        bounds.removeFromLeft(gap);
+        auto compressorColumn = bounds.removeFromLeft(processorColumnWidth);
+        bounds.removeFromLeft(gap);
+        auto gateColumn = bounds.removeFromLeft(processorColumnWidth);
+        bounds.removeFromLeft(gap);
+        auto outputColumn = bounds;
 
-        auto compressor = controls.removeFromTop(238);
+    drawMeterPanel(g, inputColumn, localize(localeManager, "mixer.dynamics.inputLevel", "INPUT LEVEL"), juce::Colour(0xff8de3ff));
+
+        juce::Rectangle<int> compressor, compressorMeter;
+        splitColumn(compressorColumn, 74, true, compressor, compressorMeter);
         const auto channelOffset = selectedChannel < 0 ? 0.0f : static_cast<float>(selectedChannel - 2) * 0.035f;
         drawProcessorPanel(g,
                            compressor,
-                           "COMPRESSOR",
+               localize(localeManager, "mixer.dynamics.compressor", "COMPRESSOR"),
                            juce::Colour(0xff8de3ff),
                            { { "THRESH", "RATIO", "MAKEUP", "ATTACK", "RELEASE", "KNEE" } },
                            { { "-18 dB", "4:1", "+2.5 dB", "18 ms", "120 ms", "6 dB" } },
                            { { 0.62f + channelOffset, 0.47f - channelOffset, 0.58f + channelOffset, 0.35f, 0.63f - channelOffset, 0.44f + channelOffset } });
-        controls.removeFromTop(12);
+                drawMeterPanel(g, compressorMeter, localize(localeManager, "mixer.dynamics.compMeter", "COMP"), juce::Colour(0xff8de3ff));
+
+                juce::Rectangle<int> gate, gateMeter;
+                splitColumn(gateColumn, 74, true, gate, gateMeter);
         drawProcessorPanel(g,
-                           controls,
-                           "GATE / EXPANDER",
+                           gate,
+                           localize(localeManager, "mixer.dynamics.gateExpander", "GATE / EXPANDER"),
                            juce::Colour(0xff42d96f),
                            { { "THRESH", "RANGE", "HOLD", "ATTACK", "RELEASE", "MODE" } },
                            { { "-42 dB", "-28 dB", "80 ms", "4 ms", "180 ms", "EXP" } },
                            { { 0.31f - channelOffset, 0.54f + channelOffset, 0.40f, 0.25f + channelOffset, 0.59f - channelOffset, 0.52f } });
+            drawMeterPanel(g, gateMeter, localize(localeManager, "mixer.dynamics.expMeter", "EXP"), juce::Colour(0xff42d96f));
+            drawMeterPanel(g, outputColumn, localize(localeManager, "mixer.dynamics.outputLevel", "OUTPUT LEVEL"), juce::Colour(0xff8de3ff));
     }
 
 private:
@@ -1680,37 +1828,57 @@ private:
         for (int row = 0; row < 2; ++row)
         {
             auto knobRow = content.removeFromTop(76);
+            constexpr int knobGap = 10;
+            const auto cellWidth = juce::jmax(1, (knobRow.getWidth() - knobGap * 2) / 3);
             for (int column = 0; column < 3; ++column)
             {
                 const auto index = static_cast<size_t>(row * 3 + column);
-                const auto width = column == 2 ? knobRow.getWidth() : knobRow.getWidth() / (3 - column);
-                controls[index].setBounds(knobRow.removeFromLeft(width));
+                controls[index].setBounds(knobRow.removeFromLeft(column == 2 ? knobRow.getWidth() : cellWidth));
+                if (column < 2)
+                    knobRow.removeFromLeft(knobGap);
             }
         }
     }
 
-    static void layoutTransferControls(juce::Rectangle<int> bounds,
-                                       wjn::common::HorizontalSliderControl& threshold,
-                                       wjn::common::HorizontalSliderControl& range)
+    static void splitColumn(juce::Rectangle<int> bounds,
+                            int secondaryWidth,
+                            bool secondaryOnRight,
+                            juce::Rectangle<int>& primary,
+                            juce::Rectangle<int>& secondary)
     {
-        auto inner = bounds.reduced(12);
-        auto sliderArea = inner.removeFromBottom(32);
-        threshold.setBounds(sliderArea.removeFromTop(14).reduced(36, 0));
-        range.setBounds(sliderArea.reduced(36, 0));
+        if (secondaryOnRight)
+        {
+            secondary = bounds.removeFromRight(secondaryWidth);
+            bounds.removeFromRight(10);
+        }
+        else
+        {
+            secondary = bounds.removeFromLeft(secondaryWidth);
+            bounds.removeFromLeft(10);
+        }
+        primary = bounds;
     }
 
-    static void layoutMeterControls(juce::Rectangle<int> bounds,
-                                    std::array<wjn::common::SegmentedMeterControl, 4>& meters)
+    static void layoutMeterGainColumn(juce::Rectangle<int> bounds,
+                                      wjn::common::SegmentedMeterControl& meter,
+                                      wjn::common::RotaryControl& gain,
+                                      bool gainOnLeft)
     {
-        auto content = bounds.reduced(14, 10);
-        content.removeFromTop(16);
-        auto meterArea = content.reduced(8, 4);
-        const auto cellWidth = meterArea.getWidth() / static_cast<int>(meters.size());
-        for (size_t index = 0; index < meters.size(); ++index)
-        {
-            const auto width = index + 1 == meters.size() ? meterArea.getWidth() : cellWidth;
-            meters[index].setBounds(meterArea.removeFromLeft(width));
-        }
+        juce::Rectangle<int> meterArea, gainArea;
+        splitColumn(bounds, 76, ! gainOnLeft, meterArea, gainArea);
+        meter.setBounds(meterArea.reduced(8, 18));
+        gain.setBounds(gainArea.withSizeKeepingCentre(72, juce::jmin(96, gainArea.getHeight())));
+    }
+
+    static void layoutProcessorColumn(juce::Rectangle<int> bounds,
+                                       std::array<wjn::common::RotaryControl, 6>& controls,
+                                       wjn::common::ToggleBadgeControl& enabled,
+                                       wjn::common::SegmentedMeterControl& meter)
+    {
+        juce::Rectangle<int> processorArea, meterArea;
+        splitColumn(bounds, 74, true, processorArea, meterArea);
+        layoutProcessorControls(processorArea, controls, enabled);
+        meter.setBounds(meterArea.reduced(8, 18));
     }
 
     static void drawPanel(juce::Graphics& g, juce::Rectangle<int> bounds, juce::Colour accent)
@@ -1726,7 +1894,7 @@ private:
         g.setColour(active ? juce::Colour(0xff1f4936) : juce::Colour(0xff101318));
         g.fillRoundedRectangle(bounds.toFloat(), 4.0f);
         g.setColour(active ? juce::Colour(0xff42d96f) : juce::Colour(0xff6c7480));
-        g.setFont(juce::FontOptions(9.0f, juce::Font::bold));
+        g.setFont(systemUiFont(9.0f, juce::Font::bold));
         g.drawText(text, bounds, juce::Justification::centred);
     }
 
@@ -1740,19 +1908,21 @@ private:
     {
         switch (channelCount)
         {
-            case 1: return "Input Mono";
-            case 2: return "Input Stereo";
-            case 6: return "Input 5.1";
-            case 8: return "Input 7.1";
-            default: return juce::String(channelCount) + " Channel";
+                case 1: return localize(localeManager, "mixer.layout.inputMono", "Input Mono");
+                case 2: return localize(localeManager, "mixer.layout.inputStereo", "Input Stereo");
+                case 6: return localize(localeManager, "mixer.layout.input51", "Input 5.1");
+                case 8: return localize(localeManager, "mixer.layout.input71", "Input 7.1");
+                default: return localize(localeManager, "mixer.layout.channel", "{count} Channel")
+                    .replace("{count}", juce::String(channelCount));
         }
     }
 
     void drawChannelSelector(juce::Graphics& g, juce::Rectangle<int> bounds)
     {
         g.setColour(juce::Colour(0xff8a94a3));
-        g.setFont(juce::FontOptions(9.0f, juce::Font::bold));
-        g.drawText("CHANNEL CONTROL", bounds.removeFromLeft(114), juce::Justification::centredLeft);
+        g.setFont(systemUiFont(9.0f, juce::Font::bold));
+            g.drawText(localize(localeManager, "mixer.control.channel", "CHANNEL CONTROL"),
+                       bounds.removeFromLeft(114), juce::Justification::centredLeft);
     }
 
     static void drawKnob(juce::Graphics& g,
@@ -1776,10 +1946,10 @@ private:
                    centre.y - std::cos(angle) * 15.0f,
                    2.0f);
         g.setColour(juce::Colour(0xffc9d1da));
-        g.setFont(juce::FontOptions(8.5f, juce::Font::bold));
+        g.setFont(systemUiFont(8.5f, juce::Font::bold));
         g.drawText(label, juce::Rectangle<int>(bounds.getX(), bounds.getY() + 47, bounds.getWidth(), 12), juce::Justification::centred);
         g.setColour(accent);
-        g.setFont(juce::FontOptions(9.0f, juce::Font::bold));
+        g.setFont(systemUiFont(9.0f, juce::Font::bold));
         g.drawText(value, juce::Rectangle<int>(bounds.getX(), bounds.getY() + 59, bounds.getWidth(), 14), juce::Justification::centred);
     }
 
@@ -1795,82 +1965,24 @@ private:
         drawPanel(g, bounds, accent);
         auto content = bounds.reduced(12, 10);
         g.setColour(accent);
-        g.setFont(juce::FontOptions(12.0f, juce::Font::bold));
+        g.setFont(systemUiFont(12.0f, juce::Font::bold));
         g.drawText(title, content.removeFromTop(18), juce::Justification::centredLeft);
     }
 
-    static void drawTransferGraph(juce::Graphics& g, juce::Rectangle<int> bounds)
+    static void drawMeterPanel(juce::Graphics& g,
+                               juce::Rectangle<int> bounds,
+                               juce::StringRef title,
+                               juce::Colour accent)
     {
-        drawPanel(g, bounds, juce::Colour(0xff8de3ff));
-        auto inner = bounds.reduced(12);
-        auto sliderArea = inner.removeFromBottom(32);
-        auto plot = inner.reduced(22, 8);
-        g.setColour(juce::Colour(0xff101318));
-        g.fillRect(plot);
-        g.setColour(juce::Colour(0xff26303a));
-        for (int i = 0; i <= 6; ++i)
-        {
-            const auto x = plot.getX() + i * plot.getWidth() / 6;
-            const auto y = plot.getY() + i * plot.getHeight() / 6;
-            g.drawVerticalLine(x, static_cast<float>(plot.getY()), static_cast<float>(plot.getBottom()));
-            g.drawHorizontalLine(y, static_cast<float>(plot.getX()), static_cast<float>(plot.getRight()));
-        }
-
-        g.setColour(juce::Colour(0xff49718a));
-        g.drawLine(static_cast<float>(plot.getX()), static_cast<float>(plot.getBottom()),
-                   static_cast<float>(plot.getRight()), static_cast<float>(plot.getY()), 1.0f);
-
-        const auto thresholdX = plot.getX() + plot.getWidth() * 46 / 100;
-        const auto thresholdY = plot.getBottom() - plot.getHeight() * 46 / 100;
-        juce::Path compression;
-        compression.startNewSubPath(static_cast<float>(plot.getX()), static_cast<float>(plot.getBottom()));
-        compression.lineTo(static_cast<float>(thresholdX - 16), static_cast<float>(thresholdY + 16));
-        compression.cubicTo(static_cast<float>(thresholdX - 2), static_cast<float>(thresholdY + 2),
-                            static_cast<float>(thresholdX + 14), static_cast<float>(thresholdY - 4),
-                            static_cast<float>(plot.getRight()), static_cast<float>(plot.getY() + plot.getHeight() * 28 / 100));
-        g.setColour(juce::Colour(0xff8de3ff));
-        g.strokePath(compression, juce::PathStrokeType(2.2f));
-
-        juce::Path gate;
-        gate.startNewSubPath(static_cast<float>(plot.getX()), static_cast<float>(plot.getBottom()));
-        gate.lineTo(static_cast<float>(plot.getX() + plot.getWidth() * 24 / 100), static_cast<float>(plot.getBottom()));
-        gate.cubicTo(static_cast<float>(plot.getX() + plot.getWidth() * 31 / 100), static_cast<float>(plot.getBottom() - 6),
-                     static_cast<float>(plot.getX() + plot.getWidth() * 38 / 100), static_cast<float>(plot.getBottom() - plot.getHeight() * 31 / 100),
-                     static_cast<float>(thresholdX), static_cast<float>(thresholdY + 10));
-        g.setColour(juce::Colour(0xffd8df39));
-        g.strokePath(gate, juce::PathStrokeType(1.7f));
-
-        g.setColour(juce::Colour(0xfff1f4f7));
-        g.fillRect(juce::Rectangle<int>(thresholdX - 2, thresholdY - 2, 5, 5));
-        g.setColour(juce::Colour(0xffd8df39));
-        g.fillRect(juce::Rectangle<int>(plot.getRight() - 4, plot.getY() + plot.getHeight() * 28 / 100 - 2, 5, 5));
-
-        auto thresholdSlider = sliderArea.removeFromTop(14);
-        auto rangeSlider = sliderArea;
-
-        g.setColour(juce::Colour(0xffc9d1da));
-        g.setFont(juce::FontOptions(9.0f, juce::Font::bold));
-        g.drawText("TRANSFER", bounds.reduced(10).removeFromTop(14), juce::Justification::centredLeft);
-        g.setColour(juce::Colour(0xff8a94a3));
-        g.drawText("-100", plot.withY(plot.getBottom() - 13).withWidth(28), juce::Justification::centredLeft);
-        g.drawText("0 dB", plot.withLeft(plot.getRight() - 28).withY(plot.getY() + 2), juce::Justification::centredRight);
-        g.setColour(juce::Colour(0xff8de3ff));
-        g.drawText("THRESH", thresholdSlider.removeFromLeft(34), juce::Justification::centredLeft);
-        g.setColour(juce::Colour(0xffd8df39));
-        g.drawText("RANGE", rangeSlider.removeFromLeft(34), juce::Justification::centredLeft);
-    }
-
-    static void drawMeterPanel(juce::Graphics& g, juce::Rectangle<int> bounds, bool showsOutput)
-    {
-        juce::ignoreUnused(showsOutput);
-        drawPanel(g, bounds, juce::Colour(0xff42d96f));
+        drawPanel(g, bounds, accent);
         auto content = bounds.reduced(14, 10);
-        g.setColour(juce::Colour(0xffc9d1da));
-        g.setFont(juce::FontOptions(10.0f, juce::Font::bold));
-        g.drawText("SIGNAL / GAIN REDUCTION", content.removeFromTop(16), juce::Justification::centredLeft);
+        g.setColour(accent);
+        g.setFont(systemUiFont(10.0f, juce::Font::bold));
+        g.drawText(title, content.removeFromTop(16), juce::Justification::centredLeft);
     }
 
     wjn::common::ThemeContext theme;
+        wjn::common::LocaleManager& localeManager;
     wjn::common::ToggleBadgeControl perChannelControl;
     wjn::common::ToggleBadgeControl dynOnControl;
     wjn::common::ToggleBadgeControl listenControl;
@@ -1881,14 +1993,15 @@ private:
     std::array<wjn::common::ToggleBadgeControl, 9> channelTabs;
     std::array<wjn::common::RotaryControl, 6> compressorControls;
     std::array<wjn::common::RotaryControl, 6> gateControls;
-    wjn::common::HorizontalSliderControl thresholdSlider;
-    wjn::common::HorizontalSliderControl rangeSlider;
+    wjn::common::RotaryControl inputGainControl;
+    wjn::common::RotaryControl outputGainControl;
     std::array<wjn::common::SegmentedMeterControl, 4> signalMeters;
     int channelCount = 1;
     int selectedChannel = -1;
     bool perChannelMode = true;
     bool meterShowsOutput = true;
     ThresholdChangeCallback thresholdChangeCallback;
+    GainChangeCallback gainChangeCallback;
 };
 
 class MixerConsoleView::DynamicsSettingsWindow final : public juce::DocumentWindow
@@ -1896,19 +2009,25 @@ class MixerConsoleView::DynamicsSettingsWindow final : public juce::DocumentWind
 public:
     explicit DynamicsSettingsWindow(int channelCount,
                                     const wjn::common::ThemeContext& themeIn,
+                                    wjn::common::LocaleManager& localeManagerIn,
                                     const DynamicsSettingsComponent::ThresholdValues& initialValues,
-                                    DynamicsSettingsComponent::ThresholdChangeCallback thresholdChangeCallback)
-        : DocumentWindow("MixerPro Compressor / Gate", juce::Colour(0xff17191c), juce::DocumentWindow::closeButton),
+                                    const DynamicsSettingsComponent::GainValues& initialGainValues,
+                                    DynamicsSettingsComponent::ThresholdChangeCallback thresholdChangeCallback,
+                                    DynamicsSettingsComponent::GainChangeCallback gainChangeCallback)
+        : DocumentWindow(localize(localeManagerIn, "mixer.dynamics.windowTitle", "MixerPro Compressor / Gate"),
+                         juce::Colour(0xff17191c), juce::DocumentWindow::closeButton),
           layoutChannelCount(channelCount),
           theme(themeIn)
     {
         setUsingNativeTitleBar(true); setResizable(true, true);
-        auto* content = new DynamicsSettingsComponent(channelCount, theme);
+        auto* content = new DynamicsSettingsComponent(channelCount, theme, localeManagerIn);
         content->setThresholdValues(initialValues);
         content->setThresholdChangeCallback(std::move(thresholdChangeCallback));
+        content->setGainValues(initialGainValues);
+        content->setGainChangeCallback(std::move(gainChangeCallback));
         setContentOwned(content, true);
         settingsComponent = content;
-        centreWithSize(900, 640); setVisible(true);
+        centreWithSize(900, 360); setVisible(true);
     }
     void closeButtonPressed() override { setVisible(false); }
 
@@ -1920,6 +2039,12 @@ public:
             settingsComponent->setThresholdValues(values);
     }
 
+    void setGainValues(const DynamicsSettingsComponent::GainValues& values)
+    {
+        if (settingsComponent != nullptr)
+            settingsComponent->setGainValues(values);
+    }
+
 private:
     int layoutChannelCount = 1;
     wjn::common::ThemeContext theme;
@@ -1929,19 +2054,24 @@ private:
 class MixerConsoleView::ChannelFaderControlComponent final : public juce::Component
 {
 public:
-    explicit ChannelFaderControlComponent(int channels, const wjn::common::ThemeContext& themeIn)
+        explicit ChannelFaderControlComponent(int channels,
+                                                                                    const wjn::common::ThemeContext& themeIn,
+                                                                                    wjn::common::LocaleManager& localeManagerIn)
         : channelCount(juce::jlimit(1, 8, channels)),
-          theme(themeIn)
+                    theme(themeIn),
+                    localeManager(localeManagerIn)
     {
         addAndMakeVisible(modeControl);
-        modeControl.setText("LINKED");
+                modeControl.setText(localize(localeManager, "mixer.fader.linked", "LINKED"));
         modeControl.setToggleState(channelsLinked, juce::dontSendNotification);
         modeControl.setAccent(juce::Colour(0xff42d96f));
         modeControl.setTheme(theme);
         modeControl.setStateChangeCallback([this](bool active)
         {
             channelsLinked = active;
-            modeControl.setText(channelsLinked ? "LINKED" : "SPLIT");
+            modeControl.setText(channelsLinked
+                                    ? localize(localeManager, "mixer.fader.linked", "LINKED")
+                                    : localize(localeManager, "mixer.fader.split", "SPLIT"));
             repaint();
         });
 
@@ -1959,7 +2089,7 @@ public:
             meters[index].setHold(holds[index]);
 
             addAndMakeVisible(muteControls[index]);
-            muteControls[index].setText("MUTE");
+            muteControls[index].setText(localize(localeManager, "mixer.control.mute", "MUTE"));
             muteControls[index].setTheme(theme);
             muteControls[index].setAccent(juce::Colour(0xff6c7480));
             muteControls[index].setStateChangeCallback([this, index](bool active)
@@ -1972,7 +2102,7 @@ public:
             });
 
             addAndMakeVisible(soloControls[index]);
-            soloControls[index].setText("SOLO");
+            soloControls[index].setText(localize(localeManager, "mixer.control.solo", "SOLO"));
             soloControls[index].setTheme(theme);
             soloControls[index].setAccent(juce::Colour(0xff6c7480));
             soloControls[index].setStateChangeCallback([this, index](bool active)
@@ -1990,7 +2120,7 @@ public:
             faders[index].setAccent(juce::Colour(0xffd6dde6));
             faders[index].setTheme(theme);
             faders[index].setCompactStyle(true);
-                faders[index].setLabel("FADER");
+            faders[index].setLabel(localize(localeManager, "mixer.fader.label", "FADER"));
             faders[index].setValueLabelVisible(true);
             faders[index].setValueChangeCallback([this, index](float value)
             {
@@ -2040,8 +2170,14 @@ public:
         auto bounds = getLocalBounds().reduced(18);
 
         g.setColour(juce::Colour(0xfff1f4f7));
-        g.setFont(juce::FontOptions(18.0f, juce::Font::bold));
-        g.drawText(channelCount > 6 ? "7.1 Channel Fader Control" : (channelCount > 2 ? "5.1 Channel Fader Control" : "Stereo Channel Fader Control"),
+        g.setFont(systemUiFont(18.0f, juce::Font::bold));
+        const auto titleKey = channelCount > 6
+            ? "mixer.fader.title71"
+            : (channelCount > 2 ? "mixer.fader.title51" : "mixer.fader.titleStereo");
+        const auto titleFallback = channelCount > 6
+            ? "7.1 Channel Fader Control"
+            : (channelCount > 2 ? "5.1 Channel Fader Control" : "Stereo Channel Fader Control");
+        g.drawText(localize(localeManager, titleKey, titleFallback),
                    bounds.removeFromTop(30),
                    juce::Justification::centredLeft);
 
@@ -2078,7 +2214,7 @@ private:
         g.setColour(active ? juce::Colour(0xff1f4936) : juce::Colour(0xff111418));
         g.fillRoundedRectangle(bounds.toFloat(), 4.0f);
         g.setColour(active ? juce::Colour(0xff42d96f) : juce::Colour(0xff6c7480));
-        g.setFont(juce::FontOptions(10.0f, juce::Font::bold));
+        g.setFont(systemUiFont(10.0f, juce::Font::bold));
         g.drawText(text, bounds, juce::Justification::centred);
     }
 
@@ -2146,7 +2282,7 @@ private:
 
         auto content = bounds.reduced(8);
         g.setColour(juce::Colour(0xfff1f4f7));
-        g.setFont(juce::FontOptions(13.0f, juce::Font::bold));
+        g.setFont(systemUiFont(13.0f, juce::Font::bold));
         g.drawText(label, content.removeFromTop(22), juce::Justification::centred);
 
         auto meterArea = content.removeFromTop(juce::jmax(150, content.getHeight() / 2));
@@ -2154,7 +2290,7 @@ private:
         g.setColour(juce::Colour(0xff111418));
         g.fillRoundedRectangle(valueBox.toFloat(), 3.0f);
         g.setColour(juce::Colour(0xff8de3ff));
-        g.setFont(juce::FontOptions(8.0f, juce::Font::bold));
+        g.setFont(systemUiFont(8.0f, juce::Font::bold));
         g.drawText(juce::String(juce::roundToInt(peakDb)), valueBox, juce::Justification::centred);
 
         content.removeFromTop(6);
@@ -2167,6 +2303,7 @@ private:
     int channelCount = 8;
     bool channelsLinked = true;
     wjn::common::ThemeContext theme;
+    wjn::common::LocaleManager& localeManager;
     wjn::common::ToggleBadgeControl modeControl;
     std::array<wjn::common::SegmentedMeterControl, 8> meters;
     std::array<wjn::common::ToggleBadgeControl, 8> muteControls;
@@ -2179,12 +2316,15 @@ private:
 class MixerConsoleView::ChannelFaderControlWindow final : public juce::DocumentWindow
 {
 public:
-    explicit ChannelFaderControlWindow(int channelCount, const wjn::common::ThemeContext& theme)
-        : DocumentWindow("MixerPro Channel Fader Control", juce::Colour(0xff17191c), juce::DocumentWindow::closeButton)
+    explicit ChannelFaderControlWindow(int channelCount,
+                                       const wjn::common::ThemeContext& theme,
+                                       wjn::common::LocaleManager& localeManager)
+        : DocumentWindow(localize(localeManager, "mixer.fader.windowTitle", "MixerPro Channel Fader Control"),
+                         juce::Colour(0xff17191c), juce::DocumentWindow::closeButton)
     {
         setUsingNativeTitleBar(true);
         setResizable(true, true);
-        setContentOwned(new ChannelFaderControlComponent(channelCount, theme), true);
+        setContentOwned(new ChannelFaderControlComponent(channelCount, theme, localeManager), true);
         centreWithSize(channelCount > 6 ? 760 : 620, 560);
         setVisible(true);
     }
@@ -2204,11 +2344,11 @@ public:
 
         auto bounds = getLocalBounds().reduced(20);
         g.setColour(juce::Colour(0xfff1f4f7));
-        g.setFont(juce::FontOptions(20.0f, juce::Font::bold));
+        g.setFont(systemUiFont(20.0f, juce::Font::bold));
         g.drawText("MixerPro Component Gallery", bounds.removeFromTop(32), juce::Justification::centredLeft);
 
         g.setColour(juce::Colour(0xff8a94a3));
-        g.setFont(juce::FontOptions(12.0f));
+        g.setFont(systemUiFont(12.0f));
         g.drawText("Reference sheet for manually drawn UI and future agent implementation.", bounds.removeFromTop(22), juce::Justification::centredLeft);
         bounds.removeFromTop(14);
 
@@ -2242,7 +2382,7 @@ private:
         g.setColour(juce::Colour(0xff3a414c));
         g.drawRoundedRectangle(bounds.toFloat(), 6.0f, 1.0f);
         g.setColour(juce::Colour(0xfff1f4f7));
-        g.setFont(juce::FontOptions(13.0f, juce::Font::bold));
+        g.setFont(systemUiFont(13.0f, juce::Font::bold));
         g.drawText(title, bounds.reduced(12).removeFromTop(22), juce::Justification::centredLeft);
     }
 
@@ -2264,7 +2404,7 @@ private:
                    2.0f);
 
         g.setColour(juce::Colour(0xffd6dde6));
-        g.setFont(juce::FontOptions(10.0f, juce::Font::bold));
+        g.setFont(systemUiFont(10.0f, juce::Font::bold));
         g.drawText(label, juce::Rectangle<int>(centreX - 36, bounds.getY(), 72, 14), juce::Justification::centred);
     }
 
@@ -2273,7 +2413,7 @@ private:
         g.setColour(active ? juce::Colour(0xff1f4936) : juce::Colour(0xff101318));
         g.fillRoundedRectangle(bounds.toFloat(), 4.0f);
         g.setColour(active ? juce::Colour(0xff42d96f) : juce::Colour(0xff8a94a3));
-        g.setFont(juce::FontOptions(10.0f, juce::Font::bold));
+        g.setFont(systemUiFont(10.0f, juce::Font::bold));
         g.drawText(text, bounds, juce::Justification::centred);
     }
 
@@ -2284,7 +2424,7 @@ private:
         g.setColour(juce::Colour(0xff4c5664));
         g.drawRoundedRectangle(bounds.toFloat(), 5.0f, 1.0f);
         g.setColour(accent);
-        g.setFont(juce::FontOptions(11.0f, juce::Font::bold));
+        g.setFont(systemUiFont(11.0f, juce::Font::bold));
         g.drawText(text, bounds, juce::Justification::centred);
     }
 
@@ -2303,7 +2443,7 @@ private:
     static void drawVerticalMeter(juce::Graphics& g, juce::Rectangle<int> bounds, juce::StringRef label, float value)
     {
         g.setColour(juce::Colour(0xffc9d1da));
-        g.setFont(juce::FontOptions(9.0f, juce::Font::bold));
+        g.setFont(systemUiFont(9.0f, juce::Font::bold));
         g.drawText(label, bounds.removeFromTop(14), juce::Justification::centred);
 
         auto meter = bounds.withSizeKeepingCentre(18, bounds.getHeight() - 18);
@@ -2349,7 +2489,7 @@ private:
         g.setColour(juce::Colour(0xff101318));
         g.fillRoundedRectangle(info.toFloat(), 4.0f);
         g.setColour(juce::Colour(0xff8de3ff));
-        g.setFont(juce::FontOptions(12.0f, juce::Font::bold));
+        g.setFont(systemUiFont(12.0f, juce::Font::bold));
         g.drawText("I -19.2 LUFS", info, juce::Justification::centred);
     }
 
@@ -2365,7 +2505,7 @@ private:
         {
             auto row = meters.removeFromTop(18);
             g.setColour(juce::Colour(0xffc9d1da));
-            g.setFont(juce::FontOptions(9.0f, juce::Font::bold));
+            g.setFont(systemUiFont(9.0f, juce::Font::bold));
             g.drawText(name, row.removeFromLeft(30), juce::Justification::centredLeft);
             g.setColour(juce::Colour(0xff42d96f));
             g.fillRoundedRectangle(row.reduced(0, 6).withWidth(row.getWidth() / 2).toFloat(), 2.0f);
@@ -2379,7 +2519,7 @@ private:
         g.setColour(juce::Colour(0xff20242a));
         g.fillRoundedRectangle(row.toFloat(), 6.0f);
         g.setColour(juce::Colour(0xfff0c84b));
-        g.setFont(juce::FontOptions(13.0f, juce::Font::bold));
+        g.setFont(systemUiFont(13.0f, juce::Font::bold));
         g.drawText("AUX 1 - Stereo Reverb", row.reduced(12).removeFromTop(22), juce::Justification::centredLeft);
 
         auto content = row.reduced(12).withTrimmedTop(30);
@@ -2437,7 +2577,7 @@ private:
             g.setColour(item.second);
             g.fillRoundedRectangle(cell.removeFromTop(30).reduced(8, 4).toFloat(), 4.0f);
             g.setColour(juce::Colour(0xffc9d1da));
-            g.setFont(juce::FontOptions(9.0f, juce::Font::bold));
+            g.setFont(systemUiFont(9.0f, juce::Font::bold));
             g.drawText(item.first, cell.removeFromTop(16), juce::Justification::centred);
         }
     }
@@ -2457,7 +2597,7 @@ private:
             g.setColour(juce::Colour(0xff101318));
             g.fillRoundedRectangle(cell.reduced(0, 3).toFloat(), 3.0f);
             g.setColour(juce::Colour(0xffc9d1da));
-            g.setFont(juce::FontOptions(10.0f, juce::Font::bold));
+            g.setFont(systemUiFont(10.0f, juce::Font::bold));
             g.drawText(widget, cell.reduced(8, 3), juce::Justification::centredLeft);
         }
     }
@@ -2585,57 +2725,63 @@ void MixerConsoleView::configureCommonControls()
         setStripControlsVisible(strip, false);
 
         const auto initialGain = strip < stereoChannelCount ? audioRuntime.getChannelGainDb(static_cast<int>(strip)) : 0.0f;
-        configureStripControl(gainControls[strip], "GAIN", initialGain, accent,
+        configureStripControl(gainControls[strip], localize(localeManager, "mixer.control.gain", "GAIN"), initialGain, accent,
                               [this, strip](double value)
         {
             if (strip < stereoChannelCount)
                 audioRuntime.setChannelGainDb(static_cast<int>(strip), static_cast<float>(value));
+            if (activeDynamicsStrip == static_cast<int>(strip) && dynamicsSettingsWindow != nullptr)
+                dynamicsSettingsWindow->setGainValues({ value, faderControls[strip].getValue() });
             repaint();
         });
         gainControls[strip].setRange(-12.0, 12.0);
         gainControls[strip].setValue(initialGain, juce::dontSendNotification);
         gainControls[strip].setSuffix(" dB");
 
-        configureStripControl(panControls[strip], "PAN", 0.0f, accent,
+        configureStripControl(panControls[strip], localize(localeManager, "mixer.control.pan", "PAN"), 0.0f, accent,
                               [this](double) { repaint(); });
         panControls[strip].setRange(-1.0, 1.0);
         panControls[strip].setValue(0.0, juce::dontSendNotification);
         panControls[strip].setValueTextFormatter(formatStereoPan);
 
-        configureToggleControl(muteControls[strip], "MUTE", false, accent,
+        configureToggleControl(muteControls[strip], localize(localeManager, "mixer.control.mute", "MUTE"), false, accent,
                                [this, strip](bool active)
         {
             if (strip < stereoChannelCount)
                 audioRuntime.setChannelMute(static_cast<int>(strip), active);
             repaint();
         });
-        configureToggleControl(soloControls[strip], "SOLO", strip == 5, accent,
+        configureToggleControl(soloControls[strip], localize(localeManager, "mixer.control.solo", "SOLO"), strip == 5, accent,
                                [this, strip](bool active)
         {
             if (strip < stereoChannelCount)
                 audioRuntime.setChannelSolo(static_cast<int>(strip), active);
             repaint();
         });
-        configureToggleControl(eqToggleControls[strip], "EQ", eqEnabled[strip], accent,
+        configureToggleControl(eqToggleControls[strip], localize(localeManager, "mixer.control.eq", "EQ"), eqEnabled[strip], accent,
                                [this, strip](bool active)
         {
             eqEnabled[strip] = active;
             repaint();
         });
-        configureToggleControl(auxSetControls[strip], "SET", false, accent,
+        configureToggleControl(auxSetControls[strip], localize(localeManager, "mixer.control.auxSend", "SET"), false, accent,
                                [this](bool) { repaint(); });
-        configureToggleControl(dynamicsToggleControls[strip], "DYN", dynamicsEnabled[strip], accent,
+        configureToggleControl(dynamicsToggleControls[strip], localize(localeManager, "mixer.control.dynamics", "DYN"), dynamicsEnabled[strip], accent,
                                [this, strip](bool active)
         {
             dynamicsEnabled[strip] = active;
             repaint();
         });
-        configureToggleControl(lowCutControls[strip], "80 Hz LC", false, accent,
+        configureToggleControl(lowCutControls[strip], localize(localeManager, "mixer.control.lowCut", "80 Hz LC"), false, accent,
                                [this](bool) { repaint(); });
 
         for (size_t band = 0; band < eqBandCount; ++band)
         {
-            const auto label = std::array<juce::String, eqBandCount> { "HI", "MID", "LOW" }[band];
+            const auto label = std::array<juce::String, eqBandCount> {
+                localize(localeManager, "mixer.control.eqHigh", "HI"),
+                localize(localeManager, "mixer.control.eqMid", "MID"),
+                localize(localeManager, "mixer.control.eqLow", "LOW")
+            }[band];
             const auto popupBand = static_cast<size_t>(mainEqBandForPopupBand[band]);
             const auto value = static_cast<float>(eqValueStates[strip][0][popupBand][1]);
             configureStripControl(eqControls[strip][band], label, value, accent,
@@ -2656,7 +2802,11 @@ void MixerConsoleView::configureCommonControls()
                 showParametricEqSettings(channelCountForStrip(strip), strip);
             });
 
-            const auto auxLabel = std::array<juce::String, eqBandCount> { "AUX1", "AUX2", "AUX3" }[band];
+            const auto auxLabel = std::array<juce::String, eqBandCount> {
+                localize(localeManager, "mixer.control.aux1", "AUX1"),
+                localize(localeManager, "mixer.control.aux2", "AUX2"),
+                localize(localeManager, "mixer.control.aux3", "AUX3")
+            }[band];
             const auto auxValue = static_cast<float>(auxLevelStates[strip][band]);
             configureStripControl(auxControls[strip][band], auxLabel, auxValue, accent,
                                   [this, strip, band](double newValue)
@@ -2675,7 +2825,10 @@ void MixerConsoleView::configureCommonControls()
             });
         }
 
-        const auto dynamicsLabels = std::array<juce::String, 2> { "COMP", "GATE" };
+        const auto dynamicsLabels = std::array<juce::String, 2> {
+            localize(localeManager, "mixer.control.comp", "COMP"),
+            localize(localeManager, "mixer.control.gate", "GATE")
+        };
         for (size_t control = 0; control < 2; ++control)
         {
             const auto dynamicsValue = static_cast<float>(dynamicsThresholdStates[strip][control]);
@@ -2743,6 +2896,8 @@ void MixerConsoleView::configureCommonControls()
         {
             if (strip == 7)
                 audioRuntime.setFaderDb(value);
+            if (activeDynamicsStrip == static_cast<int>(strip) && dynamicsSettingsWindow != nullptr)
+                dynamicsSettingsWindow->setGainValues({ gainControls[strip].getValue(), value });
             repaint();
         });
         faderControls[strip].setContextMenuCallback([this, strip, channelCountForStrip]
@@ -2776,7 +2931,7 @@ void MixerConsoleView::configureCommonControls()
         audioRuntime.setPan(static_cast<float>(value));
     });
 
-    configureToggleControl(muteControls[7], "MUTE", false, accent, [this](bool active)
+    configureToggleControl(muteControls[7], localize(localeManager, "mixer.control.mute", "MUTE"), false, accent, [this](bool active)
     {
         audioRuntime.setMute(active);
     });
@@ -3015,26 +3170,64 @@ void MixerConsoleView::layoutMasterControls(juce::Rectangle<int> bounds)
 void MixerConsoleView::refreshLocalizedLabels()
 {
     const auto gain = localizedText("mixer.control.gain", "GAIN");
+    const auto pan = localizedText("mixer.control.pan", "PAN");
     const auto mute = localizedText("mixer.control.mute", "MUTE");
     const auto solo = localizedText("mixer.control.solo", "SOLO");
+    const auto eq = localizedText("mixer.control.eq", "EQ");
+    const auto auxSend = localizedText("mixer.control.auxSend", "SET");
+    const auto dynamics = localizedText("mixer.control.dynamics", "DYN");
+    const auto lowCut = localizedText("mixer.control.lowCut", "80 Hz LC");
     const auto input = localizedText("mixer.route.input", "IN");
     const auto output = localizedText("mixer.route.output", "OUT");
+    const auto eqLabels = std::array<juce::String, eqBandCount> {
+        localizedText("mixer.control.eqHigh", "HI"),
+        localizedText("mixer.control.eqMid", "MID"),
+        localizedText("mixer.control.eqLow", "LOW")
+    };
+    const auto auxLabels = std::array<juce::String, eqBandCount> {
+        localizedText("mixer.control.aux1", "AUX1"),
+        localizedText("mixer.control.aux2", "AUX2"),
+        localizedText("mixer.control.aux3", "AUX3")
+    };
+    const auto dynamicsLabels = std::array<juce::String, 2> {
+        localizedText("mixer.control.comp", "COMP"),
+        localizedText("mixer.control.gate", "GATE")
+    };
 
     const std::array<juce::String, 8> inputValues {
         "JACK mic_1", "JACK mic_1-2", "JACK mic_5.1", "JACK bed_7.1",
         {}, {}, {}, {}
     };
     const std::array<juce::String, 8> outputValues {
-        "Master", "Submix A", "Submix A", "Submix B",
-        "Submix A", "Master", {}, "ASIO Out 1-2"
+        localizedText("mixer.route.master", "Master"),
+        localizedText("mixer.route.submixA", "Submix A"),
+        localizedText("mixer.route.submixA", "Submix A"),
+        localizedText("mixer.route.submixB", "Submix B"),
+        localizedText("mixer.route.submixA", "Submix A"),
+        localizedText("mixer.route.master", "Master"),
+        {},
+        localizedText("mixer.route.asioOut12", "ASIO Out 1-2")
     };
 
     for (size_t strip = 0; strip < stripCount; ++strip)
     {
         gainControls[strip].setLabel(strip == 7 ? gain : gain + " " + juce::String(static_cast<int>(strip + 1)));
+        panControls[strip].setLabel(pan);
         muteControls[strip].setText(mute);
         soloControls[strip].setText(solo);
+        eqToggleControls[strip].setText(eq);
+        auxSetControls[strip].setText(auxSend);
+        dynamicsToggleControls[strip].setText(dynamics);
+        lowCutControls[strip].setText(lowCut);
         outputRouteControls[strip].setLabel(output);
+
+        for (size_t band = 0; band < eqBandCount; ++band)
+        {
+            eqControls[strip][band].setLabel(eqLabels[band]);
+            auxControls[strip][band].setLabel(auxLabels[band]);
+        }
+        for (size_t control = 0; control < dynamicsControls[strip].size(); ++control)
+            dynamicsControls[strip][control].setLabel(dynamicsLabels[control]);
 
         if (strip < 4)
         {
@@ -3051,8 +3244,8 @@ void MixerConsoleView::refreshLocalizedLabels()
         outputRouteControls[strip].setSelectedIndex(0);
     }
 
-    panControls[7].setLabel(localizedText("mixer.control.pan", "PAN"));
-    jackStatusControl.setText("JACK");
+    panControls[7].setLabel(pan);
+    jackStatusControl.setText(localizedText("mixer.control.jack", "JACK"));
 }
 
 void MixerConsoleView::updateMetersAndState()
@@ -3128,11 +3321,11 @@ void MixerConsoleView::paint(juce::Graphics& g)
 
     auto headerContent = getLocalBounds().reduced(24).removeFromTop(64);
     g.setColour(theme.colour("primaryText"));
-    g.setFont(juce::FontOptions(24.0f, juce::Font::bold));
+    g.setFont(systemUiFont(24.0f, juce::Font::bold));
     g.drawText(localizedText("mixer.title", "MixerPro"),
                headerContent.removeFromLeft(240), juce::Justification::centredLeft);
     g.setColour(theme.colour("secondaryText"));
-    g.setFont(juce::FontOptions(13.0f));
+    g.setFont(systemUiFont(13.0f));
     g.drawText(localizedText("mixer.subtitle", "JACK2 mixer console with Common audio runtime"),
                headerContent.withTrimmedRight(150), juce::Justification::centredLeft);
 
@@ -3153,13 +3346,17 @@ void MixerConsoleView::paint(juce::Graphics& g)
 
     auto examples = channelLane;
     paintInputStripExample(g, examples.removeFromLeft(stripWidth).reduced(4, 0),
-                           "INPUT MONO", "MONO", "JACK mic_1", "Master", false);
+                           localizedText("mixer.strip.inputMono", "INPUT MONO"), "MONO", "JACK mic_1",
+                           localizedText("mixer.route.master", "Master"), false);
     paintInputStripExample(g, examples.removeFromLeft(stripWidth).reduced(4, 0),
-                           "INPUT ST", "STEREO", "JACK mic_1-2", "Submix A", false);
+                           localizedText("mixer.strip.inputStereo", "INPUT ST"), "STEREO", "JACK mic_1-2",
+                           localizedText("mixer.route.submixA", "Submix A"), false);
     paintInputStripExample(g, examples.removeFromLeft(stripWidth).reduced(4, 0),
-                           "INPUT 5.1", "5.1", "JACK mic_5.1", "Submix A", true);
+                           localizedText("mixer.strip.input51", "INPUT 5.1"), "5.1", "JACK mic_5.1",
+                           localizedText("mixer.route.submixA", "Submix A"), true);
     paintInputStripExample(g, examples.removeFromLeft(stripWidth).reduced(4, 0),
-                           "INPUT 7.1", "7.1", "JACK bed_7.1", "Submix B", true);
+                           localizedText("mixer.strip.input71", "INPUT 7.1"), "7.1", "JACK bed_7.1",
+                           localizedText("mixer.route.submixB", "Submix B"), true);
     paintAuxStripExample(g, examples.removeFromLeft(stripWidth).reduced(4, 0));
     paintSubmixStripExample(g, examples.removeFromLeft(stripWidth).reduced(4, 0));
 
@@ -3271,8 +3468,9 @@ void MixerConsoleView::paintMasterStrip(juce::Graphics& g, juce::Rectangle<int> 
 
     auto content = bounds.reduced(12);
     g.setColour(juce::Colour(0xfff1f4f7));
-    g.setFont(juce::FontOptions(15.0f, juce::Font::bold));
-    g.drawText("STEREO MASTER", content.removeFromTop(24), juce::Justification::centred);
+    g.setFont(systemUiFont(15.0f, juce::Font::bold));
+    g.drawText(localizedText("mixer.strip.masterStereo", "STEREO MASTER"),
+               content.removeFromTop(24), juce::Justification::centred);
 
     content.removeFromTop(20);
     content.removeFromTop(2);
@@ -3351,10 +3549,10 @@ void MixerConsoleView::paintAuxStripExample(juce::Graphics& g, juce::Rectangle<i
 {
     paintStandardChannelStrip(g,
                               bounds,
-                              "AUX SEND 1",
+                              localizedText("mixer.strip.aux1", "AUX SEND 1"),
                               juce::Colour(0xfff0c84b),
                               {},
-                              "Submix A",
+                              localizedText("mixer.route.submixA", "Submix A"),
                               "STEREO",
                               false,
                               true,
@@ -3367,10 +3565,10 @@ void MixerConsoleView::paintSubmixStripExample(juce::Graphics& g, juce::Rectangl
 {
     paintStandardChannelStrip(g,
                               bounds,
-                              "SUBMIX A",
+                              localizedText("mixer.strip.submixA", "SUBMIX A"),
                               juce::Colour(0xff9bdf73),
                               {},
-                              "Master",
+                              localizedText("mixer.route.master", "Master"),
                               "STEREO",
                               false,
                               true,
@@ -3396,7 +3594,7 @@ void MixerConsoleView::paintStandardChannelStrip(juce::Graphics& g,
     paintStripShell(g, bounds, title, accent);
     const auto titleText = juce::String(title);
     const auto panModeText = juce::String(panMode);
-    const auto isInput51 = titleText == "INPUT 5.1";
+    const auto isInput51 = panModeText == "5.1";
     const auto stripIndex = standardStripPaintIndex++;
 
     auto content = bounds.reduced(10);
@@ -3536,7 +3734,7 @@ void MixerConsoleView::paintStripShell(juce::Graphics& g, juce::Rectangle<int> b
     g.setColour(accent);
     g.fillRoundedRectangle(header.withHeight(3).withY(header.getBottom() - 3).toFloat(), 2.0f);
     g.setColour(juce::Colour(0xfff1f4f7));
-    g.setFont(juce::FontOptions(13.0f, juce::Font::bold));
+    g.setFont(systemUiFont(13.0f, juce::Font::bold));
     g.drawText(title, header, juce::Justification::centred);
 }
 
@@ -3547,7 +3745,7 @@ void MixerConsoleView::paintTinyMeter(juce::Graphics& g, juce::Rectangle<int> bo
 
     auto header = bounds.removeFromTop(12);
     g.setColour(juce::Colour(0xffc9d1da));
-    g.setFont(juce::FontOptions(8.0f, juce::Font::bold));
+    g.setFont(systemUiFont(8.0f, juce::Font::bold));
     g.drawText("M  P  S", header, juce::Justification::centred);
 
     auto integrated = bounds.removeFromBottom(18);
@@ -3606,7 +3804,7 @@ void MixerConsoleView::paintTinyMeter(juce::Graphics& g, juce::Rectangle<int> bo
     g.setColour(juce::Colour(0xff111418));
     g.fillRoundedRectangle(integrated.reduced(1, 2).toFloat(), 3.0f);
     g.setColour(juce::Colour(0xff8de3ff));
-    g.setFont(juce::FontOptions(8.0f, juce::Font::bold));
+    g.setFont(systemUiFont(8.0f, juce::Font::bold));
     g.drawText("I " + juce::String(juce::roundToInt(rmsDb - 1.0f)), integrated, juce::Justification::centred);
 }
 
@@ -3638,7 +3836,7 @@ void MixerConsoleView::paintSpatialPanner(juce::Graphics& g, juce::Rectangle<int
         juce::Point<float>(0.82f, 0.82f)
     };
 
-    g.setFont(juce::FontOptions(8.0f, juce::Font::bold));
+    g.setFont(systemUiFont(8.0f, juce::Font::bold));
     for (size_t i = 0; i < speakers.size(); ++i)
     {
         const auto point = juce::Point<float>(static_cast<float>(pad.getX()) + positions[i].x * static_cast<float>(pad.getWidth()),
@@ -3655,11 +3853,11 @@ void MixerConsoleView::paintSpatialPanner(juce::Graphics& g, juce::Rectangle<int
     g.fillEllipse(source.x - 7.0f, source.y - 7.0f, 14.0f, 14.0f);
 
     g.setColour(juce::Colour(0xffc9d1da));
-    g.setFont(juce::FontOptions(9.0f, juce::Font::bold));
+    g.setFont(systemUiFont(9.0f, juce::Font::bold));
     auto title = bounds.removeFromTop(16);
     g.drawText(mode, title.removeFromLeft(title.getWidth() - 34), juce::Justification::centred);
     g.setColour(juce::Colour(0xff8de3ff));
-    g.drawText("SET", title, juce::Justification::centred);
+    g.drawText(localizedText("mixer.control.set", "SET"), title, juce::Justification::centred);
 }
 
 void MixerConsoleView::paintSpatialPannerButton(juce::Graphics& g, juce::Rectangle<int> bounds, juce::StringRef label)
@@ -3683,15 +3881,17 @@ void MixerConsoleView::paintSpatialPannerButton(juce::Graphics& g, juce::Rectang
     g.fillEllipse(static_cast<float>(icon.getCentreX()) + 2.0f, static_cast<float>(icon.getCentreY()) - 5.0f, 6.0f, 6.0f);
 
     g.setColour(juce::Colour(0xfff1f4f7));
-    g.setFont(juce::FontOptions(10.0f, juce::Font::bold));
+    g.setFont(systemUiFont(10.0f, juce::Font::bold));
     g.drawText(label, bounds.removeFromTop(bounds.getHeight() / 2), juce::Justification::centredLeft);
     g.setColour(juce::Colour(0xff8de3ff));
-    g.drawText("OPEN PANNER", bounds, juce::Justification::centredLeft);
+    g.drawText(localizedText("mixer.control.openPanner", "OPEN PANNER"),
+               bounds, juce::Justification::centredLeft);
 }
 
 void MixerConsoleView::paintSpatialPannerPreview(juce::Graphics& g, juce::Rectangle<int> bounds, juce::StringRef layout)
 {
-    paintSharedSpatialPannerPreview(g, bounds, layout);
+    paintSharedSpatialPannerPreview(g, bounds, layout,
+                                    localizedText("mixer.control.spatial", "Spatial Panner"));
 }
 
 void MixerConsoleView::paintToggleBadge(juce::Graphics& g, juce::Rectangle<int> bounds, juce::StringRef text, bool active)
@@ -3702,7 +3902,7 @@ void MixerConsoleView::paintToggleBadge(juce::Graphics& g, juce::Rectangle<int> 
     g.setColour(active ? juce::Colour(0xff1f4936) : juce::Colour(0xff111418));
     g.fillRoundedRectangle(bounds.toFloat(), 4.0f);
     g.setColour(active ? juce::Colour(0xff42d96f) : juce::Colour(0xff6c7480));
-    g.setFont(juce::FontOptions(10.0f, juce::Font::bold));
+    g.setFont(systemUiFont(10.0f, juce::Font::bold));
     g.drawText(text, bounds, juce::Justification::centred);
 }
 
@@ -3767,8 +3967,12 @@ void MixerConsoleView::paintStripPeakMeter(juce::Graphics& g,
 
     auto title = bounds.removeFromTop(14);
     g.setColour(juce::Colour(0xffc9d1da));
-    g.setFont(juce::FontOptions(8.0f, juce::Font::bold));
-    g.drawText(showsOutput ? "OUT" : "IN", title, juce::Justification::centred);
+    g.setFont(systemUiFont(8.0f, juce::Font::bold));
+    g.drawText(showsOutput
+                   ? localizedText("mixer.control.output", "OUT")
+                   : localizedText("mixer.control.input", "IN"),
+               title,
+               juce::Justification::centred);
 
     const std::array<const char*, 8> labels { visibleChannels == 1 ? "M" : "L", "R", "C", "F", "s", "S", "r", "R" };
 
@@ -3786,7 +3990,7 @@ void MixerConsoleView::paintStripPeakMeter(juce::Graphics& g,
         auto meter = cell.withSizeKeepingCentre(juce::jmin(14, juce::jmax(4, cell.getWidth() - 2)), cell.getHeight()).reduced(0, 4);
 
         g.setColour(juce::Colour(0xffc9d1da));
-        g.setFont(juce::FontOptions(visibleChannels > 2 ? 6.0f : 8.0f, juce::Font::bold));
+        g.setFont(systemUiFont(visibleChannels > 2 ? 6.0f : 8.0f, juce::Font::bold));
         g.drawText(labels[static_cast<size_t>(channel)], label, juce::Justification::centred);
 
         g.setColour(juce::Colour(0xff101318));
@@ -3813,7 +4017,7 @@ void MixerConsoleView::paintStripPeakMeter(juce::Graphics& g,
         g.setColour(juce::Colour(0xff111418));
         g.fillRoundedRectangle(valueBox.toFloat(), 3.0f);
         g.setColour(overload ? juce::Colour(0xffff5b58) : juce::Colour(0xff8de3ff));
-        g.setFont(juce::FontOptions(visibleChannels > 2 ? 6.0f : 8.0f, juce::Font::bold));
+        g.setFont(systemUiFont(visibleChannels > 2 ? 6.0f : 8.0f, juce::Font::bold));
         g.drawText(juce::String(juce::roundToInt(peakDb[static_cast<size_t>(channel)])), valueBox, juce::Justification::centred);
     }
 }
@@ -3829,7 +4033,7 @@ void MixerConsoleView::paintRouteSelector(juce::Graphics& g,
 
     auto labelArea = bounds.removeFromLeft(28);
     g.setColour(juce::Colour(0xffc9d1da));
-    g.setFont(juce::FontOptions(8.0f, juce::Font::bold));
+    g.setFont(systemUiFont(8.0f, juce::Font::bold));
     g.drawText(label, labelArea, juce::Justification::centredLeft);
 
     auto field = bounds.reduced(0, 2);
@@ -3847,7 +4051,7 @@ void MixerConsoleView::paintRouteSelector(juce::Graphics& g,
     g.setColour(accent);
     g.fillPath(triangle);
 
-    g.setFont(juce::FontOptions(8.0f, juce::Font::bold));
+    g.setFont(systemUiFont(8.0f, juce::Font::bold));
     g.drawText(value, field.reduced(5, 0), juce::Justification::centredLeft);
 }
 
@@ -3855,7 +4059,7 @@ void MixerConsoleView::showSpatialPannerSettings(bool isSevenOne)
 {
     auto& window = isSevenOne ? spatialPanner71SettingsWindow : spatialPanner51SettingsWindow;
     if (window == nullptr)
-        window = std::make_unique<SpatialPannerSettingsWindow>(isSevenOne, theme);
+        window = std::make_unique<SpatialPannerSettingsWindow>(isSevenOne, theme, localeManager);
 
     window->setVisible(true);
     window->toFront(true);
@@ -3869,6 +4073,7 @@ void MixerConsoleView::showAuxSendSettings(size_t strip)
     {
         auxSendSettingsWindow = std::make_unique<AuxSendSettingsWindow>(
             theme,
+            localeManager,
             auxLevelStates[strip],
             [this](int row, double level)
             {
@@ -3900,6 +4105,7 @@ void MixerConsoleView::showParametricEqSettings(int channelCount, size_t strip)
         parametricEqSettingsWindow.reset();
         parametricEqSettingsWindow = std::make_unique<ParametricEqSettingsWindow>(
             channelCount,
+                localeManager,
             eqValueStates[strip],
             [this](int channel, int band, double gain)
             {
@@ -3931,13 +4137,17 @@ void MixerConsoleView::showDynamicsSettings(int channelCount, size_t strip)
 {
     strip = juce::jmin(strip, stripCount - 1);
     activeDynamicsStrip = static_cast<int>(strip);
+    const DynamicsSettingsComponent::GainValues gainValues {
+        gainControls[strip].getValue(), faderControls[strip].getValue() };
     if (dynamicsSettingsWindow == nullptr || dynamicsSettingsWindow->getChannelCount() != channelCount)
     {
         dynamicsSettingsWindow.reset();
         dynamicsSettingsWindow = std::make_unique<DynamicsSettingsWindow>(
             channelCount,
             theme,
+                localeManager,
             dynamicsThresholdStates[strip],
+            gainValues,
             [this](int control, double value)
             {
                 const auto currentStrip = activeDynamicsStrip;
@@ -3948,11 +4158,33 @@ void MixerConsoleView::showDynamicsSettings(int channelCount, size_t strip)
                 dynamicsThresholdStates[static_cast<size_t>(currentStrip)][static_cast<size_t>(control)] = value;
                 dynamicsControls[static_cast<size_t>(currentStrip)][static_cast<size_t>(control)].setValue(value, juce::dontSendNotification);
                 repaint();
+            },
+            [this](int control, double value)
+            {
+                const auto currentStrip = activeDynamicsStrip;
+                if (currentStrip < 0 || currentStrip >= static_cast<int>(stripCount)
+                    || control < 0 || control >= 2)
+                    return;
+
+                if (control == 0)
+                {
+                    gainControls[static_cast<size_t>(currentStrip)].setValue(value, juce::dontSendNotification);
+                    if (currentStrip < static_cast<int>(stereoChannelCount))
+                        audioRuntime.setChannelGainDb(currentStrip, static_cast<float>(value));
+                }
+                else
+                {
+                    faderControls[static_cast<size_t>(currentStrip)].setValue(static_cast<float>(value), juce::dontSendNotification);
+                    if (currentStrip == 7)
+                        audioRuntime.setFaderDb(static_cast<float>(value));
+                }
+                repaint();
             });
     }
     else
     {
         dynamicsSettingsWindow->setThresholdValues(dynamicsThresholdStates[strip]);
+        dynamicsSettingsWindow->setGainValues(gainValues);
     }
 
     dynamicsSettingsWindow->setVisible(true);
@@ -3964,7 +4196,7 @@ void MixerConsoleView::showChannelFaderControl(int channelCount)
     if (channelCount <= 0)
         channelCount = 8;
 
-    channelFaderControlWindow = std::make_unique<ChannelFaderControlWindow>(channelCount, theme);
+    channelFaderControlWindow = std::make_unique<ChannelFaderControlWindow>(channelCount, theme, localeManager);
     channelFaderControlWindow->setVisible(true);
     channelFaderControlWindow->toFront(true);
 }
@@ -4000,7 +4232,7 @@ void MixerConsoleView::paintKnob(juce::Graphics& g, juce::Rectangle<int> bounds,
                2.0f);
 
     g.setColour(juce::Colour(0xffd6dde6));
-    g.setFont(juce::FontOptions(10.0f, juce::Font::bold));
+    g.setFont(systemUiFont(10.0f, juce::Font::bold));
     g.drawText(label, labelArea, juce::Justification::centred);
 }
 
@@ -4011,7 +4243,7 @@ void MixerConsoleView::paintMeterCluster(juce::Graphics& g, juce::Rectangle<int>
 
     auto top = bounds.removeFromTop(18);
     g.setColour(juce::Colour(0xffc9d1da));
-    g.setFont(juce::FontOptions(10.0f, juce::Font::bold));
+    g.setFont(systemUiFont(10.0f, juce::Font::bold));
     g.drawText(getLoudnessPresetName(), top, juce::Justification::centred);
 
     auto integrated = bounds.removeFromBottom(36);
@@ -4028,7 +4260,7 @@ void MixerConsoleView::paintMeterCluster(juce::Graphics& g, juce::Rectangle<int>
     g.setColour(juce::Colour(0xff111418));
     g.fillRoundedRectangle(integrated.reduced(4, 4).toFloat(), 4.0f);
     g.setColour(juce::Colour(0xff8de3ff));
-    g.setFont(juce::FontOptions(10.0f, juce::Font::bold));
+    g.setFont(systemUiFont(10.0f, juce::Font::bold));
     g.drawText("I  -19.2 " + getLoudnessScale().unit, integrated.reduced(6, 5), juce::Justification::centred);
 }
 
@@ -4039,8 +4271,8 @@ void MixerConsoleView::paintPeakMeter(juce::Graphics& g, juce::Rectangle<int> bo
 
     auto label = bounds.removeFromTop(16);
     g.setColour(juce::Colour(0xfff1f4f7));
-    g.setFont(juce::FontOptions(10.0f, juce::Font::bold));
-    g.drawText("PEAK", label, juce::Justification::centred);
+    g.setFont(systemUiFont(10.0f, juce::Font::bold));
+    g.drawText(localizedText("mixer.control.peak", "PEAK"), label, juce::Justification::centred);
 
     auto scale = getPeakScale();
     auto meter = bounds.reduced(12, 4);
@@ -4078,7 +4310,7 @@ void MixerConsoleView::paintLoudnessMeter(juce::Graphics& g, juce::Rectangle<int
 
     auto title = bounds.removeFromTop(16);
     g.setColour(juce::Colour(0xffc9d1da));
-    g.setFont(juce::FontOptions(10.0f, juce::Font::bold));
+    g.setFont(systemUiFont(10.0f, juce::Font::bold));
     g.drawText(label, title, juce::Justification::centred);
 
     auto scale = getLoudnessScale();
@@ -4109,7 +4341,7 @@ void MixerConsoleView::paintMeterScale(juce::Graphics& g, juce::Rectangle<int> b
         return;
 
     g.setColour(juce::Colour(0xff59616c));
-    g.setFont(juce::FontOptions(8.0f));
+    g.setFont(systemUiFont(8.0f));
 
     for (int i = 0; i < scale.tickCount; ++i)
     {
@@ -4139,26 +4371,38 @@ void MixerConsoleView::paintMeterSettings(juce::Graphics& g, juce::Rectangle<int
 
     auto content = bounds.reduced(14, 12);
     g.setColour(juce::Colour(0xfff1f4f7));
-    g.setFont(juce::FontOptions(14.0f, juce::Font::bold));
+    g.setFont(systemUiFont(14.0f, juce::Font::bold));
     auto titleRow = content.removeFromTop(24);
-    g.drawText("Meter Thresholds", titleRow.removeFromLeft(150), juce::Justification::centredLeft);
+    g.drawText(localizedText("mixer.meter.thresholds", "Meter Thresholds"),
+               titleRow.removeFromLeft(150),
+               juce::Justification::centredLeft);
 
     loudnessPresetBounds = titleRow.removeFromRight(150).reduced(0, 2);
     g.setColour(juce::Colour(0xff111418));
     g.fillRoundedRectangle(loudnessPresetBounds.toFloat(), 4.0f);
     g.setColour(juce::Colour(0xff8de3ff));
-    g.setFont(juce::FontOptions(10.0f, juce::Font::bold));
+    g.setFont(systemUiFont(10.0f, juce::Font::bold));
     g.drawText(getLoudnessPresetName(), loudnessPresetBounds, juce::Justification::centred);
 
-    paintThresholdControl(g, 0, content.removeFromTop(34), "Peak Yellow", peakMeterThresholds.yellowDbfs);
+    paintThresholdControl(g, 0, content.removeFromTop(34),
+                          localizedText("mixer.meter.peakYellow", "Peak Yellow"),
+                          peakMeterThresholds.yellowDbfs);
     content.removeFromTop(4);
-    paintThresholdControl(g, 1, content.removeFromTop(34), "Peak Red", peakMeterThresholds.redDbfs);
+    paintThresholdControl(g, 1, content.removeFromTop(34),
+                          localizedText("mixer.meter.peakRed", "Peak Red"),
+                          peakMeterThresholds.redDbfs);
     content.removeFromTop(12);
-    paintThresholdControl(g, 2, content.removeFromTop(34), "RMS Green", rmsMeterThresholds.greenDbfs);
+    paintThresholdControl(g, 2, content.removeFromTop(34),
+                          localizedText("mixer.meter.rmsGreen", "RMS Green"),
+                          rmsMeterThresholds.greenDbfs);
     content.removeFromTop(4);
-    paintThresholdControl(g, 3, content.removeFromTop(34), "RMS Yellow", rmsMeterThresholds.yellowDbfs);
+    paintThresholdControl(g, 3, content.removeFromTop(34),
+                          localizedText("mixer.meter.rmsYellow", "RMS Yellow"),
+                          rmsMeterThresholds.yellowDbfs);
     content.removeFromTop(4);
-    paintThresholdControl(g, 4, content.removeFromTop(34), "RMS Red", rmsMeterThresholds.redDbfs);
+    paintThresholdControl(g, 4, content.removeFromTop(34),
+                          localizedText("mixer.meter.rmsRed", "RMS Red"),
+                          rmsMeterThresholds.redDbfs);
 }
 
 void MixerConsoleView::paintFader(juce::Graphics& g, juce::Rectangle<int> bounds, float normalisedValue)
@@ -4180,7 +4424,7 @@ void MixerConsoleView::paintFader(juce::Graphics& g, juce::Rectangle<int> bounds
     g.drawRoundedRectangle(cap.toFloat(), 4.0f, 1.0f);
 
     g.setColour(juce::Colour(0xffc9d1da));
-    g.setFont(juce::FontOptions(11.0f, juce::Font::bold));
+    g.setFont(systemUiFont(11.0f, juce::Font::bold));
     g.drawText("0 dB", bounds.removeFromBottom(20), juce::Justification::centred);
 }
 
@@ -4197,7 +4441,7 @@ void MixerConsoleView::paintThresholdControl(juce::Graphics& g,
         thresholdControlBounds[static_cast<size_t>(index)] = bounds;
 
     g.setColour(juce::Colour(0xffc9d1da));
-    g.setFont(juce::FontOptions(12.0f));
+    g.setFont(systemUiFont(12.0f));
     g.drawText(label, bounds.removeFromLeft(96), juce::Justification::centredLeft);
 
     auto valueBox = bounds.removeFromRight(66);

@@ -59,7 +59,7 @@ void VerticalFaderControl::paint(juce::Graphics& g)
         if (valueLabelVisible)
         {
             g.setColour(juce::Colour(0xffc9d1da));
-            g.setFont(juce::FontOptions(11.0f, juce::Font::bold));
+            g.setFont(systemUiFont(11.0f, juce::Font::bold));
             g.drawText(valueIsBeingAdjusted ? juce::String(value, 1) : label,
                        getLocalBounds().removeFromBottom(20), juce::Justification::centred);
         }
@@ -82,7 +82,7 @@ void VerticalFaderControl::paint(juce::Graphics& g)
     if (valueLabelVisible)
     {
         g.setColour(theme.colour("primaryText"));
-        g.setFont(juce::FontOptions(9.0f, juce::Font::bold));
+        g.setFont(systemUiFont(9.0f, juce::Font::bold));
         g.drawText(valueIsBeingAdjusted ? juce::String(value, 1) : label,
                    getLocalBounds().removeFromBottom(16), juce::Justification::centred);
     }

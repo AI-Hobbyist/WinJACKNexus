@@ -55,7 +55,7 @@ void ToggleBadgeControl::paint(juce::Graphics& g)
     g.setColour(active ? accent : theme.colour("border"));
     g.drawRoundedRectangle(bounds, 4.0f, 1.0f);
     g.setColour(active ? accent : theme.colour("secondaryText"));
-    g.setFont(juce::FontOptions(9.0f, juce::Font::bold));
+    g.setFont(systemUiFont(9.0f, juce::Font::bold));
     g.drawText(text, getLocalBounds(), juce::Justification::centred);
 }
 

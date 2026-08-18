@@ -24,7 +24,7 @@ void MixerChannelStripComponent::paint(juce::Graphics& g)
     g.drawRoundedRectangle(getLocalBounds().toFloat().reduced(0.5f), 4.0f, 1.0f);
     auto area = getLocalBounds().reduced(8);
     g.setColour(theme.colour("primaryText"));
-    g.setFont(juce::FontOptions(13.0f, juce::Font::bold));
+    g.setFont(systemUiFont(13.0f, juce::Font::bold));
     g.drawFittedText(title, area.removeFromTop(22), juce::Justification::centred, 1);
     auto meter = area.removeFromTop(110).reduced(12, 4);
     g.setColour(theme.colour("darkCanvas"));

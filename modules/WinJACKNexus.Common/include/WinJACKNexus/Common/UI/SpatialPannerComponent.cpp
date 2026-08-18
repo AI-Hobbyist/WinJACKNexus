@@ -52,11 +52,11 @@ void SpatialPannerComponent::paint(juce::Graphics& g)
 
         auto text = bounds.reduced(4, 4);
         g.setColour(juce::Colour(0xfff1f4f7));
-        g.setFont(juce::FontOptions(10.0f, juce::Font::bold));
+        g.setFont(systemUiFont(10.0f, juce::Font::bold));
         g.drawText((sevenOne ? "7.1" : "5.1") + juce::String(" Spatial"),
                    text.removeFromTop(13), juce::Justification::centredLeft);
         g.setColour(juce::Colour(0xff8de3ff));
-        g.setFont(juce::FontOptions(8.0f, juce::Font::bold));
+        g.setFont(systemUiFont(8.0f, juce::Font::bold));
         g.drawText("X " + juce::String(position.x * 2.0f - 1.0f, 2)
                        + "  Y " + juce::String(position.y * 2.0f - 1.0f, 2),
                    text.removeFromTop(11), juce::Justification::centredLeft);
@@ -156,7 +156,7 @@ void SpatialPannerComponent::paint(juce::Graphics& g)
         { "Lrs", 0.24f, 0.90f }, { "Rrs", 0.76f, 0.90f }
     }};
 
-    g.setFont(juce::FontOptions(10.0f, juce::Font::bold));
+    g.setFont(systemUiFont(10.0f, juce::Font::bold));
     const auto speakerCount = sevenOne ? 8 : 6;
     for (int speakerIndex = 0; speakerIndex < speakerCount; ++speakerIndex)
     {
@@ -176,7 +176,7 @@ void SpatialPannerComponent::paint(juce::Graphics& g)
     g.fillEllipse(point.x - 8.0f, point.y - 8.0f, 16.0f, 16.0f);
     g.setColour(theme.colour("primaryText"));
     g.drawEllipse(point.x - 11.0f, point.y - 11.0f, 22.0f, 22.0f, 1.0f);
-    g.setFont(juce::FontOptions(11.0f, juce::Font::bold));
+    g.setFont(systemUiFont(11.0f, juce::Font::bold));
     g.drawText(sevenOne ? "7.1" : "5.1", padBounds.removeFromTop(20), juce::Justification::centred);
 }
 

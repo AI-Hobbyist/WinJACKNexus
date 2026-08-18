@@ -79,7 +79,7 @@ void EqCurveEditor::paint(juce::Graphics& g)
     }
 
     g.setColour(theme.colour("secondaryText"));
-    g.setFont(juce::FontOptions(8.0f, juce::Font::bold));
+    g.setFont(systemUiFont(8.0f, juce::Font::bold));
     g.drawText("20 Hz", juce::Rectangle<int>(juce::roundToInt(graph.getX()), juce::roundToInt(graph.getBottom() - 15.0f), 52, 12), juce::Justification::left);
     g.drawText("20 kHz", juce::Rectangle<int>(juce::roundToInt(graph.getRight() - 52.0f), juce::roundToInt(graph.getBottom() - 15.0f), 52, 12), juce::Justification::right);
     g.drawText("+12 dB", juce::Rectangle<int>(juce::roundToInt(outer.getRight() - 54.0f), juce::roundToInt(outer.getY() + 4.0f), 50, 12), juce::Justification::right);

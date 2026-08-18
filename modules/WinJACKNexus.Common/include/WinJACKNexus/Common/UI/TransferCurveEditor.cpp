@@ -49,7 +49,7 @@ void TransferCurveEditor::paint(juce::Graphics& g)
     g.setColour(theme.colour("primaryText"));
     g.fillRect(juce::Rectangle<int>(thresholdX - 3, thresholdY - 3, 6, 6));
 
-    g.setFont(juce::FontOptions(8.0f, juce::Font::bold));
+    g.setFont(systemUiFont(8.0f, juce::Font::bold));
     g.setColour(juce::Colour(0xff8de3ff));
     g.drawText("THRESH", juce::Rectangle<int>(outer.getX() + 8, outer.getBottom() - 28, 48, 14), juce::Justification::left);
     g.setColour(juce::Colour(0xffd8df39));

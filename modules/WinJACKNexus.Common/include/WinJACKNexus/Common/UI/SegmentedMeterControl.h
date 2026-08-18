@@ -4,6 +4,8 @@
 
 #include <juce_gui_basics/juce_gui_basics.h>
 
+#include <functional>
+
 namespace wjn::common
 {
 
@@ -18,6 +20,7 @@ public:
     float getLevel() const noexcept { return level; }
     void setHold(float newHold);
     void setTheme(const ThemeContext& newTheme);
+    void setValueTextFormatter(std::function<juce::String(float)> formatter);
     void paint(juce::Graphics&) override;
 
 private:
@@ -26,6 +29,7 @@ private:
     juce::Colour accent;
     float level = 0.5f;
     float hold = 0.65f;
+    std::function<juce::String(float)> valueTextFormatter;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SegmentedMeterControl)
 };

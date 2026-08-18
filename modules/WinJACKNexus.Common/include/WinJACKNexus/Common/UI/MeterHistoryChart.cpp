@@ -115,7 +115,7 @@ void MeterHistoryChart::paint(juce::Graphics& g)
     }
 
     g.setColour(theme.colour("secondaryText"));
-    g.setFont(juce::FontOptions(8.0f));
+    g.setFont(systemUiFont(8.0f));
     const auto formatScaleValue = [] (float value, const juce::String& unit)
     {
         auto text = juce::String(value, std::abs(value - std::round(value)) > 0.01f ? 1 : 0);
@@ -143,7 +143,7 @@ void MeterHistoryChart::paint(juce::Graphics& g)
             continue;
         g.setColour(item.colour);
         g.fillEllipse(static_cast<float>(legendX), static_cast<float>(bounds.getY() + 14), 6.0f, 6.0f);
-        g.setFont(juce::FontOptions(8.0f, juce::Font::bold));
+        g.setFont(systemUiFont(8.0f, juce::Font::bold));
         const auto labelWidth = juce::jmax(42, item.name.length() * 5);
         g.drawText(item.name, juce::Rectangle<int>(legendX + 10, bounds.getY() + 10,
                                                     labelWidth, 14), juce::Justification::centredLeft);
@@ -160,7 +160,7 @@ void MeterHistoryChart::paint(juce::Graphics& g)
         g.setOpacity(0.8f);
         for (int x = graph.getX(); x < graph.getRight(); x += 8)
             g.fillRect(x, y, juce::jmin(5, graph.getRight() - x), 1);
-        g.setFont(juce::FontOptions(8.0f));
+        g.setFont(systemUiFont(8.0f));
         g.drawText(line.label, graph.getRight() - 100, y - 12, 96, 12, juce::Justification::centredRight);
     }
     for (const auto& item : series)

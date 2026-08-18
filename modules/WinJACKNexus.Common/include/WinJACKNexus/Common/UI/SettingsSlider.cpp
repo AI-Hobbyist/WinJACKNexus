@@ -92,7 +92,7 @@ void SettingsSlider::paint(juce::Graphics& graphics)
     graphics.setColour(theme.colour("primaryText"));
     graphics.fillRoundedRectangle(thumb, 2.0f);
 
-    graphics.setFont(juce::FontOptions(11.0f));
+    graphics.setFont(systemUiFont(11.0f));
     graphics.drawFittedText(juce::String(value, interval < 1.0 ? 1 : 0) + textValueSuffix,
                             bounds.withLeft(trackBounds.getRight() + 4.0f).toNearestInt(),
                             juce::Justification::centredRight, 1);

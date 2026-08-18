@@ -2,6 +2,16 @@
 
 #include <juce_graphics/juce_graphics.h>
 
+namespace wjn::common
+{
+
+inline juce::Font systemUiFont (float height, int style = juce::Font::plain)
+{
+	return juce::Font (juce::FontOptions (juce::Font::getSystemUIFontName(), height, style));
+}
+
+} // namespace wjn::common
+
 namespace wjn::common::theme
 {
 

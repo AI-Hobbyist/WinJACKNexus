@@ -84,7 +84,7 @@ void MeterComponent::paint(juce::Graphics& g)
         meterArea = meterArea.withWidth(barThickness)
                      .withCentre(meterArea.getCentre());
     g.setColour(theme.colour("primaryText").withAlpha(0.8f));
-    g.setFont(juce::FontOptions(11.0f));
+    g.setFont(systemUiFont(11.0f));
     g.drawFittedText(label, labelArea.toNearestInt(), juce::Justification::centred, 1);
     g.setColour(theme.colour("darkCanvas"));
     g.fillRect(meterArea);

@@ -37,7 +37,7 @@ void RouteSelectorControl::paint(juce::Graphics& g)
     auto bounds = getLocalBounds();
     auto labelArea = bounds.removeFromLeft(28);
     g.setColour(theme.colour("secondaryText"));
-    g.setFont(juce::FontOptions(8.0f, juce::Font::bold));
+    g.setFont(systemUiFont(8.0f, juce::Font::bold));
     g.drawText(label, labelArea, juce::Justification::centredLeft);
 
     auto field = bounds.reduced(0, 2);
