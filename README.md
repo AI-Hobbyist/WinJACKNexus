@@ -137,6 +137,56 @@ WinJACKNexus 的定位:
 
 ---
 
+## Windows 下手动启动 JACK2
+
+安装 JACK2 后,可以直接在 PowerShell 或命令提示符中运行 `jackd.exe`。下面使用 `C:\Program Files\JACK2\jackd.exe` 作为常见安装路径示例;如果本机安装位置不同,请替换为实际的 `jackd.exe` 路径。
+
+> **重要**:下列命令中的 `采样率`、`每周期帧数`、`ASIO 驱动名`、实时优先级等均为示例或占位信息,不能直接照抄。必须根据实际设备支持的采样率、缓冲粒度、驱动名称,以及本机权限和系统负载进行调整。尖括号中的内容需要替换后再执行。
+
+### 无 ASIO 声卡:使用 dummy backend
+
+```text
+"C:\Program Files\JACK2\jackd.exe" -R -P95 -S -d dummy -r <采样率> -p <每周期帧数>
+```
+
+`dummy` 只创建虚拟 JACK 音频端口和时钟,不连接任何物理声卡,适合先验证 JACK 音频图和客户端连接。它不是物理声卡的无 ASIO 驱动,也不会提供真实的音频输入或输出。
+
+如果目标是使用真实但没有 ASIO 驱动的声卡,仍应使用 `portaudio` 并从 `-l` 输出中选择对应的非 ASIO 设备全名(例如 `DirectSound::...`),而不是使用 `dummy`。
+
+### ASIO 声卡:使用 PortAudio backend
+
+先列出 JACK2 通过 PortAudio 能看到的设备,并从输出的 `Name` 字段复制完整设备名:
+
+```text
+"C:\Program Files\JACK2\jackd.exe" -R -S -d portaudio -l
+```
+
+然后启动 JACK2:
+
+```text
+"C:\Program Files\JACK2\jackd.exe" -R -P95 -S -d portaudio -d "ASIO::<ASIO 驱动名>" -r <采样率> -p <每周期帧数>
+```
+
+这里的第一个 `-d portaudio` 选择 JACK2 的 PortAudio 主后端;后面的 `-d "ASIO::..."` 是传给 PortAudio 的设备参数,两者不是重复选择 JACK2 后端。`ASIO::<ASIO 驱动名>` 必须与 `-l` 输出的完整名称完全一致,不能凭猜测填写。
+
+### 启动参数说明
+
+| 参数 | 含义 |
+| :--- | :--- |
+| `-R` | 启用实时调度;能否获得预期优先级取决于本机权限、系统配置和负载 |
+| `-P95` | 将实时优先级示例设置为 95;应按本机 JACK2、驱动和系统情况调整 |
+| `-S` | 启用 JACK2 同步模式 |
+| `-d dummy` | 使用虚拟 dummy 主后端,不连接物理音频设备 |
+| `-d portaudio` | 使用 Windows PortAudio 主后端 |
+| `-d "ASIO::..."` | 选择 PortAudio 设备;完整名称由主机 API 名和设备名组成 |
+| `-r` | JACK 采样率,例如 `44100` 或 `48000`;必须是设备和驱动支持的值 |
+| `-p` | 每周期帧数,也就是 JACK buffer size,不是毫秒;必须符合设备或 ASIO 驱动支持的缓冲粒度 |
+| `-l` | 列出 PortAudio 设备并退出,用于获取准确的设备全名 |
+
+部分 ASIO 驱动只接受特定的缓冲粒度。JACK2 PortAudio backend 支持在 ASIO 场景下使用 `-p 0` 请求驱动报告的 preferred buffer size,但最终仍应以本机驱动和 JACK2 启动日志为准。手动使用 ASIO backend 只是 JACK2 的可选启动方式,不改变 WinJACKNexus 自身不依赖 ASIO 的项目定位。
+
+---
+
 ## 模块完成记录
 
 > 状态图例:`📋 未开始` → `🔨 开发中` → `✅ 已完成`
