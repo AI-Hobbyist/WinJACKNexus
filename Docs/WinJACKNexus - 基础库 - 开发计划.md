@@ -489,7 +489,7 @@ add_subdirectory(src/plugin)
 | 里程碑 | 内容 | 预计工作量 | 验收 | 状态 |
 | :--- | :--- | :--- | :--- | :--- |
 | **M1 工程骨架** | 顶层 CMake、目录树、导出宏、4 个空 DLL 成功编译到 `bin/` | 0.5 天 | `cmake --build` 产出 4 个 DLL | ✅ 已完成（2026-08-30） |
-| **M2 Common 完整实现** | §5 全部容器/线程/日志/元数据 + 单元测试 | 4~6 天 | `ctest` 通过;TSAN 无告警 | 📋 未开始 |
+| **M2 Common 完整实现** | §5 全部容器/线程/日志/元数据 + 单元测试 | 4~6 天 | `ctest` 通过;TSAN 无告警 | ✅ 已完成（2026-08-30） |
 | **M3 Audio 完整实现** | §7 JackClient/Port/Graph/MIDI/ServerGuard + **WASAPI 设备与共享流** + **系统 MIDI 设备与事件流** + 冒烟 | 7~10 天 | 冒烟脚本通过;错误路径明确 | 📋 未开始 |
 | **M4 UI 完整实现** | §6 ThemeManager/PaintableWidget/NativeWindowUtils/资源 | 4~6 天 | 主题切换 demo + HWND 嵌入 demo | 📋 未开始 |
 | **M5 Plugin 接口桩** | §8 IModulePlugin/ModuleApi.h + `plugin.dll` 桩 + 示例模块骨架(仅编译验证) | 2~3 天 | 示例模块可被 LoadLibrary 导出符号可解析 | 📋 未开始 |
