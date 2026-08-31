@@ -37,6 +37,7 @@ include(CTest)
 if(BUILD_TESTING)
     add_subdirectory(tests/common)
     add_subdirectory(tests/audio)
+    add_subdirectory(tests/ui)
     add_test(
         NAME m1_dll_outputs
         COMMAND "${CMAKE_COMMAND}"

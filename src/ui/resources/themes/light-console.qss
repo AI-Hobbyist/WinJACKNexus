@@ -1,0 +1,29 @@
+QWidget {
+    background-color: ${window-bg};
+    color: ${text};
+}
+
+QFrame[wjnRole="panel"] {
+    background-color: ${panel-bg};
+    border: 1px solid ${border};
+    border-radius: 4px;
+}
+
+QPushButton {
+    background-color: ${panel-raised};
+    border: 1px solid ${border};
+    border-radius: 3px;
+    padding: 5px 10px;
+}
+
+QPushButton:hover,
+QPushButton[wjnRole="accent"] {
+    background-color: ${accent};
+    color: ${window-bg};
+}
+
+QToolTip {
+    background-color: ${panel-raised};
+    color: ${text};
+    border: 1px solid ${border};
+}

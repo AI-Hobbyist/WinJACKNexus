@@ -1,6 +1,20 @@
 add_library(ui SHARED
     src/Library.cpp
+    src/AnimatedWidget.cpp
+    src/IconManager.cpp
+    src/NativeWindowUtils.cpp
+    src/PaintableWidget.cpp
+    src/ThemeManager.cpp
+    src/ThemePalette.cpp
     include/WinJACKNexus/UI/Export.hpp
+    include/WinJACKNexus/UI/AnimatedWidget.hpp
+    include/WinJACKNexus/UI/IconManager.hpp
+    include/WinJACKNexus/UI/MeterWidget.hpp
+    include/WinJACKNexus/UI/NativeWindowUtils.hpp
+    include/WinJACKNexus/UI/PaintableWidget.hpp
+    include/WinJACKNexus/UI/ThemeManager.hpp
+    include/WinJACKNexus/UI/ThemePalette.hpp
+    resources/ui.qrc
 )
 
 target_include_directories(ui
@@ -15,3 +29,5 @@ target_link_libraries(ui
 )
 
 wjn_configure_shared_target(ui WJN_UI_BUILD)
+set_target_properties(ui PROPERTIES AUTOMOC ON AUTORCC ON)
+add_library(WinJACKNexus::UI ALIAS ui)

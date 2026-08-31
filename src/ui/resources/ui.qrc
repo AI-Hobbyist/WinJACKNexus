@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/WinJACKNexus/UI">
+        <file>themes/dark-rack.qss</file>
+        <file>themes/light-console.qss</file>
+        <file>icons/plus.svg</file>
+        <file>icons/settings.svg</file>
+    </qresource>
+</RCC>
