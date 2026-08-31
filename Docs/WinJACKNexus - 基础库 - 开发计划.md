@@ -490,12 +490,14 @@ add_subdirectory(src/plugin)
 | :--- | :--- | :--- | :--- | :--- |
 | **M1 工程骨架** | 顶层 CMake、目录树、导出宏、4 个空 DLL 成功编译到 `bin/` | 0.5 天 | `cmake --build` 产出 4 个 DLL | ✅ 已完成（2026-08-30） |
 | **M2 Common 完整实现** | §5 全部容器/线程/日志/元数据 + 单元测试 | 4~6 天 | `ctest` 通过;TSAN 无告警 | ✅ 已完成（2026-08-30） |
-| **M3 Audio 完整实现** | §7 JackClient/Port/Graph/MIDI/ServerGuard + **WASAPI 设备与共享流** + **系统 MIDI 设备与事件流** + 冒烟 | 7~10 天 | 冒烟脚本通过;错误路径明确 | 📋 未开始 |
+| **M3 Audio 完整实现** | §7 JackClient/Port/Graph/MIDI/ServerGuard + **WASAPI 设备与共享流** + **系统 MIDI 设备与事件流** + 冒烟 | 7~10 天 | 冒烟脚本通过;错误路径明确 | ✅ 已完成（2026-08-31） |
 | **M4 UI 完整实现** | §6 ThemeManager/PaintableWidget/NativeWindowUtils/资源 | 4~6 天 | 主题切换 demo + HWND 嵌入 demo | 📋 未开始 |
 | **M5 Plugin 接口桩** | §8 IModulePlugin/ModuleApi.h + `plugin.dll` 桩 + 示例模块骨架(仅编译验证) | 2~3 天 | 示例模块可被 LoadLibrary 导出符号可解析 | 📋 未开始 |
 | **M6 基础库集成** | 三库联调:UI 调用 Audio 状态、Theme 信号贯通、进程内演示程序(临时) | 2~3 天 | 集成 demo 运行;作为后续功能模块的开发基座 | 📋 未开始 |
 
 > 备注(遵循既有工作流):每阶段**编译通过即可交付**,冒烟/验证脚本仅用于开发期自查,交付后由用户手动验证;不反复跑自动化验证。
+>
+> M3 完成记录（2026-08-31）:已实现 JACK 动态加载及 Client/Port/Graph/MIDI/RingBuffer/ServerGuard、WASAPI 共享模式设备枚举与 Render/Capture 流、WinMM MIDI 设备枚举与输入事件/短消息输出;AudioTests 覆盖无设备降级、设备生命周期、JACK dummy client/port 激活和回调。当前 WinMM 输出范围为短消息,`WasapiStreamOptions` 的采样率/声道请求暂按设备 mix format 使用,长消息输出与重采样留待后续增量。
 >
 > 状态更新规则:每个里程碑完成并通过对应验收后,在本表“状态”列记录 `✅ 已完成（完成日期）`;未开始的里程碑保持 `📋 未开始`。
 
