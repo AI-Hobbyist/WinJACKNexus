@@ -4,6 +4,7 @@
 #include <QApplication>
 #include <QIcon>
 #include <QMessageBox>
+#include <QStyle>
 
 int main(int argc, char* argv[])
 {
@@ -11,7 +12,9 @@ int main(int argc, char* argv[])
     application.setApplicationName(QStringLiteral("WinJACKNexus"));
     application.setQuitOnLastWindowClosed(false);
 
-    const QIcon applicationIcon = WinJACKNexus::UI::IconManager::icon(QStringLiteral("app"));
+    QIcon applicationIcon = WinJACKNexus::UI::IconManager::icon(QStringLiteral("settings"));
+    if (applicationIcon.isNull())
+        applicationIcon = application.style()->standardIcon(QStyle::SP_ComputerIcon);
     application.setWindowIcon(applicationIcon);
 
     WinJACKNexus::UI::TrayController tray;
