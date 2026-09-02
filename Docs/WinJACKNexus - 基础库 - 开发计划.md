@@ -15,7 +15,7 @@
 WinJACKNexus/
 ├─ .github/          # Copilot 指令等
 ├─ Docs/             # 开发规范
-├─ Ref/Cadence/      # 参考实现(JACK2 时代 Cadence/Catia,Python+Qt 与 C++ Qt 参考)
+├─ Ref/Carla/      # 参考实现(JACK2 时代 Carla,Python+Qt 与 C++ Qt 参考)
 └─ third_party/
    ├─ JACK2/         # JACK2 (含 jackd.exe、JackRouter、头文件与导入库)
    ├─ JUCE/          # JUCE 9.0.1
@@ -47,7 +47,7 @@ WinJACKNexus/
 | **JUCE** | 9.0.1 | `third_party/JUCE` | `WinJACKNexus::Audio` 的 JUCE DSP 包装层、沙盒 VST Host、DAW2Jack 插件(本阶段仅 Audio 库可选引用) | AGPLv3 / 商业 |
 | **VST 3 SDK** | 3.8.x | `third_party/vst3sdk` | 后续 DAW2Jack `.vst3` 插件与 VST Host 插件加载 | GPLv3 例外 / 商业 |
 | **VST 2 SDK** | — | `third_party/vst2sdk` | 后续兼容 VST2 插件(预留) | 专有许可 |
-| **Ref/Cadence** | — | `Ref/Cadence` | **API 范围与 UI 参考**:`src/jacklib.py` (ctypes 封装全量 JACK API)、`catia.py` (Patchbay UI)、`patchcanvas` (画布) | GPLv2 |
+| **Ref/Carla** | — | `Ref/Carla` | **API 范围与 UI 参考**:`src/jacklib.py` (ctypes 封装全量 JACK API)、`catia.py` (Patchbay UI)、`patchcanvas` (画布) | GPLv2 |
 
 ### 2.2 工具链约束
 
@@ -57,7 +57,7 @@ WinJACKNexus/
 - Qt 定位:`Qt6_DIR = C:\Qt\6.10.3\msvc2022_64\lib\cmake\Qt6`;
 - 目标平台:Windows x64(主),x86 仅作为可选兼容目标。
 
-### 2.3 参考实现要点 (Ref/Cadence)
+### 2.3 参考实现要点 (Ref/Carla)
 
 `jacklib.py` 给出了 Native JACK API 的**完整功能面**,直接作为 `WinJACKNexus::Audio` 封装范围清单:
 
@@ -504,7 +504,7 @@ add_subdirectory(src/node)
 | **M3 Audio 完整实现** | §7 JackClient/Port/Graph/MIDI/ServerGuard + **WASAPI 设备与共享流** + **系统 MIDI 设备与事件流** + 冒烟 | 7~10 天 | 冒烟脚本通过;错误路径明确 | ✅ 已完成（2026-08-31） |
 | **M4 UI 完整实现** | §6 ThemeManager/PaintableWidget/NativeWindowUtils/资源 | 4~6 天 | 主题切换 demo + HWND 嵌入 demo | ✅ 已完成（2026-08-31） |
 | **M5 Node 接口桩** | §8 INode/NodeApi.h + `node.dll` 桩 + 示例节点骨架(仅编译验证) | 2~3 天 | 示例节点可被 LoadLibrary 导出符号可解析 | ✅ 已完成（2026-09-02） |
-| **M6 基础库集成** | 三库联调:UI 调用 Audio 状态、Theme 信号贯通、进程内演示程序(临时) | 2~3 天 | 集成 demo 运行;作为后续功能模块的开发基座 | 📋 未开始 |
+| **M6 基础库集成** | 三库联调:UI 调用 Audio 状态、Theme 信号贯通、进程内演示程序(临时) | 2~3 天 | 集成 demo 运行;作为后续功能模块的开发基座 | 🔨 开发中（2026-09-02） |
 
 > 备注(遵循既有工作流):每阶段**编译通过即可交付**,冒烟/验证脚本仅用于开发期自查,交付后由用户手动验证;不反复跑自动化验证。
 >
@@ -515,6 +515,8 @@ add_subdirectory(src/node)
 > M4 增补(2026-09-02):UI 库新增 `TrayController`(后台托盘组件)——内置接线盘/调音台/电平表桥/信号切换开关占位菜单(默认禁用)、动态菜单注入、气泡通知与激活回调;Release 全量构建通过(`ui.dll` 产出)。
 >
 > M5 完成记录（2026-09-02）:已将接口库迁移为 `WinJACKNexus::Node` / `node.dll`,实现 `NodeInfo`、`INode` 和完整 Node C API(`wjn_get_node_api_version`、名称、分类、创建、销毁);新增 `wjn_example_node.dll` 作为最小节点骨架。`wjn_node_tests` 通过 `LoadLibrary` / `GetProcAddress` 验证接口桩与示例节点的全部导出、元数据、实例创建、初始化和销毁。
+>
+> M6 进行记录（2026-09-02）:新增 Windows GUI 子系统可执行程序 `WinJACKNexus.exe`,启动后创建 `QApplication` 与 `TrayController`,显示节点占位菜单并连接“退出 WinJACKNexus”至事件循环退出;系统托盘不可用时显示明确错误并返回失败。全量构建通过,CTest `5/5` 通过。Audio 状态联调、主题信号贯通与节点扫描仍待后续完成。
 >
 > 状态更新规则:每个里程碑完成并通过对应验收后,在本表“状态”列记录 `✅ 已完成（完成日期）`;未开始的里程碑保持 `📋 未开始`。
 

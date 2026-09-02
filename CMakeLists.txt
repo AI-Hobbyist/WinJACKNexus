@@ -32,6 +32,7 @@ add_subdirectory(src/common)
 add_subdirectory(src/ui)
 add_subdirectory(src/audio)
 add_subdirectory(src/node)
+add_subdirectory(src/app)
 
 include(CTest)
 if(BUILD_TESTING)
