@@ -1,6 +1,6 @@
 # WinJACKNexus - 接线盘(Interactive Patchbay)- 开发计划
 
-> 版本:v1.1
+> 版本:v1.2
 > 日期:2026-09-02
 > 依据:«WinJACKNexus 开发规范» v3.1(补充:基础库计划 v1.0)
 > 参考实现:«Ref/Carla»(Carla Plugin Host,Patchbay 处理模式 + JACK Multi-Client)
@@ -330,12 +330,12 @@ add_subdirectory(src/patchbay)
 | **B2 Core 模型** | Types/ClientInfo/PortInfo/ConnectionInfo/Snapshot/GraphModel/SearchModel + JACK 快照(JackGraph)+ 单测 | 3~5 天 | `ctest` 通过;快照事件正确 |
 | **B3 插件运行时** | `patchbay_plugins.dll`:Internal 加载器 + `IPluginInstance` + JACK 端口绑定 + 「添加插件」对话框 | 3~5 天 | Internal 示例插件显示为节点,端口可连线 |
 | **B4 画布 UI（已完成）** | `PatchbayCanvas`(Qt6 QGraphics 重写节点/端口/连线)+ **单一 `style.css` 主题资源 + 自绘回退** + 系统字体 | 5~8 天 | 演示 Snapshot 节点与连线可渲染;深浅主题切换生效 |
-| **B5 交互** | 拖拽/缩放/框选、连线/断开、分组 split/join、右键菜单、搜索、位置持久化 | 4~6 天 | 手动验证流畅(255 节点规模) |
+| **B5 交互（已完成）** | 拖拽/缩放/框选、连线/断开、分组 split/join、右键菜单、搜索、本地位置持久化 | 4~6 天 | 手动验证流畅(255 节点规模) |
 | **B6 连接持久化与自动重连** | `.wjnproj` 存档(save/load/restoreConnections)+ **启动自动加载上次存档(lastProjectPath)** + UUID/四级回退匹配 + 改名/增减端口保持连接 + 重试/缺失连接显示 | 3~5 天 | 客户端改名/端口增减后连接恢复;重启自动加载上次存档并连接;存档可交换 |
 | **B7 INode 接入** | `mod_patchbay.dll` 实现 `INode`(createWindow → 画布)+ 托盘/菜单注册 + VST2/VST3 置灰占位 | 2~3 天 | LoadLibrary 导出符号可解析;窗口可打开 |
 | **B8 集成验证** | `jackd` 下观察 system/外部客户端/适配器端口,连线/断开实时刷新;加载示例插件(各勾选类型);存档往返验证 | 1~2 天 | 编译通过交付,用户手动验证 |
 
-**实施状态（2026-09-02）**：B1、B2 已完成。已建立 `src/patchbay/` 的 Core、Plugins、Mod 三层 CMake 骨架，注册 `patchbay_core`、`patchbay_plugins` 与 `mod_patchbay` 共享库目标，并确认 Debug 构建零警告、零错误，三个 DLL 均输出至 `build/bin/`。B2 已实现无 Qt 的 `Types`、客户端/端口/连接信息、JACK 全局图快照、增量事件、图查询、split 状态保持与大小写不敏感搜索，并通过 `wjn_patchbay_core_tests` 验证真实 JACK 客户端/端口/连线采集及模型行为。B3 已完成统一 `IPluginInstance`/Descriptor/Loader 契约和可运行的 Internal Gain、Bypass、Peak Meter 实例，并通过 `wjn_patchbay_plugins_tests` 验证实例化、参数与音频处理。LADSPA、DSSI、LV2、JSFX、SF2/SF3、SFZ 已从插件 API 与计划范围移除；SF 系列后续会作为专用 Internal 模块按需求实现。B4 已完成：`PatchbayCanvas` 可由 Core `Snapshot` 渲染可选节点卡片、Audio/MIDI/CV/OSC 端口及类型着色的贝塞尔连线；模块窗口内置演示拓扑，深浅主题通过唯一资源 `style.css` 驱动。B7 的模块发现与托盘接入已完成：主程序成功加载 `mod_patchbay.dll` 且 Node API 版本匹配、`init()` 成功时，托盘“接线盘”项恢复可用并可打开基础模块窗口。
+**实施状态（2026-09-02）**：B1、B2 已完成。已建立 `src/patchbay/` 的 Core、Plugins、Mod 三层 CMake 骨架，注册 `patchbay_core`、`patchbay_plugins` 与 `mod_patchbay` 共享库目标，并确认 Debug 构建零警告、零错误，三个 DLL 均输出至 `build/bin/`。B2 已实现无 Qt 的 `Types`、客户端/端口/连接信息、JACK 全局图快照、增量事件、图查询、split 状态保持与大小写不敏感搜索，并通过 `wjn_patchbay_core_tests` 验证真实 JACK 客户端/端口/连线采集及模型行为。B3 已完成统一 `IPluginInstance`/Descriptor/Loader 契约和可运行的 Internal Gain、Bypass、Peak Meter 实例，并通过 `wjn_patchbay_plugins_tests` 验证实例化、参数与音频处理。LADSPA、DSSI、LV2、JSFX、SF2/SF3、SFZ 已从插件 API 与计划范围移除；SF 系列后续会作为专用 Internal 模块按需求实现。B4 已完成：`PatchbayCanvas` 可由 Core `Snapshot` 渲染可选节点卡片、Audio/MIDI/CV/OSC 端口及类型着色的贝塞尔连线；模块窗口内置演示拓扑，深浅主题通过唯一资源 `style.css` 驱动。B5 已完成：画布提供节点拖拽、框选、中键平移、滚轮缩放、适配/重置视图、端口点击建连、右键断连与节点重命名、可视 Split/Join、客户端和端口名称搜索，并将节点位置和 Split 状态持久化为当前用户的 Patchbay 本地设置。此本地布局不替代 B6 的 `.wjnproj` 可移植存档及真实 JACK 连接恢复。B7 的模块发现与托盘接入已完成：主程序成功加载 `mod_patchbay.dll` 且 Node API 版本匹配、`init()` 成功时，托盘“接线盘”项恢复可用并可打开基础模块窗口。
 
 > 遵循项目既有工作流:每里程碑**编译通过即可交付**,图形/交互行为由用户手动验证;不反复跑自动化验证。
 

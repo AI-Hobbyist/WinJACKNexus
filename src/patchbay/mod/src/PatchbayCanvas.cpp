@@ -1,16 +1,25 @@
 #include <mod_patchbay/PatchbayCanvas.hpp>
 
 #include <QApplication>
+#include <QContextMenuEvent>
 #include <QFile>
 #include <QGraphicsObject>
 #include <QGraphicsPathItem>
 #include <QGraphicsScene>
+#include <QGraphicsSceneMouseEvent>
+#include <QInputDialog>
+#include <QMenu>
+#include <QMouseEvent>
+#include <QSettings>
 #include <QPainter>
 #include <QPainterPath>
 #include <QRegularExpression>
 #include <QScrollBar>
+#include <QWheelEvent>
 
 #include <algorithm>
+#include <cmath>
+#include <functional>
 #include <unordered_map>
 #include <utility>
 
@@ -81,8 +90,8 @@ QColor portColor(PortKind kind)
 
 class CanvasNode final : public QGraphicsObject {
 public:
-    CanvasNode(ClientInfo client, std::vector<PortInfo> ports)
-        : client_(std::move(client)), ports_(std::move(ports))
+    CanvasNode(ClientInfo client, std::vector<PortInfo> ports, std::function<void(const std::string&)> portActivated)
+        : client_(std::move(client)), ports_(std::move(ports)), portActivated_(std::move(portActivated))
     {
         std::sort(ports_.begin(), ports_.end(), [](const PortInfo& left, const PortInfo& right) {
             if (left.direction != right.direction)
@@ -90,6 +99,7 @@ public:
             return left.ordinal < right.ordinal;
         });
         setFlag(ItemIsSelectable);
+        setFlag(ItemIsMovable);
         setToolTip(QString::fromStdString(client_.name));
     }
 
@@ -156,9 +166,29 @@ public:
         }
     }
 
+protected:
+    void mousePressEvent(QGraphicsSceneMouseEvent* event) override
+    {
+        if (event->button() == Qt::LeftButton && (event->pos().x() <= 12.0 || event->pos().x() >= kNodeWidth - 12.0)) {
+            const auto row = static_cast<std::ptrdiff_t>(std::floor((event->pos().y() - kHeaderHeight) / kPortHeight));
+            if (row >= 0 && row < static_cast<std::ptrdiff_t>(ports_.size())) {
+                const auto& port = ports_[static_cast<std::size_t>(row)];
+                const bool onInputPin = event->pos().x() <= 12.0 && port.direction == Direction::input;
+                const bool onOutputPin = event->pos().x() >= kNodeWidth - 12.0 && port.direction == Direction::output;
+                if (onInputPin || onOutputPin) {
+                    portActivated_(port.id);
+                    event->accept();
+                    return;
+                }
+            }
+        }
+        QGraphicsObject::mousePressEvent(event);
+    }
+
 private:
     ClientInfo client_;
     std::vector<PortInfo> ports_;
+    std::function<void(const std::string&)> portActivated_;
 };
 
 QPainterPath connectionPath(const QPointF& source, const QPointF& destination)
@@ -167,6 +197,11 @@ QPainterPath connectionPath(const QPointF& source, const QPointF& destination)
     QPainterPath path(source);
     path.cubicTo(source + QPointF(handle, 0.0), destination - QPointF(handle, 0.0), destination);
     return path;
+}
+
+QSettings patchbaySettings()
+{
+    return QSettings(QSettings::IniFormat, QSettings::UserScope, QStringLiteral("WinJACKNexus"), QStringLiteral("Patchbay"));
 }
 
 Snapshot demoSnapshot()
@@ -212,38 +247,87 @@ PatchbayCanvas::PatchbayCanvas(QWidget* parent)
 
 void PatchbayCanvas::setSnapshot(const Snapshot& snapshot)
 {
+    Snapshot restored = snapshot;
+    auto settings = patchbaySettings();
+    for (auto& client : restored.clients) {
+        const auto key = QString::fromStdString(client.id);
+        if (settings.contains(QStringLiteral("layout/%1/x").arg(key))) {
+            client.x = settings.value(QStringLiteral("layout/%1/x").arg(key)).toDouble();
+            client.y = settings.value(QStringLiteral("layout/%1/y").arg(key)).toDouble();
+        }
+        if (settings.contains(QStringLiteral("layout/%1/split").arg(key)))
+            client.split = settings.value(QStringLiteral("layout/%1/split").arg(key)).toBool();
+    }
+    snapshot_ = std::move(restored);
     scene()->clear();
 
     std::unordered_map<std::string, std::vector<PortInfo>> portsByClient;
-    for (const auto& port : snapshot.ports) {
+    for (const auto& port : snapshot_.ports) {
         if (port.alive)
             portsByClient[port.clientId].push_back(port);
     }
 
-    std::unordered_map<std::string, CanvasNode*> nodes;
-    for (const auto& client : snapshot.clients) {
+    std::unordered_map<std::string, CanvasNode*> nodesByPort;
+    for (const auto& client : snapshot_.clients) {
         if (!client.alive)
             continue;
-        auto* node = new CanvasNode(client, portsByClient[client.id]);
-        node->setPos(client.x, client.y);
-        scene()->addItem(node);
-        nodes.emplace(client.id, node);
+
+        const auto addNode = [this, &client, &portsByClient, &nodesByPort](std::vector<PortInfo> ports, QPointF position, bool positionOwner, const QString& label) {
+            ClientInfo displayClient = client;
+            displayClient.alias = label.toStdString();
+            auto* node = new CanvasNode(std::move(displayClient), std::move(ports), [this](const std::string& portId) {
+                activatePort(portId);
+            });
+            node->setPos(position);
+            node->setData(0, QString::fromStdString(client.id));
+            node->setData(3, positionOwner);
+            scene()->addItem(node);
+            for (const auto& port : portsByClient[client.id]) {
+                if ((positionOwner && port.direction == Direction::input) || (!positionOwner && port.direction == Direction::output))
+                    nodesByPort.emplace(port.id, node);
+            }
+        };
+
+        if (!client.split) {
+            auto ports = portsByClient[client.id];
+            auto* node = new CanvasNode(client, std::move(ports), [this](const std::string& portId) {
+                activatePort(portId);
+            });
+            node->setPos(client.x, client.y);
+            node->setData(0, QString::fromStdString(client.id));
+            node->setData(3, true);
+            scene()->addItem(node);
+            for (const auto& port : portsByClient[client.id])
+                nodesByPort.emplace(port.id, node);
+            continue;
+        }
+
+        std::vector<PortInfo> inputs;
+        std::vector<PortInfo> outputs;
+        for (const auto& port : portsByClient[client.id]) {
+            if (port.direction == Direction::input)
+                inputs.push_back(port);
+            else
+                outputs.push_back(port);
+        }
+        addNode(std::move(inputs), { client.x, client.y }, true, QString::fromStdString(client.name) + QStringLiteral(" · 输入"));
+        addNode(std::move(outputs), { client.x + kNodeWidth + 52.0, client.y }, false, QString::fromStdString(client.name) + QStringLiteral(" · 输出"));
     }
 
     std::unordered_map<std::string, const PortInfo*> ports;
-    for (const auto& port : snapshot.ports)
+    for (const auto& port : snapshot_.ports)
         ports.emplace(port.id, &port);
 
-    for (const auto& connection : snapshot.connections) {
+    for (const auto& connection : snapshot_.connections) {
         if (!connection.alive)
             continue;
         const auto sourcePort = ports.find(connection.sourcePortId);
         const auto destinationPort = ports.find(connection.destinationPortId);
         if (sourcePort == ports.end() || destinationPort == ports.end())
             continue;
-        const auto sourceNode = nodes.find(sourcePort->second->clientId);
-        const auto destinationNode = nodes.find(destinationPort->second->clientId);
-        if (sourceNode == nodes.end() || destinationNode == nodes.end())
+        const auto sourceNode = nodesByPort.find(connection.sourcePortId);
+        const auto destinationNode = nodesByPort.find(connection.destinationPortId);
+        if (sourceNode == nodesByPort.end() || destinationNode == nodesByPort.end())
             continue;
 
         const QColor color = portColor(sourcePort->second->kind);
@@ -251,8 +335,13 @@ void PatchbayCanvas::setSnapshot(const Snapshot& snapshot)
                                                            destinationNode->second->portPosition(connection.destinationPortId)));
         line->setPen(QPen(color, 2.5, Qt::SolidLine, Qt::RoundCap));
         line->setZValue(-1.0);
+        line->setFlag(QGraphicsItem::ItemIsSelectable);
+        line->setData(1, QString::fromStdString(connection.sourcePortId));
+        line->setData(2, QString::fromStdString(connection.destinationPortId));
         scene()->addItem(line);
     }
+
+    applySearchFilter();
 }
 
 void PatchbayCanvas::loadDemoGraph()
@@ -281,4 +370,226 @@ void PatchbayCanvas::applyTheme(bool light)
             canvas->scene()->update();
         }
     }
+}
+
+void PatchbayCanvas::setSearchQuery(const QString& query)
+{
+    searchQuery_ = query.trimmed();
+    applySearchFilter();
+}
+
+void PatchbayCanvas::zoomIn()
+{
+    scale(1.2, 1.2);
+}
+
+void PatchbayCanvas::zoomOut()
+{
+    scale(1.0 / 1.2, 1.0 / 1.2);
+}
+
+void PatchbayCanvas::zoomReset()
+{
+    resetTransform();
+}
+
+void PatchbayCanvas::zoomFit()
+{
+    const auto bounds = scene()->itemsBoundingRect();
+    if (!bounds.isEmpty())
+        fitInView(bounds.adjusted(-36.0, -36.0, 36.0, 36.0), Qt::KeepAspectRatio);
+}
+
+void PatchbayCanvas::mousePressEvent(QMouseEvent* event)
+{
+    if (event->button() == Qt::MiddleButton) {
+        panning_ = true;
+        panOrigin_ = event->pos();
+        viewport()->setCursor(Qt::ClosedHandCursor);
+        event->accept();
+        return;
+    }
+    QGraphicsView::mousePressEvent(event);
+}
+
+void PatchbayCanvas::mouseMoveEvent(QMouseEvent* event)
+{
+    if (panning_) {
+        const QPoint offset = event->pos() - panOrigin_;
+        horizontalScrollBar()->setValue(horizontalScrollBar()->value() - offset.x());
+        verticalScrollBar()->setValue(verticalScrollBar()->value() - offset.y());
+        panOrigin_ = event->pos();
+        event->accept();
+        return;
+    }
+    QGraphicsView::mouseMoveEvent(event);
+}
+
+void PatchbayCanvas::mouseReleaseEvent(QMouseEvent* event)
+{
+    if (panning_ && event->button() == Qt::MiddleButton) {
+        panning_ = false;
+        viewport()->unsetCursor();
+        event->accept();
+        return;
+    }
+
+    QGraphicsView::mouseReleaseEvent(event);
+    updateClientPositions();
+}
+
+void PatchbayCanvas::contextMenuEvent(QContextMenuEvent* event)
+{
+    QMenu menu(this);
+    const auto* item = itemAt(event->pos());
+    if (item != nullptr && item->data(1).isValid()) {
+        const auto source = item->data(1).toString().toStdString();
+        const auto destination = item->data(2).toString().toStdString();
+        auto* disconnect = menu.addAction(QStringLiteral("断开连接"));
+        if (menu.exec(event->globalPos()) == disconnect) {
+            std::erase_if(snapshot_.connections, [&source, &destination](const ConnectionInfo& connection) {
+                return connection.sourcePortId == source && connection.destinationPortId == destination;
+            });
+            setSnapshot(snapshot_);
+        }
+        return;
+    }
+
+    if (item != nullptr && item->data(0).isValid()) {
+        auto* center = menu.addAction(QStringLiteral("居中显示节点"));
+        auto* rename = menu.addAction(QStringLiteral("重命名节点"));
+        auto* split = menu.addAction(QStringLiteral("Split/Join Group"));
+        const auto* selected = menu.exec(event->globalPos());
+        if (selected == center) {
+            centerOn(item);
+        } else if (selected == rename) {
+            const auto id = item->data(0).toString().toStdString();
+            const auto client = std::find_if(snapshot_.clients.begin(), snapshot_.clients.end(), [&id](const ClientInfo& value) {
+                return value.id == id;
+            });
+            if (client != snapshot_.clients.end()) {
+                bool accepted = false;
+                const auto alias = QInputDialog::getText(this, QStringLiteral("重命名节点"), QStringLiteral("显示名称"),
+                                                          QLineEdit::Normal, QString::fromStdString(client->alias), &accepted);
+                if (accepted && !alias.trimmed().isEmpty()) {
+                    client->alias = alias.trimmed().toStdString();
+                    setSnapshot(snapshot_);
+                }
+            }
+        } else if (selected == split) {
+            const auto id = item->data(0).toString().toStdString();
+            const auto client = std::find_if(snapshot_.clients.begin(), snapshot_.clients.end(), [&id](const ClientInfo& value) {
+                return value.id == id;
+            });
+            if (client != snapshot_.clients.end()) {
+                client->split = !client->split;
+                auto settings = patchbaySettings();
+                settings.setValue(QStringLiteral("layout/%1/split").arg(QString::fromStdString(id)), client->split);
+                setSnapshot(snapshot_);
+            }
+        }
+        return;
+    }
+
+    auto* fit = menu.addAction(QStringLiteral("适配全部节点"));
+    auto* reset = menu.addAction(QStringLiteral("重置缩放"));
+    const auto* selected = menu.exec(event->globalPos());
+    if (selected == fit)
+        zoomFit();
+    else if (selected == reset)
+        zoomReset();
+}
+
+void PatchbayCanvas::wheelEvent(QWheelEvent* event)
+{
+    const qreal currentScale = transform().m11();
+    const qreal factor = event->angleDelta().y() >= 0 ? 1.15 : 1.0 / 1.15;
+    if ((factor > 1.0 && currentScale >= 3.0) || (factor < 1.0 && currentScale <= 0.2)) {
+        event->accept();
+        return;
+    }
+    setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
+    scale(factor, factor);
+    event->accept();
+}
+
+void PatchbayCanvas::activatePort(const std::string& portId)
+{
+    const auto findPort = [this](const std::string& id) {
+        return std::find_if(snapshot_.ports.cbegin(), snapshot_.ports.cend(), [&id](const PortInfo& port) {
+            return port.id == id;
+        });
+    };
+    const auto port = findPort(portId);
+    if (port == snapshot_.ports.cend())
+        return;
+    if (pendingPortId_.empty()) {
+        pendingPortId_ = portId;
+        return;
+    }
+
+    const auto pending = findPort(pendingPortId_);
+    if (pending == snapshot_.ports.cend() || pending->direction == port->direction || pending->kind != port->kind) {
+        pendingPortId_ = portId;
+        return;
+    }
+
+    const auto& source = pending->direction == Direction::output ? *pending : *port;
+    const auto& destination = pending->direction == Direction::input ? *pending : *port;
+    const bool exists = std::any_of(snapshot_.connections.cbegin(), snapshot_.connections.cend(), [&source, &destination](const ConnectionInfo& connection) {
+        return connection.sourcePortId == source.id && connection.destinationPortId == destination.id;
+    });
+    if (!exists)
+        snapshot_.connections.push_back({ source.id, destination.id });
+    pendingPortId_.clear();
+    setSnapshot(snapshot_);
+}
+
+void PatchbayCanvas::applySearchFilter()
+{
+    const auto query = searchQuery_.toLower();
+    for (auto* item : scene()->items()) {
+        if (!item->data(0).isValid())
+            continue;
+        if (item->data(3).isValid() && !item->data(3).toBool())
+            continue;
+        const auto id = item->data(0).toString().toStdString();
+        const auto client = std::find_if(snapshot_.clients.cbegin(), snapshot_.clients.cend(), [&id](const ClientInfo& value) {
+            return value.id == id;
+        });
+        QString searchable = client == snapshot_.clients.cend() ? QString() : QString::fromStdString(client->name + " " + client->alias).toLower();
+        for (const auto& port : snapshot_.ports) {
+            if (port.clientId == id)
+                searchable += QLatin1Char(' ') + QString::fromStdString(port.name + " " + port.alias).toLower();
+        }
+        const bool match = query.isEmpty() || searchable.contains(query);
+        item->setVisible(match);
+        item->setOpacity(match ? 1.0 : 0.2);
+    }
+}
+
+void PatchbayCanvas::updateClientPositions()
+{
+    bool changed = false;
+    for (auto* item : scene()->items()) {
+        if (!item->data(0).isValid())
+            continue;
+        if (item->data(3).isValid() && !item->data(3).toBool())
+            continue;
+        const auto id = item->data(0).toString().toStdString();
+        const auto client = std::find_if(snapshot_.clients.begin(), snapshot_.clients.end(), [&id](const ClientInfo& value) {
+            return value.id == id;
+        });
+        if (client != snapshot_.clients.end() && (client->x != item->pos().x() || client->y != item->pos().y())) {
+            client->x = item->pos().x();
+            client->y = item->pos().y();
+            auto settings = patchbaySettings();
+            const auto key = QString::fromStdString(id);
+            settings.setValue(QStringLiteral("layout/%1/x").arg(key), client->x);
+            settings.setValue(QStringLiteral("layout/%1/y").arg(key), client->y);
+            changed = true;
+        }
+    }
+    if (changed)
+        setSnapshot(snapshot_);
 }

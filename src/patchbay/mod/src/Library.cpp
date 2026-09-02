@@ -3,6 +3,7 @@
 #include <mod_patchbay/PatchbayCanvas.hpp>
 
 #include <QActionGroup>
+#include <QLineEdit>
 #include <QMainWindow>
 #include <QPointer>
 #include <QToolBar>
@@ -52,6 +53,22 @@ public:
 
 			auto* toolbar = window_->addToolBar(QStringLiteral("接线盘"));
 			toolbar->setMovable(false);
+			auto* search = new QLineEdit(toolbar);
+			search->setPlaceholderText(QStringLiteral("搜索节点或端口"));
+			search->setClearButtonEnabled(true);
+			search->setMinimumWidth(190);
+			toolbar->addWidget(search);
+			toolbar->addSeparator();
+			auto* fitAction = toolbar->addAction(QStringLiteral("适配"));
+			auto* zoomOutAction = toolbar->addAction(QStringLiteral("缩小"));
+			auto* zoomResetAction = toolbar->addAction(QStringLiteral("100%"));
+			auto* zoomInAction = toolbar->addAction(QStringLiteral("放大"));
+			QObject::connect(search, &QLineEdit::textChanged, canvas, &PatchbayCanvas::setSearchQuery);
+			QObject::connect(fitAction, &QAction::triggered, canvas, &PatchbayCanvas::zoomFit);
+			QObject::connect(zoomOutAction, &QAction::triggered, canvas, &PatchbayCanvas::zoomOut);
+			QObject::connect(zoomResetAction, &QAction::triggered, canvas, &PatchbayCanvas::zoomReset);
+			QObject::connect(zoomInAction, &QAction::triggered, canvas, &PatchbayCanvas::zoomIn);
+			toolbar->addSeparator();
 			auto* themes = new QActionGroup(window_);
 			themes->setExclusive(true);
 			auto* darkAction = toolbar->addAction(QStringLiteral("深色"));
