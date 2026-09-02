@@ -3,7 +3,7 @@
 > 版本:v1.0
 > 日期:2026-08-30
 > 依据:«WinJACKNexus 开发规范» v2.0
-> 范围:本阶段**完整实现** `WinJACKNexus::Common` / `WinJACKNexus::UI` / `WinJACKNexus::Audio` 三个基础库;`WinJACKNexus::Plugin` 及各功能模块**预留接口**,随开发进度逐步填充。本阶段编译产物为对应 DLL: `common.dll` / `ui.dll` / `audio.dll`(接口层 `plugin.dll` 为预留桩)。
+> 范围:本阶段**完整实现** `WinJACKNexus::Common` / `WinJACKNexus::UI` / `WinJACKNexus::Audio` 三个基础库;`WinJACKNexus::Node` 及各功能节点**预留接口**,随开发进度逐步填充。本阶段编译产物为对应 DLL: `common.dll` / `ui.dll` / `audio.dll`(接口层 `node.dll` 为预留桩)。
 
 ---
 
@@ -83,14 +83,14 @@ WinJACKNexus/
 
 | 命名空间 / 模块 | 预留内容 |
 | :--- | :--- |
-| `WinJACKNexus::Plugin` | `IModulePlugin` 抽象 + C-API 导出规范(见 §7),`plugin.dll` 仅含接口符号桩,供模块 DLL 实现 |
-| 功能模块(Adapter / Patchbay / Mixer Basic/Pro / Meterbridge / Switch / VST Host / DAW2Jack) | 各自端口契约与生命周期约定(见 §7.2),本阶段**不创建源码**,仅登记接口 |
-| 主进程 `WinJACKNexus.exe` | 模块扫描与动态菜单逻辑(依赖 Plugin 接口),本阶段不实现,仅约定 |
+| `WinJACKNexus::Node` | `INode` 抽象 + C-API 导出规范(见 §8),`node.dll` 仅含接口符号桩,供节点 DLL 实现 |
+| 功能节点(Adapter / Patchbay / Mixer Basic/Pro / Meterbridge / Switch / VST Host / DAW2Jack) | 各自端口契约与生命周期约定(见 §8.4),本阶段**不创建源码**,仅登记接口 |
+| 主进程 `WinJACKNexus.exe` | 节点扫描(`nodes/internal/` + `nodes/custom/`)与动态菜单逻辑(依赖 Node 接口),本阶段不实现,仅约定 |
 
 ### 3.3 交付物
 
 1. CMake 构建系统(根 + 各库);
-2. `common.dll` / `ui.dll` / `audio.dll` / `plugin.dll`(接口桩)输出至 `bin/`;
+2. `common.dll` / `ui.dll` / `audio.dll` / `node.dll`(接口桩)输出至 `bin/`;
 3. 每个库的公开头文件(安装到 `include/WinJACKNexus/...`);
 4. Common 单元测试 + Audio 冒烟测试脚本(仅开发期使用)。
 
@@ -149,16 +149,16 @@ WinJACKNexus/
 │  │  │  ├─ JuceDspWrapper.hpp    # 可选编译 (WJN_WITH_JUCE)
 │  │  │  └─ AudioThreadSafe.hpp
 │  │  └─ src/*.cpp
-│  ├─ plugin/                     # → plugin.dll (接口桩,预留)
+│  ├─ node/                       # → node.dll (接口桩,预留)
 │  │  ├─ CMakeLists.txt
-│  │  ├─ include/WinJACKNexus/Plugin/
-│  │  │  ├─ Export.hpp            # WINJACK_PLUGIN_API
-│  │  │  ├─ IModulePlugin.hpp     # C++ 虚接口
-│  │  │  ├─ ModuleApi.h           # extern "C" 导出规范
-│  │  │  └─ ModuleInfo.hpp
-│  │  └─ src/ModuleApi.cpp        # 接口桩实现
+│  │  ├─ include/WinJACKNexus/Node/
+│  │  │  ├─ Export.hpp            # WINJACK_NODE_API
+│  │  │  ├─ INode.hpp             # C++ 虚接口
+│  │  │  ├─ NodeApi.h             # extern "C" 导出规范
+│  │  │  └─ NodeInfo.hpp
+│  │  └─ src/NodeApi.cpp          # 接口桩实现
 │  └─ app/                        # (预留,本阶段不实现) → WinJACKNexus.exe
-├─ bin/                           # 构建产物 (common/ui/audio/plugin.dll)
+├─ bin/                           # 构建产物 (common/ui/audio/node.dll)
 ├─ tests/
 │  ├─ common/                     # ctest 单元测试
 │  └─ audio/                      # 冒烟脚本 (启动 jackd + 回环)
@@ -171,7 +171,7 @@ WinJACKNexus/
 namespace WinJACKNexus::Common { ... }   // 无锁、实时安全容器、基础工具
 namespace WinJACKNexus::UI { ... }       // Qt 前端公共组件
 namespace WinJACKNexus::Audio { ... }    // Native JACK / JUCE DSP
-namespace WinJACKNexus::Plugin { ... }   // IModulePlugin 与 C-API
+namespace WinJACKNexus::Node { ... }     // INode 与 C-API
 ```
 
 ---
@@ -263,15 +263,25 @@ namespace WinJACKNexus::Plugin { ... }   // IModulePlugin 与 C-API
 | **按需渲染** | `setRenderingActive(bool)` + 重写 `showEvent/hideEvent/changeEvent`,窗口隐藏/最小化时自动 **暂停** `QTimer` 与 `paintEvent` 刷新 → 后台静默 CPU ≈ 0(规范 §5.3)。 |
 | `MeterWidget` 基类 | 预留给 Meterbridge(meter/peak-hold/RMS 缓动),本阶段仅基类与渲染节流,不含业务。 |
 
-### 6.5 导出与构建
+### 6.5 后台托盘(TrayController)
+
+| 能力 | 说明 |
+| :--- | :--- |
+| `TrayController : QObject` | 封装 `QSystemTrayIcon`,后台常驻守护;`isAvailable()` 探测,`initialize(icon, tooltip)` 初始化并显示。 |
+| **基础占位菜单** | 内置四个占位入口:**接线盘 / 调音台 / 电平表桥 / 信号切换开关**(默认禁用;节点注册后 `setPlaceholderEnabled(true)` / `registerPlaceholder(action)` 解锁);底部固定“退出”项 → `quitRequested`。 |
+| 动态菜单注入 | `addMenuAction` / `insertMenuActionBefore` / `removeMenuAction`,供节点 DLL 注册后向托盘菜单注入真实入口。 |
+| 交互 | `activated(int)`(Trigger/DoubleClick/MiddleClick)、`setIcon/setToolTip/setVisible`、`showMessage` 气泡通知。 |
+| 约束 | 仅限 Qt GUI 线程;系统托盘不可用时 `initialize()` 返回 false,调用方降级处理。 |
+
+### 6.6 导出与构建
 
 - `WINJACK_UI_API` 导出宏;链接 `Qt6::Widgets` + `common.dll`;
 - qrc 资源(atbase qss/图标)嵌入 `ui.dll`(`resources-ui.qrc`);
 - **ABI 约定**:所有跨 DLL 传递的 Qt 对象参数一律使用指针,要求主进程与模块 DLL 使用同一 Qt 6.10.3 msvc2022_64(在构建脚本中强制校验 `Qt6_VERSION` 与 `QT_ARCH`)。
 
-### 6.6 里程碑与验收
+### 6.7 里程碑与验收
 
-- 实现顺序:ThemeManager+Palette → PaintableWidget/节流 → NativeWindowUtils(含 DPI)→ 资源;
+- 实现顺序:ThemeManager+Palette → PaintableWidget/节流 → NativeWindowUtils(含 DPI)→ 资源 → TrayController(增补);
 - 验收:主题切换 demo(纯 Qt 窗口 + 两套 QSS 实时切换);HWND 嵌入 demo(嵌入 `notepad` 或 JUCE 空编辑器);窗口隐藏后 CPU 探针(开发期自行验证)。
 
 ---
@@ -373,19 +383,19 @@ namespace WinJACKNexus::Plugin { ... }   // IModulePlugin 与 C-API
 
 ---
 
-## 8. WinJACKNexus::Plugin — 预留接口设计(本阶段只定义契约)
+## 8. WinJACKNexus::Node — 预留接口设计(本阶段只定义契约)
 
-> `plugin.dll` 本阶段仅导出接口描述符号(桩实现),供后续模块 DLL `import`;业务实现随功能模块逐步填充。
+> `node.dll` 本阶段仅导出接口描述符号(桩实现),供后续节点 DLL `import`;业务实现随功能节点逐步填充。
 
-### 8.1 C++ 抽象接口(`IModulePlugin.hpp`)
+### 8.1 C++ 抽象接口(`INode.hpp`)
 
 ```cpp
-namespace WinJACKNexus::Plugin {
+namespace WinJACKNexus::Node {
 
-// 模块生命周期(可选,避免依赖 Qt 头文件;Qt 对象以 HWND 传递)
-enum class ModuleLifecycle { init, shutdown };
+// 节点生命周期(可选,避免依赖 Qt 头文件;Qt 对象以 HWND 传递)
+enum class NodeLifecycle { init, shutdown };
 
-struct ModuleInfo {
+struct NodeInfo {
     const char* name;          // "Interactive Patchbay"
     const char* category;      // "视图(V)" | "路由(R)" | "工具(T)"
     const char* version;       // "1.0.0"
@@ -393,49 +403,49 @@ struct ModuleInfo {
     const char* description;
 };
 
-class IModulePlugin {
+class INode {
 public:
-    virtual ~IModulePlugin() = default;
-    virtual ModuleInfo info() const noexcept = 0;
+    virtual ~INode() = default;
+    virtual NodeInfo info() const noexcept = 0;
     virtual bool init() noexcept = 0;                 // 注册 JACK 端口等
     virtual void shutdown() noexcept = 0;
-    // 创建模块窗口:返回 HWND(主进程经 UI::NativeWindowUtils 包装为 QWidget)
+    // 创建节点窗口:返回 HWND(主进程经 UI::NativeWindowUtils 包装为 QWidget)
     virtual HWND createWindow(HWND parent) noexcept = 0;
     virtual void destroyWindow(HWND hwnd) noexcept = 0;
 };
 }
 ```
 
-### 8.2 C-API 导出规范(`ModuleApi.h`)
+### 8.2 C-API 导出规范(`NodeApi.h`)
 
 ```cpp
 extern "C" {
-    WJN_PLUGIN_API const char* wjn_get_module_api_version();   // 协商版本,如 "1"
-    WJN_PLUGIN_API const char* wjn_get_module_name();
-    WJN_PLUGIN_API const char* wjn_get_module_category();
-    WJN_PLUGIN_API WinJACKNexus::Plugin::IModulePlugin* wjn_create_module(); // DLL 内存模型:同 CRT/同 Qt
-    WJN_PLUGIN_API void wjn_destroy_module(WinJACKNexus::Plugin::IModulePlugin*);
+    WJN_NODE_API const char* wjn_get_node_api_version();   // 协商版本,如 "1"
+    WJN_NODE_API const char* wjn_get_node_name();
+    WJN_NODE_API const char* wjn_get_node_category();
+    WJN_NODE_API WinJACKNexus::Node::INode* wjn_create_node(); // DLL 内存模型:同 CRT/同 Qt
+    WJN_NODE_API void wjn_destroy_node(WinJACKNexus::Node::INode*);
 }
 ```
 
-> ABI 约定:主进程与所有模块 DLL 使用**同一 MSVC 2022 + 同一 Qt 6.10.3 msvc2022_64**;`IModulePlugin` 跨 DLL 传递指针,类内**不含 STL/Qt 成员**,字符串用 `const char*`,窗口用 `HWND`。
+> ABI 约定:主进程与所有节点 DLL 使用**同一 MSVC 2022 + 同一 Qt 6.10.3 msvc2022_64**;`INode` 跨 DLL 传递指针,类内**不含 STL/Qt 成员**,字符串用 `const char*`,窗口用 `HWND`。
 
 ### 8.3 模块注册表(主进程侧约定,预留)
 
-- 扫描 `modules/*.dll` → `LoadLibraryW` → `GetProcAddress("wjn_get_module_api_version")` 校验 → `wjn_create_module` → 按 `category` 注入 `QMenuBar`/托盘菜单;
-- 本阶段仅定义上述契约与 `plugin.dll` 桩,主进程扫描逻辑在后续「主程序」计划中实现。
+- 扫描**主程序目录**下 `nodes/internal/*.dll`(自带)与 `nodes/custom/*.dll`(第三方)→ `LoadLibraryW` → `GetProcAddress("wjn_get_node_api_version")` 校验 → `wjn_create_node` → 按 `category` 注入 `QMenuBar`/托盘菜单;
+- 本阶段仅定义上述契约与 `node.dll` 桩,主进程扫描逻辑在后续「主程序」计划中实现。
 
-### 8.4 后续功能模块登记表(接口预留,逐步填充)
+### 8.4 后续功能节点登记表(接口预留,逐步填充)
 
-| 模块 | DLL / EXE | 预留端口契约(全部暴露 JACK 端口,Patchbay 可全局接线) | 计划阶段 |
+| 节点 | DLL / EXE(部署) | 预留端口契约(全部暴露 JACK 端口,Patchbay 可全局接线) | 计划阶段 |
 | :--- | :--- | :--- | :--- |
-| Audio Adapter | `mod_adapter.dll` | `system:capture_*` / `system:playback_*`(物理/虚拟设备);数据源 = `Audio::Wasapi*`(WASAPI 共享)+ `Audio::Midi*`(系统 MIDI) | P2 |
-| Patchbay | `mod_patchbay.dll` | 无自身音频端口;基于 `Audio::JackGraph` 可视化接线 | P2 |
-| Basic Mixer | `mod_mixer_basic.dll` | `mixer/ch_{i}_in/out` | P3 |
-| Pro Mixer | `mod_mixer_pro.dll` | `mixer/bus_{i}_*`、`aux_{i}_*`、`main_*`(JUCE DSP) | P3 |
-| Meterbridge | `mod_meterbridge.dll` | `metermon/in_{i}`(监听输入,SPSC 电平数据) | P4 |
-| Signal Switch | `mod_switch.dll` | `sw/in_{i}` / `sw/out_{i}`(平滑 crossfade) | P4 |
-| VST Host (沙盒) | `WinJACKNexus-VSTHost.exe` | `vsthost/rack_{i}_*` + MIDI(JUCE AudioProcessorGraph) | P5 |
+| Audio Adapter | `nodes/internal/mod_adapter.dll` | `system:capture_*` / `system:playback_*`(物理/虚拟设备);数据源 = `Audio::Wasapi*`(WASAPI 共享)+ `Audio::Midi*`(系统 MIDI) | P2 |
+| Patchbay | `nodes/internal/mod_patchbay.dll` | 无自身音频端口;基于 `Audio::JackGraph` 可视化接线 | P2 |
+| Basic Mixer | `nodes/internal/mod_mixer_basic.dll` | `mixer/ch_{i}_in/out` | P3 |
+| Pro Mixer | `nodes/internal/mod_mixer_pro.dll` | `mixer/bus_{i}_*`、`aux_{i}_*`、`main_*`(JUCE DSP) | P3 |
+| Meterbridge | `nodes/internal/mod_meterbridge.dll` | `metermon/in_{i}`(监听输入,SPSC 电平数据) | P4 |
+| Signal Switch | `nodes/internal/mod_switch.dll` | `sw/in_{i}` / `sw/out_{i}`(平滑 crossfade) | P4 |
+| VST Host (沙盒) | `WinJACKNexus-VSTHost.exe`(主程序目录) | `vsthost/rack_{i}_*` + MIDI(JUCE AudioProcessorGraph) | P5 |
 | DAW2Jack | bridge `.vst3` (纯 JUCE) | `daw/{dawname}_*`(DAW 内插件自动注册) | P5 |
 
 ---
@@ -462,7 +472,7 @@ set(Qt6_DIR "C:/Qt/6.10.3/msvc2022_64/lib/cmake/Qt6")  # 或由 -D 传入
 add_subdirectory(src/common)
 add_subdirectory(src/ui)
 add_subdirectory(src/audio)
-add_subdirectory(src/plugin)
+add_subdirectory(src/node)
 ```
 
 ### 9.2 各库 `CMakeLists.txt` 关键点
@@ -470,14 +480,15 @@ add_subdirectory(src/plugin)
 - `add_library(common SHARED ...)` → `target_compile_definitions(common PRIVATE WJN_COMMON_BUILD)`;公共头 `target_include_directories(... PUBLIC include)`;
 - `ui`: `target_link_libraries(ui PUBLIC Qt6::Widgets PRIVATE/common common)`,`qt_add_resources(ui resources-ui.qrc)`;
 - `audio`: `find_package(JACK2 REQUIRED)`(自定义 `cmake/FindJACK2.cmake`:优先 `WJN_LINK_JACK` 时用 `third_party/JACK2/lib/libjack64.lib`,否则仅提供运行时加载宏,不产生链接依赖);`WJN_WITH_JUCE=ON` 时 `add_subdirectory(third_party/JUCE)` + `JUCE::juce_audio_processor jassert juce_audio_basics`;
-- `plugin`: `<WINDOWS>` 无窗口子系统 DLL,导出 `wjn_*` 桩符号;
+- `node`: `<WINDOWS>` 无窗口子系统 DLL,导出 `wjn_get_node_*` 桩符号;
 - 全部库:`set_target_properties(... VERSION ${PROJECT_VERSION} SOVERSION 0)`(MSVC 生成 `.dll` + PDB);`target_link_libraries(... PUBLIC WinJACKNexus::Common)` 通过 `add_library(WinJACKNexus::Common ALIAS common)` 统一命名空间别名。
 
 ### 9.3 运行时部署
 
 | 项 | 说明 |
 | :--- | :--- |
-| `common/ui/audio/plugin.dll` | `bin/` 输出;`windows` 目标 |
+| `common/ui/audio/node.dll` | `bin/` 输出;`windows` 目标(节点 DLL 部署至主程序目录 `nodes/internal/`) |
+| 节点 DLL | 自带节点部署到 `nodes/internal/`;第三方节点由开发者放置到 `nodes/custom/`(主进程自动扫描,无需构建) |
 | `libjack64.dll` | 已安装于 `C:\Windows`(x64),动态加载;不随包分发 |
 | `jackd.exe` | 开发期来自 `third_party/JACK2`;发布期由安装器处理 |
 | Qt DLL | 开发机走 Qt `bin` PATH;发布期 `windeployqt` 收集(后期打包计划) |
@@ -492,7 +503,7 @@ add_subdirectory(src/plugin)
 | **M2 Common 完整实现** | §5 全部容器/线程/日志/元数据 + 单元测试 | 4~6 天 | `ctest` 通过;TSAN 无告警 | ✅ 已完成（2026-08-30） |
 | **M3 Audio 完整实现** | §7 JackClient/Port/Graph/MIDI/ServerGuard + **WASAPI 设备与共享流** + **系统 MIDI 设备与事件流** + 冒烟 | 7~10 天 | 冒烟脚本通过;错误路径明确 | ✅ 已完成（2026-08-31） |
 | **M4 UI 完整实现** | §6 ThemeManager/PaintableWidget/NativeWindowUtils/资源 | 4~6 天 | 主题切换 demo + HWND 嵌入 demo | ✅ 已完成（2026-08-31） |
-| **M5 Plugin 接口桩** | §8 IModulePlugin/ModuleApi.h + `plugin.dll` 桩 + 示例模块骨架(仅编译验证) | 2~3 天 | 示例模块可被 LoadLibrary 导出符号可解析 | 📋 未开始 |
+| **M5 Node 接口桩** | §8 INode/NodeApi.h + `node.dll` 桩 + 示例节点骨架(仅编译验证) | 2~3 天 | 示例节点可被 LoadLibrary 导出符号可解析 | ✅ 已完成（2026-09-02） |
 | **M6 基础库集成** | 三库联调:UI 调用 Audio 状态、Theme 信号贯通、进程内演示程序(临时) | 2~3 天 | 集成 demo 运行;作为后续功能模块的开发基座 | 📋 未开始 |
 
 > 备注(遵循既有工作流):每阶段**编译通过即可交付**,冒烟/验证脚本仅用于开发期自查,交付后由用户手动验证;不反复跑自动化验证。
@@ -500,6 +511,10 @@ add_subdirectory(src/plugin)
 > M3 完成记录（2026-08-31）:已实现 JACK 动态加载及 Client/Port/Graph/MIDI/RingBuffer/ServerGuard、WASAPI 共享模式设备枚举与 Render/Capture 流、WinMM MIDI 设备枚举与输入事件/短消息输出;AudioTests 覆盖无设备降级、设备生命周期、JACK dummy client/port 激活和回调。当前 WinMM 输出范围为短消息,`WasapiStreamOptions` 的采样率/声道请求暂按设备 mix format 使用,长消息输出与重采样留待后续增量。
 >
 > M4 完成记录（2026-08-31）:已实现 ThemePalette/ThemeManager 两套内置 QSS、变量替换、运行时换肤和 QSettings 持久化;PaintableWidget/AnimatedWidget/MeterWidget 渲染节流;NativeWindowUtils 的 QWidget HWND、foreign HWND 容器嵌入/分离和 DPI 缩放;IconManager 与 Qt 资源。`wjn_ui_tests` 覆盖主题切换、QSS 属性、动画隐藏暂停、图标加载、DPI 和 HWND 生命周期;全量构建通过,CTest `4/4` 通过。主题/HWND 行为以专项测试验证,未另建独立 demo 应用。
+>
+> M4 增补(2026-09-02):UI 库新增 `TrayController`(后台托盘组件)——内置接线盘/调音台/电平表桥/信号切换开关占位菜单(默认禁用)、动态菜单注入、气泡通知与激活回调;Release 全量构建通过(`ui.dll` 产出)。
+>
+> M5 完成记录（2026-09-02）:已将接口库迁移为 `WinJACKNexus::Node` / `node.dll`,实现 `NodeInfo`、`INode` 和完整 Node C API(`wjn_get_node_api_version`、名称、分类、创建、销毁);新增 `wjn_example_node.dll` 作为最小节点骨架。`wjn_node_tests` 通过 `LoadLibrary` / `GetProcAddress` 验证接口桩与示例节点的全部导出、元数据、实例创建、初始化和销毁。
 >
 > 状态更新规则:每个里程碑完成并通过对应验收后,在本表“状态”列记录 `✅ 已完成（完成日期）`;未开始的里程碑保持 `📋 未开始`。
 
@@ -520,7 +535,7 @@ add_subdirectory(src/plugin)
 
 ## 12. 后续衔接
 
-1. **P2**「主程序与 Audio Adapter」计划:基于 `Plugin::IModulePlugin` + `Audio::JackClient` + `Audio::WasapiCaptureStream/RenderStream` + `Audio::MidiInputStream/OutputStream` 实现 `WinJACKNexus.exe` 与 `mod_adapter.dll`;
+1. **P2**「主程序与 Audio Adapter」计划:基于 `Node::INode` + `Audio::JackClient` + `Audio::WasapiCaptureStream/RenderStream` + `Audio::MidiInputStream/OutputStream` 实现 `WinJACKNexus.exe` 与 `nodes/internal/mod_adapter.dll`;
 2. **P3**「Patchbay / Mixer」计划:基于 `Audio::JackGraph` 与 `UI::ThemeManager`;
 3. **P4**「Meterbridge / Switch」计划:基于 `Common::AudioRingBuffer`(SPSC 电平管道);
 4. **P5**「VST Host 沙盒 / DAW2Jack」计划:基于 JUCE + VST3 SDK;

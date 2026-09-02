@@ -31,13 +31,14 @@ include(WJNMacros)
 add_subdirectory(src/common)
 add_subdirectory(src/ui)
 add_subdirectory(src/audio)
-add_subdirectory(src/plugin)
+add_subdirectory(src/node)
 
 include(CTest)
 if(BUILD_TESTING)
     add_subdirectory(tests/common)
     add_subdirectory(tests/audio)
     add_subdirectory(tests/ui)
+    add_subdirectory(tests/node)
     add_test(
         NAME m1_dll_outputs
         COMMAND "${CMAKE_COMMAND}"

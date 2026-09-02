@@ -12,7 +12,7 @@ WinJACKNexus 是一款面向 Windows 的模块化音频路由与处理套件。�
 - **kX 式图形化插线** —— 所有模块(适配器、调音台、电平桥、VST 机架、DAW 桥)一律暴露标准 Native JACK Audio/MIDI 端口,由 `Interactive Patchbay` 全局接线盘可视化连线、断开与拓扑管理;
 - **极低延迟路由** —— 继承 JACK 实时调度模型,模块间走无锁零拷贝音频图;
 - **沙盒级稳定性** —— “1 个核心主进程 + N 个沙盒 VST 宿主进程”,第三方 VST 崩溃不波及主套件与系统音频流;
-- **渐进式模块化** —— 功能模块以 DLL 热插拔,菜单动态注册,无需重编译主程序即可扩充套件。
+- **渐进式模块化** —— 节点 DLL 热插拔(`nodes/internal/` 自带 + `nodes/custom/` 第三方),菜单动态注册,无需重编译主程序即可扩充套件。
 
 ---
 
@@ -104,8 +104,8 @@ WinJACKNexus 的定位:
 ## 架构要点
 
 - **1 个核心主进程 + N 个沙盒 VST 宿主进程**(kX Project 式沙盒与高稳定主内核);
-- 主进程内功能模块(`modules/*.dll`)通过 Native JACK API 通信,**零 IPC**;
-- 模块 DLL 扫描注入、主菜单/托盘菜单 **动态注册 + 热插拔**;
+- 主进程内功能节点(`nodes/internal/*.dll` 自带 + `nodes/custom/*.dll` 第三方)通过 Native JACK API 通信,**零 IPC**;
+- 节点 DLL 扫描注入(`nodes/` 目录)、主菜单/托盘菜单 **动态注册 + 热插拔**;
 - 音频线程与 UI 线程之间**严禁互斥锁**,统一使用 `WinJACKNexus::Common` 无锁 SPSC 队列 / `RealtimeObject`;
 - `WinJACKNexus::UI::ThemeManager` 全局 QSS 主题(暗黑机架风 / 明亮调音台风,支持变量替换、实时换肤);
 - 窗口隐藏/最小化自动暂停渲染(后台 CPU ≈ 0)。
@@ -187,33 +187,33 @@ WinJACKNexus 的定位:
 
 ---
 
-## 模块完成记录
+## 节点完成记录
 
 > 状态图例:`📋 未开始` → `🔨 开发中` → `✅ 已完成`
-> 每个模块对应一份计划书,命名约定:`Docs/WinJACKNexus - <模块名> - 开发计划.md`
+> 每个节点(模块)对应一份计划书,命名约定:`Docs/WinJACKNexus - <模块名> - 开发计划.md`
 
-| 模块 | 形态 | 状态 | 计划书 | 备注 |
+| 节点 | 形态 | 状态 | 计划书 | 备注 |
 | :--- | :--- | :--- | :--- | :--- |
 | 基础库 `WinJACKNexus::Common` | `common.dll` | 🔨 开发中 | [基础库计划](Docs/WinJACKNexus%20-%20基础库%20-%20开发计划.md) | 无锁队列/环形缓冲/实时对象/日志 |
 | 基础库 `WinJACKNexus::UI` | `ui.dll` | 🔨 开发中 | [基础库计划](Docs/WinJACKNexus%20-%20基础库%20-%20开发计划.md) | ThemeManager/窗口嵌入/自绘控件 |
 | 基础库 `WinJACKNexus::Audio` | `audio.dll` | 🔨 开发中 | [基础库计划](Docs/WinJACKNexus%20-%20基础库%20-%20开发计划.md) | JACK 封装/WASAPI/系统 MIDI |
-| 基础库 `WinJACKNexus::Plugin` | `plugin.dll` | 🔨 开发中(接口桩) | [基础库计划](Docs/WinJACKNexus%20-%20基础库%20-%20开发计划.md) | IModulePlugin + C-API |
-| Audio Adapter | `mod_adapter.dll` | 📋 未开始 | — | P2 |
-| Interactive Patchbay | `mod_patchbay.dll` | 📋 未开始 | — | P2(核心接线盘) |
-| Pure Mixer | `mod_mixer.dll` | 📋 未开始 | — | P3 |
-| Meterbridge | `mod_meterbridge.dll` | 📋 未开始 | — | P4 |
-| Signal Switch | `mod_switch.dll` | 📋 未开始 | — | P4 |
-| MIDI Splitter | 模块(`mod_patchbay` 内/独立) | 📋 未开始 | — | 与 Patchbay 同期 |
-| 16x16 MIDI Matrix | 模块(同上) | 📋 未开始 | — | 与 Patchbay 同期 |
+| 基础库 `WinJACKNexus::Node` | `node.dll` | ✅ 已完成(接口桩) | [基础库计划](Docs/WinJACKNexus%20-%20基础库%20-%20开发计划.md) | INode + C-API + 示例节点 |
+| Audio Adapter | `nodes/internal/mod_adapter.dll` | 📋 未开始 | — | P2 |
+| Interactive Patchbay | `nodes/internal/mod_patchbay.dll` | 📋 未开始 | — | P2(核心接线盘) |
+| Pure Mixer | `nodes/internal/mod_mixer.dll` | 📋 未开始 | — | P3 |
+| Meterbridge | `nodes/internal/mod_meterbridge.dll` | 📋 未开始 | — | P4 |
+| Signal Switch | `nodes/internal/mod_switch.dll` | 📋 未开始 | — | P4 |
+| MIDI Splitter | 节点(`mod_patchbay` 内/独立) | 📋 未开始 | — | 与 Patchbay 同期 |
+| 16x16 MIDI Matrix | 节点(同上) | 📋 未开始 | — | 与 Patchbay 同期 |
 | Single VST Host | `WinJACKNexus-VSTHost.exe` | 📋 未开始 | — | P5 |
 | Chain VST Host | `WinJACKNexus-VSTHost.exe` | 📋 未开始 | — | P5 |
 | DAW2JackMIDI VST3 | `*.vst3` | 📋 未开始 | — | P5 |
 | DAW2JackAudio VST3 | `*.vst3`(Mono/Stereo/5.1/7.1) | 📋 未开始 | — | P5 |
-| 主程序外壳 | `WinJACKNexus.exe` | 📋 未开始 | — | 依赖 Plugin 接口 |
+| 主程序外壳 | `WinJACKNexus.exe` | 📋 未开始 | — | 依赖 Node 接口 |
 
 ### 开发路线
 
-- **P0 基础库(当前)**:`Common` / `UI` / `Audio` 完整实现 + `Plugin` 接口桩 → 编译产物 `common.dll` / `ui.dll` / `audio.dll` / `plugin.dll`;
+- **P0 基础库(当前)**:`Common` / `UI` / `Audio` 完整实现 + `Node` 接口桩 → 编译产物 `common.dll` / `ui.dll` / `audio.dll` / `node.dll`;
 - **P2 主程序 + Adapter + Patchbay**:主进程外壳、系统音频/ MIDI 接入、全局接线盘;
 - **P3 Mixer**:简单/专业调音台;
 - **P4 电平桥 + 切换开关 + MIDI 工具**(Splitter / Matrix);
@@ -223,7 +223,7 @@ WinJACKNexus 的定位:
 
 ## 文档
 
-- [`Docs/WinJACKNexus 开发规范.md`](Docs/WinJACKNexus%20开发规范.md) —— 架构规范 v2.0(强制遵循)
+- [`Docs/WinJACKNexus 开发规范.md`](Docs/WinJACKNexus%20开发规范.md) —— 架构规范 v3.1(强制遵循)
 - [`Docs/WinJACKNexus - 基础库 - 开发计划.md`](Docs/WinJACKNexus%20-%20基础库%20-%20开发计划.md) —— 当前阶段计划书
 
 ---

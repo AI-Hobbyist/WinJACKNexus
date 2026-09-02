@@ -6,6 +6,7 @@ add_library(ui SHARED
     src/PaintableWidget.cpp
     src/ThemeManager.cpp
     src/ThemePalette.cpp
+    src/TrayController.cpp
     include/WinJACKNexus/UI/Export.hpp
     include/WinJACKNexus/UI/AnimatedWidget.hpp
     include/WinJACKNexus/UI/IconManager.hpp
@@ -14,6 +15,7 @@ add_library(ui SHARED
     include/WinJACKNexus/UI/PaintableWidget.hpp
     include/WinJACKNexus/UI/ThemeManager.hpp
     include/WinJACKNexus/UI/ThemePalette.hpp
+    include/WinJACKNexus/UI/TrayController.hpp
     resources/ui.qrc
 )
 

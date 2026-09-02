@@ -1,15 +1,25 @@
-# WinJACKNexus 架构改造与模块化演进规范 (v2.0)
+# WinJACKNexus 架构改造与模块化演进规范 (v3.1)
 
-## 1. 核心架构哲学：kX Project 式沙盒与高稳定主内核
+> **v3.1 变更(2026-09-02)**:接口命名空间 `WinJACKNexus::Plugin` 更名为 **`WinJACKNexus::Node`**(`IModulePlugin` → `INode`);节点 DLL 目录由 `modules/` 调整为**主程序目录下**的 `nodes/internal/`(自带节点)与 `nodes/custom/`(第三方节点);接口桩库 `plugin.dll` → `node.dll`。
+>
+> **v3.0 变更(2026-09-02)**:引入 **“万物皆为节点”** 拓扑模型——接线盘是所有 JACK 客户端的总配线盘;调音台/电平表为“节点 + 独立窗口”;VST/VST3 采用独立后台进程,插件崩溃仅使对应节点旁通;主进程增加基础托盘占位菜单(接线盘 / 调音台 / 电平表桥 / 信号切换开关);DAW 桥接插件维持现状。
 
-为兼顾**极低延迟**、**极致稳定性**与**灵活的拓展性**，WinJACKNexus 采用 **“1 个核心主进程（DLL 插件容器） + N 个沙盒 VST 宿主进程”** 的架构[cite: 3]：
-- **主进程 (`WinJACKNexus.exe`)**：托盘守护进程 + 模块/窗口管理器[cite: 3]。负责加载高度稳定的内置功能模块（DLL），处理主菜单与窗口调度[cite: 3]。
-- **内置功能模块 (`modules/*.dll`)**：包含 Adapter、Patchbay、Mixer、Meterbridge 等，运行在主进程空间内，**零 IPC 开销**，通过 Native JACK API 进行音频/MIDI 连线[cite: 3]。
-- **沙盒 VST 宿主 (`WinJACKNexus-VSTHost.exe`)**：基于 JUCE 引擎驱动的独立进程，专用于托管不稳定或第三方的 VST3 插件[cite: 3]。即使插件崩溃，也仅影响该沙盒进程，主套件和系统音频流 **100% 不会崩溃**[cite: 3]。
-- **全局路由拓扑规范（Patchbay Core）**：
-  - **模块连线全覆盖**：系统内**所有功能模块**（包括 Adapter、Basic/Pro Mixer、Meterbridge、Signal Switch、VST Host 机架以及 DAW2Jack 桥接插件）**必须严格暴露标准 Native JACK Audio/MIDI Port**[cite: 3]。
-  - **Patchbay 全局接线盘**：`mod_patchbay.dll` 作为全系统的可视化连线中枢，可以对上述所有模块暴露的 JACK 端口进行无死角的可视化连线、断开与拓扑管理[cite: 3]。
-- **架构范式**：除了跑在第三方 DAW 进程内的桥接插件采用纯 JUCE 架构外，其余全套桌面模块**统一采用“Qt 前端 + Native C++/JUCE 音频引擎”的混合架构**[cite: 3]。
+## 1. 核心架构哲学：kX Project 式沙盒、节点化拓扑与高稳定主内核
+
+为兼顾**极低延迟**、**极致稳定性**与**灵活的拓展性**，WinJACKNexus 采用 **“1 个核心主进程（DLL 插件容器） + N 个沙盒 VST 宿主进程”** 的架构[cite: 3]，并以 **“万物皆为节点”** 为全局拓扑模型：
+
+- **主进程 (`WinJACKNexus.exe`)**：托盘守护进程 + 模块/窗口管理器[cite: 3]。负责加载高度稳定的内置功能模块（DLL），处理主菜单、托盘菜单与窗口调度[cite: 3]。
+  - **基础托盘实现(占位菜单)**：主进程启动即显示系统托盘图标，右键菜单包含 **接线盘 / 调音台 / 电平表桥 / 信号切换开关** 四个占位入口；随着模块 DLL 动态注入，占位项逐步替换/扩展为真实菜单项（见 §3.0）。
+- **万物皆为节点(Node-based Topology)**：**接线盘(Patchbay)是所有 JACK 客户端的总配线盘**——系统内一切可路由单元（自家模块、VST 宿主节点、DAW 桥插件、外部 JACK 客户端与系统端口）都以**节点**形式出现在接线盘画布上，端口即节点引脚，连线即 JACK 连接。节点按呈现方式分两类：
+  - **独立窗口节点**：调音台节点、电平表节点——画布上是单个节点，双击打开对应**独立窗口**。电平表遵循 **“1 模块 = 1 节点 = 1 独立详情窗口”**：添加几个电平表模块，就有几个电平表节点与对应详情窗口。
+  - **纯画布节点**：MIDI Splitter、16×16 MIDI Matrix、Signal Switch、VST/VST3 宿主、音频适配器以及一切外部 JACK 客户端，直接在接线盘上连线路由。
+- **内置节点 DLL (`nodes/internal/*.dll`)**：包含 Adapter、Patchbay、Mixer、Meterbridge 等，运行在主进程空间内，**零 IPC 开销**，通过 Native JACK API 进行音频/MIDI 连线[cite: 3]。
+- **第三方节点 DLL (`nodes/custom/*.dll`)**：由第三方开发者开发的节点，放置于主程序目录 `nodes/custom/`，与内置节点走同一 `WinJACKNexus::Node` 接口与扫描机制，无需修改主程序即可加入（见 §3.1）。
+- **沙盒 VST 宿主 (`WinJACKNexus-VSTHost.exe`)**：基于 JUCE 引擎驱动的独立**后台进程**，专用于托管不稳定或第三方的 VST3/VST 插件[cite: 3]。每个 VST/VST3 插件对应接线盘上一个 **VST 节点**；即使插件崩溃，也仅影响对应节点——该节点自动进入 **旁通(Bypass)** 状态（直通/静音由节点策略决定），主套件与系统音频流 **100% 不会崩溃**，节点可一键重启恢复[cite: 3]。
+- **全局路由拓扑规范(Patchbay Core)**：
+  - **模块连线全覆盖**：系统内**所有功能模块**（包括 Adapter、调音台、电平表、Signal Switch、VST Host 节点以及 DAW2Jack 桥接插件）**必须严格暴露标准 Native JACK Audio/MIDI Port**[cite: 3]。
+  - **Patchbay 总配线盘**：`mod_patchbay.dll` 作为全部 JACK 客户端的可视化配线中枢，对所有节点暴露的 JACK 端口进行无死角可视化连线、断开与拓扑管理（含外部 JACK 客户端）[cite: 3]。
+- **架构范式**：除了跑在第三方 DAW 进程内的桥接插件采用纯 JUCE 架构（**维持现状**）外，其余全套桌面模块**统一采用“Qt 前端 + Native C++/JUCE 音频引擎”的混合架构**[cite: 3]。
 
 ---
 
@@ -21,7 +31,7 @@
 - `WinJACKNexus::Common`：跨模块复用的基础工具类、数据结构与无锁环形缓冲区。
 - `WinJACKNexus::UI`：Qt 前端公共组件、主题/QSS 管理器、自绘控件基类。
 - `WinJACKNexus::Audio`：Native JACK 封装、JUCE DSP 包装器、Audio Thread 安全容器。
-- `WinJACKNexus::Plugin`：DLL 模块抽象接口 (`IModulePlugin`) 与 C-API 导出规范。
+- `WinJACKNexus::Node`：DLL 节点抽象接口 (`INode`) 与 C-API 导出规范。
 
 ### 2.2 Common 基础库核心职责
 - **无锁 SPSC Queue**：提供统一的实时无锁数据传输容器（基于 `farbot::RealtimeObject` / `boost::lockfree::spsc_queue`）[cite: 3]。
@@ -37,33 +47,74 @@
 
 主进程外壳支持 **“按需加载，热插拔菜单”**[cite: 3]。主界面顶部菜单栏（`QMenuBar`）和托盘右键菜单（`QSystemTrayIcon`）不硬编码任何具体子窗口入口，而是暴露统一的模块注册接口[cite: 3]。
 
+### 3.0 基础托盘实现（占位菜单）
+
+- 主进程启动即创建 `QSystemTrayIcon`，右键菜单包含四个**占位入口**：
+  - **接线盘** → 打开 `mod_patchbay.dll` 总配线盘窗口（核心视图）；
+  - **调音台** → 打开调音台节点详情窗口；
+  - **电平表桥** → 打开电平表节点集合窗口/各电平表详情窗口；
+  - **信号切换开关** → 打开 Signal Switch 控制窗口。
+- 占位项在对应节点 DLL 尚未注册时显示为“敬请期待/禁用”；节点注册后由动态注入机制替换为真实菜单项。
+
+### 3.1 节点部署目录结构（主程序目录）
+
+```
+WinJACKNexus/
+├─ WinJACKNexus.exe              # 主程序
+├─ WinJACKNexus-VSTHost.exe      # 沙盒 VST 宿主（后续）
+├─ nodes/
+│  ├─ internal/                  # 自带节点（mod_adapter.dll、mod_patchbay.dll、mod_mixer_*.dll、mod_meterbridge.dll、mod_switch.dll 等）
+│  └─ custom/                    # 第三方开发者节点（用户/开发者放置，主进程自动扫描）
+└─ *.dll                         # 基础库（common/ui/audio/node）与 Qt 运行时
+```
+
+- **internal/**：随套件分发的自带节点，主程序负责校验与守护；
+- **custom/**：第三方开发者开发的节点，遵循 `WinJACKNexus::Node` C-API 规范即可被主进程发现与加载；
+- 两个子目录使用**同一套**扫描/注册/菜单注入机制，节点放置即生效。
+
 ### 模块注册与菜单联动流程：
-1. **模块扫描**：主进程启动时扫描 `modules/` 目录下的动态库（或在运行时动态加载新 DLL）[cite: 3]。
-2. **导出接口**：每个模块 DLL 导出标准的 C 函数接口（定义在 `WinJACKNexus::Plugin::IModulePlugin`）：
-   - `getModuleName()`：获取模块名称（如 `"Interactive Patchbay"`）[cite: 3]。
+1. **节点扫描**：主进程启动时扫描主程序目录下 `nodes/internal/` 与 `nodes/custom/` 中的动态库（或在运行时动态加载新 DLL）[cite: 3]。
+2. **导出接口**：每个节点 DLL 导出标准的 C 函数接口（定义在 `WinJACKNexus::Node::INode`）：
+   - `getNodeName()`：获取节点名称（如 `"Interactive Patchbay"`）[cite: 3]。
    - `getCategory()`：获取菜单分类（如 `"视图(V)"`、`"路由(R)"` 或 `"工具(T)"`）[cite: 3]。
-   - `createWindow()`：实例化该模块对应的 `QMainWindow` / `QDialog`[cite: 3]。
-3. **动态注入**：主进程解析 DLL 后，自动在主菜单对应的分类下追加该模块的打开/隐藏菜单项（`QAction`），绑定快捷键并注入全局 QSS 主题[cite: 3]。
-4. **渐进式发布**：开发者或用户添加新 DLL（如 `mod_mixer_pro.dll`），系统再次启动时会自动更新菜单项，无需重新编译主程序外壳[cite: 3]。
+   - `createWindow()`：实例化该节点对应的 `QMainWindow` / `QDialog`[cite: 3]。
+3. **动态注入**：主进程解析 DLL 后，自动在主菜单对应的分类下追加该节点的打开/隐藏菜单项（`QAction`），绑定快捷键并注入全局 QSS 主题[cite: 3]。
+4. **渐进式发布**：开发者或用户添加新节点 DLL（自带节点放入 `nodes/internal/`，第三方放入 `nodes/custom/`），系统再次启动时会自动更新菜单项，无需重新编译主程序外壳[cite: 3]。
 
 ---
 
 ## 4. 全模块架构选型与分层部署矩阵
 
-> **架构提示**：除 **DAW 桥接插件** 为纯 JUCE 架构外，其余项目全部为 **Qt + Native C++/JUCE 混合架构**[cite: 3]。所有模块均必须注册 JACK 端口，支持由 Patchbay 全局路由[cite: 3]。
+> **架构提示**：除 **DAW 桥接插件** 为纯 JUCE 架构（维持现状）外，其余项目全部为 **Qt + Native C++/JUCE 混合架构**[cite: 3]。**万物皆为节点**：所有模块均必须注册 JACK 端口并以节点形式出现在总配线盘上，支持由 Patchbay 全局路由[cite: 3]。
 
 | 模块名称 | 部署形式 | 前端 (Frontend / UI) | 后端/逻辑 (Backend & Logic) | 音频引擎 (Audio Engine) | 选型与改造理由 |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **主总控与托盘守护<br>(Tray & Daemon)** | **主程序 (`.exe`)** | **Qt6** (`QSystemTrayIcon` + `QMenuBar` + QSS 主题控制) | **C++20** (DLL 动态扫描注入、Scene 预设解析、全局热键) | **Native JACK C API** (全局连接拓扑守护) | 混合架构。负责全局 UI 状态调度、全局主题样式分发与 DLL 模块动态加载[cite: 3]。 |
-| **音频适配器<br>(Audio Adapter)** | **核心 DLL (`mod_adapter.dll`)** | **Qt6** (标准设置窗口 / 设备与 Buffer 列表) | **C++20** (配置持久化、采样率与 Buffer 状态绑定) | **Native JACK C API** (导出 System Input/Output 端口) | 混合架构。常驻后台，暴露物理/虚拟设备端口供 Patchbay 和其他模块接线[cite: 3]。 |
-| **模块化虚拟插线板<br>(Interactive Patchbay)** | **核心 DLL (`mod_patchbay.dll`)** | **Qt6** (`QGraphicsView` 画布，QSS 自定义节点/连线风格) | **C++20** (聚合画布拓扑计算，内置 MIDI Splitter / Matrix 节点逻辑) | **JACK Graph API** (`jack_connect` / `jack_disconnect`) | 混合架构。**全局接线盘控制中枢**。对系统中所有其他模块的暴露端口进行图形化画线与路由调度[cite: 3]。 |
-| **基础调音台<br>(Basic Mixer)** | **功能 DLL (`mod_mixer_basic.dll`)** | **Qt6** (`QPainter` 自绘通道条、推子与 Pan，支持 QSS 换肤) | **C++20** (通道 Gain/Mute/Solo 状态机，SPSC 逻辑控制) | **Native JACK Audio / JUCE DSP Engine** (导出通道 In/Out 端口) | 混合架构。轻量推子调节，所有通道抽象为标准的 JACK 端口，支持在 Patchbay 中任意插入[cite: 3]。 |
-| **专业调音台<br>(Pro Mixer)** | **功能 DLL (`mod_mixer_pro.dll`)** | **Qt6** (高密度高级数字调音台 UI，支持可缩放 QSS 皮肤) | **C++20** (Bus 路由表、Aux 发送矩阵、DCA 编组逻辑) | **JUCE Audio DSP Engine** (导出 Bus/Aux/Main 端口) | 混合架构。JUCE 提供高精度混音，多路 Bus/Aux/Surround 均暴露为 JACK Port 供 Patchbay 连线[cite: 3]。 |
-| **多通道电平桥监控<br>(Meterbridge)** | **功能 DLL (`mod_meterbridge.dll`)** | **Qt6** (`QPainter` 60-120fps 高刷渲染，QSS 色彩表配置) | **WinJACKNexus::Common** (SPSC 环形缓冲区提取电平数据) | **Native JACK Audio RingBuffer** (导出 Monitor Input 端口) | 混合架构。暴露旁路监控端口，可在 Patchbay 中接到任意信号线上监听 Peak/RMS 数据[cite: 3]。 |
-| **信号路由切换开关<br>(Signal Switch)** | **功能 DLL (`mod_switch.dll`)** | **Qt6** (状态切换 Toggle，QSS 按钮动画) | **C++20** (指针交换 + 平滑 Crossfade 状态机) | **Native C++ Audio Switch Engine** (导出多路切换 In/Out 端口) | 混合架构。暴露多路输入输出端口，通过平滑 Crossfade 在 Patchbay 通道间实现零爆音平滑切换[cite: 3]。 |
-| **沙盒 VST 效果器机架<br>(Single/Chain VST Host)** | **沙盒进程 (`.exe`)** | **Qt6** (拖拽 Slot 机架外壳 + 原生 `HWND` 嵌入容器) | **C++20** (IPC 通信处理、插件预设/参数映射) | **JUCE `AudioProcessorGraph`** (导出机架 In/Out/MIDI 端口) | 混合架构。独立沙盒进程隔离 VST3 崩溃风险；机架输入输出完全暴露给 Patchbay 图形化接线[cite: 3]。 |
-| **DAW 桥接 MIDI/音频插件<br>(DAW2Jack VST3)** | **第三方 DAW 插件 (`.vst3`)** | **纯 JUCE** (`juce::Component` 简易电平与状态 UI) | **纯 JUCE** (`juce::AudioProcessor` 逻辑控制) | **纯 JUCE + RingBuffer** (导出 DAW Bridge 端口) | **纯 JUCE 架构**。运行在第三方 DAW 进程内，在 JACK 系统中自动注册为 DAW 音频/MIDI 端口供 Patchbay 挂载[cite: 3]。 |
+| **主总控与托盘守护<br>(Tray & Daemon)** | **主程序 (`.exe`)** | **Qt6** (`QSystemTrayIcon` 托盘占位菜单：接线盘/调音台/电平表桥/信号切换开关 + `QMenuBar` + QSS 主题控制) | **C++20** (DLL 动态扫描注入、Scene 预设解析、全局热键) | **Native JACK C API** (全局连接拓扑守护) | 混合架构。负责全局 UI 状态调度、托盘占位菜单、全局主题样式分发与 DLL 模块动态加载[cite: 3]。 |
+| **音频适配器<br>(Audio Adapter)** | **核心节点 DLL (`nodes/internal/mod_adapter.dll`)** | **Qt6** (标准设置窗口 / 设备与 Buffer 列表) | **C++20** (配置持久化、采样率与 Buffer 状态绑定) | **Native JACK C API** (导出 System Input/Output 端口) | 混合架构。**常驻画布节点**，暴露物理/虚拟设备端口，作为系统设备节点出现在总配线盘上供 Patchbay 和其他节点接线[cite: 3]。 |
+| **总配线盘<br>(Interactive Patchbay)** | **核心节点 DLL (`nodes/internal/mod_patchbay.dll`)** | **Qt6** (`QGraphicsView` 画布，QSS 自定义节点/连线风格；**所有 JACK 客户端节点**的总配线盘) | **C++20** (聚合画布拓扑计算，内置 MIDI Splitter / Matrix 节点逻辑，节点⇆独立窗口映射) | **JACK Graph API** (`jack_connect` / `jack_disconnect`) | 混合架构。**全局配线中枢**。显示所有 JACK 客户端（含外部客户端/系统端口），对节点端口进行图形化画线与路由调度；调音台/电平表节点双击打开独立窗口[cite: 3]。 |
+| **调音台<br>(Mixer)** | **功能节点 DLL (`nodes/internal/mod_mixer_basic.dll` / `mod_mixer_pro.dll`)** | **Qt6** (`QPainter` 自绘通道条、推子与 Pan，支持 QSS 换肤) | **C++20** (通道 Gain/Mute/Solo 状态机，SPSC 逻辑控制) | **Native JACK Audio / JUCE DSP Engine** (导出通道 In/Out 端口) | 混合架构。**调音台节点 + 独立窗口**：画布上为 1 个节点，双击打开调音台详情窗口；所有通道抽象为标准 JACK 端口，可在配线盘任意插入[cite: 3]。 |
+| **电平表桥<br>(Meterbridge)** | **功能节点 DLL (`nodes/internal/mod_meterbridge.dll`)** | **Qt6** (`QPainter` 60-120fps 高刷渲染，QSS 色彩表配置) | **WinJACKNexus::Common** (SPSC 环形缓冲区提取电平数据) | **Native JACK Audio RingBuffer** (导出 Monitor Input 端口) | 混合架构。**电平表节点 + 独立窗口**：1 节点 = 1 个独立详情电平表窗口；添加 N 个电平表节点即有 N 个详情窗口，可监听任意信号线 Peak/RMS[cite: 3]。 |
+| **信号路由切换开关<br>(Signal Switch)** | **功能节点 DLL (`nodes/internal/mod_switch.dll`)** | **Qt6** (状态切换 Toggle，QSS 按钮动画) | **C++20** (指针交换 + 平滑 Crossfade 状态机) | **Native C++ Audio Switch Engine** (导出多路切换 In/Out 端口) | 混合架构。**纯画布节点**：暴露多路输入输出端口，通过平滑 Crossfade 在配线盘通道间实现零爆音平滑切换[cite: 3]。 |
+| **VST/VST3 宿主节点<br>(Single/Chain VST Host)** | **沙盒进程 (`.exe` 于主程序目录) + 画布 VST 节点** | **Qt6** (拖拽 Slot 机架外壳 + 原生 `HWND` 嵌入容器) | **C++20** (IPC 通信处理、插件预设/参数映射、**旁通/重启状态机**) | **JUCE `AudioProcessorGraph`** (导出机架 In/Out/MIDI 端口) | 混合架构。**独立后台进程**加载插件；插件崩溃 → 对应 **VST 节点自动旁通**（端口保持注册），节点可一键重启；机架输入输出完全暴露给配线盘图形化接线[cite: 3]。 |
+| **DAW 桥接 MIDI/音频插件<br>(DAW2Jack VST3)** | **第三方 DAW 插件 (`.vst3`)** | **纯 JUCE** (`juce::Component` 简易电平与状态 UI) | **纯 JUCE** (`juce::AudioProcessor` 逻辑控制) | **纯 JUCE + RingBuffer** (导出 DAW Bridge 端口) | **纯 JUCE 架构，维持现状**。运行在第三方 DAW 进程内，在 JACK 系统中自动注册为 DAW 音频/MIDI 端口，并作为节点自动出现在总配线盘上供 Patchbay 挂载[cite: 3]。 |
+### 4.1 节点化拓扑模型（Node Model）
 
+> **“万物皆为节点”**——配线盘画布即拓扑视图，所有 JACK 客户端（内部模块、外部客户端、系统端口）均以节点呈现。
+
+| 节点类型 | 画布表现 | 独立窗口 | 生命周期 / 异常策略 |
+| :--- | :--- | :--- | :--- |
+| **适配器节点** (Adapter) | 常驻节点：`system:capture_*` / `system:playback_*` | 右键 → 设置（设备 / Buffer） | 设备热插拔 → 端口重建 |
+| **调音台节点** (Mixer) | 1 节点，通道 In/Out 引脚 | **双击打开调音台详情窗口** | 参数经 SPSC 无锁下发 |
+| **电平表节点** (Meter) | 1 模块 = 1 节点（Monitor In） | **1 节点 = 1 独立详情电平表窗口**（添加 N 个模块 → N 个窗口） | SPSC 电平数据；窗口隐藏暂停渲染 |
+| **信号切换节点** (Signal Switch) | 纯画布节点（多路 In/Out） | —（可选小浮窗） | Crossfade 平滑切换 |
+| **MIDI 节点** (Splitter / 16×16 Matrix) | 纯画布节点（MIDI In/Out） | — | 纯 MIDI 处理，无窗口 |
+| **VST/VST3 节点** | 画布节点（机架 In/Out/MIDI） | 双击打开插件编辑器（HWND 嵌入，沙盒进程内） | **独立后台进程**；插件崩溃 → **节点旁通**，端口保持注册，可一键重启 |
+| **DAW 桥节点** (DAW2Jack VST3) | 随 DAW 注册自动出现 | —（由 DAW 宿主管理） | **维持现状** |
+| **外部 JACK 客户端** | 实时出现在总配线盘，可接线 | — | 客户端退出 → 节点消失 |
+
+- **节点 = JACK 客户端 + 元数据**：每个节点绑定一个（或一组）JACK 端口与描述信息（name / category / type）；配线盘监听 `jack_set_graph_order_callback` 等拓扑事件实时增删节点。
+- **独立窗口规则**：仅**调音台**与**电平表**两类节点拥有独立详情窗口；窗口随节点创建/销毁，隐藏时按 §5.3 暂停渲染。
+- **VST 节点旁通**：VST/VST3 插件运行在独立后台进程；进程异常退出时节点状态置为 **Bypass**（输入直通输出或按节点配置静音），端口保持注册，点击节点即可重启插件进程恢复。
 ---
 
 ## 5. 线程隔离、主题渲染与数据同步规范
