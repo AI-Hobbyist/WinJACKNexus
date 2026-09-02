@@ -32,6 +32,7 @@ add_subdirectory(src/common)
 add_subdirectory(src/ui)
 add_subdirectory(src/audio)
 add_subdirectory(src/node)
+add_subdirectory(src/patchbay)
 add_subdirectory(src/app)
 
 include(CTest)
@@ -40,6 +41,8 @@ if(BUILD_TESTING)
     add_subdirectory(tests/audio)
     add_subdirectory(tests/ui)
     add_subdirectory(tests/node)
+    add_subdirectory(tests/patchbay/core)
+    add_subdirectory(tests/patchbay/plugins)
     add_test(
         NAME m1_dll_outputs
         COMMAND "${CMAKE_COMMAND}"

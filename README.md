@@ -12,7 +12,7 @@ WinJACKNexus 是一款面向 Windows 的模块化音频路由与处理套件。�
 - **kX 式图形化插线** —— 所有模块(适配器、调音台、电平桥、VST 机架、DAW 桥)一律暴露标准 Native JACK Audio/MIDI 端口,由 `Interactive Patchbay` 全局接线盘可视化连线、断开与拓扑管理;
 - **极低延迟路由** —— 继承 JACK 实时调度模型,模块间走无锁零拷贝音频图;
 - **沙盒级稳定性** —— “1 个核心主进程 + N 个沙盒 VST 宿主进程”,第三方 VST 崩溃不波及主套件与系统音频流;
-- **渐进式模块化** —— 节点 DLL 热插拔(`nodes/internal/` 自带 + `nodes/custom/` 第三方),菜单动态注册,无需重编译主程序即可扩充套件。
+- **渐进式模块化** —— 节点 DLL 热插拔(`nodes/` 下按类型分文件夹:adapter/mixer/meter/switch/midi/vst/carla…),菜单动态注册,无需重编译主程序即可扩充套件。
 
 ---
 
@@ -104,8 +104,8 @@ WinJACKNexus 的定位:
 ## 架构要点
 
 - **1 个核心主进程 + N 个沙盒 VST 宿主进程**(kX Project 式沙盒与高稳定主内核);
-- 主进程内功能节点(`nodes/internal/*.dll` 自带 + `nodes/custom/*.dll` 第三方)通过 Native JACK API 通信,**零 IPC**;
-- 节点 DLL 扫描注入(`nodes/` 目录)、主菜单/托盘菜单 **动态注册 + 热插拔**;
+- 主进程内功能节点(`nodes/<类型>/*.dll`,按类型分文件夹,接线盘 `mod_patchbay.dll` 为主模块与主程序同级)通过 Native JACK API 通信,**零 IPC**;
+- 节点 DLL 扫描注入(`nodes/` 递归扫描)、主菜单/托盘菜单 **动态注册 + 热插拔**;
 - 音频线程与 UI 线程之间**严禁互斥锁**,统一使用 `WinJACKNexus::Common` 无锁 SPSC 队列 / `RealtimeObject`;
 - `WinJACKNexus::UI::ThemeManager` 全局 QSS 主题(暗黑机架风 / 明亮调音台风,支持变量替换、实时换肤);
 - 窗口隐藏/最小化自动暂停渲染(后台 CPU ≈ 0)。
@@ -198,11 +198,11 @@ WinJACKNexus 的定位:
 | 基础库 `WinJACKNexus::UI` | `ui.dll` | 🔨 开发中 | [基础库计划](Docs/WinJACKNexus%20-%20基础库%20-%20开发计划.md) | ThemeManager/窗口嵌入/自绘控件 |
 | 基础库 `WinJACKNexus::Audio` | `audio.dll` | 🔨 开发中 | [基础库计划](Docs/WinJACKNexus%20-%20基础库%20-%20开发计划.md) | JACK 封装/WASAPI/系统 MIDI |
 | 基础库 `WinJACKNexus::Node` | `node.dll` | ✅ 已完成(接口桩) | [基础库计划](Docs/WinJACKNexus%20-%20基础库%20-%20开发计划.md) | INode + C-API + 示例节点 |
-| Audio Adapter | `nodes/internal/mod_adapter.dll` | 📋 未开始 | — | P2 |
-| Interactive Patchbay | `nodes/internal/mod_patchbay.dll` | 📋 未开始 | — | P2(核心接线盘) |
-| Pure Mixer | `nodes/internal/mod_mixer.dll` | 📋 未开始 | — | P3 |
-| Meterbridge | `nodes/internal/mod_meterbridge.dll` | 📋 未开始 | — | P4 |
-| Signal Switch | `nodes/internal/mod_switch.dll` | 📋 未开始 | — | P4 |
+| Audio Adapter | `nodes/adapter/mod_adapter.dll` | 📋 未开始 | — | P2 |
+| Interactive Patchbay | `mod_patchbay.dll`(主程序同级) | 📋 未开始 | — | P2(核心接线盘,主模块) |
+| Pure Mixer | `nodes/mixer/mod_mixer.dll` | 📋 未开始 | — | P3 |
+| Meterbridge | `nodes/meter/mod_meterbridge.dll` | 📋 未开始 | — | P4 |
+| Signal Switch | `nodes/switch/mod_switch.dll` | 📋 未开始 | — | P4 |
 | MIDI Splitter | 节点(`mod_patchbay` 内/独立) | 📋 未开始 | — | 与 Patchbay 同期 |
 | 16x16 MIDI Matrix | 节点(同上) | 📋 未开始 | — | 与 Patchbay 同期 |
 | Single VST Host | `WinJACKNexus-VSTHost.exe` | 📋 未开始 | — | P5 |

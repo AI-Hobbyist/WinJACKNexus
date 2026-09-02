@@ -1,0 +1,62 @@
+/* dark.window: #17212b */
+/* dark.toolbar: #22313f */
+/* dark.text: #e6eef4 */
+/* dark.button-hover: #34526a */
+/* dark.toolbar-border: #466176 */
+/* dark.button-border: #5f829d */
+/* dark.canvas: #17212b */
+/* dark.node: #263542 */
+/* dark.header: #33495b */
+/* dark.border: #4b5f73 */
+/* dark.selected-border: #81d4fa */
+/* dark.separator: #3c4f60 */
+/* dark.audio: #66bb6a */
+/* dark.midi: #ffa726 */
+/* dark.cv: #26c6da */
+/* dark.osc: #ec407a */
+/* dark.unknown: #90a4ae */
+/* light.window: #edf3f7 */
+/* light.toolbar: #d9e4ec */
+/* light.text: #1c2a35 */
+/* light.button-hover: #c4dce9 */
+/* light.toolbar-border: #9eb7c8 */
+/* light.button-border: #6f91a8 */
+/* light.canvas: #e7f0f5 */
+/* light.node: #ffffff */
+/* light.header: #d5e4ed */
+/* light.border: #93aebf */
+/* light.selected-border: #1679ad */
+/* light.separator: #cfdee7 */
+/* light.audio: #2e8b57 */
+/* light.midi: #d97706 */
+/* light.cv: #168aad */
+/* light.osc: #c2416c */
+/* light.unknown: #64748b */
+
+QMainWindow, QWidget {
+    background: $WINDOW;
+    color: $TEXT;
+    font-family: inherit;
+    font-size: 10pt;
+}
+
+QToolBar {
+    background: $TOOLBAR;
+    border: none;
+    border-bottom: 1px solid $TOOLBAR_BORDER;
+    spacing: 4px;
+    padding: 5px 8px;
+}
+
+QToolButton {
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    color: $TEXT;
+    padding: 5px 9px;
+}
+
+QToolButton:hover, QToolButton:checked {
+    background: $BUTTON_HOVER;
+    border-color: $BUTTON_BORDER;
+}
