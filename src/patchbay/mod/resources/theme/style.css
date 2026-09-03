@@ -11,7 +11,7 @@
 /* dark.selected-border: #81d4fa */
 /* dark.separator: #3c4f60 */
 /* dark.audio: #66bb6a */
-/* dark.midi: #ffa726 */
+/* dark.midi: #ef5350 */
 /* dark.cv: #26c6da */
 /* dark.osc: #ec407a */
 /* dark.unknown: #90a4ae */
@@ -28,7 +28,7 @@
 /* light.selected-border: #1679ad */
 /* light.separator: #cfdee7 */
 /* light.audio: #2e8b57 */
-/* light.midi: #d97706 */
+/* light.midi: #d32f2f */
 /* light.cv: #168aad */
 /* light.osc: #c2416c */
 /* light.unknown: #64748b */
@@ -59,4 +59,30 @@ QToolButton {
 QToolButton:hover, QToolButton:checked {
     background: $BUTTON_HOVER;
     border-color: $BUTTON_BORDER;
+}
+
+QMenuBar {
+    background: #101820;
+    border-bottom: 1px solid $TOOLBAR_BORDER;
+    color: $TEXT;
+    padding: 2px 5px;
+}
+
+QMenuBar::item {
+    background: transparent;
+    padding: 5px 9px;
+}
+
+QMenuBar::item:selected {
+    background: $BUTTON_HOVER;
+}
+
+QMenu {
+    background: $TOOLBAR;
+    border: 1px solid $TOOLBAR_BORDER;
+    color: $TEXT;
+}
+
+QMenu::item:selected {
+    background: $BUTTON_HOVER;
 }

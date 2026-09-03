@@ -1,16 +1,30 @@
 #include <mod_patchbay/PatchbayCanvas.hpp>
 
+#include <WinJACKNexus/Audio/JackApi.hpp>
+#include <WinJACKNexus/Audio/JackClient.hpp>
+
 #include <QApplication>
+#include <QDesktopServices>
 #include <QContextMenuEvent>
+#include <QDragEnterEvent>
+#include <QDropEvent>
 #include <QFile>
 #include <QGraphicsObject>
 #include <QGraphicsPathItem>
 #include <QGraphicsScene>
 #include <QGraphicsSceneMouseEvent>
 #include <QInputDialog>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QMenu>
 #include <QMouseEvent>
+#include <QMimeData>
+#include <QClipboard>
+#include <QUrl>
 #include <QSettings>
+#include <QSaveFile>
+#include <QTimer>
 #include <QPainter>
 #include <QPainterPath>
 #include <QRegularExpression>
@@ -30,6 +44,7 @@ using namespace WinJACKNexus::Patchbay::Core;
 constexpr qreal kNodeWidth = 220.0;
 constexpr qreal kHeaderHeight = 34.0;
 constexpr qreal kPortHeight = 26.0;
+constexpr auto kNodeMimeType = "application/x-winjacknexus-node";
 
 struct CanvasTheme final {
     QColor background;
@@ -88,16 +103,65 @@ QColor portColor(PortKind kind)
     }
 }
 
+QString portKindName(PortKind kind)
+{
+    switch (kind) {
+    case PortKind::audio:
+        return QStringLiteral("audio");
+    case PortKind::midi:
+        return QStringLiteral("midi");
+    case PortKind::cv:
+        return QStringLiteral("cv");
+    case PortKind::osc:
+        return QStringLiteral("osc");
+    default:
+        return QStringLiteral("unknown");
+    }
+}
+
+PortKind portKindFromName(const QString& name)
+{
+    if (name == QStringLiteral("audio"))
+        return PortKind::audio;
+    if (name == QStringLiteral("midi"))
+        return PortKind::midi;
+    if (name == QStringLiteral("cv"))
+        return PortKind::cv;
+    if (name == QStringLiteral("osc"))
+        return PortKind::osc;
+    return PortKind::unknown;
+}
+
+QString directionName(Direction direction)
+{
+    return direction == Direction::input ? QStringLiteral("input")
+         : direction == Direction::output ? QStringLiteral("output")
+                                          : QStringLiteral("unknown");
+}
+
+Direction directionFromName(const QString& name)
+{
+    return name == QStringLiteral("input") ? Direction::input
+         : name == QStringLiteral("output") ? Direction::output
+                                             : Direction::unknown;
+}
+
 class CanvasNode final : public QGraphicsObject {
 public:
-    CanvasNode(ClientInfo client, std::vector<PortInfo> ports, std::function<void(const std::string&)> portActivated)
-        : client_(std::move(client)), ports_(std::move(ports)), portActivated_(std::move(portActivated))
+    CanvasNode(ClientInfo client, std::vector<PortInfo> ports, std::function<void(const std::string&, const QPointF&)> portPressed,
+               std::function<void(const QPointF&)> portDragged, std::function<void(const QPointF&)> portReleased)
+        : client_(std::move(client)), ports_(std::move(ports)), portPressed_(std::move(portPressed)),
+          portDragged_(std::move(portDragged)), portReleased_(std::move(portReleased))
     {
         std::sort(ports_.begin(), ports_.end(), [](const PortInfo& left, const PortInfo& right) {
-            if (left.direction != right.direction)
-                return left.direction == Direction::input;
             return left.ordinal < right.ordinal;
         });
+        for (std::size_t index = 0; index < ports_.size(); ++index) {
+            if (ports_[index].direction == Direction::input)
+                inputs_.push_back(index);
+            else if (ports_[index].direction == Direction::output)
+                outputs_.push_back(index);
+        }
         setFlag(ItemIsSelectable);
         setFlag(ItemIsMovable);
         setToolTip(QString::fromStdString(client_.name));
@@ -105,7 +169,7 @@ public:
 
     QRectF boundingRect() const override
     {
-        return { 0.0, 0.0, kNodeWidth, kHeaderHeight + std::max<std::size_t>(1, ports_.size()) * kPortHeight };
+        return { 0.0, 0.0, kNodeWidth, kHeaderHeight + std::max({ std::size_t { 1 }, inputs_.size(), outputs_.size() }) * kPortHeight };
     }
 
     QPointF portPosition(const std::string& portId) const
@@ -116,9 +180,33 @@ public:
         if (port == ports_.cend())
             return scenePos();
 
-        const auto index = static_cast<qreal>(std::distance(ports_.cbegin(), port));
+        const auto portIndex = static_cast<std::size_t>(std::distance(ports_.cbegin(), port));
+        const auto& directionPorts = port->direction == Direction::input ? inputs_ : outputs_;
+        const auto row = static_cast<qreal>(std::distance(directionPorts.cbegin(), std::find(directionPorts.cbegin(), directionPorts.cend(), portIndex)));
         const qreal x = port->direction == Direction::input ? 0.0 : kNodeWidth;
-        return mapToScene({ x, kHeaderHeight + (index + 0.5) * kPortHeight });
+        return mapToScene({ x, kHeaderHeight + (row + 0.5) * kPortHeight });
+    }
+
+    std::string portIdAt(const QPointF& scenePosition) const
+    {
+        const auto position = mapFromScene(scenePosition);
+        if (position.y() < kHeaderHeight)
+            return {};
+        const auto row = static_cast<std::ptrdiff_t>(std::floor((position.y() - kHeaderHeight) / kPortHeight));
+        if (row < 0)
+            return {};
+        if (position.x() <= 12.0 && row < static_cast<std::ptrdiff_t>(inputs_.size()))
+            return ports_[inputs_[static_cast<std::size_t>(row)]].id;
+        if (position.x() >= kNodeWidth - 12.0 && row < static_cast<std::ptrdiff_t>(outputs_.size()))
+            return ports_[outputs_[static_cast<std::size_t>(row)]].id;
+        return {};
+    }
+
+    bool containsPort(const std::string& portId) const
+    {
+        return std::any_of(ports_.cbegin(), ports_.cend(), [&portId](const PortInfo& port) {
+            return port.id == portId;
+        });
     }
 
     void paint(QPainter* painter, const QStyleOptionGraphicsItem*, QWidget*) override
@@ -147,10 +235,7 @@ public:
         QFont portFont = QApplication::font();
         portFont.setPointSize(9);
         painter->setFont(portFont);
-        for (std::size_t index = 0; index < ports_.size(); ++index) {
-            const auto& port = ports_[index];
-            const qreal row = kHeaderHeight + static_cast<qreal>(index) * kPortHeight;
-            const bool input = port.direction == Direction::input;
+        const auto drawPort = [this, painter, &theme](const PortInfo& port, qreal row, bool input) {
             const QColor color = portColor(port.kind);
             painter->setPen(QPen(theme.separator, 1.0));
             painter->drawLine(QPointF(8.0, row), QPointF(kNodeWidth - 8.0, row));
@@ -158,11 +243,22 @@ public:
             painter->setBrush(color);
             const qreal pinX = input ? 0.0 : kNodeWidth;
             painter->drawEllipse(QPointF(pinX, row + kPortHeight / 2.0), 5.5, 5.5);
-            painter->setPen(theme.text);
             const QString name = QString::fromStdString(port.alias.empty() ? port.name : port.alias);
-            const QRectF textBounds = input ? QRectF(14.0, row, kNodeWidth - 28.0, kPortHeight)
-                                            : QRectF(14.0, row, kNodeWidth - 28.0, kPortHeight);
+            const QRectF labelBounds = input ? QRectF(12.0, row + 3.0, kNodeWidth * 0.42, kPortHeight - 6.0)
+                                             : QRectF(kNodeWidth * 0.58, row + 3.0, kNodeWidth * 0.42 - 12.0, kPortHeight - 6.0);
+            painter->setBrush(color.darker(150));
+            painter->drawRoundedRect(labelBounds, 3.0, 3.0);
+            painter->setPen(theme.text);
+            const QRectF textBounds = labelBounds.adjusted(5.0, 0.0, -5.0, 0.0);
             painter->drawText(textBounds, Qt::AlignVCenter | (input ? Qt::AlignLeft : Qt::AlignRight), name);
+        };
+        const auto rowCount = std::max(inputs_.size(), outputs_.size());
+        for (std::size_t index = 0; index < rowCount; ++index) {
+            const qreal row = kHeaderHeight + static_cast<qreal>(index) * kPortHeight;
+            if (index < inputs_.size())
+                drawPort(ports_[inputs_[index]], row, true);
+            if (index < outputs_.size())
+                drawPort(ports_[outputs_[index]], row, false);
         }
     }
 
@@ -171,12 +267,13 @@ protected:
     {
         if (event->button() == Qt::LeftButton && (event->pos().x() <= 12.0 || event->pos().x() >= kNodeWidth - 12.0)) {
             const auto row = static_cast<std::ptrdiff_t>(std::floor((event->pos().y() - kHeaderHeight) / kPortHeight));
-            if (row >= 0 && row < static_cast<std::ptrdiff_t>(ports_.size())) {
-                const auto& port = ports_[static_cast<std::size_t>(row)];
-                const bool onInputPin = event->pos().x() <= 12.0 && port.direction == Direction::input;
-                const bool onOutputPin = event->pos().x() >= kNodeWidth - 12.0 && port.direction == Direction::output;
+            if (row >= 0) {
+                const bool onInputPin = event->pos().x() <= 12.0 && row < static_cast<std::ptrdiff_t>(inputs_.size());
+                const bool onOutputPin = event->pos().x() >= kNodeWidth - 12.0 && row < static_cast<std::ptrdiff_t>(outputs_.size());
                 if (onInputPin || onOutputPin) {
-                    portActivated_(port.id);
+                    const auto& port = ports_[onInputPin ? inputs_[static_cast<std::size_t>(row)] : outputs_[static_cast<std::size_t>(row)]];
+                    pressedPortId_ = port.id;
+                    portPressed_(port.id, mapToScene(event->pos()));
                     event->accept();
                     return;
                 }
@@ -185,10 +282,36 @@ protected:
         QGraphicsObject::mousePressEvent(event);
     }
 
+    void mouseMoveEvent(QGraphicsSceneMouseEvent* event) override
+    {
+        if (event->buttons() & Qt::LeftButton && !pressedPortId_.empty()) {
+            portDragged_(mapToScene(event->pos()));
+            event->accept();
+            return;
+        }
+        QGraphicsObject::mouseMoveEvent(event);
+    }
+
+    void mouseReleaseEvent(QGraphicsSceneMouseEvent* event) override
+    {
+        if (event->button() == Qt::LeftButton && !pressedPortId_.empty()) {
+            portReleased_(mapToScene(event->pos()));
+            pressedPortId_.clear();
+            event->accept();
+            return;
+        }
+        QGraphicsObject::mouseReleaseEvent(event);
+    }
+
 private:
     ClientInfo client_;
     std::vector<PortInfo> ports_;
-    std::function<void(const std::string&)> portActivated_;
+    std::vector<std::size_t> inputs_;
+    std::vector<std::size_t> outputs_;
+    std::function<void(const std::string&, const QPointF&)> portPressed_;
+    std::function<void(const QPointF&)> portDragged_;
+    std::function<void(const QPointF&)> portReleased_;
+    std::string pressedPortId_;
 };
 
 QPainterPath connectionPath(const QPointF& source, const QPointF& destination)
@@ -204,33 +327,6 @@ QSettings patchbaySettings()
     return QSettings(QSettings::IniFormat, QSettings::UserScope, QStringLiteral("WinJACKNexus"), QStringLiteral("Patchbay"));
 }
 
-Snapshot demoSnapshot()
-{
-    Snapshot snapshot;
-    snapshot.clients = {
-        { "system", "system", {}, "computer", {}, 70.0, 160.0 },
-        { "gain", "Internal Gain", {}, "settings", {}, 390.0, 210.0 },
-        { "monitor", "Output Monitor", {}, "audio", {}, 720.0, 160.0 }
-    };
-    snapshot.ports = {
-        { "system:capture_1", "system", "capture_1", {}, PortKind::audio, Direction::output, PortGroupHint::mainOutput, 0 },
-        { "system:capture_2", "system", "capture_2", {}, PortKind::audio, Direction::output, PortGroupHint::mainOutput, 1 },
-        { "gain:in_l", "gain", "in_l", {}, PortKind::audio, Direction::input, PortGroupHint::mainInput, 0 },
-        { "gain:in_r", "gain", "in_r", {}, PortKind::audio, Direction::input, PortGroupHint::mainInput, 1 },
-        { "gain:out_l", "gain", "out_l", {}, PortKind::audio, Direction::output, PortGroupHint::mainOutput, 2 },
-        { "gain:out_r", "gain", "out_r", {}, PortKind::audio, Direction::output, PortGroupHint::mainOutput, 3 },
-        { "monitor:in_l", "monitor", "in_l", {}, PortKind::audio, Direction::input, PortGroupHint::mainInput, 0 },
-        { "monitor:in_r", "monitor", "in_r", {}, PortKind::audio, Direction::input, PortGroupHint::mainInput, 1 }
-    };
-    snapshot.connections = {
-        { "system:capture_1", "gain:in_l" },
-        { "system:capture_2", "gain:in_r" },
-        { "gain:out_l", "monitor:in_l" },
-        { "gain:out_r", "monitor:in_r" }
-    };
-    return snapshot;
-}
-
 }
 
 PatchbayCanvas::PatchbayCanvas(QWidget* parent)
@@ -243,6 +339,199 @@ PatchbayCanvas::PatchbayCanvas(QWidget* parent)
     setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
     setBackgroundBrush(activeCanvasTheme().background);
     setFrameShape(QFrame::NoFrame);
+    connect(canvasScene, &QGraphicsScene::selectionChanged, this, [this] {
+        notifySelection();
+    });
+}
+
+const Snapshot& PatchbayCanvas::snapshot() const noexcept
+{
+    return snapshot_;
+}
+
+bool PatchbayCanvas::saveProject(const QString& filePath) const
+{
+    const auto settings = patchbaySettings();
+    QJsonArray clients;
+    for (const auto& client : snapshot_.clients) {
+        clients.append(QJsonObject {
+            { QStringLiteral("id"), QString::fromStdString(client.id) },
+            { QStringLiteral("name"), QString::fromStdString(client.name) },
+            { QStringLiteral("alias"), QString::fromStdString(client.alias) },
+            { QStringLiteral("icon"), QString::fromStdString(client.iconName) },
+            { QStringLiteral("uri"), QString::fromStdString(client.uri) },
+            { QStringLiteral("x"), client.x },
+            { QStringLiteral("y"), client.y },
+            { QStringLiteral("split"), client.split },
+            { QStringLiteral("alive"), client.alive }
+        });
+    }
+
+    QJsonArray ports;
+    for (const auto& port : snapshot_.ports) {
+        ports.append(QJsonObject {
+            { QStringLiteral("id"), QString::fromStdString(port.id) },
+            { QStringLiteral("client"), QString::fromStdString(port.clientId) },
+            { QStringLiteral("name"), QString::fromStdString(port.name) },
+            { QStringLiteral("alias"), QString::fromStdString(port.alias) },
+            { QStringLiteral("kind"), portKindName(port.kind) },
+            { QStringLiteral("direction"), directionName(port.direction) },
+            { QStringLiteral("ordinal"), static_cast<int>(port.ordinal) },
+            { QStringLiteral("alive"), port.alive }
+        });
+    }
+
+    QJsonArray connections;
+    for (const auto& connection : snapshot_.connections) {
+        connections.append(QJsonObject {
+            { QStringLiteral("source"), QString::fromStdString(connection.sourcePortId) },
+            { QStringLiteral("destination"), QString::fromStdString(connection.destinationPortId) },
+            { QStringLiteral("alive"), connection.alive }
+        });
+    }
+
+    QJsonArray layouts;
+    for (const auto& client : snapshot_.clients) {
+        const auto addLayout = [&layouts, &settings](const QString& key, QPointF fallback) {
+            const auto xKey = QStringLiteral("layout/%1/x").arg(key);
+            const auto yKey = QStringLiteral("layout/%1/y").arg(key);
+            layouts.append(QJsonObject { { QStringLiteral("key"), key },
+                                         { QStringLiteral("x"), settings.value(xKey, fallback.x()).toDouble() },
+                                         { QStringLiteral("y"), settings.value(yKey, fallback.y()).toDouble() } });
+        };
+        const auto clientKey = QString::fromStdString(client.id);
+        addLayout(clientKey, { client.x, client.y });
+        if (client.split) {
+            addLayout(clientKey + QStringLiteral("/input"), { client.x, client.y });
+            addLayout(clientKey + QStringLiteral("/output"), { client.x + kNodeWidth + 52.0, client.y });
+        }
+    }
+
+    const QJsonDocument document(QJsonObject {
+        { QStringLiteral("version"), 1 },
+        { QStringLiteral("app"), QStringLiteral("WinJACKNexus") },
+        { QStringLiteral("clients"), clients },
+        { QStringLiteral("ports"), ports },
+        { QStringLiteral("connections"), connections },
+        { QStringLiteral("layouts"), layouts },
+        { QStringLiteral("mixers"), QJsonArray {} },
+        { QStringLiteral("switches"), QJsonArray {} }
+    });
+
+    QSaveFile file(filePath);
+    return file.open(QIODevice::WriteOnly)
+        && file.write(document.toJson(QJsonDocument::Indented)) >= 0
+        && file.commit();
+}
+
+bool PatchbayCanvas::loadProject(const QString& filePath)
+{
+    QFile file(filePath);
+    if (!file.open(QIODevice::ReadOnly))
+        return false;
+
+    QJsonParseError error;
+    const auto document = QJsonDocument::fromJson(file.readAll(), &error);
+    if (error.error != QJsonParseError::NoError || !document.isObject()
+        || document.object().value(QStringLiteral("version")).toInt() != 1) {
+        return false;
+    }
+
+    Snapshot project;
+    const auto root = document.object();
+    for (const auto& value : root.value(QStringLiteral("clients")).toArray()) {
+        const auto item = value.toObject();
+        ClientInfo client;
+        client.id = item.value(QStringLiteral("id")).toString().toStdString();
+        client.name = item.value(QStringLiteral("name")).toString().toStdString();
+        if (client.id.empty() || client.name.empty())
+            return false;
+        client.alias = item.value(QStringLiteral("alias")).toString().toStdString();
+        client.iconName = item.value(QStringLiteral("icon")).toString().toStdString();
+        client.uri = item.value(QStringLiteral("uri")).toString().toStdString();
+        client.x = item.value(QStringLiteral("x")).toDouble();
+        client.y = item.value(QStringLiteral("y")).toDouble();
+        client.split = item.value(QStringLiteral("split")).toBool();
+        client.alive = item.value(QStringLiteral("alive")).toBool(true);
+        project.clients.push_back(std::move(client));
+    }
+
+    for (const auto& value : root.value(QStringLiteral("ports")).toArray()) {
+        const auto item = value.toObject();
+        PortInfo port;
+        port.id = item.value(QStringLiteral("id")).toString().toStdString();
+        port.clientId = item.value(QStringLiteral("client")).toString().toStdString();
+        port.name = item.value(QStringLiteral("name")).toString().toStdString();
+        if (port.id.empty() || port.clientId.empty() || port.name.empty())
+            return false;
+        port.alias = item.value(QStringLiteral("alias")).toString().toStdString();
+        port.kind = portKindFromName(item.value(QStringLiteral("kind")).toString());
+        port.direction = directionFromName(item.value(QStringLiteral("direction")).toString());
+        port.ordinal = static_cast<std::uint32_t>(item.value(QStringLiteral("ordinal")).toInt());
+        port.alive = item.value(QStringLiteral("alive")).toBool(true);
+        project.ports.push_back(std::move(port));
+    }
+
+    for (const auto& value : root.value(QStringLiteral("connections")).toArray()) {
+        const auto item = value.toObject();
+        ConnectionInfo connection;
+        connection.sourcePortId = item.value(QStringLiteral("source")).toString().toStdString();
+        connection.destinationPortId = item.value(QStringLiteral("destination")).toString().toStdString();
+        if (connection.sourcePortId.empty() || connection.destinationPortId.empty())
+            return false;
+        connection.alive = item.value(QStringLiteral("alive")).toBool(true);
+        project.connections.push_back(std::move(connection));
+    }
+
+    auto settings = patchbaySettings();
+    for (const auto& client : project.clients) {
+        const auto key = QString::fromStdString(client.id);
+        settings.setValue(QStringLiteral("layout/%1/x").arg(key), client.x);
+        settings.setValue(QStringLiteral("layout/%1/y").arg(key), client.y);
+        settings.setValue(QStringLiteral("layout/%1/split").arg(key), client.split);
+    }
+    for (const auto& value : root.value(QStringLiteral("layouts")).toArray()) {
+        const auto item = value.toObject();
+        const auto key = item.value(QStringLiteral("key")).toString();
+        if (key.isEmpty())
+            return false;
+        settings.setValue(QStringLiteral("layout/%1/x").arg(key), item.value(QStringLiteral("x")).toDouble());
+        settings.setValue(QStringLiteral("layout/%1/y").arg(key), item.value(QStringLiteral("y")).toDouble());
+    }
+    setSnapshot(project);
+    projectDirty_ = false;
+    return true;
+}
+
+bool PatchbayCanvas::restoreJackConnections(WinJACKNexus::Audio::JackClient& client)
+{
+    if (!client.isOpen())
+        return false;
+
+    auto& api = WinJACKNexus::Audio::JackApi::instance();
+    bool restored = false;
+    for (const auto& connection : snapshot_.connections) {
+        if (!connection.alive)
+            continue;
+
+        const auto* source = api.portByName(client.nativeHandle(), connection.sourcePortId.c_str());
+        const auto* destination = api.portByName(client.nativeHandle(), connection.destinationPortId.c_str());
+        if (source == nullptr || destination == nullptr)
+            continue;
+
+        bool alreadyConnected = false;
+        if (const auto** names = api.portGetConnections(source); names != nullptr) {
+            for (const auto** name = names; *name != nullptr; ++name)
+                alreadyConnected = alreadyConnected || connection.destinationPortId == *name;
+            api.freeMemory(const_cast<void*>(static_cast<const void*>(names)));
+        }
+
+        if (!alreadyConnected
+            && api.connect(client.nativeHandle(), connection.sourcePortId.c_str(), connection.destinationPortId.c_str()) == 0) {
+            restored = true;
+        }
+    }
+    return restored;
 }
 
 void PatchbayCanvas::setSnapshot(const Snapshot& snapshot)
@@ -250,6 +539,8 @@ void PatchbayCanvas::setSnapshot(const Snapshot& snapshot)
     Snapshot restored = snapshot;
     auto settings = patchbaySettings();
     for (auto& client : restored.clients) {
+        if (client.id == "system")
+            client.alive = true;
         const auto key = QString::fromStdString(client.id);
         if (settings.contains(QStringLiteral("layout/%1/x").arg(key))) {
             client.x = settings.value(QStringLiteral("layout/%1/x").arg(key)).toDouble();
@@ -257,6 +548,8 @@ void PatchbayCanvas::setSnapshot(const Snapshot& snapshot)
         }
         if (settings.contains(QStringLiteral("layout/%1/split").arg(key)))
             client.split = settings.value(QStringLiteral("layout/%1/split").arg(key)).toBool();
+        else if (client.id == "system")
+            client.split = true;
     }
     snapshot_ = std::move(restored);
     scene()->clear();
@@ -272,30 +565,34 @@ void PatchbayCanvas::setSnapshot(const Snapshot& snapshot)
         if (!client.alive)
             continue;
 
-        const auto addNode = [this, &client, &portsByClient, &nodesByPort](std::vector<PortInfo> ports, QPointF position, bool positionOwner, const QString& label) {
+        const auto addNode = [this, &client, &portsByClient, &nodesByPort](std::vector<PortInfo> ports, QPointF position, Direction portDirection, const QString& layoutKey, const QString& label) {
             ClientInfo displayClient = client;
             displayClient.alias = label.toStdString();
-            auto* node = new CanvasNode(std::move(displayClient), std::move(ports), [this](const std::string& portId) {
-                activatePort(portId);
-            });
+            auto* node = new CanvasNode(std::move(displayClient), std::move(ports),
+                [this](const std::string& portId, const QPointF& position) { beginPortDrag(portId, position); },
+                [this](const QPointF& position) { updatePortDrag(position); },
+                [this](const QPointF& position) { finishPortDrag(position); });
             node->setPos(position);
             node->setData(0, QString::fromStdString(client.id));
-            node->setData(3, positionOwner);
+            node->setData(3, layoutKey);
+            node->setData(4, position);
             scene()->addItem(node);
             for (const auto& port : portsByClient[client.id]) {
-                if ((positionOwner && port.direction == Direction::input) || (!positionOwner && port.direction == Direction::output))
+                if (port.direction == portDirection)
                     nodesByPort.emplace(port.id, node);
             }
         };
 
         if (!client.split) {
             auto ports = portsByClient[client.id];
-            auto* node = new CanvasNode(client, std::move(ports), [this](const std::string& portId) {
-                activatePort(portId);
-            });
+            auto* node = new CanvasNode(client, std::move(ports),
+                [this](const std::string& portId, const QPointF& position) { beginPortDrag(portId, position); },
+                [this](const QPointF& position) { updatePortDrag(position); },
+                [this](const QPointF& position) { finishPortDrag(position); });
             node->setPos(client.x, client.y);
             node->setData(0, QString::fromStdString(client.id));
-            node->setData(3, true);
+            node->setData(3, QString::fromStdString(client.id));
+            node->setData(4, QPointF(client.x, client.y));
             scene()->addItem(node);
             for (const auto& port : portsByClient[client.id])
                 nodesByPort.emplace(port.id, node);
@@ -310,8 +607,18 @@ void PatchbayCanvas::setSnapshot(const Snapshot& snapshot)
             else
                 outputs.push_back(port);
         }
-        addNode(std::move(inputs), { client.x, client.y }, true, QString::fromStdString(client.name) + QStringLiteral(" · 输入"));
-        addNode(std::move(outputs), { client.x + kNodeWidth + 52.0, client.y }, false, QString::fromStdString(client.name) + QStringLiteral(" · 输出"));
+        const auto inputLayoutKey = QString::fromStdString(client.id) + QStringLiteral("/input");
+        const auto outputLayoutKey = QString::fromStdString(client.id) + QStringLiteral("/output");
+        const auto positionFor = [&settings](const QString& layoutKey, QPointF fallback) {
+            const auto xKey = QStringLiteral("layout/%1/x").arg(layoutKey);
+            const auto yKey = QStringLiteral("layout/%1/y").arg(layoutKey);
+            return settings.contains(xKey) ? QPointF(settings.value(xKey).toDouble(), settings.value(yKey).toDouble()) : fallback;
+        };
+        const bool isSystem = client.id == "system";
+        addNode(std::move(inputs), positionFor(inputLayoutKey, { client.x, client.y }), Direction::input, inputLayoutKey,
+            isSystem ? QStringLiteral("system playback") : QString::fromStdString(client.name) + QStringLiteral(" · 输入"));
+        addNode(std::move(outputs), positionFor(outputLayoutKey, { client.x + kNodeWidth + 52.0, client.y }), Direction::output, outputLayoutKey,
+            isSystem ? QStringLiteral("system capture") : QString::fromStdString(client.name) + QStringLiteral(" · 输出"));
     }
 
     std::unordered_map<std::string, const PortInfo*> ports;
@@ -344,9 +651,62 @@ void PatchbayCanvas::setSnapshot(const Snapshot& snapshot)
     applySearchFilter();
 }
 
-void PatchbayCanvas::loadDemoGraph()
+bool PatchbayCanvas::isProjectDirty() const noexcept
 {
-    setSnapshot(demoSnapshot());
+    return projectDirty_;
+}
+
+void PatchbayCanvas::markProjectSaved() noexcept
+{
+    projectDirty_ = false;
+}
+
+void PatchbayCanvas::newProject()
+{
+    snapshot_ = {};
+    pendingPortId_.clear();
+    setSnapshot(snapshot_);
+    projectDirty_ = false;
+}
+
+void PatchbayCanvas::setClientAlias(const std::string& clientId, const QString& alias)
+{
+    const auto client = std::find_if(snapshot_.clients.begin(), snapshot_.clients.end(), [&clientId](const ClientInfo& value) {
+        return value.id == clientId;
+    });
+    if (client == snapshot_.clients.end())
+        return;
+    const auto newAlias = alias.trimmed().toStdString();
+    if (client->alias == newAlias)
+        return;
+    client->alias = newAlias;
+    setSnapshot(snapshot_);
+    projectDirty_ = true;
+}
+
+void PatchbayCanvas::setClientSplit(const std::string& clientId, bool split)
+{
+    const auto client = std::find_if(snapshot_.clients.begin(), snapshot_.clients.end(), [&clientId](const ClientInfo& value) {
+        return value.id == clientId;
+    });
+    if (client == snapshot_.clients.end() || client->split == split)
+        return;
+    client->split = split;
+    auto settings = patchbaySettings();
+    settings.setValue(QStringLiteral("layout/%1/split").arg(QString::fromStdString(clientId)), split);
+    setSnapshot(snapshot_);
+    projectDirty_ = true;
+}
+
+void PatchbayCanvas::setNodeSelectionHandler(std::function<void(const std::string&)> handler)
+{
+    nodeSelectionHandler_ = std::move(handler);
+    notifySelection();
+}
+
+void PatchbayCanvas::setConnectionDisconnectHandler(std::function<void(const std::string&, const std::string&)> handler)
+{
+    connectionDisconnectHandler_ = std::move(handler);
 }
 
 void PatchbayCanvas::applyTheme(bool light)
@@ -409,6 +769,7 @@ void PatchbayCanvas::mousePressEvent(QMouseEvent* event)
         event->accept();
         return;
     }
+    nodeDragActive_ = event->button() == Qt::LeftButton && itemAt(event->pos()) != nullptr && itemAt(event->pos())->data(0).isValid();
     QGraphicsView::mousePressEvent(event);
 }
 
@@ -423,6 +784,7 @@ void PatchbayCanvas::mouseMoveEvent(QMouseEvent* event)
         return;
     }
     QGraphicsView::mouseMoveEvent(event);
+    updateConnectionPaths();
 }
 
 void PatchbayCanvas::mouseReleaseEvent(QMouseEvent* event)
@@ -435,7 +797,15 @@ void PatchbayCanvas::mouseReleaseEvent(QMouseEvent* event)
     }
 
     QGraphicsView::mouseReleaseEvent(event);
+    if (event->button() == Qt::LeftButton)
+        nodeDragActive_ = false;
     updateClientPositions();
+    updateConnectionPaths();
+}
+
+bool PatchbayCanvas::isNodeDragActive() const noexcept
+{
+    return nodeDragActive_;
 }
 
 void PatchbayCanvas::contextMenuEvent(QContextMenuEvent* event)
@@ -447,46 +817,83 @@ void PatchbayCanvas::contextMenuEvent(QContextMenuEvent* event)
         const auto destination = item->data(2).toString().toStdString();
         auto* disconnect = menu.addAction(QStringLiteral("断开连接"));
         if (menu.exec(event->globalPos()) == disconnect) {
-            std::erase_if(snapshot_.connections, [&source, &destination](const ConnectionInfo& connection) {
+            const auto removed = std::erase_if(snapshot_.connections, [&source, &destination](const ConnectionInfo& connection) {
                 return connection.sourcePortId == source && connection.destinationPortId == destination;
             });
-            setSnapshot(snapshot_);
+            if (removed != 0) {
+                if (connectionDisconnectHandler_)
+                    connectionDisconnectHandler_(source, destination);
+                setSnapshot(snapshot_);
+                projectDirty_ = true;
+            }
         }
         return;
     }
 
     if (item != nullptr && item->data(0).isValid()) {
+        const auto id = item->data(0).toString().toStdString();
+        const auto client = std::find_if(snapshot_.clients.cbegin(), snapshot_.clients.cend(), [&id](const ClientInfo& value) {
+            return value.id == id;
+        });
         auto* center = menu.addAction(QStringLiteral("居中显示节点"));
         auto* rename = menu.addAction(QStringLiteral("重命名节点"));
         auto* split = menu.addAction(QStringLiteral("Split/Join Group"));
+        menu.addSeparator();
+        auto* disconnectAll = menu.addAction(QStringLiteral("断开全部连接"));
+        auto* showGui = menu.addAction(QStringLiteral("显示自带 GUI"));
+        showGui->setEnabled(client != snapshot_.clients.cend() && !client->uri.empty());
         const auto* selected = menu.exec(event->globalPos());
         if (selected == center) {
             centerOn(item);
         } else if (selected == rename) {
-            const auto id = item->data(0).toString().toStdString();
-            const auto client = std::find_if(snapshot_.clients.begin(), snapshot_.clients.end(), [&id](const ClientInfo& value) {
+            const auto mutableClient = std::find_if(snapshot_.clients.begin(), snapshot_.clients.end(), [&id](const ClientInfo& value) {
                 return value.id == id;
             });
-            if (client != snapshot_.clients.end()) {
+            if (mutableClient != snapshot_.clients.end()) {
                 bool accepted = false;
                 const auto alias = QInputDialog::getText(this, QStringLiteral("重命名节点"), QStringLiteral("显示名称"),
-                                                          QLineEdit::Normal, QString::fromStdString(client->alias), &accepted);
+                                                          QLineEdit::Normal, QString::fromStdString(mutableClient->alias), &accepted);
                 if (accepted && !alias.trimmed().isEmpty()) {
-                    client->alias = alias.trimmed().toStdString();
+                    mutableClient->alias = alias.trimmed().toStdString();
                     setSnapshot(snapshot_);
+                    projectDirty_ = true;
                 }
             }
         } else if (selected == split) {
-            const auto id = item->data(0).toString().toStdString();
-            const auto client = std::find_if(snapshot_.clients.begin(), snapshot_.clients.end(), [&id](const ClientInfo& value) {
+            const auto mutableClient = std::find_if(snapshot_.clients.begin(), snapshot_.clients.end(), [&id](const ClientInfo& value) {
                 return value.id == id;
             });
-            if (client != snapshot_.clients.end()) {
-                client->split = !client->split;
+            if (mutableClient != snapshot_.clients.end()) {
+                mutableClient->split = !mutableClient->split;
                 auto settings = patchbaySettings();
-                settings.setValue(QStringLiteral("layout/%1/split").arg(QString::fromStdString(id)), client->split);
+                settings.setValue(QStringLiteral("layout/%1/split").arg(QString::fromStdString(id)), mutableClient->split);
                 setSnapshot(snapshot_);
+                projectDirty_ = true;
             }
+        } else if (selected == disconnectAll) {
+            std::vector<ConnectionInfo> disconnected;
+            const auto removed = std::erase_if(snapshot_.connections, [this, &id, &disconnected](const ConnectionInfo& connection) {
+                const auto hasClient = [this, &id](const std::string& portId) {
+                    const auto port = std::find_if(snapshot_.ports.cbegin(), snapshot_.ports.cend(), [&portId](const PortInfo& port) {
+                        return port.id == portId;
+                    });
+                    return port != snapshot_.ports.cend() && port->clientId == id;
+                };
+                const bool matches = hasClient(connection.sourcePortId) || hasClient(connection.destinationPortId);
+                if (matches)
+                    disconnected.push_back(connection);
+                return matches;
+            });
+            if (removed != 0) {
+                if (connectionDisconnectHandler_) {
+                    for (const auto& connection : disconnected)
+                        connectionDisconnectHandler_(connection.sourcePortId, connection.destinationPortId);
+                }
+                setSnapshot(snapshot_);
+                projectDirty_ = true;
+            }
+        } else if (selected == showGui && client != snapshot_.clients.cend()) {
+            QDesktopServices::openUrl(QUrl(QString::fromStdString(client->uri)));
         }
         return;
     }
@@ -539,10 +946,126 @@ void PatchbayCanvas::activatePort(const std::string& portId)
     const bool exists = std::any_of(snapshot_.connections.cbegin(), snapshot_.connections.cend(), [&source, &destination](const ConnectionInfo& connection) {
         return connection.sourcePortId == source.id && connection.destinationPortId == destination.id;
     });
-    if (!exists)
+    if (!exists) {
         snapshot_.connections.push_back({ source.id, destination.id });
+        projectDirty_ = true;
+    }
     pendingPortId_.clear();
-    setSnapshot(snapshot_);
+    scheduleSnapshotRefresh();
+}
+
+void PatchbayCanvas::beginPortDrag(const std::string& portId, const QPointF& position)
+{
+    draggedPortId_ = portId;
+    if (portDragPreview_ != nullptr)
+        scene()->removeItem(portDragPreview_);
+    portDragPreview_ = new QGraphicsPathItem(connectionPath(position, position));
+    portDragPreview_->setPen(QPen(portColor(std::find_if(snapshot_.ports.cbegin(), snapshot_.ports.cend(), [&portId](const PortInfo& port) {
+                                      return port.id == portId;
+                                  })->kind),
+                                  2.5, Qt::DashLine, Qt::RoundCap));
+    portDragPreview_->setZValue(-0.5);
+    scene()->addItem(portDragPreview_);
+}
+
+void PatchbayCanvas::updatePortDrag(const QPointF& position)
+{
+    if (draggedPortId_.empty() || portDragPreview_ == nullptr)
+        return;
+    const auto source = std::find_if(snapshot_.ports.cbegin(), snapshot_.ports.cend(), [this](const PortInfo& port) {
+        return port.id == draggedPortId_;
+    });
+    if (source == snapshot_.ports.cend())
+        return;
+    const auto* node = dynamic_cast<CanvasNode*>(scene()->itemAt(position, QTransform()));
+    const auto targetId = node == nullptr ? std::string() : node->portIdAt(position);
+    const auto target = std::find_if(snapshot_.ports.cbegin(), snapshot_.ports.cend(), [&targetId](const PortInfo& port) {
+        return port.id == targetId;
+    });
+    const bool compatible = target != snapshot_.ports.cend() && target->direction != source->direction && target->kind == source->kind;
+    CanvasNode* sourceNode = nullptr;
+    for (auto* item : scene()->items()) {
+        if (auto* candidate = dynamic_cast<CanvasNode*>(item); candidate != nullptr && candidate->containsPort(source->id)) {
+            sourceNode = candidate;
+            break;
+        }
+    }
+    portDragPreview_->setPen(QPen(compatible ? portColor(source->kind) : portColor(source->kind).darker(170), 2.5,
+                                  compatible ? Qt::SolidLine : Qt::DashLine, Qt::RoundCap));
+    portDragPreview_->setPath(connectionPath(sourceNode == nullptr ? position : sourceNode->portPosition(source->id), position));
+}
+
+void PatchbayCanvas::finishPortDrag(const QPointF& position)
+{
+    if (draggedPortId_.empty())
+        return;
+    const auto sourceId = std::exchange(draggedPortId_, {});
+    if (portDragPreview_ != nullptr) {
+        scene()->removeItem(portDragPreview_);
+        delete portDragPreview_;
+        portDragPreview_ = nullptr;
+    }
+    const auto* node = dynamic_cast<CanvasNode*>(scene()->itemAt(position, QTransform()));
+    const auto targetId = node == nullptr ? std::string() : node->portIdAt(position);
+    if (targetId.empty() || targetId == sourceId) {
+        activatePort(sourceId);
+        return;
+    }
+
+    const auto findPort = [this](const std::string& id) {
+        return std::find_if(snapshot_.ports.cbegin(), snapshot_.ports.cend(), [&id](const PortInfo& port) {
+            return port.id == id;
+        });
+    };
+    const auto source = findPort(sourceId);
+    const auto target = findPort(targetId);
+    if (source == snapshot_.ports.cend() || target == snapshot_.ports.cend() || source->direction == target->direction || source->kind != target->kind)
+        return;
+    const auto& output = source->direction == Direction::output ? *source : *target;
+    const auto& input = source->direction == Direction::input ? *source : *target;
+    const bool exists = std::any_of(snapshot_.connections.cbegin(), snapshot_.connections.cend(), [&output, &input](const ConnectionInfo& connection) {
+        return connection.sourcePortId == output.id && connection.destinationPortId == input.id;
+    });
+    if (!exists) {
+        snapshot_.connections.push_back({ output.id, input.id });
+        projectDirty_ = true;
+        scheduleSnapshotRefresh();
+    }
+}
+
+void PatchbayCanvas::updateConnectionPaths()
+{
+    const auto findNode = [this](const std::string& portId) {
+        for (auto* item : scene()->items()) {
+            if (auto* node = dynamic_cast<CanvasNode*>(item); node != nullptr && node->containsPort(portId))
+                return node;
+        }
+        return static_cast<CanvasNode*>(nullptr);
+    };
+    for (auto* item : scene()->items()) {
+        if (!item->data(1).isValid())
+            continue;
+        auto* line = qgraphicsitem_cast<QGraphicsPathItem*>(item);
+        if (line == nullptr)
+            continue;
+        const auto sourceId = item->data(1).toString().toStdString();
+        const auto destinationId = item->data(2).toString().toStdString();
+        const auto* source = findNode(sourceId);
+        const auto* destination = findNode(destinationId);
+        if (source != nullptr && destination != nullptr)
+            line->setPath(connectionPath(source->portPosition(sourceId), destination->portPosition(destinationId)));
+    }
+}
+
+void PatchbayCanvas::scheduleSnapshotRefresh()
+{
+    if (snapshotRefreshPending_)
+        return;
+    snapshotRefreshPending_ = true;
+    QTimer::singleShot(0, this, [this] {
+        snapshotRefreshPending_ = false;
+        setSnapshot(snapshot_);
+    });
 }
 
 void PatchbayCanvas::applySearchFilter()
@@ -550,8 +1073,6 @@ void PatchbayCanvas::applySearchFilter()
     const auto query = searchQuery_.toLower();
     for (auto* item : scene()->items()) {
         if (!item->data(0).isValid())
-            continue;
-        if (item->data(3).isValid() && !item->data(3).toBool())
             continue;
         const auto id = item->data(0).toString().toStdString();
         const auto client = std::find_if(snapshot_.clients.cbegin(), snapshot_.clients.cend(), [&id](const ClientInfo& value) {
@@ -574,22 +1095,40 @@ void PatchbayCanvas::updateClientPositions()
     for (auto* item : scene()->items()) {
         if (!item->data(0).isValid())
             continue;
-        if (item->data(3).isValid() && !item->data(3).toBool())
-            continue;
         const auto id = item->data(0).toString().toStdString();
+        if (item->data(4).isValid() && item->data(4).toPointF() == item->pos())
+            continue;
         const auto client = std::find_if(snapshot_.clients.begin(), snapshot_.clients.end(), [&id](const ClientInfo& value) {
             return value.id == id;
         });
-        if (client != snapshot_.clients.end() && (client->x != item->pos().x() || client->y != item->pos().y())) {
-            client->x = item->pos().x();
-            client->y = item->pos().y();
+        if (client != snapshot_.clients.end()) {
             auto settings = patchbaySettings();
-            const auto key = QString::fromStdString(id);
-            settings.setValue(QStringLiteral("layout/%1/x").arg(key), client->x);
-            settings.setValue(QStringLiteral("layout/%1/y").arg(key), client->y);
+            const auto layoutKey = item->data(3).toString();
+            settings.setValue(QStringLiteral("layout/%1/x").arg(layoutKey), item->pos().x());
+            settings.setValue(QStringLiteral("layout/%1/y").arg(layoutKey), item->pos().y());
+            if (layoutKey == QString::fromStdString(id)) {
+                client->x = item->pos().x();
+                client->y = item->pos().y();
+            }
             changed = true;
         }
     }
-    if (changed)
+    if (changed) {
         setSnapshot(snapshot_);
+        projectDirty_ = true;
+    }
+}
+
+void PatchbayCanvas::notifySelection()
+{
+    if (!nodeSelectionHandler_)
+        return;
+
+    for (auto* item : scene()->selectedItems()) {
+        if (item->data(0).isValid()) {
+            nodeSelectionHandler_(item->data(0).toString().toStdString());
+            return;
+        }
+    }
+    nodeSelectionHandler_({});
 }

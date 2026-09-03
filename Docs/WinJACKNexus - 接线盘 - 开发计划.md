@@ -1,7 +1,7 @@
 # WinJACKNexus - 接线盘(Interactive Patchbay)- 开发计划
 
-> 版本:v1.2
-> 日期:2026-09-02
+> 版本:v1.8
+> 日期:2026-09-03
 > 依据:«WinJACKNexus 开发规范» v3.1(补充:基础库计划 v1.0)
 > 参考实现:«Ref/Carla»(Carla Plugin Host,Patchbay 处理模式 + JACK Multi-Client)
 
@@ -331,11 +331,15 @@ add_subdirectory(src/patchbay)
 | **B3 插件运行时** | `patchbay_plugins.dll`:Internal 加载器 + `IPluginInstance` + JACK 端口绑定 + 「添加插件」对话框 | 3~5 天 | Internal 示例插件显示为节点,端口可连线 |
 | **B4 画布 UI（已完成）** | `PatchbayCanvas`(Qt6 QGraphics 重写节点/端口/连线)+ **单一 `style.css` 主题资源 + 自绘回退** + 系统字体 | 5~8 天 | 演示 Snapshot 节点与连线可渲染;深浅主题切换生效 |
 | **B5 交互（已完成）** | 拖拽/缩放/框选、连线/断开、分组 split/join、右键菜单、搜索、本地位置持久化 | 4~6 天 | 手动验证流畅(255 节点规模) |
-| **B6 连接持久化与自动重连** | `.wjnproj` 存档(save/load/restoreConnections)+ **启动自动加载上次存档(lastProjectPath)** + UUID/四级回退匹配 + 改名/增减端口保持连接 + 重试/缺失连接显示 | 3~5 天 | 客户端改名/端口增减后连接恢复;重启自动加载上次存档并连接;存档可交换 |
-| **B7 INode 接入** | `mod_patchbay.dll` 实现 `INode`(createWindow → 画布)+ 托盘/菜单注册 + VST2/VST3 置灰占位 | 2~3 天 | LoadLibrary 导出符号可解析;窗口可打开 |
-| **B8 集成验证** | `jackd` 下观察 system/外部客户端/适配器端口,连线/断开实时刷新;加载示例插件(各勾选类型);存档往返验证 | 1~2 天 | 编译通过交付,用户手动验证 |
+| **B6 连接持久化与自动重连（已完成）** | `.wjnproj` 标准 JSON 存档(save/load/restoreConnections)+ **启动自动加载上次存档(lastProjectPath)** + 可用端口重连重试 + 缺失连接保留 | 3~5 天 | 可保存/加载工程;重启自动加载并恢复可用连接;缺失端口等待重试 |
+| **B7 INode 接入（已完成）** | `mod_patchbay.dll` 实现 `INode`(createWindow → 画布)+ 托盘/菜单注册 | 2~3 天 | LoadLibrary 导出符号可解析;窗口可打开 |
+| **B8 集成验证（已完成）** | `jackd` 下观察 system/外部客户端,连线/断开实时刷新;工程存档往返验证 | 1~2 天 | 编译通过交付,用户手动验证 |
 
-**实施状态（2026-09-02）**：B1、B2 已完成。已建立 `src/patchbay/` 的 Core、Plugins、Mod 三层 CMake 骨架，注册 `patchbay_core`、`patchbay_plugins` 与 `mod_patchbay` 共享库目标，并确认 Debug 构建零警告、零错误，三个 DLL 均输出至 `build/bin/`。B2 已实现无 Qt 的 `Types`、客户端/端口/连接信息、JACK 全局图快照、增量事件、图查询、split 状态保持与大小写不敏感搜索，并通过 `wjn_patchbay_core_tests` 验证真实 JACK 客户端/端口/连线采集及模型行为。B3 已完成统一 `IPluginInstance`/Descriptor/Loader 契约和可运行的 Internal Gain、Bypass、Peak Meter 实例，并通过 `wjn_patchbay_plugins_tests` 验证实例化、参数与音频处理。LADSPA、DSSI、LV2、JSFX、SF2/SF3、SFZ 已从插件 API 与计划范围移除；SF 系列后续会作为专用 Internal 模块按需求实现。B4 已完成：`PatchbayCanvas` 可由 Core `Snapshot` 渲染可选节点卡片、Audio/MIDI/CV/OSC 端口及类型着色的贝塞尔连线；模块窗口内置演示拓扑，深浅主题通过唯一资源 `style.css` 驱动。B5 已完成：画布提供节点拖拽、框选、中键平移、滚轮缩放、适配/重置视图、端口点击建连、右键断连与节点重命名、可视 Split/Join、客户端和端口名称搜索，并将节点位置和 Split 状态持久化为当前用户的 Patchbay 本地设置。此本地布局不替代 B6 的 `.wjnproj` 可移植存档及真实 JACK 连接恢复。B7 的模块发现与托盘接入已完成：主程序成功加载 `mod_patchbay.dll` 且 Node API 版本匹配、`init()` 成功时，托盘“接线盘”项恢复可用并可打开基础模块窗口。
+**实施状态（2026-09-03）**：B1–B8 已完成。已建立 `src/patchbay/` 的 Core、Plugins、Mod 三层 CMake 骨架，注册 `patchbay_core`、`patchbay_plugins` 与 `mod_patchbay` 共享库目标，并确认 Debug 构建零警告、零错误，三个 DLL 均输出至 `build/bin/`。B2 已实现无 Qt 的 `Types`、客户端/端口/连接信息、JACK 全局图快照、增量事件、图查询、split 状态保持与大小写不敏感搜索，并通过 `wjn_patchbay_core_tests` 验证真实 JACK 客户端/端口/连线采集及模型行为。B3 已完成统一 `IPluginInstance`/Descriptor/Loader 契约和可运行的 Internal Gain、Bypass、Peak Meter 实例，并通过 `wjn_patchbay_plugins_tests` 验证实例化、参数与音频处理。LADSPA、DSSI、LV2、JSFX、SF2/SF3、SFZ 已从插件 API 与计划范围移除；SF 系列后续会作为专用 Internal 模块按需求实现。B4 已完成：`PatchbayCanvas` 由 Core `Snapshot` 渲染可选节点卡片、Audio/MIDI/CV/OSC 端口及类型着色的贝塞尔连线，深浅主题通过唯一资源 `style.css` 驱动。B5 已完成：画布提供节点拖拽、框选、中键平移、滚轮缩放、适配/重置视图、端口长按拖动建立兼容的 Audio/MIDI 连接、端口点击建连、右键断连/节点断开全部/重命名、可视 Split/Join、客户端和端口名称搜索，并将节点位置和 Split 状态持久化为当前用户的 Patchbay 本地设置。拖线时显示 Bézier 预览线，可连接端口以实线提示；节点移动期间会实时重算已有连线，因此线缆保持端口锚定。连接成功后会延迟到当前 Qt 鼠标事件结束才重建场景，避免事件处理中的节点被 `scene()->clear()` 提前销毁而卡死或闪退。节点只来自当前 JACK 图，已移除演示拓扑、占位节点、复制粘贴及节点库拖放入口；system 固定在线并默认 Split。模块窗口已重构为 ComfyUI 风格工作区：左侧节点库只列出可加入的 JACK 客户端，窗口持有的只观察 JACK 客户端每秒采集全局图并刷新，离线客户端仍可识别并在重新出现后自动恢复在线。Audio 端口为绿色，MIDI 端口为红色，输入和输出端口按相同行配对显示并带类型色标签。实时刷新会在节点拖动期间暂停，避免长按拖动时由场景重建导致的坐标跳变。右侧可收缩参数面板展示所选节点并编辑别名和 Split 状态，标准菜单栏提供工程、视图面板与画布命令。B7 的模块发现与托盘接入已完成：主程序成功加载 `mod_patchbay.dll` 且 Node API 版本匹配、`init()` 成功时，托盘“接线盘”项恢复可用并可打开基础模块窗口。
+
+**B6 完成补充（2026-09-03）**：文件菜单现提供工程打开、保存和另存为；`.wjnproj` 使用 `QJsonDocument` 生成标准 UTF-8 JSON，并用 `QSaveFile` 原子写入。工程保存 clients、ports、connections 和 `layouts[]`，后者包含普通节点及 Split 输入/输出半节点的独立位置。加载会校验版本和必填标识，恢复画布与布局，并把路径写入 `lastProjectPath`；下次打开接线盘时自动加载。每秒图刷新会通过观察用 JACK client 对项目中当前存在的源/目标端口检查并调用 `jack_connect` 恢复未连接项；暂时缺失端口的连接记录不会删除，待客户端或端口再次出现后继续重试。
+
+**接线盘完成补充（2026-09-03）**：接线盘已完成 B1–B8。节点来源仅限当前 JACK 图，不再创建或保留占位节点；`system` 客户端在观察图中固定为在线。文件菜单新增自动保存间隔设置，默认每 60 秒保存一次已有路径且已修改的工程，间隔可设为 0–3600 秒，其中 0 表示关闭自动保存。手动断开会真实调用 `jack_disconnect` 并移除恢复记录，不会在后续自动重连中恢复。
 
 > 遵循项目既有工作流:每里程碑**编译通过即可交付**,图形/交互行为由用户手动验证;不反复跑自动化验证。
 

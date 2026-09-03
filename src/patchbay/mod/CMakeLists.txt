@@ -15,6 +15,7 @@ target_link_libraries(mod_patchbay
     PRIVATE
         WinJACKNexus::UI
         WinJACKNexus::Node
+        WinJACKNexus::Audio
         patchbay_core
 )
 
