@@ -41,9 +41,10 @@ namespace {
 
 using namespace WinJACKNexus::Patchbay::Core;
 
-constexpr qreal kNodeWidth = 220.0;
+constexpr qreal kMinimumNodeWidth = 220.0;
 constexpr qreal kHeaderHeight = 34.0;
 constexpr qreal kPortHeight = 26.0;
+constexpr qreal kCanvasExtent = 1'000'000.0;
 constexpr auto kNodeMimeType = "application/x-winjacknexus-node";
 
 struct CanvasTheme final {
@@ -162,6 +163,10 @@ public:
             else if (ports_[index].direction == Direction::output)
                 outputs_.push_back(index);
         }
+            const auto widths = labelWidths(client_, ports_);
+            inputLabelWidth_ = widths.input;
+            outputLabelWidth_ = widths.output;
+            nodeWidth_ = widths.node;
         setFlag(ItemIsSelectable);
         setFlag(ItemIsMovable);
         setToolTip(QString::fromStdString(client_.name));
@@ -169,7 +174,12 @@ public:
 
     QRectF boundingRect() const override
     {
-        return { 0.0, 0.0, kNodeWidth, kHeaderHeight + std::max({ std::size_t { 1 }, inputs_.size(), outputs_.size() }) * kPortHeight };
+        return { 0.0, 0.0, nodeWidth_, kHeaderHeight + std::max({ std::size_t { 1 }, inputs_.size(), outputs_.size() }) * kPortHeight };
+    }
+
+    static qreal preferredWidth(const ClientInfo& client, const std::vector<PortInfo>& ports)
+    {
+        return labelWidths(client, ports).node;
     }
 
     QPointF portPosition(const std::string& portId) const
@@ -183,7 +193,7 @@ public:
         const auto portIndex = static_cast<std::size_t>(std::distance(ports_.cbegin(), port));
         const auto& directionPorts = port->direction == Direction::input ? inputs_ : outputs_;
         const auto row = static_cast<qreal>(std::distance(directionPorts.cbegin(), std::find(directionPorts.cbegin(), directionPorts.cend(), portIndex)));
-        const qreal x = port->direction == Direction::input ? 0.0 : kNodeWidth;
+        const qreal x = port->direction == Direction::input ? 0.0 : nodeWidth_;
         return mapToScene({ x, kHeaderHeight + (row + 0.5) * kPortHeight });
     }
 
@@ -197,7 +207,7 @@ public:
             return {};
         if (position.x() <= 12.0 && row < static_cast<std::ptrdiff_t>(inputs_.size()))
             return ports_[inputs_[static_cast<std::size_t>(row)]].id;
-        if (position.x() >= kNodeWidth - 12.0 && row < static_cast<std::ptrdiff_t>(outputs_.size()))
+        if (position.x() >= nodeWidth_ - 12.0 && row < static_cast<std::ptrdiff_t>(outputs_.size()))
             return ports_[outputs_[static_cast<std::size_t>(row)]].id;
         return {};
     }
@@ -221,8 +231,8 @@ public:
 
         painter->setPen(Qt::NoPen);
         painter->setBrush(theme.nodeHeader);
-        painter->drawRoundedRect(QRectF(0.0, 0.0, kNodeWidth, kHeaderHeight), 6.0, 6.0);
-        painter->drawRect(0.0, kHeaderHeight - 6.0, kNodeWidth, 6.0);
+        painter->drawRoundedRect(QRectF(0.0, 0.0, nodeWidth_, kHeaderHeight), 6.0, 6.0);
+        painter->drawRect(0.0, kHeaderHeight - 6.0, nodeWidth_, 6.0);
 
         QFont titleFont = QApplication::font();
         titleFont.setPointSize(10);
@@ -230,7 +240,7 @@ public:
         painter->setPen(theme.text);
         painter->setFont(titleFont);
         const QString title = QString::fromStdString(client_.alias.empty() ? client_.name : client_.alias);
-        painter->drawText(QRectF(12.0, 0.0, kNodeWidth - 24.0, kHeaderHeight), Qt::AlignVCenter | Qt::AlignLeft, title);
+        painter->drawText(QRectF(12.0, 0.0, nodeWidth_ - 24.0, kHeaderHeight), Qt::AlignVCenter | Qt::AlignLeft, title);
 
         QFont portFont = QApplication::font();
         portFont.setPointSize(9);
@@ -238,14 +248,14 @@ public:
         const auto drawPort = [this, painter, &theme](const PortInfo& port, qreal row, bool input) {
             const QColor color = portColor(port.kind);
             painter->setPen(QPen(theme.separator, 1.0));
-            painter->drawLine(QPointF(8.0, row), QPointF(kNodeWidth - 8.0, row));
+            painter->drawLine(QPointF(8.0, row), QPointF(nodeWidth_ - 8.0, row));
             painter->setPen(Qt::NoPen);
             painter->setBrush(color);
-            const qreal pinX = input ? 0.0 : kNodeWidth;
+            const qreal pinX = input ? 0.0 : nodeWidth_;
             painter->drawEllipse(QPointF(pinX, row + kPortHeight / 2.0), 5.5, 5.5);
             const QString name = QString::fromStdString(port.alias.empty() ? port.name : port.alias);
-            const QRectF labelBounds = input ? QRectF(12.0, row + 3.0, kNodeWidth * 0.42, kPortHeight - 6.0)
-                                             : QRectF(kNodeWidth * 0.58, row + 3.0, kNodeWidth * 0.42 - 12.0, kPortHeight - 6.0);
+            const QRectF labelBounds = input ? QRectF(12.0, row + 3.0, inputLabelWidth_, kPortHeight - 6.0)
+                                             : QRectF(nodeWidth_ - outputLabelWidth_ - 12.0, row + 3.0, outputLabelWidth_, kPortHeight - 6.0);
             painter->setBrush(color.darker(150));
             painter->drawRoundedRect(labelBounds, 3.0, 3.0);
             painter->setPen(theme.text);
@@ -265,11 +275,11 @@ public:
 protected:
     void mousePressEvent(QGraphicsSceneMouseEvent* event) override
     {
-        if (event->button() == Qt::LeftButton && (event->pos().x() <= 12.0 || event->pos().x() >= kNodeWidth - 12.0)) {
+        if (event->button() == Qt::LeftButton && (event->pos().x() <= 12.0 || event->pos().x() >= nodeWidth_ - 12.0)) {
             const auto row = static_cast<std::ptrdiff_t>(std::floor((event->pos().y() - kHeaderHeight) / kPortHeight));
             if (row >= 0) {
                 const bool onInputPin = event->pos().x() <= 12.0 && row < static_cast<std::ptrdiff_t>(inputs_.size());
-                const bool onOutputPin = event->pos().x() >= kNodeWidth - 12.0 && row < static_cast<std::ptrdiff_t>(outputs_.size());
+                const bool onOutputPin = event->pos().x() >= nodeWidth_ - 12.0 && row < static_cast<std::ptrdiff_t>(outputs_.size());
                 if (onInputPin || onOutputPin) {
                     const auto& port = ports_[onInputPin ? inputs_[static_cast<std::size_t>(row)] : outputs_[static_cast<std::size_t>(row)]];
                     pressedPortId_ = port.id;
@@ -304,6 +314,36 @@ protected:
     }
 
 private:
+    struct LabelWidths final {
+        qreal input = 0.0;
+        qreal output = 0.0;
+        qreal node = kMinimumNodeWidth;
+    };
+
+    static LabelWidths labelWidths(const ClientInfo& client, const std::vector<PortInfo>& ports)
+    {
+        QFont portFont = QApplication::font();
+        portFont.setPointSize(9);
+        const QFontMetrics portMetrics(portFont);
+        LabelWidths widths;
+        for (const auto& port : ports) {
+            const auto name = QString::fromStdString(port.alias.empty() ? port.name : port.alias);
+            const qreal width = portMetrics.horizontalAdvance(name) + 10.0;
+            if (port.direction == Direction::input)
+                widths.input = std::max(widths.input, width);
+            else if (port.direction == Direction::output)
+                widths.output = std::max(widths.output, width);
+        }
+
+        QFont titleFont = QApplication::font();
+        titleFont.setPointSize(10);
+        titleFont.setWeight(QFont::DemiBold);
+        const auto title = QString::fromStdString(client.alias.empty() ? client.name : client.alias);
+        widths.node = std::max({ kMinimumNodeWidth, widths.input + widths.output + 48.0,
+                                 static_cast<qreal>(QFontMetrics(titleFont).horizontalAdvance(title) + 24) });
+        return widths;
+    }
+
     ClientInfo client_;
     std::vector<PortInfo> ports_;
     std::vector<std::size_t> inputs_;
@@ -312,6 +352,9 @@ private:
     std::function<void(const QPointF&)> portDragged_;
     std::function<void(const QPointF&)> portReleased_;
     std::string pressedPortId_;
+    qreal inputLabelWidth_ = 0.0;
+    qreal outputLabelWidth_ = 0.0;
+    qreal nodeWidth_ = kMinimumNodeWidth;
 };
 
 QPainterPath connectionPath(const QPointF& source, const QPointF& destination)
@@ -333,12 +376,14 @@ PatchbayCanvas::PatchbayCanvas(QWidget* parent)
     : QGraphicsView(parent)
 {
     auto* canvasScene = new QGraphicsScene(this);
-    canvasScene->setSceneRect(0.0, 0.0, 1120.0, 680.0);
+    canvasScene->setSceneRect(-kCanvasExtent, -kCanvasExtent, kCanvasExtent * 2.0, kCanvasExtent * 2.0);
     setScene(canvasScene);
     setRenderHint(QPainter::Antialiasing);
     setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
     setBackgroundBrush(activeCanvasTheme().background);
     setFrameShape(QFrame::NoFrame);
+    setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     connect(canvasScene, &QGraphicsScene::selectionChanged, this, [this] {
         notifySelection();
     });
@@ -403,7 +448,7 @@ bool PatchbayCanvas::saveProject(const QString& filePath) const
         addLayout(clientKey, { client.x, client.y });
         if (client.split) {
             addLayout(clientKey + QStringLiteral("/input"), { client.x, client.y });
-            addLayout(clientKey + QStringLiteral("/output"), { client.x + kNodeWidth + 52.0, client.y });
+            addLayout(clientKey + QStringLiteral("/output"), { client.x + kMinimumNodeWidth + 52.0, client.y });
         }
     }
 
@@ -536,6 +581,12 @@ bool PatchbayCanvas::restoreJackConnections(WinJACKNexus::Audio::JackClient& cli
 
 void PatchbayCanvas::setSnapshot(const Snapshot& snapshot)
 {
+    std::unordered_set<std::string> selectedClientIds;
+    for (const auto* item : scene()->selectedItems()) {
+        if (item->data(0).isValid())
+            selectedClientIds.insert(item->data(0).toString().toStdString());
+    }
+
     Snapshot restored = snapshot;
     auto settings = patchbaySettings();
     for (auto& client : restored.clients) {
@@ -565,7 +616,7 @@ void PatchbayCanvas::setSnapshot(const Snapshot& snapshot)
         if (!client.alive)
             continue;
 
-        const auto addNode = [this, &client, &portsByClient, &nodesByPort](std::vector<PortInfo> ports, QPointF position, Direction portDirection, const QString& layoutKey, const QString& label) {
+        const auto addNode = [this, &client, &portsByClient, &nodesByPort, &selectedClientIds](std::vector<PortInfo> ports, QPointF position, Direction portDirection, const QString& layoutKey, const QString& label) {
             ClientInfo displayClient = client;
             displayClient.alias = label.toStdString();
             auto* node = new CanvasNode(std::move(displayClient), std::move(ports),
@@ -576,6 +627,7 @@ void PatchbayCanvas::setSnapshot(const Snapshot& snapshot)
             node->setData(0, QString::fromStdString(client.id));
             node->setData(3, layoutKey);
             node->setData(4, position);
+            node->setSelected(selectedClientIds.contains(client.id));
             scene()->addItem(node);
             for (const auto& port : portsByClient[client.id]) {
                 if (port.direction == portDirection)
@@ -593,6 +645,7 @@ void PatchbayCanvas::setSnapshot(const Snapshot& snapshot)
             node->setData(0, QString::fromStdString(client.id));
             node->setData(3, QString::fromStdString(client.id));
             node->setData(4, QPointF(client.x, client.y));
+            node->setSelected(selectedClientIds.contains(client.id));
             scene()->addItem(node);
             for (const auto& port : portsByClient[client.id])
                 nodesByPort.emplace(port.id, node);
@@ -617,7 +670,8 @@ void PatchbayCanvas::setSnapshot(const Snapshot& snapshot)
         const bool isSystem = client.id == "system";
         addNode(std::move(inputs), positionFor(inputLayoutKey, { client.x, client.y }), Direction::input, inputLayoutKey,
             isSystem ? QStringLiteral("system playback") : QString::fromStdString(client.name) + QStringLiteral(" · 输入"));
-        addNode(std::move(outputs), positionFor(outputLayoutKey, { client.x + kNodeWidth + 52.0, client.y }), Direction::output, outputLayoutKey,
+        const auto inputWidth = CanvasNode::preferredWidth(client, inputs);
+        addNode(std::move(outputs), positionFor(outputLayoutKey, { client.x + inputWidth + 52.0, client.y }), Direction::output, outputLayoutKey,
             isSystem ? QStringLiteral("system capture") : QString::fromStdString(client.name) + QStringLiteral(" · 输出"));
     }
 
@@ -762,8 +816,10 @@ void PatchbayCanvas::zoomFit()
 
 void PatchbayCanvas::mousePressEvent(QMouseEvent* event)
 {
-    if (event->button() == Qt::MiddleButton) {
+    const bool blankCanvas = itemAt(event->pos()) == nullptr;
+    if (event->button() == Qt::MiddleButton || (event->button() == Qt::LeftButton && blankCanvas)) {
         panning_ = true;
+        panningButton_ = event->button();
         panOrigin_ = event->pos();
         viewport()->setCursor(Qt::ClosedHandCursor);
         event->accept();
@@ -789,8 +845,9 @@ void PatchbayCanvas::mouseMoveEvent(QMouseEvent* event)
 
 void PatchbayCanvas::mouseReleaseEvent(QMouseEvent* event)
 {
-    if (panning_ && event->button() == Qt::MiddleButton) {
+    if (panning_ && event->button() == panningButton_) {
         panning_ = false;
+        panningButton_ = Qt::NoButton;
         viewport()->unsetCursor();
         event->accept();
         return;

@@ -199,7 +199,7 @@ WinJACKNexus 的定位:
 | 基础库 `WinJACKNexus::Audio` | `audio.dll` | 🔨 开发中 | [基础库计划](Docs/WinJACKNexus%20-%20基础库%20-%20开发计划.md) | JACK 封装/WASAPI/系统 MIDI |
 | 基础库 `WinJACKNexus::Node` | `node.dll` | ✅ 已完成(接口桩) | [基础库计划](Docs/WinJACKNexus%20-%20基础库%20-%20开发计划.md) | INode + C-API + 示例节点 |
 | Audio Adapter | `nodes/adapter/mod_adapter.dll` | 📋 未开始 | — | P2 |
-| Interactive Patchbay | `mod_patchbay.dll`(主程序同级) | 📋 未开始 | — | P2(核心接线盘,主模块) |
+| Interactive Patchbay | `mod_patchbay.dll`(主程序同级) | ✅ 已完成(B1–B8) | [接线盘计划](Docs/WinJACKNexus%20-%20接线盘%20-%20开发计划.md) | 实时 JACK 图、拖线连通/断开、工程保存恢复、自动保存、无限画布 |
 | Pure Mixer | `nodes/mixer/mod_mixer.dll` | 📋 未开始 | — | P3 |
 | Meterbridge | `nodes/meter/mod_meterbridge.dll` | 📋 未开始 | — | P4 |
 | Signal Switch | `nodes/switch/mod_switch.dll` | 📋 未开始 | — | P4 |
@@ -225,6 +225,7 @@ WinJACKNexus 的定位:
 
 - [`Docs/WinJACKNexus 开发规范.md`](Docs/WinJACKNexus%20开发规范.md) —— 架构规范 v3.1(强制遵循)
 - [`Docs/WinJACKNexus - 基础库 - 开发计划.md`](Docs/WinJACKNexus%20-%20基础库%20-%20开发计划.md) —— 当前阶段计划书
+- [`Docs/WinJACKNexus - 接线盘 - 开发计划.md`](Docs/WinJACKNexus%20-%20接线盘%20-%20开发计划.md) —— Interactive Patchbay B1–B8 完成记录
 
 ---
 

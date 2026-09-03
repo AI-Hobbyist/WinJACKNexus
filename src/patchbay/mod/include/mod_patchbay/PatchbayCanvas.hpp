@@ -65,6 +65,7 @@ private:
     std::function<void(const std::string&)> nodeSelectionHandler_;
     std::function<void(const std::string&, const std::string&)> connectionDisconnectHandler_;
     QPoint panOrigin_;
+    Qt::MouseButton panningButton_ = Qt::NoButton;
     bool panning_ = false;
     bool nodeDragActive_ = false;
     bool snapshotRefreshPending_ = false;
