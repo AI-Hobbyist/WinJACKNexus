@@ -1,0 +1,277 @@
+# WinJACKNexus - VST Support - 开发计划
+
+> 版本:v1.1
+> 日期:2026-09-05
+> 依据:«WinJACKNexus 开发规范» v3.1;«VST_Prompt.md»(Docs/VST_Prompt.md);«WinJACKNexus - 接线盘 - 开发计划»
+> 内部分类名:**VST Support**
+> 现状:基础库(Common/UI/Audio/Node)与接线盘 B1–B8 已完成;V1 扫描器已完成;VSTProcess 与 VST 节点尚未开始
+> 本版决策:VSTProcess 为兼顾 32 位插件改用原生 C++ + VST2/VST3 SDK,不使用 Qt/JUCE 后端;VST 节点 DLL 与设置界面继续使用 Qt
+
+---
+
+## 0. 计划要点(依据 VST_Prompt)
+
+| 需求 | 结论 |
+| :--- | :--- |
+| 插件格式 | **VST2 + VST3 均支持**;VST2 经编译开关 **`WJN_ENABLE_VST2`(默认 OFF,需要时 `-DWJN_ENABLE_VST2=ON` 临时开启)**——VST2 老插件众多,确认自身许可后启用(§8) |
+| 位宽识别 | **扫描时识别插件 32/64 位**(PE Machine:`0x14C`=x86,`0x8664`=x64),写入 `.vstinfo/.vst3info` 的 **`bits`** 字段;节点据此分发 **VSTProcess32/VSTProcess64**(§3.1/§3.2) |
+| 单 VST 节点 | `nodes/vst/mod_vst_host.dll`(单插件) |
+| VST 链节点 | `nodes/vst/mod_chain_host.dll`(VST 特化子 Patchbay 节点,独立窗口;插件经 `mod_vst_host.dll` 加载,布局参考主 Patchbay);**chain in/out/midi 端口在子 Patchbay 中自由添加/删除、可改名**;主 Patchbay **隐藏**这几个端口;子 Patchbay **节点列表白名单:仅 chain in/out、chain midi in/out、VST 插件**,其它一律隐藏(避免误操作) |
+| 专用节点分类栏 | Patchbay 侧边根据 `nodes/VSTPlugins/` **文件夹分类**显示;识别 **`.vstinfo` / `.vst3info`**(JSON,一个插件一个文件;参考结构 VST2|VST3 → Instruments|Effects → 子类文件夹) |
+| 插件扫描器 | 独立 **`Vst Scanner.exe`**(Qt6):多个 VST 路径;扫描后写入 `nodes/VSTPlugins` 对应目录;**Waves Shell** → info 附加 `internal_plugin` 字段 |
+| 插件处理器 | 独立 **`VSTProcess32.exe` / `VSTProcess64.exe`**(原生 C++ + VST2/VST3 SDK + IPC,不依赖 Qt/JUCE):`--path` 加载,额外 `--internal_plugin`(Waves Shell) |
+| 节点界面 | `mod_vst_host.dll` / `mod_chain_host.dll` 的节点逻辑、设置面板和编辑器容器继续使用 Qt;通过 IPC 驱动原生 VSTProcess |
+| 设置 | `mod_vst_host` 侧边栏:插件路径、预设同步、**端口显示方式**(默认/自定义总线·标签名/标准声道名/jack 默认)、**打开自带 GUI**(GUI 上有预设栏,保存/加载 `.fxp/.fxb` 预设);菜单与侧边栏添加 **重载 VST**(非 VST 节点隐藏) |
+| 存档 | 插件路径、插件参数、当前预设、客户端名(入 `.wjnproj`) |
+| 崩溃隔离 | 独立沙盒进程运行 VST;插件崩溃 → **对应节点旁通**,不崩整个 WinJACKNexus |
+| 端口 fallback | 自定义总线/标签名 → **jack 默认**;端口数量取决于插件能力(音频 + MIDI) |
+| 客户端名 | 普通插件=无扩展名文件名;Shell=内部插件名;过长:完整名→中间省略→缩写→`vst_xxxxx` 随机;重名:`名字_自增序号` |
+| SDK | 均在 `third_party/`:`vst3sdk`(3.8.x)、`vst2sdk`(含 VST2_License_Agreement.pdf)、`JUCE` 9.0.1 |
+
+---
+
+## 1. 现状与 SDK 分析
+
+### 1.1 第三方 SDK(third_party)
+
+| SDK | 内容 | 本计划用途 |
+| :--- | :--- | :--- |
+| `third_party/vst3sdk`(3.8.x) | `pluginterfaces/`、`public.sdk/`、`cmake/`(SMTG CMake、`smtg_add_vst3plugin` 等) | ① Vst Scanner 用其 module info/parser 与 hosting API 探测 VST3;② VSTProcess 使用原生 VST3 Hosting API,不经 JUCE wrapper |
+| `third_party/vst2sdk` | `pluginterfaces/vst2.x/aeffect.h` 等 + `VST2_License_Agreement.pdf` | VST2 宿主自实现(AEffect C ABI);**编译开关 `WJN_ENABLE_VST2`(默认 OFF,需要时 `-DWJN_ENABLE_VST2=ON` 临时开启)**;许可:`VST2_License_Agreement.pdf` 仅允许授权开发者使用、不可再分发头文件 —— 启用前需自行确认授权(**风险 §8**) |
+| `third_party/JUCE`(9.0.1) | JUCE 9 的 `juce_audio_processors` 不作为 VSTProcess 后端 | VSTProcess 为兼容 32 位统一使用原生 C++ 与 VST2/VST3 SDK;如其它模块需要 JUCE,不改变 VST 节点 Qt 界面与沙盒边界 |
+| `Ref/Carla` | `backend/plugin/CarlaPluginVST2/VST3.cpp`(参考) | 仅作行为参考(Fallback 命名、Bypass 语义),不直接移植 |
+
+### 1.2 已有基础库复用
+
+| 组件 | 复用 |
+| :--- | :--- |
+| `WinJACKNexus::Audio` `JackClient/JackPort/JackGraph` | 沙盒进程(VSTProcess)自身作为 **JACK 客户端**注册端口(独立进程直连 JACK 图,崩溃→端口消失→主节点旁通) |
+| `WinJACKNexus::Node`(NodeApi) | `mod_vst_host.dll`/`mod_chain_host.dll` 实现 `INode`;**需增量**:设置面板(`wjn_create_settings_view`)与多节点 |
+| `WinJACKNexus::UI` | `ThemeManager/style.css`、`PaintableWidget/AnimatedWidget`、`NativeWindowUtils`(**跨进程 HWND 编辑器嵌入**)、`DeviceComboBox`(VST 路径/预设选择)、参数栏组件 |
+| `WinJACKNexus::Common` | Logger、路径、`RealtimeObject`(状态)、SPSC(电平/状态);**WM_COPYDATA IPC 基础预留**(改用命名管道/TCP,见 §3.2) |
+| Patchbay | 节点分类栏扩展(读 `nodes/VSTPlugins` info 树)、右键菜单「重载 VST」、节点旁通/重启 UI、参数栏嵌入 |
+
+> 缺口(本计划新增):① **VST2 最小宿主**(自实现 AEffect,`WJN_ENABLE_VST2=ON` 时编译);② VSTProcess 沙盒进程(原生 C++ + VST2/VST3 SDK + IPC + JACK 客户端);③ Vst Scanner(**含 32/64 位识别**);④ info 文件规范(`bits` 字段)与分类栏;⑤ 端口显示方式与客户端名规则;⑥ 旁通管线(进程级)。其中 V1 扫描器已完成,其余仍按里程碑推进。
+
+---
+
+## 2. 目标、范围与交付物
+
+### 2.1 目标
+在 WinJACKNexus 中提供 VST2/VST3 支持:扫描/分类展示、单插件节点与链节点、沙盒进程加载(崩溃旁通)、设置/预设/存档、自定义端口与客户端名规则。
+
+### 2.2 交付物
+
+| 产物 | 部署/形态 | 说明 |
+| :--- | :--- | :--- |
+| `Vst Scanner.exe` | 独立工具(主程序目录) | Qt6;多路径扫描;写 `nodes/VSTPlugins/**/*.vstinfo|*.vst3info` |
+| `VSTProcess64.exe` | 独立沙盒进程(主程序目录) | 64 位插件处理:原生 C++ + VST2/VST3 SDK + IPC + JACK 客户端,不依赖 Qt/JUCE |
+| `VSTProcess32.exe` | 独立沙盒进程(主程序目录) | 32 位插件处理:原生 C++ + VST2/VST3 SDK,加载 `C:\Windows\libjack.dll` 32 位进 JACK,不依赖 Qt/JUCE |
+| `nodes/vst/mod_vst_host.dll` | 节点 DLL | 单 VST 节点(INode):设置面板/编辑 GUI/预设/重载 |
+| `nodes/vst/mod_chain_host.dll` | 节点 DLL | VST 链节点(子 Patchbay 布局 + chain in/out) |
+| `nodes/VSTPlugins/` | 数据目录 | info 参考结构:`VST2|VST3/Instruments|Effects/<子类>/*.vstinfo|*.vst3info` |
+| 基础库增量 | `ui.dll`/`node.dll` | 编辑 GUI 容器、`VstPathWidget`、Node 设置面板 API v2 |
+
+---
+
+## 3. 架构设计
+
+### 3.1 插件扫描器 `Vst Scanner.exe`
+
+- **Qt6 应用**(可无窗口/命令行 + 手动触发),设置页维护**多个 VST 路径**;
+- **扫描**:`*.dll`(VST2,尝试 `AEffect` magic `VstP`)、`*.vst3`(VST3,经 VST3 SDK module info/parser 与原生 hosting probe)逐个加载头部校验并读取描述(名称/厂商/类别/io 音频/MIDI、bus 与标签名);
+- **位宽识别**:读取 PE 头 `Machine` 字段(`0x14C`=x86 → `bits: 32`,`0x8664`=x64 → `bits: 64`;VST3 bundle 对其内部实际二进制检测)写入 info;32 位(老 VST2 常见)→ `VSTProcess32`,64 位 → `VSTProcess64`;所有插件(含 VST3)均检测位宽;
+
+- **分类写入 `nodes/VSTPlugins`**:
+  ```
+  nodes/VSTPlugins/
+  ├─ VST2/
+  │  ├─ Instruments/            # *.vstinfo
+  │  └─ Effects/
+  │     ├─ EQ/ Dynamic/ ···      # 子类文件夹(按插件 subcategory)
+  │     └─ *.vstinfo
+  └─ VST3/                       # *.vst3info(同上结构)
+  ```
+- **info 文件(JSON,一个插件一个)** 示例:
+  ```json
+  {
+    "name": "Example EQ",
+    "vendor": "Acme",
+    "version": "1.2.3",
+    "type": "vst3",
+    "bits": 64,
+    "path": "C:\\VST\\ExampleEQ.vst3\\Contents\\x86_64-win\\ExampleEQ.vst3",
+    "category": "effect",
+    "subcategory": "EQ",
+    "isInstrument": false,
+    "audioIns": 2, "audioOuts": 2, "midiIn": false, "midiOut": false,
+    "buses": [ { "name": "Stereo", "channels": 2, "type": "audio", "isInput": true } ],
+    "internal_plugin": "WavesShellVST 1"     // 仅 Waves Shell 等:额外字段
+  }
+  ```
+- **Waves Shell**:识别 Shell DLL → 枚举内部插件,每个内部插件生成一份 info(带 `internal_plugin` 字段);
+- 增量/重扫:文件时间戳缓存,手动或启动时刷新;扫描日志写 `%LOCALAPPDATA%`。
+
+### 3.2 插件处理器 `VSTProcess32.exe / VSTProcess64.exe`(原生 C++ 沙盒)
+
+- **启动参数**:`--path <插件路径> [--internal_plugin <内部名>] [--client <客户端名>] [--port <IPC端口/管道>]`;**位宽分发**:64 位插件 → `VSTProcess64.exe`,32 位插件(老 VST2 常见)→ `VSTProcess32.exe`(扫描 info 的 `bits`/PE 探测决定);
+- **进程结构**(原生 C++/Win32 + STL,不链接 Qt/JUCE):
+  - 使用 VST3 SDK Hosting API 加载 VST3;**VST2 用自实现加载器**(§3.5);两种格式都由原生宿主直接管理实例、参数、状态和处理;
+  - 插件失败/崩溃 → 进程退出(exit code 非 0)→ **主进程检测 → 节点旁通**;
+  - 自身作为 **JACK 客户端**(复用 `Audio::JackClient/JackPort`,64 位链 `libjack64.dll`,32 位链 `C:\Windows\libjack.dll`):注册插件音频/MIDI 端口(端口名按 §3.6),`process` 回调内 `AudioProcessor::processBlock`;
+  - 编辑器:加载成功后按需创建插件编辑器(VST2 `effEditOpen` 或 VST3 `IPlugView` → HWND),HWND 经 IPC 交 Qt 节点主进程嵌入(§3.4);
+  - **IPC(主进程 ↔ VSTProcess)**:Windows **命名管道**(`\\.\pipe\WinJACKNexus.VST.<pid>`)或本地 TCP(备选,回退自动);
+    - 命令:load(状态回执)、unload、setParameter/getParameter、saveState/loadState(`.fxp/.fxb` 与插件私有流)、openEditor/closeEditor(返回 HWND)、preset load/save、reload、keepAlive(50ms)与崩溃检测;
+    - 协议:由原生 Win32 命名管道/TCP + C++ 实现长度前缀二进制(msgpack-lite 风格,或 JSON 头 + 二进制块);Qt 仅保留在节点侧,不进入 VSTProcess。
+
+### 3.3 单 VST 节点 `nodes/vst/mod_vst_host.dll`
+
+- 实现 `INode`(设置面板 API v2);**一个节点 = 一个 VST 插件实例**(经由 VSTProcess 沙盒渲染);**创建节点时按 info `bits`(32/64)→ 选择 `VSTProcess32/VSTProcess64`**;手动指定路径的插件先做 PE 位宽探测再分发;
+- **节点侧保持 Qt**:节点 DLL、设置面板、参数栏和原生编辑器 HWND 容器继续使用 Qt;VST 音频/事件处理与插件生命周期放在无 Qt/JUCE 的 VSTProcess 中,两侧通过 IPC 通信;
+- 侧边栏设置:
+  - **插件路径**(浏览/输入;**仅当节点未加载插件时可用**,或经「重载 VST」变更);
+  - **预设同步**:显示插件预设列表(下拉),可与节点选择联动(经 IPC `AudioProcessor::getCurrentProgram/Index`);
+  - **端口显示方式**:`默认` / `自定义总线·标签名` / `标准声道名` / `jack 默认`(§3.6);
+  - **打开自带 GUI** → 请求 VSTProcess 创建编辑器,主进程经 `NativeWindowUtils::embedNativeWindow` 嵌入(GUI 顶部有**预设栏**:保存/加载 **`.fxp` / `.fxb` 预设**);
+  - **重载 VST**:菜单 + 侧边栏(非 VST 节点隐藏该选项)——卸载重载(保持客户端名/端口/预设)。
+- 崩溃/旁通:VSTProcess 退出 → 节点状态 **Bypass**(输入直通输出,端口保持注册,由主进程接管),节点右键「重启插件」拉起新 VSTProcess 恢复。
+
+### 3.4 VST 链节点 `nodes/vst/mod_chain_host.dll`
+
+- **VST 特化子 Patchbay**:独立窗口,布局参考主 Patchbay(画布 + 节点卡 + 端口引脚);
+- **节点侧保持 Qt**:子 Patchbay、链设置面板和 VST 槽位 UI 继续沿用 Qt 节点体系;槽位通过 IPC 驱动原生 VSTProcess;
+- 链内容为多个 VST 槽位,**插件仍经 `mod_vst_host.dll`**(相同的 VSTProcess 沙盒加载/旁通机制)加载,子 Patchbay 内拖动插槽与连线;
+- **Chain 端口(chain in / chain out / MIDI)**:在链的**子 Patchbay 中自由添加/删除**(工具栏/右键「添加 Chain In / Chain Out / Chain MIDI 端口」)且**可改名**;链本身作为 JACK 客户端注册对应端口(`chain:in_1..N` / `chain:out_1..N` / `chain:midi_in/out`),用于接通主界面与外部;
+- **主 Patchbay 隐藏**:主接线盘中链节点**不显示 chain in/out/midi 引脚**(隐藏渲染;端口在 JACK 图中真实存在,经别名供外部客户端连接),子 Patchbay 内始终显示并可管理;
+- **子 Patchbay 节点列表(白名单)**:仅显示 **Chain In、Chain Out、Chain MIDI In、Chain MIDI Out、VST 插件**(VST 条目来自 `nodes/VSTPlugins` info 分类栏);**其它一切节点(系统/外部客户端/Mixer 等)一律隐藏**,避免误操作;
+- 与单 VST 节点共享:设置面板、预设、端口显示、重载、旁通(链内某插件崩溃 → 对应链内槽位旁通,链节点仍在线)。
+
+### 3.5 VST2 最小宿主(原生 C++ 自实现)
+
+- 头:`third_party/vst2sdk/pluginterfaces/vst2.x/aeffect.h`;
+- 加载:`LoadLibrary` + `GetProcAddress(entry)` → `AEffect*`;`audioMasterCallback` 实现(kVstParameterChanged、kWantMidi、kVstUserEditor 等最小集);
+- 处理:`processReplacing`(float 交错`;不支持则 `process`);
+- 预设:`getChunk/setChunk`(fxp/fxb)与参数枚举(dump);
+- 编辑器(可选增量):`dispatcher(effEditOpen, hwnd)`——VST2 编辑器优先**后续增量**,首个版本音频/参数/预设为主;
+- 端口/总线:由 `numInputs/numOutputs/numPrograms/numParams` 描述(→ info 与端口规则)。
+
+### 3.6 端口命名(显示方式 + Fallback)
+
+| 显示方式 | 规则 |
+| :--- | :--- |
+| **默认** | 插件总线名(`bus_1_in`…;VST3 `AudioBus` 名;VST2 `in_1/out_1`) |
+| **自定义总线·标签名** | **插件内部获取的总线/标签名**(VST3 `AudioBus::getName()`/总线标签、VST2 总线/标签名;**非用户可编辑**,仅展示插件内部命名)——插件未提供该名称时 → **fallback jack 默认** |
+| **标准声道名** | 按通道布局 `L/R/C/LFE/SL/SR/…`(5.1/7.1/9.1.6 全景逐通道命名,超出用 `ch_<n>`) |
+| **jack 默认** | `in_1..N` / `out_1..N` / `midi_in` / `midi_out` |
+
+- **Fallback 链:自定义总线·标签名(插件内部获取)→ jack 默认**(即插件未提供自定义总线/标签名时,统一回退 jack 默认规则);
+- 端口数量由插件能力决定(音频 in/out + MIDI in/out),端口名经 IPC 与 JACK `jack_port_set_alias` 同步(set 显示别名,真实名保持 JACK 规范,保证 ABI/图稳定,别名供接线盘显示)。
+
+### 3.7 客户端名规则(Sandbox 客户端)
+
+```
+1. 普通插件:插件文件名(去扩展名);Waves Shell / internal_plugin:内部插件名
+2. 过长(>127, jack_client_name_size):完整名 → 中间省略("Axxx…xxxZ",保首尾) → 缩写(各词首字母+数字) → vst_<随机6位>
+3. 重名:上述名字_自增序号(1,2,3…)
+```
+- 由 `mod_vst_host`/`mod_chain_host` 生成并传给 VSTProcess `--client`;主进程与子进程共用同一实现(common 工具函数)。
+
+---
+
+## 4. 节点分类栏(专用)VST 插件栏
+
+- Patchbay 侧边**新增「VST 插件」分类栏**:读取 `nodes/VSTPlugins/` 树(文件夹=分类:VST2|VST3 → Instruments|Effects → 子类),`*.vstinfo/*.vst3info` 为可拖入的插件条目;
+- 点击/拖入 → 创建对应 `mod_vst_host.dll` 节点(或链节点的槽);
+- 信息展示:名称/厂商/版本/类别(来自 info);无 info 的 VST 文件不显示;
+- 重新扫描:分类栏提供「重新扫描」(调用 `Vst Scanner.exe`)。
+
+---
+
+## 5. 存档(wjnproj)
+
+- `.wjnproj` 增加顶级字段 **`vsts[]`**(单 VST 节点与链节点统一):
+  ```json
+  {
+    "node": "mod_vst_host_1",
+    "type": "vst3",
+    "path": "C:\\VST\\ExampleEQ.vst3",
+    "internalPlugin": null,
+    "preset": "my-preset.fxb",
+    "clientName": "ExampleEQ",
+    "clientNameRenamed": true,
+    "portDisplayMode": "default",
+    "parameters": [ { "index": 0, "value": 0.5 } ],
+    "state": "<base64 插件私有状态>",
+    "chained": false
+  }
+  ```
+- 恢复流程:启动/加载工程 → 按 `path/internalPlugin` 拉起 VSTProcess → IPC 恢复参数/状态/预设 → 注册端口 → 自动重连(`chain` 同上,含子链布局);
+- 与 `mixers[]`/`switches[]`/`adapters[]` 同模式,`version` 递进。
+
+---
+
+## 6. 构建与部署
+
+```cmake
+# 根 CMakeLists.txt
+option(WJN_ENABLE_VST2 "Build VST2 host support (licensed use only)" OFF)   # 需要时:-DWJN_ENABLE_VST2=ON
+add_subdirectory(src/vst)           # mod_vst_host + mod_chain_host
+add_subdirectory(tools/vst_scanner) # Vst Scanner.exe
+add_subdirectory(tools/vst_process) # VSTProcess32/64.exe
+```
+
+- **VST2 编译开关**:`WJN_ENABLE_VST2=ON` 时 VSTProcess 才包含 VST2 自实现宿主(链接 `vst2sdk` 头);`OFF` 时仍支持 VST3 与扫描(扫描永远做位宽识别);改为临时 ON 后需全量重编 VSTProcess/节点。
+
+- `VSTProcess64/32`:原生 C++/Win32 + **vst3sdk Hosting API**(`pluginterfaces`/`public.sdk`) + vst2sdk(仅 `pluginterfaces/vst2.x`) + `WinJACKNexus::Audio`(JACK 客户端封装,32 位构建链 `libjack.dll`,符号 `WINJACK_AUDIO_32` 宏切换);**不链接 JUCE/Qt**;
+- `mod_vst_host`/`mod_chain_host`:节点 DLL 和设置/编辑器界面继续使用 Qt6,通过原生 IPC 调用 VSTProcess;
+- 平台:x64 主(64 位插件 + 32 位 VST2 走 VSTProcess32);Qt 节点使用 Qt6 6.10.3 msvc2022_64;
+- 输出:三个 exe 至主程序目录;节点 DLL 至 `nodes/vst/`;`nodes/VSTPlugins/` 由扫描器生成(数据,入 .gitignore 可选)。
+
+---
+
+## 7. 里程碑与任务分解
+
+| 里程碑 | 内容 | 状态 | 预计 | 验收 |
+| :--- | :--- | :--- | :--- | :--- |
+| **V1 扫描器** | `Vst Scanner.exe`(Qt6):多路径、VST2/VST3 描述读取、**PE 位宽识别(32/64)→ info `bits`**、info 写入与分类、Waves internal_plugin;Probe64/Probe32 隔离探测;VST2 Shell、非法 DLL、Synth 分类和旧缓存迁移测试 | ✅ 已完成 | 3~5 天 | 扫描示例插件生成正确 `.vstinfo/.vst3info`(**含 `bits`**)与目录树;真实 DSK VSTi 可识别为 Instrument/MIDI in |
+| **V2 VSTProcess 骨架** | VSTProcess64/32(原生 C++ + VST3 SDK Hosting + IPC 命名管道 + JACK 客户端,不使用 Qt/JUCE)+ 崩溃退出码 | 📋 未开始 | 4~6 天 | 命令行加载 VST3;端口出现在 `jack_lsp`;kill 后端口消失 |
+| **V3 VST2 宿主**(`WJN_ENABLE_VST2=ON` 时编译) | 原生 C++ 自实现 AEffect 加载/processReplacing/参数/预设;VSTProcess32 验证 | 📋 未开始 | 4~6 天 | 32/64 位 VST2 可加载处理;按位宽分发;fxp 存取 |
+| **V4 节点集成** | `mod_vst_host.dll`(Qt `INode` + 设置面板 + 编辑器嵌入 + 预设栏 + 重载) | 📋 未开始 | 4~6 天 | 接线盘添加 VST 节点;GUI/预设/重载可用 |
+| **V5 旁通/重启** | 崩溃检测、Bypass 直通、节点「重启 VSTProcess」 | 📋 未开始 | 2~3 天 | 杀 VSTProcess → 节点旁通不崩主程序;重启恢复 |
+| **V6 链节点** | `mod_chain_host.dll`(Qt 子 Patchbay + 槽 + chain in/out 接通主界面) | 📋 未开始 | 4~6 天 | 链窗口与主接线盘互通;槽旁通 |
+| **V7 分类栏与存档** | Patchbay VST 分类栏、端口显示方式、客户端名规则、`.wjnproj vsts[]` 存档/恢复 | 📋 未开始 | 3~4 天 | 分类拖入;工程保存恢复 |
+| **V8 集成验证** | 全链路:扫描→拖入→原生 VSTProcess 沙盒→连线→预设→存档→崩溃旁通 | 📋 未开始 | 2~3 天 | 编译通过交付,用户手动验证 |
+
+> 遵循项目既有工作流:每里程碑**编译通过即可交付**,行为由用户手动验证。
+
+---
+
+## 8. 风险与对策
+
+| 风险 | 对策 |
+| :--- | :--- |
+| **VST2 SDK 许可**(`VST2_License_Agreement.pdf`) | **默认 `WJN_ENABLE_VST2=OFF`**(VST3-only);已获授权开发者临时 `-DWJN_ENABLE_VST2=ON` 编译;不得再分发 SDK 头;未授权时仅 VST3 可用 |
+| VSTProcess 需兼顾 32 位 ABI | 处理器进程不依赖 Qt/JUCE,直接使用原生 C++、Win32、VST2 SDK 和 VST3 SDK;节点 UI 保持 Qt,仅通过 IPC 交互 |
+| 插件崩溃/挂死 | VSTProcess 独立进程 + keepAlive 超时检测(500ms)+ 节点 Bypass;挂死可强杀重启;内存分配上限守护(可选 Job Object) |
+| 跨进程编辑器 HWND | 仅本机同会话;`NativeWindowUtils` 嵌入 + 进程退出时自动 detach;UIPI:同权限进程正常,异常时回退为独立窗口 |
+| 32/64 位 JACK 客户端 | VSTProcess32 链 `C:\Windows\libjack.dll`(已装);端口名/图一致 |
+| 端口名无自定义 | fallback jack 默认;真实名保持 JACK 规范,别名仅展示 |
+| 重载/换插件导致端口抖动 | UI 线程重建端口 + RealtimeObject 双缓冲;保持客户端名优先 |
+| `nodes/VSTPlugins` 体积/更新 | 缓存 mtime;扫描结果可版本管理(info 小文件);大数据不提交 |
+
+---
+
+## 9. 验收标准(最终)
+
+1. `Vst Scanner.exe` 扫描多路径并在 `nodes/VSTPlugins/` 生成参考结构的 info 文件(Waves Shell 含 `internal_plugin`;**每个 info 含 `bits`(32/64)**);
+2. Patchbay 出现「VST 插件」分类栏,按文件夹分类展示;拖入创建节点;
+3. `mod_vst_host.dll` 节点(节点界面保持 Qt):插件路径设置、预设同步、端口显示方式(4 种 + fallback)、自带 GUI(预设栏保存/加载 `.fxp/.fxb`)、「重载 VST」(仅 VST 节点可见),全部生效;
+4. `mod_chain_host.dll`:独立子 Patchbay 窗口;chain in/out/midi 端口**可自由添加/删除、可改名**;主 Patchbay **隐藏**这些端口;**子 Patchbay 节点列表仅 chain in/out、chain midi in/out、VST 插件,其它隐藏**;槽位经 mod_vst_host 加载;
+5. 原生 C++ VSTProcess 不依赖 Qt/JUCE;VST2 与 VST3 均可在 64 位加载;32 位 VST2 经 VSTProcess32 加载;
+6. 沙盒崩溃:杀 VSTProcess → 节点旁通(端口保持/直通),主程序不崩,「重启插件」恢复;
+7. 客户端名符合规则(去扩展名/内部名、过长 fallback、重名自增);端口数量由插件能力决定;
+8. `.wjnproj` 保存/恢复插件路径、参数、当前预设、客户端名。
+
+---
+
+*本计划书随开发反馈迭代,修改后递增版本号。v1.1 根据 V1 实际交付结果更新,并确定 VSTProcess 采用原生 C++ + VST2/VST3 SDK,节点界面继续使用 Qt。*

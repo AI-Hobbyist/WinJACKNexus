@@ -21,6 +21,7 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
 
 option(WJN_WITH_JUCE "Build the optional JUCE layer in audio.dll" OFF)
 option(WJN_LINK_JACK "Link the JACK import library instead of runtime loading" OFF)
+option(WJN_ENABLE_VST2 "Enable VST2 runtime metadata probing (licensed use only)" OFF)
 
 set(WJN_QT6_DIR "C:/Qt/6.10.3/msvc2022_64/lib/cmake/Qt6" CACHE PATH "Qt6 CMake package directory")
 if(NOT Qt6_DIR AND EXISTS "${WJN_QT6_DIR}/Qt6Config.cmake")
@@ -38,6 +39,7 @@ add_subdirectory(src/node)
 add_subdirectory(src/patchbay)
 add_subdirectory(src/adapter)
 add_subdirectory(src/app)
+add_subdirectory(tools/vst_scanner)
 
 include(CTest)
 if(BUILD_TESTING)
