@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 add_executable(WinJACKNexus WIN32
     main.cpp
+    WinJACKNexus.rc
 )
 
 target_link_libraries(WinJACKNexus

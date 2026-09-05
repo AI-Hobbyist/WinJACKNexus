@@ -13,7 +13,6 @@
  *
  * SPDX-License-Identifier: AGPL-3.0-only
  */
-#include <WinJACKNexus/UI/IconManager.hpp>
 #include <WinJACKNexus/UI/TrayController.hpp>
 #include <WinJACKNexus/Node/NodeApi.h>
 
@@ -109,7 +108,7 @@ int main(int argc, char* argv[])
     application.setApplicationName(QStringLiteral("WinJACKNexus"));
     application.setQuitOnLastWindowClosed(false);
 
-    QIcon applicationIcon = WinJACKNexus::UI::IconManager::icon(QStringLiteral("settings"));
+    QIcon applicationIcon(QStringLiteral(":/WinJACKNexus/UI/icons/WinJACKNexus.png"));
     if (applicationIcon.isNull())
         applicationIcon = application.style()->standardIcon(QStyle::SP_ComputerIcon);
     application.setWindowIcon(applicationIcon);

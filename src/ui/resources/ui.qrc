@@ -7,5 +7,6 @@
         <file>themes/light-console.qss</file>
         <file>icons/plus.svg</file>
         <file>icons/settings.svg</file>
+        <file alias="icons/WinJACKNexus.png">../../../ico/WinJACKNexus.png</file>
     </qresource>
 </RCC>
