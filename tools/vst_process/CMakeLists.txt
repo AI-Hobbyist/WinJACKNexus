@@ -10,12 +10,15 @@ set(WJN_VST_PROCESS_SOURCES
     "${WJN_VST3SDK_ROOT}/pluginterfaces/base/funknown.cpp"
     "${WJN_VST3SDK_ROOT}/pluginterfaces/base/coreiids.cpp"
     "${WJN_VST3SDK_ROOT}/public.sdk/source/vst/hosting/hostclasses.cpp"
+    "${WJN_VST3SDK_ROOT}/public.sdk/source/vst/hosting/connectionproxy.cpp"
     "${WJN_VST3SDK_ROOT}/public.sdk/source/vst/hosting/module.cpp"
     "${WJN_VST3SDK_ROOT}/public.sdk/source/vst/hosting/module_win32.cpp"
+    "${WJN_VST3SDK_ROOT}/public.sdk/source/vst/hosting/plugprovider.cpp"
     "${WJN_VST3SDK_ROOT}/public.sdk/source/vst/hosting/pluginterfacesupport.cpp"
     "${WJN_VST3SDK_ROOT}/public.sdk/source/vst/utility/stringconvert.cpp"
     "${WJN_VST3SDK_ROOT}/public.sdk/source/vst/vstinitiids.cpp"
     "${WJN_VST3SDK_ROOT}/public.sdk/source/common/commonstringconvert.cpp"
+    "${WJN_VST3SDK_ROOT}/public.sdk/source/common/threadchecker_win32.cpp"
 )
 
 add_executable(vst_process64 ${WJN_VST_PROCESS_SOURCES})

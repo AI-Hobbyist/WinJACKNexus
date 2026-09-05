@@ -24,6 +24,7 @@
 #include <QPointer>
 #include <QProcess>
 #include <QPushButton>
+#include <QUuid>
 #include <QVBoxLayout>
 #include <QWidget>
 
@@ -43,6 +44,23 @@ enum class ProcessBits : int {
     x64 = 64,
     x86 = 32
 };
+
+enum class PortDisplayMode : int {
+    defaultNames = 0,
+    busLabels,
+    standardChannels,
+    jackDefault
+};
+
+QString portDisplayModeArgument(PortDisplayMode mode)
+{
+    switch (mode) {
+    case PortDisplayMode::busLabels: return QStringLiteral("bus-labels");
+    case PortDisplayMode::standardChannels: return QStringLiteral("standard");
+    case PortDisplayMode::jackDefault: return QStringLiteral("jack");
+    default: return QStringLiteral("default");
+    }
+}
 
 ProcessBits detectPluginBits(const QString& path) noexcept
 {
@@ -79,6 +97,7 @@ private:
     QLineEdit* path_ {};
     QLineEdit* clientName_ {};
     QComboBox* bits_ {};
+    QComboBox* portDisplayMode_ {};
     QLabel* status_ {};
 };
 
@@ -116,18 +135,22 @@ public:
     {
     }
 
-    bool applySettings(const QString& path, const QString& clientName, ProcessBits bits) noexcept
+    bool applySettings(const QString& path, const QString& clientName, ProcessBits bits,
+                       PortDisplayMode portDisplayMode) noexcept
     {
         path_ = path.trimmed();
         clientName_ = clientName.trimmed();
         bits_ = bits;
+        portDisplayMode_ = portDisplayMode;
         return !initialized_ || reload();
     }
 
     QString pluginPath() const { return path_; }
     QString clientName() const { return clientName_; }
     ProcessBits processBits() const noexcept { return bits_; }
+    PortDisplayMode portDisplayMode() const noexcept { return portDisplayMode_; }
     QString status() const { return status_; }
+    QString expectedClientId() const { return expectedClientId_; }
 
     QWidget* createSettingsWidget(QWidget* parent) noexcept
     {
@@ -149,7 +172,9 @@ public:
         serializedSettings_ = QJsonDocument(QJsonObject {
             { QStringLiteral("path"), path_ },
             { QStringLiteral("clientName"), clientName_ },
-            { QStringLiteral("bits"), bits }
+            { QStringLiteral("bits"), bits },
+            { QStringLiteral("portDisplayMode"), static_cast<int>(portDisplayMode_) },
+            { QStringLiteral("instanceId"), instanceId_ }
         }).toJson(QJsonDocument::Compact).toStdString();
         return serializedSettings_.c_str();
     }
@@ -166,9 +191,42 @@ public:
         const auto bits = values.value(QStringLiteral("bits")).toString();
         const auto selectedBits = bits == QStringLiteral("32") ? ProcessBits::x86
             : bits == QStringLiteral("64") ? ProcessBits::x64 : ProcessBits::automatic;
+        const auto portDisplayMode = static_cast<PortDisplayMode>(std::clamp(
+            values.value(QStringLiteral("portDisplayMode")).toInt(static_cast<int>(PortDisplayMode::defaultNames)),
+            static_cast<int>(PortDisplayMode::defaultNames),
+            static_cast<int>(PortDisplayMode::jackDefault)));
+        const auto instanceId = values.value(QStringLiteral("instanceId")).toString();
+        if (!instanceId.isEmpty())
+            instanceId_ = instanceId;
         return applySettings(values.value(QStringLiteral("path")).toString(),
                              values.value(QStringLiteral("clientName")).toString(),
-                             selectedBits) ? 1 : 0;
+                             selectedBits, portDisplayMode) ? 1 : 0;
+    }
+
+    bool prepareForCanvas() noexcept
+    {
+        if (!path_.isEmpty())
+            return true;
+        if (QApplication::instance() == nullptr)
+            return false;
+        const auto path = QFileDialog::getOpenFileName(nullptr,
+                                                      QStringLiteral("Choose VST plugin"),
+                                                      {},
+                                                      QStringLiteral("VST plugins (*.vst3 *.dll)"));
+        if (path.isEmpty())
+            return false;
+        return applySettings(path, {}, ProcessBits::automatic, PortDisplayMode::defaultNames);
+    }
+
+    bool showPluginGui() noexcept
+    {
+        const auto response = sendPipeCommand("open-editor\n");
+        if (response.contains(QStringLiteral("\"ok\":true"))) {
+            status_ = QStringLiteral("The plugin editor is open in a separate window.");
+            return true;
+        }
+        status_ = response.isEmpty() ? QStringLiteral("Unable to contact VSTProcess.") : response;
+        return false;
     }
 
     bool reload() noexcept
@@ -195,13 +253,29 @@ public:
         pipeName_ = QStringLiteral("WinJACKNexus.VST.%1.%2").arg(QCoreApplication::applicationPid()).arg(instance);
         process_ = std::make_unique<QProcess>();
         process_->setProgram(executable);
+        const auto pluginName = clientName_.isEmpty() ? QFileInfo(path_).completeBaseName() : clientName_;
+        expectedClientId_ = pluginName + QStringLiteral("-") + instanceId_.left(8);
         process_->setArguments({ QStringLiteral("--path"), path_,
                                  QStringLiteral("--pipe"), pipeName_,
-                                 QStringLiteral("--client"), clientName_.isEmpty() ? QFileInfo(path_).completeBaseName() : clientName_ });
+                     QStringLiteral("--client"), expectedClientId_,
+                                 QStringLiteral("--port-display"), portDisplayModeArgument(portDisplayMode_) });
         process_->start();
         if (!process_->waitForStarted(3000)) {
             status_ = QStringLiteral("Unable to start VSTProcess.");
             process_.reset();
+            return false;
+        }
+        QString status;
+        const auto startupDeadline = GetTickCount64() + 5000;
+        while (process_->state() != QProcess::NotRunning && GetTickCount64() < startupDeadline) {
+            status = sendPipeCommand("status\n", 250);
+            if (status.contains(QStringLiteral("\"active\":true")))
+                break;
+            Sleep(25);
+        }
+        if (!status.contains(QStringLiteral("\"active\":true"))) {
+            status_ = status.isEmpty() ? QStringLiteral("VSTProcess did not make its control pipe ready before the startup deadline.") : status;
+            stopProcess();
             return false;
         }
         status_ = QStringLiteral("VSTProcess is running.");
@@ -211,22 +285,35 @@ public:
 private:
     void requestShutdown() noexcept
     {
+        sendPipeCommand("quit\n", 3000);
+    }
+
+    QString sendPipeCommand(const char* command, DWORD waitMilliseconds = 0) noexcept
+    {
         if (pipeName_.isEmpty())
-            return;
+            return {};
         const auto fullPipeName = QStringLiteral("\\\\.\\pipe\\") + pipeName_;
+        if (waitMilliseconds != 0 && !WaitNamedPipeW(reinterpret_cast<LPCWSTR>(fullPipeName.utf16()), waitMilliseconds))
+            return {};
         const auto pipe = CreateFileW(reinterpret_cast<LPCWSTR>(fullPipeName.utf16()),
-                                      GENERIC_WRITE,
+                                      GENERIC_READ | GENERIC_WRITE,
                                       0,
                                       nullptr,
                                       OPEN_EXISTING,
                                       0,
                                       nullptr);
         if (pipe == INVALID_HANDLE_VALUE)
-            return;
-        constexpr char command[] = "quit\n";
+            return {};
         DWORD bytesWritten {};
-        WriteFile(pipe, command, sizeof(command) - 1, &bytesWritten, nullptr);
+        if (!WriteFile(pipe, command, static_cast<DWORD>(std::char_traits<char>::length(command)), &bytesWritten, nullptr)) {
+            CloseHandle(pipe);
+            return {};
+        }
+        char response[512] {};
+        DWORD bytesRead {};
+        ReadFile(pipe, response, sizeof(response) - 1, &bytesRead, nullptr);
         CloseHandle(pipe);
+        return QString::fromUtf8(response, static_cast<qsizetype>(bytesRead));
     }
 
     void stopProcess() noexcept
@@ -234,9 +321,11 @@ private:
         if (!process_)
             return;
         requestShutdown();
-        process_->waitForFinished(1000);
-        if (process_->state() != QProcess::NotRunning)
+        if (!process_->waitForFinished(5000) && process_->state() != QProcess::NotRunning) {
+            status_ = QStringLiteral("VSTProcess did not exit cleanly; terminating its sandbox.");
             process_->kill();
+            process_->waitForFinished(1000);
+        }
         process_.reset();
     }
 
@@ -246,7 +335,10 @@ private:
     QString clientName_;
     QString pipeName_;
     QString status_ { QStringLiteral("Not started.") };
+    QString instanceId_ { QUuid::createUuid().toString(QUuid::WithoutBraces) };
+    QString expectedClientId_;
     ProcessBits bits_ { ProcessBits::automatic };
+    PortDisplayMode portDisplayMode_ { PortDisplayMode::defaultNames };
     std::unique_ptr<QProcess> process_;
     std::string serializedSettings_;
 };
@@ -270,15 +362,27 @@ SettingsWidget::SettingsWidget(VstHostNode& node, QWidget* parent)
     bits_->addItem(QStringLiteral("64-bit"), static_cast<int>(ProcessBits::x64));
     bits_->addItem(QStringLiteral("32-bit"), static_cast<int>(ProcessBits::x86));
     bits_->setCurrentIndex(bits_->findData(static_cast<int>(node.processBits())));
+    portDisplayMode_ = new QComboBox(this);
+    portDisplayMode_->addItem(QStringLiteral("Default plugin names"), static_cast<int>(PortDisplayMode::defaultNames));
+    portDisplayMode_->addItem(QStringLiteral("Bus and channel labels"), static_cast<int>(PortDisplayMode::busLabels));
+    portDisplayMode_->addItem(QStringLiteral("Standard channel names"), static_cast<int>(PortDisplayMode::standardChannels));
+    portDisplayMode_->addItem(QStringLiteral("JACK default names"), static_cast<int>(PortDisplayMode::jackDefault));
+    portDisplayMode_->setCurrentIndex(portDisplayMode_->findData(static_cast<int>(node.portDisplayMode())));
     form->addRow(QStringLiteral("Plugin"), pathRow);
     form->addRow(QStringLiteral("Client name"), clientName_);
     form->addRow(QStringLiteral("Process"), bits_);
+    form->addRow(QStringLiteral("Port display"), portDisplayMode_);
     layout->addLayout(form);
     auto* reload = new QPushButton(QStringLiteral("Apply and reload"), this);
     status_ = new QLabel(this);
     status_->setWordWrap(true);
     layout->addWidget(reload);
     layout->addWidget(status_);
+    setStyleSheet(QStringLiteral(
+        "QLineEdit, QComboBox { color: #f4f7fb; background: #172432; border: 1px solid #6d91ae; min-height: 26px; padding: 1px 6px; }"
+        "QComboBox::drop-down { border-left: 1px solid #6d91ae; width: 22px; }"
+        "QPushButton { color: #ffffff; background: #3f6684; border: 1px solid #85b4d8; min-height: 28px; padding: 2px 8px; }"
+        "QPushButton:hover { background: #527d9f; } QLabel { color: #e4edf5; }"));
 
     connect(browse, &QPushButton::clicked, this, [this] {
         const auto path = QFileDialog::getOpenFileName(this, QStringLiteral("Choose VST plugin"), path_->text(),
@@ -287,7 +391,8 @@ SettingsWidget::SettingsWidget(VstHostNode& node, QWidget* parent)
             path_->setText(path);
     });
     connect(reload, &QPushButton::clicked, this, [this] {
-        node_.applySettings(path_->text(), clientName_->text(), static_cast<ProcessBits>(bits_->currentData().toInt()));
+        node_.applySettings(path_->text(), clientName_->text(), static_cast<ProcessBits>(bits_->currentData().toInt()),
+                            static_cast<PortDisplayMode>(portDisplayMode_->currentData().toInt()));
         refresh();
     });
     refresh();
@@ -366,4 +471,24 @@ int wjn_set_node_settings_json(WinJACKNexus::Node::INode* node, const char* json
 {
     auto* vstNode = dynamic_cast<VstHostNode*>(node);
     return vstNode == nullptr ? 0 : vstNode->restoreSettingsJson(json);
+}
+
+extern "C" WINJACK_NODE_API int wjn_prepare_node_for_canvas(WinJACKNexus::Node::INode* node)
+{
+    auto* vstNode = dynamic_cast<VstHostNode*>(node);
+    return vstNode == nullptr ? 0 : vstNode->prepareForCanvas() ? 1 : 0;
+}
+
+extern "C" WINJACK_NODE_API int wjn_show_node_gui(WinJACKNexus::Node::INode* node)
+{
+    auto* vstNode = dynamic_cast<VstHostNode*>(node);
+    return vstNode == nullptr ? 0 : vstNode->showPluginGui() ? 1 : 0;
+}
+
+extern "C" WINJACK_NODE_API const char* wjn_get_node_client_id(WinJACKNexus::Node::INode* node)
+{
+    static thread_local QByteArray clientId;
+    auto* vstNode = dynamic_cast<VstHostNode*>(node);
+    clientId = vstNode == nullptr ? QByteArray {} : vstNode->expectedClientId().toUtf8();
+    return clientId.constData();
 }

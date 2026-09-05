@@ -281,6 +281,9 @@ public:
 		using CreateNode = WinJACKNexus::Node::INode* (*)(std::uint32_t index);
 		using DestroyNode = void (*)(WinJACKNexus::Node::INode* node);
 		using SetNodeSettingsJson = int (*)(WinJACKNexus::Node::INode* node, const char* json);
+		using PrepareNodeForCanvas = int (*)(WinJACKNexus::Node::INode* node);
+		using ShowNodeGui = int (*)(WinJACKNexus::Node::INode* node);
+		using GetNodeClientId = const char* (*)(WinJACKNexus::Node::INode* node);
 			using CreateSettingsWidget = QWidget* (*)(WinJACKNexus::Node::INode* node, QWidget* parent);
 			using DestroySettingsWidget = void (*)(WinJACKNexus::Node::INode* node, QWidget* widget);
 			using CreateSettingsView = void* (*)(WinJACKNexus::Node::INode* node, void* parentHwnd);
@@ -294,6 +297,9 @@ public:
 		const auto createNode = reinterpret_cast<CreateNode>(GetProcAddress(library, "wjn_create_node"));
 		const auto destroyNode = reinterpret_cast<DestroyNode>(GetProcAddress(library, "wjn_destroy_node"));
 		const auto setNodeSettingsJson = reinterpret_cast<SetNodeSettingsJson>(GetProcAddress(library, "wjn_set_node_settings_json"));
+		const auto prepareNodeForCanvas = reinterpret_cast<PrepareNodeForCanvas>(GetProcAddress(library, "wjn_prepare_node_for_canvas"));
+		const auto showNodeGui = reinterpret_cast<ShowNodeGui>(GetProcAddress(library, "wjn_show_node_gui"));
+		const auto getNodeClientId = reinterpret_cast<GetNodeClientId>(GetProcAddress(library, "wjn_get_node_client_id"));
 			const auto createSettingsWidget = reinterpret_cast<CreateSettingsWidget>(GetProcAddress(library, "wjn_create_settings_widget"));
 			const auto destroySettingsWidget = reinterpret_cast<DestroySettingsWidget>(GetProcAddress(library, "wjn_destroy_settings_widget"));
 			const auto createSettingsView = reinterpret_cast<CreateSettingsView>(GetProcAddress(library, "wjn_create_settings_view"));
@@ -315,12 +321,18 @@ public:
 			FreeLibrary(library);
 			return nullptr;
 		}
+		if (prepareNodeForCanvas != nullptr && prepareNodeForCanvas(node) == 0) {
+			destroyNode(node);
+			FreeLibrary(library);
+			return nullptr;
+		}
 		if (!node->init()) {
 			if (node != nullptr)
 				destroyNode(node);
 			FreeLibrary(library);
 			return nullptr;
 		}
+		const auto expectedClientId = getNodeClientId == nullptr ? nullptr : getNodeClientId(node);
 		QString category;
 		for (const auto& module : scanNodeModules()) {
 			if (module.modulePath == modulePath && module.index == index) {
@@ -335,6 +347,8 @@ public:
 				                                                            destroySettingsWidget,
 			                                                            createSettingsView,
 			                                                            destroySettingsView,
+			                                                            showNodeGui,
+				                                                            expectedClientId == nullptr ? std::string {} : std::string(expectedClientId),
 			                                                            modulePath,
 			                                                            index,
 			                                                            category));
@@ -401,6 +415,8 @@ public:
 
 	bool showGui(QWidget* parent) noexcept
 	{
+		if (showNodeGui_ != nullptr)
+			return showNodeGui_(node_) != 0;
 		const auto parentWindow = parent == nullptr ? nullptr : reinterpret_cast<HWND>(static_cast<quintptr>(parent->winId()));
 		const auto window = node_->createWindow(parentWindow);
 		if (window == nullptr)
@@ -465,6 +481,7 @@ private:
 		using DestroySettingsWidget = void (*)(WinJACKNexus::Node::INode* node, QWidget* widget);
 		using CreateSettingsView = void* (*)(WinJACKNexus::Node::INode* node, void* parentHwnd);
 		using DestroySettingsView = void (*)(WinJACKNexus::Node::INode* node, void* viewHwnd);
+		using ShowNodeGui = int (*)(WinJACKNexus::Node::INode* node);
 
 		LoadedModuleNode(HMODULE library,
 		                 WinJACKNexus::Node::INode* node,
@@ -473,6 +490,8 @@ private:
 			                 DestroySettingsWidget destroySettingsWidget,
 		                 CreateSettingsView createSettingsView,
 		                 DestroySettingsView destroySettingsView,
+		                 ShowNodeGui showNodeGui,
+						 std::string clientId,
 		                 const QString& modulePath,
 		                 std::uint32_t index,
 		                 const QString& category) noexcept
@@ -483,6 +502,8 @@ private:
 		, destroySettingsWidget_(destroySettingsWidget)
 			, createSettingsView_(createSettingsView)
 			, destroySettingsView_(destroySettingsView)
+			, showNodeGui_(showNodeGui)
+			, clientId_(std::move(clientId))
 			, getNodeSettingsJson_(reinterpret_cast<GetNodeSettingsJson>(GetProcAddress(library, "wjn_get_node_settings_json")))
 		, modulePath_(modulePath)
 		, index_(index)
@@ -497,6 +518,7 @@ private:
 		DestroySettingsWidget destroySettingsWidget_ = nullptr;
 		CreateSettingsView createSettingsView_ = nullptr;
 		DestroySettingsView destroySettingsView_ = nullptr;
+		ShowNodeGui showNodeGui_ = nullptr;
 		GetNodeSettingsJson getNodeSettingsJson_ = nullptr;
 	QString modulePath_;
 	std::uint32_t index_ = 0;
@@ -803,8 +825,8 @@ public:
 							continue;
 						if (jackObserver_.isOpen()) {
 							const auto snapshot = WinJACKNexus::Patchbay::Core::Snapshot::capture(jackObserver_);
-							const auto client = std::find_if(snapshot.clients.cbegin(), snapshot.clients.cend(), [&existingClients](const auto& value) {
-								return !existingClients.contains(value.id);
+							const auto client = std::find_if(snapshot.clients.cbegin(), snapshot.clients.cend(), [&node, &existingClients](const auto& value) {
+								return node->hasClient() ? value.id == node->clientId() : !existingClients.contains(value.id);
 							});
 							if (client != snapshot.clients.cend())
 								node->setClientId(client->id);
@@ -829,8 +851,8 @@ public:
 				}
 				if (jackObserver_.isOpen()) {
 					const auto snapshot = WinJACKNexus::Patchbay::Core::Snapshot::capture(jackObserver_);
-					const auto client = std::find_if(snapshot.clients.cbegin(), snapshot.clients.cend(), [&existingClients](const auto& value) {
-						return !existingClients.contains(value.id);
+					const auto client = std::find_if(snapshot.clients.cbegin(), snapshot.clients.cend(), [&node, &existingClients](const auto& value) {
+						return node->hasClient() ? value.id == node->clientId() : !existingClients.contains(value.id);
 					});
 					if (client != snapshot.clients.cend()) {
 						node->setClientId(client->id);

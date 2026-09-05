@@ -46,6 +46,9 @@ int main()
     using DestroyNode = void (*)(WinJACKNexus::Node::INode*);
     using GetSettings = const char* (*)(WinJACKNexus::Node::INode*);
     using SetSettings = int (*)(WinJACKNexus::Node::INode*, const char*);
+    using PrepareNodeForCanvas = int (*)(WinJACKNexus::Node::INode*);
+    using ShowNodeGui = int (*)(WinJACKNexus::Node::INode*);
+    using GetNodeClientId = const char* (*)(WinJACKNexus::Node::INode*);
 
     const auto getApiVersion = loadFunction<GetApiVersion>(module, "wjn_get_node_api_version");
     const auto getNodeCount = loadFunction<GetNodeCount>(module, "wjn_get_node_count");
@@ -54,20 +57,31 @@ int main()
     const auto destroyNode = loadFunction<DestroyNode>(module, "wjn_destroy_node");
     const auto getSettings = loadFunction<GetSettings>(module, "wjn_get_node_settings_json");
     const auto setSettings = loadFunction<SetSettings>(module, "wjn_set_node_settings_json");
+    const auto prepareNodeForCanvas = loadFunction<PrepareNodeForCanvas>(module, "wjn_prepare_node_for_canvas");
+    const auto showNodeGui = loadFunction<ShowNodeGui>(module, "wjn_show_node_gui");
+    const auto getNodeClientId = loadFunction<GetNodeClientId>(module, "wjn_get_node_client_id");
     expect(getApiVersion != nullptr && getNodeCount != nullptr && getNodeName != nullptr && createNode != nullptr
-               && destroyNode != nullptr && getSettings != nullptr && setSettings != nullptr,
+               && destroyNode != nullptr && getSettings != nullptr && setSettings != nullptr && prepareNodeForCanvas != nullptr && showNodeGui != nullptr && getNodeClientId != nullptr,
            "mod_vst_host.dll is missing a required Node API export");
     expect(std::string(getApiVersion()) == "2", "Unexpected VST node API version");
     expect(getNodeCount() == 1 && std::string(getNodeName(0)) == "VST Plugin", "Unexpected VST node definition");
 
     auto* node = createNode(0);
     expect(node != nullptr, "Unable to create VST node");
-    expect(node->init(), "An unconfigured VST node should initialize without starting a process");
-    expect(setSettings(node, "{\"path\":\"\",\"clientName\":\"Test VST\",\"bits\":\"32\"}") == 1,
+    expect(setSettings(node, "{\"path\":\"\",\"clientName\":\"Test VST\",\"bits\":\"32\",\"portDisplayMode\":3}") == 1,
            "Unable to restore VST node settings");
+        expect(setSettings(node, "{\"path\":\"missing.vst3\",\"clientName\":\"Test VST\",\"bits\":\"32\",\"portDisplayMode\":3}") == 1,
+            "Unable to configure a VST node before adding it to the canvas");
+        expect(prepareNodeForCanvas(node) == 1, "A configured VST node should be accepted for canvas insertion");
+        expect(!node->init(), "A missing configured plugin should prevent VST node initialization");
+        expect(setSettings(node, "{\"path\":\"\",\"clientName\":\"Test VST\",\"bits\":\"32\",\"portDisplayMode\":3}") == 1,
+            "Unable to restore empty VST node settings");
     const std::string settings(getSettings(node));
-    expect(settings.find("Test VST") != std::string::npos && settings.find("\"bits\":\"32\"") != std::string::npos,
+    expect(settings.find("Test VST") != std::string::npos && settings.find("\"bits\":\"32\"") != std::string::npos
+               && settings.find("\"portDisplayMode\":3") != std::string::npos
+               && settings.find("\"instanceId\":") != std::string::npos,
            "VST node settings round trip failed");
+    expect(showNodeGui(node) == 0, "An unstarted VST node must reject opening an editor");
     node->shutdown();
     destroyNode(node);
     FreeLibrary(module);

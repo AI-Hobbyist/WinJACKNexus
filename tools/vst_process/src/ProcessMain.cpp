@@ -9,8 +9,11 @@
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 #include "pluginterfaces/vst/ivstcomponent.h"
+#include "pluginterfaces/vst/ivsteditcontroller.h"
+#include "pluginterfaces/gui/iplugview.h"
 #include "public.sdk/source/vst/hosting/hostclasses.h"
 #include "public.sdk/source/vst/hosting/module.h"
+#include "public.sdk/source/vst/hosting/plugprovider.h"
 
 #if WJN_ENABLE_VST2
 #include "pluginterfaces/vst2.x/aeffect.h"
@@ -25,10 +28,13 @@
 #include <atomic>
 #include <cstdio>
 #include <filesystem>
+#include <functional>
 #include <iostream>
 #include <memory>
+#include <mutex>
 #include <string>
 #include <string_view>
+#include <thread>
 #include <utility>
 #include <vector>
 
@@ -65,6 +71,7 @@ struct Options final {
     std::wstring clientName { L"WinJACKNexus-VST" };
     std::wstring pipeName;
     std::wstring internalPlugin;
+    std::wstring portDisplayMode { L"default" };
     bool help {};
 };
 
@@ -114,6 +121,11 @@ bool parseOptions(int argc, wchar_t* argv[], Options& options)
                 return false;
             continue;
         }
+        if (argument == L"--port-display") {
+            if (!readOptionValue(index, argc, argv, options.portDisplayMode))
+                return false;
+            continue;
+        }
         return false;
     }
     return !options.path.empty();
@@ -146,6 +158,92 @@ public:
     virtual void process(float**, float**, VstInt32) noexcept = 0;
     virtual VstInt32 inputCount() const noexcept = 0;
     virtual VstInt32 outputCount() const noexcept = 0;
+    virtual bool openEditor(std::string& error) { error = "Plugin editor is not available"; return false; }
+    virtual void closeEditor() noexcept {}
+};
+
+class EditorWindow final {
+public:
+    ~EditorWindow() { close(); }
+
+    bool open(const wchar_t* title, SIZE clientSize, std::function<bool(HWND)> attach, std::function<void()> detach, std::string& error)
+    {
+        if (window_ != nullptr) {
+            ShowWindow(window_, SW_RESTORE);
+            SetForegroundWindow(window_);
+            return true;
+        }
+        close();
+        ready_ = CreateEventW(nullptr, TRUE, FALSE, nullptr);
+        if (ready_ == nullptr) {
+            error = "Unable to create editor synchronization event";
+            return false;
+        }
+        thread_ = std::thread([this, title, clientSize, attach = std::move(attach), detach = std::move(detach)] {
+            WNDCLASSW windowClass {};
+            windowClass.lpfnWndProc = &EditorWindow::windowProcedure;
+            windowClass.hInstance = GetModuleHandleW(nullptr);
+            windowClass.lpszClassName = L"WinJACKNexusVstEditor";
+            RegisterClassW(&windowClass);
+            constexpr DWORD style = WS_OVERLAPPEDWINDOW | WS_VISIBLE;
+            RECT windowRect { 0, 0, clientSize.cx, clientSize.cy };
+            AdjustWindowRectEx(&windowRect, style, FALSE, 0);
+            const auto window = CreateWindowExW(0, windowClass.lpszClassName, title,
+                                                style,
+                                                CW_USEDEFAULT, CW_USEDEFAULT,
+                                                windowRect.right - windowRect.left,
+                                                windowRect.bottom - windowRect.top,
+                                                nullptr, nullptr, windowClass.hInstance, nullptr);
+            attached_ = window != nullptr && attach(window);
+            window_ = attached_ ? window : nullptr;
+            SetEvent(ready_);
+            if (!attached_) {
+                if (window != nullptr)
+                    DestroyWindow(window);
+                return;
+            }
+            MSG message {};
+            while (GetMessageW(&message, nullptr, 0, 0) > 0) {
+                TranslateMessage(&message);
+                DispatchMessageW(&message);
+            }
+            detach();
+            window_ = nullptr;
+        });
+        WaitForSingleObject(ready_, 3000);
+        CloseHandle(ready_);
+        ready_ = nullptr;
+        if (!attached_) {
+            if (thread_.joinable())
+                thread_.join();
+            error = "Unable to attach the plugin editor to a Win32 window";
+            return false;
+        }
+        return true;
+    }
+
+    void close() noexcept
+    {
+        if (window_ != nullptr)
+            PostMessageW(window_, WM_CLOSE, 0, 0);
+        if (thread_.joinable())
+            thread_.join();
+        window_ = nullptr;
+        attached_ = false;
+    }
+
+private:
+    static LRESULT CALLBACK windowProcedure(HWND window, UINT message, WPARAM wParam, LPARAM lParam)
+    {
+        if (message == WM_DESTROY)
+            PostQuitMessage(0);
+        return DefWindowProcW(window, message, wParam, lParam);
+    }
+
+    HANDLE ready_ {};
+    std::thread thread_;
+    std::atomic<HWND> window_ {};
+    std::atomic_bool attached_ {};
 };
 
 class Vst3Plugin final : public AudioPlugin {
@@ -161,12 +259,18 @@ public:
         for (const auto& classInfo : module_->getFactory().classInfos()) {
             if (classInfo.category() != kVst3AudioModuleClass)
                 continue;
-            component_ = module_->getFactory().createInstance<Steinberg::Vst::IComponent>(classInfo.ID());
-            if (!component_)
+            Steinberg::Vst::PluginContextFactory::instance().setPluginContext(host_);
+            auto provider = std::make_unique<Steinberg::Vst::PlugProvider>(module_->getFactory(), classInfo);
+            if (!provider->initialize())
                 continue;
-            if (component_->initialize(host_) == Steinberg::kResultOk)
+            component_ = provider->getComponentPtr();
+            controller_ = provider->getControllerPtr();
+            if (component_) {
+                provider_ = std::move(provider);
                 return true;
+            }
             component_ = nullptr;
+            controller_ = nullptr;
         }
 
         error = "VST3 module does not expose an initializable audio component";
@@ -176,9 +280,12 @@ public:
 
     void unload()
     {
-        if (component_)
-            component_->terminate();
+        editor_.close();
+        view_ = nullptr;
+        controller_ = nullptr;
         component_ = nullptr;
+        provider_.reset();
+        Steinberg::Vst::PluginContextFactory::instance().setPluginContext(nullptr);
         host_ = nullptr;
         module_.reset();
     }
@@ -205,6 +312,51 @@ public:
         return channelCount(Steinberg::Vst::kOutput);
     }
 
+    bool openEditor(std::string& error) override
+    {
+        if (!component_) {
+            error = "VST3 component is not loaded";
+            return false;
+        }
+        if (!controller_) {
+            Steinberg::TUID controllerClassId {};
+            if (component_->getControllerClassId(controllerClassId) != Steinberg::kResultOk) {
+                error = "VST3 plugin does not provide an edit controller";
+                return false;
+            }
+            controller_ = module_->getFactory().createInstance<Steinberg::Vst::IEditController>(controllerClassId);
+            if (!controller_ || controller_->initialize(host_) != Steinberg::kResultOk) {
+                controller_ = nullptr;
+                error = "Unable to initialize the VST3 edit controller";
+                return false;
+            }
+        }
+        if (!view_)
+            view_ = controller_->createView(Steinberg::Vst::ViewType::kEditor);
+        if (!view_) {
+            error = "VST3 plugin does not provide an editor view";
+            return false;
+        }
+        if (view_->isPlatformTypeSupported(Steinberg::kPlatformTypeHWND) != Steinberg::kResultOk) {
+            error = "VST3 editor does not support Win32 windows";
+            return false;
+        }
+        Steinberg::ViewRect viewRect {};
+        if (view_->getSize(&viewRect) != Steinberg::kResultOk || viewRect.getWidth() <= 0 || viewRect.getHeight() <= 0) {
+            error = "VST3 editor did not provide a valid view size";
+            return false;
+        }
+        return editor_.open(L"WinJACKNexus VST3 Editor",
+                            { viewRect.getWidth(), viewRect.getHeight() },
+                            [this](HWND parent) { return view_->attached(parent, Steinberg::kPlatformTypeHWND) == Steinberg::kResultOk; },
+                            [this] { view_->removed(); }, error);
+    }
+
+    void closeEditor() noexcept override
+    {
+        editor_.close();
+    }
+
 private:
     VstInt32 channelCount(Steinberg::Vst::BusDirection direction) const noexcept
     {
@@ -222,7 +374,11 @@ private:
 
     VST3::Hosting::Module::Ptr module_;
     Steinberg::IPtr<Steinberg::Vst::HostApplication> host_;
+    std::unique_ptr<Steinberg::Vst::PlugProvider> provider_;
     Steinberg::IPtr<Steinberg::Vst::IComponent> component_;
+    Steinberg::IPtr<Steinberg::Vst::IEditController> controller_;
+    Steinberg::IPtr<Steinberg::IPlugView> view_;
+    EditorWindow editor_;
 };
 
 #if WJN_ENABLE_VST2
@@ -346,8 +502,32 @@ public:
         return effect_ != nullptr && effect_->dispatcher(effect_, effSetChunk, 0, static_cast<VstIntPtr>(size), const_cast<void*>(data), 0.0F) != 0;
     }
 
+    bool openEditor(std::string& error) override
+    {
+        if (effect_ == nullptr || (effect_->flags & effFlagsHasEditor) == 0) {
+            error = "VST2 plugin does not provide an editor";
+            return false;
+        }
+        ERect* editorRect {};
+        if (effect_->dispatcher(effect_, effEditGetRect, 0, 0, &editorRect, 0.0F) == 0 || editorRect == nullptr
+            || editorRect->right <= editorRect->left || editorRect->bottom <= editorRect->top) {
+            error = "VST2 editor did not provide a valid view size";
+            return false;
+        }
+        return editor_.open(L"WinJACKNexus VST2 Editor",
+                    { editorRect->right - editorRect->left, editorRect->bottom - editorRect->top },
+                    [this](HWND parent) { effect_->dispatcher(effect_, effEditOpen, 0, 0, parent, 0.0F); return true; },
+                    [this] { effect_->dispatcher(effect_, effEditClose, 0, 0, nullptr, 0.0F); }, error);
+    }
+
+    void closeEditor() noexcept override
+    {
+        editor_.close();
+    }
+
     void unload() noexcept
     {
+        editor_.close();
         if (effect_ != nullptr && processing_)
             effect_->dispatcher(effect_, effMainsChanged, 0, 0, nullptr, 0.0F);
         processing_ = false;
@@ -367,6 +547,7 @@ private:
     AEffect* effect_ {};
     bool opened_ {};
     bool processing_ {};
+    EditorWindow editor_;
 };
 #endif
 
@@ -377,7 +558,7 @@ public:
         close();
     }
 
-    bool open(const std::wstring& requestedClientName, AudioPlugin& plugin, std::string& error)
+    bool open(const std::wstring& requestedClientName, const std::wstring& portDisplayMode, AudioPlugin& plugin, std::string& error)
     {
         if (!loadApi(error))
             return false;
@@ -395,7 +576,7 @@ public:
             error = "Unable to set JACK process callback";
             return false;
         }
-        if (!registerAudioPorts(plugin, error))
+        if (!registerAudioPorts(plugin, portDisplayMode, error))
             return false;
         if (!plugin.prepare(sampleRate_(client_), static_cast<VstInt32>(bufferSize_(client_)), error))
             return false;
@@ -410,9 +591,7 @@ public:
 
     void close() noexcept
     {
-        if (client_ != nullptr && active_)
-            deactivate_(client_);
-        active_ = false;
+        deactivate();
         if (client_ != nullptr)
             clientClose_(client_);
         client_ = nullptr;
@@ -429,6 +608,13 @@ public:
     bool isActive() const noexcept
     {
         return active_;
+    }
+
+    void deactivate() noexcept
+    {
+        if (client_ != nullptr && active_)
+            deactivate_(client_);
+        active_ = false;
     }
 
 private:
@@ -483,11 +669,21 @@ private:
         return reinterpret_cast<Function>(GetProcAddress(library_, name));
     }
 
-    bool registerAudioPorts(const AudioPlugin& plugin, std::string& error)
+    bool registerAudioPorts(const AudioPlugin& plugin, const std::wstring& portDisplayMode, std::string& error)
     {
+        const auto mode = utf8FromWide(portDisplayMode);
         const auto registerDirection = [&] (VstInt32 count, unsigned long jackFlags, const char* prefix, std::vector<jack_port_t*>& ports) {
             for (VstInt32 channel = 0; channel < count; ++channel) {
-                const auto name = std::string(prefix) + '_' + std::to_string(channel + 1);
+                const auto channelNumber = std::to_string(channel + 1);
+                std::string name;
+                if (mode == "standard") {
+                    static constexpr const char* channelNames[] { "L", "R", "C", "LFE", "SL", "SR", "BL", "BR" };
+                    name = std::string(prefix) + '_' + (channel < static_cast<VstInt32>(std::size(channelNames)) ? channelNames[channel] : "ch_" + channelNumber);
+                } else if (mode == "bus-labels") {
+                    name = std::string(prefix) + "_bus_" + channelNumber;
+                } else {
+                    name = std::string(prefix) + '_' + channelNumber;
+                }
                 auto* port = portRegister_(client_, name.c_str(), JACK_DEFAULT_AUDIO_TYPE, jackFlags, 0);
                 if (port == nullptr)
                     return false;
@@ -542,9 +738,10 @@ private:
 
 class PipeServer final {
 public:
-    PipeServer(const std::wstring& name, JackRuntime& jack)
+    PipeServer(const std::wstring& name, JackRuntime& jack, AudioPlugin& plugin)
         : name_(normalizedPipeName(name))
         , jack_(jack)
+        , plugin_(plugin)
     {
     }
 
@@ -583,6 +780,13 @@ private:
         else if (command.find("status") != std::string_view::npos)
             response = jack_.isActive() ? "{\"ok\":true,\"active\":true}\n"
                                     : "{\"ok\":true,\"active\":false}\n";
+        else if (command.find("open-editor") != std::string_view::npos) {
+            std::string error;
+            responseStorage_ = plugin_.openEditor(error)
+                ? "{\"ok\":true,\"editor\":\"separate-window\"}\n"
+                : "{\"ok\":false,\"error\":\"" + error + "\"}\n";
+            response = responseStorage_.c_str();
+        }
         else if (command.find("quit") != std::string_view::npos) {
             stop_ = true;
             response = "{\"ok\":true,\"stopping\":true}\n";
@@ -595,7 +799,9 @@ private:
 
     std::wstring name_;
     JackRuntime& jack_;
+    AudioPlugin& plugin_;
     std::atomic<bool> stop_ {};
+    std::string responseStorage_;
 };
 
 }
@@ -645,10 +851,15 @@ int wmain(int argc, wchar_t* argv[])
     }
 
     JackRuntime jack;
-    if (!jack.open(options.clientName, *plugin, error)) {
+    if (!jack.open(options.clientName, options.portDisplayMode, *plugin, error)) {
         std::cerr << "Unable to start JACK client: " << error << '\n';
         return kJackError;
     }
 
-    return PipeServer(options.pipeName, jack).run();
+    const auto exitCode = PipeServer(options.pipeName, jack, *plugin).run();
+    jack.deactivate();
+    plugin->closeEditor();
+    jack.close();
+    plugin.reset();
+    return exitCode;
 }
