@@ -1,3 +1,6 @@
+# This file is part of WinJACKNexus.
+# Licensed under the GNU Affero General Public License, version 3.
+# SPDX-License-Identifier: AGPL-3.0-only
 if(NOT DEFINED WJN_OUTPUT_DIR)
     message(FATAL_ERROR "WJN_OUTPUT_DIR was not provided")
 endif()

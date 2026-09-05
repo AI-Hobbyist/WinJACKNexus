@@ -1,3 +1,6 @@
+# This file is part of WinJACKNexus.
+# Licensed under the GNU Affero General Public License, version 3.
+# SPDX-License-Identifier: AGPL-3.0-only
 include(FindPackageHandleStandardArgs)
 
 set(WJN_JACK2_ROOT "${PROJECT_SOURCE_DIR}/third_party/JACK2" CACHE PATH "JACK2 SDK root")

@@ -229,6 +229,12 @@ WinJACKNexus 的定位:
 
 ---
 
+## 项目许可
+
+WinJACKNexus 的第一方代码依据 GNU Affero General Public License v3.0 发布,详见 [LICENSE](LICENSE)。第三方依赖仍按各自的许可条款使用。
+
+---
+
 ## 第三方依赖与许可
 
 | 依赖 | 版本 | 许可 |

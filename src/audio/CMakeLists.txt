@@ -1,3 +1,6 @@
+# This file is part of WinJACKNexus.
+# Licensed under the GNU Affero General Public License, version 3.
+# SPDX-License-Identifier: AGPL-3.0-only
 find_package(JACK2 REQUIRED)
 
 add_library(audio SHARED

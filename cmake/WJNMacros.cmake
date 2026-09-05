@@ -1,3 +1,6 @@
+# This file is part of WinJACKNexus.
+# Licensed under the GNU Affero General Public License, version 3.
+# SPDX-License-Identifier: AGPL-3.0-only
 include_guard(GLOBAL)
 
 function(wjn_configure_shared_target target export_definition)

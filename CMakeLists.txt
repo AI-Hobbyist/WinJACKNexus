@@ -1,3 +1,6 @@
+# This file is part of WinJACKNexus.
+# Licensed under the GNU Affero General Public License, version 3.
+# SPDX-License-Identifier: AGPL-3.0-only
 cmake_minimum_required(VERSION 3.25)
 
 project(WinJACKNexus VERSION 0.1.0 LANGUAGES CXX)

@@ -1,3 +1,6 @@
+# This file is part of WinJACKNexus.
+# Licensed under the GNU Affero General Public License, version 3.
+# SPDX-License-Identifier: AGPL-3.0-only
 add_library(patchbay_plugins SHARED
     src/Library.cpp
     src/Loader.cpp
