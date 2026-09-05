@@ -1,10 +1,10 @@
 # WinJACKNexus - VST Support - 开发计划
 
-> 版本:v1.1
+> 版本:v1.2
 > 日期:2026-09-05
 > 依据:«WinJACKNexus 开发规范» v3.1;«VST_Prompt.md»(Docs/VST_Prompt.md);«WinJACKNexus - 接线盘 - 开发计划»
 > 内部分类名:**VST Support**
-> 现状:基础库(Common/UI/Audio/Node)与接线盘 B1–B8 已完成;V1 扫描器已完成;VSTProcess 与 VST 节点尚未开始
+> 现状:基础库(Common/UI/Audio/Node)与接线盘 B1–B8 已完成;V1 扫描器与 V2 VSTProcess 骨架已完成(真实 JACK 生命周期待手动验证);VST 节点尚未开始
 > 本版决策:VSTProcess 为兼顾 32 位插件改用原生 C++ + VST2/VST3 SDK,不使用 Qt/JUCE 后端;VST 节点 DLL 与设置界面继续使用 Qt
 
 ---
@@ -118,10 +118,10 @@
 - **进程结构**(原生 C++/Win32 + STL,不链接 Qt/JUCE):
   - 使用 VST3 SDK Hosting API 加载 VST3;**VST2 用自实现加载器**(§3.5);两种格式都由原生宿主直接管理实例、参数、状态和处理;
   - 插件失败/崩溃 → 进程退出(exit code 非 0)→ **主进程检测 → 节点旁通**;
-  - 自身作为 **JACK 客户端**(复用 `Audio::JackClient/JackPort`,64 位链 `libjack64.dll`,32 位链 `C:\Windows\libjack.dll`):注册插件音频/MIDI 端口(端口名按 §3.6),`process` 回调内 `AudioProcessor::processBlock`;
+  - 自身作为 **JACK 客户端**(原生 Win32 动态加载:64 位优先 `libjack64.dll`,32 位 `libjack.dll`):按 VST3 audio bus 注册端口(端口名按 §3.6)。V2 已实现端口生命周期与静音输出回调;真实 `IAudioProcessor::process`、MIDI 和 VST2 处理留待后续里程碑;
   - 编辑器:加载成功后按需创建插件编辑器(VST2 `effEditOpen` 或 VST3 `IPlugView` → HWND),HWND 经 IPC 交 Qt 节点主进程嵌入(§3.4);
   - **IPC(主进程 ↔ VSTProcess)**:Windows **命名管道**(`\\.\pipe\WinJACKNexus.VST.<pid>`)或本地 TCP(备选,回退自动);
-    - 命令:load(状态回执)、unload、setParameter/getParameter、saveState/loadState(`.fxp/.fxb` 与插件私有流)、openEditor/closeEditor(返回 HWND)、preset load/save、reload、keepAlive(50ms)与崩溃检测;
+    - V2 已实现:启动加载、`ping`、`status`、`quit` 命名管道命令;后续扩展:unload、setParameter/getParameter、saveState/loadState(`.fxp/.fxb` 与插件私有流)、openEditor/closeEditor(返回 HWND)、preset load/save、reload、keepAlive(50ms)与崩溃检测;
     - 协议:由原生 Win32 命名管道/TCP + C++ 实现长度前缀二进制(msgpack-lite 风格,或 JSON 头 + 二进制块);Qt 仅保留在节点侧,不进入 VSTProcess。
 
 ### 3.3 单 VST 节点 `nodes/vst/mod_vst_host.dll`
@@ -222,7 +222,7 @@ add_subdirectory(tools/vst_process) # VSTProcess32/64.exe
 
 - **VST2 编译开关**:`WJN_ENABLE_VST2=ON` 时 VSTProcess 才包含 VST2 自实现宿主(链接 `vst2sdk` 头);`OFF` 时仍支持 VST3 与扫描(扫描永远做位宽识别);改为临时 ON 后需全量重编 VSTProcess/节点。
 
-- `VSTProcess64/32`:原生 C++/Win32 + **vst3sdk Hosting API**(`pluginterfaces`/`public.sdk`) + vst2sdk(仅 `pluginterfaces/vst2.x`) + `WinJACKNexus::Audio`(JACK 客户端封装,32 位构建链 `libjack.dll`,符号 `WINJACK_AUDIO_32` 宏切换);**不链接 JUCE/Qt**;
+- `VSTProcess64/32`:原生 C++/Win32 + **vst3sdk Hosting API**(`pluginterfaces`/`public.sdk`) + vst2sdk(仅 `pluginterfaces/vst2.x`);JACK 通过本地动态加载器连接,不链接 x64 `WinJACKNexus::Audio`,因此 `VSTProcess32` 可作为独立 `-A Win32` CMake 工程构建;**不链接 JUCE/Qt**;
 - `mod_vst_host`/`mod_chain_host`:节点 DLL 和设置/编辑器界面继续使用 Qt6,通过原生 IPC 调用 VSTProcess;
 - 平台:x64 主(64 位插件 + 32 位 VST2 走 VSTProcess32);Qt 节点使用 Qt6 6.10.3 msvc2022_64;
 - 输出:三个 exe 至主程序目录;节点 DLL 至 `nodes/vst/`;`nodes/VSTPlugins/` 由扫描器生成(数据,入 .gitignore 可选)。
@@ -234,7 +234,7 @@ add_subdirectory(tools/vst_process) # VSTProcess32/64.exe
 | 里程碑 | 内容 | 状态 | 预计 | 验收 |
 | :--- | :--- | :--- | :--- | :--- |
 | **V1 扫描器** | `Vst Scanner.exe`(Qt6):多路径、VST2/VST3 描述读取、**PE 位宽识别(32/64)→ info `bits`**、info 写入与分类、Waves internal_plugin;Probe64/Probe32 隔离探测;VST2 Shell、非法 DLL、Synth 分类和旧缓存迁移测试 | ✅ 已完成 | 3~5 天 | 扫描示例插件生成正确 `.vstinfo/.vst3info`(**含 `bits`**)与目录树;真实 DSK VSTi 可识别为 Instrument/MIDI in |
-| **V2 VSTProcess 骨架** | VSTProcess64/32(原生 C++ + VST3 SDK Hosting + IPC 命名管道 + JACK 客户端,不使用 Qt/JUCE)+ 崩溃退出码 | 📋 未开始 | 4~6 天 | 命令行加载 VST3;端口出现在 `jack_lsp`;kill 后端口消失 |
+| **V2 VSTProcess 骨架** | VSTProcess64/32(原生 C++ + VST3 SDK Hosting + IPC 命名管道 + JACK 客户端,不使用 Qt/JUCE)+ 崩溃退出码 | ✅ 已完成(编译验证) | 4~6 天 | x64/x86 目标均编译成功;CLI 与 VST3 加载失败退出码已验证;真实 VST3 + JACK 的端口出现/进程退出端口移除由用户手动验证 |
 | **V3 VST2 宿主**(`WJN_ENABLE_VST2=ON` 时编译) | 原生 C++ 自实现 AEffect 加载/processReplacing/参数/预设;VSTProcess32 验证 | 📋 未开始 | 4~6 天 | 32/64 位 VST2 可加载处理;按位宽分发;fxp 存取 |
 | **V4 节点集成** | `mod_vst_host.dll`(Qt `INode` + 设置面板 + 编辑器嵌入 + 预设栏 + 重载) | 📋 未开始 | 4~6 天 | 接线盘添加 VST 节点;GUI/预设/重载可用 |
 | **V5 旁通/重启** | 崩溃检测、Bypass 直通、节点「重启 VSTProcess」 | 📋 未开始 | 2~3 天 | 杀 VSTProcess → 节点旁通不崩主程序;重启恢复 |
@@ -274,4 +274,4 @@ add_subdirectory(tools/vst_process) # VSTProcess32/64.exe
 
 ---
 
-*本计划书随开发反馈迭代,修改后递增版本号。v1.1 根据 V1 实际交付结果更新,并确定 VSTProcess 采用原生 C++ + VST2/VST3 SDK,节点界面继续使用 Qt。*
+*本计划书随开发反馈迭代,修改后递增版本号。v1.2 记录 V2 原生 VSTProcess64/32 编译交付;VSTProcess 采用原生 C++ + VST2/VST3 SDK,节点界面继续使用 Qt。*

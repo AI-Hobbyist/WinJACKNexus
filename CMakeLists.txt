@@ -40,6 +40,7 @@ add_subdirectory(src/patchbay)
 add_subdirectory(src/adapter)
 add_subdirectory(src/app)
 add_subdirectory(tools/vst_scanner)
+add_subdirectory(tools/vst_process)
 
 include(CTest)
 if(BUILD_TESTING)
