@@ -9,10 +9,19 @@ class JackClient;
 #include <QGraphicsView>
 #include <QPointF>
 
+#include <cstdint>
 #include <functional>
 #include <string>
+#include <vector>
 
 class QGraphicsPathItem;
+
+struct PatchbayProjectModule final {
+    QString modulePath;
+    std::uint32_t index = 0;
+    std::string clientId;
+    std::string settingsJson;
+};
 
 class PatchbayCanvas final : public QGraphicsView {
 public:
@@ -21,16 +30,27 @@ public:
     void setSnapshot(const WinJACKNexus::Patchbay::Core::Snapshot& snapshot);
     const WinJACKNexus::Patchbay::Core::Snapshot& snapshot() const noexcept;
     bool saveProject(const QString& filePath) const;
+    bool saveProject(const QString& filePath, const std::vector<PatchbayProjectModule>& modules) const;
     bool loadProject(const QString& filePath);
+    bool loadProject(const QString& filePath, std::vector<PatchbayProjectModule>& modules);
     bool restoreJackConnections(WinJACKNexus::Audio::JackClient& client);
     bool isProjectDirty() const noexcept;
+    void markProjectDirty() noexcept;
     void markProjectSaved() noexcept;
     void newProject();
     void setClientAlias(const std::string& clientId, const QString& alias);
     void setClientSplit(const std::string& clientId, bool split);
+    std::string selectedNodeId() const;
+    void selectNode(const std::string& clientId);
     void setSearchQuery(const QString& query);
     void setNodeSelectionHandler(std::function<void(const std::string&)> handler);
     void setConnectionDisconnectHandler(std::function<void(const std::string&, const std::string&)> handler);
+    void setModuleNodeHandlers(std::function<bool(const std::string&)> isModuleNode,
+                               std::function<bool(const std::string&)> copyModuleNode,
+                               std::function<bool(const std::string&)> removeModuleNode,
+                               std::function<bool(const std::string&, QWidget*)> showModuleNodeGui,
+                               std::function<bool(const QPointF&)> pasteModuleNode);
+    void setModuleNodeDropHandler(std::function<bool(const QString&, std::uint32_t, const QPointF&)> handler);
     bool isNodeDragActive() const noexcept;
     void zoomIn();
     void zoomOut();
@@ -44,6 +64,9 @@ protected:
     void mouseMoveEvent(QMouseEvent* event) override;
     void mouseReleaseEvent(QMouseEvent* event) override;
     void contextMenuEvent(QContextMenuEvent* event) override;
+    void dragEnterEvent(QDragEnterEvent* event) override;
+    void dragMoveEvent(QDragMoveEvent* event) override;
+    void dropEvent(QDropEvent* event) override;
     void wheelEvent(QWheelEvent* event) override;
 
 private:
@@ -52,6 +75,11 @@ private:
     void beginPortDrag(const std::string& portId, const QPointF& position);
     void updatePortDrag(const QPointF& position);
     void finishPortDrag(const QPointF& position);
+    void beginConnectionDrag(const std::string& sourcePortId,
+                             const std::string& destinationPortId,
+                             const QPointF& position);
+    void updateConnectionDrag(const QPointF& position);
+    void finishConnectionDrag(const QPointF& position);
     void updateConnectionPaths();
     void scheduleSnapshotRefresh();
     void updateClientPositions();
@@ -61,13 +89,24 @@ private:
     QString searchQuery_;
     std::string pendingPortId_;
     std::string draggedPortId_;
+    std::string draggedConnectionSourcePortId_;
+    std::string draggedConnectionDestinationPortId_;
     QGraphicsPathItem* portDragPreview_ = nullptr;
+    QGraphicsPathItem* draggedConnectionLine_ = nullptr;
     std::function<void(const std::string&)> nodeSelectionHandler_;
     std::function<void(const std::string&, const std::string&)> connectionDisconnectHandler_;
+    std::function<bool(const std::string&)> isModuleNode_;
+    std::function<bool(const std::string&)> copyModuleNode_;
+    std::function<bool(const std::string&)> removeModuleNode_;
+    std::function<bool(const std::string&, QWidget*)> showModuleNodeGui_;
+    std::function<bool(const QPointF&)> pasteModuleNode_;
+    std::function<bool(const QString&, std::uint32_t, const QPointF&)> moduleNodeDropHandler_;
     QPoint panOrigin_;
     Qt::MouseButton panningButton_ = Qt::NoButton;
     bool panning_ = false;
     bool nodeDragActive_ = false;
+    bool connectionDragActive_ = false;
+    bool connectionDragMoved_ = false;
     bool snapshotRefreshPending_ = false;
     bool projectDirty_ = false;
 };

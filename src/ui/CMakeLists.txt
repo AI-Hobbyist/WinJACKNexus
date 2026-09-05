@@ -2,6 +2,7 @@ add_library(ui SHARED
     src/Library.cpp
     src/AnimatedWidget.cpp
     src/IconManager.cpp
+    src/MeterWidget.cpp
     src/NativeWindowUtils.cpp
     src/PaintableWidget.cpp
     src/ThemeManager.cpp

@@ -36,6 +36,15 @@ QWidget* embedNativeWindow(HWND nativeWindow, QWidget* parent)
     container->setProperty(nativeHandleProperty, nativeHandleValue(nativeWindow));
     container->setAttribute(Qt::WA_NativeWindow);
     container->setMinimumSize(1, 1);
+    const auto embeddedSize = window->size();
+    int minimumHeight = embeddedSize.height();
+    RECT clientRect {};
+    if (GetClientRect(nativeWindow, &clientRect))
+        minimumHeight = std::max(minimumHeight, static_cast<int>(clientRect.bottom - clientRect.top));
+    if (minimumHeight > 0)
+        container->setMinimumHeight(minimumHeight);
+    container->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    container->show();
     return container;
 }
 

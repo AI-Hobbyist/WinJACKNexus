@@ -86,3 +86,23 @@ QMenu {
 QMenu::item:selected {
     background: $BUTTON_HOVER;
 }
+
+QPushButton#showModuleGuiButton {
+    background: $BUTTON_HOVER;
+    border: 1px solid $BUTTON_BORDER;
+    border-radius: 4px;
+    color: $TEXT;
+    padding: 6px 10px;
+    font-weight: 600;
+}
+
+QPushButton#showModuleGuiButton:hover:enabled {
+    background: $BUTTON_BORDER;
+    color: $WINDOW;
+}
+
+QPushButton#showModuleGuiButton:disabled {
+    background: transparent;
+    border-color: $TOOLBAR_BORDER;
+    color: $TOOLBAR_BORDER;
+}

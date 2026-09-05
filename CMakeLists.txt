@@ -33,6 +33,7 @@ add_subdirectory(src/ui)
 add_subdirectory(src/audio)
 add_subdirectory(src/node)
 add_subdirectory(src/patchbay)
+add_subdirectory(src/adapter)
 add_subdirectory(src/app)
 
 include(CTest)

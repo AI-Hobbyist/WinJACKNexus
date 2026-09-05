@@ -11,6 +11,7 @@
 
 #include <Windows.h>
 
+#include <cstdint>
 #include <cstring>
 
 namespace {
@@ -31,14 +32,16 @@ public:
             return false;
 
         const auto apiVersion = reinterpret_cast<ApiVersion>(GetProcAddress(library_, "wjn_get_node_api_version"));
+        const auto nodeCount = reinterpret_cast<NodeCount>(GetProcAddress(library_, "wjn_get_node_count"));
         const auto create = reinterpret_cast<Create>(GetProcAddress(library_, "wjn_create_node"));
         destroy_ = reinterpret_cast<Destroy>(GetProcAddress(library_, "wjn_destroy_node"));
-        if (apiVersion == nullptr || create == nullptr || destroy_ == nullptr || std::strcmp(apiVersion(), "1") != 0) {
+        if (apiVersion == nullptr || nodeCount == nullptr || create == nullptr || destroy_ == nullptr
+            || std::strcmp(apiVersion(), "2") != 0 || nodeCount() == 0) {
             unload();
             return false;
         }
 
-        node_ = create();
+        node_ = create(0);
         if (node_ == nullptr || !node_->init()) {
             unload();
             return false;
@@ -53,7 +56,8 @@ public:
 
 private:
     using ApiVersion = const char* (*)();
-    using Create = WinJACKNexus::Node::INode* (*)();
+    using NodeCount = std::uint32_t (*)();
+    using Create = WinJACKNexus::Node::INode* (*)(std::uint32_t index);
     using Destroy = void (*)(WinJACKNexus::Node::INode*);
 
     void unload() noexcept
@@ -96,24 +100,32 @@ int main(int argc, char* argv[])
     application.setWindowIcon(applicationIcon);
 
     WinJACKNexus::UI::TrayController tray;
-    if (!tray.initialize(applicationIcon, application.applicationName()))
-    {
-        QMessageBox::critical(nullptr, application.applicationName(),
-                              QStringLiteral("当前系统环境不支持系统托盘。"));
-        return 1;
+    const bool trayAvailable = tray.initialize(applicationIcon, application.applicationName());
+    if (trayAvailable) {
+        QObject::connect(&tray, &WinJACKNexus::UI::TrayController::quitRequested,
+                         &application, &QApplication::quit);
     }
-
-    QObject::connect(&tray, &WinJACKNexus::UI::TrayController::quitRequested,
-                     &application, &QApplication::quit);
 
     NodeModule patchbayModule;
     const auto patchbayPath = QDir(executableDirectory()).filePath(QStringLiteral("mod_patchbay.dll"));
-    if (patchbayModule.load(patchbayPath)) {
+    if (!patchbayModule.load(patchbayPath)) {
+        QMessageBox::critical(nullptr, application.applicationName(),
+                              QStringLiteral("无法加载接线盘模块。"));
+        return 1;
+    }
+
+    if (trayAvailable) {
         tray.registerPlaceholder(tray.patchbayAction());
         QObject::connect(tray.patchbayAction(), &QAction::triggered, &application, [&tray, &patchbayModule] {
             if (patchbayModule.node()->createWindow(nullptr) == nullptr)
                 tray.showMessage(QStringLiteral("接线盘"), QStringLiteral("无法创建接线盘窗口。"), 2);
         });
+    }
+
+    if (patchbayModule.node()->createWindow(nullptr) == nullptr) {
+        QMessageBox::critical(nullptr, application.applicationName(),
+                              QStringLiteral("无法创建接线盘窗口。"));
+        return 1;
     }
 
     return application.exec();

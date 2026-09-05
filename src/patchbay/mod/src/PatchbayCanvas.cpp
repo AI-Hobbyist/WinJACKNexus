@@ -8,7 +8,9 @@
 #include <QContextMenuEvent>
 #include <QDragEnterEvent>
 #include <QDropEvent>
+#include <QDir>
 #include <QFile>
+#include <QFileInfo>
 #include <QGraphicsObject>
 #include <QGraphicsPathItem>
 #include <QGraphicsScene>
@@ -24,6 +26,7 @@
 #include <QUrl>
 #include <QSettings>
 #include <QSaveFile>
+#include <QSignalBlocker>
 #include <QTimer>
 #include <QPainter>
 #include <QPainterPath>
@@ -45,7 +48,20 @@ constexpr qreal kMinimumNodeWidth = 220.0;
 constexpr qreal kHeaderHeight = 34.0;
 constexpr qreal kPortHeight = 26.0;
 constexpr qreal kCanvasExtent = 1'000'000.0;
-constexpr auto kNodeMimeType = "application/x-winjacknexus-node";
+constexpr auto kModuleNodeMimeType = "application/x-winjacknexus-module-node";
+
+bool readModuleNodeMimeData(const QMimeData* mimeData, QString& modulePath, std::uint32_t& index)
+{
+    if (mimeData == nullptr || !mimeData->hasFormat(kModuleNodeMimeType))
+        return false;
+
+    const auto payload = mimeData->data(kModuleNodeMimeType);
+    const auto separator = payload.lastIndexOf('\n');
+    bool validIndex = false;
+    index = payload.mid(separator + 1).toUInt(&validIndex);
+    modulePath = QString::fromUtf8(payload.left(separator));
+    return separator > 0 && validIndex && !modulePath.isEmpty();
+}
 
 struct CanvasTheme final {
     QColor background;
@@ -145,6 +161,19 @@ Direction directionFromName(const QString& name)
     return name == QStringLiteral("input") ? Direction::input
          : name == QStringLiteral("output") ? Direction::output
                                              : Direction::unknown;
+}
+
+bool clientCanSplit(const Snapshot& snapshot, const std::string& clientId)
+{
+    bool hasInput = false;
+    bool hasOutput = false;
+    for (const auto& port : snapshot.ports) {
+        if (!port.alive || port.clientId != clientId)
+            continue;
+        hasInput = hasInput || port.direction == Direction::input;
+        hasOutput = hasOutput || port.direction == Direction::output;
+    }
+    return hasInput && hasOutput;
 }
 
 class CanvasNode final : public QGraphicsObject {
@@ -357,6 +386,68 @@ private:
     qreal nodeWidth_ = kMinimumNodeWidth;
 };
 
+class CanvasConnection final : public QGraphicsPathItem {
+public:
+    CanvasConnection(std::string sourcePortId,
+                     std::string destinationPortId,
+                     std::function<void(const std::string&, const std::string&, const QPointF&)> pressed,
+                     std::function<void(const QPointF&)> dragged,
+                     std::function<void(const QPointF&)> released)
+        : sourcePortId_(std::move(sourcePortId))
+        , destinationPortId_(std::move(destinationPortId))
+        , pressed_(std::move(pressed))
+        , dragged_(std::move(dragged))
+        , released_(std::move(released))
+    {
+        setFlag(QGraphicsItem::ItemIsSelectable);
+        setCursor(Qt::PointingHandCursor);
+    }
+
+protected:
+    void mousePressEvent(QGraphicsSceneMouseEvent* event) override
+    {
+        if (event->button() == Qt::LeftButton) {
+            dragging_ = true;
+            if (pressed_)
+                pressed_(sourcePortId_, destinationPortId_, mapToScene(event->pos()));
+            event->accept();
+            return;
+        }
+        QGraphicsPathItem::mousePressEvent(event);
+    }
+
+    void mouseMoveEvent(QGraphicsSceneMouseEvent* event) override
+    {
+        if (dragging_ && (event->buttons() & Qt::LeftButton)) {
+            if (dragged_)
+                dragged_(mapToScene(event->pos()));
+            event->accept();
+            return;
+        }
+        QGraphicsPathItem::mouseMoveEvent(event);
+    }
+
+    void mouseReleaseEvent(QGraphicsSceneMouseEvent* event) override
+    {
+        if (dragging_ && event->button() == Qt::LeftButton) {
+            dragging_ = false;
+            if (released_)
+                released_(mapToScene(event->pos()));
+            event->accept();
+            return;
+        }
+        QGraphicsPathItem::mouseReleaseEvent(event);
+    }
+
+private:
+    std::string sourcePortId_;
+    std::string destinationPortId_;
+    std::function<void(const std::string&, const std::string&, const QPointF&)> pressed_;
+    std::function<void(const QPointF&)> dragged_;
+    std::function<void(const QPointF&)> released_;
+    bool dragging_ = false;
+};
+
 QPainterPath connectionPath(const QPointF& source, const QPointF& destination)
 {
     const qreal handle = std::max<qreal>(70.0, std::abs(destination.x() - source.x()) * 0.5);
@@ -368,6 +459,27 @@ QPainterPath connectionPath(const QPointF& source, const QPointF& destination)
 QSettings patchbaySettings()
 {
     return QSettings(QSettings::IniFormat, QSettings::UserScope, QStringLiteral("WinJACKNexus"), QStringLiteral("Patchbay"));
+}
+
+QString modulePathForStorage(const QString& modulePath)
+{
+    if (modulePath.isEmpty())
+        return {};
+    const auto absoluteModulePath = QFileInfo(modulePath).absoluteFilePath();
+    const auto applicationDirectory = QDir(QCoreApplication::applicationDirPath());
+    const auto relativeModulePath = QDir::cleanPath(applicationDirectory.relativeFilePath(absoluteModulePath));
+    return QDir::isAbsolutePath(relativeModulePath) ? QDir::fromNativeSeparators(absoluteModulePath)
+                                                    : QDir::fromNativeSeparators(relativeModulePath);
+}
+
+QString modulePathFromStorage(const QString& storedModulePath)
+{
+    if (storedModulePath.isEmpty())
+        return {};
+    const auto normalizedPath = QDir::fromNativeSeparators(storedModulePath);
+    if (QDir::isAbsolutePath(normalizedPath))
+        return QDir::cleanPath(normalizedPath);
+    return QDir::cleanPath(QDir(QCoreApplication::applicationDirPath()).absoluteFilePath(normalizedPath));
 }
 
 }
@@ -395,6 +507,11 @@ const Snapshot& PatchbayCanvas::snapshot() const noexcept
 }
 
 bool PatchbayCanvas::saveProject(const QString& filePath) const
+{
+    return saveProject(filePath, {});
+}
+
+bool PatchbayCanvas::saveProject(const QString& filePath, const std::vector<PatchbayProjectModule>& modules) const
 {
     const auto settings = patchbaySettings();
     QJsonArray clients;
@@ -446,10 +563,27 @@ bool PatchbayCanvas::saveProject(const QString& filePath) const
         };
         const auto clientKey = QString::fromStdString(client.id);
         addLayout(clientKey, { client.x, client.y });
-        if (client.split) {
+        if (client.split && clientCanSplit(snapshot_, client.id)) {
             addLayout(clientKey + QStringLiteral("/input"), { client.x, client.y });
             addLayout(clientKey + QStringLiteral("/output"), { client.x + kMinimumNodeWidth + 52.0, client.y });
         }
+    }
+
+    QJsonArray moduleRecords;
+    for (const auto& module : modules) {
+        QJsonValue settings = QJsonObject {};
+        if (!module.settingsJson.empty()) {
+            QJsonParseError error;
+            const auto document = QJsonDocument::fromJson(QByteArray::fromStdString(module.settingsJson), &error);
+            if (error.error == QJsonParseError::NoError && document.isObject())
+                settings = document.object();
+        }
+        moduleRecords.append(QJsonObject {
+            { QStringLiteral("path"), modulePathForStorage(module.modulePath) },
+            { QStringLiteral("index"), static_cast<int>(module.index) },
+            { QStringLiteral("client"), QString::fromStdString(module.clientId) },
+            { QStringLiteral("settings"), settings }
+        });
     }
 
     const QJsonDocument document(QJsonObject {
@@ -459,6 +593,7 @@ bool PatchbayCanvas::saveProject(const QString& filePath) const
         { QStringLiteral("ports"), ports },
         { QStringLiteral("connections"), connections },
         { QStringLiteral("layouts"), layouts },
+        { QStringLiteral("modules"), moduleRecords },
         { QStringLiteral("mixers"), QJsonArray {} },
         { QStringLiteral("switches"), QJsonArray {} }
     });
@@ -470,6 +605,12 @@ bool PatchbayCanvas::saveProject(const QString& filePath) const
 }
 
 bool PatchbayCanvas::loadProject(const QString& filePath)
+{
+    std::vector<PatchbayProjectModule> modules;
+    return loadProject(filePath, modules);
+}
+
+bool PatchbayCanvas::loadProject(const QString& filePath, std::vector<PatchbayProjectModule>& modules)
 {
     QFile file(filePath);
     if (!file.open(QIODevice::ReadOnly))
@@ -528,6 +669,21 @@ bool PatchbayCanvas::loadProject(const QString& filePath)
         project.connections.push_back(std::move(connection));
     }
 
+    std::vector<PatchbayProjectModule> loadedModules;
+    for (const auto& value : root.value(QStringLiteral("modules")).toArray()) {
+        const auto item = value.toObject();
+        PatchbayProjectModule module;
+        module.modulePath = modulePathFromStorage(item.value(QStringLiteral("path")).toString());
+        if (module.modulePath.isEmpty())
+            continue;
+        module.index = static_cast<std::uint32_t>(item.value(QStringLiteral("index")).toInt());
+        module.clientId = item.value(QStringLiteral("client")).toString().toStdString();
+        const auto settings = item.value(QStringLiteral("settings"));
+        if (settings.isObject())
+            module.settingsJson = QJsonDocument(settings.toObject()).toJson(QJsonDocument::Compact).toStdString();
+        loadedModules.push_back(std::move(module));
+    }
+
     auto settings = patchbaySettings();
     for (const auto& client : project.clients) {
         const auto key = QString::fromStdString(client.id);
@@ -544,6 +700,7 @@ bool PatchbayCanvas::loadProject(const QString& filePath)
         settings.setValue(QStringLiteral("layout/%1/y").arg(key), item.value(QStringLiteral("y")).toDouble());
     }
     setSnapshot(project);
+    modules = std::move(loadedModules);
     projectDirty_ = false;
     return true;
 }
@@ -581,6 +738,7 @@ bool PatchbayCanvas::restoreJackConnections(WinJACKNexus::Audio::JackClient& cli
 
 void PatchbayCanvas::setSnapshot(const Snapshot& snapshot)
 {
+    const QSignalBlocker sceneSignals(scene());
     std::unordered_set<std::string> selectedClientIds;
     for (const auto* item : scene()->selectedItems()) {
         if (item->data(0).isValid())
@@ -601,6 +759,10 @@ void PatchbayCanvas::setSnapshot(const Snapshot& snapshot)
             client.split = settings.value(QStringLiteral("layout/%1/split").arg(key)).toBool();
         else if (client.id == "system")
             client.split = true;
+    }
+    for (auto& client : restored.clients) {
+        if (client.split && !clientCanSplit(restored, client.id))
+            client.split = false;
     }
     snapshot_ = std::move(restored);
     scene()->clear();
@@ -692,8 +854,16 @@ void PatchbayCanvas::setSnapshot(const Snapshot& snapshot)
             continue;
 
         const QColor color = portColor(sourcePort->second->kind);
-        auto* line = new QGraphicsPathItem(connectionPath(sourceNode->second->portPosition(connection.sourcePortId),
-                                                           destinationNode->second->portPosition(connection.destinationPortId)));
+        auto* line = new CanvasConnection(
+            connection.sourcePortId,
+            connection.destinationPortId,
+            [this](const std::string& source, const std::string& destination, const QPointF& position) {
+                beginConnectionDrag(source, destination, position);
+            },
+            [this](const QPointF& position) { updateConnectionDrag(position); },
+            [this](const QPointF& position) { finishConnectionDrag(position); });
+        line->setPath(connectionPath(sourceNode->second->portPosition(connection.sourcePortId),
+                                     destinationNode->second->portPosition(connection.destinationPortId)));
         line->setPen(QPen(color, 2.5, Qt::SolidLine, Qt::RoundCap));
         line->setZValue(-1.0);
         line->setFlag(QGraphicsItem::ItemIsSelectable);
@@ -703,11 +873,17 @@ void PatchbayCanvas::setSnapshot(const Snapshot& snapshot)
     }
 
     applySearchFilter();
+    notifySelection();
 }
 
 bool PatchbayCanvas::isProjectDirty() const noexcept
 {
     return projectDirty_;
+}
+
+void PatchbayCanvas::markProjectDirty() noexcept
+{
+    projectDirty_ = true;
 }
 
 void PatchbayCanvas::markProjectSaved() noexcept
@@ -745,11 +921,36 @@ void PatchbayCanvas::setClientSplit(const std::string& clientId, bool split)
     });
     if (client == snapshot_.clients.end() || client->split == split)
         return;
+    if (split && !clientCanSplit(snapshot_, clientId))
+        return;
     client->split = split;
     auto settings = patchbaySettings();
     settings.setValue(QStringLiteral("layout/%1/split").arg(QString::fromStdString(clientId)), split);
     setSnapshot(snapshot_);
     projectDirty_ = true;
+}
+
+std::string PatchbayCanvas::selectedNodeId() const
+{
+    for (const auto* item : scene()->selectedItems()) {
+        if (item->data(0).isValid())
+            return item->data(0).toString().toStdString();
+    }
+    return {};
+}
+
+void PatchbayCanvas::selectNode(const std::string& clientId)
+{
+    if (clientId.empty())
+        return;
+    for (auto* item : scene()->selectedItems())
+        item->setSelected(false);
+    for (auto* item : scene()->items()) {
+        if (item->data(0).toString().toStdString() == clientId) {
+            item->setSelected(true);
+            return;
+        }
+    }
 }
 
 void PatchbayCanvas::setNodeSelectionHandler(std::function<void(const std::string&)> handler)
@@ -761,6 +962,25 @@ void PatchbayCanvas::setNodeSelectionHandler(std::function<void(const std::strin
 void PatchbayCanvas::setConnectionDisconnectHandler(std::function<void(const std::string&, const std::string&)> handler)
 {
     connectionDisconnectHandler_ = std::move(handler);
+}
+
+void PatchbayCanvas::setModuleNodeHandlers(std::function<bool(const std::string&)> isModuleNode,
+                                            std::function<bool(const std::string&)> copyModuleNode,
+                                            std::function<bool(const std::string&)> removeModuleNode,
+                                            std::function<bool(const std::string&, QWidget*)> showModuleNodeGui,
+                                            std::function<bool(const QPointF&)> pasteModuleNode)
+{
+    isModuleNode_ = std::move(isModuleNode);
+    copyModuleNode_ = std::move(copyModuleNode);
+    removeModuleNode_ = std::move(removeModuleNode);
+    showModuleNodeGui_ = std::move(showModuleNodeGui);
+    pasteModuleNode_ = std::move(pasteModuleNode);
+}
+
+void PatchbayCanvas::setModuleNodeDropHandler(std::function<bool(const QString&, std::uint32_t, const QPointF&)> handler)
+{
+    moduleNodeDropHandler_ = std::move(handler);
+    setAcceptDrops(moduleNodeDropHandler_ != nullptr);
 }
 
 void PatchbayCanvas::applyTheme(bool light)
@@ -862,7 +1082,7 @@ void PatchbayCanvas::mouseReleaseEvent(QMouseEvent* event)
 
 bool PatchbayCanvas::isNodeDragActive() const noexcept
 {
-    return nodeDragActive_;
+    return nodeDragActive_ || connectionDragActive_;
 }
 
 void PatchbayCanvas::contextMenuEvent(QContextMenuEvent* event)
@@ -892,13 +1112,24 @@ void PatchbayCanvas::contextMenuEvent(QContextMenuEvent* event)
         const auto client = std::find_if(snapshot_.clients.cbegin(), snapshot_.clients.cend(), [&id](const ClientInfo& value) {
             return value.id == id;
         });
+        const bool isModuleNode = isModuleNode_ && isModuleNode_(id);
+        const bool canSplit = client != snapshot_.clients.cend() && clientCanSplit(snapshot_, id);
         auto* center = menu.addAction(QStringLiteral("居中显示节点"));
         auto* rename = menu.addAction(QStringLiteral("重命名节点"));
-        auto* split = menu.addAction(QStringLiteral("Split/Join Group"));
+        QAction* split = nullptr;
+        if (canSplit)
+            split = menu.addAction(QStringLiteral("Split/Join Group"));
         menu.addSeparator();
         auto* disconnectAll = menu.addAction(QStringLiteral("断开全部连接"));
-        auto* showGui = menu.addAction(QStringLiteral("显示自带 GUI"));
-        showGui->setEnabled(client != snapshot_.clients.cend() && !client->uri.empty());
+        QAction* copy = nullptr;
+        QAction* remove = nullptr;
+        QAction* showGui = nullptr;
+        if (isModuleNode) {
+            menu.addSeparator();
+            copy = menu.addAction(QStringLiteral("复制节点"));
+            remove = menu.addAction(QStringLiteral("删除节点"));
+            showGui = menu.addAction(QStringLiteral("显示自带 GUI"));
+        }
         const auto* selected = menu.exec(event->globalPos());
         if (selected == center) {
             centerOn(item);
@@ -916,7 +1147,7 @@ void PatchbayCanvas::contextMenuEvent(QContextMenuEvent* event)
                     projectDirty_ = true;
                 }
             }
-        } else if (selected == split) {
+        } else if (selected == split && canSplit) {
             const auto mutableClient = std::find_if(snapshot_.clients.begin(), snapshot_.clients.end(), [&id](const ClientInfo& value) {
                 return value.id == id;
             });
@@ -949,19 +1180,29 @@ void PatchbayCanvas::contextMenuEvent(QContextMenuEvent* event)
                 setSnapshot(snapshot_);
                 projectDirty_ = true;
             }
-        } else if (selected == showGui && client != snapshot_.clients.cend()) {
-            QDesktopServices::openUrl(QUrl(QString::fromStdString(client->uri)));
+        } else if (selected == copy && copyModuleNode_) {
+            copyModuleNode_(id);
+        } else if (selected == remove && removeModuleNode_) {
+            removeModuleNode_(id);
+        } else if (selected == showGui) {
+            if (isModuleNode && showModuleNodeGui_)
+                showModuleNodeGui_(id, window());
         }
         return;
     }
 
     auto* fit = menu.addAction(QStringLiteral("适配全部节点"));
     auto* reset = menu.addAction(QStringLiteral("重置缩放"));
+    QAction* paste = nullptr;
+    if (pasteModuleNode_ != nullptr)
+        paste = menu.addAction(QStringLiteral("粘贴节点"));
     const auto* selected = menu.exec(event->globalPos());
     if (selected == fit)
         zoomFit();
     else if (selected == reset)
         zoomReset();
+    else if (selected == paste)
+        pasteModuleNode_(mapToScene(event->pos()));
 }
 
 void PatchbayCanvas::wheelEvent(QWheelEvent* event)
@@ -1023,6 +1264,141 @@ void PatchbayCanvas::beginPortDrag(const std::string& portId, const QPointF& pos
                                   2.5, Qt::DashLine, Qt::RoundCap));
     portDragPreview_->setZValue(-0.5);
     scene()->addItem(portDragPreview_);
+}
+
+void PatchbayCanvas::beginConnectionDrag(const std::string& sourcePortId,
+                                          const std::string& destinationPortId,
+                                          const QPointF& position)
+{
+    draggedConnectionSourcePortId_ = sourcePortId;
+    draggedConnectionDestinationPortId_ = destinationPortId;
+    connectionDragActive_ = true;
+    connectionDragMoved_ = false;
+    draggedConnectionLine_ = nullptr;
+    for (auto* item : scene()->items()) {
+        if (item->data(1).toString().toStdString() == sourcePortId
+            && item->data(2).toString().toStdString() == destinationPortId) {
+            draggedConnectionLine_ = qgraphicsitem_cast<QGraphicsPathItem*>(item);
+            break;
+        }
+    }
+    if (draggedConnectionLine_ != nullptr)
+        draggedConnectionLine_->setOpacity(0.0);
+
+    const auto source = std::find_if(snapshot_.ports.cbegin(), snapshot_.ports.cend(), [&sourcePortId](const PortInfo& port) {
+        return port.id == sourcePortId;
+    });
+    if (source == snapshot_.ports.cend())
+        return;
+    CanvasNode* sourceNode = nullptr;
+    for (auto* item : scene()->items()) {
+        if (auto* node = dynamic_cast<CanvasNode*>(item); node != nullptr && node->containsPort(sourcePortId)) {
+            sourceNode = node;
+            break;
+        }
+    }
+    const auto sourcePosition = sourceNode == nullptr ? position : sourceNode->portPosition(sourcePortId);
+    portDragPreview_ = new QGraphicsPathItem(connectionPath(sourcePosition, position));
+    portDragPreview_->setPen(QPen(portColor(source->kind), 2.5, Qt::DashLine, Qt::RoundCap));
+    portDragPreview_->setZValue(-0.5);
+    scene()->addItem(portDragPreview_);
+}
+
+void PatchbayCanvas::updateConnectionDrag(const QPointF& position)
+{
+    if (!connectionDragActive_ || portDragPreview_ == nullptr)
+        return;
+    connectionDragMoved_ = true;
+    const auto source = std::find_if(snapshot_.ports.cbegin(), snapshot_.ports.cend(), [this](const PortInfo& port) {
+        return port.id == draggedConnectionSourcePortId_;
+    });
+    if (source == snapshot_.ports.cend())
+        return;
+    const auto* node = dynamic_cast<CanvasNode*>(scene()->itemAt(position, QTransform()));
+    const auto targetId = node == nullptr ? std::string() : node->portIdAt(position);
+    const auto target = std::find_if(snapshot_.ports.cbegin(), snapshot_.ports.cend(), [&targetId](const PortInfo& port) {
+        return port.id == targetId;
+    });
+    const bool compatible = target != snapshot_.ports.cend()
+        && target->direction == Direction::input
+        && target->kind == source->kind;
+    CanvasNode* sourceNode = nullptr;
+    for (auto* item : scene()->items()) {
+        if (auto* candidate = dynamic_cast<CanvasNode*>(item); candidate != nullptr && candidate->containsPort(source->id)) {
+            sourceNode = candidate;
+            break;
+        }
+    }
+    portDragPreview_->setPen(QPen(portColor(source->kind).darker(compatible ? 100 : 170),
+                                  2.5,
+                                  compatible ? Qt::SolidLine : Qt::DashLine,
+                                  Qt::RoundCap));
+    portDragPreview_->setPath(connectionPath(sourceNode == nullptr ? position : sourceNode->portPosition(source->id), position));
+}
+
+void PatchbayCanvas::finishConnectionDrag(const QPointF& position)
+{
+    if (!connectionDragActive_)
+        return;
+    connectionDragActive_ = false;
+    const auto wasMoved = connectionDragMoved_;
+    connectionDragMoved_ = false;
+    const auto sourceId = std::exchange(draggedConnectionSourcePortId_, {});
+    const auto oldDestinationId = std::exchange(draggedConnectionDestinationPortId_, {});
+    if (portDragPreview_ != nullptr) {
+        scene()->removeItem(portDragPreview_);
+        delete portDragPreview_;
+        portDragPreview_ = nullptr;
+    }
+    if (draggedConnectionLine_ != nullptr)
+        draggedConnectionLine_->setOpacity(1.0);
+    draggedConnectionLine_ = nullptr;
+
+    if (!wasMoved)
+        return;
+
+    const auto* node = dynamic_cast<CanvasNode*>(scene()->itemAt(position, QTransform()));
+    const auto targetId = node == nullptr ? std::string() : node->portIdAt(position);
+    if (targetId == oldDestinationId)
+        return;
+
+    const auto oldConnection = std::find_if(snapshot_.connections.cbegin(), snapshot_.connections.cend(),
+                                             [&sourceId, &oldDestinationId](const ConnectionInfo& connection) {
+                                                 return connection.sourcePortId == sourceId
+                                                     && connection.destinationPortId == oldDestinationId;
+                                             });
+    if (oldConnection == snapshot_.connections.cend())
+        return;
+
+    const auto target = std::find_if(snapshot_.ports.cbegin(), snapshot_.ports.cend(), [&targetId](const PortInfo& port) {
+        return port.id == targetId;
+    });
+    const auto source = std::find_if(snapshot_.ports.cbegin(), snapshot_.ports.cend(), [&sourceId](const PortInfo& port) {
+        return port.id == sourceId;
+    });
+    const bool compatible = source != snapshot_.ports.cend() && target != snapshot_.ports.cend()
+        && source->direction == Direction::output
+        && target->direction == Direction::input
+        && source->kind == target->kind;
+    if (compatible) {
+        const bool alreadyConnected = std::any_of(snapshot_.connections.cbegin(), snapshot_.connections.cend(), [&sourceId, &targetId](const ConnectionInfo& connection) {
+            return connection.sourcePortId == sourceId && connection.destinationPortId == targetId;
+        });
+        if (alreadyConnected)
+            return;
+        snapshot_.connections.erase(oldConnection);
+        if (connectionDisconnectHandler_)
+            connectionDisconnectHandler_(sourceId, oldDestinationId);
+        snapshot_.connections.push_back({ sourceId, targetId });
+    } else if (targetId.empty()) {
+        snapshot_.connections.erase(oldConnection);
+        if (connectionDisconnectHandler_)
+            connectionDisconnectHandler_(sourceId, oldDestinationId);
+    } else {
+        return;
+    }
+    projectDirty_ = true;
+    scheduleSnapshotRefresh();
 }
 
 void PatchbayCanvas::updatePortDrag(const QPointF& position)
@@ -1188,4 +1564,40 @@ void PatchbayCanvas::notifySelection()
         }
     }
     nodeSelectionHandler_({});
+}
+
+void PatchbayCanvas::dragEnterEvent(QDragEnterEvent* event)
+{
+    QString modulePath;
+    std::uint32_t index = 0;
+    if (moduleNodeDropHandler_ && readModuleNodeMimeData(event->mimeData(), modulePath, index)) {
+        event->acceptProposedAction();
+        return;
+    }
+    QGraphicsView::dragEnterEvent(event);
+}
+
+void PatchbayCanvas::dragMoveEvent(QDragMoveEvent* event)
+{
+    QString modulePath;
+    std::uint32_t index = 0;
+    if (moduleNodeDropHandler_ && readModuleNodeMimeData(event->mimeData(), modulePath, index)) {
+        event->acceptProposedAction();
+        return;
+    }
+    QGraphicsView::dragMoveEvent(event);
+}
+
+void PatchbayCanvas::dropEvent(QDropEvent* event)
+{
+    QString modulePath;
+    std::uint32_t index = 0;
+    if (moduleNodeDropHandler_ && readModuleNodeMimeData(event->mimeData(), modulePath, index)) {
+        if (moduleNodeDropHandler_(modulePath, index, mapToScene(event->position().toPoint())))
+            event->acceptProposedAction();
+        else
+            event->ignore();
+        return;
+    }
+    QGraphicsView::dropEvent(event);
 }

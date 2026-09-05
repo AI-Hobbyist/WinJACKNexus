@@ -5,7 +5,7 @@ add_executable(wjn_node_tests
 target_include_directories(wjn_node_tests PRIVATE "${PROJECT_SOURCE_DIR}/src/node/include")
 target_compile_features(wjn_node_tests PRIVATE cxx_std_20)
 target_compile_definitions(wjn_node_tests PRIVATE WIN32_LEAN_AND_MEAN NOMINMAX)
-add_dependencies(wjn_node_tests node wjn_example_node)
+add_dependencies(wjn_node_tests node wjn_example_node mod_adapter)
 
 set_target_properties(
     wjn_node_tests

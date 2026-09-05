@@ -3,14 +3,22 @@
 #include <Windows.h>
 
 #include <cstdio>
+#include <cstdint>
 #include <filesystem>
+#include <iterator>
 #include <string_view>
 
 namespace {
 
 using GetStringFunction = const char* (*)();
-using CreateNodeFunction = WinJACKNexus::Node::INode* (*)();
+using GetCountFunction = std::uint32_t (*)();
+using GetIndexedStringFunction = const char* (*)(std::uint32_t index);
+using CreateNodeFunction = WinJACKNexus::Node::INode* (*)(std::uint32_t index);
 using DestroyNodeFunction = void (*)(WinJACKNexus::Node::INode*);
+using CreateSettingsViewFunction = void* (*)(WinJACKNexus::Node::INode*, void*);
+using DestroySettingsViewFunction = void (*)(WinJACKNexus::Node::INode*, void*);
+using GetNodeSettingsJsonFunction = const char* (*)(WinJACKNexus::Node::INode*);
+using SetNodeSettingsJsonFunction = int (*)(WinJACKNexus::Node::INode*, const char*);
 
 bool check(bool condition, const char* message)
 {
@@ -36,17 +44,22 @@ bool testApiStub(const std::filesystem::path& directory)
         return false;
 
     const auto version = reinterpret_cast<GetStringFunction>(GetProcAddress(module, "wjn_get_node_api_version"));
-    const auto name = reinterpret_cast<GetStringFunction>(GetProcAddress(module, "wjn_get_node_name"));
-    const auto category = reinterpret_cast<GetStringFunction>(GetProcAddress(module, "wjn_get_node_category"));
+    const auto count = reinterpret_cast<GetCountFunction>(GetProcAddress(module, "wjn_get_node_count"));
+    const auto name = reinterpret_cast<GetIndexedStringFunction>(GetProcAddress(module, "wjn_get_node_name"));
+    const auto category = reinterpret_cast<GetIndexedStringFunction>(GetProcAddress(module, "wjn_get_node_category"));
     const auto create = reinterpret_cast<CreateNodeFunction>(GetProcAddress(module, "wjn_create_node"));
     const auto destroy = reinterpret_cast<DestroyNodeFunction>(GetProcAddress(module, "wjn_destroy_node"));
-    passed &= check(version != nullptr && name != nullptr && category != nullptr && create != nullptr && destroy != nullptr,
+    const auto createSettingsView = reinterpret_cast<CreateSettingsViewFunction>(GetProcAddress(module, "wjn_create_settings_view"));
+    const auto destroySettingsView = reinterpret_cast<DestroySettingsViewFunction>(GetProcAddress(module, "wjn_destroy_settings_view"));
+    passed &= check(version != nullptr && count != nullptr && name != nullptr && category != nullptr && create != nullptr && destroy != nullptr
+                        && createSettingsView != nullptr && destroySettingsView != nullptr,
                     "node.dll exports the complete Node C API");
-    if (version != nullptr && name != nullptr && category != nullptr && create != nullptr && destroy != nullptr) {
-        passed &= check(std::string_view(version()) == "1" && std::string_view(name()) == "WinJACKNexus Node API"
-                            && std::string_view(category()) == "Interface",
+    if (version != nullptr && count != nullptr && name != nullptr && category != nullptr && create != nullptr && destroy != nullptr
+        && createSettingsView != nullptr && destroySettingsView != nullptr) {
+        passed &= check(std::string_view(version()) == "2" && count() == 0 && std::string_view(name(0)) == "WinJACKNexus Node API"
+                            && std::string_view(category(0)) == "Interface",
                         "node.dll reports stable API metadata");
-        passed &= check(create() == nullptr, "node.dll remains an interface-only stub");
+        passed &= check(create(0) == nullptr, "node.dll remains an interface-only stub");
     }
     FreeLibrary(module);
     return passed;
@@ -61,17 +74,18 @@ bool testExampleNode(const std::filesystem::path& directory)
         return false;
 
     const auto version = reinterpret_cast<GetStringFunction>(GetProcAddress(module, "wjn_get_node_api_version"));
-    const auto name = reinterpret_cast<GetStringFunction>(GetProcAddress(module, "wjn_get_node_name"));
-    const auto category = reinterpret_cast<GetStringFunction>(GetProcAddress(module, "wjn_get_node_category"));
+    const auto count = reinterpret_cast<GetCountFunction>(GetProcAddress(module, "wjn_get_node_count"));
+    const auto name = reinterpret_cast<GetIndexedStringFunction>(GetProcAddress(module, "wjn_get_node_name"));
+    const auto category = reinterpret_cast<GetIndexedStringFunction>(GetProcAddress(module, "wjn_get_node_category"));
     const auto create = reinterpret_cast<CreateNodeFunction>(GetProcAddress(module, "wjn_create_node"));
     const auto destroy = reinterpret_cast<DestroyNodeFunction>(GetProcAddress(module, "wjn_destroy_node"));
-    passed &= check(version != nullptr && name != nullptr && category != nullptr && create != nullptr && destroy != nullptr,
+    passed &= check(version != nullptr && count != nullptr && name != nullptr && category != nullptr && create != nullptr && destroy != nullptr,
                     "example node exports the complete Node C API");
-    if (version != nullptr && name != nullptr && category != nullptr && create != nullptr && destroy != nullptr) {
-        passed &= check(std::string_view(version()) == "1" && std::string_view(name()) == "Example Node"
-                            && std::string_view(category()) == "Tools",
+    if (version != nullptr && count != nullptr && name != nullptr && category != nullptr && create != nullptr && destroy != nullptr) {
+        passed &= check(std::string_view(version()) == "2" && count() == 1 && std::string_view(name(0)) == "Example Node"
+                            && std::string_view(category(0)) == "Tools",
                         "example node reports stable metadata");
-        auto* node = create();
+        auto* node = create(0);
         passed &= check(node != nullptr, "example node creates an INode instance");
         if (node != nullptr) {
             const auto info = node->info();
@@ -87,12 +101,58 @@ bool testExampleNode(const std::filesystem::path& directory)
     return passed;
 }
 
+bool testAdapterModule(const std::filesystem::path& directory)
+{
+    const auto path = directory / L"nodes" / L"adapter" / L"mod_adapter.dll";
+    const auto module = LoadLibraryW(path.c_str());
+    bool passed = check(module != nullptr, "adapter module loads dynamically");
+    if (module == nullptr)
+        return false;
+
+    const auto version = reinterpret_cast<GetStringFunction>(GetProcAddress(module, "wjn_get_node_api_version"));
+    const auto count = reinterpret_cast<GetCountFunction>(GetProcAddress(module, "wjn_get_node_count"));
+    const auto name = reinterpret_cast<GetIndexedStringFunction>(GetProcAddress(module, "wjn_get_node_name"));
+    const auto create = reinterpret_cast<CreateNodeFunction>(GetProcAddress(module, "wjn_create_node"));
+    const auto destroy = reinterpret_cast<DestroyNodeFunction>(GetProcAddress(module, "wjn_destroy_node"));
+    const auto createSettingsView = reinterpret_cast<CreateSettingsViewFunction>(GetProcAddress(module, "wjn_create_settings_view"));
+    const auto destroySettingsView = reinterpret_cast<DestroySettingsViewFunction>(GetProcAddress(module, "wjn_destroy_settings_view"));
+    const auto getNodeSettingsJson = reinterpret_cast<GetNodeSettingsJsonFunction>(GetProcAddress(module, "wjn_get_node_settings_json"));
+    const auto setNodeSettingsJson = reinterpret_cast<SetNodeSettingsJsonFunction>(GetProcAddress(module, "wjn_set_node_settings_json"));
+    passed &= check(version != nullptr && count != nullptr && name != nullptr && create != nullptr && destroy != nullptr
+                        && createSettingsView != nullptr && destroySettingsView != nullptr
+                        && getNodeSettingsJson != nullptr && setNodeSettingsJson != nullptr,
+                    "adapter module exports the complete Node v2 API");
+    if (version != nullptr && count != nullptr && name != nullptr && create != nullptr && destroy != nullptr
+        && createSettingsView != nullptr && destroySettingsView != nullptr
+        && getNodeSettingsJson != nullptr && setNodeSettingsJson != nullptr) {
+        constexpr std::string_view expectedNames[] { "WASAPI In", "WASAPI Out", "System MIDI In", "System MIDI Out" };
+        passed &= check(std::string_view(version()) == "2" && count() == std::size(expectedNames),
+                        "adapter module reports four nodes");
+        for (std::uint32_t index = 0; index < count(); ++index) {
+            passed &= check(std::string_view(name(index)) == expectedNames[index], "adapter node name matches its index");
+            auto* node = create(index);
+            passed &= check(node != nullptr && node->init(), "adapter node skeleton initializes");
+            if (node != nullptr) {
+                const auto* settings = getNodeSettingsJson(node);
+                passed &= check(settings != nullptr && setNodeSettingsJson(node, settings) == 1,
+                                "adapter node round-trips its JSON settings");
+                destroySettingsView(node, createSettingsView(node, nullptr));
+                node->shutdown();
+                destroy(node);
+            }
+        }
+        passed &= check(create(count()) == nullptr, "adapter rejects an out-of-range node index");
+    }
+    FreeLibrary(module);
+    return passed;
+}
+
 }
 
 int main()
 {
     const auto directory = executableDirectory();
-    const auto passed = testApiStub(directory) && testExampleNode(directory);
+    const auto passed = testApiStub(directory) && testExampleNode(directory) && testAdapterModule(directory);
     if (!passed)
         return 1;
     std::puts("Node tests passed");
