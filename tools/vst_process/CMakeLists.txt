@@ -27,6 +27,10 @@ target_include_directories(vst_process64
 )
 target_compile_features(vst_process64 PRIVATE cxx_std_17)
 target_compile_definitions(vst_process64 PRIVATE WIN32_LEAN_AND_MEAN NOMINMAX)
+if(WJN_ENABLE_VST2)
+    target_include_directories(vst_process64 PRIVATE "${PROJECT_SOURCE_DIR}/third_party/vst2sdk")
+    target_compile_definitions(vst_process64 PRIVATE WJN_ENABLE_VST2=1)
+endif()
 target_compile_options(vst_process64 PRIVATE $<$<CXX_COMPILER_ID:MSVC>:/utf-8>)
 target_link_libraries(vst_process64 PRIVATE Shell32)
 set_target_properties(

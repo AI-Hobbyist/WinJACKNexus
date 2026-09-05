@@ -20,6 +20,7 @@ set(WJN_JACK2_ROOT
 set(WJN_OUTPUT_DIR
     "${CMAKE_CURRENT_LIST_DIR}/../../../build/bin"
     CACHE PATH "VSTProcess output directory")
+option(WJN_ENABLE_VST2 "Enable VST2 hosting (licensed use only)" OFF)
 
 add_executable(vst_process32
     "${CMAKE_CURRENT_LIST_DIR}/../src/ProcessMain.cpp"
@@ -41,6 +42,10 @@ target_include_directories(vst_process32
 )
 target_compile_features(vst_process32 PRIVATE cxx_std_17)
 target_compile_definitions(vst_process32 PRIVATE WIN32_LEAN_AND_MEAN NOMINMAX)
+if(WJN_ENABLE_VST2)
+    target_include_directories(vst_process32 PRIVATE "${CMAKE_CURRENT_LIST_DIR}/../../../third_party/vst2sdk")
+    target_compile_definitions(vst_process32 PRIVATE WJN_ENABLE_VST2=1)
+endif()
 target_compile_options(vst_process32 PRIVATE $<$<CXX_COMPILER_ID:MSVC>:/utf-8>)
 target_link_libraries(vst_process32 PRIVATE Shell32)
 set_target_properties(
