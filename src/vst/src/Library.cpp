@@ -22,6 +22,7 @@
 #include <QFileDialog>
 #include <QFormLayout>
 #include <QHBoxLayout>
+#include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QLabel>
@@ -30,6 +31,7 @@
 #include <QPointer>
 #include <QProcess>
 #include <QPushButton>
+#include <QTimer>
 #include <QUuid>
 #include <QVBoxLayout>
 #include <QWidget>
@@ -241,6 +243,7 @@ private:
     QComboBox* bits_ {};
     QComboBox* portDisplayMode_ {};
     QLabel* status_ {};
+    QPushButton* restart_ {};
 };
 
 class VstHostNode final : public WinJACKNexus::Node::INode {
@@ -259,12 +262,14 @@ public:
     bool init() noexcept override
     {
         initialized_ = true;
+        processWatcher_ = std::make_unique<QObject>();
         return reload();
     }
 
     void shutdown() noexcept override
     {
         stopProcess();
+        processWatcher_.reset();
         initialized_ = false;
     }
 
@@ -302,6 +307,11 @@ public:
     QString internalPlugin() const { return internalPlugin_; }
     QString internalPluginName() const { return internalPluginName_; }
     QString status() const { return status_; }
+    bool restartPlugin() noexcept
+    {
+        bypassed_ = false;
+        return reload();
+    }
     QString expectedClientId() const { return expectedClientId_; }
 
     QWidget* createSettingsWidget(QWidget* parent) noexcept
@@ -404,6 +414,7 @@ public:
             status_ = QStringLiteral("The required VSTProcess executable is not available.");
             return false;
         }
+        executable_ = executable;
 
         if (path_.endsWith(QStringLiteral(".vst3"), Qt::CaseInsensitive) && internalPlugin_.isEmpty()) {
             QString factoryError;
@@ -454,20 +465,61 @@ public:
         }
 #endif
 
+        return startProcess(false);
+    }
+
+private:
+    bool startProcess(bool bypass) noexcept
+    {
+        if (process_ && process_->state() != QProcess::NotRunning) {
+            status_ = QStringLiteral("The previous VSTProcess is still running.");
+            return false;
+        }
+        process_.reset();
         const auto instance = nextInstance_.fetch_add(1, std::memory_order_relaxed);
         pipeName_ = QStringLiteral("WinJACKNexus.VST.%1.%2").arg(QCoreApplication::applicationPid()).arg(instance);
         process_ = std::make_unique<QProcess>();
-        process_->setProgram(executable);
+        process_->setProgram(executable_);
         const auto pluginName = clientName_.isEmpty()
             ? (internalPluginName_.isEmpty() ? QFileInfo(path_).completeBaseName() : internalPluginName_)
             : clientName_;
         expectedClientId_ = pluginName + QStringLiteral("-") + instanceId_.left(8);
-        process_->setArguments({ QStringLiteral("--path"), path_,
-                                 QStringLiteral("--pipe"), pipeName_,
-                     QStringLiteral("--client"), expectedClientId_,
-                                 QStringLiteral("--port-display"), portDisplayModeArgument(portDisplayMode_) });
+        QStringList arguments { QStringLiteral("--path"), path_,
+                                QStringLiteral("--pipe"), pipeName_,
+                                QStringLiteral("--client"), expectedClientId_,
+                                QStringLiteral("--port-display"), portDisplayModeArgument(portDisplayMode_) };
         if (!internalPlugin_.isEmpty())
-            process_->setArguments(process_->arguments() + QStringList { QStringLiteral("--internal_plugin"), internalPlugin_ });
+            arguments += { QStringLiteral("--internal_plugin"), internalPlugin_ };
+        if (bypass) {
+            arguments += {
+                QStringLiteral("--bypass"),
+                QStringLiteral("--bypass-inputs"), QString::number(inputCount_),
+                QStringLiteral("--bypass-outputs"), QString::number(outputCount_)
+            };
+            for (const auto& label : inputLabels_)
+                arguments += { QStringLiteral("--bypass-input-label"), label };
+            for (const auto& label : outputLabels_)
+                arguments += { QStringLiteral("--bypass-output-label"), label };
+        }
+        process_->setArguments(arguments);
+        const auto* launchedProcess = process_.get();
+        QObject::connect(process_.get(), qOverload<int, QProcess::ExitStatus>(&QProcess::finished), processWatcher_.get(),
+                [this, launchedProcess, bypass](int exitCode, QProcess::ExitStatus) {
+            if (stopping_ || process_.get() != launchedProcess)
+                return;
+            if (bypass) {
+                status_ = QStringLiteral("The bypass VSTProcess stopped (exit %1). Restart the plugin to recover.").arg(exitCode);
+                return;
+            }
+            bypassed_ = true;
+            status_ = QStringLiteral("VSTProcess crashed (exit %1); switching this node to bypass.").arg(exitCode);
+            if (inputCount_ <= 0 && outputCount_ <= 0)
+                return;
+            QTimer::singleShot(0, processWatcher_.get(), [this, launchedProcess] {
+                if (!stopping_ && process_.get() == launchedProcess && launchedProcess->state() == QProcess::NotRunning)
+                    startProcess(true);
+            });
+        });
         process_->start();
         if (!process_->waitForStarted(3000)) {
             status_ = QStringLiteral("Unable to start VSTProcess.");
@@ -487,11 +539,24 @@ public:
             stopProcess();
             return false;
         }
-        status_ = QStringLiteral("VSTProcess is running.");
+        const auto document = QJsonDocument::fromJson(status.toUtf8());
+        if (document.isObject()) {
+            const auto details = document.object();
+            inputCount_ = details.value(QStringLiteral("inputs")).toInt(inputCount_);
+            outputCount_ = details.value(QStringLiteral("outputs")).toInt(outputCount_);
+            inputLabels_.clear();
+            for (const auto& label : details.value(QStringLiteral("inputLabels")).toArray())
+                inputLabels_.push_back(label.toString());
+            outputLabels_.clear();
+            for (const auto& label : details.value(QStringLiteral("outputLabels")).toArray())
+                outputLabels_.push_back(label.toString());
+        }
+        bypassed_ = bypass;
+        status_ = bypass ? QStringLiteral("VSTProcess is bypassing audio after a plugin crash.")
+                          : QStringLiteral("VSTProcess is running.");
         return true;
     }
 
-private:
     void requestShutdown() noexcept
     {
         sendPipeCommand("quit\n", 3000);
@@ -529,6 +594,7 @@ private:
     {
         if (!process_)
             return;
+        stopping_ = true;
         requestShutdown();
         if (!process_->waitForFinished(5000) && process_->state() != QProcess::NotRunning) {
             status_ = QStringLiteral("VSTProcess did not exit cleanly; terminating its sandbox.");
@@ -536,6 +602,7 @@ private:
             process_->waitForFinished(1000);
         }
         process_.reset();
+        stopping_ = false;
     }
 
     inline static std::atomic_uint64_t nextInstance_ { 1 };
@@ -548,9 +615,17 @@ private:
     QString internalPlugin_;
     QString internalPluginName_;
     QString expectedClientId_;
+    QString executable_;
     ProcessBits bits_ { ProcessBits::automatic };
     PortDisplayMode portDisplayMode_ { PortDisplayMode::defaultNames };
     std::unique_ptr<QProcess> process_;
+    std::unique_ptr<QObject> processWatcher_;
+    VstInt32 inputCount_ {};
+    VstInt32 outputCount_ {};
+    QStringList inputLabels_;
+    QStringList outputLabels_;
+    bool stopping_ {};
+    bool bypassed_ {};
     std::string serializedSettings_;
 };
 
@@ -585,9 +660,11 @@ SettingsWidget::SettingsWidget(VstHostNode& node, QWidget* parent)
     form->addRow(QStringLiteral("Port display"), portDisplayMode_);
     layout->addLayout(form);
     auto* reload = new QPushButton(QStringLiteral("Apply and reload"), this);
+    restart_ = new QPushButton(QStringLiteral("Restart plugin"), this);
     status_ = new QLabel(this);
     status_->setWordWrap(true);
     layout->addWidget(reload);
+    layout->addWidget(restart_);
     layout->addWidget(status_);
     setStyleSheet(QStringLiteral(
         "QLineEdit, QComboBox { color: #f4f7fb; background: #172432; border: 1px solid #6d91ae; min-height: 26px; padding: 1px 6px; }"
@@ -609,12 +686,17 @@ SettingsWidget::SettingsWidget(VstHostNode& node, QWidget* parent)
                             selectedPath == node_.pluginPath() ? node_.internalPluginName() : QString {});
         refresh();
     });
+    connect(restart_, &QPushButton::clicked, this, [this] {
+        node_.restartPlugin();
+        refresh();
+    });
     refresh();
 }
 
 void SettingsWidget::refresh()
 {
     status_->setText(node_.status());
+    restart_->setEnabled(!node_.pluginPath().isEmpty());
 }
 
 }

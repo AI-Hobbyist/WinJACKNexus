@@ -86,6 +86,11 @@ struct Options final {
     std::wstring pipeName;
     std::wstring internalPlugin;
     std::wstring portDisplayMode { L"default" };
+    VstInt32 bypassInputs {};
+    VstInt32 bypassOutputs {};
+    std::vector<std::string> bypassInputLabels;
+    std::vector<std::string> bypassOutputLabels;
+    bool bypass {};
     bool help {};
 };
 
@@ -96,7 +101,7 @@ void printUsage()
                << L"|plugin.dll"
 #endif
                << L"> --pipe <name> [--client <name>]"
-               << L" [--internal_plugin <name>]\n";
+               << L" [--internal_plugin <name>] [--bypass --bypass-inputs <count> --bypass-outputs <count>]\n";
 }
 
 bool readOptionValue(int& index, int argc, wchar_t* argv[], std::wstring& value)
@@ -106,6 +111,8 @@ bool readOptionValue(int& index, int argc, wchar_t* argv[], std::wstring& value)
     value = argv[index];
     return !value.empty();
 }
+
+std::string utf8FromWide(const std::wstring& value);
 
 bool parseOptions(int argc, wchar_t* argv[], Options& options)
 {
@@ -140,6 +147,35 @@ bool parseOptions(int argc, wchar_t* argv[], Options& options)
                 return false;
             continue;
         }
+        if (argument == L"--bypass") {
+            options.bypass = true;
+            continue;
+        }
+        if (argument == L"--bypass-inputs" || argument == L"--bypass-outputs") {
+            std::wstring value;
+            if (!readOptionValue(index, argc, argv, value))
+                return false;
+            try {
+                const auto count = std::stoi(value);
+                if (count < 0)
+                    return false;
+                if (argument == L"--bypass-inputs")
+                    options.bypassInputs = count;
+                else
+                    options.bypassOutputs = count;
+            } catch (...) {
+                return false;
+            }
+            continue;
+        }
+        if (argument == L"--bypass-input-label" || argument == L"--bypass-output-label") {
+            std::wstring value;
+            if (!readOptionValue(index, argc, argv, value))
+                return false;
+            auto& labels = argument == L"--bypass-input-label" ? options.bypassInputLabels : options.bypassOutputLabels;
+            labels.push_back(utf8FromWide(value));
+            continue;
+        }
         return false;
     }
     return !options.path.empty();
@@ -165,6 +201,37 @@ std::wstring normalizedPipeName(std::wstring value)
     return std::wstring(prefix) + value;
 }
 
+std::string jsonString(std::string_view value)
+{
+    std::string result { '"' };
+    for (const auto character : value) {
+        switch (character) {
+        case '"': result += "\\\""; break;
+        case '\\': result += "\\\\"; break;
+        case '\b': result += "\\b"; break;
+        case '\f': result += "\\f"; break;
+        case '\n': result += "\\n"; break;
+        case '\r': result += "\\r"; break;
+        case '\t': result += "\\t"; break;
+        default: result += character; break;
+        }
+    }
+    result += '"';
+    return result;
+}
+
+std::string jsonArray(const std::vector<std::string>& values)
+{
+    std::string result { "[" };
+    for (std::size_t index = 0; index < values.size(); ++index) {
+        if (index != 0)
+            result += ',';
+        result += jsonString(values[index]);
+    }
+    result += ']';
+    return result;
+}
+
 class AudioPlugin {
 public:
     virtual ~AudioPlugin() = default;
@@ -176,6 +243,43 @@ public:
     virtual std::vector<std::string> outputBusNames() const { return {}; }
     virtual bool openEditor(std::string& error) { error = "Plugin editor is not available"; return false; }
     virtual void closeEditor() noexcept {}
+};
+
+class BypassPlugin final : public AudioPlugin {
+public:
+    BypassPlugin(VstInt32 inputCount, VstInt32 outputCount,
+                 std::vector<std::string> inputLabels, std::vector<std::string> outputLabels)
+        : inputCount_(inputCount)
+        , outputCount_(outputCount)
+        , inputLabels_(std::move(inputLabels))
+        , outputLabels_(std::move(outputLabels))
+    {
+    }
+
+    void process(float** inputs, float** outputs, VstInt32 frames) noexcept override
+    {
+        for (VstInt32 channel = 0; channel < outputCount_; ++channel) {
+            auto* output = outputs == nullptr ? nullptr : outputs[channel];
+            if (output == nullptr)
+                continue;
+            const auto* input = inputs != nullptr && channel < inputCount_ ? inputs[channel] : nullptr;
+            if (input != nullptr)
+                std::copy_n(input, frames, output);
+            else
+                std::fill_n(output, frames, 0.0F);
+        }
+    }
+
+    VstInt32 inputCount() const noexcept override { return inputCount_; }
+    VstInt32 outputCount() const noexcept override { return outputCount_; }
+    std::vector<std::string> inputBusNames() const override { return inputLabels_; }
+    std::vector<std::string> outputBusNames() const override { return outputLabels_; }
+
+private:
+    VstInt32 inputCount_ {};
+    VstInt32 outputCount_ {};
+    std::vector<std::string> inputLabels_;
+    std::vector<std::string> outputLabels_;
 };
 
 class EditorWindow final {
@@ -1346,9 +1450,15 @@ private:
         const char* response = "{\"ok\":false,\"error\":\"unknown command\"}\n";
         if (command.find("ping") != std::string_view::npos)
             response = "{\"ok\":true,\"reply\":\"pong\"}\n";
-        else if (command.find("status") != std::string_view::npos)
-            response = jack_.isActive() ? "{\"ok\":true,\"active\":true}\n"
-                                    : "{\"ok\":true,\"active\":false}\n";
+        else if (command.find("status") != std::string_view::npos) {
+            responseStorage_ = jack_.isActive()
+                ? "{\"ok\":true,\"active\":true,\"inputs\":" + std::to_string(plugin_.inputCount())
+                    + ",\"outputs\":" + std::to_string(plugin_.outputCount())
+                    + ",\"inputLabels\":" + jsonArray(plugin_.inputBusNames())
+                    + ",\"outputLabels\":" + jsonArray(plugin_.outputBusNames()) + "}\n"
+                : "{\"ok\":true,\"active\":false}\n";
+            response = responseStorage_.c_str();
+        }
         else if (command.find("open-editor") != std::string_view::npos) {
             std::string error;
             responseStorage_ = plugin_.openEditor(error)
@@ -1394,7 +1504,10 @@ int wmain(int argc, wchar_t* argv[])
     const auto extension = std::filesystem::path(options.path).extension().wstring();
     std::unique_ptr<AudioPlugin> plugin;
     std::string error;
-    if (extension == L".vst3") {
+    if (options.bypass) {
+        plugin = std::make_unique<BypassPlugin>(options.bypassInputs, options.bypassOutputs,
+                                                std::move(options.bypassInputLabels), std::move(options.bypassOutputLabels));
+    } else if (extension == L".vst3") {
         auto vst3 = std::make_unique<Vst3Plugin>();
         if (!vst3->load(options.path, options.internalPlugin, error)) {
             std::cerr << "Unable to load VST3: " << error << '\n';

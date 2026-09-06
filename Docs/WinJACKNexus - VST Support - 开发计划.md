@@ -1,10 +1,10 @@
 # WinJACKNexus - VST Support - 开发计划
 
-> 版本:v1.5
+> 版本:v1.6
 > 日期:2026-09-06
 > 依据:«WinJACKNexus 开发规范» v3.1;«VST_Prompt.md»(Docs/VST_Prompt.md);«WinJACKNexus - 接线盘 - 开发计划»
 > 内部分类名:**VST Support**
-> 现状:基础库(Common/UI/Audio/Node)与接线盘 B1–B8 已完成;V1 扫描器、V2 VSTProcess 骨架、V3 VST2 宿主与 V4 单 VST 节点集成已完成(真实插件/JACK 连线待手动验证)
+> 现状:基础库(Common/UI/Audio/Node)与接线盘 B1–B8 已完成;V1 扫描器、V2 VSTProcess 骨架、V3 VST2 宿主、V4 单 VST 节点集成与 V5 崩溃旁通/重启已完成(真实插件/JACK 连线待手动验证)
 > 本版决策:VSTProcess 为兼顾 32 位插件改用原生 C++ + VST2/VST3 SDK,不使用 Qt/JUCE 后端;VST 节点 DLL 与设置界面继续使用 Qt
 
 ---
@@ -235,7 +235,7 @@ add_subdirectory(tools/vst_process) # VSTProcess32/64.exe
 | **V2 VSTProcess 骨架** | VSTProcess64/32(原生 C++ + VST3 SDK Hosting + IPC 命名管道 + JACK 客户端,不使用 Qt/JUCE)+ 崩溃退出码 | ✅ 已完成(编译验证) | 4~6 天 | x64/x86 目标均编译成功;CLI 与 VST3 加载失败退出码已验证;真实 VST3 + JACK 的端口出现/进程退出端口移除由用户手动验证 |
 | **V3 VST2 宿主**(`WJN_ENABLE_VST2=ON` 时编译) | 原生 C++ 自实现 AEffect 加载/`processReplacing`/参数与 chunk 状态 API;VSTProcess32 验证 | ✅ 已完成(编译与 fixture 验证) | 4~6 天 | 启用开关后 x64/x86 目标均编译成功;VST2 fixture 完成 AEffect→JACK 生命周期;Shell `internal_plugin` 名称可解析;真实 VST2 的 fxp/fxb 文件协议与节点 IPC 留待 V4 |
 | **V4 节点集成** | `mod_vst_host.dll`(Qt `INode`、标准设置导出、插件路径/客户端名、PE 位宽自动分发、命名管道启动与优雅重载);VST2 Shell/VST3 多 class 选择与持久化;端口显示模式与标签 fallback | ✅ 已完成(编译与 DLL 契约验证) | 4~6 天 | Debug 生成 `nodes/vst/mod_vst_host.dll` 与 `VSTProcess64.exe`;动态加载、Node API 导出、节点创建、无插件初始化和 JSON 设置往返测试通过。Shell/VST3 class 使用内部插件名作为默认客户端名;端口默认优先 VST3 bus/VST2 pin 标签,缺失时回退 JACK 默认。真实插件/JACK 由用户手动验证 |
-| **V5 旁通/重启** | 崩溃检测、Bypass 直通、节点「重启 VSTProcess」 | 📋 未开始 | 2~3 天 | 杀 VSTProcess → 节点旁通不崩主程序;重启恢复 |
+| **V5 旁通/重启** | 崩溃检测、Bypass 直通、节点「重启 VSTProcess」 | ✅ 已完成(编译与契约验证) | 2~3 天 | `QProcess::finished` 检测 sandbox 异常退出后，启动同客户端名、已知端口数和插件标签的 bypass `VSTProcess`，逐通道输入直通输出；设置面板「Restart plugin」退出旁通并重启真实插件。Debug 节点契约、VSTProcess64 构建和 bypass CLI 验证通过；真实 JACK 图端口连续性与崩溃恢复由用户手动验证 |
 | **V6 链节点** | `mod_chain_host.dll`(Qt 子 Patchbay + 槽 + chain in/out 接通主界面) | 📋 未开始 | 4~6 天 | 链窗口与主接线盘互通;槽旁通 |
 | **V7 分类栏与存档** | Patchbay VST 分类栏、端口显示方式、客户端名规则、`.wjnproj vsts[]` 存档/恢复 | 📋 未开始 | 3~4 天 | 分类拖入;工程保存恢复 |
 | **V8 集成验证** | 全链路:扫描→拖入→原生 VSTProcess 沙盒→连线→预设→存档→崩溃旁通 | 📋 未开始 | 2~3 天 | 编译通过交付,用户手动验证 |
@@ -272,4 +272,4 @@ add_subdirectory(tools/vst_process) # VSTProcess32/64.exe
 
 ---
 
-*本计划书随开发反馈迭代,修改后递增版本号。v1.5 记录 V4 Qt 单 VST 节点:标准 Node/设置导出、插件路径与客户端名配置、DLL PE 位宽自动分发、命名管道启动及优雅重载;VST2 Shell/VST3 多 class 选择与持久化;VST3 bus/VST2 pin 标签端口命名与 JACK fallback。Debug DLL 契约测试通过。旁通、链节点和存档仍按后续里程碑推进。*
+*本计划书随开发反馈迭代,修改后递增版本号。v1.6 记录 V5:VSTProcess 异常退出后，节点基于已知端口数与插件标签启动同名 bypass sandbox 做逐通道直通；设置面板可重启真实插件。Debug DLL 契约、VSTProcess64 构建和 bypass CLI 验证通过。链节点和存档仍按后续里程碑推进。*
