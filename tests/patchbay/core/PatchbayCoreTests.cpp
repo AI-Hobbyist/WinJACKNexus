@@ -24,7 +24,9 @@
 #include <WinJACKNexus/Audio/JackServerGuard.hpp>
 
 #include <algorithm>
+#include <chrono>
 #include <cstdio>
+#include <thread>
 
 namespace {
 
@@ -35,6 +37,18 @@ bool check(bool condition, const char* message)
     if (!condition)
         std::fprintf(stderr, "FAILED: %s\n", message);
     return condition;
+}
+
+bool waitForConnections(const WinJACKNexus::Audio::JackPort& port)
+{
+    for (int attempt = 0; attempt < 100; ++attempt) {
+        if (port.visitConnections([](const char*, void*) noexcept {
+                return true;
+            }, nullptr) != 0)
+            return true;
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+    return false;
 }
 
 Snapshot testSnapshot()
@@ -110,46 +124,126 @@ bool testJackSnapshot()
     }
 
     JackServerGuard server;
-    JackClient client;
-    JackClientOptions options;
-    options.name = "WJNPatchbaySnapshotTests";
-    options.autoStartServer = false;
-    if (!client.open(options)) {
+    JackClient sourceClient;
+    JackClient destinationClient;
+    JackClientOptions sourceOptions;
+    sourceOptions.name = "WJNPatchbaySnapshotSource";
+    sourceOptions.autoStartServer = false;
+    JackClientOptions destinationOptions;
+    destinationOptions.name = "WJNPatchbaySnapshotDestination";
+    destinationOptions.autoStartServer = false;
+    if (!sourceClient.open(sourceOptions)) {
         JackServerOptions serverOptions;
         serverOptions.backend = L"dummy";
-        if (!server.start(serverOptions) || !server.waitUntilReady(5000) || !client.open(options)) {
+        if (!server.start(serverOptions) || !server.waitUntilReady(5000) || !sourceClient.open(sourceOptions)) {
             std::puts("JACK server unavailable; patchbay snapshot check skipped");
             return true;
         }
+    }
+    if (!destinationClient.open(destinationOptions)) {
+        std::puts("JACK destination client unavailable; patchbay snapshot check skipped");
+        return true;
     }
 
     JackPort output;
     JackPort input;
     bool passed = true;
-    passed &= check(output.registerPort(client, "snapshot_out", JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput),
+    passed &= check(output.registerPort(sourceClient, "snapshot_out", JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput),
                     "JACK snapshot output port registers");
-    passed &= check(input.registerPort(client, "snapshot_in", JACK_DEFAULT_AUDIO_TYPE, JackPortIsInput),
+    passed &= check(input.registerPort(destinationClient, "snapshot_in", JACK_DEFAULT_AUDIO_TYPE, JackPortIsInput),
                     "JACK snapshot input port registers");
-    passed &= check(client.activate(), "JACK snapshot client activates");
-    passed &= check(JackGraph::connect(client, output.name(), input.name()), "JACK snapshot ports connect");
+    passed &= check(sourceClient.activate() && destinationClient.activate(), "JACK snapshot clients activate");
+    const auto connected = JackGraph::connect(sourceClient, output.name(), input.name());
+    passed &= check(connected && waitForConnections(output), "JACK snapshot ports connect");
 
-    const auto snapshot = Snapshot::capture(client);
+    const auto snapshot = Snapshot::capture(sourceClient);
     passed &= check(std::any_of(snapshot.clients.cbegin(), snapshot.clients.cend(), [](const ClientInfo& value) {
-                        return value.id == "WJNPatchbaySnapshotTests";
+                        return value.id == "WJNPatchbaySnapshotSource";
                     }),
                     "snapshot contains the JACK client");
     passed &= check(std::any_of(snapshot.ports.cbegin(), snapshot.ports.cend(), [](const PortInfo& value) {
-                        return value.id == "WJNPatchbaySnapshotTests:snapshot_out"
+                        return value.id == "WJNPatchbaySnapshotSource:snapshot_out"
                             && value.kind == PortKind::audio
                             && value.direction == Direction::output;
                     }),
                     "snapshot contains the audio output port");
     passed &= check(std::any_of(snapshot.connections.cbegin(), snapshot.connections.cend(), [](const ConnectionInfo& value) {
-                        return value.sourcePortId == "WJNPatchbaySnapshotTests:snapshot_out"
-                            && value.destinationPortId == "WJNPatchbaySnapshotTests:snapshot_in";
+                        return value.sourcePortId == "WJNPatchbaySnapshotSource:snapshot_out"
+                            && value.destinationPortId == "WJNPatchbaySnapshotDestination:snapshot_in";
                     }),
                     "snapshot contains the JACK connection");
 
+    destinationClient.deactivate();
+    sourceClient.deactivate();
+    destinationClient.close();
+    sourceClient.close();
+    server.stop();
+    return passed;
+}
+
+bool testSubGraphInterfacePorts()
+{
+    using namespace WinJACKNexus::Audio;
+
+    if (!JackApi::instance().load()) {
+        std::puts("JACK runtime unavailable; subgraph interface port check skipped");
+        return true;
+    }
+
+    JackServerGuard server;
+    JackClient client;
+    JackClientOptions options;
+    options.name = "WJNS2InterfaceTests";
+    options.autoStartServer = false;
+    if (!client.open(options)) {
+        JackServerOptions serverOptions;
+        serverOptions.backend = L"dummy";
+        if (!server.start(serverOptions) || !server.waitUntilReady(5000) || !client.open(options)) {
+            std::puts("JACK server unavailable; subgraph interface port check skipped");
+            return true;
+        }
+    }
+
+    JackPort audioIn;
+    JackPort audioOut;
+    JackPort midiIn;
+    JackPort midiOut;
+    bool passed = true;
+    passed &= check(audioIn.registerPort(client, "sub_s2_audio_in", JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput),
+                    "S2 audio input interface registers as a JACK output");
+    passed &= check(audioOut.registerPort(client, "sub_s2_audio_out", JACK_DEFAULT_AUDIO_TYPE, JackPortIsInput),
+                    "S2 audio output interface registers as a JACK input");
+    passed &= check(midiIn.registerPort(client, "sub_s2_midi_in", JACK_DEFAULT_MIDI_TYPE, JackPortIsOutput),
+                    "S2 MIDI input interface registers as a JACK output");
+    passed &= check(midiOut.registerPort(client, "sub_s2_midi_out", JACK_DEFAULT_MIDI_TYPE, JackPortIsInput),
+                    "S2 MIDI output interface registers as a JACK input");
+    passed &= check(client.activate(), "S2 interface client activates");
+    const auto audioConnected = JackGraph::connect(client, audioIn.name(), audioOut.name());
+    const auto midiConnected = JackGraph::connect(client, midiIn.name(), midiOut.name());
+    passed &= check(audioConnected && waitForConnections(audioIn),
+                    "S2 audio interface ports connect through JACK");
+    passed &= check(midiConnected && waitForConnections(midiIn),
+                    "S2 MIDI interface ports connect through JACK");
+
+    const auto snapshot = Snapshot::capture(client);
+    const auto hasPort = [&snapshot](const std::string& id, PortKind kind, Direction direction) {
+        return std::any_of(snapshot.ports.cbegin(), snapshot.ports.cend(), [&id, kind, direction](const auto& port) {
+            return port.id == id && port.kind == kind && port.direction == direction;
+        });
+    };
+    passed &= check(hasPort("WJNS2InterfaceTests:sub_s2_audio_in", PortKind::audio, Direction::output),
+                    "snapshot preserves the S2 audio input interface semantics");
+    passed &= check(hasPort("WJNS2InterfaceTests:sub_s2_audio_out", PortKind::audio, Direction::input),
+                    "snapshot preserves the S2 audio output interface semantics");
+    passed &= check(hasPort("WJNS2InterfaceTests:sub_s2_midi_in", PortKind::midi, Direction::output),
+                    "snapshot preserves the S2 MIDI input interface semantics");
+    passed &= check(hasPort("WJNS2InterfaceTests:sub_s2_midi_out", PortKind::midi, Direction::input),
+                    "snapshot preserves the S2 MIDI output interface semantics");
+
+    audioIn.unregisterPort();
+    audioOut.unregisterPort();
+    midiIn.unregisterPort();
+    midiOut.unregisterPort();
     client.deactivate();
     client.close();
     server.stop();
@@ -160,7 +254,11 @@ bool testJackSnapshot()
 
 int main()
 {
-    const bool passed = testGraphModel() && testSearchModel() && testJackSnapshot();
+    bool passed = true;
+    passed &= testGraphModel();
+    passed &= testSearchModel();
+    passed &= testJackSnapshot();
+    passed &= testSubGraphInterfacePorts();
     if (passed)
         std::puts("Patchbay core tests passed");
     return passed ? 0 : 1;

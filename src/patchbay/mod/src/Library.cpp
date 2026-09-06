@@ -16,6 +16,7 @@
 #include <WinJACKNexus/Node/NodeApi.h>
 #include <WinJACKNexus/Audio/JackApi.hpp>
 #include <WinJACKNexus/Audio/JackClient.hpp>
+#include <WinJACKNexus/Audio/JackPort.hpp>
 #include <WinJACKNexus/Patchbay/Core/Snapshot.hpp>
 #include <WinJACKNexus/UI/NativeWindowUtils.hpp>
 
@@ -50,6 +51,8 @@
 #include <QVBoxLayout>
 
 #include <algorithm>
+#include <array>
+#include <cctype>
 #include <cstdint>
 #include <map>
 #include <memory>
@@ -100,7 +103,8 @@ protected:
 			return;
 		const auto modulePath = item->data(0, Qt::UserRole).toString();
 		const auto subGraphName = item->data(0, Qt::UserRole + 2).toString();
-		if (modulePath.isEmpty() && subGraphName.isEmpty())
+		const auto interfaceType = item->data(0, Qt::UserRole + 3).toString();
+		if (modulePath.isEmpty() && subGraphName.isEmpty() && interfaceType.isEmpty())
 			return;
 
 		auto* mimeData = new QMimeData;
@@ -108,7 +112,9 @@ protected:
 			const auto payload = modulePath.toUtf8() + '\n' + QByteArray::number(item->data(0, Qt::UserRole + 1).toUInt());
 			mimeData->setData("application/x-winjacknexus-module-node", payload);
 		} else {
-			mimeData->setData("application/x-winjacknexus-subgraph-node", subGraphName.toUtf8());
+			mimeData->setData(interfaceType.isEmpty() ? "application/x-winjacknexus-subgraph-node"
+			                                        : "application/x-winjacknexus-interface-node",
+			                 (interfaceType.isEmpty() ? subGraphName : interfaceType).toUtf8());
 		}
 		auto* drag = new QDrag(this);
 		drag->setMimeData(mimeData);
@@ -134,6 +140,12 @@ void addSubGraphItem(QTreeWidgetItem* category)
 {
 	auto* item = new QTreeWidgetItem(category, { QStringLiteral("Sub Graph") });
 	item->setData(0, Qt::UserRole + 2, QStringLiteral("Sub Graph"));
+}
+
+void addInterfaceItem(QTreeWidgetItem* category, const QString& type, const QString& name)
+{
+	auto* item = new QTreeWidgetItem(category, { name });
+	item->setData(0, Qt::UserRole + 3, type);
 }
 
 bool clientCanSplit(const WinJACKNexus::Patchbay::Core::Snapshot& snapshot, const std::string& clientId)
@@ -174,6 +186,37 @@ struct ModuleNodeInfo final {
 	QString modulePath;
 	std::uint32_t index = 0;
 };
+
+struct SubGraphPortSet final {
+	std::vector<WinJACKNexus::Audio::JackPort> ports;
+	std::vector<PatchbayInterfaceInfo> interfaces;
+};
+
+struct SubGraphInterfaceDefinition final {
+	const char* type;
+	const char* jackType;
+	unsigned long flags;
+};
+
+const std::array<SubGraphInterfaceDefinition, 4>& subGraphInterfaceDefinitions()
+{
+	static const std::array definitions {
+		SubGraphInterfaceDefinition { "audio_in", JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput },
+		SubGraphInterfaceDefinition { "audio_out", JACK_DEFAULT_AUDIO_TYPE, JackPortIsInput },
+		SubGraphInterfaceDefinition { "midi_in", JACK_DEFAULT_MIDI_TYPE, JackPortIsOutput },
+		SubGraphInterfaceDefinition { "midi_out", JACK_DEFAULT_MIDI_TYPE, JackPortIsInput }
+	};
+	return definitions;
+}
+
+std::string jackSafeToken(std::string value)
+{
+	for (auto& character : value) {
+		if (std::isalnum(static_cast<unsigned char>(character)) == 0 && character != '_' && character != '-')
+			character = '_';
+	}
+	return value;
+}
 
 bool moduleRecordsEqual(const std::vector<PatchbayProjectModule>& left,
 	                       const std::vector<PatchbayProjectModule>& right)
@@ -254,6 +297,11 @@ void populateNodeLibrary(QTreeWidget* tree,
 	auto* subGraphs = addCategory(tree, QStringLiteral("Sub Graph"));
 	addSubGraphItem(subGraphs);
 	if (subGraphContext) {
+		auto* interfaces = addCategory(tree, QStringLiteral("Sub Graph Interface"));
+		addInterfaceItem(interfaces, QStringLiteral("audio_in"), QStringLiteral("Sub Graph Audio In"));
+		addInterfaceItem(interfaces, QStringLiteral("audio_out"), QStringLiteral("Sub Graph Audio Out"));
+		addInterfaceItem(interfaces, QStringLiteral("midi_in"), QStringLiteral("Sub Graph MIDI In"));
+		addInterfaceItem(interfaces, QStringLiteral("midi_out"), QStringLiteral("Sub Graph MIDI Out"));
 		applyNodeLibraryFilter(tree, filterQuery);
 		return;
 	}
@@ -768,7 +816,16 @@ public:
 			window_->resize(1440, 860);
 			PatchbayCanvas::applyTheme(false);
 
+			auto connectJackPort = [this](const std::string& source, const std::string& destination) {
+				return jackObserver_.isOpen()
+					&& WinJACKNexus::Audio::JackApi::instance().connect(jackObserver_.nativeHandle(), source.c_str(), destination.c_str()) == 0;
+			};
+			auto disconnectJackPort = [this](const std::string& source, const std::string& destination) {
+				if (jackObserver_.isOpen())
+					WinJACKNexus::Audio::JackApi::instance().disconnect(jackObserver_.nativeHandle(), source.c_str(), destination.c_str());
+			};
 			auto* canvas = new PatchbayCanvas(window_);
+			canvas->setConnectionConnectHandler(connectJackPort);
 			canvas->setConnectionDisconnectHandler([this](const std::string& source, const std::string& destination) {
 				if (jackObserver_.isOpen())
 					WinJACKNexus::Audio::JackApi::instance().disconnect(jackObserver_.nativeHandle(), source.c_str(), destination.c_str());
@@ -806,6 +863,7 @@ public:
 			};
 			nodeTree->setProperty("filterQuery", nodeFilter->text());
 			auto subGraphCanvases = std::make_shared<std::map<std::string, QPointer<PatchbayCanvas>>>();
+			auto subGraphPorts = std::make_shared<std::map<std::string, std::shared_ptr<SubGraphPortSet>>>();
 			auto refreshNodeLibrary = std::make_shared<std::function<void()>>();
 			*refreshNodeLibrary = [canvasTabs, nodeTree, loadedModuleClientIds, this] {
 				auto* activeCanvas = dynamic_cast<PatchbayCanvas*>(canvasTabs->currentWidget());
@@ -819,11 +877,26 @@ public:
 				                   nodeTree->property("filterQuery").toString(), activeCanvas->sceneContext().isSubGraph);
 			};
 			(*refreshNodeLibrary)();
-			QObject::connect(canvasTabs, &QTabWidget::currentChanged, window_, [refreshNodeLibrary](int) {
-				(*refreshNodeLibrary)();
+			QObject::connect(canvasTabs, &QTabWidget::currentChanged, window_, [canvasTabs, refreshNodeLibrary](int) {
+				QTimer::singleShot(0, canvasTabs, [refreshNodeLibrary] {
+					(*refreshNodeLibrary)();
+				});
 			});
+			auto updateSubGraphTabTitle = std::make_shared<std::function<void(PatchbayCanvas*, const std::string&, const QString&)>>();
+			*updateSubGraphTabTitle = [canvasTabs, subGraphCanvases](PatchbayCanvas* parentCanvas, const std::string& subGraphId, const QString& name) {
+				if (parentCanvas == nullptr)
+					return;
+				const auto contextId = parentCanvas->sceneContext().id + "/" + subGraphId;
+				const auto child = subGraphCanvases->find(contextId);
+				if (child == subGraphCanvases->end() || child->second.isNull())
+					return;
+				const auto tabIndex = canvasTabs->indexOf(child->second.data());
+				if (tabIndex >= 0)
+					canvasTabs->setTabText(tabIndex, name.isEmpty() ? QStringLiteral("Sub Graph") : name);
+			};
 			auto openSubGraph = std::make_shared<std::function<void(PatchbayCanvas*, const std::string&)>>();
-			*openSubGraph = [canvasTabs, subGraphCanvases, refreshNodeLibrary, openSubGraph](PatchbayCanvas* parentCanvas, const std::string& subGraphId) {
+			const std::weak_ptr<std::function<void(PatchbayCanvas*, const std::string&)>> openSubGraphWeak = openSubGraph;
+			*openSubGraph = [canvasTabs, subGraphCanvases, subGraphPorts, refreshNodeLibrary, updateSubGraphTabTitle, openSubGraphWeak, connectJackPort, disconnectJackPort, this](PatchbayCanvas* parentCanvas, const std::string& subGraphId) {
 				if (parentCanvas == nullptr || !parentCanvas->isSubGraphNode(subGraphId))
 					return;
 				const auto contextId = parentCanvas->sceneContext().id + "/" + subGraphId;
@@ -841,35 +914,105 @@ public:
 				context.title = parentCanvas->subGraphName(subGraphId);
 				context.isSubGraph = true;
 				auto* childCanvas = new PatchbayCanvas(context, canvasTabs);
-				childCanvas->setSubGraphNodeDoubleClickHandler([openSubGraph, childCanvas](const std::string& childId) {
-					(*openSubGraph)(childCanvas, childId);
+				QPointer<PatchbayCanvas> childCanvasGuard(childCanvas);
+				childCanvas->setConnectionConnectHandler(connectJackPort);
+				childCanvas->setConnectionDisconnectHandler(disconnectJackPort);
+				childCanvas->setInterfaceNodeAddedHandler([this, subGraphPorts, contextId](PatchbayInterfaceInfo& interfaceNode) {
+					if (!jackObserver_.isOpen())
+						return false;
+					const auto definition = std::find_if(subGraphInterfaceDefinitions().cbegin(), subGraphInterfaceDefinitions().cend(), [&interfaceNode](const auto& value) {
+						return interfaceNode.type == QString::fromLatin1(value.type);
+					});
+					if (definition == subGraphInterfaceDefinitions().cend())
+						return false;
+					auto& portSet = (*subGraphPorts)[contextId];
+					if (portSet == nullptr)
+						portSet = std::make_shared<SubGraphPortSet>();
+					const auto portName = "sub_" + jackSafeToken(contextId) + "_" + definition->type;
+					portSet->ports.emplace_back();
+					if (!portSet->ports.back().registerPort(jackObserver_, portName.c_str(), definition->jackType, definition->flags)) {
+						portSet->ports.pop_back();
+						return false;
+					}
+					const auto* registeredName = portSet->ports.back().name();
+					if (registeredName == nullptr || *registeredName == '\0') {
+						portSet->ports.pop_back();
+						return false;
+					}
+					interfaceNode.portId = registeredName;
+					portSet->interfaces.push_back(interfaceNode);
+					return true;
+				});
+				childCanvas->setInterfaceNodeRenamedHandler([subGraphPorts, contextId](const std::string& interfaceId, const QString& name) {
+					const auto portSet = subGraphPorts->find(contextId);
+					if (portSet == subGraphPorts->end() || portSet->second == nullptr)
+						return;
+					const auto interfaceNode = std::find_if(portSet->second->interfaces.begin(), portSet->second->interfaces.end(), [&interfaceId](const auto& value) {
+						return value.id == interfaceId;
+					});
+					if (interfaceNode != portSet->second->interfaces.end())
+						interfaceNode->name = name;
+				});
+				childCanvas->setSubGraphNodeDoubleClickHandler([openSubGraphWeak, childCanvasGuard](const std::string& childId) {
+					if (childCanvasGuard.isNull())
+						return;
+					QTimer::singleShot(0, childCanvasGuard.data(), [openSubGraphWeak, childCanvasGuard, childId] {
+						if (const auto openSubGraph = openSubGraphWeak.lock(); openSubGraph != nullptr && !childCanvasGuard.isNull())
+							(*openSubGraph)(childCanvasGuard.data(), childId);
+					});
+				});
+				childCanvas->setSubGraphNodeRenamedHandler([updateSubGraphTabTitle, childCanvasGuard](const std::string& childId, const QString& name) {
+					if (!childCanvasGuard.isNull())
+						(*updateSubGraphTabTitle)(childCanvasGuard.data(), childId, name);
 				});
 				childCanvas->setSubGraphNodeDropHandler([childCanvas](const QString& name, const QPointF& position) {
 					return !childCanvas->addSubGraph(name, position).empty();
 				});
+				childCanvas->setInterfaceNodeDropHandler([childCanvas](const QString& type, const QPointF& position) {
+					return childCanvas->addInterfaceNode(type, position);
+				});
+				if (jackObserver_.isOpen())
+					childCanvas->setSnapshot(WinJACKNexus::Patchbay::Core::Snapshot::capture(jackObserver_));
+				const auto savedPorts = subGraphPorts->find(contextId);
+				if (savedPorts != subGraphPorts->end() && savedPorts->second != nullptr)
+					childCanvas->setInterfaceNodes(savedPorts->second->interfaces);
 				const auto tabTitle = context.title.isEmpty() ? QStringLiteral("Sub Graph") : context.title;
 				const auto tabIndex = canvasTabs->addTab(childCanvas, tabTitle);
 				subGraphCanvases->emplace(contextId, childCanvas);
 				canvasTabs->setCurrentIndex(tabIndex);
-				(*refreshNodeLibrary)();
 			};
-			canvas->setSubGraphNodeDoubleClickHandler([openSubGraph, canvas](const std::string& subGraphId) {
-				(*openSubGraph)(canvas, subGraphId);
+			QPointer<PatchbayCanvas> canvasGuard(canvas);
+			canvas->setSubGraphNodeDoubleClickHandler([openSubGraph, canvasGuard](const std::string& subGraphId) {
+				if (canvasGuard.isNull())
+					return;
+				QTimer::singleShot(0, canvasGuard.data(), [openSubGraph, canvasGuard, subGraphId] {
+					if (!canvasGuard.isNull())
+						(*openSubGraph)(canvasGuard.data(), subGraphId);
+				});
+			});
+			canvas->setSubGraphNodeRenamedHandler([updateSubGraphTabTitle, canvasGuard](const std::string& subGraphId, const QString& name) {
+				if (!canvasGuard.isNull())
+					(*updateSubGraphTabTitle)(canvasGuard.data(), subGraphId, name);
 			});
 			canvas->setSubGraphNodeDropHandler([canvas](const QString& name, const QPointF& position) {
 				return !canvas->addSubGraph(name, position).empty();
 			});
-			QObject::connect(canvasTabs, &QTabWidget::tabCloseRequested, window_, [canvasTabs, subGraphCanvases, refreshNodeLibrary](int index) {
+			QObject::connect(canvasTabs, &QTabWidget::tabCloseRequested, window_, [canvasTabs, subGraphCanvases, subGraphPorts, refreshNodeLibrary](int index) {
 				if (index <= 0)
 					return;
 				auto* widget = canvasTabs->widget(index);
-				if (auto* childCanvas = dynamic_cast<PatchbayCanvas*>(widget))
+				if (auto* childCanvas = dynamic_cast<PatchbayCanvas*>(widget)) {
 					subGraphCanvases->erase(childCanvas->sceneContext().id);
+					subGraphPorts->erase(childCanvas->sceneContext().id);
+				}
 				canvasTabs->removeTab(index);
-				delete widget;
-				(*refreshNodeLibrary)();
+				if (widget != nullptr)
+					widget->deleteLater();
+				QTimer::singleShot(0, canvasTabs, [refreshNodeLibrary] {
+					(*refreshNodeLibrary)();
+				});
 			});
-			auto refreshJackGraph = [this, canvas, nodeTree, loadedModuleClientIds] {
+			auto refreshJackGraph = [this, canvas, subGraphCanvases, refreshNodeLibrary] {
 				if (canvas->isNodeDragActive() || !jackObserver_.isOpen())
 					return;
 				const auto selectedClientId = canvas->selectedNodeId();
@@ -893,11 +1036,15 @@ public:
 					knownJackClients_.insert(client.name);
 				canvas->setSnapshot(snapshot);
 				canvas->restoreJackConnections(jackObserver_);
+				for (const auto& [contextId, child] : *subGraphCanvases) {
+					if (!child.isNull())
+						child->setSnapshot(snapshot);
+				}
 				for (const auto& [oldClientId, newClientId] : reboundClients) {
 					if (oldClientId == selectedClientId)
 						canvas->selectNode(newClientId);
 				}
-				populateNodeLibrary(nodeTree, canvas->snapshot(), knownJackClients_, loadedModuleClientIds(), nodeTree->property("filterQuery").toString());
+				(*refreshNodeLibrary)();
 			};
 			auto restoreModuleRecords = [this](const std::vector<PatchbayProjectModule>& modules) {
 					loadedModuleNodes_.clear();
@@ -974,6 +1121,12 @@ public:
 				return true;
 			};
 			QObject::connect(nodeTree, &QTreeWidget::itemDoubleClicked, window_, [canvasTabs, createModuleNode](QTreeWidgetItem* item) {
+				const auto interfaceType = item->data(0, Qt::UserRole + 3).toString();
+				if (!interfaceType.isEmpty()) {
+					if (auto* activeCanvas = dynamic_cast<PatchbayCanvas*>(canvasTabs->currentWidget()))
+						activeCanvas->addInterfaceNode(interfaceType, {});
+					return;
+				}
 				const auto subGraphName = item->data(0, Qt::UserRole + 2).toString();
 				if (!subGraphName.isEmpty()) {
 					if (auto* activeCanvas = dynamic_cast<PatchbayCanvas*>(canvasTabs->currentWidget()))
