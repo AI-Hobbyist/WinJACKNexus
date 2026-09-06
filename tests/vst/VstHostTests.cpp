@@ -68,17 +68,19 @@ int main()
 
     auto* node = createNode(0);
     expect(node != nullptr, "Unable to create VST node");
-    expect(setSettings(node, "{\"path\":\"\",\"clientName\":\"Test VST\",\"bits\":\"32\",\"portDisplayMode\":3}") == 1,
+    expect(setSettings(node, "{\"path\":\"\",\"clientName\":\"Test VST\",\"bits\":\"32\",\"portDisplayMode\":3,\"internalPlugin\":\"123456\",\"internalPluginName\":\"Test Shell Child\"}") == 1,
            "Unable to restore VST node settings");
         expect(setSettings(node, "{\"path\":\"missing.vst3\",\"clientName\":\"Test VST\",\"bits\":\"32\",\"portDisplayMode\":3}") == 1,
             "Unable to configure a VST node before adding it to the canvas");
         expect(prepareNodeForCanvas(node) == 1, "A configured VST node should be accepted for canvas insertion");
         expect(!node->init(), "A missing configured plugin should prevent VST node initialization");
-        expect(setSettings(node, "{\"path\":\"\",\"clientName\":\"Test VST\",\"bits\":\"32\",\"portDisplayMode\":3}") == 1,
+        expect(setSettings(node, "{\"path\":\"\",\"clientName\":\"Test VST\",\"bits\":\"32\",\"portDisplayMode\":3,\"internalPlugin\":\"123456\",\"internalPluginName\":\"Test Shell Child\"}") == 1,
             "Unable to restore empty VST node settings");
     const std::string settings(getSettings(node));
     expect(settings.find("Test VST") != std::string::npos && settings.find("\"bits\":\"32\"") != std::string::npos
                && settings.find("\"portDisplayMode\":3") != std::string::npos
+               && settings.find("\"internalPlugin\":\"123456\"") != std::string::npos
+               && settings.find("\"internalPluginName\":\"Test Shell Child\"") != std::string::npos
                && settings.find("\"instanceId\":") != std::string::npos,
            "VST node settings round trip failed");
     expect(showNodeGui(node) == 0, "An unstarted VST node must reject opening an editor");

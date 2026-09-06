@@ -32,6 +32,7 @@ add_executable(vst_process32
     "${WJN_VST3SDK_ROOT}/public.sdk/source/vst/hosting/module_win32.cpp"
     "${WJN_VST3SDK_ROOT}/public.sdk/source/vst/hosting/plugprovider.cpp"
     "${WJN_VST3SDK_ROOT}/public.sdk/source/vst/hosting/pluginterfacesupport.cpp"
+    "${WJN_VST3SDK_ROOT}/public.sdk/source/vst/hosting/processdata.cpp"
     "${WJN_VST3SDK_ROOT}/public.sdk/source/vst/utility/stringconvert.cpp"
     "${WJN_VST3SDK_ROOT}/public.sdk/source/vst/vstinitiids.cpp"
     "${WJN_VST3SDK_ROOT}/public.sdk/source/common/commonstringconvert.cpp"
@@ -50,7 +51,7 @@ if(WJN_ENABLE_VST2)
     target_compile_definitions(vst_process32 PRIVATE WJN_ENABLE_VST2=1)
 endif()
 target_compile_options(vst_process32 PRIVATE $<$<CXX_COMPILER_ID:MSVC>:/utf-8>)
-target_link_libraries(vst_process32 PRIVATE Shell32)
+target_link_libraries(vst_process32 PRIVATE Ole32 Shell32)
 set_target_properties(
     vst_process32
     PROPERTIES

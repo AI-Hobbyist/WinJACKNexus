@@ -194,9 +194,9 @@ WinJACKNexus 的定位:
 
 | 节点 | 形态 | 状态 | 计划书 | 备注 |
 | :--- | :--- | :--- | :--- | :--- |
-| 基础库 `WinJACKNexus::Common` | `common.dll` | 🔨 开发中 | [基础库计划](Docs/WinJACKNexus%20-%20基础库%20-%20开发计划.md) | 无锁队列/环形缓冲/实时对象/日志 |
-| 基础库 `WinJACKNexus::UI` | `ui.dll` | 🔨 开发中 | [基础库计划](Docs/WinJACKNexus%20-%20基础库%20-%20开发计划.md) | ThemeManager/窗口嵌入/自绘控件 |
-| 基础库 `WinJACKNexus::Audio` | `audio.dll` | 🔨 开发中 | [基础库计划](Docs/WinJACKNexus%20-%20基础库%20-%20开发计划.md) | JACK 封装/WASAPI/系统 MIDI |
+| 基础库 `WinJACKNexus::Common` | `common.dll` | ✅ 已完成 | [基础库计划](Docs/WinJACKNexus%20-%20基础库%20-%20开发计划.md) | 无锁队列/环形缓冲/实时对象/日志 |
+| 基础库 `WinJACKNexus::UI` | `ui.dll` | ✅ 已完成 | [基础库计划](Docs/WinJACKNexus%20-%20基础库%20-%20开发计划.md) | ThemeManager/窗口嵌入/自绘控件 |
+| 基础库 `WinJACKNexus::Audio` | `audio.dll` | ✅ 已完成 | [基础库计划](Docs/WinJACKNexus%20-%20基础库%20-%20开发计划.md) | JACK 封装/WASAPI/系统 MIDI |
 | 基础库 `WinJACKNexus::Node` | `node.dll` | ✅ 已完成(接口桩) | [基础库计划](Docs/WinJACKNexus%20-%20基础库%20-%20开发计划.md) | INode + C-API + 示例节点 |
 | Audio Adapter | `nodes/adapter/mod_adapter.dll` | ✅ 已完成(A1–A6) | [Audio Adapter 计划](Docs/WinJACKNexus%20-%20Audio%20Adapter%20-%20开发计划.md) | WASAPI In/Out、MIDI In/Out、设置面板、设备互斥与刷新、电平/力度窗口 |
 | Interactive Patchbay | `mod_patchbay.dll`(主程序同级) | ✅ 已完成(B1–B8) | [接线盘计划](Docs/WinJACKNexus%20-%20接线盘%20-%20开发计划.md) | 实时 JACK 图、拖线连通/断开、工程保存恢复、自动保存、无限画布 |

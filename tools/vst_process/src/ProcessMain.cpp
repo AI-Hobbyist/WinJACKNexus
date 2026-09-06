@@ -10,10 +10,13 @@
  */
 #include "pluginterfaces/vst/ivstcomponent.h"
 #include "pluginterfaces/vst/ivsteditcontroller.h"
+#include "pluginterfaces/vst/ivstprocesscontext.h"
+#include "pluginterfaces/base/funknownimpl.h"
 #include "pluginterfaces/gui/iplugview.h"
 #include "public.sdk/source/vst/hosting/hostclasses.h"
 #include "public.sdk/source/vst/hosting/module.h"
 #include "public.sdk/source/vst/hosting/plugprovider.h"
+#include "public.sdk/source/vst/hosting/processdata.h"
 
 #if WJN_ENABLE_VST2
 #include "pluginterfaces/vst2.x/aeffect.h"
@@ -23,6 +26,7 @@
 #include <jack/jack.h>
 
 #include <Windows.h>
+#include <objbase.h>
 
 #include <algorithm>
 #include <atomic>
@@ -44,13 +48,17 @@ constexpr int kArgumentError = 1;
 constexpr int kPluginLoadError = 2;
 constexpr int kJackError = 3;
 constexpr std::string_view kVst3AudioModuleClass = "Audio Module Class";
+const Steinberg::FUID kIPlugFrameIid(0x367FAF01, 0xAFA94693, 0x8D4DA2A0, 0xED0882A3);
 
 #if WJN_ENABLE_VST2
 VstIntPtr currentVst2UniqueId = 0;
 double currentVst2SampleRate = 48000.0;
 VstIntPtr currentVst2BlockSize = 512;
+std::atomic<HWND> currentVst2EditorWindow {};
 
-VstIntPtr VSTCALLBACK vst2HostCallback(AEffect*, VstInt32 opcode, VstInt32, VstIntPtr, void*, float)
+bool resizeClientArea(HWND window, SIZE clientSize) noexcept;
+
+VstIntPtr VSTCALLBACK vst2HostCallback(AEffect*, VstInt32 opcode, VstInt32 index, VstIntPtr value, void*, float)
 {
     if (opcode == audioMasterVersion)
         return 2400;
@@ -60,6 +68,12 @@ VstIntPtr VSTCALLBACK vst2HostCallback(AEffect*, VstInt32 opcode, VstInt32, VstI
         return static_cast<VstIntPtr>(currentVst2SampleRate);
     if (opcode == audioMasterGetBlockSize)
         return currentVst2BlockSize;
+    if (opcode == __audioMasterNeedIdleDeprecated)
+        return 1;
+    if (opcode == audioMasterSizeWindow) {
+        const auto window = currentVst2EditorWindow.load();
+        return window != nullptr && resizeClientArea(window, { index, static_cast<LONG>(value) }) ? 1 : 0;
+    }
     return 0;
 }
 
@@ -158,16 +172,105 @@ public:
     virtual void process(float**, float**, VstInt32) noexcept = 0;
     virtual VstInt32 inputCount() const noexcept = 0;
     virtual VstInt32 outputCount() const noexcept = 0;
+    virtual std::vector<std::string> inputBusNames() const { return {}; }
+    virtual std::vector<std::string> outputBusNames() const { return {}; }
     virtual bool openEditor(std::string& error) { error = "Plugin editor is not available"; return false; }
     virtual void closeEditor() noexcept {}
 };
 
 class EditorWindow final {
 public:
-    ~EditorWindow() { close(); }
+    ~EditorWindow() { stop(); }
 
-    bool open(const wchar_t* title, SIZE clientSize, std::function<bool(HWND)> attach, std::function<void()> detach, std::string& error)
+    bool start(std::string& error)
     {
+        if (dispatcher_ != nullptr)
+            return true;
+        ready_ = CreateEventW(nullptr, TRUE, FALSE, nullptr);
+        if (ready_ == nullptr) {
+            error = "Unable to create editor synchronization event";
+            return false;
+        }
+        thread_ = std::thread([this] {
+            const auto comResult = CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
+            const bool comInitialized = SUCCEEDED(comResult);
+            WNDCLASSW windowClass {};
+            windowClass.lpfnWndProc = &EditorWindow::windowProcedure;
+            windowClass.hInstance = GetModuleHandleW(nullptr);
+            windowClass.lpszClassName = L"WinJACKNexusVstEditor";
+            RegisterClassW(&windowClass);
+            dispatcher_ = CreateWindowExW(0, windowClass.lpszClassName, L"", 0, 0, 0, 0, 0,
+                                          HWND_MESSAGE, nullptr, windowClass.hInstance, this);
+            SetEvent(ready_);
+            MSG message {};
+            while (GetMessageW(&message, nullptr, 0, 0) > 0) {
+                TranslateMessage(&message);
+                DispatchMessageW(&message);
+            }
+            dispatcher_ = nullptr;
+            if (comInitialized)
+                CoUninitialize();
+        });
+        WaitForSingleObject(ready_, 3000);
+        CloseHandle(ready_);
+        ready_ = nullptr;
+        if (dispatcher_ != nullptr)
+            return true;
+        if (thread_.joinable())
+            thread_.join();
+        error = "Unable to start the Win32 editor UI thread";
+        return false;
+    }
+
+    bool run(std::function<bool()> task, std::string& error)
+    {
+        if (!start(error))
+            return false;
+        std::lock_guard lock(taskMutex_);
+        taskComplete_ = CreateEventW(nullptr, TRUE, FALSE, nullptr);
+        if (taskComplete_ == nullptr) {
+            error = "Unable to create editor task event";
+            return false;
+        }
+        task_ = std::move(task);
+        const auto dispatcher = dispatcher_.load();
+        if (dispatcher == nullptr || !PostMessageW(dispatcher, kRunTaskMessage, 0, 0)
+            || WaitForSingleObject(taskComplete_, 3000) != WAIT_OBJECT_0) {
+            CloseHandle(taskComplete_);
+            taskComplete_ = nullptr;
+            task_ = nullptr;
+            error = "The plugin editor UI thread did not complete its task";
+            return false;
+        }
+        CloseHandle(taskComplete_);
+        taskComplete_ = nullptr;
+        task_ = nullptr;
+        return taskResult_;
+    }
+
+    void stop() noexcept
+    {
+        close();
+        const auto dispatcher = dispatcher_.load();
+        if (dispatcher != nullptr)
+            PostMessageW(dispatcher, WM_CLOSE, 0, 0);
+        if (thread_.joinable())
+            thread_.join();
+    }
+
+    static constexpr UINT kAttachEditorMessage = WM_APP + 1;
+
+    bool open(const wchar_t* title, SIZE clientSize, std::function<bool(HWND)> attach, std::function<void()> detach,
+              std::function<void()> idle, std::string& error)
+    {
+        if (dispatcher_ != nullptr) {
+            const auto opened = run([this, title, clientSize, attach = std::move(attach), detach = std::move(detach), idle = std::move(idle)] () mutable {
+                return openOnUiThread(title, clientSize, std::move(attach), std::move(detach), std::move(idle));
+            }, error);
+            if (!opened && error.empty())
+                error = "Unable to attach the plugin editor to a Win32 window";
+            return opened;
+        }
         if (window_ != nullptr) {
             ShowWindow(window_, SW_RESTORE);
             SetForegroundWindow(window_);
@@ -179,7 +282,19 @@ public:
             error = "Unable to create editor synchronization event";
             return false;
         }
-        thread_ = std::thread([this, title, clientSize, attach = std::move(attach), detach = std::move(detach)] {
+        attachedReady_ = CreateEventW(nullptr, TRUE, FALSE, nullptr);
+        if (attachedReady_ == nullptr) {
+            CloseHandle(ready_);
+            ready_ = nullptr;
+            error = "Unable to create editor attachment event";
+            return false;
+        }
+        attach_ = std::move(attach);
+        detach_ = std::move(detach);
+        idle_ = std::move(idle);
+        thread_ = std::thread([this, title, clientSize] {
+            const auto comResult = CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
+            const bool comInitialized = SUCCEEDED(comResult);
             WNDCLASSW windowClass {};
             windowClass.lpfnWndProc = &EditorWindow::windowProcedure;
             windowClass.hInstance = GetModuleHandleW(nullptr);
@@ -193,27 +308,45 @@ public:
                                                 CW_USEDEFAULT, CW_USEDEFAULT,
                                                 windowRect.right - windowRect.left,
                                                 windowRect.bottom - windowRect.top,
-                                                nullptr, nullptr, windowClass.hInstance, nullptr);
-            attached_ = window != nullptr && attach(window);
-            window_ = attached_ ? window : nullptr;
+                                                nullptr, nullptr, windowClass.hInstance, this);
+            window_ = window;
             SetEvent(ready_);
-            if (!attached_) {
-                if (window != nullptr)
-                    DestroyWindow(window);
-                return;
-            }
             MSG message {};
-            while (GetMessageW(&message, nullptr, 0, 0) > 0) {
-                TranslateMessage(&message);
-                DispatchMessageW(&message);
+            if (window != nullptr) {
+                while (GetMessageW(&message, nullptr, 0, 0) > 0) {
+                    TranslateMessage(&message);
+                    DispatchMessageW(&message);
+                }
             }
-            detach();
+            KillTimer(window, 1);
+            if (attached_ && detach_)
+                detach_();
+            attach_ = nullptr;
+            detach_ = nullptr;
+            idle_ = nullptr;
             window_ = nullptr;
+            if (comInitialized)
+                CoUninitialize();
         });
         WaitForSingleObject(ready_, 3000);
         CloseHandle(ready_);
         ready_ = nullptr;
+        const auto window = window_.load();
+        if (window == nullptr || !PostMessageW(window, kAttachEditorMessage, 0, 0)
+            || WaitForSingleObject(attachedReady_, 3000) != WAIT_OBJECT_0) {
+            if (window != nullptr)
+                PostMessageW(window, WM_CLOSE, 0, 0);
+            if (thread_.joinable())
+                thread_.join();
+            CloseHandle(attachedReady_);
+            attachedReady_ = nullptr;
+            error = "Unable to start the plugin editor on its Win32 UI thread";
+            return false;
+        }
+        CloseHandle(attachedReady_);
+        attachedReady_ = nullptr;
         if (!attached_) {
+            PostMessageW(window, WM_CLOSE, 0, 0);
             if (thread_.joinable())
                 thread_.join();
             error = "Unable to attach the plugin editor to a Win32 window";
@@ -224,6 +357,16 @@ public:
 
     void close() noexcept
     {
+        if (dispatcher_ != nullptr) {
+            std::string ignoredError;
+            run([this] {
+                const auto window = window_.load();
+                if (window != nullptr)
+                    DestroyWindow(window);
+                return true;
+            }, ignoredError);
+            return;
+        }
         if (window_ != nullptr)
             PostMessageW(window_, WM_CLOSE, 0, 0);
         if (thread_.joinable())
@@ -233,22 +376,177 @@ public:
     }
 
 private:
+    static constexpr UINT kRunTaskMessage = WM_APP + 2;
+
+    bool openOnUiThread(const wchar_t* title, SIZE clientSize, std::function<bool(HWND)> attach,
+                        std::function<void()> detach, std::function<void()> idle)
+    {
+        if (window_ != nullptr) {
+            ShowWindow(window_, SW_RESTORE);
+            SetForegroundWindow(window_);
+            return true;
+        }
+        WNDCLASSW windowClass {};
+        windowClass.lpfnWndProc = &EditorWindow::windowProcedure;
+        windowClass.hInstance = GetModuleHandleW(nullptr);
+        windowClass.lpszClassName = L"WinJACKNexusVstEditor";
+        RegisterClassW(&windowClass);
+        constexpr DWORD style = WS_OVERLAPPEDWINDOW | WS_VISIBLE;
+        RECT windowRect { 0, 0, clientSize.cx, clientSize.cy };
+        AdjustWindowRectEx(&windowRect, style, FALSE, 0);
+        attach_ = std::move(attach);
+        detach_ = std::move(detach);
+        idle_ = std::move(idle);
+        const auto window = CreateWindowExW(0, windowClass.lpszClassName, title,
+                                            style,
+                                            CW_USEDEFAULT, CW_USEDEFAULT,
+                                            windowRect.right - windowRect.left,
+                                            windowRect.bottom - windowRect.top,
+                                            nullptr, nullptr, windowClass.hInstance, this);
+        if (window == nullptr) {
+            attach_ = nullptr;
+            detach_ = nullptr;
+            idle_ = nullptr;
+            return false;
+        }
+        window_ = window;
+        attached_ = attach_(window);
+        if (!attached_) {
+            DestroyWindow(window);
+            return false;
+        }
+        if (idle_)
+            SetTimer(window, 1, 16, nullptr);
+        return true;
+    }
+
     static LRESULT CALLBACK windowProcedure(HWND window, UINT message, WPARAM wParam, LPARAM lParam)
     {
-        if (message == WM_DESTROY)
+        if (message == WM_NCCREATE) {
+            const auto* create = reinterpret_cast<const CREATESTRUCTW*>(lParam);
+            SetWindowLongPtrW(window, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(create->lpCreateParams));
+        }
+        auto* editor = reinterpret_cast<EditorWindow*>(GetWindowLongPtrW(window, GWLP_USERDATA));
+        if (message == kRunTaskMessage && editor != nullptr) {
+            editor->taskResult_ = editor->task_ && editor->task_();
+            SetEvent(editor->taskComplete_);
+            return 0;
+        }
+        if (message == kAttachEditorMessage && editor != nullptr) {
+            editor->attached_ = editor->attach_ && editor->attach_(window);
+            if (editor->attached_ && editor->idle_)
+                SetTimer(window, 1, 16, nullptr);
+            SetEvent(editor->attachedReady_);
+            return 0;
+        }
+        if (message == WM_TIMER && editor != nullptr && editor->idle_)
+            editor->idle_();
+        if (message == WM_DESTROY && editor != nullptr && window == editor->window_) {
+            KillTimer(window, 1);
+            if (editor->attached_ && editor->detach_)
+                editor->detach_();
+            editor->attached_ = false;
+            editor->attach_ = nullptr;
+            editor->detach_ = nullptr;
+            editor->idle_ = nullptr;
+            editor->window_ = nullptr;
+        }
+        if (message == WM_DESTROY && (editor == nullptr || editor->dispatcher_ == nullptr || window == editor->dispatcher_))
             PostQuitMessage(0);
         return DefWindowProcW(window, message, wParam, lParam);
     }
 
     HANDLE ready_ {};
+    HANDLE attachedReady_ {};
+    HANDLE taskComplete_ {};
     std::thread thread_;
+    std::mutex taskMutex_;
+    std::function<bool()> task_;
+    bool taskResult_ {};
+    std::atomic<HWND> dispatcher_ {};
     std::atomic<HWND> window_ {};
     std::atomic_bool attached_ {};
+    std::function<bool(HWND)> attach_;
+    std::function<void()> detach_;
+    std::function<void()> idle_;
+};
+
+bool resizeClientArea(HWND window, SIZE clientSize) noexcept
+{
+    if (window == nullptr || clientSize.cx <= 0 || clientSize.cy <= 0)
+        return false;
+    const auto style = static_cast<DWORD>(GetWindowLongPtrW(window, GWL_STYLE));
+    const auto extendedStyle = static_cast<DWORD>(GetWindowLongPtrW(window, GWL_EXSTYLE));
+    RECT windowRect { 0, 0, clientSize.cx, clientSize.cy };
+    if (!AdjustWindowRectEx(&windowRect, style, FALSE, extendedStyle))
+        return false;
+    return SetWindowPos(window, nullptr, 0, 0,
+                        windowRect.right - windowRect.left, windowRect.bottom - windowRect.top,
+                        SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE) != FALSE;
+}
+
+class Vst3EditorFrame final : public Steinberg::IPlugFrame {
+public:
+    void attach(Steinberg::IPlugView* view, HWND window) noexcept
+    {
+        view_ = view;
+        window_ = window;
+    }
+
+    void detach() noexcept
+    {
+        view_ = nullptr;
+        window_ = nullptr;
+    }
+
+    Steinberg::tresult PLUGIN_API resizeView(Steinberg::IPlugView* view, Steinberg::ViewRect* newSize) override
+    {
+        if (view == nullptr || newSize == nullptr || view != view_ || window_ == nullptr
+            || newSize->getWidth() <= 0 || newSize->getHeight() <= 0)
+            return Steinberg::kInvalidArgument;
+
+        Steinberg::ViewRect currentSize {};
+        if (view_->getSize(&currentSize) != Steinberg::kResultOk)
+            return Steinberg::kInternalError;
+        if (currentSize.getWidth() == newSize->getWidth() && currentSize.getHeight() == newSize->getHeight())
+            return Steinberg::kResultOk;
+        if (!resizeClientArea(window_, { newSize->getWidth(), newSize->getHeight() }))
+            return Steinberg::kInternalError;
+        return view_->onSize(newSize);
+    }
+
+private:
+    Steinberg::tresult PLUGIN_API queryInterface(const Steinberg::TUID iid, void** object) override
+    {
+        if (object == nullptr)
+            return Steinberg::kInvalidArgument;
+        *object = nullptr;
+        if (Steinberg::FUnknownPrivate::iidEqual(iid, kIPlugFrameIid.toTUID())
+            || Steinberg::FUnknownPrivate::iidEqual(iid, Steinberg::FUnknown::iid)) {
+            *object = this;
+            addRef();
+            return Steinberg::kResultOk;
+        }
+        return Steinberg::kNoInterface;
+    }
+
+    Steinberg::uint32 PLUGIN_API addRef() override { return 1; }
+    Steinberg::uint32 PLUGIN_API release() override { return 1; }
+
+    Steinberg::IPlugView* view_ {};
+    HWND window_ {};
 };
 
 class Vst3Plugin final : public AudioPlugin {
 public:
-    bool load(const std::wstring& path, std::string& error)
+    bool load(const std::wstring& path, const std::wstring& internalPlugin, std::string& error)
+    {
+        if (!editor_.start(error))
+            return false;
+        return editor_.run([this, &path, &internalPlugin, &error] { return loadOnUiThread(path, internalPlugin, error); }, error);
+    }
+
+    bool loadOnUiThread(const std::wstring& path, const std::wstring& internalPlugin, std::string& error)
     {
         module_ = VST3::Hosting::Module::create(utf8FromWide(path), error);
         if (!module_)
@@ -256,8 +554,19 @@ public:
 
         host_ = Steinberg::owned(new Steinberg::Vst::HostApplication);
         module_->getFactory().setHostContext(host_);
+        VST3::Optional<VST3::UID> requestedClassId;
+        if (!internalPlugin.empty()) {
+            requestedClassId = VST3::UID::fromString(utf8FromWide(internalPlugin), false);
+            if (!requestedClassId) {
+                error = "VST3 plugin class ID is invalid";
+                unloadOnUiThread();
+                return false;
+            }
+        }
         for (const auto& classInfo : module_->getFactory().classInfos()) {
             if (classInfo.category() != kVst3AudioModuleClass)
+                continue;
+            if (requestedClassId && classInfo.ID() != *requestedClassId)
                 continue;
             Steinberg::Vst::PluginContextFactory::instance().setPluginContext(host_);
             auto provider = std::make_unique<Steinberg::Vst::PlugProvider>(module_->getFactory(), classInfo);
@@ -266,6 +575,18 @@ public:
             component_ = provider->getComponentPtr();
             controller_ = provider->getControllerPtr();
             if (component_) {
+                processor_ = Steinberg::U::cast<Steinberg::Vst::IAudioProcessor>(component_);
+                if (!processor_) {
+                    component_ = nullptr;
+                    controller_ = nullptr;
+                    continue;
+                }
+                inputCount_ = channelCount(Steinberg::Vst::kInput);
+                outputCount_ = channelCount(Steinberg::Vst::kOutput);
+                inputBusNames_ = channelBusNames(Steinberg::Vst::kInput);
+                outputBusNames_ = channelBusNames(Steinberg::Vst::kOutput);
+                if (controller_)
+                    controller_->setComponentHandler(&componentHandler_);
                 provider_ = std::move(provider);
                 return true;
             }
@@ -273,21 +594,21 @@ public:
             controller_ = nullptr;
         }
 
-        error = "VST3 module does not expose an initializable audio component";
-        unload();
+        error = requestedClassId ? "VST3 module does not expose the requested audio component"
+                     : "VST3 module does not expose an initializable audio component";
+        unloadOnUiThread();
         return false;
     }
 
     void unload()
     {
         editor_.close();
-        view_ = nullptr;
-        controller_ = nullptr;
-        component_ = nullptr;
-        provider_.reset();
-        Steinberg::Vst::PluginContextFactory::instance().setPluginContext(nullptr);
-        host_ = nullptr;
-        module_.reset();
+        std::string ignoredError;
+        editor_.run([this] {
+            unloadOnUiThread();
+            return true;
+        }, ignoredError);
+        editor_.stop();
     }
 
     ~Vst3Plugin()
@@ -300,16 +621,106 @@ public:
         return component_.get();
     }
 
-    void process(float**, float**, VstInt32) noexcept override {}
+    std::vector<std::string> inputBusNames() const override { return inputBusNames_; }
+    std::vector<std::string> outputBusNames() const override { return outputBusNames_; }
+
+    bool prepare(double sampleRate, VstInt32 blockSize, std::string& error) override
+    {
+        return editor_.run([this, sampleRate, blockSize, &error] {
+            if (!component_ || !processor_) {
+                error = "VST3 audio processor is not loaded";
+                return false;
+            }
+            if (processor_->canProcessSampleSize(Steinberg::Vst::kSample32) != Steinberg::kResultOk) {
+                error = "VST3 plugin does not support 32-bit audio processing";
+                return false;
+            }
+
+            Steinberg::Vst::ProcessSetup setup {};
+            setup.processMode = Steinberg::Vst::kRealtime;
+            setup.symbolicSampleSize = Steinberg::Vst::kSample32;
+            setup.maxSamplesPerBlock = blockSize;
+            setup.sampleRate = sampleRate;
+
+            std::vector<Steinberg::Vst::SpeakerArrangement> inputArrangements;
+            std::vector<Steinberg::Vst::SpeakerArrangement> outputArrangements;
+            const auto readArrangements = [this](Steinberg::Vst::BusDirection direction,
+                                                 std::vector<Steinberg::Vst::SpeakerArrangement>& arrangements) {
+                const auto busCount = component_->getBusCount(Steinberg::Vst::kAudio, direction);
+                arrangements.resize(busCount);
+                for (Steinberg::int32 busIndex = 0; busIndex < busCount; ++busIndex) {
+                    if (processor_->getBusArrangement(direction, busIndex, arrangements[busIndex]) != Steinberg::kResultOk)
+                        return false;
+                }
+                return true;
+            };
+            if (!readArrangements(Steinberg::Vst::kInput, inputArrangements)
+                || !readArrangements(Steinberg::Vst::kOutput, outputArrangements)) {
+                error = "Unable to configure VST3 audio bus layouts";
+                return false;
+            }
+            const auto arrangementResult = processor_->setBusArrangements(
+                inputArrangements.data(), static_cast<Steinberg::int32>(inputArrangements.size()),
+                outputArrangements.data(), static_cast<Steinberg::int32>(outputArrangements.size()));
+            if ((arrangementResult != Steinberg::kResultOk && arrangementResult != Steinberg::kResultFalse)
+                || processor_->setupProcessing(setup) != Steinberg::kResultOk) {
+                error = "Unable to configure VST3 audio bus layouts";
+                return false;
+            }
+
+            bool busesActivated = true;
+            for (const auto direction : { Steinberg::Vst::kInput, Steinberg::Vst::kOutput }) {
+                const auto busCount = component_->getBusCount(Steinberg::Vst::kAudio, direction);
+                for (Steinberg::int32 busIndex = 0; busIndex < busCount; ++busIndex)
+                    busesActivated = component_->activateBus(Steinberg::Vst::kAudio, direction, busIndex, true) == Steinberg::kResultOk
+                        && busesActivated;
+            }
+            if (!busesActivated
+                || !processData_.prepare(*component_, 0, Steinberg::Vst::kSample32)
+                || component_->setActive(true) != Steinberg::kResultOk
+                || processor_->setProcessing(true) != Steinberg::kResultOk) {
+                processData_.unprepare();
+                component_->setActive(false);
+                error = "Unable to configure VST3 audio processing";
+                return false;
+            }
+            processing_ = true;
+            processedSamples_ = 0;
+            processContext_ = {};
+            processContext_.sampleRate = sampleRate;
+            processContext_.tempo = 120.0;
+            processContext_.state = Steinberg::Vst::ProcessContext::kPlaying
+                | Steinberg::Vst::ProcessContext::kSystemTimeValid
+                | Steinberg::Vst::ProcessContext::kContTimeValid
+                | Steinberg::Vst::ProcessContext::kTempoValid;
+            processData_.processContext = &processContext_;
+            return true;
+        }, error);
+    }
+
+    void process(float** inputs, float** outputs, VstInt32 frames) noexcept override
+    {
+        if (!processing_ || !processor_)
+            return;
+
+        processContext_.projectTimeSamples = static_cast<Steinberg::Vst::TSamples>(processedSamples_);
+        processContext_.continousTimeSamples = static_cast<Steinberg::Vst::TSamples>(processedSamples_);
+        processContext_.systemTime = static_cast<Steinberg::int64>(GetTickCount64()) * 1'000'000;
+        processData_.numSamples = frames;
+        mapAudioBuffers(Steinberg::Vst::kInput, inputs);
+        mapAudioBuffers(Steinberg::Vst::kOutput, outputs);
+        processor_->process(processData_);
+        processedSamples_ += static_cast<Steinberg::uint64>(frames);
+    }
 
     VstInt32 inputCount() const noexcept override
     {
-        return channelCount(Steinberg::Vst::kInput);
+        return inputCount_;
     }
 
     VstInt32 outputCount() const noexcept override
     {
-        return channelCount(Steinberg::Vst::kOutput);
+        return outputCount_;
     }
 
     bool openEditor(std::string& error) override
@@ -318,38 +729,12 @@ public:
             error = "VST3 component is not loaded";
             return false;
         }
-        if (!controller_) {
-            Steinberg::TUID controllerClassId {};
-            if (component_->getControllerClassId(controllerClassId) != Steinberg::kResultOk) {
-                error = "VST3 plugin does not provide an edit controller";
-                return false;
-            }
-            controller_ = module_->getFactory().createInstance<Steinberg::Vst::IEditController>(controllerClassId);
-            if (!controller_ || controller_->initialize(host_) != Steinberg::kResultOk) {
-                controller_ = nullptr;
-                error = "Unable to initialize the VST3 edit controller";
-                return false;
-            }
-        }
-        if (!view_)
-            view_ = controller_->createView(Steinberg::Vst::ViewType::kEditor);
-        if (!view_) {
-            error = "VST3 plugin does not provide an editor view";
+        if (!editor_.run([this, &error] { return initializeControllerOnUiThread(error); }, error))
             return false;
-        }
-        if (view_->isPlatformTypeSupported(Steinberg::kPlatformTypeHWND) != Steinberg::kResultOk) {
-            error = "VST3 editor does not support Win32 windows";
-            return false;
-        }
-        Steinberg::ViewRect viewRect {};
-        if (view_->getSize(&viewRect) != Steinberg::kResultOk || viewRect.getWidth() <= 0 || viewRect.getHeight() <= 0) {
-            error = "VST3 editor did not provide a valid view size";
-            return false;
-        }
         return editor_.open(L"WinJACKNexus VST3 Editor",
-                            { viewRect.getWidth(), viewRect.getHeight() },
-                            [this](HWND parent) { return view_->attached(parent, Steinberg::kPlatformTypeHWND) == Steinberg::kResultOk; },
-                            [this] { view_->removed(); }, error);
+                            { 800, 600 },
+                            [this](HWND parent) { return attachEditor(parent); },
+                            [this] { detachEditor(); }, {}, error);
     }
 
     void closeEditor() noexcept override
@@ -358,6 +743,118 @@ public:
     }
 
 private:
+    class ComponentHandler final : public Steinberg::Vst::IComponentHandler {
+    public:
+        Steinberg::tresult PLUGIN_API beginEdit(Steinberg::Vst::ParamID) override { return Steinberg::kResultOk; }
+        Steinberg::tresult PLUGIN_API performEdit(Steinberg::Vst::ParamID, Steinberg::Vst::ParamValue) override { return Steinberg::kResultOk; }
+        Steinberg::tresult PLUGIN_API endEdit(Steinberg::Vst::ParamID) override { return Steinberg::kResultOk; }
+        Steinberg::tresult PLUGIN_API restartComponent(Steinberg::int32) override { return Steinberg::kResultOk; }
+
+    private:
+        Steinberg::tresult PLUGIN_API queryInterface(const Steinberg::TUID iid, void** object) override
+        {
+            if (object == nullptr)
+                return Steinberg::kInvalidArgument;
+            *object = nullptr;
+            if (Steinberg::FUnknownPrivate::iidEqual(iid, Steinberg::Vst::IComponentHandler::iid)
+                || Steinberg::FUnknownPrivate::iidEqual(iid, Steinberg::FUnknown::iid)) {
+                *object = this;
+                addRef();
+                return Steinberg::kResultOk;
+            }
+            return Steinberg::kNoInterface;
+        }
+
+        Steinberg::uint32 PLUGIN_API addRef() override { return 1; }
+        Steinberg::uint32 PLUGIN_API release() override { return 1; }
+    };
+
+    bool initializeControllerOnUiThread(std::string& error)
+    {
+        if (controller_)
+            return true;
+        Steinberg::TUID controllerClassId {};
+        if (component_->getControllerClassId(controllerClassId) != Steinberg::kResultOk) {
+            error = "VST3 plugin does not provide an edit controller";
+            return false;
+        }
+        controller_ = module_->getFactory().createInstance<Steinberg::Vst::IEditController>(controllerClassId);
+        if (!controller_ || controller_->initialize(host_) != Steinberg::kResultOk) {
+            controller_ = nullptr;
+            error = "Unable to initialize the VST3 edit controller";
+            return false;
+        }
+        controller_->setComponentHandler(&componentHandler_);
+        return true;
+    }
+
+    void unloadOnUiThread()
+    {
+        if (processor_ && processing_)
+            processor_->setProcessing(false);
+        if (component_ && processing_)
+            component_->setActive(false);
+        processing_ = false;
+        processData_.unprepare();
+        view_ = nullptr;
+        processor_ = nullptr;
+        controller_ = nullptr;
+        component_ = nullptr;
+        provider_.reset();
+        Steinberg::Vst::PluginContextFactory::instance().setPluginContext(nullptr);
+        host_ = nullptr;
+        module_.reset();
+        inputCount_ = 0;
+        outputCount_ = 0;
+    }
+
+    void mapAudioBuffers(Steinberg::Vst::BusDirection direction, float** buffers) noexcept
+    {
+        const auto busCount = direction == Steinberg::Vst::kInput ? processData_.numInputs : processData_.numOutputs;
+        std::size_t channelOffset = 0;
+        for (Steinberg::int32 busIndex = 0; busIndex < busCount; ++busIndex) {
+            auto& bus = direction == Steinberg::Vst::kInput ? processData_.inputs[busIndex] : processData_.outputs[busIndex];
+            bus.silenceFlags = 0;
+            for (Steinberg::int32 channel = 0; channel < bus.numChannels; ++channel)
+                processData_.setChannelBuffer(direction, busIndex, channel, buffers == nullptr ? nullptr : buffers[channelOffset++]);
+        }
+    }
+
+    bool attachEditor(HWND parent)
+    {
+        if (!view_)
+            view_ = controller_->createView(Steinberg::Vst::ViewType::kEditor);
+        if (!view_ || view_->isPlatformTypeSupported(Steinberg::kPlatformTypeHWND) != Steinberg::kResultOk)
+            return false;
+
+        Steinberg::ViewRect viewRect {};
+        if (view_->getSize(&viewRect) != Steinberg::kResultOk || viewRect.getWidth() <= 0 || viewRect.getHeight() <= 0)
+            return false;
+        if (!resizeClientArea(parent, { viewRect.getWidth(), viewRect.getHeight() }))
+            return false;
+
+        editorFrame_.attach(view_, parent);
+        if (view_->setFrame(&editorFrame_) != Steinberg::kResultOk
+            || view_->attached(parent, Steinberg::kPlatformTypeHWND) != Steinberg::kResultOk) {
+            view_->setFrame(nullptr);
+            editorFrame_.detach();
+            return false;
+        }
+        editorAttached_ = true;
+        return true;
+    }
+
+    void detachEditor() noexcept
+    {
+        if (view_ && editorAttached_)
+            view_->removed();
+        if (view_)
+            view_->setFrame(nullptr);
+        editorFrame_.detach();
+        editorAttached_ = false;
+        view_ = nullptr;
+    }
+
     VstInt32 channelCount(Steinberg::Vst::BusDirection direction) const noexcept
     {
         if (!component_)
@@ -372,12 +869,41 @@ private:
         return channels;
     }
 
+    std::vector<std::string> channelBusNames(Steinberg::Vst::BusDirection direction) const
+    {
+        std::vector<std::string> names;
+        if (!component_)
+            return names;
+        const auto busCount = component_->getBusCount(Steinberg::Vst::kAudio, direction);
+        for (Steinberg::int32 busIndex = 0; busIndex < busCount; ++busIndex) {
+            Steinberg::Vst::BusInfo bus {};
+            if (component_->getBusInfo(Steinberg::Vst::kAudio, direction, busIndex, bus) != Steinberg::kResultOk)
+                continue;
+            const auto name = utf8FromWide(reinterpret_cast<const wchar_t*>(bus.name));
+            const auto channelName = name.empty() ? std::string("bus") : name;
+            names.insert(names.end(), std::max<Steinberg::int32>(0, bus.channelCount), channelName);
+        }
+        return names;
+    }
+
     VST3::Hosting::Module::Ptr module_;
     Steinberg::IPtr<Steinberg::Vst::HostApplication> host_;
     std::unique_ptr<Steinberg::Vst::PlugProvider> provider_;
     Steinberg::IPtr<Steinberg::Vst::IComponent> component_;
+    Steinberg::IPtr<Steinberg::Vst::IAudioProcessor> processor_;
     Steinberg::IPtr<Steinberg::Vst::IEditController> controller_;
     Steinberg::IPtr<Steinberg::IPlugView> view_;
+    Steinberg::Vst::HostProcessData processData_;
+    Steinberg::Vst::ProcessContext processContext_;
+    ComponentHandler componentHandler_;
+    Vst3EditorFrame editorFrame_;
+    bool editorAttached_ {};
+    bool processing_ {};
+    Steinberg::uint64 processedSamples_ {};
+    VstInt32 inputCount_ {};
+    VstInt32 outputCount_ {};
+    std::vector<std::string> inputBusNames_;
+    std::vector<std::string> outputBusNames_;
     EditorWindow editor_;
 };
 
@@ -470,6 +996,8 @@ public:
 
     VstInt32 inputCount() const noexcept override { return effect_ == nullptr ? 0 : std::max<VstInt32>(0, effect_->numInputs); }
     VstInt32 outputCount() const noexcept override { return effect_ == nullptr ? 0 : std::max<VstInt32>(0, effect_->numOutputs); }
+    std::vector<std::string> inputBusNames() const override { return pinLabels(effGetInputProperties, inputCount()); }
+    std::vector<std::string> outputBusNames() const override { return pinLabels(effGetOutputProperties, outputCount()); }
     VstInt32 parameterCount() const noexcept { return effect_ == nullptr ? 0 : std::max<VstInt32>(0, effect_->numParams); }
 
     bool setParameter(VstInt32 index, float value) noexcept
@@ -508,16 +1036,27 @@ public:
             error = "VST2 plugin does not provide an editor";
             return false;
         }
-        ERect* editorRect {};
-        if (effect_->dispatcher(effect_, effEditGetRect, 0, 0, &editorRect, 0.0F) == 0 || editorRect == nullptr
-            || editorRect->right <= editorRect->left || editorRect->bottom <= editorRect->top) {
-            error = "VST2 editor did not provide a valid view size";
-            return false;
-        }
+        editorOpen_ = false;
         return editor_.open(L"WinJACKNexus VST2 Editor",
-                    { editorRect->right - editorRect->left, editorRect->bottom - editorRect->top },
-                    [this](HWND parent) { effect_->dispatcher(effect_, effEditOpen, 0, 0, parent, 0.0F); return true; },
-                    [this] { effect_->dispatcher(effect_, effEditClose, 0, 0, nullptr, 0.0F); }, error);
+                    { 640, 480 },
+                    [this](HWND parent) {
+                        currentVst2EditorWindow.store(parent);
+                        effect_->dispatcher(effect_, effEditOpen, 0, 0, parent, 0.0F);
+                        editorOpen_ = true;
+                        ERect* editorRect {};
+                        if (effect_->dispatcher(effect_, effEditGetRect, 0, 0, &editorRect, 0.0F) != 0 && editorRect != nullptr
+                            && editorRect->right > editorRect->left && editorRect->bottom > editorRect->top) {
+                            resizeClientArea(parent, { editorRect->right - editorRect->left, editorRect->bottom - editorRect->top });
+                        }
+                        return true;
+                    },
+                    [this] {
+                        if (editorOpen_)
+                            effect_->dispatcher(effect_, effEditClose, 0, 0, nullptr, 0.0F);
+                        editorOpen_ = false;
+                        currentVst2EditorWindow.store(nullptr);
+                    },
+                    [this] { effect_->dispatcher(effect_, effEditIdle, 0, 0, nullptr, 0.0F); }, error);
     }
 
     void closeEditor() noexcept override
@@ -543,10 +1082,29 @@ public:
     ~Vst2Plugin() { unload(); }
 
 private:
+    std::vector<std::string> pinLabels(VstInt32 opcode, VstInt32 count) const
+    {
+        std::vector<std::string> labels;
+        if (effect_ == nullptr || effect_->dispatcher == nullptr)
+            return labels;
+        labels.reserve(std::max<VstInt32>(0, count));
+        for (VstInt32 index = 0; index < count; ++index) {
+            VstPinProperties properties {};
+            if (effect_->dispatcher(effect_, opcode, index, 0, &properties, 0.0F) == 0) {
+                labels.emplace_back();
+                continue;
+            }
+            const auto end = std::find(std::begin(properties.label), std::end(properties.label), '\0');
+            labels.emplace_back(properties.label, end);
+        }
+        return labels;
+    }
+
     HMODULE module_ {};
     AEffect* effect_ {};
     bool opened_ {};
     bool processing_ {};
+    bool editorOpen_ {};
     EditorWindow editor_;
 };
 #endif
@@ -672,15 +1230,17 @@ private:
     bool registerAudioPorts(const AudioPlugin& plugin, const std::wstring& portDisplayMode, std::string& error)
     {
         const auto mode = utf8FromWide(portDisplayMode);
-        const auto registerDirection = [&] (VstInt32 count, unsigned long jackFlags, const char* prefix, std::vector<jack_port_t*>& ports) {
+        const auto registerDirection = [&] (VstInt32 count, const std::vector<std::string>& busNames,
+                                             unsigned long jackFlags, const char* prefix, std::vector<jack_port_t*>& ports) {
             for (VstInt32 channel = 0; channel < count; ++channel) {
                 const auto channelNumber = std::to_string(channel + 1);
                 std::string name;
                 if (mode == "standard") {
                     static constexpr const char* channelNames[] { "L", "R", "C", "LFE", "SL", "SR", "BL", "BR" };
                     name = std::string(prefix) + '_' + (channel < static_cast<VstInt32>(std::size(channelNames)) ? channelNames[channel] : "ch_" + channelNumber);
-                } else if (mode == "bus-labels") {
-                    name = std::string(prefix) + "_bus_" + channelNumber;
+                } else if (mode != "jack" && channel < static_cast<VstInt32>(busNames.size()) && !busNames[channel].empty()) {
+                    const auto& busName = busNames[channel];
+                    name = std::string(prefix) + '_' + sanitizedPortName(busName) + '_' + channelNumber;
                 } else {
                     name = std::string(prefix) + '_' + channelNumber;
                 }
@@ -692,14 +1252,23 @@ private:
             return true;
         };
 
-        if (!registerDirection(plugin.inputCount(), JackPortIsInput, "in", audioInputs_)
-            || !registerDirection(plugin.outputCount(), JackPortIsOutput, "out", audioOutputs_)) {
+        if (!registerDirection(plugin.inputCount(), plugin.inputBusNames(), JackPortIsInput, "in", audioInputs_)
+            || !registerDirection(plugin.outputCount(), plugin.outputBusNames(), JackPortIsOutput, "out", audioOutputs_)) {
             error = "Unable to register JACK audio ports";
             return false;
         }
         inputBuffers_.resize(audioInputs_.size());
         outputBuffers_.resize(audioOutputs_.size());
         return true;
+    }
+
+    static std::string sanitizedPortName(std::string name)
+    {
+        for (auto& character : name) {
+            if (character == ':' || character == '\\' || character == '/')
+                character = '_';
+        }
+        return name.empty() ? "bus" : name;
     }
 
     static int process(jack_nframes_t frames, void* context) noexcept
@@ -827,7 +1396,7 @@ int wmain(int argc, wchar_t* argv[])
     std::string error;
     if (extension == L".vst3") {
         auto vst3 = std::make_unique<Vst3Plugin>();
-        if (!vst3->load(options.path, error)) {
+        if (!vst3->load(options.path, options.internalPlugin, error)) {
             std::cerr << "Unable to load VST3: " << error << '\n';
             return kPluginLoadError;
         }

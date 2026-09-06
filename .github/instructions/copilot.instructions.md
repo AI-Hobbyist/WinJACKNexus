@@ -16,17 +16,20 @@
    - Step 2: Read ONLY the target files/modules returned by CodeGraph graph traversal.
    - Step 3 (Strict Fallback): Run `explore` tools IF and ONLY IF precision graph lookup fails or CodeGraph indicates the repository is unindexed.
 
-## Command Execution & Terminal Output Rules
+## Mandatory Build Pipeline & Error Diagnosis Protocol
 
-4. **No Background & No Log Redirection**:
-   - NEVER execute compilation, build, or test commands in the background.
-   - NEVER capture, parse, or suppress compilation outputs using `$log`, external log files, or streaming wrappers.
-   - NEVER hide build progress behind silent spinners or buffered scripts.
+4. **Strict Foreground Build & Logging Requirement**:
+   - **MANDATORY**: EVERY compilation, build, package, or test action (regardless of language/tech stack: C++, C#, Java, Rust, Go, Node.js, etc.) MUST run interactively in the foreground using the standard PowerShell pipeline. NEVER run builds in the background or suppress stdout/stderr.
+   - ALWAYS route any build command through `2>&1 | Tee-Object -FilePath "build.log" -Encoding utf8`. This guarantees real-time terminal output while silently capturing full log history.
+   - ALWAYS capture `$LASTEXITCODE` and check build status immediately.
+   - ALWAYS catch errors via reading `build.log`
 
-5. **Foreground & Real-Time Printing**:
-   - ALL compilation, build, and execution commands MUST run directly in the interactive foreground terminal.
-   - Force unbuffered, verbose, and real-time output stream (`stdout` and `stderr`) so the progress is immediately visible line-by-line.
-   - Always append flags for verbose execution where applicable (e.g., `--verbose`, `-v`, `--progress`).
+   **Standard Universal PowerShell Pattern** (Workspace/Project Root):
+   ```powershell
+   # Universal execution template for ANY toolchain (cmake, dotnet, gradle, mvn, cargo, etc.)
+   & <BUILD_COMMAND> 2>&1 | Tee-Object -FilePath "build.log"
+   $buildExitCode =$LASTEXITCODE
+   if ($buildExitCode -ne 0) { exit$buildExitCode }
 
 ## SDKS
 - **Qt6:** `C:\Qt\6.10.3`

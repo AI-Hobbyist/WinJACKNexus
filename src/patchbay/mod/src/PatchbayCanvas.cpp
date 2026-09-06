@@ -726,25 +726,42 @@ bool PatchbayCanvas::restoreJackConnections(WinJACKNexus::Audio::JackClient& cli
         return false;
 
     auto& api = WinJACKNexus::Audio::JackApi::instance();
+    const auto currentPortId = [this](const std::string& savedPortId) -> const std::string* {
+        const auto saved = std::find_if(snapshot_.ports.cbegin(), snapshot_.ports.cend(), [&savedPortId](const auto& port) {
+            return port.id == savedPortId;
+        });
+        if (saved == snapshot_.ports.cend())
+            return nullptr;
+
+        const auto current = std::find_if(snapshot_.ports.cbegin(), snapshot_.ports.cend(), [&saved](const auto& port) {
+            return port.alive && port.clientId == saved->clientId && port.kind == saved->kind
+                && port.direction == saved->direction && port.ordinal == saved->ordinal;
+        });
+        return current == snapshot_.ports.cend() ? nullptr : &current->id;
+    };
     bool restored = false;
     for (const auto& connection : snapshot_.connections) {
         if (!connection.alive)
             continue;
 
-        const auto* source = api.portByName(client.nativeHandle(), connection.sourcePortId.c_str());
-        const auto* destination = api.portByName(client.nativeHandle(), connection.destinationPortId.c_str());
+        const auto* sourceId = currentPortId(connection.sourcePortId);
+        const auto* destinationId = currentPortId(connection.destinationPortId);
+        if (sourceId == nullptr || destinationId == nullptr)
+            continue;
+        const auto* source = api.portByName(client.nativeHandle(), sourceId->c_str());
+        const auto* destination = api.portByName(client.nativeHandle(), destinationId->c_str());
         if (source == nullptr || destination == nullptr)
             continue;
 
         bool alreadyConnected = false;
         if (const auto** names = api.portGetConnections(source); names != nullptr) {
             for (const auto** name = names; *name != nullptr; ++name)
-                alreadyConnected = alreadyConnected || connection.destinationPortId == *name;
+                alreadyConnected = alreadyConnected || *destinationId == *name;
             api.freeMemory(const_cast<void*>(static_cast<const void*>(names)));
         }
 
         if (!alreadyConnected
-            && api.connect(client.nativeHandle(), connection.sourcePortId.c_str(), connection.destinationPortId.c_str()) == 0) {
+            && api.connect(client.nativeHandle(), sourceId->c_str(), destinationId->c_str()) == 0) {
             restored = true;
         }
     }

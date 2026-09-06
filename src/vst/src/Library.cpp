@@ -10,9 +10,14 @@
  */
 #include <WinJACKNexus/Node/NodeApi.h>
 
+#include "public.sdk/source/vst/hosting/hostclasses.h"
+#include "public.sdk/source/vst/hosting/module.h"
+
 #include <QApplication>
 #include <QComboBox>
 #include <QCoreApplication>
+#include <QDialog>
+#include <QDialogButtonBox>
 #include <QFile>
 #include <QFileDialog>
 #include <QFormLayout>
@@ -21,6 +26,7 @@
 #include <QJsonObject>
 #include <QLabel>
 #include <QLineEdit>
+#include <QListWidget>
 #include <QPointer>
 #include <QProcess>
 #include <QPushButton>
@@ -33,6 +39,11 @@
 #include <atomic>
 #include <cstdint>
 #include <memory>
+#include <utility>
+
+#if WJN_ENABLE_VST2
+#include "pluginterfaces/vst2.x/aeffectx.h"
+#endif
 
 namespace {
 
@@ -60,6 +71,137 @@ QString portDisplayModeArgument(PortDisplayMode mode)
     case PortDisplayMode::jackDefault: return QStringLiteral("jack");
     default: return QStringLiteral("default");
     }
+}
+
+#if WJN_ENABLE_VST2
+VstIntPtr currentShellPluginId {};
+
+VstIntPtr VSTCALLBACK shellHostCallback(AEffect*, VstInt32 opcode, VstInt32, VstIntPtr, void*, float)
+{
+    if (opcode == audioMasterVersion)
+        return 2400;
+    if (opcode == audioMasterCurrentId)
+        return currentShellPluginId;
+    return 0;
+}
+
+using Vst2EntryProc = AEffect* (VSTCALLBACK*) (audioMasterCallback);
+
+struct InternalPlugin final {
+    QString name;
+    QString id;
+};
+
+QVector<InternalPlugin> shellPlugins(const QString& path, QString& error)
+{
+    const auto module = LoadLibraryExW(reinterpret_cast<LPCWSTR>(path.utf16()), nullptr, LOAD_WITH_ALTERED_SEARCH_PATH);
+    if (module == nullptr)
+        return {};
+    auto entry = reinterpret_cast<Vst2EntryProc>(GetProcAddress(module, "VSTPluginMain"));
+    if (entry == nullptr)
+        entry = reinterpret_cast<Vst2EntryProc>(GetProcAddress(module, "main"));
+    if (entry == nullptr) {
+        FreeLibrary(module);
+        return {};
+    }
+
+    currentShellPluginId = 0;
+    auto* effect = entry(shellHostCallback);
+    if (effect == nullptr || effect->magic != kEffectMagic || effect->dispatcher == nullptr) {
+        FreeLibrary(module);
+        return {};
+    }
+    effect->dispatcher(effect, effOpen, 0, 0, nullptr, 0.0F);
+    const auto isShell = effect->dispatcher(effect, effGetPlugCategory, 0, 0, nullptr, 0.0F) == kPlugCategShell;
+    QVector<InternalPlugin> result;
+    if (isShell) {
+        char name[kVstMaxProductStrLen + 1] {};
+        while (true) {
+            std::fill(std::begin(name), std::end(name), '\0');
+            const auto id = effect->dispatcher(effect, effShellGetNextPlugin, 0, 0, name, 0.0F);
+            if (id == 0)
+                break;
+            const auto childName = QString::fromLocal8Bit(name).trimmed();
+            if (!childName.isEmpty())
+                result.push_back({ childName, QString::number(id) });
+        }
+        if (result.isEmpty())
+            error = QStringLiteral("The VST2 Shell did not provide any internal plugins.");
+    }
+    effect->dispatcher(effect, effClose, 0, 0, nullptr, 0.0F);
+    FreeLibrary(module);
+    return result;
+}
+
+QString chooseInternalPlugin(const QString& title, const QString& description, const QVector<InternalPlugin>& plugins)
+{
+    QDialog dialog;
+    dialog.setWindowTitle(title);
+    auto* layout = new QVBoxLayout(&dialog);
+    layout->addWidget(new QLabel(description, &dialog));
+    auto* filter = new QLineEdit(&dialog);
+    filter->setPlaceholderText(QStringLiteral("Filter or enter plugin name / ID"));
+    layout->addWidget(filter);
+    auto* list = new QListWidget(&dialog);
+    for (const auto& plugin : plugins) {
+        auto* item = new QListWidgetItem(QStringLiteral("%1 (%2)").arg(plugin.name).arg(plugin.id), list);
+        item->setData(Qt::UserRole, plugin.id);
+        item->setData(Qt::UserRole + 1, plugin.name);
+    }
+    layout->addWidget(list);
+    auto* buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, &dialog);
+    layout->addWidget(buttons);
+
+    QObject::connect(filter, &QLineEdit::textChanged, &dialog, [list](const QString& text) {
+        for (int index = 0; index < list->count(); ++index) {
+            auto* item = list->item(index);
+            item->setHidden(!text.isEmpty() && !item->text().contains(text, Qt::CaseInsensitive));
+        }
+    });
+    QObject::connect(list, &QListWidget::currentItemChanged, &dialog, [filter](QListWidgetItem* current, QListWidgetItem*) {
+        if (current != nullptr)
+            filter->setText(current->data(Qt::UserRole + 1).toString());
+    });
+    QObject::connect(list, &QListWidget::itemDoubleClicked, &dialog, [&dialog](QListWidgetItem*) { dialog.accept(); });
+    QObject::connect(buttons, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
+    QObject::connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
+
+    if (dialog.exec() != QDialog::Accepted)
+        return {};
+    if (const auto* item = list->currentItem(); item != nullptr && item->text().contains(filter->text(), Qt::CaseInsensitive))
+        return item->data(Qt::UserRole).toString();
+    return filter->text().trimmed();
+}
+
+QString displayNameForInternalPlugin(const QVector<InternalPlugin>& plugins, const QString& id)
+{
+    const auto selected = std::find_if(plugins.cbegin(), plugins.cend(), [&id](const InternalPlugin& plugin) {
+        return plugin.id == id || plugin.name.compare(id, Qt::CaseInsensitive) == 0;
+    });
+    return selected == plugins.cend() ? id : selected->name;
+}
+#endif
+
+QVector<InternalPlugin> vst3Plugins(const QString& path, QString& error)
+{
+    std::string moduleError;
+    auto module = VST3::Hosting::Module::create(path.toStdString(), moduleError);
+    if (module == nullptr) {
+        error = QString::fromStdString(moduleError);
+        return {};
+    }
+    auto host = Steinberg::owned(new Steinberg::Vst::HostApplication);
+    module->getFactory().setHostContext(host);
+    QVector<InternalPlugin> result;
+    for (const auto& classInfo : module->getFactory().classInfos()) {
+        if (classInfo.category() != "Audio Module Class")
+            continue;
+        result.push_back({ QString::fromStdString(classInfo.name()),
+                           QString::fromStdString(classInfo.ID().toString(false)) });
+    }
+    if (result.isEmpty())
+        error = QStringLiteral("The VST3 factory did not provide any audio plugin classes.");
+    return result;
 }
 
 ProcessBits detectPluginBits(const QString& path) noexcept
@@ -136,12 +278,20 @@ public:
     }
 
     bool applySettings(const QString& path, const QString& clientName, ProcessBits bits,
-                       PortDisplayMode portDisplayMode) noexcept
+                       PortDisplayMode portDisplayMode, const QString& internalPlugin = {},
+                       const QString& internalPluginName = {}) noexcept
     {
-        path_ = path.trimmed();
+        const auto selectedPath = path.trimmed();
+        if (path_ != selectedPath)
+            internalPlugin_.clear();
+        if (path_ != selectedPath)
+            internalPluginName_.clear();
+        path_ = selectedPath;
         clientName_ = clientName.trimmed();
         bits_ = bits;
         portDisplayMode_ = portDisplayMode;
+        internalPlugin_ = internalPlugin.trimmed();
+        internalPluginName_ = internalPluginName.trimmed();
         return !initialized_ || reload();
     }
 
@@ -149,6 +299,8 @@ public:
     QString clientName() const { return clientName_; }
     ProcessBits processBits() const noexcept { return bits_; }
     PortDisplayMode portDisplayMode() const noexcept { return portDisplayMode_; }
+    QString internalPlugin() const { return internalPlugin_; }
+    QString internalPluginName() const { return internalPluginName_; }
     QString status() const { return status_; }
     QString expectedClientId() const { return expectedClientId_; }
 
@@ -174,6 +326,8 @@ public:
             { QStringLiteral("clientName"), clientName_ },
             { QStringLiteral("bits"), bits },
             { QStringLiteral("portDisplayMode"), static_cast<int>(portDisplayMode_) },
+            { QStringLiteral("internalPlugin"), internalPlugin_ },
+            { QStringLiteral("internalPluginName"), internalPluginName_ },
             { QStringLiteral("instanceId"), instanceId_ }
         }).toJson(QJsonDocument::Compact).toStdString();
         return serializedSettings_.c_str();
@@ -200,7 +354,9 @@ public:
             instanceId_ = instanceId;
         return applySettings(values.value(QStringLiteral("path")).toString(),
                              values.value(QStringLiteral("clientName")).toString(),
-                             selectedBits, portDisplayMode) ? 1 : 0;
+                             selectedBits, portDisplayMode,
+                             values.value(QStringLiteral("internalPlugin")).toString(),
+                             values.value(QStringLiteral("internalPluginName")).toString()) ? 1 : 0;
     }
 
     bool prepareForCanvas() noexcept
@@ -249,16 +405,69 @@ public:
             return false;
         }
 
+        if (path_.endsWith(QStringLiteral(".vst3"), Qt::CaseInsensitive) && internalPlugin_.isEmpty()) {
+            QString factoryError;
+            const auto plugins = vst3Plugins(path_, factoryError);
+            if (!factoryError.isEmpty()) {
+                status_ = factoryError;
+                return false;
+            }
+            if (plugins.size() > 1) {
+                if (QApplication::instance() == nullptr) {
+                    status_ = QStringLiteral("Choose a VST3 plugin class before starting this node.");
+                    return false;
+                }
+                internalPlugin_ = chooseInternalPlugin(QStringLiteral("Choose VST3 Plugin"),
+                                                        QStringLiteral("Choose a VST3 plugin class or enter its class ID."),
+                                                        plugins);
+                if (internalPlugin_.isEmpty()) {
+                    status_ = QStringLiteral("VST3 plugin class selection was cancelled.");
+                    return false;
+                }
+            }
+            if (!internalPlugin_.isEmpty())
+                internalPluginName_ = displayNameForInternalPlugin(plugins, internalPlugin_);
+        }
+
+#if WJN_ENABLE_VST2
+        if (path_.endsWith(QStringLiteral(".dll"), Qt::CaseInsensitive) && internalPlugin_.isEmpty()) {
+            QString shellError;
+            const auto plugins = shellPlugins(path_, shellError);
+            if (!shellError.isEmpty()) {
+                status_ = shellError;
+                return false;
+            }
+            if (!plugins.isEmpty()) {
+                if (QApplication::instance() == nullptr) {
+                    status_ = QStringLiteral("Choose an internal VST2 Shell plugin before starting this node.");
+                    return false;
+                }
+                internalPlugin_ = chooseInternalPlugin(QStringLiteral("Choose VST2 Shell Plugin"),
+                                                        QStringLiteral("Choose an internal plugin or enter its name / numeric ID."),
+                                                        plugins);
+                if (internalPlugin_.isEmpty()) {
+                    status_ = QStringLiteral("VST2 Shell plugin selection was cancelled.");
+                    return false;
+                }
+                internalPluginName_ = displayNameForInternalPlugin(plugins, internalPlugin_);
+            }
+        }
+#endif
+
         const auto instance = nextInstance_.fetch_add(1, std::memory_order_relaxed);
         pipeName_ = QStringLiteral("WinJACKNexus.VST.%1.%2").arg(QCoreApplication::applicationPid()).arg(instance);
         process_ = std::make_unique<QProcess>();
         process_->setProgram(executable);
-        const auto pluginName = clientName_.isEmpty() ? QFileInfo(path_).completeBaseName() : clientName_;
+        const auto pluginName = clientName_.isEmpty()
+            ? (internalPluginName_.isEmpty() ? QFileInfo(path_).completeBaseName() : internalPluginName_)
+            : clientName_;
         expectedClientId_ = pluginName + QStringLiteral("-") + instanceId_.left(8);
         process_->setArguments({ QStringLiteral("--path"), path_,
                                  QStringLiteral("--pipe"), pipeName_,
                      QStringLiteral("--client"), expectedClientId_,
                                  QStringLiteral("--port-display"), portDisplayModeArgument(portDisplayMode_) });
+        if (!internalPlugin_.isEmpty())
+            process_->setArguments(process_->arguments() + QStringList { QStringLiteral("--internal_plugin"), internalPlugin_ });
         process_->start();
         if (!process_->waitForStarted(3000)) {
             status_ = QStringLiteral("Unable to start VSTProcess.");
@@ -336,6 +545,8 @@ private:
     QString pipeName_;
     QString status_ { QStringLiteral("Not started.") };
     QString instanceId_ { QUuid::createUuid().toString(QUuid::WithoutBraces) };
+    QString internalPlugin_;
+    QString internalPluginName_;
     QString expectedClientId_;
     ProcessBits bits_ { ProcessBits::automatic };
     PortDisplayMode portDisplayMode_ { PortDisplayMode::defaultNames };
@@ -391,8 +602,11 @@ SettingsWidget::SettingsWidget(VstHostNode& node, QWidget* parent)
             path_->setText(path);
     });
     connect(reload, &QPushButton::clicked, this, [this] {
+        const auto selectedPath = path_->text().trimmed();
         node_.applySettings(path_->text(), clientName_->text(), static_cast<ProcessBits>(bits_->currentData().toInt()),
-                            static_cast<PortDisplayMode>(portDisplayMode_->currentData().toInt()));
+                            static_cast<PortDisplayMode>(portDisplayMode_->currentData().toInt()),
+                            selectedPath == node_.pluginPath() ? node_.internalPlugin() : QString {},
+                            selectedPath == node_.pluginPath() ? node_.internalPluginName() : QString {});
         refresh();
     });
     refresh();
