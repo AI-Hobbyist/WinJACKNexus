@@ -124,11 +124,6 @@ void addNodeItem(QTreeWidgetItem* category, const QString& name, bool online = t
 		item->setForeground(0, QColor(QStringLiteral("#8193a5")));
 }
 
-bool isChainClient(const std::string& clientId)
-{
-	return clientId.starts_with("WinJACKNexus-Chain.");
-}
-
 bool clientCanSplit(const WinJACKNexus::Patchbay::Core::Snapshot& snapshot, const std::string& clientId)
 {
 	bool hasInput = false;
@@ -249,8 +244,6 @@ void populateNodeLibrary(QTreeWidget* tree,
 	const std::set<std::string> builtInClients { "system", "WinJACKNexus-Patchbay" };
 	for (const auto& client : snapshot.clients)
 	{
-		if (isChainClient(client.id))
-			continue;
 		if (moduleClientIds.contains(client.id)) {
 			moduleClientNames.insert(client.name);
 			continue;
@@ -761,9 +754,6 @@ public:
 					WinJACKNexus::Audio::JackApi::instance().disconnect(jackObserver_.nativeHandle(), source.c_str(), destination.c_str());
 			});
 			window_->setCentralWidget(canvas);
-			canvas->setPortVisibilityFilter([](const WinJACKNexus::Patchbay::Core::PortInfo& port) {
-				return !isChainClient(port.clientId);
-			});
 			window_->setDockNestingEnabled(true);
 
 			auto* nodeDock = new QDockWidget(QStringLiteral("节点"), window_);

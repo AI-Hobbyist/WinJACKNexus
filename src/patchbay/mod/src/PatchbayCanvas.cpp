@@ -801,13 +801,13 @@ void PatchbayCanvas::setSnapshot(const Snapshot& snapshot)
 
     std::unordered_map<std::string, std::vector<PortInfo>> portsByClient;
     for (const auto& port : snapshot_.ports) {
-        if (port.alive && (!portVisibilityFilter_ || portVisibilityFilter_(port)))
+        if (port.alive)
             portsByClient[port.clientId].push_back(port);
     }
 
     std::unordered_map<std::string, CanvasNode*> nodesByPort;
     for (const auto& client : snapshot_.clients) {
-        if (!client.alive || portsByClient[client.id].empty())
+        if (!client.alive)
             continue;
 
         const auto addNode = [this, &client, &portsByClient, &nodesByPort, &selectedClientIds](std::vector<PortInfo> ports, QPointF position, Direction portDirection, const QString& layoutKey, const QString& label) {
@@ -870,10 +870,8 @@ void PatchbayCanvas::setSnapshot(const Snapshot& snapshot)
     }
 
     std::unordered_map<std::string, const PortInfo*> ports;
-    for (const auto& port : snapshot_.ports) {
-        if (!portVisibilityFilter_ || portVisibilityFilter_(port))
-            ports.emplace(port.id, &port);
-    }
+    for (const auto& port : snapshot_.ports)
+        ports.emplace(port.id, &port);
 
     for (const auto& connection : snapshot_.connections) {
         if (!connection.alive)
@@ -993,12 +991,6 @@ void PatchbayCanvas::setNodeSelectionHandler(std::function<void(const std::strin
     notifySelection();
 }
 
-void PatchbayCanvas::setConnectionConnectHandler(
-    std::function<bool(const std::string&, const std::string&)> handler)
-{
-    connectionConnectHandler_ = std::move(handler);
-}
-
 void PatchbayCanvas::setConnectionDisconnectHandler(std::function<void(const std::string&, const std::string&)> handler)
 {
     connectionDisconnectHandler_ = std::move(handler);
@@ -1050,13 +1042,6 @@ void PatchbayCanvas::setSearchQuery(const QString& query)
 {
     searchQuery_ = query.trimmed();
     applySearchFilter();
-}
-
-void PatchbayCanvas::setPortVisibilityFilter(
-    std::function<bool(const WinJACKNexus::Patchbay::Core::PortInfo&)> filter)
-{
-    portVisibilityFilter_ = std::move(filter);
-    setSnapshot(snapshot_);
 }
 
 void PatchbayCanvas::zoomIn()
@@ -1291,7 +1276,7 @@ void PatchbayCanvas::activatePort(const std::string& portId)
     const bool exists = std::any_of(snapshot_.connections.cbegin(), snapshot_.connections.cend(), [&source, &destination](const ConnectionInfo& connection) {
         return connection.sourcePortId == source.id && connection.destinationPortId == destination.id;
     });
-    if (!exists && (!connectionConnectHandler_ || connectionConnectHandler_(source.id, destination.id))) {
+    if (!exists) {
         snapshot_.connections.push_back({ source.id, destination.id });
         projectDirty_ = true;
     }
@@ -1433,13 +1418,9 @@ void PatchbayCanvas::finishConnectionDrag(const QPointF& position)
         });
         if (alreadyConnected)
             return;
+        snapshot_.connections.erase(oldConnection);
         if (connectionDisconnectHandler_)
             connectionDisconnectHandler_(sourceId, oldDestinationId);
-        if (connectionConnectHandler_ && !connectionConnectHandler_(sourceId, targetId)) {
-            connectionConnectHandler_(sourceId, oldDestinationId);
-            return;
-        }
-        snapshot_.connections.erase(oldConnection);
         snapshot_.connections.push_back({ sourceId, targetId });
     } else if (targetId.empty()) {
         snapshot_.connections.erase(oldConnection);
@@ -1510,7 +1491,7 @@ void PatchbayCanvas::finishPortDrag(const QPointF& position)
     const bool exists = std::any_of(snapshot_.connections.cbegin(), snapshot_.connections.cend(), [&output, &input](const ConnectionInfo& connection) {
         return connection.sourcePortId == output.id && connection.destinationPortId == input.id;
     });
-    if (!exists && (!connectionConnectHandler_ || connectionConnectHandler_(output.id, input.id))) {
+    if (!exists) {
         snapshot_.connections.push_back({ output.id, input.id });
         projectDirty_ = true;
         scheduleSnapshotRefresh();
@@ -1564,7 +1545,7 @@ void PatchbayCanvas::applySearchFilter()
         });
         QString searchable = client == snapshot_.clients.cend() ? QString() : QString::fromStdString(client->name + " " + client->alias).toLower();
         for (const auto& port : snapshot_.ports) {
-            if (port.clientId == id && (!portVisibilityFilter_ || portVisibilityFilter_(port)))
+            if (port.clientId == id)
                 searchable += QLatin1Char(' ') + QString::fromStdString(port.name + " " + port.alias).toLower();
         }
         const bool match = query.isEmpty() || searchable.contains(query);
