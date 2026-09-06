@@ -43,3 +43,40 @@ foreach(configuration IN ITEMS Debug Release RelWithDebInfo MinSizeRel)
         LIBRARY_OUTPUT_DIRECTORY_${configuration_upper} "${WJN_OUTPUT_DIR}/nodes/vst"
     )
 endforeach()
+
+add_library(mod_chain_host SHARED
+    src/ChainLibrary.cpp
+)
+
+target_link_libraries(mod_chain_host
+    PRIVATE
+        WinJACKNexus::Node
+        WinJACKNexus::Audio
+        WinJACKNexus::PatchbayCore
+        mod_patchbay
+        Qt6::Core
+        Qt6::Widgets
+)
+
+target_include_directories(mod_chain_host PRIVATE
+    "${PROJECT_SOURCE_DIR}/src/patchbay/mod/include"
+    "${PROJECT_SOURCE_DIR}/src/patchbay/core/include"
+)
+
+wjn_configure_shared_target(mod_chain_host WJN_VST_CHAIN_BUILD)
+target_compile_definitions(mod_chain_host PRIVATE WJN_NODE_IMPLEMENTATION WIN32_LEAN_AND_MEAN NOMINMAX)
+set_target_properties(mod_chain_host PROPERTIES
+    OUTPUT_NAME "mod_chain_host"
+    RUNTIME_OUTPUT_DIRECTORY "${WJN_OUTPUT_DIR}/nodes/vst"
+    LIBRARY_OUTPUT_DIRECTORY "${WJN_OUTPUT_DIR}/nodes/vst"
+)
+
+foreach(configuration IN ITEMS Debug Release RelWithDebInfo MinSizeRel)
+    string(TOUPPER "${configuration}" configuration_upper)
+    set_target_properties(mod_chain_host PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY_${configuration_upper} "${WJN_OUTPUT_DIR}/nodes/vst"
+        LIBRARY_OUTPUT_DIRECTORY_${configuration_upper} "${WJN_OUTPUT_DIR}/nodes/vst"
+    )
+endforeach()
+
+add_dependencies(mod_chain_host mod_vst_host mod_patchbay)

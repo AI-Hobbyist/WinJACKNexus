@@ -15,6 +15,8 @@
  */
 #pragma once
 
+#include <mod_patchbay/Export.hpp>
+
 #include <WinJACKNexus/Patchbay/Core/Snapshot.hpp>
 
 namespace WinJACKNexus::Audio {
@@ -38,7 +40,7 @@ struct PatchbayProjectModule final {
     std::string settingsJson;
 };
 
-class PatchbayCanvas final : public QGraphicsView {
+class MOD_PATCHBAY_API PatchbayCanvas final : public QGraphicsView {
 public:
     explicit PatchbayCanvas(QWidget* parent = nullptr);
 
@@ -58,7 +60,9 @@ public:
     std::string selectedNodeId() const;
     void selectNode(const std::string& clientId);
     void setSearchQuery(const QString& query);
+    void setPortVisibilityFilter(std::function<bool(const WinJACKNexus::Patchbay::Core::PortInfo&)> filter);
     void setNodeSelectionHandler(std::function<void(const std::string&)> handler);
+    void setConnectionConnectHandler(std::function<bool(const std::string&, const std::string&)> handler);
     void setConnectionDisconnectHandler(std::function<void(const std::string&, const std::string&)> handler);
     void setModuleNodeHandlers(std::function<bool(const std::string&)> isModuleNode,
                                std::function<bool(const std::string&)> copyModuleNode,
@@ -102,6 +106,7 @@ private:
 
     WinJACKNexus::Patchbay::Core::Snapshot snapshot_;
     QString searchQuery_;
+    std::function<bool(const WinJACKNexus::Patchbay::Core::PortInfo&)> portVisibilityFilter_;
     std::string pendingPortId_;
     std::string draggedPortId_;
     std::string draggedConnectionSourcePortId_;
@@ -109,6 +114,7 @@ private:
     QGraphicsPathItem* portDragPreview_ = nullptr;
     QGraphicsPathItem* draggedConnectionLine_ = nullptr;
     std::function<void(const std::string&)> nodeSelectionHandler_;
+    std::function<bool(const std::string&, const std::string&)> connectionConnectHandler_;
     std::function<void(const std::string&, const std::string&)> connectionDisconnectHandler_;
     std::function<bool(const std::string&)> isModuleNode_;
     std::function<bool(const std::string&)> copyModuleNode_;

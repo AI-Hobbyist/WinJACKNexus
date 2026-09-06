@@ -10,9 +10,12 @@
  */
 #include "pluginterfaces/vst/ivstcomponent.h"
 #include "pluginterfaces/vst/ivsteditcontroller.h"
+#include "pluginterfaces/vst/ivstmidicontrollers.h"
+#include "pluginterfaces/vst/ivstparameterchanges.h"
 #include "pluginterfaces/vst/ivstprocesscontext.h"
 #include "pluginterfaces/base/funknownimpl.h"
 #include "pluginterfaces/gui/iplugview.h"
+#include "public.sdk/source/vst/hosting/eventlist.h"
 #include "public.sdk/source/vst/hosting/hostclasses.h"
 #include "public.sdk/source/vst/hosting/module.h"
 #include "public.sdk/source/vst/hosting/plugprovider.h"
@@ -24,16 +27,21 @@
 #endif
 
 #include <jack/jack.h>
+#include <jack/midiport.h>
 
 #include <Windows.h>
 #include <objbase.h>
 
 #include <algorithm>
+#include <array>
 #include <atomic>
+#include <cstddef>
+#include <cstdint>
 #include <cstdio>
 #include <filesystem>
 #include <functional>
 #include <iostream>
+#include <limits>
 #include <memory>
 #include <mutex>
 #include <string>
@@ -42,12 +50,21 @@
 #include <utility>
 #include <vector>
 
+#ifndef WJN_ENABLE_VST2
+#    define WJN_ENABLE_VST2 0
+#endif
+
+#if !WJN_ENABLE_VST2
+using VstInt32 = std::int32_t;
+#endif
+
 namespace {
 
 constexpr int kArgumentError = 1;
 constexpr int kPluginLoadError = 2;
 constexpr int kJackError = 3;
 constexpr std::string_view kVst3AudioModuleClass = "Audio Module Class";
+constexpr std::int32_t kMaxMidiEventsPerBlock = 1024;
 const Steinberg::FUID kIPlugFrameIid(0x367FAF01, 0xAFA94693, 0x8D4DA2A0, 0xED0882A3);
 
 #if WJN_ENABLE_VST2
@@ -88,6 +105,7 @@ struct Options final {
     std::wstring portDisplayMode { L"default" };
     VstInt32 bypassInputs {};
     VstInt32 bypassOutputs {};
+    VstInt32 bypassMidiInputs {};
     std::vector<std::string> bypassInputLabels;
     std::vector<std::string> bypassOutputLabels;
     bool bypass {};
@@ -101,7 +119,7 @@ void printUsage()
                << L"|plugin.dll"
 #endif
                << L"> --pipe <name> [--client <name>]"
-               << L" [--internal_plugin <name>] [--bypass --bypass-inputs <count> --bypass-outputs <count>]\n";
+               << L" [--internal_plugin <name>] [--bypass --bypass-inputs <count> --bypass-outputs <count> --bypass-midi-inputs <count>]\n";
 }
 
 bool readOptionValue(int& index, int argc, wchar_t* argv[], std::wstring& value)
@@ -151,7 +169,8 @@ bool parseOptions(int argc, wchar_t* argv[], Options& options)
             options.bypass = true;
             continue;
         }
-        if (argument == L"--bypass-inputs" || argument == L"--bypass-outputs") {
+        if (argument == L"--bypass-inputs" || argument == L"--bypass-outputs"
+            || argument == L"--bypass-midi-inputs") {
             std::wstring value;
             if (!readOptionValue(index, argc, argv, value))
                 return false;
@@ -161,8 +180,10 @@ bool parseOptions(int argc, wchar_t* argv[], Options& options)
                     return false;
                 if (argument == L"--bypass-inputs")
                     options.bypassInputs = count;
-                else
+                else if (argument == L"--bypass-outputs")
                     options.bypassOutputs = count;
+                else
+                    options.bypassMidiInputs = count;
             } catch (...) {
                 return false;
             }
@@ -232,13 +253,151 @@ std::string jsonArray(const std::vector<std::string>& values)
     return result;
 }
 
+struct MidiInputEvent final {
+    std::int32_t portIndex {};
+    std::int32_t sampleOffset {};
+    std::int32_t sequence {};
+    const jack_midi_data_t* data {};
+    std::size_t size {};
+};
+
+class FixedParameterValueQueue final : public Steinberg::Vst::IParamValueQueue {
+public:
+    Steinberg::Vst::ParamID PLUGIN_API getParameterId() override { return parameterId_; }
+
+    Steinberg::int32 PLUGIN_API getPointCount() override { return pointCount_; }
+
+    Steinberg::tresult PLUGIN_API getPoint(Steinberg::int32 index,
+                                            Steinberg::int32& sampleOffset,
+                                            Steinberg::Vst::ParamValue& value) override
+    {
+        if (index < 0 || index >= pointCount_)
+            return Steinberg::kResultFalse;
+        sampleOffset = points_[index].sampleOffset;
+        value = points_[index].value;
+        return Steinberg::kResultTrue;
+    }
+
+    Steinberg::tresult PLUGIN_API addPoint(Steinberg::int32 sampleOffset,
+                                            Steinberg::Vst::ParamValue value,
+                                            Steinberg::int32& index) override
+    {
+        auto insertIndex = pointCount_;
+        for (Steinberg::int32 point = 0; point < pointCount_; ++point) {
+            if (points_[point].sampleOffset == sampleOffset) {
+                points_[point].value = value;
+                index = point;
+                return Steinberg::kResultTrue;
+            }
+            if (points_[point].sampleOffset > sampleOffset) {
+                insertIndex = point;
+                break;
+            }
+        }
+        if (pointCount_ >= static_cast<Steinberg::int32>(points_.size()))
+            return Steinberg::kResultFalse;
+        std::move_backward(points_.begin() + insertIndex,
+                           points_.begin() + pointCount_,
+                           points_.begin() + pointCount_ + 1);
+        points_[insertIndex] = { sampleOffset, value };
+        ++pointCount_;
+        index = insertIndex;
+        return Steinberg::kResultTrue;
+    }
+
+    void reset(Steinberg::Vst::ParamID parameterId) noexcept
+    {
+        parameterId_ = parameterId;
+        pointCount_ = 0;
+    }
+
+private:
+    Steinberg::tresult PLUGIN_API queryInterface(const Steinberg::TUID iid, void** object) override
+    {
+        if (object == nullptr)
+            return Steinberg::kInvalidArgument;
+        *object = nullptr;
+        if (Steinberg::FUnknownPrivate::iidEqual(iid, Steinberg::Vst::IParamValueQueue::iid)
+            || Steinberg::FUnknownPrivate::iidEqual(iid, Steinberg::FUnknown::iid)) {
+            *object = this;
+            addRef();
+            return Steinberg::kResultOk;
+        }
+        return Steinberg::kNoInterface;
+    }
+
+    Steinberg::uint32 PLUGIN_API addRef() override { return 1; }
+    Steinberg::uint32 PLUGIN_API release() override { return 1; }
+
+    struct Point final {
+        Steinberg::int32 sampleOffset {};
+        Steinberg::Vst::ParamValue value {};
+    };
+
+    Steinberg::Vst::ParamID parameterId_ { Steinberg::Vst::kNoParamId };
+    Steinberg::int32 pointCount_ {};
+    std::array<Point, kMaxMidiEventsPerBlock> points_ {};
+};
+
+class FixedParameterChanges final : public Steinberg::Vst::IParameterChanges {
+public:
+    Steinberg::int32 PLUGIN_API getParameterCount() override { return parameterCount_; }
+
+    Steinberg::Vst::IParamValueQueue* PLUGIN_API getParameterData(Steinberg::int32 index) override
+    {
+        if (index < 0 || index >= parameterCount_)
+            return nullptr;
+        return &queues_[index];
+    }
+
+    Steinberg::Vst::IParamValueQueue* PLUGIN_API addParameterData(
+        const Steinberg::Vst::ParamID& parameterId, Steinberg::int32& index) override
+    {
+        for (Steinberg::int32 queue = 0; queue < parameterCount_; ++queue) {
+            if (queues_[queue].getParameterId() == parameterId) {
+                index = queue;
+                return &queues_[queue];
+            }
+        }
+        if (parameterCount_ >= static_cast<Steinberg::int32>(queues_.size()))
+            return nullptr;
+        queues_[parameterCount_].reset(parameterId);
+        index = parameterCount_++;
+        return &queues_[index];
+    }
+
+    void clearQueue() noexcept { parameterCount_ = 0; }
+
+private:
+    Steinberg::tresult PLUGIN_API queryInterface(const Steinberg::TUID iid, void** object) override
+    {
+        if (object == nullptr)
+            return Steinberg::kInvalidArgument;
+        *object = nullptr;
+        if (Steinberg::FUnknownPrivate::iidEqual(iid, Steinberg::Vst::IParameterChanges::iid)
+            || Steinberg::FUnknownPrivate::iidEqual(iid, Steinberg::FUnknown::iid)) {
+            *object = this;
+            addRef();
+            return Steinberg::kResultOk;
+        }
+        return Steinberg::kNoInterface;
+    }
+
+    Steinberg::uint32 PLUGIN_API addRef() override { return 1; }
+    Steinberg::uint32 PLUGIN_API release() override { return 1; }
+
+    Steinberg::int32 parameterCount_ {};
+    std::array<FixedParameterValueQueue, kMaxMidiEventsPerBlock> queues_ {};
+};
+
 class AudioPlugin {
 public:
     virtual ~AudioPlugin() = default;
     virtual bool prepare(double, VstInt32, std::string&) { return true; }
-    virtual void process(float**, float**, VstInt32) noexcept = 0;
+    virtual void process(float**, float**, VstInt32, const MidiInputEvent*, VstInt32) noexcept = 0;
     virtual VstInt32 inputCount() const noexcept = 0;
     virtual VstInt32 outputCount() const noexcept = 0;
+    virtual VstInt32 midiInputCount() const noexcept { return 0; }
     virtual std::vector<std::string> inputBusNames() const { return {}; }
     virtual std::vector<std::string> outputBusNames() const { return {}; }
     virtual bool openEditor(std::string& error) { error = "Plugin editor is not available"; return false; }
@@ -247,16 +406,18 @@ public:
 
 class BypassPlugin final : public AudioPlugin {
 public:
-    BypassPlugin(VstInt32 inputCount, VstInt32 outputCount,
+    BypassPlugin(VstInt32 inputCount, VstInt32 outputCount, VstInt32 midiInputCount,
                  std::vector<std::string> inputLabels, std::vector<std::string> outputLabels)
         : inputCount_(inputCount)
         , outputCount_(outputCount)
+        , midiInputCount_(midiInputCount)
         , inputLabels_(std::move(inputLabels))
         , outputLabels_(std::move(outputLabels))
     {
     }
 
-    void process(float** inputs, float** outputs, VstInt32 frames) noexcept override
+    void process(float** inputs, float** outputs, VstInt32 frames,
+                 const MidiInputEvent*, VstInt32) noexcept override
     {
         for (VstInt32 channel = 0; channel < outputCount_; ++channel) {
             auto* output = outputs == nullptr ? nullptr : outputs[channel];
@@ -272,12 +433,14 @@ public:
 
     VstInt32 inputCount() const noexcept override { return inputCount_; }
     VstInt32 outputCount() const noexcept override { return outputCount_; }
+    VstInt32 midiInputCount() const noexcept override { return midiInputCount_; }
     std::vector<std::string> inputBusNames() const override { return inputLabels_; }
     std::vector<std::string> outputBusNames() const override { return outputLabels_; }
 
 private:
     VstInt32 inputCount_ {};
     VstInt32 outputCount_ {};
+    VstInt32 midiInputCount_ {};
     std::vector<std::string> inputLabels_;
     std::vector<std::string> outputLabels_;
 };
@@ -687,6 +850,8 @@ public:
                 }
                 inputCount_ = channelCount(Steinberg::Vst::kInput);
                 outputCount_ = channelCount(Steinberg::Vst::kOutput);
+                eventInputBusCount_ = std::max<Steinberg::int32>(
+                    0, component_->getBusCount(Steinberg::Vst::kEvent, Steinberg::Vst::kInput));
                 inputBusNames_ = channelBusNames(Steinberg::Vst::kInput);
                 outputBusNames_ = channelBusNames(Steinberg::Vst::kOutput);
                 if (controller_)
@@ -773,11 +938,15 @@ public:
             }
 
             bool busesActivated = true;
-            for (const auto direction : { Steinberg::Vst::kInput, Steinberg::Vst::kOutput }) {
-                const auto busCount = component_->getBusCount(Steinberg::Vst::kAudio, direction);
-                for (Steinberg::int32 busIndex = 0; busIndex < busCount; ++busIndex)
-                    busesActivated = component_->activateBus(Steinberg::Vst::kAudio, direction, busIndex, true) == Steinberg::kResultOk
-                        && busesActivated;
+            for (const auto mediaType : { Steinberg::Vst::kAudio, Steinberg::Vst::kEvent }) {
+                for (const auto direction : { Steinberg::Vst::kInput, Steinberg::Vst::kOutput }) {
+                    if (mediaType == Steinberg::Vst::kEvent && direction == Steinberg::Vst::kOutput)
+                        continue;
+                    const auto busCount = component_->getBusCount(mediaType, direction);
+                    for (Steinberg::int32 busIndex = 0; busIndex < busCount; ++busIndex)
+                        busesActivated = component_->activateBus(mediaType, direction, busIndex, true) == Steinberg::kResultOk
+                            && busesActivated;
+                }
             }
             if (!busesActivated
                 || !processData_.prepare(*component_, 0, Steinberg::Vst::kSample32)
@@ -788,6 +957,9 @@ public:
                 error = "Unable to configure VST3 audio processing";
                 return false;
             }
+            prepareMidiMappings();
+            inputEvents_.clear();
+            inputParameterChanges_.clearQueue();
             processing_ = true;
             processedSamples_ = 0;
             processContext_ = {};
@@ -798,11 +970,14 @@ public:
                 | Steinberg::Vst::ProcessContext::kContTimeValid
                 | Steinberg::Vst::ProcessContext::kTempoValid;
             processData_.processContext = &processContext_;
+            processData_.inputEvents = eventInputBusCount_ > 0 ? &inputEvents_ : nullptr;
+            processData_.inputParameterChanges = &inputParameterChanges_;
             return true;
         }, error);
     }
 
-    void process(float** inputs, float** outputs, VstInt32 frames) noexcept override
+    void process(float** inputs, float** outputs, VstInt32 frames,
+                 const MidiInputEvent* midiEvents, VstInt32 midiEventCount) noexcept override
     {
         if (!processing_ || !processor_)
             return;
@@ -813,6 +988,9 @@ public:
         processData_.numSamples = frames;
         mapAudioBuffers(Steinberg::Vst::kInput, inputs);
         mapAudioBuffers(Steinberg::Vst::kOutput, outputs);
+        inputEvents_.clear();
+        inputParameterChanges_.clearQueue();
+        appendMidiEvents(midiEvents, midiEventCount);
         processor_->process(processData_);
         processedSamples_ += static_cast<Steinberg::uint64>(frames);
     }
@@ -825,6 +1003,11 @@ public:
     VstInt32 outputCount() const noexcept override
     {
         return outputCount_;
+    }
+
+    VstInt32 midiInputCount() const noexcept override
+    {
+        return eventInputBusCount_;
     }
 
     bool openEditor(std::string& error) override
@@ -910,6 +1093,8 @@ private:
         module_.reset();
         inputCount_ = 0;
         outputCount_ = 0;
+        eventInputBusCount_ = 0;
+        midiControllerAssignments_.clear();
     }
 
     void mapAudioBuffers(Steinberg::Vst::BusDirection direction, float** buffers) noexcept
@@ -921,6 +1106,159 @@ private:
             bus.silenceFlags = 0;
             for (Steinberg::int32 channel = 0; channel < bus.numChannels; ++channel)
                 processData_.setChannelBuffer(direction, busIndex, channel, buffers == nullptr ? nullptr : buffers[channelOffset++]);
+        }
+    }
+
+    void prepareMidiMappings()
+    {
+        constexpr auto channelCount = 16;
+        constexpr auto controllerCount = Steinberg::Vst::kCountCtrlNumber;
+        midiControllerAssignments_.assign(
+            static_cast<std::size_t>(eventInputBusCount_) * channelCount * controllerCount,
+            Steinberg::Vst::kNoParamId);
+        if (!controller_)
+            return;
+        Steinberg::FUnknownPtr<Steinberg::Vst::IMidiMapping> midiMapping(controller_);
+        if (!midiMapping)
+            return;
+        for (Steinberg::int32 busIndex = 0; busIndex < eventInputBusCount_; ++busIndex) {
+            for (Steinberg::int16 channel = 0; channel < channelCount; ++channel) {
+                for (Steinberg::int16 controller = 0; controller < controllerCount; ++controller) {
+                    Steinberg::Vst::ParamID parameterId = Steinberg::Vst::kNoParamId;
+                    if (midiMapping->getMidiControllerAssignment(busIndex, channel, controller, parameterId)
+                        == Steinberg::kResultTrue) {
+                        const auto index = (static_cast<std::size_t>(busIndex) * channelCount + channel)
+                            * controllerCount + controller;
+                        midiControllerAssignments_[index] = parameterId;
+                    }
+                }
+            }
+        }
+    }
+
+    Steinberg::Vst::ParamID midiControllerAssignment(Steinberg::int32 busIndex,
+                                                      Steinberg::int16 channel,
+                                                      Steinberg::int16 controller) const noexcept
+    {
+        constexpr auto channelCount = 16;
+        constexpr auto controllerCount = Steinberg::Vst::kCountCtrlNumber;
+        if (busIndex < 0 || busIndex >= eventInputBusCount_ || channel < 0 || channel >= channelCount
+            || controller < 0 || controller >= controllerCount)
+            return Steinberg::Vst::kNoParamId;
+        const auto index = (static_cast<std::size_t>(busIndex) * channelCount + channel)
+            * controllerCount + controller;
+        return midiControllerAssignments_[index];
+    }
+
+    void appendMappedController(Steinberg::int32 busIndex, Steinberg::int16 channel,
+                                Steinberg::int16 controller, Steinberg::int32 sampleOffset,
+                                Steinberg::Vst::ParamValue value) noexcept
+    {
+        const auto parameterId = midiControllerAssignment(busIndex, channel, controller);
+        if (parameterId == Steinberg::Vst::kNoParamId)
+            return;
+        Steinberg::int32 queueIndex = 0;
+        auto* queue = inputParameterChanges_.addParameterData(parameterId, queueIndex);
+        if (queue == nullptr)
+            return;
+        Steinberg::int32 pointIndex = 0;
+        queue->addPoint(sampleOffset, value, pointIndex);
+    }
+
+    void appendMidiEvents(const MidiInputEvent* midiEvents, VstInt32 midiEventCount) noexcept
+    {
+        if (midiEvents == nullptr || midiEventCount <= 0)
+            return;
+        const auto count = std::min<VstInt32>(midiEventCount, kMaxMidiEventsPerBlock);
+        for (VstInt32 index = 0; index < count; ++index) {
+            const auto& midi = midiEvents[index];
+            if (midi.data == nullptr || midi.size == 0 || midi.portIndex < 0
+                || midi.portIndex >= eventInputBusCount_)
+                continue;
+            const auto sampleOffset = std::max<std::int32_t>(0, midi.sampleOffset);
+            const auto status = midi.data[0];
+            if (status == 0xf0) {
+                Steinberg::Vst::Event event {};
+                event.busIndex = midi.portIndex;
+                event.sampleOffset = sampleOffset;
+                event.ppqPosition = -1.0;
+                event.flags = Steinberg::Vst::Event::kIsLive;
+                event.type = Steinberg::Vst::Event::kDataEvent;
+                event.data.type = Steinberg::Vst::DataEvent::kMidiSysEx;
+                event.data.size = static_cast<Steinberg::uint32>(std::min<std::size_t>(
+                    midi.size, std::numeric_limits<Steinberg::uint32>::max()));
+                event.data.bytes = reinterpret_cast<const Steinberg::uint8*>(midi.data);
+                inputEvents_.addEvent(event);
+                continue;
+            }
+            if (status < 0x80 || status >= 0xf0)
+                continue;
+            const auto messageType = status & 0xf0;
+            const auto channel = static_cast<Steinberg::int16>(status & 0x0f);
+            const auto hasTwoDataBytes = messageType != 0xc0 && messageType != 0xd0;
+            if (midi.size < (hasTwoDataBytes ? 3u : 2u))
+                continue;
+            const auto first = midi.data[1];
+            const auto second = hasTwoDataBytes ? midi.data[2] : 0;
+            switch (messageType) {
+            case 0x80:
+            case 0x90: {
+                Steinberg::Vst::Event event {};
+                event.busIndex = midi.portIndex;
+                event.sampleOffset = sampleOffset;
+                event.ppqPosition = -1.0;
+                event.flags = Steinberg::Vst::Event::kIsLive;
+                if (messageType == 0x90 && second != 0) {
+                    event.type = Steinberg::Vst::Event::kNoteOnEvent;
+                    event.noteOn.channel = channel;
+                    event.noteOn.pitch = first;
+                    event.noteOn.tuning = 0.0F;
+                    event.noteOn.velocity = static_cast<float>(second) / 127.0F;
+                    event.noteOn.length = 0;
+                    event.noteOn.noteId = -1;
+                } else {
+                    event.type = Steinberg::Vst::Event::kNoteOffEvent;
+                    event.noteOff.channel = channel;
+                    event.noteOff.pitch = first;
+                    event.noteOff.velocity = static_cast<float>(second) / 127.0F;
+                    event.noteOff.noteId = -1;
+                    event.noteOff.tuning = 0.0F;
+                }
+                inputEvents_.addEvent(event);
+                break;
+            }
+            case 0xa0: {
+                Steinberg::Vst::Event event {};
+                event.busIndex = midi.portIndex;
+                event.sampleOffset = sampleOffset;
+                event.ppqPosition = -1.0;
+                event.flags = Steinberg::Vst::Event::kIsLive;
+                event.type = Steinberg::Vst::Event::kPolyPressureEvent;
+                event.polyPressure.channel = channel;
+                event.polyPressure.pitch = first;
+                event.polyPressure.pressure = static_cast<float>(second) / 127.0F;
+                event.polyPressure.noteId = -1;
+                inputEvents_.addEvent(event);
+                break;
+            }
+            case 0xb0:
+                appendMappedController(midi.portIndex, channel, first, sampleOffset,
+                                        static_cast<double>(second) / 127.0);
+                break;
+            case 0xd0:
+                appendMappedController(midi.portIndex, channel, Steinberg::Vst::kAfterTouch,
+                                        sampleOffset, static_cast<double>(first) / 127.0);
+                break;
+            case 0xe0: {
+                const auto value = static_cast<Steinberg::int32>(first)
+                    | (static_cast<Steinberg::int32>(second) << 7);
+                appendMappedController(midi.portIndex, channel, Steinberg::Vst::kPitchBend,
+                                        sampleOffset, static_cast<double>(value) / 16383.0);
+                break;
+            }
+            default:
+                break;
+            }
         }
     }
 
@@ -1006,12 +1344,48 @@ private:
     Steinberg::uint64 processedSamples_ {};
     VstInt32 inputCount_ {};
     VstInt32 outputCount_ {};
+    VstInt32 eventInputBusCount_ {};
     std::vector<std::string> inputBusNames_;
     std::vector<std::string> outputBusNames_;
+    std::vector<Steinberg::Vst::ParamID> midiControllerAssignments_;
+    Steinberg::Vst::EventList inputEvents_ { kMaxMidiEventsPerBlock };
+    FixedParameterChanges inputParameterChanges_;
     EditorWindow editor_;
 };
 
 #if WJN_ENABLE_VST2
+struct Vst2EventBlock final {
+    VstEvents events {};
+    std::array<VstEvent*, kMaxMidiEventsPerBlock - 2> extraEventPointers {};
+    std::array<VstMidiEvent, kMaxMidiEventsPerBlock> midiEvents {};
+    std::array<VstMidiSysexEvent, kMaxMidiEventsPerBlock> sysexEvents {};
+
+    Vst2EventBlock()
+    {
+        events.reserved = 0;
+    }
+
+    void clear() noexcept
+    {
+        events.numEvents = 0;
+    }
+
+    bool append(VstEvent* event) noexcept
+    {
+        if (events.numEvents >= kMaxMidiEventsPerBlock)
+            return false;
+        auto* pointers = events.events;
+        if (events.numEvents >= 2)
+            extraEventPointers[events.numEvents - 2] = event;
+        else
+            pointers[events.numEvents] = event;
+        ++events.numEvents;
+        return true;
+    }
+};
+
+static_assert(offsetof(Vst2EventBlock, extraEventPointers) == sizeof(VstEvents));
+
 class Vst2Plugin final : public AudioPlugin {
 public:
     bool load(const std::wstring& path, const std::wstring& internalPlugin, std::string& error)
@@ -1070,6 +1444,7 @@ public:
         }
         effect_->dispatcher(effect_, effOpen, 0, 0, nullptr, 0.0F);
         opened_ = true;
+        midiInputCount_ = detectMidiInputCount();
         return true;
     }
 
@@ -1090,16 +1465,22 @@ public:
         return true;
     }
 
-    void process(float** inputs, float** outputs, VstInt32 frames) noexcept override
+    void process(float** inputs, float** outputs, VstInt32 frames,
+                 const MidiInputEvent* midiEvents, VstInt32 midiEventCount) noexcept override
     {
         if (effect_ == nullptr)
             return;
+        midiEventBlock_.clear();
+        appendMidiEvents(midiEvents, midiEventCount);
+        if (midiEventBlock_.events.numEvents > 0 && effect_->dispatcher != nullptr)
+            effect_->dispatcher(effect_, effProcessEvents, 0, 0, &midiEventBlock_.events, 0.0F);
         if (effect_->processReplacing != nullptr)
             effect_->processReplacing(effect_, inputs, outputs, frames);
     }
 
     VstInt32 inputCount() const noexcept override { return effect_ == nullptr ? 0 : std::max<VstInt32>(0, effect_->numInputs); }
     VstInt32 outputCount() const noexcept override { return effect_ == nullptr ? 0 : std::max<VstInt32>(0, effect_->numOutputs); }
+    VstInt32 midiInputCount() const noexcept override { return midiInputCount_; }
     std::vector<std::string> inputBusNames() const override { return pinLabels(effGetInputProperties, inputCount()); }
     std::vector<std::string> outputBusNames() const override { return pinLabels(effGetOutputProperties, outputCount()); }
     VstInt32 parameterCount() const noexcept { return effect_ == nullptr ? 0 : std::max<VstInt32>(0, effect_->numParams); }
@@ -1186,6 +1567,67 @@ public:
     ~Vst2Plugin() { unload(); }
 
 private:
+    VstIntPtr queryCanDo(const char* capability) const noexcept
+    {
+        if (effect_ == nullptr || effect_->dispatcher == nullptr)
+            return 0;
+        return effect_->dispatcher(effect_, effCanDo, 0, 0, const_cast<char*>(capability), 0.0F);
+    }
+
+    VstInt32 detectMidiInputCount() const noexcept
+    {
+        if (effect_ == nullptr || effect_->dispatcher == nullptr)
+            return 0;
+        const auto midiChannels = effect_->dispatcher(effect_, effGetNumMidiInputChannels,
+                                                       0, 0, nullptr, 0.0F);
+        if (midiChannels > 0)
+            return 1;
+        const auto receiveMidi = queryCanDo("receiveVstMidiEvent");
+        const auto receiveEvents = queryCanDo("receiveVstEvents");
+        const auto category = effect_->dispatcher(effect_, effGetPlugCategory, 0, 0, nullptr, 0.0F);
+        const auto isInstrument = (effect_->flags & effFlagsIsSynth) != 0 || category == kPlugCategSynth;
+        return receiveMidi == 1 || receiveEvents == 1
+            || (isInstrument && receiveMidi >= 0 && receiveEvents >= 0) ? 1 : 0;
+    }
+
+    void appendMidiEvents(const MidiInputEvent* midiEvents, VstInt32 midiEventCount) noexcept
+    {
+        if (midiEvents == nullptr || midiEventCount <= 0)
+            return;
+        const auto count = std::min<VstInt32>(midiEventCount, kMaxMidiEventsPerBlock);
+        for (VstInt32 index = 0; index < count; ++index) {
+            const auto& midi = midiEvents[index];
+            if (midi.data == nullptr || midi.size == 0)
+                continue;
+            const auto eventIndex = midiEventBlock_.events.numEvents;
+            if (eventIndex >= kMaxMidiEventsPerBlock)
+                break;
+            const auto deltaFrames = static_cast<VstInt32>(std::min<std::size_t>(
+                std::max<std::int32_t>(0, midi.sampleOffset), std::numeric_limits<VstInt32>::max()));
+            if (midi.data[0] == 0xf0) {
+                auto& event = midiEventBlock_.sysexEvents[eventIndex];
+                event = {};
+                event.type = kVstSysExType;
+                event.byteSize = sizeof(VstMidiSysexEvent);
+                event.deltaFrames = deltaFrames;
+                event.dumpBytes = static_cast<VstInt32>(std::min<std::size_t>(
+                    midi.size, std::numeric_limits<VstInt32>::max()));
+                event.sysexDump = reinterpret_cast<char*>(const_cast<jack_midi_data_t*>(midi.data));
+                midiEventBlock_.append(reinterpret_cast<VstEvent*>(&event));
+                continue;
+            }
+            auto& event = midiEventBlock_.midiEvents[eventIndex];
+            event = {};
+            event.type = kVstMidiType;
+            event.byteSize = sizeof(VstMidiEvent);
+            event.deltaFrames = deltaFrames;
+            event.flags = kVstMidiEventIsRealtime;
+            const auto size = std::min<std::size_t>(midi.size, sizeof(event.midiData) - 1);
+            std::copy_n(midi.data, size, event.midiData);
+            midiEventBlock_.append(reinterpret_cast<VstEvent*>(&event));
+        }
+    }
+
     std::vector<std::string> pinLabels(VstInt32 opcode, VstInt32 count) const
     {
         std::vector<std::string> labels;
@@ -1209,6 +1651,8 @@ private:
     bool opened_ {};
     bool processing_ {};
     bool editorOpen_ {};
+    VstInt32 midiInputCount_ {};
+    Vst2EventBlock midiEventBlock_;
     EditorWindow editor_;
 };
 #endif
@@ -1240,6 +1684,8 @@ public:
         }
         if (!registerAudioPorts(plugin, portDisplayMode, error))
             return false;
+        if (!registerMidiPorts(plugin, error))
+            return false;
         if (!plugin.prepare(sampleRate_(client_), static_cast<VstInt32>(bufferSize_(client_)), error))
             return false;
         plugin_ = &plugin;
@@ -1260,8 +1706,11 @@ public:
         plugin_ = nullptr;
         audioInputs_.clear();
         audioOutputs_.clear();
+        midiInputs_.clear();
         inputBuffers_.clear();
         outputBuffers_.clear();
+        midiInputBuffers_.clear();
+        midiEventCount_ = 0;
         if (library_ != nullptr)
             FreeLibrary(library_);
         library_ = nullptr;
@@ -1287,6 +1736,8 @@ private:
     using SetProcessCallback = int (*) (jack_client_t*, JackProcessCallback, void*);
     using PortRegister = jack_port_t* (*) (jack_client_t*, const char*, const char*, unsigned long, unsigned long);
     using PortGetBuffer = void* (*) (jack_port_t*, jack_nframes_t);
+    using MidiGetEventCount = uint32_t (*) (void*);
+    using MidiEventGet = int (*) (jack_midi_event_t*, void*, uint32_t);
     using SampleRate = jack_nframes_t (*) (jack_client_t*);
     using BufferSize = jack_nframes_t (*) (jack_client_t*);
 
@@ -1313,6 +1764,8 @@ private:
         setProcessCallback_ = loadFunction<SetProcessCallback>("jack_set_process_callback");
         portRegister_ = loadFunction<PortRegister>("jack_port_register");
         portGetBuffer_ = loadFunction<PortGetBuffer>("jack_port_get_buffer");
+        midiGetEventCount_ = loadFunction<MidiGetEventCount>("jack_midi_get_event_count");
+        midiEventGet_ = loadFunction<MidiEventGet>("jack_midi_event_get");
         sampleRate_ = loadFunction<SampleRate>("jack_get_sample_rate");
         bufferSize_ = loadFunction<BufferSize>("jack_get_buffer_size");
         if (clientOpen_ != nullptr && clientClose_ != nullptr && activate_ != nullptr && deactivate_ != nullptr
@@ -1366,6 +1819,29 @@ private:
         return true;
     }
 
+    bool registerMidiPorts(const AudioPlugin& plugin, std::string& error)
+    {
+        const auto count = plugin.midiInputCount();
+        if (count <= 0)
+            return true;
+        if (midiGetEventCount_ == nullptr || midiEventGet_ == nullptr) {
+            error = "JACK runtime library is missing the MIDI input API";
+            return false;
+        }
+        for (VstInt32 portIndex = 0; portIndex < count; ++portIndex) {
+            const auto name = portIndex == 0 ? std::string("midi_in")
+                : "midi_in_" + std::to_string(portIndex + 1);
+            auto* port = portRegister_(client_, name.c_str(), JACK_DEFAULT_MIDI_TYPE, JackPortIsInput, 0);
+            if (port == nullptr) {
+                error = "Unable to register JACK MIDI input ports";
+                return false;
+            }
+            midiInputs_.push_back(port);
+        }
+        midiInputBuffers_.resize(midiInputs_.size());
+        return true;
+    }
+
     static std::string sanitizedPortName(std::string name)
     {
         for (auto& character : name) {
@@ -1385,8 +1861,43 @@ private:
             if (runtime->outputBuffers_[index] != nullptr)
                 std::fill(runtime->outputBuffers_[index], runtime->outputBuffers_[index] + frames, 0.0F);
         }
+        runtime->midiEventCount_ = 0;
+        for (std::size_t portIndex = 0; portIndex < runtime->midiInputs_.size(); ++portIndex) {
+            runtime->midiInputBuffers_[portIndex] = runtime->portGetBuffer_(runtime->midiInputs_[portIndex], frames);
+            auto* portBuffer = runtime->midiInputBuffers_[portIndex];
+            if (portBuffer == nullptr)
+                continue;
+            const auto eventCount = runtime->midiGetEventCount_(portBuffer);
+            for (uint32_t eventIndex = 0; eventIndex < eventCount; ++eventIndex) {
+                if (runtime->midiEventCount_ >= kMaxMidiEventsPerBlock)
+                    break;
+                jack_midi_event_t event {};
+                if (runtime->midiEventGet_(&event, portBuffer, eventIndex) != 0)
+                    continue;
+                const auto eventPosition = runtime->midiEventCount_;
+                runtime->midiEvents_[eventPosition] = {
+                    static_cast<std::int32_t>(portIndex),
+                    static_cast<std::int32_t>(std::min<jack_nframes_t>(event.time, frames)),
+                    eventPosition,
+                    event.buffer,
+                    event.size
+                };
+                ++runtime->midiEventCount_;
+            }
+        }
+        std::sort(runtime->midiEvents_.begin(),
+                  runtime->midiEvents_.begin() + runtime->midiEventCount_,
+                  [] (const MidiInputEvent& left, const MidiInputEvent& right) {
+                      if (left.sampleOffset != right.sampleOffset)
+                          return left.sampleOffset < right.sampleOffset;
+                      if (left.portIndex != right.portIndex)
+                          return left.portIndex < right.portIndex;
+                      return left.sequence < right.sequence;
+                  });
         if (runtime->plugin_ != nullptr)
-            runtime->plugin_->process(runtime->inputBuffers_.data(), runtime->outputBuffers_.data(), static_cast<VstInt32>(frames));
+            runtime->plugin_->process(runtime->inputBuffers_.data(), runtime->outputBuffers_.data(),
+                                      static_cast<VstInt32>(frames), runtime->midiEvents_.data(),
+                                      runtime->midiEventCount_);
         return 0;
     }
 
@@ -1400,13 +1911,19 @@ private:
     SetProcessCallback setProcessCallback_ {};
     PortRegister portRegister_ {};
     PortGetBuffer portGetBuffer_ {};
+    MidiGetEventCount midiGetEventCount_ {};
+    MidiEventGet midiEventGet_ {};
     SampleRate sampleRate_ {};
     BufferSize bufferSize_ {};
     AudioPlugin* plugin_ {};
     std::vector<jack_port_t*> audioInputs_;
     std::vector<jack_port_t*> audioOutputs_;
+    std::vector<jack_port_t*> midiInputs_;
     std::vector<float*> inputBuffers_;
     std::vector<float*> outputBuffers_;
+    std::vector<void*> midiInputBuffers_;
+    std::array<MidiInputEvent, kMaxMidiEventsPerBlock> midiEvents_ {};
+    VstInt32 midiEventCount_ {};
 };
 
 class PipeServer final {
@@ -1454,6 +1971,7 @@ private:
             responseStorage_ = jack_.isActive()
                 ? "{\"ok\":true,\"active\":true,\"inputs\":" + std::to_string(plugin_.inputCount())
                     + ",\"outputs\":" + std::to_string(plugin_.outputCount())
+                    + ",\"midiInputs\":" + std::to_string(plugin_.midiInputCount())
                     + ",\"inputLabels\":" + jsonArray(plugin_.inputBusNames())
                     + ",\"outputLabels\":" + jsonArray(plugin_.outputBusNames()) + "}\n"
                 : "{\"ok\":true,\"active\":false}\n";
@@ -1506,6 +2024,7 @@ int wmain(int argc, wchar_t* argv[])
     std::string error;
     if (options.bypass) {
         plugin = std::make_unique<BypassPlugin>(options.bypassInputs, options.bypassOutputs,
+                                                options.bypassMidiInputs,
                                                 std::move(options.bypassInputLabels), std::move(options.bypassOutputLabels));
     } else if (extension == L".vst3") {
         auto vst3 = std::make_unique<Vst3Plugin>();

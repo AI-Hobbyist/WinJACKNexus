@@ -494,7 +494,8 @@ private:
             arguments += {
                 QStringLiteral("--bypass"),
                 QStringLiteral("--bypass-inputs"), QString::number(inputCount_),
-                QStringLiteral("--bypass-outputs"), QString::number(outputCount_)
+                QStringLiteral("--bypass-outputs"), QString::number(outputCount_),
+                QStringLiteral("--bypass-midi-inputs"), QString::number(midiInputCount_)
             };
             for (const auto& label : inputLabels_)
                 arguments += { QStringLiteral("--bypass-input-label"), label };
@@ -513,7 +514,7 @@ private:
             }
             bypassed_ = true;
             status_ = QStringLiteral("VSTProcess crashed (exit %1); switching this node to bypass.").arg(exitCode);
-            if (inputCount_ <= 0 && outputCount_ <= 0)
+            if (inputCount_ <= 0 && outputCount_ <= 0 && midiInputCount_ <= 0)
                 return;
             QTimer::singleShot(0, processWatcher_.get(), [this, launchedProcess] {
                 if (!stopping_ && process_.get() == launchedProcess && launchedProcess->state() == QProcess::NotRunning)
@@ -544,6 +545,7 @@ private:
             const auto details = document.object();
             inputCount_ = details.value(QStringLiteral("inputs")).toInt(inputCount_);
             outputCount_ = details.value(QStringLiteral("outputs")).toInt(outputCount_);
+            midiInputCount_ = details.value(QStringLiteral("midiInputs")).toInt(midiInputCount_);
             inputLabels_.clear();
             for (const auto& label : details.value(QStringLiteral("inputLabels")).toArray())
                 inputLabels_.push_back(label.toString());
@@ -552,7 +554,7 @@ private:
                 outputLabels_.push_back(label.toString());
         }
         bypassed_ = bypass;
-        status_ = bypass ? QStringLiteral("VSTProcess is bypassing audio after a plugin crash.")
+        status_ = bypass ? QStringLiteral("VSTProcess is bypassing plugin I/O after a plugin crash.")
                           : QStringLiteral("VSTProcess is running.");
         return true;
     }
@@ -622,6 +624,7 @@ private:
     std::unique_ptr<QObject> processWatcher_;
     VstInt32 inputCount_ {};
     VstInt32 outputCount_ {};
+    VstInt32 midiInputCount_ {};
     QStringList inputLabels_;
     QStringList outputLabels_;
     bool stopping_ {};
