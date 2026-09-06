@@ -53,6 +53,7 @@
 #include <cmath>
 #include <functional>
 #include <unordered_map>
+#include <unordered_set>
 #include <utility>
 
 namespace {
@@ -64,6 +65,7 @@ constexpr qreal kHeaderHeight = 34.0;
 constexpr qreal kPortHeight = 26.0;
 constexpr qreal kCanvasExtent = 1'000'000.0;
 constexpr auto kModuleNodeMimeType = "application/x-winjacknexus-module-node";
+constexpr auto kSubGraphNodeMimeType = "application/x-winjacknexus-subgraph-node";
 
 bool readModuleNodeMimeData(const QMimeData* mimeData, QString& modulePath, std::uint32_t& index)
 {
@@ -76,6 +78,14 @@ bool readModuleNodeMimeData(const QMimeData* mimeData, QString& modulePath, std:
     index = payload.mid(separator + 1).toUInt(&validIndex);
     modulePath = QString::fromUtf8(payload.left(separator));
     return separator > 0 && validIndex && !modulePath.isEmpty();
+}
+
+bool readSubGraphNodeMimeData(const QMimeData* mimeData, QString& name)
+{
+    if (mimeData == nullptr || !mimeData->hasFormat(kSubGraphNodeMimeType))
+        return false;
+    name = QString::fromUtf8(mimeData->data(kSubGraphNodeMimeType)).trimmed();
+    return !name.isEmpty();
 }
 
 struct CanvasTheme final {
@@ -194,9 +204,10 @@ bool clientCanSplit(const Snapshot& snapshot, const std::string& clientId)
 class CanvasNode final : public QGraphicsObject {
 public:
     CanvasNode(ClientInfo client, std::vector<PortInfo> ports, std::function<void(const std::string&, const QPointF&)> portPressed,
-               std::function<void(const QPointF&)> portDragged, std::function<void(const QPointF&)> portReleased)
+                             std::function<void(const QPointF&)> portDragged, std::function<void(const QPointF&)> portReleased,
+                             std::function<void()> doubleClicked = {})
         : client_(std::move(client)), ports_(std::move(ports)), portPressed_(std::move(portPressed)),
-          portDragged_(std::move(portDragged)), portReleased_(std::move(portReleased))
+                    portDragged_(std::move(portDragged)), portReleased_(std::move(portReleased)), doubleClicked_(std::move(doubleClicked))
     {
         std::sort(ports_.begin(), ports_.end(), [](const PortInfo& left, const PortInfo& right) {
             return left.ordinal < right.ordinal;
@@ -357,6 +368,16 @@ protected:
         QGraphicsObject::mouseReleaseEvent(event);
     }
 
+    void mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event) override
+    {
+        if (event->button() == Qt::LeftButton && doubleClicked_) {
+            doubleClicked_();
+            event->accept();
+            return;
+        }
+        QGraphicsObject::mouseDoubleClickEvent(event);
+    }
+
 private:
     struct LabelWidths final {
         qreal input = 0.0;
@@ -395,6 +416,7 @@ private:
     std::function<void(const std::string&, const QPointF&)> portPressed_;
     std::function<void(const QPointF&)> portDragged_;
     std::function<void(const QPointF&)> portReleased_;
+    std::function<void()> doubleClicked_;
     std::string pressedPortId_;
     qreal inputLabelWidth_ = 0.0;
     qreal outputLabelWidth_ = 0.0;
@@ -500,7 +522,12 @@ QString modulePathFromStorage(const QString& storedModulePath)
 }
 
 PatchbayCanvas::PatchbayCanvas(QWidget* parent)
-    : QGraphicsView(parent)
+    : PatchbayCanvas(PatchbaySceneContext {}, parent)
+{
+}
+
+PatchbayCanvas::PatchbayCanvas(PatchbaySceneContext context, QWidget* parent)
+    : QGraphicsView(parent), sceneContext_(std::move(context))
 {
     auto* canvasScene = new QGraphicsScene(this);
     canvasScene->setSceneRect(-kCanvasExtent, -kCanvasExtent, kCanvasExtent * 2.0, kCanvasExtent * 2.0);
@@ -519,6 +546,44 @@ PatchbayCanvas::PatchbayCanvas(QWidget* parent)
 const Snapshot& PatchbayCanvas::snapshot() const noexcept
 {
     return snapshot_;
+}
+
+const PatchbaySceneContext& PatchbayCanvas::sceneContext() const noexcept
+{
+    return sceneContext_;
+}
+
+std::string PatchbayCanvas::addSubGraph(const QString& name, const QPointF& position)
+{
+    std::string id;
+    for (std::size_t index = 1; ; ++index) {
+        id = "subgraph-" + std::to_string(index);
+        if (std::none_of(subGraphNodes_.cbegin(), subGraphNodes_.cend(), [&id](const auto& node) {
+                return node.id == id;
+            }))
+            break;
+    }
+
+    const auto displayName = name.trimmed().isEmpty() ? QStringLiteral("Sub Graph") : name.trimmed();
+    subGraphNodes_.push_back({ id, displayName, position });
+    setSnapshot(snapshot_);
+    projectDirty_ = true;
+    return id;
+}
+
+bool PatchbayCanvas::isSubGraphNode(const std::string& clientId) const noexcept
+{
+    return std::any_of(subGraphNodes_.cbegin(), subGraphNodes_.cend(), [&clientId](const auto& node) {
+        return node.id == clientId;
+    });
+}
+
+QString PatchbayCanvas::subGraphName(const std::string& clientId) const
+{
+    const auto node = std::find_if(subGraphNodes_.cbegin(), subGraphNodes_.cend(), [&clientId](const auto& value) {
+        return value.id == clientId;
+    });
+    return node == subGraphNodes_.cend() ? QString() : node->name;
 }
 
 bool PatchbayCanvas::saveProject(const QString& filePath) const
@@ -869,6 +934,25 @@ void PatchbayCanvas::setSnapshot(const Snapshot& snapshot)
             isSystem ? QStringLiteral("system capture") : QString::fromStdString(client.name) + QStringLiteral(" · 输出"));
     }
 
+    for (const auto& subGraph : subGraphNodes_) {
+        ClientInfo client;
+        client.id = subGraph.id;
+        client.name = subGraph.name.toStdString();
+        client.alias = client.name;
+        client.x = subGraph.position.x();
+        client.y = subGraph.position.y();
+        auto* node = new CanvasNode(std::move(client), {}, {}, {}, {}, [this, id = subGraph.id] {
+            if (subGraphNodeDoubleClickHandler_)
+                subGraphNodeDoubleClickHandler_(id);
+        });
+        node->setPos(subGraph.position);
+        node->setData(0, QString::fromStdString(subGraph.id));
+        node->setData(3, QString::fromStdString(subGraph.id));
+        node->setData(4, subGraph.position);
+        node->setSelected(selectedClientIds.contains(subGraph.id));
+        scene()->addItem(node);
+    }
+
     std::unordered_map<std::string, const PortInfo*> ports;
     for (const auto& port : snapshot_.ports)
         ports.emplace(port.id, &port);
@@ -926,6 +1010,7 @@ void PatchbayCanvas::markProjectSaved() noexcept
 void PatchbayCanvas::newProject()
 {
     snapshot_ = {};
+    subGraphNodes_.clear();
     pendingPortId_.clear();
     setSnapshot(snapshot_);
     projectDirty_ = false;
@@ -994,6 +1079,17 @@ void PatchbayCanvas::setNodeSelectionHandler(std::function<void(const std::strin
 void PatchbayCanvas::setConnectionDisconnectHandler(std::function<void(const std::string&, const std::string&)> handler)
 {
     connectionDisconnectHandler_ = std::move(handler);
+}
+
+void PatchbayCanvas::setSubGraphNodeDoubleClickHandler(std::function<void(const std::string&)> handler)
+{
+    subGraphNodeDoubleClickHandler_ = std::move(handler);
+}
+
+void PatchbayCanvas::setSubGraphNodeDropHandler(std::function<bool(const QString&, const QPointF&)> handler)
+{
+    subGraphNodeDropHandler_ = std::move(handler);
+    setAcceptDrops(moduleNodeDropHandler_ != nullptr || subGraphNodeDropHandler_ != nullptr);
 }
 
 void PatchbayCanvas::setModuleNodeHandlers(std::function<bool(const std::string&)> isModuleNode,
@@ -1543,7 +1639,12 @@ void PatchbayCanvas::applySearchFilter()
         const auto client = std::find_if(snapshot_.clients.cbegin(), snapshot_.clients.cend(), [&id](const ClientInfo& value) {
             return value.id == id;
         });
-        QString searchable = client == snapshot_.clients.cend() ? QString() : QString::fromStdString(client->name + " " + client->alias).toLower();
+        const auto subGraph = std::find_if(subGraphNodes_.cbegin(), subGraphNodes_.cend(), [&id](const auto& value) {
+            return value.id == id;
+        });
+        QString searchable = client != snapshot_.clients.cend()
+            ? QString::fromStdString(client->name + " " + client->alias).toLower()
+            : subGraph != subGraphNodes_.cend() ? subGraph->name.toLower() : QString();
         for (const auto& port : snapshot_.ports) {
             if (port.clientId == id)
                 searchable += QLatin1Char(' ') + QString::fromStdString(port.name + " " + port.alias).toLower();
@@ -1561,6 +1662,16 @@ void PatchbayCanvas::updateClientPositions()
         if (!item->data(0).isValid())
             continue;
         const auto id = item->data(0).toString().toStdString();
+        const auto subGraph = std::find_if(subGraphNodes_.begin(), subGraphNodes_.end(), [&id](auto& value) {
+            return value.id == id;
+        });
+        if (subGraph != subGraphNodes_.end()) {
+            if (subGraph->position == item->pos())
+                continue;
+            subGraph->position = item->pos();
+            changed = true;
+            continue;
+        }
         if (item->data(4).isValid() && item->data(4).toPointF() == item->pos())
             continue;
         const auto client = std::find_if(snapshot_.clients.begin(), snapshot_.clients.end(), [&id](const ClientInfo& value) {
@@ -1600,6 +1711,11 @@ void PatchbayCanvas::notifySelection()
 
 void PatchbayCanvas::dragEnterEvent(QDragEnterEvent* event)
 {
+    QString subGraphName;
+    if (subGraphNodeDropHandler_ && readSubGraphNodeMimeData(event->mimeData(), subGraphName)) {
+        event->acceptProposedAction();
+        return;
+    }
     QString modulePath;
     std::uint32_t index = 0;
     if (moduleNodeDropHandler_ && readModuleNodeMimeData(event->mimeData(), modulePath, index)) {
@@ -1611,6 +1727,11 @@ void PatchbayCanvas::dragEnterEvent(QDragEnterEvent* event)
 
 void PatchbayCanvas::dragMoveEvent(QDragMoveEvent* event)
 {
+    QString subGraphName;
+    if (subGraphNodeDropHandler_ && readSubGraphNodeMimeData(event->mimeData(), subGraphName)) {
+        event->acceptProposedAction();
+        return;
+    }
     QString modulePath;
     std::uint32_t index = 0;
     if (moduleNodeDropHandler_ && readModuleNodeMimeData(event->mimeData(), modulePath, index)) {
@@ -1622,6 +1743,14 @@ void PatchbayCanvas::dragMoveEvent(QDragMoveEvent* event)
 
 void PatchbayCanvas::dropEvent(QDropEvent* event)
 {
+    QString subGraphName;
+    if (subGraphNodeDropHandler_ && readSubGraphNodeMimeData(event->mimeData(), subGraphName)) {
+        if (subGraphNodeDropHandler_(subGraphName, mapToScene(event->position().toPoint())))
+            event->acceptProposedAction();
+        else
+            event->ignore();
+        return;
+    }
     QString modulePath;
     std::uint32_t index = 0;
     if (moduleNodeDropHandler_ && readModuleNodeMimeData(event->mimeData(), modulePath, index)) {

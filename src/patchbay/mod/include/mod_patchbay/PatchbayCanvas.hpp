@@ -23,6 +23,7 @@ class JackClient;
 
 #include <QGraphicsView>
 #include <QPointF>
+#include <QString>
 
 #include <cstdint>
 #include <functional>
@@ -38,12 +39,29 @@ struct PatchbayProjectModule final {
     std::string settingsJson;
 };
 
+struct PatchbaySceneContext final {
+    std::string id = "main";
+    QString title;
+    bool isSubGraph = false;
+};
+
+struct PatchbaySubGraphInfo final {
+    std::string id;
+    QString name;
+    QPointF position;
+};
+
 class PatchbayCanvas final : public QGraphicsView {
 public:
     explicit PatchbayCanvas(QWidget* parent = nullptr);
+    PatchbayCanvas(PatchbaySceneContext context, QWidget* parent = nullptr);
 
     void setSnapshot(const WinJACKNexus::Patchbay::Core::Snapshot& snapshot);
     const WinJACKNexus::Patchbay::Core::Snapshot& snapshot() const noexcept;
+    const PatchbaySceneContext& sceneContext() const noexcept;
+    std::string addSubGraph(const QString& name, const QPointF& position);
+    bool isSubGraphNode(const std::string& clientId) const noexcept;
+    QString subGraphName(const std::string& clientId) const;
     bool saveProject(const QString& filePath) const;
     bool saveProject(const QString& filePath, const std::vector<PatchbayProjectModule>& modules) const;
     bool loadProject(const QString& filePath);
@@ -60,6 +78,8 @@ public:
     void setSearchQuery(const QString& query);
     void setNodeSelectionHandler(std::function<void(const std::string&)> handler);
     void setConnectionDisconnectHandler(std::function<void(const std::string&, const std::string&)> handler);
+    void setSubGraphNodeDoubleClickHandler(std::function<void(const std::string&)> handler);
+    void setSubGraphNodeDropHandler(std::function<bool(const QString&, const QPointF&)> handler);
     void setModuleNodeHandlers(std::function<bool(const std::string&)> isModuleNode,
                                std::function<bool(const std::string&)> copyModuleNode,
                                std::function<bool(const std::string&)> removeModuleNode,
@@ -101,6 +121,8 @@ private:
     void notifySelection();
 
     WinJACKNexus::Patchbay::Core::Snapshot snapshot_;
+    PatchbaySceneContext sceneContext_;
+    std::vector<PatchbaySubGraphInfo> subGraphNodes_;
     QString searchQuery_;
     std::string pendingPortId_;
     std::string draggedPortId_;
@@ -110,6 +132,8 @@ private:
     QGraphicsPathItem* draggedConnectionLine_ = nullptr;
     std::function<void(const std::string&)> nodeSelectionHandler_;
     std::function<void(const std::string&, const std::string&)> connectionDisconnectHandler_;
+    std::function<void(const std::string&)> subGraphNodeDoubleClickHandler_;
+    std::function<bool(const QString&, const QPointF&)> subGraphNodeDropHandler_;
     std::function<bool(const std::string&)> isModuleNode_;
     std::function<bool(const std::string&)> copyModuleNode_;
     std::function<bool(const std::string&)> removeModuleNode_;

@@ -1,7 +1,7 @@
 # WinJACKNexus - 接线盘(Interactive Patchbay)- 开发计划
 
-> 版本:v1.8
-> 日期:2026-09-03
+> 版本:v1.9
+> 日期:2026-09-06
 > 依据:«WinJACKNexus 开发规范» v3.1(补充:基础库计划 v1.0)
 > 参考实现:«Ref/Carla»(Carla Plugin Host,Patchbay 处理模式 + JACK Multi-Client)
 
@@ -392,6 +392,71 @@ add_subdirectory(src/patchbay)
 1. **VST 加载**:《WinJACKNexus - VST Host - 开发计划》详写 VST2/VST3 加载、编辑器嵌入(HWND)与节点渲染,届时替换本计划 §6.3 占位;
 2. **Audio Adapter / Mixer / Meterbridge / Switch**:以其各自的 `INode` 实现注册 JACK 端口,接线盘自动显示为节点(无需改动 patchbay);Mixer/Switch 后续分别实现 `saveState/loadState`,其场景数据写入 `.wjnproj` 的 `mixers[]` / `switches[]`(已占位);
 3. SF 系列能力仅通过后续专用 Internal 模块提供；Carla 的 OSC/远程控制仍不在本计划范围。
+
+---
+
+## 12. 扩展阶段计划:子图(Sub Graph)(追加,2026-09-06)
+
+> 说明:本扩展**追加**于现有接线盘计划,当前 B1–B8 进度保持现状不变;子图功能**复用当前主 Patchbay 实现**(Canvas/Scene/Core 模型/存档/连线交互),仅增加“子图上下文”与端口提升机制。
+
+### 12.1 概念
+
+- **子图 = 一个子 Patchbay 节点(Sub Graph 节点)**:主图中是一个节点卡;**双击 → 在新标签页打开子图 Patchbay**(主模块窗口采用标签页/多文档视图,或按设置使用独立窗口);
+- **可无限嵌套**:子图内部可再放置 Sub Graph 节点,双击继续打开下一层子图(树形层级,无深度限制)。
+
+### 12.2 子图内节点列表(唯一白名单)
+
+| 节点 | 说明 |
+| :--- | :--- |
+| **Sub Graph Audio In** | 子图音频输入端(对应子图节点卡的输入引脚);**名称可自定义** |
+| **Sub Graph Audio Out** | 子图音频输出端;**名称可自定义** |
+| **Sub Graph MIDI In** | 子图 MIDI 输入端;**名称可自定义** |
+| **Sub Graph MIDI Out** | 子图 MIDI 输出端;**名称可自定义** |
+| **Sub Graph**(子节点) | **默认 2 进 2 出 + 1 个 MIDI 输入**,端口**可自由增减**(音/音频 in/out、MIDI in/out 可加可删);用于无限嵌套 |
+
+- **接口名称可自定义**:Sub Graph 的 Audio/MIDI In/Out 接口节点支持**改名**(右键/参数栏重命名),端口显示名与别名随自定义名同步(真实 JACK 名保持规范);
+- 子图节点列表**仅提供上述 5 类节点**;其余分类隐藏(含 Windows Native adapter、jackclient,见 12.3)。
+
+### 12.3 分类隐藏策略
+
+- **子图节点列表自动隐藏「Windows Native adapter」与「jackclient」两个分类**(设备/外部客户端类,主图专属)——避免子图误接系统设备;子图只通过 Sub Graph 接口与外部世界互通;
+- **主图默认隐藏 Sub Graph 分类下的 `sub*` 接口**:主接线盘中 Sub Graph 节点卡**不渲染**其 audio/midi 进出引脚(与 VST Chain 端口同策略;端口在 JACK 图中真实存在,经别名可连);在子图内部(该子图的标签页)则**始终显示并可管理**。
+
+### 12.4 实现(复用主 Patchbay)
+
+- 以“**场景上下文(Scene Context)**”复用现有实现:主图 / 各子图共享 `PatchbayCore` 模型、`PatchbayCanvas`、连线/分组/搜索/存档逻辑;差异仅为:
+  1. 节点列表(子图=白名单 §12.2);
+  2. 显示策略(主图隐藏 sub\* 引脚);
+  3. 标签页管理(QTabWidget:主图 + 各子图;双击 Sub Graph 节点打开/聚焦对应标签);
+- **端口模型**:每个 Sub Graph 节点 = 一个 JACK 客户端端口组(默认 `in_1..2`、`out_1..2`、`midi_in_1`;增删后同步 `jack_port_register/unregister`,客户端名规则同主节点);接口端口**显示名/别名随自定义名**(用户可改),真实 JACK 名保持规范;
+- **嵌套(端口提升/透传)**:内层 Sub Graph 的接口端口经外层子图汇聚为同一客户端命名空间(`sub_*` 前缀),保证从主图看整棵子树就是一个端口组;层级信息记录在 `PatchbayCore::TreeModel`(父子引用)。
+
+### 12.5 存档(.
+wjnproj)
+
+- 顶级新增 **`subgraphs[]`**(树形):节点(含嵌套引用)、各层连接、布局、端口增减记录;主图 `connections[]` 引用 sub 端口(带层级路径);加载时递归恢复各标签页与连接。
+
+### 12.6 里程碑(扩展阶段)
+
+| 里程碑 | 内容 | 预计 | 验收 |
+| :--- | :--- | :--- | :--- |
+| **S1 子图基础（已完成）** | 场景上下文抽象 + 标签页视图(双击 Sub Graph 节点打开子图标签)| 3~5 天 | 主图加 Sub Graph 节点并双击打开子图标签页 |
+| **S2 接口节点** | Sub Graph Audio/MIDI In/Out 节点 + 端口注册 | 3~5 天 | 子图内接口节点可与内部节点连线 |
+| **S3 嵌套** | Sub Graph 节点(默认 2 进 2 出 + 1 MIDI,端口可增删)+ 无限嵌套/端口提升 | 5~7 天 | 多层嵌套;端口从外部可见可连 |
+| **S4 隐藏策略** | 子图列表隐藏 adapter/jackclient 分类;主图隐藏 sub\* 引脚 | 2~3 天 | 子图列表无设备分类;主图 Sub Graph 卡不显示接口 |
+| **S5 存档** | `subgraphs[]` 树形存档/恢复 + 自动加载 | 3~4 天 | 工程保存/恢复子图树与连接 |
+
+**S1 实施状态（2026-09-06）**：已完成 `PatchbaySceneContext` 场景上下文、主图与子图复用独立 `PatchbayCanvas` 的 `QTabWidget` 标签页视图。主图节点库提供 `Sub Graph` 节点，支持双击创建、拖放创建；双击画布中的 Sub Graph 节点会打开或聚焦对应子图标签页，子图标签页只展示 Sub Graph 节点分类，且支持继续打开子图上下文。S1 不涉及 S2 的接口节点/端口注册、S3 的端口提升与深层连接、S5 的 `subgraphs[]` 工程存档。
+
+> 每里程碑编译通过即可交付,行为由用户手动验证。
+
+### 12.7 验收要点
+
+1. 主图添加 Sub Graph 节点(默认 2 进 2 出 + 1 MIDI);双击 → 新标签页打开子图 Patchbay;
+2. 子图节点列表仅显示 Sub Graph 五类节点(adapter/jackclient 分类自动隐藏);
+3. 主图 Sub Graph 节点卡默认隐藏 sub\* 接口;
+4. 子图内接口增减、**自定义改名**(Audio/MIDI In/Out 名称可改,显示名/别名同步)实时生效;内层 Sub Graph 可再嵌套(无限);
+5. 存档往返:嵌套树、端口、连接全部恢复。
 
 ---
 

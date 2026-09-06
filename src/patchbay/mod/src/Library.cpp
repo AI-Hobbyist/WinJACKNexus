@@ -43,6 +43,7 @@
 #include <QDirIterator>
 #include <QSettings>
 #include <QScrollArea>
+#include <QTabWidget>
 #include <QTreeWidget>
 #include <QToolBar>
 #include <QTimer>
@@ -98,12 +99,17 @@ protected:
 		if (item == nullptr)
 			return;
 		const auto modulePath = item->data(0, Qt::UserRole).toString();
-		if (modulePath.isEmpty())
+		const auto subGraphName = item->data(0, Qt::UserRole + 2).toString();
+		if (modulePath.isEmpty() && subGraphName.isEmpty())
 			return;
 
 		auto* mimeData = new QMimeData;
-		const auto payload = modulePath.toUtf8() + '\n' + QByteArray::number(item->data(0, Qt::UserRole + 1).toUInt());
-		mimeData->setData("application/x-winjacknexus-module-node", payload);
+		if (!modulePath.isEmpty()) {
+			const auto payload = modulePath.toUtf8() + '\n' + QByteArray::number(item->data(0, Qt::UserRole + 1).toUInt());
+			mimeData->setData("application/x-winjacknexus-module-node", payload);
+		} else {
+			mimeData->setData("application/x-winjacknexus-subgraph-node", subGraphName.toUtf8());
+		}
 		auto* drag = new QDrag(this);
 		drag->setMimeData(mimeData);
 		drag->exec(Qt::CopyAction);
@@ -122,6 +128,12 @@ void addNodeItem(QTreeWidgetItem* category, const QString& name, bool online = t
 	auto* item = new QTreeWidgetItem(category, { online ? name : name + QStringLiteral("（离线）") });
 	if (!online)
 		item->setForeground(0, QColor(QStringLiteral("#8193a5")));
+}
+
+void addSubGraphItem(QTreeWidgetItem* category)
+{
+	auto* item = new QTreeWidgetItem(category, { QStringLiteral("Sub Graph") });
+	item->setData(0, Qt::UserRole + 2, QStringLiteral("Sub Graph"));
 }
 
 bool clientCanSplit(const WinJACKNexus::Patchbay::Core::Snapshot& snapshot, const std::string& clientId)
@@ -235,9 +247,17 @@ void populateNodeLibrary(QTreeWidget* tree,
                          const WinJACKNexus::Patchbay::Core::Snapshot& snapshot,
 						 const std::set<std::string>& knownJackClients,
 						 const std::set<std::string>& moduleClientIds,
-						 const QString& filterQuery = {})
+			 const QString& filterQuery = {},
+			 bool subGraphContext = false)
 {
 	tree->clear();
+	auto* subGraphs = addCategory(tree, QStringLiteral("Sub Graph"));
+	addSubGraphItem(subGraphs);
+	if (subGraphContext) {
+		applyNodeLibraryFilter(tree, filterQuery);
+		return;
+	}
+
 	auto* jackClients = addCategory(tree, QStringLiteral("jackclient"));
 	std::set<std::string> onlineClients;
 	std::set<std::string> moduleClientNames;
@@ -753,7 +773,10 @@ public:
 				if (jackObserver_.isOpen())
 					WinJACKNexus::Audio::JackApi::instance().disconnect(jackObserver_.nativeHandle(), source.c_str(), destination.c_str());
 			});
-			window_->setCentralWidget(canvas);
+			auto* canvasTabs = new QTabWidget(window_);
+			canvasTabs->setTabsClosable(true);
+			canvasTabs->addTab(canvas, QStringLiteral("主图"));
+			window_->setCentralWidget(canvasTabs);
 			window_->setDockNestingEnabled(true);
 
 			auto* nodeDock = new QDockWidget(QStringLiteral("节点"), window_);
@@ -781,7 +804,71 @@ public:
 						clientIds.insert(node->clientId());
 				return clientIds;
 			};
-			populateNodeLibrary(nodeTree, canvas->snapshot(), knownJackClients_, loadedModuleClientIds(), nodeFilter->text());
+			nodeTree->setProperty("filterQuery", nodeFilter->text());
+			auto subGraphCanvases = std::make_shared<std::map<std::string, QPointer<PatchbayCanvas>>>();
+			auto refreshNodeLibrary = std::make_shared<std::function<void()>>();
+			*refreshNodeLibrary = [canvasTabs, nodeTree, loadedModuleClientIds, this] {
+				auto* activeCanvas = dynamic_cast<PatchbayCanvas*>(canvasTabs->currentWidget());
+				if (activeCanvas == nullptr)
+					return;
+				std::set<std::string> moduleClientIds;
+				for (const auto& node : loadedModuleNodes_)
+					if (node->hasClient())
+						moduleClientIds.insert(node->clientId());
+				populateNodeLibrary(nodeTree, activeCanvas->snapshot(), knownJackClients_, moduleClientIds,
+				                   nodeTree->property("filterQuery").toString(), activeCanvas->sceneContext().isSubGraph);
+			};
+			(*refreshNodeLibrary)();
+			QObject::connect(canvasTabs, &QTabWidget::currentChanged, window_, [refreshNodeLibrary](int) {
+				(*refreshNodeLibrary)();
+			});
+			auto openSubGraph = std::make_shared<std::function<void(PatchbayCanvas*, const std::string&)>>();
+			*openSubGraph = [canvasTabs, subGraphCanvases, refreshNodeLibrary, openSubGraph](PatchbayCanvas* parentCanvas, const std::string& subGraphId) {
+				if (parentCanvas == nullptr || !parentCanvas->isSubGraphNode(subGraphId))
+					return;
+				const auto contextId = parentCanvas->sceneContext().id + "/" + subGraphId;
+				auto existing = subGraphCanvases->find(contextId);
+				if (existing != subGraphCanvases->end()) {
+					if (!existing->second.isNull()) {
+						canvasTabs->setCurrentWidget(existing->second.data());
+						return;
+					}
+					subGraphCanvases->erase(existing);
+				}
+
+				PatchbaySceneContext context;
+				context.id = contextId;
+				context.title = parentCanvas->subGraphName(subGraphId);
+				context.isSubGraph = true;
+				auto* childCanvas = new PatchbayCanvas(context, canvasTabs);
+				childCanvas->setSubGraphNodeDoubleClickHandler([openSubGraph, childCanvas](const std::string& childId) {
+					(*openSubGraph)(childCanvas, childId);
+				});
+				childCanvas->setSubGraphNodeDropHandler([childCanvas](const QString& name, const QPointF& position) {
+					return !childCanvas->addSubGraph(name, position).empty();
+				});
+				const auto tabTitle = context.title.isEmpty() ? QStringLiteral("Sub Graph") : context.title;
+				const auto tabIndex = canvasTabs->addTab(childCanvas, tabTitle);
+				subGraphCanvases->emplace(contextId, childCanvas);
+				canvasTabs->setCurrentIndex(tabIndex);
+				(*refreshNodeLibrary)();
+			};
+			canvas->setSubGraphNodeDoubleClickHandler([openSubGraph, canvas](const std::string& subGraphId) {
+				(*openSubGraph)(canvas, subGraphId);
+			});
+			canvas->setSubGraphNodeDropHandler([canvas](const QString& name, const QPointF& position) {
+				return !canvas->addSubGraph(name, position).empty();
+			});
+			QObject::connect(canvasTabs, &QTabWidget::tabCloseRequested, window_, [canvasTabs, subGraphCanvases, refreshNodeLibrary](int index) {
+				if (index <= 0)
+					return;
+				auto* widget = canvasTabs->widget(index);
+				if (auto* childCanvas = dynamic_cast<PatchbayCanvas*>(widget))
+					subGraphCanvases->erase(childCanvas->sceneContext().id);
+				canvasTabs->removeTab(index);
+				delete widget;
+				(*refreshNodeLibrary)();
+			});
 			auto refreshJackGraph = [this, canvas, nodeTree, loadedModuleClientIds] {
 				if (canvas->isNodeDragActive() || !jackObserver_.isOpen())
 					return;
@@ -886,7 +973,13 @@ public:
 				});
 				return true;
 			};
-			QObject::connect(nodeTree, &QTreeWidget::itemDoubleClicked, window_, [createModuleNode](QTreeWidgetItem* item) {
+			QObject::connect(nodeTree, &QTreeWidget::itemDoubleClicked, window_, [canvasTabs, createModuleNode](QTreeWidgetItem* item) {
+				const auto subGraphName = item->data(0, Qt::UserRole + 2).toString();
+				if (!subGraphName.isEmpty()) {
+					if (auto* activeCanvas = dynamic_cast<PatchbayCanvas*>(canvasTabs->currentWidget()))
+						activeCanvas->addSubGraph(subGraphName, {});
+					return;
+				}
 				const auto modulePath = item->data(0, Qt::UserRole).toString();
 				if (modulePath.isEmpty())
 					return;
@@ -1215,13 +1308,8 @@ public:
 				graphRefreshTimer_->start();
 			}
 
-			graphMenu->addAction(QStringLiteral("刷新节点库"), window_, [nodeTree, canvas, this] {
-				std::set<std::string> moduleClientIds;
-				for (const auto& node : loadedModuleNodes_)
-					if (node->hasClient())
-						moduleClientIds.insert(node->clientId());
-				populateNodeLibrary(nodeTree, canvas->snapshot(), knownJackClients_, moduleClientIds,
-								   nodeTree->property("filterQuery").toString());
+			graphMenu->addAction(QStringLiteral("刷新节点库"), window_, [refreshNodeLibrary] {
+				(*refreshNodeLibrary)();
 			});
 		}
 
