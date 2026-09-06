@@ -52,6 +52,7 @@
 #include <algorithm>
 #include <cmath>
 #include <functional>
+#include <string_view>
 #include <unordered_map>
 #include <unordered_set>
 #include <utility>
@@ -208,6 +209,17 @@ bool clientCanSplit(const Snapshot& snapshot, const std::string& clientId)
         hasOutput = hasOutput || port.direction == Direction::output;
     }
     return hasInput && hasOutput;
+}
+
+std::string_view jackClientName(std::string_view portId)
+{
+    const auto separator = portId.find(':');
+    return separator == std::string_view::npos ? portId : portId.substr(0, separator);
+}
+
+bool sharesJackClient(const PortInfo& left, const PortInfo& right)
+{
+    return jackClientName(left.id) == jackClientName(right.id);
 }
 
 class CanvasNode final : public QGraphicsObject {
@@ -573,7 +585,21 @@ std::string PatchbayCanvas::addSubGraph(const QString& name, const QPointF& posi
             break;
     }
 
-    const auto displayName = name.trimmed().isEmpty() ? QStringLiteral("Sub Graph") : name.trimmed();
+    const auto requestedName = name.trimmed();
+    QString displayName = requestedName;
+    if (displayName.isEmpty() || displayName == QStringLiteral("Sub Graph")) {
+        for (std::size_t suffix = 1; ; ++suffix) {
+            const auto candidate = suffix == 1
+                ? QStringLiteral("Sub Graph")
+                : QStringLiteral("Sub Graph %1").arg(static_cast<qulonglong>(suffix));
+            if (std::none_of(subGraphNodes_.cbegin(), subGraphNodes_.cend(), [&candidate](const auto& node) {
+                    return node.name == candidate;
+                })) {
+                displayName = candidate;
+                break;
+            }
+        }
+    }
     subGraphNodes_.push_back({ id, displayName, position });
     setSnapshot(snapshot_);
     projectDirty_ = true;
@@ -615,6 +641,18 @@ bool PatchbayCanvas::renameSubGraph(const std::string& clientId, const QString& 
     if (subGraphNodeRenamedHandler_)
         subGraphNodeRenamedHandler_(clientId, newName);
     return true;
+}
+
+void PatchbayCanvas::setSubGraphInterfaces(const std::string& clientId, std::vector<PatchbayInterfaceInfo> interfaces)
+{
+    const auto node = std::find_if(subGraphNodes_.begin(), subGraphNodes_.end(), [&clientId](const auto& value) {
+        return value.id == clientId;
+    });
+    if (node == subGraphNodes_.end())
+        return;
+
+    node->interfaces = std::move(interfaces);
+    setSnapshot(snapshot_);
 }
 
 void PatchbayCanvas::setInterfaceNodes(std::vector<PatchbayInterfaceInfo> nodes)
@@ -906,7 +944,15 @@ bool PatchbayCanvas::restoreJackConnections(WinJACKNexus::Audio::JackClient& cli
             continue;
         const auto* source = api.portByName(client.nativeHandle(), sourceId->c_str());
         const auto* destination = api.portByName(client.nativeHandle(), destinationId->c_str());
-        if (source == nullptr || destination == nullptr)
+        const auto sourceInfo = std::find_if(snapshot_.ports.cbegin(), snapshot_.ports.cend(), [&sourceId](const auto& port) {
+            return port.id == *sourceId;
+        });
+        const auto destinationInfo = std::find_if(snapshot_.ports.cbegin(), snapshot_.ports.cend(), [&destinationId](const auto& port) {
+            return port.id == *destinationId;
+        });
+        if (source == nullptr || destination == nullptr || sourceInfo == snapshot_.ports.cend()
+            || destinationInfo == snapshot_.ports.cend() || *sourceId == *destinationId
+            || sourceInfo->clientId == destinationInfo->clientId)
             continue;
 
         bool alreadyConnected = false;
@@ -927,6 +973,7 @@ bool PatchbayCanvas::restoreJackConnections(WinJACKNexus::Audio::JackClient& cli
 void PatchbayCanvas::setSnapshot(const Snapshot& snapshot)
 {
     const QSignalBlocker sceneSignals(scene());
+    cancelDragState();
     std::unordered_set<std::string> selectedClientIds;
     for (const auto* item : scene()->selectedItems()) {
         if (item->data(0).isValid())
@@ -934,42 +981,135 @@ void PatchbayCanvas::setSnapshot(const Snapshot& snapshot)
     }
 
     Snapshot restored = snapshot;
+    std::unordered_set<std::string> generatedClientIds;
+    for (const auto& subGraph : subGraphNodes_)
+        generatedClientIds.insert(subGraph.id);
     if (sceneContext_.isSubGraph) {
-        std::erase_if(restored.ports, [](const auto& port) {
-            return port.clientId == "WinJACKNexus-Patchbay";
+        for (const auto& interfaceNode : interfaceNodes_)
+            generatedClientIds.insert(interfaceNode.id);
+    }
+    generatedClientIds.insert("WinJACKNexus-Patchbay");
+    std::unordered_map<std::string, std::string> logicalPortOwners;
+    const auto collectLogicalPorts = [&logicalPortOwners](const std::vector<PatchbayInterfaceInfo>& interfaces, const std::string& ownerId) {
+        for (const auto& interfaceNode : interfaces) {
+            if (!interfaceNode.portId.empty())
+                logicalPortOwners[interfaceNode.portId] = ownerId;
+        }
+    };
+    if (sceneContext_.isSubGraph)
+        collectLogicalPorts(interfaceNodes_, sceneContext_.id);
+    for (const auto& subGraph : subGraphNodes_)
+        collectLogicalPorts(subGraph.interfaces, subGraph.id);
+    const auto isSubGraphConnection = [&logicalPortOwners](const ConnectionInfo& connection) {
+        const auto sourceOwner = logicalPortOwners.find(connection.sourcePortId);
+        const auto destinationOwner = logicalPortOwners.find(connection.destinationPortId);
+        return sourceOwner != logicalPortOwners.cend() && destinationOwner != logicalPortOwners.cend()
+            && sourceOwner->second == destinationOwner->second;
+    };
+    if (!sceneContext_.isSubGraph && connectionDisconnectHandler_) {
+        for (const auto& connection : snapshot.connections) {
+            if (!connection.alive || !isSubGraphConnection(connection))
+                continue;
+            const auto sourceClient = jackClientName(connection.sourcePortId);
+            const auto destinationClient = jackClientName(connection.destinationPortId);
+            if (!sourceClient.empty() && sourceClient == destinationClient)
+                connectionDisconnectHandler_(connection.sourcePortId, connection.destinationPortId);
+        }
+    }
+    std::erase_if(restored.clients, [&generatedClientIds](const auto& client) {
+        return generatedClientIds.contains(client.id);
+    });
+    std::erase_if(restored.ports, [&generatedClientIds](const auto& port) {
+        return generatedClientIds.contains(port.clientId);
+    });
+
+    const auto portName = [](const PatchbayInterfaceInfo& interfaceNode) {
+        const auto separator = interfaceNode.portId.find(':');
+        return separator == std::string::npos ? interfaceNode.portId : interfaceNode.portId.substr(separator + 1);
+    };
+    const auto addInterfaceClient = [&restored, &portName](const PatchbayInterfaceInfo& interfaceNode) {
+        if (interfaceNode.id.empty() || interfaceNode.portId.empty())
+            return;
+        ClientInfo client;
+        client.id = interfaceNode.id;
+        client.name = interfaceNode.name.toStdString();
+        client.alias = client.name;
+        client.x = interfaceNode.position.x();
+        client.y = interfaceNode.position.y();
+        restored.clients.push_back(std::move(client));
+        restored.ports.push_back({
+            .id = interfaceNode.portId,
+            .clientId = interfaceNode.id,
+            .name = portName(interfaceNode),
+            .alias = interfaceNode.name.toStdString(),
+            .kind = interfaceNode.kind,
+            .direction = interfaceNode.direction,
+            .groupHints = interfaceNode.direction == Direction::input ? PortGroupHint::mainInput : PortGroupHint::mainOutput,
+            .ordinal = 0,
+            .alive = true
         });
-        std::erase_if(restored.clients, [](const auto& client) {
-            return client.id == "WinJACKNexus-Patchbay";
-        });
-        for (std::size_t index = 0; index < interfaceNodes_.size(); ++index) {
-            const auto& interfaceNode = interfaceNodes_[index];
+    };
+    const auto addSubGraphClient = [&restored, &portName](const PatchbaySubGraphInfo& subGraph) {
+        ClientInfo client;
+        client.id = subGraph.id;
+        client.name = subGraph.name.toStdString();
+        client.alias = client.name;
+        client.x = subGraph.position.x();
+        client.y = subGraph.position.y();
+        restored.clients.push_back(std::move(client));
+        for (std::size_t index = 0; index < subGraph.interfaces.size(); ++index) {
+            const auto& interfaceNode = subGraph.interfaces[index];
             if (interfaceNode.id.empty() || interfaceNode.portId.empty())
                 continue;
-            ClientInfo client;
-            client.id = interfaceNode.id;
-            client.name = interfaceNode.name.toStdString();
-            client.alias = client.name;
-            client.x = interfaceNode.position.x();
-            client.y = interfaceNode.position.y();
-            restored.clients.push_back(std::move(client));
-
-            const auto separator = interfaceNode.id.find_last_of('/');
-            const auto portName = separator == std::string::npos ? interfaceNode.id : interfaceNode.id.substr(separator + 1);
+            const auto externalDirection = interfaceNode.direction == Direction::input ? Direction::output : Direction::input;
             restored.ports.push_back({
                 .id = interfaceNode.portId,
-                .clientId = interfaceNode.id,
-                .name = portName,
+                .clientId = subGraph.id,
+                .name = portName(interfaceNode),
                 .alias = interfaceNode.name.toStdString(),
                 .kind = interfaceNode.kind,
-                .direction = interfaceNode.direction,
-                .groupHints = interfaceNode.direction == Direction::input ? PortGroupHint::mainInput : PortGroupHint::mainOutput,
+                .direction = externalDirection,
+                .groupHints = externalDirection == Direction::input ? PortGroupHint::mainInput : PortGroupHint::mainOutput,
                 .ordinal = static_cast<std::uint32_t>(index),
                 .alive = true
             });
         }
+    };
+
+    if (sceneContext_.isSubGraph) {
+        restored.clients.clear();
+        restored.ports.clear();
+        for (const auto& interfaceNode : interfaceNodes_)
+            addInterfaceClient(interfaceNode);
+        for (const auto& subGraph : subGraphNodes_)
+            addSubGraphClient(subGraph);
+    } else {
+        for (const auto& subGraph : subGraphNodes_)
+            addSubGraphClient(subGraph);
+    }
+
+    const std::unordered_set<std::string> visiblePortIds = [&restored] {
+        std::unordered_set<std::string> ids;
+        for (const auto& port : restored.ports)
+            ids.insert(port.id);
+        return ids;
+    }();
+    if (sceneContext_.isSubGraph) {
+        restored.connections.clear();
+        for (const auto& connection : logicalConnections_) {
+            if (visiblePortIds.contains(connection.sourcePortId) && visiblePortIds.contains(connection.destinationPortId))
+                restored.connections.push_back(connection);
+        }
+    } else {
+        std::erase_if(restored.connections, [&visiblePortIds, &isSubGraphConnection](const auto& connection) {
+            return !visiblePortIds.contains(connection.sourcePortId) || !visiblePortIds.contains(connection.destinationPortId)
+                || isSubGraphConnection(connection);
+        });
     }
     auto settings = patchbaySettings();
     for (auto& client : restored.clients) {
+        if (generatedClientIds.contains(client.id))
+            continue;
         if (client.id == "system")
             client.alive = true;
         const auto key = QString::fromStdString(client.id);
@@ -997,7 +1137,7 @@ void PatchbayCanvas::setSnapshot(const Snapshot& snapshot)
 
     std::unordered_map<std::string, CanvasNode*> nodesByPort;
     for (const auto& client : snapshot_.clients) {
-        if (!client.alive)
+        if (!client.alive || generatedClientIds.contains(client.id))
             continue;
 
         const auto addNode = [this, &client, &portsByClient, &nodesByPort, &selectedClientIds](std::vector<PortInfo> ports, QPointF position, Direction portDirection, const QString& layoutKey, const QString& label) {
@@ -1081,22 +1221,27 @@ void PatchbayCanvas::setSnapshot(const Snapshot& snapshot)
     }
 
     for (const auto& subGraph : subGraphNodes_) {
-        ClientInfo client;
-        client.id = subGraph.id;
-        client.name = subGraph.name.toStdString();
-        client.alias = client.name;
-        client.x = subGraph.position.x();
-        client.y = subGraph.position.y();
-        auto* node = new CanvasNode(std::move(client), {}, {}, {}, {}, [this, id = subGraph.id] {
+        const auto client = std::find_if(snapshot_.clients.cbegin(), snapshot_.clients.cend(), [&subGraph](const auto& value) {
+            return value.id == subGraph.id;
+        });
+        if (client == snapshot_.clients.cend())
+            continue;
+        auto* node = new CanvasNode(*client, portsByClient[subGraph.id],
+            [this](const std::string& portId, const QPointF& position) { beginPortDrag(portId, position); },
+            [this](const QPointF& position) { updatePortDrag(position); },
+            [this](const QPointF& position) { finishPortDrag(position); },
+            [this, id = subGraph.id] {
             if (subGraphNodeDoubleClickHandler_)
                 subGraphNodeDoubleClickHandler_(id);
         });
-        node->setPos(subGraph.position);
+        node->setPos(client->x, client->y);
         node->setData(0, QString::fromStdString(subGraph.id));
         node->setData(3, QString::fromStdString(subGraph.id));
-        node->setData(4, subGraph.position);
+        node->setData(4, QPointF(client->x, client->y));
         node->setSelected(selectedClientIds.contains(subGraph.id));
         scene()->addItem(node);
+        for (const auto& port : portsByClient[subGraph.id])
+            nodesByPort.emplace(port.id, node);
     }
 
     std::unordered_map<std::string, const PortInfo*> ports;
@@ -1182,7 +1327,7 @@ void PatchbayCanvas::setClientSplit(const std::string& clientId, bool split)
     const auto client = std::find_if(snapshot_.clients.begin(), snapshot_.clients.end(), [&clientId](const ClientInfo& value) {
         return value.id == clientId;
     });
-    if (client == snapshot_.clients.end() || client->split == split)
+    if (client == snapshot_.clients.end() || isSubGraphNode(clientId) || client->split == split)
         return;
     if (split && !clientCanSplit(snapshot_, clientId))
         return;
@@ -1387,7 +1532,7 @@ void PatchbayCanvas::mouseReleaseEvent(QMouseEvent* event)
 
 bool PatchbayCanvas::isNodeDragActive() const noexcept
 {
-    return nodeDragActive_ || connectionDragActive_;
+    return nodeDragActive_ || connectionDragActive_ || !draggedPortId_.empty() || portDragPreview_ != nullptr;
 }
 
 void PatchbayCanvas::contextMenuEvent(QContextMenuEvent* event)
@@ -1403,8 +1548,8 @@ void PatchbayCanvas::contextMenuEvent(QContextMenuEvent* event)
                 return connection.sourcePortId == source && connection.destinationPortId == destination;
             });
             if (removed != 0) {
-                if (connectionDisconnectHandler_)
-                    connectionDisconnectHandler_(source, destination);
+                disconnectPortPair(source, destination);
+                forgetLogicalConnection(source, destination);
                 setSnapshot(snapshot_);
                 projectDirty_ = true;
             }
@@ -1418,7 +1563,7 @@ void PatchbayCanvas::contextMenuEvent(QContextMenuEvent* event)
             return value.id == id;
         });
         const bool isModuleNode = isModuleNode_ && isModuleNode_(id);
-        const bool canSplit = client != snapshot_.clients.cend() && clientCanSplit(snapshot_, id);
+        const bool canSplit = client != snapshot_.clients.cend() && !isSubGraphNode(id) && clientCanSplit(snapshot_, id);
         auto* center = menu.addAction(QStringLiteral("居中显示节点"));
         auto* rename = menu.addAction(QStringLiteral("重命名节点"));
         QAction* split = nullptr;
@@ -1517,9 +1662,9 @@ void PatchbayCanvas::contextMenuEvent(QContextMenuEvent* event)
                 return matches;
             });
             if (removed != 0) {
-                if (connectionDisconnectHandler_) {
-                    for (const auto& connection : disconnected)
-                        connectionDisconnectHandler_(connection.sourcePortId, connection.destinationPortId);
+                for (const auto& connection : disconnected) {
+                    disconnectPortPair(connection.sourcePortId, connection.destinationPortId);
+                    forgetLogicalConnection(connection.sourcePortId, connection.destinationPortId);
                 }
                 setSnapshot(snapshot_);
                 projectDirty_ = true;
@@ -1582,6 +1727,10 @@ void PatchbayCanvas::activatePort(const std::string& portId)
         pendingPortId_ = portId;
         return;
     }
+    if (pending->clientId == port->clientId) {
+        pendingPortId_.clear();
+        return;
+    }
 
     const auto& source = pending->direction == Direction::output ? *pending : *port;
     const auto& destination = pending->direction == Direction::input ? *pending : *port;
@@ -1589,11 +1738,14 @@ void PatchbayCanvas::activatePort(const std::string& portId)
         return connection.sourcePortId == source.id && connection.destinationPortId == destination.id;
     });
     if (!exists) {
-        if (connectionConnectHandler_ && !connectionConnectHandler_(source.id, destination.id)) {
+        if (!connectPortPair(source.id, destination.id)) {
             pendingPortId_.clear();
             return;
         }
-        snapshot_.connections.push_back({ source.id, destination.id });
+        const ConnectionInfo connection { source.id, destination.id };
+        snapshot_.connections.push_back(connection);
+        if (sceneContext_.isSubGraph)
+            rememberLogicalConnection(connection);
         projectDirty_ = true;
     }
     pendingPortId_.clear();
@@ -1602,13 +1754,19 @@ void PatchbayCanvas::activatePort(const std::string& portId)
 
 void PatchbayCanvas::beginPortDrag(const std::string& portId, const QPointF& position)
 {
+    const auto port = std::find_if(snapshot_.ports.cbegin(), snapshot_.ports.cend(), [&portId](const PortInfo& value) {
+        return value.id == portId;
+    });
+    if (port == snapshot_.ports.cend())
+        return;
+
     draggedPortId_ = portId;
-    if (portDragPreview_ != nullptr)
+    if (portDragPreview_ != nullptr) {
         scene()->removeItem(portDragPreview_);
+        delete portDragPreview_;
+    }
     portDragPreview_ = new QGraphicsPathItem(connectionPath(position, position));
-    portDragPreview_->setPen(QPen(portColor(std::find_if(snapshot_.ports.cbegin(), snapshot_.ports.cend(), [&portId](const PortInfo& port) {
-                                      return port.id == portId;
-                                  })->kind),
+    portDragPreview_->setPen(QPen(portColor(port->kind),
                                   2.5, Qt::DashLine, Qt::RoundCap));
     portDragPreview_->setZValue(-0.5);
     scene()->addItem(portDragPreview_);
@@ -1618,6 +1776,12 @@ void PatchbayCanvas::beginConnectionDrag(const std::string& sourcePortId,
                                           const std::string& destinationPortId,
                                           const QPointF& position)
 {
+    const auto source = std::find_if(snapshot_.ports.cbegin(), snapshot_.ports.cend(), [&sourcePortId](const PortInfo& port) {
+        return port.id == sourcePortId;
+    });
+    if (source == snapshot_.ports.cend())
+        return;
+
     draggedConnectionSourcePortId_ = sourcePortId;
     draggedConnectionDestinationPortId_ = destinationPortId;
     connectionDragActive_ = true;
@@ -1633,11 +1797,6 @@ void PatchbayCanvas::beginConnectionDrag(const std::string& sourcePortId,
     if (draggedConnectionLine_ != nullptr)
         draggedConnectionLine_->setOpacity(0.0);
 
-    const auto source = std::find_if(snapshot_.ports.cbegin(), snapshot_.ports.cend(), [&sourcePortId](const PortInfo& port) {
-        return port.id == sourcePortId;
-    });
-    if (source == snapshot_.ports.cend())
-        return;
     CanvasNode* sourceNode = nullptr;
     for (auto* item : scene()->items()) {
         if (auto* node = dynamic_cast<CanvasNode*>(item); node != nullptr && node->containsPort(sourcePortId)) {
@@ -1669,7 +1828,8 @@ void PatchbayCanvas::updateConnectionDrag(const QPointF& position)
     });
     const bool compatible = target != snapshot_.ports.cend()
         && target->direction == Direction::input
-        && target->kind == source->kind;
+        && target->kind == source->kind
+        && target->clientId != source->clientId;
     CanvasNode* sourceNode = nullptr;
     for (auto* item : scene()->items()) {
         if (auto* candidate = dynamic_cast<CanvasNode*>(item); candidate != nullptr && candidate->containsPort(source->id)) {
@@ -1727,23 +1887,27 @@ void PatchbayCanvas::finishConnectionDrag(const QPointF& position)
     const bool compatible = source != snapshot_.ports.cend() && target != snapshot_.ports.cend()
         && source->direction == Direction::output
         && target->direction == Direction::input
-        && source->kind == target->kind;
+        && source->kind == target->kind
+        && source->clientId != target->clientId;
     if (compatible) {
         const bool alreadyConnected = std::any_of(snapshot_.connections.cbegin(), snapshot_.connections.cend(), [&sourceId, &targetId](const ConnectionInfo& connection) {
             return connection.sourcePortId == sourceId && connection.destinationPortId == targetId;
         });
         if (alreadyConnected)
             return;
-        if (connectionConnectHandler_ && !connectionConnectHandler_(sourceId, targetId))
+        if (!connectPortPair(sourceId, targetId))
             return;
         snapshot_.connections.erase(oldConnection);
-        if (connectionDisconnectHandler_)
-            connectionDisconnectHandler_(sourceId, oldDestinationId);
-        snapshot_.connections.push_back({ sourceId, targetId });
+        disconnectPortPair(sourceId, oldDestinationId);
+        forgetLogicalConnection(sourceId, oldDestinationId);
+        const ConnectionInfo connection { sourceId, targetId };
+        snapshot_.connections.push_back(connection);
+        if (sceneContext_.isSubGraph)
+            rememberLogicalConnection(connection);
     } else if (targetId.empty()) {
         snapshot_.connections.erase(oldConnection);
-        if (connectionDisconnectHandler_)
-            connectionDisconnectHandler_(sourceId, oldDestinationId);
+        disconnectPortPair(sourceId, oldDestinationId);
+        forgetLogicalConnection(sourceId, oldDestinationId);
     } else {
         return;
     }
@@ -1765,7 +1929,10 @@ void PatchbayCanvas::updatePortDrag(const QPointF& position)
     const auto target = std::find_if(snapshot_.ports.cbegin(), snapshot_.ports.cend(), [&targetId](const PortInfo& port) {
         return port.id == targetId;
     });
-    const bool compatible = target != snapshot_.ports.cend() && target->direction != source->direction && target->kind == source->kind;
+    const bool compatible = target != snapshot_.ports.cend()
+        && target->direction != source->direction
+        && target->kind == source->kind
+        && target->clientId != source->clientId;
     CanvasNode* sourceNode = nullptr;
     for (auto* item : scene()->items()) {
         if (auto* candidate = dynamic_cast<CanvasNode*>(item); candidate != nullptr && candidate->containsPort(source->id)) {
@@ -1802,7 +1969,9 @@ void PatchbayCanvas::finishPortDrag(const QPointF& position)
     };
     const auto source = findPort(sourceId);
     const auto target = findPort(targetId);
-    if (source == snapshot_.ports.cend() || target == snapshot_.ports.cend() || source->direction == target->direction || source->kind != target->kind)
+    if (source == snapshot_.ports.cend() || target == snapshot_.ports.cend()
+        || source->direction == target->direction || source->kind != target->kind
+        || source->clientId == target->clientId)
         return;
     const auto& output = source->direction == Direction::output ? *source : *target;
     const auto& input = source->direction == Direction::input ? *source : *target;
@@ -1810,9 +1979,12 @@ void PatchbayCanvas::finishPortDrag(const QPointF& position)
         return connection.sourcePortId == output.id && connection.destinationPortId == input.id;
     });
     if (!exists) {
-        if (connectionConnectHandler_ && !connectionConnectHandler_(output.id, input.id))
+        if (!connectPortPair(output.id, input.id))
             return;
-        snapshot_.connections.push_back({ output.id, input.id });
+        const ConnectionInfo connection { output.id, input.id };
+        snapshot_.connections.push_back(connection);
+        if (sceneContext_.isSubGraph)
+            rememberLogicalConnection(connection);
         projectDirty_ = true;
         scheduleSnapshotRefresh();
     }
@@ -1850,6 +2022,51 @@ void PatchbayCanvas::scheduleSnapshotRefresh()
     QTimer::singleShot(0, this, [this] {
         snapshotRefreshPending_ = false;
         setSnapshot(snapshot_);
+    });
+}
+
+void PatchbayCanvas::cancelDragState()
+{
+    if (portDragPreview_ != nullptr) {
+        scene()->removeItem(portDragPreview_);
+        delete portDragPreview_;
+    }
+    draggedPortId_.clear();
+    draggedConnectionSourcePortId_.clear();
+    draggedConnectionDestinationPortId_.clear();
+    portDragPreview_ = nullptr;
+    draggedConnectionLine_ = nullptr;
+    nodeDragActive_ = false;
+    connectionDragActive_ = false;
+    connectionDragMoved_ = false;
+}
+
+bool PatchbayCanvas::connectPortPair(const std::string& sourcePortId, const std::string& destinationPortId)
+{
+    if (sceneContext_.isSubGraph)
+        return true;
+    return !connectionConnectHandler_ || connectionConnectHandler_(sourcePortId, destinationPortId);
+}
+
+void PatchbayCanvas::disconnectPortPair(const std::string& sourcePortId, const std::string& destinationPortId)
+{
+    if (!sceneContext_.isSubGraph && connectionDisconnectHandler_)
+        connectionDisconnectHandler_(sourcePortId, destinationPortId);
+}
+
+void PatchbayCanvas::rememberLogicalConnection(const ConnectionInfo& connection)
+{
+    const auto exists = std::any_of(logicalConnections_.cbegin(), logicalConnections_.cend(), [&connection](const auto& value) {
+        return value.sourcePortId == connection.sourcePortId && value.destinationPortId == connection.destinationPortId;
+    });
+    if (!exists)
+        logicalConnections_.push_back(connection);
+}
+
+void PatchbayCanvas::forgetLogicalConnection(const std::string& sourcePortId, const std::string& destinationPortId)
+{
+    std::erase_if(logicalConnections_, [&sourcePortId, &destinationPortId](const auto& connection) {
+        return connection.sourcePortId == sourcePortId && connection.destinationPortId == destinationPortId;
     });
 }
 

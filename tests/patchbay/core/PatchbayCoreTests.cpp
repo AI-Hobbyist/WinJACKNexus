@@ -209,41 +209,50 @@ bool testSubGraphInterfacePorts()
     JackPort midiIn;
     JackPort midiOut;
     bool passed = true;
-    passed &= check(audioIn.registerPort(client, "sub_s2_audio_in", JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput),
-                    "S2 audio input interface registers as a JACK output");
-    passed &= check(audioOut.registerPort(client, "sub_s2_audio_out", JACK_DEFAULT_AUDIO_TYPE, JackPortIsInput),
-                    "S2 audio output interface registers as a JACK input");
-    passed &= check(midiIn.registerPort(client, "sub_s2_midi_in", JACK_DEFAULT_MIDI_TYPE, JackPortIsOutput),
-                    "S2 MIDI input interface registers as a JACK output");
-    passed &= check(midiOut.registerPort(client, "sub_s2_midi_out", JACK_DEFAULT_MIDI_TYPE, JackPortIsInput),
-                    "S2 MIDI output interface registers as a JACK input");
+    passed &= check(audioIn.registerPort(client, "sub_s2_audio_in", JACK_DEFAULT_AUDIO_TYPE, JackPortIsInput),
+                    "S2 audio input interface registers as a JACK input");
+    passed &= check(audioOut.registerPort(client, "sub_s2_audio_out", JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput),
+                    "S2 audio output interface registers as a JACK output");
+    passed &= check(midiIn.registerPort(client, "sub_s2_midi_in", JACK_DEFAULT_MIDI_TYPE, JackPortIsInput),
+                    "S2 MIDI input interface registers as a JACK input");
+    passed &= check(midiOut.registerPort(client, "sub_s2_midi_out", JACK_DEFAULT_MIDI_TYPE, JackPortIsOutput),
+                    "S2 MIDI output interface registers as a JACK output");
     passed &= check(client.activate(), "S2 interface client activates");
-    const auto audioConnected = JackGraph::connect(client, audioIn.name(), audioOut.name());
-    const auto midiConnected = JackGraph::connect(client, midiIn.name(), midiOut.name());
-    passed &= check(audioConnected && waitForConnections(audioIn),
+    const auto audioConnected = JackGraph::connect(client, audioOut.name(), audioIn.name());
+    const auto midiConnected = JackGraph::connect(client, midiOut.name(), midiIn.name());
+    passed &= check(audioConnected && waitForConnections(audioOut),
                     "S2 audio interface ports connect through JACK");
-    passed &= check(midiConnected && waitForConnections(midiIn),
+    passed &= check(midiConnected && waitForConnections(midiOut),
                     "S2 MIDI interface ports connect through JACK");
 
     const auto snapshot = Snapshot::capture(client);
+    const auto groupedPorts = std::count_if(snapshot.ports.cbegin(), snapshot.ports.cend(), [](const auto& port) {
+        return port.clientId == "WJNS2InterfaceTests";
+    });
+    passed &= check(groupedPorts == 4, "S2 interface ports stay in one JACK client group");
     const auto hasPort = [&snapshot](const std::string& id, PortKind kind, Direction direction) {
         return std::any_of(snapshot.ports.cbegin(), snapshot.ports.cend(), [&id, kind, direction](const auto& port) {
             return port.id == id && port.kind == kind && port.direction == direction;
         });
     };
-    passed &= check(hasPort("WJNS2InterfaceTests:sub_s2_audio_in", PortKind::audio, Direction::output),
+    passed &= check(hasPort("WJNS2InterfaceTests:sub_s2_audio_in", PortKind::audio, Direction::input),
                     "snapshot preserves the S2 audio input interface semantics");
-    passed &= check(hasPort("WJNS2InterfaceTests:sub_s2_audio_out", PortKind::audio, Direction::input),
+    passed &= check(hasPort("WJNS2InterfaceTests:sub_s2_audio_out", PortKind::audio, Direction::output),
                     "snapshot preserves the S2 audio output interface semantics");
-    passed &= check(hasPort("WJNS2InterfaceTests:sub_s2_midi_in", PortKind::midi, Direction::output),
+    passed &= check(hasPort("WJNS2InterfaceTests:sub_s2_midi_in", PortKind::midi, Direction::input),
                     "snapshot preserves the S2 MIDI input interface semantics");
-    passed &= check(hasPort("WJNS2InterfaceTests:sub_s2_midi_out", PortKind::midi, Direction::input),
+    passed &= check(hasPort("WJNS2InterfaceTests:sub_s2_midi_out", PortKind::midi, Direction::output),
                     "snapshot preserves the S2 MIDI output interface semantics");
 
     audioIn.unregisterPort();
     audioOut.unregisterPort();
     midiIn.unregisterPort();
     midiOut.unregisterPort();
+    const auto cleanedSnapshot = Snapshot::capture(client);
+    passed &= check(std::none_of(cleanedSnapshot.ports.cbegin(), cleanedSnapshot.ports.cend(), [](const auto& port) {
+                        return port.clientId == "WJNS2InterfaceTests";
+                    }),
+                    "grouped Sub Graph interface ports unregister with the node lifetime");
     client.deactivate();
     client.close();
     server.stop();

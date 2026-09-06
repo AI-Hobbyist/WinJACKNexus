@@ -448,7 +448,7 @@ wjnproj)
 
 **S1 实施状态（2026-09-06）**：已完成 `PatchbaySceneContext` 场景上下文、主图与子图复用独立 `PatchbayCanvas` 的 `QTabWidget` 标签页视图。主图节点库提供 `Sub Graph` 节点，支持双击创建、拖放创建；双击画布中的 Sub Graph 节点会打开或聚焦对应子图标签页，子图标签页只展示 Sub Graph 节点分类，且支持继续打开子图上下文。S1 不涉及 S2 的接口节点/端口注册、S3 的端口提升与深层连接、S5 的 `subgraphs[]` 工程存档。
 
-**S2 实施状态（2026-09-06）**：已完成子图 `Sub Graph Audio In`、`Sub Graph Audio Out`、`Sub Graph MIDI In`、`Sub Graph MIDI Out` 四类接口节点。子图节点库仅在子图上下文提供这四类接口项；接口节点支持双击创建和拖放创建，画布使用稳定上下文 ID 映射接口端点。模块通过现有 `WinJACKNexus-Patchbay` JACK 客户端注册真实 Audio/MIDI 边界端口，其中 In 接口注册为 JACK 输出、Out 接口注册为 JACK 输入，因此接口节点可使用现有兼容性检查和连线交互与内部节点连接。接口节点支持右键改名，名称作为端口显示别名同步刷新；接口端口随模块窗口生命周期注销。新增 Patchbay Core 回归测试覆盖四类端口注册、类型/方向识别和真实 JACK 连接；Debug 编译零警告零错误，CTest `8/8` 通过。S2 不涉及 S3 的端口提升与可变端口集合、S4 的主图隐藏策略或 S5 的 `subgraphs[]` 工程存档。
+**S2 实施状态（2026-09-06）**：已完成子图 `Sub Graph Audio In`、`Sub Graph Audio Out`、`Sub Graph MIDI In`、`Sub Graph MIDI Out` 四类接口节点。子图节点库仅在子图上下文提供这四类接口项；接口节点支持双击创建和拖放创建，画布使用稳定上下文 ID 映射接口端点。接口的内部逻辑语义与外部 JACK 方向分离：子图内部 `In` 作为逻辑输出、`Out` 作为逻辑输入；子图在外部主图中投影为 `In = JACK input` 并显示在节点左侧、`Out = JACK output` 并显示在节点右侧。接口节点支持右键改名，名称作为端口显示别名同步刷新；接口端口随模块窗口生命周期注销。新增 Patchbay Core 回归测试覆盖四类端口注册、类型/方向识别和真实 JACK 连接；Debug 编译零警告零错误，CTest `8/8` 通过。S2 不涉及 S3 的端口提升与可变端口集合、S4 的主图隐藏策略或 S5 的 `subgraphs[]` 工程存档。
 
 > 每里程碑编译通过即可交付,行为由用户手动验证。
 

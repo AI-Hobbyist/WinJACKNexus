@@ -45,12 +45,6 @@ struct PatchbaySceneContext final {
     bool isSubGraph = false;
 };
 
-struct PatchbaySubGraphInfo final {
-    std::string id;
-    QString name;
-    QPointF position;
-};
-
 struct PatchbayInterfaceInfo final {
     std::string id;
     std::string portId;
@@ -59,6 +53,13 @@ struct PatchbayInterfaceInfo final {
     WinJACKNexus::Patchbay::Core::PortKind kind = WinJACKNexus::Patchbay::Core::PortKind::unknown;
     WinJACKNexus::Patchbay::Core::Direction direction = WinJACKNexus::Patchbay::Core::Direction::unknown;
     QPointF position;
+};
+
+struct PatchbaySubGraphInfo final {
+    std::string id;
+    QString name;
+    QPointF position;
+    std::vector<PatchbayInterfaceInfo> interfaces;
 };
 
 class PatchbayCanvas final : public QGraphicsView {
@@ -73,6 +74,7 @@ public:
     bool isSubGraphNode(const std::string& clientId) const noexcept;
     QString subGraphName(const std::string& clientId) const;
     bool renameSubGraph(const std::string& clientId, const QString& name);
+    void setSubGraphInterfaces(const std::string& clientId, std::vector<PatchbayInterfaceInfo> interfaces);
     void setInterfaceNodes(std::vector<PatchbayInterfaceInfo> nodes);
     bool addInterfaceNode(const QString& type, const QPointF& position);
     bool saveProject(const QString& filePath) const;
@@ -138,6 +140,11 @@ private:
     void scheduleSnapshotRefresh();
     void updateClientPositions();
     void notifySelection();
+    void cancelDragState();
+    bool connectPortPair(const std::string& sourcePortId, const std::string& destinationPortId);
+    void disconnectPortPair(const std::string& sourcePortId, const std::string& destinationPortId);
+    void rememberLogicalConnection(const WinJACKNexus::Patchbay::Core::ConnectionInfo& connection);
+    void forgetLogicalConnection(const std::string& sourcePortId, const std::string& destinationPortId);
 
     WinJACKNexus::Patchbay::Core::Snapshot snapshot_;
     PatchbaySceneContext sceneContext_;
@@ -148,6 +155,7 @@ private:
     std::string draggedPortId_;
     std::string draggedConnectionSourcePortId_;
     std::string draggedConnectionDestinationPortId_;
+    std::vector<WinJACKNexus::Patchbay::Core::ConnectionInfo> logicalConnections_;
     QGraphicsPathItem* portDragPreview_ = nullptr;
     QGraphicsPathItem* draggedConnectionLine_ = nullptr;
     std::function<void(const std::string&)> nodeSelectionHandler_;
