@@ -48,6 +48,7 @@ struct PatchbaySceneContext final {
 struct PatchbayInterfaceInfo final {
     std::string id;
     std::string portId;
+    std::string externalPortId;
     QString type;
     QString name;
     WinJACKNexus::Patchbay::Core::PortKind kind = WinJACKNexus::Patchbay::Core::PortKind::unknown;

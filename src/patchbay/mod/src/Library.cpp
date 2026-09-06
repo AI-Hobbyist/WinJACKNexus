@@ -16,6 +16,7 @@
 #include <WinJACKNexus/Node/NodeApi.h>
 #include <WinJACKNexus/Audio/JackApi.hpp>
 #include <WinJACKNexus/Audio/JackClient.hpp>
+#include <WinJACKNexus/Audio/JackMidiBuffer.hpp>
 #include <WinJACKNexus/Audio/JackPort.hpp>
 #include <WinJACKNexus/Patchbay/Core/Snapshot.hpp>
 #include <WinJACKNexus/UI/NativeWindowUtils.hpp>
@@ -54,6 +55,7 @@
 #include <array>
 #include <cctype>
 #include <cstdint>
+#include <cstring>
 #include <map>
 #include <memory>
 #include <set>
@@ -187,8 +189,46 @@ struct ModuleNodeInfo final {
 	std::uint32_t index = 0;
 };
 
+struct SubGraphBridgePort final {
+	WinJACKNexus::Audio::JackClient client;
+	WinJACKNexus::Audio::JackPort external;
+	WinJACKNexus::Audio::JackPort internal;
+	WinJACKNexus::Patchbay::Core::PortKind kind = WinJACKNexus::Patchbay::Core::PortKind::unknown;
+	bool externalToInternal = false;
+
+	static int process(jack_nframes_t frames, void* userData) noexcept
+	{
+		auto* bridge = static_cast<SubGraphBridgePort*>(userData);
+		if (bridge == nullptr)
+			return 0;
+
+		auto& source = bridge->externalToInternal ? bridge->external : bridge->internal;
+		auto& destination = bridge->externalToInternal ? bridge->internal : bridge->external;
+		if (bridge->kind == WinJACKNexus::Patchbay::Core::PortKind::audio) {
+			const auto* input = source.audioBuffer(frames);
+			auto* output = destination.audioBuffer(frames);
+			if (output == nullptr)
+				return 0;
+			if (input != nullptr)
+				std::memcpy(output, input, static_cast<std::size_t>(frames) * sizeof(*output));
+			else
+				std::memset(output, 0, static_cast<std::size_t>(frames) * sizeof(*output));
+		} else if (bridge->kind == WinJACKNexus::Patchbay::Core::PortKind::midi) {
+			WinJACKNexus::Audio::JackMidiBuffer input(source.midiBuffer(frames));
+			WinJACKNexus::Audio::JackMidiBuffer output(destination.midiBuffer(frames));
+			output.clear();
+			for (std::uint32_t index = 0; index < input.eventCount(); ++index) {
+				WinJACKNexus::Audio::JackMidiEventView event;
+				if (input.event(index, event) && event.size != 0)
+					output.write(event.time, event.data, event.size);
+			}
+		}
+		return 0;
+	}
+};
+
 struct SubGraphPortSet final {
-	std::vector<WinJACKNexus::Audio::JackPort> ports;
+	std::vector<std::unique_ptr<SubGraphBridgePort>> bridges;
 	std::vector<PatchbayInterfaceInfo> interfaces;
 };
 
@@ -918,9 +958,7 @@ public:
 				QPointer<PatchbayCanvas> parentCanvasGuard(parentCanvas);
 				childCanvas->setConnectionConnectHandler(connectJackPort);
 				childCanvas->setConnectionDisconnectHandler(disconnectJackPort);
-				childCanvas->setInterfaceNodeAddedHandler([this, subGraphPorts, contextId, parentCanvasGuard, subGraphId](PatchbayInterfaceInfo& interfaceNode) {
-					if (!jackObserver_.isOpen())
-						return false;
+				childCanvas->setInterfaceNodeAddedHandler([subGraphPorts, contextId, parentCanvasGuard, subGraphId](PatchbayInterfaceInfo& interfaceNode) {
 					const auto definition = std::find_if(subGraphInterfaceDefinitions().cbegin(), subGraphInterfaceDefinitions().cend(), [&interfaceNode](const auto& value) {
 						return interfaceNode.type == QString::fromLatin1(value.type);
 					});
@@ -929,18 +967,31 @@ public:
 					auto& portSet = (*subGraphPorts)[contextId];
 					if (portSet == nullptr)
 						portSet = std::make_shared<SubGraphPortSet>();
-					const auto portName = "sub_" + jackSafeToken(contextId) + "_" + definition->type;
-					portSet->ports.emplace_back();
-					if (!portSet->ports.back().registerPort(jackObserver_, portName.c_str(), definition->jackType, definition->flags)) {
-						portSet->ports.pop_back();
+
+					const auto portStem = "sub_" + jackSafeToken(interfaceNode.id);
+					auto bridge = std::make_unique<SubGraphBridgePort>();
+					bridge->kind = interfaceNode.kind;
+					bridge->externalToInternal = definition->flags == JackPortIsInput;
+					const auto clientName = "WinJACKNexus-SubGraph-" + jackSafeToken(interfaceNode.id);
+					if (!bridge->client.open({ clientName.c_str(), false, false, nullptr })
+						|| bridge->client.setProcessCallback(&SubGraphBridgePort::process, bridge.get()) != 0)
 						return false;
-					}
-					const auto* registeredName = portSet->ports.back().name();
-					if (registeredName == nullptr || *registeredName == '\0') {
-						portSet->ports.pop_back();
+					const auto externalName = portStem + "_external";
+					const auto internalName = portStem + "_internal";
+					const auto internalFlags = definition->flags == JackPortIsInput ? JackPortIsOutput : JackPortIsInput;
+					if (!bridge->external.registerPort(bridge->client, externalName.c_str(), definition->jackType, definition->flags)
+						|| !bridge->internal.registerPort(bridge->client, internalName.c_str(), definition->jackType, internalFlags))
 						return false;
-					}
-					interfaceNode.portId = registeredName;
+					const auto* externalPortName = bridge->external.name();
+					const auto* internalPortName = bridge->internal.name();
+					if (externalPortName == nullptr || *externalPortName == '\0'
+						|| internalPortName == nullptr || *internalPortName == '\0')
+						return false;
+					interfaceNode.portId = internalPortName;
+					interfaceNode.externalPortId = externalPortName;
+					if (!bridge->client.activate())
+						return false;
+					portSet->bridges.push_back(std::move(bridge));
 					portSet->interfaces.push_back(interfaceNode);
 					if (!parentCanvasGuard.isNull())
 						parentCanvasGuard->setSubGraphInterfaces(subGraphId, portSet->interfaces);
