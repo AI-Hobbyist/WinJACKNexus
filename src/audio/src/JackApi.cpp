@@ -83,6 +83,7 @@ struct JackApi::Impl final {
     using GetBufferSize = decltype(&jack_get_buffer_size);
     using CpuLoad = decltype(&jack_cpu_load);
     using PortRegister = decltype(&jack_port_register);
+    using PortRename = decltype(&jack_port_rename);
     using PortUnregister = decltype(&jack_port_unregister);
     using PortGetBuffer = decltype(&jack_port_get_buffer);
     using PortName = decltype(&jack_port_name);
@@ -133,6 +134,7 @@ struct JackApi::Impl final {
         GetBufferSize getBufferSize = nullptr;
         CpuLoad cpuLoad = nullptr;
         PortRegister portRegister = nullptr;
+        PortRename portRename = nullptr;
         PortUnregister portUnregister = nullptr;
         PortGetBuffer portGetBuffer = nullptr;
         PortName portName = nullptr;
@@ -224,6 +226,7 @@ bool JackApi::load(const wchar_t* explicitPath) noexcept
             WJN_LOAD_JACK_FUNCTION(getBufferSize, "jack_get_buffer_size");
             WJN_LOAD_JACK_FUNCTION(cpuLoad, "jack_cpu_load");
             WJN_LOAD_JACK_FUNCTION(portRegister, "jack_port_register");
+            loadFunction(module, "jack_port_rename", functions.portRename);
             WJN_LOAD_JACK_FUNCTION(portUnregister, "jack_port_unregister");
             WJN_LOAD_JACK_FUNCTION(portGetBuffer, "jack_port_get_buffer");
             WJN_LOAD_JACK_FUNCTION(portName, "jack_port_name");
@@ -406,6 +409,13 @@ jack_port_t* JackApi::portRegister(jack_client_t* client,
     return impl_->functions.portRegister != nullptr
         ? impl_->functions.portRegister(client, portName, portType, flags, bufferSize)
         : nullptr;
+}
+
+int JackApi::portRename(jack_client_t* client, jack_port_t* port, const char* portName) const noexcept
+{
+    return impl_->functions.portRename != nullptr
+        ? impl_->functions.portRename(client, port, portName)
+        : -1;
 }
 
 int JackApi::portUnregister(jack_client_t* client, jack_port_t* port) const noexcept

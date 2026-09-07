@@ -70,6 +70,7 @@ public:
                               const char* portType,
                               unsigned long flags,
                               unsigned long bufferSize) const noexcept;
+    int portRename(jack_client_t* client, jack_port_t* port, const char* portName) const noexcept;
     int portUnregister(jack_client_t* client, jack_port_t* port) const noexcept;
     void* portGetBuffer(jack_port_t* port, jack_nframes_t frames) const noexcept;
     const char* portName(const jack_port_t* port) const noexcept;

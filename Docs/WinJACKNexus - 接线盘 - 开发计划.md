@@ -1,6 +1,6 @@
 # WinJACKNexus - 接线盘(Interactive Patchbay)- 开发计划
 
-> 版本:v1.10
+> 版本:v1.11
 > 日期:2026-09-06
 > 依据:«WinJACKNexus 开发规范» v3.1(补充:基础库计划 v1.0)
 > 参考实现:«Ref/Carla»(Carla Plugin Host,Patchbay 处理模式 + JACK Multi-Client)
@@ -442,13 +442,17 @@ wjnproj)
 | :--- | :--- | :--- | :--- |
 | **S1 子图基础（已完成）** | 场景上下文抽象 + 标签页视图(双击 Sub Graph 节点打开子图标签)| 3~5 天 | 主图加 Sub Graph 节点并双击打开子图标签页 |
 | **S2 接口节点（已完成）** | Sub Graph Audio/MIDI In/Out 节点 + 端口注册 | 3~5 天 | 子图内接口节点可与内部节点连线 |
-| **S3 嵌套** | Sub Graph 节点(默认 2 进 2 出 + 1 MIDI,端口可增删)+ 无限嵌套/端口提升 | 5~7 天 | 多层嵌套;端口从外部可见可连 |
-| **S4 隐藏策略** | 子图列表隐藏 adapter/jackclient 分类;主图隐藏 sub\* 引脚 | 2~3 天 | 子图列表无设备分类;主图 Sub Graph 卡不显示接口 |
+| **S3 嵌套（已完成）** | Sub Graph 节点(默认 2 进 2 出 + 1 MIDI,端口可增删)+ 无限嵌套/端口提升 | 5~7 天 | 多层嵌套;端口从外部可见可连 |
+| **S4 隐藏策略（已完成）** | 子图列表隐藏 adapter/jackclient 分类;主图隐藏 sub\* 引脚 | 2~3 天 | 子图列表无设备分类;主图 Sub Graph 卡不显示接口 |
 | **S5 存档** | `subgraphs[]` 树形存档/恢复 + 自动加载 | 3~4 天 | 工程保存/恢复子图树与连接 |
 
 **S1 实施状态（2026-09-06）**：已完成 `PatchbaySceneContext` 场景上下文、主图与子图复用独立 `PatchbayCanvas` 的 `QTabWidget` 标签页视图。主图节点库提供 `Sub Graph` 节点，支持双击创建、拖放创建；双击画布中的 Sub Graph 节点会打开或聚焦对应子图标签页，子图标签页只展示 Sub Graph 节点分类，且支持继续打开子图上下文。S1 不涉及 S2 的接口节点/端口注册、S3 的端口提升与深层连接、S5 的 `subgraphs[]` 工程存档。
 
-**S2 实施状态（2026-09-06）**：已完成子图 `Sub Graph Audio In`、`Sub Graph Audio Out`、`Sub Graph MIDI In`、`Sub Graph MIDI Out` 四类接口节点。子图节点库仅在子图上下文提供这四类接口项；接口节点支持双击创建和拖放创建，画布使用稳定上下文 ID 映射接口端点。接口的内部逻辑语义与外部 JACK 方向分离：每个接口由独立 bridge client 中的外部端与内部端组成，实时回调转发 Audio/MIDI；子图内部 `In` 作为逻辑输出、`Out` 作为逻辑输入，外部主图投影为 `In = JACK input` 并显示在节点左侧、`Out = JACK output` 并显示在节点右侧。相同类型接口允许重复创建，默认以 `... In 1`、`... In 2`、`... In 3` 等连续编号，JACK 注册名也基于相同序号保持唯一。接口节点支持右键改名，名称作为端口显示别名同步刷新；接口端口随模块窗口生命周期注销。新增 Patchbay Core 回归测试覆盖四类端口注册、类型/方向识别和真实 JACK 连接；Debug 编译零警告零错误，CTest `8/8` 通过。S2 不涉及 S3 的端口提升与可变端口集合、S4 的主图隐藏策略或 S5 的 `subgraphs[]` 工程存档。
+**S2 实施状态（2026-09-06）**：已完成子图 `Sub Graph Audio In`、`Sub Graph Audio Out`、`Sub Graph MIDI In`、`Sub Graph MIDI Out` 四类接口节点。子图节点库仅在子图上下文提供这四类接口项；接口节点支持双击创建和拖放创建，画布使用稳定上下文 ID 映射接口端点。每个子图注册为单一 JACK client：在其他 JACK graph 中呈现为一个大节点，只公开 `audio_in_1`、`audio_out_1`、`midi_in_1`、`midi_out_1` 等纯净端口名；子图画布内的 `In` 到 `Out` 连线维护该 client 的实时 Audio/MIDI 路由表，不再公开内部 bridge 端口。子图内部 `In` 作为逻辑输出、`Out` 作为逻辑输入，外部主图投影为 `In = JACK input` 并显示在节点左侧、`Out = JACK output` 并显示在节点右侧。相同类型接口允许重复创建，默认以 `... In 1`、`... In 2`、`... In 3` 等连续编号，JACK 注册名也基于相同序号保持唯一。接口节点支持右键改名，名称作为端口显示别名同步刷新；接口端口随模块窗口生命周期注销。新增 Patchbay Core 回归测试覆盖四类端口注册、类型/方向识别和真实 JACK 连接；Debug 编译零警告零错误，CTest `8/8` 通过。S2 不涉及 S3 的端口提升与可变端口集合、S4 的主图隐藏策略或 S5 的 `subgraphs[]` 工程存档。
+
+**S3 实施状态（2026-09-07）**：已完成无限嵌套与端口提升。新建子图首次打开时自动创建两个 Audio In、两个 Audio Out 和一个 MIDI In；接口仍可在子图内自由增减。每个最外层子图仅注册一个真实 JACK client，嵌套子图接口作为该根子图路由图中的虚拟端点，实时 Audio/MIDI 回调沿逻辑连接穿透多层嵌套并转发到可达的真实输出端口，因此外部 JACK 客户端只看到最外层子图。接口创建与重命名使用用户指定名称作为 JACK 端口名；关闭标签仅隐藏并缓存画布，重新打开会保留嵌套节点、逻辑连接和布局。
+
+**S4 实施状态（2026-09-07）**：已完成子图上下文的节点库白名单与主图隐藏策略。子图上下文仅列出 Sub Graph 及四类 Sub Graph Interface，不显示 `jackclient`、Windows Native adapter 或其他模块分类；主图仅显示 Sub Graph 节点卡，不渲染其提升接口引脚。最外层子图的接口仍由 JACK 图向外部客户端公开，并可在子图标签页内管理。
 
 > 每里程碑编译通过即可交付,行为由用户手动验证。
 

@@ -1041,8 +1041,7 @@ void PatchbayCanvas::setSnapshot(const Snapshot& snapshot)
     });
 
     const auto portName = [](const PatchbayInterfaceInfo& interfaceNode) {
-        const auto separator = interfaceNode.portId.find(':');
-        return separator == std::string::npos ? interfaceNode.portId : interfaceNode.portId.substr(separator + 1);
+        return interfaceNode.name.toStdString();
     };
     const auto addInterfaceClient = [&restored, &portName](const PatchbayInterfaceInfo& interfaceNode) {
         if (interfaceNode.id.empty() || interfaceNode.portId.empty())
@@ -1102,8 +1101,11 @@ void PatchbayCanvas::setSnapshot(const Snapshot& snapshot)
         for (const auto& subGraph : subGraphNodes_)
             addSubGraphClient(subGraph);
     } else {
-        for (const auto& subGraph : subGraphNodes_)
-            addSubGraphClient(subGraph);
+        for (const auto& subGraph : subGraphNodes_) {
+            PatchbaySubGraphInfo hiddenInterfaces = subGraph;
+            hiddenInterfaces.interfaces.clear();
+            addSubGraphClient(hiddenInterfaces);
+        }
     }
 
     const std::unordered_set<std::string> visiblePortIds = [&restored] {
