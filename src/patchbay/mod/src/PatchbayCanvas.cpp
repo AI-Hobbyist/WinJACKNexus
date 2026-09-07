@@ -66,6 +66,7 @@ constexpr qreal kHeaderHeight = 34.0;
 constexpr qreal kPortHeight = 26.0;
 constexpr qreal kCanvasExtent = 1'000'000.0;
 constexpr auto kModuleNodeMimeType = "application/x-winjacknexus-module-node";
+constexpr auto kVstNodeMimeType = "application/x-winjacknexus-vst-node";
 constexpr auto kSubGraphNodeMimeType = "application/x-winjacknexus-subgraph-node";
 constexpr auto kInterfaceNodeMimeType = "application/x-winjacknexus-interface-node";
 
@@ -80,6 +81,23 @@ bool readModuleNodeMimeData(const QMimeData* mimeData, QString& modulePath, std:
     index = payload.mid(separator + 1).toUInt(&validIndex);
     modulePath = QString::fromUtf8(payload.left(separator));
     return separator > 0 && validIndex && !modulePath.isEmpty();
+}
+
+bool readVstNodeMimeData(const QMimeData* mimeData, QString& modulePath, std::uint32_t& index, QString& settingsJson)
+{
+    if (mimeData == nullptr || !mimeData->hasFormat(kVstNodeMimeType))
+        return false;
+
+    const auto payload = mimeData->data(kVstNodeMimeType);
+    const auto firstSeparator = payload.indexOf('\n');
+    const auto secondSeparator = payload.indexOf('\n', firstSeparator + 1);
+    if (firstSeparator <= 0 || secondSeparator <= firstSeparator + 1)
+        return false;
+    bool validIndex = false;
+    index = payload.mid(firstSeparator + 1, secondSeparator - firstSeparator - 1).toUInt(&validIndex);
+    modulePath = QString::fromUtf8(payload.left(firstSeparator));
+    settingsJson = QString::fromUtf8(payload.mid(secondSeparator + 1));
+    return validIndex && !modulePath.isEmpty() && !settingsJson.isEmpty();
 }
 
 bool readSubGraphNodeMimeData(const QMimeData* mimeData, QString& name)
@@ -835,6 +853,7 @@ bool PatchbayCanvas::saveProject(const QString& filePath,
     }
 
     QJsonArray moduleRecords;
+    QJsonArray vstRecords;
     for (const auto& module : modules) {
         QJsonValue settings = QJsonObject {};
         if (!module.settingsJson.empty()) {
@@ -843,10 +862,31 @@ bool PatchbayCanvas::saveProject(const QString& filePath,
             if (error.error == QJsonParseError::NoError && document.isObject())
                 settings = document.object();
         }
-        moduleRecords.append(QJsonObject {
+        const QJsonObject moduleRecord {
             { QStringLiteral("path"), modulePathForStorage(module.modulePath) },
             { QStringLiteral("index"), static_cast<int>(module.index) },
             { QStringLiteral("client"), QString::fromStdString(module.clientId) },
+            { QStringLiteral("settings"), settings }
+        };
+        const auto settingsObject = settings.toObject();
+        const bool isVst = QFileInfo(module.modulePath).completeBaseName() == QStringLiteral("mod_vst_host")
+            && !settingsObject.value(QStringLiteral("path")).toString().isEmpty()
+            && !settingsObject.value(QStringLiteral("bits")).toString().isEmpty();
+        if (!isVst) {
+            moduleRecords.append(moduleRecord);
+            continue;
+        }
+        const auto pluginPath = settingsObject.value(QStringLiteral("path")).toString();
+        vstRecords.append(QJsonObject {
+            { QStringLiteral("node"), QString::fromStdString(module.clientId) },
+            { QStringLiteral("modulePath"), moduleRecord.value(QStringLiteral("path")) },
+            { QStringLiteral("index"), static_cast<int>(module.index) },
+            { QStringLiteral("type"), pluginPath.endsWith(QStringLiteral(".vst3"), Qt::CaseInsensitive)
+                ? QStringLiteral("vst3") : QStringLiteral("vst2") },
+            { QStringLiteral("path"), pluginPath },
+            { QStringLiteral("internalPlugin"), settingsObject.value(QStringLiteral("internalPlugin")) },
+            { QStringLiteral("clientName"), settingsObject.value(QStringLiteral("clientName")) },
+            { QStringLiteral("portDisplayMode"), settingsObject.value(QStringLiteral("portDisplayMode")) },
             { QStringLiteral("settings"), settings }
         });
     }
@@ -907,6 +947,7 @@ bool PatchbayCanvas::saveProject(const QString& filePath,
         { QStringLiteral("connections"), connections },
         { QStringLiteral("layouts"), layouts },
         { QStringLiteral("modules"), moduleRecords },
+        { QStringLiteral("vsts"), vstRecords },
         { QStringLiteral("subgraphs"), subGraphRecords },
         { QStringLiteral("mixers"), QJsonArray {} },
         { QStringLiteral("switches"), QJsonArray {} }
@@ -992,18 +1033,26 @@ bool PatchbayCanvas::loadProject(const QString& filePath,
     }
 
     std::vector<PatchbayProjectModule> loadedModules;
-    for (const auto& value : root.value(QStringLiteral("modules")).toArray()) {
-        const auto item = value.toObject();
+    const auto appendModule = [&loadedModules](const QJsonObject& item, const QString& pathField, const QString& clientField) {
         PatchbayProjectModule module;
-        module.modulePath = modulePathFromStorage(item.value(QStringLiteral("path")).toString());
+        module.modulePath = modulePathFromStorage(item.value(pathField).toString());
         if (module.modulePath.isEmpty())
-            continue;
+            return;
         module.index = static_cast<std::uint32_t>(item.value(QStringLiteral("index")).toInt());
-        module.clientId = item.value(QStringLiteral("client")).toString().toStdString();
+        module.clientId = item.value(clientField).toString().toStdString();
         const auto settings = item.value(QStringLiteral("settings"));
         if (settings.isObject())
             module.settingsJson = QJsonDocument(settings.toObject()).toJson(QJsonDocument::Compact).toStdString();
         loadedModules.push_back(std::move(module));
+    };
+    for (const auto& value : root.value(QStringLiteral("modules")).toArray()) {
+        appendModule(value.toObject(), QStringLiteral("path"), QStringLiteral("client"));
+    }
+    for (const auto& value : root.value(QStringLiteral("vsts")).toArray()) {
+        const auto item = value.toObject();
+        if (item.value(QStringLiteral("modulePath")).toString().isEmpty())
+            continue;
+        appendModule(item, QStringLiteral("modulePath"), QStringLiteral("node"));
     }
 
     const auto interfaceFromJson = [](const QJsonObject& item, PatchbayInterfaceInfo& interfaceNode) {
@@ -1650,7 +1699,15 @@ void PatchbayCanvas::setModuleNodeHandlers(std::function<bool(const std::string&
 void PatchbayCanvas::setModuleNodeDropHandler(std::function<bool(const QString&, std::uint32_t, const QPointF&)> handler)
 {
     moduleNodeDropHandler_ = std::move(handler);
-    setAcceptDrops(moduleNodeDropHandler_ != nullptr || subGraphNodeDropHandler_ != nullptr || interfaceNodeDropHandler_ != nullptr);
+    setAcceptDrops(moduleNodeDropHandler_ != nullptr || vstNodeDropHandler_ != nullptr
+                   || subGraphNodeDropHandler_ != nullptr || interfaceNodeDropHandler_ != nullptr);
+}
+
+void PatchbayCanvas::setVstNodeDropHandler(std::function<bool(const QString&, std::uint32_t, const QString&, const QPointF&)> handler)
+{
+    vstNodeDropHandler_ = std::move(handler);
+    setAcceptDrops(moduleNodeDropHandler_ != nullptr || vstNodeDropHandler_ != nullptr
+                   || subGraphNodeDropHandler_ != nullptr || interfaceNodeDropHandler_ != nullptr);
 }
 
 void PatchbayCanvas::applyTheme(bool light)
@@ -2470,6 +2527,11 @@ void PatchbayCanvas::dragEnterEvent(QDragEnterEvent* event)
     }
     QString modulePath;
     std::uint32_t index = 0;
+    QString vstSettings;
+    if (vstNodeDropHandler_ && readVstNodeMimeData(event->mimeData(), modulePath, index, vstSettings)) {
+        event->acceptProposedAction();
+        return;
+    }
     if (moduleNodeDropHandler_ && readModuleNodeMimeData(event->mimeData(), modulePath, index)) {
         event->acceptProposedAction();
         return;
@@ -2491,6 +2553,11 @@ void PatchbayCanvas::dragMoveEvent(QDragMoveEvent* event)
     }
     QString modulePath;
     std::uint32_t index = 0;
+    QString vstSettings;
+    if (vstNodeDropHandler_ && readVstNodeMimeData(event->mimeData(), modulePath, index, vstSettings)) {
+        event->acceptProposedAction();
+        return;
+    }
     if (moduleNodeDropHandler_ && readModuleNodeMimeData(event->mimeData(), modulePath, index)) {
         event->acceptProposedAction();
         return;
@@ -2518,6 +2585,14 @@ void PatchbayCanvas::dropEvent(QDropEvent* event)
     }
     QString modulePath;
     std::uint32_t index = 0;
+    QString vstSettings;
+    if (vstNodeDropHandler_ && readVstNodeMimeData(event->mimeData(), modulePath, index, vstSettings)) {
+        if (vstNodeDropHandler_(modulePath, index, vstSettings, mapToScene(event->position().toPoint())))
+            event->acceptProposedAction();
+        else
+            event->ignore();
+        return;
+    }
     if (moduleNodeDropHandler_ && readModuleNodeMimeData(event->mimeData(), modulePath, index)) {
         if (moduleNodeDropHandler_(modulePath, index, mapToScene(event->position().toPoint())))
             event->acceptProposedAction();

@@ -1795,9 +1795,11 @@ private:
                 if (mode == "standard") {
                     static constexpr const char* channelNames[] { "L", "R", "C", "LFE", "SL", "SR", "BL", "BR" };
                     name = std::string(prefix) + '_' + (channel < static_cast<VstInt32>(std::size(channelNames)) ? channelNames[channel] : "ch_" + channelNumber);
-                } else if (mode != "jack" && channel < static_cast<VstInt32>(busNames.size()) && !busNames[channel].empty()) {
+                } else if (mode == "bus-labels" && channel < static_cast<VstInt32>(busNames.size()) && !busNames[channel].empty()) {
                     const auto& busName = busNames[channel];
                     name = std::string(prefix) + '_' + sanitizedPortName(busName) + '_' + channelNumber;
+                } else if (mode == "default") {
+                    name = "bus_" + channelNumber + '_' + prefix;
                 } else {
                     name = std::string(prefix) + '_' + channelNumber;
                 }

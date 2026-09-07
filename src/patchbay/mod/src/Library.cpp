@@ -34,6 +34,8 @@
 #include <QFileInfo>
 #include <QFormLayout>
 #include <QInputDialog>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QLabel>
 #include <QLineEdit>
 #include <QMainWindow>
@@ -41,6 +43,7 @@
 #include <QMessageBox>
 #include <QMimeData>
 #include <QPointer>
+#include <QProcess>
 #include <QPushButton>
 #include <QDirIterator>
 #include <QSettings>
@@ -104,6 +107,7 @@ protected:
 		if (item == nullptr)
 			return;
 		const auto modulePath = item->data(0, Qt::UserRole).toString();
+		const auto vstSettings = item->data(0, Qt::UserRole + 4).toString();
 		const auto subGraphName = item->data(0, Qt::UserRole + 2).toString();
 		const auto interfaceType = item->data(0, Qt::UserRole + 3).toString();
 		if (modulePath.isEmpty() && subGraphName.isEmpty() && interfaceType.isEmpty())
@@ -112,7 +116,10 @@ protected:
 		auto* mimeData = new QMimeData;
 		if (!modulePath.isEmpty()) {
 			const auto payload = modulePath.toUtf8() + '\n' + QByteArray::number(item->data(0, Qt::UserRole + 1).toUInt());
-			mimeData->setData("application/x-winjacknexus-module-node", payload);
+			if (!vstSettings.isEmpty())
+				mimeData->setData("application/x-winjacknexus-vst-node", payload + '\n' + vstSettings.toUtf8());
+			else
+				mimeData->setData("application/x-winjacknexus-module-node", payload);
 		} else {
 			mimeData->setData(interfaceType.isEmpty() ? "application/x-winjacknexus-subgraph-node"
 			                                        : "application/x-winjacknexus-interface-node",
@@ -187,6 +194,21 @@ struct ModuleNodeInfo final {
 	QString name;
 	QString modulePath;
 	std::uint32_t index = 0;
+};
+
+struct VstPluginInfo final {
+	QString name;
+	QString vendor;
+	QString version;
+	QString type;
+	QString path;
+	QString category;
+	QString subcategory;
+	QString internalPlugin;
+	QString infoFile;
+	int bits = 0;
+	bool instrument = false;
+	bool verified = true;
 };
 
 struct SubGraphInterfacePort final {
@@ -408,6 +430,96 @@ std::vector<ModuleNodeInfo> scanNodeModules()
 	return nodes;
 }
 
+std::vector<VstPluginInfo> scanVstPlugins()
+{
+	std::vector<VstPluginInfo> plugins;
+	const QDir pluginsDirectory(QCoreApplication::applicationDirPath() + QStringLiteral("/nodes/VSTPlugins"));
+	if (!pluginsDirectory.exists())
+		return plugins;
+
+	QDirIterator iterator(pluginsDirectory.absolutePath(), { QStringLiteral("*.vstinfo"), QStringLiteral("*.vst3info") },
+	                     QDir::Files, QDirIterator::Subdirectories);
+	while (iterator.hasNext()) {
+		QFile file(iterator.next());
+		if (!file.open(QIODevice::ReadOnly))
+			continue;
+		QJsonParseError error;
+		const auto document = QJsonDocument::fromJson(file.readAll(), &error);
+		if (error.error != QJsonParseError::NoError || !document.isObject())
+			continue;
+		const auto object = document.object();
+		VstPluginInfo plugin;
+		plugin.name = object.value(QStringLiteral("name")).toString().trimmed();
+		plugin.vendor = object.value(QStringLiteral("vendor")).toString().trimmed();
+		plugin.version = object.value(QStringLiteral("version")).toString().trimmed();
+		plugin.type = object.value(QStringLiteral("type")).toString().trimmed().toLower();
+		plugin.path = object.value(QStringLiteral("path")).toString().trimmed();
+		plugin.category = object.value(QStringLiteral("category")).toString().trimmed();
+		plugin.subcategory = object.value(QStringLiteral("subcategory")).toString().trimmed();
+		plugin.internalPlugin = object.value(QStringLiteral("internal_plugin")).toString().trimmed();
+		plugin.infoFile = file.fileName();
+		plugin.bits = object.value(QStringLiteral("bits")).toInt();
+		plugin.instrument = object.value(QStringLiteral("isInstrument")).toBool();
+		plugin.verified = object.value(QStringLiteral("verified")).toBool(true);
+		if (plugin.name.isEmpty() || plugin.path.isEmpty()
+			|| (plugin.type != QStringLiteral("vst2") && plugin.type != QStringLiteral("vst3"))
+			|| (plugin.bits != 32 && plugin.bits != 64))
+			continue;
+		plugins.push_back(std::move(plugin));
+	}
+	std::sort(plugins.begin(), plugins.end(), [](const auto& left, const auto& right) {
+		return std::tie(left.type, left.instrument, left.category, left.subcategory, left.name)
+			< std::tie(right.type, right.instrument, right.category, right.subcategory, right.name);
+	});
+	return plugins;
+}
+
+QString vstPluginCategory(const VstPluginInfo& plugin, const QDir& pluginsDirectory)
+{
+	auto relativeDirectory = pluginsDirectory.relativeFilePath(QFileInfo(plugin.infoFile).absolutePath());
+	if (!relativeDirectory.isEmpty() && relativeDirectory != QStringLiteral("."))
+		return QStringLiteral("VST Plugins / ") + relativeDirectory.replace(QDir::separator(), QStringLiteral(" / "));
+	return QStringLiteral("VST Plugins / ")
+		+ (plugin.type == QStringLiteral("vst2") ? QStringLiteral("VST2") : QStringLiteral("VST3"))
+		+ QStringLiteral(" / ") + (plugin.instrument ? QStringLiteral("Instruments") : QStringLiteral("Effects"));
+}
+
+QString vstPluginSettings(const VstPluginInfo& plugin)
+{
+	return QString::fromUtf8(QJsonDocument(QJsonObject {
+		{ QStringLiteral("path"), plugin.path },
+		{ QStringLiteral("bits"), QString::number(plugin.bits) },
+		{ QStringLiteral("internalPlugin"), plugin.internalPlugin },
+		{ QStringLiteral("internalPluginName"), plugin.name }
+	}).toJson(QJsonDocument::Compact));
+}
+
+void addVstPluginItems(QTreeWidget* tree, const std::vector<ModuleNodeInfo>& modules)
+{
+	const auto vstHost = std::find_if(modules.cbegin(), modules.cend(), [](const auto& module) {
+		return module.name == QStringLiteral("VST Plugin");
+	});
+	if (vstHost == modules.cend())
+		return;
+
+	const QDir pluginsDirectory(QCoreApplication::applicationDirPath() + QStringLiteral("/nodes/VSTPlugins"));
+	std::map<QString, QTreeWidgetItem*> categories;
+	for (const auto& plugin : scanVstPlugins()) {
+		const auto categoryName = vstPluginCategory(plugin, pluginsDirectory);
+		auto [category, inserted] = categories.try_emplace(categoryName, nullptr);
+		if (inserted)
+			category->second = addCategory(tree, categoryName);
+		auto* item = new QTreeWidgetItem(category->second, { plugin.name });
+		item->setData(0, Qt::UserRole, vstHost->modulePath);
+		item->setData(0, Qt::UserRole + 1, vstHost->index);
+		item->setData(0, Qt::UserRole + 4, vstPluginSettings(plugin));
+		item->setToolTip(0, QStringLiteral("%1\n%2\n%3 %4-bit\n%5")
+			.arg(plugin.vendor, plugin.version, plugin.type.toUpper(), QString::number(plugin.bits), plugin.path));
+		if (!plugin.verified)
+			item->setForeground(0, QColor(QStringLiteral("#8193a5")));
+	}
+}
+
 void populateNodeLibrary(QTreeWidget* tree,
                          const WinJACKNexus::Patchbay::Core::Snapshot& snapshot,
 						 const std::set<std::string>& knownJackClients,
@@ -416,6 +528,7 @@ void populateNodeLibrary(QTreeWidget* tree,
 			 bool subGraphContext = false)
 {
 	tree->clear();
+	const auto modules = scanNodeModules();
 	auto* subGraphs = addCategory(tree, QStringLiteral("Sub Graph"));
 	addSubGraphItem(subGraphs);
 	if (subGraphContext) {
@@ -424,6 +537,7 @@ void populateNodeLibrary(QTreeWidget* tree,
 		addInterfaceItem(interfaces, QStringLiteral("audio_out"), QStringLiteral("Sub Graph Audio Out"));
 		addInterfaceItem(interfaces, QStringLiteral("midi_in"), QStringLiteral("Sub Graph MIDI In"));
 		addInterfaceItem(interfaces, QStringLiteral("midi_out"), QStringLiteral("Sub Graph MIDI Out"));
+		addVstPluginItems(tree, modules);
 		applyNodeLibraryFilter(tree, filterQuery);
 		return;
 	}
@@ -449,7 +563,7 @@ void populateNodeLibrary(QTreeWidget* tree,
 	}
 
 	std::map<QString, QTreeWidgetItem*> moduleCategories;
-	for (const auto& node : scanNodeModules()) {
+	for (const auto& node : modules) {
 		auto [category, inserted] = moduleCategories.try_emplace(node.category, nullptr);
 		if (inserted)
 			category->second = addCategory(tree, node.category);
@@ -457,6 +571,7 @@ void populateNodeLibrary(QTreeWidget* tree,
 		item->setData(0, Qt::UserRole, node.modulePath);
 		item->setData(0, Qt::UserRole + 1, node.index);
 	}
+	addVstPluginItems(tree, modules);
 	applyNodeLibraryFilter(tree, filterQuery);
 }
 
@@ -1492,14 +1607,14 @@ public:
 						loadedModuleNodes_.push_back(std::move(node));
 					}
 				};
-			auto createModuleNode = [this, canvas, refreshJackGraph, window = window_.data()](const QString& modulePath, std::uint32_t index, const QPointF& position) {
+			auto createModuleNode = [this, canvas, refreshJackGraph, window = window_.data()](const QString& modulePath, std::uint32_t index, const QPointF& position, const QString& settingsJson = {}) {
 				std::set<std::string> existingClients;
 				if (jackObserver_.isOpen()) {
 					for (const auto& client : WinJACKNexus::Patchbay::Core::Snapshot::capture(jackObserver_).clients)
 						existingClients.insert(client.id);
 				}
 
-				auto node = LoadedModuleNode::create(modulePath, index);
+				auto node = LoadedModuleNode::create(modulePath, index, settingsJson.toStdString());
 				if (node == nullptr) {
 					QMessageBox::warning(window, QStringLiteral("节点启动失败"),
 					                     QStringLiteral("无法初始化所选模块节点。请确认 JACK 服务和对应系统设备可用。"));
@@ -1558,10 +1673,13 @@ public:
 				const auto modulePath = item->data(0, Qt::UserRole).toString();
 				if (modulePath.isEmpty())
 					return;
-				createModuleNode(modulePath, item->data(0, Qt::UserRole + 1).toUInt(), {});
+				createModuleNode(modulePath, item->data(0, Qt::UserRole + 1).toUInt(), {}, item->data(0, Qt::UserRole + 4).toString());
 			});
 			canvas->setModuleNodeDropHandler([createModuleNode](const QString& modulePath, std::uint32_t index, const QPointF& position) {
 				return createModuleNode(modulePath, index, position);
+			});
+			canvas->setVstNodeDropHandler([createModuleNode](const QString& modulePath, std::uint32_t index, const QString& settingsJson, const QPointF& position) {
+				return createModuleNode(modulePath, index, position, settingsJson);
 			});
 			auto selectedModuleNode = std::make_shared<LoadedModuleNode*>(nullptr);
 			canvas->setModuleNodeHandlers(
@@ -1732,6 +1850,24 @@ public:
 			QObject::connect(zoomResetAction, &QAction::triggered, canvas, &PatchbayCanvas::zoomReset);
 			QObject::connect(zoomInAction, &QAction::triggered, canvas, &PatchbayCanvas::zoomIn);
 			toolbar->addSeparator();
+			auto* scanVstAction = toolbar->addAction(QStringLiteral("扫描 VST"));
+			QObject::connect(scanVstAction, &QAction::triggered, window_, [refreshNodeLibrary, window = window_.data()] {
+				const auto scannerPath = QCoreApplication::applicationDirPath() + QStringLiteral("/VST Scanner.exe");
+				if (!QFileInfo::exists(scannerPath)) {
+					QMessageBox::warning(window, QStringLiteral("扫描器不可用"), QStringLiteral("未找到 VST Scanner.exe。"));
+					return;
+				}
+				auto* scanner = new QProcess(window);
+				QObject::connect(scanner, qOverload<int, QProcess::ExitStatus>(&QProcess::finished), scanner, [scanner, refreshNodeLibrary](int, QProcess::ExitStatus) {
+					scanner->deleteLater();
+					(*refreshNodeLibrary)();
+				});
+				scanner->start(scannerPath, { QStringLiteral("--output"), QCoreApplication::applicationDirPath() + QStringLiteral("/nodes/VSTPlugins") });
+				if (!scanner->waitForStarted(1000)) {
+					scanner->deleteLater();
+					QMessageBox::warning(window, QStringLiteral("扫描器启动失败"), QStringLiteral("无法启动 VST Scanner.exe。"));
+				}
+			});
 			auto* themes = new QActionGroup(window_);
 			themes->setExclusive(true);
 			auto* darkAction = toolbar->addAction(QStringLiteral("深色"));

@@ -127,6 +127,7 @@ public:
                                std::function<bool(const std::string&, QWidget*)> showModuleNodeGui,
                                std::function<bool(const QPointF&)> pasteModuleNode);
     void setModuleNodeDropHandler(std::function<bool(const QString&, std::uint32_t, const QPointF&)> handler);
+    void setVstNodeDropHandler(std::function<bool(const QString&, std::uint32_t, const QString&, const QPointF&)> handler);
     bool isNodeDragActive() const noexcept;
     void zoomIn();
     void zoomOut();
@@ -201,6 +202,7 @@ private:
     std::function<bool(const std::string&, QWidget*)> showModuleNodeGui_;
     std::function<bool(const QPointF&)> pasteModuleNode_;
     std::function<bool(const QString&, std::uint32_t, const QPointF&)> moduleNodeDropHandler_;
+    std::function<bool(const QString&, std::uint32_t, const QString&, const QPointF&)> vstNodeDropHandler_;
     QString copiedSubGraphName_;
     QString copiedInterfaceType_;
     QPoint panOrigin_;

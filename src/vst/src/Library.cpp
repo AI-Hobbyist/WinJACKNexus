@@ -75,6 +75,22 @@ QString portDisplayModeArgument(PortDisplayMode mode)
     }
 }
 
+QString sandboxClientName(QString requestedName, const QString& instanceId)
+{
+    constexpr int jackClientNameMaximumLength = 127;
+    const auto suffix = QStringLiteral("-") + instanceId.left(8);
+    const auto maximumPluginNameLength = jackClientNameMaximumLength - suffix.size();
+    requestedName = requestedName.trimmed();
+    if (requestedName.size() > maximumPluginNameLength) {
+        const auto preservedLength = (maximumPluginNameLength - 3) / 2;
+        requestedName = requestedName.left(preservedLength) + QStringLiteral("...")
+            + requestedName.right(maximumPluginNameLength - preservedLength - 3);
+    }
+    if (requestedName.isEmpty())
+        requestedName = QStringLiteral("vst_") + instanceId.left(6);
+    return requestedName + suffix;
+}
+
 #if WJN_ENABLE_VST2
 VstIntPtr currentShellPluginId {};
 
@@ -483,7 +499,7 @@ private:
         const auto pluginName = clientName_.isEmpty()
             ? (internalPluginName_.isEmpty() ? QFileInfo(path_).completeBaseName() : internalPluginName_)
             : clientName_;
-        expectedClientId_ = pluginName + QStringLiteral("-") + instanceId_.left(8);
+        expectedClientId_ = sandboxClientName(pluginName, instanceId_);
         QStringList arguments { QStringLiteral("--path"), path_,
                                 QStringLiteral("--pipe"), pipeName_,
                                 QStringLiteral("--client"), expectedClientId_,
