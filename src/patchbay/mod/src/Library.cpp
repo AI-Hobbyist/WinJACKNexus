@@ -286,14 +286,15 @@ struct SubGraphPortSet final {
 		return client.activate();
 	}
 
-	void disconnect(const std::string& sourcePortId, const std::string& destinationPortId) noexcept
+	bool disconnect(const std::string& sourcePortId, const std::string& destinationPortId) noexcept
 	{
-		if (client.isActive() && !client.deactivate())
-			return;
-		std::erase_if(routes, [&sourcePortId, &destinationPortId](const auto& route) {
+		const bool wasActive = client.isActive();
+		if (wasActive && !client.deactivate())
+			return false;
+		const auto removed = std::erase_if(routes, [&sourcePortId, &destinationPortId](const auto& route) {
 			return route.sourcePortId == sourcePortId && route.destinationPortId == destinationPortId;
 		});
-		client.activate();
+		return removed != 0 && (!wasActive || client.activate());
 	}
 };
 
@@ -948,8 +949,8 @@ public:
 			auto* canvas = new PatchbayCanvas(window_);
 			canvas->setConnectionConnectHandler(connectJackPort);
 			canvas->setConnectionDisconnectHandler([this](const std::string& source, const std::string& destination) {
-				if (jackObserver_.isOpen())
-					WinJACKNexus::Audio::JackApi::instance().disconnect(jackObserver_.nativeHandle(), source.c_str(), destination.c_str());
+				return jackObserver_.isOpen()
+					&& WinJACKNexus::Audio::JackApi::instance().disconnect(jackObserver_.nativeHandle(), source.c_str(), destination.c_str()) == 0;
 			});
 			auto* canvasTabs = new QTabWidget(window_);
 			canvasTabs->setTabsClosable(true);
@@ -1123,8 +1124,8 @@ public:
 				});
 				childCanvas->setConnectionDisconnectHandler([subGraphPorts, rootContextId](const std::string& source, const std::string& destination) {
 					const auto portSet = subGraphPorts->find(rootContextId);
-					if (portSet != subGraphPorts->end() && portSet->second != nullptr)
-						portSet->second->disconnect(source, destination);
+					return portSet != subGraphPorts->end() && portSet->second != nullptr
+						&& portSet->second->disconnect(source, destination);
 				});
 				childCanvas->setInterfaceNodeAddedHandler([subGraphPorts, contextId, rootContextId, isTopLevel, parentCanvasGuard, subGraphId](PatchbayInterfaceInfo& interfaceNode) {
 					const auto definition = std::find_if(subGraphInterfaceDefinitions().cbegin(), subGraphInterfaceDefinitions().cend(), [&interfaceNode](const auto& value) {

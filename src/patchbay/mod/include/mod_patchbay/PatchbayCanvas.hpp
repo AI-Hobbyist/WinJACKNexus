@@ -111,7 +111,7 @@ public:
     void setSearchQuery(const QString& query);
     void setNodeSelectionHandler(std::function<void(const std::string&)> handler);
     void setConnectionConnectHandler(std::function<bool(const std::string&, const std::string&)> handler);
-    void setConnectionDisconnectHandler(std::function<void(const std::string&, const std::string&)> handler);
+    void setConnectionDisconnectHandler(std::function<bool(const std::string&, const std::string&)> handler);
     void setSubGraphNodeDoubleClickHandler(std::function<void(const std::string&)> handler);
     void setSubGraphNodeRenamedHandler(std::function<void(const std::string&, const QString&)> handler);
     void setSubGraphNodeAddedHandler(std::function<void(const std::string&, const QString&)> handler);
@@ -162,9 +162,11 @@ private:
     void notifySelection();
     void cancelDragState();
     bool connectPortPair(const std::string& sourcePortId, const std::string& destinationPortId);
-    void disconnectPortPair(const std::string& sourcePortId, const std::string& destinationPortId);
+    bool disconnectPortPair(const std::string& sourcePortId, const std::string& destinationPortId);
     void rememberLogicalConnection(const WinJACKNexus::Patchbay::Core::ConnectionInfo& connection);
     void forgetLogicalConnection(const std::string& sourcePortId, const std::string& destinationPortId);
+    void forgetSavedJackConnection(const std::string& sourcePortId, const std::string& destinationPortId);
+    void retryPendingLogicalConnections();
 
     WinJACKNexus::Patchbay::Core::Snapshot snapshot_;
     PatchbaySceneContext sceneContext_;
@@ -177,11 +179,13 @@ private:
     std::string draggedConnectionSourcePortId_;
     std::string draggedConnectionDestinationPortId_;
     std::vector<WinJACKNexus::Patchbay::Core::ConnectionInfo> logicalConnections_;
+    std::vector<WinJACKNexus::Patchbay::Core::ConnectionInfo> pendingLogicalConnections_;
+    std::vector<WinJACKNexus::Patchbay::Core::ConnectionInfo> savedJackConnections_;
     QGraphicsPathItem* portDragPreview_ = nullptr;
     QGraphicsPathItem* draggedConnectionLine_ = nullptr;
     std::function<void(const std::string&)> nodeSelectionHandler_;
     std::function<bool(const std::string&, const std::string&)> connectionConnectHandler_;
-    std::function<void(const std::string&, const std::string&)> connectionDisconnectHandler_;
+    std::function<bool(const std::string&, const std::string&)> connectionDisconnectHandler_;
     std::function<void(const std::string&)> subGraphNodeDoubleClickHandler_;
     std::function<void(const std::string&, const QString&)> subGraphNodeRenamedHandler_;
     std::function<void(const std::string&, const QString&)> subGraphNodeAddedHandler_;
@@ -207,4 +211,6 @@ private:
     bool connectionDragMoved_ = false;
     bool snapshotRefreshPending_ = false;
     bool projectDirty_ = false;
+    std::uint8_t logicalConnectionRestoreRetries_ = 0;
+    std::uint8_t jackConnectionRestoreRetries_ = 0;
 };

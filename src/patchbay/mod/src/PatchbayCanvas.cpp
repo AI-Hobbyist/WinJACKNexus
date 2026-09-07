@@ -698,13 +698,10 @@ bool PatchbayCanvas::restoreInterfaceNodes(std::vector<PatchbayInterfaceInfo> no
 
 bool PatchbayCanvas::restoreLogicalConnections(std::vector<ConnectionInfo> connections)
 {
-    for (const auto& connection : connections) {
-        if (!connection.alive || !connectionConnectHandler_
-            || !connectionConnectHandler_(connection.sourcePortId, connection.destinationPortId)) {
-            return false;
-        }
-    }
-    logicalConnections_ = std::move(connections);
+    logicalConnections_.clear();
+    pendingLogicalConnections_ = std::move(connections);
+    logicalConnectionRestoreRetries_ = 0;
+    retryPendingLogicalConnections();
     setSnapshot(snapshot_);
     return true;
 }
@@ -1081,6 +1078,8 @@ bool PatchbayCanvas::loadProject(const QString& filePath,
         settings.setValue(QStringLiteral("layout/%1/x").arg(key), item.value(QStringLiteral("x")).toDouble());
         settings.setValue(QStringLiteral("layout/%1/y").arg(key), item.value(QStringLiteral("y")).toDouble());
     }
+    savedJackConnections_ = project.connections;
+    jackConnectionRestoreRetries_ = 0;
     setSnapshot(project);
     modules = std::move(loadedModules);
     subGraphs = std::move(loadedSubGraphs);
@@ -1108,38 +1107,53 @@ bool PatchbayCanvas::restoreJackConnections(WinJACKNexus::Audio::JackClient& cli
         return current == snapshot_.ports.cend() ? nullptr : &current->id;
     };
     bool restored = false;
-    for (const auto& connection : snapshot_.connections) {
+    bool pending = false;
+    const auto& connections = savedJackConnections_.empty() ? snapshot_.connections : savedJackConnections_;
+    for (const auto& connection : connections) {
         if (!connection.alive)
             continue;
 
         const auto* sourceId = currentPortId(connection.sourcePortId);
         const auto* destinationId = currentPortId(connection.destinationPortId);
-        if (sourceId == nullptr || destinationId == nullptr)
-            continue;
-        const auto* source = api.portByName(client.nativeHandle(), sourceId->c_str());
-        const auto* destination = api.portByName(client.nativeHandle(), destinationId->c_str());
+        const auto& resolvedSourceId = sourceId == nullptr ? connection.sourcePortId : *sourceId;
+        const auto& resolvedDestinationId = destinationId == nullptr ? connection.destinationPortId : *destinationId;
+        const auto* source = api.portByName(client.nativeHandle(), resolvedSourceId.c_str());
+        const auto* destination = api.portByName(client.nativeHandle(), resolvedDestinationId.c_str());
         const auto sourceInfo = std::find_if(snapshot_.ports.cbegin(), snapshot_.ports.cend(), [&sourceId](const auto& port) {
-            return port.id == *sourceId;
+            return sourceId != nullptr && port.id == *sourceId;
         });
         const auto destinationInfo = std::find_if(snapshot_.ports.cbegin(), snapshot_.ports.cend(), [&destinationId](const auto& port) {
-            return port.id == *destinationId;
+            return destinationId != nullptr && port.id == *destinationId;
         });
-        if (source == nullptr || destination == nullptr || sourceInfo == snapshot_.ports.cend()
-            || destinationInfo == snapshot_.ports.cend() || *sourceId == *destinationId
-            || sourceInfo->clientId == destinationInfo->clientId)
+        if (source == nullptr || destination == nullptr) {
+            pending = true;
+            continue;
+        }
+        if (resolvedSourceId == resolvedDestinationId
+            || (sourceInfo != snapshot_.ports.cend() && destinationInfo != snapshot_.ports.cend()
+                && sourceInfo->clientId == destinationInfo->clientId))
             continue;
 
         bool alreadyConnected = false;
         if (const auto** names = api.portGetConnections(source); names != nullptr) {
             for (const auto** name = names; *name != nullptr; ++name)
-                alreadyConnected = alreadyConnected || *destinationId == *name;
+                alreadyConnected = alreadyConnected || resolvedDestinationId == *name;
             api.freeMemory(const_cast<void*>(static_cast<const void*>(names)));
         }
 
-        if (!alreadyConnected
-            && api.connect(client.nativeHandle(), sourceId->c_str(), destinationId->c_str()) == 0) {
-            restored = true;
+        if (!alreadyConnected) {
+            if (api.connect(client.nativeHandle(), resolvedSourceId.c_str(), resolvedDestinationId.c_str()) == 0)
+                restored = true;
+            else
+                pending = true;
         }
+    }
+    if (pending && ++jackConnectionRestoreRetries_ < 5) {
+        QTimer::singleShot(100, this, [this, &client] {
+            restoreJackConnections(client);
+        });
+    } else if (!pending) {
+        jackConnectionRestoreRetries_ = 0;
     }
     return restored;
 }
@@ -1493,6 +1507,8 @@ void PatchbayCanvas::newProject()
 {
     snapshot_ = {};
     subGraphNodes_.clear();
+    savedJackConnections_.clear();
+    jackConnectionRestoreRetries_ = 0;
     pendingPortId_.clear();
     setSnapshot(snapshot_);
     projectDirty_ = false;
@@ -1566,7 +1582,7 @@ void PatchbayCanvas::setConnectionConnectHandler(std::function<bool(const std::s
     connectionConnectHandler_ = std::move(handler);
 }
 
-void PatchbayCanvas::setConnectionDisconnectHandler(std::function<void(const std::string&, const std::string&)> handler)
+void PatchbayCanvas::setConnectionDisconnectHandler(std::function<bool(const std::string&, const std::string&)> handler)
 {
     connectionDisconnectHandler_ = std::move(handler);
 }
@@ -1748,12 +1764,15 @@ void PatchbayCanvas::contextMenuEvent(QContextMenuEvent* event)
         const auto destination = item->data(2).toString().toStdString();
         auto* disconnect = menu.addAction(QStringLiteral("断开连接"));
         if (menu.exec(event->globalPos()) == disconnect) {
-            const auto removed = std::erase_if(snapshot_.connections, [&source, &destination](const ConnectionInfo& connection) {
+            const auto exists = std::any_of(snapshot_.connections.cbegin(), snapshot_.connections.cend(), [&source, &destination](const ConnectionInfo& connection) {
                 return connection.sourcePortId == source && connection.destinationPortId == destination;
             });
-            if (removed != 0) {
-                disconnectPortPair(source, destination);
+            if (exists && disconnectPortPair(source, destination)) {
+                std::erase_if(snapshot_.connections, [&source, &destination](const ConnectionInfo& connection) {
+                    return connection.sourcePortId == source && connection.destinationPortId == destination;
+                });
                 forgetLogicalConnection(source, destination);
+                forgetSavedJackConnection(source, destination);
                 setSnapshot(snapshot_);
                 projectDirty_ = true;
             }
@@ -1859,23 +1878,28 @@ void PatchbayCanvas::contextMenuEvent(QContextMenuEvent* event)
             }
         } else if (selected == disconnectAll) {
             std::vector<ConnectionInfo> disconnected;
-            const auto removed = std::erase_if(snapshot_.connections, [this, &id, &disconnected](const ConnectionInfo& connection) {
+            for (const auto& connection : snapshot_.connections) {
                 const auto hasClient = [this, &id](const std::string& portId) {
                     const auto port = std::find_if(snapshot_.ports.cbegin(), snapshot_.ports.cend(), [&portId](const PortInfo& port) {
                         return port.id == portId;
                     });
                     return port != snapshot_.ports.cend() && port->clientId == id;
                 };
-                const bool matches = hasClient(connection.sourcePortId) || hasClient(connection.destinationPortId);
-                if (matches)
+                if ((hasClient(connection.sourcePortId) || hasClient(connection.destinationPortId))
+                    && disconnectPortPair(connection.sourcePortId, connection.destinationPortId)) {
                     disconnected.push_back(connection);
-                return matches;
-            });
-            if (removed != 0) {
-                for (const auto& connection : disconnected) {
-                    disconnectPortPair(connection.sourcePortId, connection.destinationPortId);
-                    forgetLogicalConnection(connection.sourcePortId, connection.destinationPortId);
                 }
+            }
+            if (!disconnected.empty()) {
+                for (const auto& connection : disconnected) {
+                    forgetLogicalConnection(connection.sourcePortId, connection.destinationPortId);
+                    forgetSavedJackConnection(connection.sourcePortId, connection.destinationPortId);
+                }
+                std::erase_if(snapshot_.connections, [&disconnected](const ConnectionInfo& connection) {
+                    return std::any_of(disconnected.cbegin(), disconnected.cend(), [&connection](const auto& removed) {
+                        return removed.sourcePortId == connection.sourcePortId && removed.destinationPortId == connection.destinationPortId;
+                    });
+                });
                 setSnapshot(snapshot_);
                 projectDirty_ = true;
             }
@@ -2295,10 +2319,9 @@ bool PatchbayCanvas::connectPortPair(const std::string& sourcePortId, const std:
     return !connectionConnectHandler_ || connectionConnectHandler_(sourcePortId, destinationPortId);
 }
 
-void PatchbayCanvas::disconnectPortPair(const std::string& sourcePortId, const std::string& destinationPortId)
+bool PatchbayCanvas::disconnectPortPair(const std::string& sourcePortId, const std::string& destinationPortId)
 {
-    if (connectionDisconnectHandler_)
-        connectionDisconnectHandler_(sourcePortId, destinationPortId);
+    return !connectionDisconnectHandler_ || connectionDisconnectHandler_(sourcePortId, destinationPortId);
 }
 
 void PatchbayCanvas::rememberLogicalConnection(const ConnectionInfo& connection)
@@ -2315,6 +2338,27 @@ void PatchbayCanvas::forgetLogicalConnection(const std::string& sourcePortId, co
     std::erase_if(logicalConnections_, [&sourcePortId, &destinationPortId](const auto& connection) {
         return connection.sourcePortId == sourcePortId && connection.destinationPortId == destinationPortId;
     });
+}
+
+void PatchbayCanvas::retryPendingLogicalConnections()
+{
+    std::vector<ConnectionInfo> pending;
+    pending.swap(pendingLogicalConnections_);
+    for (const auto& connection : pending) {
+        if (!connection.alive)
+            continue;
+        if (connectionConnectHandler_ && connectionConnectHandler_(connection.sourcePortId, connection.destinationPortId)) {
+            rememberLogicalConnection(connection);
+        } else {
+            pendingLogicalConnections_.push_back(connection);
+        }
+    }
+    if (!pendingLogicalConnections_.empty() && ++logicalConnectionRestoreRetries_ < 5) {
+        QTimer::singleShot(100, this, [this] {
+            retryPendingLogicalConnections();
+            setSnapshot(snapshot_);
+        });
+    }
 }
 
 void PatchbayCanvas::applySearchFilter()
@@ -2482,4 +2526,11 @@ void PatchbayCanvas::dropEvent(QDropEvent* event)
         return;
     }
     QGraphicsView::dropEvent(event);
+}
+
+void PatchbayCanvas::forgetSavedJackConnection(const std::string& sourcePortId, const std::string& destinationPortId)
+{
+    std::erase_if(savedJackConnections_, [&sourcePortId, &destinationPortId](const auto& connection) {
+        return connection.sourcePortId == sourcePortId && connection.destinationPortId == destinationPortId;
+    });
 }
