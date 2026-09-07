@@ -400,6 +400,7 @@ public:
     virtual VstInt32 midiInputCount() const noexcept { return 0; }
     virtual std::vector<std::string> inputBusNames() const { return {}; }
     virtual std::vector<std::string> outputBusNames() const { return {}; }
+    virtual bool usesBusNamesForDefaultPorts() const noexcept { return false; }
     virtual bool openEditor(std::string& error) { error = "Plugin editor is not available"; return false; }
     virtual void closeEditor() noexcept {}
 };
@@ -407,10 +408,12 @@ public:
 class BypassPlugin final : public AudioPlugin {
 public:
     BypassPlugin(VstInt32 inputCount, VstInt32 outputCount, VstInt32 midiInputCount,
+                 bool useBusNamesForDefaultPorts,
                  std::vector<std::string> inputLabels, std::vector<std::string> outputLabels)
         : inputCount_(inputCount)
         , outputCount_(outputCount)
         , midiInputCount_(midiInputCount)
+        , useBusNamesForDefaultPorts_(useBusNamesForDefaultPorts)
         , inputLabels_(std::move(inputLabels))
         , outputLabels_(std::move(outputLabels))
     {
@@ -436,11 +439,13 @@ public:
     VstInt32 midiInputCount() const noexcept override { return midiInputCount_; }
     std::vector<std::string> inputBusNames() const override { return inputLabels_; }
     std::vector<std::string> outputBusNames() const override { return outputLabels_; }
+    bool usesBusNamesForDefaultPorts() const noexcept override { return useBusNamesForDefaultPorts_; }
 
 private:
     VstInt32 inputCount_ {};
     VstInt32 outputCount_ {};
     VstInt32 midiInputCount_ {};
+    bool useBusNamesForDefaultPorts_ {};
     std::vector<std::string> inputLabels_;
     std::vector<std::string> outputLabels_;
 };
@@ -892,6 +897,7 @@ public:
 
     std::vector<std::string> inputBusNames() const override { return inputBusNames_; }
     std::vector<std::string> outputBusNames() const override { return outputBusNames_; }
+    bool usesBusNamesForDefaultPorts() const noexcept override { return true; }
 
     bool prepare(double sampleRate, VstInt32 blockSize, std::string& error) override
     {
@@ -1802,7 +1808,13 @@ private:
                         ? std::string(prefix) + '_' + channelNumber
                         : std::string(prefix) + '_' + busName + '_' + channelNumber;
                 } else if (mode == "default") {
-                    name = "bus_" + channelNumber + '_' + prefix;
+                    const auto busName = plugin.usesBusNamesForDefaultPorts()
+                        && channel < static_cast<VstInt32>(busNames.size())
+                        ? sanitizedPortName(busNames[channel])
+                        : std::string {};
+                    name = busName.empty()
+                        ? std::string(prefix) + '_' + channelNumber
+                        : busName + '_' + channelNumber;
                 } else {
                     name = std::string(prefix) + '_' + channelNumber;
                 }
@@ -2030,6 +2042,7 @@ int wmain(int argc, wchar_t* argv[])
     if (options.bypass) {
         plugin = std::make_unique<BypassPlugin>(options.bypassInputs, options.bypassOutputs,
                                                 options.bypassMidiInputs,
+                                                extension == L".vst3",
                                                 std::move(options.bypassInputLabels), std::move(options.bypassOutputLabels));
     } else if (extension == L".vst3") {
         auto vst3 = std::make_unique<Vst3Plugin>();
