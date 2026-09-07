@@ -985,6 +985,7 @@ public:
 			nodeTree->setProperty("filterQuery", nodeFilter->text());
 			auto subGraphCanvases = std::make_shared<std::map<std::string, QPointer<PatchbayCanvas>>>();
 			auto subGraphPorts = std::make_shared<std::map<std::string, std::shared_ptr<SubGraphPortSet>>>();
+			auto restoredSubGraphs = std::make_shared<std::map<std::string, PatchbaySubGraphProject>>();
 			auto refreshNodeLibrary = std::make_shared<std::function<void()>>();
 			*refreshNodeLibrary = [canvasTabs, nodeTree, loadedModuleClientIds, this] {
 				auto* activeCanvas = dynamic_cast<PatchbayCanvas*>(canvasTabs->currentWidget());
@@ -1015,13 +1016,80 @@ public:
 				if (tabIndex >= 0)
 					canvasTabs->setTabText(tabIndex, name.isEmpty() ? QStringLiteral("Sub Graph") : name);
 			};
+			auto removeSubGraph = std::make_shared<std::function<bool(PatchbayCanvas*, const std::string&)>>();
+			*removeSubGraph = [canvasTabs, subGraphCanvases, subGraphPorts](PatchbayCanvas* parentCanvas, const std::string& subGraphId) {
+				if (parentCanvas == nullptr)
+					return false;
+				const auto contextId = parentCanvas->sceneContext().id + "/" + subGraphId;
+				const auto rootContextId = rootSubGraphContext(contextId);
+				const auto belongsToSubTree = [&contextId](const std::string& value) {
+					return value == contextId || value.starts_with(contextId + "/");
+				};
+				std::unordered_set<std::string> removedPortIds;
+				for (const auto& [id, portSet] : *subGraphPorts) {
+					if (!belongsToSubTree(id) || portSet == nullptr)
+						continue;
+					for (const auto& interfaceNode : portSet->interfaces)
+						removedPortIds.insert(interfaceNode.portId);
+				}
+				const auto root = subGraphPorts->find(rootContextId);
+				if (root != subGraphPorts->end() && root->second != nullptr) {
+					auto& portSet = *root->second;
+					const bool wasActive = portSet.client.isActive();
+					if (wasActive && !portSet.client.deactivate())
+						return false;
+					std::erase_if(portSet.routes, [&removedPortIds](const auto& route) {
+						return removedPortIds.contains(route.sourcePortId) || removedPortIds.contains(route.destinationPortId);
+					});
+					if (contextId == rootContextId) {
+						for (auto& port : portSet.ports)
+							port.port.unregisterPort();
+						portSet.ports.clear();
+						portSet.interfaces.clear();
+						portSet.client.close();
+					} else {
+						std::erase_if(portSet.interfaces, [&removedPortIds](const auto& interfaceNode) {
+							return removedPortIds.contains(interfaceNode.portId);
+						});
+						if (wasActive)
+							portSet.client.activate();
+					}
+				}
+				for (auto iterator = subGraphCanvases->begin(); iterator != subGraphCanvases->end();) {
+					if (!belongsToSubTree(iterator->first)) {
+						++iterator;
+						continue;
+					}
+					if (!iterator->second.isNull()) {
+						const auto tabIndex = canvasTabs->indexOf(iterator->second.data());
+						if (tabIndex >= 0)
+							canvasTabs->removeTab(tabIndex);
+						iterator->second->deleteLater();
+					}
+					iterator = subGraphCanvases->erase(iterator);
+				}
+				for (auto iterator = subGraphPorts->begin(); iterator != subGraphPorts->end();) {
+					if (belongsToSubTree(iterator->first))
+						iterator = subGraphPorts->erase(iterator);
+					else
+						++iterator;
+				}
+				return true;
+			};
+			auto clearSubGraphs = [canvas, removeSubGraph] {
+				const auto nodes = canvas->subGraphNodes();
+				for (const auto& node : nodes)
+					(*removeSubGraph)(canvas, node.id);
+				canvas->restoreSubGraphNodes({});
+			};
 			auto openSubGraph = std::make_shared<std::function<void(PatchbayCanvas*, const std::string&)>>();
 			const std::weak_ptr<std::function<void(PatchbayCanvas*, const std::string&)>> openSubGraphWeak = openSubGraph;
-			*openSubGraph = [canvasTabs, subGraphCanvases, subGraphPorts, refreshNodeLibrary, updateSubGraphTabTitle, openSubGraphWeak, connectJackPort, disconnectJackPort, this](PatchbayCanvas* parentCanvas, const std::string& subGraphId) {
+			*openSubGraph = [canvasTabs, subGraphCanvases, subGraphPorts, restoredSubGraphs, refreshNodeLibrary, updateSubGraphTabTitle, removeSubGraph, openSubGraphWeak, connectJackPort, disconnectJackPort, this](PatchbayCanvas* parentCanvas, const std::string& subGraphId) {
 				if (parentCanvas == nullptr || !parentCanvas->isSubGraphNode(subGraphId))
 					return;
 				const auto contextId = parentCanvas->sceneContext().id + "/" + subGraphId;
-				const bool createDefaultInterfaces = !subGraphPorts->contains(contextId) || (*subGraphPorts)[contextId] == nullptr;
+				const bool createDefaultInterfaces = (!subGraphPorts->contains(contextId) || (*subGraphPorts)[contextId] == nullptr)
+					&& !restoredSubGraphs->contains(contextId);
 				auto existing = subGraphCanvases->find(contextId);
 				if (existing != subGraphCanvases->end()) {
 					if (!existing->second.isNull()) {
@@ -1166,6 +1234,50 @@ public:
 							parentCanvasGuard->setSubGraphInterfaces(subGraphId, portSet->second->interfaces);
 					}
 				});
+				childCanvas->setInterfaceNodeRemovedHandler([subGraphPorts, contextId, rootContextId, isTopLevel, parentCanvasGuard, subGraphId](const std::string& interfaceId) {
+					const auto contextPortSet = subGraphPorts->find(contextId);
+					if (contextPortSet == subGraphPorts->end() || contextPortSet->second == nullptr)
+						return false;
+					auto& portSet = *contextPortSet->second;
+					const auto interfaceNode = std::find_if(portSet.interfaces.begin(), portSet.interfaces.end(), [&interfaceId](const auto& value) {
+						return value.id == interfaceId;
+					});
+					if (interfaceNode == portSet.interfaces.end())
+						return false;
+					const auto portId = interfaceNode->portId;
+					if (isTopLevel) {
+						const bool wasActive = portSet.client.isActive();
+						if (wasActive && !portSet.client.deactivate())
+							return false;
+						const auto port = std::find_if(portSet.ports.begin(), portSet.ports.end(), [&portId](const auto& value) {
+							return value.id == portId;
+						});
+						if (port != portSet.ports.end()) {
+							port->port.unregisterPort();
+							portSet.ports.erase(port);
+						}
+						std::erase_if(portSet.routes, [&portId](const auto& route) {
+							return route.sourcePortId == portId || route.destinationPortId == portId;
+						});
+						if (wasActive)
+							portSet.client.activate();
+					}
+					portSet.interfaces.erase(interfaceNode);
+					if (!isTopLevel) {
+						const auto rootPortSet = subGraphPorts->find(rootContextId);
+						if (rootPortSet != subGraphPorts->end() && rootPortSet->second != nullptr) {
+							std::erase_if(rootPortSet->second->interfaces, [&interfaceId](const auto& value) {
+								return value.id == interfaceId;
+							});
+							std::erase_if(rootPortSet->second->routes, [&portId](const auto& route) {
+								return route.sourcePortId == portId || route.destinationPortId == portId;
+							});
+						}
+					}
+					if (!parentCanvasGuard.isNull())
+						parentCanvasGuard->setSubGraphInterfaces(subGraphId, portSet.interfaces);
+					return true;
+				});
 				childCanvas->setSubGraphNodeDoubleClickHandler([openSubGraphWeak, childCanvasGuard](const std::string& childId) {
 					if (childCanvasGuard.isNull())
 						return;
@@ -1178,16 +1290,38 @@ public:
 					if (!childCanvasGuard.isNull())
 						(*updateSubGraphTabTitle)(childCanvasGuard.data(), childId, name);
 				});
+				childCanvas->setSubGraphNodeRemovedHandler([removeSubGraph, childCanvasGuard](const std::string& childId) {
+					return !childCanvasGuard.isNull() && (*removeSubGraph)(childCanvasGuard.data(), childId);
+				});
 				childCanvas->setSubGraphNodeDropHandler([childCanvas](const QString& name, const QPointF& position) {
 					return !childCanvas->addSubGraph(name, position).empty();
+				});
+				childCanvas->setSubGraphNodeAddedHandler([canvasTabs, openSubGraphWeak, childCanvasGuard](const std::string& childId, const QString&) {
+					if (childCanvasGuard.isNull())
+						return;
+					const auto activeTab = canvasTabs->currentIndex();
+					QTimer::singleShot(0, childCanvasGuard.data(), [canvasTabs, openSubGraphWeak, childCanvasGuard, childId, activeTab] {
+						if (const auto openSubGraph = openSubGraphWeak.lock(); openSubGraph != nullptr && !childCanvasGuard.isNull()) {
+							(*openSubGraph)(childCanvasGuard.data(), childId);
+							if (activeTab >= 0)
+								canvasTabs->setCurrentIndex(activeTab);
+						}
+					});
 				});
 				childCanvas->setInterfaceNodeDropHandler([childCanvas](const QString& type, const QPointF& position) {
 					return childCanvas->addInterfaceNode(type, position);
 				});
 				if (jackObserver_.isOpen())
 					childCanvas->setSnapshot(WinJACKNexus::Patchbay::Core::Snapshot::capture(jackObserver_));
-				const auto savedPorts = subGraphPorts->find(contextId);
-				if (savedPorts != subGraphPorts->end() && savedPorts->second != nullptr) {
+				const auto restoredSubGraph = restoredSubGraphs->find(contextId);
+				if (restoredSubGraph != restoredSubGraphs->end()) {
+					childCanvas->restoreSubGraphNodes(restoredSubGraph->second.nodes);
+					if (!childCanvas->restoreInterfaceNodes(restoredSubGraph->second.interfaces)) {
+						childCanvas->deleteLater();
+						return;
+					}
+				} else if (const auto savedPorts = subGraphPorts->find(contextId);
+				           savedPorts != subGraphPorts->end() && savedPorts->second != nullptr) {
 					std::vector<PatchbayInterfaceInfo> contextInterfaces;
 					const auto interfacePrefix = contextId + "/interface-";
 					std::copy_if(savedPorts->second->interfaces.cbegin(), savedPorts->second->interfaces.cend(),
@@ -1209,6 +1343,51 @@ public:
 				subGraphCanvases->emplace(contextId, childCanvas);
 				canvasTabs->setCurrentIndex(tabIndex);
 			};
+			auto restoreSubGraphs = [canvas, canvasTabs, subGraphCanvases, restoredSubGraphs, clearSubGraphs, openSubGraph](const std::vector<PatchbaySubGraphProject>& projects) {
+				clearSubGraphs();
+				restoredSubGraphs->clear();
+				for (const auto& project : projects)
+					restoredSubGraphs->emplace(project.context.id, project);
+				const auto mainProject = restoredSubGraphs->find("main");
+				if (mainProject == restoredSubGraphs->end())
+					return projects.empty();
+				canvas->restoreSubGraphNodes(mainProject->second.nodes);
+				std::vector<const PatchbaySubGraphProject*> contexts;
+				for (const auto& [contextId, project] : *restoredSubGraphs) {
+					if (contextId != "main")
+						contexts.push_back(&project);
+				}
+				std::sort(contexts.begin(), contexts.end(), [](const auto* left, const auto* right) {
+					return left->context.id.size() < right->context.id.size();
+				});
+				for (const auto* project : contexts) {
+					const auto separator = project->context.id.rfind('/');
+					if (separator == std::string::npos)
+						return false;
+					const auto parentContextId = project->context.id.substr(0, separator);
+					const auto subGraphId = project->context.id.substr(separator + 1);
+					auto* parentCanvas = parentContextId == "main" ? canvas : nullptr;
+					if (parentCanvas == nullptr) {
+						const auto parent = subGraphCanvases->find(parentContextId);
+						if (parent == subGraphCanvases->end() || parent->second.isNull())
+							return false;
+						parentCanvas = parent->second.data();
+					}
+					(*openSubGraph)(parentCanvas, subGraphId);
+					if (!subGraphCanvases->contains(project->context.id))
+						return false;
+				}
+				for (const auto* project : contexts) {
+					const auto child = subGraphCanvases->find(project->context.id);
+					if (child == subGraphCanvases->end() || child->second.isNull()
+						|| !child->second->restoreLogicalConnections(project->connections)) {
+						return false;
+					}
+				}
+				restoredSubGraphs->clear();
+				canvasTabs->setCurrentIndex(0);
+				return true;
+			};
 			QPointer<PatchbayCanvas> canvasGuard(canvas);
 			canvas->setSubGraphNodeDoubleClickHandler([openSubGraph, canvasGuard](const std::string& subGraphId) {
 				if (canvasGuard.isNull())
@@ -1222,8 +1401,23 @@ public:
 				if (!canvasGuard.isNull())
 					(*updateSubGraphTabTitle)(canvasGuard.data(), subGraphId, name);
 			});
+			canvas->setSubGraphNodeRemovedHandler([removeSubGraph, canvasGuard](const std::string& subGraphId) {
+				return !canvasGuard.isNull() && (*removeSubGraph)(canvasGuard.data(), subGraphId);
+			});
 			canvas->setSubGraphNodeDropHandler([canvas](const QString& name, const QPointF& position) {
 				return !canvas->addSubGraph(name, position).empty();
+			});
+			canvas->setSubGraphNodeAddedHandler([canvasTabs, openSubGraphWeak, canvasGuard](const std::string& subGraphId, const QString&) {
+				if (canvasGuard.isNull())
+					return;
+				const auto activeTab = canvasTabs->currentIndex();
+				QTimer::singleShot(0, canvasGuard.data(), [canvasTabs, openSubGraphWeak, canvasGuard, subGraphId, activeTab] {
+					if (const auto openSubGraph = openSubGraphWeak.lock(); openSubGraph != nullptr && !canvasGuard.isNull()) {
+						(*openSubGraph)(canvasGuard.data(), subGraphId);
+						if (activeTab >= 0)
+							canvasTabs->setCurrentIndex(activeTab);
+					}
+				});
 			});
 			QObject::connect(canvasTabs, &QTabWidget::tabCloseRequested, window_, [canvasTabs, refreshNodeLibrary](int index) {
 				if (index <= 0)
@@ -1473,7 +1667,8 @@ public:
 				}) : loadedModuleNodes_.cend();
 				QString category;
 				if (selected) {
-					category = module != loadedModuleNodes_.cend() && !(*module)->category().isEmpty()
+					category = canvas->isSubGraphNode(clientId) ? QStringLiteral("Sub Graph")
+						: module != loadedModuleNodes_.cend() && !(*module)->category().isEmpty()
 							? (*module)->category()
 							: client->id == "system" ? QStringLiteral("system")
 							: client->id == "WinJACKNexus-Patchbay" ? QStringLiteral("Patchbay")
@@ -1554,6 +1749,15 @@ public:
 
 			auto* fileMenu = window_->menuBar()->addMenu(QStringLiteral("文件"));
 				auto currentProject = std::make_shared<QString>();
+				auto collectSubGraphs = [canvas, subGraphCanvases] {
+					std::vector<PatchbaySubGraphProject> projects;
+					projects.push_back({ canvas->sceneContext(), canvas->subGraphNodes(), canvas->interfaceNodes(), canvas->logicalConnections() });
+					for (const auto& [contextId, child] : *subGraphCanvases) {
+						if (!child.isNull())
+							projects.push_back({ child->sceneContext(), child->subGraphNodes(), child->interfaceNodes(), child->logicalConnections() });
+					}
+					return projects;
+				};
 				auto loadedModuleRecords = [this] {
 					std::vector<PatchbayProjectModule> modules;
 					modules.reserve(loadedModuleNodes_.size());
@@ -1565,7 +1769,15 @@ public:
 					if (!moduleRecordsEqual(savedModuleRecords_, loadedModuleRecords()))
 						canvas->markProjectDirty();
 				};
-				auto saveProject = [canvas, currentProject, loadedModuleRecords, this](bool saveAs, bool showError) {
+				auto syncSubGraphProjectState = [canvas, subGraphCanvases] {
+					for (const auto& [contextId, child] : *subGraphCanvases) {
+						if (!child.isNull() && child->isProjectDirty()) {
+							canvas->markProjectDirty();
+							return;
+						}
+					}
+				};
+				auto saveProject = [canvas, currentProject, loadedModuleRecords, collectSubGraphs, subGraphCanvases, this](bool saveAs, bool showError) {
 					if (saveAs || currentProject->isEmpty()) {
 						const auto path = QFileDialog::getSaveFileName(window_, QStringLiteral("保存接线盘工程"), *currentProject,
 						                                                  QStringLiteral("WinJACKNexus 工程 (*.wjnproj)"));
@@ -1574,18 +1786,23 @@ public:
 						*currentProject = path.endsWith(QStringLiteral(".wjnproj"), Qt::CaseInsensitive) ? path : path + QStringLiteral(".wjnproj");
 					}
 					const auto modules = loadedModuleRecords();
-					if (canvas->saveProject(*currentProject, modules)) {
+					if (canvas->saveProject(*currentProject, modules, collectSubGraphs())) {
 						savedModuleRecords_ = modules;
 						QSettings(QStringLiteral("WinJACKNexus"), QStringLiteral("Patchbay")).setValue(QStringLiteral("lastProjectPath"), *currentProject);
 						canvas->markProjectSaved();
+						for (const auto& [contextId, child] : *subGraphCanvases) {
+							if (!child.isNull())
+								child->markProjectSaved();
+						}
 						return true;
 					}
 					if (showError)
 						QMessageBox::warning(window_, QStringLiteral("保存失败"), QStringLiteral("无法保存接线盘工程。"));
 					return false;
 				};
-				auto confirmSave = [canvas, saveProject, syncModuleProjectState, window = window_.data()] {
+				auto confirmSave = [canvas, saveProject, syncModuleProjectState, syncSubGraphProjectState, window = window_.data()] {
 					syncModuleProjectState();
+					syncSubGraphProjectState();
 					if (!canvas->isProjectDirty())
 						return true;
 					const auto choice = QMessageBox::warning(window, QStringLiteral("未保存的工程"),
@@ -1601,21 +1818,23 @@ public:
 				auto* saveAction = fileMenu->addAction(QStringLiteral("保存工程"));
 				saveAction->setShortcut(QKeySequence::Save);
 				auto* saveAsAction = fileMenu->addAction(QStringLiteral("工程另存为..."));
-				QObject::connect(newProject, &QAction::triggered, window_, [canvas, currentProject, confirmSave, this] {
+				QObject::connect(newProject, &QAction::triggered, window_, [canvas, currentProject, confirmSave, clearSubGraphs, this] {
 					if (!confirmSave())
 						return;
+					clearSubGraphs();
 					canvas->newProject();
 					savedModuleRecords_.clear();
 					currentProject->clear();
 					QSettings(QStringLiteral("WinJACKNexus"), QStringLiteral("Patchbay")).remove(QStringLiteral("lastProjectPath"));
 				});
-				QObject::connect(openProject, &QAction::triggered, window_, [canvas, currentProject, confirmSave, restoreModuleRecords, loadedModuleRecords, refreshJackGraph, this] {
+				QObject::connect(openProject, &QAction::triggered, window_, [canvas, currentProject, confirmSave, restoreModuleRecords, loadedModuleRecords, restoreSubGraphs, refreshJackGraph, this] {
 					const auto path = QFileDialog::getOpenFileName(window_, QStringLiteral("打开接线盘工程"), *currentProject,
 					                                              QStringLiteral("WinJACKNexus 工程 (*.wjnproj)"));
 					if (path.isEmpty() || !confirmSave())
 						return;
 					std::vector<PatchbayProjectModule> modules;
-					if (canvas->loadProject(path, modules)) {
+					std::vector<PatchbaySubGraphProject> subGraphs;
+					if (canvas->loadProject(path, modules, subGraphs) && restoreSubGraphs(subGraphs)) {
 						*currentProject = path;
 						QSettings(QStringLiteral("WinJACKNexus"), QStringLiteral("Patchbay")).setValue(QStringLiteral("lastProjectPath"), path);
 						restoreModuleRecords(modules);
@@ -1640,8 +1859,9 @@ public:
 					autoSaveTimer->start(seconds * 1000);
 				};
 				applyAutoSaveInterval(*autoSaveInterval);
-				QObject::connect(autoSaveTimer, &QTimer::timeout, window_, [canvas, currentProject, saveProject, syncModuleProjectState] {
+				QObject::connect(autoSaveTimer, &QTimer::timeout, window_, [canvas, currentProject, saveProject, syncModuleProjectState, syncSubGraphProjectState] {
 					syncModuleProjectState();
+						syncSubGraphProjectState();
 					if (!currentProject->isEmpty() && canvas->isProjectDirty())
 						saveProject(false, false);
 				});
@@ -1675,7 +1895,9 @@ public:
 				jackObserver_.activate();
 				const auto lastProject = QSettings(QStringLiteral("WinJACKNexus"), QStringLiteral("Patchbay")).value(QStringLiteral("lastProjectPath")).toString();
 				std::vector<PatchbayProjectModule> modules;
-				if (!lastProject.isEmpty() && QFile::exists(lastProject) && canvas->loadProject(lastProject, modules)) {
+				std::vector<PatchbaySubGraphProject> subGraphs;
+				if (!lastProject.isEmpty() && QFile::exists(lastProject) && canvas->loadProject(lastProject, modules, subGraphs)
+					&& restoreSubGraphs(subGraphs)) {
 					*currentProject = lastProject;
 					restoreModuleRecords(modules);
 					savedModuleRecords_ = loadedModuleRecords();

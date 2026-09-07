@@ -661,6 +661,54 @@ void PatchbayCanvas::setInterfaceNodes(std::vector<PatchbayInterfaceInfo> nodes)
     setSnapshot(snapshot_);
 }
 
+const std::vector<PatchbaySubGraphInfo>& PatchbayCanvas::subGraphNodes() const noexcept
+{
+    return subGraphNodes_;
+}
+
+const std::vector<PatchbayInterfaceInfo>& PatchbayCanvas::interfaceNodes() const noexcept
+{
+    return interfaceNodes_;
+}
+
+const std::vector<ConnectionInfo>& PatchbayCanvas::logicalConnections() const noexcept
+{
+    return logicalConnections_;
+}
+
+void PatchbayCanvas::restoreSubGraphNodes(std::vector<PatchbaySubGraphInfo> nodes)
+{
+    subGraphNodes_ = std::move(nodes);
+    setSnapshot(snapshot_);
+}
+
+bool PatchbayCanvas::restoreInterfaceNodes(std::vector<PatchbayInterfaceInfo> nodes)
+{
+    std::vector<PatchbayInterfaceInfo> restored;
+    restored.reserve(nodes.size());
+    for (auto& node : nodes) {
+        if (!interfaceNodeAddedHandler_ || !interfaceNodeAddedHandler_(node) || node.portId.empty())
+            return false;
+        restored.push_back(std::move(node));
+    }
+    interfaceNodes_ = std::move(restored);
+    setSnapshot(snapshot_);
+    return true;
+}
+
+bool PatchbayCanvas::restoreLogicalConnections(std::vector<ConnectionInfo> connections)
+{
+    for (const auto& connection : connections) {
+        if (!connection.alive || !connectionConnectHandler_
+            || !connectionConnectHandler_(connection.sourcePortId, connection.destinationPortId)) {
+            return false;
+        }
+    }
+    logicalConnections_ = std::move(connections);
+    setSnapshot(snapshot_);
+    return true;
+}
+
 bool PatchbayCanvas::addInterfaceNode(const QString& type, const QPointF& position)
 {
     PortKind kind = PortKind::unknown;
@@ -725,6 +773,13 @@ bool PatchbayCanvas::saveProject(const QString& filePath) const
 }
 
 bool PatchbayCanvas::saveProject(const QString& filePath, const std::vector<PatchbayProjectModule>& modules) const
+{
+    return saveProject(filePath, modules, {});
+}
+
+bool PatchbayCanvas::saveProject(const QString& filePath,
+                                 const std::vector<PatchbayProjectModule>& modules,
+                                 const std::vector<PatchbaySubGraphProject>& subGraphs) const
 {
     const auto settings = patchbaySettings();
     QJsonArray clients;
@@ -799,6 +854,54 @@ bool PatchbayCanvas::saveProject(const QString& filePath, const std::vector<Patc
         });
     }
 
+    const auto interfaceToJson = [](const PatchbayInterfaceInfo& interfaceNode) {
+        return QJsonObject {
+            { QStringLiteral("id"), QString::fromStdString(interfaceNode.id) },
+            { QStringLiteral("port"), QString::fromStdString(interfaceNode.portId) },
+            { QStringLiteral("externalPort"), QString::fromStdString(interfaceNode.externalPortId) },
+            { QStringLiteral("type"), interfaceNode.type },
+            { QStringLiteral("name"), interfaceNode.name },
+            { QStringLiteral("kind"), portKindName(interfaceNode.kind) },
+            { QStringLiteral("direction"), directionName(interfaceNode.direction) },
+            { QStringLiteral("x"), interfaceNode.position.x() },
+            { QStringLiteral("y"), interfaceNode.position.y() }
+        };
+    };
+    QJsonArray subGraphRecords;
+    for (const auto& subGraph : subGraphs) {
+        QJsonArray nodes;
+        for (const auto& node : subGraph.nodes) {
+            QJsonArray nodeInterfaces;
+            for (const auto& interfaceNode : node.interfaces)
+                nodeInterfaces.append(interfaceToJson(interfaceNode));
+            nodes.append(QJsonObject {
+                { QStringLiteral("id"), QString::fromStdString(node.id) },
+                { QStringLiteral("name"), node.name },
+                { QStringLiteral("x"), node.position.x() },
+                { QStringLiteral("y"), node.position.y() },
+                { QStringLiteral("interfaces"), nodeInterfaces }
+            });
+        }
+        QJsonArray interfaces;
+        for (const auto& interfaceNode : subGraph.interfaces)
+            interfaces.append(interfaceToJson(interfaceNode));
+        QJsonArray graphConnections;
+        for (const auto& connection : subGraph.connections) {
+            graphConnections.append(QJsonObject {
+                { QStringLiteral("source"), QString::fromStdString(connection.sourcePortId) },
+                { QStringLiteral("destination"), QString::fromStdString(connection.destinationPortId) },
+                { QStringLiteral("alive"), connection.alive }
+            });
+        }
+        subGraphRecords.append(QJsonObject {
+            { QStringLiteral("context"), QString::fromStdString(subGraph.context.id) },
+            { QStringLiteral("title"), subGraph.context.title },
+            { QStringLiteral("nodes"), nodes },
+            { QStringLiteral("interfaces"), interfaces },
+            { QStringLiteral("connections"), graphConnections }
+        });
+    }
+
     const QJsonDocument document(QJsonObject {
         { QStringLiteral("version"), 1 },
         { QStringLiteral("app"), QStringLiteral("WinJACKNexus") },
@@ -807,6 +910,7 @@ bool PatchbayCanvas::saveProject(const QString& filePath, const std::vector<Patc
         { QStringLiteral("connections"), connections },
         { QStringLiteral("layouts"), layouts },
         { QStringLiteral("modules"), moduleRecords },
+        { QStringLiteral("subgraphs"), subGraphRecords },
         { QStringLiteral("mixers"), QJsonArray {} },
         { QStringLiteral("switches"), QJsonArray {} }
     });
@@ -824,6 +928,14 @@ bool PatchbayCanvas::loadProject(const QString& filePath)
 }
 
 bool PatchbayCanvas::loadProject(const QString& filePath, std::vector<PatchbayProjectModule>& modules)
+{
+    std::vector<PatchbaySubGraphProject> subGraphs;
+    return loadProject(filePath, modules, subGraphs);
+}
+
+bool PatchbayCanvas::loadProject(const QString& filePath,
+                                 std::vector<PatchbayProjectModule>& modules,
+                                 std::vector<PatchbaySubGraphProject>& subGraphs)
 {
     QFile file(filePath);
     if (!file.open(QIODevice::ReadOnly))
@@ -897,6 +1009,63 @@ bool PatchbayCanvas::loadProject(const QString& filePath, std::vector<PatchbayPr
         loadedModules.push_back(std::move(module));
     }
 
+    const auto interfaceFromJson = [](const QJsonObject& item, PatchbayInterfaceInfo& interfaceNode) {
+        interfaceNode.id = item.value(QStringLiteral("id")).toString().toStdString();
+        interfaceNode.portId = item.value(QStringLiteral("port")).toString().toStdString();
+        interfaceNode.externalPortId = item.value(QStringLiteral("externalPort")).toString().toStdString();
+        interfaceNode.type = item.value(QStringLiteral("type")).toString();
+        interfaceNode.name = item.value(QStringLiteral("name")).toString();
+        interfaceNode.kind = portKindFromName(item.value(QStringLiteral("kind")).toString());
+        interfaceNode.direction = directionFromName(item.value(QStringLiteral("direction")).toString());
+        interfaceNode.position = { item.value(QStringLiteral("x")).toDouble(), item.value(QStringLiteral("y")).toDouble() };
+        return !interfaceNode.id.empty() && !interfaceNode.type.isEmpty() && !interfaceNode.name.isEmpty()
+            && interfaceNode.kind != PortKind::unknown && interfaceNode.direction != Direction::unknown;
+    };
+    std::vector<PatchbaySubGraphProject> loadedSubGraphs;
+    std::unordered_set<std::string> contextIds;
+    for (const auto& value : root.value(QStringLiteral("subgraphs")).toArray()) {
+        const auto item = value.toObject();
+        PatchbaySubGraphProject subGraph;
+        subGraph.context.id = item.value(QStringLiteral("context")).toString().toStdString();
+        subGraph.context.title = item.value(QStringLiteral("title")).toString();
+        subGraph.context.isSubGraph = subGraph.context.id != "main";
+        if (subGraph.context.id.empty() || !contextIds.insert(subGraph.context.id).second)
+            return false;
+        for (const auto& nodeValue : item.value(QStringLiteral("nodes")).toArray()) {
+            const auto nodeItem = nodeValue.toObject();
+            PatchbaySubGraphInfo node;
+            node.id = nodeItem.value(QStringLiteral("id")).toString().toStdString();
+            node.name = nodeItem.value(QStringLiteral("name")).toString();
+            node.position = { nodeItem.value(QStringLiteral("x")).toDouble(), nodeItem.value(QStringLiteral("y")).toDouble() };
+            if (node.id.empty() || node.name.isEmpty())
+                return false;
+            for (const auto& interfaceValue : nodeItem.value(QStringLiteral("interfaces")).toArray()) {
+                PatchbayInterfaceInfo interfaceNode;
+                if (!interfaceFromJson(interfaceValue.toObject(), interfaceNode))
+                    return false;
+                node.interfaces.push_back(std::move(interfaceNode));
+            }
+            subGraph.nodes.push_back(std::move(node));
+        }
+        for (const auto& interfaceValue : item.value(QStringLiteral("interfaces")).toArray()) {
+            PatchbayInterfaceInfo interfaceNode;
+            if (!interfaceFromJson(interfaceValue.toObject(), interfaceNode))
+                return false;
+            subGraph.interfaces.push_back(std::move(interfaceNode));
+        }
+        for (const auto& connectionValue : item.value(QStringLiteral("connections")).toArray()) {
+            const auto connectionItem = connectionValue.toObject();
+            ConnectionInfo connection;
+            connection.sourcePortId = connectionItem.value(QStringLiteral("source")).toString().toStdString();
+            connection.destinationPortId = connectionItem.value(QStringLiteral("destination")).toString().toStdString();
+            connection.alive = connectionItem.value(QStringLiteral("alive")).toBool(true);
+            if (connection.sourcePortId.empty() || connection.destinationPortId.empty())
+                return false;
+            subGraph.connections.push_back(std::move(connection));
+        }
+        loadedSubGraphs.push_back(std::move(subGraph));
+    }
+
     auto settings = patchbaySettings();
     for (const auto& client : project.clients) {
         const auto key = QString::fromStdString(client.id);
@@ -914,6 +1083,7 @@ bool PatchbayCanvas::loadProject(const QString& filePath, std::vector<PatchbayPr
     }
     setSnapshot(project);
     modules = std::move(loadedModules);
+    subGraphs = std::move(loadedSubGraphs);
     projectDirty_ = false;
     return true;
 }
@@ -983,6 +1153,8 @@ void PatchbayCanvas::setSnapshot(const Snapshot& snapshot)
         if (item->data(0).isValid())
             selectedClientIds.insert(item->data(0).toString().toStdString());
     }
+    if (!selectedNodeId_.empty())
+        selectedClientIds.insert(selectedNodeId_);
 
     Snapshot restored = snapshot;
     std::unordered_set<std::string> generatedClientIds;
@@ -1101,11 +1273,8 @@ void PatchbayCanvas::setSnapshot(const Snapshot& snapshot)
         for (const auto& subGraph : subGraphNodes_)
             addSubGraphClient(subGraph);
     } else {
-        for (const auto& subGraph : subGraphNodes_) {
-            PatchbaySubGraphInfo hiddenInterfaces = subGraph;
-            hiddenInterfaces.interfaces.clear();
-            addSubGraphClient(hiddenInterfaces);
-        }
+        for (const auto& subGraph : subGraphNodes_)
+            addSubGraphClient(subGraph);
     }
 
     const std::unordered_set<std::string> visiblePortIds = [&restored] {
@@ -1300,6 +1469,8 @@ void PatchbayCanvas::setSnapshot(const Snapshot& snapshot)
     }
 
     applySearchFilter();
+    if (!selectedNodeId_.empty())
+        selectNode(selectedNodeId_);
     notifySelection();
 }
 
@@ -1360,6 +1531,8 @@ void PatchbayCanvas::setClientSplit(const std::string& clientId, bool split)
 
 std::string PatchbayCanvas::selectedNodeId() const
 {
+    if (!selectedNodeId_.empty())
+        return selectedNodeId_;
     for (const auto* item : scene()->selectedItems()) {
         if (item->data(0).isValid())
             return item->data(0).toString().toStdString();
@@ -1376,6 +1549,7 @@ void PatchbayCanvas::selectNode(const std::string& clientId)
     for (auto* item : scene()->items()) {
         if (item->data(0).toString().toStdString() == clientId) {
             item->setSelected(true);
+            selectedNodeId_ = clientId;
             return;
         }
     }
@@ -1412,6 +1586,11 @@ void PatchbayCanvas::setSubGraphNodeAddedHandler(std::function<void(const std::s
     subGraphNodeAddedHandler_ = std::move(handler);
 }
 
+void PatchbayCanvas::setSubGraphNodeRemovedHandler(std::function<bool(const std::string&)> handler)
+{
+    subGraphNodeRemovedHandler_ = std::move(handler);
+}
+
 void PatchbayCanvas::setInterfaceNodeRenamedHandler(std::function<void(const std::string&, const QString&)> handler)
 {
     interfaceNodeRenamedHandler_ = std::move(handler);
@@ -1420,6 +1599,11 @@ void PatchbayCanvas::setInterfaceNodeRenamedHandler(std::function<void(const std
 void PatchbayCanvas::setInterfaceNodeAddedHandler(std::function<bool(PatchbayInterfaceInfo&)> handler)
 {
     interfaceNodeAddedHandler_ = std::move(handler);
+}
+
+void PatchbayCanvas::setInterfaceNodeRemovedHandler(std::function<bool(const std::string&)> handler)
+{
+    interfaceNodeRemovedHandler_ = std::move(handler);
 }
 
 void PatchbayCanvas::setInterfaceNodeDropHandler(std::function<bool(const QString&, const QPointF&)> handler)
@@ -1583,7 +1767,12 @@ void PatchbayCanvas::contextMenuEvent(QContextMenuEvent* event)
             return value.id == id;
         });
         const bool isModuleNode = isModuleNode_ && isModuleNode_(id);
-        const bool canSplit = client != snapshot_.clients.cend() && !isSubGraphNode(id) && clientCanSplit(snapshot_, id);
+        const bool isSubGraph = isSubGraphNode(id);
+        const auto interfaceNode = std::find_if(interfaceNodes_.cbegin(), interfaceNodes_.cend(), [&id](const auto& value) {
+            return value.id == id;
+        });
+        const bool isInterfaceNode = interfaceNode != interfaceNodes_.cend();
+        const bool canSplit = client != snapshot_.clients.cend() && !isSubGraph && clientCanSplit(snapshot_, id);
         auto* center = menu.addAction(QStringLiteral("居中显示节点"));
         auto* rename = menu.addAction(QStringLiteral("重命名节点"));
         QAction* split = nullptr;
@@ -1594,11 +1783,12 @@ void PatchbayCanvas::contextMenuEvent(QContextMenuEvent* event)
         QAction* copy = nullptr;
         QAction* remove = nullptr;
         QAction* showGui = nullptr;
-        if (isModuleNode) {
+        if (isModuleNode || isSubGraph || isInterfaceNode) {
             menu.addSeparator();
             copy = menu.addAction(QStringLiteral("复制节点"));
             remove = menu.addAction(QStringLiteral("删除节点"));
-            showGui = menu.addAction(QStringLiteral("显示自带 GUI"));
+            if (isModuleNode)
+                showGui = menu.addAction(QStringLiteral("显示自带 GUI"));
         }
         const auto* selected = menu.exec(event->globalPos());
         if (selected == center) {
@@ -1689,10 +1879,42 @@ void PatchbayCanvas::contextMenuEvent(QContextMenuEvent* event)
                 setSnapshot(snapshot_);
                 projectDirty_ = true;
             }
-        } else if (selected == copy && copyModuleNode_) {
-            copyModuleNode_(id);
-        } else if (selected == remove && removeModuleNode_) {
-            removeModuleNode_(id);
+        } else if (selected == copy) {
+            if (isSubGraph) {
+                copiedSubGraphName_ = subGraphName(id);
+                copiedInterfaceType_.clear();
+            } else if (isInterfaceNode) {
+                copiedInterfaceType_ = interfaceNode->type;
+                copiedSubGraphName_.clear();
+            } else if (copyModuleNode_) {
+                copyModuleNode_(id);
+            }
+        } else if (selected == remove) {
+            if (isSubGraph) {
+                if (subGraphNodeRemovedHandler_ && subGraphNodeRemovedHandler_(id)) {
+                    std::erase_if(subGraphNodes_, [&id](const auto& node) { return node.id == id; });
+                    setSnapshot(snapshot_);
+                    projectDirty_ = true;
+                }
+            } else if (isInterfaceNode) {
+                if (interfaceNodeRemovedHandler_ && interfaceNodeRemovedHandler_(id)) {
+                    const auto portId = interfaceNode->portId;
+                    std::vector<ConnectionInfo> disconnected;
+                    std::erase_if(logicalConnections_, [&portId, &disconnected](const auto& connection) {
+                        const bool matches = connection.sourcePortId == portId || connection.destinationPortId == portId;
+                        if (matches)
+                            disconnected.push_back(connection);
+                        return matches;
+                    });
+                    for (const auto& connection : disconnected)
+                        disconnectPortPair(connection.sourcePortId, connection.destinationPortId);
+                    std::erase_if(interfaceNodes_, [&id](const auto& node) { return node.id == id; });
+                    setSnapshot(snapshot_);
+                    projectDirty_ = true;
+                }
+            } else if (removeModuleNode_) {
+                removeModuleNode_(id);
+            }
         } else if (selected == showGui) {
             if (isModuleNode && showModuleNodeGui_)
                 showModuleNodeGui_(id, window());
@@ -1703,15 +1925,22 @@ void PatchbayCanvas::contextMenuEvent(QContextMenuEvent* event)
     auto* fit = menu.addAction(QStringLiteral("适配全部节点"));
     auto* reset = menu.addAction(QStringLiteral("重置缩放"));
     QAction* paste = nullptr;
-    if (pasteModuleNode_ != nullptr)
+    if (!copiedSubGraphName_.isEmpty() || !copiedInterfaceType_.isEmpty() || pasteModuleNode_ != nullptr)
         paste = menu.addAction(QStringLiteral("粘贴节点"));
     const auto* selected = menu.exec(event->globalPos());
     if (selected == fit)
         zoomFit();
     else if (selected == reset)
         zoomReset();
-    else if (selected == paste)
-        pasteModuleNode_(mapToScene(event->pos()));
+    else if (selected == paste) {
+        const auto position = mapToScene(event->pos());
+        if (!copiedSubGraphName_.isEmpty())
+            addSubGraph(copiedSubGraphName_, position);
+        else if (!copiedInterfaceType_.isEmpty())
+            addInterfaceNode(copiedInterfaceType_, position);
+        else if (pasteModuleNode_ != nullptr)
+            pasteModuleNode_(position);
+    }
 }
 
 void PatchbayCanvas::wheelEvent(QWheelEvent* event)
@@ -2174,10 +2403,12 @@ void PatchbayCanvas::notifySelection()
 
     for (auto* item : scene()->selectedItems()) {
         if (item->data(0).isValid()) {
-            nodeSelectionHandler_(item->data(0).toString().toStdString());
+            selectedNodeId_ = item->data(0).toString().toStdString();
+            nodeSelectionHandler_(selectedNodeId_);
             return;
         }
     }
+    selectedNodeId_.clear();
     nodeSelectionHandler_({});
 }
 
