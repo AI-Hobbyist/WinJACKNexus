@@ -1322,8 +1322,7 @@ private:
             if (component_->getBusInfo(Steinberg::Vst::kAudio, direction, busIndex, bus) != Steinberg::kResultOk)
                 continue;
             const auto name = utf8FromWide(reinterpret_cast<const wchar_t*>(bus.name));
-            const auto channelName = name.empty() ? std::string("bus") : name;
-            names.insert(names.end(), std::max<Steinberg::int32>(0, bus.channelCount), channelName);
+            names.insert(names.end(), std::max<Steinberg::int32>(0, bus.channelCount), name);
         }
         return names;
     }
@@ -1795,9 +1794,13 @@ private:
                 if (mode == "standard") {
                     static constexpr const char* channelNames[] { "L", "R", "C", "LFE", "SL", "SR", "BL", "BR" };
                     name = std::string(prefix) + '_' + (channel < static_cast<VstInt32>(std::size(channelNames)) ? channelNames[channel] : "ch_" + channelNumber);
-                } else if (mode == "bus-labels" && channel < static_cast<VstInt32>(busNames.size()) && !busNames[channel].empty()) {
-                    const auto& busName = busNames[channel];
-                    name = std::string(prefix) + '_' + sanitizedPortName(busName) + '_' + channelNumber;
+                } else if (mode == "bus-labels") {
+                    const auto busName = channel < static_cast<VstInt32>(busNames.size())
+                        ? sanitizedPortName(busNames[channel])
+                        : std::string {};
+                    name = busName.empty()
+                        ? std::string(prefix) + '_' + channelNumber
+                        : std::string(prefix) + '_' + busName + '_' + channelNumber;
                 } else if (mode == "default") {
                     name = "bus_" + channelNumber + '_' + prefix;
                 } else {
@@ -1850,7 +1853,7 @@ private:
             if (character == ':' || character == '\\' || character == '/')
                 character = '_';
         }
-        return name.empty() ? "bus" : name;
+        return name;
     }
 
     static int process(jack_nframes_t frames, void* context) noexcept

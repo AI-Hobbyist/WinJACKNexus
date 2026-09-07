@@ -211,6 +211,18 @@ struct VstPluginInfo final {
 	bool verified = true;
 };
 
+QString infoString(const QJsonObject& object, const QString& primaryKey, const QString& fallbackKey = {})
+{
+	auto value = object.value(primaryKey);
+	if (value.isUndefined() && !fallbackKey.isEmpty())
+		value = object.value(fallbackKey);
+	if (value.isString())
+		return value.toString().trimmed();
+	if (value.isDouble())
+		return QString::number(static_cast<qlonglong>(value.toDouble()));
+	return {};
+}
+
 struct SubGraphInterfacePort final {
 	WinJACKNexus::Audio::JackPort port;
 	std::string id;
@@ -456,7 +468,7 @@ std::vector<VstPluginInfo> scanVstPlugins()
 		plugin.path = object.value(QStringLiteral("path")).toString().trimmed();
 		plugin.category = object.value(QStringLiteral("category")).toString().trimmed();
 		plugin.subcategory = object.value(QStringLiteral("subcategory")).toString().trimmed();
-		plugin.internalPlugin = object.value(QStringLiteral("internal_plugin")).toString().trimmed();
+		plugin.internalPlugin = infoString(object, QStringLiteral("internal_plugin"), QStringLiteral("internalPlugin"));
 		plugin.infoFile = file.fileName();
 		plugin.bits = object.value(QStringLiteral("bits")).toInt();
 		plugin.instrument = object.value(QStringLiteral("isInstrument")).toBool();
@@ -490,6 +502,7 @@ QString vstPluginSettings(const VstPluginInfo& plugin)
 		{ QStringLiteral("path"), plugin.path },
 		{ QStringLiteral("bits"), QString::number(plugin.bits) },
 		{ QStringLiteral("internalPlugin"), plugin.internalPlugin },
+		{ QStringLiteral("internal_plugin"), plugin.internalPlugin },
 		{ QStringLiteral("internalPluginName"), plugin.name }
 	}).toJson(QJsonDocument::Compact));
 }

@@ -378,10 +378,11 @@ public:
         const auto instanceId = values.value(QStringLiteral("instanceId")).toString();
         if (!instanceId.isEmpty())
             instanceId_ = instanceId;
+        const auto internalPlugin = values.value(QStringLiteral("internalPlugin")).toString().trimmed();
         return applySettings(values.value(QStringLiteral("path")).toString(),
-                             values.value(QStringLiteral("clientName")).toString(),
-                             selectedBits, portDisplayMode,
-                             values.value(QStringLiteral("internalPlugin")).toString(),
+                     values.value(QStringLiteral("clientName")).toString(),
+                     selectedBits, portDisplayMode,
+                     internalPlugin.isEmpty() ? values.value(QStringLiteral("internal_plugin")).toVariant().toString() : internalPlugin,
                              values.value(QStringLiteral("internalPluginName")).toString()) ? 1 : 0;
     }
 

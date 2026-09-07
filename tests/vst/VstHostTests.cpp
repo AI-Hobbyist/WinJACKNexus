@@ -68,7 +68,7 @@ int main()
 
     auto* node = createNode(0);
     expect(node != nullptr, "Unable to create VST node");
-    expect(setSettings(node, "{\"path\":\"\",\"clientName\":\"Test VST\",\"bits\":\"32\",\"portDisplayMode\":3,\"internalPlugin\":\"123456\",\"internalPluginName\":\"Test Shell Child\"}") == 1,
+    expect(setSettings(node, "{\"path\":\"\",\"clientName\":\"Test VST\",\"bits\":\"32\",\"portDisplayMode\":3,\"internal_plugin\":\"123456\",\"internalPluginName\":\"Test Shell Child\"}") == 1,
            "Unable to restore VST node settings");
         expect(setSettings(node, "{\"path\":\"missing.vst3\",\"clientName\":\"Test VST\",\"bits\":\"32\",\"portDisplayMode\":3}") == 1,
             "Unable to configure a VST node before adding it to the canvas");
