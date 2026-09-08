@@ -16,6 +16,7 @@ target_include_directories(mod_patchbay
 
 target_link_libraries(mod_patchbay
     PRIVATE
+        WinJACKNexus::Common
         WinJACKNexus::UI
         WinJACKNexus::Node
         WinJACKNexus::Audio

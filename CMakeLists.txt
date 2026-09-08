@@ -26,7 +26,7 @@ set(WJN_QT6_DIR "C:/Qt/6.10.3/msvc2022_64/lib/cmake/Qt6" CACHE PATH "Qt6 CMake p
 if(NOT Qt6_DIR AND EXISTS "${WJN_QT6_DIR}/Qt6Config.cmake")
     set(Qt6_DIR "${WJN_QT6_DIR}" CACHE PATH "Qt6 CMake package directory" FORCE)
 endif()
-find_package(Qt6 6.10.3 EXACT REQUIRED COMPONENTS Core Gui Widgets)
+find_package(Qt6 6.10.3 EXACT REQUIRED COMPONENTS Core Gui Widgets OpenGL OpenGLWidgets)
 
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 include(WJNMacros)

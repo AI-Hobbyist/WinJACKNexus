@@ -17,6 +17,7 @@
 
 #include <WinJACKNexus/Audio/JackApi.hpp>
 #include <WinJACKNexus/Audio/JackClient.hpp>
+#include <WinJACKNexus/Common/GraphicsView.hpp>
 
 #include <QApplication>
 #include <QDesktopServices>
@@ -572,7 +573,7 @@ PatchbayCanvas::PatchbayCanvas(PatchbaySceneContext context, QWidget* parent)
     canvasScene->setSceneRect(-kCanvasExtent, -kCanvasExtent, kCanvasExtent * 2.0, kCanvasExtent * 2.0);
     setScene(canvasScene);
     setRenderHint(QPainter::Antialiasing);
-    setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
+    WinJACKNexus::Common::configureAcceleratedGraphicsView(*this);
     setBackgroundBrush(activeCanvasTheme().background);
     setFrameShape(QFrame::NoFrame);
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);

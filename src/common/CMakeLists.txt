@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 add_library(common SHARED
     src/Library.cpp
+    src/GraphicsView.cpp
     src/Metadata.cpp
     src/PathUtils.cpp
     src/Thread.cpp
@@ -13,6 +14,7 @@ add_library(common SHARED
     include/WinJACKNexus/Common/Atomic.hpp
     include/WinJACKNexus/Common/AudioRingBuffer.hpp
     include/WinJACKNexus/Common/Export.hpp
+    include/WinJACKNexus/Common/GraphicsView.hpp
     include/WinJACKNexus/Common/LockFreeSpscQueue.hpp
     include/WinJACKNexus/Common/Logger.hpp
     include/WinJACKNexus/Common/Metadata.hpp
@@ -33,5 +35,14 @@ target_include_directories(common
 
 wjn_configure_shared_target(common WJN_COMMON_BUILD)
 target_compile_definitions(common PRIVATE WIN32_LEAN_AND_MEAN NOMINMAX)
-target_link_libraries(common PRIVATE avrt shell32 user32)
+target_link_libraries(common
+    PUBLIC
+        Qt6::Widgets
+        Qt6::OpenGL
+        Qt6::OpenGLWidgets
+    PRIVATE
+        avrt
+        shell32
+        user32
+)
 add_library(WinJACKNexus::Common ALIAS common)

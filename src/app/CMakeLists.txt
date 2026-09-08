@@ -34,6 +34,12 @@ add_custom_command(TARGET WinJACKNexus POST_BUILD
         --no-translations
         --dir "$<TARGET_FILE_DIR:WinJACKNexus>"
         "$<TARGET_FILE:WinJACKNexus>"
+    COMMAND "${CMAKE_COMMAND}" -E copy_if_different
+        "$<TARGET_FILE:Qt6::OpenGL>"
+        "$<TARGET_FILE_DIR:WinJACKNexus>"
+    COMMAND "${CMAKE_COMMAND}" -E copy_if_different
+        "$<TARGET_FILE:Qt6::OpenGLWidgets>"
+        "$<TARGET_FILE_DIR:WinJACKNexus>"
     COMMENT "Deploying Qt runtime dependencies for WinJACKNexus.exe"
     VERBATIM
 )
