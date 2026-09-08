@@ -207,7 +207,7 @@ WinJACKNexus 的定位:
 | VST 效果器链 | Patchbay 子图 | ✅ 已完成 | [VST Support 计划](Docs/WinJACKNexus%20-%20VST%20Support%20-%20开发计划.md) | 子图内复用单 VST 节点 |
 | DAW2JackMIDI VST3 | `*.vst3` | 📋 未开始 | — | P5 |
 | DAW2JackAudio VST3 | `*.vst3`(Mono/Stereo/5.1/7.1) | 📋 未开始 | — | P5 |
-| 主程序外壳 | `WinJACKNexus.exe` | 📋 未开始 | — | 依赖 Node 接口 |
+| 主程序外壳 | `WinJACKNexus.exe` | ✅ 已完成 | — | 节点模块加载与主窗口 |
 
 ### 开发路线
 
