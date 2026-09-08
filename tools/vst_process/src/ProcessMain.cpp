@@ -2029,15 +2029,17 @@ private:
                 ++runtime->midiEventCount_;
             }
         }
-        std::sort(runtime->midiEvents_.begin(),
-                  runtime->midiEvents_.begin() + runtime->midiEventCount_,
-                  [] (const MidiInputEvent& left, const MidiInputEvent& right) {
-                      if (left.sampleOffset != right.sampleOffset)
-                          return left.sampleOffset < right.sampleOffset;
-                      if (left.portIndex != right.portIndex)
-                          return left.portIndex < right.portIndex;
-                      return left.sequence < right.sequence;
-                  });
+        if (runtime->midiEventCount_ > 1) {
+            std::sort(runtime->midiEvents_.begin(),
+                      runtime->midiEvents_.begin() + runtime->midiEventCount_,
+                      [] (const MidiInputEvent& left, const MidiInputEvent& right) {
+                          if (left.sampleOffset != right.sampleOffset)
+                              return left.sampleOffset < right.sampleOffset;
+                          if (left.portIndex != right.portIndex)
+                              return left.portIndex < right.portIndex;
+                          return left.sequence < right.sequence;
+                      });
+        }
         if (runtime->plugin_ != nullptr)
             runtime->plugin_->process(runtime->inputBuffers_.data(), runtime->outputBuffers_.data(),
                                       static_cast<VstInt32>(frames), runtime->midiEvents_.data(),

@@ -184,6 +184,13 @@ int JackClient::setGraphOrderCallback(JackGraphOrderCallback callback, void* arg
         : -1;
 }
 
+    int JackClient::setXRunCallback(JackXRunCallback callback, void* argument) noexcept
+    {
+        return impl_ != nullptr && impl_->handle != nullptr
+        ? JackApi::instance().setXRunCallback(impl_->handle, callback, argument)
+        : -1;
+    }
+
 jack_nframes_t JackClient::sampleRate() const noexcept
 {
     return impl_ != nullptr && impl_->handle != nullptr

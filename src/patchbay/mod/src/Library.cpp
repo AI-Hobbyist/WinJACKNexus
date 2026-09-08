@@ -20,6 +20,7 @@
 #include <WinJACKNexus/Audio/JackPort.hpp>
 #include <WinJACKNexus/Patchbay/Core/Snapshot.hpp>
 #include <WinJACKNexus/UI/NativeWindowUtils.hpp>
+#include <WinJACKNexus/UI/TrayController.hpp>
 
 #include <mod_patchbay/PatchbayCanvas.hpp>
 
@@ -421,6 +422,20 @@ std::string jackSafeToken(std::string value)
 	return value;
 }
 
+QString clientBaseName(const std::string& clientId)
+{
+	const auto name = QString::fromStdString(clientId);
+	const auto separator = name.lastIndexOf(QLatin1Char('-'));
+	if (separator <= 0 || separator == name.size() - 1)
+		return name;
+	const auto suffix = name.sliced(separator + 1);
+	const auto hasRandomSuffix = std::all_of(suffix.cbegin(), suffix.cend(), [](QChar character) {
+		return character.isDigit() || (character >= QLatin1Char('a') && character <= QLatin1Char('f'))
+			|| (character >= QLatin1Char('A') && character <= QLatin1Char('F'));
+	});
+	return hasRandomSuffix ? name.first(separator) : name;
+}
+
 bool isTopLevelSubGraphContext(const std::string& contextId)
 {
 	const auto firstSeparator = contextId.find('/');
@@ -734,6 +749,7 @@ public:
 			return nullptr;
 		}
 		const auto expectedClientId = getNodeClientId == nullptr ? nullptr : getNodeClientId(node);
+		const auto info = node->info();
 		QString category;
 		for (const auto& module : scanNodeModules()) {
 			if (module.modulePath == modulePath && module.index == index) {
@@ -752,7 +768,8 @@ public:
 				                                                            expectedClientId == nullptr ? std::string {} : std::string(expectedClientId),
 			                                                            modulePath,
 			                                                            index,
-			                                                            category));
+			                                                            category,
+			                                                            QString::fromUtf8(info.name)));
 	}
 
 	~LoadedModuleNode()
@@ -775,6 +792,16 @@ public:
 		const QString& category() const noexcept
 		{
 			return category_;
+		}
+
+		const QString& name() const noexcept
+		{
+			return name_;
+		}
+
+		bool hasCustomGui() const noexcept
+		{
+			return showNodeGui_ != nullptr;
 		}
 
 	std::uint32_t index() const noexcept
@@ -905,7 +932,8 @@ private:
 						 std::string clientId,
 		                 const QString& modulePath,
 		                 std::uint32_t index,
-		                 const QString& category) noexcept
+		                 const QString& category,
+		                 const QString& name) noexcept
 		: library_(library)
 		, node_(node)
 		, destroyNode_(destroyNode)
@@ -919,6 +947,7 @@ private:
 		, modulePath_(modulePath)
 		, index_(index)
 			, category_(category)
+			, name_(name)
 	{
 	}
 
@@ -934,6 +963,7 @@ private:
 	QString modulePath_;
 	std::uint32_t index_ = 0;
 	QString category_;
+	QString name_;
 	std::string clientId_;
 	std::string contextId_ = "main";
 		HWND settingsView_ = nullptr;
@@ -1142,6 +1172,7 @@ public:
 	void shutdown() noexcept override
 	{
 		destroyWindow(nullptr);
+		WinJACKNexus::UI::TrayController::clearNodeGuiEntries();
 		loadedModuleNodes_.clear();
 		observedJackClients_.clear();
 		jackObserver_.close();
@@ -1220,6 +1251,23 @@ public:
 						moduleClientIds.insert(node->clientId());
 				populateNodeLibrary(nodeTree, activeCanvas->snapshot(), knownJackClients_, moduleClientIds,
 				                   nodeTree->property("filterQuery").toString(), activeCanvas->sceneContext().isSubGraph);
+			};
+			auto refreshTrayNodeGuiEntries = std::make_shared<std::function<void()>>();
+			*refreshTrayNodeGuiEntries = [this] {
+				std::vector<WinJACKNexus::UI::TrayNodeGuiEntry> entries;
+				for (const auto& node : loadedModuleNodes_) {
+					if (!node->hasCustomGui())
+						continue;
+					auto* nodePointer = node.get();
+					entries.push_back({
+						QString::number(reinterpret_cast<quintptr>(nodePointer), 16),
+						nodePointer->category(),
+						clientBaseName(nodePointer->clientId()),
+						nodePointer->name(),
+						[nodePointer] { return nodePointer->showGui(nullptr); }
+					});
+				}
+				WinJACKNexus::UI::TrayController::setNodeGuiEntries(std::move(entries));
 			};
 			(*refreshNodeLibrary)();
 			QObject::connect(canvasTabs, &QTabWidget::currentChanged, window_, [canvasTabs, refreshNodeLibrary](int) {
@@ -1664,7 +1712,7 @@ public:
 					(*refreshNodeLibrary)();
 				});
 			});
-			auto refreshJackGraph = [this, canvas, subGraphCanvases, refreshNodeLibrary] {
+			auto refreshJackGraph = [this, canvas, subGraphCanvases, refreshNodeLibrary, refreshTrayNodeGuiEntries] {
 				const auto childCanvasIsDragging = std::any_of(subGraphCanvases->cbegin(), subGraphCanvases->cend(), [](const auto& entry) {
 					return !entry.second.isNull() && entry.second->isNodeDragActive();
 				});
@@ -1710,9 +1758,10 @@ public:
 					if (oldClientId == selectedClientId)
 						canvas->selectNode(newClientId);
 				}
+				(*refreshTrayNodeGuiEntries)();
 				(*refreshNodeLibrary)();
 			};
-			auto restoreModuleRecords = [this](const std::vector<PatchbayProjectModule>& modules) {
+			auto restoreModuleRecords = [this, refreshTrayNodeGuiEntries](const std::vector<PatchbayProjectModule>& modules) {
 					loadedModuleNodes_.clear();
 					for (const auto& module : modules) {
 						std::set<std::string> existingClients;
@@ -1736,8 +1785,9 @@ public:
 						node->setContextId(module.contextId);
 						loadedModuleNodes_.push_back(std::move(node));
 					}
+					(*refreshTrayNodeGuiEntries)();
 				};
-			*createModuleNode = [this, refreshJackGraph, window = window_.data()](PatchbayCanvas* targetCanvas, const QString& modulePath, std::uint32_t index, const QPointF& position, const QString& settingsJson) {
+			*createModuleNode = [this, refreshJackGraph, refreshTrayNodeGuiEntries, window = window_.data()](PatchbayCanvas* targetCanvas, const QString& modulePath, std::uint32_t index, const QPointF& position, const QString& settingsJson) {
 				if (targetCanvas == nullptr)
 					return false;
 				std::set<std::string> existingClients;
@@ -1767,6 +1817,7 @@ public:
 				auto* createdNode = node.get();
 				node->setContextId(targetCanvas->sceneContext().id);
 				loadedModuleNodes_.push_back(std::move(node));
+				(*refreshTrayNodeGuiEntries)();
 				targetCanvas->markProjectDirty();
 				refreshJackGraph();
 				QTimer::singleShot(100, window, [this, createdNode, existingClients = std::move(existingClients), refreshJackGraph] {
@@ -1859,7 +1910,8 @@ public:
 			                                  inspector,
 			                                  inspectorLayout,
 			                                  createModuleNode,
-			                                  refreshJackGraph](PatchbayCanvas* targetCanvas) {
+			                                  refreshJackGraph,
+			                                  refreshTrayNodeGuiEntries](PatchbayCanvas* targetCanvas) {
 				if (targetCanvas == nullptr)
 					return;
 				targetCanvas->setModuleNodeHandlers(
@@ -1877,7 +1929,7 @@ public:
 						copiedModuleNode_ = ModuleNodeInfo { {}, {}, (*node)->modulePath(), (*node)->index() };
 						return true;
 					},
-					[this, refreshJackGraph, selectedModuleNode](const std::string& clientId) {
+					[this, refreshJackGraph, refreshTrayNodeGuiEntries, selectedModuleNode](const std::string& clientId) {
 						if (*selectedModuleNode != nullptr && (*selectedModuleNode)->ownsClient(clientId)) {
 							(*selectedModuleNode)->clearSettingsView();
 							*selectedModuleNode = nullptr;
@@ -1887,6 +1939,8 @@ public:
 						});
 						if (removed != 0)
 							refreshJackGraph();
+						if (removed != 0)
+							(*refreshTrayNodeGuiEntries)();
 						return removed != 0;
 					},
 					[this](const std::string& clientId, QWidget* parent) {
@@ -2114,11 +2168,24 @@ public:
 				auto* saveAction = fileMenu->addAction(QStringLiteral("保存工程"));
 				saveAction->setShortcut(QKeySequence::Save);
 				auto* saveAsAction = fileMenu->addAction(QStringLiteral("工程另存为..."));
-				QObject::connect(newProject, &QAction::triggered, window_, [canvas, currentProject, confirmSave, clearSubGraphs, this] {
+				QObject::connect(newProject, &QAction::triggered, window_, [canvas, currentProject, confirmSave, clearSubGraphs, refreshJackGraph, refreshNodeLibrary, refreshTrayNodeGuiEntries, selectedModuleNode, this] {
 					if (!confirmSave())
 						return;
 					clearSubGraphs();
 					canvas->newProject();
+					if (*selectedModuleNode != nullptr) {
+						(*selectedModuleNode)->clearSettingsView();
+						*selectedModuleNode = nullptr;
+					}
+					loadedModuleNodes_.clear();
+					(*refreshTrayNodeGuiEntries)();
+					if (jackObserver_.isOpen()) {
+						auto snapshot = WinJACKNexus::Patchbay::Core::Snapshot::capture(jackObserver_);
+						ensureSystemClient(snapshot);
+						canvas->setSnapshot(snapshot);
+					}
+					refreshJackGraph();
+					(*refreshNodeLibrary)();
 					savedModuleRecords_.clear();
 					currentProject->clear();
 					QSettings(QStringLiteral("WinJACKNexus"), QStringLiteral("Patchbay")).remove(QStringLiteral("lastProjectPath"));

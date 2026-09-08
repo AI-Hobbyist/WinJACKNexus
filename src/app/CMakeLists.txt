@@ -8,8 +8,9 @@ add_executable(WinJACKNexus WIN32
 
 target_link_libraries(WinJACKNexus
     PRIVATE
+        WinJACKNexus::Audio
         WinJACKNexus::UI
-    WinJACKNexus::Node
+        WinJACKNexus::Node
         Qt6::Widgets
 )
 

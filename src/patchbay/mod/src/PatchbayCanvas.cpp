@@ -1161,7 +1161,7 @@ bool PatchbayCanvas::restoreJackConnections(WinJACKNexus::Audio::JackClient& cli
     };
     bool restored = false;
     bool pending = false;
-    const auto& connections = savedJackConnections_.empty() ? snapshot_.connections : savedJackConnections_;
+    const auto& connections = snapshot_.connections.empty() ? savedJackConnections_ : snapshot_.connections;
     for (const auto& connection : connections) {
         if (!connection.alive)
             continue;
@@ -1586,8 +1586,15 @@ void PatchbayCanvas::markProjectSaved() noexcept
 
 void PatchbayCanvas::newProject()
 {
-    snapshot_ = {};
+    for (const auto& connection : snapshot_.connections) {
+        if (connection.alive)
+            disconnectPortPair(connection.sourcePortId, connection.destinationPortId);
+    }
+    snapshot_.connections.clear();
     subGraphNodes_.clear();
+    interfaceNodes_.clear();
+    logicalConnections_.clear();
+    pendingLogicalConnections_.clear();
     savedJackConnections_.clear();
     jackConnectionRestoreRetries_ = 0;
     pendingPortId_.clear();

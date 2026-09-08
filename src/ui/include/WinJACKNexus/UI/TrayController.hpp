@@ -21,17 +21,28 @@
 #include <QObject>
 #include <QString>
 
+#include <functional>
+#include <vector>
+
 class QAction;
 class QMenu;
 
 namespace WinJACKNexus::UI {
 
+struct WINJACK_UI_API TrayNodeGuiEntry final {
+    QString id;
+    QString category;
+    QString clientName;
+    QString name;
+    std::function<bool()> show;
+};
+
 /**
  * 系统托盘图标(后台常驻守护)。
  *
  * 封装 QSystemTrayIcon,提供:
- *  - 基础占位菜单:接线盘 / 调音台 / 电平表桥 / 信号切换开关(占位时禁用,待节点注册后启用/替换);
- *  - 动态菜单注入口:节点 DLL 注册后注入真实菜单项;
+ *  - 托盘菜单:接线盘、快速入口和退出;
+ *  - 快速入口:位于屏幕上方居中的浮动栏，按节点类型并排显示当前已加载的项目;
  *  - 退出入口(quitRequested)、气泡通知(showMessage)与激活回调(activated)。
  *
  * 仅允许在 Qt GUI 线程使用。若系统托盘不可用,initialize() 返回 false,调用方自行降级。
@@ -66,18 +77,24 @@ public:
     /** 托盘上下文菜单(所有权由本类管理) */
     QMenu* contextMenu() const;
 
-    // --- 基础占位入口(对应规范 §3.0) ---
+    // --- 托盘入口 ---
     QAction* patchbayAction() const;     // 接线盘
     QAction* mixerAction() const;        // 调音台
     QAction* meterbridgeAction() const;  // 电平表桥
     QAction* switchAction() const;       // 信号切换开关
-    void setPlaceholderEnabled(bool enabled);          // 统一启用/禁用全部占位入口
-    void registerPlaceholder(const QAction* action);   // 对应节点注册后启用该占位项
+    void setPlaceholderEnabled(bool enabled);          // 启用/禁用接线盘入口
+    void registerPlaceholder(const QAction* action);   // 对应节点注册后启用该入口
 
     // --- 动态菜单注入口 ---
     QAction* addMenuAction(const QString& text, const QIcon& icon = {});
     QAction* insertMenuActionBefore(QAction* before, const QString& text, const QIcon& icon = {});
     void removeMenuAction(QAction* action);
+
+    /** 更新所有快速入口栏中按分类组织的自定义节点 GUI 项目。 */
+    static void setNodeGuiEntries(std::vector<TrayNodeGuiEntry> entries);
+    static void clearNodeGuiEntries();
+    /** 更新快速入口栏显示的 JACK DSP 与 XRun 状态。 */
+    static void setQuickAccessStatus(const QString& status);
 
     /** 气泡通知;iconType: 0=Information 1=Warning 2=Critical */
     void showMessage(const QString& title, const QString& message,
@@ -91,6 +108,7 @@ Q_SIGNALS:
 
 private:
     void buildPlaceholderMenu();
+    void rebuildQuickAccessBar();
 
     class Impl;
     Impl* impl_;

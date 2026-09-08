@@ -61,6 +61,9 @@ public:
     int setGraphOrderCallback(jack_client_t* client,
                               JackGraphOrderCallback callback,
                               void* argument) const noexcept;
+    int setXRunCallback(jack_client_t* client,
+                        JackXRunCallback callback,
+                        void* argument) const noexcept;
     jack_nframes_t sampleRate(jack_client_t* client) const noexcept;
     jack_nframes_t bufferSize(jack_client_t* client) const noexcept;
     float cpuLoad(jack_client_t* client) const noexcept;

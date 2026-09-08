@@ -53,6 +53,7 @@ public:
     int setBufferSizeCallback(JackBufferSizeCallback callback, void* argument) noexcept;
     int setSampleRateCallback(JackSampleRateCallback callback, void* argument) noexcept;
     int setGraphOrderCallback(JackGraphOrderCallback callback, void* argument) noexcept;
+    int setXRunCallback(JackXRunCallback callback, void* argument) noexcept;
 
     jack_nframes_t sampleRate() const noexcept;
     jack_nframes_t bufferSize() const noexcept;

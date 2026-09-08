@@ -17,31 +17,256 @@
 
 #include <QAction>
 #include <QApplication>
+#include <QFrame>
+#include <QGuiApplication>
+#include <QHBoxLayout>
+#include <QLabel>
 #include <QMenu>
+#include <QScreen>
+#include <QSlider>
 #include <QSystemTrayIcon>
+#include <QToolButton>
+
+#ifdef Q_OS_WIN
+#include <windows.h>
+#endif
+
+#include <algorithm>
+#include <map>
 
 namespace WinJACKNexus::UI {
+
+namespace {
+
+std::vector<TrayController*> trayControllers;
+std::vector<TrayNodeGuiEntry> nodeGuiEntries;
+QString quickAccessStatus;
+
+class QuickAccessBar final : public QFrame {
+public:
+    explicit QuickAccessBar(QWidget* parent = nullptr)
+        : QFrame(parent)
+    {
+        setWindowFlags(Qt::Tool | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
+        setAttribute(Qt::WA_DeleteOnClose, false);
+        setObjectName(QStringLiteral("quickAccessBar"));
+        setStyleSheet(QStringLiteral(
+            "QFrame#quickAccessBar { background: #1f2428; border: 1px solid #5a6570; border-radius: 6px; }"
+            "QLabel { color: #d8dee4; }"
+            "QToolButton { color: #f1f5f8; background: #303841; border: 1px solid #5a6570; border-radius: 4px; padding: 5px 9px; }"
+            "QToolButton:hover { background: #3d4854; }"
+            "QToolButton:checked { background: #275d75; border-color: #5db1d7; }"));
+
+        auto* layout = new QHBoxLayout(this);
+        layout->setContentsMargins(10, 7, 10, 7);
+        layout->setSpacing(8);
+        layout->addStretch();
+        auto* title = new QLabel(QStringLiteral("WinJACKNexus"), this);
+        title->setStyleSheet(QStringLiteral("font-weight: 700;"));
+        layout->addWidget(title);
+
+        statusLabel_ = new QLabel(this);
+        statusLabel_->setFixedWidth(128);
+        statusLabel_->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+        statusLabel_->setToolTip(QStringLiteral("JACK DSP 使用率与 XRun 计数"));
+        layout->addWidget(statusLabel_);
+
+        patchbayButton_ = new QToolButton(this);
+        patchbayButton_->setText(QStringLiteral("接线盘"));
+        patchbayButton_->setToolTip(QStringLiteral("打开接线盘"));
+        layout->addWidget(patchbayButton_);
+        contentLayout_ = new QHBoxLayout;
+        contentLayout_->setSpacing(6);
+        layout->addLayout(contentLayout_);
+
+        pinButton_ = new QToolButton(this);
+        pinButton_->setText(QStringLiteral("置顶"));
+        pinButton_->setCheckable(true);
+        pinButton_->setChecked(true);
+        pinButton_->setToolTip(QStringLiteral("保持快捷栏位于其他窗口上方"));
+        layout->addWidget(pinButton_);
+
+        auto* opacityLabel = new QLabel(QStringLiteral("透明度"), this);
+        layout->addWidget(opacityLabel);
+        auto* opacitySlider = new QSlider(Qt::Horizontal, this);
+        opacitySlider->setRange(10, 100);
+        opacitySlider->setValue(50);
+        opacitySlider->setFixedWidth(88);
+        opacitySlider->setToolTip(QStringLiteral("调整快捷栏透明度"));
+        layout->addWidget(opacitySlider);
+        connect(opacitySlider, &QSlider::valueChanged, this, [this](int value) {
+            setWindowOpacity(static_cast<qreal>(value) / 100.0);
+        });
+        setWindowOpacity(0.5);
+        connect(pinButton_, &QToolButton::toggled, this, [this](bool pinned) {
+            setWindowFlag(Qt::WindowStaysOnTopHint, pinned);
+            show();
+            centerAtTop();
+        });
+
+        auto* hideButton = new QToolButton(this);
+        hideButton->setText(QStringLiteral("隐藏"));
+        hideButton->setToolTip(QStringLiteral("隐藏快捷栏"));
+        layout->addWidget(hideButton);
+        connect(hideButton, &QToolButton::clicked, this, &QWidget::hide);
+        layout->addStretch();
+    }
+
+    void setPatchbayAction(QAction* action)
+    {
+        patchbayButton_->setEnabled(action != nullptr && action->isEnabled());
+        if (action != nullptr && patchbayAction_ == nullptr) {
+            patchbayAction_ = action;
+            connect(patchbayButton_, &QToolButton::clicked, action, &QAction::trigger);
+            connect(action, &QAction::changed, this, [this, action] {
+                patchbayButton_->setEnabled(action->isEnabled());
+            });
+        }
+    }
+
+    void setEntries(const std::vector<TrayNodeGuiEntry>& entries)
+    {
+        const auto signature = entriesSignature(entries);
+        if (signature == entriesSignature_)
+            return;
+
+        while (auto* item = contentLayout_->takeAt(0)) {
+            delete item->widget();
+            delete item;
+        }
+
+        std::map<QString, std::map<QString, std::vector<const TrayNodeGuiEntry*>>> groupedEntries;
+        for (const auto& entry : entries) {
+            if (entry.id.isEmpty() || entry.name.isEmpty() || !entry.show)
+                continue;
+            const auto category = entry.category.isEmpty() ? QStringLiteral("其他") : entry.category;
+            const auto project = entry.clientName.isEmpty() ? entry.name : entry.clientName;
+            groupedEntries[category][project].push_back(&entry);
+        }
+
+        for (const auto& [category, projects] : groupedEntries) {
+            auto* categoryButton = new QToolButton(this);
+            categoryButton->setText(category);
+            categoryButton->setToolButtonStyle(Qt::ToolButtonTextOnly);
+            categoryButton->setPopupMode(QToolButton::InstantPopup);
+            auto* categoryMenu = new QMenu(categoryButton);
+            for (const auto& [project, nodes] : projects) {
+                if (nodes.size() == 1) {
+                    auto* action = categoryMenu->addAction(project);
+                    connect(action, &QAction::triggered, this, [show = nodes.front()->show] {
+                        show();
+                    });
+                } else {
+                    auto* nodeMenu = categoryMenu->addMenu(project);
+                    for (const auto* node : nodes) {
+                        auto* action = nodeMenu->addAction(node->name);
+                        connect(action, &QAction::triggered, this, [show = node->show] {
+                            show();
+                        });
+                    }
+                }
+            }
+            categoryButton->setMenu(categoryMenu);
+            contentLayout_->addWidget(categoryButton);
+        }
+        entriesSignature_ = signature;
+        recenterAfterLayout();
+    }
+
+    void setStatus(const QString& status)
+    {
+        statusLabel_->setText(status);
+    }
+
+    void showCentered()
+    {
+        show();
+        raise();
+        centerAtTop();
+    }
+
+private:
+#ifdef Q_OS_WIN
+    bool nativeEvent(const QByteArray& eventType, void* message, qintptr* result) override
+    {
+        if (eventType == "windows_generic_MSG" || eventType == "windows_dispatcher_MSG") {
+            const auto* nativeMessage = static_cast<MSG*>(message);
+            if (nativeMessage->message == WM_NCHITTEST
+                && (GetAsyncKeyState(VK_SHIFT) & 0x8000) == 0) {
+                *result = HTTRANSPARENT;
+                return true;
+            }
+        }
+        return QFrame::nativeEvent(eventType, message, result);
+    }
+#endif
+
+    static QString entriesSignature(const std::vector<TrayNodeGuiEntry>& entries)
+    {
+        QString signature;
+        for (const auto& entry : entries) {
+            signature += entry.id;
+            signature += QChar::Null;
+            signature += entry.category;
+            signature += QChar::Null;
+            signature += entry.clientName;
+            signature += QChar::Null;
+            signature += entry.name;
+            signature += QChar::Null;
+        }
+        return signature;
+    }
+
+    void recenterAfterLayout()
+    {
+        layout()->activate();
+        if (isVisible())
+            centerAtTop();
+    }
+
+    void centerAtTop()
+    {
+        const auto* screen = QGuiApplication::screenAt(frameGeometry().center());
+        if (screen == nullptr)
+            screen = QGuiApplication::primaryScreen();
+        if (screen == nullptr)
+            return;
+        const auto geometry = screen->availableGeometry();
+        setGeometry(geometry.left(), geometry.top() + 8, geometry.width(), sizeHint().height());
+    }
+
+    QHBoxLayout* contentLayout_ = nullptr;
+    QToolButton* patchbayButton_ = nullptr;
+    QToolButton* pinButton_ = nullptr;
+    QAction* patchbayAction_ = nullptr;
+    QLabel* statusLabel_ = nullptr;
+    QString entriesSignature_;
+};
+
+}
 
 class TrayController::Impl {
 public:
     QSystemTrayIcon* tray = nullptr;
     QMenu* menu = nullptr;
     QAction* placeholderPatchbay = nullptr;
-    QAction* placeholderMixer = nullptr;
-    QAction* placeholderMeterbridge = nullptr;
-    QAction* placeholderSwitch = nullptr;
+    QAction* quickAccessAction = nullptr;
+    QAction* nodeGuiSeparator = nullptr;
     QAction* quitAction = nullptr;
+    QuickAccessBar* quickAccessBar = nullptr;
 };
 
 TrayController::TrayController(QObject* parent)
     : QObject(parent)
     , impl_(new Impl)
 {
+    trayControllers.push_back(this);
 }
 
 TrayController::~TrayController()
 {
     shutdown();
+    std::erase(trayControllers, this);
     delete impl_;
 }
 
@@ -68,6 +293,8 @@ bool TrayController::initialize(const QIcon& icon, const QString& tooltip)
 
     impl_->menu = new QMenu(nullptr);
     buildPlaceholderMenu();
+    rebuildQuickAccessBar();
+    impl_->quickAccessBar->showCentered();
     impl_->tray->setContextMenu(impl_->menu);
     impl_->tray->show();
     return true;
@@ -87,10 +314,15 @@ void TrayController::shutdown()
         impl_->menu->deleteLater();
         impl_->menu = nullptr;
     }
+    if (impl_->quickAccessBar != nullptr)
+    {
+        impl_->quickAccessBar->hide();
+        impl_->quickAccessBar->deleteLater();
+        impl_->quickAccessBar = nullptr;
+    }
     impl_->placeholderPatchbay = nullptr;
-    impl_->placeholderMixer = nullptr;
-    impl_->placeholderMeterbridge = nullptr;
-    impl_->placeholderSwitch = nullptr;
+    impl_->quickAccessAction = nullptr;
+    impl_->nodeGuiSeparator = nullptr;
     impl_->quitAction = nullptr;
 }
 
@@ -140,23 +372,61 @@ QMenu* TrayController::contextMenu() const
 void TrayController::buildPlaceholderMenu()
 {
     impl_->placeholderPatchbay = impl_->menu->addAction(QStringLiteral("接线盘"));
-    impl_->placeholderMixer = impl_->menu->addAction(QStringLiteral("调音台"));
-    impl_->placeholderMeterbridge = impl_->menu->addAction(QStringLiteral("电平表桥"));
-    impl_->placeholderSwitch = impl_->menu->addAction(QStringLiteral("信号切换开关"));
+    impl_->placeholderPatchbay->setEnabled(false);
+    impl_->placeholderPatchbay->setToolTip(QStringLiteral("敬请期待:节点注册后可用"));
 
-    // 占位:对应节点注册前禁用
-    for (QAction* action : { impl_->placeholderPatchbay,
-                             impl_->placeholderMixer,
-                             impl_->placeholderMeterbridge,
-                             impl_->placeholderSwitch })
-    {
-        action->setEnabled(false);
-        action->setToolTip(QStringLiteral("敬请期待:节点注册后可用"));
-    }
+    impl_->quickAccessAction = impl_->menu->addAction(QStringLiteral("快速入口"));
+    connect(impl_->quickAccessAction, &QAction::triggered, this, [this] {
+        if (impl_->quickAccessBar != nullptr)
+            impl_->quickAccessBar->showCentered();
+    });
 
-    impl_->menu->addSeparator();
+    impl_->nodeGuiSeparator = impl_->menu->addSeparator();
     impl_->quitAction = impl_->menu->addAction(QStringLiteral("退出 WinJACKNexus"));
     connect(impl_->quitAction, &QAction::triggered, this, &TrayController::quitRequested);
+}
+
+void TrayController::setNodeGuiEntries(std::vector<TrayNodeGuiEntry> entries)
+{
+    std::sort(entries.begin(), entries.end(), [](const auto& left, const auto& right) {
+        if (left.category == right.category && left.clientName == right.clientName)
+            return left.name < right.name;
+        if (left.category == right.category)
+            return left.clientName < right.clientName;
+        return left.category < right.category;
+    });
+    nodeGuiEntries = std::move(entries);
+    for (auto* controller : trayControllers) {
+        if (controller != nullptr)
+            controller->rebuildQuickAccessBar();
+    }
+}
+
+void TrayController::clearNodeGuiEntries()
+{
+    setNodeGuiEntries({});
+}
+
+void TrayController::setQuickAccessStatus(const QString& status)
+{
+    quickAccessStatus = status;
+    for (auto* controller : trayControllers) {
+        if (controller != nullptr && controller->impl_->quickAccessBar != nullptr)
+            controller->impl_->quickAccessBar->setStatus(quickAccessStatus);
+    }
+}
+
+void TrayController::rebuildQuickAccessBar()
+{
+    if (impl_->menu == nullptr || impl_->nodeGuiSeparator == nullptr)
+        return;
+
+    if (impl_->quickAccessBar == nullptr)
+        impl_->quickAccessBar = new QuickAccessBar;
+    impl_->quickAccessBar->setPatchbayAction(impl_->placeholderPatchbay);
+    impl_->quickAccessBar->setStatus(quickAccessStatus);
+    impl_->quickAccessBar->setEntries(nodeGuiEntries);
+    impl_->quickAccessAction->setEnabled(!nodeGuiEntries.empty());
 }
 
 QAction* TrayController::patchbayAction() const
@@ -166,25 +436,22 @@ QAction* TrayController::patchbayAction() const
 
 QAction* TrayController::mixerAction() const
 {
-    return impl_->placeholderMixer;
+    return nullptr;
 }
 
 QAction* TrayController::meterbridgeAction() const
 {
-    return impl_->placeholderMeterbridge;
+    return nullptr;
 }
 
 QAction* TrayController::switchAction() const
 {
-    return impl_->placeholderSwitch;
+    return nullptr;
 }
 
 void TrayController::setPlaceholderEnabled(bool enabled)
 {
-    for (QAction* action : { impl_->placeholderPatchbay,
-                             impl_->placeholderMixer,
-                             impl_->placeholderMeterbridge,
-                             impl_->placeholderSwitch })
+    for (QAction* action : { impl_->placeholderPatchbay })
     {
         if (action != nullptr)
             action->setEnabled(enabled);

@@ -79,6 +79,7 @@ struct JackApi::Impl final {
     using SetBufferSizeCallback = decltype(&jack_set_buffer_size_callback);
     using SetSampleRateCallback = decltype(&jack_set_sample_rate_callback);
     using SetGraphOrderCallback = decltype(&jack_set_graph_order_callback);
+    using SetXRunCallback = decltype(&jack_set_xrun_callback);
     using GetSampleRate = decltype(&jack_get_sample_rate);
     using GetBufferSize = decltype(&jack_get_buffer_size);
     using CpuLoad = decltype(&jack_cpu_load);
@@ -130,6 +131,7 @@ struct JackApi::Impl final {
         SetBufferSizeCallback setBufferSizeCallback = nullptr;
         SetSampleRateCallback setSampleRateCallback = nullptr;
         SetGraphOrderCallback setGraphOrderCallback = nullptr;
+        SetXRunCallback setXRunCallback = nullptr;
         GetSampleRate getSampleRate = nullptr;
         GetBufferSize getBufferSize = nullptr;
         CpuLoad cpuLoad = nullptr;
@@ -222,6 +224,7 @@ bool JackApi::load(const wchar_t* explicitPath) noexcept
             WJN_LOAD_JACK_FUNCTION(setBufferSizeCallback, "jack_set_buffer_size_callback");
             WJN_LOAD_JACK_FUNCTION(setSampleRateCallback, "jack_set_sample_rate_callback");
             WJN_LOAD_JACK_FUNCTION(setGraphOrderCallback, "jack_set_graph_order_callback");
+            WJN_LOAD_JACK_FUNCTION(setXRunCallback, "jack_set_xrun_callback");
             WJN_LOAD_JACK_FUNCTION(getSampleRate, "jack_get_sample_rate");
             WJN_LOAD_JACK_FUNCTION(getBufferSize, "jack_get_buffer_size");
             WJN_LOAD_JACK_FUNCTION(cpuLoad, "jack_cpu_load");
@@ -384,6 +387,15 @@ int JackApi::setGraphOrderCallback(jack_client_t* client,
         ? impl_->functions.setGraphOrderCallback(client, callback, argument)
         : -1;
 }
+
+    int JackApi::setXRunCallback(jack_client_t* client,
+                     JackXRunCallback callback,
+                     void* argument) const noexcept
+    {
+        return impl_->functions.setXRunCallback != nullptr
+        ? impl_->functions.setXRunCallback(client, callback, argument)
+        : -1;
+    }
 
 jack_nframes_t JackApi::sampleRate(jack_client_t* client) const noexcept
 {
