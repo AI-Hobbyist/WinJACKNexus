@@ -32,7 +32,7 @@
 4. 独立沙盒进程运行VST，可以保证如果插件崩溃，对应节点旁通，而不是崩掉整个 WinJACKNexus。
 ### 所需组件
 1. **插件扫描器：** 独立 `Vst Scanner.exe`，可以设置多个VST路径，扫描完成后自动写入 `nodes/VSTPlugins` 对应目录，如果是 `WAVES Shell` 这种，`.vstinfo/.vst3info` 对应插件要有额外的 `internal_plugin` 字段，使用 `Qt6`
-2. **插件处理器：** 独立 `VSTProcess32.exe/VSTProcess64.exe`，命令行加载对应插件，识别通用路径 `--path` 和额外的 `--internal_plugin` (用于 Waves Shell 这种)，使用原生 C++/Win32 + VST2/VST3 SDK，不依赖 Qt/JUCE，通过 IPC 与 Qt 节点通信。
+2. **插件处理器：** 独立 `VSTProcess32.exe/VSTProcess64.exe`，命令行加载对应插件，识别通用路径 `--path` 和额外的 `--internal_plugin` (用于 Waves Shell 这种)，使用原生 C++/Win32 + VST2/VST3 SDK，不依赖 Qt，通过 IPC 与 Qt 节点通信。
 ### 端口
 1. **端口名 fallback 规则：** 自定义总线/标签名 → jack默认；
 2. **其他：** 端口数量取决于插件能力，包括音频和midi。

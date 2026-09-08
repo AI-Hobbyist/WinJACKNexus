@@ -90,12 +90,10 @@ WinJACKNexus 的定位:
 | **Pure Mixer**(调音台) | 通道 Gain/Mute/Solo,全部通道抽象为标准 JACK 端口 |
 | **Meterbridge**(多通道电平桥监控) | Peak/RMS 电平监控,SPSC 无锁管道直通音频线程 |
 | **Single VST Host**(单效果器宿主) | 沙盒进程托管单个 VST3 插件,机架 In/Out 暴露为 JACK 端口 |
-| **Chain VST Host**(链式效果器机架) | 沙盒进程托管插件链(JUCE `AudioProcessorGraph`),支持拖拽 Slot |
+| **Chain VST Host**(链式效果器机架) | 由 Patchbay 子图组合单 VST 节点,支持拖拽编排 |
 | **MIDI Splitter**(全通道 MIDI 拆分器) | Omni → 16 Ch,一路输入拆分 16 通道输出 |
 | **16x16 MIDI Matrix**(矩阵 MIDI 路由) | 16×16 通道级 MIDI 路由矩阵 |
 | **Signal Switch**(信号路由切换开关) | 多路切换,平滑 Crossfade 零爆音切换 |
-| **DAW2JackMIDI VST3**(DAW 桥接虚拟 MIDI 插件) | 在第三方 DAW 内注册为 JACK MIDI 端口 |
-| **DAW2JackAudio VST3**(DAW 桥接虚拟音频插件) | 在第三方 DAW 内注册为 JACK 音频端口,支持 **Mono / Stereo / 5.1 / 7.1** |
 
 > 全部模块(包括 VST Host 机架与 DAW 桥)严格暴露标准 Native JACK Audio/MIDI Port,可被 Patchbay 全局接线。
 
@@ -122,7 +120,7 @@ WinJACKNexus 的定位:
 | 前端 | Qt 6.10.3(Widgets/Gui/Core,`msvc2022_64`) |
 | 音频后端 | Native JACK C API(libjack64,运行时动态加载) |
 | 系统接入 | WASAPI 共享模式(MMDevice)+ WinMM MIDI |
-| DSP/宿主 | JUCE 9.0.1(可选层、VST Host 沙盒、DAW 桥) |
+| DSP/宿主 | 原生 C++/Win32 VST2/VST3 宿主 |
 | 插件 SDK | VST 3 SDK 3.8.x / VST 2 SDK |
 | 构建 | CMake ≥ 3.25 |
 | 平台 | **Windows 10/11 x64(仅 64 位)** |
@@ -241,7 +239,6 @@ WinJACKNexus 的第一方代码依据 GNU Affero General Public License v3.0 发
 | :--- | :--- | :--- |
 | JACK2 (jackd / libjack) | 1.9.22 | 服务器 GPL-2.0,客户端库 LGPL-2.1 |
 | Qt 6 | 6.10.3 | LGPLv3 / 商业(本仓库动态链接使用开源版 Qt) |
-| JUCE | 9.0.1 | AGPLv3 / 商业 |
 | VST 3 SDK | 3.8.x | GPLv3+例外 / 商业 |
 | VST 2 SDK | — | 专有许可(仅保留,未使用前不作为依赖) |
 

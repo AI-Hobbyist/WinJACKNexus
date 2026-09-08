@@ -19,7 +19,6 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${WJN_OUTPUT_DIR}")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${WJN_OUTPUT_DIR}")
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
 
-option(WJN_WITH_JUCE "Build the optional JUCE layer in audio.dll" OFF)
 option(WJN_LINK_JACK "Link the JACK import library instead of runtime loading" OFF)
 option(WJN_ENABLE_VST2 "Enable VST2 runtime metadata probing (licensed use only)" OFF)
 

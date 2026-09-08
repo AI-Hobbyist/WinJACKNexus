@@ -18,7 +18,6 @@ WinJACKNexus/
 ├─ Ref/Carla/      # 参考实现(JACK2 时代 Carla,Python+Qt 与 C++ Qt 参考)
 └─ third_party/
    ├─ JACK2/         # JACK2 (含 jackd.exe、JackRouter、头文件与导入库)
-   ├─ JUCE/          # JUCE 9.0.1
    ├─ vst2sdk/       # VST2 SDK
    └─ vst3sdk/       # VST3 SDK 3.8.x
 ```
@@ -44,7 +43,6 @@ WinJACKNexus/
 | **Windows Core Audio (WASAPI/MMDevice)** | SDK 10 | `D:\Windows Kits\10` | Adapter 数据源:设备枚举/UUID/声道数/采样率/共享模式音频流 | 系统 API |
 | **WinMM MIDI (Win32)** | SDK 10 | `D:\Windows Kits\10` | 系统 MIDI 设备枚举/事件流/通道信息(Windows MIDI Services 预留为新后端) | 系统 API |
 | **JackRouter (ASIO 驱动)** | — | `third_party/JACK2/jack-router/win64/JackRouter.dll` + `.ini` | **不采用**:本项目以 JACK 为核心,音频链路统一走 JACK 端口(系统设备由 WASAPI 共享模式接入),**不需要 ASIO 支持**;JackRouter 仅是 JACK2 自带的第三方附件,不参与本项目功能,亦不链接/分发 | LGPL-2.1 |
-| **JUCE** | 9.0.1 | `third_party/JUCE` | `WinJACKNexus::Audio` 的 JUCE DSP 包装层、沙盒 VST Host、DAW2Jack 插件(本阶段仅 Audio 库可选引用) | AGPLv3 / 商业 |
 | **VST 3 SDK** | 3.8.x | `third_party/vst3sdk` | 后续 DAW2Jack `.vst3` 插件与 VST Host 插件加载 | GPLv3 例外 / 商业 |
 | **VST 2 SDK** | — | `third_party/vst2sdk` | 后续兼容 VST2 插件(预留) | 专有许可 |
 | **Ref/Carla** | — | `Ref/Carla` | **API 范围与 UI 参考**:`src/jacklib.py` (ctypes 封装全量 JACK API)、`catia.py` (Patchbay UI)、`patchcanvas` (画布) | GPLv2 |
@@ -77,7 +75,7 @@ WinJACKNexus/
 | :--- | :--- | :--- | :--- |
 | `WinJACKNexus::Common` | `common.dll` | 仅 std C++20 + Windows API | 无锁队列、环形缓冲、实时对象、日志、元数据 |
 | `WinJACKNexus::UI` | `ui.dll` | Qt6 Widgets + `common.dll` | ThemeManager、NativeWindowUtils、自绘控件基类、渲染节流 |
-| `WinJACKNexus::Audio` | `audio.dll` | libjack64 + Windows Core Audio/WinMM(系统 API)+ `common.dll`(JUCE 层可选编译) | Native JACK C API 封装、WASAPI(共享)设备与音频流、系统 MIDI 设备与事件流、环缓冲、JUCE DSP 包装 |
+| `WinJACKNexus::Audio` | `audio.dll` | libjack64 + Windows Core Audio/WinMM(系统 API)+ `common.dll` | Native JACK C API 封装、WASAPI(共享)设备与音频流、系统 MIDI 设备与事件流、环缓冲 |
 
 ### 3.2 本阶段预留接口(只定义契约,不实现业务)
 
@@ -146,7 +144,6 @@ WinJACKNexus/
 │  │  │  ├─ MidiStream.hpp        # 输入/输出事件流 (WinMM)
 │  │  │  ├─ MidiEvent.hpp         # 通道/消息类型解析
 │  │  │  ├─ Resampler.hpp         # 采样率适配 (可选)
-│  │  │  ├─ JuceDspWrapper.hpp    # 可选编译 (WJN_WITH_JUCE)
 │  │  │  └─ AudioThreadSafe.hpp
 │  │  └─ src/*.cpp
 │  ├─ node/                       # → node.dll (接口桩,预留)
@@ -170,15 +167,14 @@ WinJACKNexus/
 ```cpp
 namespace WinJACKNexus::Common { ... }   // 无锁、实时安全容器、基础工具
 namespace WinJACKNexus::UI { ... }       // Qt 前端公共组件
-namespace WinJACKNexus::Audio { ... }    // Native JACK / JUCE DSP
+namespace WinJACKNexus::Audio { ... }    // Native JACK
 namespace WinJACKNexus::Node { ... }     // INode 与 C-API
 ```
 
----
 
 ## 5. WinJACKNexus::Common — 完整实现设计
 
-> 依赖:仅 `std` C++20 + Windows API。**不依赖 Qt**、**不依赖 JUCE**,保证模块/主进程可独立复用。
+> 依赖:仅 `std` C++20 + Windows API。**不依赖 Qt**,保证模块/主进程可独立复用。
 
 ### 5.1 无锁容器(音频线程安全核心)
 
@@ -245,11 +241,11 @@ namespace WinJACKNexus::Node { ... }     // INode 与 C-API
 - 图标绑定:主题名 → 图标目录(`bitmaps/`/`scalable/`),`icon(name, size)`;
 - 与 `ThemeManager::onThemeChanged` 联动。
 
-### 6.3 NativeWindowUtils(HWND ↔ Qt/JUCE 嵌入)
+### 6.3 NativeWindowUtils(HWND ↔ Qt/原生窗口嵌入)
 
 | 能力 | 说明 |
 | :--- | :--- |
-| `embedNativeWindow(HWND, QWidget* parent)` | 将外部原生窗口(如 JUCE `AudioProcessorEditor` 的 HWND、第三方 VST 编辑器)嵌入 Qt 容器:构造 `QWindow::fromWinId(hwnd)` 并 `QWidget::createWindowContainer`,处理父级关系与 Z 序。 |
+| `embedNativeWindow(HWND, QWidget* parent)` | 将外部原生窗口(如第三方 VST 编辑器)嵌入 Qt 容器:构造 `QWindow::fromWinId(hwnd)` 并 `QWidget::createWindowContainer`,处理父级关系与 Z 序。 |
 | `obtainNativeHandle(QWidget*)` | `winId()` 反向获取 HWND(用于把 Qt 画布注册给 JACK 面板等)。 |
 | DPI 适配 | Windows 10+ Per-Monitor V2:监听 `QScreen::logicalDotsPerInchChanged`,缩放 `setGeometry`;覆盖 `QEvent::DevicePixelRatioChange`。 |
 | 嵌入生命周期 | `detachNativeWindow()`:销毁容器时同步 `SetParent(hwnd, nullptr)` 避免野指针;崩溃隔离策略(沙盒进程容器)由 VSTHost 模块负责。 |
@@ -281,14 +277,12 @@ namespace WinJACKNexus::Node { ... }     // INode 与 C-API
 
 ### 6.7 里程碑与验收
 
-- 实现顺序:ThemeManager+Palette → PaintableWidget/节流 → NativeWindowUtils(含 DPI)→ 资源 → TrayController(增补);
-- 验收:主题切换 demo(纯 Qt 窗口 + 两套 QSS 实时切换);HWND 嵌入 demo(嵌入 `notepad` 或 JUCE 空编辑器);窗口隐藏后 CPU 探针(开发期自行验证)。
+- 验收:主题切换 demo(纯 Qt 窗口 + 两套 QSS 实时切换);HWND 嵌入 demo(嵌入 `notepad` 或第三方 VST 编辑器);窗口隐藏后 CPU 探针(开发期自行验证)。
 
----
 
 ## 7. WinJACKNexus::Audio — 完整实现设计
 
-> 依赖:libjack64(`C:\Windows\libjack64.dll`,采用 **运行时动态加载** 策略,见 §7.8)+ `common.dll`;WASAPI 与系统 MIDI 使用 Windows SDK 自带 API(无需第三方库)。JUCE DSP 包装层为**可选编译**(`WJN_WITH_JUCE`),默认关闭,确保 `audio.dll` 核心零 JUCE 依赖。
+> 依赖:libjack64(`C:\Windows\libjack64.dll`,采用 **运行时动态加载** 策略,见 §7.8)+ `common.dll`;WASAPI 与系统 MIDI 使用 Windows SDK 自带 API(无需第三方库)。
 
 ### 7.1 JackClient(客户端封装)
 
@@ -324,13 +318,6 @@ namespace WinJACKNexus::Node { ... }     // INode 与 C-API
 
 - 可选启动/探测:`startIfNeeded(jsonPath)`(默认 `third_party/JACK2/jackd.exe` 或系统 PATH 中的 `jackd`),`waitForServer(timeout)`(轮询 `jack_client_open` 轻量探针);
 - 守护策略与路径在 `%LOCALAPPDATA%\WinJACKNexus\jackd.ini` 可配;用于开发测试与 Adapter 后稳定。
-
-### 7.5 JUCE DSP 包装层(可选,`WJN_WITH_JUCE=ON`)
-
-| 类型 | 说明 |
-| :--- | :--- |
-| `JuceDspWrapper` | 将 `juce::AudioProcessor` 的 `processBlock` 封装为可挂到 JACK 回调的结构(`AudioBuffer<float>` ↔ `float*`,`MidiBuffer` ↔ `jack_midi_event_t`);仅用于 Mixer Pro / VST Host 模块复用,本阶段只定义并实现最小通用样例。 |
-| `JuceAudioDeviceBridge`(预留) | JUCE 自带 `JackAudioIODevice`(juce_JackAudio.cpp)参考;VST Host 沙盒进程使用 JUCE 直接驱动,不经过 `audio.dll`(保持沙盒隔离)。 |
 
 ### 7.6 WASAPI 设备信息与数据获取(共享模式)
 
@@ -372,8 +359,7 @@ namespace WinJACKNexus::Node { ... }     // INode 与 C-API
 
 ### 7.9 里程碑与验收
 
-- 实现顺序:Library 动态加载 → JackClient → JackPort/Graph → JACK MIDI → ServerGuard → WASAPI 枚举/流 → 系统 MIDI 枚举/流 → Resampler(可选)→ JUCE 层(可选);
-- 冒烟测试(`tests/audio`):
+- 实现顺序:Library 动态加载 → JackClient → JackPort/Graph → JACK MIDI → ServerGuard → WASAPI 枚举/流 → 系统 MIDI 枚举/流 → Resampler(可选);
   1. 启动 `jackd.exe`;打开客户端,注册 1 对 audio port;`jack_lsp` 可见端口;回环(`jack_connect` 自连)验证音频样本计数与 CRC;
   2. JACK MIDI 事件计数;
   3. WASAPI:枚举到默认设备(名称/UUID/声道数/采样率);`WasapiCaptureStream` 捕获若干帧,校验声道数与 float32 数据;共享模式采样率与 JACK 引擎不一致时 Resampler 正确转换;
@@ -442,13 +428,11 @@ extern "C" {
 | Audio Adapter | `nodes/internal/mod_adapter.dll` | `system:capture_*` / `system:playback_*`(物理/虚拟设备);数据源 = `Audio::Wasapi*`(WASAPI 共享)+ `Audio::Midi*`(系统 MIDI) | P2 |
 | Patchbay | `nodes/internal/mod_patchbay.dll` | 无自身音频端口;基于 `Audio::JackGraph` 可视化接线 | P2 |
 | Basic Mixer | `nodes/internal/mod_mixer_basic.dll` | `mixer/ch_{i}_in/out` | P3 |
-| Pro Mixer | `nodes/internal/mod_mixer_pro.dll` | `mixer/bus_{i}_*`、`aux_{i}_*`、`main_*`(JUCE DSP) | P3 |
+| Pro Mixer | `nodes/internal/mod_mixer_pro.dll` | `mixer/bus_{i}_*`、`aux_{i}_*`、`main_*` | P3 |
 | Meterbridge | `nodes/internal/mod_meterbridge.dll` | `metermon/in_{i}`(监听输入,SPSC 电平数据) | P4 |
 | Signal Switch | `nodes/internal/mod_switch.dll` | `sw/in_{i}` / `sw/out_{i}`(平滑 crossfade) | P4 |
-| VST Host (沙盒) | `WinJACKNexus-VSTHost.exe`(主程序目录) | `vsthost/rack_{i}_*` + MIDI(JUCE AudioProcessorGraph) | P5 |
-| DAW2Jack | bridge `.vst3` (纯 JUCE) | `daw/{dawname}_*`(DAW 内插件自动注册) | P5 |
+| VST Host (沙盒) | `VSTProcess32.exe` / `VSTProcess64.exe`(主程序目录) | `vsthost/rack_{i}_*` + MIDI | P5 |
 
----
 
 ## 9. 构建系统设计
 
@@ -463,7 +447,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-option(WJN_WITH_JUCE "Build JUCE DSP wrapper in audio.dll" OFF)
 option(WJN_LINK_JACK "Link libjack64.lib instead of runtime-load" OFF)
 
 find_package(Qt6 6.10 REQUIRED COMPONENTS Widgets Gui Core)
@@ -477,11 +460,7 @@ add_subdirectory(src/node)
 
 ### 9.2 各库 `CMakeLists.txt` 关键点
 
-- `add_library(common SHARED ...)` → `target_compile_definitions(common PRIVATE WJN_COMMON_BUILD)`;公共头 `target_include_directories(... PUBLIC include)`;
-- `ui`: `target_link_libraries(ui PUBLIC Qt6::Widgets PRIVATE/common common)`,`qt_add_resources(ui resources-ui.qrc)`;
-- `audio`: `find_package(JACK2 REQUIRED)`(自定义 `cmake/FindJACK2.cmake`:优先 `WJN_LINK_JACK` 时用 `third_party/JACK2/lib/libjack64.lib`,否则仅提供运行时加载宏,不产生链接依赖);`WJN_WITH_JUCE=ON` 时 `add_subdirectory(third_party/JUCE)` + `JUCE::juce_audio_processor jassert juce_audio_basics`;
-- `node`: `<WINDOWS>` 无窗口子系统 DLL,导出 `wjn_get_node_*` 桩符号;
-- 全部库:`set_target_properties(... VERSION ${PROJECT_VERSION} SOVERSION 0)`(MSVC 生成 `.dll` + PDB);`target_link_libraries(... PUBLIC WinJACKNexus::Common)` 通过 `add_library(WinJACKNexus::Common ALIAS common)` 统一命名空间别名。
+- `audio`: `find_package(JACK2 REQUIRED)`(自定义 `cmake/FindJACK2.cmake`:优先 `WJN_LINK_JACK` 时用 `third_party/JACK2/lib/libjack64.lib`,否则仅提供运行时加载宏,不产生链接依赖);
 
 ### 9.3 运行时部署
 
@@ -531,7 +510,6 @@ add_subdirectory(src/node)
 | WASAPI 共享模式采样率/格式固定(通常 48 kHz float32) | 明确共享模式范围;`Resampler` 负责到 JACK 引擎采样率的转换;文档标注设备实际 mix 格式 |
 | WASAPI/MIDI 设备热插拔 | `WasapiDeviceEnumerator` 走 `IMMNotificationClient`;系统 MIDI 提供 `refresh()`;设备引用失效时安全重建 |
 | MIDI SysEx 大消息与 running status | parser 维护 running-status 状态;SysEx 分块写入,受 `jack_midi_max_event_size` 限制;测试覆盖 |
-| JUCE AGPLv3 传染 | 默认 `WJN_WITH_JUCE=OFF`,仅 VSTHost/DAW 桥等独立进程使用;商业发布前评估商业许可 |
 | 窗口嵌入崩溃(第三方 VST) | 嵌入仅在沙盒 `WinJACKNexus-VSTHost.exe` 内发生;`NativeWindowUtils` 负责 detach 防野指针 |
 | 导出符号膨胀/ABI 漂移 | 显式 `WINJACK_*_API`;公共 API 不暴露 STL 成员;版本宏 `WJN_API_VERSION` |
 
@@ -540,9 +518,8 @@ add_subdirectory(src/node)
 1. **P2**「主程序与 Audio Adapter」计划:基于 `Node::INode` + `Audio::JackClient` + `Audio::WasapiCaptureStream/RenderStream` + `Audio::MidiInputStream/OutputStream` 实现 `WinJACKNexus.exe` 与 `nodes/internal/mod_adapter.dll`;
 2. **P3**「Patchbay / Mixer」计划:基于 `Audio::JackGraph` 与 `UI::ThemeManager`;
 3. **P4**「Meterbridge / Switch」计划:基于 `Common::AudioRingBuffer`(SPSC 电平管道);
-4. **P5**「VST Host 沙盒 / DAW2Jack」计划:基于 JUCE + VST3 SDK;
+4. **P5**「VST Host 沙盒」计划:基于原生 C++/Win32 与 VST3 SDK;
 5. 每个模块对应的计划书文件按约定命名:`WinJACKNexus - <模块名> - 开发计划.md`,与本文档同目录存放。
 
----
 
 *本计划书随开发反馈迭代,修改后递增版本号。*

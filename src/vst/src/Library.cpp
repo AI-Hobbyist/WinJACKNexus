@@ -91,6 +91,11 @@ QString sandboxClientName(QString requestedName, const QString& instanceId)
     return requestedName + suffix;
 }
 
+struct InternalPlugin final {
+    QString name;
+    QString id;
+};
+
 #if WJN_ENABLE_VST2
 VstIntPtr currentShellPluginId {};
 
@@ -104,11 +109,6 @@ VstIntPtr VSTCALLBACK shellHostCallback(AEffect*, VstInt32 opcode, VstInt32, Vst
 }
 
 using Vst2EntryProc = AEffect* (VSTCALLBACK*) (audioMasterCallback);
-
-struct InternalPlugin final {
-    QString name;
-    QString id;
-};
 
 QVector<InternalPlugin> shellPlugins(const QString& path, QString& error)
 {
@@ -150,6 +150,7 @@ QVector<InternalPlugin> shellPlugins(const QString& path, QString& error)
     FreeLibrary(module);
     return result;
 }
+#endif
 
 QString chooseInternalPlugin(const QString& title, const QString& description, const QVector<InternalPlugin>& plugins)
 {
@@ -198,7 +199,6 @@ QString displayNameForInternalPlugin(const QVector<InternalPlugin>& plugins, con
     });
     return selected == plugins.cend() ? id : selected->name;
 }
-#endif
 
 QVector<InternalPlugin> vst3Plugins(const QString& path, QString& error)
 {
@@ -639,9 +639,9 @@ private:
     PortDisplayMode portDisplayMode_ { PortDisplayMode::defaultNames };
     std::unique_ptr<QProcess> process_;
     std::unique_ptr<QObject> processWatcher_;
-    VstInt32 inputCount_ {};
-    VstInt32 outputCount_ {};
-    VstInt32 midiInputCount_ {};
+    int inputCount_ {};
+    int outputCount_ {};
+    int midiInputCount_ {};
     QStringList inputLabels_;
     QStringList outputLabels_;
     bool stopping_ {};
