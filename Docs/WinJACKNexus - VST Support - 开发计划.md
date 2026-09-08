@@ -1,11 +1,12 @@
 # WinJACKNexus - VST Support - 开发计划
 
-> 版本:v1.7
-> 日期:2026-09-07
+> 版本:v1.8
+> 日期:2026-09-08
 > 依据:«WinJACKNexus 开发规范» v3.1;«VST_Prompt.md»(Docs/VST_Prompt.md);«WinJACKNexus - 接线盘 - 开发计划»
 > 内部分类名:**VST Support**
+> v1.8:VST 支持 V1–V8 已完成;VST2 默认启用,真实插件/JACK 全链路由用户手动验证
 > v1.7:VST 链节点 `mod_chain_host` **已被子图(Sub Graph)取代**——直接重定向到接线盘计划 §12(见 §3.4);VST 插件节点在子图内复用,不建链 DLL
-> 现状:基础库(Common/UI/Audio/Node)与接线盘 B1–B8 已完成;V1 扫描器、V2 VSTProcess 骨架、V3 VST2 宿主、V4 单 VST 节点集成、V5 崩溃旁通/重启与 V7 分类栏/存档已完成(真实插件/JACK 连线待手动验证)
+> 现状:基础库(Common/UI/Audio/Node)与接线盘 B1–B8 已完成;V1 扫描器、V2 VSTProcess 骨架、V3 VST2 宿主、V4 单 VST 节点集成、V5 崩溃旁通/重启、V7 分类栏/存档与 V8 集成验证均已完成(真实插件/JACK 连线待手动验证)
 > 本版决策:VSTProcess 为兼顾 32 位插件改用原生 C++ + VST2/VST3 SDK,不使用 Qt 后端;VST 节点 DLL 与设置界面继续使用 Qt
 
 ---
@@ -14,7 +15,7 @@
 
 | 需求 | 结论 |
 | :--- | :--- |
-| 插件格式 | **VST2 + VST3 均支持**;VST2 经编译开关 **`WJN_ENABLE_VST2`(默认 OFF,需要时 `-DWJN_ENABLE_VST2=ON` 临时开启)**——VST2 老插件众多,确认自身许可后启用(§8) |
+| 插件格式 | **VST2 + VST3 均支持**;VST2 编译开关 **`WJN_ENABLE_VST2` 默认 ON**——启用前需确认自身许可(§8) |
 | 位宽识别 | **扫描时识别插件 32/64 位**(PE Machine:`0x14C`=x86,`0x8664`=x64),写入 `.vstinfo/.vst3info` 的 **`bits`** 字段;节点据此分发 **VSTProcess32/VSTProcess64**(§3.1/§3.2) |
 | 单 VST 节点 | `nodes/vst/mod_vst_host.dll`(单插件) |
 | VST 链节点 | ~~`nodes/vst/mod_chain_host.dll`~~ **已被子图取代**(§3.4 重定向)→ 链式 VST 编排由《接线盘》§12 子图(Sub Graph)承担;原 chain 端口/白名单/改名/主图隐藏策略由子图的 sub 接口承接 |
@@ -38,7 +39,7 @@
 | SDK | 内容 | 本计划用途 |
 | :--- | :--- | :--- |
 | `third_party/vst3sdk`(3.8.x) | `pluginterfaces/`、`public.sdk/`、`cmake/`(SMTG CMake、`smtg_add_vst3plugin` 等) | ① Vst Scanner 用其 module info/parser 与 hosting API 探测 VST3;② VSTProcess 使用原生 VST3 Hosting API |
-| `third_party/vst2sdk` | `pluginterfaces/vst2.x/aeffect.h` 等 + `VST2_License_Agreement.pdf` | VST2 宿主自实现(AEffect C ABI);**编译开关 `WJN_ENABLE_VST2`(默认 OFF,需要时 `-DWJN_ENABLE_VST2=ON` 临时开启)**;许可:`VST2_License_Agreement.pdf` 仅允许授权开发者使用、不可再分发头文件 —— 启用前需自行确认授权(**风险 §8**) |
+| `third_party/vst2sdk` | `pluginterfaces/vst2.x/aeffect.h` 等 + `VST2_License_Agreement.pdf` | VST2 宿主自实现(AEffect C ABI);**编译开关 `WJN_ENABLE_VST2` 默认 ON**;许可:`VST2_License_Agreement.pdf` 仅允许授权开发者使用、不可再分发头文件 —— 启用和分发前需自行确认授权(**风险 §8**) |
 | `Ref/Carla` | `backend/plugin/CarlaPluginVST2/VST3.cpp`(参考) | 仅作行为参考(Fallback 命名、Bypass 语义),不直接移植 |
 
 ### 1.2 已有基础库复用
@@ -243,7 +244,7 @@ add_subdirectory(tools/vst_process) # VSTProcess32/64.exe
 | **V5 旁通/重启** | 崩溃检测、Bypass 直通、节点「重启 VSTProcess」 | ✅ 已完成(编译与契约验证) | 2~3 天 | `QProcess::finished` 检测 sandbox 异常退出后，启动同客户端名、已知端口数和插件标签的 bypass `VSTProcess`，逐通道输入直通输出；设置面板「Restart plugin」退出旁通并重启真实插件。Debug 节点契约、VSTProcess64 构建和 bypass CLI 验证通过；真实 JACK 图端口连续性与崩溃恢复由用户手动验证 |
 | **V6 链节点** | ~~`mod_chain_host.dll`~~ **已被子图取代**——由接线盘 §12 子图(S1–S5)承担;子图内 VST 插件复用 `mod_vst_host.dll`(不建链 DLL) | ❌ 取消(重定向) | — | 见接线盘 §12 验收 |
 | **V7 分类栏与存档** | Patchbay 读取 `nodes/VSTPlugins` info 分类，提供扫描器入口；拖入/双击创建 VST 节点；四种端口显示模式；客户端名长度保护；`.wjnproj vsts[]` 存档/恢复（兼容旧 `modules[]`） | ✅ 已完成（编译验证） | 3~4 天 | `mod_patchbay`、`mod_vst_host`、`VSTProcess64` 已构建；分类与真实插件/JACK 连线待手动验证 |
-| **V8 集成验证** | 全链路:扫描→拖入→原生 VSTProcess 沙盒→连线→预设→存档→崩溃旁通 | 📋 未开始 | 2~3 天 | 编译通过交付,用户手动验证 |
+| **V8 集成验证** | 全链路:扫描→拖入→原生 VSTProcess 沙盒→连线→预设→存档→崩溃旁通 | ✅ 已完成（编译验证） | — | 编译通过交付,真实插件/JACK 由用户手动验证 |
 
 > 遵循项目既有工作流:每里程碑**编译通过即可交付**,行为由用户手动验证。
 
@@ -253,7 +254,7 @@ add_subdirectory(tools/vst_process) # VSTProcess32/64.exe
 
 | 风险 | 对策 |
 | :--- | :--- |
-| **VST2 SDK 许可**(`VST2_License_Agreement.pdf`) | **默认 `WJN_ENABLE_VST2=OFF`**(VST3-only);已获授权开发者临时 `-DWJN_ENABLE_VST2=ON` 编译;不得再分发 SDK 头;未授权时仅 VST3 可用 |
+| **VST2 SDK 许可**(`VST2_License_Agreement.pdf`) | `WJN_ENABLE_VST2` 默认 ON;启用和分发前必须确认自身已获授权,不得再分发 SDK 头;未授权时应关闭该开关并仅使用 VST3 |
 | VSTProcess 需兼顾 32 位 ABI | 处理器进程不依赖 Qt,直接使用原生 C++、Win32、VST2 SDK 和 VST3 SDK;节点 UI 保持 Qt,仅通过 IPC 交互 |
 | 插件崩溃/挂死 | VSTProcess 独立进程 + keepAlive 超时检测(500ms)+ 节点 Bypass;挂死可强杀重启;内存分配上限守护(可选 Job Object) |
 | 跨进程编辑器 HWND | 仅本机同会话;`NativeWindowUtils` 嵌入 + 进程退出时自动 detach;UIPI:同权限进程正常,异常时回退为独立窗口 |
@@ -277,4 +278,4 @@ add_subdirectory(tools/vst_process) # VSTProcess32/64.exe
 
 ---
 
-*本计划书随开发反馈迭代,修改后递增版本号。v1.6 记录 V5:VSTProcess 异常退出后，节点基于已知端口数与插件标签启动同名 bypass sandbox 做逐通道直通；设置面板可重启真实插件。Debug DLL 契约、VSTProcess64 构建和 bypass CLI 验证通过。链节点和存档仍按后续里程碑推进。*
+*本计划书随开发反馈迭代,修改后递增版本号。v1.8 记录 V8 完成：扫描、VST2/VST3 沙盒、分类栏、单节点、子图复用、旁通/重启和工程存档均已完成编译验证；真实插件与 JACK 图全链路由用户手动验证。*

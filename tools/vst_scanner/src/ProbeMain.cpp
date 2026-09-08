@@ -322,59 +322,27 @@ public:
     Steinberg::Vst::HostApplication hostApplication;
 };
 
-struct BusInfo final {
-    std::string name;
-    std::string type;
-    int channels {};
-    bool isInput {};
-};
-
 struct PluginInfo final {
     std::string name;
     std::string vendor;
     std::string version;
     std::string category;
     std::string subcategory;
-    int audioIns {};
-    int audioOuts {};
-    bool midiIn {};
-    bool midiOut {};
     std::string internalPlugin;
     std::string classId;
     bool hasUniqueId {};
     std::int64_t uniqueId {};
-    std::vector<BusInfo> buses;
 };
-
-std::string busJson(const BusInfo& bus)
-{
-    return jsonObject({
-        { "name", jsonString(bus.name) },
-        { "type", jsonString(bus.type) },
-        { "channels", jsonInteger(std::max(0, bus.channels)) },
-        { "isInput", jsonBool(bus.isInput) }
-    });
-}
 
 std::string pluginJson(const PluginInfo& plugin)
 {
-    std::vector<std::string> buses;
-    buses.reserve(plugin.buses.size());
-    for (const auto& bus : plugin.buses)
-        buses.push_back(busJson(bus));
-
     std::vector<std::pair<std::string, std::string>> fields {
         { "name", jsonString(plugin.name) },
         { "vendor", jsonString(plugin.vendor) },
         { "version", jsonString(plugin.version) },
         { "category", jsonString(plugin.category) },
         { "subcategory", jsonString(plugin.subcategory) },
-        { "audioIns", jsonInteger(std::max(0, plugin.audioIns)) },
-        { "audioOuts", jsonInteger(std::max(0, plugin.audioOuts)) },
-        { "midiIn", jsonBool(plugin.midiIn) },
-        { "midiOut", jsonBool(plugin.midiOut) },
-        { "internal_plugin", jsonString(plugin.internalPlugin) },
-        { "buses", jsonArray(buses) }
+        { "internal_plugin", jsonString(plugin.internalPlugin) }
     };
     if (!plugin.classId.empty())
         fields.emplace_back("class_id", jsonString(plugin.classId));
@@ -430,37 +398,6 @@ std::string probeResult(const char* type,
     }
     result.push_back('}');
     return result;
-}
-
-void appendVst3Buses(Steinberg::Vst::IComponent* component,
-                     Steinberg::Vst::MediaType mediaType,
-                     Steinberg::Vst::BusDirection direction,
-                     PluginInfo& plugin)
-{
-    const auto count = std::clamp<Steinberg::int32>(component->getBusCount(mediaType, direction), 0, 1024);
-    for (Steinberg::int32 index = 0; index < count; ++index) {
-        Steinberg::Vst::BusInfo busInfo {};
-        if (component->getBusInfo(mediaType, direction, index, busInfo) != Steinberg::kResultOk)
-            continue;
-        const auto name = utf8FromWide(reinterpret_cast<const wchar_t*>(busInfo.name));
-        const auto type = mediaType == Steinberg::Vst::kAudio ? "audio" : "event";
-        plugin.buses.push_back(BusInfo {
-            name,
-            type,
-            std::max(0, busInfo.channelCount),
-            direction == Steinberg::Vst::kInput
-        });
-        if (mediaType == Steinberg::Vst::kAudio) {
-            if (direction == Steinberg::Vst::kInput)
-                plugin.audioIns += std::max(0, busInfo.channelCount);
-            else
-                plugin.audioOuts += std::max(0, busInfo.channelCount);
-        } else if (direction == Steinberg::Vst::kInput) {
-            plugin.midiIn = true;
-        } else {
-            plugin.midiOut = true;
-        }
-    }
 }
 
 PluginInfo makeVst3ClassInfo(const Vst3ClassDescriptor& descriptor, const std::string& classId)
@@ -528,10 +465,6 @@ bool probeVst3Class(const fs::path& path,
     if (!initialized) {
         error = "VST3 component initialize 失败: " + descriptor->name;
     } else {
-        appendVst3Buses(component, Steinberg::Vst::kAudio, Steinberg::Vst::kInput, plugin);
-        appendVst3Buses(component, Steinberg::Vst::kAudio, Steinberg::Vst::kOutput, plugin);
-        appendVst3Buses(component, Steinberg::Vst::kEvent, Steinberg::Vst::kInput, plugin);
-        appendVst3Buses(component, Steinberg::Vst::kEvent, Steinberg::Vst::kOutput, plugin);
         component->terminate();
     }
     output = probeResult("vst3", { pluginJson(plugin) }, false, error);
@@ -561,26 +494,10 @@ std::string readVst2String(AEffect* effect, AEffectOpcodes opcode, int maxLength
     return utf8FromLocal(buffer.data());
 }
 
-VstIntPtr queryVst2CanDo(AEffect* effect, const char* capability)
-{
-    if (effect == nullptr || effect->dispatcher == nullptr)
-        return 0;
-    return effect->dispatcher(effect,
-                              static_cast<AEffectOpcodes>(effCanDo),
-                              0,
-                              0,
-                              const_cast<char*>(capability),
-                              0.0F);
-}
-
 PluginInfo makeVst2Info(const std::string& name,
                         const std::string& vendor,
                         int version,
-                        int audioIns,
-                        int audioOuts,
                         bool isInstrument,
-                        bool midiIn,
-                        bool midiOut,
                         const std::string& internalPlugin,
                         VstIntPtr uniqueId = 0)
 {
@@ -589,10 +506,6 @@ PluginInfo makeVst2Info(const std::string& name,
     result.vendor = vendor;
     result.version = std::to_string(version);
     result.category = isInstrument ? "instrument" : "effect";
-    result.audioIns = std::max(0, audioIns);
-    result.audioOuts = std::max(0, audioOuts);
-    result.midiIn = midiIn;
-    result.midiOut = midiOut;
     result.internalPlugin = internalPlugin;
     if (uniqueId != 0) {
         result.hasUniqueId = true;
@@ -651,29 +564,6 @@ bool probeVst2(const fs::path& path,
         : effect->dispatcher(effect, static_cast<AEffectOpcodes>(effGetPlugCategory), 0, 0, nullptr, 0.0F);
     const auto isInstrument = (effect->flags & effFlagsIsSynth) != 0
         || category == kPlugCategSynth;
-    bool midiIn = false;
-    bool midiOut = false;
-    if (effect->dispatcher != nullptr) {
-        const auto midiInputChannels = effect->dispatcher(effect,
-                                                           static_cast<AEffectOpcodes>(effGetNumMidiInputChannels),
-                                                           0,
-                                                           0,
-                                                           nullptr,
-                                                           0.0F);
-        const auto midiOutputChannels = effect->dispatcher(effect,
-                                                            static_cast<AEffectOpcodes>(effGetNumMidiOutputChannels),
-                                                            0,
-                                                            0,
-                                                            nullptr,
-                                                            0.0F);
-        const auto canReceiveMidi = queryVst2CanDo(effect, "receiveVstMidiEvent");
-        const auto canReceiveEvents = queryVst2CanDo(effect, "receiveVstEvents");
-        midiIn = midiInputChannels > 0
-            || canReceiveMidi == 1
-            || canReceiveEvents == 1
-            || (isInstrument && canReceiveMidi >= 0 && canReceiveEvents >= 0);
-        midiOut = midiOutputChannels > 0;
-    }
     if (category == kPlugCategShell && effect->dispatcher != nullptr && !idOk) {
         char internalName[kVstMaxProductStrLen + 1] {};
         while (true) {
@@ -692,11 +582,7 @@ bool probeVst2(const fs::path& path,
             plugins.push_back(pluginJson(makeVst2Info(name,
                                                        vendor,
                                                        effect->version,
-                                                       effect->numInputs,
-                                                       effect->numOutputs,
                                                        isInstrument,
-                                                       midiIn,
-                                                       midiOut,
                                                        name,
                                                        uniqueId)));
         }
@@ -705,11 +591,7 @@ bool probeVst2(const fs::path& path,
         plugins.push_back(pluginJson(makeVst2Info(productName,
                                                    vendor,
                                                    effect->version,
-                                                   effect->numInputs,
-                                                   effect->numOutputs,
                                                    isInstrument,
-                                                   midiIn,
-                                                   midiOut,
                                                    {},
                                                    idOk ? static_cast<VstIntPtr>(requestedId) : 0)));
     if (effect->dispatcher != nullptr)

@@ -24,13 +24,6 @@
 
 namespace WinJACKNexus::VstScanner {
 
-struct BusInfo final {
-    QString name;
-    QString type;
-    int channels {};
-    bool isInput {};
-};
-
 struct PluginInfo final {
     QString name;
     QString vendor;
@@ -41,15 +34,10 @@ struct PluginInfo final {
     QString subcategory;
     int bits {};
     bool isInstrument {};
-    int audioIns {};
-    int audioOuts {};
-    bool midiIn {};
-    bool midiOut {};
     bool verified {};
     int vst2ProbeVersion {};
     QString internalPlugin;
     QString infoFile;
-    QVector<BusInfo> buses;
 };
 
 using ScanProgressCallback = std::function<void(int completed, int total, const QString& currentPath)>;

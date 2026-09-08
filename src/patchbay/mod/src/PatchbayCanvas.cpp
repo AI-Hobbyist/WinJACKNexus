@@ -866,7 +866,8 @@ bool PatchbayCanvas::saveProject(const QString& filePath,
             { QStringLiteral("path"), modulePathForStorage(module.modulePath) },
             { QStringLiteral("index"), static_cast<int>(module.index) },
             { QStringLiteral("client"), QString::fromStdString(module.clientId) },
-            { QStringLiteral("settings"), settings }
+            { QStringLiteral("settings"), settings },
+            { QStringLiteral("context"), QString::fromStdString(module.contextId) }
         };
         const auto settingsObject = settings.toObject();
         const bool isVst = QFileInfo(module.modulePath).completeBaseName() == QStringLiteral("mod_vst_host")
@@ -887,7 +888,8 @@ bool PatchbayCanvas::saveProject(const QString& filePath,
             { QStringLiteral("internalPlugin"), settingsObject.value(QStringLiteral("internalPlugin")) },
             { QStringLiteral("clientName"), settingsObject.value(QStringLiteral("clientName")) },
             { QStringLiteral("portDisplayMode"), settingsObject.value(QStringLiteral("portDisplayMode")) },
-            { QStringLiteral("settings"), settings }
+            { QStringLiteral("settings"), settings },
+            { QStringLiteral("context"), QString::fromStdString(module.contextId) }
         });
     }
 
@@ -1040,6 +1042,7 @@ bool PatchbayCanvas::loadProject(const QString& filePath,
             return;
         module.index = static_cast<std::uint32_t>(item.value(QStringLiteral("index")).toInt());
         module.clientId = item.value(clientField).toString().toStdString();
+        module.contextId = item.value(QStringLiteral("context")).toString(QStringLiteral("main")).toStdString();
         const auto settings = item.value(QStringLiteral("settings"));
         if (settings.isObject())
             module.settingsJson = QJsonDocument(settings.toObject()).toJson(QJsonDocument::Compact).toStdString();
@@ -1329,8 +1332,20 @@ void PatchbayCanvas::setSnapshot(const Snapshot& snapshot)
     };
 
     if (sceneContext_.isSubGraph) {
+        std::vector<ClientInfo> moduleClients;
+        std::vector<PortInfo> modulePorts;
+        for (const auto& client : snapshot.clients) {
+            if (visibleModuleClientIds_.contains(client.id))
+                moduleClients.push_back(client);
+        }
+        for (const auto& port : snapshot.ports) {
+            if (visibleModuleClientIds_.contains(port.clientId))
+                modulePorts.push_back(port);
+        }
         restored.clients.clear();
         restored.ports.clear();
+        restored.clients.insert(restored.clients.end(), moduleClients.begin(), moduleClients.end());
+        restored.ports.insert(restored.ports.end(), modulePorts.begin(), modulePorts.end());
         for (const auto& interfaceNode : interfaceNodes_)
             addInterfaceClient(interfaceNode);
         for (const auto& subGraph : subGraphNodes_)
@@ -1338,6 +1353,12 @@ void PatchbayCanvas::setSnapshot(const Snapshot& snapshot)
     } else {
         for (const auto& subGraph : subGraphNodes_)
             addSubGraphClient(subGraph);
+        std::erase_if(restored.clients, [this](const auto& client) {
+            return hiddenModuleClientIds_.contains(client.id);
+        });
+        std::erase_if(restored.ports, [this](const auto& port) {
+            return hiddenModuleClientIds_.contains(port.clientId);
+        });
     }
 
     const std::unordered_set<std::string> visiblePortIds = [&restored] {
@@ -1535,6 +1556,16 @@ void PatchbayCanvas::setSnapshot(const Snapshot& snapshot)
     if (!selectedNodeId_.empty())
         selectNode(selectedNodeId_);
     notifySelection();
+}
+
+void PatchbayCanvas::setVisibleModuleClientIds(std::unordered_set<std::string> clientIds)
+{
+    visibleModuleClientIds_ = std::move(clientIds);
+}
+
+void PatchbayCanvas::setHiddenModuleClientIds(std::unordered_set<std::string> clientIds)
+{
+    hiddenModuleClientIds_ = std::move(clientIds);
 }
 
 bool PatchbayCanvas::isProjectDirty() const noexcept

@@ -20,6 +20,7 @@
 #include "public.sdk/source/vst/hosting/module.h"
 #include "public.sdk/source/vst/hosting/plugprovider.h"
 #include "public.sdk/source/vst/hosting/processdata.h"
+#include "public.sdk/source/vst/utility/memoryibstream.h"
 
 #if WJN_ENABLE_VST2
 #include "pluginterfaces/vst2.x/aeffect.h"
@@ -39,6 +40,7 @@
 #include <cstdint>
 #include <cstdio>
 #include <filesystem>
+#include <fstream>
 #include <functional>
 #include <iostream>
 #include <limits>
@@ -214,6 +216,18 @@ std::string utf8FromWide(const std::wstring& value)
     return result;
 }
 
+std::wstring wideFromUtf8(std::string_view value)
+{
+    if (value.empty())
+        return {};
+    const int size = MultiByteToWideChar(CP_UTF8, 0, value.data(), static_cast<int>(value.size()), nullptr, 0);
+    if (size <= 0)
+        return {};
+    std::wstring result(static_cast<std::size_t>(size), L'\0');
+    MultiByteToWideChar(CP_UTF8, 0, value.data(), static_cast<int>(value.size()), result.data(), size);
+    return result;
+}
+
 std::wstring normalizedPipeName(std::wstring value)
 {
     constexpr std::wstring_view prefix = L"\\\\.\\pipe\\";
@@ -259,6 +273,17 @@ struct MidiInputEvent final {
     std::int32_t sequence {};
     const jack_midi_data_t* data {};
     std::size_t size {};
+};
+
+enum class PresetKind : std::uint32_t {
+    vst2 = 1,
+    vst3 = 2
+};
+
+struct PresetState final {
+    PresetKind kind {};
+    std::vector<std::byte> component;
+    std::vector<std::byte> controller;
 };
 
 class FixedParameterValueQueue final : public Steinberg::Vst::IParamValueQueue {
@@ -403,6 +428,8 @@ public:
     virtual bool usesBusNamesForDefaultPorts() const noexcept { return false; }
     virtual bool openEditor(std::string& error) { error = "Plugin editor is not available"; return false; }
     virtual void closeEditor() noexcept {}
+    virtual bool getPresetState(PresetState&, std::string& error) { error = "Plugin presets are not available"; return false; }
+    virtual bool setPresetState(const PresetState&, std::string& error) { error = "Plugin presets are not available"; return false; }
 };
 
 class BypassPlugin final : public AudioPlugin {
@@ -1035,6 +1062,84 @@ public:
         editor_.close();
     }
 
+    bool getPresetState(PresetState& state, std::string& error) override
+    {
+        return editor_.run([this, &state, &error] {
+            if (!component_) {
+                error = "VST3 component is not loaded";
+                return false;
+            }
+            Steinberg::ResizableMemoryIBStream componentStream;
+            if (component_->getState(&componentStream) != Steinberg::kResultOk) {
+                error = "VST3 component did not export its state";
+                return false;
+            }
+            state.kind = PresetKind::vst3;
+            auto componentData = componentStream.take();
+            state.component.assign(reinterpret_cast<const std::byte*>(componentData.data()),
+                                   reinterpret_cast<const std::byte*>(componentData.data()) + componentData.size());
+            state.controller.clear();
+            if (controller_) {
+                Steinberg::ResizableMemoryIBStream controllerStream;
+                if (controller_->getState(&controllerStream) != Steinberg::kResultOk) {
+                    error = "VST3 controller did not export its state";
+                    return false;
+                }
+                auto controllerData = controllerStream.take();
+                state.controller.assign(reinterpret_cast<const std::byte*>(controllerData.data()),
+                                        reinterpret_cast<const std::byte*>(controllerData.data()) + controllerData.size());
+            }
+            return true;
+        }, error);
+    }
+
+    bool setPresetState(const PresetState& state, std::string& error) override
+    {
+        return editor_.run([this, &state, &error] {
+            if (!component_ || state.kind != PresetKind::vst3 || state.component.empty()) {
+                error = "The preset does not contain a VST3 component state";
+                return false;
+            }
+            if (state.component.size() > static_cast<std::size_t>(std::numeric_limits<Steinberg::int32>::max())
+                || state.controller.size() > static_cast<std::size_t>(std::numeric_limits<Steinberg::int32>::max())) {
+                error = "The preset state is too large";
+                return false;
+            }
+            Steinberg::ResizableMemoryIBStream componentStream(static_cast<Steinberg::int32>(state.component.size()));
+            Steinberg::int32 bytesWritten {};
+            componentStream.write(const_cast<std::byte*>(state.component.data()),
+                                  static_cast<Steinberg::int32>(state.component.size()), &bytesWritten);
+            componentStream.seek(0, Steinberg::IBStream::kIBSeekSet, nullptr);
+            if (bytesWritten != static_cast<Steinberg::int32>(state.component.size())
+                || component_->setState(&componentStream) != Steinberg::kResultOk) {
+                error = "VST3 component rejected the preset";
+                return false;
+            }
+            if (!controller_)
+                return state.controller.empty();
+
+            Steinberg::ResizableMemoryIBStream componentStateStream(static_cast<Steinberg::int32>(state.component.size()));
+            componentStateStream.write(const_cast<std::byte*>(state.component.data()),
+                                       static_cast<Steinberg::int32>(state.component.size()), nullptr);
+            componentStateStream.seek(0, Steinberg::IBStream::kIBSeekSet, nullptr);
+            if (controller_->setComponentState(&componentStateStream) != Steinberg::kResultOk) {
+                error = "VST3 controller rejected the component state";
+                return false;
+            }
+            if (state.controller.empty())
+                return true;
+            Steinberg::ResizableMemoryIBStream controllerStream(static_cast<Steinberg::int32>(state.controller.size()));
+            controllerStream.write(const_cast<std::byte*>(state.controller.data()),
+                                   static_cast<Steinberg::int32>(state.controller.size()), nullptr);
+            controllerStream.seek(0, Steinberg::IBStream::kIBSeekSet, nullptr);
+            if (controller_->setState(&controllerStream) != Steinberg::kResultOk) {
+                error = "VST3 controller rejected the preset";
+                return false;
+            }
+            return true;
+        }, error);
+    }
+
 private:
     class ComponentHandler final : public Steinberg::Vst::IComponentHandler {
     public:
@@ -1520,6 +1625,28 @@ public:
         return effect_ != nullptr && effect_->dispatcher(effect_, effSetChunk, 0, static_cast<VstIntPtr>(size), const_cast<void*>(data), 0.0F) != 0;
     }
 
+    bool getPresetState(PresetState& preset, std::string& error) override
+    {
+        preset.kind = PresetKind::vst2;
+        preset.component = state();
+        if (preset.component.empty()) {
+            error = "VST2 plugin did not export a chunk state";
+            return false;
+        }
+        preset.controller.clear();
+        return true;
+    }
+
+    bool setPresetState(const PresetState& preset, std::string& error) override
+    {
+        if (preset.kind != PresetKind::vst2 || preset.component.empty()
+            || !setState(preset.component.data(), preset.component.size())) {
+            error = "VST2 plugin rejected the preset";
+            return false;
+        }
+        return true;
+    }
+
     bool openEditor(std::string& error) override
     {
         if (effect_ == nullptr || (effect_->flags & effFlagsHasEditor) == 0) {
@@ -1974,6 +2101,68 @@ public:
     }
 
 private:
+    static bool writePresetFile(const std::wstring& path, AudioPlugin& plugin, std::string& error)
+    {
+        PresetState state;
+        if (!plugin.getPresetState(state, error))
+            return false;
+        constexpr std::array<char, 8> magic { 'W', 'J', 'N', 'P', 'S', 'T', '1', '\0' };
+        constexpr std::uint32_t version = 1;
+        const auto componentSize = static_cast<std::uint64_t>(state.component.size());
+        const auto controllerSize = static_cast<std::uint64_t>(state.controller.size());
+        std::ofstream file(std::filesystem::path(path), std::ios::binary | std::ios::trunc);
+        if (!file) {
+            error = "Unable to create the preset file";
+            return false;
+        }
+        const auto write = [&file](const auto& value) { file.write(reinterpret_cast<const char*>(&value), sizeof(value)); };
+        file.write(magic.data(), static_cast<std::streamsize>(magic.size()));
+        write(version);
+        write(state.kind);
+        write(componentSize);
+        write(controllerSize);
+        file.write(reinterpret_cast<const char*>(state.component.data()), static_cast<std::streamsize>(state.component.size()));
+        file.write(reinterpret_cast<const char*>(state.controller.data()), static_cast<std::streamsize>(state.controller.size()));
+        if (!file) {
+            error = "Unable to write the preset file";
+            return false;
+        }
+        return true;
+    }
+
+    static bool readPresetFile(const std::wstring& path, AudioPlugin& plugin, std::string& error)
+    {
+        constexpr std::array<char, 8> magic { 'W', 'J', 'N', 'P', 'S', 'T', '1', '\0' };
+        constexpr std::uint32_t version = 1;
+        constexpr std::uint64_t maximumStateSize = 256ull * 1024 * 1024;
+        std::ifstream file(std::filesystem::path(path), std::ios::binary);
+        std::array<char, magic.size()> fileMagic {};
+        std::uint32_t fileVersion {};
+        PresetState state;
+        std::uint64_t componentSize {};
+        std::uint64_t controllerSize {};
+        const auto read = [&file](auto& value) { file.read(reinterpret_cast<char*>(&value), sizeof(value)); };
+        file.read(fileMagic.data(), static_cast<std::streamsize>(fileMagic.size()));
+        read(fileVersion);
+        read(state.kind);
+        read(componentSize);
+        read(controllerSize);
+        if (!file || fileMagic != magic || fileVersion != version || componentSize > maximumStateSize
+            || controllerSize > maximumStateSize || componentSize + controllerSize > maximumStateSize) {
+            error = "The preset file is invalid or unsupported";
+            return false;
+        }
+        state.component.resize(static_cast<std::size_t>(componentSize));
+        state.controller.resize(static_cast<std::size_t>(controllerSize));
+        file.read(reinterpret_cast<char*>(state.component.data()), static_cast<std::streamsize>(state.component.size()));
+        file.read(reinterpret_cast<char*>(state.controller.data()), static_cast<std::streamsize>(state.controller.size()));
+        if (!file) {
+            error = "The preset file is incomplete";
+            return false;
+        }
+        return plugin.setPresetState(state, error);
+    }
+
     void handleClient(HANDLE pipe)
     {
         char request[4096] {};
@@ -1999,6 +2188,30 @@ private:
             responseStorage_ = plugin_.openEditor(error)
                 ? "{\"ok\":true,\"editor\":\"separate-window\"}\n"
                 : "{\"ok\":false,\"error\":\"" + error + "\"}\n";
+            response = responseStorage_.c_str();
+        }
+        else if (command.rfind("save-preset ", 0) == 0) {
+            std::string error;
+            const auto commandEnd = command.find('\n');
+            const auto path = wideFromUtf8(command.substr(std::string_view("save-preset ").size(),
+                commandEnd == std::string_view::npos ? std::string_view::npos
+                    : commandEnd - std::string_view("save-preset ").size()));
+            if (path.empty())
+                error = "The preset path is invalid";
+            responseStorage_ = !path.empty() && writePresetFile(path, plugin_, error)
+                ? "{\"ok\":true}\n" : "{\"ok\":false,\"error\":" + jsonString(error) + "}\n";
+            response = responseStorage_.c_str();
+        }
+        else if (command.rfind("load-preset ", 0) == 0) {
+            std::string error;
+            const auto commandEnd = command.find('\n');
+            const auto path = wideFromUtf8(command.substr(std::string_view("load-preset ").size(),
+                commandEnd == std::string_view::npos ? std::string_view::npos
+                    : commandEnd - std::string_view("load-preset ").size()));
+            if (path.empty())
+                error = "The preset path is invalid";
+            responseStorage_ = !path.empty() && readPresetFile(path, plugin_, error)
+                ? "{\"ok\":true}\n" : "{\"ok\":false,\"error\":" + jsonString(error) + "}\n";
             response = responseStorage_.c_str();
         }
         else if (command.find("quit") != std::string_view::npos) {

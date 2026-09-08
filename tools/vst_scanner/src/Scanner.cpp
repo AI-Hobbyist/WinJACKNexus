@@ -432,20 +432,6 @@ void applyProbeInfo(PluginInfo& info, const QJsonObject& object, bool preserveNa
     setCategory(info,
                 object.value(QStringLiteral("category")).toString(),
                 object.value(QStringLiteral("subcategory")).toString());
-    info.audioIns = std::max(0, object.value(QStringLiteral("audioIns")).toInt());
-    info.audioOuts = std::max(0, object.value(QStringLiteral("audioOuts")).toInt());
-    info.midiIn = object.value(QStringLiteral("midiIn")).toBool();
-    info.midiOut = object.value(QStringLiteral("midiOut")).toBool();
-    info.buses.clear();
-    for (const auto& busValue : object.value(QStringLiteral("buses")).toArray()) {
-        const auto busObject = busValue.toObject();
-        info.buses.push_back(BusInfo {
-            busObject.value(QStringLiteral("name")).toString(),
-            busObject.value(QStringLiteral("type")).toString(),
-            std::max(0, busObject.value(QStringLiteral("channels")).toInt()),
-            busObject.value(QStringLiteral("isInput")).toBool()
-        });
-    }
 }
 
 QString childProgressPath(const fs::path& path, const QString& childName)
@@ -803,26 +789,12 @@ bool writeInfoFile(const fs::path& outputDirectory, PluginInfo& info, QString& e
         { QStringLiteral("category"), info.category },
         { QStringLiteral("subcategory"), info.subcategory },
         { QStringLiteral("isInstrument"), info.isInstrument },
-        { QStringLiteral("verified"), info.verified },
-        { QStringLiteral("audioIns"), info.audioIns },
-        { QStringLiteral("audioOuts"), info.audioOuts },
-        { QStringLiteral("midiIn"), info.midiIn },
-        { QStringLiteral("midiOut"), info.midiOut }
+        { QStringLiteral("verified"), info.verified }
     };
     if (info.type.compare(QStringLiteral("vst2"), Qt::CaseInsensitive) == 0) {
         info.vst2ProbeVersion = currentVst2ProbeVersion;
         object.insert(QStringLiteral("vst2ProbeVersion"), info.vst2ProbeVersion);
     }
-    QJsonArray buses;
-    for (const auto& bus : info.buses) {
-        buses.push_back(QJsonObject {
-            { QStringLiteral("name"), bus.name },
-            { QStringLiteral("channels"), bus.channels },
-            { QStringLiteral("type"), bus.type },
-            { QStringLiteral("isInput"), bus.isInput }
-        });
-    }
-    object.insert(QStringLiteral("buses"), buses);
     if (!info.internalPlugin.isEmpty())
         object.insert(QStringLiteral("internal_plugin"), info.internalPlugin);
 
@@ -876,26 +848,12 @@ std::optional<PluginInfo> Scanner::loadInfoFile(const QString& infoFile)
         info.category.compare(QStringLiteral("instrument"), Qt::CaseInsensitive) == 0);
     info.verified = !object.contains(QStringLiteral("verified"))
         || object.value(QStringLiteral("verified")).toBool();
-    info.audioIns = object.value(QStringLiteral("audioIns")).toInt();
-    info.audioOuts = object.value(QStringLiteral("audioOuts")).toInt();
-    info.midiIn = object.value(QStringLiteral("midiIn")).toBool();
-    info.midiOut = object.value(QStringLiteral("midiOut")).toBool();
     info.vst2ProbeVersion = object.value(QStringLiteral("vst2ProbeVersion")).toInt();
     info.internalPlugin = object.value(QStringLiteral("internal_plugin")).toString();
     info.infoFile = infoFile;
     if (info.name.isEmpty() || info.path.isEmpty() || info.type.isEmpty() || (info.bits != 32 && info.bits != 64))
         return {};
 
-    const auto buses = object.value(QStringLiteral("buses")).toArray();
-    for (const auto& value : buses) {
-        const auto busObject = value.toObject();
-        info.buses.push_back(BusInfo {
-            busObject.value(QStringLiteral("name")).toString(),
-            busObject.value(QStringLiteral("type")).toString(),
-            busObject.value(QStringLiteral("channels")).toInt(),
-            busObject.value(QStringLiteral("isInput")).toBool()
-        });
-    }
     return info;
 }
 
@@ -1027,8 +985,8 @@ ScanReport Scanner::scan(const ScanOptions& options) const
             appendMessage(report,
                           pathString(path),
                           probeError.isEmpty()
-                              ? QStringLiteral("已隔离加载 VST3，获取真实 class/bus/端口信息")
-                              : QStringLiteral("已枚举并隔离探测 VST3；部分 class 端口探测失败，已保留插件条目: ") + probeError,
+                              ? QStringLiteral("已隔离加载 VST3，获取真实 class 信息")
+                              : QStringLiteral("已枚举并隔离探测 VST3；部分 class 加载失败，已保留插件条目: ") + probeError,
                           false);
             for (auto& info : infos) {
                 if (!info.infoFile.isEmpty())

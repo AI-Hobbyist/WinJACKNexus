@@ -100,20 +100,6 @@ QString pluginCategory(const PluginInfo& plugin)
     return plugin.isInstrument ? QStringLiteral("Instrument") : QStringLiteral("Effect");
 }
 
-QString pluginAudio(const PluginInfo& plugin)
-{
-    return QStringLiteral("%1 in / %2 out").arg(plugin.audioIns).arg(plugin.audioOuts);
-}
-
-QString pluginMidi(const PluginInfo& plugin)
-{
-    if (!plugin.midiIn && !plugin.midiOut)
-        return QStringLiteral("none");
-    if (plugin.midiIn && plugin.midiOut)
-        return QStringLiteral("in / out");
-    return plugin.midiIn ? QStringLiteral("in") : QStringLiteral("out");
-}
-
 }
 
 MainWindow::MainWindow(const QStringList& initialPaths, const QString& initialOutputDirectory)
@@ -243,14 +229,12 @@ void MainWindow::createUi()
     catalogLayout->addLayout(filterLayout);
 
     pluginTable_ = new QTableWidget(catalogWidget);
-    pluginTable_->setColumnCount(8);
+    pluginTable_->setColumnCount(6);
     pluginTable_->setHorizontalHeaderLabels({ QStringLiteral("名称"),
                                               QStringLiteral("厂商"),
                                               QStringLiteral("格式"),
                                               QStringLiteral("位宽"),
                                               QStringLiteral("类别"),
-                                              QStringLiteral("音频"),
-                                              QStringLiteral("MIDI"),
                                               QStringLiteral("版本") });
     pluginTable_->setSelectionBehavior(QAbstractItemView::SelectRows);
     pluginTable_->setSelectionMode(QAbstractItemView::SingleSelection);
@@ -261,7 +245,7 @@ void MainWindow::createUi()
     pluginTable_->horizontalHeader()->setStretchLastSection(true);
     pluginTable_->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
     pluginTable_->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
-    pluginTable_->horizontalHeader()->setSectionResizeMode(7, QHeaderView::Stretch);
+    pluginTable_->horizontalHeader()->setSectionResizeMode(5, QHeaderView::Stretch);
     connect(pluginTable_, &QTableWidget::cellDoubleClicked, this, [this] {
         openSelectedPluginLocation();
     });
@@ -394,9 +378,7 @@ void MainWindow::refreshPluginTable()
         pluginTable_->setItem(row, 2, tableItem(pluginFormat(plugin)));
         pluginTable_->setItem(row, 3, tableItem(QStringLiteral("%1-bit").arg(plugin.bits)));
         pluginTable_->setItem(row, 4, tableItem(pluginCategory(plugin)));
-        pluginTable_->setItem(row, 5, tableItem(pluginAudio(plugin)));
-        pluginTable_->setItem(row, 6, tableItem(pluginMidi(plugin)));
-        pluginTable_->setItem(row, 7, tableItem(plugin.version));
+        pluginTable_->setItem(row, 5, tableItem(plugin.version));
         pluginTable_->item(row, 0)->setData(Qt::UserRole, plugin.infoFile);
         pluginTable_->item(row, 0)->setToolTip(plugin.path);
     }

@@ -89,8 +89,8 @@ WinJACKNexus 的定位:
 | **Interactive Patchbay**(模块化虚拟插线板) | 全局接线盘中枢,对系统中所有模块的 JACK 端口进行可视化连线/断开/拓扑管理 |
 | **Pure Mixer**(调音台) | 通道 Gain/Mute/Solo,全部通道抽象为标准 JACK 端口 |
 | **Meterbridge**(多通道电平桥监控) | Peak/RMS 电平监控,SPSC 无锁管道直通音频线程 |
-| **Single VST Host**(单效果器宿主) | 沙盒进程托管单个 VST3 插件,机架 In/Out 暴露为 JACK 端口 |
-| **Chain VST Host**(链式效果器机架) | 由 Patchbay 子图组合单 VST 节点,支持拖拽编排 |
+| **Single VST Host**(单效果器宿主) | 沙盒进程托管单个 VST2/VST3 插件,机架 In/Out 暴露为 JACK 端口 |
+| **VST 效果器链** | 由 Interactive Patchbay 的子图组合单 VST 节点,支持拖拽编排 |
 | **MIDI Splitter**(全通道 MIDI 拆分器) | Omni → 16 Ch,一路输入拆分 16 通道输出 |
 | **16x16 MIDI Matrix**(矩阵 MIDI 路由) | 16×16 通道级 MIDI 路由矩阵 |
 | **Signal Switch**(信号路由切换开关) | 多路切换,平滑 Crossfade 零爆音切换 |
@@ -203,8 +203,8 @@ WinJACKNexus 的定位:
 | Signal Switch | `nodes/switch/mod_switch.dll` | 📋 未开始 | — | P4 |
 | MIDI Splitter | 节点(`mod_patchbay` 内/独立) | 📋 未开始 | — | 与 Patchbay 同期 |
 | 16x16 MIDI Matrix | 节点(同上) | 📋 未开始 | — | 与 Patchbay 同期 |
-| Single VST Host | `WinJACKNexus-VSTHost.exe` | 📋 未开始 | — | P5 |
-| Chain VST Host | `WinJACKNexus-VSTHost.exe` | 📋 未开始 | — | P5 |
+| Single VST Host | `nodes/vst/mod_vst_host.dll` + `VSTProcess32/64.exe` | ✅ 已完成 | [VST Support 计划](Docs/WinJACKNexus%20-%20VST%20Support%20-%20开发计划.md) | VST2/VST3 沙盒、分类栏、存档与旁通/重启 |
+| VST 效果器链 | Patchbay 子图 | ✅ 已完成 | [VST Support 计划](Docs/WinJACKNexus%20-%20VST%20Support%20-%20开发计划.md) | 子图内复用单 VST 节点 |
 | DAW2JackMIDI VST3 | `*.vst3` | 📋 未开始 | — | P5 |
 | DAW2JackAudio VST3 | `*.vst3`(Mono/Stereo/5.1/7.1) | 📋 未开始 | — | P5 |
 | 主程序外壳 | `WinJACKNexus.exe` | 📋 未开始 | — | 依赖 Node 接口 |

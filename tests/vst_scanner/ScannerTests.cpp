@@ -149,6 +149,19 @@ int main(int argc, char* argv[])
         const auto info = WinJACKNexus::VstScanner::Scanner::loadInfoFile(infoFile);
         if (!check(info.has_value(), "failed to load generated info file"))
             return 1;
+        QFile rawInfoFile(infoFile);
+        QJsonParseError infoParseError {};
+        if (!check(rawInfoFile.open(QIODevice::ReadOnly), "failed to open generated info JSON"))
+            return 1;
+        const auto rawInfo = QJsonDocument::fromJson(rawInfoFile.readAll(), &infoParseError).object();
+        if (!check(infoParseError.error == QJsonParseError::NoError
+                       && !rawInfo.contains(QStringLiteral("audioIns"))
+                       && !rawInfo.contains(QStringLiteral("audioOuts"))
+                       && !rawInfo.contains(QStringLiteral("midiIn"))
+                       && !rawInfo.contains(QStringLiteral("midiOut"))
+                       && !rawInfo.contains(QStringLiteral("buses")),
+                   "generated info contains removed port metadata"))
+            return 1;
         if (info->name == QStringLiteral("Fixture Delay"))
             sawEffect = info->category == QStringLiteral("effect") && info->subcategory == QStringLiteral("Delay");
         if (info->name == QStringLiteral("Fixture Synth"))
@@ -202,10 +215,6 @@ int main(int argc, char* argv[])
             hasError = hasError || message.error;
         if (!check(kontaktPlugin != kontaktReport.plugins.cend(),
                    "Kontakt was not enumerated by the isolated VST3 factory probe")
-            || !check(kontaktPlugin->audioOuts > 0 && !kontaktPlugin->buses.isEmpty(),
-                      "Kontakt did not return real VST3 bus information")
-            || !check(kontaktPlugin->midiIn || kontaktPlugin->midiOut,
-                      "Kontakt did not return VST3 event/MIDI information")
             || !check(!hasError, "Kontakt scan produced an error message")
             || !check(std::any_of(progressPaths.cbegin(),
                                    progressPaths.cend(),
@@ -284,9 +293,8 @@ int main(int argc, char* argv[])
                 || !check(!plugin.internalPlugin.isEmpty(),
                            "VST2 Shell child did not preserve internal plugin identity")
                 || !check(plugin.name != QStringLiteral("Fixture Child Two")
-                              || (plugin.isInstrument && plugin.category == QStringLiteral("instrument")
-                                  && plugin.midiIn),
-                           "VST2 synth MIDI input was not recognized"))
+                              || (plugin.isInstrument && plugin.category == QStringLiteral("instrument")),
+                           "VST2 synth was not recognized as an instrument"))
                 return 1;
         }
 
@@ -366,8 +374,6 @@ int main(int argc, char* argv[])
                    "VST2 synth fixture did not produce a plugin record")
              || !check(firstSynthReport.plugins.front().isInstrument,
                  "VST2 synth fixture was not recognized as an instrument")
-             || !check(firstSynthReport.plugins.front().midiIn,
-                 "VST2 synth fixture MIDI input was not inferred")
              || !check(firstSynthReport.plugins.front().name == QStringLiteral("Vst2 Synth Fixture"),
                  "VST2 synth fixture did not fall back to the DLL file name"))
             return 1;
@@ -394,7 +400,6 @@ int main(int argc, char* argv[])
             return 1;
         synthObject[QStringLiteral("category")] = QStringLiteral("instrument");
         synthObject[QStringLiteral("isInstrument")] = true;
-        synthObject[QStringLiteral("midiIn")] = false;
         synthObject[QStringLiteral("vst2ProbeVersion")] = 0;
         QFile staleSynthInfo(staleInfoFile);
         if (!check(staleSynthInfo.open(QIODevice::WriteOnly | QIODevice::Truncate)
@@ -415,8 +420,6 @@ int main(int argc, char* argv[])
                    "stale VST2 synth info was not refreshed")
             || !check(refreshedSynthReport.plugins.front().isInstrument,
                       "refreshed VST2 synth info remained an effect")
-              || !check(refreshedSynthReport.plugins.front().midiIn,
-                      "stale VST2 synth MIDI input was not refreshed")
             || !check(refreshedWriteCount == 1,
                  "stale VST2 synth info was not rewritten"))
             return 1;
@@ -430,7 +433,7 @@ int main(int argc, char* argv[])
              ++refreshedInfoFileCount;
              const auto refreshedInfo = WinJACKNexus::VstScanner::Scanner::loadInfoFile(infoFile);
                if (!check(refreshedInfo.has_value() && refreshedInfo->isInstrument
-                           && refreshedInfo->midiIn && refreshedInfo->vst2ProbeVersion > 0,
+                          && refreshedInfo->vst2ProbeVersion > 0,
                    "refreshed VST2 synth info has stale persisted probe data"))
               return 1;
          }

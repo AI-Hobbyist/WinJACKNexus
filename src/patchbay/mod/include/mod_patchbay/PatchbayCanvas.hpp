@@ -28,6 +28,7 @@ class JackClient;
 #include <cstdint>
 #include <functional>
 #include <string>
+#include <unordered_set>
 #include <vector>
 
 class QGraphicsPathItem;
@@ -37,6 +38,7 @@ struct PatchbayProjectModule final {
     std::uint32_t index = 0;
     std::string clientId;
     std::string settingsJson;
+    std::string contextId = "main";
 };
 
 struct PatchbaySceneContext final {
@@ -76,6 +78,8 @@ public:
     PatchbayCanvas(PatchbaySceneContext context, QWidget* parent = nullptr);
 
     void setSnapshot(const WinJACKNexus::Patchbay::Core::Snapshot& snapshot);
+    void setVisibleModuleClientIds(std::unordered_set<std::string> clientIds);
+    void setHiddenModuleClientIds(std::unordered_set<std::string> clientIds);
     const WinJACKNexus::Patchbay::Core::Snapshot& snapshot() const noexcept;
     const PatchbaySceneContext& sceneContext() const noexcept;
     std::string addSubGraph(const QString& name, const QPointF& position);
@@ -173,6 +177,8 @@ private:
     PatchbaySceneContext sceneContext_;
     std::vector<PatchbaySubGraphInfo> subGraphNodes_;
     std::vector<PatchbayInterfaceInfo> interfaceNodes_;
+    std::unordered_set<std::string> visibleModuleClientIds_;
+    std::unordered_set<std::string> hiddenModuleClientIds_;
     QString searchQuery_;
     std::string pendingPortId_;
     std::string selectedNodeId_;

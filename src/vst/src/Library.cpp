@@ -31,6 +31,7 @@
 #include <QPointer>
 #include <QProcess>
 #include <QPushButton>
+#include <QTemporaryFile>
 #include <QTimer>
 #include <QUuid>
 #include <QVBoxLayout>
@@ -256,6 +257,7 @@ private:
     VstHostNode& node_;
     QLineEdit* path_ {};
     QLineEdit* clientName_ {};
+    QLineEdit* presetPath_ {};
     QComboBox* bits_ {};
     QComboBox* portDisplayMode_ {};
     QLabel* status_ {};
@@ -303,10 +305,12 @@ public:
                        const QString& internalPluginName = {}) noexcept
     {
         const auto selectedPath = path.trimmed();
-        if (path_ != selectedPath)
+        if (path_ != selectedPath) {
             internalPlugin_.clear();
-        if (path_ != selectedPath)
             internalPluginName_.clear();
+            presetData_.clear();
+            presetPath_.clear();
+        }
         path_ = selectedPath;
         clientName_ = clientName.trimmed();
         bits_ = bits;
@@ -322,6 +326,7 @@ public:
     PortDisplayMode portDisplayMode() const noexcept { return portDisplayMode_; }
     QString internalPlugin() const { return internalPlugin_; }
     QString internalPluginName() const { return internalPluginName_; }
+    QString presetPath() const { return presetPath_; }
     QString status() const { return status_; }
     bool restartPlugin() noexcept
     {
@@ -329,6 +334,41 @@ public:
         return reload();
     }
     QString expectedClientId() const { return expectedClientId_; }
+
+    bool savePreset(const QString& path) noexcept
+    {
+        const auto selectedPath = path.trimmed();
+        if (selectedPath.isEmpty())
+            return false;
+        const auto response = sendPipeCommand("save-preset " + selectedPath.toUtf8() + "\n");
+        if (!response.contains(QStringLiteral("\"ok\":true"))) {
+            status_ = response.isEmpty() ? QStringLiteral("Unable to save the VST preset.") : response;
+            return false;
+        }
+        presetPath_ = selectedPath;
+        status_ = QStringLiteral("VST preset saved.");
+        return true;
+    }
+
+    bool loadPreset(const QString& path) noexcept
+    {
+        const auto selectedPath = path.trimmed();
+        if (selectedPath.isEmpty() || !QFileInfo::exists(selectedPath)) {
+            status_ = QStringLiteral("The selected VST preset file does not exist.");
+            return false;
+        }
+        const auto response = sendPipeCommand("load-preset " + selectedPath.toUtf8() + "\n");
+        if (!response.contains(QStringLiteral("\"ok\":true"))) {
+            status_ = response.isEmpty() ? QStringLiteral("Unable to load the VST preset.") : response;
+            return false;
+        }
+        presetPath_ = selectedPath;
+        QFile file(selectedPath);
+        if (file.open(QIODevice::ReadOnly))
+            presetData_ = file.readAll();
+        status_ = QStringLiteral("VST preset loaded.");
+        return true;
+    }
 
     QWidget* createSettingsWidget(QWidget* parent) noexcept
     {
@@ -345,6 +385,7 @@ public:
 
     const char* settingsJson() noexcept
     {
+        capturePresetState();
         const auto bits = bits_ == ProcessBits::automatic ? QStringLiteral("auto")
             : bits_ == ProcessBits::x86 ? QStringLiteral("32") : QStringLiteral("64");
         serializedSettings_ = QJsonDocument(QJsonObject {
@@ -354,6 +395,7 @@ public:
             { QStringLiteral("portDisplayMode"), static_cast<int>(portDisplayMode_) },
             { QStringLiteral("internalPlugin"), internalPlugin_ },
             { QStringLiteral("internalPluginName"), internalPluginName_ },
+            { QStringLiteral("presetData"), QString::fromLatin1(presetData_.toBase64()) },
             { QStringLiteral("instanceId"), instanceId_ }
         }).toJson(QJsonDocument::Compact).toStdString();
         return serializedSettings_.c_str();
@@ -379,11 +421,17 @@ public:
         if (!instanceId.isEmpty())
             instanceId_ = instanceId;
         const auto internalPlugin = values.value(QStringLiteral("internalPlugin")).toString().trimmed();
-        return applySettings(values.value(QStringLiteral("path")).toString(),
-                     values.value(QStringLiteral("clientName")).toString(),
-                     selectedBits, portDisplayMode,
-                     internalPlugin.isEmpty() ? values.value(QStringLiteral("internal_plugin")).toVariant().toString() : internalPlugin,
-                             values.value(QStringLiteral("internalPluginName")).toString()) ? 1 : 0;
+        const auto presetData = QByteArray::fromBase64(values.value(QStringLiteral("presetData")).toString().toLatin1());
+        if (!applySettings(values.value(QStringLiteral("path")).toString(),
+                           values.value(QStringLiteral("clientName")).toString(),
+                           selectedBits, portDisplayMode,
+                           internalPlugin.isEmpty() ? values.value(QStringLiteral("internal_plugin")).toVariant().toString() : internalPlugin,
+                           values.value(QStringLiteral("internalPluginName")).toString())) {
+            return 0;
+        }
+        presetData_ = presetData;
+        const auto sandboxRunning = process_ && process_->state() != QProcess::NotRunning;
+        return (!sandboxRunning || presetData_.isEmpty() || restorePresetState()) ? 1 : 0;
     }
 
     bool prepareForCanvas() noexcept
@@ -433,14 +481,28 @@ public:
         }
         executable_ = executable;
 
-        if (path_.endsWith(QStringLiteral(".vst3"), Qt::CaseInsensitive) && internalPlugin_.isEmpty()) {
+        if (path_.endsWith(QStringLiteral(".vst3"), Qt::CaseInsensitive)) {
             QString factoryError;
             const auto plugins = vst3Plugins(path_, factoryError);
             if (!factoryError.isEmpty()) {
                 status_ = factoryError;
                 return false;
             }
-            if (plugins.size() > 1) {
+            const auto configuredPlugin = std::find_if(plugins.cbegin(), plugins.cend(), [this](const InternalPlugin& plugin) {
+                return plugin.id.compare(internalPlugin_, Qt::CaseInsensitive) == 0;
+            });
+            if (!internalPlugin_.isEmpty() && configuredPlugin == plugins.cend()) {
+                const auto configuredName = std::find_if(plugins.cbegin(), plugins.cend(), [this](const InternalPlugin& plugin) {
+                    return plugin.name.compare(internalPlugin_, Qt::CaseInsensitive) == 0;
+                });
+                if (configuredName == plugins.cend()) {
+                    status_ = QStringLiteral("The configured VST3 plugin name is not exposed by this module.");
+                    return false;
+                }
+                internalPlugin_ = configuredName->id;
+                internalPluginName_ = configuredName->name;
+            }
+            if (internalPlugin_.isEmpty() && plugins.size() > 1) {
                 if (QApplication::instance() == nullptr) {
                     status_ = QStringLiteral("Choose a VST3 plugin class before starting this node.");
                     return false;
@@ -453,7 +515,7 @@ public:
                     return false;
                 }
             }
-            if (!internalPlugin_.isEmpty())
+            if (!internalPlugin_.isEmpty() && internalPluginName_.isEmpty())
                 internalPluginName_ = displayNameForInternalPlugin(plugins, internalPlugin_);
         }
 
@@ -571,6 +633,8 @@ private:
                 outputLabels_.push_back(label.toString());
         }
         bypassed_ = bypass;
+        if (!bypass && !presetData_.isEmpty() && !restorePresetState())
+            return false;
         status_ = bypass ? QStringLiteral("VSTProcess is bypassing plugin I/O after a plugin crash.")
                           : QStringLiteral("VSTProcess is running.");
         return true;
@@ -581,7 +645,7 @@ private:
         sendPipeCommand("quit\n", 3000);
     }
 
-    QString sendPipeCommand(const char* command, DWORD waitMilliseconds = 0) noexcept
+    QString sendPipeCommand(const QByteArray& command, DWORD waitMilliseconds = 0) noexcept
     {
         if (pipeName_.isEmpty())
             return {};
@@ -598,7 +662,7 @@ private:
         if (pipe == INVALID_HANDLE_VALUE)
             return {};
         DWORD bytesWritten {};
-        if (!WriteFile(pipe, command, static_cast<DWORD>(std::char_traits<char>::length(command)), &bytesWritten, nullptr)) {
+        if (!WriteFile(pipe, command.constData(), static_cast<DWORD>(command.size()), &bytesWritten, nullptr)) {
             CloseHandle(pipe);
             return {};
         }
@@ -607,6 +671,46 @@ private:
         ReadFile(pipe, response, sizeof(response) - 1, &bytesRead, nullptr);
         CloseHandle(pipe);
         return QString::fromUtf8(response, static_cast<qsizetype>(bytesRead));
+    }
+
+    bool capturePresetState() noexcept
+    {
+        if (!process_ || process_->state() == QProcess::NotRunning || bypassed_)
+            return true;
+        QTemporaryFile file;
+        file.setAutoRemove(true);
+        if (!file.open())
+            return false;
+        const auto path = file.fileName();
+        file.close();
+        const auto response = sendPipeCommand("save-preset " + path.toUtf8() + "\n", 3000);
+        if (!response.contains(QStringLiteral("\"ok\":true")))
+            return false;
+        if (!file.open())
+            return false;
+        presetData_ = file.readAll();
+        return !presetData_.isEmpty();
+    }
+
+    bool restorePresetState() noexcept
+    {
+        QTemporaryFile file;
+        file.setAutoRemove(true);
+        if (!file.open()) {
+            status_ = QStringLiteral("Unable to create a temporary VST preset file.");
+            return false;
+        }
+        if (file.write(presetData_) != presetData_.size()) {
+            status_ = QStringLiteral("Unable to write the VST preset state.");
+            return false;
+        }
+        const auto path = file.fileName();
+        file.close();
+        const auto response = sendPipeCommand("load-preset " + path.toUtf8() + "\n", 3000);
+        if (response.contains(QStringLiteral("\"ok\":true")))
+            return true;
+        status_ = response.isEmpty() ? QStringLiteral("Unable to restore the VST preset state.") : response;
+        return false;
     }
 
     void stopProcess() noexcept
@@ -633,6 +737,7 @@ private:
     QString instanceId_ { QUuid::createUuid().toString(QUuid::WithoutBraces) };
     QString internalPlugin_;
     QString internalPluginName_;
+    QString presetPath_;
     QString expectedClientId_;
     QString executable_;
     ProcessBits bits_ { ProcessBits::automatic };
@@ -646,6 +751,7 @@ private:
     QStringList outputLabels_;
     bool stopping_ {};
     bool bypassed_ {};
+    QByteArray presetData_;
     std::string serializedSettings_;
 };
 
@@ -663,6 +769,13 @@ SettingsWidget::SettingsWidget(VstHostNode& node, QWidget* parent)
     pathLayout->addWidget(path_);
     pathLayout->addWidget(browse);
     clientName_ = new QLineEdit(node.clientName(), this);
+    presetPath_ = new QLineEdit(node.presetPath(), this);
+    auto* browsePreset = new QPushButton(QStringLiteral("Browse"), this);
+    auto* presetRow = new QWidget(this);
+    auto* presetLayout = new QHBoxLayout(presetRow);
+    presetLayout->setContentsMargins(0, 0, 0, 0);
+    presetLayout->addWidget(presetPath_);
+    presetLayout->addWidget(browsePreset);
     bits_ = new QComboBox(this);
     bits_->addItem(QStringLiteral("Auto"), static_cast<int>(ProcessBits::automatic));
     bits_->addItem(QStringLiteral("64-bit"), static_cast<int>(ProcessBits::x64));
@@ -676,14 +789,19 @@ SettingsWidget::SettingsWidget(VstHostNode& node, QWidget* parent)
     portDisplayMode_->setCurrentIndex(portDisplayMode_->findData(static_cast<int>(node.portDisplayMode())));
     form->addRow(QStringLiteral("Plugin"), pathRow);
     form->addRow(QStringLiteral("Client name"), clientName_);
+    form->addRow(QStringLiteral("Preset"), presetRow);
     form->addRow(QStringLiteral("Process"), bits_);
     form->addRow(QStringLiteral("Port display"), portDisplayMode_);
     layout->addLayout(form);
     auto* reload = new QPushButton(QStringLiteral("Apply and reload"), this);
+    auto* loadPreset = new QPushButton(QStringLiteral("Load preset"), this);
+    auto* savePreset = new QPushButton(QStringLiteral("Save preset as"), this);
     restart_ = new QPushButton(QStringLiteral("Restart plugin"), this);
     status_ = new QLabel(this);
     status_->setWordWrap(true);
     layout->addWidget(reload);
+    layout->addWidget(loadPreset);
+    layout->addWidget(savePreset);
     layout->addWidget(restart_);
     layout->addWidget(status_);
     setStyleSheet(QStringLiteral(
@@ -698,6 +816,12 @@ SettingsWidget::SettingsWidget(VstHostNode& node, QWidget* parent)
         if (!path.isEmpty())
             path_->setText(path);
     });
+    connect(browsePreset, &QPushButton::clicked, this, [this] {
+        const auto path = QFileDialog::getOpenFileName(this, QStringLiteral("Choose VST preset"), presetPath_->text(),
+                                                       QStringLiteral("WinJACKNexus VST preset (*.fbx)"));
+        if (!path.isEmpty())
+            presetPath_->setText(path);
+    });
     connect(reload, &QPushButton::clicked, this, [this] {
         const auto selectedPath = path_->text().trimmed();
         node_.applySettings(path_->text(), clientName_->text(), static_cast<ProcessBits>(bits_->currentData().toInt()),
@@ -708,6 +832,19 @@ SettingsWidget::SettingsWidget(VstHostNode& node, QWidget* parent)
     });
     connect(restart_, &QPushButton::clicked, this, [this] {
         node_.restartPlugin();
+        refresh();
+    });
+    connect(loadPreset, &QPushButton::clicked, this, [this] {
+        node_.loadPreset(presetPath_->text());
+        refresh();
+    });
+    connect(savePreset, &QPushButton::clicked, this, [this] {
+        const auto path = QFileDialog::getSaveFileName(this, QStringLiteral("Save VST preset"), presetPath_->text(),
+                                                       QStringLiteral("WinJACKNexus VST preset (*.fbx)"));
+        if (!path.isEmpty()) {
+            presetPath_->setText(path);
+            node_.savePreset(path);
+        }
         refresh();
     });
     refresh();
