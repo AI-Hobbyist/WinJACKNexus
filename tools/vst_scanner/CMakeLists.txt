@@ -91,6 +91,13 @@ add_executable(vst_scanner WIN32
     VstScanner.rc
 )
 
+qt_add_resources(vst_scanner vst_scanner_icon
+    PREFIX "/WinJACKNexus/VstScanner"
+    BASE "${PROJECT_SOURCE_DIR}/ico"
+    FILES
+        "${PROJECT_SOURCE_DIR}/ico/vst_scan.ico"
+)
+
 target_compile_features(vst_scanner PRIVATE cxx_std_20)
 target_compile_definitions(vst_scanner PRIVATE WIN32_LEAN_AND_MEAN NOMINMAX)
 target_link_libraries(vst_scanner PRIVATE wjn_vst_scanner_core Qt6::Widgets)

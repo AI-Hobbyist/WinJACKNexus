@@ -14,12 +14,14 @@
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 #include <QApplication>
+#include <QIcon>
 
 #include <WinJACKNexus/VstScanner/MainWindow.hpp>
 
 int main(int argc, char* argv[])
 {
     QApplication application(argc, argv);
+    application.setWindowIcon(QIcon(QStringLiteral(":/WinJACKNexus/VstScanner/vst_scan.ico")));
     QStringList initialPaths;
     QString outputDirectory;
     const auto arguments = application.arguments();
