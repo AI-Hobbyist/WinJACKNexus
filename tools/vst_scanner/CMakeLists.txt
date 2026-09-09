@@ -88,6 +88,7 @@ add_executable(vst_scanner WIN32
     src/main.cpp
     src/MainWindow.cpp
     include/WinJACKNexus/VstScanner/MainWindow.hpp
+    VstScanner.rc
 )
 
 target_compile_features(vst_scanner PRIVATE cxx_std_20)
