@@ -22,9 +22,11 @@
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QMenu>
+#include <QPainter>
 #include <QScreen>
-#include <QSlider>
+#include <QShowEvent>
 #include <QSystemTrayIcon>
+#include <QTimer>
 #include <QToolButton>
 
 #ifdef Q_OS_WIN
@@ -41,8 +43,71 @@ namespace {
 std::vector<TrayController*> trayControllers;
 std::vector<TrayNodeGuiEntry> nodeGuiEntries;
 QString quickAccessStatus;
+constexpr int quickAccessSideRegionWidth = 128;
+int quickAccessOpacityPercent = 50;
+
+enum class QuickAccessIcon {
+    pin,
+    hide
+};
+
+class QuickAccessIconButton final : public QToolButton {
+public:
+    explicit QuickAccessIconButton(QuickAccessIcon icon, QWidget* parent = nullptr)
+        : QToolButton(parent)
+        , icon_(icon)
+    {
+        setFixedSize(28, 28);
+        setCursor(Qt::PointingHandCursor);
+    }
+
+protected:
+    void paintEvent(QPaintEvent*) override
+    {
+        QPainter painter(this);
+        painter.setRenderHint(QPainter::Antialiasing);
+
+        const auto bounds = QRectF(rect()).adjusted(1.0, 1.0, -1.0, -1.0);
+        const auto active = isCheckable() && isChecked();
+        const auto background = isDown() ? QColor(QStringLiteral("#1e5068"))
+            : underMouse() ? QColor(QStringLiteral("#3d4854"))
+            : active ? QColor(QStringLiteral("#275d75"))
+            : QColor(QStringLiteral("#303841"));
+        painter.setPen(QPen(active ? QColor(QStringLiteral("#5db1d7")) : QColor(QStringLiteral("#5a6570"))));
+        painter.setBrush(background);
+        painter.drawRoundedRect(bounds, 4.0, 4.0);
+
+        const auto iconColor = active ? QColor(QStringLiteral("#a8e6ff")) : QColor(QStringLiteral("#f1f5f8"));
+        painter.setPen(QPen(iconColor, 1.7, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+        painter.setBrush(Qt::NoBrush);
+        if (icon_ == QuickAccessIcon::pin) {
+            QPolygonF pin { QPointF(9.0, 7.0), QPointF(19.0, 7.0), QPointF(17.0, 12.0),
+                            QPointF(17.0, 14.0), QPointF(11.0, 14.0), QPointF(11.0, 12.0),
+                            QPointF(9.0, 7.0) };
+            painter.drawPolyline(pin);
+            painter.drawLine(QPointF(14.0, 14.0), QPointF(14.0, 21.0));
+        } else {
+            painter.drawEllipse(QRectF(5.0, 9.0, 18.0, 10.0));
+            painter.drawEllipse(QRectF(12.0, 12.0, 4.0, 4.0));
+            painter.drawLine(QPointF(6.0, 7.0), QPointF(22.0, 21.0));
+        }
+    }
+
+private:
+    QuickAccessIcon icon_;
+};
 
 class QuickAccessBar final : public QFrame {
+    using EntryList = std::vector<const TrayNodeGuiEntry*>;
+
+    enum class SystemDeviceType {
+        none,
+        wasapiInput,
+        wasapiOutput,
+        midiInput,
+        midiOutput
+    };
+
 public:
     explicit QuickAccessBar(QWidget* parent = nullptr)
         : QFrame(parent)
@@ -60,56 +125,64 @@ public:
         auto* layout = new QHBoxLayout(this);
         layout->setContentsMargins(10, 7, 10, 7);
         layout->setSpacing(8);
-        layout->addStretch();
         auto* title = new QLabel(QStringLiteral("WinJACKNexus"), this);
         title->setStyleSheet(QStringLiteral("font-weight: 700;"));
+        title->setFixedWidth(quickAccessSideRegionWidth);
+        title->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
         layout->addWidget(title);
-
-        statusLabel_ = new QLabel(this);
-        statusLabel_->setFixedWidth(128);
-        statusLabel_->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
-        statusLabel_->setToolTip(QStringLiteral("JACK DSP 使用率与 XRun 计数"));
-        layout->addWidget(statusLabel_);
+        layout->addStretch();
 
         patchbayButton_ = new QToolButton(this);
         patchbayButton_->setText(QStringLiteral("接线盘"));
         patchbayButton_->setToolTip(QStringLiteral("打开接线盘"));
         layout->addWidget(patchbayButton_);
+
+        systemDevicesButton_ = new QToolButton(this);
+        systemDevicesButton_->setText(QStringLiteral("系统设备"));
+        systemDevicesButton_->setToolTip(QStringLiteral("打开已添加的 WASAPI 和 MIDI 设备节点"));
+        systemDevicesButton_->setToolButtonStyle(Qt::ToolButtonTextOnly);
+        systemDevicesButton_->setPopupMode(QToolButton::InstantPopup);
+        systemDevicesMenu_ = new QMenu(systemDevicesButton_);
+        systemDevicesButton_->setMenu(systemDevicesMenu_);
+        layout->addWidget(systemDevicesButton_);
+
         contentLayout_ = new QHBoxLayout;
         contentLayout_->setSpacing(6);
         layout->addLayout(contentLayout_);
 
-        pinButton_ = new QToolButton(this);
-        pinButton_->setText(QStringLiteral("置顶"));
+        pinButton_ = new QuickAccessIconButton(QuickAccessIcon::pin, this);
         pinButton_->setCheckable(true);
         pinButton_->setChecked(true);
         pinButton_->setToolTip(QStringLiteral("保持快捷栏位于其他窗口上方"));
+        pinButton_->setAccessibleName(QStringLiteral("置顶快捷栏"));
         layout->addWidget(pinButton_);
-
-        auto* opacityLabel = new QLabel(QStringLiteral("透明度"), this);
-        layout->addWidget(opacityLabel);
-        auto* opacitySlider = new QSlider(Qt::Horizontal, this);
-        opacitySlider->setRange(10, 100);
-        opacitySlider->setValue(50);
-        opacitySlider->setFixedWidth(88);
-        opacitySlider->setToolTip(QStringLiteral("调整快捷栏透明度"));
-        layout->addWidget(opacitySlider);
-        connect(opacitySlider, &QSlider::valueChanged, this, [this](int value) {
-            setWindowOpacity(static_cast<qreal>(value) / 100.0);
-        });
-        setWindowOpacity(0.5);
+        setOpacity(quickAccessOpacityPercent);
         connect(pinButton_, &QToolButton::toggled, this, [this](bool pinned) {
             setWindowFlag(Qt::WindowStaysOnTopHint, pinned);
             show();
             centerAtTop();
         });
 
-        auto* hideButton = new QToolButton(this);
-        hideButton->setText(QStringLiteral("隐藏"));
+        auto* hideButton = new QuickAccessIconButton(QuickAccessIcon::hide, this);
         hideButton->setToolTip(QStringLiteral("隐藏快捷栏"));
+        hideButton->setAccessibleName(QStringLiteral("隐藏快捷栏"));
         layout->addWidget(hideButton);
         connect(hideButton, &QToolButton::clicked, this, &QWidget::hide);
         layout->addStretch();
+
+        statusLabel_ = new QLabel(this);
+        statusLabel_->setFixedWidth(quickAccessSideRegionWidth);
+        statusLabel_->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+        statusLabel_->setToolTip(QStringLiteral("JACK DSP 使用率与 XRun 计数"));
+        layout->addWidget(statusLabel_);
+
+#ifdef Q_OS_WIN
+        inputTransparencyTimer_.setInterval(25);
+        connect(&inputTransparencyTimer_, &QTimer::timeout, this, [this] {
+            updateInputTransparency();
+        });
+        inputTransparencyTimer_.start();
+#endif
     }
 
     void setPatchbayAction(QAction* action)
@@ -127,7 +200,7 @@ public:
     void setEntries(const std::vector<TrayNodeGuiEntry>& entries)
     {
         const auto signature = entriesSignature(entries);
-        if (signature == entriesSignature_)
+        if (entriesInitialized_ && signature == entriesSignature_)
             return;
 
         while (auto* item = contentLayout_->takeAt(0)) {
@@ -135,14 +208,54 @@ public:
             delete item;
         }
 
-        std::map<QString, std::map<QString, std::vector<const TrayNodeGuiEntry*>>> groupedEntries;
+        EntryList wasapiInputEntries;
+        EntryList wasapiOutputEntries;
+        EntryList midiInputEntries;
+        EntryList midiOutputEntries;
+        EntryList vstEntries;
+        std::map<QString, std::map<QString, EntryList>> groupedEntries;
         for (const auto& entry : entries) {
             if (entry.id.isEmpty() || entry.name.isEmpty() || !entry.show)
                 continue;
+
+            switch (systemDeviceType(entry)) {
+            case SystemDeviceType::wasapiInput:
+                wasapiInputEntries.push_back(&entry);
+                continue;
+            case SystemDeviceType::wasapiOutput:
+                wasapiOutputEntries.push_back(&entry);
+                continue;
+            case SystemDeviceType::midiInput:
+                midiInputEntries.push_back(&entry);
+                continue;
+            case SystemDeviceType::midiOutput:
+                midiOutputEntries.push_back(&entry);
+                continue;
+            case SystemDeviceType::none:
+                break;
+            }
+
+            if (isVstEntry(entry)) {
+                vstEntries.push_back(&entry);
+                continue;
+            }
+
             const auto category = entry.category.isEmpty() ? QStringLiteral("其他") : entry.category;
             const auto project = entry.clientName.isEmpty() ? entry.name : entry.clientName;
             groupedEntries[category][project].push_back(&entry);
         }
+
+        rebuildSystemDevicesMenu(wasapiInputEntries, wasapiOutputEntries,
+                                 midiInputEntries, midiOutputEntries);
+
+        auto* vstButton = new QToolButton(this);
+        vstButton->setText(QStringLiteral("VST"));
+        vstButton->setToolButtonStyle(Qt::ToolButtonTextOnly);
+        vstButton->setPopupMode(QToolButton::InstantPopup);
+        auto* vstMenu = new QMenu(vstButton);
+        addProjectEntries(vstMenu, vstEntries);
+        vstButton->setMenu(vstMenu);
+        contentLayout_->addWidget(vstButton);
 
         for (const auto& [category, projects] : groupedEntries) {
             auto* categoryButton = new QToolButton(this);
@@ -150,32 +263,28 @@ public:
             categoryButton->setToolButtonStyle(Qt::ToolButtonTextOnly);
             categoryButton->setPopupMode(QToolButton::InstantPopup);
             auto* categoryMenu = new QMenu(categoryButton);
-            for (const auto& [project, nodes] : projects) {
-                if (nodes.size() == 1) {
-                    auto* action = categoryMenu->addAction(project);
-                    connect(action, &QAction::triggered, this, [show = nodes.front()->show] {
-                        show();
-                    });
-                } else {
-                    auto* nodeMenu = categoryMenu->addMenu(project);
-                    for (const auto* node : nodes) {
-                        auto* action = nodeMenu->addAction(node->name);
-                        connect(action, &QAction::triggered, this, [show = node->show] {
-                            show();
-                        });
-                    }
-                }
-            }
+            EntryList categoryEntries;
+            for (const auto& [project, nodes] : projects)
+                categoryEntries.insert(categoryEntries.end(), nodes.cbegin(), nodes.cend());
+            addProjectEntries(categoryMenu, categoryEntries);
             categoryButton->setMenu(categoryMenu);
             contentLayout_->addWidget(categoryButton);
         }
         entriesSignature_ = signature;
+        entriesInitialized_ = true;
         recenterAfterLayout();
     }
 
     void setStatus(const QString& status)
     {
         statusLabel_->setText(status);
+    }
+
+    void setOpacity(int percent)
+    {
+        opacityPercent_ = std::clamp(percent, 10, 100);
+        if (!inputTransparencyInitialized_ || inputTransparent_)
+            setWindowOpacity(static_cast<qreal>(opacityPercent_) / 100.0);
     }
 
     void showCentered()
@@ -187,17 +296,39 @@ public:
 
 private:
 #ifdef Q_OS_WIN
-    bool nativeEvent(const QByteArray& eventType, void* message, qintptr* result) override
+    void showEvent(QShowEvent* event) override
     {
-        if (eventType == "windows_generic_MSG" || eventType == "windows_dispatcher_MSG") {
-            const auto* nativeMessage = static_cast<MSG*>(message);
-            if (nativeMessage->message == WM_NCHITTEST
-                && (GetAsyncKeyState(VK_SHIFT) & 0x8000) == 0) {
-                *result = HTTRANSPARENT;
-                return true;
-            }
+        QFrame::showEvent(event);
+        setInputTransparency((GetAsyncKeyState(VK_SHIFT) & 0x8000) == 0, true);
+    }
+
+    void updateInputTransparency()
+    {
+        setInputTransparency((GetAsyncKeyState(VK_SHIFT) & 0x8000) == 0);
+    }
+
+    void setInputTransparency(bool transparentForInput, bool force = false)
+    {
+        if (!force && inputTransparencyInitialized_ && transparentForInput == inputTransparent_)
+            return;
+
+        inputTransparencyInitialized_ = true;
+        inputTransparent_ = transparentForInput;
+        const auto window = reinterpret_cast<HWND>(winId());
+        const auto extendedStyle = GetWindowLongPtr(window, GWL_EXSTYLE);
+        constexpr auto inputTransparentStyle = static_cast<LONG_PTR>(WS_EX_TRANSPARENT);
+        const auto updatedStyle = transparentForInput
+            ? extendedStyle | inputTransparentStyle
+            : extendedStyle & ~inputTransparentStyle;
+        if (updatedStyle != extendedStyle) {
+            SetWindowLongPtr(window, GWL_EXSTYLE, updatedStyle);
+            SetWindowPos(window, nullptr, 0, 0, 0, 0,
+                         SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
         }
-        return QFrame::nativeEvent(eventType, message, result);
+
+        setWindowOpacity(transparentForInput
+            ? static_cast<qreal>(opacityPercent_) / 100.0
+            : 1.0);
     }
 #endif
 
@@ -215,6 +346,90 @@ private:
             signature += QChar::Null;
         }
         return signature;
+    }
+
+    static SystemDeviceType systemDeviceType(const TrayNodeGuiEntry& entry)
+    {
+        if (entry.category.compare(QStringLiteral("Windows Native Driver"), Qt::CaseInsensitive) != 0)
+            return SystemDeviceType::none;
+        if (entry.name == QStringLiteral("WASAPI In"))
+            return SystemDeviceType::wasapiInput;
+        if (entry.name == QStringLiteral("WASAPI Out"))
+            return SystemDeviceType::wasapiOutput;
+        if (entry.name == QStringLiteral("System MIDI In"))
+            return SystemDeviceType::midiInput;
+        if (entry.name == QStringLiteral("System MIDI Out"))
+            return SystemDeviceType::midiOutput;
+        return SystemDeviceType::none;
+    }
+
+    static bool isVstEntry(const TrayNodeGuiEntry& entry)
+    {
+        return entry.category.startsWith(QStringLiteral("VST"), Qt::CaseInsensitive);
+    }
+
+    static void addNoRelatedEntriesAction(QMenu* menu)
+    {
+        auto* action = menu->addAction(QStringLiteral("无相关条目"));
+        action->setEnabled(false);
+    }
+
+    void addEntryAction(QMenu* menu, const TrayNodeGuiEntry& entry, const QString& text)
+    {
+        auto* action = menu->addAction(text);
+        connect(action, &QAction::triggered, this, [show = entry.show] {
+            show();
+        });
+    }
+
+    void addProjectEntries(QMenu* menu, const EntryList& entries)
+    {
+        if (entries.empty()) {
+            addNoRelatedEntriesAction(menu);
+            return;
+        }
+
+        std::map<QString, EntryList> projects;
+        for (const auto* entry : entries) {
+            const auto project = entry->clientName.isEmpty() ? entry->name : entry->clientName;
+            projects[project].push_back(entry);
+        }
+        for (const auto& [project, nodes] : projects) {
+            if (nodes.size() == 1) {
+                addEntryAction(menu, *nodes.front(), project);
+                continue;
+            }
+            auto* nodeMenu = menu->addMenu(project);
+            for (const auto* node : nodes)
+                addEntryAction(nodeMenu, *node, node->name);
+        }
+    }
+
+    void addSystemDeviceDirectionMenu(QMenu* parent, const QString& direction, const EntryList& entries)
+    {
+        auto* directionMenu = parent->addMenu(direction);
+        if (entries.empty()) {
+            addNoRelatedEntriesAction(directionMenu);
+            return;
+        }
+        for (const auto* entry : entries) {
+            const auto name = entry->clientName.isEmpty() ? entry->name : entry->clientName;
+            addEntryAction(directionMenu, *entry, name);
+        }
+    }
+
+    void rebuildSystemDevicesMenu(const EntryList& wasapiInputEntries,
+                                  const EntryList& wasapiOutputEntries,
+                                  const EntryList& midiInputEntries,
+                                  const EntryList& midiOutputEntries)
+    {
+        systemDevicesMenu_->clear();
+        auto* wasapiMenu = systemDevicesMenu_->addMenu(QStringLiteral("WASAPI"));
+        addSystemDeviceDirectionMenu(wasapiMenu, QStringLiteral("In"), wasapiInputEntries);
+        addSystemDeviceDirectionMenu(wasapiMenu, QStringLiteral("Out"), wasapiOutputEntries);
+        auto* midiMenu = systemDevicesMenu_->addMenu(QStringLiteral("MIDI"));
+        addSystemDeviceDirectionMenu(midiMenu, QStringLiteral("In"), midiInputEntries);
+        addSystemDeviceDirectionMenu(midiMenu, QStringLiteral("Out"), midiOutputEntries);
     }
 
     void recenterAfterLayout()
@@ -237,10 +452,19 @@ private:
 
     QHBoxLayout* contentLayout_ = nullptr;
     QToolButton* patchbayButton_ = nullptr;
+    QToolButton* systemDevicesButton_ = nullptr;
     QToolButton* pinButton_ = nullptr;
     QAction* patchbayAction_ = nullptr;
     QLabel* statusLabel_ = nullptr;
+    QMenu* systemDevicesMenu_ = nullptr;
     QString entriesSignature_;
+    bool entriesInitialized_ = false;
+    int opacityPercent_ = quickAccessOpacityPercent;
+    bool inputTransparent_ = false;
+    bool inputTransparencyInitialized_ = false;
+#ifdef Q_OS_WIN
+    QTimer inputTransparencyTimer_;
+#endif
 };
 
 }
@@ -414,6 +638,20 @@ void TrayController::setQuickAccessStatus(const QString& status)
         if (controller != nullptr && controller->impl_->quickAccessBar != nullptr)
             controller->impl_->quickAccessBar->setStatus(quickAccessStatus);
     }
+}
+
+void TrayController::setQuickAccessOpacity(int percent)
+{
+    quickAccessOpacityPercent = std::clamp(percent, 10, 100);
+    for (auto* controller : trayControllers) {
+        if (controller != nullptr && controller->impl_->quickAccessBar != nullptr)
+            controller->impl_->quickAccessBar->setOpacity(quickAccessOpacityPercent);
+    }
+}
+
+int TrayController::quickAccessOpacity()
+{
+    return quickAccessOpacityPercent;
 }
 
 void TrayController::rebuildQuickAccessBar()

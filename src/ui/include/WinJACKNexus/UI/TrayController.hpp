@@ -95,6 +95,9 @@ public:
     static void clearNodeGuiEntries();
     /** 更新快速入口栏显示的 JACK DSP 与 XRun 状态。 */
     static void setQuickAccessStatus(const QString& status);
+    /** 设置快速入口栏透明度，范围为 10 到 100。 */
+    static void setQuickAccessOpacity(int percent);
+    static int quickAccessOpacity();
 
     /** 气泡通知;iconType: 0=Information 1=Warning 2=Critical */
     void showMessage(const QString& title, const QString& message,

@@ -2286,3 +2286,8 @@ int wjn_set_node_settings_json(WinJACKNexus::Node::INode* node, const char* json
     auto* settings = dynamic_cast<AdapterNodeSettings*>(node);
     return settings == nullptr ? 0 : settings->restoreSettingsJson(json);
 }
+
+extern "C" WINJACK_NODE_API int wjn_show_node_gui(WinJACKNexus::Node::INode* node)
+{
+    return node != nullptr && node->createWindow(nullptr) != nullptr ? 1 : 0;
+}
