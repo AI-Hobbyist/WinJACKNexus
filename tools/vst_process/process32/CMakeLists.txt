@@ -18,7 +18,7 @@ set(WJN_JACK2_ROOT
     "${CMAKE_CURRENT_LIST_DIR}/../../../third_party/JACK2"
     CACHE PATH "JACK2 root")
 set(WJN_OUTPUT_DIR
-    "${CMAKE_CURRENT_LIST_DIR}/../../../build/bin"
+    "${CMAKE_CURRENT_LIST_DIR}/../../../build/release/bin"
     CACHE PATH "VSTProcess output directory")
 option(WJN_ENABLE_VST2 "Enable VST2 hosting (licensed use only)" ON)
 

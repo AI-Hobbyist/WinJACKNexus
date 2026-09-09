@@ -42,6 +42,40 @@ add_subdirectory(src/app)
 add_subdirectory(tools/vst_scanner)
 add_subdirectory(tools/vst_process)
 
+include(ExternalProject)
+
+function(wjn_add_win32_auxiliary_target target source_dir build_target)
+    ExternalProject_Add(
+        ${target}
+        SOURCE_DIR "${source_dir}"
+        BINARY_DIR "${CMAKE_BINARY_DIR}/${target}"
+        CMAKE_GENERATOR "${CMAKE_GENERATOR}"
+        CMAKE_GENERATOR_PLATFORM Win32
+        CMAKE_ARGS
+            "-DWJN_OUTPUT_DIR:PATH=${WJN_OUTPUT_DIR}"
+            "-DWJN_ENABLE_VST2:BOOL=${WJN_ENABLE_VST2}"
+        BUILD_COMMAND "${CMAKE_COMMAND}" --build <BINARY_DIR> --config $<CONFIG> --target ${build_target}
+        BUILD_ALWAYS TRUE
+        INSTALL_COMMAND ""
+        TEST_COMMAND ""
+    )
+endfunction()
+
+wjn_add_win32_auxiliary_target(
+    wjn_vst_scanner_probe32
+    "${PROJECT_SOURCE_DIR}/tools/vst_scanner/probe32"
+    vst_scanner_probe32
+)
+wjn_add_win32_auxiliary_target(
+    wjn_vst_process32
+    "${PROJECT_SOURCE_DIR}/tools/vst_process/process32"
+    vst_process32
+)
+
+add_dependencies(vst_scanner_probe64 wjn_vst_scanner_probe32)
+add_dependencies(vst_scanner vst_scanner_probe64 wjn_vst_scanner_probe32)
+add_dependencies(vst_process64 wjn_vst_process32)
+
 include(CTest)
 if(BUILD_TESTING)
     add_subdirectory(tests/common)

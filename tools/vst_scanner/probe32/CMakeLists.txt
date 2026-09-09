@@ -18,7 +18,7 @@ set(WJN_VST2SDK_ROOT
     "${CMAKE_CURRENT_LIST_DIR}/../../../third_party/vst2sdk"
     CACHE PATH "VST2 SDK root")
 set(WJN_OUTPUT_DIR
-    "${CMAKE_CURRENT_LIST_DIR}/../../../build/bin"
+    "${CMAKE_CURRENT_LIST_DIR}/../../../build/release/bin"
     CACHE PATH "Probe output directory")
 
 add_executable(vst_scanner_probe32
