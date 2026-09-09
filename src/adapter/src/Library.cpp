@@ -41,6 +41,8 @@
 #include <QLineEdit>
 #include <QPointer>
 #include <QPushButton>
+#include <QRegularExpression>
+#include <QSettings>
 #include <QSignalBlocker>
 #include <QShowEvent>
 #include <QSpinBox>
@@ -82,6 +84,8 @@ constexpr std::uint16_t maxAudioChannels = 16;
 constexpr double clockCorrectionGain = 0.0008;
 constexpr double maximumClockCorrection = 0.002;
 constexpr std::uint32_t concealmentFrameCount = 128;
+constexpr auto defaultWasapiInputDeviceRegex = R"(^Line\s*[13579]\s+\(Virtual Audio Cable\)$)";
+constexpr auto defaultWasapiOutputDeviceRegex = R"(^Line\s*[02468]\s+\(Virtual Audio Cable\)$)";
 
 struct LevelFrame final {
     std::array<float, maxAudioChannels> peak {};
@@ -502,6 +506,19 @@ std::vector<SettingsDeviceEntry> wasapiSettingsDevices(
     return result;
 }
 
+QRegularExpression configuredWasapiDeviceRegex(WinJACKNexus::Audio::WasapiStreamDirection direction)
+{
+    const auto input = direction == WinJACKNexus::Audio::WasapiStreamDirection::capture;
+    QSettings settings(QStringLiteral("WinJACKNexus"), QStringLiteral("Adapter"));
+    const auto pattern = settings.value(input ? QStringLiteral("wasapiInputDeviceRegex")
+                                              : QStringLiteral("wasapiOutputDeviceRegex"),
+                                QString::fromLatin1(input ? defaultWasapiInputDeviceRegex
+                                                : defaultWasapiOutputDeviceRegex))
+                             .toString()
+                             .trimmed();
+    return pattern.isEmpty() ? QRegularExpression() : QRegularExpression(pattern);
+}
+
 bool chooseAvailableWasapiDevice(
     WinJACKNexus::Audio::WasapiDeviceEnumerator& enumerator,
     WinJACKNexus::Audio::WasapiStreamDirection direction,
@@ -510,6 +527,20 @@ bool chooseAvailableWasapiDevice(
     std::wstring& result) noexcept
 {
     try {
+        const auto preferredDeviceRegex = configuredWasapiDeviceRegex(direction);
+        if (!preferredDeviceRegex.pattern().isEmpty() && preferredDeviceRegex.isValid()) {
+            WasapiDeviceListContext context;
+            enumerator.enumerate(direction, &collectWasapiDevice, &context);
+            for (const auto& device : context.devices) {
+                const std::wstring id(device.id);
+                if (!deviceRegistry.isAvailable(domain, id, owner)
+                    || !preferredDeviceRegex.match(QString::fromWCharArray(device.name)).hasMatch())
+                    continue;
+                result = id;
+                return true;
+            }
+        }
+
         WinJACKNexus::Audio::WasapiDeviceInfo defaultDevice;
         if (enumerator.defaultDevice(direction, defaultDevice)) {
             const std::wstring defaultId(defaultDevice.id);

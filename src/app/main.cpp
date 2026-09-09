@@ -127,6 +127,14 @@ QString executableDirectory()
     return length == 0 ? QString() : QFileInfo(QString::fromWCharArray(path, static_cast<qsizetype>(length))).absolutePath();
 }
 
+constexpr auto defaultWasapiInputDeviceRegex = "^Line\\s*[13579]\\s+\\(Virtual Audio Cable\\)$";
+constexpr auto defaultWasapiOutputDeviceRegex = "^Line\\s*[02468]\\s+\\(Virtual Audio Cable\\)$";
+
+bool adapterModuleAvailable()
+{
+    return QFileInfo(QDir(executableDirectory()).filePath(QStringLiteral("nodes/adapter/mod_adapter.dll"))).isFile();
+}
+
 class CopyIconButton final : public QToolButton {
 public:
     explicit CopyIconButton(QWidget* parent = nullptr)
@@ -202,8 +210,9 @@ public:
     explicit GlobalSettingsDialog(QWidget* parent = nullptr)
         : QDialog(parent)
     {
+        const auto hasAdapterModule = adapterModuleAvailable();
         setWindowTitle(QStringLiteral("全局设置"));
-        resize(620, 320);
+        resize(620, hasAdapterModule ? 390 : 320);
         auto* layout = new QVBoxLayout(this);
         auto* form = new QFormLayout;
         jackdDirectory_ = new QLineEdit(this);
@@ -234,6 +243,23 @@ public:
         bufferSize_->setRange(0, 8192);
         bufferSize_->setSingleStep(32);
         form->addRow(QStringLiteral("每周期帧数"), bufferSize_);
+
+        if (hasAdapterModule) {
+            QSettings adapterSettings(QStringLiteral("WinJACKNexus"), QStringLiteral("Adapter"));
+            wasapiInputDeviceRegex_ = new QLineEdit(this);
+            wasapiInputDeviceRegex_->setText(adapterSettings.value(
+                QStringLiteral("wasapiInputDeviceRegex"),
+                QString::fromLatin1(defaultWasapiInputDeviceRegex)).toString());
+            wasapiInputDeviceRegex_->setToolTip(QStringLiteral("优先匹配 WASAPI 输入设备；留空时使用系统默认设备。"));
+            form->addRow(QStringLiteral("Adapter WASAPI 输入正则"), wasapiInputDeviceRegex_);
+
+            wasapiOutputDeviceRegex_ = new QLineEdit(this);
+            wasapiOutputDeviceRegex_->setText(adapterSettings.value(
+                QStringLiteral("wasapiOutputDeviceRegex"),
+                QString::fromLatin1(defaultWasapiOutputDeviceRegex)).toString());
+            wasapiOutputDeviceRegex_->setToolTip(QStringLiteral("优先匹配 WASAPI 输出设备；留空时使用系统默认设备。"));
+            form->addRow(QStringLiteral("Adapter WASAPI 输出正则"), wasapiOutputDeviceRegex_);
+        }
 
         opacitySlider_ = new QSlider(Qt::Horizontal, this);
         opacitySlider_->setRange(10, 100);
@@ -313,6 +339,10 @@ public:
             opacityValue->setText(QStringLiteral("%1%").arg(value));
             saveSettings();
         });
+        if (wasapiInputDeviceRegex_ != nullptr) {
+            connect(wasapiInputDeviceRegex_, &QLineEdit::textChanged, this, [this] { saveSettings(); });
+            connect(wasapiOutputDeviceRegex_, &QLineEdit::textChanged, this, [this] { saveSettings(); });
+        }
         connect(copyButton, &QToolButton::clicked, this, [this] {
             QApplication::clipboard()->setText(commandPreview_->text());
         });
@@ -464,6 +494,11 @@ private:
         settings.setValue(QStringLiteral("sampleRate"), sampleRate_->value());
         settings.setValue(QStringLiteral("bufferSize"), bufferSize_->value());
         settings.setValue(QStringLiteral("quickAccessOpacity"), opacitySlider_->value());
+        if (wasapiInputDeviceRegex_ != nullptr) {
+            QSettings adapterSettings(QStringLiteral("WinJACKNexus"), QStringLiteral("Adapter"));
+            adapterSettings.setValue(QStringLiteral("wasapiInputDeviceRegex"), wasapiInputDeviceRegex_->text().trimmed());
+            adapterSettings.setValue(QStringLiteral("wasapiOutputDeviceRegex"), wasapiOutputDeviceRegex_->text().trimmed());
+        }
     }
 
     bool stopJackd()
@@ -512,6 +547,8 @@ private:
     QPushButton* deviceRefreshButton_ = nullptr;
     QSpinBox* sampleRate_ = nullptr;
     QSpinBox* bufferSize_ = nullptr;
+    QLineEdit* wasapiInputDeviceRegex_ = nullptr;
+    QLineEdit* wasapiOutputDeviceRegex_ = nullptr;
     QSlider* opacitySlider_ = nullptr;
     QLineEdit* commandPreview_ = nullptr;
     QPushButton* startButton_ = nullptr;
