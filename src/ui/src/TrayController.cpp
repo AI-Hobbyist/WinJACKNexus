@@ -23,6 +23,7 @@
 #include <QLabel>
 #include <QMenu>
 #include <QPainter>
+#include <QPropertyAnimation>
 #include <QScreen>
 #include <QShowEvent>
 #include <QSystemTrayIcon>
@@ -111,6 +112,9 @@ class QuickAccessBar final : public QFrame {
 public:
     explicit QuickAccessBar(QWidget* parent = nullptr)
         : QFrame(parent)
+#ifdef Q_OS_WIN
+        , opacityAnimation_(this, "windowOpacity")
+#endif
     {
         setWindowFlags(Qt::Tool | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
         setAttribute(Qt::WA_DeleteOnClose, false);
@@ -177,6 +181,8 @@ public:
         layout->addWidget(statusLabel_);
 
 #ifdef Q_OS_WIN
+    opacityAnimation_.setDuration(160);
+    opacityAnimation_.setEasingCurve(QEasingCurve::OutCubic);
         inputTransparencyTimer_.setInterval(25);
         connect(&inputTransparencyTimer_, &QTimer::timeout, this, [this] {
             updateInputTransparency();
@@ -283,8 +289,17 @@ public:
     void setOpacity(int percent)
     {
         opacityPercent_ = std::clamp(percent, 10, 100);
-        if (!inputTransparencyInitialized_ || inputTransparent_)
-            setWindowOpacity(static_cast<qreal>(opacityPercent_) / 100.0);
+#ifdef Q_OS_WIN
+        if (!inputTransparencyInitialized_) {
+            const auto opacity = static_cast<qreal>(opacityPercent_) / 100.0;
+            opacityTarget_ = opacity;
+            setWindowOpacity(opacity);
+        } else {
+            updateOpacity();
+        }
+#else
+        setWindowOpacity(static_cast<qreal>(opacityPercent_) / 100.0);
+#endif
     }
 
     void showCentered()
@@ -299,12 +314,39 @@ private:
     void showEvent(QShowEvent* event) override
     {
         QFrame::showEvent(event);
-        setInputTransparency((GetAsyncKeyState(VK_SHIFT) & 0x8000) == 0, true);
+        updateInputTransparency(true);
     }
 
-    void updateInputTransparency()
+    void updateInputTransparency(bool force = false)
     {
-        setInputTransparency((GetAsyncKeyState(VK_SHIFT) & 0x8000) == 0);
+        const auto shiftPressed = (GetAsyncKeyState(VK_SHIFT) & 0x8000) != 0;
+        setInputTransparency(!shiftPressed, force);
+        updateOpacity(shiftPressed);
+    }
+
+    bool cursorOverBar() const
+    {
+        POINT cursorPosition {};
+        return isVisible() && GetCursorPos(&cursorPosition)
+            && frameGeometry().contains(QPoint(cursorPosition.x, cursorPosition.y));
+    }
+
+    void updateOpacity(bool shiftPressed = false)
+    {
+        const auto inactiveOpacity = static_cast<qreal>(opacityPercent_) / 100.0;
+        animateOpacity(shiftPressed || cursorOverBar() ? 1.0 : inactiveOpacity);
+    }
+
+    void animateOpacity(qreal opacity)
+    {
+        if (opacityTarget_ == opacity)
+            return;
+
+        opacityTarget_ = opacity;
+        opacityAnimation_.stop();
+        opacityAnimation_.setStartValue(windowOpacity());
+        opacityAnimation_.setEndValue(opacity);
+        opacityAnimation_.start();
     }
 
     void setInputTransparency(bool transparentForInput, bool force = false)
@@ -326,9 +368,6 @@ private:
                          SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
         }
 
-        setWindowOpacity(transparentForInput
-            ? static_cast<qreal>(opacityPercent_) / 100.0
-            : 1.0);
     }
 #endif
 
@@ -464,6 +503,8 @@ private:
     bool inputTransparencyInitialized_ = false;
 #ifdef Q_OS_WIN
     QTimer inputTransparencyTimer_;
+    QPropertyAnimation opacityAnimation_;
+    qreal opacityTarget_ = -1.0;
 #endif
 };
 
