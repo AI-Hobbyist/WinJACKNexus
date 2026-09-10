@@ -14,8 +14,13 @@
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 #include <WinJACKNexus/UI/AnimatedWidget.hpp>
+#include <WinJACKNexus/UI/HistoryChartWidget.hpp>
+#include <WinJACKNexus/UI/HistoryLegendWidget.hpp>
 #include <WinJACKNexus/UI/IconManager.hpp>
+#include <WinJACKNexus/UI/MeterLevelBar.hpp>
 #include <WinJACKNexus/UI/MeterWidget.hpp>
+#include <WinJACKNexus/UI/MetricReadout.hpp>
+#include <WinJACKNexus/UI/MetricStatisticsWidget.hpp>
 #include <WinJACKNexus/UI/NativeWindowUtils.hpp>
 #include <WinJACKNexus/UI/PaintableWidget.hpp>
 #include <WinJACKNexus/UI/ThemeManager.hpp>
@@ -33,7 +38,10 @@
 #include <QThread>
 #include <QWidget>
 
+#include <cmath>
 #include <cstdio>
+#include <limits>
+#include <optional>
 
 namespace {
 
@@ -296,6 +304,252 @@ bool testIcons()
     return passed;
 }
 
+bool imageHasVisiblePixels(const QImage& image)
+{
+    for (int y = 0; y < image.height(); ++y) {
+        for (int x = 0; x < image.width(); ++x) {
+            if (qAlpha(image.pixel(x, y)) != 0)
+                return true;
+        }
+    }
+    return false;
+}
+
+bool testMeterLevelBar()
+{
+    using namespace WinJACKNexus::UI;
+    MeterLevelBar bar;
+    bar.resize(96, 280);
+    bar.setRange(-70.0F, 12.0F);
+    bar.setThresholds(-18.0F, 0.0F);
+    bar.setMarks({
+        { -70.0F, QStringLiteral("-70") },
+        { -18.0F, QStringLiteral("-18") },
+        { 0.0F, QStringLiteral("0") },
+        { 12.0F, QStringLiteral("+12") }
+    });
+    bar.setUnit(QStringLiteral("dBFS"));
+    bar.setShowScaleLabels(true);
+    bar.show();
+    QCoreApplication::processEvents();
+
+    bool passed = true;
+    passed &= check(!bar.value().has_value() && bar.sizeHint().width() >= 72 && bar.sizeHint().height() >= 220,
+                    "meter level bar exposes an empty state with a stable labeled size hint");
+
+    QImage emptyImage(bar.size(), QImage::Format_ARGB32_Premultiplied);
+    emptyImage.fill(Qt::transparent);
+    bar.render(&emptyImage);
+    passed &= check(imageHasVisiblePixels(emptyImage), "meter level bar renders its empty state");
+
+    bar.setValue(-120.0F);
+    passed &= check(bar.value().has_value() && std::abs(*bar.value() + 70.0F) < 0.01F,
+                    "meter level bar clamps values below its range");
+    bar.setValue(99.0F);
+    passed &= check(bar.value().has_value() && std::abs(*bar.value() - 12.0F) < 0.01F,
+                    "meter level bar clamps values above its range");
+
+    bar.setThemePalette(ThemePalette::lightConsole());
+    QImage scaledImage(bar.size() * 2, QImage::Format_ARGB32_Premultiplied);
+    scaledImage.setDevicePixelRatio(2.0);
+    scaledImage.fill(Qt::transparent);
+    bar.render(&scaledImage);
+    passed &= check(imageHasVisiblePixels(scaledImage), "meter level bar renders at a high device-pixel ratio");
+
+    bar.clearValue();
+    passed &= check(!bar.value().has_value() && !bar.peakValue().has_value(),
+                    "meter level bar clears its current and peak values");
+    return passed;
+}
+
+bool testMetricReadout()
+{
+    using namespace WinJACKNexus::UI;
+    MetricReadout readout;
+    readout.resize(168, 88);
+    readout.setLabel(QStringLiteral("Integrated"));
+    readout.setUnit(QStringLiteral("LUFS"));
+    readout.setPrecision(1);
+    readout.setValue(-20.25);
+    readout.show();
+    QCoreApplication::processEvents();
+
+    bool passed = true;
+    passed &= check(readout.label() == QStringLiteral("Integrated")
+                        && readout.value().has_value()
+                        && readout.displayText() == QStringLiteral("-20.3")
+                        && readout.sizeHint().width() >= 124,
+                    "metric readout formats a numeric value with a stable compact size");
+
+    QImage valueImage(readout.size(), QImage::Format_ARGB32_Premultiplied);
+    valueImage.fill(Qt::transparent);
+    readout.render(&valueImage);
+    passed &= check(imageHasVisiblePixels(valueImage), "metric readout renders a numeric value");
+
+    readout.setValue(std::numeric_limits<double>::infinity());
+    passed &= check(!readout.value().has_value() && readout.displayText() == QStringLiteral("--"),
+                    "metric readout converts non-finite input to an empty value");
+    readout.setAccentColor(QColor(QStringLiteral("#ff4060")));
+    readout.setThemePalette(ThemePalette::lightConsole());
+    QImage emptyImage(readout.size() * 2, QImage::Format_ARGB32_Premultiplied);
+    emptyImage.setDevicePixelRatio(2.0);
+    emptyImage.fill(Qt::transparent);
+    readout.render(&emptyImage);
+    passed &= check(imageHasVisiblePixels(emptyImage), "metric readout renders its empty state at a high device-pixel ratio");
+    return passed;
+}
+
+bool testHistoryChartAndLegend()
+{
+    using namespace WinJACKNexus::UI;
+    HistoryChartWidget chart;
+    chart.resize(480, 260);
+    chart.setTimeRange(0, 60000);
+    chart.setValueRange(-70.0, 12.0);
+    chart.setVerticalAxisLabel(QStringLiteral("dBFS"));
+    chart.setHorizontalAxisLabel(QStringLiteral("Elapsed"));
+    chart.setReferenceLines({
+        { -18.0, QStringLiteral("Target"), QColor(QStringLiteral("#31c6a0")), Qt::DashLine, true }
+    });
+    chart.setSeries({
+        {
+            QStringLiteral("peak"),
+            QStringLiteral("Peak"),
+            QColor(QStringLiteral("#ff5068")),
+            true,
+            {
+                { 0, -8.0 },
+                { 12000, -4.0 },
+                { 24000, std::nullopt },
+                { 36000, -10.0 },
+                { 60000, 4.0 }
+            }
+        },
+        {
+            QStringLiteral("integrated"),
+            QStringLiteral("Integrated"),
+            QColor(QStringLiteral("#4a9cff")),
+            true,
+            {
+                { 0, -24.0 },
+                { 60000, -20.0 }
+            }
+        }
+    });
+    chart.show();
+    QCoreApplication::processEvents();
+
+    bool passed = true;
+    passed &= check(chart.series().size() == 2 && chart.referenceLines().size() == 1
+                        && chart.sizeHint().width() >= 320,
+                    "history chart accepts generic time series and reference lines");
+    QImage chartImage(chart.size(), QImage::Format_ARGB32_Premultiplied);
+    chartImage.fill(Qt::transparent);
+    chart.render(&chartImage);
+    passed &= check(imageHasVisiblePixels(chartImage), "history chart renders populated series with a discontinuity");
+
+    chart.setSeries({});
+    chart.setThemePalette(ThemePalette::lightConsole());
+    QImage emptyChartImage(chart.size() * 2, QImage::Format_ARGB32_Premultiplied);
+    emptyChartImage.setDevicePixelRatio(2.0);
+    emptyChartImage.fill(Qt::transparent);
+    chart.render(&emptyChartImage);
+    passed &= check(imageHasVisiblePixels(emptyChartImage), "history chart renders its empty state at a high device-pixel ratio");
+
+    HistoryLegendWidget legend;
+    legend.resize(340, 72);
+    legend.setEntries({
+        { QStringLiteral("peak"), QStringLiteral("Peak"), QColor(QStringLiteral("#ff5068")), true, true },
+        { QStringLiteral("integrated"), QStringLiteral("Integrated"), QColor(QStringLiteral("#4a9cff")), true, true }
+    });
+    int visibilityChangeCount = 0;
+    QObject::connect(&legend, &HistoryLegendWidget::entryVisibilityChanged,
+                     [&visibilityChangeCount](const QString&, bool) { ++visibilityChangeCount; });
+    legend.show();
+    QCoreApplication::processEvents();
+    passed &= check(legend.setEntryVisible(QStringLiteral("peak"), false)
+                        && !legend.entries().front().visible
+                        && visibilityChangeCount == 1,
+                    "history legend updates and reports a series visibility change");
+    QImage legendImage(legend.size(), QImage::Format_ARGB32_Premultiplied);
+    legendImage.fill(Qt::transparent);
+    legend.render(&legendImage);
+    passed &= check(imageHasVisiblePixels(legendImage), "history legend renders generic series entries");
+    return passed;
+}
+
+bool testMetricStatisticsWidget()
+{
+    using namespace WinJACKNexus::UI;
+    MetricStatisticsWidget statistics;
+    statistics.resize(500, 106);
+    statistics.setPrecision(2);
+    statistics.setEntries({
+        {
+            QStringLiteral("integrated"),
+            QStringLiteral("Integrated"),
+            QStringLiteral("LUFS"),
+            std::optional<double> { -20.25 },
+            std::optional<double> { -26.65 },
+            std::optional<double> { -17.50 },
+            QColor(QStringLiteral("#31c6a0"))
+        },
+        {
+            QStringLiteral("range"),
+            QStringLiteral("Range"),
+            QStringLiteral("LU"),
+            std::nullopt,
+            std::optional<double> { 0.0 },
+            std::optional<double> { 18.0 },
+            QColor(QStringLiteral("#4a9cff"))
+        },
+        {
+            QStringLiteral("peak"),
+            QStringLiteral("True Peak"),
+            QStringLiteral("dBTP"),
+            std::optional<double> { 4.0 },
+            std::optional<double> { -12.0 },
+            std::optional<double> { 6.0 },
+            QColor(QStringLiteral("#ff5068"))
+        }
+    });
+    statistics.show();
+    QCoreApplication::processEvents();
+
+    bool passed = true;
+    passed &= check(statistics.entries().size() == 3 && statistics.precision() == 2
+                        && statistics.sizeHint().width() >= 166,
+                    "metric statistics accepts optional current, minimum and maximum values");
+    QImage statisticsImage(statistics.size(), QImage::Format_ARGB32_Premultiplied);
+    statisticsImage.fill(Qt::transparent);
+    statistics.render(&statisticsImage);
+    passed &= check(imageHasVisiblePixels(statisticsImage), "metric statistics renders populated entries");
+
+    statistics.setEntries({
+        {
+            QStringLiteral("invalid"),
+            QStringLiteral("Invalid"),
+            QStringLiteral("dB"),
+            std::optional<double> { std::numeric_limits<double>::infinity() },
+            std::nullopt,
+            std::nullopt,
+            QColor()
+        }
+    });
+    passed &= check(!statistics.entries().front().currentValue.has_value(),
+                    "metric statistics treats non-finite values as unavailable");
+
+    statistics.setEntries({});
+    statistics.setThemePalette(ThemePalette::lightConsole());
+    QImage emptyStatisticsImage(statistics.size() * 2, QImage::Format_ARGB32_Premultiplied);
+    emptyStatisticsImage.setDevicePixelRatio(2.0);
+    emptyStatisticsImage.fill(Qt::transparent);
+    statistics.render(&emptyStatisticsImage);
+    passed &= check(imageHasVisiblePixels(emptyStatisticsImage),
+                    "metric statistics renders an empty high-DPI state");
+    return passed;
+}
+
 }
 
 int main(int argc, char** argv)
@@ -308,6 +562,10 @@ int main(int argc, char** argv)
     passed &= testAnimatedWidget();
     passed &= testNativeWindowUtils();
     passed &= testIcons();
+    passed &= testMeterLevelBar();
+    passed &= testMetricReadout();
+    passed &= testHistoryChartAndLegend();
+    passed &= testMetricStatisticsWidget();
     if (!passed)
         return 1;
     std::puts("UI tests passed");

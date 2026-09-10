@@ -138,6 +138,11 @@ public:
         patchbayButton_->setToolTip(QStringLiteral("打开接线盘"));
         layout->addWidget(patchbayButton_);
 
+        meterbridgeButton_ = new QToolButton(this);
+        meterbridgeButton_->setText(QStringLiteral("电平表桥"));
+        meterbridgeButton_->setToolTip(QStringLiteral("打开电平表桥"));
+        layout->addWidget(meterbridgeButton_);
+
         systemDevicesButton_ = new QToolButton(this);
         systemDevicesButton_->setText(QStringLiteral("系统设备"));
         systemDevicesButton_->setToolTip(QStringLiteral("打开已添加的 WASAPI 和 MIDI 设备节点"));
@@ -194,6 +199,18 @@ public:
             connect(patchbayButton_, &QToolButton::clicked, action, &QAction::trigger);
             connect(action, &QAction::changed, this, [this, action] {
                 patchbayButton_->setEnabled(action->isEnabled());
+            });
+        }
+    }
+
+    void setMeterbridgeAction(QAction* action)
+    {
+        meterbridgeButton_->setEnabled(action != nullptr && action->isEnabled());
+        if (action != nullptr && meterbridgeAction_ == nullptr) {
+            meterbridgeAction_ = action;
+            connect(meterbridgeButton_, &QToolButton::clicked, action, &QAction::trigger);
+            connect(action, &QAction::changed, this, [this, action] {
+                meterbridgeButton_->setEnabled(action->isEnabled());
             });
         }
     }
@@ -443,9 +460,11 @@ private:
 
     QHBoxLayout* contentLayout_ = nullptr;
     QToolButton* patchbayButton_ = nullptr;
+    QToolButton* meterbridgeButton_ = nullptr;
     QToolButton* systemDevicesButton_ = nullptr;
     QToolButton* pinButton_ = nullptr;
     QAction* patchbayAction_ = nullptr;
+    QAction* meterbridgeAction_ = nullptr;
     QLabel* statusLabel_ = nullptr;
     QMenu* systemDevicesMenu_ = nullptr;
     QString entriesSignature_;
@@ -464,6 +483,7 @@ public:
     QSystemTrayIcon* tray = nullptr;
     QMenu* menu = nullptr;
     QAction* placeholderPatchbay = nullptr;
+    QAction* placeholderMeterbridge = nullptr;
     QAction* quickAccessAction = nullptr;
     QAction* nodeGuiSeparator = nullptr;
     QAction* quitAction = nullptr;
@@ -535,6 +555,7 @@ void TrayController::shutdown()
         impl_->quickAccessBar = nullptr;
     }
     impl_->placeholderPatchbay = nullptr;
+    impl_->placeholderMeterbridge = nullptr;
     impl_->quickAccessAction = nullptr;
     impl_->nodeGuiSeparator = nullptr;
     impl_->quitAction = nullptr;
@@ -588,6 +609,10 @@ void TrayController::buildPlaceholderMenu()
     impl_->placeholderPatchbay = impl_->menu->addAction(QStringLiteral("接线盘"));
     impl_->placeholderPatchbay->setEnabled(false);
     impl_->placeholderPatchbay->setToolTip(QStringLiteral("敬请期待:节点注册后可用"));
+
+    impl_->placeholderMeterbridge = impl_->menu->addAction(QStringLiteral("电平表桥"));
+    impl_->placeholderMeterbridge->setEnabled(false);
+    impl_->placeholderMeterbridge->setToolTip(QStringLiteral("敬请期待:模块注册后可用"));
 
     impl_->quickAccessAction = impl_->menu->addAction(QStringLiteral("快速入口"));
     connect(impl_->quickAccessAction, &QAction::triggered, this, [this] {
@@ -652,6 +677,7 @@ void TrayController::rebuildQuickAccessBar()
     if (impl_->quickAccessBar == nullptr)
         impl_->quickAccessBar = new QuickAccessBar;
     impl_->quickAccessBar->setPatchbayAction(impl_->placeholderPatchbay);
+    impl_->quickAccessBar->setMeterbridgeAction(impl_->placeholderMeterbridge);
     impl_->quickAccessBar->setStatus(quickAccessStatus);
     impl_->quickAccessBar->setEntries(nodeGuiEntries);
     impl_->quickAccessAction->setEnabled(!nodeGuiEntries.empty());
@@ -669,7 +695,7 @@ QAction* TrayController::mixerAction() const
 
 QAction* TrayController::meterbridgeAction() const
 {
-    return nullptr;
+    return impl_->placeholderMeterbridge;
 }
 
 QAction* TrayController::switchAction() const
@@ -679,7 +705,7 @@ QAction* TrayController::switchAction() const
 
 void TrayController::setPlaceholderEnabled(bool enabled)
 {
-    for (QAction* action : { impl_->placeholderPatchbay })
+    for (QAction* action : { impl_->placeholderPatchbay, impl_->placeholderMeterbridge })
     {
         if (action != nullptr)
             action->setEnabled(enabled);

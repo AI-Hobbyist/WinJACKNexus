@@ -649,12 +649,25 @@ int main(int argc, char* argv[])
         return 1;
     }
 
+    NodeModule meterbridgeModule;
+    const auto meterbridgePath = QDir(executableDirectory()).filePath(QStringLiteral("mod_meterbrigde.dll"));
+    if (!meterbridgeModule.load(meterbridgePath)) {
+        QMessageBox::critical(nullptr, application.applicationName(),
+                              QStringLiteral("无法加载电平表桥模块。"));
+        return 1;
+    }
+
     if (trayAvailable) {
         tray.registerPlaceholder(tray.patchbayAction());
         QObject::connect(tray.patchbayAction(), &QAction::triggered, &application, [&tray, &patchbayModule] {
             if (patchbayModule.node()->createWindow(nullptr) == nullptr)
                 tray.showMessage(QStringLiteral("接线盘"), QStringLiteral("无法创建接线盘窗口。"), 2);
         });
+            tray.registerPlaceholder(tray.meterbridgeAction());
+            QObject::connect(tray.meterbridgeAction(), &QAction::triggered, &application, [&tray, &meterbridgeModule] {
+                if (meterbridgeModule.node()->createWindow(nullptr) == nullptr)
+                tray.showMessage(QStringLiteral("电平表桥"), QStringLiteral("无法创建电平表桥窗口。"), 2);
+            });
     }
 
     if (patchbayModule.node()->createWindow(nullptr) == nullptr) {

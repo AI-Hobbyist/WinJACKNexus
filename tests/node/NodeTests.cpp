@@ -162,12 +162,95 @@ bool testAdapterModule(const std::filesystem::path& directory)
     return passed;
 }
 
+bool testMeterbridgeModule(const std::filesystem::path& directory)
+{
+    const auto path = directory / L"mod_meterbrigde.dll";
+    const auto module = LoadLibraryW(path.c_str());
+    bool passed = check(module != nullptr, "meterbridge module loads dynamically");
+    if (module == nullptr)
+        return false;
+
+    const auto version = reinterpret_cast<GetStringFunction>(GetProcAddress(module, "wjn_get_node_api_version"));
+    const auto count = reinterpret_cast<GetCountFunction>(GetProcAddress(module, "wjn_get_node_count"));
+    const auto name = reinterpret_cast<GetIndexedStringFunction>(GetProcAddress(module, "wjn_get_node_name"));
+    const auto category = reinterpret_cast<GetIndexedStringFunction>(GetProcAddress(module, "wjn_get_node_category"));
+    const auto create = reinterpret_cast<CreateNodeFunction>(GetProcAddress(module, "wjn_create_node"));
+    const auto destroy = reinterpret_cast<DestroyNodeFunction>(GetProcAddress(module, "wjn_destroy_node"));
+    passed &= check(version != nullptr && count != nullptr && name != nullptr && category != nullptr && create != nullptr && destroy != nullptr,
+                    "meterbridge module exports the Node API");
+    if (version != nullptr && count != nullptr && name != nullptr && category != nullptr && create != nullptr && destroy != nullptr) {
+        passed &= check(std::string_view(version()) == "2" && count() == 1
+                            && std::string_view(name(0)) == "Meterbridge"
+                            && std::string_view(category(0)) == "Meter",
+                        "meterbridge module reports stable metadata");
+        auto* node = create(0);
+        passed &= check(node != nullptr && node->init(), "meterbridge module initializes its top-level node");
+        if (node != nullptr) {
+            const auto info = node->info();
+            passed &= check(std::string_view(info.name) == "Meterbridge" && std::string_view(info.category) == "Meter",
+                            "meterbridge INode exposes stable metadata");
+            node->shutdown();
+            destroy(node);
+        }
+        passed &= check(create(count()) == nullptr, "meterbridge module rejects an out-of-range node index");
+    }
+    FreeLibrary(module);
+    return passed;
+}
+
+bool testMeterProbeModule(const std::filesystem::path& directory)
+{
+    const auto path = directory / L"nodes" / L"meter" / L"mod_meterbridge_probe.dll";
+    const auto module = LoadLibraryW(path.c_str());
+    bool passed = check(module != nullptr, "meter probe module loads dynamically");
+    if (module == nullptr)
+        return false;
+
+    const auto version = reinterpret_cast<GetStringFunction>(GetProcAddress(module, "wjn_get_node_api_version"));
+    const auto count = reinterpret_cast<GetCountFunction>(GetProcAddress(module, "wjn_get_node_count"));
+    const auto name = reinterpret_cast<GetIndexedStringFunction>(GetProcAddress(module, "wjn_get_node_name"));
+    const auto category = reinterpret_cast<GetIndexedStringFunction>(GetProcAddress(module, "wjn_get_node_category"));
+    const auto create = reinterpret_cast<CreateNodeFunction>(GetProcAddress(module, "wjn_create_node"));
+    const auto destroy = reinterpret_cast<DestroyNodeFunction>(GetProcAddress(module, "wjn_destroy_node"));
+    passed &= check(version != nullptr && count != nullptr && name != nullptr && category != nullptr && create != nullptr && destroy != nullptr,
+                    "meter probe module exports the Node API");
+    if (version != nullptr && count != nullptr && name != nullptr && category != nullptr && create != nullptr && destroy != nullptr) {
+        constexpr std::string_view expectedNames[] {
+            "Meter Mono", "Meter Stereo", "Meter 5.1", "Meter 7.1", "Meter Custom"
+        };
+        passed &= check(std::string_view(version()) == "2" && count() == std::size(expectedNames),
+                        "meter probe module reports five probe nodes");
+        for (std::uint32_t index = 0; index < count(); ++index) {
+            passed &= check(std::string_view(name(index)) == expectedNames[index]
+                                && std::string_view(category(index)) == "Meter",
+                            "meter probe metadata matches its index");
+            auto* node = create(index);
+            passed &= check(node != nullptr && node->init(), "meter probe node initializes");
+            if (node != nullptr) {
+                const auto info = node->info();
+                passed &= check(std::string_view(info.name) == expectedNames[index]
+                                    && std::string_view(info.category) == "Meter",
+                                "meter probe INode exposes stable metadata");
+                node->shutdown();
+                destroy(node);
+            }
+        }
+        passed &= check(create(count()) == nullptr, "meter probe module rejects an out-of-range node index");
+    }
+    FreeLibrary(module);
+    return passed;
+}
+
 }
 
 int main()
 {
     const auto directory = executableDirectory();
-    const auto passed = testApiStub(directory) && testExampleNode(directory) && testAdapterModule(directory);
+    const auto passed = testApiStub(directory)
+        && testExampleNode(directory)
+        && testAdapterModule(directory)
+        && testMeterbridgeModule(directory)
+        && testMeterProbeModule(directory);
     if (!passed)
         return 1;
     std::puts("Node tests passed");
