@@ -401,6 +401,8 @@ public:
             channelsSpinBox_->setObjectName(QStringLiteral("channelsSpinBox"));
             channelsSpinBox_->setRange(1, static_cast<int>(maxAudioChannels));
             form->addRow(QStringLiteral("JACK channels"), channelsSpinBox_);
+            connect(channelsSpinBox_, qOverload<int>(&QSpinBox::valueChanged), this,
+                    [this](int) { apply(); });
         }
 
         auto* actionRow = new QHBoxLayout;
@@ -437,6 +439,7 @@ public:
         if (currentIndex >= 0)
             deviceCombo_->setCurrentIndex(currentIndex);
         clientNameEditor_->setText(values.clientName);
+        const QSignalBlocker channelsBlocker(channelsSpinBox_);
         if (channelsSpinBox_ != nullptr && values.channels > 0)
             channelsSpinBox_->setValue(std::clamp(values.channels, 1, static_cast<int>(maxAudioChannels)));
     }
