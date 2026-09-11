@@ -16,7 +16,6 @@
 #include <WinJACKNexus/UI/MeterLevelBar.hpp>
 
 #include <QFontMetrics>
-#include <QLinearGradient>
 #include <QPainter>
 #include <QPainterPath>
 
@@ -45,7 +44,7 @@ MeterLevelBar::MeterLevelBar(QWidget* parent)
     setMinimumSize(36, 220);
     setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding);
     setMarks({
-        { -70.0F, QStringLiteral("-70") },
+        { -72.0F, QStringLiteral("-72") },
         { -60.0F, QStringLiteral("-60") },
         { -40.0F, QStringLiteral("-40") },
         { -20.0F, QStringLiteral("-20") },
@@ -216,7 +215,6 @@ void MeterLevelBar::paintContent(QPainter& painter)
     const auto text = themeColor(themePalette_, "text", palette().color(QPalette::WindowText));
     const auto muted = themeColor(themePalette_, "text-muted", palette().color(QPalette::Mid));
     const auto success = themeColor(themePalette_, "success", palette().color(QPalette::Highlight));
-    const auto accent = themeColor(themePalette_, "accent", palette().color(QPalette::Highlight));
     const auto warning = themeColor(themePalette_, "accent-alt", palette().color(QPalette::Link));
     const auto danger = themeColor(themePalette_, "danger", palette().color(QPalette::BrightText));
 
@@ -251,12 +249,17 @@ void MeterLevelBar::paintContent(QPainter& painter)
         const auto fillTop = yFor(displayLevel_);
         const QRectF fillRect(track.left() + 2.0, fillTop, std::max(1.0, track.width() - 4.0), track.bottom() - fillTop - 1.0);
         if (fillRect.height() > 0.0) {
-            QLinearGradient gradient(fillRect.bottomLeft(), fillRect.topLeft());
-            gradient.setColorAt(0.0, success);
-            gradient.setColorAt(std::clamp(normalize(warning_), 0.0F, 1.0F), accent);
-            gradient.setColorAt(std::clamp(normalize(danger_), 0.0F, 1.0F), warning);
-            gradient.setColorAt(1.0, danger);
-            painter.fillRect(fillRect, gradient);
+            const auto fillSegment = [this, &painter, &fillRect, &yFor](float lower, float upper, const QColor& color) {
+                const auto segmentTop = yFor(normalize(upper));
+                const auto segmentBottom = yFor(normalize(lower));
+                const auto visibleTop = std::max(fillRect.top(), segmentTop);
+                const auto visibleBottom = std::min(fillRect.bottom(), segmentBottom);
+                if (visibleBottom > visibleTop)
+                    painter.fillRect(QRectF(fillRect.left(), visibleTop, fillRect.width(), visibleBottom - visibleTop), color);
+            };
+            fillSegment(minimum_, warning_, success);
+            fillSegment(warning_, danger_, warning);
+            fillSegment(danger_, maximum_, danger);
         }
     } else {
         painter.setPen(muted);

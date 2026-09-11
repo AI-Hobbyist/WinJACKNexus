@@ -60,17 +60,38 @@ private:
         bool automaticResetEnabled = true;
         bool recordingEnabled = false;
         bool resetRequested = false;
+        bool historyCleared = false;
         QString presetId = QStringLiteral("ebu-r128");
+        MeterHistoryViewSettings historyView {
+            MeterHistoryViewMode::realtimeScroll,
+            600000,
+            false,
+            {
+                QStringLiteral("peak"),
+                QStringLiteral("rms"),
+                QStringLiteral("lfe"),
+                QStringLiteral("true-peak"),
+                QStringLiteral("momentary"),
+                QStringLiteral("short-term"),
+                QStringLiteral("integrated"),
+                QStringLiteral("lra")
+            }
+        };
+        std::vector<MeterHistoryMarkerView> markers;
+        std::vector<MeterChannelView> customChannels;
+        std::uint32_t nextMarkerId = 1;
     };
 
     static QString instanceIdFor(std::uint16_t index);
     std::optional<std::uint16_t> previewIndexForId(const QString& instanceId) const;
+    void ensureCustomChannels(PreviewProbeState& state);
     MeterViewSnapshot makeSnapshot(std::uint16_t previewIndex) const;
 
     MockMeterScenario scenario_ = MockMeterScenario::normalProgram;
     std::uint16_t customChannelCount_ = 2;
-    std::uint16_t previewProbeCount_ = 1;
+    std::uint16_t previewProbeCount_ = 2;
     std::array<PreviewProbeState, maximumMeterChannelCount> previewProbeStates_;
+    MeterGlobalSettingsView globalSettings_;
 };
 
 }

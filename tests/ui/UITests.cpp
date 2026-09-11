@@ -30,8 +30,10 @@
 
 #include <QApplication>
 #include <QCoreApplication>
+#include <QEvent>
 #include <QFile>
 #include <QImage>
+#include <QMouseEvent>
 #include <QSettings>
 #include <QTemporaryDir>
 #include <QTemporaryFile>
@@ -39,6 +41,7 @@
 #include <QWidget>
 
 #include <cmath>
+#include <algorithm>
 #include <cstdio>
 #include <limits>
 #include <optional>
@@ -315,15 +318,48 @@ bool imageHasVisiblePixels(const QImage& image)
     return false;
 }
 
+bool imageContainsColor(const QImage& image, const QColor& expected)
+{
+    for (int y = 0; y < image.height(); ++y) {
+        for (int x = 0; x < image.width(); ++x) {
+            if (image.pixelColor(x, y) == expected)
+                return true;
+        }
+    }
+    return false;
+}
+
+int firstColorPixelX(const QImage& image, const QColor& expected)
+{
+    for (int x = 0; x < image.width(); ++x) {
+        for (int y = 0; y < image.height(); ++y) {
+            if (image.pixelColor(x, y) == expected)
+                return x;
+        }
+    }
+    return -1;
+}
+
+int lastColorPixelY(const QImage& image, const QColor& expected)
+{
+    for (int y = image.height() - 1; y >= 0; --y) {
+        for (int x = 0; x < image.width(); ++x) {
+            if (image.pixelColor(x, y) == expected)
+                return y;
+        }
+    }
+    return -1;
+}
+
 bool testMeterLevelBar()
 {
     using namespace WinJACKNexus::UI;
     MeterLevelBar bar;
     bar.resize(96, 280);
-    bar.setRange(-70.0F, 12.0F);
+    bar.setRange(-72.0F, 12.0F);
     bar.setThresholds(-18.0F, 0.0F);
     bar.setMarks({
-        { -70.0F, QStringLiteral("-70") },
+        { -72.0F, QStringLiteral("-72") },
         { -18.0F, QStringLiteral("-18") },
         { 0.0F, QStringLiteral("0") },
         { 12.0F, QStringLiteral("+12") }
@@ -343,11 +379,42 @@ bool testMeterLevelBar()
     passed &= check(imageHasVisiblePixels(emptyImage), "meter level bar renders its empty state");
 
     bar.setValue(-120.0F);
-    passed &= check(bar.value().has_value() && std::abs(*bar.value() + 70.0F) < 0.01F,
+    passed &= check(bar.value().has_value() && std::abs(*bar.value() + 72.0F) < 0.01F,
                     "meter level bar clamps values below its range");
     bar.setValue(99.0F);
     passed &= check(bar.value().has_value() && std::abs(*bar.value() - 12.0F) < 0.01F,
                     "meter level bar clamps values above its range");
+
+    const auto renderLevel = [&bar] {
+        QImage image(bar.size(), QImage::Format_ARGB32_Premultiplied);
+        image.fill(Qt::transparent);
+        bar.render(&image);
+        return image;
+    };
+    const QColor green(QStringLiteral("#6fd08c"));
+    const QColor yellow(QStringLiteral("#e0a04a"));
+    const QColor red(QStringLiteral("#ee6b67"));
+    bar.clearValue();
+    bar.setValue(-20.0F);
+    const auto greenImage = renderLevel();
+    passed &= check(imageContainsColor(greenImage, green)
+                        && !imageContainsColor(greenImage, yellow)
+                        && !imageContainsColor(greenImage, red),
+                    "meter level bar uses only a green segment below the warning threshold");
+    bar.clearValue();
+    bar.setValue(-10.0F);
+    const auto yellowImage = renderLevel();
+    passed &= check(imageContainsColor(yellowImage, green)
+                        && imageContainsColor(yellowImage, yellow)
+                        && !imageContainsColor(yellowImage, red),
+                    "meter level bar adds a yellow segment between warning and zero dBFS");
+    bar.clearValue();
+    bar.setValue(6.0F);
+    const auto redImage = renderLevel();
+    passed &= check(imageContainsColor(redImage, green)
+                        && imageContainsColor(redImage, yellow)
+                        && imageContainsColor(redImage, red),
+                    "meter level bar uses a red segment above zero dBFS without a gradient");
 
     bar.setThemePalette(ThemePalette::lightConsole());
     QImage scaledImage(bar.size() * 2, QImage::Format_ARGB32_Premultiplied);
@@ -386,6 +453,15 @@ bool testMetricReadout()
     readout.render(&valueImage);
     passed &= check(imageHasVisiblePixels(valueImage), "metric readout renders a numeric value");
 
+    readout.resize(168, 160);
+    readout.setShowSurface(false);
+    readout.setAccentColor(QColor(QStringLiteral("#ff4060")));
+    QImage tallValueImage(readout.size(), QImage::Format_ARGB32_Premultiplied);
+    tallValueImage.fill(Qt::transparent);
+    readout.render(&tallValueImage);
+    passed &= check(lastColorPixelY(tallValueImage, QColor(QStringLiteral("#ff4060"))) < tallValueImage.height() * 3 / 4,
+                    "metric readout keeps its value close to the label in a tall layout");
+
     readout.setValue(std::numeric_limits<double>::infinity());
     passed &= check(!readout.value().has_value() && readout.displayText() == QStringLiteral("--"),
                     "metric readout converts non-finite input to an empty value");
@@ -406,10 +482,14 @@ bool testHistoryChartAndLegend()
     chart.resize(480, 260);
     chart.setTimeRange(0, 60000);
     chart.setValueRange(-70.0, 12.0);
+    chart.setRightValueRange(0.0, 20.0);
     chart.setVerticalAxisLabel(QStringLiteral("dBFS"));
+    chart.setRightVerticalAxisLabel(QStringLiteral("LU"));
     chart.setHorizontalAxisLabel(QStringLiteral("Elapsed"));
+    chart.setTimeCursorMilliseconds(36000);
     chart.setReferenceLines({
-        { -18.0, QStringLiteral("Target"), QColor(QStringLiteral("#31c6a0")), Qt::DashLine, true }
+        { -18.0, QStringLiteral("Target"), QColor(QStringLiteral("#31c6a0")), Qt::DashLine, true },
+        { 11.0, QStringLiteral("LRA guide"), QColor(QStringLiteral("#e0a04a")), Qt::DotLine, true, HistoryChartAxis::right }
     });
     chart.setSeries({
         {
@@ -434,19 +514,69 @@ bool testHistoryChartAndLegend()
                 { 0, -24.0 },
                 { 60000, -20.0 }
             }
+        },
+        {
+            QStringLiteral("lra"),
+            QStringLiteral("LRA"),
+            QColor(QStringLiteral("#e0a04a")),
+            true,
+            {
+                { 0, 5.0 },
+                { 36000, 8.5 },
+                { 60000, 6.2 }
+            },
+            HistoryChartAxis::right,
+            true
         }
     });
     chart.show();
     QCoreApplication::processEvents();
 
     bool passed = true;
-    passed &= check(chart.series().size() == 2 && chart.referenceLines().size() == 1
+    passed &= check(chart.series().size() == 3 && chart.referenceLines().size() == 2
+                        && chart.rightMinimumValue() == 0.0 && chart.rightMaximumValue() == 20.0
+                        && chart.timeCursorMilliseconds() == std::optional<std::int64_t> { 36000 }
+                        && chart.series().back().axis == HistoryChartAxis::right
+                        && chart.series().back().preservePointOrder
                         && chart.sizeHint().width() >= 320,
-                    "history chart accepts generic time series and reference lines");
+                    "history chart accepts generic dual-axis series, references and a time cursor");
     QImage chartImage(chart.size(), QImage::Format_ARGB32_Premultiplied);
     chartImage.fill(Qt::transparent);
     chart.render(&chartImage);
     passed &= check(imageHasVisiblePixels(chartImage), "history chart renders populated series with a discontinuity");
+
+    QMouseEvent hoverEvent(QEvent::MouseMove,
+                           QPointF(280.0, 120.0),
+                           Qt::NoButton,
+                           Qt::NoButton,
+                           Qt::NoModifier);
+    QApplication::sendEvent(&chart, &hoverEvent);
+    QCoreApplication::processEvents();
+    QImage hoveredChartImage(chart.size(), QImage::Format_ARGB32_Premultiplied);
+    hoveredChartImage.fill(Qt::transparent);
+    chart.render(&hoveredChartImage);
+    const auto peakHover = std::find_if(chart.hoverEntries().cbegin(), chart.hoverEntries().cend(), [](const HistoryChartHoverEntry& entry) {
+        return entry.id == QStringLiteral("peak");
+    });
+    const auto integratedHover = std::find_if(chart.hoverEntries().cbegin(), chart.hoverEntries().cend(), [](const HistoryChartHoverEntry& entry) {
+        return entry.id == QStringLiteral("integrated");
+    });
+    const auto lraHover = std::find_if(chart.hoverEntries().cbegin(), chart.hoverEntries().cend(), [](const HistoryChartHoverEntry& entry) {
+        return entry.id == QStringLiteral("lra");
+    });
+    passed &= check(chart.hoverTimeMilliseconds() == std::optional<std::int64_t> { 36000 }
+                        && chart.hoverEntries().size() == 3
+                        && peakHover != chart.hoverEntries().cend() && peakHover->value == std::optional<double> { -10.0 }
+                        && integratedHover != chart.hoverEntries().cend() && integratedHover->value.has_value()
+                        && std::abs(*integratedHover->value + 21.6) < 0.01
+                        && lraHover != chart.hoverEntries().cend() && lraHover->value == std::optional<double> { 8.5 },
+                    "history chart hover snaps to a sample time and exposes matching dual-axis values");
+    passed &= check(hoveredChartImage != chartImage,
+                    "history chart renders a hover cursor and value panel");
+    QEvent leaveEvent(QEvent::Leave);
+    QApplication::sendEvent(&chart, &leaveEvent);
+    passed &= check(!chart.hoverTimeMilliseconds().has_value() && chart.hoverEntries().empty(),
+                    "history chart clears hover guidance when the pointer leaves");
 
     chart.setSeries({});
     chart.setThemePalette(ThemePalette::lightConsole());
@@ -523,7 +653,13 @@ bool testMetricStatisticsWidget()
     QImage statisticsImage(statistics.size(), QImage::Format_ARGB32_Premultiplied);
     statisticsImage.fill(Qt::transparent);
     statistics.render(&statisticsImage);
-    passed &= check(imageHasVisiblePixels(statisticsImage), "metric statistics renders populated entries");
+    const auto integratedStart = firstColorPixelX(statisticsImage, QColor(QStringLiteral("#31c6a0")));
+    const auto rangeStart = firstColorPixelX(statisticsImage, QColor(QStringLiteral("#4a9cff")));
+    const auto peakStart = firstColorPixelX(statisticsImage, QColor(QStringLiteral("#ff5068")));
+    passed &= check(imageHasVisiblePixels(statisticsImage)
+                        && integratedStart >= 0 && rangeStart - integratedStart >= 150
+                        && peakStart - rangeStart >= 150,
+                    "metric statistics distributes populated entries evenly across a wide row");
 
     statistics.setEntries({
         {

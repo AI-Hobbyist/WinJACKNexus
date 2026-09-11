@@ -3,9 +3,13 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 add_library(meterbridge_mod_ui STATIC
     src/MeterCard.cpp
+    src/MeterHistoryWindow.cpp
     src/MeterbridgeWindow.cpp
+    src/MeterSettingsWidget.cpp
     include/WinJACKNexus/Meter/Mod/MeterCard.hpp
+    include/WinJACKNexus/Meter/Mod/MeterHistoryWindow.hpp
     include/WinJACKNexus/Meter/Mod/MeterbridgeWindow.hpp
+    include/WinJACKNexus/Meter/Mod/MeterSettingsWidget.hpp
 )
 
 target_include_directories(meterbridge_mod_ui

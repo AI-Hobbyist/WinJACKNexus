@@ -22,13 +22,17 @@
 
 class QComboBox;
 class QLabel;
+class QResizeEvent;
 class QScrollArea;
+class QShowEvent;
 class QSpinBox;
+class QTabWidget;
 class QHBoxLayout;
 
 namespace WinJACKNexus::Meter::Mod {
 
 class MeterCard;
+class MeterHistoryWindow;
 
 class MeterbridgeWindow final : public QMainWindow {
 public:
@@ -38,7 +42,13 @@ public:
     void refresh();
     int cardCount() const noexcept;
     MeterCard* cardForInstanceId(const QString& instanceId) const;
+    MeterHistoryWindow* historyWindowForInstanceId(const QString& instanceId) const;
+    void openHistoryForInstanceId(const QString& instanceId);
     bool isEmptyStateVisible() const noexcept;
+
+protected:
+    void resizeEvent(QResizeEvent* event) override;
+    void showEvent(QShowEvent* event) override;
 
 private:
     void addCard(const MeterViewSnapshot& snapshot);
@@ -49,11 +59,14 @@ private:
     QComboBox* scenarioSelector_ = nullptr;
     QSpinBox* customChannelCount_ = nullptr;
     QSpinBox* previewProbeCount_ = nullptr;
+    QTabWidget* tabs_ = nullptr;
     QScrollArea* cardScrollArea_ = nullptr;
     QWidget* cardContainer_ = nullptr;
     QHBoxLayout* cardLayout_ = nullptr;
     QLabel* emptyState_ = nullptr;
     QHash<QString, MeterCard*> cards_;
+    MeterHistoryWindow* historyPage_ = nullptr;
+    int historyTabIndex_ = -1;
 };
 
 }

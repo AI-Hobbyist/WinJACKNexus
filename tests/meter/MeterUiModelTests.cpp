@@ -23,6 +23,7 @@ namespace {
 using WinJACKNexus::Meter::MeterProbeState;
 using WinJACKNexus::Meter::MeterViewCommand;
 using WinJACKNexus::Meter::MeterViewCommandType;
+using WinJACKNexus::Meter::MeterHistoryViewMode;
 using WinJACKNexus::Meter::MockMeterDataProvider;
 using WinJACKNexus::Meter::MockMeterScenario;
 
@@ -46,6 +47,13 @@ bool testScenarioCoverage()
     passed &= check(scenarios.size() == 11, "mock provider exposes every UI-1 scenario");
     passed &= check(std::find(scenarios.cbegin(), scenarios.cend(), MockMeterScenario::longHistory) != scenarios.cend(),
                     "mock provider exposes the long-history scenario");
+    const auto defaultSnapshots = provider.snapshots();
+    passed &= check(defaultSnapshots.size() == 2
+                        && defaultSnapshots[0].instanceId == QStringLiteral("meter-preview-1")
+                        && defaultSnapshots[1].instanceId == QStringLiteral("meter-preview-2")
+                        && defaultSnapshots[0].clientName == QStringLiteral("话筒 1")
+                        && defaultSnapshots[1].clientName == QStringLiteral("音乐底"),
+                    "default preview presents two stable, distinct meter channels");
 
     provider.setScenario(MockMeterScenario::normalProgram);
     const auto& normal = singleSnapshot(provider);
@@ -86,7 +94,7 @@ bool testScenarioCoverage()
 
     provider.setScenario(MockMeterScenario::renamed);
     const auto& renamed = singleSnapshot(provider);
-    passed &= check(renamed.instanceId == normal.instanceId && renamed.clientName == QStringLiteral("Program-2")
+    passed &= check(renamed.instanceId == normal.instanceId && renamed.clientName == QStringLiteral("节目-2")
                         && renamed.nameRevision > normal.nameRevision,
                     "rename changes the visible client name without changing identity");
 
@@ -146,6 +154,80 @@ bool testCommandInterface()
     return passed;
 }
 
+bool testUi4PreviewState()
+{
+    MockMeterDataProvider provider;
+    MeterViewCommand command;
+    command.instanceId = QStringLiteral("meter-preview-1");
+    bool passed = true;
+
+    const auto initial = singleSnapshot(provider);
+    passed &= check(initial.history.size() == 600 && initial.historyView.timeWindowMilliseconds == 600000,
+                    "normal preview exposes deterministic history for the UI-4 window");
+    passed &= check(initial.historyView.mode == MeterHistoryViewMode::realtimeScroll
+                        && initial.historyView.visibleSeriesIds.size() == 8,
+                    "normal preview starts in a ten-minute rolling view with eight visible series");
+
+    command.type = MeterViewCommandType::setHistoryViewMode;
+    command.historyViewMode = MeterHistoryViewMode::scanning;
+    passed &= check(provider.dispatch(command) && singleSnapshot(provider).historyView.mode == MeterHistoryViewMode::scanning,
+                    "history mode command updates the addressed preview state");
+
+    command.type = MeterViewCommandType::setHistoryTimeWindow;
+    command.historyViewMode.reset();
+    command.historyTimeWindowMilliseconds = 3600000;
+    passed &= check(provider.dispatch(command) && singleSnapshot(provider).historyView.timeWindowMilliseconds == 3600000,
+                    "history time windows retain the one-hour UI-4 preview option");
+
+    command.type = MeterViewCommandType::setHistorySeriesVisible;
+    command.historyTimeWindowMilliseconds.reset();
+    command.historyViewMode.reset();
+    command.seriesId = QStringLiteral("lra");
+    command.enabled = false;
+    const auto lraHiddenSnapshot = provider.dispatch(command) ? singleSnapshot(provider) : WinJACKNexus::Meter::MeterViewSnapshot {};
+    passed &= check(!lraHiddenSnapshot.instanceId.isEmpty()
+                        && std::find(lraHiddenSnapshot.historyView.visibleSeriesIds.cbegin(),
+                                     lraHiddenSnapshot.historyView.visibleSeriesIds.cend(),
+                                     QStringLiteral("lra")) == lraHiddenSnapshot.historyView.visibleSeriesIds.cend(),
+                    "history legend visibility is retained in the preview state");
+
+    command.type = MeterViewCommandType::addHistoryMarker;
+    command.enabled.reset();
+    command.seriesId.clear();
+    command.markerElapsedMilliseconds = 12000;
+    command.textValue = QStringLiteral("Scene change");
+    passed &= check(provider.dispatch(command) && singleSnapshot(provider).markers.size() == 1,
+                    "history markers are retained in the preview state");
+
+    command.type = MeterViewCommandType::clearHistory;
+    command.markerElapsedMilliseconds.reset();
+    command.textValue.clear();
+    passed &= check(provider.dispatch(command) && singleSnapshot(provider).history.empty(),
+                    "clear-history command clears the mock history surface");
+
+    provider.setScenario(MockMeterScenario::customChannels);
+    command.type = MeterViewCommandType::setCustomChannelCount;
+    command.channelCount = 4;
+    passed &= check(provider.dispatch(command) && singleSnapshot(provider).channelLayoutEditable
+                        && singleSnapshot(provider).channels.size() == 4,
+                    "custom channel count is editable in the preview provider");
+
+    command.type = MeterViewCommandType::setChannelDisplayName;
+    command.channelCount.reset();
+    command.channelIndex = 1;
+    command.textValue = QStringLiteral("Music R");
+    passed &= check(provider.dispatch(command) && singleSnapshot(provider).channels[1].displayName == QStringLiteral("Music R"),
+                    "custom channel display names update through the command contract");
+
+    command.type = MeterViewCommandType::setGlobalSilenceThreshold;
+    command.channelIndex.reset();
+    command.textValue.clear();
+    command.numericValue = -64.0F;
+    passed &= check(provider.dispatch(command) && singleSnapshot(provider).globalSettings.silenceThresholdDbfs == -64.0F,
+                    "global preview settings update through the command contract");
+    return passed;
+}
+
 bool testPreviewProbeLifecycle()
 {
     MockMeterDataProvider provider;
@@ -167,7 +249,7 @@ bool testPreviewProbeLifecycle()
     provider.setScenario(MockMeterScenario::renamed);
     const auto renamed = singleSnapshot(provider);
     passed &= check(renamed.instanceId == QStringLiteral("meter-preview-1")
-                        && renamed.clientName == QStringLiteral("Program-2")
+                        && renamed.clientName == QStringLiteral("节目-2")
                         && renamed.nameRevision == 2,
                     "rename preview retains its stable identity while advancing its revision");
 
@@ -183,6 +265,7 @@ int main()
     const auto passed = testScenarioCoverage()
         && testCustomChannelRangeAndHistory()
         && testCommandInterface()
+        && testUi4PreviewState()
         && testPreviewProbeLifecycle();
     if (!passed)
         return 1;

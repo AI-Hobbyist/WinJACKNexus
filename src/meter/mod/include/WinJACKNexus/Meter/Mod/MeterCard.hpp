@@ -35,10 +35,15 @@ namespace WinJACKNexus::Meter::Mod {
 
 class MeterCard final : public QFrame {
 public:
-    explicit MeterCard(MeterViewDataProvider& provider, std::function<void()> requestRefresh, QWidget* parent = nullptr);
+    explicit MeterCard(MeterViewDataProvider& provider,
+                       std::function<void()> requestRefresh,
+                       std::function<void(const QString&)> openHistory,
+                       QWidget* parent = nullptr);
     ~MeterCard() override = default;
 
     void setSnapshot(const MeterViewSnapshot& snapshot);
+    void setDisplayIndex(int index);
+    void setAvailableHeight(int height);
     QString instanceId() const;
     QString clientName() const;
     QString presetId() const;
@@ -52,9 +57,11 @@ private:
 
     MeterViewDataProvider& provider_;
     std::function<void()> requestRefresh_;
+    std::function<void(const QString&)> openHistory_;
     QString instanceId_;
     QString clientName_;
     QString presetId_;
+    QLabel* numberLabel_ = nullptr;
     QLabel* titleLabel_ = nullptr;
     QLabel* layoutLabel_ = nullptr;
     QLabel* stateLabel_ = nullptr;

@@ -125,6 +125,21 @@ QColor MetricReadout::accentColor() const
     return accentColor_;
 }
 
+void MetricReadout::setShowSurface(bool visible)
+{
+    if (showSurface_ == visible)
+        return;
+    showSurface_ = visible;
+    setMinimumSize(showSurface_ ? QSize(124, 72) : QSize(96, 58));
+    updateGeometry();
+    update();
+}
+
+bool MetricReadout::showSurface() const noexcept
+{
+    return showSurface_;
+}
+
 void MetricReadout::setThemePalette(const ThemePalette& palette)
 {
     if (!palette.isValid())
@@ -140,7 +155,7 @@ ThemePalette MetricReadout::themePalette() const
 
 QSize MetricReadout::sizeHint() const
 {
-    return QSize(148, 78);
+    return showSurface_ ? QSize(148, 78) : QSize(104, 60);
 }
 
 void MetricReadout::paintEvent(QPaintEvent*)
@@ -152,43 +167,59 @@ void MetricReadout::paintEvent(QPaintEvent*)
     const auto border = themeColor(themePalette_, "border", palette().color(QPalette::Mid));
     const auto text = themeColor(themePalette_, "text", palette().color(QPalette::WindowText));
     const auto muted = themeColor(themePalette_, "text-muted", palette().color(QPalette::Mid));
+    const auto accent = resolvedAccentColor();
 
     const QRectF bounds = QRectF(rect()).adjusted(0.5, 0.5, -0.5, -0.5);
-    painter.setPen(QPen(border, 1.0));
-    painter.setBrush(panelBackground);
-    painter.drawRoundedRect(bounds, 4.0, 4.0);
-    painter.fillRect(QRectF(bounds.left() + 1.0, bounds.top() + 8.0, 3.0, std::max(1.0, bounds.height() - 16.0)), resolvedAccentColor());
+    if (showSurface_) {
+        painter.setPen(QPen(border, 1.0));
+        painter.setBrush(panelBackground);
+        painter.drawRoundedRect(bounds, 4.0, 4.0);
+        const QRectF labelBand(bounds.left() + 1.0,
+                               bounds.top() + 1.0,
+                               std::max(1.0, bounds.width() - 2.0),
+                               std::min(24.0, std::max(1.0, bounds.height() - 2.0)));
+        painter.fillRect(labelBand, panelRaised);
+        painter.fillRect(QRectF(labelBand.left(), labelBand.bottom() - 1.0, labelBand.width(), 1.0), accent);
+        painter.fillRect(QRectF(bounds.left() + 1.0, bounds.top() + 6.0, 3.0, std::max(1.0, bounds.height() - 12.0)), accent);
+    }
 
     const QFontMetrics metrics(painter.font());
-    const auto content = bounds.adjusted(12.0, 8.0, -10.0, -8.0);
-    painter.setPen(muted);
-    painter.drawText(QRectF(content.left(), content.top(), content.width(), metrics.height()),
-                     Qt::AlignLeft | Qt::AlignVCenter,
-                     metrics.elidedText(label_, Qt::ElideRight, static_cast<int>(content.width())));
-
+    const auto content = showSurface_ ? bounds.adjusted(12.0, 8.0, -10.0, -8.0) : bounds.adjusted(0.0, 2.0, 0.0, -2.0);
     QFont valueFont = painter.font();
     valueFont.setPointSizeF(std::max(11.0, valueFont.pointSizeF() + 5.0));
     valueFont.setBold(true);
-    painter.setFont(valueFont);
     const QFontMetrics valueMetrics(valueFont);
-    painter.setPen(text);
-    painter.drawText(QRectF(content.left(), content.bottom() - valueMetrics.height(), content.width(), valueMetrics.height()),
+    QFont unitFont = valueFont;
+    unitFont.setPointSizeF(std::max(8.0, unitFont.pointSizeF() - 3.0));
+    unitFont.setBold(false);
+    const QFontMetrics unitMetrics(unitFont);
+    const auto groupHeight = metrics.height() + 3.0 + valueMetrics.height();
+    const auto groupTop = content.top() + std::max(0.0, (content.height() - groupHeight) / 2.0);
+    const QRectF labelRect(content.left(), groupTop, content.width(), metrics.height());
+    const QRectF valueRect(content.left(), groupTop + metrics.height() + 3.0, content.width(), valueMetrics.height());
+
+    painter.setPen(muted);
+    painter.drawText(labelRect,
+                     Qt::AlignLeft | Qt::AlignVCenter,
+                     metrics.elidedText(label_, Qt::ElideRight, static_cast<int>(content.width())));
+
+    painter.setFont(valueFont);
+    painter.setPen(showSurface_ ? text : accent);
+    painter.drawText(valueRect,
                      Qt::AlignLeft | Qt::AlignVCenter,
                      displayText());
 
     if (!unit_.isEmpty()) {
-        QFont unitFont = painter.font();
-        unitFont.setPointSizeF(std::max(8.0, unitFont.pointSizeF() - 3.0));
-        unitFont.setBold(false);
         painter.setFont(unitFont);
         painter.setPen(muted);
-        const QFontMetrics unitMetrics(unitFont);
-        painter.drawText(QRectF(content.left(), content.bottom() - unitMetrics.height(), content.width(), unitMetrics.height()),
+        painter.drawText(QRectF(valueRect.left(),
+                                valueRect.center().y() - unitMetrics.height() / 2.0,
+                                valueRect.width(),
+                                unitMetrics.height()),
                          Qt::AlignRight | Qt::AlignVCenter,
                          metrics.elidedText(unit_, Qt::ElideLeft, static_cast<int>(content.width() / 2.0)));
     }
 
-    Q_UNUSED(panelRaised)
 }
 
 QColor MetricReadout::resolvedAccentColor() const

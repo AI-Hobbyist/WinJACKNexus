@@ -43,6 +43,8 @@ public:
     QString displayText() const;
     void setAccentColor(const QColor& color);
     QColor accentColor() const;
+    void setShowSurface(bool visible);
+    bool showSurface() const noexcept;
     void setThemePalette(const ThemePalette& palette);
     ThemePalette themePalette() const;
 
@@ -59,6 +61,7 @@ private:
     QString unit_;
     int precision_ = 1;
     QColor accentColor_;
+    bool showSurface_ = true;
     ThemePalette themePalette_ = ThemePalette::darkRack();
 };
 

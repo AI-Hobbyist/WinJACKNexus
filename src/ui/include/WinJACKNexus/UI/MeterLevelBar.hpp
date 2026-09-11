@@ -66,7 +66,7 @@ private:
     float denormalize(float value) const noexcept;
     QString markLabel(const MeterLevelMark& mark) const;
 
-    float minimum_ = -70.0F;
+    float minimum_ = -72.0F;
     float maximum_ = 12.0F;
     float warning_ = -18.0F;
     float danger_ = 0.0F;

@@ -34,8 +34,8 @@ QColor themeColor(const ThemePalette& palette, const char* key, const QColor& fa
     return color.isValid() ? color : fallback;
 }
 
-constexpr int entryMinimumWidth = 166;
-constexpr int entryHeight = 88;
+constexpr int entryMinimumWidth = 112;
+constexpr int entryHeight = 78;
 constexpr int margin = 6;
 
 }
@@ -97,7 +97,7 @@ ThemePalette MetricStatisticsWidget::themePalette() const
 
 QSize MetricStatisticsWidget::sizeHint() const
 {
-    const auto columns = std::min(4, std::max(1, static_cast<int>(entries_.size())));
+    const auto columns = std::max(1, static_cast<int>(entries_.size()));
     const auto rows = std::max(1, (static_cast<int>(entries_.size()) + columns - 1) / columns);
     return QSize(columns * entryMinimumWidth + margin * 2, rows * entryHeight + margin * 2);
 }
@@ -160,7 +160,7 @@ void MetricStatisticsWidget::paintEvent(QPaintEvent*)
 
         painter.setFont(labelFont);
         painter.setPen(muted);
-        const auto detail = QStringLiteral("Min %1    Max %2").arg(displayValue(entry.minimumValue), displayValue(entry.maximumValue));
+        const auto detail = QStringLiteral("最小：%1    最大：%2").arg(displayValue(entry.minimumValue), displayValue(entry.maximumValue));
         painter.drawText(QRect(contentBounds.left(), bounds.bottom() - labelMetrics.height() - 4,
                                contentBounds.width(), labelMetrics.height()),
                          Qt::AlignLeft | Qt::AlignVCenter,
@@ -188,7 +188,8 @@ QColor MetricStatisticsWidget::entryColor(std::size_t index, const MetricStatist
 
 int MetricStatisticsWidget::columnCount() const noexcept
 {
-    return std::max(1, width() / entryMinimumWidth);
+    const auto availableColumns = std::max(1, width() / entryMinimumWidth);
+    return std::max(1, std::min(static_cast<int>(entries_.size()), availableColumns));
 }
 
 QRect MetricStatisticsWidget::entryRect(int index) const
@@ -197,10 +198,11 @@ QRect MetricStatisticsWidget::entryRect(int index) const
     const auto row = index / columns;
     const auto column = index % columns;
     const auto availableWidth = std::max(1, width() - margin * 2);
-    const auto entryWidth = std::max(1, availableWidth / columns);
-    return QRect(margin + column * entryWidth,
+    const auto left = margin + column * availableWidth / columns;
+    const auto right = margin + (column + 1) * availableWidth / columns;
+    return QRect(left,
                  margin + row * entryHeight,
-                 entryWidth,
+                 std::max(1, right - left),
                  entryHeight);
 }
 

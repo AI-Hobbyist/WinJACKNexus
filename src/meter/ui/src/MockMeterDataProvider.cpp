@@ -78,7 +78,7 @@ std::vector<MeterChannelView> makeChannels(std::uint16_t count, bool includeLfe,
     for (std::uint16_t index = 0; index < boundedCount; ++index) {
         const auto lfe = includeLfe && (index == 3 || (includeMultipleLfe && index == 7));
         channels.push_back({
-            QString::fromLatin1(channelNames[index].first),
+            index < 8 ? QString::fromLatin1(channelNames[index].first) : QStringLiteral("声道 %1").arg(index + 1),
             QString::fromLatin1(lfe ? "LFE" : channelNames[index].second),
             lfe
         });
@@ -110,6 +110,36 @@ void appendLongHistory(MeterViewSnapshot& snapshot)
     snapshot.lfePeakDbfs = snapshot.history.back().lfePeakDbfs;
 }
 
+void appendPreviewHistory(MeterViewSnapshot& snapshot, std::uint16_t previewIndex)
+{
+    constexpr std::int64_t intervalMilliseconds = 100;
+    constexpr std::size_t pointCount = 600;
+    const auto baseline = snapshot.currentMetrics;
+    const auto seed = static_cast<float>(previewIndex) * 0.37F;
+    const auto varyingValue = [seed](const std::optional<float>& value, float position, float amplitude) -> std::optional<float> {
+        if (!value.has_value())
+            return std::nullopt;
+        return *value + std::sin(position * 0.047F + seed) * amplitude;
+    };
+
+    snapshot.history.reserve(pointCount);
+    for (std::size_t index = 0; index < pointCount; ++index) {
+        const auto position = static_cast<float>(index);
+        MeterHistoryPoint point;
+        point.elapsedMilliseconds = static_cast<std::int64_t>(index) * intervalMilliseconds;
+        point.metrics.peakDbfs = varyingValue(baseline.peakDbfs, position, 2.4F);
+        point.metrics.rmsDbfs = varyingValue(baseline.rmsDbfs, position, 1.7F);
+        point.metrics.truePeakDbtp = varyingValue(baseline.truePeakDbtp, position, 2.1F);
+        point.metrics.momentaryLufs = varyingValue(baseline.momentaryLufs, position, 1.3F);
+        point.metrics.shortTermLufs = varyingValue(baseline.shortTermLufs, position, 0.8F);
+        point.metrics.integratedLufs = varyingValue(baseline.integratedLufs, position, 0.3F);
+        point.metrics.lraLu = varyingValue(baseline.lraLu, position, 0.6F);
+        point.lfePeakDbfs = varyingValue(snapshot.lfePeakDbfs, position, 1.9F);
+        point.discontinuity = previewIndex % 5 == 4 && index == pointCount / 2;
+        snapshot.history.push_back(std::move(point));
+    }
+}
+
 }
 
 std::vector<MockMeterScenario> MockMeterDataProvider::availableScenarios() const
@@ -133,27 +163,27 @@ QString MockMeterDataProvider::scenarioDisplayName(MockMeterScenario scenario)
 {
     switch (scenario) {
     case MockMeterScenario::silence:
-        return QStringLiteral("Silence");
+        return QStringLiteral("静音");
     case MockMeterScenario::normalProgram:
-        return QStringLiteral("Normal program");
+        return QStringLiteral("正常节目");
     case MockMeterScenario::overload:
-        return QStringLiteral("Over limit");
+        return QStringLiteral("超限");
     case MockMeterScenario::monoWithoutLfe:
-        return QStringLiteral("Mono without LFE");
+        return QStringLiteral("不含 LFE 的单声道");
     case MockMeterScenario::surroundWithLfe:
-        return QStringLiteral("5.1 with LFE");
+        return QStringLiteral("含 LFE 的 5.1");
     case MockMeterScenario::multipleLfe:
-        return QStringLiteral("Custom multiple LFE");
+        return QStringLiteral("自定义多 LFE");
     case MockMeterScenario::renamed:
-        return QStringLiteral("Renamed client");
+        return QStringLiteral("已改名客户端");
     case MockMeterScenario::offline:
-        return QStringLiteral("Offline");
+        return QStringLiteral("离线");
     case MockMeterScenario::reset:
-        return QStringLiteral("Reset session");
+        return QStringLiteral("重置会话");
     case MockMeterScenario::customChannels:
-        return QStringLiteral("Custom 1-16 channels");
+        return QStringLiteral("自定义 1-16 声道");
     case MockMeterScenario::longHistory:
-        return QStringLiteral("Long history");
+        return QStringLiteral("长历史");
     }
     return {};
 }
@@ -229,6 +259,98 @@ bool MockMeterDataProvider::dispatch(const MeterViewCommand& command)
     case MeterViewCommandType::openHistory:
     case MeterViewCommandType::selectInPatchbay:
         return true;
+    case MeterViewCommandType::setHistoryViewMode:
+        if (!command.historyViewMode.has_value())
+            return false;
+        state.historyView.mode = *command.historyViewMode;
+        return true;
+    case MeterViewCommandType::setHistoryTimeWindow:
+        if (!command.historyTimeWindowMilliseconds.has_value() || *command.historyTimeWindowMilliseconds <= 0)
+            return false;
+        state.historyView.timeWindowMilliseconds = std::min(*command.historyTimeWindowMilliseconds, std::int64_t { 3600000 });
+        return true;
+    case MeterViewCommandType::setHistoryPaused:
+        if (!command.enabled.has_value())
+            return false;
+        state.historyView.paused = *command.enabled;
+        return true;
+    case MeterViewCommandType::setHistorySeriesVisible: {
+        if (!command.enabled.has_value() || command.seriesId.isEmpty())
+            return false;
+        const auto existing = std::find(state.historyView.visibleSeriesIds.cbegin(), state.historyView.visibleSeriesIds.cend(), command.seriesId);
+        if (*command.enabled && existing == state.historyView.visibleSeriesIds.cend())
+            state.historyView.visibleSeriesIds.push_back(command.seriesId);
+        else if (!*command.enabled && existing != state.historyView.visibleSeriesIds.cend())
+            state.historyView.visibleSeriesIds.erase(existing);
+        return true;
+    }
+    case MeterViewCommandType::clearHistory:
+        state.historyCleared = true;
+        return true;
+    case MeterViewCommandType::addHistoryMarker: {
+        MeterHistoryMarkerView marker;
+        marker.id = state.nextMarkerId++;
+        marker.elapsedMilliseconds = command.markerElapsedMilliseconds.value_or(0);
+        marker.label = command.textValue.isEmpty() ? QStringLiteral("标记点 %1").arg(marker.id) : command.textValue;
+        state.markers.push_back(std::move(marker));
+        return true;
+    }
+    case MeterViewCommandType::removeHistoryMarker:
+        if (!command.markerId.has_value())
+            return false;
+        return std::erase_if(state.markers, [&command](const MeterHistoryMarkerView& marker) {
+            return marker.id == *command.markerId;
+        }) > 0;
+    case MeterViewCommandType::setCustomChannelCount:
+        if (!command.channelCount.has_value())
+            return false;
+        customChannelCount_ = std::clamp<std::uint16_t>(*command.channelCount, 1, maximumMeterChannelCount);
+        ensureCustomChannels(state);
+        return true;
+    case MeterViewCommandType::setChannelDisplayName:
+        if (scenario_ != MockMeterScenario::customChannels || !command.channelIndex.has_value() || command.textValue.isEmpty())
+            return false;
+        ensureCustomChannels(state);
+        if (*command.channelIndex >= state.customChannels.size())
+            return false;
+        state.customChannels[*command.channelIndex].displayName = command.textValue;
+        return true;
+    case MeterViewCommandType::setChannelRole:
+        if (scenario_ != MockMeterScenario::customChannels || !command.channelIndex.has_value() || command.textValue.isEmpty())
+            return false;
+        ensureCustomChannels(state);
+        if (*command.channelIndex >= state.customChannels.size())
+            return false;
+        state.customChannels[*command.channelIndex].speakerRole = command.textValue;
+        return true;
+    case MeterViewCommandType::setChannelLfe:
+        if (scenario_ != MockMeterScenario::customChannels || !command.channelIndex.has_value() || !command.enabled.has_value())
+            return false;
+        ensureCustomChannels(state);
+        if (*command.channelIndex >= state.customChannels.size())
+            return false;
+        state.customChannels[*command.channelIndex].isLfe = *command.enabled;
+        return true;
+    case MeterViewCommandType::setGlobalPreset:
+        if (command.presetId.isEmpty())
+            return false;
+        globalSettings_.defaultPresetId = command.presetId;
+        return true;
+    case MeterViewCommandType::setGlobalSilenceThreshold:
+        if (!command.numericValue.has_value() || !std::isfinite(*command.numericValue))
+            return false;
+        globalSettings_.silenceThresholdDbfs = std::clamp(*command.numericValue, -144.0F, 0.0F);
+        return true;
+    case MeterViewCommandType::setGlobalSilenceDuration:
+        if (!command.numericValue.has_value() || !std::isfinite(*command.numericValue))
+            return false;
+        globalSettings_.silenceDurationSeconds = std::clamp(*command.numericValue, 0.1F, 60.0F);
+        return true;
+    case MeterViewCommandType::setGlobalLogRootDirectory:
+        if (command.textValue.isEmpty())
+            return false;
+        globalSettings_.logRootDirectory = command.textValue;
+        return true;
     }
     return false;
 }
@@ -247,32 +369,54 @@ std::optional<std::uint16_t> MockMeterDataProvider::previewIndexForId(const QStr
     return std::nullopt;
 }
 
+void MockMeterDataProvider::ensureCustomChannels(PreviewProbeState& state)
+{
+    const auto defaults = makeChannels(customChannelCount_, customChannelCount_ >= 4, false);
+    if (state.customChannels.size() == defaults.size())
+        return;
+
+    const auto previous = std::move(state.customChannels);
+    state.customChannels = defaults;
+    const auto copyCount = std::min(previous.size(), state.customChannels.size());
+    for (std::size_t index = 0; index < copyCount; ++index)
+        state.customChannels[index] = previous[index];
+}
+
 MeterViewSnapshot MockMeterDataProvider::makeSnapshot(std::uint16_t previewIndex) const
 {
     MeterViewSnapshot snapshot;
+    const auto& state = previewProbeStates_[previewIndex];
     snapshot.instanceId = instanceIdFor(previewIndex);
-    snapshot.clientName = QStringLiteral("Mic %1").arg(previewIndex + 1);
+    snapshot.clientName = QStringLiteral("话筒 %1").arg(previewIndex + 1);
     snapshot.nameRevision = 1;
-    snapshot.layoutLabel = QStringLiteral("Stereo");
-    snapshot.presetId = previewProbeStates_[previewIndex].presetId;
+    snapshot.layoutLabel = QStringLiteral("立体声");
+    snapshot.presetId = state.presetId;
     snapshot.state = MeterProbeState::active;
-    snapshot.automaticResetEnabled = previewProbeStates_[previewIndex].automaticResetEnabled;
-    snapshot.recordingEnabled = previewProbeStates_[previewIndex].recordingEnabled;
+    snapshot.automaticResetEnabled = state.automaticResetEnabled;
+    snapshot.recordingEnabled = state.recordingEnabled;
     snapshot.channels = makeChannels(2, false, false);
     snapshot.currentMetrics = metrics(-1.2f, -18.5f, -1.0f, -16.8f, -18.1f, -20.3f, 6.4f);
+    snapshot.historyView = state.historyView;
+    snapshot.markers = state.markers;
+    snapshot.globalSettings = globalSettings_;
+    snapshot.csvPreview.logRootDirectory = globalSettings_.logRootDirectory;
+    snapshot.csvPreview.activeFilePath = QStringLiteral("%1/%2-preview.csv").arg(globalSettings_.logRootDirectory, snapshot.instanceId);
+    snapshot.csvPreview.rotationStatus = snapshot.recordingEnabled
+        ? QStringLiteral("预览记录已启用；轮换间隔：60 分钟")
+        : QStringLiteral("预览记录空闲；不会写入文件");
 
     if (previewIndex % 4 == 1) {
-        snapshot.clientName = QStringLiteral("Music bed");
+        snapshot.clientName = QStringLiteral("音乐底" );
         snapshot.currentMetrics = metrics(-3.8f, -21.7f, -3.1f, -20.4f, -21.5f, -22.4f, 5.2f);
     } else if (previewIndex % 4 == 2) {
-        snapshot.clientName = QStringLiteral("Program 5.1");
+        snapshot.clientName = QStringLiteral("节目 5.1");
         snapshot.layoutLabel = QStringLiteral("5.1");
         snapshot.channels = makeChannels(6, true, false);
         snapshot.currentMetrics = metrics(-1.8f, -20.4f, -1.3f, -18.0f, -19.1f, -22.7f, 7.0f);
         snapshot.lfePeakDbfs = -6.2f;
     } else if (previewIndex % 4 == 3) {
-        snapshot.clientName = QStringLiteral("Narration");
-        snapshot.layoutLabel = QStringLiteral("Mono");
+        snapshot.clientName = QStringLiteral("旁白");
+        snapshot.layoutLabel = QStringLiteral("单声道");
         snapshot.channels = makeChannels(1, false, false);
         snapshot.currentMetrics = metrics(-5.2f, -24.8f, -4.8f, -21.1f, -22.4f, -23.0f, 4.1f);
     }
@@ -289,31 +433,31 @@ MeterViewSnapshot MockMeterDataProvider::makeSnapshot(std::uint16_t previewIndex
         snapshot.currentMetrics = metrics(0.4f, -11.5f, 1.1f, -12.8f, -14.2f, -17.4f, 8.7f);
         break;
     case MockMeterScenario::monoWithoutLfe:
-        snapshot.clientName = QStringLiteral("Narration");
-        snapshot.layoutLabel = QStringLiteral("Mono");
+        snapshot.clientName = QStringLiteral("旁白");
+        snapshot.layoutLabel = QStringLiteral("单声道");
         snapshot.channels = makeChannels(1, false, false);
         snapshot.currentMetrics = metrics(-5.2f, -24.8f, -4.8f, -21.1f, -22.4f, -23.0f, 4.1f);
         break;
     case MockMeterScenario::surroundWithLfe:
-        snapshot.clientName = QStringLiteral("Program 5.1");
+        snapshot.clientName = QStringLiteral("节目 5.1");
         snapshot.layoutLabel = QStringLiteral("5.1");
         snapshot.channels = makeChannels(6, true, false);
         snapshot.currentMetrics = metrics(-1.8f, -20.4f, -1.3f, -18.0f, -19.1f, -22.7f, 7.0f);
         snapshot.lfePeakDbfs = -6.2f;
         break;
     case MockMeterScenario::multipleLfe:
-        snapshot.clientName = QStringLiteral("Immersive stem");
-        snapshot.layoutLabel = QStringLiteral("Custom 8");
+        snapshot.clientName = QStringLiteral("沉浸式分轨");
+        snapshot.layoutLabel = QStringLiteral("自定义 8");
         snapshot.channels = makeChannels(8, true, true);
         snapshot.currentMetrics = metrics(-2.0f, -21.2f, -1.4f, -19.3f, -20.5f, -23.1f, 7.3f);
         snapshot.lfePeakDbfs = -3.4f;
         break;
     case MockMeterScenario::renamed:
-        snapshot.clientName = QStringLiteral("Program-2");
+        snapshot.clientName = QStringLiteral("节目-2");
         snapshot.nameRevision = 2;
         break;
     case MockMeterScenario::offline:
-        snapshot.clientName = QStringLiteral("Offline probe");
+        snapshot.clientName = QStringLiteral("离线探针");
         snapshot.state = MeterProbeState::offline;
         snapshot.currentMetrics = {};
         snapshot.history.clear();
@@ -323,26 +467,33 @@ MeterViewSnapshot MockMeterDataProvider::makeSnapshot(std::uint16_t previewIndex
         snapshot.history.clear();
         break;
     case MockMeterScenario::customChannels:
-        snapshot.clientName = QStringLiteral("Custom bus");
-        snapshot.layoutLabel = QStringLiteral("Custom %1").arg(customChannelCount_);
+        snapshot.clientName = QStringLiteral("自定义总线");
+        snapshot.layoutLabel = QStringLiteral("自定义 %1").arg(customChannelCount_);
         snapshot.channels = makeChannels(customChannelCount_, customChannelCount_ >= 4, false);
+        if (state.customChannels.size() == snapshot.channels.size())
+            snapshot.channels = state.customChannels;
         snapshot.currentMetrics = metrics(-3.6f, -22.6f, -3.1f, -20.0f, -21.4f, -22.9f, 5.8f);
         if (customChannelCount_ >= 4)
             snapshot.lfePeakDbfs = -8.0f;
+        snapshot.channelLayoutEditable = true;
         break;
     case MockMeterScenario::longHistory:
-        snapshot.clientName = QStringLiteral("Long-form mix");
+        snapshot.clientName = QStringLiteral("长节目混音");
         snapshot.layoutLabel = QStringLiteral("5.1");
         snapshot.channels = makeChannels(6, true, false);
         appendLongHistory(snapshot);
         break;
     }
 
-    if (previewProbeStates_[previewIndex].resetRequested) {
+    if (scenario_ != MockMeterScenario::offline && scenario_ != MockMeterScenario::reset && scenario_ != MockMeterScenario::longHistory)
+        appendPreviewHistory(snapshot, previewIndex);
+    if (state.resetRequested) {
         snapshot.currentMetrics.integratedLufs.reset();
         snapshot.currentMetrics.lraLu.reset();
         snapshot.history.clear();
     }
+    if (state.historyCleared)
+        snapshot.history.clear();
     return snapshot;
 }
 
