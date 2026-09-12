@@ -8,6 +8,7 @@ add_library(meterbridge_mod_ui STATIC
     src/MeterSettingsWidget.cpp
     include/WinJACKNexus/Meter/Mod/MeterCard.hpp
     include/WinJACKNexus/Meter/Mod/MeterHistoryWindow.hpp
+    include/WinJACKNexus/Meter/Mod/MeterbridgeService.hpp
     include/WinJACKNexus/Meter/Mod/MeterbridgeWindow.hpp
     include/WinJACKNexus/Meter/Mod/MeterSettingsWidget.hpp
 )
@@ -31,6 +32,7 @@ add_library(WinJACKNexus::MeterbridgeModUi ALIAS meterbridge_mod_ui)
 
 add_library(mod_meterbrigde SHARED
     Library.cpp
+    src/MeterbridgeService.cpp
 )
 
 target_link_libraries(mod_meterbrigde

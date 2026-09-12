@@ -79,6 +79,8 @@ public:
     void setTimeRange(std::int64_t startMilliseconds, std::int64_t endMilliseconds);
     std::int64_t startTimeMilliseconds() const noexcept;
     std::int64_t endTimeMilliseconds() const noexcept;
+    void setTimeDisplayOffsetMilliseconds(std::optional<std::int64_t> offsetMilliseconds);
+    std::optional<std::int64_t> timeDisplayOffsetMilliseconds() const noexcept;
     void setValueRange(double minimum, double maximum);
     double minimumValue() const noexcept;
     double maximumValue() const noexcept;
@@ -127,6 +129,7 @@ private:
 
     std::int64_t startTimeMilliseconds_ = 0;
     std::int64_t endTimeMilliseconds_ = 60000;
+    std::optional<std::int64_t> timeDisplayOffsetMilliseconds_;
     double minimumValue_ = -70.0;
     double maximumValue_ = 12.0;
     double rightMinimumValue_ = 0.0;

@@ -22,6 +22,7 @@ class JackClient;
 }
 
 #include <QGraphicsView>
+#include <QJsonObject>
 #include <QPointF>
 #include <QString>
 
@@ -103,6 +104,7 @@ public:
     bool loadProject(const QString& filePath, std::vector<PatchbayProjectModule>& modules);
     bool loadProject(const QString& filePath, std::vector<PatchbayProjectModule>& modules,
                      std::vector<PatchbaySubGraphProject>& subGraphs);
+    QJsonObject meterbridgeProjectState() const;
     bool restoreJackConnections(WinJACKNexus::Audio::JackClient& client);
     bool isProjectDirty() const noexcept;
     void markProjectDirty() noexcept;
@@ -129,6 +131,7 @@ public:
                                std::function<bool(const std::string&)> copyModuleNode,
                                std::function<bool(const std::string&)> removeModuleNode,
                                std::function<bool(const std::string&, QWidget*)> showModuleNodeGui,
+                               std::function<bool(const std::string&)> canShowModuleNodeGui,
                                std::function<bool(const QPointF&)> pasteModuleNode);
     void setModuleNodeDropHandler(std::function<bool(const QString&, std::uint32_t, const QPointF&)> handler);
     void setVstNodeDropHandler(std::function<bool(const QString&, std::uint32_t, const QString&, const QPointF&)> handler);
@@ -174,6 +177,7 @@ private:
     void retryPendingLogicalConnections();
 
     WinJACKNexus::Patchbay::Core::Snapshot snapshot_;
+    WinJACKNexus::Patchbay::Core::Snapshot renderedSnapshot_;
     PatchbaySceneContext sceneContext_;
     std::vector<PatchbaySubGraphInfo> subGraphNodes_;
     std::vector<PatchbayInterfaceInfo> interfaceNodes_;
@@ -206,6 +210,7 @@ private:
     std::function<bool(const std::string&)> copyModuleNode_;
     std::function<bool(const std::string&)> removeModuleNode_;
     std::function<bool(const std::string&, QWidget*)> showModuleNodeGui_;
+    std::function<bool(const std::string&)> canShowModuleNodeGui_;
     std::function<bool(const QPointF&)> pasteModuleNode_;
     std::function<bool(const QString&, std::uint32_t, const QPointF&)> moduleNodeDropHandler_;
     std::function<bool(const QString&, std::uint32_t, const QString&, const QPointF&)> vstNodeDropHandler_;
@@ -219,6 +224,7 @@ private:
     bool connectionDragMoved_ = false;
     bool snapshotRefreshPending_ = false;
     bool projectDirty_ = false;
+    QJsonObject meterbridgeProjectState_;
     std::uint8_t logicalConnectionRestoreRetries_ = 0;
     std::uint8_t jackConnectionRestoreRetries_ = 0;
 };

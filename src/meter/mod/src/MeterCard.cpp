@@ -15,6 +15,8 @@
  */
 #include <WinJACKNexus/Meter/Mod/MeterCard.hpp>
 
+#include <WinJACKNexus/Common/MeterLoudnessPresetCatalog.hpp>
+
 #include <WinJACKNexus/UI/MeterLevelBar.hpp>
 #include <WinJACKNexus/UI/MetricReadout.hpp>
 #include <WinJACKNexus/UI/ThemePalette.hpp>
@@ -263,6 +265,7 @@ MeterCard::MeterCard(MeterViewDataProvider& provider,
     levelBar_->setUnit(QStringLiteral("dBFS"));
     levelBar_->setShowScaleLabels(true);
     levelBar_->setThemePalette(cardPalette);
+    levelBar_->stopAnimation();
     levelLayout->addWidget(levelBar_);
     contentLayout->addWidget(levelPanel);
 
@@ -394,6 +397,7 @@ void MeterCard::setSnapshot(const MeterViewSnapshot& snapshot)
 
     levelBar_->setValue(snapshot.currentMetrics.peakDbfs);
     levelBar_->setPeakValue(snapshot.currentMetrics.truePeakDbtp);
+    levelBar_->advanceAnimation();
     peakReadout_->setValue(asDouble(snapshot.currentMetrics.peakDbfs));
     rmsReadout_->setValue(asDouble(snapshot.currentMetrics.rmsDbfs));
     truePeakReadout_->setValue(asDouble(snapshot.currentMetrics.truePeakDbtp));
@@ -415,6 +419,12 @@ void MeterCard::setAvailableHeight(int height)
     if (this->height() == adjustedHeight)
         return;
     setFixedHeight(adjustedHeight);
+}
+
+void MeterCard::setRefreshRate(int framesPerSecond)
+{
+    if (levelBar_ != nullptr)
+        levelBar_->setFrameRate(framesPerSecond);
 }
 
 QString MeterCard::instanceId() const
@@ -460,10 +470,8 @@ void MeterCard::dispatch(MeterViewCommandType type, std::optional<bool> enabled,
 
 void MeterCard::configurePresetSelector()
 {
-    presetSelector_->addItem(QStringLiteral("EBU R128"), QStringLiteral("ebu-r128"));
-    presetSelector_->addItem(QStringLiteral("ATSC A/85"), QStringLiteral("atsc-a85"));
-    presetSelector_->addItem(QStringLiteral("流媒体 -14 LUFS"), QStringLiteral("streaming-14"));
-    presetSelector_->addItem(QStringLiteral("自定义参考"), QStringLiteral("custom"));
+    for (const auto& preset : WinJACKNexus::Common::meterLoudnessPresetCatalog)
+        presetSelector_->addItem(QString::fromUtf8(preset.displayName), QString::fromLatin1(preset.id));
 }
 
 }

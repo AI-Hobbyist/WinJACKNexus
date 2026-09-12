@@ -15,6 +15,7 @@
  */
 #include <WinJACKNexus/UI/MeterWidget.hpp>
 
+#include <QEvent>
 #include <QFontMetrics>
 #include <QHBoxLayout>
 #include <QPaintEvent>
@@ -264,11 +265,22 @@ void MeterWidget::paintContent(QPainter& painter)
 void MeterWidget::advanceFrame()
 {
     level_ *= levelDecay;
+    if (level_ < 0.0001f)
+        level_ = 0.0f;
     if (peakHoldFrames_ > 0) {
         --peakHoldFrames_;
     } else {
         peak_ = std::max(0.0f, peak_ - peakDecay);
     }
+}
+
+bool MeterWidget::advanceFromArray()
+{
+    const auto previousLevel = level_;
+    const auto previousPeak = peak_;
+    const auto previousPeakHoldFrames = peakHoldFrames_;
+    advanceFrame();
+    return level_ != previousLevel || peak_ != previousPeak || peakHoldFrames_ != previousPeakHoldFrames;
 }
 
 float MeterWidget::normalize(float value) const noexcept
@@ -302,6 +314,7 @@ PeakMeterWidget::PeakMeterWidget(QWidget* parent)
 MeterArrayWidget::MeterArrayWidget(QWidget* parent)
     : QWidget(parent)
     , layout_(new QHBoxLayout(this))
+    , animationTimer_(this)
 {
     layout_->setContentsMargins(0, 0, 0, 0);
     layout_->setSpacing(3);
@@ -310,6 +323,9 @@ MeterArrayWidget::MeterArrayWidget(QWidget* parent)
     scaleWidget_->setVisible(false);
     layout_->addWidget(scaleWidget_);
     setChannelCount(1);
+    animationTimer_.setTimerType(Qt::PreciseTimer);
+    animationTimer_.setInterval(1000 / frameRate_);
+    connect(&animationTimer_, &QTimer::timeout, this, [this] { advanceMeters(); });
 }
 
 void MeterArrayWidget::setChannelCount(std::uint16_t count)
@@ -320,6 +336,7 @@ void MeterArrayWidget::setChannelCount(std::uint16_t count)
 
     while (meters_.size() < normalizedCount) {
         auto* meter = new PeakMeterWidget(this);
+        meter->stopAnimation();
         meters_.push_back(meter);
         layout_->addWidget(meter, 1);
     }
@@ -378,6 +395,22 @@ void MeterArrayWidget::setShowScaleLabels(bool show)
     updateGeometry();
 }
 
+void MeterArrayWidget::setFrameRate(int framesPerSecond)
+{
+    const auto normalizedRate = std::clamp(framesPerSecond, 1, 240);
+    if (frameRate_ == normalizedRate)
+        return;
+    frameRate_ = normalizedRate;
+    animationTimer_.setInterval(std::max(1, 1000 / frameRate_));
+    for (auto* meter : meters_)
+        meter->setFrameRate(frameRate_);
+}
+
+int MeterArrayWidget::frameRate() const noexcept
+{
+    return frameRate_;
+}
+
 void MeterArrayWidget::setValues(const std::array<float, 16>& values, std::uint16_t count)
 {
     const auto normalizedCount = static_cast<std::uint16_t>(std::clamp<std::uint16_t>(count, 1, 16));
@@ -406,8 +439,51 @@ QSize MeterArrayWidget::sizeHint() const
     return QSize(labelWidth + static_cast<int>(channelCount_) * 43 + spacingWidth, 190);
 }
 
+void MeterArrayWidget::showEvent(QShowEvent* event)
+{
+    QWidget::showEvent(event);
+    synchronizeAnimationTimer();
+}
+
+void MeterArrayWidget::hideEvent(QHideEvent* event)
+{
+    animationTimer_.stop();
+    QWidget::hideEvent(event);
+}
+
+void MeterArrayWidget::changeEvent(QEvent* event)
+{
+    QWidget::changeEvent(event);
+    if (event->type() == QEvent::WindowStateChange)
+        synchronizeAnimationTimer();
+}
+
+void MeterArrayWidget::synchronizeAnimationTimer()
+{
+    if (isVisible() && !isMinimized()) {
+        if (!animationTimer_.isActive())
+            animationTimer_.start();
+    } else {
+        animationTimer_.stop();
+    }
+}
+
+void MeterArrayWidget::advanceMeters()
+{
+    if (!isVisible() || isMinimized()) {
+        synchronizeAnimationTimer();
+        return;
+    }
+    for (auto* meter : meters_) {
+        if (meter->advanceFromArray())
+            meter->update();
+    }
+}
+
 void MeterArrayWidget::configureMeter(MeterWidget& meter, std::size_t index)
 {
+    meter.stopAnimation();
+    meter.setFrameRate(frameRate_);
     meter.setRange(minimum_, maximum_);
     meter.setThresholds(warning_, danger_);
     meter.setScaleMarks(scaleMarks_);

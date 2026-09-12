@@ -4,6 +4,8 @@
 add_library(common SHARED
     src/Library.cpp
     src/GraphicsView.cpp
+    src/LoudnessEngine.cpp
+    src/MeterProbeRegistry.cpp
     src/Metadata.cpp
     src/PathUtils.cpp
     src/Thread.cpp
@@ -13,14 +15,19 @@ add_library(common SHARED
     src/Window.cpp
     include/WinJACKNexus/Common/Atomic.hpp
     include/WinJACKNexus/Common/AudioRingBuffer.hpp
+    include/WinJACKNexus/Common/ChannelLayout.hpp
     include/WinJACKNexus/Common/Export.hpp
     include/WinJACKNexus/Common/GraphicsView.hpp
     include/WinJACKNexus/Common/LockFreeSpscQueue.hpp
     include/WinJACKNexus/Common/Logger.hpp
+    include/WinJACKNexus/Common/LoudnessEngine.hpp
+    include/WinJACKNexus/Common/MeterSnapshot.hpp
+    include/WinJACKNexus/Common/MeterProbeRegistry.hpp
     include/WinJACKNexus/Common/Metadata.hpp
     include/WinJACKNexus/Common/PathUtils.hpp
     include/WinJACKNexus/Common/RealtimeObject.hpp
     include/WinJACKNexus/Common/ScopedGuard.hpp
+    include/WinJACKNexus/Common/SilenceResetController.hpp
     include/WinJACKNexus/Common/Thread.hpp
     include/WinJACKNexus/Common/Timer.hpp
     include/WinJACKNexus/Common/Version.hpp

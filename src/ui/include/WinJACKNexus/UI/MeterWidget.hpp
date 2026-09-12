@@ -20,6 +20,7 @@
 #include <array>
 #include <cstdint>
 #include <QString>
+#include <QTimer>
 #include <QWidget>
 
 #include <vector>
@@ -27,6 +28,8 @@
 class QHBoxLayout;
 
 namespace WinJACKNexus::UI {
+
+class MeterArrayWidget;
 
 class WINJACK_UI_API MeterWidget : public AnimatedWidget {
     Q_OBJECT
@@ -52,6 +55,9 @@ protected:
     void advanceFrame() override;
 
 private:
+    friend class MeterArrayWidget;
+
+    bool advanceFromArray();
     float normalize(float value) const noexcept;
     float denormalize(float value) const noexcept;
     QString formatValue(float value) const;
@@ -87,15 +93,25 @@ public:
     void setThresholds(float warning, float danger);
     void setScaleMarks(const std::vector<float>& marks);
     void setShowScaleLabels(bool show);
+    void setFrameRate(int framesPerSecond);
+    int frameRate() const noexcept;
     void setValues(const std::array<float, 16>& values, std::uint16_t count);
     void setValue(std::uint16_t channel, float value);
     void clear();
     QSize sizeHint() const override;
 
+protected:
+    void showEvent(QShowEvent* event) override;
+    void hideEvent(QHideEvent* event) override;
+    void changeEvent(QEvent* event) override;
+
 private:
+    void synchronizeAnimationTimer();
+    void advanceMeters();
     void configureMeter(MeterWidget& meter, std::size_t index);
 
     QHBoxLayout* layout_ = nullptr;
+    QTimer animationTimer_;
     std::vector<MeterWidget*> meters_;
     std::uint16_t channelCount_ = 0;
     float minimum_ = 0.0f;
@@ -104,6 +120,7 @@ private:
     float danger_ = 0.9f;
     std::vector<float> scaleMarks_;
     bool showScaleLabels_ = false;
+    int frameRate_ = 60;
     QWidget* scaleWidget_ = nullptr;
 };
 

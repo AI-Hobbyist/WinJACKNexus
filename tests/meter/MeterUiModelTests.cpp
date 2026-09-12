@@ -124,8 +124,10 @@ bool testCustomChannelRangeAndHistory()
     provider.setScenario(MockMeterScenario::longHistory);
     const auto firstHistory = provider.snapshots().front().history;
     const auto secondHistory = provider.snapshots().front().history;
-    passed &= check(firstHistory.size() == 6000 && firstHistory == secondHistory,
-                    "long-history samples are deterministic and retain ten minutes at 10 Hz");
+    passed &= check(firstHistory.size() == 6000 && secondHistory.size() == firstHistory.size()
+                        && !firstHistory.empty() && firstHistory.front().elapsedMilliseconds == 0
+                        && firstHistory.back().elapsedMilliseconds == 599900,
+                    "long-history samples retain ten minutes at 10 Hz");
     return passed;
 }
 
@@ -162,11 +164,11 @@ bool testUi4PreviewState()
     bool passed = true;
 
     const auto initial = singleSnapshot(provider);
-    passed &= check(initial.history.size() == 600 && initial.historyView.timeWindowMilliseconds == 600000,
+    passed &= check(initial.history.size() == 600 && initial.historyView.timeWindowMilliseconds == 30000,
                     "normal preview exposes deterministic history for the UI-4 window");
     passed &= check(initial.historyView.mode == MeterHistoryViewMode::realtimeScroll
                         && initial.historyView.visibleSeriesIds.size() == 8,
-                    "normal preview starts in a ten-minute rolling view with eight visible series");
+                    "normal preview starts in a 30-second rolling view with eight visible series");
 
     command.type = MeterViewCommandType::setHistoryViewMode;
     command.historyViewMode = MeterHistoryViewMode::scanning;
@@ -178,6 +180,11 @@ bool testUi4PreviewState()
     command.historyTimeWindowMilliseconds = 3600000;
     passed &= check(provider.dispatch(command) && singleSnapshot(provider).historyView.timeWindowMilliseconds == 3600000,
                     "history time windows retain the one-hour UI-4 preview option");
+
+    command.historyTimeWindowMilliseconds = 1000;
+    passed &= check(provider.dispatch(command)
+                        && singleSnapshot(provider).historyView.timeWindowMilliseconds == 10000,
+                    "history time windows clamp to the 10-second lower limit");
 
     command.type = MeterViewCommandType::setHistorySeriesVisible;
     command.historyTimeWindowMilliseconds.reset();
@@ -191,17 +198,7 @@ bool testUi4PreviewState()
                                      QStringLiteral("lra")) == lraHiddenSnapshot.historyView.visibleSeriesIds.cend(),
                     "history legend visibility is retained in the preview state");
 
-    command.type = MeterViewCommandType::addHistoryMarker;
-    command.enabled.reset();
-    command.seriesId.clear();
-    command.markerElapsedMilliseconds = 12000;
-    command.textValue = QStringLiteral("Scene change");
-    passed &= check(provider.dispatch(command) && singleSnapshot(provider).markers.size() == 1,
-                    "history markers are retained in the preview state");
-
     command.type = MeterViewCommandType::clearHistory;
-    command.markerElapsedMilliseconds.reset();
-    command.textValue.clear();
     passed &= check(provider.dispatch(command) && singleSnapshot(provider).history.empty(),
                     "clear-history command clears the mock history surface");
 

@@ -13,6 +13,7 @@
  *
  * SPDX-License-Identifier: AGPL-3.0-only
  */
+#include <WinJACKNexus/UI/ApplicationSettings.hpp>
 #include <WinJACKNexus/UI/TrayController.hpp>
 #include <WinJACKNexus/Audio/JackClient.hpp>
 #include <WinJACKNexus/Node/NodeApi.h>
@@ -24,9 +25,11 @@
 #include <QDir>
 #include <QDialog>
 #include <QDialogButtonBox>
+#include <QDoubleSpinBox>
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QFormLayout>
+#include <QGroupBox>
 #include <QHBoxLayout>
 #include <QIcon>
 #include <QLabel>
@@ -127,12 +130,15 @@ QString executableDirectory()
     return length == 0 ? QString() : QFileInfo(QString::fromWCharArray(path, static_cast<qsizetype>(length))).absolutePath();
 }
 
-constexpr auto defaultWasapiInputDeviceRegex = "^Line\\s*[13579]\\s+\\(Virtual Audio Cable\\)$";
-constexpr auto defaultWasapiOutputDeviceRegex = "^Line\\s*[02468]\\s+\\(Virtual Audio Cable\\)$";
-
-bool adapterModuleAvailable()
+void notifyMeterbridgeSettingsChanged()
 {
-    return QFileInfo(QDir(executableDirectory()).filePath(QStringLiteral("nodes/adapter/mod_adapter.dll"))).isFile();
+    const auto module = GetModuleHandleW(L"mod_meterbrigde.dll");
+    if (module == nullptr)
+        return;
+    using ReloadSettings = void (*)();
+    const auto reload = reinterpret_cast<ReloadSettings>(GetProcAddress(module, "wjn_meterbridge_reload_global_settings"));
+    if (reload != nullptr)
+        reload();
 }
 
 class CopyIconButton final : public QToolButton {
@@ -205,14 +211,13 @@ bool stopJackdProcesses(DWORD ignoredProcessId = 0)
     return !jackdIsRunning(ignoredProcessId);
 }
 
-class GlobalSettingsDialog final : public QDialog {
+class JackServerSettingsDialog final : public QDialog {
 public:
-    explicit GlobalSettingsDialog(QWidget* parent = nullptr)
+    explicit JackServerSettingsDialog(QWidget* parent = nullptr)
         : QDialog(parent)
     {
-        const auto hasAdapterModule = adapterModuleAvailable();
-        setWindowTitle(QStringLiteral("全局设置"));
-        resize(620, hasAdapterModule ? 390 : 320);
+        setWindowTitle(QStringLiteral("JACK 服务器设置"));
+        resize(620, 455);
         auto* layout = new QVBoxLayout(this);
         auto* form = new QFormLayout;
         jackdDirectory_ = new QLineEdit(this);
@@ -243,31 +248,6 @@ public:
         bufferSize_->setRange(0, 8192);
         bufferSize_->setSingleStep(32);
         form->addRow(QStringLiteral("每周期帧数"), bufferSize_);
-
-        if (hasAdapterModule) {
-            QSettings adapterSettings(QStringLiteral("WinJACKNexus"), QStringLiteral("Adapter"));
-            wasapiInputDeviceRegex_ = new QLineEdit(this);
-            wasapiInputDeviceRegex_->setText(adapterSettings.value(
-                QStringLiteral("wasapiInputDeviceRegex"),
-                QString::fromLatin1(defaultWasapiInputDeviceRegex)).toString());
-            wasapiInputDeviceRegex_->setToolTip(QStringLiteral("优先匹配 WASAPI 输入设备；留空时使用系统默认设备。"));
-            form->addRow(QStringLiteral("Adapter WASAPI 输入正则"), wasapiInputDeviceRegex_);
-
-            wasapiOutputDeviceRegex_ = new QLineEdit(this);
-            wasapiOutputDeviceRegex_->setText(adapterSettings.value(
-                QStringLiteral("wasapiOutputDeviceRegex"),
-                QString::fromLatin1(defaultWasapiOutputDeviceRegex)).toString());
-            wasapiOutputDeviceRegex_->setToolTip(QStringLiteral("优先匹配 WASAPI 输出设备；留空时使用系统默认设备。"));
-            form->addRow(QStringLiteral("Adapter WASAPI 输出正则"), wasapiOutputDeviceRegex_);
-        }
-
-        opacitySlider_ = new QSlider(Qt::Horizontal, this);
-        opacitySlider_->setRange(10, 100);
-        auto* opacityValue = new QLabel(this);
-        auto* opacityLayout = new QHBoxLayout;
-        opacityLayout->addWidget(opacitySlider_);
-        opacityLayout->addWidget(opacityValue);
-        form->addRow(QStringLiteral("状态栏透明度"), opacityLayout);
         layout->addLayout(form);
 
         layout->addWidget(new QLabel(QStringLiteral("启动命令（对应 README 的 JACK2 参数）"), this));
@@ -294,9 +274,6 @@ public:
         device_->setEditText(settings.value(QStringLiteral("device")).toString());
         sampleRate_->setValue(settings.value(QStringLiteral("sampleRate"), 48000).toInt());
         bufferSize_->setValue(settings.value(QStringLiteral("bufferSize"), 256).toInt());
-        opacitySlider_->setValue(std::clamp(settings.value(QStringLiteral("quickAccessOpacity"), WinJACKNexus::UI::TrayController::quickAccessOpacity()).toInt(), 10, 100));
-        WinJACKNexus::UI::TrayController::setQuickAccessOpacity(opacitySlider_->value());
-        opacityValue->setText(QStringLiteral("%1%").arg(opacitySlider_->value()));
         updateCommandPreview();
         updateDeviceControls();
         if (usesPortAudio())
@@ -334,15 +311,6 @@ public:
             updateCommandPreview();
             saveSettings();
         });
-        connect(opacitySlider_, &QSlider::valueChanged, this, [this, opacityValue](int value) {
-            WinJACKNexus::UI::TrayController::setQuickAccessOpacity(value);
-            opacityValue->setText(QStringLiteral("%1%").arg(value));
-            saveSettings();
-        });
-        if (wasapiInputDeviceRegex_ != nullptr) {
-            connect(wasapiInputDeviceRegex_, &QLineEdit::textChanged, this, [this] { saveSettings(); });
-            connect(wasapiOutputDeviceRegex_, &QLineEdit::textChanged, this, [this] { saveSettings(); });
-        }
         connect(copyButton, &QToolButton::clicked, this, [this] {
             QApplication::clipboard()->setText(commandPreview_->text());
         });
@@ -493,12 +461,6 @@ private:
         settings.setValue(QStringLiteral("device"), device_->currentText().trimmed());
         settings.setValue(QStringLiteral("sampleRate"), sampleRate_->value());
         settings.setValue(QStringLiteral("bufferSize"), bufferSize_->value());
-        settings.setValue(QStringLiteral("quickAccessOpacity"), opacitySlider_->value());
-        if (wasapiInputDeviceRegex_ != nullptr) {
-            QSettings adapterSettings(QStringLiteral("WinJACKNexus"), QStringLiteral("Adapter"));
-            adapterSettings.setValue(QStringLiteral("wasapiInputDeviceRegex"), wasapiInputDeviceRegex_->text().trimmed());
-            adapterSettings.setValue(QStringLiteral("wasapiOutputDeviceRegex"), wasapiOutputDeviceRegex_->text().trimmed());
-        }
     }
 
     bool stopJackd()
@@ -547,9 +509,6 @@ private:
     QPushButton* deviceRefreshButton_ = nullptr;
     QSpinBox* sampleRate_ = nullptr;
     QSpinBox* bufferSize_ = nullptr;
-    QLineEdit* wasapiInputDeviceRegex_ = nullptr;
-    QLineEdit* wasapiOutputDeviceRegex_ = nullptr;
-    QSlider* opacitySlider_ = nullptr;
     QLineEdit* commandPreview_ = nullptr;
     QPushButton* startButton_ = nullptr;
     QPushButton* restartButton_ = nullptr;
@@ -558,6 +517,138 @@ private:
     QProcess deviceProbe_;
     QByteArray deviceProbeOutput_;
     QTimer statusTimer_;
+};
+
+class GlobalSettingsDialog final : public QDialog {
+public:
+    explicit GlobalSettingsDialog(QWidget* parent = nullptr)
+        : QDialog(parent)
+    {
+        setWindowTitle(QStringLiteral("全局设置"));
+        resize(620, 410);
+
+        auto* layout = new QVBoxLayout(this);
+        auto* applicationGroup = new QGroupBox(QStringLiteral("应用设置"), this);
+        auto* applicationForm = new QFormLayout(applicationGroup);
+        applicationForm->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
+
+        frameRate_ = new QComboBox(applicationGroup);
+        frameRate_->setObjectName(QStringLiteral("application.frameRate"));
+        frameRate_->addItem(QStringLiteral("30 FPS"), 30);
+        frameRate_->addItem(QStringLiteral("60 FPS"), 60);
+        frameRate_->addItem(QStringLiteral("120 FPS"), 120);
+        const auto frameRateIndex = frameRate_->findData(WinJACKNexus::UI::ApplicationSettings::instance().frameRate());
+        frameRate_->setCurrentIndex(frameRateIndex >= 0 ? frameRateIndex : 1);
+        applicationForm->addRow(QStringLiteral("界面帧率"), frameRate_);
+
+        opacitySlider_ = new QSlider(Qt::Horizontal, applicationGroup);
+        opacitySlider_->setObjectName(QStringLiteral("application.quickAccessOpacity"));
+        opacitySlider_->setRange(10, 100);
+        opacityValue_ = new QLabel(applicationGroup);
+        auto* opacityLayout = new QHBoxLayout;
+        opacityLayout->addWidget(opacitySlider_);
+        opacityLayout->addWidget(opacityValue_);
+        applicationForm->addRow(QStringLiteral("状态栏透明度"), opacityLayout);
+        layout->addWidget(applicationGroup);
+
+        auto* meterbridgeGroup = new QGroupBox(QStringLiteral("电平表桥"), this);
+        auto* meterbridgeForm = new QFormLayout(meterbridgeGroup);
+        meterbridgeForm->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
+        meterbridgeSilenceThreshold_ = new QDoubleSpinBox(meterbridgeGroup);
+        meterbridgeSilenceThreshold_->setRange(-144.0, 0.0);
+        meterbridgeSilenceThreshold_->setDecimals(1);
+        meterbridgeSilenceThreshold_->setSuffix(QStringLiteral(" dBFS"));
+        meterbridgeForm->addRow(QStringLiteral("静音阈值"), meterbridgeSilenceThreshold_);
+        meterbridgeSilenceDuration_ = new QDoubleSpinBox(meterbridgeGroup);
+        meterbridgeSilenceDuration_->setRange(0.1, 60.0);
+        meterbridgeSilenceDuration_->setDecimals(1);
+        meterbridgeSilenceDuration_->setSuffix(QStringLiteral(" 秒"));
+        meterbridgeForm->addRow(QStringLiteral("静音时长"), meterbridgeSilenceDuration_);
+        meterbridgeLogRootDirectory_ = new QLineEdit(meterbridgeGroup);
+        meterbridgeLogRootDirectory_->setReadOnly(true);
+        meterbridgeLogRootDirectory_->setPlaceholderText(QStringLiteral("未设置，CSV 记录不可用"));
+        auto* meterbridgeLogBrowseButton = new QPushButton(QStringLiteral("浏览"), meterbridgeGroup);
+        auto* meterbridgeLogClearButton = new QPushButton(QStringLiteral("清除"), meterbridgeGroup);
+        auto* meterbridgeLogLayout = new QHBoxLayout;
+        meterbridgeLogLayout->addWidget(meterbridgeLogRootDirectory_, 1);
+        meterbridgeLogLayout->addWidget(meterbridgeLogBrowseButton);
+        meterbridgeLogLayout->addWidget(meterbridgeLogClearButton);
+        meterbridgeForm->addRow(QStringLiteral("日志保存根目录"), meterbridgeLogLayout);
+        layout->addWidget(meterbridgeGroup);
+
+        auto* buttons = new QDialogButtonBox(QDialogButtonBox::Close, this);
+        layout->addWidget(buttons);
+
+        QSettings applicationSettings(QStringLiteral("WinJACKNexus"), QStringLiteral("Application"));
+        QSettings legacyJackdSettings(QStringLiteral("WinJACKNexus"), QStringLiteral("Jackd"));
+        const auto opacity = std::clamp(applicationSettings.value(
+            QStringLiteral("quickAccessOpacity"),
+            legacyJackdSettings.value(QStringLiteral("quickAccessOpacity"), WinJACKNexus::UI::TrayController::quickAccessOpacity())).toInt(),
+            10,
+            100);
+        opacitySlider_->setValue(opacity);
+        opacityValue_->setText(QStringLiteral("%1%").arg(opacity));
+        if (!applicationSettings.contains(QStringLiteral("quickAccessOpacity")))
+            applicationSettings.setValue(QStringLiteral("quickAccessOpacity"), opacity);
+
+        QSettings meterbridgeSettings(QStringLiteral("WinJACKNexus"), QStringLiteral("Meterbridge"));
+        meterbridgeSilenceThreshold_->setValue(std::clamp(meterbridgeSettings.value(QStringLiteral("silenceThresholdDbfs"), -70.0).toDouble(), -144.0, 0.0));
+        meterbridgeSilenceDuration_->setValue(std::clamp(meterbridgeSettings.value(QStringLiteral("silenceDurationSeconds"), 3.0).toDouble(), 0.1, 60.0));
+        const auto logRootDirectory = meterbridgeSettings.value(QStringLiteral("logRootDirectory")).toString().trimmed();
+        meterbridgeLogRootDirectory_->setText(logRootDirectory.isEmpty()
+            ? QString()
+            : QDir::fromNativeSeparators(QDir::cleanPath(QFileInfo(logRootDirectory).absoluteFilePath())));
+
+        connect(frameRate_, qOverload<int>(&QComboBox::currentIndexChanged), this, [this](int index) {
+            WinJACKNexus::UI::ApplicationSettings::instance().setFrameRate(frameRate_->itemData(index).toInt());
+        });
+        connect(opacitySlider_, &QSlider::valueChanged, this, [this](int value) {
+            WinJACKNexus::UI::TrayController::setQuickAccessOpacity(value);
+            opacityValue_->setText(QStringLiteral("%1%").arg(value));
+            saveApplicationSettings();
+        });
+        connect(meterbridgeSilenceThreshold_, qOverload<double>(&QDoubleSpinBox::valueChanged), this, [this](double) {
+            saveMeterbridgeSettings();
+        });
+        connect(meterbridgeSilenceDuration_, qOverload<double>(&QDoubleSpinBox::valueChanged), this, [this](double) {
+            saveMeterbridgeSettings();
+        });
+        connect(meterbridgeLogBrowseButton, &QPushButton::clicked, this, [this] {
+            const auto directory = QFileDialog::getExistingDirectory(this, QStringLiteral("选择 Meterbridge CSV 日志根目录"), meterbridgeLogRootDirectory_->text());
+            if (!directory.isEmpty()) {
+                meterbridgeLogRootDirectory_->setText(QDir::fromNativeSeparators(QDir::cleanPath(directory)));
+                saveMeterbridgeSettings();
+            }
+        });
+        connect(meterbridgeLogClearButton, &QPushButton::clicked, this, [this] {
+            meterbridgeLogRootDirectory_->clear();
+            saveMeterbridgeSettings();
+        });
+        connect(buttons, &QDialogButtonBox::rejected, this, &QWidget::hide);
+    }
+
+private:
+    void saveApplicationSettings() const
+    {
+        QSettings settings(QStringLiteral("WinJACKNexus"), QStringLiteral("Application"));
+        settings.setValue(QStringLiteral("quickAccessOpacity"), opacitySlider_->value());
+    }
+
+    void saveMeterbridgeSettings() const
+    {
+        QSettings settings(QStringLiteral("WinJACKNexus"), QStringLiteral("Meterbridge"));
+        settings.setValue(QStringLiteral("silenceThresholdDbfs"), meterbridgeSilenceThreshold_->value());
+        settings.setValue(QStringLiteral("silenceDurationSeconds"), meterbridgeSilenceDuration_->value());
+        settings.setValue(QStringLiteral("logRootDirectory"), meterbridgeLogRootDirectory_->text());
+        notifyMeterbridgeSettingsChanged();
+    }
+
+    QComboBox* frameRate_ = nullptr;
+    QSlider* opacitySlider_ = nullptr;
+    QLabel* opacityValue_ = nullptr;
+    QDoubleSpinBox* meterbridgeSilenceThreshold_ = nullptr;
+    QDoubleSpinBox* meterbridgeSilenceDuration_ = nullptr;
+    QLineEdit* meterbridgeLogRootDirectory_ = nullptr;
 };
 
 class JackMonitor final {
@@ -620,9 +711,16 @@ int main(int argc, char* argv[])
         applicationIcon = application.style()->standardIcon(QStyle::SP_ComputerIcon);
     application.setWindowIcon(applicationIcon);
 
-    QSettings globalSettings(QStringLiteral("WinJACKNexus"), QStringLiteral("Jackd"));
-    WinJACKNexus::UI::TrayController::setQuickAccessOpacity(
-        globalSettings.value(QStringLiteral("quickAccessOpacity"), 50).toInt());
+    QSettings applicationSettings(QStringLiteral("WinJACKNexus"), QStringLiteral("Application"));
+    QSettings legacyJackdSettings(QStringLiteral("WinJACKNexus"), QStringLiteral("Jackd"));
+    const auto quickAccessOpacity = std::clamp(applicationSettings.value(
+        QStringLiteral("quickAccessOpacity"),
+        legacyJackdSettings.value(QStringLiteral("quickAccessOpacity"), 50)).toInt(),
+        10,
+        100);
+    if (!applicationSettings.contains(QStringLiteral("quickAccessOpacity")))
+        applicationSettings.setValue(QStringLiteral("quickAccessOpacity"), quickAccessOpacity);
+    WinJACKNexus::UI::TrayController::setQuickAccessOpacity(quickAccessOpacity);
     WinJACKNexus::UI::TrayController tray;
     const bool trayAvailable = tray.initialize(applicationIcon, application.applicationName());
     if (trayAvailable) {
@@ -631,12 +729,19 @@ int main(int argc, char* argv[])
     }
 
     GlobalSettingsDialog globalSettingsDialog;
+    JackServerSettingsDialog jackServerSettingsDialog;
     if (trayAvailable) {
         auto* globalSettingsAction = tray.addMenuAction(QStringLiteral("全局设置"));
         QObject::connect(globalSettingsAction, &QAction::triggered, &application, [&globalSettingsDialog] {
             globalSettingsDialog.show();
             globalSettingsDialog.raise();
             globalSettingsDialog.activateWindow();
+        });
+        auto* jackServerSettingsAction = tray.addMenuAction(QStringLiteral("JACK 服务器设置"));
+        QObject::connect(jackServerSettingsAction, &QAction::triggered, &application, [&jackServerSettingsDialog] {
+            jackServerSettingsDialog.show();
+            jackServerSettingsDialog.raise();
+            jackServerSettingsDialog.activateWindow();
         });
     }
     JackMonitor jackMonitor(tray);

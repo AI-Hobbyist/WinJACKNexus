@@ -88,7 +88,7 @@ WinJACKNexus 的定位:
 | **Audio Adapter**(物理/虚拟音频适配器) | 将 WASAPI(共享)系统音频设备与系统 MIDI 接入 JACK,导出 `system:capture_*` / `system:playback_*` 端口 |
 | **Interactive Patchbay**(模块化虚拟插线板) | 全局接线盘中枢,对系统中所有模块的 JACK 端口进行可视化连线/断开/拓扑管理 |
 | **Pure Mixer**(调音台) | 通道 Gain/Mute/Solo,全部通道抽象为标准 JACK 端口 |
-| **Meterbridge**(多通道电平桥监控) | Peak/RMS 电平监控,SPSC 无锁管道直通音频线程 |
+| **Meterbridge**(多通道电平桥监控) | Peak/RMS/dBTP/LUFS/LRA 监控、历史图表与 CSV 记录,SPSC 无锁管道直通音频线程 |
 | **Single VST Host**(单效果器宿主) | 沙盒进程托管单个 VST2/VST3 插件,机架 In/Out 暴露为 JACK 端口 |
 | **VST 效果器链** | 由 Interactive Patchbay 的子图组合单 VST 节点,支持拖拽编排 |
 | **MIDI Splitter**(全通道 MIDI 拆分器) | Omni → 16 Ch,一路输入拆分 16 通道输出 |
@@ -199,7 +199,7 @@ WinJACKNexus 的定位:
 | Audio Adapter | `nodes/adapter/mod_adapter.dll` | ✅ 已完成(A1–A6) | [Audio Adapter 计划](Docs/WinJACKNexus%20-%20Audio%20Adapter%20-%20开发计划.md) | WASAPI In/Out、MIDI In/Out、设置面板、设备互斥与刷新、电平/力度窗口 |
 | Interactive Patchbay | `mod_patchbay.dll`(主程序同级) | ✅ 已完成(B1–B8) | [接线盘计划](Docs/WinJACKNexus%20-%20接线盘%20-%20开发计划.md) | 实时 JACK 图、拖线连通/断开、工程保存恢复、自动保存、无限画布 |
 | Pure Mixer | `nodes/mixer/mod_mixer.dll` | 📋 未开始 | — | P3 |
-| Meterbridge | `nodes/meter/mod_meterbridge.dll` | 📋 未开始 | — | P4 |
+| Meterbridge | `mod_meterbrigde.dll` + `nodes/meter/mod_meterbridge_probe.dll` | ✅ 已完成 | [电平表桥计划](Docs/电平表桥开发计划书.md) | 唯一桥窗口、Mono/Stereo/5.1/7.1/Custom Probe、BS.1770-5 计量、历史图表、CSV、工程恢复 |
 | Signal Switch | `nodes/switch/mod_switch.dll` | 📋 未开始 | — | P4 |
 | MIDI Splitter | 节点(`mod_patchbay` 内/独立) | 📋 未开始 | — | 与 Patchbay 同期 |
 | 16x16 MIDI Matrix | 节点(同上) | 📋 未开始 | — | 与 Patchbay 同期 |
@@ -214,7 +214,7 @@ WinJACKNexus 的定位:
 - **P0 基础库(当前)**:`Common` / `UI` / `Audio` 完整实现 + `Node` 接口桩 → 编译产物 `common.dll` / `ui.dll` / `audio.dll` / `node.dll`;
 - **P2 主程序 + Adapter + Patchbay**:主进程外壳、系统音频/ MIDI 接入、全局接线盘;
 - **P3 Mixer**:简单/专业调音台;
-- **P4 电平桥 + 切换开关 + MIDI 工具**(Splitter / Matrix);
+- **P4 Meterbridge**:已完成；**Signal Switch + MIDI 工具**(Splitter / Matrix)待开发;
 - **P5 沙盒 VST Host + DAW 桥**(VST3,含 5.1/7.1 多声道)。
 
 ---
@@ -224,6 +224,7 @@ WinJACKNexus 的定位:
 - [`Docs/WinJACKNexus 开发规范.md`](Docs/WinJACKNexus%20开发规范.md) —— 架构规范 v3.1(强制遵循)
 - [`Docs/WinJACKNexus - 基础库 - 开发计划.md`](Docs/WinJACKNexus%20-%20基础库%20-%20开发计划.md) —— 当前阶段计划书
 - [`Docs/WinJACKNexus - 接线盘 - 开发计划.md`](Docs/WinJACKNexus%20-%20接线盘%20-%20开发计划.md) —— Interactive Patchbay B1–B8 完成记录
+- [`Docs/电平表桥开发计划书.md`](Docs/电平表桥开发计划书.md) —— Meterbridge 完成记录
 
 ---
 

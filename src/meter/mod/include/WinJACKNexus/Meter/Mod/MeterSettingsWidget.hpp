@@ -21,7 +21,6 @@
 
 #include <functional>
 
-class QComboBox;
 class QDoubleSpinBox;
 class QGroupBox;
 class QLineEdit;
@@ -44,13 +43,11 @@ public:
 private:
     void dispatch(MeterViewCommand command);
     void rebuildChannelTable(const MeterViewSnapshot& snapshot);
-    void configurePresetSelector(QComboBox& selector) const;
 
     MeterViewDataProvider& provider_;
     std::function<void()> requestRefresh_;
     QString instanceId_;
     bool channelLayoutEditable_ = false;
-    QComboBox* globalPresetSelector_ = nullptr;
     QDoubleSpinBox* silenceThresholdSpinBox_ = nullptr;
     QDoubleSpinBox* silenceDurationSpinBox_ = nullptr;
     QLineEdit* logRootDirectoryEdit_ = nullptr;

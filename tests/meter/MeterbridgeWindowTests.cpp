@@ -16,6 +16,9 @@
 #include <WinJACKNexus/Meter/MockMeterDataProvider.hpp>
 #include <WinJACKNexus/Meter/Mod/MeterCard.hpp>
 #include <WinJACKNexus/Meter/Mod/MeterbridgeWindow.hpp>
+#include <WinJACKNexus/Common/MeterLoudnessPresetCatalog.hpp>
+#include <WinJACKNexus/UI/MeterLevelBar.hpp>
+#include <WinJACKNexus/UI/ApplicationSettings.hpp>
 #include <WinJACKNexus/UI/MetricReadout.hpp>
 
 #include <QAction>
@@ -24,6 +27,8 @@
 #include <QComboBox>
 #include <QCoreApplication>
 #include <QImage>
+#include <QJsonArray>
+#include <QJsonObject>
 #include <QLabel>
 #include <QScrollArea>
 #include <QScrollBar>
@@ -69,6 +74,9 @@ bool imageContainsColor(const QImage& image, const QColor& expected)
 
 bool testCardLifecycleAndCommands()
 {
+    auto& applicationSettings = WinJACKNexus::UI::ApplicationSettings::instance();
+    const auto originalFrameRate = applicationSettings.frameRate();
+    applicationSettings.setFrameRate(120);
     MockMeterDataProvider provider;
     provider.setPreviewProbeCount(3);
     MeterbridgeWindow window(provider);
@@ -81,11 +89,23 @@ bool testCardLifecycleAndCommands()
     auto* secondCard = window.cardForInstanceId(QStringLiteral("meter-preview-2"));
     auto* thirdCard = window.cardForInstanceId(QStringLiteral("meter-preview-3"));
     const auto* scrollArea = window.findChild<QScrollArea*>(QStringLiteral("meterbridge.cardScroll"));
-    const auto* previewControls = window.findChild<QWidget*>(QStringLiteral("meterbridge.previewControls"));
     passed &= check(window.cardCount() == 3 && firstCard != nullptr && !window.isEmptyStateVisible(),
                     "bridge window creates one card for each preview probe");
-    passed &= check(previewControls != nullptr && !previewControls->isVisible(),
-                    "bridge window keeps development preview controls out of the card view");
+    passed &= check(window.findChild<QWidget*>(QStringLiteral("meterbridge.previewControls")) == nullptr,
+                    "bridge window does not create Mock preview controls");
+    const auto persistedState = window.projectState();
+    applicationSettings.setFrameRate(30);
+    MeterbridgeWindow restoredWindow(provider);
+    restoredWindow.restoreProjectState(persistedState);
+    const auto* levelBar = firstCard != nullptr
+        ? dynamic_cast<const WinJACKNexus::UI::MeterLevelBar*>(
+            firstCard->findChild<QWidget*>(QStringLiteral("meterCard.levelBar")))
+        : nullptr;
+    passed &= check(window.refreshRate() == 30 && window.refreshIntervalMilliseconds() == 33
+                        && restoredWindow.refreshRate() == 30 && restoredWindow.refreshIntervalMilliseconds() == 33
+                        && levelBar != nullptr && levelBar->frameRate() == 30 && !levelBar->animationRunning()
+                        && !persistedState.contains(QStringLiteral("refreshRate")),
+                    "application-wide refresh rate drives bridge cards without project-level FPS persistence");
     const auto* peakMetricReadout = firstCard != nullptr
         ? dynamic_cast<const WinJACKNexus::UI::MetricReadout*>(firstCard->findChild<QWidget*>(QStringLiteral("meterCard.readout.Peak")))
         : nullptr;
@@ -120,6 +140,28 @@ bool testCardLifecycleAndCommands()
                         && firstNumber->text() == QStringLiteral("1") && secondNumber->text() == QStringLiteral("2")
                         && thirdNumber->text() == QStringLiteral("3"),
                     "cards present stable sequential display numbers");
+
+    auto* presetSelector = firstCard->findChild<QComboBox*>(QStringLiteral("meterCard.preset"));
+    passed &= check(presetSelector != nullptr
+                        && presetSelector->count() == static_cast<int>(WinJACKNexus::Common::meterLoudnessPresetCatalog.size())
+                        && presetSelector->findData(QStringLiteral("spotify-default")) >= 0
+                        && presetSelector->findData(QStringLiteral("vr-ar-spatial")) >= 0,
+                    "card exposes the complete shared loudness-preset catalog");
+
+    window.restoreProjectState({
+        { QStringLiteral("cardOrder"), QJsonArray {
+            QStringLiteral("meter-preview-3"), QStringLiteral("meter-preview-1"), QStringLiteral("meter-preview-2")
+        } },
+        { QStringLiteral("selectedMeter"), QStringLiteral("meter-preview-3") },
+        { QStringLiteral("currentTab"), 0 }
+    });
+    QCoreApplication::processEvents();
+    passed &= check(thirdNumber->text() == QStringLiteral("1") && firstNumber->text() == QStringLiteral("2")
+                        && secondNumber->text() == QStringLiteral("3")
+                        && window.projectState().value(QStringLiteral("cardOrder")).toArray().at(0).toString()
+                            == QStringLiteral("meter-preview-3"),
+                    "restored card order controls both card layout and display numbering");
+
     const auto* historyAction = firstCard->findChild<QAction*>(QStringLiteral("meterCard.historyAction"));
     const auto* automaticResetAction = firstCard->findChild<QAction*>(QStringLiteral("meterCard.automaticResetAction"));
     passed &= check(historyAction != nullptr && automaticResetAction != nullptr && automaticResetAction->isChecked(),
@@ -137,7 +179,6 @@ bool testCardLifecycleAndCommands()
                         && levelPanel->isVisible() && metricsPanel->isVisible() && actionsPanel->isVisible(),
                     "card exposes separate header, preset, metering and action surfaces");
 
-    auto* presetSelector = firstCard->findChild<QComboBox*>(QStringLiteral("meterCard.preset"));
     const auto atscIndex = presetSelector != nullptr ? presetSelector->findData(QStringLiteral("atsc-a85")) : -1;
     if (presetSelector != nullptr && atscIndex >= 0)
         presetSelector->setCurrentIndex(atscIndex);
@@ -146,6 +187,22 @@ bool testCardLifecycleAndCommands()
                         && provider.snapshots().front().presetId == QStringLiteral("atsc-a85")
                         && firstCard->presetId() == QStringLiteral("atsc-a85"),
                     "card preset selection dispatches to its stable preview identity");
+
+    auto* secondPresetSelector = secondCard != nullptr
+        ? secondCard->findChild<QComboBox*>(QStringLiteral("meterCard.preset"))
+        : nullptr;
+    const auto spotifyIndex = secondPresetSelector != nullptr
+        ? secondPresetSelector->findData(QStringLiteral("spotify-default"))
+        : -1;
+    if (secondPresetSelector != nullptr && spotifyIndex >= 0)
+        secondPresetSelector->setCurrentIndex(spotifyIndex);
+    QCoreApplication::processEvents();
+    const auto presetSnapshots = provider.snapshots();
+    passed &= check(secondPresetSelector != nullptr && spotifyIndex >= 0
+                        && presetSnapshots.size() >= 2
+                        && presetSnapshots[0].presetId == QStringLiteral("atsc-a85")
+                        && presetSnapshots[1].presetId == QStringLiteral("spotify-default"),
+                    "each card retains its own loudness preset independently");
 
     auto* recordingButton = firstCard->findChild<QToolButton*>(QStringLiteral("meterCard.recordingButton"));
     if (recordingButton != nullptr)
@@ -201,6 +258,7 @@ bool testCardLifecycleAndCommands()
     QCoreApplication::processEvents();
     passed &= check(window.cardCount() == 0 && window.isEmptyStateVisible(),
                     "bridge window presents an empty state when no probes remain");
+    applicationSettings.setFrameRate(originalFrameRate);
     return passed;
 }
 

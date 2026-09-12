@@ -51,7 +51,6 @@ MeterLevelBar::MeterLevelBar(QWidget* parent)
         { 0.0F, QStringLiteral("0") },
         { 12.0F, QStringLiteral("+12") }
     });
-    startAnimation();
 }
 
 void MeterLevelBar::setRange(float minimum, float maximum)
@@ -187,6 +186,18 @@ void MeterLevelBar::setPeakValue(std::optional<float> value)
 std::optional<float> MeterLevelBar::peakValue() const noexcept
 {
     return peakValue_;
+}
+
+void MeterLevelBar::advanceAnimation()
+{
+    const auto previousDisplayLevel = displayLevel_;
+    const auto previousDisplayPeak = displayPeak_;
+    const auto previousPeakValue = peakValue_;
+    const auto previousPeakHoldFrames = peakHoldFrames_;
+    advanceFrame();
+    if (displayLevel_ != previousDisplayLevel || displayPeak_ != previousDisplayPeak
+        || peakValue_ != previousPeakValue || peakHoldFrames_ != previousPeakHoldFrames)
+        update();
 }
 
 void MeterLevelBar::setThemePalette(const ThemePalette& palette)

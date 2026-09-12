@@ -17,21 +17,18 @@
 
 #include <QAction>
 #include <QApplication>
-#include <QByteArray>
+#include <QCursor>
 #include <QFrame>
 #include <QGuiApplication>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QMenu>
 #include <QPainter>
+#include <QPointer>
 #include <QScreen>
 #include <QSystemTrayIcon>
 #include <QTimer>
 #include <QToolButton>
-
-#ifdef Q_OS_WIN
-#include <windows.h>
-#endif
 
 #include <algorithm>
 #include <map>
@@ -44,6 +41,8 @@ std::vector<TrayController*> trayControllers;
 std::vector<TrayNodeGuiEntry> nodeGuiEntries;
 QString quickAccessStatus;
 constexpr int quickAccessSideRegionWidth = 128;
+constexpr int quickAccessAutoHideIntervalMilliseconds = 40;
+constexpr int quickAccessTopEdgeHeight = 2;
 int quickAccessOpacityPercent = 50;
 
 enum class QuickAccessIcon {
@@ -113,11 +112,13 @@ public:
     : QFrame(parent)
     {
         setWindowFlags(Qt::Tool | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint
-                   | Qt::WindowDoesNotAcceptFocus | Qt::WindowTransparentForInput);
+                   | Qt::WindowDoesNotAcceptFocus);
         setAttribute(Qt::WA_DeleteOnClose, false);
         setObjectName(QStringLiteral("quickAccessBar"));
         setStyleSheet(QStringLiteral(
-            "QFrame#quickAccessBar { background: #1f2428; border: 1px solid #5a6570; border-radius: 6px; }"
+            "QFrame#quickAccessBar { background: #1f2428; border: 1px solid #5a6570;"
+            " border-top-left-radius: 0px; border-top-right-radius: 0px;"
+            " border-bottom-left-radius: 6px; border-bottom-right-radius: 6px; }"
             "QLabel { color: #d8dee4; }"
             "QToolButton { color: #f1f5f8; background: #303841; border: 1px solid #5a6570; border-radius: 4px; padding: 5px 9px; }"
             "QToolButton:hover { background: #3d4854; }"
@@ -170,10 +171,10 @@ public:
         });
 
         auto* hideButton = new QuickAccessIconButton(QuickAccessIcon::hide, this);
-        hideButton->setToolTip(QStringLiteral("隐藏快捷栏"));
-        hideButton->setAccessibleName(QStringLiteral("隐藏快捷栏"));
+        hideButton->setToolTip(QStringLiteral("收起快捷栏"));
+        hideButton->setAccessibleName(QStringLiteral("收起快捷栏"));
         layout->addWidget(hideButton);
-        connect(hideButton, &QToolButton::clicked, this, &QWidget::hide);
+        connect(hideButton, &QToolButton::clicked, this, [this] { setExpanded(false, activeScreen()); });
         layout->addStretch();
 
         statusLabel_ = new QLabel(this);
@@ -182,13 +183,11 @@ public:
         statusLabel_->setToolTip(QStringLiteral("JACK DSP 使用率与 XRun 计数"));
         layout->addWidget(statusLabel_);
 
-#ifdef Q_OS_WIN
-        inputTransparencyTimer_.setInterval(25);
-        connect(&inputTransparencyTimer_, &QTimer::timeout, this, [this] {
-            updateInputTransparency();
+        autoHideTimer_.setInterval(quickAccessAutoHideIntervalMilliseconds);
+        connect(&autoHideTimer_, &QTimer::timeout, this, [this] {
+            updateAutoVisibility();
         });
-        inputTransparencyTimer_.start();
-#endif
+        autoHideTimer_.start();
     }
 
     void setPatchbayAction(QAction* action)
@@ -234,6 +233,8 @@ public:
         std::map<QString, std::map<QString, EntryList>> groupedEntries;
         for (const auto& entry : entries) {
             if (entry.id.isEmpty() || entry.name.isEmpty() || !entry.show)
+                continue;
+            if (entry.category.compare(QStringLiteral("Meter"), Qt::CaseInsensitive) == 0)
                 continue;
 
             switch (systemDeviceType(entry)) {
@@ -306,39 +307,85 @@ public:
 
     void showCentered()
     {
-        show();
+        setExpanded(true, screenForCurrentPosition());
         raise();
-        centerAtTop();
     }
 
 private:
-#ifdef Q_OS_WIN
-    bool nativeEvent(const QByteArray& eventType, void* message, qintptr* result) override
+    void updateAutoVisibility()
     {
-        if (inputTransparent_ && eventType == "windows_generic_MSG") {
-            const auto* nativeMessage = static_cast<MSG*>(message);
-            if (nativeMessage->message == WM_NCHITTEST) {
-                *result = HTTRANSPARENT;
-                return true;
-            }
-        }
-        return QFrame::nativeEvent(eventType, message, result);
-    }
-
-    void updateInputTransparency()
-    {
-        const auto shiftPressed = (GetAsyncKeyState(VK_SHIFT) & 0x8000) != 0;
-        const auto transparentForInput = !shiftPressed;
-        if (transparentForInput == inputTransparent_)
+        if (!isVisible())
             return;
 
-        inputTransparent_ = transparentForInput;
-        setWindowFlag(Qt::WindowTransparentForInput, transparentForInput);
-        show();
-        centerAtTop();
-        setOpacity(opacityPercent_);
+        const auto cursorPosition = QCursor::pos();
+        if (auto* topEdgeScreen = screenAtTopEdge(cursorPosition); topEdgeScreen != nullptr) {
+            setExpanded(true, topEdgeScreen);
+            return;
+        }
+
+        if (expanded_ && !isCursorOverInteractiveSurface(cursorPosition))
+            setExpanded(false, activeScreen());
     }
-#endif
+
+    static QScreen* screenAtTopEdge(const QPoint& position)
+    {
+        for (auto* screen : QGuiApplication::screens()) {
+            const auto geometry = screen->geometry();
+            if (position.x() >= geometry.left() && position.x() <= geometry.right()
+                && position.y() >= geometry.top()
+                && position.y() < geometry.top() + quickAccessTopEdgeHeight)
+                return screen;
+        }
+        return nullptr;
+    }
+
+    QScreen* activeScreen() const
+    {
+        return activeScreen_.isNull() ? QGuiApplication::primaryScreen() : activeScreen_.data();
+    }
+
+    QScreen* screenForCurrentPosition() const
+    {
+        if (auto* screen = QGuiApplication::screenAt(QCursor::pos()); screen != nullptr)
+            return screen;
+        return activeScreen();
+    }
+
+    bool isCursorOverInteractiveSurface(const QPoint& position) const
+    {
+        if (frameGeometry().contains(position))
+            return true;
+        const auto* popup = QApplication::activePopupWidget();
+        return popup != nullptr && popup->isVisible() && popup->frameGeometry().contains(position);
+    }
+
+    QRect geometryForState(bool expanded, QScreen* screen) const
+    {
+        if (screen == nullptr)
+            return {};
+        const auto screenGeometry = screen->geometry();
+        const auto height = sizeHint().height();
+        const auto top = expanded
+            ? screenGeometry.top()
+            : screenGeometry.top() - height + quickAccessTopEdgeHeight;
+        return { screenGeometry.left(), top, screenGeometry.width(), height };
+    }
+
+    void setExpanded(bool expanded, QScreen* screen)
+    {
+        if (screen == nullptr)
+            return;
+
+        activeScreen_ = screen;
+        const auto geometry = geometryForState(expanded, screen);
+        expanded_ = expanded;
+        if (!isVisible())
+            show();
+        if (!geometry.isEmpty() && this->geometry() != geometry)
+            setGeometry(geometry);
+        if (expanded)
+            raise();
+    }
 
     static QString entriesSignature(const std::vector<TrayNodeGuiEntry>& entries)
     {
@@ -444,18 +491,12 @@ private:
     {
         layout()->activate();
         if (isVisible())
-            centerAtTop();
+            setExpanded(expanded_, activeScreen());
     }
 
     void centerAtTop()
     {
-        const auto* screen = QGuiApplication::screenAt(frameGeometry().center());
-        if (screen == nullptr)
-            screen = QGuiApplication::primaryScreen();
-        if (screen == nullptr)
-            return;
-        const auto geometry = screen->availableGeometry();
-        setGeometry(geometry.left(), geometry.top() + 8, geometry.width(), sizeHint().height());
+        setExpanded(true, screenForCurrentPosition());
     }
 
     QHBoxLayout* contentLayout_ = nullptr;
@@ -468,12 +509,11 @@ private:
     QLabel* statusLabel_ = nullptr;
     QMenu* systemDevicesMenu_ = nullptr;
     QString entriesSignature_;
+    QPointer<QScreen> activeScreen_;
     bool entriesInitialized_ = false;
+    bool expanded_ = true;
     int opacityPercent_ = quickAccessOpacityPercent;
-    bool inputTransparent_ = true;
-#ifdef Q_OS_WIN
-    QTimer inputTransparencyTimer_;
-#endif
+    QTimer autoHideTimer_;
 };
 
 }
@@ -610,9 +650,9 @@ void TrayController::buildPlaceholderMenu()
     impl_->placeholderPatchbay->setEnabled(false);
     impl_->placeholderPatchbay->setToolTip(QStringLiteral("敬请期待:节点注册后可用"));
 
-    impl_->placeholderMeterbridge = impl_->menu->addAction(QStringLiteral("电平表桥"));
+    impl_->placeholderMeterbridge = new QAction(QStringLiteral("电平表桥"), impl_->menu);
     impl_->placeholderMeterbridge->setEnabled(false);
-    impl_->placeholderMeterbridge->setToolTip(QStringLiteral("敬请期待:模块注册后可用"));
+    impl_->placeholderMeterbridge->setToolTip(QStringLiteral("由快捷栏打开"));
 
     impl_->quickAccessAction = impl_->menu->addAction(QStringLiteral("快速入口"));
     connect(impl_->quickAccessAction, &QAction::triggered, this, [this] {

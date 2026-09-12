@@ -18,15 +18,19 @@
 #include <WinJACKNexus/Meter/MeterViewDataProvider.hpp>
 
 #include <QHash>
+#include <QJsonObject>
 #include <QMainWindow>
+#include <QStringList>
 
-class QComboBox;
+#include <vector>
+
+class QHideEvent;
 class QLabel;
 class QResizeEvent;
 class QScrollArea;
 class QShowEvent;
-class QSpinBox;
 class QTabWidget;
+class QTimer;
 class QHBoxLayout;
 
 namespace WinJACKNexus::Meter::Mod {
@@ -44,21 +48,27 @@ public:
     MeterCard* cardForInstanceId(const QString& instanceId) const;
     MeterHistoryWindow* historyWindowForInstanceId(const QString& instanceId) const;
     void openHistoryForInstanceId(const QString& instanceId);
+    void selectInstance(const QString& instanceId);
+    int refreshRate() const noexcept;
+    int refreshIntervalMilliseconds() const noexcept;
+    void setRefreshRate(int framesPerSecond);
+    QJsonObject projectState() const;
+    void restoreProjectState(const QJsonObject& state);
     bool isEmptyStateVisible() const noexcept;
 
 protected:
     void resizeEvent(QResizeEvent* event) override;
     void showEvent(QShowEvent* event) override;
+    void hideEvent(QHideEvent* event) override;
 
 private:
+    void applyRefreshRate(int framesPerSecond);
     void addCard(const MeterViewSnapshot& snapshot);
     void removeCard(const QString& instanceId);
+    void reorderCards(const std::vector<MeterViewSnapshot>& snapshots);
     void updateCardContainerGeometry();
 
     MeterViewDataProvider& provider_;
-    QComboBox* scenarioSelector_ = nullptr;
-    QSpinBox* customChannelCount_ = nullptr;
-    QSpinBox* previewProbeCount_ = nullptr;
     QTabWidget* tabs_ = nullptr;
     QScrollArea* cardScrollArea_ = nullptr;
     QWidget* cardContainer_ = nullptr;
@@ -67,6 +77,13 @@ private:
     QHash<QString, MeterCard*> cards_;
     MeterHistoryWindow* historyPage_ = nullptr;
     int historyTabIndex_ = -1;
+    QTimer* refreshTimer_ = nullptr;
+    QStringList cardOrder_;
+    QStringList renderedCardOrder_;
+    QString selectedInstanceId_;
+    int restoredTabIndex_ = 0;
+    int refreshRate_ = 60;
+    bool pendingRestoredHistorySelection_ = false;
 };
 
 }

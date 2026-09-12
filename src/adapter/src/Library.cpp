@@ -26,9 +26,11 @@
 #include <WinJACKNexus/Common/AudioRingBuffer.hpp>
 #include <WinJACKNexus/Common/LockFreeSpscQueue.hpp>
 #include <WinJACKNexus/Common/Logger.hpp>
+#include <WinJACKNexus/UI/ApplicationSettings.hpp>
 #include <WinJACKNexus/UI/MeterWidget.hpp>
 
 #include <QApplication>
+#include <QCompleter>
 #include <QEvent>
 #include <QDialog>
 #include <QComboBox>
@@ -41,8 +43,6 @@
 #include <QLineEdit>
 #include <QPointer>
 #include <QPushButton>
-#include <QRegularExpression>
-#include <QSettings>
 #include <QSignalBlocker>
 #include <QShowEvent>
 #include <QSpinBox>
@@ -84,13 +84,16 @@ constexpr std::uint16_t maxAudioChannels = 16;
 constexpr double clockCorrectionGain = 0.0008;
 constexpr double maximumClockCorrection = 0.002;
 constexpr std::uint32_t concealmentFrameCount = 128;
-constexpr auto defaultWasapiInputDeviceRegex = R"(^Line\s*[13579]\s+\(Virtual Audio Cable\)$)";
-constexpr auto defaultWasapiOutputDeviceRegex = R"(^Line\s*[02468]\s+\(Virtual Audio Cable\)$)";
 
 struct LevelFrame final {
     std::array<float, maxAudioChannels> peak {};
     std::uint16_t channels = 0;
 };
+
+int meterRefreshIntervalMilliseconds(int framesPerSecond) noexcept
+{
+    return std::max(1, 1000 / framesPerSecond);
+}
 
 constexpr std::size_t midiChannelCount = 16;
 
@@ -390,6 +393,12 @@ public:
         auto* deviceRow = new QHBoxLayout;
         deviceCombo_ = new QComboBox(this);
         deviceCombo_->setObjectName(QStringLiteral("deviceCombo"));
+        deviceCombo_->setEditable(true);
+        deviceCombo_->setInsertPolicy(QComboBox::NoInsert);
+        auto* deviceCompleter = new QCompleter(deviceCombo_->model(), deviceCombo_);
+        deviceCompleter->setCaseSensitivity(Qt::CaseInsensitive);
+        deviceCompleter->setFilterMode(Qt::MatchContains);
+        deviceCombo_->setCompleter(deviceCompleter);
         refreshButton_ = new QPushButton(QStringLiteral("Refresh"), this);
         refreshButton_->setObjectName(QStringLiteral("refreshButton"));
         deviceRow->addWidget(deviceCombo_, 1);
@@ -447,8 +456,18 @@ public:
 private:
     void apply()
     {
+        const auto currentIndex = deviceCombo_->currentIndex();
+        const auto selectedIndex = currentIndex >= 0
+                && deviceCombo_->itemText(currentIndex) == deviceCombo_->currentText()
+            ? currentIndex
+            : deviceCombo_->findText(deviceCombo_->currentText(), Qt::MatchFixedString);
+        if (selectedIndex < 0) {
+            statusLabel_->setText(QStringLiteral("Select a listed device"));
+            return;
+        }
+
         SettingsValues values;
-        values.deviceId = deviceCombo_->currentData().toString();
+        values.deviceId = deviceCombo_->itemData(selectedIndex).toString();
         values.clientName = clientNameEditor_->text();
         values.channels = channelsSpinBox_ != nullptr ? channelsSpinBox_->value() : 0;
         if (applyHandler_(values)) {
@@ -509,19 +528,6 @@ std::vector<SettingsDeviceEntry> wasapiSettingsDevices(
     return result;
 }
 
-QRegularExpression configuredWasapiDeviceRegex(WinJACKNexus::Audio::WasapiStreamDirection direction)
-{
-    const auto input = direction == WinJACKNexus::Audio::WasapiStreamDirection::capture;
-    QSettings settings(QStringLiteral("WinJACKNexus"), QStringLiteral("Adapter"));
-    const auto pattern = settings.value(input ? QStringLiteral("wasapiInputDeviceRegex")
-                                              : QStringLiteral("wasapiOutputDeviceRegex"),
-                                QString::fromLatin1(input ? defaultWasapiInputDeviceRegex
-                                                : defaultWasapiOutputDeviceRegex))
-                             .toString()
-                             .trimmed();
-    return pattern.isEmpty() ? QRegularExpression() : QRegularExpression(pattern);
-}
-
 bool chooseAvailableWasapiDevice(
     WinJACKNexus::Audio::WasapiDeviceEnumerator& enumerator,
     WinJACKNexus::Audio::WasapiStreamDirection direction,
@@ -530,20 +536,6 @@ bool chooseAvailableWasapiDevice(
     std::wstring& result) noexcept
 {
     try {
-        const auto preferredDeviceRegex = configuredWasapiDeviceRegex(direction);
-        if (!preferredDeviceRegex.pattern().isEmpty() && preferredDeviceRegex.isValid()) {
-            WasapiDeviceListContext context;
-            enumerator.enumerate(direction, &collectWasapiDevice, &context);
-            for (const auto& device : context.devices) {
-                const std::wstring id(device.id);
-                if (!deviceRegistry.isAvailable(domain, id, owner)
-                    || !preferredDeviceRegex.match(QString::fromWCharArray(device.name)).hasMatch())
-                    continue;
-                result = id;
-                return true;
-            }
-        }
-
         WinJACKNexus::Audio::WasapiDeviceInfo defaultDevice;
         if (enumerator.defaultDevice(direction, defaultDevice)) {
             const std::wstring defaultId(defaultDevice.id);
@@ -689,8 +681,15 @@ public:
         layout->addWidget(footer);
 
         timer_.setTimerType(Qt::PreciseTimer);
-        timer_.setInterval(16);
+        timer_.setInterval(meterRefreshIntervalMilliseconds(refreshRate_));
         connect(&timer_, &QTimer::timeout, this, [this] { pollQueue(); });
+        meterArray_->setFrameRate(refreshRate_);
+        auto& applicationSettings = WinJACKNexus::UI::ApplicationSettings::instance();
+        connect(&applicationSettings,
+                &WinJACKNexus::UI::ApplicationSettings::frameRateChanged,
+                this,
+                [this](int framesPerSecond) { applyRefreshRate(framesPerSecond); });
+        applyRefreshRate(applicationSettings.frameRate());
         resize(mode_ == Mode::audio ? 720 : 720, 270);
     }
 
@@ -749,6 +748,15 @@ private:
         }
     }
 
+    void applyRefreshRate(int framesPerSecond)
+    {
+        if (refreshRate_ == framesPerSecond)
+            return;
+        refreshRate_ = framesPerSecond;
+        timer_.setInterval(meterRefreshIntervalMilliseconds(refreshRate_));
+        meterArray_->setFrameRate(refreshRate_);
+    }
+
     void synchronizeTimer()
     {
         if (isVisible() && !isMinimized()) {
@@ -764,6 +772,7 @@ private:
     VelocityReader velocityReader_;
     WinJACKNexus::UI::MeterArrayWidget* meterArray_ = nullptr;
     QTimer timer_;
+    int refreshRate_ = 60;
 };
 
 class WasapiInNode final : public WinJACKNexus::Node::INode, public AdapterNodeSettings {

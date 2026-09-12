@@ -24,6 +24,9 @@
 namespace WinJACKNexus::Meter {
 
 inline constexpr std::uint16_t maximumMeterChannelCount = 16;
+inline constexpr std::int64_t minimumMeterHistoryWindowMilliseconds = 10'000;
+inline constexpr std::int64_t defaultMeterHistoryWindowMilliseconds = 30'000;
+inline constexpr std::int64_t maximumMeterHistoryWindowMilliseconds = 3'600'000;
 
 enum class MeterProbeState : std::uint8_t {
     silent,
@@ -49,8 +52,6 @@ enum class MeterViewCommandType : std::uint8_t {
     setHistoryPaused,
     setHistorySeriesVisible,
     clearHistory,
-    addHistoryMarker,
-    removeHistoryMarker,
     setCustomChannelCount,
     setChannelDisplayName,
     setChannelRole,
@@ -73,8 +74,6 @@ struct MeterViewCommand final {
     std::optional<std::uint16_t> channelCount;
     QString textValue;
     std::optional<float> numericValue;
-    std::optional<std::uint32_t> markerId;
-    std::optional<std::int64_t> markerElapsedMilliseconds;
 };
 
 struct MeterChannelView final {
@@ -99,6 +98,7 @@ struct MeterMetrics final {
 
 struct MeterHistoryPoint final {
     std::int64_t elapsedMilliseconds = 0;
+    std::optional<std::int64_t> systemTimeMilliseconds;
     MeterMetrics metrics;
     std::optional<float> lfePeakDbfs;
     bool discontinuity = false;
@@ -108,20 +108,11 @@ struct MeterHistoryPoint final {
 
 struct MeterHistoryViewSettings final {
     MeterHistoryViewMode mode = MeterHistoryViewMode::realtimeScroll;
-    std::int64_t timeWindowMilliseconds = 600000;
+    std::int64_t timeWindowMilliseconds = defaultMeterHistoryWindowMilliseconds;
     bool paused = false;
     std::vector<QString> visibleSeriesIds;
 
     bool operator==(const MeterHistoryViewSettings&) const = default;
-};
-
-struct MeterHistoryMarkerView final {
-    std::uint32_t id = 0;
-    std::int64_t elapsedMilliseconds = 0;
-    QString label;
-    QString note;
-
-    bool operator==(const MeterHistoryMarkerView&) const = default;
 };
 
 struct MeterCsvPreviewState final {
@@ -136,7 +127,7 @@ struct MeterGlobalSettingsView final {
     QString defaultPresetId = QStringLiteral("ebu-r128");
     float silenceThresholdDbfs = -70.0F;
     float silenceDurationSeconds = 3.0F;
-    QString logRootDirectory = QStringLiteral("D:/WinJACKNexus/Logs");
+    QString logRootDirectory;
 
     bool operator==(const MeterGlobalSettingsView&) const = default;
 };
@@ -154,8 +145,8 @@ struct MeterViewSnapshot final {
     MeterMetrics currentMetrics;
     std::optional<float> lfePeakDbfs;
     std::vector<MeterHistoryPoint> history;
+    std::optional<std::int64_t> latestHistoryElapsedMilliseconds;
     MeterHistoryViewSettings historyView;
-    std::vector<MeterHistoryMarkerView> markers;
     MeterCsvPreviewState csvPreview;
     MeterGlobalSettingsView globalSettings;
     bool channelLayoutEditable = false;

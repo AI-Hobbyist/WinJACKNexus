@@ -7,7 +7,11 @@ add_library(mod_meterbridge_probe SHARED
 
 target_link_libraries(mod_meterbridge_probe
     PRIVATE
+        WinJACKNexus::Audio
+        WinJACKNexus::Common
         WinJACKNexus::Node
+        Qt6::Core
+        Qt6::Widgets
 )
 
 wjn_configure_shared_target(mod_meterbridge_probe WJN_METERBRIDGE_PROBE_BUILD)

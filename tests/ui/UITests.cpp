@@ -14,6 +14,7 @@
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 #include <WinJACKNexus/UI/AnimatedWidget.hpp>
+#include <WinJACKNexus/UI/ApplicationSettings.hpp>
 #include <WinJACKNexus/UI/HistoryChartWidget.hpp>
 #include <WinJACKNexus/UI/HistoryLegendWidget.hpp>
 #include <WinJACKNexus/UI/IconManager.hpp>
@@ -116,6 +117,24 @@ bool testThemePalette()
     copy.setColor(QStringLiteral("accent"), QColor(QStringLiteral("#ffffff")));
     passed &= check(dark.color(QStringLiteral("accent")) != copy.color(QStringLiteral("accent")),
                     "palette copies do not share mutable colors");
+    return passed;
+}
+
+bool testApplicationSettings()
+{
+    using WinJACKNexus::UI::ApplicationSettings;
+    auto& settings = ApplicationSettings::instance();
+    const auto originalFrameRate = settings.frameRate();
+    const auto selectedFrameRate = originalFrameRate == 120 ? 30 : 120;
+    int signalCount = 0;
+    QObject::connect(&settings, &ApplicationSettings::frameRateChanged,
+                     [&signalCount](int) { ++signalCount; });
+
+    settings.setFrameRate(selectedFrameRate);
+    settings.setFrameRate(47);
+    const auto passed = check(settings.frameRate() == 60 && signalCount == 2,
+                              "application settings accept 30, 60 and 120 FPS while normalizing other values to 60 FPS");
+    settings.setFrameRate(originalFrameRate);
     return passed;
 }
 
@@ -329,6 +348,21 @@ bool imageContainsColor(const QImage& image, const QColor& expected)
     return false;
 }
 
+bool imageContainsColorInRect(const QImage& image, const QRect& area, const QColor& expected, int tolerance = 8)
+{
+    const auto bounds = area.intersected(image.rect());
+    for (int y = bounds.top(); y <= bounds.bottom(); ++y) {
+        for (int x = bounds.left(); x <= bounds.right(); ++x) {
+            const auto actual = image.pixelColor(x, y);
+            if (std::abs(actual.red() - expected.red()) <= tolerance
+                && std::abs(actual.green() - expected.green()) <= tolerance
+                && std::abs(actual.blue() - expected.blue()) <= tolerance)
+                return true;
+        }
+    }
+    return false;
+}
+
 int firstColorPixelX(const QImage& image, const QColor& expected)
 {
     for (int x = 0; x < image.width(); ++x) {
@@ -429,6 +463,33 @@ bool testMeterLevelBar()
     return passed;
 }
 
+bool testMeterArrayFrameRate()
+{
+    using namespace WinJACKNexus::UI;
+    MeterArrayWidget meters;
+    meters.setChannelCount(3);
+    meters.setFrameRate(30);
+    meters.show();
+    QCoreApplication::processEvents();
+
+    const auto meterWidgets = meters.findChildren<MeterWidget*>();
+    const auto initialRatePropagated = std::all_of(meterWidgets.cbegin(), meterWidgets.cend(), [](const auto* meter) {
+        return meter->frameRate() == 30;
+    });
+
+    meters.setChannelCount(4);
+    const auto expandedMeterWidgets = meters.findChildren<MeterWidget*>();
+    const auto expandedRatePropagated = std::all_of(expandedMeterWidgets.cbegin(), expandedMeterWidgets.cend(), [](const auto* meter) {
+        return meter->frameRate() == 30;
+    });
+    const auto childTimersStopped = std::all_of(expandedMeterWidgets.cbegin(), expandedMeterWidgets.cend(), [](const auto* meter) {
+        return !meter->animationRunning();
+    });
+    return check(meters.frameRate() == 30 && meterWidgets.size() == 3 && initialRatePropagated
+                     && expandedMeterWidgets.size() == 4 && expandedRatePropagated && childTimersStopped,
+                 "meter arrays propagate their animation frame rate while sharing one timer across all channels");
+}
+
 bool testMetricReadout()
 {
     using namespace WinJACKNexus::UI;
@@ -481,6 +542,7 @@ bool testHistoryChartAndLegend()
     HistoryChartWidget chart;
     chart.resize(480, 260);
     chart.setTimeRange(0, 60000);
+    chart.setTimeDisplayOffsetMilliseconds(1760000000000);
     chart.setValueRange(-70.0, 12.0);
     chart.setRightValueRange(0.0, 20.0);
     chart.setVerticalAxisLabel(QStringLiteral("dBFS"));
@@ -535,15 +597,23 @@ bool testHistoryChartAndLegend()
     bool passed = true;
     passed &= check(chart.series().size() == 3 && chart.referenceLines().size() == 2
                         && chart.rightMinimumValue() == 0.0 && chart.rightMaximumValue() == 20.0
+                        && chart.timeDisplayOffsetMilliseconds() == std::optional<std::int64_t> { 1760000000000 }
                         && chart.timeCursorMilliseconds() == std::optional<std::int64_t> { 36000 }
                         && chart.series().back().axis == HistoryChartAxis::right
                         && chart.series().back().preservePointOrder
                         && chart.sizeHint().width() >= 320,
                     "history chart accepts generic dual-axis series, references and a time cursor");
+    chart.setTimeDisplayOffsetMilliseconds(std::nullopt);
+    QImage relativeTimeAxisImage(chart.size(), QImage::Format_ARGB32_Premultiplied);
+    relativeTimeAxisImage.fill(Qt::transparent);
+    chart.render(&relativeTimeAxisImage);
+    chart.setTimeDisplayOffsetMilliseconds(1760000000000);
     QImage chartImage(chart.size(), QImage::Format_ARGB32_Premultiplied);
     chartImage.fill(Qt::transparent);
     chart.render(&chartImage);
-    passed &= check(imageHasVisiblePixels(chartImage), "history chart renders populated series with a discontinuity");
+    passed &= check(imageHasVisiblePixels(chartImage)
+                        && chartImage != relativeTimeAxisImage,
+                    "history chart renders populated series and visible system-time X-axis labels");
 
     QMouseEvent hoverEvent(QEvent::MouseMove,
                            QPointF(280.0, 120.0),
@@ -606,6 +676,43 @@ bool testHistoryChartAndLegend()
     legend.render(&legendImage);
     passed &= check(imageHasVisiblePixels(legendImage), "history legend renders generic series entries");
     return passed;
+}
+
+bool testHistoryCurveDoesNotFillReferenceLine()
+{
+    using namespace WinJACKNexus::UI;
+    const auto referenceColor = QColor(QStringLiteral("#3dde72"));
+
+    HistoryChartWidget chart;
+    chart.resize(480, 260);
+    chart.setTimeRange(0, 100);
+    chart.setValueRange(0.0, 100.0);
+    chart.setReferenceLines({ { 50.0, QStringLiteral("Reference"), referenceColor, Qt::SolidLine, true } });
+    chart.setSeries({
+        {
+            QStringLiteral("triangle"),
+            QStringLiteral("Triangle"),
+            QColor(QStringLiteral("#ff5068")),
+            true,
+            {
+                { 0, 0.0 },
+                { 50, 100.0 },
+                { 100, 0.0 }
+            }
+        }
+    });
+    chart.show();
+    QCoreApplication::processEvents();
+
+    QImage image(chart.size(), QImage::Format_ARGB32_Premultiplied);
+    image.fill(Qt::transparent);
+    chart.render(&image);
+    const QRect centerProbe(image.width() * 2 / 5,
+                            image.height() * 2 / 5,
+                            image.width() / 5,
+                            image.height() / 5);
+    return check(imageContainsColorInRect(image, centerProbe, referenceColor),
+                 "open history curves preserve reference lines inside their visual bounds");
 }
 
 bool testMetricStatisticsWidget()
@@ -693,14 +800,17 @@ int main(int argc, char** argv)
     QApplication application(argc, argv);
     bool passed = true;
     passed &= testThemePalette();
+    passed &= testApplicationSettings();
     passed &= testThemeManager(application);
     passed &= testPaintableWidget();
     passed &= testAnimatedWidget();
     passed &= testNativeWindowUtils();
     passed &= testIcons();
     passed &= testMeterLevelBar();
+    passed &= testMeterArrayFrameRate();
     passed &= testMetricReadout();
     passed &= testHistoryChartAndLegend();
+    passed &= testHistoryCurveDoesNotFillReferenceLine();
     passed &= testMetricStatisticsWidget();
     if (!passed)
         return 1;

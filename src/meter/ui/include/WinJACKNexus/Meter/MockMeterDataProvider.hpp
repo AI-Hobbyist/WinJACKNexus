@@ -64,7 +64,7 @@ private:
         QString presetId = QStringLiteral("ebu-r128");
         MeterHistoryViewSettings historyView {
             MeterHistoryViewMode::realtimeScroll,
-            600000,
+            defaultMeterHistoryWindowMilliseconds,
             false,
             {
                 QStringLiteral("peak"),
@@ -77,9 +77,7 @@ private:
                 QStringLiteral("lra")
             }
         };
-        std::vector<MeterHistoryMarkerView> markers;
         std::vector<MeterChannelView> customChannels;
-        std::uint32_t nextMarkerId = 1;
     };
 
     static QString instanceIdFor(std::uint16_t index);

@@ -26,6 +26,11 @@ public:
     virtual ~MeterViewDataProvider() = default;
 
     virtual std::vector<MeterViewSnapshot> snapshots() const = 0;
+    virtual std::vector<MeterViewSnapshot> snapshots(bool includeHistory) const
+    {
+        static_cast<void>(includeHistory);
+        return snapshots();
+    }
     virtual bool dispatch(const MeterViewCommand& command) = 0;
 };
 

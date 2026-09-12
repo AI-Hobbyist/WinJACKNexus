@@ -15,18 +15,19 @@
  */
 #include <WinJACKNexus/Meter/Mod/MeterbridgeWindow.hpp>
 
-#include <WinJACKNexus/Meter/MockMeterDataProvider.hpp>
 #include <WinJACKNexus/Meter/Mod/MeterCard.hpp>
 #include <WinJACKNexus/Meter/Mod/MeterHistoryWindow.hpp>
+#include <WinJACKNexus/UI/ApplicationSettings.hpp>
 
-#include <QComboBox>
+#include <QByteArray>
 #include <QHBoxLayout>
+#include <QJsonArray>
+#include <QJsonObject>
 #include <QLabel>
 #include <QResizeEvent>
 #include <QScrollArea>
 #include <QShowEvent>
 #include <QSizePolicy>
-#include <QSpinBox>
 #include <QTabWidget>
 #include <QTimer>
 #include <QVBoxLayout>
@@ -36,6 +37,15 @@
 #include <unordered_set>
 
 namespace WinJACKNexus::Meter::Mod {
+
+namespace {
+
+int intervalForRefreshRate(int framesPerSecond) noexcept
+{
+    return std::max(1, 1000 / framesPerSecond);
+}
+
+}
 
 MeterbridgeWindow::MeterbridgeWindow(MeterViewDataProvider& provider, QWidget* parent)
     : QMainWindow(parent)
@@ -61,33 +71,6 @@ MeterbridgeWindow::MeterbridgeWindow(MeterViewDataProvider& provider, QWidget* p
     auto* rootLayout = new QVBoxLayout(central);
     rootLayout->setContentsMargins(14, 14, 14, 14);
     rootLayout->setSpacing(10);
-
-    auto* previewControlsWidget = new QWidget(central);
-    previewControlsWidget->setObjectName(QStringLiteral("meterbridge.previewControls"));
-    auto* previewControls = new QHBoxLayout(previewControlsWidget);
-    previewControls->setContentsMargins(0, 0, 0, 0);
-    previewControls->setSpacing(8);
-    scenarioSelector_ = new QComboBox(central);
-    scenarioSelector_->setObjectName(QStringLiteral("meterbridge.previewScenario"));
-    scenarioSelector_->setAccessibleName(QStringLiteral("预览场景"));
-    scenarioSelector_->setToolTip(QStringLiteral("切换确定性的电平表桥预览数据"));
-    customChannelCount_ = new QSpinBox(central);
-    customChannelCount_->setObjectName(QStringLiteral("meterbridge.customChannelCount"));
-    customChannelCount_->setRange(1, maximumMeterChannelCount);
-    customChannelCount_->setAccessibleName(QStringLiteral("自定义声道数量"));
-    customChannelCount_->setToolTip(QStringLiteral("只为自定义预览场景设置声道数量"));
-    previewProbeCount_ = new QSpinBox(central);
-    previewProbeCount_->setObjectName(QStringLiteral("meterbridge.previewProbeCount"));
-    previewProbeCount_->setRange(0, maximumMeterChannelCount);
-    previewProbeCount_->setAccessibleName(QStringLiteral("预览探针数量"));
-    previewProbeCount_->setToolTip(QStringLiteral("添加或移除确定性的预览卡片"));
-    previewControls->addWidget(new QLabel(QStringLiteral("预览场景"), central));
-    previewControls->addWidget(scenarioSelector_, 1);
-    previewControls->addWidget(new QLabel(QStringLiteral("卡片数"), central));
-    previewControls->addWidget(previewProbeCount_);
-    previewControls->addWidget(new QLabel(QStringLiteral("声道数"), central));
-    previewControls->addWidget(customChannelCount_);
-    rootLayout->addWidget(previewControlsWidget);
 
     cardScrollArea_ = new QScrollArea(central);
     cardScrollArea_->setObjectName(QStringLiteral("meterbridge.cardScroll"));
@@ -119,47 +102,33 @@ MeterbridgeWindow::MeterbridgeWindow(MeterViewDataProvider& provider, QWidget* p
     tabs_->setTabEnabled(historyTabIndex_, false);
     setCentralWidget(tabs_);
 
-    if (auto* previewProvider = dynamic_cast<MockMeterDataProvider*>(&provider_); previewProvider != nullptr) {
-        for (const auto scenario : previewProvider->availableScenarios())
-            scenarioSelector_->addItem(MockMeterDataProvider::scenarioDisplayName(scenario), static_cast<int>(scenario));
-        scenarioSelector_->setCurrentIndex(scenarioSelector_->findData(static_cast<int>(previewProvider->scenario())));
-        customChannelCount_->setValue(previewProvider->customChannelCount());
-        previewProbeCount_->setValue(previewProvider->previewProbeCount());
-        connect(scenarioSelector_, &QComboBox::currentIndexChanged, this, [this, previewProvider](int index) {
-            previewProvider->setScenario(static_cast<MockMeterScenario>(scenarioSelector_->itemData(index).toInt()));
-            refresh();
-        });
-        connect(customChannelCount_, qOverload<int>(&QSpinBox::valueChanged), this, [this, previewProvider](int count) {
-            previewProvider->setCustomChannelCount(static_cast<std::uint16_t>(count));
-            refresh();
-        });
-        connect(previewProbeCount_, qOverload<int>(&QSpinBox::valueChanged), this, [this, previewProvider](int count) {
-            previewProvider->setPreviewProbeCount(static_cast<std::uint16_t>(count));
-            refresh();
-        });
-    } else {
-        scenarioSelector_->hide();
-        customChannelCount_->hide();
-        previewProbeCount_->hide();
-    }
-    previewControlsWidget->hide();
+    refreshTimer_ = new QTimer(this);
+    refreshTimer_->setInterval(intervalForRefreshRate(refreshRate_));
+    connect(refreshTimer_, &QTimer::timeout, this, [this] { refresh(); });
+        auto& applicationSettings = WinJACKNexus::UI::ApplicationSettings::instance();
+        connect(&applicationSettings,
+            &WinJACKNexus::UI::ApplicationSettings::frameRateChanged,
+            this,
+            [this](int framesPerSecond) { applyRefreshRate(framesPerSecond); });
+        applyRefreshRate(applicationSettings.frameRate());
 
     refresh();
 }
 
 void MeterbridgeWindow::refresh()
 {
-    const auto snapshots = provider_.snapshots();
+    const auto snapshots = provider_.snapshots(false);
     std::unordered_set<QString> expectedIds;
     expectedIds.reserve(snapshots.size());
-    int displayIndex = 1;
+    bool cardStructureChanged = false;
     for (const auto& snapshot : snapshots) {
         expectedIds.insert(snapshot.instanceId);
-        if (!cards_.contains(snapshot.instanceId))
+        if (!cards_.contains(snapshot.instanceId)) {
             addCard(snapshot);
+            cardStructureChanged = true;
+        }
         auto* card = cards_.value(snapshot.instanceId);
         card->setSnapshot(snapshot);
-        card->setDisplayIndex(displayIndex++);
     }
 
     std::vector<QString> removedIds;
@@ -168,17 +137,34 @@ void MeterbridgeWindow::refresh()
         if (!expectedIds.contains(iterator.key()))
             removedIds.push_back(iterator.key());
     }
-    for (const auto& instanceId : removedIds)
+    for (const auto& instanceId : removedIds) {
         removeCard(instanceId);
+        cardStructureChanged = true;
+    }
+
+    if (cardStructureChanged || cardOrder_ != renderedCardOrder_) {
+        reorderCards(snapshots);
+        renderedCardOrder_ = cardOrder_;
+        int displayIndex = 1;
+        for (const auto& instanceId : cardOrder_) {
+            if (auto* card = cards_.value(instanceId, nullptr); card != nullptr)
+                card->setDisplayIndex(displayIndex++);
+        }
+        updateCardContainerGeometry();
+    }
 
     const auto hasCards = !cards_.isEmpty();
     cardScrollArea_->setVisible(hasCards);
     emptyState_->setVisible(!hasCards);
-    historyPage_->setSnapshots(snapshots);
     tabs_->setTabEnabled(historyTabIndex_, hasCards);
+    if (tabs_->currentIndex() == historyTabIndex_)
+        historyPage_->setLiveSnapshots(snapshots);
     if (!hasCards && tabs_->currentIndex() == historyTabIndex_)
         tabs_->setCurrentIndex(0);
-    updateCardContainerGeometry();
+    if (hasCards && pendingRestoredHistorySelection_ && !selectedInstanceId_.isEmpty()) {
+        pendingRestoredHistorySelection_ = false;
+        openHistoryForInstanceId(selectedInstanceId_);
+    }
 }
 
 int MeterbridgeWindow::cardCount() const noexcept
@@ -205,9 +191,76 @@ void MeterbridgeWindow::openHistoryForInstanceId(const QString& instanceId)
     if (target == snapshots.cend())
         return;
     historyPage_->setSnapshots(snapshots, instanceId);
+    selectedInstanceId_ = instanceId;
+    restoredTabIndex_ = historyTabIndex_;
     tabs_->setTabEnabled(historyTabIndex_, true);
     tabs_->setCurrentIndex(historyTabIndex_);
     historyPage_->setFocus(Qt::OtherFocusReason);
+}
+
+void MeterbridgeWindow::selectInstance(const QString& instanceId)
+{
+    selectedInstanceId_ = instanceId;
+    restoredTabIndex_ = tabs_->currentIndex();
+    auto* card = cardForInstanceId(instanceId);
+    if (card != nullptr)
+        cardScrollArea_->ensureWidgetVisible(card, 12, 12);
+}
+
+int MeterbridgeWindow::refreshRate() const noexcept
+{
+    return refreshRate_;
+}
+
+int MeterbridgeWindow::refreshIntervalMilliseconds() const noexcept
+{
+    return intervalForRefreshRate(refreshRate_);
+}
+
+void MeterbridgeWindow::setRefreshRate(int framesPerSecond)
+{
+    WinJACKNexus::UI::ApplicationSettings::instance().setFrameRate(framesPerSecond);
+}
+
+void MeterbridgeWindow::applyRefreshRate(int framesPerSecond)
+{
+    if (refreshRate_ == framesPerSecond)
+        return;
+    refreshRate_ = framesPerSecond;
+    refreshTimer_->setInterval(intervalForRefreshRate(refreshRate_));
+    for (auto* card : cards_)
+        card->setRefreshRate(refreshRate_);
+    historyPage_->setRefreshRate(refreshRate_);
+}
+
+QJsonObject MeterbridgeWindow::projectState() const
+{
+    QJsonArray order;
+    for (const auto& instanceId : cardOrder_)
+        order.append(instanceId);
+    return {
+        { QStringLiteral("geometry"), QString::fromLatin1(saveGeometry().toBase64()) },
+        { QStringLiteral("cardOrder"), order },
+        { QStringLiteral("selectedMeter"), selectedInstanceId_ },
+        { QStringLiteral("currentTab"), tabs_->currentIndex() }
+    };
+}
+
+void MeterbridgeWindow::restoreProjectState(const QJsonObject& state)
+{
+    const auto geometry = QByteArray::fromBase64(state.value(QStringLiteral("geometry")).toString().toLatin1());
+    if (!geometry.isEmpty())
+        restoreGeometry(geometry);
+    cardOrder_.clear();
+    for (const auto& value : state.value(QStringLiteral("cardOrder")).toArray()) {
+        const auto instanceId = value.toString();
+        if (!instanceId.isEmpty() && !cardOrder_.contains(instanceId))
+            cardOrder_.append(instanceId);
+    }
+    selectedInstanceId_ = state.value(QStringLiteral("selectedMeter")).toString();
+    restoredTabIndex_ = state.value(QStringLiteral("currentTab")).toInt();
+    pendingRestoredHistorySelection_ = restoredTabIndex_ == historyTabIndex_;
+    refresh();
 }
 
 bool MeterbridgeWindow::isEmptyStateVisible() const noexcept
@@ -224,7 +277,16 @@ void MeterbridgeWindow::resizeEvent(QResizeEvent* event)
 void MeterbridgeWindow::showEvent(QShowEvent* event)
 {
     QMainWindow::showEvent(event);
+    if (refreshTimer_ != nullptr)
+        refreshTimer_->start();
     QTimer::singleShot(0, this, [this] { updateCardContainerGeometry(); });
+}
+
+void MeterbridgeWindow::hideEvent(QHideEvent* event)
+{
+    if (refreshTimer_ != nullptr)
+        refreshTimer_->stop();
+    QMainWindow::hideEvent(event);
 }
 
 void MeterbridgeWindow::addCard(const MeterViewSnapshot& snapshot)
@@ -233,7 +295,10 @@ void MeterbridgeWindow::addCard(const MeterViewSnapshot& snapshot)
                                [this] { refresh(); },
                                [this](const QString& instanceId) { openHistoryForInstanceId(instanceId); },
                                cardContainer_);
+    card->setRefreshRate(refreshRate_);
     cards_.insert(snapshot.instanceId, card);
+    if (!cardOrder_.contains(snapshot.instanceId))
+        cardOrder_.append(snapshot.instanceId);
     cardLayout_->addWidget(card);
 }
 
@@ -243,7 +308,31 @@ void MeterbridgeWindow::removeCard(const QString& instanceId)
     if (card == nullptr)
         return;
     cardLayout_->removeWidget(card);
+    cardOrder_.removeAll(instanceId);
+    if (selectedInstanceId_ == instanceId)
+        selectedInstanceId_.clear();
     delete card;
+}
+
+void MeterbridgeWindow::reorderCards(const std::vector<MeterViewSnapshot>& snapshots)
+{
+    for (const auto& snapshot : snapshots) {
+        if (!cardOrder_.contains(snapshot.instanceId))
+            cardOrder_.append(snapshot.instanceId);
+    }
+    for (auto iterator = cardOrder_.begin(); iterator != cardOrder_.end();) {
+        if (!cards_.contains(*iterator))
+            iterator = cardOrder_.erase(iterator);
+        else
+            ++iterator;
+    }
+    for (const auto& instanceId : cardOrder_) {
+        auto* card = cards_.value(instanceId, nullptr);
+        if (card == nullptr)
+            continue;
+        cardLayout_->removeWidget(card);
+        cardLayout_->addWidget(card);
+    }
 }
 
 void MeterbridgeWindow::updateCardContainerGeometry()

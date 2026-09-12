@@ -50,6 +50,8 @@
 #include <QScrollBar>
 #include <QWheelEvent>
 
+#include <Windows.h>
+
 #include <algorithm>
 #include <cmath>
 #include <functional>
@@ -70,6 +72,72 @@ constexpr auto kModuleNodeMimeType = "application/x-winjacknexus-module-node";
 constexpr auto kVstNodeMimeType = "application/x-winjacknexus-vst-node";
 constexpr auto kSubGraphNodeMimeType = "application/x-winjacknexus-subgraph-node";
 constexpr auto kInterfaceNodeMimeType = "application/x-winjacknexus-interface-node";
+
+template <typename Item, typename Key, typename Equal>
+bool containsSameItems(const std::vector<Item>& left, const std::vector<Item>& right, Key key, Equal equal)
+{
+    if (left.size() != right.size())
+        return false;
+
+    std::unordered_map<std::string, const Item*> rightByKey;
+    rightByKey.reserve(right.size());
+    for (const auto& item : right) {
+        if (!rightByKey.emplace(key(item), &item).second)
+            return false;
+    }
+    for (const auto& item : left) {
+        const auto match = rightByKey.find(key(item));
+        if (match == rightByKey.cend() || !equal(item, *match->second))
+            return false;
+        rightByKey.erase(match);
+    }
+    return true;
+}
+
+bool hasSameRenderableGraph(const Snapshot& left, const Snapshot& right)
+{
+    const auto clientsEqual = [](const ClientInfo& first, const ClientInfo& second) {
+        return first.id == second.id && first.name == second.name && first.alias == second.alias
+            && first.iconName == second.iconName && first.uri == second.uri && first.x == second.x
+            && first.y == second.y && first.split == second.split && first.alive == second.alive;
+    };
+    const auto portsEqual = [](const PortInfo& first, const PortInfo& second) {
+        return first.id == second.id && first.clientId == second.clientId && first.name == second.name
+            && first.alias == second.alias && first.kind == second.kind && first.direction == second.direction
+            && first.groupHints == second.groupHints && first.ordinal == second.ordinal && first.alive == second.alive;
+    };
+    const auto connectionsEqual = [](const ConnectionInfo& first, const ConnectionInfo& second) {
+        return first.sourcePortId == second.sourcePortId && first.destinationPortId == second.destinationPortId
+            && first.alive == second.alive;
+    };
+    const auto connectionKey = [](const ConnectionInfo& connection) {
+        return connection.sourcePortId + '\0' + connection.destinationPortId;
+    };
+
+    return containsSameItems(left.clients, right.clients, [](const ClientInfo& client) -> const std::string& {
+                                 return client.id;
+                             }, clientsEqual)
+        && containsSameItems(left.ports, right.ports, [](const PortInfo& port) -> const std::string& {
+                                  return port.id;
+                              }, portsEqual)
+        && containsSameItems(left.connections, right.connections, connectionKey, connectionsEqual);
+}
+
+QJsonObject meterbridgeProjectStateFromService()
+{
+    const auto module = GetModuleHandleW(L"mod_meterbrigde.dll");
+    using GetProjectState = const char* (*)();
+    const auto getProjectState = module == nullptr ? nullptr
+        : reinterpret_cast<GetProjectState>(GetProcAddress(module, "wjn_meterbridge_project_state_json"));
+    if (getProjectState == nullptr)
+        return {};
+    const auto* json = getProjectState();
+    if (json == nullptr)
+        return {};
+    QJsonParseError error;
+    const auto document = QJsonDocument::fromJson(QByteArray(json), &error);
+    return error.error == QJsonParseError::NoError && document.isObject() ? document.object() : QJsonObject {};
+}
 
 bool readModuleNodeMimeData(const QMimeData* mimeData, QString& modulePath, std::uint32_t& index)
 {
@@ -942,7 +1010,7 @@ bool PatchbayCanvas::saveProject(const QString& filePath,
         });
     }
 
-    const QJsonDocument document(QJsonObject {
+    auto root = QJsonObject {
         { QStringLiteral("version"), 1 },
         { QStringLiteral("app"), QStringLiteral("WinJACKNexus") },
         { QStringLiteral("clients"), clients },
@@ -954,7 +1022,13 @@ bool PatchbayCanvas::saveProject(const QString& filePath,
         { QStringLiteral("subgraphs"), subGraphRecords },
         { QStringLiteral("mixers"), QJsonArray {} },
         { QStringLiteral("switches"), QJsonArray {} }
-    });
+    };
+    const auto meterbridgeState = meterbridgeProjectStateFromService();
+    root.insert(QStringLiteral("meters"), meterbridgeState.value(QStringLiteral("meters")).toArray());
+    if (meterbridgeState.value(QStringLiteral("meterbridgeWindow")).isObject())
+        root.insert(QStringLiteral("meterbridgeWindow"), meterbridgeState.value(QStringLiteral("meterbridgeWindow")).toObject());
+
+    const QJsonDocument document(root);
 
     QSaveFile file(filePath);
     return file.open(QIODevice::WriteOnly)
@@ -991,6 +1065,10 @@ bool PatchbayCanvas::loadProject(const QString& filePath,
 
     Snapshot project;
     const auto root = document.object();
+    meterbridgeProjectState_ = {
+        { QStringLiteral("meters"), root.value(QStringLiteral("meters")).toArray() },
+        { QStringLiteral("meterbridgeWindow"), root.value(QStringLiteral("meterbridgeWindow")).toObject() }
+    };
     for (const auto& value : root.value(QStringLiteral("clients")).toArray()) {
         const auto item = value.toObject();
         ClientInfo client;
@@ -1214,7 +1292,6 @@ bool PatchbayCanvas::restoreJackConnections(WinJACKNexus::Audio::JackClient& cli
 void PatchbayCanvas::setSnapshot(const Snapshot& snapshot)
 {
     const QSignalBlocker sceneSignals(scene());
-    cancelDragState();
     std::unordered_set<std::string> selectedClientIds;
     for (const auto* item : scene()->selectedItems()) {
         if (item->data(0).isValid())
@@ -1400,7 +1477,12 @@ void PatchbayCanvas::setSnapshot(const Snapshot& snapshot)
         if (client.split && !clientCanSplit(restored, client.id))
             client.split = false;
     }
+    if (hasSameRenderableGraph(renderedSnapshot_, restored))
+        return;
+
+    cancelDragState();
     snapshot_ = std::move(restored);
+    renderedSnapshot_ = snapshot_;
     scene()->clear();
 
     std::unordered_map<std::string, std::vector<PortInfo>> portsByClient;
@@ -1598,6 +1680,7 @@ void PatchbayCanvas::newProject()
     savedJackConnections_.clear();
     jackConnectionRestoreRetries_ = 0;
     pendingPortId_.clear();
+    meterbridgeProjectState_ = {};
     setSnapshot(snapshot_);
     projectDirty_ = false;
 }
@@ -1726,12 +1809,14 @@ void PatchbayCanvas::setModuleNodeHandlers(std::function<bool(const std::string&
                                             std::function<bool(const std::string&)> copyModuleNode,
                                             std::function<bool(const std::string&)> removeModuleNode,
                                             std::function<bool(const std::string&, QWidget*)> showModuleNodeGui,
+                                            std::function<bool(const std::string&)> canShowModuleNodeGui,
                                             std::function<bool(const QPointF&)> pasteModuleNode)
 {
     isModuleNode_ = std::move(isModuleNode);
     copyModuleNode_ = std::move(copyModuleNode);
     removeModuleNode_ = std::move(removeModuleNode);
     showModuleNodeGui_ = std::move(showModuleNodeGui);
+    canShowModuleNodeGui_ = std::move(canShowModuleNodeGui);
     pasteModuleNode_ = std::move(pasteModuleNode);
 }
 
@@ -1882,6 +1967,8 @@ void PatchbayCanvas::contextMenuEvent(QContextMenuEvent* event)
             return value.id == id;
         });
         const bool isModuleNode = isModuleNode_ && isModuleNode_(id);
+        const bool canShowModuleGui = isModuleNode
+            && (!canShowModuleNodeGui_ || canShowModuleNodeGui_(id));
         const bool isSubGraph = isSubGraphNode(id);
         const auto interfaceNode = std::find_if(interfaceNodes_.cbegin(), interfaceNodes_.cend(), [&id](const auto& value) {
             return value.id == id;
@@ -1902,7 +1989,7 @@ void PatchbayCanvas::contextMenuEvent(QContextMenuEvent* event)
             menu.addSeparator();
             copy = menu.addAction(QStringLiteral("复制节点"));
             remove = menu.addAction(QStringLiteral("删除节点"));
-            if (isModuleNode)
+            if (canShowModuleGui)
                 showGui = menu.addAction(QStringLiteral("显示自带 GUI"));
         }
         const auto* selected = menu.exec(event->globalPos());
@@ -2647,4 +2734,9 @@ void PatchbayCanvas::forgetSavedJackConnection(const std::string& sourcePortId, 
     std::erase_if(savedJackConnections_, [&sourcePortId, &destinationPortId](const auto& connection) {
         return connection.sourcePortId == sourcePortId && connection.destinationPortId == destinationPortId;
     });
+}
+
+QJsonObject PatchbayCanvas::meterbridgeProjectState() const
+{
+    return meterbridgeProjectState_;
 }

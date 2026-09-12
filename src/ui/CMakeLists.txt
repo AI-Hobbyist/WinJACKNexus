@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 add_library(ui SHARED
     src/Library.cpp
+    src/ApplicationSettings.cpp
     src/AnimatedWidget.cpp
     src/HistoryChartWidget.cpp
     src/HistoryLegendWidget.cpp
@@ -17,6 +18,7 @@ add_library(ui SHARED
     src/ThemePalette.cpp
     src/TrayController.cpp
     include/WinJACKNexus/UI/Export.hpp
+    include/WinJACKNexus/UI/ApplicationSettings.hpp
     include/WinJACKNexus/UI/AnimatedWidget.hpp
     include/WinJACKNexus/UI/HistoryChartWidget.hpp
     include/WinJACKNexus/UI/HistoryLegendWidget.hpp

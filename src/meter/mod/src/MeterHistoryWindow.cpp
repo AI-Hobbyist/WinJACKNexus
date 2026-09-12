@@ -15,7 +15,9 @@
  */
 #include <WinJACKNexus/Meter/Mod/MeterHistoryWindow.hpp>
 
+#include <WinJACKNexus/Common/MeterLoudnessPresetCatalog.hpp>
 #include <WinJACKNexus/Meter/Mod/MeterSettingsWidget.hpp>
+#include <WinJACKNexus/UI/ApplicationSettings.hpp>
 #include <WinJACKNexus/UI/HistoryChartWidget.hpp>
 #include <WinJACKNexus/UI/HistoryLegendWidget.hpp>
 #include <WinJACKNexus/UI/MetricStatisticsWidget.hpp>
@@ -25,20 +27,20 @@
 #include <QButtonGroup>
 #include <QCheckBox>
 #include <QComboBox>
+#include <QDateTime>
 #include <QFormLayout>
 #include <QFrame>
 #include <QGroupBox>
 #include <QHBoxLayout>
-#include <QHeaderView>
 #include <QHideEvent>
 #include <QLabel>
 #include <QMessageBox>
 #include <QSlider>
 #include <QSignalBlocker>
 #include <QSizePolicy>
+#include <QSpinBox>
 #include <QSplitter>
 #include <QStyle>
-#include <QTableWidget>
 #include <QToolButton>
 #include <QTimer>
 #include <QVBoxLayout>
@@ -55,6 +57,13 @@ namespace WinJACKNexus::Meter::Mod {
 
 namespace {
 
+constexpr std::int64_t historyDataRefreshIntervalMilliseconds = 100;
+
+int intervalForRefreshRate(int framesPerSecond) noexcept
+{
+    return std::max(1, 1000 / framesPerSecond);
+}
+
 struct SeriesDefinition final {
     QString id;
     QString label;
@@ -68,7 +77,7 @@ const std::array<SeriesDefinition, 8>& seriesDefinitions()
     static const std::array definitions {
         SeriesDefinition { QStringLiteral("peak"), QStringLiteral("峰值（Peak）"), QStringLiteral("dBFS"), QColor(QStringLiteral("#ff5269")), WinJACKNexus::UI::HistoryChartAxis::left },
         SeriesDefinition { QStringLiteral("rms"), QStringLiteral("均方根（RMS）"), QStringLiteral("dBFS"), QColor(QStringLiteral("#ff8a47")), WinJACKNexus::UI::HistoryChartAxis::left },
-        SeriesDefinition { QStringLiteral("lfe"), QStringLiteral("LFE 峰值（LFE Peak）"), QStringLiteral("dBFS"), QColor(QStringLiteral("#b96aff")), WinJACKNexus::UI::HistoryChartAxis::left },
+        SeriesDefinition { QStringLiteral("lfe"), QStringLiteral("LFE 峰值（LFE Peak）"), QStringLiteral("dBFS"), QColor(QStringLiteral("#ff78c7")), WinJACKNexus::UI::HistoryChartAxis::left },
         SeriesDefinition { QStringLiteral("true-peak"), QStringLiteral("dBTP"), QStringLiteral("dBTP"), QColor(QStringLiteral("#ffd143")), WinJACKNexus::UI::HistoryChartAxis::left },
         SeriesDefinition { QStringLiteral("momentary"), QStringLiteral("瞬时（Momentary）"), QStringLiteral("LUFS"), QColor(QStringLiteral("#43e88d")), WinJACKNexus::UI::HistoryChartAxis::left },
         SeriesDefinition { QStringLiteral("short-term"), QStringLiteral("短时（Short-term）"), QStringLiteral("LUFS"), QColor(QStringLiteral("#48c9ff")), WinJACKNexus::UI::HistoryChartAxis::left },
@@ -104,14 +113,6 @@ std::optional<double> asDouble(const std::optional<float>& value)
     return value.has_value() ? std::optional<double> { static_cast<double>(*value) } : std::nullopt;
 }
 
-QString elapsedText(std::int64_t elapsedMilliseconds)
-{
-    const auto totalSeconds = std::max<std::int64_t>(0, elapsedMilliseconds / 1000);
-    return QStringLiteral("%1:%2")
-        .arg(totalSeconds / 60, 2, 10, QLatin1Char('0'))
-        .arg(totalSeconds % 60, 2, 10, QLatin1Char('0'));
-}
-
 QToolButton* createActionButton(QAction* action, const QString& objectName, QWidget* parent)
 {
     auto* button = new QToolButton(parent);
@@ -119,6 +120,31 @@ QToolButton* createActionButton(QAction* action, const QString& objectName, QWid
     button->setDefaultAction(action);
     button->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
     return button;
+}
+
+const WinJACKNexus::Common::MeterLoudnessPreset& referencePreset(const QString& presetId)
+{
+    if (const auto* preset = WinJACKNexus::Common::findMeterLoudnessPreset(presetId.toStdString()); preset != nullptr)
+        return *preset;
+    return *WinJACKNexus::Common::findMeterLoudnessPreset("ebu-r128");
+}
+
+QString formatReferenceValue(double value)
+{
+    return QString::number(value, 'f', 1);
+}
+
+QString integratedReferenceLabel(const WinJACKNexus::Common::MeterLoudnessPreset& preset)
+{
+    if (!preset.alternateTargetHighLufs.has_value())
+        return QStringLiteral("综合响度（Integrated） %1 LUFS").arg(formatReferenceValue(preset.targetIntegratedLufs));
+    return QStringLiteral("综合响度（Integrated） %1 至 %2 LUFS")
+        .arg(formatReferenceValue(preset.targetIntegratedLufs), formatReferenceValue(*preset.alternateTargetHighLufs));
+}
+
+QString truePeakReferenceLabel(const WinJACKNexus::Common::MeterLoudnessPreset& preset)
+{
+    return QStringLiteral("最大真峰值（dBTP） %1 dBTP").arg(formatReferenceValue(preset.maximumTruePeakDbtp));
 }
 
 }
@@ -149,8 +175,6 @@ MeterHistoryWindow::MeterHistoryWindow(MeterViewDataProvider& provider,
         "QCheckBox::indicator:checked { background-color: #2f9eff; border-color: #72bcff; }"
         "QGroupBox { color: #b8d7f6; border: 1px solid #183b5a; border-radius: 5px; margin-top: 12px; padding-top: 8px; }"
         "QGroupBox::title { subcontrol-origin: margin; left: 8px; padding: 0 4px; }"
-        "QTableWidget { background-color: #0a1d30; alternate-background-color: #0c243b; color: #cfe4ff; border: 1px solid #183b5a; gridline-color: #1a3e5e; }"
-        "QHeaderView::section { background-color: #102742; color: #a8c9ec; border: 0; border-bottom: 1px solid #1c4568; padding: 4px; }"
         "QSplitter::handle { background-color: #122a42; width: 1px; }"));
 
     auto* pageLayout = new QVBoxLayout(this);
@@ -183,15 +207,13 @@ MeterHistoryWindow::MeterHistoryWindow(MeterViewDataProvider& provider,
     viewModeSelector_->addItem(QStringLiteral("滚动（实时滚动）"), static_cast<int>(MeterHistoryViewMode::realtimeScroll));
     viewModeSelector_->addItem(QStringLiteral("扫描"), static_cast<int>(MeterHistoryViewMode::scanning));
 
-    timeWindowSelector_ = new QComboBox(settingsWidget_);
-    timeWindowSelector_->setObjectName(QStringLiteral("meterHistory.timeWindow"));
-    timeWindowSelector_->setAccessibleName(QStringLiteral("历史时间窗口"));
-    timeWindowSelector_->addItem(QStringLiteral("10 秒"), qlonglong { 10000 });
-    timeWindowSelector_->addItem(QStringLiteral("1 分钟"), qlonglong { 60000 });
-    timeWindowSelector_->addItem(QStringLiteral("5 分钟"), qlonglong { 300000 });
-    timeWindowSelector_->addItem(QStringLiteral("10 分钟"), qlonglong { 600000 });
-    timeWindowSelector_->addItem(QStringLiteral("30 分钟"), qlonglong { 1800000 });
-    timeWindowSelector_->addItem(QStringLiteral("1 小时"), qlonglong { 3600000 });
+    timeWindowSpinBox_ = new QSpinBox(settingsWidget_);
+    timeWindowSpinBox_->setObjectName(QStringLiteral("meterHistory.timeWindow"));
+    timeWindowSpinBox_->setAccessibleName(QStringLiteral("历史时间窗口（秒）"));
+    timeWindowSpinBox_->setRange(static_cast<int>(minimumMeterHistoryWindowMilliseconds / 1000),
+                                  static_cast<int>(maximumMeterHistoryWindowMilliseconds / 1000));
+    timeWindowSpinBox_->setSuffix(QStringLiteral(" 秒"));
+    timeWindowSpinBox_->setValue(static_cast<int>(defaultMeterHistoryWindowMilliseconds / 1000));
 
     auto* displaySettingsGroup = settingsWidget_->findChild<QGroupBox*>(QStringLiteral("meterSettings.globalGroup"));
     auto* displaySettingsLayout = displaySettingsGroup != nullptr
@@ -199,7 +221,7 @@ MeterHistoryWindow::MeterHistoryWindow(MeterViewDataProvider& provider,
         : nullptr;
     if (displaySettingsLayout != nullptr) {
         displaySettingsLayout->addRow(QStringLiteral("刷新形式"), viewModeSelector_);
-        displaySettingsLayout->addRow(QStringLiteral("时间范围"), timeWindowSelector_);
+        displaySettingsLayout->addRow(QStringLiteral("时间窗口"), timeWindowSpinBox_);
     }
 
     auto* seriesGroup = new QGroupBox(QStringLiteral("曲线显示"), settingsWidget_);
@@ -225,11 +247,10 @@ MeterHistoryWindow::MeterHistoryWindow(MeterViewDataProvider& provider,
         });
     }
 
+    const auto& initialReferencePreset = referencePreset({});
     const std::array referenceDefinitions {
-        std::pair { QStringLiteral("momentary"), QStringLiteral("瞬时（Momentary） -18 LUFS") },
-        std::pair { QStringLiteral("short-term"), QStringLiteral("短时（Short-term） -23 LUFS") },
-        std::pair { QStringLiteral("integrated"), QStringLiteral("综合（Integrated） -23 LUFS") },
-        std::pair { QStringLiteral("lra"), QStringLiteral("LRA 0–20 LU") }
+        std::pair { QStringLiteral("integrated"), integratedReferenceLabel(initialReferencePreset) },
+        std::pair { QStringLiteral("dbtp"), truePeakReferenceLabel(initialReferencePreset) }
     };
     auto* referenceGroup = new QGroupBox(QStringLiteral("参考线"), settingsWidget_);
     referenceGroup->setObjectName(QStringLiteral("meterHistory.referenceGroup"));
@@ -275,41 +296,6 @@ MeterHistoryWindow::MeterHistoryWindow(MeterViewDataProvider& provider,
     channelSelector_->setMinimumContentsLength(14);
     channelSelector_->setEnabled(false);
     controls->addWidget(channelSelector_);
-    auto* rangeButtons = new QButtonGroup(controlsFrame);
-    rangeButtons->setExclusive(true);
-    const std::array ranges {
-        std::pair { qlonglong { 60000 }, QStringLiteral("1 分钟") },
-        std::pair { qlonglong { 300000 }, QStringLiteral("5 分钟") },
-        std::pair { qlonglong { 600000 }, QStringLiteral("10 分钟") },
-        std::pair { qlonglong { 1800000 }, QStringLiteral("30 分钟") },
-        std::pair { qlonglong { 3600000 }, QStringLiteral("1 小时") }
-    };
-    for (const auto& [milliseconds, label] : ranges) {
-        auto* button = new QToolButton(controlsFrame);
-        button->setObjectName(QStringLiteral("meterHistory.range.%1").arg(milliseconds));
-        button->setProperty("meterHistoryControl", QStringLiteral("range"));
-        button->setProperty("historyTimeWindow", milliseconds);
-        button->setText(label);
-        button->setCheckable(true);
-        button->setChecked(milliseconds == 600000);
-        rangeButtons->addButton(button);
-        controls->addWidget(button);
-        connect(button, &QToolButton::clicked, this, [this, milliseconds] {
-            MeterViewCommand command;
-            command.type = MeterViewCommandType::setHistoryTimeWindow;
-            command.historyTimeWindowMilliseconds = milliseconds;
-            dispatch(std::move(command));
-        });
-    }
-    auto* customRangeButton = new QToolButton(controlsFrame);
-    customRangeButton->setObjectName(QStringLiteral("meterHistory.range.custom"));
-    customRangeButton->setProperty("meterHistoryControl", QStringLiteral("range"));
-    customRangeButton->setText(QStringLiteral("自定义..."));
-    customRangeButton->setToolTip(QStringLiteral("当前模拟预览使用 10 分钟自定义窗口"));
-    controls->addWidget(customRangeButton);
-    connect(customRangeButton, &QToolButton::clicked, this, [this] {
-        timeWindowSelector_->showPopup();
-    });
     controls->addStretch(1);
 
     scanCursorSlider_ = new QSlider(Qt::Horizontal, chartSurface);
@@ -352,10 +338,10 @@ MeterHistoryWindow::MeterHistoryWindow(MeterViewDataProvider& provider,
     chart_ = new WinJACKNexus::UI::HistoryChartWidget(chartSurface);
     chart_->setObjectName(QStringLiteral("meterHistory.chart"));
     chart_->setValueRange(-72.0, 12.0);
-    chart_->setRightValueRange(0.0, 20.0);
+    chart_->setRightValueRange(0.0, 84.0);
     chart_->setVerticalAxisLabel(QStringLiteral("电平（Level） / 响度（Loudness） (dB / LUFS)"));
     chart_->setRightVerticalAxisLabel(QStringLiteral("LRA (LU)"));
-    chart_->setHorizontalAxisLabel(QStringLiteral("时间 (分:秒)"));
+    chart_->setHorizontalAxisLabel(QStringLiteral("系统时间"));
     auto historyPalette = WinJACKNexus::UI::ThemePalette::darkRack();
     historyPalette.setColor(QStringLiteral("window-bg"), QColor(QStringLiteral("#061523")));
     historyPalette.setColor(QStringLiteral("panel-bg"), QColor(QStringLiteral("#0a1d30")));
@@ -385,41 +371,6 @@ MeterHistoryWindow::MeterHistoryWindow(MeterViewDataProvider& provider,
     statistics_->setPrecision(1);
     statistics_->setThemePalette(historyPalette);
     rootLayout->addWidget(statistics_);
-
-    auto* markersGroup = new QGroupBox(QStringLiteral("标记点"), chartSurface);
-    auto* markersLayout = new QVBoxLayout(markersGroup);
-    markersLayout->setContentsMargins(6, 10, 6, 5);
-    markerTable_ = new QTableWidget(markersGroup);
-    markerTable_->setObjectName(QStringLiteral("meterHistory.markerTable"));
-    markerTable_->setAccessibleName(QStringLiteral("历史标记点"));
-    markerTable_->setColumnCount(10);
-    markerTable_->setHorizontalHeaderLabels({ QStringLiteral("#"), QStringLiteral("时间"), QStringLiteral("峰值（Peak） (dBFS)"),
-                                               QStringLiteral("均方根（RMS） (dBFS)"), QStringLiteral("dBTP (dBTP)"),
-                                               QStringLiteral("瞬时（Momentary） (LUFS)"), QStringLiteral("短时（Short-term） (LUFS)"),
-                                               QStringLiteral("综合（Integrated） (LUFS)"), QStringLiteral("LRA (LU)"), QStringLiteral("备注") });
-    markerTable_->verticalHeader()->setVisible(false);
-    markerTable_->horizontalHeader()->setStretchLastSection(true);
-    for (int column = 0; column < markerTable_->columnCount() - 1; ++column)
-        markerTable_->horizontalHeader()->setSectionResizeMode(column, QHeaderView::ResizeToContents);
-    markerTable_->setMinimumHeight(126);
-    markersLayout->addWidget(markerTable_);
-    auto* markerButtons = new QHBoxLayout;
-    addMarkerAction_ = new QAction(style()->standardIcon(QStyle::SP_FileDialogNewFolder), QStringLiteral("添加标记点"), this);
-    addMarkerAction_->setObjectName(QStringLiteral("meterHistory.addMarkerAction"));
-    removeMarkerAction_ = new QAction(style()->standardIcon(QStyle::SP_TrashIcon), QStringLiteral("删除选中"), this);
-    removeMarkerAction_->setObjectName(QStringLiteral("meterHistory.removeMarkerAction"));
-    jumpMarkerAction_ = new QAction(style()->standardIcon(QStyle::SP_ArrowRight), QStringLiteral("跳转到选中"), this);
-    jumpMarkerAction_->setObjectName(QStringLiteral("meterHistory.jumpMarkerAction"));
-    markerButtons->addStretch(1);
-    for (const auto [action, objectName] : std::array {
-             std::pair { addMarkerAction_, QStringLiteral("meterHistory.addMarkerButton") },
-             std::pair { removeMarkerAction_, QStringLiteral("meterHistory.removeMarkerButton") },
-             std::pair { jumpMarkerAction_, QStringLiteral("meterHistory.jumpMarkerButton") } }) {
-        auto* button = createActionButton(action, objectName, markersGroup);
-        button->setProperty("meterHistoryControl", QStringLiteral("action"));
-        markerButtons->addWidget(button);
-    }
-    markersLayout->addLayout(markerButtons);
 
     auto* csvGroup = new QGroupBox(QStringLiteral("实时记录到 CSV"), settingsWidget_);
     auto* csvLayout = new QVBoxLayout(csvGroup);
@@ -452,25 +403,27 @@ MeterHistoryWindow::MeterHistoryWindow(MeterViewDataProvider& provider,
     csvLayout->addWidget(exportButton);
     if (settingsLayout != nullptr)
         settingsLayout->insertWidget(4, csvGroup);
-    rootLayout->addWidget(markersGroup);
 
     splitter->addWidget(chartSurface);
     splitter->setSizes({ 312, 1048 });
     pageLayout->addWidget(splitter);
 
     scanTimer_ = new QTimer(this);
-    scanTimer_->setInterval(100);
+    scanTimer_->setInterval(intervalForRefreshRate(refreshRate_));
     connect(scanTimer_, &QTimer::timeout, this, [this] {
-        if (!isVisible() || snapshot_.historyView.mode != MeterHistoryViewMode::scanning || snapshot_.historyView.paused)
+        if (!isVisible() || snapshot_.historyView.paused)
             return;
-        const auto timeWindow = std::max<std::int64_t>(1000, snapshot_.historyView.timeWindowMilliseconds);
-        const auto latestElapsed = snapshot_.history.empty() ? 0 : snapshot_.history.back().elapsedMilliseconds;
-        const auto cursor = scanCursorMilliseconds_.value_or(latestElapsed % timeWindow);
-        scanCursorMilliseconds_ = (cursor + 100) % timeWindow;
-        const QSignalBlocker sliderBlocker(scanCursorSlider_);
-        scanCursorSlider_->setValue(static_cast<int>(*scanCursorMilliseconds_ / 100));
-        updateChart();
+        const auto now = QDateTime::currentMSecsSinceEpoch();
+        if (lastHistoryDataRefreshMilliseconds_ < 0
+            || now - lastHistoryDataRefreshMilliseconds_ >= historyDataRefreshIntervalMilliseconds)
+            refreshHistoryData();
     });
+            auto& applicationSettings = WinJACKNexus::UI::ApplicationSettings::instance();
+            connect(&applicationSettings,
+                &WinJACKNexus::UI::ApplicationSettings::frameRateChanged,
+                this,
+                [this](int framesPerSecond) { applyRefreshRate(framesPerSecond); });
+            applyRefreshRate(applicationSettings.frameRate());
 
     connect(viewModeSelector_, &QComboBox::currentIndexChanged, this, [this](int index) {
         MeterViewCommand command;
@@ -478,20 +431,22 @@ MeterHistoryWindow::MeterHistoryWindow(MeterViewDataProvider& provider,
         command.historyViewMode = static_cast<MeterHistoryViewMode>(viewModeSelector_->itemData(index).toInt());
         dispatch(std::move(command));
     });
-    connect(timeWindowSelector_, &QComboBox::currentIndexChanged, this, [this](int index) {
+    connect(timeWindowSpinBox_, qOverload<int>(&QSpinBox::valueChanged), this, [this](int seconds) {
         MeterViewCommand command;
         command.type = MeterViewCommandType::setHistoryTimeWindow;
-        command.historyTimeWindowMilliseconds = timeWindowSelector_->itemData(index).toLongLong();
+        command.historyTimeWindowMilliseconds = static_cast<std::int64_t>(seconds) * 1000;
         dispatch(std::move(command));
     });
     connect(channelSelector_, &QComboBox::currentIndexChanged, this, [this](int index) {
-        if (index < 0 || index >= static_cast<int>(availableSnapshots_.size()))
+        if (index < 0)
             return;
-        setSnapshot(availableSnapshots_[static_cast<std::size_t>(index)]);
-    });
-    connect(scanCursorSlider_, &QSlider::valueChanged, this, [this](int tick) {
-        scanCursorMilliseconds_ = static_cast<std::int64_t>(tick) * 100;
-        updateChart();
+        const auto instanceId = channelSelector_->itemData(index).toString();
+        const auto snapshots = provider_.snapshots();
+        const auto target = std::find_if(snapshots.cbegin(), snapshots.cend(), [&instanceId](const MeterViewSnapshot& snapshot) {
+            return snapshot.instanceId == instanceId;
+        });
+        if (target != snapshots.cend())
+            setSnapshot(*target);
     });
     connect(pauseAction_, &QAction::toggled, this, [this](bool paused) {
         MeterViewCommand command;
@@ -528,103 +483,173 @@ MeterHistoryWindow::MeterHistoryWindow(MeterViewDataProvider& provider,
                 command.enabled = visible;
                 dispatch(std::move(command));
             });
-    connect(addMarkerAction_, &QAction::triggered, this, [this] {
-        MeterViewCommand command;
-        command.type = MeterViewCommandType::addHistoryMarker;
-        command.markerElapsedMilliseconds = scanCursorMilliseconds_.value_or(
-            snapshot_.history.empty() ? 0 : snapshot_.history.back().elapsedMilliseconds);
-        dispatch(std::move(command));
-    });
-    connect(removeMarkerAction_, &QAction::triggered, this, [this] { removeSelectedMarker(); });
-    connect(jumpMarkerAction_, &QAction::triggered, this, [this] { jumpToSelectedMarker(); });
+}
+
+int MeterHistoryWindow::refreshRate() const noexcept
+{
+    return refreshRate_;
+}
+
+int MeterHistoryWindow::refreshIntervalMilliseconds() const noexcept
+{
+    return intervalForRefreshRate(refreshRate_);
+}
+
+void MeterHistoryWindow::setRefreshRate(int framesPerSecond)
+{
+    WinJACKNexus::UI::ApplicationSettings::instance().setFrameRate(framesPerSecond);
+}
+
+void MeterHistoryWindow::applyRefreshRate(int framesPerSecond)
+{
+    if (refreshRate_ == framesPerSecond)
+        return;
+    refreshRate_ = framesPerSecond;
+    scanTimer_->setInterval(intervalForRefreshRate(refreshRate_));
 }
 
 void MeterHistoryWindow::setSnapshots(const std::vector<MeterViewSnapshot>& snapshots, const QString& preferredInstanceId)
 {
+    lastHistoryDataRefreshMilliseconds_ = QDateTime::currentMSecsSinceEpoch();
     const auto selectedInstanceId = preferredInstanceId.isEmpty() ? snapshot_.instanceId : preferredInstanceId;
-    availableSnapshots_ = snapshots;
-
-    const QSignalBlocker selectorBlocker(channelSelector_);
-    channelSelector_->clear();
-    channelSelector_->setEnabled(!availableSnapshots_.empty());
-    int selectedIndex = -1;
-    for (std::size_t index = 0; index < availableSnapshots_.size(); ++index) {
-        const auto& snapshot = availableSnapshots_[index];
-        channelSelector_->addItem(QStringLiteral("%1（%2）").arg(snapshot.clientName, snapshot.layoutLabel), snapshot.instanceId);
-        if (snapshot.instanceId == selectedInstanceId)
-            selectedIndex = static_cast<int>(index);
+    bool selectorChanged = channelSelector_->count() != static_cast<int>(snapshots.size());
+    for (std::size_t index = 0; !selectorChanged && index < snapshots.size(); ++index) {
+        const auto& snapshot = snapshots[index];
+        const auto label = QStringLiteral("%1（%2）").arg(snapshot.clientName, snapshot.layoutLabel);
+        selectorChanged = channelSelector_->itemData(static_cast<int>(index)).toString() != snapshot.instanceId
+            || channelSelector_->itemText(static_cast<int>(index)) != label;
     }
-    if (selectedIndex < 0 && !availableSnapshots_.empty())
+    if (selectorChanged) {
+        const QSignalBlocker selectorBlocker(channelSelector_);
+        channelSelector_->clear();
+        for (const auto& snapshot : snapshots)
+            channelSelector_->addItem(QStringLiteral("%1（%2）").arg(snapshot.clientName, snapshot.layoutLabel), snapshot.instanceId);
+    }
+    channelSelector_->setEnabled(!snapshots.empty());
+    int selectedIndex = -1;
+    if (!selectedInstanceId.isEmpty())
+        selectedIndex = channelSelector_->findData(selectedInstanceId);
+    if (selectedIndex < 0 && !snapshots.empty())
         selectedIndex = 0;
-    channelSelector_->setCurrentIndex(selectedIndex);
+    if (channelSelector_->currentIndex() != selectedIndex) {
+        const QSignalBlocker selectorBlocker(channelSelector_);
+        channelSelector_->setCurrentIndex(selectedIndex);
+    }
 
     if (selectedIndex >= 0) {
-        setSnapshot(availableSnapshots_[static_cast<std::size_t>(selectedIndex)]);
+        setSnapshot(snapshots[static_cast<std::size_t>(selectedIndex)]);
         return;
     }
 
     snapshot_ = {};
     chart_->setSeries({});
     statistics_->setEntries({});
-    markerTable_->clearContents();
-    markerTable_->setRowCount(0);
     csvPathLabel_->clear();
     csvStatusLabel_->clear();
     exportStatusLabel_->clear();
+    renderedHistoryElapsedMilliseconds_ = -1;
+}
+
+void MeterHistoryWindow::setLiveSnapshots(const std::vector<MeterViewSnapshot>& snapshots)
+{
+    if (!isVisible() || snapshot_.instanceId.isEmpty())
+        return;
+    const auto liveSnapshot = std::find_if(snapshots.cbegin(), snapshots.cend(), [this](const MeterViewSnapshot& candidate) {
+        return candidate.instanceId == snapshot_.instanceId;
+    });
+    if (liveSnapshot == snapshots.cend())
+        return;
+    const auto metadataChanged = liveSnapshot->clientName != snapshot_.clientName
+        || liveSnapshot->layoutLabel != snapshot_.layoutLabel
+        || liveSnapshot->presetId != snapshot_.presetId
+        || liveSnapshot->recordingEnabled != snapshot_.recordingEnabled
+        || liveSnapshot->channels != snapshot_.channels
+        || liveSnapshot->historyView != snapshot_.historyView
+        || liveSnapshot->globalSettings != snapshot_.globalSettings
+        || liveSnapshot->channelLayoutEditable != snapshot_.channelLayoutEditable
+        || liveSnapshot->csvPreview != snapshot_.csvPreview;
+    if (metadataChanged) {
+        refreshHistoryData();
+        return;
+    }
+    if (snapshot_.historyView.paused)
+        return;
+    const auto latestElapsed = liveSnapshot->latestHistoryElapsedMilliseconds.has_value()
+        ? liveSnapshot->latestHistoryElapsedMilliseconds
+        : (liveSnapshot->history.empty()
+            ? std::optional<std::int64_t> {}
+            : std::optional<std::int64_t> { liveSnapshot->history.back().elapsedMilliseconds });
+    if (latestElapsed.has_value())
+        updateTimeline(*latestElapsed);
 }
 
 void MeterHistoryWindow::setSnapshot(const MeterViewSnapshot& snapshot)
 {
-    snapshot_ = snapshot;
-    settingsWidget_->setSnapshot(snapshot_);
-
-    const QSignalBlocker modeBlocker(viewModeSelector_);
-    viewModeSelector_->setCurrentIndex(viewModeSelector_->findData(static_cast<int>(snapshot_.historyView.mode)));
-    const QSignalBlocker windowBlocker(timeWindowSelector_);
-    for (int index = 0; index < timeWindowSelector_->count(); ++index) {
-        if (timeWindowSelector_->itemData(index).toLongLong() == snapshot_.historyView.timeWindowMilliseconds) {
-            timeWindowSelector_->setCurrentIndex(index);
-            break;
+    const auto selectedInstanceChanged = snapshot_.instanceId != snapshot.instanceId;
+    const auto historyChanged = selectedInstanceChanged
+        || snapshot_.history.size() != snapshot.history.size()
+        || (!snapshot.history.empty()
+            && (snapshot_.history.front() != snapshot.history.front()
+                || snapshot_.history.back() != snapshot.history.back()));
+    const auto historyViewChanged = selectedInstanceChanged || snapshot_.historyView != snapshot.historyView;
+    const auto settingsChanged = selectedInstanceChanged
+        || snapshot_.globalSettings != snapshot.globalSettings
+        || snapshot_.channels != snapshot.channels
+        || snapshot_.channelLayoutEditable != snapshot.channelLayoutEditable;
+    const auto controlsChanged = selectedInstanceChanged || historyViewChanged
+        || snapshot_.recordingEnabled != snapshot.recordingEnabled;
+    const auto referenceChanged = selectedInstanceChanged || snapshot_.presetId != snapshot.presetId;
+    const auto csvChanged = selectedInstanceChanged || snapshot_.csvPreview != snapshot.csvPreview;
+    if (!historyChanged && !settingsChanged && !controlsChanged && !referenceChanged && !csvChanged)
+        return;
+    const auto wasPaused = snapshot_.historyView.paused;
+    if (!snapshot.historyView.paused) {
+        pausedHistoryElapsedMilliseconds_.reset();
+    } else {
+        const auto latestElapsed = snapshot.history.empty() ? 0 : snapshot.history.back().elapsedMilliseconds;
+        if (selectedInstanceChanged || !wasPaused || !pausedHistoryElapsedMilliseconds_.has_value()
+            || latestElapsed < *pausedHistoryElapsedMilliseconds_) {
+            pausedHistoryElapsedMilliseconds_ = latestElapsed;
+            scanCursorMilliseconds_.reset();
         }
     }
-    for (auto* rangeButton : findChildren<QToolButton*>()) {
-        if (!rangeButton->property("historyTimeWindow").isValid())
-            continue;
-        const QSignalBlocker rangeBlocker(rangeButton);
-        rangeButton->setChecked(rangeButton->property("historyTimeWindow").toLongLong()
-                                == snapshot_.historyView.timeWindowMilliseconds);
+    snapshot_ = snapshot;
+    if (settingsChanged)
+        settingsWidget_->setSnapshot(snapshot_);
+
+    if (controlsChanged) {
+        const QSignalBlocker modeBlocker(viewModeSelector_);
+        viewModeSelector_->setCurrentIndex(viewModeSelector_->findData(static_cast<int>(snapshot_.historyView.mode)));
+        const QSignalBlocker windowBlocker(timeWindowSpinBox_);
+        timeWindowSpinBox_->setValue(static_cast<int>(snapshot_.historyView.timeWindowMilliseconds / 1000));
+        for (std::size_t index = 0; index < seriesDefinitions().size(); ++index) {
+            auto* checkBox = seriesVisibilityCheckBoxes_[index];
+            if (checkBox == nullptr)
+                continue;
+            const auto& id = seriesDefinitions()[index].id;
+            const QSignalBlocker seriesBlocker(checkBox);
+            checkBox->setChecked(std::find(snapshot_.historyView.visibleSeriesIds.cbegin(),
+                                           snapshot_.historyView.visibleSeriesIds.cend(),
+                                           id)
+                                 != snapshot_.historyView.visibleSeriesIds.cend());
+        }
+        const QSignalBlocker pauseBlocker(pauseAction_);
+        pauseAction_->setChecked(snapshot_.historyView.paused);
+        recordingAction_->blockSignals(true);
+        recordingAction_->setChecked(snapshot_.recordingEnabled);
+        recordingAction_->blockSignals(false);
+        const QSignalBlocker recordingBlocker(recordingCheckBox_);
+        recordingCheckBox_->setChecked(snapshot_.recordingEnabled);
+        recordingAction_->setText(snapshot_.recordingEnabled ? QStringLiteral("停止记录") : QStringLiteral("记录响度"));
     }
-    for (std::size_t index = 0; index < seriesDefinitions().size(); ++index) {
-        auto* checkBox = seriesVisibilityCheckBoxes_[index];
-        if (checkBox == nullptr)
-            continue;
-        const auto& id = seriesDefinitions()[index].id;
-        const QSignalBlocker seriesBlocker(checkBox);
-        checkBox->setChecked(std::find(snapshot_.historyView.visibleSeriesIds.cbegin(),
-                                       snapshot_.historyView.visibleSeriesIds.cend(),
-                                       id)
-                             != snapshot_.historyView.visibleSeriesIds.cend());
+    if (historyChanged || historyViewChanged) {
+        updateLegend();
+        updateChart();
     }
-    for (auto* checkBox : referenceLineCheckBoxes_) {
-        if (checkBox == nullptr)
-            continue;
-        const auto id = checkBox->objectName().section(QLatin1Char('.'), -1);
-        const QSignalBlocker referenceBlocker(checkBox);
-        checkBox->setChecked(referenceLineVisibility_.value(id, true));
-    }
-    const QSignalBlocker pauseBlocker(pauseAction_);
-    pauseAction_->setChecked(snapshot_.historyView.paused);
-    recordingAction_->blockSignals(true);
-    recordingAction_->setChecked(snapshot_.recordingEnabled);
-    recordingAction_->blockSignals(false);
-    const QSignalBlocker recordingBlocker(recordingCheckBox_);
-    recordingCheckBox_->setChecked(snapshot_.recordingEnabled);
-    recordingAction_->setText(snapshot_.recordingEnabled ? QStringLiteral("停止记录") : QStringLiteral("记录响度"));
-    updateLegend();
-    updateReferenceLines();
-    updateChart();
-    updateMarkerTable();
-    updateCsvPreview();
+    if (referenceChanged)
+        updateReferenceLines();
+    if (csvChanged)
+        updateCsvPreview();
 }
 
 QString MeterHistoryWindow::instanceId() const
@@ -652,14 +677,10 @@ MeterSettingsWidget* MeterHistoryWindow::settingsWidget() const noexcept
     return settingsWidget_;
 }
 
-int MeterHistoryWindow::markerCount() const noexcept
-{
-    return markerTable_->rowCount();
-}
-
 void MeterHistoryWindow::showEvent(QShowEvent* event)
 {
     QWidget::showEvent(event);
+    refreshHistoryData();
     scanTimer_->start();
 }
 
@@ -674,7 +695,10 @@ void MeterHistoryWindow::dispatch(MeterViewCommand command)
     if (snapshot_.instanceId.isEmpty())
         return;
     command.instanceId = snapshot_.instanceId;
-    if (provider_.dispatch(command) && requestRefresh_)
+    if (!provider_.dispatch(command))
+        return;
+    refreshHistoryData();
+    if (requestRefresh_)
         requestRefresh_();
 }
 
@@ -682,35 +706,126 @@ void MeterHistoryWindow::updateChart()
 {
     const auto timeWindow = std::max<std::int64_t>(1000, snapshot_.historyView.timeWindowMilliseconds);
     const auto firstElapsed = snapshot_.history.empty() ? 0 : snapshot_.history.front().elapsedMilliseconds;
-    const auto latestElapsed = snapshot_.history.empty() ? timeWindow : snapshot_.history.back().elapsedMilliseconds;
+    const auto liveLatestElapsed = snapshot_.history.empty() ? timeWindow : snapshot_.history.back().elapsedMilliseconds;
+    const auto latestElapsed = snapshot_.historyView.paused && pausedHistoryElapsedMilliseconds_.has_value()
+        ? std::min(liveLatestElapsed, *pausedHistoryElapsedMilliseconds_)
+        : liveLatestElapsed;
     const auto scanning = snapshot_.historyView.mode == MeterHistoryViewMode::scanning;
+    const auto scanCycleStart = latestElapsed / timeWindow * timeWindow;
 
     std::int64_t startElapsed = firstElapsed;
     std::int64_t endElapsed = std::max(firstElapsed + 1, latestElapsed);
     if (scanning) {
         startElapsed = 0;
         endElapsed = timeWindow;
-        if (!scanCursorMilliseconds_.has_value() || *scanCursorMilliseconds_ < 0 || *scanCursorMilliseconds_ > timeWindow)
+        if (!snapshot_.historyView.paused || !scanCursorMilliseconds_.has_value()
+            || *scanCursorMilliseconds_ < 0 || *scanCursorMilliseconds_ > timeWindow)
             scanCursorMilliseconds_ = latestElapsed % timeWindow;
         const QSignalBlocker sliderBlocker(scanCursorSlider_);
-        scanCursorSlider_->setRange(0, static_cast<int>(timeWindow / 100));
-        scanCursorSlider_->setValue(static_cast<int>(*scanCursorMilliseconds_ / 100));
+        scanCursorSlider_->setRange(0, static_cast<int>(timeWindow));
+        scanCursorSlider_->setValue(static_cast<int>(*scanCursorMilliseconds_));
     } else {
-        const auto desiredEnd = focusElapsedMilliseconds_.has_value()
-            ? *focusElapsedMilliseconds_ + timeWindow / 2
-            : latestElapsed;
-        endElapsed = std::clamp(desiredEnd,
-                                firstElapsed + 1,
-                                std::max(firstElapsed + 1, latestElapsed));
         startElapsed = endElapsed - timeWindow;
     }
     scanCursorSlider_->setVisible(scanning);
+    scanCursorSlider_->setEnabled(false);
     chart_->setTimeRange(startElapsed, endElapsed);
-    chart_->setTimeCursorMilliseconds(scanning ? scanCursorMilliseconds_ : focusElapsedMilliseconds_);
+    chart_->setTimeCursorMilliseconds(scanning ? scanCursorMilliseconds_ : std::optional<std::int64_t> {});
+    const auto latestTimestamp = std::find_if(snapshot_.history.crbegin(),
+                                              snapshot_.history.crend(),
+                                              [latestElapsed](const MeterHistoryPoint& point) {
+                                                  return point.elapsedMilliseconds <= latestElapsed
+                                                      && point.systemTimeMilliseconds.has_value();
+                                              });
+    std::optional<std::int64_t> timeDisplayOffset;
+    if (latestTimestamp != snapshot_.history.crend()) {
+        timeDisplayOffset = *latestTimestamp->systemTimeMilliseconds - latestTimestamp->elapsedMilliseconds;
+        if (scanning)
+            *timeDisplayOffset += scanCycleStart;
+    } else if (!snapshot_.history.empty()) {
+        timeDisplayOffset = QDateTime::currentMSecsSinceEpoch() - latestElapsed;
+        if (scanning)
+            *timeDisplayOffset += scanCycleStart;
+    }
+    chart_->setTimeDisplayOffsetMilliseconds(timeDisplayOffset);
+
+    constexpr auto scanSlotMilliseconds = std::int64_t { 100 };
+    if (!scanning) {
+        for (auto& points : scanOverwritePoints_)
+            points.clear();
+        scanOverwriteInstanceId_.clear();
+        scanOverwriteTimeWindowMilliseconds_ = 0;
+        scanOverwriteLatestElapsedMilliseconds_ = -1;
+    } else {
+        const auto cacheNeedsReset = snapshot_.history.empty()
+            || scanOverwriteInstanceId_ != snapshot_.instanceId
+            || scanOverwriteTimeWindowMilliseconds_ != timeWindow
+            || latestElapsed < scanOverwriteLatestElapsedMilliseconds_;
+        if (cacheNeedsReset) {
+            for (auto& points : scanOverwritePoints_)
+                points.clear();
+            scanOverwriteInstanceId_ = snapshot_.instanceId;
+            scanOverwriteTimeWindowMilliseconds_ = timeWindow;
+            scanOverwriteLatestElapsedMilliseconds_ = -1;
+        }
+
+        const auto minimumNewElapsed = scanOverwriteLatestElapsedMilliseconds_ + 1;
+        const auto scanSlotCount = std::max<std::int64_t>(1, timeWindow / scanSlotMilliseconds);
+        const MeterHistoryPoint* previousPoint = nullptr;
+        for (const auto& point : snapshot_.history) {
+            if (point.elapsedMilliseconds > latestElapsed)
+                continue;
+            if (point.elapsedMilliseconds < minimumNewElapsed) {
+                previousPoint = &point;
+                continue;
+            }
+
+            const auto currentSlot = point.elapsedMilliseconds / scanSlotMilliseconds;
+            const auto canInterpolate = previousPoint != nullptr
+                && !point.discontinuity
+                && point.elapsedMilliseconds > previousPoint->elapsedMilliseconds;
+            const auto firstSlot = canInterpolate
+                ? previousPoint->elapsedMilliseconds / scanSlotMilliseconds + 1
+                : currentSlot;
+            const auto firstCoveredSlot = std::max(firstSlot, currentSlot - scanSlotCount + 1);
+            for (auto coveredSlot = firstCoveredSlot; coveredSlot <= currentSlot; ++coveredSlot) {
+                const auto mappedSlot = coveredSlot % scanSlotCount;
+                const auto mappedElapsed = mappedSlot * scanSlotMilliseconds;
+                const auto isLatestSlot = coveredSlot == currentSlot;
+                const auto timestamp = isLatestSlot
+                    ? point.elapsedMilliseconds % timeWindow
+                    : mappedElapsed;
+                const auto interpolationFraction = canInterpolate
+                    ? std::clamp(static_cast<double>(coveredSlot * scanSlotMilliseconds - previousPoint->elapsedMilliseconds)
+                                     / static_cast<double>(point.elapsedMilliseconds - previousPoint->elapsedMilliseconds),
+                                 0.0,
+                                 1.0)
+                    : 1.0;
+                for (std::size_t seriesIndex = 0; seriesIndex < seriesDefinitions().size(); ++seriesIndex) {
+                    const auto currentValue = asDouble(historyValue(point, seriesDefinitions()[seriesIndex].id));
+                    const auto previousValue = previousPoint != nullptr
+                        ? asDouble(historyValue(*previousPoint, seriesDefinitions()[seriesIndex].id))
+                        : std::optional<double> {};
+                    const auto value = canInterpolate && previousValue.has_value() && currentValue.has_value()
+                        ? std::optional<double> { *previousValue + (*currentValue - *previousValue) * interpolationFraction }
+                        : currentValue;
+                    scanOverwritePoints_[seriesIndex].insert_or_assign(mappedSlot,
+                                                                        ScanOverwritePoint {
+                                                                            timestamp,
+                                                                            value,
+                                                                            point.discontinuity && isLatestSlot
+                                                                        });
+                }
+            }
+            previousPoint = &point;
+        }
+        scanOverwriteLatestElapsedMilliseconds_ = latestElapsed;
+    }
 
     std::vector<WinJACKNexus::UI::HistoryChartSeries> series;
     series.reserve(seriesDefinitions().size());
-    for (const auto& definition : seriesDefinitions()) {
+    for (std::size_t seriesIndex = 0; seriesIndex < seriesDefinitions().size(); ++seriesIndex) {
+        const auto& definition = seriesDefinitions()[seriesIndex];
         const auto& id = definition.id;
         WinJACKNexus::UI::HistoryChartSeries item;
         item.id = id;
@@ -722,22 +837,47 @@ void MeterHistoryWindow::updateChart()
                                  id)
             != snapshot_.historyView.visibleSeriesIds.cend();
         item.preservePointOrder = scanning;
-        std::optional<std::int64_t> previousMappedElapsed;
-        for (const auto& point : snapshot_.history) {
-            if (!scanning && (point.elapsedMilliseconds < startElapsed || point.elapsedMilliseconds > endElapsed))
-                continue;
-            const auto mappedElapsed = scanning ? point.elapsedMilliseconds % timeWindow : point.elapsedMilliseconds;
-            if (scanning && (point.discontinuity
-                             || (previousMappedElapsed.has_value() && mappedElapsed < *previousMappedElapsed))) {
-                item.points.push_back({ mappedElapsed, std::nullopt });
+        if (scanning) {
+            for (const auto& [slot, point] : scanOverwritePoints_[seriesIndex]) {
+                Q_UNUSED(slot)
+                if (point.discontinuity)
+                    item.points.push_back({ point.timestampMilliseconds, std::nullopt });
+                item.points.push_back({ point.timestampMilliseconds, point.value });
             }
-            item.points.push_back({ mappedElapsed, asDouble(historyValue(point, id)) });
-            previousMappedElapsed = mappedElapsed;
+        } else {
+            for (const auto& point : snapshot_.history) {
+                if (point.elapsedMilliseconds < startElapsed || point.elapsedMilliseconds > endElapsed)
+                    continue;
+                item.points.push_back({ point.elapsedMilliseconds, asDouble(historyValue(point, id)) });
+            }
         }
         series.push_back(std::move(item));
     }
     chart_->setSeries(std::move(series));
-    updateStatistics(std::max(firstElapsed, endElapsed - timeWindow), endElapsed);
+    updateStatistics(scanning ? std::max(firstElapsed, scanCycleStart) : std::max(firstElapsed, endElapsed - timeWindow),
+                     scanning ? latestElapsed : endElapsed);
+    renderedHistoryElapsedMilliseconds_ = latestElapsed;
+}
+
+void MeterHistoryWindow::updateTimeline(std::int64_t latestElapsedMilliseconds)
+{
+    const auto timeWindow = std::max<std::int64_t>(1000, snapshot_.historyView.timeWindowMilliseconds);
+    const auto firstElapsed = snapshot_.history.empty() ? 0 : snapshot_.history.front().elapsedMilliseconds;
+    const auto latestElapsed = std::max(firstElapsed, latestElapsedMilliseconds);
+    if (snapshot_.historyView.mode == MeterHistoryViewMode::scanning) {
+        scanCursorMilliseconds_ = latestElapsed % timeWindow;
+        const QSignalBlocker sliderBlocker(scanCursorSlider_);
+        scanCursorSlider_->setRange(0, static_cast<int>(timeWindow));
+        scanCursorSlider_->setValue(static_cast<int>(*scanCursorMilliseconds_));
+        chart_->setTimeCursorMilliseconds(scanCursorMilliseconds_);
+        return;
+    }
+    chart_->setTimeRange(latestElapsed - timeWindow, std::max(firstElapsed + 1, latestElapsed));
+}
+
+void MeterHistoryWindow::refreshHistoryData()
+{
+    setSnapshots(provider_.snapshots());
 }
 
 void MeterHistoryWindow::updateLegend()
@@ -793,37 +933,6 @@ void MeterHistoryWindow::updateStatistics(std::int64_t startMilliseconds, std::i
     statistics_->setEntries(std::move(entries));
 }
 
-void MeterHistoryWindow::updateMarkerTable()
-{
-    markerTable_->clearContents();
-    markerTable_->setRowCount(static_cast<int>(snapshot_.markers.size()));
-    for (std::size_t index = 0; index < snapshot_.markers.size(); ++index) {
-        const auto& marker = snapshot_.markers[index];
-        const auto row = static_cast<int>(index);
-        const auto historyPoint = std::find_if(snapshot_.history.cbegin(), snapshot_.history.cend(), [&marker](const MeterHistoryPoint& point) {
-            return point.elapsedMilliseconds == marker.elapsedMilliseconds;
-        });
-        const auto metricText = [historyPoint, this](const std::optional<float>& value) {
-            return value.has_value() ? QString::number(*value, 'f', 1) : QStringLiteral("--");
-        };
-        markerTable_->setItem(row, 0, new QTableWidgetItem(QString::number(index + 1)));
-        auto* timeItem = new QTableWidgetItem(elapsedText(marker.elapsedMilliseconds));
-        timeItem->setData(Qt::UserRole, static_cast<qulonglong>(marker.id));
-        timeItem->setData(Qt::UserRole + 1, static_cast<qlonglong>(marker.elapsedMilliseconds));
-        markerTable_->setItem(row, 1, timeItem);
-        if (historyPoint != snapshot_.history.cend()) {
-            markerTable_->setItem(row, 2, new QTableWidgetItem(metricText(historyPoint->metrics.peakDbfs)));
-            markerTable_->setItem(row, 3, new QTableWidgetItem(metricText(historyPoint->metrics.rmsDbfs)));
-            markerTable_->setItem(row, 4, new QTableWidgetItem(metricText(historyPoint->metrics.truePeakDbtp)));
-            markerTable_->setItem(row, 5, new QTableWidgetItem(metricText(historyPoint->metrics.momentaryLufs)));
-            markerTable_->setItem(row, 6, new QTableWidgetItem(metricText(historyPoint->metrics.shortTermLufs)));
-            markerTable_->setItem(row, 7, new QTableWidgetItem(metricText(historyPoint->metrics.integratedLufs)));
-            markerTable_->setItem(row, 8, new QTableWidgetItem(metricText(historyPoint->metrics.lraLu)));
-        }
-        markerTable_->setItem(row, 9, new QTableWidgetItem(marker.note.isEmpty() ? marker.label : marker.note));
-    }
-}
-
 void MeterHistoryWindow::updateCsvPreview()
 {
     csvPathLabel_->setText(snapshot_.csvPreview.activeFilePath);
@@ -837,54 +946,42 @@ void MeterHistoryWindow::updateReferenceLines()
     const auto visible = [this](const QString& id) {
         return referenceLineVisibility_.value(id, true);
     };
-    chart_->setReferenceLines({
-        { -18.0, QStringLiteral("瞬时（Momentary） -18 LUFS"), QColor(QStringLiteral("#43e88d")), Qt::DashLine, visible(QStringLiteral("momentary")) },
-        { -23.0, QStringLiteral("短时（Short-term） -23 LUFS"), QColor(QStringLiteral("#48c9ff")), Qt::DashLine, visible(QStringLiteral("short-term")) },
-        { -23.0, QStringLiteral("综合（Integrated） -23 LUFS"), QColor(QStringLiteral("#4b95ff")), Qt::DashLine, visible(QStringLiteral("integrated")) },
-        { 20.0, QStringLiteral("LRA 0–20 LU"), QColor(QStringLiteral("#b96aff")), Qt::DashLine, visible(QStringLiteral("lra")), WinJACKNexus::UI::HistoryChartAxis::right }
+    const auto& preset = referencePreset(snapshot_.presetId);
+    const auto integratedLabel = integratedReferenceLabel(preset);
+    const auto truePeakLabel = truePeakReferenceLabel(preset);
+    if (referenceLineCheckBoxes_[0] != nullptr)
+        referenceLineCheckBoxes_[0]->setText(integratedLabel);
+    if (referenceLineCheckBoxes_[1] != nullptr)
+        referenceLineCheckBoxes_[1]->setText(truePeakLabel);
+
+    std::vector<WinJACKNexus::UI::HistoryChartReferenceLine> lines;
+    lines.reserve(preset.alternateTargetHighLufs.has_value() ? 3 : 2);
+    lines.push_back({
+        preset.targetIntegratedLufs,
+        preset.alternateTargetHighLufs.has_value()
+            ? QStringLiteral("综合响度（Integrated）下限 %1 LUFS").arg(formatReferenceValue(preset.targetIntegratedLufs))
+            : integratedLabel,
+        QColor(QStringLiteral("#4b95ff")),
+        Qt::DashLine,
+        visible(QStringLiteral("integrated"))
     });
-}
-
-void MeterHistoryWindow::jumpToSelectedMarker()
-{
-    const auto elapsed = selectedMarkerElapsedMilliseconds();
-    if (!elapsed.has_value())
-        return;
-    focusElapsedMilliseconds_ = *elapsed;
-    const auto timeWindow = std::max<std::int64_t>(1000, snapshot_.historyView.timeWindowMilliseconds);
-    if (snapshot_.historyView.mode == MeterHistoryViewMode::scanning) {
-        scanCursorMilliseconds_ = *elapsed % timeWindow;
-        const QSignalBlocker sliderBlocker(scanCursorSlider_);
-        scanCursorSlider_->setValue(static_cast<int>(*scanCursorMilliseconds_ / 100));
+    if (preset.alternateTargetHighLufs.has_value()) {
+        lines.push_back({
+            *preset.alternateTargetHighLufs,
+            QStringLiteral("综合响度（Integrated）上限 %1 LUFS").arg(formatReferenceValue(*preset.alternateTargetHighLufs)),
+            QColor(QStringLiteral("#4b95ff")),
+            Qt::DashLine,
+            visible(QStringLiteral("integrated"))
+        });
     }
-    updateChart();
-}
-
-void MeterHistoryWindow::removeSelectedMarker()
-{
-    const auto selectedItems = markerTable_->selectedItems();
-    if (selectedItems.isEmpty())
-        return;
-    const auto row = selectedItems.front()->row();
-    const auto* timeItem = markerTable_->item(row, 1);
-    if (timeItem == nullptr)
-        return;
-    MeterViewCommand command;
-    command.type = MeterViewCommandType::removeHistoryMarker;
-    command.markerId = static_cast<std::uint32_t>(timeItem->data(Qt::UserRole).toULongLong());
-    dispatch(std::move(command));
-}
-
-std::optional<std::int64_t> MeterHistoryWindow::selectedMarkerElapsedMilliseconds() const
-{
-    const auto selectedItems = markerTable_->selectedItems();
-    if (selectedItems.isEmpty())
-        return std::nullopt;
-    const auto row = selectedItems.front()->row();
-    const auto* timeItem = markerTable_->item(row, 1);
-    if (timeItem == nullptr)
-        return std::nullopt;
-    return timeItem->data(Qt::UserRole + 1).toLongLong();
+    lines.push_back({
+        preset.maximumTruePeakDbtp,
+        truePeakLabel,
+        QColor(QStringLiteral("#ffd143")),
+        Qt::DashLine,
+        visible(QStringLiteral("dbtp"))
+    });
+    chart_->setReferenceLines(std::move(lines));
 }
 
 }

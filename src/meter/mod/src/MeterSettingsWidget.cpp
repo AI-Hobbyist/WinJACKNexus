@@ -56,12 +56,6 @@ MeterSettingsWidget::MeterSettingsWidget(MeterViewDataProvider& provider,
     auto* globalLayout = new QFormLayout(globalGroup);
     globalLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
 
-    globalPresetSelector_ = new QComboBox(globalGroup);
-    globalPresetSelector_->setObjectName(QStringLiteral("meterSettings.globalPreset"));
-    globalPresetSelector_->setAccessibleName(QStringLiteral("默认响度标准（Default Loudness Standard）"));
-    configurePresetSelector(*globalPresetSelector_);
-    globalLayout->addRow(QStringLiteral("响度标准（Loudness Standard）"), globalPresetSelector_);
-
     silenceThresholdSpinBox_ = new QDoubleSpinBox(globalGroup);
     silenceThresholdSpinBox_->setObjectName(QStringLiteral("meterSettings.silenceThreshold"));
     silenceThresholdSpinBox_->setAccessibleName(QStringLiteral("静音阈值"));
@@ -112,12 +106,6 @@ MeterSettingsWidget::MeterSettingsWidget(MeterViewDataProvider& provider,
     customLayout->addWidget(channelTable_, 1);
     rootLayout->addWidget(customChannelsGroup_, 1);
 
-    connect(globalPresetSelector_, &QComboBox::currentIndexChanged, this, [this](int index) {
-        MeterViewCommand command;
-        command.type = MeterViewCommandType::setGlobalPreset;
-        command.presetId = globalPresetSelector_->itemData(index).toString();
-        dispatch(std::move(command));
-    });
     connect(silenceThresholdSpinBox_, qOverload<double>(&QDoubleSpinBox::valueChanged), this, [this](double value) {
         MeterViewCommand command;
         command.type = MeterViewCommandType::setGlobalSilenceThreshold;
@@ -151,10 +139,6 @@ void MeterSettingsWidget::setSnapshot(const MeterViewSnapshot& snapshot)
     instanceId_ = snapshot.instanceId;
     channelLayoutEditable_ = snapshot.channelLayoutEditable;
 
-    const QSignalBlocker presetBlocker(globalPresetSelector_);
-    const auto presetIndex = globalPresetSelector_->findData(snapshot.globalSettings.defaultPresetId);
-    if (presetIndex >= 0)
-        globalPresetSelector_->setCurrentIndex(presetIndex);
     const QSignalBlocker thresholdBlocker(silenceThresholdSpinBox_);
     silenceThresholdSpinBox_->setValue(snapshot.globalSettings.silenceThresholdDbfs);
     const QSignalBlocker durationBlocker(silenceDurationSpinBox_);
@@ -242,14 +226,6 @@ void MeterSettingsWidget::rebuildChannelTable(const MeterViewSnapshot& snapshot)
             dispatch(std::move(command));
         });
     }
-}
-
-void MeterSettingsWidget::configurePresetSelector(QComboBox& selector) const
-{
-    selector.addItem(QStringLiteral("EBU R128"), QStringLiteral("ebu-r128"));
-    selector.addItem(QStringLiteral("ATSC A/85"), QStringLiteral("atsc-a85"));
-    selector.addItem(QStringLiteral("流媒体 -14 LUFS"), QStringLiteral("streaming-14"));
-    selector.addItem(QStringLiteral("自定义参考"), QStringLiteral("custom"));
 }
 
 }

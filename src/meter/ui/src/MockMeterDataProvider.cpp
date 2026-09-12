@@ -15,6 +15,8 @@
  */
 #include <WinJACKNexus/Meter/MockMeterDataProvider.hpp>
 
+#include <QDateTime>
+
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -90,6 +92,7 @@ void appendLongHistory(MeterViewSnapshot& snapshot)
 {
     constexpr std::int64_t intervalMilliseconds = 100;
     constexpr std::size_t pointCount = 6000;
+    const auto systemTimeAtLatestPoint = QDateTime::currentMSecsSinceEpoch();
     snapshot.history.reserve(pointCount);
     for (std::size_t index = 0; index < pointCount; ++index) {
         const auto position = static_cast<float>(index);
@@ -102,6 +105,8 @@ void appendLongHistory(MeterViewSnapshot& snapshot)
         const auto lra = 6.2f + std::sin(position * 0.004f) * 1.3f;
         MeterHistoryPoint point;
         point.elapsedMilliseconds = static_cast<std::int64_t>(index) * intervalMilliseconds;
+        point.systemTimeMilliseconds = systemTimeAtLatestPoint
+            - static_cast<std::int64_t>(pointCount - 1 - index) * intervalMilliseconds;
         point.metrics = metrics(peak, rms, truePeak, momentary, shortTerm, integrated, lra);
         point.lfePeakDbfs = -18.0f + std::sin(position * 0.053f) * 3.0f;
         snapshot.history.push_back(std::move(point));
@@ -114,6 +119,7 @@ void appendPreviewHistory(MeterViewSnapshot& snapshot, std::uint16_t previewInde
 {
     constexpr std::int64_t intervalMilliseconds = 100;
     constexpr std::size_t pointCount = 600;
+    const auto systemTimeAtLatestPoint = QDateTime::currentMSecsSinceEpoch();
     const auto baseline = snapshot.currentMetrics;
     const auto seed = static_cast<float>(previewIndex) * 0.37F;
     const auto varyingValue = [seed](const std::optional<float>& value, float position, float amplitude) -> std::optional<float> {
@@ -127,6 +133,8 @@ void appendPreviewHistory(MeterViewSnapshot& snapshot, std::uint16_t previewInde
         const auto position = static_cast<float>(index);
         MeterHistoryPoint point;
         point.elapsedMilliseconds = static_cast<std::int64_t>(index) * intervalMilliseconds;
+        point.systemTimeMilliseconds = systemTimeAtLatestPoint
+            - static_cast<std::int64_t>(pointCount - 1 - index) * intervalMilliseconds;
         point.metrics.peakDbfs = varyingValue(baseline.peakDbfs, position, 2.4F);
         point.metrics.rmsDbfs = varyingValue(baseline.rmsDbfs, position, 1.7F);
         point.metrics.truePeakDbtp = varyingValue(baseline.truePeakDbtp, position, 2.1F);
@@ -267,7 +275,9 @@ bool MockMeterDataProvider::dispatch(const MeterViewCommand& command)
     case MeterViewCommandType::setHistoryTimeWindow:
         if (!command.historyTimeWindowMilliseconds.has_value() || *command.historyTimeWindowMilliseconds <= 0)
             return false;
-        state.historyView.timeWindowMilliseconds = std::min(*command.historyTimeWindowMilliseconds, std::int64_t { 3600000 });
+        state.historyView.timeWindowMilliseconds = std::clamp(*command.historyTimeWindowMilliseconds,
+                                                               minimumMeterHistoryWindowMilliseconds,
+                                                               maximumMeterHistoryWindowMilliseconds);
         return true;
     case MeterViewCommandType::setHistoryPaused:
         if (!command.enabled.has_value())
@@ -287,20 +297,6 @@ bool MockMeterDataProvider::dispatch(const MeterViewCommand& command)
     case MeterViewCommandType::clearHistory:
         state.historyCleared = true;
         return true;
-    case MeterViewCommandType::addHistoryMarker: {
-        MeterHistoryMarkerView marker;
-        marker.id = state.nextMarkerId++;
-        marker.elapsedMilliseconds = command.markerElapsedMilliseconds.value_or(0);
-        marker.label = command.textValue.isEmpty() ? QStringLiteral("标记点 %1").arg(marker.id) : command.textValue;
-        state.markers.push_back(std::move(marker));
-        return true;
-    }
-    case MeterViewCommandType::removeHistoryMarker:
-        if (!command.markerId.has_value())
-            return false;
-        return std::erase_if(state.markers, [&command](const MeterHistoryMarkerView& marker) {
-            return marker.id == *command.markerId;
-        }) > 0;
     case MeterViewCommandType::setCustomChannelCount:
         if (!command.channelCount.has_value())
             return false;
@@ -397,7 +393,6 @@ MeterViewSnapshot MockMeterDataProvider::makeSnapshot(std::uint16_t previewIndex
     snapshot.channels = makeChannels(2, false, false);
     snapshot.currentMetrics = metrics(-1.2f, -18.5f, -1.0f, -16.8f, -18.1f, -20.3f, 6.4f);
     snapshot.historyView = state.historyView;
-    snapshot.markers = state.markers;
     snapshot.globalSettings = globalSettings_;
     snapshot.csvPreview.logRootDirectory = globalSettings_.logRootDirectory;
     snapshot.csvPreview.activeFilePath = QStringLiteral("%1/%2-preview.csv").arg(globalSettings_.logRootDirectory, snapshot.instanceId);

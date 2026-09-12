@@ -51,6 +51,7 @@ public:
     std::optional<float> value() const noexcept;
     void setPeakValue(std::optional<float> value);
     std::optional<float> peakValue() const noexcept;
+    void advanceAnimation();
 
     void setThemePalette(const ThemePalette& palette);
     ThemePalette themePalette() const;

@@ -44,6 +44,7 @@ public:
     void setSnapshot(const MeterViewSnapshot& snapshot);
     void setDisplayIndex(int index);
     void setAvailableHeight(int height);
+    void setRefreshRate(int framesPerSecond);
     QString instanceId() const;
     QString clientName() const;
     QString presetId() const;

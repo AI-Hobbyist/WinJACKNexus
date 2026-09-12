@@ -13,14 +13,18 @@
  *
  * SPDX-License-Identifier: AGPL-3.0-only
  */
-#include <WinJACKNexus/Meter/MockMeterDataProvider.hpp>
+#include <WinJACKNexus/Meter/LiveMeterDataProvider.hpp>
+#include <WinJACKNexus/Meter/Mod/MeterbridgeService.hpp>
 #include <WinJACKNexus/Meter/Mod/MeterbridgeWindow.hpp>
 #include <WinJACKNexus/Node/NodeApi.h>
 #include <WinJACKNexus/UI/ThemeManager.hpp>
 
+#include <QJsonDocument>
+#include <QJsonParseError>
+
 namespace {
 
-using WinJACKNexus::Meter::MockMeterDataProvider;
+WinJACKNexus::Meter::Mod::MeterbridgeService* activeService = nullptr;
 
 class MeterbridgeNode final : public WinJACKNexus::Node::INode {
 public:
@@ -37,45 +41,34 @@ public:
 
     bool init() noexcept override
     {
-        initialized_ = true;
-        return true;
+        initialized_ = service_.initialize();
+        if (initialized_)
+            activeService = &service_;
+        return initialized_;
     }
 
     void shutdown() noexcept override
     {
-        destroyWindow(nullptr);
+        if (activeService == &service_)
+            activeService = nullptr;
+        service_.shutdown();
         initialized_ = false;
     }
 
     HWND createWindow(HWND) noexcept override
     {
-        if (!initialized_)
-            return nullptr;
-
-        if (window_ == nullptr) {
-            window_ = new WinJACKNexus::Meter::Mod::MeterbridgeWindow(provider_);
-            window_->setAttribute(Qt::WA_DeleteOnClose, false);
-            themeManager_.applyToWidget(window_);
-        }
-        window_->showNormal();
-        window_->raise();
-        window_->activateWindow();
-        return reinterpret_cast<HWND>(static_cast<quintptr>(window_->winId()));
+        auto* window = initialized_ ? service_.showWindow() : nullptr;
+        return window == nullptr ? nullptr : reinterpret_cast<HWND>(static_cast<quintptr>(window->winId()));
     }
 
     void destroyWindow(HWND) noexcept override
     {
-        if (window_ != nullptr) {
-            delete window_;
-            window_ = nullptr;
-        }
+        service_.destroyWindow();
     }
 
 private:
     bool initialized_ = false;
-    MockMeterDataProvider provider_;
-    WinJACKNexus::Meter::Mod::MeterbridgeWindow* window_ = nullptr;
-    WinJACKNexus::UI::ThemeManager themeManager_;
+    WinJACKNexus::Meter::Mod::MeterbridgeService service_;
 };
 
 }
@@ -136,4 +129,39 @@ const char* wjn_get_node_settings_json(WinJACKNexus::Node::INode*)
 int wjn_set_node_settings_json(WinJACKNexus::Node::INode*, const char*)
 {
     return 0;
+}
+
+extern "C" WINJACK_NODE_API void wjn_meterbridge_reload_global_settings()
+{
+    if (activeService != nullptr)
+        activeService->reloadGlobalSettings();
+}
+
+extern "C" WINJACK_NODE_API int wjn_meterbridge_show_for_instance(const char* instanceId)
+{
+    if (activeService == nullptr)
+        return 0;
+    const auto* window = activeService->showWindow(instanceId == nullptr ? QString() : QString::fromUtf8(instanceId));
+    return window == nullptr ? 0 : 1;
+}
+
+extern "C" WINJACK_NODE_API const char* wjn_meterbridge_project_state_json()
+{
+    static QByteArray serializedState;
+    if (activeService == nullptr) {
+        serializedState = "{}";
+        return serializedState.constData();
+    }
+    serializedState = QJsonDocument(activeService->projectState()).toJson(QJsonDocument::Compact);
+    return serializedState.constData();
+}
+
+extern "C" WINJACK_NODE_API int wjn_meterbridge_restore_project_state_json(const char* json)
+{
+    if (activeService == nullptr || json == nullptr)
+        return 0;
+    QJsonParseError error;
+    const auto document = QJsonDocument::fromJson(QByteArray(json), &error);
+    return error.error == QJsonParseError::NoError && document.isObject()
+        && activeService->restoreProjectState(document.object()) ? 1 : 0;
 }

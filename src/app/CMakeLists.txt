@@ -8,6 +8,7 @@ add_executable(WinJACKNexus WIN32
 
 target_link_libraries(WinJACKNexus
     PRIVATE
+        WinJACKNexus::Common
         WinJACKNexus::Audio
         WinJACKNexus::UI
         WinJACKNexus::Node

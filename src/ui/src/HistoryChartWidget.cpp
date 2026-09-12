@@ -15,8 +15,9 @@
  */
 #include <WinJACKNexus/UI/HistoryChartWidget.hpp>
 
-#include <QFontMetrics>
+#include <QDateTime>
 #include <QEvent>
+#include <QFontMetrics>
 #include <QMouseEvent>
 #include <QPainter>
 #include <QPainterPath>
@@ -42,8 +43,25 @@ QString formatAxisValue(double value)
     return QString::number(value, 'f', std::abs(value - std::round(value)) < 0.01 ? 0 : 1);
 }
 
-QString formatHoverTime(std::int64_t timestampMilliseconds)
+QString formatTimeAxisLabel(std::int64_t timestampMilliseconds,
+                            const std::optional<std::int64_t>& displayOffsetMilliseconds)
 {
+    if (displayOffsetMilliseconds.has_value())
+        return QDateTime::fromMSecsSinceEpoch(timestampMilliseconds + *displayOffsetMilliseconds).toString(QStringLiteral("HH:mm:ss"));
+
+    const auto clampedTimestamp = std::max<std::int64_t>(0, timestampMilliseconds);
+    const auto totalSeconds = clampedTimestamp / 1000;
+    return QStringLiteral("%1:%2")
+        .arg(totalSeconds / 60, 2, 10, QLatin1Char('0'))
+        .arg(totalSeconds % 60, 2, 10, QLatin1Char('0'));
+}
+
+QString formatHoverTime(std::int64_t timestampMilliseconds,
+                        const std::optional<std::int64_t>& displayOffsetMilliseconds)
+{
+    if (displayOffsetMilliseconds.has_value())
+        return QDateTime::fromMSecsSinceEpoch(timestampMilliseconds + *displayOffsetMilliseconds).toString(QStringLiteral("HH:mm:ss.zzz"));
+
     const auto clampedTimestamp = std::max<std::int64_t>(0, timestampMilliseconds);
     const auto totalSeconds = clampedTimestamp / 1000;
     return QStringLiteral("%1:%2.%3")
@@ -64,7 +82,8 @@ HistoryChartWidget::HistoryChartWidget(QWidget* parent)
 
 void HistoryChartWidget::setTimeRange(std::int64_t startMilliseconds, std::int64_t endMilliseconds)
 {
-    if (endMilliseconds <= startMilliseconds)
+    if (endMilliseconds <= startMilliseconds
+        || (startTimeMilliseconds_ == startMilliseconds && endTimeMilliseconds_ == endMilliseconds))
         return;
     startTimeMilliseconds_ = startMilliseconds;
     endTimeMilliseconds_ = endMilliseconds;
@@ -82,6 +101,19 @@ std::int64_t HistoryChartWidget::startTimeMilliseconds() const noexcept
 std::int64_t HistoryChartWidget::endTimeMilliseconds() const noexcept
 {
     return endTimeMilliseconds_;
+}
+
+void HistoryChartWidget::setTimeDisplayOffsetMilliseconds(std::optional<std::int64_t> offsetMilliseconds)
+{
+    if (timeDisplayOffsetMilliseconds_ == offsetMilliseconds)
+        return;
+    timeDisplayOffsetMilliseconds_ = offsetMilliseconds;
+    update();
+}
+
+std::optional<std::int64_t> HistoryChartWidget::timeDisplayOffsetMilliseconds() const noexcept
+{
+    return timeDisplayOffsetMilliseconds_;
 }
 
 void HistoryChartWidget::setValueRange(double minimum, double maximum)
@@ -281,8 +313,14 @@ void HistoryChartWidget::paintContent(QPainter& painter)
     painter.setPen(QPen(border, 1.0));
     painter.setBrush(panelRaised);
     painter.drawRect(chartRect);
-    constexpr int horizontalGridLines = 5;
+    constexpr int horizontalGridLines = 7;
     constexpr int verticalGridLines = 6;
+    const auto timeSpan = endTimeMilliseconds_ - startTimeMilliseconds_;
+    const auto timeLabelWidth = std::max<qreal>(1.0,
+                                                 metrics.horizontalAdvance(formatTimeAxisLabel(endTimeMilliseconds_, timeDisplayOffsetMilliseconds_)) + 6.0);
+    const auto timeLabelInterval = std::max(1,
+                                            static_cast<int>(std::ceil(timeLabelWidth * 1.15
+                                                                       / std::max<qreal>(1.0, chartRect.width() / verticalGridLines))));
     for (int index = 0; index <= horizontalGridLines; ++index) {
         const auto fraction = static_cast<double>(index) / horizontalGridLines;
         const auto y = chartRect.bottom() - fraction * chartRect.height();
@@ -305,6 +343,18 @@ void HistoryChartWidget::paintContent(QPainter& painter)
         const auto x = chartRect.left() + fraction * chartRect.width();
         painter.setPen(QPen(border, 1.0, Qt::DotLine));
         painter.drawLine(QPointF(x, chartRect.top()), QPointF(x, chartRect.bottom()));
+        if (index % timeLabelInterval == 0 || index == verticalGridLines) {
+            const auto timestamp = startTimeMilliseconds_ + static_cast<std::int64_t>(std::llround(fraction * timeSpan));
+            const auto label = formatTimeAxisLabel(timestamp, timeDisplayOffsetMilliseconds_);
+            const auto labelWidth = std::max<qreal>(timeLabelWidth, metrics.horizontalAdvance(label) + 6.0);
+            const auto labelLeft = std::clamp(x - labelWidth / 2.0,
+                                              0.0,
+                                              std::max<qreal>(0.0, rect().width() - labelWidth));
+            painter.setPen(muted);
+            painter.drawText(QRectF(labelLeft, chartRect.bottom() + 5.0, labelWidth, metrics.height()),
+                             Qt::AlignHCenter | Qt::AlignVCenter,
+                             label);
+        }
     }
 
     painter.setPen(muted);
@@ -314,7 +364,9 @@ void HistoryChartWidget::paintContent(QPainter& painter)
                          Qt::AlignRight | Qt::AlignVCenter,
                          rightVerticalAxisLabel_);
     }
-    painter.drawText(QRectF(chartRect.left(), chartRect.bottom() + 5.0, chartRect.width(), metrics.height()), Qt::AlignRight | Qt::AlignVCenter, horizontalAxisLabel_);
+    painter.drawText(QRectF(chartRect.left(), chartRect.bottom() + metrics.height() + 5.0, chartRect.width(), metrics.height()),
+                     Qt::AlignRight | Qt::AlignVCenter,
+                     horizontalAxisLabel_);
 
     const auto hasHover = hoverTimeMilliseconds_.has_value()
         && !hoverEntries_.empty()
@@ -333,6 +385,7 @@ void HistoryChartWidget::paintContent(QPainter& painter)
     }
 
     bool hasVisiblePoint = false;
+    painter.setBrush(Qt::NoBrush);
     for (std::size_t seriesIndex = 0; seriesIndex < series_.size(); ++seriesIndex) {
         const auto& item = series_[seriesIndex];
         if (!item.visible)
@@ -438,7 +491,7 @@ void HistoryChartWidget::paintContent(QPainter& painter)
                                 tooltipRect.width() - padding * 2.0,
                                 headerHeight),
                          Qt::AlignLeft | Qt::AlignVCenter,
-                         QStringLiteral("时间 %1").arg(formatHoverTime(*hoverTimeMilliseconds_)));
+                         QStringLiteral("时间 %1").arg(formatHoverTime(*hoverTimeMilliseconds_, timeDisplayOffsetMilliseconds_)));
         painter.setFont(font());
         const auto innerWidth = tooltipRect.width() - padding * 2.0 - columnGap * (columns - 1);
         const auto columnWidth = std::max<qreal>(1.0, innerWidth / columns);

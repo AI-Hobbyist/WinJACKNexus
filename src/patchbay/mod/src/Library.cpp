@@ -55,8 +55,11 @@
 #include <QTimer>
 #include <QVBoxLayout>
 
+#include <Windows.h>
+
 #include <algorithm>
 #include <array>
+#include <atomic>
 #include <cctype>
 #include <cstdint>
 #include <cstring>
@@ -69,6 +72,18 @@
 #include <vector>
 
 namespace {
+
+bool restoreMeterbridgeProjectState(const QJsonObject& state)
+{
+	const auto module = GetModuleHandleW(L"mod_meterbrigde.dll");
+	using RestoreProjectState = int (*)(const char*);
+	const auto restore = module == nullptr ? nullptr
+		: reinterpret_cast<RestoreProjectState>(GetProcAddress(module, "wjn_meterbridge_restore_project_state_json"));
+	if (restore == nullptr)
+		return state.isEmpty();
+	const auto serializedState = QJsonDocument(state).toJson(QJsonDocument::Compact);
+	return restore(serializedState.constData()) != 0;
+}
 
 class PatchbayWindow final : public QMainWindow {
 public:
@@ -985,6 +1000,40 @@ void ensureSystemClient(WinJACKNexus::Patchbay::Core::Snapshot& snapshot)
 using Snapshot = WinJACKNexus::Patchbay::Core::Snapshot;
 using ClientRebindings = std::vector<std::pair<std::string, std::string>>;
 
+bool hasSameObservedJackGraph(const Snapshot& left, const Snapshot& right)
+{
+	auto clientSignature = [](const Snapshot& snapshot) {
+		std::vector<std::string> signature;
+		signature.reserve(snapshot.clients.size());
+		for (const auto& client : snapshot.clients)
+			signature.push_back(client.id + '\0' + client.name);
+		std::sort(signature.begin(), signature.end());
+		return signature;
+	};
+	auto portSignature = [](const Snapshot& snapshot) {
+		std::vector<std::string> signature;
+		signature.reserve(snapshot.ports.size());
+		for (const auto& port : snapshot.ports) {
+			signature.push_back(port.id + '\0' + port.clientId + '\0' + port.name + '\0'
+				+ std::to_string(static_cast<unsigned>(port.kind)) + '\0'
+				+ std::to_string(static_cast<unsigned>(port.direction)));
+		}
+		std::sort(signature.begin(), signature.end());
+		return signature;
+	};
+	auto connectionSignature = [](const Snapshot& snapshot) {
+		std::vector<std::string> signature;
+		signature.reserve(snapshot.connections.size());
+		for (const auto& connection : snapshot.connections)
+			signature.push_back(connection.sourcePortId + '\0' + connection.destinationPortId);
+		std::sort(signature.begin(), signature.end());
+		return signature;
+	};
+	return clientSignature(left) == clientSignature(right)
+		&& portSignature(left) == portSignature(right)
+		&& connectionSignature(left) == connectionSignature(right);
+}
+
 bool isBuiltInClient(const std::string& clientId)
 {
 	return clientId == "system" || clientId == "WinJACKNexus-Patchbay";
@@ -1175,6 +1224,8 @@ public:
 		WinJACKNexus::UI::TrayController::clearNodeGuiEntries();
 		loadedModuleNodes_.clear();
 		observedJackClients_.clear();
+		graphRefreshPending_.store(false, std::memory_order_release);
+		graphOrderCallbackRegistered_ = false;
 		jackObserver_.close();
 		initialized_ = false;
 	}
@@ -1255,9 +1306,14 @@ public:
 			auto refreshTrayNodeGuiEntries = std::make_shared<std::function<void()>>();
 			*refreshTrayNodeGuiEntries = [this] {
 				std::vector<WinJACKNexus::UI::TrayNodeGuiEntry> entries;
+				bool hasMeterProbe = false;
 				for (const auto& node : loadedModuleNodes_) {
 					if (!node->hasCustomGui())
 						continue;
+					if (node->category() == QStringLiteral("Meter")) {
+						hasMeterProbe = true;
+						continue;
+					}
 					auto* nodePointer = node.get();
 					entries.push_back({
 						QString::number(reinterpret_cast<quintptr>(nodePointer), 16),
@@ -1265,6 +1321,21 @@ public:
 						clientBaseName(nodePointer->clientId()),
 						nodePointer->name(),
 						[nodePointer] { return nodePointer->showGui(nullptr); }
+					});
+				}
+				if (hasMeterProbe) {
+					entries.push_back({
+						QStringLiteral("tool:meterbridge"),
+						QStringLiteral("Meter"),
+						QStringLiteral("电平表桥"),
+						QStringLiteral("电平表桥"),
+						[] {
+							const auto module = GetModuleHandleW(L"mod_meterbrigde.dll");
+							using ShowMeterbridge = int (*)(const char*);
+							const auto show = module == nullptr ? nullptr
+								: reinterpret_cast<ShowMeterbridge>(GetProcAddress(module, "wjn_meterbridge_show_for_instance"));
+							return show != nullptr && show(nullptr) != 0;
+						}
 					});
 				}
 				WinJACKNexus::UI::TrayController::setNodeGuiEntries(std::move(entries));
@@ -1712,16 +1783,25 @@ public:
 					(*refreshNodeLibrary)();
 				});
 			});
-			auto refreshJackGraph = [this, canvas, subGraphCanvases, refreshNodeLibrary, refreshTrayNodeGuiEntries] {
+			auto lastObservedJackGraph = std::make_shared<Snapshot>();
+			auto hasObservedJackGraph = std::make_shared<bool>(false);
+			auto canRefreshJackGraph = [canvas, subGraphCanvases] {
 				const auto childCanvasIsDragging = std::any_of(subGraphCanvases->cbegin(), subGraphCanvases->cend(), [](const auto& entry) {
 					return !entry.second.isNull() && entry.second->isNodeDragActive();
 				});
-				if (canvas->isNodeDragActive() || childCanvasIsDragging || !jackObserver_.isOpen())
-					return;
+				return !canvas->isNodeDragActive() && !childCanvasIsDragging;
+			};
+			auto applyJackSnapshot = [this,
+			                              canvas,
+			                              subGraphCanvases,
+			                              refreshNodeLibrary,
+			                              refreshTrayNodeGuiEntries,
+			                              lastObservedJackGraph,
+			                              hasObservedJackGraph](Snapshot snapshot) -> bool {
 				const auto selectedClientId = canvas->selectedNodeId();
 				const auto previousSnapshot = canvas->snapshot();
-				auto snapshot = WinJACKNexus::Patchbay::Core::Snapshot::capture(jackObserver_);
-				ensureSystemClient(snapshot);
+				*lastObservedJackGraph = snapshot;
+				*hasObservedJackGraph = true;
 				const auto moduleRebindings = rebindLoadedModuleClients(snapshot);
 				const auto reboundClients = inferClientRebindings(previousSnapshot, snapshot, moduleRebindings);
 				for (const auto& node : loadedModuleNodes_) {
@@ -1760,6 +1840,33 @@ public:
 				}
 				(*refreshTrayNodeGuiEntries)();
 				(*refreshNodeLibrary)();
+				return true;
+			};
+			auto refreshJackGraph = [this, canRefreshJackGraph, applyJackSnapshot] {
+				if (!jackObserver_.isOpen() || !canRefreshJackGraph())
+					return false;
+				auto snapshot = WinJACKNexus::Patchbay::Core::Snapshot::capture(jackObserver_);
+				ensureSystemClient(snapshot);
+				return applyJackSnapshot(std::move(snapshot));
+			};
+			auto pollJackGraph = [this, canRefreshJackGraph, applyJackSnapshot, lastObservedJackGraph, hasObservedJackGraph] {
+				if (!jackObserver_.isOpen() || !canRefreshJackGraph())
+					return false;
+				auto snapshot = WinJACKNexus::Patchbay::Core::Snapshot::capture(jackObserver_);
+				ensureSystemClient(snapshot);
+				if (*hasObservedJackGraph && hasSameObservedJackGraph(*lastObservedJackGraph, snapshot))
+					return true;
+				return applyJackSnapshot(std::move(snapshot));
+			};
+			auto refreshPendingJackGraph = [this, refreshJackGraph, pollJackGraph] {
+				if (!graphOrderCallbackRegistered_) {
+					pollJackGraph();
+					return;
+				}
+				if (graphRefreshPending_.exchange(false, std::memory_order_acq_rel)
+					&& !refreshJackGraph()) {
+					graphRefreshPending_.store(true, std::memory_order_release);
+				}
 			};
 			auto restoreModuleRecords = [this, refreshTrayNodeGuiEntries](const std::vector<PatchbayProjectModule>& modules) {
 					loadedModuleNodes_.clear();
@@ -1947,7 +2054,16 @@ public:
 						const auto node = std::find_if(loadedModuleNodes_.cbegin(), loadedModuleNodes_.cend(), [&clientId](const auto& value) {
 							return value->ownsClient(clientId);
 						});
-						return node != loadedModuleNodes_.cend() && (*node)->showGui(parent);
+						return node != loadedModuleNodes_.cend()
+							&& (*node)->category() != QStringLiteral("Meter")
+							&& (*node)->showGui(parent);
+					},
+					[this](const std::string& clientId) {
+						const auto node = std::find_if(loadedModuleNodes_.cbegin(), loadedModuleNodes_.cend(), [&clientId](const auto& value) {
+							return value->ownsClient(clientId);
+						});
+						return node != loadedModuleNodes_.cend()
+							&& (*node)->category() != QStringLiteral("Meter");
 					},
 					[targetCanvas, createModuleNode, this](const QPointF& position) {
 						return !copiedModuleNode_.modulePath.isEmpty()
@@ -1986,6 +2102,7 @@ public:
 				});
 				const bool selected = client != targetCanvas->snapshot().clients.cend();
 				properties->setEnabled(selected);
+				showGuiButton->setVisible(true);
 				showGuiButton->setEnabled(false);
 				selectionTitle->setText(selected ? QString::fromStdString(client->name) : QString());
 				const auto module = selected ? std::find_if(loadedModuleNodes_.cbegin(), loadedModuleNodes_.cend(), [&clientId](const auto& value) {
@@ -2008,7 +2125,9 @@ public:
 					return;
 				if (module == loadedModuleNodes_.cend())
 					return;
-				showGuiButton->setEnabled(true);
+				const auto canShowModuleGui = (*module)->category() != QStringLiteral("Meter");
+				showGuiButton->setVisible(canShowModuleGui);
+				showGuiButton->setEnabled(canShowModuleGui);
 				if (sameSelection && *selectedSettingsContainer != nullptr)
 					return;
 				const auto settingsContainer = (*module)->showSettings(inspector);
@@ -2031,6 +2150,10 @@ public:
 					return value->ownsClient(*selectedClient);
 				});
 				if (module == loadedModuleNodes_.cend()) {
+					showGuiButton->setEnabled(false);
+					return;
+				}
+				if ((*module)->category() == QStringLiteral("Meter")) {
 					showGuiButton->setEnabled(false);
 					return;
 				}
@@ -2173,6 +2296,7 @@ public:
 						return;
 					clearSubGraphs();
 					canvas->newProject();
+					restoreMeterbridgeProjectState({});
 					if (*selectedModuleNode != nullptr) {
 						(*selectedModuleNode)->clearSettingsView();
 						*selectedModuleNode = nullptr;
@@ -2201,6 +2325,7 @@ public:
 						*currentProject = path;
 						QSettings(QStringLiteral("WinJACKNexus"), QStringLiteral("Patchbay")).setValue(QStringLiteral("lastProjectPath"), path);
 						restoreModuleRecords(modules);
+						restoreMeterbridgeProjectState(canvas->meterbridgeProjectState());
 						savedModuleRecords_ = loadedModuleRecords();
 						refreshJackGraph();
 					} else {
@@ -2255,6 +2380,8 @@ public:
 			viewMenu->addAction(lightAction);
 			auto* graphMenu = window_->menuBar()->addMenu(QStringLiteral("图形"));
 			if (jackObserver_.open({ "WinJACKNexus-Patchbay", false, false, nullptr })) {
+				graphRefreshPending_.store(false, std::memory_order_release);
+				graphOrderCallbackRegistered_ = jackObserver_.setGraphOrderCallback(&PatchbayNode::markJackGraphChanged, this) == 0;
 				jackObserver_.activate();
 				const auto lastProject = QSettings(QStringLiteral("WinJACKNexus"), QStringLiteral("Patchbay")).value(QStringLiteral("lastProjectPath")).toString();
 				std::vector<PatchbayProjectModule> modules;
@@ -2263,13 +2390,14 @@ public:
 					&& restoreSubGraphs(subGraphs)) {
 					*currentProject = lastProject;
 					restoreModuleRecords(modules);
+					restoreMeterbridgeProjectState(canvas->meterbridgeProjectState());
 					savedModuleRecords_ = loadedModuleRecords();
 					canvas->restoreJackConnections(jackObserver_);
 				}
 				refreshJackGraph();
 				graphRefreshTimer_ = new QTimer(window_);
-				graphRefreshTimer_->setInterval(1000);
-				QObject::connect(graphRefreshTimer_, &QTimer::timeout, window_, refreshJackGraph);
+				graphRefreshTimer_->setInterval(graphOrderCallbackRegistered_ ? 50 : 1000);
+				QObject::connect(graphRefreshTimer_, &QTimer::timeout, window_, refreshPendingJackGraph);
 				graphRefreshTimer_->start();
 			}
 
@@ -2293,6 +2421,14 @@ public:
 	}
 
 private:
+	static int markJackGraphChanged(void* context) noexcept
+	{
+		auto* node = static_cast<PatchbayNode*>(context);
+		if (node != nullptr)
+			node->graphRefreshPending_.store(true, std::memory_order_release);
+		return 0;
+	}
+
 	std::vector<std::pair<std::string, std::string>> rebindLoadedModuleClients(
 		const WinJACKNexus::Patchbay::Core::Snapshot& snapshot)
 	{
@@ -2329,6 +2465,8 @@ private:
 	QPointer<QMainWindow> window_;
 	WinJACKNexus::Audio::JackClient jackObserver_;
 	QPointer<QTimer> graphRefreshTimer_;
+	std::atomic_bool graphRefreshPending_ { false };
+	bool graphOrderCallbackRegistered_ = false;
 	std::set<std::string> knownJackClients_ { "External Audio Client", "DAW Bridge" };
 	std::set<std::string> observedJackClients_;
 	std::vector<std::unique_ptr<LoadedModuleNode>> loadedModuleNodes_;

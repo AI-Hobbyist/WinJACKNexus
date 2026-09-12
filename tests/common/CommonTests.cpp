@@ -15,12 +15,15 @@
  */
 #include <WinJACKNexus/Common/Atomic.hpp>
 #include <WinJACKNexus/Common/AudioRingBuffer.hpp>
+#include <WinJACKNexus/Common/ChannelLayout.hpp>
 #include <WinJACKNexus/Common/LockFreeSpscQueue.hpp>
 #include <WinJACKNexus/Common/Logger.hpp>
+#include <WinJACKNexus/Common/LoudnessEngine.hpp>
 #include <WinJACKNexus/Common/Metadata.hpp>
 #include <WinJACKNexus/Common/PathUtils.hpp>
 #include <WinJACKNexus/Common/RealtimeObject.hpp>
 #include <WinJACKNexus/Common/ScopedGuard.hpp>
+#include <WinJACKNexus/Common/SilenceResetController.hpp>
 #include <WinJACKNexus/Common/Thread.hpp>
 #include <WinJACKNexus/Common/Timer.hpp>
 #include <WinJACKNexus/Common/Version.hpp>
@@ -30,11 +33,15 @@
 
 #include <array>
 #include <atomic>
+#include <cmath>
 #include <cstdint>
 #include <cstdio>
 #include <cstring>
+#include <limits>
+#include <numbers>
 #include <string>
 #include <thread>
+#include <vector>
 
 namespace {
 
@@ -121,6 +128,256 @@ bool testAudioRingBuffer()
     passed &= check(output == std::array<float, 5> { 3.0F, 4.0F, 5.0F, 6.0F, 7.0F }, "ring buffer preserves wrapped order");
     passed &= check(ring.available() == 0, "ring buffer is empty after reading");
     ring.clear();
+    return passed;
+}
+
+bool testMeterChannelLayout()
+{
+    using WinJACKNexus::Common::MeterChannelLayout;
+
+    bool passed = true;
+    const auto mono = MeterChannelLayout::mono();
+    const auto stereo = MeterChannelLayout::stereo();
+    const auto surround = MeterChannelLayout::fivePointOne();
+    MeterChannelLayout allLfe(2);
+    auto resized = MeterChannelLayout::fivePointOne();
+
+    passed &= check(mono.channelCount() == 1 && mono.measurementWeight(0) == 1.0,
+                    "mono layout contributes one full-weight channel");
+    passed &= check(stereo.channelCount() == 2 && stereo.hasMeasuredChannels(),
+                    "stereo layout exposes both measured channels");
+    passed &= check(surround.channelCount() == 6 && surround.isLfe(3)
+                        && surround.measurementWeight(3) == 0.0,
+                    "5.1 layout excludes its LFE channel");
+    passed &= check(std::abs(surround.measurementWeight(4) - MeterChannelLayout::sideChannelWeight) < 1.0e-12,
+                    "5.1 side channel uses the BS.1770 surround weight");
+    passed &= check(allLfe.setChannel(0, WinJACKNexus::Common::MeterChannelRole::lfe, true)
+                        && allLfe.setChannel(1, WinJACKNexus::Common::MeterChannelRole::lfe, true)
+                        && !allLfe.hasMeasuredChannels(),
+                    "all-LFE layouts are rejected as measurement sources");
+    passed &= check(!allLfe.setChannelCount(MeterChannelLayout::maximumChannelCount + 1),
+                    "layout rejects more than sixteen channels");
+    passed &= check(resized.setChannelCount(2) && resized.setChannelCount(6)
+                        && !resized.isLfe(3),
+                    "resizing a layout does not restore discarded channel state");
+    return passed;
+}
+
+bool approximatelyEqual(double actual, double expected, double tolerance)
+{
+    return std::abs(actual - expected) <= tolerance;
+}
+
+bool testKWeightingCoefficients()
+{
+    const auto coefficients = WinJACKNexus::Common::kWeightingCoefficients(48000.0);
+    bool passed = true;
+    passed &= check(coefficients.valid, "K-weighting accepts 48 kHz");
+    passed &= check(approximatelyEqual(coefficients.shelf.b0, 1.53512485958697, 1.0e-12)
+                        && approximatelyEqual(coefficients.shelf.b1, -2.69169618940638, 1.0e-12)
+                        && approximatelyEqual(coefficients.shelf.b2, 1.19839281085285, 1.0e-12)
+                        && approximatelyEqual(coefficients.shelf.a1, -1.69065929318241, 1.0e-12)
+                        && approximatelyEqual(coefficients.shelf.a2, 0.73248077421585, 1.0e-12),
+                    "K-weighting shelf matches the BS.1770 48 kHz coefficients");
+    passed &= check(approximatelyEqual(coefficients.highPass.b0, 1.0, 1.0e-12)
+                        && approximatelyEqual(coefficients.highPass.b1, -2.0, 1.0e-12)
+                        && approximatelyEqual(coefficients.highPass.b2, 1.0, 1.0e-12)
+                        && approximatelyEqual(coefficients.highPass.a1, -1.99004745483398, 1.0e-12)
+                        && approximatelyEqual(coefficients.highPass.a2, 0.99007225036621, 1.0e-12),
+                    "K-weighting high-pass matches the BS.1770 48 kHz coefficients");
+    passed &= check(!WinJACKNexus::Common::kWeightingCoefficients(1000.0).valid,
+                    "K-weighting rejects unsupported sample rates");
+    return passed;
+}
+
+bool testLoudnessEngine()
+{
+    using namespace WinJACKNexus::Common;
+
+    constexpr double sampleRate = 48000.0;
+    constexpr std::size_t frames = static_cast<std::size_t>(sampleRate * 3.2);
+    std::array<std::vector<float>, 6> channels;
+    std::array<std::vector<float>, 6> channelsWithoutLfe;
+    std::array<const float*, 6> inputs {};
+    std::array<const float*, 6> inputsWithoutLfe {};
+    for (std::size_t channel = 0; channel < channels.size(); ++channel) {
+        channels[channel].resize(frames);
+        channelsWithoutLfe[channel].resize(frames);
+        inputs[channel] = channels[channel].data();
+        inputsWithoutLfe[channel] = channelsWithoutLfe[channel].data();
+    }
+
+    for (std::size_t frame = 0; frame < frames; ++frame) {
+        const auto signal = static_cast<float>(0.5 * std::sin(2.0 * std::numbers::pi_v<double> * 1000.0
+                                                               * static_cast<double>(frame) / sampleRate));
+        for (const auto channel : { 0U, 1U, 2U, 4U, 5U }) {
+            channels[channel][frame] = signal;
+            channelsWithoutLfe[channel][frame] = signal;
+        }
+        channels[3][frame] = static_cast<float>(0.9 * std::sin(2.0 * std::numbers::pi_v<double> * 1000.0
+                                                                  * static_cast<double>(frame) / sampleRate));
+    }
+
+    LoudnessEngine engine;
+    LoudnessEngine withoutLfe;
+    const auto configuration = LoudnessEngineConfiguration { sampleRate, true };
+    bool passed = true;
+    passed &= check(engine.prepare(configuration, MeterChannelLayout::fivePointOne()),
+                    "loudness engine prepares a 5.1 layout");
+    passed &= check(withoutLfe.prepare(configuration, MeterChannelLayout::fivePointOne()),
+                    "second loudness engine prepares a 5.1 layout");
+    engine.process(inputs.data(), inputs.size(), frames);
+    withoutLfe.process(inputsWithoutLfe.data(), inputsWithoutLfe.size(), frames);
+    const auto snapshot = engine.snapshot();
+    const auto withoutLfeSnapshot = withoutLfe.snapshot();
+
+    passed &= check(snapshot.samplePeakDbfs.valid && approximatelyEqual(snapshot.samplePeakDbfs.value, -6.020599913279624, 1.0e-6),
+                    "sample peak excludes the louder LFE input");
+    passed &= check(snapshot.lfePeakDbfs.valid && approximatelyEqual(snapshot.lfePeakDbfs.value, -0.9151498112135024, 1.0e-6),
+                    "LFE peak remains available as a diagnostic value");
+    passed &= check(snapshot.rmsDbfs.valid && snapshot.momentaryLufs.valid
+                        && snapshot.shortTermLufs.valid && snapshot.integratedLufs.valid
+                        && snapshot.loudnessRangeLu.valid,
+                    "engine produces RMS, M, S, I, and LRA after a complete window");
+    passed &= check(approximatelyEqual(snapshot.momentaryLufs.value, withoutLfeSnapshot.momentaryLufs.value, 1.0e-12)
+                        && approximatelyEqual(snapshot.shortTermLufs.value, withoutLfeSnapshot.shortTermLufs.value, 1.0e-12)
+                        && approximatelyEqual(snapshot.integratedLufs.value, withoutLfeSnapshot.integratedLufs.value, 1.0e-12)
+                        && approximatelyEqual(snapshot.rmsDbfs.value, withoutLfeSnapshot.rmsDbfs.value, 1.0e-12)
+                        && approximatelyEqual(snapshot.truePeakDbtp.value, withoutLfeSnapshot.truePeakDbtp.value, 1.0e-12),
+                    "LFE does not affect weighted loudness metrics");
+    passed &= check(snapshot.truePeakDbtp.valid && snapshot.truePeakDbtp.value >= snapshot.samplePeakDbfs.value,
+                    "true-peak estimation never falls below sample peak");
+
+    LoudnessEngine intersamplePeak;
+    std::vector<float> intersampleSignal(frames, 0.0F);
+    constexpr double intersamplePhase = std::numbers::pi_v<double> / 2.0 - std::numbers::pi_v<double> / 48.0;
+    for (std::size_t frame = 0; frame < frames; ++frame) {
+        intersampleSignal[frame] = static_cast<float>(0.5 * std::sin(
+            2.0 * std::numbers::pi_v<double> * 1000.0 * static_cast<double>(frame) / sampleRate
+            + intersamplePhase));
+    }
+    const std::array<const float*, 1> intersampleInput { intersampleSignal.data() };
+    passed &= check(intersamplePeak.prepare(configuration, MeterChannelLayout::mono()),
+                    "true-peak engine prepares a mono layout");
+    intersamplePeak.process(intersampleInput.data(), intersampleInput.size(), frames);
+    const auto intersampleSnapshot = intersamplePeak.snapshot();
+    passed &= check(intersampleSnapshot.truePeakDbtp.valid
+                        && intersampleSnapshot.truePeakDbtp.value > intersampleSnapshot.samplePeakDbfs.value + 0.005,
+                    "four-times interpolation detects an intersample peak");
+
+    LoudnessEngine opposedStereo;
+    const std::array<float, 1> leftOpposed { 0.75F };
+    const std::array<float, 1> rightOpposed { -0.75F };
+    const std::array<const float*, 2> opposedInput { leftOpposed.data(), rightOpposed.data() };
+    passed &= check(opposedStereo.prepare(configuration, MeterChannelLayout::stereo()),
+                    "peak engine prepares a stereo layout");
+    opposedStereo.process(opposedInput.data(), opposedInput.size(), leftOpposed.size());
+    passed &= check(opposedStereo.snapshot().samplePeakDbfs.valid
+                        && approximatelyEqual(opposedStereo.snapshot().samplePeakDbfs.value,
+                                               -2.4987747321659985,
+                                               1.0e-6),
+                    "opposed channels cannot cancel the card peak");
+
+    for (const auto rate : { 96000.0, 192000.0 }) {
+        LoudnessEngine rateEngine;
+        const LoudnessEngineConfiguration rateConfiguration { rate, true };
+        const std::array<float, 1> rateSignal { 0.25F };
+        const std::array<const float*, 1> rateInput { rateSignal.data() };
+        passed &= check(rateEngine.prepare(rateConfiguration, MeterChannelLayout::mono()),
+                        "true-peak engine prepares supported high sample rates");
+        rateEngine.process(rateInput.data(), rateInput.size(), rateSignal.size());
+        const auto rateSnapshot = rateEngine.snapshot();
+        passed &= check(rateSnapshot.truePeakDbtp.valid
+                            && rateSnapshot.truePeakDbtp.value >= rateSnapshot.samplePeakDbfs.value,
+                        "true-peak remains valid at 96 and 192 kHz");
+    }
+
+    LoudnessEngine gated;
+    LoudnessEngine highOnly;
+    constexpr std::size_t gateFrames = static_cast<std::size_t>(sampleRate * 24.0);
+    std::vector<float> highSignal(gateFrames, 0.0F);
+    std::vector<float> mixedSignal(gateFrames, 0.0F);
+    for (std::size_t frame = 0; frame < gateFrames; ++frame) {
+        const auto sine = std::sin(2.0 * std::numbers::pi_v<double> * 1000.0
+                                   * static_cast<double>(frame) / sampleRate);
+        highSignal[frame] = static_cast<float>(0.5 * sine);
+        mixedSignal[frame] = static_cast<float>((frame < gateFrames / 2 ? 0.5 : 0.001) * sine);
+    }
+    const std::array<const float*, 1> highInput { highSignal.data() };
+    const std::array<const float*, 1> mixedInput { mixedSignal.data() };
+    passed &= check(gated.prepare(configuration, MeterChannelLayout::mono())
+                        && highOnly.prepare(configuration, MeterChannelLayout::mono()),
+                    "gating engines prepare mono layouts");
+    gated.process(mixedInput.data(), mixedInput.size(), gateFrames);
+    highOnly.process(highInput.data(), highInput.size(), gateFrames);
+    const auto gatedSnapshot = gated.snapshot();
+    const auto highOnlySnapshot = highOnly.snapshot();
+    passed &= check(gatedSnapshot.integratedLufs.valid && highOnlySnapshot.integratedLufs.valid
+                        && approximatelyEqual(gatedSnapshot.integratedLufs.value,
+                                               highOnlySnapshot.integratedLufs.value,
+                                               0.15),
+                    "relative gate excludes programme sections more than ten LU below average");
+
+    LoudnessEngine loudnessRange;
+    constexpr std::size_t lraFrames = static_cast<std::size_t>(sampleRate * 24.0);
+    std::vector<float> lraSignal(lraFrames, 0.0F);
+    for (std::size_t frame = 0; frame < lraFrames; ++frame) {
+        const auto sine = std::sin(2.0 * std::numbers::pi_v<double> * 1000.0
+                                   * static_cast<double>(frame) / sampleRate);
+        lraSignal[frame] = static_cast<float>((frame < lraFrames / 2 ? 0.5 : 0.25) * sine);
+    }
+    const std::array<const float*, 1> lraInput { lraSignal.data() };
+    passed &= check(loudnessRange.prepare(configuration, MeterChannelLayout::mono()),
+                    "LRA engine prepares a mono layout");
+    loudnessRange.process(lraInput.data(), lraInput.size(), lraFrames);
+    passed &= check(loudnessRange.snapshot().loudnessRangeLu.valid
+                        && approximatelyEqual(loudnessRange.snapshot().loudnessRangeLu.value, 6.02, 0.15),
+                    "LRA uses 10th and 95th percentiles after its relative gate");
+
+    LoudnessEngine silence;
+    std::vector<float> quietSignal(frames, 0.0F);
+    const std::array<const float*, 1> quietInput { quietSignal.data() };
+    passed &= check(silence.prepare(configuration, MeterChannelLayout::mono()),
+                    "silence engine prepares mono layout");
+    silence.process(quietInput.data(), quietInput.size(), frames);
+    passed &= check(!silence.snapshot().integratedLufs.valid,
+                    "absolute gate rejects silence");
+    LoudnessEngine invalidSamples;
+    const std::array<float, 1> nonFiniteSample { std::numeric_limits<float>::quiet_NaN() };
+    const std::array<const float*, 1> nonFiniteInput { nonFiniteSample.data() };
+    passed &= check(invalidSamples.prepare(configuration, MeterChannelLayout::mono()),
+                    "invalid-sample engine prepares mono layout");
+    invalidSamples.process(nonFiniteInput.data(), nonFiniteInput.size(), nonFiniteSample.size());
+    passed &= check(invalidSamples.snapshot().invalidSampleCount == 1,
+                    "non-finite samples are isolated from measurement state");
+    engine.reset();
+    passed &= check(!engine.snapshot().momentaryLufs.valid && engine.snapshot().processedFrames == 0,
+                    "engine reset clears loudness session state");
+    return passed;
+}
+
+bool testSilenceResetController()
+{
+    using namespace WinJACKNexus::Common;
+
+    SilenceResetController controller(-70.0, 0.5);
+    const MeterValue quiet { -80.0, true };
+    const MeterValue active { -60.0, true };
+    bool passed = true;
+    passed &= check(!controller.update(quiet, 0.2)
+                        && controller.state() == SilenceResetState::pendingSilence,
+                    "silence controller enters pending silence");
+    passed &= check(!controller.update(quiet, 0.3)
+                        && controller.state() == SilenceResetState::resetArmed,
+                    "silence controller arms exactly once after configured duration");
+    passed &= check(!controller.update(quiet, 1.0)
+                        && controller.state() == SilenceResetState::resetArmed,
+                    "silence controller remains armed during continued silence");
+    passed &= check(controller.update(active, 0.1)
+                        && controller.state() == SilenceResetState::active,
+                    "silence controller requests reset when the next programme segment starts");
+    passed &= check(!controller.configure(std::numeric_limits<double>::quiet_NaN(), 1.0),
+                    "silence controller rejects invalid configuration");
     return passed;
 }
 
@@ -304,6 +561,10 @@ int main()
     passed &= testQueueBasics();
     passed &= testQueueStress();
     passed &= testAudioRingBuffer();
+    passed &= testMeterChannelLayout();
+    passed &= testKWeightingCoefficients();
+    passed &= testLoudnessEngine();
+    passed &= testSilenceResetController();
     passed &= testRealtimeObject();
     passed &= testLogger();
     passed &= testUtilities();
