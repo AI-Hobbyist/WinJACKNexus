@@ -132,15 +132,19 @@ public:
         if (!enabled_ || oversamplingFactor_ == 1)
             return peak;
 
+        auto& history = histories_[channel];
         const auto writeIndex = writeIndices_[channel];
-        histories_[channel][writeIndex] = input;
-        writeIndices_[channel] = (writeIndex + 1) % truePeakTapCount;
+        history[writeIndex] = input;
+        history[writeIndex + truePeakTapCount] = input;
+        writeIndices_[channel] = writeIndex + 1 == truePeakTapCount ? 0 : writeIndex + 1;
+        const auto* newestHistory = history.data() + writeIndex + truePeakTapCount;
 
         for (std::size_t phase = 1; phase < oversamplingFactor_; ++phase) {
             double interpolated {};
+            const auto* coefficients = coefficients_[phase].data();
+            const auto* sample = newestHistory;
             for (std::size_t tap = 0; tap < truePeakTapCount; ++tap) {
-                const auto historyIndex = (writeIndex + truePeakTapCount - tap) % truePeakTapCount;
-                interpolated += coefficients_[phase][tap] * histories_[channel][historyIndex];
+                interpolated += *coefficients++ * *sample--;
             }
             peak = std::max(peak, std::abs(interpolated));
         }
@@ -181,7 +185,7 @@ private:
     bool enabled_ {};
     std::size_t oversamplingFactor_ { 1 };
     std::array<std::array<double, truePeakTapCount>, 4> coefficients_ {};
-    std::array<std::array<double, truePeakTapCount>, MeterChannelLayout::maximumChannelCount> histories_ {};
+    std::array<std::array<double, truePeakTapCount * 2>, MeterChannelLayout::maximumChannelCount> histories_ {};
     std::array<std::size_t, MeterChannelLayout::maximumChannelCount> writeIndices_ {};
 };
 

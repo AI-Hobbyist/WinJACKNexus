@@ -599,7 +599,7 @@ public:
             windowClass.hInstance = GetModuleHandleW(nullptr);
             windowClass.lpszClassName = L"WinJACKNexusVstEditor";
             RegisterClassW(&windowClass);
-            constexpr DWORD style = WS_OVERLAPPEDWINDOW | WS_VISIBLE;
+            constexpr DWORD style = (WS_OVERLAPPEDWINDOW & ~(WS_MINIMIZEBOX | WS_MAXIMIZEBOX)) | WS_VISIBLE;
             RECT windowRect { 0, 0, clientSize.cx, clientSize.cy };
             AdjustWindowRectEx(&windowRect, style, FALSE, 0);
             const auto window = CreateWindowExW(0, windowClass.lpszClassName, title,
@@ -690,7 +690,7 @@ private:
         windowClass.hInstance = GetModuleHandleW(nullptr);
         windowClass.lpszClassName = L"WinJACKNexusVstEditor";
         RegisterClassW(&windowClass);
-        constexpr DWORD style = WS_OVERLAPPEDWINDOW | WS_VISIBLE;
+        constexpr DWORD style = (WS_OVERLAPPEDWINDOW & ~(WS_MINIMIZEBOX | WS_MAXIMIZEBOX)) | WS_VISIBLE;
         RECT windowRect { 0, 0, clientSize.cx, clientSize.cy };
         AdjustWindowRectEx(&windowRect, style, FALSE, 0);
         attach_ = std::move(attach);

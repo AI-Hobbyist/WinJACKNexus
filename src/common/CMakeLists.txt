@@ -42,6 +42,14 @@ target_include_directories(common
 
 wjn_configure_shared_target(common WJN_COMMON_BUILD)
 target_compile_definitions(common PRIVATE WIN32_LEAN_AND_MEAN NOMINMAX)
+if(MSVC)
+    set_property(SOURCE src/LoudnessEngine.cpp APPEND PROPERTY COMPILE_OPTIONS
+        "$<$<CONFIG:Debug>:/O2>"
+        "$<$<CONFIG:Debug>:/Ob2>"
+        "$<$<CONFIG:Debug>:/fp:precise>")
+    set_property(SOURCE src/LoudnessEngine.cpp APPEND PROPERTY VS_SETTINGS
+        "BasicRuntimeChecks=Default")
+endif()
 target_link_libraries(common
     PUBLIC
         Qt6::Widgets

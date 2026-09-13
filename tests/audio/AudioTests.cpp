@@ -211,6 +211,7 @@ bool testJackRuntime()
         std::puts("JACK server unavailable; client/port checks skipped");
         return passed;
     }
+    passed &= check(JackServerGuard::isServerReady(), "JACK server readiness probe sees the running server");
 
     JackClient client;
     JackClientOptions options;

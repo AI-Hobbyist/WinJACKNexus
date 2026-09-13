@@ -16,9 +16,11 @@
 #include <WinJACKNexus/UI/ApplicationSettings.hpp>
 #include <WinJACKNexus/UI/TrayController.hpp>
 #include <WinJACKNexus/Audio/JackClient.hpp>
+#include <WinJACKNexus/Audio/JackServerGuard.hpp>
 #include <WinJACKNexus/Node/NodeApi.h>
 
 #include <QApplication>
+#include <QCheckBox>
 #include <QClipboard>
 #include <QColor>
 #include <QComboBox>
@@ -217,7 +219,7 @@ public:
         : QDialog(parent)
     {
         setWindowTitle(QStringLiteral("JACK 服务器设置"));
-        resize(620, 455);
+        resize(726, 318);
         auto* layout = new QVBoxLayout(this);
         auto* form = new QFormLayout;
         jackdDirectory_ = new QLineEdit(this);
@@ -248,6 +250,10 @@ public:
         bufferSize_->setRange(0, 8192);
         bufferSize_->setSingleStep(32);
         form->addRow(QStringLiteral("每周期帧数"), bufferSize_);
+        autoStart_ = new QCheckBox(QStringLiteral("启动 WinJACKNexus 时自动启动 jackd"), this);
+        autoStart_->setObjectName(QStringLiteral("jackServer.autoStart"));
+        autoStart_->setToolTip(QStringLiteral("仅在未检测到已就绪的 JACK 服务器时使用当前配置启动 jackd。"));
+        form->addRow(QString(), autoStart_);
         layout->addLayout(form);
 
         layout->addWidget(new QLabel(QStringLiteral("启动命令（对应 README 的 JACK2 参数）"), this));
@@ -274,6 +280,7 @@ public:
         device_->setEditText(settings.value(QStringLiteral("device")).toString());
         sampleRate_->setValue(settings.value(QStringLiteral("sampleRate"), 48000).toInt());
         bufferSize_->setValue(settings.value(QStringLiteral("bufferSize"), 256).toInt());
+        autoStart_->setChecked(settings.value(QStringLiteral("autoStart"), false).toBool());
         updateCommandPreview();
         updateDeviceControls();
         if (usesPortAudio())
@@ -307,6 +314,7 @@ public:
             updateCommandPreview();
             saveSettings();
         });
+        connect(autoStart_, &QCheckBox::toggled, this, [this] { saveSettings(); });
         connect(jackdDirectory_, &QLineEdit::textChanged, this, [this] {
             updateCommandPreview();
             saveSettings();
@@ -335,6 +343,18 @@ public:
         connect(&deviceProbe_, &QProcess::errorOccurred, this, [this](QProcess::ProcessError) {
             updateDeviceControls();
         });
+    }
+
+    bool startAutomaticallyIfConfigured()
+    {
+        if (!autoStart_->isChecked())
+            return true;
+        if (!WinJACKNexus::Audio::JackServerGuard::isServerReady()
+            && !serverRunning()
+            && !startJackd(true, false)) {
+            return false;
+        }
+        return waitForServerReady();
     }
 
 private:
@@ -461,6 +481,19 @@ private:
         settings.setValue(QStringLiteral("device"), device_->currentText().trimmed());
         settings.setValue(QStringLiteral("sampleRate"), sampleRate_->value());
         settings.setValue(QStringLiteral("bufferSize"), bufferSize_->value());
+        settings.setValue(QStringLiteral("autoStart"), autoStart_->isChecked());
+    }
+
+    bool waitForServerReady() const
+    {
+        constexpr auto timeoutMilliseconds = ULONGLONG { 5000 };
+        const auto startTime = GetTickCount64();
+        do {
+            if (WinJACKNexus::Audio::JackServerGuard::isServerReady())
+                return true;
+            Sleep(20);
+        } while (GetTickCount64() - startTime < timeoutMilliseconds);
+        return WinJACKNexus::Audio::JackServerGuard::isServerReady();
     }
 
     bool stopJackd()
@@ -487,20 +520,25 @@ private:
             startJackd();
     }
 
-    void startJackd()
+    bool startJackd(bool waitForStart = false, bool notifyOnFailure = true)
     {
         if (serverRunning()) {
             updateServerState();
-            return;
+            return true;
         }
         const auto program = jackdProgram();
         if (!QFileInfo(program).isExecutable()) {
-            QMessageBox::warning(this, windowTitle(), QStringLiteral("未在所选目录中找到 jackd.exe。"));
-            return;
+            if (notifyOnFailure)
+                QMessageBox::warning(this, windowTitle(), QStringLiteral("未在所选目录中找到 jackd.exe。"));
+            return false;
         }
         saveSettings();
         process_.start(program, jackdArguments());
+        const auto started = !waitForStart || process_.waitForStarted(3000);
         updateServerState();
+        if (!started && notifyOnFailure)
+            QMessageBox::warning(this, windowTitle(), QStringLiteral("无法启动 jackd.exe。"));
+        return started;
     }
 
     QLineEdit* jackdDirectory_ = nullptr;
@@ -509,6 +547,7 @@ private:
     QPushButton* deviceRefreshButton_ = nullptr;
     QSpinBox* sampleRate_ = nullptr;
     QSpinBox* bufferSize_ = nullptr;
+    QCheckBox* autoStart_ = nullptr;
     QLineEdit* commandPreview_ = nullptr;
     QPushButton* startButton_ = nullptr;
     QPushButton* restartButton_ = nullptr;
@@ -730,6 +769,10 @@ int main(int argc, char* argv[])
 
     GlobalSettingsDialog globalSettingsDialog;
     JackServerSettingsDialog jackServerSettingsDialog;
+    if (!jackServerSettingsDialog.startAutomaticallyIfConfigured()) {
+        QMessageBox::warning(nullptr, application.applicationName(),
+                             QStringLiteral("未能按 JACK 服务器设置启动或连接 jackd。"));
+    }
     if (trayAvailable) {
         auto* globalSettingsAction = tray.addMenuAction(QStringLiteral("全局设置"));
         QObject::connect(globalSettingsAction, &QAction::triggered, &application, [&globalSettingsDialog] {

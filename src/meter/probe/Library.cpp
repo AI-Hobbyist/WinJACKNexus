@@ -1058,21 +1058,22 @@ private:
             }
         }
         engine_.process(inputBuffers.data(), settings_.channelCount, frames);
+        auto snapshot = engine_.snapshot();
         const auto automaticResetEnabled = realtimeState_ != nullptr
             ? realtimeState_->automaticResetEnabled()
             : settings_.autoReset;
         if (automaticResetEnabled && sampleRate_ != 0) {
-            const auto snapshot = engine_.snapshot();
             const auto elapsedSeconds = static_cast<double>(frames) / static_cast<double>(sampleRate_);
             if (silenceReset_.update(snapshot.samplePeakDbfs, elapsedSeconds)) {
                 engine_.reset();
                 engine_.process(inputBuffers.data(), settings_.channelCount, frames);
+                snapshot = engine_.snapshot();
                 if (realtimeState_ != nullptr)
                     realtimeState_->notifyLoudnessReset();
             }
         }
         if (realtimeState_ != nullptr)
-            realtimeState_->publish(engine_.snapshot());
+            realtimeState_->publish(snapshot);
     }
 
     void registerRealtimeState() noexcept

@@ -2379,10 +2379,7 @@ public:
 			viewMenu->addAction(darkAction);
 			viewMenu->addAction(lightAction);
 			auto* graphMenu = window_->menuBar()->addMenu(QStringLiteral("图形"));
-			if (jackObserver_.open({ "WinJACKNexus-Patchbay", false, false, nullptr })) {
-				graphRefreshPending_.store(false, std::memory_order_release);
-				graphOrderCallbackRegistered_ = jackObserver_.setGraphOrderCallback(&PatchbayNode::markJackGraphChanged, this) == 0;
-				jackObserver_.activate();
+			auto restoreLastProject = [this, canvas, currentProject, restoreSubGraphs, restoreModuleRecords, loadedModuleRecords] {
 				const auto lastProject = QSettings(QStringLiteral("WinJACKNexus"), QStringLiteral("Patchbay")).value(QStringLiteral("lastProjectPath")).toString();
 				std::vector<PatchbayProjectModule> modules;
 				std::vector<PatchbaySubGraphProject> subGraphs;
@@ -2394,12 +2391,30 @@ public:
 					savedModuleRecords_ = loadedModuleRecords();
 					canvas->restoreJackConnections(jackObserver_);
 				}
+			};
+			auto attachJackObserver = [this, refreshJackGraph, restoreLastProject] {
+				if (jackObserver_.isOpen())
+					return true;
+				if (!jackObserver_.open({ "WinJACKNexus-Patchbay", false, false, nullptr }))
+					return false;
+				graphRefreshPending_.store(false, std::memory_order_release);
+				graphOrderCallbackRegistered_ = jackObserver_.setGraphOrderCallback(&PatchbayNode::markJackGraphChanged, this) == 0;
+				jackObserver_.activate();
+				if (graphRefreshTimer_ != nullptr)
+					graphRefreshTimer_->setInterval(graphOrderCallbackRegistered_ ? 50 : 1000);
+				restoreLastProject();
 				refreshJackGraph();
-				graphRefreshTimer_ = new QTimer(window_);
-				graphRefreshTimer_->setInterval(graphOrderCallbackRegistered_ ? 50 : 1000);
-				QObject::connect(graphRefreshTimer_, &QTimer::timeout, window_, refreshPendingJackGraph);
-				graphRefreshTimer_->start();
-			}
+				return true;
+			};
+			graphRefreshTimer_ = new QTimer(window_);
+			graphRefreshTimer_->setInterval(1000);
+			QObject::connect(graphRefreshTimer_, &QTimer::timeout, window_, [this, attachJackObserver, refreshPendingJackGraph] {
+				if (!jackObserver_.isOpen())
+					attachJackObserver();
+				refreshPendingJackGraph();
+			});
+			graphRefreshTimer_->start();
+			attachJackObserver();
 
 			graphMenu->addAction(QStringLiteral("刷新节点库"), window_, [refreshNodeLibrary] {
 				(*refreshNodeLibrary)();

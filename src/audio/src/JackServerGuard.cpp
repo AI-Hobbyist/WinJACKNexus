@@ -117,6 +117,11 @@ JackServerGuard& JackServerGuard::operator=(JackServerGuard&& other) noexcept
     return *this;
 }
 
+bool JackServerGuard::isServerReady() noexcept
+{
+    return serverResponds();
+}
+
 bool JackServerGuard::locate(const wchar_t* explicitPath) noexcept
 {
     if (impl_ == nullptr)

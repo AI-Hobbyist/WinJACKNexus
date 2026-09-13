@@ -39,6 +39,7 @@ public:
     JackServerGuard(JackServerGuard&& other) noexcept;
     JackServerGuard& operator=(JackServerGuard&& other) noexcept;
 
+    static bool isServerReady() noexcept;
     bool locate(const wchar_t* explicitPath = nullptr) noexcept;
     bool start(const JackServerOptions& options = {}) noexcept;
     bool waitUntilReady(std::uint32_t timeoutMilliseconds = 5000) noexcept;
