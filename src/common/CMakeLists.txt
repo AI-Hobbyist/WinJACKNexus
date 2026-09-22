@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 add_library(common SHARED
     src/Library.cpp
+    src/AuxMixerState.cpp
     src/GraphicsView.cpp
     src/LoudnessEngine.cpp
     src/MeterProbeRegistry.cpp
@@ -14,6 +15,7 @@ add_library(common SHARED
     src/Logger.cpp
     src/Window.cpp
     include/WinJACKNexus/Common/Atomic.hpp
+    include/WinJACKNexus/Common/AuxMixerState.hpp
     include/WinJACKNexus/Common/AudioRingBuffer.hpp
     include/WinJACKNexus/Common/ChannelLayout.hpp
     include/WinJACKNexus/Common/Export.hpp

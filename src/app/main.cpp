@@ -805,11 +805,24 @@ int main(int argc, char* argv[])
         return 1;
     }
 
+    NodeModule mixerModule;
+    const auto mixerPath = QDir(executableDirectory()).filePath(QStringLiteral("mod_mixer.dll"));
+    if (!mixerModule.load(mixerPath)) {
+        QMessageBox::critical(nullptr, application.applicationName(),
+                              QStringLiteral("无法加载调音台模块。"));
+        return 1;
+    }
+
     if (trayAvailable) {
         tray.registerPlaceholder(tray.patchbayAction());
         QObject::connect(tray.patchbayAction(), &QAction::triggered, &application, [&tray, &patchbayModule] {
             if (patchbayModule.node()->createWindow(nullptr) == nullptr)
                 tray.showMessage(QStringLiteral("接线盘"), QStringLiteral("无法创建接线盘窗口。"), 2);
+        });
+        tray.registerPlaceholder(tray.mixerAction());
+        QObject::connect(tray.mixerAction(), &QAction::triggered, &application, [&tray, &mixerModule] {
+            if (mixerModule.node()->createWindow(nullptr) == nullptr)
+                tray.showMessage(QStringLiteral("调音台"), QStringLiteral("无法创建调音台窗口。"), 2);
         });
             tray.registerPlaceholder(tray.meterbridgeAction());
             QObject::connect(tray.meterbridgeAction(), &QAction::triggered, &application, [&tray, &meterbridgeModule] {

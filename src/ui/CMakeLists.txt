@@ -5,6 +5,7 @@ add_library(ui SHARED
     src/Library.cpp
     src/ApplicationSettings.cpp
     src/AnimatedWidget.cpp
+    src/AuxSettingsWindow.cpp
     src/HistoryChartWidget.cpp
     src/HistoryLegendWidget.cpp
     src/MetricReadout.cpp
@@ -12,6 +13,7 @@ add_library(ui SHARED
     src/MeterLevelBar.cpp
     src/IconManager.cpp
     src/MeterWidget.cpp
+    src/MixerWindow.cpp
     src/NativeWindowUtils.cpp
     src/PaintableWidget.cpp
     src/ThemeManager.cpp
@@ -20,6 +22,7 @@ add_library(ui SHARED
     include/WinJACKNexus/UI/Export.hpp
     include/WinJACKNexus/UI/ApplicationSettings.hpp
     include/WinJACKNexus/UI/AnimatedWidget.hpp
+    include/WinJACKNexus/UI/AuxSettingsWindow.hpp
     include/WinJACKNexus/UI/HistoryChartWidget.hpp
     include/WinJACKNexus/UI/HistoryLegendWidget.hpp
     include/WinJACKNexus/UI/MetricReadout.hpp
@@ -27,6 +30,7 @@ add_library(ui SHARED
     include/WinJACKNexus/UI/MeterLevelBar.hpp
     include/WinJACKNexus/UI/IconManager.hpp
     include/WinJACKNexus/UI/MeterWidget.hpp
+    include/WinJACKNexus/UI/MixerWindow.hpp
     include/WinJACKNexus/UI/NativeWindowUtils.hpp
     include/WinJACKNexus/UI/PaintableWidget.hpp
     include/WinJACKNexus/UI/ThemeManager.hpp
