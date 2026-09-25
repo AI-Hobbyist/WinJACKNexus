@@ -651,9 +651,44 @@ bool testAuxChannelLayoutsAndCopy()
     AuxMixerState state;
     bool passed = check(state.buses().size() == 3
                             && std::all_of(state.buses().cbegin(), state.buses().cend(), [](const auto& bus) {
-                                   return bus.targetLayout == AuxChannelLayout::stereo;
+                                   return bus.targetLayout == AuxChannelLayout::stereo
+                                       && bus.panMode == AuxPanMode::classic && !bus.linked;
                                }),
-                        "default mixer has three stereo AUX buses");
+                        "default stereo AUX buses use independent centered classic Pan");
+    passed &= check(auxSupportsClassicPan(AuxChannelLayout::mono,AuxChannelLayout::stereo)
+                        && auxSupportsClassicPan(AuxChannelLayout::stereo,AuxChannelLayout::stereo)
+                        && !auxSupportsClassicPan(AuxChannelLayout::surround51,AuxChannelLayout::stereo)
+                        && !auxSupportsClassicPan(AuxChannelLayout::stereo,AuxChannelLayout::surround51),
+                    "classic Pan is available only for mono or stereo sources sent to stereo");
+    const auto surround51Points=auxLayoutReferencePoints(AuxChannelLayout::surround51);
+    const auto surround71Points=auxLayoutReferencePoints(AuxChannelLayout::surround71);
+    passed &= check(surround51Points.size()==6 && surround71Points.size()==8
+                        && !auxHasSpatialPoint(AuxChannelLayout::surround51,3)
+                        && !auxHasSpatialPoint(AuxChannelLayout::surround71,3)
+                        && auxHasSpatialPoint(AuxChannelLayout::surround51,4)
+                        && surround51Points[3]==QPointF() && surround71Points[3]==QPointF()
+                        && surround51Points[0].x()<0 && surround51Points[0].y()<0
+                        && surround51Points[1].x()>0 && surround51Points[1].y()<0
+                        && std::abs(surround51Points[2].x())<.001 && surround51Points[2].y()<0
+                        && surround51Points[4].x()<0 && surround51Points[4].y()>0
+                        && surround51Points[5].x()>0 && surround51Points[5].y()>0
+                        && surround71Points[6].x()<0 && surround71Points[6].y()>0
+                        && surround71Points[7].x()>0 && surround71Points[7].y()>0,
+                    "surround reference points follow front, side and rear speaker positions without LFE");
+    auto surroundBus=state.addBus(AuxChannelLayout::surround51);
+    auxSetPannerAngle(surroundBus,30.0);
+    passed &= check(surroundBus.adjustablePoints[3]==QPointF()
+                        && surroundBus.sends.size()==6 && surroundBus.sends[3].label==QStringLiteral("LFE"),
+                    "LFE has no rotating spatial point while retaining its independent level control");
+    auto stereo=state.buses().front();
+    const auto originalRight=stereo.adjustablePoints[1];
+    stereo.adjustablePoints[0]={-.1,-.3};
+    passed &= check(stereo.adjustablePoints[1]==originalRight && !stereo.linked,
+                    "stereo spatial points retain independent L and R values");
+    auxSetPannerAngle(stereo,90.0);
+    passed &= check(std::abs(stereo.angleDegrees-90.0)<.001
+                        && stereo.adjustablePoints[0]!=QPointF(-.1,-.3),
+                    "spatial angle rotates points through the shared panner logic");
     const auto originalId = state.buses().front().id;
     auto* sourceBus = state.busForSource(QStringLiteral("input:1"), originalId);
     if (!check(sourceBus != nullptr, "AUX source mapping exists")) return false;

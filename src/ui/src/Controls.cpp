@@ -97,6 +97,27 @@ void drawKnob(QPainter& painter, const QPointF& center, qreal normalized,
     painter.drawLine(center, center + QPointF(std::cos(angle)*(radius-9), -std::sin(angle)*(radius-9)));
 }
 
+void drawPanKnob(QPainter& painter, const QPointF& center, qreal pan,
+                 qreal radius, const Palette& colors) {
+    pan=qBound<qreal>(-1,pan,1);
+    const QRectF ring(center.x()-radius,center.y()-radius,2*radius,2*radius);
+    const qreal stroke=std::max<qreal>(5,radius*.06);
+    painter.setBrush(Qt::NoBrush);
+    painter.setPen(QPen(colors.border,stroke,Qt::SolidLine,Qt::RoundCap));
+    painter.drawArc(ring,225*16,-270*16);
+    if(std::abs(pan)>.0001){
+        painter.setPen(QPen(colors.accent,stroke,Qt::SolidLine,Qt::RoundCap));
+        painter.drawArc(ring,90*16,qRound(-pan*135*16));
+    }
+    painter.setPen(Qt::NoPen);
+    painter.setBrush(colors.panel);
+    painter.drawEllipse(center,radius*.78,radius*.78);
+    const qreal angle=(270+pan*135)*3.14159265358979323846/180.0;
+    const QPointF direction(std::cos(angle),std::sin(angle));
+    painter.setPen(QPen(colors.text,std::max<qreal>(3,radius*.035),Qt::SolidLine,Qt::RoundCap));
+    painter.drawLine(center+direction*(radius*.44),center+direction*(radius*.76));
+}
+
 void drawSlider(QPainter& painter, const QRectF& bounds, qreal normalized,
                 bool vertical, const Palette& colors) {
     normalized = qBound<qreal>(0, normalized, 1);

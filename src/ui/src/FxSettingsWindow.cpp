@@ -9,6 +9,8 @@
 #include <QCoreApplication>
 #include <QDirIterator>
 #include <QFrame>
+#include <QFontMetrics>
+#include <QGuiApplication>
 #include <QLabel>
 #include <QLibrary>
 #include <QListWidget>
@@ -19,6 +21,7 @@
 #include <QPushButton>
 #include <QScrollArea>
 #include <QScrollBar>
+#include <QScreen>
 #include <QSignalBlocker>
 #include <QStyledItemDelegate>
 #include <QTimer>
@@ -43,6 +46,40 @@ QFrame* panel(QWidget* parent) {
     return result;
 }
 
+class FxChainCanvas final : public QWidget {
+public:
+    explicit FxChainCanvas(QWidget* parent = nullptr) : QWidget(parent) {}
+
+    void setEndpoints(QWidget* input, QWidget* output)
+    {
+        input_ = input;
+        output_ = output;
+        update();
+    }
+
+protected:
+    void paintEvent(QPaintEvent*) override
+    {
+        if (!input_ || !output_) return;
+        QPainter painter(this);
+        painter.setRenderHint(QPainter::Antialiasing);
+        const QPointF start = input_->geometry().center();
+        const QPointF end = output_->geometry().center();
+        const qreal y = (start.y() + end.y()) / 2;
+        const qreal tip = end.x() - 12;
+        painter.setPen(QPen(QColor(90,169,219,220), 3, Qt::SolidLine, Qt::RoundCap));
+        painter.drawLine(QPointF(start.x(), y), QPointF(tip - 13, y));
+        painter.setPen(Qt::NoPen);
+        painter.setBrush(QColor(90,169,219,230));
+        painter.drawPolygon(QPolygonF {QPointF(tip, y), QPointF(tip - 17, y - 8),
+                               QPointF(tip - 17, y + 8)});
+    }
+
+private:
+    QWidget* input_ {};
+    QWidget* output_ {};
+};
+
 class FxListDelegate final : public QStyledItemDelegate {
 public:
     explicit FxListDelegate(std::function<void(int)> toggle,
@@ -54,10 +91,13 @@ public:
         painter->setRenderHint(QPainter::Antialiasing);
         const QRectF card = option.rect.adjusted(3, 3, -3, -3);
         const bool selected = option.state & QStyle::State_Selected;
-        painter->setPen(QPen(selected ? QColor("#42cbfb") : QColor("#344d69"), selected ? 1.5 : 1.0));
-        painter->setBrush(QColor(selected ? "#193b52" : "#182d43"));
+        const bool enabled = index.data(Qt::UserRole + 3).toBool();
+        const QColor accent(index.data(Qt::UserRole + 2).toString());
+        painter->setPen(QPen(selected ? QColor("#42cbfb") : enabled ? accent : QColor("#344d69"),
+                              selected ? 2.0 : 1.2));
+        painter->setBrush(QColor(enabled ? "#214b62" : "#15273a"));
         painter->drawRoundedRect(card, 7, 7);
-        painter->setPen(QPen(QColor("#667d9a"), 1));
+        painter->setPen(QPen(enabled ? QColor("#a8d8fa") : QColor("#667d9a"), 1));
         painter->setBrush(QColor("#15273a"));
         painter->drawEllipse(QRectF(card.left() + 5, card.center().y() - 12, 24, 24));
         painter->setPen(QColor("#e8f2ff"));
@@ -67,25 +107,20 @@ public:
         for (int row = 0; row < 4; ++row)
             for (int column = 0; column < 2; ++column)
                 painter->drawEllipse(QPointF(card.left() + 39 + column * 6, card.top() + 20 + row * 7), 1.3, 1.3);
-        const QColor accent(index.data(Qt::UserRole + 2).toString());
         const QRectF icon(card.left() + 58, card.center().y() - 24, 48, 48);
-        painter->setPen(QPen(accent.lighter(130), 1));
-        painter->setBrush(accent.darker(140));
+        painter->setPen(QPen(enabled ? accent.lighter(130) : accent.darker(180), 1));
+        painter->setBrush(enabled ? accent.darker(140) : QColor("#273b50"));
         painter->drawRoundedRect(icon, 5, 5);
         QFont iconFont = painter->font(); iconFont.setPixelSize(28); iconFont.setBold(true); painter->setFont(iconFont);
-        painter->setPen(Qt::white);
+        painter->setPen(enabled ? Qt::white : QColor("#91a6ba"));
         painter->drawText(icon, Qt::AlignCenter, index.data(Qt::UserRole + 1).toString());
         QFont nameFont = painter->font(); nameFont.setPixelSize(15); nameFont.setBold(false); painter->setFont(nameFont);
-        painter->drawText(QRectF(icon.right() + 13, card.top(), card.width() - 222, card.height()),
+        painter->setPen(enabled ? QColor("#f1f8ff") : QColor("#93a8be"));
+        painter->drawText(QRectF(icon.right() + 13, card.top(), card.width() - 175, card.height()),
                           Qt::AlignVCenter | Qt::AlignLeft, index.data(Qt::DisplayRole).toString());
-        const bool enabled = index.data(Qt::UserRole + 3).toBool();
-        const QRectF track(card.right() - 91, card.center().y() - 11, 42, 22);
         painter->setPen(Qt::NoPen);
-        painter->setBrush(QColor(enabled ? "#187ee8" : "#38516d"));
-        painter->drawRoundedRect(track, 11, 11);
-        painter->setBrush(Qt::white);
-        painter->drawEllipse(QRectF(enabled ? track.right() - 20 : track.left() + 2,
-                                    track.top() + 2, 18, 18));
+        painter->setBrush(enabled ? QColor("#47e5a1") : QColor("#52677c"));
+        painter->drawEllipse(QRectF(card.right() - 47, card.center().y() - 5, 10, 10));
         painter->setPen(QColor("#a8c6ef"));
         QFont dotsFont = painter->font(); dotsFont.setPixelSize(24); painter->setFont(dotsFont);
         painter->drawText(QRectF(card.right() - 34, card.top(), 28, card.height()), Qt::AlignCenter, QStringLiteral("⋮"));
@@ -102,8 +137,7 @@ public:
             menu_(index.data(Qt::UserRole).toInt(), mouse->globalPosition().toPoint());
             return true;
         }
-        const QRectF track(option.rect.right() - 94, option.rect.center().y() - 14, 48, 28);
-        if (!track.contains(mouse->position())) return false;
+        if (!card.contains(mouse->position())) return false;
         toggle_(index.data(Qt::UserRole).toInt());
         return true;
     }
@@ -172,8 +206,6 @@ public:
             QScrollArea { background:#10263a; border:1px solid #29435d; border-radius:7px; }
             QScrollArea#fxChainScroll { background:transparent; border:0; }
             QWidget#fxChainContent { background:transparent; }
-            QPushButton#fxAddBottom { background:transparent; color:#8cbbfb; border:1px dashed #5d82a9; border-radius:7px; font-size:17px; padding:0; }
-            QPushButton#fxAddBottom:hover { background:#1b3956; color:#bee5ff; border-color:#4bc8ff; }
             QScrollBar { background:#12263b; }
         )"));
 
@@ -188,29 +220,9 @@ public:
         title->setObjectName(QStringLiteral("fxSourceTitle"));
         QFont titleFont = title->font(); titleFont.setPixelSize(24); titleFont.setBold(true); title->setFont(titleFont);
         headerLayout->addWidget(title);
-        headerLayout->addStretch();
-        headerLayout->addWidget(new QLabel(QStringLiteral("预设："), header));
-        auto* presets = new QComboBox(header);
-        presets->addItem(QStringLiteral("默认"));
-        presets->setMinimumWidth(185);
-        headerLayout->addWidget(presets);
-        headerLayout->addWidget(button(QStringLiteral("保存"), header));
-        headerLayout->addWidget(button(QStringLiteral("另存为"), header));
-        root->addWidget(header);
-
-        auto* body = new QHBoxLayout;
-        body->setSpacing(14);
-        root->addLayout(body, 1);
-        auto* sidebar = panel(&owner);
-        sidebar->setFixedWidth(400);
-        auto* sideLayout = new QVBoxLayout(sidebar);
-        sideLayout->setContentsMargins(13, 14, 13, 15);
-        sideLayout->setSpacing(9);
-        auto* sideHeader = new QHBoxLayout;
-        auto* chainLabel = new QLabel(QStringLiteral("FX 链"), sidebar);
-        QFont bold = chainLabel->font(); bold.setPixelSize(19); bold.setBold(true); chainLabel->setFont(bold);
-        sideHeader->addWidget(chainLabel);
-        master = new Controls::ToggleButton(sidebar);
+        QFont bold = title->font(); bold.setPixelSize(19);
+        headerLayout->addSpacing(12);
+        master = new Controls::ToggleButton(header);
         master->setObjectName(QStringLiteral("fxChainToggle"));
         master->setChecked(false);
         master->setToolTip(QStringLiteral("FX 链总开关"));
@@ -218,69 +230,9 @@ public:
             syncChainPower();
             if (chainEnabledHandler) chainEnabledHandler(enabled);
         });
-        sideHeader->addWidget(master);
-        sideHeader->addStretch();
-        auto* add = button(QStringLiteral("＋  添加模块"), sidebar, "primary");
-        sideHeader->addWidget(add);
-        sideLayout->addLayout(sideHeader);
-        chainScroll = new QScrollArea(sidebar);
-        chainScroll->setObjectName(QStringLiteral("fxChainScroll"));
-        chainScroll->setFrameShape(QFrame::NoFrame);
-        chainScroll->setWidgetResizable(true);
-        chainScroll->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-        chainScroll->viewport()->setStyleSheet(QStringLiteral("background:transparent;"));
-        auto* chainContent = new QWidget(chainScroll);
-        chainContent->setObjectName(QStringLiteral("fxChainContent"));
-        auto* chainLayout = new QVBoxLayout(chainContent);
-        chainLayout->setContentsMargins(0, 0, 0, 0);
-        chainLayout->setSpacing(9);
-        chainLayout->setSizeConstraint(QLayout::SetMinimumSize);
-        list = new QListWidget(chainContent);
-        list->setFrameShape(QFrame::NoFrame);
-        list->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-        list->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-        list->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-        list->setFixedHeight(0);
-        list->setDragDropMode(QAbstractItemView::InternalMove);
-        list->setDefaultDropAction(Qt::MoveAction);
-        list->setDragEnabled(true);
-        list->setAcceptDrops(true);
-        list->setDropIndicatorShown(true);
-        list->setSpacing(3);
-        list->setItemDelegate(new FxListDelegate([this](int id) {
-            if (!master->isChecked()) return;
-            for (auto& effect : effects) if (effect.id == id) {
-                effect.enabled = !effect.enabled;
-                for (int row = 0; row < list->count(); ++row)
-                    if (list->item(row)->data(Qt::UserRole).toInt() == id)
-                        refreshListItem(list->item(row));
-                if (auto* current = selected(); current && current->id == id) {
-                    modulePower->blockSignals(true);
-                    modulePower->setChecked(effect.enabled);
-                    modulePower->blockSignals(false);
-                }
-                break;
-            }
-        }, [this](int id, QPoint position) { showEffectMenu(id, position); }, list));
-        chainLayout->addWidget(list);
-        addBottom = button(QStringLiteral("＋  添加 FX 模块"), chainContent, "fxAddBottom");
-        addBottom->setFixedHeight(58);
-        chainLayout->addWidget(addBottom);
-        chainLayout->addStretch();
-        chainScroll->setWidget(chainContent);
-        sideLayout->addWidget(chainScroll, 1);
-        body->addWidget(sidebar);
-
-        auto* right = new QVBoxLayout;
-        right->setSpacing(12);
-        body->addLayout(right, 1);
-        auto* channelPanel = panel(&owner);
-        channelPanel->setFixedHeight(124);
-        auto* channelLayout = new QVBoxLayout(channelPanel);
-        channelLayout->setContentsMargins(16, 12, 16, 14);
-        auto* channelTitle = new QLabel(QStringLiteral("作用声道"), channelPanel);
-        channelTitle->setFont(bold);
-        channelLayout->addWidget(channelTitle);
+        headerLayout->addWidget(master);
+        headerLayout->addStretch();
+        headerLayout->addWidget(new QLabel(QStringLiteral("作用声道："), header));
         channelRow = new QHBoxLayout;
         QStringList visibleChannels { QStringLiteral("All") };
         visibleChannels.append(sourceChannels);
@@ -288,24 +240,33 @@ public:
             QStringLiteral("LFE"), QStringLiteral("Ls"), QStringLiteral("Rs"),
             QStringLiteral("Lb"), QStringLiteral("Rb") };
         for (const auto& name : visibleChannels) {
-            auto* choice = button(name, channelPanel);
+            auto* choice = button(name, header);
+            choice->setObjectName(QStringLiteral("fxChannel%1").arg(name));
             choice->setCheckable(true);
-            choice->setMinimumWidth(61);
+            choice->setMinimumWidth(54);
             choice->setChecked(name == QStringLiteral("All"));
             channelButtons.push_back(choice);
             const int channelIndex = name == QStringLiteral("All") ? -1 : nativeChannels.indexOf(name);
             QObject::connect(choice, &QPushButton::clicked, &owner, [this, choice, channelIndex] {
-                for (auto* other : channelButtons) other->setChecked(other == choice);
-                selectedChannel = channelIndex;
-                for (auto& effect : effects)
-                    if (effect.instance) effect.module->selectChannel(effect.instance, selectedChannel);
+                chooseChannel(choice,channelIndex);
             });
             channelRow->addWidget(choice);
         }
-        channelRow->addStretch();
-        channelLayout->addLayout(channelRow);
-        right->addWidget(channelPanel);
+        headerLayout->addLayout(channelRow);
+        headerLayout->addSpacing(12);
+        headerLayout->addWidget(new QLabel(QStringLiteral("预设："), header));
+        auto* presets = new QComboBox(header);
+        presets->setObjectName(QStringLiteral("fxWindowPreset"));
+        presets->addItem(QStringLiteral("默认"));
+        presets->setMinimumWidth(185);
+        headerLayout->addWidget(presets);
+        headerLayout->addWidget(button(QStringLiteral("保存"), header));
+        headerLayout->addWidget(button(QStringLiteral("另存为"), header));
+        root->addWidget(header);
 
+        auto* body = new QVBoxLayout;
+        body->setSpacing(12);
+        root->addLayout(body, 1);
         auto* modulePanel = panel(&owner);
         auto* moduleLayout = new QVBoxLayout(modulePanel);
         moduleLayout->setContentsMargins(12, 10, 12, 10);
@@ -316,6 +277,7 @@ public:
         modulePower->setFixedWidth(40);
         moduleHeader->addWidget(modulePower);
         moduleName = new QLabel(QStringLiteral("模块设置"), modulePanel);
+        moduleName->setObjectName(QStringLiteral("fxModuleTitle"));
         moduleName->setFont(bold);
         moduleHeader->addWidget(moduleName);
         moduleHeader->addStretch();
@@ -336,55 +298,111 @@ public:
         editorParking = new QWidget(&owner);
         editorParking->hide();
         moduleLayout->addWidget(editorArea, 1);
-        right->addWidget(modulePanel, 1);
+        body->addWidget(modulePanel, 1);
 
         auto* bottom = new QHBoxLayout;
         bottom->setSpacing(12);
         auto* footer = panel(&owner);
-        footer->setFixedHeight(136);
+        footer->setFixedHeight(154);
         auto* footerLayout = new QVBoxLayout(footer);
         footerLayout->setContentsMargins(13, 8, 13, 7);
-        footerLayout->addWidget(new QLabel(QStringLiteral("信号流向："), footer));
-        flowArea = new QScrollArea(footer);
-        flowArea->setObjectName(QStringLiteral("fxSignalFlow"));
-        flowArea->setFrameShape(QFrame::NoFrame);
-        flowArea->setWidgetResizable(true);
-        flowArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-        flowArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-        flowArea->setStyleSheet(QStringLiteral("QScrollArea { background:transparent; border:0; }"));
-        flowContent = new QWidget(flowArea);
-        flowContent->setStyleSheet(QStringLiteral("background:transparent;"));
-        flowLayout = new QHBoxLayout(flowContent);
+        auto* chainHeader = new QHBoxLayout;
+        auto* chainLabel = new QLabel(QStringLiteral("效果链"), footer);
+        chainLabel->setFont(bold);
+        chainHeader->addWidget(chainLabel);
+        chainHeader->addStretch();
+        auto* add = button(QStringLiteral("＋  添加模块"), footer, "primary");
+        chainHeader->addWidget(add);
+        footerLayout->addLayout(chainHeader);
+        chainScroll = new QScrollArea(footer);
+        chainScroll->setObjectName(QStringLiteral("fxChainScroll"));
+        chainScroll->setFrameShape(QFrame::NoFrame);
+        chainScroll->setWidgetResizable(true);
+        chainScroll->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+        chainScroll->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        chainScroll->viewport()->setStyleSheet(QStringLiteral("background:transparent;"));
+        chainContent = new FxChainCanvas(chainScroll);
+        chainContent->setObjectName(QStringLiteral("fxChainContent"));
+        chainContent->setMinimumHeight(82);
+        auto* flowLayout = new QHBoxLayout(chainContent);
         flowLayout->setContentsMargins(4, 0, 4, 0);
-        flowLayout->setSpacing(6);
-        flowArea->setWidget(flowContent);
-        footerLayout->addWidget(flowArea, 1);
+        flowLayout->setSpacing(22);
+        flowLayout->setSizeConstraint(QLayout::SetMinimumSize);
+        const auto endpoint = [this](const QString& symbol, const QString& caption) {
+            auto* chip = new QLabel(QStringLiteral("%1\n%2").arg(symbol, caption),chainContent);
+            chip->setObjectName(QStringLiteral("fxChain%1").arg(symbol));
+            chip->setFixedSize(72,62);
+            chip->setAlignment(Qt::AlignCenter);
+            chip->setStyleSheet(QStringLiteral("background:#243e57;border:1px solid #567a9a;"
+                                               "border-radius:7px;color:#f1f7ff;font-size:16px;font-weight:bold;"));
+            return chip;
+        };
+        flowLayout->addStretch();
+        auto* inputChip=endpoint(QStringLiteral("In"),QStringLiteral("输入"));
+        flowLayout->addWidget(inputChip);
+        list = new QListWidget(chainContent);
+        list->setObjectName(QStringLiteral("fxChainList"));
+        list->setFrameShape(QFrame::NoFrame);
+        list->setViewMode(QListView::ListMode);
+        list->setFlow(QListView::LeftToRight);
+        list->setWrapping(false);
+        list->setResizeMode(QListView::Adjust);
+        list->setSpacing(3);
+        list->setFixedSize(1,78);
+        list->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        list->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        list->setDragDropMode(QAbstractItemView::InternalMove);
+        list->setDefaultDropAction(Qt::MoveAction);
+        list->setDragEnabled(true);
+        list->setAcceptDrops(true);
+        list->setDropIndicatorShown(true);
+        list->setItemDelegate(new FxListDelegate([this](int id) {
+            if (!master->isChecked()) return;
+            for (auto& effect : effects) if (effect.id == id) {
+                effect.enabled = !effect.enabled;
+                for (int row = 0; row < list->count(); ++row)
+                    if (list->item(row)->data(Qt::UserRole).toInt() == id)
+                        refreshListItem(list->item(row));
+                if (auto* current = selected(); current && current->id == id) {
+                    const QSignalBlocker blocker(modulePower);
+                    modulePower->setChecked(effect.enabled);
+                }
+                break;
+            }
+        }, [this](int id, QPoint position) { showEffectMenu(id, position); }, list));
+        flowLayout->addWidget(list);
+        auto* outputChip=endpoint(QStringLiteral("Out"),QStringLiteral("输出"));
+        flowLayout->addWidget(outputChip);
+        flowLayout->addStretch();
+        chainContent->setEndpoints(inputChip,outputChip);
+        chainScroll->setWidget(chainContent);
+        footerLayout->addWidget(chainScroll,1);
         bottom->addWidget(footer, 1);
         auto* meterPanel = panel(&owner);
         meterPanel->setFixedWidth(290);
         auto* meterLayout = new QVBoxLayout(meterPanel);
         meterLayout->setContentsMargins(12, 7, 12, 7);
         auto* meterSelectors = new QHBoxLayout;
-        meterSelectors->addWidget(new QLabel(QStringLiteral("输入 / 输出电平"), meterPanel));
-        meterChannel = new QComboBox(meterPanel);
-        meterChannel->addItems(visibleChannels);
-        meterSelectors->addWidget(meterChannel);
+        meterTitle = new QLabel(QStringLiteral("输入/输出电平"), meterPanel);
+        meterTitle->setObjectName(QStringLiteral("fxMeterTitle"));
+        meterSelectors->addWidget(meterTitle);
+        meterSelectors->addStretch();
         meterLayout->addLayout(meterSelectors);
         auto* meter = new FxLevelMeterWidget(meterPanel);
         meterLayout->addWidget(meter);
         auto updateMeters = [this, meter, nativeChannels] {
-            const QString selected = meterChannel->currentText();
+            const QString selected = selectedChannelLabel;
             const auto level = [&](const std::array<double, 8>& values) {
                 if (selected != QStringLiteral("All")) {
                     const int index = nativeChannels.indexOf(selected);
-                    return index >= 0 ? values[static_cast<std::size_t>(index)] : -60.0;
+                    return index >= 0 ? values[static_cast<std::size_t>(index)] : -72.0;
                 }
                 double power = 0.0;
                 for (const auto& channel : this->sourceChannels) {
                     const int index = nativeChannels.indexOf(channel);
                     if (index >= 0) power += std::pow(10.0, values[static_cast<std::size_t>(index)] / 10.0);
                 }
-                return power > 0.0 ? 10.0 * std::log10(power / std::max(1.0, static_cast<double>(this->sourceChannels.size()))) : -60.0;
+                return power > 0.0 ? 10.0 * std::log10(power / std::max(1.0, static_cast<double>(this->sourceChannels.size()))) : -72.0;
             };
             meter->setLevels(level(simulatedInput), level(simulatedOutput));
         };
@@ -392,20 +410,19 @@ public:
         QObject::connect(meterTimer, &QTimer::timeout, &owner, [this, updateMeters] {
             for (std::size_t index = 0; index < simulatedInput.size(); ++index) {
                 const double target = -31.0 + QRandomGenerator::global()->bounded(28.0);
-                simulatedInput[index] = std::clamp(simulatedInput[index] * .72 + target * .28, -60.0, 12.0);
-                simulatedOutput[index] = std::clamp(simulatedInput[index] - 2.0, -60.0, 12.0);
+                simulatedInput[index] = std::clamp(simulatedInput[index] * .72 + target * .28, -72.0, 12.0);
+                simulatedOutput[index] = std::clamp(simulatedInput[index] - 2.0, -72.0, 12.0);
             }
             updateMeters();
             syncModulePreset();
         });
-        QObject::connect(meterChannel, &QComboBox::currentIndexChanged, &owner, [updateMeters] { updateMeters(); });
+        meterRefresh=updateMeters;
         meterTimer->start(90);
         updateMeters();
         bottom->addWidget(meterPanel);
-        right->addLayout(bottom);
+        body->addLayout(bottom);
 
         QObject::connect(add, &QPushButton::clicked, &owner, [this, add] { showAddMenu(add); });
-        QObject::connect(addBottom, &QPushButton::clicked, &owner, [this] { showAddMenu(addBottom); });
         QObject::connect(list, &QListWidget::currentItemChanged, &owner, [this] { showSelected(); });
         QObject::connect(list->model(), &QAbstractItemModel::rowsMoved, &owner, [this] { refreshFlow(); });
         QObject::connect(modulePower, &QPushButton::toggled, &owner, [this](bool enabled) {
@@ -472,6 +489,21 @@ public:
         for (const auto& effect : effects) if (effect.instance) effect.module->destroy(effect.instance);
     }
 
+    void chooseChannel(QPushButton* choice, int channelIndex)
+    {
+        for (auto* other : channelButtons) other->setChecked(other == choice);
+        selectedChannel = channelIndex;
+        selectedChannelLabel = choice->text();
+        for (auto& effect : effects)
+            if (effect.instance) effect.module->selectChannel(effect.instance, selectedChannel);
+        if(meterTitle)meterTitle->setText(selectedChannel<0?QStringLiteral("输入/输出电平")
+            :QStringLiteral("输入/输出(%1)").arg(selectedChannelLabel));
+        if(meterRefresh)meterRefresh();
+        if(auto* effect=selected())
+            moduleName->setText(QStringLiteral("模块设置 - %1%2").arg(effect->name,
+                selectedChannel<0?QString():QStringLiteral(" · %1").arg(selectedChannelLabel)));
+    }
+
     void setSourceChannels(const QStringList& channels) {
         if (sourceChannels == channels) return;
         sourceChannels = channels;
@@ -487,23 +519,22 @@ public:
             QStringLiteral("Lb"), QStringLiteral("Rb") };
         for (const auto& name : visibleChannels) {
             auto* choice = button(name, channelRow->parentWidget());
+            choice->setObjectName(QStringLiteral("fxChannel%1").arg(name));
             choice->setCheckable(true);
             choice->setMinimumWidth(61);
             choice->setChecked(name == QStringLiteral("All"));
             channelButtons.push_back(choice);
             const int channelIndex = name == QStringLiteral("All") ? -1 : nativeChannels.indexOf(name);
             QObject::connect(choice, &QPushButton::clicked, &owner, [this, choice, channelIndex] {
-                for (auto* other : channelButtons) other->setChecked(other == choice);
-                selectedChannel = channelIndex;
-                for (auto& effect : effects)
-                    if (effect.instance) effect.module->selectChannel(effect.instance, selectedChannel);
+                chooseChannel(choice,channelIndex);
             });
             channelRow->addWidget(choice);
         }
         channelRow->addStretch();
-        meterChannel->clear();
-        meterChannel->addItems(visibleChannels);
         selectedChannel = -1;
+        selectedChannelLabel = QStringLiteral("All");
+        if(meterTitle)meterTitle->setText(QStringLiteral("输入/输出电平"));
+        if(meterRefresh)meterRefresh();
         for (auto& effect : effects)
             if (effect.instance) effect.module->selectChannel(effect.instance, selectedChannel);
     }
@@ -521,6 +552,7 @@ public:
         const int id = item->data(Qt::UserRole).toInt();
         for (const auto& effect : effects) if (effect.id == id) {
             item->setText(effect.name);
+            item->setSizeHint(QSize(cardWidth(effect.name),74));
             item->setData(Qt::UserRole + 1, effect.glyph);
             item->setData(Qt::UserRole + 2, effect.color);
             item->setData(Qt::UserRole + 3, master->isChecked() && effect.enabled);
@@ -528,9 +560,20 @@ public:
         }
     }
 
-    void updateChainListHeight() {
-        const int rowHeight = list->count() ? list->sizeHintForRow(0) : 0;
-        list->setFixedHeight(list->count() * (rowHeight + list->spacing()) + (list->count() ? 4 : 0));
+    void updateChainListWidth() {
+        int width=4;
+        for(int row=0;row<list->count();++row)
+            width+=list->item(row)->sizeHint().width()+list->spacing();
+        list->setFixedWidth(std::max(1,width));
+        chainContent->adjustSize();
+        chainContent->updateGeometry();
+    }
+
+    int cardWidth(const QString& name) const
+    {
+        QFont font=list->font();
+        font.setPixelSize(15);
+        return std::clamp(195+QFontMetrics(font).horizontalAdvance(name),230,420);
     }
 
     void syncChainPower() {
@@ -569,10 +612,10 @@ public:
         effects.push_back(effect);
         auto* item = new QListWidgetItem;
         item->setData(Qt::UserRole, effect.id);
-        item->setSizeHint(QSize(250, 69));
+        item->setSizeHint(QSize(cardWidth(effect.name),74));
         list->insertItem(row, item);
-        updateChainListHeight();
         refreshListItem(item);
+        updateChainListWidth();
         list->setCurrentItem(item);
         refreshFlow();
     }
@@ -620,7 +663,7 @@ public:
             delete list->takeItem(row);
             list->setCurrentRow(qMin(row, list->count() - 1));
         }
-        updateChainListHeight();
+        updateChainListWidth();
         showSelected();
         refreshFlow();
     }
@@ -643,6 +686,7 @@ public:
             module->setTheme(instance, &theme);
         }
         refreshListItem(list->item(rowForEffect(id)));
+        updateChainListWidth();
         if (selected() && selected()->id == id) showSelected();
         refreshFlow();
     }
@@ -664,7 +708,21 @@ public:
             QObject::connect(action, &QAction::triggered, &owner,
                              [this, id, module] { replaceEffect(id, module); });
         }
-        menu.exec(position);
+        menu.exec(menuPosition(menu, position));
+    }
+
+    QPoint menuPosition(QMenu& menu, QPoint preferred, QWidget* anchor = nullptr) const {
+        const QSize size = menu.sizeHint();
+        QRect bounds(owner.mapToGlobal(QPoint()), owner.size());
+        if (auto* screen = QGuiApplication::screenAt(preferred))
+            bounds = bounds.intersected(screen->availableGeometry());
+        bounds.adjust(8, 8, -8, -8);
+        const int maxX = std::max(bounds.left(), bounds.right() - size.width() + 1);
+        const int maxY = std::max(bounds.top(), bounds.bottom() - size.height() + 1);
+        if (preferred.y() > maxY && anchor)
+            preferred.setY(anchor->mapToGlobal(QPoint()).y() - size.height());
+        return {std::clamp(preferred.x(), bounds.left(), maxX),
+                std::clamp(preferred.y(), bounds.top(), maxY)};
     }
 
     void showAddMenu(QWidget* anchor) {
@@ -675,7 +733,7 @@ public:
                 QString::fromUtf8(info->iconGlyph), QString::fromUtf8(info->name)));
             QObject::connect(action, &QAction::triggered, &owner, [this, module] { addEffect(module, true); });
         }
-        menu.exec(anchor->mapToGlobal(QPoint(0, anchor->height())));
+        menu.exec(menuPosition(menu, anchor->mapToGlobal(QPoint(0, anchor->height())), anchor));
     }
 
     void syncModulePreset() {
@@ -710,7 +768,8 @@ public:
             return;
         }
         modulePower->setEnabled(master->isChecked());
-        moduleName->setText(QStringLiteral("模块设置 - %1").arg(effect->name));
+        moduleName->setText(QStringLiteral("模块设置 - %1%2").arg(effect->name,
+            selectedChannel<0?QString():QStringLiteral(" · %1").arg(selectedChannelLabel)));
         {
             const QSignalBlocker blocker(modulePreset);
             modulePreset->clear();
@@ -740,69 +799,28 @@ public:
     }
 
     void refreshFlow() {
-        while (auto* item = flowLayout->takeAt(0)) {
-            delete item->widget();
-            delete item;
-        }
-        const auto addChip = [this](const QString& glyph, const QString& title, const QString& color) {
-            auto* chip = new QWidget(flowContent);
-            chip->setFixedSize(95, 75);
-            auto* layout = new QVBoxLayout(chip);
-            layout->setContentsMargins(2, 0, 2, 0);
-            layout->setSpacing(3);
-            auto* icon = new QLabel(glyph, chip);
-            icon->setFixedSize(52, 40);
-            icon->setAlignment(Qt::AlignCenter);
-            icon->setStyleSheet(QStringLiteral("background:%1;border:1px solid %2;border-radius:6px;color:white;font-size:23px;font-weight:bold;")
-                                    .arg(QColor(color).darker(145).name(), color));
-            auto* nameLabel = new QLabel(title, chip);
-            nameLabel->setAlignment(Qt::AlignCenter);
-            nameLabel->setStyleSheet(QStringLiteral("color:#c9dcf7;font-size:11px;"));
-            layout->addWidget(icon, 0, Qt::AlignHCenter);
-            layout->addWidget(nameLabel);
-            flowLayout->addWidget(chip);
-        };
-        const auto addArrow = [this] {
-            auto* arrow = new QLabel(QStringLiteral("→"), flowContent);
-            arrow->setFixedWidth(21);
-            arrow->setAlignment(Qt::AlignCenter);
-            arrow->setStyleSheet(QStringLiteral("color:#83a7d4;font-size:20px;"));
-            flowLayout->addWidget(arrow);
-        };
-        flowLayout->addStretch();
-        addChip(QStringLiteral("In"), QStringLiteral("输入"), QStringLiteral("#496783"));
-        for (int i = 0; i < list->count(); ++i) {
-            const int id = list->item(i)->data(Qt::UserRole).toInt();
-            for (const auto& effect : effects) if (effect.id == id) {
-                addArrow();
-                addChip(effect.glyph, effect.name, effect.color);
-            }
-        }
-        addArrow();
-        addChip(QStringLiteral("Out"), QStringLiteral("输出"), QStringLiteral("#496783"));
-        flowLayout->addStretch();
-        flowContent->adjustSize();
+        chainContent->adjustSize();
+        chainContent->update();
     }
 
     FxSettingsWindow& owner;
     QStringList sourceChannels;
     QHBoxLayout* channelRow {};
-    QComboBox* meterChannel {};
+    QLabel* meterTitle {};
+    std::function<void()> meterRefresh;
     std::vector<std::unique_ptr<Module>> loadedModules;
     int selectedChannel = -1;
+    QString selectedChannelLabel {QStringLiteral("All")};
     QVector<Module*> available;
     QVector<Effect> effects;
     int nextId = 1;
     QListWidget* list {};
     QScrollArea* chainScroll {};
-    QPushButton* addBottom {};
+    FxChainCanvas* chainContent {};
     QScrollArea* editorArea {};
     QWidget* editorParking {};
     QLabel* moduleName {};
     QComboBox* modulePreset {};
-    QScrollArea* flowArea {};
-    QWidget* flowContent {};
-    QHBoxLayout* flowLayout {};
     Controls::ToggleButton* master {};
     QPushButton* modulePower {};
     std::function<void(bool)> chainEnabledHandler;

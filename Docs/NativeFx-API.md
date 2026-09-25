@@ -86,7 +86,8 @@ currently supplies its dark FX palette when it creates an instance.
 Include `<WinJACKNexus/UI/Controls.hpp>` and link `WinJACKNexus::UI`.
 All drawing functions use the caller's `QPainter`; call them from a widget's
 `paintEvent`. Coordinates are in widget pixels. `normalized` values are
-clamped to `[0, 1]`. The draw functions paint only: the plugin owns hit
+clamped to `[0, 1]`; the bipolar Pan knob instead takes a value in `[-1, 1]`.
+The draw functions paint only: the plugin owns hit
 testing, value storage and signal handling. This lets an effect keep its own
 interaction model while sharing shape and color conventions.
 
@@ -100,12 +101,18 @@ interaction model while sharing shape and color conventions.
 | Toggle widget | `Controls::ToggleButton(QWidget* parent = nullptr)` | Interactive checkable switch using the shared drawing function; call `setChecked` and connect the inherited `toggled(bool)` signal. |
 | Button | `drawButton(QPainter&, const QRectF&, const QString& caption, bool selected, const Palette&, int fontSize = 16)` | Draws an outlined action or selection button. |
 | Knob | `drawKnob(QPainter&, const QPointF& center, qreal normalized, int radius, const Palette&)` | Draws the circular value arc and pointer. |
+| Pan knob | `drawPanKnob(QPainter&, const QPointF& center, qreal pan, qreal radius, const Palette&)` | Draws a bipolar Pan knob. `-1` is L100%, `0` is center, `+1` is R100%; its accent arc starts at center and grows toward the selected side. |
 | Slider | `drawSlider(QPainter&, const QRectF&, qreal normalized, bool vertical, const Palette&)` | Draws a horizontal or vertical fill and thumb. |
 | Chart | `drawChart(QPainter&, const QRectF&, int columns, int rows, const Palette&)` | Draws chart background, border and grid. Draw effect curves separately with `Qt::NoBrush`. |
 | Dropdown | `drawDropdown(QPainter&, const QRectF&, const QString& caption, const Palette&, int fontSize = 16)` | Draws the selection field and chevron. |
 | Meter colors | `Controls::MeterColors` | Configures active/inactive low, middle and high zones plus border. |
 | Level meter | `drawLevelMeter(QPainter&, const QRectF&, double levelDb, const MeterColors& = {})` | Draws a horizontal meter from −60 to +12 dB, with breaks at −12 and 0 dB. |
 | Card label | `drawCardLabel(QPainter&, const QRectF&, const QString& title, const QString& glyph, const Palette&)` | Draws a panel label with an icon badge. |
+
+Use `drawPanKnob` for classic stereo balance or mono-to-stereo Pan. The caller
+stores the Pan value, handles pointer input and labels L/C/R. At center the
+pointer faces up and the accent arc has zero length. The shared painter is
+used by both Main and AUX SEL details; each retains its own Pan value.
 
 `ControlRegistry` can create these built-in Qt widget names. Call
 `registry.create(key, parent)`; the returned widget belongs to `parent` under

@@ -7,7 +7,7 @@
 
 namespace WinJACKNexus::UI {
 namespace {
-constexpr double minimumDb = -60.0;
+constexpr double minimumDb = -72.0;
 constexpr double maximumDb = 12.0;
 
 }
@@ -46,22 +46,41 @@ void FxLevelMeterWidget::paintEvent(QPaintEvent*) {
         painter.drawText(QRectF(0, bar.top(), 29, bar.height()), Qt::AlignVCenter | Qt::AlignLeft,
                          row == 0 ? QStringLiteral("输入") : QStringLiteral("输出"));
         const double value = row == 0 ? inputDb_ : outputDb_;
-        Controls::drawLevelMeter(painter, bar, value);
+        const Controls::MeterColors colors;
+        const auto xFor=[bar](double db){
+            return bar.left()+(std::clamp(db,minimumDb,maximumDb)-minimumDb)
+                /(maximumDb-minimumDb)*bar.width();
+        };
+        const struct Zone { double from,to; QColor active,inactive; } zones[] {
+            {-72,-12,colors.low,colors.inactiveLow},
+            {-12,0,colors.middle,colors.inactiveMiddle},
+            {0,12,colors.high,colors.inactiveHigh}
+        };
+        for(const auto& zone:zones){
+            const qreal left=xFor(zone.from),right=xFor(zone.to);
+            painter.fillRect(QRectF(left,bar.top(),right-left,bar.height()),zone.inactive);
+            const qreal activeRight=xFor(std::clamp(value,zone.from,zone.to));
+            if(activeRight>left)
+                painter.fillRect(QRectF(left,bar.top(),activeRight-left,bar.height()),zone.active);
+        }
+        painter.setPen(QPen(colors.border,1));
+        painter.setBrush(Qt::NoBrush);
+        painter.drawRect(bar);
         painter.setPen(QColor("#f3f8ff"));
         painter.drawText(bar.adjusted(4, 0, -4, 0), Qt::AlignRight | Qt::AlignVCenter,
                          QStringLiteral("%1 dB").arg(QString::number(value, 'f', 0)));
     }
 
-    constexpr std::array<int, 5> ticks {-60, -36, -12, 0, 12};
-    font.setPixelSize(10);
+    constexpr std::array<int, 6> ticks {-72, -48, -24, -12, 0, 12};
+    font.setPixelSize(9);
     painter.setFont(font);
     for (const int tick : ticks) {
         const qreal x = positionForDb(tick);
         painter.setPen(QColor("#89a8c9"));
         painter.drawLine(QPointF(x, 55), QPointF(x, 59));
         const QString text = tick > 0 ? QStringLiteral("+%1").arg(tick) : QString::number(tick);
-        const qreal labelLeft = std::clamp(x - 17.0, 0.0, std::max(0.0, width() - 34.0));
-        painter.drawText(QRectF(labelLeft, 62, 34, 15), Qt::AlignCenter, text);
+        const qreal labelLeft = std::clamp(x - 15.0, 0.0, std::max(0.0, width() - 30.0));
+        painter.drawText(QRectF(labelLeft, 62, 30, 15), Qt::AlignCenter, text);
     }
 }
 

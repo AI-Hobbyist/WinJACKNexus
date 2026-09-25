@@ -34,6 +34,9 @@ WINJACK_UI_API void drawButton(QPainter& painter, const QRectF& bounds, const QS
                                bool selected, const Palette& colors, int fontSize = 16);
 WINJACK_UI_API void drawKnob(QPainter& painter, const QPointF& center, qreal normalized,
                              int radius, const Palette& colors);
+/* Bipolar pan arc grows from the centered position toward L or R. pan is -1..1. */
+WINJACK_UI_API void drawPanKnob(QPainter& painter, const QPointF& center, qreal pan,
+                                qreal radius, const Palette& colors);
 WINJACK_UI_API void drawSlider(QPainter& painter, const QRectF& bounds, qreal normalized,
                                bool vertical, const Palette& colors);
 WINJACK_UI_API void drawChart(QPainter& painter, const QRectF& bounds, int columns,

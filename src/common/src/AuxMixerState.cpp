@@ -7,15 +7,10 @@
 namespace WinJACKNexus::Common {
 namespace {
 
-std::vector<QPointF> pointsOnCircle(int count, double startDegrees)
+QPointF pointAtAngle(double degrees)
 {
-    std::vector<QPointF> points;
-    points.reserve(static_cast<std::size_t>(count));
-    for (int index = 0; index < count; ++index) {
-        const auto angle = (startDegrees + index * 360.0 / count) * 3.14159265358979323846 / 180.0;
-        points.emplace_back(std::sin(angle) * .78, -std::cos(angle) * .78);
-    }
-    return points;
+    const auto radians = degrees * 3.14159265358979323846 / 180.0;
+    return {std::sin(radians) * .78, -std::cos(radians) * .78};
 }
 
 }
@@ -51,9 +46,13 @@ std::vector<QPointF> auxLayoutReferencePoints(AuxChannelLayout layout)
 {
     switch (layout) {
     case AuxChannelLayout::mono: return { QPointF(0.0, -.72) };
-    case AuxChannelLayout::stereo: return { QPointF(-.56, -.58), QPointF(.56, -.58) };
-    case AuxChannelLayout::surround51: return pointsOnCircle(6, -60.0);
-    case AuxChannelLayout::surround71: return pointsOnCircle(8, -67.5);
+    case AuxChannelLayout::stereo: return { pointAtAngle(-30), pointAtAngle(30) };
+    case AuxChannelLayout::surround51:
+        return {pointAtAngle(-30), pointAtAngle(30), pointAtAngle(0), {},
+                pointAtAngle(-110), pointAtAngle(110)};
+    case AuxChannelLayout::surround71:
+        return {pointAtAngle(-30), pointAtAngle(30), pointAtAngle(0), {},
+                pointAtAngle(-100), pointAtAngle(100), pointAtAngle(-145), pointAtAngle(145)};
     }
     return {};
 }
@@ -108,6 +107,40 @@ AuxBusState& AuxMixerState::addBus(AuxChannelLayout layout)
         applySelfRoute(source.buses.back(), source.selfAuxId);
     }
     return buses_.back();
+}
+
+bool auxHasSpatialPoint(AuxChannelLayout layout, int channelIndex)
+{
+    const auto count = auxLayoutChannelLabels(layout).size();
+    return channelIndex >= 0 && channelIndex < count
+        && !((layout == AuxChannelLayout::surround51 || layout == AuxChannelLayout::surround71)
+             && channelIndex == 3);
+}
+
+bool auxSupportsClassicPan(AuxChannelLayout source, AuxChannelLayout target)
+{
+    return target == AuxChannelLayout::stereo
+        && (source == AuxChannelLayout::mono || source == AuxChannelLayout::stereo);
+}
+
+QPointF auxClampPannerPoint(QPointF point)
+{
+    const auto length=std::hypot(point.x(),point.y());
+    return length>1.0 ? point/length : point;
+}
+
+void auxSetPannerAngle(AuxBusState& bus, double angleDegrees)
+{
+    angleDegrees=std::clamp(angleDegrees,-180.0,180.0);
+    const auto delta=(angleDegrees-bus.angleDegrees)*3.14159265358979323846/180.0;
+    const auto cosine=std::cos(delta),sine=std::sin(delta);
+    for(std::size_t index=0;index<bus.adjustablePoints.size();++index) {
+        if(!auxHasSpatialPoint(bus.sourceLayout,static_cast<int>(index)))continue;
+        auto& point=bus.adjustablePoints[index];
+        point=auxClampPannerPoint({point.x()*cosine-point.y()*sine,
+                                   point.x()*sine+point.y()*cosine});
+    }
+    bus.angleDegrees=angleDegrees;
 }
 
 void AuxMixerState::setBusAccent(std::uint32_t id, const QColor& accent)
@@ -169,8 +202,13 @@ bool AuxMixerState::setBusLayout(std::uint32_t id, AuxChannelLayout layout)
         const auto found = std::find_if(source.buses.begin(), source.buses.end(), [id](const auto& value) {
             return value.id == id;
         });
-        if (found != source.buses.end())
+        if (found != source.buses.end()) {
+            const auto wasEligible=auxSupportsClassicPan(found->sourceLayout,found->targetLayout);
             found->targetLayout = layout;
+            const auto eligible=auxSupportsClassicPan(found->sourceLayout,found->targetLayout);
+            if(eligible!=wasEligible || !eligible)
+                found->panMode=eligible?AuxPanMode::classic:AuxPanMode::spatial;
+        }
     }
     return true;
 }
@@ -190,11 +228,15 @@ void AuxMixerState::setLayouts(const QString& sourceKey, std::uint32_t id, AuxCh
                                AuxChannelLayout target, std::uint32_t selfAuxId)
 {
     if (auto* current = busForSource(sourceKey, id, selfAuxId)) {
+        const auto wasEligible=auxSupportsClassicPan(current->sourceLayout,current->targetLayout);
         const auto sourceChanged = current->sourceLayout != source;
         current->sourceLayout = source;
         current->targetLayout = target;
         if (sourceChanged)
             rebuildChannels(*current);
+        const auto eligible=auxSupportsClassicPan(source,target);
+        if (eligible != wasEligible || !eligible)
+            current->panMode=eligible ? AuxPanMode::classic : AuxPanMode::spatial;
     }
 }
 
@@ -251,7 +293,10 @@ void AuxMixerState::rebuildChannels(AuxBusState& bus) const
         const auto level = index < 2 ? 0.0 : -6.0;
         bus.sends.push_back({ labels[index], labels[index], level, level - 3.0 });
     }
-    bus.linked = bus.sourceLayout == AuxChannelLayout::stereo;
+    bus.linked = false;
+    bus.panMode=auxSupportsClassicPan(bus.sourceLayout,bus.targetLayout)
+        ? AuxPanMode::classic : AuxPanMode::spatial;
+    bus.classicPan=0.0;
 }
 
 }

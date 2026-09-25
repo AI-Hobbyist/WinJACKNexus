@@ -19,6 +19,8 @@ enum class AuxChannelLayout : std::uint8_t {
     surround71
 };
 
+enum class AuxPanMode : std::uint8_t { spatial, classic };
+
 struct AuxSendChannel final {
     QString label;
     QString name;
@@ -36,8 +38,10 @@ struct AuxBusState final {
     bool selfRoute {};
     bool preFader { true };
     bool sendsLinked { true };
-    bool linked { true };
+    bool linked {};
     bool showDirectivity { true };
+    AuxPanMode panMode { AuxPanMode::spatial };
+    double classicPan {};
     AuxChannelLayout sourceLayout { AuxChannelLayout::stereo };
     AuxChannelLayout targetLayout { AuxChannelLayout::stereo };
     double width { .7 };
@@ -51,6 +55,10 @@ struct AuxBusState final {
 WINJACK_COMMON_API QString auxLayoutName(AuxChannelLayout layout);
 WINJACK_COMMON_API QStringList auxLayoutChannelLabels(AuxChannelLayout layout);
 WINJACK_COMMON_API std::vector<QPointF> auxLayoutReferencePoints(AuxChannelLayout layout);
+WINJACK_COMMON_API bool auxHasSpatialPoint(AuxChannelLayout layout, int channelIndex);
+WINJACK_COMMON_API bool auxSupportsClassicPan(AuxChannelLayout source, AuxChannelLayout target);
+WINJACK_COMMON_API QPointF auxClampPannerPoint(QPointF point);
+WINJACK_COMMON_API void auxSetPannerAngle(AuxBusState& bus, double angleDegrees);
 
 class WINJACK_COMMON_API AuxMixerState final {
 public:

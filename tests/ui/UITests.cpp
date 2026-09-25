@@ -870,6 +870,7 @@ bool testFxSettingsLoadsNativeFx()
     auto* chain = window.findChild<QListWidget*>();
     auto* chainAdd = window.findChild<QPushButton*>(QStringLiteral("fxAddBottom"));
     auto* chainScroll = window.findChild<QScrollArea*>(QStringLiteral("fxChainScroll"));
+    auto* outputChip = window.findChild<QLabel*>(QStringLiteral("fxChainOut"));
     auto* chainPower = dynamic_cast<Controls::ToggleButton*>(
         window.findChild<QWidget*>(QStringLiteral("fxChainToggle")));
     auto* modulePower = window.findChild<QPushButton*>(QStringLiteral("fxModulePower"));
@@ -914,10 +915,14 @@ bool testFxSettingsLoadsNativeFx()
     passed &= check(meter != nullptr, "one meter panel stacks horizontal input and output bars");
     if (meter) {
         const auto bar = meter->barRect(0);
-        passed &= check(std::abs(meter->positionForDb(-60) - bar.left()) < 0.1
+        passed &= check(std::abs(meter->positionForDb(-72) - bar.left()) < 0.1
                             && std::abs(meter->positionForDb(12) - bar.right()) < 0.1
-                            && std::abs(meter->positionForDb(-12) - (bar.left() + bar.width() * 2.0 / 3.0)) < 0.1,
-                        "meter ticks use the exact bar geometry and -60 to +12 scale");
+                            && std::abs(meter->positionForDb(-12) - (bar.left() + bar.width() * 5.0 / 7.0)) < 0.1,
+                        "FX meter ticks use the exact bar geometry and -72 to +12 scale");
+        meter->setLevels(-100,20);
+        passed &= check(meter->inputDb()==-72 && meter->outputDb()==12,
+                        "FX input and output meter values clamp to -72 through +12 dB");
+        meter->setLevels(-24,-26);
     }
     window.show();
     QCoreApplication::processEvents();
@@ -926,11 +931,19 @@ bool testFxSettingsLoadsNativeFx()
         window.show();
         QCoreApplication::processEvents();
     }
-    const int initialAddY = chainAdd ? chainAdd->y() : -1;
-    passed &= check(chain && chainAdd && chainScroll && chainAdd->parentWidget() == chain->parentWidget()
-                        && chainAdd->height() == 58
-                        && chainAdd->y() > chain->geometry().bottom(),
-                    "dashed add FX button sits directly after the last chain item");
+    passed &= check(chain && !chainAdd && chainScroll && outputChip
+                        && outputChip->parentWidget() == chain->parentWidget()
+                        && outputChip->x() > chain->geometry().right()
+                        && chain->width() > chain->height(),
+                    "FX footer chain has input, modules and output without an inline add button");
+    passed &= check(chainPower && chainPower->parentWidget()
+                        && chainPower->parentWidget()->mapTo(&window,QPoint()).y() < chainScroll->mapTo(&window,QPoint()).y(),
+                    "FX master switch sits in the top header");
+    auto* headerChannel=window.findChild<QPushButton*>(QStringLiteral("fxChannelL"));
+    auto* windowPreset=window.findChild<QComboBox*>(QStringLiteral("fxWindowPreset"));
+    passed &= check(headerChannel && windowPreset && headerChannel->parentWidget()==chainPower->parentWidget()
+                        && headerChannel->mapTo(&window,QPoint()).x() < windowPreset->mapTo(&window,QPoint()).x(),
+                    "FX channel selector sits in the top header before presets");
     auto* editorArea = window.findChild<QScrollArea*>(QStringLiteral("fxEditorArea"));
     passed &= check(editor && editorArea && !editor->isWindow()
                         && editor->parentWidget() == editorArea->widget()
@@ -952,10 +965,13 @@ bool testFxSettingsLoadsNativeFx()
     for (auto* choice : window.findChildren<QPushButton*>())
         if (choice->text().contains(QStringLiteral("添加模块"))) { addModule = choice; break; }
     int availableNativeEffects = 0;
+    bool addMenuWithinWindow = false;
     if (addModule) {
         QTimer::singleShot(0, &window, [&] {
             if (auto* menu = qobject_cast<QMenu*>(QApplication::activePopupWidget())) {
                 availableNativeEffects = menu->actions().size();
+                addMenuWithinWindow = QRect(window.mapToGlobal(QPoint()), window.size())
+                    .contains(menu->frameGeometry());
                 if (!menu->actions().isEmpty()) menu->actions().first()->trigger();
                 menu->close();
             }
@@ -963,24 +979,15 @@ bool testFxSettingsLoadsNativeFx()
         addModule->click();
     }
     passed &= check(availableNativeEffects == 8, "FX add menu discovers all eight Native Fx modules");
+    passed &= check(addMenuWithinWindow, "FX add menu stays inside the FX window");
     passed &= check(chain && chain->count() == 2 && chain->item(1)->text() == QStringLiteral("Gate"),
                     "FX add menu loads another Native Fx module into the chain");
     QCoreApplication::processEvents();
-    passed &= check(chainAdd && chainAdd->y() > initialAddY
-                        && chainAdd->y() > chain->geometry().bottom(),
-                    "add FX button follows the last item as the chain grows");
-    int footerMenuEntries = 0;
-    if (chainAdd) {
-        QTimer::singleShot(0, &window, [&] {
-            if (auto* menu = qobject_cast<QMenu*>(QApplication::activePopupWidget())) {
-                footerMenuEntries = menu->actions().size();
-                menu->close();
-            }
-        });
-        chainAdd->click();
-    }
-    passed &= check(footerMenuEntries == 8,
-                    "footer add FX button opens the same module menu");
+    passed &= check(chain && chain->visualItemRect(chain->item(0)).width()
+                            > chain->visualItemRect(chain->item(1)).width(),
+                    "FX chain cards adapt their widths to module name length");
+    passed &= check(outputChip && outputChip->x() > chain->geometry().right(),
+                    "FX output follows the last item as the horizontal chain grows");
     bool gateEmbedded = false;
     if (editorArea && editorArea->widget())
         for (auto* child : editorArea->widget()->findChildren<QWidget*>())
@@ -1001,6 +1008,23 @@ bool testFxSettingsLoadsNativeFx()
         passed &= check(chain->item(1)->data(Qt::UserRole + 3).toBool()
                             && modulePower->isChecked() && modulePower->isEnabled(),
                         "re-enabling the chain restores enabled modules");
+        const QRect card=chain->visualItemRect(chain->item(1));
+        const auto clickCard=[chain](QPoint local){
+            auto* viewport=chain->viewport();
+            const QPoint global=viewport->mapToGlobal(local);
+            QMouseEvent press(QEvent::MouseButtonPress,QPointF(local),QPointF(global),
+                              Qt::LeftButton,Qt::LeftButton,Qt::NoModifier);
+            QApplication::sendEvent(viewport,&press);
+            QMouseEvent release(QEvent::MouseButtonRelease,QPointF(local),QPointF(global),
+                                Qt::LeftButton,Qt::NoButton,Qt::NoModifier);
+            QApplication::sendEvent(viewport,&release);
+        };
+        clickCard(card.center());
+        passed &= check(!chain->item(1)->data(Qt::UserRole + 3).toBool(),
+                        "clicking a lit effect card extinguishes it");
+        clickCard(card.center());
+        passed &= check(chain->item(1)->data(Qt::UserRole + 3).toBool(),
+                        "clicking an unlit effect card lights it");
     }
     if (chain) {
         chain->setCurrentRow(0);
@@ -1075,23 +1099,50 @@ bool testFxSettingsLoadsNativeFx()
                     "delete removes only the chosen effect");
     window.resize(1100, 720);
     QCoreApplication::processEvents();
-    if (chainScroll && chainAdd) {
-        auto* scrollBar = chainScroll->verticalScrollBar();
-        passed &= check(scrollBar->maximum() > 0,
-                        "FX chain scrolls when the effect list exceeds the sidebar height");
+    bool compactMenuWithinWindow = false;
+    if (addModule) {
+        QTimer::singleShot(0, &window, [&] {
+            if (auto* menu = qobject_cast<QMenu*>(QApplication::activePopupWidget())) {
+                compactMenuWithinWindow = QRect(window.mapToGlobal(QPoint()), window.size())
+                    .contains(menu->frameGeometry());
+                menu->close();
+            }
+        });
+        addModule->click();
+    }
+    passed &= check(compactMenuWithinWindow,
+                    "FX add menu stays inside the FX window at its compact size");
+    if (chainScroll && outputChip) {
+        auto* scrollBar = chainScroll->horizontalScrollBar();
+        passed &= check(scrollBar->maximum() > 0 && chainScroll->verticalScrollBar()->maximum() == 0,
+                        "FX chain shows a horizontal scrollbar when modules exceed the footer width");
         scrollBar->setValue(scrollBar->maximum());
         QCoreApplication::processEvents();
-        const int buttonBottom = chainAdd->mapTo(chainScroll->viewport(),
-                                                  QPoint(0, chainAdd->height())).y();
-        passed &= check(buttonBottom > 0 && buttonBottom <= chainScroll->viewport()->height(),
-                        "add FX button stays after the last effect at the end of the scroll area");
+        const int outputRight = outputChip->mapTo(chainScroll->viewport(),
+                                                   QPoint(outputChip->width(), 0)).x();
+        passed &= check(outputRight > 0 && outputRight <= chainScroll->viewport()->width(),
+                        "FX output stays reachable after the last effect at the end of the horizontal scroll area");
+        QImage overflowPreview(window.size(),QImage::Format_ARGB32_Premultiplied);
+        window.render(&overflowPreview);
+        passed &= check(overflowPreview.save(QStringLiteral("build/fx-chain-overflow-review.png")),
+                        "overflowed FX chain review image is written to the existing build directory");
     }
     FxSettingsWindow stereo(QStringLiteral("Main L/R"), { QStringLiteral("L"), QStringLiteral("R") });
-    QPushButton* stereoRight = nullptr;
-    for (auto* choice : stereo.findChildren<QPushButton*>())
-        if (choice->text() == QStringLiteral("R")) stereoRight = choice;
+    auto* stereoRight=stereo.findChild<QPushButton*>(QStringLiteral("fxChannelR"));
     passed &= check(stereoRight != nullptr, "stereo mixer strip shows both available channels");
     if (stereoRight) stereoRight->click();
+    auto* stereoMeterTitle=stereo.findChild<QLabel*>(QStringLiteral("fxMeterTitle"));
+    auto* stereoModuleTitle=stereo.findChild<QLabel*>(QStringLiteral("fxModuleTitle"));
+    passed &= check(!stereo.findChild<QComboBox*>(QStringLiteral("fxMeterChannel"))
+                        && stereoMeterTitle && stereoMeterTitle->text()==QStringLiteral("输入/输出(R)")
+                        && stereoModuleTitle && stereoModuleTitle->text().endsWith(QStringLiteral("· R")),
+                    "per-channel FX mode names the selected channel without a meter dropdown");
+    stereo.show();
+    QCoreApplication::processEvents();
+    QImage channelPreview(stereo.size(),QImage::Format_ARGB32_Premultiplied);
+    stereo.render(&channelPreview);
+    passed &= check(channelPreview.save(QStringLiteral("build/fx-channel-review.png")),
+                    "per-channel FX review image is written to the existing build directory");
     for (auto* child : stereo.findChildren<QWidget*>())
         if (auto* value = dynamic_cast<ParametricEqWidget*>(child))
             passed &= check(value->selectedChannel() == 1,
@@ -1129,6 +1180,19 @@ bool testMixerChannelControls()
                             Qt::LeftButton, Qt::NoButton, Qt::NoModifier);
         QApplication::sendEvent(widget, &release);
     };
+    const auto drag = [](QWidget* widget, QPoint from, QPoint to) {
+        const auto globalFrom = widget->mapToGlobal(from);
+        QMouseEvent press(QEvent::MouseButtonPress, QPointF(from), QPointF(globalFrom),
+                          Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+        QApplication::sendEvent(widget, &press);
+        const auto globalTo = widget->mapToGlobal(to);
+        QMouseEvent move(QEvent::MouseMove, QPointF(to), QPointF(globalTo),
+                         Qt::NoButton, Qt::LeftButton, Qt::NoModifier);
+        QApplication::sendEvent(widget, &move);
+        QMouseEvent release(QEvent::MouseButtonRelease, QPointF(to), QPointF(globalTo),
+                            Qt::LeftButton, Qt::NoButton, Qt::NoModifier);
+        QApplication::sendEvent(widget, &release);
+    };
     const auto openContext = [&](const QString& actionText, QPoint point = {50, 90}) {
         bool found = false;
         const auto global = mixer.mapToGlobal(point);
@@ -1144,37 +1208,63 @@ bool testMixerChannelControls()
         QApplication::sendEvent(&mixer, &press);
         return found;
     };
-    passed &= check(openContext(QStringLiteral("打开FX设置")),
-                    "channel context menu opens FX settings");
+    passed &= check(!openContext(QStringLiteral("打开FX设置"))
+                         && !openContext(QStringLiteral("打开AUX设置")),
+                     "mixer context menu routes AUX and FX through SEL only");
+    click(&mixer, {60, 444});
+    auto* selected = mixer.findChild<QLabel*>(QStringLiteral("selSelectedChannel"));
+    auto* sel = mixer.findChild<QWidget*>(QStringLiteral("selLargeScreen"));
+    auto* pages = mixer.findChild<QStackedWidget*>(QStringLiteral("selPages"));
+    passed &= check(sel && sel->isVisible() && selected && selected->text() == QStringLiteral("Mic 1"),
+                    "channel SEL button automatically opens the selected large screen");
+
+    if (auto* fxTab = mixer.findChild<QPushButton*>(QStringLiteral("selTabFX"))) fxTab->click();
     FxSettingsWindow* fx = nullptr;
-    for (auto* child : mixer.findChildren<QWidget*>())
+    if (pages) for (auto* child : pages->widget(2)->findChildren<QWidget*>())
         if (auto* candidate = dynamic_cast<FxSettingsWindow*>(child)) { fx = candidate; break; }
     auto* fxToggle = fx ? dynamic_cast<Controls::ToggleButton*>(
         fx->findChild<QWidget*>(QStringLiteral("fxChainToggle"))) : nullptr;
-    passed &= check(fxToggle && !fxToggle->isChecked(), "FX window reads the mixer channel switch");
-    click(&mixer, {25, 375});
-    passed &= check(fxToggle && fxToggle->isChecked(), "mixer FX switch updates the FX window");
+    passed &= check(fxToggle && !fxToggle->isChecked(), "SEL FX page reads the mixer channel switch");
     if (fxToggle) fxToggle->click();
-    click(&mixer, {25, 375});
-    passed &= check(fxToggle && fxToggle->isChecked(), "FX window switch updates the mixer channel");
+    passed &= check(fxToggle && fxToggle->isChecked(), "SEL FX page updates the channel switch");
 
-    passed &= check(openContext(QStringLiteral("打开AUX设置")),
-                    "channel context menu opens AUX settings");
+    if (auto* auxTab = mixer.findChild<QPushButton*>(QStringLiteral("selTabAUX"))) auxTab->click();
     AuxSettingsWindow* aux = nullptr;
-    for (auto* child : mixer.findChildren<QWidget*>())
+    if (pages) for (auto* child : pages->widget(1)->findChildren<QWidget*>())
         if (auto* candidate = dynamic_cast<AuxSettingsWindow*>(child)) { aux = candidate; break; }
-    passed &= check(aux && !aux->chainEnabled(), "AUX window reads the mixer channel switch");
-    click(&mixer, {25, 343});
-    passed &= check(aux && aux->chainEnabled(), "mixer AUX switch updates the AUX window");
-    if (aux) click(aux, {222, 30});
-    click(&mixer, {25, 343});
-    passed &= check(aux && aux->chainEnabled(), "AUX window switch updates the mixer channel");
+    passed &= check(aux && !aux->chainEnabled(), "SEL AUX page reads the mixer channel switch");
     if (aux) {
+        const auto scale=std::min(aux->width()/1360.0,aux->height()/813.0);
+        click(aux,{qRound((aux->width()-1360*scale)/2+222*scale),
+                   qRound((aux->height()-813*scale)/2+30*scale)});
+    }
+    passed &= check(aux && aux->chainEnabled(), "SEL AUX page updates the channel switch");
+    if (aux && sel) {
         QImage auxPreview(aux->size(), QImage::Format_ARGB32_Premultiplied);
         auxPreview.fill(Qt::transparent);
         aux->render(&auxPreview);
         passed &= check(auxPreview.save(QStringLiteral("build/aux-ui-review.png")),
                         "AUX window review image is written to the existing build directory");
+        const auto originalSize=sel->size();
+        sel->resize(1900,1000);
+        QCoreApplication::processEvents();
+        QImage wideAuxPreview(aux->size(),QImage::Format_ARGB32_Premultiplied);
+        wideAuxPreview.fill(Qt::transparent);
+        aux->render(&wideAuxPreview);
+        passed &= check(wideAuxPreview.save(QStringLiteral("build/aux-ui-review-wide.png")),
+                        "wide AUX detail review image is written to the existing build directory");
+        sel->resize(originalSize);
+        QCoreApplication::processEvents();
+        const auto mainPanBefore=mixer.findChild<QWidget*>(QStringLiteral("selMainPage"))->property("selClassicPan").toDouble();
+        const auto auxPoint=[aux](int x,int y){
+            const auto scale=std::min(aux->width()/1360.0,aux->height()/813.0);
+            return QPoint(qRound((aux->width()-1360*scale)/2+x*scale),
+                          qRound((aux->height()-813*scale)/2+y*scale));
+        };
+        drag(aux,auxPoint(686,319),auxPoint(686,279));
+        passed &= check(std::abs(aux->property("auxClassicPan").toDouble()-.4)<.04
+                            && std::abs(mixer.findChild<QWidget*>(QStringLiteral("selMainPage"))->property("selClassicPan").toDouble()-mainPanBefore)<.001,
+                        "AUX classic Pan value changes independently from Main");
     }
 
     auto auxState = std::make_shared<WinJACKNexus::Common::AuxMixerState>();
@@ -1187,6 +1277,20 @@ bool testMixerChannelControls()
     QCoreApplication::processEvents();
     auto* firstBus = auxState->busForSource(sourceKey, 1);
     passed &= check(firstBus && firstBus->enabled, "first AUX send starts enabled");
+    passed &= check(firstBus && firstBus->panMode==WinJACKNexus::Common::AuxPanMode::classic
+                        && std::abs(firstBus->classicPan)<.001 && !firstBus->linked,
+                    "mono-to-stereo AUX send defaults to independent centered classic Pan");
+    drag(&auxControls,{686,319},{686,269});
+    passed &= check(firstBus && std::abs(firstBus->classicPan-.5)<.03,
+                    "AUX classic Pan knob adjusts its own pan value");
+    const auto auxWidthBeforeDisabled=firstBus?firstBus->width:0.0;
+    drag(&auxControls,{504,694},{504,654});
+    passed &= check(firstBus && firstBus->width==auxWidthBeforeDisabled,
+                    "AUX spatial parameters are disabled in classic Pan mode");
+    click(&auxControls,{488,69});
+    passed &= check(firstBus && firstBus->panMode==WinJACKNexus::Common::AuxPanMode::spatial
+                        && std::abs(firstBus->classicPan-.5)<.03,
+                    "AUX can switch to spatial panning without losing its classic Pan value");
     auxState->setBusAccent(1, QColor("#a12bcd"));
     passed &= check(auxState->bus(1)->accent == QColor("#a12bcd")
                         && firstBus && firstBus->accent == QColor("#a12bcd"),
@@ -1213,10 +1317,13 @@ bool testMixerChannelControls()
         click(&auxControls, point);
         return opened;
     };
-    passed &= check(chooseAuxMenu({690, 68}, [](QMenu* menu) { menu->actions()[2]->trigger(); })
+    passed &= check(chooseAuxMenu({1230, 32}, [](QMenu* menu) { menu->actions()[2]->trigger(); })
                         && firstBus && firstBus->targetLayout == WinJACKNexus::Common::AuxChannelLayout::surround51
                         && auxChanges > 0,
                     "AUX detail mode selects the actual bus channel layout");
+    click(&auxControls,{635,69});
+    passed &= check(firstBus && firstBus->panMode==WinJACKNexus::Common::AuxPanMode::spatial,
+                    "AUX surround sends cannot switch to classic Pan");
     passed &= check(chooseAuxMenu({290, 30}, [](QMenu* menu) { menu->actions()[3]->trigger(); })
                         && auxState->buses().size() == 4
                         && auxState->buses().back().targetLayout
@@ -1232,24 +1339,44 @@ bool testMixerChannelControls()
                                == WinJACKNexus::Common::AuxChannelLayout::mono,
                     "AUX row gear changes the channel type for every source");
     const auto auxChangesBeforeDisabledClick=auxChanges;
-    click(&auxControls,{722,600});
+    click(&auxControls,{1062,304});
     passed &= check(auxState->busForSource(sourceKey,1)->sends.size()==1
                         && auxChanges==auxChangesBeforeDisabledClick,
-                    "AUX keeps eight visible faders but ignores inactive channel controls");
+                    "AUX keeps eight visible knob rows but ignores inactive channel controls");
     passed &= check(chooseAuxMenu({345, 414}, [](QMenu* menu) { menu->actions()[1]->trigger(); })
                         && auxState->buses().size() == 4,
                     "AUX row gear deletes the selected bus");
 
+    auto surroundAuxState=std::make_shared<WinJACKNexus::Common::AuxMixerState>();
+    surroundAuxState->setBusLayout(1,WinJACKNexus::Common::AuxChannelLayout::surround51);
+    AuxSettingsWindow surroundAux(surroundAuxState);
+    surroundAux.setSource(QStringLiteral("ui-test-surround"),QStringLiteral("Surround 1"),0,
+                          WinJACKNexus::Common::AuxChannelLayout::surround51);
+    surroundAux.show();
+    QCoreApplication::processEvents();
+    QImage auxSurroundPreview(surroundAux.size(),QImage::Format_ARGB32_Premultiplied);
+    auxSurroundPreview.fill(Qt::transparent);
+    surroundAux.render(&auxSurroundPreview);
+    passed &= check(auxSurroundPreview.save(QStringLiteral("build/aux-surround-ui-review.png")),
+                    "surround AUX review image is written to the existing build directory");
+    auto* surroundSend=surroundAuxState->busForSource(QStringLiteral("ui-test-surround"),1);
+    click(&surroundAux,{1105,69}); // Split send levels before adjusting LFE.
+    const auto lfeBefore=surroundSend?surroundSend->sends[3].levelDb:0.0;
+    const auto centerBefore=surroundSend?surroundSend->sends[2].levelDb:0.0;
+    drag(&surroundAux,{1062,390},{1062,440});
+    passed &= check(surroundSend && surroundSend->sends[3].levelDb<lfeBefore-9.0
+                        && surroundSend->sends[2].levelDb==centerBefore,
+                    "surround AUX LFE intensity remains independently adjustable in its send card");
+
     bar->actions()[2]->trigger();
-    auto* selected = mixer.findChild<QLabel*>(QStringLiteral("selSelectedChannel"));
     passed &= check(selected && selected->text() == QStringLiteral("Mic 1"),
-                    "large screen starts on the selected channel");
-    auto* sel = mixer.findChild<QWidget*>(QStringLiteral("selLargeScreen"));
+                     "large screen starts on the selected channel");
     auto* mainPage = mixer.findChild<QWidget*>(QStringLiteral("selMainPage"));
-    auto* pages = mixer.findChild<QStackedWidget*>(QStringLiteral("selPages"));
+    auto* sidebarMode = mixer.findChild<QPushButton*>(QStringLiteral("selChannelMode"));
+    auto* modeArrow = mixer.findChild<QLabel*>(QStringLiteral("selChannelModeArrow"));
     auto* channelName = mixer.findChild<QLineEdit*>(QStringLiteral("selChannelName"));
     auto* channelComment = mixer.findChild<QLineEdit*>(QStringLiteral("selChannelComment"));
-    passed &= check(sel && mainPage && pages && pages->count() == 3 && channelName && channelComment,
+    passed &= check(sel && mainPage && pages && pages->count() == 3 && channelName && channelComment && sidebarMode,
                     "SEL contains the Main, AUX and FX pages and editable channel details");
     if (sel && mainPage) {
         const auto originalSize=sel->size();
@@ -1258,11 +1385,31 @@ bool testMixerChannelControls()
         const auto uniformScale=std::min(mainPage->width()/1394.0,mainPage->height()/813.0);
         passed &= check(channelName && channelComment
                             && std::abs(channelName->width()-254*uniformScale)<=2
-                            && std::abs(channelName->height()-42*uniformScale)<=2
-                            && std::abs(channelComment->height()-51*uniformScale)<=2,
+                            && std::abs(channelName->height()-34*uniformScale)<=2
+                            && std::abs(channelComment->height()-34*uniformScale)<=2
+                            && sidebarMode && std::abs(sidebarMode->height()-34*uniformScale)<=2,
                         "SEL Main keeps one scale for both axes when the window aspect ratio changes");
+        sel->resize(1900,1000);
+        QCoreApplication::processEvents();
+        const auto wideScale=std::min(mainPage->width()/1394.0,mainPage->height()/813.0);
+        const auto leftGap=pages?pages->x()-313*wideScale:0.0;
+        const auto rightGap=pages?mainPage->width()-pages->geometry().right()-1:0.0;
+        passed &= check(channelName && pages && std::abs(channelName->x()-29*wideScale)<=2
+                            && std::abs(leftGap-rightGap)<=3,
+                        "SEL sidebar stays at the left edge while right details stay centered");
         sel->resize(originalSize);
         QCoreApplication::processEvents();
+        if (auto* mainTab = mixer.findChild<QPushButton*>(QStringLiteral("selTabMain"))) mainTab->click();
+        auto* customColor = mixer.findChild<QPushButton*>(QStringLiteral("selCustomColor"));
+        passed &= check(sidebarMode && sidebarMode->isVisible()
+                            && sidebarMode->parentWidget() == mainPage
+                            && sidebarMode->text().contains(QStringLiteral("立体声"))
+                            && sidebarMode->geometry().top() > channelComment->geometry().bottom()
+                            && customColor && sidebarMode->geometry().bottom() < customColor->geometry().top()
+                            && sidebarMode->height() == customColor->height()
+                            && modeArrow && modeArrow->parentWidget() == sidebarMode
+                            && modeArrow->geometry().right() >= sidebarMode->width()-10,
+                        "SEL mode uses a separate sidebar label, equal-height fields and a right-aligned arrow");
         QImage selPreview(sel->size(), QImage::Format_ARGB32_Premultiplied);
         selPreview.fill(Qt::transparent);
         sel->render(&selPreview);
@@ -1270,38 +1417,129 @@ bool testMixerChannelControls()
                         "SEL review image is written to the existing build directory");
         const auto mainPoint=[mainPage](int x,int y){
             const auto scale=std::min(mainPage->width()/1394.0,mainPage->height()/813.0);
-            return QPoint(qRound((mainPage->width()-1394*scale)/2+x*scale),
+            const auto right=313*scale+(mainPage->width()-1377*scale)/2;
+            return QPoint(qRound(x*scale+(x>=313?right-313*scale:0)),
                           qRound((mainPage->height()-813*scale)/2+y*scale));
         };
-        click(mainPage,mainPoint(1229,494)); // Split all send faders.
-        click(mainPage,mainPoint(414,601));
+        const auto togglePixel=[mainPage](QPoint point){
+            QImage image(mainPage->size(),QImage::Format_ARGB32_Premultiplied);
+            image.fill(Qt::transparent);
+            mainPage->render(&image);
+            return image.pixelColor(point);
+        };
+        passed &= check(mainPage->property("selPanMode").toInt()
+                            ==static_cast<int>(WinJACKNexus::Common::AuxPanMode::classic),
+                        "stereo SEL Main defaults to classic Pan");
+        drag(mainPage,mainPoint(638,319),mainPoint(638,269));
+        passed &= check(std::abs(mainPage->property("selClassicPan").toDouble()-.5)<.03,
+                        "SEL classic Pan knob adjusts its own pan value");
+        const auto disabledWidth=mainPage->property("selPannerWidth").toDouble();
+        drag(mainPage,mainPoint(427,694),mainPoint(427,654));
+        passed &= check(mainPage->property("selPannerWidth").toDouble()==disabledWidth,
+                        "SEL spatial parameters are disabled while classic Pan is active");
+        click(mainPage,mainPoint(390,69));
+        passed &= check(mainPage->property("selPanMode").toInt()
+                            ==static_cast<int>(WinJACKNexus::Common::AuxPanMode::spatial)
+                            && std::abs(mainPage->property("selClassicPan").toDouble()-.5)<.03,
+                        "SEL can switch to spatial panning while keeping its classic Pan value");
+        const auto mutePixel=togglePixel(mainPoint(40,413));
+        click(&mixer,{60,364});
+        passed &= check(togglePixel(mainPoint(40,413))!=mutePixel,
+                        "mixer MUTE button changes the selected channel state in SEL");
+        click(&mixer,{60,364});
+        const auto soloPixel=togglePixel(mainPoint(175,413));
+        click(&mixer,{60,402});
+        passed &= check(togglePixel(mainPoint(175,413))!=soloPixel,
+                        "mixer SOLO button changes the selected channel state in SEL");
+        click(&mixer,{60,402});
+        drag(mainPage, mainPoint(93,375), mainPoint(93,345));
+        passed &= check(std::abs(mainPage->property("selInputGainDb").toDouble()-6.0)<.5,
+                        "SEL input gain knob raises the selected channel gain");
+        drag(mainPage, mainPoint(93,375), mainPoint(93,255));
+        passed &= check(mainPage->property("selInputGainDb").toDouble()==12.0,
+                        "SEL input gain is limited to +12 dB");
+        drag(mainPage, mainPoint(93,375), mainPoint(93,495));
+        passed &= check(mainPage->property("selInputGainDb").toDouble()==-12.0,
+                        "SEL input gain is limited to -12 dB");
+        drag(mainPage, mainPoint(93,375), mainPoint(93,315));
+        passed &= check(std::abs(mainPage->property("selInputGainDb").toDouble())<.5,
+                        "SEL input gain can return to 0 dB");
+        drag(mainPage, mainPoint(93,375), mainPoint(93,345));
+        click(&mixer, {150,444});
+        const bool secondChannelStartsFlat=std::abs(mainPage->property("selInputGainDb").toDouble())<.5;
+        click(&mixer, {60,444});
+        passed &= check(secondChannelStartsFlat
+                            && std::abs(mainPage->property("selInputGainDb").toDouble()-6.0)<.5,
+                        "SEL input gain stays with its own channel when selection changes");
+        drag(mainPage, mainPoint(93,375), mainPoint(93,405));
+        const auto sendMuteBefore=togglePixel(mainPoint(1214,151));
+        click(mainPage,mainPoint(1236,159));
+        passed &= check(togglePixel(mainPoint(1214,151))!=sendMuteBefore,
+                        "SEL send MUTE responds below its horizontal meter");
+        click(mainPage,mainPoint(1236,159));
+        const auto sendSoloBefore=togglePixel(mainPoint(1295,151));
+        click(mainPage,mainPoint(1307,159));
+        passed &= check(togglePixel(mainPoint(1295,151))!=sendSoloBefore,
+                        "SEL send SOLO responds below its horizontal meter");
+        click(mainPage,mainPoint(1307,159));
+        click(mainPage,mainPoint(1098,68)); // Split all send controls.
+        drag(mainPage,mainPoint(1073,140),mainPoint(1073,190));
         const auto splitLevels=mainPage->property("selSendLevels").toList();
         passed &= check(splitLevels.size()==8 && std::abs(splitLevels[0].toDouble()+12.0)<1.0
                             && std::abs(splitLevels[1].toDouble()+2.0)<.1,
-                        "split SEL faders keep independent channel levels");
-        click(mainPage,mainPoint(670,601));
+                        "split SEL knobs keep independent channel levels");
+        drag(mainPage,mainPoint(1073,312),mainPoint(1073,362));
         const auto disabledLevels=mainPage->property("selSendLevels").toList();
         passed &= check(mainPage->property("selActiveSendCount").toInt()==2
                         && std::abs(disabledLevels[2].toDouble()+2.0)<.1,
-                        "SEL shows eight faders and disables those outside the selected layout");
-        click(mainPage,mainPoint(1229,494)); // Link all channels.
-        click(mainPage,mainPoint(414,611));
+                        "SEL shows eight knob cards and disables those outside the selected layout");
+        click(mainPage,mainPoint(1098,68)); // Link all channels.
+        drag(mainPage,mainPoint(1073,140),mainPoint(1073,170));
         const auto linkedLevels=mainPage->property("selSendLevels").toList();
         passed &= check(linkedLevels.size()==8 && std::abs(linkedLevels[0].toDouble()+18.0)<1.0
                             && std::abs(linkedLevels[1].toDouble()+8.0)<1.0,
-                        "linked SEL faders shift every channel by the same dB delta");
+                        "linked SEL knobs shift every channel by the same dB delta");
+        const double initialFrontBack=mainPage->property("selPannerFrontBack").toDouble();
+        drag(mainPage,mainPoint(427,694),mainPoint(427,734));
+        drag(mainPage,mainPoint(633,694),mainPoint(633,654));
+        const bool widthAndFrontBackChanged=std::abs(mainPage->property("selPannerWidth").toDouble()-.5)<.02
+            && std::abs(mainPage->property("selPannerFrontBack").toDouble()-initialFrontBack-.4)<.03;
+        drag(mainPage,mainPoint(839,694),mainPoint(839,654));
+        passed &= check(widthAndFrontBackChanged
+                            && std::abs(mainPage->property("selPannerAngle").toDouble()-72.0)<2.0,
+                        "SEL spatial parameter knobs adjust width, front/back and rotating angle");
         bool modeOpened=false;
         QTimer::singleShot(0,&mixer,[&]{if(auto* menu=qobject_cast<QMenu*>(QApplication::activePopupWidget())){
             modeOpened=true;menu->actions()[2]->trigger();menu->close();}});
-        click(mainPage,mainPoint(1050,494));
+        if (sidebarMode) sidebarMode->click();
         passed &= check(modeOpened && mainPage->property("selChannelLayout").toInt()
                             ==static_cast<int>(WinJACKNexus::Common::AuxChannelLayout::surround51)
-                            && mainPage->property("selActiveSendCount").toInt()==6,
-                        "SEL channel mode changes the actual channel layout");
+                            && mainPage->property("selActiveSendCount").toInt()==6
+                            && mainPage->property("selPanMode").toInt()
+                                ==static_cast<int>(WinJACKNexus::Common::AuxPanMode::spatial)
+                            && sidebarMode->text().contains(QStringLiteral("5.1")),
+                        "SEL sidebar channel mode changes the actual channel layout");
+        QImage surroundPreview(sel->size(), QImage::Format_ARGB32_Premultiplied);
+        surroundPreview.fill(Qt::transparent);
+        sel->render(&surroundPreview);
+        passed &= check(surroundPreview.save(QStringLiteral("build/sel-surround-ui-review.png")),
+                        "surround SEL review image is written to the existing build directory");
+        click(mainPage,mainPoint(1098,68)); // Split the send levels for the LFE check.
+        const auto levelsBeforeLfe=mainPage->property("selSendLevels").toList();
+        drag(mainPage,mainPoint(1073,390),mainPoint(1073,440));
+        const auto levelsAfterLfe=mainPage->property("selSendLevels").toList();
+        passed &= check(levelsBeforeLfe.size()==8 && levelsAfterLfe.size()==8
+                            && levelsAfterLfe[3].toDouble()<levelsBeforeLfe[3].toDouble()-9.0
+                            && levelsAfterLfe[2].toDouble()==levelsBeforeLfe[2].toDouble(),
+                        "surround LFE intensity remains independently adjustable in its send card");
+        click(mainPage,mainPoint(545,69));
+        passed &= check(mainPage->property("selPanMode").toInt()
+                            ==static_cast<int>(WinJACKNexus::Common::AuxPanMode::spatial),
+                        "SEL surround channels cannot switch to classic Pan");
         QTimer::singleShot(0,&mixer,[]{if(auto* menu=qobject_cast<QMenu*>(QApplication::activePopupWidget())){
             menu->actions()[1]->trigger();menu->close();}});
-        click(mainPage,mainPoint(1050,494));
-        click(mainPage,mainPoint(1310,494));
+        if (sidebarMode) sidebarMode->click();
+        click(mainPage,mainPoint(1310,68));
     }
     if (channelComment) {
         channelComment->setText(QStringLiteral("Lead vocal"));
@@ -1344,6 +1582,11 @@ bool testMixerChannelControls()
         auxTab->click();
         passed &= check(pages && pages->currentIndex() == 1 && aux && aux->parentWidget() == pages->widget(1),
                         "SEL AUX tab embeds the existing AUX settings interface");
+        passed &= check(sidebarMode && sidebarMode->isVisible(),
+                        "SEL sidebar channel mode remains available on the AUX page");
+        passed &= check(mainPage && mainPage->isVisible() && channelName && channelName->isVisible()
+                            && pages->isVisible() && pages->geometry().left() > channelName->geometry().right(),
+                        "SEL Main sidebar stays visible beside AUX details");
     }
     if (auto* fxTab = mixer.findChild<QPushButton*>(QStringLiteral("selTabFX"))) {
         fxTab->click();
@@ -1352,11 +1595,41 @@ bool testMixerChannelControls()
             if (dynamic_cast<FxSettingsWindow*>(child)) embeddedFx = true;
         passed &= check(pages && pages->currentIndex() == 2 && embeddedFx,
                         "SEL FX tab embeds the existing FX settings interface");
+        passed &= check(mainPage && mainPage->isVisible() && channelName && channelName->isVisible()
+                            && pages->isVisible() && pages->geometry().left() > channelName->geometry().right(),
+                        "SEL Main sidebar stays visible beside FX details");
+        if(sel){
+            const auto originalSize=sel->size();
+            sel->resize(1900,1000);
+            QCoreApplication::processEvents();
+            QImage widePreview(sel->size(),QImage::Format_ARGB32_Premultiplied);
+            sel->render(&widePreview);
+            passed &= check(widePreview.save(QStringLiteral("build/sel-fx-wide-ui-review.png")),
+                            "wide SEL FX review image is written to the existing build directory");
+            sel->resize(originalSize);
+            QCoreApplication::processEvents();
+        }
     }
     if (auto* mainTab = mixer.findChild<QPushButton*>(QStringLiteral("selTabMain"))) mainTab->click();
-    click(&mixer, {963, 422});
+    click(&mixer, {963, 402});
     passed &= check(selected && selected->text() == QStringLiteral("Main L/R"),
                     "Main strip opens its own SEL channel");
+    if(mainPage){
+        const auto mainPoint=[mainPage](int x,int y){
+            const auto scale=std::min(mainPage->width()/1394.0,mainPage->height()/813.0);
+            const auto right=313*scale+(mainPage->width()-1377*scale)/2;
+            return QPoint(qRound(x*scale+(x>=313?right-313*scale:0)),
+                          qRound((mainPage->height()-813*scale)/2+y*scale));
+        };
+        QImage before(mainPage->size(),QImage::Format_ARGB32_Premultiplied);
+        mainPage->render(&before);
+        click(mainPage,mainPoint(200,423));
+        QImage after(mainPage->size(),QImage::Format_ARGB32_Premultiplied);
+        mainPage->render(&after);
+        passed &= check(before.pixelColor(mainPoint(50,423))!=after.pixelColor(mainPoint(50,423)),
+                        "Main SEL sidebar has one full-width MUTE control and no SOLO");
+        click(mainPage,mainPoint(200,423));
+    }
     auto* auxTab = mixer.findChild<QPushButton*>(QStringLiteral("selTabAUX"));
     passed &= check(auxTab && !auxTab->isVisible(), "Main SEL has only Main and FX tabs");
     if(auto* fxTab=mixer.findChild<QPushButton*>(QStringLiteral("selTabFX"))){
@@ -1369,23 +1642,28 @@ bool testMixerChannelControls()
                         "Main FX chain includes parametric EQ, compressor and limiter by default");
     }
     if(auto* mainTab=mixer.findChild<QPushButton*>(QStringLiteral("selTabMain")))mainTab->click();
-    click(&mixer, {60, 422});
-    click(&mixer, {150, 420});
+    click(&mixer, {60, 444});
+    click(&mixer, {150, 444});
     passed &= check(selected && selected->text() == QStringLiteral("Mic 2"),
                     "SEL button switches the large-screen channel");
     channelMenu->actions()[0]->menu()->actions()[3]->trigger();
+    if(mainPage){
+        QImage updated(mainPage->size(),QImage::Format_ARGB32_Premultiplied);
+        mainPage->render(&updated);
+    }
+    passed &= check(channelName && channelName->text()==QStringLiteral("Mic 2"),
+                    "adding a channel keeps the persistent SEL sidebar bound to the selected channel");
     channelMenu->actions()[1]->menu()->actions()[2]->trigger();
     passed &= check(openContext(QStringLiteral("打开SEL设置")),
                     "channel context menu has an active SEL entry");
     passed &= check(openContext(QStringLiteral("复制通道")),
                     "channel context menu copies an input strip");
-    click(&mixer, {150, 420});
+    click(&mixer, {150, 444});
     passed &= check(selected && selected->text() == QStringLiteral("Mic 1 副本"),
-                    "copied strip keeps its channel identity and SEL selection");
-    passed &= check(openContext(QStringLiteral("打开FX设置"), {150, 90}),
-                    "copied strip opens its own FX window");
+                     "copied strip keeps its channel identity and SEL selection");
+    if(auto* fxTab=mixer.findChild<QPushButton*>(QStringLiteral("selTabFX")))fxTab->click();
     FxSettingsWindow* copiedFx = nullptr;
-    for (auto* child : mixer.findChildren<QWidget*>())
+    if(pages)for (auto* child : pages->widget(2)->findChildren<QWidget*>())
         if (auto* candidate = dynamic_cast<FxSettingsWindow*>(child);
             candidate && candidate->windowTitle().contains(QStringLiteral("副本"))) {
             copiedFx = candidate;
@@ -1395,7 +1673,7 @@ bool testMixerChannelControls()
         copiedFx->findChild<QWidget*>(QStringLiteral("fxChainToggle"))) : nullptr;
     auto* copiedList = copiedFx ? copiedFx->findChild<QListWidget*>() : nullptr;
     passed &= check(copiedToggle && copiedToggle->isChecked() && copiedList && copiedList->count() == 1,
-                    "copy preserves the FX chain and total switch");
+                     "copied strip opens its own FX chain in SEL and preserves its switch");
     passed &= check(openContext(QStringLiteral("删除通道"), {150, 90}),
                     "channel context menu removes the copied strip");
     passed &= check(selected && selected->text() == QStringLiteral("Mic 1"),
@@ -1513,6 +1791,30 @@ bool testReusableFxControls()
     drawCardLabel(painter, {255,205,200,55}, QStringLiteral("Graphic EQ"), QStringLiteral("▥"), colors);
     painter.end();
     passed &= check(imageHasVisiblePixels(surface), "shared controls paint with custom accent");
+    auto accentPixels = [&](qreal pan) {
+        QImage image(200, 200, QImage::Format_ARGB32_Premultiplied);
+        image.fill(Qt::transparent);
+        QPainter panPainter(&image);
+        drawPanKnob(panPainter, {100, 100}, pan, 70, colors);
+        panPainter.end();
+        int left = 0;
+        int right = 0;
+        for (int y = 0; y < image.height(); ++y) {
+            for (int x = 0; x < image.width(); ++x) {
+                if (image.pixelColor(x, y) == colors.accent) {
+                    (x < 100 ? left : right)++;
+                }
+            }
+        }
+        return std::pair<int, int>{left, right};
+    };
+    const auto [centerLeft, centerRight] = accentPixels(0);
+    const auto [leftLeft, leftRight] = accentPixels(-1);
+    const auto [rightLeft, rightRight] = accentPixels(1);
+    passed &= check(centerLeft == 0 && centerRight == 0
+                        && leftLeft > 100 && leftRight < leftLeft / 10
+                        && rightRight > 100 && rightLeft < rightRight / 10,
+                    "shared Pan knob accent extends from center toward the selected side");
     return passed;
 }
 
