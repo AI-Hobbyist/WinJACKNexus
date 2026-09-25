@@ -866,7 +866,7 @@ bool testCompressorGraphFill()
 bool testFxSettingsLoadsNativeFx()
 {
     using namespace WinJACKNexus::UI;
-    FxSettingsWindow window(QStringLiteral("Line 3"), { QStringLiteral("L") });
+    FxSettingsWindow window(QStringLiteral("Line 3"), { QStringLiteral("M") });
     auto* chain = window.findChild<QListWidget*>();
     auto* chainAdd = window.findChild<QPushButton*>(QStringLiteral("fxAddBottom"));
     auto* chainScroll = window.findChild<QScrollArea*>(QStringLiteral("fxChainScroll"));
@@ -908,7 +908,10 @@ bool testFxSettingsLoadsNativeFx()
         if (choice->text() == QStringLiteral("L")) left = choice;
         if (choice->text() == QStringLiteral("R")) right = choice;
     }
-    passed &= check(left && !right, "mono mixer strip shows only its available channel");
+    auto* allChannel=window.findChild<QPushButton*>(QStringLiteral("fxChannelAll"));
+    passed &= check(allChannel && !left && !right
+                        && !window.findChild<QPushButton*>(QStringLiteral("fxChannelM")),
+                    "mono FX control offers only All without a per-channel selector");
     FxLevelMeterWidget* meter = nullptr;
     for (auto* child : window.findChildren<QWidget*>())
         if (auto* value = dynamic_cast<FxLevelMeterWidget*>(child)) meter = value;
@@ -939,7 +942,7 @@ bool testFxSettingsLoadsNativeFx()
     passed &= check(chainPower && chainPower->parentWidget()
                         && chainPower->parentWidget()->mapTo(&window,QPoint()).y() < chainScroll->mapTo(&window,QPoint()).y(),
                     "FX master switch sits in the top header");
-    auto* headerChannel=window.findChild<QPushButton*>(QStringLiteral("fxChannelL"));
+    auto* headerChannel=window.findChild<QPushButton*>(QStringLiteral("fxChannelAll"));
     auto* windowPreset=window.findChild<QComboBox*>(QStringLiteral("fxWindowPreset"));
     passed &= check(headerChannel && windowPreset && headerChannel->parentWidget()==chainPower->parentWidget()
                         && headerChannel->mapTo(&window,QPoint()).x() < windowPreset->mapTo(&window,QPoint()).x(),
@@ -1291,6 +1294,12 @@ bool testMixerChannelControls()
     passed &= check(firstBus && firstBus->panMode==WinJACKNexus::Common::AuxPanMode::spatial
                         && std::abs(firstBus->classicPan-.5)<.03,
                     "AUX can switch to spatial panning without losing its classic Pan value");
+    const auto monoPointBefore=firstBus?firstBus->adjustablePoints[0]:QPointF();
+    drag(&auxControls,{719,205},{742,205});
+    passed &= check(firstBus && firstBus->pointCoverageDegrees[0]>300.0
+                        && firstBus->adjustablePoints[0]==monoPointBefore
+                        && auxControls.property("auxPannerCoverage").toDouble()>300.0,
+                    "AUX spatial point outer ring adjusts coverage without moving the point");
     auxState->setBusAccent(1, QColor("#a12bcd"));
     passed &= check(auxState->bus(1)->accent == QColor("#a12bcd")
                         && firstBus && firstBus->accent == QColor("#a12bcd"),
@@ -1340,6 +1349,12 @@ bool testMixerChannelControls()
                         && auxState->busForSource(sourceKey, 1)->targetLayout
                                == WinJACKNexus::Common::AuxChannelLayout::mono,
                     "AUX row gear changes the channel type for every source");
+    firstBus=auxState->busForSource(sourceKey,1);
+    click(&auxControls,{85,98});
+    click(&auxControls,{635,69});
+    passed &= check(firstBus && firstBus->panMode==WinJACKNexus::Common::AuxPanMode::spatial
+                        && firstBus->sends.size()==1 && firstBus->sends[0].label==QStringLiteral("M"),
+                    "mono-to-mono AUX has an M control and cannot enter classic Pan");
     const auto auxChangesBeforeDisabledClick=auxChanges;
     click(&auxControls,{1062,304});
     passed &= check(auxState->busForSource(sourceKey,1)->sends.size()==1
@@ -1444,6 +1459,9 @@ bool testMixerChannelControls()
                             ==static_cast<int>(WinJACKNexus::Common::AuxPanMode::spatial)
                             && std::abs(mainPage->property("selClassicPan").toDouble()-.5)<.03,
                         "SEL can switch to spatial panning while keeping its classic Pan value");
+        drag(mainPage,mainPoint(609,212),mainPoint(630,212));
+        passed &= check(mainPage->property("selPannerCoverage").toDouble()>300.0,
+                        "SEL spatial point outer ring adjusts the selected channel coverage");
         const auto mutePixel=togglePixel(mainPoint(40,413));
         click(&mixer,{60,364});
         passed &= check(togglePixel(mainPoint(40,413))!=mutePixel,

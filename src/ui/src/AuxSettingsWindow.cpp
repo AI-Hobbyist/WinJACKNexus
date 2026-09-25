@@ -74,8 +74,8 @@ double positionFromDb(double value)
 QString channelNames(AuxChannelLayout layout)
 {
     switch(layout){
-    case AuxChannelLayout::mono: return QStringLiteral("M");
-    case AuxChannelLayout::stereo: return QStringLiteral("L/R");
+    case AuxChannelLayout::mono: return QStringLiteral("单声道");
+    case AuxChannelLayout::stereo: return QStringLiteral("立体声");
     case AuxChannelLayout::surround51: return QStringLiteral("5.1");
     case AuxChannelLayout::surround71: return QStringLiteral("7.1");
     }
@@ -227,14 +227,14 @@ public:
     QPointF pointToScreen(const QPointF& point) const
     {
         const auto circle = pannerCircle();
-        const auto radius=circle.width()*.5*(159.0/190.0);
+        const auto radius=159.0*contentScale();
         return circle.center() + point*radius;
     }
 
     QPointF screenToPoint(const QPointF& point) const
     {
         const auto circle = pannerCircle();
-        const auto radius=circle.width()*.5*(159.0/190.0);
+        const auto radius=159.0*contentScale();
         return Common::auxClampPannerPoint((point-circle.center())/radius);
     }
 
@@ -260,17 +260,12 @@ public:
 
     qreal pointCoverageRadius(const AuxBusState& bus, int index) const
     {
-        const auto scale = std::min(scaleX(), scaleY());
-        return (22.0 + std::clamp(pointCoverage(bus, index) / 360.0, 0.0, 1.0) * 38.0) * scale;
+        return Common::auxCoverageRadius(pointCoverage(bus,index))*contentScale();
     }
 
     void setPointCoverage(AuxBusState& bus, int index, double degrees)
     {
-        if (index < 0 || index >= static_cast<int>(bus.adjustablePoints.size()))
-            return;
-        if (bus.pointCoverageDegrees.size() != bus.adjustablePoints.size())
-            bus.pointCoverageDegrees.resize(bus.adjustablePoints.size(), bus.coverageDegrees);
-        bus.pointCoverageDegrees[index] = std::clamp(degrees, 5.0, 360.0);
+        Common::auxSetPointCoverage(bus,index,degrees);
     }
 
     void setLinkedWidth(AuxBusState& bus, double width)
@@ -297,6 +292,8 @@ public:
             owner.setProperty("auxPanMode",static_cast<int>(bus->panMode));
             owner.setProperty("auxClassicPan",bus->classicPan);
             owner.setProperty("auxPannerWidth",bus->width);
+            const auto index=effectiveSelectedPoint();
+            if(index>=0)owner.setProperty("auxPannerCoverage",pointCoverage(*bus,index));
         }
     }
 
@@ -477,7 +474,7 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
                          QPointF(row.right()-12*sx,row.top()+72*sy));
         text(painter,{row.left()+16*sx,row.top()+75*sy,row.width()-32*sx,17*sy},
              mappingLabel(impl_->sourceNumber,bus),QColor("#a8c8e7"),12*sy,
-             Qt::AlignLeft|Qt::AlignVCenter);
+             Qt::AlignCenter);
     }
     painter.restore();
 
@@ -559,7 +556,9 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
         const auto selectedPoint=impl_->effectiveSelectedPoint();
         if(bus->showDirectivity&&selectedPoint>=0){
             const auto coverage=impl_->pointCoverage(*bus,selectedPoint);
-            QPainterPath sector;sector.moveTo(center);sector.arcTo(QRectF(center.x()-pointRadius,center.y()-pointRadius,2*pointRadius,2*pointRadius),90-(bus->angleDegrees+coverage*.5),coverage);sector.closeSubpath();
+            const auto& selectedPosition=bus->adjustablePoints[selectedPoint];
+            const auto pointAngle=std::atan2(selectedPosition.x(),-selectedPosition.y())*180.0/pi;
+            QPainterPath sector;sector.moveTo(center);sector.arcTo(QRectF(center.x()-pointRadius,center.y()-pointRadius,2*pointRadius,2*pointRadius),90-(pointAngle+coverage*.5),coverage);sector.closeSubpath();
             painter.setPen(QPen(QColor(47,197,255,180),2));painter.setBrush(QColor(21,143,208,55));painter.drawPath(sector);
         }
         const auto references=Common::auxLayoutReferencePoints(bus->targetLayout);
@@ -573,8 +572,11 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
             if(!Common::auxHasSpatialPoint(bus->sourceLayout,i))continue;
             const auto point=center+bus->adjustablePoints[i]*pointRadius;
             const bool selected=i==selectedPoint;
+            const auto outerRadius=Common::auxCoverageRadius(impl_->pointCoverage(*bus,i));
             painter.setPen(QPen(selected?QColor("#79e3ff"):QColor(85,189,233,115),selected?2.5:1.2));
-            painter.setBrush(QColor(22,141,255,selected?28:9));painter.drawEllipse(point,selected?36:27,selected?36:27);
+            painter.setBrush(QColor(22,141,255,selected?28:9));painter.drawEllipse(point,outerRadius,outerRadius);
+            if(selected){painter.setPen(Qt::NoPen);painter.setBrush(QColor("#79e3ff"));
+                painter.drawEllipse(point+QPointF(outerRadius,0),4,4);}
             if(selected){painter.setPen(QPen(QColor("#7ee8ff"),5));painter.setBrush(Qt::NoBrush);painter.drawEllipse(point,14,14);}
             painter.setPen(QPen(selected?QColor("#e8fbff"):QColor("#9dc3ff"),selected?3:2));painter.setBrush(selected?QColor("#42a8ff"):QColor("#2e9dff"));painter.drawEllipse(point,10,10);
             if(i<labels.size())drawText({point.x()-17,point.y()+14,34,19},labels[i],12,label,true,Qt::AlignCenter);
@@ -605,7 +607,9 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
     for(int i=0;i<8;++i){
         painter.save();if(i>=static_cast<int>(bus->sends.size()))painter.setOpacity(.32);
         const qreal x=992,y=100+i*86;
-        drawPanel({x,y,327,80});drawText({x+7,y+23,30,28},sendLabels[i],i==3?12:15,label,true,Qt::AlignCenter);
+        drawPanel({x,y,327,80});
+        drawText({x+7,y+23,30,28},i==0&&bus->sourceLayout==AuxChannelLayout::mono
+                     ? QStringLiteral("M") : sendLabels[i],i==3?12:15,label,true,Qt::AlignCenter);
         if(i==3&&i<static_cast<int>(bus->sends.size()))
             drawText({x+3,y+48,38,16},QStringLiteral("强度"),11,secondary,false,Qt::AlignCenter);
         const auto* send=i<static_cast<int>(bus->sends.size())?&bus->sends[i]:nullptr;
@@ -778,6 +782,19 @@ void AuxSettingsWindow::mousePressEvent(QMouseEvent* event)
                 return;
             }
         }
+        int coveragePoint=-1;
+        qreal closestCoverage=9.0*impl_->contentScale();
+        for(int i=0;i<static_cast<int>(bus->adjustablePoints.size());++i){
+            if(!Common::auxHasSpatialPoint(bus->sourceLayout,i))continue;
+            const auto distance=QLineF(position,impl_->pointToScreen(bus->adjustablePoints[i])).length();
+            const auto error=std::abs(distance-impl_->pointCoverageRadius(*bus,i));
+            if(error<closestCoverage){closestCoverage=error;coveragePoint=i;}
+        }
+        if(coveragePoint>=0){
+            impl_->selectedPoint=coveragePoint;
+            impl_->draggedCoveragePoint=coveragePoint;
+            impl_->changed();return;
+        }
         if(impl_->pannerCircle().contains(position)&&!bus->adjustablePoints.empty()){
             const QPointF point=impl_->screenToPoint(position);
             qreal closest=1e9;int selected=0;
@@ -837,6 +854,13 @@ void AuxSettingsWindow::mouseMoveEvent(QMouseEvent* event)
         impl_->changed();return;
     }
     if(bus->panMode==Common::AuxPanMode::classic)return;
+    if(impl_->draggedCoveragePoint>=0
+       && impl_->draggedCoveragePoint<static_cast<int>(bus->adjustablePoints.size())){
+        const auto point=impl_->pointToScreen(bus->adjustablePoints[impl_->draggedCoveragePoint]);
+        const auto radius=QLineF(event->position(),point).length()/impl_->contentScale();
+        impl_->setPointCoverage(*bus,impl_->draggedCoveragePoint,Common::auxCoverageForRadius(radius));
+        impl_->changed();return;
+    }
     if (impl_->draggedPoint >= 0 && impl_->draggedPoint < static_cast<int>(bus->adjustablePoints.size())) {
         bus->adjustablePoints[impl_->draggedPoint] = impl_->screenToPoint(event->position());
         impl_->changed();

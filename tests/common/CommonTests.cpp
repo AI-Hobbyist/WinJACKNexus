@@ -657,9 +657,12 @@ bool testAuxChannelLayoutsAndCopy()
                         "default stereo AUX buses use independent centered classic Pan");
     passed &= check(auxSupportsClassicPan(AuxChannelLayout::mono,AuxChannelLayout::stereo)
                         && auxSupportsClassicPan(AuxChannelLayout::stereo,AuxChannelLayout::stereo)
+                        && !auxSupportsClassicPan(AuxChannelLayout::mono,AuxChannelLayout::mono)
                         && !auxSupportsClassicPan(AuxChannelLayout::surround51,AuxChannelLayout::stereo)
                         && !auxSupportsClassicPan(AuxChannelLayout::stereo,AuxChannelLayout::surround51),
                     "classic Pan is available only for mono or stereo sources sent to stereo");
+    passed &= check(std::abs(auxCoverageForRadius(auxCoverageRadius(120.0))-120.0)<.001,
+                    "spatial coverage angle and draggable outer radius share an inverse mapping");
     const auto surround51Points=auxLayoutReferencePoints(AuxChannelLayout::surround51);
     const auto surround71Points=auxLayoutReferencePoints(AuxChannelLayout::surround71);
     passed &= check(surround51Points.size()==6 && surround71Points.size()==8
@@ -680,6 +683,11 @@ bool testAuxChannelLayoutsAndCopy()
     passed &= check(surroundBus.adjustablePoints[3]==QPointF()
                         && surroundBus.sends.size()==6 && surroundBus.sends[3].label==QStringLiteral("LFE"),
                     "LFE has no rotating spatial point while retaining its independent level control");
+    auxSetPointCoverage(surroundBus,3,280.0);
+    auxSetPointCoverage(surroundBus,4,280.0);
+    passed &= check(std::abs(surroundBus.pointCoverageDegrees[3]-120.0)<.001
+                        && std::abs(surroundBus.pointCoverageDegrees[4]-280.0)<.001,
+                    "spatial coverage changes only the selected non-LFE channel");
     auto stereo=state.buses().front();
     const auto originalRight=stereo.adjustablePoints[1];
     stereo.adjustablePoints[0]={-.1,-.3};

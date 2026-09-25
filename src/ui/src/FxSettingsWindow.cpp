@@ -235,7 +235,7 @@ public:
         headerLayout->addWidget(new QLabel(QStringLiteral("作用声道："), header));
         channelRow = new QHBoxLayout;
         QStringList visibleChannels { QStringLiteral("All") };
-        visibleChannels.append(sourceChannels);
+        if(sourceChannels.size()>1)visibleChannels.append(sourceChannels);
         const QStringList nativeChannels { QStringLiteral("L"), QStringLiteral("R"), QStringLiteral("C"),
             QStringLiteral("LFE"), QStringLiteral("Ls"), QStringLiteral("Rs"),
             QStringLiteral("Lb"), QStringLiteral("Rb") };
@@ -392,14 +392,17 @@ public:
         meterLayout->addWidget(meter);
         auto updateMeters = [this, meter, nativeChannels] {
             const QString selected = selectedChannelLabel;
+            const auto channelIndex = [&nativeChannels](const QString& channel) {
+                return channel == QStringLiteral("M") ? 0 : nativeChannels.indexOf(channel);
+            };
             const auto level = [&](const std::array<double, 8>& values) {
                 if (selected != QStringLiteral("All")) {
-                    const int index = nativeChannels.indexOf(selected);
+                    const int index = channelIndex(selected);
                     return index >= 0 ? values[static_cast<std::size_t>(index)] : -72.0;
                 }
                 double power = 0.0;
                 for (const auto& channel : this->sourceChannels) {
-                    const int index = nativeChannels.indexOf(channel);
+                    const int index = channelIndex(channel);
                     if (index >= 0) power += std::pow(10.0, values[static_cast<std::size_t>(index)] / 10.0);
                 }
                 return power > 0.0 ? 10.0 * std::log10(power / std::max(1.0, static_cast<double>(this->sourceChannels.size()))) : -72.0;
@@ -513,7 +516,7 @@ public:
         }
         channelButtons.clear();
         QStringList visibleChannels { QStringLiteral("All") };
-        visibleChannels.append(channels);
+        if(channels.size()>1)visibleChannels.append(channels);
         const QStringList nativeChannels { QStringLiteral("L"), QStringLiteral("R"), QStringLiteral("C"),
             QStringLiteral("LFE"), QStringLiteral("Ls"), QStringLiteral("Rs"),
             QStringLiteral("Lb"), QStringLiteral("Rb") };

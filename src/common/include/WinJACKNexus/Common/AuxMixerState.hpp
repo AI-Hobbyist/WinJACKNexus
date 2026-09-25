@@ -59,6 +59,9 @@ WINJACK_COMMON_API bool auxHasSpatialPoint(AuxChannelLayout layout, int channelI
 WINJACK_COMMON_API bool auxSupportsClassicPan(AuxChannelLayout source, AuxChannelLayout target);
 WINJACK_COMMON_API QPointF auxClampPannerPoint(QPointF point);
 WINJACK_COMMON_API void auxSetPannerAngle(AuxBusState& bus, double angleDegrees);
+WINJACK_COMMON_API double auxCoverageRadius(double coverageDegrees);
+WINJACK_COMMON_API double auxCoverageForRadius(double radius);
+WINJACK_COMMON_API void auxSetPointCoverage(AuxBusState& bus, int index, double coverageDegrees);
 
 class WINJACK_COMMON_API AuxMixerState final {
 public:

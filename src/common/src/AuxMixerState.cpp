@@ -143,6 +143,25 @@ void auxSetPannerAngle(AuxBusState& bus, double angleDegrees)
     bus.angleDegrees=angleDegrees;
 }
 
+double auxCoverageRadius(double coverageDegrees)
+{
+    return 20.0+(std::clamp(coverageDegrees,5.0,360.0)-5.0)*40.0/355.0;
+}
+
+double auxCoverageForRadius(double radius)
+{
+    return 5.0+(std::clamp(radius,20.0,60.0)-20.0)*355.0/40.0;
+}
+
+void auxSetPointCoverage(AuxBusState& bus, int index, double coverageDegrees)
+{
+    if(index<0 || index>=static_cast<int>(bus.adjustablePoints.size())
+       || !auxHasSpatialPoint(bus.sourceLayout,index))return;
+    if(bus.pointCoverageDegrees.size()!=bus.adjustablePoints.size())
+        bus.pointCoverageDegrees.resize(bus.adjustablePoints.size(),bus.coverageDegrees);
+    bus.pointCoverageDegrees[index]=std::clamp(coverageDegrees,5.0,360.0);
+}
+
 void AuxMixerState::setBusAccent(std::uint32_t id, const QColor& accent)
 {
     if (auto* target=bus(id)) target->accent=accent;
