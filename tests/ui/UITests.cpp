@@ -1236,24 +1236,24 @@ bool testMixerChannelControls()
     passed &= check(mixer.channelMixToMain(0) && mixer.channelMixToMain(8)
                         && !mixer.channelMixToMain(11),
                     "input and AUX MIX start enabled while MAIN has no MIX send");
-    click(&mixer, {87, 444});
+    click(&mixer, {87, 418});
     passed &= check(!mixer.channelMixToMain(0) && mixer.mainInputLevelDb() < fullMainLevel,
                     "input MIX excludes its channel from MAIN");
     const auto excludedMainLevel = mixer.mainInputLevelDb();
-    click(&mixer, {87, 402});
+    click(&mixer, {87, 380});
     passed &= check(std::abs(mixer.mainInputLevelDb() - excludedMainLevel) < .001,
                     "solo on an excluded channel does not interrupt MAIN");
-    click(&mixer, {87, 402});
-    click(&mixer, {87, 444});
+    click(&mixer, {87, 380});
+    click(&mixer, {87, 418});
     passed &= check(mixer.channelMixToMain(0)
                         && std::abs(mixer.mainInputLevelDb() - fullMainLevel) < .001,
                     "input MIX restores its MAIN contribution");
-    click(&mixer, {626, 444});
+    click(&mixer, {626, 418});
     passed &= check(!mixer.channelMixToMain(8) && mixer.mainInputLevelDb() < fullMainLevel,
                     "AUX MIX excludes its channel from MAIN");
-    click(&mixer, {626, 444});
+    click(&mixer, {626, 418});
     passed &= check(mixer.channelMixToMain(8), "AUX MIX restores its MAIN contribution");
-    click(&mixer, {40, 444});
+    click(&mixer, {40, 418});
     auto* selected = mixer.findChild<QLabel*>(QStringLiteral("selSelectedChannel"));
     auto* sel = mixer.findChild<QWidget*>(QStringLiteral("selLargeScreen"));
     auto* pages = mixer.findChild<QStackedWidget*>(QStringLiteral("selPages"));
@@ -1502,15 +1502,15 @@ bool testMixerChannelControls()
         passed &= check(mainPage->property("selPannerInfluence").toDouble()>.5,
                         "SEL spatial point outer ring adjusts nearby speaker influence");
         const auto mutePixel=togglePixel(mainPoint(40,413));
-        click(&mixer,{40,402});
+        click(&mixer,{40,380});
         passed &= check(togglePixel(mainPoint(40,413))!=mutePixel,
                         "mixer MUTE button changes the selected channel state in SEL");
-        click(&mixer,{40,402});
+        click(&mixer,{40,380});
         const auto soloPixel=togglePixel(mainPoint(175,413));
-        click(&mixer,{87,402});
+        click(&mixer,{87,380});
         passed &= check(togglePixel(mainPoint(175,413))!=soloPixel,
                         "mixer SOLO button changes the selected channel state in SEL");
-        click(&mixer,{87,402});
+        click(&mixer,{87,380});
         drag(mainPage, mainPoint(93,375), mainPoint(93,345));
         passed &= check(std::abs(mainPage->property("selInputGainDb").toDouble()-6.0)<.5,
                         "SEL input gain knob raises the selected channel gain");
@@ -1524,9 +1524,9 @@ bool testMixerChannelControls()
         passed &= check(std::abs(mainPage->property("selInputGainDb").toDouble())<.5,
                         "SEL input gain can return to 0 dB");
         drag(mainPage, mainPoint(93,375), mainPoint(93,345));
-        click(&mixer, {150,444});
+        click(&mixer, {150,418});
         const bool secondChannelStartsFlat=std::abs(mainPage->property("selInputGainDb").toDouble())<.5;
-        click(&mixer, {40,444});
+        click(&mixer, {40,418});
         passed &= check(secondChannelStartsFlat
                             && std::abs(mainPage->property("selInputGainDb").toDouble()-6.0)<.5,
                         "SEL input gain stays with its own channel when selection changes");
@@ -1670,7 +1670,7 @@ bool testMixerChannelControls()
         }
     }
     if (auto* mainTab = mixer.findChild<QPushButton*>(QStringLiteral("selTabMain"))) mainTab->click();
-    click(&mixer, {963, 444});
+    click(&mixer, {963, 418});
     passed &= check(selected && selected->text() == QStringLiteral("Main L/R"),
                     "Main strip opens its own SEL channel");
     if(mainPage){
@@ -1701,8 +1701,8 @@ bool testMixerChannelControls()
                         "Main FX chain includes parametric EQ, compressor and limiter by default");
     }
     if(auto* mainTab=mixer.findChild<QPushButton*>(QStringLiteral("selTabMain")))mainTab->click();
-    click(&mixer, {40, 444});
-    click(&mixer, {150, 444});
+    click(&mixer, {40, 418});
+    click(&mixer, {150, 418});
     passed &= check(selected && selected->text() == QStringLiteral("Mic 2"),
                     "SEL button switches the large-screen channel");
     channelMenu->actions()[0]->menu()->actions()[3]->trigger();
@@ -1717,7 +1717,7 @@ bool testMixerChannelControls()
                     "channel context menu has an active SEL entry");
     passed &= check(openContext(QStringLiteral("复制通道")),
                     "channel context menu copies an input strip");
-    click(&mixer, {150, 444});
+    click(&mixer, {150, 418});
     passed &= check(selected && selected->text() == QStringLiteral("Mic 1 副本"),
                      "copied strip keeps its channel identity and SEL selection");
     if(auto* fxTab=mixer.findChild<QPushButton*>(QStringLiteral("selTabFX")))fxTab->click();
@@ -1784,6 +1784,18 @@ bool testMixerChannelControls()
     mixer.render(&preview);
     passed &= check(preview.save(QStringLiteral("build/mixer-ui-review.png")),
                     "mixer review image is written to the existing build directory");
+    mixer.resize(1920, 1150);
+    QCoreApplication::processEvents();
+    QImage fullSizeBefore(mixer.size(), QImage::Format_ARGB32_Premultiplied);
+    mixer.render(&fullSizeBefore);
+    const auto mixButtonPixel = fullSizeBefore.pixelColor(72, 585);
+    drag(&mixer, {61, 800}, {61, 647});
+    QImage fullSizeAfter(mixer.size(), QImage::Format_ARGB32_Premultiplied);
+    mixer.render(&fullSizeAfter);
+    passed &= check(fullSizeAfter.pixelColor(72, 585) == mixButtonPixel,
+                    "maximum fader position leaves the MIX button uncovered at full size");
+    passed &= check(fullSizeAfter.save(QStringLiteral("build/mixer-ui-full-fader-review.png")),
+                    "full-size mixer review image is written to the existing build directory");
     for (int remainingInputs = 9; remainingInputs > 1; --remainingInputs)
         passed &= check(openContext(QStringLiteral("删除通道")),
                         "input strip can be removed while another input remains");

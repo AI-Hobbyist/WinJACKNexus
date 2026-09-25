@@ -1318,8 +1318,8 @@ public:
         const auto card = channelRect(index);
         const auto heightScale = std::clamp(owner.height() / 768.0, .72, 1.35);
         const auto meterBottom = card.top() + 42.0 * heightScale + 65.0 * heightScale
-            + card.height() * .26 + 40.0 * heightScale;
-        const auto top = meterBottom + (20.0 + 2.35 * 28.0 + 8.0) * heightScale;
+            + card.height() * .26 + 16.0 * heightScale;
+        const auto top = meterBottom + (20.0 + 2.35 * 28.0 + 32.0) * heightScale;
         const auto bottom = card.top() + card.height() * .885;
         return { card.center().x() - 3.0, top, 6.0, std::max(1.0, bottom - top) };
     }
@@ -1329,7 +1329,7 @@ public:
         const auto card = channelRect(index);
         const auto headerHeight = 42.0 * heightScale;
         const auto top = card.top() + headerHeight + 65.0 * heightScale;
-        return { card.center().x() - 8.0, top, 16.0, card.height() * .26 + 40.0 * heightScale };
+        return { card.center().x() - 8.0, top, 16.0, card.height() * .26 + 16.0 * heightScale };
     }
 
     QRectF meterModeRect(int index, qreal heightScale) const
