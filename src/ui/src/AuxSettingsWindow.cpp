@@ -71,6 +71,24 @@ double positionFromDb(double value)
     return std::clamp((12.0 - value) / 84.0, 0.0, 1.0);
 }
 
+QString channelNames(AuxChannelLayout layout)
+{
+    switch(layout){
+    case AuxChannelLayout::mono: return QStringLiteral("M");
+    case AuxChannelLayout::stereo: return QStringLiteral("L/R");
+    case AuxChannelLayout::surround51: return QStringLiteral("5.1");
+    case AuxChannelLayout::surround71: return QStringLiteral("7.1");
+    }
+    return {};
+}
+
+QString mappingLabel(const QString& sourceNumber, const AuxBusState& bus)
+{
+    return QStringLiteral("%1 (%2) → AUX %3 (%4)")
+        .arg(sourceNumber,channelNames(bus.sourceLayout),QString::number(bus.id),
+             channelNames(bus.targetLayout));
+}
+
 double dbFromPosition(double position)
 {
     return 12.0 - std::clamp(position, 0.0, 1.0) * 84.0;
@@ -140,7 +158,6 @@ public:
     QRectF parametersPanel() const { return scaled(406, 566, 559, 235); }
     QRectF sendsPanel() const { return scaled(976, 11, 359, 790); }
     QRectF resetButton() const { return scaled(1220, 52, 100, 34); }
-    QRectF sendsModeButton() const { return scaled(1142, 18, 178, 30); }
     QRectF sendsLinkButton() const { return scaled(1085, 57, 42, 24); }
     QRectF directivityButton() const { return scaled(755, 56, 42, 24); }
     QRectF spatialModeButton() const { return scaled(420, 52, 137, 34); }
@@ -150,7 +167,7 @@ public:
 
     QRectF listRow(int index) const
     {
-        return scaled(14, 62 + index * 79 - listScroll, 358, 73);
+        return scaled(14, 62 + index * 101 - listScroll, 358, 95);
     }
 
     QRectF listPowerToggle(int index) const
@@ -169,7 +186,7 @@ public:
 
     qreal maximumListScroll() const
     {
-        return std::max(0.0, buses().size() * 79.0 - 735.0);
+        return std::max(0.0, buses().size() * 101.0 - 735.0);
     }
 
     QRectF listScrollbarThumb() const
@@ -196,7 +213,7 @@ public:
     QRectF listKnob(int index) const
     {
         const auto row = listRow(index);
-        return { row.left() + 156 * scaleX(), row.center().y() - 20 * scaleY(),
+        return { row.left() + 156 * scaleX(), row.top() + 16 * scaleY(),
                  40 * scaleX(), 40 * scaleY() };
     }
 
@@ -293,6 +310,7 @@ public:
     QTimer meterTimer;
     QString sourceKey;
     QString sourceName;
+    QString sourceNumber;
     std::uint32_t selfAuxId {};
     std::uint32_t selectedId {};
     qreal listScroll {};
@@ -325,10 +343,12 @@ AuxSettingsWindow::AuxSettingsWindow(std::shared_ptr<Common::AuxMixerState> stat
 AuxSettingsWindow::~AuxSettingsWindow() = default;
 
 void AuxSettingsWindow::setSource(const QString& sourceKey, const QString& sourceName,
-                                  std::uint32_t selfAuxId, Common::AuxChannelLayout layout)
+                                  std::uint32_t selfAuxId, Common::AuxChannelLayout layout,
+                                  const QString& sourceNumber)
 {
     impl_->sourceKey = sourceKey;
     impl_->sourceName = sourceName;
+    impl_->sourceNumber = sourceNumber.isEmpty() ? sourceName : sourceNumber;
     impl_->selfAuxId = selfAuxId;
     impl_->sourceLayout = layout;
     const auto& buses = impl_->buses();
@@ -435,7 +455,7 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
         painter.setPen(QPen(bus.selfRoute ? secondary : QColor("#d9f4ff"), 3 * sx,
                             Qt::SolidLine, Qt::RoundCap));
         painter.drawLine(knobCenter + direction * 8, knobCenter + direction * 17);
-        text(painter, { knobCenter.x() - 38 * sx, row.bottom() - 18 * sy, 76 * sx, 16 * sy },
+        text(painter, { knobCenter.x() - 38 * sx, row.top() + 55 * sy, 76 * sx, 16 * sy },
              bus.selfRoute ? QStringLiteral("自身 禁用") : dbText(level),
              bus.selfRoute ? secondary : cyan, 10 * sy);
 
@@ -452,6 +472,12 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
         painter.setBrush(QColor("#142b3e"));
         painter.drawRoundedRect(gear, 5, 5);
         text(painter, gear, QStringLiteral("⚙"), label, 18 * sy);
+        painter.setPen(QPen(QColor("#24445d"),1));
+        painter.drawLine(QPointF(row.left()+12*sx,row.top()+72*sy),
+                         QPointF(row.right()-12*sx,row.top()+72*sy));
+        text(painter,{row.left()+16*sx,row.top()+75*sy,row.width()-32*sx,17*sy},
+             mappingLabel(impl_->sourceNumber,bus),QColor("#a8c8e7"),12*sy,
+             Qt::AlignLeft|Qt::AlignVCenter);
     }
     painter.restore();
 
@@ -573,7 +599,6 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
     }
     painter.restore();
     drawText({992,20,135,29},QStringLiteral("分控旋钮"),17,label,true);
-    drawButton({1142,18,178,30},Common::auxLayoutName(bus->targetLayout)+QStringLiteral(" ▾"));
     drawText({992,54,90,28},QStringLiteral("全通道链接"),13,secondary);drawToggle({1085,57,42,24},bus->sendsLinked);
     drawButton({1220,52,100,34},QStringLiteral("重置"));
     const std::array<QString,8> sendLabels{QStringLiteral("L"),QStringLiteral("R"),QStringLiteral("C"),QStringLiteral("LFE"),QStringLiteral("Ls"),QStringLiteral("Rs"),QStringLiteral("Lb"),QStringLiteral("Rb")};
@@ -729,18 +754,6 @@ void AuxSettingsWindow::mousePressEvent(QMouseEvent* event)
             bus->panMode=Common::AuxPanMode::classic;impl_->changed();
         }
         return;
-    }
-    if (impl_->sendsModeButton().contains(position)) {
-        QMenu menu(this);
-        const std::array layouts {Common::AuxChannelLayout::mono,Common::AuxChannelLayout::stereo,
-                                  Common::AuxChannelLayout::surround51,Common::AuxChannelLayout::surround71};
-        for(const auto layout:layouts){
-            auto* action=menu.addAction(Common::auxLayoutName(layout));action->setCheckable(true);action->setChecked(bus->targetLayout==layout);
-            connect(action,&QAction::triggered,this,[this,id=bus->id,layout]{
-                if(impl_->state->setBusLayout(id,layout)){if(impl_->selfAuxId==id)impl_->sourceLayout=layout;impl_->changed();}
-            });
-        }
-        menu.exec(event->globalPosition().toPoint());return;
     }
     if (impl_->resetButton().contains(position)) {
         impl_->state->resetBus(impl_->sourceKey,bus->id,impl_->selfAuxId);impl_->changed();return;

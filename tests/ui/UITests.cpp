@@ -1271,7 +1271,7 @@ bool testMixerChannelControls()
     AuxSettingsWindow auxControls(auxState);
     const auto sourceKey = QStringLiteral("ui-test-input");
     auxControls.setSource(sourceKey, QStringLiteral("Line 3"), 0,
-                          WinJACKNexus::Common::AuxChannelLayout::mono);
+                          WinJACKNexus::Common::AuxChannelLayout::mono,QStringLiteral("CH 3"));
     auxControls.setChainEnabled(true);
     auxControls.show();
     QCoreApplication::processEvents();
@@ -1317,7 +1317,9 @@ bool testMixerChannelControls()
         click(&auxControls, point);
         return opened;
     };
-    passed &= check(chooseAuxMenu({1230, 32}, [](QMenu* menu) { menu->actions()[2]->trigger(); })
+    passed &= check(chooseAuxMenu({345, 98}, [](QMenu* menu) {
+                        menu->actions()[2]->menu()->actions()[2]->trigger();
+                    })
                         && firstBus && firstBus->targetLayout == WinJACKNexus::Common::AuxChannelLayout::surround51
                         && auxChanges > 0,
                     "AUX detail mode selects the actual bus channel layout");
@@ -1343,7 +1345,7 @@ bool testMixerChannelControls()
     passed &= check(auxState->busForSource(sourceKey,1)->sends.size()==1
                         && auxChanges==auxChangesBeforeDisabledClick,
                     "AUX keeps eight visible knob rows but ignores inactive channel controls");
-    passed &= check(chooseAuxMenu({345, 414}, [](QMenu* menu) { menu->actions()[1]->trigger(); })
+    passed &= check(chooseAuxMenu({345, 505}, [](QMenu* menu) { menu->actions()[1]->trigger(); })
                         && auxState->buses().size() == 4,
                     "AUX row gear deletes the selected bus");
 
@@ -1351,7 +1353,7 @@ bool testMixerChannelControls()
     surroundAuxState->setBusLayout(1,WinJACKNexus::Common::AuxChannelLayout::surround51);
     AuxSettingsWindow surroundAux(surroundAuxState);
     surroundAux.setSource(QStringLiteral("ui-test-surround"),QStringLiteral("Surround 1"),0,
-                          WinJACKNexus::Common::AuxChannelLayout::surround51);
+                          WinJACKNexus::Common::AuxChannelLayout::surround51,QStringLiteral("CH 9"));
     surroundAux.show();
     QCoreApplication::processEvents();
     QImage auxSurroundPreview(surroundAux.size(),QImage::Format_ARGB32_Premultiplied);

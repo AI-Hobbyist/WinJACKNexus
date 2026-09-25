@@ -52,6 +52,13 @@ struct Channel {
     qreal inputGainDb {};
 };
 
+QString auxSourceNumber(const Channel& channel)
+{
+    if(channel.auxId)return QStringLiteral("AUX %1").arg(channel.auxId);
+    if(channel.number.startsWith(QStringLiteral("CH ")))return channel.number;
+    return QStringLiteral("CH %1").arg(channel.number);
+}
+
 qreal faderDbValue(qreal position);
 
 qreal selContentScale(const QSize& size)
@@ -932,7 +939,7 @@ public:
                 if (found != channels.cend()) {
                     const auto key = found->auxId ? QStringLiteral("aux:%1").arg(found->auxId)
                                                   : QStringLiteral("input:%1").arg(found->id);
-                    auxSettingsWindow->setSource(key, found->name, found->auxId, layout);
+                    auxSettingsWindow->setSource(key, found->name, found->auxId, layout,auxSourceNumber(*found));
                 }
             } else {
                 auxSettingsWindow->update();
@@ -973,7 +980,7 @@ public:
                 if (current && auxSettingsWindow) {
                     const auto key = current->auxId ? QStringLiteral("aux:%1").arg(current->auxId)
                                                     : QStringLiteral("input:%1").arg(current->id);
-                    auxSettingsWindow->setSource(key,current->name,current->auxId,current->layout);
+                    auxSettingsWindow->setSource(key,current->name,current->auxId,current->layout,auxSourceNumber(*current));
                     auxSettingsWindow->setChainEnabled(current->aux);
                 }
                 if (selStack && selStack->currentIndex()==2) showSelFx();
@@ -1036,7 +1043,7 @@ public:
                 if(found==channels.cend())return;
                 if(auxSettingsWindow&&auxWindowChannelId==found->id){
                     const auto key=found->auxId?QStringLiteral("aux:%1").arg(found->auxId):QStringLiteral("input:%1").arg(found->id);
-                    auxSettingsWindow->setSource(key,found->name,found->auxId,found->layout);
+                    auxSettingsWindow->setSource(key,found->name,found->auxId,found->layout,auxSourceNumber(*found));
                 }
                 if(auto fx=fxSettingsWindows.find(found->id);fx!=fxSettingsWindows.end()&&fx->second)
                     fx->second->setSourceName(found->name);
@@ -1099,7 +1106,7 @@ public:
             });
         }
         const auto key=found->auxId?QStringLiteral("aux:%1").arg(found->auxId):QStringLiteral("input:%1").arg(found->id);
-        auxSettingsWindow->setSource(key,found->name,found->auxId,found->layout);
+        auxSettingsWindow->setSource(key,found->name,found->auxId,found->layout,auxSourceNumber(*found));
         auxSettingsWindow->setChainEnabled(found->aux);
         if(auxSettingsWindow->parentWidget()!=selAuxPage){
             auxSettingsWindow->hide();auxSettingsWindow->setWindowFlags(Qt::Widget);
