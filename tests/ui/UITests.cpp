@@ -1240,10 +1240,10 @@ bool testMixerChannelControls()
     passed &= check(!mixer.channelMixToMain(0) && mixer.mainInputLevelDb() < fullMainLevel,
                     "input MIX excludes its channel from MAIN");
     const auto excludedMainLevel = mixer.mainInputLevelDb();
-    click(&mixer, {60, 402});
+    click(&mixer, {87, 402});
     passed &= check(std::abs(mixer.mainInputLevelDb() - excludedMainLevel) < .001,
                     "solo on an excluded channel does not interrupt MAIN");
-    click(&mixer, {60, 402});
+    click(&mixer, {87, 402});
     click(&mixer, {87, 444});
     passed &= check(mixer.channelMixToMain(0)
                         && std::abs(mixer.mainInputLevelDb() - fullMainLevel) < .001,
@@ -1253,7 +1253,7 @@ bool testMixerChannelControls()
                     "AUX MIX excludes its channel from MAIN");
     click(&mixer, {626, 444});
     passed &= check(mixer.channelMixToMain(8), "AUX MIX restores its MAIN contribution");
-    click(&mixer, {60, 444});
+    click(&mixer, {40, 444});
     auto* selected = mixer.findChild<QLabel*>(QStringLiteral("selSelectedChannel"));
     auto* sel = mixer.findChild<QWidget*>(QStringLiteral("selLargeScreen"));
     auto* pages = mixer.findChild<QStackedWidget*>(QStringLiteral("selPages"));
@@ -1502,15 +1502,15 @@ bool testMixerChannelControls()
         passed &= check(mainPage->property("selPannerInfluence").toDouble()>.5,
                         "SEL spatial point outer ring adjusts nearby speaker influence");
         const auto mutePixel=togglePixel(mainPoint(40,413));
-        click(&mixer,{60,364});
+        click(&mixer,{40,402});
         passed &= check(togglePixel(mainPoint(40,413))!=mutePixel,
                         "mixer MUTE button changes the selected channel state in SEL");
-        click(&mixer,{60,364});
+        click(&mixer,{40,402});
         const auto soloPixel=togglePixel(mainPoint(175,413));
-        click(&mixer,{60,402});
+        click(&mixer,{87,402});
         passed &= check(togglePixel(mainPoint(175,413))!=soloPixel,
                         "mixer SOLO button changes the selected channel state in SEL");
-        click(&mixer,{60,402});
+        click(&mixer,{87,402});
         drag(mainPage, mainPoint(93,375), mainPoint(93,345));
         passed &= check(std::abs(mainPage->property("selInputGainDb").toDouble()-6.0)<.5,
                         "SEL input gain knob raises the selected channel gain");
@@ -1526,7 +1526,7 @@ bool testMixerChannelControls()
         drag(mainPage, mainPoint(93,375), mainPoint(93,345));
         click(&mixer, {150,444});
         const bool secondChannelStartsFlat=std::abs(mainPage->property("selInputGainDb").toDouble())<.5;
-        click(&mixer, {60,444});
+        click(&mixer, {40,444});
         passed &= check(secondChannelStartsFlat
                             && std::abs(mainPage->property("selInputGainDb").toDouble()-6.0)<.5,
                         "SEL input gain stays with its own channel when selection changes");
@@ -1670,7 +1670,7 @@ bool testMixerChannelControls()
         }
     }
     if (auto* mainTab = mixer.findChild<QPushButton*>(QStringLiteral("selTabMain"))) mainTab->click();
-    click(&mixer, {963, 402});
+    click(&mixer, {963, 444});
     passed &= check(selected && selected->text() == QStringLiteral("Main L/R"),
                     "Main strip opens its own SEL channel");
     if(mainPage){
@@ -1701,7 +1701,7 @@ bool testMixerChannelControls()
                         "Main FX chain includes parametric EQ, compressor and limiter by default");
     }
     if(auto* mainTab=mixer.findChild<QPushButton*>(QStringLiteral("selTabMain")))mainTab->click();
-    click(&mixer, {60, 444});
+    click(&mixer, {40, 444});
     click(&mixer, {150, 444});
     passed &= check(selected && selected->text() == QStringLiteral("Mic 2"),
                     "SEL button switches the large-screen channel");

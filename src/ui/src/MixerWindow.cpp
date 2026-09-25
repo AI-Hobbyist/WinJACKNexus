@@ -1316,8 +1316,12 @@ public:
     QRectF faderTrack(int index) const
     {
         const auto card = channelRect(index);
-        const auto top = card.top() + card.height() * .62;
-        return { card.center().x() - 3.0, top, 6.0, card.height() * .26 };
+        const auto heightScale = std::clamp(owner.height() / 768.0, .72, 1.35);
+        const auto meterBottom = card.top() + 42.0 * heightScale + 65.0 * heightScale
+            + card.height() * .26 + 40.0 * heightScale;
+        const auto top = meterBottom + (20.0 + 2.35 * 28.0 + 8.0) * heightScale;
+        const auto bottom = card.top() + card.height() * .885;
+        return { card.center().x() - 3.0, top, 6.0, std::max(1.0, bottom - top) };
     }
 
     QRectF meterRect(int index, qreal heightScale) const
@@ -1325,7 +1329,7 @@ public:
         const auto card = channelRect(index);
         const auto headerHeight = 42.0 * heightScale;
         const auto top = card.top() + headerHeight + 65.0 * heightScale;
-        return { card.center().x() - 8.0, top, 16.0, faderTrack(index).height() };
+        return { card.center().x() - 8.0, top, 16.0, card.height() * .26 + 40.0 * heightScale };
     }
 
     QRectF meterModeRect(int index, qreal heightScale) const
@@ -1342,25 +1346,41 @@ public:
 
     QRectF channelButtonRect(int index, qreal heightScale, int row) const
     {
-        static constexpr std::array<qreal, 3> offsets { 0.0, 1.35, 2.85 };
         const auto card = channelRect(index);
         const auto buttonHeight = 28.0 * heightScale;
         const auto top = meterRect(index, heightScale).bottom() + 20.0 * heightScale;
-        return { card.left() + 6.0, top + buttonHeight * offsets[row], card.width() - 12.0, buttonHeight };
+        return { card.left() + 6.0, top + buttonHeight * 1.35 * row, card.width() - 12.0, buttonHeight };
+    }
+
+    QRectF splitButtonRect(int index, qreal heightScale, int row, bool right) const
+    {
+        auto button = channelButtonRect(index, heightScale, row);
+        const auto halfWidth = (button.width() - 6.0) / 2.0;
+        if (right) button.setLeft(button.left() + halfWidth + 6.0);
+        else button.setWidth(halfWidth);
+        return button;
+    }
+
+    QRectF muteButtonRect(int index, qreal heightScale) const
+    {
+        return index == masterIndex() ? channelButtonRect(index, heightScale, 0)
+                                      : splitButtonRect(index, heightScale, 0, false);
+    }
+
+    QRectF soloButtonRect(int index, qreal heightScale) const
+    {
+        return splitButtonRect(index, heightScale, 0, true);
     }
 
     QRectF selectButtonRect(int index, qreal heightScale) const
     {
-        auto button = channelButtonRect(index, heightScale, index == masterIndex() ? 1 : 2);
-        if (index != masterIndex()) button.setWidth(button.width() * .58 - 3.0);
-        return button;
+        return index == masterIndex() ? channelButtonRect(index, heightScale, 1)
+                                      : splitButtonRect(index, heightScale, 1, false);
     }
 
     QRectF mixButtonRect(int index, qreal heightScale) const
     {
-        const auto row = channelButtonRect(index, heightScale, 2);
-        const auto selected = selectButtonRect(index, heightScale);
-        return { selected.right() + 6.0, row.top(), row.right() - selected.right() - 6.0, row.height() };
+        return splitButtonRect(index, heightScale, 1, true);
     }
 
     int hitChannel(const QPointF& position) const
@@ -1575,9 +1595,9 @@ void MixerWindow::paintEvent(QPaintEvent*)
             painter.drawRoundedRect(button, 5, 5);
             drawText(painter, button, text, active ? QColor("#ffffff") : label, 12 * heightScale, Qt::AlignCenter, true);
         };
-        drawButton(impl_->channelButtonRect(index, heightScale, 0), "MUTE", QColor("#ff4f55"), channel.mute);
+        drawButton(impl_->muteButtonRect(index, heightScale), index == impl_->masterIndex() ? "MUTE" : "M", QColor("#ff4f55"), channel.mute);
         if(index!=impl_->masterIndex())
-            drawButton(impl_->channelButtonRect(index, heightScale, 1), "SOLO", QColor("#f7aa2f"), channel.solo);
+            drawButton(impl_->soloButtonRect(index, heightScale), "S", QColor("#f7aa2f"), channel.solo);
         drawButton(impl_->selectButtonRect(index, heightScale), "SEL", QColor("#66809b"), false);
         if (index != impl_->masterIndex())
             drawButton(impl_->mixButtonRect(index, heightScale), "MIX", QColor("#24b8ff"), channel.mixToMain);
@@ -1709,7 +1729,8 @@ void MixerWindow::mousePressEvent(QMouseEvent* event)
         update();
         return;
     }
-    const auto track = impl_->faderTrack(index).adjusted(-card.width() * .18, -20, card.width() * .18, 20);
+    auto track = impl_->faderTrack(index).adjusted(-card.width() * .18, -20, card.width() * .18, 20);
+    track.setTop(std::max(track.top(), impl_->channelButtonRect(index, heightScale, 1).bottom() + 4.0 * heightScale));
     if (track.contains(event->position())) {
         impl_->dragging = index;
         mouseMoveEvent(event);
@@ -1717,9 +1738,9 @@ void MixerWindow::mousePressEvent(QMouseEvent* event)
     }
 
     auto& channel = impl_->channels[index];
-    if (impl_->channelButtonRect(index, heightScale, 0).contains(event->position()))
+    if (impl_->muteButtonRect(index, heightScale).contains(event->position()))
         channel.mute = !channel.mute;
-    else if (index!=impl_->masterIndex()&&impl_->channelButtonRect(index, heightScale, 1).contains(event->position()))
+    else if (index!=impl_->masterIndex()&&impl_->soloButtonRect(index, heightScale).contains(event->position()))
         channel.solo = !channel.solo;
     else if (impl_->selectButtonRect(index, heightScale).contains(event->position())) {
         impl_->selectChannel(index);
