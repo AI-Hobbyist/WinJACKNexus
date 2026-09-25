@@ -8,6 +8,8 @@
 #include <QStringList>
 
 #include <cstdint>
+#include <cstddef>
+#include <span>
 #include <vector>
 
 namespace WinJACKNexus::Common {
@@ -46,9 +48,9 @@ struct AuxBusState final {
     AuxChannelLayout targetLayout { AuxChannelLayout::stereo };
     double width { .7 };
     double angleDegrees {};
-    double coverageDegrees { 120.0 };
     std::vector<QPointF> adjustablePoints;
-    std::vector<double> pointCoverageDegrees;
+    // Per-source-point radius in normalized panner coordinates (0.1 to 0.75).
+    std::vector<double> pointInfluenceRadii;
     std::vector<AuxSendChannel> sends;
 };
 
@@ -59,9 +61,14 @@ WINJACK_COMMON_API bool auxHasSpatialPoint(AuxChannelLayout layout, int channelI
 WINJACK_COMMON_API bool auxSupportsClassicPan(AuxChannelLayout source, AuxChannelLayout target);
 WINJACK_COMMON_API QPointF auxClampPannerPoint(QPointF point);
 WINJACK_COMMON_API void auxSetPannerAngle(AuxBusState& bus, double angleDegrees);
-WINJACK_COMMON_API double auxCoverageRadius(double coverageDegrees);
-WINJACK_COMMON_API double auxCoverageForRadius(double radius);
-WINJACK_COMMON_API void auxSetPointCoverage(AuxBusState& bus, int index, double coverageDegrees);
+WINJACK_COMMON_API double auxInfluencePixelRadius(double influenceRadius);
+WINJACK_COMMON_API double auxInfluenceRadiusForPixels(double pixels);
+WINJACK_COMMON_API void auxSetPointInfluenceRadius(AuxBusState& bus, int index, double radius);
+// Constant-power gains for mixing one source channel into the target speaker layout.
+WINJACK_COMMON_API std::vector<double> auxSpatialOutputGains(const AuxBusState& bus, int sourceIndex);
+// Adds enabled spatial sends to output buffers; each pointer holds `frames` samples.
+WINJACK_COMMON_API void auxMixSpatialBlock(const AuxBusState& bus,
+    std::span<const float* const> inputs, std::span<float* const> outputs, std::size_t frames);
 
 class WINJACK_COMMON_API AuxMixerState final {
 public:

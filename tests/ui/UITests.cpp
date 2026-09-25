@@ -1295,11 +1295,11 @@ bool testMixerChannelControls()
                         && std::abs(firstBus->classicPan-.5)<.03,
                     "AUX can switch to spatial panning without losing its classic Pan value");
     const auto monoPointBefore=firstBus?firstBus->adjustablePoints[0]:QPointF();
-    drag(&auxControls,{719,205},{742,205});
-    passed &= check(firstBus && firstBus->pointCoverageDegrees[0]>300.0
+    drag(&auxControls,{702,205},{790,205});
+    passed &= check(firstBus && firstBus->pointInfluenceRadii[0]>.6
                         && firstBus->adjustablePoints[0]==monoPointBefore
-                        && auxControls.property("auxPannerCoverage").toDouble()>300.0,
-                    "AUX spatial point outer ring adjusts coverage without moving the point");
+                        && auxControls.property("auxPannerInfluence").toDouble()>.6,
+                    "AUX spatial point outer ring adjusts nearby speaker influence without moving the point");
     auxState->setBusAccent(1, QColor("#a12bcd"));
     passed &= check(auxState->bus(1)->accent == QColor("#a12bcd")
                         && firstBus && firstBus->accent == QColor("#a12bcd"),
@@ -1459,9 +1459,9 @@ bool testMixerChannelControls()
                             ==static_cast<int>(WinJACKNexus::Common::AuxPanMode::spatial)
                             && std::abs(mainPage->property("selClassicPan").toDouble()-.5)<.03,
                         "SEL can switch to spatial panning while keeping its classic Pan value");
-        drag(mainPage,mainPoint(609,212),mainPoint(630,212));
-        passed &= check(mainPage->property("selPannerCoverage").toDouble()>300.0,
-                        "SEL spatial point outer ring adjusts the selected channel coverage");
+        drag(mainPage,mainPoint(592,212),mainPoint(670,212));
+        passed &= check(mainPage->property("selPannerInfluence").toDouble()>.5,
+                        "SEL spatial point outer ring adjusts nearby speaker influence");
         const auto mutePixel=togglePixel(mainPoint(40,413));
         click(&mixer,{60,364});
         passed &= check(togglePixel(mainPoint(40,413))!=mutePixel,

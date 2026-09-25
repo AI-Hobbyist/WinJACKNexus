@@ -661,8 +661,8 @@ bool testAuxChannelLayoutsAndCopy()
                         && !auxSupportsClassicPan(AuxChannelLayout::surround51,AuxChannelLayout::stereo)
                         && !auxSupportsClassicPan(AuxChannelLayout::stereo,AuxChannelLayout::surround51),
                     "classic Pan is available only for mono or stereo sources sent to stereo");
-    passed &= check(std::abs(auxCoverageForRadius(auxCoverageRadius(120.0))-120.0)<.001,
-                    "spatial coverage angle and draggable outer radius share an inverse mapping");
+    passed &= check(std::abs(auxInfluenceRadiusForPixels(auxInfluencePixelRadius(0.4))-0.4)<.001,
+                    "spatial influence radius and draggable outer ring share an inverse mapping");
     const auto surround51Points=auxLayoutReferencePoints(AuxChannelLayout::surround51);
     const auto surround71Points=auxLayoutReferencePoints(AuxChannelLayout::surround71);
     passed &= check(surround51Points.size()==6 && surround71Points.size()==8
@@ -679,15 +679,54 @@ bool testAuxChannelLayoutsAndCopy()
                         && surround71Points[7].x()>0 && surround71Points[7].y()>0,
                     "surround reference points follow front, side and rear speaker positions without LFE");
     auto surroundBus=state.addBus(AuxChannelLayout::surround51);
-    auxSetPannerAngle(surroundBus,30.0);
+    const auto defaultLfePoint=surroundBus.adjustablePoints[3];
     passed &= check(surroundBus.adjustablePoints[3]==QPointF()
                         && surroundBus.sends.size()==6 && surroundBus.sends[3].label==QStringLiteral("LFE"),
                     "LFE has no rotating spatial point while retaining its independent level control");
-    auxSetPointCoverage(surroundBus,3,280.0);
-    auxSetPointCoverage(surroundBus,4,280.0);
-    passed &= check(std::abs(surroundBus.pointCoverageDegrees[3]-120.0)<.001
-                        && std::abs(surroundBus.pointCoverageDegrees[4]-280.0)<.001,
-                    "spatial coverage changes only the selected non-LFE channel");
+    const auto centerGains=auxSpatialOutputGains(surroundBus,2);
+    passed &= check(std::abs(surroundBus.pointInfluenceRadii[2]-0.1)<.001
+                        && centerGains[2]>.999 && centerGains[0]==0.0 && centerGains[1]==0.0,
+                    "default C influence ring touches its point and routes only to C");
+    surroundBus.sends[2].levelDb=0.0;
+    const std::array<float,2> centerInput{1.0F,-1.0F};
+    std::array<const float*,6> sourceBuffers{};
+    sourceBuffers[2]=centerInput.data();
+    std::array<std::array<float,2>,6> outputSamples{};
+    std::array<float*,6> outputBuffers{};
+    for(std::size_t index=0;index<outputBuffers.size();++index)
+        outputBuffers[index]=outputSamples[index].data();
+    auxMixSpatialBlock(surroundBus,sourceBuffers,outputBuffers,centerInput.size());
+    passed &= check(outputSamples[2][0]>.999F && outputSamples[0][0]==0.0F,
+                    "default C signal is mixed only into the C output");
+    auxSetPointInfluenceRadius(surroundBus,3,0.6);
+    auxSetPointInfluenceRadius(surroundBus,2,0.6);
+    const auto expandedCenter=auxSpatialOutputGains(surroundBus,2);
+    passed &= check(std::abs(surroundBus.pointInfluenceRadii[3]-0.1)<.001
+                        && std::abs(surroundBus.pointInfluenceRadii[2]-0.6)<.001
+                        && expandedCenter[0]>0.0 && expandedCenter[1]>0.0
+                        && expandedCenter[2]>expandedCenter[0]
+                        && std::abs(expandedCenter[0]-expandedCenter[1])<.001
+                        && expandedCenter[3]==0.0,
+                    "expanding C influence sends signal to nearby L/R without routing to LFE");
+    for(auto& channel:outputSamples)channel.fill(0.0F);
+    auxMixSpatialBlock(surroundBus,sourceBuffers,outputBuffers,centerInput.size());
+    passed &= check(outputSamples[0][0]>0.0F && outputSamples[1][0]>0.0F
+                        && outputSamples[2][0]>outputSamples[0][0]
+                        && outputSamples[3][0]==0.0F && outputSamples[0][1]<0.0F,
+                    "expanded C signal is mixed at lower strength into nearby L/R output samples");
+    const auto lfeGains=auxSpatialOutputGains(surroundBus,3);
+    passed &= check(lfeGains[3]==1.0 && lfeGains[0]==0.0,
+                    "LFE remains an independent output without a spatial point");
+    auto monoToStereo=state.addBus(AuxChannelLayout::mono);
+    monoToStereo.targetLayout=AuxChannelLayout::stereo;
+    monoToStereo.panMode=AuxPanMode::spatial;
+    const auto centeredMono=auxSpatialOutputGains(monoToStereo,0);
+    passed &= check(centeredMono.size()==2 && centeredMono[0]>.7
+                        && std::abs(centeredMono[0]-centeredMono[1])<.001,
+                    "centered mono spatial signal mixes equally into stereo L and R");
+    auxSetPannerAngle(surroundBus,30.0);
+    passed &= check(surroundBus.adjustablePoints[3]==defaultLfePoint,
+                    "rotating the spatial field leaves LFE fixed");
     auto stereo=state.buses().front();
     const auto originalRight=stereo.adjustablePoints[1];
     stereo.adjustablePoints[0]={-.1,-.3};

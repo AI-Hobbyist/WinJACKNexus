@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <array>
 #include <cmath>
+#include <limits>
 
 namespace WinJACKNexus::Common {
 namespace {
@@ -143,23 +144,85 @@ void auxSetPannerAngle(AuxBusState& bus, double angleDegrees)
     bus.angleDegrees=angleDegrees;
 }
 
-double auxCoverageRadius(double coverageDegrees)
+double auxInfluencePixelRadius(double influenceRadius)
 {
-    return 20.0+(std::clamp(coverageDegrees,5.0,360.0)-5.0)*40.0/355.0;
+    return std::clamp(influenceRadius,0.1,0.75)*159.0;
 }
 
-double auxCoverageForRadius(double radius)
+double auxInfluenceRadiusForPixels(double pixels)
 {
-    return 5.0+(std::clamp(radius,20.0,60.0)-20.0)*355.0/40.0;
+    return std::clamp(pixels/159.0,0.1,0.75);
 }
 
-void auxSetPointCoverage(AuxBusState& bus, int index, double coverageDegrees)
+void auxSetPointInfluenceRadius(AuxBusState& bus, int index, double radius)
 {
     if(index<0 || index>=static_cast<int>(bus.adjustablePoints.size())
        || !auxHasSpatialPoint(bus.sourceLayout,index))return;
-    if(bus.pointCoverageDegrees.size()!=bus.adjustablePoints.size())
-        bus.pointCoverageDegrees.resize(bus.adjustablePoints.size(),bus.coverageDegrees);
-    bus.pointCoverageDegrees[index]=std::clamp(coverageDegrees,5.0,360.0);
+    if(bus.pointInfluenceRadii.size()!=bus.adjustablePoints.size())
+        bus.pointInfluenceRadii.resize(bus.adjustablePoints.size(),0.1);
+    bus.pointInfluenceRadii[index]=std::clamp(radius,0.1,0.75);
+}
+
+std::vector<double> auxSpatialOutputGains(const AuxBusState& bus, int sourceIndex)
+{
+    const auto references=auxLayoutReferencePoints(bus.targetLayout);
+    std::vector<double> gains(references.size());
+    if(sourceIndex<0 || sourceIndex>=static_cast<int>(bus.adjustablePoints.size()))return gains;
+    if(!auxHasSpatialPoint(bus.sourceLayout,sourceIndex)){
+        if(sourceIndex==3 && references.size()>3)gains[3]=1.0;
+        return gains;
+    }
+    const auto& source=bus.adjustablePoints[sourceIndex];
+    const auto radius=sourceIndex<static_cast<int>(bus.pointInfluenceRadii.size())
+        ? std::clamp(bus.pointInfluenceRadii[sourceIndex],0.1,0.75):0.1;
+    double nearestDistance=std::numeric_limits<double>::infinity();
+    double power=0.0;
+    for(int target=0;target<static_cast<int>(references.size());++target){
+        if(!auxHasSpatialPoint(bus.targetLayout,target))continue;
+        const auto distance=std::hypot(source.x()-references[target].x(),
+                                       source.y()-references[target].y());
+        nearestDistance=std::min(nearestDistance,distance);
+        gains[target]=std::max(0.0,1.0-distance/radius);
+        power+=gains[target]*gains[target];
+    }
+    if(power<=0.0){
+        int nearestCount=0;
+        for(int target=0;target<static_cast<int>(references.size());++target){
+            if(!auxHasSpatialPoint(bus.targetLayout,target))continue;
+            const auto distance=std::hypot(source.x()-references[target].x(),
+                                           source.y()-references[target].y());
+            if(std::abs(distance-nearestDistance)<1e-6){gains[target]=1.0;++nearestCount;}
+        }
+        if(nearestCount>0){
+            const auto equalPower=1.0/std::sqrt(static_cast<double>(nearestCount));
+            for(auto& gain:gains)gain*=equalPower;
+        }
+        return gains;
+    }
+    const auto normalization=std::sqrt(power);
+    for(auto& gain:gains)gain/=normalization;
+    return gains;
+}
+
+void auxMixSpatialBlock(const AuxBusState& bus, std::span<const float* const> inputs,
+                        std::span<float* const> outputs, std::size_t frames)
+{
+    if(!bus.enabled || bus.panMode!=AuxPanMode::spatial || frames==0)return;
+    const auto sourceCount=std::min(inputs.size(),bus.sends.size());
+    const auto soloed=std::any_of(bus.sends.begin(),bus.sends.begin()+sourceCount,
+                                 [](const AuxSendChannel& send){return send.solo;});
+    for(std::size_t source=0;source<sourceCount;++source){
+        const auto& send=bus.sends[source];
+        if(!inputs[source] || send.mute || (soloed&&!send.solo))continue;
+        const auto gains=auxSpatialOutputGains(bus,static_cast<int>(source));
+        const auto level=std::pow(10.0,send.levelDb/20.0);
+        for(std::size_t target=0;target<std::min(outputs.size(),gains.size());++target){
+            if(!outputs[target] || gains[target]<=0.0)continue;
+            const auto gain=static_cast<float>(level*gains[target]);
+            for(std::size_t frame=0;frame<frames;++frame)
+                outputs[target][frame]+=inputs[source][frame]*gain;
+        }
+    }
 }
 
 void AuxMixerState::setBusAccent(std::uint32_t id, const QColor& accent)
@@ -305,7 +368,7 @@ void AuxMixerState::rebuildChannels(AuxBusState& bus) const
     const auto labels = auxLayoutChannelLabels(bus.sourceLayout);
     const auto defaults = auxLayoutReferencePoints(bus.sourceLayout);
     bus.adjustablePoints = defaults;
-    bus.pointCoverageDegrees.assign(defaults.size(), bus.coverageDegrees);
+    bus.pointInfluenceRadii.assign(defaults.size(),0.1);
     bus.sends.clear();
     bus.sends.reserve(static_cast<std::size_t>(labels.size()));
     for (int index = 0; index < labels.size(); ++index) {
