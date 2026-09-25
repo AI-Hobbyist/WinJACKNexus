@@ -1195,14 +1195,8 @@ bool testMixerChannelControls()
     passed &= check(firstBus && !firstBus->enabled, "AUX row toggle disables its send");
     click(&auxControls, {48, 98});
     passed &= check(firstBus && firstBus->enabled, "AUX row toggle enables its send");
-    const auto targetLayout = firstBus ? firstBus->targetLayout
-                                       : WinJACKNexus::Common::AuxChannelLayout::stereo;
     int auxChanges = 0;
     auxControls.setStateChangedCallback([&] { ++auxChanges; });
-    click(&auxControls, {1090, 122});
-    passed &= check(firstBus && firstBus->targetLayout == targetLayout && auxChanges == 0
-                        && QApplication::activePopupWidget() == nullptr,
-                    "AUX target layout is read-only text");
     auxControls.setChainEnabled(false);
     click(&auxControls, {48, 98});
     passed &= check(firstBus && firstBus->enabled,
@@ -1219,6 +1213,10 @@ bool testMixerChannelControls()
         click(&auxControls, point);
         return opened;
     };
+    passed &= check(chooseAuxMenu({690, 68}, [](QMenu* menu) { menu->actions()[2]->trigger(); })
+                        && firstBus && firstBus->targetLayout == WinJACKNexus::Common::AuxChannelLayout::surround51
+                        && auxChanges > 0,
+                    "AUX detail mode selects the actual bus channel layout");
     passed &= check(chooseAuxMenu({290, 30}, [](QMenu* menu) { menu->actions()[3]->trigger(); })
                         && auxState->buses().size() == 4
                         && auxState->buses().back().targetLayout
@@ -1233,6 +1231,11 @@ bool testMixerChannelControls()
                         && auxState->busForSource(sourceKey, 1)->targetLayout
                                == WinJACKNexus::Common::AuxChannelLayout::mono,
                     "AUX row gear changes the channel type for every source");
+    const auto auxChangesBeforeDisabledClick=auxChanges;
+    click(&auxControls,{722,600});
+    passed &= check(auxState->busForSource(sourceKey,1)->sends.size()==1
+                        && auxChanges==auxChangesBeforeDisabledClick,
+                    "AUX keeps eight visible faders but ignores inactive channel controls");
     passed &= check(chooseAuxMenu({345, 414}, [](QMenu* menu) { menu->actions()[1]->trigger(); })
                         && auxState->buses().size() == 4,
                     "AUX row gear deletes the selected bus");
@@ -1249,26 +1252,55 @@ bool testMixerChannelControls()
     passed &= check(sel && mainPage && pages && pages->count() == 3 && channelName && channelComment,
                     "SEL contains the Main, AUX and FX pages and editable channel details");
     if (sel && mainPage) {
+        const auto originalSize=sel->size();
+        sel->resize(1200,900);
+        QCoreApplication::processEvents();
+        const auto uniformScale=std::min(mainPage->width()/1394.0,mainPage->height()/813.0);
+        passed &= check(channelName && channelComment
+                            && std::abs(channelName->width()-254*uniformScale)<=2
+                            && std::abs(channelName->height()-42*uniformScale)<=2
+                            && std::abs(channelComment->height()-51*uniformScale)<=2,
+                        "SEL Main keeps one scale for both axes when the window aspect ratio changes");
+        sel->resize(originalSize);
+        QCoreApplication::processEvents();
         QImage selPreview(sel->size(), QImage::Format_ARGB32_Premultiplied);
         selPreview.fill(Qt::transparent);
         sel->render(&selPreview);
         passed &= check(selPreview.save(QStringLiteral("build/sel-ui-review.png")),
                         "SEL review image is written to the existing build directory");
         const auto mainPoint=[mainPage](int x,int y){
-            return QPoint(qRound(x*mainPage->width()/1394.0),qRound(y*mainPage->height()/813.0));
+            const auto scale=std::min(mainPage->width()/1394.0,mainPage->height()/813.0);
+            return QPoint(qRound((mainPage->width()-1394*scale)/2+x*scale),
+                          qRound((mainPage->height()-813*scale)/2+y*scale));
         };
         click(mainPage,mainPoint(1229,494)); // Split all send faders.
-        click(mainPage,mainPoint(457,601));
+        click(mainPage,mainPoint(414,601));
         const auto splitLevels=mainPage->property("selSendLevels").toList();
-        passed &= check(splitLevels.size()==6 && std::abs(splitLevels[0].toDouble()+12.0)<1.0
+        passed &= check(splitLevels.size()==8 && std::abs(splitLevels[0].toDouble()+12.0)<1.0
                             && std::abs(splitLevels[1].toDouble()+2.0)<.1,
                         "split SEL faders keep independent channel levels");
+        click(mainPage,mainPoint(670,601));
+        const auto disabledLevels=mainPage->property("selSendLevels").toList();
+        passed &= check(mainPage->property("selActiveSendCount").toInt()==2
+                        && std::abs(disabledLevels[2].toDouble()+2.0)<.1,
+                        "SEL shows eight faders and disables those outside the selected layout");
         click(mainPage,mainPoint(1229,494)); // Link all channels.
-        click(mainPage,mainPoint(457,611));
+        click(mainPage,mainPoint(414,611));
         const auto linkedLevels=mainPage->property("selSendLevels").toList();
-        passed &= check(linkedLevels.size()==6 && std::abs(linkedLevels[0].toDouble()+18.0)<1.0
+        passed &= check(linkedLevels.size()==8 && std::abs(linkedLevels[0].toDouble()+18.0)<1.0
                             && std::abs(linkedLevels[1].toDouble()+8.0)<1.0,
                         "linked SEL faders shift every channel by the same dB delta");
+        bool modeOpened=false;
+        QTimer::singleShot(0,&mixer,[&]{if(auto* menu=qobject_cast<QMenu*>(QApplication::activePopupWidget())){
+            modeOpened=true;menu->actions()[2]->trigger();menu->close();}});
+        click(mainPage,mainPoint(1050,494));
+        passed &= check(modeOpened && mainPage->property("selChannelLayout").toInt()
+                            ==static_cast<int>(WinJACKNexus::Common::AuxChannelLayout::surround51)
+                            && mainPage->property("selActiveSendCount").toInt()==6,
+                        "SEL channel mode changes the actual channel layout");
+        QTimer::singleShot(0,&mixer,[]{if(auto* menu=qobject_cast<QMenu*>(QApplication::activePopupWidget())){
+            menu->actions()[1]->trigger();menu->close();}});
+        click(mainPage,mainPoint(1050,494));
         click(mainPage,mainPoint(1310,494));
     }
     if (channelComment) {

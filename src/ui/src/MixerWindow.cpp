@@ -46,7 +46,6 @@ struct Channel {
     std::uint32_t auxId {};
     std::uint32_t id {};
     Common::AuxChannelLayout layout { Common::AuxChannelLayout::mono };
-    QString comment;
     Common::AuxBusState selState;
     bool customColor {};
 };
@@ -68,7 +67,7 @@ public:
             connect(edit, &QLineEdit::editingFinished, this, [this] {
                 if (!channel) return;
                 channel->name = name->text().trimmed();
-                channel->comment = comment->text();
+                channel->source = comment->text();
                 if (changed) changed();
                 if (detailsChanged) detailsChanged();
             });
@@ -96,15 +95,22 @@ public:
             const bool switched=displayedId!=channel->id;
             if(switched){displayedId=channel->id;selectedPoint=0;}
             if (switched || !name->hasFocus()) name->setText(channel->name);
-            if (switched || !comment->hasFocus()) comment->setText(channel->comment);
+            if (switched || !comment->hasFocus()) comment->setText(channel->source);
             auto& state=channel->selState;
+            selectedPoint=std::clamp(selectedPoint,0,std::max(0,static_cast<int>(Common::auxLayoutChannelLabels(channel->layout).size())-1));
             if(state.adjustablePoints.size()!=static_cast<std::size_t>(Common::auxLayoutChannelLabels(channel->layout).size()))
                 state.adjustablePoints=Common::auxLayoutReferencePoints(channel->layout);
             state.sourceLayout=channel->layout;
-            if(state.sends.empty()) {
-                state.targetLayout=Common::AuxChannelLayout::surround51;
-                for(const auto& label:Common::auxLayoutChannelLabels(state.targetLayout))
-                    state.sends.push_back({label,label,-2.0,-12.0});
+            state.targetLayout=channel->layout;
+            setProperty("selChannelLayout",static_cast<int>(channel->layout));
+            setProperty("selActiveSendCount",Common::auxLayoutChannelLabels(channel->layout).size());
+            if(state.sends.size()!=8) {
+                const std::array<QString,8> labels {QStringLiteral("L"),QStringLiteral("R"),QStringLiteral("C"),QStringLiteral("LFE"),QStringLiteral("Ls"),QStringLiteral("Rs"),QStringLiteral("Lb"),QStringLiteral("Rb")};
+                state.sends.resize(8);
+                for(std::size_t i=0;i<labels.size();++i) {
+                    state.sends[i].label=labels[i];state.sends[i].name=labels[i];
+                    state.sends[i].levelDb=-2.0;state.sends[i].meterDb=-12.0;
+                }
             }
             linked=state.sendsLinked;
             publishLevels();
@@ -118,9 +124,9 @@ public:
 protected:
     void resizeEvent(QResizeEvent*) override
     {
-        const qreal sx = width() / 1394.0, sy = height() / 813.0;
-        const auto place = [sx, sy](QWidget* widget, int x, int y, int w, int h) {
-            widget->setGeometry(qRound(x*sx), qRound(y*sy), qRound(w*sx), qRound(h*sy));
+        const qreal scale=contentScale();const QPointF origin=contentOrigin();
+        const auto place = [scale,origin](QWidget* widget, int x, int y, int w, int h) {
+            widget->setGeometry(qRound(origin.x()+x*scale),qRound(origin.y()+y*scale),qRound(w*scale),qRound(h*scale));
         };
         place(name, 29, 53, 254, 42);
         place(comment, 29, 148, 254, 51);
@@ -131,7 +137,9 @@ protected:
     {
         QPainter p(this);
         p.setRenderHint(QPainter::Antialiasing);
-        p.scale(width()/1394.0, height()/813.0);
+        p.fillRect(rect(), QColor("#0b1a2b"));
+        p.translate(contentOrigin());
+        p.scale(contentScale(), contentScale());
         p.fillRect(QRect(0, 0, 1394, 813), QColor("#0b1a2b"));
         const QColor border=channel&&channel->customColor?channel->accent:QColor("#2b4662");
         const QColor ink("#e8f2ff"), muted("#aec7eb"), blue("#26bfff");
@@ -180,7 +188,8 @@ protected:
         }
         text({330,20,250,29},QStringLiteral("空间声像器"),17,ink,true);
         button({330,52,80,34},QStringLiteral("2D"),!threeD); button({421,52,80,34},QStringLiteral("3D"),threeD);
-        button({521,52,165,34},Common::auxLayoutName(channel?channel->layout:Common::AuxChannelLayout::stereo)+QStringLiteral(" ▾"));
+        button({521,52,165,34},Common::auxLayoutName(channel?channel->layout:Common::AuxChannelLayout::stereo)
+               +(channel&&channel->number!=QStringLiteral("MAIN")?QStringLiteral(" ▾"):QString()));
         text({718,52,120,34},QStringLiteral("显示分布图"),15,muted);
         toggle({849,55,42,25},distribution);
         panel({918,52,143,360}); text({928,55,80,28},QStringLiteral("视图"),15,muted);
@@ -258,13 +267,16 @@ protected:
             text({794.0,qreal(y+78),69,23},i==0?QStringLiteral("%1%").arg(qRound(pannerBus?pannerBus->width*100:70)):(i==1?QStringLiteral("%1%").arg(qRound(pannerBus&&!pannerBus->adjustablePoints.empty()?pannerBus->adjustablePoints[0].y()*100:0)) : QStringLiteral("%1°").arg(qRound(pannerBus?pannerBus->angleDegrees:0))),14,ink,false,Qt::AlignCenter);
         }
         text({329,476,200,28},QStringLiteral("分控推子"),17,ink,true);
-        text({924,478,75,28},QStringLiteral("通道模式"),15,muted);button({1000,477,124,34},Common::auxLayoutName(pannerBus?pannerBus->targetLayout:Common::AuxChannelLayout::stereo)+QStringLiteral(" ▾"));
+        text({924,478,75,28},QStringLiteral("通道模式"),15,muted);button({1000,477,124,34},Common::auxLayoutName(channel?channel->layout:Common::AuxChannelLayout::stereo)
+               +(channel&&channel->number!=QStringLiteral("MAIN")?QStringLiteral(" ▾"):QString()));
         text({1128,477,78,34},QStringLiteral("全通道链接"),14,muted);
         toggle({1208,482,44,24},linked);button({1263,477,99,34},QStringLiteral("重置"));
         const auto* bus=pannerBus;
-        const auto labels=Common::auxLayoutChannelLabels(bus?bus->targetLayout:Common::AuxChannelLayout::surround51);
-        const int count=std::min(8,static_cast<int>(labels.size()));const qreal gap=12, stripWidth=(1034.0-gap*(count-1))/count;
+        const std::array<QString,8> labels {QStringLiteral("L"),QStringLiteral("R"),QStringLiteral("C"),QStringLiteral("LFE"),QStringLiteral("Ls"),QStringLiteral("Rs"),QStringLiteral("Lb"),QStringLiteral("Rb")};
+        const int activeCount=channel?Common::auxLayoutChannelLabels(channel->layout).size():0;
+        const int count=8;const qreal gap=12, stripWidth=(1034.0-gap*(count-1))/count;
         for(int i=0;i<count;++i) {
+            p.save();if(i>=activeCount)p.setOpacity(.32);
             const qreal x=328+i*(stripWidth+gap);panel({x,520,stripWidth,267});
             text({x,523,stripWidth,26},labels[i],16,ink,true,Qt::AlignCenter);
             const qreal sendLevel=bus&&i<static_cast<int>(bus->sends.size())?bus->sends[i].levelDb:0.0;
@@ -283,16 +295,18 @@ protected:
             const qreal fader=bus&&i<static_cast<int>(bus->sends.size())?std::clamp((bus->sends[i].levelDb+72)/84.0,0.0,1.0):.66;const qreal top=700-fader*139;
             p.setPen(QPen(QColor("#7198bd"),2));p.drawLine(QPointF(x+stripWidth-34,561),QPointF(x+stripWidth-34,700));
             p.setPen(QColor("#b6d6f1"));p.setBrush(i<2?QColor("#64c8fa"):QColor("#b2c3e8"));p.drawRoundedRect(QRectF(x+stripWidth-46,top-17,24,34),3,3);
+            p.setPen(QPen(QColor("#315d75"),2));p.drawLine(QPointF(x+stripWidth-43,top),QPointF(x+stripWidth-25,top));
             text({x+10,705,stripWidth-20,29},QStringLiteral("%1 dB").arg(-72+84*fader,0,'f',1),14,ink,false,Qt::AlignCenter);
             modeToggle({x+16,744,(stripWidth-43)/2,30},QStringLiteral("M"),bus&&i<static_cast<int>(bus->sends.size())&&bus->sends[i].mute,QColor("#ff4b62"));
             modeToggle({x+27+(stripWidth-43)/2,744,(stripWidth-43)/2,30},QStringLiteral("S"),bus&&i<static_cast<int>(bus->sends.size())&&bus->sends[i].solo,QColor("#ffae2d"));
+            p.restore();
         }
     }
 
     void mousePressEvent(QMouseEvent* event) override
     {
         if (!channel || event->button()!=Qt::LeftButton) return;
-        const QPointF pt(event->position().x()*1394.0/width(),event->position().y()*813.0/height());
+        const QPointF pt=designPoint(event->position());
         const std::array<QColor,8> colors { QColor("#24b8ff"),QColor("#20c5dd"),QColor("#45d877"),QColor("#ffd246"),QColor("#ffae55"),QColor("#f34d70"),QColor("#e359da"),QColor("#9963ec") };
         if (pt.y()>=254&&pt.y()<290&&pt.x()>=29&&pt.x()<245) {const int i=int((pt.x()-34)/26);if(i>=0&&i<8){channel->accent=colors[i];channel->customColor=true;}}
         else if(QRectF(29,351,118,39).contains(pt)) channel->mute=!channel->mute;
@@ -300,7 +314,7 @@ protected:
         else if(QRectF(330,52,80,34).contains(pt)) threeD=false;
         else if(QRectF(421,52,80,34).contains(pt)||QRectF(1134,52,108,35).contains(pt)) threeD=true;
         else if(QRectF(1252,52,110,35).contains(pt))viewMode=0;
-        else if(QRectF(521,52,165,34).contains(pt)){
+        else if(QRectF(521,52,165,34).contains(pt)&&channel->number!=QStringLiteral("MAIN")){
             QMenu menu(this);
             const std::array layouts {Common::AuxChannelLayout::mono,Common::AuxChannelLayout::stereo,Common::AuxChannelLayout::surround51,Common::AuxChannelLayout::surround71};
             for(const auto layout:layouts){auto* action=menu.addAction(Common::auxLayoutName(layout));action->setCheckable(true);action->setChecked(channel->layout==layout);
@@ -316,19 +330,15 @@ protected:
         }
         else if(QRectF(849,55,42,25).contains(pt)) distribution=!distribution;
         else if(QRectF(918,369,40,40).contains(pt)) headphones=!headphones;
-        else if(QRectF(968,369,89,40).contains(pt)||QRectF(1263,477,99,34).contains(pt)) {if(auto* bus=selectedBus()){bus->adjustablePoints=Common::auxLayoutReferencePoints(channel->layout);bus->width=.7;bus->angleDegrees=0;for(auto& send:bus->sends)send.levelDb=-2;}}
+        else if(QRectF(968,369,89,40).contains(pt)||QRectF(1263,477,99,34).contains(pt)) {if(auto* bus=selectedBus()){bus->adjustablePoints=Common::auxLayoutReferencePoints(channel->layout);bus->width=.7;bus->angleDegrees=0;const auto active=Common::auxLayoutChannelLabels(channel->layout).size();for(int i=0;i<active;++i)bus->sends[i].levelDb=-2;}}
         else if(QRectF(1128,477,125,34).contains(pt)) {linked=!linked;if(auto* bus=selectedBus())bus->sendsLinked=linked;}
-        else if(QRectF(1000,477,124,34).contains(pt)) {
+        else if(QRectF(1000,477,124,34).contains(pt)&&channel->number!=QStringLiteral("MAIN")) {
             QMenu menu(this);
             const std::array layouts {Common::AuxChannelLayout::mono,Common::AuxChannelLayout::stereo,Common::AuxChannelLayout::surround51,Common::AuxChannelLayout::surround71};
             for(const auto layout:layouts){
                 auto* action=menu.addAction(Common::auxLayoutName(layout));
-                action->setCheckable(true);action->setChecked(selectedBus()&&selectedBus()->targetLayout==layout);
-                connect(action,&QAction::triggered,this,[this,layout]{if(auto* bus=selectedBus()){
-                    bus->targetLayout=layout;bus->sends.clear();
-                    for(const auto& label:Common::auxLayoutChannelLabels(layout))bus->sends.push_back({label,label,-2.0,-12.0});
-                    update();if(changed)changed();
-                }});
+                action->setCheckable(true);action->setChecked(channel->layout==layout);
+                connect(action,&QAction::triggered,this,[this,layout]{if(layoutChanged)layoutChanged(layout);});
             }
             menu.exec(mapToGlobal(event->position().toPoint()));return;
         }
@@ -348,32 +358,49 @@ protected:
             }
         }
         else if(pt.y()>=520&&pt.y()<787&&pt.x()>=328&&pt.x()<1362) {
-            auto* bus=selectedBus();if(bus){const auto labels=Common::auxLayoutChannelLabels(bus->targetLayout);const int count=std::min(8,static_cast<int>(labels.size()));const qreal gap=12,sw=(1034.0-gap*(count-1))/count;
-            const int i=int((pt.x()-328)/(sw+gap));if(i>=0&&i<count&&i<static_cast<int>(bus->sends.size())){const qreal x=328+i*(sw+gap);if(pt.y()>=744){if(pt.x()<x+sw/2)bus->sends[i].mute=!bus->sends[i].mute;else bus->sends[i].solo=!bus->sends[i].solo;}else if(pt.y()>=550&&pt.y()<=710){setSendLevel(*bus,i,12-84*std::clamp((pt.y()-561)/139.0,0.0,1.0));draggedFader=i;}}}}
+            auto* bus=selectedBus();
+            if(!bus)return;
+            const int activeCount=Common::auxLayoutChannelLabels(channel->layout).size();
+            const qreal gap=12,sw=(1034.0-gap*7)/8;
+            const int i=int((pt.x()-328)/(sw+gap));
+            const qreal x=328+i*(sw+gap);
+            if(i<0||i>=activeCount||i>=static_cast<int>(bus->sends.size())||pt.x()>x+sw)return;
+            if(pt.y()>=744){
+                if(pt.x()<x+sw/2)bus->sends[i].mute=!bus->sends[i].mute;
+                else bus->sends[i].solo=!bus->sends[i].solo;
+            }else if(pt.y()>=550&&pt.y()<=710){
+                setSendLevel(*bus,i,12-84*std::clamp((pt.y()-561)/139.0,0.0,1.0));
+                draggedFader=i;
+            }
+        }
         update();if(changed)changed();
     }
     void mouseMoveEvent(QMouseEvent* event) override
     {
         if(!channel||!(event->buttons()&Qt::LeftButton))return;
         auto* bus=selectedBus();if(!bus||draggedFader>=static_cast<int>(bus->sends.size()))return;
-        if(draggedKnob>=0){setKnob(*bus,draggedKnob,event->position().x()*1394.0/width());update();if(changed)changed();return;}
+        if(draggedKnob>=0){setKnob(*bus,draggedKnob,designPoint(event->position()).x());update();if(changed)changed();return;}
         if(draggedPoint>=0&&draggedPoint<static_cast<int>(bus->adjustablePoints.size())){
-            const QPointF pt(event->position().x()*1394.0/width(),event->position().y()*813.0/height());
+            const QPointF pt=designPoint(event->position());
             bus->adjustablePoints[draggedPoint]=QPointF(std::clamp((pt.x()-542)/120.0,-1.0,1.0),std::clamp((pt.y()-269)/120.0,-1.0,1.0));update();if(changed)changed();return;
         }
         if(draggedFader<0)return;
-        const qreal y=event->position().y()*813.0/height();setSendLevel(*bus,draggedFader,12-84*std::clamp((y-561)/139.0,0.0,1.0));update();if(changed)changed();
+        const qreal y=designPoint(event->position()).y();setSendLevel(*bus,draggedFader,12-84*std::clamp((y-561)/139.0,0.0,1.0));update();if(changed)changed();
     }
     void mouseReleaseEvent(QMouseEvent*) override {draggedFader=-1;draggedPoint=-1;draggedKnob=-1;}
 private:
+    qreal contentScale() const { return std::min(width()/1394.0,height()/813.0); }
+    QPointF contentOrigin() const { const auto scale=contentScale();return {(width()-1394*scale)/2,(height()-813*scale)/2}; }
+    QPointF designPoint(const QPointF& point) const { return (point-contentOrigin())/contentScale(); }
     void setSendLevel(Common::AuxBusState& bus,int index,qreal level)
     {
         level=std::clamp(level,-72.0,12.0);
         if(bus.sendsLinked){
             qreal lower=-84.0,upper=84.0;
-            for(const auto& send:bus.sends){lower=std::max(lower,-72.0-send.levelDb);upper=std::min(upper,12.0-send.levelDb);}
+            const auto count=Common::auxLayoutChannelLabels(channel->layout).size();
+            for(int i=0;i<count;++i){const auto& send=bus.sends[i];lower=std::max(lower,-72.0-send.levelDb);upper=std::min(upper,12.0-send.levelDb);}
             const qreal delta=std::clamp(level-bus.sends[index].levelDb,lower,upper);
-            for(auto& send:bus.sends)send.levelDb+=delta;
+            for(int i=0;i<count;++i)bus.sends[i].levelDb+=delta;
         } else bus.sends[index].levelDb=level;
         publishLevels();
     }
@@ -484,7 +511,6 @@ public:
             { "Bus 7", "Bus In 7", "7", "#8da5d8", .58, -7.0, -7.0 },
             { "Bus 8", "Bus In 8", "8", "#8da5d8", .81, -23.0, -23.0 }
         };
-        channels.front().comment = QStringLiteral("Vocal (Lead)");
         for (auto& channel : channels)
         {
             channel.id = nextChannelId++;
@@ -537,7 +563,8 @@ public:
             }
             if (existing == channels.cend())
                 channel.name = QStringLiteral("AUX %1").arg(static_cast<int>(rebuilt.size()) - inputChannelCount + 1);
-            channel.source = bus.name;
+            if (existing == channels.cend())
+                channel.source = bus.name;
             channel.number = channel.name;
             channel.auxId = bus.id;
             channel.id = 1000000 + bus.id;
@@ -773,6 +800,7 @@ public:
                 auxSettingsWindow->update();
             }
         }
+        updateSel();
         owner.update();
     }
 

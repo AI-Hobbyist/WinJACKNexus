@@ -41,7 +41,7 @@ void text(QPainter& painter, const QRectF& rect, const QString& value, const QCo
 void panel(QPainter& painter, const QRectF& rect, const QColor& border = QColor("#183a56"))
 {
     painter.setPen(QPen(border, 1));
-    painter.setBrush(QColor("#0c2030"));
+    painter.setBrush(QColor("#102235"));
     painter.drawRoundedRect(rect, 7, 7);
 }
 
@@ -67,16 +67,12 @@ QString dbText(double value)
 
 double positionFromDb(double value)
 {
-    if (value < -72.0)
-        return 1.0;
-    return std::clamp((12.0 - value) / 84.0 * .95, 0.0, .95);
+    return std::clamp((12.0 - value) / 84.0, 0.0, 1.0);
 }
 
 double dbFromPosition(double position)
 {
-    if (position > .97)
-        return -100.0;
-    return 12.0 - std::clamp(position / .95, 0.0, 1.0) * 84.0;
+    return 12.0 - std::clamp(position, 0.0, 1.0) * 84.0;
 }
 
 }
@@ -112,7 +108,7 @@ public:
 
     qreal contentScale() const
     {
-        return std::min(owner.width() / 1360.0, owner.height() / 768.0);
+        return std::min(owner.width() / 1360.0, owner.height() / 813.0);
     }
 
     qreal scaleX() const { return contentScale(); }
@@ -121,7 +117,7 @@ public:
     {
         const auto scale = contentScale();
         return { (owner.width() - 1360.0 * scale) * .5,
-                 (owner.height() - 768.0 * scale) * .5 };
+                 (owner.height() - 813.0 * scale) * .5 };
     }
 
     QRectF scaled(qreal x, qreal y, qreal width, qreal height) const
@@ -132,25 +128,26 @@ public:
                  width * scale, height * scale };
     }
 
-    QRectF leftPanel() const { return scaled(5, 5, 390, 758); }
+    QRectF leftPanel() const { return scaled(5, 11, 390, 790); }
     QRectF addButton() const { return scaled(248, 12, 102, 38); }
     QRectF masterToggle() const { return scaled(202, 18, 40, 24); }
     QRectF removeButton() const { return scaled(356, 12, 31, 38); }
-    QRectF listViewport() const { return scaled(10, 58, 380, 698); }
-    QRectF listScrollbarTrack() const { return scaled(376, 62, 8, 690); }
-    QRectF topBar() const { return scaled(406, 5, 929, 47); }
-    QRectF pannerPanel() const { return scaled(406, 60, 510, 381); }
-    QRectF parametersPanel() const { return scaled(928, 60, 397, 381); }
-    QRectF sendsPanel() const { return scaled(406, 450, 919, 294); }
-    QRectF resetButton() const { return scaled(1282, 12, 45, 34); }
-    QRectF sendsLinkButton() const { return scaled(802, 456, 72, 32); }
-    QRectF sendsSplitButton() const { return scaled(876, 456, 72, 32); }
-    QRectF resetSendsButton() const { return scaled(1212, 456, 96, 32); }
-    QRectF linkButton() const { return scaled(1034, 151, 44, 24); }
-    QRectF directivityButton() const { return scaled(772, 70, 42, 22); }
-    QRectF widthTrack() const { return scaled(1035, 202, 172, 16); }
-    QRectF angleTrack() const { return scaled(1035, 239, 172, 16); }
-    QRectF coverageTrack() const { return scaled(1035, 276, 172, 16); }
+    QRectF listViewport() const { return scaled(10, 58, 380, 735); }
+    QRectF listScrollbarTrack() const { return scaled(376, 62, 8, 727); }
+    QRectF topBar() const { return scaled(406, 11, 929, 443); }
+    QRectF pannerPanel() const { return scaled(420, 95, 429, 345); }
+    QRectF parametersPanel() const { return scaled(855, 95, 150, 345); }
+    QRectF roomPanel() const { return scaled(1018, 95, 307, 345); }
+    QRectF sendsPanel() const { return scaled(406, 465, 919, 336); }
+    QRectF resetButton() const { return scaled(1230, 52, 95, 34); }
+    QRectF sendsModeButton() const { return scaled(925, 477, 125, 34); }
+    QRectF sendsLinkButton() const { return scaled(1148, 482, 44, 24); }
+    QRectF resetSendsButton() const { return scaled(1212, 477, 96, 32); }
+    QRectF linkButton() const { return scaled(945, 126, 44, 24); }
+    QRectF directivityButton() const { return scaled(941, 55, 42, 24); }
+    QRectF widthTrack() const { return scaled(870, 199, 117, 16); }
+    QRectF angleTrack() const { return scaled(870, 298, 117, 16); }
+    QRectF coverageTrack() const { return scaled(870, 397, 117, 16); }
 
     QRectF listRow(int index) const
     {
@@ -173,14 +170,14 @@ public:
 
     qreal maximumListScroll() const
     {
-        return std::max(0.0, buses().size() * 79.0 - 698.0);
+        return std::max(0.0, buses().size() * 79.0 - 735.0);
     }
 
     QRectF listScrollbarThumb() const
     {
         const auto track = listScrollbarTrack();
-        const auto contentHeight = std::max(698.0, buses().size() * 79.0);
-        const auto thumbHeight = std::max(44.0 * scaleY(), track.height() * 698.0 / contentHeight);
+        const auto contentHeight = std::max(735.0, buses().size() * 79.0);
+        const auto thumbHeight = std::max(44.0 * scaleY(), track.height() * 735.0 / contentHeight);
         const auto travel = std::max(0.0, track.height() - thumbHeight);
         const auto maximum = maximumListScroll();
         const auto normalized = maximum <= 0.0 ? 0.0 : std::clamp(listScroll / maximum, 0.0, 1.0);
@@ -206,7 +203,7 @@ public:
 
     QRectF pannerCircle() const
     {
-        const auto area = pannerPanel().adjusted(48 * scaleX(), 42 * scaleY(), -48 * scaleX(), -20 * scaleY());
+        const auto area = pannerPanel().adjusted(50 * scaleX(), 24 * scaleY(), -50 * scaleX(), -24 * scaleY());
         const auto side = std::min(area.width(), area.height());
         return { area.center().x() - side / 2.0, area.center().y() - side / 2.0, side, side };
     }
@@ -230,9 +227,8 @@ public:
 
     QRectF sendStrip(int index) const
     {
-        const auto* bus = selected();
-        const auto count = bus == nullptr ? 1 : std::max(1, static_cast<int>(bus->sends.size()));
-        const auto body = sendsPanel().adjusted(10 * scaleX(), 43 * scaleY(), -10 * scaleX(), -10 * scaleY());
+        const auto count = 8;
+        const auto body = sendsPanel().adjusted(10 * scaleX(), 55 * scaleY(), -10 * scaleX(), -15 * scaleY());
         const auto width = body.width() / count;
         return { body.left() + index * width + 3, body.top(), width - 6, body.height() };
     }
@@ -240,14 +236,14 @@ public:
     QRectF sendTrack(int index) const
     {
         const auto strip = sendStrip(index);
-        return { strip.center().x() - 13 * scaleX(), strip.top() + 73 * scaleY(),
-                 7 * scaleX(), strip.height() - 90 * scaleY() };
+        return { strip.right()-31*scaleX(), strip.top()+41*scaleY(),
+                 7*scaleX(),139*scaleY() };
     }
 
     QRectF meterTrack(int index) const
     {
-        const auto fader = sendTrack(index);
-        return { fader.right() + 8 * scaleX(), fader.top(), 5 * scaleX(), fader.height() };
+        const auto strip=sendStrip(index);
+        return {strip.left()+32*scaleX(),strip.top()+41*scaleY(),19*scaleX(),139*scaleY()};
     }
 
     int effectiveSelectedPoint() const
@@ -315,6 +311,7 @@ public:
     std::function<void()> stateChanged;
     std::function<void(bool)> chainEnabledHandler;
     bool chainEnabled {};
+    bool threeD {};
     Common::AuxChannelLayout sourceLayout { Common::AuxChannelLayout::stereo };
     QTimer meterTimer;
     QString sourceKey;
@@ -343,7 +340,7 @@ AuxSettingsWindow::AuxSettingsWindow(std::shared_ptr<Common::AuxMixerState> stat
 {
     setWindowTitle(QStringLiteral("WinJACKNexus - AUX 设置"));
     setMinimumSize(980, 640);
-    resize(1360, 768);
+    resize(1360, 813);
     setMouseTracking(true);
     setAttribute(Qt::WA_OpaquePaintEvent);
 }
@@ -400,15 +397,15 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
 {
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
-    painter.fillRect(rect(), QColor("#061725"));
+    painter.fillRect(rect(), QColor("#0b1a2b"));
     const auto sx = impl_->scaleX();
     const auto sy = impl_->scaleY();
-    const auto label = QColor("#d7e8ff");
-    const auto secondary = QColor("#8fa9c6");
-    const auto cyan = QColor("#2fc5ff");
+    const auto label = QColor("#e8f2ff");
+    const auto secondary = QColor("#aec7eb");
+    const auto cyan = QColor("#26bfff");
     const auto blue = QColor("#168dff");
 
-    panel(painter, impl_->leftPanel(), QColor("#087ab5"));
+    panel(painter, impl_->leftPanel(), QColor("#2b4662"));
     text(painter, impl_->scaled(26, 12, 172, 38), impl_->sourceName + QStringLiteral(" · AUX"), label, 18 * sy,
          Qt::AlignLeft | Qt::AlignVCenter, true);
     toggle(painter, impl_->masterToggle(), impl_->chainEnabled);
@@ -495,24 +492,21 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
     if (bus == nullptr)
         return;
 
-    panel(painter, impl_->topBar());
-    text(painter, impl_->scaled(420, 8, 45, 40), QStringLiteral("⏻"), cyan, 27 * sy, Qt::AlignCenter, true);
-    text(painter, impl_->scaled(465, 8, 270, 40), QStringLiteral("AUX %1 · %2   ✎").arg(bus->id).arg(bus->name),
-         label, 18 * sy, Qt::AlignLeft | Qt::AlignVCenter, true);
-    text(painter, impl_->scaled(740, 12, 530, 34),
-         QStringLiteral("源：%1 (%2) → 目标：AUX %3 (%4)")
-             .arg(impl_->sourceName, Common::auxLayoutName(impl_->sourceLayout))
-             .arg(bus->id).arg(Common::auxLayoutName(bus->targetLayout)),
-         secondary, 11 * sy, Qt::AlignRight | Qt::AlignVCenter);
-    painter.setBrush(QColor("#172d43"));
-    painter.drawRoundedRect(impl_->resetButton(), 5, 5);
-    text(painter, impl_->resetButton(), QStringLiteral("重置"), label, 11 * sy);
+    panel(painter, impl_->topBar(), QColor("#2b4662"));
+    text(painter,impl_->scaled(420,20,250,29),QStringLiteral("空间声像器"),label,18*sy,Qt::AlignLeft|Qt::AlignVCenter,true);
+    text(painter,impl_->scaled(1020,20,300,29),QStringLiteral("AUX %1 · %2").arg(bus->id).arg(bus->name),secondary,15*sy,Qt::AlignRight|Qt::AlignVCenter);
+    const auto detailButton=[&](const QRectF& rect,const QString& value,bool active=false){
+        painter.setPen(QPen(active?cyan:QColor("#45617e"),1));painter.setBrush(active?QColor("#123e61"):QColor("#192d43"));painter.drawRoundedRect(rect,5,5);
+        text(painter,rect,value,active?QColor("#d7f7ff"):secondary,15*sy);
+    };
+    detailButton(impl_->scaled(420,52,80,34),QStringLiteral("2D"),!impl_->threeD);
+    detailButton(impl_->scaled(511,52,80,34),QStringLiteral("3D"),impl_->threeD);
+    detailButton(impl_->scaled(611,52,165,34),Common::auxLayoutName(bus->targetLayout)+QStringLiteral(" ▾"));
+    text(painter,impl_->scaled(790,52,143,34),QStringLiteral("显示分布图"),secondary,15*sy);
+    detailButton(impl_->scaled(1022,52,108,34),QStringLiteral("3D 视图"),impl_->threeD);
+    detailButton(impl_->resetButton(),QStringLiteral("重置"));
 
-    panel(painter, impl_->pannerPanel());
-    text(painter, impl_->scaled(420, 66, 200, 30), QStringLiteral("空间声像器"), label, 18 * sy,
-         Qt::AlignLeft | Qt::AlignVCenter, true);
-        text(painter, impl_->scaled(665, 68, 101, 26), QStringLiteral("显示指向性图"), secondary, 12 * sy,
-            Qt::AlignRight | Qt::AlignVCenter);
+    panel(painter, impl_->pannerPanel(), QColor("#2b4662"));
         painter.setPen(Qt::NoPen);
         painter.setBrush(bus->showDirectivity ? blue : QColor("#263e53"));
         painter.drawRoundedRect(impl_->directivityButton(), 11, 11);
@@ -587,110 +581,108 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
     painter.setBrush(QColor("#ffffff"));
     painter.drawEllipse(circle.center(), 4, 4);
 
-    panel(painter, impl_->parametersPanel());
-    text(painter, impl_->scaled(945, 68, 180, 30), QStringLiteral("参数设置"), label, 18 * sy,
+    panel(painter, impl_->parametersPanel(), QColor("#2b4662"));
+    text(painter, impl_->scaled(870, 101, 120, 25), QStringLiteral("参数设置"), label, 15 * sy,
          Qt::AlignLeft | Qt::AlignVCenter, true);
-    text(painter, impl_->scaled(945, 107, 85, 28), QStringLiteral("目标布局"), secondary, 13 * sy, Qt::AlignLeft | Qt::AlignVCenter);
-    text(painter, impl_->scaled(1032, 103, 275, 38), Common::auxLayoutName(bus->targetLayout), label,
-         13 * sy, Qt::AlignLeft | Qt::AlignVCenter);
-    text(painter, impl_->scaled(945, 151, 80, 24), QStringLiteral("Link"), secondary, 13 * sy, Qt::AlignLeft | Qt::AlignVCenter);
+    text(painter, impl_->scaled(870, 127, 65, 24), QStringLiteral("Link"), secondary, 13 * sy, Qt::AlignLeft | Qt::AlignVCenter);
     painter.setPen(Qt::NoPen);
     painter.setBrush(bus->linked ? blue : QColor("#263e53"));
     painter.drawRoundedRect(impl_->linkButton(), 12, 12);
     painter.setBrush(QColor("#ffffff"));
     painter.drawEllipse(QPointF(bus->linked ? impl_->linkButton().right() - 11 * sx : impl_->linkButton().left() + 11 * sx,
                                 impl_->linkButton().center().y()), 8 * sx, 8 * sy);
-    text(painter, impl_->scaled(1182, 146, 55, 30), QStringLiteral("🔗"), cyan, 20 * sy);
 
     const auto drawParameter = [&](const QString& name, const QRectF& track, double normalized, const QString& value) {
-        text(painter, { track.left() - 90 * sx, track.top() - 7 * sy, 80 * sx, 30 * sy }, name, secondary, 13 * sy,
-             Qt::AlignLeft | Qt::AlignVCenter);
+        text(painter, { track.left(), track.top() - 28 * sy, track.width(), 24 * sy }, name, secondary, 13 * sy,
+              Qt::AlignLeft | Qt::AlignVCenter);
         painter.setPen(QPen(QColor("#203e55"), 7 * sy, Qt::SolidLine, Qt::RoundCap));
         painter.drawLine(track.left(), track.center().y(), track.right(), track.center().y());
         painter.setPen(QPen(cyan, 7 * sy, Qt::SolidLine, Qt::RoundCap));
         painter.drawLine(track.left(), track.center().y(), track.left() + track.width() * normalized, track.center().y());
         painter.setPen(QPen(QColor("#68a7ff"), 4 * sx));
         painter.drawLine(track.left() + track.width() * normalized, track.top(), track.left() + track.width() * normalized, track.bottom());
-        text(painter, { track.right() + 16 * sx, track.top() - 7 * sy, 70 * sx, 30 * sy }, value, QColor("#9bc4ff"), 13 * sy,
-             Qt::AlignLeft | Qt::AlignVCenter);
+        text(painter, { track.left(), track.bottom()+2*sy, track.width(), 20*sy }, value, QColor("#9bc4ff"), 12 * sy);
     };
     drawParameter(QStringLiteral("宽度"), impl_->widthTrack(), bus->width, QStringLiteral("%1%").arg(qRound(bus->width * 100.0)));
     drawParameter(QStringLiteral("角度"), impl_->angleTrack(), (bus->angleDegrees + 180.0) / 360.0, QStringLiteral("%1°").arg(qRound(bus->angleDegrees)));
     drawParameter(selectedPoint >= 0 ? QStringLiteral("点%1覆盖").arg(selectedPoint + 1) : QStringLiteral("覆盖范围"),
                   impl_->coverageTrack(), selectedCoverage / 360.0,
                   QStringLiteral("%1°").arg(qRound(selectedCoverage)));
-    panel(painter, impl_->scaled(944, 304, 365, 119), QColor("#12466a"));
-    text(painter, impl_->scaled(958, 313, 32, 28), QStringLiteral("ⓘ"), cyan, 20 * sy);
-    text(painter, impl_->scaled(997, 310, 294, 103),
-         QStringLiteral("• 点击实心点选择当前点\n• 拖动点移动，拖动外圈调覆盖\n• 点或外圈上滚轮调覆盖范围\n• 半透明点为目标参考点"),
-         QColor("#8fb5e2"), 12 * sy, Qt::AlignLeft | Qt::AlignVCenter);
+    panel(painter, impl_->roomPanel(), QColor("#2b4662"));
+    const auto roomPoint=[&](qreal x,qreal y){return impl_->scaled(x,y,0,0).topLeft();};
+    painter.setPen(QPen(QColor("#25445d"),sx));
+    for(int i=0;i<7;++i)painter.drawLine(roomPoint(1030+i*46,438),roomPoint(1172+(i-3)*13,254));
+    for(int i=0;i<6;++i)painter.drawLine(roomPoint(1026,270+i*30),roomPoint(1316,270+i*30));
+    QPainterPath room;room.moveTo(roomPoint(1172,135));room.lineTo(roomPoint(1280,190));room.lineTo(roomPoint(1244,262));room.lineTo(roomPoint(1100,262));room.lineTo(roomPoint(1064,190));room.closeSubpath();
+    painter.setPen(Qt::NoPen);painter.setBrush(QColor(18,113,207,95));painter.drawPath(room);
+    const std::array<QPointF,8> speakers {roomPoint(1080,188),roomPoint(1264,188),roomPoint(1172,148),roomPoint(1172,392),roomPoint(1064,360),roomPoint(1280,360),roomPoint(1100,400),roomPoint(1244,400)};
+    const std::array<QString,8> speakerLabels {QStringLiteral("L"),QStringLiteral("R"),QStringLiteral("C"),QStringLiteral("LFE"),QStringLiteral("Ls"),QStringLiteral("Rs"),QStringLiteral("Lb"),QStringLiteral("Rb")};
+    const auto speakerCount=Common::auxLayoutChannelLabels(bus->targetLayout).size();
+    for(int i=0;i<speakerCount;++i){const auto point=speakers[i];painter.setPen(QPen(QColor("#90b5df"),1));painter.setBrush(QColor("#314b68"));painter.drawRoundedRect(QRectF(point.x()-10*sx,point.y()-10*sy,20*sx,24*sy),3,3);text(painter,QRectF(point.x()-21*sx,point.y()-33*sy,42*sx,19*sy),speakerLabels[i],label,12*sy);}
+    painter.setPen(Qt::NoPen);painter.setBrush(QColor("#a2bed7"));painter.drawEllipse(impl_->scaled(1157,230,30,45));
 
-    panel(painter, impl_->sendsPanel());
-    text(painter, impl_->scaled(420, 456, 260, 32), QStringLiteral("分声道发送强度"), label, 18 * sy,
+    panel(painter, impl_->sendsPanel(), QColor("#2b4662"));
+    text(painter, impl_->scaled(420, 476, 260, 32), QStringLiteral("分控推子"), label, 18 * sy,
          Qt::AlignLeft | Qt::AlignVCenter, true);
-        painter.setPen(QPen(QColor("#355f8e"), 1));
-        painter.setBrush(bus->sendsLinked ? QColor("#087ee4") : QColor("#172d43"));
-        painter.drawRoundedRect(impl_->sendsLinkButton(), 5, 5);
-        painter.setBrush(!bus->sendsLinked ? QColor("#087ee4") : QColor("#172d43"));
-        painter.drawRoundedRect(impl_->sendsSplitButton(), 5, 5);
-        text(painter, impl_->sendsLinkButton(), QStringLiteral("Link"),
-            bus->sendsLinked ? QColor("#ffffff") : secondary, 11 * sy, Qt::AlignCenter, true);
-        text(painter, impl_->sendsSplitButton(), QStringLiteral("Split"),
-            !bus->sendsLinked ? QColor("#ffffff") : secondary, 11 * sy, Qt::AlignCenter, true);
-    text(painter, impl_->scaled(1020, 456, 182, 32), QStringLiteral("范围：-72 ~ +12 dB"), secondary, 12 * sy,
-         Qt::AlignRight | Qt::AlignVCenter);
+    text(painter,impl_->scaled(848,478,75,28),QStringLiteral("通道模式"),secondary,14*sy,Qt::AlignLeft|Qt::AlignVCenter);
+    detailButton(impl_->sendsModeButton(),Common::auxLayoutName(bus->targetLayout)+QStringLiteral(" ▾"));
+    text(painter,impl_->scaled(1055,477,87,34),QStringLiteral("全通道链接"),secondary,13*sy,Qt::AlignLeft|Qt::AlignVCenter);
+    toggle(painter,impl_->sendsLinkButton(),bus->sendsLinked);
     painter.setPen(QPen(QColor("#355f8e"), 1));
     painter.setBrush(QColor("#172d43"));
     painter.drawRoundedRect(impl_->resetSendsButton(), 5, 5);
     text(painter, impl_->resetSendsButton(), QStringLiteral("重置所有"), label, 11 * sy);
-    for (int index = 0; index < static_cast<int>(bus->sends.size()); ++index) {
-        const auto& send = bus->sends[index];
+    const std::array<QString,8> labels {QStringLiteral("L"),QStringLiteral("R"),QStringLiteral("C"),QStringLiteral("LFE"),QStringLiteral("Ls"),QStringLiteral("Rs"),QStringLiteral("Lb"),QStringLiteral("Rb")};
+    for (int index = 0; index < 8; ++index) {
+        const bool enabled=index<static_cast<int>(bus->sends.size());
+        painter.save();if(!enabled)painter.setOpacity(.32);
+        const auto* send=enabled?&bus->sends[index]:nullptr;
         const auto strip = impl_->sendStrip(index);
-        painter.setPen(QPen(QColor("#183a53"), 1));
-           painter.setBrush(QColor("#0c2940"));
+        painter.setPen(QPen(QColor("#2b4662"), 1));
+        painter.setBrush(QColor("#102235"));
         painter.drawRoundedRect(strip, 5, 5);
-        text(painter, { strip.left() + 8 * sx, strip.top() + 7 * sy, strip.width() - 16 * sx, 20 * sy },
-               send.name, cyan, 12 * sy,
-             Qt::AlignLeft | Qt::AlignVCenter, true);
-        text(painter, { strip.left() + 10 * sx, strip.top() + 35 * sy, strip.width() - 20 * sx, 24 * sy },
-             dbText(send.levelDb), label, 11 * sy);
+        text(painter, { strip.left() + 5 * sx, strip.top() + 6 * sy, strip.width() - 10 * sx, 24 * sy },
+               labels[index], label, 16 * sy,Qt::AlignCenter,true);
         const auto track = impl_->sendTrack(index);
-        painter.setPen(QPen(QColor("#020b11"), 7 * sx, Qt::SolidLine, Qt::RoundCap));
+        painter.setPen(QPen(QColor("#7198bd"), 2 * sx));
         painter.drawLine(track.center().x(), track.top(), track.center().x(), track.bottom());
-        const auto y = track.top() + track.height() * positionFromDb(send.levelDb);
-        painter.setPen(QPen(cyan, 2 * sx));
-        painter.drawLine(track.center().x(), track.bottom(), track.center().x(), y);
+        const auto y = track.top() + track.height() * positionFromDb(send?send->levelDb:-2.0);
         const auto ticks = std::array { 12.0, 0.0, -24.0, -48.0, -72.0 };
         for (const auto tick : ticks) {
             const auto tickY = track.top() + track.height() * positionFromDb(tick);
-            painter.setPen(QPen(QColor("#31516b"), 1));
-            painter.drawLine(track.left() - 3 * sx, tickY, track.left() + 2 * sx, tickY);
-            text(painter, { strip.left() + 2 * sx, tickY - 7 * sy, std::max(18.0, track.left() - strip.left() - 7 * sx), 14 * sy },
-                 tick > 0.0 ? QStringLiteral("+12") : QString::number(qRound(tick)), secondary, 8 * sy,
-                 Qt::AlignRight | Qt::AlignVCenter);
+            text(painter, { strip.left() + 2 * sx, tickY - 7 * sy, 25*sx, 14 * sy },
+                  tick > 0.0 ? QStringLiteral("+12") : QString::number(qRound(tick)), secondary, 8 * sy,
+                  Qt::AlignRight | Qt::AlignVCenter);
         }
-        painter.setPen(QPen(QColor("#79dfff"), 1));
-        painter.setBrush(QColor("#45c9f6"));
-        const QRectF thumb(track.center().x() - 10 * sx, y - 17 * sy, 20 * sx, 34 * sy);
-        painter.drawRoundedRect(thumb, 4, 4);
-        painter.setPen(QPen(QColor("#0b6387"), 1.5 * sy));
-        painter.drawLine(thumb.left() + 3 * sx, thumb.center().y(), thumb.right() - 3 * sx, thumb.center().y());
         const auto meter = impl_->meterTrack(index);
-        painter.setPen(QPen(QColor("#061019"), 5 * sx, Qt::SolidLine, Qt::RoundCap));
-        painter.drawLine(meter.center().x(), meter.top(), meter.center().x(), meter.bottom());
-        const auto meterY = meter.bottom() - std::clamp((send.meterDb + 72.0) / 84.0, 0.0, 1.0) * meter.height();
-        painter.setPen(QPen(send.meterDb > 0.0 ? QColor("#ff5757") : send.meterDb > -12.0 ? QColor("#ffe05b") : QColor("#25dc70"),
-                            3 * sx, Qt::SolidLine, Qt::RoundCap));
-        painter.drawLine(meter.center().x(), meter.bottom(), meter.center().x(), meterY);
-        const QRectF mute(strip.right() - 35 * sx, strip.top() + 93 * sy, 27 * sx, 32 * sy);
-        const QRectF solo(strip.right() - 35 * sx, strip.top() + 134 * sy, 27 * sx, 32 * sy);
-        painter.setPen(QPen(QColor("#31516b"), 1));
-        painter.setBrush(send.mute ? QColor("#8b2834") : QColor("#172d40"));
+        painter.setPen(Qt::NoPen);painter.setBrush(QColor("#06131f"));painter.drawRoundedRect(meter,2,2);
+        const auto meterDb=send?send->meterDb:-72.0;
+        const auto litTop=meter.bottom()-meter.height()*std::clamp((meterDb+72.0)/84.0,0.0,1.0);
+        const auto meterSegment=[&](double low,double high,QColor color){
+            const auto top=std::max(litTop,meter.bottom()-meter.height()*(high+72.0)/84.0);
+            const auto bottom=meter.bottom()-meter.height()*(low+72.0)/84.0;
+            if(bottom>top){painter.setBrush(color);painter.drawRect(QRectF(meter.left()+3*sx,top,meter.width()-6*sx,bottom-top));}
+        };
+        meterSegment(-72,-12,QColor("#17d675"));meterSegment(-12,0,QColor("#f2df48"));meterSegment(0,12,QColor("#f2484d"));
+        painter.setPen(QPen(QColor("#b6d6f1"), 1));
+        painter.setBrush(index<2?QColor("#64c8fa"):QColor("#b2c3e8"));
+        const QRectF thumb(track.center().x() - 12 * sx, y - 17 * sy, 24 * sx, 34 * sy);
+        painter.drawRoundedRect(thumb, 4, 4);
+        painter.setPen(QPen(QColor("#315d75"), 2 * sy));
+        painter.drawLine(thumb.left() + 3 * sx, thumb.center().y(), thumb.right() - 3 * sx, thumb.center().y());
+        text(painter,{strip.left()+4*sx,strip.bottom()-69*sy,strip.width()-8*sx,27*sy},dbText(send?send->levelDb:-2.0),label,11*sy);
+        const QRectF mute(strip.left()+7*sx,strip.bottom()-38*sy,(strip.width()-21*sx)/2,30*sy);
+        const QRectF solo(mute.right()+7*sx,strip.bottom()-38*sy,(strip.width()-21*sx)/2,30*sy);
+        const QColor muteAccent("#ff4b62"),soloAccent("#ffae2d");
+        auto muteFill=muteAccent;muteFill.setAlpha(send&&send->mute?85:25);
+        auto soloFill=soloAccent;soloFill.setAlpha(send&&send->solo?85:25);
+        painter.setPen(QPen(muteAccent,1));painter.setBrush(muteFill);
         painter.drawRoundedRect(mute, 4, 4);
-        painter.setBrush(send.solo ? QColor("#875f18") : QColor("#172d40"));
+        painter.setPen(QPen(soloAccent,1));painter.setBrush(soloFill);
         painter.drawRoundedRect(solo, 4, 4);
-        text(painter, mute, QStringLiteral("M"), label, 12 * sy, Qt::AlignCenter, true);
-        text(painter, solo, QStringLiteral("S"), label, 12 * sy, Qt::AlignCenter, true);
+        text(painter, mute, QStringLiteral("M"), QColor("#f7f8ff"), 14 * sy, Qt::AlignCenter, true);
+        text(painter, solo, QStringLiteral("S"), QColor("#f7f8ff"), 14 * sy, Qt::AlignCenter, true);
+        painter.restore();
     }
 }
 
@@ -816,7 +808,16 @@ void AuxSettingsWindow::mousePressEvent(QMouseEvent* event)
     auto* bus = impl_->selected();
     if (bus == nullptr)
         return;
-    if (impl_->scaled(1032, 103, 275, 38).contains(position)) {
+    if (impl_->scaled(420,52,80,34).contains(position)) {impl_->threeD=false;update();return;}
+    if (impl_->scaled(511,52,80,34).contains(position)||impl_->scaled(1022,52,108,34).contains(position)) {impl_->threeD=true;update();return;}
+    if (impl_->scaled(611,52,165,34).contains(position)
+        || impl_->sendsModeButton().contains(position)) {
+        QMenu menu(this);
+        const std::array layouts { Common::AuxChannelLayout::mono, Common::AuxChannelLayout::stereo,
+                                   Common::AuxChannelLayout::surround51, Common::AuxChannelLayout::surround71 };
+        for(const auto layout:layouts){auto* action=menu.addAction(Common::auxLayoutName(layout));action->setCheckable(true);action->setChecked(bus->targetLayout==layout);
+            connect(action,&QAction::triggered,this,[this,id=bus->id,layout]{if(impl_->state->setBusLayout(id,layout)){if(impl_->selfAuxId==id)impl_->sourceLayout=layout;impl_->changed();}});}
+        menu.exec(event->globalPosition().toPoint());
         return;
     }
     if (impl_->resetButton().contains(position)) {
@@ -831,12 +832,7 @@ void AuxSettingsWindow::mousePressEvent(QMouseEvent* event)
         return;
     }
     if (impl_->sendsLinkButton().contains(position)) {
-        bus->sendsLinked = true;
-        impl_->changed();
-        return;
-    }
-    if (impl_->sendsSplitButton().contains(position)) {
-        bus->sendsLinked = false;
+        bus->sendsLinked = !bus->sendsLinked;
         impl_->changed();
         return;
     }
@@ -890,8 +886,8 @@ void AuxSettingsWindow::mousePressEvent(QMouseEvent* event)
     for (int index = 0; index < static_cast<int>(bus->sends.size()); ++index) {
         const auto strip = impl_->sendStrip(index);
         const auto track = impl_->sendTrack(index).adjusted(-14, -10, 14, 10);
-        const QRectF mute(strip.right() - 35 * impl_->scaleX(), strip.top() + 93 * impl_->scaleY(), 27 * impl_->scaleX(), 32 * impl_->scaleY());
-        const QRectF solo(strip.right() - 35 * impl_->scaleX(), strip.top() + 134 * impl_->scaleY(), 27 * impl_->scaleX(), 32 * impl_->scaleY());
+        const QRectF mute(strip.left()+7*impl_->scaleX(),strip.bottom()-38*impl_->scaleY(),(strip.width()-21*impl_->scaleX())/2,30*impl_->scaleY());
+        const QRectF solo(mute.right()+7*impl_->scaleX(),strip.bottom()-38*impl_->scaleY(),(strip.width()-21*impl_->scaleX())/2,30*impl_->scaleY());
         if (mute.contains(position)) {
             bus->sends[index].mute = !bus->sends[index].mute;
             impl_->changed();
