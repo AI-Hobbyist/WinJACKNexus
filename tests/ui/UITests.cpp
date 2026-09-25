@@ -944,9 +944,19 @@ bool testFxSettingsLoadsNativeFx()
                     "FX master switch sits in the top header");
     auto* headerChannel=window.findChild<QPushButton*>(QStringLiteral("fxChannelAll"));
     auto* windowPreset=window.findChild<QComboBox*>(QStringLiteral("fxWindowPreset"));
-    passed &= check(headerChannel && windowPreset && headerChannel->parentWidget()==chainPower->parentWidget()
+    auto* channelControls=window.findChild<QWidget*>(QStringLiteral("fxChannelControls"));
+    auto* fxHeader=channelControls?channelControls->parentWidget():nullptr;
+    passed &= check(headerChannel && windowPreset && fxHeader && channelControls
+                        && headerChannel->parentWidget()==channelControls
+                        && channelControls->parentWidget()==fxHeader
                         && headerChannel->mapTo(&window,QPoint()).x() < windowPreset->mapTo(&window,QPoint()).x(),
                     "FX channel selector sits in the top header before presets");
+    const auto channelCentered=[&] {
+        return fxHeader && channelControls
+            && std::abs(channelControls->mapTo(fxHeader,QPoint()).x()
+                        +channelControls->width()/2.0-fxHeader->width()/2.0)<=2.0;
+    };
+    passed &= check(channelCentered(),"FX channel selector group is centered in the header");
     auto* editorArea = window.findChild<QScrollArea*>(QStringLiteral("fxEditorArea"));
     passed &= check(editor && editorArea && !editor->isWindow()
                         && editor->parentWidget() == editorArea->widget()
@@ -959,11 +969,19 @@ bool testFxSettingsLoadsNativeFx()
                     "FX window review image is written to the existing build directory");
     window.resize(1920, 1150);
     QCoreApplication::processEvents();
+    passed &= check(channelCentered(),"FX channel selector stays centered at reference resolution");
     QImage widePreview(window.size(), QImage::Format_ARGB32_Premultiplied);
     widePreview.fill(Qt::transparent);
     window.render(&widePreview);
     passed &= check(widePreview.save(QStringLiteral("build/fx-ui-review-wide.png")),
                     "reopened FX window review image is written at reference resolution");
+    window.setSourceChannels({QStringLiteral("L"),QStringLiteral("R"),QStringLiteral("C"),
+                              QStringLiteral("LFE"),QStringLiteral("Ls"),QStringLiteral("Rs"),
+                              QStringLiteral("Lb"),QStringLiteral("Rb")});
+    QCoreApplication::processEvents();
+    passed &= check(channelCentered()
+                        && window.findChild<QPushButton*>(QStringLiteral("fxChannelRb")),
+                    "FX channel group remains centered when all eight channels are available");
     QPushButton* addModule = nullptr;
     for (auto* choice : window.findChildren<QPushButton*>())
         if (choice->text().contains(QStringLiteral("添加模块"))) { addModule = choice; break; }

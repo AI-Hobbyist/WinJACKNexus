@@ -528,7 +528,7 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
     const bool canClassic=Common::auxSupportsClassicPan(bus->sourceLayout,bus->targetLayout);
     const bool classic=canClassic&&bus->panMode==Common::AuxPanMode::classic;
     drawPanel({406,11,559,544});drawPanel({406,566,559,235});drawPanel({976,11,359,790});
-    drawText({420,20,250,29},QStringLiteral("空间声像器"),17,label,true);
+    drawText({420,20,250,29},QStringLiteral("声像器"),17,label,true);
     drawText({784,20,165,29},QStringLiteral("AUX %1 · %2").arg(bus->id).arg(bus->name),12,secondary,false,Qt::AlignRight|Qt::AlignVCenter);
     drawButton({420,52,137,34},QStringLiteral("空间声像器"),!classic);
     painter.save();if(!canClassic)painter.setOpacity(.32);

@@ -215,14 +215,19 @@ public:
         auto* header = panel(&owner);
         header->setFixedHeight(64);
         auto* headerLayout = new QHBoxLayout(header);
-        headerLayout->setContentsMargins(24, 5, 16, 5);
-        auto* title = new QLabel(owner.windowTitle(), header);
+        headerLayout->setContentsMargins(20, 5, 20, 5);
+        auto* leftControls = new QWidget(header);
+        leftControls->setObjectName(QStringLiteral("fxHeaderLeft"));
+        leftControls->setStyleSheet(QStringLiteral("QWidget#fxHeaderLeft { background: transparent; border: 0; }"));
+        auto* leftLayout = new QHBoxLayout(leftControls);
+        leftLayout->setContentsMargins(0, 0, 0, 0);
+        leftLayout->setSpacing(12);
+        auto* title = new QLabel(owner.windowTitle(), leftControls);
         title->setObjectName(QStringLiteral("fxSourceTitle"));
         QFont titleFont = title->font(); titleFont.setPixelSize(24); titleFont.setBold(true); title->setFont(titleFont);
-        headerLayout->addWidget(title);
+        leftLayout->addWidget(title);
         QFont bold = title->font(); bold.setPixelSize(19);
-        headerLayout->addSpacing(12);
-        master = new Controls::ToggleButton(header);
+        master = new Controls::ToggleButton(leftControls);
         master->setObjectName(QStringLiteral("fxChainToggle"));
         master->setChecked(false);
         master->setToolTip(QStringLiteral("FX 链总开关"));
@@ -230,17 +235,24 @@ public:
             syncChainPower();
             if (chainEnabledHandler) chainEnabledHandler(enabled);
         });
-        headerLayout->addWidget(master);
-        headerLayout->addStretch();
-        headerLayout->addWidget(new QLabel(QStringLiteral("作用声道："), header));
+        leftLayout->addWidget(master);
+        leftLayout->addStretch();
+        auto* channelControls = new QWidget(header);
+        channelControls->setObjectName(QStringLiteral("fxChannelControls"));
+        channelControls->setStyleSheet(QStringLiteral("QWidget#fxChannelControls { background: transparent; border: 0; }"));
+        auto* channelLayout = new QHBoxLayout(channelControls);
+        channelLayout->setContentsMargins(0, 0, 0, 0);
+        channelLayout->setSpacing(8);
+        channelLayout->addWidget(new QLabel(QStringLiteral("作用声道："), channelControls));
         channelRow = new QHBoxLayout;
+        channelRow->setSpacing(6);
         QStringList visibleChannels { QStringLiteral("All") };
         if(sourceChannels.size()>1)visibleChannels.append(sourceChannels);
         const QStringList nativeChannels { QStringLiteral("L"), QStringLiteral("R"), QStringLiteral("C"),
             QStringLiteral("LFE"), QStringLiteral("Ls"), QStringLiteral("Rs"),
             QStringLiteral("Lb"), QStringLiteral("Rb") };
         for (const auto& name : visibleChannels) {
-            auto* choice = button(name, header);
+            auto* choice = button(name, channelControls);
             choice->setObjectName(QStringLiteral("fxChannel%1").arg(name));
             choice->setCheckable(true);
             choice->setMinimumWidth(54);
@@ -252,16 +264,28 @@ public:
             });
             channelRow->addWidget(choice);
         }
-        headerLayout->addLayout(channelRow);
-        headerLayout->addSpacing(12);
-        headerLayout->addWidget(new QLabel(QStringLiteral("预设："), header));
-        auto* presets = new QComboBox(header);
+        channelLayout->addLayout(channelRow);
+        auto* rightControls = new QWidget(header);
+        rightControls->setObjectName(QStringLiteral("fxHeaderRight"));
+        rightControls->setStyleSheet(QStringLiteral("QWidget#fxHeaderRight { background: transparent; border: 0; }"));
+        auto* rightLayout = new QHBoxLayout(rightControls);
+        rightLayout->setContentsMargins(0, 0, 0, 0);
+        rightLayout->setSpacing(8);
+        rightLayout->addStretch();
+        rightLayout->addWidget(new QLabel(QStringLiteral("预设："), rightControls));
+        auto* presets = new QComboBox(rightControls);
         presets->setObjectName(QStringLiteral("fxWindowPreset"));
         presets->addItem(QStringLiteral("默认"));
         presets->setMinimumWidth(185);
-        headerLayout->addWidget(presets);
-        headerLayout->addWidget(button(QStringLiteral("保存"), header));
-        headerLayout->addWidget(button(QStringLiteral("另存为"), header));
+        rightLayout->addWidget(presets);
+        rightLayout->addWidget(button(QStringLiteral("保存"), rightControls));
+        rightLayout->addWidget(button(QStringLiteral("另存为"), rightControls));
+        const auto sideWidth = std::max(leftControls->sizeHint().width(), rightControls->sizeHint().width());
+        leftControls->setMinimumWidth(sideWidth);
+        rightControls->setMinimumWidth(sideWidth);
+        headerLayout->addWidget(leftControls, 1);
+        headerLayout->addWidget(channelControls, 0, Qt::AlignCenter);
+        headerLayout->addWidget(rightControls, 1);
         root->addWidget(header);
 
         auto* body = new QVBoxLayout;
@@ -533,7 +557,6 @@ public:
             });
             channelRow->addWidget(choice);
         }
-        channelRow->addStretch();
         selectedChannel = -1;
         selectedChannelLabel = QStringLiteral("All");
         if(meterTitle)meterTitle->setText(QStringLiteral("输入/输出电平"));

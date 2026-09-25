@@ -275,7 +275,7 @@ protected:
         panel({313, 11, 650, 544});
         panel({313, 566, 650, 235});
         panel({974, 11, 403, 790});
-        text({330,20,250,29},QStringLiteral("空间声像器"),17,ink,true);
+        text({330,20,250,29},QStringLiteral("声像器"),17,ink,true);
         const auto* pannerBus=selectedBus();
         const bool classic=pannerBus&&pannerBus->panMode==Common::AuxPanMode::classic;
         const bool canUseClassic=channel&&Common::auxSupportsClassicPan(channel->layout,channel->layout);
