@@ -3,6 +3,7 @@
 #include <WinJACKNexus/Common/Export.hpp>
 
 #include <QPointF>
+#include <QColor>
 #include <QString>
 #include <QStringList>
 
@@ -30,6 +31,7 @@ struct AuxSendChannel final {
 struct AuxBusState final {
     std::uint32_t id {};
     QString name;
+    QColor accent;
     bool enabled { true };
     bool selfRoute {};
     bool preFader { true };
@@ -67,6 +69,7 @@ public:
     AuxBusState* cloneBus(std::uint32_t id);
     bool removeBus(std::uint32_t id);
     bool setBusLayout(std::uint32_t id, AuxChannelLayout layout);
+    void setBusAccent(std::uint32_t id, const QColor& accent);
     void resetBus(const QString& sourceKey, std::uint32_t id, std::uint32_t selfAuxId = 0);
     void setLayouts(const QString& sourceKey, std::uint32_t id, AuxChannelLayout source,
                     AuxChannelLayout target, std::uint32_t selfAuxId = 0);

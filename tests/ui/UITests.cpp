@@ -39,12 +39,15 @@
 #include <Windows.h>
 
 #include <QApplication>
+#include <QColorDialog>
 #include <QCoreApplication>
 #include <QEvent>
 #include <QEventLoop>
 #include <QFile>
 #include <QImage>
 #include <QLabel>
+#include <QLineEdit>
+#include <QStackedWidget>
 #include <QPainter>
 #include <QListWidget>
 #include <QMenu>
@@ -1184,6 +1187,10 @@ bool testMixerChannelControls()
     QCoreApplication::processEvents();
     auto* firstBus = auxState->busForSource(sourceKey, 1);
     passed &= check(firstBus && firstBus->enabled, "first AUX send starts enabled");
+    auxState->setBusAccent(1, QColor("#a12bcd"));
+    passed &= check(auxState->bus(1)->accent == QColor("#a12bcd")
+                        && firstBus && firstBus->accent == QColor("#a12bcd"),
+                    "AUX channel color reaches the source-specific AUX list state");
     click(&auxControls, {48, 98});
     passed &= check(firstBus && !firstBus->enabled, "AUX row toggle disables its send");
     click(&auxControls, {48, 98});
@@ -1234,6 +1241,103 @@ bool testMixerChannelControls()
     auto* selected = mixer.findChild<QLabel*>(QStringLiteral("selSelectedChannel"));
     passed &= check(selected && selected->text() == QStringLiteral("Mic 1"),
                     "large screen starts on the selected channel");
+    auto* sel = mixer.findChild<QWidget*>(QStringLiteral("selLargeScreen"));
+    auto* mainPage = mixer.findChild<QWidget*>(QStringLiteral("selMainPage"));
+    auto* pages = mixer.findChild<QStackedWidget*>(QStringLiteral("selPages"));
+    auto* channelName = mixer.findChild<QLineEdit*>(QStringLiteral("selChannelName"));
+    auto* channelComment = mixer.findChild<QLineEdit*>(QStringLiteral("selChannelComment"));
+    passed &= check(sel && mainPage && pages && pages->count() == 3 && channelName && channelComment,
+                    "SEL contains the Main, AUX and FX pages and editable channel details");
+    if (sel && mainPage) {
+        QImage selPreview(sel->size(), QImage::Format_ARGB32_Premultiplied);
+        selPreview.fill(Qt::transparent);
+        sel->render(&selPreview);
+        passed &= check(selPreview.save(QStringLiteral("build/sel-ui-review.png")),
+                        "SEL review image is written to the existing build directory");
+        const auto mainPoint=[mainPage](int x,int y){
+            return QPoint(qRound(x*mainPage->width()/1394.0),qRound(y*mainPage->height()/813.0));
+        };
+        click(mainPage,mainPoint(1229,494)); // Split all send faders.
+        click(mainPage,mainPoint(457,601));
+        const auto splitLevels=mainPage->property("selSendLevels").toList();
+        passed &= check(splitLevels.size()==6 && std::abs(splitLevels[0].toDouble()+12.0)<1.0
+                            && std::abs(splitLevels[1].toDouble()+2.0)<.1,
+                        "split SEL faders keep independent channel levels");
+        click(mainPage,mainPoint(1229,494)); // Link all channels.
+        click(mainPage,mainPoint(457,611));
+        const auto linkedLevels=mainPage->property("selSendLevels").toList();
+        passed &= check(linkedLevels.size()==6 && std::abs(linkedLevels[0].toDouble()+18.0)<1.0
+                            && std::abs(linkedLevels[1].toDouble()+8.0)<1.0,
+                        "linked SEL faders shift every channel by the same dB delta");
+        click(mainPage,mainPoint(1310,494));
+    }
+    if (channelComment) {
+        channelComment->setText(QStringLiteral("Lead vocal"));
+        QMetaObject::invokeMethod(channelComment, "editingFinished", Qt::DirectConnection);
+        passed &= check(channelComment->text() == QStringLiteral("Lead vocal"),
+                        "SEL channel comment can be edited");
+    }
+    if (channelName) {
+        channelName->setText(QStringLiteral("Mic One"));
+        QMetaObject::invokeMethod(channelName, "editingFinished", Qt::DirectConnection);
+        passed &= check(selected && selected->text() == QStringLiteral("Mic One"),
+                        "SEL name edit updates the selected mixer channel");
+        channelName->setText(QStringLiteral("Mic 1"));
+        QMetaObject::invokeMethod(channelName, "editingFinished", Qt::DirectConnection);
+    }
+    bool customColorDialogOpened = false;
+    QTimer::singleShot(0, &mixer, [&] {
+        if (auto* dialog = dynamic_cast<QColorDialog*>(QApplication::activeModalWidget())) {
+            customColorDialogOpened = true;
+            dialog->setCurrentColor(QColor("#123abc"));
+            dialog->accept();
+        }
+    });
+    if (auto* color = mixer.findChild<QPushButton*>(QStringLiteral("selCustomColor"))) color->click();
+    passed &= check(customColorDialogOpened, "SEL custom color button opens the editable Qt color wheel dialog");
+    auto* selHeader = mixer.findChild<QWidget*>(QStringLiteral("selHeader"));
+    passed &= check(selHeader && selHeader->styleSheet().contains(QStringLiteral("#123abc")),
+                    "custom channel color updates the SEL title background");
+    QTimer::singleShot(0, &mixer, [&] {
+        if (auto* dialog = dynamic_cast<QColorDialog*>(QApplication::activeModalWidget())) {
+            dialog->setCurrentColor(QColor("#ffdd55"));
+            dialog->accept();
+        }
+    });
+    if (auto* color = mixer.findChild<QPushButton*>(QStringLiteral("selCustomColor"))) color->click();
+    passed &= check(selHeader && selHeader->styleSheet().contains(QStringLiteral("#ffdd55"))
+                        && selHeader->styleSheet().contains(QStringLiteral("#102033")),
+                    "light custom title color selects dark readable title text");
+    if (auto* auxTab = mixer.findChild<QPushButton*>(QStringLiteral("selTabAUX"))) {
+        auxTab->click();
+        passed &= check(pages && pages->currentIndex() == 1 && aux && aux->parentWidget() == pages->widget(1),
+                        "SEL AUX tab embeds the existing AUX settings interface");
+    }
+    if (auto* fxTab = mixer.findChild<QPushButton*>(QStringLiteral("selTabFX"))) {
+        fxTab->click();
+        bool embeddedFx = false;
+        if (pages) for (auto* child : pages->widget(2)->findChildren<QWidget*>())
+            if (dynamic_cast<FxSettingsWindow*>(child)) embeddedFx = true;
+        passed &= check(pages && pages->currentIndex() == 2 && embeddedFx,
+                        "SEL FX tab embeds the existing FX settings interface");
+    }
+    if (auto* mainTab = mixer.findChild<QPushButton*>(QStringLiteral("selTabMain"))) mainTab->click();
+    click(&mixer, {963, 422});
+    passed &= check(selected && selected->text() == QStringLiteral("Main L/R"),
+                    "Main strip opens its own SEL channel");
+    auto* auxTab = mixer.findChild<QPushButton*>(QStringLiteral("selTabAUX"));
+    passed &= check(auxTab && !auxTab->isVisible(), "Main SEL has only Main and FX tabs");
+    if(auto* fxTab=mixer.findChild<QPushButton*>(QStringLiteral("selTabFX"))){
+        fxTab->click();
+        FxSettingsWindow* masterFx=nullptr;
+        if(pages)for(auto* child:pages->widget(2)->findChildren<QWidget*>())
+            if(auto* candidate=dynamic_cast<FxSettingsWindow*>(child))masterFx=candidate;
+        auto* masterList=masterFx?masterFx->findChild<QListWidget*>():nullptr;
+        passed &= check(masterList&&masterList->count()==3,
+                        "Main FX chain includes parametric EQ, compressor and limiter by default");
+    }
+    if(auto* mainTab=mixer.findChild<QPushButton*>(QStringLiteral("selTabMain")))mainTab->click();
+    click(&mixer, {60, 422});
     click(&mixer, {150, 420});
     passed &= check(selected && selected->text() == QStringLiteral("Mic 2"),
                     "SEL button switches the large-screen channel");

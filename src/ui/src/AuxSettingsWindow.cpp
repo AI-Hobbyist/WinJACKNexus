@@ -426,11 +426,12 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
         const auto& bus = impl_->buses()[index];
         const auto row = impl_->listRow(index);
         const auto selected = bus.id == impl_->selectedId;
-        painter.setPen(QPen(selected ? QColor("#20d9ff") : QColor("#17374f"), selected ? 1.5 : 1.0));
+        const QColor busAccent=bus.accent.isValid()?bus.accent:QColor("#20d9ff");
+        painter.setPen(QPen(selected ? busAccent : (bus.accent.isValid()?busAccent.darker(180):QColor("#17374f")), selected ? 1.5 : 1.0));
         painter.setBrush(selected ? QColor("#0d3048") : QColor("#0a1d2c"));
         painter.drawRoundedRect(row, 7, 7);
         if (selected)
-            painter.fillRect(QRectF(row.left(), row.top() + 3, 5 * sx, row.height() - 6), QColor("#23dfff"));
+            painter.fillRect(QRectF(row.left(), row.top() + 3, 5 * sx, row.height() - 6), busAccent);
 
         toggle(painter, impl_->listPowerToggle(index), impl_->chainEnabled && bus.enabled && !bus.selfRoute);
         text(painter, { row.left() + 64 * sx, row.top() + 10 * sy, 94 * sx, 25 * sy },

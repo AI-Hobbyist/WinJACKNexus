@@ -110,6 +110,14 @@ AuxBusState& AuxMixerState::addBus(AuxChannelLayout layout)
     return buses_.back();
 }
 
+void AuxMixerState::setBusAccent(std::uint32_t id, const QColor& accent)
+{
+    if (auto* target=bus(id)) target->accent=accent;
+    for (auto& source:sourceStates_)
+        for (auto& sourceBus:source.buses)
+            if (sourceBus.id==id) sourceBus.accent=accent;
+}
+
 AuxBusState* AuxMixerState::cloneBus(std::uint32_t id)
 {
     const auto* original = bus(id);

@@ -185,6 +185,7 @@ public:
         auto* headerLayout = new QHBoxLayout(header);
         headerLayout->setContentsMargins(24, 5, 16, 5);
         auto* title = new QLabel(owner.windowTitle(), header);
+        title->setObjectName(QStringLiteral("fxSourceTitle"));
         QFont titleFont = title->font(); titleFont.setPixelSize(24); titleFont.setBold(true); title->setFont(titleFont);
         headerLayout->addWidget(title);
         headerLayout->addStretch();
@@ -825,5 +826,17 @@ void FxSettingsWindow::setChainEnabledHandler(std::function<void(bool)> handler)
 }
 void FxSettingsWindow::cloneChainFrom(const FxSettingsWindow& source) {
     if (&source != this) impl_->cloneChainFrom(*source.impl_);
+}
+void FxSettingsWindow::addDefaultMasterEffects() {
+    for (const auto& id : {QStringLiteral("compressor"), QStringLiteral("limiter")}) {
+        const auto found = std::find_if(impl_->available.cbegin(), impl_->available.cend(), [&id](const auto* module) {
+            return QString::fromUtf8(module->info.id) == id;
+        });
+        if (found != impl_->available.cend()) impl_->addEffect(*found, false);
+    }
+}
+void FxSettingsWindow::setSourceName(const QString& name) {
+    setWindowTitle(QStringLiteral("FX 设置 - %1").arg(name));
+    if (auto* title=findChild<QLabel*>(QStringLiteral("fxSourceTitle"))) title->setText(windowTitle());
 }
 }

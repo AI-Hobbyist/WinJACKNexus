@@ -17,6 +17,8 @@ public:
     void setSourceChannels(const QStringList& channels);
     void setChainEnabledHandler(std::function<void(bool)> handler);
     void cloneChainFrom(const FxSettingsWindow& source);
+    void addDefaultMasterEffects();
+    void setSourceName(const QString& name);
 
 private:
     class Impl;
