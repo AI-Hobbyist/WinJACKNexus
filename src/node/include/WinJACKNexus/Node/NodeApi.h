@@ -29,6 +29,9 @@ WINJACK_NODE_API const char* wjn_get_node_api_version(void);
 WINJACK_NODE_API uint32_t wjn_get_node_count(void);
 WINJACK_NODE_API const char* wjn_get_node_name(uint32_t index);
 WINJACK_NODE_API const char* wjn_get_node_category(uint32_t index);
+// Optional Native Fx visual metadata for node-capable modules.
+WINJACK_NODE_API const char* wjn_get_node_icon_glyph(uint32_t index);
+WINJACK_NODE_API const char* wjn_get_node_icon_color(uint32_t index);
 
 #ifdef __cplusplus
 WINJACK_NODE_API WinJACKNexus::Node::INode* wjn_create_node(uint32_t index);

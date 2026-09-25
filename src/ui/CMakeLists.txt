@@ -6,7 +6,10 @@ add_library(ui SHARED
     src/ApplicationSettings.cpp
     src/AnimatedWidget.cpp
     src/AuxSettingsWindow.cpp
+    src/FxSettingsWindow.cpp
+    src/FxLevelMeterWidget.cpp
     src/HistoryChartWidget.cpp
+    src/Controls.cpp
     src/HistoryLegendWidget.cpp
     src/MetricReadout.cpp
     src/MetricStatisticsWidget.cpp
@@ -23,7 +26,10 @@ add_library(ui SHARED
     include/WinJACKNexus/UI/ApplicationSettings.hpp
     include/WinJACKNexus/UI/AnimatedWidget.hpp
     include/WinJACKNexus/UI/AuxSettingsWindow.hpp
+    include/WinJACKNexus/UI/FxSettingsWindow.hpp
+    include/WinJACKNexus/UI/FxLevelMeterWidget.hpp
     include/WinJACKNexus/UI/HistoryChartWidget.hpp
+    include/WinJACKNexus/UI/Controls.hpp
     include/WinJACKNexus/UI/HistoryLegendWidget.hpp
     include/WinJACKNexus/UI/MetricReadout.hpp
     include/WinJACKNexus/UI/MetricStatisticsWidget.hpp
@@ -43,11 +49,12 @@ target_include_directories(ui
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:include>
+    PRIVATE ${PROJECT_SOURCE_DIR}/src/native_fx/include
 )
 
 target_link_libraries(ui
-    PUBLIC Qt6::Widgets
-    PRIVATE WinJACKNexus::Common
+    PUBLIC Qt6::Widgets WinJACKNexus::Common
+    PRIVATE WinJACKNexus::Node
 )
 
 wjn_configure_shared_target(ui WJN_UI_BUILD)

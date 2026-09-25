@@ -15,6 +15,8 @@
  */
 #include <WinJACKNexus/UI/AnimatedWidget.hpp>
 #include <WinJACKNexus/UI/ApplicationSettings.hpp>
+#include <WinJACKNexus/NativeFx/compressor/Ui.hpp>
+#include <WinJACKNexus/UI/Controls.hpp>
 #include <WinJACKNexus/UI/HistoryChartWidget.hpp>
 #include <WinJACKNexus/UI/HistoryLegendWidget.hpp>
 #include <WinJACKNexus/UI/IconManager.hpp>
@@ -24,6 +26,13 @@
 #include <WinJACKNexus/UI/MetricStatisticsWidget.hpp>
 #include <WinJACKNexus/UI/NativeWindowUtils.hpp>
 #include <WinJACKNexus/UI/PaintableWidget.hpp>
+#include <WinJACKNexus/NativeFx/deesser/Ui.hpp>
+#include <WinJACKNexus/UI/FxSettingsWindow.hpp>
+#include <WinJACKNexus/UI/MixerWindow.hpp>
+#include <WinJACKNexus/UI/AuxSettingsWindow.hpp>
+#include <WinJACKNexus/UI/FxLevelMeterWidget.hpp>
+#include <WinJACKNexus/NativeFx/gate/Ui.hpp>
+#include <WinJACKNexus/NativeFx/parametric_eq/Ui.hpp>
 #include <WinJACKNexus/UI/ThemeManager.hpp>
 #include <WinJACKNexus/UI/ThemePalette.hpp>
 
@@ -32,8 +41,19 @@
 #include <QApplication>
 #include <QCoreApplication>
 #include <QEvent>
+#include <QEventLoop>
 #include <QFile>
 #include <QImage>
+#include <QLabel>
+#include <QPainter>
+#include <QListWidget>
+#include <QMenu>
+#include <QMenuBar>
+#include <QComboBox>
+#include <QPushButton>
+#include <QScrollArea>
+#include <QScrollBar>
+#include <QTimer>
 #include <QMouseEvent>
 #include <QSettings>
 #include <QTemporaryDir>
@@ -793,6 +813,573 @@ bool testMetricStatisticsWidget()
     return passed;
 }
 
+bool testDeEsserWidget()
+{
+    using WinJACKNexus::UI::DeEsserWidget;
+    DeEsserWidget widget;
+    bool passed = check(widget.size() == QSize(768, 650),
+                        "De-Esser window reserves the reference panel and channel-strip proportions");
+    QImage image(widget.size(), QImage::Format_ARGB32_Premultiplied);
+    image.fill(Qt::transparent);
+    widget.render(&image);
+    passed &= check(imageHasVisiblePixels(image), "De-Esser control surface paints a visible frame");
+    passed &= check(image.save(QStringLiteral("build/deesser-ui-review.png")),
+                    "De-Esser reference-review screenshot is written to the existing build directory");
+    return passed;
+}
+
+bool testCompressorGraphFill()
+{
+    using WinJACKNexus::UI::CompressorWidget;
+    CompressorWidget widget;
+    bool passed = check(widget.size() == QSize(770, 665),
+                        "Compressor window width matches the reference control panel and removes side gaps");
+    std::array<WinJACKNexus::UI::CompressorMeter, 8> meters {};
+    widget.setMeters(meters);
+    QImage image(widget.size(), QImage::Format_ARGB32_Premultiplied);
+    image.fill(Qt::transparent);
+    widget.render(&image);
+
+    const auto hasAmberTint = [&image](int x, int y) {
+        const QColor pixel = image.pixelColor(x, y);
+        return pixel.red() > pixel.green() + 4 && pixel.green() > pixel.blue();
+    };
+    passed &= check(!hasAmberTint(293, 361),
+                    "Compressor has no moving intensity fill when All has no active signal");
+    meters[0] = {-6.02F, -10.5F, true};
+    meters[1] = {-18.0F, -19.0F, true};
+    meters[2] = {0.0F, 0.0F, false};
+    widget.setMeters(meters);
+    widget.render(&image);
+    passed &= check(hasAmberTint(293, 361),
+                    "All computes active-channel input power and fills below the compressed curve");
+    passed &= check(!hasAmberTint(354, 361),
+                    "All excludes inactive channels when setting the moving fill extent");
+    passed &= check(image.save(QStringLiteral("build/compressor-ui-review.png")),
+                    "Compressor graph review screenshot is written to the existing build directory");
+    return passed;
+}
+
+bool testFxSettingsLoadsNativeFx()
+{
+    using namespace WinJACKNexus::UI;
+    FxSettingsWindow window(QStringLiteral("Line 3"), { QStringLiteral("L") });
+    auto* chain = window.findChild<QListWidget*>();
+    auto* chainAdd = window.findChild<QPushButton*>(QStringLiteral("fxAddBottom"));
+    auto* chainScroll = window.findChild<QScrollArea*>(QStringLiteral("fxChainScroll"));
+    auto* chainPower = dynamic_cast<Controls::ToggleButton*>(
+        window.findChild<QWidget*>(QStringLiteral("fxChainToggle")));
+    auto* modulePower = window.findChild<QPushButton*>(QStringLiteral("fxModulePower"));
+    bool passed = check(chainPower && !chainPower->isChecked(),
+                        "FX chain uses an initially off toggle control");
+    passed &= check(chain && chain->count() == 1,
+                        "FX window loads a default Native Fx module");
+    passed &= check(chain && chain->item(0)->text().contains(QStringLiteral("Parametric EQ")),
+                    "default FX is Parametric EQ");
+    passed &= check(chain && !chain->item(0)->data(Qt::UserRole + 3).toBool(),
+                    "default Parametric EQ starts disabled");
+    bool embedded = false;
+    ParametricEqWidget* editor = nullptr;
+    for (auto* child : window.findChildren<QWidget*>())
+        if (auto* value = dynamic_cast<ParametricEqWidget*>(child)) { embedded = true; editor = value; }
+    passed &= check(embedded, "FX window embeds the Native Fx control widget");
+    auto* modulePreset = window.findChild<QComboBox*>(QStringLiteral("fxModulePreset"));
+    passed &= check(modulePreset && modulePreset->count() == 6
+                        && modulePreset->currentText() == QStringLiteral("Vocal Clear"),
+                    "module preset menu mirrors Parametric EQ's own presets");
+    if (modulePreset && editor) {
+        modulePreset->setCurrentIndex(1);
+        passed &= check(editor->hostPresetIndex() == 1,
+                        "host preset selection changes the embedded plugin preset");
+        editor->chooseHostPreset(2);
+        QEventLoop loop;
+        QTimer::singleShot(120, &loop, &QEventLoop::quit);
+        loop.exec();
+        passed &= check(modulePreset->currentIndex() == 2,
+                        "plugin preset selection updates the host preset menu");
+    }
+    QPushButton* left = nullptr;
+    QPushButton* right = nullptr;
+    for (auto* choice : window.findChildren<QPushButton*>()) {
+        if (choice->text() == QStringLiteral("L")) left = choice;
+        if (choice->text() == QStringLiteral("R")) right = choice;
+    }
+    passed &= check(left && !right, "mono mixer strip shows only its available channel");
+    FxLevelMeterWidget* meter = nullptr;
+    for (auto* child : window.findChildren<QWidget*>())
+        if (auto* value = dynamic_cast<FxLevelMeterWidget*>(child)) meter = value;
+    passed &= check(meter != nullptr, "one meter panel stacks horizontal input and output bars");
+    if (meter) {
+        const auto bar = meter->barRect(0);
+        passed &= check(std::abs(meter->positionForDb(-60) - bar.left()) < 0.1
+                            && std::abs(meter->positionForDb(12) - bar.right()) < 0.1
+                            && std::abs(meter->positionForDb(-12) - (bar.left() + bar.width() * 2.0 / 3.0)) < 0.1,
+                        "meter ticks use the exact bar geometry and -60 to +12 scale");
+    }
+    window.show();
+    QCoreApplication::processEvents();
+    for (int reopen = 0; reopen < 3; ++reopen) {
+        window.hide();
+        window.show();
+        QCoreApplication::processEvents();
+    }
+    const int initialAddY = chainAdd ? chainAdd->y() : -1;
+    passed &= check(chain && chainAdd && chainScroll && chainAdd->parentWidget() == chain->parentWidget()
+                        && chainAdd->height() == 58
+                        && chainAdd->y() > chain->geometry().bottom(),
+                    "dashed add FX button sits directly after the last chain item");
+    auto* editorArea = window.findChild<QScrollArea*>(QStringLiteral("fxEditorArea"));
+    passed &= check(editor && editorArea && !editor->isWindow()
+                        && editor->parentWidget() == editorArea->widget()
+                        && editorArea->widget()->parentWidget() == editorArea->viewport(),
+                    "embedded Native Fx remains clipped to its viewport after reopening");
+    QImage preview(window.size(), QImage::Format_ARGB32_Premultiplied);
+    preview.fill(Qt::transparent);
+    window.render(&preview);
+    passed &= check(preview.save(QStringLiteral("build/fx-ui-review.png")),
+                    "FX window review image is written to the existing build directory");
+    window.resize(1920, 1150);
+    QCoreApplication::processEvents();
+    QImage widePreview(window.size(), QImage::Format_ARGB32_Premultiplied);
+    widePreview.fill(Qt::transparent);
+    window.render(&widePreview);
+    passed &= check(widePreview.save(QStringLiteral("build/fx-ui-review-wide.png")),
+                    "reopened FX window review image is written at reference resolution");
+    QPushButton* addModule = nullptr;
+    for (auto* choice : window.findChildren<QPushButton*>())
+        if (choice->text().contains(QStringLiteral("添加模块"))) { addModule = choice; break; }
+    int availableNativeEffects = 0;
+    if (addModule) {
+        QTimer::singleShot(0, &window, [&] {
+            if (auto* menu = qobject_cast<QMenu*>(QApplication::activePopupWidget())) {
+                availableNativeEffects = menu->actions().size();
+                if (!menu->actions().isEmpty()) menu->actions().first()->trigger();
+                menu->close();
+            }
+        });
+        addModule->click();
+    }
+    passed &= check(availableNativeEffects == 8, "FX add menu discovers all eight Native Fx modules");
+    passed &= check(chain && chain->count() == 2 && chain->item(1)->text() == QStringLiteral("Gate"),
+                    "FX add menu loads another Native Fx module into the chain");
+    QCoreApplication::processEvents();
+    passed &= check(chainAdd && chainAdd->y() > initialAddY
+                        && chainAdd->y() > chain->geometry().bottom(),
+                    "add FX button follows the last item as the chain grows");
+    int footerMenuEntries = 0;
+    if (chainAdd) {
+        QTimer::singleShot(0, &window, [&] {
+            if (auto* menu = qobject_cast<QMenu*>(QApplication::activePopupWidget())) {
+                footerMenuEntries = menu->actions().size();
+                menu->close();
+            }
+        });
+        chainAdd->click();
+    }
+    passed &= check(footerMenuEntries == 8,
+                    "footer add FX button opens the same module menu");
+    bool gateEmbedded = false;
+    if (editorArea && editorArea->widget())
+        for (auto* child : editorArea->widget()->findChildren<QWidget*>())
+            gateEmbedded |= dynamic_cast<GateEffectWidget*>(child) != nullptr;
+    passed &= check(gateEmbedded && editorArea->widget()->parentWidget() == editorArea->viewport(),
+                    "second Native Fx editor is a clipped child widget");
+    if (chainPower && chain && modulePower) {
+        chainPower->click();
+        passed &= check(!chain->item(0)->data(Qt::UserRole + 3).toBool()
+                            && chain->item(1)->data(Qt::UserRole + 3).toBool(),
+                        "turning on the FX chain restores each module's own state");
+        chainPower->click();
+        passed &= check(!chain->item(0)->data(Qt::UserRole + 3).toBool()
+                            && !chain->item(1)->data(Qt::UserRole + 3).toBool()
+                            && !modulePower->isChecked() && !modulePower->isEnabled(),
+                        "turning off the FX chain turns off every visible module toggle");
+        chainPower->click();
+        passed &= check(chain->item(1)->data(Qt::UserRole + 3).toBool()
+                            && modulePower->isChecked() && modulePower->isEnabled(),
+                        "re-enabling the chain restores enabled modules");
+    }
+    if (chain) {
+        chain->setCurrentRow(0);
+        QCoreApplication::processEvents();
+        bool reused = false;
+        if (editorArea && editorArea->widget())
+            for (auto* child : editorArea->widget()->findChildren<QWidget*>())
+                reused |= child == editor;
+        passed &= check(reused && !editor->isWindow(),
+                        "switching modules reuses the embedded Parametric EQ without a top-level window");
+    }
+    for (int nativeIndex = 1; nativeIndex < 8 && addModule; ++nativeIndex) {
+        QTimer::singleShot(0, &window, [&, nativeIndex] {
+            if (auto* menu = qobject_cast<QMenu*>(QApplication::activePopupWidget())) {
+                if (menu->actions().size() > nativeIndex)
+                    menu->actions().at(nativeIndex)->trigger();
+                menu->close();
+            }
+        });
+        addModule->click();
+        passed &= check(editorArea && editorArea->widget()
+                            && !editorArea->widget()->isWindow()
+                            && editorArea->widget()->parentWidget() == editorArea->viewport(),
+                        "every Native Fx module opens as a clipped child editor");
+    }
+    const auto useRowMenu = [&](int row, const std::function<void(QMenu*)>& choose) {
+        if (!chain || row >= chain->count()) return false;
+        const QRect rect = chain->visualItemRect(chain->item(row));
+        const QPoint local(rect.right() - 20, rect.center().y());
+        const QPoint global = chain->viewport()->mapToGlobal(local);
+        bool opened = false;
+        QTimer::singleShot(0, &window, [&] {
+            if (auto* menu = qobject_cast<QMenu*>(QApplication::activePopupWidget())) {
+                opened = true;
+                choose(menu);
+                menu->close();
+            }
+        });
+        QMouseEvent press(QEvent::MouseButtonPress, QPointF(local), QPointF(global),
+                          Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+        QApplication::sendEvent(chain->viewport(), &press);
+        QMouseEvent release(QEvent::MouseButtonRelease, QPointF(local), QPointF(global),
+                            Qt::LeftButton, Qt::NoButton, Qt::NoModifier);
+        QApplication::sendEvent(chain->viewport(), &release);
+        return opened;
+    };
+    const int beforeRowActions = chain ? chain->count() : 0;
+    const bool cloneMenu = useRowMenu(1, [&](QMenu* menu) {
+        passed &= check(menu->actions().size() == 3
+                            && menu->actions()[0]->text() == QStringLiteral("克隆")
+                            && menu->actions()[1]->text() == QStringLiteral("删除")
+                            && menu->actions()[2]->text() == QStringLiteral("替换"),
+                        "row menu offers clone, delete and replace");
+        menu->actions()[0]->trigger();
+    });
+    passed &= check(cloneMenu && chain->count() == beforeRowActions + 1
+                        && chain->item(2)->text() == QStringLiteral("Gate")
+                        && chain->item(2)->data(Qt::UserRole + 3) == chain->item(1)->data(Qt::UserRole + 3),
+                    "clone inserts the same effect and bypass state after its source");
+    const bool replaceMenu = useRowMenu(2, [&](QMenu* menu) {
+        auto* replacements = menu->actions()[2]->menu();
+        passed &= check(replacements && replacements->actions().size() == 8,
+                        "replace menu discovers all Native Fx modules");
+        if (replacements) replacements->actions()[3]->trigger();
+    });
+    passed &= check(replaceMenu && chain->count() == beforeRowActions + 1
+                        && chain->item(2)->text() == QStringLiteral("Compressor"),
+                    "replace keeps the selected chain position");
+    const bool deleteMenu = useRowMenu(2, [&](QMenu* menu) { menu->actions()[1]->trigger(); });
+    passed &= check(deleteMenu && chain->count() == beforeRowActions
+                        && chain->item(1)->text() == QStringLiteral("Gate"),
+                    "delete removes only the chosen effect");
+    window.resize(1100, 720);
+    QCoreApplication::processEvents();
+    if (chainScroll && chainAdd) {
+        auto* scrollBar = chainScroll->verticalScrollBar();
+        passed &= check(scrollBar->maximum() > 0,
+                        "FX chain scrolls when the effect list exceeds the sidebar height");
+        scrollBar->setValue(scrollBar->maximum());
+        QCoreApplication::processEvents();
+        const int buttonBottom = chainAdd->mapTo(chainScroll->viewport(),
+                                                  QPoint(0, chainAdd->height())).y();
+        passed &= check(buttonBottom > 0 && buttonBottom <= chainScroll->viewport()->height(),
+                        "add FX button stays after the last effect at the end of the scroll area");
+    }
+    FxSettingsWindow stereo(QStringLiteral("Main L/R"), { QStringLiteral("L"), QStringLiteral("R") });
+    QPushButton* stereoRight = nullptr;
+    for (auto* choice : stereo.findChildren<QPushButton*>())
+        if (choice->text() == QStringLiteral("R")) stereoRight = choice;
+    passed &= check(stereoRight != nullptr, "stereo mixer strip shows both available channels");
+    if (stereoRight) stereoRight->click();
+    for (auto* child : stereo.findChildren<QWidget*>())
+        if (auto* value = dynamic_cast<ParametricEqWidget*>(child))
+            passed &= check(value->selectedChannel() == 1,
+                            "chain channel selection reaches the embedded Native Fx editor");
+    return passed;
+}
+
+bool testMixerChannelControls()
+{
+    using namespace WinJACKNexus::UI;
+    MixerWindow mixer;
+    mixer.show();
+    QCoreApplication::processEvents();
+    auto* bar = mixer.findChild<QMenuBar*>(QStringLiteral("mixerMenuBar"));
+    bool passed = check(bar && bar->actions().size() == 3,
+                        "mixer exposes channel management, global and large-screen actions");
+    if (!bar) return false;
+    passed &= check(bar == mixer.menuBar() && bar->isVisible() && bar->geometry().height() > 0,
+                    "mixer uses the same QMainWindow system menu bar as Patchbay");
+    auto* channelMenu = bar->actions()[0]->menu();
+    auto* globalMenu = bar->actions()[1]->menu();
+    passed &= check(channelMenu && channelMenu->actions().size() == 2
+                        && channelMenu->actions()[0]->menu()->actions().size() == 4
+                        && channelMenu->actions()[1]->menu()->actions().size() == 4,
+                    "input and AUX menus offer all four channel layouts");
+    passed &= check(globalMenu && globalMenu->actions().size() == 1,
+                    "global menu offers one action to clear solo and mute");
+
+    const auto click = [](QWidget* widget, QPoint point) {
+        const auto global = widget->mapToGlobal(point);
+        QMouseEvent press(QEvent::MouseButtonPress, QPointF(point), QPointF(global),
+                          Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+        QApplication::sendEvent(widget, &press);
+        QMouseEvent release(QEvent::MouseButtonRelease, QPointF(point), QPointF(global),
+                            Qt::LeftButton, Qt::NoButton, Qt::NoModifier);
+        QApplication::sendEvent(widget, &release);
+    };
+    const auto openContext = [&](const QString& actionText, QPoint point = {50, 90}) {
+        bool found = false;
+        const auto global = mixer.mapToGlobal(point);
+        QTimer::singleShot(0, &mixer, [&] {
+            if (auto* menu = qobject_cast<QMenu*>(QApplication::activePopupWidget())) {
+                for (auto* action : menu->actions())
+                    if (action->text() == actionText) { found = action->isEnabled(); action->trigger(); break; }
+                menu->close();
+            }
+        });
+        QMouseEvent press(QEvent::MouseButtonPress, QPointF(point), QPointF(global),
+                          Qt::RightButton, Qt::RightButton, Qt::NoModifier);
+        QApplication::sendEvent(&mixer, &press);
+        return found;
+    };
+    passed &= check(openContext(QStringLiteral("打开FX设置")),
+                    "channel context menu opens FX settings");
+    FxSettingsWindow* fx = nullptr;
+    for (auto* child : mixer.findChildren<QWidget*>())
+        if (auto* candidate = dynamic_cast<FxSettingsWindow*>(child)) { fx = candidate; break; }
+    auto* fxToggle = fx ? dynamic_cast<Controls::ToggleButton*>(
+        fx->findChild<QWidget*>(QStringLiteral("fxChainToggle"))) : nullptr;
+    passed &= check(fxToggle && !fxToggle->isChecked(), "FX window reads the mixer channel switch");
+    click(&mixer, {25, 375});
+    passed &= check(fxToggle && fxToggle->isChecked(), "mixer FX switch updates the FX window");
+    if (fxToggle) fxToggle->click();
+    click(&mixer, {25, 375});
+    passed &= check(fxToggle && fxToggle->isChecked(), "FX window switch updates the mixer channel");
+
+    passed &= check(openContext(QStringLiteral("打开AUX设置")),
+                    "channel context menu opens AUX settings");
+    AuxSettingsWindow* aux = nullptr;
+    for (auto* child : mixer.findChildren<QWidget*>())
+        if (auto* candidate = dynamic_cast<AuxSettingsWindow*>(child)) { aux = candidate; break; }
+    passed &= check(aux && !aux->chainEnabled(), "AUX window reads the mixer channel switch");
+    click(&mixer, {25, 343});
+    passed &= check(aux && aux->chainEnabled(), "mixer AUX switch updates the AUX window");
+    if (aux) click(aux, {222, 30});
+    click(&mixer, {25, 343});
+    passed &= check(aux && aux->chainEnabled(), "AUX window switch updates the mixer channel");
+    if (aux) {
+        QImage auxPreview(aux->size(), QImage::Format_ARGB32_Premultiplied);
+        auxPreview.fill(Qt::transparent);
+        aux->render(&auxPreview);
+        passed &= check(auxPreview.save(QStringLiteral("build/aux-ui-review.png")),
+                        "AUX window review image is written to the existing build directory");
+    }
+
+    auto auxState = std::make_shared<WinJACKNexus::Common::AuxMixerState>();
+    AuxSettingsWindow auxControls(auxState);
+    const auto sourceKey = QStringLiteral("ui-test-input");
+    auxControls.setSource(sourceKey, QStringLiteral("Line 3"), 0,
+                          WinJACKNexus::Common::AuxChannelLayout::mono);
+    auxControls.setChainEnabled(true);
+    auxControls.show();
+    QCoreApplication::processEvents();
+    auto* firstBus = auxState->busForSource(sourceKey, 1);
+    passed &= check(firstBus && firstBus->enabled, "first AUX send starts enabled");
+    click(&auxControls, {48, 98});
+    passed &= check(firstBus && !firstBus->enabled, "AUX row toggle disables its send");
+    click(&auxControls, {48, 98});
+    passed &= check(firstBus && firstBus->enabled, "AUX row toggle enables its send");
+    const auto targetLayout = firstBus ? firstBus->targetLayout
+                                       : WinJACKNexus::Common::AuxChannelLayout::stereo;
+    int auxChanges = 0;
+    auxControls.setStateChangedCallback([&] { ++auxChanges; });
+    click(&auxControls, {1090, 122});
+    passed &= check(firstBus && firstBus->targetLayout == targetLayout && auxChanges == 0
+                        && QApplication::activePopupWidget() == nullptr,
+                    "AUX target layout is read-only text");
+    auxControls.setChainEnabled(false);
+    click(&auxControls, {48, 98});
+    passed &= check(firstBus && firstBus->enabled,
+                    "master AUX switch prevents editing a disabled row toggle");
+    const auto chooseAuxMenu = [&](QPoint point, const std::function<void(QMenu*)>& choose) {
+        bool opened = false;
+        QTimer::singleShot(0, &auxControls, [&] {
+            if (auto* menu = qobject_cast<QMenu*>(QApplication::activePopupWidget())) {
+                opened = true;
+                choose(menu);
+                menu->close();
+            }
+        });
+        click(&auxControls, point);
+        return opened;
+    };
+    passed &= check(chooseAuxMenu({290, 30}, [](QMenu* menu) { menu->actions()[3]->trigger(); })
+                        && auxState->buses().size() == 4
+                        && auxState->buses().back().targetLayout
+                               == WinJACKNexus::Common::AuxChannelLayout::surround71,
+                    "AUX add button offers channel types and creates the selected type");
+    passed &= check(chooseAuxMenu({345, 98}, [](QMenu* menu) { menu->actions()[0]->trigger(); })
+                        && auxState->buses().size() == 5,
+                    "AUX row gear clones a bus");
+    passed &= check(chooseAuxMenu({345, 98}, [](QMenu* menu) {
+                        menu->actions()[2]->menu()->actions()[0]->trigger();
+                    }) && auxState->bus(1)->targetLayout == WinJACKNexus::Common::AuxChannelLayout::mono
+                        && auxState->busForSource(sourceKey, 1)->targetLayout
+                               == WinJACKNexus::Common::AuxChannelLayout::mono,
+                    "AUX row gear changes the channel type for every source");
+    passed &= check(chooseAuxMenu({345, 414}, [](QMenu* menu) { menu->actions()[1]->trigger(); })
+                        && auxState->buses().size() == 4,
+                    "AUX row gear deletes the selected bus");
+
+    bar->actions()[2]->trigger();
+    auto* selected = mixer.findChild<QLabel*>(QStringLiteral("selSelectedChannel"));
+    passed &= check(selected && selected->text() == QStringLiteral("Mic 1"),
+                    "large screen starts on the selected channel");
+    click(&mixer, {150, 420});
+    passed &= check(selected && selected->text() == QStringLiteral("Mic 2"),
+                    "SEL button switches the large-screen channel");
+    channelMenu->actions()[0]->menu()->actions()[3]->trigger();
+    channelMenu->actions()[1]->menu()->actions()[2]->trigger();
+    passed &= check(openContext(QStringLiteral("打开SEL设置")),
+                    "channel context menu has an active SEL entry");
+    passed &= check(openContext(QStringLiteral("复制通道")),
+                    "channel context menu copies an input strip");
+    click(&mixer, {150, 420});
+    passed &= check(selected && selected->text() == QStringLiteral("Mic 1 副本"),
+                    "copied strip keeps its channel identity and SEL selection");
+    passed &= check(openContext(QStringLiteral("打开FX设置"), {150, 90}),
+                    "copied strip opens its own FX window");
+    FxSettingsWindow* copiedFx = nullptr;
+    for (auto* child : mixer.findChildren<QWidget*>())
+        if (auto* candidate = dynamic_cast<FxSettingsWindow*>(child);
+            candidate && candidate->windowTitle().contains(QStringLiteral("副本"))) {
+            copiedFx = candidate;
+            break;
+        }
+    auto* copiedToggle = copiedFx ? dynamic_cast<Controls::ToggleButton*>(
+        copiedFx->findChild<QWidget*>(QStringLiteral("fxChainToggle"))) : nullptr;
+    auto* copiedList = copiedFx ? copiedFx->findChild<QListWidget*>() : nullptr;
+    passed &= check(copiedToggle && copiedToggle->isChecked() && copiedList && copiedList->count() == 1,
+                    "copy preserves the FX chain and total switch");
+    passed &= check(openContext(QStringLiteral("删除通道"), {150, 90}),
+                    "channel context menu removes the copied strip");
+    passed &= check(selected && selected->text() == QStringLiteral("Mic 1"),
+                    "deleting the selected strip moves SEL back to an existing channel");
+    bool channelTypesFound = false;
+    QTimer::singleShot(0, &mixer, [&] {
+        if (auto* menu = qobject_cast<QMenu*>(QApplication::activePopupWidget())) {
+            auto* types = menu->actions()[2]->menu();
+            channelTypesFound = types && types->actions().size() == 4
+                && types->actions()[1]->isChecked();
+            if (channelTypesFound)
+                types->actions()[2]->trigger();
+            menu->close();
+        }
+    });
+    {
+        const QPoint point {50, 90};
+        const auto global = mixer.mapToGlobal(point);
+        QMouseEvent press(QEvent::MouseButtonPress, QPointF(point), QPointF(global),
+                          Qt::RightButton, Qt::RightButton, Qt::NoModifier);
+        QApplication::sendEvent(&mixer, &press);
+    }
+    passed &= check(channelTypesFound, "channel context menu lists four types and defaults to stereo");
+    bool surroundSelected = false;
+    QTimer::singleShot(0, &mixer, [&] {
+        if (auto* menu = qobject_cast<QMenu*>(QApplication::activePopupWidget())) {
+            auto* types = menu->actions()[2]->menu();
+            surroundSelected = types && types->actions()[2]->isChecked();
+            menu->close();
+        }
+    });
+    {
+        const QPoint point {50, 90};
+        const auto global = mixer.mapToGlobal(point);
+        QMouseEvent press(QEvent::MouseButtonPress, QPointF(point), QPointF(global),
+                          Qt::RightButton, Qt::RightButton, Qt::NoModifier);
+        QApplication::sendEvent(&mixer, &press);
+    }
+    passed &= check(surroundSelected, "channel type selection updates the input strip");
+    bool fxHasCenterChannel = false;
+    if (fx) {
+        for (auto* choice : fx->findChildren<QPushButton*>())
+            if (choice->text() == QStringLiteral("C")) fxHasCenterChannel = true;
+    }
+    passed &= check(fx && fxHasCenterChannel && fx->findChild<QListWidget*>()->count() == 1,
+                    "changing channel type updates the open FX editor without losing its chain");
+    QImage preview(mixer.size(), QImage::Format_ARGB32_Premultiplied);
+    preview.fill(Qt::transparent);
+    mixer.render(&preview);
+    passed &= check(preview.save(QStringLiteral("build/mixer-ui-review.png")),
+                    "mixer review image is written to the existing build directory");
+    for (int remainingInputs = 9; remainingInputs > 1; --remainingInputs)
+        passed &= check(openContext(QStringLiteral("删除通道")),
+                        "input strip can be removed while another input remains");
+    passed &= check(!openContext(QStringLiteral("删除通道")),
+                    "the last input strip cannot be removed");
+    return passed;
+}
+
+bool testFxMeterSegments()
+{
+    using WinJACKNexus::UI::FxLevelMeterWidget;
+    FxLevelMeterWidget meter;
+    meter.resize(320, 86);
+    meter.setLevels(12, -6);
+    QImage image(meter.size(), QImage::Format_ARGB32_Premultiplied);
+    image.fill(Qt::transparent);
+    meter.render(&image);
+    const auto colorAt = [&image, &meter](double db, int row) {
+        return image.pixelColor(qRound(meter.positionForDb(db)), qRound(meter.barRect(row).center().y()));
+    };
+    const QColor green = colorAt(-30, 0);
+    const QColor yellow = colorAt(-6, 0);
+    const QColor red = colorAt(6, 0);
+    bool passed = check(green.green() > green.red() * 2 && green.green() > green.blue(),
+                        "low meter zone is solid green");
+    passed &= check(yellow.red() > yellow.blue() * 2 && yellow.green() > yellow.blue() * 2,
+                    "middle meter zone is solid yellow");
+    passed &= check(red.red() > red.green() * 2 && red.red() > red.blue() * 2,
+                    "high meter zone is solid red");
+    return passed;
+}
+
+bool testReusableFxControls()
+{
+    using namespace WinJACKNexus::UI::Controls;
+    ControlRegistry registry;
+    QWidget owner;
+    bool passed = check(registry.create(QStringLiteral("button"), &owner) != nullptr
+                        && registry.create(QStringLiteral("dropdown"), &owner) != nullptr
+                        && registry.create(QStringLiteral("slider"), &owner) != nullptr
+                        && registry.create(QStringLiteral("toggle"), &owner) != nullptr,
+                        "shared control registry creates built-in widgets");
+    passed &= check(registry.registerFactory(QStringLiteral("plugin.scope"), [](QWidget* parent) {
+                        auto* widget = new QWidget(parent);
+                        widget->setObjectName(QStringLiteral("pluginScope"));
+                        return widget;
+                    }), "plugin can register a custom widget factory");
+    auto* custom = registry.create(QStringLiteral("plugin.scope"), &owner);
+    passed &= check(custom && custom->objectName() == QStringLiteral("pluginScope")
+                        && custom->parentWidget() == &owner,
+                    "custom control is created under plugin-selected parent");
+    QImage surface(480, 320, QImage::Format_ARGB32_Premultiplied);
+    surface.fill(Qt::transparent);
+    QPainter painter(&surface);
+    Palette colors;
+    colors.accent = QColor("#e560c0");
+    drawButton(painter, {10,10,100,35}, QStringLiteral("Button"), true, colors);
+    drawDropdown(painter, {120,10,150,35}, QStringLiteral("Preset"), colors);
+    drawKnob(painter, {55,105}, .6, 28, colors);
+    drawSlider(painter, {115,65,15,105}, .4, true, colors);
+    drawToggle(painter, {155,75,55,30}, true, colors.accent, colors.border);
+    drawChart(painter, {235,65,220,120}, 4, 3, colors);
+    drawLevelMeter(painter, {20,205,220,20}, -6);
+    drawCardLabel(painter, {255,205,200,55}, QStringLiteral("Graphic EQ"), QStringLiteral("▥"), colors);
+    painter.end();
+    passed &= check(imageHasVisiblePixels(surface), "shared controls paint with custom accent");
+    return passed;
+}
+
 }
 
 int main(int argc, char** argv)
@@ -812,6 +1399,12 @@ int main(int argc, char** argv)
     passed &= testHistoryChartAndLegend();
     passed &= testHistoryCurveDoesNotFillReferenceLine();
     passed &= testMetricStatisticsWidget();
+    passed &= testCompressorGraphFill();
+    passed &= testDeEsserWidget();
+    passed &= testFxSettingsLoadsNativeFx();
+    passed &= testMixerChannelControls();
+    passed &= testFxMeterSegments();
+    passed &= testReusableFxControls();
     if (!passed)
         return 1;
     std::puts("UI tests passed");

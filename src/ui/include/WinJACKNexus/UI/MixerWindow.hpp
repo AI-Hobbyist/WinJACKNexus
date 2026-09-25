@@ -2,13 +2,13 @@
 
 #include <WinJACKNexus/UI/Export.hpp>
 
-#include <QWidget>
+#include <QMainWindow>
 
 #include <memory>
 
 namespace WinJACKNexus::UI {
 
-class WINJACK_UI_API MixerWindow final : public QWidget {
+class WINJACK_UI_API MixerWindow final : public QMainWindow {
 public:
     explicit MixerWindow(QWidget* parent = nullptr);
     ~MixerWindow() override;

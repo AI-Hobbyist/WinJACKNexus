@@ -15,7 +15,9 @@
  */
 #include <WinJACKNexus/Common/Atomic.hpp>
 #include <WinJACKNexus/Common/AudioRingBuffer.hpp>
+#include <WinJACKNexus/Common/AuxMixerState.hpp>
 #include <WinJACKNexus/Common/ChannelLayout.hpp>
+#include <WinJACKNexus/NativeFx/compressor/Processor.hpp>
 #include <WinJACKNexus/Common/LockFreeSpscQueue.hpp>
 #include <WinJACKNexus/Common/Logger.hpp>
 #include <WinJACKNexus/Common/LoudnessEngine.hpp>
@@ -356,6 +358,112 @@ bool testLoudnessEngine()
     return passed;
 }
 
+bool testCompressorProcessor()
+{
+    using namespace WinJACKNexus::Common;
+    bool passed = true;
+
+    CompressorParameters parameters;
+    parameters.thresholdDb = -12.0F;
+    parameters.ratio = 4.0F;
+    parameters.kneeDb = 0.0F;
+    parameters.attackMs = 0.1F;
+    parameters.releaseMs = 100.0F;
+    parameters.rms = false;
+    parameters.sidechainFilter = false;
+    CompressorProcessor processor;
+    processor.prepare(48000.0);
+    processor.setParameters(parameters);
+    float output = 0.0F;
+    for (int sample = 0; sample < 12000; ++sample)
+        output = processor.process(0.5F);
+    passed &= check(std::abs(output - 0.2985F) < 0.015F,
+                    "compressor applies the configured ratio above its threshold");
+    passed &= check(std::abs(processor.inputLevelDb() + 6.02F) < 0.15F
+                        && std::abs(processor.outputLevelDb() + 10.5F) < 0.25F,
+                    "compressor reports separate pre and post compression levels");
+
+    parameters.thresholdDb = -12.0F;
+    parameters.kneeDb = 6.0F;
+    processor.reset();
+    processor.setParameters(parameters);
+    for (int sample = 0; sample < 12000; ++sample)
+        output = processor.process(0.25118864F);
+    passed &= check(processor.gainReductionDb() > 0.3F && processor.gainReductionDb() < 0.9F,
+                    "soft knee begins compressing smoothly at its center");
+
+    parameters.kneeDb = 0.0F;
+    parameters.autoMakeup = true;
+    parameters.thresholdDb = -18.0F;
+    processor.reset();
+    processor.setParameters(parameters);
+    for (int sample = 0; sample < 12000; ++sample)
+        output = processor.process(0.5F);
+    passed &= check(output > 0.5F,
+                    "automatic makeup gain compensates for the configured compression");
+
+    parameters.enabled = false;
+    processor.setParameters(parameters);
+    passed &= check(std::abs(processor.process(-0.375F) + 0.375F) < 1.0e-6F,
+                    "disabled compressor preserves the input sample");
+    passed &= check(processor.process(std::numeric_limits<float>::quiet_NaN()) == 0.0F,
+                    "compressor sanitizes invalid samples without propagating NaN");
+
+    CompressorProcessor rmsProcessor;
+    CompressorProcessor peakProcessor;
+    parameters = {};
+    parameters.rms = true;
+    parameters.sidechainFilter = false;
+    parameters.attackMs = 10.0F;
+    parameters.releaseMs = 10.0F;
+    rmsProcessor.prepare(48000.0);
+    rmsProcessor.setParameters(parameters);
+    parameters.rms = false;
+    parameters.attackMs = 0.1F;
+    parameters.releaseMs = 100.0F;
+    peakProcessor.prepare(48000.0);
+    peakProcessor.setParameters(parameters);
+    for (int sample = 0; sample < 12000; ++sample) {
+        const float value = static_cast<float>(std::sin(2.0 * std::numbers::pi * 1000.0 * sample / 48000.0));
+        rmsProcessor.process(value);
+        peakProcessor.process(value);
+    }
+    passed &= check(std::abs(rmsProcessor.inputLevelDb() + 3.01F) < 0.15F
+                        && std::abs(peakProcessor.inputLevelDb()) < 0.15F,
+                    "RMS and peak detection report their corresponding signal strengths");
+
+    CompressorProcessor filteredSidechain;
+    parameters = {};
+    parameters.rms = false;
+    parameters.highPassHz = 2000.0F;
+    parameters.attackMs = 0.1F;
+    parameters.releaseMs = 100.0F;
+    filteredSidechain.prepare(48000.0);
+    filteredSidechain.setParameters(parameters);
+    float filteredOutput = 0.0F;
+    for (int sample = 0; sample < 48000; ++sample) {
+        const float value = 0.5F * static_cast<float>(std::sin(
+            2.0 * std::numbers::pi * 100.0 * sample / 48000.0));
+        filteredOutput = filteredSidechain.process(value);
+    }
+    passed &= check(std::abs(filteredSidechain.inputLevelDb() + 6.02F) < 0.25F
+                        && filteredSidechain.detectorLevelDb() < -18.0F
+                        && std::abs(filteredSidechain.outputLevelDb() + 6.02F) < 0.5F
+                        && std::abs(filteredOutput) < 0.5F,
+                    "intensity meters show actual input and post-compression levels while sidechain filtering controls detection");
+
+    CompressorProcessor silentChannel;
+    silentChannel.prepare(48000.0);
+    silentChannel.setParameters(parameters);
+    for (int sample = 0; sample < 12000; ++sample)
+        silentChannel.process(0.0F);
+    passed &= check(silentChannel.inputLevelDb() <= -90.0F
+                        && silentChannel.gainReductionDb() < 0.01F,
+                    "a silent channel contributes no signal level or compression reduction");
+
+    return passed;
+}
+
 bool testSilenceResetController()
 {
     using namespace WinJACKNexus::Common;
@@ -537,6 +645,50 @@ void threadEntry(WinJACKNexus::Common::Thread& thread) noexcept
     }
 }
 
+bool testAuxChannelLayoutsAndCopy()
+{
+    using namespace WinJACKNexus::Common;
+    AuxMixerState state;
+    bool passed = check(state.buses().size() == 3
+                            && std::all_of(state.buses().cbegin(), state.buses().cend(), [](const auto& bus) {
+                                   return bus.targetLayout == AuxChannelLayout::stereo;
+                               }),
+                        "default mixer has three stereo AUX buses");
+    const auto originalId = state.buses().front().id;
+    auto* sourceBus = state.busForSource(QStringLiteral("input:1"), originalId);
+    if (!check(sourceBus != nullptr, "AUX source mapping exists")) return false;
+    sourceBus->sends.front().levelDb = -13.0;
+    sourceBus->targetLayout = AuxChannelLayout::surround51;
+    auto* copied = state.cloneBus(originalId);
+    passed &= check(copied && copied->id != originalId,
+                    "copied AUX bus receives a stable new identity");
+    if (copied) {
+        const auto* copiedSource = state.busForSource(QStringLiteral("input:1"), copied->id);
+        passed &= check(copiedSource && copiedSource->targetLayout == AuxChannelLayout::surround51
+                            && copiedSource->sends.front().levelDb == -13.0,
+                        "copy preserves the source-specific AUX channel map and send level");
+    }
+    const auto copiedId = copied ? copied->id : originalId;
+    const auto& surround = state.addBus(AuxChannelLayout::surround71);
+    passed &= check(surround.sourceLayout == AuxChannelLayout::surround71
+                        && surround.targetLayout == AuxChannelLayout::surround71,
+                    "new AUX bus uses the selected channel layout");
+    state.busForSource(QStringLiteral("aux:1"), copiedId, originalId);
+    passed &= check(state.setBusLayout(originalId, AuxChannelLayout::mono)
+                        && state.bus(originalId)->targetLayout == AuxChannelLayout::mono
+                        && state.busForSource(QStringLiteral("input:1"), originalId)->targetLayout
+                               == AuxChannelLayout::mono
+                        && state.busForSource(QStringLiteral("aux:1"), copiedId, originalId)->sourceLayout
+                               == AuxChannelLayout::mono
+                        && state.busForSource(QStringLiteral("aux:1"), copiedId, originalId)->sends.size() == 1,
+                    "AUX type changes across all sources while keeping the stable bus identity");
+    while (state.buses().size() > 1)
+        passed &= check(state.removeBus(state.buses().back().id), "AUX buses can be removed above the minimum");
+    passed &= check(state.buses().size() == 1 && !state.removeBus(state.buses().front().id),
+                    "the last AUX bus cannot be removed");
+    return passed;
+}
+
 bool testThread()
 {
     using WinJACKNexus::Common::Thread;
@@ -564,11 +716,13 @@ int main()
     passed &= testMeterChannelLayout();
     passed &= testKWeightingCoefficients();
     passed &= testLoudnessEngine();
+    passed &= testCompressorProcessor();
     passed &= testSilenceResetController();
     passed &= testRealtimeObject();
     passed &= testLogger();
     passed &= testUtilities();
     passed &= testThread();
+    passed &= testAuxChannelLayoutsAndCopy();
     if (!passed)
         return 1;
     std::puts("Common tests passed");

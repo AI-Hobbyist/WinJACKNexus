@@ -21,3 +21,5 @@ CMakeUserPresets.json
 # Local CMake build and runtime output
 build/
 bin/
+Ref/
+third_party/

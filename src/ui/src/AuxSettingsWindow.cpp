@@ -45,6 +45,18 @@ void panel(QPainter& painter, const QRectF& rect, const QColor& border = QColor(
     painter.drawRoundedRect(rect, 7, 7);
 }
 
+void toggle(QPainter& painter, const QRectF& rect, bool checked)
+{
+    const auto margin = rect.height() / 12.0;
+    const auto thumbSize = rect.height() - 2.0 * margin;
+    painter.setPen(Qt::NoPen);
+    painter.setBrush(checked ? QColor("#187ee8") : QColor("#38516d"));
+    painter.drawRoundedRect(rect, rect.height() / 2.0, rect.height() / 2.0);
+    painter.setBrush(Qt::white);
+    painter.drawEllipse(QRectF(checked ? rect.right() - margin - thumbSize : rect.left() + margin,
+                               rect.top() + margin, thumbSize, thumbSize));
+}
+
 QString dbText(double value)
 {
     if (value < -72.0)
@@ -122,6 +134,7 @@ public:
 
     QRectF leftPanel() const { return scaled(5, 5, 390, 758); }
     QRectF addButton() const { return scaled(248, 12, 102, 38); }
+    QRectF masterToggle() const { return scaled(202, 18, 40, 24); }
     QRectF removeButton() const { return scaled(356, 12, 31, 38); }
     QRectF listViewport() const { return scaled(10, 58, 380, 698); }
     QRectF listScrollbarTrack() const { return scaled(376, 62, 8, 690); }
@@ -129,8 +142,6 @@ public:
     QRectF pannerPanel() const { return scaled(406, 60, 510, 381); }
     QRectF parametersPanel() const { return scaled(928, 60, 397, 381); }
     QRectF sendsPanel() const { return scaled(406, 450, 919, 294); }
-    QRectF sourceLayoutButton() const { return scaled(1014, 12, 128, 34); }
-    QRectF targetLayoutButton() const { return scaled(1148, 12, 128, 34); }
     QRectF resetButton() const { return scaled(1282, 12, 45, 34); }
     QRectF sendsLinkButton() const { return scaled(802, 456, 72, 32); }
     QRectF sendsSplitButton() const { return scaled(876, 456, 72, 32); }
@@ -144,6 +155,20 @@ public:
     QRectF listRow(int index) const
     {
         return scaled(14, 62 + index * 79 - listScroll, 358, 73);
+    }
+
+    QRectF listPowerToggle(int index) const
+    {
+        const auto row = listRow(index);
+        return { row.left() + 14 * scaleX(), row.top() + 24 * scaleY(),
+                 40 * scaleX(), 24 * scaleY() };
+    }
+
+    QRectF listGear(int index) const
+    {
+        const auto row = listRow(index);
+        return { row.right() - 44 * scaleX(), row.top() + 18 * scaleY(),
+                 34 * scaleX(), 36 * scaleY() };
     }
 
     qreal maximumListScroll() const
@@ -278,27 +303,6 @@ public:
         bus.angleDegrees = angle;
     }
 
-    void showLayoutMenu(bool source, const QPoint& globalPosition)
-    {
-        auto* bus = selected();
-        if (bus == nullptr)
-            return;
-        QMenu menu(&owner);
-        menu.setStyleSheet(QStringLiteral("QMenu { background:#0c2030; color:#d7e8ff; border:1px solid #315370; } QMenu::item:selected { background:#087ee4; }"));
-        const auto layouts = std::array { AuxChannelLayout::mono, AuxChannelLayout::stereo,
-                                          AuxChannelLayout::surround51, AuxChannelLayout::surround71 };
-        for (const auto layout : layouts) {
-            auto* action = menu.addAction(Common::auxLayoutName(layout));
-            action->setData(static_cast<int>(layout));
-        }
-        if (const auto* selectedAction = menu.exec(globalPosition)) {
-            const auto layout = static_cast<AuxChannelLayout>(selectedAction->data().toInt());
-            state->setLayouts(sourceKey, bus->id, source ? layout : bus->sourceLayout,
-                              source ? bus->targetLayout : layout, selfAuxId);
-            changed();
-        }
-    }
-
     void changed()
     {
         if (stateChanged)
@@ -309,6 +313,9 @@ public:
     AuxSettingsWindow& owner;
     std::shared_ptr<Common::AuxMixerState> state;
     std::function<void()> stateChanged;
+    std::function<void(bool)> chainEnabledHandler;
+    bool chainEnabled {};
+    Common::AuxChannelLayout sourceLayout { Common::AuxChannelLayout::stereo };
     QTimer meterTimer;
     QString sourceKey;
     QString sourceName;
@@ -344,12 +351,15 @@ AuxSettingsWindow::AuxSettingsWindow(std::shared_ptr<Common::AuxMixerState> stat
 AuxSettingsWindow::~AuxSettingsWindow() = default;
 
 void AuxSettingsWindow::setSource(const QString& sourceKey, const QString& sourceName,
-                                  std::uint32_t selfAuxId)
+                                  std::uint32_t selfAuxId, Common::AuxChannelLayout layout)
 {
     impl_->sourceKey = sourceKey;
     impl_->sourceName = sourceName;
     impl_->selfAuxId = selfAuxId;
+    impl_->sourceLayout = layout;
     const auto& buses = impl_->buses();
+    for (const auto& bus : buses)
+        impl_->state->setLayouts(sourceKey, bus.id, layout, bus.targetLayout, selfAuxId);
     impl_->selectedId = buses.empty() ? 0 : buses.front().id;
     impl_->selectedPoint = 0;
     setWindowTitle(QStringLiteral("WinJACKNexus - %1 AUX 设置").arg(sourceName));
@@ -370,6 +380,22 @@ void AuxSettingsWindow::setStateChangedCallback(std::function<void()> callback)
     impl_->stateChanged = std::move(callback);
 }
 
+void AuxSettingsWindow::setChainEnabled(bool enabled)
+{
+    impl_->chainEnabled = enabled;
+    update();
+}
+
+bool AuxSettingsWindow::chainEnabled() const
+{
+    return impl_->chainEnabled;
+}
+
+void AuxSettingsWindow::setChainEnabledHandler(std::function<void(bool)> handler)
+{
+    impl_->chainEnabledHandler = std::move(handler);
+}
+
 void AuxSettingsWindow::paintEvent(QPaintEvent*)
 {
     QPainter painter(this);
@@ -383,8 +409,9 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
     const auto blue = QColor("#168dff");
 
     panel(painter, impl_->leftPanel(), QColor("#087ab5"));
-    text(painter, impl_->scaled(26, 12, 210, 38), impl_->sourceName + QStringLiteral(" · AUX"), label, 18 * sy,
+    text(painter, impl_->scaled(26, 12, 172, 38), impl_->sourceName + QStringLiteral(" · AUX"), label, 18 * sy,
          Qt::AlignLeft | Qt::AlignVCenter, true);
+    toggle(painter, impl_->masterToggle(), impl_->chainEnabled);
     painter.setPen(QPen(QColor("#0b699d"), 1));
     painter.setBrush(QColor("#073158"));
     painter.drawRoundedRect(impl_->addButton(), 6, 6);
@@ -405,11 +432,7 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
         if (selected)
             painter.fillRect(QRectF(row.left(), row.top() + 3, 5 * sx, row.height() - 6), QColor("#23dfff"));
 
-        const QRectF power(row.left() + 14 * sx, row.top() + 18 * sy, 36 * sx, 36 * sy);
-        painter.setPen(Qt::NoPen);
-        painter.setBrush(bus.enabled && !bus.selfRoute ? QColor("#12b96c") : QColor("#456078"));
-        painter.drawRoundedRect(power, 6, 6);
-        text(painter, power, QStringLiteral("⏻"), QColor("#ffffff"), 20 * sy, Qt::AlignCenter, true);
+        toggle(painter, impl_->listPowerToggle(index), impl_->chainEnabled && bus.enabled && !bus.selfRoute);
         text(painter, { row.left() + 64 * sx, row.top() + 10 * sy, 94 * sx, 25 * sy },
              QStringLiteral("AUX %1").arg(bus.id), label, 15 * sy, Qt::AlignLeft | Qt::AlignVCenter, true);
         text(painter, { row.left() + 64 * sx, row.top() + 36 * sy, 94 * sx, 22 * sy }, bus.name,
@@ -450,7 +473,7 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
         painter.drawRoundedRect(post, 5, 5);
         text(painter, pre, QStringLiteral("Pre"), bus.preFader ? QColor("#ffffff") : secondary, 12 * sy);
         text(painter, post, QStringLiteral("Post"), !bus.preFader ? QColor("#ffffff") : secondary, 12 * sy);
-        const QRectF gear(row.right() - 44 * sx, row.top() + 18 * sy, 34 * sx, 36 * sy);
+        const auto gear = impl_->listGear(index);
         painter.setBrush(QColor("#142b3e"));
         painter.drawRoundedRect(gear, 5, 5);
         text(painter, gear, QStringLiteral("⚙"), label, 18 * sy);
@@ -475,13 +498,11 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
     text(painter, impl_->scaled(420, 8, 45, 40), QStringLiteral("⏻"), cyan, 27 * sy, Qt::AlignCenter, true);
     text(painter, impl_->scaled(465, 8, 270, 40), QStringLiteral("AUX %1 · %2   ✎").arg(bus->id).arg(bus->name),
          label, 18 * sy, Qt::AlignLeft | Qt::AlignVCenter, true);
-    text(painter, impl_->scaled(955, 12, 55, 34), QStringLiteral("源:"), secondary, 12 * sy, Qt::AlignRight | Qt::AlignVCenter);
-    painter.setPen(QPen(QColor("#355f8e"), 1));
-    painter.setBrush(QColor("#11283b"));
-    painter.drawRoundedRect(impl_->sourceLayoutButton(), 5, 5);
-    painter.drawRoundedRect(impl_->targetLayoutButton(), 5, 5);
-    text(painter, impl_->sourceLayoutButton(), QStringLiteral("源 · ") + Common::auxLayoutName(bus->sourceLayout) + QStringLiteral(" ⌄"), label, 11 * sy);
-    text(painter, impl_->targetLayoutButton(), QStringLiteral("目标 · ") + Common::auxLayoutName(bus->targetLayout) + QStringLiteral(" ⌄"), label, 11 * sy);
+    text(painter, impl_->scaled(740, 12, 530, 34),
+         QStringLiteral("源：%1 (%2) → 目标：AUX %3 (%4)")
+             .arg(impl_->sourceName, Common::auxLayoutName(impl_->sourceLayout))
+             .arg(bus->id).arg(Common::auxLayoutName(bus->targetLayout)),
+         secondary, 11 * sy, Qt::AlignRight | Qt::AlignVCenter);
     painter.setBrush(QColor("#172d43"));
     painter.drawRoundedRect(impl_->resetButton(), 5, 5);
     text(painter, impl_->resetButton(), QStringLiteral("重置"), label, 11 * sy);
@@ -569,10 +590,8 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
     text(painter, impl_->scaled(945, 68, 180, 30), QStringLiteral("参数设置"), label, 18 * sy,
          Qt::AlignLeft | Qt::AlignVCenter, true);
     text(painter, impl_->scaled(945, 107, 85, 28), QStringLiteral("目标布局"), secondary, 13 * sy, Qt::AlignLeft | Qt::AlignVCenter);
-    painter.setPen(QPen(QColor("#29465e"), 1));
-    painter.setBrush(QColor("#0a1b29"));
-    painter.drawRoundedRect(impl_->scaled(1032, 103, 275, 38), 5, 5);
-    text(painter, impl_->scaled(1047, 103, 245, 38), Common::auxLayoutName(bus->targetLayout) + QStringLiteral(" ⌄"), label, 13 * sy, Qt::AlignLeft | Qt::AlignVCenter);
+    text(painter, impl_->scaled(1032, 103, 275, 38), Common::auxLayoutName(bus->targetLayout), label,
+         13 * sy, Qt::AlignLeft | Qt::AlignVCenter);
     text(painter, impl_->scaled(945, 151, 80, 24), QStringLiteral("Link"), secondary, 13 * sy, Qt::AlignLeft | Qt::AlignVCenter);
     painter.setPen(Qt::NoPen);
     painter.setBrush(bus->linked ? blue : QColor("#263e53"));
@@ -677,11 +696,25 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
 void AuxSettingsWindow::mousePressEvent(QMouseEvent* event)
 {
     const auto position = event->position();
+    if (impl_->masterToggle().contains(position)) {
+        impl_->chainEnabled = !impl_->chainEnabled;
+        if (impl_->chainEnabledHandler) impl_->chainEnabledHandler(impl_->chainEnabled);
+        update();
+        return;
+    }
     if (impl_->addButton().contains(position)) {
-        impl_->selectedId = impl_->state->addBus().id;
-        impl_->selectedPoint = 0;
-        impl_->listScroll = impl_->maximumListScroll();
-        impl_->changed();
+        QMenu menu(this);
+        const std::array layouts { Common::AuxChannelLayout::mono, Common::AuxChannelLayout::stereo,
+                                   Common::AuxChannelLayout::surround51, Common::AuxChannelLayout::surround71 };
+        for (const auto layout : layouts) {
+            connect(menu.addAction(Common::auxLayoutName(layout)), &QAction::triggered, this, [this, layout] {
+                impl_->selectedId = impl_->state->addBus(layout).id;
+                impl_->selectedPoint = 0;
+                impl_->listScroll = impl_->maximumListScroll();
+                impl_->changed();
+            });
+        }
+        menu.exec(event->globalPosition().toPoint());
         return;
     }
     if (impl_->removeButton().contains(position)) {
@@ -716,8 +749,47 @@ void AuxSettingsWindow::mousePressEvent(QMouseEvent* event)
         if (impl_->selectedId != bus.id)
             impl_->selectedPoint = 0;
         impl_->selectedId = bus.id;
-        const QRectF power(row.left() + 14 * impl_->scaleX(), row.top() + 18 * impl_->scaleY(),
-                           36 * impl_->scaleX(), 36 * impl_->scaleY());
+        if (impl_->listGear(index).contains(position)) {
+            const auto id = bus.id;
+            QMenu menu(this);
+            auto* clone = menu.addAction(QStringLiteral("克隆"));
+            auto* remove = menu.addAction(QStringLiteral("删除"));
+            remove->setEnabled(impl_->buses().size() > 1);
+            connect(clone, &QAction::triggered, this, [this, id] {
+                if (auto* copied = impl_->state->cloneBus(id)) {
+                    impl_->selectedId = copied->id;
+                    impl_->selectedPoint = 0;
+                    impl_->listScroll = impl_->maximumListScroll();
+                    impl_->changed();
+                }
+            });
+            connect(remove, &QAction::triggered, this, [this, id, index] {
+                if (impl_->state->removeBus(id)) {
+                    impl_->selectedId = impl_->buses()[std::min(index, static_cast<int>(impl_->buses().size()) - 1)].id;
+                    impl_->selectedPoint = 0;
+                    impl_->listScroll = std::clamp(impl_->listScroll, 0.0, impl_->maximumListScroll());
+                    impl_->changed();
+                }
+            });
+            auto* typeMenu = menu.addMenu(QStringLiteral("切换声道类型"));
+            const std::array layouts { Common::AuxChannelLayout::mono, Common::AuxChannelLayout::stereo,
+                                       Common::AuxChannelLayout::surround51, Common::AuxChannelLayout::surround71 };
+            for (const auto layout : layouts) {
+                auto* action = typeMenu->addAction(Common::auxLayoutName(layout));
+                action->setCheckable(true);
+                action->setChecked(bus.targetLayout == layout);
+                connect(action, &QAction::triggered, this, [this, id, layout] {
+                    if (impl_->state->setBusLayout(id, layout)) {
+                        if (impl_->selfAuxId == id)
+                            impl_->sourceLayout = layout;
+                        impl_->changed();
+                    }
+                });
+            }
+            menu.exec(event->globalPosition().toPoint());
+            update();
+            return;
+        }
         const QRectF pre(row.left() + 220 * impl_->scaleX(), row.top() + 18 * impl_->scaleY(),
                          45 * impl_->scaleX(), 36 * impl_->scaleY());
         const QRectF post(row.left() + 265 * impl_->scaleX(), row.top() + 18 * impl_->scaleY(),
@@ -731,7 +803,7 @@ void AuxSettingsWindow::mousePressEvent(QMouseEvent* event)
                 impl_->draggedListLevels.push_back(send.levelDb);
             return;
         }
-        if (power.contains(position) && !bus.selfRoute)
+        if (impl_->listPowerToggle(index).contains(position) && !bus.selfRoute && impl_->chainEnabled)
             bus.enabled = !bus.enabled;
         else if (pre.contains(position))
             bus.preFader = true;
@@ -743,13 +815,7 @@ void AuxSettingsWindow::mousePressEvent(QMouseEvent* event)
     auto* bus = impl_->selected();
     if (bus == nullptr)
         return;
-    if (impl_->sourceLayoutButton().contains(position)) {
-        impl_->showLayoutMenu(true, event->globalPosition().toPoint());
-        return;
-    }
-    if (impl_->targetLayoutButton().contains(position)
-        || impl_->scaled(1032, 103, 275, 38).contains(position)) {
-        impl_->showLayoutMenu(false, event->globalPosition().toPoint());
+    if (impl_->scaled(1032, 103, 275, 38).contains(position)) {
         return;
     }
     if (impl_->resetButton().contains(position)) {

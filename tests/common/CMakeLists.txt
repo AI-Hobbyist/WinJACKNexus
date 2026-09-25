@@ -5,7 +5,7 @@ add_executable(wjn_common_tests
     CommonTests.cpp
 )
 
-target_link_libraries(wjn_common_tests PRIVATE WinJACKNexus::Common)
+target_link_libraries(wjn_common_tests PRIVATE WinJACKNexus::Common mod_compressor)
 target_compile_features(wjn_common_tests PRIVATE cxx_std_20)
 target_compile_definitions(wjn_common_tests PRIVATE WIN32_LEAN_AND_MEAN NOMINMAX)
 
@@ -20,3 +20,5 @@ set_target_properties(
 )
 
 add_test(NAME common_unit_tests COMMAND wjn_common_tests)
+set_tests_properties(common_unit_tests PROPERTIES ENVIRONMENT
+    "PATH=$<TARGET_FILE_DIR:mod_compressor>;${WJN_OUTPUT_DIR}")

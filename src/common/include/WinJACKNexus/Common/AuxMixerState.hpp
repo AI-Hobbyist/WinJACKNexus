@@ -63,8 +63,10 @@ public:
     AuxBusState* busForSource(const QString& sourceKey, std::uint32_t id,
                               std::uint32_t selfAuxId = 0);
 
-    AuxBusState& addBus();
+    AuxBusState& addBus(AuxChannelLayout layout = AuxChannelLayout::stereo);
+    AuxBusState* cloneBus(std::uint32_t id);
     bool removeBus(std::uint32_t id);
+    bool setBusLayout(std::uint32_t id, AuxChannelLayout layout);
     void resetBus(const QString& sourceKey, std::uint32_t id, std::uint32_t selfAuxId = 0);
     void setLayouts(const QString& sourceKey, std::uint32_t id, AuxChannelLayout source,
                     AuxChannelLayout target, std::uint32_t selfAuxId = 0);

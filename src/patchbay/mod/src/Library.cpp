@@ -843,6 +843,14 @@ public:
 
 		const std::string& clientId() const noexcept
 		{
+			if (getNodeClientId_ != nullptr) {
+				try {
+					const auto* current = getNodeClientId_(node_);
+					if (current != nullptr && clientId_ != current)
+						clientId_ = current;
+				} catch (...) {
+				}
+			}
 			return clientId_;
 		}
 
@@ -858,12 +866,12 @@ public:
 
 		bool hasClient() const noexcept
 		{
-			return !clientId_.empty();
+			return !clientId().empty();
 		}
 
 	bool ownsClient(const std::string& clientId) const noexcept
 	{
-		return clientId_ == clientId;
+		return this->clientId() == clientId;
 	}
 
 	bool showGui(QWidget* parent) noexcept
@@ -930,6 +938,7 @@ public:
 private:
 	using DestroyNode = void (*)(WinJACKNexus::Node::INode* node);
 	using GetNodeSettingsJson = const char* (*)(WinJACKNexus::Node::INode* node);
+	using GetNodeClientId = const char* (*)(WinJACKNexus::Node::INode* node);
 		using CreateSettingsWidget = QWidget* (*)(WinJACKNexus::Node::INode* node, QWidget* parent);
 		using DestroySettingsWidget = void (*)(WinJACKNexus::Node::INode* node, QWidget* widget);
 		using CreateSettingsView = void* (*)(WinJACKNexus::Node::INode* node, void* parentHwnd);
@@ -958,6 +967,7 @@ private:
 			, destroySettingsView_(destroySettingsView)
 			, showNodeGui_(showNodeGui)
 			, clientId_(std::move(clientId))
+			, getNodeClientId_(reinterpret_cast<GetNodeClientId>(GetProcAddress(library, "wjn_get_node_client_id")))
 			, getNodeSettingsJson_(reinterpret_cast<GetNodeSettingsJson>(GetProcAddress(library, "wjn_get_node_settings_json")))
 		, modulePath_(modulePath)
 		, index_(index)
@@ -979,7 +989,8 @@ private:
 	std::uint32_t index_ = 0;
 	QString category_;
 	QString name_;
-	std::string clientId_;
+	mutable std::string clientId_;
+	GetNodeClientId getNodeClientId_ = nullptr;
 	std::string contextId_ = "main";
 		HWND settingsView_ = nullptr;
 		QPointer<QWidget> settingsWidget_;

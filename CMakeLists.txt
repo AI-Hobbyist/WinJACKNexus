@@ -39,6 +39,7 @@ add_subdirectory(src/meter)
 add_subdirectory(src/patchbay)
 add_subdirectory(src/mixer)
 add_subdirectory(src/adapter)
+add_subdirectory(src/native_fx)
 add_subdirectory(src/vst)
 add_subdirectory(src/app)
 add_subdirectory(tools/vst_scanner)
@@ -88,6 +89,7 @@ if(BUILD_TESTING)
     add_subdirectory(tests/vst)
     add_subdirectory(tests/patchbay/core)
     add_subdirectory(tests/patchbay/plugins)
+    add_subdirectory(tests/native_fx)
     add_test(
         NAME m1_dll_outputs
         COMMAND "${CMAKE_COMMAND}"

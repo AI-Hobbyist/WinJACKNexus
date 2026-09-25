@@ -15,9 +15,13 @@ public:
     explicit AuxSettingsWindow(std::shared_ptr<Common::AuxMixerState> state, QWidget* parent = nullptr);
     ~AuxSettingsWindow() override;
 
-    void setSource(const QString& sourceKey, const QString& sourceName, std::uint32_t selfAuxId = 0);
+    void setSource(const QString& sourceKey, const QString& sourceName, std::uint32_t selfAuxId = 0,
+                   Common::AuxChannelLayout layout = Common::AuxChannelLayout::stereo);
     void selectBus(std::uint32_t id);
     void setStateChangedCallback(std::function<void()> callback);
+    void setChainEnabled(bool enabled);
+    bool chainEnabled() const;
+    void setChainEnabledHandler(std::function<void(bool)> handler);
 
 protected:
     void paintEvent(QPaintEvent* event) override;

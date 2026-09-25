@@ -130,7 +130,7 @@ WinJACKNexus 的定位:
 ## 系统要求
 
 - **操作系统:Windows 10 / 11(x64)**,仅支持 **64 位**,不支持 32 位或 ARM;
-- **JACK2 运行时**:`jackd.exe` / `libjack64.dll`(仓库 `third_party/JACK2` 已内置,或使用 [JACK 官方 Windows 安装包](https://jackaudio.org/downloads/));
+- **JACK2 运行时**:`jackd.exe` / `libjack64.dll`(自行安装 [JACK 官方 Windows 安装包](https://jackaudio.org/downloads/)；本仓库不分发 `third_party` 依赖);
 - 音频设备:WASAPI 兼容(任意现代 Windows 声卡);MIDI 设备可选。
 
 ---
@@ -198,7 +198,9 @@ WinJACKNexus 的定位:
 | 基础库 `WinJACKNexus::Node` | `node.dll` | ✅ 已完成(接口桩) | [基础库计划](Docs/WinJACKNexus%20-%20基础库%20-%20开发计划.md) | INode + C-API + 示例节点 |
 | Audio Adapter | `nodes/adapter/mod_adapter.dll` | ✅ 已完成(A1–A6) | [Audio Adapter 计划](Docs/WinJACKNexus%20-%20Audio%20Adapter%20-%20开发计划.md) | WASAPI In/Out、MIDI In/Out、设置面板、设备互斥与刷新、电平/力度窗口 |
 | Interactive Patchbay | `mod_patchbay.dll`(主程序同级) | ✅ 已完成(B1–B8) | [接线盘计划](Docs/WinJACKNexus%20-%20接线盘%20-%20开发计划.md) | 实时 JACK 图、拖线连通/断开、工程保存恢复、自动保存、无限画布 |
-| Pure Mixer | `nodes/mixer/mod_mixer.dll` | 📋 未开始 | — | P3 |
+| Pure Mixer | `nodes/mixer/mod_mixer.dll` | 🔨 开发中 | — | 输入/AUX 通道、FX 链与 AUX 设置窗口开发中 |
+| Native Fx(自带效果器) | `nodes/native_fx/*/mod_*.dll` | ✅ 已完成 | [效果器完成记录](Native%20Effect/) | Gate、Graphic EQ、Parametric EQ、De-Esser、Compressor、Limiter、Delay、Reverb |
+| Native Fx API | `src/native_fx/include/WinJACKNexus/NativeFx/NativeFxApi.h` | ✅ 已完成 | [Native Fx API 文档](Docs/NativeFx-API.md) | 原生效果器模块接口、加载与控制 |
 | Meterbridge | `mod_meterbrigde.dll` + `nodes/meter/mod_meterbridge_probe.dll` | ✅ 已完成 | [电平表桥计划](Docs/电平表桥开发计划书.md) | 唯一桥窗口、Mono/Stereo/5.1/7.1/Custom Probe、BS.1770-5 计量、历史图表、CSV、工程恢复 |
 | Signal Switch | `nodes/switch/mod_switch.dll` | 📋 未开始 | — | P4 |
 | MIDI Splitter | 节点(`mod_patchbay` 内/独立) | 📋 未开始 | — | 与 Patchbay 同期 |
@@ -240,8 +242,8 @@ WinJACKNexus 的第一方代码依据 GNU Affero General Public License v3.0 发
 | :--- | :--- | :--- |
 | JACK2 (jackd / libjack) | 1.9.22 | 服务器 GPL-2.0,客户端库 LGPL-2.1 |
 | Qt 6 | 6.10.3 | LGPLv3 / 商业(本仓库动态链接使用开源版 Qt) |
-| VST 3 SDK | 3.8.x | GPLv3+例外 / 商业 |
-| VST 2 SDK | — | 专有许可(仅保留,未使用前不作为依赖) |
+| VST 3 SDK | 3.8.x | GPLv3+例外 / 商业；需自行放置于 `third_party/vst3sdk` |
+| VST 2 SDK | — | 专有许可，仓库不分发；获授权者可自行放置于 `third_party/vst2sdk`，未配置 SDK 时使用 `-DWJN_ENABLE_VST2=OFF` |
 
 本项目使用上述第三方库对应的开源许可条款;涉及商用需自行评估商业许可。
 

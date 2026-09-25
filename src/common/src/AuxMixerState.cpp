@@ -62,13 +62,8 @@ AuxMixerState::AuxMixerState()
 {
     const auto definitions = std::array {
         std::tuple { QStringLiteral("Monitor"), AuxChannelLayout::stereo, AuxChannelLayout::stereo },
-        std::tuple { QStringLiteral("Reverb"), AuxChannelLayout::mono, AuxChannelLayout::stereo },
-        std::tuple { QStringLiteral("Delay"), AuxChannelLayout::stereo, AuxChannelLayout::surround51 },
-        std::tuple { QStringLiteral("Room"), AuxChannelLayout::surround51, AuxChannelLayout::stereo },
-        std::tuple { QStringLiteral("Hall"), AuxChannelLayout::stereo, AuxChannelLayout::surround71 },
-        std::tuple { QStringLiteral("Plate"), AuxChannelLayout::mono, AuxChannelLayout::mono },
-        std::tuple { QStringLiteral("Vocal FX"), AuxChannelLayout::surround51, AuxChannelLayout::surround51 },
-        std::tuple { QStringLiteral("Drum FX"), AuxChannelLayout::surround71, AuxChannelLayout::surround71 }
+        std::tuple { QStringLiteral("Reverb"), AuxChannelLayout::stereo, AuxChannelLayout::stereo },
+        std::tuple { QStringLiteral("Delay"), AuxChannelLayout::stereo, AuxChannelLayout::stereo }
     };
     for (const auto& [name, source, target] : definitions)
         buses_.push_back(makeBus(nextId_, name, source, target)), ++nextId_;
@@ -104,16 +99,37 @@ AuxBusState* AuxMixerState::busForSource(const QString& sourceKey, std::uint32_t
     return found == sourceBuses.end() ? nullptr : &*found;
 }
 
-AuxBusState& AuxMixerState::addBus()
+AuxBusState& AuxMixerState::addBus(AuxChannelLayout layout)
 {
     const auto id = nextId_++;
-    buses_.push_back(makeBus(id, QStringLiteral("AUX %1").arg(id),
-                             AuxChannelLayout::stereo, AuxChannelLayout::stereo));
+    buses_.push_back(makeBus(id, QStringLiteral("AUX %1").arg(id), layout, layout));
     for (auto& source : sourceStates_) {
         source.buses.push_back(buses_.back());
         applySelfRoute(source.buses.back(), source.selfAuxId);
     }
     return buses_.back();
+}
+
+AuxBusState* AuxMixerState::cloneBus(std::uint32_t id)
+{
+    const auto* original = bus(id);
+    if (!original) return nullptr;
+    AuxBusState copied = *original;
+    copied.id = nextId_++;
+    copied.name = QStringLiteral("AUX %1").arg(copied.id);
+    copied.selfRoute = false;
+    buses_.push_back(copied);
+    for (auto& source : sourceStates_) {
+        const auto found = std::find_if(source.buses.cbegin(), source.buses.cend(), [id](const auto& value) {
+            return value.id == id;
+        });
+        AuxBusState send = found == source.buses.cend() ? copied : *found;
+        send.id = copied.id;
+        send.name = copied.name;
+        applySelfRoute(send, source.selfAuxId);
+        source.buses.push_back(std::move(send));
+    }
+    return &buses_.back();
 }
 
 bool AuxMixerState::removeBus(std::uint32_t id)
@@ -124,6 +140,30 @@ bool AuxMixerState::removeBus(std::uint32_t id)
         return false;
     for (auto& source : sourceStates_)
         std::erase_if(source.buses, [id](const auto& value) { return value.id == id; });
+    return true;
+}
+
+bool AuxMixerState::setBusLayout(std::uint32_t id, AuxChannelLayout layout)
+{
+    auto* current = bus(id);
+    if (!current)
+        return false;
+    current->sourceLayout = layout;
+    current->targetLayout = layout;
+    rebuildChannels(*current);
+    for (auto& source : sourceStates_) {
+        if (source.selfAuxId == id) {
+            for (auto& sourceBus : source.buses) {
+                sourceBus.sourceLayout = layout;
+                rebuildChannels(sourceBus);
+            }
+        }
+        const auto found = std::find_if(source.buses.begin(), source.buses.end(), [id](const auto& value) {
+            return value.id == id;
+        });
+        if (found != source.buses.end())
+            found->targetLayout = layout;
+    }
     return true;
 }
 

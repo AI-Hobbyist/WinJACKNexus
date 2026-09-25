@@ -1,7 +1,12 @@
 #include <WinJACKNexus/UI/MixerWindow.hpp>
 #include <WinJACKNexus/UI/AuxSettingsWindow.hpp>
+#include <WinJACKNexus/UI/FxSettingsWindow.hpp>
 
 #include <QMouseEvent>
+#include <QMenu>
+#include <QMenuBar>
+#include <QLabel>
+#include <QVBoxLayout>
 #include <QPainter>
 #include <QPainterPath>
 #include <QPointer>
@@ -13,6 +18,7 @@
 #include <algorithm>
 #include <array>
 #include <cmath>
+#include <map>
 #include <vector>
 
 namespace WinJACKNexus::UI {
@@ -32,6 +38,8 @@ struct Channel {
     bool solo = false;
     bool postFaderMeter = false;
     std::uint32_t auxId {};
+    std::uint32_t id {};
+    Common::AuxChannelLayout layout { Common::AuxChannelLayout::mono };
 };
 
 QColor withAlpha(const QColor& color, int alpha)
@@ -107,6 +115,11 @@ public:
             { "Bus 7", "Bus In 7", "7", "#8da5d8", .58, -7.0, -7.0 },
             { "Bus 8", "Bus In 8", "8", "#8da5d8", .81, -23.0, -23.0 }
         };
+        for (auto& channel : channels)
+        {
+            channel.id = nextChannelId++;
+            channel.layout = Common::AuxChannelLayout::stereo;
+        }
         rebuildAuxChannels();
         timer.setInterval(55);
         QObject::connect(&timer, &QTimer::timeout, &owner, [this] {
@@ -117,6 +130,7 @@ public:
                 channel.level = std::clamp(channel.level + (QRandomGenerator::global()->bounded(7) - 3) / 10.0, -72.0, 12.0);
             }
             this->owner.update();
+            updateSel();
         });
         timer.start();
     }
@@ -151,10 +165,12 @@ public:
                 channel.target = -12.0;
                 channel.accent = QColor("#33b6ff");
             }
-            channel.name = QStringLiteral("AUX %1").arg(bus.id);
+            channel.name = QStringLiteral("AUX %1").arg(static_cast<int>(rebuilt.size()) - inputChannelCount + 1);
             channel.source = bus.name;
-            channel.number = QStringLiteral("A%1").arg(bus.id);
+            channel.number = channel.name;
             channel.auxId = bus.id;
+            channel.id = 1000000 + bus.id;
+            channel.layout = bus.targetLayout;
             rebuilt.push_back(std::move(channel));
         }
 
@@ -164,8 +180,31 @@ public:
         if (existingMaster != channels.cend())
             rebuilt.push_back(*existingMaster);
         else
-            rebuilt.push_back({ "Main L/R", "JACK Out 1/2", "MAIN", "#50dfbd", .55, 4.0, 4.0 });
+            rebuilt.push_back({ "Main L/R", "JACK Out 1/2", "MAIN", "#50dfbd", .55, 4.0, 4.0,
+                                false, false, false, false, false, 0, 2000000,
+                                Common::AuxChannelLayout::stereo });
         channels = std::move(rebuilt);
+        renumberInputs();
+        if (auxSettingsWindow && auxWindowChannelId != 0
+            && std::none_of(channels.cbegin(), channels.cend(), [this](const Channel& item) {
+                   return item.id == auxWindowChannelId;
+               })) {
+            auxSettingsWindow->close();
+            auxWindowChannelId = 0;
+        }
+        for (auto it = fxSettingsWindows.begin(); it != fxSettingsWindows.end();) {
+            const auto present = std::find_if(channels.cbegin(), channels.cend(), [id = it->first](const Channel& item) {
+                return item.id == id;
+            });
+            if (present == channels.cend()) {
+                if (it->second) { it->second->close(); it->second->deleteLater(); }
+                it = fxSettingsWindows.erase(it);
+            } else {
+                if (it->second) it->second->setSourceChannels(fxChannels(present->layout));
+                ++it;
+            }
+        }
+        updateSel();
         auxScrollOffset = effectiveAuxScrollOffset();
     }
 
@@ -178,16 +217,221 @@ public:
                 rebuildAuxChannels();
                 owner.update();
             });
+            auxSettingsWindow->setChainEnabledHandler([this](bool enabled) {
+                const auto found = std::find_if(channels.begin(), channels.end(), [this](const Channel& item) {
+                    return item.id == auxWindowChannelId;
+                });
+                if (found != channels.end()) { found->aux = enabled; owner.update(); }
+            });
         }
+        auxWindowChannelId = channel.id;
         const auto sourceKey = channel.auxId == 0
-            ? QStringLiteral("input:%1").arg(channel.number)
+            ? QStringLiteral("input:%1").arg(channel.id)
             : QStringLiteral("aux:%1").arg(channel.auxId);
-        auxSettingsWindow->setSource(sourceKey, channel.name, channel.auxId);
+        auxSettingsWindow->setSource(sourceKey, channel.name, channel.auxId, channel.layout);
+        auxSettingsWindow->setChainEnabled(channel.aux);
         if (channel.auxId != 0)
             auxSettingsWindow->selectBus(channel.auxId);
         auxSettingsWindow->show();
         auxSettingsWindow->raise();
         auxSettingsWindow->activateWindow();
+    }
+
+    void renumberInputs()
+    {
+        for (int index = 0; index < inputChannelCount; ++index)
+            channels[index].number = QStringLiteral("CH %1").arg(index + 1);
+    }
+
+    FxSettingsWindow* fxSettingsFor(int index)
+    {
+        const auto id = channels[index].id;
+        auto& window = fxSettingsWindows[id];
+        if (window.isNull()) {
+            window = new FxSettingsWindow(channels[index].name,
+                fxChannels(channels[index].layout), &owner);
+            window->setChainEnabledHandler([this, id](bool enabled) {
+                const auto found = std::find_if(channels.begin(), channels.end(), [id](const Channel& item) {
+                    return item.id == id;
+                });
+                if (found != channels.end()) { found->fx = enabled; owner.update(); }
+            });
+        }
+        window->setChainEnabled(channels[index].fx);
+        return window;
+    }
+
+    void showFxSettings(int index)
+    {
+        auto* window = fxSettingsFor(index);
+        window->show();
+        window->raise();
+        window->activateWindow();
+    }
+
+    static QStringList fxChannels(Common::AuxChannelLayout layout)
+    {
+        if (layout == Common::AuxChannelLayout::mono) return { QStringLiteral("L") };
+        auto labels = Common::auxLayoutChannelLabels(layout);
+        labels.replaceInStrings(QStringLiteral("Lrs"), QStringLiteral("Lb"));
+        labels.replaceInStrings(QStringLiteral("Rrs"), QStringLiteral("Rb"));
+        return labels;
+    }
+
+    void addInput(Common::AuxChannelLayout layout)
+    {
+        Channel channel { QStringLiteral("Input %1").arg(nextChannelId),
+                          QStringLiteral("Input %1").arg(nextChannelId),
+                          QString::number(nextChannelId), QColor("#45bfff"),
+                          .66, -12.0, -12.0 };
+        channel.id = nextChannelId++;
+        channel.layout = layout;
+        channels.insert(channels.begin() + inputChannelCount, channel);
+        ++inputChannelCount;
+        renumberInputs();
+        owner.update();
+    }
+
+    void removeChannel(int index)
+    {
+        if (index == masterIndex() || (index < inputChannelCount && inputChannelCount <= 1)
+            || (index >= inputChannelCount && auxChannelCount() <= 1)) return;
+        const auto channel = channels[index];
+        if (auto found = fxSettingsWindows.find(channel.id); found != fxSettingsWindows.end()) {
+            if (found->second) { found->second->close(); found->second->deleteLater(); }
+            fxSettingsWindows.erase(found);
+        }
+        if (auxWindowChannelId == channel.id && auxSettingsWindow) {
+            auxSettingsWindow->close();
+            auxWindowChannelId = 0;
+        }
+        if (channel.auxId) {
+            auxState->removeBus(channel.auxId);
+            rebuildAuxChannels();
+        } else {
+            channels.erase(channels.begin() + index);
+            --inputChannelCount;
+            renumberInputs();
+        }
+        if (selectedChannelId == channel.id) {
+            selectedChannelId = channels.empty() ? 0 : channels.front().id;
+            updateSel();
+        }
+        owner.update();
+    }
+
+    void copyChannel(int index)
+    {
+        if (index == masterIndex()) return;
+        const auto sourceId = channels[index].id;
+        std::uint32_t copiedId {};
+        if (channels[index].auxId) {
+            auto* bus = auxState->cloneBus(channels[index].auxId);
+            if (!bus) return;
+            rebuildAuxChannels();
+            const auto copied = std::find_if(channels.begin(), channels.end(), [bus](const Channel& item) {
+                return item.auxId == bus->id;
+            });
+            if (copied != channels.end()) {
+                const auto id = copied->id;
+                *copied = channels[index];
+                copied->id = id;
+                copied->auxId = bus->id;
+                copied->name = QStringLiteral("AUX %1").arg(auxChannelCount());
+                copied->number = copied->name;
+                copiedId = copied->id;
+            }
+        } else {
+            Channel copied = channels[index];
+            copied.id = nextChannelId++;
+            copied.name += QStringLiteral(" 副本");
+            copied.number = QString::number(copied.id);
+            copiedId = copied.id;
+            channels.insert(channels.begin() + index + 1, copied);
+            ++inputChannelCount;
+            renumberInputs();
+        }
+        if (copiedId) {
+            const auto sourceFx = fxSettingsWindows.find(sourceId);
+            if (sourceFx != fxSettingsWindows.end() && sourceFx->second) {
+                const auto copied = std::find_if(channels.begin(), channels.end(), [copiedId](const Channel& item) {
+                    return item.id == copiedId;
+                });
+                if (copied != channels.end()) {
+                    auto* target = fxSettingsFor(static_cast<int>(std::distance(channels.begin(), copied)));
+                    target->cloneChainFrom(*sourceFx->second);
+                }
+            }
+        }
+        owner.update();
+    }
+
+    void setChannelLayout(int index, Common::AuxChannelLayout layout)
+    {
+        if (index == masterIndex() || channels[index].layout == layout)
+            return;
+        const auto id = channels[index].id;
+        if (channels[index].auxId) {
+            auxState->setBusLayout(channels[index].auxId, layout);
+            rebuildAuxChannels();
+        } else {
+            channels[index].layout = layout;
+        }
+        if (auto found = fxSettingsWindows.find(id); found != fxSettingsWindows.end() && found->second)
+            found->second->setSourceChannels(fxChannels(layout));
+        if (auxSettingsWindow) {
+            if (auxWindowChannelId == id) {
+                const auto found = std::find_if(channels.cbegin(), channels.cend(), [id](const Channel& item) {
+                    return item.id == id;
+                });
+                if (found != channels.cend()) {
+                    const auto key = found->auxId ? QStringLiteral("aux:%1").arg(found->auxId)
+                                                  : QStringLiteral("input:%1").arg(found->id);
+                    auxSettingsWindow->setSource(key, found->name, found->auxId, layout);
+                }
+            } else {
+                auxSettingsWindow->update();
+            }
+        }
+        owner.update();
+    }
+
+    void updateSel()
+    {
+        if (!selLabel) return;
+        const auto found = std::find_if(channels.cbegin(), channels.cend(), [this](const Channel& item) {
+            return item.id == selectedChannelId;
+        });
+        selLabel->setText(found == channels.cend() ? QStringLiteral("未选择通道") : found->name);
+    }
+
+    void selectChannel(int index)
+    {
+        selectedChannelId = channels[index].id;
+        updateSel();
+        owner.update();
+    }
+
+    void showLargeScreen()
+    {
+        if (!selWindow) {
+            selWindow = new QWidget(&owner, Qt::Window);
+            selWindow->setAttribute(Qt::WA_DeleteOnClose);
+            selWindow->setObjectName(QStringLiteral("selLargeScreen"));
+            selWindow->setWindowTitle(QStringLiteral("SEL 大屏"));
+            selWindow->resize(1100, 680);
+            selWindow->setStyleSheet(QStringLiteral("background:#07131f; color:#e9f2ff;"));
+            auto* layout = new QVBoxLayout(selWindow);
+            selLabel = new QLabel(selWindow);
+            selLabel->setObjectName(QStringLiteral("selSelectedChannel"));
+            selLabel->setAlignment(Qt::AlignCenter);
+            QFont font = selLabel->font(); font.setPixelSize(44); font.setBold(true); selLabel->setFont(font);
+            layout->addWidget(selLabel);
+        }
+        updateSel();
+        selWindow->show();
+        selWindow->raise();
+        selWindow->activateWindow();
     }
 
     QRectF channelRect(int index) const
@@ -199,21 +443,21 @@ public:
             x = auxViewport().left() + (index - inputChannelCount) * channelWidth - effectiveAuxScrollOffset();
         else
             x = owner.width() - margin - channelWidth;
-        return { x, margin, channelWidth, std::max(0.0, owner.height() - margin * 2.0 - scrollbarHeight - scrollbarGap) };
+        return { x, topMargin, channelWidth, channelAreaHeight() };
     }
 
     QRectF inputViewport() const
     {
         const auto available = scrollableAreaWidth();
         const auto inputWidth = std::floor(available * effectiveInputRatio());
-        return { margin, margin, inputWidth, channelAreaHeight() };
+        return { margin, topMargin, inputWidth, channelAreaHeight() };
     }
 
     QRectF auxViewport() const
     {
         const auto input = inputViewport();
         const auto width = std::max(0.0, scrollableAreaWidth() - input.width());
-        return { input.right() + groupGap, margin, width, channelAreaHeight() };
+        return { input.right() + groupGap, topMargin, width, channelAreaHeight() };
     }
 
     QRectF viewportForChannel(int index) const
@@ -223,7 +467,7 @@ public:
 
     qreal channelAreaHeight() const
     {
-        return std::max(0.0, owner.height() - margin * 2.0 - scrollbarHeight - scrollbarGap);
+        return std::max(0.0, owner.height() - topMargin - margin - scrollbarHeight - scrollbarGap);
     }
 
     qreal scrollableAreaWidth() const
@@ -244,7 +488,7 @@ public:
     QRectF groupDividerRect() const
     {
         const auto input = inputViewport();
-        return { input.right(), margin, groupGap, owner.height() - margin * 2.0 };
+        return { input.right(), topMargin, groupGap, owner.height() - topMargin - margin };
     }
 
     void setInputRatioFromPosition(qreal x)
@@ -360,6 +604,10 @@ public:
     MixerWindow& owner;
     std::shared_ptr<Common::AuxMixerState> auxState { std::make_shared<Common::AuxMixerState>() };
     QPointer<AuxSettingsWindow> auxSettingsWindow;
+    QPointer<QWidget> selWindow;
+    QPointer<QLabel> selLabel;
+    std::uint32_t selectedChannelId { 1 };
+    std::map<int, QPointer<FxSettingsWindow>> fxSettingsWindows;
     std::vector<Channel> channels;
     QTimer timer;
     int dragging = -1;
@@ -369,17 +617,20 @@ public:
     qreal inputScrollOffset = 0.0;
     qreal auxScrollOffset = 0.0;
     qreal inputRatio = .6;
+    int inputChannelCount = 8;
+    std::uint32_t nextChannelId = 1;
+    std::uint32_t auxWindowChannelId {};
 
     static constexpr qreal margin = 9.0;
+    static constexpr qreal topMargin = 40.0;
     static constexpr qreal groupGap = 8.0;
     static constexpr qreal channelWidth = 104.0;
     static constexpr qreal scrollbarHeight = 10.0;
     static constexpr qreal scrollbarGap = 5.0;
-    static constexpr int inputChannelCount = 8;
 };
 
 MixerWindow::MixerWindow(QWidget* parent)
-    : QWidget(parent)
+    : QMainWindow(parent)
     , impl_(std::make_unique<Impl>(*this))
 {
     setWindowTitle(QStringLiteral("WinJACKNexus - 调音台"));
@@ -387,6 +638,26 @@ MixerWindow::MixerWindow(QWidget* parent)
     resize(1024, 768);
     setAttribute(Qt::WA_OpaquePaintEvent);
     setMouseTracking(true);
+    auto* menuBar = this->menuBar();
+    menuBar->setObjectName(QStringLiteral("mixerMenuBar"));
+    auto* channelsMenu = menuBar->addMenu(QStringLiteral("通道管理"));
+    auto* inputsMenu = channelsMenu->addMenu(QStringLiteral("添加输入通道"));
+    auto* auxMenu = channelsMenu->addMenu(QStringLiteral("添加AUX通道"));
+    const std::array layouts { Common::AuxChannelLayout::mono, Common::AuxChannelLayout::stereo,
+                               Common::AuxChannelLayout::surround51, Common::AuxChannelLayout::surround71 };
+    for (const auto layout : layouts) {
+        connect(inputsMenu->addAction(Common::auxLayoutName(layout)), &QAction::triggered, this,
+                [this, layout] { impl_->addInput(layout); });
+        connect(auxMenu->addAction(Common::auxLayoutName(layout)), &QAction::triggered, this,
+                [this, layout] { impl_->auxState->addBus(layout); impl_->rebuildAuxChannels(); update(); });
+    }
+    auto* globalMenu = menuBar->addMenu(QStringLiteral("全局"));
+    connect(globalMenu->addAction(QStringLiteral("关闭所有通道独奏/静音")), &QAction::triggered, this, [this] {
+        for (auto& channel : impl_->channels) { channel.solo = false; channel.mute = false; }
+        update();
+    });
+    connect(menuBar->addAction(QStringLiteral("查看大屏")), &QAction::triggered, this,
+            [this] { impl_->showLargeScreen(); });
 }
 
 MixerWindow::~MixerWindow() = default;
@@ -403,7 +674,7 @@ void MixerWindow::paintEvent(QPaintEvent*)
     const auto secondary = QColor("#a9bbd7");
     const auto groups = std::array<std::tuple<int, QString, QColor>, 3> {{
         { 0, QStringLiteral("♩  Inputs"), QColor("#1977d3") },
-        { Impl::inputChannelCount, QStringLiteral("◇  AUX Sends"), QColor("#654dd4") },
+        { impl_->inputChannelCount, QStringLiteral("◇  AUX Sends"), QColor("#654dd4") },
         { impl_->masterIndex(), QStringLiteral("◖  Main Output"), QColor("#1ca47f") }
     }};
 
@@ -436,7 +707,7 @@ void MixerWindow::paintEvent(QPaintEvent*)
         }
         const auto& channel = impl_->channels[index];
         const auto card = impl_->channelRect(index);
-        if (index != 0 && index != Impl::inputChannelCount && index != impl_->masterIndex()) {
+        if (index != 0 && index != impl_->inputChannelCount && index != impl_->masterIndex()) {
             painter.setPen(QPen(QColor("#243c57"), 1));
             painter.drawLine(QPointF(card.left(), card.top() + headerHeight), QPointF(card.left(), card.bottom()));
         }
@@ -514,7 +785,7 @@ void MixerWindow::paintEvent(QPaintEvent*)
             drawButton({ card.left() + side * 2 + halfWidth, buttonTop + buttonHeight * 4.35, halfWidth, buttonHeight }, "S", QColor("#f7aa2f"), channel.solo);
         }
 
-        const auto faderColor = index < Impl::inputChannelCount
+        const auto faderColor = index < impl_->inputChannelCount
             ? QColor("#9aa8b7")
             : index < impl_->masterIndex() ? QColor("#33b6ff") : QColor("#ff5353");
         const auto track = impl_->faderTrack(index);
@@ -560,6 +831,63 @@ void MixerWindow::paintEvent(QPaintEvent*)
 
 void MixerWindow::mousePressEvent(QMouseEvent* event)
 {
+    if (event->button() == Qt::RightButton) {
+        const auto index = impl_->hitChannel(event->position());
+        if (index < 0) return;
+        QMenu menu(this);
+        auto* remove = menu.addAction(QStringLiteral("删除通道"));
+        auto* copy = menu.addAction(QStringLiteral("复制通道"));
+        remove->setEnabled(index != impl_->masterIndex()
+                           && (index < impl_->inputChannelCount ? impl_->inputChannelCount > 1
+                                                               : impl_->auxChannelCount() > 1));
+        copy->setEnabled(index != impl_->masterIndex());
+        auto* typeMenu = menu.addMenu(QStringLiteral("通道类型"));
+        typeMenu->setEnabled(index != impl_->masterIndex());
+        const std::array layouts { Common::AuxChannelLayout::mono, Common::AuxChannelLayout::stereo,
+                                   Common::AuxChannelLayout::surround51, Common::AuxChannelLayout::surround71 };
+        for (const auto layout : layouts) {
+            auto* action = typeMenu->addAction(Common::auxLayoutName(layout));
+            action->setCheckable(true);
+            action->setChecked(impl_->channels[index].layout == layout);
+        }
+        menu.addSeparator();
+        auto* fx = menu.addAction(QStringLiteral("打开FX设置"));
+        auto* aux = menu.addAction(QStringLiteral("打开AUX设置"));
+        aux->setEnabled(index != impl_->masterIndex());
+        auto* sel = menu.addAction(QStringLiteral("打开SEL设置"));
+        const auto id = impl_->channels[index].id;
+        const auto withChannel = [this, id](auto action) {
+            const auto found = std::find_if(impl_->channels.begin(), impl_->channels.end(), [id](const Channel& item) {
+                return item.id == id;
+            });
+            if (found != impl_->channels.end())
+                action(static_cast<int>(std::distance(impl_->channels.begin(), found)));
+        };
+        connect(remove, &QAction::triggered, this, [this, withChannel] {
+            withChannel([this](int current) { impl_->removeChannel(current); });
+        });
+        connect(copy, &QAction::triggered, this, [this, withChannel] {
+            withChannel([this](int current) { impl_->copyChannel(current); });
+        });
+        for (int layoutIndex = 0; layoutIndex < static_cast<int>(layouts.size()); ++layoutIndex) {
+            connect(typeMenu->actions()[layoutIndex], &QAction::triggered, this,
+                    [this, withChannel, layout = layouts[layoutIndex]] {
+                        withChannel([this, layout](int current) { impl_->setChannelLayout(current, layout); });
+                    });
+        }
+        connect(fx, &QAction::triggered, this, [this, withChannel] {
+            withChannel([this](int current) { impl_->showFxSettings(current); });
+        });
+        connect(aux, &QAction::triggered, this, [this, withChannel] {
+            withChannel([this](int current) { impl_->showAuxSettings(impl_->channels[current]); });
+        });
+        connect(sel, &QAction::triggered, this, [this, withChannel] {
+            withChannel([this](int current) { impl_->selectChannel(current); impl_->showLargeScreen(); });
+        });
+        menu.exec(event->globalPosition().toPoint());
+        return;
+    }
+    if (event->button() != Qt::LeftButton) return;
     if (impl_->groupDividerRect().adjusted(-3, 0, 3, 0).contains(event->position())) {
         impl_->groupDividerDragging = true;
         impl_->setInputRatioFromPosition(event->position().x() - Impl::groupGap / 2.0);
@@ -613,11 +941,15 @@ void MixerWindow::mousePressEvent(QMouseEvent* event)
         const QRectF fxButton(card.left() + side, buttonTop + buttonHeight, halfWidth, buttonHeight);
         const QRectF settingsButton(card.left() + side * 2 + halfWidth, buttonTop + buttonHeight,
                                     halfWidth, buttonHeight);
-        if (fxButton.contains(event->position()))
+        if (fxButton.contains(event->position())) {
             channel.fx = !channel.fx;
-        else if (settingsButton.contains(event->position())) {
-            // Settings dialog is connected in the mixer logic stage.
+            if (auto window = impl_->fxSettingsWindows[channel.id]) window->setChainEnabled(channel.fx);
         }
+        else if (settingsButton.contains(event->position()))
+            impl_->showFxSettings(index);
+        else if (QRectF(card.left() + side, buttonTop + buttonHeight * 2.8,
+                        card.width() - side * 2, buttonHeight).contains(event->position()))
+            impl_->selectChannel(index);
         else if (QRectF(card.left() + side, buttonTop + buttonHeight * 4.3,
                         card.width() - side * 2, buttonHeight).contains(event->position()))
             channel.mute = !channel.mute;
@@ -626,11 +958,17 @@ void MixerWindow::mousePressEvent(QMouseEvent* event)
         impl_->showAuxSettings(channel);
     } else if (QRectF(card.left() + side * 2 + halfWidth, buttonTop + buttonHeight * 1.35,
                       halfWidth, buttonHeight).contains(event->position())) {
-        // FX settings are connected separately from AUX sends.
+        impl_->showFxSettings(index);
     } else if (leftButton(0).contains(event->position())) {
         channel.aux = !channel.aux;
+        if (impl_->auxSettingsWindow && impl_->auxWindowChannelId == channel.id)
+            impl_->auxSettingsWindow->setChainEnabled(channel.aux);
     } else if (leftButton(1.35).contains(event->position())) {
         channel.fx = !channel.fx;
+        if (auto window = impl_->fxSettingsWindows[channel.id]) window->setChainEnabled(channel.fx);
+    } else if (QRectF(card.left() + side, buttonTop + buttonHeight * 2.85,
+                      card.width() - side * 2, buttonHeight).contains(event->position())) {
+        impl_->selectChannel(index);
     } else if (leftButton(4.35).contains(event->position())) {
         channel.mute = !channel.mute;
     } else if (QRectF(card.left() + side * 2 + halfWidth, buttonTop + buttonHeight * 4.35,
