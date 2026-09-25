@@ -41,7 +41,8 @@ struct AuxBusState final {
     bool preFader { true };
     bool sendsLinked { true };
     bool linked {};
-    bool showDirectivity { true };
+    // Display-only switch for the input/output polar curve overlay.
+    bool showPolarCurves { true };
     AuxPanMode panMode { AuxPanMode::spatial };
     double classicPan {};
     AuxChannelLayout sourceLayout { AuxChannelLayout::stereo };

@@ -159,7 +159,7 @@ public:
     QRectF sendsPanel() const { return scaled(976, 11, 359, 790); }
     QRectF resetButton() const { return scaled(1220, 52, 100, 34); }
     QRectF sendsLinkButton() const { return scaled(1085, 57, 42, 24); }
-    QRectF directivityButton() const { return scaled(755, 56, 42, 24); }
+    QRectF polarCurvesButton() const { return scaled(711, 52, 182, 34); }
     QRectF spatialModeButton() const { return scaled(420, 52, 137, 34); }
     QRectF classicModeButton() const { return scaled(567, 52, 137, 34); }
     QRectF parameterKnob(int index) const { return scaled(468+index*178, 656, 82, 82); }
@@ -289,6 +289,7 @@ public:
     void publishPan()
     {
         if(const auto* bus=selected()){
+            owner.setProperty("auxPolarCurvesVisible",bus->showPolarCurves);
             owner.setProperty("auxPanMode",static_cast<int>(bus->panMode));
             owner.setProperty("auxClassicPan",bus->classicPan);
             owner.setProperty("auxPannerWidth",bus->width);
@@ -534,7 +535,7 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
     painter.save();if(!canClassic)painter.setOpacity(.32);
     drawButton({567,52,137,34},QStringLiteral("经典 Pan"),classic);
     painter.restore();
-    if(!classic){drawText({711,52,100,34},QStringLiteral("显示分布图"),13,secondary);drawToggle({814,56,42,24},bus->showDirectivity);}
+    if(!classic){drawText({711,52,133,34},QStringLiteral("显示极坐标曲线"),13,secondary);drawToggle({851,56,42,24},bus->showPolarCurves);}
     drawPanel({420,95,531,448});
     const QPointF center(686,319);
     if(classic){
@@ -559,7 +560,7 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
         const auto references=Common::auxLayoutReferencePoints(bus->targetLayout);
         for(int i=0;i<static_cast<int>(references.size());++i){
             if(!Common::auxHasSpatialPoint(bus->targetLayout,i))continue;
-            const auto gain=bus->showDirectivity&&i<static_cast<int>(outputGains.size())
+            const auto gain=i<static_cast<int>(outputGains.size())
                 ? outputGains[i]:0.0;
             painter.setPen(QPen(QColor(138,169,214,110+qRound(gain*145)),2));
             painter.setBrush(QColor(109,141,184,75+qRound(gain*165)));
@@ -768,8 +769,8 @@ void AuxSettingsWindow::mousePressEvent(QMouseEvent* event)
             impl_->draggedClassicPan=true;impl_->dragStart=position;impl_->dragStartValue=bus->classicPan;
         }
     } else {
-        if (impl_->directivityButton().contains(position)) {
-            bus->showDirectivity=!bus->showDirectivity;impl_->changed();return;
+        if (impl_->polarCurvesButton().contains(position)) {
+            bus->showPolarCurves=!bus->showPolarCurves;impl_->publishPan();impl_->changed();return;
         }
         for(int i=0;i<3;++i){
             if(impl_->parameterKnob(i).contains(position)){

@@ -1334,6 +1334,14 @@ bool testMixerChannelControls()
                         && std::abs(firstBus->classicPan-.5)<.03,
                     "AUX can switch to spatial panning without losing its classic Pan value");
     const auto monoPointBefore=firstBus?firstBus->adjustablePoints[0]:QPointF();
+    passed &= check(firstBus && firstBus->showPolarCurves, "AUX polar curves start visible");
+    click(&auxControls,{872,68});
+    passed &= check(firstBus && !firstBus->showPolarCurves
+                        && firstBus->adjustablePoints[0]==monoPointBefore
+                        && firstBus->width==auxWidthBeforeDisabled && firstBus->enabled,
+                    "clicking the drawn AUX polar switch hides curves without changing the send");
+    click(&auxControls,{872,68});
+    passed &= check(firstBus && firstBus->showPolarCurves, "AUX polar curves can be shown again");
     drag(&auxControls,{702,205},{790,205});
     passed &= check(firstBus && firstBus->pointInfluenceRadii[0]>.6
                         && firstBus->adjustablePoints[0]==monoPointBefore
@@ -1498,6 +1506,15 @@ bool testMixerChannelControls()
                             ==static_cast<int>(WinJACKNexus::Common::AuxPanMode::spatial)
                             && std::abs(mainPage->property("selClassicPan").toDouble()-.5)<.03,
                         "SEL can switch to spatial panning while keeping its classic Pan value");
+        passed &= check(mainPage->property("selPolarCurvesVisible").toBool(),
+                        "SEL polar curves start visible");
+        click(mainPage,mainPoint(780,68));
+        passed &= check(!mainPage->property("selPolarCurvesVisible").toBool()
+                            && mainPage->property("selPannerWidth").toDouble()==disabledWidth,
+                        "SEL polar curve visibility changes independently of panning");
+        click(mainPage,mainPoint(780,68));
+        passed &= check(mainPage->property("selPolarCurvesVisible").toBool(),
+                        "SEL polar curves can be shown again");
         drag(mainPage,mainPoint(592,212),mainPoint(670,212));
         passed &= check(mainPage->property("selPannerInfluence").toDouble()>.5,
                         "SEL spatial point outer ring adjusts nearby speaker influence");

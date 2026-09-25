@@ -284,7 +284,7 @@ protected:
         p.save();if(!canUseClassic)p.setOpacity(.32);
         button({477,52,137,34},QStringLiteral("经典 Pan"),classic);
         p.restore();
-        if(!classic){text({638,52,118,34},QStringLiteral("显示分布图"),14,muted);toggle({761,56,42,25},distribution);}
+        if(!classic){text({638,52,118,34},QStringLiteral("显示极坐标曲线"),14,muted);toggle({761,56,42,25},pannerBus&&pannerBus->showPolarCurves);}
         panel({330,95,616,448});
         const QPointF center(638,319); const qreal radius=190;
         const qreal pointRadius=159;
@@ -302,7 +302,7 @@ protected:
         const auto referencePoints=Common::auxLayoutReferencePoints(referenceLayout);
         for(int i=0;i<static_cast<int>(referencePoints.size());++i){
             if(!Common::auxHasSpatialPoint(referenceLayout,i))continue;
-            const auto gain=distribution&&i<static_cast<int>(outputGains.size())?outputGains[i]:0.0;
+            const auto gain=i<static_cast<int>(outputGains.size())?outputGains[i]:0.0;
             p.setPen(QPen(QColor(138,169,214,110+qRound(gain*145)),2));
             p.setBrush(QColor(109,141,184,75+qRound(gain*165)));
             p.drawEllipse(center+referencePoints[i]*pointRadius,10+gain*3,10+gain*3);
@@ -422,7 +422,7 @@ protected:
         else if(channel->number!=QStringLiteral("MAIN")&&QRectF(165,407,118,34).contains(pt)) channel->solo=!channel->solo;
         else if(QRectF(330,52,137,34).contains(pt)){if(auto* bus=selectedBus()){bus->panMode=Common::AuxPanMode::spatial;setProperty("selPanMode",static_cast<int>(bus->panMode));}}
         else if(QRectF(477,52,137,34).contains(pt)){if(auto* bus=selectedBus();bus&&Common::auxSupportsClassicPan(bus->sourceLayout,bus->targetLayout)){bus->panMode=Common::AuxPanMode::classic;setProperty("selPanMode",static_cast<int>(bus->panMode));}}
-        else if(QRectF(638,52,165,34).contains(pt)){if(auto* bus=selectedBus();bus&&bus->panMode==Common::AuxPanMode::spatial)distribution=!distribution;}
+        else if(QRectF(638,52,165,34).contains(pt)){if(auto* bus=selectedBus();bus&&bus->panMode==Common::AuxPanMode::spatial){bus->showPolarCurves=!bus->showPolarCurves;publishPanner();}}
         else if(QRectF(1256,51,105,34).contains(pt)) {if(auto* bus=selectedBus()){bus->adjustablePoints=Common::auxLayoutReferencePoints(channel->layout);bus->pointInfluenceRadii.assign(bus->adjustablePoints.size(),0.1);bus->width=.7;bus->angleDegrees=0;bus->classicPan=0;setProperty("selClassicPan",0.0);const auto active=Common::auxLayoutChannelLabels(channel->layout).size();for(int i=0;i<active;++i)bus->sends[i].levelDb=-2;publishLevels();publishPanner();}}
         else if(QRectF(992,51,127,34).contains(pt)) {linked=!linked;if(auto* bus=selectedBus())bus->sendsLinked=linked;}
         else if(pt.y()>=650&&pt.y()<739&&pt.x()>=330&&pt.x()<936){
@@ -591,6 +591,7 @@ private:
     void publishPanner()
     {
         if(const auto* bus=selectedBus()){
+            setProperty("selPolarCurvesVisible",bus->showPolarCurves);
             setProperty("selPannerWidth",bus->width);
             setProperty("selPannerAngle",bus->angleDegrees);
             const auto influence=bus->pointInfluenceRadii.size()>static_cast<std::size_t>(selectedPoint)
@@ -610,7 +611,6 @@ private:
     QPushButton* modeButton {};
     QLabel* modeArrow {};
     QPushButton* colorButton {};
-    bool distribution {true};
     bool linked {true};
     int draggedFader {-1};
     int draggedPoint {-1};
