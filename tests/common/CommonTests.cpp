@@ -687,6 +687,18 @@ bool testAuxChannelLayoutsAndCopy()
     passed &= check(std::abs(surroundBus.pointInfluenceRadii[2]-0.1)<.001
                         && centerGains[2]>.999 && centerGains[0]==0.0 && centerGains[1]==0.0,
                     "default C influence ring touches its point and routes only to C");
+    auto movedCenter=surroundBus;
+    movedCenter.adjustablePoints[2]=(surround51Points[0]+surround51Points[2])/2.0;
+    const auto localGains=auxSpatialOutputGains(movedCenter,2);
+    passed &= check(localGains[0]>.7 && localGains[2]>.7
+                        && localGains[1]==0.0 && localGains[4]==0.0
+                        && localGains[5]==0.0 && localGains[3]==0.0,
+                    "tight influence at the C/L midpoint mixes by distance into only C and L");
+    movedCenter.adjustablePoints[2]=surround51Points[2]+QPointF(-.05,0.0);
+    const auto nearCenter=auxSpatialOutputGains(movedCenter,2);
+    passed &= check(nearCenter[2]>nearCenter[0] && nearCenter[0]>0.0
+                        && nearCenter[1]==0.0,
+                    "tight influence favors the nearer output without broad channel mixing");
     surroundBus.sends[2].levelDb=0.0;
     const std::array<float,2> centerInput{1.0F,-1.0F};
     std::array<const float*,6> sourceBuffers{};

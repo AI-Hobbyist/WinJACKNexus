@@ -3,7 +3,6 @@
 #include <algorithm>
 #include <array>
 #include <cmath>
-#include <limits>
 
 namespace WinJACKNexus::Common {
 namespace {
@@ -175,30 +174,42 @@ std::vector<double> auxSpatialOutputGains(const AuxBusState& bus, int sourceInde
     const auto& source=bus.adjustablePoints[sourceIndex];
     const auto radius=sourceIndex<static_cast<int>(bus.pointInfluenceRadii.size())
         ? std::clamp(bus.pointInfluenceRadii[sourceIndex],0.1,0.75):0.1;
-    double nearestDistance=std::numeric_limits<double>::infinity();
-    double power=0.0;
+    std::vector<std::pair<double,int>> distances;
+    distances.reserve(references.size());
     for(int target=0;target<static_cast<int>(references.size());++target){
         if(!auxHasSpatialPoint(bus.targetLayout,target))continue;
         const auto distance=std::hypot(source.x()-references[target].x(),
                                        source.y()-references[target].y());
-        nearestDistance=std::min(nearestDistance,distance);
+        distances.emplace_back(distance,target);
         gains[target]=std::max(0.0,1.0-distance/radius);
-        power+=gains[target]*gains[target];
     }
-    if(power<=0.0){
-        int nearestCount=0;
-        for(int target=0;target<static_cast<int>(references.size());++target){
-            if(!auxHasSpatialPoint(bus.targetLayout,target))continue;
-            const auto distance=std::hypot(source.x()-references[target].x(),
-                                           source.y()-references[target].y());
-            if(std::abs(distance-nearestDistance)<1e-6){gains[target]=1.0;++nearestCount;}
+    if(distances.empty())return gains;
+    std::sort(distances.begin(),distances.end());
+    const auto nearestDistance=distances.front().first;
+    const auto nearestTie=std::find_if(distances.begin(),distances.end(),[nearestDistance](const auto& item){
+        return item.first-nearestDistance>1e-6;
+    });
+    if(nearestTie!=distances.begin()+1){
+        const auto share=1.0/static_cast<double>(nearestTie-distances.begin());
+        for(auto item=distances.begin();item!=nearestTie;++item)
+            gains[item->second]=std::max(gains[item->second],share);
+    }else if(distances.size()==1 || nearestDistance<1e-6){
+        gains[distances.front().second]=1.0;
+    }else{
+        const auto secondDistance=distances[1].first;
+        const auto secondTie=std::find_if(distances.begin()+1,distances.end(),[secondDistance](const auto& item){
+            return item.first-secondDistance>1e-6;
+        });
+        const auto nearestShare=secondDistance/(nearestDistance+secondDistance);
+        const auto secondShare=(1.0-nearestShare)/static_cast<double>(secondTie-(distances.begin()+1));
+        gains[distances.front().second]=std::max(gains[distances.front().second],nearestShare);
+        for(auto item=distances.begin()+1;item!=secondTie;++item){
+            gains[item->second]=std::max(gains[item->second],secondShare);
         }
-        if(nearestCount>0){
-            const auto equalPower=1.0/std::sqrt(static_cast<double>(nearestCount));
-            for(auto& gain:gains)gain*=equalPower;
-        }
-        return gains;
     }
+    double power=0.0;
+    for(const auto gain:gains)power+=gain*gain;
+    if(power<=0.0)return gains;
     const auto normalization=std::sqrt(power);
     for(auto& gain:gains)gain/=normalization;
     return gains;

@@ -64,7 +64,8 @@ WINJACK_COMMON_API void auxSetPannerAngle(AuxBusState& bus, double angleDegrees)
 WINJACK_COMMON_API double auxInfluencePixelRadius(double influenceRadius);
 WINJACK_COMMON_API double auxInfluenceRadiusForPixels(double pixels);
 WINJACK_COMMON_API void auxSetPointInfluenceRadius(AuxBusState& bus, int index, double radius);
-// Constant-power gains for mixing one source channel into the target speaker layout.
+// Constant-power gains: the nearest outputs pan by distance; a wider influence
+// radius adds nearby outputs without sending the channel across the whole layout.
 WINJACK_COMMON_API std::vector<double> auxSpatialOutputGains(const AuxBusState& bus, int sourceIndex);
 // Adds enabled spatial sends to output buffers; each pointer holds `frames` samples.
 WINJACK_COMMON_API void auxMixSpatialBlock(const AuxBusState& bus,
