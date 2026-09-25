@@ -13,6 +13,10 @@ public:
     explicit MixerWindow(QWidget* parent = nullptr);
     ~MixerWindow() override;
 
+    bool channelMixToMain(int index) const;
+    double mainInputLevelDb() const;
+    double mainOutputLevelDb() const;
+
 protected:
     void paintEvent(QPaintEvent* event) override;
     void mousePressEvent(QMouseEvent* event) override;

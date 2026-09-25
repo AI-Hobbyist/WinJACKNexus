@@ -50,6 +50,7 @@ struct Channel {
     Common::AuxBusState selState;
     bool customColor {};
     qreal inputGainDb {};
+    bool mixToMain = true;
 };
 
 QString auxSourceNumber(const Channel& channel)
@@ -766,6 +767,27 @@ public:
         return inputChannelCount + auxChannelCount();
     }
 
+    qreal mainInputLevelDb() const
+    {
+        const bool anySolo = std::any_of(channels.cbegin(), channels.cbegin() + masterIndex(),
+                                         [](const Channel& channel) { return channel.mixToMain && !channel.mute && channel.solo; });
+        double power = 0.0;
+        for (int index = 0; index < masterIndex(); ++index) {
+            const auto& channel = channels[index];
+            if (!channel.mixToMain || channel.mute || (anySolo && !channel.solo)) continue;
+            const auto db = channel.level + channel.inputGainDb + faderDbValue(channel.fader);
+            power += std::pow(10.0, db / 10.0);
+        }
+        return power <= 0.0 ? -72.0 : std::clamp(10.0 * std::log10(power), -72.0, 12.0);
+    }
+
+    qreal mainOutputLevelDb() const
+    {
+        const auto input = mainInputLevelDb();
+        if (input <= -72.0 || channels[masterIndex()].mute) return -72.0;
+        return std::clamp(input + faderDbValue(channels[masterIndex()].fader), -72.0, 12.0);
+    }
+
     void rebuildAuxChannels()
     {
         std::vector<Channel> rebuilt;
@@ -1327,6 +1349,20 @@ public:
         return { card.left() + 6.0, top + buttonHeight * offsets[row], card.width() - 12.0, buttonHeight };
     }
 
+    QRectF selectButtonRect(int index, qreal heightScale) const
+    {
+        auto button = channelButtonRect(index, heightScale, index == masterIndex() ? 1 : 2);
+        if (index != masterIndex()) button.setWidth(button.width() * .58 - 3.0);
+        return button;
+    }
+
+    QRectF mixButtonRect(int index, qreal heightScale) const
+    {
+        const auto row = channelButtonRect(index, heightScale, 2);
+        const auto selected = selectButtonRect(index, heightScale);
+        return { selected.right() + 6.0, row.top(), row.right() - selected.right() - 6.0, row.height() };
+    }
+
     int hitChannel(const QPointF& position) const
     {
         if (inputViewport().contains(position)) {
@@ -1413,6 +1449,21 @@ MixerWindow::MixerWindow(QWidget* parent)
 
 MixerWindow::~MixerWindow() = default;
 
+bool MixerWindow::channelMixToMain(int index) const
+{
+    return index >= 0 && index < impl_->masterIndex() && impl_->channels[index].mixToMain;
+}
+
+double MixerWindow::mainInputLevelDb() const
+{
+    return impl_->mainInputLevelDb();
+}
+
+double MixerWindow::mainOutputLevelDb() const
+{
+    return impl_->mainOutputLevelDb();
+}
+
 void MixerWindow::paintEvent(QPaintEvent*)
 {
     QPainter painter(this);
@@ -1476,9 +1527,11 @@ void MixerWindow::paintEvent(QPaintEvent*)
 
         const auto meter = impl_->meterRect(index, heightScale);
         const auto meterMode = impl_->meterModeRect(index, heightScale);
-        const auto inputLevel = channel.level + channel.inputGainDb;
-        const auto meterLevel = std::clamp(inputLevel
-            + (channel.postFaderMeter ? faderDbValue(channel.fader) : 0.0), -72.0, 12.0);
+        const auto inputLevel = index == impl_->masterIndex()
+            ? impl_->mainInputLevelDb() : channel.level + channel.inputGainDb;
+        const auto meterLevel = index == impl_->masterIndex() && channel.postFaderMeter
+            ? impl_->mainOutputLevelDb()
+            : std::clamp(inputLevel + (channel.postFaderMeter ? faderDbValue(channel.fader) : 0.0), -72.0, 12.0);
         painter.setPen(QPen(channel.postFaderMeter ? QColor("#33b6ff") : QColor("#6f849a"), 1.0));
         painter.setBrush(channel.postFaderMeter ? QColor("#163a51") : QColor("#182735"));
         painter.drawRoundedRect(meterMode, 4, 4);
@@ -1525,7 +1578,9 @@ void MixerWindow::paintEvent(QPaintEvent*)
         drawButton(impl_->channelButtonRect(index, heightScale, 0), "MUTE", QColor("#ff4f55"), channel.mute);
         if(index!=impl_->masterIndex())
             drawButton(impl_->channelButtonRect(index, heightScale, 1), "SOLO", QColor("#f7aa2f"), channel.solo);
-        drawButton(impl_->channelButtonRect(index, heightScale, index==impl_->masterIndex()?1:2), "SEL", QColor("#66809b"), false);
+        drawButton(impl_->selectButtonRect(index, heightScale), "SEL", QColor("#66809b"), false);
+        if (index != impl_->masterIndex())
+            drawButton(impl_->mixButtonRect(index, heightScale), "MIX", QColor("#24b8ff"), channel.mixToMain);
 
         const auto faderColor = index < impl_->inputChannelCount
             ? QColor("#9aa8b7")
@@ -1666,10 +1721,12 @@ void MixerWindow::mousePressEvent(QMouseEvent* event)
         channel.mute = !channel.mute;
     else if (index!=impl_->masterIndex()&&impl_->channelButtonRect(index, heightScale, 1).contains(event->position()))
         channel.solo = !channel.solo;
-    else if (impl_->channelButtonRect(index, heightScale, index==impl_->masterIndex()?1:2).contains(event->position())) {
+    else if (impl_->selectButtonRect(index, heightScale).contains(event->position())) {
         impl_->selectChannel(index);
         impl_->showLargeScreen();
     }
+    else if (index != impl_->masterIndex() && impl_->mixButtonRect(index, heightScale).contains(event->position()))
+        channel.mixToMain = !channel.mixToMain;
     update();
 }
 

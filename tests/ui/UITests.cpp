@@ -1232,6 +1232,27 @@ bool testMixerChannelControls()
     passed &= check(!openContext(QStringLiteral("打开FX设置"))
                          && !openContext(QStringLiteral("打开AUX设置")),
                      "mixer context menu routes AUX and FX through SEL only");
+    const auto fullMainLevel = mixer.mainInputLevelDb();
+    passed &= check(mixer.channelMixToMain(0) && mixer.channelMixToMain(8)
+                        && !mixer.channelMixToMain(11),
+                    "input and AUX MIX start enabled while MAIN has no MIX send");
+    click(&mixer, {87, 444});
+    passed &= check(!mixer.channelMixToMain(0) && mixer.mainInputLevelDb() < fullMainLevel,
+                    "input MIX excludes its channel from MAIN");
+    const auto excludedMainLevel = mixer.mainInputLevelDb();
+    click(&mixer, {60, 402});
+    passed &= check(std::abs(mixer.mainInputLevelDb() - excludedMainLevel) < .001,
+                    "solo on an excluded channel does not interrupt MAIN");
+    click(&mixer, {60, 402});
+    click(&mixer, {87, 444});
+    passed &= check(mixer.channelMixToMain(0)
+                        && std::abs(mixer.mainInputLevelDb() - fullMainLevel) < .001,
+                    "input MIX restores its MAIN contribution");
+    click(&mixer, {626, 444});
+    passed &= check(!mixer.channelMixToMain(8) && mixer.mainInputLevelDb() < fullMainLevel,
+                    "AUX MIX excludes its channel from MAIN");
+    click(&mixer, {626, 444});
+    passed &= check(mixer.channelMixToMain(8), "AUX MIX restores its MAIN contribution");
     click(&mixer, {60, 444});
     auto* selected = mixer.findChild<QLabel*>(QStringLiteral("selSelectedChannel"));
     auto* sel = mixer.findChild<QWidget*>(QStringLiteral("selLargeScreen"));
