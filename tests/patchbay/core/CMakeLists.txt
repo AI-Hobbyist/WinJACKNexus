@@ -5,7 +5,9 @@ add_executable(wjn_patchbay_core_tests
     PatchbayCoreTests.cpp
 )
 
-target_link_libraries(wjn_patchbay_core_tests PRIVATE WinJACKNexus::PatchbayCore WinJACKNexus::Audio)
+target_link_libraries(wjn_patchbay_core_tests PRIVATE WinJACKNexus::PatchbayCore WinJACKNexus::Audio Qt6::Core)
+target_include_directories(wjn_patchbay_core_tests PRIVATE
+    ${PROJECT_SOURCE_DIR}/src/patchbay/mod/include)
 target_compile_features(wjn_patchbay_core_tests PRIVATE cxx_std_20)
 target_compile_definitions(wjn_patchbay_core_tests PRIVATE WIN32_LEAN_AND_MEAN NOMINMAX)
 

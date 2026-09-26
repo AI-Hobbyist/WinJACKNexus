@@ -1,5 +1,6 @@
 /* This file is part of WinJACKNexus. SPDX-License-Identifier: AGPL-3.0-only */
 #include <WinJACKNexus/NativeFx/graphic_eq/Ui.hpp>
+#include <WinJACKNexus/UI/ApplicationSettings.hpp>
 #include <WinJACKNexus/UI/Controls.hpp>
 
 #include <QFileDialog>
@@ -29,9 +30,7 @@ const QColor text(225, 237, 248), muted(139, 164, 185), cyan(43, 205, 239);
 void rounded(QPainter& painter, const QRectF& bounds, const QColor& fill,
              const QColor& outline = Qt::transparent, qreal radius = 5.0)
 {
-    painter.setBrush(fill);
-    painter.setPen(outline == Qt::transparent ? Qt::NoPen : QPen(outline, 1.0));
-    painter.drawRoundedRect(bounds, radius, radius);
+    Controls::drawSurface(painter,bounds,fill,outline,radius);
 }
 
 void drawText(QPainter& painter, const QRectF& bounds, const QString& value, int size = 10,
@@ -40,9 +39,7 @@ void drawText(QPainter& painter, const QRectF& bounds, const QString& value, int
     auto font = painter.font();
     font.setPixelSize(size <= 13 ? std::max(size + 2, qRound(size * 1.18)) : size);
     font.setBold(bold);
-    painter.setFont(font);
-    painter.setPen(color);
-    painter.drawText(bounds, align, value);
+    Controls::drawText(painter,bounds,value,font,color,align);
 }
 
 QString freqLabel(float frequency)
@@ -95,7 +92,8 @@ GraphicEqWidget::GraphicEqWidget(QWidget* parent) : QWidget(parent, parent ? Qt:
     setMouseTracking(true);
     spectrum_.inputDb.fill(-96.0F);
     spectrum_.outputDb.fill(-96.0F);
-    spectrumTimer_.setInterval(33);
+    spectrumTimer_.setObjectName(QStringLiteral("nativeFxSpectrumRefreshTimer"));
+    bindRefreshTimer(spectrumTimer_, this);
     connect(&spectrumTimer_, &QTimer::timeout, this, &GraphicEqWidget::pollSpectrumFrame);
 }
 
@@ -117,7 +115,7 @@ void GraphicEqWidget::setParameters(const std::array<Parameters, 8>& parameters)
     else if (matchesPreset(WinJACKNexus::Common::graphicEqBassBoostGains)) selectedPreset_ = 2;
     else if (matchesPreset(WinJACKNexus::Common::graphicEqClassicalGains)) selectedPreset_ = 3;
     else selectedPreset_ = 4;
-    update();
+    if (draggingBand_ < 0) update();
 }
 
 void GraphicEqWidget::setChangeHandler(ChangeHandler handler) { changeHandler_ = std::move(handler); }
@@ -127,21 +125,32 @@ void GraphicEqWidget::setSpectrumFrameReader(SpectrumFrameReader reader)
     spectrumFrameReader_ = std::move(reader);
     if (spectrumFrameReader_)
         spectrumTimer_.start();
-    else
+    else if (draggingBand_ < 0)
         spectrumTimer_.stop();
 }
 
 void GraphicEqWidget::pollSpectrumFrame()
 {
-    if (!spectrumFrameReader_ || !spectrumFrameReader_(spectrumFrame_))
+    if (!spectrumFrameReader_ || !spectrumFrameReader_(spectrumFrame_)) {
+        if (draggingBand_ >= 0) update();
         return;
+    }
 
     hasSpectrumFrame_ = true;
+    ++spectrumFrameCount_;
     refreshSpectrumForSelection(true);
 }
 
 void GraphicEqWidget::refreshSpectrumForSelection(bool smooth)
 {
+    const auto elapsedMilliseconds = smooth && spectrumClock_.isValid()
+        ? spectrumClock_.restart() : -1;
+    if (smooth && elapsedMilliseconds < 0) spectrumClock_.start();
+    if (!smooth) spectrumClock_.invalidate();
+    const auto elapsedSeconds = elapsedMilliseconds > 0
+        ? elapsedMilliseconds / 1000.0
+        : 1.0 / ApplicationSettings::instance().frameRate();
+    const auto referenceFrames = elapsedSeconds * 60.0;
     WinJACKNexus::Common::GraphicEqSpectrumPair nextSpectrum {};
     const auto channel = selectedChannel_ < 0
         ? WinJACKNexus::Common::graphicEqSpectrumAllChannels
@@ -153,8 +162,10 @@ void GraphicEqWidget::refreshSpectrumForSelection(bool smooth)
             spectrum_.outputDb[i] = nextSpectrum.outputDb[i];
             continue;
         }
-        const auto inputCoefficient = nextSpectrum.inputDb[i] > spectrum_.inputDb[i] ? 0.68F : 0.24F;
-        const auto outputCoefficient = nextSpectrum.outputDb[i] > spectrum_.outputDb[i] ? 0.68F : 0.24F;
+        const auto inputBaseline = nextSpectrum.inputDb[i] > spectrum_.inputDb[i] ? 0.68F : 0.24F;
+        const auto outputBaseline = nextSpectrum.outputDb[i] > spectrum_.outputDb[i] ? 0.68F : 0.24F;
+        const auto inputCoefficient = 1.0 - std::pow(1.0 - inputBaseline, referenceFrames);
+        const auto outputCoefficient = 1.0 - std::pow(1.0 - outputBaseline, referenceFrames);
         spectrum_.inputDb[i] += (nextSpectrum.inputDb[i] - spectrum_.inputDb[i]) * inputCoefficient;
         spectrum_.outputDb[i] += (nextSpectrum.outputDb[i] - spectrum_.outputDb[i]) * outputCoefficient;
     }
@@ -189,7 +200,7 @@ void GraphicEqWidget::apply(const std::function<void(Parameters&)>& edit)
             changeHandler_(static_cast<std::size_t>(i), parameters_[static_cast<std::size_t>(i)]);
     }
     selectedPreset_ = 4;
-    update();
+    if (draggingBand_ < 0) update();
 }
 
 void GraphicEqWidget::selectPreset(int index)
@@ -260,7 +271,7 @@ void GraphicEqWidget::paintEvent(QPaintEvent*)
     Controls::drawToggle(p, { 356, 29, 38, 22 }, params.enabled, controls.accent, QColor(49, 68, 84));
     drawText(p, { 410, 27, 35, 33 }, QStringLiteral("预设:"), 12, muted,
              Qt::AlignLeft | Qt::AlignVCenter);
-    const std::array<QString, 5> presets { QStringLiteral("平直"), QStringLiteral("Vocal Bright"),
+    const std::array<QString, 5> presets { QStringLiteral("Default"), QStringLiteral("Vocal Bright"),
         QStringLiteral("Bass Boost"), QStringLiteral("Classical"), QStringLiteral("Custom") };
     Controls::drawDropdown(p, { 446, 27, 174, 33 },
         presets[static_cast<std::size_t>(std::clamp(selectedPreset_, 0, 4))], controls, 14);
@@ -277,13 +288,17 @@ void GraphicEqWidget::paintEvent(QPaintEvent*)
     const auto graphBottom = graphBounds.bottom();
     const auto graphHeight = graphBottom - graphTop;
     Controls::drawChart(p, graphBounds, 0, 0, controls);
-    p.setPen(QPen(QColor(37, 59, 79), 1, Qt::DashLine));
+    const QRectF gridBounds(graphBounds.left(),graphTop,graphBounds.width(),graphHeight);
+    Controls::ChartGridStyle gainGrid;
+    gainGrid.grid=QColor(37,59,79);
+    gainGrid.penStyle=Qt::DashLine;
     for (int db = 12; db >= -12; db -= 6) {
         const auto y = gainY(db, graphTop, graphBottom);
-        p.drawLine(QPointF(graphBounds.left(), y), QPointF(graphBounds.right(), y));
+        gainGrid.horizontalFractions.push_back((y-graphTop)/graphHeight);
         const auto label = db > 0 ? QStringLiteral("+%1").arg(db) : QString::number(db);
         drawText(p, { 17, y - 9, 29, 18 }, label, 12, muted, Qt::AlignRight | Qt::AlignVCenter);
     }
+    Controls::drawChartGrid(p,gridBounds,gainGrid);
 
     const auto paramsForCurve = params;
     std::array<QPointF, graphicEqBandCount> points {};
@@ -298,11 +313,13 @@ void GraphicEqWidget::paintEvent(QPaintEvent*)
     }
 
     // Faint frequency divisions sit behind the stems, curve, and slider caps.
-    p.setPen(QPen(QColor(21, 42, 60), 1));
+    Controls::ChartGridStyle frequencyGrid;
+    frequencyGrid.grid=QColor(21,42,60);
     for (std::size_t i = 0; i < graphicEqBandCount; ++i) {
         const auto x = std::clamp(frequencyX(graphicEqFrequencies[i]), graphBounds.left(), graphBounds.right());
-        p.drawLine(QPointF(x, graphTop), QPointF(x, graphBottom));
+        frequencyGrid.verticalFractions.push_back((x-graphBounds.left())/graphBounds.width());
     }
+    Controls::drawChartGrid(p,gridBounds,frequencyGrid);
     if (hasSpectrumFrame_) {
         QPainterPath outputSpectrumArea;
         QPainterPath outputSpectrumLine;
@@ -336,14 +353,20 @@ void GraphicEqWidget::paintEvent(QPaintEvent*)
         QLinearGradient spectrumFill(0.0, graphTop, 0.0, graphBottom);
         spectrumFill.setColorAt(0.0, QColor(20, 155, 198, 58));
         spectrumFill.setColorAt(1.0, QColor(20, 155, 198, 12));
-        p.setPen(Qt::NoPen);
-        p.setBrush(spectrumFill);
-        p.drawPath(outputSpectrumArea);
-        p.setBrush(Qt::NoBrush);
-        p.setPen(QPen(QColor(242, 184, 98, 220), 1.6, Qt::DashLine));
-        p.drawPath(inputSpectrumLine);
-        p.setPen(QPen(QColor(65, 205, 232, 180), 1.6));
-        p.drawPath(outputSpectrumLine);
+        Controls::CurveStyle spectrumAreaStyle;
+        spectrumAreaStyle.showFill = true;
+        spectrumAreaStyle.showStroke = false;
+        spectrumAreaStyle.fillBrush = QBrush(spectrumFill);
+        Controls::drawCurvePath(p, outputSpectrumLine, spectrumAreaStyle, &outputSpectrumArea);
+        Controls::CurveStyle inputSpectrumStyle;
+        inputSpectrumStyle.stroke = QColor(242, 184, 98, 220);
+        inputSpectrumStyle.width = 1.6;
+        inputSpectrumStyle.penStyle = Qt::DashLine;
+        Controls::drawCurvePath(p, inputSpectrumLine, inputSpectrumStyle);
+        Controls::CurveStyle outputSpectrumStyle;
+        outputSpectrumStyle.stroke = QColor(65, 205, 232, 180);
+        outputSpectrumStyle.width = 1.6;
+        Controls::drawCurvePath(p, outputSpectrumLine, outputSpectrumStyle);
 
         p.setPen(QPen(QColor(242, 184, 98), 1.6, Qt::DashLine));
         p.drawLine(QPointF(405, 112), QPointF(423, 112));
@@ -364,9 +387,10 @@ void GraphicEqWidget::paintEvent(QPaintEvent*)
     }
     const auto curve = smoothCurve(points);
     if (drawCurve) {
-        p.setBrush(Qt::NoBrush);
-        p.setPen(QPen(cyan, 2.5, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
-        p.drawPath(curve);
+        Controls::CurveStyle responseStyle;
+        responseStyle.stroke = cyan;
+        responseStyle.width = 2.5;
+        Controls::drawCurvePath(p, curve, responseStyle);
     }
     if (drawFaders) {
         for (std::size_t i = 0; i < points.size(); ++i) {
@@ -402,6 +426,14 @@ void GraphicEqWidget::paintEvent(QPaintEvent*)
                 active ? cyan : QColor(41, 72, 97), 5);
         drawText(p, button, viewLabels[static_cast<std::size_t>(i)], 11, active ? cyan : text);
     }
+    const auto selectedBand = static_cast<std::size_t>(std::clamp(selectedBand_, 0,
+        static_cast<int>(graphicEqBandCount) - 1));
+    drawText(p, { 211, 467, 171, 21 },
+        QStringLiteral("选中 %1").arg(freqLabel(graphicEqFrequencies[selectedBand])),
+        11, muted, Qt::AlignLeft);
+    rounded(p, { 391, 466, 174, 23 }, QColor(16, 37, 56), QColor(41, 72, 97), 4);
+    drawText(p, { 394, 467, 168, 21 },
+        QStringLiteral("%1 dB").arg(params.bandGainsDb[selectedBand], 0, 'f', 1), 11, text);
     drawText(p, { 604, 399, 125, 20 }, QStringLiteral("显示选项"), 12, muted, Qt::AlignLeft);
     const auto checkbox = [&](qreal y, bool checked, const QString& label) {
         const QRectF box(608, y, 18, 18);
@@ -435,6 +467,7 @@ void GraphicEqWidget::setBandAt(const QPointF& point)
     }
     if (draggingBand_ < 0)
         return;
+    selectedBand_ = draggingBand_;
     const auto band = static_cast<std::size_t>(draggingBand_);
     apply([&](Parameters& parameters) { parameters.bandGainsDb[band] = gain; });
 }
@@ -458,10 +491,29 @@ void GraphicEqWidget::mousePressEvent(QMouseEvent* event)
         }
     }
     const auto localY = point.y() - selectorHeight;
+    if (QRectF(81, selectorHeight + 469, 76, 19).contains(point)) {
+        Controls::editNumericValue(this, QRect(81, qRound(selectorHeight + 469), 76, 19),
+            displayed().outputGainDb, {-24, 12, 0, 1}, [this](double value) {
+                apply([value](Parameters& p) { p.outputGainDb = static_cast<float>(value); });
+            });
+        return;
+    }
+    if (QRectF(391, selectorHeight + 466, 174, 23).contains(point)) {
+        const auto band = static_cast<std::size_t>(std::clamp(selectedBand_, 0,
+            static_cast<int>(graphicEqBandCount) - 1));
+        Controls::editNumericValue(this, QRect(391, qRound(selectorHeight + 466), 174, 23),
+            displayed().bandGainsDb[band], {-12, 12, 0, 1}, [this, band](double value) {
+                apply([band, value](Parameters& p) {
+                    p.bandGainsDb[band] = static_cast<float>(value);
+                });
+            });
+        return;
+    }
     if (localY >= graphBounds.top() + 24.0 && localY <= graphBounds.bottom()
         && point.x() >= graphBounds.left() - 7 && point.x() <= graphBounds.right() + 7) {
         draggingBand_ = -1;
         setBandAt(point);
+        if (draggingBand_ >= 0) spectrumTimer_.start();
         return;
     }
     if (point.x() >= 650 && point.x() <= 740 && localY >= 149 && localY <= 353) {
@@ -490,7 +542,7 @@ void GraphicEqWidget::mousePressEvent(QMouseEvent* event)
             "QMenu { background: #10263a; color: #e1edf8; border: 1px solid #315775; padding: 4px; }"
             "QMenu::item { padding: 7px 22px; }"
             "QMenu::item:selected { background: #075478; color: #56d9f4; }"));
-        const std::array<QString, 5> presets { QStringLiteral("平直"), QStringLiteral("Vocal Bright"),
+        const std::array<QString, 5> presets { QStringLiteral("Default"), QStringLiteral("Vocal Bright"),
             QStringLiteral("Bass Boost"), QStringLiteral("Classical"), QStringLiteral("Custom") };
         for (int i = 0; i < static_cast<int>(presets.size()); ++i) {
             auto* action = menu->addAction(presets[static_cast<std::size_t>(i)]);
@@ -529,6 +581,39 @@ void GraphicEqWidget::mousePressEvent(QMouseEvent* event)
     }
 }
 
+void GraphicEqWidget::mouseDoubleClickEvent(QMouseEvent* event)
+{
+    if (event->button() != Qt::LeftButton) return;
+    const auto point = event->position();
+    const auto localY = point.y() - selectorHeight;
+    if (QRectF(90, selectorHeight + 413, 58, 55).contains(point)) {
+        Controls::resetNumericValue({-24, 12, 0, 1}, [this](double value) {
+            apply([value](Parameters& p) { p.outputGainDb = static_cast<float>(value); });
+        });
+        return;
+    }
+    if (viewMode_ == 2 || localY < graphBounds.top() + 24.0
+        || localY > graphBounds.bottom() || point.x() < graphBounds.left() - 7
+        || point.x() > graphBounds.right() + 7) return;
+    qreal nearestDistance = std::numeric_limits<qreal>::max();
+    for (std::size_t band = 0; band < graphicEqBandCount; ++band) {
+        const auto x = std::clamp(frequencyX(graphicEqFrequencies[band]),
+            graphBounds.left(), graphBounds.right());
+        const auto distance = std::abs(point.x() - x);
+        if (distance < nearestDistance) {
+            nearestDistance = distance;
+            selectedBand_ = static_cast<int>(band);
+        }
+    }
+    draggingBand_ = -1;
+    const auto band = static_cast<std::size_t>(selectedBand_);
+    Controls::resetNumericValue({-12, 12, 0, 1}, [this, band](double value) {
+        apply([band, value](Parameters& p) {
+            p.bandGainsDb[band] = static_cast<float>(value);
+        });
+    });
+}
+
 void GraphicEqWidget::mouseMoveEvent(QMouseEvent* event)
 {
     if ((event->buttons() & Qt::LeftButton) && draggingBand_ >= 0)
@@ -538,6 +623,7 @@ void GraphicEqWidget::mouseMoveEvent(QMouseEvent* event)
 void GraphicEqWidget::mouseReleaseEvent(QMouseEvent*)
 {
     draggingBand_ = -1;
+    if (!spectrumFrameReader_) spectrumTimer_.stop();
     update();
 }
 

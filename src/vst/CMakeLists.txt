@@ -17,6 +17,7 @@ add_library(mod_vst_host SHARED
 target_link_libraries(mod_vst_host
     PRIVATE
         WinJACKNexus::Node
+        WinJACKNexus::UI
         Qt6::Core
         Qt6::Widgets
         Ole32

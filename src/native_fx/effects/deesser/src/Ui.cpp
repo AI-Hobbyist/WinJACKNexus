@@ -1,5 +1,6 @@
 /* This file is part of WinJACKNexus. SPDX-License-Identifier: AGPL-3.0-only */
 #include <WinJACKNexus/NativeFx/deesser/Ui.hpp>
+#include <WinJACKNexus/UI/ApplicationSettings.hpp>
 #include <WinJACKNexus/UI/Controls.hpp>
 
 #include <QMouseEvent>
@@ -25,20 +26,45 @@ const std::array<QString, 6> captions { QStringLiteral("中心频率"), QStringL
     QStringLiteral("阈值"), QStringLiteral("起始时间"), QStringLiteral("释放时间"), QStringLiteral("输出增益") };
 const std::array<QPointF, 6> knobs { QPointF(480, 142), QPointF(587, 142), QPointF(694, 142),
     QPointF(480, 273), QPointF(587, 273), QPointF(694, 273) };
+float knobValue(const Common::DeEsserParameters& p, int index) noexcept {
+    switch(index) {
+    case 0: return p.centerFrequencyHz;
+    case 1: return p.bandwidthHz;
+    case 2: return p.thresholdDb;
+    case 3: return p.attackMs;
+    case 4: return p.releaseMs;
+    default: return p.outputGainDb;
+    }
+}
+void setKnobValue(Common::DeEsserParameters& p, int index, float value) noexcept {
+    switch(index) {
+    case 0: p.centerFrequencyHz=value; break;
+    case 1: p.bandwidthHz=value; break;
+    case 2: p.thresholdDb=value; break;
+    case 3: p.attackMs=value; break;
+    case 4: p.releaseMs=value; break;
+    default: p.outputGainDb=value; break;
+    }
+}
+Controls::NumericControlSpec knobSpec(int index) noexcept {
+    constexpr double minimum[] {1.0,0.25,-60.0,0.0,5.0,-24.0};
+    constexpr double maximum[] {12.0,12.0,0.0,100.0,1000.0,12.0};
+    const double scale=index<2?1000.0:1.0;
+    return {minimum[index],maximum[index],knobValue(Common::DeEsserParameters{},index)/scale,
+            index==3||index==4?0:1};
+}
 
 void rounded(QPainter& p, const QRectF& r, qreal radius, const QColor& fill,
              const QColor& outline = Qt::transparent)
 {
-    p.setBrush(fill);
-    p.setPen(outline == Qt::transparent ? Qt::NoPen : QPen(outline, 1.0));
-    p.drawRoundedRect(r, radius, radius);
+    Controls::drawSurface(p,r,fill,outline,radius);
 }
 
 void textAt(QPainter& p, const QRectF& r, const QString& s, int px, const QColor& color,
             Qt::Alignment alignment = Qt::AlignCenter, bool bold = false)
 {
-    auto f = p.font(); f.setPixelSize(px); f.setBold(bold); p.setFont(f);
-    p.setPen(color); p.drawText(r, alignment, s);
+    auto f = p.font(); f.setPixelSize(px); f.setBold(bold);
+    Controls::drawText(p,r,s,f,color,alignment);
 }
 
 QString valueText(const std::array<float, 6>& v, int i)
@@ -61,29 +87,13 @@ float normalized(const std::array<float, 6>& v, int i)
     return std::clamp((v[i] - low[i]) / (high[i] - low[i]), 0.0F, 1.0F);
 }
 
-void drawKnob(QPainter& p, const QPointF& c, float n)
-{
-    QRectF arc(c.x() - 32, c.y() - 32, 64, 64);
-    p.setBrush(Qt::NoBrush);
-    p.setPen(QPen(QColor(5, 15, 29), 7)); p.drawArc(arc, 225 * 16, -270 * 16);
-    p.setPen(QPen(QColor(48, 34, 87), 5)); p.drawArc(arc.adjusted(2, 2, -2, -2), 225 * 16, -270 * 16);
-    p.setPen(QPen(purple, 5, Qt::SolidLine, Qt::RoundCap));
-    p.drawArc(arc.adjusted(2, 2, -2, -2), 225 * 16, qRound(-270.0 * n * 16));
-    QRadialGradient fill(c - QPointF(5, 7), 32);
-    fill.setColorAt(0, QColor(36, 51, 75)); fill.setColorAt(1, QColor(11, 22, 37));
-    p.setBrush(fill); p.setPen(QPen(QColor(41, 54, 75), 1)); p.drawEllipse(c, 26, 26);
-    const auto a = (225.0 - 270.0 * n) * 3.14159265358979323846 / 180.0;
-    p.setPen(QPen(QColor(207, 174, 255), 2, Qt::SolidLine, Qt::RoundCap));
-    p.drawLine(c, c + QPointF(std::cos(a), -std::sin(a)) * 20.0);
-}
-
 void button(QPainter& p, QRectF r, const QString& label, bool selected, int size = 13)
 {
     rounded(p, r, 5, selected ? QColor(0, 119, 191) : QColor(19, 40, 61),
             selected ? QColor(26, 204, 255) : QColor(54, 84, 111));
     if (selected) {
-        p.setPen(QPen(QColor(29, 206, 255, 100), 3));
-        p.setBrush(Qt::NoBrush); p.drawRoundedRect(r.adjusted(1, 1, -1, -1), 4, 4);
+        Controls::drawSurface(p,r.adjusted(1,1,-1,-1),Qt::NoBrush,
+            QColor(29,206,255,100),4,3);
     }
     textAt(p, r, label, size, selected ? QColor(218, 250, 255) : text, Qt::AlignCenter, selected);
 }
@@ -102,8 +112,12 @@ DeEsserWidget::DeEsserWidget(QWidget* parent) : QWidget(parent, parent ? Qt::Wid
     }
     inputSpectrumDb_.fill(-120.0F);
     spectrumDb_.fill(-120.0F);
-    connect(&spectrumTimer_, &QTimer::timeout, this, [this] { refreshSpectrum(); });
-    spectrumTimer_.start(33);
+    connect(&spectrumTimer_, &QTimer::timeout, this, [this] {
+        refreshSpectrum();
+        if (draggingKnob_ >= 0) update();
+    });
+    bindRefreshTimer(spectrumTimer_, this);
+    spectrumTimer_.start();
 }
 
 void DeEsserWidget::setSpectrumSources(
@@ -124,6 +138,11 @@ void DeEsserWidget::setSpectrumSources(
     spectrumDb_.fill(-120.0F);
 }
 
+void DeEsserWidget::setSpectrumFrameReader(SpectrumFrameReader reader)
+{
+    spectrumFrameReader_ = std::move(reader);
+}
+
 void DeEsserWidget::addSpectrumSamples(
     std::size_t channel, const WinJACKNexus::Common::DeEsserSpectrumSample* samples,
     std::size_t count) noexcept
@@ -142,6 +161,16 @@ void DeEsserWidget::addSpectrumSamples(
 
 void DeEsserWidget::refreshSpectrum()
 {
+    if (spectrumFrameReader_) {
+        WinJACKNexus::Common::DeEsserLiveSpectrumFrame frame {};
+        if (spectrumFrameReader_(frame)) {
+            lastSpectrumSampleRate_ = frame.sampleRate;
+            for (std::size_t channel = 0; channel < 8; ++channel)
+                addSpectrumSamples(channel, frame.samples[channel].data(), frame.counts[channel]);
+            calculateSpectrum();
+        }
+        return;
+    }
     const auto sampleRate = spectrumSampleRate_ == nullptr
         ? 48000.0 : std::max(8000.0, spectrumSampleRate_->load(std::memory_order_relaxed));
     if (sampleRate != lastSpectrumSampleRate_) {
@@ -206,7 +235,8 @@ void DeEsserWidget::calculateSpectrum()
     inputSpectrumDb_.fill(-120.0F);
     spectrumDb_.fill(-120.0F);
     const auto sampleRate = spectrumSampleRate_ == nullptr
-        ? 48000.0 : std::max(8000.0, spectrumSampleRate_->load(std::memory_order_relaxed));
+        ? (spectrumFrameReader_ ? std::max(8000.0, lastSpectrumSampleRate_) : 48000.0)
+        : std::max(8000.0, spectrumSampleRate_->load(std::memory_order_relaxed));
     std::array<double, spectrumBinCount_> inputPower {};
     std::array<double, spectrumBinCount_> processedPower {};
     std::size_t channels = 0;
@@ -283,7 +313,7 @@ void DeEsserWidget::setParameters(const std::array<Parameters, 8>& parameters)
             && p.enabled == defaults.enabled;
     };
     selectedPreset_ = std::all_of(parameters_.begin(), parameters_.end(), isDefault) ? 0 : 3;
-    update();
+    if (draggingKnob_ < 0) update();
 }
 
 void DeEsserWidget::setChangeHandler(ChangeHandler handler)
@@ -321,7 +351,7 @@ void DeEsserWidget::apply(const std::function<void(Parameters&)>& edit)
         if (changeHandler_) changeHandler_(static_cast<std::size_t>(i), parameters);
     }
     selectedPreset_ = 3;
-    update();
+    if (draggingKnob_ < 0) update();
 }
 
 void DeEsserWidget::selectPreset(int index)
@@ -355,9 +385,8 @@ void DeEsserWidget::paintEvent(QPaintEvent*)
         rounded(p, r, 6, selected ? QColor(17, 58, 86) : QColor(26, 44, 63),
                 selected ? QColor(18, 192, 255) : QColor(65, 91, 117));
         if (selected) {
-            p.setPen(QPen(QColor(0, 162, 255, 35), 5));
-            p.setBrush(Qt::NoBrush);
-            p.drawRoundedRect(r.adjusted(1, 1, -1, -1), 5, 5);
+            Controls::drawSurface(p,r.adjusted(1,1,-1,-1),Qt::NoBrush,
+                QColor(0,162,255,35),5,5);
         }
         textAt(p, r, channels[static_cast<std::size_t>(i)], 16,
                selected ? QColor(91, 222, 255) : QColor(168, 194, 229));
@@ -374,12 +403,12 @@ void DeEsserWidget::paintEvent(QPaintEvent*)
     textAt(p, {95, 13, 240, 37}, QStringLiteral("De-Esser 去齿音"), 26, text, Qt::AlignLeft, true);
     textAt(p, {95, 48, 265, 22}, QStringLiteral("检测并抑制齿音频段（S、SH 等）"), 14, muted, Qt::AlignLeft);
     rounded(p, {326, 15, 58, 58}, 10, QColor(25, 42, 62));
-    rounded(p, {337, 32, 37, 20}, 10, shown.enabled ? QColor(0, 137, 220) : QColor(57, 71, 89));
-    p.setPen(Qt::NoPen); p.setBrush(Qt::white); p.drawEllipse(QPointF(shown.enabled ? 363 : 347, 42), 7.5, 7.5);
+    Controls::drawToggle(p, {337, 32, 37, 20}, shown.enabled,
+                         QColor(0, 137, 220), QColor(57, 71, 89));
     textAt(p, {400, 26, 43, 34}, QStringLiteral("预设:"), 13, muted,
            Qt::AlignLeft | Qt::AlignVCenter);
     rounded(p, {453, 26, 166, 34}, 5, QColor(13, 28, 46), QColor(52, 82, 112));
-    const std::array<QString, 4> presets { QStringLiteral("Vocal De-Esser"),
+    const std::array<QString, 4> presets { QStringLiteral("Default"),
         QStringLiteral("Bright Vocal"), QStringLiteral("Soft Voice"), QStringLiteral("Custom") };
     textAt(p, {463, 26, 135, 34}, presets[static_cast<std::size_t>(selectedPreset_)], 14, text);
     textAt(p, {597, 26, 18, 34}, QStringLiteral("⌄"), 17, muted);
@@ -402,14 +431,24 @@ void DeEsserWidget::paintEvent(QPaintEvent*)
         return 1000.0 * std::exp2((x - graph.left()) / pixelsPerOctave);
     };
     rounded(p, graph, 2, QColor(8, 22, 38), QColor(47, 77, 104));
+    Controls::ChartGridStyle octaveGrid;
+    Controls::ChartGridStyle halfOctaveGrid;
+    octaveGrid.grid=QColor(37,60,83);
+    halfOctaveGrid.grid=QColor(25,46,67);
     for (int halfOctave = 0; halfOctave <= 8; ++halfOctave) {
         const auto x = frequencyToX(1000.0 * std::exp2(halfOctave * 0.5));
-        const auto color = halfOctave % 2 == 0 ? QColor(37, 60, 83) : QColor(25, 46, 67);
-        p.setPen(QPen(color, 1)); p.drawLine(QPointF(x, graph.top()), QPointF(x, graph.bottom()));
+        auto& positions=halfOctave % 2 == 0
+            ? octaveGrid.verticalFractions : halfOctaveGrid.verticalFractions;
+        positions.push_back((x-graph.left())/graph.width());
     }
+    Controls::drawChartGrid(p,graph,octaveGrid);
+    Controls::drawChartGrid(p,graph,halfOctaveGrid);
+    Controls::ChartGridStyle levelGrid;
+    levelGrid.grid=QColor(30,51,72);
+    levelGrid.rows=5;
+    Controls::drawChartGrid(p,graph,levelGrid);
     for (int i = 0; i <= 5; ++i) {
         const auto y = graph.top() + graph.height() * i / 5.0;
-        p.setPen(QPen(QColor(30, 51, 72), 1)); p.drawLine(QPointF(graph.left(), y), QPointF(graph.right(), y));
         textAt(p, {21, y - 10, 39, 20}, i == 0 ? QStringLiteral("0") : QStringLiteral("-%1").arg(i * 12),
                14, muted, Qt::AlignRight | Qt::AlignVCenter);
     }
@@ -431,8 +470,10 @@ void DeEsserWidget::paintEvent(QPaintEvent*)
     bell.cubicTo(centerX + 48.0 * widthScale, bellPeakY,
                  centerX + 75.0 * widthScale, bellBaselineY,
                  centerX + 120.0 * widthScale, bellBaselineY);
-    p.setBrush(Qt::NoBrush);
-    p.setPen(QPen(purple, 2)); p.drawPath(bell);
+    Controls::CurveStyle bellStyle;
+    bellStyle.stroke=purple;
+    bellStyle.width=2;
+    Controls::drawCurvePath(p,bell,bellStyle);
     if (spectrumReady_) {
         const auto sampleRate = spectrumSampleRate_ == nullptr
             ? 48000.0 : std::max(8000.0, spectrumSampleRate_->load(std::memory_order_relaxed));
@@ -456,9 +497,10 @@ void DeEsserWidget::paintEvent(QPaintEvent*)
                 if (segmentActive) spectrum.lineTo(x, y); else spectrum.moveTo(x, y);
                 segmentActive = true;
             }
-            p.setBrush(Qt::NoBrush);
-            p.setPen(QPen(color, 1.0));
-            p.drawPath(spectrum);
+            Controls::CurveStyle spectrumStyle;
+            spectrumStyle.stroke=color;
+            spectrumStyle.width=1.0;
+            Controls::drawCurvePath(p,spectrum,spectrumStyle);
         };
         drawSpectrum(inputSpectrumDb_, QColor(67, 207, 224, 205));
         drawSpectrum(spectrumDb_, QColor(127, 83, 184, 205));
@@ -469,7 +511,7 @@ void DeEsserWidget::paintEvent(QPaintEvent*)
         textAt(p, {146, 119, 54, 18}, QStringLiteral("处理后"), 10, text);
     }
     p.setPen(QPen(QColor(174, 100, 255), 1.4, Qt::DashLine)); p.drawLine(QPointF(centerX, 157), QPointF(centerX, 332));
-    p.setBrush(QColor(228, 207, 255)); p.setPen(QPen(purple, 2)); p.drawEllipse(QPointF(centerX, 181), 5.5, 5.5);
+    Controls::drawMarker(p,QPointF(centerX,181),5.5,QColor(228,207,255),purple,2);
     p.restore();
     const qreal tooltipX = std::clamp(centerX - 36, graph.left(), graph.right() - 73);
     rounded(p, {tooltipX, 111, 73, 47}, 6, QColor(32, 34, 63), QColor(88, 64, 133));
@@ -477,8 +519,10 @@ void DeEsserWidget::paintEvent(QPaintEvent*)
     textAt(p, {tooltipX + 4, 132, 65, 20}, valueText(values, 0), 13, text);
 
     rounded(p, {429, 94, 314, 274}, 11, QColor(19, 36, 56), QColor(39, 66, 94));
+    const auto knobColors=Controls::paletteFor(*this,
+        {background,QColor(19,36,56),text,purple,QColor(48,34,87)});
     for (int i = 0; i < 6; ++i) {
-        drawKnob(p, knobs[static_cast<std::size_t>(i)], normalized(values, i));
+        Controls::drawKnob(p, knobs[static_cast<std::size_t>(i)], normalized(values, i),32,knobColors);
         textAt(p, {knobs[i].x() - 48, knobs[i].y() + 34, 96, 23}, valueText(values, i), 16, text);
         textAt(p, {knobs[i].x() - 49, knobs[i].y() + 56, 98, 22}, captions[i], 15, muted);
     }
@@ -535,6 +579,19 @@ void DeEsserWidget::mousePressEvent(QMouseEvent* event)
         }
     }
     const QPointF main(local.x(), local.y() - 145);
+    for(int i=0;i<6;++i) {
+        const auto& center=knobs[static_cast<std::size_t>(i)];
+        const QRect readout(qRound(center.x()-48),qRound(center.y()+145+34),96,23);
+        if(!readout.contains(event->pos()))continue;
+        const double scale=i<2?1000.0:1.0;
+        Controls::editNumericValue(this,readout,knobValue(displayed(),i)/scale,knobSpec(i),
+            [this,i,scale](double target){
+                apply([i,target,scale](Parameters& parameters){
+                    setKnobValue(parameters,i,static_cast<float>(target*scale));
+                });
+            });
+        return;
+    }
     for (int i = 0; i < 6; ++i)
         if (QLineF(main, knobs[static_cast<std::size_t>(i)]).length() <= 35) {
             const auto shown = displayed();
@@ -548,7 +605,7 @@ void DeEsserWidget::mousePressEvent(QMouseEvent* event)
     if (QRectF(326, 15, 58, 58).contains(main)) { const bool enabled = !displayed().enabled; apply([enabled](Parameters& p) { p.enabled = enabled; }); return; }
     if (QRectF(453, 26, 166, 34).contains(main)) {
         QMenu menu(this);
-        const std::array<QString, 3> presets {QStringLiteral("Vocal De-Esser"), QStringLiteral("Bright Vocal"), QStringLiteral("Soft Voice")};
+        const std::array<QString, 3> presets {QStringLiteral("Default"), QStringLiteral("Bright Vocal"), QStringLiteral("Soft Voice")};
         for (int i = 0; i < 3; ++i) {
             auto* action = menu.addAction(presets[static_cast<std::size_t>(i)]);
             connect(action, &QAction::triggered, this, [this, i] { selectPreset(i); });
@@ -560,7 +617,7 @@ void DeEsserWidget::mousePressEvent(QMouseEvent* event)
     if (QRectF(669, 27, 30, 32).contains(main)) { selectPreset((selectedPreset_ + 1) % 3); return; }
     if (QRectF(709, 27, 31, 32).contains(main)) {
         QMenu menu(this);
-        auto* reset = menu.addAction(QStringLiteral("恢复 Vocal De-Esser 默认值"));
+        auto* reset = menu.addAction(QStringLiteral("恢复 Default"));
         connect(reset, &QAction::triggered, this, [this] { selectPreset(0); });
         menu.exec(mapToGlobal(QPoint(709, 205)));
         return;
@@ -578,6 +635,22 @@ void DeEsserWidget::mousePressEvent(QMouseEvent* event)
     if (QRectF(663, 423, 70, 34).contains(main)) { apply([](Parameters& p) { p.listen = Common::DeEsserListen::Original; }); }
 }
 
+void DeEsserWidget::mouseDoubleClickEvent(QMouseEvent* event) {
+    if(event->button()!=Qt::LeftButton)return;
+    const QPointF main=event->position()-QPointF(0,145);
+    for(int i=0;i<6;++i) {
+        if(QLineF(main,knobs[static_cast<std::size_t>(i)]).length()>35)continue;
+        draggingKnob_=-1;
+        const double scale=i<2?1000.0:1.0;
+        Controls::resetNumericValue(knobSpec(i),[this,i,scale](double target){
+            apply([i,target,scale](Parameters& parameters){
+                setKnobValue(parameters,i,static_cast<float>(target*scale));
+            });
+        });
+        return;
+    }
+}
+
 void DeEsserWidget::mouseMoveEvent(QMouseEvent* event)
 {
     if (draggingKnob_ < 0 || !(event->buttons() & Qt::LeftButton)) return;
@@ -585,6 +658,6 @@ void DeEsserWidget::mouseMoveEvent(QMouseEvent* event)
     setKnobFromY(draggingKnob_, y);
 }
 
-void DeEsserWidget::mouseReleaseEvent(QMouseEvent*) { draggingKnob_ = -1; }
+void DeEsserWidget::mouseReleaseEvent(QMouseEvent*) { draggingKnob_ = -1; update(); }
 
 }

@@ -4,6 +4,7 @@
 #include <WinJACKNexus/NativeFx/gate/Processor.hpp>
 #include <WinJACKNexus/NativeFx/NativeFxApi.h>
 #include <QWidget>
+#include <QTimer>
 #include <array>
 #include <functional>
 
@@ -21,6 +22,7 @@ public:
 protected:
     void paintEvent(QPaintEvent*) override;
     void mousePressEvent(QMouseEvent*) override;
+    void mouseDoubleClickEvent(QMouseEvent*) override;
     void mouseMoveEvent(QMouseEvent*) override;
     void mouseReleaseEvent(QMouseEvent*) override;
     void wheelEvent(QWheelEvent*) override;
@@ -37,5 +39,6 @@ private:
     int draggedDial_ = -1;
     QPoint dragStart_;
     Parameters dragParameters_;
+    QTimer dragRefreshTimer_;
 };
 }

@@ -14,6 +14,7 @@
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 #include <WinJACKNexus/UI/TrayController.hpp>
+#include <WinJACKNexus/UI/Controls.hpp>
 
 #include <QAction>
 #include <QApplication>
@@ -127,29 +128,29 @@ public:
         auto* layout = new QHBoxLayout(this);
         layout->setContentsMargins(10, 7, 10, 7);
         layout->setSpacing(8);
-        auto* title = new QLabel(QStringLiteral("WinJACKNexus"), this);
+        auto* title = new Controls::TextLabel(QStringLiteral("WinJACKNexus"), this);
         title->setStyleSheet(QStringLiteral("font-weight: 700;"));
         title->setFixedWidth(quickAccessSideRegionWidth);
         title->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
         layout->addWidget(title);
         layout->addStretch();
 
-        patchbayButton_ = new QToolButton(this);
+        patchbayButton_ = new Controls::IconActionButton(this);
         patchbayButton_->setText(QStringLiteral("接线盘"));
         patchbayButton_->setToolTip(QStringLiteral("打开接线盘"));
         layout->addWidget(patchbayButton_);
 
-        meterbridgeButton_ = new QToolButton(this);
+        meterbridgeButton_ = new Controls::IconActionButton(this);
         meterbridgeButton_->setText(QStringLiteral("电平表桥"));
         meterbridgeButton_->setToolTip(QStringLiteral("打开电平表桥"));
         layout->addWidget(meterbridgeButton_);
 
-        mixerButton_ = new QToolButton(this);
+        mixerButton_ = new Controls::IconActionButton(this);
         mixerButton_->setText(QStringLiteral("调音台"));
         mixerButton_->setToolTip(QStringLiteral("打开调音台"));
         layout->addWidget(mixerButton_);
 
-        systemDevicesButton_ = new QToolButton(this);
+        systemDevicesButton_ = new Controls::IconActionButton(this);
         systemDevicesButton_->setText(QStringLiteral("系统设备"));
         systemDevicesButton_->setToolTip(QStringLiteral("打开已添加的 WASAPI 和 MIDI 设备节点"));
         systemDevicesButton_->setToolButtonStyle(Qt::ToolButtonTextOnly);
@@ -182,7 +183,7 @@ public:
         connect(hideButton, &QToolButton::clicked, this, [this] { setExpanded(false, activeScreen()); });
         layout->addStretch();
 
-        statusLabel_ = new QLabel(this);
+        statusLabel_ = new Controls::TextLabel(this);
         statusLabel_->setFixedWidth(quickAccessSideRegionWidth);
         statusLabel_->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
         statusLabel_->setToolTip(QStringLiteral("JACK DSP 使用率与 XRun 计数"));
@@ -284,7 +285,7 @@ public:
         rebuildSystemDevicesMenu(wasapiInputEntries, wasapiOutputEntries,
                                  midiInputEntries, midiOutputEntries);
 
-        auto* vstButton = new QToolButton(this);
+        auto* vstButton = new Controls::IconActionButton(this);
         vstButton->setText(QStringLiteral("VST"));
         vstButton->setToolButtonStyle(Qt::ToolButtonTextOnly);
         vstButton->setPopupMode(QToolButton::InstantPopup);
@@ -294,7 +295,7 @@ public:
         contentLayout_->addWidget(vstButton);
 
         for (const auto& [category, projects] : groupedEntries) {
-            auto* categoryButton = new QToolButton(this);
+            auto* categoryButton = new Controls::IconActionButton(this);
             categoryButton->setText(category);
             categoryButton->setToolButtonStyle(Qt::ToolButtonTextOnly);
             categoryButton->setPopupMode(QToolButton::InstantPopup);

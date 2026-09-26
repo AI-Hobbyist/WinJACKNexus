@@ -18,6 +18,7 @@
 #include <WinJACKNexus/UI/AnimatedWidget.hpp>
 #include <WinJACKNexus/UI/ThemePalette.hpp>
 
+#include <QElapsedTimer>
 #include <QString>
 
 #include <optional>
@@ -73,9 +74,12 @@ private:
     float danger_ = 0.0F;
     std::optional<float> value_;
     std::optional<float> peakValue_;
+    std::optional<float> incomingPeak_;
     float displayLevel_ = 0.0F;
     float displayPeak_ = 0.0F;
-    int peakHoldFrames_ = 0;
+    QElapsedTimer animationClock_;
+    QElapsedTimer peakClock_;
+    qint64 peakHoldUntilMs_ = 0;
     std::vector<MeterLevelMark> marks_;
     QString unit_;
     bool showScaleLabels_ = false;

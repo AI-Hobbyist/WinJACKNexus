@@ -1,11 +1,14 @@
 #include <WinJACKNexus/UI/MixerWindow.hpp>
 #include <WinJACKNexus/UI/AuxSettingsWindow.hpp>
+#include <WinJACKNexus/UI/ApplicationSettings.hpp>
 #include <WinJACKNexus/UI/Controls.hpp>
 #include <WinJACKNexus/UI/FxSettingsWindow.hpp>
+#include <WinJACKNexus/UI/MixerPolarPlot.hpp>
 
 #include <QMouseEvent>
 #include <QMenu>
 #include <QMenuBar>
+#include <QMessageBox>
 #include <QLabel>
 #include <QLineEdit>
 #include <QColorDialog>
@@ -18,6 +21,7 @@
 #include <QPainterPath>
 #include <QPointer>
 #include <QFontMetricsF>
+#include <QElapsedTimer>
 #include <QRandomGenerator>
 #include <QTimer>
 #include <QWheelEvent>
@@ -27,6 +31,7 @@
 #include <cmath>
 #include <map>
 #include <vector>
+#include <utility>
 
 namespace WinJACKNexus::UI {
 namespace {
@@ -51,6 +56,14 @@ struct Channel {
     bool customColor {};
     qreal inputGainDb {};
     bool mixToMain = true;
+    std::uint64_t modelId {};
+    bool realMeter {};
+    std::array<qreal, 8> channelLevels {};
+    std::array<qreal, 8> channelPeaks {};
+    Controls::MeterBallistics meterBallistics;
+    std::array<Controls::MeterBallistics, 8> channelBallistics;
+    qreal inputMeterReadoutDb {-72.0};
+    qreal outputMeterReadoutDb {-72.0};
 };
 
 QString auxSourceNumber(const Channel& channel)
@@ -80,14 +93,14 @@ public:
     {
         setObjectName(QStringLiteral("selMainPage"));
         setMinimumSize(950, 650);
-        name = new QLineEdit(this);
+        name = new Controls::TextField(this);
         name->setObjectName(QStringLiteral("selChannelName"));
-        comment = new QLineEdit(this);
+        comment = new Controls::TextField(this);
         comment->setObjectName(QStringLiteral("selChannelComment"));
-        modeButton = new QPushButton(this);
+        modeButton = new Controls::ActionButton({}, this);
         modeButton->setObjectName(QStringLiteral("selChannelMode"));
         modeButton->setStyleSheet(QStringLiteral("QPushButton {background:#102033;color:#eff6ff;border:1px solid #36516d;border-radius:5px;font-size:15px;text-align:left;padding:4px 30px 4px 12px;} QPushButton:disabled {color:#879ab0;border-color:#36516d;}"));
-        modeArrow = new QLabel(QStringLiteral("▾"), modeButton);
+        modeArrow = new Controls::TextLabel(QStringLiteral("▾"), modeButton);
         modeArrow->setObjectName(QStringLiteral("selChannelModeArrow"));
         modeArrow->setAlignment(Qt::AlignCenter);
         modeArrow->setAttribute(Qt::WA_TransparentForMouseEvents);
@@ -107,7 +120,7 @@ public:
             }
             menu.exec(modeButton->mapToGlobal(QPoint(0, modeButton->height())));
         });
-        colorButton = new QPushButton(QStringLiteral("..."), this);
+        colorButton = new Controls::ActionButton(QStringLiteral("..."), this);
         colorButton->setObjectName(QStringLiteral("selCustomColor"));
         for (auto* edit : { name, comment }) {
             edit->setStyleSheet(QStringLiteral("QLineEdit {background:#102033;color:#eff6ff;border:1px solid #36516d;border-radius:5px;padding:4px 12px;font-size:15px;}"));
@@ -140,7 +153,7 @@ public:
         channel = next;
         if (channel) {
             const bool switched=displayedId!=channel->id;
-            if(switched){displayedId=channel->id;selectedPoint=0;}
+            if(switched){displayedId=channel->id;selectedPoint=0;polarContour={};}
             if (switched || !name->hasFocus()) name->setText(channel->name);
             if (switched || !comment->hasFocus()) comment->setText(channel->source);
             modeButton->setText(Common::auxLayoutName(channel->layout));
@@ -149,10 +162,10 @@ public:
             auto& state=channel->selState;
             const bool fresh=state.sends.size()!=8;
             const bool wasEligible=Common::auxSupportsClassicPan(state.sourceLayout,state.targetLayout);
-            const bool eligible=Common::auxSupportsClassicPan(channel->layout,channel->layout);
+            const bool eligible=Common::auxSupportsClassicPan(channel->layout,
+                channel->realMeter ? Common::AuxChannelLayout::stereo : channel->layout);
             if(fresh || wasEligible!=eligible)
                 state.panMode=eligible?Common::AuxPanMode::classic:Common::AuxPanMode::spatial;
-            state.linked=false;
             selectedPoint=std::clamp(selectedPoint,0,std::max(0,static_cast<int>(Common::auxLayoutChannelLabels(channel->layout).size())-1));
             if(!Common::auxHasSpatialPoint(channel->layout,selectedPoint))selectedPoint=0;
             if(state.adjustablePoints.size()!=static_cast<std::size_t>(Common::auxLayoutChannelLabels(channel->layout).size()))
@@ -160,7 +173,7 @@ public:
             if(state.pointInfluenceRadii.size()!=state.adjustablePoints.size())
                 state.pointInfluenceRadii.resize(state.adjustablePoints.size(),0.1);
             state.sourceLayout=channel->layout;
-            state.targetLayout=channel->layout;
+            if (!channel->realMeter) state.targetLayout=channel->layout;
             setProperty("selPanMode",static_cast<int>(state.panMode));
             setProperty("selClassicPan",state.classicPan);
             setProperty("selChannelLayout",static_cast<int>(channel->layout));
@@ -171,7 +184,7 @@ public:
                 state.sends.resize(8);
                 for(std::size_t i=0;i<labels.size();++i) {
                     state.sends[i].label=labels[i];state.sends[i].name=labels[i];
-                    state.sends[i].levelDb=-2.0;state.sends[i].meterDb=-12.0;
+                    state.sends[i].levelDb=0.0;state.sends[i].meterDb=-12.0;
                 }
             }
             linked=state.sendsLinked;
@@ -180,9 +193,20 @@ public:
         }
         update();
     }
+    void setPolarContour(const Common::MixerPolarContour& value) {
+        polarContour = value;
+        setProperty("selPolarDataValid", value.valid);
+        if (isVisible()) update();
+    }
     std::function<void()> changed;
+    std::function<void()> dragFinished;
     std::function<void()> detailsChanged;
     std::function<void(Common::AuxChannelLayout)> layoutChanged;
+    bool draggingControl() const
+    {
+        return draggedFader >= 0 || draggedPoint >= 0 || draggedInfluencePoint >= 0
+            || draggedKnob >= 0 || draggedInputGain || draggedClassicPan;
+    }
 
 protected:
     void resizeEvent(QResizeEvent*) override
@@ -209,24 +233,32 @@ protected:
         p.fillRect(QRect(0, 0, 1394, 813), QColor("#0b1a2b"));
         const QColor border=channel&&channel->customColor?channel->accent:QColor("#2b4662");
         const QColor ink("#e8f2ff"), muted("#aec7eb"), blue("#26bfff");
-        auto panel = [&](QRectF r) { p.setPen(border); p.setBrush(QColor("#102235")); p.drawRoundedRect(r, 7, 7); };
+        const auto knobColors=Controls::paletteFor(*this,
+            {QColor("#0b1a2b"),QColor("#1b3b57"),QColor("#d9f4ff"),blue,QColor("#254762")});
+        auto panel = [&](QRectF r) { Controls::drawSurface(p,r,QColor("#102235"),border,7); };
         auto text = [&](QRectF r, const QString& s, int size=15, QColor c=QColor("#e8f2ff"), bool bold=false, int align=Qt::AlignLeft|Qt::AlignVCenter) {
-            QFont f=p.font(); f.setPixelSize(size); f.setBold(bold); p.setFont(f); p.setPen(c); p.drawText(r, align, s);
+            QFont f=p.font(); f.setPixelSize(size); f.setBold(bold);
+            Controls::drawText(p,r,s,f,c,Qt::Alignment(align));
         };
         auto button = [&](QRectF r, const QString& label, bool active=false, QColor accent=QColor("#26bfff")) {
-            p.setPen(active ? accent : QColor("#45617e")); p.setBrush(active ? QColor("#123e61") : QColor("#192d43")); p.drawRoundedRect(r, 5, 5);
-            text(r, label, 15, active ? QColor("#d7f7ff") : muted, false, Qt::AlignCenter);
+            Controls::ButtonStyle style;
+            style.activeBorder = accent;
+            style.inactiveText = muted;
+            Controls::drawStyledButton(p, r, label, active, style);
         };
         auto toggle = [&](QRectF r, bool checked) {
-            p.setPen(Qt::NoPen);p.setBrush(checked?QColor("#168dff"):QColor("#263e53"));
-            p.drawRoundedRect(r,r.height()/2,r.height()/2);
-            p.setBrush(Qt::white);
-            p.drawEllipse(QPointF(checked?r.right()-r.height()/2:r.left()+r.height()/2,r.center().y()),r.height()*.34,r.height()*.34);
+            Controls::drawToggle(p, r, checked, QColor("#168dff"), QColor("#263e53"));
         };
         auto modeToggle = [&](QRectF r,const QString& label,bool checked,QColor accent) {
-            p.setPen(QPen(accent,1));
-            QColor fill=accent;fill.setAlpha(checked?85:25);p.setBrush(fill);p.drawRoundedRect(r,5,5);
-            text(r,label,16,QColor("#f7f8ff"),true,Qt::AlignCenter);
+            Controls::ButtonStyle style;
+            style.inactiveBorder = style.activeBorder = accent;
+            style.inactiveFill = style.activeFill = accent;
+            style.inactiveFill.setAlpha(25);
+            style.activeFill.setAlpha(85);
+            style.inactiveText = style.activeText = QColor("#f7f8ff");
+            style.fontSize = 16;
+            style.bold = true;
+            Controls::drawStyledButton(p, r, label, checked, style);
         };
         panel({14, 11, 287, 790});
         text({29, 22, 240, 21}, QStringLiteral("通道名"), 14, ink, true);
@@ -234,23 +266,12 @@ protected:
         text({29, 182, 240, 21}, QStringLiteral("通道模式"), 14, ink, true);
         text({29, 262, 240, 21}, QStringLiteral("通道颜色"), 14, ink, true);
         const std::array<QColor,8> colors { QColor("#24b8ff"), QColor("#20c5dd"), QColor("#45d877"), QColor("#ffd246"), QColor("#ffae55"), QColor("#f34d70"), QColor("#e359da"), QColor("#9963ec") };
-        p.setPen(border); p.setBrush(QColor("#15263a")); p.drawRoundedRect(QRectF(29,289,216,34),5,5);
+        Controls::drawSurface(p,QRectF(29,289,216,34),QColor("#15263a"),border,5);
         for (int i=0;i<8;++i) { p.setPen(Qt::NoPen); p.setBrush(colors[i]); p.drawEllipse(QPointF(47+i*26,306),9,9); }
         text({29, 327, 254, 22}, QStringLiteral("输入增益  -12 ~ +12 dB"), 14, muted, false, Qt::AlignCenter);
-        const QRectF gainRing(70, 355, 46, 46);
         const qreal gain=channel?std::clamp(channel->inputGainDb,-12.0,12.0):0.0;
         const qreal gainFraction=(gain+12.0)/24.0;
-        p.setBrush(Qt::NoBrush);
-        p.setPen(QPen(QColor("#254762"),5,Qt::SolidLine,Qt::RoundCap));
-        p.drawArc(gainRing,225*16,-270*16);
-        p.setPen(QPen(blue,5,Qt::SolidLine,Qt::RoundCap));
-        p.drawArc(gainRing,225*16,qRound(-270*16*gainFraction));
-        const qreal gainAngle=(135.0+270.0*gainFraction)*3.14159265358979323846/180.0;
-        const QPointF gainCenter=gainRing.center();
-        p.setPen(Qt::NoPen);p.setBrush(QColor("#1b3b57"));p.drawEllipse(gainCenter,18,18);
-        p.setPen(QPen(QColor("#d9f4ff"),3,Qt::SolidLine,Qt::RoundCap));
-        p.drawLine(gainCenter+QPointF(std::cos(gainAngle),std::sin(gainAngle))*8,
-                   gainCenter+QPointF(std::cos(gainAngle),std::sin(gainAngle))*17);
+        Controls::drawKnob(p,{93,378},gainFraction,23,knobColors);
         text({126, 362, 126, 28}, QStringLiteral("%1%2 dB").arg(gain>=0?QStringLiteral("+"):QString()).arg(gain,0,'f',1),
              17, ink, true, Qt::AlignCenter);
         const bool mainOutput=channel && channel->number==QStringLiteral("MAIN");
@@ -260,17 +281,33 @@ protected:
         for(int m=0;m<2;++m) {
             const int x=24+m*138; panel({qreal(x),480,125,318});
             text({qreal(x),488,125,31},m?QStringLiteral("输出"):QStringLiteral("输入"),16,ink,false,Qt::AlignCenter);
-            const std::array<int,6> ticks {12,0,-12,-24,-48,-72};
             constexpr qreal meterTop=528, meterBottom=745;
-            for(const int tick:ticks) text({qreal(x+14),meterTop+(12-tick)*(meterBottom-meterTop)/84.0-10,40,20},QString::number(tick),12,muted,false,Qt::AlignRight|Qt::AlignVCenter);
-            const qreal input=channel?channel->level+channel->inputGainDb:-72.0;
-            const qreal current=channel?std::clamp(input+(m?faderDbValue(channel->fader):0.0),-72.0,12.0):-72.0;
-            const qreal fraction=(current+72.0)/84.0;
-            QRectF track(x+67,meterTop,28,meterBottom-meterTop);p.setPen(Qt::NoPen);p.setBrush(QColor("#07141f"));p.drawRoundedRect(track,3,3);
-            const qreal litTop=meterBottom-(meterBottom-meterTop)*fraction;
-            const auto segment=[&](qreal low,qreal high,QColor color){const qreal a=meterBottom-(meterBottom-meterTop)*(high+72)/84.0,b=meterBottom-(meterBottom-meterTop)*(low+72)/84.0;const qreal top=std::max(a,litTop);if(b>top){p.setBrush(color);p.drawRect(QRectF(71+x,top,20,b-top));}};
-            segment(-72,-12,QColor("#17d675"));segment(-12,0,QColor("#f2df48"));segment(0,12,QColor("#f2484d"));
-            text({qreal(x+22),757,96,31},QStringLiteral("%1 dB").arg(current,0,'f',1),15,ink,false,Qt::AlignCenter);
+            const qreal input=channel
+                ? channel->level + (channel->realMeter ? 0.0 : channel->inputGainDb) : -72.0;
+            const qreal offset=m&&channel?faderDbValue(channel->fader):0.0;
+            const qreal current=channel?std::clamp((channel->realMeter
+                ? channel->meterBallistics.levelDb():input)+offset,-72.0,12.0):-72.0;
+            const qreal readout=channel
+                ? (m ? channel->outputMeterReadoutDb : channel->inputMeterReadoutDb) : -72.0;
+            const qreal peak=channel?std::clamp(channel->meterBallistics.peakDb()+offset,-72.0,12.0):-72.0;
+            Controls::MeterStyle meterStyle;
+            meterStyle.vertical=true;
+            meterStyle.border=QColor("#07141f");
+            meterStyle.zones={{-12,QColor("#17d675"),QColor("#123e2d")},
+                              {0,QColor("#f2df48"),QColor("#483d1e")},
+                              {12,QColor("#f2484d"),QColor("#4a2429")}};
+            auto scaleStyle=meterStyle;
+            scaleStyle.ticks={{12,QStringLiteral("12")},{0,QStringLiteral("0")},
+                              {-12,QStringLiteral("-12")},{-24,QStringLiteral("-24")},
+                              {-48,QStringLiteral("-48")},{-72,QStringLiteral("-72")}};
+            scaleStyle.ticksLeft=true;
+            scaleStyle.tickBandPixels=46;
+            scaleStyle.tickFontPixelSize=12;
+            scaleStyle.labelColor=muted;
+            Controls::drawMeterScale(p,{qreal(x+14),meterTop,50,meterBottom-meterTop},scaleStyle);
+            Controls::drawMeter(p,{qreal(x+67),meterTop,28,meterBottom-meterTop},
+                                current,peak,meterStyle);
+            text({qreal(x+22),757,96,31},QStringLiteral("%1 dB").arg(readout,0,'f',1),15,ink,false,Qt::AlignCenter);
         }
         p.translate(selDetailsLeft(size())/contentScale()-313.0,0);
         panel({313, 11, 650, 544});
@@ -284,18 +321,19 @@ protected:
         p.save();if(!canUseClassic)p.setOpacity(.32);
         button({477,52,137,34},QStringLiteral("经典 Pan"),classic);
         p.restore();
-        if(!classic){text({638,52,118,34},QStringLiteral("显示极坐标曲线"),14,muted);toggle({761,56,42,25},pannerBus&&pannerBus->showPolarCurves);}
+        if(!classic){
+            text({638,52,118,34},QStringLiteral("显示极坐标曲线"),14,muted);
+            toggle({761,56,42,25},pannerBus&&pannerBus->showPolarCurves);
+            if(pannerBus&&pannerBus->showPolarCurves){
+                button({809,52,58,34},QStringLiteral("输入"),pannerBus->showInputCurve,QColor("#28c9f3"));
+                button({872,52,58,34},QStringLiteral("输出"),pannerBus->showOutputCurve,QColor("#ffa44a"));
+            }
+        }
         panel({330,95,616,448});
         const QPointF center(638,319); const qreal radius=190;
         const qreal pointRadius=159;
         if(!classic){
-        p.setBrush(Qt::NoBrush);
-        for(int ring=1;ring<=5;++ring){p.setPen(QPen(QColor("#244a66"),1));p.drawEllipse(center,radius*ring/5,radius*ring/5);}
-        for(int angle=0;angle<360;angle+=30){
-            const qreal radians=angle*3.14159265358979323846/180.0;
-            p.setPen(QPen(angle%90==0?QColor("#426884"):QColor("#1b3d56"),1));
-            p.drawLine(center,center+QPointF(std::sin(radians),-std::cos(radians))*radius);
-        }
+        drawMixerPolarGrid(p,center,radius);
         const auto outputGains=pannerBus&&selectedPoint<static_cast<int>(pannerBus->adjustablePoints.size())
             ? Common::auxSpatialOutputGains(*pannerBus,selectedPoint):std::vector<double>{};
         const auto referenceLayout=channel?channel->layout:Common::AuxChannelLayout::stereo;
@@ -303,9 +341,13 @@ protected:
         for(int i=0;i<static_cast<int>(referencePoints.size());++i){
             if(!Common::auxHasSpatialPoint(referenceLayout,i))continue;
             const auto gain=i<static_cast<int>(outputGains.size())?outputGains[i]:0.0;
-            p.setPen(QPen(QColor(138,169,214,110+qRound(gain*145)),2));
-            p.setBrush(QColor(109,141,184,75+qRound(gain*165)));
-            p.drawEllipse(center+referencePoints[i]*pointRadius,10+gain*3,10+gain*3);
+            drawMixerPolarReferencePoint(p,center+referencePoints[i]*pointRadius,gain);
+        }
+        if(pannerBus&&pannerBus->showPolarCurves&&channel) {
+            drawMixerPolarCurves(p,{330,95,616,448},center,radius,polarContour,
+                                 pannerBus->showInputCurve,pannerBus->showOutputCurve);
+            if(!polarContour.valid) text({center.x()-62,center.y()-12,124,24},
+                                         QStringLiteral("无信号"),13,muted,false,Qt::AlignCenter);
         }
         if(pannerBus){
             for(int i=0;i<static_cast<int>(pannerBus->adjustablePoints.size());++i){
@@ -316,21 +358,16 @@ protected:
                 const auto influence=pannerBus->pointInfluenceRadii.size()>static_cast<std::size_t>(i)
                     ? pannerBus->pointInfluenceRadii[i]:0.1;
                 const auto outerRadius=Common::auxInfluencePixelRadius(influence);
-                p.setPen(QPen(selected?QColor("#79e3ff"):QColor(85,189,233,115),selected?2.5:1.2));
-                p.setBrush(QColor(22,141,255,selected?28:9));p.drawEllipse(screen,outerRadius,outerRadius);
-                if(selected){p.setPen(Qt::NoPen);p.setBrush(QColor("#79e3ff"));
-                    p.drawEllipse(screen+QPointF(outerRadius,0),4,4);}
-                if(selected){p.setPen(QPen(QColor("#7ee8ff"),5));p.setBrush(Qt::NoBrush);p.drawEllipse(screen,14,14);}
-                p.setPen(QPen(selected?QColor("#e8fbff"):QColor("#9dc3ff"),selected?3:2));p.setBrush(selected?QColor("#42a8ff"):QColor("#2e9dff"));p.drawEllipse(screen,10,10);
+                drawMixerPolarHandle(p,screen,outerRadius,selected);
                 const auto labels=Common::auxLayoutChannelLabels(channel->layout);
                 if(i<labels.size())text({screen.x()-17,screen.y()+14,34,19},labels[i],12,ink,true,Qt::AlignCenter);
             }
         }
-        p.setPen(Qt::NoPen);p.setBrush(Qt::white);p.drawEllipse(center,4,4);
-        text({center.x()-22,105,44,20},QStringLiteral("90°"),12,muted,false,Qt::AlignCenter);
-        text({center.x()+radius+8,309,45,20},QStringLiteral("0°"),12,muted);
-        text({center.x()-radius-53,309,45,20},QStringLiteral("180°"),12,muted);
-        text({center.x()-24,516,48,20},QStringLiteral("270°"),12,muted,false,Qt::AlignCenter);
+        drawMixerPolarCenter(p,center);
+        text({center.x()-22,105,44,20},QStringLiteral("0°"),12,muted,false,Qt::AlignCenter);
+        text({center.x()+radius+8,309,45,20},QStringLiteral("90°"),12,muted);
+        text({center.x()-radius-53,309,45,20},QStringLiteral("270°"),12,muted);
+        text({center.x()-24,516,48,20},QStringLiteral("180°"),12,muted,false,Qt::AlignCenter);
         }else{
             Controls::Palette panColors;
             panColors.border=QColor("#254762");panColors.accent=blue;
@@ -342,18 +379,6 @@ protected:
             text({center.x()-115,center.y()-205,230,30},QStringLiteral("声像"),19,ink,true,Qt::AlignCenter);
             text({center.x()-110,center.y()+20,220,35},QStringLiteral("%1%2%").arg(pannerBus&&pannerBus->classicPan>0?QStringLiteral("R "):pannerBus&&pannerBus->classicPan<0?QStringLiteral("L "):QStringLiteral("C ")).arg(qRound(std::abs(pannerBus?pannerBus->classicPan:0.0)*100)),16,ink,true,Qt::AlignCenter);
         }
-        const auto drawKnob = [&](QPointF knobCenter, qreal radius, qreal fraction) {
-            fraction=std::clamp(fraction,0.0,1.0);
-            const QRectF ring(knobCenter.x()-radius,knobCenter.y()-radius,2*radius,2*radius);
-            p.setBrush(Qt::NoBrush);
-            p.setPen(QPen(QColor("#254762"),5,Qt::SolidLine,Qt::RoundCap));p.drawArc(ring,225*16,-270*16);
-            p.setPen(QPen(blue,5,Qt::SolidLine,Qt::RoundCap));p.drawArc(ring,225*16,qRound(-270*16*fraction));
-            const qreal angle=(135.0+270.0*fraction)*3.14159265358979323846/180.0;
-            p.setPen(Qt::NoPen);p.setBrush(QColor("#1b3b57"));p.drawEllipse(knobCenter,radius-6,radius-6);
-            p.setPen(QPen(QColor("#d9f4ff"),3,Qt::SolidLine,Qt::RoundCap));
-            p.drawLine(knobCenter+QPointF(std::cos(angle),std::sin(angle))*(radius*.4),
-                       knobCenter+QPointF(std::cos(angle),std::sin(angle))*(radius-7));
-        };
         text({330,574,350,27},QStringLiteral("空间声像参数"),17,ink,true);
         p.save();if(classic)p.setOpacity(.32);
         const std::array<QString,3> parameters {QStringLiteral("宽度"),QStringLiteral("前后"),QStringLiteral("角度")};
@@ -361,9 +386,9 @@ protected:
             const qreal x=330+i*206;
             panel({x,609,194,178});
             text({x+12,616,170,25},parameters[i],15,ink,true,Qt::AlignCenter);
-            const qreal value=i==0?(pannerBus?pannerBus->width:.7):i==1?(pannerBus&&!pannerBus->adjustablePoints.empty()?(pannerBus->adjustablePoints[std::clamp(selectedPoint,0,static_cast<int>(pannerBus->adjustablePoints.size())-1)].y()+1)/2:.5):(pannerBus?(pannerBus->angleDegrees+180)/360:.5);
-            drawKnob({x+97,694},35,value);
-            const QString readout=i==0?QStringLiteral("%1%").arg(qRound(pannerBus?pannerBus->width*100:70)):
+            const qreal value=i==0?(pannerBus?pannerBus->width:1.0):i==1?(pannerBus&&!pannerBus->adjustablePoints.empty()?(pannerBus->adjustablePoints[std::clamp(selectedPoint,0,static_cast<int>(pannerBus->adjustablePoints.size())-1)].y()+1)/2:.5):(pannerBus?(pannerBus->angleDegrees+180)/360:.5);
+            Controls::drawKnob(p,{x+97,694},value,35,knobColors);
+            const QString readout=i==0?QStringLiteral("%1%").arg(qRound(pannerBus?pannerBus->width*100:100)):
                 i==1?QStringLiteral("%1%").arg(qRound(pannerBus&&!pannerBus->adjustablePoints.empty()?pannerBus->adjustablePoints[std::clamp(selectedPoint,0,static_cast<int>(pannerBus->adjustablePoints.size())-1)].y()*100:0)):
                      QStringLiteral("%1°").arg(qRound(pannerBus?pannerBus->angleDegrees:0));
             text({x+18,748,158,26},readout,15,ink,true,Qt::AlignCenter);
@@ -384,22 +409,27 @@ protected:
                      ? QStringLiteral("M") : labels[i],15,ink,true,Qt::AlignCenter);
             if(i==3&&i<activeCount)text({x+7,y+48,41,16},QStringLiteral("强度"),11,muted,false,Qt::AlignCenter);
             const qreal sendLevel=bus&&i<static_cast<int>(bus->sends.size())?bus->sends[i].levelDb:0.0;
-            const qreal meterDb=std::clamp((channel?channel->level+channel->inputGainDb:-72.0)+sendLevel,-72.0,12.0);
-            drawKnob({x+83,y+32},23,(sendLevel+72)/84.0);
+            const qreal sourceDb = channel && channel->realMeter
+                ? channel->channelLevels[static_cast<std::size_t>(i)]
+                : channel ? channel->level + channel->inputGainDb : -72.0;
+            const qreal meterDb=std::clamp(sourceDb+sendLevel,-72.0,12.0);
+            Controls::drawKnob(p,{x+83,y+32},(sendLevel+72)/84.0,23,knobColors);
             text({x+42,y+57,82,18},QStringLiteral("%1 dB").arg(sendLevel,0,'f',1),12,ink,true,Qt::AlignCenter);
-            p.setPen(Qt::NoPen);p.setBrush(QColor("#06131f"));p.drawRoundedRect(QRectF(x+126,y+25,226,13),3,3);
-            const qreal lit=226*(meterDb+72)/84.0;
-            const auto segment=[&](qreal low,qreal high,QColor color){
-                const qreal left=226*(low+72)/84.0,right=226*(high+72)/84.0;
-                const qreal width=std::min(right,lit)-left;
-                if(width>0){p.setBrush(color);p.drawRect(QRectF(x+126+left,y+27,width,9));}
-            };
-            segment(-72,-12,QColor("#17d675"));segment(-12,0,QColor("#f2df48"));segment(0,12,QColor("#f2484d"));
-            for(const int mark:{-72,-48,-24,-12,0,12}){
-                const qreal tickX=x+126+226*(mark+72)/84.0;
-                p.setPen(QPen(QColor("#6685a2"),1));p.drawLine(QPointF(tickX,y+20),QPointF(tickX,y+23));
-                text({tickX-15,y+3,30,16},mark==12?QStringLiteral("+12"):QString::number(mark),9,muted,false,Qt::AlignCenter);
-            }
+            Controls::MeterStyle sendMeter;
+            sendMeter.border=QColor("#06131f");
+            sendMeter.zones={{-12,QColor("#17d675"),QColor("#102234")},
+                             {0,QColor("#f2df48"),QColor("#102234")},
+                             {12,QColor("#f2484d"),QColor("#102234")}};
+            sendMeter.ticks={{-72,QStringLiteral("-72")},{-48,QStringLiteral("-48")},
+                             {-24,QStringLiteral("-24")},{-12,QStringLiteral("-12")},
+                             {0,QStringLiteral("0")},{12,QStringLiteral("+12")}};
+            sendMeter.labelColor=muted;
+            sendMeter.ticksAbove=true;
+            sendMeter.tickBandPixels=24;
+            const qreal sendPeak=channel&&channel->realMeter
+                ? std::clamp(channel->channelPeaks[static_cast<std::size_t>(i)]+sendLevel,-72.0,12.0)
+                : meterDb;
+            Controls::drawMeter(p,{x+126,y+3,226,33},meterDb,sendPeak,sendMeter);
             modeToggle({x+215,y+45,62,29},QStringLiteral("M"),bus&&i<static_cast<int>(bus->sends.size())&&bus->sends[i].mute,QColor("#ff4b62"));
             modeToggle({x+286,y+45,62,29},QStringLiteral("S"),bus&&i<static_cast<int>(bus->sends.size())&&bus->sends[i].solo,QColor("#ffae2d"));
             p.restore();
@@ -410,6 +440,60 @@ protected:
     {
         if (!channel || event->button()!=Qt::LeftButton) return;
         const QPointF pt=designPoint(event->position());
+        const auto channelId = channel->id;
+        if (QRectF(126,362,126,28).contains(pt)) {
+            Controls::editNumericValue(this, readoutRect({126,362,126,28}), channel->inputGainDb,
+                {-12,12,0,1}, [this,channelId](double value) {
+                    if (!channel || channel->id != channelId) return;
+                    channel->inputGainDb=value;
+                    setProperty("selInputGainDb", value);
+                    update(); if(changed) changed();
+                });
+            return;
+        }
+        if (auto* bus=selectedBus();bus&&bus->panMode==Common::AuxPanMode::spatial) {
+            for (int knob=0;knob<3;++knob) {
+                const qreal x=330+knob*206;
+                const QRectF readout(x+18,748,158,26);
+                if (!readout.contains(pt)) continue;
+                const auto point=std::clamp(selectedPoint,0,static_cast<int>(bus->adjustablePoints.size())-1);
+                const double current=knob==0?bus->width*100
+                    :knob==1&&!bus->adjustablePoints.empty()?bus->adjustablePoints[point].y()*100
+                    :bus->angleDegrees;
+                const Controls::NumericControlSpec spec=knob==0
+                    ? Controls::NumericControlSpec{0,100,100,0}
+                    :knob==1?Controls::NumericControlSpec{-100,100,0,0}
+                    :Controls::NumericControlSpec{-180,180,0,0};
+                Controls::editNumericValue(this,readoutRect(readout),current,spec,
+                    [this,channelId,knob](double value) {
+                        if (!channel || channel->id!=channelId) return;
+                        auto* currentBus=selectedBus(); if(!currentBus) return;
+                        setKnob(*currentBus,knob,knob==0?value/100
+                            :knob==1?(value+100)/200:(value+180)/360);
+                        update(); if(changed) changed();
+                    });
+                return;
+            }
+        }
+        if (auto* bus=selectedBus();bus&&pt.x()>=1032&&pt.x()<1114
+            &&pt.y()>=100&&pt.y()<788) {
+            const int index=static_cast<int>((pt.y()-100)/86);
+            const qreal y=100+index*86;
+            if(index>=0&&index<static_cast<int>(bus->sends.size())
+                &&index<Common::auxLayoutChannelLabels(channel->layout).size()
+                &&QRectF(1032,y+57,82,18).contains(pt)) {
+                Controls::editNumericValue(this,readoutRect({1032,y+57,82,18}),
+                    bus->sends[index].levelDb,{-72,12,0,1},
+                    [this,channelId,index](double value) {
+                        if (!channel || channel->id!=channelId) return;
+                        if(auto* currentBus=selectedBus()) {
+                            setSendLevel(*currentBus,index,value);
+                            update(); if(changed) changed();
+                        }
+                    });
+                return;
+            }
+        }
         const std::array<QColor,8> colors { QColor("#24b8ff"),QColor("#20c5dd"),QColor("#45d877"),QColor("#ffd246"),QColor("#ffae55"),QColor("#f34d70"),QColor("#e359da"),QColor("#9963ec") };
         if (pt.y()>=289&&pt.y()<323&&pt.x()>=29&&pt.x()<245) {const int i=int((pt.x()-34)/26);if(i>=0&&i<8){channel->accent=colors[i];channel->customColor=true;}}
         else if(QRectF(65,351,200,51).contains(pt)) {
@@ -423,7 +507,9 @@ protected:
         else if(QRectF(330,52,137,34).contains(pt)){if(auto* bus=selectedBus()){bus->panMode=Common::AuxPanMode::spatial;setProperty("selPanMode",static_cast<int>(bus->panMode));}}
         else if(QRectF(477,52,137,34).contains(pt)){if(auto* bus=selectedBus();bus&&Common::auxSupportsClassicPan(bus->sourceLayout,bus->targetLayout)){bus->panMode=Common::AuxPanMode::classic;setProperty("selPanMode",static_cast<int>(bus->panMode));}}
         else if(QRectF(638,52,165,34).contains(pt)){if(auto* bus=selectedBus();bus&&bus->panMode==Common::AuxPanMode::spatial){bus->showPolarCurves=!bus->showPolarCurves;publishPanner();}}
-        else if(QRectF(1256,51,105,34).contains(pt)) {if(auto* bus=selectedBus()){bus->adjustablePoints=Common::auxLayoutReferencePoints(channel->layout);bus->pointInfluenceRadii.assign(bus->adjustablePoints.size(),0.1);bus->width=.7;bus->angleDegrees=0;bus->classicPan=0;setProperty("selClassicPan",0.0);const auto active=Common::auxLayoutChannelLabels(channel->layout).size();for(int i=0;i<active;++i)bus->sends[i].levelDb=-2;publishLevels();publishPanner();}}
+        else if(QRectF(809,52,58,34).contains(pt)){if(auto* bus=selectedBus();bus&&bus->showPolarCurves){bus->showInputCurve=!bus->showInputCurve;publishPanner();}}
+        else if(QRectF(872,52,58,34).contains(pt)){if(auto* bus=selectedBus();bus&&bus->showPolarCurves){bus->showOutputCurve=!bus->showOutputCurve;publishPanner();}}
+        else if(QRectF(1256,51,105,34).contains(pt)) {if(auto* bus=selectedBus()){bus->adjustablePoints=Common::auxLayoutReferencePoints(channel->layout);bus->pointInfluenceRadii.assign(bus->adjustablePoints.size(),0.1);bus->width=1.0;bus->angleDegrees=0;bus->classicPan=0;setProperty("selClassicPan",0.0);const auto active=Common::auxLayoutChannelLabels(channel->layout).size();for(int i=0;i<active;++i)bus->sends[i].levelDb=0;publishLevels();publishPanner();}}
         else if(QRectF(992,51,127,34).contains(pt)) {linked=!linked;if(auto* bus=selectedBus())bus->sendsLinked=linked;}
         else if(pt.y()>=650&&pt.y()<739&&pt.x()>=330&&pt.x()<936){
             if(auto* bus=selectedBus();bus&&bus->panMode==Common::AuxPanMode::spatial){
@@ -493,6 +579,57 @@ protected:
         }
         update();if(changed)changed();
     }
+    void mouseDoubleClickEvent(QMouseEvent* event) override
+    {
+        if (!channel || event->button()!=Qt::LeftButton) return;
+        const QPointF pt=designPoint(event->position());
+        if (QRectF(65,351,200,51).contains(pt)) {
+            draggedInputGain=false;
+            Controls::resetNumericValue({-12,12,0,1},[this](double value) {
+                channel->inputGainDb=value;
+                setProperty("selInputGainDb",value);
+                update(); if(changed) changed();
+            });
+            return;
+        }
+        if(auto* bus=selectedBus()) {
+            if(bus->panMode==Common::AuxPanMode::spatial) {
+                for(int knob=0;knob<3;++knob) {
+                    const qreal x=330+knob*206;
+                    if(!QRectF(x+56,653,82,82).contains(pt)) continue;
+                    draggedKnob=-1;
+                    const auto spec=knob==0?Controls::NumericControlSpec{0,100,100,0}
+                        :knob==1?Controls::NumericControlSpec{-100,100,0,0}
+                        :Controls::NumericControlSpec{-180,180,0,0};
+                    Controls::resetNumericValue(spec,[this,bus,knob](double value) {
+                        setKnob(*bus,knob,knob==0?value/100
+                            :knob==1?(value+100)/200:(value+180)/360);
+                        update(); if(changed) changed();
+                    });
+                    return;
+                }
+            } else if (QRectF(463,144,350,350).contains(pt)) {
+                draggedClassicPan=false;
+                Controls::resetNumericValue({-1,1,0,2},[this,bus](double value) {
+                    bus->classicPan=value; setProperty("selClassicPan",value);
+                    update(); if(changed) changed();
+                });
+                return;
+            }
+            if(pt.x()>=1047&&pt.x()<1099&&pt.y()>=100&&pt.y()<788) {
+                const int index=static_cast<int>((pt.y()-100)/86);
+                const qreal y=100+index*86;
+                if(index>=0&&index<static_cast<int>(bus->sends.size())
+                    &&index<Common::auxLayoutChannelLabels(channel->layout).size()
+                    &&QRectF(1047,y+7,52,50).contains(pt)) {
+                    draggedFader=-1;
+                    Controls::resetNumericValue({-72,12,0,1},[this,bus,index](double value) {
+                        setSendLevel(*bus,index,value); update(); if(changed) changed();
+                    });
+                }
+            }
+        }
+    }
     void mouseMoveEvent(QMouseEvent* event) override
     {
         if(!channel||!(event->buttons()&Qt::LeftButton))return;
@@ -500,16 +637,16 @@ protected:
             const qreal delta=inputGainStartY-designPoint(event->position()).y();
             channel->inputGainDb=std::clamp(qRound((inputGainStartValue+delta*.2)*10)/10.0,-12.0,12.0);
             setProperty("selInputGainDb",channel->inputGainDb);
-            update();if(changed)changed();return;
+            if(changed)changed();return;
         }
         auto* bus=selectedBus();if(!bus||draggedFader>=static_cast<int>(bus->sends.size()))return;
         if(draggedClassicPan){
             bus->classicPan=std::clamp(classicPanStartValue+(classicPanStartY-designPoint(event->position()).y())*.01,-1.0,1.0);
-            setProperty("selClassicPan",bus->classicPan);update();if(changed)changed();return;
+            setProperty("selClassicPan",bus->classicPan);if(changed)changed();return;
         }
         if(draggedKnob>=0){
             const qreal fraction=parameterStartValue+(parameterStartY-designPoint(event->position()).y())*.005;
-            setKnob(*bus,draggedKnob,fraction);update();if(changed)changed();return;
+            setKnob(*bus,draggedKnob,fraction);if(changed)changed();return;
         }
         if(draggedInfluencePoint>=0&&draggedInfluencePoint<static_cast<int>(bus->adjustablePoints.size())){
             const auto pt=designPoint(event->position());
@@ -517,18 +654,24 @@ protected:
             const auto distance=std::hypot(pt.x()-638-point.x()*159,pt.y()-319-point.y()*159);
             Common::auxSetPointInfluenceRadius(*bus,draggedInfluencePoint,
                 Common::auxInfluenceRadiusForPixels(distance));
-            publishPanner();update();if(changed)changed();return;
+            publishPanner();if(changed)changed();return;
         }
         if(draggedPoint>=0&&draggedPoint<static_cast<int>(bus->adjustablePoints.size())){
             const QPointF pt=designPoint(event->position());
-            bus->adjustablePoints[draggedPoint]=Common::auxClampPannerPoint(QPointF((pt.x()-638)/159.0,(pt.y()-319)/159.0));publishPanner();update();if(changed)changed();return;
+            bus->adjustablePoints[draggedPoint]=Common::auxClampPannerPoint(QPointF((pt.x()-638)/159.0,(pt.y()-319)/159.0));publishPanner();if(changed)changed();return;
         }
         if(draggedFader<0)return;
         const qreal y=designPoint(event->position()).y();
         setSendLevel(*bus,draggedFader,qRound((sendStartValue+(sendStartY-y)*.2)*10)/10.0);
-        update();if(changed)changed();
+        if(changed)changed();
     }
-    void mouseReleaseEvent(QMouseEvent*) override {draggedFader=-1;draggedPoint=-1;draggedInfluencePoint=-1;draggedKnob=-1;draggedInputGain=false;draggedClassicPan=false;}
+    void mouseReleaseEvent(QMouseEvent*) override
+    {
+        const bool wasDragging = draggingControl();
+        draggedFader=-1;draggedPoint=-1;draggedInfluencePoint=-1;draggedKnob=-1;
+        draggedInputGain=false;draggedClassicPan=false;
+        if (wasDragging && dragFinished) dragFinished();
+    }
     void wheelEvent(QWheelEvent* event) override
     {
         auto* bus=selectedBus();
@@ -550,6 +693,13 @@ protected:
         QWidget::wheelEvent(event);
     }
 private:
+    QRect readoutRect(const QRectF& design) const {
+        const qreal scale=contentScale();
+        const qreal rightOffset=design.left()>=313?selDetailsLeft(size())-313*scale:0;
+        return QRect(qRound(design.left()*scale+rightOffset),
+                     qRound(design.top()*scale+contentOrigin().y()),
+                     qRound(design.width()*scale),qRound(design.height()*scale));
+    }
     qreal contentScale() const { return selContentScale(size()); }
     QPointF contentOrigin() const { const auto scale=contentScale();return {0,(height()-813*scale)/2}; }
     QPointF designPoint(const QPointF& point) const
@@ -592,6 +742,8 @@ private:
     {
         if(const auto* bus=selectedBus()){
             setProperty("selPolarCurvesVisible",bus->showPolarCurves);
+            setProperty("selInputCurveVisible",bus->showInputCurve);
+            setProperty("selOutputCurveVisible",bus->showOutputCurve);
             setProperty("selPannerWidth",bus->width);
             setProperty("selPannerAngle",bus->angleDegrees);
             const auto influence=bus->pointInfluenceRadii.size()>static_cast<std::size_t>(selectedPoint)
@@ -606,6 +758,7 @@ private:
         return channel ? &channel->selState : nullptr;
     }
     Channel* channel {};
+    Common::MixerPolarContour polarContour;
     QLineEdit* name {};
     QLineEdit* comment {};
     QPushButton* modeButton {};
@@ -677,9 +830,7 @@ void drawText(QPainter& painter, const QRectF& rect, const QString& text, const 
     auto font = painter.font();
     font.setPixelSize(std::max(8, qRound(size)));
     font.setWeight(bold ? QFont::DemiBold : QFont::Normal);
-    painter.setFont(font);
-    painter.setPen(color);
-    painter.drawText(rect, alignment, text);
+    Controls::drawText(painter,rect,text,font,color,Qt::Alignment(alignment));
 }
 
 void drawAdaptiveText(QPainter& painter, const QRectF& rect, const QString& text,
@@ -699,9 +850,7 @@ void drawAdaptiveText(QPainter& painter, const QRectF& rect, const QString& text
         size -= 1.0;
     }
     font.setPixelSize(std::max(1, qRound(std::max(size, minimumSize))));
-    painter.setFont(font);
-    painter.setPen(color);
-    painter.drawText(rect, alignment, text);
+    Controls::drawText(painter,rect,text,font,color,Qt::Alignment(alignment));
 }
 
 QString faderDbText(qreal position)
@@ -720,22 +869,41 @@ qreal faderDbValue(qreal position)
     return 12.0 - std::clamp(position / .95, 0.0, 1.0) * 84.0;
 }
 
+qreal faderPositionForDb(qreal db)
+{
+    return std::clamp((12.0-db)/84.0*.95,0.0,.95);
+}
+
+qreal meterDbValue(float peak)
+{
+    return peak <= 0.0F ? -72.0 : std::clamp(20.0 * std::log10(peak), -72.0, 12.0);
+}
+
 }
 
 class MixerWindow::Impl {
 public:
-    explicit Impl(MixerWindow& owner)
+    explicit Impl(MixerWindow& owner, Common::DigitalMixerState* model,
+                  MixerWindow::TopologyCommit commit, MixerWindow::MeterRead meterRead,
+                  MixerWindow::PolarRead polarRead, MixerWindow::ChannelMeterRead channelMeterRead,
+                  MixerWindow::EffectAnalysisRead effectAnalysisRead)
         : owner(owner)
+        , model(model)
+        , commit(std::move(commit))
+        , meterRead(std::move(meterRead))
+        , polarRead(std::move(polarRead))
+        , channelMeterRead(std::move(channelMeterRead))
+        , effectAnalysisRead(std::move(effectAnalysisRead))
     {
         channels = {
-            { "Mic 1", "Analog In 1", "1", "#45bfff", .66, -5.0, -5.0 },
-            { "Mic 2", "Analog In 2", "2", "#45bfff", .56, -9.0, -9.0 },
-            { "Line 3", "Line In 3", "3", "#8da5d8", .70, -14.0, -14.0 },
-            { "Line 4", "Line In 4", "4", "#8da5d8", .79, -8.0, -8.0 },
-            { "USB 5", "USB In 5", "5", "#70c9f4", .62, -11.0, -11.0 },
-            { "USB 6", "USB In 6", "6", "#70c9f4", .74, -18.0, -18.0 },
-            { "Bus 7", "Bus In 7", "7", "#8da5d8", .58, -7.0, -7.0 },
-            { "Bus 8", "Bus In 8", "8", "#8da5d8", .81, -23.0, -23.0 }
+            { "Mic 1", "Analog In 1", "1", "#45bfff", Common::mixerUnityFaderPosition, -5.0, -5.0 },
+            { "Mic 2", "Analog In 2", "2", "#45bfff", Common::mixerUnityFaderPosition, -9.0, -9.0 },
+            { "Line 3", "Line In 3", "3", "#8da5d8", Common::mixerUnityFaderPosition, -14.0, -14.0 },
+            { "Line 4", "Line In 4", "4", "#8da5d8", Common::mixerUnityFaderPosition, -8.0, -8.0 },
+            { "USB 5", "USB In 5", "5", "#70c9f4", Common::mixerUnityFaderPosition, -11.0, -11.0 },
+            { "USB 6", "USB In 6", "6", "#70c9f4", Common::mixerUnityFaderPosition, -18.0, -18.0 },
+            { "Bus 7", "Bus In 7", "7", "#8da5d8", Common::mixerUnityFaderPosition, -7.0, -7.0 },
+            { "Bus 8", "Bus In 8", "8", "#8da5d8", Common::mixerUnityFaderPosition, -23.0, -23.0 }
         };
         for (auto& channel : channels)
         {
@@ -743,19 +911,86 @@ public:
             channel.layout = Common::AuxChannelLayout::stereo;
         }
         rebuildAuxChannels();
-        timer.setInterval(55);
+        if (model) initializeFromModel();
+        bindRefreshTimer(timer, &owner);
         QObject::connect(&timer, &QTimer::timeout, &owner, [this] {
+            const auto& settings=ApplicationSettings::instance();
+            const auto elapsedMilliseconds=meterFrameClock.isValid()
+                ? meterFrameClock.restart() : -1;
+            if(elapsedMilliseconds<0) meterFrameClock.start();
+            const double frameSeconds=elapsedMilliseconds>0
+                ? elapsedMilliseconds/1000.0 : 1.0/settings.frameRate();
+            const double peakHold=settings.peakHoldSeconds();
+            const bool sampleMeterReadouts=!meterReadoutClock.isValid()
+                || meterReadoutClock.elapsed()>=settings.peakValueRefreshMilliseconds();
             for (auto& channel : channels) {
-                if (QRandomGenerator::global()->bounded(12) == 0)
-                    channel.target = QRandomGenerator::global()->bounded(-480, 111) / 10.0;
-                channel.level += (channel.target - channel.level) * .17;
-                channel.level = std::clamp(channel.level + (QRandomGenerator::global()->bounded(7) - 3) / 10.0, -72.0, 12.0);
+                if (this->model) {
+                    channel.realMeter = true;
+                    channel.level = this->meterRead && channel.modelId
+                        ? meterDbValue(this->meterRead(channel.modelId, channel.postFaderMeter)) : -72.0;
+                    for (std::size_t index = 0; index < channel.channelLevels.size(); ++index)
+                        channel.channelLevels[index] = this->channelMeterRead && channel.modelId
+                            ? meterDbValue(this->channelMeterRead(channel.modelId,
+                                channel.postFaderMeter, index)) : channel.level;
+                } else {
+                    if (QRandomGenerator::global()->bounded(12) == 0)
+                        channel.target = QRandomGenerator::global()->bounded(-480, 111) / 10.0;
+                    channel.level += (channel.target - channel.level) * .17;
+                    channel.level = std::clamp(channel.level + (QRandomGenerator::global()->bounded(7) - 3) / 10.0, -72.0, 12.0);
+                }
+                channel.meterBallistics.advance(channel.level,frameSeconds,peakHold);
+                if(sampleMeterReadouts) {
+                    const auto input=channel.realMeter ? channel.meterBallistics.levelDb()
+                        : channel.level+channel.inputGainDb;
+                    channel.inputMeterReadoutDb=std::clamp(input,-72.0,12.0);
+                    channel.outputMeterReadoutDb=std::clamp(input+faderDbValue(channel.fader),-72.0,12.0);
+                }
+                for(std::size_t index=0;index<channel.channelBallistics.size();++index) {
+                    channel.channelBallistics[index].advance(channel.realMeter
+                        ? channel.channelLevels[index]:channel.level,frameSeconds,peakHold);
+                    channel.channelLevels[index]=channel.channelBallistics[index].levelDb();
+                    channel.channelPeaks[index]=channel.channelBallistics[index].peakDb();
+                }
             }
+            if(sampleMeterReadouts) meterReadoutClock.start();
             this->owner.update();
-            updateSel();
+            if (selMain && selMain->isVisible()) {
+                if(sampleMeterReadouts) {
+                    const auto selected=std::find_if(channels.cbegin(),channels.cend(),[this](const Channel& item) {
+                        return item.id==selectedChannelId;
+                    });
+                    if(selected!=channels.cend()) {
+                        selMain->setProperty("selInputMeterReadoutDb",selected->inputMeterReadoutDb);
+                        selMain->setProperty("selOutputMeterReadoutDb",selected->outputMeterReadoutDb);
+                    }
+                }
+                selMain->update();
+            }
+            if (selMain && this->model && this->polarRead) {
+                const auto selected = std::find_if(channels.cbegin(), channels.cend(), [this](const Channel& item) {
+                    return item.id == selectedChannelId;
+                });
+                if (selected != channels.cend() && selected->modelId
+                    && selected->modelId != this->model->main().id) {
+                    if (polarSourceId != selected->modelId) {
+                        polarSourceId = selected->modelId;
+                        selPolarCurve.clear();
+                        polarStaleTicks = 0;
+                    }
+                    Common::MixerPolarSnapshot snapshot;
+                    if (this->polarRead(selected->modelId, this->model->main().id, snapshot)
+                        && selPolarCurve.accept(snapshot)) polarStaleTicks = 0;
+                    else if (++polarStaleTicks > 10) selPolarCurve.clear();
+                    selMain->setPolarContour(selPolarCurve.contour());
+                } else {
+                    selPolarCurve.clear();
+                    selMain->setPolarContour({});
+                }
+            }
         });
         timer.start();
     }
+
 
     int auxChannelCount() const
     {
@@ -767,8 +1002,265 @@ public:
         return inputChannelCount + auxChannelCount();
     }
 
+    static Common::AuxChannelLayout asAuxLayout(Common::MixerLayout layout)
+    {
+        switch (layout) {
+        case Common::MixerLayout::mono: return Common::AuxChannelLayout::mono;
+        case Common::MixerLayout::stereo: return Common::AuxChannelLayout::stereo;
+        case Common::MixerLayout::surround51: return Common::AuxChannelLayout::surround51;
+        case Common::MixerLayout::surround71: return Common::AuxChannelLayout::surround71;
+        }
+        return Common::AuxChannelLayout::stereo;
+    }
+
+    static Common::MixerLayout asMixerLayout(Common::AuxChannelLayout layout)
+    {
+        switch (layout) {
+        case Common::AuxChannelLayout::mono: return Common::MixerLayout::mono;
+        case Common::AuxChannelLayout::stereo: return Common::MixerLayout::stereo;
+        case Common::AuxChannelLayout::surround51: return Common::MixerLayout::surround51;
+        case Common::AuxChannelLayout::surround71: return Common::MixerLayout::surround71;
+        }
+        return Common::MixerLayout::stereo;
+    }
+
+    static void loadMainPanner(Channel& channel, const Common::MixerStripState& strip)
+    {
+        const auto& source = strip.mainPanner;
+        auto& target = channel.selState;
+        target.panMode = source.mode == Common::MixerPanMode::classic
+            ? Common::AuxPanMode::classic : Common::AuxPanMode::spatial;
+        target.classicPan = source.classicPan;
+        target.width = source.width;
+        target.angleDegrees = source.angleDegrees;
+        target.sendsLinked = source.linked;
+        target.showPolarCurves = source.showPolarCurves;
+        target.showInputCurve = source.showInputCurve;
+        target.showOutputCurve = source.showOutputCurve;
+        target.sourceLayout = channel.layout;
+        target.targetLayout = Common::AuxChannelLayout::stereo;
+        target.adjustablePoints.clear();
+        target.pointInfluenceRadii.clear();
+        target.sends.resize(8);
+        const std::array<QString, 8> labels {QStringLiteral("L"), QStringLiteral("R"),
+            QStringLiteral("C"), QStringLiteral("LFE"), QStringLiteral("Ls"),
+            QStringLiteral("Rs"), QStringLiteral("Lb"), QStringLiteral("Rb")};
+        for (std::size_t i = 0; i < source.points.size(); ++i) {
+            const auto& point = source.points[i];
+            target.adjustablePoints.emplace_back(point.x, point.y);
+            target.pointInfluenceRadii.push_back(point.influenceRadius);
+            target.sends[i].levelDb = point.levelDb;
+            target.sends[i].mute = point.mute;
+            target.sends[i].solo = point.solo;
+        }
+        for (std::size_t i = 0; i < target.sends.size(); ++i)
+            target.sends[i].label = target.sends[i].name = labels[i];
+    }
+
+    bool commitTopology(const Common::DigitalMixerState& candidate)
+    {
+        if (!model) return true;
+        QString error;
+        if (commit && commit(candidate, &error)) return true;
+        QMessageBox::warning(&owner, QStringLiteral("拓扑更新失败"),
+            error.isEmpty() ? QStringLiteral("无法注册调音台端口，原有状态已保留。") : error);
+        return false;
+    }
+
+    bool commitChannel(Channel& channel)
+    {
+        if (!model || !channel.modelId) return true;
+        Common::DigitalMixerState candidate = *model;
+        auto* strip = candidate.strip(channel.modelId);
+        if (!strip) return false;
+        strip->name = channel.name;
+        strip->comment = channel.source;
+        strip->color = channel.accent;
+        strip->inputGainDb = channel.inputGainDb;
+        strip->faderPosition = channel.fader;
+        strip->mute = channel.mute;
+        strip->solo = channel.solo;
+        strip->mixToMain = channel.mixToMain;
+        auto& panner = strip->mainPanner;
+        const auto& view = channel.selState;
+        if (view.adjustablePoints.size() == panner.points.size()) {
+            panner.mode = view.panMode == Common::AuxPanMode::classic
+                ? Common::MixerPanMode::classic : Common::MixerPanMode::spatial;
+            panner.classicPan = view.classicPan;
+            panner.width = view.width;
+            panner.angleDegrees = view.angleDegrees;
+            panner.linked = view.sendsLinked;
+            panner.showPolarCurves = view.showPolarCurves;
+            panner.showInputCurve = view.showInputCurve;
+            panner.showOutputCurve = view.showOutputCurve;
+            for (std::size_t i = 0; i < panner.points.size(); ++i) {
+                panner.points[i].x = view.adjustablePoints[i].x();
+                panner.points[i].y = view.adjustablePoints[i].y();
+                if (i < view.pointInfluenceRadii.size())
+                    panner.points[i].influenceRadius = view.pointInfluenceRadii[i];
+                if (i < view.sends.size()) {
+                    panner.points[i].levelDb = view.sends[i].levelDb;
+                    panner.points[i].mute = view.sends[i].mute;
+                    panner.points[i].solo = view.sends[i].solo;
+                }
+            }
+        }
+        if (commitTopology(candidate)) return true;
+        const auto* old = model->strip(channel.modelId);
+        if (!old) return false;
+        channel.name = old->name;
+        channel.source = old->comment;
+        channel.accent = old->color;
+        channel.inputGainDb = old->inputGainDb;
+        channel.fader = old->faderPosition;
+        channel.mute = old->mute;
+        channel.solo = old->solo;
+        channel.mixToMain = old->mixToMain;
+        loadMainPanner(channel, *old);
+        return false;
+    }
+
+    bool commitAuxSettings(bool chainEnabled)
+    {
+        if (!model) return true;
+        auto candidate = *model;
+        std::map<std::uint32_t, std::uint64_t> busIds;
+        for (const auto& channel : channels)
+            if (channel.auxId && channel.modelId) busIds[channel.auxId] = channel.modelId;
+        for (const auto& bus : auxState->buses()) {
+            auto id = busIds.find(bus.id);
+            if (id == busIds.end()) {
+                const auto source = busIds.find(bus.cloneSourceId);
+                const auto created = source != busIds.end()
+                    ? candidate.clone(source->second)
+                    : candidate.add(Common::MixerStripKind::aux, asMixerLayout(bus.targetLayout));
+                if (!created) return false;
+                busIds[bus.id] = created;
+            } else if (const auto* strip = candidate.strip(id->second);
+                       strip && strip->layout != asMixerLayout(bus.targetLayout)) {
+                if (!candidate.setLayout(id->second, asMixerLayout(bus.targetLayout))) return false;
+            }
+        }
+        for (const auto& [busId, modelId] : busIds) {
+            if (auxState->bus(busId)) continue;
+            if (!candidate.remove(modelId)) return false;
+        }
+        const auto source = std::find_if(channels.cbegin(), channels.cend(), [this](const Channel& channel) {
+            return channel.id == auxWindowChannelId;
+        });
+        if (source != channels.cend() && candidate.strip(source->modelId)) {
+            auto* sourceStrip = candidate.strip(source->modelId);
+            sourceStrip->auxSendsEnabled = chainEnabled;
+            const auto sourceKey = source->auxId ? QStringLiteral("aux:%1").arg(source->auxId)
+                                                 : QStringLiteral("input:%1").arg(source->id);
+            const auto& sourceBuses = auxState->busesForSource(sourceKey, source->auxId);
+            for (const auto& bus : sourceBuses) {
+                const auto target = busIds.find(bus.id);
+                if (target == busIds.end() || target->second == source->modelId) continue;
+                const auto existing = std::find_if(sourceStrip->sends.cbegin(), sourceStrip->sends.cend(),
+                    [target](const Common::MixerAuxSend& send) { return send.targetId == target->second; });
+                if (existing == sourceStrip->sends.cend() && !(chainEnabled && bus.enabled)) continue;
+                Common::MixerAuxSend send;
+                send.targetId = target->second;
+                send.enabled = chainEnabled && bus.enabled;
+                send.preFader = bus.preFader;
+                send.panner = Common::defaultMixerPanner(asMixerLayout(bus.sourceLayout),
+                    asMixerLayout(bus.targetLayout));
+                send.panner.mode = bus.panMode == Common::AuxPanMode::classic
+                    ? Common::MixerPanMode::classic : Common::MixerPanMode::spatial;
+                send.panner.classicPan = bus.classicPan;
+                send.panner.width = bus.width;
+                send.panner.angleDegrees = bus.angleDegrees;
+                send.panner.linked = bus.sendsLinked;
+                send.panner.showPolarCurves = bus.showPolarCurves;
+                send.panner.showInputCurve = bus.showInputCurve;
+                send.panner.showOutputCurve = bus.showOutputCurve;
+                for (std::size_t i = 0; i < send.panner.points.size() && i < bus.adjustablePoints.size(); ++i) {
+                    auto& point = send.panner.points[i];
+                    point.x = bus.adjustablePoints[i].x();
+                    point.y = bus.adjustablePoints[i].y();
+                    if (i < bus.pointInfluenceRadii.size()) point.influenceRadius = bus.pointInfluenceRadii[i];
+                    if (i < bus.sends.size()) {
+                        point.levelDb = bus.sends[i].levelDb;
+                        point.mute = bus.sends[i].mute;
+                        point.solo = bus.sends[i].solo;
+                    }
+                }
+                QString error;
+                if (!candidate.setSend(source->modelId, send, &error)) {
+                    QMessageBox::warning(&owner, QStringLiteral("AUX 路由无效"), error);
+                    return false;
+                }
+                sourceStrip = candidate.strip(source->modelId);
+            }
+        }
+        if (!commitTopology(candidate)) return false;
+        rebuildAuxChannels();
+        for (auto& channel : channels) {
+            if (!channel.auxId) continue;
+            if (const auto found = busIds.find(channel.auxId); found != busIds.end()) {
+                channel.modelId = found->second;
+                if (const auto* strip = model->strip(channel.modelId))
+                    channel.number = QStringLiteral("AUX %1").arg(strip->number);
+            }
+        }
+        return true;
+    }
+
+    void initializeFromModel()
+    {
+        channels.clear();
+        inputChannelCount = 0;
+        auxState->clearBuses();
+        for (const auto& strip : model->inputs()) {
+            Channel channel {strip.name, strip.comment, QStringLiteral("CH %1").arg(strip.number),
+                             strip.color, strip.faderPosition, -72.0, -72.0};
+            channel.id = nextChannelId++;
+            channel.modelId = strip.id;
+            channel.realMeter = true;
+            channel.layout = asAuxLayout(strip.layout);
+            channel.inputGainDb = strip.inputGainDb;
+            channel.mute = strip.mute;
+            channel.solo = strip.solo;
+            channel.mixToMain = strip.mixToMain;
+            channel.fx = strip.fxChainEnabled;
+            loadMainPanner(channel, strip);
+            channels.push_back(std::move(channel));
+            ++inputChannelCount;
+        }
+        for (const auto& strip : model->auxiliaries()) auxState->addBus(asAuxLayout(strip.layout));
+        rebuildAuxChannels();
+        for (std::size_t index = 0; index < model->auxiliaries().size(); ++index) {
+            auto& channel = channels[static_cast<std::size_t>(inputChannelCount) + index];
+            const auto& strip = model->auxiliaries()[index];
+            channel.modelId = strip.id;
+            channel.realMeter = true;
+            channel.name = strip.name;
+            channel.source = strip.comment;
+            channel.number = QStringLiteral("AUX %1").arg(strip.number);
+            channel.fader = strip.faderPosition;
+            channel.inputGainDb = strip.inputGainDb;
+            channel.mute = strip.mute;
+            channel.solo = strip.solo;
+            channel.mixToMain = strip.mixToMain;
+            channel.fx = strip.fxChainEnabled;
+            loadMainPanner(channel, strip);
+        }
+        auto& master = channels[masterIndex()];
+        master.modelId = model->main().id;
+        master.realMeter = true;
+        master.name = model->main().name;
+        master.source = model->main().comment;
+        master.fader = model->main().faderPosition;
+        master.fx = model->main().fxChainEnabled;
+        loadMainPanner(master, model->main());
+        selectedChannelId = channels.front().id;
+        owner.update();
+    }
+
     qreal mainInputLevelDb() const
     {
+        if (model) return meterRead ? meterDbValue(meterRead(model->main().id, false)) : -72.0;
         const bool anySolo = std::any_of(channels.cbegin(), channels.cbegin() + masterIndex(),
                                          [](const Channel& channel) { return channel.mixToMain && !channel.mute && channel.solo; });
         double power = 0.0;
@@ -783,6 +1275,7 @@ public:
 
     qreal mainOutputLevelDb() const
     {
+        if (model) return meterRead ? meterDbValue(meterRead(model->main().id, true)) : -72.0;
         const auto input = mainInputLevelDb();
         if (input <= -72.0 || channels[masterIndex()].mute) return -72.0;
         return std::clamp(input + faderDbValue(channels[masterIndex()].fader), -72.0, 12.0);
@@ -803,7 +1296,7 @@ public:
             if (existing != channels.cend())
                 channel = *existing;
             else {
-                channel.fader = .68;
+                channel.fader = Common::mixerUnityFaderPosition;
                 channel.level = -12.0;
                 channel.target = -12.0;
                 channel.accent = QColor("#33b6ff");
@@ -813,6 +1306,10 @@ public:
             if (existing == channels.cend())
                 channel.source = bus.name;
             channel.number = channel.name;
+            if (model && channel.modelId) {
+                if (const auto* strip = model->strip(channel.modelId))
+                    channel.number = QStringLiteral("AUX %1").arg(strip->number);
+            }
             channel.auxId = bus.id;
             channel.id = 1000000 + bus.id;
             channel.layout = bus.targetLayout;
@@ -825,7 +1322,7 @@ public:
         if (existingMaster != channels.cend())
             rebuilt.push_back(*existingMaster);
         else
-            rebuilt.push_back({ "Main L/R", "JACK Out 1/2", "MAIN", "#50dfbd", .55, 4.0, 4.0,
+            rebuilt.push_back({ "Main L/R", "JACK Out 1/2", "MAIN", "#50dfbd", Common::mixerUnityFaderPosition, 4.0, 4.0,
                                 false, false, false, false, false, 0, 2000000,
                                 Common::AuxChannelLayout::stereo });
         channels = std::move(rebuilt);
@@ -855,8 +1352,14 @@ public:
 
     void renumberInputs()
     {
-        for (int index = 0; index < inputChannelCount; ++index)
-            channels[index].number = QStringLiteral("CH %1").arg(index + 1);
+        for (int index = 0; index < inputChannelCount; ++index) {
+            auto number = index + 1;
+            if (model && channels[index].modelId) {
+                if (const auto* strip = model->strip(channels[index].modelId))
+                    number = static_cast<int>(strip->number);
+            }
+            channels[index].number = QStringLiteral("CH %1").arg(number);
+        }
     }
 
     FxSettingsWindow* fxSettingsFor(int index)
@@ -866,15 +1369,62 @@ public:
         if (window.isNull()) {
             window = new FxSettingsWindow(channels[index].name,
                 fxChannels(channels[index].layout), &owner);
-            if (index == masterIndex()) window->addDefaultMasterEffects();
-            window->setChainEnabledHandler([this, id](bool enabled) {
+            if (model && channels[index].modelId) {
+                const auto modelId = channels[index].modelId;
+                if (const auto* strip = model->strip(modelId))
+                    window->loadChain(strip->effects, strip->fxChainEnabled);
+                window->setChainCommitHandler([this, id, modelId](const auto& effects, bool enabled) {
+                    auto candidate = *model;
+                    auto* strip = candidate.strip(modelId);
+                    if (!strip) return false;
+                    strip->effects = effects;
+                    strip->fxChainEnabled = enabled;
+                    if (!commitTopology(candidate)) {
+                        QTimer::singleShot(0, &owner, [this, id, modelId] {
+                            const auto found = fxSettingsWindows.find(id);
+                            if (found == fxSettingsWindows.end() || !found->second || !model) return;
+                            if (const auto* saved = model->strip(modelId))
+                                found->second->loadChain(saved->effects, saved->fxChainEnabled);
+                        });
+                        return false;
+                    }
+                    const auto found = std::find_if(channels.begin(), channels.end(), [id](const Channel& item) {
+                        return item.id == id;
+                    });
+                    if (found != channels.end()) found->fx = enabled;
+                    owner.update();
+                    return true;
+                });
+                if (meterRead) window->setMeterReadHandler([this, modelId](bool post) {
+                    return meterDbValue(meterRead(modelId, post));
+                });
+                if (channelMeterRead) window->setChannelMeterReadHandler(
+                    [this, modelId](bool post, std::size_t channel) {
+                        return meterDbValue(channelMeterRead(modelId, post, channel));
+                    });
+                if (effectAnalysisRead) window->setLiveAnalysisReadHandler(
+                    [this, modelId](std::size_t index, float input[8], float output[8],
+                                    float reduction[8], void* spectrum, std::uint32_t bytes) {
+                        return effectAnalysisRead(modelId, index, input, output,
+                                                  reduction, spectrum, bytes);
+                    });
+                if (index == masterIndex() && model->main().effects.empty())
+                    window->addDefaultMasterEffects();
+            } else {
+                if (index == masterIndex()) window->addDefaultMasterEffects();
+                window->setChainEnabledHandler([this, id](bool enabled) {
                 const auto found = std::find_if(channels.begin(), channels.end(), [id](const Channel& item) {
                     return item.id == id;
                 });
                 if (found != channels.end()) { found->fx = enabled; owner.update(); }
-            });
+                });
+            }
         }
-        window->setChainEnabled(channels[index].fx);
+        const bool chainEnabled = model && channels[index].modelId
+            ? model->strip(channels[index].modelId)->fxChainEnabled
+            : channels[index].fx;
+        channels[index].fx = chainEnabled;
+        window->setChainEnabled(chainEnabled);
         return window;
     }
 
@@ -889,11 +1439,18 @@ public:
 
     void addInput(Common::AuxChannelLayout layout)
     {
+        std::uint64_t modelId {};
+        if (model) {
+            auto candidate = *model;
+            modelId = candidate.add(Common::MixerStripKind::input, asMixerLayout(layout));
+            if (!modelId || !commitTopology(candidate)) return;
+        }
         Channel channel { QStringLiteral("Input %1").arg(nextChannelId),
                           QStringLiteral("Input %1").arg(nextChannelId),
                           QString::number(nextChannelId), QColor("#45bfff"),
-                          .66, -12.0, -12.0 };
+                          Common::mixerUnityFaderPosition, -12.0, -12.0 };
         channel.id = nextChannelId++;
+        channel.modelId = modelId;
         channel.layout = layout;
         channels.insert(channels.begin() + inputChannelCount, channel);
         ++inputChannelCount;
@@ -902,11 +1459,35 @@ public:
         owner.update();
     }
 
+    void addAux(Common::AuxChannelLayout layout)
+    {
+        std::uint64_t modelId {};
+        if (model) {
+            auto candidate = *model;
+            modelId = candidate.add(Common::MixerStripKind::aux, asMixerLayout(layout));
+            if (!modelId || !commitTopology(candidate)) return;
+        }
+        auto& bus = auxState->addBus(layout);
+        const auto busId = bus.id;
+        rebuildAuxChannels();
+        for (auto& channel : channels) {
+            if (channel.auxId != busId) continue;
+            channel.modelId = modelId;
+            if (modelId) channel.number = QStringLiteral("AUX %1").arg(model->strip(modelId)->number);
+            break;
+        }
+        owner.update();
+    }
+
     void removeChannel(int index)
     {
-        if (index == masterIndex() || (index < inputChannelCount && inputChannelCount <= 1)
-            || (index >= inputChannelCount && auxChannelCount() <= 1)) return;
+        if (index == masterIndex() || (!model && ((index < inputChannelCount && inputChannelCount <= 1)
+            || (index >= inputChannelCount && auxChannelCount() <= 1)))) return;
         const auto channel = channels[index];
+        if (model) {
+            auto candidate = *model;
+            if (!candidate.remove(channel.modelId) || !commitTopology(candidate)) return;
+        }
         if (auto found = fxSettingsWindows.find(channel.id); found != fxSettingsWindows.end()) {
             if (found->second) { found->second->close(); found->second->deleteLater(); }
             fxSettingsWindows.erase(found);
@@ -916,7 +1497,7 @@ public:
             auxWindowChannelId = 0;
         }
         if (channel.auxId) {
-            auxState->removeBus(channel.auxId);
+            auxState->removeBus(channel.auxId, model != nullptr);
             rebuildAuxChannels();
         } else {
             channels.erase(channels.begin() + index);
@@ -933,26 +1514,35 @@ public:
     {
         if (index == masterIndex()) return;
         const auto sourceId = channels[index].id;
+        std::uint64_t copiedModelId {};
+        if (model) {
+            auto candidate = *model;
+            copiedModelId = candidate.clone(channels[index].modelId);
+            if (!copiedModelId || !commitTopology(candidate)) return;
+        }
         std::uint32_t copiedId {};
         if (channels[index].auxId) {
             auto* bus = auxState->cloneBus(channels[index].auxId);
             if (!bus) return;
+            const auto newBusId = bus->id;
             rebuildAuxChannels();
-            const auto copied = std::find_if(channels.begin(), channels.end(), [bus](const Channel& item) {
-                return item.auxId == bus->id;
+            const auto copied = std::find_if(channels.begin(), channels.end(), [newBusId](const Channel& item) {
+                return item.auxId == newBusId;
             });
             if (copied != channels.end()) {
                 const auto id = copied->id;
                 *copied = channels[index];
                 copied->id = id;
-                copied->auxId = bus->id;
+                copied->auxId = newBusId;
+                copied->modelId = copiedModelId;
                 copied->name = QStringLiteral("AUX %1").arg(auxChannelCount());
-                copied->number = copied->name;
+                copied->number = model ? QStringLiteral("AUX %1").arg(model->strip(copiedModelId)->number) : copied->name;
                 copiedId = copied->id;
             }
         } else {
             Channel copied = channels[index];
             copied.id = nextChannelId++;
+            copied.modelId = copiedModelId;
             copied.name += QStringLiteral(" 副本");
             copied.number = QString::number(copied.id);
             copiedId = copied.id;
@@ -960,7 +1550,7 @@ public:
             ++inputChannelCount;
             renumberInputs();
         }
-        if (copiedId) {
+        if (copiedId && !model) {
             const auto sourceFx = fxSettingsWindows.find(sourceId);
             if (sourceFx != fxSettingsWindows.end() && sourceFx->second) {
                 const auto copied = std::find_if(channels.begin(), channels.end(), [copiedId](const Channel& item) {
@@ -981,6 +1571,11 @@ public:
         if (index == masterIndex() || channels[index].layout == layout)
             return;
         const auto id = channels[index].id;
+        if (model) {
+            auto candidate = *model;
+            if (!candidate.setLayout(channels[index].modelId, asMixerLayout(layout))
+                || !commitTopology(candidate)) return;
+        }
         if (channels[index].auxId) {
             auxState->setBusLayout(channels[index].auxId, layout);
             rebuildAuxChannels();
@@ -1036,10 +1631,15 @@ public:
             if (selMainChannelId != (current ? current->id : 0)) {
                 selMainChannelId = current ? current->id : 0;
                 if (current && auxSettingsWindow) {
-                    const auto key = current->auxId ? QStringLiteral("aux:%1").arg(current->auxId)
-                                                    : QStringLiteral("input:%1").arg(current->id);
-                    auxSettingsWindow->setSource(key,current->name,current->auxId,current->layout,auxSourceNumber(*current));
-                    auxSettingsWindow->setChainEnabled(current->aux);
+                    if (selStack && selStack->currentIndex() == 1) showSelAux();
+                    else {
+                        auxWindowChannelId = current->id;
+                        const auto key = current->auxId ? QStringLiteral("aux:%1").arg(current->auxId)
+                                                        : QStringLiteral("input:%1").arg(current->id);
+                        auxSettingsWindow->setSource(key,current->name,current->auxId,current->layout,auxSourceNumber(*current));
+                        auxSettingsWindow->setChainEnabled(model && current->modelId
+                            ? model->strip(current->modelId)->auxSendsEnabled : current->aux);
+                    }
                 }
                 if (selStack && selStack->currentIndex()==2) showSelFx();
             }
@@ -1072,13 +1672,13 @@ public:
             header->setFixedHeight(64);
             auto* headerLayout = new QHBoxLayout(header);
             headerLayout->setContentsMargins(24,5,16,5);
-            selLabel = new QLabel(selWindow);
+            selLabel = new Controls::TextLabel(selWindow);
             selLabel->setObjectName(QStringLiteral("selSelectedChannel"));
             QFont font = selLabel->font(); font.setPixelSize(26); font.setBold(true); selLabel->setFont(font);
-            auto* icon = new QLabel(QStringLiteral("🎙"),header);
+            auto* icon = new Controls::TextLabel(QStringLiteral("🎙"),header);
             QFont iconFont=icon->font();iconFont.setPixelSize(30);icon->setFont(iconFont);
             headerLayout->addWidget(icon);
-            auto* prefix = new QLabel(QStringLiteral("Channel SEL -"),header);
+            auto* prefix = new Controls::TextLabel(QStringLiteral("Channel SEL -"),header);
             QFont prefixFont=prefix->font();prefixFont.setPixelSize(24);prefixFont.setBold(true);prefix->setFont(prefixFont);
             headerLayout->addWidget(prefix);
             headerLayout->addWidget(selLabel,1);
@@ -1091,9 +1691,14 @@ public:
             selStack->setAutoFillBackground(true);
             content->setPages(selMain,selStack);
             selMain->changed = [this] {
-                const auto found=std::find_if(channels.cbegin(),channels.cend(),[this](const Channel& item){return item.id==selectedChannelId;});
+                const auto found=std::find_if(channels.begin(),channels.end(),[this](const Channel& item){return item.id==selectedChannelId;});
+                if (found != channels.end()) commitChannel(*found);
                 if(found!=channels.cend()&&found->auxId&&found->customColor)
                     auxState->setBusAccent(found->auxId,found->accent);
+                if (selMain->draggingControl()) return;
+                updateSel();owner.update();if(auxSettingsWindow)auxSettingsWindow->update();
+            };
+            selMain->dragFinished = [this] {
                 updateSel();owner.update();if(auxSettingsWindow)auxSettingsWindow->update();
             };
             selMain->detailsChanged = [this] {
@@ -1119,7 +1724,7 @@ public:
             auto* fxLayout = new QVBoxLayout(selFxPage);fxLayout->setContentsMargins(0,0,0,0);
             selStack->addWidget(selFxPage);
             for(int i=0;i<3;++i) {
-                auto* tab = new QPushButton(tabs[i],header);
+                auto* tab = new Controls::ActionButton(tabs[i],header);
                 tab->setObjectName(QStringLiteral("selTab%1").arg(tabs[i]));
                 tab->setCheckable(true);
                 tab->setChecked(i==0);
@@ -1135,7 +1740,7 @@ public:
                     updateSel();
                 });
             }
-            auto* close = new QPushButton(QStringLiteral("×"),header);
+            auto* close = new Controls::ActionButton(QStringLiteral("×"),header);
             close->setFixedWidth(48);headerLayout->addWidget(close);
             connect(close,&QPushButton::clicked,selWindow,&QWidget::close);
             layout->addWidget(header);
@@ -1158,14 +1763,80 @@ public:
             auxSettingsWindow=new AuxSettingsWindow(auxState,&owner);
             auxSettingsWindow->setAttribute(Qt::WA_DeleteOnClose);
             auxSettingsWindow->setStateChangedCallback([this]{rebuildAuxChannels();updateSel();owner.update();});
+            if (model) {
+                auxSettingsWindow->setMeterReadCallback([this](bool post) {
+                    const auto source = std::find_if(channels.cbegin(), channels.cend(), [this](const Channel& item) {
+                        return item.id == auxWindowChannelId;
+                    });
+                    return source != channels.cend() && meterRead && source->modelId
+                        ? meterRead(source->modelId, post) : 0.0F;
+                });
+                if (polarRead) auxSettingsWindow->setPolarReadCallback(
+                    [this](std::uint32_t busId, Common::MixerPolarSnapshot& snapshot) {
+                        const auto source = std::find_if(channels.cbegin(), channels.cend(), [this](const Channel& item) {
+                            return item.id == auxWindowChannelId;
+                        });
+                        const auto target = std::find_if(channels.cbegin(), channels.cend(), [busId](const Channel& item) {
+                            return item.auxId == busId;
+                        });
+                        return source != channels.cend() && target != channels.cend()
+                            && source->modelId && target->modelId
+                            && polarRead(source->modelId, target->modelId, snapshot);
+                    });
+                auxSettingsWindow->setStateCommitCallback([this] {
+                    return commitAuxSettings(auxSettingsWindow->chainEnabled());
+                });
+                auxSettingsWindow->setChainCommitHandler([this](bool enabled) {
+                    return commitAuxSettings(enabled);
+                });
+            }
             auxSettingsWindow->setChainEnabledHandler([this](bool enabled){
-                auto it=std::find_if(channels.begin(),channels.end(),[this](const Channel& c){return c.id==selectedChannelId;});
+                auto it=std::find_if(channels.begin(),channels.end(),[this](const Channel& c){return c.id==auxWindowChannelId;});
                 if(it!=channels.end()){it->aux=enabled;owner.update();}
             });
         }
         const auto key=found->auxId?QStringLiteral("aux:%1").arg(found->auxId):QStringLiteral("input:%1").arg(found->id);
         auxSettingsWindow->setSource(key,found->name,found->auxId,found->layout,auxSourceNumber(*found));
-        auxSettingsWindow->setChainEnabled(found->aux);
+        if (model && found->modelId) {
+            if (const auto* strip = model->strip(found->modelId)) {
+                auto& sourceBuses = auxState->busesForSource(key, found->auxId);
+                for (auto& bus : sourceBuses) {
+                    if (bus.selfRoute) continue;
+                    const auto target = std::find_if(channels.cbegin(), channels.cend(), [&bus](const Channel& channel) {
+                        return channel.auxId == bus.id;
+                    });
+                    if (target == channels.cend()) continue;
+                    const auto send = std::find_if(strip->sends.cbegin(), strip->sends.cend(), [target](const Common::MixerAuxSend& item) {
+                        return item.targetId == target->modelId;
+                    });
+                    bus.enabled = send != strip->sends.cend() && send->enabled;
+                    if (send == strip->sends.cend()) continue;
+                    bus.preFader = send->preFader;
+                    bus.panMode = send->panner.mode == Common::MixerPanMode::classic
+                        ? Common::AuxPanMode::classic : Common::AuxPanMode::spatial;
+                    bus.classicPan = send->panner.classicPan;
+                    bus.width = send->panner.width;
+                    bus.angleDegrees = send->panner.angleDegrees;
+                    bus.sendsLinked = send->panner.linked;
+                    bus.showPolarCurves = send->panner.showPolarCurves;
+                    bus.showInputCurve = send->panner.showInputCurve;
+                    bus.showOutputCurve = send->panner.showOutputCurve;
+                    for (std::size_t i = 0; i < bus.adjustablePoints.size() && i < send->panner.points.size(); ++i) {
+                        const auto& point = send->panner.points[i];
+                        bus.adjustablePoints[i] = QPointF(point.x, point.y);
+                        if (i < bus.pointInfluenceRadii.size()) bus.pointInfluenceRadii[i] = point.influenceRadius;
+                        if (i < bus.sends.size()) {
+                            bus.sends[i].levelDb = point.levelDb;
+                            bus.sends[i].mute = point.mute;
+                            bus.sends[i].solo = point.solo;
+                        }
+                    }
+                }
+                auxSettingsWindow->acceptExternalState();
+            }
+        }
+        auxSettingsWindow->setChainEnabled(model && found->modelId
+            ? model->strip(found->modelId)->auxSendsEnabled : found->aux);
         if(auxSettingsWindow->parentWidget()!=selAuxPage){
             auxSettingsWindow->hide();auxSettingsWindow->setWindowFlags(Qt::Widget);
             auxSettingsWindow->setParent(selAuxPage,Qt::Widget);
@@ -1401,6 +2072,15 @@ public:
     }
 
     MixerWindow& owner;
+    Common::DigitalMixerState* model {};
+    MixerWindow::TopologyCommit commit;
+    MixerWindow::MeterRead meterRead;
+    MixerWindow::PolarRead polarRead;
+    MixerWindow::ChannelMeterRead channelMeterRead;
+    MixerWindow::EffectAnalysisRead effectAnalysisRead;
+    Common::MixerPolarCurve selPolarCurve;
+    std::uint64_t polarSourceId {};
+    int polarStaleTicks {};
     std::shared_ptr<Common::AuxMixerState> auxState { std::make_shared<Common::AuxMixerState>() };
     QPointer<AuxSettingsWindow> auxSettingsWindow;
     QPointer<QWidget> selWindow;
@@ -1417,6 +2097,8 @@ public:
     std::map<int, QPointer<FxSettingsWindow>> fxSettingsWindows;
     std::vector<Channel> channels;
     QTimer timer;
+    QElapsedTimer meterFrameClock;
+    QElapsedTimer meterReadoutClock;
     int dragging = -1;
     int scrollbarDragging = 0;
     bool groupDividerDragging = false;
@@ -1437,8 +2119,45 @@ public:
 };
 
 MixerWindow::MixerWindow(QWidget* parent)
+    : MixerWindow(nullptr, {}, {}, parent)
+{
+}
+
+MixerWindow::MixerWindow(Common::DigitalMixerState* state, TopologyCommit commit, QWidget* parent)
+    : MixerWindow(state, std::move(commit), {}, parent)
+{
+}
+
+MixerWindow::MixerWindow(Common::DigitalMixerState* state, TopologyCommit commit,
+                         MeterRead meterRead, QWidget* parent)
+    : MixerWindow(state, std::move(commit), std::move(meterRead), {}, parent)
+{
+}
+
+MixerWindow::MixerWindow(Common::DigitalMixerState* state, TopologyCommit commit,
+                         MeterRead meterRead, PolarRead polarRead, QWidget* parent)
+    : MixerWindow(state, std::move(commit), std::move(meterRead),
+                  std::move(polarRead), {}, parent)
+{
+}
+
+MixerWindow::MixerWindow(Common::DigitalMixerState* state, TopologyCommit commit,
+                         MeterRead meterRead, PolarRead polarRead,
+                         ChannelMeterRead channelMeterRead, QWidget* parent)
+    : MixerWindow(state, std::move(commit), std::move(meterRead),
+                  std::move(polarRead), std::move(channelMeterRead), {}, parent)
+{
+}
+
+MixerWindow::MixerWindow(Common::DigitalMixerState* state, TopologyCommit commit,
+                         MeterRead meterRead, PolarRead polarRead,
+                         ChannelMeterRead channelMeterRead,
+                         EffectAnalysisRead effectAnalysisRead, QWidget* parent)
     : QMainWindow(parent)
-    , impl_(std::make_unique<Impl>(*this))
+    , impl_(std::make_unique<Impl>(*this, state, std::move(commit),
+                                   std::move(meterRead), std::move(polarRead),
+                                   std::move(channelMeterRead),
+                                   std::move(effectAnalysisRead)))
 {
     setWindowTitle(QStringLiteral("WinJACKNexus - 调音台"));
     setMinimumSize(760, 560);
@@ -1456,18 +2175,41 @@ MixerWindow::MixerWindow(QWidget* parent)
         connect(inputsMenu->addAction(Common::auxLayoutName(layout)), &QAction::triggered, this,
                 [this, layout] { impl_->addInput(layout); });
         connect(auxMenu->addAction(Common::auxLayoutName(layout)), &QAction::triggered, this,
-                [this, layout] { impl_->auxState->addBus(layout); impl_->rebuildAuxChannels(); update(); });
+                [this, layout] { impl_->addAux(layout); });
     }
     auto* globalMenu = menuBar->addMenu(QStringLiteral("全局"));
     connect(globalMenu->addAction(QStringLiteral("关闭所有通道独奏/静音")), &QAction::triggered, this, [this] {
         for (auto& channel : impl_->channels) { channel.solo = false; channel.mute = false; }
+        if (impl_->model) {
+            Common::DigitalMixerState candidate = *impl_->model;
+            for (const auto& channel : impl_->channels)
+                if (auto* strip = candidate.strip(channel.modelId)) { strip->solo = false; strip->mute = false; }
+            if (!impl_->commitTopology(candidate)) {
+                for (auto& channel : impl_->channels)
+                    if (const auto* strip = impl_->model->strip(channel.modelId)) {
+                        channel.solo = strip->solo; channel.mute = strip->mute;
+                    }
+            }
+        }
         update();
     });
     connect(menuBar->addAction(QStringLiteral("查看大屏")), &QAction::triggered, this,
             [this] { impl_->showLargeScreen(); });
 }
 
-MixerWindow::~MixerWindow() = default;
+MixerWindow::~MixerWindow()
+{
+    QObject::disconnect(nullptr, nullptr, this, nullptr);
+    // FX editors and AUX controls have callbacks into Impl. Destroy those
+    // children while the model and callbacks they reference are still alive.
+    for (auto& [id, window] : impl_->fxSettingsWindows)
+        if (window) delete window.data();
+    if (impl_->auxSettingsWindow) delete impl_->auxSettingsWindow.data();
+    // Other child widgets can emit teardown signals into Impl too. Destroy
+    // the UI hierarchy before its callback targets and model are released.
+    const auto remainingChildren = findChildren<QObject*>(QString(), Qt::FindDirectChildrenOnly);
+    for (auto* child : remainingChildren) delete child;
+}
 
 bool MixerWindow::channelMixToMain(int index) const
 {
@@ -1494,13 +2236,14 @@ void MixerWindow::paintEvent(QPaintEvent*)
     const auto headerHeight = 42.0 * heightScale;
     const auto label = QColor("#dce9ff");
     const auto secondary = QColor("#a9bbd7");
-    const auto groups = std::array<std::tuple<int, QString, QColor>, 3> {{
-        { 0, QStringLiteral("♩  Inputs"), QColor("#1977d3") },
-        { impl_->inputChannelCount, QStringLiteral("◇  AUX Sends"), QColor("#654dd4") },
-        { impl_->masterIndex(), QStringLiteral("◖  Main Output"), QColor("#1ca47f") }
+    const auto groups = std::array<std::tuple<int, int, QString, QColor>, 3> {{
+        { 0, impl_->inputChannelCount, QStringLiteral("♩  Inputs"), QColor("#1977d3") },
+        { impl_->inputChannelCount, impl_->auxChannelCount(), QStringLiteral("◇  AUX Sends"), QColor("#654dd4") },
+        { impl_->masterIndex(), 1, QStringLiteral("◖  Main Output"), QColor("#1ca47f") }
     }};
 
-    for (const auto& [start, title, color] : groups) {
+    for (const auto& [start, count, title, color] : groups) {
+        if (count == 0) continue;
         painter.save();
         const auto group = start == impl_->masterIndex()
             ? impl_->channelRect(start)
@@ -1548,51 +2291,50 @@ void MixerWindow::paintEvent(QPaintEvent*)
         const auto meter = impl_->meterRect(index, heightScale);
         const auto meterMode = impl_->meterModeRect(index, heightScale);
         const auto inputLevel = index == impl_->masterIndex()
-            ? impl_->mainInputLevelDb() : channel.level + channel.inputGainDb;
-        const auto meterLevel = index == impl_->masterIndex() && channel.postFaderMeter
-            ? impl_->mainOutputLevelDb()
-            : std::clamp(inputLevel + (channel.postFaderMeter ? faderDbValue(channel.fader) : 0.0), -72.0, 12.0);
-        painter.setPen(QPen(channel.postFaderMeter ? QColor("#33b6ff") : QColor("#6f849a"), 1.0));
-        painter.setBrush(channel.postFaderMeter ? QColor("#163a51") : QColor("#182735"));
-        painter.drawRoundedRect(meterMode, 4, 4);
+            ? impl_->mainInputLevelDb()
+            : channel.level + (channel.realMeter ? 0.0 : channel.inputGainDb);
+        const auto meterLevel = channel.realMeter ? channel.meterBallistics.levelDb()
+            : index == impl_->masterIndex() && channel.postFaderMeter
+                ? impl_->mainOutputLevelDb()
+                : std::clamp(inputLevel + (channel.postFaderMeter ? faderDbValue(channel.fader) : 0.0), -72.0, 12.0);
+        Controls::drawSurface(painter,meterMode,
+            channel.postFaderMeter ? QColor("#163a51") : QColor("#182735"),
+            channel.postFaderMeter ? QColor("#33b6ff") : QColor("#6f849a"),4);
         drawText(painter, meterMode, channel.postFaderMeter ? QStringLiteral("POST") : QStringLiteral("IN"),
                  channel.postFaderMeter ? QColor("#8edcff") : secondary, 9 * heightScale, Qt::AlignCenter, true);
-        painter.setPen(QPen(QColor("#0a0f14"), 4));
-        painter.setBrush(QColor("#101a22"));
-        painter.drawRoundedRect(meter, 3, 3);
+        Controls::drawSurface(painter,meter,QColor("#101a22"),QColor("#0a0f14"),3,4);
         const auto innerMeter = meter.adjusted(2.5, 2.5, -2.5, -2.5);
         const auto yForDb = [&](qreal db) {
             const auto normalized = std::clamp((db + 72.0) / 84.0, 0.0, 1.0);
             return innerMeter.bottom() - normalized * innerMeter.height();
         };
-        const auto segments = std::array<std::tuple<qreal, qreal, QColor>, 3> {{
-            { -72.0, -12.0, QColor("#26dc68") },
-            { -12.0, 0.0, QColor("#ffe15a") },
-            { 0.0, 12.0, QColor("#ff5353") }
-        }};
-        for (const auto& [minimum, maximum, color] : segments) {
-            const QRectF segment(innerMeter.left(), yForDb(maximum), innerMeter.width(), yForDb(minimum) - yForDb(maximum));
-            painter.fillRect(segment, withAlpha(color, 38));
-            const auto activeMaximum = std::clamp(meterLevel, minimum, maximum);
-            if (activeMaximum > minimum) {
-                const QRectF active(innerMeter.left(), yForDb(activeMaximum), innerMeter.width(), yForDb(minimum) - yForDb(activeMaximum));
-                painter.fillRect(active, color);
-            }
-        }
+        Controls::MeterStyle meterStyle;
+        meterStyle.vertical=true;
+        meterStyle.border=QColor("#07131f");
+        meterStyle.zones={{-12,QColor("#26dc68"),QColor("#163e2e")},
+                          {0,QColor("#ffe15a"),QColor("#4a3f1d")},
+                          {12,QColor("#ff5353"),QColor("#4c242a")}};
+        auto scaleStyle=meterStyle;
+        scaleStyle.ticks={{12,QStringLiteral("+12")},{0,QStringLiteral("0")},
+                          {-12,QStringLiteral("-12")},{-24,QStringLiteral("-24")},
+                          {-36,QStringLiteral("-36")},{-48,QStringLiteral("-48")},
+                          {-60,QStringLiteral("-60")},{-72,QStringLiteral("-72")}};
+        scaleStyle.ticksLeft=true;
+        scaleStyle.tickBandPixels=card.width()*.34;
+        scaleStyle.tickFontPixelSize=std::max(1,qRound(9*heightScale));
+        scaleStyle.labelColor=secondary;
+        Controls::drawMeterScale(painter,{card.left()+2,innerMeter.top(),
+            innerMeter.left()-card.left()-6,innerMeter.height()},scaleStyle);
+        Controls::drawMeter(painter,innerMeter,meterLevel,
+            channel.realMeter?channel.meterBallistics.peakDb():meterLevel,meterStyle);
         painter.setPen(QPen(QColor("#07131f"), 1));
         painter.drawLine(QPointF(innerMeter.left(), yForDb(-12.0)), QPointF(innerMeter.right(), yForDb(-12.0)));
         painter.drawLine(QPointF(innerMeter.left(), yForDb(0.0)), QPointF(innerMeter.right(), yForDb(0.0)));
-        const auto meterTicks = std::array<int, 8> { 12, 0, -12, -24, -36, -48, -60, -72 };
-        for (const auto tick : meterTicks) {
-            const auto y = yForDb(tick);
-            const auto text = tick > 0 ? QStringLiteral("+%1").arg(tick) : QString::number(tick);
-            drawText(painter, { card.left() + 2, y - 8, card.width() * .34, 16 }, text, secondary, 9 * heightScale, Qt::AlignRight | Qt::AlignVCenter);
-        }
 
         const auto drawButton = [&](const QRectF& button, const QString& text, const QColor& color, bool active) {
-            painter.setPen(QPen(active ? color : withAlpha(color, 190), 1.1));
-            painter.setBrush(active ? withAlpha(color, 65) : QColor("#16283a"));
-            painter.drawRoundedRect(button, 5, 5);
+            Controls::drawSurface(painter,button,
+                active ? withAlpha(color, 65) : QColor("#16283a"),
+                active ? color : withAlpha(color, 190),5,1.1);
             drawText(painter, button, text, active ? QColor("#ffffff") : label, 12 * heightScale, Qt::AlignCenter, true);
         };
         drawButton(impl_->muteButtonRect(index, heightScale), index == impl_->masterIndex() ? "MUTE" : "M", QColor("#ff4f55"), channel.mute);
@@ -1606,20 +2348,11 @@ void MixerWindow::paintEvent(QPaintEvent*)
             ? QColor("#9aa8b7")
             : index < impl_->masterIndex() ? QColor("#33b6ff") : QColor("#ff5353");
         const auto track = impl_->faderTrack(index);
-        painter.setPen(QPen(QColor("#0a0f15"), 7, Qt::SolidLine, Qt::RoundCap));
-        painter.drawLine(track.center().x(), track.top(), track.center().x(), track.bottom());
-        painter.setPen(QPen(faderColor, 2, Qt::SolidLine, Qt::RoundCap));
-        painter.drawLine(track.center().x(), track.bottom(), track.center().x(), track.top() + track.height() * channel.fader);
-        const auto thumbY = track.top() + track.height() * channel.fader;
-        QRectF thumb(card.center().x() - card.width() * .13, thumbY - 20 * heightScale, card.width() * .26, 40 * heightScale);
-        QLinearGradient thumbGradient(thumb.topLeft(), thumb.bottomRight());
-        thumbGradient.setColorAt(0, faderColor.lighter(130));
-        thumbGradient.setColorAt(1, faderColor.darker(125));
-        painter.setPen(QPen(faderColor.lighter(135)));
-        painter.setBrush(thumbGradient);
-        painter.drawRoundedRect(thumb, 5, 5);
-        painter.setPen(QPen(withAlpha(QColor("#07131f"), 130), 1));
-        painter.drawLine(thumb.left() + 3, thumb.center().y(), thumb.right() - 3, thumb.center().y());
+        Controls::FaderStyle faderStyle;
+        faderStyle.accent = faderColor;
+        faderStyle.thumbWidth = card.width() * .26;
+        faderStyle.thumbHeight = 40 * heightScale;
+        Controls::drawFader(painter, track, channel.fader, faderStyle);
 
         const auto db = faderDbText(channel.fader);
         drawText(painter, { card.left(), track.bottom() + 10 * heightScale, card.width(), 27 * heightScale }, db, label, 12 * heightScale);
@@ -1629,21 +2362,17 @@ void MixerWindow::paintEvent(QPaintEvent*)
 
     const auto drawScrollbar = [&](bool input, const QColor& color) {
         const auto track = impl_->scrollbarTrack(input);
-        painter.setPen(Qt::NoPen);
-        painter.setBrush(QColor("#101c29"));
-        painter.drawRoundedRect(track, track.height() / 2.0, track.height() / 2.0);
-        painter.setBrush(withAlpha(color, 210));
+        Controls::drawSurface(painter,track,QColor("#101c29"),{},track.height()/2.0);
         const auto thumb = impl_->scrollbarThumb(input).adjusted(1, 1, -1, -1);
-        painter.drawRoundedRect(thumb, thumb.height() / 2.0, thumb.height() / 2.0);
+        Controls::drawSurface(painter,thumb,withAlpha(color,210),{},thumb.height()/2.0);
     };
     drawScrollbar(true, QColor("#45bfff"));
     drawScrollbar(false, QColor("#8f78ff"));
 
     const auto divider = impl_->groupDividerRect();
-    painter.setPen(Qt::NoPen);
-    painter.setBrush(QColor("#243c57"));
-    painter.drawRoundedRect(QRectF(divider.center().x() - 1.0, divider.top() + headerHeight * .25,
-                                   2.0, headerHeight * .5), 1.0, 1.0);
+    Controls::drawSurface(painter,
+        QRectF(divider.center().x() - 1.0, divider.top() + headerHeight * .25,
+               2.0, headerHeight * .5),QColor("#243c57"),{},1.0);
 }
 
 void MixerWindow::mousePressEvent(QMouseEvent* event)
@@ -1699,7 +2428,6 @@ void MixerWindow::mousePressEvent(QMouseEvent* event)
     if (impl_->groupDividerRect().adjusted(-3, 0, 3, 0).contains(event->position())) {
         impl_->groupDividerDragging = true;
         impl_->setInputRatioFromPosition(event->position().x() - Impl::groupGap / 2.0);
-        update();
         return;
     }
 
@@ -1724,6 +2452,22 @@ void MixerWindow::mousePressEvent(QMouseEvent* event)
 
     const auto card = impl_->channelRect(index);
     const auto heightScale = std::clamp(height() / 768.0, .72, 1.35);
+    const auto fader=impl_->faderTrack(index);
+    const QRectF readout(card.left(),fader.bottom()+10*heightScale,
+                         card.width(),27*heightScale);
+    if(readout.contains(event->position())) {
+        const auto id=impl_->channels[index].id;
+        Controls::editNumericValue(this,readout.toAlignedRect(),
+            faderDbValue(impl_->channels[index].fader),{-72,12,0,1},
+            [this,id](double db) {
+                const auto found=std::find_if(impl_->channels.begin(),impl_->channels.end(),
+                    [id](const Channel& item) { return item.id==id; });
+                if(found==impl_->channels.end()) return;
+                found->fader=faderPositionForDb(db);
+                impl_->commitChannel(*found); update();
+            });
+        return;
+    }
     if (impl_->meterHitRect(index, heightScale).contains(event->position())) {
         impl_->channels[index].postFaderMeter = !impl_->channels[index].postFaderMeter;
         update();
@@ -1748,7 +2492,28 @@ void MixerWindow::mousePressEvent(QMouseEvent* event)
     }
     else if (index != impl_->masterIndex() && impl_->mixButtonRect(index, heightScale).contains(event->position()))
         channel.mixToMain = !channel.mixToMain;
+    impl_->commitChannel(channel);
     update();
+}
+
+void MixerWindow::mouseDoubleClickEvent(QMouseEvent* event)
+{
+    if(event->button()!=Qt::LeftButton) return;
+    const int index=impl_->hitChannel(event->position());
+    if(index<0) return;
+    const auto card=impl_->channelRect(index);
+    const auto heightScale=std::clamp(height()/768.0,.72,1.35);
+    auto track=impl_->faderTrack(index).adjusted(-card.width()*.18,-20,
+                                               card.width()*.18,20);
+    track.setTop(std::max(track.top(),impl_->channelButtonRect(index,heightScale,1).bottom()
+                          +4.0*heightScale));
+    if(!track.contains(event->position())) return;
+    impl_->dragging=-1;
+    Controls::resetNumericValue({-72,12,0,1},[this,index](double db) {
+        auto& channel=impl_->channels[index];
+        channel.fader=faderPositionForDb(db);
+        impl_->commitChannel(channel); update();
+    });
 }
 
 void MixerWindow::mouseMoveEvent(QMouseEvent* event)
@@ -1761,7 +2526,6 @@ void MixerWindow::mouseMoveEvent(QMouseEvent* event)
     if (impl_->scrollbarDragging != 0 && (event->buttons() & Qt::LeftButton)) {
         const auto input = impl_->scrollbarDragging == 1;
         impl_->setScrollFromThumb(input, event->position().x() - impl_->scrollbarDragOffset);
-        update();
         return;
     }
     if (!(event->buttons() & Qt::LeftButton)) {
@@ -1779,7 +2543,7 @@ void MixerWindow::mouseMoveEvent(QMouseEvent* event)
         return;
     const auto track = impl_->faderTrack(impl_->dragging);
     impl_->channels[impl_->dragging].fader = std::clamp((event->position().y() - track.top()) / track.height(), 0.0, 1.0);
-    update();
+    impl_->commitChannel(impl_->channels[impl_->dragging]);
 }
 
 void MixerWindow::mouseReleaseEvent(QMouseEvent*)

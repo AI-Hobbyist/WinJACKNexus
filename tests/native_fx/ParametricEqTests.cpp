@@ -7,6 +7,8 @@
 #include <QLibrary>
 #include <QMenu>
 #include <QMouseEvent>
+#include <QLineEdit>
+#include <QKeyEvent>
 #include <QTimer>
 #include <QWidget>
 #include <array>
@@ -90,10 +92,31 @@ int main(int argc,char** argv) {
     passed &= check(widget.selectedChannel()==0,"L channel can be selected");
     click(widget,533,135);
     passed &= check(changes==9 && state[0].enabled && !state[1].enabled,"single-channel edit preserves other channel state");
-    click(widget,998,118); // Custom -> Vocal Clear.
-    click(widget,998,118); // Vocal Clear -> Flat.
-    passed &= check(changes==11 && state[0].bands[0].gainDb==0 && state[1].bands[0].gainDb==4.5F,
+    click(widget,998,118); // Restored Default -> Vocal Clear.
+    passed &= check(changes==10 && state[0].bands[0].gainDb==4.5F && state[1].bands[0].gainDb==0.0F
+                        && widget.hostPresetIndex()==1,
         "preset selection updates only the selected channel");
+    widget.setSelectedChannel(-1);
+    passed &= check(widget.hostPresetIndex()==5,"All shows Custom for different channel presets");
+    widget.setSelectedChannel(1);
+    passed &= check(widget.hostPresetIndex()==5,"modified channel is not mislabeled Default");
+    widget.setSelectedChannel(0);
+    passed &= check(widget.hostPresetIndex()==1,"selected channel restores its matching preset name");
+    const auto scaled=[&widget](int x,int y){return QPointF(
+        x*widget.width()/1536.0,(y+110)*widget.height()/1136.0);};
+    const auto gainReadout=scaled(325,773);
+    click(widget,qRound(gainReadout.x()),qRound(gainReadout.y()));
+    auto* exact=widget.findChild<QLineEdit*>(QStringLiteral("numericValueEditor"));
+    passed &= check(exact!=nullptr,"Parametric EQ readout opens the shared numeric editor");
+    if(exact){exact->setText(QStringLiteral("2.5"));QKeyEvent enter(QEvent::KeyPress,Qt::Key_Return,Qt::NoModifier);QApplication::sendEvent(exact,&enter);}
+    passed &= check(state[0].bands[0].gainDb==2.5F&&state[1].bands[0].gainDb==0.0F,
+                    "Parametric EQ numeric edit applies only to the selected channel");
+    const auto gainKnob=scaled(325,719);
+    QMouseEvent reset(QEvent::MouseButtonDblClick,gainKnob,gainKnob,gainKnob,
+                      Qt::LeftButton,Qt::LeftButton,Qt::NoModifier);
+    QApplication::sendEvent(&widget,&reset);
+    passed &= check(state[0].bands[0].gainDb==0.0F,
+                    "Parametric EQ double-click restores the default band gain");
     widget.setParameters(state);
     QImage beforeSpectrum(widget.size(),QImage::Format_ARGB32_Premultiplied);beforeSpectrum.fill(Qt::transparent);
     widget.render(&beforeSpectrum);
@@ -112,11 +135,28 @@ int main(int argc,char** argv) {
     const auto spectrumPath=QString::fromLocal8Bit(argv[2]).replace(QStringLiteral("-preview.png"),QStringLiteral("-spectrum-preview.png"));
     passed &= check(spectrumPreview!=beforeSpectrum && spectrumPreview.save(spectrumPath),"input and processed spectrum curves render");
     widget.setSpectrumFrameReader({});
+    auto* refreshTimer=widget.findChild<QTimer*>(QStringLiteral("nativeFxSpectrumRefreshTimer"));
+    const auto dragPoint=scaled(91,719);
+    QMouseEvent dragPress(QEvent::MouseButtonPress,dragPoint,Qt::LeftButton,
+                          Qt::LeftButton,Qt::NoModifier);
+    QApplication::sendEvent(&widget,&dragPress);
+    passed &= check(refreshTimer && refreshTimer->isActive(),
+                    "Parametric EQ drag uses the application frame timer without spectrum data");
+    QMouseEvent dragRelease(QEvent::MouseButtonRelease,dragPoint,Qt::LeftButton,
+                            Qt::NoButton,Qt::NoModifier);
+    QApplication::sendEvent(&widget,&dragRelease);
+    passed &= check(refreshTimer && !refreshTimer->isActive(),
+                    "Parametric EQ drag timer stops when the knob is released");
     using Processor=WinJACKNexus::Common::ParametricEqProcessor;
     WinJACKNexus::Common::ParametricEqParameters flat;
-    for(auto& band:flat.bands)band.gainDb=0;
-    passed &= check(std::abs(Processor::responseDb(flat,48000,1000))<0.01F,"flat preset has neutral response");
-    passed &= check(Processor::responseDb({},48000,80)>Processor::responseDb({},48000,400),"default low shelf raises bass");
+    passed &= check(std::abs(Processor::responseDb(flat,48000,1000))<0.01F
+                        && std::abs(Processor::responseDb(flat,48000,80))<0.01F,
+                    "Default has a neutral frequency response");
+    auto vocal=flat;
+    vocal.bands[0].gainDb=4.5F; vocal.bands[1].gainDb=-6.0F;
+    vocal.bands[2].gainDb=5.0F; vocal.bands[3].gainDb=3.0F;
+    passed &= check(Processor::responseDb(vocal,48000,80)>Processor::responseDb(vocal,48000,400),
+                    "Vocal Clear retains its bass shelf");
     Processor processor;processor.prepare(48000);processor.setParameters(flat);
     passed &= check(std::isfinite(processor.process(0.5F)),"DSP produces finite output");
     WinJACKNexus::UI::ParametricEqWidget slopeWidget;

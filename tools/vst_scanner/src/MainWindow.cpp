@@ -16,6 +16,7 @@
 #include <WinJACKNexus/VstScanner/MainWindow.hpp>
 
 #include <WinJACKNexus/Common/PathUtils.hpp>
+#include <WinJACKNexus/UI/Controls.hpp>
 
 #include <QAbstractItemView>
 #include <QApplication>
@@ -127,60 +128,56 @@ void MainWindow::createUi()
     rootLayout->setSpacing(10);
 
     auto* actionLayout = new QHBoxLayout;
-    scanButton_ = new QPushButton(style()->standardIcon(QStyle::SP_BrowserReload),
-                                  QStringLiteral("扫描插件"),
-                                  centralWidget);
+    scanButton_ = new UI::Controls::ActionButton(QStringLiteral("扫描插件"), centralWidget);
+    scanButton_->setIcon(style()->standardIcon(QStyle::SP_BrowserReload));
     scanButton_->setDefault(true);
     connect(scanButton_, &QPushButton::clicked, this, &MainWindow::scanNow);
     actionLayout->addWidget(scanButton_);
 
-    rescanVerifiedPlugins_ = new QCheckBox(QStringLiteral("重新扫描已验证插件"), centralWidget);
+    rescanVerifiedPlugins_ = new UI::Controls::ToggleField(QStringLiteral("重新扫描已验证插件"), centralWidget);
     rescanVerifiedPlugins_->setToolTip(QStringLiteral("默认仅增量扫描未验证或新增的插件"));
     actionLayout->addWidget(rescanVerifiedPlugins_);
 
-    auto* openOutputButton = new QPushButton(style()->standardIcon(QStyle::SP_DirOpenIcon),
-                                             QStringLiteral("打开输出目录"),
-                                             centralWidget);
+    auto* openOutputButton = new UI::Controls::ActionButton(QStringLiteral("打开输出目录"), centralWidget);
+    openOutputButton->setIcon(style()->standardIcon(QStyle::SP_DirOpenIcon));
     connect(openOutputButton, &QPushButton::clicked, this, &MainWindow::openOutputDirectory);
     actionLayout->addWidget(openOutputButton);
     actionLayout->addStretch();
 
-    auto* statusHint = new QLabel(QStringLiteral("双击插件可打开所在位置"), centralWidget);
+    auto* statusHint = new UI::Controls::TextLabel(QStringLiteral("双击插件可打开所在位置"), centralWidget);
     statusHint->setStyleSheet(QStringLiteral("color: #68727d;"));
     actionLayout->addWidget(statusHint);
     rootLayout->addLayout(actionLayout);
 
     auto* progressLayout = new QHBoxLayout;
-    progressLabel_ = new QLabel(QStringLiteral("就绪"), centralWidget);
+    progressLabel_ = new UI::Controls::TextLabel(QStringLiteral("就绪"), centralWidget);
     progressLabel_->setMinimumWidth(260);
     progressLayout->addWidget(progressLabel_);
-    progressBar_ = new QProgressBar(centralWidget);
+    progressBar_ = new UI::Controls::ProgressField(centralWidget);
     progressBar_->setRange(0, 1);
     progressBar_->setValue(0);
     progressBar_->setFormat(QStringLiteral("%v / %m"));
     progressLayout->addWidget(progressBar_, 1);
     rootLayout->addLayout(progressLayout);
 
-    auto* splitter = new QSplitter(Qt::Horizontal, centralWidget);
+    auto* splitter = new UI::Controls::SplitField(Qt::Horizontal, centralWidget);
     splitter->setChildrenCollapsible(false);
 
-    auto* pathGroup = new QGroupBox(QStringLiteral("扫描路径"), splitter);
+    auto* pathGroup = new UI::Controls::GroupPanel(QStringLiteral("扫描路径"), splitter);
     pathGroup->setMinimumWidth(260);
     auto* pathLayout = new QVBoxLayout(pathGroup);
-    searchPathList_ = new QListWidget(pathGroup);
+    searchPathList_ = new UI::Controls::ListField(pathGroup);
     searchPathList_->setSelectionMode(QAbstractItemView::SingleSelection);
     searchPathList_->setAlternatingRowColors(true);
     pathLayout->addWidget(searchPathList_);
 
     auto* pathButtonLayout = new QHBoxLayout;
-    auto* addPathButton = new QPushButton(style()->standardIcon(QStyle::SP_DirOpenIcon),
-                                          QStringLiteral("添加"),
-                                          pathGroup);
+    auto* addPathButton = new UI::Controls::ActionButton(QStringLiteral("添加"), pathGroup);
+    addPathButton->setIcon(style()->standardIcon(QStyle::SP_DirOpenIcon));
     connect(addPathButton, &QPushButton::clicked, this, &MainWindow::addSearchPath);
     pathButtonLayout->addWidget(addPathButton);
-    auto* removePathButton = new QPushButton(style()->standardIcon(QStyle::SP_DialogCloseButton),
-                                             QStringLiteral("移除"),
-                                             pathGroup);
+    auto* removePathButton = new UI::Controls::ActionButton(QStringLiteral("移除"), pathGroup);
+    removePathButton->setIcon(style()->standardIcon(QStyle::SP_DialogCloseButton));
     connect(removePathButton, &QPushButton::clicked, this, &MainWindow::removeSearchPath);
     pathButtonLayout->addWidget(removePathButton);
     pathLayout->addLayout(pathButtonLayout);
@@ -192,11 +189,11 @@ void MainWindow::createUi()
     catalogLayout->setSpacing(8);
 
     auto* outputLayout = new QHBoxLayout;
-    outputLayout->addWidget(new QLabel(QStringLiteral("输出目录"), catalogWidget));
-    outputDirectoryEdit_ = new QLineEdit(catalogWidget);
+    outputLayout->addWidget(new UI::Controls::TextLabel(QStringLiteral("输出目录"), catalogWidget));
+    outputDirectoryEdit_ = new UI::Controls::TextField(catalogWidget);
     outputDirectoryEdit_->setClearButtonEnabled(true);
     outputLayout->addWidget(outputDirectoryEdit_, 1);
-    auto* chooseOutputButton = new QToolButton(catalogWidget);
+    auto* chooseOutputButton = new UI::Controls::IconActionButton(catalogWidget);
     chooseOutputButton->setIcon(style()->standardIcon(QStyle::SP_DirOpenIcon));
     chooseOutputButton->setToolTip(QStringLiteral("选择输出目录"));
     connect(chooseOutputButton, &QToolButton::clicked, this, [this] {
@@ -210,25 +207,25 @@ void MainWindow::createUi()
     catalogLayout->addLayout(outputLayout);
 
     auto* filterLayout = new QHBoxLayout;
-    filterLayout->addWidget(new QLabel(QStringLiteral("格式"), catalogWidget));
-    typeFilter_ = new QComboBox(catalogWidget);
+    filterLayout->addWidget(new UI::Controls::TextLabel(QStringLiteral("格式"), catalogWidget));
+    typeFilter_ = new UI::Controls::ChoiceField(catalogWidget);
     typeFilter_->addItem(QStringLiteral("全部"), QString());
     typeFilter_->addItem(QStringLiteral("VST2"), QStringLiteral("vst2"));
     typeFilter_->addItem(QStringLiteral("VST3"), QStringLiteral("vst3"));
     filterLayout->addWidget(typeFilter_);
-    filterLayout->addWidget(new QLabel(QStringLiteral("类别"), catalogWidget));
-    categoryFilter_ = new QComboBox(catalogWidget);
+    filterLayout->addWidget(new UI::Controls::TextLabel(QStringLiteral("类别"), catalogWidget));
+    categoryFilter_ = new UI::Controls::ChoiceField(catalogWidget);
     categoryFilter_->addItem(QStringLiteral("全部"), QString());
     categoryFilter_->addItem(QStringLiteral("Effect"), QStringLiteral("effect"));
     categoryFilter_->addItem(QStringLiteral("Instrument"), QStringLiteral("instrument"));
     filterLayout->addWidget(categoryFilter_);
-    filterEdit_ = new QLineEdit(catalogWidget);
+    filterEdit_ = new UI::Controls::SearchField(catalogWidget);
     filterEdit_->setPlaceholderText(QStringLiteral("搜索名称、厂商、路径"));
     filterEdit_->setClearButtonEnabled(true);
     filterLayout->addWidget(filterEdit_, 1);
     catalogLayout->addLayout(filterLayout);
 
-    pluginTable_ = new QTableWidget(catalogWidget);
+    pluginTable_ = new UI::Controls::TableField(catalogWidget);
     pluginTable_->setColumnCount(6);
     pluginTable_->setHorizontalHeaderLabels({ QStringLiteral("名称"),
                                               QStringLiteral("厂商"),
@@ -252,27 +249,24 @@ void MainWindow::createUi()
     catalogLayout->addWidget(pluginTable_, 1);
 
     auto* catalogActions = new QHBoxLayout;
-    auto* openLocationButton = new QPushButton(style()->standardIcon(QStyle::SP_DirOpenIcon),
-                                               QStringLiteral("打开插件位置"),
-                                               catalogWidget);
+    auto* openLocationButton = new UI::Controls::ActionButton(QStringLiteral("打开插件位置"), catalogWidget);
+    openLocationButton->setIcon(style()->standardIcon(QStyle::SP_DirOpenIcon));
     connect(openLocationButton, &QPushButton::clicked, this, &MainWindow::openSelectedPluginLocation);
     catalogActions->addWidget(openLocationButton);
-    auto* removePluginButton = new QPushButton(style()->standardIcon(QStyle::SP_TrashIcon),
-                                               QStringLiteral("删除条目"),
-                                               catalogWidget);
+    auto* removePluginButton = new UI::Controls::ActionButton(QStringLiteral("删除条目"), catalogWidget);
+    removePluginButton->setIcon(style()->standardIcon(QStyle::SP_TrashIcon));
     connect(removePluginButton, &QPushButton::clicked, this, &MainWindow::removeSelectedPlugin);
     catalogActions->addWidget(removePluginButton);
-    auto* removeMissingButton = new QPushButton(style()->standardIcon(QStyle::SP_TrashIcon),
-                                                QStringLiteral("清理失效条目"),
-                                                catalogWidget);
+    auto* removeMissingButton = new UI::Controls::ActionButton(QStringLiteral("清理失效条目"), catalogWidget);
+    removeMissingButton->setIcon(style()->standardIcon(QStyle::SP_TrashIcon));
     connect(removeMissingButton, &QPushButton::clicked, this, &MainWindow::removeMissingPlugins);
     catalogActions->addWidget(removeMissingButton);
     catalogActions->addStretch();
     catalogLayout->addLayout(catalogActions);
 
-    auto* logGroup = new QGroupBox(QStringLiteral("扫描日志"), catalogWidget);
+    auto* logGroup = new UI::Controls::GroupPanel(QStringLiteral("扫描日志"), catalogWidget);
     auto* logLayout = new QVBoxLayout(logGroup);
-    logView_ = new QPlainTextEdit(logGroup);
+    logView_ = new UI::Controls::LogField(logGroup);
     logView_->setReadOnly(true);
     logView_->setMaximumBlockCount(2000);
     logLayout->addWidget(logView_);
@@ -284,12 +278,22 @@ void MainWindow::createUi()
     rootLayout->addWidget(splitter, 1);
 
     setCentralWidget(centralWidget);
-    statusLabel_ = new QLabel(statusBar());
+    statusLabel_ = new UI::Controls::TextLabel(statusBar());
     statusBar()->addPermanentWidget(statusLabel_, 1);
 
     connect(filterEdit_, &QLineEdit::textChanged, this, &MainWindow::refreshPluginTable);
     connect(typeFilter_, &QComboBox::currentIndexChanged, this, &MainWindow::refreshPluginTable);
     connect(categoryFilter_, &QComboBox::currentIndexChanged, this, &MainWindow::refreshPluginTable);
+
+    UI::Controls::Palette controlPalette;
+    controlPalette.background = QColor("#f7f9fc");
+    controlPalette.panel = QColor("#ffffff");
+    controlPalette.text = QColor("#263442");
+    controlPalette.accent = QColor("#3184b9");
+    controlPalette.border = QColor("#a7b7c5");
+    for (auto* control : centralWidget->findChildren<QWidget*>())
+        if (control->property("wjnRole").isValid())
+            UI::Controls::applyPalette(control, controlPalette);
 }
 
 void MainWindow::loadSettings(const QStringList& initialPaths, const QString& initialOutputDirectory)

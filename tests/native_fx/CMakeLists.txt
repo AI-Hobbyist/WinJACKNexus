@@ -94,7 +94,10 @@ set_tests_properties(native_reverb_tests PROPERTIES ENVIRONMENT
     "QT_QPA_PLATFORM=windows;QT_QPA_PLATFORM_PLUGIN_PATH=${WJN_OUTPUT_DIR}/platforms;PATH=${WJN_OUTPUT_DIR}")
 
 add_executable(wjn_native_fx_api_tests NativeFxApiTests.cpp)
-target_include_directories(wjn_native_fx_api_tests PRIVATE ${PROJECT_SOURCE_DIR}/src/native_fx/include)
+target_include_directories(wjn_native_fx_api_tests PRIVATE
+    ${PROJECT_SOURCE_DIR}/src/native_fx/include
+    ${PROJECT_SOURCE_DIR}/src/native_fx/effects/graphic_eq/include
+    ${PROJECT_SOURCE_DIR}/src/native_fx/effects/deesser/include)
 target_link_libraries(wjn_native_fx_api_tests PRIVATE WinJACKNexus::UI Qt6::Widgets)
 add_dependencies(wjn_native_fx_api_tests mod_native_fx)
 set_target_properties(wjn_native_fx_api_tests PROPERTIES

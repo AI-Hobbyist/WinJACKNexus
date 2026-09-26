@@ -19,6 +19,7 @@
 #include <WinJACKNexus/UI/ThemePalette.hpp>
 
 #include <QColor>
+#include <QElapsedTimer>
 #include <QString>
 #include <QWidget>
 
@@ -36,6 +37,8 @@ public:
     void setValue(std::optional<double> value);
     void clearValue();
     std::optional<double> value() const noexcept;
+    void setPeakValueRefreshEnabled(bool enabled);
+    bool peakValueRefreshEnabled() const noexcept;
     void setUnit(const QString& unit);
     QString unit() const;
     void setPrecision(int precision);
@@ -58,6 +61,8 @@ private:
 
     QString label_;
     std::optional<double> value_;
+    QElapsedTimer valueRefreshClock_;
+    bool peakValueRefreshEnabled_ = false;
     QString unit_;
     int precision_ = 1;
     QColor accentColor_;

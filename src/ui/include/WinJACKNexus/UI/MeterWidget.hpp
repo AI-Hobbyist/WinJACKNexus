@@ -19,6 +19,7 @@
 
 #include <array>
 #include <cstdint>
+#include <QElapsedTimer>
 #include <QString>
 #include <QTimer>
 #include <QWidget>
@@ -68,7 +69,9 @@ private:
     float danger_ = 0.9f;
     float level_ = 0.0f;
     float peak_ = 0.0f;
-    int peakHoldFrames_ = 0;
+    QElapsedTimer animationClock_;
+    QElapsedTimer peakClock_;
+    qint64 peakHoldUntilMs_ = 0;
     std::vector<float> scaleMarks_;
     QString channelLabel_;
     bool showScaleLabels_ = false;
@@ -106,6 +109,7 @@ protected:
     void changeEvent(QEvent* event) override;
 
 private:
+    void applyFrameRate(int framesPerSecond);
     void synchronizeAnimationTimer();
     void advanceMeters();
     void configureMeter(MeterWidget& meter, std::size_t index);

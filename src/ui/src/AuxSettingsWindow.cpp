@@ -1,7 +1,10 @@
 #include <WinJACKNexus/UI/AuxSettingsWindow.hpp>
+#include <WinJACKNexus/UI/ApplicationSettings.hpp>
 #include <WinJACKNexus/UI/Controls.hpp>
+#include <WinJACKNexus/UI/MixerPolarPlot.hpp>
 
 #include <QFontMetricsF>
+#include <QElapsedTimer>
 #include <QMouseEvent>
 #include <QMenu>
 #include <QPainter>
@@ -13,6 +16,7 @@
 #include <algorithm>
 #include <array>
 #include <cmath>
+#include <unordered_map>
 
 namespace WinJACKNexus::UI {
 namespace {
@@ -34,28 +38,17 @@ void text(QPainter& painter, const QRectF& rect, const QString& value, const QCo
     auto font = painter.font();
     font.setPixelSize(std::max(8, qRound(size)));
     font.setWeight(bold ? QFont::DemiBold : QFont::Normal);
-    painter.setFont(font);
-    painter.setPen(color);
-    painter.drawText(rect, alignment, value);
+    Controls::drawText(painter,rect,value,font,color,Qt::Alignment(alignment));
 }
 
 void panel(QPainter& painter, const QRectF& rect, const QColor& border = QColor("#183a56"))
 {
-    painter.setPen(QPen(border, 1));
-    painter.setBrush(QColor("#102235"));
-    painter.drawRoundedRect(rect, 7, 7);
+    Controls::drawSurface(painter,rect,QColor("#102235"),border,7);
 }
 
 void toggle(QPainter& painter, const QRectF& rect, bool checked)
 {
-    const auto margin = rect.height() / 12.0;
-    const auto thumbSize = rect.height() - 2.0 * margin;
-    painter.setPen(Qt::NoPen);
-    painter.setBrush(checked ? QColor("#187ee8") : QColor("#38516d"));
-    painter.drawRoundedRect(rect, rect.height() / 2.0, rect.height() / 2.0);
-    painter.setBrush(Qt::white);
-    painter.drawEllipse(QRectF(checked ? rect.right() - margin - thumbSize : rect.left() + margin,
-                               rect.top() + margin, thumbSize, thumbSize));
+    Controls::drawToggle(painter, rect, checked, QColor("#187ee8"), QColor("#38516d"));
 }
 
 QString dbText(double value)
@@ -101,14 +94,48 @@ public:
     explicit Impl(AuxSettingsWindow& owner, std::shared_ptr<Common::AuxMixerState> state)
         : owner(owner), state(std::move(state))
     {
-        meterTimer.setInterval(70);
+        bindRefreshTimer(meterTimer, &owner);
         QObject::connect(&meterTimer, &QTimer::timeout, &owner, [this] {
+            const auto& settings=ApplicationSettings::instance();
+            const auto elapsedMilliseconds=meterFrameClock.isValid()
+                ? meterFrameClock.restart() : -1;
+            if(elapsedMilliseconds<0) meterFrameClock.start();
+            const double frameSeconds=elapsedMilliseconds>0
+                ? elapsedMilliseconds/1000.0 : 1.0/settings.frameRate();
             for (auto& bus : buses()) {
-                for (auto& send : bus.sends) {
-                    const auto base = send.levelDb < -72.0 ? -72.0 : send.levelDb - 3.0;
-                    const auto jitter = (QRandomGenerator::global()->bounded(61) - 30) / 10.0;
-                    send.meterDb += (std::clamp(base + jitter, -72.0, 12.0) - send.meterDb) * .25;
+                auto& meters=busMeters[bus.id];
+                for (std::size_t index=0;index<bus.sends.size()&&index<meters.size();++index) {
+                    auto& send=bus.sends[index];
+                    if (meterRead) {
+                        const auto peak = chainEnabled && bus.enabled && !send.mute
+                            ? meterRead(!bus.preFader) : 0.0F;
+                        send.meterDb = peak > 0.0F
+                            ? std::clamp(20.0 * std::log10(static_cast<double>(peak)) + send.levelDb,
+                                         -72.0, 12.0) : -72.0;
+                    } else {
+                        const auto base = send.levelDb < -72.0 ? -72.0 : send.levelDb - 3.0;
+                        const auto jitter = (QRandomGenerator::global()->bounded(61) - 30) / 10.0;
+                        send.meterDb += (std::clamp(base + jitter, -72.0, 12.0) - send.meterDb) * .25;
+                    }
+                    meters[index].advance(send.meterDb,frameSeconds,settings.peakHoldSeconds());
+                    send.meterDb=meters[index].levelDb();
                 }
+            }
+            if (polarRead) {
+                const auto* bus = selected();
+                if (!bus || polarSourceKey != sourceKey || polarTargetId != bus->id) {
+                    polarCurve.clear();
+                    polarSourceKey = sourceKey;
+                    polarTargetId = bus ? bus->id : 0;
+                    polarStaleTicks = 0;
+                }
+                if (bus) {
+                    Common::MixerPolarSnapshot snapshot;
+                    if (polarRead(bus->id, snapshot) && polarCurve.accept(snapshot))
+                        polarStaleTicks = 0;
+                    else if (++polarStaleTicks > 10) polarCurve.clear();
+                }
+                this->owner.setProperty("auxPolarDataValid", polarCurve.contour().valid);
             }
             this->owner.update();
         });
@@ -118,6 +145,15 @@ public:
     std::vector<AuxBusState>& buses() const
     {
         return state->busesForSource(sourceKey, selfAuxId);
+    }
+
+    std::vector<int> visibleBusIndices() const
+    {
+        std::vector<int> result;
+        const auto& sourceBuses = buses();
+        for (int i = 0; i < static_cast<int>(sourceBuses.size()); ++i)
+            if (!sourceBuses[i].selfRoute) result.push_back(i);
+        return result;
     }
 
     AuxBusState* selected() const
@@ -186,13 +222,13 @@ public:
 
     qreal maximumListScroll() const
     {
-        return std::max(0.0, buses().size() * 101.0 - 735.0);
+        return std::max(0.0, visibleBusIndices().size() * 101.0 - 735.0);
     }
 
     QRectF listScrollbarThumb() const
     {
         const auto track = listScrollbarTrack();
-        const auto contentHeight = std::max(735.0, buses().size() * 79.0);
+        const auto contentHeight = std::max(735.0, visibleBusIndices().size() * 79.0);
         const auto thumbHeight = std::max(44.0 * scaleY(), track.height() * 735.0 / contentHeight);
         const auto travel = std::max(0.0, track.height() - thumbHeight);
         const auto maximum = maximumListScroll();
@@ -280,16 +316,36 @@ public:
 
     void changed()
     {
+        if (stateCommit && !stateCommit()) {
+            *state = lastAcceptedState;
+            const auto visible = visibleBusIndices();
+            if (!visible.empty() && (selected() == nullptr || selected()->selfRoute))
+                selectedId = buses()[visible.front()].id;
+            publishPan();
+            owner.update();
+            return;
+        }
+        lastAcceptedState = *state;
         publishPan();
+        if (draggingControl()) return;
         if (stateChanged)
             stateChanged();
         owner.update();
+    }
+
+    bool draggingControl() const
+    {
+        return listScrollbarDragging || draggedListBusId != 0 || draggedPoint >= 0
+            || draggedInfluencePoint >= 0 || draggedSend >= 0 || draggedParameter >= 0
+            || draggedClassicPan;
     }
 
     void publishPan()
     {
         if(const auto* bus=selected()){
             owner.setProperty("auxPolarCurvesVisible",bus->showPolarCurves);
+            owner.setProperty("auxInputCurveVisible",bus->showInputCurve);
+            owner.setProperty("auxOutputCurveVisible",bus->showOutputCurve);
             owner.setProperty("auxPanMode",static_cast<int>(bus->panMode));
             owner.setProperty("auxClassicPan",bus->classicPan);
             owner.setProperty("auxPannerWidth",bus->width);
@@ -300,12 +356,23 @@ public:
 
     AuxSettingsWindow& owner;
     std::shared_ptr<Common::AuxMixerState> state;
+    Common::AuxMixerState lastAcceptedState;
     std::function<void()> stateChanged;
+    std::function<bool()> stateCommit;
+    std::function<float(bool)> meterRead;
+    std::function<bool(std::uint32_t, Common::MixerPolarSnapshot&)> polarRead;
+    Common::MixerPolarCurve polarCurve;
+    QString polarSourceKey;
+    std::uint32_t polarTargetId {};
+    int polarStaleTicks {};
     std::function<void(bool)> chainEnabledHandler;
+    std::function<bool(bool)> chainCommitHandler;
     bool chainEnabled {};
     bool threeD {};
     Common::AuxChannelLayout sourceLayout { Common::AuxChannelLayout::stereo };
     QTimer meterTimer;
+    QElapsedTimer meterFrameClock;
+    std::unordered_map<std::uint32_t,std::array<Controls::MeterBallistics,8>> busMeters;
     QString sourceKey;
     QString sourceName;
     QString sourceNumber;
@@ -345,6 +412,7 @@ void AuxSettingsWindow::setSource(const QString& sourceKey, const QString& sourc
                                   const QString& sourceNumber)
 {
     impl_->sourceKey = sourceKey;
+    impl_->busMeters.clear();
     impl_->sourceName = sourceName;
     impl_->sourceNumber = sourceNumber.isEmpty() ? sourceName : sourceNumber;
     impl_->selfAuxId = selfAuxId;
@@ -352,8 +420,10 @@ void AuxSettingsWindow::setSource(const QString& sourceKey, const QString& sourc
     const auto& buses = impl_->buses();
     for (const auto& bus : buses)
         impl_->state->setLayouts(sourceKey, bus.id, layout, bus.targetLayout, selfAuxId);
-    impl_->selectedId = buses.empty() ? 0 : buses.front().id;
+    const auto visible = impl_->visibleBusIndices();
+    impl_->selectedId = visible.empty() ? 0 : buses[visible.front()].id;
     impl_->selectedPoint = 0;
+    impl_->lastAcceptedState = *impl_->state;
     impl_->publishPan();
     setWindowTitle(QStringLiteral("WinJACKNexus - %1 AUX 设置").arg(sourceName));
     update();
@@ -361,7 +431,8 @@ void AuxSettingsWindow::setSource(const QString& sourceKey, const QString& sourc
 
 void AuxSettingsWindow::selectBus(std::uint32_t id)
 {
-    if (impl_->state->busForSource(impl_->sourceKey, id, impl_->selfAuxId) != nullptr) {
+    if (const auto* bus = impl_->state->busForSource(impl_->sourceKey, id, impl_->selfAuxId);
+        bus != nullptr && !bus->selfRoute) {
         impl_->selectedId = id;
         impl_->selectedPoint = 0;
         impl_->publishPan();
@@ -369,9 +440,46 @@ void AuxSettingsWindow::selectBus(std::uint32_t id)
     update();
 }
 
+void AuxSettingsWindow::addBus(Common::AuxChannelLayout layout)
+{
+    impl_->selectedId = impl_->state->addBus(layout).id;
+    impl_->state->setLayouts(impl_->sourceKey, impl_->selectedId,
+                             impl_->sourceLayout, layout, impl_->selfAuxId);
+    impl_->selectedPoint = 0;
+    impl_->listScroll = impl_->maximumListScroll();
+    impl_->changed();
+}
+
+std::uint32_t AuxSettingsWindow::selectedBusId() const
+{
+    return impl_->selectedId;
+}
+
 void AuxSettingsWindow::setStateChangedCallback(std::function<void()> callback)
 {
     impl_->stateChanged = std::move(callback);
+}
+
+void AuxSettingsWindow::setStateCommitCallback(std::function<bool()> callback)
+{
+    impl_->stateCommit = std::move(callback);
+    impl_->lastAcceptedState = *impl_->state;
+}
+
+void AuxSettingsWindow::setMeterReadCallback(std::function<float(bool)> callback)
+{
+    impl_->meterRead = std::move(callback);
+}
+
+void AuxSettingsWindow::setPolarReadCallback(
+    std::function<bool(std::uint32_t, Common::MixerPolarSnapshot&)> callback)
+{
+    impl_->polarRead = std::move(callback);
+}
+
+void AuxSettingsWindow::acceptExternalState()
+{
+    impl_->lastAcceptedState = *impl_->state;
 }
 
 void AuxSettingsWindow::setChainEnabled(bool enabled)
@@ -390,6 +498,11 @@ void AuxSettingsWindow::setChainEnabledHandler(std::function<void(bool)> handler
     impl_->chainEnabledHandler = std::move(handler);
 }
 
+void AuxSettingsWindow::setChainCommitHandler(std::function<bool(bool)> handler)
+{
+    impl_->chainCommitHandler = std::move(handler);
+}
+
 void AuxSettingsWindow::paintEvent(QPaintEvent*)
 {
     QPainter painter(this);
@@ -401,29 +514,30 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
     const auto secondary = QColor("#aec7eb");
     const auto cyan = QColor("#26bfff");
     const auto blue = QColor("#168dff");
+    const auto knobColors=Controls::paletteFor(*this,
+        {QColor("#0b1a2b"),QColor("#1b3b57"),QColor("#d9f4ff"),cyan,QColor("#254762")});
 
     panel(painter, impl_->leftPanel(), QColor("#2b4662"));
     text(painter, impl_->scaled(26, 12, 172, 38), impl_->sourceName + QStringLiteral(" · AUX"), label, 18 * sy,
          Qt::AlignLeft | Qt::AlignVCenter, true);
     toggle(painter, impl_->masterToggle(), impl_->chainEnabled);
-    painter.setPen(QPen(QColor("#0b699d"), 1));
-    painter.setBrush(QColor("#073158"));
-    painter.drawRoundedRect(impl_->addButton(), 6, 6);
+    Controls::drawSurface(painter,impl_->addButton(),QColor("#073158"),QColor("#0b699d"),6);
     text(painter, impl_->addButton(), QStringLiteral("＋  添加 AUX"), QColor("#54d8ff"), 15 * sy);
-    painter.setBrush(QColor("#172d42"));
-    painter.drawRoundedRect(impl_->removeButton(), 6, 6);
+    Controls::drawSurface(painter,impl_->removeButton(),QColor("#172d42"),QColor("#0b699d"),6);
     text(painter, impl_->removeButton(), QStringLiteral("−"), label, 21 * sy, Qt::AlignCenter, true);
 
     painter.save();
     painter.setClipRect(impl_->listViewport());
-    for (int index = 0; index < static_cast<int>(impl_->buses().size()); ++index) {
-        const auto& bus = impl_->buses()[index];
+    const auto visibleBuses = impl_->visibleBusIndices();
+    for (int index = 0; index < static_cast<int>(visibleBuses.size()); ++index) {
+        const auto& bus = impl_->buses()[visibleBuses[index]];
         const auto row = impl_->listRow(index);
         const auto selected = bus.id == impl_->selectedId;
         const QColor busAccent=bus.accent.isValid()?bus.accent:QColor("#20d9ff");
-        painter.setPen(QPen(selected ? busAccent : (bus.accent.isValid()?busAccent.darker(180):QColor("#17374f")), selected ? 1.5 : 1.0));
-        painter.setBrush(selected ? QColor("#0d3048") : QColor("#0a1d2c"));
-        painter.drawRoundedRect(row, 7, 7);
+        Controls::drawSurface(painter,row,
+            selected ? QColor("#0d3048") : QColor("#0a1d2c"),
+            selected ? busAccent : (bus.accent.isValid()?busAccent.darker(180):QColor("#17374f")),
+            7,selected ? 1.5 : 1.0);
         if (selected)
             painter.fillRect(QRectF(row.left(), row.top() + 3, 5 * sx, row.height() - 6), busAccent);
 
@@ -437,38 +551,25 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
         const auto knobCenter = knob.center();
         const auto level = bus.sends.empty() ? -72.0 : bus.sends.front().levelDb;
         const auto normalized = std::clamp((level + 72.0) / 84.0, 0.0, 1.0);
-        const QRectF arc = knob.adjusted(-3 * sx, -3 * sy, 3 * sx, 3 * sy);
-        painter.setPen(QPen(QColor("#254762"), 5 * sx, Qt::SolidLine, Qt::RoundCap));
-        painter.setBrush(Qt::NoBrush);
-        painter.drawArc(arc, 225 * 16, -270 * 16);
-        if (!bus.selfRoute) {
-            painter.setPen(QPen(blue, 5 * sx, Qt::SolidLine, Qt::RoundCap));
-            painter.drawArc(arc, 225 * 16, qRound(-270.0 * normalized * 16.0));
-        }
-        painter.setPen(Qt::NoPen);
-        painter.setBrush(bus.selfRoute ? QColor("#385064") : QColor("#1b3b57"));
-        painter.drawEllipse(knobCenter, 18 * sx, 18 * sy);
-        const auto indicatorAngle = (135.0 + 270.0 * normalized) * pi / 180.0;
-        const auto direction = QPointF(std::cos(indicatorAngle) * sx, std::sin(indicatorAngle) * sy);
-        painter.setPen(QPen(bus.selfRoute ? secondary : QColor("#d9f4ff"), 3 * sx,
-                            Qt::SolidLine, Qt::RoundCap));
-        painter.drawLine(knobCenter + direction * 8, knobCenter + direction * 17);
+        painter.save();
+        painter.translate(knobCenter);
+        painter.scale(sx,sy);
+        auto listColors=knobColors;
+        if(bus.selfRoute){listColors.accent=secondary;listColors.panel=QColor("#385064");}
+        Controls::drawKnob(painter,{0,0},normalized,20,listColors);
+        painter.restore();
         text(painter, { knobCenter.x() - 38 * sx, row.top() + 55 * sy, 76 * sx, 16 * sy },
              bus.selfRoute ? QStringLiteral("自身 禁用") : dbText(level),
              bus.selfRoute ? secondary : cyan, 10 * sy);
 
         const QRectF pre(row.left() + 220 * sx, row.top() + 18 * sy, 45 * sx, 36 * sy);
         const QRectF post(row.left() + 265 * sx, row.top() + 18 * sy, 48 * sx, 36 * sy);
-        painter.setPen(QPen(QColor("#315370"), 1));
-        painter.setBrush(bus.preFader ? QColor("#087ee4") : QColor("#172d43"));
-        painter.drawRoundedRect(pre, 5, 5);
-        painter.setBrush(!bus.preFader ? QColor("#087ee4") : QColor("#172d43"));
-        painter.drawRoundedRect(post, 5, 5);
+        Controls::drawSurface(painter,pre,bus.preFader ? QColor("#087ee4") : QColor("#172d43"),QColor("#315370"),5);
+        Controls::drawSurface(painter,post,!bus.preFader ? QColor("#087ee4") : QColor("#172d43"),QColor("#315370"),5);
         text(painter, pre, QStringLiteral("Pre"), bus.preFader ? QColor("#ffffff") : secondary, 12 * sy);
         text(painter, post, QStringLiteral("Post"), !bus.preFader ? QColor("#ffffff") : secondary, 12 * sy);
         const auto gear = impl_->listGear(index);
-        painter.setBrush(QColor("#142b3e"));
-        painter.drawRoundedRect(gear, 5, 5);
+        Controls::drawSurface(painter,gear,QColor("#142b3e"),QColor("#315370"),5);
         text(painter, gear, QStringLiteral("⚙"), label, 18 * sy);
         painter.setPen(QPen(QColor("#24445d"),1));
         painter.drawLine(QPointF(row.left()+12*sx,row.top()+72*sy),
@@ -482,12 +583,11 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
     const auto scrollbarTrack = impl_->listScrollbarTrack();
     const auto scrollbarThumb = impl_->listScrollbarThumb();
     const auto listScrollable = impl_->maximumListScroll() > 0.0;
-    painter.setPen(Qt::NoPen);
-    painter.setBrush(QColor("#10283a"));
-    painter.drawRoundedRect(scrollbarTrack, scrollbarTrack.width() * .5, scrollbarTrack.width() * .5);
-    painter.setBrush(!listScrollable ? QColor("#29465b")
-        : impl_->listScrollbarDragging ? QColor("#56d7ff") : QColor("#258fc3"));
-    painter.drawRoundedRect(scrollbarThumb, scrollbarThumb.width() * .5, scrollbarThumb.width() * .5);
+    Controls::drawSurface(painter,scrollbarTrack,QColor("#10283a"),{},scrollbarTrack.width()*.5);
+    Controls::drawSurface(painter,scrollbarThumb,
+        !listScrollable ? QColor("#29465b")
+            : impl_->listScrollbarDragging ? QColor("#56d7ff") : QColor("#258fc3"),
+        {},scrollbarThumb.width()*.5);
 
     auto* bus = impl_->selected();
     if (bus == nullptr)
@@ -497,34 +597,31 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
     painter.translate(impl_->contentOrigin());
     painter.scale(sx, sy);
     const auto drawPanel=[&](QRectF rect){
-        painter.setPen(QColor("#2b4662"));painter.setBrush(QColor("#102235"));painter.drawRoundedRect(rect,7,7);
+        Controls::drawSurface(painter,rect,QColor("#102235"),QColor("#2b4662"),7);
     };
     const auto drawText=[&](QRectF rect,const QString& value,int size=15,QColor color=QColor("#e8f2ff"),bool bold=false,int align=Qt::AlignLeft|Qt::AlignVCenter){
-        auto font=painter.font();font.setPixelSize(size);font.setBold(bold);painter.setFont(font);painter.setPen(color);painter.drawText(rect,align,value);
+        auto font=painter.font();font.setPixelSize(size);font.setBold(bold);
+        Controls::drawText(painter,rect,value,font,color,Qt::Alignment(align));
     };
     const auto drawButton=[&](QRectF rect,const QString& value,bool active=false){
-        painter.setPen(active?cyan:QColor("#45617e"));painter.setBrush(active?QColor("#123e61"):QColor("#192d43"));painter.drawRoundedRect(rect,5,5);
-        drawText(rect,value,14,active?QColor("#d7f7ff"):secondary,false,Qt::AlignCenter);
+        Controls::ButtonStyle style;
+        style.activeBorder=cyan;
+        style.inactiveText=secondary;
+        style.fontSize=14;
+        Controls::drawStyledButton(painter,rect,value,active,style);
     };
     const auto drawToggle=[&](QRectF rect,bool active){
-        painter.setPen(Qt::NoPen);painter.setBrush(active?QColor("#168dff"):QColor("#263e53"));painter.drawRoundedRect(rect,rect.height()/2,rect.height()/2);
-        painter.setBrush(Qt::white);painter.drawEllipse(QPointF(active?rect.right()-rect.height()/2:rect.left()+rect.height()/2,rect.center().y()),rect.height()*.34,rect.height()*.34);
-    };
-    const auto drawKnob=[&](QPointF center,qreal radius,qreal fraction){
-        fraction=std::clamp(fraction,0.0,1.0);
-        const qreal stroke=radius>=80?10:5;
-        painter.setBrush(Qt::NoBrush);painter.setPen(QPen(QColor("#254762"),stroke,Qt::SolidLine,Qt::RoundCap));
-        painter.drawArc(QRectF(center.x()-radius,center.y()-radius,2*radius,2*radius),225*16,-270*16);
-        painter.setPen(QPen(cyan,stroke,Qt::SolidLine,Qt::RoundCap));
-        painter.drawArc(QRectF(center.x()-radius,center.y()-radius,2*radius,2*radius),225*16,qRound(-270*16*fraction));
-        painter.setPen(Qt::NoPen);painter.setBrush(QColor("#1b3b57"));painter.drawEllipse(center,radius>=80?radius*.78:radius-6,radius>=80?radius*.78:radius-6);
-        const qreal angle=(135+270*fraction)*pi/180.0;
-        painter.setPen(QPen(QColor("#d9f4ff"),3,Qt::SolidLine,Qt::RoundCap));
-        painter.drawLine(center+QPointF(std::cos(angle),std::sin(angle))*(radius*.4),center+QPointF(std::cos(angle),std::sin(angle))*(radius-7));
+        Controls::drawToggle(painter,rect,active,QColor("#168dff"),QColor("#263e53"));
     };
     const auto drawMuteSolo=[&](QRectF rect,const QString& value,bool active,QColor accent){
-        painter.setPen(accent);QColor fill=accent;fill.setAlpha(active?85:25);painter.setBrush(fill);painter.drawRoundedRect(rect,5,5);
-        drawText(rect,value,15,QColor("#f7f8ff"),true,Qt::AlignCenter);
+        Controls::ButtonStyle style;
+        style.inactiveBorder=style.activeBorder=accent;
+        style.inactiveFill=style.activeFill=accent;
+        style.inactiveFill.setAlpha(25);
+        style.activeFill.setAlpha(85);
+        style.inactiveText=style.activeText=QColor("#f7f8ff");
+        style.bold=true;
+        Controls::drawStyledButton(painter,rect,value,active,style);
     };
     const bool canClassic=Common::auxSupportsClassicPan(bus->sourceLayout,bus->targetLayout);
     const bool classic=canClassic&&bus->panMode==Common::AuxPanMode::classic;
@@ -551,9 +648,14 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
         drawText({center.x()-110,339,220,30},QStringLiteral("%1 %2%").arg(direction).arg(qRound(std::abs(bus->classicPan)*100)),16,label,true,Qt::AlignCenter);
     }else{
         constexpr qreal radius=190,pointRadius=159;
-        painter.setBrush(Qt::NoBrush);
-        for(int ring=1;ring<=5;++ring){painter.setPen(QPen(QColor("#244a66"),1));painter.drawEllipse(center,radius*ring/5,radius*ring/5);}
-        for(int angle=0;angle<360;angle+=30){const qreal radians=angle*pi/180.0;painter.setPen(QPen(angle%90==0?QColor("#426884"):QColor("#1b3d56"),1));painter.drawLine(center,center+QPointF(std::sin(radians),-std::cos(radians))*radius);}
+        drawMixerPolarGrid(painter,center,radius);
+        if(bus->showPolarCurves) {
+            const auto contour = impl_->polarCurve.contour();
+            drawMixerPolarCurves(painter,{420,95,531,448},center,radius,contour,
+                                 bus->showInputCurve,bus->showOutputCurve);
+            if(!contour.valid) drawText({center.x()-62,center.y()-12,124,24},
+                                        QStringLiteral("无信号"),13,secondary,false,Qt::AlignCenter);
+        }
         const auto selectedPoint=impl_->effectiveSelectedPoint();
         const auto outputGains=selectedPoint>=0
             ? Common::auxSpatialOutputGains(*bus,selectedPoint):std::vector<double>{};
@@ -562,9 +664,7 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
             if(!Common::auxHasSpatialPoint(bus->targetLayout,i))continue;
             const auto gain=i<static_cast<int>(outputGains.size())
                 ? outputGains[i]:0.0;
-            painter.setPen(QPen(QColor(138,169,214,110+qRound(gain*145)),2));
-            painter.setBrush(QColor(109,141,184,75+qRound(gain*165)));
-            painter.drawEllipse(center+references[i]*pointRadius,10+gain*3,10+gain*3);
+            drawMixerPolarReferencePoint(painter,center+references[i]*pointRadius,gain);
         }
         const auto labels=Common::auxLayoutChannelLabels(bus->sourceLayout);
         for(int i=0;i<static_cast<int>(bus->adjustablePoints.size());++i){
@@ -572,19 +672,18 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
             const auto point=center+bus->adjustablePoints[i]*pointRadius;
             const bool selected=i==selectedPoint;
             const auto outerRadius=Common::auxInfluencePixelRadius(impl_->pointInfluence(*bus,i));
-            painter.setPen(QPen(selected?QColor("#79e3ff"):QColor(85,189,233,115),selected?2.5:1.2));
-            painter.setBrush(QColor(22,141,255,selected?28:9));painter.drawEllipse(point,outerRadius,outerRadius);
-            if(selected){painter.setPen(Qt::NoPen);painter.setBrush(QColor("#79e3ff"));
-                painter.drawEllipse(point+QPointF(outerRadius,0),4,4);}
-            if(selected){painter.setPen(QPen(QColor("#7ee8ff"),5));painter.setBrush(Qt::NoBrush);painter.drawEllipse(point,14,14);}
-            painter.setPen(QPen(selected?QColor("#e8fbff"):QColor("#9dc3ff"),selected?3:2));painter.setBrush(selected?QColor("#42a8ff"):QColor("#2e9dff"));painter.drawEllipse(point,10,10);
+            drawMixerPolarHandle(painter,point,outerRadius,selected);
             if(i<labels.size())drawText({point.x()-17,point.y()+14,34,19},labels[i],12,label,true,Qt::AlignCenter);
         }
-        painter.setPen(Qt::NoPen);painter.setBrush(Qt::white);painter.drawEllipse(center,4,4);
-        drawText({center.x()-22,105,44,20},QStringLiteral("90°"),12,secondary,false,Qt::AlignCenter);
-        drawText({center.x()+radius+8,309,45,20},QStringLiteral("0°"),12,secondary);
-        drawText({center.x()-radius-53,309,45,20},QStringLiteral("180°"),12,secondary);
-        drawText({center.x()-24,516,48,20},QStringLiteral("270°"),12,secondary,false,Qt::AlignCenter);
+        drawMixerPolarCenter(painter,center);
+        drawText({center.x()-22,105,44,20},QStringLiteral("0°"),12,secondary,false,Qt::AlignCenter);
+        drawText({center.x()+radius+8,309,45,20},QStringLiteral("90°"),12,secondary);
+        drawText({center.x()-radius-53,309,45,20},QStringLiteral("270°"),12,secondary);
+        drawText({center.x()-24,516,48,20},QStringLiteral("180°"),12,secondary,false,Qt::AlignCenter);
+        if(bus->showPolarCurves){
+            drawButton({420,508,70,27},QStringLiteral("输入"),bus->showInputCurve);
+            drawButton({495,508,70,27},QStringLiteral("输出"),bus->showOutputCurve);
+        }
     }
     drawText({420,574,300,27},QStringLiteral("空间声像参数"),17,label,true);
     painter.save();if(classic)painter.setOpacity(.32);
@@ -594,7 +693,7 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
         drawText({x+10,616,148,25},i==0?QStringLiteral("宽度"):i==1?QStringLiteral("前后"):QStringLiteral("角度"),15,label,true,Qt::AlignCenter);
         const auto selectedPoint=impl_->effectiveSelectedPoint();
         const qreal fraction=i==0?bus->width:i==1&&selectedPoint>=0?(bus->adjustablePoints[selectedPoint].y()+1)/2:(bus->angleDegrees+180)/360;
-        drawKnob({x+84,694},35,fraction);
+        Controls::drawKnob(painter,{x+84,694},fraction,35,knobColors);
         const QString value=i==0?QStringLiteral("%1%").arg(qRound(bus->width*100)):i==1&&selectedPoint>=0?QStringLiteral("%1%").arg(qRound(bus->adjustablePoints[selectedPoint].y()*100)):QStringLiteral("%1°").arg(qRound(bus->angleDegrees));
         drawText({x+10,748,148,26},value,15,label,true,Qt::AlignCenter);
     }
@@ -603,6 +702,17 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
     drawText({992,54,90,28},QStringLiteral("全通道链接"),13,secondary);drawToggle({1085,57,42,24},bus->sendsLinked);
     drawButton({1220,52,100,34},QStringLiteral("重置"));
     const std::array<QString,8> sendLabels{QStringLiteral("L"),QStringLiteral("R"),QStringLiteral("C"),QStringLiteral("LFE"),QStringLiteral("Ls"),QStringLiteral("Rs"),QStringLiteral("Lb"),QStringLiteral("Rb")};
+    Controls::MeterStyle sendMeter;
+    sendMeter.border=QColor("#06131f");
+    sendMeter.zones={{-12,QColor("#17d675"),QColor("#102234")},
+                     {0,QColor("#f2df48"),QColor("#102234")},
+                     {12,QColor("#f2484d"),QColor("#102234")}};
+    sendMeter.ticks={{-72,QStringLiteral("-72")},{-48,QStringLiteral("-48")},
+                     {-24,QStringLiteral("-24")},{-12,QStringLiteral("-12")},
+                     {0,QStringLiteral("0")},{12,QStringLiteral("+12")}};
+    sendMeter.labelColor=secondary;
+    sendMeter.ticksAbove=true;
+    sendMeter.tickBandPixels=24;
     for(int i=0;i<8;++i){
         painter.save();if(i>=static_cast<int>(bus->sends.size()))painter.setOpacity(.32);
         const qreal x=992,y=100+i*86;
@@ -612,14 +722,13 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
         if(i==3&&i<static_cast<int>(bus->sends.size()))
             drawText({x+3,y+48,38,16},QStringLiteral("强度"),11,secondary,false,Qt::AlignCenter);
         const auto* send=i<static_cast<int>(bus->sends.size())?&bus->sends[i]:nullptr;
-        const qreal level=send?send->levelDb:-2.0,meterDb=send?send->meterDb:-72.0;
-        drawKnob({x+70,y+32},23,(level+72)/84.0);
+        const qreal level=send?send->levelDb:0.0,meterDb=send?send->meterDb:-72.0;
+        Controls::drawKnob(painter,{x+70,y+32},(level+72)/84.0,23,knobColors);
         drawText({x+35,y+57,72,18},QStringLiteral("%1 dB").arg(level,0,'f',1),11,label,true,Qt::AlignCenter);
-        painter.setPen(Qt::NoPen);painter.setBrush(QColor("#06131f"));painter.drawRoundedRect(QRectF(x+112,y+25,200,13),3,3);
-        const qreal lit=200*std::clamp((meterDb+72)/84.0,0.0,1.0);
-        const auto segment=[&](qreal low,qreal high,QColor color){const qreal left=200*(low+72)/84.0,right=200*(high+72)/84.0,width=std::min(right,lit)-left;if(width>0){painter.setBrush(color);painter.drawRect(QRectF(x+112+left,y+27,width,9));}};
-        segment(-72,-12,QColor("#17d675"));segment(-12,0,QColor("#f2df48"));segment(0,12,QColor("#f2484d"));
-        for(const int mark:{-72,-48,-24,-12,0,12}){const qreal tick=x+112+200*(mark+72)/84.0;painter.setPen(QPen(QColor("#6685a2"),1));painter.drawLine(QPointF(tick,y+20),QPointF(tick,y+23));drawText({tick-15,y+3,30,16},mark==12?QStringLiteral("+12"):QString::number(mark),9,secondary,false,Qt::AlignCenter);}
+        const auto meterState=impl_->busMeters.find(bus->id);
+        const qreal peak=meterState!=impl_->busMeters.end()
+            ? meterState->second[static_cast<std::size_t>(i)].peakDb():meterDb;
+        Controls::drawMeter(painter,{x+112,y+3,200,33},meterDb,peak,sendMeter);
         drawMuteSolo({x+174,y+45,62,29},QStringLiteral("M"),send&&send->mute,QColor("#ff4b62"));
         drawMuteSolo({x+244,y+45,62,29},QStringLiteral("S"),send&&send->solo,QColor("#ffae2d"));
         painter.restore();
@@ -631,7 +740,9 @@ void AuxSettingsWindow::mousePressEvent(QMouseEvent* event)
 {
     const auto position = event->position();
     if (impl_->masterToggle().contains(position)) {
-        impl_->chainEnabled = !impl_->chainEnabled;
+        const bool next = !impl_->chainEnabled;
+        if (impl_->chainCommitHandler && !impl_->chainCommitHandler(next)) return;
+        impl_->chainEnabled = next;
         if (impl_->chainEnabledHandler) impl_->chainEnabledHandler(impl_->chainEnabled);
         update();
         return;
@@ -642,10 +753,7 @@ void AuxSettingsWindow::mousePressEvent(QMouseEvent* event)
                                    Common::AuxChannelLayout::surround51, Common::AuxChannelLayout::surround71 };
         for (const auto layout : layouts) {
             connect(menu.addAction(Common::auxLayoutName(layout)), &QAction::triggered, this, [this, layout] {
-                impl_->selectedId = impl_->state->addBus(layout).id;
-                impl_->selectedPoint = 0;
-                impl_->listScroll = impl_->maximumListScroll();
-                impl_->changed();
+                addBus(layout);
             });
         }
         menu.exec(event->globalPosition().toPoint());
@@ -653,8 +761,10 @@ void AuxSettingsWindow::mousePressEvent(QMouseEvent* event)
     }
     if (impl_->removeButton().contains(position)) {
         const auto previous = impl_->selectedId;
-        if (impl_->state->removeBus(previous)) {
-            impl_->selectedId = impl_->buses().front().id;
+        if (impl_->state->removeBus(previous, static_cast<bool>(impl_->stateCommit))) {
+            impl_->busMeters.erase(previous);
+            const auto visible = impl_->visibleBusIndices();
+            impl_->selectedId = visible.empty() ? 0 : impl_->buses()[visible.front()].id;
             impl_->listScroll = std::clamp(impl_->listScroll, 0.0, impl_->maximumListScroll());
             impl_->changed();
         }
@@ -675,11 +785,12 @@ void AuxSettingsWindow::mousePressEvent(QMouseEvent* event)
             return;
         }
     }
-    for (int index = 0; index < static_cast<int>(impl_->buses().size()); ++index) {
+    const auto visible = impl_->visibleBusIndices();
+    for (int index = 0; index < static_cast<int>(visible.size()); ++index) {
         const auto row = impl_->listRow(index);
         if (!row.contains(position))
             continue;
-        auto& bus = impl_->buses()[index];
+        auto& bus = impl_->buses()[visible[index]];
         if (impl_->selectedId != bus.id)
             impl_->selectedPoint = 0;
         impl_->selectedId = bus.id;
@@ -688,7 +799,7 @@ void AuxSettingsWindow::mousePressEvent(QMouseEvent* event)
             QMenu menu(this);
             auto* clone = menu.addAction(QStringLiteral("克隆"));
             auto* remove = menu.addAction(QStringLiteral("删除"));
-            remove->setEnabled(impl_->buses().size() > 1);
+            remove->setEnabled(impl_->buses().size() > 1 || static_cast<bool>(impl_->stateCommit));
             connect(clone, &QAction::triggered, this, [this, id] {
                 if (auto* copied = impl_->state->cloneBus(id)) {
                     impl_->selectedId = copied->id;
@@ -698,8 +809,9 @@ void AuxSettingsWindow::mousePressEvent(QMouseEvent* event)
                 }
             });
             connect(remove, &QAction::triggered, this, [this, id, index] {
-                if (impl_->state->removeBus(id)) {
-                    impl_->selectedId = impl_->buses()[std::min(index, static_cast<int>(impl_->buses().size()) - 1)].id;
+                if (impl_->state->removeBus(id, static_cast<bool>(impl_->stateCommit))) {
+                    const auto remaining = impl_->visibleBusIndices();
+                    impl_->selectedId = remaining.empty() ? 0 : impl_->buses()[remaining[std::min(index, static_cast<int>(remaining.size()) - 1)]].id;
                     impl_->selectedPoint = 0;
                     impl_->listScroll = std::clamp(impl_->listScroll, 0.0, impl_->maximumListScroll());
                     impl_->changed();
@@ -749,6 +861,47 @@ void AuxSettingsWindow::mousePressEvent(QMouseEvent* event)
     auto* bus = impl_->selected();
     if (bus == nullptr)
         return;
+    if(bus->panMode==Common::AuxPanMode::spatial) {
+        for(int index=0;index<3;++index) {
+            const auto readout=impl_->scaled(430+index*178,748,148,26);
+            if(!readout.contains(position)) continue;
+            const int selected=impl_->effectiveSelectedPoint();
+            const double current=index==0?bus->width*100
+                :index==1&&selected>=0?bus->adjustablePoints[selected].y()*100
+                :bus->angleDegrees;
+            const Controls::NumericControlSpec spec=index==0
+                ? Controls::NumericControlSpec{0,100,70,0}
+                :index==1?Controls::NumericControlSpec{-100,100,0,0}
+                :Controls::NumericControlSpec{-180,180,0,0};
+            const auto id=bus->id;
+            Controls::editNumericValue(this,readout.toAlignedRect(),current,spec,
+                [this,id,index](double value) {
+                    auto* currentBus=impl_->selected();
+                    if(!currentBus||currentBus->id!=id) return;
+                    if(index==0) impl_->setLinkedWidth(*currentBus,value/100);
+                    else if(index==1&&impl_->effectiveSelectedPoint()>=0)
+                        currentBus->adjustablePoints[impl_->effectiveSelectedPoint()].setY(value/100);
+                    else if(index==2) impl_->setAngle(*currentBus,value);
+                    impl_->changed();
+                });
+            return;
+        }
+    }
+    for(int index=0;index<static_cast<int>(bus->sends.size());++index) {
+        const auto readout=impl_->scaled(1027,157+index*86,72,18);
+        if(!readout.contains(position)) continue;
+        const auto id=bus->id;
+        Controls::editNumericValue(this,readout.toAlignedRect(),bus->sends[index].levelDb,
+            {-72,12,-2,1},[this,id,index](double value) {
+                auto* currentBus=impl_->selected();
+                if(!currentBus||currentBus->id!=id||index>=currentBus->sends.size()) return;
+                if(currentBus->sendsLinked)
+                    for(auto& send:currentBus->sends) send.levelDb=value;
+                else currentBus->sends[index].levelDb=value;
+                impl_->changed();
+            });
+        return;
+    }
     if (impl_->spatialModeButton().contains(position)) {
         bus->panMode=Common::AuxPanMode::spatial;impl_->changed();return;
     }
@@ -771,6 +924,12 @@ void AuxSettingsWindow::mousePressEvent(QMouseEvent* event)
     } else {
         if (impl_->polarCurvesButton().contains(position)) {
             bus->showPolarCurves=!bus->showPolarCurves;impl_->publishPan();impl_->changed();return;
+        }
+        if (bus->showPolarCurves && impl_->scaled(420,508,70,27).contains(position)) {
+            bus->showInputCurve=!bus->showInputCurve;impl_->publishPan();impl_->changed();return;
+        }
+        if (bus->showPolarCurves && impl_->scaled(495,508,70,27).contains(position)) {
+            bus->showOutputCurve=!bus->showOutputCurve;impl_->publishPan();impl_->changed();return;
         }
         for(int i=0;i<3;++i){
             if(impl_->parameterKnob(i).contains(position)){
@@ -831,11 +990,54 @@ void AuxSettingsWindow::mousePressEvent(QMouseEvent* event)
     }
 }
 
+void AuxSettingsWindow::mouseDoubleClickEvent(QMouseEvent* event)
+{
+    if(event->button()!=Qt::LeftButton) return;
+    auto* bus=impl_->selected();
+    if(!bus) return;
+    const auto point=event->position();
+    if(bus->panMode==Common::AuxPanMode::spatial) {
+        for(int index=0;index<3;++index) {
+            if(!impl_->parameterKnob(index).contains(point)) continue;
+            impl_->draggedParameter=-1;
+            const auto spec=index==0?Controls::NumericControlSpec{0,100,100,0}
+                :index==1?Controls::NumericControlSpec{-100,100,0,0}
+                :Controls::NumericControlSpec{-180,180,0,0};
+            Controls::resetNumericValue(spec,[this,bus,index](double value) {
+                if(index==0) impl_->setLinkedWidth(*bus,value/100);
+                else if(index==1&&impl_->effectiveSelectedPoint()>=0)
+                    bus->adjustablePoints[impl_->effectiveSelectedPoint()].setY(value/100);
+                else if(index==2) impl_->setAngle(*bus,value);
+                impl_->changed();
+            });
+            return;
+        }
+    } else if(impl_->classicPanKnob().contains(point)) {
+        impl_->draggedClassicPan=false;
+        Controls::resetNumericValue({-1,1,0,2},[this,bus](double value) {
+            bus->classicPan=value; impl_->changed();
+        });
+        return;
+    }
+    for(int index=0;index<static_cast<int>(bus->sends.size());++index) {
+        const auto row=impl_->sendStrip(index);
+        const QRectF knob(row.left()+44*impl_->scaleX(),row.top()+7*impl_->scaleY(),
+                          52*impl_->scaleX(),50*impl_->scaleY());
+        if(!knob.contains(point)) continue;
+        impl_->draggedSend=-1;
+        Controls::resetNumericValue({-72,12,-2,1},[this,bus,index](double value) {
+            if(bus->sendsLinked) for(auto& send:bus->sends) send.levelDb=value;
+            else bus->sends[index].levelDb=value;
+            impl_->changed();
+        });
+        return;
+    }
+}
+
 void AuxSettingsWindow::mouseMoveEvent(QMouseEvent* event)
 {
     if (impl_->listScrollbarDragging && (event->buttons() & Qt::LeftButton)) {
         impl_->setListScrollFromThumb(event->position().y() - impl_->listScrollbarDragOffset);
-        update();
         return;
     }
     if (impl_->draggedListBusId != 0 && (event->buttons() & Qt::LeftButton)) {
@@ -904,6 +1106,10 @@ void AuxSettingsWindow::mouseMoveEvent(QMouseEvent* event)
 
 void AuxSettingsWindow::mouseReleaseEvent(QMouseEvent*)
 {
+    const bool wasDragging = impl_->draggingControl();
+    const bool changedState = impl_->draggedListBusId != 0 || impl_->draggedPoint >= 0
+        || impl_->draggedInfluencePoint >= 0 || impl_->draggedSend >= 0
+        || impl_->draggedParameter >= 0 || impl_->draggedClassicPan;
     impl_->listScrollbarDragging = false;
     impl_->draggedPoint = -1;
     impl_->draggedInfluencePoint = -1;
@@ -913,6 +1119,10 @@ void AuxSettingsWindow::mouseReleaseEvent(QMouseEvent*)
     impl_->draggedListLevels.clear();
     impl_->draggedParameter = -1;
     impl_->draggedClassicPan = false;
+    if (wasDragging) {
+        if (changedState && impl_->stateChanged) impl_->stateChanged();
+        update();
+    }
 }
 
 void AuxSettingsWindow::wheelEvent(QWheelEvent* event)

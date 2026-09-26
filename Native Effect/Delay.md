@@ -19,3 +19,16 @@
 
 - 效果元数据、逻辑适配、界面和 DSP 已归入 `src/native_fx/effects/delay`；效果算法不再编入 `common.dll`，并独立输出 `build/bin/nodes/native_fx/delay/mod_delay.dll`。
 - 使用现有 `build` 树完成 Debug `ALL_BUILD`；`native_delay_tests`、`native_fx_api_tests` 和 `ui_unit_tests` 通过。验证范围为模块加载与界面行为，未运行 JACK 客户端或端口连接集成测试。
+
+## 调音台内部宿主桥接（M5，2026-09-26）
+
+- 本模块在原生 FX v1 ABI 上提供可选的八声道参数快照：格式版本、模块 ID、有效声道掩码及逐声道真实参数。GUI 实例和音频实例分别创建；控制线程导出快照，调音台在 JACK 块间安全点导入，保留音频实例的 DSP 历史。克隆复制参数并重新准备处理器，不共享历史。
+- 音频实例以原子峰值提供每声道输入/输出分析；FX 窗口显示调音台实时电平。效果链按 CH/AUX/MAIN 各自顺序执行，支持整体和单模块旁通、增删、排序、克隆及预设。内部加载只调用 mixer API，不创建效果器 JACK 客户端。
+- 模块算法及原有独立节点入口保持原实现。参数导入路径使用固定大小内存和对应 DSP 的无分配 `setParameters`；Delay、Reverb 的缓冲分配只在 `prepare` 阶段进行。涉及文件：`src/native_fx/include/WinJACKNexus/NativeFx/NativeFxApi.h`、`src/native_fx/src/NativeFxApi.cpp`、`src/ui/src/FxSettingsWindow.cpp`、`src/mixer/EffectGraph.cpp`。
+- Debug `ALL_BUILD`（含 VST2/VST3）及 24 个 CTest 套件通过；其中 `native_fx_api_tests` 验证八模块加载、快照掩码、分析和克隆，`ui_unit_tests` 验证 GUI 桥接，`digital_mixer_node_port_tests` 验证实际样本、旁通及端口不变性。证据：`build/m5-all-build.log`、`build/m5-verification-tests.log`。原生 FX 模块验收限于加载与 UI，不要求效果器 JACK 连接集成。
+
+## 公共数值交互（2026-09-26）
+
+时间、反馈、湿/干信号四个旋钮的读数可点击输入精确值，按 Enter 写入；双击旋钮恢复对应参数默认值。同步模式的时间读数仍以毫秒输入，并按当前音符与附点设置换算为 BPM。All 模式将同一目标值写入八个通道。现有 `build` 树的 Debug `ALL_BUILD`、`native_delay_tests`、`ui_unit_tests` 通过；测试覆盖精确输入、复位及同步换算。
+
+首个预设现为 `Default`，选择它会恢复真实的 `DelayParameters` 默认值；编辑后显示 `Custom`，并保留原有命名预设。旋钮绘制已调用公共 `Controls::drawKnob`。更新后 Debug `ALL_BUILD`、`native_delay_tests`、`native_fx_api_tests`、`ui_unit_tests` 均通过。

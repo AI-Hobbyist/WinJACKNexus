@@ -7,6 +7,7 @@
 #include <WinJACKNexus/NativeFx/graphic_eq/Ui.hpp>
 #elif WJN_FX_MODULE_INDEX == 2
 #include <WinJACKNexus/NativeFx/deesser/Ui.hpp>
+#include <WinJACKNexus/NativeFx/deesser/SpectrumSample.hpp>
 #elif WJN_FX_MODULE_INDEX == 3
 #include <WinJACKNexus/NativeFx/compressor/Ui.hpp>
 #elif WJN_FX_MODULE_INDEX == 4
@@ -21,7 +22,12 @@
 #include <QPointer>
 #include <algorithm>
 #include <array>
+#include <atomic>
 #include <cmath>
+#include <cstddef>
+#include <cstring>
+#include <memory>
+#include <type_traits>
 
 namespace UI = WinJACKNexus::UI;
 namespace Common = WinJACKNexus::Common;
@@ -85,6 +91,12 @@ struct WjnFxInstance {
     virtual QWidget* createEditor(QWidget*) = 0;
     virtual int currentPreset() const = 0;
     virtual void selectPreset(int) = 0;
+    virtual bool exportSnapshot(void*, uint32_t) const = 0;
+    virtual bool importSnapshot(const void*, uint32_t) = 0;
+    virtual void setChangeCallback(WjnFxParametersChanged, void*) = 0;
+    virtual bool readAnalysis(float*, float*) const = 0;
+    virtual bool readLiveAnalysis(float*, float*, float*, void*, uint32_t) = 0;
+    virtual void setLiveAnalysisReader(WjnFxLiveAnalysisReader, void*) = 0;
 };
 
 template<class Dsp, class Editor, int StripHeight>
@@ -92,7 +104,16 @@ class MixerEffect final : public WjnFxInstance {
 public:
     using Processor = typename Dsp::Processor;
     using Parameters = typename Dsp::Parameters;
-    MixerEffect() { prepare(48000.0); }
+    static_assert(std::is_trivially_copyable_v<Parameters>);
+    MixerEffect() {
+#if WJN_FX_MODULE_INDEX == 1 || WJN_FX_MODULE_INDEX == 6
+        spectrumAnalyzer_ = std::make_unique<Common::GraphicEqSpectrumAnalyzer>();
+#elif WJN_FX_MODULE_INDEX == 2
+        for (auto& buffer : deEsserSpectrum_)
+            buffer = std::make_unique<Common::AudioRingBuffer<Common::DeEsserSpectrumSample>>(8192);
+#endif
+        prepare(48000.0);
+    }
     ~MixerEffect() override { if (view_) delete view_; }
     WjnFxInstance* clone() const override {
         auto* copy = new MixerEffect;
@@ -105,6 +126,9 @@ public:
     void prepare(double rate) override {
         if (!std::isfinite(rate) || rate < 8000.0) return;
         sampleRate_ = rate;
+#if WJN_FX_MODULE_INDEX == 1 || WJN_FX_MODULE_INDEX == 6
+        spectrumAnalyzer_->setSampleRate(static_cast<std::uint32_t>(rate));
+#endif
         for (std::size_t c = 0; c < 8; ++c) {
             Dsp::prepare(processors_[c], rate);
             Dsp::setParameters(processors_[c], parameters_[c]);
@@ -112,8 +136,46 @@ public:
     }
     void process(uint32_t channel, const float* input, float* output, uint32_t frames) override {
         if (!output || channel >= 8) return;
-        if (!input) { std::fill_n(output, frames, 0.0F); return; }
+        if (!input) {
+            std::fill_n(output, frames, 0.0F);
+            inputPeaks_[channel].store(0.0F, std::memory_order_release);
+            outputPeaks_[channel].store(0.0F, std::memory_order_release);
+            return;
+        }
+        float inputPeak = 0.0F;
+        for (uint32_t i = 0; i < frames; ++i)
+            inputPeak = std::max(inputPeak, std::abs(input[i]));
+#if WJN_FX_MODULE_INDEX == 1 || WJN_FX_MODULE_INDEX == 6
+        spectrumAnalyzer_->pushChannelInput(channel, input, frames);
+#endif
+#if WJN_FX_MODULE_INDEX == 2
+        std::array<Common::DeEsserSpectrumSample, 512> samples {};
+        for (uint32_t start = 0; start < frames;) {
+            const auto count = std::min<std::uint32_t>(512, frames - start);
+            for (uint32_t offset = 0; offset < count; ++offset) {
+                const float dry = input[start + offset];
+                const float wet = processors_[channel].process(dry);
+                output[start + offset] = wet;
+                samples[offset] = {dry, wet};
+            }
+            deEsserSpectrum_[channel]->write(samples.data(), count);
+            start += count;
+        }
+#else
         Dsp::process(processors_[channel], parameters_[channel], input, output, frames);
+#endif
+#if WJN_FX_MODULE_INDEX == 1 || WJN_FX_MODULE_INDEX == 6
+        spectrumAnalyzer_->pushChannelOutput(channel, output, frames);
+#elif WJN_FX_MODULE_INDEX == 3
+        gainReduction_[channel].store(processors_[channel].gainReductionDb(), std::memory_order_release);
+#elif WJN_FX_MODULE_INDEX == 4
+        gainReduction_[channel].store(processors_[channel].meter().gainReductionDb, std::memory_order_release);
+#endif
+        float outputPeak = 0.0F;
+        for (uint32_t i = 0; i < frames; ++i)
+            outputPeak = std::max(outputPeak, std::abs(output[i]));
+        inputPeaks_[channel].store(inputPeak, std::memory_order_release);
+        outputPeaks_[channel].store(outputPeak, std::memory_order_release);
     }
     void setChannel(int channel) override {
         channel_ = std::clamp(channel, -1, 7);
@@ -137,13 +199,140 @@ public:
             if (channel >= 8) return;
             parameters_[channel] = value;
             Dsp::setParameters(processors_[channel], value);
+            if (changeCallback_) changeCallback_(changeContext_);
         });
+#if WJN_FX_MODULE_INDEX == 1 || WJN_FX_MODULE_INDEX == 6
+        editor->setSpectrumFrameReader([this](Common::GraphicEqSpectrumFrame& frame) {
+            return liveReader_ && liveReader_(liveContext_, nullptr, nullptr, nullptr,
+                &frame, sizeof(frame)) == 1;
+        });
+#elif WJN_FX_MODULE_INDEX == 2
+        editor->setSpectrumFrameReader([this](Common::DeEsserLiveSpectrumFrame& frame) {
+            return liveReader_ && liveReader_(liveContext_, nullptr, nullptr, nullptr,
+                &frame, sizeof(frame)) == 1;
+        });
+#elif WJN_FX_MODULE_INDEX == 3
+        editor->setMeterReader([this] {
+            std::array<UI::CompressorMeter, 8> meters {};
+            float input[8] {}, output[8] {}, reduction[8] {};
+            if (!liveReader_ || liveReader_(liveContext_, input, output, reduction, nullptr, 0) != 1)
+                return meters;
+            for (std::size_t channel = 0; channel < 8; ++channel) {
+                meters[channel].inputDb = input[channel] > 0.0F
+                    ? 20.0F * std::log10(input[channel]) : -120.0F;
+                meters[channel].outputDb = output[channel] > 0.0F
+                    ? 20.0F * std::log10(output[channel]) : -120.0F;
+                meters[channel].gainReductionDb = reduction[channel];
+                meters[channel].active = input[channel] > 0.0F;
+            }
+            return meters;
+        });
+#elif WJN_FX_MODULE_INDEX == 4
+        editor->setMeterReader([this] {
+            std::array<UI::LimiterMeter, 8> meters {};
+            float input[8] {}, output[8] {}, reduction[8] {};
+            if (!liveReader_ || liveReader_(liveContext_, input, output, reduction, nullptr, 0) != 1)
+                return meters;
+            for (std::size_t channel = 0; channel < 8; ++channel) {
+                meters[channel].inputDb = input[channel] > 0.0F
+                    ? 20.0F * std::log10(input[channel]) : -120.0F;
+                meters[channel].outputDb = output[channel] > 0.0F
+                    ? 20.0F * std::log10(output[channel]) : -120.0F;
+                meters[channel].gainReductionDb = reduction[channel];
+                meters[channel].active = input[channel] > 0.0F;
+            }
+            return meters;
+        });
+#endif
         view_ = new UI::Controls::EmbeddedFxEditor(editor, StripHeight, parent);
         setTheme(palette_);
         return view_;
     }
     int currentPreset() const override { return editor_ ? editor_->hostPresetIndex() : -1; }
     void selectPreset(int index) override { if (editor_) editor_->chooseHostPreset(index); }
+    bool exportSnapshot(void* destination, uint32_t bytes) const override {
+        constexpr auto required = sizeof(WjnFxParameterSnapshotHeader) + sizeof(parameters_);
+        if (!destination || bytes != required) return false;
+        WjnFxParameterSnapshotHeader header {};
+        header.formatVersion = WJN_FX_PARAMETER_SNAPSHOT_VERSION;
+        header.parameterBytes = sizeof(Parameters);
+        header.channelMask = 0xff;
+        std::memcpy(header.moduleId, activeMeta.id,
+                    std::min(std::strlen(activeMeta.id), sizeof(header.moduleId) - 1));
+        std::memcpy(destination, &header, sizeof(header));
+        std::memcpy(static_cast<std::byte*>(destination) + sizeof(header),
+                    parameters_.data(), sizeof(parameters_));
+        return true;
+    }
+    bool importSnapshot(const void* source, uint32_t bytes) override {
+        constexpr auto required = sizeof(WjnFxParameterSnapshotHeader) + sizeof(parameters_);
+        if (!source || bytes != required) return false;
+        WjnFxParameterSnapshotHeader header {};
+        std::memcpy(&header, source, sizeof(header));
+        if (header.formatVersion != WJN_FX_PARAMETER_SNAPSHOT_VERSION
+            || header.parameterBytes != sizeof(Parameters) || header.reserved != 0
+            || header.channelMask == 0 || (header.channelMask & ~0xffU) != 0
+            || std::strncmp(header.moduleId, activeMeta.id, sizeof(header.moduleId)) != 0)
+            return false;
+        const auto* values = static_cast<const std::byte*>(source) + sizeof(header);
+        for (std::size_t channel = 0; channel < parameters_.size(); ++channel) {
+            if ((header.channelMask & (1U << channel)) == 0) continue;
+            Parameters next {};
+            std::memcpy(&next, values + channel * sizeof(Parameters), sizeof(Parameters));
+            parameters_[channel] = next;
+            Dsp::setParameters(processors_[channel], next);
+        }
+        if (editor_) editor_->setParameters(parameters_);
+        return true;
+    }
+    void setChangeCallback(WjnFxParametersChanged callback, void* context) override {
+        changeCallback_ = callback;
+        changeContext_ = context;
+    }
+    bool readAnalysis(float* input, float* output) const override {
+        if (!input || !output) return false;
+        for (std::size_t channel = 0; channel < 8; ++channel) {
+            input[channel] = inputPeaks_[channel].load(std::memory_order_acquire);
+            output[channel] = outputPeaks_[channel].load(std::memory_order_acquire);
+        }
+        return true;
+    }
+    bool readLiveAnalysis(float* input, float* output, float* reduction,
+                          void* spectrum, uint32_t bytes) override {
+        if (input && output && reduction) {
+            for (std::size_t channel = 0; channel < 8; ++channel) {
+                input[channel] = inputPeaks_[channel].load(std::memory_order_acquire);
+                output[channel] = outputPeaks_[channel].load(std::memory_order_acquire);
+                reduction[channel] = gainReduction_[channel].load(std::memory_order_acquire);
+            }
+            return true;
+        }
+#if WJN_FX_MODULE_INDEX == 1 || WJN_FX_MODULE_INDEX == 6
+        if (spectrum && bytes == sizeof(Common::GraphicEqSpectrumFrame))
+            return spectrumAnalyzer_->tryPopLatest(
+                *static_cast<Common::GraphicEqSpectrumFrame*>(spectrum));
+#elif WJN_FX_MODULE_INDEX == 2
+        if (spectrum && bytes == sizeof(Common::DeEsserLiveSpectrumFrame)) {
+            auto& frame = *static_cast<Common::DeEsserLiveSpectrumFrame*>(spectrum);
+            frame.sampleRate = static_cast<std::uint32_t>(sampleRate_);
+            bool received = false;
+            for (std::size_t channel = 0; channel < 8; ++channel) {
+                auto& queue = *deEsserSpectrum_[channel];
+                while (queue.available() > frame.samples[channel].size())
+                    queue.read(frame.samples[channel].data(), frame.samples[channel].size());
+                frame.counts[channel] = queue.read(frame.samples[channel].data(),
+                                                     frame.samples[channel].size());
+                received |= frame.counts[channel] != 0;
+            }
+            return received;
+        }
+#endif
+        return false;
+    }
+    void setLiveAnalysisReader(WjnFxLiveAnalysisReader reader, void* context) override {
+        liveReader_ = reader;
+        liveContext_ = context;
+    }
 private:
     std::array<Processor, 8> processors_ {};
     std::array<Parameters, 8> parameters_ {};
@@ -152,6 +341,18 @@ private:
     UI::Controls::Palette palette_;
     int channel_ = -1;
     double sampleRate_ = 48000.0;
+    WjnFxParametersChanged changeCallback_ {};
+    void* changeContext_ {};
+    std::array<std::atomic<float>, 8> inputPeaks_ {};
+    std::array<std::atomic<float>, 8> outputPeaks_ {};
+    std::array<std::atomic<float>, 8> gainReduction_ {};
+    WjnFxLiveAnalysisReader liveReader_ {};
+    void* liveContext_ {};
+#if WJN_FX_MODULE_INDEX == 1 || WJN_FX_MODULE_INDEX == 6
+    std::unique_ptr<Common::GraphicEqSpectrumAnalyzer> spectrumAnalyzer_;
+#elif WJN_FX_MODULE_INDEX == 2
+    std::array<std::unique_ptr<Common::AudioRingBuffer<Common::DeEsserSpectrumSample>>, 8> deEsserSpectrum_;
+#endif
 };
 
 extern "C" {
@@ -159,7 +360,9 @@ uint32_t wjn_fx_api_version(void) { return WJN_FX_API_VERSION; }
 uint32_t wjn_fx_preset_count(void) {
 #if WJN_FX_MODULE_INDEX == 0 || WJN_FX_MODULE_INDEX == 3 || WJN_FX_MODULE_INDEX == 4
     return 4;
-#elif WJN_FX_MODULE_INDEX == 1 || WJN_FX_MODULE_INDEX == 6 || WJN_FX_MODULE_INDEX == 5
+#elif WJN_FX_MODULE_INDEX == 5
+    return 7;
+#elif WJN_FX_MODULE_INDEX == 1 || WJN_FX_MODULE_INDEX == 6
     return WJN_FX_MODULE_INDEX == 1 ? 5 : 6;
 #elif WJN_FX_MODULE_INDEX == 2
     return 4;
@@ -169,21 +372,21 @@ uint32_t wjn_fx_preset_count(void) {
 }
 const char* wjn_fx_preset_name(uint32_t index) {
 #if WJN_FX_MODULE_INDEX == 0
-    static const char* names[] = {"Vocal Gate", "Tight Gate", "Gentle Gate", "Custom"};
+    static const char* names[] = {"Default", "Tight Gate", "Gentle Gate", "Custom"};
 #elif WJN_FX_MODULE_INDEX == 1
-    static const char* names[] = {"平直", "Vocal Bright", "Bass Boost", "Classical", "Custom"};
+    static const char* names[] = {"Default", "Vocal Bright", "Bass Boost", "Classical", "Custom"};
 #elif WJN_FX_MODULE_INDEX == 2
-    static const char* names[] = {"Vocal De-Esser", "Bright Vocal", "Soft Voice", "Custom"};
+    static const char* names[] = {"Default", "Bright Vocal", "Soft Voice", "Custom"};
 #elif WJN_FX_MODULE_INDEX == 3
-    static const char* names[] = {"Vocal Smooth", "Punchy Drums", "Gentle Level", "Custom"};
+    static const char* names[] = {"Default", "Punchy Drums", "Gentle Level", "Custom"};
 #elif WJN_FX_MODULE_INDEX == 4
-    static const char* names[] = {"Vocal Safe", "Broadcast", "Max Loudness", "Custom"};
+    static const char* names[] = {"Default", "Broadcast", "Max Loudness", "Custom"};
 #elif WJN_FX_MODULE_INDEX == 5
-    static const char* names[] = {"自定义", "人声回声", "短 slap", "节奏回声", "氛围长回声", "磁带回声"};
+    static const char* names[] = {"Default", "人声回声", "短 slap", "节奏回声", "氛围长回声", "磁带回声", "Custom"};
 #elif WJN_FX_MODULE_INDEX == 6
-    static const char* names[] = {"Vocal Clear", "Flat", "Bass Boost", "Warmth", "Presence", "Custom"};
+    static const char* names[] = {"Default", "Vocal Clear", "Bass Boost", "Warmth", "Presence", "Custom"};
 #else
-    static const char* names[] = {"Small Room", "Large Hall", "Bright Plate", "Cathedral", "Studio Booth", "Vintage Spring", "Custom"};
+    static const char* names[] = {"Default", "Small Room", "Bright Plate", "Cathedral", "Studio Booth", "Vintage Spring", "Custom"};
 #endif
     return index < wjn_fx_preset_count() ? names[index] : nullptr;
 }
@@ -216,6 +419,33 @@ WjnFxInstance* wjn_fx_clone_mixer(const WjnFxInstance* source) { return source ?
 void wjn_fx_prepare(WjnFxInstance* instance, double rate) { if (instance) instance->prepare(rate); }
 void wjn_fx_process(WjnFxInstance* instance, uint32_t channel, const float* input, float* output, uint32_t frames) {
     if (instance) instance->process(channel, input, output, frames);
+}
+uint32_t wjn_fx_parameter_snapshot_version(void) { return WJN_FX_PARAMETER_SNAPSHOT_VERSION; }
+uint32_t wjn_fx_parameter_snapshot_size(void) {
+    return static_cast<uint32_t>(sizeof(WjnFxParameterSnapshotHeader)
+        + sizeof(ActiveDsp::Parameters) * 8);
+}
+int wjn_fx_export_parameter_snapshot(const WjnFxInstance* instance, void* destination, uint32_t bytes) {
+    return instance && instance->exportSnapshot(destination, bytes) ? 1 : 0;
+}
+int wjn_fx_import_parameter_snapshot(WjnFxInstance* instance, const void* source, uint32_t bytes) {
+    return instance && instance->importSnapshot(source, bytes) ? 1 : 0;
+}
+void wjn_fx_set_parameter_change_callback(WjnFxInstance* instance,
+                                          WjnFxParametersChanged callback, void* context) {
+    if (instance) instance->setChangeCallback(callback, context);
+}
+int wjn_fx_read_analysis(const WjnFxInstance* instance, float inputPeaks[8], float outputPeaks[8]) {
+    return instance && instance->readAnalysis(inputPeaks, outputPeaks) ? 1 : 0;
+}
+void wjn_fx_set_live_analysis_reader(WjnFxInstance* instance,
+    WjnFxLiveAnalysisReader reader, void* context) {
+    if (instance) instance->setLiveAnalysisReader(reader, context);
+}
+int wjn_fx_read_live_analysis(const WjnFxInstance* instance, float inputPeaks[8],
+    float outputPeaks[8], float gainReductionDb[8], void* spectrum, uint32_t spectrumBytes) {
+    return instance && const_cast<WjnFxInstance*>(instance)->readLiveAnalysis(
+        inputPeaks, outputPeaks, gainReductionDb, spectrum, spectrumBytes) ? 1 : 0;
 }
 void wjn_fx_set_channel(WjnFxInstance* instance, int channel) { if (instance) instance->setChannel(channel); }
 void wjn_fx_set_theme(WjnFxInstance* instance, const WjnFxTheme* theme) {

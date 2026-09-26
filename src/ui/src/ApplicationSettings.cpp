@@ -16,6 +16,9 @@
 #include <WinJACKNexus/UI/ApplicationSettings.hpp>
 
 #include <QSettings>
+#include <QTimer>
+#include <algorithm>
+#include <cmath>
 
 namespace WinJACKNexus::UI {
 
@@ -47,6 +50,10 @@ ApplicationSettings::ApplicationSettings()
 {
     QSettings settings(QStringLiteral("WinJACKNexus"), QStringLiteral("Application"));
     frameRate_ = normalizedFrameRate(settings.value(QStringLiteral("frameRate"), defaultFrameRate).toInt());
+    peakValueRefreshMilliseconds_ = std::clamp(
+        settings.value(QStringLiteral("peakValueRefreshMilliseconds"), 50).toInt(), 8, 1000);
+    const auto hold = settings.value(QStringLiteral("peakHoldSeconds"), 1.0).toDouble();
+    peakHoldSeconds_ = std::isfinite(hold) ? std::clamp(hold, 0.0, 10.0) : 1.0;
 }
 
 int ApplicationSettings::frameRate() const noexcept
@@ -63,6 +70,47 @@ void ApplicationSettings::setFrameRate(int framesPerSecond)
         return;
     frameRate_ = normalizedRate;
     Q_EMIT frameRateChanged(frameRate_);
+}
+
+int ApplicationSettings::peakValueRefreshMilliseconds() const noexcept
+{
+    return peakValueRefreshMilliseconds_;
+}
+
+void ApplicationSettings::setPeakValueRefreshMilliseconds(int milliseconds)
+{
+    const auto normalized = std::clamp(milliseconds, 8, 1000);
+    if (peakValueRefreshMilliseconds_ == normalized) return;
+    peakValueRefreshMilliseconds_ = normalized;
+    QSettings(QStringLiteral("WinJACKNexus"), QStringLiteral("Application"))
+        .setValue(QStringLiteral("peakValueRefreshMilliseconds"), normalized);
+    Q_EMIT peakValueRefreshMillisecondsChanged(normalized);
+}
+
+double ApplicationSettings::peakHoldSeconds() const noexcept
+{
+    return peakHoldSeconds_;
+}
+
+void ApplicationSettings::setPeakHoldSeconds(double seconds)
+{
+    const auto normalized = std::isfinite(seconds) ? std::clamp(seconds, 0.0, 10.0) : 1.0;
+    if (peakHoldSeconds_ == normalized) return;
+    peakHoldSeconds_ = normalized;
+    QSettings(QStringLiteral("WinJACKNexus"), QStringLiteral("Application"))
+        .setValue(QStringLiteral("peakHoldSeconds"), normalized);
+    Q_EMIT peakHoldSecondsChanged(normalized);
+}
+
+void bindRefreshTimer(QTimer& timer, QObject* owner)
+{
+    auto& settings = ApplicationSettings::instance();
+    timer.setTimerType(Qt::PreciseTimer);
+    timer.setInterval(1000 / settings.frameRate());
+    QObject::connect(&settings, &ApplicationSettings::frameRateChanged, owner,
+                     [&timer](int framesPerSecond) {
+                         timer.setInterval(1000 / framesPerSecond);
+                     });
 }
 
 }

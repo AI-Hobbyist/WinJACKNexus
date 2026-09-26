@@ -18,6 +18,7 @@
 #include <WinJACKNexus/Common/MeterLoudnessPresetCatalog.hpp>
 #include <WinJACKNexus/Meter/Mod/MeterSettingsWidget.hpp>
 #include <WinJACKNexus/UI/ApplicationSettings.hpp>
+#include <WinJACKNexus/UI/Controls.hpp>
 #include <WinJACKNexus/UI/HistoryChartWidget.hpp>
 #include <WinJACKNexus/UI/HistoryLegendWidget.hpp>
 #include <WinJACKNexus/UI/MetricStatisticsWidget.hpp>
@@ -113,12 +114,15 @@ std::optional<double> asDouble(const std::optional<float>& value)
     return value.has_value() ? std::optional<double> { static_cast<double>(*value) } : std::nullopt;
 }
 
-QToolButton* createActionButton(QAction* action, const QString& objectName, QWidget* parent)
+QToolButton* createActionButton(QAction* action, const QString& objectName, QWidget* parent,
+                                const WinJACKNexus::UI::Controls::Palette& colors)
 {
-    auto* button = new QToolButton(parent);
+    auto* button = new WinJACKNexus::UI::Controls::IconActionButton(parent);
     button->setObjectName(objectName);
     button->setDefaultAction(action);
     button->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+    button->setFixedHeight(WinJACKNexus::UI::Controls::sidebarControlHeight);
+    WinJACKNexus::UI::Controls::applyPalette(button, colors);
     return button;
 }
 
@@ -158,6 +162,13 @@ MeterHistoryWindow::MeterHistoryWindow(MeterViewDataProvider& provider,
     , requestRefresh_(std::move(requestRefresh))
     , returnToBridge_(std::move(returnToBridge))
 {
+    namespace Controls = WinJACKNexus::UI::Controls;
+    Controls::Palette controlColors;
+    controlColors.background = QColor(QStringLiteral("#061523"));
+    controlColors.panel = QColor(QStringLiteral("#102742"));
+    controlColors.text = QColor(QStringLiteral("#cfe4ff"));
+    controlColors.accent = QColor(QStringLiteral("#3b9dff"));
+    controlColors.border = QColor(QStringLiteral("#244b6b"));
     setObjectName(QStringLiteral("meterHistory.window"));
     setMinimumSize(0, 0);
     setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
@@ -165,10 +176,6 @@ MeterHistoryWindow::MeterHistoryWindow(MeterViewDataProvider& provider,
         "QWidget#meterHistory.window { background-color: #061523; color: #d8e9ff; }"
         "QWidget[meterHistorySurface=\"true\"] { background-color: #061523; }"
         "QFrame[meterHistoryToolbar=\"true\"] { background-color: #0a1d30; border: 1px solid #183b5a; border-radius: 6px; }"
-        "QToolButton[meterHistoryControl=\"range\"], QToolButton[meterHistoryControl=\"action\"] {"
-        " background-color: #102742; color: #cfe4ff; border: 1px solid #204564; border-radius: 5px; padding: 6px 12px; min-height: 24px; }"
-        "QToolButton[meterHistoryControl=\"range\"]:checked { background-color: #103c68; border-color: #2f9eff; color: #ffffff; }"
-        "QToolButton[meterHistoryControl=\"range\"]:hover, QToolButton[meterHistoryControl=\"action\"]:hover { border-color: #4ea9ff; background-color: #173755; }"
         "QComboBox, QLineEdit, QDoubleSpinBox, QSpinBox { background-color: #102742; color: #d8e9ff; border: 1px solid #244b6b; border-radius: 4px; padding: 4px; }"
         "QCheckBox { color: #cfe4ff; spacing: 7px; min-height: 20px; }"
         "QCheckBox::indicator { width: 14px; height: 14px; border: 1px solid #376487; background-color: #0a1d30; }"
@@ -179,7 +186,7 @@ MeterHistoryWindow::MeterHistoryWindow(MeterViewDataProvider& provider,
 
     auto* pageLayout = new QVBoxLayout(this);
     pageLayout->setContentsMargins(0, 0, 0, 0);
-    auto* splitter = new QSplitter(Qt::Horizontal, this);
+    auto* splitter = new Controls::SplitField(Qt::Horizontal, this);
     splitter->setObjectName(QStringLiteral("meterHistory.splitter"));
     settingsWidget_ = new MeterSettingsWidget(provider_, [this] {
         if (requestRefresh_)
@@ -187,12 +194,14 @@ MeterHistoryWindow::MeterHistoryWindow(MeterViewDataProvider& provider,
     }, splitter);
     splitter->addWidget(settingsWidget_);
     auto* settingsLayout = qobject_cast<QVBoxLayout*>(settingsWidget_->layout());
-    auto* returnButton = new QToolButton(settingsWidget_);
+    auto* returnButton = new Controls::IconActionButton(settingsWidget_);
+    Controls::applyPalette(returnButton, controlColors);
     returnButton->setObjectName(QStringLiteral("meterHistory.returnButton"));
     returnButton->setProperty("meterHistoryControl", QStringLiteral("action"));
     returnButton->setIcon(style()->standardIcon(QStyle::SP_ArrowBack));
     returnButton->setText(QStringLiteral("返回电平表桥"));
     returnButton->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+    returnButton->setFixedHeight(Controls::sidebarControlHeight);
     returnButton->setToolTip(QStringLiteral("返回电平表桥窗口"));
     if (settingsLayout != nullptr)
         settingsLayout->insertWidget(0, returnButton);
@@ -201,15 +210,19 @@ MeterHistoryWindow::MeterHistoryWindow(MeterViewDataProvider& provider,
             returnToBridge_();
     });
 
-    viewModeSelector_ = new QComboBox(settingsWidget_);
+    viewModeSelector_ = new Controls::ChoiceField(settingsWidget_);
+    Controls::applyPalette(viewModeSelector_, controlColors);
     viewModeSelector_->setObjectName(QStringLiteral("meterHistory.viewMode"));
     viewModeSelector_->setAccessibleName(QStringLiteral("历史刷新形式"));
+    viewModeSelector_->setFixedHeight(Controls::sidebarControlHeight);
+    viewModeSelector_->setMinimumWidth(180);
     viewModeSelector_->addItem(QStringLiteral("滚动（实时滚动）"), static_cast<int>(MeterHistoryViewMode::realtimeScroll));
     viewModeSelector_->addItem(QStringLiteral("扫描"), static_cast<int>(MeterHistoryViewMode::scanning));
 
-    timeWindowSpinBox_ = new QSpinBox(settingsWidget_);
+    timeWindowSpinBox_ = new Controls::IntegerField(settingsWidget_);
     timeWindowSpinBox_->setObjectName(QStringLiteral("meterHistory.timeWindow"));
     timeWindowSpinBox_->setAccessibleName(QStringLiteral("历史时间窗口（秒）"));
+    timeWindowSpinBox_->setFixedHeight(Controls::sidebarControlHeight);
     timeWindowSpinBox_->setRange(static_cast<int>(minimumMeterHistoryWindowMilliseconds / 1000),
                                   static_cast<int>(maximumMeterHistoryWindowMilliseconds / 1000));
     timeWindowSpinBox_->setSuffix(QStringLiteral(" 秒"));
@@ -224,20 +237,32 @@ MeterHistoryWindow::MeterHistoryWindow(MeterViewDataProvider& provider,
         displaySettingsLayout->addRow(QStringLiteral("时间窗口"), timeWindowSpinBox_);
     }
 
-    auto* seriesGroup = new QGroupBox(QStringLiteral("曲线显示"), settingsWidget_);
+    auto* seriesGroup = new Controls::GroupPanel(QStringLiteral("曲线显示"), settingsWidget_);
+    seriesGroup->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
     seriesGroup->setObjectName(QStringLiteral("meterHistory.seriesGroup"));
     auto* seriesLayout = new QVBoxLayout(seriesGroup);
     seriesLayout->setContentsMargins(8, 10, 8, 6);
     seriesLayout->setSpacing(2);
     for (std::size_t index = 0; index < seriesDefinitions().size(); ++index) {
         const auto& definition = seriesDefinitions()[index];
-        auto* checkBox = new QCheckBox(definition.label, seriesGroup);
+        auto* checkBox = new Controls::ToggleField(definition.label, seriesGroup);
         checkBox->setObjectName(QStringLiteral("meterHistory.series.%1").arg(definition.id));
         checkBox->setAccessibleName(QStringLiteral("显示 %1 曲线").arg(definition.label));
         checkBox->setChecked(true);
-        checkBox->setStyleSheet(QStringLiteral("QCheckBox { color: %1; }").arg(definition.color.name()));
+        auto seriesColors = controlColors;
+        seriesColors.text = definition.color;
+        Controls::applyPalette(checkBox, seriesColors);
         seriesVisibilityCheckBoxes_[index] = checkBox;
-        seriesLayout->addWidget(checkBox);
+        auto* row = new QHBoxLayout;
+        row->setContentsMargins(0, 0, 0, 0);
+        row->setSpacing(7);
+        auto* swatch = new QLabel(seriesGroup);
+        swatch->setObjectName(QStringLiteral("meterHistory.seriesColor.%1").arg(definition.id));
+        swatch->setFixedSize(12, 12);
+        swatch->setStyleSheet(QStringLiteral("background-color: %1; border-radius: 2px;").arg(definition.color.name()));
+        row->addWidget(swatch);
+        row->addWidget(checkBox, 1);
+        seriesLayout->addLayout(row);
         connect(checkBox, &QCheckBox::toggled, this, [this, id = definition.id](bool visible) {
             MeterViewCommand command;
             command.type = MeterViewCommandType::setHistorySeriesVisible;
@@ -252,14 +277,16 @@ MeterHistoryWindow::MeterHistoryWindow(MeterViewDataProvider& provider,
         std::pair { QStringLiteral("integrated"), integratedReferenceLabel(initialReferencePreset) },
         std::pair { QStringLiteral("dbtp"), truePeakReferenceLabel(initialReferencePreset) }
     };
-    auto* referenceGroup = new QGroupBox(QStringLiteral("参考线"), settingsWidget_);
+    auto* referenceGroup = new Controls::GroupPanel(QStringLiteral("参考线"), settingsWidget_);
+    referenceGroup->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
     referenceGroup->setObjectName(QStringLiteral("meterHistory.referenceGroup"));
     auto* referenceLayout = new QVBoxLayout(referenceGroup);
     referenceLayout->setContentsMargins(8, 10, 8, 6);
     referenceLayout->setSpacing(2);
     for (std::size_t index = 0; index < referenceDefinitions.size(); ++index) {
         const auto& [id, label] = referenceDefinitions[index];
-        auto* checkBox = new QCheckBox(label, referenceGroup);
+        auto* checkBox = new Controls::ToggleField(label, referenceGroup);
+        Controls::applyPalette(checkBox, controlColors);
         checkBox->setObjectName(QStringLiteral("meterHistory.reference.%1").arg(id));
         checkBox->setAccessibleName(QStringLiteral("显示 %1 参考线").arg(label));
         checkBox->setChecked(true);
@@ -272,6 +299,8 @@ MeterHistoryWindow::MeterHistoryWindow(MeterViewDataProvider& provider,
         });
     }
     if (settingsLayout != nullptr) {
+        if (displaySettingsGroup != nullptr)
+            displaySettingsGroup->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
         settingsLayout->insertWidget(2, seriesGroup);
         settingsLayout->insertWidget(3, referenceGroup);
     }
@@ -288,17 +317,23 @@ MeterHistoryWindow::MeterHistoryWindow(MeterViewDataProvider& provider,
     auto* controls = new QHBoxLayout(controlsFrame);
     controls->setContentsMargins(10, 6, 10, 6);
     controls->setSpacing(6);
-    controls->addWidget(new QLabel(QStringLiteral("通道"), controlsFrame));
-    channelSelector_ = new QComboBox(controlsFrame);
+    controls->addWidget(new Controls::TextLabel(QStringLiteral("通道"), controlsFrame));
+    channelSelector_ = new Controls::ChoiceField(controlsFrame);
+    Controls::applyPalette(channelSelector_, controlColors);
     channelSelector_->setObjectName(QStringLiteral("meterHistory.channelSelector"));
     channelSelector_->setAccessibleName(QStringLiteral("历史图表通道"));
     channelSelector_->setToolTip(QStringLiteral("切换要查看的模拟通道历史"));
     channelSelector_->setMinimumContentsLength(14);
+    channelSelector_->setMinimumWidth(270);
+    channelSelector_->setMaximumWidth(420);
+    channelSelector_->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+    channelSelector_->setFixedHeight(Controls::sidebarControlHeight);
     channelSelector_->setEnabled(false);
     controls->addWidget(channelSelector_);
     controls->addStretch(1);
 
-    scanCursorSlider_ = new QSlider(Qt::Horizontal, chartSurface);
+    scanCursorSlider_ = new Controls::RangeSlider(Qt::Horizontal, chartSurface);
+    Controls::applyPalette(scanCursorSlider_, controlColors);
     scanCursorSlider_->setObjectName(QStringLiteral("meterHistory.scanCursor"));
     scanCursorSlider_->setAccessibleName(QStringLiteral("扫描游标"));
     scanCursorSlider_->setMinimumWidth(150);
@@ -314,16 +349,18 @@ MeterHistoryWindow::MeterHistoryWindow(MeterViewDataProvider& provider,
     exportAction_ = new QAction(style()->standardIcon(QStyle::SP_DialogSaveButton), QStringLiteral("导出图表"), this);
     exportAction_->setObjectName(QStringLiteral("meterHistory.exportAction"));
     exportAction_->setToolTip(QStringLiteral("准备 PNG 导出预览，不写入文件"));
-    auto* pauseButton = createActionButton(pauseAction_, QStringLiteral("meterHistory.pauseButton"), controlsFrame);
+    auto* pauseButton = createActionButton(pauseAction_, QStringLiteral("meterHistory.pauseButton"), controlsFrame, controlColors);
     pauseButton->setProperty("meterHistoryControl", QStringLiteral("action"));
-    auto* clearButton = createActionButton(clearAction_, QStringLiteral("meterHistory.clearButton"), controlsFrame);
+    auto* clearButton = createActionButton(clearAction_, QStringLiteral("meterHistory.clearButton"), controlsFrame, controlColors);
     clearButton->setProperty("meterHistoryControl", QStringLiteral("action"));
-    auto* chartSettingsButton = new QToolButton(controlsFrame);
+    auto* chartSettingsButton = new Controls::IconActionButton(controlsFrame);
+    Controls::applyPalette(chartSettingsButton, controlColors);
     chartSettingsButton->setObjectName(QStringLiteral("meterHistory.chartSettingsButton"));
     chartSettingsButton->setProperty("meterHistoryControl", QStringLiteral("action"));
     chartSettingsButton->setIcon(style()->standardIcon(QStyle::SP_FileDialogDetailedView));
     chartSettingsButton->setText(QStringLiteral("图表设置"));
     chartSettingsButton->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+    chartSettingsButton->setFixedHeight(Controls::sidebarControlHeight);
     chartSettingsButton->setToolTip(QStringLiteral("查看左侧图表设置"));
     connect(chartSettingsButton, &QToolButton::clicked, this, [this, splitter] {
         const auto totalWidth = std::max(1, splitter->width());
@@ -360,9 +397,9 @@ MeterHistoryWindow::MeterHistoryWindow(MeterViewDataProvider& provider,
     legend_ = new WinJACKNexus::UI::HistoryLegendWidget(chartSurface);
     legend_->setObjectName(QStringLiteral("meterHistory.legend"));
     legend_->setThemePalette(historyPalette);
-    legend_->hide();
+    rootLayout->addWidget(legend_);
 
-    auto* statisticsTitle = new QLabel(QStringLiteral("统计信息（当前视图）"), chartSurface);
+    auto* statisticsTitle = new Controls::TextLabel(QStringLiteral("统计信息（当前视图）"), chartSurface);
     statisticsTitle->setObjectName(QStringLiteral("meterHistory.statisticsTitle"));
     statisticsTitle->setStyleSheet(QStringLiteral("color: #b8d7f6; font-weight: 600; padding: 3px 0;"));
     rootLayout->addWidget(statisticsTitle);
@@ -372,37 +409,41 @@ MeterHistoryWindow::MeterHistoryWindow(MeterViewDataProvider& provider,
     statistics_->setThemePalette(historyPalette);
     rootLayout->addWidget(statistics_);
 
-    auto* csvGroup = new QGroupBox(QStringLiteral("实时记录到 CSV"), settingsWidget_);
+    auto* csvGroup = new Controls::GroupPanel(QStringLiteral("实时记录到 CSV"), settingsWidget_);
+    csvGroup->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
     auto* csvLayout = new QVBoxLayout(csvGroup);
     csvLayout->setContentsMargins(8, 10, 8, 6);
-    csvPathLabel_ = new QLabel(csvGroup);
+    csvPathLabel_ = new Controls::TextLabel(csvGroup);
     csvPathLabel_->setObjectName(QStringLiteral("meterHistory.csvPath"));
     csvPathLabel_->setTextInteractionFlags(Qt::TextSelectableByMouse);
     csvPathLabel_->setWordWrap(true);
-    csvStatusLabel_ = new QLabel(csvGroup);
+    csvStatusLabel_ = new Controls::TextLabel(csvGroup);
     csvStatusLabel_->setObjectName(QStringLiteral("meterHistory.csvStatus"));
     csvStatusLabel_->setWordWrap(true);
-    exportStatusLabel_ = new QLabel(csvGroup);
+    exportStatusLabel_ = new Controls::TextLabel(csvGroup);
     exportStatusLabel_->setObjectName(QStringLiteral("meterHistory.exportStatus"));
     exportStatusLabel_->setWordWrap(true);
     recordingAction_ = new QAction(style()->standardIcon(QStyle::SP_MediaPlay), QStringLiteral("记录响度"), this);
     recordingAction_->setObjectName(QStringLiteral("meterHistory.recordingAction"));
     recordingAction_->setCheckable(true);
     recordingAction_->setToolTip(QStringLiteral("切换模拟响度记录状态"));
-    recordingCheckBox_ = new QCheckBox(QStringLiteral("启用实时记录到 CSV"), csvGroup);
+    recordingCheckBox_ = new Controls::ToggleField(QStringLiteral("启用实时记录到 CSV"), csvGroup);
+    Controls::applyPalette(recordingCheckBox_, controlColors);
     recordingCheckBox_->setObjectName(QStringLiteral("meterHistory.recordingToggle"));
     recordingCheckBox_->setAccessibleName(QStringLiteral("启用实时记录到 CSV"));
-    auto* recordingButton = createActionButton(recordingAction_, QStringLiteral("meterHistory.recordingButton"), csvGroup);
+    auto* recordingButton = createActionButton(recordingAction_, QStringLiteral("meterHistory.recordingButton"), csvGroup, controlColors);
     recordingButton->hide();
-    auto* exportButton = createActionButton(exportAction_, QStringLiteral("meterHistory.exportButton"), csvGroup);
+    auto* exportButton = createActionButton(exportAction_, QStringLiteral("meterHistory.exportButton"), csvGroup, controlColors);
     exportButton->setProperty("meterHistoryControl", QStringLiteral("action"));
     csvLayout->addWidget(recordingCheckBox_);
     csvLayout->addWidget(csvPathLabel_);
     csvLayout->addWidget(csvStatusLabel_);
     csvLayout->addWidget(exportStatusLabel_);
     csvLayout->addWidget(exportButton);
-    if (settingsLayout != nullptr)
+    if (settingsLayout != nullptr) {
         settingsLayout->insertWidget(4, csvGroup);
+        settingsLayout->addStretch(1);
+    }
 
     splitter->addWidget(chartSurface);
     splitter->setSizes({ 312, 1048 });
@@ -886,16 +927,13 @@ void MeterHistoryWindow::updateLegend()
     entries.reserve(seriesDefinitions().size());
     for (const auto& definition : seriesDefinitions()) {
         const auto& id = definition.id;
-        const auto hasData = std::any_of(snapshot_.history.cbegin(), snapshot_.history.cend(), [&id](const MeterHistoryPoint& point) {
-            return historyValue(point, id).has_value();
-        });
         entries.push_back({
             id,
             definition.label,
             definition.color,
             std::find(snapshot_.historyView.visibleSeriesIds.cbegin(), snapshot_.historyView.visibleSeriesIds.cend(), id)
                 != snapshot_.historyView.visibleSeriesIds.cend(),
-            hasData
+            true
         });
     }
     legend_->setEntries(std::move(entries));

@@ -29,6 +29,8 @@
 #include <WinJACKNexus/NativeFx/deesser/Ui.hpp>
 #include <WinJACKNexus/UI/FxSettingsWindow.hpp>
 #include <WinJACKNexus/UI/MixerWindow.hpp>
+#include <WinJACKNexus/UI/MixerPolarPlot.hpp>
+#include <WinJACKNexus/Common/DigitalMixerProcessor.hpp>
 #include <WinJACKNexus/UI/AuxSettingsWindow.hpp>
 #include <WinJACKNexus/UI/FxLevelMeterWidget.hpp>
 #include <WinJACKNexus/NativeFx/gate/Ui.hpp>
@@ -45,19 +47,25 @@
 #include <QEventLoop>
 #include <QFile>
 #include <QImage>
+#include <QTabBar>
 #include <QLabel>
 #include <QLineEdit>
+#include <QLinearGradient>
 #include <QStackedWidget>
 #include <QPainter>
+#include <QPainterPath>
 #include <QListWidget>
 #include <QMenu>
 #include <QMenuBar>
+#include <QMainWindow>
 #include <QComboBox>
+#include <QCompleter>
 #include <QPushButton>
 #include <QScrollArea>
 #include <QScrollBar>
 #include <QTimer>
 #include <QMouseEvent>
+#include <QKeyEvent>
 #include <QSettings>
 #include <QTemporaryDir>
 #include <QTemporaryFile>
@@ -69,6 +77,7 @@
 #include <cstdio>
 #include <limits>
 #include <optional>
+#include <string_view>
 
 namespace {
 
@@ -95,10 +104,13 @@ protected:
 class ProbeMeter final : public WinJACKNexus::UI::MeterWidget {
 public:
     using MeterWidget::MeterWidget;
+    int paintCount = 0;
+    void advanceForTest() { advanceFrame(); }
 
 protected:
     void paintContent(QPainter&) override
     {
+        ++paintCount;
     }
 };
 
@@ -148,17 +160,34 @@ bool testApplicationSettings()
     using WinJACKNexus::UI::ApplicationSettings;
     auto& settings = ApplicationSettings::instance();
     const auto originalFrameRate = settings.frameRate();
+    const auto originalPeakRefresh = settings.peakValueRefreshMilliseconds();
+    const auto originalPeakHold = settings.peakHoldSeconds();
     const auto selectedFrameRate = originalFrameRate == 120 ? 30 : 120;
     int signalCount = 0;
-    QObject::connect(&settings, &ApplicationSettings::frameRateChanged,
+    QObject timerOwner;
+    QTimer refreshTimer;
+    WinJACKNexus::UI::bindRefreshTimer(refreshTimer, &timerOwner);
+    bool timerFollowsSetting = refreshTimer.interval() == 1000 / originalFrameRate;
+    QObject::connect(&settings, &ApplicationSettings::frameRateChanged, &timerOwner,
                      [&signalCount](int) { ++signalCount; });
 
     settings.setFrameRate(selectedFrameRate);
+    timerFollowsSetting &= refreshTimer.interval() == 1000 / selectedFrameRate;
     settings.setFrameRate(47);
+    timerFollowsSetting &= refreshTimer.interval() == 1000 / 60;
     const auto passed = check(settings.frameRate() == 60 && signalCount == 2,
-                              "application settings accept 30, 60 and 120 FPS while normalizing other values to 60 FPS");
+                              "application settings accept 30, 60 and 120 FPS while normalizing other values to 60 FPS")
+        && check(timerFollowsSetting && refreshTimer.timerType() == Qt::PreciseTimer,
+                 "refresh timer tracks application FPS changes");
+    settings.setPeakValueRefreshMilliseconds(75);
+    settings.setPeakHoldSeconds(2.5);
+    const auto peakSettingsPassed = check(settings.peakValueRefreshMilliseconds() == 75
+                                          && settings.peakHoldSeconds() == 2.5,
+                                          "global peak value refresh and hold settings can be changed");
+    settings.setPeakValueRefreshMilliseconds(originalPeakRefresh);
+    settings.setPeakHoldSeconds(originalPeakHold);
     settings.setFrameRate(originalFrameRate);
-    return passed;
+    return passed && peakSettingsPassed;
 }
 
 bool testThemeManager(QApplication& application)
@@ -254,9 +283,12 @@ bool testPaintableWidget()
 
 bool testAnimatedWidget()
 {
+    auto& settings = WinJACKNexus::UI::ApplicationSettings::instance();
+    const auto originalFrameRate = settings.frameRate();
     ProbeAnimated widget;
     widget.resize(120, 80);
     widget.setFrameRate(120);
+    const bool globalRateSelected = settings.frameRate() == 120 && widget.frameRate() == 120;
     widget.show();
     QCoreApplication::processEvents();
     int signalCount = 0;
@@ -286,6 +318,300 @@ bool testAnimatedWidget()
     passed &= check(widget.animationRunning(), "animated widget resumes when shown");
     widget.stopAnimation();
     passed &= check(!widget.animationRunning(), "animated widget can be stopped explicitly");
+    passed &= check(globalRateSelected, "animated widget frame-rate setter updates the application frame rate");
+    settings.setFrameRate(originalFrameRate);
+    return passed;
+}
+
+bool testSettingsControlThemePreview()
+{
+    using namespace WinJACKNexus::UI;
+    QWidget preview;
+    preview.resize(360, 470);
+    Controls::TextField textField(&preview);
+    textField.setGeometry(20, 20, 320, 30);
+    textField.setText(QStringLiteral("Settings text"));
+    Controls::SearchField searchField(&preview);
+    searchField.setGeometry(20, 60, 320, 30);
+    searchField.setPlaceholderText(QStringLiteral("Search modules"));
+    Controls::ChoiceField choiceField(&preview);
+    choiceField.setGeometry(20, 100, 320, 30);
+    choiceField.addItems({QStringLiteral("Default"), QStringLiteral("Custom")});
+    Controls::IntegerField integerField(&preview);
+    integerField.setGeometry(20, 140, 150, 30);
+    integerField.setRange(30, 120);
+    integerField.setValue(60);
+    Controls::DecimalField decimalField(&preview);
+    decimalField.setGeometry(190, 140, 150, 30);
+    decimalField.setValue(1.5);
+    Controls::ActionButton actionButton(QStringLiteral("Apply"), &preview);
+    actionButton.setGeometry(20, 185, 320, 34);
+    Controls::ToggleField toggleField(QStringLiteral("Enable effect"), &preview);
+    toggleField.setGeometry(20, 230, 150, 28);
+    toggleField.setChecked(true);
+    Controls::RangeSlider rangeSlider(Qt::Horizontal, &preview);
+    rangeSlider.setGeometry(190, 230, 150, 28);
+    rangeSlider.setRange(0, 100);
+    rangeSlider.setValue(60);
+    Controls::IconActionButton iconButton(&preview);
+    iconButton.setGeometry(20, 275, 320, 38);
+    iconButton.setIcon(IconManager::icon(QStringLiteral("plus")));
+    iconButton.setText(QStringLiteral("Add module"));
+    iconButton.setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+    Controls::DragTreeWidget tree(&preview);
+    tree.setGeometry(20, 330, 320, 120);
+    tree.setHeaderHidden(true);
+    new QTreeWidgetItem(&tree, {QStringLiteral("Native Fx")});
+    ThemeManager manager;
+    bool passed = true;
+    passed &= check(dynamic_cast<Controls::ScrollBarField*>(tree.verticalScrollBar())
+                        && dynamic_cast<Controls::ScrollBarField*>(tree.horizontalScrollBar()),
+                    "node library tree uses themed scrollbars");
+    passed &= check(!choiceField.manualFilterEnabled() && !choiceField.isEditable(),
+                    "dropdown manual filtering is disabled by default");
+    choiceField.setManualFilterEnabled(true);
+    passed &= check(choiceField.isEditable() && choiceField.completer()
+                    && choiceField.completer()->filterMode() == Qt::MatchContains
+                    && choiceField.completer()->caseSensitivity() == Qt::CaseInsensitive,
+                    "dropdown can filter choices by manually entered text");
+    choiceField.completer()->setCompletionPrefix(QStringLiteral("ustom"));
+    passed &= check(choiceField.completer()->completionCount() == 1
+                    && choiceField.completer()->currentCompletion() == QStringLiteral("Custom"),
+                    "dropdown manual filtering matches a substring");
+    choiceField.setManualFilterEnabled(false);
+    passed &= check(toggleField.property("wjnRole").toString() == QStringLiteral("toggle")
+                    && rangeSlider.property("wjnRole").toString() == QStringLiteral("range"),
+                    "shared toggle and slider carry theme roles");
+    for (const auto& theme : {QStringLiteral("dark-rack"), QStringLiteral("light-console")}) {
+        passed &= check(manager.setTheme(theme) && manager.applyToWidget(&preview),
+                        "shared settings control theme can be applied");
+        preview.show();
+        QCoreApplication::processEvents();
+        passed &= check(toggleField.property("accentColor").value<QColor>()
+                            == manager.palette().color(QStringLiteral("accent"))
+                        && rangeSlider.property("accentColor").value<QColor>()
+                            == manager.palette().color(QStringLiteral("accent"))
+                        && choiceField.property("accentColor").value<QColor>()
+                            == manager.palette().color(QStringLiteral("accent"))
+                        && integerField.property("accentColor").value<QColor>()
+                            == manager.palette().color(QStringLiteral("accent"))
+                        && decimalField.property("accentColor").value<QColor>()
+                            == manager.palette().color(QStringLiteral("accent"))
+                        && actionButton.property("accentColor").value<QColor>()
+                            == manager.palette().color(QStringLiteral("accent"))
+                        && iconButton.property("accentColor").value<QColor>()
+                            == manager.palette().color(QStringLiteral("accent")),
+                        "self-drawn settings controls receive the active theme colors");
+        QImage image(preview.size(), QImage::Format_ARGB32_Premultiplied);
+        image.fill(Qt::transparent);
+        preview.render(&image);
+        passed &= check(image.save(QStringLiteral("build/shared-settings-%1.png").arg(theme)),
+                        "shared settings control theme preview is written to existing build directory");
+    }
+    QWidget choicePreview;
+    choicePreview.resize(370, 88);
+    Controls::ChoiceField editable(&choicePreview);
+    editable.setGeometry(8, 8, 354, 32);
+    editable.setEditable(true);
+    editable.addItem(QStringLiteral("Speaker 2 - External Audio Device"));
+    editable.setEditText(QStringLiteral("Speaker 2 - External Audio Device"));
+    Controls::ChoiceField filtered(&choicePreview);
+    filtered.setGeometry(8, 48, 354, 32);
+    filtered.addItem(QStringLiteral("Speaker 2 - External Audio Device"));
+    filtered.setManualFilterEnabled(true);
+    filtered.setEditText(QStringLiteral("External"));
+    manager.setTheme(QStringLiteral("dark-rack"));
+    manager.applyToWidget(&choicePreview);
+    choicePreview.show();
+    QCoreApplication::processEvents();
+    QImage choiceImage(choicePreview.size(), QImage::Format_ARGB32_Premultiplied);
+    choicePreview.render(&choiceImage);
+    passed &= check(choiceImage.save(QStringLiteral("build/shared-editable-choices.png")),
+                    "editable and filtered dropdown preview is written to the existing build directory");
+    return passed;
+}
+
+bool testSharedContainerControls()
+{
+    using namespace WinJACKNexus::UI::Controls;
+    bool passed = true;
+    DialogButtonBar actions(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+    int accepted = 0;
+    int rejected = 0;
+    QObject::connect(&actions, &QDialogButtonBox::accepted, &actions,
+                     [&accepted] { ++accepted; });
+    QObject::connect(&actions, &QDialogButtonBox::rejected, &actions,
+                     [&rejected] { ++rejected; });
+    for (auto* button : actions.buttons()) {
+        passed &= check(qobject_cast<ActionButton*>(button) != nullptr,
+                        "dialog action uses a shared self-drawn button");
+        button->click();
+    }
+    passed &= check(accepted == 1 && rejected == 1,
+                    "shared dialog actions preserve accept and reject signals");
+    TabField tabs;
+    tabs.resize(320, 180);
+    tabs.addTab(new QWidget(&tabs), QStringLiteral("Main"));
+    tabs.setTabsClosable(true);
+    tabs.addTab(new QWidget(&tabs), QStringLiteral("AUX"));
+    tabs.show();
+    QCoreApplication::processEvents();
+    int closedIndex = -1;
+    QObject::connect(&tabs, &QTabWidget::tabCloseRequested, &tabs,
+                     [&closedIndex](int index) { closedIndex = index; });
+    auto* close = qobject_cast<IconActionButton*>(
+        tabs.tabBar()->tabButton(0, QTabBar::RightSide));
+    passed &= check(close != nullptr, "tab close control comes from shared UI API");
+    if (close) close->click();
+    passed &= check(closedIndex == 0, "shared tab close control preserves close signal");
+
+    LogField log;
+    log.resize(320, 90);
+    log.setReadOnly(true);
+    log.show();
+    QCoreApplication::processEvents();
+    QImage before(log.size(), QImage::Format_ARGB32_Premultiplied);
+    before.fill(Qt::transparent);
+    log.render(&before);
+    log.appendPlainText(QStringLiteral("Scanner log entry"));
+    QCoreApplication::processEvents();
+    QImage after(log.size(), QImage::Format_ARGB32_Premultiplied);
+    after.fill(Qt::transparent);
+    log.render(&after);
+    passed &= check(before != after, "shared log renders newly appended text");
+
+    QMainWindow main;
+    main.resize(980, 480);
+    main.setCentralWidget(new QWidget(&main));
+    auto* left = new DockPanel(QStringLiteral("Nodes"), Qt::LeftDockWidgetArea, &main);
+    left->setWidget(new QWidget(left));
+    main.addDockWidget(Qt::LeftDockWidgetArea, left);
+    auto* right = new DockPanel(QStringLiteral("Properties"), Qt::RightDockWidgetArea, &main);
+    right->setWidget(new QWidget(right));
+    main.addDockWidget(Qt::RightDockWidgetArea, right);
+    WinJACKNexus::UI::ThemeManager dockTheme;
+    dockTheme.setTheme(QStringLiteral("dark-rack"));
+    dockTheme.applyToWidget(&main);
+    main.show();
+    QCoreApplication::processEvents();
+    main.resizeDocks({left, right}, {250, 250}, Qt::Horizontal);
+    QCoreApplication::processEvents();
+    QImage titleImage(left->titleBarWidget()->size(), QImage::Format_ARGB32_Premultiplied);
+    titleImage.fill(Qt::transparent);
+    left->titleBarWidget()->render(&titleImage);
+    int titlePixels = 0;
+    for (int y = 1; y < titleImage.height() - 1; ++y)
+        for (int x = 8; x < std::min(80, titleImage.width() - 1); ++x) {
+            const auto color = titleImage.pixelColor(x, y);
+            if (color.red() > 140 && color.green() > 140 && color.blue() > 140)
+                ++titlePixels;
+        }
+    passed &= check(left->titleBarWidget()->height() == sidebarControlHeight
+                    && titlePixels > 10, "shared dock paints its title at the common control height");
+    auto* grip = left->findChild<QWidget*>(QStringLiteral("dockResizeGrip"));
+    passed &= check(grip != nullptr, "shared dock exposes a painted width grip");
+    if (grip) {
+        const int originalWidth = left->width();
+        const QPointF local(4, 50);
+        const QPointF global = grip->mapToGlobal(local.toPoint());
+        QMouseEvent press(QEvent::MouseButtonPress, local, global,
+                          Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+        QCoreApplication::sendEvent(grip, &press);
+        QMouseEvent move(QEvent::MouseMove, local + QPointF(70, 0), global + QPointF(70, 0),
+                         Qt::NoButton, Qt::LeftButton, Qt::NoModifier);
+        QCoreApplication::sendEvent(grip, &move);
+        QMouseEvent release(QEvent::MouseButtonRelease, local + QPointF(70, 0),
+                            global + QPointF(70, 0), Qt::LeftButton,
+                            Qt::NoButton, Qt::NoModifier);
+        QCoreApplication::sendEvent(grip, &release);
+        QCoreApplication::processEvents();
+        passed &= check(left->width() >= originalWidth + 40,
+                        "dragging the shared dock grip changes sidebar width");
+    }
+    auto* collapse = left->findChild<IconActionButton*>(QStringLiteral("dockCollapseButton"));
+    passed &= check(collapse != nullptr, "shared dock exposes a collapse arrow");
+    passed &= check(left->titleBarWidget()->findChildren<QToolButton*>().empty()
+                    && right->titleBarWidget()->findChildren<QToolButton*>().empty(),
+                    "dock headers omit floating and close controls");
+    if (collapse) {
+        const QPoint arrowTop = collapse->mapTo(left, QPoint(0, 0));
+        passed &= check(arrowTop.x() >= left->width() - 24
+                        && std::abs(arrowTop.y() + collapse->height() / 2 - left->height() / 2) <= 1,
+                        "left dock collapse arrow sits at the canvas-facing edge midpoint");
+        auto* rightArrow = right->findChild<IconActionButton*>(QStringLiteral("dockCollapseButton"));
+        const QPoint rightTop = rightArrow ? rightArrow->mapTo(right, QPoint(0, 0)) : QPoint(-1, -1);
+        passed &= check(rightArrow && rightTop.x() <= 2
+                        && std::abs(rightTop.y() + rightArrow->height() / 2 - right->height() / 2) <= 1,
+                        "right dock collapse arrow sits at the canvas-facing edge midpoint");
+        collapse->click();
+        QCoreApplication::processEvents();
+        passed &= check(left->isCollapsed() && left->width() <= 40,
+                        "dock arrow collapses the sidebar to a narrow rail");
+        const QPoint collapsedArrowTop = collapse->mapTo(left, QPoint(0, 0));
+        passed &= check(collapsedArrowTop.x() >= left->width() - 24
+                            && std::abs(collapsedArrowTop.y() - arrowTop.y()) <= 1,
+                        "left dock arrow keeps its edge and vertical position when collapsed");
+        collapse->click();
+        QCoreApplication::processEvents();
+        passed &= check(!left->isCollapsed() && left->width() >= 160,
+                        "dock arrow restores the sidebar width");
+        if (rightArrow) {
+            rightArrow->click();
+            QCoreApplication::processEvents();
+            const QPoint collapsedRightTop = rightArrow->mapTo(right, QPoint(0, 0));
+            passed &= check(right->isCollapsed() && right->width() <= 40
+                                && collapsedRightTop.x() <= 2
+                                && std::abs(collapsedRightTop.y() - rightTop.y()) <= 1,
+                            "right dock arrow keeps its edge and vertical position when collapsed");
+            rightArrow->click();
+            QCoreApplication::processEvents();
+        }
+    }
+    QImage dockImage(main.size(), QImage::Format_ARGB32_Premultiplied);
+    main.render(&dockImage);
+    passed &= check(dockImage.save(QStringLiteral("build/shared-dock-panels.png")),
+                    "shared resizable dock preview is written to the existing build directory");
+    return passed;
+}
+
+bool testMixerEmptyGroupHeaders()
+{
+    using namespace WinJACKNexus;
+    auto render = [](Common::DigitalMixerState& state) {
+        UI::MixerWindow mixer(&state, [](const Common::DigitalMixerState&, QString*) {
+            return true;
+        });
+        mixer.resize(1024, 768);
+        mixer.show();
+        QCoreApplication::processEvents();
+        QImage image(mixer.size(), QImage::Format_ARGB32_Premultiplied);
+        mixer.render(&image);
+        return image;
+    };
+    Common::DigitalMixerState empty;
+    const auto emptyImage = render(empty);
+    Common::DigitalMixerState populated;
+    populated.add(Common::MixerStripKind::input, Common::MixerLayout::stereo);
+    populated.add(Common::MixerStripKind::aux, Common::MixerLayout::stereo);
+    const auto populatedImage = render(populated);
+    Common::DigitalMixerState inputOnly;
+    inputOnly.add(Common::MixerStripKind::input, Common::MixerLayout::stereo);
+    const auto inputOnlyImage = render(inputOnly);
+    Common::DigitalMixerState auxOnly;
+    auxOnly.add(Common::MixerStripKind::aux, Common::MixerLayout::stereo);
+    const auto auxOnlyImage = render(auxOnly);
+    bool passed = true;
+    for (const QPoint point : {QPoint(915, 47), QPoint(1010, 47),
+                               QPoint(915, 75), QPoint(1010, 75)})
+        passed &= check(emptyImage.pixelColor(point) == populatedImage.pixelColor(point)
+                        && inputOnlyImage.pixelColor(point) == populatedImage.pixelColor(point)
+                        && auxOnlyImage.pixelColor(point) == populatedImage.pixelColor(point),
+                        "missing input or AUX groups do not paint over the Main Output header");
+    for (const QPoint point : {QPoint(553, 47), QPoint(899, 47)})
+        passed &= check(auxOnlyImage.pixelColor(point) == populatedImage.pixelColor(point),
+                        "missing input group does not paint over the AUX header");
+    passed &= check(emptyImage.save(QStringLiteral("build/mixer-empty-groups.png")),
+                    "empty-group mixer preview is written to the existing build directory");
     return passed;
 }
 
@@ -441,6 +767,9 @@ bool testMeterLevelBar()
     bar.setValue(99.0F);
     passed &= check(bar.value().has_value() && std::abs(*bar.value() - 12.0F) < 0.01F,
                     "meter level bar clamps values above its range");
+    bar.setPeakValue(std::nullopt);
+    passed &= check(bar.peakValue().has_value(),
+                    "meter level bar keeps the default peak marker without a true-peak sample");
 
     const auto renderLevel = [&bar] {
         QImage image(bar.size(), QImage::Format_ARGB32_Premultiplied);
@@ -473,6 +802,31 @@ bool testMeterLevelBar()
                         && imageContainsColor(redImage, red),
                     "meter level bar uses a red segment above zero dBFS without a gradient");
 
+    auto& settings = ApplicationSettings::instance();
+    const auto previousHold = settings.peakHoldSeconds();
+    const auto previousFrameRate = settings.frameRate();
+    settings.setFrameRate(30);
+    settings.setPeakHoldSeconds(0.15);
+    bar.clearValue();
+    bar.setValue(-30.0F);
+    bar.setPeakValue(6.0F);
+    bar.setPeakValue(-30.0F);
+    QEventLoop holdLoop;
+    QTimer::singleShot(60, &holdLoop, &QEventLoop::quit);
+    holdLoop.exec();
+    settings.setFrameRate(120);
+    bar.advanceAnimation();
+    const bool held = bar.peakValue().has_value() && std::abs(*bar.peakValue() - 6.0F) < 0.01F;
+    QEventLoop decayLoop;
+    QTimer::singleShot(130, &decayLoop, &QEventLoop::quit);
+    decayLoop.exec();
+    bar.advanceAnimation();
+    passed &= check(held && bar.peakValue().has_value()
+                    && *bar.peakValue() < 6.0F && *bar.peakValue() > -30.0F,
+                    "meter peak holds for real elapsed seconds across an FPS change, then decays");
+    settings.setPeakHoldSeconds(previousHold);
+    settings.setFrameRate(previousFrameRate);
+
     bar.setThemePalette(ThemePalette::lightConsole());
     QImage scaledImage(bar.size() * 2, QImage::Format_ARGB32_Premultiplied);
     scaledImage.setDevicePixelRatio(2.0);
@@ -489,6 +843,8 @@ bool testMeterLevelBar()
 bool testMeterArrayFrameRate()
 {
     using namespace WinJACKNexus::UI;
+    auto& settings = ApplicationSettings::instance();
+    const auto originalFrameRate = settings.frameRate();
     MeterArrayWidget meters;
     meters.setChannelCount(3);
     meters.setFrameRate(30);
@@ -508,9 +864,17 @@ bool testMeterArrayFrameRate()
     const auto childTimersStopped = std::all_of(expandedMeterWidgets.cbegin(), expandedMeterWidgets.cend(), [](const auto* meter) {
         return !meter->animationRunning();
     });
-    return check(meters.frameRate() == 30 && meterWidgets.size() == 3 && initialRatePropagated
-                     && expandedMeterWidgets.size() == 4 && expandedRatePropagated && childTimersStopped,
-                 "meter arrays propagate their animation frame rate while sharing one timer across all channels");
+    const bool arrayUsesGlobalRate = settings.frameRate() == 30 && meters.frameRate() == 30;
+    expandedMeterWidgets.front()->setFrameRate(120);
+    const bool childUsesGlobalRate = settings.frameRate() == 120 && meters.frameRate() == 120
+        && std::all_of(expandedMeterWidgets.cbegin(), expandedMeterWidgets.cend(), [](const auto* meter) {
+            return meter->frameRate() == 120;
+        });
+    settings.setFrameRate(originalFrameRate);
+    return check(arrayUsesGlobalRate && meterWidgets.size() == 3 && initialRatePropagated
+                     && expandedMeterWidgets.size() == 4 && expandedRatePropagated
+                     && childTimersStopped && childUsesGlobalRate,
+                 "meter arrays and child meters follow the application frame rate with one array timer");
 }
 
 bool testMetricReadout()
@@ -545,6 +909,22 @@ bool testMetricReadout()
     readout.render(&tallValueImage);
     passed &= check(lastColorPixelY(tallValueImage, QColor(QStringLiteral("#ff4060"))) < tallValueImage.height() * 3 / 4,
                     "metric readout keeps its value close to the label in a tall layout");
+
+    auto& settings = ApplicationSettings::instance();
+    const auto previousPeakRefresh = settings.peakValueRefreshMilliseconds();
+    settings.setPeakValueRefreshMilliseconds(1000);
+    readout.setPeakValueRefreshEnabled(true);
+    readout.setValue(1.0);
+    readout.setValue(2.0);
+    const bool throttled = readout.peakValueRefreshEnabled() && readout.value() == 1.0;
+    settings.setPeakValueRefreshMilliseconds(8);
+    QEventLoop peakRefreshWait;
+    QTimer::singleShot(15, &peakRefreshWait, &QEventLoop::quit);
+    peakRefreshWait.exec();
+    readout.setValue(3.0);
+    passed &= check(throttled && readout.value() == 3.0,
+                    "peak metric readout follows the global numeric refresh interval");
+    settings.setPeakValueRefreshMilliseconds(previousPeakRefresh);
 
     readout.setValue(std::numeric_limits<double>::infinity());
     passed &= check(!readout.value().has_value() && readout.displayText() == QStringLiteral("--"),
@@ -863,6 +1243,41 @@ bool testCompressorGraphFill()
     return passed;
 }
 
+bool testFxArchiveImportFailurePreservesState()
+{
+    using namespace WinJACKNexus;
+    UI::FxSettingsWindow window(QStringLiteral("Archive"), {QStringLiteral("L"), QStringLiteral("R")});
+    Common::MixerEffectState damaged;
+    damaged.moduleId = QStringLiteral("parametric-eq");
+    damaged.enabled = false;
+    damaged.preset = 2;
+    damaged.parameters.insert(QStringLiteral("snapshot"), QStringLiteral("%%%"));
+    std::vector<Common::MixerEffectState> published;
+    window.setChainCommitHandler([&](const auto& chain, bool) {
+        published = chain;
+        return true;
+    });
+    window.loadChain({damaged}, false);
+    window.setChainEnabled(true);
+    bool passed = check(published.size() == 1
+                     && published[0].moduleId == damaged.moduleId
+                     && published[0].preset == damaged.preset
+                     && published[0].parameters == damaged.parameters,
+                 "FX chain keeps an unreadable Native Fx snapshot during later edits");
+    UI::FxSettingsWindow copied(QStringLiteral("Copy"), {QStringLiteral("L"), QStringLiteral("R")});
+    std::vector<Common::MixerEffectState> copiedChain;
+    copied.setChainCommitHandler([&](const auto& chain, bool) {
+        copiedChain = chain;
+        return true;
+    });
+    copied.cloneChainFrom(window);
+    passed &= check(copiedChain.size() == 1
+                        && copiedChain[0].moduleId == damaged.moduleId
+                        && copiedChain[0].parameters == damaged.parameters,
+                    "copying an FX chain preserves unreadable module snapshots");
+    return passed;
+}
+
 bool testFxSettingsLoadsNativeFx()
 {
     using namespace WinJACKNexus::UI;
@@ -889,7 +1304,7 @@ bool testFxSettingsLoadsNativeFx()
     passed &= check(embedded, "FX window embeds the Native Fx control widget");
     auto* modulePreset = window.findChild<QComboBox*>(QStringLiteral("fxModulePreset"));
     passed &= check(modulePreset && modulePreset->count() == 6
-                        && modulePreset->currentText() == QStringLiteral("Vocal Clear"),
+                        && modulePreset->currentText() == QStringLiteral("Default"),
                     "module preset menu mirrors Parametric EQ's own presets");
     if (modulePreset && editor) {
         modulePreset->setCurrentIndex(1);
@@ -951,6 +1366,8 @@ bool testFxSettingsLoadsNativeFx()
                         && channelControls->parentWidget()==fxHeader
                         && headerChannel->mapTo(&window,QPoint()).x() < windowPreset->mapTo(&window,QPoint()).x(),
                     "FX channel selector sits in the top header before presets");
+    passed &= check(windowPreset && windowPreset->currentText() == QStringLiteral("Default"),
+                    "FX chain preset starts with the shared Default name");
     const auto channelCentered=[&] {
         return fxHeader && channelControls
             && std::abs(channelControls->mapTo(fxHeader,QPoint()).x()
@@ -1333,6 +1750,22 @@ bool testMixerChannelControls()
     passed &= check(firstBus && firstBus->panMode==WinJACKNexus::Common::AuxPanMode::spatial
                         && std::abs(firstBus->classicPan-.5)<.03,
                     "AUX can switch to spatial panning without losing its classic Pan value");
+    click(&auxControls,{504,760});
+    auto* auxEditor=auxControls.findChild<QLineEdit*>(QStringLiteral("numericValueEditor"));
+    passed &= check(auxEditor&&auxEditor->isVisible(),
+                    "AUX spatial parameter readout opens the shared numeric editor");
+    if(auxEditor) {
+        auxEditor->setText(QStringLiteral("85"));
+        QKeyEvent enter(QEvent::KeyPress,Qt::Key_Return,Qt::NoModifier);
+        QApplication::sendEvent(auxEditor,&enter);
+        passed &= check(firstBus&&std::abs(firstBus->width-.85)<.001,
+                        "AUX exact width value commits to the selected bus");
+    }
+    QMouseEvent auxDouble(QEvent::MouseButtonDblClick,QPointF(504,694),QPointF(504,694),
+                          Qt::LeftButton,Qt::LeftButton,Qt::NoModifier);
+    QApplication::sendEvent(&auxControls,&auxDouble);
+    passed &= check(firstBus&&std::abs(firstBus->width-1.0)<.001,
+                    "AUX width knob double-click restores its default");
     const auto monoPointBefore=firstBus?firstBus->adjustablePoints[0]:QPointF();
     passed &= check(firstBus && firstBus->showPolarCurves, "AUX polar curves start visible");
     click(&auxControls,{872,68});
@@ -1342,6 +1775,15 @@ bool testMixerChannelControls()
                     "clicking the drawn AUX polar switch hides curves without changing the send");
     click(&auxControls,{872,68});
     passed &= check(firstBus && firstBus->showPolarCurves, "AUX polar curves can be shown again");
+    click(&auxControls,{455,520});
+    passed &= check(firstBus && !firstBus->showInputCurve && firstBus->showOutputCurve
+                        && !auxControls.property("auxInputCurveVisible").toBool(),
+                    "AUX input contour has its own visibility state");
+    click(&auxControls,{530,520});
+    passed &= check(firstBus && !firstBus->showInputCurve && !firstBus->showOutputCurve,
+                    "AUX output contour visibility is independent");
+    click(&auxControls,{455,520});
+    click(&auxControls,{530,520});
     drag(&auxControls,{702,205},{790,205});
     passed &= check(firstBus && firstBus->pointInfluenceRadii[0]>.6
                         && firstBus->adjustablePoints[0]==monoPointBefore
@@ -1410,6 +1852,24 @@ bool testMixerChannelControls()
     passed &= check(chooseAuxMenu({345, 505}, [](QMenu* menu) { menu->actions()[1]->trigger(); })
                         && auxState->buses().size() == 4,
                     "AUX row gear deletes the selected bus");
+
+    auto routedState = std::make_shared<WinJACKNexus::Common::AuxMixerState>();
+    AuxSettingsWindow routedAux(routedState);
+    routedAux.setSource(QStringLiteral("aux:1"), QStringLiteral("AUX 1"), 1,
+                        WinJACKNexus::Common::AuxChannelLayout::stereo);
+    routedAux.show();
+    QCoreApplication::processEvents();
+    passed &= check(routedAux.selectedBusId() == 2, "AUX source excludes itself from the target list");
+    routedAux.selectBus(1);
+    passed &= check(routedAux.selectedBusId() == 2, "self AUX cannot be selected programmatically");
+    routedAux.setChainEnabled(true);
+    routedAux.setStateCommitCallback([] { return false; });
+    click(&routedAux, {48, 98});
+    passed &= check(routedState->busForSource(QStringLiteral("aux:1"), 2, 1)->enabled,
+                    "rejected AUX edit restores the prior route state");
+    routedAux.setChainCommitHandler([](bool) { return false; });
+    click(&routedAux, {222, 30});
+    passed &= check(routedAux.chainEnabled(), "rejected AUX master toggle preserves its prior state");
 
     auto surroundAuxState=std::make_shared<WinJACKNexus::Common::AuxMixerState>();
     surroundAuxState->setBusLayout(1,WinJACKNexus::Common::AuxChannelLayout::surround51);
@@ -1515,6 +1975,15 @@ bool testMixerChannelControls()
         click(mainPage,mainPoint(780,68));
         passed &= check(mainPage->property("selPolarCurvesVisible").toBool(),
                         "SEL polar curves can be shown again");
+        click(mainPage,mainPoint(838,68));
+        passed &= check(!mainPage->property("selInputCurveVisible").toBool()
+                            && mainPage->property("selOutputCurveVisible").toBool(),
+                        "SEL input contour visibility is independent");
+        click(mainPage,mainPoint(901,68));
+        passed &= check(!mainPage->property("selOutputCurveVisible").toBool(),
+                        "SEL output contour visibility is independent");
+        click(mainPage,mainPoint(838,68));
+        click(mainPage,mainPoint(901,68));
         drag(mainPage,mainPoint(592,212),mainPoint(670,212));
         passed &= check(mainPage->property("selPannerInfluence").toDouble()>.5,
                         "SEL spatial point outer ring adjusts nearby speaker influence");
@@ -1561,24 +2030,24 @@ bool testMixerChannelControls()
         click(mainPage,mainPoint(1098,68)); // Split all send controls.
         drag(mainPage,mainPoint(1073,140),mainPoint(1073,190));
         const auto splitLevels=mainPage->property("selSendLevels").toList();
-        passed &= check(splitLevels.size()==8 && std::abs(splitLevels[0].toDouble()+12.0)<1.0
-                            && std::abs(splitLevels[1].toDouble()+2.0)<.1,
+        passed &= check(splitLevels.size()==8 && std::abs(splitLevels[0].toDouble()+10.0)<1.0
+                            && std::abs(splitLevels[1].toDouble())<.1,
                         "split SEL knobs keep independent channel levels");
         drag(mainPage,mainPoint(1073,312),mainPoint(1073,362));
         const auto disabledLevels=mainPage->property("selSendLevels").toList();
         passed &= check(mainPage->property("selActiveSendCount").toInt()==2
-                        && std::abs(disabledLevels[2].toDouble()+2.0)<.1,
+                        && std::abs(disabledLevels[2].toDouble())<.1,
                         "SEL shows eight knob cards and disables those outside the selected layout");
         click(mainPage,mainPoint(1098,68)); // Link all channels.
         drag(mainPage,mainPoint(1073,140),mainPoint(1073,170));
         const auto linkedLevels=mainPage->property("selSendLevels").toList();
-        passed &= check(linkedLevels.size()==8 && std::abs(linkedLevels[0].toDouble()+18.0)<1.0
-                            && std::abs(linkedLevels[1].toDouble()+8.0)<1.0,
+        passed &= check(linkedLevels.size()==8 && std::abs(linkedLevels[0].toDouble()+16.0)<1.0
+                            && std::abs(linkedLevels[1].toDouble()+6.0)<1.0,
                         "linked SEL knobs shift every channel by the same dB delta");
         const double initialFrontBack=mainPage->property("selPannerFrontBack").toDouble();
         drag(mainPage,mainPoint(427,694),mainPoint(427,734));
         drag(mainPage,mainPoint(633,694),mainPoint(633,654));
-        const bool widthAndFrontBackChanged=std::abs(mainPage->property("selPannerWidth").toDouble()-.5)<.02
+        const bool widthAndFrontBackChanged=std::abs(mainPage->property("selPannerWidth").toDouble()-.8)<.02
             && std::abs(mainPage->property("selPannerFrontBack").toDouble()-initialFrontBack-.4)<.03;
         drag(mainPage,mainPoint(839,694),mainPoint(839,654));
         passed &= check(widthAndFrontBackChanged
@@ -1821,6 +2290,557 @@ bool testMixerChannelControls()
     return passed;
 }
 
+bool testSelPeakReadoutCadence()
+{
+    using namespace WinJACKNexus;
+    auto& settings = UI::ApplicationSettings::instance();
+    const auto originalInterval = settings.peakValueRefreshMilliseconds();
+    settings.setPeakValueRefreshMilliseconds(8);
+    Common::DigitalMixerState state;
+    const auto inputId = state.add(Common::MixerStripKind::input, Common::MixerLayout::stereo);
+    float livePeak = .5F;
+    UI::MixerWindow mixer(&state, [&state](const Common::DigitalMixerState& candidate, QString*) {
+        state = candidate;
+        return true;
+    }, [inputId, &livePeak](std::uint64_t id, bool) {
+        return id == inputId ? livePeak : 0.0F;
+    });
+    mixer.show();
+    mixer.menuBar()->actions().back()->trigger();
+    auto* selMain = mixer.findChild<QWidget*>(QStringLiteral("selMainPage"));
+    const auto wait = [](int milliseconds) {
+        QEventLoop loop;
+        QTimer::singleShot(milliseconds, &loop, &QEventLoop::quit);
+        loop.exec();
+    };
+    wait(120);
+    const auto first = selMain ? selMain->property("selInputMeterReadoutDb") : QVariant {};
+    settings.setPeakValueRefreshMilliseconds(1000);
+    livePeak = 0.0F;
+    wait(120);
+    const auto held = selMain ? selMain->property("selInputMeterReadoutDb") : QVariant {};
+    settings.setPeakValueRefreshMilliseconds(8);
+    wait(120);
+    const auto updated = selMain ? selMain->property("selInputMeterReadoutDb") : QVariant {};
+    settings.setPeakValueRefreshMilliseconds(originalInterval);
+    return check(first.isValid() && first.toDouble() > -40.0
+                     && held.isValid() && std::abs(held.toDouble() - first.toDouble()) < .001
+                     && updated.isValid() && updated.toDouble() < first.toDouble() - 5.0,
+                 "SEL peak numeric readout follows global millisecond interval while live level changes");
+}
+
+bool testPeakHoldSurvivesFrameRateChange()
+{
+    using namespace WinJACKNexus::UI;
+    auto& settings = ApplicationSettings::instance();
+    const auto originalRate = settings.frameRate();
+    const auto originalHold = settings.peakHoldSeconds();
+    settings.setFrameRate(30);
+    settings.setPeakHoldSeconds(.25);
+    PeakMeterWidget meter;
+    meter.show();
+    meter.setValue(0.0F);
+    meter.setValue(-70.0F);
+    const auto wait = [](int milliseconds) {
+        QEventLoop loop;
+        QTimer::singleShot(milliseconds, &loop, &QEventLoop::quit);
+        loop.exec();
+    };
+    wait(60);
+    settings.setFrameRate(120);
+    wait(120);
+    const auto heldPeak = meter.peakValue();
+    wait(150);
+    const auto decayedPeak = meter.peakValue();
+    settings.setPeakHoldSeconds(originalHold);
+    settings.setFrameRate(originalRate);
+    return check(std::abs(heldPeak) < .1F && decayedPeak < -1.0F,
+                 "peak hold lasts the configured seconds across a 30 to 120 FPS change");
+}
+
+bool testBoundMixerAuxState()
+{
+    using namespace WinJACKNexus;
+    Common::DigitalMixerState state;
+    state.add(Common::MixerStripKind::input, Common::MixerLayout::stereo);
+    state.add(Common::MixerStripKind::aux, Common::MixerLayout::stereo);
+    state.add(Common::MixerStripKind::aux, Common::MixerLayout::stereo);
+    int commits = 0;
+    float liveMainPeak = .5F;
+    UI::MixerWindow mixer(&state, [&state, &commits](const Common::DigitalMixerState& candidate, QString*) {
+        state = candidate;
+        ++commits;
+        return true;
+    }, [&state, &liveMainPeak](std::uint64_t id, bool) {
+        return id == state.main().id ? liveMainPeak : 0.0F;
+    });
+    mixer.show();
+    QCoreApplication::processEvents();
+    bool passed = check(std::abs(mixer.mainInputLevelDb() + 6.0206) < .01,
+                        "bound MAIN meter reads live audio peak");
+    const auto inputId = state.inputs()[0].id;
+    const QPoint faderReadout(61, 685);
+    const auto readoutGlobal = mixer.mapToGlobal(faderReadout);
+    QMouseEvent readoutPress(QEvent::MouseButtonPress, QPointF(faderReadout),
+                             QPointF(readoutGlobal), Qt::LeftButton,
+                             Qt::LeftButton, Qt::NoModifier);
+    QApplication::sendEvent(&mixer, &readoutPress);
+    auto* faderEditor = mixer.findChild<QLineEdit*>(QStringLiteral("numericValueEditor"));
+    passed &= check(faderEditor && faderEditor->isVisible(),
+                    "mixer fader readout opens the shared numeric editor");
+    if (faderEditor) {
+        faderEditor->setText(QStringLiteral("-7.5"));
+        QKeyEvent enter(QEvent::KeyPress, Qt::Key_Return, Qt::NoModifier);
+        QApplication::sendEvent(faderEditor, &enter);
+        const auto* strip = state.strip(inputId);
+        passed &= check(strip && std::abs(strip->faderPosition
+                             - (12.0 + 7.5) / 84.0 * .95) < .001,
+                        "mixer exact fader value commits to the channel model");
+    }
+    const QPoint faderTrack(61, 550);
+    const auto trackGlobal = mixer.mapToGlobal(faderTrack);
+    QMouseEvent faderDouble(QEvent::MouseButtonDblClick, QPointF(faderTrack),
+                            QPointF(trackGlobal), Qt::LeftButton,
+                            Qt::LeftButton, Qt::NoModifier);
+    QApplication::sendEvent(&mixer, &faderDouble);
+    const auto* resetStrip = state.strip(inputId);
+    passed &= check(resetStrip && std::abs(resetStrip->faderPosition
+                         - 12.0 / 84.0 * .95) < .001,
+                    "mixer fader double-click restores 0 dB unity");
+    liveMainPeak = 0.0F;
+    passed &= check(mixer.mainOutputLevelDb() <= -72.0,
+                    "bound MAIN meter clears when input disconnects");
+    mixer.menuBar()->actions().back()->trigger();
+    auto* selMain=mixer.findChild<QWidget*>(QStringLiteral("selMainPage"));
+    passed &= check(selMain!=nullptr,"bound mixer opens the SEL Main control page");
+    if(selMain) {
+        const qreal scale=std::min(selMain->width()/1394.0,selMain->height()/813.0);
+        const QPoint point(qRound(180*scale),qRound((selMain->height()-813*scale)/2+376*scale));
+        const auto global=selMain->mapToGlobal(point);
+        QMouseEvent press(QEvent::MouseButtonPress,QPointF(point),QPointF(global),
+                          Qt::LeftButton,Qt::LeftButton,Qt::NoModifier);
+        QApplication::sendEvent(selMain,&press);
+        auto* gainEditor=selMain->findChild<QLineEdit*>(QStringLiteral("numericValueEditor"));
+        passed &= check(gainEditor&&gainEditor->isVisible(),
+                        "SEL input gain readout opens the shared numeric editor");
+        if(gainEditor) {
+            gainEditor->setText(QStringLiteral("-4.5"));
+            QKeyEvent enter(QEvent::KeyPress,Qt::Key_Return,Qt::NoModifier);
+            QApplication::sendEvent(gainEditor,&enter);
+            passed &= check(std::abs(state.inputs()[0].inputGainDb+4.5)<.001,
+                            "SEL exact input gain commits to the mixer model");
+        }
+    }
+    if (auto* tab = mixer.findChild<QPushButton*>(QStringLiteral("selTabAUX"))) tab->click();
+    UI::AuxSettingsWindow* aux = nullptr;
+    for (auto* child : mixer.findChildren<QWidget*>())
+        if (auto* candidate = dynamic_cast<UI::AuxSettingsWindow*>(child)) { aux = candidate; break; }
+    passed &= check(aux && aux->selectedBusId() == 1 && !aux->chainEnabled(),
+                        "bound CH opens AUX details with model routes disabled");
+    if (!aux) return false;
+    const auto clickAux = [aux](int x, int y) {
+        const auto scale = std::min(aux->width() / 1360.0, aux->height() / 813.0);
+        const QPoint point(qRound((aux->width() - 1360 * scale) / 2 + x * scale),
+                           qRound((aux->height() - 813 * scale) / 2 + y * scale));
+        const auto global = aux->mapToGlobal(point);
+        QMouseEvent press(QEvent::MouseButtonPress, QPointF(point), QPointF(global),
+                          Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+        QApplication::sendEvent(aux, &press);
+        QMouseEvent release(QEvent::MouseButtonRelease, QPointF(point), QPointF(global),
+                            Qt::LeftButton, Qt::NoButton, Qt::NoModifier);
+        QApplication::sendEvent(aux, &release);
+    };
+    clickAux(222, 30);
+    passed &= check(aux->chainEnabled() && state.inputs()[0].auxSendsEnabled
+                        && state.inputs()[0].sends.empty(),
+                    "bound AUX master switch commits without creating unintended routes");
+    clickAux(48, 98);
+    passed &= check(state.inputs()[0].sends.size() == 1 && state.inputs()[0].sends[0].enabled
+                        && state.inputs()[0].sends[0].targetId == state.auxiliaries()[0].id,
+                    "bound AUX target switch commits a route by stable model ID");
+    aux->addBus(Common::AuxChannelLayout::mono);
+    passed &= check(state.auxiliaries().size() == 3 && commits >= 3,
+                    "AUX detail add commits a new model bus");
+    const QPoint auxSelect(580, 418);
+    const auto globalSelect = mixer.mapToGlobal(auxSelect);
+    QMouseEvent selectPress(QEvent::MouseButtonPress, QPointF(auxSelect), QPointF(globalSelect),
+                            Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+    QApplication::sendEvent(&mixer, &selectPress);
+    QMouseEvent selectRelease(QEvent::MouseButtonRelease, QPointF(auxSelect), QPointF(globalSelect),
+                              Qt::LeftButton, Qt::NoButton, Qt::NoModifier);
+    QApplication::sendEvent(&mixer, &selectRelease);
+    passed &= check(aux->selectedBusId() == 2, "bound AUX source offers the other AUX as its first target");
+    clickAux(222, 30);
+    clickAux(48, 98);
+    passed &= check(!state.auxiliaries()[0].sends.empty()
+                        && state.auxiliaries()[0].sends[0].targetId == state.auxiliaries()[1].id,
+                    "bound AUX1 can route to AUX2 without a self-send");
+    if (auto* fxTab = mixer.findChild<QPushButton*>(QStringLiteral("selTabFX"))) fxTab->click();
+    UI::FxSettingsWindow* fx = nullptr;
+    for (auto* child : mixer.findChildren<QWidget*>())
+        if (auto* candidate = dynamic_cast<UI::FxSettingsWindow*>(child)) { fx = candidate; break; }
+    auto* power = fx ? dynamic_cast<UI::Controls::ToggleButton*>(
+        fx->findChild<QWidget*>(QStringLiteral("fxChainToggle"))) : nullptr;
+    passed &= check(fx && power && power->isChecked()
+                        && state.auxiliaries()[0].effects.size() == 1
+                        && state.auxiliaries()[0].effects.front().moduleId == QStringLiteral("parametric-eq"),
+                    "new AUX starts with an active Parametric EQ chain");
+    if (power) {
+        power->click();
+        passed &= check(!state.auxiliaries()[0].fxChainEnabled,
+                        "bound FX master switch bypasses the selected strip");
+        power->click();
+        passed &= check(state.auxiliaries()[0].fxChainEnabled,
+                        "bound FX master switch restores the selected strip");
+    }
+    if (fx) {
+        QPushButton* addEffect = nullptr;
+        for (auto* button : fx->findChildren<QPushButton*>())
+            if (button->text().contains(QStringLiteral("添加模块"))) { addEffect = button; break; }
+        if (addEffect) {
+            QTimer::singleShot(0, fx, [] {
+                if (auto* menu = qobject_cast<QMenu*>(QApplication::activePopupWidget())) {
+                    if (!menu->actions().isEmpty()) menu->actions().first()->trigger();
+                    menu->close();
+                }
+            });
+            addEffect->click();
+        }
+        passed &= check(addEffect && state.auxiliaries()[0].effects.size() == 2
+                            && state.auxiliaries()[0].effects.back().moduleId == QStringLiteral("gate")
+                            && !state.auxiliaries()[0].effects.back().parameters.value(
+                                QStringLiteral("snapshot")).toString().isEmpty(),
+                        "bound FX addition commits full eight-channel parameters");
+    }
+    return passed;
+}
+
+bool testMeterValuePaintFollowsFrameTimer()
+{
+    ProbeMeter meter;
+    meter.resize(80, 190);
+    meter.show();
+    meter.stopAnimation();
+    for (int attempt = 0; attempt < 20 && meter.paintCount == 0; ++attempt) {
+        QCoreApplication::processEvents();
+        QThread::msleep(3);
+    }
+    const auto beforeValue = meter.paintCount;
+    meter.setValue(0.8F);
+    QCoreApplication::processEvents();
+    const bool inputDidNotPaint = meter.paintCount == beforeValue;
+    const auto beforeFrame = meter.frameNumber();
+    meter.startAnimation();
+    for (int attempt = 0; attempt < 40 && meter.frameNumber() == beforeFrame; ++attempt) {
+        QThread::msleep(3);
+        QCoreApplication::processEvents();
+    }
+    return check(beforeValue > 0 && inputDidNotPaint && meter.frameNumber() > beforeFrame,
+                 "meter input waits for the application frame timer to repaint");
+}
+
+bool testMeterDecayUsesElapsedTime()
+{
+    using namespace WinJACKNexus::UI;
+    auto& settings = ApplicationSettings::instance();
+    const auto previousHold = settings.peakHoldSeconds();
+    settings.setPeakHoldSeconds(0.0);
+    ProbeMeter meter;
+    meter.stopAnimation();
+    meter.setValue(1.0F);
+    meter.advanceForTest();
+    QThread::msleep(75);
+    meter.advanceForTest();
+    const bool meterDecayed = meter.peakValue() < 0.96F;
+
+    MeterLevelBar bar;
+    bar.setValue(-30.0F);
+    bar.setPeakValue(6.0F);
+    bar.setPeakValue(-30.0F);
+    bar.advanceAnimation();
+    QThread::msleep(75);
+    bar.advanceAnimation();
+    const bool barDecayed = bar.peakValue().has_value() && *bar.peakValue() < 4.0F;
+    settings.setPeakHoldSeconds(previousHold);
+    return check(meterDecayed && barDecayed,
+                 "meter and level-bar peak decay follows elapsed time after a delayed frame");
+}
+
+bool testLivePolarHostPages()
+{
+    using namespace WinJACKNexus;
+    bool passed = true;
+    const auto hasOutputCurve = [](const QImage& image) {
+        int colored = 0;
+        for (int y = image.height() * 22 / 100; y < image.height() * 61 / 100; ++y)
+            for (int x = image.width() * 32 / 100; x < image.width() * 66 / 100; ++x) {
+                const auto color = image.pixelColor(x, y);
+                colored += color.red() > 190 && color.green() > 90
+                    && color.green() < 210 && color.blue() < 145;
+            }
+        return colored > 40;
+    };
+    for (const auto layout : {Common::MixerLayout::mono, Common::MixerLayout::stereo,
+                              Common::MixerLayout::surround51, Common::MixerLayout::surround71}) {
+        Common::DigitalMixerState state;
+        const auto source = state.add(Common::MixerStripKind::input, layout);
+        const auto target = state.add(Common::MixerStripKind::aux, layout);
+        state.strip(source)->auxSendsEnabled = true;
+        state.strip(source)->faderPosition = .95 * 12.0 / 84.0;
+        state.strip(source)->mainPanner.mode = Common::MixerPanMode::spatial;
+        state.strip(source)->mainPanner.showPolarCurves = true;
+        auto send = Common::MixerAuxSend {target, true, true,
+            Common::defaultMixerPanner(layout, layout)};
+        send.panner.mode = Common::MixerPanMode::spatial;
+        send.panner.showPolarCurves = true;
+        passed &= check(state.setSend(source, send), "polar UI has an enabled surround AUX route");
+        const auto channels = static_cast<std::size_t>(static_cast<int>(layout));
+        std::array<std::array<float, 960>, 8> inputData {};
+        std::array<std::array<float, 960>, 10> outputData {};
+        std::array<const float*, 8> inputs {};
+        std::array<float*, 10> outputs {};
+        inputData[channels > 2 ? 2 : 0].fill(.5F);
+        for (std::size_t channel = 0; channel < channels; ++channel) {
+            inputs[channel] = inputData[channel].data();
+            outputs[channel] = outputData[channel].data();
+        }
+        outputs[channels] = outputData[channels].data();
+        outputs[channels + 1] = outputData[channels + 1].data();
+        Common::DigitalMixerProcessor processor;
+        Common::MixerPolarSnapshot mainSnapshot, auxSnapshot;
+        passed &= check(processor.configure(state, 960)
+            && processor.process(std::span(inputs.data(), channels),
+                                 std::span(outputs.data(), channels + 2), 960)
+            && processor.readPolar(source, state.main().id, mainSnapshot)
+            && processor.readPolar(source, target, auxSnapshot),
+            "real 5.1/7.1 processor frames reach both polar UI callbacks");
+        bool mainPending = true;
+        bool auxPending = true;
+        UI::MixerWindow mixer(&state, [&state](const Common::DigitalMixerState& next, QString*) {
+            state = next;
+            return true;
+        }, [](std::uint64_t, bool) { return .5F; },
+        [&](std::uint64_t from, std::uint64_t to, Common::MixerPolarSnapshot& snapshot) {
+            if (!mainPending || from != source || to != state.main().id) return false;
+            snapshot = mainSnapshot;
+            mainPending = false;
+            return true;
+        });
+        mixer.show();
+        mixer.menuBar()->actions().back()->trigger();
+        auto pause = [](int milliseconds) {
+            QEventLoop loop;
+            QTimer::singleShot(milliseconds, &loop, &QEventLoop::quit);
+            loop.exec();
+        };
+        const auto waitFor = [&pause](const auto& ready) {
+            for (int attempt = 0; attempt < 40 && !ready(); ++attempt) pause(50);
+            return ready();
+        };
+        auto* mainPage = mixer.findChild<QWidget*>(QStringLiteral("selMainPage"));
+        passed &= check(mainPage && waitFor([&] { return mainPage->property("selPolarDataValid").toBool(); }),
+            "SEL Main displays a contour from real branch samples");
+        if (mainPage) {
+            QImage frame(mainPage->size(), QImage::Format_ARGB32_Premultiplied);
+            frame.fill(Qt::transparent);
+            mainPage->render(&frame);
+            passed &= check(hasOutputCurve(frame),
+                "SEL Main renders the measured output contour for this layout");
+            passed &= check(frame.save(QStringLiteral("build/m6-sel-main-polar-%1.png").arg(channels)),
+                "SEL Main polar evidence image saved");
+        }
+        if (auto* tab = mixer.findChild<QPushButton*>(QStringLiteral("selTabAUX"))) tab->click();
+        UI::AuxSettingsWindow* aux = nullptr;
+        for (auto* child : mixer.findChildren<QWidget*>())
+            if (auto* candidate = dynamic_cast<UI::AuxSettingsWindow*>(child)) { aux = candidate; break; }
+        if (aux) aux->setPolarReadCallback([&](std::uint32_t bus, Common::MixerPolarSnapshot& snapshot) {
+            if (!auxPending || bus != 1) return false;
+            snapshot = auxSnapshot;
+            auxPending = false;
+            return true;
+        });
+        passed &= check(aux && waitFor([&] { return aux->property("auxPolarDataValid").toBool(); }),
+            "AUX detail displays a contour from real branch samples");
+        if (aux) {
+            QImage frame(aux->size(), QImage::Format_ARGB32_Premultiplied);
+            frame.fill(Qt::transparent);
+            aux->render(&frame);
+            passed &= check(hasOutputCurve(frame),
+                "AUX detail renders the measured output contour for this layout");
+            passed &= check(frame.save(QStringLiteral("build/m6-aux-polar-%1.png").arg(channels)),
+                "AUX detail polar evidence image saved");
+        }
+        passed &= check(mainPage && aux && waitFor([&] {
+            return !mainPage->property("selPolarDataValid").toBool()
+                && !aux->property("auxPolarDataValid").toBool();
+        }),
+            "both host pages clear stale curves after input stops");
+    }
+    return passed;
+}
+
+bool testPolarLegendPlacement()
+{
+    WinJACKNexus::Common::MixerPolarContour contour;
+    contour.valid = true;
+    contour.inputOverrange = true;
+    contour.outputOverrange = true;
+    const auto isLegendColor = [](QColor color) {
+        return (color.red() > 20 && color.green() > 145
+            && color.blue() > 180) || (color.red() > 190
+            && color.green() > 90 && color.blue() < 145);
+    };
+    bool passed = true;
+    for (const auto& placement : {
+             std::pair {QRectF(330, 95, 616, 448), QPointF(638, 319)},
+             std::pair {QRectF(420, 95, 531, 448), QPointF(686, 319)} }) {
+        QImage image(1000, 550, QImage::Format_ARGB32_Premultiplied);
+        image.fill(QColor("#102235"));
+        QPainter painter(&image);
+        WinJACKNexus::UI::drawMixerPolarCurves(painter, placement.first,
+            placement.second, 190, contour, true, true);
+        painter.end();
+        const QRect expected(qRound(placement.first.right()) - 108,
+                             qRound(placement.first.top()) + 8, 100, 42);
+        int legendPixels = 0;
+        for (int y = expected.top(); y <= expected.bottom(); ++y)
+            for (int x = expected.left(); x <= expected.right(); ++x)
+                legendPixels += isLegendColor(image.pixelColor(x, y));
+        const auto nearest = QPointF(std::clamp(placement.second.x(), qreal(expected.left()), qreal(expected.right())),
+                                     std::clamp(placement.second.y(), qreal(expected.top()), qreal(expected.bottom())));
+        const auto clearance = std::hypot(nearest.x() - placement.second.x(),
+                                          nearest.y() - placement.second.y()) - 190.0;
+        passed &= check(legendPixels > 30 && clearance >= 32.0
+                            && image.pixelColor(expected.left() + 20, expected.top()) == QColor("#385773"),
+            "polar legend occupies the upper-right whitespace with at least 32px dial clearance");
+    }
+    return passed;
+}
+
+bool testPolarScenarioScreenshots()
+{
+    using namespace WinJACKNexus;
+    bool passed = true;
+    constexpr double unityFader = .95 * 12.0 / 84.0;
+    for (const auto layout : {Common::MixerLayout::surround51, Common::MixerLayout::surround71}) {
+        const auto channels = static_cast<std::size_t>(static_cast<int>(layout));
+        for (const auto scenario : {"unit", "center", "minus6", "wide", "lfe", "cancel"}) {
+            Common::DigitalMixerState state;
+            const auto source = state.add(Common::MixerStripKind::input, layout);
+            const auto target = state.add(Common::MixerStripKind::aux, layout);
+            auto* sourceStrip = state.strip(source);
+            sourceStrip->auxSendsEnabled = true;
+            sourceStrip->faderPosition = unityFader;
+            auto send = Common::MixerAuxSend {target, true, true,
+                Common::defaultMixerPanner(layout, layout)};
+            std::array<std::array<float, 960>, 8> inputData {};
+            if (std::string_view(scenario) == "unit") {
+                for (std::size_t channel = 0; channel < channels; ++channel) {
+                    inputData[channel].fill(.25F);
+                    send.panner.points[channel].levelDb = 0.0;
+                    send.panner.points[channel].influenceRadius = .1;
+                    sourceStrip->mainPanner.points[channel].levelDb = 0.0;
+                    sourceStrip->mainPanner.points[channel].influenceRadius = .1;
+                }
+            } else if (std::string_view(scenario) == "lfe") {
+                inputData[3].fill(.5F);
+            } else if (std::string_view(scenario) == "cancel") {
+                inputData[0].fill(.5F);
+                inputData[1].fill(-.5F);
+                for (auto* panner : {&send.panner, &sourceStrip->mainPanner}) {
+                    panner->points[0].x = panner->points[1].x = 0.0;
+                    panner->points[0].y = panner->points[1].y = -1.0;
+                    panner->points[0].influenceRadius = panner->points[1].influenceRadius = .75;
+                }
+            } else {
+                inputData[2].fill(.5F);
+                if (std::string_view(scenario) == "center") {
+                    send.panner.points[2].levelDb = 0.0;
+                    sourceStrip->mainPanner.points[2].levelDb = 0.0;
+                } else if (std::string_view(scenario) == "wide") {
+                    send.panner.points[2].levelDb = 0.0;
+                    send.panner.points[2].influenceRadius = .75;
+                    sourceStrip->mainPanner.points[2].levelDb = 0.0;
+                    sourceStrip->mainPanner.points[2].influenceRadius = .75;
+                }
+            }
+            passed &= check(state.setSend(source, send), "polar scenario sends are valid");
+            std::array<std::array<float, 960>, 10> outputData {};
+            std::array<const float*, 8> inputs {};
+            std::array<float*, 10> outputs {};
+            for (std::size_t channel = 0; channel < channels; ++channel) {
+                inputs[channel] = inputData[channel].data();
+                outputs[channel] = outputData[channel].data();
+            }
+            outputs[channels] = outputData[channels].data();
+            outputs[channels + 1] = outputData[channels + 1].data();
+            Common::DigitalMixerProcessor processor;
+            Common::MixerPolarSnapshot mainSnapshot, auxSnapshot;
+            passed &= check(processor.configure(state, 960)
+                && processor.process(std::span(inputs.data(), channels),
+                                     std::span(outputs.data(), channels + 2), 960)
+                && processor.readPolar(source, state.main().id, mainSnapshot)
+                && processor.readPolar(source, target, auxSnapshot),
+                "both page snapshots come from one real processed scenario");
+            bool mainPending = true;
+            bool auxPending = true;
+            UI::MixerWindow mixer(&state, [&state](const Common::DigitalMixerState& next, QString*) {
+                state = next;
+                return true;
+            }, [](std::uint64_t, bool) { return .5F; },
+            [&](std::uint64_t from, std::uint64_t to, Common::MixerPolarSnapshot& snapshot) {
+                if (!mainPending || from != source || to != state.main().id) return false;
+                snapshot = mainSnapshot;
+                mainPending = false;
+                return true;
+            });
+            mixer.show();
+            mixer.menuBar()->actions().back()->trigger();
+            auto waitFor = [](const auto& ready) {
+                for (int attempt = 0; attempt < 40 && !ready(); ++attempt) {
+                    QEventLoop loop;
+                    QTimer::singleShot(50, &loop, &QEventLoop::quit);
+                    loop.exec();
+                }
+                return ready();
+            };
+            auto* mainPage = mixer.findChild<QWidget*>(QStringLiteral("selMainPage"));
+            passed &= check(mainPage && waitFor([&] {
+                return mainPage->property("selPolarDataValid").toBool();
+            }), "SEL Main accepted measured scenario contour");
+            const auto stem = QStringLiteral("build/m6-%1-%2").arg(channels).arg(scenario);
+            if (mainPage) {
+                QImage frame(mainPage->size(), QImage::Format_ARGB32_Premultiplied);
+                frame.fill(Qt::transparent);
+                mainPage->render(&frame);
+                passed &= check(frame.save(stem + QStringLiteral("-sel.png")),
+                    "SEL Main scenario screenshot saved");
+            }
+            if (auto* tab = mixer.findChild<QPushButton*>(QStringLiteral("selTabAUX"))) tab->click();
+            UI::AuxSettingsWindow* aux = nullptr;
+            for (auto* child : mixer.findChildren<QWidget*>())
+                if (auto* candidate = dynamic_cast<UI::AuxSettingsWindow*>(child)) { aux = candidate; break; }
+            if (aux) aux->setPolarReadCallback([&](std::uint32_t bus, Common::MixerPolarSnapshot& snapshot) {
+                if (!auxPending || bus != 1) return false;
+                snapshot = auxSnapshot;
+                auxPending = false;
+                return true;
+            });
+            passed &= check(aux && waitFor([&] {
+                return aux->property("auxPolarDataValid").toBool();
+            }), "AUX detail accepted measured scenario contour");
+            if (aux) {
+                QImage frame(aux->size(), QImage::Format_ARGB32_Premultiplied);
+                frame.fill(Qt::transparent);
+                aux->render(&frame);
+                passed &= check(frame.save(stem + QStringLiteral("-aux.png")),
+                    "AUX scenario screenshot saved");
+            }
+        }
+    }
+    return passed;
+}
+
 bool testFxMeterSegments()
 {
     using WinJACKNexus::UI::FxLevelMeterWidget;
@@ -1842,6 +2862,19 @@ bool testFxMeterSegments()
                     "middle meter zone is solid yellow");
     passed &= check(red.red() > red.green() * 2 && red.red() > red.blue() * 2,
                     "high meter zone is solid red");
+    auto& settings = WinJACKNexus::UI::ApplicationSettings::instance();
+    const auto originalHold = settings.peakHoldSeconds();
+    settings.setPeakHoldSeconds(0.0);
+    FxLevelMeterWidget fallingMeter;
+    fallingMeter.show();
+    fallingMeter.setLevels(12, 12);
+    fallingMeter.setLevels(-72, -72);
+    QEventLoop loop;
+    QTimer::singleShot(80, &loop, &QEventLoop::quit);
+    loop.exec();
+    passed &= check(fallingMeter.peakDb(0) < 12 && fallingMeter.peakDb(1) < 12,
+                    "FX meters draw a peak marker that decays after the global hold time");
+    settings.setPeakHoldSeconds(originalHold);
     return passed;
 }
 
@@ -1850,6 +2883,8 @@ bool testReusableFxControls()
     using namespace WinJACKNexus::UI::Controls;
     ControlRegistry registry;
     QWidget owner;
+    owner.resize(240, 100);
+    owner.show();
     bool passed = check(registry.create(QStringLiteral("button"), &owner) != nullptr
                         && registry.create(QStringLiteral("dropdown"), &owner) != nullptr
                         && registry.create(QStringLiteral("slider"), &owner) != nullptr
@@ -1873,12 +2908,130 @@ bool testReusableFxControls()
     drawDropdown(painter, {120,10,150,35}, QStringLiteral("Preset"), colors);
     drawKnob(painter, {55,105}, .6, 28, colors);
     drawSlider(painter, {115,65,15,105}, .4, true, colors);
+    FaderStyle faderStyle;
+    faderStyle.accent = colors.accent;
+    faderStyle.thumbWidth = 30;
+    faderStyle.thumbHeight = 24;
+    drawFader(painter, {192,65,6,105}, .25, faderStyle);
     drawToggle(painter, {155,75,55,30}, true, colors.accent, colors.border);
     drawChart(painter, {235,65,220,120}, 4, 3, colors);
     drawLevelMeter(painter, {20,205,220,20}, -6);
     drawCardLabel(painter, {255,205,200,55}, QStringLiteral("Graphic EQ"), QStringLiteral("▥"), colors);
+    ButtonStyle buttonStyle;
+    buttonStyle.activeFill = QColor("#27659a");
+    drawStyledButton(painter, {300,275,130,30}, QStringLiteral("Selected"), true, buttonStyle);
     painter.end();
     passed &= check(imageHasVisiblePixels(surface), "shared controls paint with custom accent");
+    passed &= check(surface.pixelColor(185,215) == QColor("#f7fbff")
+                        && surface.pixelColor(305,280) == QColor("#27659a"),
+                    "shared default peak meter draws a marker and styled buttons use configured fills");
+    passed &= check(surface.pixelColor(180, 91).alpha() > 0
+                        && surface.pixelColor(180, 150).alpha() == 0,
+                    "shared fader places its thumb at the requested position");
+    QImage configured(160, 100, QImage::Format_ARGB32_Premultiplied);
+    configured.fill(Qt::transparent);
+    QPainter configuredPainter(&configured);
+    MeterStyle meterStyle;
+    meterStyle.minimumDb = -40;
+    meterStyle.maximumDb = 10;
+    meterStyle.zones = {{0, QColor("#12ab34"), QColor("#102030")},
+                        {10, QColor("#e5b619"), QColor("#302010")}};
+    meterStyle.peakColor = QColor("#f0f0f0");
+    meterStyle.showPeak = true;
+    drawMeter(configuredPainter, {10, 10, 140, 18}, -10, 5.0, meterStyle);
+    std::array<float, 360> radii;
+    radii.fill(1.0F);
+    CurveStyle curveStyle;
+    curveStyle.stroke = QColor("#a012d0");
+    curveStyle.minimum = 0;
+    curveStyle.maximum = 2;
+    drawPolarCurve(configuredPainter, {80, 68}, 45, radii, curveStyle);
+    configuredPainter.end();
+    passed &= check(imageContainsColor(configured, QColor("#12ab34"))
+                        && imageContainsColor(configured, QColor("#a012d0"))
+                        && imageContainsColor(configured, QColor("#f0f0f0")),
+                    "shared meter and curve controls honor colors, ranges and peak markers");
+    QImage topTicks(160, 42, QImage::Format_ARGB32_Premultiplied);
+    topTicks.fill(Qt::transparent);
+    QPainter tickPainter(&topTicks);
+    meterStyle.ticks={{-72,QStringLiteral("-72")},{0,QStringLiteral("0")},
+                      {12,QStringLiteral("+12")}};
+    meterStyle.ticksAbove=true;
+    meterStyle.tickBandPixels=24;
+    meterStyle.labelColor=QColor("#d43af0");
+    drawMeter(tickPainter,{10,5,140,33},-10,5.0,meterStyle);
+    tickPainter.end();
+    bool topTickVisible=false;
+    for(int y=5;y<29&&!topTickVisible;++y)
+        for(int x=0;x<topTicks.width();++x)
+            if(topTicks.pixelColor(x,y)==meterStyle.labelColor){topTickVisible=true;break;}
+    passed &= check(topTickVisible,"shared meter places labeled ticks above its horizontal track");
+    QImage reduction(64, 110, QImage::Format_ARGB32_Premultiplied);
+    reduction.fill(Qt::transparent);
+    QPainter reductionPainter(&reduction);
+    MeterStyle reductionStyle;
+    reductionStyle.minimumDb = -60;
+    reductionStyle.maximumDb = 0;
+    reductionStyle.fillOriginDb = 0;
+    reductionStyle.vertical = true;
+    reductionStyle.zones = {{0, QColor("#ef3748"), QColor("#242c39")}};
+    drawMeter(reductionPainter, {8, 10, 12, 90}, -30, std::nullopt, reductionStyle);
+    reductionStyle.ticksLeft = true;
+    reductionStyle.tickBandPixels = 34;
+    reductionStyle.labelColor = QColor("#9aada5");
+    reductionStyle.ticks = {{0, QStringLiteral("0")}, {-30, QStringLiteral("-30")},
+                            {-60, QStringLiteral("-60")}};
+    drawMeterScale(reductionPainter, {24, 10, 34, 90}, reductionStyle);
+    reductionPainter.end();
+    passed &= check(reduction.pixelColor(14, 20) == QColor("#ef3748")
+                        && reduction.pixelColor(14, 88) == QColor("#242c39")
+                        && imageContainsColor(reduction, reductionStyle.labelColor),
+                    "shared meter fills from zero toward reduction and draws a separate scale");
+    QImage curveImage(100, 80, QImage::Format_ARGB32_Premultiplied);
+    curveImage.fill(Qt::transparent);
+    QPainter curvePainter(&curveImage);
+    QPainterPath strokePath;
+    strokePath.moveTo(10, 20);
+    strokePath.lineTo(90, 20);
+    QPainterPath fillPath;
+    fillPath.addRect(10, 20, 80, 40);
+    CurveStyle sharedCurve;
+    sharedCurve.stroke = QColor("#ff4050");
+    sharedCurve.fill = QColor("#2040e0");
+    sharedCurve.showFill = true;
+    drawCurvePath(curvePainter, strokePath, sharedCurve, &fillPath);
+    curvePainter.end();
+    passed &= check(curveImage.pixelColor(50, 20) == sharedCurve.stroke
+                        && curveImage.pixelColor(50, 40) == sharedCurve.fill,
+                    "shared curve painter separates the fill from the unfilled stroke");
+    QImage gridImage(100, 80, QImage::Format_ARGB32_Premultiplied);
+    gridImage.fill(Qt::transparent);
+    QPainter gridPainter(&gridImage);
+    ChartGridStyle gridStyle;
+    gridStyle.background=QColor("#102030");
+    gridStyle.grid=QColor("#a0b0c0");
+    gridStyle.verticalFractions={0.25};
+    gridStyle.horizontalFractions={0.75};
+    drawChartGrid(gridPainter,{10,10,80,60},gridStyle);
+    gridPainter.end();
+    passed &= check(gridImage.pixelColor(30,25)==gridStyle.grid
+                        && gridImage.pixelColor(50,55)==gridStyle.grid
+                        && gridImage.pixelColor(50,30)==gridStyle.background
+                        && gridImage.pixelColor(5,5).alpha()==0,
+                    "shared chart grid honors explicit positions, colors and clipping");
+    QImage gradientImage(100, 80, QImage::Format_ARGB32_Premultiplied);
+    gradientImage.fill(Qt::transparent);
+    QPainter gradientPainter(&gradientImage);
+    QLinearGradient gradient(0, 20, 0, 60);
+    gradient.setColorAt(0, QColor("#40d0ff"));
+    gradient.setColorAt(1, QColor("#103050"));
+    sharedCurve.fillBrush = QBrush(gradient);
+    sharedCurve.showStroke = false;
+    drawCurvePath(gradientPainter, strokePath, sharedCurve, &fillPath);
+    gradientPainter.end();
+    passed &= check(gradientImage.pixelColor(50, 25) != gradientImage.pixelColor(50, 55)
+                        && gradientImage.pixelColor(50, 20) != sharedCurve.stroke,
+                    "shared curve painter supports a gradient fill without a stroke");
     auto accentPixels = [&](qreal pan) {
         QImage image(200, 200, QImage::Format_ARGB32_Premultiplied);
         image.fill(Qt::transparent);
@@ -1903,6 +3056,40 @@ bool testReusableFxControls()
                         && leftLeft > 100 && leftRight < leftLeft / 10
                         && rightRight > 100 && rightLeft < rightRight / 10,
                     "shared Pan knob accent extends from center toward the selected side");
+    double edited = 0;
+    auto* editor = editNumericValue(&owner, {10,10,100,25}, -2.0,
+                                    {-72,12,0,1}, [&edited](double value) { edited=value; });
+    passed &= check(editor && editor->isVisible() && editor->selectedText()==QStringLiteral("-2.0"),
+                    "shared numeric readout opens an inline editor with its value selected");
+    if(editor) {
+        editor->setText(QStringLiteral("-6.5"));
+        QKeyEvent enter(QEvent::KeyPress,Qt::Key_Return,Qt::NoModifier);
+        QApplication::sendEvent(editor,&enter);
+        passed &= check(edited==-6.5 && !editor->isVisible(),
+                        "Enter commits an exact numeric value and restores the readout");
+    }
+    auto* cancelled = editNumericValue(&owner, {10,10,100,25}, -6.5,
+                                       {-72,12,0,1}, [&edited](double value) { edited=value; });
+    if(cancelled) {
+        cancelled->setText(QStringLiteral("3.0"));
+        QKeyEvent escape(QEvent::KeyPress,Qt::Key_Escape,Qt::NoModifier);
+        QApplication::sendEvent(cancelled,&escape);
+    }
+    passed &= check(edited==-6.5 && cancelled && !cancelled->isVisible(),
+                    "Escape closes the editor without changing its value");
+    resetNumericValue({-72,12,0,1},[&edited](double value) { edited=value; });
+    passed &= check(edited==0,"shared double-click reset applies the control default");
+    MeterBallistics meter60;
+    MeterBallistics meter120;
+    for(int i=0;i<60;++i) meter60.advance(-6,1.0/60,0.1);
+    for(int i=0;i<120;++i) meter120.advance(-6,1.0/120,0.1);
+    passed &= check(std::abs(meter60.levelDb()-meter120.levelDb())<.01
+                    && meter60.peakDb()==-6 && meter120.peakDb()==-6,
+                    "shared meter smoothing is independent of the chosen frame rate");
+    for(int i=0;i<6;++i) meter60.advance(-72,1.0/60,0.1);
+    passed &= check(meter60.peakDb()==-6,"peak marker remains during its hold interval");
+    for(int i=0;i<60;++i) meter60.advance(-72,1.0/60,0.1);
+    passed &= check(meter60.peakDb()<-6,"peak marker decays after the hold interval");
     return passed;
 }
 
@@ -1911,24 +3098,38 @@ bool testReusableFxControls()
 int main(int argc, char** argv)
 {
     QApplication application(argc, argv);
+    if (argc == 2 && std::string_view(argv[1]) == "bound-aux")
+        return testBoundMixerAuxState() ? 0 : 1;
     bool passed = true;
     passed &= testThemePalette();
     passed &= testApplicationSettings();
     passed &= testThemeManager(application);
+    passed &= testSettingsControlThemePreview();
+    passed &= testSharedContainerControls();
+    passed &= testMixerEmptyGroupHeaders();
     passed &= testPaintableWidget();
     passed &= testAnimatedWidget();
     passed &= testNativeWindowUtils();
     passed &= testIcons();
     passed &= testMeterLevelBar();
     passed &= testMeterArrayFrameRate();
+    passed &= testPeakHoldSurvivesFrameRateChange();
+    passed &= testMeterValuePaintFollowsFrameTimer();
+    passed &= testMeterDecayUsesElapsedTime();
     passed &= testMetricReadout();
     passed &= testHistoryChartAndLegend();
     passed &= testHistoryCurveDoesNotFillReferenceLine();
     passed &= testMetricStatisticsWidget();
     passed &= testCompressorGraphFill();
     passed &= testDeEsserWidget();
+    passed &= testFxArchiveImportFailurePreservesState();
     passed &= testFxSettingsLoadsNativeFx();
     passed &= testMixerChannelControls();
+    passed &= testSelPeakReadoutCadence();
+    passed &= testBoundMixerAuxState();
+    passed &= testLivePolarHostPages();
+    passed &= testPolarLegendPlacement();
+    passed &= testPolarScenarioScreenshots();
     passed &= testFxMeterSegments();
     passed &= testReusableFxControls();
     if (!passed)

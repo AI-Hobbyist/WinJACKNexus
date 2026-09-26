@@ -17,6 +17,7 @@ add_library(ui SHARED
     src/IconManager.cpp
     src/MeterWidget.cpp
     src/MixerWindow.cpp
+    src/MixerPolarPlot.cpp
     src/NativeWindowUtils.cpp
     src/PaintableWidget.cpp
     src/ThemeManager.cpp
@@ -37,6 +38,7 @@ add_library(ui SHARED
     include/WinJACKNexus/UI/IconManager.hpp
     include/WinJACKNexus/UI/MeterWidget.hpp
     include/WinJACKNexus/UI/MixerWindow.hpp
+    include/WinJACKNexus/UI/MixerPolarPlot.hpp
     include/WinJACKNexus/UI/NativeWindowUtils.hpp
     include/WinJACKNexus/UI/PaintableWidget.hpp
     include/WinJACKNexus/UI/ThemeManager.hpp

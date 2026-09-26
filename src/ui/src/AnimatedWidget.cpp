@@ -14,6 +14,7 @@
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 #include <WinJACKNexus/UI/AnimatedWidget.hpp>
+#include <WinJACKNexus/UI/ApplicationSettings.hpp>
 
 #include <algorithm>
 
@@ -23,8 +24,12 @@ AnimatedWidget::AnimatedWidget(QWidget* parent)
     : PaintableWidget(parent)
     , timer_(this)
 {
+    auto& settings = ApplicationSettings::instance();
+    frameRate_ = settings.frameRate();
     timer_.setTimerType(Qt::PreciseTimer);
     timer_.setInterval(1000 / frameRate_);
+    connect(&settings, &ApplicationSettings::frameRateChanged,
+            this, &AnimatedWidget::applyFrameRate);
     connect(&timer_, &QTimer::timeout, this, &AnimatedWidget::onAnimationTick);
 }
 
@@ -40,10 +45,14 @@ int AnimatedWidget::frameRate() const noexcept
 
 void AnimatedWidget::setFrameRate(int framesPerSecond)
 {
-    const auto normalizedRate = std::clamp(framesPerSecond, 1, 240);
-    if (frameRate_ == normalizedRate)
+    ApplicationSettings::instance().setFrameRate(framesPerSecond);
+}
+
+void AnimatedWidget::applyFrameRate(int framesPerSecond)
+{
+    if (frameRate_ == framesPerSecond)
         return;
-    frameRate_ = normalizedRate;
+    frameRate_ = framesPerSecond;
     timer_.setInterval(std::max(1, 1000 / frameRate_));
 }
 

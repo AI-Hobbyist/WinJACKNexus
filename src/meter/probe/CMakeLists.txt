@@ -10,6 +10,7 @@ target_link_libraries(mod_meterbridge_probe
         WinJACKNexus::Audio
         WinJACKNexus::Common
         WinJACKNexus::Node
+        WinJACKNexus::UI
         Qt6::Core
         Qt6::Widgets
 )

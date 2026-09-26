@@ -15,6 +15,7 @@
  */
 #include <WinJACKNexus/Meter/MockMeterDataProvider.hpp>
 #include <WinJACKNexus/Meter/Mod/MeterCard.hpp>
+#include <WinJACKNexus/UI/Controls.hpp>
 #include <WinJACKNexus/Meter/Mod/MeterHistoryWindow.hpp>
 #include <WinJACKNexus/Meter/Mod/MeterSettingsWidget.hpp>
 #include <WinJACKNexus/Meter/Mod/MeterbridgeWindow.hpp>
@@ -109,7 +110,8 @@ bool testHistoryWindowWorkflow()
                         && chart->horizontalAxisLabel() == QStringLiteral("系统时间")
                         && chart->timeDisplayOffsetMilliseconds().has_value()
                         && chart->endTimeMilliseconds() - chart->startTimeMilliseconds() == 30000
-                        && legend->entries().size() == 8 && statistics->entries().size() == 7,
+                        && legend->isVisible() && legend->entries().size() == 8
+                        && statistics->entries().size() == 7,
                     "history window projects its eight curves and seven populated default statistics with a 30-second window and LRA right axis");
     const auto lfeSeries = chart != nullptr
         ? std::find_if(chart->series().cbegin(), chart->series().cend(), [](const auto& series) {
@@ -128,6 +130,7 @@ bool testHistoryWindowWorkflow()
                     "history chart uses distinct LFE and LRA colors");
 
     auto* peakSeriesToggle = historyWindow->findChild<QCheckBox*>(QStringLiteral("meterHistory.series.peak"));
+    auto* peakSeriesColor = historyWindow->findChild<QWidget*>(QStringLiteral("meterHistory.seriesColor.peak"));
     auto* integratedReferenceToggle = historyWindow->findChild<QCheckBox*>(QStringLiteral("meterHistory.reference.integrated"));
     auto* truePeakReferenceToggle = historyWindow->findChild<QCheckBox*>(QStringLiteral("meterHistory.reference.dbtp"));
     auto* recordingToggle = historyWindow->findChild<QCheckBox*>(QStringLiteral("meterHistory.recordingToggle"));
@@ -138,6 +141,9 @@ bool testHistoryWindowWorkflow()
     const auto secondChannelIndex = channelSelector != nullptr
         ? channelSelector->findData(QStringLiteral("meter-preview-2"))
         : -1;
+    passed &= check(peakSeriesColor != nullptr && peakSeriesColor->isVisible()
+                        && channelSelector != nullptr && channelSelector->width() >= 270,
+                    "series colors remain visible and the channel selector has room for its label");
     passed &= check(peakSeriesToggle != nullptr && peakSeriesToggle->text() == QStringLiteral("峰值（Peak）")
                         && integratedReferenceToggle != nullptr && integratedReferenceToggle->text() == QStringLiteral("综合响度（Integrated） -23.0 LUFS")
                         && truePeakReferenceToggle != nullptr && truePeakReferenceToggle->text() == QStringLiteral("最大真峰值（dBTP） -1.0 dBTP")
@@ -186,6 +192,13 @@ bool testHistoryWindowWorkflow()
 
     auto* viewModeSelector = historyWindow->findChild<QComboBox*>(QStringLiteral("meterHistory.viewMode"));
     auto* scanCursor = historyWindow->findChild<QSlider*>(QStringLiteral("meterHistory.scanCursor"));
+    passed &= check(qobject_cast<WinJACKNexus::UI::Controls::ToggleField*>(peakSeriesToggle) != nullptr
+                        && qobject_cast<WinJACKNexus::UI::Controls::ToggleField*>(recordingToggle) != nullptr
+                        && qobject_cast<WinJACKNexus::UI::Controls::ChoiceField*>(viewModeSelector) != nullptr
+                        && qobject_cast<WinJACKNexus::UI::Controls::ChoiceField*>(channelSelector) != nullptr
+                        && qobject_cast<WinJACKNexus::UI::Controls::RangeSlider*>(scanCursor) != nullptr
+                        && qobject_cast<WinJACKNexus::UI::Controls::IconActionButton*>(chartSettingsButton) != nullptr,
+                    "history controls use the shared painted control library");
     auto* refreshRate = historyWindow->findChild<QSpinBox*>(QStringLiteral("meterHistory.refreshRate"));
     passed &= check(refreshRate == nullptr,
                     "history display omits a local refresh-rate control");
@@ -327,6 +340,9 @@ bool testHistoryWindowWorkflow()
     image.fill(Qt::transparent);
     historyWindow->render(&image);
     passed &= check(imageHasVisiblePixels(image), "history window renders a non-empty high-DPI UI surface");
+    passed &= check(image.save(QCoreApplication::applicationDirPath()
+                               + QStringLiteral("/../meter-history-review.png")),
+                    "history layout review screenshot is written to the existing build directory");
 
     auto atscSnapshot = provider.snapshots().front();
     atscSnapshot.presetId = QStringLiteral("atsc-a85");

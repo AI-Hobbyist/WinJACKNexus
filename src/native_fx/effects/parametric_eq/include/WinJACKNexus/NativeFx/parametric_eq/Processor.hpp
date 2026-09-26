@@ -19,10 +19,10 @@ struct ParametricEqBand final {
 
 struct ParametricEqParameters final {
     std::array<ParametricEqBand, 4> bands {{
-        {80.0F, 0.7F, 4.5F, ParametricEqShape::lowShelf, true},
-        {200.0F, 1.0F, -6.0F, ParametricEqShape::bell, true},
-        {3500.0F, 2.0F, 5.0F, ParametricEqShape::bell, true},
-        {10000.0F, 0.7F, 3.0F, ParametricEqShape::highShelf, true}
+        {80.0F, 0.7F, 0.0F, ParametricEqShape::lowShelf, true},
+        {200.0F, 1.0F, 0.0F, ParametricEqShape::bell, true},
+        {3500.0F, 2.0F, 0.0F, ParametricEqShape::bell, true},
+        {10000.0F, 0.7F, 0.0F, ParametricEqShape::highShelf, true}
     }};
     float highPassHz = 30.0F;
     float lowPassHz = 20000.0F;

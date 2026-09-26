@@ -8,10 +8,13 @@
 #include <QMouseEvent>
 #include <QWheelEvent>
 #include <QPainter>
+#include <QLineEdit>
+#include <QKeyEvent>
 #include <QFileInfo>
 #include <QDir>
 #include <windows.h>
 #include <array>
+#include <algorithm>
 #include <cmath>
 #include <cstdio>
 #include <cstring>
@@ -31,6 +34,17 @@ int main(int argc,char** argv){
     pass&=check(output[0]==1&&output[1]==0,"bypass passes input unchanged");
     WinJACKNexus::UI::ReverbWidget widget;
     pass&=check(widget.size()==QSize(770,645),"reference-width standalone interface with channel strip");
+    QMouseEvent dragPress(QEvent::MouseButtonPress,QPointF(185,433),QPointF(185,433),
+                          Qt::LeftButton,Qt::LeftButton,Qt::NoModifier);
+    QMouseEvent dragRelease(QEvent::MouseButtonRelease,QPointF(185,433),QPointF(185,433),
+                            Qt::LeftButton,Qt::NoButton,Qt::NoModifier);
+    QApplication::sendEvent(&widget,&dragPress);
+    auto* dragRefresh=widget.findChild<QTimer*>(QStringLiteral("nativeFxDragRefreshTimer"));
+    pass&=check(dragRefresh&&dragRefresh->isActive(),"Reverb dial drag uses the application frame timer");
+    QApplication::sendEvent(&widget,&dragRelease);
+    pass&=check(dragRefresh&&!dragRefresh->isActive(),"Reverb dial drag timer stops on release");
+    pass&=check(widget.hostPresetIndex()==0 && widget.selectedScene()==1,
+                "Reverb starts with Default preset in the Hall scene");
     QImage preview(widget.size(),QImage::Format_ARGB32_Premultiplied);preview.fill(Qt::transparent);
     {QPainter painter(&preview);widget.render(&painter);}
     pass&=check(preview.pixelColor(25,20)!=preview.pixelColor(25,175),"channel selector and effect panel are distinct");
@@ -38,6 +52,21 @@ int main(int argc,char** argv){
     unsigned mask=0;std::array<ReverbParameters,8> changed{};
     widget.setChangeHandler([&](std::size_t i,const auto& p){mask|=1u<<i;changed[i]=p;});
     auto click=[&](QPointF point){QMouseEvent e(QEvent::MouseButtonPress,point,point,point,Qt::LeftButton,Qt::LeftButton,Qt::NoModifier);QApplication::sendEvent(&widget,&e);};
+    click({185,470});
+    auto* numeric=widget.findChild<QLineEdit*>(QStringLiteral("numericValueEditor"));
+    pass&=check(numeric!=nullptr,"Reverb readout opens the shared numeric editor");
+    if(numeric){numeric->setText(QStringLiteral("3.5"));QKeyEvent enter(QEvent::KeyPress,Qt::Key_Return,Qt::NoModifier);QApplication::sendEvent(numeric,&enter);}
+    pass&=check(mask==255&&std::all_of(changed.begin(),changed.end(),[](const auto& p){return p.decay==3.5F;}),
+                "Reverb All numeric edit applies one absolute decay target");
+    QMouseEvent reset(QEvent::MouseButtonDblClick,QPointF(185,434),QPointF(185,434),
+                      QPointF(185,434),Qt::LeftButton,Qt::LeftButton,Qt::NoModifier);
+    QApplication::sendEvent(&widget,&reset);
+    pass&=check(std::all_of(changed.begin(),changed.end(),[](const auto& p){return p.decay==2.4F;}),
+                "Reverb double-click restores the shared default value");
+    click({75,143+135});pass&=check(widget.hostPresetIndex()==1&&widget.selectedScene()==0,
+        "Room scene selects Small Room after preset reorder");
+    click({75,143+174});pass&=check(widget.hostPresetIndex()==0&&widget.selectedScene()==1,
+        "Hall scene selects Default after preset reorder");
     click({75,143+369});pass&=check(mask==255&&widget.selectedScene()==6,"Custom scene broadcasts in All mode");
     std::array<ReverbParameters,8> independent{};
     for(int i=0;i<8;++i){independent[i].scene=6;independent[i].decay=float(i+1);independent[i].size=float(60+i);}
@@ -46,7 +75,7 @@ int main(int argc,char** argv){
     QWheelEvent wheel(QPointF(280,433),QPointF(280,433),QPoint(),QPoint(0,120),Qt::NoButton,Qt::NoModifier,Qt::NoScrollPhase,false);
     mask=0;QApplication::sendEvent(&widget,&wheel);
     pass&=check(mask==255,"All size edit reaches every channel");
-    for(const auto& p:changed)pass&=check(p.size==61,"All writes one absolute size target");
+    for(const auto& p:changed)pass&=check(p.size==64.5F,"All writes one absolute size target from the displayed mean");
     for(int i=0;i<8;++i)pass&=check(changed[i].decay==float(i+1),"All edit preserves unedited per-channel decay");
     QImage customB(widget.size(),QImage::Format_ARGB32_Premultiplied);{QPainter p(&customB);widget.render(&p);}
     pass&=check(customA.copy(142,236,383,156)!=customB.copy(142,236,383,156),"Custom cylinder changes with room size");

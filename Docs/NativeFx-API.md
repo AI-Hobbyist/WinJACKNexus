@@ -57,6 +57,39 @@ applies its master/per-module bypass. Parameter edits and `process` must be
 serialized by the host; the v1 API does not promise concurrent parameter
 mutation and audio processing.
 
+### Parameter snapshots and project files
+
+The optional `wjn_fx_parameter_snapshot_*` exports provide a versioned binary
+snapshot of all eight channels. Check `wjn_fx_parameter_snapshot_version() == 1`,
+allocate `wjn_fx_parameter_snapshot_size()` bytes, then call
+`wjn_fx_export_parameter_snapshot`. The blob starts with
+`WjnFxParameterSnapshotHeader`: `formatVersion`, `parameterBytes`,
+`channelMask`, a reserved word and the stable `moduleId`. Import validates the
+version, size and module ID. The mask selects channels to replace; channels
+outside it retain their parameters. The module retains its DSP history. The
+host calls `wjn_fx_set_parameter_change_callback` to learn when an editor has
+changed parameters and should persist a new snapshot. A null callback removes
+the notification.
+
+The main `.wjnproj` document stores mixer and Native Fx node settings as a
+Base64 encoded JSON object in `settingsBase64`. Decode the field and parse the
+result as JSON before restoring a node. Older projects with a direct `settings`
+object remain readable. The Native Fx snapshot bytes inside mixer JSON have
+their own version and module validation; the outer Base64 encoding only
+packages the JSON for the project file.
+
+### Live analysis and presets
+
+`wjn_fx_read_analysis` returns the latest eight input and output peak values
+from the audio instance. The optional live analysis bridge adds eight gain
+reduction values and a module-specific spectrum frame. The host installs a
+`WjnFxLiveAnalysisReader` with `wjn_fx_set_live_analysis_reader`; the reader
+resolves the current audio instance for each call. Pass the spectrum buffer
+and its byte capacity to `wjn_fx_read_live_analysis`. A zero result means no
+frame was available. The host resolves optional preset exports dynamically:
+`wjn_fx_preset_count`, `wjn_fx_preset_name`, `wjn_fx_current_preset` and
+`wjn_fx_select_preset`. Preset indices and names must agree with the editor.
+
 ## Node placement
 
 Node-capable DLLs also expose the existing `NodeApi.h` entry points. Node index
@@ -73,7 +106,7 @@ editor. `UI/Controls.hpp` provides shared drawing calls for buttons, knobs,
 sliders, toggles, meters, chart frames, dropdowns and card labels, along with
 palette application and the embedded editor container. Effect code can call
 any `Controls::draw*` function with its own `Controls::Palette` or
-`MeterColors`. `Controls::paletteFor(widget, defaults)` merges host theme
+`MeterStyle` or `CurveStyle`. `Controls::paletteFor(widget, defaults)` merges host theme
 overrides into an effect's preferred colors. `ControlRegistry::create(key,
 parent)` creates common Qt controls by key (`button`, `slider`, `dropdown`,
 `toggle`, `label`, `card`). A plugin may call `registerFactory(key, factory)`
@@ -87,9 +120,9 @@ Include `<WinJACKNexus/UI/Controls.hpp>` and link `WinJACKNexus::UI`.
 All drawing functions use the caller's `QPainter`; call them from a widget's
 `paintEvent`. Coordinates are in widget pixels. `normalized` values are
 clamped to `[0, 1]`; the bipolar Pan knob instead takes a value in `[-1, 1]`.
-The draw functions paint only: the plugin owns hit
-testing, value storage and signal handling. This lets an effect keep its own
-interaction model while sharing shape and color conventions.
+The draw functions paint only. The shared numeric editor and reset helper
+below provide the readout and double-click interaction; the plugin supplies
+hit rectangles and the callback that writes its parameter state.
 
 | Name | C++ call | Result |
 | --- | --- | --- |
@@ -107,6 +140,13 @@ interaction model while sharing shape and color conventions.
 | Dropdown | `drawDropdown(QPainter&, const QRectF&, const QString& caption, const Palette&, int fontSize = 16)` | Draws the selection field and chevron. |
 | Meter colors | `Controls::MeterColors` | Configures active/inactive low, middle and high zones plus border. |
 | Level meter | `drawLevelMeter(QPainter&, const QRectF&, double levelDb, const MeterColors& = {})` | Draws a horizontal meter from −60 to +12 dB, with breaks at −12 and 0 dB. |
+| Configurable meter | `drawMeter(QPainter&, const QRectF&, double levelDb, std::optional<double> peakDb, const MeterStyle&)` | Configures range, any number of color zones and ticks, label, horizontal or vertical orientation, and a peak marker. `showPeak` defaults to true. Set `fillOriginDb` to fill from a reference value toward `levelDb`, as on gain-reduction meters. |
+| Meter scale | `drawMeterScale(QPainter&, const QRectF&, const MeterStyle&)` | Draws the same ticks and labels without a meter track, for a separate scale alongside one or more channel bars. `ticksLeft`, `ticksAbove`, `tickBandPixels`, `tickFontPixelSize`, `tickColor` and `labelColor` control placement and appearance. |
+| Meter ballistics | `MeterBallistics::advance(inputDb, elapsedSeconds, holdSeconds)` | Smooths the visible level and holds then decays an independent peak. Pass elapsed frame time based on the application FPS and the global peak hold setting; read `levelDb()` and `peakDb()` for `drawMeter`. |
+| Curve path | `drawCurvePath(QPainter&, const QPainterPath& strokePath, const CurveStyle&, const QPainterPath* fillPath = nullptr)` | Draws an optional fill path separately, then draws the stroke with `Qt::NoBrush`. `fillBrush` accepts a gradient and `showStroke` permits fill-only layers. Effect code supplies its DSP-specific curve geometry. |
+| Polar curve | `drawPolarCurve(QPainter&, QPointF center, qreal radius, std::span<const float> values, const CurveStyle&)` | Configures stroke and optional fill, line style and value range. The caller places any legend text. |
+| Exact value | `editNumericValue(QWidget* owner, const QRect& readout, double currentValue, const NumericControlSpec&, std::function<void(double)> apply)` | Overlays the painted readout with a selected numeric value. Enter commits a valid value; Escape or focus loss cancels. The owner paints the readout again after the editor closes. |
+| Reset value | `resetNumericValue(const NumericControlSpec&, const std::function<void(double)>& apply)` | Applies the bounded default, typically from a knob or fader double-click handler. |
 | Card label | `drawCardLabel(QPainter&, const QRectF&, const QString& title, const QString& glyph, const Palette&)` | Draws a panel label with an icon badge. |
 
 Use `drawPanKnob` for classic stereo balance or mono-to-stereo Pan. The caller

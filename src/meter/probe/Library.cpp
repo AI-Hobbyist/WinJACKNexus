@@ -21,6 +21,7 @@
 #include <WinJACKNexus/Common/MeterProbeRegistry.hpp>
 #include <WinJACKNexus/Common/SilenceResetController.hpp>
 #include <WinJACKNexus/Node/NodeApi.h>
+#include <WinJACKNexus/UI/Controls.hpp>
 
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -627,34 +628,39 @@ public:
 
         auto* form = new QFormLayout;
         form->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
-        clientNameEditor_ = new QLineEdit(this);
+        form->setVerticalSpacing(6);
+        clientNameEditor_ = new WinJACKNexus::UI::Controls::TextField(this);
         clientNameEditor_->setObjectName(QStringLiteral("meterProbeClientNameEditor"));
+        clientNameEditor_->setFixedHeight(WinJACKNexus::UI::Controls::sidebarControlHeight);
         clientNameEditor_->setMaxLength(127);
         clientNameEditor_->setPlaceholderText(QStringLiteral("例如 Meter-Program"));
         form->addRow(QStringLiteral("客户端名称"), clientNameEditor_);
 
-        autoResetCheckBox_ = new QCheckBox(QStringLiteral("自动重置响度"), this);
+        autoResetCheckBox_ = new WinJACKNexus::UI::Controls::ToggleField(QStringLiteral("自动重置响度"), this);
         autoResetCheckBox_->setObjectName(QStringLiteral("meterProbeAutoResetCheckBox"));
+        autoResetCheckBox_->setFixedHeight(WinJACKNexus::UI::Controls::sidebarControlHeight);
         form->addRow(QString(), autoResetCheckBox_);
 
         if (kind_ == ProbeKind::custom) {
-            channelCountSpinBox_ = new QSpinBox(this);
+            channelCountSpinBox_ = new WinJACKNexus::UI::Controls::IntegerField(this);
             channelCountSpinBox_->setObjectName(QStringLiteral("meterProbeChannelCountSpinBox"));
+            channelCountSpinBox_->setFixedHeight(WinJACKNexus::UI::Controls::sidebarControlHeight);
             channelCountSpinBox_->setRange(1, static_cast<int>(maximumChannelCount));
             form->addRow(QStringLiteral("输入声道"), channelCountSpinBox_);
         } else {
-            fixedLayoutLabel_ = new QLabel(this);
+            fixedLayoutLabel_ = new WinJACKNexus::UI::Controls::TextLabel(this);
             fixedLayoutLabel_->setObjectName(QStringLiteral("meterProbeFixedLayoutLabel"));
+            fixedLayoutLabel_->setMinimumHeight(WinJACKNexus::UI::Controls::sidebarControlHeight);
             fixedLayoutLabel_->setWordWrap(true);
             form->addRow(QStringLiteral("声道布局"), fixedLayoutLabel_);
         }
         layout->addLayout(form);
 
         if (kind_ == ProbeKind::custom) {
-            auto* channelTitle = new QLabel(QStringLiteral("通道设置"), this);
+            auto* channelTitle = new WinJACKNexus::UI::Controls::TextLabel(QStringLiteral("通道设置"), this);
             layout->addWidget(channelTitle);
 
-            channelTable_ = new QTableWidget(this);
+            channelTable_ = new WinJACKNexus::UI::Controls::TableField(this);
             channelTable_->setObjectName(QStringLiteral("meterProbeChannelTable"));
             channelTable_->setColumnCount(4);
             channelTable_->setHorizontalHeaderLabels({
@@ -664,21 +670,24 @@ public:
                 QStringLiteral("LFE")
             });
             channelTable_->verticalHeader()->setVisible(false);
-            channelTable_->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
+            channelTable_->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Fixed);
+            channelTable_->setColumnWidth(0, 52);
             channelTable_->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
             channelTable_->horizontalHeader()->setSectionResizeMode(2, QHeaderView::ResizeToContents);
             channelTable_->horizontalHeader()->setSectionResizeMode(3, QHeaderView::ResizeToContents);
             channelTable_->setSelectionMode(QAbstractItemView::NoSelection);
             channelTable_->setEditTriggers(QAbstractItemView::NoEditTriggers);
+            channelTable_->verticalHeader()->setDefaultSectionSize(30);
             channelTable_->setMinimumHeight(164);
             channelTable_->setMaximumHeight(300);
             layout->addWidget(channelTable_);
         }
 
         auto* actionRow = new QHBoxLayout;
-        applyButton_ = new QPushButton(QStringLiteral("应用"), this);
+        applyButton_ = new WinJACKNexus::UI::Controls::ActionButton(QStringLiteral("应用"), this);
         applyButton_->setObjectName(QStringLiteral("meterProbeApplyButton"));
-        statusLabel_ = new QLabel(this);
+        applyButton_->setFixedHeight(WinJACKNexus::UI::Controls::sidebarControlHeight);
+        statusLabel_ = new WinJACKNexus::UI::Controls::TextLabel(this);
         statusLabel_->setObjectName(QStringLiteral("meterProbeSettingsStatus"));
         statusLabel_->setWordWrap(true);
         actionRow->addWidget(applyButton_);
@@ -785,20 +794,23 @@ private:
             portItem->setFlags(portItem->flags() & ~Qt::ItemIsEditable);
             channelTable_->setItem(row, 0, portItem);
 
-            auto* nameEditor = new QLineEdit(QString::fromUtf8(channel.name.c_str()), channelTable_);
+            auto* nameEditor = new WinJACKNexus::UI::Controls::TextField(channelTable_);
+            nameEditor->setText(QString::fromUtf8(channel.name.c_str()));
             nameEditor->setObjectName(QStringLiteral("meterProbeChannelNameEditor"));
+            nameEditor->setFixedHeight(WinJACKNexus::UI::Controls::sidebarControlHeight);
             nameEditor->setMaxLength(64);
             channelTable_->setCellWidget(row, 1, nameEditor);
 
-            auto* roleEditor = new QComboBox(channelTable_);
+            auto* roleEditor = new WinJACKNexus::UI::Controls::ChoiceField(channelTable_);
             roleEditor->setObjectName(QStringLiteral("meterProbeChannelRoleEditor"));
+            roleEditor->setFixedHeight(WinJACKNexus::UI::Controls::sidebarControlHeight);
             for (const auto& option : roleOptions)
                 roleEditor->addItem(QString::fromUtf8(option.label), QString::fromLatin1(option.id));
             const auto roleIndex = roleEditor->findData(QString::fromLatin1(roleId(channel.role)));
             roleEditor->setCurrentIndex(roleIndex >= 0 ? roleIndex : 0);
             channelTable_->setCellWidget(row, 2, roleEditor);
 
-            auto* lfeEditor = new QCheckBox(channelTable_);
+            auto* lfeEditor = new WinJACKNexus::UI::Controls::ToggleField({}, channelTable_);
             lfeEditor->setObjectName(QStringLiteral("meterProbeChannelLfeEditor"));
             lfeEditor->setChecked(channel.lfe);
             channelTable_->setCellWidget(row, 3, lfeEditor);

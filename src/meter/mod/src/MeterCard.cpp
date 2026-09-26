@@ -18,6 +18,7 @@
 #include <WinJACKNexus/Common/MeterLoudnessPresetCatalog.hpp>
 
 #include <WinJACKNexus/UI/MeterLevelBar.hpp>
+#include <WinJACKNexus/UI/Controls.hpp>
 #include <WinJACKNexus/UI/MetricReadout.hpp>
 #include <WinJACKNexus/UI/ThemePalette.hpp>
 
@@ -80,13 +81,19 @@ WinJACKNexus::UI::ThemePalette meterCardPalette()
 
 QToolButton* createCommandButton(QAction* action, const QString& objectName, QWidget* parent)
 {
-    auto* button = new QToolButton(parent);
+    auto* button = new WinJACKNexus::UI::Controls::IconActionButton(parent);
     button->setObjectName(objectName);
     button->setDefaultAction(action);
     button->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
     button->setFixedSize(68, 76);
     button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     button->setProperty("meterCardControl", QStringLiteral("action"));
+    WinJACKNexus::UI::Controls::Palette colors;
+    colors.panel = QColor(QStringLiteral("#13263b"));
+    colors.text = QColor(QStringLiteral("#dbeaff"));
+    colors.border = QColor(QStringLiteral("#274b6c"));
+    colors.accent = QColor(QStringLiteral("#3b9dff"));
+    WinJACKNexus::UI::Controls::applyPalette(button, colors);
     return button;
 }
 
@@ -142,34 +149,6 @@ MeterCard::MeterCard(MeterViewDataProvider& provider,
         " border: 1px solid #3f8270;"
         " border-radius: 8px;"
         " padding: 2px 6px;"
-        "}"
-        "QComboBox[meterCardControl=\"preset\"] {"
-        " background-color: #12263c;"
-        " color: #dcecff;"
-        " border: 1px solid #294d70;"
-        " border-radius: 7px;"
-        " padding: 4px 28px 4px 16px;"
-        " font-size: 16px;"
-        "}"
-        "QComboBox[meterCardControl=\"preset\"]::drop-down {"
-        " border: 0;"
-        " width: 28px;"
-        "}"
-        "QToolButton[meterCardControl=\"action\"] {"
-        " background-color: #13263b;"
-        " color: #dbeaff;"
-        " border: 1px solid #274b6c;"
-        " border-radius: 8px;"
-        " padding: 4px 2px;"
-        "}"
-        "QToolButton[meterCardControl=\"action\"]:hover {"
-        " background-color: #1b3957;"
-        " border-color: #4a9df0;"
-        "}"
-        "QToolButton[meterCardControl=\"action\"]:checked {"
-        " background-color: #183f58;"
-        " border-color: #3fa9f5;"
-        " color: #ffffff;"
         "}"));
 
     auto* rootLayout = new QVBoxLayout(this);
@@ -184,25 +163,25 @@ MeterCard::MeterCard(MeterViewDataProvider& provider,
     auto* headerLayout = new QHBoxLayout(headerPanel);
     headerLayout->setContentsMargins(8, 4, 8, 4);
     headerLayout->setSpacing(12);
-    numberLabel_ = new QLabel(QStringLiteral("1"), headerPanel);
+    numberLabel_ = new WinJACKNexus::UI::Controls::TextLabel(QStringLiteral("1"), headerPanel);
     numberLabel_->setObjectName(QStringLiteral("meterCard.number"));
     numberLabel_->setProperty("meterCardRole", QStringLiteral("number"));
     numberLabel_->setAlignment(Qt::AlignCenter);
     numberLabel_->setFixedSize(36, 36);
-    titleLabel_ = new QLabel(headerPanel);
+    titleLabel_ = new WinJACKNexus::UI::Controls::TextLabel(headerPanel);
     titleLabel_->setObjectName(QStringLiteral("meterCard.clientName"));
     titleLabel_->setProperty("meterCardRole", QStringLiteral("title"));
     QFont titleFont = titleLabel_->font();
     titleFont.setPointSize(titleFont.pointSize() + 5);
     titleFont.setBold(true);
     titleLabel_->setFont(titleFont);
-    layoutLabel_ = new QLabel(headerPanel);
+    layoutLabel_ = new WinJACKNexus::UI::Controls::TextLabel(headerPanel);
     layoutLabel_->setObjectName(QStringLiteral("meterCard.layout"));
     layoutLabel_->setProperty("meterCardRole", QStringLiteral("meta"));
     QFont layoutFont = layoutLabel_->font();
     layoutFont.setPointSize(layoutFont.pointSize() + 1);
     layoutLabel_->setFont(layoutFont);
-    stateLabel_ = new QLabel(headerPanel);
+    stateLabel_ = new WinJACKNexus::UI::Controls::TextLabel(headerPanel);
     stateLabel_->setObjectName(QStringLiteral("meterCard.state"));
     stateLabel_->setProperty("meterCardRole", QStringLiteral("state"));
     stateLabel_->hide();
@@ -222,12 +201,21 @@ MeterCard::MeterCard(MeterViewDataProvider& provider,
     presetPanel->setAttribute(Qt::WA_StyledBackground);
     auto* presetLayout = new QHBoxLayout(presetPanel);
     presetLayout->setContentsMargins(0, 0, 0, 0);
-    presetSelector_ = new QComboBox(presetPanel);
+    presetSelector_ = new WinJACKNexus::UI::Controls::ChoiceField(presetPanel);
     presetSelector_->setObjectName(QStringLiteral("meterCard.preset"));
     presetSelector_->setProperty("meterCardControl", QStringLiteral("preset"));
     presetSelector_->setAccessibleName(QStringLiteral("响度预设（Loudness Preset）"));
     presetSelector_->setToolTip(QStringLiteral("选择此探针的显示参考预设"));
     presetSelector_->setFixedHeight(50);
+    auto presetFont = presetSelector_->font();
+    presetFont.setPixelSize(16);
+    presetSelector_->setFont(presetFont);
+    WinJACKNexus::UI::Controls::Palette presetColors;
+    presetColors.panel = QColor(QStringLiteral("#12263c"));
+    presetColors.text = QColor(QStringLiteral("#dcecff"));
+    presetColors.border = QColor(QStringLiteral("#294d70"));
+    presetColors.accent = cardPalette.color(QStringLiteral("accent"));
+    WinJACKNexus::UI::Controls::applyPalette(presetSelector_, presetColors);
     configurePresetSelector();
     presetLayout->addWidget(presetSelector_);
     rootLayout->addWidget(presetPanel);
@@ -301,6 +289,7 @@ MeterCard::MeterCard(MeterViewDataProvider& provider,
         readout->setLabel(definition.label);
         readout->setUnit(definition.unit);
         readout->setPrecision(1);
+        readout->setPeakValueRefreshEnabled(index == 0 || index == 2);
         readout->setAccentColor(definition.accent);
         readout->setShowSurface(false);
         readout->setThemePalette(cardPalette);

@@ -1,4 +1,5 @@
 #include <WinJACKNexus/NativeFx/limiter/Ui.hpp>
+#include <WinJACKNexus/UI/ApplicationSettings.hpp>
 #include <WinJACKNexus/UI/Controls.hpp>
 #include <QMouseEvent>
 #include <QPainter>
@@ -13,39 +14,73 @@ namespace {
 const QColor ink(235,240,255),muted(179,201,238),cyan(16,179,255),pink(255,99,139);
 const char* channels[]={"All","L","R","C","LFE","Ls","Rs","Lb","Rb"};
 void box(QPainter& p,QRectF r,int radius,QColor fill,QColor edge=QColor(53,78,108)){
-    p.setPen(QPen(edge,1));p.setBrush(fill);p.drawRoundedRect(r,radius,radius);
+    Controls::drawSurface(p,r,fill,edge,radius);
 }
 void label(QPainter& p,QRectF r,QString s,int size,QColor color=ink,bool bold=false,Qt::Alignment align=Qt::AlignCenter){
-    auto f=p.font();f.setPixelSize(size);f.setBold(bold);p.setFont(f);p.setPen(color);p.drawText(r,align,s);
+    auto f=p.font();f.setPixelSize(size);f.setBold(bold);
+    Controls::drawText(p,r,s,f,color,align);
 }
 void toggle(QPainter& p,QRectF r,bool on){
-    box(p,r,11,on?QColor(8,115,209):QColor(42,61,81),on?cyan:QColor(80,105,130));
-    p.setPen(Qt::NoPen);p.setBrush(Qt::white);p.drawEllipse(QPointF(on?r.right()-11:r.left()+11,r.center().y()),8,8);
+    Controls::drawToggle(p,r,on,QColor(8,115,209),QColor(42,61,81));
 }
-void dial(QPainter& p,QPointF c,float fraction,QString number,QString name,QString english){
-    QRectF arc(c.x()-32,c.y()-32,64,64);
-    p.setBrush(Qt::NoBrush);p.setPen(QPen(QColor(6,17,29),5));p.drawArc(arc,225*16,-270*16);
-    p.setPen(QPen(pink,4,Qt::SolidLine,Qt::RoundCap));p.drawArc(arc,225*16,-qRound(270*std::clamp(fraction,0.f,1.f))*16);
-    QRadialGradient grad(c-QPointF(8,11),43);grad.setColorAt(0,QColor(34,58,81));grad.setColorAt(1,QColor(15,31,47));
-    p.setPen(QPen(QColor(6,17,30),2));p.setBrush(grad);p.drawEllipse(c,26,26);
-    const double angle=(225-270*std::clamp(fraction,0.f,1.f))*3.141592653589793/180;
-    p.setPen(QPen(QColor(155,210,255),2));p.drawLine(c+QPointF(14*std::cos(angle),-14*std::sin(angle)),c+QPointF(22*std::cos(angle),-22*std::sin(angle)));
+void dial(QPainter& p,QPointF c,float fraction,QString number,QString name,QString english,
+          const Controls::Palette& colors){
+    Controls::drawKnob(p,c,fraction,32,colors);
     label(p,{c.x()-52,c.y()+35,104,22},number,16);label(p,{c.x()-53,c.y()+57,106,20},name,15,muted);
     label(p,{c.x()-54,c.y()+77,108,20},english,14,muted);
 }
 }
 LimiterWidget::LimiterWidget(QWidget* parent):QWidget(parent){
     if (!parent) setWindowFlags(Qt::Window);setFixedSize(768,650);setWindowTitle(QStringLiteral("Limiter 限幅器"));
-    meterTimer_.setInterval(33);connect(&meterTimer_,&QTimer::timeout,this,&LimiterWidget::pollMeters);
+    bindRefreshTimer(meterTimer_, this);connect(&meterTimer_,&QTimer::timeout,this,&LimiterWidget::pollMeters);
 }
-void LimiterWidget::setParameters(const std::array<LimiterParameters,8>& values){values_=values;update();}
+void LimiterWidget::setParameters(const std::array<LimiterParameters,8>& values){
+    values_=values;
+    const LimiterParameters defaults;
+    preset_=std::all_of(values.begin(),values.end(),[&defaults](const auto& item){
+        return item.thresholdDb==defaults.thresholdDb&&item.ceilingDb==defaults.ceilingDb
+            &&item.releaseMs==defaults.releaseMs&&item.lookaheadDb==defaults.lookaheadDb
+            &&item.mode==defaults.mode&&item.oversampling==defaults.oversampling
+            &&item.autoGain==defaults.autoGain&&item.enabled==defaults.enabled;
+    })?0:3;
+    if(drag_<0)update();
+}
 void LimiterWidget::setChangeHandler(ChangeHandler handler){onChange_=std::move(handler);}
 void LimiterWidget::setMeterReader(MeterReader reader){
     meterReader_=std::move(reader);
-    if(meterReader_){pollMeters();meterTimer_.start();}else meterTimer_.stop();
+    if(meterReader_){pollMeters();meterTimer_.start();}else if(drag_<0)meterTimer_.stop();
 }
-void LimiterWidget::setMeters(const std::array<LimiterMeter,8>& meters){meters_=meters;update();}
-void LimiterWidget::pollMeters(){if(meterReader_)setMeters(meterReader_());}
+void LimiterWidget::setMeters(const std::array<LimiterMeter,8>& meters){
+    const auto& settings=ApplicationSettings::instance();
+    const double elapsed=meterClock_.isValid()
+        ?std::max(meterClock_.restart()/1000.0,1.0/settings.frameRate())
+        :1.0/settings.frameRate();
+    if(!meterClock_.isValid())meterClock_.start();
+    meters_=meters;
+    for(std::size_t i=0;i<meters_.size();++i){
+        inputBallistics_[i].advance(meters_[i].active?meters_[i].inputDb:-72.0F,
+                                    elapsed,settings.peakHoldSeconds());
+        outputBallistics_[i].advance(meters_[i].active?meters_[i].outputDb:-72.0F,
+                                     elapsed,settings.peakHoldSeconds());
+    }
+    if(!numericClock_.isValid()||numericClock_.elapsed()>=settings.peakValueRefreshMilliseconds()){
+        double inputPower=0.0,outputPower=0.0;
+        int count=0;
+        for(int i=channel_<0?0:channel_;i<(channel_<0?8:channel_+1);++i){
+            const auto& meter=meters_[static_cast<std::size_t>(i)];
+            if(!meter.active)continue;
+            inputPower+=std::pow(10.0,static_cast<double>(meter.inputDb)/10.0);
+            outputPower+=std::pow(10.0,static_cast<double>(meter.outputDb)/10.0);
+            ++count;
+        }
+        numericMeterActive_=count>0;
+        numericInputDb_=count?static_cast<float>(10.0*std::log10(inputPower/count)):-120.0F;
+        numericOutputDb_=count?static_cast<float>(10.0*std::log10(outputPower/count)):-120.0F;
+        numericClock_.restart();
+    }
+    if(!meterTimer_.isActive())update();
+}
+void LimiterWidget::pollMeters(){if(meterReader_){setMeters(meterReader_());update();}else if(drag_>=0)update();}
 LimiterParameters LimiterWidget::shown() const noexcept{
     if(channel_>=0)return values_[static_cast<std::size_t>(channel_)];
     LimiterParameters result=values_[0];
@@ -68,14 +103,14 @@ LimiterParameters LimiterWidget::shown() const noexcept{
 void LimiterWidget::apply(const std::function<void(LimiterParameters&)>& edit){
     const int first=channel_<0?0:channel_,last=channel_<0?8:channel_+1;
     for(int i=first;i<last;++i){edit(values_[i]);if(onChange_)onChange_(i,values_[i]);}
-    preset_=3;update();
+    preset_=3;if(drag_<0)update();
 }
 void LimiterWidget::applyPreset(int index){
     preset_=std::clamp(index,0,3);
     if(preset_==3){update();return;}
     const auto selected=preset_;
     apply([selected](LimiterParameters& s){
-        if(selected==0){s.thresholdDb=-3.0F;s.ceilingDb=-1.0F;s.releaseMs=100.0F;s.mode=1;}
+        if(selected==0){s=LimiterParameters{};}
         else if(selected==1){s.thresholdDb=-6.0F;s.ceilingDb=-1.0F;s.releaseMs=60.0F;s.mode=2;}
         else{s.thresholdDb=-9.0F;s.ceilingDb=-0.3F;s.releaseMs=35.0F;s.mode=2;}
     });
@@ -84,6 +119,29 @@ void LimiterWidget::applyPreset(int index){
 int LimiterWidget::dialAt(QPointF p) const noexcept{
     const QPointF centers[]={{591,301},{685,301},{591,444},{685,444}};
     for(int i=0;i<4;++i)if(QLineF(p,centers[i]).length()<40)return i;return -1;
+}
+namespace {
+float dialValue(const LimiterParameters& parameters, int index) noexcept {
+    switch(index) {
+    case 0: return parameters.thresholdDb;
+    case 1: return parameters.ceilingDb;
+    case 2: return parameters.releaseMs;
+    default: return parameters.lookaheadDb;
+    }
+}
+void setDialValue(LimiterParameters& parameters, int index, float value) noexcept {
+    switch(index) {
+    case 0: parameters.thresholdDb=value; break;
+    case 1: parameters.ceilingDb=value; break;
+    case 2: parameters.releaseMs=value; break;
+    default: parameters.lookaheadDb=value; break;
+    }
+}
+Controls::NumericControlSpec dialSpec(int index) noexcept {
+    constexpr float minima[] {-24.0F,-12.0F,10.0F,0.0F};
+    constexpr float maxima[] {6.0F,12.0F,500.0F,12.0F};
+    return {minima[index],maxima[index],dialValue(LimiterParameters{},index),index==2?0:1};
+}
 }
 void LimiterWidget::adjustDial(int i,float delta){
     const float step[]={.05f,.05f,2.f,.05f};
@@ -106,7 +164,7 @@ void LimiterWidget::paintEvent(QPaintEvent*){
         label(p,r,QString::fromLatin1(channels[i]),15,active?QColor(119,221,255):muted);}
     p.save();p.translate(0,145);
     QLinearGradient bg(0,0,750,500);bg.setColorAt(0,QColor(20,36,55));bg.setColorAt(1,QColor(8,29,47));
-    p.setBrush(bg);p.setPen(QPen(QColor(43,116,164)));p.drawRoundedRect(QRectF(3,8,747,493),11,11);
+    Controls::drawSurface(p,QRectF(3,8,747,493),bg,QColor(43,116,164),11);
     box(p,{15,17,723,61},9,QColor(21,38,58),QColor(37,67,91));
     box(p,{16,25,54,55},7,QColor(100,35,55),pink);
     p.setPen(Qt::NoPen);p.setBrush(QColor(255,140,158));
@@ -115,7 +173,7 @@ void LimiterWidget::paintEvent(QPaintEvent*){
     label(p,{89,53,248,22},QStringLiteral("防止信号过载，控制最大输出电平"),14,muted,false,Qt::AlignLeft|Qt::AlignVCenter);
     toggle(p,{341,40,36,21},shown().enabled);label(p,{394,38,42,28},QStringLiteral("预设:"),14,muted);
     box(p,{444,36,160,34},5,QColor(18,36,55));
-    const QString presets[]={QStringLiteral("Vocal Safe"),QStringLiteral("Broadcast"),QStringLiteral("Max Loudness"),QStringLiteral("Custom")};
+    const QString presets[]={QStringLiteral("Default"),QStringLiteral("Broadcast"),QStringLiteral("Max Loudness"),QStringLiteral("Custom")};
     label(p,{455,36,125,34},presets[preset_],15,ink,false,Qt::AlignLeft|Qt::AlignVCenter);label(p,{580,36,22,34},QStringLiteral("⌄"),19,muted);
     for(int i=0;i<2;++i){const int x=616+i*38;box(p,{qreal(x),37,29,32},5,QColor(28,49,70));label(p,{qreal(x),37,29,32},i?QStringLiteral("›"):QStringLiteral("‹"),24,muted);}
     box(p,{692,37,31,32},5,QColor(28,49,70));label(p,{692,37,31,32},QStringLiteral("•••"),13,muted);
@@ -145,41 +203,73 @@ void LimiterWidget::paintEvent(QPaintEvent*){
     }
     label(p,{28,104,79,23},QStringLiteral("输入电平"),14,muted);label(p,{112,104,79,23},QStringLiteral("输出电平"),14,muted);
     label(p,{213,104,45,23},QStringLiteral("GR"),14,muted);
-    const auto drawLevelMeter=[&](int x,int tickLabelX,float level,bool active){
-        const qreal fillTop=151+(12.0F-std::clamp(level,-60.0F,12.0F))*224.0F/72.0F;
-        p.fillRect(QRectF(x,151,11,224),QColor(12,34,48));
-        QLinearGradient gradient(0,151,0,375);gradient.setColorAt(0,QColor(242,60,76));gradient.setColorAt(.17,QColor(245,224,52));gradient.setColorAt(.4,QColor(91,220,76));gradient.setColorAt(1,QColor(13,98,69));
-        if(active&&fillTop<375)p.fillRect(QRectF(x,fillTop,11,375-fillTop),gradient);
-        p.setBrush(Qt::NoBrush);p.setPen(QColor(65,88,109));p.drawRect(QRectF(x,151,11,224));
+    double smoothedInputPower=0.0,smoothedOutputPower=0.0;
+    double peakInputPower=0.0,peakOutputPower=0.0;
+    for(int c=firstChannel;c<lastChannel;++c){
+        if(!meters_[static_cast<std::size_t>(c)].active)continue;
+        const auto& input=inputBallistics_[static_cast<std::size_t>(c)];
+        const auto& output=outputBallistics_[static_cast<std::size_t>(c)];
+        smoothedInputPower+=std::pow(10.0,input.levelDb()/10.0);
+        smoothedOutputPower+=std::pow(10.0,output.levelDb()/10.0);
+        peakInputPower+=std::pow(10.0,input.peakDb()/10.0);
+        peakOutputPower+=std::pow(10.0,output.peakDb()/10.0);
+    }
+    const auto aggregateDb=[activeChannels](double power){
+        return activeChannels?10.0*std::log10(power/static_cast<double>(activeChannels)):-120.0;
+    };
+    const auto drawLevelMeter=[&](int x,int tickLabelX,double level,double peak,double numeric,bool active){
+        Controls::MeterStyle style;
+        style.minimumDb=-60.0;style.maximumDb=12.0;style.vertical=true;
+        style.zones={{-12.0,QColor(30,205,111),QColor(13,50,42)},
+                     {0.0,QColor(245,224,52),QColor(54,50,27)},
+                     {12.0,QColor(242,60,76),QColor(57,28,39)}};
+        style.border=QColor(65,88,109);
+        Controls::drawMeter(p,QRectF(x,151,11,224),active?level:-60.0,
+            active?std::optional<double>(peak):std::nullopt,style);
         const QString channelLabel=channel_<0?QStringLiteral("All"):QString::fromLatin1(channels[channel_+1]);
         label(p,{qreal(x-8),377,27,21},channelLabel,12);
-        label(p,{qreal(x-12),397,35,20},active?QStringLiteral("%1").arg(level,0,'f',1):QStringLiteral("-inf"),10);
-        const QString ticks[]={QStringLiteral("+12"),QStringLiteral("+6"),QStringLiteral("0"),QStringLiteral("-6"),QStringLiteral("-12"),QStringLiteral("-18"),QStringLiteral("-24"),QStringLiteral("-36"),QStringLiteral("-60")};
-        const float meterValues[]={12,6,0,-6,-12,-18,-24,-36,-60};
-        for(int i=0;i<9;++i){
-            const qreal y=151+(12.0F-meterValues[i])*224.0F/72.0F;
-            label(p,QRectF(qreal(tickLabelX),y-9,25.0,18.0),ticks[i],11,muted,false,Qt::AlignRight|Qt::AlignVCenter);
-        }
+        label(p,{qreal(x-12),397,35,20},numericMeterActive_?QStringLiteral("%1").arg(numeric,0,'f',1):QStringLiteral("-inf"),10);
+        style.ticks={{12,QStringLiteral("+12")},{6,QStringLiteral("+6")},
+                     {0,QStringLiteral("0")},{-6,QStringLiteral("-6")},
+                     {-12,QStringLiteral("-12")},{-18,QStringLiteral("-18")},
+                     {-24,QStringLiteral("-24")},{-36,QStringLiteral("-36")},
+                     {-60,QStringLiteral("-60")}};
+        style.ticksLeft=true;
+        style.tickBandPixels=x-tickLabelX;
+        style.tickFontPixelSize=11;
+        style.labelColor=muted;
+        Controls::drawMeterScale(p,{qreal(tickLabelX),151,qreal(x-tickLabelX),224},style);
     };
-    drawLevelMeter(62,19,inputEnergyDb,activeChannels>0);
-    drawLevelMeter(146,103,outputEnergyDb,activeChannels>0);
-    p.fillRect(QRectF(230,151,11,224),QColor(12,34,48));
-    const qreal grZeroY=151+(12.0F-0.0F)*224.0F/72.0F;
-    const qreal grBottom=151+(12.0F-std::clamp(gainReductionDb,-60.0F,12.0F))*224.0F/72.0F;
-    if(activeChannels>0&&gainReductionDb<0.0F)
-        p.fillRect(QRectF(230,grZeroY,11,grBottom-grZeroY),QColor(225,61,81));
-    p.setBrush(Qt::NoBrush);p.setPen(QColor(65,88,109));p.drawRect(QRectF(230,151,11,224));
-    const QString grTicks[]={QStringLiteral("+12"),QStringLiteral("+6"),QStringLiteral("0"),QStringLiteral("-6"),QStringLiteral("-12"),QStringLiteral("-18"),QStringLiteral("-24"),QStringLiteral("-36"),QStringLiteral("-60")};
-    const float grValues[]={12,6,0,-6,-12,-18,-24,-36,-60};
-    for(int i=0;i<9;++i){
-        const int y=151+qRound((12.0F-grValues[i])*224.0F/72.0F);
-        p.setPen(QColor(77,103,125));p.drawLine(225,y,244,y);
-        label(p,{244,qreal(y-9),28,18},grTicks[i],11,muted,false,Qt::AlignLeft|Qt::AlignVCenter);
-    }
+    drawLevelMeter(62,19,aggregateDb(smoothedInputPower),aggregateDb(peakInputPower),
+                   numericInputDb_,activeChannels>0);
+    drawLevelMeter(146,103,aggregateDb(smoothedOutputPower),aggregateDb(peakOutputPower),
+                   numericOutputDb_,activeChannels>0);
+    Controls::MeterStyle reductionStyle;
+    reductionStyle.minimumDb=-60.0;
+    reductionStyle.maximumDb=12.0;
+    reductionStyle.fillOriginDb=0.0;
+    reductionStyle.vertical=true;
+    reductionStyle.showPeak=false;
+    reductionStyle.showTickGrid=true;
+    reductionStyle.zones={{12.0,QColor(225,61,81),QColor(12,34,48)}};
+    reductionStyle.border=QColor(65,88,109);
+    reductionStyle.labelColor=muted;
+    reductionStyle.tickColor=QColor(77,103,125);
+    reductionStyle.tickFontPixelSize=11;
+    reductionStyle.tickBandPixels=31;
+    reductionStyle.ticks={{12,QStringLiteral("+12")},{6,QStringLiteral("+6")},
+                          {0,QStringLiteral("0")},{-6,QStringLiteral("-6")},
+                          {-12,QStringLiteral("-12")},{-18,QStringLiteral("-18")},
+                          {-24,QStringLiteral("-24")},{-36,QStringLiteral("-36")},
+                          {-60,QStringLiteral("-60")}};
+    Controls::drawMeter(p,{230,151,42,224},activeChannels>0?gainReductionDb:0.0,
+                        std::nullopt,reductionStyle);
     label(p,{207,397,58,20},activeChannels>0?QStringLiteral("%1 dB").arg(gainReductionDb,0,'f',1):QStringLiteral("0.0 dB"),12);
     box(p,{274,101,267,289},5,QColor(12,29,47),QColor(58,90,125));QRectF plot(334,129,191,191);
-    p.setPen(QPen(QColor(39,61,83),1));for(int i=0;i<=9;++i)p.drawLine(QPointF(plot.left()+i*plot.width()/9,plot.top()),QPointF(plot.left()+i*plot.width()/9,plot.bottom()));
-    for(int i=0;i<=9;++i)p.drawLine(QPointF(plot.left(),plot.top()+i*plot.height()/9),QPointF(plot.right(),plot.top()+i*plot.height()/9));
+    Controls::ChartGridStyle grid;
+    grid.grid=QColor(39,61,83);
+    grid.columns=grid.rows=9;
+    Controls::drawChartGrid(p,plot,grid);
     const QString axisTicks[]={QStringLiteral("-60"),QStringLiteral("-36"),QStringLiteral("-24"),QStringLiteral("-12"),QStringLiteral("0"),QStringLiteral("+6"),QStringLiteral("+12")};
     const float axisValues[]={-60,-36,-24,-12,0,6,12};
     for(int i=0;i<7;++i){
@@ -219,20 +309,27 @@ void LimiterWidget::paintEvent(QPaintEvent*){
     if(activeChannels>0&&energyEnd>-60.0F){
         const QPointF energyPoint=point(energyEnd,outputAt(energyEnd));
         fill.lineTo(energyPoint.x(),plot.bottom());fill.lineTo(plot.left(),plot.bottom());fill.closeSubpath();
-        p.setPen(Qt::NoPen);p.setBrush(QColor(232,75,113,52));p.drawPath(fill);
     }
-    p.setBrush(Qt::NoBrush);p.setPen(QPen(pink,2));p.drawPath(curve);
-    const QPointF knee=point(s.thresholdDb,s.thresholdDb);p.setBrush(pink);p.setPen(Qt::NoPen);p.drawEllipse(knee,6,6);
+    Controls::CurveStyle transferStyle;
+    transferStyle.stroke=pink;
+    transferStyle.fill=QColor(232,75,113,52);
+    transferStyle.width=2;
+    transferStyle.showFill=activeChannels>0&&energyEnd>-60.0F;
+    Controls::drawCurvePath(p,curve,transferStyle,transferStyle.showFill?&fill:nullptr);
+    const QPointF knee=point(s.thresholdDb,s.thresholdDb);
+    Controls::drawMarker(p,knee,6,pink);
     box(p,{409,114,78,40},6,QColor(25,46,71),QColor(78,111,147));label(p,{410,118,76,16},QStringLiteral("Threshold"),12,muted);
     label(p,{410,135,76,17},QStringLiteral("%1 dB").arg(s.thresholdDb,0,'f',1),12,muted);
     const qreal ceilingY=plot.bottom()-(std::clamp(s.ceilingDb,-60.0F,12.0F)+60.0F)*plot.height()/72.0F;
     p.setPen(QPen(QColor(255,194,45),3));p.drawLine(QPointF(plot.right(),plot.top()),QPointF(plot.right(),ceilingY));
     label(p,{371,351,120,22},QStringLiteral("输入电平 (dB)"),14,muted);
     p.save();p.translate(278,289);p.rotate(-90);label(p,{0,0,128,23},QStringLiteral("输出电平 (dB)"),14,muted);p.restore();
-    dial(p,{591,156},(s.thresholdDb+24)/30,QStringLiteral("%1 dB").arg(s.thresholdDb,0,'f',1),QStringLiteral("阈值"),QStringLiteral("(Threshold)"));
-    dial(p,{685,156},(s.ceilingDb+12)/24,QStringLiteral("%1 dB").arg(s.ceilingDb,0,'f',1),QStringLiteral("释放上限"),QStringLiteral("(Ceiling)"));
-    dial(p,{591,299},(s.releaseMs-10)/490,QStringLiteral("%1 ms").arg(s.releaseMs,0,'f',0),QStringLiteral("释放时间"),QStringLiteral("(Release)"));
-    dial(p,{685,299},s.lookaheadDb/12,QStringLiteral("%1 dB").arg(s.lookaheadDb,0,'f',1),QStringLiteral("前瞻"),QStringLiteral("(Lookahead)"));
+    const auto knobColors=Controls::paletteFor(*this,
+        {QColor(13,28,45),QColor(22,41,62),ink,pink,QColor(58,91,124)});
+    dial(p,{591,156},(s.thresholdDb+24)/30,QStringLiteral("%1 dB").arg(s.thresholdDb,0,'f',1),QStringLiteral("阈值"),QStringLiteral("(Threshold)"),knobColors);
+    dial(p,{685,156},(s.ceilingDb+12)/24,QStringLiteral("%1 dB").arg(s.ceilingDb,0,'f',1),QStringLiteral("释放上限"),QStringLiteral("(Ceiling)"),knobColors);
+    dial(p,{591,299},(s.releaseMs-10)/490,QStringLiteral("%1 ms").arg(s.releaseMs,0,'f',0),QStringLiteral("释放时间"),QStringLiteral("(Release)"),knobColors);
+    dial(p,{685,299},s.lookaheadDb/12,QStringLiteral("%1 dB").arg(s.lookaheadDb,0,'f',1),QStringLiteral("前瞻"),QStringLiteral("(Lookahead)"),knobColors);
     box(p,{16,430,723,59},8,QColor(18,38,58));label(p,{26,448,44,23},QStringLiteral("模式:"),14,muted);
     const QString modes[]={QStringLiteral("透明"),QStringLiteral("现代"),QStringLiteral("砖墙")};
     for(int i=0;i<3;++i){box(p,{qreal(71+i*84),443,84,36},5,i==s.mode?QColor(9,62,96):QColor(24,45,67),i==s.mode?cyan:QColor(64,96,130));label(p,{qreal(71+i*84),443,84,36},modes[i],15,i==s.mode?ink:muted);}
@@ -243,11 +340,23 @@ void LimiterWidget::paintEvent(QPaintEvent*){
 }
 void LimiterWidget::mousePressEvent(QMouseEvent* e){
     if(e->button()!=Qt::LeftButton)return;auto q=e->position();
-    if(q.y()>=66&&q.y()<106&&q.x()>=22&&q.x()<734){int i=int((q.x()-22)/80);if(i<9){channel_=i-1;update();}return;}
+    const QPoint centers[] {{591,301},{685,301},{591,444},{685,444}};
+    for(int i=0;i<4;++i){
+        const QRect readout(centers[i].x()-52,centers[i].y()+35,104,22);
+        if(!readout.contains(e->pos()))continue;
+        Controls::editNumericValue(this,readout,dialValue(shown(),i),dialSpec(i),
+            [this,i](double target){
+                apply([i,target](LimiterParameters& parameters){
+                    setDialValue(parameters,i,static_cast<float>(target));
+                });
+            });
+        return;
+    }
+    if(q.y()>=66&&q.y()<106&&q.x()>=22&&q.x()<734){int i=int((q.x()-22)/80);if(i<9){channel_=i-1;numericClock_.invalidate();update();}return;}
     QPointF v=q-QPointF(0,145);if(v.y()>40&&v.y()<62&&v.x()>340&&v.x()<378){const bool enabled=!shown().enabled;apply([enabled](auto& s){s.enabled=enabled;});return;}
     if(v.y()>36&&v.y()<70&&v.x()>444&&v.x()<604){
         QMenu menu(this);
-        const QString names[]={QStringLiteral("Vocal Safe"),QStringLiteral("Broadcast"),QStringLiteral("Max Loudness"),QStringLiteral("Custom")};
+        const QString names[]={QStringLiteral("Default"),QStringLiteral("Broadcast"),QStringLiteral("Max Loudness"),QStringLiteral("Custom")};
         for(int i=0;i<4;++i){auto* action=menu.addAction(names[i]);action->setCheckable(true);action->setChecked(preset_==i);
             connect(action,&QAction::triggered,this,[this,i]{applyPreset(i);});}
         menu.exec(mapToGlobal(QPoint(444,215)));return;
@@ -281,9 +390,20 @@ void LimiterWidget::mousePressEvent(QMouseEvent* e){
             menu.exec(mapToGlobal(QPoint(417,588)));return;
         }
         if(v.x()>673&&v.x()<711){const bool enabled=!shown().autoGain;apply([enabled](auto& s){s.autoGain=enabled;});return;}}
-    drag_=dialAt(q);dragPoint_=q.toPoint();
+    drag_=dialAt(q);dragPoint_=q.toPoint();if(drag_>=0)meterTimer_.start();
+}
+void LimiterWidget::mouseDoubleClickEvent(QMouseEvent* e){
+    if(e->button()!=Qt::LeftButton)return;
+    const int index=dialAt(e->position());
+    if(index<0)return;
+    drag_=-1;if(!meterReader_)meterTimer_.stop();
+    Controls::resetNumericValue(dialSpec(index),[this,index](double target){
+        apply([index,target](LimiterParameters& parameters){
+            setDialValue(parameters,index,static_cast<float>(target));
+        });
+    });
 }
 void LimiterWidget::mouseMoveEvent(QMouseEvent* e){if(drag_>=0){int delta=dragPoint_.y()-e->position().y();if(delta){adjustDial(drag_,float(delta));dragPoint_=e->position().toPoint();}}}
-void LimiterWidget::mouseReleaseEvent(QMouseEvent*){drag_=-1;}
+void LimiterWidget::mouseReleaseEvent(QMouseEvent*){drag_=-1;if(!meterReader_)meterTimer_.stop();update();}
 void LimiterWidget::wheelEvent(QWheelEvent* e){int i=dialAt(e->position());if(i>=0){adjustDial(i,e->angleDelta().y()/30.f);e->accept();}else QWidget::wheelEvent(e);}
 }

@@ -22,6 +22,7 @@ class WJN_FX_API DeEsserWidget final : public QWidget {
 public:
     using Parameters = WinJACKNexus::Common::DeEsserParameters;
     using ChangeHandler = std::function<void(std::size_t, const Parameters&)>;
+    using SpectrumFrameReader = std::function<bool(WinJACKNexus::Common::DeEsserLiveSpectrumFrame&)>;
     explicit DeEsserWidget(QWidget* parent = nullptr);
     void setParameters(const std::array<Parameters, 8>& parameters);
     void setChangeHandler(ChangeHandler handler);
@@ -32,10 +33,13 @@ public:
         const std::array<WinJACKNexus::Common::AudioRingBuffer<
             WinJACKNexus::Common::DeEsserSpectrumSample>*, 8>& sources,
         const std::atomic<double>* sampleRate) noexcept;
+    void setSpectrumFrameReader(SpectrumFrameReader reader);
+    bool hasSpectrumFrame() const noexcept { return spectrumReady_; }
 
 protected:
     void paintEvent(QPaintEvent*) override;
     void mousePressEvent(QMouseEvent*) override;
+    void mouseDoubleClickEvent(QMouseEvent*) override;
     void mouseMoveEvent(QMouseEvent*) override;
     void mouseReleaseEvent(QMouseEvent*) override;
 
@@ -57,6 +61,7 @@ private:
     std::array<WinJACKNexus::Common::AudioRingBuffer<
         WinJACKNexus::Common::DeEsserSpectrumSample>*, 8> spectrumSources_ {};
     const std::atomic<double>* spectrumSampleRate_ = nullptr;
+    SpectrumFrameReader spectrumFrameReader_;
     std::array<std::array<float, spectrumFftSize_>, 8> inputSpectrumHistory_ {};
     std::array<std::array<float, spectrumFftSize_>, 8> processedSpectrumHistory_ {};
     std::array<std::size_t, 8> historyWrite_ {};

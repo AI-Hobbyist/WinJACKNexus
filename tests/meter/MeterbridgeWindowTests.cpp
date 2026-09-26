@@ -15,6 +15,7 @@
  */
 #include <WinJACKNexus/Meter/MockMeterDataProvider.hpp>
 #include <WinJACKNexus/Meter/Mod/MeterCard.hpp>
+#include <WinJACKNexus/UI/Controls.hpp>
 #include <WinJACKNexus/Meter/Mod/MeterbridgeWindow.hpp>
 #include <WinJACKNexus/Common/MeterLoudnessPresetCatalog.hpp>
 #include <WinJACKNexus/UI/MeterLevelBar.hpp>
@@ -109,6 +110,13 @@ bool testCardLifecycleAndCommands()
     const auto* peakMetricReadout = firstCard != nullptr
         ? dynamic_cast<const WinJACKNexus::UI::MetricReadout*>(firstCard->findChild<QWidget*>(QStringLiteral("meterCard.readout.Peak")))
         : nullptr;
+    const auto* truePeakMetricReadout = firstCard != nullptr
+        ? dynamic_cast<const WinJACKNexus::UI::MetricReadout*>(
+            firstCard->findChild<QWidget*>(QStringLiteral("meterCard.readout.dBTP")))
+        : nullptr;
+    passed &= check(peakMetricReadout && peakMetricReadout->peakValueRefreshEnabled()
+                    && truePeakMetricReadout && truePeakMetricReadout->peakValueRefreshEnabled(),
+                    "bridge peak and true-peak numbers use the global refresh interval");
     const auto* momentaryMetricReadout = firstCard != nullptr
         ? dynamic_cast<const WinJACKNexus::UI::MetricReadout*>(firstCard->findChild<QWidget*>(QStringLiteral("meterCard.readout.Momentary")))
         : nullptr;
@@ -142,6 +150,13 @@ bool testCardLifecycleAndCommands()
                     "cards present stable sequential display numbers");
 
     auto* presetSelector = firstCard->findChild<QComboBox*>(QStringLiteral("meterCard.preset"));
+    passed &= check(qobject_cast<WinJACKNexus::UI::Controls::ChoiceField*>(presetSelector) != nullptr
+                        && presetSelector->property("accentColor").value<QColor>()
+                            == QColor(QStringLiteral("#3b9dff")),
+                    "card preset uses the shared painted dropdown and card accent");
+    passed &= check(firstCard->findChild<WinJACKNexus::UI::Controls::IconActionButton*>(
+                        QStringLiteral("meterCard.resetButton")) != nullptr,
+                    "card commands use the shared painted icon button");
     passed &= check(presetSelector != nullptr
                         && presetSelector->count() == static_cast<int>(WinJACKNexus::Common::meterLoudnessPresetCatalog.size())
                         && presetSelector->findData(QStringLiteral("spotify-default")) >= 0

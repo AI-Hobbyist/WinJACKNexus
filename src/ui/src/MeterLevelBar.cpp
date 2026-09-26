@@ -14,6 +14,8 @@
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 #include <WinJACKNexus/UI/MeterLevelBar.hpp>
+#include <WinJACKNexus/UI/ApplicationSettings.hpp>
+#include <WinJACKNexus/UI/Controls.hpp>
 
 #include <QFontMetrics>
 #include <QPainter>
@@ -26,7 +28,6 @@ namespace WinJACKNexus::UI {
 
 namespace {
 
-constexpr int peakHoldFrames = 18;
 constexpr float peakDecayPerFrame = 0.012F;
 
 QColor themeColor(const ThemePalette& palette, const char* key, const QColor& fallback)
@@ -40,7 +41,6 @@ QColor themeColor(const ThemePalette& palette, const char* key, const QColor& fa
 MeterLevelBar::MeterLevelBar(QWidget* parent)
     : AnimatedWidget(parent)
 {
-    setFrameRate(60);
     setMinimumSize(36, 220);
     setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding);
     setMarks({
@@ -65,8 +65,11 @@ void MeterLevelBar::setRange(float minimum, float maximum)
         value_ = denormalize(normalize(*value_));
     if (peakValue_.has_value())
         peakValue_ = denormalize(normalize(*peakValue_));
+    if (incomingPeak_.has_value())
+        incomingPeak_ = denormalize(normalize(*incomingPeak_));
     displayLevel_ = value_.has_value() ? normalize(*value_) : 0.0F;
     displayPeak_ = peakValue_.has_value() ? normalize(*peakValue_) : 0.0F;
+    animationClock_.invalidate();
     update();
 }
 
@@ -145,10 +148,12 @@ void MeterLevelBar::setValue(std::optional<float> value)
     value_ = denormalize(normalize(*value));
     const auto normalized = normalize(*value_);
     displayLevel_ = std::max(displayLevel_, normalized);
-    if (!peakValue_.has_value() || normalized >= displayPeak_) {
+    if (!peakValue_.has_value() || normalized > displayPeak_) {
         peakValue_ = *value_;
         displayPeak_ = normalized;
-        peakHoldFrames_ = peakHoldFrames;
+        if (!peakClock_.isValid()) peakClock_.start();
+        peakHoldUntilMs_ = peakClock_.elapsed() + static_cast<qint64>(std::llround(
+            ApplicationSettings::instance().peakHoldSeconds() * 1000.0));
     }
     update();
 }
@@ -157,9 +162,12 @@ void MeterLevelBar::clearValue()
 {
     value_.reset();
     peakValue_.reset();
+    incomingPeak_.reset();
     displayLevel_ = 0.0F;
     displayPeak_ = 0.0F;
-    peakHoldFrames_ = 0;
+    animationClock_.invalidate();
+    peakClock_.invalidate();
+    peakHoldUntilMs_ = 0;
     update();
 }
 
@@ -171,15 +179,25 @@ std::optional<float> MeterLevelBar::value() const noexcept
 void MeterLevelBar::setPeakValue(std::optional<float> value)
 {
     if (!value.has_value() || !std::isfinite(*value)) {
-        peakValue_.reset();
-        displayPeak_ = 0.0F;
-        peakHoldFrames_ = 0;
+        incomingPeak_.reset();
+        if (!value_.has_value()) {
+            peakValue_.reset();
+            displayPeak_ = 0.0F;
+            peakClock_.invalidate();
+            peakHoldUntilMs_ = 0;
+        }
         update();
         return;
     }
-    peakValue_ = denormalize(normalize(*value));
-    displayPeak_ = normalize(*peakValue_);
-    peakHoldFrames_ = peakHoldFrames;
+    incomingPeak_ = denormalize(normalize(*value));
+    const auto normalized = normalize(*incomingPeak_);
+    if (!peakValue_.has_value() || normalized > displayPeak_) {
+        peakValue_ = *incomingPeak_;
+        displayPeak_ = normalized;
+        if (!peakClock_.isValid()) peakClock_.start();
+        peakHoldUntilMs_ = peakClock_.elapsed() + static_cast<qint64>(std::llround(
+            ApplicationSettings::instance().peakHoldSeconds() * 1000.0));
+    }
     update();
 }
 
@@ -193,10 +211,9 @@ void MeterLevelBar::advanceAnimation()
     const auto previousDisplayLevel = displayLevel_;
     const auto previousDisplayPeak = displayPeak_;
     const auto previousPeakValue = peakValue_;
-    const auto previousPeakHoldFrames = peakHoldFrames_;
     advanceFrame();
     if (displayLevel_ != previousDisplayLevel || displayPeak_ != previousDisplayPeak
-        || peakValue_ != previousPeakValue || peakHoldFrames_ != previousPeakHoldFrames)
+        || peakValue_ != previousPeakValue)
         update();
 }
 
@@ -233,54 +250,37 @@ void MeterLevelBar::paintContent(QPainter& painter)
     const QFontMetrics metrics(painter.font());
     const auto scaleWidth = showScaleLabels_ ? std::max(32, metrics.horizontalAdvance(QStringLiteral("-70")) + 8) : 0;
     const auto bottomMargin = std::max(metrics.height() + 8, unit_.isEmpty() ? 8 : metrics.height() * 2 + 8);
-    const QRectF track = QRectF(rect()).adjusted(scaleWidth + 8, 10, -8, -bottomMargin);
-    if (track.width() <= 4.0 || track.height() <= 4.0)
+    const QRectF meterBounds = QRectF(rect()).adjusted(4, 10, -8, -bottomMargin);
+    if (meterBounds.width() <= scaleWidth + 8 || meterBounds.height() <= 4.0)
         return;
-
-    painter.setPen(QPen(border, 1.0));
-    painter.setBrush(panelRaised);
-    painter.drawRoundedRect(track, 3.0, 3.0);
-
-    const auto yFor = [&track](float normalized) {
-        return track.bottom() - std::clamp(normalized, 0.0F, 1.0F) * track.height();
+    Controls::MeterStyle style;
+    style.minimumDb = minimum_;
+    style.maximumDb = maximum_;
+    style.zones = {
+        {warning_, success, panelRaised},
+        {danger_, warning, panelRaised},
+        {maximum_, danger, panelRaised}
     };
-    for (const auto& mark : marks_) {
-        const auto y = yFor(normalize(mark.value));
-        painter.setPen(QPen(border, 1.0));
-        painter.drawLine(QPointF(track.left() - 4.0, y), QPointF(track.right(), y));
-        if (showScaleLabels_) {
-            painter.setPen(muted);
-            painter.drawText(QRectF(0.0, y - metrics.height() / 2.0, scaleWidth - 4.0, metrics.height()),
-                             Qt::AlignRight | Qt::AlignVCenter,
-                             markLabel(mark));
-        }
-    }
-
-    if (value_.has_value()) {
-        const auto fillTop = yFor(displayLevel_);
-        const QRectF fillRect(track.left() + 2.0, fillTop, std::max(1.0, track.width() - 4.0), track.bottom() - fillTop - 1.0);
-        if (fillRect.height() > 0.0) {
-            const auto fillSegment = [this, &painter, &fillRect, &yFor](float lower, float upper, const QColor& color) {
-                const auto segmentTop = yFor(normalize(upper));
-                const auto segmentBottom = yFor(normalize(lower));
-                const auto visibleTop = std::max(fillRect.top(), segmentTop);
-                const auto visibleBottom = std::min(fillRect.bottom(), segmentBottom);
-                if (visibleBottom > visibleTop)
-                    painter.fillRect(QRectF(fillRect.left(), visibleTop, fillRect.width(), visibleBottom - visibleTop), color);
-            };
-            fillSegment(minimum_, warning_, success);
-            fillSegment(warning_, danger_, warning);
-            fillSegment(danger_, maximum_, danger);
-        }
-    } else {
+    style.vertical = true;
+    style.border = border;
+    style.peakColor = text;
+    style.labelColor = muted;
+    style.tickColor = border;
+    style.ticksLeft = true;
+    style.showTickGrid = true;
+    style.tickBandPixels = showScaleLabels_ ? scaleWidth + 4 : 0;
+    style.tickFontPixelSize = std::max(8, metrics.height() - 2);
+    for (const auto& mark : marks_)
+        style.ticks.push_back({mark.value, showScaleLabels_ ? markLabel(mark) : QString()});
+    Controls::drawMeter(painter, meterBounds,
+                        value_.has_value() ? denormalize(displayLevel_) : minimum_,
+                        peakValue_.has_value() ? std::optional<double>(denormalize(displayPeak_))
+                                               : std::nullopt,
+                        style);
+    if (!value_.has_value()) {
         painter.setPen(muted);
-        painter.drawText(track, Qt::AlignCenter, QStringLiteral("--"));
-    }
-
-    if (peakValue_.has_value()) {
-        painter.setPen(QPen(text, 2.0, Qt::SolidLine, Qt::RoundCap));
-        const auto peakY = yFor(displayPeak_);
-        painter.drawLine(QPointF(track.left() + 2.0, peakY), QPointF(track.right() - 2.0, peakY));
+        painter.drawText(meterBounds.adjusted(style.tickBandPixels, 0, 0, 0),
+                         Qt::AlignCenter, QStringLiteral("--"));
     }
 
     if (!unit_.isEmpty()) {
@@ -293,14 +293,27 @@ void MeterLevelBar::paintContent(QPainter& painter)
 
 void MeterLevelBar::advanceFrame()
 {
-    if (!value_.has_value())
+    if (!value_.has_value()) {
+        animationClock_.invalidate();
         return;
+    }
+    const auto elapsedMilliseconds = animationClock_.isValid() ? animationClock_.restart() : -1;
+    if (elapsedMilliseconds < 0) animationClock_.start();
+    const auto elapsedSeconds = elapsedMilliseconds > 0
+        ? std::min(elapsedMilliseconds / 1000.0F, 0.1F) : 1.0F / frameRate();
     const auto target = normalize(*value_);
-    displayLevel_ += (target - displayLevel_) * 0.35F;
-    if (peakHoldFrames_ > 0) {
-        --peakHoldFrames_;
-    } else {
-        displayPeak_ = std::max(target, displayPeak_ - peakDecayPerFrame);
+    displayLevel_ += (target - displayLevel_)
+        * (1.0F - std::pow(0.65F, 60.0F * elapsedSeconds));
+    const auto peakNow = peakClock_.isValid() ? peakClock_.elapsed() : 0;
+    if (!peakClock_.isValid() || peakNow >= peakHoldUntilMs_) {
+        const auto decaySeconds = peakClock_.isValid()
+            ? std::min(elapsedSeconds, std::max(0.0F,
+                static_cast<float>(peakNow - peakHoldUntilMs_) / 1000.0F))
+            : elapsedSeconds;
+        const auto peakTarget = incomingPeak_.has_value()
+            ? std::max(target, normalize(*incomingPeak_)) : target;
+        displayPeak_ = std::max(peakTarget,
+            displayPeak_ - peakDecayPerFrame * 60.0F * decaySeconds);
         peakValue_ = denormalize(displayPeak_);
     }
 }

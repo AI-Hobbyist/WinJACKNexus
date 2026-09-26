@@ -7,10 +7,13 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QKeyEvent>
 #include <QLibrary>
+#include <QLineEdit>
 #include <QMouseEvent>
 
 #include <array>
+#include <cmath>
 #include <cstdio>
 #include <cstring>
 
@@ -118,6 +121,24 @@ int main(int argc, char** argv) {
     QApplication::sendEvent(&gestureWidget, &knobRelease);
     passed &= check(knobNotifications == 1 && changedFrequency > 6500.0F,
                     "Dragging a knob changes the selected channel frequency");
+    click(gestureWidget,QPointF(57,88)); // All
+    knobNotifications=0;
+    click(gestureWidget,QPointF(480,324)); // Center frequency readout in kHz
+    auto* editor=gestureWidget.findChild<QLineEdit*>(QStringLiteral("numericValueEditor"));
+    passed &= check(editor!=nullptr,"De-Esser readout opens a precise value editor");
+    if(editor){
+        editor->setText(QStringLiteral("7.3"));
+        QKeyEvent enter(QEvent::KeyPress,Qt::Key_Return,Qt::NoModifier);
+        QApplication::sendEvent(editor,&enter);
+    }
+    passed &= check(knobNotifications==8&&std::abs(changedFrequency-7300.0F)<0.01F,
+                    "De-Esser All numeric edit applies kHz value to eight channels");
+    knobNotifications=0;
+    QMouseEvent reset(QEvent::MouseButtonDblClick,QPointF(480,287),Qt::LeftButton,
+                      Qt::LeftButton,Qt::NoModifier);
+    QApplication::sendEvent(&gestureWidget,&reset);
+    passed &= check(knobNotifications==8&&std::abs(changedFrequency-6500.0F)<0.01F,
+                    "De-Esser double click restores all center frequencies");
     QImage image(widget.size(), QImage::Format_ARGB32_Premultiplied);
     image.fill(Qt::transparent);
     widget.render(&image);

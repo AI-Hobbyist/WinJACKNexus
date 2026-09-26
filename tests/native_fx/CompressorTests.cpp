@@ -6,11 +6,13 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QKeyEvent>
 #include <QLineEdit>
 #include <QPushButton>
 #include <QMouseEvent>
 #include <QPainter>
 #include <windows.h>
+#include <cmath>
 #include <cstdio>
 #include <cstring>
 
@@ -55,6 +57,30 @@ int main(int argc,char** argv) {
     passed &= check(changes==8 && mask==0xff,"All edits eight channels");
     changes=0;mask=0;click({128,82});click({200,82});click({354,190});
     passed &= check(changes==1 && mask==0x2,"channel selection is exclusive like the other Native Fx controls");
+    std::array<WinJACKNexus::UI::CompressorParameters,8> changedValues{};
+    widget.setChangeHandler([&](std::size_t channel,const auto& value){
+        ++changes;mask|=1u<<channel;changedValues[channel]=value;
+    });
+    click({52,82});changes=0;mask=0;
+    click({454,327});
+    auto* editor=widget.findChild<QLineEdit*>(QStringLiteral("numericValueEditor"));
+    passed &= check(editor!=nullptr,"Compressor readout opens a precise value editor");
+    if(editor){
+        editor->setText(QStringLiteral("-21.5"));
+        QKeyEvent enter(QEvent::KeyPress,Qt::Key_Return,Qt::NoModifier);
+        QApplication::sendEvent(editor,&enter);
+    }
+    passed &= check(changes==8&&mask==0xff,"Compressor All numeric edit reaches eight channels");
+    for(const auto& value:changedValues)
+        passed &= check(std::abs(value.thresholdDb+21.5F)<0.001F,"Compressor numeric edit uses one absolute target");
+    changes=0;mask=0;
+    QMouseEvent reset(QEvent::MouseButtonDblClick,QPointF(454,288),QPointF(454,288),
+                      Qt::LeftButton,Qt::LeftButton,Qt::NoModifier);
+    QApplication::sendEvent(&widget,&reset);
+    passed &= check(changes==8&&mask==0xff,"Compressor double click resets All channels");
+    for(const auto& value:changedValues)
+        passed &= check(std::abs(value.thresholdDb-WinJACKNexus::UI::CompressorParameters{}.thresholdDb)<0.001F,
+                        "Compressor double click restores the parameter default");
     if(argc>1) {
         auto* module=LoadLibraryW(QString::fromLocal8Bit(argv[1]).toStdWString().c_str());
         passed &= check(module!=nullptr,"native module loads");

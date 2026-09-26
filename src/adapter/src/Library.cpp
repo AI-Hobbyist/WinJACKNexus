@@ -27,6 +27,7 @@
 #include <WinJACKNexus/Common/LockFreeSpscQueue.hpp>
 #include <WinJACKNexus/Common/Logger.hpp>
 #include <WinJACKNexus/UI/ApplicationSettings.hpp>
+#include <WinJACKNexus/UI/Controls.hpp>
 #include <WinJACKNexus/UI/MeterWidget.hpp>
 
 #include <QApplication>
@@ -350,64 +351,38 @@ public:
         , valuesProvider_(std::move(valuesProvider))
         , applyHandler_(std::move(applyHandler))
     {
+        namespace Controls = WinJACKNexus::UI::Controls;
         setWindowFlags(Qt::Widget | Qt::FramelessWindowHint);
         setAutoFillBackground(true);
         setWindowTitle(std::move(title));
-        setStyleSheet(QStringLiteral(
-            "QLineEdit#clientNameEditor, QComboBox#deviceCombo {"
-            " background: #203a52; color: #e8f4ff; border: 1px solid #4b789d;"
-            " border-radius: 3px; padding: 3px 6px;"
-            "}"
-            "QLineEdit#clientNameEditor:focus, QComboBox#deviceCombo:focus {"
-            " background: #254967; border-color: #69b8f2;"
-            "}"
-            "QComboBox#deviceCombo QAbstractItemView {"
-            " background: #1c3042; color: #e8f4ff; selection-background-color: #2d6c91;"
-            "}"
-            "QSpinBox#channelsSpinBox {"
-            " background: #4a3b22; color: #fff0c2; border: 1px solid #a9833d;"
-            " border-radius: 3px; padding: 3px 6px;"
-            "}"
-            "QSpinBox#channelsSpinBox:focus {"
-            " background: #5a4727; border-color: #e5b95b;"
-            "}"
-            "QPushButton#refreshButton {"
-            " background: #20505a; color: #d6ffff; border: 1px solid #4ca6a7;"
-            " border-radius: 3px; padding: 4px 10px;"
-            "}"
-            "QPushButton#refreshButton:hover { background: #286875; }"
-            "QPushButton#refreshButton:pressed { background: #183f48; }"
-            "QPushButton#applyButton {"
-            " background: #1f5a3b; color: #e2ffe9; border: 1px solid #55b878;"
-            " border-radius: 3px; padding: 4px 14px;"
-            "}"
-            "QPushButton#applyButton:hover { background: #28734b; }"
-            "QPushButton#applyButton:pressed { background: #18442d; }"
-            "QLabel#statusLabel { color: #9be2b2; }"));
         auto* form = new QFormLayout(this);
 
-        clientNameEditor_ = new QLineEdit(this);
+        clientNameEditor_ = new Controls::TextField(this);
         clientNameEditor_->setObjectName(QStringLiteral("clientNameEditor"));
+        clientNameEditor_->setFixedHeight(Controls::sidebarControlHeight);
         form->addRow(QStringLiteral("Client name"), clientNameEditor_);
 
         auto* deviceRow = new QHBoxLayout;
-        deviceCombo_ = new QComboBox(this);
+        deviceCombo_ = new Controls::ChoiceField(this);
         deviceCombo_->setObjectName(QStringLiteral("deviceCombo"));
+        deviceCombo_->setFixedHeight(Controls::sidebarControlHeight);
         deviceCombo_->setEditable(true);
         deviceCombo_->setInsertPolicy(QComboBox::NoInsert);
         auto* deviceCompleter = new QCompleter(deviceCombo_->model(), deviceCombo_);
         deviceCompleter->setCaseSensitivity(Qt::CaseInsensitive);
         deviceCompleter->setFilterMode(Qt::MatchContains);
         deviceCombo_->setCompleter(deviceCompleter);
-        refreshButton_ = new QPushButton(QStringLiteral("Refresh"), this);
+        refreshButton_ = new Controls::ActionButton(QStringLiteral("Refresh"), this);
         refreshButton_->setObjectName(QStringLiteral("refreshButton"));
+        refreshButton_->setFixedHeight(Controls::sidebarControlHeight);
         deviceRow->addWidget(deviceCombo_, 1);
         deviceRow->addWidget(refreshButton_);
         form->addRow(QStringLiteral("Device"), deviceRow);
 
         if (showChannels) {
-            channelsSpinBox_ = new QSpinBox(this);
+            channelsSpinBox_ = new Controls::IntegerField(this);
             channelsSpinBox_->setObjectName(QStringLiteral("channelsSpinBox"));
+            channelsSpinBox_->setFixedHeight(Controls::sidebarControlHeight);
             channelsSpinBox_->setRange(1, static_cast<int>(maxAudioChannels));
             form->addRow(QStringLiteral("JACK channels"), channelsSpinBox_);
             connect(channelsSpinBox_, qOverload<int>(&QSpinBox::valueChanged), this,
@@ -415,10 +390,12 @@ public:
         }
 
         auto* actionRow = new QHBoxLayout;
-        applyButton_ = new QPushButton(QStringLiteral("Apply"), this);
+        applyButton_ = new Controls::ActionButton(QStringLiteral("Apply"), this);
         applyButton_->setObjectName(QStringLiteral("applyButton"));
-        statusLabel_ = new QLabel(this);
+        applyButton_->setFixedHeight(Controls::sidebarControlHeight);
+        statusLabel_ = new WinJACKNexus::UI::Controls::TextLabel(this);
         statusLabel_->setObjectName(QStringLiteral("statusLabel"));
+        statusLabel_->setProperty("wjnRole", QStringLiteral("success"));
         actionRow->addWidget(applyButton_);
         actionRow->addWidget(statusLabel_, 1);
         form->addRow(actionRow);
@@ -427,7 +404,9 @@ public:
         connect(applyButton_, &QPushButton::clicked, this, [this] { apply(); });
         refreshDevices();
         settingsViewId_ = deviceRegistry.registerSettingsView([this] { refreshDevices(); });
-        resize(460, showChannels ? 150 : 125);
+        const int preferredHeight = form->sizeHint().height();
+        setMinimumHeight(preferredHeight);
+        resize(460, preferredHeight);
     }
 
     ~SettingsPanel() override
@@ -656,7 +635,7 @@ public:
         auto* layout = new QVBoxLayout(this);
         layout->setContentsMargins(12, 12, 12, 12);
         layout->setSpacing(8);
-        auto* heading = new QLabel(title, this);
+        auto* heading = new WinJACKNexus::UI::Controls::TextLabel(title, this);
         heading->setProperty("wjnRole", QStringLiteral("meter-title"));
         layout->addWidget(heading);
 
@@ -673,7 +652,7 @@ public:
         }
         layout->addWidget(meterArray_, 1);
 
-        auto* footer = new QLabel(mode_ == Mode::audio
+        auto* footer = new WinJACKNexus::UI::Controls::TextLabel(mode_ == Mode::audio
                                       ? QStringLiteral("Peak dBFS  |  -70 to +12 dB")
                                       : QStringLiteral("Recent Note-On velocity  |  0 to 127"),
                                   this);
@@ -683,7 +662,6 @@ public:
         timer_.setTimerType(Qt::PreciseTimer);
         timer_.setInterval(meterRefreshIntervalMilliseconds(refreshRate_));
         connect(&timer_, &QTimer::timeout, this, [this] { pollQueue(); });
-        meterArray_->setFrameRate(refreshRate_);
         auto& applicationSettings = WinJACKNexus::UI::ApplicationSettings::instance();
         connect(&applicationSettings,
                 &WinJACKNexus::UI::ApplicationSettings::frameRateChanged,
@@ -754,7 +732,6 @@ private:
             return;
         refreshRate_ = framesPerSecond;
         timer_.setInterval(meterRefreshIntervalMilliseconds(refreshRate_));
-        meterArray_->setFrameRate(refreshRate_);
     }
 
     void synchronizeTimer()

@@ -2,6 +2,7 @@
 #include <WinJACKNexus/Node/NodeApi.h>
 #include <WinJACKNexus/NativeFx/graphic_eq/Processor.hpp>
 #include <WinJACKNexus/NativeFx/graphic_eq/Ui.hpp>
+#include <WinJACKNexus/UI/ApplicationSettings.hpp>
 
 #include <QApplication>
 #include <QDir>
@@ -9,6 +10,7 @@
 #include <QFileInfo>
 #include <QFontMetrics>
 #include <QImage>
+#include <QKeyEvent>
 #include <QLibrary>
 #include <QLineEdit>
 #include <QMenu>
@@ -122,6 +124,27 @@ int main(int argc, char** argv)
     });
     widget.show();
     app.processEvents();
+    auto* refreshTimer = widget.findChild<QTimer*>(QStringLiteral("nativeFxSpectrumRefreshTimer"));
+    const QPointF bandDragPoint(200, 300);
+    QMouseEvent bandPress(QEvent::MouseButtonPress, bandDragPoint, Qt::LeftButton,
+                          Qt::LeftButton, Qt::NoModifier);
+    QApplication::sendEvent(&widget, &bandPress);
+    passed &= check(refreshTimer && refreshTimer->isActive(),
+                    "Graphic EQ drag uses the application frame timer without spectrum data");
+    auto& applicationSettings = WinJACKNexus::UI::ApplicationSettings::instance();
+    const int previousFrameRate = applicationSettings.frameRate();
+    applicationSettings.setFrameRate(30);
+    passed &= check(refreshTimer && refreshTimer->interval() == 33,
+                    "Graphic EQ drag switches to the 30 FPS interval");
+    applicationSettings.setFrameRate(120);
+    passed &= check(refreshTimer && refreshTimer->interval() == 8,
+                    "Graphic EQ drag switches to the 120 FPS interval");
+    applicationSettings.setFrameRate(previousFrameRate);
+    QMouseEvent bandRelease(QEvent::MouseButtonRelease, bandDragPoint, Qt::LeftButton,
+                            Qt::NoButton, Qt::NoModifier);
+    QApplication::sendEvent(&widget, &bandRelease);
+    passed &= check(refreshTimer && !refreshTimer->isActive(),
+                    "Graphic EQ drag timer stops when the band is released");
     QMouseEvent comboPress(QEvent::MouseButtonPress, QPointF(500, 190), Qt::LeftButton,
                            Qt::LeftButton, Qt::NoModifier);
     QApplication::sendEvent(&widget, &comboPress);
@@ -256,5 +279,56 @@ int main(int argc, char** argv)
         .filePath(QStringLiteral("GraphicEq-curve-preview.png"));
     passed &= check(curveImage.save(curvePreviewPath),
                     "Unfilled Vocal Bright curve preview saved for visual QA");
+
+    WinJACKNexus::UI::GraphicEqWidget controlWidget;
+    std::array<WinJACKNexus::Common::GraphicEqParameters, 8> editedSettings {};
+    controlWidget.setChangeHandler([&editedSettings](std::size_t index, const auto& parameters) {
+        editedSettings[index] = parameters;
+    });
+    controlWidget.show();
+    app.processEvents();
+    const auto clickControl = [&](const QPointF& position) {
+        QMouseEvent press(QEvent::MouseButtonPress, position, Qt::LeftButton,
+                          Qt::LeftButton, Qt::NoModifier);
+        QApplication::sendEvent(&controlWidget, &press);
+        QMouseEvent release(QEvent::MouseButtonRelease, position, Qt::LeftButton,
+                            Qt::NoButton, Qt::NoModifier);
+        QApplication::sendEvent(&controlWidget, &release);
+        app.processEvents();
+    };
+    const auto enterNumeric = [&](const QString& text) {
+        auto* editor = controlWidget.findChild<QLineEdit*>();
+        if (!editor || !editor->isVisible()) return false;
+        editor->setText(text);
+        QKeyEvent enter(QEvent::KeyPress, Qt::Key_Return, Qt::NoModifier);
+        QApplication::sendEvent(editor, &enter);
+        app.processEvents();
+        return true;
+    };
+    constexpr qreal mainPanelTop = 146.0;
+    clickControl({50, 300});
+    clickControl({450, mainPanelTop + 477});
+    const bool bandEditorOpened = enterNumeric(QStringLiteral("4.5"));
+    passed &= check(bandEditorOpened && std::all_of(editedSettings.cbegin(), editedSettings.cend(),
+                    [](const auto& parameters) { return parameters.bandGainsDb[0] == 4.5F; }),
+                    "Selected Graphic EQ band accepts an exact value in All mode");
+    QMouseEvent bandDoubleClick(QEvent::MouseButtonDblClick, QPointF(50, 300), Qt::LeftButton,
+                                Qt::LeftButton, Qt::NoModifier);
+    QApplication::sendEvent(&controlWidget, &bandDoubleClick);
+    passed &= check(std::all_of(editedSettings.cbegin(), editedSettings.cend(),
+                    [](const auto& parameters) { return parameters.bandGainsDb[0] == 0.0F; }),
+                    "Graphic EQ band double-click restores its default gain");
+    clickControl({110, mainPanelTop + 478});
+    const bool outputEditorOpened = enterNumeric(QStringLiteral("-6.0"));
+    passed &= check(outputEditorOpened && std::all_of(editedSettings.cbegin(), editedSettings.cend(),
+                    [](const auto& parameters) { return parameters.outputGainDb == -6.0F; }),
+                    "Graphic EQ output gain accepts an exact value in All mode");
+    QMouseEvent knobDoubleClick(QEvent::MouseButtonDblClick,
+                                QPointF(119, mainPanelTop + 442), Qt::LeftButton,
+                                Qt::LeftButton, Qt::NoModifier);
+    QApplication::sendEvent(&controlWidget, &knobDoubleClick);
+    passed &= check(std::all_of(editedSettings.cbegin(), editedSettings.cend(),
+                    [](const auto& parameters) { return parameters.outputGainDb == 0.0F; }),
+                    "Graphic EQ output knob double-click restores unity gain");
     return passed ? 0 : 1;
 }

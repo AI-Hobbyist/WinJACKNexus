@@ -9,6 +9,7 @@
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 #include <WinJACKNexus/Node/NodeApi.h>
+#include <WinJACKNexus/UI/Controls.hpp>
 
 #include "public.sdk/source/vst/hosting/hostclasses.h"
 #include "public.sdk/source/vst/hosting/module.h"
@@ -158,18 +159,19 @@ QString chooseInternalPlugin(const QString& title, const QString& description, c
     QDialog dialog;
     dialog.setWindowTitle(title);
     auto* layout = new QVBoxLayout(&dialog);
-    layout->addWidget(new QLabel(description, &dialog));
-    auto* filter = new QLineEdit(&dialog);
+    layout->addWidget(new WinJACKNexus::UI::Controls::TextLabel(description, &dialog));
+    auto* filter = new WinJACKNexus::UI::Controls::SearchField(&dialog);
     filter->setPlaceholderText(QStringLiteral("Filter or enter plugin name / ID"));
     layout->addWidget(filter);
-    auto* list = new QListWidget(&dialog);
+    auto* list = new WinJACKNexus::UI::Controls::ListField(&dialog);
     for (const auto& plugin : plugins) {
         auto* item = new QListWidgetItem(QStringLiteral("%1 (%2)").arg(plugin.name).arg(plugin.id), list);
         item->setData(Qt::UserRole, plugin.id);
         item->setData(Qt::UserRole + 1, plugin.name);
     }
     layout->addWidget(list);
-    auto* buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, &dialog);
+    auto* buttons = new WinJACKNexus::UI::Controls::DialogButtonBar(
+        QDialogButtonBox::Ok | QDialogButtonBox::Cancel, &dialog);
     layout->addWidget(buttons);
 
     QObject::connect(filter, &QLineEdit::textChanged, &dialog, [list](const QString& text) {
@@ -759,29 +761,46 @@ SettingsWidget::SettingsWidget(VstHostNode& node, QWidget* parent)
     : QWidget(parent)
     , node_(node)
 {
+    namespace Controls = WinJACKNexus::UI::Controls;
     auto* layout = new QVBoxLayout(this);
+    if (parent != nullptr)
+        layout->setContentsMargins(0, 0, 0, 0);
     auto* form = new QFormLayout;
-    path_ = new QLineEdit(node.pluginPath(), this);
-    auto* browse = new QPushButton(QStringLiteral("Browse"), this);
+    form->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
+    form->setRowWrapPolicy(QFormLayout::WrapLongRows);
+    path_ = new Controls::TextField(this);
+    path_->setFixedHeight(Controls::sidebarControlHeight);
+    path_->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
+    path_->setText(node.pluginPath());
+    auto* browse = new Controls::ActionButton(QStringLiteral("Browse"), this);
+    browse->setFixedHeight(Controls::sidebarControlHeight);
     auto* pathRow = new QWidget(this);
     auto* pathLayout = new QHBoxLayout(pathRow);
     pathLayout->setContentsMargins(0, 0, 0, 0);
     pathLayout->addWidget(path_);
     pathLayout->addWidget(browse);
-    clientName_ = new QLineEdit(node.clientName(), this);
-    presetPath_ = new QLineEdit(node.presetPath(), this);
-    auto* browsePreset = new QPushButton(QStringLiteral("Browse"), this);
+    clientName_ = new Controls::TextField(this);
+    clientName_->setFixedHeight(Controls::sidebarControlHeight);
+    clientName_->setText(node.clientName());
+    presetPath_ = new Controls::TextField(this);
+    presetPath_->setFixedHeight(Controls::sidebarControlHeight);
+    presetPath_->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
+    presetPath_->setText(node.presetPath());
+    auto* browsePreset = new Controls::ActionButton(QStringLiteral("Browse"), this);
+    browsePreset->setFixedHeight(Controls::sidebarControlHeight);
     auto* presetRow = new QWidget(this);
     auto* presetLayout = new QHBoxLayout(presetRow);
     presetLayout->setContentsMargins(0, 0, 0, 0);
     presetLayout->addWidget(presetPath_);
     presetLayout->addWidget(browsePreset);
-    bits_ = new QComboBox(this);
+    bits_ = new Controls::ChoiceField(this);
+    bits_->setFixedHeight(Controls::sidebarControlHeight);
     bits_->addItem(QStringLiteral("Auto"), static_cast<int>(ProcessBits::automatic));
     bits_->addItem(QStringLiteral("64-bit"), static_cast<int>(ProcessBits::x64));
     bits_->addItem(QStringLiteral("32-bit"), static_cast<int>(ProcessBits::x86));
     bits_->setCurrentIndex(bits_->findData(static_cast<int>(node.processBits())));
-    portDisplayMode_ = new QComboBox(this);
+    portDisplayMode_ = new Controls::ChoiceField(this);
+    portDisplayMode_->setFixedHeight(Controls::sidebarControlHeight);
     portDisplayMode_->addItem(QStringLiteral("Default plugin names"), static_cast<int>(PortDisplayMode::defaultNames));
     portDisplayMode_->addItem(QStringLiteral("Bus and channel labels"), static_cast<int>(PortDisplayMode::busLabels));
     portDisplayMode_->addItem(QStringLiteral("Standard channel names"), static_cast<int>(PortDisplayMode::standardChannels));
@@ -793,23 +812,21 @@ SettingsWidget::SettingsWidget(VstHostNode& node, QWidget* parent)
     form->addRow(QStringLiteral("Process"), bits_);
     form->addRow(QStringLiteral("Port display"), portDisplayMode_);
     layout->addLayout(form);
-    auto* reload = new QPushButton(QStringLiteral("Apply and reload"), this);
-    auto* loadPreset = new QPushButton(QStringLiteral("Load preset"), this);
-    auto* savePreset = new QPushButton(QStringLiteral("Save preset as"), this);
-    restart_ = new QPushButton(QStringLiteral("Restart plugin"), this);
-    status_ = new QLabel(this);
+    auto* reload = new Controls::ActionButton(QStringLiteral("Apply and reload"), this);
+    auto* loadPreset = new Controls::ActionButton(QStringLiteral("Load preset"), this);
+    auto* savePreset = new Controls::ActionButton(QStringLiteral("Save preset as"), this);
+    restart_ = new Controls::ActionButton(QStringLiteral("Restart plugin"), this);
+    reload->setFixedHeight(Controls::sidebarControlHeight);
+    loadPreset->setFixedHeight(Controls::sidebarControlHeight);
+    savePreset->setFixedHeight(Controls::sidebarControlHeight);
+    restart_->setFixedHeight(Controls::sidebarControlHeight);
+    status_ = new Controls::TextLabel(this);
     status_->setWordWrap(true);
     layout->addWidget(reload);
     layout->addWidget(loadPreset);
     layout->addWidget(savePreset);
     layout->addWidget(restart_);
     layout->addWidget(status_);
-    setStyleSheet(QStringLiteral(
-        "QLineEdit, QComboBox { color: #f4f7fb; background: #172432; border: 1px solid #6d91ae; min-height: 26px; padding: 1px 6px; }"
-        "QComboBox::drop-down { border-left: 1px solid #6d91ae; width: 22px; }"
-        "QPushButton { color: #ffffff; background: #3f6684; border: 1px solid #85b4d8; min-height: 28px; padding: 2px 8px; }"
-        "QPushButton:hover { background: #527d9f; } QLabel { color: #e4edf5; }"));
-
     connect(browse, &QPushButton::clicked, this, [this] {
         const auto path = QFileDialog::getOpenFileName(this, QStringLiteral("Choose VST plugin"), path_->text(),
                                                        QStringLiteral("VST plugins (*.vst3 *.dll)"));

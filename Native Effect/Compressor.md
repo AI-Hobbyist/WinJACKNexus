@@ -22,3 +22,16 @@
 
 - 效果元数据、逻辑适配、界面和 DSP 已归入 `src/native_fx/effects/compressor`；效果算法不再编入 `common.dll`，并独立输出 `build/bin/nodes/native_fx/compressor/mod_compressor.dll`。
 - 使用现有 `build` 树完成 Debug `ALL_BUILD`；`native_compressor_tests`、`native_fx_api_tests` 和 `ui_unit_tests` 通过。验证范围为模块加载与界面行为，未运行 JACK 客户端或端口连接集成测试。
+## 调音台内部宿主桥接（M5，2026-09-26）
+
+本模块通过 `NativeFxApi.h` 的可选八声道参数快照和原子峰值分析接口接入调音台。GUI 与音频实例独立；调音台在 JACK 块间安全点应用快照，保留 DSP 历史。克隆复制参数而不共享处理历史，模块加载不创建新的 JACK 客户端。Debug `ALL_BUILD` 及 24 个 CTest 套件通过；证据见 `build/m5-all-build.log`、`build/m5-verification-tests.log`。
+
+## 公共数值交互（2026-09-26）
+
+六个旋钮的读数可点击输入精确值，按 Enter 写入；双击旋钮恢复对应的 `CompressorParameters` 默认值。All 模式将显示目标值作为绝对值写入八个通道。现有 `build` 树的 Debug `ALL_BUILD`、`native_compressor_tests` 与 `ui_unit_tests` 通过，新增测试覆盖上述交互。
+
+旋钮绘制已接入公共 `Controls::drawKnob` 和宿主调色板；迁移后的 Debug `ALL_BUILD`、`native_compressor_tests`、`ui_unit_tests` 通过。
+
+GR 表现使用公共 `Controls::drawMeter` 的 `fillOriginDb=0`，从 0 dB 向负衰减值填充；刻度也由公共控件绘制。现有 `build` 树的 Debug `ALL_BUILD`、`native_compressor_tests`、`ui_unit_tests` 通过，公共控件测试覆盖衰减方向和独立刻度。
+
+传输响应曲线与实时电平填充改用公共 `Controls::drawCurvePath`；效果器保留压缩算法和路径坐标计算。Debug `ALL_BUILD`、`native_compressor_tests`、`ui_unit_tests` 通过。

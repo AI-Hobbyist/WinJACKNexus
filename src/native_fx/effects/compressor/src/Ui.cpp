@@ -1,5 +1,6 @@
 /* This file is part of WinJACKNexus. SPDX-License-Identifier: AGPL-3.0-only */
 #include <WinJACKNexus/NativeFx/compressor/Ui.hpp>
+#include <WinJACKNexus/UI/ApplicationSettings.hpp>
 #include <WinJACKNexus/UI/Controls.hpp>
 #include <QLinearGradient>
 #include <QMenu>
@@ -29,34 +30,49 @@ void put(CompressorParameters& p,int i,float v) {
     switch(i) {case 0:p.thresholdDb=v;break;case 1:p.ratio=v;break;case 2:p.kneeDb=v;break;
     case 3:p.attackMs=v;break;case 4:p.releaseMs=v;break;default:p.makeupDb=v;break;}
 }
+Controls::NumericControlSpec dialSpec(int index) noexcept {
+    return {limits[index][0],limits[index][1],get(CompressorParameters{},index),
+            index==3||index==4?0:1};
+}
 void box(QPainter& p,QRectF r,qreal radius,QBrush fill,QColor stroke={}) {
-    p.setPen(stroke.isValid()?QPen(stroke,1):Qt::NoPen);p.setBrush(fill);p.drawRoundedRect(r,radius,radius);
+    Controls::drawSurface(p,r,fill,stroke,radius);
 }
 void label(QPainter& p,QRectF r,const QString& text,int size,QColor color=ink,bool bold=false,int align=Qt::AlignCenter) {
-    auto font=p.font();font.setPixelSize(size);font.setBold(bold);p.setFont(font);p.setPen(color);p.drawText(r,align,text);
+    auto font=p.font();font.setPixelSize(size);font.setBold(bold);
+    Controls::drawText(p,r,text,font,color,Qt::Alignment(align));
 }
 void toggle(QPainter& p,QRectF r,bool on) {
-    box(p,r,r.height()/2,on?QColor(8,114,206):QColor(28,46,68),on?QColor(24,155,245):QColor(75,108,142));
-    p.setBrush(Qt::white);p.setPen(Qt::NoPen);
-    p.drawEllipse(QPointF(on?r.right()-r.height()/2:r.left()+r.height()/2,r.center().y()),r.height()*0.38,r.height()*0.38);
+    Controls::drawToggle(p,r,on,QColor(8,114,206),QColor(28,46,68));
 }
 QPointF graph(float x,float y) {return {plotRect.left()+(x+60)*plotRect.width()/60,plotRect.bottom()-(y+60)*plotRect.height()/60};}
 }
 
 CompressorWidget::CompressorWidget(QWidget* parent):QWidget(parent) {
     setFixedSize(770,665);if (!parent) setWindowFlags(Qt::Window);setWindowTitle(QStringLiteral("Compressor 压缩器"));
-    meterTimer_.setInterval(33);
+    bindRefreshTimer(meterTimer_, this);
     connect(&meterTimer_, &QTimer::timeout, this, &CompressorWidget::pollMeters);
 }
-void CompressorWidget::setParameters(const std::array<CompressorParameters,8>& values) {parameters_=values;update();}
+void CompressorWidget::setParameters(const std::array<CompressorParameters,8>& values) {
+    parameters_=values;
+    const CompressorParameters defaults;
+    selectedPreset_=std::all_of(values.begin(),values.end(),[&defaults](const auto& item){
+        return item.thresholdDb==defaults.thresholdDb&&item.ratio==defaults.ratio
+            &&item.kneeDb==defaults.kneeDb&&item.attackMs==defaults.attackMs
+            &&item.releaseMs==defaults.releaseMs&&item.makeupDb==defaults.makeupDb
+            &&item.highPassHz==defaults.highPassHz&&item.lowPassHz==defaults.lowPassHz
+            &&item.enabled==defaults.enabled&&item.rms==defaults.rms
+            &&item.sidechainFilter==defaults.sidechainFilter&&item.autoMakeup==defaults.autoMakeup;
+    })?0:-1;
+    if(draggedDial_<0)update();
+}
 void CompressorWidget::setChangeHandler(ChangeHandler handler) {changeHandler_=std::move(handler);}
 void CompressorWidget::setMeterReader(MeterReader reader) {
     meterReader_=std::move(reader);
     if(meterReader_) {pollMeters();meterTimer_.start();}
-    else meterTimer_.stop();
+    else if(draggedDial_<0) meterTimer_.stop();
 }
-void CompressorWidget::setMeters(const std::array<CompressorMeter,8>& meters) {meters_=meters;update();}
-void CompressorWidget::pollMeters() {if(meterReader_)setMeters(meterReader_());}
+void CompressorWidget::setMeters(const std::array<CompressorMeter,8>& meters) {meters_=meters;if(!meterTimer_.isActive())update();}
+void CompressorWidget::pollMeters() {if(meterReader_){setMeters(meterReader_());update();}else if(draggedDial_>=0)update();}
 CompressorParameters CompressorWidget::displayed() const noexcept {
     if(selectedChannel_>=0)return parameters_[static_cast<std::size_t>(selectedChannel_)];
     CompressorParameters result {};
@@ -88,7 +104,7 @@ void CompressorWidget::apply(const std::function<void(CompressorParameters&)>& e
         edit(parameters_[static_cast<std::size_t>(channel)]);
         if(changeHandler_)changeHandler_(static_cast<std::size_t>(channel),parameters_[static_cast<std::size_t>(channel)]);
     }
-    update();
+    if(draggedDial_<0)update();
 }
 void CompressorWidget::paintEvent(QPaintEvent*) {
     QPainter p(this);p.setRenderHint(QPainter::Antialiasing);
@@ -113,7 +129,7 @@ void CompressorWidget::paintEvent(QPaintEvent*) {
     toggle(p,{346,43,34,21},displayed().enabled);
     label(p,{413,39,44,28},QStringLiteral("预设:"),14,muted);
     box(p,{459,37,168,32},5,QColor(19,36,56),QColor(61,94,130));
-    label(p,{469,37,137,32},selectedPreset_==0?QStringLiteral("Vocal Smooth"):selectedPreset_==1?QStringLiteral("Punchy Drums"):selectedPreset_==2?QStringLiteral("Gentle Level"):QStringLiteral("Custom"),15,ink,false,Qt::AlignLeft|Qt::AlignVCenter);
+    label(p,{469,37,137,32},selectedPreset_==0?QStringLiteral("Default"):selectedPreset_==1?QStringLiteral("Punchy Drums"):selectedPreset_==2?QStringLiteral("Gentle Level"):QStringLiteral("Custom"),15,ink,false,Qt::AlignLeft|Qt::AlignVCenter);
     label(p,{601,37,23,32},QStringLiteral("⌄"),19,muted);
     for(int i=0;i<2;++i) {const int x=638+i*37;box(p,{qreal(x),37,30,32},5,QColor(27,51,77),QColor(63,101,141));label(p,{qreal(x),37,30,32},i?QStringLiteral("›"):QStringLiteral("‹"),25,muted);}
     box(p,{713,37,30,32},5,QColor(27,51,77),QColor(63,101,141));label(p,{713,37,30,32},QStringLiteral("•••"),13,muted);
@@ -165,29 +181,26 @@ void CompressorWidget::paintEvent(QPaintEvent*) {
         return channelCount==0?input:static_cast<float>(
             10.0*std::log10(outputPower/static_cast<double>(channelCount)));
     };
-    p.save();p.setClipRect(plotRect);p.fillRect(plotRect,QColor(13,29,46));
-    p.setPen(QPen(QColor(61,82,101,65),0.5));
-    for(int i=0;i<=20;++i) {
-        const qreal x=plotRect.left()+plotRect.width()*i/20;
-        const qreal y=plotRect.top()+plotRect.height()*i/20;
-        p.drawLine(QPointF(x,plotRect.top()),QPointF(x,plotRect.bottom()));
-        p.drawLine(QPointF(plotRect.left(),y),QPointF(plotRect.right(),y));
-    }
-    p.setPen(QPen(QColor(66,91,114,150),1));
-    for(int i=0;i<=5;++i) {
-        const qreal x=plotRect.left()+plotRect.width()*i/5;
-        const qreal y=plotRect.top()+plotRect.height()*i/5;
-        p.drawLine(QPointF(x,plotRect.top()),QPointF(x,plotRect.bottom()));
-        p.drawLine(QPointF(plotRect.left(),y),QPointF(plotRect.right(),y));
-    }
+    p.save();p.setClipRect(plotRect);
+    Controls::ChartGridStyle minorGrid;
+    minorGrid.background=QColor(13,29,46);
+    minorGrid.grid=QColor(61,82,101,65);
+    minorGrid.lineWidth=0.5;
+    minorGrid.columns=minorGrid.rows=20;
+    Controls::drawChartGrid(p,plotRect,minorGrid);
+    Controls::ChartGridStyle majorGrid;
+    majorGrid.grid=QColor(66,91,114,150);
+    majorGrid.columns=majorGrid.rows=5;
+    Controls::drawChartGrid(p,plotRect,majorGrid);
     QPainterPath line;
     for(int i=0;i<=120;++i) {
         const float x=-60+i*0.5F;const QPointF q=graph(x,output(x));
         if(i==0)line.moveTo(q);else line.lineTo(q);
     }
-    if(activeChannels>0 && aggregateInputDb>-60.0F) {
+    QPainterPath fill;
+    const bool showLevelFill=activeChannels>0 && aggregateInputDb>-60.0F;
+    if(showLevelFill) {
         const float end=std::clamp(aggregateInputDb,-60.0F,0.0F);
-        QPainterPath fill;
         for(int i=0;i<=120;++i) {
             const float x=-60.0F+(end+60.0F)*static_cast<float>(i)/120.0F;
             const QPointF q=graph(x,output(x));
@@ -196,13 +209,16 @@ void CompressorWidget::paintEvent(QPaintEvent*) {
         fill.lineTo(graph(end,-60.0F));
         fill.lineTo(graph(-60.0F,-60.0F));
         fill.closeSubpath();
-        p.setPen(Qt::NoPen);p.setBrush(QColor(198,111,35,72));p.drawPath(fill);
     }
-    p.setBrush(Qt::NoBrush);
-    p.setPen(QPen(amber,1.6));p.drawPath(line);
+    Controls::CurveStyle transferStyle;
+    transferStyle.stroke=amber;
+    transferStyle.fill=QColor(198,111,35,72);
+    transferStyle.width=1.6;
+    transferStyle.showFill=showLevelFill;
+    Controls::drawCurvePath(p,line,transferStyle,showLevelFill?&fill:nullptr);
     const auto point=graph(s.thresholdDb,output(s.thresholdDb));
     p.setPen(QPen(amber,1,Qt::DashLine));p.drawLine(QPointF(point.x(),plotRect.bottom()),point);
-    p.setPen(QPen(QColor(255,194,123),2));p.setBrush(amber);p.drawEllipse(point,4.5,4.5);
+    Controls::drawMarker(p,point,4.5,amber,QColor(255,194,123),2);
     p.restore();
     for(int i=0;i<=5;++i) {
         const int db=-60+i*12;
@@ -230,31 +246,35 @@ void CompressorWidget::paintEvent(QPaintEvent*) {
     }
     gainReductionDb=std::clamp(gainReductionDb,0.0F,gainReductionRangeDb);
     label(p,{357,99,32,20},QStringLiteral("GR"),12,QColor(255,112,122),true);
-    p.fillRect(gainReductionTrack,QColor(36,44,57));
-    p.setPen(QPen(QColor(88,101,119),1));p.setBrush(Qt::NoBrush);p.drawRect(gainReductionTrack);
-    const qreal reductionHeight=gainReductionTrack.height()*gainReductionDb/gainReductionRangeDb;
-    if(reductionHeight>0.0)
-        p.fillRect(QRectF(gainReductionTrack.left(),gainReductionTrack.top(),gainReductionTrack.width(),reductionHeight),
-                   QColor(239,55,72));
-    for(int tick=0;tick<=5;++tick) {
-        const qreal y=gainReductionTrack.top()+gainReductionTrack.height()*tick/5.0;
-        label(p,{373,y-8,18,16},QString::number(-tick*12),10,muted,false,Qt::AlignLeft|Qt::AlignVCenter);
-    }
+    Controls::MeterStyle reductionStyle;
+    reductionStyle.minimumDb=-gainReductionRangeDb;
+    reductionStyle.maximumDb=0.0;
+    reductionStyle.fillOriginDb=0.0;
+    reductionStyle.vertical=true;
+    reductionStyle.showPeak=false;
+    reductionStyle.zones={{0.0,QColor(239,55,72),QColor(36,44,57)}};
+    reductionStyle.border=QColor(88,101,119);
+    reductionStyle.labelColor=muted;
+    reductionStyle.tickColor=QColor(88,101,119);
+    reductionStyle.tickFontPixelSize=10;
+    reductionStyle.tickBandPixels=31;
+    for(int tick=0;tick<=5;++tick)
+        reductionStyle.ticks.push_back({-tick*12.0,QString::number(-tick*12)});
+    Controls::drawMeter(p,{gainReductionTrack.left(),gainReductionTrack.top(),
+                           gainReductionTrack.width()+31,gainReductionTrack.height()},
+                        -gainReductionDb,std::nullopt,reductionStyle);
     p.save();p.translate(12,308);p.rotate(-90);label(p,{0,0,100,25},QStringLiteral("输出电平 (dB)"),15,muted);p.restore();
     label(p,{157,388,148,25},QStringLiteral("输入电平 (dB)"),15,muted);
     box(p,{234,120,82,48},8,QColor(33,51,72),QColor(88,113,144));
     label(p,{239,122,73,22},QStringLiteral("Threshold"),13,ink);
     label(p,{239,143,73,21},QStringLiteral("%1 dB").arg(s.thresholdDb,0,'f',1),14,ink);
     const QString names[]={QStringLiteral("阈值"),QStringLiteral("比率"),QStringLiteral("拐点 (Soft Knee)"),QStringLiteral("起始时间\n(Attack)"),QStringLiteral("释放时间\n(Release)"),QStringLiteral("输出增益\n(Makeup)")};
+    const auto knobColors=Controls::paletteFor(*this,
+        {QColor(13,28,45),QColor(30,52,73),ink,amber,QColor(74,88,101)});
     for(int i=0;i<6;++i) {
         const QPointF c=centers[i];const float v=get(s,i);
         const float norm=(v-limits[i][0])/(limits[i][1]-limits[i][0]);
-        p.setPen(QPen(QColor(6,16,27),6));p.setBrush(QColor(30,52,73));p.drawEllipse(c,30,30);
-        p.setPen(QPen(QColor(15,24,36),2));p.setBrush(Qt::NoBrush);p.drawEllipse(c,33,33);
-        p.setPen(QPen(QColor(74,88,101),3));p.drawArc(QRectF(c.x()-31,c.y()-31,62,62),-45*16,270*16);
-        p.setPen(QPen(amber,4));p.drawArc(QRectF(c.x()-31,c.y()-31,62,62),(225-270*norm)*16,270*norm*16);
-        const double angle=(225-270*norm)*3.141592653589793/180.0;
-        p.setPen(QPen(amber,1.7));p.drawLine(c,QPointF(c.x()+20*std::cos(angle),c.y()-20*std::sin(angle)));
+        Controls::drawKnob(p,c,norm,33,knobColors);
         QString valueText=i==1?QStringLiteral("%1:1").arg(v,0,'f',1):i==3||i==4?QStringLiteral("%1 ms").arg(v,0,'f',0):QStringLiteral("%1 dB").arg(v,0,'f',1);
         label(p,{c.x()-51,c.y()+37,102,23},valueText,15,ink);
         label(p,{c.x()-58,c.y()+59,116,43},names[i],14,muted);
@@ -289,7 +309,19 @@ void CompressorWidget::mousePressEvent(QMouseEvent* e) {
         selectedChannel_=i==0?-1:i-1;
         update();return;
     }
-    if(int dial=dialAt(point);dial>=0){draggedDial_=dial;dragStart_=e->pos();dragParameters_=displayed();return;}
+    for(int i=0;i<6;++i){
+        const QPointF center=centers[i]+QPointF(0,145);
+        const QRect readout(qRound(center.x()-51),qRound(center.y()+37),102,23);
+        if(!readout.contains(e->pos()))continue;
+        Controls::editNumericValue(this,readout,get(displayed(),i),dialSpec(i),
+            [this,i](double target){
+                apply([i,target](CompressorParameters& parameters){
+                    put(parameters,i,static_cast<float>(target));
+                });
+            });
+        return;
+    }
+    if(int dial=dialAt(point);dial>=0){draggedDial_=dial;dragStart_=e->pos();dragParameters_=displayed();meterTimer_.start();return;}
     const QPointF q=point-QPointF(0,145);
     if(QRectF(340,34,48,37).contains(q))apply([](auto& p){p.enabled=!p.enabled;});
     else if(QRectF(36,452,80,29).contains(q))apply([](auto& p){p.rms=false;});
@@ -297,7 +329,7 @@ void CompressorWidget::mousePressEvent(QMouseEvent* e) {
     else if(QRectF(298,438,43,35).contains(q))apply([](auto& p){p.sidechainFilter=!p.sidechainFilter;});
     else if(QRectF(696,438,43,35).contains(q))apply([](auto& p){p.autoMakeup=!p.autoMakeup;});
     else if(QRectF(459,37,168,32).contains(q)) {
-        QMenu menu(this);const QStringList names={QStringLiteral("Vocal Smooth"),QStringLiteral("Punchy Drums"),QStringLiteral("Gentle Level")};
+        QMenu menu(this);const QStringList names={QStringLiteral("Default"),QStringLiteral("Punchy Drums"),QStringLiteral("Gentle Level")};
         for(int i=0;i<3;++i){auto* action=menu.addAction(names[i]);connect(action,&QAction::triggered,this,[this,i]{applyPreset(i);});}
         menu.exec(mapToGlobal(QPoint(459,214)));
     } else if(QRectF(638,37,30,32).contains(q))applyPreset(selectedPreset_-1);
@@ -306,7 +338,18 @@ void CompressorWidget::mousePressEvent(QMouseEvent* e) {
     else if(QRectF(389,440,81,31).contains(q)) {QMenu menu(this);for(float hz:{20,40,60,80,120,160,250,500,1000,2000}){auto* action=menu.addAction(QStringLiteral("%1 Hz").arg(hz));connect(action,&QAction::triggered,this,[this,hz]{apply([hz](auto& p){p.highPassHz=hz;});});}menu.exec(mapToGlobal(QPoint(389,616)));}
     else if(QRectF(522,440,86,31).contains(q)) {QMenu menu(this);for(float hz:{500,1000,2000,4000,8000,12000,16000,20000}){auto* action=menu.addAction(QStringLiteral("%1 kHz").arg(hz/1000));connect(action,&QAction::triggered,this,[this,hz]{apply([hz](auto& p){p.lowPassHz=hz;});});}menu.exec(mapToGlobal(QPoint(522,616)));}
 }
+void CompressorWidget::mouseDoubleClickEvent(QMouseEvent* event) {
+    if(event->button()!=Qt::LeftButton)return;
+    const int index=dialAt(event->position());
+    if(index<0)return;
+    draggedDial_=-1;if(!meterReader_)meterTimer_.stop();
+    Controls::resetNumericValue(dialSpec(index),[this,index](double target){
+        apply([index,target](CompressorParameters& parameters){
+            put(parameters,index,static_cast<float>(target));
+        });
+    });
+}
 void CompressorWidget::mouseMoveEvent(QMouseEvent* e) {if(draggedDial_<0)return;const int i=draggedDial_;const float range=limits[i][1]-limits[i][0];const float delta=static_cast<float>(dragStart_.y()-e->position().y());const float v=std::clamp(get(dragParameters_,i)+delta*range/200,limits[i][0],limits[i][1]);apply([=](auto& p){put(p,i,v);});}
-void CompressorWidget::mouseReleaseEvent(QMouseEvent*) {draggedDial_=-1;}
+void CompressorWidget::mouseReleaseEvent(QMouseEvent*) {draggedDial_=-1;if(!meterReader_)meterTimer_.stop();update();}
 void CompressorWidget::wheelEvent(QWheelEvent* e) {const int dial=dialAt(e->position());if(dial<0)return;changeDial(dial,e->angleDelta().y()/120.0F);e->accept();}
 }

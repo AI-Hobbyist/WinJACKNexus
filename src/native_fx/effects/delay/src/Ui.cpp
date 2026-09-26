@@ -1,6 +1,7 @@
 /* This file is part of WinJACKNexus. SPDX-License-Identifier: AGPL-3.0-only */
 #include <WinJACKNexus/NativeFx/delay/Ui.hpp>
 #include <WinJACKNexus/UI/Controls.hpp>
+#include <WinJACKNexus/UI/ApplicationSettings.hpp>
 #include <QLineEdit>
 #include <QMouseEvent>
 #include <QMenu>
@@ -17,15 +18,15 @@ namespace {
 const QColor cyan(43,204,255), pale(213,229,255), muted(155,181,220);
 constexpr const char* channels[]={"All","L","R","C","LFE","Ls","Rs","Lb","Rb"};
 void box(QPainter& p,QRectF r,qreal radius,QColor fill,QColor edge={}) {
-    p.setPen(edge.isValid()?QPen(edge,1):Qt::NoPen);p.setBrush(fill);p.drawRoundedRect(r,radius,radius);
+    Controls::drawSurface(p,r,fill,edge,radius);
 }
 void label(QPainter& p,QRectF r,const QString& text,int size,QColor color,bool bold=false) {
-    QFont font(QStringLiteral("Microsoft YaHei UI"),size);font.setBold(bold);p.setFont(font);p.setPen(color);p.drawText(r,Qt::AlignCenter,text);
+    QFont font(QStringLiteral("Microsoft YaHei UI"),size);font.setBold(bold);
+    Controls::drawText(p,r,text,font,color);
 }
 void chevron(QPainter& p,QPointF c) {p.setPen(QPen(muted,1.3));p.drawLine(c+QPointF(-4,-2),c+QPointF(0,2));p.drawLine(c+QPointF(0,2),c+QPointF(4,-2));}
 void toggle(QPainter& p,QRectF r,bool on) {
-    box(p,r,r.height()/2,on?QColor(13,141,238):QColor(42,64,88));
-    p.setPen(Qt::NoPen);p.setBrush(Qt::white);p.drawEllipse(QPointF(on?r.right()-r.height()/2:r.left()+r.height()/2,r.center().y()),r.height()*.36,r.height()*.36);
+    Controls::drawToggle(p,r,on,QColor(13,141,238),QColor(42,64,88));
 }
 void styleCombo(QComboBox* combo) {
     combo->setStyleSheet(QStringLiteral(
@@ -58,20 +59,53 @@ void addComboItem(QComboBox* combo,const QString& text,const QVariant& data={}) 
     combo->addItem(text,data);
     combo->setItemData(index,Qt::AlignCenter,Qt::TextAlignmentRole);
 }
-void dial(QPainter& p,QPoint c,int radius,float amount) {
-    p.setPen(QPen(QColor(5,13,24),5));p.setBrush(QColor(20,38,57));p.drawEllipse(c,radius-4,radius-4);
-    QRectF arc(c.x()-radius,c.y()-radius,2*radius,2*radius);
-    p.setBrush(Qt::NoBrush);p.setPen(QPen(QColor(39,67,91),3));p.drawArc(arc,225*16,-270*16);
-    p.setPen(QPen(cyan,3,Qt::SolidLine,Qt::RoundCap));p.drawArc(arc,225*16,-int(270*amount*16));
-    const float angle=(225-270*amount)*3.14159265F/180;
-    p.setPen(QPen(QColor(139,224,255),2,Qt::SolidLine,Qt::RoundCap));
-    p.drawLine(QPointF(c),QPointF(c.x()+std::cos(angle)*(radius-15),c.y()-std::sin(angle)*(radius-15)));
+bool isDefault(const DelayParameters& value) noexcept {
+    const DelayParameters defaults;
+    return value.timeMs==defaults.timeMs&&value.feedback==defaults.feedback
+        &&value.wetDb==defaults.wetDb&&value.dryDb==defaults.dryDb
+        &&value.highPassHz==defaults.highPassHz&&value.lowPassHz==defaults.lowPassHz
+        &&value.bpm==defaults.bpm&&value.enabled==defaults.enabled
+        &&value.sync==defaults.sync&&value.dotted==defaults.dotted
+        &&value.highPass==defaults.highPass&&value.lowPass==defaults.lowPass
+        &&value.note==defaults.note&&value.mixMode==defaults.mixMode;
+}
+Controls::NumericControlSpec dialSpec(int index,const DelayParameters& current) {
+    const DelayParameters defaults;
+    if(index==0) {
+        if(!current.sync)return {1,2000,defaults.timeMs,0};
+        auto endpoint=current;
+        endpoint.bpm=300;
+        const double minimum=Common::DelayProcessor::delayMilliseconds(endpoint);
+        endpoint.bpm=30;
+        const double maximum=Common::DelayProcessor::delayMilliseconds(endpoint);
+        endpoint.bpm=defaults.bpm;
+        return {minimum,maximum,Common::DelayProcessor::delayMilliseconds(endpoint),0};
+    }
+    if(index==1)return {0,95,defaults.feedback,0};
+    return {-60,6,index==2?defaults.wetDb:defaults.dryDb,1};
+}
+void setDial(DelayParameters& parameters,int index,double target) {
+    if(index==0) {
+        if(!parameters.sync)parameters.timeMs=static_cast<float>(target);
+        else {
+            auto reference=parameters;
+            reference.bpm=60;
+            const double millisecondsAt60=Common::DelayProcessor::delayMilliseconds(reference);
+            parameters.bpm=static_cast<float>(std::clamp(millisecondsAt60*60.0/target,30.0,300.0));
+        }
+    } else if(index==1)parameters.feedback=static_cast<float>(target);
+    else if(index==2)parameters.wetDb=static_cast<float>(target);
+    else parameters.dryDb=static_cast<float>(target);
 }
 }
 DelayWidget::DelayWidget(QWidget* parent):QWidget(parent) {
     setFixedSize(750,645);setMouseTracking(true);setWindowTitle(QStringLiteral("Delay 延迟"));
+    dragRefreshTimer_.setParent(this);
+    dragRefreshTimer_.setObjectName(QStringLiteral("nativeFxDragRefreshTimer"));
+    bindRefreshTimer(dragRefreshTimer_, this);
+    connect(&dragRefreshTimer_, &QTimer::timeout, this, [this] { update(); });
     presetCombo_=new QComboBox(this);presetCombo_->setGeometry(455,168,160,34);styleCombo(presetCombo_);
-    presetCombo_->addItems({QStringLiteral("自定义"),QStringLiteral("人声回声"),QStringLiteral("短 slap"),QStringLiteral("节奏回声"),QStringLiteral("氛围长回声"),QStringLiteral("磁带回声")});
+    presetCombo_->addItems({QStringLiteral("Default"),QStringLiteral("人声回声"),QStringLiteral("短 slap"),QStringLiteral("节奏回声"),QStringLiteral("氛围长回声"),QStringLiteral("磁带回声"),QStringLiteral("Custom")});
     noteCombo_=new QComboBox(this);noteCombo_->setGeometry(202,263,82,34);styleCombo(noteCombo_);
     for(const auto& text:{QStringLiteral("1/16"),QStringLiteral("1/8"),QStringLiteral("1/4"),QStringLiteral("1/2"),QStringLiteral("1")})addComboItem(noteCombo_,text);
     viewCombo_=new QComboBox(this);viewCombo_->setGeometry(599,244,120,35);styleCombo(viewCombo_);
@@ -86,7 +120,7 @@ DelayWidget::DelayWidget(QWidget* parent):QWidget(parent) {
     mixCombo_->setEditable(true);mixCombo_->lineEdit()->setReadOnly(true);mixCombo_->lineEdit()->setAlignment(Qt::AlignCenter);mixCombo_->lineEdit()->setFrame(false);
 
     connect(presetCombo_,qOverload<int>(&QComboBox::currentIndexChanged),this,[this](int index){
-        if(index<=0)return;
+        if(index==6)return;
         const DelayParameters presets[]={
             {},
             {.timeMs=360,.feedback=30,.wetDb=-9,.dryDb=0,.highPassHz=180,.lowPassHz=7000,.bpm=120,.sync=true},
@@ -95,7 +129,7 @@ DelayWidget::DelayWidget(QWidget* parent):QWidget(parent) {
             {.timeMs=820,.feedback=68,.wetDb=-15,.dryDb=-2,.highPassHz=220,.lowPassHz=6200},
             {.timeMs=420,.feedback=48,.wetDb=-8,.dryDb=0,.highPassHz=250,.lowPassHz=5200,.bpm=120,.sync=true,.dotted=true}
         };
-        const auto preset=presets[std::clamp(index,1,5)];
+        const auto preset=presets[std::clamp(index,0,5)];
         for(int i=channel_<0?0:channel_;i<(channel_<0?8:channel_+1);++i){values_[i]=preset;if(handler_)handler_(i,values_[i]);}
         preset_=index;syncControls();update();
     });
@@ -107,10 +141,14 @@ DelayWidget::DelayWidget(QWidget* parent):QWidget(parent) {
     for(auto* combo:{presetCombo_,noteCombo_,viewCombo_,highPassCombo_,lowPassCombo_,mixCombo_})combo->hide();
     syncControls();
 }
-void DelayWidget::setParameters(const std::array<DelayParameters,8>& values) {values_=values;preset_=0;syncControls();update();}
+void DelayWidget::setParameters(const std::array<DelayParameters,8>& values) {
+    values_=values;
+    preset_=std::all_of(values.begin(),values.end(),isDefault)?0:6;
+    syncControls();if(dragged_<0)update();
+}
 void DelayWidget::setChangeHandler(ChangeHandler handler) {handler_=std::move(handler);}
 void DelayWidget::edit(const std::function<void(DelayParameters&)>& change) {
-    preset_=0;
+    preset_=6;
     const auto before=values_[channel_<0?0:channel_];auto target=before;change(target);
     for(int i=channel_<0?0:channel_;i<(channel_<0?8:channel_+1);++i){
         auto& v=values_[i];
@@ -122,7 +160,7 @@ void DelayWidget::edit(const std::function<void(DelayParameters&)>& change) {
 #undef APPLY_DELAY_FIELD
         if(handler_)handler_(i,v);
     }
-    syncControls();update();
+    syncControls();if(dragged_<0)update();
 }
 void DelayWidget::syncControls() {
     const auto& v=values_[channel_<0?0:channel_];
@@ -180,17 +218,30 @@ void DelayWidget::paintEvent(QPaintEvent*) {
     label(p,{298,266,48,27},QStringLiteral("点音符"),11,pale);toggle(p,{347,269,38,21},v.dotted);
     label(p,{550,246,47,30},QStringLiteral("视图:"),12,pale);
     drawSelect(p,{599,244,120,35},viewCombo_->currentText());
-    dial(p,{170,355},38,v.sync?std::clamp((v.bpm-30.0F)/270.0F,0.0F,1.0F):std::clamp(v.timeMs/2000.0F,0.0F,1.0F));
+    const auto controlColors=Controls::paletteFor(*this,
+        {QColor(12,26,43),QColor(20,38,57),pale,cyan,QColor(39,67,91)});
+    Controls::drawKnob(p,{170,355},v.sync?std::clamp((v.bpm-30.0F)/270.0F,0.0F,1.0F):std::clamp(v.timeMs/2000.0F,0.0F,1.0F),38,controlColors);
     const float shownMs=WinJACKNexus::Common::DelayProcessor::delayMilliseconds(v);
     label(p,{111,397,118,24},QStringLiteral("%1 ms").arg(shownMs,0,'f',0),13,Qt::white);
     label(p,{98,421,144,40},v.sync?QStringLiteral("延迟时间 · %1 BPM").arg(v.bpm,0,'f',0):QStringLiteral("延迟时间 (Time)"),12,pale);
-    for(int i=1;i<4;++i){int x=i==1?64:i==2?168:273;float n=i==1?v.feedback/95.0F:(i==2?v.wetDb:v.dryDb)+60.0F; if(i!=1)n/=66.0F;dial(p,{x,526},30,n);QString t=i==1?QStringLiteral("%1 %").arg(v.feedback,0,'f',0):QStringLiteral("%1 dB").arg(i==2?v.wetDb:v.dryDb,0,'f',1);label(p,{qreal(x-46),559,92,22},t,12,Qt::white);}
+    for(int i=1;i<4;++i){int x=i==1?64:i==2?168:273;float n=i==1?v.feedback/95.0F:(i==2?v.wetDb:v.dryDb)+60.0F; if(i!=1)n/=66.0F;Controls::drawKnob(p,{qreal(x),526},n,30,controlColors);QString t=i==1?QStringLiteral("%1 %").arg(v.feedback,0,'f',0):QStringLiteral("%1 dB").arg(i==2?v.wetDb:v.dryDb,0,'f',1);label(p,{qreal(x-46),559,92,22},t,12,Qt::white);}
     label(p,{25,583,80,20},QStringLiteral("反馈"),12,pale);label(p,{125,583,86,20},QStringLiteral("湿信号"),12,pale);label(p,{231,583,86,20},QStringLiteral("干信号"),12,pale);
     label(p,{25,603,80,21},QStringLiteral("(Feedback)"),10,pale);label(p,{125,603,86,21},QStringLiteral("(Wet)"),10,pale);label(p,{231,603,86,21},QStringLiteral("(Dry)"),10,pale);
     box(p,{334,301,388,206},6,QColor(9,25,40),QColor(49,77,105));
-    p.save();p.setClipRect(QRectF(340,307,375,161));
-    for(int i=0;i<9;++i){int x=341+i*44;p.setPen(QPen(QColor(41,68,87),.7));p.drawLine(x,302,x,466);}
-    for(int i=0;i<4;++i){int y=322+i*39;p.setPen(QPen(QColor(35,62,85),.8));p.drawLine(339,y,716,y);}
+    const QRectF gridBounds(340,307,375,161);
+    p.save();p.setClipRect(gridBounds);
+    Controls::ChartGridStyle timeGrid;
+    timeGrid.grid=QColor(41,68,87);
+    timeGrid.lineWidth=.7;
+    for(int i=0;i<9;++i)
+        timeGrid.verticalFractions.push_back((341+i*44-gridBounds.left())/gridBounds.width());
+    Controls::drawChartGrid(p,gridBounds,timeGrid);
+    Controls::ChartGridStyle amplitudeGrid;
+    amplitudeGrid.grid=QColor(35,62,85);
+    amplitudeGrid.lineWidth=.8;
+    for(int i=0;i<4;++i)
+        amplitudeGrid.horizontalFractions.push_back((322+i*39-gridBounds.top())/gridBounds.height());
+    Controls::drawChartGrid(p,gridBounds,amplitudeGrid);
     const float scale=350.0F/2000.0F;
     const int baseline=view_?450:382;
     p.setPen(QPen(view_?QColor(69,107,137):cyan,1));p.drawLine(342,baseline,714,baseline);
@@ -217,6 +268,16 @@ void DelayWidget::paintEvent(QPaintEvent*) {
 }
 void DelayWidget::mousePressEvent(QMouseEvent* e) {
     const QPoint q=e->pos();if(q.y()>=65&&q.y()<108&&q.x()>=20&&q.x()<731){channel_=std::clamp((q.x()-20)/79,0,8)-1;syncControls();update();return;}
+    constexpr QRect readouts[] {{111,397,118,24},{18,559,92,22},{122,559,92,22},{227,559,92,22}};
+    for(int i=0;i<4;++i) {
+        if(!readouts[i].contains(q))continue;
+        const auto& current=values_[channel_<0?0:channel_];
+        const double value=i==0?Common::DelayProcessor::delayMilliseconds(current)
+            :i==1?current.feedback:i==2?current.wetDb:current.dryDb;
+        Controls::editNumericValue(this,readouts[i],value,dialSpec(i,current),
+            [this,i](double target){edit([i,target](DelayParameters& parameters){setDial(parameters,i,target);});});
+        return;
+    }
     auto showChoices=[this](QComboBox* combo,QPoint origin){
         QMenu menu(this);styleMenu(menu);
         for(int i=0;i<combo->count();++i){auto* action=menu.addAction(combo->itemText(i));
@@ -229,8 +290,8 @@ void DelayWidget::mousePressEvent(QMouseEvent* e) {
     if(q.y()>=168&&q.y()<202&&q.x()>=624&&q.x()<723){
         const int button=(q.x()-624)/35;
         if(button<2){const int count=presetCombo_->count()-1;
-            const int current=std::max(1,presetCombo_->currentIndex());
-            presetCombo_->setCurrentIndex(1+(current-1+(button==0?count-1:1))%count);
+            const int current=std::clamp(presetCombo_->currentIndex(),0,count-1);
+            presetCombo_->setCurrentIndex((current+(button==0?count-1:1))%count);
         }else{
             QMenu menu(this);styleMenu(menu);
             auto reset=[this](bool all){
@@ -258,9 +319,19 @@ void DelayWidget::mousePressEvent(QMouseEvent* e) {
     if(QRect(406,545,92,30).contains(q)){showChoices(highPassCombo_,{406,575});return;}
     if(QRect(406,582,92,30).contains(q)){showChoices(lowPassCombo_,{406,612});return;}
     if(QRect(570,560,106,35).contains(q)){showChoices(mixCombo_,{570,595});return;}
-    dragged_=dialAt(q);dragStart_=q;if(dragged_>=0)dragValue_=values_[channel_<0?0:channel_];
+    dragged_=dialAt(q);dragStart_=q;if(dragged_>=0){dragValue_=values_[channel_<0?0:channel_];dragRefreshTimer_.start();}
+}
+void DelayWidget::mouseDoubleClickEvent(QMouseEvent* e) {
+    if(e->button()!=Qt::LeftButton)return;
+    const int index=dialAt(e->pos());
+    if(index<0)return;
+    dragged_=-1;dragRefreshTimer_.stop();
+    const auto spec=dialSpec(index,values_[channel_<0?0:channel_]);
+    Controls::resetNumericValue(spec,[this,index](double target){
+        edit([index,target](DelayParameters& parameters){setDial(parameters,index,target);});
+    });
 }
 void DelayWidget::mouseMoveEvent(QMouseEvent* e) {if(dragged_>=0&&e->buttons()&Qt::LeftButton){float steps=(dragStart_.y()-e->pos().y())*.4F;dragStart_=e->pos();adjust(dragged_,steps);}}
-void DelayWidget::mouseReleaseEvent(QMouseEvent*) {dragged_=-1;}
+void DelayWidget::mouseReleaseEvent(QMouseEvent*) {dragged_=-1;dragRefreshTimer_.stop();update();}
 void DelayWidget::wheelEvent(QWheelEvent* e){int index=dialAt(e->position().toPoint());if(index>=0){adjust(index,e->angleDelta().y()/120.0F);e->accept();}else QWidget::wheelEvent(e);}
 }

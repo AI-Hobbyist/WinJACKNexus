@@ -5,12 +5,12 @@
 namespace WinJACKNexus::Common {
 struct LimiterParameters final {
     float thresholdDb=-1.0F;
-    float ceilingDb=3.0F;
+    float ceilingDb=-1.0F;
     float releaseMs=100.0F;
     float lookaheadDb=0.0F;
     int mode=1;
     int oversampling=2;
-    bool autoGain=true;
+    bool autoGain=false;
     bool enabled=true;
 };
 
@@ -35,7 +35,7 @@ private:
     void updateCoefficients() noexcept;
     LimiterParameters parameters_{};
     double sampleRate_=48000.0;
-    float ceilingLinear_=1.41253754F;
+    float ceilingLinear_=0.89125094F;
     float releaseAlpha_=0.0F;
     float meterAttackAlpha_=0.0F;
     float meterReleaseAlpha_=0.0F;

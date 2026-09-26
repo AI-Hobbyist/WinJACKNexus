@@ -16,6 +16,7 @@
 #include <WinJACKNexus/Patchbay/Core/GraphModel.hpp>
 #include <WinJACKNexus/Patchbay/Core/SearchModel.hpp>
 #include <WinJACKNexus/Patchbay/Core/Snapshot.hpp>
+#include <mod_patchbay/ProjectStateCodec.hpp>
 
 #include <WinJACKNexus/Audio/JackApi.hpp>
 #include <WinJACKNexus/Audio/JackClient.hpp>
@@ -24,6 +25,7 @@
 #include <WinJACKNexus/Audio/JackServerGuard.hpp>
 
 #include <algorithm>
+#include <QJsonArray>
 #include <chrono>
 #include <cstdio>
 #include <thread>
@@ -37,6 +39,50 @@ bool check(bool condition, const char* message)
     if (!condition)
         std::fprintf(stderr, "FAILED: %s\n", message);
     return condition;
+}
+
+bool testProjectStateCodec()
+{
+    namespace codec = WinJACKNexus::Patchbay::ProjectStateCodec;
+    const QJsonObject mixer {{QStringLiteral("preset"), QStringLiteral("Default")},
+                             {QStringLiteral("channels"), QJsonArray {
+                                 QJsonObject {{QStringLiteral("name"), QStringLiteral("L")},
+                                              {QStringLiteral("gainDb"), -6.25}},
+                                 QJsonObject {{QStringLiteral("name"), QStringLiteral("R")},
+                                              {QStringLiteral("gainDb"), 0.0}} }} };
+    const auto encoded = codec::encode(mixer);
+    QJsonObject decoded;
+    bool passed = check(!encoded.contains(QLatin1Char('{'))
+                            && codec::decode(encoded, decoded)
+                            && decoded == mixer,
+                        "project archive base64 round-trips mixer and Native Fx JSON");
+    passed &= check(!codec::decode(QStringLiteral("%%%"), decoded)
+                        && !codec::decode(
+                            QString::fromLatin1(QByteArray("[]").toBase64()), decoded),
+                    "project archive rejects invalid base64 and non-object JSON");
+    const QJsonObject nativeFx {{QStringLiteral("fxChain"), QJsonArray {
+        QJsonObject {{QStringLiteral("moduleId"), QStringLiteral("gate")},
+                     {QStringLiteral("parameters"), QJsonObject {
+                         {QStringLiteral("snapshot"), QStringLiteral("AQID")}}}}}}};
+    const auto record = codec::archiveModuleSettings(
+        QJsonObject {{QStringLiteral("path"), QStringLiteral("mod_digital_mixer")},
+                     {QStringLiteral("settings"), mixer}}, nativeFx);
+    QJsonObject restored;
+    passed &= check(!record.contains(QStringLiteral("settings"))
+                        && record.value(QStringLiteral("settingsBase64")).isString()
+                        && codec::restoreModuleSettings(record, restored)
+                        && restored == nativeFx,
+                    "module record stores Native Fx JSON as base64 and restores it");
+    passed &= check(codec::restoreModuleSettings(
+                        QJsonObject {{QStringLiteral("settings"), mixer}}, restored)
+                        && restored == mixer,
+                    "module record still loads legacy direct JSON settings");
+    passed &= check(!codec::restoreModuleSettings(
+                        QJsonObject {{QStringLiteral("settingsBase64"), QStringLiteral("%%%")}}, restored)
+                        && !codec::restoreModuleSettings(
+                            QJsonObject {{QStringLiteral("settingsBase64"), 42}}, restored),
+                    "module record rejects damaged base64 settings");
+    return passed;
 }
 
 bool waitForConnections(const WinJACKNexus::Audio::JackPort& port)
@@ -264,6 +310,7 @@ bool testSubGraphInterfacePorts()
 int main()
 {
     bool passed = true;
+    passed &= testProjectStateCodec();
     passed &= testGraphModel();
     passed &= testSearchModel();
     passed &= testJackSnapshot();

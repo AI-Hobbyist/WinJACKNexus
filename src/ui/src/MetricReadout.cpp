@@ -14,6 +14,7 @@
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 #include <WinJACKNexus/UI/MetricReadout.hpp>
+#include <WinJACKNexus/UI/ApplicationSettings.hpp>
 
 #include <QFontMetrics>
 #include <QPaintEvent>
@@ -63,7 +64,12 @@ void MetricReadout::setValue(std::optional<double> value)
     }
     if (value_ == value)
         return;
+    if (peakValueRefreshEnabled_ && value_.has_value() && valueRefreshClock_.isValid()
+        && valueRefreshClock_.elapsed()
+            < ApplicationSettings::instance().peakValueRefreshMilliseconds())
+        return;
     value_ = value;
+    if (peakValueRefreshEnabled_) valueRefreshClock_.start();
     update();
 }
 
@@ -72,12 +78,25 @@ void MetricReadout::clearValue()
     if (!value_.has_value())
         return;
     value_.reset();
+    valueRefreshClock_.invalidate();
     update();
 }
 
 std::optional<double> MetricReadout::value() const noexcept
 {
     return value_;
+}
+
+void MetricReadout::setPeakValueRefreshEnabled(bool enabled)
+{
+    if (peakValueRefreshEnabled_ == enabled) return;
+    peakValueRefreshEnabled_ = enabled;
+    valueRefreshClock_.invalidate();
+}
+
+bool MetricReadout::peakValueRefreshEnabled() const noexcept
+{
+    return peakValueRefreshEnabled_;
 }
 
 void MetricReadout::setUnit(const QString& unit)

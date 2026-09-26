@@ -26,6 +26,7 @@
 #include <QCoreApplication>
 #include <QLineEdit>
 #include <QPushButton>
+#include <QScrollBar>
 #include <QSpinBox>
 #include <QTableWidget>
 #include <QWidget>
@@ -409,6 +410,11 @@ bool testMeterProbeModule(const std::filesystem::path& directory)
                     auto* applyButton = settingsWidget->findChild<QPushButton*>(QStringLiteral("meterProbeApplyButton"));
                     passed &= check(clientNameEditor != nullptr && autoResetCheckBox != nullptr && applyButton != nullptr,
                                     "all meter probe types expose client-name and auto-reset controls");
+                    passed &= check(clientNameEditor && autoResetCheckBox && applyButton
+                                        && clientNameEditor->minimumHeight() == 28
+                                        && autoResetCheckBox->minimumHeight() == 28
+                                        && applyButton->minimumHeight() == 28,
+                                    "meter probe sidebar controls share one standard height");
                     if (index == 0 && clientNameEditor != nullptr && applyButton != nullptr) {
                         clientNameEditor->setText(QStringLiteral("Meter-Node-Mono-Renamed"));
                         applyButton->click();
@@ -424,6 +430,10 @@ bool testMeterProbeModule(const std::filesystem::path& directory)
                         auto* channelTable = settingsWidget->findChild<QTableWidget*>(QStringLiteral("meterProbeChannelTable"));
                         passed &= check(channelCountSpinBox != nullptr && channelTable != nullptr && channelTable->rowCount() == 3,
                                         "custom meter probe exposes its channel count and channel table");
+                        passed &= check(channelCountSpinBox && channelTable
+                                            && channelCountSpinBox->minimumHeight() == 28
+                                            && channelTable->verticalScrollBar()->property("wjnRole") == QStringLiteral("scrollbar"),
+                                        "custom meter probe uses standard height and themed table scrolling");
                         if (channelCountSpinBox != nullptr && channelTable != nullptr && applyButton != nullptr) {
                             passed &= check(channelTable->cellWidget(0, 1) != nullptr
                                                 && channelTable->cellWidget(0, 2) != nullptr

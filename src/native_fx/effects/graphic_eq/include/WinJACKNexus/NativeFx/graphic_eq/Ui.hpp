@@ -7,6 +7,7 @@
 #include <WinJACKNexus/NativeFx/NativeFxApi.h>
 
 #include <QTimer>
+#include <QElapsedTimer>
 #include <QWidget>
 
 #include <array>
@@ -24,12 +25,15 @@ public:
     void setChangeHandler(ChangeHandler handler);
     void setSelectedChannel(int channel) { selectedChannel_ = std::clamp(channel, -1, 7); update(); }
     int hostPresetIndex() const noexcept { return selectedPreset_; }
+    bool hasSpectrumFrame() const noexcept { return hasSpectrumFrame_; }
+    std::uint64_t spectrumFrameCount() const noexcept { return spectrumFrameCount_; }
     void chooseHostPreset(int index) { selectPreset(index); }
     void setSpectrumFrameReader(SpectrumFrameReader reader);
 
 protected:
     void paintEvent(QPaintEvent*) override;
     void mousePressEvent(QMouseEvent*) override;
+    void mouseDoubleClickEvent(QMouseEvent*) override;
     void mouseMoveEvent(QMouseEvent*) override;
     void mouseReleaseEvent(QMouseEvent*) override;
 
@@ -48,13 +52,16 @@ private:
     WinJACKNexus::Common::GraphicEqSpectrumFrame spectrumFrame_ {};
     WinJACKNexus::Common::GraphicEqSpectrumPair spectrum_ {};
     QTimer spectrumTimer_;
+    QElapsedTimer spectrumClock_;
     int selectedChannel_ = -1;
     int selectedPreset_ = 0;
     int draggingBand_ = -1;
+    int selectedBand_ = 0;
     int viewMode_ = 0;
     bool showFrequencyValues_ = true;
     bool showCurve_ = true;
     bool hasSpectrumFrame_ = false;
+    std::uint64_t spectrumFrameCount_ {};
 };
 
 }

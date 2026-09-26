@@ -14,6 +14,7 @@
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 #include <WinJACKNexus/UI/ApplicationSettings.hpp>
+#include <WinJACKNexus/UI/Controls.hpp>
 #include <WinJACKNexus/UI/TrayController.hpp>
 #include <WinJACKNexus/Audio/JackClient.hpp>
 #include <WinJACKNexus/Audio/JackServerGuard.hpp>
@@ -99,6 +100,8 @@ public:
     {
         return node_;
     }
+
+    HMODULE moduleHandle() const noexcept { return library_; }
 
 private:
     using ApiVersion = const char* (*)();
@@ -218,47 +221,47 @@ public:
     explicit JackServerSettingsDialog(QWidget* parent = nullptr)
         : QDialog(parent)
     {
+        namespace Controls = WinJACKNexus::UI::Controls;
         setWindowTitle(QStringLiteral("JACK 服务器设置"));
         resize(726, 318);
         auto* layout = new QVBoxLayout(this);
         auto* form = new QFormLayout;
-        jackdDirectory_ = new QLineEdit(this);
-        auto* browseButton = new QPushButton(QStringLiteral("浏览"), this);
+        jackdDirectory_ = new Controls::TextField(this);
+        auto* browseButton = new Controls::ActionButton(QStringLiteral("浏览"), this);
         auto* directoryLayout = new QHBoxLayout;
         directoryLayout->addWidget(jackdDirectory_);
         directoryLayout->addWidget(browseButton);
         form->addRow(QStringLiteral("jackd 目录"), directoryLayout);
 
-        driver_ = new QComboBox(this);
+        driver_ = new Controls::ChoiceField(this);
         driver_->setEditable(true);
         driver_->addItems({ QStringLiteral("dummy"), QStringLiteral("portaudio") });
         form->addRow(QStringLiteral("驱动"), driver_);
-        device_ = new QComboBox(this);
+        device_ = new Controls::ChoiceField(this);
         device_->setEditable(true);
         device_->setInsertPolicy(QComboBox::NoInsert);
         device_->setPlaceholderText(QStringLiteral("PortAudio 设备，例如 ASIO::FL Studio ASIO"));
-        deviceRefreshButton_ = new QPushButton(QStringLiteral("刷新"), this);
+        deviceRefreshButton_ = new Controls::ActionButton(QStringLiteral("刷新"), this);
         auto* deviceLayout = new QHBoxLayout;
         deviceLayout->addWidget(device_);
         deviceLayout->addWidget(deviceRefreshButton_);
         form->addRow(QStringLiteral("设备"), deviceLayout);
-        sampleRate_ = new QSpinBox(this);
+        sampleRate_ = new Controls::IntegerField(this);
         sampleRate_->setRange(8000, 384000);
         sampleRate_->setSingleStep(1000);
         form->addRow(QStringLiteral("采样率"), sampleRate_);
-        bufferSize_ = new QSpinBox(this);
+        bufferSize_ = new Controls::IntegerField(this);
         bufferSize_->setRange(0, 8192);
         bufferSize_->setSingleStep(32);
         form->addRow(QStringLiteral("每周期帧数"), bufferSize_);
-        autoStart_ = new QCheckBox(QStringLiteral("启动 WinJACKNexus 时自动启动 jackd"), this);
+        autoStart_ = new Controls::ToggleField(QStringLiteral("启动 WinJACKNexus 时自动启动 jackd"), this);
         autoStart_->setObjectName(QStringLiteral("jackServer.autoStart"));
         autoStart_->setToolTip(QStringLiteral("仅在未检测到已就绪的 JACK 服务器时使用当前配置启动 jackd。"));
         form->addRow(QString(), autoStart_);
         layout->addLayout(form);
 
-        layout->addWidget(new QLabel(QStringLiteral("启动命令（对应 README 的 JACK2 参数）"), this));
-        commandPreview_ = new QLineEdit(this);
-        commandPreview_->setReadOnly(true);
+        layout->addWidget(new Controls::TextLabel(QStringLiteral("启动命令（对应 README 的 JACK2 参数）"), this));
+        commandPreview_ = new WinJACKNexus::UI::Controls::ReadOnlyField(this);
         auto* copyButton = new CopyIconButton(this);
         copyButton->setToolTip(QStringLiteral("复制启动命令"));
         copyButton->setAccessibleName(QStringLiteral("复制启动命令"));
@@ -267,7 +270,7 @@ public:
         commandLayout->addWidget(copyButton);
         layout->addLayout(commandLayout);
 
-        auto* buttons = new QDialogButtonBox(this);
+        auto* buttons = new Controls::DialogButtonBar(this);
         startButton_ = buttons->addButton(QStringLiteral("启动 JACK"), QDialogButtonBox::AcceptRole);
         restartButton_ = buttons->addButton(QStringLiteral("重启 JACK"), QDialogButtonBox::ResetRole);
         stopButton_ = buttons->addButton(QStringLiteral("停止 JACK"), QDialogButtonBox::DestructiveRole);
@@ -563,15 +566,17 @@ public:
     explicit GlobalSettingsDialog(QWidget* parent = nullptr)
         : QDialog(parent)
     {
+        namespace Controls = WinJACKNexus::UI::Controls;
         setWindowTitle(QStringLiteral("全局设置"));
         resize(620, 410);
 
         auto* layout = new QVBoxLayout(this);
-        auto* applicationGroup = new QGroupBox(QStringLiteral("应用设置"), this);
+        auto* applicationGroup = new Controls::GroupPanel(QStringLiteral("应用设置"), this);
         auto* applicationForm = new QFormLayout(applicationGroup);
         applicationForm->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
 
-        frameRate_ = new QComboBox(applicationGroup);
+        frameRate_ = new Controls::ChoiceField(applicationGroup);
+        frameRate_->setFixedHeight(Controls::sidebarControlHeight);
         frameRate_->setObjectName(QStringLiteral("application.frameRate"));
         frameRate_->addItem(QStringLiteral("30 FPS"), 30);
         frameRate_->addItem(QStringLiteral("60 FPS"), 60);
@@ -580,34 +585,57 @@ public:
         frameRate_->setCurrentIndex(frameRateIndex >= 0 ? frameRateIndex : 1);
         applicationForm->addRow(QStringLiteral("界面帧率"), frameRate_);
 
-        opacitySlider_ = new QSlider(Qt::Horizontal, applicationGroup);
+        peakValueRefresh_ = new Controls::IntegerField(applicationGroup);
+        peakValueRefresh_->setFixedHeight(Controls::sidebarControlHeight);
+        peakValueRefresh_->setObjectName(QStringLiteral("application.peakValueRefreshMilliseconds"));
+        peakValueRefresh_->setRange(8, 1000);
+        peakValueRefresh_->setSuffix(QStringLiteral(" ms"));
+        peakValueRefresh_->setValue(WinJACKNexus::UI::ApplicationSettings::instance()
+                                        .peakValueRefreshMilliseconds());
+        applicationForm->addRow(QStringLiteral("峰值表数值刷新频率"), peakValueRefresh_);
+
+        peakHold_ = new Controls::DecimalField(applicationGroup);
+        peakHold_->setFixedHeight(Controls::sidebarControlHeight);
+        peakHold_->setObjectName(QStringLiteral("application.peakHoldSeconds"));
+        peakHold_->setRange(0.0, 10.0);
+        peakHold_->setSingleStep(0.1);
+        peakHold_->setDecimals(1);
+        peakHold_->setSuffix(QStringLiteral(" s"));
+        peakHold_->setValue(WinJACKNexus::UI::ApplicationSettings::instance().peakHoldSeconds());
+        applicationForm->addRow(QStringLiteral("峰值保持时长"), peakHold_);
+
+        opacitySlider_ = new Controls::RangeSlider(Qt::Horizontal, applicationGroup);
         opacitySlider_->setObjectName(QStringLiteral("application.quickAccessOpacity"));
         opacitySlider_->setRange(10, 100);
-        opacityValue_ = new QLabel(applicationGroup);
+        opacityValue_ = new Controls::TextLabel(applicationGroup);
         auto* opacityLayout = new QHBoxLayout;
         opacityLayout->addWidget(opacitySlider_);
         opacityLayout->addWidget(opacityValue_);
         applicationForm->addRow(QStringLiteral("状态栏透明度"), opacityLayout);
         layout->addWidget(applicationGroup);
 
-        auto* meterbridgeGroup = new QGroupBox(QStringLiteral("电平表桥"), this);
+        auto* meterbridgeGroup = new Controls::GroupPanel(QStringLiteral("电平表桥"), this);
         auto* meterbridgeForm = new QFormLayout(meterbridgeGroup);
         meterbridgeForm->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
-        meterbridgeSilenceThreshold_ = new QDoubleSpinBox(meterbridgeGroup);
+        meterbridgeSilenceThreshold_ = new Controls::DecimalField(meterbridgeGroup);
+        meterbridgeSilenceThreshold_->setFixedHeight(Controls::sidebarControlHeight);
         meterbridgeSilenceThreshold_->setRange(-144.0, 0.0);
         meterbridgeSilenceThreshold_->setDecimals(1);
         meterbridgeSilenceThreshold_->setSuffix(QStringLiteral(" dBFS"));
         meterbridgeForm->addRow(QStringLiteral("静音阈值"), meterbridgeSilenceThreshold_);
-        meterbridgeSilenceDuration_ = new QDoubleSpinBox(meterbridgeGroup);
+        meterbridgeSilenceDuration_ = new Controls::DecimalField(meterbridgeGroup);
+        meterbridgeSilenceDuration_->setFixedHeight(Controls::sidebarControlHeight);
         meterbridgeSilenceDuration_->setRange(0.1, 60.0);
         meterbridgeSilenceDuration_->setDecimals(1);
         meterbridgeSilenceDuration_->setSuffix(QStringLiteral(" 秒"));
         meterbridgeForm->addRow(QStringLiteral("静音时长"), meterbridgeSilenceDuration_);
-        meterbridgeLogRootDirectory_ = new QLineEdit(meterbridgeGroup);
-        meterbridgeLogRootDirectory_->setReadOnly(true);
+        meterbridgeLogRootDirectory_ = new WinJACKNexus::UI::Controls::ReadOnlyField(meterbridgeGroup);
+        meterbridgeLogRootDirectory_->setFixedHeight(Controls::sidebarControlHeight);
         meterbridgeLogRootDirectory_->setPlaceholderText(QStringLiteral("未设置，CSV 记录不可用"));
-        auto* meterbridgeLogBrowseButton = new QPushButton(QStringLiteral("浏览"), meterbridgeGroup);
-        auto* meterbridgeLogClearButton = new QPushButton(QStringLiteral("清除"), meterbridgeGroup);
+        auto* meterbridgeLogBrowseButton = new Controls::ActionButton(QStringLiteral("浏览"), meterbridgeGroup);
+        auto* meterbridgeLogClearButton = new Controls::ActionButton(QStringLiteral("清除"), meterbridgeGroup);
+        meterbridgeLogBrowseButton->setFixedHeight(Controls::sidebarControlHeight);
+        meterbridgeLogClearButton->setFixedHeight(Controls::sidebarControlHeight);
         auto* meterbridgeLogLayout = new QHBoxLayout;
         meterbridgeLogLayout->addWidget(meterbridgeLogRootDirectory_, 1);
         meterbridgeLogLayout->addWidget(meterbridgeLogBrowseButton);
@@ -615,7 +643,9 @@ public:
         meterbridgeForm->addRow(QStringLiteral("日志保存根目录"), meterbridgeLogLayout);
         layout->addWidget(meterbridgeGroup);
 
-        auto* buttons = new QDialogButtonBox(QDialogButtonBox::Close, this);
+        auto* buttons = new Controls::DialogButtonBar(QDialogButtonBox::Close, this);
+        if (auto* closeButton = buttons->button(QDialogButtonBox::Close))
+            closeButton->setFixedHeight(Controls::sidebarControlHeight);
         layout->addWidget(buttons);
 
         QSettings applicationSettings(QStringLiteral("WinJACKNexus"), QStringLiteral("Application"));
@@ -640,6 +670,12 @@ public:
 
         connect(frameRate_, qOverload<int>(&QComboBox::currentIndexChanged), this, [this](int index) {
             WinJACKNexus::UI::ApplicationSettings::instance().setFrameRate(frameRate_->itemData(index).toInt());
+        });
+        connect(peakValueRefresh_, qOverload<int>(&QSpinBox::valueChanged), this, [](int milliseconds) {
+            WinJACKNexus::UI::ApplicationSettings::instance().setPeakValueRefreshMilliseconds(milliseconds);
+        });
+        connect(peakHold_, qOverload<double>(&QDoubleSpinBox::valueChanged), this, [](double seconds) {
+            WinJACKNexus::UI::ApplicationSettings::instance().setPeakHoldSeconds(seconds);
         });
         connect(opacitySlider_, &QSlider::valueChanged, this, [this](int value) {
             WinJACKNexus::UI::TrayController::setQuickAccessOpacity(value);
@@ -683,6 +719,8 @@ private:
     }
 
     QComboBox* frameRate_ = nullptr;
+    QSpinBox* peakValueRefresh_ = nullptr;
+    QDoubleSpinBox* peakHold_ = nullptr;
     QSlider* opacitySlider_ = nullptr;
     QLabel* opacityValue_ = nullptr;
     QDoubleSpinBox* meterbridgeSilenceThreshold_ = nullptr;
@@ -805,14 +843,6 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    NodeModule mixerModule;
-    const auto mixerPath = QDir(executableDirectory()).filePath(QStringLiteral("mod_mixer.dll"));
-    if (!mixerModule.load(mixerPath)) {
-        QMessageBox::critical(nullptr, application.applicationName(),
-                              QStringLiteral("无法加载调音台模块。"));
-        return 1;
-    }
-
     if (trayAvailable) {
         tray.registerPlaceholder(tray.patchbayAction());
         QObject::connect(tray.patchbayAction(), &QAction::triggered, &application, [&tray, &patchbayModule] {
@@ -820,9 +850,16 @@ int main(int argc, char* argv[])
                 tray.showMessage(QStringLiteral("接线盘"), QStringLiteral("无法创建接线盘窗口。"), 2);
         });
         tray.registerPlaceholder(tray.mixerAction());
-        QObject::connect(tray.mixerAction(), &QAction::triggered, &application, [&tray, &mixerModule] {
-            if (mixerModule.node()->createWindow(nullptr) == nullptr)
-                tray.showMessage(QStringLiteral("调音台"), QStringLiteral("无法创建调音台窗口。"), 2);
+        QObject::connect(tray.mixerAction(), &QAction::triggered, &application, [&tray, &patchbayModule] {
+            using ShowMixer = int (*)();
+            const auto showMixer = reinterpret_cast<ShowMixer>(GetProcAddress(
+                patchbayModule.moduleHandle(), "wjn_patchbay_show_digital_mixer"));
+            const int result = showMixer == nullptr ? -1 : showMixer();
+            if (result == 0)
+                tray.showMessage(QStringLiteral("调音台"),
+                    QStringLiteral("请先在接线盘加载 Digital Mixer 节点，再打开调音台。"), 2);
+            else if (result < 0)
+                tray.showMessage(QStringLiteral("调音台"), QStringLiteral("Digital Mixer 节点暂时无法打开。"), 2);
         });
             tray.registerPlaceholder(tray.meterbridgeAction());
             QObject::connect(tray.meterbridgeAction(), &QAction::triggered, &application, [&tray, &meterbridgeModule] {

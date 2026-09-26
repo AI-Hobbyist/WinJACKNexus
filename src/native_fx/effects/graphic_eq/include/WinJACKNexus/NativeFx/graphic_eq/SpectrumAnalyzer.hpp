@@ -35,10 +35,15 @@ public:
     void setSampleRate(std::uint32_t sampleRate) noexcept;
     void pushSamples(const std::array<float, graphicEqSpectrumChannelCount>& inputSamples,
                      const std::array<float, graphicEqSpectrumChannelCount>& outputSamples) noexcept;
+    void pushChannelInput(std::size_t channel, const float* input,
+                          std::size_t frames) noexcept;
+    void pushChannelOutput(std::size_t channel, const float* output,
+                           std::size_t frames) noexcept;
     bool tryPopLatest(GraphicEqSpectrumFrame& frame) noexcept;
 
 private:
     void publishFrame() noexcept;
+    void publishChannelFrame() noexcept;
 
     std::array<std::array<float, graphicEqSpectrumFftSize>, graphicEqSpectrumChannelCount> inputHistory_ {};
     std::array<std::array<float, graphicEqSpectrumFftSize>, graphicEqSpectrumChannelCount> outputHistory_ {};
@@ -48,6 +53,9 @@ private:
     std::size_t writePosition_ {};
     std::size_t samplesInHistory_ {};
     std::size_t samplesSinceFrame_ {};
+    std::array<std::size_t, graphicEqSpectrumChannelCount> channelWritePositions_ {};
+    std::size_t channelSamplesInHistory_ {};
+    std::size_t channelSamplesSinceFrame_ {};
 };
 
 WJN_FX_API void calculateGraphicEqSpectrum(

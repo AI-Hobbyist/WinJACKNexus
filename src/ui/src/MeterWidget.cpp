@@ -14,6 +14,8 @@
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 #include <WinJACKNexus/UI/MeterWidget.hpp>
+#include <WinJACKNexus/UI/ApplicationSettings.hpp>
+#include <WinJACKNexus/UI/Controls.hpp>
 
 #include <QEvent>
 #include <QFontMetrics>
@@ -29,7 +31,6 @@ namespace WinJACKNexus::UI {
 
 namespace {
 
-constexpr int peakHoldFrames = 24;
 constexpr float levelDecay = 0.90f;
 constexpr float peakDecay = 0.015f;
 
@@ -72,25 +73,20 @@ protected:
         painter.setFont(QFont(font.family(), 8));
         const QFontMetrics metrics(painter.font());
         const int bottomMargin = metrics.height() + 8;
-        const QRect track = rect().adjusted(0, 8, 0, -bottomMargin);
-        if (track.height() <= 2)
+        const QRectF scaleBounds = QRectF(rect()).adjusted(0, 8, 0, -bottomMargin);
+        if (scaleBounds.height() <= 2)
             return;
-
-        const auto yFor = [this, &track](float value) {
-            const auto normalized = maximum_ > minimum_
-                ? std::clamp((value - minimum_) / (maximum_ - minimum_), 0.0f, 1.0f)
-                : 0.0f;
-            return track.bottom() - static_cast<int>(std::round(normalized * track.height()));
-        };
-        for (const auto mark : scaleMarks_) {
-            const auto markY = yFor(mark);
-            painter.setPen(QColor(QStringLiteral("#9aada5")));
-            painter.drawText(QRect(0, markY - metrics.height() / 2, width() - 4, metrics.height()),
-                             Qt::AlignRight | Qt::AlignVCenter,
-                             formatValue(mark));
-            painter.setPen(QPen(QColor(QStringLiteral("#526763")), 1));
-            painter.drawLine(width() - 3, markY, width(), markY);
-        }
+        Controls::MeterStyle style;
+        style.minimumDb = minimum_;
+        style.maximumDb = maximum_;
+        style.vertical = true;
+        style.ticksLeft = true;
+        style.tickBandPixels = scaleBounds.width();
+        style.tickFontPixelSize = 8;
+        style.labelColor = QColor("#9aada5");
+        for (const auto mark : scaleMarks_)
+            style.ticks.push_back({mark, formatValue(mark)});
+        Controls::drawMeterScale(painter, scaleBounds, style);
     }
 
 private:
@@ -112,7 +108,6 @@ private:
 MeterWidget::MeterWidget(QWidget* parent)
     : AnimatedWidget(parent)
 {
-    setFrameRate(60);
     setMinimumWidth(40);
     setMinimumHeight(150);
     startAnimation();
@@ -126,7 +121,9 @@ void MeterWidget::setRange(float minimum, float maximum)
     maximum_ = maximum;
     level_ = 0.0f;
     peak_ = 0.0f;
-    peakHoldFrames_ = 0;
+    animationClock_.invalidate();
+    peakClock_.invalidate();
+    peakHoldUntilMs_ = 0;
     update();
 }
 
@@ -156,16 +153,19 @@ void MeterWidget::setValue(float value)
     level_ = normalized;
     if (normalized >= peak_) {
         peak_ = normalized;
-        peakHoldFrames_ = peakHoldFrames;
+        if (!peakClock_.isValid()) peakClock_.start();
+        peakHoldUntilMs_ = peakClock_.elapsed() + static_cast<qint64>(std::llround(
+            ApplicationSettings::instance().peakHoldSeconds() * 1000.0));
     }
-    update();
 }
 
 void MeterWidget::clearValue()
 {
     level_ = 0.0f;
     peak_ = 0.0f;
-    peakHoldFrames_ = 0;
+    animationClock_.invalidate();
+    peakClock_.invalidate();
+    peakHoldUntilMs_ = 0;
     update();
 }
 
@@ -209,52 +209,29 @@ void MeterWidget::paintContent(QPainter& painter)
     const auto font = painter.font();
     painter.setFont(QFont(font.family(), 8));
     const QFontMetrics metrics(painter.font());
-    const int labelWidth = showScaleLabels_ ? 30 : 0;
     const int bottomMargin = metrics.height() + 8;
-    const QRect track = rect().adjusted(labelWidth + 4, 8, -5, -bottomMargin);
-    if (track.width() <= 2 || track.height() <= 2)
+    const QRectF meterBounds = QRectF(rect()).adjusted(4, 8, -5, -bottomMargin);
+    if (meterBounds.width() <= (showScaleLabels_ ? 32 : 2) || meterBounds.height() <= 2)
         return;
-
-    painter.setPen(QPen(QColor(QStringLiteral("#38504d")), 1));
-    painter.setBrush(QColor(QStringLiteral("#1b2928")));
-    painter.drawRect(track);
-
-    const auto yFor = [&track](float normalized) {
-        return track.bottom() - static_cast<int>(std::round(std::clamp(normalized, 0.0f, 1.0f) * track.height()));
+    Controls::MeterStyle style;
+    style.minimumDb = minimum_;
+    style.maximumDb = maximum_;
+    style.zones = {
+        {denormalize(warning_), QColor("#42c875"), QColor("#1b2928")},
+        {denormalize(danger_), QColor("#e1b84d"), QColor("#1b2928")},
+        {maximum_, QColor("#ef615f"), QColor("#1b2928")}
     };
-    const auto warning = std::clamp(warning_, 0.0f, 1.0f);
-    const auto danger = std::clamp(danger_, warning, 1.0f);
-    const auto drawSegment = [&](float lower, float upper, const QColor& color) {
-        const auto start = std::clamp(lower, 0.0f, 1.0f);
-        const auto end = std::clamp(upper, start, 1.0f);
-        if (level_ <= start)
-            return;
-        const auto visibleEnd = std::min(level_, end);
-        const QRect segment(track.left() + 2,
-                            yFor(visibleEnd),
-                            std::max(1, track.width() - 3),
-                            std::max(1, yFor(start) - yFor(visibleEnd)));
-        painter.fillRect(segment, color);
-    };
-    drawSegment(0.0f, warning, QColor(QStringLiteral("#42c875")));
-    drawSegment(warning, danger, QColor(QStringLiteral("#e1b84d")));
-    drawSegment(danger, 1.0f, QColor(QStringLiteral("#ef615f")));
-
-    painter.setPen(QPen(QColor(QStringLiteral("#f4f3dc")), 2));
-    const auto peakY = yFor(peak_);
-    painter.drawLine(track.left() + 1, peakY, track.right() - 1, peakY);
-
-    painter.setPen(QColor(QStringLiteral("#526763")));
-    for (const auto mark : scaleMarks_) {
-        const auto markY = yFor(normalize(mark));
-        painter.drawLine(track.left() - 2, markY, track.right(), markY);
-        if (showScaleLabels_) {
-            const QRect labelRect(0, markY - metrics.height() / 2, labelWidth, metrics.height());
-            painter.setPen(QColor(QStringLiteral("#9aada5")));
-            painter.drawText(labelRect, Qt::AlignRight | Qt::AlignVCenter, formatValue(mark));
-            painter.setPen(QColor(QStringLiteral("#526763")));
-        }
-    }
+    style.vertical = true;
+    style.border = QColor("#38504d");
+    style.peakColor = QColor("#f4f3dc");
+    style.labelColor = QColor("#9aada5");
+    style.ticksLeft = true;
+    style.showTickGrid = true;
+    style.tickBandPixels = showScaleLabels_ ? 30 : 0;
+    style.tickFontPixelSize = 8;
+    for (const auto mark : scaleMarks_)
+        style.ticks.push_back({mark, showScaleLabels_ ? formatValue(mark) : QString()});
+    Controls::drawMeter(painter, meterBounds, denormalize(level_), denormalize(peak_), style);
 
     painter.setPen(QColor(QStringLiteral("#d6e2dc")));
     painter.drawText(QRect(0, rect().bottom() - metrics.height() - 3, rect().width(), metrics.height()),
@@ -264,13 +241,20 @@ void MeterWidget::paintContent(QPainter& painter)
 
 void MeterWidget::advanceFrame()
 {
-    level_ *= levelDecay;
+    const auto elapsedMilliseconds = animationClock_.isValid() ? animationClock_.restart() : -1;
+    if (elapsedMilliseconds < 0) animationClock_.start();
+    const auto elapsedSeconds = elapsedMilliseconds > 0
+        ? std::min(elapsedMilliseconds / 1000.0f, 0.1f) : 1.0f / frameRate();
+    level_ *= std::pow(levelDecay, 60.0f * elapsedSeconds);
     if (level_ < 0.0001f)
         level_ = 0.0f;
-    if (peakHoldFrames_ > 0) {
-        --peakHoldFrames_;
-    } else {
-        peak_ = std::max(0.0f, peak_ - peakDecay);
+    const auto peakNow = peakClock_.isValid() ? peakClock_.elapsed() : 0;
+    if (!peakClock_.isValid() || peakNow >= peakHoldUntilMs_) {
+        const auto decaySeconds = peakClock_.isValid()
+            ? std::min(elapsedSeconds, std::max(0.0f,
+                static_cast<float>(peakNow - peakHoldUntilMs_) / 1000.0f))
+            : elapsedSeconds;
+        peak_ = std::max(0.0f, peak_ - peakDecay * 60.0f * decaySeconds);
     }
 }
 
@@ -278,9 +262,8 @@ bool MeterWidget::advanceFromArray()
 {
     const auto previousLevel = level_;
     const auto previousPeak = peak_;
-    const auto previousPeakHoldFrames = peakHoldFrames_;
     advanceFrame();
-    return level_ != previousLevel || peak_ != previousPeak || peakHoldFrames_ != previousPeakHoldFrames;
+    return level_ != previousLevel || peak_ != previousPeak;
 }
 
 float MeterWidget::normalize(float value) const noexcept
@@ -323,6 +306,10 @@ MeterArrayWidget::MeterArrayWidget(QWidget* parent)
     scaleWidget_->setVisible(false);
     layout_->addWidget(scaleWidget_);
     setChannelCount(1);
+    auto& settings = ApplicationSettings::instance();
+    frameRate_ = settings.frameRate();
+    connect(&settings, &ApplicationSettings::frameRateChanged,
+            this, &MeterArrayWidget::applyFrameRate);
     animationTimer_.setTimerType(Qt::PreciseTimer);
     animationTimer_.setInterval(1000 / frameRate_);
     connect(&animationTimer_, &QTimer::timeout, this, [this] { advanceMeters(); });
@@ -397,13 +384,15 @@ void MeterArrayWidget::setShowScaleLabels(bool show)
 
 void MeterArrayWidget::setFrameRate(int framesPerSecond)
 {
-    const auto normalizedRate = std::clamp(framesPerSecond, 1, 240);
-    if (frameRate_ == normalizedRate)
+    ApplicationSettings::instance().setFrameRate(framesPerSecond);
+}
+
+void MeterArrayWidget::applyFrameRate(int framesPerSecond)
+{
+    if (frameRate_ == framesPerSecond)
         return;
-    frameRate_ = normalizedRate;
+    frameRate_ = framesPerSecond;
     animationTimer_.setInterval(std::max(1, 1000 / frameRate_));
-    for (auto* meter : meters_)
-        meter->setFrameRate(frameRate_);
 }
 
 int MeterArrayWidget::frameRate() const noexcept
@@ -483,7 +472,6 @@ void MeterArrayWidget::advanceMeters()
 void MeterArrayWidget::configureMeter(MeterWidget& meter, std::size_t index)
 {
     meter.stopAnimation();
-    meter.setFrameRate(frameRate_);
     meter.setRange(minimum_, maximum_);
     meter.setThresholds(warning_, danger_);
     meter.setScaleMarks(scaleMarks_);

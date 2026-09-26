@@ -19,6 +19,8 @@
 #include <WinJACKNexus/Audio/JackMidiBuffer.hpp>
 #include <WinJACKNexus/Audio/JackPort.hpp>
 #include <WinJACKNexus/Patchbay/Core/Snapshot.hpp>
+#include <WinJACKNexus/UI/ApplicationSettings.hpp>
+#include <WinJACKNexus/UI/Controls.hpp>
 #include <WinJACKNexus/UI/NativeWindowUtils.hpp>
 #include <WinJACKNexus/UI/TrayController.hpp>
 
@@ -28,7 +30,6 @@
 #include <QCheckBox>
 #include <QCoreApplication>
 #include <QDockWidget>
-#include <QDrag>
 #include <QCloseEvent>
 #include <QFile>
 #include <QFileDialog>
@@ -73,6 +74,12 @@
 
 namespace {
 
+QSettings patchbaySettings()
+{
+	return QSettings(QSettings::defaultFormat(), QSettings::UserScope,
+	                 QStringLiteral("WinJACKNexus"), QStringLiteral("Patchbay"));
+}
+
 bool restoreMeterbridgeProjectState(const QJsonObject& state)
 {
 	const auto module = GetModuleHandleW(L"mod_meterbrigde.dll");
@@ -111,43 +118,29 @@ private:
 	std::function<bool()> closeConfirmation_;
 };
 
-class ModuleNodeTree final : public QTreeWidget {
-public:
-	explicit ModuleNodeTree(QWidget* parent = nullptr)
-		: QTreeWidget(parent)
-	{
-	}
+QMimeData* moduleNodeMimeData(const QTreeWidgetItem* item)
+{
+	const auto modulePath = item->data(0, Qt::UserRole).toString();
+	const auto vstSettings = item->data(0, Qt::UserRole + 4).toString();
+	const auto subGraphName = item->data(0, Qt::UserRole + 2).toString();
+	const auto interfaceType = item->data(0, Qt::UserRole + 3).toString();
+	if (modulePath.isEmpty() && subGraphName.isEmpty() && interfaceType.isEmpty())
+		return nullptr;
 
-protected:
-	void startDrag(Qt::DropActions) override
-	{
-		auto* item = currentItem();
-		if (item == nullptr)
-			return;
-		const auto modulePath = item->data(0, Qt::UserRole).toString();
-		const auto vstSettings = item->data(0, Qt::UserRole + 4).toString();
-		const auto subGraphName = item->data(0, Qt::UserRole + 2).toString();
-		const auto interfaceType = item->data(0, Qt::UserRole + 3).toString();
-		if (modulePath.isEmpty() && subGraphName.isEmpty() && interfaceType.isEmpty())
-			return;
-
-		auto* mimeData = new QMimeData;
-		if (!modulePath.isEmpty()) {
-			const auto payload = modulePath.toUtf8() + '\n' + QByteArray::number(item->data(0, Qt::UserRole + 1).toUInt());
-			if (!vstSettings.isEmpty())
-				mimeData->setData("application/x-winjacknexus-vst-node", payload + '\n' + vstSettings.toUtf8());
-			else
-				mimeData->setData("application/x-winjacknexus-module-node", payload);
-		} else {
-			mimeData->setData(interfaceType.isEmpty() ? "application/x-winjacknexus-subgraph-node"
-			                                        : "application/x-winjacknexus-interface-node",
-			                 (interfaceType.isEmpty() ? subGraphName : interfaceType).toUtf8());
-		}
-		auto* drag = new QDrag(this);
-		drag->setMimeData(mimeData);
-		drag->exec(Qt::CopyAction);
+	auto* mimeData = new QMimeData;
+	if (!modulePath.isEmpty()) {
+		const auto payload = modulePath.toUtf8() + '\n' + QByteArray::number(item->data(0, Qt::UserRole + 1).toUInt());
+		if (!vstSettings.isEmpty())
+			mimeData->setData("application/x-winjacknexus-vst-node", payload + '\n' + vstSettings.toUtf8());
+		else
+			mimeData->setData("application/x-winjacknexus-module-node", payload);
+	} else {
+		mimeData->setData(interfaceType.isEmpty() ? "application/x-winjacknexus-subgraph-node"
+		                                        : "application/x-winjacknexus-interface-node",
+		                 (interfaceType.isEmpty() ? subGraphName : interfaceType).toUtf8());
 	}
-};
+	return mimeData;
+}
 
 QTreeWidgetItem* addCategory(QTreeWidget* tree, const QString& name)
 {
@@ -1210,8 +1203,39 @@ void preserveOfflineJackRecords(const Snapshot& previous,
 	}
 }
 
+class PatchbayNode;
+PatchbayNode* livePatchbayNode = nullptr;
+
+bool isDigitalMixerModule(const QString& path)
+{
+    return QFileInfo(path).fileName().compare(QStringLiteral("mod_digital_mixer.dll"), Qt::CaseInsensitive) == 0;
+}
+
 class PatchbayNode final : public WinJACKNexus::Node::INode {
 public:
+	bool hasLoadedDigitalMixer() const noexcept
+	{
+		return std::any_of(loadedModuleNodes_.cbegin(), loadedModuleNodes_.cend(), [](const auto& node) {
+			return isDigitalMixerModule(node->modulePath()) && node->index() == 0;
+		});
+	}
+
+	bool removeLoadedDigitalMixer() noexcept
+	{
+		return std::erase_if(loadedModuleNodes_, [](const auto& node) {
+			return isDigitalMixerModule(node->modulePath()) && node->index() == 0;
+		}) != 0;
+	}
+
+	int showLoadedDigitalMixer() noexcept
+	{
+		const auto found = std::find_if(loadedModuleNodes_.begin(), loadedModuleNodes_.end(), [](const auto& node) {
+			return isDigitalMixerModule(node->modulePath()) && node->index() == 0;
+		});
+		if (found == loadedModuleNodes_.end()) return 0;
+		return (*found)->showGui(nullptr) ? 1 : -1;
+	}
+
 	WinJACKNexus::Node::NodeInfo info() const noexcept override
 	{
 		return {
@@ -1226,11 +1250,13 @@ public:
 	bool init() noexcept override
 	{
 		initialized_ = true;
+		livePatchbayNode = this;
 		return true;
 	}
 
 	void shutdown() noexcept override
 	{
+		if (livePatchbayNode == this) livePatchbayNode = nullptr;
 		destroyWindow(nullptr);
 		WinJACKNexus::UI::TrayController::clearNodeGuiEntries();
 		loadedModuleNodes_.clear();
@@ -1267,26 +1293,27 @@ public:
 				return jackObserver_.isOpen()
 					&& WinJACKNexus::Audio::JackApi::instance().disconnect(jackObserver_.nativeHandle(), source.c_str(), destination.c_str()) == 0;
 			});
-			auto* canvasTabs = new QTabWidget(window_);
+			auto* canvasTabs = new WinJACKNexus::UI::Controls::TabField(window_);
 			canvasTabs->setTabsClosable(true);
 			canvasTabs->addTab(canvas, QStringLiteral("主图"));
 			window_->setCentralWidget(canvasTabs);
 			window_->setDockNestingEnabled(true);
 
-			auto* nodeDock = new QDockWidget(QStringLiteral("节点"), window_);
+			auto* nodeDock = new WinJACKNexus::UI::Controls::DockPanel(
+				QStringLiteral("节点"), Qt::LeftDockWidgetArea, window_);
 			nodeDock->setObjectName(QStringLiteral("patchbay.nodeLibrary"));
-			nodeDock->setMinimumWidth(240);
 			auto* nodePanel = new QWidget(nodeDock);
 			auto* nodeLayout = new QVBoxLayout(nodePanel);
-			nodeLayout->setContentsMargins(8, 8, 8, 8);
-			auto* nodeFilter = new QLineEdit(nodePanel);
+			// The dock's 24 px resize grip overlays its canvas-facing edge.
+			nodeLayout->setContentsMargins(8, 8, 32, 8);
+			auto* nodeFilter = new WinJACKNexus::UI::Controls::SearchField(nodePanel);
 			nodeFilter->setPlaceholderText(QStringLiteral("筛选节点"));
-			nodeFilter->setClearButtonEnabled(true);
-			auto* nodeTree = new ModuleNodeTree(nodePanel);
+			nodeFilter->setFixedHeight(WinJACKNexus::UI::Controls::sidebarControlHeight);
+			auto* nodeTree = new WinJACKNexus::UI::Controls::DragTreeWidget(nodePanel);
+			nodeTree->setMimeDataFactory(moduleNodeMimeData);
 			nodeTree->setHeaderHidden(true);
-			nodeTree->setIndentation(14);
+			nodeTree->setIndentation(18);
 			nodeTree->setAnimated(true);
-			nodeTree->setDragEnabled(true);
 			nodeLayout->addWidget(nodeFilter);
 			nodeLayout->addWidget(nodeTree, 1);
 			nodeDock->setWidget(nodePanel);
@@ -1880,14 +1907,16 @@ public:
 				}
 			};
 			auto restoreModuleRecords = [this, refreshTrayNodeGuiEntries](const std::vector<PatchbayProjectModule>& modules) {
-					loadedModuleNodes_.clear();
-					for (const auto& module : modules) {
+				loadedModuleNodes_.clear();
+				for (const auto& module : modules) {
+					if (isDigitalMixerModule(module.modulePath)
+						&& hasLoadedDigitalMixer()) continue;
 						std::set<std::string> existingClients;
 						if (jackObserver_.isOpen()) {
 							for (const auto& client : WinJACKNexus::Patchbay::Core::Snapshot::capture(jackObserver_).clients)
 								existingClients.insert(client.id);
 						}
-						auto node = LoadedModuleNode::create(module.modulePath, module.index, module.settingsJson);
+				auto node = LoadedModuleNode::create(module.modulePath, module.index, module.settingsJson);
 						if (node == nullptr)
 							continue;
 						if (jackObserver_.isOpen()) {
@@ -1906,8 +1935,10 @@ public:
 					(*refreshTrayNodeGuiEntries)();
 				};
 			*createModuleNode = [this, refreshJackGraph, refreshTrayNodeGuiEntries, window = window_.data()](PatchbayCanvas* targetCanvas, const QString& modulePath, std::uint32_t index, const QPointF& position, const QString& settingsJson) {
-				if (targetCanvas == nullptr)
-					return false;
+			if (targetCanvas == nullptr)
+				return false;
+			if (isDigitalMixerModule(modulePath) && hasLoadedDigitalMixer())
+				return showLoadedDigitalMixer() > 0;
 				std::set<std::string> existingClients;
 				if (jackObserver_.isOpen()) {
 					for (const auto& client : WinJACKNexus::Patchbay::Core::Snapshot::capture(jackObserver_).clients)
@@ -1927,7 +1958,7 @@ public:
 					});
 					if (client != snapshot.clients.cend()) {
 						node->setClientId(client->id);
-						QSettings settings(QStringLiteral("WinJACKNexus"), QStringLiteral("Patchbay"));
+						auto settings = patchbaySettings();
 						settings.setValue(QStringLiteral("layout/%1/x").arg(QString::fromStdString(client->id)), position.x());
 						settings.setValue(QStringLiteral("layout/%1/y").arg(QString::fromStdString(client->id)), position.y());
 					}
@@ -1985,32 +2016,38 @@ public:
 				return (*createModuleNode)(canvas, modulePath, index, position, settingsJson);
 			});
 			auto selectedModuleNode = std::make_shared<LoadedModuleNode*>(nullptr);
-			auto* inspectorDock = new QDockWidget(QStringLiteral("参数"), window_);
+			auto* inspectorDock = new WinJACKNexus::UI::Controls::DockPanel(
+				QStringLiteral("参数"), Qt::RightDockWidgetArea, window_);
 			inspectorDock->setObjectName(QStringLiteral("patchbay.inspector"));
-			inspectorDock->setMinimumWidth(270);
 			auto* inspector = new QWidget(inspectorDock);
 			auto* inspectorLayout = new QVBoxLayout(inspector);
-			inspectorLayout->setContentsMargins(12, 12, 12, 12);
-			auto* selectionTitle = new QLineEdit(inspector);
-			selectionTitle->setReadOnly(true);
+			// Keep every inspector field clear of the overlaid resize grip.
+			inspectorLayout->setContentsMargins(32, 12, 12, 12);
+			auto* selectionTitle = new WinJACKNexus::UI::Controls::ReadOnlyField(inspector);
 			selectionTitle->setPlaceholderText(QStringLiteral("未选择节点"));
+			selectionTitle->setFixedHeight(WinJACKNexus::UI::Controls::sidebarControlHeight);
 			auto* properties = new QWidget(inspector);
 			auto* propertyForm = new QFormLayout(properties);
-			auto* categoryValue = new QLineEdit(properties);
-			categoryValue->setReadOnly(true);
-			auto* splitCheck = new QCheckBox(QStringLiteral("拆分输入和输出"), properties);
+			auto* categoryValue = new WinJACKNexus::UI::Controls::ReadOnlyField(properties);
+			auto* splitCheck = new WinJACKNexus::UI::Controls::ToggleField(QStringLiteral("拆分输入和输出"), properties);
+			categoryValue->setFixedHeight(WinJACKNexus::UI::Controls::sidebarControlHeight);
+			splitCheck->setFixedHeight(WinJACKNexus::UI::Controls::sidebarControlHeight);
 			propertyForm->addRow(QStringLiteral("类别"), categoryValue);
 			propertyForm->addRow(QString(), splitCheck);
 			properties->setEnabled(false);
 			inspectorLayout->addWidget(selectionTitle);
 			inspectorLayout->addWidget(properties);
-			auto* showGuiButton = new QPushButton(QStringLiteral("显示自带 GUI"), inspector);
+			auto* showGuiButton = new WinJACKNexus::UI::Controls::ActionButton(QStringLiteral("显示自带 GUI"), inspector);
+			showGuiButton->setFixedHeight(WinJACKNexus::UI::Controls::sidebarControlHeight);
 			showGuiButton->setObjectName(QStringLiteral("showModuleGuiButton"));
 			showGuiButton->setEnabled(false);
 			inspectorLayout->addWidget(showGuiButton);
 			inspectorLayout->addStretch(1);
 			inspectorDock->setWidget(inspector);
 			window_->addDockWidget(Qt::RightDockWidgetArea, inspectorDock);
+			QTimer::singleShot(0, window_, [window = window_, nodeDock, inspectorDock] {
+				window->resizeDocks({ nodeDock, inspectorDock }, { 270, 310 }, Qt::Horizontal);
+			});
 
 				auto selectedClient = std::make_shared<std::string>();
 				auto selectedSettingsContainer = std::make_shared<QPointer<QWidget>>();
@@ -2181,9 +2218,8 @@ public:
 			});
 			auto* toolbar = window_->addToolBar(QStringLiteral("接线盘"));
 			toolbar->setMovable(false);
-			auto* search = new QLineEdit(toolbar);
+			auto* search = new WinJACKNexus::UI::Controls::SearchField(toolbar);
 			search->setPlaceholderText(QStringLiteral("搜索节点或端口"));
-			search->setClearButtonEnabled(true);
 			search->setMinimumWidth(190);
 			toolbar->addWidget(search);
 			toolbar->addSeparator();
@@ -2272,7 +2308,7 @@ public:
 					const auto modules = loadedModuleRecords();
 					if (canvas->saveProject(*currentProject, modules, collectSubGraphs())) {
 						savedModuleRecords_ = modules;
-						QSettings(QStringLiteral("WinJACKNexus"), QStringLiteral("Patchbay")).setValue(QStringLiteral("lastProjectPath"), *currentProject);
+						patchbaySettings().setValue(QStringLiteral("lastProjectPath"), *currentProject);
 						canvas->markProjectSaved();
 						for (const auto& [contextId, child] : *subGraphCanvases) {
 							if (!child.isNull())
@@ -2323,7 +2359,7 @@ public:
 					(*refreshNodeLibrary)();
 					savedModuleRecords_.clear();
 					currentProject->clear();
-					QSettings(QStringLiteral("WinJACKNexus"), QStringLiteral("Patchbay")).remove(QStringLiteral("lastProjectPath"));
+					patchbaySettings().remove(QStringLiteral("lastProjectPath"));
 				});
 				QObject::connect(openProject, &QAction::triggered, window_, [canvas, currentProject, confirmSave, restoreModuleRecords, loadedModuleRecords, restoreSubGraphs, refreshJackGraph, this] {
 					const auto path = QFileDialog::getOpenFileName(window_, QStringLiteral("打开接线盘工程"), *currentProject,
@@ -2334,7 +2370,7 @@ public:
 					std::vector<PatchbaySubGraphProject> subGraphs;
 					if (canvas->loadProject(path, modules, subGraphs) && restoreSubGraphs(subGraphs)) {
 						*currentProject = path;
-						QSettings(QStringLiteral("WinJACKNexus"), QStringLiteral("Patchbay")).setValue(QStringLiteral("lastProjectPath"), path);
+						patchbaySettings().setValue(QStringLiteral("lastProjectPath"), path);
 						restoreModuleRecords(modules);
 						restoreMeterbridgeProjectState(canvas->meterbridgeProjectState());
 						savedModuleRecords_ = loadedModuleRecords();
@@ -2345,7 +2381,7 @@ public:
 				});
 				QObject::connect(saveAction, &QAction::triggered, window_, [saveProject] { saveProject(false, true); });
 				QObject::connect(saveAsAction, &QAction::triggered, window_, [saveProject] { saveProject(true, true); });
-				const auto savedInterval = QSettings(QStringLiteral("WinJACKNexus"), QStringLiteral("Patchbay"))
+				const auto savedInterval = patchbaySettings()
 					.value(QStringLiteral("autoSaveIntervalSeconds"), 60).toInt();
 				auto autoSaveInterval = std::make_shared<int>(std::clamp(savedInterval, 0, 3600));
 				auto* autoSaveTimer = new QTimer(window_);
@@ -2371,7 +2407,7 @@ public:
 						QStringLiteral("保存间隔（秒，0 为关闭）"), *autoSaveInterval, 0, 3600, 5, &accepted);
 					if (!accepted)
 						return;
-					QSettings(QStringLiteral("WinJACKNexus"), QStringLiteral("Patchbay")).setValue(QStringLiteral("autoSaveIntervalSeconds"), seconds);
+					patchbaySettings().setValue(QStringLiteral("autoSaveIntervalSeconds"), seconds);
 					applyAutoSaveInterval(seconds);
 				});
 				fileMenu->addSeparator();
@@ -2391,7 +2427,7 @@ public:
 			viewMenu->addAction(lightAction);
 			auto* graphMenu = window_->menuBar()->addMenu(QStringLiteral("图形"));
 			auto restoreLastProject = [this, canvas, currentProject, restoreSubGraphs, restoreModuleRecords, loadedModuleRecords] {
-				const auto lastProject = QSettings(QStringLiteral("WinJACKNexus"), QStringLiteral("Patchbay")).value(QStringLiteral("lastProjectPath")).toString();
+				const auto lastProject = patchbaySettings().value(QStringLiteral("lastProjectPath")).toString();
 				std::vector<PatchbayProjectModule> modules;
 				std::vector<PatchbaySubGraphProject> subGraphs;
 				if (!lastProject.isEmpty() && QFile::exists(lastProject) && canvas->loadProject(lastProject, modules, subGraphs)
@@ -2412,13 +2448,22 @@ public:
 				graphOrderCallbackRegistered_ = jackObserver_.setGraphOrderCallback(&PatchbayNode::markJackGraphChanged, this) == 0;
 				jackObserver_.activate();
 				if (graphRefreshTimer_ != nullptr)
-					graphRefreshTimer_->setInterval(graphOrderCallbackRegistered_ ? 50 : 1000);
+					graphRefreshTimer_->setInterval(graphOrderCallbackRegistered_
+						? 1000 / WinJACKNexus::UI::ApplicationSettings::instance().frameRate()
+						: 1000);
 				restoreLastProject();
 				refreshJackGraph();
 				return true;
 			};
 			graphRefreshTimer_ = new QTimer(window_);
+			graphRefreshTimer_->setTimerType(Qt::PreciseTimer);
 			graphRefreshTimer_->setInterval(1000);
+			QObject::connect(&WinJACKNexus::UI::ApplicationSettings::instance(),
+				&WinJACKNexus::UI::ApplicationSettings::frameRateChanged,
+				window_, [this](int framesPerSecond) {
+					if (graphRefreshTimer_ && graphOrderCallbackRegistered_)
+						graphRefreshTimer_->setInterval(1000 / framesPerSecond);
+				});
 			QObject::connect(graphRefreshTimer_, &QTimer::timeout, window_, [this, attachJackObserver, refreshPendingJackGraph] {
 				if (!jackObserver_.isOpen())
 					attachJackObserver();
@@ -2430,6 +2475,13 @@ public:
 			graphMenu->addAction(QStringLiteral("刷新节点库"), window_, [refreshNodeLibrary] {
 				(*refreshNodeLibrary)();
 			});
+			graphMenu->addAction(QStringLiteral("卸载 Digital Mixer 节点"), window_,
+				[this, canvas, refreshJackGraph, refreshTrayNodeGuiEntries] {
+					if (!removeLoadedDigitalMixer()) return;
+					canvas->markProjectDirty();
+					(*refreshTrayNodeGuiEntries)();
+					refreshJackGraph();
+				});
 		}
 
 		window_->showNormal();
@@ -2500,6 +2552,11 @@ private:
 	ModuleNodeInfo copiedModuleNode_;
 };
 
+}
+
+extern "C" WINJACK_NODE_API int wjn_patchbay_show_digital_mixer(void)
+{
+	return livePatchbayNode == nullptr ? 0 : livePatchbayNode->showLoadedDigitalMixer();
 }
 
 const char* wjn_get_node_api_version(void)

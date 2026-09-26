@@ -1,6 +1,7 @@
 /* This file is part of WinJACKNexus. SPDX-License-Identifier: AGPL-3.0-only */
 #include <WinJACKNexus/NativeFx/gate/Ui.hpp>
 #include <WinJACKNexus/UI/Controls.hpp>
+#include <WinJACKNexus/UI/ApplicationSettings.hpp>
 #include <QMouseEvent>
 #include <QMenu>
 #include <QPainter>
@@ -19,12 +20,11 @@ constexpr float minima[] = { -60, 1, 0.1F, 1, -90, 0 };
 constexpr float maxima[] = { 0, 20, 200, 2000, 0, 24 };
 
 void box(QPainter& p, QRectF r, qreal radius, QColor fill, QColor edge = {}) {
-    p.setPen(edge.isValid() ? QPen(edge, 1) : Qt::NoPen);
-    p.setBrush(fill); p.drawRoundedRect(r, radius, radius);
+    Controls::drawSurface(p,r,fill,edge,radius);
 }
 void label(QPainter& p, QRectF r, const QString& text, int size, QColor color, bool bold = false) {
     QFont f(QStringLiteral("Microsoft YaHei UI"), size); f.setBold(bold);
-    p.setFont(f); p.setPen(color); p.drawText(r, Qt::AlignCenter, text);
+    Controls::drawText(p,r,text,f,color);
 }
 void toggle(QPainter& p, QRectF r, bool on) {
     Controls::drawToggle(p, r, on, QColor(16,139,236), QColor(45,68,93));
@@ -64,6 +64,10 @@ float valueAtNormalized(int i,float n) {
 
 GateEffectWidget::GateEffectWidget(QWidget* parent):QWidget(parent) {
     setFixedSize(754,654); setMouseTracking(true); setWindowTitle(QStringLiteral("Gate 门限"));
+    dragRefreshTimer_.setParent(this);
+    dragRefreshTimer_.setObjectName(QStringLiteral("nativeFxDragRefreshTimer"));
+    bindRefreshTimer(dragRefreshTimer_, this);
+    connect(&dragRefreshTimer_, &QTimer::timeout, this, [this] { update(); });
 }
 void GateEffectWidget::setParameters(const std::array<Parameters,8>& p) {
     parameters_=p;
@@ -78,7 +82,7 @@ void GateEffectWidget::setParameters(const std::array<Parameters,8>& p) {
             selectedPreset_=-1; break;
         }
     }
-    update();
+    if(draggedDial_<0)update();
 }
 void GateEffectWidget::setChangeHandler(ChangeHandler handler) { changeHandler_=std::move(handler); }
 GateEffectWidget::Parameters GateEffectWidget::displayed() const noexcept {
@@ -88,7 +92,7 @@ void GateEffectWidget::apply(const std::function<void(Parameters&)>& edit) {
     selectedPreset_=-1;
     const int first=selectedChannel_<0?0:selectedChannel_, end=selectedChannel_<0?8:selectedChannel_+1;
     for(int i=first;i<end;++i) { edit(parameters_[i]); if(changeHandler_) changeHandler_(i,parameters_[i]); }
-    update();
+    if(draggedDial_<0)update();
 }
 
 void GateEffectWidget::paintEvent(QPaintEvent*) {
@@ -103,7 +107,7 @@ void GateEffectWidget::paintEvent(QPaintEvent*) {
     }
     p.save(); p.translate(0,145);
     QLinearGradient outer(0,0,0,509); outer.setColorAt(0,QColor(15,33,52)); outer.setColorAt(1,QColor(15,30,47));
-    p.setPen(QPen(QColor(35,111,172),1)); p.setBrush(outer); p.drawRoundedRect(QRectF(8,7,746,495),11,11);
+    Controls::drawSurface(p,QRectF(8,7,746,495),outer,QColor(35,111,172),11);
     box(p,{9,8,744,73},10,QColor(23,44,66));
     box(p,{20,14,56,59},7,QColor(13,73,120));
     p.setPen(QPen(cyan,3)); QPainterPath wave; wave.moveTo(25,44); wave.lineTo(33,44);
@@ -114,7 +118,7 @@ void GateEffectWidget::paintEvent(QPaintEvent*) {
     box(p,{316,15,72,58},10,QColor(30,52,77)); toggle(p,{334,33,37,20},displayed().enabled);
     label(p,{401,27,42,29},QStringLiteral("预设:"),10,muted);
     box(p,{446,26,170,34},5,QColor(19,36,56),QColor(66,103,144));
-    label(p,{452,26,139,34},selectedPreset_==0?QStringLiteral("Vocal Gate"):
+    label(p,{452,26,139,34},selectedPreset_==0?QStringLiteral("Default"):
           selectedPreset_==1?QStringLiteral("Tight Gate"):
           selectedPreset_==2?QStringLiteral("Gentle Gate"):QStringLiteral("Custom"),11,Qt::white);
     chevron(p,{600,43});
@@ -127,10 +131,13 @@ void GateEffectWidget::paintEvent(QPaintEvent*) {
     box(p,{22,90,350,327},10,QColor(20,39,61),QColor(47,75,104));
     box(p,{382,90,358,327},10,QColor(20,39,61),QColor(47,75,104));
     const auto s=displayed();
-    p.save(); p.setClipRect(QRectF(82,112,280,246)); p.fillRect(QRectF(82,112,280,246),QColor(13,31,50));
-    p.setPen(QPen(QColor(37,60,82,120),1));
-    for(int x=82;x<=362;x+=28) p.drawLine(x,112,x,358);
-    for(int y=112;y<=358;y+=49) p.drawLine(82,y,362,y);
+    p.save(); p.setClipRect(QRectF(82,112,280,246));
+    Controls::ChartGridStyle grid;
+    grid.background=QColor(13,31,50);
+    grid.grid=QColor(37,60,82,120);
+    grid.columns=10;
+    grid.rows=5;
+    Controls::drawChartGrid(p,{82,112,280,246},grid);
     QPainterPath lowerCurve, upperCurve;
     upperCurve.moveTo(plot(s.thresholdDb,s.thresholdDb));
     const float graphFloor=std::clamp(s.floorDb*0.8F,-60.0F,0.0F);
@@ -146,12 +153,17 @@ void GateEffectWidget::paintEvent(QPaintEvent*) {
     }
     QPointF marker=plot(s.thresholdDb,s.thresholdDb);
     if(lowerCurve.isEmpty()) lowerCurve.moveTo(marker); else lowerCurve.lineTo(marker);
-    p.setBrush(Qt::NoBrush);
-    p.setPen(QPen(QColor(149,113,214),1.5)); p.drawPath(lowerCurve);
-    p.setPen(QPen(cyan,2)); p.drawPath(upperCurve);
+    Controls::CurveStyle lowerStyle;
+    lowerStyle.stroke=QColor(149,113,214);
+    lowerStyle.width=1.5;
+    Controls::drawCurvePath(p,lowerCurve,lowerStyle);
+    Controls::CurveStyle upperStyle;
+    upperStyle.stroke=cyan;
+    upperStyle.width=2;
+    Controls::drawCurvePath(p,upperCurve,upperStyle);
     p.setPen(QPen(cyan,1)); p.drawLine(304,112,362,112); p.drawLine(362,112,362,358);
     p.setPen(QPen(cyan,1,Qt::DashLine)); p.drawLine(marker.x(),112,marker.x(),358);
-    p.setPen(QPen(cyan,2)); p.setBrush(Qt::white); p.drawEllipse(marker,6,6); p.restore();
+    Controls::drawMarker(p,marker,6,Qt::white,cyan,2); p.restore();
     const qreal tooltipX=std::clamp(marker.x()-45.0,115.0,270.0);
     box(p,{tooltipX,116,91,48},8,QColor(32,54,78),QColor(85,119,154));
     label(p,{tooltipX,118,91,44},QStringLiteral("Threshold\n%1 dB").arg(s.thresholdDb,0,'f',1),10,Qt::white);
@@ -164,21 +176,11 @@ void GateEffectWidget::paintEvent(QPaintEvent*) {
     label(p,{160,387,145,24},QStringLiteral("输入电平 (dB)"),12,muted);
     p.save(); p.translate(35,310); p.rotate(-90);
     label(p,{0,0,150,20},QStringLiteral("输出电平 (dB)"),11,muted); p.restore();
+    const auto knobColors=Controls::paletteFor(*this,
+        {QColor(13,28,45),QColor(22,41,62),Qt::white,cyan,QColor(58,91,124)});
     for(int i=0;i<6;++i) {
         QPoint c=dialCenters[i]; float norm=normalizedValue(s,i);
-        p.setPen(QPen(QColor(58,91,124),2)); p.setBrush(QColor(18,33,51)); p.drawEllipse(QPointF(c),36,36);
-        p.setPen(QPen(QColor(5,14,25),3));
-        QRadialGradient knob(QPointF(c.x()-8,c.y()-9),39);
-        knob.setColorAt(0,QColor(43,75,104)); knob.setColorAt(1,QColor(22,41,62));
-        p.setBrush(knob); p.drawEllipse(QPointF(c),26,26);
-        p.setPen(QPen(cyan,4,Qt::SolidLine,Qt::RoundCap)); p.setBrush(Qt::NoBrush);
-        constexpr int arcStartAngle=210*16;
-        constexpr int arcSweepAtMaximum=-260*16;
-        const int arcSweepAngle=static_cast<int>(norm*arcSweepAtMaximum);
-        p.drawArc(QRectF(c.x()-32,c.y()-32,64,64),arcStartAngle,arcSweepAngle);
-        const float angle=-static_cast<float>(arcStartAngle+arcSweepAngle)/16.0F
-                          *3.14159265F/180.0F;
-        p.setPen(QPen(cyan,1.5)); p.drawLine(QPointF(c),QPointF(c.x()+std::cos(angle)*20,c.y()+std::sin(angle)*20));
+        Controls::drawKnob(p,QPointF(c),norm,36,knobColors);
         label(p,{qreal(c.x()-55),qreal(c.y()+36),110,21},formatted(s,i),11,Qt::white);
         label(p,{qreal(c.x()-61),qreal(c.y()+57),122,37},QString::fromUtf8(labels[i]),10,muted);
     }
@@ -219,13 +221,26 @@ void GateEffectWidget::mousePressEvent(QMouseEvent* e) {
     if(point.y()<145) for(int i=0;i<9;++i) if(QRectF(22+i*80,68,72,40).contains(point)) {
         selectedChannel_=i-1; update(); return;
     }
+    for(int i=0;i<6;++i) {
+        const auto center=dialCenters[i];
+        const QRect readout(center.x()-55,center.y()+145+36,110,21);
+        if(!readout.contains(e->pos())) continue;
+        const Parameters defaults;
+        const Controls::NumericControlSpec spec {minima[i],maxima[i],value(defaults,i),
+                                                  i==3?0:1};
+        Controls::editNumericValue(this,readout,value(displayed(),i),spec,
+            [this,i](double target) {
+                apply([i,target](Parameters& p) { assign(p,i,static_cast<float>(target)); });
+            });
+        return;
+    }
     QPointF q=point-QPointF(0,145);
-    if(int dial=dialAt(point);dial>=0) { draggedDial_=dial; dragStart_=e->pos(); dragParameters_=displayed(); return; }
+    if(int dial=dialAt(point);dial>=0) { draggedDial_=dial; dragStart_=e->pos(); dragParameters_=displayed(); dragRefreshTimer_.start(); return; }
     if(QRectF(316,15,72,58).contains(q)) apply([](Parameters& p){p.enabled=!p.enabled;});
     else if(QRectF(167,441,37,35).contains(q)) apply([](Parameters& p){p.sidechainFilter=!p.sidechainFilter;});
     else if(QRectF(446,26,170,34).contains(q)) {
         QMenu menu(this);
-        const QStringList names={QStringLiteral("Vocal Gate"),QStringLiteral("Tight Gate"),
+        const QStringList names={QStringLiteral("Default"),QStringLiteral("Tight Gate"),
                                  QStringLiteral("Gentle Gate")};
         for(int i=0;i<3;++i) {
             auto* action=menu.addAction(names[i]);
@@ -263,6 +278,17 @@ void GateEffectWidget::mousePressEvent(QMouseEvent* e) {
         menu.exec(mapToGlobal(QPoint(572,621)));
     }
 }
+void GateEffectWidget::mouseDoubleClickEvent(QMouseEvent* event) {
+    if(event->button()!=Qt::LeftButton) return;
+    const int dial=dialAt(event->position());
+    if(dial<0) return;
+    draggedDial_=-1;dragRefreshTimer_.stop();
+    const Parameters defaults;
+    Controls::resetNumericValue({minima[dial],maxima[dial],value(defaults,dial),
+                                 dial==3?0:1},[this,dial](double target) {
+        apply([dial,target](Parameters& p) { assign(p,dial,static_cast<float>(target)); });
+    });
+}
 void GateEffectWidget::mouseMoveEvent(QMouseEvent* e) {
     if(draggedDial_<0)return;
     const float normalized=normalizedValue(dragParameters_,draggedDial_)
@@ -270,7 +296,7 @@ void GateEffectWidget::mouseMoveEvent(QMouseEvent* e) {
     const float next=valueAtNormalized(draggedDial_,normalized);
     apply([=](Parameters& p){assign(p,draggedDial_,next);});
 }
-void GateEffectWidget::mouseReleaseEvent(QMouseEvent*) { draggedDial_=-1; }
+void GateEffectWidget::mouseReleaseEvent(QMouseEvent*) { draggedDial_=-1; dragRefreshTimer_.stop(); update(); }
 void GateEffectWidget::wheelEvent(QWheelEvent* e) {
     int dial=dialAt(e->position()); if(dial<0)return;
     adjustDial(dial,e->angleDelta().y()/120.0F); e->accept();

@@ -16,7 +16,9 @@
 #include <QFontDatabase>
 #include <Windows.h>
 #include <QMouseEvent>
+#include <QKeyEvent>
 #include <QPainter>
+#include <QVariant>
 #include <cstdio>
 #include <cmath>
 #include <cstring>
@@ -83,6 +85,17 @@ int main(int argc,char** argv) {
     if(argc>2) passed &= check(image.save(QString::fromLocal8Bit(argv[2])),"preview saved");
     passed &= check(image.pixelColor(32,80)!=image.pixelColor(32,300),"channel and graph panels render");
     passed &= check(image.pixelColor(150,440)==QColor(13,31,50),"transfer curve area has no fill");
+    widget.setProperty("fxAccent",QColor(255,40,40));
+    QImage themed(widget.size(),QImage::Format_ARGB32_Premultiplied);
+    themed.fill(Qt::transparent);
+    widget.render(&themed);
+    int themedKnobPixels=0;
+    for(int y=253;y<=325;++y)for(int x=404;x<=476;++x){
+        const auto color=themed.pixelColor(x,y);
+        if(color.red()>180&&color.green()<100&&color.blue()<100)++themedKnobPixels;
+    }
+    passed &= check(themedKnobPixels>20,"host accent override reaches shared Gate knob rendering");
+    widget.setProperty("fxAccent",QVariant());
     auto click=[&](QPointF position) {
         QMouseEvent event(QEvent::MouseButtonPress,position,position,position,
                           Qt::LeftButton,Qt::LeftButton,Qt::NoModifier);
@@ -101,10 +114,31 @@ int main(int argc,char** argv) {
     QMouseEvent dialRelease(QEvent::MouseButtonRelease,{440,269},{440,269},{440,269},
                             Qt::LeftButton,Qt::NoButton,Qt::NoModifier);
     QApplication::sendEvent(&widget,&dialPress);
+    auto* dragRefresh=widget.findChild<QTimer*>(QStringLiteral("nativeFxDragRefreshTimer"));
+    passed &= check(dragRefresh && dragRefresh->isActive(),
+                    "Gate dial drag uses the shared application frame timer");
     QApplication::sendEvent(&widget,&dialMove);
     QApplication::sendEvent(&widget,&dialRelease);
+    passed &= check(dragRefresh && !dragRefresh->isActive(),
+                    "Gate dial drag timer stops on release");
     passed &= check(changedChannel==2 && lastChanged[2].thresholdDb>-32.0F,
                     "dragging a dial changes its channel parameter");
+    click({440,326});
+    auto* exactEditor=widget.findChild<QLineEdit*>(QStringLiteral("numericValueEditor"));
+    passed &= check(exactEditor&&!exactEditor->isHidden(),
+                    "Gate dial readout opens the shared exact-value editor");
+    if(exactEditor) {
+        exactEditor->setText(QStringLiteral("-18.5"));
+        QKeyEvent enter(QEvent::KeyPress,Qt::Key_Return,Qt::NoModifier);
+        QApplication::sendEvent(exactEditor,&enter);
+        passed &= check(changedChannel==2&&std::abs(lastChanged[2].thresholdDb+18.5F)<.001F,
+                        "Gate exact value updates only the selected channel");
+    }
+    QMouseEvent dialDouble(QEvent::MouseButtonDblClick,{440,289},{440,289},{440,289},
+                           Qt::LeftButton,Qt::LeftButton,Qt::NoModifier);
+    QApplication::sendEvent(&widget,&dialDouble);
+    passed &= check(changedChannel==2&&std::abs(lastChanged[2].thresholdDb+32.0F)<.001F,
+                    "Gate double-click restores the parameter default");
     auto dialPointer=[&](const std::array<WinJACKNexus::Common::GateParameters,8>& values,
                          QPoint center,double& renderedArcEndAngle) {
         widget.setParameters(values);

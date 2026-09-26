@@ -250,6 +250,7 @@ AuxBusState* AuxMixerState::cloneBus(std::uint32_t id)
     if (!original) return nullptr;
     AuxBusState copied = *original;
     copied.id = nextId_++;
+    copied.cloneSourceId = id;
     copied.name = QStringLiteral("AUX %1").arg(copied.id);
     copied.selfRoute = false;
     buses_.push_back(copied);
@@ -266,15 +267,22 @@ AuxBusState* AuxMixerState::cloneBus(std::uint32_t id)
     return &buses_.back();
 }
 
-bool AuxMixerState::removeBus(std::uint32_t id)
+bool AuxMixerState::removeBus(std::uint32_t id, bool allowEmpty)
 {
-    if (buses_.size() <= 1)
+    if (buses_.size() <= 1 && !allowEmpty)
         return false;
     if (std::erase_if(buses_, [id](const auto& value) { return value.id == id; }) == 0)
         return false;
     for (auto& source : sourceStates_)
         std::erase_if(source.buses, [id](const auto& value) { return value.id == id; });
     return true;
+}
+
+void AuxMixerState::clearBuses()
+{
+    buses_.clear();
+    sourceStates_.clear();
+    nextId_ = 1;
 }
 
 bool AuxMixerState::setBusLayout(std::uint32_t id, AuxChannelLayout layout)
@@ -383,7 +391,7 @@ void AuxMixerState::rebuildChannels(AuxBusState& bus) const
     bus.sends.clear();
     bus.sends.reserve(static_cast<std::size_t>(labels.size()));
     for (int index = 0; index < labels.size(); ++index) {
-        const auto level = index < 2 ? 0.0 : -6.0;
+        const auto level = 0.0;
         bus.sends.push_back({ labels[index], labels[index], level, level - 3.0 });
     }
     bus.linked = false;

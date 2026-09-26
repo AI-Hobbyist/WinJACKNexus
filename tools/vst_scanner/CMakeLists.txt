@@ -100,7 +100,7 @@ qt_add_resources(vst_scanner vst_scanner_icon
 
 target_compile_features(vst_scanner PRIVATE cxx_std_20)
 target_compile_definitions(vst_scanner PRIVATE WIN32_LEAN_AND_MEAN NOMINMAX)
-target_link_libraries(vst_scanner PRIVATE wjn_vst_scanner_core Qt6::Widgets)
+target_link_libraries(vst_scanner PRIVATE wjn_vst_scanner_core WinJACKNexus::UI Qt6::Widgets)
 set_target_properties(vst_scanner PROPERTIES OUTPUT_NAME "Vst Scanner")
 
 foreach(target IN ITEMS wjn_vst_scanner_core vst_scanner vst_scanner_probe64)

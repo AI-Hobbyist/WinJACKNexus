@@ -14,10 +14,12 @@
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 #include <mod_patchbay/PatchbayCanvas.hpp>
+#include <mod_patchbay/ProjectStateCodec.hpp>
 
 #include <WinJACKNexus/Audio/JackApi.hpp>
 #include <WinJACKNexus/Audio/JackClient.hpp>
 #include <WinJACKNexus/Common/GraphicsView.hpp>
+#include <WinJACKNexus/UI/Controls.hpp>
 
 #include <QApplication>
 #include <QDesktopServices>
@@ -384,46 +386,44 @@ public:
 
     void paint(QPainter* painter, const QStyleOptionGraphicsItem*, QWidget*) override
     {
+        namespace Controls = WinJACKNexus::UI::Controls;
         const auto& theme = activeCanvasTheme();
         const auto bounds = boundingRect();
         const bool selected = isSelected();
         painter->setRenderHint(QPainter::Antialiasing);
-        painter->setPen(QPen(selected ? theme.nodeSelectedBorder : theme.nodeBorder, selected ? 2.0 : 1.0));
-        painter->setBrush(theme.nodeBackground);
-        painter->drawRoundedRect(bounds, 6.0, 6.0);
+        Controls::drawSurface(*painter, bounds, theme.nodeBackground,
+                              selected ? theme.nodeSelectedBorder : theme.nodeBorder,
+                              6.0, selected ? 2.0 : 1.0);
 
-        painter->setPen(Qt::NoPen);
-        painter->setBrush(theme.nodeHeader);
-        painter->drawRoundedRect(QRectF(0.0, 0.0, nodeWidth_, kHeaderHeight), 6.0, 6.0);
-        painter->drawRect(0.0, kHeaderHeight - 6.0, nodeWidth_, 6.0);
+        Controls::drawSurface(*painter, QRectF(0.0, 0.0, nodeWidth_, kHeaderHeight),
+                              theme.nodeHeader, {}, 6.0);
+        Controls::drawSurface(*painter,
+                              QRectF(0.0, kHeaderHeight - 6.0, nodeWidth_, 6.0),
+                              theme.nodeHeader, {}, 0.0);
 
         QFont titleFont = QApplication::font();
         titleFont.setPointSize(10);
         titleFont.setWeight(QFont::DemiBold);
-        painter->setPen(theme.text);
-        painter->setFont(titleFont);
         const QString title = QString::fromStdString(client_.alias.empty() ? client_.name : client_.alias);
-        painter->drawText(QRectF(12.0, 0.0, nodeWidth_ - 24.0, kHeaderHeight), Qt::AlignVCenter | Qt::AlignLeft, title);
+        Controls::drawText(*painter, QRectF(12.0, 0.0, nodeWidth_ - 24.0, kHeaderHeight),
+                           title, titleFont, theme.text, Qt::AlignVCenter | Qt::AlignLeft);
 
         QFont portFont = QApplication::font();
         portFont.setPointSize(9);
-        painter->setFont(portFont);
-        const auto drawPort = [this, painter, &theme](const PortInfo& port, qreal row, bool input) {
+        const auto drawPort = [this, painter, &theme, &portFont](const PortInfo& port, qreal row, bool input) {
             const QColor color = portColor(port.kind);
             painter->setPen(QPen(theme.separator, 1.0));
             painter->drawLine(QPointF(8.0, row), QPointF(nodeWidth_ - 8.0, row));
-            painter->setPen(Qt::NoPen);
-            painter->setBrush(color);
             const qreal pinX = input ? 0.0 : nodeWidth_;
-            painter->drawEllipse(QPointF(pinX, row + kPortHeight / 2.0), 5.5, 5.5);
+            Controls::drawMarker(*painter, QPointF(pinX, row + kPortHeight / 2.0),
+                                  5.5, color);
             const QString name = QString::fromStdString(port.alias.empty() ? port.name : port.alias);
             const QRectF labelBounds = input ? QRectF(12.0, row + 3.0, inputLabelWidth_, kPortHeight - 6.0)
                                              : QRectF(nodeWidth_ - outputLabelWidth_ - 12.0, row + 3.0, outputLabelWidth_, kPortHeight - 6.0);
-            painter->setBrush(color.darker(150));
-            painter->drawRoundedRect(labelBounds, 3.0, 3.0);
-            painter->setPen(theme.text);
+            Controls::drawSurface(*painter, labelBounds, color.darker(150), {}, 3.0);
             const QRectF textBounds = labelBounds.adjusted(5.0, 0.0, -5.0, 0.0);
-            painter->drawText(textBounds, Qt::AlignVCenter | (input ? Qt::AlignLeft : Qt::AlignRight), name);
+            Controls::drawText(*painter, textBounds, name, portFont, theme.text,
+                               Qt::AlignVCenter | (input ? Qt::AlignLeft : Qt::AlignRight));
         };
         const auto rowCount = std::max(inputs_.size(), outputs_.size());
         for (std::size_t index = 0; index < rowCount; ++index) {
@@ -928,8 +928,9 @@ bool PatchbayCanvas::saveProject(const QString& filePath,
         if (!module.settingsJson.empty()) {
             QJsonParseError error;
             const auto document = QJsonDocument::fromJson(QByteArray::fromStdString(module.settingsJson), &error);
-            if (error.error == QJsonParseError::NoError && document.isObject())
-                settings = document.object();
+            if (error.error != QJsonParseError::NoError || !document.isObject())
+                return false;
+            settings = document.object();
         }
         const QJsonObject moduleRecord {
             { QStringLiteral("path"), modulePathForStorage(module.modulePath) },
@@ -943,7 +944,8 @@ bool PatchbayCanvas::saveProject(const QString& filePath,
             && !settingsObject.value(QStringLiteral("path")).toString().isEmpty()
             && !settingsObject.value(QStringLiteral("bits")).toString().isEmpty();
         if (!isVst) {
-            moduleRecords.append(moduleRecord);
+            moduleRecords.append(WinJACKNexus::Patchbay::ProjectStateCodec::archiveModuleSettings(
+                moduleRecord, settingsObject));
             continue;
         }
         const auto pluginPath = settingsObject.value(QStringLiteral("path")).toString();
@@ -1114,27 +1116,34 @@ bool PatchbayCanvas::loadProject(const QString& filePath,
     }
 
     std::vector<PatchbayProjectModule> loadedModules;
-    const auto appendModule = [&loadedModules](const QJsonObject& item, const QString& pathField, const QString& clientField) {
+    const auto appendModule = [&loadedModules](const QJsonObject& item, const QString& pathField,
+                                               const QString& clientField) {
         PatchbayProjectModule module;
         module.modulePath = modulePathFromStorage(item.value(pathField).toString());
         if (module.modulePath.isEmpty())
-            return;
+            return true;
         module.index = static_cast<std::uint32_t>(item.value(QStringLiteral("index")).toInt());
         module.clientId = item.value(clientField).toString().toStdString();
         module.contextId = item.value(QStringLiteral("context")).toString(QStringLiteral("main")).toStdString();
-        const auto settings = item.value(QStringLiteral("settings"));
-        if (settings.isObject())
-            module.settingsJson = QJsonDocument(settings.toObject()).toJson(QJsonDocument::Compact).toStdString();
+        QJsonObject restored;
+        if (!WinJACKNexus::Patchbay::ProjectStateCodec::restoreModuleSettings(item, restored))
+            return false;
+        if (item.contains(QStringLiteral("settingsBase64"))
+            || item.value(QStringLiteral("settings")).isObject())
+            module.settingsJson = QJsonDocument(restored).toJson(QJsonDocument::Compact).toStdString();
         loadedModules.push_back(std::move(module));
+        return true;
     };
     for (const auto& value : root.value(QStringLiteral("modules")).toArray()) {
-        appendModule(value.toObject(), QStringLiteral("path"), QStringLiteral("client"));
+        if (!appendModule(value.toObject(), QStringLiteral("path"), QStringLiteral("client")))
+            return false;
     }
     for (const auto& value : root.value(QStringLiteral("vsts")).toArray()) {
         const auto item = value.toObject();
         if (item.value(QStringLiteral("modulePath")).toString().isEmpty())
             continue;
-        appendModule(item, QStringLiteral("modulePath"), QStringLiteral("node"));
+        if (!appendModule(item, QStringLiteral("modulePath"), QStringLiteral("node")))
+            return false;
     }
 
     const auto interfaceFromJson = [](const QJsonObject& item, PatchbayInterfaceInfo& interfaceNode) {

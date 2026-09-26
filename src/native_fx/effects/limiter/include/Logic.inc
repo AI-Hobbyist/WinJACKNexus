@@ -1,8 +1,8 @@
 class LimiterNode final : public WinJACKNexus::Node::INode {
     struct AtomicParameters final {
-        std::atomic<float> thresholdDb{-1.0F},ceilingDb{3.0F},releaseMs{100.0F},lookaheadDb{0.0F};
+        std::atomic<float> thresholdDb{-1.0F},ceilingDb{-1.0F},releaseMs{100.0F},lookaheadDb{0.0F};
         std::atomic<int> mode{1},oversampling{2};
-        std::atomic<bool> autoGain{true},enabled{true};
+        std::atomic<bool> autoGain{false},enabled{true};
         std::atomic<std::uint32_t> revision{1};
         void store(const WinJACKNexus::Common::LimiterParameters& p) noexcept {
             thresholdDb.store(p.thresholdDb,std::memory_order_relaxed);

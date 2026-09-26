@@ -17,7 +17,7 @@ target_link_libraries(WinJACKNexus
 
 target_compile_features(WinJACKNexus PRIVATE cxx_std_20)
 target_compile_definitions(WinJACKNexus PRIVATE WIN32_LEAN_AND_MEAN NOMINMAX)
-add_dependencies(WinJACKNexus mod_patchbay mod_mixer mod_meterbrigde mod_meterbridge_probe mod_native_fx)
+add_dependencies(WinJACKNexus mod_patchbay mod_digital_mixer mod_meterbrigde mod_meterbridge_probe mod_native_fx)
 
 set_target_properties(WinJACKNexus PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${WJN_OUTPUT_DIR}"

@@ -42,3 +42,79 @@ QToolTip {
     color: ${text};
     border: 1px solid ${border};
 }
+
+QLineEdit[wjnRole="field"] {
+    background-color: ${panel-raised};
+    color: ${text};
+    border: 1px solid ${border};
+    border-radius: 3px;
+    padding: 4px 6px;
+}
+
+QLineEdit[wjnRole="field"]:focus {
+    border-color: ${accent};
+}
+
+QTreeWidget[wjnRole="tree"] {
+    background-color: ${panel-bg};
+    color: ${text};
+    border: 1px solid ${border};
+}
+
+QTreeWidget[wjnRole="tree"]::item:selected {
+    background-color: ${accent};
+    color: ${window-bg};
+}
+
+QComboBox[wjnRole="choice"] {
+    qproperty-accentColor: ${accent};
+    qproperty-surfaceColor: ${panel-raised};
+    qproperty-borderColor: ${border};
+    qproperty-textColor: ${text};
+}
+
+QSpinBox[wjnRole="number"],
+QDoubleSpinBox[wjnRole="number"] {
+    qproperty-accentColor: ${accent};
+    qproperty-surfaceColor: ${panel-raised};
+    qproperty-borderColor: ${border};
+    background-color: ${panel-raised};
+    color: ${text};
+    border: 1px solid ${border};
+    border-radius: 3px;
+    padding: 4px 6px;
+}
+
+QSpinBox[wjnRole="number"]:focus,
+QDoubleSpinBox[wjnRole="number"]:focus {
+    border-color: ${accent};
+}
+
+QPushButton[wjnRole="action"] {
+    qproperty-accentColor: ${accent};
+    qproperty-surfaceColor: ${panel-raised};
+    qproperty-borderColor: ${border};
+    qproperty-textColor: ${text};
+}
+QToolButton[wjnRole="iconAction"] {
+    qproperty-accentColor: ${accent};
+    qproperty-surfaceColor: ${panel-raised};
+    qproperty-borderColor: ${border};
+    qproperty-textColor: ${text};
+}
+
+QCheckBox[wjnRole="toggle"] {
+    qproperty-accentColor: ${accent};
+    qproperty-surfaceColor: ${panel-raised};
+    qproperty-borderColor: ${border};
+    qproperty-textColor: ${text};
+}
+QSlider[wjnRole="range"] {
+    qproperty-accentColor: ${accent};
+    qproperty-surfaceColor: ${panel-raised};
+    qproperty-borderColor: ${border};
+}
+
+QLabel[wjnRole="success"] {
+    color: ${success};
+}

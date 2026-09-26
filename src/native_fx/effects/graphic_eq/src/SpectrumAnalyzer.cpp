@@ -41,6 +41,56 @@ void GraphicEqSpectrumAnalyzer::pushSamples(
     }
 }
 
+void GraphicEqSpectrumAnalyzer::pushChannelInput(std::size_t channel,
+    const float* input, std::size_t frames) noexcept
+{
+    if (channel >= graphicEqSpectrumChannelCount || !input) return;
+    auto position = channelWritePositions_[channel];
+    for (std::size_t frame = 0; frame < frames; ++frame) {
+        inputHistory_[channel][position] = std::isfinite(input[frame]) ? input[frame] : 0.0F;
+        position = (position + 1) % graphicEqSpectrumFftSize;
+    }
+}
+
+void GraphicEqSpectrumAnalyzer::pushChannelOutput(std::size_t channel,
+    const float* output, std::size_t frames) noexcept
+{
+    if (channel >= graphicEqSpectrumChannelCount || !output) return;
+    auto& position = channelWritePositions_[channel];
+    for (std::size_t frame = 0; frame < frames; ++frame) {
+        outputHistory_[channel][position] = std::isfinite(output[frame]) ? output[frame] : 0.0F;
+        position = (position + 1) % graphicEqSpectrumFftSize;
+    }
+    // Channel zero clocks publication once per audio block. The other channels
+    // retain their own positions and contribute their latest completed block.
+    if (channel != 0) return;
+    const auto previous = channelSamplesInHistory_;
+    channelSamplesInHistory_ = std::min(graphicEqSpectrumFftSize, previous + frames);
+    if (previous < graphicEqSpectrumFftSize
+        && channelSamplesInHistory_ == graphicEqSpectrumFftSize) {
+        publishChannelFrame();
+        channelSamplesSinceFrame_ = 0;
+    } else if (channelSamplesInHistory_ == graphicEqSpectrumFftSize) {
+        channelSamplesSinceFrame_ += frames;
+        if (channelSamplesSinceFrame_ >= graphicEqSpectrumFftSize / 2) {
+            channelSamplesSinceFrame_ = 0;
+            publishChannelFrame();
+        }
+    }
+}
+
+void GraphicEqSpectrumAnalyzer::publishChannelFrame() noexcept
+{
+    for (std::size_t channel = 0; channel < graphicEqSpectrumChannelCount; ++channel)
+        for (std::size_t i = 0; i < graphicEqSpectrumFftSize; ++i) {
+            const auto source = (channelWritePositions_[channel] + i) % graphicEqSpectrumFftSize;
+            pendingFrame_.inputSamples[channel][i] = inputHistory_[channel][source];
+            pendingFrame_.outputSamples[channel][i] = outputHistory_[channel][source];
+        }
+    pendingFrame_.sampleRate = sampleRate_.load(std::memory_order_relaxed);
+    frames_.try_push(pendingFrame_);
+}
+
 void GraphicEqSpectrumAnalyzer::publishFrame() noexcept
 {
     for (std::size_t channel = 0; channel < graphicEqSpectrumChannelCount; ++channel) {

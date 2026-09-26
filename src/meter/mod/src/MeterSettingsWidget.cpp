@@ -14,6 +14,7 @@
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 #include <WinJACKNexus/Meter/Mod/MeterSettingsWidget.hpp>
+#include <WinJACKNexus/UI/Controls.hpp>
 
 #include <QCheckBox>
 #include <QComboBox>
@@ -35,6 +36,8 @@
 
 namespace WinJACKNexus::Meter::Mod {
 
+namespace Controls = WinJACKNexus::UI::Controls;
+
 MeterSettingsWidget::MeterSettingsWidget(MeterViewDataProvider& provider,
                                          std::function<void()> requestRefresh,
                                          QWidget* parent)
@@ -51,12 +54,15 @@ MeterSettingsWidget::MeterSettingsWidget(MeterViewDataProvider& provider,
     rootLayout->setContentsMargins(8, 8, 8, 8);
     rootLayout->setSpacing(8);
 
-    auto* globalGroup = new QGroupBox(QStringLiteral("显示设置"), this);
+    auto* globalGroup = new Controls::GroupPanel(QStringLiteral("显示设置"), this);
+    globalGroup->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
     globalGroup->setObjectName(QStringLiteral("meterSettings.globalGroup"));
     auto* globalLayout = new QFormLayout(globalGroup);
     globalLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
+    globalLayout->setRowWrapPolicy(QFormLayout::WrapLongRows);
 
-    silenceThresholdSpinBox_ = new QDoubleSpinBox(globalGroup);
+    silenceThresholdSpinBox_ = new Controls::DecimalField(globalGroup);
+    silenceThresholdSpinBox_->setFixedHeight(Controls::sidebarControlHeight);
     silenceThresholdSpinBox_->setObjectName(QStringLiteral("meterSettings.silenceThreshold"));
     silenceThresholdSpinBox_->setAccessibleName(QStringLiteral("静音阈值"));
     silenceThresholdSpinBox_->setRange(-144.0, 0.0);
@@ -64,7 +70,8 @@ MeterSettingsWidget::MeterSettingsWidget(MeterViewDataProvider& provider,
     silenceThresholdSpinBox_->setSuffix(QStringLiteral(" dBFS"));
     globalLayout->addRow(QStringLiteral("静音阈值"), silenceThresholdSpinBox_);
 
-    silenceDurationSpinBox_ = new QDoubleSpinBox(globalGroup);
+    silenceDurationSpinBox_ = new Controls::DecimalField(globalGroup);
+    silenceDurationSpinBox_->setFixedHeight(Controls::sidebarControlHeight);
     silenceDurationSpinBox_->setObjectName(QStringLiteral("meterSettings.silenceDuration"));
     silenceDurationSpinBox_->setAccessibleName(QStringLiteral("静音时长"));
     silenceDurationSpinBox_->setRange(0.1, 60.0);
@@ -72,27 +79,30 @@ MeterSettingsWidget::MeterSettingsWidget(MeterViewDataProvider& provider,
     silenceDurationSpinBox_->setSuffix(QStringLiteral(" 秒"));
     globalLayout->addRow(QStringLiteral("静音时长"), silenceDurationSpinBox_);
 
-    logRootDirectoryEdit_ = new QLineEdit(globalGroup);
+    logRootDirectoryEdit_ = new Controls::TextField(globalGroup);
+    logRootDirectoryEdit_->setFixedHeight(Controls::sidebarControlHeight);
+    logRootDirectoryEdit_->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
     logRootDirectoryEdit_->setObjectName(QStringLiteral("meterSettings.logRoot"));
     logRootDirectoryEdit_->setAccessibleName(QStringLiteral("CSV 日志根目录"));
     logRootDirectoryEdit_->setToolTip(QStringLiteral("仅用于预览的 CSV 日志根目录"));
     globalLayout->addRow(QStringLiteral("日志目录"), logRootDirectoryEdit_);
     rootLayout->addWidget(globalGroup);
 
-    customChannelsGroup_ = new QGroupBox(QStringLiteral("自定义声道"), this);
+    customChannelsGroup_ = new Controls::GroupPanel(QStringLiteral("自定义声道"), this);
     customChannelsGroup_->setObjectName(QStringLiteral("meterSettings.customChannels"));
     auto* customLayout = new QVBoxLayout(customChannelsGroup_);
     customLayout->setContentsMargins(6, 8, 6, 6);
     auto* countLayout = new QHBoxLayout;
-    countLayout->addWidget(new QLabel(QStringLiteral("声道数"), customChannelsGroup_));
-    customChannelCountSpinBox_ = new QSpinBox(customChannelsGroup_);
+    countLayout->addWidget(new Controls::TextLabel(QStringLiteral("声道数"), customChannelsGroup_));
+    customChannelCountSpinBox_ = new Controls::IntegerField(customChannelsGroup_);
+    customChannelCountSpinBox_->setFixedHeight(Controls::sidebarControlHeight);
     customChannelCountSpinBox_->setObjectName(QStringLiteral("meterSettings.channelCount"));
     customChannelCountSpinBox_->setAccessibleName(QStringLiteral("自定义声道数量"));
     customChannelCountSpinBox_->setRange(1, maximumMeterChannelCount);
     countLayout->addWidget(customChannelCountSpinBox_, 1);
     customLayout->addLayout(countLayout);
 
-    channelTable_ = new QTableWidget(customChannelsGroup_);
+    channelTable_ = new Controls::TableField(customChannelsGroup_);
     channelTable_->setObjectName(QStringLiteral("meterSettings.channelTable"));
     channelTable_->setAccessibleName(QStringLiteral("自定义声道分配"));
     channelTable_->setColumnCount(3);
@@ -179,7 +189,8 @@ void MeterSettingsWidget::rebuildChannelTable(const MeterViewSnapshot& snapshot)
         const auto& channel = snapshot.channels[index];
         const auto row = static_cast<int>(index);
 
-        auto* nameEditor = new QLineEdit(channel.displayName, channelTable_);
+        auto* nameEditor = new Controls::TextField(channelTable_);
+        nameEditor->setText(channel.displayName);
         nameEditor->setObjectName(QStringLiteral("meterSettings.channelName.%1").arg(index));
         nameEditor->setEnabled(channelLayoutEditable_);
         channelTable_->setCellWidget(row, 0, nameEditor);
@@ -191,7 +202,8 @@ void MeterSettingsWidget::rebuildChannelTable(const MeterViewSnapshot& snapshot)
             dispatch(std::move(command));
         });
 
-        auto* roleSelector = new QComboBox(channelTable_);
+        auto* roleSelector = new Controls::ChoiceField(channelTable_);
+        roleSelector->setFixedHeight(Controls::sidebarControlHeight);
         roleSelector->setObjectName(QStringLiteral("meterSettings.channelRole.%1").arg(index));
         roleSelector->addItems({ QStringLiteral("M+030"), QStringLiteral("M-030"), QStringLiteral("M+000"),
                                  QStringLiteral("LFE"), QStringLiteral("M+110"), QStringLiteral("M-110"),
@@ -212,7 +224,7 @@ void MeterSettingsWidget::rebuildChannelTable(const MeterViewSnapshot& snapshot)
             dispatch(std::move(command));
         });
 
-        auto* lfeCheckBox = new QCheckBox(channelTable_);
+        auto* lfeCheckBox = new Controls::ToggleField({}, channelTable_);
         lfeCheckBox->setObjectName(QStringLiteral("meterSettings.channelLfe.%1").arg(index));
         lfeCheckBox->setAccessibleName(QStringLiteral("声道 %1 的 LFE 标记").arg(index + 1));
         lfeCheckBox->setChecked(channel.isLfe);

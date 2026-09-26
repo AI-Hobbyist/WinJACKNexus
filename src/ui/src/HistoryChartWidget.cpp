@@ -14,6 +14,7 @@
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 #include <WinJACKNexus/UI/HistoryChartWidget.hpp>
+#include <WinJACKNexus/UI/Controls.hpp>
 
 #include <QDateTime>
 #include <QEvent>
@@ -315,6 +316,12 @@ void HistoryChartWidget::paintContent(QPainter& painter)
     painter.drawRect(chartRect);
     constexpr int horizontalGridLines = 7;
     constexpr int verticalGridLines = 6;
+    Controls::ChartGridStyle gridStyle;
+    gridStyle.grid = border;
+    gridStyle.penStyle = Qt::DotLine;
+    gridStyle.columns = verticalGridLines;
+    gridStyle.rows = horizontalGridLines;
+    Controls::drawChartGrid(painter, chartRect, gridStyle);
     const auto timeSpan = endTimeMilliseconds_ - startTimeMilliseconds_;
     const auto timeLabelWidth = std::max<qreal>(1.0,
                                                  metrics.horizontalAdvance(formatTimeAxisLabel(endTimeMilliseconds_, timeDisplayOffsetMilliseconds_)) + 6.0);
@@ -325,8 +332,6 @@ void HistoryChartWidget::paintContent(QPainter& painter)
         const auto fraction = static_cast<double>(index) / horizontalGridLines;
         const auto y = chartRect.bottom() - fraction * chartRect.height();
         const auto axisValue = minimumValue_ + fraction * (maximumValue_ - minimumValue_);
-        painter.setPen(QPen(border, 1.0, Qt::DotLine));
-        painter.drawLine(QPointF(chartRect.left(), y), QPointF(chartRect.right(), y));
         painter.setPen(muted);
         painter.drawText(QRectF(0.0, y - metrics.height() / 2.0, leftMargin - 6.0, metrics.height()),
                          Qt::AlignRight | Qt::AlignVCenter,
@@ -341,8 +346,6 @@ void HistoryChartWidget::paintContent(QPainter& painter)
     for (int index = 0; index <= verticalGridLines; ++index) {
         const auto fraction = static_cast<double>(index) / verticalGridLines;
         const auto x = chartRect.left() + fraction * chartRect.width();
-        painter.setPen(QPen(border, 1.0, Qt::DotLine));
-        painter.drawLine(QPointF(x, chartRect.top()), QPointF(x, chartRect.bottom()));
         if (index % timeLabelInterval == 0 || index == verticalGridLines) {
             const auto timestamp = startTimeMilliseconds_ + static_cast<std::int64_t>(std::llround(fraction * timeSpan));
             const auto label = formatTimeAxisLabel(timestamp, timeDisplayOffsetMilliseconds_);
@@ -408,8 +411,10 @@ void HistoryChartWidget::paintContent(QPainter& painter)
             hasVisiblePoint = true;
         }
         if (!path.isEmpty()) {
-            painter.setPen(QPen(seriesColor(seriesIndex, item), 1.75, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
-            painter.drawPath(path);
+            Controls::CurveStyle style;
+            style.stroke = seriesColor(seriesIndex, item);
+            style.width = 1.75;
+            Controls::drawCurvePath(painter, path, style);
         }
     }
     if (timeCursorMilliseconds_.has_value()

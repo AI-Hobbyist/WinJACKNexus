@@ -46,3 +46,15 @@
 
 - 效果元数据、逻辑适配、界面和 DSP 已归入 `src/native_fx/effects/gate`；效果算法不再编入 `common.dll`，并独立输出 `build/bin/nodes/native_fx/gate/mod_gate.dll`。
 - 使用现有 `build` 树完成 Debug `ALL_BUILD`；`native_gate_tests`、`native_fx_api_tests` 和 `ui_unit_tests` 通过。验证范围为模块加载与界面行为，未运行 JACK 客户端或端口连接集成测试。
+
+## 调音台内部宿主桥接（M5，2026-09-26）
+
+本模块通过 `NativeFxApi.h` 的可选八声道参数快照和原子峰值分析接口接入调音台。GUI 与音频实例独立；调音台在 JACK 块间安全点应用快照，保留 DSP 历史。克隆复制参数而不共享处理历史，模块加载不创建新的 JACK 客户端。Debug `ALL_BUILD` 及 24 个 CTest 套件通过；证据见 `build/m5-all-build.log`、`build/m5-verification-tests.log`。
+
+## 公共数值交互（2026-09-26）
+
+Gate 六个旋钮的数字读数接入 `UI::Controls::editNumericValue`，点击可输入精确参数并用 Enter 应用；双击旋钮通过 `resetNumericValue` 恢复模块参数默认值。All 模式把绝对目标值写入八个声道，单声道模式仅修改所选声道。使用现有 `build` 树完成 Debug `ALL_BUILD`，`native_gate_tests`、`native_fx_api_tests` 和 `ui_unit_tests` 全部通过；验证范围为模块加载与 UI 行为。
+
+旋钮绘制已接入公共 `Controls::drawKnob` 和宿主调色板。新增渲染测试验证宿主强调色覆盖可到达旋钮笔画；迁移后的 Debug `ALL_BUILD` 与 `native_gate_tests` 通过。
+
+门限图中的上、下传输曲线使用公共 `Controls::drawCurvePath`，笔画不携带填充。现有 `build` 树的 Debug `ALL_BUILD`、`native_gate_tests`、`ui_unit_tests` 通过。

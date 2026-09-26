@@ -51,6 +51,7 @@ private Q_SLOTS:
     void onAnimationTick();
 
 private:
+    void applyFrameRate(int framesPerSecond);
     void synchronizeTimer();
 
     QTimer timer_;

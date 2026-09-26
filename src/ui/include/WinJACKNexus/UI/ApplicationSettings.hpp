@@ -19,6 +19,8 @@
 
 #include <QObject>
 
+class QTimer;
+
 namespace WinJACKNexus::UI {
 
 class WINJACK_UI_API ApplicationSettings final : public QObject {
@@ -29,14 +31,25 @@ public:
 
     int frameRate() const noexcept;
     void setFrameRate(int framesPerSecond);
+    int peakValueRefreshMilliseconds() const noexcept;
+    void setPeakValueRefreshMilliseconds(int milliseconds);
+    double peakHoldSeconds() const noexcept;
+    void setPeakHoldSeconds(double seconds);
 
 Q_SIGNALS:
     void frameRateChanged(int framesPerSecond);
+    void peakValueRefreshMillisecondsChanged(int milliseconds);
+    void peakHoldSecondsChanged(double seconds);
 
 private:
     ApplicationSettings();
 
     int frameRate_ = 60;
+    int peakValueRefreshMilliseconds_ = 50;
+    double peakHoldSeconds_ = 1.0;
 };
+
+// Keep continuously refreshed views in step with the application FPS setting.
+WINJACK_UI_API void bindRefreshTimer(QTimer& timer, QObject* owner);
 
 }

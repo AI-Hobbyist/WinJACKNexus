@@ -34,6 +34,7 @@ struct AuxSendChannel final {
 
 struct AuxBusState final {
     std::uint32_t id {};
+    std::uint32_t cloneSourceId {};
     QString name;
     QColor accent;
     bool enabled { true };
@@ -43,11 +44,13 @@ struct AuxBusState final {
     bool linked {};
     // Display-only switch for the input/output polar curve overlay.
     bool showPolarCurves { true };
+    bool showInputCurve { true };
+    bool showOutputCurve { true };
     AuxPanMode panMode { AuxPanMode::spatial };
     double classicPan {};
     AuxChannelLayout sourceLayout { AuxChannelLayout::stereo };
     AuxChannelLayout targetLayout { AuxChannelLayout::stereo };
-    double width { .7 };
+    double width { 1.0 };
     double angleDegrees {};
     std::vector<QPointF> adjustablePoints;
     // Per-source-point radius in normalized panner coordinates (0.1 to 0.75).
@@ -87,7 +90,8 @@ public:
 
     AuxBusState& addBus(AuxChannelLayout layout = AuxChannelLayout::stereo);
     AuxBusState* cloneBus(std::uint32_t id);
-    bool removeBus(std::uint32_t id);
+    bool removeBus(std::uint32_t id, bool allowEmpty = false);
+    void clearBuses();
     bool setBusLayout(std::uint32_t id, AuxChannelLayout layout);
     void setBusAccent(std::uint32_t id, const QColor& accent);
     void resetBus(const QString& sourceKey, std::uint32_t id, std::uint32_t selfAuxId = 0);

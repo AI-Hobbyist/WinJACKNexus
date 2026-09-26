@@ -1,5 +1,6 @@
 /* This file is part of WinJACKNexus. SPDX-License-Identifier: AGPL-3.0-only */
 #include <WinJACKNexus/UI/FxSettingsWindow.hpp>
+#include <WinJACKNexus/UI/ApplicationSettings.hpp>
 #include <WinJACKNexus/UI/FxLevelMeterWidget.hpp>
 #include <WinJACKNexus/UI/Controls.hpp>
 #include <WinJACKNexus/NativeFx/NativeFxApi.h>
@@ -34,7 +35,7 @@
 namespace WinJACKNexus::UI {
 namespace {
 QPushButton* button(const QString& text, QWidget* parent, const char* objectName = "") {
-    auto* result = new QPushButton(text, parent);
+    auto* result = new Controls::ActionButton(text, parent);
     result->setObjectName(QString::fromLatin1(objectName));
     result->setCursor(Qt::PointingHandCursor);
     return result;
@@ -93,37 +94,39 @@ public:
         const bool selected = option.state & QStyle::State_Selected;
         const bool enabled = index.data(Qt::UserRole + 3).toBool();
         const QColor accent(index.data(Qt::UserRole + 2).toString());
-        painter->setPen(QPen(selected ? QColor("#42cbfb") : enabled ? accent : QColor("#344d69"),
-                              selected ? 2.0 : 1.2));
-        painter->setBrush(QColor(enabled ? "#214b62" : "#15273a"));
-        painter->drawRoundedRect(card, 7, 7);
-        painter->setPen(QPen(enabled ? QColor("#a8d8fa") : QColor("#667d9a"), 1));
-        painter->setBrush(QColor("#15273a"));
-        painter->drawEllipse(QRectF(card.left() + 5, card.center().y() - 12, 24, 24));
-        painter->setPen(QColor("#e8f2ff"));
-        painter->drawText(QRectF(card.left() + 5, card.center().y() - 12, 24, 24),
-                          Qt::AlignCenter, QString::number(index.row() + 1));
-        painter->setPen(QColor("#7998bf"));
+        Controls::drawSurface(*painter, card, QColor(enabled ? "#214b62" : "#15273a"),
+                              selected ? QColor("#42cbfb") : enabled ? accent : QColor("#344d69"),
+                              7, selected ? 2.0 : 1.2);
+        const QPointF numberCenter(card.left() + 17, card.center().y());
+        Controls::drawMarker(*painter, numberCenter, 12, QColor("#15273a"),
+                             enabled ? QColor("#a8d8fa") : QColor("#667d9a"));
+        Controls::drawText(*painter, QRectF(card.left() + 5, card.center().y() - 12, 24, 24),
+                           QString::number(index.row() + 1), painter->font(),
+                           QColor("#e8f2ff"), Qt::AlignCenter);
         for (int row = 0; row < 4; ++row)
             for (int column = 0; column < 2; ++column)
-                painter->drawEllipse(QPointF(card.left() + 39 + column * 6, card.top() + 20 + row * 7), 1.3, 1.3);
+                Controls::drawMarker(*painter,
+                    QPointF(card.left() + 39 + column * 6, card.top() + 20 + row * 7),
+                    1.3, QColor("#7998bf"));
         const QRectF icon(card.left() + 58, card.center().y() - 24, 48, 48);
-        painter->setPen(QPen(enabled ? accent.lighter(130) : accent.darker(180), 1));
-        painter->setBrush(enabled ? accent.darker(140) : QColor("#273b50"));
-        painter->drawRoundedRect(icon, 5, 5);
-        QFont iconFont = painter->font(); iconFont.setPixelSize(28); iconFont.setBold(true); painter->setFont(iconFont);
-        painter->setPen(enabled ? Qt::white : QColor("#91a6ba"));
-        painter->drawText(icon, Qt::AlignCenter, index.data(Qt::UserRole + 1).toString());
-        QFont nameFont = painter->font(); nameFont.setPixelSize(15); nameFont.setBold(false); painter->setFont(nameFont);
-        painter->setPen(enabled ? QColor("#f1f8ff") : QColor("#93a8be"));
-        painter->drawText(QRectF(icon.right() + 13, card.top(), card.width() - 175, card.height()),
-                          Qt::AlignVCenter | Qt::AlignLeft, index.data(Qt::DisplayRole).toString());
-        painter->setPen(Qt::NoPen);
-        painter->setBrush(enabled ? QColor("#47e5a1") : QColor("#52677c"));
-        painter->drawEllipse(QRectF(card.right() - 47, card.center().y() - 5, 10, 10));
-        painter->setPen(QColor("#a8c6ef"));
-        QFont dotsFont = painter->font(); dotsFont.setPixelSize(24); painter->setFont(dotsFont);
-        painter->drawText(QRectF(card.right() - 34, card.top(), 28, card.height()), Qt::AlignCenter, QStringLiteral("⋮"));
+        Controls::drawSurface(*painter, icon,
+                              enabled ? accent.darker(140) : QColor("#273b50"),
+                              enabled ? accent.lighter(130) : accent.darker(180), 5);
+        QFont iconFont = painter->font(); iconFont.setPixelSize(28); iconFont.setBold(true);
+        Controls::drawText(*painter, icon, index.data(Qt::UserRole + 1).toString(),
+                           iconFont, enabled ? QColor(Qt::white) : QColor("#91a6ba"),
+                           Qt::AlignCenter);
+        QFont nameFont = painter->font(); nameFont.setPixelSize(15); nameFont.setBold(false);
+        Controls::drawText(*painter,
+                           QRectF(icon.right() + 13, card.top(), card.width() - 175, card.height()),
+                           index.data(Qt::DisplayRole).toString(), nameFont,
+                           enabled ? QColor("#f1f8ff") : QColor("#93a8be"),
+                           Qt::AlignVCenter | Qt::AlignLeft);
+        Controls::drawMarker(*painter, QPointF(card.right() - 42, card.center().y()),
+                             5, enabled ? QColor("#47e5a1") : QColor("#52677c"));
+        QFont dotsFont = painter->font(); dotsFont.setPixelSize(24);
+        Controls::drawText(*painter, QRectF(card.right() - 34, card.top(), 28, card.height()),
+                           QStringLiteral("⋮"), dotsFont, QColor("#a8c6ef"), Qt::AlignCenter);
         painter->restore();
     }
 
@@ -161,6 +164,13 @@ public:
     using PresetName = const char* (*)(std::uint32_t);
     using CurrentPreset = int (*)(const WjnFxInstance*);
     using SelectPreset = void (*)(WjnFxInstance*, int);
+    using SnapshotSize = std::uint32_t (*)();
+    using ExportSnapshot = int (*)(const WjnFxInstance*, void*, std::uint32_t);
+    using ImportSnapshot = int (*)(WjnFxInstance*, const void*, std::uint32_t);
+    using SetChanged = void (*)(WjnFxInstance*, WjnFxParametersChanged, void*);
+    using SetLive = void (*)(WjnFxInstance*, WjnFxLiveAnalysisReader, void*);
+
+    struct AnalysisContext { Impl* owner {}; int id {}; };
 
     struct Module {
         QLibrary library;
@@ -175,6 +185,11 @@ public:
         PresetName presetName {};
         CurrentPreset currentPreset {};
         SelectPreset selectPreset {};
+        SnapshotSize snapshotSize {};
+        ExportSnapshot exportSnapshot {};
+        ImportSnapshot importSnapshot {};
+        SetChanged setChanged {};
+        SetLive setLive {};
     };
 
     struct Effect {
@@ -184,6 +199,7 @@ public:
         WjnFxInstance* instance {};
         QWidget* editor {};
         bool enabled = false;
+        std::shared_ptr<AnalysisContext> analysisContext;
     };
 
     explicit Impl(FxSettingsWindow& window, const QString& source, const QStringList& sourceChannels)
@@ -222,7 +238,7 @@ public:
         auto* leftLayout = new QHBoxLayout(leftControls);
         leftLayout->setContentsMargins(0, 0, 0, 0);
         leftLayout->setSpacing(12);
-        auto* title = new QLabel(owner.windowTitle(), leftControls);
+        auto* title = new Controls::TextLabel(owner.windowTitle(), leftControls);
         title->setObjectName(QStringLiteral("fxSourceTitle"));
         QFont titleFont = title->font(); titleFont.setPixelSize(24); titleFont.setBold(true); title->setFont(titleFont);
         leftLayout->addWidget(title);
@@ -234,6 +250,7 @@ public:
         QObject::connect(master, &QAbstractButton::toggled, &owner, [this](bool enabled) {
             syncChainPower();
             if (chainEnabledHandler) chainEnabledHandler(enabled);
+            publish();
         });
         leftLayout->addWidget(master);
         leftLayout->addStretch();
@@ -243,7 +260,7 @@ public:
         auto* channelLayout = new QHBoxLayout(channelControls);
         channelLayout->setContentsMargins(0, 0, 0, 0);
         channelLayout->setSpacing(8);
-        channelLayout->addWidget(new QLabel(QStringLiteral("作用声道："), channelControls));
+        channelLayout->addWidget(new Controls::TextLabel(QStringLiteral("作用声道："), channelControls));
         channelRow = new QHBoxLayout;
         channelRow->setSpacing(6);
         QStringList visibleChannels { QStringLiteral("All") };
@@ -272,10 +289,10 @@ public:
         rightLayout->setContentsMargins(0, 0, 0, 0);
         rightLayout->setSpacing(8);
         rightLayout->addStretch();
-        rightLayout->addWidget(new QLabel(QStringLiteral("预设："), rightControls));
-        auto* presets = new QComboBox(rightControls);
+        rightLayout->addWidget(new Controls::TextLabel(QStringLiteral("预设："), rightControls));
+        auto* presets = new Controls::ChoiceField(rightControls);
         presets->setObjectName(QStringLiteral("fxWindowPreset"));
-        presets->addItem(QStringLiteral("默认"));
+        presets->addItem(QStringLiteral("Default"));
         presets->setMinimumWidth(185);
         rightLayout->addWidget(presets);
         rightLayout->addWidget(button(QStringLiteral("保存"), rightControls));
@@ -300,13 +317,13 @@ public:
         modulePower->setCheckable(true);
         modulePower->setFixedWidth(40);
         moduleHeader->addWidget(modulePower);
-        moduleName = new QLabel(QStringLiteral("模块设置"), modulePanel);
+        moduleName = new Controls::TextLabel(QStringLiteral("模块设置"), modulePanel);
         moduleName->setObjectName(QStringLiteral("fxModuleTitle"));
         moduleName->setFont(bold);
         moduleHeader->addWidget(moduleName);
         moduleHeader->addStretch();
-        moduleHeader->addWidget(new QLabel(QStringLiteral("预设："), modulePanel));
-        modulePreset = new QComboBox(modulePanel);
+        moduleHeader->addWidget(new Controls::TextLabel(QStringLiteral("预设："), modulePanel));
+        modulePreset = new Controls::ChoiceField(modulePanel);
         modulePreset->setObjectName(QStringLiteral("fxModulePreset"));
         modulePreset->setMinimumWidth(170);
         moduleHeader->addWidget(modulePreset);
@@ -315,7 +332,7 @@ public:
         moduleHeader->addWidget(previous);
         moduleHeader->addWidget(next);
         moduleLayout->addLayout(moduleHeader);
-        editorArea = new QScrollArea(modulePanel);
+        editorArea = new Controls::ScrollField(modulePanel);
         editorArea->setObjectName(QStringLiteral("fxEditorArea"));
         editorArea->setWidgetResizable(false);
         editorArea->setAlignment(Qt::AlignHCenter | Qt::AlignTop);
@@ -331,14 +348,14 @@ public:
         auto* footerLayout = new QVBoxLayout(footer);
         footerLayout->setContentsMargins(13, 8, 13, 7);
         auto* chainHeader = new QHBoxLayout;
-        auto* chainLabel = new QLabel(QStringLiteral("效果链"), footer);
+        auto* chainLabel = new Controls::TextLabel(QStringLiteral("效果链"), footer);
         chainLabel->setFont(bold);
         chainHeader->addWidget(chainLabel);
         chainHeader->addStretch();
         auto* add = button(QStringLiteral("＋  添加模块"), footer, "primary");
         chainHeader->addWidget(add);
         footerLayout->addLayout(chainHeader);
-        chainScroll = new QScrollArea(footer);
+        chainScroll = new Controls::ScrollField(footer);
         chainScroll->setObjectName(QStringLiteral("fxChainScroll"));
         chainScroll->setFrameShape(QFrame::NoFrame);
         chainScroll->setWidgetResizable(true);
@@ -353,7 +370,7 @@ public:
         flowLayout->setSpacing(22);
         flowLayout->setSizeConstraint(QLayout::SetMinimumSize);
         const auto endpoint = [this](const QString& symbol, const QString& caption) {
-            auto* chip = new QLabel(QStringLiteral("%1\n%2").arg(symbol, caption),chainContent);
+            auto* chip = new Controls::TextLabel(QStringLiteral("%1\n%2").arg(symbol, caption),chainContent);
             chip->setObjectName(QStringLiteral("fxChain%1").arg(symbol));
             chip->setFixedSize(72,62);
             chip->setAlignment(Qt::AlignCenter);
@@ -364,7 +381,7 @@ public:
         flowLayout->addStretch();
         auto* inputChip=endpoint(QStringLiteral("In"),QStringLiteral("输入"));
         flowLayout->addWidget(inputChip);
-        list = new QListWidget(chainContent);
+        list = new Controls::ListField(chainContent);
         list->setObjectName(QStringLiteral("fxChainList"));
         list->setFrameShape(QFrame::NoFrame);
         list->setViewMode(QListView::ListMode);
@@ -391,6 +408,7 @@ public:
                     const QSignalBlocker blocker(modulePower);
                     modulePower->setChecked(effect.enabled);
                 }
+                publish();
                 break;
             }
         }, [this](int id, QPoint position) { showEffectMenu(id, position); }, list));
@@ -407,7 +425,7 @@ public:
         auto* meterLayout = new QVBoxLayout(meterPanel);
         meterLayout->setContentsMargins(12, 7, 12, 7);
         auto* meterSelectors = new QHBoxLayout;
-        meterTitle = new QLabel(QStringLiteral("输入/输出电平"), meterPanel);
+        meterTitle = new Controls::TextLabel(QStringLiteral("输入/输出电平"), meterPanel);
         meterTitle->setObjectName(QStringLiteral("fxMeterTitle"));
         meterSelectors->addWidget(meterTitle);
         meterSelectors->addStretch();
@@ -434,7 +452,19 @@ public:
             meter->setLevels(level(simulatedInput), level(simulatedOutput));
         };
         auto* meterTimer = new QTimer(meterPanel);
+        bindRefreshTimer(*meterTimer, meterPanel);
         QObject::connect(meterTimer, &QTimer::timeout, &owner, [this, updateMeters] {
+            if (meterRead) {
+                for (std::size_t channel = 0; channel < simulatedInput.size(); ++channel) {
+                    simulatedInput[channel] = channelMeterRead
+                        ? channelMeterRead(false, channel) : meterRead(false);
+                    simulatedOutput[channel] = channelMeterRead
+                        ? channelMeterRead(true, channel) : meterRead(true);
+                }
+                updateMeters();
+                syncModulePreset();
+                return;
+            }
             for (std::size_t index = 0; index < simulatedInput.size(); ++index) {
                 const double target = -31.0 + QRandomGenerator::global()->bounded(28.0);
                 simulatedInput[index] = std::clamp(simulatedInput[index] * .72 + target * .28, -72.0, 12.0);
@@ -444,22 +474,23 @@ public:
             syncModulePreset();
         });
         meterRefresh=updateMeters;
-        meterTimer->start(90);
+        meterTimer->start();
         updateMeters();
         bottom->addWidget(meterPanel);
         body->addLayout(bottom);
 
         QObject::connect(add, &QPushButton::clicked, &owner, [this, add] { showAddMenu(add); });
         QObject::connect(list, &QListWidget::currentItemChanged, &owner, [this] { showSelected(); });
-        QObject::connect(list->model(), &QAbstractItemModel::rowsMoved, &owner, [this] { refreshFlow(); });
+        QObject::connect(list->model(), &QAbstractItemModel::rowsMoved, &owner, [this] { refreshFlow(); publish(); });
         QObject::connect(modulePower, &QPushButton::toggled, &owner, [this](bool enabled) {
             if (!master->isChecked()) return;
-            if (auto* effect = selected()) { effect->enabled = enabled; refreshListItem(list->currentItem()); }
+            if (auto* effect = selected()) { effect->enabled = enabled; refreshListItem(list->currentItem()); publish(); }
         });
         QObject::connect(modulePreset, &QComboBox::currentIndexChanged, &owner, [this](int index) {
             if (auto* effect = selected(); effect && effect->module->selectPreset && index >= 0) {
                 effect->module->selectPreset(effect->instance, index);
                 syncModulePreset();
+                publish();
             }
         });
         QObject::connect(previous, &QPushButton::clicked, &owner, [this] { stepModulePreset(-1); });
@@ -484,8 +515,14 @@ public:
             candidate->presetName = reinterpret_cast<PresetName>(candidate->library.resolve("wjn_fx_preset_name"));
             candidate->currentPreset = reinterpret_cast<CurrentPreset>(candidate->library.resolve("wjn_fx_current_preset"));
             candidate->selectPreset = reinterpret_cast<SelectPreset>(candidate->library.resolve("wjn_fx_select_preset"));
+            candidate->snapshotSize = reinterpret_cast<SnapshotSize>(candidate->library.resolve("wjn_fx_parameter_snapshot_size"));
+            candidate->exportSnapshot = reinterpret_cast<ExportSnapshot>(candidate->library.resolve("wjn_fx_export_parameter_snapshot"));
+            candidate->importSnapshot = reinterpret_cast<ImportSnapshot>(candidate->library.resolve("wjn_fx_import_parameter_snapshot"));
+            candidate->setChanged = reinterpret_cast<SetChanged>(candidate->library.resolve("wjn_fx_set_parameter_change_callback"));
+            candidate->setLive = reinterpret_cast<SetLive>(candidate->library.resolve("wjn_fx_set_live_analysis_reader"));
             if (!version || version() != WJN_FX_API_VERSION || !count || count() != 1 || !meta
-                || !candidate->create || !candidate->destroy || !candidate->selectChannel || !candidate->createEditor)
+                || !candidate->create || !candidate->destroy || !candidate->selectChannel || !candidate->createEditor
+                || !candidate->snapshotSize || !candidate->exportSnapshot || !candidate->importSnapshot || !candidate->setChanged)
                 continue;
             const auto* info = meta(0);
             if (!info || !(info->placements & WJN_FX_MIXER)) continue;
@@ -506,7 +543,7 @@ public:
         }
         if (available.isEmpty()) {
             moduleName->setText(QStringLiteral("Native Fx 加载失败"));
-            editorArea->setWidget(new QLabel(QStringLiteral("找不到 Native Fx 模块：%1").arg(modulesPath)));
+            editorArea->setWidget(new Controls::TextLabel(QStringLiteral("找不到 Native Fx 模块：%1").arg(modulesPath)));
         }
     }
 
@@ -615,6 +652,15 @@ public:
         return -1;
     }
 
+    static int readLive(void* context, float input[8], float output[8],
+                        float reduction[8], void* spectrum, std::uint32_t bytes) {
+        const auto* source = static_cast<AnalysisContext*>(context);
+        if (!source || !source->owner || !source->owner->liveAnalysisRead) return 0;
+        const int row = source->owner->rowForEffect(source->id);
+        return row >= 0 && source->owner->liveAnalysisRead(
+            static_cast<std::size_t>(row), input, output, reduction, spectrum, bytes) ? 1 : 0;
+    }
+
     Effect* effectFor(int id) {
         for (auto& effect : effects) if (effect.id == id) return &effect;
         return nullptr;
@@ -630,6 +676,9 @@ public:
         effect.glyph = QString::fromUtf8(info->iconGlyph);
         effect.color = QString::fromLatin1(info->iconColor);
         effect.instance = instance;
+        effect.analysisContext = std::make_shared<AnalysisContext>(AnalysisContext {this, effect.id});
+        module->setChanged(instance, [](void* context) { static_cast<Impl*>(context)->publish(); }, this);
+        if (module->setLive) module->setLive(instance, &Impl::readLive, effect.analysisContext.get());
         if (module->setTheme) {
             static const WjnFxTheme theme {"#0b1929", "#14283e", "#e9f2ff", "#31c6ff", "#29435d"};
             module->setTheme(instance, &theme);
@@ -644,6 +693,7 @@ public:
         updateChainListWidth();
         list->setCurrentItem(item);
         refreshFlow();
+        publish();
     }
 
     void addEffect(Module* module, bool enabled) {
@@ -659,7 +709,10 @@ public:
     }
 
     void cloneChainFrom(const Impl& source) {
+        const bool wasLoading = loading;
+        loading = true;
         while (!effects.isEmpty()) deleteEffect(effects.back().id);
+        missingEffects = source.missingEffects;
         for (int row = 0; row < source.list->count(); ++row) {
             const int id = source.list->item(row)->data(Qt::UserRole).toInt();
             const auto found = std::find_if(source.effects.cbegin(), source.effects.cend(), [id](const Effect& value) {
@@ -672,6 +725,8 @@ public:
             if (module != available.cend())
                 insertEffect(*module, found->module->clone(found->instance), found->enabled, list->count());
         }
+        loading = wasLoading;
+        publish();
     }
 
     void deleteEffect(int id) {
@@ -692,6 +747,7 @@ public:
         updateChainListWidth();
         showSelected();
         refreshFlow();
+        publish();
     }
 
     void replaceEffect(int id, Module* module) {
@@ -703,6 +759,8 @@ public:
         effect->module->destroy(effect->instance);
         effect->module = module;
         effect->instance = instance;
+        module->setChanged(instance, [](void* context) { static_cast<Impl*>(context)->publish(); }, this);
+        if (module->setLive) module->setLive(instance, &Impl::readLive, effect->analysisContext.get());
         effect->editor = nullptr;
         effect->name = QString::fromUtf8(module->info.name);
         effect->glyph = QString::fromUtf8(module->info.iconGlyph);
@@ -715,6 +773,7 @@ public:
         updateChainListWidth();
         if (selected() && selected()->id == id) showSelected();
         refreshFlow();
+        publish();
     }
 
     void showEffectMenu(int id, QPoint position) {
@@ -790,7 +849,7 @@ public:
                 old->hide();
                 old->setParent(editorParking);
             }
-            editorArea->setWidget(new QLabel(QStringLiteral("选择 FX 模块")));
+            editorArea->setWidget(new Controls::TextLabel(QStringLiteral("选择 FX 模块")));
             return;
         }
         modulePower->setEnabled(master->isChecked());
@@ -820,13 +879,76 @@ public:
             effect->module->selectChannel(effect->instance, selectedChannel);
             editorArea->setWidget(effect->editor);
         }
-        else editorArea->setWidget(new QLabel(QStringLiteral("无法加载 %1 控制界面").arg(effect->name)));
+        else editorArea->setWidget(new Controls::TextLabel(QStringLiteral("无法加载 %1 控制界面").arg(effect->name)));
         syncModulePreset();
     }
 
     void refreshFlow() {
         chainContent->adjustSize();
         chainContent->update();
+    }
+
+    void publish() {
+        if (loading || !chainCommit) return;
+        std::vector<Common::MixerEffectState> chain;
+        chain.reserve(static_cast<std::size_t>(list->count()));
+        for (int row = 0; row < list->count(); ++row) {
+            const auto* effect = effectFor(list->item(row)->data(Qt::UserRole).toInt());
+            if (!effect) return;
+            const auto bytes = effect->module->snapshotSize();
+            QByteArray snapshot(static_cast<qsizetype>(bytes), '\0');
+            if (!effect->module->exportSnapshot(effect->instance, snapshot.data(), bytes)) return;
+            Common::MixerEffectState state;
+            state.moduleId = QString::fromUtf8(effect->module->info.id);
+            state.enabled = effect->enabled;
+            state.preset = effect->module->currentPreset
+                ? effect->module->currentPreset(effect->instance) : -1;
+            state.parameters.insert(QStringLiteral("snapshot"),
+                                    QString::fromLatin1(snapshot.toBase64()));
+            chain.push_back(std::move(state));
+        }
+        for (const auto& [position, missing] : missingEffects)
+            chain.insert(chain.begin() + std::min(position, chain.size()), missing);
+        chainCommit(chain, master->isChecked());
+    }
+
+    void loadChain(const std::vector<Common::MixerEffectState>& chain, bool enabled) {
+        loading = true;
+        missingEffects.clear();
+        while (!effects.isEmpty()) deleteEffect(effects.back().id);
+        for (std::size_t position = 0; position < chain.size(); ++position) {
+            const auto& state = chain[position];
+            const auto module = std::find_if(available.cbegin(), available.cend(), [&state](const Module* value) {
+                return QString::fromUtf8(value->info.id) == state.moduleId;
+            });
+            if (module == available.cend()) {
+                missingEffects.emplace_back(position, state);
+                continue;
+            }
+            auto* instance = (*module)->create(0);
+            if (!instance) {
+                missingEffects.emplace_back(position, state);
+                continue;
+            }
+            const auto encoded = state.parameters.value(QStringLiteral("snapshot")).toString();
+            const auto decoded = QByteArray::fromBase64Encoding(
+                encoded.toLatin1(), QByteArray::AbortOnBase64DecodingErrors);
+            const auto invalidSnapshot = !encoded.isEmpty() && (!decoded
+                    || decoded.decoded.size() != static_cast<qsizetype>((*module)->snapshotSize())
+                    || !(*module)->importSnapshot(instance, decoded.decoded.constData(),
+                                                  static_cast<std::uint32_t>(decoded.decoded.size())));
+            if (invalidSnapshot) {
+                (*module)->destroy(instance);
+                missingEffects.emplace_back(position, state);
+                continue;
+            }
+            insertEffect(*module, instance, state.enabled, list->count());
+        }
+        master->setChecked(enabled);
+        syncChainPower();
+        if (!missingEffects.empty())
+            moduleName->setText(QStringLiteral("部分 FX 无法加载，原参数已保留"));
+        loading = false;
     }
 
     FxSettingsWindow& owner;
@@ -850,6 +972,12 @@ public:
     Controls::ToggleButton* master {};
     QPushButton* modulePower {};
     std::function<void(bool)> chainEnabledHandler;
+    std::function<bool(const std::vector<Common::MixerEffectState>&, bool)> chainCommit;
+    std::function<float(bool)> meterRead;
+    std::function<float(bool, std::size_t)> channelMeterRead;
+    std::function<bool(std::size_t, float[8], float[8], float[8], void*, std::uint32_t)> liveAnalysisRead;
+    bool loading {};
+    std::vector<std::pair<std::size_t, Common::MixerEffectState>> missingEffects;
     QVector<QPushButton*> channelButtons;
     std::array<double, 8> simulatedInput { -24, -22, -28, -32, -25, -30, -27, -23 };
     std::array<double, 8> simulatedOutput { -26, -24, -30, -34, -27, -32, -29, -25 };
@@ -858,7 +986,11 @@ public:
 FxSettingsWindow::FxSettingsWindow(const QString& sourceName, const QStringList& sourceChannels, QWidget* parent)
     : QWidget(parent), impl_(std::make_unique<Impl>(*this, sourceName, sourceChannels)) {}
 
-FxSettingsWindow::~FxSettingsWindow() = default;
+FxSettingsWindow::~FxSettingsWindow() {
+    // Child controls emit signals while QWidget tears them down. Their slots
+    // capture Impl, which is destroyed before QWidget's child hierarchy.
+    QObject::disconnect(nullptr, nullptr, this, nullptr);
+}
 void FxSettingsWindow::setChainEnabled(bool enabled) {
     impl_->master->setChecked(enabled);
 }
@@ -872,7 +1004,10 @@ void FxSettingsWindow::cloneChainFrom(const FxSettingsWindow& source) {
     if (&source != this) impl_->cloneChainFrom(*source.impl_);
 }
 void FxSettingsWindow::addDefaultMasterEffects() {
-    for (const auto& id : {QStringLiteral("compressor"), QStringLiteral("limiter")}) {
+    const QStringList defaults = impl_->effects.isEmpty()
+        ? QStringList {QStringLiteral("parametric-eq"), QStringLiteral("compressor"), QStringLiteral("limiter")}
+        : QStringList {QStringLiteral("compressor"), QStringLiteral("limiter")};
+    for (const auto& id : defaults) {
         const auto found = std::find_if(impl_->available.cbegin(), impl_->available.cend(), [&id](const auto* module) {
             return QString::fromUtf8(module->info.id) == id;
         });
@@ -882,5 +1017,23 @@ void FxSettingsWindow::addDefaultMasterEffects() {
 void FxSettingsWindow::setSourceName(const QString& name) {
     setWindowTitle(QStringLiteral("FX 设置 - %1").arg(name));
     if (auto* title=findChild<QLabel*>(QStringLiteral("fxSourceTitle"))) title->setText(windowTitle());
+}
+void FxSettingsWindow::loadChain(const std::vector<Common::MixerEffectState>& effects, bool enabled) {
+    impl_->loadChain(effects, enabled);
+}
+void FxSettingsWindow::setChainCommitHandler(
+    std::function<bool(const std::vector<Common::MixerEffectState>&, bool)> handler) {
+    impl_->chainCommit = std::move(handler);
+}
+void FxSettingsWindow::setMeterReadHandler(std::function<float(bool)> handler) {
+    impl_->meterRead = std::move(handler);
+}
+void FxSettingsWindow::setChannelMeterReadHandler(
+    std::function<float(bool, std::size_t)> handler) {
+    impl_->channelMeterRead = std::move(handler);
+}
+void FxSettingsWindow::setLiveAnalysisReadHandler(
+    std::function<bool(std::size_t, float[8], float[8], float[8], void*, std::uint32_t)> handler) {
+    impl_->liveAnalysisRead = std::move(handler);
 }
 }

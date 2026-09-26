@@ -18,6 +18,7 @@
 #include <WinJACKNexus/Meter/Mod/MeterCard.hpp>
 #include <WinJACKNexus/Meter/Mod/MeterHistoryWindow.hpp>
 #include <WinJACKNexus/UI/ApplicationSettings.hpp>
+#include <WinJACKNexus/UI/Controls.hpp>
 
 #include <QByteArray>
 #include <QHBoxLayout>
@@ -57,10 +58,16 @@ MeterbridgeWindow::MeterbridgeWindow(MeterViewDataProvider& provider, QWidget* p
 
     tabs_ = new QTabWidget(this);
     tabs_->setObjectName(QStringLiteral("meterbridge.tabs"));
+    tabs_->setDocumentMode(true);
     tabs_->setStyleSheet(QStringLiteral(
-        "QTabWidget::pane { border: 1px solid #183b5a; background-color: #061523; }"
-        "QTabBar::tab { background-color: #0a1d30; color: #9fc1e4; border: 1px solid #183b5a; padding: 7px 18px; }"
-        "QTabBar::tab:selected { background-color: #103c68; color: #ffffff; border-color: #2f9eff; }"));
+        "QTabWidget::pane { border: 0; background-color: #061523; }"
+        "QTabWidget::tab-bar { left: 12px; }"
+        "QTabBar { background-color: #061523; }"
+        "QTabBar::tab { min-width: 104px; min-height: 28px; margin: 4px 4px 4px 0;"
+        " padding: 2px 14px; border: 1px solid #244b6b; border-radius: 6px;"
+        " background-color: #102742; color: #b8d7f6; }"
+        "QTabBar::tab:selected { background-color: #176092; color: #ffffff; border-color: #31c6ff; }"
+        "QTabBar::tab:disabled { color: #607a94; background-color: #0a1d30; }"));
     auto* central = new QWidget(tabs_);
     central->setObjectName(QStringLiteral("meterbridge.surface"));
     central->setStyleSheet(QStringLiteral(
@@ -72,7 +79,7 @@ MeterbridgeWindow::MeterbridgeWindow(MeterViewDataProvider& provider, QWidget* p
     rootLayout->setContentsMargins(14, 14, 14, 14);
     rootLayout->setSpacing(10);
 
-    cardScrollArea_ = new QScrollArea(central);
+    cardScrollArea_ = new WinJACKNexus::UI::Controls::ScrollField(central);
     cardScrollArea_->setObjectName(QStringLiteral("meterbridge.cardScroll"));
     cardScrollArea_->setWidgetResizable(true);
     cardScrollArea_->setFrameShape(QFrame::NoFrame);
@@ -88,7 +95,7 @@ MeterbridgeWindow::MeterbridgeWindow(MeterViewDataProvider& provider, QWidget* p
     cardScrollArea_->setWidget(cardContainer_);
     rootLayout->addWidget(cardScrollArea_, 1);
 
-    emptyState_ = new QLabel(QStringLiteral("暂无电平表探针"), central);
+    emptyState_ = new WinJACKNexus::UI::Controls::TextLabel(QStringLiteral("暂无电平表探针"), central);
     emptyState_->setObjectName(QStringLiteral("meterbridge.emptyState"));
     emptyState_->setAlignment(Qt::AlignCenter);
     emptyState_->setMinimumHeight(180);

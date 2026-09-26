@@ -4,6 +4,10 @@
 add_library(common SHARED
     src/Library.cpp
     src/AuxMixerState.cpp
+    src/DigitalMixerState.cpp
+    src/DigitalMixerProcessor.cpp
+    src/MixerPolarAnalysis.cpp
+    src/MixerPolarCurve.cpp
     src/GraphicsView.cpp
     src/LoudnessEngine.cpp
     src/MeterProbeRegistry.cpp
@@ -16,6 +20,10 @@ add_library(common SHARED
     src/Window.cpp
     include/WinJACKNexus/Common/Atomic.hpp
     include/WinJACKNexus/Common/AuxMixerState.hpp
+    include/WinJACKNexus/Common/DigitalMixerState.hpp
+    include/WinJACKNexus/Common/DigitalMixerProcessor.hpp
+    include/WinJACKNexus/Common/MixerPolarAnalysis.hpp
+    include/WinJACKNexus/Common/MixerPolarCurve.hpp
     include/WinJACKNexus/Common/AudioRingBuffer.hpp
     include/WinJACKNexus/Common/ChannelLayout.hpp
     include/WinJACKNexus/Common/Export.hpp
