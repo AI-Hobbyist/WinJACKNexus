@@ -1,6 +1,12 @@
 /* This file is part of WinJACKNexus. SPDX-License-Identifier: AGPL-3.0-only */
 #include <WinJACKNexus/NativeFx/NativeFxApi.h>
 #include <WinJACKNexus/UI/Controls.hpp>
+#if WJN_FX_MODULE_INDEX <= 7
+#include <WinJACKNexus/UI/ThemeCore.hpp>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
+#endif
 #if WJN_FX_MODULE_INDEX == 0
 #include <WinJACKNexus/NativeFx/gate/Ui.hpp>
 #elif WJN_FX_MODULE_INDEX == 1
@@ -394,6 +400,122 @@ int wjn_fx_current_preset(const WjnFxInstance* instance) { return instance ? ins
 void wjn_fx_select_preset(WjnFxInstance* instance, int index) { if (instance) instance->selectPreset(index); }
 uint32_t wjn_fx_count(void) { return 1; }
 const WjnFxMeta* wjn_fx_meta(uint32_t index) { return index == 0 ? &activeMeta : nullptr; }
+#if WJN_FX_MODULE_INDEX <= 7
+uint32_t wjn_fx_theme_api_version(void) { return WJN_FX_THEME_API_VERSION; }
+const char* wjn_fx_theme_namespace_json(uint32_t index) {
+    if (index != 0) return nullptr;
+    static const QByteArray descriptor = [] {
+        UI::ThemeRegistry registry;
+        if (!UI::ThemeRegistry::builtIn(&registry)) return QByteArray {};
+        const QString moduleId = QString::fromLatin1(activeMeta.id);
+        const QString nameSpace = QStringLiteral("--wjn-theme-native-fx-") + moduleId + '-';
+        QJsonArray tokens;
+        for (const auto& name : registry.names()) {
+            if (!name.startsWith(nameSpace) || name.startsWith(nameSpace + "background-")) continue;
+            const auto token = registry.token(name);
+            QJsonObject item {{"name", token.name}, {"type", token.type},
+                              {"description", token.description}};
+            item["default"] = token.hasDefault ? QJsonValue(token.defaultValue) : QJsonValue::Null;
+            if (!token.inherits.isEmpty()) {
+                QJsonArray parents;
+                for (const auto& parent : token.inherits) parents.append(parent);
+                item["inherits"] = parents;
+            }
+            tokens.append(item);
+        }
+        if (tokens.isEmpty()) return QByteArray {};
+#if WJN_FX_MODULE_INDEX == 0
+        const QJsonArray controls {
+            QJsonObject {{"id", "knob"}, {"states", QJsonArray {"normal"}}},
+            QJsonObject {{"id", "toggle"}, {"states", QJsonArray {"normal"}}}};
+        const QJsonArray chartSeries {
+            QJsonObject {{"id", "lower-transfer"}},
+            QJsonObject {{"id", "upper-transfer"}}};
+#elif WJN_FX_MODULE_INDEX == 1
+        const QJsonArray controls {
+            QJsonObject {{"id", "knob"}, {"states", QJsonArray {"normal"}}},
+            QJsonObject {{"id", "toggle"}, {"states", QJsonArray {"normal"}}},
+            QJsonObject {{"id", "effect-band-slider"}, {"states", QJsonArray {"normal"}}}};
+        const QJsonArray chartSeries {
+            QJsonObject {{"id", "input-spectrum"}},
+            QJsonObject {{"id", "output-spectrum"}},
+            QJsonObject {{"id", "response"}}};
+#elif WJN_FX_MODULE_INDEX == 2
+        const QJsonArray controls {
+            QJsonObject {{"id", "knob"}, {"states", QJsonArray {"normal"}}},
+            QJsonObject {{"id", "toggle"}, {"states", QJsonArray {"normal"}}}};
+        const QJsonArray chartSeries {
+            QJsonObject {{"id", "input-spectrum"}},
+            QJsonObject {{"id", "output-spectrum"}},
+            QJsonObject {{"id", "response-bell"}}};
+#elif WJN_FX_MODULE_INDEX == 3
+        const QJsonArray controls {
+            QJsonObject {{"id", "knob"}, {"states", QJsonArray {"normal"}}},
+            QJsonObject {{"id", "toggle"}, {"states", QJsonArray {"normal"}}}};
+        const QJsonArray chartSeries {
+            QJsonObject {{"id", "transfer"}},
+            QJsonObject {{"id", "level-fill"}}};
+        const QJsonArray meterZones {
+            QJsonObject {{"id", "reduction-zone-single"}}};
+#elif WJN_FX_MODULE_INDEX == 4
+        const QJsonArray controls {
+            QJsonObject {{"id", "knob"}, {"states", QJsonArray {"normal"}}},
+            QJsonObject {{"id", "toggle"}, {"states", QJsonArray {"normal"}}}};
+        const QJsonArray chartSeries {QJsonObject {{"id", "transfer"}}};
+        const QJsonArray meterZones {
+            QJsonObject {{"id", "level-zone-low"}},
+            QJsonObject {{"id", "level-zone-mid"}},
+            QJsonObject {{"id", "level-zone-high"}},
+            QJsonObject {{"id", "reduction-zone-single"}}};
+#elif WJN_FX_MODULE_INDEX == 5
+        const QJsonArray controls {
+            QJsonObject {{"id", "knob"}, {"states", QJsonArray {"normal"}}},
+            QJsonObject {{"id", "toggle"}, {"states", QJsonArray {"normal"}}}};
+        const QJsonArray chartSeries {
+            QJsonObject {{"id", "tap-primary"}},
+            QJsonObject {{"id", "tap-repeat"}},
+            QJsonObject {{"id", "baseline"}}};
+#elif WJN_FX_MODULE_INDEX == 6
+        const QJsonArray controls {
+            QJsonObject {{"id", "knob-band-1"}, {"states", QJsonArray {"normal"}}},
+            QJsonObject {{"id", "knob-band-2"}, {"states", QJsonArray {"normal"}}},
+            QJsonObject {{"id", "knob-band-3"}, {"states", QJsonArray {"normal"}}},
+            QJsonObject {{"id", "knob-band-4"}, {"states", QJsonArray {"normal"}}},
+            QJsonObject {{"id", "knob-filter"}, {"states", QJsonArray {"normal"}}},
+            QJsonObject {{"id", "toggle"}, {"states", QJsonArray {"normal"}}}};
+        const QJsonArray chartSeries {
+            QJsonObject {{"id", "input-spectrum"}},
+            QJsonObject {{"id", "processed-spectrum"}},
+            QJsonObject {{"id", "band-1"}}, QJsonObject {{"id", "band-2"}},
+            QJsonObject {{"id", "band-3"}}, QJsonObject {{"id", "band-4"}},
+            QJsonObject {{"id", "total-response"}}};
+#else
+        const QJsonArray controls {
+            QJsonObject {{"id", "knob-violet"}, {"states", QJsonArray {"normal"}}},
+            QJsonObject {{"id", "knob-cyan"}, {"states", QJsonArray {"normal"}}},
+            QJsonObject {{"id", "toggle"}, {"states", QJsonArray {"normal"}}}};
+        const QJsonArray chartSeries {};
+        const QJsonArray sceneElements {
+            QJsonObject {{"id", "accent-cyan"}},
+            QJsonObject {{"id", "shape-light"}},
+            QJsonObject {{"id", "glow"}}};
+#endif
+        const QJsonObject root {{"descriptorVersion", 1}, {"themeApiVersion", 1},
+            {"moduleId", moduleId}, {"namespace", nameSpace},
+            {"displayName", QString::fromUtf8(activeMeta.name)}, {"tokens", tokens},
+            {"controls", controls}, {"chartSeries", chartSeries}
+#if WJN_FX_MODULE_INDEX == 3 || WJN_FX_MODULE_INDEX == 4
+            , {"meterZones", meterZones}
+#endif
+#if WJN_FX_MODULE_INDEX == 7
+            , {"sceneElements", sceneElements}
+#endif
+            };
+        return QJsonDocument(root).toJson(QJsonDocument::Compact);
+    }();
+    return descriptor.isEmpty() ? nullptr : descriptor.constData();
+}
+#endif
 WjnFxInstance* wjn_fx_create_mixer(uint32_t index) {
     if (const auto* meta = wjn_fx_meta(index); !meta || !(meta->placements & WJN_FX_MIXER)) return nullptr;
 #if WJN_FX_MODULE_INDEX == 0

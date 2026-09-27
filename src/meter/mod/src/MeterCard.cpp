@@ -21,6 +21,8 @@
 #include <WinJACKNexus/UI/Controls.hpp>
 #include <WinJACKNexus/UI/MetricReadout.hpp>
 #include <WinJACKNexus/UI/ThemePalette.hpp>
+#include <WinJACKNexus/UI/ThemeCore.hpp>
+#include <WinJACKNexus/UI/ThemeManager.hpp>
 
 #include <QAction>
 #include <QComboBox>
@@ -34,12 +36,27 @@
 #include <QVBoxLayout>
 
 #include <array>
+#include <utility>
 
 namespace WinJACKNexus::Meter::Mod {
 
 namespace {
 
 constexpr int minimumMeterCardHeight = 560;
+
+QColor meterColor(const char* role, const char* fallback)
+{
+    return WinJACKNexus::UI::Controls::themeTokenColor(
+        QStringLiteral("meter-bridge"), QString::fromLatin1(role), QColor(fallback));
+}
+
+QString meterCssColor(const char* role, const char* fallback)
+{
+    const auto value = meterColor(role, fallback);
+    if (value.alpha() == 255) return value.name();
+    return QStringLiteral("rgba(%1,%2,%3,%4)")
+        .arg(value.red()).arg(value.green()).arg(value.blue()).arg(value.alphaF());
+}
 
 QString stateText(MeterProbeState state)
 {
@@ -66,16 +83,16 @@ std::optional<double> asDouble(const std::optional<float>& value)
 WinJACKNexus::UI::ThemePalette meterCardPalette()
 {
     auto palette = WinJACKNexus::UI::ThemePalette::darkRack();
-    palette.setColor(QStringLiteral("window-bg"), QColor(QStringLiteral("#0b1928")));
-    palette.setColor(QStringLiteral("panel-bg"), QColor(QStringLiteral("#0b1928")));
-    palette.setColor(QStringLiteral("panel-raised"), QColor(QStringLiteral("#10253b")));
-    palette.setColor(QStringLiteral("text"), QColor(QStringLiteral("#e7f3ff")));
-    palette.setColor(QStringLiteral("text-muted"), QColor(QStringLiteral("#83a7d0")));
-    palette.setColor(QStringLiteral("accent"), QColor(QStringLiteral("#3b9dff")));
-    palette.setColor(QStringLiteral("accent-alt"), QColor(QStringLiteral("#ffd143")));
-    palette.setColor(QStringLiteral("border"), QColor(QStringLiteral("#2a5275")));
-    palette.setColor(QStringLiteral("danger"), QColor(QStringLiteral("#ff5269")));
-    palette.setColor(QStringLiteral("success"), QColor(QStringLiteral("#43e88d")));
+    palette.setColor(QStringLiteral("window-bg"), meterColor("surface-window", "#0b1928"));
+    palette.setColor(QStringLiteral("panel-bg"), meterColor("surface-window", "#0b1928"));
+    palette.setColor(QStringLiteral("panel-raised"), meterColor("surface-raised", "#10253b"));
+    palette.setColor(QStringLiteral("text"), meterColor("text-primary", "#e7f3ff"));
+    palette.setColor(QStringLiteral("text-muted"), meterColor("text-muted", "#83a7d0"));
+    palette.setColor(QStringLiteral("accent"), meterColor("accent-primary", "#3b9dff"));
+    palette.setColor(QStringLiteral("accent-alt"), meterColor("accent-secondary", "#ffd143"));
+    palette.setColor(QStringLiteral("border"), meterColor("border-card", "#2a5275"));
+    palette.setColor(QStringLiteral("danger"), meterColor("state-danger", "#ff5269"));
+    palette.setColor(QStringLiteral("success"), meterColor("state-success", "#43e88d"));
     return palette;
 }
 
@@ -89,10 +106,10 @@ QToolButton* createCommandButton(QAction* action, const QString& objectName, QWi
     button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     button->setProperty("meterCardControl", QStringLiteral("action"));
     WinJACKNexus::UI::Controls::Palette colors;
-    colors.panel = QColor(QStringLiteral("#13263b"));
-    colors.text = QColor(QStringLiteral("#dbeaff"));
-    colors.border = QColor(QStringLiteral("#274b6c"));
-    colors.accent = QColor(QStringLiteral("#3b9dff"));
+    colors.panel = meterColor("control-action-surface-normal", "#13263b");
+    colors.text = meterColor("control-action-text-normal", "#dbeaff");
+    colors.border = meterColor("control-action-border-normal", "#274b6c");
+    colors.accent = meterColor("accent-primary", "#3b9dff");
     WinJACKNexus::UI::Controls::applyPalette(button, colors);
     return button;
 }
@@ -114,43 +131,6 @@ MeterCard::MeterCard(MeterViewDataProvider& provider,
     setAttribute(Qt::WA_StyledBackground);
     setFixedSize(242, 834);
     setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    setStyleSheet(QStringLiteral(
-        "QFrame[meterCardSurface=\"true\"] {"
-        " background-color: #0b1928;"
-        " border: 1px solid #27516c;"
-        " border-radius: 8px;"
-        "}"
-        "QFrame[meterCardSection=\"header\"] {"
-        " background-color: transparent;"
-        " border: 0;"
-        "}"
-        "QFrame[meterCardSection=\"preset\"],"
-        "QFrame[meterCardSection=\"content\"],"
-        "QFrame[meterCardSection=\"level\"],"
-        "QFrame[meterCardSection=\"metrics\"],"
-        "QFrame[meterCardSection=\"actions\"] {"
-        " background-color: transparent;"
-        " border: 0;"
-        "}"
-        "QLabel[meterCardRole=\"number\"] {"
-        " background-color: #1688e8;"
-        " color: #071626;"
-        " border: 1px solid #51b8ff;"
-        " border-radius: 4px;"
-        " font-size: 17px;"
-        " font-weight: 600;"
-        "}"
-        "QLabel[meterCardRole=\"title\"] { color: #e7f3ff; }"
-        "QLabel[meterCardRole=\"meta\"],"
-        "QLabel[meterCardRole=\"presetLabel\"] { color: #82a6cf; }"
-        "QLabel[meterCardRole=\"state\"] {"
-        " color: #8ce0bf;"
-        " background-color: #1b3a34;"
-        " border: 1px solid #3f8270;"
-        " border-radius: 8px;"
-        " padding: 2px 6px;"
-        "}"));
-
     auto* rootLayout = new QVBoxLayout(this);
     rootLayout->setContentsMargins(10, 12, 10, 10);
     rootLayout->setSpacing(8);
@@ -211,9 +191,9 @@ MeterCard::MeterCard(MeterViewDataProvider& provider,
     presetFont.setPixelSize(16);
     presetSelector_->setFont(presetFont);
     WinJACKNexus::UI::Controls::Palette presetColors;
-    presetColors.panel = QColor(QStringLiteral("#12263c"));
-    presetColors.text = QColor(QStringLiteral("#dcecff"));
-    presetColors.border = QColor(QStringLiteral("#294d70"));
+    presetColors.panel = meterColor("control-preset-surface-normal", "#12263c");
+    presetColors.text = meterColor("control-preset-text-normal", "#dcecff");
+    presetColors.border = meterColor("control-preset-border-normal", "#294d70");
     presetColors.accent = cardPalette.color(QStringLiteral("accent"));
     WinJACKNexus::UI::Controls::applyPalette(presetSelector_, presetColors);
     configurePresetSelector();
@@ -253,6 +233,7 @@ MeterCard::MeterCard(MeterViewDataProvider& provider,
     levelBar_->setUnit(QStringLiteral("dBFS"));
     levelBar_->setShowScaleLabels(true);
     levelBar_->setThemePalette(cardPalette);
+    levelBar_->setProperty("wjnThemeScope", QStringLiteral("meter-bridge"));
     levelBar_->stopAnimation();
     levelLayout->addWidget(levelBar_);
     contentLayout->addWidget(levelPanel);
@@ -271,13 +252,13 @@ MeterCard::MeterCard(MeterViewDataProvider& provider,
         QColor accent;
     };
     const std::array definitions {
-        MetricDefinition { QStringLiteral("Peak"), QStringLiteral("峰值（Peak）"), QStringLiteral("dBFS"), QColor(QStringLiteral("#ff5269")) },
-        MetricDefinition { QStringLiteral("RMS"), QStringLiteral("均方根（RMS）"), QStringLiteral("dBFS"), QColor(QStringLiteral("#ff8a47")) },
-        MetricDefinition { QStringLiteral("dBTP"), QStringLiteral("dBTP"), QStringLiteral("dBTP"), QColor(QStringLiteral("#ffd143")) },
-        MetricDefinition { QStringLiteral("Momentary"), QStringLiteral("瞬时（M）"), QStringLiteral("LUFS"), QColor(QStringLiteral("#43e88d")) },
-        MetricDefinition { QStringLiteral("Short-term"), QStringLiteral("短时（S）"), QStringLiteral("LUFS"), QColor(QStringLiteral("#48c9ff")) },
-        MetricDefinition { QStringLiteral("Integrated"), QStringLiteral("综合（I）"), QStringLiteral("LUFS"), QColor(QStringLiteral("#4b95ff")) },
-        MetricDefinition { QStringLiteral("LRA"), QStringLiteral("LRA"), QStringLiteral("LU"), QColor(QStringLiteral("#b96aff")) }
+        MetricDefinition { QStringLiteral("Peak"), QStringLiteral("峰值（Peak）"), QStringLiteral("dBFS"), meterColor("chart-series-peak-stroke", "#ff5269") },
+        MetricDefinition { QStringLiteral("RMS"), QStringLiteral("均方根（RMS）"), QStringLiteral("dBFS"), meterColor("chart-series-rms-stroke", "#ff8a47") },
+        MetricDefinition { QStringLiteral("dBTP"), QStringLiteral("dBTP"), QStringLiteral("dBTP"), meterColor("chart-series-true-peak-stroke", "#ffd143") },
+        MetricDefinition { QStringLiteral("Momentary"), QStringLiteral("瞬时（M）"), QStringLiteral("LUFS"), meterColor("chart-series-momentary-stroke", "#43e88d") },
+        MetricDefinition { QStringLiteral("Short-term"), QStringLiteral("短时（S）"), QStringLiteral("LUFS"), meterColor("chart-series-short-term-stroke", "#48c9ff") },
+        MetricDefinition { QStringLiteral("Integrated"), QStringLiteral("综合（I）"), QStringLiteral("LUFS"), meterColor("chart-series-integrated-stroke", "#4b95ff") },
+        MetricDefinition { QStringLiteral("LRA"), QStringLiteral("LRA"), QStringLiteral("LU"), meterColor("chart-series-lra-stroke", "#b96aff") }
     };
     std::array<WinJACKNexus::UI::MetricReadout**, 7> readoutTargets {
         &peakReadout_, &rmsReadout_, &truePeakReadout_, &momentaryReadout_, &shortTermReadout_, &integratedReadout_, &lraReadout_
@@ -359,6 +340,67 @@ MeterCard::MeterCard(MeterViewDataProvider& provider,
     connect(locateAction_, &QAction::triggered, this, [this] {
         dispatch(MeterViewCommandType::selectInPatchbay);
     });
+    applyTheme();
+    if (auto* core = WinJACKNexus::UI::ThemeManager::installedThemeCore())
+        connect(core, &WinJACKNexus::UI::ThemeCore::themeChanged,
+                this, [this] { applyTheme(); });
+}
+
+void MeterCard::applyTheme()
+{
+    QString style = QStringLiteral(
+        "QFrame[meterCardSurface=\"true\"] { background-color:%card-surface%; border:1px solid %card-border%; border-radius:8px; }"
+        "QFrame[meterCardSection=\"header\"] { background-color:transparent; border:0; }"
+        "QFrame[meterCardSection=\"preset\"], QFrame[meterCardSection=\"content\"],"
+        "QFrame[meterCardSection=\"level\"], QFrame[meterCardSection=\"metrics\"],"
+        "QFrame[meterCardSection=\"actions\"] { background-color:transparent; border:0; }"
+        "QLabel[meterCardRole=\"number\"] { background-color:%number-surface%; color:%number-text%;"
+        " border:1px solid %number-border%; border-radius:4px; font-size:17px; font-weight:600; }"
+        "QLabel[meterCardRole=\"title\"] { color:%title-text%; }"
+        "QLabel[meterCardRole=\"meta\"], QLabel[meterCardRole=\"presetLabel\"] { color:%preset-label%; }"
+        "QLabel[meterCardRole=\"state\"] { color:%online-text%; background-color:%online-surface%;"
+        " border:1px solid %online-border%; border-radius:8px; padding:2px 6px; }");
+    style.replace(QStringLiteral("%card-surface%"), meterCssColor("surface-window", "#0b1928"));
+    style.replace(QStringLiteral("%card-border%"), meterCssColor("border-card-outline", "#27516c"));
+    style.replace(QStringLiteral("%number-surface%"), meterCssColor("control-number-surface", "#1688e8"));
+    style.replace(QStringLiteral("%number-text%"), meterCssColor("control-number-text", "#071626"));
+    style.replace(QStringLiteral("%number-border%"), meterCssColor("control-number-border", "#51b8ff"));
+    style.replace(QStringLiteral("%title-text%"), meterCssColor("text-primary", "#e7f3ff"));
+    style.replace(QStringLiteral("%preset-label%"), meterCssColor("text-preset-label", "#82a6cf"));
+    style.replace(QStringLiteral("%online-text%"), meterCssColor("state-online-text", "#8ce0bf"));
+    style.replace(QStringLiteral("%online-surface%"), meterCssColor("state-online-surface", "#1b3a34"));
+    style.replace(QStringLiteral("%online-border%"), meterCssColor("state-online-border", "#3f8270"));
+    setStyleSheet(style);
+
+    const auto palette = meterCardPalette();
+    if (levelBar_) levelBar_->setThemePalette(palette);
+    const std::array<std::pair<WinJACKNexus::UI::MetricReadout*, std::pair<const char*, const char*>>, 7> readouts {{
+        {peakReadout_, {"chart-series-peak-stroke", "#ff5269"}},
+        {rmsReadout_, {"chart-series-rms-stroke", "#ff8a47"}},
+        {truePeakReadout_, {"chart-series-true-peak-stroke", "#ffd143"}},
+        {momentaryReadout_, {"chart-series-momentary-stroke", "#43e88d"}},
+        {shortTermReadout_, {"chart-series-short-term-stroke", "#48c9ff"}},
+        {integratedReadout_, {"chart-series-integrated-stroke", "#4b95ff"}},
+        {lraReadout_, {"chart-series-lra-stroke", "#b96aff"}}
+    }};
+    for (const auto& [readout, color] : readouts) {
+        if (!readout) continue;
+        readout->setThemePalette(palette);
+        readout->setAccentColor(meterColor(color.first, color.second));
+    }
+    WinJACKNexus::UI::Controls::Palette presetColors;
+    presetColors.panel = meterColor("control-preset-surface-normal", "#12263c");
+    presetColors.text = meterColor("control-preset-text-normal", "#dcecff");
+    presetColors.border = meterColor("control-preset-border-normal", "#294d70");
+    presetColors.accent = palette.color(QStringLiteral("accent"));
+    WinJACKNexus::UI::Controls::applyPalette(presetSelector_, presetColors);
+    WinJACKNexus::UI::Controls::Palette actionColors;
+    actionColors.panel = meterColor("control-action-surface-normal", "#13263b");
+    actionColors.text = meterColor("control-action-text-normal", "#dbeaff");
+    actionColors.border = meterColor("control-action-border-normal", "#274b6c");
+    actionColors.accent = palette.color(QStringLiteral("accent"));
+    for (auto* button : {resetButton_, recordingButton_, historyButton_})
+        WinJACKNexus::UI::Controls::applyPalette(button, actionColors);
 }
 
 void MeterCard::setSnapshot(const MeterViewSnapshot& snapshot)

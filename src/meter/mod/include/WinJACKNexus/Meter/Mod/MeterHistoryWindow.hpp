@@ -67,10 +67,12 @@ public:
     MeterSettingsWidget* settingsWidget() const noexcept;
 
 protected:
+    void paintEvent(QPaintEvent* event) override;
     void showEvent(QShowEvent* event) override;
     void hideEvent(QHideEvent* event) override;
 
 private:
+    void applyTheme();
     void applyRefreshRate(int framesPerSecond);
     struct ScanOverwritePoint final {
         std::int64_t timestampMilliseconds = 0;

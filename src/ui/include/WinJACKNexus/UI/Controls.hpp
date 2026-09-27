@@ -49,6 +49,10 @@ struct WINJACK_UI_API Palette {
 
 WINJACK_UI_API void applyPalette(QWidget* widget, const Palette& colors);
 WINJACK_UI_API QColor themeColor(const QWidget& widget, const char* key, const QColor& fallback);
+/* Looks up a registered v1 color in the active process theme. The fallback
+   preserves the current skin until a v1 package is activated. */
+WINJACK_UI_API QColor themeTokenColor(const QString& scope, const QString& role,
+                                     const QColor& fallback);
 WINJACK_UI_API void drawSurface(QPainter& painter, const QRectF& bounds,
     const QBrush& fill, const QColor& border, qreal radius, qreal borderWidth = 1.0);
 WINJACK_UI_API void drawText(QPainter& painter, const QRectF& bounds,
@@ -307,6 +311,27 @@ private:
     QColor surfaceColor_ {"#263437"};
     QColor borderColor_ {"#3b4d4d"};
     QColor textColor_ {"#e7f0ec"};
+};
+
+class WINJACK_UI_API ZoomControl final : public QWidget {
+    Q_OBJECT
+public:
+    explicit ZoomControl(QWidget* parent = nullptr);
+    void setZoomFactor(qreal factor);
+    qreal zoomFactor() const noexcept;
+    QSize sizeHint() const override;
+Q_SIGNALS:
+    void zoomInRequested();
+    void zoomOutRequested();
+    void zoomResetRequested();
+protected:
+    void paintEvent(QPaintEvent* event) override;
+    void mouseMoveEvent(QMouseEvent* event) override;
+    void mouseReleaseEvent(QMouseEvent* event) override;
+    void leaveEvent(QEvent* event) override;
+private:
+    qreal factor_ = 1.0;
+    int hoveredPart_ = -1;
 };
 
 class WINJACK_UI_API IntegerField final : public QSpinBox {

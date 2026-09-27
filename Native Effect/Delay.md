@@ -32,3 +32,11 @@
 时间、反馈、湿/干信号四个旋钮的读数可点击输入精确值，按 Enter 写入；双击旋钮恢复对应参数默认值。同步模式的时间读数仍以毫秒输入，并按当前音符与附点设置换算为 BPM。All 模式将同一目标值写入八个通道。现有 `build` 树的 Debug `ALL_BUILD`、`native_delay_tests`、`ui_unit_tests` 通过；测试覆盖精确输入、复位及同步换算。
 
 首个预设现为 `Default`，选择它会恢复真实的 `DelayParameters` 默认值；编辑后显示 `Custom`，并保留原有命名预设。旋钮绘制已调用公共 `Controls::drawKnob`。更新后 Debug `ALL_BUILD`、`native_delay_tests`、`native_fx_api_tests`、`ui_unit_tests` 均通过。
+
+## 主题命名空间与绘制接入（2026-09-27，S12 后）
+
+本效果单独导出 Native Fx / Node v1 双入口，共用稳定 ID `delay`、描述符及模块作用域；越界索引返回 null，宿主按 ID 去重并分别释放引用。描述符从冻结注册表复制类型/默认值/继承，声明旋钮、开关和 primary tap、repeated tap、baseline 三条图表语义。
+
+实际窗口的主表面、文字、旋钮活动环/外环、开关、时间轴背景与主次网格、首个与后续 tap 和两种视图下的基线按模块 token 绘制。无外部主题与发布默认 `.wjnskin` 的实窗截图逐像素相同；改色截图保存于 `tests/preview/PostS12/Delay/`，修改文件名为 `-modified.png`。截图观感：**人工验收跳过/未人工验证**。
+
+现有 `build` 的 `mod_delay` Debug 单模块编译、完整 `ALL_BUILD` Debug 退出 0；`theme_delay_native_fx`、先前五个模块 UI 测试、`native_delay_tests`、`native_fx_api_tests`、`theme_default_template` 9/9 通过。验证仅含模块加载与 UI，未运行 JACK 客户端或端口连接集成。证据见 `build/PostS12-Delay-*.log`。

@@ -34,10 +34,17 @@ void rounded(QPainter& p, QRectF r, QBrush fill, QColor stroke = line, qreal rad
 void label(QPainter& p, QRectF r, const QString& value, int size = 17, QColor color = textColor,
            Qt::Alignment align = Qt::AlignCenter, bool bold = false) {
     auto font = p.font(); font.setPixelSize(size); font.setBold(bold);
-    Controls::drawText(p,r,value,font,color,align);
+    const auto themed = color == textColor
+        ? Controls::themeTokenColor("native-fx-parametric-eq", "text-primary", color)
+        : color == muted
+            ? Controls::themeTokenColor("native-fx-parametric-eq", "text-muted", color) : color;
+    Controls::drawText(p,r,value,font,themed,align);
 }
-void switchControl(QPainter& p, QRectF r, bool on, QColor accent = QColor("#087afa")) {
-    Controls::drawToggle(p, r, on, accent, QColor("#2b4869"));
+void switchControl(QPainter& p, QRectF r, bool on, QColor accent = QColor("#087afa"),
+                   const char* onRole = "control-toggle-indicator-on") {
+    Controls::drawToggle(p, r, on,
+        Controls::themeTokenColor("native-fx-parametric-eq", onRole, accent),
+        Controls::themeTokenColor("native-fx-parametric-eq", "control-toggle-indicator-off", QColor("#2b4869")));
 }
 QString frequencyText(float hz) { return hz >= 1000 ? QString::number(hz / 1000.0F, 'f', hz >= 10000 ? 1 : 1) + QStringLiteral(" kHz") : QString::number(hz, 'f', 0) + QStringLiteral(" Hz"); }
 QString gainText(float db) { return QString::number(db, 'f', 1).prepend(db > 0 ? "+" : "") + QStringLiteral(" dB"); }
@@ -252,8 +259,18 @@ void ParametricEqWidget::pollSpectrum() {
 }
 
 void ParametricEqWidget::paintEvent(QPaintEvent*) {
+    const auto themed = [](const char* role, const QColor& fallback) {
+        return Controls::themeTokenColor(QStringLiteral("native-fx-parametric-eq"),
+                                         QString::fromLatin1(role), fallback);
+    };
+    const std::array<QColor, 4> themedBandColors {
+        themed("chart-series-band-1-stroke", bandColors[0]),
+        themed("chart-series-band-2-stroke", bandColors[1]),
+        themed("chart-series-band-3-stroke", bandColors[2]),
+        themed("chart-series-band-4-stroke", bandColors[3])};
     QPainter p(this); p.setRenderHint(QPainter::Antialiasing); p.scale(width()/double(designWidth),height()/double(designHeight));
-    p.fillRect(QRect(0,0,designWidth,designHeight), Controls::themeColor(*this, "fxBackground", background));
+    p.fillRect(QRect(0,0,designWidth,designHeight), Controls::themeColor(*this, "fxBackground",
+        themed("surface-window", background)));
     const auto params=displayed();
     const auto mapGain=[this](float db){return gainY(db,displayRange_);};
     const double responseRate=hasSpectrum_?spectrumFrame_.sampleRate:48000.0;
@@ -273,20 +290,20 @@ void ParametricEqWidget::paintEvent(QPaintEvent*) {
     for (int i=0;i<4;++i) { p.setPen(QPen(QColor("#b9faff"),6,Qt::SolidLine,Qt::RoundCap)); p.drawLine(43+i*12,78,43+i*12,74-11*i-(i==3?-10:0)); }
     label(p,{130,24,490,40},QStringLiteral("Parametric EQ 参量均衡器"),30,textColor,Qt::AlignVCenter|Qt::AlignLeft,true);
     label(p,{130,69,490,29},QStringLiteral("精确调整频率、增益与带宽，塑造声音特性"),20,muted,Qt::AlignVCenter|Qt::AlignLeft);
-    switchControl(p,{637,43,57,34},params.enabled,themeAccent);
+    switchControl(p,{637,43,57,34},params.enabled,themeAccent,"control-toggle-main-indicator-on");
     label(p,{747,39,69,43},QStringLiteral("预设:"),20,muted);
     rounded(p,{819,37,320,48},QColor("#10253b"));
     label(p,{836,37,255,48},presetName(selectedPreset_),22,textColor,Qt::AlignVCenter|Qt::AlignLeft);
     label(p,{1093,37,35,48},QStringLiteral("⌄"),27,muted);
     for (int i=0;i<3;++i) { rounded(p,{1158+i*66.0,37,48,48},QColor("#1a324e")); label(p,{1158+i*66.0,37,48,48},i==0?QStringLiteral("❮"):i==1?QStringLiteral("❯"):QStringLiteral("•••"),22,muted); }
 
-    rounded(p,{24,120,1248,430},QColor("#081e31"),QColor("#254b69"));
+    rounded(p,{24,120,1248,430},themed("chart-background", QColor("#081e31")),QColor("#254b69"));
     QRectF graph(101,145,1155,340);
     p.save(); p.setClipRect(graph);
     const std::array<float,10> ticks {20,50,100,200,500,1000,2000,5000,10000,20000};
     if (showGrid_) {
         Controls::ChartGridStyle grid;
-        grid.grid=QColor("#25415c");
+        grid.grid=themed("chart-grid-major", QColor("#25415c"));
         for (float freq:ticks)
             grid.verticalFractions.push_back((logX(freq)-graph.left())/graph.width());
         for (int db=-displayRange_;db<=displayRange_;db+=displayRange_/3)
@@ -303,7 +320,9 @@ void ParametricEqWidget::paintEvent(QPaintEvent*) {
                 if (i==0) path.moveTo(x,y); else path.lineTo(x,y);
             }
             Controls::CurveStyle spectrumStyle;
-            spectrumStyle.stroke=kind==0?QColor("#ffc66b"):QColor("#45dbf3");
+            spectrumStyle.stroke=kind==0
+                ? themed("chart-series-input-spectrum-stroke", QColor("#ffc66b"))
+                : themed("chart-series-processed-spectrum-stroke", QColor("#45dbf3"));
             spectrumStyle.width=2.4;
             spectrumStyle.penStyle=kind==0?Qt::DashLine:Qt::SolidLine;
             Controls::drawCurvePath(p,path,spectrumStyle);
@@ -318,9 +337,10 @@ void ParametricEqWidget::paintEvent(QPaintEvent*) {
             for (int x=104;x<=1256;x+=4) path.lineTo(x,mapGain(WinJACKNexus::Common::ParametricEqProcessor::responseDb(isolated,responseRate,xFrequency(float(x)))));
             QPainterPath fill=path; fill.lineTo(1256,mapGain(0)); fill.lineTo(101,mapGain(0)); fill.closeSubpath();
             Controls::CurveStyle bandStyle;
-            bandStyle.stroke=bandColors[b];
-            bandStyle.fill=bandColors[b];
-            bandStyle.fill.setAlpha(55);
+            bandStyle.stroke=themedBandColors[b];
+            const auto fillRole = QStringLiteral("chart-series-band-%1-fill").arg(b + 1);
+            auto fallbackFill = bandColors[b]; fallbackFill.setAlpha(55);
+            bandStyle.fill=Controls::themeTokenColor(QStringLiteral("native-fx-parametric-eq"), fillRole, fallbackFill);
             bandStyle.width=2.3;
             bandStyle.showFill=true;
             Controls::drawCurvePath(p,path,bandStyle,&fill);
@@ -328,7 +348,7 @@ void ParametricEqWidget::paintEvent(QPaintEvent*) {
         QPainterPath total; total.moveTo(101,mapGain(WinJACKNexus::Common::ParametricEqProcessor::responseDb(params,responseRate,20)));
         for (int x=104;x<=1256;x+=4) total.lineTo(x,mapGain(WinJACKNexus::Common::ParametricEqProcessor::responseDb(params,responseRate,xFrequency(float(x)))));
         Controls::CurveStyle totalStyle;
-        totalStyle.stroke=QColor("#e2f2ff");
+        totalStyle.stroke=themed("chart-series-total-response-stroke", QColor("#e2f2ff"));
         totalStyle.width=1.5;
         Controls::drawCurvePath(p,total,totalStyle);
     }
@@ -338,17 +358,17 @@ void ParametricEqWidget::paintEvent(QPaintEvent*) {
         p.setPen(QPen(color,2.5,style,Qt::RoundCap));
         p.drawLine(x,y,x+29,y);
     };
-    legendLine(820,172,showSpectrum_?QColor("#ffc66b"):QColor("#62788a"),Qt::DashLine);
+    legendLine(820,172,showSpectrum_?themed("chart-series-input-spectrum-stroke", QColor("#ffc66b")):QColor("#62788a"),Qt::DashLine);
     label(p,{854,159,96,25},QStringLiteral("输入频谱"),15,muted,Qt::AlignLeft|Qt::AlignVCenter);
-    legendLine(966,172,showSpectrum_?QColor("#45dbf3"):QColor("#62788a"),Qt::SolidLine);
+    legendLine(966,172,showSpectrum_?themed("chart-series-processed-spectrum-stroke", QColor("#45dbf3")):QColor("#62788a"),Qt::SolidLine);
     label(p,{1000,159,96,25},QStringLiteral("处理后频谱"),15,muted,Qt::AlignLeft|Qt::AlignVCenter);
-    legendLine(1110,172,showResponse_?QColor("#e2f2ff"):QColor("#62788a"),Qt::SolidLine);
+    legendLine(1110,172,showResponse_?themed("chart-series-total-response-stroke", QColor("#e2f2ff")):QColor("#62788a"),Qt::SolidLine);
     label(p,{1144,159,94,25},QStringLiteral("综合响应"),15,muted,Qt::AlignLeft|Qt::AlignVCenter);
     const std::array<QString,4> legendBands {QStringLiteral("1 低频"),QStringLiteral("2 低中频"),QStringLiteral("3 高中频"),QStringLiteral("4 高频")};
     for (std::size_t b=0;b<4;++b) {
         const int x=822+static_cast<int>(b)*103;
         Controls::drawMarker(p,QPointF(x+5,199),5,
-            showResponse_?bandColors[b]:QColor("#62788a"));
+            showResponse_?themedBandColors[b]:QColor("#62788a"));
         label(p,{double(x+17),186,86,25},legendBands[b],14,muted,Qt::AlignLeft|Qt::AlignVCenter);
     }
     for (int db=displayRange_;db>=-displayRange_;db-=displayRange_/3) label(p,{55,mapGain(float(db))-12,34,24},db>0?"+"+QString::number(db):QString::number(db),15,muted,Qt::AlignRight|Qt::AlignVCenter);
@@ -357,7 +377,7 @@ void ParametricEqWidget::paintEvent(QPaintEvent*) {
     label(p,{680,515,155,25},QStringLiteral("频率 (Hz)"),17,muted);
     for (std::size_t b=0;b<4;++b) if (showLabels_ && params.bands[b].enabled) {
         const auto x=logX(params.bands[b].frequencyHz), y=mapGain(params.bands[b].gainDb);
-        Controls::drawMarker(p,QPointF(x,y),16,bandColors[b],QColor("#f0f8ff"),2);
+        Controls::drawMarker(p,QPointF(x,y),16,themedBandColors[b],QColor("#f0f8ff"),2);
         label(p,{x-15,y-15,30,30},QString::number(b+1),19,Qt::white,Qt::AlignCenter,true);
     }
     rounded(p,{1283,120,228,196},QColor("#122941"));
@@ -373,7 +393,7 @@ void ParametricEqWidget::paintEvent(QPaintEvent*) {
 
     const std::array<QString,4> names {QStringLiteral("Low 低频"),QStringLiteral("Low Mid 低中频"),QStringLiteral("High Mid 高中频"),QStringLiteral("High 高频")};
     for (int b=0;b<4;++b) {
-        const int x=25+374*b; const auto& band=params.bands[static_cast<std::size_t>(b)]; QColor tint=bandColors[static_cast<std::size_t>(b)];
+        const int x=25+374*b; const auto& band=params.bands[static_cast<std::size_t>(b)]; QColor tint=themedBandColors[static_cast<std::size_t>(b)];
         rounded(p,{double(x),560,365,327},QColor("#0e2639"),tint.darker(160));
         QColor header=tint.darker(460); rounded(p,{double(x),560,365,50},header,tint,8);
         Controls::drawMarker(p,QPointF(x+32,586),17,tint,tint.lighter(130));
@@ -382,13 +402,16 @@ void ParametricEqWidget::paintEvent(QPaintEvent*) {
         switchControl(p,{double(x+302),572,46,27},band.enabled);
         rounded(p,{double(x+13),621,70,41},QColor("#102c44"));
         drawShapeIcon(p,{double(x+27),630,42,23},band.shape,muted);
-        rounded(p,{double(x+90),621,262,41},QColor("#10263b"));
+        rounded(p,{double(x+90),621,262,41},themed("surface-panel", QColor("#10263b")));
         label(p,{double(x+104),621,220,41},QString::fromUtf8(shapeNames[static_cast<int>(band.shape)]),17,textColor,Qt::AlignLeft|Qt::AlignVCenter);
         label(p,{double(x+322),621,25,41},QStringLiteral("⌄"),22,muted);
         for (int k=0;k<3;++k) {
             const int cx=x+66+k*117; const float value=k==0?std::log(std::max(20.0F,band.frequencyHz)/20.0F)/std::log(1000.0F):k==1?(band.q-0.1F)/9.9F:(band.gainDb+18)/36;
+            const auto indicatorRole = QStringLiteral("control-knob-band-%1-indicator-normal").arg(b + 1);
             const auto colors=Controls::paletteFor(*this,
-                {background,QColor("#23415b"),textColor,tint,QColor("#314e68")});
+                {themed("control-knob-background-base", background),QColor("#23415b"),textColor,
+                 Controls::themeTokenColor(QStringLiteral("native-fx-parametric-eq"), indicatorRole, tint),
+                 themed("control-knob-track", QColor("#314e68"))});
             Controls::drawKnob(p,{double(cx),719},value,34,colors);
             label(p,{double(cx-54),760,108,26},k==0?frequencyText(band.frequencyHz):k==1?QString::number(band.q,'f',1):gainText(band.gainDb),17);
             label(p,{double(cx-58),788,116,23},k==0?QStringLiteral("频率 (Freq)"):k==1?QStringLiteral("Q 值"):QStringLiteral("增益 (Gain)"),16,muted);
@@ -405,7 +428,9 @@ void ParametricEqWidget::paintEvent(QPaintEvent*) {
     rounded(p,{248,926,48,42},QColor("#102337")); drawShapeIcon(p,{256,934,32,26},Shape::highPass,muted);
     rounded(p,{307,926,122,42},QColor("#102337")); label(p,{307,926,122,42},QString::number(params.highPassSlope)+QStringLiteral(" dB/Oct ⌄"),16);
     const auto filterColors=Controls::paletteFor(*this,
-        {background,QColor("#23415b"),textColor,QColor("#35bbff"),QColor("#314e68")});
+        {themed("control-knob-background-base", background),QColor("#23415b"),textColor,
+         themed("control-knob-filter-indicator-normal", QColor("#35bbff")),
+         themed("control-knob-track", QColor("#314e68"))});
     Controls::drawKnob(p,{475,946},std::log(std::max(20.0F,params.highPassHz)/20.0F)/std::log(100.0F),25,filterColors);
     label(p,{516,925,59,43},frequencyText(params.highPassHz),16);
     label(p,{607,917,132,55},QStringLiteral("低通滤波 (LPF)"),18,muted); switchControl(p,{740,932,49,30},params.lowPassEnabled);

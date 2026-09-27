@@ -53,6 +53,7 @@ protected:
     void contextMenuEvent(QContextMenuEvent* event) override;
 
 private:
+    void applyTheme();
     void dispatch(MeterViewCommandType type, std::optional<bool> enabled = std::nullopt, const QString& presetId = {});
     void configurePresetSelector();
 

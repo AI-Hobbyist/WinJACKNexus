@@ -1,0 +1,29 @@
+{
+  "formatVersion": 1,
+  "themeApiVersion": 1,
+  "id": "org.example-my-theme",
+  "name": "My Theme",
+  "version": "1.0.0",
+  "author": "Your name",
+  "description": "Describe the theme and its visual intent.",
+  "homepage": "",
+  "kind": "full",
+  "namespaces": [
+    "--wjn-theme-global-",
+    "--wjn-theme-meter-bridge-",
+    "--wjn-theme-mixer-",
+    "--wjn-theme-native-fx-",
+    "--wjn-theme-native-fx-compressor-",
+    "--wjn-theme-native-fx-deesser-",
+    "--wjn-theme-native-fx-delay-",
+    "--wjn-theme-native-fx-gate-",
+    "--wjn-theme-native-fx-graphic-eq-",
+    "--wjn-theme-native-fx-limiter-",
+    "--wjn-theme-native-fx-parametric-eq-",
+    "--wjn-theme-native-fx-reverb-",
+    "--wjn-theme-patchbay-",
+    "--wjn-theme-sel-aux-",
+    "--wjn-theme-sel-fx-",
+    "--wjn-theme-sel-main-"
+  ]
+}

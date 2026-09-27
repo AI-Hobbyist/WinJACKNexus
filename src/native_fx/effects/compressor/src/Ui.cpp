@@ -39,10 +39,16 @@ void box(QPainter& p,QRectF r,qreal radius,QBrush fill,QColor stroke={}) {
 }
 void label(QPainter& p,QRectF r,const QString& text,int size,QColor color=ink,bool bold=false,int align=Qt::AlignCenter) {
     auto font=p.font();font.setPixelSize(size);font.setBold(bold);
-    Controls::drawText(p,r,text,font,color,Qt::Alignment(align));
+    const auto themed = color == ink
+        ? Controls::themeTokenColor("native-fx-compressor", "text-primary", color)
+        : color == muted
+            ? Controls::themeTokenColor("native-fx-compressor", "text-muted", color) : color;
+    Controls::drawText(p,r,text,font,themed,Qt::Alignment(align));
 }
 void toggle(QPainter& p,QRectF r,bool on) {
-    Controls::drawToggle(p,r,on,QColor(8,114,206),QColor(28,46,68));
+    Controls::drawToggle(p,r,on,
+        Controls::themeTokenColor("native-fx-compressor", "control-toggle-indicator-on", QColor(8,114,206)),
+        Controls::themeTokenColor("native-fx-compressor", "control-toggle-indicator-off", QColor(28,46,68)));
 }
 QPointF graph(float x,float y) {return {plotRect.left()+(x+60)*plotRect.width()/60,plotRect.bottom()-(y+60)*plotRect.height()/60};}
 }
@@ -108,7 +114,8 @@ void CompressorWidget::apply(const std::function<void(CompressorParameters&)>& e
 }
 void CompressorWidget::paintEvent(QPaintEvent*) {
     QPainter p(this);p.setRenderHint(QPainter::Antialiasing);
-    p.fillRect(rect(),Controls::themeColor(*this,"fxBackground",QColor(13,28,45)));
+    p.fillRect(rect(),Controls::themeColor(*this,"fxBackground",
+        Controls::themeTokenColor("native-fx-compressor", "surface-window", QColor(13,28,45))));
     box(p,{10,5,748,126},9,QColor(22,40,60),QColor(47,75,103));
     label(p,{25,24,170,28},QStringLiteral("作用声道"),19,ink,true,Qt::AlignVCenter|Qt::AlignLeft);
     for(int i=0;i<9;++i) {
@@ -117,7 +124,9 @@ void CompressorWidget::paintEvent(QPaintEvent*) {
         label(p,r,QString::fromLatin1(channels[i]),16,chosen?QColor(126,220,255):muted);
     }
     p.save();p.translate(0,145);
-    QLinearGradient background(0,0,770,515);background.setColorAt(0,QColor(17,36,55));background.setColorAt(1,QColor(11,29,47));
+    QLinearGradient background(0,0,770,515);
+    background.setColorAt(0,Controls::themeTokenColor("native-fx-compressor", "surface-panel-start", QColor(17,36,55)));
+    background.setColorAt(1,Controls::themeTokenColor("native-fx-compressor", "surface-panel-end", QColor(11,29,47)));
     box(p,{10,14,748,483},11,background,QColor(33,103,150));
     box(p,{11,15,746,75},10,QColor(23,43,64));
     QLinearGradient icon(21,24,78,82);icon.setColorAt(0,QColor(139,78,31));icon.setColorAt(1,QColor(89,48,21));
@@ -183,13 +192,13 @@ void CompressorWidget::paintEvent(QPaintEvent*) {
     };
     p.save();p.setClipRect(plotRect);
     Controls::ChartGridStyle minorGrid;
-    minorGrid.background=QColor(13,29,46);
-    minorGrid.grid=QColor(61,82,101,65);
+    minorGrid.background=Controls::themeTokenColor("native-fx-compressor", "chart-background", QColor(13,29,46));
+    minorGrid.grid=Controls::themeTokenColor("native-fx-compressor", "chart-grid-minor", QColor(61,82,101,65));
     minorGrid.lineWidth=0.5;
     minorGrid.columns=minorGrid.rows=20;
     Controls::drawChartGrid(p,plotRect,minorGrid);
     Controls::ChartGridStyle majorGrid;
-    majorGrid.grid=QColor(66,91,114,150);
+    majorGrid.grid=Controls::themeTokenColor("native-fx-compressor", "chart-grid-major", QColor(66,91,114,150));
     majorGrid.columns=majorGrid.rows=5;
     Controls::drawChartGrid(p,plotRect,majorGrid);
     QPainterPath line;
@@ -211,14 +220,14 @@ void CompressorWidget::paintEvent(QPaintEvent*) {
         fill.closeSubpath();
     }
     Controls::CurveStyle transferStyle;
-    transferStyle.stroke=amber;
-    transferStyle.fill=QColor(198,111,35,72);
+    transferStyle.stroke=Controls::themeTokenColor("native-fx-compressor", "chart-series-transfer-stroke", amber);
+    transferStyle.fill=Controls::themeTokenColor("native-fx-compressor", "chart-series-level-fill-fill", QColor(198,111,35,72));
     transferStyle.width=1.6;
     transferStyle.showFill=showLevelFill;
     Controls::drawCurvePath(p,line,transferStyle,showLevelFill?&fill:nullptr);
     const auto point=graph(s.thresholdDb,output(s.thresholdDb));
-    p.setPen(QPen(amber,1,Qt::DashLine));p.drawLine(QPointF(point.x(),plotRect.bottom()),point);
-    Controls::drawMarker(p,point,4.5,amber,QColor(255,194,123),2);
+    p.setPen(QPen(transferStyle.stroke,1,Qt::DashLine));p.drawLine(QPointF(point.x(),plotRect.bottom()),point);
+    Controls::drawMarker(p,point,4.5,transferStyle.stroke,QColor(255,194,123),2);
     p.restore();
     for(int i=0;i<=5;++i) {
         const int db=-60+i*12;
@@ -252,7 +261,9 @@ void CompressorWidget::paintEvent(QPaintEvent*) {
     reductionStyle.fillOriginDb=0.0;
     reductionStyle.vertical=true;
     reductionStyle.showPeak=false;
-    reductionStyle.zones={{0.0,QColor(239,55,72),QColor(36,44,57)}};
+    reductionStyle.zones={{0.0,
+        Controls::themeTokenColor("native-fx-compressor", "meter-reduction-zone-single-active", QColor(239,55,72)),
+        Controls::themeTokenColor("native-fx-compressor", "meter-reduction-zone-single-inactive", QColor(36,44,57))}};
     reductionStyle.border=QColor(88,101,119);
     reductionStyle.labelColor=muted;
     reductionStyle.tickColor=QColor(88,101,119);
@@ -270,7 +281,10 @@ void CompressorWidget::paintEvent(QPaintEvent*) {
     label(p,{239,143,73,21},QStringLiteral("%1 dB").arg(s.thresholdDb,0,'f',1),14,ink);
     const QString names[]={QStringLiteral("阈值"),QStringLiteral("比率"),QStringLiteral("拐点 (Soft Knee)"),QStringLiteral("起始时间\n(Attack)"),QStringLiteral("释放时间\n(Release)"),QStringLiteral("输出增益\n(Makeup)")};
     const auto knobColors=Controls::paletteFor(*this,
-        {QColor(13,28,45),QColor(30,52,73),ink,amber,QColor(74,88,101)});
+        {Controls::themeTokenColor("native-fx-compressor", "control-knob-background-base", QColor(13,28,45)),
+         QColor(30,52,73), ink,
+         Controls::themeTokenColor("native-fx-compressor", "control-knob-indicator-normal", amber),
+         Controls::themeTokenColor("native-fx-compressor", "control-knob-track", QColor(74,88,101))});
     for(int i=0;i<6;++i) {
         const QPointF c=centers[i];const float v=get(s,i);
         const float norm=(v-limits[i][0])/(limits[i][1]-limits[i][0]);

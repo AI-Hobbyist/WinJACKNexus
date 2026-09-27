@@ -92,21 +92,35 @@ qreal FxLevelMeterWidget::positionForDb(double db) const noexcept {
 }
 
 void FxLevelMeterWidget::paintEvent(QPaintEvent*) {
+    const auto themed=[](const char* role,const QColor& fallback){
+        return Controls::themeTokenColor(QStringLiteral("sel-fx"),QString::fromLatin1(role),fallback);
+    };
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing, false);
-    painter.fillRect(rect(), QColor("#14283e"));
+    painter.fillRect(rect(), themed("meter-level-surface",QColor("#14283e")));
     QFont font = painter.font();
     font.setPixelSize(11);
     painter.setFont(font);
     for (int row = 0; row < 2; ++row) {
         const QRectF bar = barRect(row);
-        painter.setPen(QColor("#afc7e5"));
+        painter.setPen(themed("meter-level-label",QColor("#afc7e5")));
         painter.drawText(QRectF(0, bar.top(), 29, bar.height()), Qt::AlignVCenter | Qt::AlignLeft,
                          row == 0 ? QStringLiteral("输入") : QStringLiteral("输出"));
         const double value = row == 0 ? displayInputDb_ : displayOutputDb_;
         Controls::MeterStyle style;
         style.minimumDb = minimumDb;
         style.maximumDb = maximumDb;
+        style.zones = {
+            {-12.0, themed("meter-level-zone-low-active", QColor("#2bce75")),
+                    themed("meter-level-zone-low-inactive", QColor("#163e2e"))},
+            {0.0, themed("meter-level-zone-mid-active", QColor("#f4cd42")),
+                  themed("meter-level-zone-mid-inactive", QColor("#4a3f1d"))},
+            {12.0, themed("meter-level-zone-high-active", QColor("#f35656")),
+                   themed("meter-level-zone-high-inactive", QColor("#4c242a"))}
+        };
+        style.border = themed("meter-level-border", QColor("#426181"));
+        style.peakColor = themed("meter-level-peak", QColor("#f7fbff"));
+        style.tickColor = themed("meter-level-tick", QColor("#526763"));
         QRectF meterBounds=bar;
         if(row==1) {
             style.ticks={{-72,QStringLiteral("-72")},{-48,QStringLiteral("-48")},
@@ -114,12 +128,12 @@ void FxLevelMeterWidget::paintEvent(QPaintEvent*) {
                          {0,QStringLiteral("0")},{12,QStringLiteral("+12")}};
             style.tickBandPixels=24;
             style.tickFontPixelSize=9;
-            style.labelColor=QColor("#89a8c9");
+            style.labelColor=themed("meter-level-tick-label",QColor("#89a8c9"));
             meterBounds.setHeight(bar.height()+style.tickBandPixels);
         }
         Controls::drawMeter(painter, meterBounds, value,
                             peakDb_[static_cast<std::size_t>(row)], style);
-        painter.setPen(QColor("#f3f8ff"));
+        painter.setPen(themed("meter-level-readout",QColor("#f3f8ff")));
         painter.drawText(bar.adjusted(4, 0, -4, 0), Qt::AlignRight | Qt::AlignVCenter,
                          QStringLiteral("%1 dB").arg(QString::number(
                              row == 0 ? readoutInputDb_ : readoutOutputDb_, 'f', 0)));

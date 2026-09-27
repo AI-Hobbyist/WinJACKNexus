@@ -17,7 +17,7 @@ coordinates; it does not own a widget or schedule repainting.
 
 | API | Purpose |
 | --- | --- |
-| `Palette`, `applyPalette`, `paletteFor`, `themeColor` | Shared surface colors and per-widget host theme overrides. |
+| `Palette`, `applyPalette`, `paletteFor`, `themeColor`, `themeTokenColor` | Shared surface colors and per-widget host theme overrides. `themeTokenColor(scope, role, fallback)` resolves the active v1 theme's scoped color token; it uses `fallback` while the built-in skin is active so the current module appearance is preserved. Pass its result through `paletteFor` when a widget property override must retain precedence. |
 | `drawSurface`, `drawText`, `drawMarker`, `drawButton`, `ButtonStyle`, `drawStyledButton`, `drawToggle`, `ToggleButton`, `drawDropdown`, `drawCardLabel` | Common rounded surface, label, circular graph marker, button, switch, list and card primitives. `drawSurface` accepts a brush, optional border and corner radius; `drawText` accepts the caller's font, color and alignment; `drawMarker` accepts fill, radius and optional outline; `ButtonStyle` sets active and inactive colors, radius and typography. |
 | `drawKnob`, `drawPanKnob`, `drawSlider`, `drawFader` | Normalized rotary and linear controls. `drawFader` uses zero at the top of its track. |
 | `MeterStyle`, `MeterZone`, `MeterTick`, `drawMeter`, `drawMeterScale` | Configurable meter range, orientation, colored zones, ticks, labels and peak marker. |
@@ -30,9 +30,10 @@ coordinates; it does not own a widget or schedule repainting.
 | `IntegerField`, `DecimalField` | Self-drawn themed numeric surfaces and step arrows with Qt numeric editing and step behavior. Callers supply their own range, step, suffix, value and commit behavior. |
 | `ToggleField`, `RangeSlider` | Self-drawn settings checkbox and horizontal or vertical slider, using Qt only for input, focus and accessibility behavior. Callers configure label, range, orientation and value; the shared theme supplies painted indicator, track and handle colors. |
 | `IconActionButton` | Self-drawn icon button using `drawButton`, with icon and text beside or below. It retains `QToolButton` action binding, check state and accessibility behavior. |
+| `ZoomControl` | Self-drawn patchbay zoom control with magnifier plus, percentage readout and magnifier minus. `zoomInRequested`, `zoomOutRequested` and `zoomResetRequested` report clicks; `setZoomFactor(qreal)` updates the readout. |
 | `TextLabel`, `ProgressField` | Shared label and progress display. The label preserves native selectable text, pixmaps and rich text where those features are requested. |
 | `ListField`, `TableField`, `LogField` | Shared item and text views with common painted rows, text and scrollbars. Callers retain Qt item models, editing and selection signals. |
-| `GroupPanel`, `TabField`, `ScrollField`, `SplitField`, `DockPanel` | Shared group, tab, scroll, split and dock containers. Tab close buttons and splitter handles use shared painting. `DockPanel` draws a plain title bar and places its collapse arrow at the canvas-facing edge midpoint; the same edge remains draggable for width changes. It omits title-bar float and close buttons. `sidebarControlHeight` is the common 28 px height for patchbay sidebar fields and actions. |
+| `GroupPanel`, `TabField`, `ScrollField`, `SplitField`, `DockPanel` | Shared group, tab, scroll, split and dock containers. Tab close buttons and splitter handles use shared painting. `DockPanel` draws a plain title bar and places its collapse arrow at the canvas-facing edge midpoint; the same edge remains draggable for width changes. It omits title-bar float and close buttons. `sidebarControlHeight` is the common 28 px minimum height for shared text, choice, numeric, action and toggle controls, including settings dialogs; callers may make a control taller. |
 | `DialogButtonBar`, `ScrollBarField` | Dialog role/standard button behavior backed by shared buttons, and a shared painted scrollbar. |
 | `ClientNameWidget`, `EmbeddedFxEditor` | Shared node name editor and mixer-hosted effect editor shell. |
 
@@ -59,6 +60,17 @@ separately from its stroke and paints the stroke with `Qt::NoBrush`.
 its `minimum` and `maximum` map samples into the supplied radius. The mixer
 and AUX panners share grid, handle and curve presentation through
 [`MixerPolarPlot.hpp`](../src/ui/include/WinJACKNexus/UI/MixerPolarPlot.hpp).
+The `drawMixerPolarCurves` overload taking `themeScope` resolves input and
+output curve strokes from `chart-series-polar-input-stroke` and
+`chart-series-polar-output-stroke`, using `sel-main` or `sel-aux` as the scope;
+the existing signature retains `sel-main` behavior.
+`drawMixerPolarGrid`, `drawMixerPolarReferencePoint`, `drawMixerPolarHandle`
+and `drawMixerPolarCenter` also accept a `themeScope` overload. Their original
+signatures continue to use `sel-main`. The scoped forms resolve polar grid,
+reference, handle and center marker colors independently for `sel-main` and
+`sel-aux`; the curve painter also resolves zero ring, axis label, legend and
+overrange colors from the same scope. Reference gain and handle selection
+still determine the existing alpha and geometry.
 `drawChartGrid` clips to its bounds; explicit `verticalFractions` and
 `horizontalFractions` override uniform column and row divisions.
 
@@ -70,6 +82,167 @@ loss closes it without changing the value. The owner paints its normal
 readout again. A double-click handler calls `resetNumericValue` with the same
 specification and an apply callback. The caller owns the underlying parameter
 state and its audio commit; the shared helper owns only the temporary editor.
+
+## Theme package memory API
+
+[`ThemePackage.hpp`](../src/ui/include/WinJACKNexus/UI/ThemePackage.hpp) provides
+the v1 `.wjnskin` package layer. `loadFromFile` closes the source file before
+returning; `loadFromBytes` accepts a ZIP already in memory. Both validate the
+archive and metadata before assigning `result`, so a failed load preserves its
+previous snapshot. `create` builds a package from metadata, CSS bytes and an
+`assets/` map; `withImportedAsset` reads a local image or font into a new
+in-memory work copy. `exportToBytes` writes a standard Stored ZIP, and
+`saveToFile` writes it atomically. Resource names are ZIP logical paths;
+neither loading nor import creates an extraction directory.
+
+The root `style.css` carries global tokens. Optional `host/`, `node/`, and
+`native_fx/` folders carry one CSS file per module. `styleCss()` returns the
+root CSS followed by module CSS in sorted path order; the parser accepts their
+successive `:root` blocks. Legacy single-file packages remain valid, and
+importing an asset preserves the module files in the archive. The original
+`create` overload creates a single-file package; its new overload accepts a
+map of module CSS paths and bytes alongside the global CSS and assets.
+
+`resourceRef(name)` returns a `ResourceRef` with the package ID, logical path
+and shared bytes. It remains usable after the originating `ThemePackage` is
+released. This identity must accompany inherited module image references so
+an `assets/` path resolves in its source package. A plain `resource(name)`
+convenience call returns the bytes without provenance. Structural ZIP limits,
+allowed paths, metadata schema and theme capability version are specified in
+[`Theme-v1-Contract.md`](Theme-v1-Contract.md). CSS parsing, theme activation,
+image decoding and font registration are separate layers; this API only owns
+validated package bytes. `theme_package_tests` is the non-GUI call-site test
+for the package API.
+
+[`ThemeCore.hpp`](../src/ui/include/WinJACKNexus/UI/ThemeCore.hpp) provides the
+S04 parser and resolution layer. `ThemeRegistry::builtIn` loads the embedded v1
+registry. `ThemeCore::snapshot` returns a shared immutable `ThemeSnapshot` with
+resolved values, resource references, source theme ID and diagnostics. A held
+snapshot remains valid after a switch. `setFullTheme` activates a full package
+and clears prior fragments and overrides; `applyFragment` adds a module scope
+layer, with later fragments winning the same token; `setOverride` adds a user
+layer. Missing module values inspect declared parent tokens before their own
+built-in defaults. A missing module background image inherits the current
+patchbay image; explicit `none` stops inheritance. An inherited or `var()`
+referenced image keeps the source package's resource reference. Malformed CSS
+is rejected without changing the active snapshot or emitting `themeChanged`.
+Bad typed values and unknown tokens produce line-numbered diagnostics; bad
+values fall back through the remaining layers. `beginPreview`, `cancelPreview`,
+`commitPreview` and `restoreDefault` manage candidate snapshots. This layer
+exposes the pinned prior snapshot through `previewBaseSnapshot` until cancel
+or commit and emits `previewCompleted` after commit for font cleanup. It does
+not decode images, register fonts or paint widgets. `theme_core_tests`
+exercises these public call paths without a GUI.
+
+`activeFullTheme` returns the installed complete package, or an invalid
+package for built-in defaults. `declaredValue(token)` returns the winning raw
+declaration from an override, fragment, or full package; empty means inherited
+or registered default. Authoring UI uses this distinction for background mode.
+`exportFullTheme(metadata, result)` writes resolved values, embedded image/font
+bytes, and unknown declarations from absent modules to a portable package.
+`exportFragment(namespacePrefix, metadata, result)` selects the exact owning
+namespace, resolves inherited values and `var()` references, and embeds that
+scope's image bytes. A module fragment excludes global font. Both methods
+validate the result through `ThemePackage::create` before returning it.
+
+[`ThemeManagementDialog.hpp`](../src/ui/include/WinJACKNexus/UI/ThemeManagementDialog.hpp)
+is the shared-control authoring window. `openPackage` validates a candidate;
+`preview`, `cancelPreview`, and `apply` route through the process `ThemeCore`;
+`exportToFile` writes full, DLL default, or module fragment packages.
+Import and export dialogs start in the main executable's `themes/` directory.
+The window displays package metadata and diagnostics, edits color, font and
+background settings, and opens the homepage only on an explicit click.
+`theme_management_tests` exercises the actual Windows popup and saves its
+screenshots in `tests/preview/S10/`.
+
+`hasUserOverrides`, `exportUserOverrides` and `restoreUserOverrides` form the
+S11 per-theme preference boundary. The exported fragment retains raw user
+values and copies referenced image/font bytes; restoring replaces the current
+user layer without changing the installed full theme. The catalog saves one
+such fragment per stable theme ID and uses a preview transaction to roll back
+a failed switch.
+
+[`ThemeCatalog.hpp`](../src/ui/include/WinJACKNexus/UI/ThemeCatalog.hpp)
+scans direct `.wjnskin` files and Dev theme folders in the EXE-adjacent
+`themes/` directory, case-insensitively by package extension. `refresh` validates full packages and CSS,
+sorts filenames deterministically, rejects duplicate IDs after the first
+valid file, and returns diagnostic messages for rejected files. Entry labels
+add author, then ID when names repeat. `activate` switches by ID, retains the
+prior selection on failure, and saves per-ID user overrides through the
+injected `QSettings`. `restoreSaved` loads the selected package on startup;
+missing packages fall back to the required `wjn_default_theme.dll` with a diagnostic.
+The DLL is adjacent to the EXE; if it is absent or invalid, startup fails.
+The menu has one DLL default entry and marks folder themes with `(Dev)`.
+`createMenu` builds a native Qt `QMenu` with exclusive checked theme actions,
+a refresh action for the selected Dev theme, and a management action.
+`theme_catalog_tests` opens that menu on the Windows
+display and saves its screenshot under `tests/preview/S11/`.
+
+`ThemeRegistry::withTokens` validates a combined built-in/module token table
+without changing the source registry. `ThemeCore::refreshRegisteredNamespaces`
+rebuilds its active registry from `ThemeNamespaceRegistry` descriptors and
+reparses saved full/fragment CSS so previously unknown module declarations
+become active after registration. The registry calls this after registering
+or releasing a descriptor, outside its mutex; the resulting snapshot emits
+`themeChanged`. A removed module token no longer participates in drawing,
+while its declaration remains in the theme package for later re-registration.
+The patchbay popup test checks registration, module isolation, unload and
+retained CSS revalidation.
+`PatchbayCanvas::setClientThemeScopes` binds a loaded Node type's descriptor
+scope to its runtime client ID; absent node roles fall back to `patchbay`.
+`setClientColorOverride` applies a runtime instance title color above that
+scope, and an invalid `QColor` clears it so the current theme shows again.
+
+[`ThemeBackground.hpp`](../src/ui/include/WinJACKNexus/UI/ThemeBackground.hpp)
+exposes `ThemeBackground::paint(QPainter&, QRectF, scope, overlay, diagnostic)`
+for GUI-thread drawing from the active snapshot's in-memory image resource.
+Call with `overlay=false` before module components for the base-image mode, or
+`overlay=true` after components for the upper-image mode; only the selected
+mode paints. Size, proportional scale, repeat, position, opacity and Gaussian blur are resolved
+within the module's logical-pixel viewport. Upper-image mode ignores blur.
+`componentOpacity(scope)` supplies the base mode's foreground opacity and
+returns `1` in upper-image mode. The renderer accepts a diagnostic output for
+missing, invalid or oversized images. `theme_background_tests` exercises the
+call site with actual Windows mixer and SEL windows. Decoded and prepared
+images use bounded caches that clear when the installed theme changes.
+`ThemeBackgroundOverlay(scope, parent)` is a transparent, input-pass-through
+child for QWidget-based hosts; construct it after the host controls. It follows
+parent resizing and theme changes without a separate refresh timer.
+
+[`ThemeManager.hpp`](../src/ui/include/WinJACKNexus/UI/ThemeManager.hpp)
+adapts the v1 snapshot to existing `ThemePalette`, `${key}` QSS variables
+and `setVariable`/`removeVariable` callers. The application installs one
+process `ThemeCore` with `installThemeCore`; subsequently constructed legacy
+managers follow its current snapshot. `watchApplication` records the live
+`QApplication` without changing the initial skin; the first v1 activation
+applies its mapped colors and global font. A manager can also call
+`bindThemeCore` for an explicit core and `applyToApp` or `applyToWidget` for
+immediate application. Theme changes update existing widgets and inherited
+fonts for new windows. The manager retains each widget's size, weight and
+other font settings while replacing the family; a widget using a dedicated
+icon font sets `wjnPreserveFontFamily=true`. The system UI font is captured
+before the first theme font is applied and restored for `system`, invalid font
+data, preview cancellation and default restoration. Custom TTF/OTF bytes are
+registered with `QFontDatabase::addApplicationFontFromData`, keyed by content
+hash and held through previews; no font file is extracted. `fontDiagnostic`
+reports registration failure or multiple font families. `theme_adapter_tests`
+exercises palette and stylesheet mapping, memory font registration, fallback,
+preview rollback and mixed text metrics. The 1.5× DPI UI test runs through
+the actual Windows window platform; offscreen testing has been abandoned.
+
+[`ThemeNamespaceRegistry.hpp`](../src/ui/include/WinJACKNexus/UI/ThemeNamespaceRegistry.hpp)
+is the S06 host registry for optional Node/Native Fx theme descriptors. Call
+`registerNodeModule` or `registerNativeFxModule` with a loaded DLL's dynamic
+symbol resolver and stable source path. The returned move-only `Lease` owns
+the registration until `reset` or destruction; release it before unloading
+the DLL. `scopeFor(kind, source, index)` binds each exported type to its
+validated namespace. `descriptor(moduleId)` returns a shared immutable copy
+of all JSON fields and token definitions, safe after DLL unload. Matching
+dual-API descriptors share references by stable module ID and exact JSON;
+conflicting descriptors are rejected. `registerInternal` supports built-in
+descriptor tests without a DLL. Legacy modules without either optional theme
+export succeed with an empty lease. `theme_namespace_tests` covers versions,
+multi-node indices, conflicts, compatibility and unload lifetime.
 
 ## Animation and global settings
 
@@ -106,7 +279,7 @@ paint and timer callbacks; pass snapshots into UI-owned state instead.
 | Widget | Public contract |
 | --- | --- |
 | [`MeterWidget` / `PeakMeterWidget` / `MeterArrayWidget`](../src/ui/include/WinJACKNexus/UI/MeterWidget.hpp) | Scalar and multi-channel meters with range, thresholds, marks and channel labels. The array shares one animation timer and follows the application frame rate. `MidiVelocityWidget` specializes the array for 0..127. |
-| [`MeterLevelBar`](../src/ui/include/WinJACKNexus/UI/MeterLevelBar.hpp) | Vertical level and peak bar with configurable range, marks, unit and theme. It draws through `Controls::drawMeter`. |
+| [`MeterLevelBar`](../src/ui/include/WinJACKNexus/UI/MeterLevelBar.hpp) | Vertical level and peak bar with configurable range, marks, unit and theme. It draws through `Controls::drawMeter`. The `wjnThemeScope` widget property selects scoped v1 color tokens for level zones, border, peak, labels, and ticks; an unset property uses `global`. The meter bridge host sets it to `meter-bridge`. |
 | [`FxLevelMeterWidget`](../src/ui/include/WinJACKNexus/UI/FxLevelMeterWidget.hpp) | Input/output effect meter. `setLevels` accepts dB values; its bar, held peak and numeric readout update on the application frame timer. |
 | [`HistoryChartWidget`](../src/ui/include/WinJACKNexus/UI/HistoryChartWidget.hpp) / [`HistoryLegendWidget`](../src/ui/include/WinJACKNexus/UI/HistoryLegendWidget.hpp) | Time-series chart and interactive series legend. Curves use the common `CurveStyle` painter. |
 | [`MetricReadout`](../src/ui/include/WinJACKNexus/UI/MetricReadout.hpp) / [`MetricStatisticsWidget`](../src/ui/include/WinJACKNexus/UI/MetricStatisticsWidget.hpp) | Numeric measurement presentation and grouped statistics. Set `setPeakValueRefreshEnabled(true)` on peak readouts to sample their numbers at the global peak refresh interval; invalid values clear immediately. |

@@ -3,6 +3,10 @@
 #include <WinJACKNexus/UI/ApplicationSettings.hpp>
 #include <WinJACKNexus/UI/FxLevelMeterWidget.hpp>
 #include <WinJACKNexus/UI/Controls.hpp>
+#include <WinJACKNexus/UI/ThemeNamespaceRegistry.hpp>
+#include <WinJACKNexus/UI/ThemeCore.hpp>
+#include <WinJACKNexus/UI/ThemeBackground.hpp>
+#include <WinJACKNexus/UI/ThemeManager.hpp>
 #include <WinJACKNexus/NativeFx/NativeFxApi.h>
 
 #include <QBoxLayout>
@@ -11,6 +15,7 @@
 #include <QDirIterator>
 #include <QFrame>
 #include <QFontMetrics>
+#include <QGraphicsOpacityEffect>
 #include <QGuiApplication>
 #include <QLabel>
 #include <QLibrary>
@@ -68,10 +73,13 @@ protected:
         const QPointF end = output_->geometry().center();
         const qreal y = (start.y() + end.y()) / 2;
         const qreal tip = end.x() - 12;
-        painter.setPen(QPen(QColor(90,169,219,220), 3, Qt::SolidLine, Qt::RoundCap));
+        painter.setPen(QPen(Controls::themeTokenColor(QStringLiteral("sel-fx"),
+            QStringLiteral("chart-chain-connection-stroke"), QColor(90,169,219,220)),
+            3, Qt::SolidLine, Qt::RoundCap));
         painter.drawLine(QPointF(start.x(), y), QPointF(tip - 13, y));
         painter.setPen(Qt::NoPen);
-        painter.setBrush(QColor(90,169,219,230));
+        painter.setBrush(Controls::themeTokenColor(QStringLiteral("sel-fx"),
+            QStringLiteral("chart-chain-arrow-fill"), QColor(90,169,219,230)));
         painter.drawPolygon(QPolygonF {QPointF(tip, y), QPointF(tip - 17, y - 8),
                                QPointF(tip - 17, y + 8)});
     }
@@ -88,45 +96,59 @@ public:
         : QStyledItemDelegate(parent), toggle_(std::move(toggle)), menu_(std::move(menu)) {}
 
     void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const override {
+        const auto themed=[](const char* role,const QColor& fallback){
+            return Controls::themeTokenColor(QStringLiteral("sel-fx"),QString::fromLatin1(role),fallback);
+        };
         painter->save();
         painter->setRenderHint(QPainter::Antialiasing);
         const QRectF card = option.rect.adjusted(3, 3, -3, -3);
         const bool selected = option.state & QStyle::State_Selected;
         const bool enabled = index.data(Qt::UserRole + 3).toBool();
         const QColor accent(index.data(Qt::UserRole + 2).toString());
-        Controls::drawSurface(*painter, card, QColor(enabled ? "#214b62" : "#15273a"),
-                              selected ? QColor("#42cbfb") : enabled ? accent : QColor("#344d69"),
+        Controls::drawSurface(*painter, card,
+                              enabled ? themed("control-fx-chain-card-surface-normal",QColor("#214b62"))
+                                      : themed("control-fx-chain-card-surface-disabled",QColor("#15273a")),
+                              selected ? themed("control-fx-chain-card-border-selected",QColor("#42cbfb"))
+                                       : enabled ? accent
+                                                 : themed("control-fx-chain-card-border-disabled",QColor("#344d69")),
                               7, selected ? 2.0 : 1.2);
         const QPointF numberCenter(card.left() + 17, card.center().y());
-        Controls::drawMarker(*painter, numberCenter, 12, QColor("#15273a"),
-                             enabled ? QColor("#a8d8fa") : QColor("#667d9a"));
+        Controls::drawMarker(*painter, numberCenter, 12,
+                             themed("control-fx-chain-number-surface", QColor("#15273a")),
+                             enabled ? themed("control-fx-chain-number-border-normal", QColor("#a8d8fa"))
+                                     : themed("control-fx-chain-number-border-disabled", QColor("#667d9a")));
         Controls::drawText(*painter, QRectF(card.left() + 5, card.center().y() - 12, 24, 24),
                            QString::number(index.row() + 1), painter->font(),
-                           QColor("#e8f2ff"), Qt::AlignCenter);
+                           themed("control-fx-chain-number-text", QColor("#e8f2ff")), Qt::AlignCenter);
         for (int row = 0; row < 4; ++row)
             for (int column = 0; column < 2; ++column)
                 Controls::drawMarker(*painter,
                     QPointF(card.left() + 39 + column * 6, card.top() + 20 + row * 7),
-                    1.3, QColor("#7998bf"));
+                    1.3, themed("control-fx-chain-grip-marker", QColor("#7998bf")));
         const QRectF icon(card.left() + 58, card.center().y() - 24, 48, 48);
         Controls::drawSurface(*painter, icon,
-                              enabled ? accent.darker(140) : QColor("#273b50"),
+                              enabled ? accent.darker(140)
+                                      : themed("control-fx-chain-icon-surface-disabled", QColor("#273b50")),
                               enabled ? accent.lighter(130) : accent.darker(180), 5);
         QFont iconFont = painter->font(); iconFont.setPixelSize(28); iconFont.setBold(true);
         Controls::drawText(*painter, icon, index.data(Qt::UserRole + 1).toString(),
-                           iconFont, enabled ? QColor(Qt::white) : QColor("#91a6ba"),
+                           iconFont, enabled ? themed("control-fx-chain-icon-text-normal", QColor(Qt::white))
+                                             : themed("control-fx-chain-icon-text-disabled", QColor("#91a6ba")),
                            Qt::AlignCenter);
         QFont nameFont = painter->font(); nameFont.setPixelSize(15); nameFont.setBold(false);
         Controls::drawText(*painter,
                            QRectF(icon.right() + 13, card.top(), card.width() - 175, card.height()),
                            index.data(Qt::DisplayRole).toString(), nameFont,
-                           enabled ? QColor("#f1f8ff") : QColor("#93a8be"),
+                           enabled ? themed("control-fx-chain-card-text-normal",QColor("#f1f8ff"))
+                                   : themed("control-fx-chain-card-text-disabled",QColor("#93a8be")),
                            Qt::AlignVCenter | Qt::AlignLeft);
         Controls::drawMarker(*painter, QPointF(card.right() - 42, card.center().y()),
-                             5, enabled ? QColor("#47e5a1") : QColor("#52677c"));
+                             5, enabled ? themed("control-fx-chain-card-indicator-normal",QColor("#47e5a1"))
+                                        : themed("control-fx-chain-card-indicator-disabled",QColor("#52677c")));
         QFont dotsFont = painter->font(); dotsFont.setPixelSize(24);
         Controls::drawText(*painter, QRectF(card.right() - 34, card.top(), 28, card.height()),
-                           QStringLiteral("⋮"), dotsFont, QColor("#a8c6ef"), Qt::AlignCenter);
+                           QStringLiteral("⋮"), dotsFont,
+                           themed("control-fx-chain-menu-text", QColor("#a8c6ef")), Qt::AlignCenter);
         painter->restore();
     }
 
@@ -174,6 +196,7 @@ public:
 
     struct Module {
         QLibrary library;
+        ThemeNamespaceRegistry::Lease themeLease;
         WjnFxMeta info {};
         Create create {};
         Clone clone {};
@@ -202,6 +225,74 @@ public:
         std::shared_ptr<AnalysisContext> analysisContext;
     };
 
+    static QColor color(const char* role, const char* fallback) {
+        return Controls::themeTokenColor(QStringLiteral("sel-fx"), QString::fromLatin1(role),
+                                         QColor(QString::fromLatin1(fallback)));
+    }
+
+    static QString cssColor(const char* role, const char* fallback) {
+        const auto value = color(role, fallback);
+        if (value.alpha() == 255) return value.name();
+        return QStringLiteral("rgba(%1,%2,%3,%4)")
+            .arg(value.red()).arg(value.green()).arg(value.blue()).arg(value.alphaF());
+    }
+
+    void applyLegacyModuleTheme(Module& module, WjnFxInstance* instance) {
+        if (!module.setTheme || !instance) return;
+        static const WjnFxTheme theme {"#0b1929", "#14283e", "#e9f2ff", "#31c6ff", "#29435d"};
+        module.setTheme(instance, &theme);
+    }
+
+    void applyTheme() {
+        QString style = QStringLiteral(R"(
+            #fxWindow { background:%surface-window%; color:%text-primary%; font-size:15px; }
+            QFrame#panel { background:%surface-panel%; border:1px solid %border-normal%; border-radius:9px; }
+            QLabel { color:%text-label%; background:transparent; }
+            QPushButton, QToolButton, QComboBox { color:%button-text-normal%; background:%button-surface-normal%; border:1px solid %button-border-normal%; border-radius:6px; padding:7px 13px; }
+            QPushButton:hover, QToolButton:hover { border-color:%button-border-hover%; background:%button-surface-hover%; }
+            QPushButton#primary, QPushButton:checked { border-color:%accent-primary%; background:%button-surface-selected%; color:%button-text-selected%; }
+            QListWidget { background:transparent; border:0; outline:0; }
+            QListWidget::item { background:%list-surface-normal%; border:1px solid %list-border-normal%; border-radius:7px; margin:3px 2px; color:%list-text-normal%; }
+            QListWidget::item:selected { border:1px solid %list-border-selected%; background:%list-surface-selected%; }
+            QScrollArea { background:%scroll-surface-normal%; border:1px solid %border-normal%; border-radius:7px; }
+            QScrollArea#fxChainScroll { background:transparent; border:0; }
+            QWidget#fxChainContent { background:transparent; }
+            QLabel[fxChainEndpoint="true"] { background:%endpoint-surface%; border:1px solid %endpoint-border%; border-radius:7px; color:%endpoint-text%; font-size:16px; font-weight:bold; }
+            QScrollBar { background:%scrollbar-surface-normal%; }
+        )");
+        const std::array<std::array<const char*, 3>, 23> replacements {{
+            {"%surface-window%", "surface-window", "#0b1929"},
+            {"%surface-panel%", "surface-panel", "#14283e"},
+            {"%text-primary%", "text-primary", "#e9f2ff"},
+            {"%text-label%", "text-label", "#e5efff"},
+            {"%border-normal%", "border-normal", "#29435d"},
+            {"%accent-primary%", "accent-primary", "#31c6ff"},
+            {"%button-text-normal%", "control-button-text-normal", "#d8e8ff"},
+            {"%button-surface-normal%", "control-button-surface-normal", "#192e45"},
+            {"%button-border-normal%", "control-button-border-normal", "#405e7f"},
+            {"%button-border-hover%", "control-button-border-hover", "#37b9fa"},
+            {"%button-surface-hover%", "control-button-surface-hover", "#214263"},
+            {"%button-surface-selected%", "control-button-surface-selected", "#153d60"},
+            {"%button-text-selected%", "control-button-text-selected", "#89e7ff"},
+            {"%list-surface-normal%", "control-list-surface-normal", "#172c42"},
+            {"%list-border-normal%", "control-list-border-normal", "#304b69"},
+            {"%list-text-normal%", "control-list-text-normal", "#f0f5ff"},
+            {"%list-border-selected%", "control-list-border-selected", "#38c9fc"},
+            {"%list-surface-selected%", "control-list-surface-selected", "#173d54"},
+            {"%scroll-surface-normal%", "control-scroll-surface-normal", "#10263a"},
+            {"%scrollbar-surface-normal%", "control-scrollbar-surface-normal", "#12263b"},
+            {"%endpoint-surface%", "control-chain-endpoint-surface", "#243e57"},
+            {"%endpoint-border%", "control-chain-endpoint-border", "#567a9a"},
+            {"%endpoint-text%", "control-chain-endpoint-text", "#f1f7ff"}
+        }};
+        for (const auto& entry : replacements)
+            style.replace(QString::fromLatin1(entry[0]), cssColor(entry[1], entry[2]));
+        owner.setStyleSheet(style);
+        if (chainContent) chainContent->update();
+        if (list) list->viewport()->update();
+        owner.update();
+    }
+
     explicit Impl(FxSettingsWindow& window, const QString& source, const QStringList& sourceChannels)
         : owner(window), sourceChannels(sourceChannels) {
         owner.setWindowFlag(Qt::Window);
@@ -209,21 +300,7 @@ public:
         owner.resize(1398, 874);
         owner.setMinimumSize(1100, 720);
         owner.setObjectName(QStringLiteral("fxWindow"));
-        owner.setStyleSheet(QStringLiteral(R"(
-            #fxWindow { background:#0b1929; color:#e9f2ff; font-family:'Microsoft YaHei UI'; font-size:15px; }
-            QFrame#panel { background:#14283e; border:1px solid #29435d; border-radius:9px; }
-            QLabel { color:#e5efff; background:transparent; }
-            QPushButton, QToolButton, QComboBox { color:#d8e8ff; background:#192e45; border:1px solid #405e7f; border-radius:6px; padding:7px 13px; }
-            QPushButton:hover, QToolButton:hover { border-color:#37b9fa; background:#214263; }
-            QPushButton#primary, QPushButton:checked { border-color:#31c6ff; background:#153d60; color:#89e7ff; }
-            QListWidget { background:transparent; border:0; outline:0; }
-            QListWidget::item { background:#172c42; border:1px solid #304b69; border-radius:7px; margin:3px 2px; color:#f0f5ff; }
-            QListWidget::item:selected { border:1px solid #38c9fc; background:#173d54; }
-            QScrollArea { background:#10263a; border:1px solid #29435d; border-radius:7px; }
-            QScrollArea#fxChainScroll { background:transparent; border:0; }
-            QWidget#fxChainContent { background:transparent; }
-            QScrollBar { background:#12263b; }
-        )"));
+        applyTheme();
 
         auto* root = new QVBoxLayout(&owner);
         root->setContentsMargins(6, 5, 6, 8);
@@ -372,10 +449,9 @@ public:
         const auto endpoint = [this](const QString& symbol, const QString& caption) {
             auto* chip = new Controls::TextLabel(QStringLiteral("%1\n%2").arg(symbol, caption),chainContent);
             chip->setObjectName(QStringLiteral("fxChain%1").arg(symbol));
+            chip->setProperty("fxChainEndpoint", true);
             chip->setFixedSize(72,62);
             chip->setAlignment(Qt::AlignCenter);
-            chip->setStyleSheet(QStringLiteral("background:#243e57;border:1px solid #567a9a;"
-                                               "border-radius:7px;color:#f1f7ff;font-size:16px;font-weight:bold;"));
             return chip;
         };
         flowLayout->addStretch();
@@ -526,6 +602,11 @@ public:
                 continue;
             const auto* info = meta(0);
             if (!info || !(info->placements & WJN_FX_MIXER)) continue;
+            QString themeError;
+            ThemeNamespaceRegistry::instance().registerNativeFxModule(
+                [&library = candidate->library](const char* name) { return library.resolve(name); },
+                candidate->library.fileName(), &candidate->themeLease, &themeError);
+            if (!themeError.isEmpty()) qWarning().noquote() << "Native Fx theme descriptor:" << themeError;
             candidate->info = *info;
             available.push_back(candidate.get());
             loadedModules.push_back(std::move(candidate));
@@ -545,6 +626,8 @@ public:
             moduleName->setText(QStringLiteral("Native Fx 加载失败"));
             editorArea->setWidget(new Controls::TextLabel(QStringLiteral("找不到 Native Fx 模块：%1").arg(modulesPath)));
         }
+        if (auto* core = ThemeManager::installedThemeCore())
+            QObject::connect(core, &ThemeCore::themeChanged, &owner, [this] { applyTheme(); });
     }
 
     ~Impl() {
@@ -679,10 +762,7 @@ public:
         effect.analysisContext = std::make_shared<AnalysisContext>(AnalysisContext {this, effect.id});
         module->setChanged(instance, [](void* context) { static_cast<Impl*>(context)->publish(); }, this);
         if (module->setLive) module->setLive(instance, &Impl::readLive, effect.analysisContext.get());
-        if (module->setTheme) {
-            static const WjnFxTheme theme {"#0b1929", "#14283e", "#e9f2ff", "#31c6ff", "#29435d"};
-            module->setTheme(instance, &theme);
-        }
+        applyLegacyModuleTheme(*module, instance);
         effect.enabled = enabled;
         effects.push_back(effect);
         auto* item = new QListWidgetItem;
@@ -765,10 +845,7 @@ public:
         effect->name = QString::fromUtf8(module->info.name);
         effect->glyph = QString::fromUtf8(module->info.iconGlyph);
         effect->color = QString::fromLatin1(module->info.iconColor);
-        if (module->setTheme) {
-            static const WjnFxTheme theme {"#0b1929", "#14283e", "#e9f2ff", "#31c6ff", "#29435d"};
-            module->setTheme(instance, &theme);
-        }
+        applyLegacyModuleTheme(*module, instance);
         refreshListItem(list->item(rowForEffect(id)));
         updateChainListWidth();
         if (selected() && selected()->id == id) showSelected();
@@ -984,7 +1061,32 @@ public:
 };
 
 FxSettingsWindow::FxSettingsWindow(const QString& sourceName, const QStringList& sourceChannels, QWidget* parent)
-    : QWidget(parent), impl_(std::make_unique<Impl>(*this, sourceName, sourceChannels)) {}
+    : QWidget(parent), impl_(std::make_unique<Impl>(*this, sourceName, sourceChannels)) {
+    new ThemeBackgroundOverlay(QStringLiteral("sel-fx"), this);
+    const auto updateOpacity = [this] {
+        const auto opacity = ThemeBackground::componentOpacity(QStringLiteral("sel-fx"));
+        for (auto* child : findChildren<QWidget*>(QString(), Qt::FindDirectChildrenOnly)) {
+            if (dynamic_cast<ThemeBackgroundOverlay*>(child)) continue;
+            if (opacity < 1.0) {
+                auto* effect = qobject_cast<QGraphicsOpacityEffect*>(child->graphicsEffect());
+                if (!effect) { effect = new QGraphicsOpacityEffect(child); child->setGraphicsEffect(effect); }
+                effect->setOpacity(opacity);
+            } else if (child->graphicsEffect()) {
+                child->setGraphicsEffect(nullptr);
+            }
+        }
+        update();
+    };
+    updateOpacity();
+    if (auto* core = ThemeManager::installedThemeCore())
+        connect(core, &ThemeCore::themeChanged, this, updateOpacity);
+}
+
+void FxSettingsWindow::paintEvent(QPaintEvent* event) {
+    QWidget::paintEvent(event);
+    QPainter painter(this);
+    ThemeBackground::paint(painter, rect(), QStringLiteral("sel-fx"));
+}
 
 FxSettingsWindow::~FxSettingsWindow() {
     // Child controls emit signals while QWidget tears them down. Their slots

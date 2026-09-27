@@ -1,0 +1,45 @@
+/* native-fx-gate module theme tokens. Keep token names and the :root block. */
+:root {
+  /* native-fx-gate / text primary; type=color */
+  --wjn-theme-native-fx-gate-text-primary: #ffffff;
+  /* native-fx-gate / text muted; type=color */
+  --wjn-theme-native-fx-gate-text-muted: #97b5e0;
+  /* native-fx-gate / control knob indicator normal; type=color */
+  --wjn-theme-native-fx-gate-control-knob-indicator-normal: #2bc5ff;
+  /* native-fx-gate / chart background; type=color */
+  --wjn-theme-native-fx-gate-chart-background: #0d1f32;
+  /* native-fx-gate / chart series lower transfer stroke; type=color */
+  --wjn-theme-native-fx-gate-chart-series-lower-transfer-stroke: #9571d6;
+  /* native-fx-gate / chart series upper transfer stroke; type=color */
+  --wjn-theme-native-fx-gate-chart-series-upper-transfer-stroke: #2bc5ff;
+  /* native-fx-gate / background opacity; type=opacity */
+  --wjn-theme-native-fx-gate-background-opacity: 1;
+  /* native-fx-gate / background size; type=background-size */
+  --wjn-theme-native-fx-gate-background-size: cover;
+  /* native-fx-gate / background scale; type=background-scale */
+  --wjn-theme-native-fx-gate-background-scale: 1;
+  /* native-fx-gate / background repeat; type=background-repeat */
+  --wjn-theme-native-fx-gate-background-repeat: no-repeat;
+  /* native-fx-gate / background position x; type=position */
+  --wjn-theme-native-fx-gate-background-position-x: 50%;
+  /* native-fx-gate / background position y; type=position */
+  --wjn-theme-native-fx-gate-background-position-y: 50%;
+  /* native-fx-gate / background overlay enabled; type=boolean */
+  --wjn-theme-native-fx-gate-background-overlay-enabled: false;
+  /* native-fx-gate / background overlay opacity; type=opacity */
+  --wjn-theme-native-fx-gate-background-overlay-opacity: 0.12;
+  /* native-fx-gate / background blur radius; type=blur-radius */
+  --wjn-theme-native-fx-gate-background-blur-radius: 0px;
+  /* native-fx-gate / background component opacity; type=opacity */
+  --wjn-theme-native-fx-gate-background-component-opacity: 1;
+  /* native-fx-gate / control knob background base; type=color */
+  --wjn-theme-native-fx-gate-control-knob-background-base: #0d1c2d;
+  /* native-fx-gate / control knob track; type=color */
+  --wjn-theme-native-fx-gate-control-knob-track: #3a5b7c;
+  /* native-fx-gate / control toggle indicator on; type=color */
+  --wjn-theme-native-fx-gate-control-toggle-indicator-on: #108bec;
+  /* native-fx-gate / control toggle indicator off; type=color */
+  --wjn-theme-native-fx-gate-control-toggle-indicator-off: #2d445d;
+  /* native-fx-gate content background image; null means undefined and inherits the patchbay image; type=image */
+  /* --wjn-theme-native-fx-gate-background-image: inherited from --wjn-theme-patchbay-background-image; keep undeclared to inherit. */
+}

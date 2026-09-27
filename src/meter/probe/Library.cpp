@@ -1176,6 +1176,38 @@ const char* wjn_get_node_api_version(void)
     return "2";
 }
 
+std::uint32_t wjn_get_node_theme_api_version(void)
+{
+    return WJN_NODE_THEME_API_VERSION;
+}
+
+const char* wjn_get_node_theme_namespace_json(std::uint32_t index)
+{
+    static const std::array<QByteArray, 5> descriptors = [] {
+        const std::array<const char*, 5> ids {
+            "module-winjacknexus-meter-mono", "module-winjacknexus-meter-stereo",
+            "module-winjacknexus-meter-5-1", "module-winjacknexus-meter-7-1",
+            "module-winjacknexus-meter-custom"
+        };
+        std::array<QByteArray, 5> result;
+        for (std::size_t type = 0; type < result.size(); ++type) {
+            const QString moduleId = QString::fromLatin1(ids[type]);
+            const QString nameSpace = QStringLiteral("--wjn-theme-") + moduleId + '-';
+            const QJsonObject token {{"name", nameSpace + "node-card-background"},
+                {"type", "color"},
+                {"default", "var(--wjn-theme-patchbay-node-card-background)"},
+                {"description", "Host-drawn card background for this meter probe type"}};
+            const QJsonObject descriptor {{"descriptorVersion", 1}, {"themeApiVersion", 1},
+                {"moduleId", moduleId}, {"namespace", nameSpace},
+                {"displayName", QString::fromUtf8(probeDefinitions[type].name)},
+                {"tokens", QJsonArray {token}}};
+            result[type] = QJsonDocument(descriptor).toJson(QJsonDocument::Compact);
+        }
+        return result;
+    }();
+    return index < descriptors.size() ? descriptors[index].constData() : nullptr;
+}
+
 std::uint32_t wjn_get_node_count(void)
 {
     return static_cast<std::uint32_t>(probeDefinitions.size());

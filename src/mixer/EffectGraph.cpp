@@ -3,6 +3,7 @@
 
 #include <QCoreApplication>
 #include <QDirIterator>
+#include <QDebug>
 
 #include <algorithm>
 #include <cstring>
@@ -100,6 +101,11 @@ bool EffectGraph::configure(const Common::DigitalMixerState& state, double sampl
                 if (!snapshotVersion || snapshotVersion() != WJN_FX_PARAMETER_SNAPSHOT_VERSION
                     || !snapshotSize || !create || !effect->destroy || !effect->process
                     || !effect->import || !prepare) continue;
+                QString themeError;
+                UI::ThemeNamespaceRegistry::instance().registerNativeFxModule(
+                    [&library = effect->library](const char* name) { return library.resolve(name); },
+                    effect->library.fileName(), &effect->themeLease, &themeError);
+                if (!themeError.isEmpty()) qWarning().noquote() << "Native Fx theme descriptor:" << themeError;
                 effect->snapshotSize = snapshotSize();
                 effect->instance = create(0);
                 if (!effect->instance) continue;

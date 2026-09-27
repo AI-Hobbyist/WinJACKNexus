@@ -178,6 +178,65 @@ provides the JACK node name editor; `setClientName` updates its text.
 host container that exposes the editor below its node-only channel strip;
 `editor()` returns its child editor.
 
+## Optional theme namespace exports (v1)
+
+`NativeFxApi.h` declares `uint32_t wjn_fx_theme_api_version(void)` and
+`const char* wjn_fx_theme_namespace_json(uint32_t index)`. These exports are
+optional and have their own version (`WJN_FX_THEME_API_VERSION == 1`); the
+existing Native Fx ABI version is unchanged. The index follows
+`wjn_fx_count()`/`wjn_fx_meta(index)`, and an invalid index returns null.
+Each returned pointer is DLL-owned UTF-8 JSON. The host copies and validates
+it before unloading the DLL. A module without both exports continues to load;
+an incomplete, unsupported or invalid theme descriptor disables only its
+theme capability. The descriptor format, size limits, token types and stable
+module ID/namespace rules are in [Theme-v1-Contract.md](Theme-v1-Contract.md).
+The host registers one scope per metadata index and retains a reference until
+that module use is released. Matching Node and Native Fx descriptors for the
+same stable ID share one registration. Existing effect DLLs receive these
+exports individually after S12; S06 only establishes the API and host.
+`mod_gate.dll` is the first migrated production effect. It exports both
+optional theme functions for metadata index zero; its descriptor shares the
+stable `gate` ID and `--wjn-theme-native-fx-gate-` scope with its Node entry.
+The real-window `theme_gate_native_fx` test checks dual registration,
+independent reference release, shipped-default pixel equality, and a live
+token change without JACK connections.
+`mod_graphic_eq.dll` is the second migrated production effect. Its index-zero
+descriptor shares the `graphic-eq` scope with the Node entry and declares
+the 31 effect-band controls as sliders, plus independent input spectrum,
+output spectrum, and response chart series. `theme_graphic_eq_native_fx`
+checks dual registration, default-package pixel equality, and live token
+changes in the actual Windows editor without JACK connections.
+`mod_deesser.dll` is the third migrated production effect. Its index-zero
+descriptor shares the `deesser` scope with its Node entry. It declares knob
+and toggle controls plus separate response bell, input spectrum, and output
+spectrum chart series. `theme_deesser_native_fx` checks both API leases,
+shipped-default pixel equality, and live editor token changes.
+`mod_compressor.dll` is the fourth migrated effect. Its index-zero descriptor
+shares `compressor` with the Node entry and declares knob/toggle controls,
+transfer and level-fill chart series, and the reduction meter zone.
+`theme_compressor_native_fx` checks both leases and actual-window default
+pixel equality and token repaint without JACK connections.
+`mod_limiter.dll` is the fifth migrated effect. Its descriptor shares the
+`limiter` scope with the Node entry, declares the transfer curve, and names
+low/mid/high active and inactive level meter colors plus the reduction zone.
+`theme_limiter_native_fx` checks dual leases, index bounds, default-package
+pixel equality, and live editor recoloring.
+`mod_delay.dll` is the sixth migrated effect. Its index-zero descriptor
+shares `delay` with the Node entry and declares the primary tap, repeated
+tap, and baseline chart series. `theme_delay_native_fx` verifies the dual
+leases and actual-window default and modified screenshots.
+`mod_parametric_eq.dll` is the seventh migrated effect. Its descriptor
+shares `parametric-eq` with its Node entry, declares four separately named
+band curves and knob controls, input/processed spectra, total response,
+filter knob, and toggle. `theme_parametric_eq_native_fx` validates the dual
+leases, default-package pixel equality, and live color changes.
+`mod_reverb.dll` completes the eight production effects. Its `reverb`
+descriptor is shared with the Node entry and declares violet/cyan knobs,
+toggle, and scene accent, shape-light, and glow elements. It has no dB chart
+series or level meter. `theme_reverb_native_fx` verifies both leases and the
+real-window default and modified theme screenshots. All eight DLLs now
+provide the optional v1 theme exports.
+
 ## Adding an effect
 
 Add `Meta.hpp` at the effect root, `Ui.hpp`, `Dsp.hpp` and `Logic.inc` in its

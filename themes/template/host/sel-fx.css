@@ -1,0 +1,135 @@
+/* sel-fx module theme tokens. Keep token names and the :root block. */
+:root {
+  /* sel-fx / surface window; type=color */
+  --wjn-theme-sel-fx-surface-window: #0b1929;
+  /* sel-fx / surface panel; type=color */
+  --wjn-theme-sel-fx-surface-panel: #14283e;
+  /* sel-fx / text primary; type=color */
+  --wjn-theme-sel-fx-text-primary: #e9f2ff;
+  /* sel-fx / text label; type=color */
+  --wjn-theme-sel-fx-text-label: #e5efff;
+  /* sel-fx / accent primary; type=color */
+  --wjn-theme-sel-fx-accent-primary: #31c6ff;
+  /* sel-fx / border normal; type=color */
+  --wjn-theme-sel-fx-border-normal: #29435d;
+  /* sel-fx / control button text normal; type=color */
+  --wjn-theme-sel-fx-control-button-text-normal: #d8e8ff;
+  /* sel-fx / control button surface normal; type=color */
+  --wjn-theme-sel-fx-control-button-surface-normal: #192e45;
+  /* sel-fx / control button border normal; type=color */
+  --wjn-theme-sel-fx-control-button-border-normal: #405e7f;
+  /* sel-fx / control button surface hover; type=color */
+  --wjn-theme-sel-fx-control-button-surface-hover: #214263;
+  /* sel-fx / control button border hover; type=color */
+  --wjn-theme-sel-fx-control-button-border-hover: #37b9fa;
+  /* sel-fx / control button surface selected; type=color */
+  --wjn-theme-sel-fx-control-button-surface-selected: #153d60;
+  /* sel-fx / control button text selected; type=color */
+  --wjn-theme-sel-fx-control-button-text-selected: #89e7ff;
+  /* sel-fx / control list surface normal; type=color */
+  --wjn-theme-sel-fx-control-list-surface-normal: #172c42;
+  /* sel-fx / control list border normal; type=color */
+  --wjn-theme-sel-fx-control-list-border-normal: #304b69;
+  /* sel-fx / control list text normal; type=color */
+  --wjn-theme-sel-fx-control-list-text-normal: #f0f5ff;
+  /* sel-fx / control list surface selected; type=color */
+  --wjn-theme-sel-fx-control-list-surface-selected: #173d54;
+  /* sel-fx / control list border selected; type=color */
+  --wjn-theme-sel-fx-control-list-border-selected: #38c9fc;
+  /* sel-fx / control scroll surface normal; type=color */
+  --wjn-theme-sel-fx-control-scroll-surface-normal: #10263a;
+  /* sel-fx / control scrollbar surface normal; type=color */
+  --wjn-theme-sel-fx-control-scrollbar-surface-normal: #12263b;
+  /* sel-fx / control fx chain card surface normal; type=color */
+  --wjn-theme-sel-fx-control-fx-chain-card-surface-normal: #214b62;
+  /* sel-fx / control fx chain card surface disabled; type=color */
+  --wjn-theme-sel-fx-control-fx-chain-card-surface-disabled: #15273a;
+  /* sel-fx / control fx chain card border selected; type=color */
+  --wjn-theme-sel-fx-control-fx-chain-card-border-selected: #42cbfb;
+  /* sel-fx / control fx chain card border disabled; type=color */
+  --wjn-theme-sel-fx-control-fx-chain-card-border-disabled: #344d69;
+  /* sel-fx / control fx chain card text normal; type=color */
+  --wjn-theme-sel-fx-control-fx-chain-card-text-normal: #f1f8ff;
+  /* sel-fx / control fx chain card text disabled; type=color */
+  --wjn-theme-sel-fx-control-fx-chain-card-text-disabled: #93a8be;
+  /* sel-fx / control fx chain card indicator normal; type=color */
+  --wjn-theme-sel-fx-control-fx-chain-card-indicator-normal: #47e5a1;
+  /* sel-fx / control fx chain card indicator disabled; type=color */
+  --wjn-theme-sel-fx-control-fx-chain-card-indicator-disabled: #52677c;
+  /* sel-fx / control fx chain number surface; type=color */
+  --wjn-theme-sel-fx-control-fx-chain-number-surface: #15273a;
+  /* sel-fx / control fx chain number border normal; type=color */
+  --wjn-theme-sel-fx-control-fx-chain-number-border-normal: #a8d8fa;
+  /* sel-fx / control fx chain number border disabled; type=color */
+  --wjn-theme-sel-fx-control-fx-chain-number-border-disabled: #667d9a;
+  /* sel-fx / control fx chain number text; type=color */
+  --wjn-theme-sel-fx-control-fx-chain-number-text: #e8f2ff;
+  /* sel-fx / control fx chain grip marker; type=color */
+  --wjn-theme-sel-fx-control-fx-chain-grip-marker: #7998bf;
+  /* sel-fx / control fx chain icon surface disabled; type=color */
+  --wjn-theme-sel-fx-control-fx-chain-icon-surface-disabled: #273b50;
+  /* sel-fx / control fx chain icon text normal; type=color */
+  --wjn-theme-sel-fx-control-fx-chain-icon-text-normal: #ffffff;
+  /* sel-fx / control fx chain icon text disabled; type=color */
+  --wjn-theme-sel-fx-control-fx-chain-icon-text-disabled: #91a6ba;
+  /* sel-fx / control fx chain menu text; type=color */
+  --wjn-theme-sel-fx-control-fx-chain-menu-text: #a8c6ef;
+  /* sel-fx / control chain endpoint surface; type=color */
+  --wjn-theme-sel-fx-control-chain-endpoint-surface: #243e57;
+  /* sel-fx / control chain endpoint border; type=color */
+  --wjn-theme-sel-fx-control-chain-endpoint-border: #567a9a;
+  /* sel-fx / control chain endpoint text; type=color */
+  --wjn-theme-sel-fx-control-chain-endpoint-text: #f1f7ff;
+  /* sel-fx / chart chain connection stroke; type=color */
+  --wjn-theme-sel-fx-chart-chain-connection-stroke: rgba(90,169,219,0.862745);
+  /* sel-fx / chart chain arrow fill; type=color */
+  --wjn-theme-sel-fx-chart-chain-arrow-fill: rgba(90,169,219,0.901961);
+  /* sel-fx / meter level surface; type=color */
+  --wjn-theme-sel-fx-meter-level-surface: #14283e;
+  /* sel-fx / meter level zone low active; type=color */
+  --wjn-theme-sel-fx-meter-level-zone-low-active: #2bce75;
+  /* sel-fx / meter level zone low inactive; type=color */
+  --wjn-theme-sel-fx-meter-level-zone-low-inactive: #163e2e;
+  /* sel-fx / meter level zone mid active; type=color */
+  --wjn-theme-sel-fx-meter-level-zone-mid-active: #f4cd42;
+  /* sel-fx / meter level zone mid inactive; type=color */
+  --wjn-theme-sel-fx-meter-level-zone-mid-inactive: #4a3f1d;
+  /* sel-fx / meter level zone high active; type=color */
+  --wjn-theme-sel-fx-meter-level-zone-high-active: #f35656;
+  /* sel-fx / meter level zone high inactive; type=color */
+  --wjn-theme-sel-fx-meter-level-zone-high-inactive: #4c242a;
+  /* sel-fx / meter level border; type=color */
+  --wjn-theme-sel-fx-meter-level-border: #426181;
+  /* sel-fx / meter level peak; type=color */
+  --wjn-theme-sel-fx-meter-level-peak: #f7fbff;
+  /* sel-fx / meter level label; type=color */
+  --wjn-theme-sel-fx-meter-level-label: #afc7e5;
+  /* sel-fx / meter level tick; type=color */
+  --wjn-theme-sel-fx-meter-level-tick: #526763;
+  /* sel-fx / meter level tick label; type=color */
+  --wjn-theme-sel-fx-meter-level-tick-label: #89a8c9;
+  /* sel-fx / meter level readout; type=color */
+  --wjn-theme-sel-fx-meter-level-readout: #f3f8ff;
+  /* sel-fx / background opacity; type=opacity */
+  --wjn-theme-sel-fx-background-opacity: 1;
+  /* sel-fx / background size; type=background-size */
+  --wjn-theme-sel-fx-background-size: cover;
+  /* sel-fx / background scale; type=background-scale */
+  --wjn-theme-sel-fx-background-scale: 1;
+  /* sel-fx / background repeat; type=background-repeat */
+  --wjn-theme-sel-fx-background-repeat: no-repeat;
+  /* sel-fx / background position x; type=position */
+  --wjn-theme-sel-fx-background-position-x: 50%;
+  /* sel-fx / background position y; type=position */
+  --wjn-theme-sel-fx-background-position-y: 50%;
+  /* sel-fx / background overlay enabled; type=boolean */
+  --wjn-theme-sel-fx-background-overlay-enabled: false;
+  /* sel-fx / background overlay opacity; type=opacity */
+  --wjn-theme-sel-fx-background-overlay-opacity: 0.12;
+  /* sel-fx / background blur radius; type=blur-radius */
+  --wjn-theme-sel-fx-background-blur-radius: 0px;
+  /* sel-fx / background component opacity; type=opacity */
+  --wjn-theme-sel-fx-background-component-opacity: 1;
+  /* sel-fx content background image; null means undefined and inherits the patchbay image; type=image */
+  /* --wjn-theme-sel-fx-background-image: inherited from --wjn-theme-patchbay-background-image; keep undeclared to inherit. */
+}

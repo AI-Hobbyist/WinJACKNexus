@@ -4,6 +4,9 @@
 #include <WinJACKNexus/UI/Controls.hpp>
 #include <WinJACKNexus/UI/FxSettingsWindow.hpp>
 #include <WinJACKNexus/UI/MixerPolarPlot.hpp>
+#include <WinJACKNexus/UI/ThemeCore.hpp>
+#include <WinJACKNexus/UI/ThemeBackground.hpp>
+#include <WinJACKNexus/UI/ThemeManager.hpp>
 
 #include <QMouseEvent>
 #include <QMenu>
@@ -19,6 +22,7 @@
 #include <QVBoxLayout>
 #include <QPainter>
 #include <QPainterPath>
+#include <QGraphicsOpacityEffect>
 #include <QPointer>
 #include <QFontMetricsF>
 #include <QElapsedTimer>
@@ -99,12 +103,10 @@ public:
         comment->setObjectName(QStringLiteral("selChannelComment"));
         modeButton = new Controls::ActionButton({}, this);
         modeButton->setObjectName(QStringLiteral("selChannelMode"));
-        modeButton->setStyleSheet(QStringLiteral("QPushButton {background:#102033;color:#eff6ff;border:1px solid #36516d;border-radius:5px;font-size:15px;text-align:left;padding:4px 30px 4px 12px;} QPushButton:disabled {color:#879ab0;border-color:#36516d;}"));
         modeArrow = new Controls::TextLabel(QStringLiteral("▾"), modeButton);
         modeArrow->setObjectName(QStringLiteral("selChannelModeArrow"));
         modeArrow->setAlignment(Qt::AlignCenter);
         modeArrow->setAttribute(Qt::WA_TransparentForMouseEvents);
-        modeArrow->setStyleSheet(QStringLiteral("color:#d6eaff;background:transparent;font-size:15px;"));
         connect(modeButton, &QPushButton::clicked, this, [this] {
             if (!channel || channel->number == QStringLiteral("MAIN")) return;
             QMenu menu(modeButton);
@@ -123,7 +125,6 @@ public:
         colorButton = new Controls::ActionButton(QStringLiteral("..."), this);
         colorButton->setObjectName(QStringLiteral("selCustomColor"));
         for (auto* edit : { name, comment }) {
-            edit->setStyleSheet(QStringLiteral("QLineEdit {background:#102033;color:#eff6ff;border:1px solid #36516d;border-radius:5px;padding:4px 12px;font-size:15px;}"));
             connect(edit, &QLineEdit::editingFinished, this, [this] {
                 if (!channel) return;
                 channel->name = name->text().trimmed();
@@ -132,7 +133,6 @@ public:
                 if (detailsChanged) detailsChanged();
             });
         }
-        colorButton->setStyleSheet(QStringLiteral("QPushButton {background:#172a40;color:#d6eaff;border:1px solid #50708c;border-radius:5px;font-size:15px;}"));
         connect(colorButton, &QPushButton::clicked, this, [this] {
             if (!channel) return;
             QColorDialog dialog(channel->accent, this);
@@ -146,6 +146,67 @@ public:
                 if (changed) changed();
             }
         });
+        applyTheme();
+        if (auto* core = ThemeManager::installedThemeCore())
+            connect(core, &ThemeCore::themeChanged, this, [this] { applyTheme(); update(); });
+        new ThemeBackgroundOverlay(QStringLiteral("sel-main"), this);
+    }
+
+    static std::array<QColor, 8> colorOptions()
+    {
+        constexpr std::array<const char*, 8> roles {
+            "control-color-option-1", "control-color-option-2",
+            "control-color-option-3", "control-color-option-4",
+            "control-color-option-5", "control-color-option-6",
+            "control-color-option-7", "control-color-option-8"
+        };
+        constexpr std::array<const char*, 8> defaults {
+            "#24b8ff", "#20c5dd", "#45d877", "#ffd246",
+            "#ffae55", "#f34d70", "#e359da", "#9963ec"
+        };
+        std::array<QColor, 8> colors;
+        for (std::size_t i = 0; i < colors.size(); ++i)
+            colors[i] = Controls::themeTokenColor(QStringLiteral("sel-main"),
+                QString::fromLatin1(roles[i]), QColor(QString::fromLatin1(defaults[i])));
+        return colors;
+    }
+
+    void applyTheme()
+    {
+        const auto opacity = ThemeBackground::componentOpacity(QStringLiteral("sel-main"));
+        for (auto* child : {static_cast<QWidget*>(name), static_cast<QWidget*>(comment),
+                            static_cast<QWidget*>(modeButton), static_cast<QWidget*>(colorButton)}) {
+            if (opacity < 1.0) {
+                auto* effect = qobject_cast<QGraphicsOpacityEffect*>(child->graphicsEffect());
+                if (!effect) { effect = new QGraphicsOpacityEffect(child); child->setGraphicsEffect(effect); }
+                effect->setOpacity(opacity);
+            } else if (child->graphicsEffect()) {
+                child->setGraphicsEffect(nullptr);
+            }
+        }
+        const auto css = [](const char* role, const char* fallback) {
+            return Controls::themeTokenColor(QStringLiteral("sel-main"),
+                QString::fromLatin1(role), QColor(QString::fromLatin1(fallback))).name();
+        };
+        QString modeStyle = QStringLiteral("QPushButton {background:%surface%;color:%text%;border:1px solid %border%;border-radius:5px;font-size:15px;text-align:left;padding:4px 30px 4px 12px;} QPushButton:disabled {color:%disabled-text%;border-color:%border%;}");
+        modeStyle.replace(QStringLiteral("%surface%"), css("control-mode-surface", "#102033"));
+        modeStyle.replace(QStringLiteral("%text%"), css("control-mode-text", "#eff6ff"));
+        modeStyle.replace(QStringLiteral("%border%"), css("control-mode-border", "#36516d"));
+        modeStyle.replace(QStringLiteral("%disabled-text%"), css("control-mode-text-disabled", "#879ab0"));
+        modeButton->setStyleSheet(modeStyle);
+        modeArrow->setStyleSheet(QStringLiteral("color:%1;background:transparent;font-size:15px;")
+            .arg(css("control-mode-arrow", "#d6eaff")));
+        QString editStyle = QStringLiteral("QLineEdit {background:%surface%;color:%text%;border:1px solid %border%;border-radius:5px;padding:4px 12px;font-size:15px;}");
+        editStyle.replace(QStringLiteral("%surface%"), css("control-edit-surface", "#102033"));
+        editStyle.replace(QStringLiteral("%text%"), css("control-edit-text", "#eff6ff"));
+        editStyle.replace(QStringLiteral("%border%"), css("control-edit-border", "#36516d"));
+        name->setStyleSheet(editStyle);
+        comment->setStyleSheet(editStyle);
+        QString colorStyle = QStringLiteral("QPushButton {background:%surface%;color:%text%;border:1px solid %border%;border-radius:5px;font-size:15px;}");
+        colorStyle.replace(QStringLiteral("%surface%"), css("control-color-button-surface", "#172a40"));
+        colorStyle.replace(QStringLiteral("%text%"), css("control-color-button-text", "#d6eaff"));
+        colorStyle.replace(QStringLiteral("%border%"), css("control-color-button-border", "#50708c"));
+        colorButton->setStyleSheet(colorStyle);
     }
 
     void setChannel(Channel* next)
@@ -225,17 +286,28 @@ protected:
 
     void paintEvent(QPaintEvent*) override
     {
+        const auto themed = [](const char* role, const QColor& fallback) {
+            return Controls::themeTokenColor(QStringLiteral("sel-main"), QString::fromLatin1(role), fallback);
+        };
         QPainter p(this);
         p.setRenderHint(QPainter::Antialiasing);
-        p.fillRect(rect(), QColor("#0b1a2b"));
+        p.fillRect(rect(), themed("surface-empty", QColor("#0b1a2b")));
+        ThemeBackground::paint(p, rect(), QStringLiteral("sel-main"));
+        p.setOpacity(ThemeBackground::componentOpacity(QStringLiteral("sel-main")));
         p.translate(contentOrigin());
         p.scale(contentScale(), contentScale());
-        p.fillRect(QRect(0, 0, 1394, 813), QColor("#0b1a2b"));
-        const QColor border=channel&&channel->customColor?channel->accent:QColor("#2b4662");
-        const QColor ink("#e8f2ff"), muted("#aec7eb"), blue("#26bfff");
+        p.fillRect(QRect(0, 0, 1394, 813), themed("surface-empty", QColor("#0b1a2b")));
+        const QColor border=channel&&channel->customColor?channel->accent
+            : themed("border-panel",QColor("#2b4662"));
+        const QColor ink=themed("text-primary",QColor("#e8f2ff"));
+        const QColor muted=themed("text-muted",QColor("#aec7eb"));
+        const QColor blue=themed("control-knob-indicator-normal",QColor("#26bfff"));
         const auto knobColors=Controls::paletteFor(*this,
-            {QColor("#0b1a2b"),QColor("#1b3b57"),QColor("#d9f4ff"),blue,QColor("#254762")});
-        auto panel = [&](QRectF r) { Controls::drawSurface(p,r,QColor("#102235"),border,7); };
+            {themed("control-knob-background-base",QColor("#0b1a2b")),
+             themed("control-knob-panel",QColor("#1b3b57")),
+             themed("control-knob-text",QColor("#d9f4ff")),blue,
+             themed("control-knob-track",QColor("#254762"))});
+        auto panel = [&](QRectF r) { Controls::drawSurface(p,r,themed("surface-panel",QColor("#102235")),border,7); };
         auto text = [&](QRectF r, const QString& s, int size=15, QColor c=QColor("#e8f2ff"), bool bold=false, int align=Qt::AlignLeft|Qt::AlignVCenter) {
             QFont f=p.font(); f.setPixelSize(size); f.setBold(bold);
             Controls::drawText(p,r,s,f,c,Qt::Alignment(align));
@@ -247,7 +319,9 @@ protected:
             Controls::drawStyledButton(p, r, label, active, style);
         };
         auto toggle = [&](QRectF r, bool checked) {
-            Controls::drawToggle(p, r, checked, QColor("#168dff"), QColor("#263e53"));
+            Controls::drawToggle(p, r, checked,
+                themed("control-toggle-indicator-on",QColor("#168dff")),
+                themed("control-toggle-indicator-off",QColor("#263e53")));
         };
         auto modeToggle = [&](QRectF r,const QString& label,bool checked,QColor accent) {
             Controls::ButtonStyle style;
@@ -255,7 +329,8 @@ protected:
             style.inactiveFill = style.activeFill = accent;
             style.inactiveFill.setAlpha(25);
             style.activeFill.setAlpha(85);
-            style.inactiveText = style.activeText = QColor("#f7f8ff");
+            style.inactiveText = style.activeText =
+                themed("control-mute-solo-text",QColor("#f7f8ff"));
             style.fontSize = 16;
             style.bold = true;
             Controls::drawStyledButton(p, r, label, checked, style);
@@ -265,8 +340,9 @@ protected:
         text({29, 102, 240, 21}, QStringLiteral("注释"), 14, ink, true);
         text({29, 182, 240, 21}, QStringLiteral("通道模式"), 14, ink, true);
         text({29, 262, 240, 21}, QStringLiteral("通道颜色"), 14, ink, true);
-        const std::array<QColor,8> colors { QColor("#24b8ff"), QColor("#20c5dd"), QColor("#45d877"), QColor("#ffd246"), QColor("#ffae55"), QColor("#f34d70"), QColor("#e359da"), QColor("#9963ec") };
-        Controls::drawSurface(p,QRectF(29,289,216,34),QColor("#15263a"),border,5);
+        const auto colors = colorOptions();
+        Controls::drawSurface(p,QRectF(29,289,216,34),
+            themed("control-color-picker-surface",QColor("#15263a")),border,5);
         for (int i=0;i<8;++i) { p.setPen(Qt::NoPen); p.setBrush(colors[i]); p.drawEllipse(QPointF(47+i*26,306),9,9); }
         text({29, 327, 254, 22}, QStringLiteral("输入增益  -12 ~ +12 dB"), 14, muted, false, Qt::AlignCenter);
         const qreal gain=channel?std::clamp(channel->inputGainDb,-12.0,12.0):0.0;
@@ -275,8 +351,10 @@ protected:
         text({126, 362, 126, 28}, QStringLiteral("%1%2 dB").arg(gain>=0?QStringLiteral("+"):QString()).arg(gain,0,'f',1),
              17, ink, true, Qt::AlignCenter);
         const bool mainOutput=channel && channel->number==QStringLiteral("MAIN");
-        modeToggle({29,407,mainOutput?254.0:118.0,34},QStringLiteral("M"),channel && channel->mute,QColor("#ff4b62"));
-        if(!mainOutput)modeToggle({165,407,118,34},QStringLiteral("S"),channel && channel->solo,QColor("#ffae2d"));
+        modeToggle({29,407,mainOutput?254.0:118.0,34},QStringLiteral("M"),channel && channel->mute,
+            themed("control-mute-accent",QColor("#ff4b62")));
+        if(!mainOutput)modeToggle({165,407,118,34},QStringLiteral("S"),channel && channel->solo,
+            themed("control-solo-accent",QColor("#ffae2d")));
         text({29, 449, 200, 26}, QStringLiteral("电平表"), 14, ink, true);
         for(int m=0;m<2;++m) {
             const int x=24+m*138; panel({qreal(x),480,125,318});
@@ -292,10 +370,13 @@ protected:
             const qreal peak=channel?std::clamp(channel->meterBallistics.peakDb()+offset,-72.0,12.0):-72.0;
             Controls::MeterStyle meterStyle;
             meterStyle.vertical=true;
-            meterStyle.border=QColor("#07141f");
-            meterStyle.zones={{-12,QColor("#17d675"),QColor("#123e2d")},
-                              {0,QColor("#f2df48"),QColor("#483d1e")},
-                              {12,QColor("#f2484d"),QColor("#4a2429")}};
+            meterStyle.border=themed("meter-level-border",QColor("#07141f"));
+            meterStyle.zones={{-12,themed("meter-level-zone-low-active",QColor("#17d675")),
+                                   themed("meter-level-zone-low-inactive",QColor("#123e2d"))},
+                              {0,themed("meter-level-zone-mid-active",QColor("#f2df48")),
+                                 themed("meter-level-zone-mid-inactive",QColor("#483d1e"))},
+                              {12,themed("meter-level-zone-high-active",QColor("#f2484d")),
+                                  themed("meter-level-zone-high-inactive",QColor("#4a2429"))}};
             auto scaleStyle=meterStyle;
             scaleStyle.ticks={{12,QStringLiteral("12")},{0,QStringLiteral("0")},
                               {-12,QStringLiteral("-12")},{-24,QStringLiteral("-24")},
@@ -325,15 +406,17 @@ protected:
             text({638,52,118,34},QStringLiteral("显示极坐标曲线"),14,muted);
             toggle({761,56,42,25},pannerBus&&pannerBus->showPolarCurves);
             if(pannerBus&&pannerBus->showPolarCurves){
-                button({809,52,58,34},QStringLiteral("输入"),pannerBus->showInputCurve,QColor("#28c9f3"));
-                button({872,52,58,34},QStringLiteral("输出"),pannerBus->showOutputCurve,QColor("#ffa44a"));
+                button({809,52,58,34},QStringLiteral("输入"),pannerBus->showInputCurve,
+                       themed("chart-series-polar-input-stroke",QColor("#28c9f3")));
+                button({872,52,58,34},QStringLiteral("输出"),pannerBus->showOutputCurve,
+                       themed("chart-series-polar-output-stroke",QColor("#ffa44a")));
             }
         }
         panel({330,95,616,448});
         const QPointF center(638,319); const qreal radius=190;
         const qreal pointRadius=159;
         if(!classic){
-        drawMixerPolarGrid(p,center,radius);
+        drawMixerPolarGrid(p,center,radius,QStringLiteral("sel-main"));
         const auto outputGains=pannerBus&&selectedPoint<static_cast<int>(pannerBus->adjustablePoints.size())
             ? Common::auxSpatialOutputGains(*pannerBus,selectedPoint):std::vector<double>{};
         const auto referenceLayout=channel?channel->layout:Common::AuxChannelLayout::stereo;
@@ -341,7 +424,7 @@ protected:
         for(int i=0;i<static_cast<int>(referencePoints.size());++i){
             if(!Common::auxHasSpatialPoint(referenceLayout,i))continue;
             const auto gain=i<static_cast<int>(outputGains.size())?outputGains[i]:0.0;
-            drawMixerPolarReferencePoint(p,center+referencePoints[i]*pointRadius,gain);
+            drawMixerPolarReferencePoint(p,center+referencePoints[i]*pointRadius,gain,QStringLiteral("sel-main"));
         }
         if(pannerBus&&pannerBus->showPolarCurves&&channel) {
             drawMixerPolarCurves(p,{330,95,616,448},center,radius,polarContour,
@@ -358,20 +441,21 @@ protected:
                 const auto influence=pannerBus->pointInfluenceRadii.size()>static_cast<std::size_t>(i)
                     ? pannerBus->pointInfluenceRadii[i]:0.1;
                 const auto outerRadius=Common::auxInfluencePixelRadius(influence);
-                drawMixerPolarHandle(p,screen,outerRadius,selected);
+                drawMixerPolarHandle(p,screen,outerRadius,selected,QStringLiteral("sel-main"));
                 const auto labels=Common::auxLayoutChannelLabels(channel->layout);
                 if(i<labels.size())text({screen.x()-17,screen.y()+14,34,19},labels[i],12,ink,true,Qt::AlignCenter);
             }
         }
-        drawMixerPolarCenter(p,center);
+        drawMixerPolarCenter(p,center,QStringLiteral("sel-main"));
         text({center.x()-22,105,44,20},QStringLiteral("0°"),12,muted,false,Qt::AlignCenter);
         text({center.x()+radius+8,309,45,20},QStringLiteral("90°"),12,muted);
         text({center.x()-radius-53,309,45,20},QStringLiteral("270°"),12,muted);
         text({center.x()-24,516,48,20},QStringLiteral("180°"),12,muted,false,Qt::AlignCenter);
         }else{
             Controls::Palette panColors;
-            panColors.border=QColor("#254762");panColors.accent=blue;
-            panColors.panel=QColor("#1b3b57");panColors.text=QColor("#d9f4ff");
+            panColors.border=themed("control-pan-border",QColor("#254762"));panColors.accent=blue;
+            panColors.panel=themed("control-knob-panel",QColor("#1b3b57"));
+            panColors.text=themed("control-knob-text",QColor("#d9f4ff"));
             Controls::drawPanKnob(p,center,pannerBus?pannerBus->classicPan:0.0,170,panColors);
             text({center.x()-185,center.y()+186,85,26},QStringLiteral("L100%"),15,muted,true,Qt::AlignCenter);
             text({center.x()-25,center.y()+186,50,26},QStringLiteral("C"),17,muted,true,Qt::AlignCenter);
@@ -416,10 +500,13 @@ protected:
             Controls::drawKnob(p,{x+83,y+32},(sendLevel+72)/84.0,23,knobColors);
             text({x+42,y+57,82,18},QStringLiteral("%1 dB").arg(sendLevel,0,'f',1),12,ink,true,Qt::AlignCenter);
             Controls::MeterStyle sendMeter;
-            sendMeter.border=QColor("#06131f");
-            sendMeter.zones={{-12,QColor("#17d675"),QColor("#102234")},
-                             {0,QColor("#f2df48"),QColor("#102234")},
-                             {12,QColor("#f2484d"),QColor("#102234")}};
+            sendMeter.border=themed("meter-aux-send-border",QColor("#06131f"));
+            sendMeter.zones={{-12,themed("meter-aux-send-zone-low-active",QColor("#17d675")),
+                                  themed("meter-aux-send-zone-low-inactive",QColor("#102234"))},
+                             {0,themed("meter-aux-send-zone-mid-active",QColor("#f2df48")),
+                                themed("meter-aux-send-zone-mid-inactive",QColor("#102234"))},
+                             {12,themed("meter-aux-send-zone-high-active",QColor("#f2484d")),
+                                 themed("meter-aux-send-zone-high-inactive",QColor("#102234"))}};
             sendMeter.ticks={{-72,QStringLiteral("-72")},{-48,QStringLiteral("-48")},
                              {-24,QStringLiteral("-24")},{-12,QStringLiteral("-12")},
                              {0,QStringLiteral("0")},{12,QStringLiteral("+12")}};
@@ -430,8 +517,10 @@ protected:
                 ? std::clamp(channel->channelPeaks[static_cast<std::size_t>(i)]+sendLevel,-72.0,12.0)
                 : meterDb;
             Controls::drawMeter(p,{x+126,y+3,226,33},meterDb,sendPeak,sendMeter);
-            modeToggle({x+215,y+45,62,29},QStringLiteral("M"),bus&&i<static_cast<int>(bus->sends.size())&&bus->sends[i].mute,QColor("#ff4b62"));
-            modeToggle({x+286,y+45,62,29},QStringLiteral("S"),bus&&i<static_cast<int>(bus->sends.size())&&bus->sends[i].solo,QColor("#ffae2d"));
+            modeToggle({x+215,y+45,62,29},QStringLiteral("M"),bus&&i<static_cast<int>(bus->sends.size())&&bus->sends[i].mute,
+                themed("control-mute-accent",QColor("#ff4b62")));
+            modeToggle({x+286,y+45,62,29},QStringLiteral("S"),bus&&i<static_cast<int>(bus->sends.size())&&bus->sends[i].solo,
+                themed("control-solo-accent",QColor("#ffae2d")));
             p.restore();
         }
     }
@@ -494,7 +583,7 @@ protected:
                 return;
             }
         }
-        const std::array<QColor,8> colors { QColor("#24b8ff"),QColor("#20c5dd"),QColor("#45d877"),QColor("#ffd246"),QColor("#ffae55"),QColor("#f34d70"),QColor("#e359da"),QColor("#9963ec") };
+        const auto colors = colorOptions();
         if (pt.y()>=289&&pt.y()<323&&pt.x()>=29&&pt.x()<245) {const int i=int((pt.x()-34)/26);if(i>=0&&i<8){channel->accent=colors[i];channel->customColor=true;}}
         else if(QRectF(65,351,200,51).contains(pt)) {
             draggedInputGain=true;
@@ -1610,12 +1699,19 @@ public:
         });
         selLabel->setText(found == channels.cend() ? QStringLiteral("未选择通道") : found->name);
         if(selHeader){
-            const QColor background=found!=channels.cend()&&found->customColor?found->accent:QColor("#123a65");
-            if(background!=lastHeaderColor){
+            const QColor background=found!=channels.cend()&&found->customColor?found->accent
+                : Controls::themeTokenColor(QStringLiteral("sel-main"),
+                    QStringLiteral("control-header-surface-default"),QColor("#123a65"));
+            const qreal brightness=.299*background.red()+.587*background.green()+.114*background.blue();
+            const QColor foreground=brightness>145
+                ? Controls::themeTokenColor(QStringLiteral("sel-main"),
+                    QStringLiteral("control-header-text-dark"),QColor("#102033"))
+                : Controls::themeTokenColor(QStringLiteral("sel-main"),
+                    QStringLiteral("control-header-text-light"),QColor("#f5fbff"));
+            if(background!=lastHeaderColor || foreground!=lastHeaderTextColor){
                 lastHeaderColor=background;
-                const qreal brightness=.299*background.red()+.587*background.green()+.114*background.blue();
-                const QString foreground=brightness>145?QStringLiteral("#102033"):QStringLiteral("#f5fbff");
-                selHeader->setStyleSheet(QStringLiteral("#selHeader {background:%1;border-radius:6px;} #selHeader QLabel {color:%2;background:transparent;}").arg(background.name(),foreground));
+                lastHeaderTextColor=foreground;
+                selHeader->setStyleSheet(QStringLiteral("#selHeader {background:%1;border-radius:6px;} #selHeader QLabel {color:%2;background:transparent;}").arg(background.name(),foreground.name()));
             }
         }
         if(selAuxTab)selAuxTab->setVisible(found!=channels.cend()&&found->number!=QStringLiteral("MAIN"));
@@ -2087,6 +2183,7 @@ public:
     QPointer<QLabel> selLabel;
     QPointer<QWidget> selHeader;
     QColor lastHeaderColor;
+    QColor lastHeaderTextColor;
     QPointer<QStackedWidget> selStack;
     QPointer<QWidget> selAuxPage;
     QPointer<QWidget> selFxPage;
@@ -2164,6 +2261,11 @@ MixerWindow::MixerWindow(Common::DigitalMixerState* state, TopologyCommit commit
     resize(1024, 768);
     setAttribute(Qt::WA_OpaquePaintEvent);
     setMouseTracking(true);
+    if (auto* core = ThemeManager::installedThemeCore())
+        connect(core, &ThemeCore::themeChanged, this, [this] {
+            impl_->updateSel();
+            update();
+        });
     auto* menuBar = this->menuBar();
     menuBar->setObjectName(QStringLiteral("mixerMenuBar"));
     auto* channelsMenu = menuBar->addMenu(QStringLiteral("通道管理"));
@@ -2228,18 +2330,26 @@ double MixerWindow::mainOutputLevelDb() const
 
 void MixerWindow::paintEvent(QPaintEvent*)
 {
+    const auto themed = [](const char* role, const QColor& fallback) {
+        return Controls::themeTokenColor(QStringLiteral("mixer"), QString::fromLatin1(role), fallback);
+    };
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
-    painter.fillRect(rect(), QColor("#07131f"));
+    painter.fillRect(rect(), themed("surface-empty", QColor("#07131f")));
+    ThemeBackground::paint(painter, rect(), QStringLiteral("mixer"));
+    painter.setOpacity(ThemeBackground::componentOpacity(QStringLiteral("mixer")));
 
     const auto heightScale = std::clamp(height() / 768.0, .72, 1.35);
     const auto headerHeight = 42.0 * heightScale;
-    const auto label = QColor("#dce9ff");
-    const auto secondary = QColor("#a9bbd7");
+    const auto label = themed("text-primary", QColor("#dce9ff"));
+    const auto secondary = themed("text-muted", QColor("#a9bbd7"));
     const auto groups = std::array<std::tuple<int, int, QString, QColor>, 3> {{
-        { 0, impl_->inputChannelCount, QStringLiteral("♩  Inputs"), QColor("#1977d3") },
-        { impl_->inputChannelCount, impl_->auxChannelCount(), QStringLiteral("◇  AUX Sends"), QColor("#654dd4") },
-        { impl_->masterIndex(), 1, QStringLiteral("◖  Main Output"), QColor("#1ca47f") }
+        { 0, impl_->inputChannelCount, QStringLiteral("♩  Inputs"),
+            themed("group-input-accent",QColor("#1977d3")) },
+        { impl_->inputChannelCount, impl_->auxChannelCount(), QStringLiteral("◇  AUX Sends"),
+            themed("group-aux-accent",QColor("#654dd4")) },
+        { impl_->masterIndex(), 1, QStringLiteral("◖  Main Output"),
+            themed("group-master-accent",QColor("#1ca47f")) }
     }};
 
     for (const auto& [start, count, title, color] : groups) {
@@ -2273,11 +2383,11 @@ void MixerWindow::paintEvent(QPaintEvent*)
         const auto& channel = impl_->channels[index];
         const auto card = impl_->channelRect(index);
         if (index != 0 && index != impl_->inputChannelCount && index != impl_->masterIndex()) {
-            painter.setPen(QPen(QColor("#243c57"), 1));
+            painter.setPen(QPen(themed("group-divider",QColor("#243c57")), 1));
             painter.drawLine(QPointF(card.left(), card.top() + headerHeight), QPointF(card.left(), card.bottom()));
         }
         if (index == impl_->inputChannelCount - 1 || index == impl_->masterIndex() - 1) {
-            painter.setPen(QPen(QColor("#243c57"), 1));
+            painter.setPen(QPen(themed("group-divider",QColor("#243c57")), 1));
             const auto right = card.right() - 0.5;
             painter.drawLine(QPointF(right, card.top() + headerHeight), QPointF(right, card.bottom()));
         }
@@ -2298,11 +2408,16 @@ void MixerWindow::paintEvent(QPaintEvent*)
                 ? impl_->mainOutputLevelDb()
                 : std::clamp(inputLevel + (channel.postFaderMeter ? faderDbValue(channel.fader) : 0.0), -72.0, 12.0);
         Controls::drawSurface(painter,meterMode,
-            channel.postFaderMeter ? QColor("#163a51") : QColor("#182735"),
-            channel.postFaderMeter ? QColor("#33b6ff") : QColor("#6f849a"),4);
+            channel.postFaderMeter ? themed("control-meter-mode-surface-post",QColor("#163a51"))
+                                   : themed("control-meter-mode-surface-input",QColor("#182735")),
+            channel.postFaderMeter ? themed("control-meter-mode-border-post",QColor("#33b6ff"))
+                                   : themed("control-meter-mode-border-input",QColor("#6f849a")),4);
         drawText(painter, meterMode, channel.postFaderMeter ? QStringLiteral("POST") : QStringLiteral("IN"),
-                 channel.postFaderMeter ? QColor("#8edcff") : secondary, 9 * heightScale, Qt::AlignCenter, true);
-        Controls::drawSurface(painter,meter,QColor("#101a22"),QColor("#0a0f14"),3,4);
+                 channel.postFaderMeter ? themed("control-meter-mode-text-post",QColor("#8edcff"))
+                                        : secondary, 9 * heightScale, Qt::AlignCenter, true);
+        Controls::drawSurface(painter,meter,
+            themed("meter-level-surface",QColor("#101a22")),
+            themed("meter-level-surface-border",QColor("#0a0f14")),3,4);
         const auto innerMeter = meter.adjusted(2.5, 2.5, -2.5, -2.5);
         const auto yForDb = [&](qreal db) {
             const auto normalized = std::clamp((db + 72.0) / 84.0, 0.0, 1.0);
@@ -2310,10 +2425,13 @@ void MixerWindow::paintEvent(QPaintEvent*)
         };
         Controls::MeterStyle meterStyle;
         meterStyle.vertical=true;
-        meterStyle.border=QColor("#07131f");
-        meterStyle.zones={{-12,QColor("#26dc68"),QColor("#163e2e")},
-                          {0,QColor("#ffe15a"),QColor("#4a3f1d")},
-                          {12,QColor("#ff5353"),QColor("#4c242a")}};
+        meterStyle.border=themed("meter-level-border",QColor("#07131f"));
+        meterStyle.zones={{-12,themed("meter-level-zone-low-active",QColor("#26dc68")),
+                               themed("meter-level-zone-low-inactive",QColor("#163e2e"))},
+                          {0,themed("meter-level-zone-mid-active",QColor("#ffe15a")),
+                             themed("meter-level-zone-mid-inactive",QColor("#4a3f1d"))},
+                          {12,themed("meter-level-zone-high-active",QColor("#ff5353")),
+                              themed("meter-level-zone-high-inactive",QColor("#4c242a"))}};
         auto scaleStyle=meterStyle;
         scaleStyle.ticks={{12,QStringLiteral("+12")},{0,QStringLiteral("0")},
                           {-12,QStringLiteral("-12")},{-24,QStringLiteral("-24")},
@@ -2327,29 +2445,45 @@ void MixerWindow::paintEvent(QPaintEvent*)
             innerMeter.left()-card.left()-6,innerMeter.height()},scaleStyle);
         Controls::drawMeter(painter,innerMeter,meterLevel,
             channel.realMeter?channel.meterBallistics.peakDb():meterLevel,meterStyle);
-        painter.setPen(QPen(QColor("#07131f"), 1));
+        painter.setPen(QPen(themed("meter-level-threshold-line",QColor("#07131f")), 1));
         painter.drawLine(QPointF(innerMeter.left(), yForDb(-12.0)), QPointF(innerMeter.right(), yForDb(-12.0)));
         painter.drawLine(QPointF(innerMeter.left(), yForDb(0.0)), QPointF(innerMeter.right(), yForDb(0.0)));
 
         const auto drawButton = [&](const QRectF& button, const QString& text, const QColor& color, bool active) {
             Controls::drawSurface(painter,button,
-                active ? withAlpha(color, 65) : QColor("#16283a"),
+                active ? withAlpha(color, 65) : themed("control-button-surface-normal",QColor("#16283a")),
                 active ? color : withAlpha(color, 190),5,1.1);
-            drawText(painter, button, text, active ? QColor("#ffffff") : label, 12 * heightScale, Qt::AlignCenter, true);
+            drawText(painter, button, text,
+                active ? themed("control-button-text-selected",QColor("#ffffff"))
+                       : themed("control-button-text-normal",label),
+                12 * heightScale, Qt::AlignCenter, true);
         };
-        drawButton(impl_->muteButtonRect(index, heightScale), index == impl_->masterIndex() ? "MUTE" : "M", QColor("#ff4f55"), channel.mute);
+        drawButton(impl_->muteButtonRect(index, heightScale), index == impl_->masterIndex() ? "MUTE" : "M",
+                   themed("control-button-mute-accent",QColor("#ff4f55")), channel.mute);
         if(index!=impl_->masterIndex())
-            drawButton(impl_->soloButtonRect(index, heightScale), "S", QColor("#f7aa2f"), channel.solo);
-        drawButton(impl_->selectButtonRect(index, heightScale), "SEL", QColor("#66809b"), false);
+            drawButton(impl_->soloButtonRect(index, heightScale), "S",
+                       themed("control-button-solo-accent",QColor("#f7aa2f")), channel.solo);
+        drawButton(impl_->selectButtonRect(index, heightScale), "SEL",
+                   themed("control-button-select-accent",QColor("#66809b")), false);
         if (index != impl_->masterIndex())
-            drawButton(impl_->mixButtonRect(index, heightScale), "MIX", QColor("#24b8ff"), channel.mixToMain);
+            drawButton(impl_->mixButtonRect(index, heightScale), "MIX",
+                       themed("control-button-mix-accent",QColor("#24b8ff")), channel.mixToMain);
 
-        const auto faderColor = index < impl_->inputChannelCount
-            ? QColor("#9aa8b7")
-            : index < impl_->masterIndex() ? QColor("#33b6ff") : QColor("#ff5353");
+        const auto faderKind = index < impl_->inputChannelCount ? "input"
+            : index < impl_->masterIndex() ? "aux" : "master";
+        const auto faderColor = themed(
+            QStringLiteral("fader-%1-thumb").arg(QString::fromLatin1(faderKind)).toLatin1().constData(),
+            index < impl_->inputChannelCount ? QColor("#9aa8b7")
+                : index < impl_->masterIndex() ? QColor("#33b6ff") : QColor("#ff5353"));
         const auto track = impl_->faderTrack(index);
         Controls::FaderStyle faderStyle;
         faderStyle.accent = faderColor;
+        faderStyle.track = themed(
+            QStringLiteral("fader-%1-track").arg(QString::fromLatin1(faderKind)).toLatin1().constData(),
+            faderStyle.track);
+        faderStyle.grip = themed(
+            QStringLiteral("fader-%1-grip").arg(QString::fromLatin1(faderKind)).toLatin1().constData(),
+            faderStyle.grip);
         faderStyle.thumbWidth = card.width() * .26;
         faderStyle.thumbHeight = 40 * heightScale;
         Controls::drawFader(painter, track, channel.fader, faderStyle);
@@ -2362,17 +2496,21 @@ void MixerWindow::paintEvent(QPaintEvent*)
 
     const auto drawScrollbar = [&](bool input, const QColor& color) {
         const auto track = impl_->scrollbarTrack(input);
-        Controls::drawSurface(painter,track,QColor("#101c29"),{},track.height()/2.0);
+        Controls::drawSurface(painter,track,
+            themed("control-scrollbar-track",QColor("#101c29")),{},track.height()/2.0);
         const auto thumb = impl_->scrollbarThumb(input).adjusted(1, 1, -1, -1);
         Controls::drawSurface(painter,thumb,withAlpha(color,210),{},thumb.height()/2.0);
     };
-    drawScrollbar(true, QColor("#45bfff"));
-    drawScrollbar(false, QColor("#8f78ff"));
+    drawScrollbar(true, themed("control-scrollbar-input-thumb",QColor("#45bfff")));
+    drawScrollbar(false, themed("control-scrollbar-aux-thumb",QColor("#8f78ff")));
 
     const auto divider = impl_->groupDividerRect();
     Controls::drawSurface(painter,
         QRectF(divider.center().x() - 1.0, divider.top() + headerHeight * .25,
-               2.0, headerHeight * .5),QColor("#243c57"),{},1.0);
+               2.0, headerHeight * .5),
+        themed("group-divider",QColor("#243c57")),{},1.0);
+    painter.setOpacity(1.0);
+    ThemeBackground::paint(painter, rect(), QStringLiteral("mixer"), true);
 }
 
 void MixerWindow::mousePressEvent(QMouseEvent* event)

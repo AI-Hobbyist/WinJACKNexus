@@ -27,7 +27,9 @@ void label(QPainter& p, QRectF r, const QString& text, int size, QColor color, b
     Controls::drawText(p,r,text,f,color);
 }
 void toggle(QPainter& p, QRectF r, bool on) {
-    Controls::drawToggle(p, r, on, QColor(16,139,236), QColor(45,68,93));
+    Controls::drawToggle(p, r, on,
+        Controls::themeTokenColor("native-fx-gate", "control-toggle-indicator-on", QColor(16,139,236)),
+        Controls::themeTokenColor("native-fx-gate", "control-toggle-indicator-off", QColor(45,68,93)));
 }
 void chevron(QPainter& p, QPointF c) {
     p.setPen(QPen(muted,1.5)); p.drawLine(c+QPointF(-4,-2),c+QPointF(0,2));
@@ -97,9 +99,11 @@ void GateEffectWidget::apply(const std::function<void(Parameters&)>& edit) {
 
 void GateEffectWidget::paintEvent(QPaintEvent*) {
     QPainter p(this); p.setRenderHint(QPainter::Antialiasing);
+    const auto primary = Controls::themeTokenColor("native-fx-gate", "text-primary", Qt::white);
+    const auto muted = Controls::themeTokenColor("native-fx-gate", "text-muted", QColor(151,181,224));
     p.fillRect(rect(), Controls::themeColor(*this, "fxBackground", QColor(13,28,45)));
     box(p,{7,8,740,128},11,QColor(21,39,59),QColor(47,75,104));
-    label(p,{22,23,110,31},QStringLiteral("作用声道"),18,Qt::white,true);
+    label(p,{22,23,110,31},QStringLiteral("作用声道"),18,primary,true);
     for(int i=0;i<9;++i) {
         QRectF r(22+i*80,68,72,40); const bool chosen=i==selectedChannel_+1;
         box(p,r,5,chosen?QColor(13,56,88):QColor(24,43,63),chosen?cyan:QColor(60,86,112));
@@ -113,14 +117,14 @@ void GateEffectWidget::paintEvent(QPaintEvent*) {
     p.setPen(QPen(cyan,3)); QPainterPath wave; wave.moveTo(25,44); wave.lineTo(33,44);
     wave.lineTo(39,26); wave.lineTo(44,59); wave.lineTo(49,32); wave.lineTo(54,53);
     wave.lineTo(60,39); wave.lineTo(68,44); p.drawPath(wave);
-    label(p,{90,12,145,32},QStringLiteral("Gate 门限"),19,Qt::white,true);
+    label(p,{90,12,145,32},QStringLiteral("Gate 门限"),19,primary,true);
     label(p,{90,46,209,22},QStringLiteral("抑制低于阈值的信号，减少底噪"),10,muted);
     box(p,{316,15,72,58},10,QColor(30,52,77)); toggle(p,{334,33,37,20},displayed().enabled);
     label(p,{401,27,42,29},QStringLiteral("预设:"),10,muted);
     box(p,{446,26,170,34},5,QColor(19,36,56),QColor(66,103,144));
     label(p,{452,26,139,34},selectedPreset_==0?QStringLiteral("Default"):
           selectedPreset_==1?QStringLiteral("Tight Gate"):
-          selectedPreset_==2?QStringLiteral("Gentle Gate"):QStringLiteral("Custom"),11,Qt::white);
+          selectedPreset_==2?QStringLiteral("Gentle Gate"):QStringLiteral("Custom"),11,primary);
     chevron(p,{600,43});
     for(int i=0;i<2;++i) {
         const int x=628+i*38; box(p,{qreal(x),27,30,32},5,QColor(27,51,77),QColor(63,101,141));
@@ -133,7 +137,7 @@ void GateEffectWidget::paintEvent(QPaintEvent*) {
     const auto s=displayed();
     p.save(); p.setClipRect(QRectF(82,112,280,246));
     Controls::ChartGridStyle grid;
-    grid.background=QColor(13,31,50);
+    grid.background=Controls::themeTokenColor("native-fx-gate", "chart-background", QColor(13,31,50));
     grid.grid=QColor(37,60,82,120);
     grid.columns=10;
     grid.rows=5;
@@ -154,11 +158,11 @@ void GateEffectWidget::paintEvent(QPaintEvent*) {
     QPointF marker=plot(s.thresholdDb,s.thresholdDb);
     if(lowerCurve.isEmpty()) lowerCurve.moveTo(marker); else lowerCurve.lineTo(marker);
     Controls::CurveStyle lowerStyle;
-    lowerStyle.stroke=QColor(149,113,214);
+    lowerStyle.stroke=Controls::themeTokenColor("native-fx-gate", "chart-series-lower-transfer-stroke", QColor(149,113,214));
     lowerStyle.width=1.5;
     Controls::drawCurvePath(p,lowerCurve,lowerStyle);
     Controls::CurveStyle upperStyle;
-    upperStyle.stroke=cyan;
+    upperStyle.stroke=Controls::themeTokenColor("native-fx-gate", "chart-series-upper-transfer-stroke", cyan);
     upperStyle.width=2;
     Controls::drawCurvePath(p,upperCurve,upperStyle);
     p.setPen(QPen(cyan,1)); p.drawLine(304,112,362,112); p.drawLine(362,112,362,358);
@@ -166,7 +170,7 @@ void GateEffectWidget::paintEvent(QPaintEvent*) {
     Controls::drawMarker(p,marker,6,Qt::white,cyan,2); p.restore();
     const qreal tooltipX=std::clamp(marker.x()-45.0,115.0,270.0);
     box(p,{tooltipX,116,91,48},8,QColor(32,54,78),QColor(85,119,154));
-    label(p,{tooltipX,118,91,44},QStringLiteral("Threshold\n%1 dB").arg(s.thresholdDb,0,'f',1),10,Qt::white);
+    label(p,{tooltipX,118,91,44},QStringLiteral("Threshold\n%1 dB").arg(s.thresholdDb,0,'f',1),10,primary);
     p.setPen(QPen(muted,1));
     for(int t=-60;t<=0;t+=12) {
         int x=int(plot(float(t),-60).x()),y=int(plot(-60,float(t)).y());
@@ -177,11 +181,14 @@ void GateEffectWidget::paintEvent(QPaintEvent*) {
     p.save(); p.translate(35,310); p.rotate(-90);
     label(p,{0,0,150,20},QStringLiteral("输出电平 (dB)"),11,muted); p.restore();
     const auto knobColors=Controls::paletteFor(*this,
-        {QColor(13,28,45),QColor(22,41,62),Qt::white,cyan,QColor(58,91,124)});
+        {Controls::themeTokenColor("native-fx-gate", "control-knob-background-base", QColor(13,28,45)),
+         QColor(22,41,62),primary,
+         Controls::themeTokenColor("native-fx-gate", "control-knob-indicator-normal", cyan),
+         Controls::themeTokenColor("native-fx-gate", "control-knob-track", QColor(58,91,124))});
     for(int i=0;i<6;++i) {
         QPoint c=dialCenters[i]; float norm=normalizedValue(s,i);
         Controls::drawKnob(p,QPointF(c),norm,36,knobColors);
-        label(p,{qreal(c.x()-55),qreal(c.y()+36),110,21},formatted(s,i),11,Qt::white);
+        label(p,{qreal(c.x()-55),qreal(c.y()+36),110,21},formatted(s,i),11,primary);
         label(p,{qreal(c.x()-61),qreal(c.y()+57),122,37},QString::fromUtf8(labels[i]),10,muted);
     }
     box(p,{22,427,430,61},9,QColor(20,39,61),QColor(47,75,104));
@@ -190,10 +197,10 @@ void GateEffectWidget::paintEvent(QPaintEvent*) {
     toggle(p,{167,447,36,20},s.sidechainFilter);
     label(p,{223,442,66,30},QStringLiteral("高通"),10,muted);
     box(p,{291,441,140,35},5,QColor(20,39,60),QColor(62,98,138));
-    label(p,{301,441,111,35},QStringLiteral("%1 Hz").arg(s.highPassHz,0,'f',0),11,Qt::white);
+    label(p,{301,441,111,35},QStringLiteral("%1 Hz").arg(s.highPassHz,0,'f',0),11,primary);
     chevron(p,{416,459}); label(p,{473,442,83,30},QStringLiteral("低通"),10,muted);
     box(p,{572,441,137,35},5,QColor(20,39,60),QColor(62,98,138));
-    label(p,{583,441,108,35},QStringLiteral("%1 kHz").arg(s.lowPassHz/1000,0,'f',1),11,Qt::white);
+    label(p,{583,441,108,35},QStringLiteral("%1 kHz").arg(s.lowPassHz/1000,0,'f',1),11,primary);
     chevron(p,{694,459}); p.restore();
 }
 

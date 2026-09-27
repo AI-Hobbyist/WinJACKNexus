@@ -1,0 +1,137 @@
+/* meter-bridge module theme tokens. Keep token names and the :root block. */
+:root {
+  /* meter-bridge / surface window; type=color */
+  --wjn-theme-meter-bridge-surface-window: #0b1928;
+  /* meter-bridge / surface page; type=color */
+  --wjn-theme-meter-bridge-surface-page: #061523;
+  /* meter-bridge / surface raised; type=color */
+  --wjn-theme-meter-bridge-surface-raised: #10253b;
+  /* meter-bridge / text primary; type=color */
+  --wjn-theme-meter-bridge-text-primary: #e7f3ff;
+  /* meter-bridge / text muted; type=color */
+  --wjn-theme-meter-bridge-text-muted: #83a7d0;
+  /* meter-bridge / text page; type=color */
+  --wjn-theme-meter-bridge-text-page: #d8e9ff;
+  /* meter-bridge / text empty; type=color */
+  --wjn-theme-meter-bridge-text-empty: #93b7db;
+  /* meter-bridge / control tab border normal; type=color */
+  --wjn-theme-meter-bridge-control-tab-border-normal: #244b6b;
+  /* meter-bridge / control tab surface normal; type=color */
+  --wjn-theme-meter-bridge-control-tab-surface-normal: #102742;
+  /* meter-bridge / control tab text normal; type=color */
+  --wjn-theme-meter-bridge-control-tab-text-normal: #b8d7f6;
+  /* meter-bridge / control tab border selected; type=color */
+  --wjn-theme-meter-bridge-control-tab-border-selected: #31c6ff;
+  /* meter-bridge / control tab surface selected; type=color */
+  --wjn-theme-meter-bridge-control-tab-surface-selected: #176092;
+  /* meter-bridge / control tab text selected; type=color */
+  --wjn-theme-meter-bridge-control-tab-text-selected: #ffffff;
+  /* meter-bridge / control tab surface disabled; type=color */
+  --wjn-theme-meter-bridge-control-tab-surface-disabled: #0a1d30;
+  /* meter-bridge / control tab text disabled; type=color */
+  --wjn-theme-meter-bridge-control-tab-text-disabled: #607a94;
+  /* meter-bridge / accent primary; type=color */
+  --wjn-theme-meter-bridge-accent-primary: #3b9dff;
+  /* meter-bridge / accent secondary; type=color */
+  --wjn-theme-meter-bridge-accent-secondary: #ffd143;
+  /* meter-bridge / border card; type=color */
+  --wjn-theme-meter-bridge-border-card: #2a5275;
+  /* meter-bridge / border card outline; type=color */
+  --wjn-theme-meter-bridge-border-card-outline: #27516c;
+  /* meter-bridge / state danger; type=color */
+  --wjn-theme-meter-bridge-state-danger: #ff5269;
+  /* meter-bridge / state success; type=color */
+  --wjn-theme-meter-bridge-state-success: #43e88d;
+  /* meter-bridge / control action surface normal; type=color */
+  --wjn-theme-meter-bridge-control-action-surface-normal: #13263b;
+  /* meter-bridge / control action text normal; type=color */
+  --wjn-theme-meter-bridge-control-action-text-normal: #dbeaff;
+  /* meter-bridge / control action border normal; type=color */
+  --wjn-theme-meter-bridge-control-action-border-normal: #274b6c;
+  /* meter-bridge / control preset surface normal; type=color */
+  --wjn-theme-meter-bridge-control-preset-surface-normal: #12263c;
+  /* meter-bridge / control preset text normal; type=color */
+  --wjn-theme-meter-bridge-control-preset-text-normal: #dcecff;
+  /* meter-bridge / control preset border normal; type=color */
+  --wjn-theme-meter-bridge-control-preset-border-normal: #294d70;
+  /* meter-bridge / control number surface; type=color */
+  --wjn-theme-meter-bridge-control-number-surface: #1688e8;
+  /* meter-bridge / control number text; type=color */
+  --wjn-theme-meter-bridge-control-number-text: #071626;
+  /* meter-bridge / control number border; type=color */
+  --wjn-theme-meter-bridge-control-number-border: #51b8ff;
+  /* meter-bridge / text preset label; type=color */
+  --wjn-theme-meter-bridge-text-preset-label: #82a6cf;
+  /* meter-bridge / state online text; type=color */
+  --wjn-theme-meter-bridge-state-online-text: #8ce0bf;
+  /* meter-bridge / state online surface; type=color */
+  --wjn-theme-meter-bridge-state-online-surface: #1b3a34;
+  /* meter-bridge / state online border; type=color */
+  --wjn-theme-meter-bridge-state-online-border: #3f8270;
+  /* meter-bridge / text history muted; type=color */
+  --wjn-theme-meter-bridge-text-history-muted: #88a9ce;
+  /* meter-bridge / text history control; type=color */
+  --wjn-theme-meter-bridge-text-history-control: #cfe4ff;
+  /* meter-bridge / control history toolbar border; type=color */
+  --wjn-theme-meter-bridge-control-history-toolbar-border: #183b5a;
+  /* meter-bridge / control history checkbox border; type=color */
+  --wjn-theme-meter-bridge-control-history-checkbox-border: #376487;
+  /* meter-bridge / control history checkbox selected surface; type=color */
+  --wjn-theme-meter-bridge-control-history-checkbox-selected-surface: #2f9eff;
+  /* meter-bridge / control history checkbox selected border; type=color */
+  --wjn-theme-meter-bridge-control-history-checkbox-selected-border: #72bcff;
+  /* meter-bridge / control history group text; type=color */
+  --wjn-theme-meter-bridge-control-history-group-text: #b8d7f6;
+  /* meter-bridge / control history splitter surface; type=color */
+  --wjn-theme-meter-bridge-control-history-splitter-surface: #122a42;
+  /* meter-bridge / meter level zone low active; type=color */
+  --wjn-theme-meter-bridge-meter-level-zone-low-active: #43e88d;
+  /* meter-bridge / meter level zone low inactive; type=color */
+  --wjn-theme-meter-bridge-meter-level-zone-low-inactive: #10253b;
+  /* meter-bridge / meter level zone mid active; type=color */
+  --wjn-theme-meter-bridge-meter-level-zone-mid-active: #ffd143;
+  /* meter-bridge / meter level zone mid inactive; type=color */
+  --wjn-theme-meter-bridge-meter-level-zone-mid-inactive: #10253b;
+  /* meter-bridge / meter level zone high active; type=color */
+  --wjn-theme-meter-bridge-meter-level-zone-high-active: #ff5269;
+  /* meter-bridge / meter level zone high inactive; type=color */
+  --wjn-theme-meter-bridge-meter-level-zone-high-inactive: #10253b;
+  /* meter-bridge / chart series peak stroke; type=color */
+  --wjn-theme-meter-bridge-chart-series-peak-stroke: #ff5269;
+  /* meter-bridge / chart series rms stroke; type=color */
+  --wjn-theme-meter-bridge-chart-series-rms-stroke: #ff8a47;
+  /* meter-bridge / chart series lfe stroke; type=color */
+  --wjn-theme-meter-bridge-chart-series-lfe-stroke: #ff78c7;
+  /* meter-bridge / chart series true peak stroke; type=color */
+  --wjn-theme-meter-bridge-chart-series-true-peak-stroke: #ffd143;
+  /* meter-bridge / chart series momentary stroke; type=color */
+  --wjn-theme-meter-bridge-chart-series-momentary-stroke: #43e88d;
+  /* meter-bridge / chart series short term stroke; type=color */
+  --wjn-theme-meter-bridge-chart-series-short-term-stroke: #48c9ff;
+  /* meter-bridge / chart series integrated stroke; type=color */
+  --wjn-theme-meter-bridge-chart-series-integrated-stroke: #4b95ff;
+  /* meter-bridge / chart series lra stroke; type=color */
+  --wjn-theme-meter-bridge-chart-series-lra-stroke: #b96aff;
+  /* meter-bridge / background opacity; type=opacity */
+  --wjn-theme-meter-bridge-background-opacity: 1;
+  /* meter-bridge / background size; type=background-size */
+  --wjn-theme-meter-bridge-background-size: cover;
+  /* meter-bridge / background scale; type=background-scale */
+  --wjn-theme-meter-bridge-background-scale: 1;
+  /* meter-bridge / background repeat; type=background-repeat */
+  --wjn-theme-meter-bridge-background-repeat: no-repeat;
+  /* meter-bridge / background position x; type=position */
+  --wjn-theme-meter-bridge-background-position-x: 50%;
+  /* meter-bridge / background position y; type=position */
+  --wjn-theme-meter-bridge-background-position-y: 50%;
+  /* meter-bridge / background overlay enabled; type=boolean */
+  --wjn-theme-meter-bridge-background-overlay-enabled: false;
+  /* meter-bridge / background overlay opacity; type=opacity */
+  --wjn-theme-meter-bridge-background-overlay-opacity: 0.12;
+  /* meter-bridge / background blur radius; type=blur-radius */
+  --wjn-theme-meter-bridge-background-blur-radius: 0px;
+  /* meter-bridge / background component opacity; type=opacity */
+  --wjn-theme-meter-bridge-background-component-opacity: 1;
+  /* meter-bridge content background image; null means undefined and inherits the patchbay image; type=image */
+  /* --wjn-theme-meter-bridge-background-image: inherited from --wjn-theme-patchbay-background-image; keep undeclared to inherit. */
+}

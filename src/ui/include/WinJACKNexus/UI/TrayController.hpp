@@ -82,6 +82,7 @@ public:
     QAction* mixerAction() const;        // 调音台
     QAction* meterbridgeAction() const;  // 电平表桥
     QAction* switchAction() const;       // 信号切换开关
+    void setQuickAccessThemeMenu(QMenu* menu);
     void setPlaceholderEnabled(bool enabled);          // 启用/禁用接线盘入口
     void registerPlaceholder(const QAction* action);   // 对应节点注册后启用该入口
 

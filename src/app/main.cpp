@@ -15,6 +15,11 @@
  */
 #include <WinJACKNexus/UI/ApplicationSettings.hpp>
 #include <WinJACKNexus/UI/Controls.hpp>
+#include <WinJACKNexus/UI/ThemeCore.hpp>
+#include <WinJACKNexus/UI/ThemeCatalog.hpp>
+#include <WinJACKNexus/UI/ThemeManager.hpp>
+#include <WinJACKNexus/UI/ThemeManagementDialog.hpp>
+#include <WinJACKNexus/UI/ThemeNamespaceRegistry.hpp>
 #include <WinJACKNexus/UI/TrayController.hpp>
 #include <WinJACKNexus/Audio/JackClient.hpp>
 #include <WinJACKNexus/Audio/JackServerGuard.hpp>
@@ -29,6 +34,7 @@
 #include <QDialog>
 #include <QDialogButtonBox>
 #include <QDoubleSpinBox>
+#include <QFile>
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QFormLayout>
@@ -37,6 +43,7 @@
 #include <QIcon>
 #include <QLabel>
 #include <QLineEdit>
+#include <QMenu>
 #include <QMessageBox>
 #include <QPainter>
 #include <QPen>
@@ -48,6 +55,7 @@
 #include <QSlider>
 #include <QSpinBox>
 #include <QStyle>
+#include <QTabWidget>
 #include <QTimer>
 #include <QToolButton>
 #include <QVBoxLayout>
@@ -88,6 +96,14 @@ public:
             return false;
         }
 
+        QString themeError;
+        WinJACKNexus::UI::ThemeNamespaceRegistry::instance().registerNodeModule(
+            [this](const char* name) -> QFunctionPointer {
+                return reinterpret_cast<QFunctionPointer>(GetProcAddress(library_, name));
+            }, filePath, &themeLease_, &themeError);
+        if (!themeError.isEmpty())
+            qWarning().noquote() << "Node theme descriptor:" << themeError;
+
         node_ = create(0);
         if (node_ == nullptr || !node_->init()) {
             unload();
@@ -117,6 +133,7 @@ private:
             node_ = nullptr;
         }
         destroy_ = nullptr;
+        themeLease_.reset();
         if (library_ != nullptr) {
             FreeLibrary(library_);
             library_ = nullptr;
@@ -126,6 +143,7 @@ private:
     HMODULE library_ = nullptr;
     WinJACKNexus::Node::INode* node_ = nullptr;
     Destroy destroy_ = nullptr;
+    WinJACKNexus::UI::ThemeNamespaceRegistry::Lease themeLease_;
 };
 
 QString executableDirectory()
@@ -563,7 +581,8 @@ private:
 
 class GlobalSettingsDialog final : public QDialog {
 public:
-    explicit GlobalSettingsDialog(QWidget* parent = nullptr)
+    explicit GlobalSettingsDialog(WinJACKNexus::UI::ThemeManagementDialog& themes,
+                                  QWidget* parent = nullptr)
         : QDialog(parent)
     {
         namespace Controls = WinJACKNexus::UI::Controls;
@@ -642,6 +661,14 @@ public:
         meterbridgeLogLayout->addWidget(meterbridgeLogClearButton);
         meterbridgeForm->addRow(QStringLiteral("日志保存根目录"), meterbridgeLogLayout);
         layout->addWidget(meterbridgeGroup);
+
+        auto* themesButton = new Controls::ActionButton(QStringLiteral("主题管理…"), this);
+        layout->addWidget(themesButton);
+        connect(themesButton, &QPushButton::clicked, this, [&themes] {
+            themes.show();
+            themes.raise();
+            themes.activateWindow();
+        });
 
         auto* buttons = new Controls::DialogButtonBar(QDialogButtonBox::Close, this);
         if (auto* closeButton = buttons->button(QDialogButtonBox::Close))
@@ -788,7 +815,24 @@ int main(int argc, char* argv[])
         applicationIcon = application.style()->standardIcon(QStyle::SP_ComputerIcon);
     application.setWindowIcon(applicationIcon);
 
+    WinJACKNexus::UI::ThemeCore themeCore;
+    if (!themeCore.isValid()) {
+        if (qEnvironmentVariableIsSet("WJN_THEME_STARTUP_PROBE"))
+            return 1;
+        const auto message = QStringLiteral("无法加载必需的默认主题 DLL，程序无法启动。\n%1")
+            .arg(themeCore.initializationError()).toStdWString();
+        MessageBoxW(nullptr, message.c_str(), L"WinJACKNexus 主题启动失败", MB_OK | MB_ICONERROR);
+        return 1;
+    }
+    WinJACKNexus::UI::ThemeManager::installThemeCore(&themeCore);
+    WinJACKNexus::UI::ThemeManager themeManager;
+    themeManager.watchApplication(&application);
+
     QSettings applicationSettings(QStringLiteral("WinJACKNexus"), QStringLiteral("Application"));
+    WinJACKNexus::UI::ThemeCatalog themeCatalog(themeCore, applicationSettings);
+    QString themeRestoreError;
+    if (!themeCatalog.restoreSaved(&themeRestoreError))
+        qWarning().noquote() << "Theme restore:" << themeRestoreError;
     QSettings legacyJackdSettings(QStringLiteral("WinJACKNexus"), QStringLiteral("Jackd"));
     const auto quickAccessOpacity = std::clamp(applicationSettings.value(
         QStringLiteral("quickAccessOpacity"),
@@ -805,13 +849,80 @@ int main(int argc, char* argv[])
                          &application, &QApplication::quit);
     }
 
-    GlobalSettingsDialog globalSettingsDialog;
+    WinJACKNexus::UI::ThemeManagementDialog themeManagementDialog(themeCore);
+    GlobalSettingsDialog globalSettingsDialog(themeManagementDialog);
     JackServerSettingsDialog jackServerSettingsDialog;
+#ifdef _DEBUG
+    const auto arguments = application.arguments();
+    const auto layoutTestArg = std::find_if(arguments.cbegin(),
+        arguments.cend(), [](const QString& arg) {
+            return arg.startsWith(QStringLiteral("--settings-layout-test="));
+        });
+    if (layoutTestArg != arguments.cend()) {
+        const auto suffix = layoutTestArg->section('=', 1);
+        const auto outputDirectory = QStringLiteral("tests/preview/ControlHeights");
+        QDir().mkpath(outputDirectory);
+        bool matched = true;
+        QStringList mismatches;
+        const auto capture = [&](QDialog& dialog, const QString& name) {
+            dialog.show();
+            application.processEvents();
+            for (auto* control : dialog.findChildren<QWidget*>()) {
+                const auto role = control->property("wjnRole").toString();
+                if (!control->isVisible() || (role != QStringLiteral("field")
+                    && role != QStringLiteral("choice") && role != QStringLiteral("number")
+                    && role != QStringLiteral("action") && role != QStringLiteral("toggle")))
+                    continue;
+                if (control->height() != WinJACKNexus::UI::Controls::sidebarControlHeight) {
+                    mismatches.append(QStringLiteral("%1 %2 %3: %4")
+                        .arg(name, role, control->objectName()).arg(control->height()));
+                    matched = false;
+                }
+            }
+            const auto path = QStringLiteral("%1/%2-%3.png").arg(outputDirectory, name, suffix);
+            if (!dialog.grab().save(path)) matched = false;
+            dialog.hide();
+        };
+        capture(jackServerSettingsDialog, QStringLiteral("jack-settings"));
+        capture(globalSettingsDialog, QStringLiteral("global-settings"));
+        auto* tabs = themeManagementDialog.findChild<QTabWidget*>();
+        const QStringList pages {QStringLiteral("theme-overview"), QStringLiteral("theme-colors"),
+            QStringLiteral("theme-background"), QStringLiteral("theme-export")};
+        if (tabs == nullptr || tabs->count() != pages.size()) {
+            mismatches.append(QStringLiteral("theme page count: %1")
+                .arg(tabs == nullptr ? 0 : tabs->count()));
+            matched = false;
+        }
+        for (int index = 0; tabs != nullptr && index < tabs->count(); ++index) {
+            tabs->setCurrentIndex(index);
+            capture(themeManagementDialog, pages.value(index));
+        }
+        QFile diagnostic(QStringLiteral("build/settings-layout-%1.txt").arg(suffix));
+        if (diagnostic.open(QIODevice::WriteOnly | QIODevice::Truncate))
+            diagnostic.write(mismatches.join('\n').toUtf8());
+        return matched ? 0 : 1;
+    }
+#endif
     if (!jackServerSettingsDialog.startAutomaticallyIfConfigured()) {
         QMessageBox::warning(nullptr, application.applicationName(),
                              QStringLiteral("未能按 JACK 服务器设置启动或连接 jackd。"));
     }
     if (trayAvailable) {
+        auto* themeAction = tray.addMenuAction(QStringLiteral("主题"));
+        themeAction->setMenu(themeCatalog.createMenu(tray.contextMenu(), [&themeManagementDialog] {
+            themeManagementDialog.show();
+            themeManagementDialog.raise();
+            themeManagementDialog.activateWindow();
+        }, [&tray](const QString& issue) {
+            tray.showMessage(QStringLiteral("主题切换失败"), issue, 1);
+        }));
+        tray.setQuickAccessThemeMenu(themeCatalog.createMenu(tray.contextMenu(), [&themeManagementDialog] {
+            themeManagementDialog.show();
+            themeManagementDialog.raise();
+            themeManagementDialog.activateWindow();
+        }, [&tray](const QString& issue) {
+            tray.showMessage(QStringLiteral("主题切换失败"), issue, 1);
+        }));
         auto* globalSettingsAction = tray.addMenuAction(QStringLiteral("全局设置"));
         QObject::connect(globalSettingsAction, &QAction::triggered, &application, [&globalSettingsDialog] {
             globalSettingsDialog.show();
@@ -849,7 +960,6 @@ int main(int argc, char* argv[])
             if (patchbayModule.node()->createWindow(nullptr) == nullptr)
                 tray.showMessage(QStringLiteral("接线盘"), QStringLiteral("无法创建接线盘窗口。"), 2);
         });
-        tray.registerPlaceholder(tray.mixerAction());
         QObject::connect(tray.mixerAction(), &QAction::triggered, &application, [&tray, &patchbayModule] {
             using ShowMixer = int (*)();
             const auto showMixer = reinterpret_cast<ShowMixer>(GetProcAddress(
@@ -857,7 +967,7 @@ int main(int argc, char* argv[])
             const int result = showMixer == nullptr ? -1 : showMixer();
             if (result == 0)
                 tray.showMessage(QStringLiteral("调音台"),
-                    QStringLiteral("请先在接线盘加载 Digital Mixer 节点，再打开调音台。"), 2);
+                    QStringLiteral("请先在接线盘的工具 > 音频工具中启用调音台。"), 2);
             else if (result < 0)
                 tray.showMessage(QStringLiteral("调音台"), QStringLiteral("Digital Mixer 节点暂时无法打开。"), 2);
         });

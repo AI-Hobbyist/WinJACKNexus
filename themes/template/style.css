@@ -1,0 +1,139 @@
+/* global module theme tokens. Keep token names and the :root block. */
+:root {
+  /* global / surface window; type=color */
+  --wjn-theme-global-surface-window: #11181a;
+  /* global / surface panel; type=color */
+  --wjn-theme-global-surface-panel: #1b2527;
+  /* global / surface raised; type=color */
+  --wjn-theme-global-surface-raised: #263437;
+  /* global / text primary; type=color */
+  --wjn-theme-global-text-primary: #e7f0ec;
+  /* global / text muted; type=color */
+  --wjn-theme-global-text-muted: #9aada5;
+  /* global / accent primary; type=color */
+  --wjn-theme-global-accent-primary: #43c7a8;
+  /* global / accent secondary; type=color */
+  --wjn-theme-global-accent-secondary: #e0a04a;
+  /* global / border normal; type=color */
+  --wjn-theme-global-border-normal: #3b4d4d;
+  /* global / state danger; type=color */
+  --wjn-theme-global-state-danger: #ee6b67;
+  /* global / state success; type=color */
+  --wjn-theme-global-state-success: #6fd08c;
+  /* global / font source; type=font */
+  --wjn-theme-global-font-source: system;
+  /* global / control button surface normal; type=color */
+  --wjn-theme-global-control-button-surface-normal: #192d43;
+  /* global / control button surface selected; type=color */
+  --wjn-theme-global-control-button-surface-selected: #123e61;
+  /* global / control button border normal; type=color */
+  --wjn-theme-global-control-button-border-normal: #45617e;
+  /* global / control button border selected; type=color */
+  --wjn-theme-global-control-button-border-selected: #26bfff;
+  /* global / control button text normal; type=color */
+  --wjn-theme-global-control-button-text-normal: #aec7eb;
+  /* global / control button text selected; type=color */
+  --wjn-theme-global-control-button-text-selected: #d7f7ff;
+  /* global / control button surface hover; type=color */
+  --wjn-theme-global-control-button-surface-hover: var(--wjn-theme-global-accent-primary);
+  /* global / control button text hover; type=color */
+  --wjn-theme-global-control-button-text-hover: var(--wjn-theme-global-surface-window);
+  /* global / control input surface normal; type=color */
+  --wjn-theme-global-control-input-surface-normal: var(--wjn-theme-global-surface-raised);
+  /* global / control input text normal; type=color */
+  --wjn-theme-global-control-input-text-normal: var(--wjn-theme-global-text-primary);
+  /* global / control input border normal; type=color */
+  --wjn-theme-global-control-input-border-normal: var(--wjn-theme-global-border-normal);
+  /* global / control input border focus; type=color */
+  --wjn-theme-global-control-input-border-focus: var(--wjn-theme-global-accent-primary);
+  /* global / control select surface normal; type=color */
+  --wjn-theme-global-control-select-surface-normal: var(--wjn-theme-global-surface-raised);
+  /* global / control select text normal; type=color */
+  --wjn-theme-global-control-select-text-normal: var(--wjn-theme-global-text-primary);
+  /* global / control select border normal; type=color */
+  --wjn-theme-global-control-select-border-normal: var(--wjn-theme-global-border-normal);
+  /* global / control list surface normal; type=color */
+  --wjn-theme-global-control-list-surface-normal: var(--wjn-theme-global-surface-panel);
+  /* global / control list text normal; type=color */
+  --wjn-theme-global-control-list-text-normal: var(--wjn-theme-global-text-primary);
+  /* global / control list border normal; type=color */
+  --wjn-theme-global-control-list-border-normal: var(--wjn-theme-global-border-normal);
+  /* global / control list surface selected; type=color */
+  --wjn-theme-global-control-list-surface-selected: var(--wjn-theme-global-accent-primary);
+  /* global / control list text selected; type=color */
+  --wjn-theme-global-control-list-text-selected: var(--wjn-theme-global-surface-window);
+  /* global / control toggle surface normal; type=color */
+  --wjn-theme-global-control-toggle-surface-normal: var(--wjn-theme-global-surface-raised);
+  /* global / control toggle text normal; type=color */
+  --wjn-theme-global-control-toggle-text-normal: var(--wjn-theme-global-text-primary);
+  /* global / control toggle border normal; type=color */
+  --wjn-theme-global-control-toggle-border-normal: var(--wjn-theme-global-border-normal);
+  /* global / control toggle indicator selected; type=color */
+  --wjn-theme-global-control-toggle-indicator-selected: var(--wjn-theme-global-accent-primary);
+  /* global / control scrollbar indicator normal; type=color */
+  --wjn-theme-global-control-scrollbar-indicator-normal: var(--wjn-theme-global-accent-primary);
+  /* global / control knob indicator normal; type=color */
+  --wjn-theme-global-control-knob-indicator-normal: #31c6ff;
+  /* global / control slider track; type=color */
+  --wjn-theme-global-control-slider-track: #14283e;
+  /* global / control slider border; type=color */
+  --wjn-theme-global-control-slider-border: #29435d;
+  /* global / control slider fill; type=color */
+  --wjn-theme-global-control-slider-fill: #31c6ff;
+  /* global / control slider thumb; type=color */
+  --wjn-theme-global-control-slider-thumb: #e9f2ff;
+  /* global / fader generic thumb; type=color */
+  --wjn-theme-global-fader-generic-thumb: #33b6ff;
+  /* global / fader generic track; type=color */
+  --wjn-theme-global-fader-generic-track: #0a0f15;
+  /* global / fader generic grip; type=color */
+  --wjn-theme-global-fader-generic-grip: #07131f;
+  /* global / chart background; type=color */
+  --wjn-theme-global-chart-background: #0b1929;
+  /* global / chart grid major; type=color */
+  --wjn-theme-global-chart-grid-major: #29435d;
+  /* global / meter level zone low active; type=color */
+  --wjn-theme-global-meter-level-zone-low-active: #2bce75;
+  /* global / meter level zone low inactive; type=color */
+  --wjn-theme-global-meter-level-zone-low-inactive: #163e2e;
+  /* global / meter level zone mid active; type=color */
+  --wjn-theme-global-meter-level-zone-mid-active: #f4cd42;
+  /* global / meter level zone mid inactive; type=color */
+  --wjn-theme-global-meter-level-zone-mid-inactive: #4a3f1d;
+  /* global / meter level zone high active; type=color */
+  --wjn-theme-global-meter-level-zone-high-active: #f35656;
+  /* global / meter level zone high inactive; type=color */
+  --wjn-theme-global-meter-level-zone-high-inactive: #4c242a;
+  /* global / meter level border; type=color */
+  --wjn-theme-global-meter-level-border: #426181;
+  /* global / meter level peak; type=color */
+  --wjn-theme-global-meter-level-peak: #f7fbff;
+  /* global / meter level label; type=color */
+  --wjn-theme-global-meter-level-label: #afc7e5;
+  /* global / meter level tick; type=color */
+  --wjn-theme-global-meter-level-tick: #526763;
+  /* global / background opacity; type=opacity */
+  --wjn-theme-global-background-opacity: 1;
+  /* global / background size; type=background-size */
+  --wjn-theme-global-background-size: cover;
+  /* global / background scale; type=background-scale */
+  --wjn-theme-global-background-scale: 1;
+  /* global / background repeat; type=background-repeat */
+  --wjn-theme-global-background-repeat: no-repeat;
+  /* global / background position x; type=position */
+  --wjn-theme-global-background-position-x: 50%;
+  /* global / background position y; type=position */
+  --wjn-theme-global-background-position-y: 50%;
+  /* global / background overlay enabled; type=boolean */
+  --wjn-theme-global-background-overlay-enabled: false;
+  /* global / background overlay opacity; type=opacity */
+  --wjn-theme-global-background-overlay-opacity: 0.12;
+  /* global / background blur radius; type=blur-radius */
+  --wjn-theme-global-background-blur-radius: 0px;
+  /* global / background component opacity; type=opacity */
+  --wjn-theme-global-background-component-opacity: 1;
+  /* global / control knob background base; type=color */
+  --wjn-theme-global-control-knob-background-base: #0b1929;
+  /* global / control knob track; type=color */
+  --wjn-theme-global-control-knob-track: #29435d;
+}

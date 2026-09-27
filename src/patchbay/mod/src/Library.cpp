@@ -23,10 +23,13 @@
 #include <WinJACKNexus/UI/Controls.hpp>
 #include <WinJACKNexus/UI/NativeWindowUtils.hpp>
 #include <WinJACKNexus/UI/TrayController.hpp>
+#include <WinJACKNexus/UI/ThemeManagementDialog.hpp>
+#include <WinJACKNexus/UI/ThemeManager.hpp>
+#include <WinJACKNexus/UI/ThemeNamespaceRegistry.hpp>
 
 #include <mod_patchbay/PatchbayCanvas.hpp>
 
-#include <QActionGroup>
+#include <QApplication>
 #include <QCheckBox>
 #include <QCoreApplication>
 #include <QDockWidget>
@@ -49,6 +52,7 @@
 #include <QPushButton>
 #include <QDirIterator>
 #include <QSettings>
+#include <QSignalBlocker>
 #include <QScrollArea>
 #include <QTabWidget>
 #include <QTreeWidget>
@@ -681,6 +685,9 @@ void populateNodeLibrary(QTreeWidget* tree,
 
 	std::map<QString, QTreeWidgetItem*> moduleCategories;
 	for (const auto& node : modules) {
+		if (QFileInfo(node.modulePath).fileName().compare(
+				QStringLiteral("mod_digital_mixer.dll"), Qt::CaseInsensitive) == 0)
+			continue;
 		auto [category, inserted] = moduleCategories.try_emplace(node.category, nullptr);
 		if (inserted)
 			category->second = addCategory(tree, node.category);
@@ -733,6 +740,13 @@ public:
 			FreeLibrary(library);
 			return nullptr;
 		}
+		WinJACKNexus::UI::ThemeNamespaceRegistry::Lease themeLease;
+		QString themeError;
+		WinJACKNexus::UI::ThemeNamespaceRegistry::instance().registerNodeModule(
+			[library](const char* name) -> QFunctionPointer {
+				return reinterpret_cast<QFunctionPointer>(GetProcAddress(library, name));
+			}, modulePath, &themeLease, &themeError);
+		if (!themeError.isEmpty()) qWarning().noquote() << "Node theme descriptor:" << themeError;
 
 		auto* node = createNode(index);
 		if (node == nullptr) {
@@ -776,8 +790,9 @@ public:
 				                                                            expectedClientId == nullptr ? std::string {} : std::string(expectedClientId),
 			                                                            modulePath,
 			                                                            index,
-			                                                            category,
-			                                                            QString::fromUtf8(info.name)));
+				                                                            category,
+				                                                            QString::fromUtf8(info.name),
+				                                                            std::move(themeLease)));
 	}
 
 	~LoadedModuleNode()
@@ -786,6 +801,7 @@ public:
 		node_->destroyWindow(nullptr);
 		node_->shutdown();
 		destroyNode_(node_);
+		themeLease_.reset();
 		FreeLibrary(library_);
 	}
 
@@ -809,7 +825,7 @@ public:
 
 		bool hasCustomGui() const noexcept
 		{
-			return showNodeGui_ != nullptr;
+			return showNodeGui_ != nullptr || category_ == QStringLiteral("Digital Mixer");
 		}
 
 	std::uint32_t index() const noexcept
@@ -827,6 +843,15 @@ public:
 		} catch (...) {
 			return {};
 		}
+	}
+
+	bool restoreSettingsJson(const std::string& json) const noexcept
+	{
+		if (json.empty()) return true;
+		using SetNodeSettingsJson = int (*)(WinJACKNexus::Node::INode*, const char*);
+		const auto restore = reinterpret_cast<SetNodeSettingsJson>(
+			GetProcAddress(library_, "wjn_set_node_settings_json"));
+		return restore != nullptr && restore(node_, json.c_str()) != 0;
 	}
 
 	void setClientId(std::string clientId)
@@ -950,7 +975,8 @@ private:
 		                 const QString& modulePath,
 		                 std::uint32_t index,
 		                 const QString& category,
-		                 const QString& name) noexcept
+		                 const QString& name,
+		                 WinJACKNexus::UI::ThemeNamespaceRegistry::Lease themeLease) noexcept
 		: library_(library)
 		, node_(node)
 		, destroyNode_(destroyNode)
@@ -966,6 +992,7 @@ private:
 		, index_(index)
 			, category_(category)
 			, name_(name)
+			, themeLease_(std::move(themeLease))
 	{
 	}
 
@@ -982,6 +1009,7 @@ private:
 	std::uint32_t index_ = 0;
 	QString category_;
 	QString name_;
+	WinJACKNexus::UI::ThemeNamespaceRegistry::Lease themeLease_;
 	mutable std::string clientId_;
 	GetNodeClientId getNodeClientId_ = nullptr;
 	std::string contextId_ = "main";
@@ -1857,18 +1885,27 @@ public:
 					knownJackClients_.insert(client.name);
 				std::unordered_set<std::string> childModuleClients;
 				std::unordered_map<std::string, std::unordered_set<std::string>> modulesByContext;
+				std::unordered_map<std::string, QString> clientThemeScopes;
 				for (const auto& node : loadedModuleNodes_) {
-					if (!node->hasClient() || node->contextId() == "main")
+					if (!node->hasClient())
+						continue;
+					const auto prefix = WinJACKNexus::UI::ThemeNamespaceRegistry::instance().scopeFor(
+						WinJACKNexus::UI::ThemeModuleKind::node, node->modulePath(), node->index());
+					if (prefix.startsWith(QStringLiteral("--wjn-theme-")) && prefix.endsWith(QLatin1Char('-')))
+						clientThemeScopes.emplace(node->clientId(), prefix.mid(12, prefix.size() - 13));
+					if (node->contextId() == "main")
 						continue;
 					childModuleClients.insert(node->clientId());
 					modulesByContext[node->contextId()].insert(node->clientId());
 				}
 				canvas->setHiddenModuleClientIds(std::move(childModuleClients));
+				canvas->setClientThemeScopes(clientThemeScopes);
 				canvas->setSnapshot(snapshot);
 				canvas->restoreJackConnections(jackObserver_);
 				for (const auto& [contextId, child] : *subGraphCanvases) {
 					if (!child.isNull()) {
 						child->setVisibleModuleClientIds(modulesByContext[contextId]);
+						child->setClientThemeScopes(clientThemeScopes);
 						child->setSnapshot(snapshot);
 					}
 				}
@@ -1907,10 +1944,19 @@ public:
 				}
 			};
 			auto restoreModuleRecords = [this, refreshTrayNodeGuiEntries](const std::vector<PatchbayProjectModule>& modules) {
-				loadedModuleNodes_.clear();
+				std::erase_if(loadedModuleNodes_, [](const auto& node) {
+					return !isDigitalMixerModule(node->modulePath());
+				});
 				for (const auto& module : modules) {
-					if (isDigitalMixerModule(module.modulePath)
-						&& hasLoadedDigitalMixer()) continue;
+					if (isDigitalMixerModule(module.modulePath)) {
+						const auto mixer = std::find_if(loadedModuleNodes_.begin(), loadedModuleNodes_.end(), [](const auto& node) {
+							return isDigitalMixerModule(node->modulePath()) && node->index() == 0;
+						});
+						if (mixer != loadedModuleNodes_.end() && !(*mixer)->restoreSettingsJson(module.settingsJson))
+							QMessageBox::warning(window_, QStringLiteral("调音台恢复失败"),
+							                     QStringLiteral("无法恢复工程中保存的调音台设置。"));
+						continue;
+					}
 						std::set<std::string> existingClients;
 						if (jackObserver_.isOpen()) {
 							for (const auto& client : WinJACKNexus::Patchbay::Core::Snapshot::capture(jackObserver_).clients)
@@ -2069,6 +2115,11 @@ public:
 			                                  refreshTrayNodeGuiEntries](PatchbayCanvas* targetCanvas) {
 				if (targetCanvas == nullptr)
 					return;
+				targetCanvas->setBoxSelectionExclusionHandler([this](const std::string& clientId) {
+					return std::any_of(loadedModuleNodes_.cbegin(), loadedModuleNodes_.cend(), [&clientId](const auto& node) {
+						return node->ownsClient(clientId) && isDigitalMixerModule(node->modulePath());
+					});
+				});
 				targetCanvas->setModuleNodeHandlers(
 					[this](const std::string& clientId) {
 						return std::any_of(loadedModuleNodes_.cbegin(), loadedModuleNodes_.cend(), [&clientId](const auto& node) {
@@ -2079,12 +2130,15 @@ public:
 						const auto node = std::find_if(loadedModuleNodes_.cbegin(), loadedModuleNodes_.cend(), [&clientId](const auto& value) {
 							return value->ownsClient(clientId);
 						});
-						if (node == loadedModuleNodes_.cend())
+						if (node == loadedModuleNodes_.cend() || isDigitalMixerModule((*node)->modulePath()))
 							return false;
 						copiedModuleNode_ = ModuleNodeInfo { {}, {}, (*node)->modulePath(), (*node)->index() };
 						return true;
 					},
 					[this, refreshJackGraph, refreshTrayNodeGuiEntries, selectedModuleNode](const std::string& clientId) {
+						if (std::any_of(loadedModuleNodes_.cbegin(), loadedModuleNodes_.cend(), [&clientId](const auto& node) {
+							return node->ownsClient(clientId) && isDigitalMixerModule(node->modulePath());
+						})) return false;
 						if (*selectedModuleNode != nullptr && (*selectedModuleNode)->ownsClient(clientId)) {
 							(*selectedModuleNode)->clearSettingsView();
 							*selectedModuleNode = nullptr;
@@ -2116,6 +2170,18 @@ public:
 					[targetCanvas, createModuleNode, this](const QPointF& position) {
 						return !copiedModuleNode_.modulePath.isEmpty()
 							&& (*createModuleNode)(targetCanvas, copiedModuleNode_.modulePath, copiedModuleNode_.index, position, {});
+					});
+				targetCanvas->setBatchModuleNodeHandlers(
+					[this](const std::string& clientId) -> std::optional<PatchbayModuleCopyInfo> {
+						const auto node = std::find_if(loadedModuleNodes_.cbegin(), loadedModuleNodes_.cend(), [&clientId](const auto& value) {
+							return value->ownsClient(clientId);
+						});
+						if (node == loadedModuleNodes_.cend() || isDigitalMixerModule((*node)->modulePath())) return std::nullopt;
+						return PatchbayModuleCopyInfo { (*node)->modulePath(), (*node)->index(),
+							QString::fromStdString((*node)->settingsJson()) };
+					},
+					[targetCanvas, createModuleNode](const PatchbayModuleCopyInfo& node, const QPointF& position) {
+						return (*createModuleNode)(targetCanvas, node.modulePath, node.index, position, node.settingsJson);
 					});
 				targetCanvas->setNodeSelectionHandler([this,
 			                                  canvasTabs,
@@ -2223,17 +2289,30 @@ public:
 			search->setMinimumWidth(190);
 			toolbar->addWidget(search);
 			toolbar->addSeparator();
-			auto* fitAction = toolbar->addAction(QStringLiteral("适配"));
-			auto* zoomOutAction = toolbar->addAction(QStringLiteral("缩小"));
-			auto* zoomResetAction = toolbar->addAction(QStringLiteral("100%"));
-			auto* zoomInAction = toolbar->addAction(QStringLiteral("放大"));
+			auto* fitButton = new WinJACKNexus::UI::Controls::ActionButton(QStringLiteral("适配"), toolbar);
+			fitButton->setObjectName(QStringLiteral("patchbayFitButton"));
+			fitButton->setFixedHeight(30);
+			const auto applyFitTheme = [fitButton] {
+				using WinJACKNexus::UI::Controls::themeTokenColor;
+				fitButton->setProperty("surfaceColor", themeTokenColor(QStringLiteral("patchbay"), QStringLiteral("toolbar-button-surface"), QColor("#173946")));
+				fitButton->setProperty("borderColor", themeTokenColor(QStringLiteral("patchbay"), QStringLiteral("toolbar-button-border"), QColor("#356b7a")));
+				fitButton->setProperty("accentColor", themeTokenColor(QStringLiteral("patchbay"), QStringLiteral("toolbar-button-accent"), QColor("#43c7a8")));
+				fitButton->setProperty("textColor", themeTokenColor(QStringLiteral("patchbay"), QStringLiteral("toolbar-button-text"), QColor("#e6eef4")));
+				fitButton->update();
+			};
+			applyFitTheme();
+			if (auto* core = WinJACKNexus::UI::ThemeManager::installedThemeCore())
+				QObject::connect(core, &WinJACKNexus::UI::ThemeCore::themeChanged, fitButton, applyFitTheme);
+			toolbar->addWidget(fitButton);
+			auto* zoomControl = new WinJACKNexus::UI::Controls::ZoomControl(toolbar);
+			toolbar->addWidget(zoomControl);
 			QObject::connect(search, &QLineEdit::textChanged, canvas, &PatchbayCanvas::setSearchQuery);
-			QObject::connect(fitAction, &QAction::triggered, canvas, &PatchbayCanvas::zoomFit);
-			QObject::connect(zoomOutAction, &QAction::triggered, canvas, &PatchbayCanvas::zoomOut);
-			QObject::connect(zoomResetAction, &QAction::triggered, canvas, &PatchbayCanvas::zoomReset);
-			QObject::connect(zoomInAction, &QAction::triggered, canvas, &PatchbayCanvas::zoomIn);
-			toolbar->addSeparator();
-			auto* scanVstAction = toolbar->addAction(QStringLiteral("扫描 VST"));
+			QObject::connect(fitButton, &QPushButton::clicked, canvas, &PatchbayCanvas::zoomFit);
+			QObject::connect(zoomControl, &WinJACKNexus::UI::Controls::ZoomControl::zoomInRequested, canvas, &PatchbayCanvas::zoomIn);
+			QObject::connect(zoomControl, &WinJACKNexus::UI::Controls::ZoomControl::zoomOutRequested, canvas, &PatchbayCanvas::zoomOut);
+			QObject::connect(zoomControl, &WinJACKNexus::UI::Controls::ZoomControl::zoomResetRequested, canvas, &PatchbayCanvas::zoomReset);
+			QObject::connect(canvas, &PatchbayCanvas::zoomChanged, zoomControl, &WinJACKNexus::UI::Controls::ZoomControl::setZoomFactor);
+			auto* scanVstAction = new QAction(QStringLiteral("扫描 VST"), window_);
 			QObject::connect(scanVstAction, &QAction::triggered, window_, [refreshNodeLibrary, window = window_.data()] {
 				const auto scannerPath = QCoreApplication::applicationDirPath() + QStringLiteral("/VST Scanner.exe");
 				if (!QFileInfo::exists(scannerPath)) {
@@ -2251,22 +2330,6 @@ public:
 					QMessageBox::warning(window, QStringLiteral("扫描器启动失败"), QStringLiteral("无法启动 VST Scanner.exe。"));
 				}
 			});
-			auto* themes = new QActionGroup(window_);
-			themes->setExclusive(true);
-			auto* darkAction = toolbar->addAction(QStringLiteral("深色"));
-			darkAction->setCheckable(true);
-			darkAction->setChecked(true);
-			themes->addAction(darkAction);
-			auto* lightAction = toolbar->addAction(QStringLiteral("浅色"));
-			lightAction->setCheckable(true);
-			themes->addAction(lightAction);
-			QObject::connect(darkAction, &QAction::triggered, window_, [] {
-				PatchbayCanvas::applyTheme(false);
-			});
-			QObject::connect(lightAction, &QAction::triggered, window_, [] {
-				PatchbayCanvas::applyTheme(true);
-			});
-
 			auto* fileMenu = window_->menuBar()->addMenu(QStringLiteral("文件"));
 				auto currentProject = std::make_shared<QString>();
 				auto collectSubGraphs = [canvas, subGraphCanvases] {
@@ -2348,7 +2411,9 @@ public:
 						(*selectedModuleNode)->clearSettingsView();
 						*selectedModuleNode = nullptr;
 					}
-					loadedModuleNodes_.clear();
+					std::erase_if(loadedModuleNodes_, [](const auto& node) {
+						return !isDigitalMixerModule(node->modulePath());
+					});
 					(*refreshTrayNodeGuiEntries)();
 					if (jackObserver_.isOpen()) {
 						auto snapshot = WinJACKNexus::Patchbay::Core::Snapshot::capture(jackObserver_);
@@ -2361,7 +2426,22 @@ public:
 					currentProject->clear();
 					patchbaySettings().remove(QStringLiteral("lastProjectPath"));
 				});
-				QObject::connect(openProject, &QAction::triggered, window_, [canvas, currentProject, confirmSave, restoreModuleRecords, loadedModuleRecords, restoreSubGraphs, refreshJackGraph, this] {
+			auto projectMixerAction = std::make_shared<QPointer<QAction>>();
+			const auto offerProjectMixer = [this, projectMixerAction](const std::vector<PatchbayProjectModule>& modules) {
+				if (!*projectMixerAction || (*projectMixerAction)->isChecked()
+					|| std::none_of(modules.cbegin(), modules.cend(), [](const auto& module) {
+						return isDigitalMixerModule(module.modulePath);
+					})) return;
+				QMessageBox question(QMessageBox::Question, QStringLiteral("启用调音台"),
+					QStringLiteral("此工程包含调音台节点。是否启用调音台？"),
+					QMessageBox::Yes | QMessageBox::No, window_);
+				question.setDefaultButton(QMessageBox::Yes);
+				question.button(QMessageBox::Yes)->setText(QStringLiteral("启用"));
+				question.button(QMessageBox::No)->setText(QStringLiteral("暂不启用"));
+				if (question.exec() == QMessageBox::Yes)
+					(*projectMixerAction)->setChecked(true);
+			};
+				QObject::connect(openProject, &QAction::triggered, window_, [canvas, currentProject, confirmSave, restoreModuleRecords, loadedModuleRecords, restoreSubGraphs, refreshJackGraph, offerProjectMixer, this] {
 					const auto path = QFileDialog::getOpenFileName(window_, QStringLiteral("打开接线盘工程"), *currentProject,
 					                                              QStringLiteral("WinJACKNexus 工程 (*.wjnproj)"));
 					if (path.isEmpty() || !confirmSave())
@@ -2369,6 +2449,7 @@ public:
 					std::vector<PatchbayProjectModule> modules;
 					std::vector<PatchbaySubGraphProject> subGraphs;
 					if (canvas->loadProject(path, modules, subGraphs) && restoreSubGraphs(subGraphs)) {
+						offerProjectMixer(modules);
 						*currentProject = path;
 						patchbaySettings().setValue(QStringLiteral("lastProjectPath"), path);
 						restoreModuleRecords(modules);
@@ -2422,16 +2503,14 @@ public:
 			auto* viewMenu = window_->menuBar()->addMenu(QStringLiteral("视图"));
 			viewMenu->addAction(nodeDock->toggleViewAction());
 			viewMenu->addAction(inspectorDock->toggleViewAction());
-			viewMenu->addSeparator();
-			viewMenu->addAction(darkAction);
-			viewMenu->addAction(lightAction);
 			auto* graphMenu = window_->menuBar()->addMenu(QStringLiteral("图形"));
-			auto restoreLastProject = [this, canvas, currentProject, restoreSubGraphs, restoreModuleRecords, loadedModuleRecords] {
+			auto restoreLastProject = [this, canvas, currentProject, restoreSubGraphs, restoreModuleRecords, loadedModuleRecords, offerProjectMixer] {
 				const auto lastProject = patchbaySettings().value(QStringLiteral("lastProjectPath")).toString();
 				std::vector<PatchbayProjectModule> modules;
 				std::vector<PatchbaySubGraphProject> subGraphs;
 				if (!lastProject.isEmpty() && QFile::exists(lastProject) && canvas->loadProject(lastProject, modules, subGraphs)
 					&& restoreSubGraphs(subGraphs)) {
+					offerProjectMixer(modules);
 					*currentProject = lastProject;
 					restoreModuleRecords(modules);
 					restoreMeterbridgeProjectState(canvas->meterbridgeProjectState());
@@ -2470,18 +2549,70 @@ public:
 				refreshPendingJackGraph();
 			});
 			graphRefreshTimer_->start();
-			attachJackObserver();
 
 			graphMenu->addAction(QStringLiteral("刷新节点库"), window_, [refreshNodeLibrary] {
 				(*refreshNodeLibrary)();
 			});
-			graphMenu->addAction(QStringLiteral("卸载 Digital Mixer 节点"), window_,
-				[this, canvas, refreshJackGraph, refreshTrayNodeGuiEntries] {
-					if (!removeLoadedDigitalMixer()) return;
-					canvas->markProjectDirty();
-					(*refreshTrayNodeGuiEntries)();
-					refreshJackGraph();
+			auto* toolsMenu = window_->menuBar()->addMenu(QStringLiteral("工具"));
+			auto* audioToolsMenu = toolsMenu->addMenu(QStringLiteral("音频工具"));
+			auto* otherToolsMenu = toolsMenu->addMenu(QStringLiteral("其他工具"));
+			auto* meterbridgeAction = audioToolsMenu->addAction(QStringLiteral("电平表桥"));
+			QObject::connect(meterbridgeAction, &QAction::triggered, window_, [window = window_.data()] {
+				const auto module = GetModuleHandleW(L"mod_meterbrigde.dll");
+				using ShowMeterbridge = int (*)(const char*);
+				const auto show = module == nullptr ? nullptr
+					: reinterpret_cast<ShowMeterbridge>(GetProcAddress(module, "wjn_meterbridge_show_for_instance"));
+				if (show == nullptr || show(nullptr) == 0)
+					QMessageBox::warning(window, QStringLiteral("电平表桥"), QStringLiteral("暂时无法打开电平表桥。"));
+			});
+			auto* mixerEnabledAction = audioToolsMenu->addAction(QStringLiteral("调音台"));
+			*projectMixerAction = mixerEnabledAction;
+			mixerEnabledAction->setObjectName(QStringLiteral("patchbay.tools.mixerEnabled"));
+			mixerEnabledAction->setCheckable(true);
+			QObject::connect(mixerEnabledAction, &QAction::toggled, window_,
+				[this, canvas, createModuleNode, mixerEnabledAction, refreshJackGraph, refreshTrayNodeGuiEntries](bool enabled) {
+					if (enabled && !hasLoadedDigitalMixer()) {
+						const auto modules = scanNodeModules();
+						const auto mixer = std::find_if(modules.cbegin(), modules.cend(), [](const auto& node) {
+							return isDigitalMixerModule(node.modulePath) && node.index == 0;
+						});
+						if (mixer == modules.cend() || !(*createModuleNode)(canvas, mixer->modulePath, mixer->index,
+							canvas->mapToScene(canvas->viewport()->rect().center()), {})) {
+							QSignalBlocker blocker(mixerEnabledAction);
+							mixerEnabledAction->setChecked(false);
+							return;
+						}
+					} else if (!enabled && removeLoadedDigitalMixer()) {
+						(*refreshTrayNodeGuiEntries)();
+						refreshJackGraph();
+					}
+					patchbaySettings().setValue(QStringLiteral("residentMixerEnabled"), enabled);
 				});
+			if (patchbaySettings().value(QStringLiteral("residentMixerEnabled"), false).toBool())
+				mixerEnabledAction->setChecked(true);
+			attachJackObserver();
+			auto* themeManagerAction = otherToolsMenu->addAction(QStringLiteral("主题管理器"));
+			QObject::connect(themeManagerAction, &QAction::triggered, window_, [window = window_.data()] {
+				for (auto* widget : QApplication::topLevelWidgets()) {
+					if (auto* dialog = dynamic_cast<WinJACKNexus::UI::ThemeManagementDialog*>(widget)) {
+						dialog->show();
+						dialog->raise();
+						dialog->activateWindow();
+						return;
+					}
+				}
+				if (auto* core = WinJACKNexus::UI::ThemeManager::installedThemeCore()) {
+					auto* dialog = new WinJACKNexus::UI::ThemeManagementDialog(*core, window);
+					dialog->setAttribute(Qt::WA_DeleteOnClose);
+					dialog->show();
+				}
+			});
+			otherToolsMenu->addAction(scanVstAction);
+			auto* helpMenu = window_->menuBar()->addMenu(QStringLiteral("帮助"));
+			helpMenu->addAction(QStringLiteral("关于"), window_, [window = window_.data()] {
+				QMessageBox::about(window, QStringLiteral("关于 WinJACKNexus"),
+					QStringLiteral("WinJACKNexus\nJACK 音频路由与调音工作台\nAGPL-3.0-or-later"));
+			});
 		}
 
 		window_->showNormal();
@@ -2562,6 +2693,28 @@ extern "C" WINJACK_NODE_API int wjn_patchbay_show_digital_mixer(void)
 const char* wjn_get_node_api_version(void)
 {
 	return "2";
+}
+
+std::uint32_t wjn_get_node_theme_api_version(void)
+{
+	return WJN_NODE_THEME_API_VERSION;
+}
+
+const char* wjn_get_node_theme_namespace_json(std::uint32_t index)
+{
+	static constexpr char descriptor[] = R"json({
+		"descriptorVersion":1,"themeApiVersion":1,
+		"moduleId":"module-winjacknexus-patchbay",
+		"namespace":"--wjn-theme-module-winjacknexus-patchbay-",
+		"displayName":"Patchbay",
+		"tokens":[{
+			"name":"--wjn-theme-module-winjacknexus-patchbay-node-card-background",
+			"type":"color",
+			"default":"var(--wjn-theme-patchbay-node-card-background)",
+			"description":"Host-drawn card background for the Patchbay node type"
+		}]
+	})json";
+	return index == 0 ? descriptor : nullptr;
 }
 
 std::uint32_t wjn_get_node_count(void)

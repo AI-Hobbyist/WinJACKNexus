@@ -224,18 +224,34 @@ void GraphicEqWidget::selectPreset(int index)
 
 void GraphicEqWidget::paintEvent(QPaintEvent*)
 {
+    const auto themed = [](const char* role, const QColor& fallback) {
+        return Controls::themeTokenColor(QStringLiteral("native-fx-graphic-eq"),
+                                         QString::fromLatin1(role), fallback);
+    };
     QPainter p(this);
     p.setRenderHint(QPainter::Antialiasing);
-    p.fillRect(rect(), Controls::themeColor(*this, "fxBackground", background));
+    p.fillRect(rect(), Controls::themeColor(*this, "fxBackground",
+                                           themed("surface-window", background)));
     p.save();
     p.scale(width() / 760.0, height() / 658.0);
     Controls::Palette controlDefaults;
-    controlDefaults.background = background;
-    controlDefaults.panel = panel;
-    controlDefaults.text = text;
-    controlDefaults.accent = cyan;
-    controlDefaults.border = border;
+    controlDefaults.background = themed("surface-window", background);
+    controlDefaults.panel = themed("surface-panel", panel);
+    controlDefaults.text = themed("text-primary", text);
+    controlDefaults.accent = themed("control-button-border-selected", cyan);
+    controlDefaults.border = themed("control-button-border-normal", border);
     const auto controls = Controls::paletteFor(*this, controlDefaults);
+    auto sliderDefaults = controlDefaults;
+    sliderDefaults.panel = themed("slider-effect-band-track", panel);
+    sliderDefaults.border = themed("slider-effect-band-border", border);
+    sliderDefaults.accent = themed("slider-effect-band-fill", cyan);
+    sliderDefaults.text = themed("slider-effect-band-thumb", text);
+    const auto sliderColors = Controls::paletteFor(*this, sliderDefaults);
+    auto knobDefaults = controlDefaults;
+    knobDefaults.background = themed("control-knob-background-base", background);
+    knobDefaults.border = themed("control-knob-track", border);
+    knobDefaults.accent = themed("control-knob-indicator-normal", cyan);
+    const auto knobColors = Controls::paletteFor(*this, knobDefaults);
 
     // Channel strip follows the supplied reference while retaining all eight bed channels.
     rounded(p, { 7, 8, 740, 128 }, QColor(21, 39, 59), QColor(47, 75, 104), 11);
@@ -268,7 +284,9 @@ void GraphicEqWidget::paintEvent(QPaintEvent*)
     const auto params = displayed();
     // Compact switch matches the pill switch shown in the reference.
     rounded(p, { 348, 15, 58, 58 }, QColor(23, 44, 66), Qt::transparent, 10);
-    Controls::drawToggle(p, { 356, 29, 38, 22 }, params.enabled, controls.accent, QColor(49, 68, 84));
+    Controls::drawToggle(p, { 356, 29, 38, 22 }, params.enabled,
+        themed("control-toggle-indicator-on", cyan),
+        themed("control-toggle-indicator-off", QColor(49, 68, 84)));
     drawText(p, { 410, 27, 35, 33 }, QStringLiteral("预设:"), 12, muted,
              Qt::AlignLeft | Qt::AlignVCenter);
     const std::array<QString, 5> presets { QStringLiteral("Default"), QStringLiteral("Vocal Bright"),
@@ -290,7 +308,7 @@ void GraphicEqWidget::paintEvent(QPaintEvent*)
     Controls::drawChart(p, graphBounds, 0, 0, controls);
     const QRectF gridBounds(graphBounds.left(),graphTop,graphBounds.width(),graphHeight);
     Controls::ChartGridStyle gainGrid;
-    gainGrid.grid=QColor(37,59,79);
+    gainGrid.grid=themed("chart-grid-major", QColor(37,59,79));
     gainGrid.penStyle=Qt::DashLine;
     for (int db = 12; db >= -12; db -= 6) {
         const auto y = gainY(db, graphTop, graphBottom);
@@ -314,7 +332,7 @@ void GraphicEqWidget::paintEvent(QPaintEvent*)
 
     // Faint frequency divisions sit behind the stems, curve, and slider caps.
     Controls::ChartGridStyle frequencyGrid;
-    frequencyGrid.grid=QColor(21,42,60);
+    frequencyGrid.grid=themed("chart-grid-minor", QColor(21,42,60));
     for (std::size_t i = 0; i < graphicEqBandCount; ++i) {
         const auto x = std::clamp(frequencyX(graphicEqFrequencies[i]), graphBounds.left(), graphBounds.right());
         frequencyGrid.verticalFractions.push_back((x-graphBounds.left())/graphBounds.width());
@@ -351,27 +369,27 @@ void GraphicEqWidget::paintEvent(QPaintEvent*)
         outputSpectrumArea.lineTo(frequencyX(20000.0), graphBottom);
         outputSpectrumArea.closeSubpath();
         QLinearGradient spectrumFill(0.0, graphTop, 0.0, graphBottom);
-        spectrumFill.setColorAt(0.0, QColor(20, 155, 198, 58));
-        spectrumFill.setColorAt(1.0, QColor(20, 155, 198, 12));
+        spectrumFill.setColorAt(0.0, themed("chart-series-output-spectrum-fill-start", QColor(20, 155, 198, 58)));
+        spectrumFill.setColorAt(1.0, themed("chart-series-output-spectrum-fill-end", QColor(20, 155, 198, 12)));
         Controls::CurveStyle spectrumAreaStyle;
         spectrumAreaStyle.showFill = true;
         spectrumAreaStyle.showStroke = false;
         spectrumAreaStyle.fillBrush = QBrush(spectrumFill);
         Controls::drawCurvePath(p, outputSpectrumLine, spectrumAreaStyle, &outputSpectrumArea);
         Controls::CurveStyle inputSpectrumStyle;
-        inputSpectrumStyle.stroke = QColor(242, 184, 98, 220);
+        inputSpectrumStyle.stroke = themed("chart-series-input-spectrum-stroke", QColor(242, 184, 98, 220));
         inputSpectrumStyle.width = 1.6;
         inputSpectrumStyle.penStyle = Qt::DashLine;
         Controls::drawCurvePath(p, inputSpectrumLine, inputSpectrumStyle);
         Controls::CurveStyle outputSpectrumStyle;
-        outputSpectrumStyle.stroke = QColor(65, 205, 232, 180);
+        outputSpectrumStyle.stroke = themed("chart-series-output-spectrum-stroke", QColor(65, 205, 232, 180));
         outputSpectrumStyle.width = 1.6;
         Controls::drawCurvePath(p, outputSpectrumLine, outputSpectrumStyle);
 
-        p.setPen(QPen(QColor(242, 184, 98), 1.6, Qt::DashLine));
+        p.setPen(QPen(QColor::fromRgb(inputSpectrumStyle.stroke.rgb()), 1.6, Qt::DashLine));
         p.drawLine(QPointF(405, 112), QPointF(423, 112));
         drawText(p, { 426, 103, 58, 18 }, QStringLiteral("输入参考"), 10, muted);
-        p.setPen(QPen(QColor(65, 205, 232), 1.6));
+        p.setPen(QPen(QColor::fromRgb(outputSpectrumStyle.stroke.rgb()), 1.6));
         p.drawLine(QPointF(490, 112), QPointF(508, 112));
         drawText(p, { 511, 103, 55, 18 }, QStringLiteral("EQ 后"), 10, muted);
         if (selectedChannel_ < 0)
@@ -388,7 +406,7 @@ void GraphicEqWidget::paintEvent(QPaintEvent*)
     const auto curve = smoothCurve(points);
     if (drawCurve) {
         Controls::CurveStyle responseStyle;
-        responseStyle.stroke = cyan;
+        responseStyle.stroke = themed("chart-series-response-stroke", cyan);
         responseStyle.width = 2.5;
         Controls::drawCurvePath(p, curve, responseStyle);
     }
@@ -397,7 +415,7 @@ void GraphicEqWidget::paintEvent(QPaintEvent*)
             const auto& point = points[i];
             const bool dragging = static_cast<int>(i) == draggingBand_;
             Controls::drawSlider(p, {point.x()-4, graphTop, 8, graphBottom-graphTop},
-                (graphBottom-point.y())/(graphBottom-graphTop), true, controls);
+                (graphBottom-point.y())/(graphBottom-graphTop), true, sliderColors);
         }
     }
     Q_UNUSED(graphHeight);
@@ -415,7 +433,7 @@ void GraphicEqWidget::paintEvent(QPaintEvent*)
     rounded(p, { 592, 392, 148, 100 }, QColor(14, 33, 51), QColor(35, 65, 90), 8);
     drawText(p, { 31, 399, 139, 20 }, QStringLiteral("输出增益"), 12, muted, Qt::AlignLeft);
     const auto outputNormalized = (params.outputGainDb + 24.0) / 36.0;
-    Controls::drawKnob(p, { 119, 442 }, outputNormalized, 29, controls);
+    Controls::drawKnob(p, { 119, 442 }, outputNormalized, 29, knobColors);
     drawText(p, { 81, 469, 76, 17 }, QStringLiteral("%1 dB").arg(params.outputGainDb, 0, 'f', 1), 12, text);
     drawText(p, { 211, 399, 345, 20 }, QStringLiteral("显示模式"), 12, muted, Qt::AlignLeft);
     const std::array<QString, 3> viewLabels { QStringLiteral("31 段"), QStringLiteral("分频视图"), QStringLiteral("曲线视图") };

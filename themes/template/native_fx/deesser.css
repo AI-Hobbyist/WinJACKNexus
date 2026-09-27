@@ -1,0 +1,59 @@
+/* native-fx-deesser module theme tokens. Keep token names and the :root block. */
+:root {
+  /* native-fx-deesser / surface window; type=color */
+  --wjn-theme-native-fx-deesser-surface-window: #091727;
+  /* native-fx-deesser / surface panel; type=color */
+  --wjn-theme-native-fx-deesser-surface-panel: #0b1a2b;
+  /* native-fx-deesser / text primary; type=color */
+  --wjn-theme-native-fx-deesser-text-primary: #deebf9;
+  /* native-fx-deesser / text muted; type=color */
+  --wjn-theme-native-fx-deesser-text-muted: #8fa6bd;
+  /* native-fx-deesser / control knob indicator normal; type=color */
+  --wjn-theme-native-fx-deesser-control-knob-indicator-normal: #a55bff;
+  /* native-fx-deesser / chart background; type=color */
+  --wjn-theme-native-fx-deesser-chart-background: #081626;
+  /* native-fx-deesser / chart grid major; type=color */
+  --wjn-theme-native-fx-deesser-chart-grid-major: #253c53;
+  /* native-fx-deesser / chart grid minor; type=color */
+  --wjn-theme-native-fx-deesser-chart-grid-minor: #192e43;
+  /* native-fx-deesser / chart grid level; type=color */
+  --wjn-theme-native-fx-deesser-chart-grid-level: #1e3348;
+  /* native-fx-deesser / chart center guide; type=color */
+  --wjn-theme-native-fx-deesser-chart-center-guide: #ae64ff;
+  /* native-fx-deesser / chart series response bell stroke; type=color */
+  --wjn-theme-native-fx-deesser-chart-series-response-bell-stroke: #a55bff;
+  /* native-fx-deesser / chart series input spectrum stroke; type=color */
+  --wjn-theme-native-fx-deesser-chart-series-input-spectrum-stroke: rgba(67,207,224,0.803922);
+  /* native-fx-deesser / chart series output spectrum stroke; type=color */
+  --wjn-theme-native-fx-deesser-chart-series-output-spectrum-stroke: rgba(127,83,184,0.803922);
+  /* native-fx-deesser / background opacity; type=opacity */
+  --wjn-theme-native-fx-deesser-background-opacity: 1;
+  /* native-fx-deesser / background size; type=background-size */
+  --wjn-theme-native-fx-deesser-background-size: cover;
+  /* native-fx-deesser / background scale; type=background-scale */
+  --wjn-theme-native-fx-deesser-background-scale: 1;
+  /* native-fx-deesser / background repeat; type=background-repeat */
+  --wjn-theme-native-fx-deesser-background-repeat: no-repeat;
+  /* native-fx-deesser / background position x; type=position */
+  --wjn-theme-native-fx-deesser-background-position-x: 50%;
+  /* native-fx-deesser / background position y; type=position */
+  --wjn-theme-native-fx-deesser-background-position-y: 50%;
+  /* native-fx-deesser / background overlay enabled; type=boolean */
+  --wjn-theme-native-fx-deesser-background-overlay-enabled: false;
+  /* native-fx-deesser / background overlay opacity; type=opacity */
+  --wjn-theme-native-fx-deesser-background-overlay-opacity: 0.12;
+  /* native-fx-deesser / background blur radius; type=blur-radius */
+  --wjn-theme-native-fx-deesser-background-blur-radius: 0px;
+  /* native-fx-deesser / background component opacity; type=opacity */
+  --wjn-theme-native-fx-deesser-background-component-opacity: 1;
+  /* native-fx-deesser / control knob background base; type=color */
+  --wjn-theme-native-fx-deesser-control-knob-background-base: #091727;
+  /* native-fx-deesser / control knob track; type=color */
+  --wjn-theme-native-fx-deesser-control-knob-track: #302257;
+  /* native-fx-deesser / control toggle indicator on; type=color */
+  --wjn-theme-native-fx-deesser-control-toggle-indicator-on: #0089dc;
+  /* native-fx-deesser / control toggle indicator off; type=color */
+  --wjn-theme-native-fx-deesser-control-toggle-indicator-off: #394759;
+  /* native-fx-deesser content background image; null means undefined and inherits the patchbay image; type=image */
+  /* --wjn-theme-native-fx-deesser-background-image: inherited from --wjn-theme-patchbay-background-image; keep undeclared to inherit. */
+}

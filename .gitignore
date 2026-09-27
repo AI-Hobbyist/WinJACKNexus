@@ -23,3 +23,7 @@ build/
 bin/
 Ref/
 third_party/
+*.log
+__pycache__/
+*.pyc
+tests/

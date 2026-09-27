@@ -204,7 +204,12 @@ QSize MeterWidget::sizeHint() const
 
 void MeterWidget::paintContent(QPainter& painter)
 {
-    painter.fillRect(rect(), QColor(QStringLiteral("#101817")));
+    const auto scope = property("wjnThemeScope").toString();
+    const auto meterColor = [&scope](const char* role, const QColor& fallback) {
+        return Controls::themeTokenColor(scope.isEmpty() ? QStringLiteral("global") : scope,
+                                         QString::fromLatin1(role), fallback);
+    };
+    painter.fillRect(rect(), meterColor("surface-window", QColor(QStringLiteral("#101817"))));
 
     const auto font = painter.font();
     painter.setFont(QFont(font.family(), 8));
@@ -217,14 +222,17 @@ void MeterWidget::paintContent(QPainter& painter)
     style.minimumDb = minimum_;
     style.maximumDb = maximum_;
     style.zones = {
-        {denormalize(warning_), QColor("#42c875"), QColor("#1b2928")},
-        {denormalize(danger_), QColor("#e1b84d"), QColor("#1b2928")},
-        {maximum_, QColor("#ef615f"), QColor("#1b2928")}
+        {denormalize(warning_), meterColor("meter-level-zone-low-active", QColor("#42c875")),
+                                meterColor("meter-level-zone-low-inactive", QColor("#1b2928"))},
+        {denormalize(danger_), meterColor("meter-level-zone-mid-active", QColor("#e1b84d")),
+                               meterColor("meter-level-zone-mid-inactive", QColor("#1b2928"))},
+        {maximum_, meterColor("meter-level-zone-high-active", QColor("#ef615f")),
+                   meterColor("meter-level-zone-high-inactive", QColor("#1b2928"))}
     };
     style.vertical = true;
-    style.border = QColor("#38504d");
-    style.peakColor = QColor("#f4f3dc");
-    style.labelColor = QColor("#9aada5");
+    style.border = meterColor("meter-level-border", QColor("#38504d"));
+    style.peakColor = meterColor("meter-level-peak", QColor("#f4f3dc"));
+    style.labelColor = meterColor("meter-level-label", QColor("#9aada5"));
     style.ticksLeft = true;
     style.showTickGrid = true;
     style.tickBandPixels = showScaleLabels_ ? 30 : 0;

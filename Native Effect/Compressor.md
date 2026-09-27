@@ -35,3 +35,11 @@
 GR 表现使用公共 `Controls::drawMeter` 的 `fillOriginDb=0`，从 0 dB 向负衰减值填充；刻度也由公共控件绘制。现有 `build` 树的 Debug `ALL_BUILD`、`native_compressor_tests`、`ui_unit_tests` 通过，公共控件测试覆盖衰减方向和独立刻度。
 
 传输响应曲线与实时电平填充改用公共 `Controls::drawCurvePath`；效果器保留压缩算法和路径坐标计算。Debug `ALL_BUILD`、`native_compressor_tests`、`ui_unit_tests` 通过。
+
+## 主题命名空间与绘制接入（2026-09-27，S12 后）
+
+本效果单独导出 Native Fx / Node v1 主题描述符，共用稳定 ID `compressor` 和对应模块作用域。描述符按冻结注册表提供 token 类型、默认值和继承，声明旋钮、开关、transfer 曲线、独立 level-fill 填充及 reduction-zone-single 电平分段。双入口按稳定 ID 去重，租约分别释放；越界索引返回 null。
+
+实际窗口的面板渐变两端、文字、旋钮活动环/外环、开关、图表背景/主次网格、响应曲线与活动电平填充、GR 表活动/非活动分段已接入模块 token。无外部主题与发布默认 `.wjnskin` 的实窗截图逐像素相同；改色截图见 `tests/preview/PostS12/Compressor/`，修改文件名为 `-modified.png`。截图观感：**人工验收跳过/未人工验证**。
+
+现有 `build` 的 `mod_compressor` Debug 单模块编译与完整 `ALL_BUILD` Debug 退出 0；`theme_compressor_native_fx`、前三个已迁移模块 UI 测试、`native_compressor_tests`、`native_fx_api_tests`、`theme_default_template` 7/7 通过。仅做模块加载及 UI 验证，未运行 JACK 客户端或端口连接集成。证据见 `build/PostS12-Compressor-*.log`。

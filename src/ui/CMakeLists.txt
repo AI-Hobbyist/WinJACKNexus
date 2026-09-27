@@ -21,6 +21,12 @@ add_library(ui SHARED
     src/NativeWindowUtils.cpp
     src/PaintableWidget.cpp
     src/ThemeManager.cpp
+    src/ThemeCore.cpp
+    src/ThemeCatalog.cpp
+    src/ThemeBackground.cpp
+    src/ThemeManagementDialog.cpp
+    src/ThemeNamespaceRegistry.cpp
+    src/ThemePackage.cpp
     src/ThemePalette.cpp
     src/TrayController.cpp
     include/WinJACKNexus/UI/Export.hpp
@@ -42,6 +48,12 @@ add_library(ui SHARED
     include/WinJACKNexus/UI/NativeWindowUtils.hpp
     include/WinJACKNexus/UI/PaintableWidget.hpp
     include/WinJACKNexus/UI/ThemeManager.hpp
+    include/WinJACKNexus/UI/ThemeCore.hpp
+    include/WinJACKNexus/UI/ThemeCatalog.hpp
+    include/WinJACKNexus/UI/ThemeBackground.hpp
+    include/WinJACKNexus/UI/ThemeManagementDialog.hpp
+    include/WinJACKNexus/UI/ThemeNamespaceRegistry.hpp
+    include/WinJACKNexus/UI/ThemePackage.hpp
     include/WinJACKNexus/UI/ThemePalette.hpp
     include/WinJACKNexus/UI/TrayController.hpp
     resources/ui.qrc
@@ -58,6 +70,11 @@ target_link_libraries(ui
     PUBLIC Qt6::Widgets WinJACKNexus::Common
     PRIVATE WinJACKNexus::Node
 )
+add_dependencies(ui wjn_default_theme)
+
+find_package(Qt6ZlibPrivate 6.10.3 EXACT CONFIG REQUIRED
+    PATHS "${WJN_QT6_DIR}/../Qt6ZlibPrivate" NO_DEFAULT_PATH)
+target_link_libraries(ui PRIVATE Qt6::ZlibPrivate)
 
 wjn_configure_shared_target(ui WJN_UI_BUILD)
 set_target_properties(ui PROPERTIES AUTOMOC ON AUTORCC ON)

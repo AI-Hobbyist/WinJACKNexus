@@ -256,16 +256,24 @@ void MeterLevelBar::paintContent(QPainter& painter)
     Controls::MeterStyle style;
     style.minimumDb = minimum_;
     style.maximumDb = maximum_;
+    const auto scope = property("wjnThemeScope").toString();
+    const auto meterColor = [&scope](const char* role, const QColor& fallback) {
+        return Controls::themeTokenColor(scope.isEmpty() ? QStringLiteral("global") : scope,
+                                         QString::fromLatin1(role), fallback);
+    };
     style.zones = {
-        {warning_, success, panelRaised},
-        {danger_, warning, panelRaised},
-        {maximum_, danger, panelRaised}
+        {warning_, meterColor("meter-level-zone-low-active", success),
+                   meterColor("meter-level-zone-low-inactive", panelRaised)},
+        {danger_, meterColor("meter-level-zone-mid-active", warning),
+                  meterColor("meter-level-zone-mid-inactive", panelRaised)},
+        {maximum_, meterColor("meter-level-zone-high-active", danger),
+                   meterColor("meter-level-zone-high-inactive", panelRaised)}
     };
     style.vertical = true;
-    style.border = border;
-    style.peakColor = text;
-    style.labelColor = muted;
-    style.tickColor = border;
+    style.border = meterColor("meter-level-border", border);
+    style.peakColor = meterColor("meter-level-peak", text);
+    style.labelColor = meterColor("meter-level-label", muted);
+    style.tickColor = meterColor("meter-level-tick", border);
     style.ticksLeft = true;
     style.showTickGrid = true;
     style.tickBandPixels = showScaleLabels_ ? scaleWidth + 4 : 0;

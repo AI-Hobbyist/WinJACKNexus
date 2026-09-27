@@ -3,6 +3,7 @@
 
 #include <WinJACKNexus/Common/DigitalMixerState.hpp>
 #include <WinJACKNexus/NativeFx/NativeFxApi.h>
+#include <WinJACKNexus/UI/ThemeNamespaceRegistry.hpp>
 
 #include <QByteArray>
 #include <QLibrary>
@@ -36,6 +37,7 @@ private:
         using ReadLive = int (*)(const WjnFxInstance*, float[8], float[8], float[8],
                                  void*, std::uint32_t);
         QLibrary library;
+        UI::ThemeNamespaceRegistry::Lease themeLease;
         QString moduleId;
         WjnFxInstance* instance {};
         Destroy destroy {};

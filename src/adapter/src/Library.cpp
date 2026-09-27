@@ -38,6 +38,7 @@
 #include <QFormLayout>
 #include <QHBoxLayout>
 #include <QHideEvent>
+#include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QLabel>
@@ -2233,6 +2234,37 @@ const AdapterNodeDefinition* definitionFor(std::uint32_t index) noexcept
 const char* wjn_get_node_api_version(void)
 {
     return "2";
+}
+
+std::uint32_t wjn_get_node_theme_api_version(void)
+{
+    return WJN_NODE_THEME_API_VERSION;
+}
+
+const char* wjn_get_node_theme_namespace_json(std::uint32_t index)
+{
+    static const std::array<QByteArray, 4> descriptors = [] {
+        const std::array<const char*, 4> ids {
+            "module-winjacknexus-wasapi-in", "module-winjacknexus-wasapi-out",
+            "module-winjacknexus-system-midi-in", "module-winjacknexus-system-midi-out"
+        };
+        std::array<QByteArray, 4> result;
+        for (std::size_t type = 0; type < result.size(); ++type) {
+            const QString moduleId = QString::fromLatin1(ids[type]);
+            const QString nameSpace = QStringLiteral("--wjn-theme-") + moduleId + '-';
+            const QJsonObject token {{"name", nameSpace + "node-card-background"},
+                {"type", "color"},
+                {"default", "var(--wjn-theme-patchbay-node-card-background)"},
+                {"description", "Host-drawn card background for this adapter node type"}};
+            const QJsonObject descriptor {{"descriptorVersion", 1}, {"themeApiVersion", 1},
+                {"moduleId", moduleId}, {"namespace", nameSpace},
+                {"displayName", QString::fromUtf8(kAdapterNodes[type].name)},
+                {"tokens", QJsonArray {token}}};
+            result[type] = QJsonDocument(descriptor).toJson(QJsonDocument::Compact);
+        }
+        return result;
+    }();
+    return index < descriptors.size() ? descriptors[index].constData() : nullptr;
 }
 
 std::uint32_t wjn_get_node_count(void)

@@ -2,6 +2,9 @@
 #include <WinJACKNexus/UI/ApplicationSettings.hpp>
 #include <WinJACKNexus/UI/Controls.hpp>
 #include <WinJACKNexus/UI/MixerPolarPlot.hpp>
+#include <WinJACKNexus/UI/ThemeCore.hpp>
+#include <WinJACKNexus/UI/ThemeBackground.hpp>
+#include <WinJACKNexus/UI/ThemeManager.hpp>
 
 #include <QFontMetricsF>
 #include <QElapsedTimer>
@@ -43,12 +46,15 @@ void text(QPainter& painter, const QRectF& rect, const QString& value, const QCo
 
 void panel(QPainter& painter, const QRectF& rect, const QColor& border = QColor("#183a56"))
 {
-    Controls::drawSurface(painter,rect,QColor("#102235"),border,7);
+    Controls::drawSurface(painter,rect,
+        Controls::themeTokenColor("sel-aux","surface-panel",QColor("#102235")),border,7);
 }
 
 void toggle(QPainter& painter, const QRectF& rect, bool checked)
 {
-    Controls::drawToggle(painter, rect, checked, QColor("#187ee8"), QColor("#38516d"));
+    Controls::drawToggle(painter, rect, checked,
+        Controls::themeTokenColor("sel-aux","control-toggle-indicator-on",QColor("#187ee8")),
+        Controls::themeTokenColor("sel-aux","control-toggle-indicator-off",QColor("#38516d")));
 }
 
 QString dbText(double value)
@@ -403,6 +409,8 @@ AuxSettingsWindow::AuxSettingsWindow(std::shared_ptr<Common::AuxMixerState> stat
     resize(1360, 813);
     setMouseTracking(true);
     setAttribute(Qt::WA_OpaquePaintEvent);
+    if (auto* core = ThemeManager::installedThemeCore())
+        connect(core, &ThemeCore::themeChanged, this, [this] { update(); });
 }
 
 AuxSettingsWindow::~AuxSettingsWindow() = default;
@@ -505,25 +513,37 @@ void AuxSettingsWindow::setChainCommitHandler(std::function<bool(bool)> handler)
 
 void AuxSettingsWindow::paintEvent(QPaintEvent*)
 {
+    const auto themed=[](const char* role,const QColor& fallback){
+        return Controls::themeTokenColor(QStringLiteral("sel-aux"),QString::fromLatin1(role),fallback);
+    };
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
-    painter.fillRect(rect(), QColor("#0b1a2b"));
+    painter.fillRect(rect(), themed("surface-empty",QColor("#0b1a2b")));
+    ThemeBackground::paint(painter, rect(), QStringLiteral("sel-aux"));
+    painter.setOpacity(ThemeBackground::componentOpacity(QStringLiteral("sel-aux")));
     const auto sx = impl_->scaleX();
     const auto sy = impl_->scaleY();
-    const auto label = QColor("#e8f2ff");
-    const auto secondary = QColor("#aec7eb");
-    const auto cyan = QColor("#26bfff");
-    const auto blue = QColor("#168dff");
+    const auto label = themed("text-primary",QColor("#e8f2ff"));
+    const auto secondary = themed("text-muted",QColor("#aec7eb"));
+    const auto cyan = themed("control-knob-indicator-normal",QColor("#26bfff"));
     const auto knobColors=Controls::paletteFor(*this,
-        {QColor("#0b1a2b"),QColor("#1b3b57"),QColor("#d9f4ff"),cyan,QColor("#254762")});
+        {themed("control-knob-background-base",QColor("#0b1a2b")),
+         themed("control-knob-panel",QColor("#1b3b57")),
+         themed("control-knob-text",QColor("#d9f4ff")),cyan,
+         themed("control-knob-track",QColor("#254762"))});
 
-    panel(painter, impl_->leftPanel(), QColor("#2b4662"));
+    panel(painter, impl_->leftPanel(), themed("border-panel",QColor("#2b4662")));
     text(painter, impl_->scaled(26, 12, 172, 38), impl_->sourceName + QStringLiteral(" · AUX"), label, 18 * sy,
          Qt::AlignLeft | Qt::AlignVCenter, true);
     toggle(painter, impl_->masterToggle(), impl_->chainEnabled);
-    Controls::drawSurface(painter,impl_->addButton(),QColor("#073158"),QColor("#0b699d"),6);
-    text(painter, impl_->addButton(), QStringLiteral("＋  添加 AUX"), QColor("#54d8ff"), 15 * sy);
-    Controls::drawSurface(painter,impl_->removeButton(),QColor("#172d42"),QColor("#0b699d"),6);
+    Controls::drawSurface(painter,impl_->addButton(),
+        themed("control-add-surface",QColor("#073158")),
+        themed("control-add-border",QColor("#0b699d")),6);
+    text(painter, impl_->addButton(), QStringLiteral("＋  添加 AUX"),
+         themed("control-add-text",QColor("#54d8ff")), 15 * sy);
+    Controls::drawSurface(painter,impl_->removeButton(),
+        themed("control-remove-surface",QColor("#172d42")),
+        themed("control-remove-border",QColor("#0b699d")),6);
     text(painter, impl_->removeButton(), QStringLiteral("−"), label, 21 * sy, Qt::AlignCenter, true);
 
     painter.save();
@@ -533,10 +553,13 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
         const auto& bus = impl_->buses()[visibleBuses[index]];
         const auto row = impl_->listRow(index);
         const auto selected = bus.id == impl_->selectedId;
-        const QColor busAccent=bus.accent.isValid()?bus.accent:QColor("#20d9ff");
+        const QColor busAccent=bus.accent.isValid()?bus.accent
+            : themed("control-bus-accent-default",QColor("#20d9ff"));
         Controls::drawSurface(painter,row,
-            selected ? QColor("#0d3048") : QColor("#0a1d2c"),
-            selected ? busAccent : (bus.accent.isValid()?busAccent.darker(180):QColor("#17374f")),
+            selected ? themed("control-bus-surface-selected",QColor("#0d3048"))
+                     : themed("control-bus-surface-normal",QColor("#0a1d2c")),
+            selected ? busAccent : (bus.accent.isValid()?busAccent.darker(180)
+                : themed("control-bus-border-normal",QColor("#17374f"))),
             7,selected ? 1.5 : 1.0);
         if (selected)
             painter.fillRect(QRectF(row.left(), row.top() + 3, 5 * sx, row.height() - 6), busAccent);
@@ -545,7 +568,8 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
         text(painter, { row.left() + 64 * sx, row.top() + 10 * sy, 94 * sx, 25 * sy },
              QStringLiteral("AUX %1").arg(bus.id), label, 15 * sy, Qt::AlignLeft | Qt::AlignVCenter, true);
         text(painter, { row.left() + 64 * sx, row.top() + 36 * sy, 94 * sx, 22 * sy }, bus.name,
-             QColor("#91b9e8"), 13 * sy, Qt::AlignLeft | Qt::AlignVCenter);
+             themed("control-bus-text-secondary",QColor("#91b9e8")),
+             13 * sy, Qt::AlignLeft | Qt::AlignVCenter);
 
         const auto knob = impl_->listKnob(index);
         const auto knobCenter = knob.center();
@@ -555,7 +579,8 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
         painter.translate(knobCenter);
         painter.scale(sx,sy);
         auto listColors=knobColors;
-        if(bus.selfRoute){listColors.accent=secondary;listColors.panel=QColor("#385064");}
+        if(bus.selfRoute){listColors.accent=secondary;
+            listColors.panel=themed("control-knob-panel-self-route",QColor("#385064"));}
         Controls::drawKnob(painter,{0,0},normalized,20,listColors);
         painter.restore();
         text(painter, { knobCenter.x() - 38 * sx, row.top() + 55 * sy, 76 * sx, 16 * sy },
@@ -564,18 +589,24 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
 
         const QRectF pre(row.left() + 220 * sx, row.top() + 18 * sy, 45 * sx, 36 * sy);
         const QRectF post(row.left() + 265 * sx, row.top() + 18 * sy, 48 * sx, 36 * sy);
-        Controls::drawSurface(painter,pre,bus.preFader ? QColor("#087ee4") : QColor("#172d43"),QColor("#315370"),5);
-        Controls::drawSurface(painter,post,!bus.preFader ? QColor("#087ee4") : QColor("#172d43"),QColor("#315370"),5);
-        text(painter, pre, QStringLiteral("Pre"), bus.preFader ? QColor("#ffffff") : secondary, 12 * sy);
-        text(painter, post, QStringLiteral("Post"), !bus.preFader ? QColor("#ffffff") : secondary, 12 * sy);
+        const auto routeActive = themed("control-route-surface-selected",QColor("#087ee4"));
+        const auto routeIdle = themed("control-route-surface-normal",QColor("#172d43"));
+        const auto routeBorder = themed("control-route-border",QColor("#315370"));
+        Controls::drawSurface(painter,pre,bus.preFader ? routeActive : routeIdle,routeBorder,5);
+        Controls::drawSurface(painter,post,!bus.preFader ? routeActive : routeIdle,routeBorder,5);
+        const auto routeText = themed("control-route-text-selected",QColor("#ffffff"));
+        text(painter, pre, QStringLiteral("Pre"), bus.preFader ? routeText : secondary, 12 * sy);
+        text(painter, post, QStringLiteral("Post"), !bus.preFader ? routeText : secondary, 12 * sy);
         const auto gear = impl_->listGear(index);
-        Controls::drawSurface(painter,gear,QColor("#142b3e"),QColor("#315370"),5);
+        Controls::drawSurface(painter,gear,
+            themed("control-gear-surface",QColor("#142b3e")),routeBorder,5);
         text(painter, gear, QStringLiteral("⚙"), label, 18 * sy);
-        painter.setPen(QPen(QColor("#24445d"),1));
+        painter.setPen(QPen(themed("control-bus-divider",QColor("#24445d")),1));
         painter.drawLine(QPointF(row.left()+12*sx,row.top()+72*sy),
                          QPointF(row.right()-12*sx,row.top()+72*sy));
         text(painter,{row.left()+16*sx,row.top()+75*sy,row.width()-32*sx,17*sy},
-             mappingLabel(impl_->sourceNumber,bus),QColor("#a8c8e7"),12*sy,
+             mappingLabel(impl_->sourceNumber,bus),
+             themed("control-bus-mapping-text",QColor("#a8c8e7")),12*sy,
              Qt::AlignCenter);
     }
     painter.restore();
@@ -583,10 +614,13 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
     const auto scrollbarTrack = impl_->listScrollbarTrack();
     const auto scrollbarThumb = impl_->listScrollbarThumb();
     const auto listScrollable = impl_->maximumListScroll() > 0.0;
-    Controls::drawSurface(painter,scrollbarTrack,QColor("#10283a"),{},scrollbarTrack.width()*.5);
+    Controls::drawSurface(painter,scrollbarTrack,
+        themed("control-scrollbar-track",QColor("#10283a")),{},scrollbarTrack.width()*.5);
     Controls::drawSurface(painter,scrollbarThumb,
-        !listScrollable ? QColor("#29465b")
-            : impl_->listScrollbarDragging ? QColor("#56d7ff") : QColor("#258fc3"),
+        !listScrollable ? themed("control-scrollbar-thumb-disabled",QColor("#29465b"))
+            : impl_->listScrollbarDragging
+                ? themed("control-scrollbar-thumb-dragging",QColor("#56d7ff"))
+                : themed("control-scrollbar-thumb-normal",QColor("#258fc3")),
         {},scrollbarThumb.width()*.5);
 
     auto* bus = impl_->selected();
@@ -597,7 +631,8 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
     painter.translate(impl_->contentOrigin());
     painter.scale(sx, sy);
     const auto drawPanel=[&](QRectF rect){
-        Controls::drawSurface(painter,rect,QColor("#102235"),QColor("#2b4662"),7);
+        Controls::drawSurface(painter,rect,themed("surface-panel",QColor("#102235")),
+            themed("border-panel",QColor("#2b4662")),7);
     };
     const auto drawText=[&](QRectF rect,const QString& value,int size=15,QColor color=QColor("#e8f2ff"),bool bold=false,int align=Qt::AlignLeft|Qt::AlignVCenter){
         auto font=painter.font();font.setPixelSize(size);font.setBold(bold);
@@ -611,7 +646,9 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
         Controls::drawStyledButton(painter,rect,value,active,style);
     };
     const auto drawToggle=[&](QRectF rect,bool active){
-        Controls::drawToggle(painter,rect,active,QColor("#168dff"),QColor("#263e53"));
+        Controls::drawToggle(painter,rect,active,
+            themed("control-toggle-indicator-on",QColor("#168dff")),
+            themed("control-toggle-indicator-off",QColor("#263e53")));
     };
     const auto drawMuteSolo=[&](QRectF rect,const QString& value,bool active,QColor accent){
         Controls::ButtonStyle style;
@@ -619,7 +656,8 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
         style.inactiveFill=style.activeFill=accent;
         style.inactiveFill.setAlpha(25);
         style.activeFill.setAlpha(85);
-        style.inactiveText=style.activeText=QColor("#f7f8ff");
+        style.inactiveText=style.activeText=
+            themed("control-mute-solo-text",QColor("#f7f8ff"));
         style.bold=true;
         Controls::drawStyledButton(painter,rect,value,active,style);
     };
@@ -637,8 +675,10 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
     const QPointF center(686,319);
     if(classic){
         Controls::Palette panColors;
-        panColors.border=QColor("#254762");panColors.accent=cyan;
-        panColors.panel=QColor("#1b3b57");panColors.text=QColor("#d9f4ff");
+        panColors.border=themed("control-pan-border",QColor("#254762"));
+        panColors.accent=cyan;
+        panColors.panel=themed("control-knob-panel",QColor("#1b3b57"));
+        panColors.text=themed("control-knob-text",QColor("#d9f4ff"));
         Controls::drawPanKnob(painter,center,bus->classicPan,170,panColors);
         drawText({center.x()-110,105,220,35},QStringLiteral("声像"),19,label,true,Qt::AlignCenter);
         drawText({center.x()-190,505,90,25},QStringLiteral("L100%"),15,secondary,true,Qt::AlignCenter);
@@ -648,11 +688,11 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
         drawText({center.x()-110,339,220,30},QStringLiteral("%1 %2%").arg(direction).arg(qRound(std::abs(bus->classicPan)*100)),16,label,true,Qt::AlignCenter);
     }else{
         constexpr qreal radius=190,pointRadius=159;
-        drawMixerPolarGrid(painter,center,radius);
+        drawMixerPolarGrid(painter,center,radius,QStringLiteral("sel-aux"));
         if(bus->showPolarCurves) {
             const auto contour = impl_->polarCurve.contour();
             drawMixerPolarCurves(painter,{420,95,531,448},center,radius,contour,
-                                 bus->showInputCurve,bus->showOutputCurve);
+                                 bus->showInputCurve,bus->showOutputCurve,QStringLiteral("sel-aux"));
             if(!contour.valid) drawText({center.x()-62,center.y()-12,124,24},
                                         QStringLiteral("无信号"),13,secondary,false,Qt::AlignCenter);
         }
@@ -664,7 +704,7 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
             if(!Common::auxHasSpatialPoint(bus->targetLayout,i))continue;
             const auto gain=i<static_cast<int>(outputGains.size())
                 ? outputGains[i]:0.0;
-            drawMixerPolarReferencePoint(painter,center+references[i]*pointRadius,gain);
+            drawMixerPolarReferencePoint(painter,center+references[i]*pointRadius,gain,QStringLiteral("sel-aux"));
         }
         const auto labels=Common::auxLayoutChannelLabels(bus->sourceLayout);
         for(int i=0;i<static_cast<int>(bus->adjustablePoints.size());++i){
@@ -672,10 +712,10 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
             const auto point=center+bus->adjustablePoints[i]*pointRadius;
             const bool selected=i==selectedPoint;
             const auto outerRadius=Common::auxInfluencePixelRadius(impl_->pointInfluence(*bus,i));
-            drawMixerPolarHandle(painter,point,outerRadius,selected);
+            drawMixerPolarHandle(painter,point,outerRadius,selected,QStringLiteral("sel-aux"));
             if(i<labels.size())drawText({point.x()-17,point.y()+14,34,19},labels[i],12,label,true,Qt::AlignCenter);
         }
-        drawMixerPolarCenter(painter,center);
+        drawMixerPolarCenter(painter,center,QStringLiteral("sel-aux"));
         drawText({center.x()-22,105,44,20},QStringLiteral("0°"),12,secondary,false,Qt::AlignCenter);
         drawText({center.x()+radius+8,309,45,20},QStringLiteral("90°"),12,secondary);
         drawText({center.x()-radius-53,309,45,20},QStringLiteral("270°"),12,secondary);
@@ -703,10 +743,13 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
     drawButton({1220,52,100,34},QStringLiteral("重置"));
     const std::array<QString,8> sendLabels{QStringLiteral("L"),QStringLiteral("R"),QStringLiteral("C"),QStringLiteral("LFE"),QStringLiteral("Ls"),QStringLiteral("Rs"),QStringLiteral("Lb"),QStringLiteral("Rb")};
     Controls::MeterStyle sendMeter;
-    sendMeter.border=QColor("#06131f");
-    sendMeter.zones={{-12,QColor("#17d675"),QColor("#102234")},
-                     {0,QColor("#f2df48"),QColor("#102234")},
-                     {12,QColor("#f2484d"),QColor("#102234")}};
+    sendMeter.border=themed("meter-aux-send-border",QColor("#06131f"));
+    sendMeter.zones={{-12,themed("meter-aux-send-zone-low-active",QColor("#17d675")),
+                          themed("meter-aux-send-zone-low-inactive",QColor("#102234"))},
+                     {0,themed("meter-aux-send-zone-mid-active",QColor("#f2df48")),
+                        themed("meter-aux-send-zone-mid-inactive",QColor("#102234"))},
+                     {12,themed("meter-aux-send-zone-high-active",QColor("#f2484d")),
+                         themed("meter-aux-send-zone-high-inactive",QColor("#102234"))}};
     sendMeter.ticks={{-72,QStringLiteral("-72")},{-48,QStringLiteral("-48")},
                      {-24,QStringLiteral("-24")},{-12,QStringLiteral("-12")},
                      {0,QStringLiteral("0")},{12,QStringLiteral("+12")}};
@@ -729,11 +772,15 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
         const qreal peak=meterState!=impl_->busMeters.end()
             ? meterState->second[static_cast<std::size_t>(i)].peakDb():meterDb;
         Controls::drawMeter(painter,{x+112,y+3,200,33},meterDb,peak,sendMeter);
-        drawMuteSolo({x+174,y+45,62,29},QStringLiteral("M"),send&&send->mute,QColor("#ff4b62"));
-        drawMuteSolo({x+244,y+45,62,29},QStringLiteral("S"),send&&send->solo,QColor("#ffae2d"));
+        drawMuteSolo({x+174,y+45,62,29},QStringLiteral("M"),send&&send->mute,
+            themed("control-mute-accent",QColor("#ff4b62")));
+        drawMuteSolo({x+244,y+45,62,29},QStringLiteral("S"),send&&send->solo,
+            themed("control-solo-accent",QColor("#ffae2d")));
         painter.restore();
     }
     painter.restore();
+    painter.setOpacity(1.0);
+    ThemeBackground::paint(painter, rect(), QStringLiteral("sel-aux"), true);
 }
 
 void AuxSettingsWindow::mousePressEvent(QMouseEvent* event)

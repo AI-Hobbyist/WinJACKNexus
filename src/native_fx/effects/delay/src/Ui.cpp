@@ -22,11 +22,17 @@ void box(QPainter& p,QRectF r,qreal radius,QColor fill,QColor edge={}) {
 }
 void label(QPainter& p,QRectF r,const QString& text,int size,QColor color,bool bold=false) {
     QFont font(QStringLiteral("Microsoft YaHei UI"),size);font.setBold(bold);
-    Controls::drawText(p,r,text,font,color);
+    const auto themed = color == pale
+        ? Controls::themeTokenColor("native-fx-delay", "text-primary", color)
+        : color == muted
+            ? Controls::themeTokenColor("native-fx-delay", "text-muted", color) : color;
+    Controls::drawText(p,r,text,font,themed);
 }
 void chevron(QPainter& p,QPointF c) {p.setPen(QPen(muted,1.3));p.drawLine(c+QPointF(-4,-2),c+QPointF(0,2));p.drawLine(c+QPointF(0,2),c+QPointF(4,-2));}
 void toggle(QPainter& p,QRectF r,bool on) {
-    Controls::drawToggle(p,r,on,QColor(13,141,238),QColor(42,64,88));
+    Controls::drawToggle(p,r,on,
+        Controls::themeTokenColor("native-fx-delay", "control-toggle-indicator-on", QColor(13,141,238)),
+        Controls::themeTokenColor("native-fx-delay", "control-toggle-indicator-off", QColor(42,64,88)));
 }
 void styleCombo(QComboBox* combo) {
     combo->setStyleSheet(QStringLiteral(
@@ -192,11 +198,14 @@ void DelayWidget::adjust(int index,float steps) {
 }
 void DelayWidget::paintEvent(QPaintEvent*) {
     QPainter p(this);p.setRenderHint(QPainter::Antialiasing);
-    p.fillRect(rect(),Controls::themeColor(*this,"fxBackground",QColor(12,26,43)));
+    p.fillRect(rect(),Controls::themeColor(*this,"fxBackground",
+        Controls::themeTokenColor("native-fx-delay", "surface-window", QColor(12,26,43))));
     box(p,{7,7,736,126},9,QColor(21,39,59),QColor(45,75,107));
     label(p,{20,17,130,36},QStringLiteral("作用声道"),18,Qt::white,true);
     for(int i=0;i<9;++i){int x=20+i*79;box(p,{qreal(x),65,70,43},6,i==channel_+1?QColor(13,65,100):QColor(24,42,61),i==channel_+1?cyan:QColor(60,86,111));label(p,{qreal(x),65,70,43},QString::fromLatin1(channels[i]),14,i==channel_+1?cyan:pale);}
-    box(p,{3,141,744,499},10,QColor(16,33,52),QColor(18,157,231));
+    box(p,{3,141,744,499},10,
+        Controls::themeTokenColor("native-fx-delay", "surface-panel", QColor(16,33,52)),
+        QColor(18,157,231));
     box(p,{12,151,726,68},8,QColor(22,42,62));
     box(p,{14,153,54,54},5,QColor(11,147,190),QColor(23,194,235));
     p.setPen(QPen(Qt::white,2));p.setBrush(Qt::NoBrush);p.drawEllipse(QPointF(41,180),17,17);p.drawLine(QPointF(41,180),QPointF(41,168));p.drawLine(QPointF(41,180),QPointF(51,183));
@@ -219,7 +228,10 @@ void DelayWidget::paintEvent(QPaintEvent*) {
     label(p,{550,246,47,30},QStringLiteral("视图:"),12,pale);
     drawSelect(p,{599,244,120,35},viewCombo_->currentText());
     const auto controlColors=Controls::paletteFor(*this,
-        {QColor(12,26,43),QColor(20,38,57),pale,cyan,QColor(39,67,91)});
+        {Controls::themeTokenColor("native-fx-delay", "control-knob-background-base", QColor(12,26,43)),
+         QColor(20,38,57), pale,
+         Controls::themeTokenColor("native-fx-delay", "control-knob-indicator-normal", cyan),
+         Controls::themeTokenColor("native-fx-delay", "control-knob-track", QColor(39,67,91))});
     Controls::drawKnob(p,{170,355},v.sync?std::clamp((v.bpm-30.0F)/270.0F,0.0F,1.0F):std::clamp(v.timeMs/2000.0F,0.0F,1.0F),38,controlColors);
     const float shownMs=WinJACKNexus::Common::DelayProcessor::delayMilliseconds(v);
     label(p,{111,397,118,24},QStringLiteral("%1 ms").arg(shownMs,0,'f',0),13,Qt::white);
@@ -227,30 +239,38 @@ void DelayWidget::paintEvent(QPaintEvent*) {
     for(int i=1;i<4;++i){int x=i==1?64:i==2?168:273;float n=i==1?v.feedback/95.0F:(i==2?v.wetDb:v.dryDb)+60.0F; if(i!=1)n/=66.0F;Controls::drawKnob(p,{qreal(x),526},n,30,controlColors);QString t=i==1?QStringLiteral("%1 %").arg(v.feedback,0,'f',0):QStringLiteral("%1 dB").arg(i==2?v.wetDb:v.dryDb,0,'f',1);label(p,{qreal(x-46),559,92,22},t,12,Qt::white);}
     label(p,{25,583,80,20},QStringLiteral("反馈"),12,pale);label(p,{125,583,86,20},QStringLiteral("湿信号"),12,pale);label(p,{231,583,86,20},QStringLiteral("干信号"),12,pale);
     label(p,{25,603,80,21},QStringLiteral("(Feedback)"),10,pale);label(p,{125,603,86,21},QStringLiteral("(Wet)"),10,pale);label(p,{231,603,86,21},QStringLiteral("(Dry)"),10,pale);
-    box(p,{334,301,388,206},6,QColor(9,25,40),QColor(49,77,105));
+    box(p,{334,301,388,206},6,
+        Controls::themeTokenColor("native-fx-delay", "chart-background", QColor(9,25,40)),
+        QColor(49,77,105));
     const QRectF gridBounds(340,307,375,161);
     p.save();p.setClipRect(gridBounds);
     Controls::ChartGridStyle timeGrid;
-    timeGrid.grid=QColor(41,68,87);
+    timeGrid.grid=Controls::themeTokenColor("native-fx-delay", "chart-grid-major", QColor(41,68,87));
     timeGrid.lineWidth=.7;
     for(int i=0;i<9;++i)
         timeGrid.verticalFractions.push_back((341+i*44-gridBounds.left())/gridBounds.width());
     Controls::drawChartGrid(p,gridBounds,timeGrid);
     Controls::ChartGridStyle amplitudeGrid;
-    amplitudeGrid.grid=QColor(35,62,85);
+    amplitudeGrid.grid=Controls::themeTokenColor("native-fx-delay", "chart-grid-minor", QColor(35,62,85));
     amplitudeGrid.lineWidth=.8;
     for(int i=0;i<4;++i)
         amplitudeGrid.horizontalFractions.push_back((322+i*39-gridBounds.top())/gridBounds.height());
     Controls::drawChartGrid(p,gridBounds,amplitudeGrid);
     const float scale=350.0F/2000.0F;
     const int baseline=view_?450:382;
-    p.setPen(QPen(view_?QColor(69,107,137):cyan,1));p.drawLine(342,baseline,714,baseline);
+    p.setPen(QPen(view_
+        ? Controls::themeTokenColor("native-fx-delay", "chart-series-baseline-stroke", QColor(69,107,137))
+        : Controls::themeTokenColor("native-fx-delay", "chart-series-tap-primary-stroke", cyan),1));
+    p.drawLine(342,baseline,714,baseline);
     for(int tap=1;tap<=16;++tap){
         const int x=341+int(shownMs*tap*scale);if(x>711)break;
         const float amplitude=std::pow(v.feedback/100.0F,tap-1);
         if(amplitude<.012F)break;
         const int height=view_?int(120*amplitude):std::max(3,int(28*amplitude));
-        p.setPen(QPen(tap==1?cyan:QColor(149,94,227),view_?4:6,Qt::SolidLine,Qt::RoundCap));
+        p.setPen(QPen(tap==1
+            ? Controls::themeTokenColor("native-fx-delay", "chart-series-tap-primary-stroke", cyan)
+            : Controls::themeTokenColor("native-fx-delay", "chart-series-tap-repeat-stroke", QColor(149,94,227)),
+            view_?4:6,Qt::SolidLine,Qt::RoundCap));
         p.drawLine(x,baseline-(view_?height:height/2),x,baseline+(view_?0:height/2));
     }
     p.restore();

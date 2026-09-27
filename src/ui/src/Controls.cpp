@@ -1,5 +1,7 @@
 /* This file is part of WinJACKNexus. SPDX-License-Identifier: AGPL-3.0-only */
 #include <WinJACKNexus/UI/Controls.hpp>
+#include <WinJACKNexus/UI/ThemeCore.hpp>
+#include <WinJACKNexus/UI/ThemeManager.hpp>
 #include <QPalette>
 #include <QPainter>
 #include <QPainterPath>
@@ -46,8 +48,15 @@ public:
         setObjectName(QStringLiteral("numericValueEditor"));
         setValidator(new QDoubleValidator(spec.minimum, spec.maximum, spec.decimals, this));
         setAlignment(Qt::AlignCenter);
-        setStyleSheet(QStringLiteral("QLineEdit {background:#102033;color:#eff6ff;"
-                                     "border:1px solid #31c6ff;border-radius:4px;}"));
+        const auto background = themeTokenColor("global", "control-input-surface-normal",
+                                                QColor("#102033"));
+        const auto foreground = themeTokenColor("global", "control-input-text-normal",
+                                                QColor("#eff6ff"));
+        const auto border = themeTokenColor("global", "control-input-border-focus",
+                                            QColor("#31c6ff"));
+        setStyleSheet(QStringLiteral("QLineEdit {background:%1;color:%2;"
+                                     "border:1px solid %3;border-radius:4px;}")
+                          .arg(background.name(), foreground.name(), border.name()));
     }
 protected:
     void keyPressEvent(QKeyEvent* event) override {
@@ -132,6 +141,28 @@ QColor themeColor(const QWidget& widget, const char* key, const QColor& fallback
     return color.isValid() ? color : fallback;
 }
 
+QColor themeTokenColor(const QString& scope, const QString& role, const QColor& fallback) {
+    const auto* core = ThemeManager::installedThemeCore();
+    if (!core) return fallback;
+    const auto snapshot = core->snapshot();
+    if (!snapshot) return fallback;
+    const auto token = QStringLiteral("--wjn-theme-") + scope + '-' + role;
+    if (!snapshot->hasValue(token)) return fallback;
+    const auto value = snapshot->value(token);
+    if (value == QStringLiteral("transparent")) return QColor(0, 0, 0, 0);
+    if (value.startsWith(QStringLiteral("rgb(")) || value.startsWith(QStringLiteral("rgba("))) {
+        const bool alpha = value.startsWith(QStringLiteral("rgba("));
+        const auto fields = value.mid(alpha ? 5 : 4, value.size() - (alpha ? 6 : 5)).split(',');
+        if (fields.size() != (alpha ? 4 : 3)) return fallback;
+        const auto opacity = alpha ? fields[3].trimmed().toDouble() : 1.0;
+        const QColor parsed(fields[0].trimmed().toInt(), fields[1].trimmed().toInt(),
+                            fields[2].trimmed().toInt(), qRound(opacity * 255.0));
+        return parsed.isValid() ? parsed : fallback;
+    }
+    const QColor parsed(value);
+    return parsed.isValid() ? parsed : fallback;
+}
+
 void drawSurface(QPainter& painter, const QRectF& bounds, const QBrush& fill,
                  const QColor& border, qreal radius, qreal borderWidth) {
     painter.setPen(border.isValid() && border.alpha() > 0
@@ -178,7 +209,9 @@ void ToggleButton::paintEvent(QPaintEvent*) {
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
     drawToggle(painter, QRectF(rect()).adjusted(1, 2, -1, -2), isChecked(),
-               themeColor(*this, "fxAccent", QColor("#187ee8")), QColor("#38516d"));
+               themeColor(*this, "fxAccent", themeTokenColor("global",
+                   "control-toggle-indicator-selected", QColor("#187ee8"))),
+               themeTokenColor("global", "control-toggle-surface-normal", QColor("#38516d")));
 }
 
 Palette paletteFor(const QWidget& widget, const Palette& defaults) {
@@ -651,6 +684,7 @@ namespace { Palette inheritedPalette(const QWidget& widget); }
 
 TextField::TextField(QWidget* parent) : QLineEdit(parent) {
     setProperty("wjnRole", QStringLiteral("field"));
+    setMinimumHeight(sidebarControlHeight);
     setFrame(false);
     setTextMargins(7, 0, 7, 0);
     setStyleSheet(QStringLiteral("background: transparent; border: none; padding: 0;"));
@@ -678,6 +712,7 @@ ReadOnlyField::ReadOnlyField(QWidget* parent) : TextField(parent) {
 
 ChoiceField::ChoiceField(QWidget* parent) : QComboBox(parent) {
     setProperty("wjnRole", QStringLiteral("choice"));
+    setMinimumHeight(sidebarControlHeight);
 }
 
 void ChoiceField::setManualFilterEnabled(bool enabled) {
@@ -728,6 +763,7 @@ void ChoiceField::paintEvent(QPaintEvent*) {
 ActionButton::ActionButton(const QString& text, QWidget* parent)
     : QPushButton(text, parent) {
     setProperty("wjnRole", QStringLiteral("action"));
+    setMinimumHeight(sidebarControlHeight);
     setCursor(Qt::PointingHandCursor);
 }
 
@@ -758,6 +794,90 @@ void ActionButton::paintEvent(QPaintEvent*) {
         drawText(painter, QRectF(left + side + gap, 0, textWidth, height()),
                  text(), font(), textColor_, Qt::AlignCenter);
     }
+}
+
+ZoomControl::ZoomControl(QWidget* parent) : QWidget(parent) {
+    setObjectName(QStringLiteral("patchbayZoomControl"));
+    setFixedHeight(32);
+    setMinimumWidth(146);
+    setMouseTracking(true);
+    setCursor(Qt::PointingHandCursor);
+    if (auto* core = ThemeManager::installedThemeCore())
+        connect(core, &ThemeCore::themeChanged, this, [this] { update(); });
+}
+
+void ZoomControl::setZoomFactor(qreal factor) {
+    if (qFuzzyCompare(factor_, factor)) return;
+    factor_ = factor;
+    update();
+}
+
+qreal ZoomControl::zoomFactor() const noexcept { return factor_; }
+QSize ZoomControl::sizeHint() const { return {150, 32}; }
+
+void ZoomControl::paintEvent(QPaintEvent*) {
+    const auto color = [](const QString& role, const QColor& fallback) {
+        return themeTokenColor(QStringLiteral("patchbay"), role, fallback);
+    };
+    const QColor surface = color(QStringLiteral("control-zoom-surface"), QColor("#1e2b34"));
+    const QColor border = color(QStringLiteral("control-zoom-border"), QColor("#4b5f73"));
+    const QColor icon = color(QStringLiteral("control-zoom-icon"), QColor("#43c7a8"));
+    const QColor caption = color(QStringLiteral("control-zoom-text"), QColor("#e6eef4"));
+    const QColor hover = color(QStringLiteral("control-zoom-hover"), QColor("#33495b"));
+    QPainter painter(this);
+    painter.setRenderHint(QPainter::Antialiasing);
+    drawSurface(painter, QRectF(rect()).adjusted(0.5, 0.5, -0.5, -0.5), surface, border, 6.0);
+    if (hoveredPart_ == 0 || hoveredPart_ == 2) {
+        painter.setPen(Qt::NoPen);
+        painter.setBrush(hover);
+        painter.drawRoundedRect(QRectF(hoveredPart_ == 0 ? 2.0 : width() - 31.0, 2.0, 29.0, height() - 4.0), 4, 4);
+    }
+    painter.setPen(QPen(border, 1.0));
+    painter.drawLine(QPointF(32.0, 5.0), QPointF(32.0, height() - 5.0));
+    painter.drawLine(QPointF(width() - 33.0, 5.0), QPointF(width() - 33.0, height() - 5.0));
+    painter.setPen(QPen(icon, 1.7, Qt::SolidLine, Qt::RoundCap));
+    const auto magnifier = [&painter, this, surface, icon](qreal x, bool plus) {
+        const QPointF center(x - 2.0, height() / 2.0 - 3.0);
+        painter.setBrush(Qt::NoBrush);
+        painter.drawEllipse(center, 6.0, 6.0);
+        painter.drawLine(center + QPointF(4.5, 4.5), center + QPointF(10.0, 10.0));
+        const QPointF sign = center + QPointF(10.0, 10.0);
+        painter.setPen(Qt::NoPen);
+        painter.setBrush(surface);
+        painter.drawEllipse(sign, 4.5, 4.5);
+        painter.setPen(QPen(icon, 1.5, Qt::SolidLine, Qt::RoundCap));
+        painter.drawLine(sign + QPointF(-2.5, 0.0), sign + QPointF(2.5, 0.0));
+        if (plus) painter.drawLine(sign + QPointF(0.0, -2.5), sign + QPointF(0.0, 2.5));
+    };
+    magnifier(14.0, true);
+    magnifier(width() - 19.0, false);
+    painter.setPen(caption);
+    painter.drawText(QRectF(34.0, 0.0, width() - 68.0, height()), Qt::AlignCenter,
+                     QString::number(qRound(factor_ * 100.0)) + QLatin1Char('%'));
+}
+
+void ZoomControl::mouseMoveEvent(QMouseEvent* event) {
+    const int part = event->position().x() < 33.0 ? 0
+        : event->position().x() >= width() - 33.0 ? 2 : 1;
+    if (part != hoveredPart_) { hoveredPart_ = part; update(); }
+    QWidget::mouseMoveEvent(event);
+}
+
+void ZoomControl::mouseReleaseEvent(QMouseEvent* event) {
+    if (event->button() == Qt::LeftButton && rect().contains(event->position().toPoint())) {
+        if (event->position().x() < 33.0) emit zoomInRequested();
+        else if (event->position().x() >= width() - 33.0) emit zoomOutRequested();
+        else emit zoomResetRequested();
+        event->accept();
+        return;
+    }
+    QWidget::mouseReleaseEvent(event);
+}
+
+void ZoomControl::leaveEvent(QEvent* event) {
+    hoveredPart_ = -1;
+    update();
+    QWidget::leaveEvent(event);
 }
 
 DialogButtonBar::DialogButtonBar(QWidget* parent) : QDialogButtonBox(parent) {
@@ -833,6 +953,7 @@ void IconActionButton::paintEvent(QPaintEvent*) {
 
 IntegerField::IntegerField(QWidget* parent) : QSpinBox(parent) {
     setProperty("wjnRole", QStringLiteral("number"));
+    setMinimumHeight(sidebarControlHeight);
     setFrame(false);
     lineEdit()->setFrame(false);
     lineEdit()->setStyleSheet(QStringLiteral("background: transparent; border: none; padding: 0;"));
@@ -840,6 +961,7 @@ IntegerField::IntegerField(QWidget* parent) : QSpinBox(parent) {
 
 DecimalField::DecimalField(QWidget* parent) : QDoubleSpinBox(parent) {
     setProperty("wjnRole", QStringLiteral("number"));
+    setMinimumHeight(sidebarControlHeight);
     setFrame(false);
     lineEdit()->setFrame(false);
     lineEdit()->setStyleSheet(QStringLiteral("background: transparent; border: none; padding: 0;"));
@@ -847,6 +969,7 @@ DecimalField::DecimalField(QWidget* parent) : QDoubleSpinBox(parent) {
 
 ToggleField::ToggleField(const QString& text, QWidget* parent) : QCheckBox(text, parent) {
     setProperty("wjnRole", QStringLiteral("toggle"));
+    setMinimumHeight(sidebarControlHeight);
     setCursor(Qt::PointingHandCursor);
 }
 
@@ -927,11 +1050,11 @@ namespace {
 Palette inheritedPalette(const QWidget& widget) {
     Palette defaults;
     const auto native = widget.palette();
-    defaults.background = native.color(QPalette::Window);
-    defaults.panel = native.color(QPalette::Base);
-    defaults.text = native.color(QPalette::Text);
-    defaults.accent = native.color(QPalette::Highlight);
-    defaults.border = native.color(QPalette::Mid);
+    defaults.background = themeTokenColor("global", "surface-window", native.color(QPalette::Window));
+    defaults.panel = themeTokenColor("global", "surface-panel", native.color(QPalette::Base));
+    defaults.text = themeTokenColor("global", "text-primary", native.color(QPalette::Text));
+    defaults.accent = themeTokenColor("global", "accent-primary", native.color(QPalette::Highlight));
+    defaults.border = themeTokenColor("global", "border-normal", native.color(QPalette::Mid));
     return paletteFor(widget, defaults);
 }
 

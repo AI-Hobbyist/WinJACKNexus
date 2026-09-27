@@ -35,3 +35,11 @@
 GR 表改用公共 `Controls::drawMeter` 的 `fillOriginDb=0` 从 0 dB 向负衰减值填充；输入、输出及 GR 刻度使用公共刻度布局。现有 `build` 树的 Debug `ALL_BUILD`、`native_limiter_tests`、`ui_unit_tests` 通过。
 
 传输曲线与其下方实时填充改用公共 `Controls::drawCurvePath`。Debug `ALL_BUILD`、`native_limiter_tests`、`ui_unit_tests` 通过。
+
+## 主题命名空间与绘制接入（2026-09-27，S12 后）
+
+本效果单独导出 Native Fx / Node v1 双入口，共用稳定 ID `limiter` 及模块作用域；越界索引返回 null，宿主按 ID 去重并分别释放租约。描述符从冻结注册表复制默认值、类型与继承，声明旋钮、开关、transfer 曲线、低/中/高三段电平表及独立 GR 分段。每个电平段均可分别设置活动色和非活动色。
+
+实际窗口的表面渐变两端、文字、旋钮外环、开关、图表背景/网格、曲线及其下方填充、两条电平表三段和 GR 分段已接入模块 token。无外部主题与发布默认 `.wjnskin` 的实窗截图逐像素相同；修改 token 后重绘的截图保存在 `tests/preview/PostS12/Limiter/`，改色文件名为 `-modified.png`。截图观感：**人工验收跳过/未人工验证**。
+
+现有 `build` 的 `mod_limiter` Debug 单模块编译、完整 `ALL_BUILD` Debug 退出 0；`theme_limiter_native_fx`、先前四个模块 UI 测试、`native_limiter_tests`、`native_fx_api_tests`、`theme_default_template` 8/8 通过。验证仅含模块加载与 UI，未运行 JACK 客户端或端口连接集成。证据见 `build/PostS12-Limiter-*.log`。

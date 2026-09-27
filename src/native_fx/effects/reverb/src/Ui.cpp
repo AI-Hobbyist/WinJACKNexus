@@ -24,7 +24,13 @@ void box(QPainter& p,QRectF r,qreal radius,QColor fill,QColor edge={}) {
 }
 void text(QPainter& p,QRectF r,const QString& s,int size,QColor color,bool bold=false,int flags=Qt::AlignCenter) {
     QFont f(QStringLiteral("Microsoft YaHei UI"),size);f.setBold(bold);
-    Controls::drawText(p,r,s,f,color,Qt::Alignment(flags));
+    const auto themed = color == pale
+        ? Controls::themeTokenColor("native-fx-reverb", "text-primary", color)
+        : color == muted
+            ? Controls::themeTokenColor("native-fx-reverb", "text-muted", color)
+            : color == Qt::white
+                ? Controls::themeTokenColor("native-fx-reverb", "text-heading", color) : color;
+    Controls::drawText(p,r,s,f,themed,Qt::Alignment(flags));
 }
 void line(QPainter& p,QPointF a,QPointF b,QColor color,qreal width=1) {p.setPen(QPen(color,width));p.setBrush(Qt::NoBrush);p.drawLine(a,b);}
 float value(const Parameters& p,int i) {
@@ -96,7 +102,9 @@ void sceneImage(QPainter& p,const QRectF r,const Parameters& v) {
     box(p,r,7,QColor(11,22,37),QColor(72,94,123));p.save();p.setClipRect(r.adjusted(2,2,-2,-2));p.fillRect(r.adjusted(2,2,-2,-2),backdrop);
     const float cx=float(r.center().x()),cy=float(r.center().y());
     const float span=52+v.size*.9F,depth=32+v.decay*3.2F;
-    const QColor edge(135,139,191,155),face(52,53,83,155),light(171,162,220,150);
+    const auto sceneLight=Controls::themeTokenColor("native-fx-reverb", "scene-shape-light", QColor(171,162,220));
+    const QColor edge(135,139,191,155),face(52,53,83,155),
+        light(sceneLight.red(),sceneLight.green(),sceneLight.blue(),150);
     if(v.scene==6){ // Custom: the cylinder floor area follows Size; height follows Decay.
         const float rx=25+v.size*1.05F,ry=10+v.size*.34F;
         const float h=std::min(28+v.decay*4.0F,123-2*ry);
@@ -131,7 +139,10 @@ void sceneImage(QPainter& p,const QRectF r,const Parameters& v) {
         if(v.scene==4){for(int n=0;n<7;++n)line(p,{cx-wide+n*wide/3,cy+47},{cx-wide*.5F+n*wide/6,cy+10},QColor(122,135,177,75));}
     }
     // A restrained light pool and perspective floor grid recall the reference.
-    QRadialGradient glow(cx,cy+35,100);glow.setColorAt(0,QColor(169,148,242,70));glow.setColorAt(1,QColor(169,148,242,0));
+    const auto sceneGlow=Controls::themeTokenColor("native-fx-reverb", "scene-glow", QColor(169,148,242));
+    QRadialGradient glow(cx,cy+35,100);
+    glow.setColorAt(0,QColor(sceneGlow.red(),sceneGlow.green(),sceneGlow.blue(),70));
+    glow.setColorAt(1,QColor(sceneGlow.red(),sceneGlow.green(),sceneGlow.blue(),0));
     p.setPen(Qt::NoPen);p.setBrush(glow);p.drawEllipse(QPointF(cx,cy+35),110,48);
     p.restore();
 }
@@ -193,12 +204,20 @@ void ReverbWidget::adjust(int control,float steps){
     edit([&](Parameters& p){setValue(p,control,target);});
 }
 void ReverbWidget::paintEvent(QPaintEvent*){
+    const auto themed=[](const char* role,const QColor& fallback){
+        return Controls::themeTokenColor(QStringLiteral("native-fx-reverb"),
+                                         QString::fromLatin1(role),fallback);
+    };
     QPainter p(this);p.setRenderHint(QPainter::Antialiasing);
-    p.fillRect(rect(),Controls::themeColor(*this,"fxBackground",background));
+    p.fillRect(rect(),Controls::themeColor(*this,"fxBackground",themed("surface-window",background)));
     const Controls::Palette violetColors=Controls::paletteFor(*this,
-        {background,QColor(22,40,59),pale,violet,QColor(48,73,97)});
+        {themed("control-knob-background-base",background),QColor(22,40,59),pale,
+         themed("control-knob-violet-indicator-normal",violet),
+         themed("control-knob-track",QColor(48,73,97))});
     const Controls::Palette cyanColors=Controls::paletteFor(*this,
-        {background,QColor(22,40,59),pale,cyan,QColor(48,73,97)});
+        {themed("control-knob-background-base",background),QColor(22,40,59),pale,
+         themed("control-knob-cyan-indicator-normal",cyan),
+         themed("control-knob-track",QColor(48,73,97))});
     box(p,{1,1,768,135},9,QColor(20,38,57),QColor(45,73,99));
     text(p,{17,11,125,32},QStringLiteral("作用声道"),18,Qt::white,true,Qt::AlignLeft|Qt::AlignVCenter);
     for(int i=0;i<9;++i){const int x=17+i*83;const bool chosen=i==channel_+1;
@@ -207,13 +226,15 @@ void ReverbWidget::paintEvent(QPaintEvent*){
     }
     p.save();p.translate(0,143);const auto& v=displayedParameters();
     QLinearGradient mainGrad(0,0,770,502);mainGrad.setColorAt(0,QColor(28,32,77));mainGrad.setColorAt(.53,QColor(16,33,55));mainGrad.setColorAt(1,QColor(8,28,43));
-    box(p,{8,8,748,484},11,QColor(17,32,52),QColor(92,75,173));
+    box(p,{8,8,748,484},11,themed("surface-panel",QColor(17,32,52)),QColor(92,75,173));
     Controls::drawSurface(p,QRectF(9,9,746,70),mainGrad,{},9);
     box(p,{20,18,55,55},7,QColor(83,57,166),QColor(125,103,229));
     QPolygonF cube{{47,26},{63,35},{63,56},{47,65},{31,56},{31,35}};p.setPen(QPen(Qt::white,2));p.setBrush(Qt::NoBrush);p.drawPolygon(cube);line(p,{31,35},{47,45},Qt::white,2);line(p,{63,35},{47,45},Qt::white,2);line(p,{47,45},{47,65},Qt::white,2);
     text(p,{94,17,245,33},QStringLiteral("Reverb 混响"),21,Qt::white,true,Qt::AlignLeft|Qt::AlignVCenter);
     text(p,{94,50,265,24},QStringLiteral("模拟真实空间，增强声音的空间感"),13,muted,false,Qt::AlignLeft|Qt::AlignVCenter);
-    Controls::drawToggle(p,{362,35,37,20},v.enabled,QColor(14,126,227),QColor(52,68,83));
+    Controls::drawToggle(p,{362,35,37,20},v.enabled,
+        themed("control-toggle-indicator-on",QColor(14,126,227)),
+        themed("control-toggle-indicator-off",QColor(52,68,83)));
     text(p,{424,28,43,34},QStringLiteral("预设:"),12,muted);
     box(p,{474,29,148,34},6,QColor(18,35,56),QColor(66,91,124));
     text(p,{485,29,111,34},QString::fromLatin1(presets[preset_]),12,pale);
@@ -222,7 +243,8 @@ void ReverbWidget::paintEvent(QPaintEvent*){
     box(p,{20,87,516,314},8,QColor(13,30,48),QColor(42,67,92));
     text(p,{31,90,90,23},QStringLiteral("混响类型:"),12,muted,false,Qt::AlignLeft|Qt::AlignVCenter);
     for(int i=0;i<7;++i){const int y=119+i*39;const bool selected=i==v.scene;
-        box(p,{31,qreal(y),91,35},5,selected?QColor(13,67,101):QColor(25,46,68),selected?cyan:QColor(62,91,124));
+        box(p,{31,qreal(y),91,35},5,selected?QColor(13,67,101):QColor(25,46,68),
+            selected?themed("scene-accent-cyan",cyan):QColor(62,91,124));
         text(p,{31,qreal(y),91,35},QString::fromLatin1(scenes[i]),12,pale);
     }
     sceneImage(p,{142,93,383,156},v);

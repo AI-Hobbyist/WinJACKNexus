@@ -42,3 +42,11 @@
 - 音频实例以原子峰值提供每声道输入/输出分析；FX 窗口显示调音台实时电平。效果链按 CH/AUX/MAIN 各自顺序执行，支持整体和单模块旁通、增删、排序、克隆及预设。内部加载只调用 mixer API，不创建效果器 JACK 客户端。
 - 模块算法及原有独立节点入口保持原实现。参数导入路径使用固定大小内存和对应 DSP 的无分配 `setParameters`；Delay、Reverb 的缓冲分配只在 `prepare` 阶段进行。涉及文件：`src/native_fx/include/WinJACKNexus/NativeFx/NativeFxApi.h`、`src/native_fx/src/NativeFxApi.cpp`、`src/ui/src/FxSettingsWindow.cpp`、`src/mixer/EffectGraph.cpp`。
 - Debug `ALL_BUILD`（含 VST2/VST3）及 24 个 CTest 套件通过；其中 `native_fx_api_tests` 验证八模块加载、快照掩码、分析和克隆，`ui_unit_tests` 验证 GUI 桥接，`digital_mixer_node_port_tests` 验证实际样本、旁通及端口不变性。证据：`build/m5-all-build.log`、`build/m5-verification-tests.log`。原生 FX 模块验收限于加载与 UI，不要求效果器 JACK 连接集成。
+
+## 主题命名空间与绘制接入（2026-09-27，S12 后）
+
+本效果单独导出 Native Fx / Node v1 双入口，共用稳定 ID `reverb` 和模块作用域；越界索引返回 null，宿主按 ID 去重并分别释放引用。描述符从冻结注册表复制 token 类型/默认值/继承，声明紫色及青色旋钮、开关和场景图示的选中青色、形体高光与辉光。Reverb 没有 dB 曲线或电平表，描述符不声明这两类语义。
+
+实际窗口的表面、主/次/标题文字、旋钮活动环与外环、开关、场景选中边框、形体高光及辉光已接入模块 token。无外部主题与发布默认 `.wjnskin` 的实际 Windows 弹窗截图逐像素相同；改色截图保存在 `tests/preview/PostS12/Reverb/`，修改文件名为 `-modified.png`。截图观感：**人工验收跳过/未人工验证**。
+
+现有 `build` 的 `mod_reverb` Debug 单模块编译及完整 `ALL_BUILD` Debug 退出 0；`theme_reverb_native_fx` 实窗测试通过。最终组合回归及启动探针另见主题系统计划书最终记录。仅验证模块加载与 UI，未运行 JACK 客户端或端口连接集成。

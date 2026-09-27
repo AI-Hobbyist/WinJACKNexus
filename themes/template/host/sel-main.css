@@ -1,0 +1,179 @@
+/* sel-main module theme tokens. Keep token names and the :root block. */
+:root {
+  /* sel-main / surface empty; type=color */
+  --wjn-theme-sel-main-surface-empty: #0b1a2b;
+  /* sel-main / surface panel; type=color */
+  --wjn-theme-sel-main-surface-panel: #102235;
+  /* sel-main / text primary; type=color */
+  --wjn-theme-sel-main-text-primary: #e8f2ff;
+  /* sel-main / text muted; type=color */
+  --wjn-theme-sel-main-text-muted: #aec7eb;
+  /* sel-main / control knob indicator normal; type=color */
+  --wjn-theme-sel-main-control-knob-indicator-normal: #26bfff;
+  /* sel-main / control knob background base; type=color */
+  --wjn-theme-sel-main-control-knob-background-base: #0b1a2b;
+  /* sel-main / control knob track; type=color */
+  --wjn-theme-sel-main-control-knob-track: #254762;
+  /* sel-main / control toggle indicator on; type=color */
+  --wjn-theme-sel-main-control-toggle-indicator-on: #168dff;
+  /* sel-main / control toggle indicator off; type=color */
+  --wjn-theme-sel-main-control-toggle-indicator-off: #263e53;
+  /* sel-main / border panel; type=color */
+  --wjn-theme-sel-main-border-panel: #2b4662;
+  /* sel-main / control knob panel; type=color */
+  --wjn-theme-sel-main-control-knob-panel: #1b3b57;
+  /* sel-main / control knob text; type=color */
+  --wjn-theme-sel-main-control-knob-text: #d9f4ff;
+  /* sel-main / control pan border; type=color */
+  --wjn-theme-sel-main-control-pan-border: #254762;
+  /* sel-main / control mode surface; type=color */
+  --wjn-theme-sel-main-control-mode-surface: #102033;
+  /* sel-main / control mode text; type=color */
+  --wjn-theme-sel-main-control-mode-text: #eff6ff;
+  /* sel-main / control mode border; type=color */
+  --wjn-theme-sel-main-control-mode-border: #36516d;
+  /* sel-main / control mode text disabled; type=color */
+  --wjn-theme-sel-main-control-mode-text-disabled: #879ab0;
+  /* sel-main / control mode arrow; type=color */
+  --wjn-theme-sel-main-control-mode-arrow: #d6eaff;
+  /* sel-main / control header surface default; type=color */
+  --wjn-theme-sel-main-control-header-surface-default: #123a65;
+  /* sel-main / control header text light; type=color */
+  --wjn-theme-sel-main-control-header-text-light: #f5fbff;
+  /* sel-main / control header text dark; type=color */
+  --wjn-theme-sel-main-control-header-text-dark: #102033;
+  /* sel-main / control edit surface; type=color */
+  --wjn-theme-sel-main-control-edit-surface: #102033;
+  /* sel-main / control edit text; type=color */
+  --wjn-theme-sel-main-control-edit-text: #eff6ff;
+  /* sel-main / control edit border; type=color */
+  --wjn-theme-sel-main-control-edit-border: #36516d;
+  /* sel-main / control color button surface; type=color */
+  --wjn-theme-sel-main-control-color-button-surface: #172a40;
+  /* sel-main / control color button text; type=color */
+  --wjn-theme-sel-main-control-color-button-text: #d6eaff;
+  /* sel-main / control color button border; type=color */
+  --wjn-theme-sel-main-control-color-button-border: #50708c;
+  /* sel-main / control color picker surface; type=color */
+  --wjn-theme-sel-main-control-color-picker-surface: #15263a;
+  /* sel-main / control color option 1; type=color */
+  --wjn-theme-sel-main-control-color-option-1: #24b8ff;
+  /* sel-main / control color option 2; type=color */
+  --wjn-theme-sel-main-control-color-option-2: #20c5dd;
+  /* sel-main / control color option 3; type=color */
+  --wjn-theme-sel-main-control-color-option-3: #45d877;
+  /* sel-main / control color option 4; type=color */
+  --wjn-theme-sel-main-control-color-option-4: #ffd246;
+  /* sel-main / control color option 5; type=color */
+  --wjn-theme-sel-main-control-color-option-5: #ffae55;
+  /* sel-main / control color option 6; type=color */
+  --wjn-theme-sel-main-control-color-option-6: #f34d70;
+  /* sel-main / control color option 7; type=color */
+  --wjn-theme-sel-main-control-color-option-7: #e359da;
+  /* sel-main / control color option 8; type=color */
+  --wjn-theme-sel-main-control-color-option-8: #9963ec;
+  /* sel-main / control mute solo text; type=color */
+  --wjn-theme-sel-main-control-mute-solo-text: #f7f8ff;
+  /* sel-main / control mute accent; type=color */
+  --wjn-theme-sel-main-control-mute-accent: #ff4b62;
+  /* sel-main / control solo accent; type=color */
+  --wjn-theme-sel-main-control-solo-accent: #ffae2d;
+  /* sel-main / meter level border; type=color */
+  --wjn-theme-sel-main-meter-level-border: #07141f;
+  /* sel-main / meter aux send border; type=color */
+  --wjn-theme-sel-main-meter-aux-send-border: #06131f;
+  /* sel-main / chart series polar input stroke; type=color */
+  --wjn-theme-sel-main-chart-series-polar-input-stroke: #28c9f3;
+  /* sel-main / chart series polar output stroke; type=color */
+  --wjn-theme-sel-main-chart-series-polar-output-stroke: #ffa44a;
+  /* sel-main / chart grid ring; type=color */
+  --wjn-theme-sel-main-chart-grid-ring: #244a66;
+  /* sel-main / chart grid axis major; type=color */
+  --wjn-theme-sel-main-chart-grid-axis-major: #426884;
+  /* sel-main / chart grid axis minor; type=color */
+  --wjn-theme-sel-main-chart-grid-axis-minor: #1b3d56;
+  /* sel-main / chart grid zero; type=color */
+  --wjn-theme-sel-main-chart-grid-zero: #4b708a;
+  /* sel-main / chart axis label; type=color */
+  --wjn-theme-sel-main-chart-axis-label: #9ab8cc;
+  /* sel-main / chart reference stroke; type=color */
+  --wjn-theme-sel-main-chart-reference-stroke: #8aa9d6;
+  /* sel-main / chart reference fill; type=color */
+  --wjn-theme-sel-main-chart-reference-fill: #6d8db8;
+  /* sel-main / chart handle influence stroke selected; type=color */
+  --wjn-theme-sel-main-chart-handle-influence-stroke-selected: #79e3ff;
+  /* sel-main / chart handle influence stroke normal; type=color */
+  --wjn-theme-sel-main-chart-handle-influence-stroke-normal: #55bde9;
+  /* sel-main / chart handle influence fill; type=color */
+  --wjn-theme-sel-main-chart-handle-influence-fill: #168dff;
+  /* sel-main / chart handle marker; type=color */
+  --wjn-theme-sel-main-chart-handle-marker: #79e3ff;
+  /* sel-main / chart handle ring; type=color */
+  --wjn-theme-sel-main-chart-handle-ring: #7ee8ff;
+  /* sel-main / chart handle border selected; type=color */
+  --wjn-theme-sel-main-chart-handle-border-selected: #e8fbff;
+  /* sel-main / chart handle border normal; type=color */
+  --wjn-theme-sel-main-chart-handle-border-normal: #9dc3ff;
+  /* sel-main / chart handle surface selected; type=color */
+  --wjn-theme-sel-main-chart-handle-surface-selected: #42a8ff;
+  /* sel-main / chart handle surface normal; type=color */
+  --wjn-theme-sel-main-chart-handle-surface-normal: #2e9dff;
+  /* sel-main / chart center marker; type=color */
+  --wjn-theme-sel-main-chart-center-marker: #ffffff;
+  /* sel-main / chart legend border; type=color */
+  --wjn-theme-sel-main-chart-legend-border: #385773;
+  /* sel-main / chart legend surface; type=color */
+  --wjn-theme-sel-main-chart-legend-surface: rgba(9,28,43,0.843137);
+  /* sel-main / chart legend input text; type=color */
+  --wjn-theme-sel-main-chart-legend-input-text: #28c9f3;
+  /* sel-main / chart legend output text; type=color */
+  --wjn-theme-sel-main-chart-legend-output-text: #ffa44a;
+  /* sel-main / chart overrange label; type=color */
+  --wjn-theme-sel-main-chart-overrange-label: #ff6c6c;
+  /* sel-main / meter level zone low active; type=color */
+  --wjn-theme-sel-main-meter-level-zone-low-active: #17d675;
+  /* sel-main / meter level zone low inactive; type=color */
+  --wjn-theme-sel-main-meter-level-zone-low-inactive: #123e2d;
+  /* sel-main / meter level zone mid active; type=color */
+  --wjn-theme-sel-main-meter-level-zone-mid-active: #f2df48;
+  /* sel-main / meter level zone mid inactive; type=color */
+  --wjn-theme-sel-main-meter-level-zone-mid-inactive: #483d1e;
+  /* sel-main / meter level zone high active; type=color */
+  --wjn-theme-sel-main-meter-level-zone-high-active: #f2484d;
+  /* sel-main / meter level zone high inactive; type=color */
+  --wjn-theme-sel-main-meter-level-zone-high-inactive: #4a2429;
+  /* sel-main / meter aux send zone low active; type=color */
+  --wjn-theme-sel-main-meter-aux-send-zone-low-active: #17d675;
+  /* sel-main / meter aux send zone low inactive; type=color */
+  --wjn-theme-sel-main-meter-aux-send-zone-low-inactive: #102234;
+  /* sel-main / meter aux send zone mid active; type=color */
+  --wjn-theme-sel-main-meter-aux-send-zone-mid-active: #f2df48;
+  /* sel-main / meter aux send zone mid inactive; type=color */
+  --wjn-theme-sel-main-meter-aux-send-zone-mid-inactive: #102234;
+  /* sel-main / meter aux send zone high active; type=color */
+  --wjn-theme-sel-main-meter-aux-send-zone-high-active: #f2484d;
+  /* sel-main / meter aux send zone high inactive; type=color */
+  --wjn-theme-sel-main-meter-aux-send-zone-high-inactive: #102234;
+  /* sel-main / background opacity; type=opacity */
+  --wjn-theme-sel-main-background-opacity: 1;
+  /* sel-main / background size; type=background-size */
+  --wjn-theme-sel-main-background-size: cover;
+  /* sel-main / background scale; type=background-scale */
+  --wjn-theme-sel-main-background-scale: 1;
+  /* sel-main / background repeat; type=background-repeat */
+  --wjn-theme-sel-main-background-repeat: no-repeat;
+  /* sel-main / background position x; type=position */
+  --wjn-theme-sel-main-background-position-x: 50%;
+  /* sel-main / background position y; type=position */
+  --wjn-theme-sel-main-background-position-y: 50%;
+  /* sel-main / background overlay enabled; type=boolean */
+  --wjn-theme-sel-main-background-overlay-enabled: false;
+  /* sel-main / background overlay opacity; type=opacity */
+  --wjn-theme-sel-main-background-overlay-opacity: 0.12;
+  /* sel-main / background blur radius; type=blur-radius */
+  --wjn-theme-sel-main-background-blur-radius: 0px;
+  /* sel-main / background component opacity; type=opacity */
+  --wjn-theme-sel-main-background-component-opacity: 1;
+  /* sel-main content background image; null means undefined and inherits the patchbay image; type=image */
+  /* --wjn-theme-sel-main-background-image: inherited from --wjn-theme-patchbay-background-image; keep undeclared to inherit. */
+}

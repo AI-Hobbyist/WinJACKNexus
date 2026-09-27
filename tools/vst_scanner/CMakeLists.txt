@@ -115,6 +115,6 @@ foreach(target IN ITEMS wjn_vst_scanner_core vst_scanner vst_scanner_probe64)
     )
 endforeach()
 
-if(BUILD_TESTING)
+if(BUILD_TESTING AND EXISTS "${PROJECT_SOURCE_DIR}/tests/vst_scanner/CMakeLists.txt")
     add_subdirectory("${PROJECT_SOURCE_DIR}/tests/vst_scanner" tests_vst_scanner)
 endif()

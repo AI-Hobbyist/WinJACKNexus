@@ -18,10 +18,16 @@ void box(QPainter& p,QRectF r,int radius,QColor fill,QColor edge=QColor(53,78,10
 }
 void label(QPainter& p,QRectF r,QString s,int size,QColor color=ink,bool bold=false,Qt::Alignment align=Qt::AlignCenter){
     auto f=p.font();f.setPixelSize(size);f.setBold(bold);
-    Controls::drawText(p,r,s,f,color,align);
+    const auto themed = color == ink
+        ? Controls::themeTokenColor("native-fx-limiter", "text-primary", color)
+        : color == muted
+            ? Controls::themeTokenColor("native-fx-limiter", "text-muted", color) : color;
+    Controls::drawText(p,r,s,f,themed,align);
 }
 void toggle(QPainter& p,QRectF r,bool on){
-    Controls::drawToggle(p,r,on,QColor(8,115,209),QColor(42,61,81));
+    Controls::drawToggle(p,r,on,
+        Controls::themeTokenColor("native-fx-limiter", "control-toggle-indicator-on", QColor(8,115,209)),
+        Controls::themeTokenColor("native-fx-limiter", "control-toggle-indicator-off", QColor(42,61,81)));
 }
 void dial(QPainter& p,QPointF c,float fraction,QString number,QString name,QString english,
           const Controls::Palette& colors){
@@ -156,14 +162,17 @@ void LimiterWidget::adjustDial(int i,float delta){
 }
 void LimiterWidget::paintEvent(QPaintEvent*){
     QPainter p(this);p.setRenderHint(QPainter::Antialiasing);
-    p.fillRect(rect(),Controls::themeColor(*this,"fxBackground",QColor(13,28,45)));
+    p.fillRect(rect(),Controls::themeColor(*this,"fxBackground",
+        Controls::themeTokenColor("native-fx-limiter", "surface-window", QColor(13,28,45))));
     box(p,{7,8,754,126},10,QColor(21,39,58));
     label(p,{22,22,170,30},QStringLiteral("作用声道"),19,ink,true,Qt::AlignLeft|Qt::AlignVCenter);
     for(int i=0;i<9;++i){QRectF r(22+i*80,66,72,40);bool active=i==channel_+1;
         box(p,r,5,active?QColor(10,56,87):QColor(25,43,61),active?cyan:QColor(65,91,119));
         label(p,r,QString::fromLatin1(channels[i]),15,active?QColor(119,221,255):muted);}
     p.save();p.translate(0,145);
-    QLinearGradient bg(0,0,750,500);bg.setColorAt(0,QColor(20,36,55));bg.setColorAt(1,QColor(8,29,47));
+    QLinearGradient bg(0,0,750,500);
+    bg.setColorAt(0,Controls::themeTokenColor("native-fx-limiter", "surface-panel-start", QColor(20,36,55)));
+    bg.setColorAt(1,Controls::themeTokenColor("native-fx-limiter", "surface-panel-end", QColor(8,29,47)));
     Controls::drawSurface(p,QRectF(3,8,747,493),bg,QColor(43,116,164),11);
     box(p,{15,17,723,61},9,QColor(21,38,58),QColor(37,67,91));
     box(p,{16,25,54,55},7,QColor(100,35,55),pink);
@@ -220,9 +229,15 @@ void LimiterWidget::paintEvent(QPaintEvent*){
     const auto drawLevelMeter=[&](int x,int tickLabelX,double level,double peak,double numeric,bool active){
         Controls::MeterStyle style;
         style.minimumDb=-60.0;style.maximumDb=12.0;style.vertical=true;
-        style.zones={{-12.0,QColor(30,205,111),QColor(13,50,42)},
-                     {0.0,QColor(245,224,52),QColor(54,50,27)},
-                     {12.0,QColor(242,60,76),QColor(57,28,39)}};
+        style.zones={{-12.0,
+            Controls::themeTokenColor("native-fx-limiter", "meter-level-zone-low-active", QColor(30,205,111)),
+            Controls::themeTokenColor("native-fx-limiter", "meter-level-zone-low-inactive", QColor(13,50,42))},
+            {0.0,
+            Controls::themeTokenColor("native-fx-limiter", "meter-level-zone-mid-active", QColor(245,224,52)),
+            Controls::themeTokenColor("native-fx-limiter", "meter-level-zone-mid-inactive", QColor(54,50,27))},
+            {12.0,
+            Controls::themeTokenColor("native-fx-limiter", "meter-level-zone-high-active", QColor(242,60,76)),
+            Controls::themeTokenColor("native-fx-limiter", "meter-level-zone-high-inactive", QColor(57,28,39))}};
         style.border=QColor(65,88,109);
         Controls::drawMeter(p,QRectF(x,151,11,224),active?level:-60.0,
             active?std::optional<double>(peak):std::nullopt,style);
@@ -251,7 +266,9 @@ void LimiterWidget::paintEvent(QPaintEvent*){
     reductionStyle.vertical=true;
     reductionStyle.showPeak=false;
     reductionStyle.showTickGrid=true;
-    reductionStyle.zones={{12.0,QColor(225,61,81),QColor(12,34,48)}};
+    reductionStyle.zones={{12.0,
+        Controls::themeTokenColor("native-fx-limiter", "meter-reduction-zone-single-active", QColor(225,61,81)),
+        Controls::themeTokenColor("native-fx-limiter", "meter-reduction-zone-single-inactive", QColor(12,34,48))}};
     reductionStyle.border=QColor(65,88,109);
     reductionStyle.labelColor=muted;
     reductionStyle.tickColor=QColor(77,103,125);
@@ -265,9 +282,11 @@ void LimiterWidget::paintEvent(QPaintEvent*){
     Controls::drawMeter(p,{230,151,42,224},activeChannels>0?gainReductionDb:0.0,
                         std::nullopt,reductionStyle);
     label(p,{207,397,58,20},activeChannels>0?QStringLiteral("%1 dB").arg(gainReductionDb,0,'f',1):QStringLiteral("0.0 dB"),12);
-    box(p,{274,101,267,289},5,QColor(12,29,47),QColor(58,90,125));QRectF plot(334,129,191,191);
+    box(p,{274,101,267,289},5,
+        Controls::themeTokenColor("native-fx-limiter", "chart-background", QColor(12,29,47)),
+        QColor(58,90,125));QRectF plot(334,129,191,191);
     Controls::ChartGridStyle grid;
-    grid.grid=QColor(39,61,83);
+    grid.grid=Controls::themeTokenColor("native-fx-limiter", "chart-grid-major", QColor(39,61,83));
     grid.columns=grid.rows=9;
     Controls::drawChartGrid(p,plot,grid);
     const QString axisTicks[]={QStringLiteral("-60"),QStringLiteral("-36"),QStringLiteral("-24"),QStringLiteral("-12"),QStringLiteral("0"),QStringLiteral("+6"),QStringLiteral("+12")};
@@ -311,8 +330,8 @@ void LimiterWidget::paintEvent(QPaintEvent*){
         fill.lineTo(energyPoint.x(),plot.bottom());fill.lineTo(plot.left(),plot.bottom());fill.closeSubpath();
     }
     Controls::CurveStyle transferStyle;
-    transferStyle.stroke=pink;
-    transferStyle.fill=QColor(232,75,113,52);
+    transferStyle.stroke=Controls::themeTokenColor("native-fx-limiter", "chart-series-transfer-stroke", pink);
+    transferStyle.fill=Controls::themeTokenColor("native-fx-limiter", "chart-series-transfer-fill", QColor(232,75,113,52));
     transferStyle.width=2;
     transferStyle.showFill=activeChannels>0&&energyEnd>-60.0F;
     Controls::drawCurvePath(p,curve,transferStyle,transferStyle.showFill?&fill:nullptr);
@@ -325,7 +344,10 @@ void LimiterWidget::paintEvent(QPaintEvent*){
     label(p,{371,351,120,22},QStringLiteral("输入电平 (dB)"),14,muted);
     p.save();p.translate(278,289);p.rotate(-90);label(p,{0,0,128,23},QStringLiteral("输出电平 (dB)"),14,muted);p.restore();
     const auto knobColors=Controls::paletteFor(*this,
-        {QColor(13,28,45),QColor(22,41,62),ink,pink,QColor(58,91,124)});
+        {Controls::themeTokenColor("native-fx-limiter", "control-knob-background-base", QColor(13,28,45)),
+         QColor(22,41,62), ink,
+         Controls::themeTokenColor("native-fx-limiter", "control-knob-indicator-normal", pink),
+         Controls::themeTokenColor("native-fx-limiter", "control-knob-track", QColor(58,91,124))});
     dial(p,{591,156},(s.thresholdDb+24)/30,QStringLiteral("%1 dB").arg(s.thresholdDb,0,'f',1),QStringLiteral("阈值"),QStringLiteral("(Threshold)"),knobColors);
     dial(p,{685,156},(s.ceilingDb+12)/24,QStringLiteral("%1 dB").arg(s.ceilingDb,0,'f',1),QStringLiteral("释放上限"),QStringLiteral("(Ceiling)"),knobColors);
     dial(p,{591,299},(s.releaseMs-10)/490,QStringLiteral("%1 ms").arg(s.releaseMs,0,'f',0),QStringLiteral("释放时间"),QStringLiteral("(Release)"),knobColors);

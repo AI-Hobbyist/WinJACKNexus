@@ -49,6 +49,12 @@ typedef struct WjnFxTheme {
 WJN_FX_API uint32_t wjn_fx_api_version(void);
 WJN_FX_API uint32_t wjn_fx_count(void);
 WJN_FX_API const WjnFxMeta* wjn_fx_meta(uint32_t index);
+/* Optional and independent of WJN_FX_API_VERSION. Hosts probe both symbols
+   dynamically. The returned UTF-8 JSON remains owned by the DLL and is
+   copied by the host before the DLL may be unloaded. */
+enum { WJN_FX_THEME_API_VERSION = 1u };
+WJN_FX_API uint32_t wjn_fx_theme_api_version(void);
+WJN_FX_API const char* wjn_fx_theme_namespace_json(uint32_t index);
 WJN_FX_API WjnFxInstance* wjn_fx_create_mixer(uint32_t index);
 /* Copies the module's per-channel parameters into a fresh instance. Audio
    history and the editor are reset; the host owns the returned instance. */

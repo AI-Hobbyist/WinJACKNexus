@@ -125,6 +125,12 @@ static std::uint32_t nodeCatalogIndex(std::uint32_t nodeIndex) {
         if ((wjn_fx_meta(i)->placements & WJN_FX_NODE) && nodeIndex-- == 0) return i;
     return wjn_fx_count();
 }
+#if WJN_FX_MODULE_INDEX <= 7
+std::uint32_t wjn_get_node_theme_api_version(void) { return WJN_NODE_THEME_API_VERSION; }
+const char* wjn_get_node_theme_namespace_json(std::uint32_t index) {
+    return wjn_fx_theme_namespace_json(nodeCatalogIndex(index));
+}
+#endif
 const char* wjn_get_node_name(std::uint32_t index) {
     if (const auto* meta = wjn_fx_meta(nodeCatalogIndex(index))) return meta->name;
     return "";

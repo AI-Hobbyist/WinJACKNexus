@@ -5,6 +5,7 @@
     <qresource prefix="/WinJACKNexus/UI">
         <file>themes/dark-rack.qss</file>
         <file>themes/light-console.qss</file>
+        <file alias="themes/v1-registry.json">../../../Docs/Theme-v1-Registry.json</file>
         <file>icons/plus.svg</file>
         <file>icons/settings.svg</file>
         <file alias="icons/WinJACKNexus.png">../../../ico/WinJACKNexus.png</file>

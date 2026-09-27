@@ -62,6 +62,7 @@ set_target_properties(
         RUNTIME_OUTPUT_DIRECTORY_MINSIZEREL "${WJN_OUTPUT_DIR}"
 )
 
+if(EXISTS "${CMAKE_CURRENT_LIST_DIR}/../../../tests/vst_scanner/Vst2ShellFixture.cpp")
 add_library(wjn_vst_scanner_vst2_shell_fixture32 SHARED
     "${CMAKE_CURRENT_LIST_DIR}/../../../tests/vst_scanner/Vst2ShellFixture.cpp"
 )
@@ -80,3 +81,4 @@ set_target_properties(
         RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO "${WJN_OUTPUT_DIR}"
         RUNTIME_OUTPUT_DIRECTORY_MINSIZEREL "${WJN_OUTPUT_DIR}"
 )
+endif()

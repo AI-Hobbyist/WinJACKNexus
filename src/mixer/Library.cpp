@@ -494,6 +494,23 @@ private:
 }
 
 const char* wjn_get_node_api_version(void) { return "2"; }
+std::uint32_t wjn_get_node_theme_api_version(void) { return WJN_NODE_THEME_API_VERSION; }
+const char* wjn_get_node_theme_namespace_json(std::uint32_t index)
+{
+    static constexpr char descriptor[] = R"json({
+        "descriptorVersion":1,"themeApiVersion":1,
+        "moduleId":"module-winjacknexus-digital-mixer",
+        "namespace":"--wjn-theme-module-winjacknexus-digital-mixer-",
+        "displayName":"Digital Mixer",
+        "tokens":[{
+            "name":"--wjn-theme-module-winjacknexus-digital-mixer-node-card-background",
+            "type":"color",
+            "default":"var(--wjn-theme-patchbay-node-card-background)",
+            "description":"Host-drawn card background for the Digital Mixer node type"
+        }]
+    })json";
+    return index == 0 ? descriptor : nullptr;
+}
 std::uint32_t wjn_get_node_count(void) { return 1; }
 const char* wjn_get_node_name(std::uint32_t index) { return index == 0 ? "Digital Mixer" : ""; }
 const char* wjn_get_node_category(std::uint32_t index) { return index == 0 ? "Digital Mixer" : ""; }

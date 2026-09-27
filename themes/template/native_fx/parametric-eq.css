@@ -1,0 +1,79 @@
+/* native-fx-parametric-eq module theme tokens. Keep token names and the :root block. */
+:root {
+  /* native-fx-parametric-eq / surface window; type=color */
+  --wjn-theme-native-fx-parametric-eq-surface-window: #081c2f;
+  /* native-fx-parametric-eq / surface panel; type=color */
+  --wjn-theme-native-fx-parametric-eq-surface-panel: #10263b;
+  /* native-fx-parametric-eq / text primary; type=color */
+  --wjn-theme-native-fx-parametric-eq-text-primary: #e8f2ff;
+  /* native-fx-parametric-eq / text muted; type=color */
+  --wjn-theme-native-fx-parametric-eq-text-muted: #b7d2fa;
+  /* native-fx-parametric-eq / chart background; type=color */
+  --wjn-theme-native-fx-parametric-eq-chart-background: #081e31;
+  /* native-fx-parametric-eq / chart grid major; type=color */
+  --wjn-theme-native-fx-parametric-eq-chart-grid-major: #25415c;
+  /* native-fx-parametric-eq / control toggle main indicator on; type=color */
+  --wjn-theme-native-fx-parametric-eq-control-toggle-main-indicator-on: #1682d8;
+  /* native-fx-parametric-eq / chart series input spectrum stroke; type=color */
+  --wjn-theme-native-fx-parametric-eq-chart-series-input-spectrum-stroke: #ffc66b;
+  /* native-fx-parametric-eq / chart series processed spectrum stroke; type=color */
+  --wjn-theme-native-fx-parametric-eq-chart-series-processed-spectrum-stroke: #45dbf3;
+  /* native-fx-parametric-eq / chart series band 1 stroke; type=color */
+  --wjn-theme-native-fx-parametric-eq-chart-series-band-1-stroke: #14a9ff;
+  /* native-fx-parametric-eq / chart series band 1 fill; type=color */
+  --wjn-theme-native-fx-parametric-eq-chart-series-band-1-fill: rgba(20,169,255,0.215686);
+  /* native-fx-parametric-eq / chart series band 2 stroke; type=color */
+  --wjn-theme-native-fx-parametric-eq-chart-series-band-2-stroke: #11d7a9;
+  /* native-fx-parametric-eq / chart series band 2 fill; type=color */
+  --wjn-theme-native-fx-parametric-eq-chart-series-band-2-fill: rgba(17,215,169,0.215686);
+  /* native-fx-parametric-eq / chart series band 3 stroke; type=color */
+  --wjn-theme-native-fx-parametric-eq-chart-series-band-3-stroke: #f15bb9;
+  /* native-fx-parametric-eq / chart series band 3 fill; type=color */
+  --wjn-theme-native-fx-parametric-eq-chart-series-band-3-fill: rgba(241,91,185,0.215686);
+  /* native-fx-parametric-eq / chart series band 4 stroke; type=color */
+  --wjn-theme-native-fx-parametric-eq-chart-series-band-4-stroke: #ffcc42;
+  /* native-fx-parametric-eq / chart series band 4 fill; type=color */
+  --wjn-theme-native-fx-parametric-eq-chart-series-band-4-fill: rgba(255,204,66,0.215686);
+  /* native-fx-parametric-eq / chart series total response stroke; type=color */
+  --wjn-theme-native-fx-parametric-eq-chart-series-total-response-stroke: #e2f2ff;
+  /* native-fx-parametric-eq / background opacity; type=opacity */
+  --wjn-theme-native-fx-parametric-eq-background-opacity: 1;
+  /* native-fx-parametric-eq / background size; type=background-size */
+  --wjn-theme-native-fx-parametric-eq-background-size: cover;
+  /* native-fx-parametric-eq / background scale; type=background-scale */
+  --wjn-theme-native-fx-parametric-eq-background-scale: 1;
+  /* native-fx-parametric-eq / background repeat; type=background-repeat */
+  --wjn-theme-native-fx-parametric-eq-background-repeat: no-repeat;
+  /* native-fx-parametric-eq / background position x; type=position */
+  --wjn-theme-native-fx-parametric-eq-background-position-x: 50%;
+  /* native-fx-parametric-eq / background position y; type=position */
+  --wjn-theme-native-fx-parametric-eq-background-position-y: 50%;
+  /* native-fx-parametric-eq / background overlay enabled; type=boolean */
+  --wjn-theme-native-fx-parametric-eq-background-overlay-enabled: false;
+  /* native-fx-parametric-eq / background overlay opacity; type=opacity */
+  --wjn-theme-native-fx-parametric-eq-background-overlay-opacity: 0.12;
+  /* native-fx-parametric-eq / background blur radius; type=blur-radius */
+  --wjn-theme-native-fx-parametric-eq-background-blur-radius: 0px;
+  /* native-fx-parametric-eq / background component opacity; type=opacity */
+  --wjn-theme-native-fx-parametric-eq-background-component-opacity: 1;
+  /* native-fx-parametric-eq / control knob background base; type=color */
+  --wjn-theme-native-fx-parametric-eq-control-knob-background-base: #081c2f;
+  /* native-fx-parametric-eq / control knob track; type=color */
+  --wjn-theme-native-fx-parametric-eq-control-knob-track: #314e68;
+  /* native-fx-parametric-eq / control knob band 1 indicator normal; type=color */
+  --wjn-theme-native-fx-parametric-eq-control-knob-band-1-indicator-normal: #14a9ff;
+  /* native-fx-parametric-eq / control knob band 2 indicator normal; type=color */
+  --wjn-theme-native-fx-parametric-eq-control-knob-band-2-indicator-normal: #11d7a9;
+  /* native-fx-parametric-eq / control knob band 3 indicator normal; type=color */
+  --wjn-theme-native-fx-parametric-eq-control-knob-band-3-indicator-normal: #f15bb9;
+  /* native-fx-parametric-eq / control knob band 4 indicator normal; type=color */
+  --wjn-theme-native-fx-parametric-eq-control-knob-band-4-indicator-normal: #ffcc42;
+  /* native-fx-parametric-eq / control knob filter indicator normal; type=color */
+  --wjn-theme-native-fx-parametric-eq-control-knob-filter-indicator-normal: #35bbff;
+  /* native-fx-parametric-eq / control toggle indicator on; type=color */
+  --wjn-theme-native-fx-parametric-eq-control-toggle-indicator-on: #087afa;
+  /* native-fx-parametric-eq / control toggle indicator off; type=color */
+  --wjn-theme-native-fx-parametric-eq-control-toggle-indicator-off: #2b4869;
+  /* native-fx-parametric-eq content background image; null means undefined and inherits the patchbay image; type=image */
+  /* --wjn-theme-native-fx-parametric-eq-background-image: inherited from --wjn-theme-patchbay-background-image; keep undeclared to inherit. */
+}

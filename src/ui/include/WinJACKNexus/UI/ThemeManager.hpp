@@ -20,12 +20,17 @@
 
 #include <QHash>
 #include <QObject>
+#include <QPointer>
 #include <QString>
+
+#include <memory>
 
 class QApplication;
 class QWidget;
 
 namespace WinJACKNexus::UI {
+
+class ThemeCore;
 
 class WINJACK_UI_API ThemeManager final : public QObject {
     Q_OBJECT
@@ -34,6 +39,10 @@ public:
     explicit ThemeManager(QObject* parent = nullptr);
     ~ThemeManager() override;
 
+    // New legacy adapters created by other modules follow this process theme core.
+    static void installThemeCore(ThemeCore* core);
+    static ThemeCore* installedThemeCore();
+
     bool setTheme(const QString& name);
     bool loadBuiltInTheme(const QString& name);
     bool loadTheme(const QString& path);
@@ -41,6 +50,11 @@ public:
 
     bool applyToApp(QApplication* application = nullptr) const;
     bool applyToWidget(QWidget* widget) const;
+    void watchApplication(QApplication* application);
+
+    // Bridge the legacy palette/QSS API to the active v1 theme snapshot.
+    void bindThemeCore(ThemeCore* core);
+    QString fontDiagnostic() const;
 
     QString themeName() const;
     QString styleSheet() const;
@@ -57,9 +71,11 @@ Q_SIGNALS:
     void onThemeChanged(const ThemePalette& palette);
 
 private:
+    struct FontState;
     void resetVariables();
     void rebuildStyleSheet();
     void notifyThemeChanged();
+    void syncSnapshot(bool applyApplication);
 
     ThemePalette basePalette_;
     ThemePalette palette_;
@@ -68,6 +84,11 @@ private:
     QString sourceText_;
     QString styleSheet_;
     QHash<QString, QString> variables_;
+    QPointer<ThemeCore> core_;
+    QMetaObject::Connection coreConnection_;
+    QMetaObject::Connection previewConnection_;
+    std::shared_ptr<FontState> fontState_;
+    bool applicationOwner_ = false;
 };
 
 }

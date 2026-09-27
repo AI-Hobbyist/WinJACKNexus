@@ -19,9 +19,13 @@
 #include <WinJACKNexus/Meter/Mod/MeterHistoryWindow.hpp>
 #include <WinJACKNexus/UI/ApplicationSettings.hpp>
 #include <WinJACKNexus/UI/Controls.hpp>
+#include <WinJACKNexus/UI/ThemeCore.hpp>
+#include <WinJACKNexus/UI/ThemeBackground.hpp>
+#include <WinJACKNexus/UI/ThemeManager.hpp>
 
 #include <QByteArray>
 #include <QHBoxLayout>
+#include <QGraphicsOpacityEffect>
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QLabel>
@@ -32,6 +36,8 @@
 #include <QTabWidget>
 #include <QTimer>
 #include <QVBoxLayout>
+#include <QPainter>
+#include <QStyleOption>
 
 #include <algorithm>
 #include <cstdint>
@@ -46,6 +52,21 @@ int intervalForRefreshRate(int framesPerSecond) noexcept
     return std::max(1, 1000 / framesPerSecond);
 }
 
+class MeterBackgroundSurface final : public QWidget {
+public:
+    using QWidget::QWidget;
+
+protected:
+    void paintEvent(QPaintEvent*) override {
+        QPainter painter(this);
+        QStyleOption option;
+        option.initFrom(this);
+        style()->drawPrimitive(QStyle::PE_Widget, &option, &painter, this);
+        WinJACKNexus::UI::ThemeBackground::paint(
+            painter, rect(), QStringLiteral("meter-bridge"));
+    }
+};
+
 }
 
 MeterbridgeWindow::MeterbridgeWindow(MeterViewDataProvider& provider, QWidget* parent)
@@ -59,28 +80,16 @@ MeterbridgeWindow::MeterbridgeWindow(MeterViewDataProvider& provider, QWidget* p
     tabs_ = new QTabWidget(this);
     tabs_->setObjectName(QStringLiteral("meterbridge.tabs"));
     tabs_->setDocumentMode(true);
-    tabs_->setStyleSheet(QStringLiteral(
-        "QTabWidget::pane { border: 0; background-color: #061523; }"
-        "QTabWidget::tab-bar { left: 12px; }"
-        "QTabBar { background-color: #061523; }"
-        "QTabBar::tab { min-width: 104px; min-height: 28px; margin: 4px 4px 4px 0;"
-        " padding: 2px 14px; border: 1px solid #244b6b; border-radius: 6px;"
-        " background-color: #102742; color: #b8d7f6; }"
-        "QTabBar::tab:selected { background-color: #176092; color: #ffffff; border-color: #31c6ff; }"
-        "QTabBar::tab:disabled { color: #607a94; background-color: #0a1d30; }"));
-    auto* central = new QWidget(tabs_);
+    auto* central = new MeterBackgroundSurface(tabs_);
+    surface_ = central;
     central->setObjectName(QStringLiteral("meterbridge.surface"));
-    central->setStyleSheet(QStringLiteral(
-        "QWidget#meterbridge.surface { background-color: #061523; color: #d8e9ff; }"
-        "QScrollArea#meterbridge.cardScroll { background-color: #061523; border: 0; }"
-        "QWidget#meterbridge.cards { background-color: #061523; }"
-        "QLabel#meterbridge.emptyState { color: #93b7db; }"));
     auto* rootLayout = new QVBoxLayout(central);
     rootLayout->setContentsMargins(14, 14, 14, 14);
     rootLayout->setSpacing(10);
 
     cardScrollArea_ = new WinJACKNexus::UI::Controls::ScrollField(central);
     cardScrollArea_->setObjectName(QStringLiteral("meterbridge.cardScroll"));
+    cardScrollArea_->viewport()->setStyleSheet(QStringLiteral("background:transparent;"));
     cardScrollArea_->setWidgetResizable(true);
     cardScrollArea_->setFrameShape(QFrame::NoFrame);
     cardScrollArea_->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
@@ -108,6 +117,11 @@ MeterbridgeWindow::MeterbridgeWindow(MeterViewDataProvider& provider, QWidget* p
     historyTabIndex_ = tabs_->addTab(historyPage_, QStringLiteral("历史图表"));
     tabs_->setTabEnabled(historyTabIndex_, false);
     setCentralWidget(tabs_);
+    new WinJACKNexus::UI::ThemeBackgroundOverlay(QStringLiteral("meter-bridge"), central);
+    applyTheme();
+    if (auto* core = WinJACKNexus::UI::ThemeManager::installedThemeCore())
+        connect(core, &WinJACKNexus::UI::ThemeCore::themeChanged,
+                this, [this] { applyTheme(); });
 
     refreshTimer_ = new QTimer(this);
     refreshTimer_->setInterval(intervalForRefreshRate(refreshRate_));
@@ -120,6 +134,57 @@ MeterbridgeWindow::MeterbridgeWindow(MeterViewDataProvider& provider, QWidget* p
         applyRefreshRate(applicationSettings.frameRate());
 
     refresh();
+}
+
+void MeterbridgeWindow::applyTheme()
+{
+    const auto themed = [](const char* role, const char* fallback) {
+        const auto value = WinJACKNexus::UI::Controls::themeTokenColor(
+            QStringLiteral("meter-bridge"), QString::fromLatin1(role), QColor(fallback));
+        if (value.alpha() == 255) return value.name();
+        return QStringLiteral("rgba(%1,%2,%3,%4)")
+            .arg(value.red()).arg(value.green()).arg(value.blue()).arg(value.alphaF());
+    };
+    QString tabsStyle = QStringLiteral(
+        "QTabWidget::pane { border: 0; background-color: %page%; }"
+        "QTabWidget::tab-bar { left: 12px; }"
+        "QTabBar { background-color: %page%; }"
+        "QTabBar::tab { min-width: 104px; min-height: 28px; margin: 4px 4px 4px 0;"
+        " padding: 2px 14px; border: 1px solid %tab-border%; border-radius: 6px;"
+        " background-color: %tab-surface%; color: %tab-text%; }"
+        "QTabBar::tab:selected { background-color: %selected-surface%; color: %selected-text%; border-color: %selected-border%; }"
+        "QTabBar::tab:disabled { color: %disabled-text%; background-color: %disabled-surface%; }");
+    tabsStyle.replace(QStringLiteral("%page%"), themed("surface-page", "#061523"));
+    tabsStyle.replace(QStringLiteral("%tab-border%"), themed("control-tab-border-normal", "#244b6b"));
+    tabsStyle.replace(QStringLiteral("%tab-surface%"), themed("control-tab-surface-normal", "#102742"));
+    tabsStyle.replace(QStringLiteral("%tab-text%"), themed("control-tab-text-normal", "#b8d7f6"));
+    tabsStyle.replace(QStringLiteral("%selected-surface%"), themed("control-tab-surface-selected", "#176092"));
+    tabsStyle.replace(QStringLiteral("%selected-text%"), themed("control-tab-text-selected", "#ffffff"));
+    tabsStyle.replace(QStringLiteral("%selected-border%"), themed("control-tab-border-selected", "#31c6ff"));
+    tabsStyle.replace(QStringLiteral("%disabled-text%"), themed("control-tab-text-disabled", "#607a94"));
+    tabsStyle.replace(QStringLiteral("%disabled-surface%"), themed("control-tab-surface-disabled", "#0a1d30"));
+    tabs_->setStyleSheet(tabsStyle);
+
+    QString pageStyle = QStringLiteral(
+        "QWidget#meterbridge.surface { background-color: %page%; color: %text%; }"
+        "QScrollArea#meterbridge.cardScroll { background: transparent; border: 0; }"
+        "QWidget#meterbridge.cards { background: transparent; }"
+        "QLabel#meterbridge.emptyState { color: %empty-text%; }");
+    pageStyle.replace(QStringLiteral("%page%"), themed("surface-page", "#061523"));
+    pageStyle.replace(QStringLiteral("%text%"), themed("text-page", "#d8e9ff"));
+    pageStyle.replace(QStringLiteral("%empty-text%"), themed("text-empty", "#93b7db"));
+    tabs_->widget(0)->setStyleSheet(pageStyle);
+    const auto opacity = WinJACKNexus::UI::ThemeBackground::componentOpacity(QStringLiteral("meter-bridge"));
+    for (auto* child : {static_cast<QWidget*>(cardScrollArea_), static_cast<QWidget*>(emptyState_)}) {
+        if (opacity < 1.0) {
+            auto* effect = qobject_cast<QGraphicsOpacityEffect*>(child->graphicsEffect());
+            if (!effect) { effect = new QGraphicsOpacityEffect(child); child->setGraphicsEffect(effect); }
+            effect->setOpacity(opacity);
+        } else if (child->graphicsEffect()) {
+            child->setGraphicsEffect(nullptr);
+        }
+    }
+    surface_->update();
 }
 
 void MeterbridgeWindow::refresh()

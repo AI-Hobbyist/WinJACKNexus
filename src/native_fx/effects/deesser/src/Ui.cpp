@@ -64,7 +64,11 @@ void textAt(QPainter& p, const QRectF& r, const QString& s, int px, const QColor
             Qt::Alignment alignment = Qt::AlignCenter, bool bold = false)
 {
     auto f = p.font(); f.setPixelSize(px); f.setBold(bold);
-    Controls::drawText(p,r,s,f,color,alignment);
+    const auto themed = color == text
+        ? Controls::themeTokenColor("native-fx-deesser", "text-primary", color)
+        : color == muted
+            ? Controls::themeTokenColor("native-fx-deesser", "text-muted", color) : color;
+    Controls::drawText(p,r,s,f,themed,alignment);
 }
 
 QString valueText(const std::array<float, 6>& v, int i)
@@ -372,7 +376,8 @@ void DeEsserWidget::paintEvent(QPaintEvent*)
     const std::array<float, 6> values {shown.centerFrequencyHz, shown.bandwidthHz,
         shown.thresholdDb, shown.attackMs, shown.releaseMs, shown.outputGainDb};
     QPainter p(this); p.setRenderHint(QPainter::Antialiasing);
-    p.fillRect(rect(), Controls::themeColor(*this, "fxBackground", background));
+    p.fillRect(rect(), Controls::themeColor(*this, "fxBackground",
+        Controls::themeTokenColor("native-fx-deesser", "surface-window", background)));
     p.save(); p.scale(width() / 768.0, height() / 650.0);
 
     // Nine channel buttons keep the reference's dark, inset selector style while
@@ -393,7 +398,9 @@ void DeEsserWidget::paintEvent(QPaintEvent*)
     }
 
     p.translate(0, 145);
-    rounded(p, {10, 9, 747, 481}, 10, QColor(11, 26, 43), QColor(92, 65, 135));
+    rounded(p, {10, 9, 747, 481}, 10,
+        Controls::themeTokenColor("native-fx-deesser", "surface-panel", QColor(11, 26, 43)),
+        QColor(92, 65, 135));
     rounded(p, {9, 9, 750, 72}, 10, QColor(20, 38, 58));
     rounded(p, {21, 15, 56, 57}, 7, QColor(65, 34, 114));
     p.setPen(QPen(QColor(218, 182, 255), 2.4));
@@ -404,7 +411,8 @@ void DeEsserWidget::paintEvent(QPaintEvent*)
     textAt(p, {95, 48, 265, 22}, QStringLiteral("检测并抑制齿音频段（S、SH 等）"), 14, muted, Qt::AlignLeft);
     rounded(p, {326, 15, 58, 58}, 10, QColor(25, 42, 62));
     Controls::drawToggle(p, {337, 32, 37, 20}, shown.enabled,
-                         QColor(0, 137, 220), QColor(57, 71, 89));
+        Controls::themeTokenColor("native-fx-deesser", "control-toggle-indicator-on", QColor(0, 137, 220)),
+        Controls::themeTokenColor("native-fx-deesser", "control-toggle-indicator-off", QColor(57, 71, 89)));
     textAt(p, {400, 26, 43, 34}, QStringLiteral("预设:"), 13, muted,
            Qt::AlignLeft | Qt::AlignVCenter);
     rounded(p, {453, 26, 166, 34}, 5, QColor(13, 28, 46), QColor(52, 82, 112));
@@ -430,11 +438,13 @@ void DeEsserWidget::paintEvent(QPaintEvent*)
     const auto xToFrequency = [&graph, pixelsPerOctave](qreal x) {
         return 1000.0 * std::exp2((x - graph.left()) / pixelsPerOctave);
     };
-    rounded(p, graph, 2, QColor(8, 22, 38), QColor(47, 77, 104));
+    rounded(p, graph, 2,
+        Controls::themeTokenColor("native-fx-deesser", "chart-background", QColor(8, 22, 38)),
+        QColor(47, 77, 104));
     Controls::ChartGridStyle octaveGrid;
     Controls::ChartGridStyle halfOctaveGrid;
-    octaveGrid.grid=QColor(37,60,83);
-    halfOctaveGrid.grid=QColor(25,46,67);
+    octaveGrid.grid=Controls::themeTokenColor("native-fx-deesser", "chart-grid-major", QColor(37,60,83));
+    halfOctaveGrid.grid=Controls::themeTokenColor("native-fx-deesser", "chart-grid-minor", QColor(25,46,67));
     for (int halfOctave = 0; halfOctave <= 8; ++halfOctave) {
         const auto x = frequencyToX(1000.0 * std::exp2(halfOctave * 0.5));
         auto& positions=halfOctave % 2 == 0
@@ -444,7 +454,7 @@ void DeEsserWidget::paintEvent(QPaintEvent*)
     Controls::drawChartGrid(p,graph,octaveGrid);
     Controls::drawChartGrid(p,graph,halfOctaveGrid);
     Controls::ChartGridStyle levelGrid;
-    levelGrid.grid=QColor(30,51,72);
+    levelGrid.grid=Controls::themeTokenColor("native-fx-deesser", "chart-grid-level", QColor(30,51,72));
     levelGrid.rows=5;
     Controls::drawChartGrid(p,graph,levelGrid);
     for (int i = 0; i <= 5; ++i) {
@@ -471,7 +481,7 @@ void DeEsserWidget::paintEvent(QPaintEvent*)
                  centerX + 75.0 * widthScale, bellBaselineY,
                  centerX + 120.0 * widthScale, bellBaselineY);
     Controls::CurveStyle bellStyle;
-    bellStyle.stroke=purple;
+    bellStyle.stroke=Controls::themeTokenColor("native-fx-deesser", "chart-series-response-bell-stroke", purple);
     bellStyle.width=2;
     Controls::drawCurvePath(p,bell,bellStyle);
     if (spectrumReady_) {
@@ -502,16 +512,27 @@ void DeEsserWidget::paintEvent(QPaintEvent*)
             spectrumStyle.width=1.0;
             Controls::drawCurvePath(p,spectrum,spectrumStyle);
         };
-        drawSpectrum(inputSpectrumDb_, QColor(67, 207, 224, 205));
-        drawSpectrum(spectrumDb_, QColor(127, 83, 184, 205));
+        drawSpectrum(inputSpectrumDb_, Controls::themeTokenColor(
+            "native-fx-deesser", "chart-series-input-spectrum-stroke", QColor(67, 207, 224, 205)));
+        drawSpectrum(spectrumDb_, Controls::themeTokenColor(
+            "native-fx-deesser", "chart-series-output-spectrum-stroke", QColor(127, 83, 184, 205)));
         rounded(p, {76, 119, 127, 19}, 4, QColor(8, 22, 38, 225));
-        p.setPen(QPen(QColor(67, 207, 224, 230), 1.4)); p.drawLine(QPointF(82, 128), QPointF(94, 128));
+        const auto inputLegend = Controls::themeTokenColor(
+            "native-fx-deesser", "chart-series-input-spectrum-stroke", QColor(67, 207, 224, 205));
+        p.setPen(QPen(QColor(inputLegend.red(), inputLegend.green(), inputLegend.blue(), 230), 1.4));
+        p.drawLine(QPointF(82, 128), QPointF(94, 128));
         textAt(p, {97, 119, 30, 18}, QStringLiteral("输入"), 10, text);
-        p.setPen(QPen(QColor(127, 83, 184, 230), 1.4)); p.drawLine(QPointF(131, 128), QPointF(143, 128));
+        const auto outputLegend = Controls::themeTokenColor(
+            "native-fx-deesser", "chart-series-output-spectrum-stroke", QColor(127, 83, 184, 205));
+        p.setPen(QPen(QColor(outputLegend.red(), outputLegend.green(), outputLegend.blue(), 230), 1.4));
+        p.drawLine(QPointF(131, 128), QPointF(143, 128));
         textAt(p, {146, 119, 54, 18}, QStringLiteral("处理后"), 10, text);
     }
-    p.setPen(QPen(QColor(174, 100, 255), 1.4, Qt::DashLine)); p.drawLine(QPointF(centerX, 157), QPointF(centerX, 332));
-    Controls::drawMarker(p,QPointF(centerX,181),5.5,QColor(228,207,255),purple,2);
+    p.setPen(QPen(Controls::themeTokenColor("native-fx-deesser", "chart-center-guide", QColor(174, 100, 255)),
+        1.4, Qt::DashLine));
+    p.drawLine(QPointF(centerX, 157), QPointF(centerX, 332));
+    Controls::drawMarker(p,QPointF(centerX,181),5.5,QColor(228,207,255),
+        Controls::themeTokenColor("native-fx-deesser", "chart-series-response-bell-stroke", purple),2);
     p.restore();
     const qreal tooltipX = std::clamp(centerX - 36, graph.left(), graph.right() - 73);
     rounded(p, {tooltipX, 111, 73, 47}, 6, QColor(32, 34, 63), QColor(88, 64, 133));
@@ -520,7 +541,10 @@ void DeEsserWidget::paintEvent(QPaintEvent*)
 
     rounded(p, {429, 94, 314, 274}, 11, QColor(19, 36, 56), QColor(39, 66, 94));
     const auto knobColors=Controls::paletteFor(*this,
-        {background,QColor(19,36,56),text,purple,QColor(48,34,87)});
+        {Controls::themeTokenColor("native-fx-deesser", "control-knob-background-base", background),
+         QColor(19,36,56), text,
+         Controls::themeTokenColor("native-fx-deesser", "control-knob-indicator-normal", purple),
+         Controls::themeTokenColor("native-fx-deesser", "control-knob-track", QColor(48,34,87))});
     for (int i = 0; i < 6; ++i) {
         Controls::drawKnob(p, knobs[static_cast<std::size_t>(i)], normalized(values, i),32,knobColors);
         textAt(p, {knobs[i].x() - 48, knobs[i].y() + 34, 96, 23}, valueText(values, i), 16, text);

@@ -58,3 +58,11 @@ Gate 六个旋钮的数字读数接入 `UI::Controls::editNumericValue`，点击
 旋钮绘制已接入公共 `Controls::drawKnob` 和宿主调色板。新增渲染测试验证宿主强调色覆盖可到达旋钮笔画；迁移后的 Debug `ALL_BUILD` 与 `native_gate_tests` 通过。
 
 门限图中的上、下传输曲线使用公共 `Controls::drawCurvePath`，笔画不携带填充。现有 `build` 树的 Debug `ALL_BUILD`、`native_gate_tests`、`ui_unit_tests` 通过。
+
+## 主题命名空间与绘制接入（2026-09-27，S12 后）
+
+本模块单独导出 Native Fx 与 Node 主题 API v1；两入口返回相同 `gate` 稳定 ID 和 `--wjn-theme-native-fx-gate-` 作用域，非法索引返回 null。描述符从冻结注册表复制本模块控件、文字及门限双曲线 token 的类型、默认值和继承关系，声明 knob/toggle 控件与 lower/upper transfer 系列；不宣称本模块未接入的背景图片区域。宿主双入口注册按 ID 去重并独立释放引用。
+
+Gate 实际窗口的旋钮活动环/外环、开关、曲线背景、上下传输曲线和文字已改用模块 token；主题变更后已打开窗口可重绘。为保证默认包精确复现原窗口，将 Gate `text-primary` 默认值校正为 `#ffffff`，同步重新生成注册表、可编辑模板及默认 `.wjnskin`。实际 Windows 弹窗在未加载主题与加载随程序发布的默认包后，像素完全一致；修改 token 的截图与默认截图保存在 `tests/preview/PostS12/Gate/`。修改截图按要求以 `-modified.png` 结尾；截图观感为**人工验收跳过/未人工验证**。
+
+验证：现有 `build` 的 `mod_gate` Debug 单模块编译、最终 `ALL_BUILD` Debug、`theme_gate_native_fx`、`theme_namespace_tests`、`native_fx_api_tests`、`theme_default_template` 及合同校验均通过。首次 Gate 测试因测试进程 PATH 未包含 Gate DLL 子目录，在入口前报 `0xc0000135`，修正测试环境后通过；失败记录未追认为通过。未运行 JACK 客户端/端口连接集成测试。相关日志见 `build/PostS12-Gate-*.log`。

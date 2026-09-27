@@ -22,6 +22,9 @@
 #include <WinJACKNexus/UI/HistoryChartWidget.hpp>
 #include <WinJACKNexus/UI/HistoryLegendWidget.hpp>
 #include <WinJACKNexus/UI/MetricStatisticsWidget.hpp>
+#include <WinJACKNexus/UI/ThemeCore.hpp>
+#include <WinJACKNexus/UI/ThemeBackground.hpp>
+#include <WinJACKNexus/UI/ThemeManager.hpp>
 #include <WinJACKNexus/UI/ThemePalette.hpp>
 
 #include <QAction>
@@ -31,17 +34,20 @@
 #include <QDateTime>
 #include <QFormLayout>
 #include <QFrame>
+#include <QGraphicsOpacityEffect>
 #include <QGroupBox>
 #include <QHBoxLayout>
 #include <QHideEvent>
 #include <QLabel>
 #include <QMessageBox>
+#include <QPainter>
 #include <QSlider>
 #include <QSignalBlocker>
 #include <QSizePolicy>
 #include <QSpinBox>
 #include <QSplitter>
 #include <QStyle>
+#include <QStyleOption>
 #include <QToolButton>
 #include <QTimer>
 #include <QVBoxLayout>
@@ -59,6 +65,20 @@ namespace WinJACKNexus::Meter::Mod {
 namespace {
 
 constexpr std::int64_t historyDataRefreshIntervalMilliseconds = 100;
+
+QColor meterColor(const char* role, const char* fallback)
+{
+    return WinJACKNexus::UI::Controls::themeTokenColor(
+        QStringLiteral("meter-bridge"), QString::fromLatin1(role), QColor(fallback));
+}
+
+QString meterCssColor(const char* role, const char* fallback)
+{
+    const auto value = meterColor(role, fallback);
+    if (value.alpha() == 255) return value.name();
+    return QStringLiteral("rgba(%1,%2,%3,%4)")
+        .arg(value.red()).arg(value.green()).arg(value.blue()).arg(value.alphaF());
+}
 
 int intervalForRefreshRate(int framesPerSecond) noexcept
 {
@@ -86,6 +106,13 @@ const std::array<SeriesDefinition, 8>& seriesDefinitions()
         SeriesDefinition { QStringLiteral("lra"), QStringLiteral("LRA"), QStringLiteral("LU"), QColor(QStringLiteral("#b96aff")), WinJACKNexus::UI::HistoryChartAxis::right }
     };
     return definitions;
+}
+
+QColor seriesThemeColor(const SeriesDefinition& definition)
+{
+    return WinJACKNexus::UI::Controls::themeTokenColor(
+        QStringLiteral("meter-bridge"),
+        QStringLiteral("chart-series-%1-stroke").arg(definition.id), definition.color);
 }
 
 std::optional<float> historyValue(const MeterHistoryPoint& point, const QString& id)
@@ -164,25 +191,14 @@ MeterHistoryWindow::MeterHistoryWindow(MeterViewDataProvider& provider,
 {
     namespace Controls = WinJACKNexus::UI::Controls;
     Controls::Palette controlColors;
-    controlColors.background = QColor(QStringLiteral("#061523"));
-    controlColors.panel = QColor(QStringLiteral("#102742"));
-    controlColors.text = QColor(QStringLiteral("#cfe4ff"));
-    controlColors.accent = QColor(QStringLiteral("#3b9dff"));
-    controlColors.border = QColor(QStringLiteral("#244b6b"));
+    controlColors.background = meterColor("surface-page", "#061523");
+    controlColors.panel = meterColor("control-tab-surface-normal", "#102742");
+    controlColors.text = meterColor("text-history-control", "#cfe4ff");
+    controlColors.accent = meterColor("accent-primary", "#3b9dff");
+    controlColors.border = meterColor("control-tab-border-normal", "#244b6b");
     setObjectName(QStringLiteral("meterHistory.window"));
     setMinimumSize(0, 0);
     setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
-    setStyleSheet(QStringLiteral(
-        "QWidget#meterHistory.window { background-color: #061523; color: #d8e9ff; }"
-        "QWidget[meterHistorySurface=\"true\"] { background-color: #061523; }"
-        "QFrame[meterHistoryToolbar=\"true\"] { background-color: #0a1d30; border: 1px solid #183b5a; border-radius: 6px; }"
-        "QComboBox, QLineEdit, QDoubleSpinBox, QSpinBox { background-color: #102742; color: #d8e9ff; border: 1px solid #244b6b; border-radius: 4px; padding: 4px; }"
-        "QCheckBox { color: #cfe4ff; spacing: 7px; min-height: 20px; }"
-        "QCheckBox::indicator { width: 14px; height: 14px; border: 1px solid #376487; background-color: #0a1d30; }"
-        "QCheckBox::indicator:checked { background-color: #2f9eff; border-color: #72bcff; }"
-        "QGroupBox { color: #b8d7f6; border: 1px solid #183b5a; border-radius: 5px; margin-top: 12px; padding-top: 8px; }"
-        "QGroupBox::title { subcontrol-origin: margin; left: 8px; padding: 0 4px; }"
-        "QSplitter::handle { background-color: #122a42; width: 1px; }"));
 
     auto* pageLayout = new QVBoxLayout(this);
     pageLayout->setContentsMargins(0, 0, 0, 0);
@@ -250,7 +266,7 @@ MeterHistoryWindow::MeterHistoryWindow(MeterViewDataProvider& provider,
         checkBox->setAccessibleName(QStringLiteral("显示 %1 曲线").arg(definition.label));
         checkBox->setChecked(true);
         auto seriesColors = controlColors;
-        seriesColors.text = definition.color;
+        seriesColors.text = seriesThemeColor(definition);
         Controls::applyPalette(checkBox, seriesColors);
         seriesVisibilityCheckBoxes_[index] = checkBox;
         auto* row = new QHBoxLayout;
@@ -259,7 +275,8 @@ MeterHistoryWindow::MeterHistoryWindow(MeterViewDataProvider& provider,
         auto* swatch = new QLabel(seriesGroup);
         swatch->setObjectName(QStringLiteral("meterHistory.seriesColor.%1").arg(definition.id));
         swatch->setFixedSize(12, 12);
-        swatch->setStyleSheet(QStringLiteral("background-color: %1; border-radius: 2px;").arg(definition.color.name()));
+        swatch->setStyleSheet(QStringLiteral("background-color: %1; border-radius: 2px;")
+                                 .arg(seriesThemeColor(definition).name()));
         row->addWidget(swatch);
         row->addWidget(checkBox, 1);
         seriesLayout->addLayout(row);
@@ -380,16 +397,16 @@ MeterHistoryWindow::MeterHistoryWindow(MeterViewDataProvider& provider,
     chart_->setRightVerticalAxisLabel(QStringLiteral("LRA (LU)"));
     chart_->setHorizontalAxisLabel(QStringLiteral("系统时间"));
     auto historyPalette = WinJACKNexus::UI::ThemePalette::darkRack();
-    historyPalette.setColor(QStringLiteral("window-bg"), QColor(QStringLiteral("#061523")));
-    historyPalette.setColor(QStringLiteral("panel-bg"), QColor(QStringLiteral("#0a1d30")));
-    historyPalette.setColor(QStringLiteral("panel-raised"), QColor(QStringLiteral("#102742")));
-    historyPalette.setColor(QStringLiteral("text"), QColor(QStringLiteral("#d8e9ff")));
-    historyPalette.setColor(QStringLiteral("text-muted"), QColor(QStringLiteral("#88a9ce")));
-    historyPalette.setColor(QStringLiteral("accent"), QColor(QStringLiteral("#3b9dff")));
-    historyPalette.setColor(QStringLiteral("accent-alt"), QColor(QStringLiteral("#ffd143")));
-    historyPalette.setColor(QStringLiteral("border"), QColor(QStringLiteral("#244b6b")));
-    historyPalette.setColor(QStringLiteral("danger"), QColor(QStringLiteral("#ff5269")));
-    historyPalette.setColor(QStringLiteral("success"), QColor(QStringLiteral("#43e88d")));
+    historyPalette.setColor(QStringLiteral("window-bg"), meterColor("surface-page", "#061523"));
+    historyPalette.setColor(QStringLiteral("panel-bg"), meterColor("control-tab-surface-disabled", "#0a1d30"));
+    historyPalette.setColor(QStringLiteral("panel-raised"), meterColor("control-tab-surface-normal", "#102742"));
+    historyPalette.setColor(QStringLiteral("text"), meterColor("text-page", "#d8e9ff"));
+    historyPalette.setColor(QStringLiteral("text-muted"), meterColor("text-history-muted", "#88a9ce"));
+    historyPalette.setColor(QStringLiteral("accent"), meterColor("accent-primary", "#3b9dff"));
+    historyPalette.setColor(QStringLiteral("accent-alt"), meterColor("accent-secondary", "#ffd143"));
+    historyPalette.setColor(QStringLiteral("border"), meterColor("control-tab-border-normal", "#244b6b"));
+    historyPalette.setColor(QStringLiteral("danger"), meterColor("state-danger", "#ff5269"));
+    historyPalette.setColor(QStringLiteral("success"), meterColor("state-success", "#43e88d"));
     chart_->setThemePalette(historyPalette);
     updateReferenceLines();
     rootLayout->addWidget(chart_, 1);
@@ -401,7 +418,8 @@ MeterHistoryWindow::MeterHistoryWindow(MeterViewDataProvider& provider,
 
     auto* statisticsTitle = new Controls::TextLabel(QStringLiteral("统计信息（当前视图）"), chartSurface);
     statisticsTitle->setObjectName(QStringLiteral("meterHistory.statisticsTitle"));
-    statisticsTitle->setStyleSheet(QStringLiteral("color: #b8d7f6; font-weight: 600; padding: 3px 0;"));
+    statisticsTitle->setStyleSheet(QStringLiteral("color: %1; font-weight: 600; padding: 3px 0;")
+        .arg(meterCssColor("control-history-group-text", "#b8d7f6")));
     rootLayout->addWidget(statisticsTitle);
     statistics_ = new WinJACKNexus::UI::MetricStatisticsWidget(chartSurface);
     statistics_->setObjectName(QStringLiteral("meterHistory.statistics"));
@@ -524,6 +542,98 @@ MeterHistoryWindow::MeterHistoryWindow(MeterViewDataProvider& provider,
                 command.enabled = visible;
                 dispatch(std::move(command));
             });
+    applyTheme();
+    new WinJACKNexus::UI::ThemeBackgroundOverlay(QStringLiteral("meter-bridge"), this);
+    if (auto* core = WinJACKNexus::UI::ThemeManager::installedThemeCore())
+        connect(core, &WinJACKNexus::UI::ThemeCore::themeChanged, this, [this] {
+            applyTheme();
+            updateLegend();
+            updateChart();
+        });
+}
+
+void MeterHistoryWindow::paintEvent(QPaintEvent*) {
+    QPainter painter(this);
+    QStyleOption option;
+    option.initFrom(this);
+    style()->drawPrimitive(QStyle::PE_Widget, &option, &painter, this);
+    WinJACKNexus::UI::ThemeBackground::paint(painter, rect(), QStringLiteral("meter-bridge"));
+}
+
+void MeterHistoryWindow::applyTheme()
+{
+    QString style = QStringLiteral(
+        "QWidget#meterHistory.window { background-color:%page%; color:%text%; }"
+        "QWidget[meterHistorySurface=\"true\"] { background:transparent; }"
+        "QFrame[meterHistoryToolbar=\"true\"] { background-color:%panel%; border:1px solid %toolbar-border%; border-radius:6px; }"
+        "QComboBox, QLineEdit, QDoubleSpinBox, QSpinBox { background-color:%raised%; color:%text%; border:1px solid %border%; border-radius:4px; padding:4px; }"
+        "QCheckBox { color:%control-text%; spacing:7px; min-height:20px; }"
+        "QCheckBox::indicator { width:14px; height:14px; border:1px solid %checkbox-border%; background-color:%panel%; }"
+        "QCheckBox::indicator:checked { background-color:%checked-surface%; border-color:%checked-border%; }"
+        "QGroupBox { color:%group-text%; border:1px solid %toolbar-border%; border-radius:5px; margin-top:12px; padding-top:8px; }"
+        "QGroupBox::title { subcontrol-origin:margin; left:8px; padding:0 4px; }"
+        "QSplitter::handle { background-color:%splitter%; width:1px; }");
+    style.replace(QStringLiteral("%page%"), meterCssColor("surface-page", "#061523"));
+    style.replace(QStringLiteral("%text%"), meterCssColor("text-page", "#d8e9ff"));
+    style.replace(QStringLiteral("%panel%"), meterCssColor("control-tab-surface-disabled", "#0a1d30"));
+    style.replace(QStringLiteral("%toolbar-border%"), meterCssColor("control-history-toolbar-border", "#183b5a"));
+    style.replace(QStringLiteral("%raised%"), meterCssColor("control-tab-surface-normal", "#102742"));
+    style.replace(QStringLiteral("%border%"), meterCssColor("control-tab-border-normal", "#244b6b"));
+    style.replace(QStringLiteral("%control-text%"), meterCssColor("text-history-control", "#cfe4ff"));
+    style.replace(QStringLiteral("%checkbox-border%"), meterCssColor("control-history-checkbox-border", "#376487"));
+    style.replace(QStringLiteral("%checked-surface%"), meterCssColor("control-history-checkbox-selected-surface", "#2f9eff"));
+    style.replace(QStringLiteral("%checked-border%"), meterCssColor("control-history-checkbox-selected-border", "#72bcff"));
+    style.replace(QStringLiteral("%group-text%"), meterCssColor("control-history-group-text", "#b8d7f6"));
+    style.replace(QStringLiteral("%splitter%"), meterCssColor("control-history-splitter-surface", "#122a42"));
+    setStyleSheet(style);
+    const auto opacity = WinJACKNexus::UI::ThemeBackground::componentOpacity(QStringLiteral("meter-bridge"));
+    for (auto* child : findChildren<QWidget*>(QString(), Qt::FindDirectChildrenOnly)) {
+        if (dynamic_cast<WinJACKNexus::UI::ThemeBackgroundOverlay*>(child)) continue;
+        if (opacity < 1.0) {
+            auto* effect = qobject_cast<QGraphicsOpacityEffect*>(child->graphicsEffect());
+            if (!effect) { effect = new QGraphicsOpacityEffect(child); child->setGraphicsEffect(effect); }
+            effect->setOpacity(opacity);
+        } else if (child->graphicsEffect()) {
+            child->setGraphicsEffect(nullptr);
+        }
+    }
+    update();
+
+    auto palette = WinJACKNexus::UI::ThemePalette::darkRack();
+    palette.setColor(QStringLiteral("window-bg"), meterColor("surface-page", "#061523"));
+    palette.setColor(QStringLiteral("panel-bg"), meterColor("control-tab-surface-disabled", "#0a1d30"));
+    palette.setColor(QStringLiteral("panel-raised"), meterColor("control-tab-surface-normal", "#102742"));
+    palette.setColor(QStringLiteral("text"), meterColor("text-page", "#d8e9ff"));
+    palette.setColor(QStringLiteral("text-muted"), meterColor("text-history-muted", "#88a9ce"));
+    palette.setColor(QStringLiteral("accent"), meterColor("accent-primary", "#3b9dff"));
+    palette.setColor(QStringLiteral("accent-alt"), meterColor("accent-secondary", "#ffd143"));
+    palette.setColor(QStringLiteral("border"), meterColor("control-tab-border-normal", "#244b6b"));
+    palette.setColor(QStringLiteral("danger"), meterColor("state-danger", "#ff5269"));
+    palette.setColor(QStringLiteral("success"), meterColor("state-success", "#43e88d"));
+    chart_->setThemePalette(palette);
+    legend_->setThemePalette(palette);
+    statistics_->setThemePalette(palette);
+    if (auto* title = findChild<QLabel*>(QStringLiteral("meterHistory.statisticsTitle")))
+        title->setStyleSheet(QStringLiteral("color:%1; font-weight:600; padding:3px 0;")
+            .arg(meterCssColor("control-history-group-text", "#b8d7f6")));
+    WinJACKNexus::UI::Controls::Palette controls;
+    controls.background = palette.color(QStringLiteral("window-bg"));
+    controls.panel = palette.color(QStringLiteral("panel-raised"));
+    controls.text = meterColor("text-history-control", "#cfe4ff");
+    controls.accent = palette.color(QStringLiteral("accent"));
+    controls.border = palette.color(QStringLiteral("border"));
+    for (auto* widget : findChildren<QWidget*>()) {
+        if (qobject_cast<QToolButton*>(widget) || qobject_cast<QComboBox*>(widget)
+            || qobject_cast<QCheckBox*>(widget) || qobject_cast<QSlider*>(widget))
+            WinJACKNexus::UI::Controls::applyPalette(widget, controls);
+    }
+    const auto& definitions = seriesDefinitions();
+    for (std::size_t index = 0; index < seriesVisibilityCheckBoxes_.size(); ++index) {
+        if (!seriesVisibilityCheckBoxes_[index]) continue;
+        auto seriesColors = controls;
+        seriesColors.accent = seriesThemeColor(definitions[index]);
+        WinJACKNexus::UI::Controls::applyPalette(seriesVisibilityCheckBoxes_[index], seriesColors);
+    }
 }
 
 int MeterHistoryWindow::refreshRate() const noexcept
@@ -871,7 +981,7 @@ void MeterHistoryWindow::updateChart()
         WinJACKNexus::UI::HistoryChartSeries item;
         item.id = id;
         item.label = definition.label;
-        item.color = definition.color;
+        item.color = seriesThemeColor(definition);
         item.axis = definition.axis;
         item.visible = std::find(snapshot_.historyView.visibleSeriesIds.cbegin(),
                                  snapshot_.historyView.visibleSeriesIds.cend(),
@@ -930,13 +1040,23 @@ void MeterHistoryWindow::updateLegend()
         entries.push_back({
             id,
             definition.label,
-            definition.color,
+            seriesThemeColor(definition),
             std::find(snapshot_.historyView.visibleSeriesIds.cbegin(), snapshot_.historyView.visibleSeriesIds.cend(), id)
                 != snapshot_.historyView.visibleSeriesIds.cend(),
             true
         });
     }
     legend_->setEntries(std::move(entries));
+    for (std::size_t index = 0; index < seriesDefinitions().size(); ++index) {
+        const auto& definition = seriesDefinitions()[index];
+        const auto color = seriesThemeColor(definition);
+        if (auto* checkBox = seriesVisibilityCheckBoxes_[index]) {
+            checkBox->setProperty("textColor", color);
+            checkBox->update();
+        }
+        if (auto* swatch = findChild<QLabel*>(QStringLiteral("meterHistory.seriesColor.%1").arg(definition.id)))
+            swatch->setStyleSheet(QStringLiteral("background-color: %1; border-radius: 2px;").arg(color.name()));
+    }
 }
 
 void MeterHistoryWindow::updateStatistics(std::int64_t startMilliseconds, std::int64_t endMilliseconds)
@@ -957,7 +1077,7 @@ void MeterHistoryWindow::updateStatistics(std::int64_t startMilliseconds, std::i
         entry.id = id;
         entry.label = definition.label;
         entry.unit = definition.unit;
-        entry.color = definition.color;
+        entry.color = seriesThemeColor(definition);
         if (id == QStringLiteral("lfe") && values.empty())
             continue;
         if (!values.empty()) {

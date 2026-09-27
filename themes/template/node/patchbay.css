@@ -1,0 +1,109 @@
+/* patchbay module theme tokens. Keep token names and the :root block. */
+:root {
+  /* patchbay / surface window; type=color */
+  --wjn-theme-patchbay-surface-window: #17212b;
+  /* patchbay / surface toolbar; type=color */
+  --wjn-theme-patchbay-surface-toolbar: #22313f;
+  /* patchbay / text primary; type=color */
+  --wjn-theme-patchbay-text-primary: #e6eef4;
+  /* patchbay / toolbar button surface; type=color */
+  --wjn-theme-patchbay-toolbar-button-surface: #173946;
+  /* patchbay / toolbar button border; type=color */
+  --wjn-theme-patchbay-toolbar-button-border: #356b7a;
+  /* patchbay / toolbar button accent; type=color */
+  --wjn-theme-patchbay-toolbar-button-accent: #43c7a8;
+  /* patchbay / toolbar button text; type=color */
+  --wjn-theme-patchbay-toolbar-button-text: #e6eef4;
+  /* patchbay / control zoom surface; type=color */
+  --wjn-theme-patchbay-control-zoom-surface: #1e2b34;
+  /* patchbay / control zoom border; type=color */
+  --wjn-theme-patchbay-control-zoom-border: #4b5f73;
+  /* patchbay / control zoom icon; type=color */
+  --wjn-theme-patchbay-control-zoom-icon: #43c7a8;
+  /* patchbay / control zoom text; type=color */
+  --wjn-theme-patchbay-control-zoom-text: #e6eef4;
+  /* patchbay / control zoom hover; type=color */
+  --wjn-theme-patchbay-control-zoom-hover: #33495b;
+  /* patchbay / overview surface; type=color */
+  --wjn-theme-patchbay-overview-surface: #101820;
+  /* patchbay / overview border; type=color */
+  --wjn-theme-patchbay-overview-border: #4b5f73;
+  /* patchbay / overview node; type=color */
+  --wjn-theme-patchbay-overview-node: #81d4fa;
+  /* patchbay / overview viewport; type=color */
+  --wjn-theme-patchbay-overview-viewport: #43c7a8;
+  /* patchbay / box selection border; type=color */
+  --wjn-theme-patchbay-box-selection-border: #43c7a8;
+  /* patchbay / box selection fill; type=color */
+  --wjn-theme-patchbay-box-selection-fill: rgba(67, 199, 168, 0.125);
+  /* patchbay / node card background; type=color */
+  --wjn-theme-patchbay-node-card-background: #263542;
+  /* patchbay / node title background; type=color */
+  --wjn-theme-patchbay-node-title-background: #33495b;
+  /* patchbay / node title text; type=color */
+  --wjn-theme-patchbay-node-title-text: #e6eef4;
+  /* patchbay / node card border; type=color */
+  --wjn-theme-patchbay-node-card-border: #4b5f73;
+  /* patchbay / node card selected border; type=color */
+  --wjn-theme-patchbay-node-card-selected-border: #81d4fa;
+  /* patchbay / node port separator; type=color */
+  --wjn-theme-patchbay-node-port-separator: #3c4f60;
+  /* patchbay / node port label background; type=color */
+  --wjn-theme-patchbay-node-port-label-background: transparent;
+  /* patchbay / node port label text; type=color */
+  --wjn-theme-patchbay-node-port-label-text: #e6eef4;
+  /* patchbay / node port label audio background; type=color */
+  --wjn-theme-patchbay-node-port-label-audio-background: #447d47;
+  /* patchbay / node port label audio text; type=color */
+  --wjn-theme-patchbay-node-port-label-audio-text: #e6eef4;
+  /* patchbay / node port label midi background; type=color */
+  --wjn-theme-patchbay-node-port-label-midi-background: #9f3735;
+  /* patchbay / node port label midi text; type=color */
+  --wjn-theme-patchbay-node-port-label-midi-text: #e6eef4;
+  /* patchbay / node port audio input color; type=color */
+  --wjn-theme-patchbay-node-port-audio-input-color: #66bb6a;
+  /* patchbay / node port audio output color; type=color */
+  --wjn-theme-patchbay-node-port-audio-output-color: #66bb6a;
+  /* patchbay / node port midi input color; type=color */
+  --wjn-theme-patchbay-node-port-midi-input-color: #ef5350;
+  /* patchbay / node port midi output color; type=color */
+  --wjn-theme-patchbay-node-port-midi-output-color: #ef5350;
+  /* patchbay / node wire audio color; type=color */
+  --wjn-theme-patchbay-node-wire-audio-color: #66bb6a;
+  /* patchbay / node wire audio hover; type=color */
+  --wjn-theme-patchbay-node-wire-audio-hover: #89d48c;
+  /* patchbay / node wire audio selected; type=color */
+  --wjn-theme-patchbay-node-wire-audio-selected: #a8e5aa;
+  /* patchbay / node wire audio invalid; type=color */
+  --wjn-theme-patchbay-node-wire-audio-invalid: #395d3a;
+  /* patchbay / node wire midi color; type=color */
+  --wjn-theme-patchbay-node-wire-midi-color: #ef5350;
+  /* patchbay / node wire midi hover; type=color */
+  --wjn-theme-patchbay-node-wire-midi-hover: #f47775;
+  /* patchbay / node wire midi selected; type=color */
+  --wjn-theme-patchbay-node-wire-midi-selected: #f79c9a;
+  /* patchbay / node wire midi invalid; type=color */
+  --wjn-theme-patchbay-node-wire-midi-invalid: #743735;
+  /* patchbay / background image; type=image */
+  --wjn-theme-patchbay-background-image: none;
+  /* patchbay / background opacity; type=opacity */
+  --wjn-theme-patchbay-background-opacity: 1;
+  /* patchbay / background size; type=background-size */
+  --wjn-theme-patchbay-background-size: cover;
+  /* patchbay / background scale; type=background-scale */
+  --wjn-theme-patchbay-background-scale: 1;
+  /* patchbay / background repeat; type=background-repeat */
+  --wjn-theme-patchbay-background-repeat: no-repeat;
+  /* patchbay / background position x; type=position */
+  --wjn-theme-patchbay-background-position-x: 50%;
+  /* patchbay / background position y; type=position */
+  --wjn-theme-patchbay-background-position-y: 50%;
+  /* patchbay / background overlay enabled; type=boolean */
+  --wjn-theme-patchbay-background-overlay-enabled: false;
+  /* patchbay / background overlay opacity; type=opacity */
+  --wjn-theme-patchbay-background-overlay-opacity: 0.12;
+  /* patchbay / background blur radius; type=blur-radius */
+  --wjn-theme-patchbay-background-blur-radius: 0px;
+  /* patchbay / background component opacity; type=opacity */
+  --wjn-theme-patchbay-background-component-opacity: 1;
+}

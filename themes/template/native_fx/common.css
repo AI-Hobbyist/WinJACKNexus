@@ -1,0 +1,5 @@
+/* native-fx module theme tokens. Keep token names and the :root block. */
+:root {
+  /* native-fx / control knob indicator normal; type=color */
+  --wjn-theme-native-fx-control-knob-indicator-normal: #31c6ff;
+}

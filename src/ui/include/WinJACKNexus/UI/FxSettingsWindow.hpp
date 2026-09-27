@@ -27,6 +27,9 @@ public:
     void setLiveAnalysisReadHandler(std::function<bool(std::size_t, float[8], float[8],
         float[8], void*, std::uint32_t)> handler);
 
+protected:
+    void paintEvent(QPaintEvent* event) override;
+
 private:
     class Impl;
     std::unique_ptr<Impl> impl_;

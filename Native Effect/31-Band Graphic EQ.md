@@ -47,3 +47,10 @@ Graphic EQ 运行时会在频响图背景同时绘制输入参考频谱和 EQ �
 本模块通过 `NativeFxApi.h` 的可选八声道参数快照和原子峰值分析接口接入调音台。GUI 与音频实例独立；调音台在 JACK 块间安全点应用快照，保留 DSP 历史。克隆复制参数而不共享处理历史，模块加载不创建新的 JACK 客户端。Debug `ALL_BUILD` 及 24 个 CTest 套件通过；证据见 `build/m5-all-build.log`、`build/m5-verification-tests.log`。
 
 频响曲线、输入与输出频谱描边及输出频谱渐变填充使用公共 `Controls::drawCurvePath`；渐变填充与描边分开绘制。现有 `build` 树的 Debug `ALL_BUILD`、`native_graphic_eq_tests`、`ui_unit_tests` 通过。
+## 主题命名空间与绘制接入（2026-09-27，S12 后）
+
+本效果单独导出 Native Fx / Node v1 主题描述符。两入口共用稳定 ID `graphic-eq` 和 `--wjn-theme-native-fx-graphic-eq-`，越界索引返回 null，宿主按稳定 ID 合并注册并分别释放引用。描述符从冻结注册表复制本模块 token 默认值，声明旋钮、开关、effect-band 滑条和 input-spectrum、output-spectrum、response 三条稳定图表系列。31 个频段是共享 `Controls::drawSlider` 的滑条，不作推子处理。
+
+实际窗口的频段滑条轨道/边框/填充/滑块、输出增益旋钮及其外环、开关、主次网格、输入/输出频谱、输出频谱渐变填充和总响应曲线已读取模块 token。实际 Windows 弹窗中无主题与加载发布默认 `.wjnskin` 后的截图逐像素相同；修改 token 后窗口重绘，滑条、旋钮及图表颜色变化的截图保存在 `tests/preview/PostS12/GraphicEq/`，改色文件为 `-modified.png`。人工观感验收跳过/未人工验证。
+
+现有 `build` 的 `mod_graphic_eq` Debug 单模块编译及完整 `ALL_BUILD` Debug 均通过；`theme_graphic_eq_native_fx`、`theme_gate_native_fx`、`native_graphic_eq_tests`、`native_fx_api_tests`、`theme_default_template` 5/5 通过。首次组合回归中 `native_fx_api_tests` 仍是 Gate 阶段旧可执行文件，输出旧断言后失败；重新编译调用方测试并复跑 5/5 通过，失败日志保留 `build/PostS12-GraphicEq-Regression-first-failed.log`。只验证模块加载与 UI，未运行 JACK 客户端/端口连接集成。证据见 `build/PostS12-GraphicEq-*.log`。

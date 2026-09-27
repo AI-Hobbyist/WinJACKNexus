@@ -15,6 +15,7 @@
  */
 #pragma once
 
+#include <mod_patchbay/Export.hpp>
 #include <WinJACKNexus/Patchbay/Core/Snapshot.hpp>
 
 namespace WinJACKNexus::Audio {
@@ -22,13 +23,16 @@ class JackClient;
 }
 
 #include <QGraphicsView>
+#include <QColor>
 #include <QJsonObject>
 #include <QPointF>
 #include <QString>
 
 #include <cstdint>
 #include <functional>
+#include <optional>
 #include <string>
+#include <unordered_map>
 #include <unordered_set>
 #include <vector>
 
@@ -40,6 +44,12 @@ struct PatchbayProjectModule final {
     std::string clientId;
     std::string settingsJson;
     std::string contextId = "main";
+};
+
+struct PatchbayModuleCopyInfo final {
+    QString modulePath;
+    std::uint32_t index = 0;
+    QString settingsJson;
 };
 
 struct PatchbaySceneContext final {
@@ -73,7 +83,8 @@ struct PatchbaySubGraphProject final {
     std::vector<WinJACKNexus::Patchbay::Core::ConnectionInfo> connections;
 };
 
-class PatchbayCanvas final : public QGraphicsView {
+class MOD_PATCHBAY_API PatchbayCanvas final : public QGraphicsView {
+    Q_OBJECT
 public:
     explicit PatchbayCanvas(QWidget* parent = nullptr);
     PatchbayCanvas(PatchbaySceneContext context, QWidget* parent = nullptr);
@@ -81,6 +92,8 @@ public:
     void setSnapshot(const WinJACKNexus::Patchbay::Core::Snapshot& snapshot);
     void setVisibleModuleClientIds(std::unordered_set<std::string> clientIds);
     void setHiddenModuleClientIds(std::unordered_set<std::string> clientIds);
+    void setClientThemeScopes(std::unordered_map<std::string, QString> scopes);
+    void setClientColorOverride(const std::string& clientId, const QColor& color);
     const WinJACKNexus::Patchbay::Core::Snapshot& snapshot() const noexcept;
     const PatchbaySceneContext& sceneContext() const noexcept;
     std::string addSubGraph(const QString& name, const QPointF& position);
@@ -134,26 +147,42 @@ public:
                                std::function<bool(const std::string&)> canShowModuleNodeGui,
                                std::function<bool(const QPointF&)> pasteModuleNode);
     void setModuleNodeDropHandler(std::function<bool(const QString&, std::uint32_t, const QPointF&)> handler);
+    void setBoxSelectionExclusionHandler(std::function<bool(const std::string&)> handler);
+    void setBatchModuleNodeHandlers(
+        std::function<std::optional<PatchbayModuleCopyInfo>(const std::string&)> inspect,
+        std::function<bool(const PatchbayModuleCopyInfo&, const QPointF&)> create);
+    bool copySelectedNodes();
+    bool pasteCopiedNodes(const QPointF& position);
+    bool removeSelectedNodes();
     void setVstNodeDropHandler(std::function<bool(const QString&, std::uint32_t, const QString&, const QPointF&)> handler);
     bool isNodeDragActive() const noexcept;
     void zoomIn();
     void zoomOut();
     void zoomReset();
     void zoomFit();
-
     static void applyTheme(bool light);
 
+Q_SIGNALS:
+    void zoomChanged(qreal factor);
+
 protected:
+    void drawBackground(QPainter* painter, const QRectF& rect) override;
+    void drawForeground(QPainter* painter, const QRectF& rect) override;
     void mousePressEvent(QMouseEvent* event) override;
     void mouseMoveEvent(QMouseEvent* event) override;
     void mouseReleaseEvent(QMouseEvent* event) override;
     void contextMenuEvent(QContextMenuEvent* event) override;
+    void keyPressEvent(QKeyEvent* event) override;
     void dragEnterEvent(QDragEnterEvent* event) override;
     void dragMoveEvent(QDragMoveEvent* event) override;
     void dropEvent(QDropEvent* event) override;
     void wheelEvent(QWheelEvent* event) override;
 
 private:
+    QRect overviewRect() const;
+    QRectF overviewWorldBounds() const;
+    QRectF overviewViewportRect() const;
+    QPointF overviewScenePoint(const QPoint& point) const;
     void activatePort(const std::string& portId);
     void applySearchFilter();
     void beginPortDrag(const std::string& portId, const QPointF& position);
@@ -169,6 +198,7 @@ private:
     void updateClientPositions();
     void notifySelection();
     void cancelDragState();
+    void refreshTheme();
     bool connectPortPair(const std::string& sourcePortId, const std::string& destinationPortId);
     bool disconnectPortPair(const std::string& sourcePortId, const std::string& destinationPortId);
     void rememberLogicalConnection(const WinJACKNexus::Patchbay::Core::ConnectionInfo& connection);
@@ -183,6 +213,8 @@ private:
     std::vector<PatchbayInterfaceInfo> interfaceNodes_;
     std::unordered_set<std::string> visibleModuleClientIds_;
     std::unordered_set<std::string> hiddenModuleClientIds_;
+    std::unordered_map<std::string, QString> clientThemeScopes_;
+    std::unordered_map<std::string, QColor> clientColorOverrides_;
     QString searchQuery_;
     std::string pendingPortId_;
     std::string selectedNodeId_;
@@ -207,6 +239,16 @@ private:
     std::function<bool(const QString&, const QPointF&)> interfaceNodeDropHandler_;
     std::function<bool(const QString&, const QPointF&)> subGraphNodeDropHandler_;
     std::function<bool(const std::string&)> isModuleNode_;
+    std::function<bool(const std::string&)> excludeBoxSelection_;
+    std::function<std::optional<PatchbayModuleCopyInfo>(const std::string&)> inspectModuleNode_;
+    std::function<bool(const PatchbayModuleCopyInfo&, const QPointF&)> createCopiedModuleNode_;
+    struct CopiedNode final {
+        enum class Kind { module, subGraph, interfaceNode } kind = Kind::module;
+        PatchbayModuleCopyInfo module;
+        QString detail;
+        QPointF offset;
+    };
+    std::vector<CopiedNode> copiedNodes_;
     std::function<bool(const std::string&)> copyModuleNode_;
     std::function<bool(const std::string&)> removeModuleNode_;
     std::function<bool(const std::string&, QWidget*)> showModuleNodeGui_;
@@ -217,6 +259,15 @@ private:
     QString copiedSubGraphName_;
     QString copiedInterfaceType_;
     QPoint panOrigin_;
+    QPoint rightBoxOrigin_;
+    QPoint rightBoxCurrent_;
+    int rightPressSerial_ = 0;
+    bool rightHoldPending_ = false;
+    bool rightBoxSelecting_ = false;
+    bool overviewPanning_ = false;
+    QRectF overviewDragWorld_;
+    QPointF overviewDragOffset_;
+    bool suppressNextContextMenu_ = false;
     Qt::MouseButton panningButton_ = Qt::NoButton;
     bool panning_ = false;
     bool nodeDragActive_ = false;

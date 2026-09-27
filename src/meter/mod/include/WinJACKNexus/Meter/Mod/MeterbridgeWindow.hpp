@@ -62,6 +62,7 @@ protected:
     void hideEvent(QHideEvent* event) override;
 
 private:
+    void applyTheme();
     void applyRefreshRate(int framesPerSecond);
     void addCard(const MeterViewSnapshot& snapshot);
     void removeCard(const QString& instanceId);
@@ -69,6 +70,7 @@ private:
     void updateCardContainerGeometry();
 
     MeterViewDataProvider& provider_;
+    QWidget* surface_ = nullptr;
     QTabWidget* tabs_ = nullptr;
     QScrollArea* cardScrollArea_ = nullptr;
     QWidget* cardContainer_ = nullptr;

@@ -17,7 +17,8 @@ target_link_libraries(WinJACKNexus
 
 target_compile_features(WinJACKNexus PRIVATE cxx_std_20)
 target_compile_definitions(WinJACKNexus PRIVATE WIN32_LEAN_AND_MEAN NOMINMAX)
-add_dependencies(WinJACKNexus mod_patchbay mod_digital_mixer mod_meterbrigde mod_meterbridge_probe mod_native_fx)
+target_link_options(WinJACKNexus PRIVATE "/MANIFEST:EMBED" "/MANIFESTINPUT:${CMAKE_CURRENT_SOURCE_DIR}/WinJACKNexus.manifest")
+add_dependencies(WinJACKNexus mod_patchbay mod_digital_mixer mod_meterbrigde mod_meterbridge_probe mod_native_fx wjn_default_theme)
 
 set_target_properties(WinJACKNexus PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${WJN_OUTPUT_DIR}"
@@ -43,6 +44,13 @@ add_custom_command(TARGET WinJACKNexus POST_BUILD
     COMMAND "${CMAKE_COMMAND}" -E copy_if_different
         "$<TARGET_FILE:Qt6::OpenGLWidgets>"
         "$<TARGET_FILE_DIR:WinJACKNexus>"
+    COMMAND "${CMAKE_COMMAND}" -E make_directory
+        "$<TARGET_FILE_DIR:WinJACKNexus>/themes"
+    COMMAND "${CMAKE_COMMAND}" -E copy_directory
+        "${PROJECT_SOURCE_DIR}/themes/template"
+        "$<TARGET_FILE_DIR:WinJACKNexus>/themes/template"
+    COMMAND "${CMAKE_COMMAND}" -E rm -f
+        "$<TARGET_FILE_DIR:WinJACKNexus>/themes/winjacknexus-default.wjnskin"
     COMMENT "Deploying Qt runtime dependencies for WinJACKNexus.exe"
     VERBATIM
 )

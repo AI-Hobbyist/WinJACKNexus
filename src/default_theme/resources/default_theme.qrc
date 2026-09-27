@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/WinJACKNexus/DefaultTheme">
+        <file alias="default.wjnskin">../../../themes/template/winjacknexus-default.wjnskin</file>
+    </qresource>
+</RCC>

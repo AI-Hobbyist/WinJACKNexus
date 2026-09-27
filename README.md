@@ -185,10 +185,9 @@ WinJACKNexus 的定位:
 
 ---
 
-## 节点完成记录
+## 模块完成记录
 
-> 状态图例:`📋 未开始` → `🔨 开发中` → `✅ 已完成`
-> 每个节点(模块)对应一份计划书,命名约定:`Docs/WinJACKNexus - <模块名> - 开发计划.md`
+已完成模块：
 
 | 节点 | 形态 | 状态 | 计划书 | 备注 |
 | :--- | :--- | :--- | :--- | :--- |
@@ -198,26 +197,32 @@ WinJACKNexus 的定位:
 | 基础库 `WinJACKNexus::Node` | `node.dll` | ✅ 已完成(接口桩) | [基础库计划](Docs/WinJACKNexus%20-%20基础库%20-%20开发计划.md) | INode + C-API + 示例节点 |
 | Audio Adapter | `nodes/adapter/mod_adapter.dll` | ✅ 已完成(A1–A6) | [Audio Adapter 计划](Docs/WinJACKNexus%20-%20Audio%20Adapter%20-%20开发计划.md) | WASAPI In/Out、MIDI In/Out、设置面板、设备互斥与刷新、电平/力度窗口 |
 | Interactive Patchbay | `mod_patchbay.dll`(主程序同级) | ✅ 已完成(B1–B8) | [接线盘计划](Docs/WinJACKNexus%20-%20接线盘%20-%20开发计划.md) | 实时 JACK 图、拖线连通/断开、工程保存恢复、自动保存、无限画布 |
-| Pure Mixer | `nodes/mixer/mod_mixer.dll` | 🔨 开发中 | — | 输入/AUX 通道、FX 链与 AUX 设置窗口开发中 |
+| Digital Mixer(调音台) | `nodes/mixer/mod_digital_mixer.dll` | ✅ 已完成 | — | 输入/AUX/主通道、FX 链、AUX 设置及工程保存恢复 |
 | Native Fx(自带效果器) | `nodes/native_fx/*/mod_*.dll` | ✅ 已完成 | [效果器完成记录](Native%20Effect/) | Gate、Graphic EQ、Parametric EQ、De-Esser、Compressor、Limiter、Delay、Reverb |
 | Native Fx API | `src/native_fx/include/WinJACKNexus/NativeFx/NativeFxApi.h` | ✅ 已完成 | [Native Fx API 文档](Docs/NativeFx-API.md) | 原生效果器模块接口、加载与控制 |
 | Meterbridge | `mod_meterbrigde.dll` + `nodes/meter/mod_meterbridge_probe.dll` | ✅ 已完成 | [电平表桥计划](Docs/电平表桥开发计划书.md) | 唯一桥窗口、Mono/Stereo/5.1/7.1/Custom Probe、BS.1770-5 计量、历史图表、CSV、工程恢复 |
-| Signal Switch | `nodes/switch/mod_switch.dll` | 📋 未开始 | — | P4 |
-| MIDI Splitter | 节点(`mod_patchbay` 内/独立) | 📋 未开始 | — | 与 Patchbay 同期 |
-| 16x16 MIDI Matrix | 节点(同上) | 📋 未开始 | — | 与 Patchbay 同期 |
+| 主题系统 | `wjn_default_theme.dll` + `themes/template/` | ✅ 已完成 | [主题系统计划书](主题系统计划书.md) | S01–S12、默认主题 DLL、主题包/Dev 主题、Node 与 Native Fx 命名空间 |
 | Single VST Host | `nodes/vst/mod_vst_host.dll` + `VSTProcess32/64.exe` | ✅ 已完成 | [VST Support 计划](Docs/WinJACKNexus%20-%20VST%20Support%20-%20开发计划.md) | VST2/VST3 沙盒、分类栏、存档与旁通/重启 |
 | VST 效果器链 | Patchbay 子图 | ✅ 已完成 | [VST Support 计划](Docs/WinJACKNexus%20-%20VST%20Support%20-%20开发计划.md) | 子图内复用单 VST 节点 |
-| DAW2JackMIDI VST3 | `*.vst3` | 📋 未开始 | — | P5 |
-| DAW2JackAudio VST3 | `*.vst3`(Mono/Stereo/5.1/7.1) | 📋 未开始 | — | P5 |
 | 主程序外壳 | `WinJACKNexus.exe` | ✅ 已完成 | — | 节点模块加载与主窗口 |
+
+未完成模块：
+
+| 模块与当前状态 |
+| :--- |
+| Signal Switch：📋 未开始；计划形态 `nodes/switch/mod_switch.dll`。 |
+| MIDI Splitter：📋 未开始；计划作为 Patchbay 节点。 |
+| 16x16 MIDI Matrix：📋 未开始；计划作为 Patchbay 节点。 |
+| DAW2JackMIDI VST3：📋 未开始。 |
+| DAW2JackAudio VST3：📋 未开始；计划支持 Mono/Stereo/5.1/7.1。 |
 
 ### 开发路线
 
-- **P0 基础库(当前)**:`Common` / `UI` / `Audio` 完整实现 + `Node` 接口桩 → 编译产物 `common.dll` / `ui.dll` / `audio.dll` / `node.dll`;
+- **P0 基础库(已完成)**:`Common` / `UI` / `Audio` 完整实现 + `Node` 接口桩 → 编译产物 `common.dll` / `ui.dll` / `audio.dll` / `node.dll`;
 - **P2 主程序 + Adapter + Patchbay**:主进程外壳、系统音频/ MIDI 接入、全局接线盘;
-- **P3 Mixer**:简单/专业调音台;
+- **P3 Mixer**:调音台已完成;
 - **P4 Meterbridge**:已完成；**Signal Switch + MIDI 工具**(Splitter / Matrix)待开发;
-- **P5 沙盒 VST Host + DAW 桥**(VST3,含 5.1/7.1 多声道)。
+- **P5 沙盒 VST Host + DAW 桥**:VST Host 已完成，DAW 桥待开发(VST3,含 5.1/7.1 多声道)。
 
 ---
 
@@ -227,6 +232,7 @@ WinJACKNexus 的定位:
 - [`Docs/WinJACKNexus - 基础库 - 开发计划.md`](Docs/WinJACKNexus%20-%20基础库%20-%20开发计划.md) —— 当前阶段计划书
 - [`Docs/WinJACKNexus - 接线盘 - 开发计划.md`](Docs/WinJACKNexus%20-%20接线盘%20-%20开发计划.md) —— Interactive Patchbay B1–B8 完成记录
 - [`Docs/电平表桥开发计划书.md`](Docs/电平表桥开发计划书.md) —— Meterbridge 完成记录
+- [`主题系统计划书.md`](主题系统计划书.md) —— 主题系统 S01–S12 与模块接入记录
 
 ---
 

@@ -1,0 +1,69 @@
+/* native-fx-limiter module theme tokens. Keep token names and the :root block. */
+:root {
+  /* native-fx-limiter / surface window; type=color */
+  --wjn-theme-native-fx-limiter-surface-window: #0d1c2d;
+  /* native-fx-limiter / surface panel start; type=color */
+  --wjn-theme-native-fx-limiter-surface-panel-start: #142437;
+  /* native-fx-limiter / surface panel end; type=color */
+  --wjn-theme-native-fx-limiter-surface-panel-end: #081d2f;
+  /* native-fx-limiter / chart background; type=color */
+  --wjn-theme-native-fx-limiter-chart-background: #0c1d2f;
+  /* native-fx-limiter / chart grid major; type=color */
+  --wjn-theme-native-fx-limiter-chart-grid-major: #273d53;
+  /* native-fx-limiter / text primary; type=color */
+  --wjn-theme-native-fx-limiter-text-primary: #ebf0ff;
+  /* native-fx-limiter / text muted; type=color */
+  --wjn-theme-native-fx-limiter-text-muted: #b3c9ee;
+  /* native-fx-limiter / control knob indicator normal; type=color */
+  --wjn-theme-native-fx-limiter-control-knob-indicator-normal: #ff638b;
+  /* native-fx-limiter / chart series transfer stroke; type=color */
+  --wjn-theme-native-fx-limiter-chart-series-transfer-stroke: #ff638b;
+  /* native-fx-limiter / chart series transfer fill; type=color */
+  --wjn-theme-native-fx-limiter-chart-series-transfer-fill: rgba(232,75,113,0.203922);
+  /* native-fx-limiter / meter level zone low active; type=color */
+  --wjn-theme-native-fx-limiter-meter-level-zone-low-active: #1ecd6f;
+  /* native-fx-limiter / meter level zone low inactive; type=color */
+  --wjn-theme-native-fx-limiter-meter-level-zone-low-inactive: #0d322a;
+  /* native-fx-limiter / meter level zone mid active; type=color */
+  --wjn-theme-native-fx-limiter-meter-level-zone-mid-active: #f5e034;
+  /* native-fx-limiter / meter level zone mid inactive; type=color */
+  --wjn-theme-native-fx-limiter-meter-level-zone-mid-inactive: #36321b;
+  /* native-fx-limiter / meter level zone high active; type=color */
+  --wjn-theme-native-fx-limiter-meter-level-zone-high-active: #f23c4c;
+  /* native-fx-limiter / meter level zone high inactive; type=color */
+  --wjn-theme-native-fx-limiter-meter-level-zone-high-inactive: #391c27;
+  /* native-fx-limiter / meter reduction zone single active; type=color */
+  --wjn-theme-native-fx-limiter-meter-reduction-zone-single-active: #e13d51;
+  /* native-fx-limiter / meter reduction zone single inactive; type=color */
+  --wjn-theme-native-fx-limiter-meter-reduction-zone-single-inactive: #0c2230;
+  /* native-fx-limiter / background opacity; type=opacity */
+  --wjn-theme-native-fx-limiter-background-opacity: 1;
+  /* native-fx-limiter / background size; type=background-size */
+  --wjn-theme-native-fx-limiter-background-size: cover;
+  /* native-fx-limiter / background scale; type=background-scale */
+  --wjn-theme-native-fx-limiter-background-scale: 1;
+  /* native-fx-limiter / background repeat; type=background-repeat */
+  --wjn-theme-native-fx-limiter-background-repeat: no-repeat;
+  /* native-fx-limiter / background position x; type=position */
+  --wjn-theme-native-fx-limiter-background-position-x: 50%;
+  /* native-fx-limiter / background position y; type=position */
+  --wjn-theme-native-fx-limiter-background-position-y: 50%;
+  /* native-fx-limiter / background overlay enabled; type=boolean */
+  --wjn-theme-native-fx-limiter-background-overlay-enabled: false;
+  /* native-fx-limiter / background overlay opacity; type=opacity */
+  --wjn-theme-native-fx-limiter-background-overlay-opacity: 0.12;
+  /* native-fx-limiter / background blur radius; type=blur-radius */
+  --wjn-theme-native-fx-limiter-background-blur-radius: 0px;
+  /* native-fx-limiter / background component opacity; type=opacity */
+  --wjn-theme-native-fx-limiter-background-component-opacity: 1;
+  /* native-fx-limiter / control knob background base; type=color */
+  --wjn-theme-native-fx-limiter-control-knob-background-base: #0d1c2d;
+  /* native-fx-limiter / control knob track; type=color */
+  --wjn-theme-native-fx-limiter-control-knob-track: #3a5b7c;
+  /* native-fx-limiter / control toggle indicator on; type=color */
+  --wjn-theme-native-fx-limiter-control-toggle-indicator-on: #0873d1;
+  /* native-fx-limiter / control toggle indicator off; type=color */
+  --wjn-theme-native-fx-limiter-control-toggle-indicator-off: #2a3d51;
+  /* native-fx-limiter content background image; null means undefined and inherits the patchbay image; type=image */
+  /* --wjn-theme-native-fx-limiter-background-image: inherited from --wjn-theme-patchbay-background-image; keep undeclared to inherit. */
+}

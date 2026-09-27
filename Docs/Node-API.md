@@ -48,6 +48,84 @@ The patchbay also probes optional host-specific exports such as
 `wjn_get_node_client_id`. Modules that do not provide them must still work
 through the required v2 discovery and lifetime exports.
 
+## Optional theme namespace exports (v1)
+
+`NodeApi.h` declares `uint32_t wjn_get_node_theme_api_version(void)` and
+`const char* wjn_get_node_theme_namespace_json(uint32_t index)`. These are
+independent optional exports with version `WJN_NODE_THEME_API_VERSION == 1`;
+the required Node v2 ABI is unchanged. The index identifies a node type in
+`wjn_get_node_count()`, never a runtime instance, and an invalid index returns
+null. The host copies DLL-owned UTF-8 JSON immediately and checks the
+[descriptor contract](Theme-v1-Contract.md). Missing exports leave legacy
+modules loadable. Bad theme data disables only the theme capability. The
+descriptor's `moduleId` is stable and is used to deduplicate the same
+namespace exported through Native Fx and Node APIs, regardless of their
+different enumeration indices. Registration remains live until its host
+module lease is released. Existing Node DLL exports are added one module at
+a time after S12. The bundled `wjn_example_node.dll` now exports the optional
+v1 descriptor for `module-winjacknexus-example-node`. It declares its
+host-drawn node card background token, inherits the patchbay card default,
+and returns null for out-of-range type indices. `theme_namespace_tests` loads
+the real DLL, registers it without creating a node instance, and checks scope
+release.
+`mod_patchbay.dll` likewise exports `module-winjacknexus-patchbay` for its
+single Node type. Its host-drawn card background token inherits the patchbay
+default; the patchbay window's existing `patchbay` scope remains the source of
+its own UI colors. `theme_patchbay_node_namespace` tests the real DLL's
+version, index boundary, copied descriptor, scope, and unload.
+`mod_digital_mixer.dll` exports the same optional API for its single
+`module-winjacknexus-digital-mixer` Node type. Its host-drawn card background
+inherits the patchbay default; the mixer window keeps its built-in `mixer`
+theme scope. `theme_mixer_node_namespace` checks the real DLL without JACK.
+`mod_meterbrigde.dll` exports `module-winjacknexus-meterbridge` for its one
+Node type. The node card token inherits the patchbay default while its own
+window continues to use the built-in `meter-bridge` scope. The real DLL and
+UI model/window tests are run without JACK client connections.
+`mod_vst_host.dll` exports `module-winjacknexus-vst-host` for its one Node
+type. Its host-drawn card background inherits the patchbay default.
+`theme_vst_host_node_namespace` validates the real DLL independently of
+plug-in scanning or audio connections.
+`mod_adapter.dll` exports four independently indexed descriptors:
+`module-winjacknexus-wasapi-in`, `module-winjacknexus-wasapi-out`,
+`module-winjacknexus-system-midi-in`, and
+`module-winjacknexus-system-midi-out`. Each uses its own host-drawn card
+background token. The real DLL test verifies all four type-to-scope mappings
+without opening audio or MIDI devices.
+`mod_meterbridge_probe.dll` exports five independent type descriptors:
+`module-winjacknexus-meter-mono`, `module-winjacknexus-meter-stereo`,
+`module-winjacknexus-meter-5-1`, `module-winjacknexus-meter-7-1`, and
+`module-winjacknexus-meter-custom`. Their host card tokens inherit the
+patchbay default. The real DLL test checks every index without connecting
+JACK ports.
+The Gate Native Fx DLL now also exports the optional Node theme functions.
+Its Node type maps to the same `gate` descriptor as Native Fx metadata index
+zero; `theme_gate_native_fx` verifies the two registration leases share one
+scope and release independently.
+The Graphic EQ Native Fx DLL also exports the optional Node theme functions.
+Its Node type and Native Fx metadata index zero share the `graphic-eq`
+descriptor; `theme_graphic_eq_native_fx` verifies both registration leases,
+index bounds, shipped-default appearance, and live UI token changes.
+The De-Esser Native Fx DLL likewise exports the optional Node theme API.
+Its Node type and Native Fx metadata index zero use one `deesser` descriptor;
+`theme_deesser_native_fx` checks both leases and the real editor.
+The Compressor Native Fx DLL uses the same dual-entry pattern for its one
+Node type and Native Fx metadata index. `theme_compressor_native_fx` checks
+their shared `compressor` descriptor and real-window theme changes.
+The Limiter Native Fx DLL likewise exports the optional Node theme API for
+its one Node type. `theme_limiter_native_fx` validates the shared `limiter`
+descriptor and real editor without creating a JACK client.
+The Delay Native Fx DLL also exports the optional Node theme API for its
+single Node type. `theme_delay_native_fx` checks its shared `delay`
+descriptor and live editor recoloring without JACK connections.
+The Parametric EQ Native Fx DLL exports the optional Node theme functions
+for its single Node type. Its `parametric-eq` descriptor is shared with the
+Native Fx metadata entry; `theme_parametric_eq_native_fx` checks the leases
+and the actual Windows editor.
+The Reverb Native Fx DLL exports the optional Node theme functions for its
+single Node type, sharing `reverb` with the Native Fx metadata entry.
+`theme_reverb_native_fx` verifies the real DLL and editor. All eight existing
+Native Fx DLLs now have matching Node and Native Fx theme descriptors.
+
 ## Native Fx nodes
 
 A Native Fx DLL can expose both this Node API and the

@@ -43,3 +43,11 @@
 
 - 输入频谱、各频段响应及综合响应统一使用 UI 公共 `Controls::drawCurvePath` 绘制；频段填充与曲线描边分开处理。
 - 在现有 `build` 树完成 Debug `ALL_BUILD`，`native_parametric_eq_tests` 和 `ui_unit_tests` 通过。
+
+## 主题命名空间与绘制接入（2026-09-27，S12 后）
+
+本效果单独导出 Native Fx / Node v1 双入口，共用稳定 ID `parametric-eq` 与模块作用域；越界索引返回 null，宿主按 ID 去重并分别释放引用。描述符按冻结注册表复制 token 类型/默认值/继承，声明四条分频段响应及独立填充、输入/处理后频谱、总响应、四组分频段旋钮、滤波旋钮和开关。
+
+实际窗口的背景、文字、主开关和普通开关、图表背景/网格、各分频段曲线及填充、图例、输入/处理后频谱、总响应、分频段及滤波旋钮活动环/外环已读取模块 token。主开关原有 `#1682d8` 强调色与普通开关 `#087afa` 不同，采用独立默认 token 保持原外观。无外部主题与发布默认 `.wjnskin` 的实窗截图逐像素相同；改色截图保存在 `tests/preview/PostS12/ParametricEq/`，修改文件名为 `-modified.png`。截图观感：**人工验收跳过/未人工验证**。
+
+现有 `build` 的 `mod_parametric_eq` Debug 单模块编译及完整 `ALL_BUILD` Debug 退出 0；`theme_parametric_eq_native_fx`、先前六个模块 UI 测试、`native_parametric_eq_tests`、`native_fx_api_tests`、`theme_default_template` 10/10 通过。首次新测试编译因 include 目录名使用连字符而失败，修正后通过；首次默认像素比较发现主开关 738 像素不同，定位默认色后修复，历史失败不追认。只验证模块加载与 UI，未运行 JACK 客户端/端口连接集成。证据见 `build/PostS12-ParametricEq-*.log`。

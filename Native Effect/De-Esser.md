@@ -41,3 +41,11 @@
 旋钮绘制已接入公共 `Controls::drawKnob` 和宿主调色板；迁移后的 Debug `ALL_BUILD`、`native_deesser_tests`、`ui_unit_tests` 通过。
 
 钟形检测曲线和输入、处理后频谱的路径描边改用公共 `Controls::drawCurvePath`，保持 `Qt::NoBrush`。Debug `ALL_BUILD`、`native_deesser_tests`、`ui_unit_tests` 通过。
+
+## 主题命名空间与绘制接入（2026-09-27，S12 后）
+
+本效果单独导出 Native Fx / Node v1 主题描述符。两入口共用稳定 ID `deesser` 和 `--wjn-theme-native-fx-deesser-`；越界索引返回 null，宿主按 ID 合并注册并分别释放引用。描述符复制冻结注册表中本模块 token 的类型、默认值与继承，声明旋钮、开关及 response-bell、input-spectrum、output-spectrum 三条独立图表系列。
+
+实际窗口的表面/主次文字、旋钮活动环与外环、开关、图表背景/网格/中心线、钟形响应、输入与输出频谱按模块 token 绘制。无外部主题与发布默认 `.wjnskin` 的实窗截图逐像素相同；修改 token 后重绘，截图保存在 `tests/preview/PostS12/DeEsser/`，改色文件名为 `-modified.png`。截图观感：**人工验收跳过/未人工验证**。
+
+现有 `build` 的 `mod_deesser` Debug 单模块编译及完整 `ALL_BUILD` Debug 退出 0；`theme_deesser_native_fx`、`native_deesser_tests`、`native_fx_api_tests`、`theme_default_template` 4/4 通过。验证只含模块加载与 UI，不运行 JACK 客户端/端口连接集成。证据见 `build/PostS12-DeEsser-*.log`。
