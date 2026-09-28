@@ -303,7 +303,7 @@ are created and destroyed on the Qt UI thread. Destroy an effect editor
 before unloading the DLL that supplies its code.
 
 The Node module export contract and project JSON envelope are specified in
-[`Node-API.md`](Node-API.md); the Native Fx lifecycle, snapshots and live
-analysis are specified in [`NativeFx-API.md`](NativeFx-API.md). Changes to an
+[`Node-API.md`](../Develop/Node/Node-API.md); the Native Fx lifecycle, snapshots and live
+analysis are specified in [`NativeFx-API.md`](../Develop/NativeFx/NativeFx-API.md). Changes to an
 exported UI signature or behavior require updating this document and its
 call-site tests before the API can be considered frozen.

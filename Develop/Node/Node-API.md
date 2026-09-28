@@ -1,9 +1,9 @@
 # Node module API (v2)
 
 Node modules are Windows DLLs loaded by the patchbay. The exported interface is
-declared in [`NodeApi.h`](../src/node/include/WinJACKNexus/Node/NodeApi.h), and
+declared in [`NodeApi.h`](../../src/node/include/WinJACKNexus/Node/NodeApi.h), and
 an implementation example is in
-[`ExampleNode.cpp`](../src/node/examples/ExampleNode.cpp). The host looks up
+[`ExampleNode.cpp`](ExampleNode.cpp). The host looks up
 exports dynamically and accepts modules whose `wjn_get_node_api_version()`
 returns the string `"2"`.
 
@@ -56,7 +56,7 @@ independent optional exports with version `WJN_NODE_THEME_API_VERSION == 1`;
 the required Node v2 ABI is unchanged. The index identifies a node type in
 `wjn_get_node_count()`, never a runtime instance, and an invalid index returns
 null. The host copies DLL-owned UTF-8 JSON immediately and checks the
-[descriptor contract](Theme-v1-Contract.md). Missing exports leave legacy
+[descriptor contract](../../Docs/Theme-v1-Contract.md). Missing exports leave legacy
 modules loadable. Bad theme data disables only the theme capability. The
 descriptor's `moduleId` is stable and is used to deduplicate the same
 namespace exported through Native Fx and Node APIs, regardless of their
@@ -129,10 +129,15 @@ Native Fx DLLs now have matching Node and Native Fx theme descriptors.
 ## Native Fx nodes
 
 A Native Fx DLL can expose both this Node API and the
-[`Native Fx API`](NativeFx-API.md). Its node adapter owns the JACK client and
+[`Native Fx API`](../NativeFx/NativeFx-API.md). Its node adapter owns the JACK client and
 eight input/output channels ordered `L`, `R`, `C`, `LFE`, `Ls`, `Rs`, `Lb`,
 `Rb`. Its standalone editor keeps the channel selector; the mixer placement
 uses a separate, host-owned processing instance without a JACK client.
+Native Fx node placement also requires the versioned Native Fx node boundary
+exports. The patchbay owns its client-name-only right sidebar, validates the
+registered port layout after initialization, and requires a standalone GUI
+entry point. Ordinary Node modules retain optional editors and module-defined
+JACK port layouts.
 
 Build and test in the repository's existing `build` tree. Test module
 discovery, settings round-trip and editor lifetime through the exported API.

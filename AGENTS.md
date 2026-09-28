@@ -41,4 +41,4 @@ When the repository root has a `.codegraph/` index, use CodeGraph before grep, f
 - Every project UI refresh timer and animation must follow the application's 30/60/120 FPS setting. Do not add an independent refresh rate for a project-owned view.
 - Visible application content controls should come from the WinJACKNexus UI API. Reuse an existing shared control first; when none fits, ask the user whether to create one and whether it belongs in the shared library or as an independent control.
 - System main menus, system tray menus, context menus and control popup menus must remain native Qt menus. Do not redraw or replace them for visual consistency.
-- Treat `Docs/Node-API.md`, `Docs/NativeFx-API.md` and `Docs/UI-API.md` as the frozen v1 API contracts. Update the relevant document and call-site tests when an exported signature or behavior changes.
+- Treat `Develop/Node/Node-API.md`, `Develop/NativeFx/NativeFx-API.md` and `Docs/UI-API.md` as the frozen API contracts. Update the relevant document and call-site tests when an exported signature or behavior changes.

@@ -224,6 +224,8 @@ public:
         } catch (...) { return 0; }
     }
     const char* clientId() const noexcept { return clientId_.c_str(); }
+    const char* clientName() const noexcept { return clientName_.c_str(); }
+    bool hasFixedPortLayout() const noexcept { return fixedNodePorts(inputs_, outputs_); }
 private:
     static int process(jack_nframes_t frames, void* context) noexcept {
         auto& self = *static_cast<GraphicEqNode*>(context);

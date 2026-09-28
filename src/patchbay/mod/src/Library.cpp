@@ -14,6 +14,7 @@
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 #include <WinJACKNexus/Node/NodeApi.h>
+#include <WinJACKNexus/NativeFx/NativeFxApi.h>
 #include <WinJACKNexus/Audio/JackApi.hpp>
 #include <WinJACKNexus/Audio/JackClient.hpp>
 #include <WinJACKNexus/Audio/JackMidiBuffer.hpp>
@@ -487,6 +488,30 @@ QString categoryFromModuleOrFolder(const char* exportedCategory, const QString& 
 	return category.isEmpty() ? folderCategory : category;
 }
 
+bool validNativeFxNodeModule(HMODULE library, const QString& path, bool* nativeFx)
+{
+	using Version = std::uint32_t (*)();
+	using Count = std::uint32_t (*)();
+	using Meta = const WjnFxMeta* (*)(std::uint32_t);
+	const auto normalized = QDir::fromNativeSeparators(path);
+	const bool inNativeFxDirectory = normalized.contains(QStringLiteral("/nodes/native_fx/"), Qt::CaseInsensitive);
+	const auto fxVersion = reinterpret_cast<Version>(GetProcAddress(library, "wjn_fx_api_version"));
+	*nativeFx = inNativeFxDirectory || fxVersion != nullptr;
+	if (!*nativeFx) return true;
+	const auto count = reinterpret_cast<Count>(GetProcAddress(library, "wjn_fx_count"));
+	const auto meta = reinterpret_cast<Meta>(GetProcAddress(library, "wjn_fx_meta"));
+	const auto boundaryVersion = reinterpret_cast<Version>(GetProcAddress(library, "wjn_fx_node_boundary_version"));
+	return fxVersion != nullptr && fxVersion() == WJN_FX_API_VERSION
+		&& count != nullptr && count() == 1 && meta != nullptr
+		&& meta(0) != nullptr && (meta(0)->placements & WJN_FX_NODE)
+		&& boundaryVersion != nullptr && boundaryVersion() == WJN_FX_NODE_BOUNDARY_VERSION
+		&& GetProcAddress(library, "wjn_fx_node_validate_layout") != nullptr
+		&& GetProcAddress(library, "wjn_fx_node_client_name") != nullptr
+		&& GetProcAddress(library, "wjn_fx_node_set_client_name") != nullptr
+		&& GetProcAddress(library, "wjn_show_node_gui") != nullptr
+		&& GetProcAddress(library, "wjn_get_node_client_id") != nullptr;
+}
+
 std::vector<ModuleNodeInfo> scanNodeModules()
 {
 	using ApiVersion = const char* (*)();
@@ -511,8 +536,10 @@ std::vector<ModuleNodeInfo> scanNodeModules()
 		const auto nodeCount = reinterpret_cast<NodeCount>(GetProcAddress(library, "wjn_get_node_count"));
 		const auto nodeName = reinterpret_cast<NodeName>(GetProcAddress(library, "wjn_get_node_name"));
 		const auto nodeCategory = reinterpret_cast<NodeCategory>(GetProcAddress(library, "wjn_get_node_category"));
+		bool nativeFx = false;
 		if (apiVersion != nullptr && nodeCount != nullptr && nodeName != nullptr
-			&& std::strcmp(apiVersion(), "2") == 0) {
+			&& std::strcmp(apiVersion(), "2") == 0
+			&& validNativeFxNodeModule(library, modulePath, &nativeFx)) {
 			const auto moduleDirectory = QFileInfo(modulePath).dir();
 			auto category = modulesDirectory.relativeFilePath(moduleDirectory.absolutePath());
 			if (category.isEmpty() || category == QStringLiteral("."))
@@ -524,7 +551,8 @@ std::vector<ModuleNodeInfo> scanNodeModules()
 				if (name == nullptr || name[0] == '\0')
 					continue;
 				const auto* exportedCategory = nodeCategory == nullptr ? nullptr : nodeCategory(index);
-				const auto nodeCategoryName = categoryFromModuleOrFolder(exportedCategory, category);
+				const auto nodeCategoryName = nativeFx ? QStringLiteral("Native Fx")
+					: categoryFromModuleOrFolder(exportedCategory, category);
 				nodes.push_back({ nodeCategoryName, QString::fromUtf8(name), modulePath, index });
 			}
 		}
@@ -740,6 +768,11 @@ public:
 			FreeLibrary(library);
 			return nullptr;
 		}
+		bool nativeFx = false;
+		if (!validNativeFxNodeModule(library, modulePath, &nativeFx)) {
+			FreeLibrary(library);
+			return nullptr;
+		}
 		WinJACKNexus::UI::ThemeNamespaceRegistry::Lease themeLease;
 		QString themeError;
 		WinJACKNexus::UI::ThemeNamespaceRegistry::instance().registerNodeModule(
@@ -770,6 +803,21 @@ public:
 			FreeLibrary(library);
 			return nullptr;
 		}
+		if (nativeFx) {
+			using ValidateLayout = int (*)(void*);
+			using ClientName = const char* (*)(void*);
+			const auto validateLayout = reinterpret_cast<ValidateLayout>(
+				GetProcAddress(library, "wjn_fx_node_validate_layout"));
+			const auto clientName = reinterpret_cast<ClientName>(
+				GetProcAddress(library, "wjn_fx_node_client_name"));
+			const auto* name = clientName(node);
+			if (validateLayout(node) == 0 || name == nullptr || name[0] == '\0') {
+				node->shutdown();
+				destroyNode(node);
+				FreeLibrary(library);
+				return nullptr;
+			}
+		}
 		const auto expectedClientId = getNodeClientId == nullptr ? nullptr : getNodeClientId(node);
 		const auto info = node->info();
 		QString category;
@@ -787,6 +835,7 @@ public:
 			                                                            createSettingsView,
 			                                                            destroySettingsView,
 			                                                            showNodeGui,
+				                                                            nativeFx,
 				                                                            expectedClientId == nullptr ? std::string {} : std::string(expectedClientId),
 			                                                            modulePath,
 			                                                            index,
@@ -908,6 +957,22 @@ public:
 	{
 		if (settingsWidget_ != nullptr || settingsContainer_ != nullptr)
 			return settingsWidget_ != nullptr ? settingsWidget_.data() : settingsContainer_.data();
+		if (nativeFx_) {
+			try {
+			using ClientName = const char* (*)(void*);
+			using SetClientName = int (*)(void*, const char*);
+			const auto clientName = reinterpret_cast<ClientName>(GetProcAddress(library_, "wjn_fx_node_client_name"));
+			const auto setClientName = reinterpret_cast<SetClientName>(GetProcAddress(library_, "wjn_fx_node_set_client_name"));
+			const auto* current = clientName(node_);
+			if (current == nullptr) return nullptr;
+			settingsWidget_ = new WinJACKNexus::UI::GateClientNameWidget(QString::fromUtf8(current),
+				[this, setClientName](const QString& requested) {
+					const auto utf8 = requested.toUtf8();
+					return setClientName(node_, utf8.constData()) != 0;
+				}, parent);
+			return settingsWidget_;
+			} catch (...) { return nullptr; }
+		}
 
 		if (createSettingsWidget_ != nullptr && destroySettingsWidget_ != nullptr) {
 			settingsWidget_ = createSettingsWidget_(node_, parent);
@@ -938,7 +1003,9 @@ public:
 	void clearSettingsView() noexcept
 	{
 		if (settingsWidget_ != nullptr) {
-			if (destroySettingsWidget_ != nullptr)
+			if (nativeFx_)
+				delete settingsWidget_.data();
+			else if (destroySettingsWidget_ != nullptr)
 				destroySettingsWidget_(node_, settingsWidget_.data());
 			settingsWidget_ = nullptr;
 		}
@@ -971,6 +1038,7 @@ private:
 		                 CreateSettingsView createSettingsView,
 		                 DestroySettingsView destroySettingsView,
 		                 ShowNodeGui showNodeGui,
+		                 bool nativeFx,
 						 std::string clientId,
 		                 const QString& modulePath,
 		                 std::uint32_t index,
@@ -985,6 +1053,7 @@ private:
 			, createSettingsView_(createSettingsView)
 			, destroySettingsView_(destroySettingsView)
 			, showNodeGui_(showNodeGui)
+			, nativeFx_(nativeFx)
 			, clientId_(std::move(clientId))
 			, getNodeClientId_(reinterpret_cast<GetNodeClientId>(GetProcAddress(library, "wjn_get_node_client_id")))
 			, getNodeSettingsJson_(reinterpret_cast<GetNodeSettingsJson>(GetProcAddress(library, "wjn_get_node_settings_json")))
@@ -1004,6 +1073,7 @@ private:
 		CreateSettingsView createSettingsView_ = nullptr;
 		DestroySettingsView destroySettingsView_ = nullptr;
 		ShowNodeGui showNodeGui_ = nullptr;
+		bool nativeFx_ = false;
 		GetNodeSettingsJson getNodeSettingsJson_ = nullptr;
 	QString modulePath_;
 	std::uint32_t index_ = 0;

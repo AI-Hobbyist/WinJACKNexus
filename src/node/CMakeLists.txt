@@ -19,7 +19,7 @@ wjn_configure_shared_target(node WJN_NODE_BUILD)
 add_library(WinJACKNexus::Node ALIAS node)
 
 add_library(wjn_example_node SHARED
-    examples/ExampleNode.cpp
+    ${PROJECT_SOURCE_DIR}/Develop/Node/ExampleNode.cpp
 )
 
 target_include_directories(wjn_example_node

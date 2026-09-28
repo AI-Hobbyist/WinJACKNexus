@@ -199,7 +199,7 @@ WinJACKNexus 的定位:
 | Interactive Patchbay | `mod_patchbay.dll`(主程序同级) | ✅ 已完成(B1–B8) | [接线盘计划](Docs/WinJACKNexus%20-%20接线盘%20-%20开发计划.md) | 实时 JACK 图、拖线连通/断开、工程保存恢复、自动保存、无限画布 |
 | Digital Mixer(调音台) | `nodes/mixer/mod_digital_mixer.dll` | ✅ 已完成 | — | 输入/AUX/主通道、FX 链、AUX 设置及工程保存恢复 |
 | Native Fx(自带效果器) | `nodes/native_fx/*/mod_*.dll` | ✅ 已完成 | [效果器完成记录](Native%20Effect/) | Gate、Graphic EQ、Parametric EQ、De-Esser、Compressor、Limiter、Delay、Reverb |
-| Native Fx API | `src/native_fx/include/WinJACKNexus/NativeFx/NativeFxApi.h` | ✅ 已完成 | [Native Fx API 文档](Docs/NativeFx-API.md) | 原生效果器模块接口、加载与控制 |
+| Native Fx API | `src/native_fx/include/WinJACKNexus/NativeFx/NativeFxApi.h` | ✅ 已完成 | [Native Fx API 文档](Develop/NativeFx/NativeFx-API.md) | 原生效果器模块接口、加载与控制 |
 | Meterbridge | `mod_meterbrigde.dll` + `nodes/meter/mod_meterbridge_probe.dll` | ✅ 已完成 | [电平表桥计划](Docs/电平表桥开发计划书.md) | 唯一桥窗口、Mono/Stereo/5.1/7.1/Custom Probe、BS.1770-5 计量、历史图表、CSV、工程恢复 |
 | 主题系统 | `wjn_default_theme.dll` + `themes/template/` | ✅ 已完成 | [主题系统计划书](主题系统计划书.md) | S01–S12、默认主题 DLL、主题包/Dev 主题、Node 与 Native Fx 命名空间 |
 | Single VST Host | `nodes/vst/mod_vst_host.dll` + `VSTProcess32/64.exe` | ✅ 已完成 | [VST Support 计划](Docs/WinJACKNexus%20-%20VST%20Support%20-%20开发计划.md) | VST2/VST3 沙盒、分类栏、存档与旁通/重启 |

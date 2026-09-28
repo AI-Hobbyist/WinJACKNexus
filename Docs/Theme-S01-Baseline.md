@@ -36,7 +36,7 @@
 | `native-fx-limiter` | `src/native_fx/effects/limiter/src/Ui.cpp` | 旋钮、开关、输入/输出电平及 reduction 表、响应曲线 | 元数据 ID `limiter`；768×650；局部 QColor/共享 Controls |
 | `native-fx-parametric-eq` | `src/native_fx/effects/parametric_eq/src/Ui.cpp` | 四频段/总响应曲线、输入/处理后频谱、旋钮、图例 | 元数据 ID `parametric-eq`；1229×909；局部 QColor/共享 Controls |
 | `native-fx-reverb` | `src/native_fx/effects/reverb/src/Ui.cpp` | 旋钮、开关、声场示意图（并非 dB 曲线） | 元数据 ID `reverb`；770×645；局部 QColor/共享 Controls |
-| `module-example-node` / 示例 Node DLL | `src/node/examples/ExampleNode.cpp` | 无自绘控件、图表、电平或推子 | Node API v2、一个 `Example Node`；当前 API 无稳定 ID，S02/S06 需定义；无背景/字体 |
+| `module-example-node` / 示例 Node DLL | `Develop/Node/ExampleNode.cpp` | 无自绘控件、图表、电平或推子 | Node API v2、一个 `Example Node`；当前 API 无稳定 ID，S02/S06 需定义；无背景/字体 |
 
 八个 Native Fx 的 ID 和 mixer/node 放置位来自各自 `Meta.hpp`，全部同时支持 mixer 与 node。现有 DLL 的命名空间描述符导出按本目标延至 S12 完成之后逐一实施。当前通用接线盘节点按 `PortKind` 着色，示例 Node DLL 不自绘 UI；Native Fx 的 node 放置复用对应效果模块，不另虚构一套绘制模块。
 

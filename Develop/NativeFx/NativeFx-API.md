@@ -10,7 +10,7 @@ The shared Native Fx API owns the mixer instance. `Ui.cpp` and `Dsp.cpp` are
 compiled into the effect DLL; `ui.dll` supplies reusable controls and the host
 window. Effect algorithms are no longer built into `common.dll`.
 The DLL exports the functions in
-[`NativeFxApi.h`](../src/native_fx/include/WinJACKNexus/NativeFx/NativeFxApi.h).
+[`NativeFxApi.h`](../../src/native_fx/include/WinJACKNexus/NativeFx/NativeFxApi.h).
 The host resolves them dynamically and checks `wjn_fx_api_version() == 1`.
 Each DLL currently exposes one record: `wjn_fx_count() == 1` and
 `wjn_fx_meta(0)`.
@@ -30,6 +30,39 @@ enumerates only modules with `WJN_FX_NODE`; a mixer-only DLL exports a node
 count of zero and never appears in `Native Fx`. `id` is a stable ASCII key for
 presets; `name`, `iconGlyph` and `iconColor` are presentation metadata. Keep
 the metadata strings valid until the DLL unloads.
+
+### Required node boundary (v1)
+
+For `WJN_FX_NODE`, the DLL must also export
+`wjn_fx_node_boundary_version() == WJN_FX_NODE_BOUNDARY_VERSION` (currently 1),
+`wjn_fx_node_validate_layout(node)`, `wjn_fx_node_client_name(node)`,
+`wjn_fx_node_set_client_name(node, utf8Name)`, `wjn_get_node_client_id(node)`
+and `wjn_show_node_gui(node)`. `node` is the `INode*` from `wjn_create_node`.
+The patchbay checks the exports before listing or creating the module. After
+`INode::init()`, it requires layout validation and a nonempty client name.
+
+The node owns one JACK client with exactly eight audio inputs `in_L`, `in_R`,
+`in_C`, `in_LFE`, `in_Ls`, `in_Rs`, `in_Lb`, `in_Rb` and matching `out_*` outputs
+in that order. `wjn_fx_node_validate_layout` checks the registered port names,
+directions and audio types, returning 1 only when they match. It returns 0
+before initialization or for a mismatched node.
+
+The patchbay creates the right-sidebar `ClientNameWidget` itself and calls the
+name getter/setter. Native Fx node settings widgets are not embedded there;
+effect parameters belong in the mandatory standalone GUI. The setter accepts
+UTF-8, returns 1 on success and 0 on rejection, and must preserve JACK
+connections when an active client is renamed. The getter returns a DLL-owned
+string valid until the next name mutation or node destruction.
+
+The current Delay, Limiter and Reverb modules reject rename requests while
+their JACK client is open. This is a module-level limitation: the host keeps
+the node active and displays a failed-apply status. Other modules may support
+live rename by reopening and reconnecting their client.
+
+`wjn_show_node_gui` opens the standalone editor and returns 1 on success.
+The mixer editor is a separate widget embedded in the chain. Providing one
+does not replace the node's standalone GUI. Mixer-only modules need no node
+boundary exports.
 
 ## Mixer lifetime and audio
 
@@ -189,7 +222,7 @@ Each returned pointer is DLL-owned UTF-8 JSON. The host copies and validates
 it before unloading the DLL. A module without both exports continues to load;
 an incomplete, unsupported or invalid theme descriptor disables only its
 theme capability. The descriptor format, size limits, token types and stable
-module ID/namespace rules are in [Theme-v1-Contract.md](Theme-v1-Contract.md).
+module ID/namespace rules are in [Theme-v1-Contract.md](../../Docs/Theme-v1-Contract.md).
 The host registers one scope per metadata index and retains a reference until
 that module use is released. Matching Node and Native Fx descriptors for the
 same stable ID share one registration. Existing effect DLLs receive these

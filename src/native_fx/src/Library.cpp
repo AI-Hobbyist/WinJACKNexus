@@ -39,6 +39,7 @@
 #include <cmath>
 #include <cstdio>
 #include <cstdint>
+#include <cstring>
 #include <memory>
 #include <string>
 #include <vector>
@@ -52,6 +53,28 @@ using WinJACKNexus::Common::GateProcessor;
 using WinJACKNexus::UI::GateEffectWidget;
 #endif
 constexpr const char* channelNames[] = { "L", "R", "C", "LFE", "Ls", "Rs", "Lb", "Rb" };
+
+bool fixedNodePorts(const std::array<JackPort, 8>& inputs,
+                    const std::array<JackPort, 8>& outputs) noexcept {
+    for (std::size_t i = 0; i < 8; ++i) {
+        char inputName[16] {}, outputName[16] {};
+        std::snprintf(inputName, sizeof(inputName), "in_%s", channelNames[i]);
+        std::snprintf(outputName, sizeof(outputName), "out_%s", channelNames[i]);
+        const auto* actualInput = inputs[i].shortName();
+        const auto* actualOutput = outputs[i].shortName();
+        const auto* inputType = inputs[i].type();
+        const auto* outputType = outputs[i].type();
+        if (!actualInput || !actualOutput || !inputType || !outputType
+            || std::strcmp(actualInput, inputName) != 0
+            || std::strcmp(actualOutput, outputName) != 0
+            || std::strcmp(inputType, JACK_DEFAULT_AUDIO_TYPE) != 0
+            || std::strcmp(outputType, JACK_DEFAULT_AUDIO_TYPE) != 0
+            || !inputs[i].isInput() || inputs[i].isOutput()
+            || !outputs[i].isOutput() || outputs[i].isInput()) return false;
+    }
+    return true;
+}
+
 
 bool readNumber(const QJsonObject& object,const char* key,float minimum,float maximum,float& target) {
     const auto item=object.value(QString::fromLatin1(key));
@@ -113,6 +136,21 @@ using ActiveEditor = WinJACKNexus::UI::ReverbWidget;
 }
 
 extern "C" {
+std::uint32_t wjn_fx_node_boundary_version(void) { return WJN_FX_NODE_BOUNDARY_VERSION; }
+int wjn_fx_node_validate_layout(void* node) {
+    auto* effect = dynamic_cast<ActiveNode*>(static_cast<WinJACKNexus::Node::INode*>(node));
+    return effect != nullptr && effect->hasFixedPortLayout() ? 1 : 0;
+}
+const char* wjn_fx_node_client_name(void* node) {
+    auto* effect = dynamic_cast<ActiveNode*>(static_cast<WinJACKNexus::Node::INode*>(node));
+    return effect == nullptr ? nullptr : effect->clientName();
+}
+int wjn_fx_node_set_client_name(void* node, const char* utf8Name) {
+    auto* effect = dynamic_cast<ActiveNode*>(static_cast<WinJACKNexus::Node::INode*>(node));
+    if (effect == nullptr || utf8Name == nullptr) return 0;
+    try { return effect->setClientName(QString::fromUtf8(utf8Name)) ? 1 : 0; }
+    catch (...) { return 0; }
+}
 const char* wjn_get_node_api_version(void) { return "2"; }
 std::uint32_t wjn_get_node_count(void) {
     std::uint32_t count = 0;

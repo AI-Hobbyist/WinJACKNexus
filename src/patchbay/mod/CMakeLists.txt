@@ -12,6 +12,7 @@ add_library(mod_patchbay SHARED
 target_include_directories(mod_patchbay
     PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/include
+        ${PROJECT_SOURCE_DIR}/src/native_fx/include
 )
 
 target_link_libraries(mod_patchbay

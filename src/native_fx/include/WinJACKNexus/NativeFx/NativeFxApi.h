@@ -18,6 +18,14 @@ extern "C" {
 #endif
 
 enum { WJN_FX_MIXER = 1u, WJN_FX_NODE = 2u, WJN_FX_API_VERSION = 1u };
+/* Required for WJN_FX_NODE placement. The void* is the INode* returned by
+   wjn_create_node. Validate layout only after INode::init succeeds. */
+enum { WJN_FX_NODE_BOUNDARY_VERSION = 1u };
+WJN_FX_API uint32_t wjn_fx_node_boundary_version(void);
+WJN_FX_API int wjn_fx_node_validate_layout(void* node);
+/* The returned UTF-8 name is owned by the node until its next mutation. */
+WJN_FX_API const char* wjn_fx_node_client_name(void* node);
+WJN_FX_API int wjn_fx_node_set_client_name(void* node, const char* utf8Name);
 enum { WJN_FX_PARAMETER_SNAPSHOT_VERSION = 1u };
 typedef struct WjnFxParameterSnapshotHeader {
     uint32_t formatVersion;
