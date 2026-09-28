@@ -124,10 +124,11 @@ bool validMeta(const QByteArray& bytes, QJsonObject* meta, QString* error) {
     *meta = document.object();
     if (meta->value("formatVersion").toInt(-1) != 1 || meta->value("themeApiVersion").toInt(-1) != 1)
         return fail(error, "unsupported theme format/API version");
-    const QRegularExpression idPattern(QStringLiteral("^[a-z0-9]+(?:\\.[a-z0-9]+)+-[a-z0-9]+(?:-[a-z0-9]+)*$"));
     const QRegularExpression versionPattern(QStringLiteral("^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"));
     const auto id = meta->value("id").toString();
-    if (id.size() < 3 || id.size() > 128 || !idPattern.match(id).hasMatch())
+    if (id.trimmed().isEmpty() || id != id.trimmed() || id.size() > 128
+        || id.contains(QChar::Null) || id.contains(QLatin1Char('/'))
+        || id.contains(QLatin1Char('\\')))
         return fail(error, "invalid theme id");
     const auto version = meta->value("version").toString();
     if (!versionPattern.match(version).hasMatch()) return fail(error, "invalid theme version");
@@ -448,11 +449,11 @@ bool ThemePackage::loadFromDirectory(const QString& path, ThemePackage* result, 
         const auto directory = info.isDir();
         auto logical = QDir::fromNativeSeparators(root.relativeFilePath(info.absoluteFilePath()));
         if (directory) logical += '/';
-        if (!directory && QStringList {QStringLiteral("README.md"), QStringLiteral("AGENTS.md"),
-                                       QStringLiteral("Theme-Customization.md"),
-                                       QStringLiteral("build_theme.py"),
-                                       QStringLiteral("winjacknexus-default.wjnskin"),
-                                       QStringLiteral("assets/.gitkeep")}.contains(logical)) continue;
+        if (!directory && ((!logical.contains('/')
+                            && (logical.endsWith(QStringLiteral(".md"), Qt::CaseInsensitive)
+                                || logical.endsWith(QStringLiteral(".wjnskin"), Qt::CaseInsensitive)
+                                || logical == QStringLiteral("build_theme.py")))
+                           || logical == QStringLiteral("assets/.gitkeep"))) continue;
         if (info.isSymLink() || !validPath(logical, directory) || !allowedEntry(logical, directory))
             return fail(error, "unsupported Dev theme entry: " + logical);
         if (entries.contains(logical) || entries.size() >= maxEntries)

@@ -47,8 +47,8 @@ add_custom_command(TARGET WinJACKNexus POST_BUILD
     COMMAND "${CMAKE_COMMAND}" -E make_directory
         "$<TARGET_FILE_DIR:WinJACKNexus>/themes"
     COMMAND "${CMAKE_COMMAND}" -E copy_directory
-        "${PROJECT_SOURCE_DIR}/themes/template"
-        "$<TARGET_FILE_DIR:WinJACKNexus>/themes/template"
+        "${PROJECT_SOURCE_DIR}/themes"
+        "$<TARGET_FILE_DIR:WinJACKNexus>/themes"
     COMMAND "${CMAKE_COMMAND}" -E rm -f
         "$<TARGET_FILE_DIR:WinJACKNexus>/themes/winjacknexus-default.wjnskin"
     COMMENT "Deploying Qt runtime dependencies for WinJACKNexus.exe"
