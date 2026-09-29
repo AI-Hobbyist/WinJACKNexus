@@ -26,12 +26,13 @@
 - Follow the repository's existing implementation and verification workflow; use TDD only when explicitly requested.
 - Finish all intended changes before running one build-and-test verification pass for the task. If that pass finds a failure, fix it and rerun only the necessary verification.
 - Build only in the repository's existing `build` directory. Do not create or use an alternate build directory.
+- Always compile the Release configuration; use crash dumps to diagnose crashes. Unless the user explicitly requests a full Release build, compile only the targets needed for the Release overlay package and package only its required runtime files.
 - The existing build tree uses the Visual Studio 18 2026 generator. Use its bundled CMake at `D:\Program Files\Microsoft Visual Studio\18\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe`; Qt's bundled CMake 3.30 cannot load this generator.
 - If MSBuild's C++ task stops with a duplicate `Path`/`PATH` environment-key error, compile with the Visual Studio 18 `cl.exe` using the generated project's compiler flags, then link with `link.exe` using a response file based on that target's `link.command.1.tlog`. Include `/MANIFEST:EMBED` and add `D:\Windows Kits\10\bin\10.0.26100.0\x64` to the process `PATH` so `rc.exe` is available; run the resulting UI test executable from PowerShell to complete verification.
 - Before building, check whether a process from this repository is holding build outputs. If so, stop that process, then build.
 - Run every build or test interactively in the foreground through PowerShell and pipe all output through `2>&1 | Tee-Object -FilePath "build.log"`.
 - Immediately capture and check `$LASTEXITCODE`. If it is nonzero, inspect `build.log` before proceeding.
-- When compiling VST support, keep `WJN_ENABLE_VST2=ON` and include both VST2 and VST3 targets; use the existing build tree's full `ALL_BUILD` target when the requested build is complete.
+- When compiling VST support, keep `WJN_ENABLE_VST2=ON` and include both VST2 and VST3 targets. Use the existing build tree's `ALL_BUILD` target only when the user explicitly requests a full Release build.
 - For Native Fx verification, test module loading and UI behavior only; do not require or run JACK client/port connection integration tests.
 
 ## Code navigation
