@@ -159,6 +159,12 @@ struct ThemeManager::FontState {
         QFont applicationFont = systemFont;
         if (desiredFamily != systemFont.family())
             applicationFont.setFamilies({desiredFamily, systemFont.family()});
+        // Namespace registration can refresh the theme while an FX editor is being built.
+        if (desiredFamily == currentFamily && activeHash == currentHash
+            && application->font() == applicationFont) {
+            releaseUnused(pinnedHash);
+            return;
+        }
         application->setFont(applicationFont);
         for (auto* widget : QApplication::allWidgets()) {
             if (widget->property("wjnPreserveFontFamily").toBool()) continue;
@@ -262,7 +268,9 @@ bool ThemeManager::applyToApp(QApplication* application) const {
         application = qApp;
     if (application == nullptr)
         return false;
-    application->setStyleSheet(styleSheet_);
+    // Avoid repolishing every widget for a module-only theme refresh.
+    if (application->styleSheet() != styleSheet_)
+        application->setStyleSheet(styleSheet_);
     fontState_->application = application;
     if (core_ && core_->snapshot()) {
         const auto base = core_->previewBaseSnapshot();
