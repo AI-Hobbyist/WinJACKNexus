@@ -1091,7 +1091,10 @@ void FxSettingsWindow::paintEvent(QPaintEvent* event) {
 FxSettingsWindow::~FxSettingsWindow() {
     // Child controls emit signals while QWidget tears them down. Their slots
     // capture Impl, which is destroyed before QWidget's child hierarchy.
-    QObject::disconnect(nullptr, nullptr, this, nullptr);
+    for (auto* child : findChildren<QObject*>())
+        QObject::disconnect(child, nullptr, this, nullptr);
+    if (auto* core = ThemeManager::installedThemeCore())
+        QObject::disconnect(core, nullptr, this, nullptr);
 }
 void FxSettingsWindow::setChainEnabled(bool enabled) {
     impl_->master->setChecked(enabled);

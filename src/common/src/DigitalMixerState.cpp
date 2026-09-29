@@ -371,6 +371,20 @@ bool DigitalMixerState::remove(std::uint64_t id)
     return false;
 }
 
+bool DigitalMixerState::move(std::uint64_t id, std::size_t targetIndex)
+{
+    for (auto* list : {&inputs_, &auxiliaries_}) {
+        const auto it = std::find_if(list->begin(), list->end(), [id](const auto& item) { return item.id == id; });
+        if (it == list->end()) continue;
+        if (targetIndex >= list->size()) return false;
+        const auto target = list->begin() + static_cast<std::ptrdiff_t>(targetIndex);
+        if (it < target) std::rotate(it, it + 1, target + 1);
+        else if (target < it) std::rotate(target, it, it + 1);
+        return true;
+    }
+    return false;
+}
+
 bool DigitalMixerState::setLayout(std::uint64_t id, MixerLayout layout)
 {
     auto* target = strip(id);
@@ -420,9 +434,7 @@ std::vector<MixerPortDescriptor> DigitalMixerState::ports() const
     std::vector<MixerPortDescriptor> result;
     const auto append = [&result](const MixerStripState& strip) {
         const auto labels = mixerChannelLabels(strip.layout);
-        const auto prefix = strip.kind == MixerStripKind::main ? QStringLiteral("MAIN")
-                          : QStringLiteral("%1%2").arg(strip.kind == MixerStripKind::input
-                                  ? QStringLiteral("CH") : QStringLiteral("AUX")).arg(strip.number);
+        const auto& prefix = strip.name;
         for (int channel = 0; channel < labels.size(); ++channel) {
             result.push_back({strip.id, prefix + QLatin1Char('_') + labels[channel],
                               strip.kind == MixerStripKind::input ? MixerPortDirection::input
@@ -473,6 +485,12 @@ bool DigitalMixerState::validate(QString* error) const
     }
     for (const auto& item : auxiliaries_) {
         if (!checkStrip(item, MixerStripKind::aux)) return fail(error, QStringLiteral("AUX 参数或身份无效"));
+    }
+    std::set<QString> portNames;
+    for (const auto& port : ports()) {
+        if (port.name.contains(QLatin1Char(':')) || port.name.contains(QLatin1Char('\0'))
+            || !portNames.insert(port.name).second)
+            return fail(error, QStringLiteral("通道名生成了无效或重复的 JACK 端口名"));
     }
     for (const auto* list : {&inputs_, &auxiliaries_}) {
         for (const auto& source : *list) {

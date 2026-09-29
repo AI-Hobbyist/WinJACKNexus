@@ -103,6 +103,7 @@ public:
     std::uint64_t add(MixerStripKind kind, MixerLayout layout);
     std::uint64_t clone(std::uint64_t id);
     bool remove(std::uint64_t id);
+    bool move(std::uint64_t id, std::size_t targetIndex);
     bool setLayout(std::uint64_t id, MixerLayout layout);
     bool setSend(std::uint64_t sourceId, const MixerAuxSend& send, QString* error = nullptr);
     std::vector<MixerPortDescriptor> ports() const;

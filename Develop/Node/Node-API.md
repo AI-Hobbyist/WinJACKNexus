@@ -43,6 +43,13 @@ restore prevents the patchbay from creating that saved node. The main
 with a direct `settings` object remain readable. Keep the decoded JSON as the
 module's settings format; Base64 is only the outer project representation.
 
+The Digital Mixer stores input and AUX strips in visual left-to-right order
+in its settings arrays. Its JACK short port names are `<strip name>_<channel>`;
+the independent monitor ports remain `MONITOR_<channel>`. Reordering strips
+changes patchbay pin order without replacing their JACK ports. Renaming a
+strip renames its existing JACK ports in place so live connections remain
+attached to the same strip and channel.
+
 The patchbay also probes optional host-specific exports such as
 `wjn_prepare_node_for_canvas`, `wjn_show_node_gui` and
 `wjn_get_node_client_id`. Modules that do not provide them must still work

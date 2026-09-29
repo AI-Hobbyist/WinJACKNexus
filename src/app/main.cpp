@@ -24,6 +24,7 @@
 #include <WinJACKNexus/Audio/JackClient.hpp>
 #include <WinJACKNexus/Audio/JackServerGuard.hpp>
 #include <WinJACKNexus/Common/Logger.hpp>
+#include <WinJACKNexus/Common/PathUtils.hpp>
 #include <WinJACKNexus/Node/NodeApi.h>
 
 #include <QApplication>
@@ -66,6 +67,7 @@
 
 #include <Windows.h>
 #include <TlHelp32.h>
+#include <DbgHelp.h>
 
 #include <algorithm>
 #include <cstdint>
@@ -74,8 +76,43 @@
 #include <memory>
 #include <thread>
 #include <vector>
+#include <cwchar>
+#include <string>
 
 namespace {
+
+wchar_t crashDumpDirectory[MAX_PATH] {};
+
+LONG WINAPI writeCrashDump(EXCEPTION_POINTERS* exception) noexcept
+{
+    SYSTEMTIME now {};
+    GetLocalTime(&now);
+    wchar_t path[MAX_PATH + 128] {};
+    std::swprintf(path, std::size(path), L"%ls\\WinJACKNexus-%04u%02u%02u-%02u%02u%02u-%03u-%lu.dmp",
+        crashDumpDirectory,
+        static_cast<unsigned>(now.wYear), static_cast<unsigned>(now.wMonth),
+        static_cast<unsigned>(now.wDay), static_cast<unsigned>(now.wHour),
+        static_cast<unsigned>(now.wMinute), static_cast<unsigned>(now.wSecond),
+        static_cast<unsigned>(now.wMilliseconds), GetCurrentProcessId());
+    const auto file = CreateFileW(path, GENERIC_WRITE, FILE_SHARE_READ, nullptr,
+                                  CREATE_NEW, FILE_ATTRIBUTE_NORMAL, nullptr);
+    if (file != INVALID_HANDLE_VALUE) {
+        const auto dbghelp = LoadLibraryW(L"DbgHelp.dll");
+        if (dbghelp) {
+            const auto write = reinterpret_cast<decltype(&MiniDumpWriteDump)>(
+                GetProcAddress(dbghelp, "MiniDumpWriteDump"));
+            if (write) {
+                MINIDUMP_EXCEPTION_INFORMATION info { GetCurrentThreadId(), exception, FALSE };
+                write(GetCurrentProcess(), GetCurrentProcessId(), file,
+                      static_cast<MINIDUMP_TYPE>(MiniDumpWithIndirectlyReferencedMemory
+                          | MiniDumpWithThreadInfo), &info, nullptr, nullptr);
+            }
+            FreeLibrary(dbghelp);
+        }
+        CloseHandle(file);
+    }
+    return EXCEPTION_EXECUTE_HANDLER;
+}
 
 void logQtMessage(QtMsgType type, const QMessageLogContext& context, const QString& message)
 {
@@ -862,6 +899,9 @@ int main(int argc, char* argv[])
 {
     auto& logger = WinJACKNexus::Common::Logger::instance();
     logger.flush();
+    const auto dumpDirectory = WinJACKNexus::Common::PathUtils::logDirectory().wstring();
+    wcsncpy_s(crashDumpDirectory, dumpDirectory.c_str(), _TRUNCATE);
+    SetUnhandledExceptionFilter(&writeCrashDump);
     const auto instanceMutex = CreateMutexW(nullptr, TRUE, L"Local\\WinJACKNexus.SingleInstance");
     if (instanceMutex == nullptr || GetLastError() == ERROR_ALREADY_EXISTS) {
         if (instanceMutex != nullptr)

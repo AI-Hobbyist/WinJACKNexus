@@ -1355,6 +1355,31 @@ public:
         return false;
     }
 
+    bool moveChannel(int from, int to)
+    {
+        if (from == to || from < 0 || to < 0 || from >= masterIndex() || to >= masterIndex()
+            || (from < inputChannelCount) != (to < inputChannelCount)) return false;
+        if (model) {
+            auto candidate = *model;
+            const auto index = to < inputChannelCount ? to : to - inputChannelCount;
+            if (!candidate.move(channels[from].modelId, static_cast<std::size_t>(index))
+                || !commitTopology(candidate)) return false;
+        }
+        const auto first = channels.begin() + std::min(from, to);
+        const auto last = channels.begin() + std::max(from, to) + 1;
+        if (from < to) std::rotate(first, first + 1, last);
+        else std::rotate(first, last - 1, last);
+        if (from >= inputChannelCount) {
+            auto& buses = auxState->buses();
+            const auto busFirst = buses.begin() + std::min(from, to) - inputChannelCount;
+            const auto busLast = buses.begin() + std::max(from, to) - inputChannelCount + 1;
+            if (from < to) std::rotate(busFirst, busFirst + 1, busLast);
+            else std::rotate(busFirst, busLast - 1, busLast);
+        }
+        owner.update();
+        return true;
+    }
+
     bool commitChannel(Channel& channel)
     {
         if (!model || !channel.modelId) return true;
@@ -2195,12 +2220,16 @@ public:
         const auto found=std::find_if(channels.cbegin(),channels.cend(),[this](const Channel& c){return c.id==selectedChannelId;});
         if(found==channels.cend())return;
         auto* fx=fxSettingsFor(static_cast<int>(std::distance(channels.cbegin(),found)));
-        if(fx->parentWidget()!=selFxPage){
-            auto* oldItem=selFxPage->layout()->itemAt(0);
-            if(auto* old=oldItem?dynamic_cast<FxSettingsWindow*>(oldItem->widget()):nullptr){
-                selFxPage->layout()->removeWidget(old);old->hide();old->setParent(&owner,Qt::Window);
+        auto* oldItem=selFxPage->layout()->itemAt(0);
+        auto* current=oldItem?oldItem->widget():nullptr;
+        if(current!=fx){
+            if(current){
+                selFxPage->layout()->removeWidget(current);
+                current->hide();
             }
-            fx->hide();fx->setParent(selFxPage,Qt::Widget);selFxPage->layout()->addWidget(fx);
+            fx->hide();
+            fx->setParent(selFxPage,Qt::Widget);
+            selFxPage->layout()->addWidget(fx);
         }
         fx->show();
     }
@@ -2478,6 +2507,8 @@ public:
     QElapsedTimer meterFrameClock;
     QElapsedTimer meterReadoutClock;
     int dragging = -1;
+    int reordering = -1;
+    int reorderTarget = -1;
     int scrollbarDragging = 0;
     bool groupDividerDragging = false;
     qreal scrollbarDragOffset = 0.0;
@@ -2582,7 +2613,8 @@ MixerWindow::MixerWindow(Common::DigitalMixerState* state, TopologyCommit commit
 
 MixerWindow::~MixerWindow()
 {
-    QObject::disconnect(nullptr, nullptr, this, nullptr);
+    for (auto* child : findChildren<QObject*>())
+        QObject::disconnect(child, nullptr, this, nullptr);
     // FX editors and AUX controls have callbacks into Impl. Destroy those
     // children while the model and callbacks they reference are still alive.
     for (auto& [id, window] : impl_->fxSettingsWindows)
@@ -2714,6 +2746,13 @@ void MixerWindow::paintEvent(QPaintEvent*)
         }
         const auto& channel = impl_->channels[index];
         const auto card = impl_->channelRect(index);
+        if (impl_->reordering >= 0 && index == impl_->reorderTarget
+            && index != impl_->reordering) {
+            painter.setPen(QPen(themed("group-divider", QColor("#45bfff")), 2));
+            const auto edge = index > impl_->reordering ? card.right() - 2 : card.left() + 2;
+            painter.drawLine(QPointF(edge, card.top() + headerHeight),
+                             QPointF(edge, card.bottom()));
+        }
         if (index != 0 && index != impl_->inputChannelCount && index != impl_->masterIndex()) {
             painter.setPen(QPen(themed("group-divider",QColor("#243c57")), 1));
             painter.drawLine(QPointF(card.left(), card.top() + headerHeight), QPointF(card.left(), card.bottom()));
@@ -2962,6 +3001,15 @@ void MixerWindow::mousePressEvent(QMouseEvent* event)
 
     const auto card = impl_->channelRect(index);
     const auto heightScale = std::clamp(height() / 768.0, .72, 1.35);
+    const auto titleTop = card.top() + 42.0 * heightScale;
+    if (index != impl_->masterIndex()
+        && QRectF(card.left(), titleTop, card.width(), 43.0 * heightScale)
+               .contains(event->position())) {
+        impl_->reordering = index;
+        impl_->reorderTarget = index;
+        setCursor(Qt::ClosedHandCursor);
+        return;
+    }
     const auto fader=impl_->faderTrack(index);
     const QRectF readout(card.left(),fader.bottom()+10*heightScale,
                          card.width(),27*heightScale);
@@ -3003,6 +3051,7 @@ void MixerWindow::mousePressEvent(QMouseEvent* event)
     else if (impl_->selectButtonRect(index, heightScale).contains(event->position())) {
         impl_->selectChannel(index);
         impl_->showLargeScreen();
+        return;
     }
     else if (index != impl_->masterIndex() && impl_->mixButtonRect(index, heightScale).contains(event->position()))
         channel.mixToMain = !channel.mixToMain;
@@ -3055,6 +3104,25 @@ void MixerWindow::mouseDoubleClickEvent(QMouseEvent* event)
 
 void MixerWindow::mouseMoveEvent(QMouseEvent* event)
 {
+    if (impl_->reordering >= 0 && (event->buttons() & Qt::LeftButton)) {
+        const auto from = impl_->reordering;
+        const auto first = from < impl_->inputChannelCount ? 0 : impl_->inputChannelCount;
+        const auto end = from < impl_->inputChannelCount
+            ? impl_->inputChannelCount : impl_->masterIndex();
+        const auto viewport = from < impl_->inputChannelCount
+            ? impl_->inputViewport() : impl_->auxViewport();
+        if (viewport.contains(event->position())) {
+            int target = first;
+            for (int index = first; index < end; ++index) {
+                if (event->position().x() >= impl_->channelRect(index).center().x()) target = index;
+            }
+            if (impl_->reorderTarget != target) {
+                impl_->reorderTarget = target;
+                update();
+            }
+        }
+        return;
+    }
     if (impl_->groupDividerDragging && (event->buttons() & Qt::LeftButton)) {
         impl_->setInputRatioFromPosition(event->position().x() - Impl::groupGap / 2.0);
         update();
@@ -3095,8 +3163,17 @@ void MixerWindow::mouseMoveEvent(QMouseEvent* event)
     impl_->commitChannel(impl_->channels[impl_->dragging]);
 }
 
-void MixerWindow::mouseReleaseEvent(QMouseEvent*)
+void MixerWindow::mouseReleaseEvent(QMouseEvent* event)
 {
+    if (impl_->reordering >= 0 && event->button() == Qt::LeftButton) {
+        const auto from = impl_->reordering;
+        const auto to = impl_->reorderTarget;
+        impl_->reordering = -1;
+        impl_->reorderTarget = -1;
+        if (to >= 0) impl_->moveChannel(from, to);
+        unsetCursor();
+        update();
+    }
     impl_->dragging = -1;
     impl_->scrollbarDragging = 0;
     impl_->groupDividerDragging = false;

@@ -1966,9 +1966,7 @@ public:
 						return port.stripId == mixerState.main().id ? 0 : port.stripId == 0 ? 1 : 2;
 					};
 					std::stable_sort(orderedPorts.begin(), orderedPorts.end(), [&](const auto& left, const auto& right) {
-						if (priority(left) != priority(right)) return priority(left) < priority(right);
-						if (left.stripId != right.stripId) return left.stripId < right.stripId;
-						return left.channelIndex < right.channelIndex;
+						return priority(left) < priority(right);
 					});
 					for (std::uint32_t index = 0; index < orderedPorts.size(); ++index)
 						portOrder.emplace(orderedPorts[index].name.toStdString(), index);
@@ -2030,7 +2028,17 @@ public:
 					return true;
 				return applyJackSnapshot(std::move(snapshot));
 			};
-			auto refreshPendingJackGraph = [this, refreshJackGraph, pollJackGraph] {
+			auto lastMixerSettings = std::make_shared<std::unordered_map<std::string, std::string>>();
+			auto refreshPendingJackGraph = [this, refreshJackGraph, pollJackGraph, lastMixerSettings] {
+				std::unordered_map<std::string, std::string> currentMixerSettings;
+				for (const auto& node : loadedModuleNodes_) {
+					if (isDigitalMixerModule(node->modulePath()) && node->hasClient())
+						currentMixerSettings.emplace(node->clientId(), node->settingsJson());
+				}
+				if (currentMixerSettings != *lastMixerSettings) {
+					if (refreshJackGraph()) *lastMixerSettings = std::move(currentMixerSettings);
+					return;
+				}
 				if (!graphOrderCallbackRegistered_) {
 					pollJackGraph();
 					return;

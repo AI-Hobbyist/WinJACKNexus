@@ -147,4 +147,10 @@ std::size_t JackPort::visitConnections(JackPortNameVisitor visitor, void* userDa
     return count;
 }
 
+bool JackPort::rename(const char* shortName) noexcept
+{
+    return client_ != nullptr && client_->isOpen() && port_ != nullptr && shortName != nullptr
+        && JackApi::instance().portRename(client_->nativeHandle(), port_, shortName) == 0;
+}
+
 }

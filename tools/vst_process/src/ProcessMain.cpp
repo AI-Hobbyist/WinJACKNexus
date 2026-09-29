@@ -67,6 +67,14 @@ constexpr int kPluginLoadError = 2;
 constexpr int kJackError = 3;
 constexpr std::string_view kVst3AudioModuleClass = "Audio Module Class";
 constexpr std::int32_t kMaxMidiEventsPerBlock = 1024;
+
+DWORD WINAPI watchParentProcess(void* context)
+{
+    const auto handle = static_cast<HANDLE>(context);
+    WaitForSingleObject(handle, INFINITE);
+    CloseHandle(handle);
+    ExitProcess(kArgumentError);
+}
 const Steinberg::FUID kIPlugFrameIid(0x367FAF01, 0xAFA94693, 0x8D4DA2A0, 0xED0882A3);
 
 #if WJN_ENABLE_VST2
@@ -103,6 +111,7 @@ struct Options final {
     std::wstring path;
     std::wstring clientName { L"WinJACKNexus-VST" };
     std::wstring pipeName;
+    DWORD parentPid {};
     std::wstring internalPlugin;
     std::wstring portDisplayMode { L"default" };
     VstInt32 bypassInputs {};
@@ -121,6 +130,7 @@ void printUsage()
                << L"|plugin.dll"
 #endif
                << L"> --pipe <name> [--client <name>]"
+               << L" [--parent-pid <pid>]"
                << L" [--internal_plugin <name>] [--bypass --bypass-inputs <count> --bypass-outputs <count> --bypass-midi-inputs <count>]\n";
 }
 
@@ -155,6 +165,17 @@ bool parseOptions(int argc, wchar_t* argv[], Options& options)
         if (argument == L"--pipe" || argument == L"--port") {
             if (!readOptionValue(index, argc, argv, options.pipeName))
                 return false;
+            continue;
+        }
+        if (argument == L"--parent-pid") {
+            std::wstring value;
+            if (!readOptionValue(index, argc, argv, value)) return false;
+            try {
+                std::size_t used = 0;
+                const auto parsed = std::stoull(value, &used);
+                if (used != value.size() || parsed == 0 || parsed > MAXDWORD) return false;
+                options.parentPid = static_cast<DWORD>(parsed);
+            } catch (...) { return false; }
             continue;
         }
         if (argument == L"--internal_plugin") {
@@ -2250,6 +2271,16 @@ int wmain(int argc, wchar_t* argv[])
         std::wcerr << L"VSTProcess requires --pipe so its JACK client has a controlled lifetime.\n";
         printUsage();
         return kArgumentError;
+    }
+    if (options.parentPid != 0) {
+        const auto parent = OpenProcess(SYNCHRONIZE, FALSE, options.parentPid);
+        if (!parent) return kArgumentError;
+        const auto watcher = CreateThread(nullptr, 0, &watchParentProcess, parent, 0, nullptr);
+        if (!watcher) {
+            CloseHandle(parent);
+            return kArgumentError;
+        }
+        CloseHandle(watcher);
     }
     const auto extension = std::filesystem::path(options.path).extension().wstring();
     std::unique_ptr<AudioPlugin> plugin;

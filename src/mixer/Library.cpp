@@ -1,6 +1,7 @@
 /* This file is part of WinJACKNexus. SPDX-License-Identifier: AGPL-3.0-only */
 #include <WinJACKNexus/Common/DigitalMixerState.hpp>
 #include <WinJACKNexus/Common/DigitalMixerProcessor.hpp>
+#include <WinJACKNexus/Common/Logger.hpp>
 #include <WinJACKNexus/Audio/JackClient.hpp>
 #include <WinJACKNexus/Audio/JackPort.hpp>
 #include <WinJACKNexus/Node/NodeApi.h>
@@ -399,8 +400,9 @@ private:
         std::vector<PortSlot*> inputs, outputs;
         for (const auto& descriptor : desired) {
             const auto match = std::find_if(ports_.begin(), ports_.end(), [&descriptor](const PortSlot& slot) {
-                return slot.descriptor.name == descriptor.name
-                    && slot.descriptor.direction == descriptor.direction;
+                return slot.descriptor.stripId == descriptor.stripId
+                    && slot.descriptor.direction == descriptor.direction
+                    && slot.descriptor.channelIndex == descriptor.channelIndex;
             });
             if (match == ports_.end()) return false;
             (descriptor.direction == WinJACKNexus::Common::MixerPortDirection::input
@@ -426,17 +428,60 @@ private:
         const auto resume = [this, wasActive, keepPaused] {
             if (wasActive && !keepPaused) switchingPorts_.store(false, std::memory_order_release);
         };
+        const auto samePort = [](const auto& left, const auto& right) {
+            return left.stripId == right.stripId && left.direction == right.direction
+                && left.channelIndex == right.channelIndex;
+        };
+        struct Rename {
+            std::size_t index;
+            QString oldName;
+            QString temporaryName;
+            QString newName;
+            bool finalNameSet {};
+        };
+        std::vector<Rename> renames;
+        for (std::size_t index = 0; index < ports_.size(); ++index) {
+            const auto wanted = std::find_if(desired.cbegin(), desired.cend(), [&, index](const auto& item) {
+                return samePort(ports_[index].descriptor, item);
+            });
+            if (wanted == desired.cend() || wanted->name == ports_[index].descriptor.name) continue;
+            const auto temporary = QStringLiteral("__wjn_tmp_%1_%2")
+                .arg(static_cast<qulonglong>(reinterpret_cast<std::uintptr_t>(this)), 0, 16)
+                .arg(static_cast<qulonglong>(index));
+            renames.push_back({index, ports_[index].descriptor.name, temporary, wanted->name});
+        }
+        const auto rollback = [&] {
+            // Free all final names first, including when two existing ports swap names.
+            for (auto& rename : renames) {
+                if (!rename.finalNameSet) continue;
+                if (!ports_[rename.index].port.rename(rename.temporaryName.toUtf8().constData()))
+                    WJN_LOG_ERROR("Unable to restore temporary mixer port name");
+                rename.finalNameSet = false;
+            }
+            for (auto& rename : renames) {
+                const auto current = QString::fromUtf8(ports_[rename.index].port.shortName());
+                if (current != rename.temporaryName) continue;
+                if (!ports_[rename.index].port.rename(rename.oldName.toUtf8().constData()))
+                    WJN_LOG_ERROR("Unable to restore original mixer port name");
+            }
+        };
+        for (auto& rename : renames) {
+            if (ports_[rename.index].port.rename(rename.temporaryName.toUtf8().constData())) continue;
+            rollback();
+            resume();
+            return false;
+        }
         std::vector<PortSlot> added;
         for (const auto& descriptor : desired) {
-            const bool exists = std::any_of(ports_.cbegin(), ports_.cend(), [&descriptor](const auto& slot) {
-                return slot.descriptor.name == descriptor.name
-                    && slot.descriptor.direction == descriptor.direction;
+            const bool exists = std::any_of(ports_.cbegin(), ports_.cend(), [&descriptor, &samePort](const auto& slot) {
+                return samePort(slot.descriptor, descriptor);
             });
             if (exists) continue;
 #if defined(_DEBUG)
             if (registrationFailureCountdown_ == 0) {
                 registrationFailureCountdown_ = -1;
                 added.clear();
+                rollback();
                 resume();
                 return false;
             }
@@ -449,18 +494,36 @@ private:
                 ? JackPortIsInput : JackPortIsOutput;
             if (!slot.port.registerPort(client_, utf8.constData(), JACK_DEFAULT_AUDIO_TYPE, flags)) {
                 added.clear();
+                rollback();
                 resume();
                 return false;
             }
             added.push_back(std::move(slot));
         }
-        // The callback is quiescent. Keep identical JackPort objects so JACK
-        // connections attached to unchanged names survive a topology edit.
+        for (auto& rename : renames) {
+            if (!ports_[rename.index].port.rename(rename.newName.toUtf8().constData())) {
+                added.clear();
+                rollback();
+                resume();
+                return false;
+            }
+            rename.finalNameSet = true;
+        }
+        // Keep each native JACK port for the same strip and channel. Renaming the
+        // native port preserves its existing connections.
         ports_.erase(std::remove_if(ports_.begin(), ports_.end(), [&desired](const auto& slot) {
             return std::none_of(desired.cbegin(), desired.cend(), [&slot](const auto& wanted) {
-                return wanted.name == slot.descriptor.name && wanted.direction == slot.descriptor.direction;
+                return wanted.stripId == slot.descriptor.stripId
+                    && wanted.direction == slot.descriptor.direction
+                    && wanted.channelIndex == slot.descriptor.channelIndex;
             });
         }), ports_.end());
+        for (auto& slot : ports_) {
+            const auto wanted = std::find_if(desired.cbegin(), desired.cend(), [&](const auto& item) {
+                return samePort(slot.descriptor, item);
+            });
+            slot.descriptor = *wanted;
+        }
         for (auto& slot : added) ports_.push_back(std::move(slot));
         resume();
         return true;

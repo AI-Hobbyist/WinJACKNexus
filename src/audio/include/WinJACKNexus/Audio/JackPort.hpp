@@ -40,6 +40,7 @@ public:
                       unsigned long flags,
                       unsigned long bufferSize = 0) noexcept;
     bool unregisterPort() noexcept;
+    bool rename(const char* shortName) noexcept;
 
     bool isValid() const noexcept;
     jack_port_t* nativeHandle() const noexcept;

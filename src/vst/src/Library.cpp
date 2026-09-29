@@ -567,6 +567,7 @@ private:
         expectedClientId_ = sandboxClientName(pluginName, instanceId_);
         QStringList arguments { QStringLiteral("--path"), path_,
                                 QStringLiteral("--pipe"), pipeName_,
+                                QStringLiteral("--parent-pid"), QString::number(QCoreApplication::applicationPid()),
                                 QStringLiteral("--client"), expectedClientId_,
                                 QStringLiteral("--port-display"), portDisplayModeArgument(portDisplayMode_) };
         if (!internalPlugin_.isEmpty())
