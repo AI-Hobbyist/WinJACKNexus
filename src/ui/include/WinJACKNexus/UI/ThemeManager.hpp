@@ -72,6 +72,7 @@ Q_SIGNALS:
 
 private:
     struct FontState;
+    void applyFontToApp(QApplication* application) const;
     void resetVariables();
     void rebuildStyleSheet();
     void notifyThemeChanged();
@@ -89,6 +90,8 @@ private:
     QMetaObject::Connection previewConnection_;
     std::shared_ptr<FontState> fontState_;
     bool applicationOwner_ = false;
+    mutable bool applicationThemeApplied_ = false;
+    mutable QString lastAppliedStyleSheet_;
 };
 
 }

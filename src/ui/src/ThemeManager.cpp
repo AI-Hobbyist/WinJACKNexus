@@ -268,9 +268,15 @@ bool ThemeManager::applyToApp(QApplication* application) const {
         application = qApp;
     if (application == nullptr)
         return false;
-    // Avoid repolishing every widget for a module-only theme refresh.
     if (application->styleSheet() != styleSheet_)
         application->setStyleSheet(styleSheet_);
+    applicationThemeApplied_ = true;
+    lastAppliedStyleSheet_ = styleSheet_;
+    applyFontToApp(application);
+    return true;
+}
+
+void ThemeManager::applyFontToApp(QApplication* application) const {
     fontState_->application = application;
     if (core_ && core_->snapshot()) {
         const auto base = core_->previewBaseSnapshot();
@@ -279,7 +285,6 @@ bool ThemeManager::applyToApp(QApplication* application) const {
         fontState_->apply(application, *core_->snapshot(),
             pinned.isEmpty() ? QByteArray {} : QCryptographicHash::hash(pinned, QCryptographicHash::Sha256));
     }
-    return true;
 }
 
 bool ThemeManager::applyToWidget(QWidget* widget) const {
@@ -299,6 +304,8 @@ bool ThemeManager::applyToWidget(QWidget* widget) const {
 void ThemeManager::watchApplication(QApplication* application) {
     fontState_->application = application;
     applicationOwner_ = application != nullptr;
+    applicationThemeApplied_ = false;
+    lastAppliedStyleSheet_.clear();
 }
 
 void ThemeManager::bindThemeCore(ThemeCore* core) {
@@ -329,8 +336,13 @@ void ThemeManager::syncSnapshot(bool applyApplication) {
     themeName_ = snapshot->themeId();
     resetVariables();
     rebuildStyleSheet();
-    if (applyApplication && applicationOwner_ && fontState_->application)
-        applyToApp(fontState_->application);
+    if (applyApplication && applicationOwner_ && fontState_->application) {
+        // Other modules may own the current QApplication QSS; compare our own last applied value.
+        if (!applicationThemeApplied_ || styleSheet_ != lastAppliedStyleSheet_)
+            applyToApp(fontState_->application);
+        else
+            applyFontToApp(fontState_->application);
+    }
     notifyThemeChanged();
 }
 
