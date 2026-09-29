@@ -21,6 +21,7 @@
 #include <WinJACKNexus/Audio/JackPort.hpp>
 #include <WinJACKNexus/Common/Logger.hpp>
 #include <WinJACKNexus/Common/PathUtils.hpp>
+#include <WinJACKNexus/Common/DigitalMixerState.hpp>
 #include <WinJACKNexus/Patchbay/Core/Snapshot.hpp>
 #include <WinJACKNexus/UI/ApplicationSettings.hpp>
 #include <WinJACKNexus/UI/Controls.hpp>
@@ -1955,6 +1956,28 @@ public:
 				preserveLoadedModuleClients(previousSnapshot, snapshot, loadedModuleNodes_);
 				preserveOfflineJackRecords(previousSnapshot, snapshot, reboundClients);
 				mergeReboundConnections(previousSnapshot, snapshot, reboundClients);
+				for (const auto& node : loadedModuleNodes_) {
+					if (!isDigitalMixerModule(node->modulePath()) || !node->hasClient()) continue;
+					WinJACKNexus::Common::DigitalMixerState mixerState;
+					if (!mixerState.loadJson(QByteArray::fromStdString(node->settingsJson()))) continue;
+					std::unordered_map<std::string, std::uint32_t> portOrder;
+					auto orderedPorts = mixerState.ports();
+					const auto priority = [&mixerState](const auto& port) {
+						return port.stripId == mixerState.main().id ? 0 : port.stripId == 0 ? 1 : 2;
+					};
+					std::stable_sort(orderedPorts.begin(), orderedPorts.end(), [&](const auto& left, const auto& right) {
+						if (priority(left) != priority(right)) return priority(left) < priority(right);
+						if (left.stripId != right.stripId) return left.stripId < right.stripId;
+						return left.channelIndex < right.channelIndex;
+					});
+					for (std::uint32_t index = 0; index < orderedPorts.size(); ++index)
+						portOrder.emplace(orderedPorts[index].name.toStdString(), index);
+					for (auto& port : snapshot.ports) {
+						if (port.clientId != node->clientId()) continue;
+						const auto position = portOrder.find(port.name);
+						if (position != portOrder.end()) port.ordinal = position->second;
+					}
+				}
 				for (const auto& client : snapshot.clients)
 					knownJackClients_.insert(client.name);
 				std::unordered_set<std::string> childModuleClients;
@@ -2685,19 +2708,14 @@ public:
 			auto* helpMenu = window_->menuBar()->addMenu(QStringLiteral("帮助"));
 			helpMenu->addAction(QStringLiteral("日志跟踪"), window_, [window = window_.data()] {
 				WinJACKNexus::Common::Logger::instance().flush();
-				const auto logPath = WinJACKNexus::Common::PathUtils::logDirectory() / L"WinJACKNexus.log";
-				const auto filePath = QString::fromStdWString(logPath.wstring());
-				if (!QFileInfo::exists(filePath)) {
-					QMessageBox::information(window, QStringLiteral("日志跟踪"),
-						QStringLiteral("日志文件尚未生成，请先在全局设置中开启详细日志跟踪。"));
-					return;
-				}
-				WJN_LOG_INFO("Opening diagnostic log path=%s", filePath.toUtf8().constData());
+				const auto directory = QString::fromStdWString(
+					WinJACKNexus::Common::PathUtils::logDirectory().wstring());
+				WJN_LOG_INFO("Opening diagnostic log directory=%s", directory.toUtf8().constData());
 				WinJACKNexus::Common::Logger::instance().flush();
-				if (!QDesktopServices::openUrl(QUrl::fromLocalFile(filePath))) {
-					WJN_LOG_ERROR("Failed to open diagnostic log path=%s", filePath.toUtf8().constData());
+				if (!QDesktopServices::openUrl(QUrl::fromLocalFile(directory))) {
+					WJN_LOG_ERROR("Failed to open diagnostic log directory=%s", directory.toUtf8().constData());
 					QMessageBox::warning(window, QStringLiteral("日志跟踪"),
-						QStringLiteral("无法用系统默认程序打开日志文件。\n%1").arg(filePath));
+						QStringLiteral("无法打开日志文件夹。\n%1").arg(directory));
 				}
 			});
 			helpMenu->addAction(QStringLiteral("关于"), window_, [window = window_.data()] {

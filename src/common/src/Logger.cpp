@@ -26,6 +26,8 @@
 #include <atomic>
 #include <cstdarg>
 #include <cstdio>
+#include <cwchar>
+#include <filesystem>
 #include <fstream>
 #include <mutex>
 #include <string>
@@ -128,9 +130,11 @@ struct Logger::Impl final {
     std::atomic<LogSink> sink { nullptr };
     std::atomic<void*> sinkUserData { nullptr };
     std::atomic<bool> fileLoggingEnabled { true };
+    std::atomic<bool> detailedLoggingEnabled { true };
     std::atomic<std::size_t> dropped { 0 };
     std::mutex fileMutex;
     std::ofstream file;
+    std::filesystem::path filePath;
 };
 
 Logger& Logger::instance() noexcept
@@ -142,6 +146,25 @@ Logger& Logger::instance() noexcept
 Logger::Logger()
     : impl_(new Impl {})
 {
+    try {
+        SYSTEMTIME now;
+        GetLocalTime(&now);
+        wchar_t name[96] {};
+        std::swprintf(name, std::size(name), L"WinJACKNexus-%04u%02u%02u-%02u%02u%02u-%03u-%lu.log",
+            static_cast<unsigned>(now.wYear), static_cast<unsigned>(now.wMonth),
+            static_cast<unsigned>(now.wDay), static_cast<unsigned>(now.wHour),
+            static_cast<unsigned>(now.wMinute), static_cast<unsigned>(now.wSecond),
+            static_cast<unsigned>(now.wMilliseconds), GetCurrentProcessId());
+        impl_->filePath = PathUtils::logDirectory() / name;
+        impl_->file.open(impl_->filePath, std::ios::out | std::ios::trunc);
+        if (impl_->file.is_open()) {
+            impl_->file << "[" << now.wYear << '-' << now.wMonth << '-' << now.wDay
+                << ' ' << now.wHour << ':' << now.wMinute << ':' << now.wSecond
+                << "] [INFO] Process entry pid=" << GetCurrentProcessId() << '\n';
+            impl_->file.flush();
+        }
+    } catch (...) {
+    }
 }
 
 Logger::~Logger() noexcept
@@ -152,6 +175,8 @@ Logger::~Logger() noexcept
 
 void Logger::log(LogLevel level, const char* format, ...) noexcept
 {
+    if (level == LogLevel::trace && !impl_->detailedLoggingEnabled.load(std::memory_order_acquire))
+        return;
     LogRecord record;
     record.timestamp = CpuClock::now();
     record.level = level;
@@ -182,8 +207,8 @@ std::size_t Logger::drain(std::size_t maxRecords) noexcept
                     ++count;
                     continue;
                 }
-                if (!impl_->file.is_open())
-                    impl_->file.open(PathUtils::logDirectory() / L"WinJACKNexus.log", std::ios::app);
+                if (!impl_->file.is_open() && !impl_->filePath.empty())
+                    impl_->file.open(impl_->filePath, std::ios::app);
                 if (impl_->file.is_open()) {
                     SYSTEMTIME now;
                     GetLocalTime(&now);
@@ -226,6 +251,11 @@ void Logger::setFileLoggingEnabled(bool enabled) noexcept
         std::lock_guard lock(impl_->fileMutex);
         if (impl_->file.is_open()) impl_->file.close();
     }
+}
+
+void Logger::setDetailedLoggingEnabled(bool enabled) noexcept
+{
+    impl_->detailedLoggingEnabled.store(enabled, std::memory_order_release);
 }
 
 std::size_t Logger::pendingCount() const noexcept

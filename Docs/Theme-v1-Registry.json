@@ -884,7 +884,7 @@
       "name": "--wjn-theme-mixer-monitor-meter-low-active",
       "ownerScope": "mixer",
       "type": "color",
-      "default": "#e6bb31",
+      "default": "#2bce75",
       "inherits": [],
       "description": "mixer / monitor meter low active"
     },
@@ -892,7 +892,7 @@
       "name": "--wjn-theme-mixer-monitor-meter-low-inactive",
       "ownerScope": "mixer",
       "type": "color",
-      "default": "#453c1b",
+      "default": "#163e2e",
       "inherits": [],
       "description": "mixer / monitor meter low inactive"
     },
@@ -900,7 +900,7 @@
       "name": "--wjn-theme-mixer-monitor-meter-mid-active",
       "ownerScope": "mixer",
       "type": "color",
-      "default": "#ffe15a",
+      "default": "#f4cd42",
       "inherits": [],
       "description": "mixer / monitor meter mid active"
     },
@@ -916,7 +916,7 @@
       "name": "--wjn-theme-mixer-monitor-meter-high-active",
       "ownerScope": "mixer",
       "type": "color",
-      "default": "#ffec89",
+      "default": "#f35656",
       "inherits": [],
       "description": "mixer / monitor meter high active"
     },
@@ -924,7 +924,7 @@
       "name": "--wjn-theme-mixer-monitor-meter-high-inactive",
       "ownerScope": "mixer",
       "type": "color",
-      "default": "#50471f",
+      "default": "#4c242a",
       "inherits": [],
       "description": "mixer / monitor meter high inactive"
     },
@@ -1335,10 +1335,34 @@
       "description": "sel-main / monitor border"
     },
     {
+      "name": "--wjn-theme-sel-main-monitor-meter-disabled-surface",
+      "ownerScope": "sel-main",
+      "type": "color",
+      "default": "#172538",
+      "inherits": [],
+      "description": "sel-main / monitor meter disabled surface"
+    },
+    {
+      "name": "--wjn-theme-sel-main-monitor-meter-disabled-border",
+      "ownerScope": "sel-main",
+      "type": "color",
+      "default": "#34475b",
+      "inherits": [],
+      "description": "sel-main / monitor meter disabled border"
+    },
+    {
+      "name": "--wjn-theme-sel-main-monitor-meter-disabled-label",
+      "ownerScope": "sel-main",
+      "type": "color",
+      "default": "#879ab0",
+      "inherits": [],
+      "description": "sel-main / monitor meter disabled label"
+    },
+    {
       "name": "--wjn-theme-sel-main-monitor-meter-low-active",
       "ownerScope": "sel-main",
       "type": "color",
-      "default": "#d8b536",
+      "default": "#2bce75",
       "inherits": [],
       "description": "sel-main / monitor meter low active"
     },
@@ -1346,7 +1370,7 @@
       "name": "--wjn-theme-sel-main-monitor-meter-low-inactive",
       "ownerScope": "sel-main",
       "type": "color",
-      "default": "#453c1b",
+      "default": "#163e2e",
       "inherits": [],
       "description": "sel-main / monitor meter low inactive"
     },
@@ -1354,7 +1378,7 @@
       "name": "--wjn-theme-sel-main-monitor-meter-mid-active",
       "ownerScope": "sel-main",
       "type": "color",
-      "default": "#ffe15a",
+      "default": "#f4cd42",
       "inherits": [],
       "description": "sel-main / monitor meter mid active"
     },
@@ -1370,7 +1394,7 @@
       "name": "--wjn-theme-sel-main-monitor-meter-high-active",
       "ownerScope": "sel-main",
       "type": "color",
-      "default": "#ffec89",
+      "default": "#f35656",
       "inherits": [],
       "description": "sel-main / monitor meter high active"
     },
@@ -1378,7 +1402,7 @@
       "name": "--wjn-theme-sel-main-monitor-meter-high-inactive",
       "ownerScope": "sel-main",
       "type": "color",
-      "default": "#50471f",
+      "default": "#4c242a",
       "inherits": [],
       "description": "sel-main / monitor meter high inactive"
     },

@@ -50,6 +50,7 @@ public:
 
     void setSink(LogSink sink, void* userData) noexcept;
     void setFileLoggingEnabled(bool enabled) noexcept;
+    void setDetailedLoggingEnabled(bool enabled) noexcept;
     std::size_t pendingCount() const noexcept;
     std::size_t droppedCount() const noexcept;
 

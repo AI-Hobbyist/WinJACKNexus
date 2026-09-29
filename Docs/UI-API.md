@@ -41,6 +41,10 @@ Application content should instantiate these controls through this API.
 The system main menu, tray menu, context menus and control popup menus use
 Qt's native menu components.
 
+`TrayController::setThemeLoadingProgress(int)` updates the shared
+`ProgressField` beneath the quick access bar. Values are clamped to 0–100;
+100 hides the bar after theme initialization. Call it from the GUI thread.
+
 `MeterStyle` defaults to a `-72..+12 dB` horizontal scale with three zones
 and `showPeak = true`. Supply a finite peak value to `drawMeter` when the
 source is a Peak meter; `std::nullopt` means no peak measurement is available.

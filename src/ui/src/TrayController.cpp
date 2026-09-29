@@ -30,6 +30,7 @@
 #include <QSystemTrayIcon>
 #include <QTimer>
 #include <QToolButton>
+#include <QVBoxLayout>
 
 #include <algorithm>
 #include <map>
@@ -136,8 +137,12 @@ public:
             "QToolButton:hover { background: #3d4854; }"
             "QToolButton:checked { background: #275d75; border-color: #5db1d7; }"));
 
-        auto* layout = new QHBoxLayout(this);
-        layout->setContentsMargins(10, 7, 10, 7);
+        auto* outerLayout = new QVBoxLayout(this);
+        outerLayout->setContentsMargins(10, 7, 10, 3);
+        outerLayout->setSpacing(2);
+        auto* layout = new QHBoxLayout;
+        outerLayout->addLayout(layout);
+        layout->setContentsMargins(0, 0, 0, 0);
         layout->setSpacing(8);
         auto* title = new Controls::TextLabel(QStringLiteral("WinJACKNexus"), this);
         title->setStyleSheet(QStringLiteral("font-weight: 700;"));
@@ -208,6 +213,14 @@ public:
         statusLabel_->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
         statusLabel_->setToolTip(QStringLiteral("JACK DSP 使用率与 XRun 计数"));
         layout->addWidget(statusLabel_);
+
+        themeProgress_ = new Controls::ProgressField(this);
+        themeProgress_->setObjectName(QStringLiteral("quickAccessThemeProgress"));
+        themeProgress_->setRange(0, 100);
+        themeProgress_->setTextVisible(false);
+        themeProgress_->setFixedHeight(5);
+        themeProgress_->hide();
+        outerLayout->addWidget(themeProgress_);
 
         autoHideTimer_.setInterval(quickAccessAutoHideIntervalMilliseconds);
         connect(&autoHideTimer_, &QTimer::timeout, this, [this] {
@@ -343,6 +356,13 @@ public:
     void setStatus(const QString& status)
     {
         statusLabel_->setText(status);
+    }
+
+    void setThemeLoadingProgress(int percent)
+    {
+        themeProgress_->setValue(std::clamp(percent, 0, 100));
+        themeProgress_->setVisible(percent < 100);
+        recenterAfterLayout();
     }
 
     void setOpacity(int percent)
@@ -556,6 +576,7 @@ private:
     QAction* meterbridgeAction_ = nullptr;
     QAction* mixerAction_ = nullptr;
     QLabel* statusLabel_ = nullptr;
+    Controls::ProgressField* themeProgress_ = nullptr;
     QMenu* systemDevicesMenu_ = nullptr;
     QString entriesSignature_;
     QPointer<QScreen> activeScreen_;
@@ -813,6 +834,12 @@ void TrayController::setQuickAccessThemeMenu(QMenu* menu)
     impl_->quickAccessThemeMenu = menu;
     if (impl_->quickAccessBar != nullptr)
         impl_->quickAccessBar->setThemeMenu(menu);
+}
+
+void TrayController::setThemeLoadingProgress(int percent)
+{
+    if (impl_->quickAccessBar != nullptr)
+        impl_->quickAccessBar->setThemeLoadingProgress(percent);
 }
 
 void TrayController::setPlaceholderEnabled(bool enabled)

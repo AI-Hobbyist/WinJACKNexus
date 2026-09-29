@@ -21,17 +21,17 @@
   /* mixer / monitor select accent; type=color */
   --wjn-theme-mixer-monitor-select-accent: #ffe15a;
   /* mixer / monitor meter low active; type=color */
-  --wjn-theme-mixer-monitor-meter-low-active: #e6bb31;
+  --wjn-theme-mixer-monitor-meter-low-active: #2bce75;
   /* mixer / monitor meter low inactive; type=color */
-  --wjn-theme-mixer-monitor-meter-low-inactive: #453c1b;
+  --wjn-theme-mixer-monitor-meter-low-inactive: #163e2e;
   /* mixer / monitor meter mid active; type=color */
-  --wjn-theme-mixer-monitor-meter-mid-active: #ffe15a;
+  --wjn-theme-mixer-monitor-meter-mid-active: #f4cd42;
   /* mixer / monitor meter mid inactive; type=color */
   --wjn-theme-mixer-monitor-meter-mid-inactive: #4a3f1d;
   /* mixer / monitor meter high active; type=color */
-  --wjn-theme-mixer-monitor-meter-high-active: #ffec89;
+  --wjn-theme-mixer-monitor-meter-high-active: #f35656;
   /* mixer / monitor meter high inactive; type=color */
-  --wjn-theme-mixer-monitor-meter-high-inactive: #50471f;
+  --wjn-theme-mixer-monitor-meter-high-inactive: #4c242a;
   /* mixer / fader monitor thumb; type=color */
   --wjn-theme-mixer-fader-monitor-thumb: #ffe15a;
   /* mixer / fader monitor track; type=color */

@@ -182,26 +182,49 @@ protected:
         const auto radius = std::min(plot.width(), plot.height()) * .36;
         drawMixerPolarGrid(painter, center, radius);
         drawMixerPolarCurves(painter, plot, center, radius, contour, true, true);
+        const auto referenceLayout = layout == Common::MixerLayout::mono ? Common::AuxChannelLayout::mono
+            : layout == Common::MixerLayout::stereo ? Common::AuxChannelLayout::stereo
+            : layout == Common::MixerLayout::surround51 ? Common::AuxChannelLayout::surround51
+            : Common::AuxChannelLayout::surround71;
+        const auto points = Common::auxLayoutReferencePoints(referenceLayout);
+        const auto pointLabels = Common::mixerChannelLabels(layout);
+        for (int index = 0; index < static_cast<int>(points.size()); ++index) {
+            const auto point = center + points[index] * radius * .83;
+            drawMixerPolarReferencePoint(painter, point, 1.0);
+            Controls::drawText(painter, QRectF(point.x() - 20, point.y() + 14, 40, 20),
+                pointLabels[index], font, themed("text-muted", QColor("#aec7eb")), Qt::AlignCenter);
+        }
         drawMixerPolarCenter(painter, center);
         Controls::drawText(painter, QRectF(plot.left() + 20, plot.top() + 14,
             plot.width() - 40, 24), QStringLiteral("空间声像 · 只读"), font,
             themed("text-muted", QColor("#aec7eb")));
-        const auto labels = Common::mixerChannelLabels(layout);
+        const auto labels = Common::mixerChannelLabels(Common::MixerLayout::surround71);
         const auto meterTop = sidebar.top() + 166;
         const auto meterWidth = std::min<qreal>(24, (sidebar.width() - 32) / labels.size() - 5);
         for (int index = 0; index < labels.size(); ++index) {
             const auto x = sidebar.left() + 16 + index * ((sidebar.width() - 32) / labels.size());
             const QRectF meter(x, meterTop, meterWidth, std::max<qreal>(80, sidebar.bottom() - meterTop - 38));
+            const auto channel = layout == Common::MixerLayout::mono
+                ? (index == 2 ? 0 : -1)
+                : (index < static_cast<int>(layout) ? index : -1);
+            if (channel < 0) {
+                Controls::drawSurface(painter, meter,
+                    themed("monitor-meter-disabled-surface", QColor("#172538")),
+                    themed("monitor-meter-disabled-border", QColor("#34475b")), 0);
+                Controls::drawText(painter, QRectF(x - 4, meter.bottom() + 4, meterWidth + 8, 24),
+                    labels[index], font, themed("monitor-meter-disabled-label", QColor("#879ab0")), Qt::AlignCenter);
+                continue;
+            }
             Controls::MeterStyle style;
             style.vertical = true;
             style.border = themed("meter-level-border", QColor("#07131f"));
-            style.zones = {{-12, themed("monitor-meter-low-active", QColor("#d8b536")),
-                                  themed("monitor-meter-low-inactive", QColor("#453c1b"))},
-                           {0, themed("monitor-meter-mid-active", QColor("#ffe15a")),
+            style.zones = {{-12, themed("monitor-meter-low-active", QColor("#2bce75")),
+                                  themed("monitor-meter-low-inactive", QColor("#163e2e"))},
+                           {0, themed("monitor-meter-mid-active", QColor("#f4cd42")),
                                themed("monitor-meter-mid-inactive", QColor("#4a3f1d"))},
-                           {12, themed("monitor-meter-high-active", QColor("#ffec89")),
-                                themed("monitor-meter-high-inactive", QColor("#50471f"))}};
-            Controls::drawMeter(painter, meter, levels[index], levels[index], style);
+                           {12, themed("monitor-meter-high-active", QColor("#f35656")),
+                                themed("monitor-meter-high-inactive", QColor("#4c242a"))}};
+            Controls::drawMeter(painter, meter, levels[channel], levels[channel], style);
             Controls::drawText(painter, QRectF(x - 4, meter.bottom() + 4, meterWidth + 8, 24),
                 labels[index], font, themed("text-muted", QColor("#aec7eb")), Qt::AlignCenter);
         }
@@ -2582,21 +2605,17 @@ void MixerWindow::paintEvent(QPaintEvent*)
     const auto headerHeight = 42.0 * heightScale;
     const auto label = themed("text-primary", QColor("#dce9ff"));
     const auto secondary = themed("text-muted", QColor("#a9bbd7"));
-    const auto groups = std::array<std::tuple<int, int, QString, QColor>, 3> {{
+    const auto groups = std::array<std::tuple<int, int, QString, QColor>, 2> {{
         { 0, impl_->inputChannelCount, QStringLiteral("♩  Inputs"),
             themed("group-input-accent",QColor("#1977d3")) },
         { impl_->inputChannelCount, impl_->auxChannelCount(), QStringLiteral("◇  AUX Sends"),
-            themed("group-aux-accent",QColor("#654dd4")) },
-        { impl_->masterIndex(), 1, QStringLiteral("◖  Main Output"),
-            themed("group-master-accent",QColor("#1ca47f")) }
+            themed("group-aux-accent",QColor("#654dd4")) }
     }};
 
     for (const auto& [start, count, title, color] : groups) {
         if (count == 0) continue;
         painter.save();
-        const auto group = start == impl_->masterIndex()
-            ? impl_->channelRect(start)
-            : impl_->viewportForChannel(start);
+        const auto group = impl_->viewportForChannel(start);
         QPainterPath outline;
         outline.addRoundedRect(group, 7.0, 7.0);
         painter.setPen(QPen(withAlpha(color, 210), 1.2));
@@ -2610,26 +2629,39 @@ void MixerWindow::paintEvent(QPaintEvent*)
     }
 
     const auto monitorCard = impl_->monitorRect();
+    const auto listenMasterGroup = monitorCard.united(impl_->channelRect(impl_->masterIndex()));
+    const auto listenMasterColor = themed("group-master-accent", QColor("#1ca47f"));
+    painter.save();
+    QPainterPath listenMasterOutline;
+    listenMasterOutline.addRoundedRect(listenMasterGroup, 7.0, 7.0);
+    painter.setPen(QPen(withAlpha(listenMasterColor, 210), 1.2));
+    painter.setBrush(withAlpha(listenMasterColor, 22));
+    painter.drawPath(listenMasterOutline);
+    const QRectF listenMasterHeader(listenMasterGroup.left(), listenMasterGroup.top(),
+                                    listenMasterGroup.width(), headerHeight);
+    painter.fillRect(listenMasterHeader.adjusted(1, 1, -1, 0), withAlpha(listenMasterColor, 75));
+    drawAdaptiveText(painter, listenMasterHeader.adjusted(4, 0, -4, 0),
+                     QStringLiteral("Listen/Master"), label,
+                     18 * heightScale, 10 * heightScale, Qt::AlignCenter, true);
+    painter.restore();
     const auto monitorYellow = themed("fader-monitor-thumb", QColor("#ffe15a"));
-    Controls::drawSurface(painter, monitorCard,
+    Controls::drawSurface(painter, monitorCard.adjusted(1, headerHeight + 1, -1, -1),
                           themed("monitor-surface", QColor("#302c1b")),
                           themed("monitor-border", QColor("#c9a52d")), 7);
-    painter.fillRect(QRectF(monitorCard.left() + 1, monitorCard.top() + 1,
-                            monitorCard.width() - 2, headerHeight - 1),
-                     themed("monitor-header-surface", QColor("#76692b")));
-    drawAdaptiveText(painter, {monitorCard.left(), monitorCard.top(), monitorCard.width(), headerHeight},
-                     QStringLiteral("监听"), label, 18 * heightScale, 10 * heightScale,
+    drawAdaptiveText(painter, {monitorCard.left(), monitorCard.top() + headerHeight + 2 * heightScale,
+                               monitorCard.width(), 20 * heightScale},
+                     QStringLiteral("监听"), label, 16 * heightScale, 10 * heightScale,
                      Qt::AlignCenter, true);
     const auto monitorMeterRect = impl_->monitorMeterRect(heightScale);
     Controls::MeterStyle monitorStyle;
     monitorStyle.vertical = true;
     monitorStyle.border = themed("meter-level-border", QColor("#07131f"));
-    monitorStyle.zones = {{-12, themed("monitor-meter-low-active", QColor("#e6bb31")),
-                                 themed("monitor-meter-low-inactive", QColor("#453c1b"))},
-                          {0, themed("monitor-meter-mid-active", QColor("#ffe15a")),
-                              themed("monitor-meter-mid-inactive", QColor("#4a3f1d"))},
-                          {12, themed("monitor-meter-high-active", QColor("#ffec89")),
-                               themed("monitor-meter-high-inactive", QColor("#50471f"))}};
+    monitorStyle.zones = {{-12, themed("monitor-meter-low-active", QColor("#2bce75")),
+                                 themed("monitor-meter-low-inactive", QColor("#163e2e"))},
+                          {0, themed("monitor-meter-mid-active", QColor("#f4cd42")),
+                               themed("monitor-meter-mid-inactive", QColor("#4a3f1d"))},
+                          {12, themed("monitor-meter-high-active", QColor("#f35656")),
+                               themed("monitor-meter-high-inactive", QColor("#4c242a"))}};
     Controls::drawSurface(painter, monitorMeterRect,
                           themed("meter-level-surface", QColor("#101a22")),
                           themed("meter-level-surface-border", QColor("#0a0f14")), 3, 4);

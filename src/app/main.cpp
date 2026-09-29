@@ -34,6 +34,7 @@
 #include <QDir>
 #include <QDialog>
 #include <QDialogButtonBox>
+#include <QEventLoop>
 #include <QDoubleSpinBox>
 #include <QFile>
 #include <QFileDialog>
@@ -58,6 +59,7 @@
 #include <QSpinBox>
 #include <QStyle>
 #include <QTabWidget>
+#include <QThread>
 #include <QTimer>
 #include <QToolButton>
 #include <QVBoxLayout>
@@ -69,6 +71,8 @@
 #include <cstdint>
 #include <cstring>
 #include <atomic>
+#include <memory>
+#include <thread>
 #include <vector>
 
 namespace {
@@ -754,14 +758,11 @@ public:
             WinJACKNexus::UI::ApplicationSettings::instance().setPeakHoldSeconds(seconds);
         });
         connect(logTracing_, &QCheckBox::toggled, this, [](bool enabled) {
-            if (enabled)
-                WinJACKNexus::Common::Logger::instance().setFileLoggingEnabled(true);
+            WinJACKNexus::Common::Logger::instance().setDetailedLoggingEnabled(enabled);
             WJN_LOG_INFO("Detailed log tracing %s", enabled ? "enabled" : "disabled");
             WinJACKNexus::Common::Logger::instance().flush();
             QSettings(QStringLiteral("WinJACKNexus"), QStringLiteral("Application"))
                 .setValue(QStringLiteral("logTracingEnabled"), enabled);
-            if (!enabled)
-                WinJACKNexus::Common::Logger::instance().setFileLoggingEnabled(false);
         });
         connect(opacitySlider_, &QSlider::valueChanged, this, [this](int value) {
             WinJACKNexus::UI::TrayController::setQuickAccessOpacity(value);
@@ -859,6 +860,8 @@ private:
 
 int main(int argc, char* argv[])
 {
+    auto& logger = WinJACKNexus::Common::Logger::instance();
+    logger.flush();
     const auto instanceMutex = CreateMutexW(nullptr, TRUE, L"Local\\WinJACKNexus.SingleInstance");
     if (instanceMutex == nullptr || GetLastError() == ERROR_ALREADY_EXISTS) {
         if (instanceMutex != nullptr)
@@ -866,15 +869,19 @@ int main(int argc, char* argv[])
         MessageBoxW(nullptr, L"WinJACKNexus 已在运行。", L"WinJACKNexus", MB_OK | MB_ICONINFORMATION);
         return 0;
     }
+    WJN_LOG_INFO("Single-instance lock acquired");
+    logger.flush();
     QApplication application(argc, argv);
+    WJN_LOG_INFO("Qt application initialized");
+    logger.flush();
     application.setApplicationName(QStringLiteral("WinJACKNexus"));
     application.setQuitOnLastWindowClosed(false);
-    auto& logger = WinJACKNexus::Common::Logger::instance();
     const bool logTracingEnabled = QSettings(QStringLiteral("WinJACKNexus"),
         QStringLiteral("Application")).value(QStringLiteral("logTracingEnabled"), true).toBool();
-    logger.setFileLoggingEnabled(logTracingEnabled);
+    logger.setDetailedLoggingEnabled(logTracingEnabled);
     qInstallMessageHandler(logQtMessage);
     WJN_LOG_INFO("Application start logTracing=%d", logTracingEnabled ? 1 : 0);
+    logger.flush();
     QTimer logDrainTimer;
     logDrainTimer.setInterval(250);
     QObject::connect(&logDrainTimer, &QTimer::timeout, &application, [&logger] { logger.flush(); });
@@ -891,44 +898,77 @@ int main(int argc, char* argv[])
         applicationIcon = application.style()->standardIcon(QStyle::SP_ComputerIcon);
     application.setWindowIcon(applicationIcon);
 
-    WinJACKNexus::UI::ThemeCore themeCore;
-    if (!themeCore.isValid()) {
-        WJN_LOG_ERROR("Default theme initialization failed: %s",
-            themeCore.initializationError().toUtf8().constData());
-        logger.flush();
-        if (qEnvironmentVariableIsSet("WJN_THEME_STARTUP_PROBE"))
-            return 1;
-        const auto message = QStringLiteral("无法加载必需的默认主题 DLL，程序无法启动。\n%1")
-            .arg(themeCore.initializationError()).toStdWString();
-        MessageBoxW(nullptr, message.c_str(), L"WinJACKNexus 主题启动失败", MB_OK | MB_ICONERROR);
-        return 1;
-    }
-    WinJACKNexus::UI::ThemeManager::installThemeCore(&themeCore);
-    WinJACKNexus::UI::ThemeManager themeManager;
-    themeManager.watchApplication(&application);
-
-    QSettings applicationSettings(QStringLiteral("WinJACKNexus"), QStringLiteral("Application"));
-    WinJACKNexus::UI::ThemeCatalog themeCatalog(themeCore, applicationSettings);
-    QString themeRestoreError;
-    if (!themeCatalog.restoreSaved(&themeRestoreError))
-        qWarning().noquote() << "Theme restore:" << themeRestoreError;
-    QSettings legacyJackdSettings(QStringLiteral("WinJACKNexus"), QStringLiteral("Jackd"));
-    const auto quickAccessOpacity = std::clamp(applicationSettings.value(
-        QStringLiteral("quickAccessOpacity"),
-        legacyJackdSettings.value(QStringLiteral("quickAccessOpacity"), 50)).toInt(),
-        10,
-        100);
-    if (!applicationSettings.contains(QStringLiteral("quickAccessOpacity")))
-        applicationSettings.setValue(QStringLiteral("quickAccessOpacity"), quickAccessOpacity);
-    WinJACKNexus::UI::TrayController::setQuickAccessOpacity(quickAccessOpacity);
     WinJACKNexus::UI::TrayController tray;
     const bool trayAvailable = tray.initialize(applicationIcon, application.applicationName());
     if (trayAvailable) {
         QObject::connect(&tray, &WinJACKNexus::UI::TrayController::quitRequested,
                          &application, &QApplication::quit);
+        tray.setThemeLoadingProgress(0);
     }
 
-    WinJACKNexus::UI::ThemeManagementDialog themeManagementDialog(themeCore);
+    std::unique_ptr<QSettings> applicationSettings;
+    std::unique_ptr<WinJACKNexus::UI::ThemeCore> themeCore;
+    std::unique_ptr<WinJACKNexus::UI::ThemeCatalog> themeCatalog;
+    QString themeRestoreError;
+    QEventLoop themeLoadLoop;
+    const auto guiThread = application.thread();
+    WJN_LOG_INFO("Theme loading started asynchronously");
+    logger.flush();
+    std::thread themeWorker([&] {
+        auto report = [&](int progress) {
+            QMetaObject::invokeMethod(&application, [&tray, progress] {
+                tray.setThemeLoadingProgress(progress);
+            }, Qt::QueuedConnection);
+        };
+        applicationSettings = std::make_unique<QSettings>(QStringLiteral("WinJACKNexus"),
+            QStringLiteral("Application"));
+        themeCore = std::make_unique<WinJACKNexus::UI::ThemeCore>();
+        report(30);
+        if (themeCore->isValid()) {
+            themeCatalog = std::make_unique<WinJACKNexus::UI::ThemeCatalog>(
+                *themeCore, *applicationSettings);
+            if (!themeCatalog->restoreSaved(&themeRestoreError))
+                qWarning().noquote() << "Theme restore:" << themeRestoreError;
+        }
+        report(90);
+        if (themeCatalog) themeCatalog->moveToThread(guiThread);
+        themeCore->moveToThread(guiThread);
+        applicationSettings->moveToThread(guiThread);
+        QMetaObject::invokeMethod(&application, [&] {
+            tray.setThemeLoadingProgress(100);
+            themeLoadLoop.quit();
+        }, Qt::QueuedConnection);
+    });
+    themeLoadLoop.exec();
+    themeWorker.join();
+    WJN_LOG_INFO("Theme loading finished valid=%d", themeCore->isValid() ? 1 : 0);
+    logger.flush();
+    if (!themeCore->isValid()) {
+        WJN_LOG_ERROR("Default theme initialization failed: %s",
+            themeCore->initializationError().toUtf8().constData());
+        logger.flush();
+        if (qEnvironmentVariableIsSet("WJN_THEME_STARTUP_PROBE"))
+            return 1;
+        const auto message = QStringLiteral("无法加载必需的默认主题 DLL，程序无法启动。\n%1")
+            .arg(themeCore->initializationError()).toStdWString();
+        MessageBoxW(nullptr, message.c_str(), L"WinJACKNexus 主题启动失败", MB_OK | MB_ICONERROR);
+        return 1;
+    }
+    WinJACKNexus::UI::ThemeManager::installThemeCore(themeCore.get());
+    WinJACKNexus::UI::ThemeManager themeManager;
+    themeManager.watchApplication(&application);
+
+    QSettings legacyJackdSettings(QStringLiteral("WinJACKNexus"), QStringLiteral("Jackd"));
+    const auto quickAccessOpacity = std::clamp(applicationSettings->value(
+        QStringLiteral("quickAccessOpacity"),
+        legacyJackdSettings.value(QStringLiteral("quickAccessOpacity"), 50)).toInt(),
+        10,
+        100);
+    if (!applicationSettings->contains(QStringLiteral("quickAccessOpacity")))
+        applicationSettings->setValue(QStringLiteral("quickAccessOpacity"), quickAccessOpacity);
+    WinJACKNexus::UI::TrayController::setQuickAccessOpacity(quickAccessOpacity);
+
+    WinJACKNexus::UI::ThemeManagementDialog themeManagementDialog(*themeCore);
     GlobalSettingsDialog globalSettingsDialog(themeManagementDialog);
     JackServerSettingsDialog jackServerSettingsDialog;
 #ifdef _DEBUG
@@ -989,14 +1029,14 @@ int main(int argc, char* argv[])
     }
     if (trayAvailable) {
         auto* themeAction = tray.addMenuAction(QStringLiteral("主题"));
-        themeAction->setMenu(themeCatalog.createMenu(tray.contextMenu(), [&themeManagementDialog] {
+        themeAction->setMenu(themeCatalog->createMenu(tray.contextMenu(), [&themeManagementDialog] {
             themeManagementDialog.show();
             themeManagementDialog.raise();
             themeManagementDialog.activateWindow();
         }, [&tray](const QString& issue) {
             tray.showMessage(QStringLiteral("主题切换失败"), issue, 1);
         }));
-        tray.setQuickAccessThemeMenu(themeCatalog.createMenu(tray.contextMenu(), [&themeManagementDialog] {
+        tray.setQuickAccessThemeMenu(themeCatalog->createMenu(tray.contextMenu(), [&themeManagementDialog] {
             themeManagementDialog.show();
             themeManagementDialog.raise();
             themeManagementDialog.activateWindow();
