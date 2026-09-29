@@ -1407,6 +1407,16 @@
       "description": "sel-main / monitor meter high inactive"
     },
     {
+      "name": "--wjn-theme-sel-main-monitor-meter-peak",
+      "ownerScope": "sel-main",
+      "type": "color",
+      "default": "#f7fbff",
+      "inherits": [
+        "--wjn-theme-global-meter-level-peak"
+      ],
+      "description": "sel-main / monitor meter held peak"
+    },
+    {
       "name": "--wjn-theme-sel-main-text-primary",
       "ownerScope": "sel-main",
       "type": "color",

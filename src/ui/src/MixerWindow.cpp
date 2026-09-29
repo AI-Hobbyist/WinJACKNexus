@@ -105,6 +105,8 @@ public:
     {
         setObjectName(QStringLiteral("monitorSelPage"));
         setMinimumSize(760, 520);
+        levels.fill(-72.0);
+        peaks.fill(-72.0);
         layoutButton = new Controls::ActionButton({}, this);
         layoutButton->setObjectName(QStringLiteral("monitorLayoutButton"));
         connect(layoutButton, &QPushButton::clicked, this, [this] {
@@ -130,6 +132,11 @@ public:
 
     void setLayoutMode(Common::MixerLayout next)
     {
+        if (layout != next) {
+            for (auto& meter : meterBallistics) meter.reset();
+            levels.fill(-72.0);
+            peaks.fill(-72.0);
+        }
         layout = next;
         layoutButton->setText(next == Common::MixerLayout::mono ? QStringLiteral("单声道")
             : next == Common::MixerLayout::stereo ? QStringLiteral("立体声")
@@ -137,8 +144,16 @@ public:
             : QStringLiteral("7.1"));
         update();
     }
-    void setContour(const Common::MixerPolarContour& next) { contour = next; update(); }
-    void setLevels(const std::array<qreal, 8>& next) { levels = next; update(); }
+    void setContour(const Common::MixerPolarContour& next) { contour = next; }
+    void advanceMeters(const std::array<qreal, 8>& samples, double frameSeconds,
+                       double peakHoldSeconds)
+    {
+        for (std::size_t index = 0; index < meterBallistics.size(); ++index) {
+            meterBallistics[index].advance(samples[index], frameSeconds, peakHoldSeconds);
+            levels[index] = meterBallistics[index].levelDb();
+            peaks[index] = meterBallistics[index].peakDb();
+        }
+    }
     std::function<void(Common::MixerLayout)> layoutChanged;
 
 protected:
@@ -218,13 +233,14 @@ protected:
             Controls::MeterStyle style;
             style.vertical = true;
             style.border = themed("meter-level-border", QColor("#07131f"));
+            style.peakColor = themed("monitor-meter-peak", QColor("#f7fbff"));
             style.zones = {{-12, themed("monitor-meter-low-active", QColor("#2bce75")),
                                   themed("monitor-meter-low-inactive", QColor("#163e2e"))},
                            {0, themed("monitor-meter-mid-active", QColor("#f4cd42")),
                                themed("monitor-meter-mid-inactive", QColor("#4a3f1d"))},
                            {12, themed("monitor-meter-high-active", QColor("#f35656")),
                                 themed("monitor-meter-high-inactive", QColor("#4c242a"))}};
-            Controls::drawMeter(painter, meter, levels[channel], levels[channel], style);
+            Controls::drawMeter(painter, meter, levels[channel], peaks[channel], style);
             Controls::drawText(painter, QRectF(x - 4, meter.bottom() + 4, meterWidth + 8, 24),
                 labels[index], font, themed("text-muted", QColor("#aec7eb")), Qt::AlignCenter);
         }
@@ -234,6 +250,8 @@ private:
     Common::MixerLayout layout { Common::MixerLayout::stereo };
     Common::MixerPolarContour contour;
     std::array<qreal, 8> levels {};
+    std::array<qreal, 8> peaks {};
+    std::array<Controls::MeterBallistics, 8> meterBallistics;
 };
 
 class SelMainPage final : public QWidget {
@@ -1213,12 +1231,13 @@ public:
                 for (std::size_t index = 0; index < count; ++index)
                     monitorLevels[index] = this->channelMeterRead
                         ? meterDbValue(this->channelMeterRead(0, true, index)) : monitorLevel;
-                monitorSel->setLevels(monitorLevels);
+                monitorSel->advanceMeters(monitorLevels, frameSeconds, peakHold);
                 if (this->polarRead) {
                     Common::MixerPolarSnapshot snapshot;
                     if (this->polarRead(0, 0, snapshot)) monitorPolarCurve.accept(snapshot);
                     monitorSel->setContour(monitorPolarCurve.contour());
                 }
+                monitorSel->update();
             }
             if(sampleMeterReadouts) meterReadoutClock.start();
             this->owner.update();

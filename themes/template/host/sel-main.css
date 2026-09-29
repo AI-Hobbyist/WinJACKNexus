@@ -30,6 +30,8 @@
   --wjn-theme-sel-main-monitor-meter-high-active: #f35656;
   /* sel-main / monitor meter high inactive; type=color */
   --wjn-theme-sel-main-monitor-meter-high-inactive: #4c242a;
+  /* sel-main / monitor meter held peak; type=color */
+  --wjn-theme-sel-main-monitor-meter-peak: #f7fbff;
   /* sel-main / text primary; type=color */
   --wjn-theme-sel-main-text-primary: #e8f2ff;
   /* sel-main / text muted; type=color */
