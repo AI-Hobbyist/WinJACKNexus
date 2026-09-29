@@ -4,6 +4,26 @@
   --wjn-theme-sel-main-surface-empty: #0b1a2b;
   /* sel-main / surface panel; type=color */
   --wjn-theme-sel-main-surface-panel: #102235;
+  /* sel-main / monitor header surface; type=color */
+  --wjn-theme-sel-main-monitor-header-surface: #123a65;
+  /* sel-main / monitor plot surface; type=color */
+  --wjn-theme-sel-main-monitor-plot-surface: #102235;
+  /* sel-main / monitor sidebar surface; type=color */
+  --wjn-theme-sel-main-monitor-sidebar-surface: #102235;
+  /* sel-main / monitor border; type=color */
+  --wjn-theme-sel-main-monitor-border: #2b4662;
+  /* sel-main / monitor meter low active; type=color */
+  --wjn-theme-sel-main-monitor-meter-low-active: #d8b536;
+  /* sel-main / monitor meter low inactive; type=color */
+  --wjn-theme-sel-main-monitor-meter-low-inactive: #453c1b;
+  /* sel-main / monitor meter mid active; type=color */
+  --wjn-theme-sel-main-monitor-meter-mid-active: #ffe15a;
+  /* sel-main / monitor meter mid inactive; type=color */
+  --wjn-theme-sel-main-monitor-meter-mid-inactive: #4a3f1d;
+  /* sel-main / monitor meter high active; type=color */
+  --wjn-theme-sel-main-monitor-meter-high-active: #ffec89;
+  /* sel-main / monitor meter high inactive; type=color */
+  --wjn-theme-sel-main-monitor-meter-high-inactive: #50471f;
   /* sel-main / text primary; type=color */
   --wjn-theme-sel-main-text-primary: #e8f2ff;
   /* sel-main / text muted; type=color */

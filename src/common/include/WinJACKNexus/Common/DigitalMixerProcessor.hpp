@@ -76,9 +76,12 @@ private:
         std::size_t faderRampRemaining {};
         bool mute {};
         bool solo {};
+        MixerListenMode listenMode { MixerListenMode::off };
+        bool soloAudible {};
         bool mixToMain {};
         bool auxSendsEnabled {};
         Matrix mainMatrix {};
+        Matrix monitorMatrix {};
         std::vector<Route> sends;
         std::vector<float> pre;
         std::vector<float> post;
@@ -92,6 +95,11 @@ private:
     std::vector<MixerLevelSnapshot> levels_;
     std::vector<float> mainInput_;
     std::vector<float> mainOutput_;
+    std::vector<float> monitorInput_;
+    std::unique_ptr<MixerPolarAnalyzer> monitorAnalyzer_;
+    Matrix monitorMainMatrix_ {};
+    std::size_t monitorChannels_ { 2 };
+    float monitorFaderGain_ { 1.0F };
     Matrix mainMatrix_ {};
     float mainInputGain_ { 1.0F };
     float mainFaderGain_ { 1.0F };

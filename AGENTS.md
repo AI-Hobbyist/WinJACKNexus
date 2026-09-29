@@ -23,6 +23,7 @@
 ## Build and process rules
 
 - Follow the repository's existing implementation and verification workflow; use TDD only when explicitly requested.
+- Finish all intended changes before running one build-and-test verification pass for the task. If that pass finds a failure, fix it and rerun only the necessary verification.
 - Build only in the repository's existing `build` directory. Do not create or use an alternate build directory.
 - The existing build tree uses the Visual Studio 18 2026 generator. Use its bundled CMake at `D:\Program Files\Microsoft Visual Studio\18\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe`; Qt's bundled CMake 3.30 cannot load this generator.
 - If MSBuild's C++ task stops with a duplicate `Path`/`PATH` environment-key error, compile with the Visual Studio 18 `cl.exe` using the generated project's compiler flags, then link with `link.exe` using a response file based on that target's `link.command.1.tlog`. Include `/MANIFEST:EMBED` and add `D:\Windows Kits\10\bin\10.0.26100.0\x64` to the process `PATH` so `rc.exe` is available; run the resulting UI test executable from PowerShell to complete verification.

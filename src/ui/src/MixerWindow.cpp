@@ -7,6 +7,7 @@
 #include <WinJACKNexus/UI/ThemeCore.hpp>
 #include <WinJACKNexus/UI/ThemeBackground.hpp>
 #include <WinJACKNexus/UI/ThemeManager.hpp>
+#include <WinJACKNexus/Common/Logger.hpp>
 
 #include <QMouseEvent>
 #include <QMenu>
@@ -52,6 +53,8 @@ struct Channel {
     bool fx = false;
     bool mute = false;
     bool solo = false;
+    Common::MixerListenMode listenMode { Common::MixerListenMode::off };
+    bool sipMuted = false;
     bool postFaderMeter = false;
     std::uint32_t auxId {};
     std::uint32_t id {};
@@ -64,8 +67,13 @@ struct Channel {
     bool realMeter {};
     std::array<qreal, 8> channelLevels {};
     std::array<qreal, 8> channelPeaks {};
+    std::array<qreal, 8> channelInputLevels {};
+    std::array<qreal, 8> channelInputPeaks {};
     Controls::MeterBallistics meterBallistics;
+    Controls::MeterBallistics inputMeterBallistics;
+    Controls::MeterBallistics outputMeterBallistics;
     std::array<Controls::MeterBallistics, 8> channelBallistics;
+    std::array<Controls::MeterBallistics, 8> channelInputBallistics;
     qreal inputMeterReadoutDb {-72.0};
     qreal outputMeterReadoutDb {-72.0};
 };
@@ -90,6 +98,120 @@ qreal selDetailsLeft(const QSize& size)
     const qreal rightRegionStart=313.0*scale;
     return rightRegionStart+(size.width()-rightRegionStart-1064.0*scale)/2.0;
 }
+
+class MonitorSelPage final : public QWidget {
+public:
+    explicit MonitorSelPage(QWidget* parent = nullptr) : QWidget(parent)
+    {
+        setObjectName(QStringLiteral("monitorSelPage"));
+        setMinimumSize(760, 520);
+        layoutButton = new Controls::ActionButton({}, this);
+        layoutButton->setObjectName(QStringLiteral("monitorLayoutButton"));
+        connect(layoutButton, &QPushButton::clicked, this, [this] {
+            QMenu menu(layoutButton);
+            const std::array layouts {Common::MixerLayout::mono, Common::MixerLayout::stereo,
+                                      Common::MixerLayout::surround51, Common::MixerLayout::surround71};
+            for (const auto candidate : layouts) {
+                const auto name = candidate == Common::MixerLayout::mono ? QStringLiteral("单声道")
+                    : candidate == Common::MixerLayout::stereo ? QStringLiteral("立体声")
+                    : candidate == Common::MixerLayout::surround51 ? QStringLiteral("5.1")
+                    : QStringLiteral("7.1");
+                auto* action = menu.addAction(name);
+                action->setCheckable(true);
+                action->setChecked(candidate == layout);
+                connect(action, &QAction::triggered, this, [this, candidate] {
+                    if (layoutChanged) layoutChanged(candidate);
+                });
+            }
+            menu.exec(layoutButton->mapToGlobal(QPoint(0, layoutButton->height())));
+        });
+        setLayoutMode(Common::MixerLayout::stereo);
+    }
+
+    void setLayoutMode(Common::MixerLayout next)
+    {
+        layout = next;
+        layoutButton->setText(next == Common::MixerLayout::mono ? QStringLiteral("单声道")
+            : next == Common::MixerLayout::stereo ? QStringLiteral("立体声")
+            : next == Common::MixerLayout::surround51 ? QStringLiteral("5.1")
+            : QStringLiteral("7.1"));
+        update();
+    }
+    void setContour(const Common::MixerPolarContour& next) { contour = next; update(); }
+    void setLevels(const std::array<qreal, 8>& next) { levels = next; update(); }
+    std::function<void(Common::MixerLayout)> layoutChanged;
+
+protected:
+    void resizeEvent(QResizeEvent*) override
+    {
+        const QRectF sidebar(width() * .72, 70, width() * .25, height() - 95);
+        layoutButton->setGeometry(QRectF(sidebar.left() + 20, sidebar.top() + 94,
+                                          sidebar.width() - 40, 38).toAlignedRect());
+    }
+    void paintEvent(QPaintEvent*) override
+    {
+        const auto themed = [](const char* role, const QColor& fallback) {
+            return Controls::themeTokenColor(QStringLiteral("sel-main"),
+                QString::fromLatin1(role), fallback);
+        };
+        QPainter painter(this);
+        painter.setRenderHint(QPainter::Antialiasing);
+        painter.fillRect(rect(), themed("surface-empty", QColor("#0b1a2b")));
+        const QRectF header(14, 12, width() - 28, 48);
+        const QRectF plot(14, 70, width() * .69, height() - 95);
+        const QRectF sidebar(width() * .72, 70, width() * .25, height() - 95);
+        const auto border = themed("monitor-border", QColor("#2b4662"));
+        Controls::drawSurface(painter, header,
+            themed("monitor-header-surface", QColor("#123a65")), border, 7);
+        Controls::drawSurface(painter, plot,
+            themed("monitor-plot-surface", QColor("#102235")), border, 7);
+        Controls::drawSurface(painter, sidebar,
+            themed("monitor-sidebar-surface", QColor("#102235")), border, 7);
+        auto font = painter.font(); font.setPixelSize(20); font.setBold(true);
+        Controls::drawText(painter, header, QStringLiteral("监听 SEL · MAIN"), font,
+                           themed("text-primary", QColor("#e8f2ff")), Qt::AlignCenter);
+        font.setPixelSize(16);
+        Controls::drawText(painter, QRectF(sidebar.left() + 18, sidebar.top() + 16,
+            sidebar.width() - 36, 30), QStringLiteral("通用"), font,
+            themed("text-primary", QColor("#e8f2ff")));
+        font.setBold(false); font.setPixelSize(14);
+        Controls::drawText(painter, QRectF(sidebar.left() + 18, sidebar.top() + 63,
+            sidebar.width() - 36, 24), QStringLiteral("监听通道模式"), font,
+            themed("text-muted", QColor("#aec7eb")));
+        const auto center = QPointF(plot.center().x(), plot.center().y() + 8);
+        const auto radius = std::min(plot.width(), plot.height()) * .36;
+        drawMixerPolarGrid(painter, center, radius);
+        drawMixerPolarCurves(painter, plot, center, radius, contour, true, true);
+        drawMixerPolarCenter(painter, center);
+        Controls::drawText(painter, QRectF(plot.left() + 20, plot.top() + 14,
+            plot.width() - 40, 24), QStringLiteral("空间声像 · 只读"), font,
+            themed("text-muted", QColor("#aec7eb")));
+        const auto labels = Common::mixerChannelLabels(layout);
+        const auto meterTop = sidebar.top() + 166;
+        const auto meterWidth = std::min<qreal>(24, (sidebar.width() - 32) / labels.size() - 5);
+        for (int index = 0; index < labels.size(); ++index) {
+            const auto x = sidebar.left() + 16 + index * ((sidebar.width() - 32) / labels.size());
+            const QRectF meter(x, meterTop, meterWidth, std::max<qreal>(80, sidebar.bottom() - meterTop - 38));
+            Controls::MeterStyle style;
+            style.vertical = true;
+            style.border = themed("meter-level-border", QColor("#07131f"));
+            style.zones = {{-12, themed("monitor-meter-low-active", QColor("#d8b536")),
+                                  themed("monitor-meter-low-inactive", QColor("#453c1b"))},
+                           {0, themed("monitor-meter-mid-active", QColor("#ffe15a")),
+                               themed("monitor-meter-mid-inactive", QColor("#4a3f1d"))},
+                           {12, themed("monitor-meter-high-active", QColor("#ffec89")),
+                                themed("monitor-meter-high-inactive", QColor("#50471f"))}};
+            Controls::drawMeter(painter, meter, levels[index], levels[index], style);
+            Controls::drawText(painter, QRectF(x - 4, meter.bottom() + 4, meterWidth + 8, 24),
+                labels[index], font, themed("text-muted", QColor("#aec7eb")), Qt::AlignCenter);
+        }
+    }
+private:
+    Controls::ActionButton* layoutButton {};
+    Common::MixerLayout layout { Common::MixerLayout::stereo };
+    Common::MixerPolarContour contour;
+    std::array<qreal, 8> levels {};
+};
 
 class SelMainPage final : public QWidget {
 public:
@@ -351,7 +473,7 @@ protected:
         text({126, 362, 126, 28}, QStringLiteral("%1%2 dB").arg(gain>=0?QStringLiteral("+"):QString()).arg(gain,0,'f',1),
              17, ink, true, Qt::AlignCenter);
         const bool mainOutput=channel && channel->number==QStringLiteral("MAIN");
-        modeToggle({29,407,mainOutput?254.0:118.0,34},QStringLiteral("M"),channel && channel->mute,
+        modeToggle({29,407,mainOutput?254.0:118.0,34},QStringLiteral("M"),channel && (channel->mute || channel->sipMuted),
             themed("control-mute-accent",QColor("#ff4b62")));
         if(!mainOutput)modeToggle({165,407,118,34},QStringLiteral("S"),channel && channel->solo,
             themed("control-solo-accent",QColor("#ffae2d")));
@@ -360,14 +482,12 @@ protected:
             const int x=24+m*138; panel({qreal(x),480,125,318});
             text({qreal(x),488,125,31},m?QStringLiteral("输出"):QStringLiteral("输入"),16,ink,false,Qt::AlignCenter);
             constexpr qreal meterTop=528, meterBottom=745;
-            const qreal input=channel
-                ? channel->level + (channel->realMeter ? 0.0 : channel->inputGainDb) : -72.0;
-            const qreal offset=m&&channel?faderDbValue(channel->fader):0.0;
-            const qreal current=channel?std::clamp((channel->realMeter
-                ? channel->meterBallistics.levelDb():input)+offset,-72.0,12.0):-72.0;
+            const qreal current=channel ? (m ? channel->outputMeterBallistics.levelDb()
+                                                 : channel->inputMeterBallistics.levelDb()) : -72.0;
             const qreal readout=channel
                 ? (m ? channel->outputMeterReadoutDb : channel->inputMeterReadoutDb) : -72.0;
-            const qreal peak=channel?std::clamp(channel->meterBallistics.peakDb()+offset,-72.0,12.0):-72.0;
+            const qreal peak=channel ? (m ? channel->outputMeterBallistics.peakDb()
+                                               : channel->inputMeterBallistics.peakDb()) : -72.0;
             Controls::MeterStyle meterStyle;
             meterStyle.vertical=true;
             meterStyle.border=themed("meter-level-border",QColor("#07141f"));
@@ -494,7 +614,7 @@ protected:
             if(i==3&&i<activeCount)text({x+7,y+48,41,16},QStringLiteral("强度"),11,muted,false,Qt::AlignCenter);
             const qreal sendLevel=bus&&i<static_cast<int>(bus->sends.size())?bus->sends[i].levelDb:0.0;
             const qreal sourceDb = channel && channel->realMeter
-                ? channel->channelLevels[static_cast<std::size_t>(i)]
+                ? channel->channelInputLevels[static_cast<std::size_t>(i)]
                 : channel ? channel->level + channel->inputGainDb : -72.0;
             const qreal meterDb=std::clamp(sourceDb+sendLevel,-72.0,12.0);
             Controls::drawKnob(p,{x+83,y+32},(sendLevel+72)/84.0,23,knobColors);
@@ -514,7 +634,7 @@ protected:
             sendMeter.ticksAbove=true;
             sendMeter.tickBandPixels=24;
             const qreal sendPeak=channel&&channel->realMeter
-                ? std::clamp(channel->channelPeaks[static_cast<std::size_t>(i)]+sendLevel,-72.0,12.0)
+                ? std::clamp(channel->channelInputPeaks[static_cast<std::size_t>(i)]+sendLevel,-72.0,12.0)
                 : meterDb;
             Controls::drawMeter(p,{x+126,y+3,226,33},meterDb,sendPeak,sendMeter);
             modeToggle({x+215,y+45,62,29},QStringLiteral("M"),bus&&i<static_cast<int>(bus->sends.size())&&bus->sends[i].mute,
@@ -1012,33 +1132,69 @@ public:
             const double peakHold=settings.peakHoldSeconds();
             const bool sampleMeterReadouts=!meterReadoutClock.isValid()
                 || meterReadoutClock.elapsed()>=settings.peakValueRefreshMilliseconds();
+            const bool sipActive=std::any_of(channels.cbegin(),channels.cend(),[](const Channel& item) {
+                return item.number!=QStringLiteral("MAIN") && item.solo;
+            });
             for (auto& channel : channels) {
+                channel.sipMuted=sipActive && channel.number!=QStringLiteral("MAIN") && !channel.solo;
+                qreal inputLevel = -72.0;
+                qreal outputLevel = -72.0;
                 if (this->model) {
                     channel.realMeter = true;
+                    inputLevel = this->meterRead && channel.modelId
+                        ? meterDbValue(this->meterRead(channel.modelId, false)) : -72.0;
+                    outputLevel = this->meterRead && channel.modelId
+                        ? meterDbValue(this->meterRead(channel.modelId, true)) : -72.0;
                     channel.level = this->meterRead && channel.modelId
-                        ? meterDbValue(this->meterRead(channel.modelId, channel.postFaderMeter)) : -72.0;
+                        ? (channel.postFaderMeter ? outputLevel : inputLevel) : -72.0;
                     for (std::size_t index = 0; index < channel.channelLevels.size(); ++index)
                         channel.channelLevels[index] = this->channelMeterRead && channel.modelId
                             ? meterDbValue(this->channelMeterRead(channel.modelId,
                                 channel.postFaderMeter, index)) : channel.level;
+                    for (std::size_t index = 0; index < channel.channelInputLevels.size(); ++index)
+                        channel.channelInputLevels[index] = this->channelMeterRead && channel.modelId
+                            ? meterDbValue(this->channelMeterRead(channel.modelId, false, index)) : inputLevel;
                 } else {
                     if (QRandomGenerator::global()->bounded(12) == 0)
                         channel.target = QRandomGenerator::global()->bounded(-480, 111) / 10.0;
                     channel.level += (channel.target - channel.level) * .17;
                     channel.level = std::clamp(channel.level + (QRandomGenerator::global()->bounded(7) - 3) / 10.0, -72.0, 12.0);
+                    inputLevel = channel.level + channel.inputGainDb;
+                    outputLevel = inputLevel + faderDbValue(channel.fader);
                 }
                 channel.meterBallistics.advance(channel.level,frameSeconds,peakHold);
+                channel.inputMeterBallistics.advance(inputLevel,frameSeconds,peakHold);
+                channel.outputMeterBallistics.advance(outputLevel,frameSeconds,peakHold);
                 if(sampleMeterReadouts) {
-                    const auto input=channel.realMeter ? channel.meterBallistics.levelDb()
-                        : channel.level+channel.inputGainDb;
-                    channel.inputMeterReadoutDb=std::clamp(input,-72.0,12.0);
-                    channel.outputMeterReadoutDb=std::clamp(input+faderDbValue(channel.fader),-72.0,12.0);
+                    channel.inputMeterReadoutDb=channel.inputMeterBallistics.levelDb();
+                    channel.outputMeterReadoutDb=channel.outputMeterBallistics.levelDb();
                 }
                 for(std::size_t index=0;index<channel.channelBallistics.size();++index) {
                     channel.channelBallistics[index].advance(channel.realMeter
                         ? channel.channelLevels[index]:channel.level,frameSeconds,peakHold);
                     channel.channelLevels[index]=channel.channelBallistics[index].levelDb();
                     channel.channelPeaks[index]=channel.channelBallistics[index].peakDb();
+                    channel.channelInputBallistics[index].advance(channel.realMeter
+                        ? channel.channelInputLevels[index] : inputLevel,frameSeconds,peakHold);
+                    channel.channelInputLevels[index]=channel.channelInputBallistics[index].levelDb();
+                    channel.channelInputPeaks[index]=channel.channelInputBallistics[index].peakDb();
+                }
+            }
+            const qreal monitorLevel = this->model && this->meterRead
+                ? meterDbValue(this->meterRead(0, true)) : mainOutputLevelDb();
+            monitorMeter.advance(monitorLevel, frameSeconds, peakHold);
+            if (monitorSel) {
+                std::array<qreal, 8> monitorLevels;
+                monitorLevels.fill(-72.0);
+                const auto count = static_cast<std::size_t>(static_cast<int>(monitorLayout));
+                for (std::size_t index = 0; index < count; ++index)
+                    monitorLevels[index] = this->channelMeterRead
+                        ? meterDbValue(this->channelMeterRead(0, true, index)) : monitorLevel;
+                monitorSel->setLevels(monitorLevels);
+                if (this->polarRead) {
+                    Common::MixerPolarSnapshot snapshot;
+                    if (this->polarRead(0, 0, snapshot)) monitorPolarCurve.accept(snapshot);
+                    monitorSel->setContour(monitorPolarCurve.contour());
                 }
             }
             if(sampleMeterReadouts) meterReadoutClock.start();
@@ -1151,6 +1307,7 @@ public:
         if (!model) return true;
         QString error;
         if (commit && commit(candidate, &error)) return true;
+        WJN_LOG_ERROR("Mixer topology commit failed: %s", error.toUtf8().constData());
         QMessageBox::warning(&owner, QStringLiteral("拓扑更新失败"),
             error.isEmpty() ? QStringLiteral("无法注册调音台端口，原有状态已保留。") : error);
         return false;
@@ -1169,6 +1326,7 @@ public:
         strip->faderPosition = channel.fader;
         strip->mute = channel.mute;
         strip->solo = channel.solo;
+        strip->listenMode = channel.listenMode;
         strip->mixToMain = channel.mixToMain;
         auto& panner = strip->mainPanner;
         const auto& view = channel.selState;
@@ -1194,7 +1352,12 @@ public:
                 }
             }
         }
-        if (commitTopology(candidate)) return true;
+        if (commitTopology(candidate)) {
+            WJN_LOG_INFO("Mixer channel updated id=%llu name=%s gainDb=%.2f fader=%.4f mute=%d solo=%d mixToMain=%d",
+                static_cast<unsigned long long>(channel.modelId), channel.name.toUtf8().constData(),
+                channel.inputGainDb, channel.fader, channel.mute, channel.solo, channel.mixToMain);
+            return true;
+        }
         const auto* old = model->strip(channel.modelId);
         if (!old) return false;
         channel.name = old->name;
@@ -1311,6 +1474,7 @@ public:
             channel.inputGainDb = strip.inputGainDb;
             channel.mute = strip.mute;
             channel.solo = strip.solo;
+            channel.listenMode = strip.listenMode;
             channel.mixToMain = strip.mixToMain;
             channel.fx = strip.fxChainEnabled;
             loadMainPanner(channel, strip);
@@ -1331,6 +1495,7 @@ public:
             channel.inputGainDb = strip.inputGainDb;
             channel.mute = strip.mute;
             channel.solo = strip.solo;
+            channel.listenMode = strip.listenMode;
             channel.mixToMain = strip.mixToMain;
             channel.fx = strip.fxChainEnabled;
             loadMainPanner(channel, strip);
@@ -1342,6 +1507,8 @@ public:
         master.source = model->main().comment;
         master.fader = model->main().faderPosition;
         master.fx = model->main().fxChainEnabled;
+        monitorFader = model->monitorFaderPosition();
+        monitorLayout = model->monitorLayout();
         loadMainPanner(master, model->main());
         selectedChannelId = channels.front().id;
         owner.update();
@@ -1351,7 +1518,7 @@ public:
     {
         if (model) return meterRead ? meterDbValue(meterRead(model->main().id, false)) : -72.0;
         const bool anySolo = std::any_of(channels.cbegin(), channels.cbegin() + masterIndex(),
-                                         [](const Channel& channel) { return channel.mixToMain && !channel.mute && channel.solo; });
+                                         [](const Channel& channel) { return channel.solo; });
         double power = 0.0;
         for (int index = 0; index < masterIndex(); ++index) {
             const auto& channel = channels[index];
@@ -1410,10 +1577,18 @@ public:
         });
         if (existingMaster != channels.cend())
             rebuilt.push_back(*existingMaster);
-        else
-            rebuilt.push_back({ "Main L/R", "JACK Out 1/2", "MAIN", "#50dfbd", Common::mixerUnityFaderPosition, 4.0, 4.0,
-                                false, false, false, false, false, 0, 2000000,
-                                Common::AuxChannelLayout::stereo });
+        else {
+            Channel master;
+            master.name = QStringLiteral("Main L/R");
+            master.source = QStringLiteral("JACK Out 1/2");
+            master.number = QStringLiteral("MAIN");
+            master.accent = QColor(QStringLiteral("#50dfbd"));
+            master.fader = Common::mixerUnityFaderPosition;
+            master.level = master.target = 4.0;
+            master.id = 2000000;
+            master.layout = Common::AuxChannelLayout::stereo;
+            rebuilt.push_back(std::move(master));
+        }
         channels = std::move(rebuilt);
         renumberInputs();
         if (auxSettingsWindow && auxWindowChannelId != 0
@@ -1481,6 +1656,9 @@ public:
                         return item.id == id;
                     });
                     if (found != channels.end()) found->fx = enabled;
+                    WJN_LOG_INFO("Mixer FX chain updated id=%llu enabled=%d effects=%llu",
+                        static_cast<unsigned long long>(modelId), enabled,
+                        static_cast<unsigned long long>(effects.size()));
                     owner.update();
                     return true;
                 });
@@ -1745,6 +1923,8 @@ public:
     void selectChannel(int index)
     {
         selectedChannelId = channels[index].id;
+        WJN_LOG_INFO("Mixer channel selected id=%u name=%s",
+            selectedChannelId, channels[index].name.toUtf8().constData());
         updateSel();
         owner.update();
     }
@@ -1847,6 +2027,32 @@ public:
         selWindow->show();
         selWindow->raise();
         selWindow->activateWindow();
+    }
+
+    void showMonitorSel()
+    {
+        if (!monitorSel) {
+            monitorSel = new MonitorSelPage(&owner);
+            monitorSel->setWindowFlags(Qt::Window);
+            monitorSel->setAttribute(Qt::WA_DeleteOnClose);
+            monitorSel->setWindowTitle(QStringLiteral("监听 SEL"));
+            monitorSel->resize(1100, 760);
+            monitorSel->layoutChanged = [this](Common::MixerLayout layout) {
+                if (model) {
+                    auto candidate = *model;
+                    candidate.setMonitorLayout(layout);
+                    if (!commitTopology(candidate)) return;
+                }
+                monitorLayout = layout;
+                monitorPolarCurve.clear();
+                monitorSel->setLayoutMode(layout);
+                owner.update();
+            };
+        }
+        monitorSel->setLayoutMode(model ? model->monitorLayout() : monitorLayout);
+        monitorSel->show();
+        monitorSel->raise();
+        monitorSel->activateWindow();
     }
 
     void showSelAux()
@@ -1995,8 +2201,31 @@ public:
 
     qreal scrollableAreaWidth() const
     {
-        const auto masterLeft = owner.width() - margin - channelWidth;
-        return std::max(0.0, masterLeft - groupGap - margin - groupGap);
+        return std::max(0.0, monitorRect().left() - groupGap - margin - groupGap);
+    }
+
+    QRectF monitorRect() const
+    {
+        return {owner.width() - margin - 2 * channelWidth - groupGap,
+                topMargin, channelWidth, channelAreaHeight()};
+    }
+
+    QRectF monitorMeterRect(qreal heightScale) const
+    {
+        const auto mainMeter = meterRect(masterIndex(), heightScale);
+        return mainMeter.translated(monitorRect().left() - channelRect(masterIndex()).left(), 0);
+    }
+
+    QRectF monitorFaderTrack() const
+    {
+        const auto mainTrack = faderTrack(masterIndex());
+        return mainTrack.translated(monitorRect().left() - channelRect(masterIndex()).left(), 0);
+    }
+
+    QRectF monitorSelectRect(qreal heightScale) const
+    {
+        return channelButtonRect(masterIndex(), heightScale, 0).translated(
+            monitorRect().left() - channelRect(masterIndex()).left(), 0);
     }
 
     qreal effectiveInputRatio() const
@@ -2086,7 +2315,7 @@ public:
         const auto heightScale = std::clamp(owner.height() / 768.0, .72, 1.35);
         const auto meterBottom = card.top() + 42.0 * heightScale + 65.0 * heightScale
             + card.height() * .26 + 16.0 * heightScale;
-        const auto top = meterBottom + (20.0 + 2.35 * 28.0 + 32.0) * heightScale;
+        const auto top = meterBottom + (20.0 + 3.70 * 28.0 + 32.0) * heightScale;
         const auto bottom = card.top() + card.height() * .885;
         return { card.center().x() - 3.0, top, 6.0, std::max(1.0, bottom - top) };
     }
@@ -2150,6 +2379,11 @@ public:
         return splitButtonRect(index, heightScale, 1, true);
     }
 
+    QRectF listenButtonRect(int index, qreal heightScale, bool afl) const
+    {
+        return splitButtonRect(index, heightScale, 2, afl);
+    }
+
     int hitChannel(const QPointF& position) const
     {
         if (inputViewport().contains(position)) {
@@ -2193,6 +2427,11 @@ public:
     std::uint32_t selectedChannelId { 1 };
     std::map<int, QPointer<FxSettingsWindow>> fxSettingsWindows;
     std::vector<Channel> channels;
+    qreal monitorFader { Common::mixerUnityFaderPosition };
+    Common::MixerLayout monitorLayout { Common::MixerLayout::stereo };
+    Controls::MeterBallistics monitorMeter;
+    Common::MixerPolarCurve monitorPolarCurve;
+    QPointer<MonitorSelPage> monitorSel;
     QTimer timer;
     QElapsedTimer meterFrameClock;
     QElapsedTimer meterReadoutClock;
@@ -2370,6 +2609,48 @@ void MixerWindow::paintEvent(QPaintEvent*)
         painter.restore();
     }
 
+    const auto monitorCard = impl_->monitorRect();
+    const auto monitorYellow = themed("fader-monitor-thumb", QColor("#ffe15a"));
+    Controls::drawSurface(painter, monitorCard,
+                          themed("monitor-surface", QColor("#302c1b")),
+                          themed("monitor-border", QColor("#c9a52d")), 7);
+    painter.fillRect(QRectF(monitorCard.left() + 1, monitorCard.top() + 1,
+                            monitorCard.width() - 2, headerHeight - 1),
+                     themed("monitor-header-surface", QColor("#76692b")));
+    drawAdaptiveText(painter, {monitorCard.left(), monitorCard.top(), monitorCard.width(), headerHeight},
+                     QStringLiteral("监听"), label, 18 * heightScale, 10 * heightScale,
+                     Qt::AlignCenter, true);
+    const auto monitorMeterRect = impl_->monitorMeterRect(heightScale);
+    Controls::MeterStyle monitorStyle;
+    monitorStyle.vertical = true;
+    monitorStyle.border = themed("meter-level-border", QColor("#07131f"));
+    monitorStyle.zones = {{-12, themed("monitor-meter-low-active", QColor("#e6bb31")),
+                                 themed("monitor-meter-low-inactive", QColor("#453c1b"))},
+                          {0, themed("monitor-meter-mid-active", QColor("#ffe15a")),
+                              themed("monitor-meter-mid-inactive", QColor("#4a3f1d"))},
+                          {12, themed("monitor-meter-high-active", QColor("#ffec89")),
+                               themed("monitor-meter-high-inactive", QColor("#50471f"))}};
+    Controls::drawSurface(painter, monitorMeterRect,
+                          themed("meter-level-surface", QColor("#101a22")),
+                          themed("meter-level-surface-border", QColor("#0a0f14")), 3, 4);
+    Controls::drawMeter(painter, monitorMeterRect.adjusted(2.5, 2.5, -2.5, -2.5),
+                        impl_->monitorMeter.levelDb(), impl_->monitorMeter.peakDb(), monitorStyle);
+    Controls::ButtonStyle monitorSelStyle;
+    monitorSelStyle.activeBorder = themed("monitor-select-accent", monitorYellow);
+    Controls::drawStyledButton(painter, impl_->monitorSelectRect(heightScale),
+                               QStringLiteral("SEL"), false, monitorSelStyle);
+    Controls::FaderStyle monitorFaderStyle;
+    monitorFaderStyle.accent = monitorYellow;
+    monitorFaderStyle.track = themed("fader-monitor-track", monitorFaderStyle.track);
+    monitorFaderStyle.grip = themed("fader-monitor-grip", monitorFaderStyle.grip);
+    monitorFaderStyle.thumbWidth = monitorCard.width() * .26;
+    monitorFaderStyle.thumbHeight = 40 * heightScale;
+    Controls::drawFader(painter, impl_->monitorFaderTrack(), impl_->monitorFader,
+                        monitorFaderStyle);
+    drawText(painter, {monitorCard.left(), impl_->monitorFaderTrack().bottom() + 10 * heightScale,
+                       monitorCard.width(), 27 * heightScale},
+             faderDbText(impl_->monitorFader), label, 12 * heightScale);
+
     for (int index = 0; index < static_cast<int>(impl_->channels.size()); ++index) {
         painter.save();
         if (index != impl_->masterIndex()) {
@@ -2458,8 +2739,12 @@ void MixerWindow::paintEvent(QPaintEvent*)
                        : themed("control-button-text-normal",label),
                 12 * heightScale, Qt::AlignCenter, true);
         };
+        const bool sipActive=std::any_of(impl_->channels.cbegin(),impl_->channels.cend(),[](const Channel& item) {
+            return item.number!=QStringLiteral("MAIN") && item.solo;
+        });
+        const bool effectiveMute=channel.mute || (sipActive && index!=impl_->masterIndex() && !channel.solo);
         drawButton(impl_->muteButtonRect(index, heightScale), index == impl_->masterIndex() ? "MUTE" : "M",
-                   themed("control-button-mute-accent",QColor("#ff4f55")), channel.mute);
+                   themed("control-button-mute-accent",QColor("#ff4f55")), effectiveMute);
         if(index!=impl_->masterIndex())
             drawButton(impl_->soloButtonRect(index, heightScale), "S",
                        themed("control-button-solo-accent",QColor("#f7aa2f")), channel.solo);
@@ -2468,6 +2753,14 @@ void MixerWindow::paintEvent(QPaintEvent*)
         if (index != impl_->masterIndex())
             drawButton(impl_->mixButtonRect(index, heightScale), "MIX",
                        themed("control-button-mix-accent",QColor("#24b8ff")), channel.mixToMain);
+        if (index != impl_->masterIndex()) {
+            drawButton(impl_->listenButtonRect(index, heightScale, false), "PFL",
+                       themed("control-button-pfl-accent", monitorYellow),
+                       channel.listenMode == Common::MixerListenMode::pfl);
+            drawButton(impl_->listenButtonRect(index, heightScale, true), "AFL",
+                       themed("control-button-afl-accent", monitorYellow),
+                       channel.listenMode == Common::MixerListenMode::afl);
+        }
 
         const auto faderKind = index < impl_->inputChannelCount ? "input"
             : index < impl_->masterIndex() ? "aux" : "master";
@@ -2584,6 +2877,34 @@ void MixerWindow::mousePressEvent(QMouseEvent* event)
         }
     }
 
+    if (impl_->monitorRect().contains(event->position())) {
+        const auto track = impl_->monitorFaderTrack().adjusted(-18, -20, 18, 20);
+        const auto heightScale = std::clamp(height() / 768.0, .72, 1.35);
+        if (impl_->monitorSelectRect(heightScale).contains(event->position())) {
+            impl_->showMonitorSel();
+            return;
+        }
+        const QRectF readout(impl_->monitorRect().left(), impl_->monitorFaderTrack().bottom()
+                             + 10 * heightScale, impl_->monitorRect().width(), 27 * heightScale);
+        if (readout.contains(event->position())) {
+            Controls::editNumericValue(this, readout.toAlignedRect(), faderDbValue(impl_->monitorFader),
+                {-72, 12, 0, 1}, [this](double db) {
+                    const auto position = faderPositionForDb(db);
+                    if (impl_->model) {
+                        auto candidate = *impl_->model;
+                        candidate.setMonitorFaderPosition(position);
+                        if (!impl_->commitTopology(candidate)) return;
+                    }
+                    impl_->monitorFader = position;
+                    update();
+                });
+        } else if (track.contains(event->position())) {
+            impl_->dragging = -2;
+            mouseMoveEvent(event);
+        }
+        return;
+    }
+
     const auto index = impl_->hitChannel(event->position());
     if (index < 0)
         return;
@@ -2608,11 +2929,15 @@ void MixerWindow::mousePressEvent(QMouseEvent* event)
     }
     if (impl_->meterHitRect(index, heightScale).contains(event->position())) {
         impl_->channels[index].postFaderMeter = !impl_->channels[index].postFaderMeter;
+        WJN_LOG_INFO("Mixer meter mode id=%llu mode=%s",
+            static_cast<unsigned long long>(impl_->channels[index].modelId),
+            impl_->channels[index].postFaderMeter ? "post-fader" : "post-gain");
         update();
         return;
     }
     auto track = impl_->faderTrack(index).adjusted(-card.width() * .18, -20, card.width() * .18, 20);
-    track.setTop(std::max(track.top(), impl_->channelButtonRect(index, heightScale, 1).bottom() + 4.0 * heightScale));
+    track.setTop(std::max(track.top(), impl_->channelButtonRect(index, heightScale,
+        index == impl_->masterIndex() ? 1 : 2).bottom() + 4.0 * heightScale));
     if (track.contains(event->position())) {
         impl_->dragging = index;
         mouseMoveEvent(event);
@@ -2630,6 +2955,14 @@ void MixerWindow::mousePressEvent(QMouseEvent* event)
     }
     else if (index != impl_->masterIndex() && impl_->mixButtonRect(index, heightScale).contains(event->position()))
         channel.mixToMain = !channel.mixToMain;
+    else if (index != impl_->masterIndex()
+             && impl_->listenButtonRect(index, heightScale, false).contains(event->position()))
+        channel.listenMode = channel.listenMode == Common::MixerListenMode::pfl
+            ? Common::MixerListenMode::off : Common::MixerListenMode::pfl;
+    else if (index != impl_->masterIndex()
+             && impl_->listenButtonRect(index, heightScale, true).contains(event->position()))
+        channel.listenMode = channel.listenMode == Common::MixerListenMode::afl
+            ? Common::MixerListenMode::off : Common::MixerListenMode::afl;
     impl_->commitChannel(channel);
     update();
 }
@@ -2637,13 +2970,28 @@ void MixerWindow::mousePressEvent(QMouseEvent* event)
 void MixerWindow::mouseDoubleClickEvent(QMouseEvent* event)
 {
     if(event->button()!=Qt::LeftButton) return;
+    if (impl_->monitorFaderTrack().adjusted(-18, -20, 18, 20).contains(event->position())) {
+        impl_->dragging = -1;
+        Controls::resetNumericValue({-72, 12, 0, 1}, [this](double db) {
+            const auto position = faderPositionForDb(db);
+            if (impl_->model) {
+                auto candidate = *impl_->model;
+                candidate.setMonitorFaderPosition(position);
+                if (!impl_->commitTopology(candidate)) return;
+            }
+            impl_->monitorFader = position;
+            update();
+        });
+        return;
+    }
     const int index=impl_->hitChannel(event->position());
     if(index<0) return;
     const auto card=impl_->channelRect(index);
     const auto heightScale=std::clamp(height()/768.0,.72,1.35);
     auto track=impl_->faderTrack(index).adjusted(-card.width()*.18,-20,
                                                card.width()*.18,20);
-    track.setTop(std::max(track.top(),impl_->channelButtonRect(index,heightScale,1).bottom()
+    track.setTop(std::max(track.top(),impl_->channelButtonRect(index,heightScale,
+                          index == impl_->masterIndex() ? 1 : 2).bottom()
                           +4.0*heightScale));
     if(!track.contains(event->position())) return;
     impl_->dragging=-1;
@@ -2675,6 +3023,18 @@ void MixerWindow::mouseMoveEvent(QMouseEvent* event)
             setCursor(index >= 0 && impl_->meterHitRect(index, heightScale).contains(event->position())
                 ? Qt::PointingHandCursor : Qt::ArrowCursor);
         }
+        return;
+    }
+    if (impl_->dragging == -2) {
+        const auto track = impl_->monitorFaderTrack();
+        const auto position = std::clamp((event->position().y() - track.top()) / track.height(), 0.0, 1.0);
+        if (impl_->model) {
+            auto candidate = *impl_->model;
+            candidate.setMonitorFaderPosition(position);
+            if (!impl_->commitTopology(candidate)) return;
+        }
+        impl_->monitorFader = position;
+        update();
         return;
     }
     if (impl_->dragging < 0)

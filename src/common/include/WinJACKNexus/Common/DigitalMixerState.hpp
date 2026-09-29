@@ -56,6 +56,8 @@ struct WINJACK_COMMON_API MixerEffectState final {
     QJsonObject parameters;
 };
 
+enum class MixerListenMode : int { off, pfl, afl };
+
 struct WINJACK_COMMON_API MixerStripState final {
     std::uint64_t id {};
     std::uint32_t number {};
@@ -68,6 +70,7 @@ struct WINJACK_COMMON_API MixerStripState final {
     double faderPosition { mixerUnityFaderPosition };
     bool mute {};
     bool solo {};
+    MixerListenMode listenMode { MixerListenMode::off };
     bool mixToMain { true };
     bool auxSendsEnabled {};
     bool fxChainEnabled {};
@@ -90,6 +93,10 @@ public:
     const std::vector<MixerStripState>& inputs() const noexcept { return inputs_; }
     const std::vector<MixerStripState>& auxiliaries() const noexcept { return auxiliaries_; }
     const MixerStripState& main() const noexcept { return main_; }
+    double monitorFaderPosition() const noexcept { return monitorFaderPosition_; }
+    void setMonitorFaderPosition(double position) noexcept { monitorFaderPosition_ = position; }
+    MixerLayout monitorLayout() const noexcept { return monitorLayout_; }
+    void setMonitorLayout(MixerLayout layout) noexcept { monitorLayout_ = layout; }
     const MixerStripState* strip(std::uint64_t id) const noexcept;
     MixerStripState* strip(std::uint64_t id) noexcept;
 
@@ -108,6 +115,8 @@ private:
     std::vector<MixerStripState> inputs_;
     std::vector<MixerStripState> auxiliaries_;
     MixerStripState main_;
+    double monitorFaderPosition_ { mixerUnityFaderPosition };
+    MixerLayout monitorLayout_ { MixerLayout::stereo };
     std::uint64_t nextId_ { 2 };
     std::uint32_t nextInputNumber_ { 1 };
     std::uint32_t nextAuxNumber_ { 1 };

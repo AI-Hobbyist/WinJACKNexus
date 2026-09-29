@@ -72,7 +72,8 @@ QJsonObject stripJson(const MixerStripState& strip)
             {"kind", static_cast<int>(strip.kind)}, {"layout", static_cast<int>(strip.layout)},
             {"name", strip.name}, {"comment", strip.comment}, {"color", strip.color.name(QColor::HexRgb)},
             {"inputGainDb", strip.inputGainDb}, {"faderPosition", strip.faderPosition},
-            {"mute", strip.mute}, {"solo", strip.solo}, {"mixToMain", strip.mixToMain},
+            {"mute", strip.mute}, {"solo", strip.solo},
+            {"listenMode", static_cast<int>(strip.listenMode)}, {"mixToMain", strip.mixToMain},
             {"auxSendsEnabled", strip.auxSendsEnabled}, {"fxChainEnabled", strip.fxChainEnabled},
             {"mainPanner", pannerJson(strip.mainPanner)},
             {"sends", sends}, {"effects", effects}};
@@ -188,6 +189,11 @@ bool readStrip(const QJsonObject& object, MixerStripState& result)
         || number < 0 || color.size() != 7 || !color.startsWith(QLatin1Char('#'))) return false;
     if (object.contains("fxChainEnabled") && !getBool(object, "fxChainEnabled", result.fxChainEnabled))
         return false;
+    if (object.contains("listenMode")) {
+        int mode = 0;
+        if (!getInt(object, "listenMode", mode) || mode < 0 || mode > 2) return false;
+        result.listenMode = static_cast<MixerListenMode>(mode);
+    }
     result.number = static_cast<std::uint32_t>(number);
     result.kind = static_cast<MixerStripKind>(kind);
     result.layout = static_cast<MixerLayout>(layout);
@@ -321,8 +327,6 @@ std::uint64_t DigitalMixerState::add(MixerStripKind kind, MixerLayout layout)
     item.name = QStringLiteral("%1%2").arg(kind == MixerStripKind::input ? QStringLiteral("CH") : QStringLiteral("AUX"))
                                      .arg(item.number);
     item.mainPanner = defaultMixerPanner(layout, MixerLayout::stereo);
-    item.fxChainEnabled = true;
-    item.effects.push_back({QStringLiteral("parametric-eq"), true, -1, {}});
     const auto id = item.id;
     list.push_back(std::move(item));
     return id;
@@ -428,6 +432,10 @@ std::vector<MixerPortDescriptor> DigitalMixerState::ports() const
     };
     for (const auto& item : inputs_) append(item);
     for (const auto& item : auxiliaries_) append(item);
+    const auto monitorLabels = mixerChannelLabels(monitorLayout_);
+    for (int channel = 0; channel < monitorLabels.size(); ++channel)
+        result.push_back({0, QStringLiteral("MONITOR_") + monitorLabels[channel],
+                          MixerPortDirection::output, channel});
     append(main_);
     return result;
 }
@@ -435,8 +443,11 @@ std::vector<MixerPortDescriptor> DigitalMixerState::ports() const
 bool DigitalMixerState::validate(QString* error) const
 {
     if (main_.id != 1 || main_.number != 0 || main_.kind != MixerStripKind::main
-        || main_.layout != MixerLayout::stereo || main_.solo || !main_.sends.empty())
+        || main_.layout != MixerLayout::stereo || main_.solo
+        || main_.listenMode != MixerListenMode::off || !main_.sends.empty())
         return fail(error, QStringLiteral("MAIN 必须是不可删除的立体声总线"));
+    if (!inRange(monitorFaderPosition_, 0, 1) || !isMixerLayout(monitorLayout_))
+        return fail(error, QStringLiteral("监听推子参数无效"));
     std::set<std::uint64_t> ids;
     std::set<std::uint32_t> inputNumbers, auxNumbers;
     const auto checkStrip = [&](const MixerStripState& item, MixerStripKind expected) {
@@ -444,6 +455,7 @@ bool DigitalMixerState::validate(QString* error) const
             || !ids.insert(item.id).second || item.id >= nextId_
             || !item.color.isValid() || item.name.trimmed().isEmpty()
             || !inRange(item.inputGainDb, -12, 12) || !inRange(item.faderPosition, 0, 1)
+            || static_cast<int>(item.listenMode) < 0 || static_cast<int>(item.listenMode) > 2
             || !validPanner(item.mainPanner, item.layout, MixerLayout::stereo)) return false;
         if (expected != MixerStripKind::main) {
             auto& numbers = expected == MixerStripKind::input ? inputNumbers : auxNumbers;
@@ -503,7 +515,9 @@ QByteArray DigitalMixerState::toJson() const
         {"version", 1}, {"nextId", QString::number(nextId_)},
         {"nextInputNumber", static_cast<int>(nextInputNumber_)},
         {"nextAuxNumber", static_cast<int>(nextAuxNumber_)},
-        {"inputs", inputs}, {"auxiliaries", auxiliaries}, {"main", stripJson(main_)}
+        {"inputs", inputs}, {"auxiliaries", auxiliaries}, {"main", stripJson(main_)},
+        {"monitorFaderPosition", monitorFaderPosition_},
+        {"monitorLayout", static_cast<int>(monitorLayout_)}
     }).toJson(QJsonDocument::Compact);
 }
 
@@ -526,6 +540,15 @@ bool DigitalMixerState::loadJson(const QByteArray& json, QString* error)
         || !getObject(root, "main", main)) return fail(error, QStringLiteral("JSON 版本或字段无效"));
     candidate.nextInputNumber_ = static_cast<std::uint32_t>(inputNumber);
     candidate.nextAuxNumber_ = static_cast<std::uint32_t>(auxNumber);
+    if (root.contains("monitorFaderPosition")
+        && !getNumber(root, "monitorFaderPosition", candidate.monitorFaderPosition_))
+        return fail(error, QStringLiteral("监听推子 JSON 无效"));
+    if (root.contains("monitorLayout")) {
+        int layout = 0;
+        if (!getInt(root, "monitorLayout", layout))
+            return fail(error, QStringLiteral("监听布局 JSON 无效"));
+        candidate.monitorLayout_ = static_cast<MixerLayout>(layout);
+    }
     if (!readStrip(main, candidate.main_)) return fail(error, QStringLiteral("MAIN JSON 无效"));
     for (const auto& item : inputs) {
         MixerStripState strip;

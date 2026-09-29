@@ -178,10 +178,25 @@ std::size_t Logger::drain(std::size_t maxRecords) noexcept
         if (impl_->fileLoggingEnabled.load(std::memory_order_acquire)) {
             try {
                 std::lock_guard lock(impl_->fileMutex);
+                if (!impl_->fileLoggingEnabled.load(std::memory_order_acquire)) {
+                    ++count;
+                    continue;
+                }
                 if (!impl_->file.is_open())
                     impl_->file.open(PathUtils::logDirectory() / L"WinJACKNexus.log", std::ios::app);
-                if (impl_->file.is_open())
-                    impl_->file << '[' << levelName(record.level) << "] [" << record.threadId << "] " << record.message << '\n';
+                if (impl_->file.is_open()) {
+                    SYSTEMTIME now;
+                    GetLocalTime(&now);
+                    char timestamp[32];
+                    std::snprintf(timestamp, sizeof(timestamp),
+                        "%04u-%02u-%02u %02u:%02u:%02u.%03u",
+                        static_cast<unsigned>(now.wYear), static_cast<unsigned>(now.wMonth),
+                        static_cast<unsigned>(now.wDay), static_cast<unsigned>(now.wHour),
+                        static_cast<unsigned>(now.wMinute), static_cast<unsigned>(now.wSecond),
+                        static_cast<unsigned>(now.wMilliseconds));
+                    impl_->file << '[' << timestamp << "] [" << levelName(record.level)
+                        << "] [thread " << record.threadId << "] " << record.message << '\n';
+                }
             } catch (...) {
             }
         }
@@ -207,6 +222,10 @@ void Logger::setSink(LogSink sink, void* userData) noexcept
 void Logger::setFileLoggingEnabled(bool enabled) noexcept
 {
     impl_->fileLoggingEnabled.store(enabled, std::memory_order_release);
+    if (!enabled) {
+        std::lock_guard lock(impl_->fileMutex);
+        if (impl_->file.is_open()) impl_->file.close();
+    }
 }
 
 std::size_t Logger::pendingCount() const noexcept

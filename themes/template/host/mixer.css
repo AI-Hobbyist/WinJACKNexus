@@ -12,6 +12,36 @@
   --wjn-theme-mixer-group-aux-accent: #654dd4;
   /* mixer / group master accent; type=color */
   --wjn-theme-mixer-group-master-accent: #1ca47f;
+  /* mixer / monitor surface; type=color */
+  --wjn-theme-mixer-monitor-surface: #302c1b;
+  /* mixer / monitor border; type=color */
+  --wjn-theme-mixer-monitor-border: #c9a52d;
+  /* mixer / monitor header surface; type=color */
+  --wjn-theme-mixer-monitor-header-surface: #76692b;
+  /* mixer / monitor select accent; type=color */
+  --wjn-theme-mixer-monitor-select-accent: #ffe15a;
+  /* mixer / monitor meter low active; type=color */
+  --wjn-theme-mixer-monitor-meter-low-active: #e6bb31;
+  /* mixer / monitor meter low inactive; type=color */
+  --wjn-theme-mixer-monitor-meter-low-inactive: #453c1b;
+  /* mixer / monitor meter mid active; type=color */
+  --wjn-theme-mixer-monitor-meter-mid-active: #ffe15a;
+  /* mixer / monitor meter mid inactive; type=color */
+  --wjn-theme-mixer-monitor-meter-mid-inactive: #4a3f1d;
+  /* mixer / monitor meter high active; type=color */
+  --wjn-theme-mixer-monitor-meter-high-active: #ffec89;
+  /* mixer / monitor meter high inactive; type=color */
+  --wjn-theme-mixer-monitor-meter-high-inactive: #50471f;
+  /* mixer / fader monitor thumb; type=color */
+  --wjn-theme-mixer-fader-monitor-thumb: #ffe15a;
+  /* mixer / fader monitor track; type=color */
+  --wjn-theme-mixer-fader-monitor-track: #0a0f15;
+  /* mixer / fader monitor grip; type=color */
+  --wjn-theme-mixer-fader-monitor-grip: #07131f;
+  /* mixer / control button pfl accent; type=color */
+  --wjn-theme-mixer-control-button-pfl-accent: #ffe15a;
+  /* mixer / control button afl accent; type=color */
+  --wjn-theme-mixer-control-button-afl-accent: #ffe15a;
   /* mixer / group divider; type=color */
   --wjn-theme-mixer-group-divider: #243c57;
   /* mixer / control meter mode surface post; type=color */

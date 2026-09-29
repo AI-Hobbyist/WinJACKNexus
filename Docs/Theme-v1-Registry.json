@@ -849,6 +849,126 @@
       "description": "mixer / group master accent"
     },
     {
+      "name": "--wjn-theme-mixer-monitor-surface",
+      "ownerScope": "mixer",
+      "type": "color",
+      "default": "#302c1b",
+      "inherits": [],
+      "description": "mixer / monitor surface"
+    },
+    {
+      "name": "--wjn-theme-mixer-monitor-border",
+      "ownerScope": "mixer",
+      "type": "color",
+      "default": "#c9a52d",
+      "inherits": [],
+      "description": "mixer / monitor border"
+    },
+    {
+      "name": "--wjn-theme-mixer-monitor-header-surface",
+      "ownerScope": "mixer",
+      "type": "color",
+      "default": "#76692b",
+      "inherits": [],
+      "description": "mixer / monitor header surface"
+    },
+    {
+      "name": "--wjn-theme-mixer-monitor-select-accent",
+      "ownerScope": "mixer",
+      "type": "color",
+      "default": "#ffe15a",
+      "inherits": [],
+      "description": "mixer / monitor select accent"
+    },
+    {
+      "name": "--wjn-theme-mixer-monitor-meter-low-active",
+      "ownerScope": "mixer",
+      "type": "color",
+      "default": "#e6bb31",
+      "inherits": [],
+      "description": "mixer / monitor meter low active"
+    },
+    {
+      "name": "--wjn-theme-mixer-monitor-meter-low-inactive",
+      "ownerScope": "mixer",
+      "type": "color",
+      "default": "#453c1b",
+      "inherits": [],
+      "description": "mixer / monitor meter low inactive"
+    },
+    {
+      "name": "--wjn-theme-mixer-monitor-meter-mid-active",
+      "ownerScope": "mixer",
+      "type": "color",
+      "default": "#ffe15a",
+      "inherits": [],
+      "description": "mixer / monitor meter mid active"
+    },
+    {
+      "name": "--wjn-theme-mixer-monitor-meter-mid-inactive",
+      "ownerScope": "mixer",
+      "type": "color",
+      "default": "#4a3f1d",
+      "inherits": [],
+      "description": "mixer / monitor meter mid inactive"
+    },
+    {
+      "name": "--wjn-theme-mixer-monitor-meter-high-active",
+      "ownerScope": "mixer",
+      "type": "color",
+      "default": "#ffec89",
+      "inherits": [],
+      "description": "mixer / monitor meter high active"
+    },
+    {
+      "name": "--wjn-theme-mixer-monitor-meter-high-inactive",
+      "ownerScope": "mixer",
+      "type": "color",
+      "default": "#50471f",
+      "inherits": [],
+      "description": "mixer / monitor meter high inactive"
+    },
+    {
+      "name": "--wjn-theme-mixer-fader-monitor-thumb",
+      "ownerScope": "mixer",
+      "type": "color",
+      "default": "#ffe15a",
+      "inherits": [],
+      "description": "mixer / fader monitor thumb"
+    },
+    {
+      "name": "--wjn-theme-mixer-fader-monitor-track",
+      "ownerScope": "mixer",
+      "type": "color",
+      "default": "#0a0f15",
+      "inherits": [],
+      "description": "mixer / fader monitor track"
+    },
+    {
+      "name": "--wjn-theme-mixer-fader-monitor-grip",
+      "ownerScope": "mixer",
+      "type": "color",
+      "default": "#07131f",
+      "inherits": [],
+      "description": "mixer / fader monitor grip"
+    },
+    {
+      "name": "--wjn-theme-mixer-control-button-pfl-accent",
+      "ownerScope": "mixer",
+      "type": "color",
+      "default": "#ffe15a",
+      "inherits": [],
+      "description": "mixer / control button pfl accent"
+    },
+    {
+      "name": "--wjn-theme-mixer-control-button-afl-accent",
+      "ownerScope": "mixer",
+      "type": "color",
+      "default": "#ffe15a",
+      "inherits": [],
+      "description": "mixer / control button afl accent"
+    },
+    {
       "name": "--wjn-theme-mixer-group-divider",
       "ownerScope": "mixer",
       "type": "color",
@@ -1181,6 +1301,86 @@
         "--wjn-theme-global-surface-panel"
       ],
       "description": "sel-main / surface panel"
+    },
+    {
+      "name": "--wjn-theme-sel-main-monitor-header-surface",
+      "ownerScope": "sel-main",
+      "type": "color",
+      "default": "#123a65",
+      "inherits": [],
+      "description": "sel-main / monitor header surface"
+    },
+    {
+      "name": "--wjn-theme-sel-main-monitor-plot-surface",
+      "ownerScope": "sel-main",
+      "type": "color",
+      "default": "#102235",
+      "inherits": [],
+      "description": "sel-main / monitor plot surface"
+    },
+    {
+      "name": "--wjn-theme-sel-main-monitor-sidebar-surface",
+      "ownerScope": "sel-main",
+      "type": "color",
+      "default": "#102235",
+      "inherits": [],
+      "description": "sel-main / monitor sidebar surface"
+    },
+    {
+      "name": "--wjn-theme-sel-main-monitor-border",
+      "ownerScope": "sel-main",
+      "type": "color",
+      "default": "#2b4662",
+      "inherits": [],
+      "description": "sel-main / monitor border"
+    },
+    {
+      "name": "--wjn-theme-sel-main-monitor-meter-low-active",
+      "ownerScope": "sel-main",
+      "type": "color",
+      "default": "#d8b536",
+      "inherits": [],
+      "description": "sel-main / monitor meter low active"
+    },
+    {
+      "name": "--wjn-theme-sel-main-monitor-meter-low-inactive",
+      "ownerScope": "sel-main",
+      "type": "color",
+      "default": "#453c1b",
+      "inherits": [],
+      "description": "sel-main / monitor meter low inactive"
+    },
+    {
+      "name": "--wjn-theme-sel-main-monitor-meter-mid-active",
+      "ownerScope": "sel-main",
+      "type": "color",
+      "default": "#ffe15a",
+      "inherits": [],
+      "description": "sel-main / monitor meter mid active"
+    },
+    {
+      "name": "--wjn-theme-sel-main-monitor-meter-mid-inactive",
+      "ownerScope": "sel-main",
+      "type": "color",
+      "default": "#4a3f1d",
+      "inherits": [],
+      "description": "sel-main / monitor meter mid inactive"
+    },
+    {
+      "name": "--wjn-theme-sel-main-monitor-meter-high-active",
+      "ownerScope": "sel-main",
+      "type": "color",
+      "default": "#ffec89",
+      "inherits": [],
+      "description": "sel-main / monitor meter high active"
+    },
+    {
+      "name": "--wjn-theme-sel-main-monitor-meter-high-inactive",
+      "ownerScope": "sel-main",
+      "type": "color",
+      "default": "#50471f",
+      "inherits": [],
+      "description": "sel-main / monitor meter high inactive"
     },
     {
       "name": "--wjn-theme-sel-main-text-primary",

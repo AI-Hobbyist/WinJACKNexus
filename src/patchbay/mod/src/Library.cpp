@@ -19,6 +19,8 @@
 #include <WinJACKNexus/Audio/JackClient.hpp>
 #include <WinJACKNexus/Audio/JackMidiBuffer.hpp>
 #include <WinJACKNexus/Audio/JackPort.hpp>
+#include <WinJACKNexus/Common/Logger.hpp>
+#include <WinJACKNexus/Common/PathUtils.hpp>
 #include <WinJACKNexus/Patchbay/Core/Snapshot.hpp>
 #include <WinJACKNexus/UI/ApplicationSettings.hpp>
 #include <WinJACKNexus/UI/Controls.hpp>
@@ -33,6 +35,7 @@
 #include <QApplication>
 #include <QCheckBox>
 #include <QCoreApplication>
+#include <QDesktopServices>
 #include <QDockWidget>
 #include <QCloseEvent>
 #include <QFile>
@@ -59,6 +62,7 @@
 #include <QTreeWidget>
 #include <QToolBar>
 #include <QTimer>
+#include <QUrl>
 #include <QVBoxLayout>
 
 #include <Windows.h>
@@ -2679,6 +2683,23 @@ public:
 			});
 			otherToolsMenu->addAction(scanVstAction);
 			auto* helpMenu = window_->menuBar()->addMenu(QStringLiteral("帮助"));
+			helpMenu->addAction(QStringLiteral("日志跟踪"), window_, [window = window_.data()] {
+				WinJACKNexus::Common::Logger::instance().flush();
+				const auto logPath = WinJACKNexus::Common::PathUtils::logDirectory() / L"WinJACKNexus.log";
+				const auto filePath = QString::fromStdWString(logPath.wstring());
+				if (!QFileInfo::exists(filePath)) {
+					QMessageBox::information(window, QStringLiteral("日志跟踪"),
+						QStringLiteral("日志文件尚未生成，请先在全局设置中开启详细日志跟踪。"));
+					return;
+				}
+				WJN_LOG_INFO("Opening diagnostic log path=%s", filePath.toUtf8().constData());
+				WinJACKNexus::Common::Logger::instance().flush();
+				if (!QDesktopServices::openUrl(QUrl::fromLocalFile(filePath))) {
+					WJN_LOG_ERROR("Failed to open diagnostic log path=%s", filePath.toUtf8().constData());
+					QMessageBox::warning(window, QStringLiteral("日志跟踪"),
+						QStringLiteral("无法用系统默认程序打开日志文件。\n%1").arg(filePath));
+				}
+			});
 			helpMenu->addAction(QStringLiteral("关于"), window_, [window = window_.data()] {
 				QMessageBox::about(window, QStringLiteral("关于 WinJACKNexus"),
 					QStringLiteral("WinJACKNexus\nJACK 音频路由与调音工作台\nAGPL-3.0-or-later"));

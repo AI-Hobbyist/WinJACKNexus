@@ -23,6 +23,7 @@
 #include <WinJACKNexus/UI/TrayController.hpp>
 #include <WinJACKNexus/Audio/JackClient.hpp>
 #include <WinJACKNexus/Audio/JackServerGuard.hpp>
+#include <WinJACKNexus/Common/Logger.hpp>
 #include <WinJACKNexus/Node/NodeApi.h>
 
 #include <QApplication>
@@ -45,6 +46,7 @@
 #include <QLineEdit>
 #include <QMenu>
 #include <QMessageBox>
+#include <QMouseEvent>
 #include <QPainter>
 #include <QPen>
 #include <QProcess>
@@ -71,6 +73,39 @@
 
 namespace {
 
+void logQtMessage(QtMsgType type, const QMessageLogContext& context, const QString& message)
+{
+    using WinJACKNexus::Common::LogLevel;
+    const auto level = type == QtFatalMsg || type == QtCriticalMsg ? LogLevel::error
+        : type == QtWarningMsg ? LogLevel::warning
+        : type == QtDebugMsg ? LogLevel::trace : LogLevel::info;
+    const auto text = message.toUtf8();
+    WinJACKNexus::Common::Logger::instance().log(level,
+        "Qt category=%s source=%s:%d function=%s message=%s",
+        context.category ? context.category : "?", context.file ? context.file : "?",
+        context.line, context.function ? context.function : "?", text.constData());
+    if (type == QtFatalMsg) WinJACKNexus::Common::Logger::instance().flush();
+}
+
+class UsageTrace final : public QObject {
+public:
+    using QObject::QObject;
+
+protected:
+    bool eventFilter(QObject* watched, QEvent* event) override
+    {
+        if (event->type() != QEvent::MouseButtonPress) return false;
+        const auto* widget = qobject_cast<QWidget*>(watched);
+        const auto* mouse = static_cast<QMouseEvent*>(event);
+        if (!widget) return false;
+        WJN_LOG_TRACE("UI click window=%s widget=%s class=%s button=%d x=%.0f y=%.0f",
+            widget->window()->objectName().toUtf8().constData(),
+            widget->objectName().toUtf8().constData(), widget->metaObject()->className(),
+            static_cast<int>(mouse->button()), mouse->position().x(), mouse->position().y());
+        return false;
+    }
+};
+
 class NodeModule final {
 public:
     ~NodeModule()
@@ -81,10 +116,14 @@ public:
     bool load(const QString& filePath)
     {
         unload();
+        WJN_LOG_INFO("Loading node module path=%s", filePath.toUtf8().constData());
 
         library_ = LoadLibraryW(reinterpret_cast<LPCWSTR>(filePath.utf16()));
-        if (library_ == nullptr)
+        if (library_ == nullptr) {
+            WJN_LOG_ERROR("Node module load failed path=%s win32=%lu",
+                filePath.toUtf8().constData(), GetLastError());
             return false;
+        }
 
         const auto apiVersion = reinterpret_cast<ApiVersion>(GetProcAddress(library_, "wjn_get_node_api_version"));
         const auto nodeCount = reinterpret_cast<NodeCount>(GetProcAddress(library_, "wjn_get_node_count"));
@@ -92,6 +131,7 @@ public:
         destroy_ = reinterpret_cast<Destroy>(GetProcAddress(library_, "wjn_destroy_node"));
         if (apiVersion == nullptr || nodeCount == nullptr || create == nullptr || destroy_ == nullptr
             || std::strcmp(apiVersion(), "2") != 0 || nodeCount() == 0) {
+            WJN_LOG_ERROR("Node module API validation failed path=%s", filePath.toUtf8().constData());
             unload();
             return false;
         }
@@ -106,9 +146,11 @@ public:
 
         node_ = create(0);
         if (node_ == nullptr || !node_->init()) {
+            WJN_LOG_ERROR("Node module initialization failed path=%s", filePath.toUtf8().constData());
             unload();
             return false;
         }
+        WJN_LOG_INFO("Node module ready path=%s", filePath.toUtf8().constData());
         return true;
     }
 
@@ -623,6 +665,13 @@ public:
         peakHold_->setValue(WinJACKNexus::UI::ApplicationSettings::instance().peakHoldSeconds());
         applicationForm->addRow(QStringLiteral("峰值保持时长"), peakHold_);
 
+        logTracing_ = new Controls::ToggleField(QStringLiteral("启用详细日志跟踪"), applicationGroup);
+        logTracing_->setFixedHeight(Controls::sidebarControlHeight);
+        logTracing_->setObjectName(QStringLiteral("application.logTracingEnabled"));
+        logTracing_->setChecked(QSettings(QStringLiteral("WinJACKNexus"), QStringLiteral("Application"))
+            .value(QStringLiteral("logTracingEnabled"), true).toBool());
+        applicationForm->addRow(QStringLiteral("诊断日志"), logTracing_);
+
         opacitySlider_ = new Controls::RangeSlider(Qt::Horizontal, applicationGroup);
         opacitySlider_->setObjectName(QStringLiteral("application.quickAccessOpacity"));
         opacitySlider_->setRange(10, 100);
@@ -704,6 +753,16 @@ public:
         connect(peakHold_, qOverload<double>(&QDoubleSpinBox::valueChanged), this, [](double seconds) {
             WinJACKNexus::UI::ApplicationSettings::instance().setPeakHoldSeconds(seconds);
         });
+        connect(logTracing_, &QCheckBox::toggled, this, [](bool enabled) {
+            if (enabled)
+                WinJACKNexus::Common::Logger::instance().setFileLoggingEnabled(true);
+            WJN_LOG_INFO("Detailed log tracing %s", enabled ? "enabled" : "disabled");
+            WinJACKNexus::Common::Logger::instance().flush();
+            QSettings(QStringLiteral("WinJACKNexus"), QStringLiteral("Application"))
+                .setValue(QStringLiteral("logTracingEnabled"), enabled);
+            if (!enabled)
+                WinJACKNexus::Common::Logger::instance().setFileLoggingEnabled(false);
+        });
         connect(opacitySlider_, &QSlider::valueChanged, this, [this](int value) {
             WinJACKNexus::UI::TrayController::setQuickAccessOpacity(value);
             opacityValue_->setText(QStringLiteral("%1%").arg(value));
@@ -748,6 +807,7 @@ private:
     QComboBox* frameRate_ = nullptr;
     QSpinBox* peakValueRefresh_ = nullptr;
     QDoubleSpinBox* peakHold_ = nullptr;
+    QCheckBox* logTracing_ = nullptr;
     QSlider* opacitySlider_ = nullptr;
     QLabel* opacityValue_ = nullptr;
     QDoubleSpinBox* meterbridgeSilenceThreshold_ = nullptr;
@@ -809,6 +869,22 @@ int main(int argc, char* argv[])
     QApplication application(argc, argv);
     application.setApplicationName(QStringLiteral("WinJACKNexus"));
     application.setQuitOnLastWindowClosed(false);
+    auto& logger = WinJACKNexus::Common::Logger::instance();
+    const bool logTracingEnabled = QSettings(QStringLiteral("WinJACKNexus"),
+        QStringLiteral("Application")).value(QStringLiteral("logTracingEnabled"), true).toBool();
+    logger.setFileLoggingEnabled(logTracingEnabled);
+    qInstallMessageHandler(logQtMessage);
+    WJN_LOG_INFO("Application start logTracing=%d", logTracingEnabled ? 1 : 0);
+    QTimer logDrainTimer;
+    logDrainTimer.setInterval(250);
+    QObject::connect(&logDrainTimer, &QTimer::timeout, &application, [&logger] { logger.flush(); });
+    QObject::connect(&application, &QApplication::aboutToQuit, &application, [&logger] {
+        WJN_LOG_INFO("Application stopping");
+        logger.flush();
+    });
+    logDrainTimer.start();
+    UsageTrace usageTrace;
+    application.installEventFilter(&usageTrace);
 
     QIcon applicationIcon(QStringLiteral(":/WinJACKNexus/UI/icons/WinJACKNexus.png"));
     if (applicationIcon.isNull())
@@ -817,6 +893,9 @@ int main(int argc, char* argv[])
 
     WinJACKNexus::UI::ThemeCore themeCore;
     if (!themeCore.isValid()) {
+        WJN_LOG_ERROR("Default theme initialization failed: %s",
+            themeCore.initializationError().toUtf8().constData());
+        logger.flush();
         if (qEnvironmentVariableIsSet("WJN_THEME_STARTUP_PROBE"))
             return 1;
         const auto message = QStringLiteral("无法加载必需的默认主题 DLL，程序无法启动。\n%1")
@@ -904,6 +983,7 @@ int main(int argc, char* argv[])
     }
 #endif
     if (!jackServerSettingsDialog.startAutomaticallyIfConfigured()) {
+        WJN_LOG_WARN("Configured JACK server startup failed");
         QMessageBox::warning(nullptr, application.applicationName(),
                              QStringLiteral("未能按 JACK 服务器设置启动或连接 jackd。"));
     }
@@ -941,6 +1021,7 @@ int main(int argc, char* argv[])
     NodeModule patchbayModule;
     const auto patchbayPath = QDir(executableDirectory()).filePath(QStringLiteral("mod_patchbay.dll"));
     if (!patchbayModule.load(patchbayPath)) {
+        logger.flush();
         QMessageBox::critical(nullptr, application.applicationName(),
                               QStringLiteral("无法加载接线盘模块。"));
         return 1;
@@ -949,6 +1030,7 @@ int main(int argc, char* argv[])
     NodeModule meterbridgeModule;
     const auto meterbridgePath = QDir(executableDirectory()).filePath(QStringLiteral("mod_meterbrigde.dll"));
     if (!meterbridgeModule.load(meterbridgePath)) {
+        logger.flush();
         QMessageBox::critical(nullptr, application.applicationName(),
                               QStringLiteral("无法加载电平表桥模块。"));
         return 1;
@@ -979,6 +1061,8 @@ int main(int argc, char* argv[])
     }
 
     if (patchbayModule.node()->createWindow(nullptr) == nullptr) {
+        WJN_LOG_ERROR("Initial patchbay window creation failed");
+        logger.flush();
         QMessageBox::critical(nullptr, application.applicationName(),
                               QStringLiteral("无法创建接线盘窗口。"));
         CloseHandle(instanceMutex);
@@ -986,6 +1070,7 @@ int main(int argc, char* argv[])
     }
 
     const auto exitCode = application.exec();
+    logger.flush();
     CloseHandle(instanceMutex);
     return exitCode;
 }

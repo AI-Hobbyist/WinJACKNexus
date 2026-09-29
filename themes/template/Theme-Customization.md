@@ -7,7 +7,7 @@
 ## 制作与安装
 
 1. 复制 `themes/template` 到个人工作目录，修改 `meta.json` 中稳定的 `id`、名称、版本、作者、介绍和可选主页。
-2. 全局外观修改根目录 `style.css`；宿主界面修改 `host/<模块>.css`，接线盘节点修改 `node/patchbay.css`，Native Fx 修改 `native_fx/<效果>.css`（共享项在 `native_fx/common.css`）。每个文件保留单个 `:root` 和 token 名称。模板合计写出 701 个显式默认值，并注释列出 13 个继承图片 token。`Docs/Theme-v1-Registry.json` 是类型、归属与继承规则的完整清单。
+2. 全局外观修改根目录 `style.css`；宿主界面修改 `host/<模块>.css`，接线盘节点修改 `node/patchbay.css`，Native Fx 修改 `native_fx/<效果>.css`（共享项在 `native_fx/common.css`）。每个文件保留单个 `:root` 和 token 名称。模板合计写出 726 个显式默认值，并注释列出 13 个继承图片 token。`Docs/Theme-v1-Registry.json` 是类型、归属与继承规则的完整清单。
 3. 把图片、TTF/OTF 字体放在 `assets/`，仅用 `url("assets/文件名")` 引用。无图片时使用 `none`，字体默认 `system`。
 4. 开发时可将整个模板文件夹放进主程序同级 `themes/`，直接以文件夹形式加载。托盘主题名称末尾标记 `(Dev)`；当前选中 Dev 主题时，托盘子菜单提供“刷新当前 Dev 主题”，可在修改文件后重新读取。也可以运行模板中的 `python build_theme.py` 得到 `.wjnskin`，在“主题管理”导入、预览、应用。应用完整包会安装到主程序同级 `themes/`。重新展开托盘菜单会重新扫描包文件和 Dev 文件夹；同一 ID 的 Dev 文件夹优先于包文件。
 
@@ -23,7 +23,7 @@ token 格式是 `--wjn-theme-<模块>-<角色>`。同类控件按模块分别设
 | --- | --- |
 | `global` | 共享窗口/面板、文字、边框、按钮/输入/选择/列表、开关、旋钮内底/外环轨道/指示、普通 slider 与通用推子、图表、通用电平表；`font-source` 控制全局字体。 |
 | `patchbay` | 节点卡片、标题/标签、Audio 与 MIDI 输入/输出端口、连线正常/悬停/选中/无效状态、工具栏自绘按钮与缩放控件、右键框选、全览框节点和视口，以及背景。`overview-viewport` 是全览框中可拖动的小方框；缩放画布时它反向变化，并保持最小可抓取尺寸。 |
-| `mixer` | 输入、AUX、主控三类推子的 `thumb`、`track`、`grip`，状态按钮、三段电平与背景。改主界面推子时请用 `fader-input-*`、`fader-aux-*`、`fader-master-*`。 |
+| `mixer` | 输入、AUX、监听、主控四类推子的 `thumb`、`track`、`grip`，PFL/AFL 状态按钮、监听面板与三段电平。改监听推子时使用 `fader-monitor-*`。 |
 | `sel-main` | 通道旋钮、控制按钮、主电平及发送电平、输入/输出极坐标曲线与背景。 |
 | `sel-aux` | AUX 旋钮、开关、发送电平、输入/输出极坐标曲线与背景。 |
 | `sel-fx` | 效果链卡片、端点和状态控件、电平与背景；效果本身窗口属于各 `native-fx-*` 作用域。 |

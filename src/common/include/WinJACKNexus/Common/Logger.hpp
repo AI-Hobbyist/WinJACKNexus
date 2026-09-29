@@ -35,7 +35,7 @@ struct LogRecord final {
     Timestamp timestamp {};
     LogLevel level { LogLevel::info };
     std::uint32_t threadId {};
-    char message[256] {};
+    char message[1024] {};
 };
 
 using LogSink = void (*)(const LogRecord& record, void* userData) noexcept;
@@ -45,7 +45,7 @@ public:
     static Logger& instance() noexcept;
 
     void log(LogLevel level, const char* format, ...) noexcept;
-    std::size_t drain(std::size_t maxRecords = std::numeric_limits<std::size_t>::max()) noexcept;
+    std::size_t drain(std::size_t maxRecords = (std::numeric_limits<std::size_t>::max)()) noexcept;
     void flush() noexcept;
 
     void setSink(LogSink sink, void* userData) noexcept;
