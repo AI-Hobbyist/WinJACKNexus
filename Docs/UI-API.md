@@ -235,8 +235,9 @@ adapts the v1 snapshot to existing `ThemePalette`, `${key}` QSS variables
 and `setVariable`/`removeVariable` callers. The application installs one
 process `ThemeCore` with `installThemeCore`; subsequently constructed legacy
 managers follow its current snapshot. `watchApplication` records the live
-`QApplication` without changing the initial skin; the first v1 activation
-applies its mapped colors and global font. A manager can also call
+`QApplication` and immediately applies the current snapshot's mapped colors
+and global font, including a theme restored before the manager was created.
+A manager can also call
 `bindThemeCore` for an explicit core and `applyToApp` or `applyToWidget` for
 immediate application. Theme changes update existing widgets and inherited
 fonts for new windows. The manager retains each widget's size, weight and

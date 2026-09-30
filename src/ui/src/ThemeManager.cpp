@@ -306,6 +306,8 @@ void ThemeManager::watchApplication(QApplication* application) {
     applicationOwner_ = application != nullptr;
     applicationThemeApplied_ = false;
     lastAppliedStyleSheet_.clear();
+    // Startup restores the theme before the GUI manager subscribes to changes.
+    syncSnapshot(true);
 }
 
 void ThemeManager::bindThemeCore(ThemeCore* core) {

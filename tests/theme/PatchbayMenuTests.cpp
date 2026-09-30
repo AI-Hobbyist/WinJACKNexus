@@ -7,6 +7,9 @@
 #include <WinJACKNexus/UI/TrayController.hpp>
 #include "PolarMixRegression.hpp"
 #include "AuxPolarSwitchRegression.hpp"
+#include <WinJACKNexus/UI/ThemeManager.hpp>
+#include <WinJACKNexus/UI/ThemeCore.hpp>
+#include <QLabel>
 
 #include <QAction>
 #include <QApplication>
@@ -181,6 +184,23 @@ int main(int argc, char** argv)
 
     verifyPreMixPolar(check);
     verifyAuxPolarSwitches(check);
+    {
+        const auto systemFamily = application.font().family();
+        const auto initialStyle = application.styleSheet();
+        application.setStyleSheet(QStringLiteral("QLabel { font-family: 'Courier New'; }"));
+        QLabel startupLabel(QStringLiteral("Startup font"));
+        startupLabel.ensurePolished();
+        check(startupLabel.font().family() != systemFamily, "prepare an obsolete startup font");
+        WinJACKNexus::UI::ThemeCore restored;
+        check(restored.setOverride(QStringLiteral("--wjn-theme-global-font-source"),
+                                   QStringLiteral("system")), "restore system-font theme before GUI binding");
+        WinJACKNexus::UI::ThemeManager startupManager;
+        startupManager.bindThemeCore(&restored);
+        startupManager.watchApplication(&application);
+        check(application.font().family() == systemFamily && startupLabel.font().family() == systemFamily,
+              "initial theme binding applies system font without any theme switch");
+        application.setStyleSheet(initialStyle);
+    }
 
     auto* host = wjn_create_node(0);
     check(host && host->init(), "create patchbay host without a JACK client");
