@@ -825,22 +825,6 @@
       "description": "mixer / text muted"
     },
     {
-      "name": "--wjn-theme-mixer-monitor-surface",
-      "ownerScope": "mixer",
-      "type": "color",
-      "default": "#302c1b",
-      "inherits": [],
-      "description": "mixer / monitor surface"
-    },
-    {
-      "name": "--wjn-theme-mixer-monitor-border",
-      "ownerScope": "mixer",
-      "type": "color",
-      "default": "#c9a52d",
-      "inherits": [],
-      "description": "mixer / monitor border"
-    },
-    {
       "name": "--wjn-theme-mixer-monitor-header-surface",
       "ownerScope": "mixer",
       "type": "color",

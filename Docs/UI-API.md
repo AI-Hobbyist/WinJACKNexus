@@ -268,6 +268,9 @@ by `--wjn-theme-mixer-resize-handle` (Input/AUX) and
 `--wjn-theme-mixer-category-divider` (AUX/Listen). Drag the Input/AUX separator to resize both
 areas; each area retains its own horizontal scrollbar. The former input, AUX
 and master group accent tokens have been removed from the registry and template.
+The monitor strip also has no card background or outline; its `monitor-surface`
+and `monitor-border` tokens were removed from the mixer namespace. Its yellow
+fader, meter and SEL button remain available.
 
 [`ThemeNamespaceRegistry.hpp`](../src/ui/include/WinJACKNexus/UI/ThemeNamespaceRegistry.hpp)
 is the S06 host registry for optional Node/Native Fx theme descriptors. Call

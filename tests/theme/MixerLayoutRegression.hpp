@@ -16,6 +16,9 @@ void verifyMixerLayout(QApplication& app, Check check)
     for (const auto* kind : {"input", "aux", "master"})
         check(!core.snapshot()->hasValue(QStringLiteral("--wjn-theme-mixer-group-%1-accent").arg(kind)),
               "removed mixer card tokens are absent from the registry and default theme");
+    for (const auto* role : {"monitor-surface", "monitor-border"})
+        check(!core.snapshot()->hasValue(QStringLiteral("--wjn-theme-mixer-%1").arg(role)),
+              "removed monitor card tokens are absent");
     for (const auto* role : {"resize-handle", "category-divider"})
         check(core.snapshot()->hasValue(QStringLiteral("--wjn-theme-mixer-%1").arg(role)),
               "new mixer separator tokens are registered");

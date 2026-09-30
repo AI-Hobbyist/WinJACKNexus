@@ -7,7 +7,7 @@
 ## 制作与安装
 
 1. 复制 `themes/template` 到个人工作目录，修改 `meta.json` 中稳定的 `id`、名称、版本、作者、介绍和可选主页。
-2. 全局外观修改根目录 `style.css`；宿主界面修改 `host/<模块>.css`，接线盘节点修改 `node/patchbay.css`，Native Fx 修改 `native_fx/<效果>.css`（共享项在 `native_fx/common.css`）。每个文件保留单个 `:root` 和 token 名称。模板合计写出 729 个显式默认值，并注释列出 13 个继承图片 token。`Docs/Theme-v1-Registry.json` 是类型、归属与继承规则的完整清单。
+2. 全局外观修改根目录 `style.css`；宿主界面修改 `host/<模块>.css`，接线盘节点修改 `node/patchbay.css`，Native Fx 修改 `native_fx/<效果>.css`（共享项在 `native_fx/common.css`）。每个文件保留单个 `:root` 和 token 名称。模板合计写出 727 个显式默认值，并注释列出 13 个继承图片 token。`Docs/Theme-v1-Registry.json` 是类型、归属与继承规则的完整清单。
 3. 把图片、TTF/OTF 字体放在 `assets/`，仅用 `url("assets/文件名")` 引用。无图片时使用 `none`，字体默认 `system`。
 4. 开发时可将整个模板文件夹放进主程序同级 `themes/`，直接以文件夹形式加载。托盘主题名称末尾标记 `(Dev)`；当前选中 Dev 主题时，托盘子菜单提供“刷新当前 Dev 主题”，可在修改文件后重新读取。也可以运行模板中的 `python build_theme.py` 得到 `.wjnskin`，在“主题管理”导入、预览、应用。应用完整包会安装到主程序同级 `themes/`。重新展开托盘菜单会重新扫描包文件和 Dev 文件夹；同一 ID 的 Dev 文件夹优先于包文件。
 

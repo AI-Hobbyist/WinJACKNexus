@@ -6,10 +6,6 @@
   --wjn-theme-mixer-text-primary: #dce9ff;
   /* mixer / text muted; type=color */
   --wjn-theme-mixer-text-muted: #a9bbd7;
-  /* mixer / monitor surface; type=color */
-  --wjn-theme-mixer-monitor-surface: #302c1b;
-  /* mixer / monitor border; type=color */
-  --wjn-theme-mixer-monitor-border: #c9a52d;
   /* mixer / monitor header surface; type=color */
   --wjn-theme-mixer-monitor-header-surface: #76692b;
   /* mixer / monitor select accent; type=color */

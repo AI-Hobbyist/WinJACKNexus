@@ -2656,9 +2656,6 @@ void MixerWindow::paintEvent(QPaintEvent*)
     const auto secondary = themed("text-muted", QColor("#a9bbd7"));
     const auto monitorCard = impl_->monitorRect();
     const auto monitorYellow = themed("fader-monitor-thumb", QColor("#ffe15a"));
-    Controls::drawSurface(painter, monitorCard.adjusted(1, 1, -1, -1),
-                          themed("monitor-surface", QColor("#302c1b")),
-                          themed("monitor-border", QColor("#c9a52d")), 7);
     drawAdaptiveText(painter, {monitorCard.left(), monitorCard.top() + 2 * heightScale,
                                monitorCard.width(), 20 * heightScale},
                      QStringLiteral("监听"), label, 16 * heightScale, 10 * heightScale,
