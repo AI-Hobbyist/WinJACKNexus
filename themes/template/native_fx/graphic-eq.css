@@ -43,25 +43,25 @@
   /* native-fx-graphic-eq / slider effect band thumb; type=color */
   --wjn-theme-native-fx-graphic-eq-slider-effect-band-thumb: #e1edf8;
   /* native-fx-graphic-eq / background opacity; type=opacity */
-  --wjn-theme-native-fx-graphic-eq-background-opacity: 1;
+  --wjn-theme-native-fx-graphic-eq-background-opacity: var(--wjn-theme-patchbay-background-opacity);
   /* native-fx-graphic-eq / background size; type=background-size */
-  --wjn-theme-native-fx-graphic-eq-background-size: cover;
+  --wjn-theme-native-fx-graphic-eq-background-size: var(--wjn-theme-patchbay-background-size);
   /* native-fx-graphic-eq / background scale; type=background-scale */
-  --wjn-theme-native-fx-graphic-eq-background-scale: 1;
+  --wjn-theme-native-fx-graphic-eq-background-scale: var(--wjn-theme-patchbay-background-scale);
   /* native-fx-graphic-eq / background repeat; type=background-repeat */
-  --wjn-theme-native-fx-graphic-eq-background-repeat: no-repeat;
+  --wjn-theme-native-fx-graphic-eq-background-repeat: var(--wjn-theme-patchbay-background-repeat);
   /* native-fx-graphic-eq / background position x; type=position */
-  --wjn-theme-native-fx-graphic-eq-background-position-x: 50%;
+  --wjn-theme-native-fx-graphic-eq-background-position-x: var(--wjn-theme-patchbay-background-position-x);
   /* native-fx-graphic-eq / background position y; type=position */
-  --wjn-theme-native-fx-graphic-eq-background-position-y: 50%;
+  --wjn-theme-native-fx-graphic-eq-background-position-y: var(--wjn-theme-patchbay-background-position-y);
   /* native-fx-graphic-eq / background overlay enabled; type=boolean */
-  --wjn-theme-native-fx-graphic-eq-background-overlay-enabled: false;
+  --wjn-theme-native-fx-graphic-eq-background-overlay-enabled: var(--wjn-theme-patchbay-background-overlay-enabled);
   /* native-fx-graphic-eq / background overlay opacity; type=opacity */
-  --wjn-theme-native-fx-graphic-eq-background-overlay-opacity: 0.12;
+  --wjn-theme-native-fx-graphic-eq-background-overlay-opacity: var(--wjn-theme-patchbay-background-overlay-opacity);
   /* native-fx-graphic-eq / background blur radius; type=blur-radius */
-  --wjn-theme-native-fx-graphic-eq-background-blur-radius: 0px;
+  --wjn-theme-native-fx-graphic-eq-background-blur-radius: var(--wjn-theme-patchbay-background-blur-radius);
   /* native-fx-graphic-eq / background component opacity; type=opacity */
-  --wjn-theme-native-fx-graphic-eq-background-component-opacity: 1;
+  --wjn-theme-native-fx-graphic-eq-background-component-opacity: var(--wjn-theme-patchbay-background-component-opacity);
   /* native-fx-graphic-eq / control knob background base; type=color */
   --wjn-theme-native-fx-graphic-eq-control-knob-background-base: #091727;
   /* native-fx-graphic-eq / control knob track; type=color */

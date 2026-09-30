@@ -84,6 +84,7 @@ private:
         Matrix monitorMatrix {};
         std::vector<Route> sends;
         std::vector<float> pre;
+        std::vector<float> gainTap;
         std::vector<float> post;
         std::vector<float> mainContribution;
         std::unique_ptr<MixerPolarAnalyzer> mainAnalyzer;

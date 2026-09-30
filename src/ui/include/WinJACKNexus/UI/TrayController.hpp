@@ -83,6 +83,8 @@ public:
     QAction* meterbridgeAction() const;  // 电平表桥
     QAction* switchAction() const;       // 信号切换开关
     void setQuickAccessThemeMenu(QMenu* menu);
+    /** 将补丁台的原生文件菜单绑定到所有快捷栏；菜单所有权由调用方保留。 */
+    static void setQuickAccessFileMenu(QMenu* menu);
     void setPlaceholderEnabled(bool enabled);          // 启用/禁用接线盘入口
     void registerPlaceholder(const QAction* action);   // 对应节点注册后启用该入口
 

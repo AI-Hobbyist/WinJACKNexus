@@ -172,7 +172,7 @@ void drawMixerPolarCurves(QPainter& painter, QRectF panel, QPointF center, qreal
                          QPointF(legend.left() + 24, legend.top() + 31));
         painter.setPen(polarColor(themeScope, "chart-legend-output-text", outputStroke));
         painter.drawText(QRectF(legend.left() + 28, legend.top() + 21, 70, 20),
-                         Qt::AlignLeft | Qt::AlignVCenter, QStringLiteral("处理后输出"));
+                         Qt::AlignLeft | Qt::AlignVCenter, QStringLiteral("输出"));
     }
     if (contour.inputOverrange || contour.outputOverrange) {
         painter.setPen(polarColor(themeScope, "chart-overrange-label", QColor("#ff6c6c")));

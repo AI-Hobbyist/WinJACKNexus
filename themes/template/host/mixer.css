@@ -117,25 +117,25 @@
   /* mixer / meter level border; type=color */
   --wjn-theme-mixer-meter-level-border: #07131f;
   /* mixer / background opacity; type=opacity */
-  --wjn-theme-mixer-background-opacity: 1;
+  --wjn-theme-mixer-background-opacity: var(--wjn-theme-patchbay-background-opacity);
   /* mixer / background size; type=background-size */
-  --wjn-theme-mixer-background-size: cover;
+  --wjn-theme-mixer-background-size: var(--wjn-theme-patchbay-background-size);
   /* mixer / background scale; type=background-scale */
-  --wjn-theme-mixer-background-scale: 1;
+  --wjn-theme-mixer-background-scale: var(--wjn-theme-patchbay-background-scale);
   /* mixer / background repeat; type=background-repeat */
-  --wjn-theme-mixer-background-repeat: no-repeat;
+  --wjn-theme-mixer-background-repeat: var(--wjn-theme-patchbay-background-repeat);
   /* mixer / background position x; type=position */
-  --wjn-theme-mixer-background-position-x: 50%;
+  --wjn-theme-mixer-background-position-x: var(--wjn-theme-patchbay-background-position-x);
   /* mixer / background position y; type=position */
-  --wjn-theme-mixer-background-position-y: 50%;
+  --wjn-theme-mixer-background-position-y: var(--wjn-theme-patchbay-background-position-y);
   /* mixer / background overlay enabled; type=boolean */
-  --wjn-theme-mixer-background-overlay-enabled: false;
+  --wjn-theme-mixer-background-overlay-enabled: var(--wjn-theme-patchbay-background-overlay-enabled);
   /* mixer / background overlay opacity; type=opacity */
-  --wjn-theme-mixer-background-overlay-opacity: 0.12;
+  --wjn-theme-mixer-background-overlay-opacity: var(--wjn-theme-patchbay-background-overlay-opacity);
   /* mixer / background blur radius; type=blur-radius */
-  --wjn-theme-mixer-background-blur-radius: 0px;
+  --wjn-theme-mixer-background-blur-radius: var(--wjn-theme-patchbay-background-blur-radius);
   /* mixer / background component opacity; type=opacity */
-  --wjn-theme-mixer-background-component-opacity: 1;
+  --wjn-theme-mixer-background-component-opacity: var(--wjn-theme-patchbay-background-component-opacity);
   /* mixer content background image; null means undefined and inherits the patchbay image; type=image */
   /* --wjn-theme-mixer-background-image: inherited from --wjn-theme-patchbay-background-image; keep undeclared to inherit. */
 }

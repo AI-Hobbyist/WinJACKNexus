@@ -21,25 +21,25 @@
   /* native-fx-reverb / scene glow; type=color */
   --wjn-theme-native-fx-reverb-scene-glow: #a994f2;
   /* native-fx-reverb / background opacity; type=opacity */
-  --wjn-theme-native-fx-reverb-background-opacity: 1;
+  --wjn-theme-native-fx-reverb-background-opacity: var(--wjn-theme-patchbay-background-opacity);
   /* native-fx-reverb / background size; type=background-size */
-  --wjn-theme-native-fx-reverb-background-size: cover;
+  --wjn-theme-native-fx-reverb-background-size: var(--wjn-theme-patchbay-background-size);
   /* native-fx-reverb / background scale; type=background-scale */
-  --wjn-theme-native-fx-reverb-background-scale: 1;
+  --wjn-theme-native-fx-reverb-background-scale: var(--wjn-theme-patchbay-background-scale);
   /* native-fx-reverb / background repeat; type=background-repeat */
-  --wjn-theme-native-fx-reverb-background-repeat: no-repeat;
+  --wjn-theme-native-fx-reverb-background-repeat: var(--wjn-theme-patchbay-background-repeat);
   /* native-fx-reverb / background position x; type=position */
-  --wjn-theme-native-fx-reverb-background-position-x: 50%;
+  --wjn-theme-native-fx-reverb-background-position-x: var(--wjn-theme-patchbay-background-position-x);
   /* native-fx-reverb / background position y; type=position */
-  --wjn-theme-native-fx-reverb-background-position-y: 50%;
+  --wjn-theme-native-fx-reverb-background-position-y: var(--wjn-theme-patchbay-background-position-y);
   /* native-fx-reverb / background overlay enabled; type=boolean */
-  --wjn-theme-native-fx-reverb-background-overlay-enabled: false;
+  --wjn-theme-native-fx-reverb-background-overlay-enabled: var(--wjn-theme-patchbay-background-overlay-enabled);
   /* native-fx-reverb / background overlay opacity; type=opacity */
-  --wjn-theme-native-fx-reverb-background-overlay-opacity: 0.12;
+  --wjn-theme-native-fx-reverb-background-overlay-opacity: var(--wjn-theme-patchbay-background-overlay-opacity);
   /* native-fx-reverb / background blur radius; type=blur-radius */
-  --wjn-theme-native-fx-reverb-background-blur-radius: 0px;
+  --wjn-theme-native-fx-reverb-background-blur-radius: var(--wjn-theme-patchbay-background-blur-radius);
   /* native-fx-reverb / background component opacity; type=opacity */
-  --wjn-theme-native-fx-reverb-background-component-opacity: 1;
+  --wjn-theme-native-fx-reverb-background-component-opacity: var(--wjn-theme-patchbay-background-component-opacity);
   /* native-fx-reverb / control knob background base; type=color */
   --wjn-theme-native-fx-reverb-control-knob-background-base: #0b1a2a;
   /* native-fx-reverb / control knob track; type=color */

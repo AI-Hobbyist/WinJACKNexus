@@ -45,6 +45,15 @@ Qt's native menu components.
 `ProgressField` beneath the quick access bar. Values are clamped to 0–100;
 100 hides the bar after theme initialization. Call it from the GUI thread.
 
+`TrayController::setQuickAccessFileMenu(QMenu*)` binds the patchbay's native
+File menu to every quick access bar, sharing its existing project actions.
+Call it from the GUI thread; ownership stays with the caller. A null or
+destroyed menu disables the entry, and newly created bars retain the binding.
+
+The SEL MAIN polar legend uses Input and Output. Input measures the selected
+strip after gain and before FX; Output measures its post-fader contribution
+through the MAIN routing matrix, including mute, solo and MIX gating.
+
 `MeterStyle` defaults to a `-72..+12 dB` horizontal scale with three zones
 and `showPeak = true`. Supply a finite peak value to `drawMeter` when the
 source is a Peak meter; `std::nullopt` means no peak measurement is available.
@@ -204,6 +213,10 @@ Call with `overlay=false` before module components for the base-image mode, or
 `overlay=true` after components for the upper-image mode; only the selected
 mode paints. Size, proportional scale, repeat, position, opacity and Gaussian blur are resolved
 within the module's logical-pixel viewport. Upper-image mode ignores blur.
+All background image options outside `global` and the `patchbay` root inherit
+their corresponding `patchbay` tokens by default. Explicit scoped declarations
+override this inheritance; the default skin and editable template use references
+to the patchbay options so patchbay changes propagate to other views.
 `componentOpacity(scope)` supplies the base mode's foreground opacity and
 returns `1` in upper-image mode. The renderer accepts a diagnostic output for
 missing, invalid or oversized images. `theme_background_tests` exercises the

@@ -47,7 +47,7 @@ token 格式是 `--wjn-theme-<模块>-<角色>`。同类控件按模块分别设
 
 ## 背景与叠层
 
-`background-image` 可不声明以继承接线盘图片、写 `none` 禁用，或写 `url("assets/...")` 自定义。`size` 选 original/contain/cover/stretch；`scale` 为 0.05～4 的等比缩放；repeat、position-x/y、opacity、blur-radius、component-opacity、overlay-enabled、overlay-opacity 均可按模块设置。`position-x/y` 支持百分比和 px，可让角色固定四角或一侧。上层覆盖模式：透明背景图片最佳。
+除 `global` 外，各模块的背景图片及其相关选项默认继承 `patchbay`；默认主题和模板通过 `var(--wjn-theme-patchbay-background-...)` 保持联动，模块内显式设置可覆盖继承。`background-image` 可不声明以继承接线盘图片、写 `none` 禁用，或写 `url("assets/...")` 自定义。`size` 选 original/contain/cover/stretch；`scale` 为 0.05～4 的等比缩放；repeat、position-x/y、opacity、blur-radius、component-opacity、overlay-enabled、overlay-opacity 均可按模块设置。`position-x/y` 支持百分比和 px，可让角色固定四角或一侧。上层覆盖模式：透明背景图片最佳。
 
 垫底模式的叠层是组件上、图片下，可同时调组件透明度与图片高斯模糊。上层覆盖模式的叠层是图片上、组件下，图片点击穿透，`overlay-opacity` 可调高以清楚辨别；这一模式忽略模糊和组件透明度。示例素材位于 [`background`](../background/)：`grid.jpg`、`grid2.jpg` 是全界面图，`character.png`、`character2.png` 是角色图。四角测试先等比缩放角色，再调位置。
 

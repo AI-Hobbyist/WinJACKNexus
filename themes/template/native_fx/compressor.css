@@ -27,25 +27,25 @@
   /* native-fx-compressor / meter reduction zone single inactive; type=color */
   --wjn-theme-native-fx-compressor-meter-reduction-zone-single-inactive: #242c39;
   /* native-fx-compressor / background opacity; type=opacity */
-  --wjn-theme-native-fx-compressor-background-opacity: 1;
+  --wjn-theme-native-fx-compressor-background-opacity: var(--wjn-theme-patchbay-background-opacity);
   /* native-fx-compressor / background size; type=background-size */
-  --wjn-theme-native-fx-compressor-background-size: cover;
+  --wjn-theme-native-fx-compressor-background-size: var(--wjn-theme-patchbay-background-size);
   /* native-fx-compressor / background scale; type=background-scale */
-  --wjn-theme-native-fx-compressor-background-scale: 1;
+  --wjn-theme-native-fx-compressor-background-scale: var(--wjn-theme-patchbay-background-scale);
   /* native-fx-compressor / background repeat; type=background-repeat */
-  --wjn-theme-native-fx-compressor-background-repeat: no-repeat;
+  --wjn-theme-native-fx-compressor-background-repeat: var(--wjn-theme-patchbay-background-repeat);
   /* native-fx-compressor / background position x; type=position */
-  --wjn-theme-native-fx-compressor-background-position-x: 50%;
+  --wjn-theme-native-fx-compressor-background-position-x: var(--wjn-theme-patchbay-background-position-x);
   /* native-fx-compressor / background position y; type=position */
-  --wjn-theme-native-fx-compressor-background-position-y: 50%;
+  --wjn-theme-native-fx-compressor-background-position-y: var(--wjn-theme-patchbay-background-position-y);
   /* native-fx-compressor / background overlay enabled; type=boolean */
-  --wjn-theme-native-fx-compressor-background-overlay-enabled: false;
+  --wjn-theme-native-fx-compressor-background-overlay-enabled: var(--wjn-theme-patchbay-background-overlay-enabled);
   /* native-fx-compressor / background overlay opacity; type=opacity */
-  --wjn-theme-native-fx-compressor-background-overlay-opacity: 0.12;
+  --wjn-theme-native-fx-compressor-background-overlay-opacity: var(--wjn-theme-patchbay-background-overlay-opacity);
   /* native-fx-compressor / background blur radius; type=blur-radius */
-  --wjn-theme-native-fx-compressor-background-blur-radius: 0px;
+  --wjn-theme-native-fx-compressor-background-blur-radius: var(--wjn-theme-patchbay-background-blur-radius);
   /* native-fx-compressor / background component opacity; type=opacity */
-  --wjn-theme-native-fx-compressor-background-component-opacity: 1;
+  --wjn-theme-native-fx-compressor-background-component-opacity: var(--wjn-theme-patchbay-background-component-opacity);
   /* native-fx-compressor / control knob background base; type=color */
   --wjn-theme-native-fx-compressor-control-knob-background-base: #0d1c2d;
   /* native-fx-compressor / control knob track; type=color */

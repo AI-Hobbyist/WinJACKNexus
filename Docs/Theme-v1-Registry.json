@@ -4747,7 +4747,7 @@
       "type": "opacity",
       "default": "1",
       "inherits": [
-        "--wjn-theme-global-background-opacity"
+        "--wjn-theme-patchbay-background-opacity"
       ],
       "description": "mixer / background opacity"
     },
@@ -4757,7 +4757,7 @@
       "type": "background-size",
       "default": "cover",
       "inherits": [
-        "--wjn-theme-global-background-size"
+        "--wjn-theme-patchbay-background-size"
       ],
       "description": "mixer / background size"
     },
@@ -4767,7 +4767,7 @@
       "type": "background-scale",
       "default": "1",
       "inherits": [
-        "--wjn-theme-global-background-scale"
+        "--wjn-theme-patchbay-background-scale"
       ],
       "description": "mixer / background scale"
     },
@@ -4777,7 +4777,7 @@
       "type": "background-repeat",
       "default": "no-repeat",
       "inherits": [
-        "--wjn-theme-global-background-repeat"
+        "--wjn-theme-patchbay-background-repeat"
       ],
       "description": "mixer / background repeat"
     },
@@ -4787,7 +4787,7 @@
       "type": "position",
       "default": "50%",
       "inherits": [
-        "--wjn-theme-global-background-position-x"
+        "--wjn-theme-patchbay-background-position-x"
       ],
       "description": "mixer / background position x"
     },
@@ -4797,7 +4797,7 @@
       "type": "position",
       "default": "50%",
       "inherits": [
-        "--wjn-theme-global-background-position-y"
+        "--wjn-theme-patchbay-background-position-y"
       ],
       "description": "mixer / background position y"
     },
@@ -4807,7 +4807,7 @@
       "type": "boolean",
       "default": "false",
       "inherits": [
-        "--wjn-theme-global-background-overlay-enabled"
+        "--wjn-theme-patchbay-background-overlay-enabled"
       ],
       "description": "mixer / background overlay enabled"
     },
@@ -4817,7 +4817,7 @@
       "type": "opacity",
       "default": "0.12",
       "inherits": [
-        "--wjn-theme-global-background-overlay-opacity"
+        "--wjn-theme-patchbay-background-overlay-opacity"
       ],
       "description": "mixer / background overlay opacity"
     },
@@ -4827,7 +4827,7 @@
       "type": "blur-radius",
       "default": "0px",
       "inherits": [
-        "--wjn-theme-global-background-blur-radius"
+        "--wjn-theme-patchbay-background-blur-radius"
       ],
       "description": "mixer / background blur radius"
     },
@@ -4837,7 +4837,7 @@
       "type": "opacity",
       "default": "1",
       "inherits": [
-        "--wjn-theme-global-background-component-opacity"
+        "--wjn-theme-patchbay-background-component-opacity"
       ],
       "description": "mixer / background component opacity"
     },
@@ -4847,7 +4847,7 @@
       "type": "opacity",
       "default": "1",
       "inherits": [
-        "--wjn-theme-global-background-opacity"
+        "--wjn-theme-patchbay-background-opacity"
       ],
       "description": "sel-main / background opacity"
     },
@@ -4857,7 +4857,7 @@
       "type": "background-size",
       "default": "cover",
       "inherits": [
-        "--wjn-theme-global-background-size"
+        "--wjn-theme-patchbay-background-size"
       ],
       "description": "sel-main / background size"
     },
@@ -4867,7 +4867,7 @@
       "type": "background-scale",
       "default": "1",
       "inherits": [
-        "--wjn-theme-global-background-scale"
+        "--wjn-theme-patchbay-background-scale"
       ],
       "description": "sel-main / background scale"
     },
@@ -4877,7 +4877,7 @@
       "type": "background-repeat",
       "default": "no-repeat",
       "inherits": [
-        "--wjn-theme-global-background-repeat"
+        "--wjn-theme-patchbay-background-repeat"
       ],
       "description": "sel-main / background repeat"
     },
@@ -4887,7 +4887,7 @@
       "type": "position",
       "default": "50%",
       "inherits": [
-        "--wjn-theme-global-background-position-x"
+        "--wjn-theme-patchbay-background-position-x"
       ],
       "description": "sel-main / background position x"
     },
@@ -4897,7 +4897,7 @@
       "type": "position",
       "default": "50%",
       "inherits": [
-        "--wjn-theme-global-background-position-y"
+        "--wjn-theme-patchbay-background-position-y"
       ],
       "description": "sel-main / background position y"
     },
@@ -4907,7 +4907,7 @@
       "type": "boolean",
       "default": "false",
       "inherits": [
-        "--wjn-theme-global-background-overlay-enabled"
+        "--wjn-theme-patchbay-background-overlay-enabled"
       ],
       "description": "sel-main / background overlay enabled"
     },
@@ -4917,7 +4917,7 @@
       "type": "opacity",
       "default": "0.12",
       "inherits": [
-        "--wjn-theme-global-background-overlay-opacity"
+        "--wjn-theme-patchbay-background-overlay-opacity"
       ],
       "description": "sel-main / background overlay opacity"
     },
@@ -4927,7 +4927,7 @@
       "type": "blur-radius",
       "default": "0px",
       "inherits": [
-        "--wjn-theme-global-background-blur-radius"
+        "--wjn-theme-patchbay-background-blur-radius"
       ],
       "description": "sel-main / background blur radius"
     },
@@ -4937,7 +4937,7 @@
       "type": "opacity",
       "default": "1",
       "inherits": [
-        "--wjn-theme-global-background-component-opacity"
+        "--wjn-theme-patchbay-background-component-opacity"
       ],
       "description": "sel-main / background component opacity"
     },
@@ -4947,7 +4947,7 @@
       "type": "opacity",
       "default": "1",
       "inherits": [
-        "--wjn-theme-global-background-opacity"
+        "--wjn-theme-patchbay-background-opacity"
       ],
       "description": "sel-aux / background opacity"
     },
@@ -4957,7 +4957,7 @@
       "type": "background-size",
       "default": "cover",
       "inherits": [
-        "--wjn-theme-global-background-size"
+        "--wjn-theme-patchbay-background-size"
       ],
       "description": "sel-aux / background size"
     },
@@ -4967,7 +4967,7 @@
       "type": "background-scale",
       "default": "1",
       "inherits": [
-        "--wjn-theme-global-background-scale"
+        "--wjn-theme-patchbay-background-scale"
       ],
       "description": "sel-aux / background scale"
     },
@@ -4977,7 +4977,7 @@
       "type": "background-repeat",
       "default": "no-repeat",
       "inherits": [
-        "--wjn-theme-global-background-repeat"
+        "--wjn-theme-patchbay-background-repeat"
       ],
       "description": "sel-aux / background repeat"
     },
@@ -4987,7 +4987,7 @@
       "type": "position",
       "default": "50%",
       "inherits": [
-        "--wjn-theme-global-background-position-x"
+        "--wjn-theme-patchbay-background-position-x"
       ],
       "description": "sel-aux / background position x"
     },
@@ -4997,7 +4997,7 @@
       "type": "position",
       "default": "50%",
       "inherits": [
-        "--wjn-theme-global-background-position-y"
+        "--wjn-theme-patchbay-background-position-y"
       ],
       "description": "sel-aux / background position y"
     },
@@ -5007,7 +5007,7 @@
       "type": "boolean",
       "default": "false",
       "inherits": [
-        "--wjn-theme-global-background-overlay-enabled"
+        "--wjn-theme-patchbay-background-overlay-enabled"
       ],
       "description": "sel-aux / background overlay enabled"
     },
@@ -5017,7 +5017,7 @@
       "type": "opacity",
       "default": "0.12",
       "inherits": [
-        "--wjn-theme-global-background-overlay-opacity"
+        "--wjn-theme-patchbay-background-overlay-opacity"
       ],
       "description": "sel-aux / background overlay opacity"
     },
@@ -5027,7 +5027,7 @@
       "type": "blur-radius",
       "default": "0px",
       "inherits": [
-        "--wjn-theme-global-background-blur-radius"
+        "--wjn-theme-patchbay-background-blur-radius"
       ],
       "description": "sel-aux / background blur radius"
     },
@@ -5037,7 +5037,7 @@
       "type": "opacity",
       "default": "1",
       "inherits": [
-        "--wjn-theme-global-background-component-opacity"
+        "--wjn-theme-patchbay-background-component-opacity"
       ],
       "description": "sel-aux / background component opacity"
     },
@@ -5047,7 +5047,7 @@
       "type": "opacity",
       "default": "1",
       "inherits": [
-        "--wjn-theme-global-background-opacity"
+        "--wjn-theme-patchbay-background-opacity"
       ],
       "description": "sel-fx / background opacity"
     },
@@ -5057,7 +5057,7 @@
       "type": "background-size",
       "default": "cover",
       "inherits": [
-        "--wjn-theme-global-background-size"
+        "--wjn-theme-patchbay-background-size"
       ],
       "description": "sel-fx / background size"
     },
@@ -5067,7 +5067,7 @@
       "type": "background-scale",
       "default": "1",
       "inherits": [
-        "--wjn-theme-global-background-scale"
+        "--wjn-theme-patchbay-background-scale"
       ],
       "description": "sel-fx / background scale"
     },
@@ -5077,7 +5077,7 @@
       "type": "background-repeat",
       "default": "no-repeat",
       "inherits": [
-        "--wjn-theme-global-background-repeat"
+        "--wjn-theme-patchbay-background-repeat"
       ],
       "description": "sel-fx / background repeat"
     },
@@ -5087,7 +5087,7 @@
       "type": "position",
       "default": "50%",
       "inherits": [
-        "--wjn-theme-global-background-position-x"
+        "--wjn-theme-patchbay-background-position-x"
       ],
       "description": "sel-fx / background position x"
     },
@@ -5097,7 +5097,7 @@
       "type": "position",
       "default": "50%",
       "inherits": [
-        "--wjn-theme-global-background-position-y"
+        "--wjn-theme-patchbay-background-position-y"
       ],
       "description": "sel-fx / background position y"
     },
@@ -5107,7 +5107,7 @@
       "type": "boolean",
       "default": "false",
       "inherits": [
-        "--wjn-theme-global-background-overlay-enabled"
+        "--wjn-theme-patchbay-background-overlay-enabled"
       ],
       "description": "sel-fx / background overlay enabled"
     },
@@ -5117,7 +5117,7 @@
       "type": "opacity",
       "default": "0.12",
       "inherits": [
-        "--wjn-theme-global-background-overlay-opacity"
+        "--wjn-theme-patchbay-background-overlay-opacity"
       ],
       "description": "sel-fx / background overlay opacity"
     },
@@ -5127,7 +5127,7 @@
       "type": "blur-radius",
       "default": "0px",
       "inherits": [
-        "--wjn-theme-global-background-blur-radius"
+        "--wjn-theme-patchbay-background-blur-radius"
       ],
       "description": "sel-fx / background blur radius"
     },
@@ -5137,7 +5137,7 @@
       "type": "opacity",
       "default": "1",
       "inherits": [
-        "--wjn-theme-global-background-component-opacity"
+        "--wjn-theme-patchbay-background-component-opacity"
       ],
       "description": "sel-fx / background component opacity"
     },
@@ -5147,7 +5147,7 @@
       "type": "opacity",
       "default": "1",
       "inherits": [
-        "--wjn-theme-global-background-opacity"
+        "--wjn-theme-patchbay-background-opacity"
       ],
       "description": "meter-bridge / background opacity"
     },
@@ -5157,7 +5157,7 @@
       "type": "background-size",
       "default": "cover",
       "inherits": [
-        "--wjn-theme-global-background-size"
+        "--wjn-theme-patchbay-background-size"
       ],
       "description": "meter-bridge / background size"
     },
@@ -5167,7 +5167,7 @@
       "type": "background-scale",
       "default": "1",
       "inherits": [
-        "--wjn-theme-global-background-scale"
+        "--wjn-theme-patchbay-background-scale"
       ],
       "description": "meter-bridge / background scale"
     },
@@ -5177,7 +5177,7 @@
       "type": "background-repeat",
       "default": "no-repeat",
       "inherits": [
-        "--wjn-theme-global-background-repeat"
+        "--wjn-theme-patchbay-background-repeat"
       ],
       "description": "meter-bridge / background repeat"
     },
@@ -5187,7 +5187,7 @@
       "type": "position",
       "default": "50%",
       "inherits": [
-        "--wjn-theme-global-background-position-x"
+        "--wjn-theme-patchbay-background-position-x"
       ],
       "description": "meter-bridge / background position x"
     },
@@ -5197,7 +5197,7 @@
       "type": "position",
       "default": "50%",
       "inherits": [
-        "--wjn-theme-global-background-position-y"
+        "--wjn-theme-patchbay-background-position-y"
       ],
       "description": "meter-bridge / background position y"
     },
@@ -5207,7 +5207,7 @@
       "type": "boolean",
       "default": "false",
       "inherits": [
-        "--wjn-theme-global-background-overlay-enabled"
+        "--wjn-theme-patchbay-background-overlay-enabled"
       ],
       "description": "meter-bridge / background overlay enabled"
     },
@@ -5217,7 +5217,7 @@
       "type": "opacity",
       "default": "0.12",
       "inherits": [
-        "--wjn-theme-global-background-overlay-opacity"
+        "--wjn-theme-patchbay-background-overlay-opacity"
       ],
       "description": "meter-bridge / background overlay opacity"
     },
@@ -5227,7 +5227,7 @@
       "type": "blur-radius",
       "default": "0px",
       "inherits": [
-        "--wjn-theme-global-background-blur-radius"
+        "--wjn-theme-patchbay-background-blur-radius"
       ],
       "description": "meter-bridge / background blur radius"
     },
@@ -5237,7 +5237,7 @@
       "type": "opacity",
       "default": "1",
       "inherits": [
-        "--wjn-theme-global-background-component-opacity"
+        "--wjn-theme-patchbay-background-component-opacity"
       ],
       "description": "meter-bridge / background component opacity"
     },
@@ -5247,7 +5247,7 @@
       "type": "opacity",
       "default": "1",
       "inherits": [
-        "--wjn-theme-global-background-opacity"
+        "--wjn-theme-patchbay-background-opacity"
       ],
       "description": "native-fx-compressor / background opacity"
     },
@@ -5257,7 +5257,7 @@
       "type": "background-size",
       "default": "cover",
       "inherits": [
-        "--wjn-theme-global-background-size"
+        "--wjn-theme-patchbay-background-size"
       ],
       "description": "native-fx-compressor / background size"
     },
@@ -5267,7 +5267,7 @@
       "type": "background-scale",
       "default": "1",
       "inherits": [
-        "--wjn-theme-global-background-scale"
+        "--wjn-theme-patchbay-background-scale"
       ],
       "description": "native-fx-compressor / background scale"
     },
@@ -5277,7 +5277,7 @@
       "type": "background-repeat",
       "default": "no-repeat",
       "inherits": [
-        "--wjn-theme-global-background-repeat"
+        "--wjn-theme-patchbay-background-repeat"
       ],
       "description": "native-fx-compressor / background repeat"
     },
@@ -5287,7 +5287,7 @@
       "type": "position",
       "default": "50%",
       "inherits": [
-        "--wjn-theme-global-background-position-x"
+        "--wjn-theme-patchbay-background-position-x"
       ],
       "description": "native-fx-compressor / background position x"
     },
@@ -5297,7 +5297,7 @@
       "type": "position",
       "default": "50%",
       "inherits": [
-        "--wjn-theme-global-background-position-y"
+        "--wjn-theme-patchbay-background-position-y"
       ],
       "description": "native-fx-compressor / background position y"
     },
@@ -5307,7 +5307,7 @@
       "type": "boolean",
       "default": "false",
       "inherits": [
-        "--wjn-theme-global-background-overlay-enabled"
+        "--wjn-theme-patchbay-background-overlay-enabled"
       ],
       "description": "native-fx-compressor / background overlay enabled"
     },
@@ -5317,7 +5317,7 @@
       "type": "opacity",
       "default": "0.12",
       "inherits": [
-        "--wjn-theme-global-background-overlay-opacity"
+        "--wjn-theme-patchbay-background-overlay-opacity"
       ],
       "description": "native-fx-compressor / background overlay opacity"
     },
@@ -5327,7 +5327,7 @@
       "type": "blur-radius",
       "default": "0px",
       "inherits": [
-        "--wjn-theme-global-background-blur-radius"
+        "--wjn-theme-patchbay-background-blur-radius"
       ],
       "description": "native-fx-compressor / background blur radius"
     },
@@ -5337,7 +5337,7 @@
       "type": "opacity",
       "default": "1",
       "inherits": [
-        "--wjn-theme-global-background-component-opacity"
+        "--wjn-theme-patchbay-background-component-opacity"
       ],
       "description": "native-fx-compressor / background component opacity"
     },
@@ -5347,7 +5347,7 @@
       "type": "opacity",
       "default": "1",
       "inherits": [
-        "--wjn-theme-global-background-opacity"
+        "--wjn-theme-patchbay-background-opacity"
       ],
       "description": "native-fx-deesser / background opacity"
     },
@@ -5357,7 +5357,7 @@
       "type": "background-size",
       "default": "cover",
       "inherits": [
-        "--wjn-theme-global-background-size"
+        "--wjn-theme-patchbay-background-size"
       ],
       "description": "native-fx-deesser / background size"
     },
@@ -5367,7 +5367,7 @@
       "type": "background-scale",
       "default": "1",
       "inherits": [
-        "--wjn-theme-global-background-scale"
+        "--wjn-theme-patchbay-background-scale"
       ],
       "description": "native-fx-deesser / background scale"
     },
@@ -5377,7 +5377,7 @@
       "type": "background-repeat",
       "default": "no-repeat",
       "inherits": [
-        "--wjn-theme-global-background-repeat"
+        "--wjn-theme-patchbay-background-repeat"
       ],
       "description": "native-fx-deesser / background repeat"
     },
@@ -5387,7 +5387,7 @@
       "type": "position",
       "default": "50%",
       "inherits": [
-        "--wjn-theme-global-background-position-x"
+        "--wjn-theme-patchbay-background-position-x"
       ],
       "description": "native-fx-deesser / background position x"
     },
@@ -5397,7 +5397,7 @@
       "type": "position",
       "default": "50%",
       "inherits": [
-        "--wjn-theme-global-background-position-y"
+        "--wjn-theme-patchbay-background-position-y"
       ],
       "description": "native-fx-deesser / background position y"
     },
@@ -5407,7 +5407,7 @@
       "type": "boolean",
       "default": "false",
       "inherits": [
-        "--wjn-theme-global-background-overlay-enabled"
+        "--wjn-theme-patchbay-background-overlay-enabled"
       ],
       "description": "native-fx-deesser / background overlay enabled"
     },
@@ -5417,7 +5417,7 @@
       "type": "opacity",
       "default": "0.12",
       "inherits": [
-        "--wjn-theme-global-background-overlay-opacity"
+        "--wjn-theme-patchbay-background-overlay-opacity"
       ],
       "description": "native-fx-deesser / background overlay opacity"
     },
@@ -5427,7 +5427,7 @@
       "type": "blur-radius",
       "default": "0px",
       "inherits": [
-        "--wjn-theme-global-background-blur-radius"
+        "--wjn-theme-patchbay-background-blur-radius"
       ],
       "description": "native-fx-deesser / background blur radius"
     },
@@ -5437,7 +5437,7 @@
       "type": "opacity",
       "default": "1",
       "inherits": [
-        "--wjn-theme-global-background-component-opacity"
+        "--wjn-theme-patchbay-background-component-opacity"
       ],
       "description": "native-fx-deesser / background component opacity"
     },
@@ -5447,7 +5447,7 @@
       "type": "opacity",
       "default": "1",
       "inherits": [
-        "--wjn-theme-global-background-opacity"
+        "--wjn-theme-patchbay-background-opacity"
       ],
       "description": "native-fx-delay / background opacity"
     },
@@ -5457,7 +5457,7 @@
       "type": "background-size",
       "default": "cover",
       "inherits": [
-        "--wjn-theme-global-background-size"
+        "--wjn-theme-patchbay-background-size"
       ],
       "description": "native-fx-delay / background size"
     },
@@ -5467,7 +5467,7 @@
       "type": "background-scale",
       "default": "1",
       "inherits": [
-        "--wjn-theme-global-background-scale"
+        "--wjn-theme-patchbay-background-scale"
       ],
       "description": "native-fx-delay / background scale"
     },
@@ -5477,7 +5477,7 @@
       "type": "background-repeat",
       "default": "no-repeat",
       "inherits": [
-        "--wjn-theme-global-background-repeat"
+        "--wjn-theme-patchbay-background-repeat"
       ],
       "description": "native-fx-delay / background repeat"
     },
@@ -5487,7 +5487,7 @@
       "type": "position",
       "default": "50%",
       "inherits": [
-        "--wjn-theme-global-background-position-x"
+        "--wjn-theme-patchbay-background-position-x"
       ],
       "description": "native-fx-delay / background position x"
     },
@@ -5497,7 +5497,7 @@
       "type": "position",
       "default": "50%",
       "inherits": [
-        "--wjn-theme-global-background-position-y"
+        "--wjn-theme-patchbay-background-position-y"
       ],
       "description": "native-fx-delay / background position y"
     },
@@ -5507,7 +5507,7 @@
       "type": "boolean",
       "default": "false",
       "inherits": [
-        "--wjn-theme-global-background-overlay-enabled"
+        "--wjn-theme-patchbay-background-overlay-enabled"
       ],
       "description": "native-fx-delay / background overlay enabled"
     },
@@ -5517,7 +5517,7 @@
       "type": "opacity",
       "default": "0.12",
       "inherits": [
-        "--wjn-theme-global-background-overlay-opacity"
+        "--wjn-theme-patchbay-background-overlay-opacity"
       ],
       "description": "native-fx-delay / background overlay opacity"
     },
@@ -5527,7 +5527,7 @@
       "type": "blur-radius",
       "default": "0px",
       "inherits": [
-        "--wjn-theme-global-background-blur-radius"
+        "--wjn-theme-patchbay-background-blur-radius"
       ],
       "description": "native-fx-delay / background blur radius"
     },
@@ -5537,7 +5537,7 @@
       "type": "opacity",
       "default": "1",
       "inherits": [
-        "--wjn-theme-global-background-component-opacity"
+        "--wjn-theme-patchbay-background-component-opacity"
       ],
       "description": "native-fx-delay / background component opacity"
     },
@@ -5547,7 +5547,7 @@
       "type": "opacity",
       "default": "1",
       "inherits": [
-        "--wjn-theme-global-background-opacity"
+        "--wjn-theme-patchbay-background-opacity"
       ],
       "description": "native-fx-gate / background opacity"
     },
@@ -5557,7 +5557,7 @@
       "type": "background-size",
       "default": "cover",
       "inherits": [
-        "--wjn-theme-global-background-size"
+        "--wjn-theme-patchbay-background-size"
       ],
       "description": "native-fx-gate / background size"
     },
@@ -5567,7 +5567,7 @@
       "type": "background-scale",
       "default": "1",
       "inherits": [
-        "--wjn-theme-global-background-scale"
+        "--wjn-theme-patchbay-background-scale"
       ],
       "description": "native-fx-gate / background scale"
     },
@@ -5577,7 +5577,7 @@
       "type": "background-repeat",
       "default": "no-repeat",
       "inherits": [
-        "--wjn-theme-global-background-repeat"
+        "--wjn-theme-patchbay-background-repeat"
       ],
       "description": "native-fx-gate / background repeat"
     },
@@ -5587,7 +5587,7 @@
       "type": "position",
       "default": "50%",
       "inherits": [
-        "--wjn-theme-global-background-position-x"
+        "--wjn-theme-patchbay-background-position-x"
       ],
       "description": "native-fx-gate / background position x"
     },
@@ -5597,7 +5597,7 @@
       "type": "position",
       "default": "50%",
       "inherits": [
-        "--wjn-theme-global-background-position-y"
+        "--wjn-theme-patchbay-background-position-y"
       ],
       "description": "native-fx-gate / background position y"
     },
@@ -5607,7 +5607,7 @@
       "type": "boolean",
       "default": "false",
       "inherits": [
-        "--wjn-theme-global-background-overlay-enabled"
+        "--wjn-theme-patchbay-background-overlay-enabled"
       ],
       "description": "native-fx-gate / background overlay enabled"
     },
@@ -5617,7 +5617,7 @@
       "type": "opacity",
       "default": "0.12",
       "inherits": [
-        "--wjn-theme-global-background-overlay-opacity"
+        "--wjn-theme-patchbay-background-overlay-opacity"
       ],
       "description": "native-fx-gate / background overlay opacity"
     },
@@ -5627,7 +5627,7 @@
       "type": "blur-radius",
       "default": "0px",
       "inherits": [
-        "--wjn-theme-global-background-blur-radius"
+        "--wjn-theme-patchbay-background-blur-radius"
       ],
       "description": "native-fx-gate / background blur radius"
     },
@@ -5637,7 +5637,7 @@
       "type": "opacity",
       "default": "1",
       "inherits": [
-        "--wjn-theme-global-background-component-opacity"
+        "--wjn-theme-patchbay-background-component-opacity"
       ],
       "description": "native-fx-gate / background component opacity"
     },
@@ -5647,7 +5647,7 @@
       "type": "opacity",
       "default": "1",
       "inherits": [
-        "--wjn-theme-global-background-opacity"
+        "--wjn-theme-patchbay-background-opacity"
       ],
       "description": "native-fx-graphic-eq / background opacity"
     },
@@ -5657,7 +5657,7 @@
       "type": "background-size",
       "default": "cover",
       "inherits": [
-        "--wjn-theme-global-background-size"
+        "--wjn-theme-patchbay-background-size"
       ],
       "description": "native-fx-graphic-eq / background size"
     },
@@ -5667,7 +5667,7 @@
       "type": "background-scale",
       "default": "1",
       "inherits": [
-        "--wjn-theme-global-background-scale"
+        "--wjn-theme-patchbay-background-scale"
       ],
       "description": "native-fx-graphic-eq / background scale"
     },
@@ -5677,7 +5677,7 @@
       "type": "background-repeat",
       "default": "no-repeat",
       "inherits": [
-        "--wjn-theme-global-background-repeat"
+        "--wjn-theme-patchbay-background-repeat"
       ],
       "description": "native-fx-graphic-eq / background repeat"
     },
@@ -5687,7 +5687,7 @@
       "type": "position",
       "default": "50%",
       "inherits": [
-        "--wjn-theme-global-background-position-x"
+        "--wjn-theme-patchbay-background-position-x"
       ],
       "description": "native-fx-graphic-eq / background position x"
     },
@@ -5697,7 +5697,7 @@
       "type": "position",
       "default": "50%",
       "inherits": [
-        "--wjn-theme-global-background-position-y"
+        "--wjn-theme-patchbay-background-position-y"
       ],
       "description": "native-fx-graphic-eq / background position y"
     },
@@ -5707,7 +5707,7 @@
       "type": "boolean",
       "default": "false",
       "inherits": [
-        "--wjn-theme-global-background-overlay-enabled"
+        "--wjn-theme-patchbay-background-overlay-enabled"
       ],
       "description": "native-fx-graphic-eq / background overlay enabled"
     },
@@ -5717,7 +5717,7 @@
       "type": "opacity",
       "default": "0.12",
       "inherits": [
-        "--wjn-theme-global-background-overlay-opacity"
+        "--wjn-theme-patchbay-background-overlay-opacity"
       ],
       "description": "native-fx-graphic-eq / background overlay opacity"
     },
@@ -5727,7 +5727,7 @@
       "type": "blur-radius",
       "default": "0px",
       "inherits": [
-        "--wjn-theme-global-background-blur-radius"
+        "--wjn-theme-patchbay-background-blur-radius"
       ],
       "description": "native-fx-graphic-eq / background blur radius"
     },
@@ -5737,7 +5737,7 @@
       "type": "opacity",
       "default": "1",
       "inherits": [
-        "--wjn-theme-global-background-component-opacity"
+        "--wjn-theme-patchbay-background-component-opacity"
       ],
       "description": "native-fx-graphic-eq / background component opacity"
     },
@@ -5747,7 +5747,7 @@
       "type": "opacity",
       "default": "1",
       "inherits": [
-        "--wjn-theme-global-background-opacity"
+        "--wjn-theme-patchbay-background-opacity"
       ],
       "description": "native-fx-limiter / background opacity"
     },
@@ -5757,7 +5757,7 @@
       "type": "background-size",
       "default": "cover",
       "inherits": [
-        "--wjn-theme-global-background-size"
+        "--wjn-theme-patchbay-background-size"
       ],
       "description": "native-fx-limiter / background size"
     },
@@ -5767,7 +5767,7 @@
       "type": "background-scale",
       "default": "1",
       "inherits": [
-        "--wjn-theme-global-background-scale"
+        "--wjn-theme-patchbay-background-scale"
       ],
       "description": "native-fx-limiter / background scale"
     },
@@ -5777,7 +5777,7 @@
       "type": "background-repeat",
       "default": "no-repeat",
       "inherits": [
-        "--wjn-theme-global-background-repeat"
+        "--wjn-theme-patchbay-background-repeat"
       ],
       "description": "native-fx-limiter / background repeat"
     },
@@ -5787,7 +5787,7 @@
       "type": "position",
       "default": "50%",
       "inherits": [
-        "--wjn-theme-global-background-position-x"
+        "--wjn-theme-patchbay-background-position-x"
       ],
       "description": "native-fx-limiter / background position x"
     },
@@ -5797,7 +5797,7 @@
       "type": "position",
       "default": "50%",
       "inherits": [
-        "--wjn-theme-global-background-position-y"
+        "--wjn-theme-patchbay-background-position-y"
       ],
       "description": "native-fx-limiter / background position y"
     },
@@ -5807,7 +5807,7 @@
       "type": "boolean",
       "default": "false",
       "inherits": [
-        "--wjn-theme-global-background-overlay-enabled"
+        "--wjn-theme-patchbay-background-overlay-enabled"
       ],
       "description": "native-fx-limiter / background overlay enabled"
     },
@@ -5817,7 +5817,7 @@
       "type": "opacity",
       "default": "0.12",
       "inherits": [
-        "--wjn-theme-global-background-overlay-opacity"
+        "--wjn-theme-patchbay-background-overlay-opacity"
       ],
       "description": "native-fx-limiter / background overlay opacity"
     },
@@ -5827,7 +5827,7 @@
       "type": "blur-radius",
       "default": "0px",
       "inherits": [
-        "--wjn-theme-global-background-blur-radius"
+        "--wjn-theme-patchbay-background-blur-radius"
       ],
       "description": "native-fx-limiter / background blur radius"
     },
@@ -5837,7 +5837,7 @@
       "type": "opacity",
       "default": "1",
       "inherits": [
-        "--wjn-theme-global-background-component-opacity"
+        "--wjn-theme-patchbay-background-component-opacity"
       ],
       "description": "native-fx-limiter / background component opacity"
     },
@@ -5847,7 +5847,7 @@
       "type": "opacity",
       "default": "1",
       "inherits": [
-        "--wjn-theme-global-background-opacity"
+        "--wjn-theme-patchbay-background-opacity"
       ],
       "description": "native-fx-parametric-eq / background opacity"
     },
@@ -5857,7 +5857,7 @@
       "type": "background-size",
       "default": "cover",
       "inherits": [
-        "--wjn-theme-global-background-size"
+        "--wjn-theme-patchbay-background-size"
       ],
       "description": "native-fx-parametric-eq / background size"
     },
@@ -5867,7 +5867,7 @@
       "type": "background-scale",
       "default": "1",
       "inherits": [
-        "--wjn-theme-global-background-scale"
+        "--wjn-theme-patchbay-background-scale"
       ],
       "description": "native-fx-parametric-eq / background scale"
     },
@@ -5877,7 +5877,7 @@
       "type": "background-repeat",
       "default": "no-repeat",
       "inherits": [
-        "--wjn-theme-global-background-repeat"
+        "--wjn-theme-patchbay-background-repeat"
       ],
       "description": "native-fx-parametric-eq / background repeat"
     },
@@ -5887,7 +5887,7 @@
       "type": "position",
       "default": "50%",
       "inherits": [
-        "--wjn-theme-global-background-position-x"
+        "--wjn-theme-patchbay-background-position-x"
       ],
       "description": "native-fx-parametric-eq / background position x"
     },
@@ -5897,7 +5897,7 @@
       "type": "position",
       "default": "50%",
       "inherits": [
-        "--wjn-theme-global-background-position-y"
+        "--wjn-theme-patchbay-background-position-y"
       ],
       "description": "native-fx-parametric-eq / background position y"
     },
@@ -5907,7 +5907,7 @@
       "type": "boolean",
       "default": "false",
       "inherits": [
-        "--wjn-theme-global-background-overlay-enabled"
+        "--wjn-theme-patchbay-background-overlay-enabled"
       ],
       "description": "native-fx-parametric-eq / background overlay enabled"
     },
@@ -5917,7 +5917,7 @@
       "type": "opacity",
       "default": "0.12",
       "inherits": [
-        "--wjn-theme-global-background-overlay-opacity"
+        "--wjn-theme-patchbay-background-overlay-opacity"
       ],
       "description": "native-fx-parametric-eq / background overlay opacity"
     },
@@ -5927,7 +5927,7 @@
       "type": "blur-radius",
       "default": "0px",
       "inherits": [
-        "--wjn-theme-global-background-blur-radius"
+        "--wjn-theme-patchbay-background-blur-radius"
       ],
       "description": "native-fx-parametric-eq / background blur radius"
     },
@@ -5937,7 +5937,7 @@
       "type": "opacity",
       "default": "1",
       "inherits": [
-        "--wjn-theme-global-background-component-opacity"
+        "--wjn-theme-patchbay-background-component-opacity"
       ],
       "description": "native-fx-parametric-eq / background component opacity"
     },
@@ -5947,7 +5947,7 @@
       "type": "opacity",
       "default": "1",
       "inherits": [
-        "--wjn-theme-global-background-opacity"
+        "--wjn-theme-patchbay-background-opacity"
       ],
       "description": "native-fx-reverb / background opacity"
     },
@@ -5957,7 +5957,7 @@
       "type": "background-size",
       "default": "cover",
       "inherits": [
-        "--wjn-theme-global-background-size"
+        "--wjn-theme-patchbay-background-size"
       ],
       "description": "native-fx-reverb / background size"
     },
@@ -5967,7 +5967,7 @@
       "type": "background-scale",
       "default": "1",
       "inherits": [
-        "--wjn-theme-global-background-scale"
+        "--wjn-theme-patchbay-background-scale"
       ],
       "description": "native-fx-reverb / background scale"
     },
@@ -5977,7 +5977,7 @@
       "type": "background-repeat",
       "default": "no-repeat",
       "inherits": [
-        "--wjn-theme-global-background-repeat"
+        "--wjn-theme-patchbay-background-repeat"
       ],
       "description": "native-fx-reverb / background repeat"
     },
@@ -5987,7 +5987,7 @@
       "type": "position",
       "default": "50%",
       "inherits": [
-        "--wjn-theme-global-background-position-x"
+        "--wjn-theme-patchbay-background-position-x"
       ],
       "description": "native-fx-reverb / background position x"
     },
@@ -5997,7 +5997,7 @@
       "type": "position",
       "default": "50%",
       "inherits": [
-        "--wjn-theme-global-background-position-y"
+        "--wjn-theme-patchbay-background-position-y"
       ],
       "description": "native-fx-reverb / background position y"
     },
@@ -6007,7 +6007,7 @@
       "type": "boolean",
       "default": "false",
       "inherits": [
-        "--wjn-theme-global-background-overlay-enabled"
+        "--wjn-theme-patchbay-background-overlay-enabled"
       ],
       "description": "native-fx-reverb / background overlay enabled"
     },
@@ -6017,7 +6017,7 @@
       "type": "opacity",
       "default": "0.12",
       "inherits": [
-        "--wjn-theme-global-background-overlay-opacity"
+        "--wjn-theme-patchbay-background-overlay-opacity"
       ],
       "description": "native-fx-reverb / background overlay opacity"
     },
@@ -6027,7 +6027,7 @@
       "type": "blur-radius",
       "default": "0px",
       "inherits": [
-        "--wjn-theme-global-background-blur-radius"
+        "--wjn-theme-patchbay-background-blur-radius"
       ],
       "description": "native-fx-reverb / background blur radius"
     },
@@ -6037,7 +6037,7 @@
       "type": "opacity",
       "default": "1",
       "inherits": [
-        "--wjn-theme-global-background-component-opacity"
+        "--wjn-theme-patchbay-background-component-opacity"
       ],
       "description": "native-fx-reverb / background component opacity"
     },

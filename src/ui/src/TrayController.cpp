@@ -42,6 +42,8 @@ namespace {
 std::vector<TrayController*> trayControllers;
 std::vector<TrayNodeGuiEntry> nodeGuiEntries;
 QString quickAccessStatus;
+QPointer<QMenu> quickAccessFileMenu;
+QMetaObject::Connection quickAccessFileMenuDestroyed;
 constexpr int quickAccessSideRegionWidth = 128;
 constexpr int quickAccessAutoHideIntervalMilliseconds = 40;
 constexpr int quickAccessTopEdgeHeight = 2;
@@ -150,6 +152,14 @@ public:
         title->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
         layout->addWidget(title);
         layout->addStretch();
+
+        fileButton_ = new Controls::IconActionButton(this);
+        fileButton_->setObjectName(QStringLiteral("quickAccessFileButton"));
+        fileButton_->setText(QStringLiteral("文件"));
+        fileButton_->setToolTip(QStringLiteral("新建、打开和保存工程"));
+        fileButton_->setPopupMode(QToolButton::InstantPopup);
+        fileButton_->setEnabled(false);
+        layout->addWidget(fileButton_);
 
         patchbayButton_ = new Controls::IconActionButton(this);
         patchbayButton_->setText(QStringLiteral("接线盘"));
@@ -269,6 +279,12 @@ public:
     {
         themeButton_->setMenu(menu);
         themeButton_->setEnabled(menu != nullptr);
+    }
+
+    void setFileMenu(QMenu* menu)
+    {
+        fileButton_->setMenu(menu);
+        fileButton_->setEnabled(menu != nullptr);
     }
 
     void setEntries(const std::vector<TrayNodeGuiEntry>& entries)
@@ -572,6 +588,7 @@ private:
     QToolButton* themeButton_ = nullptr;
     QToolButton* systemDevicesButton_ = nullptr;
     QToolButton* pinButton_ = nullptr;
+    Controls::IconActionButton* fileButton_ = nullptr;
     QAction* patchbayAction_ = nullptr;
     QAction* meterbridgeAction_ = nullptr;
     QAction* mixerAction_ = nullptr;
@@ -804,6 +821,7 @@ void TrayController::rebuildQuickAccessBar()
     impl_->quickAccessBar->setMixerAction(impl_->placeholderMixer);
     impl_->quickAccessBar->setMeterbridgeAction(impl_->placeholderMeterbridge);
     impl_->quickAccessBar->setThemeMenu(impl_->quickAccessThemeMenu);
+    impl_->quickAccessBar->setFileMenu(quickAccessFileMenu);
     impl_->quickAccessBar->setStatus(quickAccessStatus);
     impl_->quickAccessBar->setEntries(nodeGuiEntries);
     impl_->quickAccessAction->setEnabled(true);
@@ -834,6 +852,19 @@ void TrayController::setQuickAccessThemeMenu(QMenu* menu)
     impl_->quickAccessThemeMenu = menu;
     if (impl_->quickAccessBar != nullptr)
         impl_->quickAccessBar->setThemeMenu(menu);
+}
+
+void TrayController::setQuickAccessFileMenu(QMenu* menu)
+{
+    QObject::disconnect(quickAccessFileMenuDestroyed);
+    quickAccessFileMenu = menu;
+    if (menu)
+        quickAccessFileMenuDestroyed = QObject::connect(menu, &QObject::destroyed, [] {
+            setQuickAccessFileMenu(nullptr);
+        });
+    for (auto* controller : trayControllers)
+        if (controller->impl_->quickAccessBar)
+            controller->impl_->quickAccessBar->setFileMenu(menu);
 }
 
 void TrayController::setThemeLoadingProgress(int percent)

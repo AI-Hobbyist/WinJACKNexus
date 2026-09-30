@@ -224,6 +224,7 @@ bool DigitalMixerProcessor::configure(const DigitalMixerState& state, std::size_
         strip.inputRampRemaining = strip.currentInputGain == strip.inputGain ? 0 : gainRampSamples;
         strip.faderRampRemaining = strip.currentFaderGain == strip.faderGain ? 0 : gainRampSamples;
         strip.pre.resize(strip.channels * maxFrames);
+        strip.gainTap.resize(strip.channels * maxFrames);
         strip.post.resize(strip.channels * maxFrames);
         strip.mainContribution.resize(2 * maxFrames);
         strip.mainAnalyzer = std::make_unique<MixerPolarAnalyzer>(source.id, state.main().id,
@@ -373,6 +374,7 @@ bool DigitalMixerProcessor::process(std::span<const float* const> inputs,
                 pre[frame] = input ? input[frame] * rampValue(strip.currentInputGain,
                     strip.inputGain, strip.inputRampRemaining, frame) : 0.0F;
             levels_[strip.levelIndex].channelInputPeaks[channel] = channelPeak(pre, frames);
+            std::copy_n(pre, frames, strip.gainTap.data() + channel * maxFrames_);
             if (effectProcess_) effectProcess_(effectContext_, strip.id,
                 static_cast<std::uint32_t>(channel), pre, frames);
             auto* post = strip.post.data() + channel * maxFrames_;
@@ -402,6 +404,7 @@ bool DigitalMixerProcessor::process(std::span<const float* const> inputs,
                 pre[frame] *= rampValue(strip.currentInputGain, strip.inputGain,
                     strip.inputRampRemaining, frame);
             levels_[strip.levelIndex].channelInputPeaks[channel] = channelPeak(pre, frames);
+            std::copy_n(pre, frames, strip.gainTap.data() + channel * maxFrames_);
             if (effectProcess_) effectProcess_(effectContext_, strip.id,
                 static_cast<std::uint32_t>(channel), pre, frames);
             for (std::size_t frame = 0; frame < frames; ++frame) {
@@ -430,7 +433,7 @@ bool DigitalMixerProcessor::process(std::span<const float* const> inputs,
                       strip.mainMatrix, maxFrames_, frames);
             addPlanes(strip.mainContribution, mainInput_, 2, maxFrames_, frames);
         }
-        const auto inputPointers = planes(strip.post, strip.channels, maxFrames_);
+        const auto inputPointers = planes(strip.gainTap, strip.channels, maxFrames_);
         const auto outputPointers = planes(strip.mainContribution, 2, maxFrames_);
         strip.mainAnalyzer->push(std::span(inputPointers.data(), strip.channels),
                                  std::span(outputPointers.data(), 2), frames);

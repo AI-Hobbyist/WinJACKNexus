@@ -289,6 +289,26 @@ int main(int argc, char** argv)
         check(themeProgress && themeProgress->isVisible() && themeProgress->value() == 45,
               "quick access shows theme loading progress below the buttons");
         tray.setThemeLoadingProgress(100);
+        auto* fileButton = themeButton ? themeButton->window()->findChild<QToolButton*>(
+            QStringLiteral("quickAccessFileButton")) : nullptr;
+        auto* fileMenu = submenu(window->menuBar(), QStringLiteral("文件"));
+        check(fileButton && fileButton->isEnabled() && fileButton->menu() == fileMenu
+              && fileButton->popupMode() == QToolButton::InstantPopup
+              && actionNamed(fileButton->menu(), QStringLiteral("打开工程...")) == openProject,
+              "quick access shares the patchbay native File menu and project actions");
+        auto* temporaryMenu = new QMenu;
+        WinJACKNexus::UI::TrayController::setQuickAccessFileMenu(temporaryMenu);
+        check(fileButton && fileButton->menu() == temporaryMenu, "File menu binding updates live bars");
+        delete temporaryMenu;
+        check(fileButton && !fileButton->isEnabled() && !fileButton->menu(),
+              "destroyed File menu safely disables the entry");
+        WinJACKNexus::UI::TrayController::setQuickAccessFileMenu(fileMenu);
+        if (fileButton) {
+            QDir().mkpath(QStringLiteral("tests/preview/PrePush"));
+            check(fileButton->window()->grab().save(
+                QStringLiteral("tests/preview/PrePush/quick-access-file-entry.png")),
+                "capture the quick access File entry");
+        }
         check(themeProgress && !themeProgress->isVisible(),
               "quick access hides theme loading progress when complete");
         auto* hideButton = themeButton

@@ -139,25 +139,25 @@
   /* sel-aux / meter aux send zone high inactive; type=color */
   --wjn-theme-sel-aux-meter-aux-send-zone-high-inactive: #102234;
   /* sel-aux / background opacity; type=opacity */
-  --wjn-theme-sel-aux-background-opacity: 1;
+  --wjn-theme-sel-aux-background-opacity: var(--wjn-theme-patchbay-background-opacity);
   /* sel-aux / background size; type=background-size */
-  --wjn-theme-sel-aux-background-size: cover;
+  --wjn-theme-sel-aux-background-size: var(--wjn-theme-patchbay-background-size);
   /* sel-aux / background scale; type=background-scale */
-  --wjn-theme-sel-aux-background-scale: 1;
+  --wjn-theme-sel-aux-background-scale: var(--wjn-theme-patchbay-background-scale);
   /* sel-aux / background repeat; type=background-repeat */
-  --wjn-theme-sel-aux-background-repeat: no-repeat;
+  --wjn-theme-sel-aux-background-repeat: var(--wjn-theme-patchbay-background-repeat);
   /* sel-aux / background position x; type=position */
-  --wjn-theme-sel-aux-background-position-x: 50%;
+  --wjn-theme-sel-aux-background-position-x: var(--wjn-theme-patchbay-background-position-x);
   /* sel-aux / background position y; type=position */
-  --wjn-theme-sel-aux-background-position-y: 50%;
+  --wjn-theme-sel-aux-background-position-y: var(--wjn-theme-patchbay-background-position-y);
   /* sel-aux / background overlay enabled; type=boolean */
-  --wjn-theme-sel-aux-background-overlay-enabled: false;
+  --wjn-theme-sel-aux-background-overlay-enabled: var(--wjn-theme-patchbay-background-overlay-enabled);
   /* sel-aux / background overlay opacity; type=opacity */
-  --wjn-theme-sel-aux-background-overlay-opacity: 0.12;
+  --wjn-theme-sel-aux-background-overlay-opacity: var(--wjn-theme-patchbay-background-overlay-opacity);
   /* sel-aux / background blur radius; type=blur-radius */
-  --wjn-theme-sel-aux-background-blur-radius: 0px;
+  --wjn-theme-sel-aux-background-blur-radius: var(--wjn-theme-patchbay-background-blur-radius);
   /* sel-aux / background component opacity; type=opacity */
-  --wjn-theme-sel-aux-background-component-opacity: 1;
+  --wjn-theme-sel-aux-background-component-opacity: var(--wjn-theme-patchbay-background-component-opacity);
   /* sel-aux content background image; null means undefined and inherits the patchbay image; type=image */
   /* --wjn-theme-sel-aux-background-image: inherited from --wjn-theme-patchbay-background-image; keep undeclared to inherit. */
 }

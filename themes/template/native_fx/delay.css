@@ -23,25 +23,25 @@
   /* native-fx-delay / chart series baseline stroke; type=color */
   --wjn-theme-native-fx-delay-chart-series-baseline-stroke: #456b89;
   /* native-fx-delay / background opacity; type=opacity */
-  --wjn-theme-native-fx-delay-background-opacity: 1;
+  --wjn-theme-native-fx-delay-background-opacity: var(--wjn-theme-patchbay-background-opacity);
   /* native-fx-delay / background size; type=background-size */
-  --wjn-theme-native-fx-delay-background-size: cover;
+  --wjn-theme-native-fx-delay-background-size: var(--wjn-theme-patchbay-background-size);
   /* native-fx-delay / background scale; type=background-scale */
-  --wjn-theme-native-fx-delay-background-scale: 1;
+  --wjn-theme-native-fx-delay-background-scale: var(--wjn-theme-patchbay-background-scale);
   /* native-fx-delay / background repeat; type=background-repeat */
-  --wjn-theme-native-fx-delay-background-repeat: no-repeat;
+  --wjn-theme-native-fx-delay-background-repeat: var(--wjn-theme-patchbay-background-repeat);
   /* native-fx-delay / background position x; type=position */
-  --wjn-theme-native-fx-delay-background-position-x: 50%;
+  --wjn-theme-native-fx-delay-background-position-x: var(--wjn-theme-patchbay-background-position-x);
   /* native-fx-delay / background position y; type=position */
-  --wjn-theme-native-fx-delay-background-position-y: 50%;
+  --wjn-theme-native-fx-delay-background-position-y: var(--wjn-theme-patchbay-background-position-y);
   /* native-fx-delay / background overlay enabled; type=boolean */
-  --wjn-theme-native-fx-delay-background-overlay-enabled: false;
+  --wjn-theme-native-fx-delay-background-overlay-enabled: var(--wjn-theme-patchbay-background-overlay-enabled);
   /* native-fx-delay / background overlay opacity; type=opacity */
-  --wjn-theme-native-fx-delay-background-overlay-opacity: 0.12;
+  --wjn-theme-native-fx-delay-background-overlay-opacity: var(--wjn-theme-patchbay-background-overlay-opacity);
   /* native-fx-delay / background blur radius; type=blur-radius */
-  --wjn-theme-native-fx-delay-background-blur-radius: 0px;
+  --wjn-theme-native-fx-delay-background-blur-radius: var(--wjn-theme-patchbay-background-blur-radius);
   /* native-fx-delay / background component opacity; type=opacity */
-  --wjn-theme-native-fx-delay-background-component-opacity: 1;
+  --wjn-theme-native-fx-delay-background-component-opacity: var(--wjn-theme-patchbay-background-component-opacity);
   /* native-fx-delay / control knob background base; type=color */
   --wjn-theme-native-fx-delay-control-knob-background-base: #0c1a2b;
   /* native-fx-delay / control knob track; type=color */
