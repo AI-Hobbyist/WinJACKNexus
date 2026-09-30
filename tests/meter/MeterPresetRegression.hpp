@@ -39,6 +39,20 @@ bool verifyMeterPresets(Check check)
     card.resize(250, 800); card.show();
     auto* choice = card.findChild<QComboBox*>(QStringLiteral("meterCard.preset"));
     auto* refresh = card.findChild<QToolButton*>(QStringLiteral("meterCard.presetRefresh"));
+    const auto previousId = choice->currentData().toString();
+    const int customIndex = choice->findData(QStringLiteral("custom"));
+    choice->setCurrentIndex(customIndex);
+    passed &= check(!card.findChild<QDialog*>(QStringLiteral("meterCard.customPresetDialog")),
+                    "programmatic preset selection does not open the creation dialog");
+    bool cancelledCreation = false;
+    QTimer::singleShot(0, &card, [&] {
+        auto* dialog = card.findChild<QDialog*>(QStringLiteral("meterCard.customPresetDialog"));
+        cancelledCreation = dialog && dialog->isVisible();
+        if (dialog) dialog->reject();
+    });
+    choice->activated(customIndex);
+    passed &= check(cancelledCreation && choice->currentData().toString() == previousId,
+                    "clicking the selected custom entry opens creation and cancel restores the reference");
     const auto name = QStringLiteral("响度测试-%1").arg(QUuid::createUuid().toString(QUuid::WithoutBraces));
     QTimer::singleShot(0, &card, [&] {
         auto* dialog = card.findChild<QDialog*>(QStringLiteral("meterCard.customPresetDialog"));
@@ -56,7 +70,8 @@ bool verifyMeterPresets(Check check)
                         "custom preset fields and buttons have equal heights");
         save->click();
     });
-    choice->setCurrentIndex(choice->findData(QStringLiteral("custom")));
+    choice->setCurrentIndex(customIndex);
+    choice->activated(customIndex);
     const auto id = choice->currentData().toString();
     const auto custom = Common::findCustomMeterLoudnessPreset(id);
     passed &= check(custom && custom->displayName == name && custom->targetIntegratedLufs == -18

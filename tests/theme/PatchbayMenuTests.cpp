@@ -220,14 +220,21 @@ int main(int argc, char** argv)
             auto* layout = new QVBoxLayout(content);
             layout->setContentsMargins(32, 12, 12, 12);
             layout->addStretch();
-            dock->setWidget(content);
+            auto* scroll = new Controls::ScrollField(dock);
+            scroll->setWidgetResizable(true);
+            scroll->setWidget(content);
+            dock->setWidget(scroll);
             host.addDockWidget(Qt::RightDockWidgetArea, dock);
             host.resize(1200, 700);
             host.show();
             auto* node = create(0);
             auto* panel = node ? settings(node, content) : nullptr;
             check(panel != nullptr, "create actual WASAPI parameter panel");
-            if (panel) layout->insertWidget(0, panel);
+            if (panel) {
+                auto* device = panel->findChild<QComboBox*>(QStringLiteral("deviceCombo"));
+                if (device) device->addItem(QString(120, QLatin1Char('W')));
+                layout->insertWidget(0, panel);
+            }
             application.processEvents();
             auto* grip = dock->findChild<QWidget*>(QStringLiteral("dockResizeGrip"));
             const auto verifyResize = [&] {
@@ -250,6 +257,16 @@ int main(int argc, char** argv)
                 QApplication::sendEvent(grip, &release);
                 application.processEvents();
                 check(dock->width() > oldWidth + 50, "dock can be widened after WASAPI selection");
+                const auto shrinkGlobal = grip->mapToGlobal(local);
+                const int shrinkDelta = dock->width() - 180;
+                QMouseEvent shrinkPress(QEvent::MouseButtonPress, local, shrinkGlobal, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+                QApplication::sendEvent(grip, &shrinkPress);
+                QMouseEvent shrinkMove(QEvent::MouseMove, local + QPoint(shrinkDelta, 0), shrinkGlobal + QPoint(shrinkDelta, 0), Qt::NoButton, Qt::LeftButton, Qt::NoModifier);
+                QApplication::sendEvent(grip, &shrinkMove);
+                QMouseEvent shrinkRelease(QEvent::MouseButtonRelease, local, shrinkGlobal + QPoint(shrinkDelta, 0), Qt::LeftButton, Qt::NoButton, Qt::NoModifier);
+                QApplication::sendEvent(grip, &shrinkRelease);
+                application.processEvents();
+                check(dock->width() <= 190, "dock can shrink to 180 px with and after WASAPI settings");
             };
             verifyResize();
             if (panel) clear(node, panel);
@@ -353,6 +370,9 @@ int main(int argc, char** argv)
           && actionNamed(topLevel.last()->menu(), QStringLiteral("日志跟踪"))
           && actionNamed(topLevel.last()->menu(), QStringLiteral("关于")),
           "Help with log tracing and About is the final top-level menu");
+    auto* inspectorDock = window->findChild<QDockWidget*>(QStringLiteral("patchbay.inspector"));
+    check(inspectorDock && dynamic_cast<WinJACKNexus::UI::Controls::ScrollField*>(inspectorDock->widget()),
+          "actual patchbay inspector scrolls module forms without inheriting their minimum widths");
     bool listedMixer = false;
     for (auto* tree : window->findChildren<QTreeWidget*>())
         for (auto* item : tree->findItems(QStringLiteral("Digital Mixer"),

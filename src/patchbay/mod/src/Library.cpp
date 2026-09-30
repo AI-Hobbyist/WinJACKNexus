@@ -2160,7 +2160,13 @@ public:
 			showGuiButton->setEnabled(false);
 			inspectorLayout->addWidget(showGuiButton);
 			inspectorLayout->addStretch(1);
-			inspectorDock->setWidget(inspector);
+			// Module forms may require a wide minimum size (for example device names).
+            // Scroll their content instead of propagating that minimum to the dock.
+            auto* inspectorScroll = new WinJACKNexus::UI::Controls::ScrollField(inspectorDock);
+            inspectorScroll->setObjectName(QStringLiteral("patchbay.inspectorScroll"));
+            inspectorScroll->setWidgetResizable(true);
+            inspectorScroll->setWidget(inspector);
+            inspectorDock->setWidget(inspectorScroll);
 			window_->addDockWidget(Qt::RightDockWidgetArea, inspectorDock);
 			QTimer::singleShot(0, window_, [window = window_, nodeDock, inspectorDock] {
 				window->resizeDocks({ nodeDock, inspectorDock }, { 270, 310 }, Qt::Horizontal);

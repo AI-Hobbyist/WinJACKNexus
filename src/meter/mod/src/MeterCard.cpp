@@ -340,10 +340,15 @@ MeterCard::MeterCard(MeterViewDataProvider& provider,
     rootLayout->addWidget(actionsPanel);
 
     connect(presetSelector_, &QComboBox::currentIndexChanged, this, [this](int index) {
-        if (presetSelector_->itemData(index).toString() == QStringLiteral("custom")) {
-            createCustomPreset(); return;
-        }
+        if (presetSelector_->itemData(index).toString() == QStringLiteral("custom"))
+            return;
         dispatch(MeterViewCommandType::setPreset, std::nullopt, presetSelector_->itemData(index).toString());
+    });
+    // Activation also fires when the user clicks the already selected entry.
+    // Snapshot updates and list refreshes must not open a creation dialog.
+    connect(presetSelector_, &QComboBox::activated, this, [this](int index) {
+        if (presetSelector_->itemData(index).toString() == QStringLiteral("custom"))
+            createCustomPreset();
     });
     connect(resetAction_, &QAction::triggered, this, [this] {
         dispatch(MeterViewCommandType::resetLoudness);
@@ -558,7 +563,7 @@ void MeterCard::createCustomPreset()
     }
     QDialog dialog(this);
     dialog.setObjectName(QStringLiteral("meterCard.customPresetDialog"));
-    dialog.setWindowTitle(QStringLiteral("保存自定义响度参考"));
+    dialog.setWindowTitle(QStringLiteral("创建自定义响度参考"));
     auto* root = new QVBoxLayout(&dialog);
     auto* form = new QFormLayout;
     auto* name = new Controls::TextField(&dialog);
