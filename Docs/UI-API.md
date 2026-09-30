@@ -256,6 +256,12 @@ exercises palette and stylesheet mapping, memory font registration, fallback,
 preview rollback and mixed text metrics. The 1.5× DPI UI test runs through
 the actual Windows window platform; offscreen testing has been abandoned.
 
+`ThemeManager` is allocated by value in distributed modules. Preserve its object
+layout across overlay releases; additional state belongs behind its existing
+internal shared pointer. The runtime meterbridge regression opens, paints,
+closes and recreates the window through the DLL's actual menu and node exports,
+including verification against the previously distributed meterbridge DLL.
+
 [`ThemeNamespaceRegistry.hpp`](../src/ui/include/WinJACKNexus/UI/ThemeNamespaceRegistry.hpp)
 is the S06 host registry for optional Node/Native Fx theme descriptors. Call
 `registerNodeModule` or `registerNativeFxModule` with a loaded DLL's dynamic

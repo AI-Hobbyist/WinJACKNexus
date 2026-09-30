@@ -7,6 +7,7 @@
 #include <WinJACKNexus/UI/TrayController.hpp>
 #include "PolarMixRegression.hpp"
 #include "AuxPolarSwitchRegression.hpp"
+#include "MeterbridgeOpenRegression.hpp"
 #include <WinJACKNexus/UI/ThemeManager.hpp>
 #include <WinJACKNexus/UI/ThemeCore.hpp>
 #include <WinJACKNexus/UI/MixerWindow.hpp>
@@ -187,6 +188,10 @@ int main(int argc, char** argv)
     QSettings::setPath(QSettings::IniFormat, QSettings::UserScope, settingsDirectory.path());
     if (argc > 1 && QByteArray(argv[1]) == "--mixer-project-restore")
         return testMixerProjectRestore(application, settingsDirectory.path());
+    if (argc > 2 && QByteArray(argv[1]) == "--meterbridge-library") {
+        verifyMeterbridgeOpen(application, QString::fromLocal8Bit(argv[2]), check);
+        return failures ? 1 : 0;
+    }
 
     verifyPreMixPolar(check);
     verifyAuxPolarSwitches(check);

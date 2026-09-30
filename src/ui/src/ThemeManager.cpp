@@ -103,6 +103,13 @@ QSettings settings() {
 }
 
 struct ThemeManager::FontState {
+    struct ApplicationStyleState {
+        bool applied = false;
+        QString lastStyleSheet;
+    };
+    // Keep per-manager bookkeeping behind the existing pointer. Modules allocate
+    // ThemeManager by value, so appending fields to the exported class breaks ABI.
+    QHash<const ThemeManager*, ApplicationStyleState> applicationStyles;
     struct LoadedFont { QByteArray hash; int id = -1; QString family; };
     ~FontState() {
         for (const auto& font : loaded) QFontDatabase::removeApplicationFont(font.id);
@@ -214,7 +221,9 @@ ThemeManager::ThemeManager(QObject* parent)
     if (processThemeCore) bindThemeCore(processThemeCore);
 }
 
-ThemeManager::~ThemeManager() = default;
+ThemeManager::~ThemeManager() {
+    fontState_->applicationStyles.remove(this);
+}
 
 void ThemeManager::installThemeCore(ThemeCore* core) {
     processThemeCore = core;
@@ -272,8 +281,7 @@ bool ThemeManager::applyToApp(QApplication* application) const {
         return false;
     if (application->styleSheet() != styleSheet_)
         application->setStyleSheet(styleSheet_);
-    applicationThemeApplied_ = true;
-    lastAppliedStyleSheet_ = styleSheet_;
+    fontState_->applicationStyles[this] = {true, styleSheet_};
     applyFontToApp(application);
     return true;
 }
@@ -306,8 +314,7 @@ bool ThemeManager::applyToWidget(QWidget* widget) const {
 void ThemeManager::watchApplication(QApplication* application) {
     fontState_->application = application;
     applicationOwner_ = application != nullptr;
-    applicationThemeApplied_ = false;
-    lastAppliedStyleSheet_.clear();
+    fontState_->applicationStyles.remove(this);
     // Startup restores the theme before the GUI manager subscribes to changes.
     syncSnapshot(true);
 }
@@ -342,7 +349,8 @@ void ThemeManager::syncSnapshot(bool applyApplication) {
     rebuildStyleSheet();
     if (applyApplication && applicationOwner_ && fontState_->application) {
         // Other modules may own the current QApplication QSS; compare our own last applied value.
-        if (!applicationThemeApplied_ || styleSheet_ != lastAppliedStyleSheet_)
+        const auto previousStyle = fontState_->applicationStyles.value(this);
+        if (!previousStyle.applied || styleSheet_ != previousStyle.lastStyleSheet)
             applyToApp(fontState_->application);
         else
             applyFontToApp(fontState_->application);
