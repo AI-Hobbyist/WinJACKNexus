@@ -20,6 +20,7 @@
 #include <QRawFont>
 #include <QLabel>
 #include <QLibrary>
+#include <QScrollBar>
 #include <QVBoxLayout>
 #include <QMouseEvent>
 #include <WinJACKNexus/UI/Controls.hpp>
@@ -269,7 +270,22 @@ int main(int argc, char** argv)
                 check(dock->width() <= 190, "dock can shrink to 180 px with and after WASAPI settings");
             };
             verifyResize();
-            if (panel) clear(node, panel);
+            if (panel) {
+                application.processEvents();
+                check(scroll->horizontalScrollBar()->maximum() == 0,
+                      "WASAPI form fits narrow sidebar without horizontal scrolling");
+                const auto narrowWidth = panel->findChild<QComboBox*>(QStringLiteral("deviceCombo"))->width();
+                for (const auto& name : {"clientNameEditor", "deviceCombo", "channelsSpinBox", "refreshButton", "applyButton"}) {
+                    auto* field = panel->findChild<QWidget*>(QString::fromLatin1(name));
+                    check(field && field->geometry().right() < panel->width(),
+                          "WASAPI settings controls stay inside narrow form width");
+                }
+                host.resizeDocks({dock}, {480}, Qt::Horizontal);
+                application.processEvents();
+                check(panel->findChild<QComboBox*>(QStringLiteral("deviceCombo"))->width() > narrowWidth + 150,
+                      "WASAPI controls expand with the sidebar width");
+                clear(node, panel);
+            }
             application.processEvents();
             verifyResize();
             if (node) destroy(node);

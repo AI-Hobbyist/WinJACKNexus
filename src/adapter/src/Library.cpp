@@ -357,16 +357,28 @@ public:
         setAutoFillBackground(true);
         setWindowTitle(std::move(title));
         auto* form = new QFormLayout(this);
+        form->setRowWrapPolicy(QFormLayout::WrapAllRows);
+        form->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
+        const auto label = [this](const QString& text) {
+            auto* result = new Controls::TextLabel(text, this);
+            result->setWordWrap(true);
+            result->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
+            return result;
+        };
 
         clientNameEditor_ = new Controls::TextField(this);
         clientNameEditor_->setObjectName(QStringLiteral("clientNameEditor"));
         clientNameEditor_->setFixedHeight(Controls::sidebarControlHeight);
-        form->addRow(QStringLiteral("Client name"), clientNameEditor_);
+        clientNameEditor_->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
+        form->addRow(label(QStringLiteral("Client name")), clientNameEditor_);
 
-        auto* deviceRow = new QHBoxLayout;
+        auto* deviceRow = new QVBoxLayout;
         deviceCombo_ = new Controls::ChoiceField(this);
         deviceCombo_->setObjectName(QStringLiteral("deviceCombo"));
         deviceCombo_->setFixedHeight(Controls::sidebarControlHeight);
+        deviceCombo_->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
+        deviceCombo_->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);
+        deviceCombo_->setMinimumContentsLength(1);
         deviceCombo_->setEditable(true);
         deviceCombo_->setInsertPolicy(QComboBox::NoInsert);
         auto* deviceCompleter = new QCompleter(deviceCombo_->model(), deviceCombo_);
@@ -376,29 +388,32 @@ public:
         refreshButton_ = new Controls::ActionButton(QStringLiteral("Refresh"), this);
         refreshButton_->setObjectName(QStringLiteral("refreshButton"));
         refreshButton_->setFixedHeight(Controls::sidebarControlHeight);
-        deviceRow->addWidget(deviceCombo_, 1);
+        deviceRow->addWidget(deviceCombo_);
         deviceRow->addWidget(refreshButton_);
-        form->addRow(QStringLiteral("Device"), deviceRow);
+        form->addRow(label(QStringLiteral("Device")), deviceRow);
 
         if (showChannels) {
             channelsSpinBox_ = new Controls::IntegerField(this);
             channelsSpinBox_->setObjectName(QStringLiteral("channelsSpinBox"));
             channelsSpinBox_->setFixedHeight(Controls::sidebarControlHeight);
             channelsSpinBox_->setRange(1, static_cast<int>(maxAudioChannels));
-            form->addRow(QStringLiteral("JACK channels"), channelsSpinBox_);
+            channelsSpinBox_->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
+            form->addRow(label(QStringLiteral("JACK channels")), channelsSpinBox_);
             connect(channelsSpinBox_, qOverload<int>(&QSpinBox::valueChanged), this,
                     [this](int) { apply(); });
         }
 
-        auto* actionRow = new QHBoxLayout;
+        auto* actionRow = new QVBoxLayout;
         applyButton_ = new Controls::ActionButton(QStringLiteral("Apply"), this);
         applyButton_->setObjectName(QStringLiteral("applyButton"));
         applyButton_->setFixedHeight(Controls::sidebarControlHeight);
         statusLabel_ = new WinJACKNexus::UI::Controls::TextLabel(this);
         statusLabel_->setObjectName(QStringLiteral("statusLabel"));
         statusLabel_->setProperty("wjnRole", QStringLiteral("success"));
+        statusLabel_->setWordWrap(true);
+        statusLabel_->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
         actionRow->addWidget(applyButton_);
-        actionRow->addWidget(statusLabel_, 1);
+        actionRow->addWidget(statusLabel_);
         form->addRow(actionRow);
 
         connect(refreshButton_, &QPushButton::clicked, this, [this] { refreshDevices(); });
