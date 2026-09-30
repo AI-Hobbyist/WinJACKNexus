@@ -228,7 +228,7 @@ bool DigitalMixerProcessor::configure(const DigitalMixerState& state, std::size_
         strip.post.resize(strip.channels * maxFrames);
         strip.mainContribution.resize(2 * maxFrames);
         strip.mainAnalyzer = std::make_unique<MixerPolarAnalyzer>(source.id, state.main().id,
-            source.layout, MixerLayout::stereo, candidate.topologyVersion_, sampleRate);
+            source.layout, source.layout, candidate.topologyVersion_, sampleRate);
         for (const auto& send : source.sends) {
             const auto target = auxIndex.find(send.targetId);
             if (target == auxIndex.end()) continue;
@@ -428,16 +428,16 @@ bool DigitalMixerProcessor::process(std::span<const float* const> inputs,
     const auto mixToMain = [this, frames](Strip& strip) noexcept {
         std::fill_n(strip.mainContribution.data(), frames, 0.0F);
         std::fill_n(strip.mainContribution.data() + maxFrames_, frames, 0.0F);
-        // Analyze the post-fader panned signal before the MIX routing switch.
+        // Keep MAIN audio routing separate from the strip's post-fader polar tap.
         addMatrix(strip.post, strip.channels, strip.mainContribution, 2,
                   strip.mainMatrix, maxFrames_, frames);
         if (strip.mixToMain && strip.soloAudible) {
             addPlanes(strip.mainContribution, mainInput_, 2, maxFrames_, frames);
         }
         const auto inputPointers = planes(strip.gainTap, strip.channels, maxFrames_);
-        const auto outputPointers = planes(strip.mainContribution, 2, maxFrames_);
+        const auto outputPointers = planes(strip.post, strip.channels, maxFrames_);
         strip.mainAnalyzer->push(std::span(inputPointers.data(), strip.channels),
-                                 std::span(outputPointers.data(), 2), frames);
+                                 std::span(outputPointers.data(), strip.channels), frames);
     };
     for (auto& strip : inputs_) mixToMain(strip);
     for (auto& strip : auxiliaries_) mixToMain(strip);

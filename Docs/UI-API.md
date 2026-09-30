@@ -51,8 +51,10 @@ Call it from the GUI thread; ownership stays with the caller. A null or
 destroyed menu disables the entry, and newly created bars retain the binding.
 
 The SEL MAIN polar legend uses Input and Output. Input measures the selected
-strip after gain and before FX; Output measures its post-fader contribution
-through the MAIN routing matrix before the MIX switch. Mute and solo still
+strip after gain and before FX; Output measures that strip after FX and its
+fader, before the MAIN routing matrix and MIX switch. Both measurements retain
+the selected strip's channel layout, preserving the direction of each channel
+instead of displaying the stereo downmix. Mute and solo still
 affect Output; disabling MIX keeps the polar measurement available while
 preventing that strip's signal from reaching the actual MAIN audio outputs.
 

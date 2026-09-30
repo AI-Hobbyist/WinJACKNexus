@@ -1,6 +1,7 @@
 /* This file is part of WinJACKNexus. SPDX-License-Identifier: AGPL-3.0-only */
 #pragma once
 #include <WinJACKNexus/Common/DigitalMixerProcessor.hpp>
+#include <WinJACKNexus/Common/MixerPolarCurve.hpp>
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -28,7 +29,8 @@ inline void verifyPreMixPolar(void (*check)(bool, const char*))
             state.strip(selectedId)->faderPosition = .95 * 24.0 / 84.0;
             state.strip(state.main().id)->faderPosition = mixerUnityFaderPosition;
             std::array<std::array<float, frames>, 8> inputData {};
-            inputData[0].fill(.25F);
+            for (std::size_t c = 0; c < static_cast<std::size_t>(layout); ++c)
+                inputData[c].fill(.25F / static_cast<float>(c + 1));
             std::vector<const float*> inputs;
             for (std::size_t c = 0; c < static_cast<std::size_t>(layout); ++c)
                 inputs.push_back(inputData[c].data());
@@ -49,6 +51,13 @@ inline void verifyPreMixPolar(void (*check)(bool, const char*))
             bool mainSilent = true;
             const auto enabledOk = measure(enabled, mainSilent);
             check(enabledOk && !mainSilent, "enabled MIX sends post-fader audio to MAIN");
+            check(enabled.sourceLayout == layout && enabled.targetLayout == layout,
+                  "SEL Input and post-fader Output retain the same channel layout");
+            const auto faderPower = std::pow(10.0, -12.0 / 10.0);
+            for (std::size_t c = 0; c < static_cast<std::size_t>(layout); ++c)
+                check(std::abs(enabled.outputSumSquares[c]
+                               - enabled.inputSumSquares[c] * faderPower) < .0001,
+                      "post-fader polar samples retain each channel rather than downmixing");
             state.strip(selectedId)->mixToMain = false;
             const auto disabledOk = measure(disabled, mainSilent);
             check(disabledOk && mainSilent, "disabled MIX keeps actual MAIN outputs silent");
@@ -59,6 +68,21 @@ inline void verifyPreMixPolar(void (*check)(bool, const char*))
                 check(std::abs(enabled.inputSumSquares[c] - disabled.inputSumSquares[c]) < .000001
                       && std::abs(enabled.outputSumSquares[c] - disabled.outputSumSquares[c]) < .000001,
                       "MIX switch leaves both polar sample measurements unchanged");
+            }
+            state.strip(selectedId)->faderPosition = mixerUnityFaderPosition;
+            MixerPolarSnapshot unity;
+            check(measure(unity, mainSilent) && mainSilent,
+                  "sample unity post-fader channels while MIX is disabled");
+            MixerPolarCurve curve;
+            check(curve.accept(unity), "accept real unity-fader polar measurements");
+            const auto contour = curve.contour();
+            for (std::size_t degree = 0; degree < 360; ++degree)
+                check(std::abs(contour.inputRadius[degree] - contour.outputRadius[degree]) < .000001,
+                      "unity fader aligns Input and Output at every polar angle");
+            if (layout != MixerLayout::mono) {
+                const auto range = std::minmax_element(contour.outputRadius.begin(), contour.outputRadius.end());
+                check(*range.second - *range.first > .01F,
+                      "unequal multichannel levels produce a directional Output contour, not a circle");
             }
             state.strip(selectedId)->mute = true;
             check(measure(muted, mainSilent) && mainSilent
