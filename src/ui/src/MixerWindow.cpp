@@ -2690,6 +2690,10 @@ void MixerWindow::paintEvent(QPaintEvent*)
     drawText(painter, {monitorCard.left(), impl_->monitorFaderTrack().bottom() + 10 * heightScale,
                        monitorCard.width(), 27 * heightScale},
              faderDbText(impl_->monitorFader), label, 12 * heightScale);
+    drawText(painter, {monitorCard.left(), monitorCard.bottom() - 35 * heightScale,
+                       monitorCard.width(), 28 * heightScale},
+             QStringLiteral("MON"), monitorYellow.lighter(125), 18 * heightScale,
+             Qt::AlignCenter, true);
 
     for (int index = 0; index < static_cast<int>(impl_->channels.size()); ++index) {
         painter.save();
