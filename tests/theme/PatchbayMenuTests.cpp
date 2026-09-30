@@ -275,6 +275,25 @@ int main(int argc, char** argv)
                 check(scroll->horizontalScrollBar()->maximum() == 0,
                       "WASAPI form fits narrow sidebar without horizontal scrolling");
                 const auto narrowWidth = panel->findChild<QComboBox*>(QStringLiteral("deviceCombo"))->width();
+                const auto verifyLabels = [&] {
+                    for (const auto& text : {"Client name", "Device", "JACK channels"}) {
+                        QLabel* label = nullptr;
+                        for (auto* candidate : panel->findChildren<QLabel*>())
+                            if (candidate->text() == QString::fromLatin1(text)) label = candidate;
+                        check(label && label->isVisible() && label->width() > 0
+                              && label->height() >= label->fontMetrics().height(),
+                              "WASAPI form labels remain visible at narrow and wide sidebar widths");
+                        if (label) {
+                            const auto pixels = label->grab().toImage().convertToFormat(QImage::Format_RGB32);
+                            bool varied = false;
+                            for (int y = 0; y < pixels.height() && !varied; ++y)
+                                for (int x = 0; x < pixels.width(); ++x)
+                                    if (pixels.pixel(x, y) != pixels.pixel(0, 0)) { varied = true; break; }
+                            check(varied, "WASAPI labels actually paint text pixels");
+                        }
+                    }
+                };
+                verifyLabels();
                 for (const auto& name : {"clientNameEditor", "deviceCombo", "channelsSpinBox", "refreshButton", "applyButton"}) {
                     auto* field = panel->findChild<QWidget*>(QString::fromLatin1(name));
                     check(field && field->geometry().right() < panel->width(),
@@ -284,6 +303,7 @@ int main(int argc, char** argv)
                 application.processEvents();
                 check(panel->findChild<QComboBox*>(QStringLiteral("deviceCombo"))->width() > narrowWidth + 150,
                       "WASAPI controls expand with the sidebar width");
+                verifyLabels();
                 clear(node, panel);
             }
             application.processEvents();

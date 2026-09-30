@@ -362,7 +362,9 @@ public:
         const auto label = [this](const QString& text) {
             auto* result = new Controls::TextLabel(text, this);
             result->setWordWrap(true);
-            result->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
+            // Form label columns use the width hint even when rows are wrapped.
+            // Ignoring that hint collapses the label to zero width.
+            result->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
             return result;
         };
 
