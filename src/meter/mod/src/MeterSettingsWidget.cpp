@@ -84,8 +84,8 @@ MeterSettingsWidget::MeterSettingsWidget(MeterViewDataProvider& provider,
     logRootDirectoryEdit_->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
     logRootDirectoryEdit_->setObjectName(QStringLiteral("meterSettings.logRoot"));
     logRootDirectoryEdit_->setAccessibleName(QStringLiteral("CSV 日志根目录"));
-    logRootDirectoryEdit_->setToolTip(QStringLiteral("仅用于预览的 CSV 日志根目录"));
-    globalLayout->addRow(QStringLiteral("日志目录"), logRootDirectoryEdit_);
+    logRootDirectoryEdit_->setToolTip(QStringLiteral("实时 CSV 记录的保存根目录；PNG 导出单独选择位置。留空时不写入 CSV。"));
+    globalLayout->addRow(QStringLiteral("CSV 目录"), logRootDirectoryEdit_);
     rootLayout->addWidget(globalGroup);
 
     customChannelsGroup_ = new Controls::GroupPanel(QStringLiteral("自定义声道"), this);
@@ -154,7 +154,8 @@ void MeterSettingsWidget::setSnapshot(const MeterViewSnapshot& snapshot)
     const QSignalBlocker durationBlocker(silenceDurationSpinBox_);
     silenceDurationSpinBox_->setValue(snapshot.globalSettings.silenceDurationSeconds);
     const QSignalBlocker logRootBlocker(logRootDirectoryEdit_);
-    logRootDirectoryEdit_->setText(snapshot.globalSettings.logRootDirectory);
+    if (!logRootDirectoryEdit_->hasFocus())
+        logRootDirectoryEdit_->setText(snapshot.globalSettings.logRootDirectory);
     const QSignalBlocker countBlocker(customChannelCountSpinBox_);
     customChannelCountSpinBox_->setValue(std::max(1, static_cast<int>(snapshot.channels.size())));
     customChannelsGroup_->setEnabled(channelLayoutEditable_);

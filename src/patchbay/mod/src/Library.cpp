@@ -2603,7 +2603,11 @@ public:
 				window->close();
 			});
 			auto* editMenu = window_->menuBar()->addMenu(QStringLiteral("编辑"));
-			WinJACKNexus::UI::TrayController::setQuickAccessFileMenu(fileMenu);
+			auto* quickFileMenu = new QMenu(window_);
+			for (auto* action : fileMenu->actions()) {
+				if (action != closeAction) quickFileMenu->addAction(action);
+			}
+			WinJACKNexus::UI::TrayController::setQuickAccessFileMenu(quickFileMenu);
 			editMenu->addAction(QStringLiteral("适配画布"), canvas, &PatchbayCanvas::zoomFit);
 			editMenu->addAction(QStringLiteral("重置缩放"), canvas, &PatchbayCanvas::zoomReset);
 			auto* viewMenu = window_->menuBar()->addMenu(QStringLiteral("视图"));

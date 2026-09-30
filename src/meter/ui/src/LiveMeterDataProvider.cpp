@@ -17,6 +17,7 @@
 #include <WinJACKNexus/Meter/MeterCsvWriter.hpp>
 
 #include <WinJACKNexus/Common/MeterLoudnessPresetCatalog.hpp>
+#include <WinJACKNexus/Common/MeterCustomLoudnessPresets.hpp>
 #include <WinJACKNexus/Common/MeterProbeRegistry.hpp>
 
 #include <QDateTime>
@@ -269,7 +270,8 @@ void LiveMeterDataProvider::restoreProjectMeters(const QJsonArray& meters)
             continue;
         auto& state = stateFor(instanceId);
         const auto presetId = meter.value(QStringLiteral("presetId")).toString().trimmed();
-        const auto knownPreset = WinJACKNexus::Common::isKnownMeterLoudnessPreset(presetId.toStdString());
+        const auto knownPreset = WinJACKNexus::Common::isKnownMeterLoudnessPreset(presetId.toStdString())
+            || WinJACKNexus::Common::findCustomMeterLoudnessPreset(presetId).has_value();
         state.preservedUnknownPresetId = presetId.isEmpty() || knownPreset ? QString() : presetId;
         state.presetId = presetId.isEmpty() || !knownPreset ? globalSettings_.defaultPresetId : presetId;
         state.configurationInitialized = true;

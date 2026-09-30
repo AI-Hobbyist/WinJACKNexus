@@ -102,6 +102,7 @@ private:
     std::int64_t renderedHistoryElapsedMilliseconds_ = -1;
     std::int64_t lastHistoryDataRefreshMilliseconds_ = -1;
     QHash<QString, bool> referenceLineVisibility_;
+    quint64 presetRevision_ = 0;
     std::array<QCheckBox*, 8> seriesVisibilityCheckBoxes_ {};
     std::array<QCheckBox*, 2> referenceLineCheckBoxes_ {};
     QComboBox* channelSelector_ = nullptr;

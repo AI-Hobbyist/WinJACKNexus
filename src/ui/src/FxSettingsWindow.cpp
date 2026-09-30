@@ -13,6 +13,14 @@
 #include <QComboBox>
 #include <QCoreApplication>
 #include <QDirIterator>
+#include <QDialog>
+#include <QDebug>
+#include <QFile>
+#include <QJsonDocument>
+#include <QJsonArray>
+#include <QMessageBox>
+#include <QSaveFile>
+#include <QUuid>
 #include <QFrame>
 #include <QFontMetrics>
 #include <QGraphicsOpacityEffect>
@@ -259,8 +267,15 @@ public:
             QWidget#fxChainContent { background:transparent; }
             QLabel[fxChainEndpoint="true"] { background:%endpoint-surface%; border:1px solid %endpoint-border%; border-radius:7px; color:%endpoint-text%; font-size:16px; font-weight:bold; }
             QScrollBar { background:%scrollbar-surface-normal%; }
+            QPushButton[fxChainPresetAction="true"] { color:%preset-text%; background:%preset-surface%; border-color:%preset-border%; }
+            QPushButton[fxChainPresetAction="true"]:hover { background:%preset-hover-surface%; border-color:%preset-hover-border%; }
         )");
-        const std::array<std::array<const char*, 3>, 23> replacements {{
+        const std::array<std::array<const char*, 3>, 28> replacements {{
+            {"%preset-text%", "control-preset-button-text", "#d8e8ff"},
+            {"%preset-surface%", "control-preset-button-surface", "#192e45"},
+            {"%preset-border%", "control-preset-button-border", "#405e7f"},
+            {"%preset-hover-surface%", "control-preset-button-hover-surface", "#214263"},
+            {"%preset-hover-border%", "control-preset-button-hover-border", "#37b9fa"},
             {"%surface-window%", "surface-window", "#0b1929"},
             {"%surface-panel%", "surface-panel", "#14283e"},
             {"%text-primary%", "text-primary", "#e9f2ff"},
@@ -326,7 +341,7 @@ public:
         master->setToolTip(QStringLiteral("FX 链总开关"));
         QObject::connect(master, &QAbstractButton::toggled, &owner, [this](bool enabled) {
             syncChainPower();
-            if (chainEnabledHandler) chainEnabledHandler(enabled);
+            if (!loading && chainEnabledHandler) chainEnabledHandler(enabled);
             publish();
         });
         leftLayout->addWidget(master);
@@ -367,13 +382,22 @@ public:
         rightLayout->setSpacing(8);
         rightLayout->addStretch();
         rightLayout->addWidget(new Controls::TextLabel(QStringLiteral("预设："), rightControls));
-        auto* presets = new Controls::ChoiceField(rightControls);
+        presets = new Controls::ChoiceField(rightControls);
         presets->setObjectName(QStringLiteral("fxWindowPreset"));
-        presets->addItem(QStringLiteral("Default"));
+        presets->addItem(QStringLiteral("当前效果链"));
         presets->setMinimumWidth(185);
         rightLayout->addWidget(presets);
-        rightLayout->addWidget(button(QStringLiteral("保存"), rightControls));
-        rightLayout->addWidget(button(QStringLiteral("另存为"), rightControls));
+        auto* save = button(QStringLiteral("保存"), rightControls, "fxChainPresetSave");
+        auto* saveAs = button(QStringLiteral("另存为"), rightControls, "fxChainPresetSaveAs");
+        auto* refresh = button(QStringLiteral("刷新"), rightControls, "fxChainPresetRefresh");
+        for (auto* action : {save, saveAs, refresh}) {
+            action->setProperty("fxChainPresetAction", true);
+            rightLayout->addWidget(action);
+        }
+        QObject::connect(save, &QPushButton::clicked, &owner, [this] { savePreset(false); });
+        QObject::connect(saveAs, &QPushButton::clicked, &owner, [this] { savePreset(true); });
+        QObject::connect(refresh, &QPushButton::clicked, &owner, [this] { refreshPresets(); });
+        QObject::connect(presets, &QComboBox::activated, &owner, [this](int index) { selectChainPreset(index); });
         const auto sideWidth = std::max(leftControls->sizeHint().width(), rightControls->sizeHint().width());
         leftControls->setMinimumWidth(sideWidth);
         rightControls->setMinimumWidth(sideWidth);
@@ -626,6 +650,7 @@ public:
             moduleName->setText(QStringLiteral("Native Fx 加载失败"));
             editorArea->setWidget(new Controls::TextLabel(QStringLiteral("找不到 Native Fx 模块：%1").arg(modulesPath)));
         }
+        refreshPresets();
         if (auto* core = ThemeManager::installedThemeCore())
             QObject::connect(core, &ThemeCore::themeChanged, &owner, [this] { applyTheme(); });
     }
@@ -965,16 +990,15 @@ public:
         chainContent->update();
     }
 
-    void publish() {
-        if (loading || !chainCommit) return;
-        std::vector<Common::MixerEffectState> chain;
+    bool captureChain(std::vector<Common::MixerEffectState>& chain) {
+        chain.clear();
         chain.reserve(static_cast<std::size_t>(list->count()));
         for (int row = 0; row < list->count(); ++row) {
             const auto* effect = effectFor(list->item(row)->data(Qt::UserRole).toInt());
-            if (!effect) return;
+            if (!effect) return false;
             const auto bytes = effect->module->snapshotSize();
             QByteArray snapshot(static_cast<qsizetype>(bytes), '\0');
-            if (!effect->module->exportSnapshot(effect->instance, snapshot.data(), bytes)) return;
+            if (!effect->module->exportSnapshot(effect->instance, snapshot.data(), bytes)) return false;
             Common::MixerEffectState state;
             state.moduleId = QString::fromUtf8(effect->module->info.id);
             state.enabled = effect->enabled;
@@ -986,7 +1010,157 @@ public:
         }
         for (const auto& [position, missing] : missingEffects)
             chain.insert(chain.begin() + std::min(position, chain.size()), missing);
-        chainCommit(chain, master->isChecked());
+        return true;
+    }
+
+
+    QString presetDirectory() const {
+        return QCoreApplication::applicationDirPath() + QStringLiteral("/fx_chain_presets");
+    }
+
+    bool readPreset(const QString& path, QString& name,
+                    std::vector<Common::MixerEffectState>& chain, bool& enabled, QString& error) const {
+        QFile file(path);
+        if (!file.open(QIODevice::ReadOnly)) { error = file.errorString(); return false; }
+        if (file.size() > 16 * 1024 * 1024) { error = QStringLiteral("预设文件过大"); return false; }
+        QJsonParseError parse;
+        const auto document = QJsonDocument::fromJson(file.readAll(), &parse);
+        const auto object = document.object();
+        if (parse.error != QJsonParseError::NoError || !document.isObject()
+            || object.value("format").toString() != QStringLiteral("WinJACKNexus.FxChainPreset")
+            || object.value("version").toDouble(-1) != 1
+            || !object.value("name").isString() || object.value("name").toString().trimmed().isEmpty()
+            || !object.value("enabled").isBool() || !object.value("effects").isArray()
+            || object.value("effects").toArray().size() > 256) {
+            error = QStringLiteral("不是有效的效果链预设或版本不支持"); return false;
+        }
+        std::vector<Common::MixerEffectState> result;
+        for (const auto& value : object.value("effects").toArray()) {
+            const auto effect = value.toObject();
+            const auto preset = effect.value("preset").toDouble(-2);
+            if (!value.isObject() || !effect.value("moduleId").isString()
+                || effect.value("moduleId").toString().trimmed().isEmpty()
+                || !effect.value("enabled").isBool() || !effect.value("parameters").isObject()
+                || preset < -1 || preset > 2147483647 || preset != std::floor(preset)) {
+                error = QStringLiteral("效果链模块数据无效"); return false;
+            }
+            Common::MixerEffectState state;
+            state.moduleId = effect.value("moduleId").toString();
+            state.enabled = effect.value("enabled").toBool();
+            state.preset = static_cast<int>(preset);
+            state.parameters = effect.value("parameters").toObject();
+            const auto snapshot = state.parameters.value("snapshot");
+            if (!snapshot.isUndefined() && (!snapshot.isString()
+                || !QByteArray::fromBase64Encoding(snapshot.toString().toLatin1(), QByteArray::AbortOnBase64DecodingErrors))) {
+                error = QStringLiteral("模块参数快照无效"); return false;
+            }
+            result.push_back(std::move(state));
+        }
+        name = object.value("name").toString().trimmed();
+        enabled = object.value("enabled").toBool();
+        chain = std::move(result);
+        return true;
+    }
+
+    void refreshPresets() {
+        const QSignalBlocker blocker(presets);
+        presets->clear();
+        presets->addItem(QStringLiteral("当前效果链"), QString());
+        const QDir directory(presetDirectory());
+        for (const auto& entry : directory.entryInfoList({QStringLiteral("*.json")}, QDir::Files, QDir::Name)) {
+            QString name, error;
+            bool enabled;
+            std::vector<Common::MixerEffectState> chain;
+            if (readPreset(entry.absoluteFilePath(), name, chain, enabled, error))
+                presets->addItem(name, entry.absoluteFilePath());
+            else qWarning().noquote() << "FX chain preset:" << entry.fileName() << error;
+        }
+        const int index = presets->findData(selectedPresetPath);
+        presets->setCurrentIndex(std::max(0, index));
+        if (index < 0) selectedPresetPath.clear();
+    }
+
+    void presetError(const QString& error) {
+        QMessageBox::warning(&owner, QStringLiteral("效果链预设"), error);
+    }
+
+    void savePreset(bool saveAs) {
+        QString path = selectedPresetPath;
+        QString name = presets->currentText();
+        if (saveAs || path.isEmpty()) {
+            QDialog dialog(&owner);
+            dialog.setObjectName(QStringLiteral("fxChainPresetNameDialog"));
+            dialog.setWindowTitle(QStringLiteral("另存效果链预设"));
+            auto* layout = new QVBoxLayout(&dialog);
+            layout->addWidget(new Controls::TextLabel(QStringLiteral("预设名称"), &dialog));
+            auto* field = new Controls::TextField(&dialog);
+            field->setObjectName(QStringLiteral("fxChainPresetName"));
+            field->setText(path.isEmpty() ? QString() : name);
+            layout->addWidget(field);
+            auto* actions = new QHBoxLayout;
+            auto* accept = button(QStringLiteral("保存"), &dialog, "fxChainPresetNameSave");
+            auto* cancel = button(QStringLiteral("取消"), &dialog);
+            accept->setProperty("fxChainPresetAction", true);
+            cancel->setProperty("fxChainPresetAction", true);
+            accept->setEnabled(!field->text().trimmed().isEmpty());
+            QObject::connect(field, &QLineEdit::textChanged, &dialog, [accept](const QString& text) {
+                accept->setEnabled(!text.trimmed().isEmpty());
+            });
+            QObject::connect(accept, &QPushButton::clicked, &dialog, &QDialog::accept);
+            QObject::connect(cancel, &QPushButton::clicked, &dialog, &QDialog::reject);
+            actions->addStretch(); actions->addWidget(accept); actions->addWidget(cancel);
+            layout->addLayout(actions);
+            dialog.resize(360, 140);
+            field->setFocus();
+            if (dialog.exec() != QDialog::Accepted) return;
+            name = field->text().trimmed();
+            path = presetDirectory() + QLatin1Char('/')
+                + QUuid::createUuid().toString(QUuid::WithoutBraces) + QStringLiteral(".json");
+        }
+        std::vector<Common::MixerEffectState> chain;
+        if (!captureChain(chain)) { presetError(QStringLiteral("无法读取模块参数，未保存预设")); return; }
+        QJsonArray effects;
+        for (const auto& effect : chain)
+            effects.append(QJsonObject {{"moduleId", effect.moduleId}, {"enabled", effect.enabled},
+                                        {"preset", effect.preset}, {"parameters", effect.parameters}});
+        const QJsonObject object {{"format", QStringLiteral("WinJACKNexus.FxChainPreset")},
+                                  {"version", 1}, {"name", name}, {"enabled", master->isChecked()},
+                                  {"effects", effects}};
+        if (!QDir().mkpath(presetDirectory())) { presetError(QStringLiteral("无法创建预设目录：%1").arg(presetDirectory())); return; }
+        QSaveFile file(path);
+        const auto bytes = QJsonDocument(object).toJson();
+        if (!file.open(QIODevice::WriteOnly) || file.write(bytes) != bytes.size() || !file.commit()) {
+            presetError(QStringLiteral("保存失败：%1").arg(file.errorString())); return;
+        }
+        selectedPresetPath = path;
+        refreshPresets();
+    }
+
+    void selectChainPreset(int index) {
+        const auto path = presets->itemData(index).toString();
+        if (path.isEmpty()) { selectedPresetPath.clear(); return; }
+        QString name, error;
+        bool enabled;
+        std::vector<Common::MixerEffectState> chain;
+        if (!readPreset(path, name, chain, enabled, error)) {
+            presetError(error);
+            const QSignalBlocker blocker(presets);
+            presets->setCurrentIndex(std::max(0, presets->findData(selectedPresetPath)));
+            return;
+        }
+        if (chainCommit && !chainCommit(chain, enabled)) {
+            const QSignalBlocker blocker(presets);
+            presets->setCurrentIndex(std::max(0, presets->findData(selectedPresetPath)));
+            return;
+        }
+        loadChain(chain, enabled);
+        selectedPresetPath = path;
+    }
+
+    void publish() {
+        if (loading || !chainCommit) return;
+        std::vector<Common::MixerEffectState> chain;
+        if (captureChain(chain)) chainCommit(chain, master->isChecked());
     }
 
     void loadChain(const std::vector<Common::MixerEffectState>& chain, bool enabled) {
@@ -1046,6 +1220,8 @@ public:
     QWidget* editorParking {};
     QLabel* moduleName {};
     QComboBox* modulePreset {};
+    QComboBox* presets {};
+    QString selectedPresetPath;
     Controls::ToggleButton* master {};
     QPushButton* modulePower {};
     std::function<void(bool)> chainEnabledHandler;

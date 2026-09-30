@@ -16,6 +16,7 @@
 #include <WinJACKNexus/Meter/Mod/MeterHistoryWindow.hpp>
 
 #include <WinJACKNexus/Common/MeterLoudnessPresetCatalog.hpp>
+#include <WinJACKNexus/Common/MeterCustomLoudnessPresets.hpp>
 #include <WinJACKNexus/Meter/Mod/MeterSettingsWidget.hpp>
 #include <WinJACKNexus/UI/ApplicationSettings.hpp>
 #include <WinJACKNexus/UI/Controls.hpp>
@@ -32,6 +33,10 @@
 #include <QCheckBox>
 #include <QComboBox>
 #include <QDateTime>
+#include <QFileDialog>
+#include <QAbstractItemView>
+#include <QSaveFile>
+#include <QDir>
 #include <QFormLayout>
 #include <QFrame>
 #include <QGraphicsOpacityEffect>
@@ -153,8 +158,10 @@ QToolButton* createActionButton(QAction* action, const QString& objectName, QWid
     return button;
 }
 
-const WinJACKNexus::Common::MeterLoudnessPreset& referencePreset(const QString& presetId)
+WinJACKNexus::Common::MeterLoudnessPreset referencePreset(const QString& presetId)
 {
+    if (const auto custom = WinJACKNexus::Common::findCustomMeterLoudnessPreset(presetId))
+        return {"custom", "custom", custom->targetIntegratedLufs, custom->alternateTargetHighLufs, custom->maximumTruePeakDbtp};
     if (const auto* preset = WinJACKNexus::Common::findMeterLoudnessPreset(presetId.toStdString()); preset != nullptr)
         return *preset;
     return *WinJACKNexus::Common::findMeterLoudnessPreset("ebu-r128");
@@ -354,6 +361,7 @@ MeterHistoryWindow::MeterHistoryWindow(MeterViewDataProvider& provider,
     scanCursorSlider_->setObjectName(QStringLiteral("meterHistory.scanCursor"));
     scanCursorSlider_->setAccessibleName(QStringLiteral("扫描游标"));
     scanCursorSlider_->setMinimumWidth(150);
+    scanCursorSlider_->setFixedHeight(Controls::sidebarControlHeight);
     controls->addWidget(scanCursorSlider_);
 
     pauseAction_ = new QAction(style()->standardIcon(QStyle::SP_MediaPause), QStringLiteral("暂停"), this);
@@ -365,7 +373,7 @@ MeterHistoryWindow::MeterHistoryWindow(MeterViewDataProvider& provider,
     clearAction_->setToolTip(QStringLiteral("清空模拟历史，不重置响度"));
     exportAction_ = new QAction(style()->standardIcon(QStyle::SP_DialogSaveButton), QStringLiteral("导出图表"), this);
     exportAction_->setObjectName(QStringLiteral("meterHistory.exportAction"));
-    exportAction_->setToolTip(QStringLiteral("准备 PNG 导出预览，不写入文件"));
+    exportAction_->setToolTip(QStringLiteral("将当前可见图表保存为 PNG"));
     auto* pauseButton = createActionButton(pauseAction_, QStringLiteral("meterHistory.pauseButton"), controlsFrame, controlColors);
     pauseButton->setProperty("meterHistoryControl", QStringLiteral("action"));
     auto* clearButton = createActionButton(clearAction_, QStringLiteral("meterHistory.clearButton"), controlsFrame, controlColors);
@@ -524,7 +532,19 @@ MeterHistoryWindow::MeterHistoryWindow(MeterViewDataProvider& provider,
         dispatch(std::move(command));
     });
     connect(exportAction_, &QAction::triggered, this, [this] {
-        exportStatusLabel_->setText(QStringLiteral("PNG 导出预览已准备好；不会写入文件。"));
+        QString path = QFileDialog::getSaveFileName(this, QStringLiteral("导出图表 PNG"),
+            QDir::homePath() + QStringLiteral("/meter-history-%1.png").arg(QDateTime::currentDateTime().toString(QStringLiteral("yyyyMMdd-HHmmss"))),
+            QStringLiteral("PNG 图像 (*.png)"));
+        if (path.isEmpty()) return;
+        if (!path.endsWith(QStringLiteral(".png"), Qt::CaseInsensitive)) path += QStringLiteral(".png");
+        const auto image = chart_->grab().toImage();
+        QSaveFile file(path);
+        if (image.isNull() || !file.open(QIODevice::WriteOnly) || !image.save(&file, "PNG") || !file.commit()) {
+            exportStatusLabel_->setText(QStringLiteral("PNG 导出失败：%1").arg(file.errorString()));
+            QMessageBox::warning(this, QStringLiteral("导出图表"), exportStatusLabel_->text());
+            return;
+        }
+        exportStatusLabel_->setText(QStringLiteral("PNG 已保存：%1").arg(path));
     });
     connect(recordingAction_, &QAction::toggled, this, [this](bool enabled) {
         MeterViewCommand command;
@@ -563,7 +583,9 @@ void MeterHistoryWindow::paintEvent(QPaintEvent*) {
 void MeterHistoryWindow::applyTheme()
 {
     QString style = QStringLiteral(
-        "QWidget#meterHistory.window { background-color:%page%; color:%text%; }"
+        "QWidget[objectName=\"meterHistory.window\"] { background-color:%page%; color:%text%; }"
+        "QLabel { color:%text%; background:transparent; }"
+        "QFrame[objectName=\"meterSettings.widget\"] { background-color:%page%; color:%text%; border:0; }"
         "QWidget[meterHistorySurface=\"true\"] { background:transparent; }"
         "QFrame[meterHistoryToolbar=\"true\"] { background-color:%panel%; border:1px solid %toolbar-border%; border-radius:6px; }"
         "QComboBox, QLineEdit, QDoubleSpinBox, QSpinBox { background-color:%raised%; color:%text%; border:1px solid %border%; border-radius:4px; padding:4px; }"
@@ -626,6 +648,17 @@ void MeterHistoryWindow::applyTheme()
         if (qobject_cast<QToolButton*>(widget) || qobject_cast<QComboBox*>(widget)
             || qobject_cast<QCheckBox*>(widget) || qobject_cast<QSlider*>(widget))
             WinJACKNexus::UI::Controls::applyPalette(widget, controls);
+        if (auto* combo = qobject_cast<QComboBox*>(widget)) {
+            combo->view()->setStyleSheet(QStringLiteral(
+                "QAbstractItemView { background:%1; color:%2; selection-background-color:%3; selection-color:%4; border:1px solid %5; }"
+                "QAbstractItemView::item { min-height:28px; }")
+                .arg(meterCssColor("control-preset-popup-surface", "#12263c"),
+                     meterCssColor("control-preset-popup-text", "#dcecff"),
+                     meterCssColor("control-preset-popup-selected-surface", "#24587c"),
+                     meterCssColor("control-preset-popup-selected-text", "#ffffff"),
+                     meterCssColor("control-preset-popup-border", "#294d70")));
+        }
+        if (qobject_cast<QCheckBox*>(widget)) widget->setFixedHeight(WinJACKNexus::UI::Controls::sidebarControlHeight);
     }
     const auto& definitions = seriesDefinitions();
     for (std::size_t index = 0; index < seriesVisibilityCheckBoxes_.size(); ++index) {
@@ -713,6 +746,7 @@ void MeterHistoryWindow::setLiveSnapshots(const std::vector<MeterViewSnapshot>& 
     const auto metadataChanged = liveSnapshot->clientName != snapshot_.clientName
         || liveSnapshot->layoutLabel != snapshot_.layoutLabel
         || liveSnapshot->presetId != snapshot_.presetId
+        || presetRevision_ != WinJACKNexus::Common::customMeterLoudnessPresetRevision()
         || liveSnapshot->recordingEnabled != snapshot_.recordingEnabled
         || liveSnapshot->channels != snapshot_.channels
         || liveSnapshot->historyView != snapshot_.historyView
@@ -749,7 +783,8 @@ void MeterHistoryWindow::setSnapshot(const MeterViewSnapshot& snapshot)
         || snapshot_.channelLayoutEditable != snapshot.channelLayoutEditable;
     const auto controlsChanged = selectedInstanceChanged || historyViewChanged
         || snapshot_.recordingEnabled != snapshot.recordingEnabled;
-    const auto referenceChanged = selectedInstanceChanged || snapshot_.presetId != snapshot.presetId;
+    const auto referenceChanged = selectedInstanceChanged || snapshot_.presetId != snapshot.presetId
+        || presetRevision_ != WinJACKNexus::Common::customMeterLoudnessPresetRevision();
     const auto csvChanged = selectedInstanceChanged || snapshot_.csvPreview != snapshot.csvPreview;
     if (!historyChanged && !settingsChanged && !controlsChanged && !referenceChanged && !csvChanged)
         return;
@@ -765,6 +800,7 @@ void MeterHistoryWindow::setSnapshot(const MeterViewSnapshot& snapshot)
         }
     }
     snapshot_ = snapshot;
+    presetRevision_ = WinJACKNexus::Common::customMeterLoudnessPresetRevision();
     if (settingsChanged)
         settingsWidget_->setSnapshot(snapshot_);
 
@@ -1096,7 +1132,7 @@ void MeterHistoryWindow::updateCsvPreview()
     csvPathLabel_->setText(snapshot_.csvPreview.activeFilePath);
     csvStatusLabel_->setText(snapshot_.csvPreview.rotationStatus);
     if (exportStatusLabel_->text().isEmpty())
-    exportStatusLabel_->setText(QStringLiteral("当前版本中 PNG 导出仅为预览。"));
+    exportStatusLabel_->setText(QStringLiteral("可将当前可见图表导出为 PNG。"));
 }
 
 void MeterHistoryWindow::updateReferenceLines()

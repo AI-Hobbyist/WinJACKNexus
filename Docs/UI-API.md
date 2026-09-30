@@ -352,3 +352,57 @@ The Node module export contract and project JSON envelope are specified in
 analysis are specified in [`NativeFx-API.md`](../Develop/NativeFx/NativeFx-API.md). Changes to an
 exported UI signature or behavior require updating this document and its
 call-site tests before the API can be considered frozen.
+
+### FX chain presets
+
+`FxSettingsWindow` saves complete, independent chains under
+`<application directory>/fx_chain_presets/*.json`. Save overwrites the selected
+preset; Save As (or Save without a selection) asks for a display name and creates
+a new UUID-named file. Files use `format=WinJACKNexus.FxChainPreset`, `version=1`,
+`name`, `enabled`, and ordered `effects` containing `moduleId`, `enabled`,
+`preset`, and `parameters` (including each Native Fx eight-channel snapshot).
+Missing modules retain their saved data when a preset is loaded and saved again.
+Selecting a preset commits it to the current channel. Refresh rescans the folder
+without applying a chain; malformed or unsupported files are omitted with a log
+warning. Writes are atomic, and failures leave the previous file intact.
+
+Preset actions use registered `sel-fx` tokens
+`control-preset-button-{text,surface,border,hover-surface,hover-border}`,
+inheriting the corresponding ordinary button colors. Existing shared
+ActionButton, ChoiceField and TextField controls are reused.
+
+The quick access File menu shares project actions with the patchbay File menu
+but excludes the close-window action.
+
+### Custom LUFS references and history PNG export
+
+The meter card's Custom reference opens an editor for a name, integrated loudness
+(-70..0 LUFS), optional upper target, and maximum true peak (-60..12 dBTP).
+Saving creates an atomic, independent JSON file in
+`<application directory>/lufs_presets`. Refresh scans that directory and updates
+all cards through the application's regular refresh cycle, preserving their
+selection. The shared Common helper `MeterCustomLoudnessPresets.hpp` owns the
+process-wide catalog; its refresh, lookup, revision and save functions are called
+on the GUI thread. Custom IDs survive project reload and drive the actual history
+reference lines, including optional lower/upper targets. Files use
+`format=WinJACKNexus.LufsPreset`, `version=1`, `id`, `name`,
+`targetIntegratedLufs`, optional `alternateTargetHighLufs`, and
+`maximumTruePeakDbtp`; invalid or duplicate files are skipped with a log warning.
+
+The history Export action prompts for a PNG filename and atomically writes the
+current visible chart (axes, enabled curves and reference lines). Cancel writes
+nothing. Sidebar fields, actions, switches and preset refresh controls use the
+shared sidebar control height. Preset dropdown popups explicitly theme their
+background, text and selection with registered `meter-bridge` tokens
+`control-preset-popup-{surface,text,border,selected-surface,selected-text}`.
+Custom preset actions use `control-preset-action-{surface,text,border}`.
+
+The tracked `wjn_preset_tests` target verifies both preset editors, actual Native
+Fx snapshots and missing-module roundtrips, LUFS file refresh and chart targets,
+popup rendering, equal field heights, and PNG writes into a manually selected
+subdirectory (plus cancellation). Run `ctest -C Release -R ^preset_tests$` in the
+existing build tree. A generated template archive is also imported when present.
+
+The display settings CSV directory remains the real recording root, independent
+of the PNG Save As location. Snapshot refresh must not overwrite that field while
+it has keyboard focus; the directory command commits on editingFinished.

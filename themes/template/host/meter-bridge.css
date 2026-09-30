@@ -1,5 +1,22 @@
 /* meter-bridge module theme tokens. Keep token names and the :root block. */
 :root {
+  /* meter-bridge / control preset popup surface; type=color */
+  --wjn-theme-meter-bridge-control-preset-popup-surface: var(--wjn-theme-meter-bridge-control-preset-surface-normal);
+  /* meter-bridge / control preset popup text; type=color */
+  --wjn-theme-meter-bridge-control-preset-popup-text: var(--wjn-theme-meter-bridge-control-preset-text-normal);
+  /* meter-bridge / control preset popup border; type=color */
+  --wjn-theme-meter-bridge-control-preset-popup-border: var(--wjn-theme-meter-bridge-control-preset-border-normal);
+  /* meter-bridge / control preset popup selected surface; type=color */
+  --wjn-theme-meter-bridge-control-preset-popup-selected-surface: #24587c;
+  /* meter-bridge / control preset popup selected text; type=color */
+  --wjn-theme-meter-bridge-control-preset-popup-selected-text: #ffffff;
+  /* meter-bridge / control preset action surface; type=color */
+  --wjn-theme-meter-bridge-control-preset-action-surface: var(--wjn-theme-meter-bridge-control-action-surface-normal);
+  /* meter-bridge / control preset action text; type=color */
+  --wjn-theme-meter-bridge-control-preset-action-text: var(--wjn-theme-meter-bridge-control-action-text-normal);
+  /* meter-bridge / control preset action border; type=color */
+  --wjn-theme-meter-bridge-control-preset-action-border: var(--wjn-theme-meter-bridge-control-action-border-normal);
+
   /* meter-bridge / surface window; type=color */
   --wjn-theme-meter-bridge-surface-window: #0b1928;
   /* meter-bridge / surface page; type=color */

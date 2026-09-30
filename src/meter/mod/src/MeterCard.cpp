@@ -24,7 +24,15 @@
 #include <WinJACKNexus/UI/ThemeCore.hpp>
 #include <WinJACKNexus/UI/ThemeManager.hpp>
 
+#include <WinJACKNexus/Common/MeterCustomLoudnessPresets.hpp>
 #include <QAction>
+#include <QAbstractItemView>
+#include <QDialog>
+#include <QFormLayout>
+#include <QLineEdit>
+#include <QDoubleSpinBox>
+#include <QCheckBox>
+#include <QMessageBox>
 #include <QComboBox>
 #include <QContextMenuEvent>
 #include <QHBoxLayout>
@@ -186,7 +194,7 @@ MeterCard::MeterCard(MeterViewDataProvider& provider,
     presetSelector_->setProperty("meterCardControl", QStringLiteral("preset"));
     presetSelector_->setAccessibleName(QStringLiteral("响度预设（Loudness Preset）"));
     presetSelector_->setToolTip(QStringLiteral("选择此探针的显示参考预设"));
-    presetSelector_->setFixedHeight(50);
+    presetSelector_->setFixedHeight(WinJACKNexus::UI::Controls::sidebarControlHeight);
     auto presetFont = presetSelector_->font();
     presetFont.setPixelSize(16);
     presetSelector_->setFont(presetFont);
@@ -197,7 +205,18 @@ MeterCard::MeterCard(MeterViewDataProvider& provider,
     presetColors.accent = cardPalette.color(QStringLiteral("accent"));
     WinJACKNexus::UI::Controls::applyPalette(presetSelector_, presetColors);
     configurePresetSelector();
-    presetLayout->addWidget(presetSelector_);
+    presetLayout->addWidget(presetSelector_, 1);
+    presetRefreshButton_ = new WinJACKNexus::UI::Controls::IconActionButton(presetPanel);
+    presetRefreshButton_->setObjectName(QStringLiteral("meterCard.presetRefresh"));
+    presetRefreshButton_->setText(QStringLiteral("刷新"));
+    presetRefreshButton_->setToolButtonStyle(Qt::ToolButtonTextOnly);
+    presetRefreshButton_->setFixedHeight(WinJACKNexus::UI::Controls::sidebarControlHeight);
+    presetLayout->addWidget(presetRefreshButton_);
+    connect(presetRefreshButton_, &QToolButton::clicked, this, [this] {
+        WinJACKNexus::Common::refreshCustomMeterLoudnessPresets();
+        configurePresetSelector();
+        if (requestRefresh_) requestRefresh_();
+    });
     rootLayout->addWidget(presetPanel);
 
     auto* contentPanel = new QFrame(this);
@@ -321,6 +340,9 @@ MeterCard::MeterCard(MeterViewDataProvider& provider,
     rootLayout->addWidget(actionsPanel);
 
     connect(presetSelector_, &QComboBox::currentIndexChanged, this, [this](int index) {
+        if (presetSelector_->itemData(index).toString() == QStringLiteral("custom")) {
+            createCustomPreset(); return;
+        }
         dispatch(MeterViewCommandType::setPreset, std::nullopt, presetSelector_->itemData(index).toString());
     });
     connect(resetAction_, &QAction::triggered, this, [this] {
@@ -394,6 +416,28 @@ void MeterCard::applyTheme()
     presetColors.border = meterColor("control-preset-border-normal", "#294d70");
     presetColors.accent = palette.color(QStringLiteral("accent"));
     WinJACKNexus::UI::Controls::applyPalette(presetSelector_, presetColors);
+    auto* view = presetSelector_->view();
+    auto popup = view->palette();
+    popup.setColor(QPalette::Base, meterColor("control-preset-popup-surface", "#12263c"));
+    popup.setColor(QPalette::Text, meterColor("control-preset-popup-text", "#dcecff"));
+    popup.setColor(QPalette::Highlight, meterColor("control-preset-popup-selected-surface", "#24587c"));
+    popup.setColor(QPalette::HighlightedText, meterColor("control-preset-popup-selected-text", "#ffffff"));
+    view->setPalette(popup);
+    view->setStyleSheet(QStringLiteral(
+        "QAbstractItemView { background:%1; color:%2; selection-background-color:%3; selection-color:%4; border:1px solid %5; }"
+        "QAbstractItemView::item { min-height:28px; }")
+        .arg(meterCssColor("control-preset-popup-surface", "#12263c"),
+             meterCssColor("control-preset-popup-text", "#dcecff"),
+             meterCssColor("control-preset-popup-selected-surface", "#24587c"),
+             meterCssColor("control-preset-popup-selected-text", "#ffffff"),
+             meterCssColor("control-preset-popup-border", "#294d70")));
+    WinJACKNexus::UI::Controls::Palette presetActions;
+    presetActions.panel = meterColor("control-preset-action-surface", "#13263b");
+    presetActions.text = meterColor("control-preset-action-text", "#dbeaff");
+    presetActions.border = meterColor("control-preset-action-border", "#274b6c");
+    presetActions.accent = palette.color(QStringLiteral("accent"));
+    WinJACKNexus::UI::Controls::applyPalette(presetRefreshButton_, presetActions);
+
     WinJACKNexus::UI::Controls::Palette actionColors;
     actionColors.panel = meterColor("control-action-surface-normal", "#13263b");
     actionColors.text = meterColor("control-action-text-normal", "#dbeaff");
@@ -408,6 +452,7 @@ void MeterCard::setSnapshot(const MeterViewSnapshot& snapshot)
     instanceId_ = snapshot.instanceId;
     clientName_ = snapshot.clientName;
     presetId_ = snapshot.presetId;
+    if (presetRevision_ != WinJACKNexus::Common::customMeterLoudnessPresetRevision()) configurePresetSelector();
     titleLabel_->setText(snapshot.clientName);
     layoutLabel_->setText(snapshot.layoutLabel);
     stateLabel_->setText(stateText(snapshot.state));
@@ -495,14 +540,98 @@ void MeterCard::dispatch(MeterViewCommandType type, std::optional<bool> enabled,
     command.instanceId = instanceId_;
     command.enabled = enabled;
     command.presetId = presetId;
-    if (provider_.dispatch(command) && requestRefresh_)
-        requestRefresh_();
+    if (provider_.dispatch(command)) {
+        if (type == MeterViewCommandType::setPreset) presetId_ = presetId;
+        if (requestRefresh_) requestRefresh_();
+    }
+}
+
+void MeterCard::createCustomPreset()
+{
+    namespace Controls = WinJACKNexus::UI::Controls;
+    WinJACKNexus::Common::MeterCustomLoudnessPreset preset;
+    if (const auto current = WinJACKNexus::Common::findCustomMeterLoudnessPreset(presetId_)) preset = *current;
+    else if (const auto* current = WinJACKNexus::Common::findMeterLoudnessPreset(presetId_.toStdString())) {
+        preset.targetIntegratedLufs = current->targetIntegratedLufs;
+        preset.alternateTargetHighLufs = current->alternateTargetHighLufs;
+        preset.maximumTruePeakDbtp = current->maximumTruePeakDbtp;
+    }
+    QDialog dialog(this);
+    dialog.setObjectName(QStringLiteral("meterCard.customPresetDialog"));
+    dialog.setWindowTitle(QStringLiteral("保存自定义响度参考"));
+    auto* root = new QVBoxLayout(&dialog);
+    auto* form = new QFormLayout;
+    auto* name = new Controls::TextField(&dialog);
+    name->setObjectName(QStringLiteral("lufsPreset.name"));
+    name->setText(preset.displayName);
+    const auto field = [&](const char* id, double minimum, double maximum, double value, const QString& unit) {
+        auto* result = new Controls::DecimalField(&dialog);
+        result->setObjectName(QString::fromLatin1(id));
+        result->setFixedHeight(Controls::sidebarControlHeight);
+        result->setRange(minimum, maximum); result->setDecimals(1);
+        result->setValue(value); result->setSuffix(unit);
+        return result;
+    };
+    name->setFixedHeight(Controls::sidebarControlHeight);
+    auto* target = field("lufsPreset.target", -70, 0, preset.targetIntegratedLufs, QStringLiteral(" LUFS"));
+    auto* peak = field("lufsPreset.truePeak", -60, 12, preset.maximumTruePeakDbtp, QStringLiteral(" dBTP"));
+    auto* range = new Controls::ToggleField(QStringLiteral("启用目标范围"), &dialog);
+    range->setObjectName(QStringLiteral("lufsPreset.range"));
+    range->setFixedHeight(Controls::sidebarControlHeight);
+    range->setChecked(preset.alternateTargetHighLufs.has_value());
+    auto* upper = field("lufsPreset.upper", preset.targetIntegratedLufs, 0,
+                        preset.alternateTargetHighLufs.value_or(preset.targetIntegratedLufs), QStringLiteral(" LUFS"));
+    upper->setEnabled(range->isChecked());
+    connect(range, &QCheckBox::toggled, upper, &QWidget::setEnabled);
+    connect(target, qOverload<double>(&QDoubleSpinBox::valueChanged), upper, &QDoubleSpinBox::setMinimum);
+    form->addRow(QStringLiteral("名称"), name);
+    form->addRow(QStringLiteral("综合响度目标/下限"), target);
+    form->addRow(range); form->addRow(QStringLiteral("综合响度上限"), upper);
+    form->addRow(QStringLiteral("最大真峰值"), peak);
+    root->addLayout(form);
+    auto* actions = new QHBoxLayout;
+    auto* save = new Controls::ActionButton(QStringLiteral("保存"), &dialog);
+    save->setObjectName(QStringLiteral("lufsPreset.save"));
+    auto* cancel = new Controls::ActionButton(QStringLiteral("取消"), &dialog);
+    Controls::Palette colors;
+    colors.panel = meterColor("control-preset-action-surface", "#13263b");
+    colors.text = meterColor("control-preset-action-text", "#dbeaff");
+    colors.border = meterColor("control-preset-action-border", "#274b6c");
+    for (auto* action : {save, cancel}) {
+        action->setFixedHeight(Controls::sidebarControlHeight); Controls::applyPalette(action, colors);
+    }
+    save->setEnabled(!name->text().trimmed().isEmpty());
+    connect(name, &QLineEdit::textChanged, save, [save](const QString& text) { save->setEnabled(!text.trimmed().isEmpty()); });
+    connect(save, &QPushButton::clicked, &dialog, &QDialog::accept);
+    connect(cancel, &QPushButton::clicked, &dialog, &QDialog::reject);
+    actions->addStretch(); actions->addWidget(save); actions->addWidget(cancel); root->addLayout(actions);
+    if (dialog.exec() == QDialog::Accepted) {
+        preset.displayName = name->text().trimmed();
+        preset.targetIntegratedLufs = target->value();
+        preset.maximumTruePeakDbtp = peak->value();
+        preset.alternateTargetHighLufs = range->isChecked() ? std::optional<double>(upper->value()) : std::nullopt;
+        QString error;
+        if (WinJACKNexus::Common::saveCustomMeterLoudnessPreset(preset, &error)) {
+            configurePresetSelector();
+            presetSelector_->setCurrentIndex(presetSelector_->findData(preset.id));
+            return;
+        }
+        QMessageBox::warning(this, QStringLiteral("响度参考保存失败"), error);
+    }
+    const QSignalBlocker blocker(presetSelector_);
+    presetSelector_->setCurrentIndex(std::max(0, presetSelector_->findData(presetId_)));
 }
 
 void MeterCard::configurePresetSelector()
 {
+    const QSignalBlocker blocker(presetSelector_);
+    presetSelector_->clear();
     for (const auto& preset : WinJACKNexus::Common::meterLoudnessPresetCatalog)
         presetSelector_->addItem(QString::fromUtf8(preset.displayName), QString::fromLatin1(preset.id));
+    for (const auto& preset : WinJACKNexus::Common::customMeterLoudnessPresets())
+        presetSelector_->addItem(preset.displayName, preset.id);
+    presetSelector_->setCurrentIndex(std::max(0, presetSelector_->findData(presetId_)));
+    presetRevision_ = WinJACKNexus::Common::customMeterLoudnessPresetRevision();
 }
 
 }

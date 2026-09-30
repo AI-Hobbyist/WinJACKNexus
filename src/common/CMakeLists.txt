@@ -10,6 +10,7 @@ add_library(common SHARED
     src/MixerPolarCurve.cpp
     src/GraphicsView.cpp
     src/LoudnessEngine.cpp
+    src/MeterCustomLoudnessPresets.cpp
     src/MeterProbeRegistry.cpp
     src/Metadata.cpp
     src/PathUtils.cpp

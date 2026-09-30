@@ -1,5 +1,16 @@
 /* sel-fx module theme tokens. Keep token names and the :root block. */
 :root {
+  /* sel-fx / chain preset action text; type=color */
+  --wjn-theme-sel-fx-control-preset-button-text: var(--wjn-theme-sel-fx-control-button-text-normal);
+  /* sel-fx / chain preset action surface; type=color */
+  --wjn-theme-sel-fx-control-preset-button-surface: var(--wjn-theme-sel-fx-control-button-surface-normal);
+  /* sel-fx / chain preset action border; type=color */
+  --wjn-theme-sel-fx-control-preset-button-border: var(--wjn-theme-sel-fx-control-button-border-normal);
+  /* sel-fx / chain preset action hover-surface; type=color */
+  --wjn-theme-sel-fx-control-preset-button-hover-surface: var(--wjn-theme-sel-fx-control-button-surface-hover);
+  /* sel-fx / chain preset action hover-border; type=color */
+  --wjn-theme-sel-fx-control-preset-button-hover-border: var(--wjn-theme-sel-fx-control-button-border-hover);
+
   /* sel-fx / surface window; type=color */
   --wjn-theme-sel-fx-surface-window: #0b1929;
   /* sel-fx / surface panel; type=color */

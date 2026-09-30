@@ -56,6 +56,7 @@ private:
     void applyTheme();
     void dispatch(MeterViewCommandType type, std::optional<bool> enabled = std::nullopt, const QString& presetId = {});
     void configurePresetSelector();
+    void createCustomPreset();
 
     MeterViewDataProvider& provider_;
     std::function<void()> requestRefresh_;
@@ -68,6 +69,8 @@ private:
     QLabel* layoutLabel_ = nullptr;
     QLabel* stateLabel_ = nullptr;
     QComboBox* presetSelector_ = nullptr;
+    QToolButton* presetRefreshButton_ = nullptr;
+    quint64 presetRevision_ = 0;
     WinJACKNexus::UI::MeterLevelBar* levelBar_ = nullptr;
     WinJACKNexus::UI::MetricReadout* peakReadout_ = nullptr;
     WinJACKNexus::UI::MetricReadout* rmsReadout_ = nullptr;

@@ -9,6 +9,7 @@
 #include "AuxPolarSwitchRegression.hpp"
 #include "MeterbridgeOpenRegression.hpp"
 #include "MixerLayoutRegression.hpp"
+#include "FxChainPresetRegression.hpp"
 #include <WinJACKNexus/UI/ThemeManager.hpp>
 #include <WinJACKNexus/UI/ThemeCore.hpp>
 #include <WinJACKNexus/UI/MixerWindow.hpp>
@@ -237,6 +238,7 @@ int main(int argc, char** argv)
     }
 
     verifyMixerLayout(application, check);
+    verifyFxChainPresets(application, check);
     auto* host = wjn_create_node(0);
     check(host && host->init(), "create patchbay host without a JACK client");
     if (!host) return 1;
@@ -378,17 +380,21 @@ int main(int argc, char** argv)
         auto* fileButton = themeButton ? themeButton->window()->findChild<QToolButton*>(
             QStringLiteral("quickAccessFileButton")) : nullptr;
         auto* fileMenu = submenu(window->menuBar(), QStringLiteral("文件"));
-        check(fileButton && fileButton->isEnabled() && fileButton->menu() == fileMenu
+        check(fileButton && fileButton->isEnabled() && fileButton->menu() != fileMenu
               && fileButton->popupMode() == QToolButton::InstantPopup
               && actionNamed(fileButton->menu(), QStringLiteral("打开工程...")) == openProject,
-              "quick access shares the patchbay native File menu and project actions");
+              "quick access has a native File menu sharing project actions");
+        check(fileButton && !actionNamed(fileButton->menu(), QStringLiteral("关闭窗口"))
+              && actionNamed(fileMenu, QStringLiteral("关闭窗口")),
+              "quick access excludes Close while the patchbay menu retains it");
+        auto* originalQuickFileMenu = fileButton ? fileButton->menu() : nullptr;
         auto* temporaryMenu = new QMenu;
         WinJACKNexus::UI::TrayController::setQuickAccessFileMenu(temporaryMenu);
         check(fileButton && fileButton->menu() == temporaryMenu, "File menu binding updates live bars");
         delete temporaryMenu;
         check(fileButton && !fileButton->isEnabled() && !fileButton->menu(),
               "destroyed File menu safely disables the entry");
-        WinJACKNexus::UI::TrayController::setQuickAccessFileMenu(fileMenu);
+        WinJACKNexus::UI::TrayController::setQuickAccessFileMenu(originalQuickFileMenu);
         if (fileButton) {
             QDir().mkpath(QStringLiteral("tests/preview/PrePush"));
             check(fileButton->window()->grab().save(

@@ -2639,6 +2639,56 @@
       "description": "sel-fx / border normal"
     },
     {
+      "name": "--wjn-theme-sel-fx-control-preset-button-text",
+      "ownerScope": "sel-fx",
+      "type": "color",
+      "default": "#d8e8ff",
+      "inherits": [
+        "--wjn-theme-sel-fx-control-button-text-normal"
+      ],
+      "description": "sel-fx / chain preset action text"
+    },
+    {
+      "name": "--wjn-theme-sel-fx-control-preset-button-surface",
+      "ownerScope": "sel-fx",
+      "type": "color",
+      "default": "#192e45",
+      "inherits": [
+        "--wjn-theme-sel-fx-control-button-surface-normal"
+      ],
+      "description": "sel-fx / chain preset action surface"
+    },
+    {
+      "name": "--wjn-theme-sel-fx-control-preset-button-border",
+      "ownerScope": "sel-fx",
+      "type": "color",
+      "default": "#405e7f",
+      "inherits": [
+        "--wjn-theme-sel-fx-control-button-border-normal"
+      ],
+      "description": "sel-fx / chain preset action border"
+    },
+    {
+      "name": "--wjn-theme-sel-fx-control-preset-button-hover-surface",
+      "ownerScope": "sel-fx",
+      "type": "color",
+      "default": "#214263",
+      "inherits": [
+        "--wjn-theme-sel-fx-control-button-surface-hover"
+      ],
+      "description": "sel-fx / chain preset action hover-surface"
+    },
+    {
+      "name": "--wjn-theme-sel-fx-control-preset-button-hover-border",
+      "ownerScope": "sel-fx",
+      "type": "color",
+      "default": "#37b9fa",
+      "inherits": [
+        "--wjn-theme-sel-fx-control-button-border-hover"
+      ],
+      "description": "sel-fx / chain preset action hover-border"
+    },
+    {
       "name": "--wjn-theme-sel-fx-control-button-text-normal",
       "ownerScope": "sel-fx",
       "type": "color",
@@ -3277,6 +3327,82 @@
       "default": "#274b6c",
       "inherits": [],
       "description": "meter-bridge / control action border normal"
+    },
+    {
+      "name": "--wjn-theme-meter-bridge-control-preset-popup-surface",
+      "ownerScope": "meter-bridge",
+      "type": "color",
+      "default": "#12263c",
+      "inherits": [
+        "--wjn-theme-meter-bridge-control-preset-surface-normal"
+      ],
+      "description": "meter-bridge / control preset popup surface"
+    },
+    {
+      "name": "--wjn-theme-meter-bridge-control-preset-popup-text",
+      "ownerScope": "meter-bridge",
+      "type": "color",
+      "default": "#dcecff",
+      "inherits": [
+        "--wjn-theme-meter-bridge-control-preset-text-normal"
+      ],
+      "description": "meter-bridge / control preset popup text"
+    },
+    {
+      "name": "--wjn-theme-meter-bridge-control-preset-popup-border",
+      "ownerScope": "meter-bridge",
+      "type": "color",
+      "default": "#294d70",
+      "inherits": [
+        "--wjn-theme-meter-bridge-control-preset-border-normal"
+      ],
+      "description": "meter-bridge / control preset popup border"
+    },
+    {
+      "name": "--wjn-theme-meter-bridge-control-preset-popup-selected-surface",
+      "ownerScope": "meter-bridge",
+      "type": "color",
+      "default": "#24587c",
+      "inherits": [],
+      "description": "meter-bridge / control preset popup selected surface"
+    },
+    {
+      "name": "--wjn-theme-meter-bridge-control-preset-popup-selected-text",
+      "ownerScope": "meter-bridge",
+      "type": "color",
+      "default": "#ffffff",
+      "inherits": [],
+      "description": "meter-bridge / control preset popup selected text"
+    },
+    {
+      "name": "--wjn-theme-meter-bridge-control-preset-action-surface",
+      "ownerScope": "meter-bridge",
+      "type": "color",
+      "default": "#13263b",
+      "inherits": [
+        "--wjn-theme-meter-bridge-control-action-surface-normal"
+      ],
+      "description": "meter-bridge / control preset action surface"
+    },
+    {
+      "name": "--wjn-theme-meter-bridge-control-preset-action-text",
+      "ownerScope": "meter-bridge",
+      "type": "color",
+      "default": "#dbeaff",
+      "inherits": [
+        "--wjn-theme-meter-bridge-control-action-text-normal"
+      ],
+      "description": "meter-bridge / control preset action text"
+    },
+    {
+      "name": "--wjn-theme-meter-bridge-control-preset-action-border",
+      "ownerScope": "meter-bridge",
+      "type": "color",
+      "default": "#274b6c",
+      "inherits": [
+        "--wjn-theme-meter-bridge-control-action-border-normal"
+      ],
+      "description": "meter-bridge / control preset action border"
     },
     {
       "name": "--wjn-theme-meter-bridge-control-preset-surface-normal",

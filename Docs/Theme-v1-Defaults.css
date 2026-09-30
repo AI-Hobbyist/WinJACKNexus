@@ -337,6 +337,11 @@
   --wjn-theme-sel-fx-text-label: #e5efff;
   --wjn-theme-sel-fx-accent-primary: #31c6ff;
   --wjn-theme-sel-fx-border-normal: #29435d;
+  --wjn-theme-sel-fx-control-preset-button-text: var(--wjn-theme-sel-fx-control-button-text-normal);
+  --wjn-theme-sel-fx-control-preset-button-surface: var(--wjn-theme-sel-fx-control-button-surface-normal);
+  --wjn-theme-sel-fx-control-preset-button-border: var(--wjn-theme-sel-fx-control-button-border-normal);
+  --wjn-theme-sel-fx-control-preset-button-hover-surface: var(--wjn-theme-sel-fx-control-button-surface-hover);
+  --wjn-theme-sel-fx-control-preset-button-hover-border: var(--wjn-theme-sel-fx-control-button-border-hover);
   --wjn-theme-sel-fx-control-button-text-normal: #d8e8ff;
   --wjn-theme-sel-fx-control-button-surface-normal: #192e45;
   --wjn-theme-sel-fx-control-button-border-normal: #405e7f;
@@ -413,6 +418,14 @@
   --wjn-theme-meter-bridge-control-action-surface-normal: #13263b;
   --wjn-theme-meter-bridge-control-action-text-normal: #dbeaff;
   --wjn-theme-meter-bridge-control-action-border-normal: #274b6c;
+  --wjn-theme-meter-bridge-control-preset-popup-surface: var(--wjn-theme-meter-bridge-control-preset-surface-normal);
+  --wjn-theme-meter-bridge-control-preset-popup-text: var(--wjn-theme-meter-bridge-control-preset-text-normal);
+  --wjn-theme-meter-bridge-control-preset-popup-border: var(--wjn-theme-meter-bridge-control-preset-border-normal);
+  --wjn-theme-meter-bridge-control-preset-popup-selected-surface: #24587c;
+  --wjn-theme-meter-bridge-control-preset-popup-selected-text: #ffffff;
+  --wjn-theme-meter-bridge-control-preset-action-surface: var(--wjn-theme-meter-bridge-control-action-surface-normal);
+  --wjn-theme-meter-bridge-control-preset-action-text: var(--wjn-theme-meter-bridge-control-action-text-normal);
+  --wjn-theme-meter-bridge-control-preset-action-border: var(--wjn-theme-meter-bridge-control-action-border-normal);
   --wjn-theme-meter-bridge-control-preset-surface-normal: #12263c;
   --wjn-theme-meter-bridge-control-preset-text-normal: #dcecff;
   --wjn-theme-meter-bridge-control-preset-border-normal: #294d70;
