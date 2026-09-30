@@ -121,8 +121,8 @@ struct ThemeManager::FontState {
                const QByteArray& pinnedHash) {
         if (!application) return;
         if (!capturedSystemFont) {
-            systemFont = application->font();
-            currentFamily = systemFont.family();
+            systemFont = QFontDatabase::systemFont(QFontDatabase::GeneralFont);
+            currentFamily = application->font().family();
             capturedSystemFont = true;
         }
         const auto source = snapshot.value(QStringLiteral("--wjn-theme-global-font-source"));
@@ -160,7 +160,7 @@ struct ThemeManager::FontState {
         if (desiredFamily != systemFont.family())
             applicationFont.setFamilies({desiredFamily, systemFont.family()});
         // Namespace registration can refresh the theme while an FX editor is being built.
-        if (desiredFamily == currentFamily && activeHash == currentHash
+        if (applicationFontInitialized && desiredFamily == currentFamily && activeHash == currentHash
             && application->font() == applicationFont) {
             releaseUnused(pinnedHash);
             return;
@@ -181,10 +181,12 @@ struct ThemeManager::FontState {
         }
         currentFamily = desiredFamily;
         currentHash = activeHash;
+        applicationFontInitialized = true;
         releaseUnused(pinnedHash);
     }
 
     bool capturedSystemFont = false;
+    bool applicationFontInitialized = false;
     QFont systemFont;
     QString currentFamily;
     QString diagnostic;

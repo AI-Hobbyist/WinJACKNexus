@@ -242,8 +242,10 @@ A manager can also call
 immediate application. Theme changes update existing widgets and inherited
 fonts for new windows. The manager retains each widget's size, weight and
 other font settings while replacing the family; a widget using a dedicated
-icon font sets `wjnPreserveFontFamily=true`. The system UI font is captured
-before the first theme font is applied and restored for `system`, invalid font
+icon font sets `wjnPreserveFontFamily=true`. The system UI font comes from
+`QFontDatabase::systemFont(GeneralFont)`. The first application explicitly
+sets it even when the application's default already compares equal, clearing
+Qt's per-widget-class defaults. It is restored for `system`, invalid font
 data, preview cancellation and default restoration. Custom TTF/OTF bytes are
 registered with `QFontDatabase::addApplicationFontFromData`, keyed by content
 hash and held through previews; no font file is extracted. `fontDiagnostic`

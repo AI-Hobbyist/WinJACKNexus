@@ -9,6 +9,9 @@
 #include "AuxPolarSwitchRegression.hpp"
 #include <WinJACKNexus/UI/ThemeManager.hpp>
 #include <WinJACKNexus/UI/ThemeCore.hpp>
+#include <WinJACKNexus/UI/MixerWindow.hpp>
+#include <QFontDatabase>
+#include <QFontInfo>
 #include <QLabel>
 
 #include <QAction>
@@ -185,11 +188,17 @@ int main(int argc, char** argv)
     verifyPreMixPolar(check);
     verifyAuxPolarSwitches(check);
     {
-        const auto systemFamily = application.font().family();
+        const auto systemFont = QFontDatabase::systemFont(QFontDatabase::GeneralFont);
+        const auto systemFamily = systemFont.family();
         const auto initialStyle = application.styleSheet();
         application.setStyleSheet(QStringLiteral("QLabel { font-family: 'Courier New'; }"));
         QLabel startupLabel(QStringLiteral("Startup font"));
         startupLabel.ensurePolished();
+        QFont obsolete = systemFont;
+        obsolete.setFamily(QStringLiteral("Times New Roman"));
+        application.setFont(obsolete);
+        WinJACKNexus::UI::MixerWindow startupMixer;
+        check(startupMixer.font().family() == obsolete.family(), "prepare a stale application startup font");
         check(startupLabel.font().family() != systemFamily, "prepare an obsolete startup font");
         WinJACKNexus::UI::ThemeCore restored;
         check(restored.setOverride(QStringLiteral("--wjn-theme-global-font-source"),
@@ -199,6 +208,22 @@ int main(int argc, char** argv)
         startupManager.watchApplication(&application);
         check(application.font().family() == systemFamily && startupLabel.font().family() == systemFamily,
               "initial theme binding applies system font without any theme switch");
+        check(startupMixer.font().family() == systemFamily,
+              "first system-font application replaces stale mixer font with the platform UI font");
+        WinJACKNexus::UI::MixerWindow newlyOpenedMixer;
+        check(newlyOpenedMixer.font().family() == systemFamily,
+              "new mixer windows inherit the actual platform UI font at startup");
+        newlyOpenedMixer.ensurePolished();
+        check(newlyOpenedMixer.font().family() == systemFamily, "polished mixer preserves startup system font");
+        auto paintedFont = newlyOpenedMixer.font();
+        paintedFont.setPixelSize(12);
+        paintedFont.setWeight(QFont::Normal);
+        check(QFontInfo(paintedFont).family() == QFontInfo(systemFont).family(),
+              "regular mixer text resolves to the platform UI font");
+        QDir().mkpath(QStringLiteral("tests/preview/PrePush"));
+        check(newlyOpenedMixer.grab().save(QStringLiteral("tests/preview/PrePush/startup-system-font-mixer.png")),
+              "capture the real mixer using the startup platform font");
+        application.setFont(systemFont);
         application.setStyleSheet(initialStyle);
     }
 
