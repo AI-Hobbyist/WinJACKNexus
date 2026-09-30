@@ -6,6 +6,7 @@
 #include <mod_patchbay/ProjectStateCodec.hpp>
 #include <WinJACKNexus/UI/TrayController.hpp>
 #include "PolarMixRegression.hpp"
+#include "AuxPolarSwitchRegression.hpp"
 
 #include <QAction>
 #include <QApplication>
@@ -179,6 +180,7 @@ int main(int argc, char** argv)
         return testMixerProjectRestore(application, settingsDirectory.path());
 
     verifyPreMixPolar(check);
+    verifyAuxPolarSwitches(check);
 
     auto* host = wjn_create_node(0);
     check(host && host->init(), "create patchbay host without a JACK client");

@@ -317,7 +317,9 @@ void DigitalMixerProcessor::adoptPolarHistory(DigitalMixerProcessor& previous) n
                 auto prior = std::find_if(old->sends.begin(), old->sends.end(), [&](const Route& item) {
                     return item.targetId == route.targetId;
                 });
-                if (prior != old->sends.end()) route.analyzer = std::move(prior->analyzer);
+                if (prior != old->sends.end() && route.enabled == prior->enabled
+                    && strip.auxSendsEnabled == old->auxSendsEnabled)
+                    route.analyzer = std::move(prior->analyzer);
             }
         }
     };
@@ -531,7 +533,10 @@ bool DigitalMixerProcessor::readPolar(std::uint64_t sourceId, std::uint64_t targ
             if (strip.id != sourceId) continue;
             if (targetId == mainId_) return strip.mainAnalyzer->readLatest(snapshot);
             for (auto& send : strip.sends)
-                if (send.targetId == targetId) return send.analyzer->readLatest(snapshot);
+                if (send.targetId == targetId) {
+                    if (!strip.auxSendsEnabled || !send.enabled) return false;
+                    return send.analyzer->readLatest(snapshot);
+                }
         }
         return false;
     };

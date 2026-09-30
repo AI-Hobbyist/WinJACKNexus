@@ -317,6 +317,9 @@ hold time.
 and effect-analysis readers. The callbacks remain valid for the lifetime of
 the window. [`AuxSettingsWindow`](../src/ui/include/WinJACKNexus/UI/AuxSettingsWindow.hpp)
 edits the source's AUX state in its own top-level window.
+Its polar reader runs only while the source AUX master and selected target
+send are both enabled. Disabling either switch clears both polar curves
+immediately; disabled AUX routes do not return processor polar snapshots.
 [`FxSettingsWindow`](../src/ui/include/WinJACKNexus/UI/FxSettingsWindow.hpp)
 hosts the mixer FX chain and module-provided editors; a native effect keeps
 its own processing and parameter snapshot under the Native Fx API. UI widgets

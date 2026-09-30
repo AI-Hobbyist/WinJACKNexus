@@ -129,13 +129,13 @@ public:
             }
             if (polarRead) {
                 const auto* bus = selected();
-                if (!bus || polarSourceKey != sourceKey || polarTargetId != bus->id) {
+                if (!polarEnabled() || polarSourceKey != sourceKey || polarTargetId != bus->id) {
                     polarCurve.clear();
                     polarSourceKey = sourceKey;
                     polarTargetId = bus ? bus->id : 0;
                     polarStaleTicks = 0;
                 }
-                if (bus) {
+                if (polarEnabled()) {
                     Common::MixerPolarSnapshot snapshot;
                     if (polarRead(bus->id, snapshot) && polarCurve.accept(snapshot))
                         polarStaleTicks = 0;
@@ -320,6 +320,20 @@ public:
         Common::auxSetPannerAngle(bus,angle);
     }
 
+    bool polarEnabled() const
+    {
+        const auto* bus = selected();
+        return chainEnabled && bus && bus->enabled && !bus->selfRoute;
+    }
+
+    void clearInactivePolar()
+    {
+        if (polarEnabled()) return;
+        polarCurve.clear();
+        polarStaleTicks = 0;
+        owner.setProperty("auxPolarDataValid", false);
+    }
+
     void changed()
     {
         if (stateCommit && !stateCommit()) {
@@ -332,6 +346,7 @@ public:
             return;
         }
         lastAcceptedState = *state;
+        clearInactivePolar();
         publishPan();
         if (draggingControl()) return;
         if (stateChanged)
@@ -488,11 +503,13 @@ void AuxSettingsWindow::setPolarReadCallback(
 void AuxSettingsWindow::acceptExternalState()
 {
     impl_->lastAcceptedState = *impl_->state;
+    impl_->clearInactivePolar();
 }
 
 void AuxSettingsWindow::setChainEnabled(bool enabled)
 {
     impl_->chainEnabled = enabled;
+    impl_->clearInactivePolar();
     update();
 }
 
@@ -690,7 +707,8 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
         constexpr qreal radius=190,pointRadius=159;
         drawMixerPolarGrid(painter,center,radius,QStringLiteral("sel-aux"));
         if(bus->showPolarCurves) {
-            const auto contour = impl_->polarCurve.contour();
+            const auto contour = impl_->polarEnabled()
+                ? impl_->polarCurve.contour() : Common::MixerPolarContour {};
             drawMixerPolarCurves(painter,{420,95,531,448},center,radius,contour,
                                  bus->showInputCurve,bus->showOutputCurve,QStringLiteral("sel-aux"));
             if(!contour.valid) drawText({center.x()-62,center.y()-12,124,24},
@@ -790,6 +808,7 @@ void AuxSettingsWindow::mousePressEvent(QMouseEvent* event)
         const bool next = !impl_->chainEnabled;
         if (impl_->chainCommitHandler && !impl_->chainCommitHandler(next)) return;
         impl_->chainEnabled = next;
+        impl_->clearInactivePolar();
         if (impl_->chainEnabledHandler) impl_->chainEnabledHandler(impl_->chainEnabled);
         update();
         return;
