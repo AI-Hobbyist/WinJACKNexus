@@ -19,6 +19,10 @@
 #include <QGlyphRun>
 #include <QRawFont>
 #include <QLabel>
+#include <QLibrary>
+#include <QVBoxLayout>
+#include <QMouseEvent>
+#include <WinJACKNexus/UI/Controls.hpp>
 
 #include <QAction>
 #include <QApplication>
@@ -195,6 +199,66 @@ int main(int argc, char** argv)
         return failures ? 1 : 0;
     }
 
+    {
+        using namespace WinJACKNexus::UI;
+        QLibrary adapter(QDir(application.applicationDirPath()).filePath(
+            QStringLiteral("../nodes/adapter/mod_adapter.dll")));
+        using Create = WinJACKNexus::Node::INode* (*)(std::uint32_t);
+        using Destroy = void (*)(WinJACKNexus::Node::INode*);
+        using Settings = QWidget* (*)(WinJACKNexus::Node::INode*, QWidget*);
+        using Clear = void (*)(WinJACKNexus::Node::INode*, QWidget*);
+        const auto create = reinterpret_cast<Create>(adapter.resolve("wjn_create_node"));
+        const auto destroy = reinterpret_cast<Destroy>(adapter.resolve("wjn_destroy_node"));
+        const auto settings = reinterpret_cast<Settings>(adapter.resolve("wjn_create_settings_widget"));
+        const auto clear = reinterpret_cast<Clear>(adapter.resolve("wjn_destroy_settings_widget"));
+        check(create && destroy && settings && clear, "load WASAPI settings exports");
+        if (create && destroy && settings && clear) {
+            QMainWindow host;
+            host.setCentralWidget(new QWidget(&host));
+            auto* dock = new Controls::DockPanel(QStringLiteral("Parameters"), Qt::RightDockWidgetArea, &host);
+            auto* content = new QWidget(dock);
+            auto* layout = new QVBoxLayout(content);
+            layout->setContentsMargins(32, 12, 12, 12);
+            layout->addStretch();
+            dock->setWidget(content);
+            host.addDockWidget(Qt::RightDockWidgetArea, dock);
+            host.resize(1200, 700);
+            host.show();
+            auto* node = create(0);
+            auto* panel = node ? settings(node, content) : nullptr;
+            check(panel != nullptr, "create actual WASAPI parameter panel");
+            if (panel) layout->insertWidget(0, panel);
+            application.processEvents();
+            auto* grip = dock->findChild<QWidget*>(QStringLiteral("dockResizeGrip"));
+            const auto verifyResize = [&] {
+                host.raise();
+                application.processEvents();
+                const QPoint local(grip->width() / 2, 50);
+                const auto global = grip->mapToGlobal(local);
+                const auto handle = reinterpret_cast<HWND>(grip->winId());
+                RECT nativeRect {};
+                check(GetWindowRect(handle, &nativeRect), "locate the dock grip in native screen coordinates");
+                const POINT native {(nativeRect.left + nativeRect.right) / 2, nativeRect.top + 50};
+                const auto hit = WindowFromPoint(native);
+                check(hit == handle || IsChild(handle, hit), "native hit testing reaches dock grip after WASAPI selection");
+                const int oldWidth = dock->width();
+                QMouseEvent press(QEvent::MouseButtonPress, local, global, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+                QApplication::sendEvent(grip, &press);
+                QMouseEvent move(QEvent::MouseMove, local - QPoint(100, 0), global - QPoint(100, 0), Qt::NoButton, Qt::LeftButton, Qt::NoModifier);
+                QApplication::sendEvent(grip, &move);
+                QMouseEvent release(QEvent::MouseButtonRelease, local, global - QPoint(100, 0), Qt::LeftButton, Qt::NoButton, Qt::NoModifier);
+                QApplication::sendEvent(grip, &release);
+                application.processEvents();
+                check(dock->width() > oldWidth + 50, "dock can be widened after WASAPI selection");
+            };
+            verifyResize();
+            if (panel) clear(node, panel);
+            application.processEvents();
+            verifyResize();
+            if (node) destroy(node);
+        }
+    }
+
     verifyPreMixPolar(check);
     verifyAuxPolarSwitches(check);
     {
@@ -295,6 +359,10 @@ int main(int argc, char** argv)
                  Qt::MatchExactly | Qt::MatchRecursive, 0))
             listedMixer |= !item->data(0, Qt::UserRole).toString().isEmpty();
     check(!listedMixer, "node library excludes the resident mixer");
+    for (auto* tree : window->findChildren<QTreeWidget*>())
+        check(tree->findItems(QStringLiteral("jackclient"),
+                  Qt::MatchExactly | Qt::MatchRecursive, 0).isEmpty(),
+              "node library excludes the JACK client category");
 
     const auto projectPath = QDir(settingsDirectory.path()).filePath(QStringLiteral("mixer.wjnproj"));
     const auto project = QJsonObject {

@@ -1222,6 +1222,9 @@ public:
     FieldDockGrip(DockPanel* dock, Qt::DockWidgetArea area)
         : QWidget(dock), dock_(dock), area_(area) {
         setObjectName(QStringLiteral("dockResizeGrip"));
+        // Settings may contain native child windows. Keep the overlapping grip
+        // in the native stacking order so it remains clickable after selection.
+        setAttribute(Qt::WA_NativeWindow);
         setCursor(Qt::SplitHCursor);
         arrow_ = new IconActionButton(this);
         arrow_->setObjectName(QStringLiteral("dockCollapseButton"));
@@ -1487,6 +1490,13 @@ void DockPanel::setCollapsed(bool collapsed) {
         main->resizeDocks({ this }, { targetWidth }, Qt::Horizontal);
     updateGripGeometry();
     QTimer::singleShot(0, this, [this] { updateGripGeometry(); });
+}
+
+bool DockPanel::event(QEvent* event) {
+    const bool result = QDockWidget::event(event);
+    if (event->type() == QEvent::LayoutRequest || event->type() == QEvent::Show)
+        updateGripGeometry();
+    return result;
 }
 
 void DockPanel::resizeEvent(QResizeEvent* event) {

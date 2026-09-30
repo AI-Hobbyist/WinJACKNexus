@@ -477,6 +477,7 @@ public:
     bool isCollapsed() const noexcept { return collapsed_; }
     void setCollapsed(bool collapsed);
 protected:
+    bool event(QEvent* event) override;
     void resizeEvent(QResizeEvent* event) override;
 private:
     void updateGripGeometry();

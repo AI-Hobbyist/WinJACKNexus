@@ -218,13 +218,6 @@ void restoreExpandedCategories(QTreeWidget* tree, const QVariantMap& states)
 	}
 }
 
-void addNodeItem(QTreeWidgetItem* category, const QString& name, bool online = true)
-{
-	auto* item = new QTreeWidgetItem(category, { online ? name : name + QStringLiteral("（离线）") });
-	if (!online)
-		item->setForeground(0, QColor(QStringLiteral("#8193a5")));
-}
-
 void addSubGraphItem(QTreeWidgetItem* category)
 {
 	auto* item = new QTreeWidgetItem(category, { QStringLiteral("Sub Graph") });
@@ -672,11 +665,8 @@ void addVstPluginItems(QTreeWidget* tree, const std::vector<ModuleNodeInfo>& mod
 }
 
 void populateNodeLibrary(QTreeWidget* tree,
-                         const WinJACKNexus::Patchbay::Core::Snapshot& snapshot,
-						 const std::set<std::string>& knownJackClients,
-						 const std::set<std::string>& moduleClientIds,
-			 const QString& filterQuery = {},
-			 bool subGraphContext = false)
+                         const QString& filterQuery = {},
+                         bool subGraphContext = false)
 {
 	const auto expandedCategories = captureExpandedCategories(tree);
 	tree->clear();
@@ -694,26 +684,6 @@ void populateNodeLibrary(QTreeWidget* tree,
 		if (filterQuery.trimmed().isEmpty())
 			restoreExpandedCategories(tree, expandedCategories);
 		return;
-	}
-
-	auto* jackClients = addCategory(tree, QStringLiteral("jackclient"));
-	std::set<std::string> onlineClients;
-	std::set<std::string> moduleClientNames;
-	const std::set<std::string> builtInClients { "system", "WinJACKNexus-Patchbay" };
-	for (const auto& client : snapshot.clients)
-	{
-		if (moduleClientIds.contains(client.id)) {
-			moduleClientNames.insert(client.name);
-			continue;
-		}
-		if (client.id.starts_with("placeholder-") || builtInClients.contains(client.name))
-			continue;
-		addNodeItem(jackClients, QString::fromStdString(client.name), client.alive);
-		onlineClients.insert(client.name);
-	}
-	for (const auto& client : knownJackClients) {
-		if (!onlineClients.contains(client) && !moduleClientNames.contains(client))
-			addNodeItem(jackClients, QString::fromStdString(client), false);
 	}
 
 	std::map<QString, QTreeWidgetItem*> moduleCategories;
@@ -1433,16 +1403,12 @@ public:
 			auto subGraphPorts = std::make_shared<std::map<std::string, std::shared_ptr<SubGraphPortSet>>>();
 			auto restoredSubGraphs = std::make_shared<std::map<std::string, PatchbaySubGraphProject>>();
 			auto refreshNodeLibrary = std::make_shared<std::function<void()>>();
-			*refreshNodeLibrary = [canvasTabs, nodeTree, loadedModuleClientIds, this] {
+			*refreshNodeLibrary = [canvasTabs, nodeTree] {
 				auto* activeCanvas = dynamic_cast<PatchbayCanvas*>(canvasTabs->currentWidget());
 				if (activeCanvas == nullptr)
 					return;
-				std::set<std::string> moduleClientIds;
-				for (const auto& node : loadedModuleNodes_)
-					if (node->hasClient())
-						moduleClientIds.insert(node->clientId());
-				populateNodeLibrary(nodeTree, activeCanvas->snapshot(), knownJackClients_, moduleClientIds,
-				                   nodeTree->property("filterQuery").toString(), activeCanvas->sceneContext().isSubGraph);
+				populateNodeLibrary(nodeTree, nodeTree->property("filterQuery").toString(),
+                                   activeCanvas->sceneContext().isSubGraph);
 			};
 			auto refreshTrayNodeGuiEntries = std::make_shared<std::function<void()>>();
 			*refreshTrayNodeGuiEntries = [this] {
