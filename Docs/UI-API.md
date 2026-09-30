@@ -52,7 +52,9 @@ destroyed menu disables the entry, and newly created bars retain the binding.
 
 The SEL MAIN polar legend uses Input and Output. Input measures the selected
 strip after gain and before FX; Output measures its post-fader contribution
-through the MAIN routing matrix, including mute, solo and MIX gating.
+through the MAIN routing matrix before the MIX switch. Mute and solo still
+affect Output; disabling MIX keeps the polar measurement available while
+preventing that strip's signal from reaching the actual MAIN audio outputs.
 
 `MeterStyle` defaults to a `-72..+12 dB` horizontal scale with three zones
 and `showPeak = true`. Supply a finite peak value to `drawMeter` when the

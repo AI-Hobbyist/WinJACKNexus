@@ -5,6 +5,7 @@
 #include <WinJACKNexus/Common/DigitalMixerState.hpp>
 #include <mod_patchbay/ProjectStateCodec.hpp>
 #include <WinJACKNexus/UI/TrayController.hpp>
+#include "PolarMixRegression.hpp"
 
 #include <QAction>
 #include <QApplication>
@@ -176,6 +177,8 @@ int main(int argc, char** argv)
     QSettings::setPath(QSettings::IniFormat, QSettings::UserScope, settingsDirectory.path());
     if (argc > 1 && QByteArray(argv[1]) == "--mixer-project-restore")
         return testMixerProjectRestore(application, settingsDirectory.path());
+
+    verifyPreMixPolar(check);
 
     auto* host = wjn_create_node(0);
     check(host && host->init(), "create patchbay host without a JACK client");

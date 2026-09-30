@@ -428,9 +428,10 @@ bool DigitalMixerProcessor::process(std::span<const float* const> inputs,
     const auto mixToMain = [this, frames](Strip& strip) noexcept {
         std::fill_n(strip.mainContribution.data(), frames, 0.0F);
         std::fill_n(strip.mainContribution.data() + maxFrames_, frames, 0.0F);
+        // Analyze the post-fader panned signal before the MIX routing switch.
+        addMatrix(strip.post, strip.channels, strip.mainContribution, 2,
+                  strip.mainMatrix, maxFrames_, frames);
         if (strip.mixToMain && strip.soloAudible) {
-            addMatrix(strip.post, strip.channels, strip.mainContribution, 2,
-                      strip.mainMatrix, maxFrames_, frames);
             addPlanes(strip.mainContribution, mainInput_, 2, maxFrames_, frames);
         }
         const auto inputPointers = planes(strip.gainTap, strip.channels, maxFrames_);
