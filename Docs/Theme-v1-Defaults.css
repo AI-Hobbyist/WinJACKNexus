@@ -113,9 +113,6 @@
   --wjn-theme-mixer-surface-empty: #07131f;
   --wjn-theme-mixer-text-primary: #dce9ff;
   --wjn-theme-mixer-text-muted: #a9bbd7;
-  --wjn-theme-mixer-group-input-accent: #1977d3;
-  --wjn-theme-mixer-group-aux-accent: #654dd4;
-  --wjn-theme-mixer-group-master-accent: #1ca47f;
   --wjn-theme-mixer-monitor-surface: #302c1b;
   --wjn-theme-mixer-monitor-border: #c9a52d;
   --wjn-theme-mixer-monitor-header-surface: #76692b;
@@ -131,6 +128,8 @@
   --wjn-theme-mixer-fader-monitor-grip: #07131f;
   --wjn-theme-mixer-control-button-pfl-accent: #ffe15a;
   --wjn-theme-mixer-control-button-afl-accent: #ffe15a;
+  --wjn-theme-mixer-resize-handle: #6d8fac;
+  --wjn-theme-mixer-category-divider: #5d7e9d;
   --wjn-theme-mixer-group-divider: #243c57;
   --wjn-theme-mixer-control-meter-mode-surface-post: #163a51;
   --wjn-theme-mixer-control-meter-mode-surface-input: #182735;

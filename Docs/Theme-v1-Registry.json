@@ -825,30 +825,6 @@
       "description": "mixer / text muted"
     },
     {
-      "name": "--wjn-theme-mixer-group-input-accent",
-      "ownerScope": "mixer",
-      "type": "color",
-      "default": "#1977d3",
-      "inherits": [],
-      "description": "mixer / group input accent"
-    },
-    {
-      "name": "--wjn-theme-mixer-group-aux-accent",
-      "ownerScope": "mixer",
-      "type": "color",
-      "default": "#654dd4",
-      "inherits": [],
-      "description": "mixer / group aux accent"
-    },
-    {
-      "name": "--wjn-theme-mixer-group-master-accent",
-      "ownerScope": "mixer",
-      "type": "color",
-      "default": "#1ca47f",
-      "inherits": [],
-      "description": "mixer / group master accent"
-    },
-    {
       "name": "--wjn-theme-mixer-monitor-surface",
       "ownerScope": "mixer",
       "type": "color",
@@ -967,6 +943,22 @@
       "default": "#ffe15a",
       "inherits": [],
       "description": "mixer / control button afl accent"
+    },
+    {
+      "name": "--wjn-theme-mixer-resize-handle",
+      "ownerScope": "mixer",
+      "type": "color",
+      "default": "#6d8fac",
+      "inherits": [],
+      "description": "mixer / Input/AUX draggable width separator"
+    },
+    {
+      "name": "--wjn-theme-mixer-category-divider",
+      "ownerScope": "mixer",
+      "type": "color",
+      "default": "#5d7e9d",
+      "inherits": [],
+      "description": "mixer / AUX/Listen fixed category separator"
     },
     {
       "name": "--wjn-theme-mixer-group-divider",

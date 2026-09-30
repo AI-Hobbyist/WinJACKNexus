@@ -2384,7 +2384,7 @@ public:
     {
         const auto card = channelRect(index);
         const auto heightScale = std::clamp(owner.height() / 768.0, .72, 1.35);
-        const auto meterBottom = card.top() + 42.0 * heightScale + 65.0 * heightScale
+        const auto meterBottom = card.top() + 65.0 * heightScale
             + card.height() * .26 + 16.0 * heightScale;
         const auto top = meterBottom + (20.0 + 3.70 * 28.0 + 32.0) * heightScale;
         const auto bottom = card.top() + card.height() * .885;
@@ -2394,8 +2394,7 @@ public:
     QRectF meterRect(int index, qreal heightScale) const
     {
         const auto card = channelRect(index);
-        const auto headerHeight = 42.0 * heightScale;
-        const auto top = card.top() + headerHeight + 65.0 * heightScale;
+        const auto top = card.top() + 65.0 * heightScale;
         return { card.center().x() - 8.0, top, 16.0, card.height() * .26 + 16.0 * heightScale };
     }
 
@@ -2653,53 +2652,14 @@ void MixerWindow::paintEvent(QPaintEvent*)
     painter.setOpacity(ThemeBackground::componentOpacity(QStringLiteral("mixer")));
 
     const auto heightScale = std::clamp(height() / 768.0, .72, 1.35);
-    const auto headerHeight = 42.0 * heightScale;
     const auto label = themed("text-primary", QColor("#dce9ff"));
     const auto secondary = themed("text-muted", QColor("#a9bbd7"));
-    const auto groups = std::array<std::tuple<int, int, QString, QColor>, 2> {{
-        { 0, impl_->inputChannelCount, QStringLiteral("♩  Inputs"),
-            themed("group-input-accent",QColor("#1977d3")) },
-        { impl_->inputChannelCount, impl_->auxChannelCount(), QStringLiteral("◇  AUX Sends"),
-            themed("group-aux-accent",QColor("#654dd4")) }
-    }};
-
-    for (const auto& [start, count, title, color] : groups) {
-        if (count == 0) continue;
-        painter.save();
-        const auto group = impl_->viewportForChannel(start);
-        QPainterPath outline;
-        outline.addRoundedRect(group, 7.0, 7.0);
-        painter.setPen(QPen(withAlpha(color, 210), 1.2));
-        painter.setBrush(withAlpha(color, 22));
-        painter.drawPath(outline);
-        const QRectF header(group.left(), group.top(), group.width(), headerHeight);
-        painter.fillRect(header.adjusted(1, 1, -1, 0), withAlpha(color, 75));
-        drawAdaptiveText(painter, header.adjusted(4, 0, -4, 0), title, label,
-                 18 * heightScale, 10 * heightScale, Qt::AlignCenter, true);
-        painter.restore();
-    }
-
     const auto monitorCard = impl_->monitorRect();
-    const auto listenMasterGroup = monitorCard.united(impl_->channelRect(impl_->masterIndex()));
-    const auto listenMasterColor = themed("group-master-accent", QColor("#1ca47f"));
-    painter.save();
-    QPainterPath listenMasterOutline;
-    listenMasterOutline.addRoundedRect(listenMasterGroup, 7.0, 7.0);
-    painter.setPen(QPen(withAlpha(listenMasterColor, 210), 1.2));
-    painter.setBrush(withAlpha(listenMasterColor, 22));
-    painter.drawPath(listenMasterOutline);
-    const QRectF listenMasterHeader(listenMasterGroup.left(), listenMasterGroup.top(),
-                                    listenMasterGroup.width(), headerHeight);
-    painter.fillRect(listenMasterHeader.adjusted(1, 1, -1, 0), withAlpha(listenMasterColor, 75));
-    drawAdaptiveText(painter, listenMasterHeader.adjusted(4, 0, -4, 0),
-                     QStringLiteral("Listen/Master"), label,
-                     18 * heightScale, 10 * heightScale, Qt::AlignCenter, true);
-    painter.restore();
     const auto monitorYellow = themed("fader-monitor-thumb", QColor("#ffe15a"));
-    Controls::drawSurface(painter, monitorCard.adjusted(1, headerHeight + 1, -1, -1),
+    Controls::drawSurface(painter, monitorCard.adjusted(1, 1, -1, -1),
                           themed("monitor-surface", QColor("#302c1b")),
                           themed("monitor-border", QColor("#c9a52d")), 7);
-    drawAdaptiveText(painter, {monitorCard.left(), monitorCard.top() + headerHeight + 2 * heightScale,
+    drawAdaptiveText(painter, {monitorCard.left(), monitorCard.top() + 2 * heightScale,
                                monitorCard.width(), 20 * heightScale},
                      QStringLiteral("监听"), label, 16 * heightScale, 10 * heightScale,
                      Qt::AlignCenter, true);
@@ -2750,20 +2710,20 @@ void MixerWindow::paintEvent(QPaintEvent*)
             && index != impl_->reordering) {
             painter.setPen(QPen(themed("group-divider", QColor("#45bfff")), 2));
             const auto edge = index > impl_->reordering ? card.right() - 2 : card.left() + 2;
-            painter.drawLine(QPointF(edge, card.top() + headerHeight),
+            painter.drawLine(QPointF(edge, card.top()),
                              QPointF(edge, card.bottom()));
         }
         if (index != 0 && index != impl_->inputChannelCount && index != impl_->masterIndex()) {
             painter.setPen(QPen(themed("group-divider",QColor("#243c57")), 1));
-            painter.drawLine(QPointF(card.left(), card.top() + headerHeight), QPointF(card.left(), card.bottom()));
+            painter.drawLine(QPointF(card.left(), card.top()), QPointF(card.left(), card.bottom()));
         }
         if (index == impl_->inputChannelCount - 1 || index == impl_->masterIndex() - 1) {
             painter.setPen(QPen(themed("group-divider",QColor("#243c57")), 1));
             const auto right = card.right() - 0.5;
-            painter.drawLine(QPointF(right, card.top() + headerHeight), QPointF(right, card.bottom()));
+            painter.drawLine(QPointF(right, card.top()), QPointF(right, card.bottom()));
         }
 
-        const auto top = card.top() + headerHeight + 2 * heightScale;
+        const auto top = card.top() + 2 * heightScale;
         drawAdaptiveText(painter, { card.left(), top, card.width(), 20 * heightScale }, channel.name,
                  label, 16 * heightScale, 10 * heightScale, Qt::AlignCenter, true);
         drawAdaptiveText(painter, { card.left(), top + 26 * heightScale, card.width(), 14 * heightScale }, channel.source,
@@ -2889,9 +2849,13 @@ void MixerWindow::paintEvent(QPaintEvent*)
 
     const auto divider = impl_->groupDividerRect();
     Controls::drawSurface(painter,
-        QRectF(divider.center().x() - 1.0, divider.top() + headerHeight * .25,
-               2.0, headerHeight * .5),
-        themed("group-divider",QColor("#243c57")),{},1.0);
+        QRectF(divider.center().x() - 1.5, divider.top(), 3.0, divider.height()),
+        themed("resize-handle", QColor("#6d8fac")), {}, 1.0);
+    const auto aux = impl_->auxViewport();
+    const auto boundaryX = (aux.right() + monitorCard.left()) / 2.0;
+    Controls::drawSurface(painter,
+        QRectF(boundaryX - 1.5, monitorCard.top(), 3.0, monitorCard.height()),
+        themed("category-divider", QColor("#5d7e9d")), {}, 1.0);
     painter.setOpacity(1.0);
     ThemeBackground::paint(painter, rect(), QStringLiteral("mixer"), true);
 }
@@ -3001,7 +2965,7 @@ void MixerWindow::mousePressEvent(QMouseEvent* event)
 
     const auto card = impl_->channelRect(index);
     const auto heightScale = std::clamp(height() / 768.0, .72, 1.35);
-    const auto titleTop = card.top() + 42.0 * heightScale;
+    const auto titleTop = card.top();
     if (index != impl_->masterIndex()
         && QRectF(card.left(), titleTop, card.width(), 43.0 * heightScale)
                .contains(event->position())) {

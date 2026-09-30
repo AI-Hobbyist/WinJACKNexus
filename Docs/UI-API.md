@@ -262,6 +262,13 @@ internal shared pointer. The runtime meterbridge regression opens, paints,
 closes and recreates the window through the DLL's actual menu and node exports,
 including verification against the previously distributed meterbridge DLL.
 
+The mixer has no category cards or category title bands. Input, AUX and
+Listen/Master retain separate channel areas with full-height separators styled
+by `--wjn-theme-mixer-resize-handle` (Input/AUX) and
+`--wjn-theme-mixer-category-divider` (AUX/Listen). Drag the Input/AUX separator to resize both
+areas; each area retains its own horizontal scrollbar. The former input, AUX
+and master group accent tokens have been removed from the registry and template.
+
 [`ThemeNamespaceRegistry.hpp`](../src/ui/include/WinJACKNexus/UI/ThemeNamespaceRegistry.hpp)
 is the S06 host registry for optional Node/Native Fx theme descriptors. Call
 `registerNodeModule` or `registerNativeFxModule` with a loaded DLL's dynamic

@@ -8,6 +8,7 @@
 #include "PolarMixRegression.hpp"
 #include "AuxPolarSwitchRegression.hpp"
 #include "MeterbridgeOpenRegression.hpp"
+#include "MixerLayoutRegression.hpp"
 #include <WinJACKNexus/UI/ThemeManager.hpp>
 #include <WinJACKNexus/UI/ThemeCore.hpp>
 #include <WinJACKNexus/UI/MixerWindow.hpp>
@@ -235,6 +236,7 @@ int main(int argc, char** argv)
         application.setStyleSheet(initialStyle);
     }
 
+    verifyMixerLayout(application, check);
     auto* host = wjn_create_node(0);
     check(host && host->init(), "create patchbay host without a JACK client");
     if (!host) return 1;
