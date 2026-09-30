@@ -246,7 +246,9 @@ icon font sets `wjnPreserveFontFamily=true`. The system UI font comes from
 `QFontDatabase::systemFont(GeneralFont)`. The first application explicitly
 sets it even when the application's default already compares equal, clearing
 Qt's per-widget-class defaults. It is restored for `system`, invalid font
-data, preview cancellation and default restoration. Custom TTF/OTF bytes are
+data, preview cancellation and default restoration. Native Qt stylesheets inherit
+this family by omitting `font-family`; never emit the literal family `inherit`.
+Custom TTF/OTF bytes are
 registered with `QFontDatabase::addApplicationFontFromData`, keyed by content
 hash and held through previews; no font file is extracted. `fontDiagnostic`
 reports registration failure or multiple font families. `theme_adapter_tests`

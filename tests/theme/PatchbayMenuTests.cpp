@@ -12,6 +12,9 @@
 #include <WinJACKNexus/UI/MixerWindow.hpp>
 #include <QFontDatabase>
 #include <QFontInfo>
+#include <QTextLayout>
+#include <QGlyphRun>
+#include <QRawFont>
 #include <QLabel>
 
 #include <QAction>
@@ -235,6 +238,32 @@ int main(int argc, char** argv)
     check(window != nullptr, "open patchbay window");
     if (!window) { host->shutdown(); wjn_destroy_node(host); return 1; }
     application.processEvents();
+    {
+        // The patchbay installs its QApplication QSS after the global font manager.
+        // Check the resulting polished mixer, not just the earlier application font.
+        const auto systemFont = QFontDatabase::systemFont(QFontDatabase::GeneralFont);
+        WinJACKNexus::UI::MixerWindow mixer;
+        mixer.ensurePolished();
+        check(mixer.font().family() == systemFont.family(),
+              "patchbay startup stylesheet preserves the mixer system font");
+        const auto glyphFamilies = [](const QFont& font) {
+            QTextLayout layout(QStringLiteral("声卡输入 中文 0.0 dB"), font);
+            layout.beginLayout();
+            auto line = layout.createLine();
+            line.setLineWidth(1000);
+            layout.endLayout();
+            QStringList families;
+            for (const auto& run : layout.glyphRuns())
+                families.append(run.rawFont().familyName());
+            families.sort();
+            return families;
+        };
+        check(glyphFamilies(mixer.font()) == glyphFamilies(systemFont),
+              "actual startup Chinese and Latin glyphs use the system UI font fallback chain");
+        QDir().mkpath(QStringLiteral("tests/preview/PrePush"));
+        check(mixer.grab().save(QStringLiteral("tests/preview/PrePush/real-patchbay-startup-font.png")),
+              "capture mixer after the real patchbay startup stylesheet");
+    }
 
     auto* tools = submenu(window->menuBar(), QStringLiteral("工具"));
     auto* audio = submenu(tools, QStringLiteral("音频工具"));

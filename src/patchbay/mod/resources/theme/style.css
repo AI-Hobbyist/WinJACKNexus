@@ -51,7 +51,6 @@
 QMainWindow, QWidget {
     background: $WINDOW;
     color: $TEXT;
-    font-family: inherit;
     font-size: 10pt;
 }
 
