@@ -906,6 +906,22 @@ void AuxSettingsWindow::mousePressEvent(QMouseEvent* event)
                          45 * impl_->scaleX(), 36 * impl_->scaleY());
         const QRectF post(row.left() + 265 * impl_->scaleX(), row.top() + 18 * impl_->scaleY(),
                           48 * impl_->scaleX(), 36 * impl_->scaleY());
+        const QRectF readout(impl_->listKnob(index).center().x() - 38 * impl_->scaleX(),
+                             row.top() + 55 * impl_->scaleY(), 76 * impl_->scaleX(), 16 * impl_->scaleY());
+        if (event->button() == Qt::LeftButton && impl_->listViewport().contains(position)
+            && readout.contains(position) && !bus.selfRoute && !bus.sends.empty()) {
+            const auto source = impl_->sourceKey;
+            const auto id = bus.id;
+            Controls::editNumericValue(this, readout.toAlignedRect(), bus.sends.front().levelDb,
+                {-72, 12, 0, 1}, [this, source, id](double value) {
+                    if (impl_->sourceKey != source) return;
+                    auto* current = impl_->state->busForSource(source, id, impl_->selfAuxId);
+                    if (!current || current->selfRoute) return;
+                    for (auto& send : current->sends) send.levelDb = value;
+                    impl_->changed();
+                });
+            return;
+        }
         if (impl_->listKnob(index).adjusted(-5, -5, 5, 5).contains(position) && !bus.selfRoute) {
             impl_->draggedListBusId = bus.id;
             impl_->dragStart = position;
@@ -1059,6 +1075,21 @@ void AuxSettingsWindow::mousePressEvent(QMouseEvent* event)
 void AuxSettingsWindow::mouseDoubleClickEvent(QMouseEvent* event)
 {
     if(event->button()!=Qt::LeftButton) return;
+    const auto visible = impl_->visibleBusIndices();
+    if (impl_->listViewport().contains(event->position())) {
+        for (int index = 0; index < static_cast<int>(visible.size()); ++index) {
+            if (!impl_->listKnob(index).contains(event->position())) continue;
+            auto& listedBus = impl_->buses()[visible[index]];
+            if (listedBus.selfRoute) return;
+            impl_->draggedListBusId = 0;
+            impl_->draggedListLevels.clear();
+            Controls::resetNumericValue({-72, 12, 0, 1}, [this, &listedBus](double value) {
+                for (auto& send : listedBus.sends) send.levelDb = value;
+                impl_->changed();
+            });
+            return;
+        }
+    }
     auto* bus=impl_->selected();
     if(!bus) return;
     const auto point=event->position();

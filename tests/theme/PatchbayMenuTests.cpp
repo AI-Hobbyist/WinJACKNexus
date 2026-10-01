@@ -19,6 +19,7 @@
 #include <QGlyphRun>
 #include <QRawFont>
 #include <QLabel>
+#include <QKeyEvent>
 #include <QLibrary>
 #include <QScrollBar>
 #include <QVBoxLayout>
@@ -309,6 +310,43 @@ int main(int argc, char** argv)
             application.processEvents();
             verifyResize();
             if (node) destroy(node);
+        }
+    }
+
+    {
+        auto state = std::make_shared<WinJACKNexus::Common::AuxMixerState>();
+        WinJACKNexus::UI::AuxSettingsWindow aux(state);
+        const auto source = QStringLiteral("aux-list-controls");
+        aux.setSource(source, source);
+        aux.resize(1360, 813);
+        aux.show();
+        auto* bus = state->busForSource(source, aux.selectedBusId());
+        check(bus && !bus->sends.empty(), "AUX list numeric regression has channel sends");
+        if (bus && !bus->sends.empty()) {
+            int commits = 0;
+            aux.setStateChangedCallback([&] { ++commits; });
+            const QPointF readout(190, 125);
+            QMouseEvent click(QEvent::MouseButtonPress, readout, readout, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+            QApplication::sendEvent(&aux, &click);
+            auto* editor = aux.findChild<QLineEdit*>(QStringLiteral("numericValueEditor"));
+            check(editor && editor->isVisible(), "AUX list readout opens the shared numeric editor");
+            if (editor) {
+                editor->setText(QStringLiteral("-8.5"));
+                QKeyEvent enter(QEvent::KeyPress, Qt::Key_Return, Qt::NoModifier);
+                QApplication::sendEvent(editor, &enter);
+                for (const auto& send : bus->sends)
+                    check(std::abs(send.levelDb + 8.5) < .001, "AUX list numeric editing updates every channel");
+            }
+            const QPointF knob(190, 98);
+            QMouseEvent press(QEvent::MouseButtonPress, knob, knob, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+            QApplication::sendEvent(&aux, &press);
+            QMouseEvent reset(QEvent::MouseButtonDblClick, knob, knob, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+            QApplication::sendEvent(&aux, &reset);
+            QMouseEvent move(QEvent::MouseMove, knob - QPointF(0, 20), knob, Qt::NoButton, Qt::LeftButton, Qt::NoModifier);
+            QApplication::sendEvent(&aux, &move);
+            for (const auto& send : bus->sends)
+                check(std::abs(send.levelDb) < .001, "AUX list double-click restores 0 dB and stops dragging");
+            check(commits >= 2, "AUX list edits publish state changes");
         }
     }
 
