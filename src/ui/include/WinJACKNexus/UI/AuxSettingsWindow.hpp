@@ -25,6 +25,7 @@ public:
     void setStateChangedCallback(std::function<void()> callback);
     void setStateCommitCallback(std::function<bool()> callback);
     void setMeterReadCallback(std::function<float(bool)> callback);
+    void setChannelMeterReadCallback(std::function<float(bool, std::size_t)> callback);
     void setPolarReadCallback(std::function<bool(std::uint32_t,
                                Common::MixerPolarSnapshot&)> callback);
     void acceptExternalState();

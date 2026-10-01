@@ -416,3 +416,5 @@ Mixer custom name backgrounds and strip outlines use the channel color. Name tex
 Monitor output is silent when no strip has PFL/AFL selected; enabling MIX alone does not feed monitor output. Mixer meters and faders use reclaimed footer space. AUX route names elide to available width and native Qt tooltips show the full source and target names.
 
 Input and AUX PFL monitor taps sample after input gain and before FX, mute, solo gating and fader processing. AFL continues to sample the post-FX, post-fader path and follows mute. AUX pre-fader send taps retain their existing post-FX behavior.
+
+`AuxSettingsWindow::setChannelMeterReadCallback(std::function<float(bool, std::size_t)>)` supplies each source channel peak independently; `bool` selects pre/post and the index follows L/R/C/LFE/Ls/Rs/Lb/Rb (mono index 0). It takes precedence over the legacy aggregate meter callback. Mixer AUX views use the per-channel provider and display silence when no provider exists rather than copying the strip peak to every channel. Each channel retains independent meter ballistics and peak hold.

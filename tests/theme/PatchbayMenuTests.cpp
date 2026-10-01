@@ -487,6 +487,48 @@ int main(int argc, char** argv)
         }
     }
 
+    {
+        using namespace WinJACKNexus;
+        auto state=std::make_shared<Common::AuxMixerState>();
+        UI::AuxSettingsWindow aux(state);
+        const auto key=QStringLiteral("aux-channel-meters");
+        aux.setSource(key,key,0,Common::AuxChannelLayout::surround71);
+        auto* bus=state->busForSource(key,aux.selectedBusId());
+        bus->enabled=true;
+        aux.setChainEnabled(true);
+        std::array<int,8> reads {};
+        aux.setMeterReadCallback([](bool) {return 1.F;});
+        aux.setChannelMeterReadCallback([&](bool, std::size_t channel) {
+            ++reads[channel];
+            return channel==0?.5F:channel==2?.125F:0.F;
+        });
+        QEventLoop loop;
+        QTimer::singleShot(150,&loop,&QEventLoop::quit);
+        loop.exec();
+        check(bus->sends.size()==8 && reads[0]>0 && reads[7]>0,
+              "AUX meters request all eight source channel peaks independently");
+        check(bus->sends[0].meterDb > bus->sends[2].meterDb+8
+              && bus->sends[1].meterDb <= -71 && bus->sends[7].meterDb <= -71,
+              "AUX L and C show different levels while silent channels stay silent");
+        aux.setChannelMeterReadCallback({});
+        Common::DigitalMixerState model;
+        const auto source=model.add(Common::MixerStripKind::input,Common::MixerLayout::surround71);
+        model.add(Common::MixerStripKind::aux,Common::MixerLayout::surround71);
+        int channelReads=0;
+        UI::MixerWindow mixer(&model,[&](const auto& value,QString*){model=value;return true;},
+            [](std::uint64_t,bool){return 1.F;}, {},
+            [&](std::uint64_t id,bool,std::size_t channel){if(id==source&&channel<8)++channelReads;return channel==0?.5F:0.F;});
+        mixer.show();
+        for(auto* action:mixer.menuBar()->actions())
+            if(action->text()==QStringLiteral("查看大屏"))action->trigger();
+        if(auto* tab=mixer.findChild<QPushButton*>(QStringLiteral("selTabAUX")))tab->click();
+        const auto before=channelReads;
+        QEventLoop refresh;
+        QTimer::singleShot(150,&refresh,&QEventLoop::quit);
+        refresh.exec();
+        check(channelReads > before,"actual mixer AUX view calls its per-channel provider");
+    }
+
     verifyPreMixPolar(check);
     verifyAuxPolarSwitches(check);
     {

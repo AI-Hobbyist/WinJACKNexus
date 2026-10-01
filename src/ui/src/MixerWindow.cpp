@@ -2151,12 +2151,12 @@ public:
             auxSettingsWindow->setAttribute(Qt::WA_DeleteOnClose);
             auxSettingsWindow->setStateChangedCallback([this]{rebuildAuxChannels();updateSel();owner.update();});
             if (model) {
-                auxSettingsWindow->setMeterReadCallback([this](bool post) {
+                auxSettingsWindow->setChannelMeterReadCallback([this](bool post, std::size_t index) {
                     const auto source = std::find_if(channels.cbegin(), channels.cend(), [this](const Channel& item) {
                         return item.id == auxWindowChannelId;
                     });
-                    return source != channels.cend() && meterRead && source->modelId
-                        ? meterRead(source->modelId, post) : 0.0F;
+                    return source != channels.cend() && channelMeterRead && source->modelId
+                        ? channelMeterRead(source->modelId, post, index) : 0.0F;
                 });
                 if (polarRead) auxSettingsWindow->setPolarReadCallback(
                     [this](std::uint32_t busId, Common::MixerPolarSnapshot& snapshot) {

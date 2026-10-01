@@ -122,9 +122,10 @@ public:
                 auto& meters=busMeters[bus.id];
                 for (std::size_t index=0;index<bus.sends.size()&&index<meters.size();++index) {
                     auto& send=bus.sends[index];
-                    if (meterRead) {
+                    if (channelMeterRead || meterRead) {
                         const auto peak = chainEnabled && bus.enabled && !send.mute
-                            ? meterRead(!bus.preFader) : 0.0F;
+                            ? (channelMeterRead ? channelMeterRead(!bus.preFader, index)
+                                                : meterRead(!bus.preFader)) : 0.0F;
                         send.meterDb = peak > 0.0F
                             ? std::clamp(20.0 * std::log10(static_cast<double>(peak)) + send.levelDb,
                                          -72.0, 12.0) : -72.0;
@@ -391,6 +392,7 @@ public:
     std::function<void()> stateChanged;
     std::function<bool()> stateCommit;
     std::function<float(bool)> meterRead;
+    std::function<float(bool, std::size_t)> channelMeterRead;
     std::function<bool(std::uint32_t, Common::MixerPolarSnapshot&)> polarRead;
     Common::MixerPolarCurve polarCurve;
     QString polarSourceKey;
@@ -497,6 +499,11 @@ void AuxSettingsWindow::setStateCommitCallback(std::function<bool()> callback)
 {
     impl_->stateCommit = std::move(callback);
     impl_->lastAcceptedState = *impl_->state;
+}
+
+void AuxSettingsWindow::setChannelMeterReadCallback(std::function<float(bool, std::size_t)> callback)
+{
+    impl_->channelMeterRead = std::move(callback);
 }
 
 void AuxSettingsWindow::setMeterReadCallback(std::function<float(bool)> callback)
