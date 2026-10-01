@@ -438,6 +438,55 @@ int main(int argc, char** argv)
         QToolTip::hideText();
     }
 
+    {
+        using namespace WinJACKNexus::Common;
+        for (bool listenAux : {false, true}) {
+            DigitalMixerState model;
+            const auto input = model.add(MixerStripKind::input, MixerLayout::stereo);
+            const auto target = listenAux ? model.add(MixerStripKind::aux, MixerLayout::stereo) : input;
+            if (listenAux) {
+                model.strip(input)->auxSendsEnabled = true;
+                model.setSend(input, {target, true, true, defaultMixerPanner(MixerLayout::stereo, MixerLayout::stereo)});
+            }
+            model.strip(target)->inputGainDb = 6;
+            std::array<float, 512> audio;
+            audio.fill(.1F);
+            std::array<const float*, 2> inputs {audio.data(), audio.data()};
+            std::array<std::array<float, 512>, 6> result {};
+            std::array<float*, 6> pointers;
+            for (int i = 0; i < 6; ++i) pointers[i] = result[i].data();
+            for (auto mode : {MixerListenMode::pfl, MixerListenMode::afl}) {
+                for (bool mute : {false, true}) {
+                    model.strip(target)->listenMode = mode;
+                    model.strip(target)->mute = mute;
+                    model.strip(target)->faderPosition = mixerUnityFaderPosition;
+                    DigitalMixerProcessor processor;
+                    check(processor.configure(model, 512), "configure input/AUX pre-FX PFL regression");
+                    auto effectedId = target;
+                    processor.setEffectProcessor(&effectedId,
+                        [](void* context, std::uint64_t id, std::uint32_t, float* samples, std::size_t frames) noexcept {
+                            if (id != *static_cast<std::uint64_t*>(context)) return;
+                            for (std::size_t i = 0; i < frames; ++i) samples[i] *= .25F;
+                        });
+                    check(processor.process(inputs, std::span(pointers.data(), processor.outputPortCount()), 512),
+                          "process actual input/AUX FX before monitor routing");
+                    const auto monitor = processor.levels()[processor.levels().size() - 2].postPeak;
+                    const auto expected = mode == MixerListenMode::pfl ? .1 * std::pow(10., 6. / 20.)
+                        : mute ? 0. : .025 * std::pow(10., 6. / 20.);
+                    check(std::abs(monitor - expected) < .0001,
+                          "PFL retains gain and bypasses FX/mute while AFL follows FX and mute");
+                }
+            }
+            model.strip(target)->listenMode = MixerListenMode::pfl;
+            model.strip(target)->faderPosition = 0;
+            DigitalMixerProcessor silentFader;
+            check(silentFader.configure(model,512)
+                  && silentFader.process(inputs,std::span(pointers.data(),silentFader.outputPortCount()),512)
+                  && silentFader.levels()[silentFader.levels().size()-2].postPeak > .19F,
+                  "input/AUX PFL remains audible with fader fully down");
+        }
+    }
+
     verifyPreMixPolar(check);
     verifyAuxPolarSwitches(check);
     {

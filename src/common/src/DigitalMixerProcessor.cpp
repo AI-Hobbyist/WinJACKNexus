@@ -476,7 +476,8 @@ bool DigitalMixerProcessor::process(std::span<const float* const> inputs,
             std::fill_n(monitorInput_.data() + channel * maxFrames_, frames, 0.0F);
         const auto addListen = [this, frames](const Strip& strip) noexcept {
             if (strip.listenMode == MixerListenMode::off) return;
-            const auto& source = strip.listenMode == MixerListenMode::pfl ? strip.pre : strip.post;
+            // PFL listens after input gain, before FX and the fader/mute path.
+            const auto& source = strip.listenMode == MixerListenMode::pfl ? strip.gainTap : strip.post;
             addMatrix(source, strip.channels, monitorInput_, monitorChannels_,
                       strip.monitorMatrix, maxFrames_, frames);
         };

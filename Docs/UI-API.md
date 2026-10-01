@@ -414,3 +414,5 @@ Mixer strips show their custom names at the top. Bottom CH/AUX/MON/MAIN identity
 Mixer custom name backgrounds and strip outlines use the channel color. Name text switches between `--wjn-theme-mixer-control-name-text-dark` and `--wjn-theme-mixer-control-name-text-light` according to background brightness.
 
 Monitor output is silent when no strip has PFL/AFL selected; enabling MIX alone does not feed monitor output. Mixer meters and faders use reclaimed footer space. AUX route names elide to available width and native Qt tooltips show the full source and target names.
+
+Input and AUX PFL monitor taps sample after input gain and before FX, mute, solo gating and fader processing. AFL continues to sample the post-FX, post-fader path and follows mute. AUX pre-fader send taps retain their existing post-FX behavior.
