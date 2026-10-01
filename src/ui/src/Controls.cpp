@@ -450,8 +450,7 @@ void drawMeterTicks(QPainter& painter, const QRectF& bounds, const QRectF& track
                              tick.label);
         } else {
             painter.setPen(style.tickColor);
-            const qreal labelLeft = std::clamp(position - 15.0, bounds.left(),
-                std::max(bounds.left(), bounds.right() - 30.0));
+            const qreal labelLeft = position - 15.0;
             if (style.ticksAbove) {
                 painter.drawLine(QPointF(position, track.top() - 7), QPointF(position, track.top() - 4));
                 painter.setPen(style.labelColor);

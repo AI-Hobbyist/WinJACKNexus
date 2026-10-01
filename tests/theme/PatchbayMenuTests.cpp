@@ -18,6 +18,8 @@
 #include <QTextLayout>
 #include <QGlyphRun>
 #include <QRawFont>
+#include <QPainter>
+#include <QImage>
 #include <QLabel>
 #include <QKeyEvent>
 #include <QHelpEvent>
@@ -529,6 +531,40 @@ int main(int argc, char** argv)
         check(channelReads > before,"actual mixer AUX view calls its per-channel provider");
     }
 
+    {
+        // Endpoint labels must stay centered on their ticks, even outside the track.
+        for (const bool above : {false, true}) {
+            for (const bool maximum : {false, true}) {
+                QImage image(360, 100, QImage::Format_ARGB32);
+                image.fill(Qt::black);
+                WinJACKNexus::UI::Controls::MeterStyle style;
+                style.ticksAbove = above;
+                style.tickBandPixels = 24;
+                style.labelColor = Qt::white;
+                style.tickColor = Qt::green;
+                style.ticks = {{maximum ? 12.0 : -72.0,
+                    maximum ? QStringLiteral("+12") : QStringLiteral("-72")}};
+                QPainter painter(&image);
+                WinJACKNexus::UI::Controls::drawMeter(painter, QRectF(30, 20, 300, 60),
+                    -72.0, std::nullopt, style);
+                painter.end();
+                int left = image.width(), right = -1;
+                const int top = above ? 20 : 64;
+                const int bottom = above ? 36 : 78;
+                for (int y = top; y < bottom; ++y) {
+                    for (int x = 0; x < image.width(); ++x) {
+                        const QColor pixel = image.pixelColor(x, y);
+                        if (pixel.red() > 100 && pixel.green() > 100 && pixel.blue() > 100) {
+                            left = std::min(left, x);
+                            right = std::max(right, x);
+                        }
+                    }
+                }
+                check(right >= left && std::abs((left + right) * .5 - (maximum ? 330 : 30)) <= 2,
+                    "horizontal meter endpoint text centers align with endpoint ticks");
+            }
+        }
+    }
     verifyPreMixPolar(check);
     verifyAuxPolarSwitches(check);
     {
