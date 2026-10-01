@@ -775,4 +775,8 @@
   --wjn-theme-native-fx-parametric-eq-control-toggle-indicator-off: #2b4869;
   --wjn-theme-native-fx-reverb-control-toggle-indicator-on: #0e7ee3;
   --wjn-theme-native-fx-reverb-control-toggle-indicator-off: #344453;
+  /* mixer / control name text dark; type=color */
+  --wjn-theme-mixer-control-name-text-dark: #102033;
+  /* mixer / control name text light; type=color */
+  --wjn-theme-mixer-control-name-text-light: #f5fbff;
 }

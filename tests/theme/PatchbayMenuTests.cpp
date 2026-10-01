@@ -247,8 +247,10 @@ int main(int argc, char** argv)
                 const auto handle = reinterpret_cast<HWND>(grip->winId());
                 RECT nativeRect {};
                 check(GetWindowRect(handle, &nativeRect), "locate the dock grip in native screen coordinates");
-                const POINT native {(nativeRect.left + nativeRect.right) / 2, nativeRect.top + 50};
-                const auto hit = WindowFromPoint(native);
+                POINT native {(nativeRect.left + nativeRect.right) / 2, nativeRect.top + 50};
+                const auto nativeParent = GetParent(handle);
+                ScreenToClient(nativeParent, &native);
+                const auto hit = ChildWindowFromPointEx(nativeParent, native, CWP_SKIPINVISIBLE | CWP_SKIPDISABLED);
                 check(hit == handle || IsChild(handle, hit), "native hit testing reaches dock grip after WASAPI selection");
                 const int oldWidth = dock->width();
                 QMouseEvent press(QEvent::MouseButtonPress, local, global, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);

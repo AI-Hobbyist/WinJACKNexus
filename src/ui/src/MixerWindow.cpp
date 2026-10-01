@@ -2665,11 +2665,19 @@ void MixerWindow::paintEvent(QPaintEvent*)
     const auto heightScale = std::clamp(height() / 768.0, .72, 1.35);
     const auto label = themed("text-primary", QColor("#dce9ff"));
     const auto secondary = themed("text-muted", QColor("#a9bbd7"));
+    const auto nameTextColor = [&](const QColor& background) {
+        const qreal brightness = .299 * background.red() + .587 * background.green() + .114 * background.blue();
+        return brightness > 145 ? themed("control-name-text-dark", QColor("#102033"))
+                                : themed("control-name-text-light", QColor("#f5fbff"));
+    };
     const auto monitorCard = impl_->monitorRect();
     const auto monitorYellow = themed("fader-monitor-thumb", QColor("#ffe15a"));
+    Controls::drawSurface(painter, monitorCard.adjusted(1, 1, -1, -1), Qt::NoBrush, monitorYellow, 4, 1);
+    Controls::drawSurface(painter, {monitorCard.left() + 3, monitorCard.top() + heightScale,
+                                   monitorCard.width() - 6, 24 * heightScale}, monitorYellow, monitorYellow, 3);
     drawAdaptiveText(painter, {monitorCard.left(), monitorCard.top() + 2 * heightScale,
                                monitorCard.width(), 20 * heightScale},
-                     QStringLiteral("监听"), label, 16 * heightScale, 10 * heightScale,
+                     QStringLiteral("监听"), nameTextColor(monitorYellow), 16 * heightScale, 10 * heightScale,
                      Qt::AlignCenter, true);
     const auto monitorMeterRect = impl_->monitorMeterRect(heightScale);
     Controls::MeterStyle monitorStyle;
@@ -2701,10 +2709,6 @@ void MixerWindow::paintEvent(QPaintEvent*)
     drawText(painter, {monitorCard.left(), impl_->monitorFaderTrack().bottom() + 10 * heightScale,
                        monitorCard.width(), 27 * heightScale},
              faderDbText(impl_->monitorFader), label, 12 * heightScale);
-    drawText(painter, {monitorCard.left(), monitorCard.bottom() - 35 * heightScale,
-                       monitorCard.width(), 28 * heightScale},
-             QStringLiteral("MON"), monitorYellow.lighter(125), 18 * heightScale,
-             Qt::AlignCenter, true);
 
     for (int index = 0; index < static_cast<int>(impl_->channels.size()); ++index) {
         painter.save();
@@ -2735,9 +2739,12 @@ void MixerWindow::paintEvent(QPaintEvent*)
             painter.drawLine(QPointF(right, card.top()), QPointF(right, card.bottom()));
         }
 
+        Controls::drawSurface(painter, card.adjusted(1, 1, -1, -1), Qt::NoBrush, channel.accent, 4, 1);
+        Controls::drawSurface(painter, {card.left() + 3, card.top() + heightScale,
+                                       card.width() - 6, 24 * heightScale}, channel.accent, channel.accent, 3);
         const auto top = card.top() + 2 * heightScale;
         drawAdaptiveText(painter, { card.left(), top, card.width(), 20 * heightScale }, channel.name,
-                 label, 16 * heightScale, 10 * heightScale, Qt::AlignCenter, true);
+                 nameTextColor(channel.accent), 16 * heightScale, 10 * heightScale, Qt::AlignCenter, true);
         drawAdaptiveText(painter, { card.left(), top + 26 * heightScale, card.width(), 14 * heightScale }, channel.source,
                  secondary, 12 * heightScale, 8 * heightScale);
 
@@ -2845,7 +2852,6 @@ void MixerWindow::paintEvent(QPaintEvent*)
 
         const auto db = faderDbText(channel.fader);
         drawText(painter, { card.left(), track.bottom() + 10 * heightScale, card.width(), 27 * heightScale }, db, label, 12 * heightScale);
-        drawText(painter, { card.left(), card.bottom() - 35 * heightScale, card.width(), 28 * heightScale }, channel.number, channel.accent.lighter(125), 18 * heightScale, Qt::AlignCenter, true);
         painter.restore();
     }
 

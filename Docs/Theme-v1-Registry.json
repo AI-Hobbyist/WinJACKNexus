@@ -6632,6 +6632,22 @@
         "--wjn-theme-patchbay-background-image"
       ],
       "description": "native-fx-reverb content background image; null means undefined and inherits the patchbay image"
+    },
+    {
+      "name": "--wjn-theme-mixer-control-name-text-dark",
+      "ownerScope": "mixer",
+      "type": "color",
+      "default": "#102033",
+      "inherits": [],
+      "description": "mixer / control name text dark"
+    },
+    {
+      "name": "--wjn-theme-mixer-control-name-text-light",
+      "ownerScope": "mixer",
+      "type": "color",
+      "default": "#f5fbff",
+      "inherits": [],
+      "description": "mixer / control name text light"
     }
   ]
 }

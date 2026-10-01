@@ -408,3 +408,7 @@ of the PNG Save As location. Snapshot refresh must not overwrite that field whil
 it has keyboard focus; the directory command commits on editingFinished.
 
 AUX route lists display the custom source and destination channel names. Cached per-source AUX metadata follows target renames by bus ID; routing and self-route exclusion remain ID based. The accessible description exposes the same route labels drawn in the list.
+
+Mixer strips show their custom names at the top. Bottom CH/AUX/MON/MAIN identity labels are hidden for every strip; internal routing IDs and control colors are retained. These removed labels have no dedicated theme tokens.
+
+Mixer custom name backgrounds and strip outlines use the channel color. Name text switches between `--wjn-theme-mixer-control-name-text-dark` and `--wjn-theme-mixer-control-name-text-light` according to background brightness.

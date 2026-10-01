@@ -132,4 +132,8 @@
   --wjn-theme-mixer-background-component-opacity: var(--wjn-theme-patchbay-background-component-opacity);
   /* mixer content background image; null means undefined and inherits the patchbay image; type=image */
   /* --wjn-theme-mixer-background-image: inherited from --wjn-theme-patchbay-background-image; keep undeclared to inherit. */
+  /* mixer / control name text dark; type=color */
+  --wjn-theme-mixer-control-name-text-dark: #102033;
+  /* mixer / control name text light; type=color */
+  --wjn-theme-mixer-control-name-text-light: #f5fbff;
 }
