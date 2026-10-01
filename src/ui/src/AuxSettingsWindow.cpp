@@ -7,6 +7,8 @@
 #include <WinJACKNexus/UI/ThemeManager.hpp>
 
 #include <QFontMetricsF>
+#include <QHelpEvent>
+#include <QToolTip>
 #include <QElapsedTimer>
 #include <QMouseEvent>
 #include <QMenu>
@@ -55,6 +57,14 @@ void toggle(QPainter& painter, const QRectF& rect, bool checked)
     Controls::drawToggle(painter, rect, checked,
         Controls::themeTokenColor("sel-aux","control-toggle-indicator-on",QColor("#187ee8")),
         Controls::themeTokenColor("sel-aux","control-toggle-indicator-off",QColor("#38516d")));
+}
+
+QString elidedName(const QPainter& painter, const QString& value, qreal size, qreal width, bool bold = false)
+{
+    auto font = painter.font();
+    font.setPixelSize(std::max(8, qRound(size)));
+    font.setWeight(bold ? QFont::DemiBold : QFont::Normal);
+    return QFontMetricsF(font).elidedText(value, Qt::ElideRight, std::max(0.0, width));
 }
 
 QString dbText(double value)
@@ -528,6 +538,26 @@ void AuxSettingsWindow::setChainCommitHandler(std::function<bool(bool)> handler)
     impl_->chainCommitHandler = std::move(handler);
 }
 
+bool AuxSettingsWindow::event(QEvent* event)
+{
+    if (event->type() == QEvent::ToolTip) {
+        auto* help = static_cast<QHelpEvent*>(event);
+        const auto visible = impl_->visibleBusIndices();
+        if (impl_->listViewport().contains(help->pos())) {
+            for (int index = 0; index < static_cast<int>(visible.size()); ++index) {
+                const auto row = impl_->listRow(index);
+                if (!row.contains(help->pos())) continue;
+                QToolTip::showText(help->globalPos(),
+                    mappingLabel(impl_->sourceName, impl_->buses()[visible[index]]), this, row.toAlignedRect());
+                return true;
+            }
+        }
+        QToolTip::hideText();
+        return true;
+    }
+    return QWidget::event(event);
+}
+
 void AuxSettingsWindow::paintEvent(QPaintEvent*)
 {
     const auto themed=[](const char* role,const QColor& fallback){
@@ -587,7 +617,7 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
 
         toggle(painter, impl_->listPowerToggle(index), impl_->chainEnabled && bus.enabled && !bus.selfRoute);
         text(painter, { row.left() + 64 * sx, row.top() + 10 * sy, 94 * sx, 25 * sy },
-             bus.name, label, 15 * sy, Qt::AlignLeft | Qt::AlignVCenter, true);
+             elidedName(painter, bus.name, 15 * sy, 94 * sx, true), label, 15 * sy, Qt::AlignLeft | Qt::AlignVCenter, true);
         text(painter, { row.left() + 64 * sx, row.top() + 36 * sy, 94 * sx, 22 * sy }, channelNames(bus.targetLayout),
              themed("control-bus-text-secondary",QColor("#91b9e8")),
              13 * sy, Qt::AlignLeft | Qt::AlignVCenter);
@@ -626,7 +656,7 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
         painter.drawLine(QPointF(row.left()+12*sx,row.top()+72*sy),
                          QPointF(row.right()-12*sx,row.top()+72*sy));
         text(painter,{row.left()+16*sx,row.top()+75*sy,row.width()-32*sx,17*sy},
-             mappingLabel(impl_->sourceName,bus),
+             elidedName(painter, mappingLabel(impl_->sourceName,bus), 12 * sy, row.width() - 32 * sx),
              themed("control-bus-mapping-text",QColor("#a8c8e7")),12*sy,
              Qt::AlignCenter);
     }

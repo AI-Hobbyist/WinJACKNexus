@@ -412,3 +412,5 @@ AUX route lists display the custom source and destination channel names. Cached 
 Mixer strips show their custom names at the top. Bottom CH/AUX/MON/MAIN identity labels are hidden for every strip; internal routing IDs and control colors are retained. These removed labels have no dedicated theme tokens.
 
 Mixer custom name backgrounds and strip outlines use the channel color. Name text switches between `--wjn-theme-mixer-control-name-text-dark` and `--wjn-theme-mixer-control-name-text-light` according to background brightness.
+
+Monitor output is silent when no strip has PFL/AFL selected; enabling MIX alone does not feed monitor output. Mixer meters and faders use reclaimed footer space. AUX route names elide to available width and native Qt tooltips show the full source and target names.

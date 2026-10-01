@@ -61,8 +61,8 @@ void verifyMixerLayout(QApplication& app, Check check)
     check(boundary(360, divider) && boundary(795, fixedDivider), "dragging left shrinks Input and grows AUX without moving Listen/Master");
     drag(360, 600);
     check(boundary(600, divider) && boundary(795, fixedDivider), "dragging right grows Input and shrinks AUX");
-    mouse(QEvent::MouseButtonPress, {35, 414}, Qt::LeftButton, Qt::LeftButton);
-    mouse(QEvent::MouseButtonRelease, {35, 414}, Qt::LeftButton, Qt::NoButton);
+    mouse(QEvent::MouseButtonPress, {35, 428}, Qt::LeftButton, Qt::LeftButton);
+    mouse(QEvent::MouseButtonRelease, {35, 428}, Qt::LeftButton, Qt::NoButton);
     check(state.strip(first)->listenMode == Common::MixerListenMode::pfl,
           "PFL hit area follows the reclaimed header space");
     check(core.removeOverride(QStringLiteral("--wjn-theme-mixer-resize-handle")), "restore divider color");

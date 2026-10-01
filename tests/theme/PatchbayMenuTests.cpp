@@ -20,6 +20,8 @@
 #include <QRawFont>
 #include <QLabel>
 #include <QKeyEvent>
+#include <QHelpEvent>
+#include <QToolTip>
 #include <QLibrary>
 #include <QScrollBar>
 #include <QVBoxLayout>
@@ -395,6 +397,45 @@ int main(int argc, char** argv)
         auto* refreshed = shared->busForSource(QStringLiteral("cached-name"), id);
         check(refreshed->name == QStringLiteral("目标改名") && refreshed->sends.front().levelDb == -9,
               "target renames synchronize cached labels while retaining send parameters");
+    }
+
+    {
+        using namespace WinJACKNexus::Common;
+        DigitalMixerState model;
+        const auto source = model.add(MixerStripKind::input, MixerLayout::stereo);
+        model.strip(source)->mixToMain = true;
+        std::array<float, 512> audio;
+        audio.fill(.25F);
+        std::array<const float*, 2> inputs {audio.data(), audio.data()};
+        std::array<std::array<float, 512>, 4> result {};
+        std::array<float*, 4> outputs;
+        for (int i=0;i<4;++i) outputs[i]=result[i].data();
+        for (auto mode : {MixerListenMode::off, MixerListenMode::pfl, MixerListenMode::afl}) {
+            model.strip(source)->listenMode=mode;
+            DigitalMixerProcessor processor;
+            check(processor.configure(model, 512) && processor.process(inputs, outputs, 512),
+                  "process monitor routing without JACK");
+            const auto& levels=processor.levels();
+            check(!levels.empty() && levels.back().postPeak > 0,
+                  "MIX independently reaches MAIN");
+            check(levels.size()>1 && (mode==MixerListenMode::off
+                ? levels[levels.size()-2].postPeak==0 : levels[levels.size()-2].postPeak>0),
+                  "monitor is silent for MIX alone and only receives PFL or AFL");
+        }
+        auto shared = std::make_shared<AuxMixerState>();
+        const auto targetId = shared->buses().front().id;
+        const auto longName = QStringLiteral("超长的自定义耳机监听输出通道名称用于检查省略显示");
+        shared->bus(targetId)->name = longName;
+        WinJACKNexus::UI::AuxSettingsWindow aux(shared);
+        aux.setSource(QStringLiteral("tooltip"), QStringLiteral("浏览器完整源名称"));
+        aux.resize(1360,813); aux.show();
+        aux.grab();
+        const QPoint point(120,90);
+        QHelpEvent help(QEvent::ToolTip,point,aux.mapToGlobal(point));
+        QApplication::sendEvent(&aux,&help);
+        check(QToolTip::text().contains(longName) && QToolTip::text().contains(QStringLiteral("浏览器完整源名称")),
+              "AUX tooltip shows full custom source and target names");
+        QToolTip::hideText();
     }
 
     verifyPreMixPolar(check);

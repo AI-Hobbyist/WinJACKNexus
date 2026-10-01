@@ -1221,8 +1221,15 @@ public:
                     channel.channelInputPeaks[index]=channel.channelInputBallistics[index].peakDb();
                 }
             }
-            const qreal monitorLevel = this->model && this->meterRead
-                ? meterDbValue(this->meterRead(0, true)) : mainOutputLevelDb();
+            qreal monitorLevel = this->model && this->meterRead
+                ? meterDbValue(this->meterRead(0, true)) : -72.0;
+            if (!this->model || !this->meterRead)
+                for (const auto& channel : channels) {
+                    if (channel.listenMode == Common::MixerListenMode::off) continue;
+                    const auto level = channel.listenMode == Common::MixerListenMode::pfl
+                        ? channel.inputMeterBallistics.levelDb() : channel.meterBallistics.levelDb();
+                    monitorLevel = std::max(monitorLevel, level);
+                }
             monitorMeter.advance(monitorLevel, frameSeconds, peakHold);
             if (monitorSel) {
                 std::array<qreal, 8> monitorLevels;
@@ -2396,9 +2403,9 @@ public:
         const auto card = channelRect(index);
         const auto heightScale = std::clamp(owner.height() / 768.0, .72, 1.35);
         const auto meterBottom = card.top() + 65.0 * heightScale
-            + card.height() * .26 + 16.0 * heightScale;
+            + card.height() * .28 + 16.0 * heightScale;
         const auto top = meterBottom + (20.0 + 3.70 * 28.0 + 32.0) * heightScale;
-        const auto bottom = card.top() + card.height() * .885;
+        const auto bottom = card.bottom() - 42.0 * heightScale;
         return { card.center().x() - 3.0, top, 6.0, std::max(1.0, bottom - top) };
     }
 
@@ -2406,7 +2413,7 @@ public:
     {
         const auto card = channelRect(index);
         const auto top = card.top() + 65.0 * heightScale;
-        return { card.center().x() - 8.0, top, 16.0, card.height() * .26 + 16.0 * heightScale };
+        return { card.center().x() - 8.0, top, 16.0, card.height() * .28 + 16.0 * heightScale };
     }
 
     QRectF meterModeRect(int index, qreal heightScale) const

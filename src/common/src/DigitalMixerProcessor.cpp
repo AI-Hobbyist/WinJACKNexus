@@ -485,8 +485,6 @@ bool DigitalMixerProcessor::process(std::span<const float* const> inputs,
     } else {
         for (std::size_t channel = 0; channel < monitorChannels_; ++channel)
             std::fill_n(monitorInput_.data() + channel * maxFrames_, frames, 0.0F);
-        addMatrix(mainOutput_, 2, monitorInput_, monitorChannels_,
-                  monitorMainMatrix_, maxFrames_, frames);
     }
     auto& monitorLevel = levels_[levels_.size() - 2];
     monitorLevel.inputPeak = 0.0F;
