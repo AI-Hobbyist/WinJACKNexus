@@ -406,3 +406,5 @@ existing build tree. A generated template archive is also imported when present.
 The display settings CSV directory remains the real recording root, independent
 of the PNG Save As location. Snapshot refresh must not overwrite that field while
 it has keyboard focus; the directory command commits on editingFinished.
+
+AUX route lists display the custom source and destination channel names. Cached per-source AUX metadata follows target renames by bus ID; routing and self-route exclusion remain ID based. The accessible description exposes the same route labels drawn in the list.

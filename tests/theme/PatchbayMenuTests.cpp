@@ -350,6 +350,51 @@ int main(int argc, char** argv)
         }
     }
 
+    {
+        WinJACKNexus::Common::DigitalMixerState state;
+        const auto source = state.add(WinJACKNexus::Common::MixerStripKind::input, WinJACKNexus::Common::MixerLayout::stereo);
+        state.strip(source)->name = QStringLiteral("浏览器");
+        const auto target = state.add(WinJACKNexus::Common::MixerStripKind::aux, WinJACKNexus::Common::MixerLayout::stereo);
+        state.strip(target)->name = QStringLiteral("声卡输出1");
+        const auto removed = state.add(WinJACKNexus::Common::MixerStripKind::aux, WinJACKNexus::Common::MixerLayout::stereo);
+        const auto last = state.add(WinJACKNexus::Common::MixerStripKind::aux, WinJACKNexus::Common::MixerLayout::surround71);
+        state.strip(last)->name = QStringLiteral("耳机环绕");
+        state.remove(removed);
+        WinJACKNexus::UI::MixerWindow mixer(&state, [&state](const auto& next, QString*) { state = next; return true; });
+        mixer.show();
+        for (auto* action : mixer.menuBar()->actions())
+            if (action->text() == QStringLiteral("查看大屏")) action->trigger();
+        auto* tab = mixer.findChild<QPushButton*>(QStringLiteral("selTabAUX"));
+        check(tab != nullptr, "open actual mixer AUX tab for route naming");
+        if (tab) tab->click();
+        WinJACKNexus::UI::AuxSettingsWindow* aux = nullptr;
+        for (auto* widget : mixer.findChildren<QWidget*>())
+            if (auto* candidate = dynamic_cast<WinJACKNexus::UI::AuxSettingsWindow*>(widget)) aux = candidate;
+        check(aux != nullptr, "actual mixer creates its AUX route list");
+        if (aux) {
+            application.processEvents(); aux->grab();
+            check(aux->accessibleDescription().contains(QStringLiteral("浏览器 (立体声) → 声卡输出1 (立体声)"))
+                  && aux->accessibleDescription().contains(QStringLiteral("浏览器 (立体声) → 耳机环绕 (7.1)"))
+                  && !aux->accessibleDescription().contains(QStringLiteral("AUX 2")),
+                  "rendered AUX routes use custom source and target names despite numbering gaps");
+            if (auto* name = mixer.findChild<QLineEdit*>(QStringLiteral("selChannelName"))) {
+                name->setText(QStringLiteral("浏览器改名"));
+                QMetaObject::invokeMethod(name, "editingFinished", Qt::DirectConnection);
+                application.processEvents(); aux->grab();
+                check(aux->accessibleDescription().contains(QStringLiteral("浏览器改名 (立体声)")),
+                      "renaming a source updates cached AUX route labels");
+            }
+        }
+        auto shared = std::make_shared<WinJACKNexus::Common::AuxMixerState>();
+        auto& cached = shared->busesForSource(QStringLiteral("cached-name"));
+        const auto id = cached.front().id;
+        cached.front().sends.front().levelDb = -9;
+        shared->bus(id)->name = QStringLiteral("目标改名");
+        auto* refreshed = shared->busForSource(QStringLiteral("cached-name"), id);
+        check(refreshed->name == QStringLiteral("目标改名") && refreshed->sends.front().levelDb == -9,
+              "target renames synchronize cached labels while retaining send parameters");
+    }
+
     verifyPreMixPolar(check);
     verifyAuxPolarSwitches(check);
     {

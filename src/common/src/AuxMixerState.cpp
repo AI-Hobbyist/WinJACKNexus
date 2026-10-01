@@ -360,8 +360,10 @@ AuxMixerState::SourceState& AuxMixerState::sourceState(const QString& sourceKey,
     });
     if (found != sourceStates_.end()) {
         found->selfAuxId = selfAuxId;
-        for (auto& sourceBus : found->buses)
+        for (auto& sourceBus : found->buses) {
+            if (const auto* target = bus(sourceBus.id)) sourceBus.name = target->name;
             applySelfRoute(sourceBus, selfAuxId);
+        }
         return *found;
     }
 

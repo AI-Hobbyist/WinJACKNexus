@@ -1938,6 +1938,9 @@ public:
 
     void updateSel()
     {
+        for (const auto& channel : channels)
+            if (channel.auxId)
+                if (auto* bus = auxState->bus(channel.auxId)) bus->name = channel.name;
         if (!selLabel) return;
         const auto found = std::find_if(channels.cbegin(), channels.cend(), [this](const Channel& item) {
             return item.id == selectedChannelId;
@@ -1969,6 +1972,14 @@ public:
         if (selMain) {
             auto* current = found == channels.cend() ? nullptr : &channels[std::distance(channels.cbegin(), found)];
             selMain->setChannel(current);
+            if (current && auxSettingsWindow && auxWindowChannelId == current->id
+                && auxSettingsWindow->windowTitle() != QStringLiteral("WinJACKNexus - %1 AUX 设置").arg(current->name)) {
+                const auto selectedBus = auxSettingsWindow->selectedBusId();
+                const auto key = current->auxId ? QStringLiteral("aux:%1").arg(current->auxId)
+                                               : QStringLiteral("input:%1").arg(current->id);
+                auxSettingsWindow->setSource(key, current->name, current->auxId, current->layout, auxSourceNumber(*current));
+                auxSettingsWindow->selectBus(selectedBus);
+            }
             if (selMainChannelId != (current ? current->id : 0)) {
                 selMainChannelId = current ? current->id : 0;
                 if (current && auxSettingsWindow) {

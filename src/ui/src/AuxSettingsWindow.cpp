@@ -83,8 +83,8 @@ QString channelNames(AuxChannelLayout layout)
 
 QString mappingLabel(const QString& sourceNumber, const AuxBusState& bus)
 {
-    return QStringLiteral("%1 (%2) → AUX %3 (%4)")
-        .arg(sourceNumber,channelNames(bus.sourceLayout),QString::number(bus.id),
+    return QStringLiteral("%1 (%2) → %3 (%4)")
+        .arg(sourceNumber,channelNames(bus.sourceLayout),bus.name,
              channelNames(bus.targetLayout));
 }
 
@@ -566,6 +566,10 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
     painter.save();
     painter.setClipRect(impl_->listViewport());
     const auto visibleBuses = impl_->visibleBusIndices();
+    QStringList routeDescriptions;
+    for (const auto busIndex : visibleBuses)
+        routeDescriptions.push_back(mappingLabel(impl_->sourceName, impl_->buses()[busIndex]));
+    setAccessibleDescription(routeDescriptions.join(QLatin1Char('\n')));
     for (int index = 0; index < static_cast<int>(visibleBuses.size()); ++index) {
         const auto& bus = impl_->buses()[visibleBuses[index]];
         const auto row = impl_->listRow(index);
@@ -583,8 +587,8 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
 
         toggle(painter, impl_->listPowerToggle(index), impl_->chainEnabled && bus.enabled && !bus.selfRoute);
         text(painter, { row.left() + 64 * sx, row.top() + 10 * sy, 94 * sx, 25 * sy },
-             QStringLiteral("AUX %1").arg(bus.id), label, 15 * sy, Qt::AlignLeft | Qt::AlignVCenter, true);
-        text(painter, { row.left() + 64 * sx, row.top() + 36 * sy, 94 * sx, 22 * sy }, bus.name,
+             bus.name, label, 15 * sy, Qt::AlignLeft | Qt::AlignVCenter, true);
+        text(painter, { row.left() + 64 * sx, row.top() + 36 * sy, 94 * sx, 22 * sy }, channelNames(bus.targetLayout),
              themed("control-bus-text-secondary",QColor("#91b9e8")),
              13 * sy, Qt::AlignLeft | Qt::AlignVCenter);
 
@@ -622,7 +626,7 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
         painter.drawLine(QPointF(row.left()+12*sx,row.top()+72*sy),
                          QPointF(row.right()-12*sx,row.top()+72*sy));
         text(painter,{row.left()+16*sx,row.top()+75*sy,row.width()-32*sx,17*sy},
-             mappingLabel(impl_->sourceNumber,bus),
+             mappingLabel(impl_->sourceName,bus),
              themed("control-bus-mapping-text",QColor("#a8c8e7")),12*sy,
              Qt::AlignCenter);
     }
@@ -682,7 +686,7 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
     const bool classic=canClassic&&bus->panMode==Common::AuxPanMode::classic;
     drawPanel({406,11,559,544});drawPanel({406,566,559,235});drawPanel({976,11,359,790});
     drawText({420,20,250,29},QStringLiteral("声像器"),17,label,true);
-    drawText({784,20,165,29},QStringLiteral("AUX %1 · %2").arg(bus->id).arg(bus->name),12,secondary,false,Qt::AlignRight|Qt::AlignVCenter);
+    drawText({784,20,165,29},bus->name,12,secondary,false,Qt::AlignRight|Qt::AlignVCenter);
     drawButton({420,52,137,34},QStringLiteral("空间声像器"),!classic);
     painter.save();if(!canClassic)painter.setOpacity(.32);
     drawButton({567,52,137,34},QStringLiteral("经典 Pan"),classic);

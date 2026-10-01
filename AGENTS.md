@@ -24,6 +24,7 @@
 
 - After an intentional JACK port-name change makes connections saved in an existing project stale, ask the user to reconnect the affected ports and save the project. Treat this as the project update step; focus verification on current port naming and connection behavior.
 - Follow the repository's existing implementation and verification workflow; use TDD only when explicitly requested.
+- Run only tests that work without a running JACK server. Use offline model, module-loading and UI rendering checks for local debugging.
 - Finish all intended changes before running one build-and-test verification pass for the task. If that pass finds a failure, fix it and rerun only the necessary verification.
 - Build only in the repository's existing `build` directory. Do not create or use an alternate build directory.
 - Always compile the Release configuration. Unless the user explicitly requests a full Release build, compile only the targets needed for the Release overlay package and package only its required runtime files.
