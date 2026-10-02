@@ -180,9 +180,9 @@ template<class Check> void verifyMixerOverview(Check check)
         }
         mixer.openView(UI::MixerWindow::View::mixer);QApplication::processEvents();
         peak=.5F;
-        check(core.snapshot()->hasValue(QStringLiteral("--wjn-theme-sel-main-control-mix-accent"))
-            &&core.snapshot()->hasValue(QStringLiteral("--wjn-theme-sel-main-control-fx-accent"))
-            &&core.snapshot()->hasValue(QStringLiteral("--wjn-theme-sel-main-control-volume-accent")),"new sidebar button theme tokens registered");
+        check(core.snapshot()->hasValue(QStringLiteral("--wjn-theme-sel-main-control-fx-accent"))
+            &&!core.snapshot()->hasValue(QStringLiteral("--wjn-theme-sel-main-control-mix-accent"))
+            &&!core.snapshot()->hasValue(QStringLiteral("--wjn-theme-sel-main-control-volume-accent")),"SEL retains FX token without separate MIX or volume tokens");
         QMenu* menu=nullptr;
         for(auto* action:mixer.menuBar()->actions())if(action->text()==QStringLiteral("查看大屏"))menu=action->menu();
         check(menu&&menu->actions().size()==2&&menu->actions()[0]->text()==QStringLiteral("通道详情")

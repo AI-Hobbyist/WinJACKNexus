@@ -218,10 +218,6 @@
   --wjn-theme-sel-main-control-channel-selector-accent: #31c6ff;
   /* sel-main / control-header-icon; type=color */
   --wjn-theme-sel-main-control-header-icon: #e8f2ff;
-  /* sel-main / control-mix-accent; type=color */
-  --wjn-theme-sel-main-control-mix-accent: #24b8ff;
   /* sel-main / control-fx-accent; type=color */
   --wjn-theme-sel-main-control-fx-accent: #45d877;
-  /* sel-main / control volume accent; type=color */
-  --wjn-theme-sel-main-control-volume-accent: #26bfff;
 }

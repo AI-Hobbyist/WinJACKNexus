@@ -521,9 +521,7 @@ protected:
         const qreal volumeX=mainOutput?29:165;
         const qreal volumeWidth=mainOutput?254:118;
         text({volumeX,327,volumeWidth,20},QStringLiteral("音量"),14,muted,false,Qt::AlignCenter);
-        auto volumeColors=knobColors;
-        volumeColors.accent=themed("control-volume-accent",QColor("#26bfff"));
-        Controls::drawKnob(p,{mainOutput?156.0:224.0,366},channel?1-channel->fader:0,19,volumeColors);
+        Controls::drawKnob(p,{mainOutput?156.0:224.0,366},channel?1-channel->fader:0,19,knobColors);
         text(volumeReadoutRect(),faderDbText(channel?channel->fader:1),13,ink,true,Qt::AlignCenter);
         const auto actions=sidebarActions();
         for(std::size_t i=0;i<actions.size();++i) {
@@ -533,12 +531,15 @@ protected:
             switch(action) {
             case SidebarAction::mute: caption=QStringLiteral("M");active=channel&&(channel->mute||channel->sipMuted);break;
             case SidebarAction::solo: caption=QStringLiteral("S");active=channel&&channel->solo;role="control-solo-accent";fallback="#ffae2d";break;
-            case SidebarAction::mix: caption=QStringLiteral("MIX");active=channel&&channel->mixToMain;role="control-mix-accent";fallback="#24b8ff";break;
+            case SidebarAction::mix: caption=QStringLiteral("MIX");active=channel&&channel->mixToMain;role="control-button-mix-accent";fallback="#24b8ff";break;
             case SidebarAction::pfl: caption=QStringLiteral("PFL");active=channel&&channel->listenMode==Common::MixerListenMode::pfl;role="control-pfl-accent";fallback="#ffe15a";break;
             case SidebarAction::afl: caption=QStringLiteral("AFL");active=channel&&channel->listenMode==Common::MixerListenMode::afl;role="control-afl-accent";fallback="#ffe15a";break;
             case SidebarAction::fx: caption=QStringLiteral("FX");active=channel&&channel->fx;role="control-fx-accent";fallback="#45d877";break;
             }
-            modeToggle(sidebarButtonRect(i,actions.size()),caption,active,themed(role,QColor(fallback)));
+            const auto accent=action==SidebarAction::mix
+                ? Controls::themeTokenColor(QStringLiteral("mixer"),QString::fromLatin1(role),QColor(fallback))
+                : themed(role,QColor(fallback));
+            modeToggle(sidebarButtonRect(i,actions.size()),caption,active,accent);
         }
         for(int m=0;m<2;++m) {
             const int x=24+m*138; panel({qreal(x),480,125,318});

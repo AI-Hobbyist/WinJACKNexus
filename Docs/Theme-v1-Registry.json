@@ -6944,28 +6944,12 @@
       "description": "sel-main / control header icon"
     },
     {
-      "name": "--wjn-theme-sel-main-control-mix-accent",
-      "ownerScope": "sel-main",
-      "type": "color",
-      "default": "#24b8ff",
-      "inherits": [],
-      "description": "sel-main / control mix accent"
-    },
-    {
       "name": "--wjn-theme-sel-main-control-fx-accent",
       "ownerScope": "sel-main",
       "type": "color",
       "default": "#45d877",
       "inherits": [],
       "description": "sel-main / control fx accent"
-    },
-    {
-      "name": "--wjn-theme-sel-main-control-volume-accent",
-      "ownerScope": "sel-main",
-      "type": "color",
-      "default": "#26bfff",
-      "inherits": [],
-      "description": "sel-main / control volume accent"
     }
   ]
 }
