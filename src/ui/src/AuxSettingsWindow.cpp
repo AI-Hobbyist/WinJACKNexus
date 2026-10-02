@@ -292,6 +292,12 @@ public:
         return Common::auxClampPannerPoint((point-circle.center())/radius);
     }
 
+    int activeSendCount(const AuxBusState& bus) const
+    {
+        return std::min(static_cast<int>(bus.sends.size()),
+            static_cast<int>(Common::auxLayoutChannelLabels(bus.sourceLayout).size()));
+    }
+
     QRectF sendStrip(int index) const
     {
         return scaled(992, 100+index*86, 327, 80);
@@ -816,8 +822,8 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
     sendMeter.labelColor=secondary;
     sendMeter.ticksAbove=true;
     sendMeter.tickBandPixels=24;
-    for(int i=0;i<8;++i){
-        painter.save();if(i>=static_cast<int>(bus->sends.size()))painter.setOpacity(.32);
+    for(int i=0;i<impl_->activeSendCount(*bus);++i){
+        painter.save();
         const qreal x=992,y=100+i*86;
         drawPanel({x,y,327,80});
         drawText({x+7,y+23,30,28},i==0&&bus->sourceLayout==AuxChannelLayout::mono
@@ -1011,14 +1017,14 @@ void AuxSettingsWindow::mousePressEvent(QMouseEvent* event)
             return;
         }
     }
-    for(int index=0;index<static_cast<int>(bus->sends.size());++index) {
+    for(int index=0;index<impl_->activeSendCount(*bus);++index) {
         const auto readout=impl_->scaled(1027,157+index*86,72,18);
         if(!readout.contains(position)) continue;
         const auto id=bus->id;
         Controls::editNumericValue(this,readout.toAlignedRect(),bus->sends[index].levelDb,
             {-72,12,-2,1},[this,id,index](double value) {
                 auto* currentBus=impl_->selected();
-                if(!currentBus||currentBus->id!=id||index>=currentBus->sends.size()) return;
+                if(!currentBus||currentBus->id!=id||index>=impl_->activeSendCount(*currentBus)) return;
                 if(currentBus->sendsLinked)
                     for(auto& send:currentBus->sends) send.levelDb=value;
                 else currentBus->sends[index].levelDb=value;
@@ -1097,7 +1103,7 @@ void AuxSettingsWindow::mousePressEvent(QMouseEvent* event)
             bus->adjustablePoints[selected]=point;impl_->changed();return;
         }
     }
-    for(int i=0;i<static_cast<int>(bus->sends.size());++i){
+    for(int i=0;i<impl_->activeSendCount(*bus);++i){
         const auto row=impl_->sendStrip(i);
         if(!row.contains(position))continue;
         const auto x=row.left(),y=row.top(),sx=impl_->scaleX(),sy=impl_->scaleY();
@@ -1158,7 +1164,7 @@ void AuxSettingsWindow::mouseDoubleClickEvent(QMouseEvent* event)
         });
         return;
     }
-    for(int index=0;index<static_cast<int>(bus->sends.size());++index) {
+    for(int index=0;index<impl_->activeSendCount(*bus);++index) {
         const auto row=impl_->sendStrip(index);
         const QRectF knob(row.left()+44*impl_->scaleX(),row.top()+7*impl_->scaleY(),
                           52*impl_->scaleX(),50*impl_->scaleY());
@@ -1213,7 +1219,7 @@ void AuxSettingsWindow::mouseMoveEvent(QMouseEvent* event)
         impl_->changed();
         return;
     }
-    if (impl_->draggedSend >= 0 && impl_->draggedSend < static_cast<int>(bus->sends.size())) {
+    if (impl_->draggedSend >= 0 && impl_->draggedSend < impl_->activeSendCount(*bus)) {
         const auto targetLevel = std::clamp(impl_->draggedSendLevels[impl_->draggedSend]
             +(impl_->dragStart.y()-event->position().y())/impl_->scaleY()*.2,-72.0,12.0);
         if (bus->sendsLinked

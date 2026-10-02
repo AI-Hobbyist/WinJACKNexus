@@ -647,8 +647,8 @@ protected:
         const auto* bus=pannerBus;
         const auto labels = WinJACKNexus::Common::standardChannelLabels(8);
         const int activeCount=channel?Common::auxLayoutChannelLabels(channel->layout).size():0;
-        for(int i=0;i<8;++i) {
-            p.save();if(i>=activeCount)p.setOpacity(.32);
+        for(int i=0;i<activeCount;++i) {
+            p.save();
             const qreal x=990, y=100+i*86;
             panel({x,y,370,80});
             text({x+10,y+23,35,28},i==0&&channel&&channel->layout==Common::AuxChannelLayout::mono

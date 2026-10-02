@@ -424,3 +424,5 @@ Horizontal meter scale labels are centered on their tick coordinates, including 
 ## Shared standard channel names
 
 Common `StandardChannelNames.hpp` owns the vocabulary L/C/R/Lw/Rw/Ls/Rs/Lrb/Rrb/LFE/Ltf/Rtf/Ltm/Rtm/Ltr/Rtr. `ChannelNames.hpp` supplies Qt labels and meter role names. Vocabulary order is not sample order: existing 5.1/7.1 buffers remain L/R/C/LFE/Ls/Rs[/Lrb/Rrb]; mono is M. Mixer ports, FX selectors, MAIN/AUX/monitor controls, spatial panner labels, Native Fx, adapter ports, VST standard-name ports and probe defaults reuse this source. Adapter audio ports are directly named M or their standard speaker names, replacing capture_N/playback_N. VST standard mode retains in_/out_ prefixes; Native Fx retains in_/out_ prefixes. Existing custom probe names are retained. After changed port names, reconnect affected ports and save the project.
+
+SEL MAIN and SEL AUX per-channel controls render and accept pointer input only for channels present in the current source layout (mono 1, stereo 2, 5.1 6, 7.1 8). Unused rows are hidden, including their knobs, meters, and mute/solo controls.

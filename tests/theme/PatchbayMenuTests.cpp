@@ -6,6 +6,7 @@
 #include <mod_patchbay/ProjectStateCodec.hpp>
 #include <WinJACKNexus/UI/TrayController.hpp>
 #include "StandardChannelNamesRegression.hpp"
+#include "HiddenSelChannelsRegression.hpp"
 #include "PolarMixRegression.hpp"
 #include "AuxPolarSwitchRegression.hpp"
 #include "MeterbridgeOpenRegression.hpp"
@@ -566,6 +567,7 @@ int main(int argc, char** argv)
             }
         }
     }
+    verifyHiddenSelChannels(check);
     verifyStandardChannelNames(check);
     verifyPreMixPolar(check);
     verifyAuxPolarSwitches(check);
