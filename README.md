@@ -226,6 +226,12 @@ WinJACKNexus 的定位:
 
 ---
 
+## 开发方式
+
+WinJACKNexus **由 AI 辅助开发**。开发者主导项目需求与设计，借助 AI 完成代码实现、问题排查、测试和文档编写；功能取舍与发布决策由开发者确定。
+
+---
+
 ## 文档
 
 - [`Docs/WinJACKNexus 开发规范.md`](Docs/WinJACKNexus%20开发规范.md) —— 架构规范 v3.1(强制遵循)
