@@ -63,6 +63,30 @@ template<class Check> void verifyMixerOverview(Check check)
             check(masters&&masters->actions().size()==2,"Listen/Master selector includes main and monitor");
             if(masters) {
                 masters->actions()[0]->trigger();check(typeIcon&&typeIcon->property("channelIconType").toInt()==3,"master uses vector speaker icon");
+                if(auto* page=details->findChild<QWidget*>(QStringLiteral("selMainPage"))) {
+                    const qreal scale=std::min(page->width()/1394.,page->height()/813.);
+                    const auto image=page->grab().toImage();const qreal dpr=image.devicePixelRatio();
+                    bool blank=true;
+                    const auto background=image.pixelColor(qRound(30*scale*dpr),qRound(330*scale*dpr));
+                    for(int y=qRound(327*scale*dpr);y<qRound(400*scale*dpr);++y)
+                        for(int x=qRound(29*scale*dpr);x<qRound(283*scale*dpr);++x)
+                            blank=blank&&image.pixelColor(x,y)==background;
+                    check(blank,"MASTER detail does not draw gain label, knob or value");
+                    const auto gain=state.main().inputGainDb;
+                    const QPointF value(180*scale,376*scale);
+                    QMouseEvent click(QEvent::MouseButtonPress,value,value,Qt::LeftButton,Qt::LeftButton,Qt::NoModifier);
+                    QApplication::sendEvent(page,&click);
+                    auto* editor=page->findChild<QLineEdit*>(QStringLiteral("numericValueEditor"));
+                    check(!editor||!editor->isVisible(),"MASTER removed gain area cannot open numeric editor");
+                    const QPointF knob(93*scale,378*scale),drag(93*scale,350*scale);
+                    QMouseEvent press(QEvent::MouseButtonPress,knob,knob,Qt::LeftButton,Qt::LeftButton,Qt::NoModifier);
+                    QMouseEvent move(QEvent::MouseMove,drag,drag,Qt::NoButton,Qt::LeftButton,Qt::NoModifier);
+                    QMouseEvent reset(QEvent::MouseButtonDblClick,knob,knob,Qt::LeftButton,Qt::LeftButton,Qt::NoModifier);
+                    QMouseEvent release(QEvent::MouseButtonRelease,knob,knob,Qt::LeftButton,Qt::NoButton,Qt::NoModifier);
+                    QApplication::sendEvent(page,&press);QApplication::sendEvent(page,&move);
+                    QApplication::sendEvent(page,&reset);QApplication::sendEvent(page,&release);
+                    check(state.main().inputGainDb==gain,"MASTER removed gain area cannot drag or reset gain");
+                }
                 masters->actions()[1]->trigger();
                 check(typeIcon&&typeIcon->property("channelIconType").toInt()==4
                     &&details->findChild<QWidget*>(QStringLiteral("monitorSelPage"))->isVisible()

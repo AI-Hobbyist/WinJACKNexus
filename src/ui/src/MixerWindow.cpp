@@ -507,13 +507,15 @@ protected:
         Controls::drawSurface(p,QRectF(29,289,216,34),
             themed("control-color-picker-surface",QColor("#15263a")),border,5);
         for (int i=0;i<8;++i) { p.setPen(Qt::NoPen); p.setBrush(colors[i]); p.drawEllipse(QPointF(47+i*26,306),9,9); }
-        text({29, 327, 254, 22}, QStringLiteral("输入增益  -12 ~ +12 dB"), 14, muted, false, Qt::AlignCenter);
-        const qreal gain=channel?std::clamp(channel->inputGainDb,-12.0,12.0):0.0;
-        const qreal gainFraction=(gain+12.0)/24.0;
-        Controls::drawKnob(p,{93,378},gainFraction,23,knobColors);
-        text({126, 362, 126, 28}, QStringLiteral("%1%2 dB").arg(gain>=0?QStringLiteral("+"):QString()).arg(gain,0,'f',1),
-             17, ink, true, Qt::AlignCenter);
         const bool mainOutput=channel && channel->number==QStringLiteral("MAIN");
+        if(!mainOutput) {
+            text({29, 327, 254, 22}, QStringLiteral("输入增益  -12 ~ +12 dB"), 14, muted, false, Qt::AlignCenter);
+            const qreal gain=channel?std::clamp(channel->inputGainDb,-12.0,12.0):0.0;
+            const qreal gainFraction=(gain+12.0)/24.0;
+            Controls::drawKnob(p,{93,378},gainFraction,23,knobColors);
+            text({126, 362, 126, 28}, QStringLiteral("%1%2 dB").arg(gain>=0?QStringLiteral("+"):QString()).arg(gain,0,'f',1),
+                 17, ink, true, Qt::AlignCenter);
+        }
         modeToggle({29,407,mainOutput?254.0:118.0,34},QStringLiteral("M"),channel && (channel->mute || channel->sipMuted),
             themed("control-mute-accent",QColor("#ff4b62")));
         if(!mainOutput)modeToggle({165,407,118,34},QStringLiteral("S"),channel && channel->solo,
@@ -696,7 +698,7 @@ protected:
         if (!channel || event->button()!=Qt::LeftButton) return;
         const QPointF pt=designPoint(event->position());
         const auto channelId = channel->id;
-        if (QRectF(126,362,126,28).contains(pt)) {
+        if (channel->number!=QStringLiteral("MAIN") && QRectF(126,362,126,28).contains(pt)) {
             Controls::editNumericValue(this, readoutRect({126,362,126,28}), channel->inputGainDb,
                 {-12,12,0,1}, [this,channelId](double value) {
                     if (!channel || channel->id != channelId) return;
@@ -751,7 +753,7 @@ protected:
         }
         const auto colors = colorOptions();
         if (pt.y()>=289&&pt.y()<323&&pt.x()>=29&&pt.x()<245) {const int i=int((pt.x()-34)/26);if(i>=0&&i<8){channel->accent=colors[i];channel->customColor=true;}}
-        else if(QRectF(65,351,200,51).contains(pt)) {
+        else if(channel->number!=QStringLiteral("MAIN") && QRectF(65,351,200,51).contains(pt)) {
             draggedInputGain=true;
             inputGainStartY=pt.y();
             inputGainStartValue=channel->inputGainDb;
@@ -842,7 +844,7 @@ protected:
     {
         if (!channel || event->button()!=Qt::LeftButton) return;
         const QPointF pt=designPoint(event->position());
-        if (QRectF(65,351,200,51).contains(pt)) {
+        if (channel->number!=QStringLiteral("MAIN") && QRectF(65,351,200,51).contains(pt)) {
             draggedInputGain=false;
             Controls::resetNumericValue({-12,12,0,1},[this](double value) {
                 channel->inputGainDb=value;
@@ -892,7 +894,7 @@ protected:
     void mouseMoveEvent(QMouseEvent* event) override
     {
         if(!channel||!(event->buttons()&Qt::LeftButton))return;
-        if(draggedInputGain){
+        if(draggedInputGain && channel->number!=QStringLiteral("MAIN")){
             const qreal delta=inputGainStartY-designPoint(event->position()).y();
             channel->inputGainDb=std::clamp(qRound((inputGainStartValue+delta*.2)*10)/10.0,-12.0,12.0);
             setProperty("selInputGainDb",channel->inputGainDb);
