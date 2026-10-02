@@ -2820,13 +2820,6 @@ void MixerWindow::paintEvent(QPaintEvent*)
     painter.setOpacity(ThemeBackground::componentOpacity(QStringLiteral("mixer")));
 
     const auto heightScale = std::clamp(height() / 768.0, .72, 1.35);
-    for(auto* title : {"Inputs","AUX","Sub Mix"}) {
-        const int group=QString(title)==QStringLiteral("Inputs")?0:QString(title)==QStringLiteral("AUX")?1:2;
-        const auto viewport=impl_->groupViewport(group);
-        QFont font=painter.font();font.setPixelSize(13);font.setBold(true);
-        Controls::drawText(painter,{viewport.left(),23,viewport.width(),16},QString::fromLatin1(title),font,
-            themed("text-primary",QColor("#dce9ff")),Qt::AlignCenter);
-    }
     const auto label = themed("text-primary", QColor("#dce9ff"));
     const auto secondary = themed("text-muted", QColor("#a9bbd7"));
     const auto nameTextColor = [&](const QColor& background) {
