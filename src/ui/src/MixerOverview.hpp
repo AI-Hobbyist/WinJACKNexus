@@ -101,7 +101,7 @@ protected:
             fader.thumbWidth=20;fader.thumbHeight=28;
             Controls::drawFader(painter,track(i),channel.fader,fader);
             QFont readoutFont=font();readoutFont.setPixelSize(11);
-            Controls::drawText(painter,{x+4,qreal(height()-57),stripWidth-8,20},faderDbText(channel.fader),readoutFont,
+            Controls::drawText(painter,readout(i),faderDbText(channel.fader),readoutFont,
                 color("text-primary","#dce9ff"));
         }
         if(channels_.empty()) {
@@ -115,8 +115,25 @@ protected:
     }
     void mousePressEvent(QMouseEvent* event) override {
         if(event->button()!=Qt::LeftButton)return;
-        for(std::size_t i=0;i<channels_.size();++i)if(track(i).adjusted(-16,-14,16,14).contains(event->position())) {
-            draggingId_=channels_[i].id;setFader(i,event->position().y());return;
+        for(std::size_t i=0;i<channels_.size();++i) {
+            if(readout(i).contains(event->position())) {
+                draggingId_=0;
+                Controls::editNumericValue(this,readout(i).toAlignedRect(),faderDbValue(channels_[i].fader),
+                    {-72,12,0,1},[this,id=channels_[i].id](double db) {applyFader(id,faderPositionForDb(db));});
+                return;
+            }
+            if(faderHitRect(i).contains(event->position())) {
+                draggingId_=channels_[i].id;setFader(i,event->position().y());return;
+            }
+        }
+    }
+    void mouseDoubleClickEvent(QMouseEvent* event) override {
+        if(event->button()!=Qt::LeftButton)return;
+        for(std::size_t i=0;i<channels_.size();++i)if(faderHitRect(i).contains(event->position())) {
+            draggingId_=0;
+            Controls::resetNumericValue({-72,12,0,1},
+                [this,id=channels_[i].id](double db) {applyFader(id,faderPositionForDb(db));});
+            return;
         }
     }
     void mouseMoveEvent(QMouseEvent* event) override {
@@ -128,13 +145,21 @@ private:
     static QColor color(const char* role,const char* fallback) {
         return Controls::themeTokenColor(QStringLiteral("mixer"),QString::fromLatin1(role),QColor(fallback));
     }
-    QRectF track(std::size_t index) const {return {qreal(index*stripWidth+57),43,6,qreal(std::max(24,height()-112))};}
+    // Reserve half the 28 px thumb plus clearance at both travel endpoints.
+    QRectF track(std::size_t index) const {return {qreal(index*stripWidth+57),54,6,qreal(height()-129)};}
+    QRectF readout(std::size_t index) const {return {qreal(index*stripWidth+4),qreal(height()-57),stripWidth-8,20};}
+    QRectF faderHitRect(std::size_t index) const {return track(index).adjusted(-16,-14,16,14);}
+    void applyFader(std::uint32_t id,qreal value) {
+        const auto found=std::find_if(channels_.begin(),channels_.end(),[id](const auto& channel){return channel.id==id;});
+        if(found==channels_.end())return;
+        found->fader=value;
+        if(faderChanged)faderChanged(id,value);
+        update();
+    }
     void setFader(std::size_t index,qreal y) {
         const auto bounds=track(index);
         const auto value=std::clamp((y-bounds.top())/bounds.height(),0.,1.);
-        channels_[index].fader=value;
-        if(faderChanged)faderChanged(channels_[index].id,value);
-        update();
+        applyFader(channels_[index].id,value);
     }
     static constexpr int stripWidth=84;
     int group_ {};

@@ -13,6 +13,8 @@
 #include <QMenuBar>
 #include <QMenu>
 #include <QMouseEvent>
+#include <QKeyEvent>
+#include <QLineEdit>
 #include <QDir>
 
 template<class Check> void verifyMixerOverview(Check check)
@@ -60,6 +62,38 @@ template<class Check> void verifyMixerOverview(Check check)
                             "last selected channel aligns to leading edge in main mixer for every group");
                     }
                 }
+                // Exercise all strip categories through the actual mouse/numeric handlers.
+                for(int group=0;group<3;++group) {
+                    auto* row=overview->findChild<QWidget*>(QStringLiteral("mixerOverviewRow%1").arg(group));
+                    if(!row)continue;
+                    const auto click=[&](QEvent::Type type,const QPointF& point) {
+                        QMouseEvent event(type,point,point,Qt::LeftButton,Qt::LeftButton,Qt::NoModifier);
+                        QApplication::sendEvent(row,&event);
+                        QMouseEvent release(QEvent::MouseButtonRelease,point,point,Qt::LeftButton,Qt::NoButton,Qt::NoModifier);
+                        QApplication::sendEvent(row,&release);
+                    };
+                    const auto headerBefore=row->grab().toImage();
+                    click(QEvent::MouseButtonPress,{60,54});
+                    check(state.strip(ids[group][0])->faderPosition==0,"overview fader reaches maximum");
+                    const auto headerAfter=row->grab().toImage();
+                    const auto dpr=headerAfter.devicePixelRatio();
+                    check(headerBefore.copy(4*dpr,4*dpr,76*dpr,30*dpr)==headerAfter.copy(4*dpr,4*dpr,76*dpr,30*dpr),
+                        "maximum fader does not cover channel title");
+                    click(QEvent::MouseButtonDblClick,{60,54});
+                    check(std::abs(state.strip(ids[group][0])->faderPosition-Common::mixerUnityFaderPosition)<.001,
+                        "overview double-click resets real strip to zero dB");
+                    click(QEvent::MouseButtonPress,{40,qreal(row->height()-47)});
+                    auto* editor=row->findChild<QLineEdit*>(QStringLiteral("numericValueEditor"));
+                    check(editor&&editor->isVisible(),"overview readout opens shared numeric editor");
+                    if(editor) {
+                        editor->setText(editor->locale().toString(-6.,'f',1));
+                        QKeyEvent enter(QEvent::KeyPress,Qt::Key_Return,Qt::NoModifier);
+                        QApplication::sendEvent(editor,&enter);
+                        check(std::abs(state.strip(ids[group][0])->faderPosition-.95*18/84)<.001,
+                            "overview manual dB entry commits to real strip");
+                    }
+                    click(QEvent::MouseButtonDblClick,{60,54});
+                }
                 auto* row=overview->findChild<QWidget*>(QStringLiteral("mixerOverviewRow0"));
                 if(row) {
                     const auto before=row->grab().toImage();
@@ -69,9 +103,9 @@ template<class Check> void verifyMixerOverview(Check check)
                     const qreal dpr=after.devicePixelRatio();
                     const int meterY=qRound((43+(row->height()-112)*(1-48./84))*dpr);
                     check(after.pixelColor(qRound(22*dpr),meterY)==QColor("#123abc"),"overview meter inherits main mixer active-zone color");
-                    const int thumbY=qRound((43+Common::mixerUnityFaderPosition*(row->height()-112)-9)*dpr);
+                    const int thumbY=qRound((54+Common::mixerUnityFaderPosition*(row->height()-129)-9)*dpr);
                     check(before.pixelColor(qRound(60*dpr),thumbY)!=after.pixelColor(qRound(60*dpr),thumbY),"overview fader inherits main mixer thumb color");
-                    const QPointF p(60,43+(row->height()-112)*.5);
+                    const QPointF p(60,54+(row->height()-129)*.5);
                     QMouseEvent press(QEvent::MouseButtonPress,p,p,Qt::LeftButton,Qt::LeftButton,Qt::NoModifier);
                     QMouseEvent release(QEvent::MouseButtonRelease,p,p,Qt::LeftButton,Qt::NoButton,Qt::NoModifier);
                     QApplication::sendEvent(row,&press);QApplication::sendEvent(row,&release);
