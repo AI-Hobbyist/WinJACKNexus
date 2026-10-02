@@ -1,3 +1,4 @@
+#include <WinJACKNexus/Common/ChannelNames.hpp>
 #include <WinJACKNexus/UI/MixerWindow.hpp>
 #include <WinJACKNexus/UI/AuxSettingsWindow.hpp>
 #include <WinJACKNexus/UI/ApplicationSettings.hpp>
@@ -404,7 +405,7 @@ public:
             setProperty("selActiveSendCount",Common::auxLayoutChannelLabels(channel->layout).size());
             setProperty("selInputGainDb",channel->inputGainDb);
             if(state.sends.size()!=8) {
-                const std::array<QString,8> labels {QStringLiteral("L"),QStringLiteral("R"),QStringLiteral("C"),QStringLiteral("LFE"),QStringLiteral("Ls"),QStringLiteral("Rs"),QStringLiteral("Lb"),QStringLiteral("Rb")};
+                const auto labels = WinJACKNexus::Common::standardChannelLabels(8);
                 state.sends.resize(8);
                 for(std::size_t i=0;i<labels.size();++i) {
                     state.sends[i].label=labels[i];state.sends[i].name=labels[i];
@@ -644,7 +645,7 @@ protected:
         toggle({1077,56,42,24},linked);
         button({1256,51,105,34},QStringLiteral("重置"));
         const auto* bus=pannerBus;
-        const std::array<QString,8> labels {QStringLiteral("L"),QStringLiteral("R"),QStringLiteral("C"),QStringLiteral("LFE"),QStringLiteral("Ls"),QStringLiteral("Rs"),QStringLiteral("Lb"),QStringLiteral("Rb")};
+        const auto labels = WinJACKNexus::Common::standardChannelLabels(8);
         const int activeCount=channel?Common::auxLayoutChannelLabels(channel->layout).size():0;
         for(int i=0;i<8;++i) {
             p.save();if(i>=activeCount)p.setOpacity(.32);
@@ -1336,9 +1337,7 @@ public:
         target.adjustablePoints.clear();
         target.pointInfluenceRadii.clear();
         target.sends.resize(8);
-        const std::array<QString, 8> labels {QStringLiteral("L"), QStringLiteral("R"),
-            QStringLiteral("C"), QStringLiteral("LFE"), QStringLiteral("Ls"),
-            QStringLiteral("Rs"), QStringLiteral("Lb"), QStringLiteral("Rb")};
+        const auto labels = WinJACKNexus::Common::standardChannelLabels(8);
         for (std::size_t i = 0; i < source.points.size(); ++i) {
             const auto& point = source.points[i];
             target.adjustablePoints.emplace_back(point.x, point.y);
@@ -1773,8 +1772,6 @@ public:
     {
         if (layout == Common::AuxChannelLayout::mono) return { QStringLiteral("M") };
         auto labels = Common::auxLayoutChannelLabels(layout);
-        labels.replaceInStrings(QStringLiteral("Lrs"), QStringLiteral("Lb"));
-        labels.replaceInStrings(QStringLiteral("Rrs"), QStringLiteral("Rb"));
         return labels;
     }
 

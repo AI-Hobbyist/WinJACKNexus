@@ -5,6 +5,7 @@
 #include <WinJACKNexus/Common/DigitalMixerState.hpp>
 #include <mod_patchbay/ProjectStateCodec.hpp>
 #include <WinJACKNexus/UI/TrayController.hpp>
+#include "StandardChannelNamesRegression.hpp"
 #include "PolarMixRegression.hpp"
 #include "AuxPolarSwitchRegression.hpp"
 #include "MeterbridgeOpenRegression.hpp"
@@ -565,6 +566,7 @@ int main(int argc, char** argv)
             }
         }
     }
+    verifyStandardChannelNames(check);
     verifyPreMixPolar(check);
     verifyAuxPolarSwitches(check);
     {

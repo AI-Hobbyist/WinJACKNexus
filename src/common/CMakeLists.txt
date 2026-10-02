@@ -26,6 +26,8 @@ add_library(common SHARED
     include/WinJACKNexus/Common/MixerPolarAnalysis.hpp
     include/WinJACKNexus/Common/MixerPolarCurve.hpp
     include/WinJACKNexus/Common/AudioRingBuffer.hpp
+    include/WinJACKNexus/Common/StandardChannelNames.hpp
+    include/WinJACKNexus/Common/ChannelNames.hpp
     include/WinJACKNexus/Common/ChannelLayout.hpp
     include/WinJACKNexus/Common/Export.hpp
     include/WinJACKNexus/Common/GraphicsView.hpp

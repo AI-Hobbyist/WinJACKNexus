@@ -1,4 +1,5 @@
 /* This file is part of WinJACKNexus. SPDX-License-Identifier: AGPL-3.0-only */
+#include <WinJACKNexus/Common/ChannelNames.hpp>
 #include <WinJACKNexus/Common/DigitalMixerState.hpp>
 #include <WinJACKNexus/Common/AuxMixerState.hpp>
 
@@ -249,16 +250,13 @@ bool isMixerLayout(MixerLayout layout) noexcept
 
 QStringList mixerChannelLabels(MixerLayout layout)
 {
-    switch (layout) {
-    case MixerLayout::mono: return {QStringLiteral("M")};
-    case MixerLayout::stereo: return {QStringLiteral("L"), QStringLiteral("R")};
-    case MixerLayout::surround51: return {QStringLiteral("L"), QStringLiteral("R"), QStringLiteral("C"),
-                                           QStringLiteral("LFE"), QStringLiteral("Ls"), QStringLiteral("Rs")};
-    case MixerLayout::surround71: return {QStringLiteral("L"), QStringLiteral("R"), QStringLiteral("C"),
-                                           QStringLiteral("LFE"), QStringLiteral("Ls"), QStringLiteral("Rs"),
-                                           QStringLiteral("Lb"), QStringLiteral("Rb")};
-    }
-    return {};
+ switch(layout) {
+ case MixerLayout::mono:return standardChannelLabels(1);
+ case MixerLayout::stereo:return standardChannelLabels(2);
+ case MixerLayout::surround51:return standardChannelLabels(6);
+ case MixerLayout::surround71:return standardChannelLabels(8);
+ }
+ return {};
 }
 
 MixerPanner defaultMixerPanner(MixerLayout source, MixerLayout target)

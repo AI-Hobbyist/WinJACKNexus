@@ -1,4 +1,5 @@
 /* This file is part of WinJACKNexus. SPDX-License-Identifier: AGPL-3.0-only */
+#include <WinJACKNexus/Common/ChannelNames.hpp>
 #include <WinJACKNexus/NativeFx/reverb/Ui.hpp>
 #include <WinJACKNexus/UI/Controls.hpp>
 #include <WinJACKNexus/UI/ApplicationSettings.hpp>
@@ -15,7 +16,7 @@ namespace WinJACKNexus::UI {
 namespace {
 using Parameters=ReverbWidget::Parameters;
 const QColor background(11,26,42), panel(17,34,53), pale(216,230,252), muted(157,181,219), cyan(42,205,255), violet(194,114,247);
-constexpr const char* channels[]={"All","L","R","C","LFE","Ls","Rs","Lb","Rb"};
+constexpr auto channels = WinJACKNexus::Common::surroundChannelChoices;
 constexpr const char* scenes[]={"Room","Hall","Plate","Church","Studio","Spring","Custom"};
 constexpr const char* presets[]={"Default","Small Room","Bright Plate","Cathedral","Studio Booth","Vintage Spring","Custom"};
 constexpr int presetForScene(int scene) { return scene==0?1:scene==1?0:scene; }

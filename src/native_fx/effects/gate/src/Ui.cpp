@@ -1,4 +1,5 @@
 /* This file is part of WinJACKNexus. SPDX-License-Identifier: AGPL-3.0-only */
+#include <WinJACKNexus/Common/ChannelNames.hpp>
 #include <WinJACKNexus/NativeFx/gate/Ui.hpp>
 #include <WinJACKNexus/UI/Controls.hpp>
 #include <WinJACKNexus/UI/ApplicationSettings.hpp>
@@ -13,7 +14,7 @@
 namespace WinJACKNexus::UI {
 namespace {
 const QColor cyan(43, 197, 255), pale(205, 223, 250), muted(151, 181, 224);
-constexpr const char* channels[] = { "All", "L", "R", "C", "LFE", "Ls", "Rs", "Lb", "Rb" };
+constexpr auto channels = WinJACKNexus::Common::surroundChannelChoices;
 constexpr const char* labels[] = { "阈值", "比率", "起始时间\n(Attack)", "释放时间\n(Release)", "底噪(地板)\n(Floor)", "滞后\n(Hold)" };
 constexpr QPoint dialCenters[] = { {440,144}, {562,144}, {684,144}, {440,292}, {562,292}, {684,292} };
 constexpr float minima[] = { -60, 1, 0.1F, 1, -90, 0 };

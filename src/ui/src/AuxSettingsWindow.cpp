@@ -1,3 +1,4 @@
+#include <WinJACKNexus/Common/ChannelNames.hpp>
 #include <WinJACKNexus/UI/AuxSettingsWindow.hpp>
 #include <WinJACKNexus/UI/ApplicationSettings.hpp>
 #include <WinJACKNexus/UI/Controls.hpp>
@@ -800,7 +801,7 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
     drawText({992,20,135,29},QStringLiteral("分控旋钮"),17,label,true);
     drawText({992,54,90,28},QStringLiteral("全通道链接"),13,secondary);drawToggle({1085,57,42,24},bus->sendsLinked);
     drawButton({1220,52,100,34},QStringLiteral("重置"));
-    const std::array<QString,8> sendLabels{QStringLiteral("L"),QStringLiteral("R"),QStringLiteral("C"),QStringLiteral("LFE"),QStringLiteral("Ls"),QStringLiteral("Rs"),QStringLiteral("Lb"),QStringLiteral("Rb")};
+    const auto sendLabels = WinJACKNexus::Common::standardChannelLabels(8);
     Controls::MeterStyle sendMeter;
     sendMeter.border=themed("meter-aux-send-border",QColor("#06131f"));
     sendMeter.zones={{-12,themed("meter-aux-send-zone-low-active",QColor("#17d675")),

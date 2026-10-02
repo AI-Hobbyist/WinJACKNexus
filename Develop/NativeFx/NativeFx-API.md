@@ -42,7 +42,7 @@ The patchbay checks the exports before listing or creating the module. After
 `INode::init()`, it requires layout validation and a nonempty client name.
 
 The node owns one JACK client with exactly eight audio inputs `in_L`, `in_R`,
-`in_C`, `in_LFE`, `in_Ls`, `in_Rs`, `in_Lb`, `in_Rb` and matching `out_*` outputs
+`in_C`, `in_LFE`, `in_Ls`, `in_Rs`, `in_Lrb`, `in_Rrb` and matching `out_*` outputs
 in that order. `wjn_fx_node_validate_layout` checks the registered port names,
 directions and audio types, returning 1 only when they match. It returns 0
 before initialization or for a mismatched node.
@@ -69,7 +69,7 @@ boundary exports.
 1. Resolve the v1 symbols, read metadata, and call `wjn_fx_create_mixer(0)`.
 2. Call `wjn_fx_prepare(instance, sampleRate)` before audio processing and
    whenever the sample rate changes. The instance owns eight independent
-   channel processors, ordered `L`, `R`, `C`, `LFE`, `Ls`, `Rs`, `Lb`, `Rb`.
+   channel processors, ordered `L`, `R`, `C`, `LFE`, `Ls`, `Rs`, `Lrb`, `Rrb`.
 3. Call `wjn_fx_process(instance, channel, input, output, frames)` with
    channel `0..7`. Input and output may alias. A null input writes silence.
 4. On the UI thread, call `wjn_fx_create_mixer_editor(instance, parent)` once.
@@ -280,3 +280,7 @@ adapter in `NativeFxApi.cpp`, select its node adapter in `Library.cpp`, and add
 one target entry in `src/native_fx/CMakeLists.txt`. A mixer-only effect needs no
 JACK adapter and must report zero nodes. Add loading and editor tests that
 exercise the built DLL through its exported API.
+
+## Shared standard channel names
+
+Common `StandardChannelNames.hpp` owns the vocabulary L/C/R/Lw/Rw/Ls/Rs/Lrb/Rrb/LFE/Ltf/Rtf/Ltm/Rtm/Ltr/Rtr. `ChannelNames.hpp` supplies Qt labels and meter role names. Vocabulary order is not sample order: existing 5.1/7.1 buffers remain L/R/C/LFE/Ls/Rs[/Lrb/Rrb]; mono is M. Mixer ports, FX selectors, MAIN/AUX/monitor controls, spatial panner labels, Native Fx, adapter ports, VST standard-name ports and probe defaults reuse this source. Adapter audio ports are directly named M or their standard speaker names, replacing capture_N/playback_N. VST standard mode retains in_/out_ prefixes; Native Fx retains in_/out_ prefixes. Existing custom probe names are retained. After changed port names, reconnect affected ports and save the project.

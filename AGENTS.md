@@ -9,7 +9,7 @@
 ## Native effects
 
 - Native effects are native modules, not VST plug-ins. Categorize them as `Native Fx`.
-- Each effect has eight inputs and eight outputs in this order: `L`, `R`, `C`, `LFE`, `Ls`, `Rs`, `Lb`, `Rb`. Controls support both All and per-channel operation.
+- Each effect has eight inputs and eight outputs in this order: `L`, `R`, `C`, `LFE`, `Ls`, `Rs`, `Lrb`, `Rrb`. Controls support both All and per-channel operation.
 - “Per-channel control” means each channel retains its own parameter state, not merely its own enable/bypass bit. In All mode, editing a parameter broadcasts the same resulting value to all eight channels and overwrites that parameter's prior per-channel differences; unedited parameters remain independent. Calculate the target from the All display value, then write that absolute target to each channel instead of applying a separate delta to each channel.
 - Put shared DSP algorithms in `src/common`; put effect controls and custom-drawn UI in `src/ui`.
 - Draw custom curve strokes with `Qt::NoBrush`; draw any filled area as a separate path.
@@ -17,7 +17,7 @@
 - In Compressor All mode, aggregate active channel levels in the power domain like Graphic EQ; animate the filled area below the response curve rather than drawing per-channel level points. Channel selection is All or one channel at a time.
 - An effect's main control interface is a separate top-level window. Do not put the effect controls in the sidebar.
 - Keep the effect's channel selector in that same standalone window above the main control panel; do not embed the effect interface in a sidebar.
-- Do not create a new build or workspace directory. If a process from this repository is holding the existing build output, terminate that process before compiling.
+- Do not create a new build or workspace directory.
 - Write one completion document per effect module under `Native Effect`. Mark a module complete only after implementation, build, and tests are complete.
 
 ## Build and process rules
@@ -31,7 +31,7 @@
 - For error diagnosis, prioritize available `.dmp` crash dumps and the corresponding timestamped log files to locate the error source. Use that evidence to guide code inspection and any necessary reproduction or tests; when dumps or logs are unavailable or insufficient, proceed with targeted investigation.
 - The existing build tree uses the Visual Studio 18 2026 generator. Use its bundled CMake at `D:\Program Files\Microsoft Visual Studio\18\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe`; Qt's bundled CMake 3.30 cannot load this generator.
 - If MSBuild's C++ task stops with a duplicate `Path`/`PATH` environment-key error, compile with the Visual Studio 18 `cl.exe` using the generated project's compiler flags, then link with `link.exe` using a response file based on that target's `link.command.1.tlog`. Include `/MANIFEST:EMBED` and add `D:\Windows Kits\10\bin\10.0.26100.0\x64` to the process `PATH` so `rc.exe` is available; run the resulting UI test executable from PowerShell to complete verification.
-- Before building, check whether a process from this repository is holding build outputs. If so, stop that process, then build.
+- Keep any running WinJACKNexus instance and its audio processes running during builds and tests; do not terminate them or interrupt the audio stream. If occupied output files block compilation or packaging, report the occupied files and leave the running application intact.
 - Run every build or test interactively in the foreground through PowerShell and pipe all output through `2>&1 | Tee-Object -FilePath "build.log"`.
 - Immediately capture and check `$LASTEXITCODE`. If it is nonzero, inspect `build.log` before proceeding.
 - When compiling VST support, keep `WJN_ENABLE_VST2=ON` and include both VST2 and VST3 targets. Use the existing build tree's `ALL_BUILD` target only when the user explicitly requests a full Release build.

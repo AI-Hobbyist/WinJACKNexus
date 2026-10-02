@@ -1,3 +1,4 @@
+#include <WinJACKNexus/Common/ChannelNames.hpp>
 /*
  * This file is part of WinJACKNexus.
  *
@@ -56,14 +57,14 @@ MeterMetrics resetMetrics(float peak, float rms, float truePeak)
 std::vector<MeterChannelView> makeChannels(std::uint16_t count, bool includeLfe, bool includeMultipleLfe)
 {
     static const std::array<std::pair<const char*, const char*>, maximumMeterChannelCount> channelNames {
-        std::pair { "L", "M+030" },
-        std::pair { "R", "M-030" },
-        std::pair { "C", "M+000" },
-        std::pair { "LFE", "LFE" },
-        std::pair { "Ls", "M+110" },
-        std::pair { "Rs", "M-110" },
-        std::pair { "Lb", "M+135" },
-        std::pair { "Rb", "M-135" },
+        std::pair { WinJACKNexus::Common::surroundChannelNames[0], "M+030" },
+        std::pair { WinJACKNexus::Common::surroundChannelNames[1], "M-030" },
+        std::pair { WinJACKNexus::Common::surroundChannelNames[2], "M+000" },
+        std::pair { WinJACKNexus::Common::surroundChannelNames[3], "LFE" },
+        std::pair { WinJACKNexus::Common::surroundChannelNames[4], "M+110" },
+        std::pair { WinJACKNexus::Common::surroundChannelNames[5], "M-110" },
+        std::pair { WinJACKNexus::Common::surroundChannelNames[6], "M+135" },
+        std::pair { WinJACKNexus::Common::surroundChannelNames[7], "M-135" },
         std::pair { "Ch 9", "M+180" },
         std::pair { "Ch 10", "M-180" },
         std::pair { "Ch 11", "U+030" },
@@ -80,7 +81,7 @@ std::vector<MeterChannelView> makeChannels(std::uint16_t count, bool includeLfe,
     for (std::uint16_t index = 0; index < boundedCount; ++index) {
         const auto lfe = includeLfe && (index == 3 || (includeMultipleLfe && index == 7));
         channels.push_back({
-            index < 8 ? QString::fromLatin1(channelNames[index].first) : QStringLiteral("声道 %1").arg(index + 1),
+            QString::fromStdString(WinJACKNexus::Common::standardChannelName(index, boundedCount)),
             QString::fromLatin1(lfe ? "LFE" : channelNames[index].second),
             lfe
         });

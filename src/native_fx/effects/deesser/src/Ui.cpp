@@ -1,4 +1,5 @@
 /* This file is part of WinJACKNexus. SPDX-License-Identifier: AGPL-3.0-only */
+#include <WinJACKNexus/Common/ChannelNames.hpp>
 #include <WinJACKNexus/NativeFx/deesser/Ui.hpp>
 #include <WinJACKNexus/UI/ApplicationSettings.hpp>
 #include <WinJACKNexus/UI/Controls.hpp>
@@ -19,9 +20,7 @@ namespace WinJACKNexus::UI {
 namespace {
 const QColor background(9, 23, 39), panel(13, 29, 47), border(36, 102, 157);
 const QColor text(222, 235, 249), muted(143, 166, 189), purple(165, 91, 255);
-const std::array<QString, 9> channels { QStringLiteral("All"), QStringLiteral("L"),
-    QStringLiteral("R"), QStringLiteral("C"), QStringLiteral("LFE"), QStringLiteral("Ls"),
-    QStringLiteral("Rs"), QStringLiteral("Lb"), QStringLiteral("Rb") };
+const auto channels = WinJACKNexus::Common::standardChannelChoices();
 const std::array<QString, 6> captions { QStringLiteral("中心频率"), QStringLiteral("带宽 (Q)"),
     QStringLiteral("阈值"), QStringLiteral("起始时间"), QStringLiteral("释放时间"), QStringLiteral("输出增益") };
 const std::array<QPointF, 6> knobs { QPointF(480, 142), QPointF(587, 142), QPointF(694, 142),

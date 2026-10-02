@@ -1,3 +1,4 @@
+#include <WinJACKNexus/Common/ChannelNames.hpp>
 /*
  * This file is part of WinJACKNexus.
  *
@@ -223,37 +224,8 @@ bool roleFromId(std::string_view id, MeterChannelRole& role) noexcept
 
 std::string defaultChannelName(MeterChannelRole role, std::size_t index)
 {
-    switch (role) {
-    case MeterChannelRole::mono:
-        return "M";
-    case MeterChannelRole::frontLeft:
-        return "L";
-    case MeterChannelRole::frontRight:
-        return "R";
-    case MeterChannelRole::frontCenter:
-        return "C";
-    case MeterChannelRole::sideLeft:
-        return "Ls";
-    case MeterChannelRole::sideRight:
-        return "Rs";
-    case MeterChannelRole::rearLeft:
-        return "Lb";
-    case MeterChannelRole::rearRight:
-        return "Rb";
-    case MeterChannelRole::topFrontLeft:
-        return "TFL";
-    case MeterChannelRole::topFrontRight:
-        return "TFR";
-    case MeterChannelRole::topRearLeft:
-        return "TRL";
-    case MeterChannelRole::topRearRight:
-        return "TRR";
-    case MeterChannelRole::lfe:
-        return "LFE";
-    case MeterChannelRole::unassigned:
-        return "Ch " + std::to_string(index + 1);
-    }
-    return "Ch " + std::to_string(index + 1);
+    const auto* name=WinJACKNexus::Common::standardRoleName(role);
+    return *name ? std::string(name) : "Ch " + std::to_string(index + 1);
 }
 
 std::string makeInstanceId()

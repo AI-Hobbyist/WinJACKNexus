@@ -42,6 +42,7 @@ add_executable(vst_process32
 
 target_include_directories(vst_process32
     PRIVATE
+        "${CMAKE_CURRENT_LIST_DIR}/../../../src/common/include"
         "${WJN_VST3SDK_ROOT}"
         "${WJN_JACK2_ROOT}/include"
 )

@@ -1,4 +1,5 @@
 /* This file is part of WinJACKNexus. SPDX-License-Identifier: AGPL-3.0-only */
+#include <WinJACKNexus/Common/ChannelNames.hpp>
 #include <WinJACKNexus/NativeFx/delay/Ui.hpp>
 #include <WinJACKNexus/UI/Controls.hpp>
 #include <WinJACKNexus/UI/ApplicationSettings.hpp>
@@ -16,7 +17,7 @@
 namespace WinJACKNexus::UI {
 namespace {
 const QColor cyan(43,204,255), pale(213,229,255), muted(155,181,220);
-constexpr const char* channels[]={"All","L","R","C","LFE","Ls","Rs","Lb","Rb"};
+constexpr auto channels = WinJACKNexus::Common::surroundChannelChoices;
 void box(QPainter& p,QRectF r,qreal radius,QColor fill,QColor edge={}) {
     Controls::drawSurface(p,r,fill,edge,radius);
 }

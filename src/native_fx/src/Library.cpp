@@ -1,4 +1,5 @@
 /* This file is part of WinJACKNexus. SPDX-License-Identifier: AGPL-3.0-only */
+#include <WinJACKNexus/Common/ChannelNames.hpp>
 #include <WinJACKNexus/Audio/JackClient.hpp>
 #include <WinJACKNexus/Audio/JackGraph.hpp>
 #include <WinJACKNexus/Audio/JackPort.hpp>
@@ -52,7 +53,7 @@ using WinJACKNexus::Common::GateParameters;
 using WinJACKNexus::Common::GateProcessor;
 using WinJACKNexus::UI::GateEffectWidget;
 #endif
-constexpr const char* channelNames[] = { "L", "R", "C", "LFE", "Ls", "Rs", "Lb", "Rb" };
+constexpr auto channelNames = WinJACKNexus::Common::surroundChannelNames;
 
 bool fixedNodePorts(const std::array<JackPort, 8>& inputs,
                     const std::array<JackPort, 8>& outputs) noexcept {

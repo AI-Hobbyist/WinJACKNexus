@@ -1,3 +1,4 @@
+#include <WinJACKNexus/Common/ChannelNames.hpp>
 #include <WinJACKNexus/NativeFx/limiter/Ui.hpp>
 #include <WinJACKNexus/UI/ApplicationSettings.hpp>
 #include <WinJACKNexus/UI/Controls.hpp>
@@ -12,7 +13,7 @@
 namespace WinJACKNexus::UI {
 namespace {
 const QColor ink(235,240,255),muted(179,201,238),cyan(16,179,255),pink(255,99,139);
-const char* channels[]={"All","L","R","C","LFE","Ls","Rs","Lb","Rb"};
+constexpr auto channels = WinJACKNexus::Common::surroundChannelChoices;
 void box(QPainter& p,QRectF r,int radius,QColor fill,QColor edge=QColor(53,78,108)){
     Controls::drawSurface(p,r,fill,edge,radius);
 }

@@ -1,4 +1,5 @@
 /* This file is part of WinJACKNexus. SPDX-License-Identifier: AGPL-3.0-only */
+#include <WinJACKNexus/Common/ChannelNames.hpp>
 #include <WinJACKNexus/NativeFx/compressor/Ui.hpp>
 #include <WinJACKNexus/UI/ApplicationSettings.hpp>
 #include <WinJACKNexus/UI/Controls.hpp>
@@ -16,7 +17,7 @@ namespace {
 const QColor ink(234,240,255), muted(168,191,228), cyan(33,190,255), amber(255,159,65);
 const QColor meterColors[] = {QColor(80,210,255),QColor(255,115,130),QColor(120,230,150),QColor(244,205,96),
                               QColor(185,145,255),QColor(255,165,92),QColor(85,235,215),QColor(235,145,220)};
-constexpr const char* channels[] = {"All","L","R","C","LFE","Ls","Rs","Lb","Rb"};
+constexpr auto channels = WinJACKNexus::Common::surroundChannelChoices;
 constexpr float limits[][2] = {{-60,0},{1,20},{0,24},{0.1F,200},{1,2000},{-12,24}};
 constexpr QPointF centers[] = {{454,143},{569,143},{688,143},{454,276},{569,276},{688,276}};
 constexpr QRectF plotRect {72,122,276,236};

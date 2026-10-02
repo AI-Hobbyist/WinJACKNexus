@@ -1,4 +1,5 @@
 /* This file is part of WinJACKNexus. SPDX-License-Identifier: AGPL-3.0-only */
+#include <WinJACKNexus/Common/ChannelNames.hpp>
 #include <WinJACKNexus/UI/FxSettingsWindow.hpp>
 #include <WinJACKNexus/UI/ApplicationSettings.hpp>
 #include <WinJACKNexus/UI/FxLevelMeterWidget.hpp>
@@ -357,9 +358,7 @@ public:
         channelRow->setSpacing(6);
         QStringList visibleChannels { QStringLiteral("All") };
         if(sourceChannels.size()>1)visibleChannels.append(sourceChannels);
-        const QStringList nativeChannels { QStringLiteral("L"), QStringLiteral("R"), QStringLiteral("C"),
-            QStringLiteral("LFE"), QStringLiteral("Ls"), QStringLiteral("Rs"),
-            QStringLiteral("Lb"), QStringLiteral("Rb") };
+        const auto nativeChannels = WinJACKNexus::Common::standardChannelLabels(8);
         for (const auto& name : visibleChannels) {
             auto* choice = button(name, channelControls);
             choice->setObjectName(QStringLiteral("fxChannel%1").arg(name));
@@ -686,9 +685,7 @@ public:
         channelButtons.clear();
         QStringList visibleChannels { QStringLiteral("All") };
         if(channels.size()>1)visibleChannels.append(channels);
-        const QStringList nativeChannels { QStringLiteral("L"), QStringLiteral("R"), QStringLiteral("C"),
-            QStringLiteral("LFE"), QStringLiteral("Ls"), QStringLiteral("Rs"),
-            QStringLiteral("Lb"), QStringLiteral("Rb") };
+        const auto nativeChannels = WinJACKNexus::Common::standardChannelLabels(8);
         for (const auto& name : visibleChannels) {
             auto* choice = button(name, channelRow->parentWidget());
             choice->setObjectName(QStringLiteral("fxChannel%1").arg(name));

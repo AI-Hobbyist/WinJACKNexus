@@ -1,3 +1,4 @@
+#include <WinJACKNexus/Common/ChannelNames.hpp>
 #include <WinJACKNexus/Common/AuxMixerState.hpp>
 
 #include <algorithm>
@@ -28,18 +29,13 @@ QString auxLayoutName(AuxChannelLayout layout)
 
 QStringList auxLayoutChannelLabels(AuxChannelLayout layout)
 {
-    switch (layout) {
-    case AuxChannelLayout::mono: return { QStringLiteral("M") };
-    case AuxChannelLayout::stereo: return { QStringLiteral("L"), QStringLiteral("R") };
-    case AuxChannelLayout::surround51:
-        return { QStringLiteral("L"), QStringLiteral("R"), QStringLiteral("C"),
-                 QStringLiteral("LFE"), QStringLiteral("Ls"), QStringLiteral("Rs") };
-    case AuxChannelLayout::surround71:
-        return { QStringLiteral("L"), QStringLiteral("R"), QStringLiteral("C"),
-                 QStringLiteral("LFE"), QStringLiteral("Ls"), QStringLiteral("Rs"),
-                 QStringLiteral("Lrs"), QStringLiteral("Rrs") };
-    }
-    return {};
+ switch(layout) {
+ case AuxChannelLayout::mono:return standardChannelLabels(1);
+ case AuxChannelLayout::stereo:return standardChannelLabels(2);
+ case AuxChannelLayout::surround51:return standardChannelLabels(6);
+ case AuxChannelLayout::surround71:return standardChannelLabels(8);
+ }
+ return {};
 }
 
 std::vector<QPointF> auxLayoutReferencePoints(AuxChannelLayout layout)

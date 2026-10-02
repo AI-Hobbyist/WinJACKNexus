@@ -1,3 +1,4 @@
+#include <WinJACKNexus/Common/StandardChannelNames.hpp>
 /*
  * This file is part of WinJACKNexus.
  *
@@ -1946,8 +1947,8 @@ private:
                 const auto channelNumber = std::to_string(channel + 1);
                 std::string name;
                 if (mode == "standard") {
-                    static constexpr const char* channelNames[] { "L", "R", "C", "LFE", "SL", "SR", "BL", "BR" };
-                    name = std::string(prefix) + '_' + (channel < static_cast<VstInt32>(std::size(channelNames)) ? channelNames[channel] : "ch_" + channelNumber);
+                    name = std::string(prefix) + '_' + WinJACKNexus::Common::standardChannelName(
+                        static_cast<std::size_t>(channel), static_cast<std::size_t>(count));
                 } else if (mode == "bus-labels") {
                     const auto busName = channel < static_cast<VstInt32>(busNames.size())
                         ? sanitizedPortName(busNames[channel])

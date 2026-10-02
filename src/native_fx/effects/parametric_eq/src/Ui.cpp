@@ -1,4 +1,5 @@
 /* This file is part of WinJACKNexus. SPDX-License-Identifier: AGPL-3.0-only */
+#include <WinJACKNexus/Common/ChannelNames.hpp>
 #include <WinJACKNexus/NativeFx/parametric_eq/Ui.hpp>
 #include <WinJACKNexus/UI/ApplicationSettings.hpp>
 #include <WinJACKNexus/UI/Controls.hpp>
@@ -20,7 +21,7 @@ QPoint widgetPoint(const QWidget& widget, qreal x, qreal y) {
     return {static_cast<int>(std::lround(x*widget.width()/designWidth)),
             static_cast<int>(std::lround((mainTop+y)*widget.height()/designHeight))};
 }
-constexpr std::array<const char*, 8> channelNames {"L", "R", "C", "LFE", "Ls", "Rs", "Lb", "Rb"};
+constexpr auto channelNames = WinJACKNexus::Common::surroundChannelNames;
 constexpr std::array<const char*, 5> shapeNames {"低架 (Low Shelf)", "峰值 (Peaking)", "高架 (High Shelf)", "低通 (Low Pass)", "高通 (High Pass)"};
 const QColor background("#081c2f"), panel("#10263b"), line("#2b5374"), textColor("#e8f2ff"), muted("#b7d2fa");
 const std::array<QColor, 4> bandColors {QColor("#14a9ff"), QColor("#11d7a9"), QColor("#f15bb9"), QColor("#ffcc42")};

@@ -1,4 +1,5 @@
 /* This file is part of WinJACKNexus. SPDX-License-Identifier: AGPL-3.0-only */
+#include <WinJACKNexus/Common/ChannelNames.hpp>
 #include <WinJACKNexus/NativeFx/graphic_eq/Ui.hpp>
 #include <WinJACKNexus/UI/ApplicationSettings.hpp>
 #include <WinJACKNexus/UI/Controls.hpp>
@@ -256,9 +257,7 @@ void GraphicEqWidget::paintEvent(QPaintEvent*)
     // Channel strip follows the supplied reference while retaining all eight bed channels.
     rounded(p, { 7, 8, 740, 128 }, QColor(21, 39, 59), QColor(47, 75, 104), 11);
     drawText(p, { 22, 23, 110, 31 }, QStringLiteral("作用声道"), 18, text, Qt::AlignLeft, true);
-    const std::array<QString, 9> channels { QStringLiteral("All"), QStringLiteral("L"), QStringLiteral("R"),
-        QStringLiteral("C"), QStringLiteral("LFE"), QStringLiteral("Ls"), QStringLiteral("Rs"),
-        QStringLiteral("Lb"), QStringLiteral("Rb") };
+    const auto channels = WinJACKNexus::Common::standardChannelChoices();
     for (int i = 0; i < static_cast<int>(channels.size()); ++i) {
         const auto button = channelButton(i);
         const bool selected = i == (selectedChannel_ < 0 ? 0 : selectedChannel_ + 1);

@@ -1,3 +1,4 @@
+#include <WinJACKNexus/Common/StandardChannelNames.hpp>
 /*
  * This file is part of WinJACKNexus.
  *
@@ -828,9 +829,8 @@ public:
         }
 
         for (std::uint16_t channel = 0; channel < channels_; ++channel) {
-            char portName[32] {};
-            std::snprintf(portName, sizeof(portName), "capture_%u", static_cast<unsigned>(channel + 1));
-            if (!ports_[channel].registerPort(jackClient_, portName, JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput)) {
+            const auto portName = WinJACKNexus::Common::standardChannelName(channel, channels_);
+            if (!ports_[channel].registerPort(jackClient_, portName.c_str(), JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput)) {
                 shutdown();
                 return false;
             }
@@ -1222,9 +1222,8 @@ public:
         }
 
         for (std::uint16_t channel = 0; channel < channels_; ++channel) {
-            char portName[32] {};
-            std::snprintf(portName, sizeof(portName), "playback_%u", static_cast<unsigned>(channel + 1));
-            if (!ports_[channel].registerPort(jackClient_, portName, JACK_DEFAULT_AUDIO_TYPE, JackPortIsInput)) {
+            const auto portName = WinJACKNexus::Common::standardChannelName(channel, channels_);
+            if (!ports_[channel].registerPort(jackClient_, portName.c_str(), JACK_DEFAULT_AUDIO_TYPE, JackPortIsInput)) {
                 shutdown();
                 return false;
             }

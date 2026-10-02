@@ -27,6 +27,7 @@ add_executable(vst_process64 ${WJN_VST_PROCESS_SOURCES})
 
 target_include_directories(vst_process64
     PRIVATE
+        "${PROJECT_SOURCE_DIR}/src/common/include"
         "${WJN_VST3SDK_ROOT}"
         "${PROJECT_SOURCE_DIR}/third_party/JACK2/include"
 )
