@@ -6792,6 +6792,116 @@
       "default": "#37d879",
       "inherits": [],
       "description": "mixer / overview title submix border"
+    },
+    {
+      "name": "--wjn-theme-mixer-overview-background-opacity",
+      "ownerScope": "mixer-overview",
+      "type": "opacity",
+      "default": "1",
+      "inherits": [
+        "--wjn-theme-patchbay-background-opacity"
+      ],
+      "description": "mixer-overview / background opacity"
+    },
+    {
+      "name": "--wjn-theme-mixer-overview-background-size",
+      "ownerScope": "mixer-overview",
+      "type": "background-size",
+      "default": "cover",
+      "inherits": [
+        "--wjn-theme-patchbay-background-size"
+      ],
+      "description": "mixer-overview / background size"
+    },
+    {
+      "name": "--wjn-theme-mixer-overview-background-scale",
+      "ownerScope": "mixer-overview",
+      "type": "background-scale",
+      "default": "1",
+      "inherits": [
+        "--wjn-theme-patchbay-background-scale"
+      ],
+      "description": "mixer-overview / background scale"
+    },
+    {
+      "name": "--wjn-theme-mixer-overview-background-repeat",
+      "ownerScope": "mixer-overview",
+      "type": "background-repeat",
+      "default": "no-repeat",
+      "inherits": [
+        "--wjn-theme-patchbay-background-repeat"
+      ],
+      "description": "mixer-overview / background repeat"
+    },
+    {
+      "name": "--wjn-theme-mixer-overview-background-position-x",
+      "ownerScope": "mixer-overview",
+      "type": "position",
+      "default": "50%",
+      "inherits": [
+        "--wjn-theme-patchbay-background-position-x"
+      ],
+      "description": "mixer-overview / background position x"
+    },
+    {
+      "name": "--wjn-theme-mixer-overview-background-position-y",
+      "ownerScope": "mixer-overview",
+      "type": "position",
+      "default": "50%",
+      "inherits": [
+        "--wjn-theme-patchbay-background-position-y"
+      ],
+      "description": "mixer-overview / background position y"
+    },
+    {
+      "name": "--wjn-theme-mixer-overview-background-overlay-enabled",
+      "ownerScope": "mixer-overview",
+      "type": "boolean",
+      "default": "false",
+      "inherits": [
+        "--wjn-theme-patchbay-background-overlay-enabled"
+      ],
+      "description": "mixer-overview / background overlay enabled"
+    },
+    {
+      "name": "--wjn-theme-mixer-overview-background-overlay-opacity",
+      "ownerScope": "mixer-overview",
+      "type": "opacity",
+      "default": "0.12",
+      "inherits": [
+        "--wjn-theme-patchbay-background-overlay-opacity"
+      ],
+      "description": "mixer-overview / background overlay opacity"
+    },
+    {
+      "name": "--wjn-theme-mixer-overview-background-blur-radius",
+      "ownerScope": "mixer-overview",
+      "type": "blur-radius",
+      "default": "0px",
+      "inherits": [
+        "--wjn-theme-patchbay-background-blur-radius"
+      ],
+      "description": "mixer-overview / background blur radius"
+    },
+    {
+      "name": "--wjn-theme-mixer-overview-background-component-opacity",
+      "ownerScope": "mixer-overview",
+      "type": "opacity",
+      "default": "1",
+      "inherits": [
+        "--wjn-theme-patchbay-background-component-opacity"
+      ],
+      "description": "mixer-overview / background component opacity"
+    },
+    {
+      "name": "--wjn-theme-mixer-overview-background-image",
+      "ownerScope": "mixer-overview",
+      "type": "image",
+      "default": null,
+      "inherits": [
+        "--wjn-theme-patchbay-background-image"
+      ],
+      "description": "mixer-overview content background image; null means undefined and inherits the patchbay image"
     }
   ]
 }

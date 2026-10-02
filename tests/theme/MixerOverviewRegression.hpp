@@ -4,6 +4,10 @@
 #include <WinJACKNexus/UI/ThemeCore.hpp>
 #include <WinJACKNexus/UI/ThemeManager.hpp>
 #include <WinJACKNexus/UI/Controls.hpp>
+#include <WinJACKNexus/UI/ThemeManagementDialog.hpp>
+#include <QGraphicsOpacityEffect>
+#include <QBuffer>
+#include <QJsonArray>
 #include <QEventLoop>
 #include <QTimer>
 #include <QMenuBar>
@@ -42,6 +46,8 @@ template<class Check> void verifyMixerOverview(Check check)
                 for(int group=0;group<3;++group) {
                     auto* row=overview->findChild<QWidget*>(QStringLiteral("mixerOverviewRow%1").arg(group));
                     check(row&&row->findChildren<QPushButton*>().size()==ids[group].size(),"each overview row contains exactly its channel type");
+                    auto* bar=overview->findChild<QScrollBar*>(QStringLiteral("overviewScrollBar%1").arg(group));
+                    check(bar&&bar->isVisible(),"every overview row has a visible independent scrollbar");
                     if(!row)continue;
                     auto* select=row->findChild<QPushButton*>(QStringLiteral("overviewSEL%1").arg(ids[group].back()));
                     check(select,"last strip has a shared SEL button");
@@ -78,6 +84,45 @@ template<class Check> void verifyMixerOverview(Check check)
                 for(const auto* role:{"overview-card-surface","overview-card-border","overview-title-input-surface","overview-title-input-text","overview-title-input-border",
                     "overview-title-aux-surface","overview-title-aux-text","overview-title-aux-border","overview-title-submix-surface","overview-title-submix-text","overview-title-submix-border"})
                     check(core.snapshot()->hasValue(QStringLiteral("--wjn-theme-mixer-")+QLatin1String(role)),"overview card/title token registered");
+                overview->resize(600,800);QApplication::processEvents();waitFrame();
+                auto* inputBar=overview->findChild<QScrollBar*>(QStringLiteral("overviewScrollBar0"));
+                auto* auxBar=overview->findChild<QScrollBar*>(QStringLiteral("overviewScrollBar1"));
+                check(inputBar&&inputBar->maximum()>0,"narrow overview supports horizontal scrolling");
+                if(inputBar&&auxBar) {
+                    inputBar->setValue(inputBar->maximum());
+                    check(auxBar->value()==0,"overview rows scroll independently");
+                    core.setOverride(QStringLiteral("--wjn-theme-mixer-control-scrollbar-input-thumb"),QStringLiteral("#ef1234"));waitFrame();
+                    auto expected=QColor("#ef1234");expected.setAlpha(210);
+                    check(inputBar->property("fxAccent").value<QColor>()==expected,"overview scrollbar inherits corresponding mixer thumb token");
+                    core.removeOverride(QStringLiteral("--wjn-theme-mixer-control-scrollbar-input-thumb"));inputBar->setValue(0);
+                }
+                overview->resize(1100,800);QApplication::processEvents();
+                {
+                    UI::ThemeManagementDialog dialog(core);
+                    auto* scope=dialog.findChild<QComboBox*>(QStringLiteral("theme.backgroundScope"));
+                    check(scope&&scope->findData(QStringLiteral("mixer-overview"))>=0,"background settings expose independent overview scope");
+                }
+                const auto solidImage=[](const QColor& color) {QImage image(2,2,QImage::Format_ARGB32);image.fill(color);QByteArray png;QBuffer buffer(&png);buffer.open(QIODevice::WriteOnly);image.save(&buffer,"PNG");return png;};
+                UI::ThemePackage theme;QString error;
+                const QJsonObject meta{{"formatVersion",1},{"themeApiVersion",1},{"id","org.winjacknexus.overview-test"},{"name","Overview"},
+                    {"version","1.0.0"},{"author","Tests"},{"description","Offline background verification"},{"homepage",""},{"kind","full"},
+                    {"namespaces",QJsonArray{"--wjn-theme-patchbay-","--wjn-theme-mixer-overview-"}}};
+                check(UI::ThemePackage::create(meta,QByteArray(":root {--wjn-theme-patchbay-background-image:url(\"assets/red.png\");}"),
+                    {{QStringLiteral("assets/red.png"),solidImage(QColor("#f02030"))},{QStringLiteral("assets/green.png"),solidImage(QColor("#20e040"))}},&theme,&error)
+                    &&core.setFullTheme(theme,&error),"install overview inherited-background fixture");
+                waitFrame();
+                check(core.snapshot()->resource(QStringLiteral("--wjn-theme-mixer-overview-background-image")).logicalName()==QStringLiteral("assets/red.png"),"overview image defaults to patchbay inheritance");
+                check(overview->grab().toImage().pixelColor(1,1)==QColor("#f02030"),"overview renders inherited patchbay background");
+                check(core.setOverride(QStringLiteral("--wjn-theme-mixer-overview-background-image"),QStringLiteral("url(\"assets/green.png\")"),theme,&error),"overview can select its own background image");waitFrame();
+                check(overview->grab().toImage().pixelColor(1,1)==QColor("#20e040")
+                    &&core.snapshot()->resource(QStringLiteral("--wjn-theme-patchbay-background-image")).logicalName()==QStringLiteral("assets/red.png"),"independent overview background does not change patchbay");
+                core.setOverride(QStringLiteral("--wjn-theme-mixer-overview-background-component-opacity"),QStringLiteral("0.5"));waitFrame();
+                auto* card=overview->findChild<QWidget*>(QStringLiteral("overviewCard0"));
+                auto* opacity=card?qobject_cast<QGraphicsOpacityEffect*>(card->graphicsEffect()):nullptr;
+                check(opacity&&opacity->opacity()==.5,"overview background component opacity applies to whole row");
+                core.setOverride(QStringLiteral("--wjn-theme-mixer-overview-background-component-opacity"),QStringLiteral("1"));
+                core.setOverride(QStringLiteral("--wjn-theme-mixer-overview-background-image"),QStringLiteral("none"));waitFrame();
+                check(overview->grab().toImage().pixelColor(1,1)==QColor("#07131f"),"overview can explicitly disable inherited image");
                 QDir().mkpath(QStringLiteral("tests/preview/PrePush"));overview->grab().save(QStringLiteral("tests/preview/PrePush/mixer-overview.png"));
                 for(auto* action:mixer.menuBar()->actions())if(action->menu())
                     for(auto* item:action->menu()->actions())if(item->text()==QStringLiteral("添加AUX通道")&&item->menu())

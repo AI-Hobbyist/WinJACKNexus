@@ -2103,9 +2103,8 @@ public:
     void updateOverview()
     {
         if (!overviewWindow) return;
-        const auto background=Controls::themeTokenColor(QStringLiteral("mixer"),QStringLiteral("surface-empty"),QColor("#07131f")).name();
-        const auto windowStyle=QStringLiteral("#mixerChannelOverview {background:%1;}").arg(background);
-        if(overviewWindow->styleSheet()!=windowStyle)overviewWindow->setStyleSheet(windowStyle);
+        overviewWindow->update();
+        const auto componentOpacity=ThemeBackground::componentOpacity(QStringLiteral("mixer-overview"));
         std::array<std::vector<OverviewChannel>,3> groups;
         for (int index=0;index<masterIndex();++index) {
             const auto& channel=channels[index];
@@ -2117,6 +2116,14 @@ public:
         for(int group=0;group<3;++group) {
             if(overviewRows[group])overviewRows[group]->setChannels(std::move(groups[group]));
             const QString kind=group==0?QStringLiteral("input"):group==1?QStringLiteral("aux"):QStringLiteral("submix");
+            if(overviewScrollBars[group]) {
+                Controls::Palette colors;
+                colors.panel=Controls::themeTokenColor(QStringLiteral("mixer"),QStringLiteral("control-scrollbar-track"),QColor("#101c29"));
+                colors.accent=Controls::themeTokenColor(QStringLiteral("mixer"),QStringLiteral("control-scrollbar-%1-thumb").arg(kind),QColor(group==0?"#45bfff":group==1?"#8f78ff":"#37d879"));
+                colors.accent.setAlpha(210);colors.border=Qt::transparent;
+                colors.text=Controls::themeTokenColor(QStringLiteral("mixer"),QStringLiteral("text-muted"),QColor("#a9bbd7"));
+                Controls::applyPalette(overviewScrollBars[group],colors);
+            }
             const auto color=[&](const QString& role,const QColor& fallback){return Controls::themeTokenColor(QStringLiteral("mixer"),role,fallback).name();};
             const auto prefix=QStringLiteral("overview-title-%1-").arg(kind);
             const auto titleStyle=QStringLiteral("background:%1;color:%2;border:1px solid %3;border-radius:5px;padding:3px 10px;")
@@ -2127,6 +2134,13 @@ public:
             const auto cardStyle=QStringLiteral("QWidget#overviewCard%1 {background:%2;border:1px solid %3;border-radius:6px;}")
                 .arg(group).arg(color(QStringLiteral("overview-card-surface"),QColor("#0b1a2b")),color(QStringLiteral("overview-card-border"),QColor("#29435d")));
             if(overviewCards[group]&&overviewCards[group]->styleSheet()!=cardStyle)overviewCards[group]->setStyleSheet(cardStyle);
+            if(overviewCards[group]) {
+                if(componentOpacity<1) {
+                    auto* effect=qobject_cast<QGraphicsOpacityEffect*>(overviewCards[group]->graphicsEffect());
+                    if(!effect) {effect=new QGraphicsOpacityEffect(overviewCards[group]);overviewCards[group]->setGraphicsEffect(effect);}
+                    effect->setOpacity(componentOpacity);
+                } else if(overviewCards[group]->graphicsEffect())overviewCards[group]->setGraphicsEffect(nullptr);
+            }
         }
     }
 
@@ -2152,7 +2166,7 @@ public:
     void showOverview()
     {
         if(!overviewWindow) {
-            overviewWindow=new QWidget(&owner,Qt::Window);
+            overviewWindow=new MixerOverviewScreen(&owner);
             overviewWindow->setAttribute(Qt::WA_DeleteOnClose);
             overviewWindow->setObjectName(QStringLiteral("mixerChannelOverview"));
             overviewWindow->setWindowTitle(QStringLiteral("通道总览"));
@@ -2168,7 +2182,9 @@ public:
                 overviewTitles[group]=title;cardLayout->addWidget(title);
                 auto* scroll=new Controls::ScrollField(card);scroll->setWidgetResizable(true);
                 scroll->setFrameShape(QFrame::NoFrame);
-                scroll->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);scroll->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+                scroll->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);scroll->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+                overviewScrollBars[group]=scroll->horizontalScrollBar();overviewScrollBars[group]->setFixedHeight(10);
+                overviewScrollBars[group]->setObjectName(QStringLiteral("overviewScrollBar%1").arg(group));
                 auto* row=new MixerOverviewRow(group,scroll);overviewRows[group]=row;
                 row->selected=[this](std::uint32_t id){selectFromOverview(id);};
                 row->faderChanged=[this](std::uint32_t id,qreal value) {
@@ -2178,6 +2194,7 @@ public:
                 };
                 scroll->setWidget(row);cardLayout->addWidget(scroll,1);layout->addWidget(card,1);
             }
+            new ThemeBackgroundOverlay(QStringLiteral("mixer-overview"),overviewWindow);
         }
         updateOverview();overviewWindow->show();overviewWindow->raise();overviewWindow->activateWindow();
     }
@@ -2731,6 +2748,7 @@ public:
     std::array<QPointer<MixerOverviewRow>,3> overviewRows;
     std::array<QPointer<QLabel>,3> overviewTitles;
     std::array<QPointer<QWidget>,3> overviewCards;
+    std::array<QPointer<QScrollBar>,3> overviewScrollBars;
     std::array<qreal,3> overviewScrollAnchors {};
     QPointer<AuxSettingsWindow> subSettingsWindow;
     QString subViewSignature;

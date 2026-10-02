@@ -144,7 +144,7 @@ ThemeManagementDialog::ThemeManagementDialog(ThemeCore& core, QWidget* parent)
     auto* backgroundForm = new QFormLayout(backgrounds);
     view_->backgroundScope = new C::ChoiceField(backgrounds);
     view_->backgroundScope->setObjectName(QStringLiteral("theme.backgroundScope"));
-    const QStringList scopes {QStringLiteral("patchbay"), QStringLiteral("mixer"),
+    const QStringList scopes {QStringLiteral("patchbay"), QStringLiteral("mixer"), QStringLiteral("mixer-overview"),
         QStringLiteral("sel-main"), QStringLiteral("sel-aux"), QStringLiteral("sel-fx"),
         QStringLiteral("meter-bridge")};
     for (const auto& scope : scopes) view_->backgroundScope->addItem(scope, scope);

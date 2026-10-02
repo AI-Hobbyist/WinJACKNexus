@@ -13,6 +13,21 @@ struct OverviewChannel final {
     bool selected {};
 };
 
+class MixerOverviewScreen final : public QWidget {
+public:
+    explicit MixerOverviewScreen(QWidget* parent) : QWidget(parent,Qt::Window) {
+        setAttribute(Qt::WA_OpaquePaintEvent);
+        if(auto* core=ThemeManager::installedThemeCore())
+            connect(core,&ThemeCore::themeChanged,this,[this]{update();});
+    }
+protected:
+    void paintEvent(QPaintEvent*) override {
+        QPainter painter(this);
+        painter.fillRect(rect(),Controls::themeTokenColor(QStringLiteral("mixer"),QStringLiteral("surface-empty"),QColor("#07131f")));
+        ThemeBackground::paint(painter,rect(),QStringLiteral("mixer-overview"));
+    }
+};
+
 class MixerOverviewRow final : public QWidget {
 public:
     MixerOverviewRow(int group, QWidget* parent) : QWidget(parent), group_(group) {
