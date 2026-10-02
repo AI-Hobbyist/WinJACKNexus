@@ -16,6 +16,7 @@
 #include "FxChainPresetRegression.hpp"
 #include <WinJACKNexus/UI/ThemeManager.hpp>
 #include <WinJACKNexus/UI/ThemeCore.hpp>
+#include <WinJACKNexus/UI/ThemeCatalog.hpp>
 #include <WinJACKNexus/UI/MixerWindow.hpp>
 #include <QFontDatabase>
 #include <QFontInfo>
@@ -37,6 +38,7 @@
 #include <QAction>
 #include <QApplication>
 #include <QDialog>
+#include <QDockWidget>
 #include <QDir>
 #include <QFile>
 #include <QFileDialog>
@@ -59,6 +61,7 @@
 #include <QTreeWidget>
 
 #include <cstdio>
+#include <thread>
 
 extern "C" int wjn_patchbay_show_digital_mixer(void);
 extern "C" int wjn_patchbay_show_digital_mixer_view(int view);
@@ -68,6 +71,88 @@ int failures = 0;
 void check(bool condition, const char* description)
 {
     if (!condition) { std::fprintf(stderr, "FAIL: %s\n", description); ++failures; }
+}
+
+void verifyRestoredThemeStartup(QApplication& application)
+{
+    using namespace WinJACKNexus::UI;
+    const auto previousStyle=application.styleSheet();
+    const auto previousFont=application.font();
+    QTemporaryDir fixture;
+    const auto settingsPath=fixture.filePath(QStringLiteral("startup.ini"));
+    const auto themesPath=fixture.filePath(QStringLiteral("themes"));
+    QDir().mkpath(themesPath);
+    ThemePackage package;
+    QString error;
+    const QJsonObject metadata {{"formatVersion",1},{"themeApiVersion",1},
+        {"id","org.winjacknexus-startup-regression"},{"name","Startup regression"},
+        {"version","1.0.0"},{"author","Tests"},{"description","Saved theme startup"},
+        {"homepage",""},{"kind","full"},{"namespaces",QJsonArray{"--wjn-theme-global-"}}};
+    check(ThemePackage::create(metadata,
+        ":root { --wjn-theme-global-surface-window: #312b48;"
+        " --wjn-theme-global-surface-panel: #243651;"
+        " --wjn-theme-global-surface-raised: #493758;"
+        " --wjn-theme-global-accent-primary: #ce9248; }",{},&package,&error)
+        &&package.saveToFile(QDir(themesPath).filePath(QStringLiteral("selected.wjnskin")),&error),
+        "save custom startup theme fixture");
+    {
+        ThemeCore selecting;
+        QSettings settings(settingsPath,QSettings::IniFormat);
+        ThemeCatalog catalog(selecting,settings,themesPath);
+        check(catalog.refresh(&error)&&catalog.activate(package.id(),&error),"persist selected startup theme");
+    }
+    std::unique_ptr<ThemeCore> restored;
+    std::unique_ptr<QSettings> settings;
+    std::unique_ptr<ThemeCatalog> catalog;
+    bool loaded=false;
+    auto* guiThread=application.thread();
+    std::thread worker([&] {
+        restored=std::make_unique<ThemeCore>();
+        settings=std::make_unique<QSettings>(settingsPath,QSettings::IniFormat);
+        catalog=std::make_unique<ThemeCatalog>(*restored,*settings,themesPath);
+        loaded=catalog->restoreSaved(&error);
+        catalog->moveToThread(guiThread);restored->moveToThread(guiThread);settings->moveToThread(guiThread);
+    });
+    worker.join();
+    check(loaded&&restored->snapshot()->themeId()==package.id(),"background startup restores saved selected theme");
+    ThemeManager::installThemeCore(restored.get());
+    {
+        ThemeManager manager;
+        manager.watchApplication(&application);
+        const auto savedStyle=application.styleSheet();
+        check(savedStyle.contains(QStringLiteral("#243651")),"startup applies selected palette before patchbay opens");
+        auto* host=wjn_create_node(0);
+        check(host&&host->init(),"create offline host after asynchronous theme restore");
+        if(host) {
+            const auto handle=host->createWindow(nullptr);
+            auto* window=qobject_cast<QMainWindow*>(QWidget::find(reinterpret_cast<WId>(handle)));
+            check(window&&application.styleSheet()==savedStyle,"patchbay startup preserves restored application stylesheet");
+            if(window) {
+                auto* sidebar=window->findChild<QDockWidget*>(QStringLiteral("patchbay.nodeLibrary"));
+                check(sidebar!=nullptr,"startup regression uses actual patchbay sidebar");
+                if(sidebar) {
+                    Controls::ActionButton button(QStringLiteral("Startup button"),sidebar->widget());
+                    Controls::ChoiceField choice(sidebar->widget());choice.addItem(QStringLiteral("Startup choice"));
+                    button.setGeometry(8,80,140,34);choice.setGeometry(8,120,140,34);
+                    button.show();choice.show();application.processEvents();
+                    const auto buttonBefore=button.grab().toImage();const auto choiceBefore=choice.grab().toImage();
+                    const auto sidebarStyle=sidebar->styleSheet();
+                    const auto parentStyle=sidebar->widget()->styleSheet();
+                    restored->restoreDefault();check(restored->setFullTheme(package,&error),"reapply selected theme for startup comparison");
+                    application.processEvents();
+                    check(application.styleSheet()==savedStyle&&sidebar->styleSheet()==sidebarStyle
+                        &&sidebar->widget()->styleSheet()==parentStyle,"sidebar theme is identical before and after manual theme switch");
+                    check(button.grab().toImage()==buttonBefore,"startup sidebar button renders selected theme without reselecting");
+                    check(choice.grab().toImage()==choiceBefore,"startup sidebar dropdown renders selected theme without reselecting");
+                    QDir().mkpath(QStringLiteral("tests/preview/PrePush"));
+                    window->grab().save(QStringLiteral("tests/preview/PrePush/restored-theme-patchbay.png"));
+                }
+            }
+            host->shutdown();wjn_destroy_node(host);
+        }
+    }
+    ThemeManager::installThemeCore(nullptr);
+    application.setStyleSheet(previousStyle);application.setFont(previousFont);
 }
 
 QAction* actionNamed(QMenu* menu, const QString& text)
@@ -626,6 +711,7 @@ int main(int argc, char** argv)
 
     verifyMixerLayout(application, check);
     verifyFxChainPresets(application, check);
+    verifyRestoredThemeStartup(application);
     auto* host = wjn_create_node(0);
     check(host && host->init(), "create patchbay host without a JACK client");
     if (!host) return 1;
@@ -635,8 +721,8 @@ int main(int argc, char** argv)
     if (!window) { host->shutdown(); wjn_destroy_node(host); return 1; }
     application.processEvents();
     {
-        // The patchbay installs its QApplication QSS after the global font manager.
-        // Check the resulting polished mixer, not just the earlier application font.
+        // Check the polished mixer after actual patchbay construction, including
+        // the standalone legacy stylesheet fallback when no process core exists.
         const auto systemFont = QFontDatabase::systemFont(QFontDatabase::GeneralFont);
         WinJACKNexus::UI::MixerWindow mixer;
         mixer.ensurePolished();

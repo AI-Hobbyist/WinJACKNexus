@@ -2186,7 +2186,11 @@ void PatchbayCanvas::applyTheme(bool light)
     for (const auto& name : { QStringLiteral("window"), QStringLiteral("toolbar"), QStringLiteral("text"), QStringLiteral("button-hover"), QStringLiteral("toolbar-border"), QStringLiteral("button-border") })
         applicationStyle.replace(QLatin1Char('$') + name.toUpper().replace(QLatin1Char('-'), QLatin1Char('_')),
                                  themeValue(content, prefix + QLatin1Char('.') + name));
-    qApp->setStyleSheet(applicationStyle);
+    // The host restores its theme before constructing the patchbay. Keep that
+    // application stylesheet; legacy light/dark QSS is only a standalone fallback.
+    if (auto* core = WinJACKNexus::UI::ThemeManager::installedThemeCore();
+        !core || !core->isValid())
+        qApp->setStyleSheet(applicationStyle);
 
     for (const auto* widget : qApp->topLevelWidgets()) {
         for (auto* view : widget->findChildren<QGraphicsView*>())
