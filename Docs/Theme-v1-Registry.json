@@ -6704,6 +6704,94 @@
       "default": "#ffe15a",
       "inherits": [],
       "description": "sel-main / control afl accent"
+    },
+    {
+      "name": "--wjn-theme-mixer-overview-card-surface",
+      "ownerScope": "mixer",
+      "type": "color",
+      "default": "#0b1a2b",
+      "inherits": [],
+      "description": "mixer / overview card surface"
+    },
+    {
+      "name": "--wjn-theme-mixer-overview-card-border",
+      "ownerScope": "mixer",
+      "type": "color",
+      "default": "#29435d",
+      "inherits": [],
+      "description": "mixer / overview card border"
+    },
+    {
+      "name": "--wjn-theme-mixer-overview-title-input-surface",
+      "ownerScope": "mixer",
+      "type": "color",
+      "default": "#123d62",
+      "inherits": [],
+      "description": "mixer / overview title input surface"
+    },
+    {
+      "name": "--wjn-theme-mixer-overview-title-input-text",
+      "ownerScope": "mixer",
+      "type": "color",
+      "default": "#e9f2ff",
+      "inherits": [],
+      "description": "mixer / overview title input text"
+    },
+    {
+      "name": "--wjn-theme-mixer-overview-title-input-border",
+      "ownerScope": "mixer",
+      "type": "color",
+      "default": "#33b6ff",
+      "inherits": [],
+      "description": "mixer / overview title input border"
+    },
+    {
+      "name": "--wjn-theme-mixer-overview-title-aux-surface",
+      "ownerScope": "mixer",
+      "type": "color",
+      "default": "#312951",
+      "inherits": [],
+      "description": "mixer / overview title aux surface"
+    },
+    {
+      "name": "--wjn-theme-mixer-overview-title-aux-text",
+      "ownerScope": "mixer",
+      "type": "color",
+      "default": "#e9f2ff",
+      "inherits": [],
+      "description": "mixer / overview title aux text"
+    },
+    {
+      "name": "--wjn-theme-mixer-overview-title-aux-border",
+      "ownerScope": "mixer",
+      "type": "color",
+      "default": "#8f78ff",
+      "inherits": [],
+      "description": "mixer / overview title aux border"
+    },
+    {
+      "name": "--wjn-theme-mixer-overview-title-submix-surface",
+      "ownerScope": "mixer",
+      "type": "color",
+      "default": "#124932",
+      "inherits": [],
+      "description": "mixer / overview title submix surface"
+    },
+    {
+      "name": "--wjn-theme-mixer-overview-title-submix-text",
+      "ownerScope": "mixer",
+      "type": "color",
+      "default": "#e9f2ff",
+      "inherits": [],
+      "description": "mixer / overview title submix text"
+    },
+    {
+      "name": "--wjn-theme-mixer-overview-title-submix-border",
+      "ownerScope": "mixer",
+      "type": "color",
+      "default": "#37d879",
+      "inherits": [],
+      "description": "mixer / overview title submix border"
     }
   ]
 }

@@ -146,4 +146,26 @@
   --wjn-theme-mixer-control-scrollbar-submix-thumb: #37d879;
   /* mixer / resize-submix-handle; type=color */
   --wjn-theme-mixer-resize-submix-handle: #6d8fac;
+  /* mixer / overview-card-surface; type=color */
+  --wjn-theme-mixer-overview-card-surface: #0b1a2b;
+  /* mixer / overview-card-border; type=color */
+  --wjn-theme-mixer-overview-card-border: #29435d;
+  /* mixer / overview-title-input-surface; type=color */
+  --wjn-theme-mixer-overview-title-input-surface: #123d62;
+  /* mixer / overview-title-input-text; type=color */
+  --wjn-theme-mixer-overview-title-input-text: #e9f2ff;
+  /* mixer / overview-title-input-border; type=color */
+  --wjn-theme-mixer-overview-title-input-border: #33b6ff;
+  /* mixer / overview-title-aux-surface; type=color */
+  --wjn-theme-mixer-overview-title-aux-surface: #312951;
+  /* mixer / overview-title-aux-text; type=color */
+  --wjn-theme-mixer-overview-title-aux-text: #e9f2ff;
+  /* mixer / overview-title-aux-border; type=color */
+  --wjn-theme-mixer-overview-title-aux-border: #8f78ff;
+  /* mixer / overview-title-submix-surface; type=color */
+  --wjn-theme-mixer-overview-title-submix-surface: #124932;
+  /* mixer / overview-title-submix-text; type=color */
+  --wjn-theme-mixer-overview-title-submix-text: #e9f2ff;
+  /* mixer / overview-title-submix-border; type=color */
+  --wjn-theme-mixer-overview-title-submix-border: #37d879;
 }

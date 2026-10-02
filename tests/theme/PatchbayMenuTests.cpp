@@ -8,6 +8,7 @@
 #include "StandardChannelNamesRegression.hpp"
 #include "HiddenSelChannelsRegression.hpp"
 #include "SubMixRegression.hpp"
+#include "MixerOverviewRegression.hpp"
 #include "PolarMixRegression.hpp"
 #include "AuxPolarSwitchRegression.hpp"
 #include "MeterbridgeOpenRegression.hpp"
@@ -372,7 +373,7 @@ int main(int argc, char** argv)
         WinJACKNexus::UI::MixerWindow mixer(&state, [&state](const auto& next, QString*) { state = next; return true; });
         mixer.show();
         for (auto* action : mixer.menuBar()->actions())
-            if (action->text() == QStringLiteral("查看大屏")) action->trigger();
+            if (action->text() == QStringLiteral("查看大屏") && action->menu()) action->menu()->actions().front()->trigger();
         auto* tab = mixer.findChild<QPushButton*>(QStringLiteral("selTabAUX"));
         check(tab != nullptr, "open actual mixer AUX tab for route naming");
         if (tab) tab->click();
@@ -525,7 +526,7 @@ int main(int argc, char** argv)
             [&](std::uint64_t id,bool,std::size_t channel){if(id==source&&channel<8)++channelReads;return channel==0?.5F:0.F;});
         mixer.show();
         for(auto* action:mixer.menuBar()->actions())
-            if(action->text()==QStringLiteral("查看大屏"))action->trigger();
+            if(action->text()==QStringLiteral("查看大屏") && action->menu())action->menu()->actions().front()->trigger();
         if(auto* tab=mixer.findChild<QPushButton*>(QStringLiteral("selTabAUX")))tab->click();
         const auto before=channelReads;
         QEventLoop refresh;
@@ -569,6 +570,7 @@ int main(int argc, char** argv)
         }
     }
     verifySubMix(check);
+    verifyMixerOverview(check);
     verifyHiddenSelChannels(check);
     verifyStandardChannelNames(check);
     verifyPreMixPolar(check);

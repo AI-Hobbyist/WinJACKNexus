@@ -1141,6 +1141,8 @@ qreal meterDbValue(float peak)
     return peak <= 0.0F ? -72.0 : std::clamp(20.0 * std::log10(peak), -72.0, 12.0);
 }
 
+#include "MixerOverview.hpp"
+
 }
 
 class MixerWindow::Impl {
@@ -1260,6 +1262,7 @@ public:
             }
             if(sampleMeterReadouts) meterReadoutClock.start();
             this->owner.update();
+            if (overviewWindow && overviewWindow->isVisible()) updateOverview();
             if (selMain && selMain->isVisible()) {
                 if(sampleMeterReadouts) {
                     const auto selected=std::find_if(channels.cbegin(),channels.cend(),[this](const Channel& item) {
@@ -2097,6 +2100,88 @@ public:
         owner.update();
     }
 
+    void updateOverview()
+    {
+        if (!overviewWindow) return;
+        const auto background=Controls::themeTokenColor(QStringLiteral("mixer"),QStringLiteral("surface-empty"),QColor("#07131f")).name();
+        const auto windowStyle=QStringLiteral("#mixerChannelOverview {background:%1;}").arg(background);
+        if(overviewWindow->styleSheet()!=windowStyle)overviewWindow->setStyleSheet(windowStyle);
+        std::array<std::vector<OverviewChannel>,3> groups;
+        for (int index=0;index<masterIndex();++index) {
+            const auto& channel=channels[index];
+            const int group=index<inputChannelCount?0:channel.subMix?2:1;
+            groups[group].push_back({channel.id,channel.modelId,channel.name,channel.accent,
+                channel.fader,channel.meterBallistics.levelDb(),channel.meterBallistics.peakDb(),
+                channel.id==selectedChannelId});
+        }
+        for(int group=0;group<3;++group) {
+            if(overviewRows[group])overviewRows[group]->setChannels(std::move(groups[group]));
+            const QString kind=group==0?QStringLiteral("input"):group==1?QStringLiteral("aux"):QStringLiteral("submix");
+            const auto color=[&](const QString& role,const QColor& fallback){return Controls::themeTokenColor(QStringLiteral("mixer"),role,fallback).name();};
+            const auto prefix=QStringLiteral("overview-title-%1-").arg(kind);
+            const auto titleStyle=QStringLiteral("background:%1;color:%2;border:1px solid %3;border-radius:5px;padding:3px 10px;")
+                .arg(color(prefix+QStringLiteral("surface"),QColor(group==0?"#123d62":group==1?"#312951":"#124932")),
+                     color(prefix+QStringLiteral("text"),QColor("#e9f2ff")),
+                     color(prefix+QStringLiteral("border"),QColor(group==0?"#33b6ff":group==1?"#8f78ff":"#37d879")));
+            if(overviewTitles[group]&&overviewTitles[group]->styleSheet()!=titleStyle)overviewTitles[group]->setStyleSheet(titleStyle);
+            const auto cardStyle=QStringLiteral("QWidget#overviewCard%1 {background:%2;border:1px solid %3;border-radius:6px;}")
+                .arg(group).arg(color(QStringLiteral("overview-card-surface"),QColor("#0b1a2b")),color(QStringLiteral("overview-card-border"),QColor("#29435d")));
+            if(overviewCards[group]&&overviewCards[group]->styleSheet()!=cardStyle)overviewCards[group]->setStyleSheet(cardStyle);
+        }
+    }
+
+    void selectFromOverview(std::uint32_t id)
+    {
+        const auto found=std::find_if(channels.begin(),channels.end(),[id](const auto& channel){return channel.id==id;});
+        if(found==channels.end())return;
+        const int index=static_cast<int>(std::distance(channels.begin(),found));
+        const int group=index<inputChannelCount?0:found->subMix?2:1;
+        const int first=group==0?0:group==1?inputChannelCount:subMixStart();
+        const qreal offset=(index-first)*channelWidth;
+        overviewScrollAnchors[group]=offset;
+        if(group==0)inputScrollOffset=offset;
+        else if(group==1)auxScrollOffset=offset;
+        else subMixScrollOffset=offset;
+        selectChannel(index);
+        showLargeScreen();
+        updateOverview();
+        owner.setProperty("mixerFocusedStripId",QVariant::fromValue<qulonglong>(found->modelId));
+        owner.setProperty("mixerFocusLeadingOffset",channelRect(index).left()-viewportForChannel(index).left());
+    }
+
+    void showOverview()
+    {
+        if(!overviewWindow) {
+            overviewWindow=new QWidget(&owner,Qt::Window);
+            overviewWindow->setAttribute(Qt::WA_DeleteOnClose);
+            overviewWindow->setObjectName(QStringLiteral("mixerChannelOverview"));
+            overviewWindow->setWindowTitle(QStringLiteral("通道总览"));
+            overviewWindow->resize(1100,800);overviewWindow->setMinimumSize(480,680);
+            auto* layout=new QVBoxLayout(overviewWindow);layout->setContentsMargins(8,8,8,8);layout->setSpacing(8);
+            for(int group=0;group<3;++group) {
+                auto* card=new QWidget(overviewWindow);overviewCards[group]=card;
+                card->setObjectName(QStringLiteral("overviewCard%1").arg(group));
+                auto* cardLayout=new QVBoxLayout(card);cardLayout->setContentsMargins(6,6,6,6);cardLayout->setSpacing(4);
+                auto* title=new Controls::TextLabel(group==0?QStringLiteral("Inputs"):group==1?QStringLiteral("AUX"):QStringLiteral("Sub Mix"),card);
+                title->setObjectName(QStringLiteral("overviewTitle%1").arg(group));title->setFixedHeight(28);
+                auto font=title->font();font.setPixelSize(15);font.setBold(true);title->setFont(font);
+                overviewTitles[group]=title;cardLayout->addWidget(title);
+                auto* scroll=new Controls::ScrollField(card);scroll->setWidgetResizable(true);
+                scroll->setFrameShape(QFrame::NoFrame);
+                scroll->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);scroll->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+                auto* row=new MixerOverviewRow(group,scroll);overviewRows[group]=row;
+                row->selected=[this](std::uint32_t id){selectFromOverview(id);};
+                row->faderChanged=[this](std::uint32_t id,qreal value) {
+                    const auto found=std::find_if(channels.begin(),channels.end(),[id](const auto& channel){return channel.id==id;});
+                    if(found==channels.end())return;
+                    found->fader=value;commitChannel(*found);updateSel();owner.update();updateOverview();
+                };
+                scroll->setWidget(row);cardLayout->addWidget(scroll,1);layout->addWidget(card,1);
+            }
+        }
+        updateOverview();overviewWindow->show();overviewWindow->raise();overviewWindow->activateWindow();
+    }
+
     void showLargeScreen()
     {
         if (!selWindow) {
@@ -2472,12 +2557,14 @@ public:
 
     qreal maximumInputScrollOffset() const
     {
-        return std::max(0.0, inputChannelCount * channelWidth - inputViewport().width());
+        return std::max({0.0, inputChannelCount * channelWidth - inputViewport().width(),
+            std::min(overviewScrollAnchors[0],std::max(0,inputChannelCount-1)*channelWidth)});
     }
 
     qreal maximumAuxScrollOffset() const
     {
-        return std::max(0.0, auxChannelCount() * channelWidth - auxViewport().width());
+        return std::max({0.0, auxChannelCount() * channelWidth - auxViewport().width(),
+            std::min(overviewScrollAnchors[1],std::max(0,auxChannelCount()-1)*channelWidth)});
     }
 
     qreal effectiveInputScrollOffset() const
@@ -2492,7 +2579,8 @@ public:
 
     qreal maximumSubMixScrollOffset() const
     {
-        return std::max(0.0,subMixCount()*channelWidth-subMixViewport().width());
+        return std::max({0.0,subMixCount()*channelWidth-subMixViewport().width(),
+            std::min(overviewScrollAnchors[2],std::max(0,subMixCount()-1)*channelWidth)});
     }
     qreal effectiveSubMixScrollOffset() const {return std::clamp(subMixScrollOffset,0.0,maximumSubMixScrollOffset());}
     qreal maximumGroupScroll(int group) const {return group==0?maximumInputScrollOffset():group==1?maximumAuxScrollOffset():maximumSubMixScrollOffset();}
@@ -2639,6 +2727,11 @@ public:
     int polarStaleTicks {};
     std::shared_ptr<Common::AuxMixerState> auxState { std::make_shared<Common::AuxMixerState>() };
     QPointer<AuxSettingsWindow> auxSettingsWindow;
+    QPointer<QWidget> overviewWindow;
+    std::array<QPointer<MixerOverviewRow>,3> overviewRows;
+    std::array<QPointer<QLabel>,3> overviewTitles;
+    std::array<QPointer<QWidget>,3> overviewCards;
+    std::array<qreal,3> overviewScrollAnchors {};
     QPointer<AuxSettingsWindow> subSettingsWindow;
     QString subViewSignature;
     std::shared_ptr<Common::AuxMixerState> subState = std::make_shared<Common::AuxMixerState>();
@@ -2774,8 +2867,11 @@ MixerWindow::MixerWindow(Common::DigitalMixerState* state, TopologyCommit commit
         }
         update();
     });
-    connect(menuBar->addAction(QStringLiteral("查看大屏")), &QAction::triggered, this,
+    auto* largeScreenMenu=menuBar->addMenu(QStringLiteral("查看大屏"));
+    connect(largeScreenMenu->addAction(QStringLiteral("选中通道")), &QAction::triggered, this,
             [this] { impl_->showLargeScreen(); });
+    connect(largeScreenMenu->addAction(QStringLiteral("通道总览")), &QAction::triggered, this,
+            [this] { impl_->showOverview(); });
 }
 
 MixerWindow::~MixerWindow()

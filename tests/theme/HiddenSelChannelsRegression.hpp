@@ -54,7 +54,7 @@ template<class Check> void verifyHiddenSelChannels(Check check)
         model.add(Common::MixerStripKind::input,layout);
         UI::MixerWindow mixer(&model,[&](const auto& value,QString*) {model=value;return true;});
         for(auto* action:mixer.menuBar()->actions())
-            if(action->text()==QStringLiteral("查看大屏")) action->trigger();
+            if(action->text()==QStringLiteral("查看大屏")&&action->menu()) action->menu()->actions().front()->trigger();
         auto* page=mixer.findChild<QWidget*>(QStringLiteral("selMainPage"));
         check(page!=nullptr,"MAIN SEL page exists");
         if(!page) continue;
