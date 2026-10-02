@@ -408,6 +408,7 @@ public:
     std::function<void(bool)> chainEnabledHandler;
     std::function<bool(bool)> chainCommitHandler;
     bool chainEnabled {};
+    bool subMixMode {};
     bool threeD {};
     Common::AuxChannelLayout sourceLayout { Common::AuxChannelLayout::stereo };
     QTimer meterTimer;
@@ -449,6 +450,13 @@ AuxSettingsWindow::AuxSettingsWindow(std::shared_ptr<Common::AuxMixerState> stat
 
 AuxSettingsWindow::~AuxSettingsWindow() = default;
 
+void AuxSettingsWindow::setSubMixMode(bool enabled)
+{
+    impl_->subMixMode = enabled;
+    if (enabled) impl_->chainEnabled = true;
+    update();
+}
+
 void AuxSettingsWindow::setSource(const QString& sourceKey, const QString& sourceName,
                                   std::uint32_t selfAuxId, Common::AuxChannelLayout layout,
                                   const QString& sourceNumber)
@@ -462,6 +470,7 @@ void AuxSettingsWindow::setSource(const QString& sourceKey, const QString& sourc
     const auto& buses = impl_->buses();
     for (const auto& bus : buses)
         impl_->state->setLayouts(sourceKey, bus.id, layout, bus.targetLayout, selfAuxId);
+    if (impl_->subMixMode) for (auto& bus : impl_->buses()) bus.preFader = false;
     const auto visible = impl_->visibleBusIndices();
     impl_->selectedId = visible.empty() ? 0 : buses[visible.front()].id;
     impl_->selectedPoint = 0;
@@ -594,8 +603,9 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
          themed("control-knob-track",QColor("#254762"))});
 
     panel(painter, impl_->leftPanel(), themed("border-panel",QColor("#2b4662")));
-    text(painter, impl_->scaled(26, 12, 172, 38), impl_->sourceName + QStringLiteral(" · AUX"), label, 18 * sy,
+    text(painter, impl_->scaled(26, 12, 172, 38), impl_->sourceName + (impl_->subMixMode ? QStringLiteral(" · Sub Mix") : QStringLiteral(" · AUX")), label, 18 * sy,
          Qt::AlignLeft | Qt::AlignVCenter, true);
+    if (!impl_->subMixMode) {
     toggle(painter, impl_->masterToggle(), impl_->chainEnabled);
     Controls::drawSurface(painter,impl_->addButton(),
         themed("control-add-surface",QColor("#073158")),
@@ -607,6 +617,7 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
         themed("control-remove-border",QColor("#0b699d")),6);
     text(painter, impl_->removeButton(), QStringLiteral("−"), label, 21 * sy, Qt::AlignCenter, true);
 
+    }
     painter.save();
     painter.setClipRect(impl_->listViewport());
     const auto visibleBuses = impl_->visibleBusIndices();
@@ -657,11 +668,13 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
         const auto routeActive = themed("control-route-surface-selected",QColor("#087ee4"));
         const auto routeIdle = themed("control-route-surface-normal",QColor("#172d43"));
         const auto routeBorder = themed("control-route-border",QColor("#315370"));
+        if (!impl_->subMixMode) {
         Controls::drawSurface(painter,pre,bus.preFader ? routeActive : routeIdle,routeBorder,5);
         Controls::drawSurface(painter,post,!bus.preFader ? routeActive : routeIdle,routeBorder,5);
         const auto routeText = themed("control-route-text-selected",QColor("#ffffff"));
         text(painter, pre, QStringLiteral("Pre"), bus.preFader ? routeText : secondary, 12 * sy);
         text(painter, post, QStringLiteral("Post"), !bus.preFader ? routeText : secondary, 12 * sy);
+        }
         const auto gear = impl_->listGear(index);
         Controls::drawSurface(painter,gear,
             themed("control-gear-surface",QColor("#142b3e")),routeBorder,5);
@@ -852,7 +865,7 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
 void AuxSettingsWindow::mousePressEvent(QMouseEvent* event)
 {
     const auto position = event->position();
-    if (impl_->masterToggle().contains(position)) {
+    if (!impl_->subMixMode && impl_->masterToggle().contains(position)) {
         const bool next = !impl_->chainEnabled;
         if (impl_->chainCommitHandler && !impl_->chainCommitHandler(next)) return;
         impl_->chainEnabled = next;
@@ -861,7 +874,7 @@ void AuxSettingsWindow::mousePressEvent(QMouseEvent* event)
         update();
         return;
     }
-    if (impl_->addButton().contains(position)) {
+    if (!impl_->subMixMode && impl_->addButton().contains(position)) {
         QMenu menu(this);
         const std::array layouts { Common::AuxChannelLayout::mono, Common::AuxChannelLayout::stereo,
                                    Common::AuxChannelLayout::surround51, Common::AuxChannelLayout::surround71 };
@@ -873,7 +886,7 @@ void AuxSettingsWindow::mousePressEvent(QMouseEvent* event)
         menu.exec(event->globalPosition().toPoint());
         return;
     }
-    if (impl_->removeButton().contains(position)) {
+    if (!impl_->subMixMode && impl_->removeButton().contains(position)) {
         const auto previous = impl_->selectedId;
         if (impl_->state->removeBus(previous, static_cast<bool>(impl_->stateCommit))) {
             impl_->busMeters.erase(previous);
@@ -981,9 +994,9 @@ void AuxSettingsWindow::mousePressEvent(QMouseEvent* event)
         }
         if (impl_->listPowerToggle(index).contains(position) && !bus.selfRoute && impl_->chainEnabled)
             bus.enabled = !bus.enabled;
-        else if (pre.contains(position))
+        else if (!impl_->subMixMode && pre.contains(position))
             bus.preFader = true;
-        else if (post.contains(position))
+        else if (!impl_->subMixMode && post.contains(position))
             bus.preFader = false;
         impl_->changed();
         return;

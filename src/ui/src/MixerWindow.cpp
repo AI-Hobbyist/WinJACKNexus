@@ -30,6 +30,7 @@
 #include <QElapsedTimer>
 #include <QRandomGenerator>
 #include <QTimer>
+#include <QSignalBlocker>
 #include <QWheelEvent>
 
 #include <algorithm>
@@ -51,6 +52,7 @@ struct Channel {
     qreal level;
     qreal target;
     bool aux = false;
+    bool subMix = false;
     bool fx = false;
     bool mute = false;
     bool solo = false;
@@ -388,7 +390,7 @@ public:
             const bool fresh=state.sends.size()!=8;
             const bool wasEligible=Common::auxSupportsClassicPan(state.sourceLayout,state.targetLayout);
             const bool eligible=Common::auxSupportsClassicPan(channel->layout,
-                channel->realMeter ? Common::AuxChannelLayout::stereo : channel->layout);
+                channel->realMeter && !channel->subMix ? Common::AuxChannelLayout::stereo : channel->layout);
             if(fresh || wasEligible!=eligible)
                 state.panMode=eligible?Common::AuxPanMode::classic:Common::AuxPanMode::spatial;
             selectedPoint=std::clamp(selectedPoint,0,std::max(0,static_cast<int>(Common::auxLayoutChannelLabels(channel->layout).size())-1));
@@ -519,7 +521,12 @@ protected:
             themed("control-mute-accent",QColor("#ff4b62")));
         if(!mainOutput)modeToggle({165,407,118,34},QStringLiteral("S"),channel && channel->solo,
             themed("control-solo-accent",QColor("#ffae2d")));
-        text({29, 449, 200, 26}, QStringLiteral("电平表"), 14, ink, true);
+        if(channel && channel->subMix) {
+            modeToggle({29,446,118,28},QStringLiteral("PFL"),channel->listenMode==Common::MixerListenMode::pfl,
+                themed("control-pfl-accent",QColor("#ffe15a")));
+            modeToggle({165,446,118,28},QStringLiteral("AFL"),channel->listenMode==Common::MixerListenMode::afl,
+                themed("control-afl-accent",QColor("#ffe15a")));
+        } else text({29, 449, 200, 26}, QStringLiteral("电平表"), 14, ink, true);
         for(int m=0;m<2;++m) {
             const int x=24+m*138; panel({qreal(x),480,125,318});
             text({qreal(x),488,125,31},m?QStringLiteral("输出"):QStringLiteral("输入"),16,ink,false,Qt::AlignCenter);
@@ -755,6 +762,10 @@ protected:
         }
         else if(QRectF(29,407,channel->number==QStringLiteral("MAIN")?254.0:118.0,34).contains(pt)) channel->mute=!channel->mute;
         else if(channel->number!=QStringLiteral("MAIN")&&QRectF(165,407,118,34).contains(pt)) channel->solo=!channel->solo;
+        else if(channel->subMix&&QRectF(29,446,118,28).contains(pt))
+            channel->listenMode=channel->listenMode==Common::MixerListenMode::pfl?Common::MixerListenMode::off:Common::MixerListenMode::pfl;
+        else if(channel->subMix&&QRectF(165,446,118,28).contains(pt))
+            channel->listenMode=channel->listenMode==Common::MixerListenMode::afl?Common::MixerListenMode::off:Common::MixerListenMode::afl;
         else if(QRectF(330,52,137,34).contains(pt)){if(auto* bus=selectedBus()){bus->panMode=Common::AuxPanMode::spatial;setProperty("selPanMode",static_cast<int>(bus->panMode));}}
         else if(QRectF(477,52,137,34).contains(pt)){if(auto* bus=selectedBus();bus&&Common::auxSupportsClassicPan(bus->sourceLayout,bus->targetLayout)){bus->panMode=Common::AuxPanMode::classic;setProperty("selPanMode",static_cast<int>(bus->panMode));}}
         else if(QRectF(638,52,165,34).contains(pt)){if(auto* bus=selectedBus();bus&&bus->panMode==Common::AuxPanMode::spatial){bus->showPolarCurves=!bus->showPolarCurves;publishPanner();}}
@@ -1292,9 +1303,12 @@ public:
         return static_cast<int>(auxState->buses().size());
     }
 
+    int subMixCount() const { return static_cast<int>(std::count_if(channels.begin(),channels.end(),[](const Channel& channel) {return channel.subMix;})); }
+    int subMixStart() const { return inputChannelCount + auxChannelCount(); }
+
     int masterIndex() const
     {
-        return inputChannelCount + auxChannelCount();
+        return static_cast<int>(channels.size()) - 1;
     }
 
     static Common::AuxChannelLayout asAuxLayout(Common::MixerLayout layout)
@@ -1333,7 +1347,7 @@ public:
         target.showInputCurve = source.showInputCurve;
         target.showOutputCurve = source.showOutputCurve;
         target.sourceLayout = channel.layout;
-        target.targetLayout = Common::AuxChannelLayout::stereo;
+        target.targetLayout = channel.subMix ? channel.layout : Common::AuxChannelLayout::stereo;
         target.adjustablePoints.clear();
         target.pointInfluenceRadii.clear();
         target.sends.resize(8);
@@ -1364,10 +1378,11 @@ public:
     bool moveChannel(int from, int to)
     {
         if (from == to || from < 0 || to < 0 || from >= masterIndex() || to >= masterIndex()
-            || (from < inputChannelCount) != (to < inputChannelCount)) return false;
+            || (from < inputChannelCount) != (to < inputChannelCount)
+            || channels[from].subMix != channels[to].subMix) return false;
         if (model) {
             auto candidate = *model;
-            const auto index = to < inputChannelCount ? to : to - inputChannelCount;
+            const auto index = to < inputChannelCount ? to : channels[to].subMix ? to-subMixStart() : to-inputChannelCount;
             if (!candidate.move(channels[from].modelId, static_cast<std::size_t>(index))
                 || !commitTopology(candidate)) return false;
         }
@@ -1375,7 +1390,7 @@ public:
         const auto last = channels.begin() + std::max(from, to) + 1;
         if (from < to) std::rotate(first, first + 1, last);
         else std::rotate(first, last - 1, last);
-        if (from >= inputChannelCount) {
+        if (from >= inputChannelCount && !channels[to].subMix) {
             auto& buses = auxState->buses();
             const auto busFirst = buses.begin() + std::min(from, to) - inputChannelCount;
             const auto busLast = buses.begin() + std::max(from, to) - inputChannelCount + 1;
@@ -1445,20 +1460,22 @@ public:
         return false;
     }
 
-    bool commitAuxSettings(bool chainEnabled)
+    bool commitAuxSettings(bool chainEnabled, bool subMode = false)
     {
         if (!model) return true;
         auto candidate = *model;
+        auto& routingState = subMode ? subState : auxState;
         std::map<std::uint32_t, std::uint64_t> busIds;
         for (const auto& channel : channels)
-            if (channel.auxId && channel.modelId) busIds[channel.auxId] = channel.modelId;
-        for (const auto& bus : auxState->buses()) {
+            if (channel.modelId && (subMode ? channel.subMix : channel.auxId != 0))
+                busIds[subMode ? channel.id : channel.auxId] = channel.modelId;
+        for (const auto& bus : routingState->buses()) {
             auto id = busIds.find(bus.id);
             if (id == busIds.end()) {
                 const auto source = busIds.find(bus.cloneSourceId);
                 const auto created = source != busIds.end()
                     ? candidate.clone(source->second)
-                    : candidate.add(Common::MixerStripKind::aux, asMixerLayout(bus.targetLayout));
+                    : candidate.add(subMode ? Common::MixerStripKind::subMix : Common::MixerStripKind::aux, asMixerLayout(bus.targetLayout));
                 if (!created) return false;
                 busIds[bus.id] = created;
             } else if (const auto* strip = candidate.strip(id->second);
@@ -1467,18 +1484,18 @@ public:
             }
         }
         for (const auto& [busId, modelId] : busIds) {
-            if (auxState->bus(busId)) continue;
+            if (routingState->bus(busId)) continue;
             if (!candidate.remove(modelId)) return false;
         }
-        const auto source = std::find_if(channels.cbegin(), channels.cend(), [this](const Channel& channel) {
-            return channel.id == auxWindowChannelId;
+        const auto source = std::find_if(channels.cbegin(), channels.cend(), [this,subMode](const Channel& channel) {
+            return channel.id == (subMode ? subWindowChannelId : auxWindowChannelId);
         });
         if (source != channels.cend() && candidate.strip(source->modelId)) {
             auto* sourceStrip = candidate.strip(source->modelId);
-            sourceStrip->auxSendsEnabled = chainEnabled;
-            const auto sourceKey = source->auxId ? QStringLiteral("aux:%1").arg(source->auxId)
+            if (!subMode) sourceStrip->auxSendsEnabled = chainEnabled;
+            const auto sourceKey = subMode ? QStringLiteral("sub:%1").arg(source->id) : source->auxId ? QStringLiteral("aux:%1").arg(source->auxId)
                                                  : QStringLiteral("input:%1").arg(source->id);
-            const auto& sourceBuses = auxState->busesForSource(sourceKey, source->auxId);
+            const auto& sourceBuses = routingState->busesForSource(sourceKey, subMode && source->subMix ? source->id : subMode ? 0 : source->auxId);
             for (const auto& bus : sourceBuses) {
                 const auto target = busIds.find(bus.id);
                 if (target == busIds.end() || target->second == source->modelId) continue;
@@ -1488,7 +1505,7 @@ public:
                 Common::MixerAuxSend send;
                 send.targetId = target->second;
                 send.enabled = chainEnabled && bus.enabled;
-                send.preFader = bus.preFader;
+                send.preFader = !subMode && bus.preFader;
                 send.panner = Common::defaultMixerPanner(asMixerLayout(bus.sourceLayout),
                     asMixerLayout(bus.targetLayout));
                 send.panner.mode = bus.panMode == Common::AuxPanMode::classic
@@ -1520,6 +1537,7 @@ public:
             }
         }
         if (!commitTopology(candidate)) return false;
+        if (subMode) return true;
         rebuildAuxChannels();
         for (auto& channel : channels) {
             if (!channel.auxId) continue;
@@ -1573,6 +1591,7 @@ public:
             channel.fx = strip.fxChainEnabled;
             loadMainPanner(channel, strip);
         }
+        for (const auto& strip : model->subMixes()) insertSubMix(strip);
         auto& master = channels[masterIndex()];
         master.modelId = model->main().id;
         master.realMeter = true;
@@ -1644,6 +1663,8 @@ public:
             channel.layout = bus.targetLayout;
             rebuilt.push_back(std::move(channel));
         }
+
+        for (const auto& channel : channels) if (channel.subMix) rebuilt.push_back(channel);
 
         const auto existingMaster = std::find_if(channels.cbegin(), channels.cend(), [](const auto& channel) {
             return channel.number == QStringLiteral("MAIN");
@@ -1797,6 +1818,45 @@ public:
         owner.update();
     }
 
+    void insertSubMix(const Common::MixerStripState& strip)
+    {
+        Channel channel {strip.name, strip.comment, QStringLiteral("SUB %1").arg(strip.number),
+            strip.color, strip.faderPosition, -72.0, -72.0};
+        channel.id = nextChannelId++;
+        channel.modelId = strip.id;
+        channel.realMeter = model != nullptr;
+        channel.subMix = true;
+        channel.layout = asAuxLayout(strip.layout);
+        channel.inputGainDb = strip.inputGainDb;
+        channel.mute = strip.mute;
+        channel.solo = strip.solo;
+        channel.listenMode = strip.listenMode;
+        channel.mixToMain = strip.mixToMain;
+        channel.fx = strip.fxChainEnabled;
+        loadMainPanner(channel, strip);
+        channels.insert(channels.end()-1,std::move(channel));
+    }
+
+    void addSubMix(Common::AuxChannelLayout layout)
+    {
+        if (model) {
+            auto candidate = *model;
+            const auto id = candidate.add(Common::MixerStripKind::subMix, asMixerLayout(layout));
+            if (!id || !commitTopology(candidate)) return;
+            insertSubMix(*model->strip(id));
+        } else {
+            Common::MixerStripState strip;
+            strip.id = nextChannelId;
+            strip.number = subMixCount()+1;
+            strip.name = QStringLiteral("SUB%1").arg(strip.number);
+            strip.layout = asMixerLayout(layout);
+            strip.color = QColor("#37d879");
+            strip.mainPanner = Common::defaultMixerPanner(strip.layout,strip.layout);
+            insertSubMix(strip);
+        }
+        updateSel(); owner.update();
+    }
+
     void addAux(Common::AuxChannelLayout layout)
     {
         std::uint64_t modelId {};
@@ -1834,7 +1894,9 @@ public:
             auxSettingsWindow->close();
             auxWindowChannelId = 0;
         }
-        if (channel.auxId) {
+        if (channel.subMix) {
+            channels.erase(channels.begin()+index);
+        } else if (channel.auxId) {
             auxState->removeBus(channel.auxId, model != nullptr);
             rebuildAuxChannels();
         } else {
@@ -1859,6 +1921,15 @@ public:
             if (!copiedModelId || !commitTopology(candidate)) return;
         }
         std::uint32_t copiedId {};
+        if (channels[index].subMix) {
+            if (model) {
+                insertSubMix(*model->strip(copiedModelId));
+                updateSel();owner.update();return;
+            }
+            auto copied=channels[index];copied.id=nextChannelId++;copied.modelId=copied.id;
+            copied.name+=QStringLiteral(" 副本");channels.insert(channels.end()-1,copied);
+            updateSel();owner.update();return;
+        }
         if (channels[index].auxId) {
             auto* bus = auxState->cloneBus(channels[index].auxId);
             if (!bus) return;
@@ -1920,6 +1991,7 @@ public:
         } else {
             channels[index].layout = layout;
         }
+        if (model) if (const auto* strip = model->strip(channels[index].modelId)) loadMainPanner(channels[index], *strip);
         if (auto found = fxSettingsWindows.find(id); found != fxSettingsWindows.end() && found->second)
             found->second->setSourceChannels(fxChannels(layout));
         if (auxSettingsWindow) {
@@ -1940,6 +2012,15 @@ public:
         owner.update();
     }
 
+    QString subMixViewSignature() const
+    {
+        QString result;
+        for (const auto& channel : channels) if (channel.subMix || channel.id == selectedChannelId)
+            result += QStringLiteral("%1:%2:%3:%4;").arg(channel.id).arg(channel.name)
+                .arg(static_cast<int>(channel.layout)).arg(channel.accent.name());
+        return result;
+    }
+
     void updateSel()
     {
         for (const auto& channel : channels)
@@ -1949,6 +2030,8 @@ public:
         const auto found = std::find_if(channels.cbegin(), channels.cend(), [this](const Channel& item) {
             return item.id == selectedChannelId;
         });
+        if (subSettingsWindow && selStack && selStack->currentIndex()==3
+            && subMixViewSignature()!=subViewSignature) showSelAux(true);
         selLabel->setText(found == channels.cend() ? QStringLiteral("未选择通道") : found->name);
         if(selHeader){
             const QColor background=found!=channels.cend()&&found->customColor?found->accent
@@ -1966,8 +2049,9 @@ public:
                 selHeader->setStyleSheet(QStringLiteral("#selHeader {background:%1;border-radius:6px;} #selHeader QLabel {color:%2;background:transparent;}").arg(background.name(),foreground.name()));
             }
         }
-        if(selAuxTab)selAuxTab->setVisible(found!=channels.cend()&&found->number!=QStringLiteral("MAIN"));
-        if(selStack&&found!=channels.cend()&&found->number==QStringLiteral("MAIN")&&selStack->currentIndex()==1){
+        if(selSubTab)selSubTab->setVisible(found!=channels.cend()&&found->number!=QStringLiteral("MAIN"));
+        if(selAuxTab)selAuxTab->setVisible(found!=channels.cend()&&found->number!=QStringLiteral("MAIN")&&!found->subMix);
+        if(selStack&&found!=channels.cend()&&(found->number==QStringLiteral("MAIN")||found->subMix)&&(selStack->currentIndex()==1 || (found->number==QStringLiteral("MAIN")&&selStack->currentIndex()==3))){
             selStack->setCurrentIndex(0);
             selStack->hide();
             if(auto* mainTab=selWindow->findChild<QPushButton*>(QStringLiteral("selTabMain")))mainTab->setChecked(true);
@@ -1986,7 +2070,9 @@ public:
             }
             if (selMainChannelId != (current ? current->id : 0)) {
                 selMainChannelId = current ? current->id : 0;
+                if (current && subSettingsWindow && selStack && selStack->currentIndex()==3) showSelAux(true);
                 if (current && auxSettingsWindow) {
+                    if (selStack && selStack->currentIndex() == 3) showSelAux(true);
                     if (selStack && selStack->currentIndex() == 1) showSelAux();
                     else {
                         auxWindowChannelId = current->id;
@@ -2040,7 +2126,7 @@ public:
             QFont prefixFont=prefix->font();prefixFont.setPixelSize(24);prefixFont.setBold(true);prefix->setFont(prefixFont);
             headerLayout->addWidget(prefix);
             headerLayout->addWidget(selLabel,1);
-            const std::array<QString,3> tabs { QStringLiteral("Main"),QStringLiteral("AUX"),QStringLiteral("FX") };
+            const std::array<QString,4> tabs { QStringLiteral("Main"),QStringLiteral("AUX"),QStringLiteral("FX"),QStringLiteral("Sub Mix") };
             auto* content = new SelContentHost(selWindow);
             selMain = new SelMainPage(content);
             selStack = new QStackedWidget(content);
@@ -2081,20 +2167,25 @@ public:
             selFxPage = new QWidget(selStack);
             auto* fxLayout = new QVBoxLayout(selFxPage);fxLayout->setContentsMargins(0,0,0,0);
             selStack->addWidget(selFxPage);
-            for(int i=0;i<3;++i) {
+            selSubPage = new QWidget(selStack);
+            auto* subLayout = new QVBoxLayout(selSubPage); subLayout->setContentsMargins(0,0,0,0);
+            selStack->addWidget(selSubPage);
+            for(int i=0;i<4;++i) {
                 auto* tab = new Controls::ActionButton(tabs[i],header);
                 tab->setObjectName(QStringLiteral("selTab%1").arg(tabs[i]));
                 tab->setCheckable(true);
                 tab->setChecked(i==0);
                 tab->setFixedWidth(106);
                 if(i==1)selAuxTab=tab;
+                if(i==3)selSubTab=tab;
                 headerLayout->addWidget(tab);
                 connect(tab,&QPushButton::clicked,selWindow,[this,i,header] {
                     if(i==1)showSelAux();
                     if(i==2)showSelFx();
+                    if(i==3)showSelAux(true);
                     selStack->setCurrentIndex(i);
                     selStack->setVisible(i!=0);
-                    for(int j=0;j<3;++j)if(auto* item=header->findChild<QPushButton*>(QStringLiteral("selTab%1").arg(std::array<QString,3>{QStringLiteral("Main"),QStringLiteral("AUX"),QStringLiteral("FX")}[j])))item->setChecked(j==i);
+                    for(int j=0;j<4;++j)if(auto* item=header->findChild<QPushButton*>(QStringLiteral("selTab%1").arg(std::array<QString,4>{QStringLiteral("Main"),QStringLiteral("AUX"),QStringLiteral("FX"),QStringLiteral("Sub Mix")}[j])))item->setChecked(j==i);
                     updateSel();
                 });
             }
@@ -2137,57 +2228,74 @@ public:
         monitorSel->activateWindow();
     }
 
-    void showSelAux()
+    void showSelAux(bool subMode = false)
     {
+        const auto selected=std::find_if(channels.begin(),channels.end(),[this](const Channel& channel){return channel.id==selectedChannelId;});
+        if(selected!=channels.end()&&(selected->number==QStringLiteral("MAIN")||(!subMode&&selected->subMix))) return;
         if(!selStack)return;
         const auto found=std::find_if(channels.cbegin(),channels.cend(),[this](const Channel& c){return c.id==selectedChannelId;});
         if(found==channels.cend())return;
+        auto& auxSettingsWindow = subMode ? subSettingsWindow : this->auxSettingsWindow;
+        auto& auxState = subMode ? subState : this->auxState;
+        auto& auxWindowChannelId = subMode ? subWindowChannelId : this->auxWindowChannelId;
+        auto* selAuxPage = subMode ? selSubPage.data() : this->selAuxPage.data();
+        if (subMode) {
+            subViewSignature = subMixViewSignature();
+            auxState->clearBuses();
+            for (const auto& channel : channels) if (channel.subMix) {
+                auto& bus = auxState->addBus(channel.layout);
+                bus.id = channel.id; bus.name = channel.name; bus.accent = channel.accent;
+            }
+        }
         auxWindowChannelId=found->id;
         if(!auxSettingsWindow){
             auxSettingsWindow=new AuxSettingsWindow(auxState,&owner);
+            auxSettingsWindow->setSubMixMode(subMode);
+            if(subMode) auxSettingsWindow->setObjectName(QStringLiteral("selSubMixRoutes"));
             auxSettingsWindow->setAttribute(Qt::WA_DeleteOnClose);
-            auxSettingsWindow->setStateChangedCallback([this]{rebuildAuxChannels();updateSel();owner.update();});
+            auxSettingsWindow->setStateChangedCallback([this,subMode]{if(!subMode)rebuildAuxChannels();updateSel();owner.update();});
             if (model) {
-                auxSettingsWindow->setChannelMeterReadCallback([this](bool post, std::size_t index) {
-                    const auto source = std::find_if(channels.cbegin(), channels.cend(), [this](const Channel& item) {
-                        return item.id == auxWindowChannelId;
+                auxSettingsWindow->setChannelMeterReadCallback([this,subMode](bool post, std::size_t index) {
+                    const auto source = std::find_if(channels.cbegin(), channels.cend(), [this,subMode](const Channel& item) {
+                        return item.id == (subMode ? subWindowChannelId : this->auxWindowChannelId);
                     });
                     return source != channels.cend() && channelMeterRead && source->modelId
                         ? channelMeterRead(source->modelId, post, index) : 0.0F;
                 });
                 if (polarRead) auxSettingsWindow->setPolarReadCallback(
-                    [this](std::uint32_t busId, Common::MixerPolarSnapshot& snapshot) {
-                        const auto source = std::find_if(channels.cbegin(), channels.cend(), [this](const Channel& item) {
-                            return item.id == auxWindowChannelId;
+                    [this,subMode](std::uint32_t busId, Common::MixerPolarSnapshot& snapshot) {
+                        const auto source = std::find_if(channels.cbegin(), channels.cend(), [this,subMode](const Channel& item) {
+                            return item.id == (subMode ? subWindowChannelId : this->auxWindowChannelId);
                         });
-                        const auto target = std::find_if(channels.cbegin(), channels.cend(), [busId](const Channel& item) {
-                            return item.auxId == busId;
+                        const auto target = std::find_if(channels.cbegin(), channels.cend(), [busId,subMode](const Channel& item) {
+                            return subMode ? item.subMix && item.id == busId : item.auxId == busId;
                         });
                         return source != channels.cend() && target != channels.cend()
                             && source->modelId && target->modelId
                             && polarRead(source->modelId, target->modelId, snapshot);
                     });
-                auxSettingsWindow->setStateCommitCallback([this] {
-                    return commitAuxSettings(auxSettingsWindow->chainEnabled());
+                auxSettingsWindow->setStateCommitCallback([this,subMode] {
+                    return commitAuxSettings(subMode ? true : this->auxSettingsWindow->chainEnabled(),subMode);
                 });
-                auxSettingsWindow->setChainCommitHandler([this](bool enabled) {
-                    return commitAuxSettings(enabled);
+                auxSettingsWindow->setChainCommitHandler([this,subMode](bool enabled) {
+                    return commitAuxSettings(enabled,subMode);
                 });
             }
-            auxSettingsWindow->setChainEnabledHandler([this](bool enabled){
-                auto it=std::find_if(channels.begin(),channels.end(),[this](const Channel& c){return c.id==auxWindowChannelId;});
+            if (!subMode) auxSettingsWindow->setChainEnabledHandler([this](bool enabled){
+                auto it=std::find_if(channels.begin(),channels.end(),[this](const Channel& c){return c.id==this->auxWindowChannelId;});
                 if(it!=channels.end()){it->aux=enabled;owner.update();}
             });
         }
-        const auto key=found->auxId?QStringLiteral("aux:%1").arg(found->auxId):QStringLiteral("input:%1").arg(found->id);
-        auxSettingsWindow->setSource(key,found->name,found->auxId,found->layout,auxSourceNumber(*found));
+        const auto selfId = subMode ? (found->subMix ? found->id : 0) : found->auxId;
+        const auto key=subMode?QStringLiteral("sub:%1").arg(found->id):found->auxId?QStringLiteral("aux:%1").arg(found->auxId):QStringLiteral("input:%1").arg(found->id);
+        auxSettingsWindow->setSource(key,found->name,selfId,found->layout,auxSourceNumber(*found));
         if (model && found->modelId) {
             if (const auto* strip = model->strip(found->modelId)) {
-                auto& sourceBuses = auxState->busesForSource(key, found->auxId);
+                auto& sourceBuses = auxState->busesForSource(key, selfId);
                 for (auto& bus : sourceBuses) {
                     if (bus.selfRoute) continue;
-                    const auto target = std::find_if(channels.cbegin(), channels.cend(), [&bus](const Channel& channel) {
-                        return channel.auxId == bus.id;
+                    const auto target = std::find_if(channels.cbegin(), channels.cend(), [&bus,subMode](const Channel& channel) {
+                        return subMode ? channel.subMix && channel.id == bus.id : channel.auxId == bus.id;
                     });
                     if (target == channels.cend()) continue;
                     const auto send = std::find_if(strip->sends.cbegin(), strip->sends.cend(), [target](const Common::MixerAuxSend& item) {
@@ -2195,7 +2303,7 @@ public:
                     });
                     bus.enabled = send != strip->sends.cend() && send->enabled;
                     if (send == strip->sends.cend()) continue;
-                    bus.preFader = send->preFader;
+                    bus.preFader = !subMode && send->preFader;
                     bus.panMode = send->panner.mode == Common::MixerPanMode::classic
                         ? Common::AuxPanMode::classic : Common::AuxPanMode::spatial;
                     bus.classicPan = send->panner.classicPan;
@@ -2219,7 +2327,7 @@ public:
                 auxSettingsWindow->acceptExternalState();
             }
         }
-        auxSettingsWindow->setChainEnabled(model && found->modelId
+        auxSettingsWindow->setChainEnabled(subMode ? true : model && found->modelId
             ? model->strip(found->modelId)->auxSendsEnabled : found->aux);
         if(auxSettingsWindow->parentWidget()!=selAuxPage){
             auxSettingsWindow->hide();auxSettingsWindow->setWindowFlags(Qt::Widget);
@@ -2254,8 +2362,10 @@ public:
         qreal x = 0.0;
         if (index < inputChannelCount)
             x = inputViewport().left() + index * channelWidth - effectiveInputScrollOffset();
-        else if (index < masterIndex())
+        else if (index < subMixStart())
             x = auxViewport().left() + (index - inputChannelCount) * channelWidth - effectiveAuxScrollOffset();
+        else if (index < masterIndex())
+            x = subMixViewport().left() + (index-subMixStart())*channelWidth-effectiveSubMixScrollOffset();
         else
             x = owner.width() - margin - channelWidth;
         return { x, topMargin, channelWidth, channelAreaHeight() };
@@ -2264,20 +2374,26 @@ public:
     QRectF inputViewport() const
     {
         const auto available = scrollableAreaWidth();
-        const auto inputWidth = std::floor(available * effectiveInputRatio());
+        const auto inputWidth = std::floor(available * effectiveInputRatio()+1e-7);
         return { margin, topMargin, inputWidth, channelAreaHeight() };
     }
 
     QRectF auxViewport() const
     {
         const auto input = inputViewport();
-        const auto width = std::max(0.0, scrollableAreaWidth() - input.width());
+        const auto width = std::max(0.0, std::floor(scrollableAreaWidth()*effectiveSubMixBoundary()) - input.width());
         return { input.right() + groupGap, topMargin, width, channelAreaHeight() };
     }
 
+    QRectF subMixViewport() const
+    {
+        const auto aux=auxViewport();
+        return {aux.right()+groupGap,topMargin,
+            std::max(0.0,scrollableAreaWidth()-inputViewport().width()-aux.width()),channelAreaHeight()};
+    }
     QRectF viewportForChannel(int index) const
     {
-        return index < inputChannelCount ? inputViewport() : auxViewport();
+        return index < inputChannelCount ? inputViewport() : index < subMixStart() ? auxViewport() : subMixViewport();
     }
 
     qreal channelAreaHeight() const
@@ -2287,7 +2403,7 @@ public:
 
     qreal scrollableAreaWidth() const
     {
-        return std::max(0.0, monitorRect().left() - groupGap - margin - groupGap);
+        return std::max(0.0, monitorRect().left() - groupGap - margin - 2*groupGap);
     }
 
     QRectF monitorRect() const
@@ -2318,9 +2434,24 @@ public:
     {
         const auto available = scrollableAreaWidth();
         if (available <= 0.0)
-            return .5;
-        const auto minimumRatio = std::min(.5, channelWidth / available);
-        return std::clamp(inputRatio, minimumRatio, 1.0 - minimumRatio);
+            return .6;
+        const auto minimumRatio = std::min(1.0/3.0, channelWidth / available);
+        return std::clamp(inputRatio, minimumRatio, 1.0 - 2*minimumRatio);
+    }
+
+    qreal effectiveSubMixBoundary() const
+    {
+        const auto available=scrollableAreaWidth();
+        const auto minimum=available>0?std::min(1.0/3.0,channelWidth/available):0.0;
+        return std::clamp(subMixBoundary,effectiveInputRatio()+minimum,1.0-minimum);
+    }
+    QRectF subMixDividerRect() const
+    {
+        return {auxViewport().right(),topMargin,groupGap,owner.height()-topMargin-margin};
+    }
+    void setSubMixBoundaryFromPosition(qreal x)
+    {
+        if(scrollableAreaWidth()>0)subMixBoundary=(x-margin-groupGap)/scrollableAreaWidth();
     }
 
     QRectF groupDividerRect() const
@@ -2359,21 +2490,29 @@ public:
         return std::clamp(auxScrollOffset, 0.0, maximumAuxScrollOffset());
     }
 
-    QRectF scrollbarTrack(bool input) const
+    qreal maximumSubMixScrollOffset() const
     {
-        const auto viewport = input ? inputViewport() : auxViewport();
+        return std::max(0.0,subMixCount()*channelWidth-subMixViewport().width());
+    }
+    qreal effectiveSubMixScrollOffset() const {return std::clamp(subMixScrollOffset,0.0,maximumSubMixScrollOffset());}
+    qreal maximumGroupScroll(int group) const {return group==0?maximumInputScrollOffset():group==1?maximumAuxScrollOffset():maximumSubMixScrollOffset();}
+    qreal groupScroll(int group) const {return group==0?effectiveInputScrollOffset():group==1?effectiveAuxScrollOffset():effectiveSubMixScrollOffset();}
+    QRectF groupViewport(int group) const {return group==0?inputViewport():group==1?auxViewport():subMixViewport();}
+    QRectF scrollbarTrack(int group) const
+    {
+        const auto viewport = groupViewport(group);
         return { viewport.left() + 4.0, viewport.bottom() + scrollbarGap,
                  std::max(0.0, viewport.width() - 8.0), scrollbarHeight };
     }
 
-    QRectF scrollbarThumb(bool input) const
+    QRectF scrollbarThumb(int group) const
     {
-        const auto track = scrollbarTrack(input);
-        const auto channelCount = input ? inputChannelCount : auxChannelCount();
+        const auto track = scrollbarTrack(group);
+        const auto channelCount = group==0?inputChannelCount:group==1?auxChannelCount():subMixCount();
         const auto contentWidth = channelCount * channelWidth;
-        const auto viewportWidth = input ? inputViewport().width() : auxViewport().width();
-        const auto maximum = input ? maximumInputScrollOffset() : maximumAuxScrollOffset();
-        const auto offset = input ? effectiveInputScrollOffset() : effectiveAuxScrollOffset();
+        const auto viewportWidth = groupViewport(group).width();
+        const auto maximum = maximumGroupScroll(group);
+        const auto offset = groupScroll(group);
         const auto thumbWidth = maximum <= 0.0 ? track.width()
             : std::max(32.0, track.width() * viewportWidth / contentWidth);
         const auto travel = std::max(0.0, track.width() - thumbWidth);
@@ -2381,18 +2520,17 @@ public:
         return { x, track.top(), thumbWidth, track.height() };
     }
 
-    void setScrollFromThumb(bool input, qreal thumbLeft)
+    void setScrollFromThumb(int group, qreal thumbLeft)
     {
-        const auto track = scrollbarTrack(input);
-        const auto thumb = scrollbarThumb(input);
+        const auto track = scrollbarTrack(group);
+        const auto thumb = scrollbarThumb(group);
         const auto travel = std::max(0.0, track.width() - thumb.width());
-        const auto maximum = input ? maximumInputScrollOffset() : maximumAuxScrollOffset();
+        const auto maximum = maximumGroupScroll(group);
         const auto normalized = travel <= 0.0 ? 0.0
             : std::clamp((thumbLeft - track.left()) / travel, 0.0, 1.0);
-        if (input)
-            inputScrollOffset = normalized * maximum;
-        else
-            auxScrollOffset = normalized * maximum;
+        if(group==0)inputScrollOffset=normalized*maximum;
+        else if(group==1)auxScrollOffset=normalized*maximum;
+        else subMixScrollOffset=normalized*maximum;
     }
 
     QRectF faderTrack(int index) const
@@ -2478,11 +2616,14 @@ public:
             }
         }
         if (auxViewport().contains(position)) {
-            for (int index = inputChannelCount; index < masterIndex(); ++index) {
+            for (int index = inputChannelCount; index < subMixStart(); ++index) {
                 if (channelRect(index).contains(position))
                     return index;
             }
         }
+        if(subMixViewport().contains(position))
+            for(int index=subMixStart();index<masterIndex();++index)
+                if(channelRect(index).contains(position)) return index;
         return channelRect(masterIndex()).contains(position) ? masterIndex() : -1;
     }
 
@@ -2498,6 +2639,12 @@ public:
     int polarStaleTicks {};
     std::shared_ptr<Common::AuxMixerState> auxState { std::make_shared<Common::AuxMixerState>() };
     QPointer<AuxSettingsWindow> auxSettingsWindow;
+    QPointer<AuxSettingsWindow> subSettingsWindow;
+    QString subViewSignature;
+    std::shared_ptr<Common::AuxMixerState> subState = std::make_shared<Common::AuxMixerState>();
+    std::uint32_t subWindowChannelId {};
+    QPointer<QWidget> selSubPage;
+    QPointer<QPushButton> selSubTab;
     QPointer<QWidget> selWindow;
     QPointer<QLabel> selLabel;
     QPointer<QWidget> selHeader;
@@ -2525,10 +2672,13 @@ public:
     int reorderTarget = -1;
     int scrollbarDragging = 0;
     bool groupDividerDragging = false;
+    bool subMixDividerDragging = false;
     qreal scrollbarDragOffset = 0.0;
     qreal inputScrollOffset = 0.0;
     qreal auxScrollOffset = 0.0;
     qreal inputRatio = .6;
+    qreal subMixBoundary = .8;
+    qreal subMixScrollOffset = 0;
     int inputChannelCount = 8;
     std::uint32_t nextChannelId = 1;
     std::uint32_t auxWindowChannelId {};
@@ -2597,6 +2747,7 @@ MixerWindow::MixerWindow(Common::DigitalMixerState* state, TopologyCommit commit
     auto* channelsMenu = menuBar->addMenu(QStringLiteral("通道管理"));
     auto* inputsMenu = channelsMenu->addMenu(QStringLiteral("添加输入通道"));
     auto* auxMenu = channelsMenu->addMenu(QStringLiteral("添加AUX通道"));
+    auto* subMenu = channelsMenu->addMenu(QStringLiteral("添加 Sub Mix 通道"));
     const std::array layouts { Common::AuxChannelLayout::mono, Common::AuxChannelLayout::stereo,
                                Common::AuxChannelLayout::surround51, Common::AuxChannelLayout::surround71 };
     for (const auto layout : layouts) {
@@ -2604,6 +2755,8 @@ MixerWindow::MixerWindow(Common::DigitalMixerState* state, TopologyCommit commit
                 [this, layout] { impl_->addInput(layout); });
         connect(auxMenu->addAction(Common::auxLayoutName(layout)), &QAction::triggered, this,
                 [this, layout] { impl_->addAux(layout); });
+        connect(subMenu->addAction(Common::auxLayoutName(layout)), &QAction::triggered, this,
+                [this, layout] { impl_->addSubMix(layout); });
     }
     auto* globalMenu = menuBar->addMenu(QStringLiteral("全局"));
     connect(globalMenu->addAction(QStringLiteral("关闭所有通道独奏/静音")), &QAction::triggered, this, [this] {
@@ -2667,6 +2820,13 @@ void MixerWindow::paintEvent(QPaintEvent*)
     painter.setOpacity(ThemeBackground::componentOpacity(QStringLiteral("mixer")));
 
     const auto heightScale = std::clamp(height() / 768.0, .72, 1.35);
+    for(auto* title : {"Inputs","AUX","Sub Mix"}) {
+        const int group=QString(title)==QStringLiteral("Inputs")?0:QString(title)==QStringLiteral("AUX")?1:2;
+        const auto viewport=impl_->groupViewport(group);
+        QFont font=painter.font();font.setPixelSize(13);font.setBold(true);
+        Controls::drawText(painter,{viewport.left(),23,viewport.width(),16},QString::fromLatin1(title),font,
+            themed("text-primary",QColor("#dce9ff")),Qt::AlignCenter);
+    }
     const auto label = themed("text-primary", QColor("#dce9ff"));
     const auto secondary = themed("text-muted", QColor("#a9bbd7"));
     const auto nameTextColor = [&](const QColor& background) {
@@ -2835,11 +2995,11 @@ void MixerWindow::paintEvent(QPaintEvent*)
                        channel.listenMode == Common::MixerListenMode::afl);
         }
 
-        const auto faderKind = index < impl_->inputChannelCount ? "input"
+        const auto faderKind = channel.subMix ? "submix" : index < impl_->inputChannelCount ? "input"
             : index < impl_->masterIndex() ? "aux" : "master";
         const auto faderColor = themed(
             QStringLiteral("fader-%1-thumb").arg(QString::fromLatin1(faderKind)).toLatin1().constData(),
-            index < impl_->inputChannelCount ? QColor("#9aa8b7")
+            channel.subMix ? QColor("#37d879") : index < impl_->inputChannelCount ? QColor("#9aa8b7")
                 : index < impl_->masterIndex() ? QColor("#33b6ff") : QColor("#ff5353"));
         const auto track = impl_->faderTrack(index);
         Controls::FaderStyle faderStyle;
@@ -2859,21 +3019,24 @@ void MixerWindow::paintEvent(QPaintEvent*)
         painter.restore();
     }
 
-    const auto drawScrollbar = [&](bool input, const QColor& color) {
-        const auto track = impl_->scrollbarTrack(input);
+    const auto drawScrollbar = [&](int group, const QColor& color) {
+        const auto track = impl_->scrollbarTrack(group);
         Controls::drawSurface(painter,track,
             themed("control-scrollbar-track",QColor("#101c29")),{},track.height()/2.0);
-        const auto thumb = impl_->scrollbarThumb(input).adjusted(1, 1, -1, -1);
+        const auto thumb = impl_->scrollbarThumb(group).adjusted(1, 1, -1, -1);
         Controls::drawSurface(painter,thumb,withAlpha(color,210),{},thumb.height()/2.0);
     };
-    drawScrollbar(true, themed("control-scrollbar-input-thumb",QColor("#45bfff")));
-    drawScrollbar(false, themed("control-scrollbar-aux-thumb",QColor("#8f78ff")));
+    drawScrollbar(0, themed("control-scrollbar-input-thumb",QColor("#45bfff")));
+    drawScrollbar(1, themed("control-scrollbar-aux-thumb",QColor("#8f78ff")));
 
+    drawScrollbar(2,themed("control-scrollbar-submix-thumb",QColor("#37d879")));
+    const auto subDivider=impl_->subMixDividerRect();
+    Controls::drawSurface(painter,{subDivider.center().x()-1.5,subDivider.top(),3.0,subDivider.height()},themed("resize-submix-handle",QColor("#6d8fac")),{},1.0);
     const auto divider = impl_->groupDividerRect();
     Controls::drawSurface(painter,
         QRectF(divider.center().x() - 1.5, divider.top(), 3.0, divider.height()),
         themed("resize-handle", QColor("#6d8fac")), {}, 1.0);
-    const auto aux = impl_->auxViewport();
+    const auto aux = impl_->subMixViewport();
     const auto boundaryX = (aux.right() + monitorCard.left()) / 2.0;
     Controls::drawSurface(painter,
         QRectF(boundaryX - 1.5, monitorCard.top(), 3.0, monitorCard.height()),
@@ -2938,16 +3101,20 @@ void MixerWindow::mousePressEvent(QMouseEvent* event)
         return;
     }
 
-    for (const auto input : { true, false }) {
-        const auto thumb = impl_->scrollbarThumb(input).adjusted(-2, -3, 2, 3);
-        const auto track = impl_->scrollbarTrack(input).adjusted(0, -3, 0, 3);
+    if(impl_->subMixDividerRect().adjusted(-3,0,3,0).contains(event->position())) {
+        impl_->subMixDividerDragging=true;
+        impl_->setSubMixBoundaryFromPosition(event->position().x()-Impl::groupGap/2.0);return;
+    }
+    for (const auto group : {0,1,2}) {
+        const auto thumb = impl_->scrollbarThumb(group).adjusted(-2, -3, 2, 3);
+        const auto track = impl_->scrollbarTrack(group).adjusted(0, -3, 0, 3);
         if (thumb.contains(event->position())) {
-            impl_->scrollbarDragging = input ? 1 : 2;
+            impl_->scrollbarDragging = group+1;
             impl_->scrollbarDragOffset = event->position().x() - thumb.left();
             return;
         }
         if (track.contains(event->position())) {
-            impl_->setScrollFromThumb(input, event->position().x() - impl_->scrollbarThumb(input).width() / 2.0);
+            impl_->setScrollFromThumb(group, event->position().x() - impl_->scrollbarThumb(group).width() / 2.0);
             update();
             return;
         }
@@ -3092,11 +3259,10 @@ void MixerWindow::mouseMoveEvent(QMouseEvent* event)
 {
     if (impl_->reordering >= 0 && (event->buttons() & Qt::LeftButton)) {
         const auto from = impl_->reordering;
-        const auto first = from < impl_->inputChannelCount ? 0 : impl_->inputChannelCount;
+        const auto first = from < impl_->inputChannelCount ? 0 : impl_->channels[from].subMix ? impl_->subMixStart() : impl_->inputChannelCount;
         const auto end = from < impl_->inputChannelCount
-            ? impl_->inputChannelCount : impl_->masterIndex();
-        const auto viewport = from < impl_->inputChannelCount
-            ? impl_->inputViewport() : impl_->auxViewport();
+            ? impl_->inputChannelCount : impl_->channels[from].subMix ? impl_->masterIndex() : impl_->subMixStart();
+        const auto viewport = impl_->viewportForChannel(from);
         if (viewport.contains(event->position())) {
             int target = first;
             for (int index = first; index < end; ++index) {
@@ -3109,18 +3275,22 @@ void MixerWindow::mouseMoveEvent(QMouseEvent* event)
         }
         return;
     }
+    if(impl_->subMixDividerDragging&&(event->buttons()&Qt::LeftButton)) {
+        impl_->setSubMixBoundaryFromPosition(event->position().x()-Impl::groupGap/2.0);update();return;
+    }
     if (impl_->groupDividerDragging && (event->buttons() & Qt::LeftButton)) {
         impl_->setInputRatioFromPosition(event->position().x() - Impl::groupGap / 2.0);
         update();
         return;
     }
     if (impl_->scrollbarDragging != 0 && (event->buttons() & Qt::LeftButton)) {
-        const auto input = impl_->scrollbarDragging == 1;
-        impl_->setScrollFromThumb(input, event->position().x() - impl_->scrollbarDragOffset);
+        const auto group = impl_->scrollbarDragging-1;
+        impl_->setScrollFromThumb(group, event->position().x() - impl_->scrollbarDragOffset);
         return;
     }
     if (!(event->buttons() & Qt::LeftButton)) {
-        if (impl_->groupDividerRect().adjusted(-3, 0, 3, 0).contains(event->position())) {
+        if (impl_->groupDividerRect().adjusted(-3, 0, 3, 0).contains(event->position())
+            || impl_->subMixDividerRect().adjusted(-3,0,3,0).contains(event->position())) {
             setCursor(Qt::SplitHCursor);
         } else {
             const auto index = impl_->hitChannel(event->position());
@@ -3163,13 +3333,15 @@ void MixerWindow::mouseReleaseEvent(QMouseEvent* event)
     impl_->dragging = -1;
     impl_->scrollbarDragging = 0;
     impl_->groupDividerDragging = false;
+    impl_->subMixDividerDragging = false;
 }
 
 void MixerWindow::wheelEvent(QWheelEvent* event)
 {
     const auto input = impl_->inputViewport().contains(event->position());
     const auto aux = impl_->auxViewport().contains(event->position());
-    if (!input && !aux) {
+    const auto sub=impl_->subMixViewport().contains(event->position());
+    if (!input && !aux && !sub) {
         QWidget::wheelEvent(event);
         return;
     }
@@ -3178,9 +3350,10 @@ void MixerWindow::wheelEvent(QWheelEvent* event)
     if (input)
         impl_->inputScrollOffset = std::clamp(impl_->effectiveInputScrollOffset() - angle / 120.0 * 54.0,
                                              0.0, impl_->maximumInputScrollOffset());
-    else
+    else if(aux)
         impl_->auxScrollOffset = std::clamp(impl_->effectiveAuxScrollOffset() - angle / 120.0 * 54.0,
                                            0.0, impl_->maximumAuxScrollOffset());
+    if(sub)impl_->subMixScrollOffset=std::clamp(impl_->effectiveSubMixScrollOffset()-angle/120.0*54.0,0.0,impl_->maximumSubMixScrollOffset());
     update();
     event->accept();
 }

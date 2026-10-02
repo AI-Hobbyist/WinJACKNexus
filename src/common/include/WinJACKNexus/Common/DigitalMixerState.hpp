@@ -16,7 +16,7 @@ namespace WinJACKNexus::Common {
 inline constexpr double mixerUnityFaderPosition = .95 * 12.0 / 84.0;
 
 enum class MixerLayout : int { mono = 1, stereo = 2, surround51 = 6, surround71 = 8 };
-enum class MixerStripKind : int { input = 0, aux = 1, main = 2 };
+enum class MixerStripKind : int { input = 0, aux = 1, main = 2, subMix = 3 };
 enum class MixerPanMode : int { spatial = 0, classic = 1 };
 enum class MixerPortDirection : int { input = 0, output = 1 };
 
@@ -92,6 +92,7 @@ public:
 
     const std::vector<MixerStripState>& inputs() const noexcept { return inputs_; }
     const std::vector<MixerStripState>& auxiliaries() const noexcept { return auxiliaries_; }
+    const std::vector<MixerStripState>& subMixes() const noexcept { return subMixes_; }
     const MixerStripState& main() const noexcept { return main_; }
     double monitorFaderPosition() const noexcept { return monitorFaderPosition_; }
     void setMonitorFaderPosition(double position) noexcept { monitorFaderPosition_ = position; }
@@ -105,6 +106,8 @@ public:
     bool remove(std::uint64_t id);
     bool move(std::uint64_t id, std::size_t targetIndex);
     bool setLayout(std::uint64_t id, MixerLayout layout);
+    bool setSubMix(std::uint64_t sourceId, std::uint64_t targetId, QString* error = nullptr);
+    bool hasSubMix(std::uint64_t sourceId) const noexcept;
     bool setSend(std::uint64_t sourceId, const MixerAuxSend& send, QString* error = nullptr);
     std::vector<MixerPortDescriptor> ports() const;
     bool validate(QString* error = nullptr) const;
@@ -115,12 +118,14 @@ public:
 private:
     std::vector<MixerStripState> inputs_;
     std::vector<MixerStripState> auxiliaries_;
+    std::vector<MixerStripState> subMixes_;
     MixerStripState main_;
     double monitorFaderPosition_ { mixerUnityFaderPosition };
     MixerLayout monitorLayout_ { MixerLayout::stereo };
     std::uint64_t nextId_ { 2 };
     std::uint32_t nextInputNumber_ { 1 };
     std::uint32_t nextAuxNumber_ { 1 };
+    std::uint32_t nextSubMixNumber_ { 1 };
 };
 
 WINJACK_COMMON_API bool isMixerLayout(MixerLayout layout) noexcept;

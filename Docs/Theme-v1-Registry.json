@@ -6648,6 +6648,62 @@
       "default": "#f5fbff",
       "inherits": [],
       "description": "mixer / control name text light"
+    },
+    {
+      "name": "--wjn-theme-mixer-fader-submix-thumb",
+      "ownerScope": "mixer",
+      "type": "color",
+      "default": "#37d879",
+      "inherits": [],
+      "description": "mixer / fader submix thumb"
+    },
+    {
+      "name": "--wjn-theme-mixer-fader-submix-track",
+      "ownerScope": "mixer",
+      "type": "color",
+      "default": "#0a0f15",
+      "inherits": [],
+      "description": "mixer / fader submix track"
+    },
+    {
+      "name": "--wjn-theme-mixer-fader-submix-grip",
+      "ownerScope": "mixer",
+      "type": "color",
+      "default": "#07131f",
+      "inherits": [],
+      "description": "mixer / fader submix grip"
+    },
+    {
+      "name": "--wjn-theme-mixer-control-scrollbar-submix-thumb",
+      "ownerScope": "mixer",
+      "type": "color",
+      "default": "#37d879",
+      "inherits": [],
+      "description": "mixer / control scrollbar submix thumb"
+    },
+    {
+      "name": "--wjn-theme-mixer-resize-submix-handle",
+      "ownerScope": "mixer",
+      "type": "color",
+      "default": "#6d8fac",
+      "inherits": [],
+      "description": "mixer / resize submix handle"
+    },
+    {
+      "name": "--wjn-theme-sel-main-control-pfl-accent",
+      "ownerScope": "sel-main",
+      "type": "color",
+      "default": "#ffe15a",
+      "inherits": [],
+      "description": "sel-main / control pfl accent"
+    },
+    {
+      "name": "--wjn-theme-sel-main-control-afl-accent",
+      "ownerScope": "sel-main",
+      "type": "color",
+      "default": "#ffe15a",
+      "inherits": [],
+      "description": "sel-main / control afl accent"
     }
   ]
 }

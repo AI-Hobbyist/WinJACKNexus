@@ -16,6 +16,7 @@ public:
     explicit AuxSettingsWindow(std::shared_ptr<Common::AuxMixerState> state, QWidget* parent = nullptr);
     ~AuxSettingsWindow() override;
 
+    void setSubMixMode(bool enabled);
     void setSource(const QString& sourceKey, const QString& sourceName, std::uint32_t selfAuxId = 0,
                    Common::AuxChannelLayout layout = Common::AuxChannelLayout::stereo,
                    const QString& sourceNumber = {});

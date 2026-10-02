@@ -137,6 +137,7 @@ bool EffectGraph::configure(const Common::DigitalMixerState& state, double sampl
     };
     for (const auto& strip : state.inputs()) if (!append(strip)) return false;
     for (const auto& strip : state.auxiliaries()) if (!append(strip)) return false;
+    for (const auto& strip : state.subMixes()) if (!append(strip)) return false;
     if (!append(state.main())) return false;
     chains_ = std::move(candidate.chains_);
     warning_ = std::move(candidate.warning_);
@@ -145,7 +146,7 @@ bool EffectGraph::configure(const Common::DigitalMixerState& state, double sampl
 
 bool EffectGraph::sameTopology(const Common::DigitalMixerState& state) const noexcept
 {
-    if (chains_.size() != state.inputs().size() + state.auxiliaries().size() + 1) return false;
+    if (chains_.size() != state.inputs().size() + state.auxiliaries().size() + state.subMixes().size() + 1) return false;
     std::size_t index = 0;
     const auto matches = [&](const Common::MixerStripState& strip) {
         const auto& chain = chains_[index++];
@@ -156,6 +157,7 @@ bool EffectGraph::sameTopology(const Common::DigitalMixerState& state) const noe
     };
     for (const auto& strip : state.inputs()) if (!matches(strip)) return false;
     for (const auto& strip : state.auxiliaries()) if (!matches(strip)) return false;
+    for (const auto& strip : state.subMixes()) if (!matches(strip)) return false;
     return matches(state.main());
 }
 
@@ -175,6 +177,7 @@ bool EffectGraph::validateSnapshots(const Common::DigitalMixerState& state, QStr
     };
     for (const auto& strip : state.inputs()) if (!validate(strip)) return false;
     for (const auto& strip : state.auxiliaries()) if (!validate(strip)) return false;
+    for (const auto& strip : state.subMixes()) if (!validate(strip)) return false;
     return validate(state.main());
 }
 
@@ -199,6 +202,7 @@ void EffectGraph::applySnapshots(const Common::DigitalMixerState& state)
     };
     for (const auto& strip : state.inputs()) apply(strip);
     for (const auto& strip : state.auxiliaries()) apply(strip);
+    for (const auto& strip : state.subMixes()) apply(strip);
     apply(state.main());
 }
 

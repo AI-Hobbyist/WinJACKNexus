@@ -779,4 +779,11 @@
   --wjn-theme-mixer-control-name-text-dark: #102033;
   /* mixer / control name text light; type=color */
   --wjn-theme-mixer-control-name-text-light: #f5fbff;
+  --wjn-theme-mixer-fader-submix-thumb: #37d879;
+  --wjn-theme-mixer-fader-submix-track: #0a0f15;
+  --wjn-theme-mixer-fader-submix-grip: #07131f;
+  --wjn-theme-mixer-control-scrollbar-submix-thumb: #37d879;
+  --wjn-theme-mixer-resize-submix-handle: #6d8fac;
+  --wjn-theme-sel-main-control-pfl-accent: #ffe15a;
+  --wjn-theme-sel-main-control-afl-accent: #ffe15a;
 }

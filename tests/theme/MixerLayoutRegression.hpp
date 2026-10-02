@@ -47,7 +47,7 @@ void verifyMixerLayout(QApplication& app, Check check)
         return pixels.pixelColor(qRound(x * scale), qRound(200 * scale)) == expected
             && pixels.pixelColor(qRound(x * scale), qRound(700 * scale)) == expected;
     };
-    check(boundary(477, divider) && boundary(795, fixedDivider), "Input/AUX and AUX/Listen boundaries span the channel area");
+    check(boundary(472, divider) && boundary(795, fixedDivider), "Input/AUX and AUX/Listen boundaries span the channel area");
     const auto mouse = [&](QEvent::Type type, QPoint point, Qt::MouseButton button, Qt::MouseButtons buttons) {
         QMouseEvent event(type, QPointF(point), QPointF(mixer.mapToGlobal(point)), button, buttons, Qt::NoModifier);
         QApplication::sendEvent(&mixer, &event);
@@ -57,10 +57,10 @@ void verifyMixerLayout(QApplication& app, Check check)
         mouse(QEvent::MouseMove, {to, 200}, Qt::NoButton, Qt::LeftButton);
         mouse(QEvent::MouseButtonRelease, {to, 200}, Qt::LeftButton, Qt::NoButton);
     };
-    drag(477, 360);
+    drag(472, 360);
     check(boundary(360, divider) && boundary(795, fixedDivider), "dragging left shrinks Input and grows AUX without moving Listen/Master");
-    drag(360, 600);
-    check(boundary(600, divider) && boundary(795, fixedDivider), "dragging right grows Input and shrinks AUX");
+    drag(360, 550);
+    check(boundary(550, divider) && boundary(795, fixedDivider), "dragging right grows Input and shrinks AUX while retaining Sub Mix minimum width");
     mouse(QEvent::MouseButtonPress, {35, 428}, Qt::LeftButton, Qt::LeftButton);
     mouse(QEvent::MouseButtonRelease, {35, 428}, Qt::LeftButton, Qt::NoButton);
     check(state.strip(first)->listenMode == Common::MixerListenMode::pfl,

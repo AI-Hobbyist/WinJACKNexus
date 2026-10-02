@@ -275,11 +275,12 @@ private:
     static std::unique_ptr<MeterSlot[]> makeMeterSlots(
         const WinJACKNexus::Common::DigitalMixerState& state, std::size_t& count)
     {
-        count = state.inputs().size() + state.auxiliaries().size() + 2;
+        count = state.inputs().size() + state.auxiliaries().size() + state.subMixes().size() + 2;
         auto meters = std::make_unique<MeterSlot[]>(count);
         std::size_t index = 0;
         for (const auto& strip : state.inputs()) meters[index++].id = strip.id;
         for (const auto& strip : state.auxiliaries()) meters[index++].id = strip.id;
+        for (const auto& strip : state.subMixes()) meters[index++].id = strip.id;
         meters[index++].id = 0;
         meters[index].id = state.main().id;
         return meters;

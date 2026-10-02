@@ -106,6 +106,7 @@ std::uint64_t topologyVersion(const DigitalMixerState& state) noexcept
     };
     for (const auto& value : state.inputs()) strip(value);
     for (const auto& value : state.auxiliaries()) strip(value);
+    for (const auto& value : state.subMixes()) strip(value);
     strip(state.main());
     return hash;
 }
@@ -193,9 +194,11 @@ bool DigitalMixerProcessor::configure(const DigitalMixerState& state, std::size_
     candidate.mainInputRampRemaining_ = candidate.mainCurrentInputGain_ == candidate.mainInputGain_ ? 0 : gainRampSamples;
     candidate.mainFaderRampRemaining_ = candidate.mainCurrentFaderGain_ == candidate.mainFaderGain_ ? 0 : gainRampSamples;
 
+    std::vector<const MixerStripState*> buses;
+    for (const auto& bus : state.auxiliaries()) buses.push_back(&bus);
+    for (const auto& bus : state.subMixes()) buses.push_back(&bus);
     std::map<std::uint64_t, std::size_t> auxIndex;
-    for (std::size_t i = 0; i < state.auxiliaries().size(); ++i)
-        auxIndex[state.auxiliaries()[i].id] = i;
+    for (std::size_t i = 0; i < buses.size(); ++i) auxIndex[buses[i]->id] = i;
 
     const auto makeStrip = [&](const MixerStripState& source, std::size_t portOffset,
                                std::size_t levelIndex) {
@@ -209,9 +212,15 @@ bool DigitalMixerProcessor::configure(const DigitalMixerState& state, std::size_
         strip.mute = source.mute;
         strip.solo = source.solo;
         strip.listenMode = source.listenMode;
-        strip.mixToMain = source.mixToMain;
+        strip.mixToMain = source.mixToMain && !state.hasSubMix(source.id);
+        strip.exposeOutput = source.kind != MixerStripKind::aux || !state.hasSubMix(source.id);
         strip.auxSendsEnabled = source.auxSendsEnabled;
-        strip.mainMatrix = pannerMatrix(source.mainPanner, source.layout, MixerLayout::stereo);
+        strip.subMix = source.kind==MixerStripKind::subMix;
+        strip.mainMatrix = pannerMatrix(strip.subMix ? defaultMixerPanner(source.layout,MixerLayout::stereo) : source.mainPanner, source.layout, MixerLayout::stereo);
+        if(strip.subMix) {
+            strip.outputMatrix=pannerMatrix(source.mainPanner,source.layout,source.layout);
+            strip.outputProcessed.resize(strip.channels*maxFrames);
+        }
         strip.monitorMatrix = pannerMatrix(
             defaultMixerPanner(source.layout, state.monitorLayout()),
             source.layout, state.monitorLayout());
@@ -236,10 +245,11 @@ bool DigitalMixerProcessor::configure(const DigitalMixerState& state, std::size_
             route.targetIndex = target->second;
             route.targetId = send.targetId;
             route.enabled = send.enabled;
-            route.preFader = send.preFader;
+            route.subMix = buses[target->second]->kind == MixerStripKind::subMix;
+            route.preFader = !route.subMix && send.preFader;
             route.matrix = pannerMatrix(send.panner, source.layout,
-                state.auxiliaries()[target->second].layout);
-            const auto targetLayout = state.auxiliaries()[target->second].layout;
+                buses[target->second]->layout);
+            const auto targetLayout = buses[target->second]->layout;
             route.contribution.resize(static_cast<std::size_t>(static_cast<int>(targetLayout)) * maxFrames);
             route.analyzer = std::make_unique<MixerPolarAnalyzer>(source.id, send.targetId,
                 source.layout, targetLayout, candidate.topologyVersion_, sampleRate);
@@ -252,10 +262,12 @@ bool DigitalMixerProcessor::configure(const DigitalMixerState& state, std::size_
         candidate.inputs_.push_back(makeStrip(strip, candidate.inputPortCount_, candidate.levels_.size() - 1));
         candidate.inputPortCount_ += static_cast<std::size_t>(static_cast<int>(strip.layout));
     }
-    for (const auto& strip : state.auxiliaries()) {
+    for (const auto* source : buses) {
+        const auto& strip = *source;
         candidate.levels_.push_back({strip.id});
         candidate.auxiliaries_.push_back(makeStrip(strip, candidate.outputPortCount_, candidate.levels_.size() - 1));
-        candidate.outputPortCount_ += static_cast<std::size_t>(static_cast<int>(strip.layout));
+        if (candidate.auxiliaries_.back().exposeOutput)
+            candidate.outputPortCount_ += static_cast<std::size_t>(static_cast<int>(strip.layout));
     }
     candidate.levels_.push_back({0});
     candidate.levels_.push_back({state.main().id});
@@ -350,13 +362,28 @@ bool DigitalMixerProcessor::process(std::span<const float* const> inputs,
     for (auto& strip : inputs_) strip.soloAudible = !anySolo || strip.solo;
     for (auto& strip : auxiliaries_) strip.soloAudible = !anySolo || strip.solo;
 
+    if (anySolo) {
+        // Mark upstream members first, then downstream group ancestors. Keep other siblings muted.
+        for (std::size_t pass = 0; pass < auxiliaries_.size(); ++pass)
+            for (auto* list : {&inputs_, &auxiliaries_})
+                for (auto& source : *list)
+                    for (const auto& route : source.sends)
+                        if (route.enabled && route.subMix && auxiliaries_[route.targetIndex].soloAudible)
+                            source.soloAudible = true;
+        for (std::size_t pass = 0; pass < auxiliaries_.size(); ++pass)
+            for (auto* list : {&inputs_, &auxiliaries_})
+                for (const auto& source : *list)
+                    if (source.soloAudible)
+                        for (const auto& route : source.sends)
+                            if (route.subMix) auxiliaries_[route.targetIndex].soloAudible = true;
+    }
     const auto sendRoutes = [this, frames, anySolo](Strip& source) noexcept {
         for (auto& send : source.sends) {
             auto& target = auxiliaries_[send.targetIndex];
             for (std::size_t channel = 0; channel < target.channels; ++channel)
                 std::fill_n(send.contribution.data() + channel * maxFrames_, frames, 0.0F);
             const auto& branchInput = send.preFader ? source.pre : source.post;
-            if (source.auxSendsEnabled && !source.mute && send.enabled
+            if ((send.subMix || source.auxSendsEnabled) && !source.mute && send.enabled
                 && (!anySolo || (source.soloAudible && target.soloAudible))) {
                 addMatrix(branchInput, source.channels, send.contribution, target.channels,
                           send.matrix, maxFrames_, frames);
@@ -401,7 +428,7 @@ bool DigitalMixerProcessor::process(std::span<const float* const> inputs,
         for (std::size_t channel = 0; channel < strip.channels; ++channel) {
             auto* pre = strip.pre.data() + channel * maxFrames_;
             auto* post = strip.post.data() + channel * maxFrames_;
-            auto* output = outputs[strip.portOffset + channel];
+
             for (std::size_t frame = 0; frame < frames; ++frame)
                 pre[frame] *= rampValue(strip.currentInputGain, strip.inputGain,
                     strip.inputRampRemaining, frame);
@@ -412,9 +439,19 @@ bool DigitalMixerProcessor::process(std::span<const float* const> inputs,
             for (std::size_t frame = 0; frame < frames; ++frame) {
                 post[frame] = strip.soloAudible ? pre[frame] * rampValue(strip.currentFaderGain,
                     strip.faderGain, strip.faderRampRemaining, frame) : 0.0F;
-                if (output) output[frame] = post[frame];
+
             }
         }
+        if(strip.subMix) {
+            for(std::size_t channel=0;channel<strip.channels;++channel)
+                std::fill_n(strip.outputProcessed.data()+channel*maxFrames_,frames,0.F);
+            addMatrix(strip.post,strip.channels,strip.outputProcessed,strip.channels,strip.outputMatrix,maxFrames_,frames);
+            strip.post.swap(strip.outputProcessed);
+        }
+        if(strip.exposeOutput)
+            for(std::size_t channel=0;channel<strip.channels;++channel)
+                if(auto* output=outputs[strip.portOffset+channel])
+                    std::copy_n(strip.post.data()+channel*maxFrames_,frames,output);
         advanceRamp(strip.currentInputGain, strip.inputGain, strip.inputRampRemaining, frames);
         advanceRamp(strip.currentFaderGain, strip.faderGain, strip.faderRampRemaining, frames);
         levels_[strip.levelIndex].inputPeak = *std::max_element(
@@ -533,7 +570,7 @@ bool DigitalMixerProcessor::readPolar(std::uint64_t sourceId, std::uint64_t targ
             if (targetId == mainId_) return strip.mainAnalyzer->readLatest(snapshot);
             for (auto& send : strip.sends)
                 if (send.targetId == targetId) {
-                    if (!strip.auxSendsEnabled || !send.enabled) return false;
+                    if ((!send.subMix && !strip.auxSendsEnabled) || !send.enabled) return false;
                     return send.analyzer->readLatest(snapshot);
                 }
         }

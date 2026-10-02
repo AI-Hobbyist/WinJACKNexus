@@ -204,4 +204,8 @@
   --wjn-theme-sel-main-background-component-opacity: var(--wjn-theme-patchbay-background-component-opacity);
   /* sel-main content background image; null means undefined and inherits the patchbay image; type=image */
   /* --wjn-theme-sel-main-background-image: inherited from --wjn-theme-patchbay-background-image; keep undeclared to inherit. */
+  /* sel-main / control-pfl-accent; type=color */
+  --wjn-theme-sel-main-control-pfl-accent: #ffe15a;
+  /* sel-main / control-afl-accent; type=color */
+  --wjn-theme-sel-main-control-afl-accent: #ffe15a;
 }

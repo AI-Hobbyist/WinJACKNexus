@@ -59,6 +59,7 @@ private:
         std::uint64_t targetId {};
         bool enabled {};
         bool preFader {};
+        bool subMix {};
         Matrix matrix {};
         std::vector<float> contribution;
         std::unique_ptr<MixerPolarAnalyzer> analyzer;
@@ -67,6 +68,10 @@ private:
         std::uint64_t id {};
         std::size_t channels {};
         std::size_t portOffset {};
+        bool exposeOutput { true };
+        bool subMix {};
+        Matrix outputMatrix {};
+        std::vector<float> outputProcessed;
         std::size_t levelIndex {};
         float inputGain { 1.0F };
         float faderGain { 1.0F };

@@ -7,6 +7,7 @@
 #include <WinJACKNexus/UI/TrayController.hpp>
 #include "StandardChannelNamesRegression.hpp"
 #include "HiddenSelChannelsRegression.hpp"
+#include "SubMixRegression.hpp"
 #include "PolarMixRegression.hpp"
 #include "AuxPolarSwitchRegression.hpp"
 #include "MeterbridgeOpenRegression.hpp"
@@ -567,6 +568,7 @@ int main(int argc, char** argv)
             }
         }
     }
+    verifySubMix(check);
     verifyHiddenSelChannels(check);
     verifyStandardChannelNames(check);
     verifyPreMixPolar(check);

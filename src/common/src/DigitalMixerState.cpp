@@ -195,6 +195,7 @@ bool readStrip(const QJsonObject& object, MixerStripState& result)
         if (!getInt(object, "listenMode", mode) || mode < 0 || mode > 2) return false;
         result.listenMode = static_cast<MixerListenMode>(mode);
     }
+
     result.number = static_cast<std::uint32_t>(number);
     result.kind = static_cast<MixerStripKind>(kind);
     result.layout = static_cast<MixerLayout>(layout);
@@ -297,7 +298,7 @@ DigitalMixerState::DigitalMixerState()
 const MixerStripState* DigitalMixerState::strip(std::uint64_t id) const noexcept
 {
     if (id == main_.id) return &main_;
-    for (const auto* list : {&inputs_, &auxiliaries_}) {
+    for (const auto* list : {&inputs_, &auxiliaries_, &subMixes_}) {
         const auto it = std::find_if(list->begin(), list->end(), [id](const auto& item) { return item.id == id; });
         if (it != list->end()) return &*it;
     }
@@ -311,20 +312,21 @@ MixerStripState* DigitalMixerState::strip(std::uint64_t id) noexcept
 
 std::uint64_t DigitalMixerState::add(MixerStripKind kind, MixerLayout layout)
 {
-    if ((kind != MixerStripKind::input && kind != MixerStripKind::aux) || !isMixerLayout(layout)
+    if ((kind != MixerStripKind::input && kind != MixerStripKind::aux && kind != MixerStripKind::subMix) || !isMixerLayout(layout)
         || nextId_ == std::numeric_limits<std::uint64_t>::max()) return 0;
-    auto& list = kind == MixerStripKind::input ? inputs_ : auxiliaries_;
-    auto& nextNumber = kind == MixerStripKind::input ? nextInputNumber_ : nextAuxNumber_;
+    auto& list = kind == MixerStripKind::input ? inputs_ : kind == MixerStripKind::aux ? auxiliaries_ : subMixes_;
+    auto& nextNumber = kind == MixerStripKind::input ? nextInputNumber_ : kind == MixerStripKind::aux ? nextAuxNumber_ : nextSubMixNumber_;
     if (nextNumber >= static_cast<std::uint32_t>(std::numeric_limits<int>::max())) return 0;
     MixerStripState item;
     item.id = nextId_++;
     item.number = nextNumber++;
     item.kind = kind;
+    if(kind==MixerStripKind::subMix)item.color=QColor("#37d879");
     item.layout = layout;
     item.faderPosition = mixerUnityFaderPosition;
-    item.name = QStringLiteral("%1%2").arg(kind == MixerStripKind::input ? QStringLiteral("CH") : QStringLiteral("AUX"))
+    item.name = QStringLiteral("%1%2").arg(kind == MixerStripKind::input ? QStringLiteral("CH") : kind == MixerStripKind::aux ? QStringLiteral("AUX") : QStringLiteral("SUB"))
                                      .arg(item.number);
-    item.mainPanner = defaultMixerPanner(layout, MixerLayout::stereo);
+    item.mainPanner = defaultMixerPanner(layout, kind==MixerStripKind::subMix?layout:MixerLayout::stereo);
     const auto id = item.id;
     list.push_back(std::move(item));
     return id;
@@ -342,7 +344,7 @@ std::uint64_t DigitalMixerState::clone(std::uint64_t id)
     *target = copied;
     target->id = newId;
     target->number = number;
-    target->name = QStringLiteral("%1%2").arg(target->kind == MixerStripKind::input ? QStringLiteral("CH") : QStringLiteral("AUX"))
+    target->name = QStringLiteral("%1%2").arg(target->kind == MixerStripKind::input ? QStringLiteral("CH") : target->kind == MixerStripKind::aux ? QStringLiteral("AUX") : QStringLiteral("SUB"))
                                          .arg(number);
     target->sends.erase(std::remove_if(target->sends.begin(), target->sends.end(), [newId](const auto& send) {
         return send.targetId == newId;
@@ -353,11 +355,11 @@ std::uint64_t DigitalMixerState::clone(std::uint64_t id)
 bool DigitalMixerState::remove(std::uint64_t id)
 {
     if (id == main_.id) return false;
-    for (auto* list : {&inputs_, &auxiliaries_}) {
+    for (auto* list : {&inputs_, &auxiliaries_, &subMixes_}) {
         const auto it = std::find_if(list->begin(), list->end(), [id](const auto& item) { return item.id == id; });
         if (it == list->end()) continue;
         list->erase(it);
-        for (auto* remaining : {&inputs_, &auxiliaries_}) {
+        for (auto* remaining : {&inputs_, &auxiliaries_, &subMixes_}) {
             for (auto& strip : *remaining) {
                 strip.sends.erase(std::remove_if(strip.sends.begin(), strip.sends.end(), [id](const auto& send) {
                     return send.targetId == id;
@@ -371,7 +373,7 @@ bool DigitalMixerState::remove(std::uint64_t id)
 
 bool DigitalMixerState::move(std::uint64_t id, std::size_t targetIndex)
 {
-    for (auto* list : {&inputs_, &auxiliaries_}) {
+    for (auto* list : {&inputs_, &auxiliaries_, &subMixes_}) {
         const auto it = std::find_if(list->begin(), list->end(), [id](const auto& item) { return item.id == id; });
         if (it == list->end()) continue;
         if (targetIndex >= list->size()) return false;
@@ -388,13 +390,13 @@ bool DigitalMixerState::setLayout(std::uint64_t id, MixerLayout layout)
     auto* target = strip(id);
     if (!target || target->kind == MixerStripKind::main || !isMixerLayout(layout)) return false;
     target->layout = layout;
-    target->mainPanner = defaultMixerPanner(layout, MixerLayout::stereo);
+    target->mainPanner = defaultMixerPanner(layout, target->kind==MixerStripKind::subMix?layout:MixerLayout::stereo);
     for (auto& send : target->sends) {
         const auto* destination = strip(send.targetId);
         send.panner = defaultMixerPanner(layout, destination->layout);
     }
-    if (target->kind == MixerStripKind::aux) {
-        for (auto* list : {&inputs_, &auxiliaries_}) {
+    if (target->kind == MixerStripKind::aux || target->kind == MixerStripKind::subMix) {
+        for (auto* list : {&inputs_, &auxiliaries_, &subMixes_}) {
             for (auto& source : *list) {
                 for (auto& send : source.sends) {
                     if (send.targetId == id)
@@ -406,12 +408,40 @@ bool DigitalMixerState::setLayout(std::uint64_t id, MixerLayout layout)
     return true;
 }
 
+bool DigitalMixerState::hasSubMix(std::uint64_t sourceId) const noexcept
+{
+    const auto* source = strip(sourceId);
+    if (!source) return false;
+    return std::any_of(source->sends.begin(), source->sends.end(), [this](const auto& send) {
+        const auto* target = strip(send.targetId);
+        return send.enabled && target && target->kind == MixerStripKind::subMix;
+    });
+}
+
+bool DigitalMixerState::setSubMix(std::uint64_t sourceId, std::uint64_t targetId, QString* error)
+{
+    const auto* source = strip(sourceId);
+    const auto* target = strip(targetId);
+    if (!source || source->kind == MixerStripKind::main
+        || (targetId && (!target || target->kind != MixerStripKind::subMix || sourceId == targetId)))
+        return fail(error, QStringLiteral("无效的 Sub Mix 路由"));
+    if (targetId) return setSend(sourceId, {targetId, true, false,
+        defaultMixerPanner(source->layout, target->layout)}, error);
+    auto candidate = *this;
+    auto& sends = candidate.strip(sourceId)->sends;
+    std::erase_if(sends, [this](const auto& send) { return strip(send.targetId)->kind == MixerStripKind::subMix; });
+    *this = std::move(candidate);
+    return true;
+}
+
 bool DigitalMixerState::setSend(std::uint64_t sourceId, const MixerAuxSend& send, QString* error)
 {
     auto* source = strip(sourceId);
     const auto* destination = strip(send.targetId);
     if (!source || source->kind == MixerStripKind::main || !destination
-        || destination->kind != MixerStripKind::aux || sourceId == send.targetId)
+        || (destination->kind != MixerStripKind::aux && destination->kind != MixerStripKind::subMix)
+        || (source->kind == MixerStripKind::subMix && destination->kind == MixerStripKind::aux)
+        || (destination->kind == MixerStripKind::subMix && send.preFader) || sourceId == send.targetId)
         return fail(error, QStringLiteral("无效或自发 AUX 路由"));
     if (!validPanner(send.panner, source->layout, destination->layout))
         return fail(error, QStringLiteral("AUX 声像参数无效"));
@@ -441,7 +471,8 @@ std::vector<MixerPortDescriptor> DigitalMixerState::ports() const
         }
     };
     for (const auto& item : inputs_) append(item);
-    for (const auto& item : auxiliaries_) append(item);
+    for (const auto& item : auxiliaries_) if (!hasSubMix(item.id)) append(item);
+    for (const auto& item : subMixes_) append(item);
     const auto monitorLabels = mixerChannelLabels(monitorLayout_);
     for (int channel = 0; channel < monitorLabels.size(); ++channel)
         result.push_back({0, QStringLiteral("MONITOR_") + monitorLabels[channel],
@@ -459,19 +490,20 @@ bool DigitalMixerState::validate(QString* error) const
     if (!inRange(monitorFaderPosition_, 0, 1) || !isMixerLayout(monitorLayout_))
         return fail(error, QStringLiteral("监听推子参数无效"));
     std::set<std::uint64_t> ids;
-    std::set<std::uint32_t> inputNumbers, auxNumbers;
+    std::set<std::uint32_t> inputNumbers, auxNumbers, subMixNumbers;
     const auto checkStrip = [&](const MixerStripState& item, MixerStripKind expected) {
         if (item.kind != expected || !isMixerLayout(item.layout) || item.id == 0
             || !ids.insert(item.id).second || item.id >= nextId_
             || !item.color.isValid() || item.name.trimmed().isEmpty()
             || !inRange(item.inputGainDb, -12, 12) || !inRange(item.faderPosition, 0, 1)
             || static_cast<int>(item.listenMode) < 0 || static_cast<int>(item.listenMode) > 2
-            || !validPanner(item.mainPanner, item.layout, MixerLayout::stereo)) return false;
+            || !validPanner(item.mainPanner, item.layout, item.kind==MixerStripKind::subMix?item.layout:MixerLayout::stereo)) return false;
         if (expected != MixerStripKind::main) {
-            auto& numbers = expected == MixerStripKind::input ? inputNumbers : auxNumbers;
-            const auto next = expected == MixerStripKind::input ? nextInputNumber_ : nextAuxNumber_;
+            auto& numbers = expected == MixerStripKind::input ? inputNumbers : expected == MixerStripKind::aux ? auxNumbers : subMixNumbers;
+            const auto next = expected == MixerStripKind::input ? nextInputNumber_ : expected == MixerStripKind::aux ? nextAuxNumber_ : nextSubMixNumber_;
             if (item.number == 0 || item.number >= next || !numbers.insert(item.number).second) return false;
         }
+        if (expected == MixerStripKind::subMix && item.auxSendsEnabled) return false;
         for (const auto& effect : item.effects) {
             if (effect.moduleId.trimmed().isEmpty() || effect.preset < -1) return false;
         }
@@ -484,18 +516,23 @@ bool DigitalMixerState::validate(QString* error) const
     for (const auto& item : auxiliaries_) {
         if (!checkStrip(item, MixerStripKind::aux)) return fail(error, QStringLiteral("AUX 参数或身份无效"));
     }
+    for (const auto& item : subMixes_) {
+        if (!checkStrip(item, MixerStripKind::subMix)) return fail(error, QStringLiteral("Sub Mix 参数或身份无效"));
+    }
     std::set<QString> portNames;
     for (const auto& port : ports()) {
         if (port.name.contains(QLatin1Char(':')) || port.name.contains(QLatin1Char('\0'))
             || !portNames.insert(port.name).second)
             return fail(error, QStringLiteral("通道名生成了无效或重复的 JACK 端口名"));
     }
-    for (const auto* list : {&inputs_, &auxiliaries_}) {
+    for (const auto* list : {&inputs_, &auxiliaries_, &subMixes_}) {
         for (const auto& source : *list) {
             std::set<std::uint64_t> targets;
             for (const auto& send : source.sends) {
                 const auto* target = strip(send.targetId);
-                if (!target || target->kind != MixerStripKind::aux || target->id == source.id
+                if (!target || (target->kind != MixerStripKind::aux && target->kind != MixerStripKind::subMix)
+                    || (source.kind == MixerStripKind::subMix && target->kind == MixerStripKind::aux)
+                    || (target->kind == MixerStripKind::subMix && send.preFader) || target->id == source.id
                     || !targets.insert(target->id).second
                     || !validPanner(send.panner, source.layout, target->layout))
                     return fail(error, QStringLiteral("AUX 路由无效或重复"));
@@ -516,21 +553,23 @@ bool DigitalMixerState::validate(QString* error) const
         visited.insert(id);
         return true;
     };
-    for (const auto& aux : auxiliaries_) {
-        if (!visit(visit, aux.id)) return fail(error, QStringLiteral("AUX 路由存在环"));
-    }
+    for (const auto* list : {&auxiliaries_, &subMixes_})
+        for (const auto& bus : *list)
+            if (!visit(visit, bus.id)) return fail(error, QStringLiteral("总线路由存在环"));
     return true;
 }
 
 QByteArray DigitalMixerState::toJson() const
 {
-    QJsonArray inputs, auxiliaries;
+    QJsonArray inputs, auxiliaries, subMixes;
     for (const auto& item : inputs_) inputs.append(stripJson(item));
     for (const auto& item : auxiliaries_) auxiliaries.append(stripJson(item));
+    for (const auto& item : subMixes_) subMixes.append(stripJson(item));
     return QJsonDocument(QJsonObject {
         {"version", 1}, {"nextId", QString::number(nextId_)},
         {"nextInputNumber", static_cast<int>(nextInputNumber_)},
         {"nextAuxNumber", static_cast<int>(nextAuxNumber_)},
+        {"subMixes", subMixes}, {"nextSubMixNumber", static_cast<int>(nextSubMixNumber_)},
         {"inputs", inputs}, {"auxiliaries", auxiliaries}, {"main", stripJson(main_)},
         {"monitorFaderPosition", monitorFaderPosition_},
         {"monitorLayout", static_cast<int>(monitorLayout_)}
@@ -545,7 +584,7 @@ bool DigitalMixerState::loadJson(const QByteArray& json, QString* error)
         return fail(error, QStringLiteral("JSON 格式错误"));
     const auto root = document.object();
     int version = 0, inputNumber = 0, auxNumber = 0;
-    QJsonArray inputs, auxiliaries;
+    QJsonArray inputs, auxiliaries, subMixes;
     QJsonObject main;
     DigitalMixerState candidate;
     if (!getInt(root, "version", version) || version != 1
@@ -577,6 +616,18 @@ bool DigitalMixerState::loadJson(const QByteArray& json, QString* error)
         if (!item.isObject() || !readStrip(item.toObject(), strip))
             return fail(error, QStringLiteral("AUX JSON 无效"));
         candidate.auxiliaries_.push_back(std::move(strip));
+    }
+    if (root.contains("subMixes")) {
+        int number = 0;
+        if (!getArray(root, "subMixes", subMixes) || !getInt(root, "nextSubMixNumber", number) || number < 1)
+            return fail(error, QStringLiteral("Sub Mix JSON 无效"));
+        candidate.nextSubMixNumber_ = static_cast<std::uint32_t>(number);
+        for (const auto& item : subMixes) {
+            MixerStripState strip;
+            if (!item.isObject() || !readStrip(item.toObject(), strip))
+                return fail(error, QStringLiteral("Sub Mix 通道 JSON 无效"));
+            candidate.subMixes_.push_back(std::move(strip));
+        }
     }
     if (!candidate.validate(error)) return false;
     *this = std::move(candidate);
