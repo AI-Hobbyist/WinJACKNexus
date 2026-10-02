@@ -603,7 +603,7 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
          themed("control-knob-track",QColor("#254762"))});
 
     panel(painter, impl_->leftPanel(), themed("border-panel",QColor("#2b4662")));
-    text(painter, impl_->scaled(26, 12, 172, 38), impl_->sourceName + (impl_->subMixMode ? QStringLiteral(" · Sub Mix") : QStringLiteral(" · AUX")), label, 18 * sy,
+    text(painter, impl_->scaled(26, 12, 172, 38), impl_->subMixMode ? QStringLiteral("Sub Mix") : QStringLiteral("AUX"), label, 18 * sy,
          Qt::AlignLeft | Qt::AlignVCenter, true);
     if (!impl_->subMixMode) {
     toggle(painter, impl_->masterToggle(), impl_->chainEnabled);
