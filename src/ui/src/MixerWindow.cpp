@@ -2170,7 +2170,7 @@ public:
             selSubPage = new QWidget(selStack);
             auto* subLayout = new QVBoxLayout(selSubPage); subLayout->setContentsMargins(0,0,0,0);
             selStack->addWidget(selSubPage);
-            for(int i=0;i<4;++i) {
+            for(const int i : {0,1,3,2}) {
                 auto* tab = new Controls::ActionButton(tabs[i],header);
                 tab->setObjectName(QStringLiteral("selTab%1").arg(tabs[i]));
                 tab->setCheckable(true);
