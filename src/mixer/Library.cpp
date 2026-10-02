@@ -86,7 +86,12 @@ public:
 
     HWND createWindow(HWND) noexcept override
     {
-        if (!initialized_) return nullptr;
+        return showView(0);
+    }
+
+    HWND showView(int view) noexcept
+    {
+        if (!initialized_ || view<0 || view>2) return nullptr;
         if (window_.isNull()) {
             window_ = new WinJACKNexus::UI::MixerWindow(&state_,
                 [this](const WinJACKNexus::Common::DigitalMixerState& candidate, QString* error) {
@@ -105,13 +110,11 @@ public:
                     return effects_.readLiveAnalysis(id, index, input, output,
                                                      reduction, spectrum, bytes);
                 });
-            window_->setAttribute(Qt::WA_DeleteOnClose);
+            window_->setAttribute(Qt::WA_DeleteOnClose,false);
         }
-        window_->show();
+        auto* visible=window_->openView(static_cast<WinJACKNexus::UI::MixerWindow::View>(view));
         showEffectWarning();
-        window_->raise();
-        window_->activateWindow();
-        return reinterpret_cast<HWND>(static_cast<quintptr>(window_->winId()));
+        return visible?reinterpret_cast<HWND>(static_cast<quintptr>(visible->winId())):nullptr;
     }
 
     void destroyWindow(HWND) noexcept override
@@ -613,3 +616,9 @@ extern "C" WINJACK_NODE_API void wjn_digital_mixer_fail_registration_after(
         mixer->failRegistrationAfter(successfulRegistrations);
 }
 #endif
+
+extern "C" WINJACK_NODE_API int wjn_digital_mixer_show_view(WinJACKNexus::Node::INode* node, int view)
+{
+    auto* mixer=dynamic_cast<DigitalMixerNode*>(node);
+    return mixer&&mixer->showView(view)?1:0;
+}

@@ -11,6 +11,7 @@ struct OverviewChannel final {
     qreal levelDb {-72};
     qreal peakDb {-72};
     bool selected {};
+    int kind {};
 };
 
 class MixerOverviewScreen final : public QWidget {
@@ -70,9 +71,10 @@ protected:
     void paintEvent(QPaintEvent*) override {
         QPainter painter(this);painter.setRenderHint(QPainter::Antialiasing);
         painter.fillRect(rect(),color("overview-card-surface","#0b1a2b"));
-        const auto kind=group_==0?"input":group_==1?"aux":"submix";
+
         for(std::size_t i=0;i<channels_.size();++i) {
             const auto& channel=channels_[i];
+            const auto kind=channel.kind==0?"input":channel.kind==1?"aux":channel.kind==2?"submix":channel.kind==3?"monitor":"master";
             const qreal x=i*stripWidth;
             Controls::drawSurface(painter,{x+2,2,stripWidth-4,qreal(height()-4)},
                 color("surface-empty","#07131f"),channel.color,5);
@@ -96,7 +98,7 @@ protected:
             for(const double db:{-12.,0.})painter.drawLine(QPointF(meter.left(),yForDb(db)),QPointF(meter.right(),yForDb(db)));
             Controls::FaderStyle fader;
             const auto token=[&](const char* part,const char* fallback){return color((QStringLiteral("fader-%1-%2").arg(QLatin1String(kind),QLatin1String(part))).toLatin1().constData(),fallback);};
-            fader.accent=token("thumb",group_==0?"#9aa8b7":group_==1?"#33b6ff":"#37d879");
+            fader.accent=token("thumb",channel.kind==0?"#9aa8b7":channel.kind==1?"#33b6ff":channel.kind==2?"#37d879":channel.kind==3?"#f4cd42":"#ef5757");
             fader.track=token("track","#0a0f15");fader.grip=token("grip","#07131f");
             fader.thumbWidth=20;fader.thumbHeight=28;
             Controls::drawFader(painter,track(i),channel.fader,fader);

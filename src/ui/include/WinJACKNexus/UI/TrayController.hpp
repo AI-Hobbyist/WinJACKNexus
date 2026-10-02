@@ -80,6 +80,8 @@ public:
     // --- 托盘入口 ---
     QAction* patchbayAction() const;     // 接线盘
     QAction* mixerAction() const;        // 调音台
+    QAction* mixerDetailsAction() const; // 通道详情
+    QAction* mixerOverviewAction() const; // 通道总览
     QAction* meterbridgeAction() const;  // 电平表桥
     QAction* switchAction() const;       // 信号切换开关
     void setQuickAccessThemeMenu(QMenu* menu);

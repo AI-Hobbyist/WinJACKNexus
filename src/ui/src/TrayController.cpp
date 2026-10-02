@@ -172,6 +172,8 @@ public:
         layout->addWidget(meterbridgeButton_);
 
         mixerButton_ = new Controls::IconActionButton(this);
+        mixerButton_->setObjectName(QStringLiteral("quickAccessMixerButton"));
+        mixerButton_->setPopupMode(QToolButton::InstantPopup);
         mixerButton_->setText(QStringLiteral("调音台"));
         mixerButton_->setToolTip(QStringLiteral("打开调音台"));
         layout->addWidget(mixerButton_);
@@ -268,7 +270,7 @@ public:
         mixerButton_->setEnabled(action != nullptr && action->isEnabled());
         if (action != nullptr && mixerAction_ == nullptr) {
             mixerAction_ = action;
-            connect(mixerButton_, &QToolButton::clicked, action, &QAction::trigger);
+            mixerButton_->setMenu(action->menu());
             connect(action, &QAction::changed, this, [this, action] {
                 mixerButton_->setEnabled(action->isEnabled());
             });
@@ -611,6 +613,8 @@ public:
     QMenu* menu = nullptr;
     QAction* placeholderPatchbay = nullptr;
     QAction* placeholderMixer = nullptr;
+    QAction* mixerDetails = nullptr;
+    QAction* mixerOverview = nullptr;
     QAction* placeholderMeterbridge = nullptr;
     QAction* quickAccessAction = nullptr;
     QAction* nodeGuiSeparator = nullptr;
@@ -685,6 +689,8 @@ void TrayController::shutdown()
     }
     impl_->placeholderPatchbay = nullptr;
     impl_->placeholderMixer = nullptr;
+    impl_->mixerDetails = nullptr;
+    impl_->mixerOverview = nullptr;
     impl_->placeholderMeterbridge = nullptr;
     impl_->quickAccessAction = nullptr;
     impl_->nodeGuiSeparator = nullptr;
@@ -743,6 +749,14 @@ void TrayController::buildPlaceholderMenu()
     impl_->placeholderMixer = new QAction(QStringLiteral("调音台"), impl_->menu);
     impl_->placeholderMixer->setEnabled(false);
     impl_->placeholderMixer->setToolTip(QStringLiteral("由快捷栏打开"));
+    auto* mixerMenu=new QMenu(impl_->menu);
+    mixerMenu->setObjectName(QStringLiteral("quickAccessMixerMenu"));
+    auto* openMixer=mixerMenu->addAction(QStringLiteral("调音台"));
+    connect(openMixer,&QAction::triggered,impl_->placeholderMixer,&QAction::trigger);
+    impl_->mixerDetails=mixerMenu->addAction(QStringLiteral("通道详情"));
+    impl_->mixerOverview=mixerMenu->addAction(QStringLiteral("通道总览"));
+    impl_->placeholderMixer->setMenu(mixerMenu);
+    for(auto* action:mixerMenu->actions())action->setEnabled(false);
 
     impl_->placeholderMeterbridge = new QAction(QStringLiteral("电平表桥"), impl_->menu);
     impl_->placeholderMeterbridge->setEnabled(false);
@@ -776,6 +790,7 @@ void TrayController::setNodeGuiEntries(std::vector<TrayNodeGuiEntry> entries)
                     return entry.category.compare(QStringLiteral("Digital Mixer"), Qt::CaseInsensitive) == 0;
                 });
                 controller->impl_->placeholderMixer->setEnabled(mixerLoaded);
+                for(auto* action:controller->impl_->placeholderMixer->menu()->actions())action->setEnabled(mixerLoaded);
             }
             controller->rebuildQuickAccessBar();
         }
@@ -836,6 +851,9 @@ QAction* TrayController::mixerAction() const
 {
     return impl_->placeholderMixer;
 }
+
+QAction* TrayController::mixerDetailsAction() const { return impl_->mixerDetails; }
+QAction* TrayController::mixerOverviewAction() const { return impl_->mixerOverview; }
 
 QAction* TrayController::meterbridgeAction() const
 {

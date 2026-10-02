@@ -916,6 +916,13 @@ public:
 		return this->clientId() == clientId;
 	}
 
+	bool showMixerView(int view) noexcept
+	{
+		using ShowView=int (*)(WinJACKNexus::Node::INode*,int);
+		const auto show=reinterpret_cast<ShowView>(GetProcAddress(library_,"wjn_digital_mixer_show_view"));
+		return show?show(node_,view)!=0:view==0&&showGui(nullptr);
+	}
+
 	bool showGui(QWidget* parent) noexcept
 	{
 		if (showNodeGui_ != nullptr)
@@ -1300,13 +1307,13 @@ public:
 		}) != 0;
 	}
 
-	int showLoadedDigitalMixer() noexcept
+	int showLoadedDigitalMixer(int view = 0) noexcept
 	{
 		const auto found = std::find_if(loadedModuleNodes_.begin(), loadedModuleNodes_.end(), [](const auto& node) {
 			return isDigitalMixerModule(node->modulePath()) && node->index() == 0;
 		});
 		if (found == loadedModuleNodes_.end()) return 0;
-		return (*found)->showGui(nullptr) ? 1 : -1;
+		return (*found)->showMixerView(view) ? 1 : -1;
 	}
 
 	WinJACKNexus::Node::NodeInfo info() const noexcept override
@@ -2777,6 +2784,11 @@ private:
 	ModuleNodeInfo copiedModuleNode_;
 };
 
+}
+
+extern "C" WINJACK_NODE_API int wjn_patchbay_show_digital_mixer_view(int view)
+{
+    return view<0||view>2?-1:livePatchbayNode==nullptr?0:livePatchbayNode->showLoadedDigitalMixer(view);
 }
 
 extern "C" WINJACK_NODE_API int wjn_patchbay_show_digital_mixer(void)

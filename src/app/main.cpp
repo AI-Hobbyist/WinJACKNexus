@@ -70,6 +70,7 @@
 #include <DbgHelp.h>
 
 #include <algorithm>
+#include <array>
 #include <cstdint>
 #include <cstring>
 #include <atomic>
@@ -1122,17 +1123,15 @@ int main(int argc, char* argv[])
             if (patchbayModule.node()->createWindow(nullptr) == nullptr)
                 tray.showMessage(QStringLiteral("接线盘"), QStringLiteral("无法创建接线盘窗口。"), 2);
         });
-        QObject::connect(tray.mixerAction(), &QAction::triggered, &application, [&tray, &patchbayModule] {
-            using ShowMixer = int (*)();
-            const auto showMixer = reinterpret_cast<ShowMixer>(GetProcAddress(
-                patchbayModule.moduleHandle(), "wjn_patchbay_show_digital_mixer"));
-            const int result = showMixer == nullptr ? -1 : showMixer();
-            if (result == 0)
-                tray.showMessage(QStringLiteral("调音台"),
-                    QStringLiteral("请先在接线盘的工具 > 音频工具中启用调音台。"), 2);
-            else if (result < 0)
-                tray.showMessage(QStringLiteral("调音台"), QStringLiteral("Digital Mixer 节点暂时无法打开。"), 2);
-        });
+        const std::array<QAction*,3> mixerViews {tray.mixerAction(),tray.mixerDetailsAction(),tray.mixerOverviewAction()};
+        for(int view=0;view<static_cast<int>(mixerViews.size());++view)
+            QObject::connect(mixerViews[view],&QAction::triggered,&application,[&tray,&patchbayModule,view] {
+                using ShowView=int (*)(int);
+                const auto show=reinterpret_cast<ShowView>(GetProcAddress(patchbayModule.moduleHandle(),"wjn_patchbay_show_digital_mixer_view"));
+                const int result=show?show(view):-1;
+                if(result==0)tray.showMessage(QStringLiteral("调音台"),QStringLiteral("请先在接线盘的工具 > 音频工具中启用调音台。"),2);
+                else if(result<0)tray.showMessage(QStringLiteral("调音台"),QStringLiteral("Digital Mixer 窗口暂时无法打开。"),2);
+            });
             tray.registerPlaceholder(tray.meterbridgeAction());
             QObject::connect(tray.meterbridgeAction(), &QAction::triggered, &application, [&tray, &meterbridgeModule] {
                 if (meterbridgeModule.node()->createWindow(nullptr) == nullptr)

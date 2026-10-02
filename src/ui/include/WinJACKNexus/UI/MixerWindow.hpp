@@ -34,6 +34,9 @@ public:
                 EffectAnalysisRead effectAnalysisRead, QWidget* parent = nullptr);
     ~MixerWindow() override;
 
+    enum class View { mixer = 0, channelDetails = 1, channelOverview = 2 };
+    /** Open only this view; all views share the controller and model. */
+    QWidget* openView(View view);
     bool channelMixToMain(int index) const;
     double mainInputLevelDb() const;
     double mainOutputLevelDb() const;

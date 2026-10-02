@@ -208,4 +208,14 @@
   --wjn-theme-sel-main-control-pfl-accent: #ffe15a;
   /* sel-main / control-afl-accent; type=color */
   --wjn-theme-sel-main-control-afl-accent: #ffe15a;
+  /* sel-main / control-channel-selector-surface; type=color */
+  --wjn-theme-sel-main-control-channel-selector-surface: #1b3048;
+  /* sel-main / control-channel-selector-text; type=color */
+  --wjn-theme-sel-main-control-channel-selector-text: #e8f2ff;
+  /* sel-main / control-channel-selector-border; type=color */
+  --wjn-theme-sel-main-control-channel-selector-border: #3b5675;
+  /* sel-main / control-channel-selector-accent; type=color */
+  --wjn-theme-sel-main-control-channel-selector-accent: #31c6ff;
+  /* sel-main / control-header-icon; type=color */
+  --wjn-theme-sel-main-control-header-icon: #e8f2ff;
 }

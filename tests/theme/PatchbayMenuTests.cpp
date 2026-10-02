@@ -61,6 +61,7 @@
 #include <cstdio>
 
 extern "C" int wjn_patchbay_show_digital_mixer(void);
+extern "C" int wjn_patchbay_show_digital_mixer_view(int view);
 
 namespace {
 int failures = 0;
@@ -209,6 +210,14 @@ int main(int argc, char** argv)
         return failures ? 1 : 0;
     }
 
+    {
+        QLibrary mixer(QDir(application.applicationDirPath()).filePath(QStringLiteral("../nodes/mixer/mod_digital_mixer.dll")));
+        using Show=int (*)(WinJACKNexus::Node::INode*,int);
+        const auto show=reinterpret_cast<Show>(mixer.resolve("wjn_digital_mixer_show_view"));
+        check(show&&show(nullptr,0)==0&&show(nullptr,1)==0&&show(nullptr,2)==0,"optional mixer view export rejects null nodes without JACK");
+        check(wjn_patchbay_show_digital_mixer_view(-1)==-1&&wjn_patchbay_show_digital_mixer_view(3)==-1,
+            "patchbay view bridge rejects unsupported view identifiers");
+    }
     {
         using namespace WinJACKNexus::UI;
         QLibrary adapter(QDir(application.applicationDirPath()).filePath(
@@ -799,6 +808,16 @@ int main(int argc, char** argv)
               && themeButton->size() == QSize(28, 28) && hideButton
               && themeButton->geometry().left() > hideButton->geometry().left(),
               "quick access keeps the final icon-only theme switch available with no loaded nodes");
+        auto* mixerButton=themeButton?themeButton->window()->findChild<QToolButton*>(QStringLiteral("quickAccessMixerButton")):nullptr;
+        check(mixerButton&&mixerButton->menu()&&mixerButton->popupMode()==QToolButton::InstantPopup
+            &&mixerButton->menu()->actions().size()==3
+            &&mixerButton->menu()->actions()[0]->text()==QStringLiteral("调音台")
+            &&mixerButton->menu()->actions()[1]==tray.mixerDetailsAction()
+            &&mixerButton->menu()->actions()[2]==tray.mixerOverviewAction(),"quick access mixer native menu exposes three independent views");
+        std::array<int,3> openedViews{};
+        QObject::connect(tray.mixerAction(),&QAction::triggered,[&] {++openedViews[0];});
+        QObject::connect(tray.mixerDetailsAction(),&QAction::triggered,[&] {++openedViews[1];});
+        QObject::connect(tray.mixerOverviewAction(),&QAction::triggered,[&] {++openedViews[2];});
         check(tray.mixerAction() && !tray.mixerAction()->isEnabled(),
               "quick access mixer starts disabled");
         WinJACKNexus::UI::TrayController::setNodeGuiEntries({{
@@ -806,8 +825,10 @@ int main(int argc, char** argv)
             QStringLiteral("DigitalMixer"), QStringLiteral("调音台"), [] { return true; }
         }});
         check(tray.mixerAction()->isEnabled(), "quick access mixer follows loaded node state");
+        if(mixerButton)for(auto* action:mixerButton->menu()->actions())action->trigger();
+        check(openedViews==std::array<int,3>{1,1,1},"quick menu actions dispatch each view exactly once");
         WinJACKNexus::UI::TrayController::setNodeGuiEntries({});
-        check(!tray.mixerAction()->isEnabled(), "quick access mixer clears when node is removed");
+        check(!tray.mixerAction()->isEnabled()&&!tray.mixerDetailsAction()->isEnabled()&&!tray.mixerOverviewAction()->isEnabled(), "all mixer views disable when node is removed");
         if (themeButton && pinButton) {
             QDir().mkpath(QStringLiteral("tests/preview/PrePush"));
             const QRect icons(pinButton->geometry().left() - 3,

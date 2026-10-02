@@ -32,10 +32,61 @@ template<class Check> void verifyMixerOverview(Check check)
         float peak=.5F;
         UI::MixerWindow mixer(&state,[&](const auto& next,QString*){state=next;return true;},
             [&](std::uint64_t,bool){return peak;});
-        mixer.resize(1024,768);mixer.show();QApplication::processEvents();
+        mixer.resize(1024,768);
+        auto* details=mixer.openView(UI::MixerWindow::View::channelDetails);
+        check(details&&details->isVisible()&&!mixer.isVisible(),"details opens directly without showing the main mixer");
+        auto* directOverview=mixer.openView(UI::MixerWindow::View::channelOverview);
+        check(directOverview&&directOverview->isVisible()&&!mixer.isVisible(),"overview opens directly without showing the main mixer");
+        mixer.openView(UI::MixerWindow::View::mixer);QApplication::processEvents();
+        mixer.close();QApplication::processEvents();
+        check(details&&details->isVisible()&&directOverview&&directOverview->isVisible(),"closing main mixer keeps independent views alive");
+        auto* selector=details?details->findChild<QToolButton*>(QStringLiteral("selChannelSelector")):nullptr;
+        auto* mainTab=details?details->findChild<QPushButton*>(QStringLiteral("selTabMain")):nullptr;
+        auto* typeIcon=details?details->findChild<QLabel*>(QStringLiteral("selChannelTypeIcon")):nullptr;
+        check(selector&&mainTab&&selector->geometry().right()<mainTab->geometry().left(),"categorized channel selector precedes MAIN tab");
+        if(selector&&selector->menu()) {
+            auto* menu=selector->menu();
+            QMetaObject::invokeMethod(menu,"aboutToShow",Qt::DirectConnection);
+            check(menu->actions().size()==4,"selector has four native channel categories");
+            for(int group=0;group<3;++group) {
+                auto* category=menu->actions()[group]->menu();
+                check(category&&category->actions().size()==ids[group].size(),"selector category preserves all current strips");
+                if(category) {
+                    check(category->actions().back()->text()==state.strip(ids[group].back())->name,"selector uses custom names");
+                    category->actions().back()->trigger();
+                    check(typeIcon&&typeIcon->property("channelIconType").toInt()==group,"detail icon matches selected strip type");
+                    QDir().mkpath(QStringLiteral("tests/preview/PrePush"));
+                    details->grab().save(QStringLiteral("tests/preview/PrePush/mixer-details-%1.png").arg(group));
+                }
+            }
+            auto* masters=menu->actions().back()->menu();
+            check(masters&&masters->actions().size()==2,"Listen/Master selector includes main and monitor");
+            if(masters) {
+                masters->actions()[0]->trigger();check(typeIcon&&typeIcon->property("channelIconType").toInt()==3,"master uses vector speaker icon");
+                masters->actions()[1]->trigger();
+                check(typeIcon&&typeIcon->property("channelIconType").toInt()==4
+                    &&details->findChild<QWidget*>(QStringLiteral("monitorSelPage"))->isVisible()
+                    &&mainTab->isVisible()&&!details->findChild<QPushButton*>(QStringLiteral("selTabFX"))->isVisible(),
+                    "monitor uses headphones and only MAIN in shared details");
+            }
+            menu->actions()[0]->menu()->actions()[0]->trigger();
+            const auto oldIcon=typeIcon->pixmap().toImage();
+            check(core.setOverride(QStringLiteral("--wjn-theme-sel-main-control-header-icon"),QStringLiteral("#ef1278")),"header icon token registered");
+            check(typeIcon->pixmap().toImage()!=oldIcon,"header icon reacts to theme token");
+            core.removeOverride(QStringLiteral("--wjn-theme-sel-main-control-header-icon"));
+            check(core.setOverride(QStringLiteral("--wjn-theme-sel-main-control-channel-selector-surface"),QStringLiteral("#123abc"))
+                &&selector->property("surfaceColor").value<QColor>()==QColor("#123abc"),"selector token registered and applied live");
+            core.removeOverride(QStringLiteral("--wjn-theme-sel-main-control-channel-selector-surface"));
+            // UI rename follows the same stable strip rather than a cached menu label.
+            auto* name=details->findChild<QLineEdit*>(QStringLiteral("selChannelName"));
+            name->setText(QStringLiteral("重命名输入"));QMetaObject::invokeMethod(name,"editingFinished",Qt::DirectConnection);
+            QMetaObject::invokeMethod(menu,"aboutToShow",Qt::DirectConnection);
+            check(menu->actions()[0]->menu()->actions()[0]->text()==QStringLiteral("重命名输入"),"selector refreshes renamed strips");
+        }
+        mixer.openView(UI::MixerWindow::View::mixer);QApplication::processEvents();
         QMenu* menu=nullptr;
         for(auto* action:mixer.menuBar()->actions())if(action->text()==QStringLiteral("查看大屏"))menu=action->menu();
-        check(menu&&menu->actions().size()==2&&menu->actions()[0]->text()==QStringLiteral("选中通道")
+        check(menu&&menu->actions().size()==2&&menu->actions()[0]->text()==QStringLiteral("通道详情")
             &&menu->actions()[1]->text()==QStringLiteral("通道总览"),"large-screen native menu exposes selected channel and overview");
         if(menu) {
             menu->actions()[0]->trigger();menu->actions()[1]->trigger();QApplication::processEvents();
@@ -119,6 +170,31 @@ template<class Check> void verifyMixerOverview(Check check)
                     "overview-title-aux-surface","overview-title-aux-text","overview-title-aux-border","overview-title-submix-surface","overview-title-submix-text","overview-title-submix-border"})
                     check(core.snapshot()->hasValue(QStringLiteral("--wjn-theme-mixer-")+QLatin1String(role)),"overview card/title token registered");
                 overview->resize(600,800);QApplication::processEvents();waitFrame();
+                auto* fixed=overview->findChild<QWidget*>(QStringLiteral("mixerOverviewFixedMasters"));
+                auto* subRow=overview->findChild<QWidget*>(QStringLiteral("mixerOverviewRow2"));
+                auto* subBar=overview->findChild<QScrollBar*>(QStringLiteral("overviewScrollBar2"));
+                check(fixed&&fixed->findChildren<QPushButton*>().size()==2
+                    &&overview->findChild<QLabel*>(QStringLiteral("overviewTitle2"))->text()==QStringLiteral("Sub Mix/Monitor/Master"),
+                    "third overview row includes fixed Monitor/Master and combined title");
+                if(fixed&&subRow&&subBar) {
+                    const auto before=fixed->mapTo(overview,QPoint());
+                    check(before.x()>subRow->parentWidget()->mapTo(overview,QPoint()).x(),"Monitor/Master are fixed on the right");
+                    subBar->setValue(subBar->maximum());
+                    check(fixed->mapTo(overview,QPoint())==before,"scrolling Sub Mix does not move Monitor/Master");
+                    const auto edit=[&](int x) {
+                        const QPointF p(x,54+(fixed->height()-129)*.5);
+                        QMouseEvent press(QEvent::MouseButtonPress,p,p,Qt::LeftButton,Qt::LeftButton,Qt::NoModifier);
+                        QMouseEvent release(QEvent::MouseButtonRelease,p,p,Qt::LeftButton,Qt::NoButton,Qt::NoModifier);
+                        QApplication::sendEvent(fixed,&press);QApplication::sendEvent(fixed,&release);
+                    };
+                    edit(60);check(std::abs(state.monitorFaderPosition()-.5)<.001,"fixed monitor fader commits real monitor gain");
+                    edit(144);check(std::abs(state.main().faderPosition-.5)<.001,"fixed MASTER fader commits real main gain");
+                    auto* mon=fixed->findChild<QPushButton*>(QStringLiteral("overviewSEL0"));
+                    mon->click();check(details->findChild<QWidget*>(QStringLiteral("monitorSelPage"))->isVisible(),"fixed monitor SEL opens monitor details");
+                    auto* master=fixed->findChild<QPushButton*>(QStringLiteral("overviewSEL%1").arg(state.main().id));
+                    master->click();check(typeIcon->property("channelIconType").toInt()==3,"fixed MASTER SEL opens main details");
+                    subBar->setValue(0);
+                }
                 auto* inputBar=overview->findChild<QScrollBar*>(QStringLiteral("overviewScrollBar0"));
                 auto* auxBar=overview->findChild<QScrollBar*>(QStringLiteral("overviewScrollBar1"));
                 check(inputBar&&inputBar->maximum()>0,"narrow overview supports horizontal scrolling");

@@ -6902,6 +6902,46 @@
         "--wjn-theme-patchbay-background-image"
       ],
       "description": "mixer-overview content background image; null means undefined and inherits the patchbay image"
+    },
+    {
+      "name": "--wjn-theme-sel-main-control-channel-selector-surface",
+      "ownerScope": "sel-main",
+      "type": "color",
+      "default": "#1b3048",
+      "inherits": [],
+      "description": "sel-main / control channel selector surface"
+    },
+    {
+      "name": "--wjn-theme-sel-main-control-channel-selector-text",
+      "ownerScope": "sel-main",
+      "type": "color",
+      "default": "#e8f2ff",
+      "inherits": [],
+      "description": "sel-main / control channel selector text"
+    },
+    {
+      "name": "--wjn-theme-sel-main-control-channel-selector-border",
+      "ownerScope": "sel-main",
+      "type": "color",
+      "default": "#3b5675",
+      "inherits": [],
+      "description": "sel-main / control channel selector border"
+    },
+    {
+      "name": "--wjn-theme-sel-main-control-channel-selector-accent",
+      "ownerScope": "sel-main",
+      "type": "color",
+      "default": "#31c6ff",
+      "inherits": [],
+      "description": "sel-main / control channel selector accent"
+    },
+    {
+      "name": "--wjn-theme-sel-main-control-header-icon",
+      "ownerScope": "sel-main",
+      "type": "color",
+      "default": "#e8f2ff",
+      "inherits": [],
+      "description": "sel-main / control header icon"
     }
   ]
 }
