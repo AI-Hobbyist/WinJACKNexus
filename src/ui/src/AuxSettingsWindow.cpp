@@ -716,10 +716,27 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
         auto font=painter.font();font.setPixelSize(size);font.setBold(bold);
         Controls::drawText(painter,rect,value,font,color,Qt::Alignment(align));
     };
-    const auto drawButton=[&](QRectF rect,const QString& value,bool active=false){
+    const auto drawButton=[&](QRectF rect,const QString& value,const char* group,bool active=false){
         Controls::ButtonStyle style;
-        style.activeBorder=cyan;
-        style.inactiveText=secondary;
+        const auto role=[group](const char* state){
+            return QString::fromLatin1(group)+QString::fromLatin1(state);
+        };
+        const auto global=[](const char* state,const QColor& fallback){
+            return Controls::themeTokenColor(QStringLiteral("global"),
+                QStringLiteral("control-button-")+QString::fromLatin1(state),fallback);
+        };
+        style.inactiveFill=Controls::themeTokenColor(QStringLiteral("sel-aux"),
+            role("-surface-normal"),global("surface-normal",style.inactiveFill));
+        style.activeFill=Controls::themeTokenColor(QStringLiteral("sel-aux"),
+            role("-surface-selected"),global("surface-selected",style.activeFill));
+        style.inactiveBorder=Controls::themeTokenColor(QStringLiteral("sel-aux"),
+            role("-border-normal"),global("border-normal",style.inactiveBorder));
+        style.activeBorder=Controls::themeTokenColor(QStringLiteral("sel-aux"),
+            role("-border-selected"),global("border-selected",style.activeBorder));
+        style.inactiveText=Controls::themeTokenColor(QStringLiteral("sel-aux"),
+            role("-text-normal"),secondary);
+        style.activeText=Controls::themeTokenColor(QStringLiteral("sel-aux"),
+            role("-text-selected"),global("text-selected",style.activeText));
         style.fontSize=14;
         Controls::drawStyledButton(painter,rect,value,active,style);
     };
@@ -744,9 +761,9 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
     drawPanel({406,11,559,544});drawPanel({406,566,559,235});drawPanel({976,11,359,790});
     drawText({420,20,250,29},QStringLiteral("声像器"),17,label,true);
     drawText({784,20,165,29},bus->name,12,secondary,false,Qt::AlignRight|Qt::AlignVCenter);
-    drawButton({420,52,137,34},QStringLiteral("空间声像器"),!classic);
+    drawButton({420,52,137,34},QStringLiteral("空间声像器"),"control-panner-mode-button",!classic);
     painter.save();if(!canClassic)painter.setOpacity(.32);
-    drawButton({567,52,137,34},QStringLiteral("经典 Pan"),classic);
+    drawButton({567,52,137,34},QStringLiteral("经典 Pan"),"control-panner-mode-button",classic);
     painter.restore();
     if(!classic){drawText({711,52,133,34},QStringLiteral("显示极坐标曲线"),13,secondary);drawToggle({851,56,42,24},bus->showPolarCurves);}
     drawPanel({420,95,531,448});
@@ -800,8 +817,8 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
         drawText({center.x()-radius-53,309,45,20},QStringLiteral("270°"),12,secondary);
         drawText({center.x()-24,516,48,20},QStringLiteral("180°"),12,secondary,false,Qt::AlignCenter);
         if(bus->showPolarCurves){
-            drawButton({420,508,70,27},QStringLiteral("输入"),bus->showInputCurve);
-            drawButton({495,508,70,27},QStringLiteral("输出"),bus->showOutputCurve);
+            drawButton({420,508,70,27},QStringLiteral("输入"),"control-panner-input-button",bus->showInputCurve);
+            drawButton({495,508,70,27},QStringLiteral("输出"),"control-panner-output-button",bus->showOutputCurve);
         }
     }
     drawText({420,574,300,27},QStringLiteral("空间声像参数"),17,label,true);
@@ -819,7 +836,7 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
     painter.restore();
     drawText({992,20,135,29},QStringLiteral("分控旋钮"),17,label,true);
     drawText({992,54,90,28},QStringLiteral("全通道链接"),13,secondary);drawToggle({1085,57,42,24},bus->sendsLinked);
-    drawButton({1220,52,100,34},QStringLiteral("重置"));
+    drawButton({1220,52,100,34},QStringLiteral("重置"),"control-panner-reset-button");
     const auto sendLabels = WinJACKNexus::Common::standardChannelLabels(8);
     Controls::MeterStyle sendMeter;
     sendMeter.border=themed("meter-aux-send-border",QColor("#06131f"));

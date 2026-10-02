@@ -45,5 +45,6 @@ When the repository root has a `.codegraph/` index, use CodeGraph before grep, f
 
 - Every project UI refresh timer and animation must follow the application's 30/60/120 FPS setting. Do not add an independent refresh rate for a project-owned view.
 - Visible application content controls should come from the WinJACKNexus UI API. Reuse an existing shared control first; when none fits, ask the user whether to create one and whether it belongs in the shared library or as an independent control.
-- System main menus, system tray menus, context menus and control popup menus must remain native Qt menus. Do not redraw or replace them for visual consistency.
+- 所有新增或修改的应用内 UI 控件必须优先复用公共 UI 控件库及既有 Theme Token。禁止在业务窗口、模块或控件中独立硬编码颜色、字体、边框、圆角、控件状态样式或其他可主题化视觉属性，包括局部 QSS/StyleSheet 与自绘代码中的固定视觉值。若现有公共控件或 Token 无法表达需求，应先扩展公共 UI/Theme Token，再由业务界面引用。
+- 系统主菜单、托盘菜单、右键菜单和控件弹出菜单继续使用 Qt 原生样式。
 - Treat `Develop/Node/Node-API.md`, `Develop/NativeFx/NativeFx-API.md` and `Docs/UI-API.md` as the frozen API contracts. Update the relevant document and call-site tests when an exported signature or behavior changes.

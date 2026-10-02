@@ -1,5 +1,53 @@
 /* sel-aux module theme tokens. Keep token names and the :root block. */
 :root {
+  /* sel-aux / 空间声像器 / 经典 Pan button surface normal; type=color */
+  --wjn-theme-sel-aux-control-panner-mode-button-surface-normal: var(--wjn-theme-global-control-button-surface-normal);
+  /* sel-aux / 空间声像器 / 经典 Pan button surface selected; type=color */
+  --wjn-theme-sel-aux-control-panner-mode-button-surface-selected: var(--wjn-theme-global-control-button-surface-selected);
+  /* sel-aux / 空间声像器 / 经典 Pan button border normal; type=color */
+  --wjn-theme-sel-aux-control-panner-mode-button-border-normal: var(--wjn-theme-global-control-button-border-normal);
+  /* sel-aux / 空间声像器 / 经典 Pan button border selected; type=color */
+  --wjn-theme-sel-aux-control-panner-mode-button-border-selected: var(--wjn-theme-global-control-button-border-selected);
+  /* sel-aux / 空间声像器 / 经典 Pan button text normal; type=color */
+  --wjn-theme-sel-aux-control-panner-mode-button-text-normal: var(--wjn-theme-sel-aux-text-muted);
+  /* sel-aux / 空间声像器 / 经典 Pan button text selected; type=color */
+  --wjn-theme-sel-aux-control-panner-mode-button-text-selected: var(--wjn-theme-global-control-button-text-selected);
+  /* sel-aux / 输入曲线 button surface normal; type=color */
+  --wjn-theme-sel-aux-control-panner-input-button-surface-normal: var(--wjn-theme-global-control-button-surface-normal);
+  /* sel-aux / 输入曲线 button surface selected; type=color */
+  --wjn-theme-sel-aux-control-panner-input-button-surface-selected: var(--wjn-theme-global-control-button-surface-selected);
+  /* sel-aux / 输入曲线 button border normal; type=color */
+  --wjn-theme-sel-aux-control-panner-input-button-border-normal: var(--wjn-theme-global-control-button-border-normal);
+  /* sel-aux / 输入曲线 button border selected; type=color */
+  --wjn-theme-sel-aux-control-panner-input-button-border-selected: var(--wjn-theme-global-control-button-border-selected);
+  /* sel-aux / 输入曲线 button text normal; type=color */
+  --wjn-theme-sel-aux-control-panner-input-button-text-normal: var(--wjn-theme-sel-aux-text-muted);
+  /* sel-aux / 输入曲线 button text selected; type=color */
+  --wjn-theme-sel-aux-control-panner-input-button-text-selected: var(--wjn-theme-global-control-button-text-selected);
+  /* sel-aux / 输出曲线 button surface normal; type=color */
+  --wjn-theme-sel-aux-control-panner-output-button-surface-normal: var(--wjn-theme-global-control-button-surface-normal);
+  /* sel-aux / 输出曲线 button surface selected; type=color */
+  --wjn-theme-sel-aux-control-panner-output-button-surface-selected: var(--wjn-theme-global-control-button-surface-selected);
+  /* sel-aux / 输出曲线 button border normal; type=color */
+  --wjn-theme-sel-aux-control-panner-output-button-border-normal: var(--wjn-theme-global-control-button-border-normal);
+  /* sel-aux / 输出曲线 button border selected; type=color */
+  --wjn-theme-sel-aux-control-panner-output-button-border-selected: var(--wjn-theme-global-control-button-border-selected);
+  /* sel-aux / 输出曲线 button text normal; type=color */
+  --wjn-theme-sel-aux-control-panner-output-button-text-normal: var(--wjn-theme-sel-aux-text-muted);
+  /* sel-aux / 输出曲线 button text selected; type=color */
+  --wjn-theme-sel-aux-control-panner-output-button-text-selected: var(--wjn-theme-global-control-button-text-selected);
+  /* sel-aux / 分控旋钮重置 button surface normal; type=color */
+  --wjn-theme-sel-aux-control-panner-reset-button-surface-normal: var(--wjn-theme-global-control-button-surface-normal);
+  /* sel-aux / 分控旋钮重置 button surface selected; type=color */
+  --wjn-theme-sel-aux-control-panner-reset-button-surface-selected: var(--wjn-theme-global-control-button-surface-selected);
+  /* sel-aux / 分控旋钮重置 button border normal; type=color */
+  --wjn-theme-sel-aux-control-panner-reset-button-border-normal: var(--wjn-theme-global-control-button-border-normal);
+  /* sel-aux / 分控旋钮重置 button border selected; type=color */
+  --wjn-theme-sel-aux-control-panner-reset-button-border-selected: var(--wjn-theme-global-control-button-border-selected);
+  /* sel-aux / 分控旋钮重置 button text normal; type=color */
+  --wjn-theme-sel-aux-control-panner-reset-button-text-normal: var(--wjn-theme-sel-aux-text-muted);
+  /* sel-aux / 分控旋钮重置 button text selected; type=color */
+  --wjn-theme-sel-aux-control-panner-reset-button-text-selected: var(--wjn-theme-global-control-button-text-selected);
   /* sel-aux / surface empty; type=color */
   --wjn-theme-sel-aux-surface-empty: #0b1a2b;
   /* sel-aux / surface panel; type=color */

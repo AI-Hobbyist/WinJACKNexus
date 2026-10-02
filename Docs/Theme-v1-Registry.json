@@ -1261,6 +1261,198 @@
       "description": "mixer / meter level border"
     },
     {
+      "name": "--wjn-theme-sel-main-control-panner-mode-button-surface-normal",
+      "ownerScope": "sel-main",
+      "type": "color",
+      "default": "var(--wjn-theme-global-control-button-surface-normal)",
+      "inherits": [],
+      "description": "sel-main / 空间声像器 / 经典 Pan button surface normal"
+    },
+    {
+      "name": "--wjn-theme-sel-main-control-panner-mode-button-surface-selected",
+      "ownerScope": "sel-main",
+      "type": "color",
+      "default": "var(--wjn-theme-global-control-button-surface-selected)",
+      "inherits": [],
+      "description": "sel-main / 空间声像器 / 经典 Pan button surface selected"
+    },
+    {
+      "name": "--wjn-theme-sel-main-control-panner-mode-button-border-normal",
+      "ownerScope": "sel-main",
+      "type": "color",
+      "default": "var(--wjn-theme-global-control-button-border-normal)",
+      "inherits": [],
+      "description": "sel-main / 空间声像器 / 经典 Pan button border normal"
+    },
+    {
+      "name": "--wjn-theme-sel-main-control-panner-mode-button-border-selected",
+      "ownerScope": "sel-main",
+      "type": "color",
+      "default": "var(--wjn-theme-global-control-button-border-selected)",
+      "inherits": [],
+      "description": "sel-main / 空间声像器 / 经典 Pan button border selected"
+    },
+    {
+      "name": "--wjn-theme-sel-main-control-panner-mode-button-text-normal",
+      "ownerScope": "sel-main",
+      "type": "color",
+      "default": "var(--wjn-theme-sel-main-text-muted)",
+      "inherits": [],
+      "description": "sel-main / 空间声像器 / 经典 Pan button text normal"
+    },
+    {
+      "name": "--wjn-theme-sel-main-control-panner-mode-button-text-selected",
+      "ownerScope": "sel-main",
+      "type": "color",
+      "default": "var(--wjn-theme-global-control-button-text-selected)",
+      "inherits": [],
+      "description": "sel-main / 空间声像器 / 经典 Pan button text selected"
+    },
+    {
+      "name": "--wjn-theme-sel-main-control-panner-input-button-surface-normal",
+      "ownerScope": "sel-main",
+      "type": "color",
+      "default": "var(--wjn-theme-global-control-button-surface-normal)",
+      "inherits": [],
+      "description": "sel-main / 输入曲线 button surface normal"
+    },
+    {
+      "name": "--wjn-theme-sel-main-control-panner-input-button-surface-selected",
+      "ownerScope": "sel-main",
+      "type": "color",
+      "default": "var(--wjn-theme-global-control-button-surface-selected)",
+      "inherits": [],
+      "description": "sel-main / 输入曲线 button surface selected"
+    },
+    {
+      "name": "--wjn-theme-sel-main-control-panner-input-button-border-normal",
+      "ownerScope": "sel-main",
+      "type": "color",
+      "default": "var(--wjn-theme-global-control-button-border-normal)",
+      "inherits": [],
+      "description": "sel-main / 输入曲线 button border normal"
+    },
+    {
+      "name": "--wjn-theme-sel-main-control-panner-input-button-border-selected",
+      "ownerScope": "sel-main",
+      "type": "color",
+      "default": "var(--wjn-theme-sel-main-chart-series-polar-input-stroke)",
+      "inherits": [],
+      "description": "sel-main / 输入曲线 button border selected"
+    },
+    {
+      "name": "--wjn-theme-sel-main-control-panner-input-button-text-normal",
+      "ownerScope": "sel-main",
+      "type": "color",
+      "default": "var(--wjn-theme-sel-main-text-muted)",
+      "inherits": [],
+      "description": "sel-main / 输入曲线 button text normal"
+    },
+    {
+      "name": "--wjn-theme-sel-main-control-panner-input-button-text-selected",
+      "ownerScope": "sel-main",
+      "type": "color",
+      "default": "var(--wjn-theme-global-control-button-text-selected)",
+      "inherits": [],
+      "description": "sel-main / 输入曲线 button text selected"
+    },
+    {
+      "name": "--wjn-theme-sel-main-control-panner-output-button-surface-normal",
+      "ownerScope": "sel-main",
+      "type": "color",
+      "default": "var(--wjn-theme-global-control-button-surface-normal)",
+      "inherits": [],
+      "description": "sel-main / 输出曲线 button surface normal"
+    },
+    {
+      "name": "--wjn-theme-sel-main-control-panner-output-button-surface-selected",
+      "ownerScope": "sel-main",
+      "type": "color",
+      "default": "var(--wjn-theme-global-control-button-surface-selected)",
+      "inherits": [],
+      "description": "sel-main / 输出曲线 button surface selected"
+    },
+    {
+      "name": "--wjn-theme-sel-main-control-panner-output-button-border-normal",
+      "ownerScope": "sel-main",
+      "type": "color",
+      "default": "var(--wjn-theme-global-control-button-border-normal)",
+      "inherits": [],
+      "description": "sel-main / 输出曲线 button border normal"
+    },
+    {
+      "name": "--wjn-theme-sel-main-control-panner-output-button-border-selected",
+      "ownerScope": "sel-main",
+      "type": "color",
+      "default": "var(--wjn-theme-sel-main-chart-series-polar-output-stroke)",
+      "inherits": [],
+      "description": "sel-main / 输出曲线 button border selected"
+    },
+    {
+      "name": "--wjn-theme-sel-main-control-panner-output-button-text-normal",
+      "ownerScope": "sel-main",
+      "type": "color",
+      "default": "var(--wjn-theme-sel-main-text-muted)",
+      "inherits": [],
+      "description": "sel-main / 输出曲线 button text normal"
+    },
+    {
+      "name": "--wjn-theme-sel-main-control-panner-output-button-text-selected",
+      "ownerScope": "sel-main",
+      "type": "color",
+      "default": "var(--wjn-theme-global-control-button-text-selected)",
+      "inherits": [],
+      "description": "sel-main / 输出曲线 button text selected"
+    },
+    {
+      "name": "--wjn-theme-sel-main-control-panner-reset-button-surface-normal",
+      "ownerScope": "sel-main",
+      "type": "color",
+      "default": "var(--wjn-theme-global-control-button-surface-normal)",
+      "inherits": [],
+      "description": "sel-main / 分控旋钮重置 button surface normal"
+    },
+    {
+      "name": "--wjn-theme-sel-main-control-panner-reset-button-surface-selected",
+      "ownerScope": "sel-main",
+      "type": "color",
+      "default": "var(--wjn-theme-global-control-button-surface-selected)",
+      "inherits": [],
+      "description": "sel-main / 分控旋钮重置 button surface selected"
+    },
+    {
+      "name": "--wjn-theme-sel-main-control-panner-reset-button-border-normal",
+      "ownerScope": "sel-main",
+      "type": "color",
+      "default": "var(--wjn-theme-global-control-button-border-normal)",
+      "inherits": [],
+      "description": "sel-main / 分控旋钮重置 button border normal"
+    },
+    {
+      "name": "--wjn-theme-sel-main-control-panner-reset-button-border-selected",
+      "ownerScope": "sel-main",
+      "type": "color",
+      "default": "var(--wjn-theme-global-control-button-border-selected)",
+      "inherits": [],
+      "description": "sel-main / 分控旋钮重置 button border selected"
+    },
+    {
+      "name": "--wjn-theme-sel-main-control-panner-reset-button-text-normal",
+      "ownerScope": "sel-main",
+      "type": "color",
+      "default": "var(--wjn-theme-sel-main-text-muted)",
+      "inherits": [],
+      "description": "sel-main / 分控旋钮重置 button text normal"
+    },
+    {
+      "name": "--wjn-theme-sel-main-control-panner-reset-button-text-selected",
+      "ownerScope": "sel-main",
+      "type": "color",
+      "default": "var(--wjn-theme-global-control-button-text-selected)",
+      "inherits": [],
+      "description": "sel-main / 分控旋钮重置 button text selected"
+    },
+    {
       "name": "--wjn-theme-sel-main-surface-empty",
       "ownerScope": "sel-main",
       "type": "color",
@@ -2015,6 +2207,198 @@
       "default": "#102234",
       "inherits": [],
       "description": "sel-main / meter aux send zone high inactive"
+    },
+    {
+      "name": "--wjn-theme-sel-aux-control-panner-mode-button-surface-normal",
+      "ownerScope": "sel-aux",
+      "type": "color",
+      "default": "var(--wjn-theme-global-control-button-surface-normal)",
+      "inherits": [],
+      "description": "sel-aux / 空间声像器 / 经典 Pan button surface normal"
+    },
+    {
+      "name": "--wjn-theme-sel-aux-control-panner-mode-button-surface-selected",
+      "ownerScope": "sel-aux",
+      "type": "color",
+      "default": "var(--wjn-theme-global-control-button-surface-selected)",
+      "inherits": [],
+      "description": "sel-aux / 空间声像器 / 经典 Pan button surface selected"
+    },
+    {
+      "name": "--wjn-theme-sel-aux-control-panner-mode-button-border-normal",
+      "ownerScope": "sel-aux",
+      "type": "color",
+      "default": "var(--wjn-theme-global-control-button-border-normal)",
+      "inherits": [],
+      "description": "sel-aux / 空间声像器 / 经典 Pan button border normal"
+    },
+    {
+      "name": "--wjn-theme-sel-aux-control-panner-mode-button-border-selected",
+      "ownerScope": "sel-aux",
+      "type": "color",
+      "default": "var(--wjn-theme-global-control-button-border-selected)",
+      "inherits": [],
+      "description": "sel-aux / 空间声像器 / 经典 Pan button border selected"
+    },
+    {
+      "name": "--wjn-theme-sel-aux-control-panner-mode-button-text-normal",
+      "ownerScope": "sel-aux",
+      "type": "color",
+      "default": "var(--wjn-theme-sel-aux-text-muted)",
+      "inherits": [],
+      "description": "sel-aux / 空间声像器 / 经典 Pan button text normal"
+    },
+    {
+      "name": "--wjn-theme-sel-aux-control-panner-mode-button-text-selected",
+      "ownerScope": "sel-aux",
+      "type": "color",
+      "default": "var(--wjn-theme-global-control-button-text-selected)",
+      "inherits": [],
+      "description": "sel-aux / 空间声像器 / 经典 Pan button text selected"
+    },
+    {
+      "name": "--wjn-theme-sel-aux-control-panner-input-button-surface-normal",
+      "ownerScope": "sel-aux",
+      "type": "color",
+      "default": "var(--wjn-theme-global-control-button-surface-normal)",
+      "inherits": [],
+      "description": "sel-aux / 输入曲线 button surface normal"
+    },
+    {
+      "name": "--wjn-theme-sel-aux-control-panner-input-button-surface-selected",
+      "ownerScope": "sel-aux",
+      "type": "color",
+      "default": "var(--wjn-theme-global-control-button-surface-selected)",
+      "inherits": [],
+      "description": "sel-aux / 输入曲线 button surface selected"
+    },
+    {
+      "name": "--wjn-theme-sel-aux-control-panner-input-button-border-normal",
+      "ownerScope": "sel-aux",
+      "type": "color",
+      "default": "var(--wjn-theme-global-control-button-border-normal)",
+      "inherits": [],
+      "description": "sel-aux / 输入曲线 button border normal"
+    },
+    {
+      "name": "--wjn-theme-sel-aux-control-panner-input-button-border-selected",
+      "ownerScope": "sel-aux",
+      "type": "color",
+      "default": "var(--wjn-theme-global-control-button-border-selected)",
+      "inherits": [],
+      "description": "sel-aux / 输入曲线 button border selected"
+    },
+    {
+      "name": "--wjn-theme-sel-aux-control-panner-input-button-text-normal",
+      "ownerScope": "sel-aux",
+      "type": "color",
+      "default": "var(--wjn-theme-sel-aux-text-muted)",
+      "inherits": [],
+      "description": "sel-aux / 输入曲线 button text normal"
+    },
+    {
+      "name": "--wjn-theme-sel-aux-control-panner-input-button-text-selected",
+      "ownerScope": "sel-aux",
+      "type": "color",
+      "default": "var(--wjn-theme-global-control-button-text-selected)",
+      "inherits": [],
+      "description": "sel-aux / 输入曲线 button text selected"
+    },
+    {
+      "name": "--wjn-theme-sel-aux-control-panner-output-button-surface-normal",
+      "ownerScope": "sel-aux",
+      "type": "color",
+      "default": "var(--wjn-theme-global-control-button-surface-normal)",
+      "inherits": [],
+      "description": "sel-aux / 输出曲线 button surface normal"
+    },
+    {
+      "name": "--wjn-theme-sel-aux-control-panner-output-button-surface-selected",
+      "ownerScope": "sel-aux",
+      "type": "color",
+      "default": "var(--wjn-theme-global-control-button-surface-selected)",
+      "inherits": [],
+      "description": "sel-aux / 输出曲线 button surface selected"
+    },
+    {
+      "name": "--wjn-theme-sel-aux-control-panner-output-button-border-normal",
+      "ownerScope": "sel-aux",
+      "type": "color",
+      "default": "var(--wjn-theme-global-control-button-border-normal)",
+      "inherits": [],
+      "description": "sel-aux / 输出曲线 button border normal"
+    },
+    {
+      "name": "--wjn-theme-sel-aux-control-panner-output-button-border-selected",
+      "ownerScope": "sel-aux",
+      "type": "color",
+      "default": "var(--wjn-theme-global-control-button-border-selected)",
+      "inherits": [],
+      "description": "sel-aux / 输出曲线 button border selected"
+    },
+    {
+      "name": "--wjn-theme-sel-aux-control-panner-output-button-text-normal",
+      "ownerScope": "sel-aux",
+      "type": "color",
+      "default": "var(--wjn-theme-sel-aux-text-muted)",
+      "inherits": [],
+      "description": "sel-aux / 输出曲线 button text normal"
+    },
+    {
+      "name": "--wjn-theme-sel-aux-control-panner-output-button-text-selected",
+      "ownerScope": "sel-aux",
+      "type": "color",
+      "default": "var(--wjn-theme-global-control-button-text-selected)",
+      "inherits": [],
+      "description": "sel-aux / 输出曲线 button text selected"
+    },
+    {
+      "name": "--wjn-theme-sel-aux-control-panner-reset-button-surface-normal",
+      "ownerScope": "sel-aux",
+      "type": "color",
+      "default": "var(--wjn-theme-global-control-button-surface-normal)",
+      "inherits": [],
+      "description": "sel-aux / 分控旋钮重置 button surface normal"
+    },
+    {
+      "name": "--wjn-theme-sel-aux-control-panner-reset-button-surface-selected",
+      "ownerScope": "sel-aux",
+      "type": "color",
+      "default": "var(--wjn-theme-global-control-button-surface-selected)",
+      "inherits": [],
+      "description": "sel-aux / 分控旋钮重置 button surface selected"
+    },
+    {
+      "name": "--wjn-theme-sel-aux-control-panner-reset-button-border-normal",
+      "ownerScope": "sel-aux",
+      "type": "color",
+      "default": "var(--wjn-theme-global-control-button-border-normal)",
+      "inherits": [],
+      "description": "sel-aux / 分控旋钮重置 button border normal"
+    },
+    {
+      "name": "--wjn-theme-sel-aux-control-panner-reset-button-border-selected",
+      "ownerScope": "sel-aux",
+      "type": "color",
+      "default": "var(--wjn-theme-global-control-button-border-selected)",
+      "inherits": [],
+      "description": "sel-aux / 分控旋钮重置 button border selected"
+    },
+    {
+      "name": "--wjn-theme-sel-aux-control-panner-reset-button-text-normal",
+      "ownerScope": "sel-aux",
+      "type": "color",
+      "default": "var(--wjn-theme-sel-aux-text-muted)",
+      "inherits": [],
+      "description": "sel-aux / 分控旋钮重置 button text normal"
+    },
+    {
+      "name": "--wjn-theme-sel-aux-control-panner-reset-button-text-selected",
+      "ownerScope": "sel-aux",
+      "type": "color",
+      "default": "var(--wjn-theme-global-control-button-text-selected)",
+      "inherits": [],
+      "description": "sel-aux / 分控旋钮重置 button text selected"
     },
     {
       "name": "--wjn-theme-sel-aux-surface-empty",

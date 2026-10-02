@@ -478,10 +478,28 @@ protected:
             QFont f=p.font(); f.setPixelSize(size); f.setBold(bold);
             Controls::drawText(p,r,s,f,c,Qt::Alignment(align));
         };
-        auto button = [&](QRectF r, const QString& label, bool active=false, QColor accent=QColor("#26bfff")) {
+        auto button = [&](QRectF r, const QString& label, const char* group,
+                          bool active=false) {
             Controls::ButtonStyle style;
-            style.activeBorder = accent;
-            style.inactiveText = muted;
+            const auto role = [group](const char* state) {
+                return QString::fromLatin1(group) + QString::fromLatin1(state);
+            };
+            const auto global = [](const char* state, const QColor& fallback) {
+                return Controls::themeTokenColor(QStringLiteral("global"),
+                    QStringLiteral("control-button-") + QString::fromLatin1(state), fallback);
+            };
+            style.inactiveFill = Controls::themeTokenColor(QStringLiteral("sel-main"),
+                role("-surface-normal"), global("surface-normal", style.inactiveFill));
+            style.activeFill = Controls::themeTokenColor(QStringLiteral("sel-main"),
+                role("-surface-selected"), global("surface-selected", style.activeFill));
+            style.inactiveBorder = Controls::themeTokenColor(QStringLiteral("sel-main"),
+                role("-border-normal"), global("border-normal", style.inactiveBorder));
+            style.activeBorder = Controls::themeTokenColor(QStringLiteral("sel-main"),
+                role("-border-selected"), global("border-selected", style.activeBorder));
+            style.inactiveText = Controls::themeTokenColor(QStringLiteral("sel-main"),
+                role("-text-normal"), muted);
+            style.activeText = Controls::themeTokenColor(QStringLiteral("sel-main"),
+                role("-text-selected"), global("text-selected", style.activeText));
             Controls::drawStyledButton(p, r, label, active, style);
         };
         auto toggle = [&](QRectF r, bool checked) {
@@ -581,18 +599,16 @@ protected:
         const auto* pannerBus=selectedBus();
         const bool classic=pannerBus&&pannerBus->panMode==Common::AuxPanMode::classic;
         const bool canUseClassic=channel&&Common::auxSupportsClassicPan(channel->layout,channel->layout);
-        button({330,52,137,34},QStringLiteral("空间声像器"),!classic);
+        button({330,52,137,34},QStringLiteral("空间声像器"),"control-panner-mode-button",!classic);
         p.save();if(!canUseClassic)p.setOpacity(.32);
-        button({477,52,137,34},QStringLiteral("经典 Pan"),classic);
+        button({477,52,137,34},QStringLiteral("经典 Pan"),"control-panner-mode-button",classic);
         p.restore();
         if(!classic){
             text({638,52,118,34},QStringLiteral("显示极坐标曲线"),14,muted);
             toggle({761,56,42,25},pannerBus&&pannerBus->showPolarCurves);
             if(pannerBus&&pannerBus->showPolarCurves){
-                button({809,52,58,34},QStringLiteral("输入"),pannerBus->showInputCurve,
-                       themed("chart-series-polar-input-stroke",QColor("#28c9f3")));
-                button({872,52,58,34},QStringLiteral("输出"),pannerBus->showOutputCurve,
-                       themed("chart-series-polar-output-stroke",QColor("#ffa44a")));
+                button({809,52,58,34},QStringLiteral("输入"),"control-panner-input-button",pannerBus->showInputCurve);
+                button({872,52,58,34},QStringLiteral("输出"),"control-panner-output-button",pannerBus->showOutputCurve);
             }
         }
         panel({330,95,616,448});
@@ -664,7 +680,7 @@ protected:
         text({991,20,190,29},QStringLiteral("分控旋钮"),17,ink,true);
         text({992,54,81,28},QStringLiteral("全通道链接"),13,muted);
         toggle({1077,56,42,24},linked);
-        button({1256,51,105,34},QStringLiteral("重置"));
+        button({1256,51,105,34},QStringLiteral("重置"),"control-panner-reset-button");
         const auto* bus=pannerBus;
         const auto labels = WinJACKNexus::Common::standardChannelLabels(8);
         const int activeCount=channel?Common::auxLayoutChannelLabels(channel->layout).size():0;
@@ -3105,6 +3121,16 @@ void MixerWindow::paintEvent(QPaintEvent*)
         return brightness > 145 ? themed("control-name-text-dark", QColor("#102033"))
                                 : themed("control-name-text-light", QColor("#f5fbff"));
     };
+    const auto drawStripButton = [&](const QRectF& button, const QString& text,
+                                     const QColor& color, bool active) {
+        Controls::drawSurface(painter,button,
+            active ? withAlpha(color, 65) : themed("control-button-surface-normal",QColor("#16283a")),
+            active ? color : withAlpha(color, 190),5,1.1);
+        drawText(painter, button, text,
+            active ? themed("control-button-text-selected",QColor("#ffffff"))
+                   : themed("control-button-text-normal",label),
+            12 * heightScale, Qt::AlignCenter, true);
+    };
     const auto monitorCard = impl_->monitorRect();
     const auto monitorYellow = themed("fader-monitor-thumb", QColor("#ffe15a"));
     Controls::drawSurface(painter, monitorCard.adjusted(1, 1, -1, -1), Qt::NoBrush, monitorYellow, 4, 1);
@@ -3129,10 +3155,9 @@ void MixerWindow::paintEvent(QPaintEvent*)
                           themed("meter-level-surface-border", QColor("#0a0f14")), 3, 4);
     Controls::drawMeter(painter, monitorMeterRect.adjusted(2.5, 2.5, -2.5, -2.5),
                         impl_->monitorMeter.levelDb(), impl_->monitorMeter.peakDb(), monitorStyle);
-    Controls::ButtonStyle monitorSelStyle;
-    monitorSelStyle.activeBorder = themed("monitor-select-accent", monitorYellow);
-    Controls::drawStyledButton(painter, impl_->monitorSelectRect(heightScale),
-                               QStringLiteral("SEL"), false, monitorSelStyle);
+    const auto monitorSelect = impl_->monitorSelectRect(heightScale);
+    const auto monitorSelectAccent = themed("monitor-select-accent", monitorYellow);
+    drawStripButton(monitorSelect, QStringLiteral("SEL"), monitorSelectAccent, false);
     Controls::FaderStyle monitorFaderStyle;
     monitorFaderStyle.accent = monitorYellow;
     monitorFaderStyle.track = themed("fader-monitor-track", monitorFaderStyle.track);
@@ -3234,34 +3259,25 @@ void MixerWindow::paintEvent(QPaintEvent*)
         painter.drawLine(QPointF(innerMeter.left(), yForDb(-12.0)), QPointF(innerMeter.right(), yForDb(-12.0)));
         painter.drawLine(QPointF(innerMeter.left(), yForDb(0.0)), QPointF(innerMeter.right(), yForDb(0.0)));
 
-        const auto drawButton = [&](const QRectF& button, const QString& text, const QColor& color, bool active) {
-            Controls::drawSurface(painter,button,
-                active ? withAlpha(color, 65) : themed("control-button-surface-normal",QColor("#16283a")),
-                active ? color : withAlpha(color, 190),5,1.1);
-            drawText(painter, button, text,
-                active ? themed("control-button-text-selected",QColor("#ffffff"))
-                       : themed("control-button-text-normal",label),
-                12 * heightScale, Qt::AlignCenter, true);
-        };
         const bool sipActive=std::any_of(impl_->channels.cbegin(),impl_->channels.cend(),[](const Channel& item) {
             return item.number!=QStringLiteral("MAIN") && item.solo;
         });
         const bool effectiveMute=channel.mute || (sipActive && index!=impl_->masterIndex() && !channel.solo);
-        drawButton(impl_->muteButtonRect(index, heightScale), index == impl_->masterIndex() ? "MUTE" : "M",
+        drawStripButton(impl_->muteButtonRect(index, heightScale), index == impl_->masterIndex() ? "MUTE" : "M",
                    themed("control-button-mute-accent",QColor("#ff4f55")), effectiveMute);
         if(index!=impl_->masterIndex())
-            drawButton(impl_->soloButtonRect(index, heightScale), "S",
+            drawStripButton(impl_->soloButtonRect(index, heightScale), "S",
                        themed("control-button-solo-accent",QColor("#f7aa2f")), channel.solo);
-        drawButton(impl_->selectButtonRect(index, heightScale), "SEL",
+        drawStripButton(impl_->selectButtonRect(index, heightScale), "SEL",
                    themed("control-button-select-accent",QColor("#66809b")), false);
         if (index != impl_->masterIndex())
-            drawButton(impl_->mixButtonRect(index, heightScale), "MIX",
+            drawStripButton(impl_->mixButtonRect(index, heightScale), "MIX",
                        themed("control-button-mix-accent",QColor("#24b8ff")), channel.mixToMain);
         if (index != impl_->masterIndex()) {
-            drawButton(impl_->listenButtonRect(index, heightScale, false), "PFL",
+            drawStripButton(impl_->listenButtonRect(index, heightScale, false), "PFL",
                        themed("control-button-pfl-accent", monitorYellow),
                        channel.listenMode == Common::MixerListenMode::pfl);
-            drawButton(impl_->listenButtonRect(index, heightScale, true), "AFL",
+            drawStripButton(impl_->listenButtonRect(index, heightScale, true), "AFL",
                        themed("control-button-afl-accent", monitorYellow),
                        channel.listenMode == Common::MixerListenMode::afl);
         }

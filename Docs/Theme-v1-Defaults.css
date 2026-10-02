@@ -167,6 +167,30 @@
   --wjn-theme-mixer-meter-level-border: #07131f;
 
   /* MixerWindow.cpp:230–433 / MixerPolarPlot.cpp. */
+  --wjn-theme-sel-main-control-panner-mode-button-surface-normal: var(--wjn-theme-global-control-button-surface-normal);
+  --wjn-theme-sel-main-control-panner-mode-button-surface-selected: var(--wjn-theme-global-control-button-surface-selected);
+  --wjn-theme-sel-main-control-panner-mode-button-border-normal: var(--wjn-theme-global-control-button-border-normal);
+  --wjn-theme-sel-main-control-panner-mode-button-border-selected: var(--wjn-theme-global-control-button-border-selected);
+  --wjn-theme-sel-main-control-panner-mode-button-text-normal: var(--wjn-theme-sel-main-text-muted);
+  --wjn-theme-sel-main-control-panner-mode-button-text-selected: var(--wjn-theme-global-control-button-text-selected);
+  --wjn-theme-sel-main-control-panner-input-button-surface-normal: var(--wjn-theme-global-control-button-surface-normal);
+  --wjn-theme-sel-main-control-panner-input-button-surface-selected: var(--wjn-theme-global-control-button-surface-selected);
+  --wjn-theme-sel-main-control-panner-input-button-border-normal: var(--wjn-theme-global-control-button-border-normal);
+  --wjn-theme-sel-main-control-panner-input-button-border-selected: var(--wjn-theme-sel-main-chart-series-polar-input-stroke);
+  --wjn-theme-sel-main-control-panner-input-button-text-normal: var(--wjn-theme-sel-main-text-muted);
+  --wjn-theme-sel-main-control-panner-input-button-text-selected: var(--wjn-theme-global-control-button-text-selected);
+  --wjn-theme-sel-main-control-panner-output-button-surface-normal: var(--wjn-theme-global-control-button-surface-normal);
+  --wjn-theme-sel-main-control-panner-output-button-surface-selected: var(--wjn-theme-global-control-button-surface-selected);
+  --wjn-theme-sel-main-control-panner-output-button-border-normal: var(--wjn-theme-global-control-button-border-normal);
+  --wjn-theme-sel-main-control-panner-output-button-border-selected: var(--wjn-theme-sel-main-chart-series-polar-output-stroke);
+  --wjn-theme-sel-main-control-panner-output-button-text-normal: var(--wjn-theme-sel-main-text-muted);
+  --wjn-theme-sel-main-control-panner-output-button-text-selected: var(--wjn-theme-global-control-button-text-selected);
+  --wjn-theme-sel-main-control-panner-reset-button-surface-normal: var(--wjn-theme-global-control-button-surface-normal);
+  --wjn-theme-sel-main-control-panner-reset-button-surface-selected: var(--wjn-theme-global-control-button-surface-selected);
+  --wjn-theme-sel-main-control-panner-reset-button-border-normal: var(--wjn-theme-global-control-button-border-normal);
+  --wjn-theme-sel-main-control-panner-reset-button-border-selected: var(--wjn-theme-global-control-button-border-selected);
+  --wjn-theme-sel-main-control-panner-reset-button-text-normal: var(--wjn-theme-sel-main-text-muted);
+  --wjn-theme-sel-main-control-panner-reset-button-text-selected: var(--wjn-theme-global-control-button-text-selected);
   --wjn-theme-sel-main-surface-empty: #0b1a2b;
   --wjn-theme-sel-main-surface-panel: #102235;
   --wjn-theme-sel-main-monitor-header-surface: #123a65;
@@ -260,6 +284,30 @@
   --wjn-theme-sel-main-meter-aux-send-zone-high-inactive: #102234;
 
   /* AuxSettingsWindow.cpp:510–731. */
+  --wjn-theme-sel-aux-control-panner-mode-button-surface-normal: var(--wjn-theme-global-control-button-surface-normal);
+  --wjn-theme-sel-aux-control-panner-mode-button-surface-selected: var(--wjn-theme-global-control-button-surface-selected);
+  --wjn-theme-sel-aux-control-panner-mode-button-border-normal: var(--wjn-theme-global-control-button-border-normal);
+  --wjn-theme-sel-aux-control-panner-mode-button-border-selected: var(--wjn-theme-global-control-button-border-selected);
+  --wjn-theme-sel-aux-control-panner-mode-button-text-normal: var(--wjn-theme-sel-aux-text-muted);
+  --wjn-theme-sel-aux-control-panner-mode-button-text-selected: var(--wjn-theme-global-control-button-text-selected);
+  --wjn-theme-sel-aux-control-panner-input-button-surface-normal: var(--wjn-theme-global-control-button-surface-normal);
+  --wjn-theme-sel-aux-control-panner-input-button-surface-selected: var(--wjn-theme-global-control-button-surface-selected);
+  --wjn-theme-sel-aux-control-panner-input-button-border-normal: var(--wjn-theme-global-control-button-border-normal);
+  --wjn-theme-sel-aux-control-panner-input-button-border-selected: var(--wjn-theme-global-control-button-border-selected);
+  --wjn-theme-sel-aux-control-panner-input-button-text-normal: var(--wjn-theme-sel-aux-text-muted);
+  --wjn-theme-sel-aux-control-panner-input-button-text-selected: var(--wjn-theme-global-control-button-text-selected);
+  --wjn-theme-sel-aux-control-panner-output-button-surface-normal: var(--wjn-theme-global-control-button-surface-normal);
+  --wjn-theme-sel-aux-control-panner-output-button-surface-selected: var(--wjn-theme-global-control-button-surface-selected);
+  --wjn-theme-sel-aux-control-panner-output-button-border-normal: var(--wjn-theme-global-control-button-border-normal);
+  --wjn-theme-sel-aux-control-panner-output-button-border-selected: var(--wjn-theme-global-control-button-border-selected);
+  --wjn-theme-sel-aux-control-panner-output-button-text-normal: var(--wjn-theme-sel-aux-text-muted);
+  --wjn-theme-sel-aux-control-panner-output-button-text-selected: var(--wjn-theme-global-control-button-text-selected);
+  --wjn-theme-sel-aux-control-panner-reset-button-surface-normal: var(--wjn-theme-global-control-button-surface-normal);
+  --wjn-theme-sel-aux-control-panner-reset-button-surface-selected: var(--wjn-theme-global-control-button-surface-selected);
+  --wjn-theme-sel-aux-control-panner-reset-button-border-normal: var(--wjn-theme-global-control-button-border-normal);
+  --wjn-theme-sel-aux-control-panner-reset-button-border-selected: var(--wjn-theme-global-control-button-border-selected);
+  --wjn-theme-sel-aux-control-panner-reset-button-text-normal: var(--wjn-theme-sel-aux-text-muted);
+  --wjn-theme-sel-aux-control-panner-reset-button-text-selected: var(--wjn-theme-global-control-button-text-selected);
   --wjn-theme-sel-aux-surface-empty: #0b1a2b;
   --wjn-theme-sel-aux-surface-panel: #102235;
   --wjn-theme-sel-aux-text-primary: #e8f2ff;
