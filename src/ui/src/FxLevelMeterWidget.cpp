@@ -134,9 +134,10 @@ void FxLevelMeterWidget::paintEvent(QPaintEvent*) {
         Controls::drawMeter(painter, meterBounds, value,
                             peakDb_[static_cast<std::size_t>(row)], style);
         painter.setPen(themed("meter-level-readout",QColor("#f3f8ff")));
+        const double readout = row == 0 ? readoutInputDb_ : readoutOutputDb_;
         painter.drawText(bar.adjusted(4, 0, -4, 0), Qt::AlignRight | Qt::AlignVCenter,
-                         QStringLiteral("%1 dB").arg(QString::number(
-                             row == 0 ? readoutInputDb_ : readoutOutputDb_, 'f', 0)));
+                         readout <= minimumDb + .05 ? QStringLiteral("−∞")
+                             : QStringLiteral("%1 dB").arg(QString::number(readout, 'f', 0)));
     }
 
 }
