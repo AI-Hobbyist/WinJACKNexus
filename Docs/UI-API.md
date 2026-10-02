@@ -452,4 +452,10 @@ The detail header's shared `IconActionButton` precedes MAIN and opens a native c
 
 The overview third row has fixed compact Monitor and MASTER strips on the **right**, outside the Sub Mix horizontal scroll area. Both have the actual fader, level/peak-hold meter and SEL, including double-click reset and manual numeric entry. Their controls inherit the mixer monitor/master tokens. Scrolling Sub Mix leaves these two strips stationary.
 
-MASTER channel details have no input Gain label, knob or numeric readout. The former gain region has no gain editing, dragging or reset hit targets; Input/AUX/Sub Mix retain their gain controls.
+MASTER channel details have no input Gain label, knob or numeric readout; Input/AUX/Sub Mix retain their input Gain controls.
+
+## SEL sidebar actions
+
+Input, AUX and Sub Mix detail sidebars use two rows of three shared-drawn buttons: M / S / MIX and PFL / AFL / FX. MASTER uses two rows of one button: M and FX, with no input Gain, Solo, MIX or listen controls. M toggles explicit mute, S toggles SIP solo, MIX enables routing to MAIN, and PFL/AFL are mutually exclusive listen selections. PFL samples after gain before mute/fader; AFL follows mute/fader. FX enables or bypasses the existing effect chain and synchronizes an open FX editor. Buttons use the same geometry for painting and hit detection; `--wjn-theme-sel-main-control-mix-accent` and `--wjn-theme-sel-main-control-fx-accent` are registered colors alongside existing M/S/PFL/AFL accents. Changes commit through the mixer model; failed commits restore button state. SEL input/output meter readouts display −∞ at the silent meter floor.
+
+All four SEL strip types have an 音量 knob bound directly to the strip's fader position. Input/AUX/Sub Mix place it beside input Gain (labelled 增益); MASTER has this volume knob alone. Dragging updates the actual fader, main/overview fader edits repaint the same knob, double-click resets to 0 dB, and clicking its dB value opens the shared -72 to +12 dB numeric editor. The bottom knob position is −∞, matching the fader. Switching strips cancels knob dragging and numeric edits resolve the original stable strip identity. The knob uses `--wjn-theme-sel-main-control-volume-accent` and the existing shared knob surface/track/text tokens.

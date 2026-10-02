@@ -108,7 +108,7 @@ template<class Check> void verifySubMix(Check check)
     check(page&&auxTab&&!auxTab->isVisible()&&subTab&&subTab->isVisible(),"Sub Mix SEL has MAIN and Sub Mix tabs without AUX");
     if(page) {
         page->setFixedSize(1394,813);
-        for(const auto& [x,mode]:{std::pair{80,MixerListenMode::pfl},std::pair{210,MixerListenMode::afl}}) {
+        for(const auto& [x,mode]:{std::pair{80,MixerListenMode::pfl},std::pair{156,MixerListenMode::afl}}) {
             QMouseEvent modeClick(QEvent::MouseButtonPress,QPointF(x,459),QPointF(x,459),Qt::LeftButton,Qt::LeftButton,Qt::NoModifier);
             QApplication::sendEvent(page,&modeClick);
             check(state.strip(sub)->listenMode==mode,"Sub Mix SEL commits exclusive PFL/AFL");

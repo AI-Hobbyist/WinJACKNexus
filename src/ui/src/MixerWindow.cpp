@@ -91,6 +91,8 @@ QString auxSourceNumber(const Channel& channel)
 }
 
 qreal faderDbValue(qreal position);
+QString faderDbText(qreal position);
+qreal faderPositionForDb(qreal db);
 
 qreal selContentScale(const QSize& size)
 {
@@ -377,7 +379,7 @@ public:
         channel = next;
         if (channel) {
             const bool switched=displayedId!=channel->id;
-            if(switched){displayedId=channel->id;selectedPoint=0;polarContour={};}
+            if(switched){displayedId=channel->id;selectedPoint=0;polarContour={};draggedVolume=false;draggedInputGain=false;}
             if (switched || !name->hasFocus()) name->setText(channel->name);
             if (switched || !comment->hasFocus()) comment->setText(channel->source);
             modeButton->setText(Common::auxLayoutName(channel->layout));
@@ -422,6 +424,7 @@ public:
         setProperty("selPolarDataValid", value.valid);
         if (isVisible()) update();
     }
+    std::function<void()> fxToggled;
     std::function<void()> changed;
     std::function<void()> dragFinished;
     std::function<void()> detailsChanged;
@@ -429,7 +432,7 @@ public:
     bool draggingControl() const
     {
         return draggedFader >= 0 || draggedPoint >= 0 || draggedInfluencePoint >= 0
-            || draggedKnob >= 0 || draggedInputGain || draggedClassicPan;
+            || draggedKnob >= 0 || draggedInputGain || draggedVolume || draggedClassicPan;
     }
 
 protected:
@@ -509,23 +512,34 @@ protected:
         for (int i=0;i<8;++i) { p.setPen(Qt::NoPen); p.setBrush(colors[i]); p.drawEllipse(QPointF(47+i*26,306),9,9); }
         const bool mainOutput=channel && channel->number==QStringLiteral("MAIN");
         if(!mainOutput) {
-            text({29, 327, 254, 22}, QStringLiteral("输入增益  -12 ~ +12 dB"), 14, muted, false, Qt::AlignCenter);
+            text({29,327,118,20},QStringLiteral("增益"),14,muted,false,Qt::AlignCenter);
             const qreal gain=channel?std::clamp(channel->inputGainDb,-12.0,12.0):0.0;
-            const qreal gainFraction=(gain+12.0)/24.0;
-            Controls::drawKnob(p,{93,378},gainFraction,23,knobColors);
-            text({126, 362, 126, 28}, QStringLiteral("%1%2 dB").arg(gain>=0?QStringLiteral("+"):QString()).arg(gain,0,'f',1),
-                 17, ink, true, Qt::AlignCenter);
+            Controls::drawKnob(p,{88,366},(gain+12.0)/24.0,19,knobColors);
+            text({29,387,118,18},QStringLiteral("%1%2 dB").arg(gain>=0?QStringLiteral("+"):QString()).arg(gain,0,'f',1),
+                 13,ink,true,Qt::AlignCenter);
         }
-        modeToggle({29,407,mainOutput?254.0:118.0,34},QStringLiteral("M"),channel && (channel->mute || channel->sipMuted),
-            themed("control-mute-accent",QColor("#ff4b62")));
-        if(!mainOutput)modeToggle({165,407,118,34},QStringLiteral("S"),channel && channel->solo,
-            themed("control-solo-accent",QColor("#ffae2d")));
-        if(channel && channel->subMix) {
-            modeToggle({29,446,118,28},QStringLiteral("PFL"),channel->listenMode==Common::MixerListenMode::pfl,
-                themed("control-pfl-accent",QColor("#ffe15a")));
-            modeToggle({165,446,118,28},QStringLiteral("AFL"),channel->listenMode==Common::MixerListenMode::afl,
-                themed("control-afl-accent",QColor("#ffe15a")));
-        } else text({29, 449, 200, 26}, QStringLiteral("电平表"), 14, ink, true);
+        const qreal volumeX=mainOutput?29:165;
+        const qreal volumeWidth=mainOutput?254:118;
+        text({volumeX,327,volumeWidth,20},QStringLiteral("音量"),14,muted,false,Qt::AlignCenter);
+        auto volumeColors=knobColors;
+        volumeColors.accent=themed("control-volume-accent",QColor("#26bfff"));
+        Controls::drawKnob(p,{mainOutput?156.0:224.0,366},channel?1-channel->fader:0,19,volumeColors);
+        text(volumeReadoutRect(),faderDbText(channel?channel->fader:1),13,ink,true,Qt::AlignCenter);
+        const auto actions=sidebarActions();
+        for(std::size_t i=0;i<actions.size();++i) {
+            const auto action=actions[i];
+            const char* role="control-mute-accent";const char* fallback="#ff4b62";
+            QString caption;bool active=false;
+            switch(action) {
+            case SidebarAction::mute: caption=QStringLiteral("M");active=channel&&(channel->mute||channel->sipMuted);break;
+            case SidebarAction::solo: caption=QStringLiteral("S");active=channel&&channel->solo;role="control-solo-accent";fallback="#ffae2d";break;
+            case SidebarAction::mix: caption=QStringLiteral("MIX");active=channel&&channel->mixToMain;role="control-mix-accent";fallback="#24b8ff";break;
+            case SidebarAction::pfl: caption=QStringLiteral("PFL");active=channel&&channel->listenMode==Common::MixerListenMode::pfl;role="control-pfl-accent";fallback="#ffe15a";break;
+            case SidebarAction::afl: caption=QStringLiteral("AFL");active=channel&&channel->listenMode==Common::MixerListenMode::afl;role="control-afl-accent";fallback="#ffe15a";break;
+            case SidebarAction::fx: caption=QStringLiteral("FX");active=channel&&channel->fx;role="control-fx-accent";fallback="#45d877";break;
+            }
+            modeToggle(sidebarButtonRect(i,actions.size()),caption,active,themed(role,QColor(fallback)));
+        }
         for(int m=0;m<2;++m) {
             const int x=24+m*138; panel({qreal(x),480,125,318});
             text({qreal(x),488,125,31},m?QStringLiteral("输出"):QStringLiteral("输入"),16,ink,false,Qt::AlignCenter);
@@ -556,7 +570,7 @@ protected:
             Controls::drawMeterScale(p,{qreal(x+14),meterTop,50,meterBottom-meterTop},scaleStyle);
             Controls::drawMeter(p,{qreal(x+67),meterTop,28,meterBottom-meterTop},
                                 current,peak,meterStyle);
-            text({qreal(x+22),757,96,31},QStringLiteral("%1 dB").arg(readout,0,'f',1),15,ink,false,Qt::AlignCenter);
+            text({qreal(x+22),757,96,31},readout<=-71.95?QStringLiteral("−∞"):QStringLiteral("%1 dB").arg(readout,0,'f',1),15,ink,false,Qt::AlignCenter);
         }
         p.translate(selDetailsLeft(size())/contentScale()-313.0,0);
         panel({313, 11, 650, 544});
@@ -698,8 +712,28 @@ protected:
         if (!channel || event->button()!=Qt::LeftButton) return;
         const QPointF pt=designPoint(event->position());
         const auto channelId = channel->id;
-        if (channel->number!=QStringLiteral("MAIN") && QRectF(126,362,126,28).contains(pt)) {
-            Controls::editNumericValue(this, readoutRect({126,362,126,28}), channel->inputGainDb,
+        const auto actions=sidebarActions();
+        for(std::size_t i=0;i<actions.size();++i)if(sidebarButtonRect(i,actions.size()).contains(pt)) {
+            switch(actions[i]) {
+            case SidebarAction::mute: channel->mute=!channel->mute;break;
+            case SidebarAction::solo: channel->solo=!channel->solo;break;
+            case SidebarAction::mix: channel->mixToMain=!channel->mixToMain;break;
+            case SidebarAction::pfl: channel->listenMode=channel->listenMode==Common::MixerListenMode::pfl?Common::MixerListenMode::off:Common::MixerListenMode::pfl;break;
+            case SidebarAction::afl: channel->listenMode=channel->listenMode==Common::MixerListenMode::afl?Common::MixerListenMode::off:Common::MixerListenMode::afl;break;
+            case SidebarAction::fx: if(fxToggled)fxToggled();update();return;
+            }
+            update();if(changed)changed();return;
+        }
+        if(volumeReadoutRect().contains(pt)) {
+            Controls::editNumericValue(this,readoutRect(volumeReadoutRect()),faderDbValue(channel->fader),{-72,12,0,1},
+                [this,channelId](double db) {
+                    if(!channel||channel->id!=channelId)return;
+                    channel->fader=faderPositionForDb(db);update();if(changed)changed();
+                });
+            return;
+        }
+        if (channel->number!=QStringLiteral("MAIN") && QRectF(29,387,118,18).contains(pt)) {
+            Controls::editNumericValue(this, readoutRect({29,387,118,18}), channel->inputGainDb,
                 {-12,12,0,1}, [this,channelId](double value) {
                     if (!channel || channel->id != channelId) return;
                     channel->inputGainDb=value;
@@ -753,18 +787,15 @@ protected:
         }
         const auto colors = colorOptions();
         if (pt.y()>=289&&pt.y()<323&&pt.x()>=29&&pt.x()<245) {const int i=int((pt.x()-34)/26);if(i>=0&&i<8){channel->accent=colors[i];channel->customColor=true;}}
-        else if(channel->number!=QStringLiteral("MAIN") && QRectF(65,351,200,51).contains(pt)) {
+        else if(volumeKnobRect().contains(pt)) {
+            draggedVolume=true;volumeStartY=pt.y();volumeStartPosition=channel->fader;return;
+        }
+        else if(channel->number!=QStringLiteral("MAIN") && QRectF(64,343,48,44).contains(pt)) {
             draggedInputGain=true;
             inputGainStartY=pt.y();
             inputGainStartValue=channel->inputGainDb;
             return;
         }
-        else if(QRectF(29,407,channel->number==QStringLiteral("MAIN")?254.0:118.0,34).contains(pt)) channel->mute=!channel->mute;
-        else if(channel->number!=QStringLiteral("MAIN")&&QRectF(165,407,118,34).contains(pt)) channel->solo=!channel->solo;
-        else if(channel->subMix&&QRectF(29,446,118,28).contains(pt))
-            channel->listenMode=channel->listenMode==Common::MixerListenMode::pfl?Common::MixerListenMode::off:Common::MixerListenMode::pfl;
-        else if(channel->subMix&&QRectF(165,446,118,28).contains(pt))
-            channel->listenMode=channel->listenMode==Common::MixerListenMode::afl?Common::MixerListenMode::off:Common::MixerListenMode::afl;
         else if(QRectF(330,52,137,34).contains(pt)){if(auto* bus=selectedBus()){bus->panMode=Common::AuxPanMode::spatial;setProperty("selPanMode",static_cast<int>(bus->panMode));}}
         else if(QRectF(477,52,137,34).contains(pt)){if(auto* bus=selectedBus();bus&&Common::auxSupportsClassicPan(bus->sourceLayout,bus->targetLayout)){bus->panMode=Common::AuxPanMode::classic;setProperty("selPanMode",static_cast<int>(bus->panMode));}}
         else if(QRectF(638,52,165,34).contains(pt)){if(auto* bus=selectedBus();bus&&bus->panMode==Common::AuxPanMode::spatial){bus->showPolarCurves=!bus->showPolarCurves;publishPanner();}}
@@ -844,7 +875,14 @@ protected:
     {
         if (!channel || event->button()!=Qt::LeftButton) return;
         const QPointF pt=designPoint(event->position());
-        if (channel->number!=QStringLiteral("MAIN") && QRectF(65,351,200,51).contains(pt)) {
+        if(volumeKnobRect().contains(pt)) {
+            draggedVolume=false;
+            Controls::resetNumericValue({-72,12,0,1},[this](double db) {
+                channel->fader=faderPositionForDb(db);update();if(changed)changed();
+            });
+            return;
+        }
+        if (channel->number!=QStringLiteral("MAIN") && QRectF(64,343,48,44).contains(pt)) {
             draggedInputGain=false;
             Controls::resetNumericValue({-12,12,0,1},[this](double value) {
                 channel->inputGainDb=value;
@@ -894,6 +932,10 @@ protected:
     void mouseMoveEvent(QMouseEvent* event) override
     {
         if(!channel||!(event->buttons()&Qt::LeftButton))return;
+        if(draggedVolume) {
+            channel->fader=std::clamp(volumeStartPosition+(designPoint(event->position()).y()-volumeStartY)*.005,0.,1.);
+            update();if(changed)changed();return;
+        }
         if(draggedInputGain && channel->number!=QStringLiteral("MAIN")){
             const qreal delta=inputGainStartY-designPoint(event->position()).y();
             channel->inputGainDb=std::clamp(qRound((inputGainStartValue+delta*.2)*10)/10.0,-12.0,12.0);
@@ -930,7 +972,7 @@ protected:
     {
         const bool wasDragging = draggingControl();
         draggedFader=-1;draggedPoint=-1;draggedInfluencePoint=-1;draggedKnob=-1;
-        draggedInputGain=false;draggedClassicPan=false;
+        draggedInputGain=false;draggedVolume=false;draggedClassicPan=false;
         if (wasDragging && dragFinished) dragFinished();
     }
     void wheelEvent(QWheelEvent* event) override
@@ -954,6 +996,19 @@ protected:
         QWidget::wheelEvent(event);
     }
 private:
+    QRectF volumeReadoutRect() const {return {channel&&channel->number==QStringLiteral("MAIN")?29.0:165.0,387,
+        channel&&channel->number==QStringLiteral("MAIN")?254.0:118.0,18};}
+    QRectF volumeKnobRect() const {return {channel&&channel->number==QStringLiteral("MAIN")?132.0:200.0,343,48,44};}
+    enum class SidebarAction { mute, solo, mix, pfl, afl, fx };
+    std::vector<SidebarAction> sidebarActions() const {
+        if(channel&&channel->number==QStringLiteral("MAIN"))return {SidebarAction::mute,SidebarAction::fx};
+        return {SidebarAction::mute,SidebarAction::solo,SidebarAction::mix,SidebarAction::pfl,SidebarAction::afl,SidebarAction::fx};
+    }
+    static QRectF sidebarButtonRect(std::size_t index,std::size_t count) {
+        const auto columns=(count+1)/2;
+        const qreal width=(254.0-(columns-1)*8.0)/columns;
+        return {29+(index%columns)*(width+8),407+(index/columns)*36.0,width,30};
+    }
     QRect readoutRect(const QRectF& design) const {
         const qreal scale=contentScale();
         const qreal rightOffset=design.left()>=313?selDetailsLeft(size())-313*scale:0;
@@ -1030,6 +1085,9 @@ private:
     int draggedPoint {-1};
     int draggedInfluencePoint {-1};
     int draggedKnob {-1};
+    bool draggedVolume {};
+    qreal volumeStartY {};
+    qreal volumeStartPosition {};
     bool draggedInputGain {};
     qreal inputGainStartY {};
     qreal inputGainStartValue {};
@@ -1418,6 +1476,7 @@ public:
         strip->solo = channel.solo;
         strip->listenMode = channel.listenMode;
         strip->mixToMain = channel.mixToMain;
+        strip->fxChainEnabled = channel.fx;
         auto& panner = strip->mainPanner;
         const auto& view = channel.selState;
         if (view.adjustablePoints.size() == panner.points.size()) {
@@ -1458,6 +1517,8 @@ public:
         channel.mute = old->mute;
         channel.solo = old->solo;
         channel.mixToMain = old->mixToMain;
+        channel.listenMode = old->listenMode;
+        channel.fx = old->fxChainEnabled;
         loadMainPanner(channel, *old);
         return false;
     }
@@ -2304,6 +2365,14 @@ public:
             selStack->setStyleSheet(QStringLiteral("#selPages {background:#0b1a2b;}"));
             selStack->setAutoFillBackground(true);
             content->setPages(selMain,selStack);
+            selMain->fxToggled = [this] {
+                const auto found=std::find_if(channels.begin(),channels.end(),[this](const Channel& item){return item.id==selectedChannelId;});
+                if(found==channels.end())return;
+                const auto editor=fxSettingsWindows.find(found->id);
+                if(editor!=fxSettingsWindows.end()&&editor->second)editor->second->setChainEnabled(!found->fx);
+                else {found->fx=!found->fx;commitChannel(*found);}
+                updateSel();owner.update();
+            };
             selMain->changed = [this] {
                 const auto found=std::find_if(channels.begin(),channels.end(),[this](const Channel& item){return item.id==selectedChannelId;});
                 if (found != channels.end()) commitChannel(*found);

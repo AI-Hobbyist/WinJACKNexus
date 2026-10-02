@@ -29,7 +29,7 @@ template<class Check> void verifyMixerOverview(Check check)
     }
     UI::ThemeCore core;UI::ThemeManager::installThemeCore(&core);
     {
-        float peak=.5F;
+        float peak=0.F;
         UI::MixerWindow mixer(&state,[&](const auto& next,QString*){state=next;return true;},
             [&](std::uint64_t,bool){return peak;});
         mixer.resize(1024,768);
@@ -44,6 +44,44 @@ template<class Check> void verifyMixerOverview(Check check)
         auto* mainTab=details?details->findChild<QPushButton*>(QStringLiteral("selTabMain")):nullptr;
         auto* typeIcon=details?details->findChild<QLabel*>(QStringLiteral("selChannelTypeIcon")):nullptr;
         check(selector&&mainTab&&selector->geometry().right()<mainTab->geometry().left(),"categorized channel selector precedes MAIN tab");
+        const auto verifyVolume=[&](QWidget* page,std::uint64_t id,bool master,int group,int stripIndex) {
+            const qreal scale=std::min(page->width()/1394.,page->height()/813.);
+            const qreal originY=(page->height()-813*scale)/2;
+            const qreal x=master?156:224;
+            const auto point=[&](qreal y){return QPointF(x*scale,originY+y*scale);};
+            const auto send=[&](QEvent::Type type,const QPointF& p,Qt::MouseButton button,Qt::MouseButtons buttons) {
+                QMouseEvent event(type,p,p,button,buttons,Qt::NoModifier);QApplication::sendEvent(page,&event);
+            };
+            const auto gain=state.strip(id)->inputGainDb;const auto old=state.strip(id)->faderPosition;
+            send(QEvent::MouseButtonPress,point(366),Qt::LeftButton,Qt::LeftButton);
+            send(QEvent::MouseMove,point(386),Qt::NoButton,Qt::LeftButton);
+            send(QEvent::MouseButtonRelease,point(386),Qt::LeftButton,Qt::NoButton);
+            check(std::abs(state.strip(id)->faderPosition-std::clamp(old+.1,0.,1.))<.001
+                &&state.strip(id)->inputGainDb==gain,"SEL volume knob edits actual fader without changing input gain");
+            send(QEvent::MouseButtonDblClick,point(366),Qt::LeftButton,Qt::LeftButton);
+            check(std::abs(state.strip(id)->faderPosition-Common::mixerUnityFaderPosition)<.001,"SEL volume double-click resets fader to zero dB");
+            send(QEvent::MouseButtonPress,point(396),Qt::LeftButton,Qt::LeftButton);
+            QApplication::sendPostedEvents(nullptr,QEvent::DeferredDelete);
+            auto* editor=page->findChild<QLineEdit*>(QStringLiteral("numericValueEditor"));
+            check(editor&&editor->isVisible(),"SEL volume readout opens numeric editor");
+            if(editor) {
+                editor->setText(editor->locale().toString(-6.,'f',1));
+                QKeyEvent enter(QEvent::KeyPress,Qt::Key_Return,Qt::NoModifier);QApplication::sendEvent(editor,&enter);
+                check(std::abs(state.strip(id)->faderPosition-.95*18/84)<.001,"SEL manual volume commits actual fader dB");
+            }
+            // Edit the matching compact fader and verify the selected detail knob follows it.
+            auto* row=directOverview->findChild<QWidget*>(master?QStringLiteral("mixerOverviewFixedMasters"):
+                QStringLiteral("mixerOverviewRow%1").arg(group));
+            const auto before=page->grab().toImage();const qreal dpr=before.devicePixelRatio();
+            const QRect knob(qRound((x-24)*scale*dpr),qRound((originY+343*scale)*dpr),qRound(48*scale*dpr),qRound(44*scale*dpr));
+            const QPointF compact(master?144:stripIndex*84+60,54+(row->height()-129)*.5);
+            QMouseEvent press(QEvent::MouseButtonPress,compact,compact,Qt::LeftButton,Qt::LeftButton,Qt::NoModifier);
+            QMouseEvent release(QEvent::MouseButtonRelease,compact,compact,Qt::LeftButton,Qt::NoButton,Qt::NoModifier);
+            QApplication::sendEvent(row,&press);QApplication::sendEvent(row,&release);
+            check(std::abs(state.strip(id)->faderPosition-.5)<.001&&page->grab().toImage().copy(knob)!=before.copy(knob),
+                "external fader edit synchronizes SEL volume knob rendering");
+            send(QEvent::MouseButtonDblClick,point(366),Qt::LeftButton,Qt::LeftButton);
+        };
         if(selector&&selector->menu()) {
             auto* menu=selector->menu();
             QMetaObject::invokeMethod(menu,"aboutToShow",Qt::DirectConnection);
@@ -55,6 +93,26 @@ template<class Check> void verifyMixerOverview(Check check)
                     check(category->actions().back()->text()==state.strip(ids[group].back())->name,"selector uses custom names");
                     category->actions().back()->trigger();
                     check(typeIcon&&typeIcon->property("channelIconType").toInt()==group,"detail icon matches selected strip type");
+                    auto* page=details->findChild<QWidget*>(QStringLiteral("selMainPage"));
+                    const qreal scale=std::min(page->width()/1394.,page->height()/813.);
+                    const qreal originY=(page->height()-813*scale)/2;
+                    const auto click=[&](int column,int row) {
+                        const QPointF point((29+column*(254.-16)/3+column*8+(254.-16)/6)*scale,
+                                            originY+(422+row*36)*scale);
+                        QMouseEvent press(QEvent::MouseButtonPress,point,point,Qt::LeftButton,Qt::LeftButton,Qt::NoModifier);
+                        QMouseEvent release(QEvent::MouseButtonRelease,point,point,Qt::LeftButton,Qt::NoButton,Qt::NoModifier);
+                        QApplication::sendEvent(page,&press);QApplication::sendEvent(page,&release);
+                    };
+                    const auto id=ids[group].back();const auto before=*state.strip(id);
+                    click(0,0);check(state.strip(id)->mute!=before.mute,"SEL M commits mute for Input/AUX/Sub Mix");
+                    click(1,0);check(state.strip(id)->solo!=before.solo,"SEL S commits SIP solo for Input/AUX/Sub Mix");
+                    click(2,0);check(state.strip(id)->mixToMain!=before.mixToMain,"SEL MIX commits main routing for Input/AUX/Sub Mix");
+                    click(0,1);check(state.strip(id)->listenMode==Common::MixerListenMode::pfl,"SEL PFL available for Input/AUX/Sub Mix");
+                    click(1,1);check(state.strip(id)->listenMode==Common::MixerListenMode::afl,"SEL AFL replaces PFL for Input/AUX/Sub Mix");
+                    click(1,1);check(state.strip(id)->listenMode==Common::MixerListenMode::off,"SEL listen selection toggles off");
+                    click(2,1);check(state.strip(id)->fxChainEnabled!=before.fxChainEnabled,"SEL FX commits chain bypass for Input/AUX/Sub Mix");
+                    click(2,1);click(0,0);click(1,0);click(2,0);
+                    verifyVolume(page,id,false,group,static_cast<int>(ids[group].size()-1));
                     QDir().mkpath(QStringLiteral("tests/preview/PrePush"));
                     details->grab().save(QStringLiteral("tests/preview/PrePush/mixer-details-%1.png").arg(group));
                 }
@@ -65,13 +123,26 @@ template<class Check> void verifyMixerOverview(Check check)
                 masters->actions()[0]->trigger();check(typeIcon&&typeIcon->property("channelIconType").toInt()==3,"master uses vector speaker icon");
                 if(auto* page=details->findChild<QWidget*>(QStringLiteral("selMainPage"))) {
                     const qreal scale=std::min(page->width()/1394.,page->height()/813.);
+                    const qreal originY=(page->height()-813*scale)/2;
+                    const auto toggleMaster=[&](int row) {
+                        const QPointF point(156*scale,originY+(422+row*36)*scale);
+                        QMouseEvent press(QEvent::MouseButtonPress,point,point,Qt::LeftButton,Qt::LeftButton,Qt::NoModifier);
+                        QMouseEvent release(QEvent::MouseButtonRelease,point,point,Qt::LeftButton,Qt::NoButton,Qt::NoModifier);
+                        QApplication::sendEvent(page,&press);QApplication::sendEvent(page,&release);
+                    };
+                    const auto before=state.main();
+                    toggleMaster(0);check(state.main().mute!=before.mute&&!state.main().solo,"MASTER single-column first row only toggles mute");
+                    toggleMaster(1);check(state.main().fxChainEnabled!=before.fxChainEnabled,"MASTER second row toggles FX");
+                    toggleMaster(1);toggleMaster(0);
+                    verifyVolume(page,state.main().id,true,0,0);
+                    details->grab().save(QStringLiteral("tests/preview/PrePush/mixer-details-master.png"));
                     const auto image=page->grab().toImage();const qreal dpr=image.devicePixelRatio();
                     bool blank=true;
                     const auto background=image.pixelColor(qRound(30*scale*dpr),qRound(330*scale*dpr));
                     for(int y=qRound(327*scale*dpr);y<qRound(400*scale*dpr);++y)
-                        for(int x=qRound(29*scale*dpr);x<qRound(283*scale*dpr);++x)
+                        for(int x=qRound(29*scale*dpr);x<qRound(120*scale*dpr);++x)
                             blank=blank&&image.pixelColor(x,y)==background;
-                    check(blank,"MASTER detail does not draw gain label, knob or value");
+                    check(blank,"MASTER input gain area remains empty beside its centered volume knob");
                     const auto gain=state.main().inputGainDb;
                     const QPointF value(180*scale,376*scale);
                     QMouseEvent click(QEvent::MouseButtonPress,value,value,Qt::LeftButton,Qt::LeftButton,Qt::NoModifier);
@@ -108,6 +179,10 @@ template<class Check> void verifyMixerOverview(Check check)
             check(menu->actions()[0]->menu()->actions()[0]->text()==QStringLiteral("重命名输入"),"selector refreshes renamed strips");
         }
         mixer.openView(UI::MixerWindow::View::mixer);QApplication::processEvents();
+        peak=.5F;
+        check(core.snapshot()->hasValue(QStringLiteral("--wjn-theme-sel-main-control-mix-accent"))
+            &&core.snapshot()->hasValue(QStringLiteral("--wjn-theme-sel-main-control-fx-accent"))
+            &&core.snapshot()->hasValue(QStringLiteral("--wjn-theme-sel-main-control-volume-accent")),"new sidebar button theme tokens registered");
         QMenu* menu=nullptr;
         for(auto* action:mixer.menuBar()->actions())if(action->text()==QStringLiteral("查看大屏"))menu=action->menu();
         check(menu&&menu->actions().size()==2&&menu->actions()[0]->text()==QStringLiteral("通道详情")
