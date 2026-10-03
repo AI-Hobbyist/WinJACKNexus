@@ -198,6 +198,12 @@ def s6_call(r):
 
 def classify(r, decisions):
     text, ctx, file = r['literal'], r['context'], r['file']
+    meter_audit_path = OUT/'S6-meter-source-audit.json'
+    if file.startswith(('src/meter/ui/', 'src/common/')) and meter_audit_path.exists():
+        audit = json.loads(meter_audit_path.read_text(encoding='utf-8'))
+        for item in audit['rows']:
+            if item['disposition']=='preserve' and item['file']==file and item['source']==text and item['control_context']==ctx:
+                return 'exclude','',item['reason']+'；逐来源记录见 S6-meter-source-audit.json'
     if file == 'src/ui/src/LocalizedThemeMessages.hpp':
         mapped = s6_call(r)
         if mapped and mapped[0] == 'exclude':

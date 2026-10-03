@@ -5,11 +5,11 @@
   "source_files": 277,
   "source_occurrences": 10389,
   "source_classifications": {
-    "exclude": 8609,
-    "translate": 1773,
+    "exclude": 8656,
+    "translate": 1726,
     "structured": 7
   },
-  "display_key_proposals": 1297,
+  "display_key_proposals": 1253,
   "descriptor_fields": 43,
   "resource_fields": 10322,
   "identity_comparison_occurrences": 468,

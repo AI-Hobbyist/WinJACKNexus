@@ -3,12 +3,12 @@
   "result": "THEME_SOURCE_KEY_AND_DUAL_TABLE_CLOSURE_PASS_S6_OPEN",
   "theme_display_keys": 238,
   "theme_unmatched_occurrences": 0,
-  "remaining_other_occurrences": 106,
+  "remaining_other_occurrences": 59,
   "remaining_domains": {
     "host": 1,
     "common": 3,
-    "meterbridge": 49,
     "mixer": 45,
+    "meterbridge": 2,
     "node": 1,
     "patchbay": 5,
     "ui": 2
@@ -17,29 +17,29 @@
   "runtime_evidence": "S6-theme-verification.json; single Theme run retained",
   "limits": [
     "This proves Theme source/key membership and recorded canonical display boundaries only.",
-    "The 106 other source candidates still need call-path review; membership is not UI acceptance.",
+    "The remaining other source candidates still need call-path review; membership is not UI acceptance.",
     "User language/audio-domain review remains outstanding."
   ],
   "evidence": [
     {
       "file": "Docs\\i18n\\S0-verification.json",
-      "sha256": "12a483a3f31403093e6c4c6bc2e91ab5342497c5ec6071c42d4dcc4385ef4fa6"
+      "sha256": "be28a075279afcbe3f23bc1b720ec60e91fa745a19e93c9538f19ba9f4c73377"
     },
     {
       "file": "Docs\\i18n\\S0-classified-literals.csv",
-      "sha256": "d949c72f4a1daf3fbd3003bebb6ccae8af71c6c9b4db6bb3b0a3608788f93826"
+      "sha256": "4a987504af497dc90f4eb24fa03a896b826c5e31b7f12f6b65ff37a3697b59c8"
     },
     {
       "file": "Docs\\i18n\\S0-keys.csv",
-      "sha256": "74c0268a6e99ba8b1487c633f9b29ffa814efddd7e2d4e42447ccc0c5c231a25"
+      "sha256": "b37eee0f5b5a253f7e3e67f710af5c0616df6d517de39d9525667ecf1671ec70"
     },
     {
       "file": "Docs\\i18n\\S0-exclusions.csv",
-      "sha256": "8dab798adca1db292026595dd40f93af24628980818831580712e9a17d81918d"
+      "sha256": "8e7afcb569f85cf67866bcababb87387c6d449ac655a99a974014907236e168b"
     },
     {
       "file": "Docs\\i18n\\S0-key-catalog.csv",
-      "sha256": "5135ac205637a57adf5ccb996534cd03087a16a14c032b4ecd95e12445f97fda"
+      "sha256": "025012283c77ff3888e9c0e9ea6bcaf452d0f76f9e20fcb819d283d6b0e6e7a7"
     },
     {
       "file": "Docs\\i18n\\S0-resource-fields.csv",
@@ -47,15 +47,15 @@
     },
     {
       "file": "Docs\\i18n\\S6-coverage-gaps.json",
-      "sha256": "4e5b7822495d2281391969e16ef34c121d12910ebb500d823f3c597bd3301dd5"
+      "sha256": "633cbf5f959e357067f208a6c0a8e49c573aeafdc7ade7f9650fb000ed26b944"
     },
     {
       "file": "Docs\\i18n\\classify_s0.py",
-      "sha256": "37e3d37eccfa51c34a4a8736f96cd00f60fc5e8a57bcfdfc25d527f6891e190e"
+      "sha256": "4d8dc39aeadd3d8c005ee678d95d51c81b5b7b6c968fd216727b186a9258b4c6"
     },
     {
       "file": "i18n翻译核对.md",
-      "sha256": "ab864131aa7e66e88cb8f9ea3cd0c8901c3c62dd86b8cdbaec9fc51451022a1a"
+      "sha256": "2f34cc6119a4bb5c7255e1260602eec2721590a00f5b8099ff1dbfe806b739be"
     },
     {
       "file": "Docs\\i18n\\S6-theme-diagnostic-boundaries.md",

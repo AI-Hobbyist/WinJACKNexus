@@ -1338,26 +1338,8 @@ locate/ja-JP.json!domains.meterbridge.layout.stereo
 locate/ko-KR.json!domains.meterbridge.layout.stereo
 locate/zh-CN.json!domains.meterbridge.layout.stereo
 src/meter/mod/include/WinJACKNexus/Meter/Mod/LocalizedDisplay.hpp:46",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-meterbridge,livemeterdataprovider.demo.customName,"[""自定义 %1""]",src/meter/ui/src/LiveMeterDataProvider.cpp:118,%1,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-meterbridge,livemeterdataprovider.label.multichannelCount,"[""多声道 %1""]",src/meter/ui/src/LiveMeterDataProvider.cpp:129,%1,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-meterbridge,livemeterdataprovider.layout.mono,"[""单声道""]",src/meter/ui/src/LiveMeterDataProvider.cpp:121,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-meterbridge,livemeterdataprovider.layout.stereo,"[""立体声""]",src/meter/ui/src/LiveMeterDataProvider.cpp:123,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-meterbridge,livemeterdataprovider.status.csvRecordingStopped,"[""CSV 记录已停止""]",src/meter/ui/src/LiveMeterDataProvider.cpp:428,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-meterbridge,livemeterdataprovider.status.csvWaitingFirstRecord,"[""CSV 等待第一条记录""]",src/meter/ui/src/LiveMeterDataProvider.cpp:427,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 meterbridge,livemeterdataprovider.status.unassigned,"[""未分配""]","src/meter/ui/src/LiveMeterDataProvider.cpp:110
 src/meter/ui/src/LiveMeterDataProvider.cpp:112",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-meterbridge,metercsvwriter.error.csvCreateDirectoryFailed,"[""CSV 未写入：无法创建目录 %1""]",src/meter/ui/src/MeterCsvWriter.cpp:182,%1,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-meterbridge,metercsvwriter.error.csvOpenFileFailed,"[""CSV 未写入：无法打开文件 %1""]",src/meter/ui/src/MeterCsvWriter.cpp:194,%1,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-meterbridge,metercsvwriter.error.csvWriteFailed,"[""CSV 写入失败：磁盘可能不可写""]",src/meter/ui/src/MeterCsvWriter.cpp:219,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-meterbridge,metercsvwriter.label.unnamed,"[""Unnamed""]",src/meter/ui/src/MeterCsvWriter.cpp:40,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-meterbridge,metercsvwriter.status.csvNotWrittenDirectoryMissing,"[""CSV 未写入：未设置日志保存根目录""]",src/meter/ui/src/MeterCsvWriter.cpp:174,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-meterbridge,metercsvwriter.status.csvRecording,"[""CSV 正在记录""]",src/meter/ui/src/MeterCsvWriter.cpp:224,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-meterbridge,metercsvwriter.status.csvSessionClosed,"[""CSV 会话已关闭，等待下一条记录""]",src/meter/ui/src/MeterCsvWriter.cpp:164,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-meterbridge,metercsvwriter.status.csvWritingDisabled,"[""CSV 写入已关闭""]",src/meter/ui/src/MeterCsvWriter.cpp:156,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-meterbridge,metercsvwriter.warning.csvQueueFullRecordsDropped,"[""CSV 写入队列已满，已丢弃 %1 条记录""]",src/meter/ui/src/MeterCsvWriter.cpp:96,%1,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-meterbridge,metercustomloudnesspresets.error.createDirectoryFailed,"[""无法创建目录：%1""]",src/common/src/MeterCustomLoudnessPresets.cpp:70,%1,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-meterbridge,metercustomloudnesspresets.error.invalidPresetNameOrReference,"[""预设名称或参考值无效""]",src/common/src/MeterCustomLoudnessPresets.cpp:64,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-meterbridge,meterloudnesspresetcatalog.preset.customReference,"[""自定义参考""]",src/common/include/WinJACKNexus/Common/MeterLoudnessPresetCatalog.hpp:46,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 meterbridge,metric.integrated,"[""Integrated (I)"", ""統合（I）"", ""综合（I）"", ""통합（I）""]","locate/en-US.json!domains.meterbridge.metric.integrated
 locate/ja-JP.json!domains.meterbridge.metric.integrated
 locate/ko-KR.json!domains.meterbridge.metric.integrated
@@ -1388,35 +1370,6 @@ locate/ko-KR.json!domains.meterbridge.metric.shortTerm
 locate/zh-CN.json!domains.meterbridge.metric.shortTerm
 src/meter/mod/src/MeterCard.cpp:292
 src/meter/mod/src/MeterCard.cpp:309",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-meterbridge,mockmeterdataprovider.control.mute,"[""静音""]",src/meter/ui/src/MockMeterDataProvider.cpp:175,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-meterbridge,mockmeterdataprovider.demo.customBusName,"[""自定义总线""]",src/meter/ui/src/MockMeterDataProvider.cpp:467,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-meterbridge,mockmeterdataprovider.demo.customChannelRange,"[""自定义 1-16 声道""]",src/meter/ui/src/MockMeterDataProvider.cpp:193,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-meterbridge,mockmeterdataprovider.demo.customEightChannels,"[""自定义 8""]",src/meter/ui/src/MockMeterDataProvider.cpp:447,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-meterbridge,mockmeterdataprovider.demo.customMultipleLfe,"[""自定义多 LFE""]",src/meter/ui/src/MockMeterDataProvider.cpp:185,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-meterbridge,mockmeterdataprovider.demo.customName,"[""自定义 %1""]",src/meter/ui/src/MockMeterDataProvider.cpp:468,%1,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-meterbridge,mockmeterdataprovider.demo.immersiveStems,"[""沉浸式分轨""]",src/meter/ui/src/MockMeterDataProvider.cpp:446,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-meterbridge,mockmeterdataprovider.demo.longHistory,"[""长历史""]",src/meter/ui/src/MockMeterDataProvider.cpp:195,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-meterbridge,mockmeterdataprovider.demo.longProgramMix,"[""长节目混音""]",src/meter/ui/src/MockMeterDataProvider.cpp:478,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-meterbridge,mockmeterdataprovider.demo.microphoneName,"[""话筒 %1""]",src/meter/ui/src/MockMeterDataProvider.cpp:387,%1,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-meterbridge,mockmeterdataprovider.demo.monoWithoutLfe,"[""不含 LFE 的单声道""]",src/meter/ui/src/MockMeterDataProvider.cpp:181,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-meterbridge,mockmeterdataprovider.demo.musicBedName,"[""音乐底""]",src/meter/ui/src/MockMeterDataProvider.cpp:406,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-meterbridge,mockmeterdataprovider.demo.narrationName,"[""旁白""]","src/meter/ui/src/MockMeterDataProvider.cpp:415
-src/meter/ui/src/MockMeterDataProvider.cpp:433",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-meterbridge,mockmeterdataprovider.demo.normalProgram,"[""正常节目""]",src/meter/ui/src/MockMeterDataProvider.cpp:177,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-meterbridge,mockmeterdataprovider.demo.offlineProbeName,"[""离线探针""]",src/meter/ui/src/MockMeterDataProvider.cpp:457,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-meterbridge,mockmeterdataprovider.demo.overLimit,"[""超限""]",src/meter/ui/src/MockMeterDataProvider.cpp:179,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-meterbridge,mockmeterdataprovider.demo.renamedClient,"[""已改名客户端""]",src/meter/ui/src/MockMeterDataProvider.cpp:187,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-meterbridge,mockmeterdataprovider.demo.resetSession,"[""重置会话""]",src/meter/ui/src/MockMeterDataProvider.cpp:191,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-meterbridge,mockmeterdataprovider.demo.secondProgramName,"[""节目-2""]",src/meter/ui/src/MockMeterDataProvider.cpp:453,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-meterbridge,mockmeterdataprovider.demo.surroundProgramName,"[""节目 5.1""]","src/meter/ui/src/MockMeterDataProvider.cpp:409
-src/meter/ui/src/MockMeterDataProvider.cpp:439",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-meterbridge,mockmeterdataprovider.demo.surroundWithLfe,"[""含 LFE 的 5.1""]",src/meter/ui/src/MockMeterDataProvider.cpp:183,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-meterbridge,mockmeterdataprovider.layout.mono,"[""单声道""]","src/meter/ui/src/MockMeterDataProvider.cpp:416
-src/meter/ui/src/MockMeterDataProvider.cpp:434",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-meterbridge,mockmeterdataprovider.layout.stereo,"[""立体声""]",src/meter/ui/src/MockMeterDataProvider.cpp:389,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-meterbridge,mockmeterdataprovider.status.offline,"[""离线""]",src/meter/ui/src/MockMeterDataProvider.cpp:189,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-meterbridge,mockmeterdataprovider.status.previewRecordingEnabled,"[""预览记录已启用；轮换间隔：60 分钟""]",src/meter/ui/src/MockMeterDataProvider.cpp:402,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-meterbridge,mockmeterdataprovider.status.previewRecordingIdle,"[""预览记录空闲；不会写入文件""]",src/meter/ui/src/MockMeterDataProvider.cpp:403,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 meterbridge,preset.aaa-game,"[""Games - Console/PC AAA (-24 LUFS)"", ""ゲーム - コンソール/PC AAA (-24 LUFS)"", ""游戏 - 主机/PC 重度游戏 (-24 LUFS)"", ""게임 - 콘솔/PC AAA (-24 LUFS)""]","locate/en-US.json!domains.meterbridge.preset.aaa-game
 locate/ja-JP.json!domains.meterbridge.preset.aaa-game
 locate/ko-KR.json!domains.meterbridge.preset.aaa-game

@@ -20,7 +20,7 @@ def main():
     assert {r['key'] for r in keys if r['domain']=='theme'}==required
     assert {r['key'] for r in catalog if r['domain']=='theme'}==required
     gaps=json.loads((OUT/'S6-coverage-gaps.json').read_text(encoding='utf-8'))
-    assert gaps['unmatched_occurrences']==106 and not any(r['domain']=='theme' for r in gaps['rows'])
+    assert gaps['unmatched_occurrences']==len(gaps['rows']) and not any(r['domain']=='theme' for r in gaps['rows'])
     review=(ROOT/'i18n翻译核对.md').read_text(encoding='utf-8')
     translated,excluded=review.split('## 表二：已忽略翻译的部分',1)
     for key in required: assert '| theme | '+key+' |' in translated,key
@@ -34,15 +34,15 @@ def main():
            OUT/'S6-theme-diagnostic-boundaries.md']
     result={'stage':'S6','result':'THEME_SOURCE_KEY_AND_DUAL_TABLE_CLOSURE_PASS_S6_OPEN',
             'theme_display_keys':238,'theme_unmatched_occurrences':0,
-            'remaining_other_occurrences':106,'remaining_domains':gaps['domains'],
+            'remaining_other_occurrences':gaps['unmatched_occurrences'],'remaining_domains':gaps['domains'],
             'source_snapshot':'4c06e27 (current application sources unchanged by this reconciliation)',
             'runtime_evidence':'S6-theme-verification.json; single Theme run retained',
             'limits':['This proves Theme source/key membership and recorded canonical display boundaries only.',
-                      'The 106 other source candidates still need call-path review; membership is not UI acceptance.',
+                      'The remaining other source candidates still need call-path review; membership is not UI acceptance.',
                       'User language/audio-domain review remains outstanding.'],
             'evidence':[{'file':str(p.relative_to(ROOT)),'sha256':hashlib.sha256(p.read_bytes()).hexdigest()} for p in paths]}
     (OUT/'S6-theme-source-closure.json').write_text(json.dumps(result,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
-    print('Theme source/key/dual-table closure PASS: 238 display keys, 0 Theme gaps; 106 other candidates and human review remain.')
+    print(f"Theme source/key/dual-table closure PASS: 238 display keys, 0 Theme gaps; {gaps['unmatched_occurrences']} other candidates and human review remain.")
 
 
 if __name__=='__main__': main()

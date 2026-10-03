@@ -44,7 +44,7 @@ src/common/include/WinJACKNexus/Common/Logger.hpp,59ce0e7825ba6f274695dbab0fa0bd
 src/common/include/WinJACKNexus/Common/LoudnessEngine.hpp,c86418f59cb1aeced85bb182958c9b98f982a713f8bf43f867da3320b15993f9,0,0,0,0,0,common,已扫描，无字符串 UI 源
 src/common/include/WinJACKNexus/Common/Metadata.hpp,c54381ae57b27d2d3c362a857d5ed5a5ba838ea1c37f6739ac4638cd51e77b1b,0,0,0,0,0,common,已扫描，无字符串 UI 源
 src/common/include/WinJACKNexus/Common/MeterCustomLoudnessPresets.hpp,01d277185d16129d163ea59776eb4401bbe5325f621bca7bc5324f6ca58df23c,0,0,0,0,0,common,已扫描，无字符串 UI 源
-src/common/include/WinJACKNexus/Common/MeterLoudnessPresetCatalog.hpp,05d87be003695a12e53a89f6ea309eb3a2cbf6c1f086c5544aa2d5cf87afa89b,58,1,57,0,0,meterbridge,显示文字/元数据/错误 + 固定协议/技术项分别对账
+src/common/include/WinJACKNexus/Common/MeterLoudnessPresetCatalog.hpp,05d87be003695a12e53a89f6ea309eb3a2cbf6c1f086c5544aa2d5cf87afa89b,58,0,58,0,0,meterbridge,显示文字/元数据/错误 + 固定协议/技术项分别对账
 src/common/include/WinJACKNexus/Common/MeterProbeRegistry.hpp,888442c1ab6789d35f0875552f1061bc7f1245d049ae1507422e1a25904afd8f,1,0,1,0,0,meterbridge,显示文字/元数据/错误 + 固定协议/技术项分别对账
 src/common/include/WinJACKNexus/Common/MeterSnapshot.hpp,30f456e9e5127afac6bf097b5030ed2ba1396824308d3403cded34f621a1171d,0,0,0,0,0,common,已扫描，无字符串 UI 源
 src/common/include/WinJACKNexus/Common/MixerPolarAnalysis.hpp,4ce35fcbad6685d1860de1ddad80c1a855168fd893c7fc9161866734ee745c2d,0,0,0,0,0,common,已扫描，无字符串 UI 源
@@ -66,7 +66,7 @@ src/common/src/Library.cpp,242a5156857bd2a5b16d539f130f8d4c74d76f179dc1002479332
 src/common/src/Logger.cpp,30706438ac1a1c25c62c3c6e827161322307277924e7d1c70e442826f1c31c80,12,0,12,0,0,common,显示文字/元数据/错误 + 固定协议/技术项分别对账
 src/common/src/LoudnessEngine.cpp,5fc2006cea3678b0d41394793c29caf88b764171a120833d713cf9ef61e2d4e3,0,0,0,0,0,common,已扫描，无字符串 UI 源
 src/common/src/Metadata.cpp,85602e923c08433a97aa6eb62989d35545adb9fec8fe64a82662956e44645e6c,19,0,19,0,0,common,显示文字/元数据/错误 + 固定协议/技术项分别对账
-src/common/src/MeterCustomLoudnessPresets.cpp,0604e7aeed848e55a065849cf951a00d2910d3d02e2ac764b0be92105b61495c,24,2,22,0,0,meterbridge,显示文字/元数据/错误 + 固定协议/技术项分别对账
+src/common/src/MeterCustomLoudnessPresets.cpp,0604e7aeed848e55a065849cf951a00d2910d3d02e2ac764b0be92105b61495c,24,0,24,0,0,meterbridge,显示文字/元数据/错误 + 固定协议/技术项分别对账
 src/common/src/MeterProbeRegistry.cpp,96f6d942fa50712fcc102797f216fabb3f774489c6f58d4c7e67fdad6a6258c0,0,0,0,0,0,common,已扫描，无字符串 UI 源
 src/common/src/MixerPolarAnalysis.cpp,cf2e18348191f7e7373550d052ce25f2acb19d63268b89526eeb76c84945ac9a,0,0,0,0,0,common,已扫描，无字符串 UI 源
 src/common/src/MixerPolarCurve.cpp,51451c2f75070ce1c57c0d7484b7aa7af2e0fbb3bfc50c48d751c2a8dd7f6082,0,0,0,0,0,common,已扫描，无字符串 UI 源
@@ -94,9 +94,9 @@ src/meter/ui/include/WinJACKNexus/Meter/MeterCsvWriter.hpp,9ad87a0a27cf6973c39cc
 src/meter/ui/include/WinJACKNexus/Meter/MeterViewDataProvider.hpp,a6f9ab493b9ef317493880ac14c7c90825b05195c9fb4d4f929f5ece49fc857c,0,0,0,0,0,meterbridge,已扫描，无字符串 UI 源
 src/meter/ui/include/WinJACKNexus/Meter/MeterViewSnapshot.hpp,28cdd00f99476172b0f444ba4817e0a91240841cab09972b4d40a75c806ac932,1,0,1,0,0,meterbridge,显示文字/元数据/错误 + 固定协议/技术项分别对账
 src/meter/ui/include/WinJACKNexus/Meter/MockMeterDataProvider.hpp,98fac17d35a9400dde3856de8068c189da2f71e0576175c96fbadf758c7ea97a,9,0,9,0,0,meterbridge,显示文字/元数据/错误 + 固定协议/技术项分别对账
-src/meter/ui/src/LiveMeterDataProvider.cpp,777eedc6b8bedb9b9ad2b55ee5d9047aa7dbbb3639030df85f1f824fb4fd1dfc,75,8,67,0,0,meterbridge,显示文字/元数据/错误 + 固定协议/技术项分别对账
-src/meter/ui/src/MeterCsvWriter.cpp,f47ee583cb78c7c1f7492462c131c052eda45900f972e87a3eff6b63c537f9fd,20,9,11,0,0,meterbridge,显示文字/元数据/错误 + 固定协议/技术项分别对账
-src/meter/ui/src/MockMeterDataProvider.cpp,5d0db36cb51325523a2f0ba2d68d67352730cb1c02d7668efc49f91bc5ec072e,59,29,30,0,0,meterbridge,显示文字/元数据/错误 + 固定协议/技术项分别对账
+src/meter/ui/src/LiveMeterDataProvider.cpp,777eedc6b8bedb9b9ad2b55ee5d9047aa7dbbb3639030df85f1f824fb4fd1dfc,75,2,73,0,0,meterbridge,显示文字/元数据/错误 + 固定协议/技术项分别对账
+src/meter/ui/src/MeterCsvWriter.cpp,f47ee583cb78c7c1f7492462c131c052eda45900f972e87a3eff6b63c537f9fd,20,0,20,0,0,meterbridge,显示文字/元数据/错误 + 固定协议/技术项分别对账
+src/meter/ui/src/MockMeterDataProvider.cpp,5d0db36cb51325523a2f0ba2d68d67352730cb1c02d7668efc49f91bc5ec072e,59,0,59,0,0,meterbridge,显示文字/元数据/错误 + 固定协议/技术项分别对账
 src/mixer/EffectGraph.cpp,9f153eea5550df170c25e22c82b98d8b3eb2060d074c328654349f0a9349e240,24,8,16,0,0,mixer,显示文字/元数据/错误 + 固定协议/技术项分别对账
 src/mixer/EffectGraph.hpp,bfcec5db88c04e7053a7a1cf4ffa7e27430411f0d1bd5aa4c2ff18a5eaf4d58a,0,0,0,0,0,mixer,已扫描，无字符串 UI 源
 src/mixer/Library.cpp,b590bd7f24bf8036b0777058fbd7f173ae19aa2e14d41080d57bc660963946ec,23,8,14,1,0,mixer,显示文字/元数据/错误 + 固定协议/技术项分别对账

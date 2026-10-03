@@ -62,3 +62,6 @@ VST Scanner 使用现有 HostI18n 在创建窗口前恢复宿主保存的语言�
 
 
 2026-10-04 Theme 来源及双表闭合：当前应用源码快照 4c06e27，277 文件、10,389 次字符串出现，1773 翻译源、8609 保留项、7 结构化描述符，未分类 0；唯一显示 key 1297。Theme 238 实际 key 已逐源纳入，canonical 后台模板与显示 detail 模板分别记录；发行内置说明使用实际 identity.defaultDescription，作者主题名称/编辑/导出元数据保持。核对表三项 Catalog 草稿归入表一，Theme 排除理由归入表二，代表实窗验证状态同步。S0 分类及 Theme 源码/key/双表核对 PASS；差异为新增 238/退休 239 个显示 key。仅证明 Theme 对账闭合，其他 106 次候选出现（host1/common3/meter49/mixer45/node1/patchbay5/ui2）仍待调用链审查，用户人工审校未完成，S6/S7 不标完成。本轮无应用变更、无构建/模块重测/弹窗。见 S6-theme-source-closure.json 与 S6-coverage-gaps.json。
+
+
+2026-10-04 Meter 49 个旧 key 候选逐调用链核对完成：47 处保留原始数据/API/CSV 路径/预览用户名称或未消费的场景 helper；显示布局、已知预设和 CSV 状态已有独立 stable ID/enum 翻译。两处 live “未分配”实际进入声道角色下拉框，确认漏译，保留开放，待实现 itemText 翻译与 itemData 原始值分离。见 S6-meter-source-review.md、S6-meter-source-audit.json、S6-meter-source-verification.json。源审计及 S0 核对 PASS；当前 277 文件/10389 出现、1726 翻译源/8656 保留项/7 结构化，未分类 0，1253 唯一显示 key；退休 44 个旧模型 key 提案。全局余 59 次（host1/common3/mixer45/meter2/node1/patchbay5/ui2）。这是源码/双表核对，不代表漏译修复或新实窗通过，本轮零构建/零模块执行/零弹窗，S6/S7 与人工审校仍未完成。

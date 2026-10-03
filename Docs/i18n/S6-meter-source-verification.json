@@ -1,0 +1,16 @@
+{
+  "stage": "S6",
+  "result": "METER_SOURCE_AUDIT_PASS_2_CONFIRMED_UI_GAPS_OPEN",
+  "reviewed_occurrences": 49,
+  "preserved_occurrences": 47,
+  "confirmed_ui_gaps": 2,
+  "all_remaining_occurrences": 59,
+  "module_test_runs_added": 0,
+  "ui_shows_added": 0,
+  "source_audit_sha256": "f544103b0dbb38c5887b036a1ce58cad283fa103adfb48119475009fde913029",
+  "limits": [
+    "No application changes, build or runtime execution in this source review.",
+    "The two unassigned labels still require translated display with canonical role item data.",
+    "Other candidates and user human review remain outstanding."
+  ]
+}
