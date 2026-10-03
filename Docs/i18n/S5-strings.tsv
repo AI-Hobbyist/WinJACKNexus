@@ -131,7 +131,7 @@ limiter	label.outputLevel	Output level	输出电平	出力レベル	출력 레�
 limiter	control.threshold	Threshold	阈值	しきい値	임계값	待 S6 母语/领域审校；S5 实施中未验收
 limiter	control.ceiling	Output ceiling	输出上限	出力上限	출력 상한	待 S6 母语/领域审校；S5 实施中未验收
 limiter	control.release	Release	释放时间	リリース	릴리스	待 S6 母语/领域审校；S5 实施中未验收
-limiter	control.lookahead	Lookahead	前瞻	ルックアヘッド	룩어헤드	待 S6 母语/领域审校；S5 实施中未验收
+limiter	control.lookahead	Unused	未使用	未使用	미사용	旧 lookaheadDb 字段保留；DSP 未使用，主标签明确未使用，括号保留历史字段说明；待 S6 母语/领域审校；S5 未验收
 limiter	control.mode	Mode:	模式:	モード:	모드:	待 S6 母语/领域审校；S5 实施中未验收
 limiter	mode.transparent	Transparent	透明	透明	투명	待 S6 母语/领域审校；S5 实施中未验收
 limiter	mode.modern	Modern	现代	モダン	모던	待 S6 母语/领域审校；S5 实施中未验收

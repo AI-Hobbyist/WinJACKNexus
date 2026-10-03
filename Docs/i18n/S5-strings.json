@@ -1073,11 +1073,11 @@
   {
     "effect": "limiter",
     "key": "control.lookahead",
-    "en-US": "Lookahead",
-    "zh-CN": "前瞻",
-    "ja-JP": "ルックアヘッド",
-    "ko-KR": "룩어헤드",
-    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+    "en-US": "Unused",
+    "zh-CN": "未使用",
+    "ja-JP": "未使用",
+    "ko-KR": "미사용",
+    "review": "旧 lookaheadDb 字段保留；DSP 未使用，主标签明确未使用，括号保留历史字段说明；待 S6 母语/领域审校；S5 未验收"
   },
   {
     "effect": "limiter",

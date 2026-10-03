@@ -245,9 +245,11 @@ void drawElidedText(QPainter& painter, const QRectF& bounds, const QString& valu
         auto* tooltips = dynamic_cast<PaintedTextTooltips*>(holder);
         if (!tooltips) tooltips = new PaintedTextTooltips(widget);
         if (clipped) {
-            // combinedTransform includes logical viewport mapping, without the
-            // device pixel scaling that would move a QWidget's hover hit area.
-            const auto hit = painter.combinedTransform().mapRect(bounds).intersected(widget->rect());
+            // QWidget help events use logical coordinates. combinedTransform()
+            // includes device pixel scaling as well as world/viewport mapping.
+            const auto pixels = painter.combinedTransform().mapRect(bounds);
+            const auto ratio = painter.device()->devicePixelRatioF();
+            const auto hit = QRectF(pixels.topLeft() / ratio, pixels.size() / ratio).intersected(widget->rect());
             if (!hit.isEmpty()) tooltips->regions.push_back({hit, value});
         }
     }

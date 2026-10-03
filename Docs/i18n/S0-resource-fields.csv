@@ -3415,7 +3415,7 @@ src/native_fx/effects/limiter/locate/en-US.json,domains.nativefx.limiter.label.o
 src/native_fx/effects/limiter/locate/en-US.json,domains.nativefx.limiter.control.threshold,Threshold,nativefx.limiter,control.threshold,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
 src/native_fx/effects/limiter/locate/en-US.json,domains.nativefx.limiter.control.ceiling,Output ceiling,nativefx.limiter,control.ceiling,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
 src/native_fx/effects/limiter/locate/en-US.json,domains.nativefx.limiter.control.release,Release,nativefx.limiter,control.release,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
-src/native_fx/effects/limiter/locate/en-US.json,domains.nativefx.limiter.control.lookahead,Lookahead,nativefx.limiter,control.lookahead,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/native_fx/effects/limiter/locate/en-US.json,domains.nativefx.limiter.control.lookahead,Unused,nativefx.limiter,control.lookahead,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
 src/native_fx/effects/limiter/locate/en-US.json,domains.nativefx.limiter.control.mode,Mode:,nativefx.limiter,control.mode,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
 src/native_fx/effects/limiter/locate/en-US.json,domains.nativefx.limiter.mode.transparent,Transparent,nativefx.limiter,mode.transparent,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
 src/native_fx/effects/limiter/locate/en-US.json,domains.nativefx.limiter.mode.modern,Modern,nativefx.limiter,mode.modern,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
@@ -3449,7 +3449,7 @@ src/native_fx/effects/limiter/locate/ja-JP.json,domains.nativefx.limiter.label.o
 src/native_fx/effects/limiter/locate/ja-JP.json,domains.nativefx.limiter.control.threshold,しきい値,nativefx.limiter,control.threshold,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
 src/native_fx/effects/limiter/locate/ja-JP.json,domains.nativefx.limiter.control.ceiling,出力上限,nativefx.limiter,control.ceiling,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
 src/native_fx/effects/limiter/locate/ja-JP.json,domains.nativefx.limiter.control.release,リリース,nativefx.limiter,control.release,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
-src/native_fx/effects/limiter/locate/ja-JP.json,domains.nativefx.limiter.control.lookahead,ルックアヘッド,nativefx.limiter,control.lookahead,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/native_fx/effects/limiter/locate/ja-JP.json,domains.nativefx.limiter.control.lookahead,未使用,nativefx.limiter,control.lookahead,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
 src/native_fx/effects/limiter/locate/ja-JP.json,domains.nativefx.limiter.control.mode,モード:,nativefx.limiter,control.mode,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
 src/native_fx/effects/limiter/locate/ja-JP.json,domains.nativefx.limiter.mode.transparent,透明,nativefx.limiter,mode.transparent,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
 src/native_fx/effects/limiter/locate/ja-JP.json,domains.nativefx.limiter.mode.modern,モダン,nativefx.limiter,mode.modern,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
@@ -3483,7 +3483,7 @@ src/native_fx/effects/limiter/locate/ko-KR.json,domains.nativefx.limiter.label.o
 src/native_fx/effects/limiter/locate/ko-KR.json,domains.nativefx.limiter.control.threshold,임계값,nativefx.limiter,control.threshold,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
 src/native_fx/effects/limiter/locate/ko-KR.json,domains.nativefx.limiter.control.ceiling,출력 상한,nativefx.limiter,control.ceiling,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
 src/native_fx/effects/limiter/locate/ko-KR.json,domains.nativefx.limiter.control.release,릴리스,nativefx.limiter,control.release,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
-src/native_fx/effects/limiter/locate/ko-KR.json,domains.nativefx.limiter.control.lookahead,룩어헤드,nativefx.limiter,control.lookahead,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/native_fx/effects/limiter/locate/ko-KR.json,domains.nativefx.limiter.control.lookahead,미사용,nativefx.limiter,control.lookahead,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
 src/native_fx/effects/limiter/locate/ko-KR.json,domains.nativefx.limiter.control.mode,모드:,nativefx.limiter,control.mode,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
 src/native_fx/effects/limiter/locate/ko-KR.json,domains.nativefx.limiter.mode.transparent,투명,nativefx.limiter,mode.transparent,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
 src/native_fx/effects/limiter/locate/ko-KR.json,domains.nativefx.limiter.mode.modern,모던,nativefx.limiter,mode.modern,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
@@ -3556,7 +3556,7 @@ src/native_fx/effects/limiter/locate/zh-CN.json,domains.nativefx.limiter.label.o
 src/native_fx/effects/limiter/locate/zh-CN.json,domains.nativefx.limiter.control.threshold,阈值,nativefx.limiter,control.threshold,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
 src/native_fx/effects/limiter/locate/zh-CN.json,domains.nativefx.limiter.control.ceiling,输出上限,nativefx.limiter,control.ceiling,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
 src/native_fx/effects/limiter/locate/zh-CN.json,domains.nativefx.limiter.control.release,释放时间,nativefx.limiter,control.release,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
-src/native_fx/effects/limiter/locate/zh-CN.json,domains.nativefx.limiter.control.lookahead,前瞻,nativefx.limiter,control.lookahead,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/native_fx/effects/limiter/locate/zh-CN.json,domains.nativefx.limiter.control.lookahead,未使用,nativefx.limiter,control.lookahead,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
 src/native_fx/effects/limiter/locate/zh-CN.json,domains.nativefx.limiter.control.mode,模式:,nativefx.limiter,control.mode,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
 src/native_fx/effects/limiter/locate/zh-CN.json,domains.nativefx.limiter.mode.transparent,透明,nativefx.limiter,mode.transparent,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
 src/native_fx/effects/limiter/locate/zh-CN.json,domains.nativefx.limiter.mode.modern,现代,nativefx.limiter,mode.modern,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表

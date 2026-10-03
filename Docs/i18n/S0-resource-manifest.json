@@ -165,15 +165,15 @@
   },
   {
     "file": "src/native_fx/effects/limiter/locate/en-US.json",
-    "sha256": "62c70530492af1248b97666747802b010d27920d22b1bb4a14b70ce4d2308d26"
+    "sha256": "b4da7f48b7004a0c136e60c480c30c3bc48ac117e40c8efa4b6658355bdd9319"
   },
   {
     "file": "src/native_fx/effects/limiter/locate/ja-JP.json",
-    "sha256": "88b0a460c7166e7d831c0a4a3cf230b697a9481c5bdd3ab36c0c32013e662833"
+    "sha256": "d57b11fbb530173047a60706810fccfa20d934eb62ceaad69262306c7ae65bd1"
   },
   {
     "file": "src/native_fx/effects/limiter/locate/ko-KR.json",
-    "sha256": "0df30beec368689adfef313eecbdba52c3ebd15097247d9c36513ad20385087a"
+    "sha256": "7f792c0b82c599faa2239ff9cd1e2a22278460d6b2c8e5deead94d56cad58f32"
   },
   {
     "file": "src/native_fx/effects/limiter/locate/manifest.json",
@@ -181,7 +181,7 @@
   },
   {
     "file": "src/native_fx/effects/limiter/locate/zh-CN.json",
-    "sha256": "5545a9c382d4df9a9f135ef80567357777a1b63ac9f18dae3b7e566cfb5ff3c4"
+    "sha256": "be8e616811b8890ac0019a45bf35c6e2cd9d962fb323ce5e8eb186af10a49048"
   },
   {
     "file": "src/native_fx/effects/delay/locate/en-US.json",

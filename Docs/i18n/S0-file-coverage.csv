@@ -114,7 +114,7 @@ src/native_fx/effects/deesser/include/WinJACKNexus/NativeFx/deesser/SpectrumSamp
 src/native_fx/effects/deesser/include/WinJACKNexus/NativeFx/deesser/Ui.hpp,e108c5303ff4c505a14cdcdd050340d16be68a7cbde1ebd93da2327b94cf73e6,0,0,0,0,0,nativefx.deesser,已扫描，无字符串 UI 源
 src/native_fx/effects/deesser/Meta.hpp,cdccdf1f308fde1635c7eb7c0a86d76cb9b6c2c3206f9284bc03592ad0623ec7,4,0,4,0,0,nativefx.deesser,显示文字/元数据/错误 + 固定协议/技术项分别对账
 src/native_fx/effects/deesser/src/Dsp.cpp,215347e5ea5c051034249ea8513e0f1ccd6305160e9725295e729024cc0b45ef,1,0,1,0,0,nativefx.deesser,显示文字/元数据/错误 + 固定协议/技术项分别对账
-src/native_fx/effects/deesser/src/Ui.cpp,68aa47e26a8f3c49513333a4f1dad4efa438139fa0c0787a3900fa363a2edf78,140,40,100,0,0,nativefx.deesser,显示文字/元数据/错误 + 固定协议/技术项分别对账
+src/native_fx/effects/deesser/src/Ui.cpp,808bf36b0dfc2378a527869602ac18cc79ec2265382da4e43fa126608133d26f,140,40,100,0,0,nativefx.deesser,显示文字/元数据/错误 + 固定协议/技术项分别对账
 src/native_fx/effects/delay/include/Dsp.hpp,a5290578d5757e2d2c0a1720132a202176bcc34feba53b5f3f5f2fa6d53306f2,0,0,0,0,0,nativefx.delay,已扫描，无字符串 UI 源
 src/native_fx/effects/delay/include/Logic.inc,7eaf96a139098790a4adbfcf78c9b01ee305dca9b2bdaa020af2df16a3230a6b,47,2,45,0,0,nativefx.delay,显示文字/元数据/错误 + 固定协议/技术项分别对账
 src/native_fx/effects/delay/include/WinJACKNexus/NativeFx/delay/Processor.hpp,1fa3c1624f61ea046538523ec7c35e91b83a6411f63c3b011ee456bbade7679e,0,0,0,0,0,nativefx.delay,已扫描，无字符串 UI 源
@@ -144,7 +144,7 @@ src/native_fx/effects/limiter/include/WinJACKNexus/NativeFx/limiter/Processor.hp
 src/native_fx/effects/limiter/include/WinJACKNexus/NativeFx/limiter/Ui.hpp,97094b2c4f128f9a5fce67f055c617e51630302df14ac2985fd1e1fc269dd696,0,0,0,0,0,nativefx.limiter,已扫描，无字符串 UI 源
 src/native_fx/effects/limiter/Meta.hpp,fbef4b557dc34309df190d7e4edabc57e084fae2ee5ab61d91bd320d62ef1829,4,0,4,0,0,nativefx.limiter,显示文字/元数据/错误 + 固定协议/技术项分别对账
 src/native_fx/effects/limiter/src/Dsp.cpp,df2845ce79743b74dd31aa20d03215efda62d138785531fc2d2f637dffc32833,1,0,1,0,0,nativefx.limiter,显示文字/元数据/错误 + 固定协议/技术项分别对账
-src/native_fx/effects/limiter/src/Ui.cpp,760d5b33088785b94d4e01e5f027828b98b2f8242d3c6c9968383db70b4e2094,183,46,137,0,0,nativefx.limiter,显示文字/元数据/错误 + 固定协议/技术项分别对账
+src/native_fx/effects/limiter/src/Ui.cpp,b04775ba74866d8377b339fb7d040293a52312ce1d8696766d1fc52c65117999,183,46,137,0,0,nativefx.limiter,显示文字/元数据/错误 + 固定协议/技术项分别对账
 src/native_fx/effects/parametric_eq/include/Dsp.hpp,c17605b44bb502badf686d955564c62e0a42e92200a657f68b5ff3dd3937437b,0,0,0,0,0,nativefx.parametric_eq,已扫描，无字符串 UI 源
 src/native_fx/effects/parametric_eq/include/Logic.inc,7c2823aa13585dce14d416c1f0002c3b86591af69ad5e0b7f38fb529f2fdd881,50,2,48,0,0,nativefx.parametric-eq,显示文字/元数据/错误 + 固定协议/技术项分别对账
 src/native_fx/effects/parametric_eq/include/WinJACKNexus/NativeFx/parametric_eq/Processor.hpp,4ecda369214aace395edacc40818b84a80f885ed32cb548d8b8df477453f44be,0,0,0,0,0,nativefx.parametric_eq,已扫描，无字符串 UI 源
@@ -163,7 +163,7 @@ src/native_fx/include/WinJACKNexus/NativeFx/I18n.hpp,3f4253285831a25adf7c4d089e2
 src/native_fx/include/WinJACKNexus/NativeFx/NativeFxApi.h,f9449f751e3048f5f87409ff9e95aa2cd88aec98b878a38b8f5540fc48b8db2d,1,0,1,0,0,nativefx,显示文字/元数据/错误 + 固定协议/技术项分别对账
 src/native_fx/src/I18n.cpp,c87ef0046e4a608b6944e7c87506307f0da3976140337af120c3218cf7d61826,23,0,23,0,0,nativefx,显示文字/元数据/错误 + 固定协议/技术项分别对账
 src/native_fx/src/Library.cpp,5fdc7f607aef1d35f29b6c486b48d398ae4a44475960e24ed71cbf7e57d22609,19,0,19,0,0,nativefx,显示文字/元数据/错误 + 固定协议/技术项分别对账
-src/native_fx/src/NativeFxApi.cpp,27b2578fc82fc660dbec192d23d459976073c897ee8390193ba55a1bd9060101,262,41,221,0,0,"nativefx,nativefx.compressor,nativefx.deesser,nativefx.delay,nativefx.gate,nativefx.graphic-eq,nativefx.limiter,nativefx.parametric-eq,nativefx.reverb",显示文字/元数据/错误 + 固定协议/技术项分别对账
+src/native_fx/src/NativeFxApi.cpp,e8a5c32992e0207dca29ba56df140cbb75c0c830cbfc36619a7c3cb49684d345,262,41,221,0,0,"nativefx,nativefx.compressor,nativefx.deesser,nativefx.delay,nativefx.gate,nativefx.graphic-eq,nativefx.limiter,nativefx.parametric-eq,nativefx.reverb",显示文字/元数据/错误 + 固定协议/技术项分别对账
 src/node/include/WinJACKNexus/Node/Export.hpp,9b9771bbc40ca5f6bb4a7aa0d4401b7cece5671eb5acc2265c3cec1c88b84207,0,0,0,0,0,node,已扫描，无字符串 UI 源
 src/node/include/WinJACKNexus/Node/INode.hpp,ca0d2b3626137f1eed5d011ba0dc86630a81aa54b343a4225c9e6fdd15b60b6b,0,0,0,0,0,node,已扫描，无字符串 UI 源
 src/node/include/WinJACKNexus/Node/NodeApi.h,6ec93b74a0ee0462cd7991a5997b500a6224798b3107938d55f64941b60d27ea,1,0,1,0,0,node,显示文字/元数据/错误 + 固定协议/技术项分别对账
@@ -228,7 +228,7 @@ src/ui/include/WinJACKNexus/UI/TrayController.hpp,8561f6fb92481f71b8613f3cb5c4b2
 src/ui/src/AnimatedWidget.cpp,711d4dc1069c79b365fff2782bee90915eeadfb1a39470f1857d9513ee22397d,0,0,0,0,0,ui,已扫描，无字符串 UI 源
 src/ui/src/ApplicationSettings.cpp,8a855a0e8771a9599233c10e8bc12c88c316049675736211bc1a1cb33ab6b85a,14,0,14,0,0,ui,显示文字/元数据/错误 + 固定协议/技术项分别对账
 src/ui/src/AuxSettingsWindow.cpp,96ee2ddcea8bb613b44aa8045f86e68db37a84b8c2c96063618f044625b14213,266,29,237,0,0,aux,显示文字/元数据/错误 + 固定协议/技术项分别对账
-src/ui/src/Controls.cpp,2b1d9fbbcdddeb3a7d146f8a990d9648acb691e5f68b82d2051d7868762f99f3,165,8,157,0,0,ui,显示文字/元数据/错误 + 固定协议/技术项分别对账
+src/ui/src/Controls.cpp,cc7c76bb55a92cb23a083d050eef089ac67775643ad0a7a947f49039cab27240,165,8,157,0,0,ui,显示文字/元数据/错误 + 固定协议/技术项分别对账
 src/ui/src/FxLevelMeterWidget.cpp,e980376f816c95c848592655121b596876a7bd2490a0ae76e9f41de56836a5d9,48,4,44,0,0,fxhost,显示文字/元数据/错误 + 固定协议/技术项分别对账
 src/ui/src/FxSettingsWindow.cpp,b04efc2734cec388d9de5f85767197ee1e0775c29b2e64a76b3fa7edffc1db48,431,58,373,0,0,fxhost,显示文字/元数据/错误 + 固定协议/技术项分别对账
 src/ui/src/HistoryChartWidget.cpp,869b6bdf72ee704855db05f25ee6cf1bdc43f90d8bbc95e0b2bc54f033e0a026,26,1,25,0,0,ui,显示文字/元数据/错误 + 固定协议/技术项分别对账
@@ -268,6 +268,6 @@ tools/vst_scanner/src/MainWindow.cpp,d7a49a9ec5b32186f9a7333006130118deccac342b8
 tools/vst_scanner/src/ProbeMain.cpp,99a312c982bee752cdb25ea459eeabb9cf795f84e9726b0ef3d1604fea721377,74,10,64,0,0,vstscanner,显示文字/元数据/错误 + 固定协议/技术项分别对账
 tools/vst_scanner/src/Scanner.cpp,df1a858802011cfaee1625ffa3c602268c022d020199030b4a6551a19909e871,155,26,129,0,0,vstscanner,显示文字/元数据/错误 + 固定协议/技术项分别对账
 tools/vst_scanner/VstScanner.rc,4ffc00d43b37ed2048f9ad7b95df34a6435382622b828d4675f457b50813ab10,1,0,1,0,0,vstscanner,显示文字/元数据/错误 + 固定协议/技术项分别对账
-Develop/I18nExample.hpp,1f2e0785470cfe03eaf57e0152aad6204b96ceffa6210bacb926cb19797194c9,2,0,2,0,0,example.i18nexample.hpp,显示文字/元数据/错误 + 固定协议/技术项分别对账
-Develop/NativeFx/ExampleNativeFx.cpp,c7c9b2fd7a82d7f8c5c472b551b395338ef77ebf883a0cf8d4cbca47eb113c39,68,16,51,1,0,example.nativefx,显示文字/元数据/错误 + 固定协议/技术项分别对账
-Develop/Node/ExampleNode.cpp,a008b0f6eac12e3ae8411938c178590a9430f9a33836423fb6f449dcd87b7c44,13,5,6,2,0,example.node,显示文字/元数据/错误 + 固定协议/技术项分别对账
+Develop/I18nExample.hpp,6224e28198d6a03eaa6f511e2a5c523eaeac376ed666ea16f8b4dc87c7f0d437,2,0,2,0,0,example.i18nexample.hpp,显示文字/元数据/错误 + 固定协议/技术项分别对账
+Develop/NativeFx/ExampleNativeFx.cpp,c7c9b2fd7a82d7f8c5c472b551b395338ef77ebf883a0cf8d4cbca47eb113c39,68,12,55,1,0,example.nativefx,显示文字/元数据/错误 + 固定协议/技术项分别对账
+Develop/Node/ExampleNode.cpp,a008b0f6eac12e3ae8411938c178590a9430f9a33836423fb6f449dcd87b7c44,13,0,11,2,0,example.node,显示文字/元数据/错误 + 固定协议/技术项分别对账

@@ -1,0 +1,586 @@
+{
+  "log": "Docs/i18n/S5-bounded-records/20261003T125815820Z-scale-2-deesser_compressor-hot.log",
+  "font": "Microsoft YaHei UI",
+  "scale": "2",
+  "popup_shows": 24,
+  "platform": "windows",
+  "evidence": [
+    {
+      "file": "Develop/NativeFx/NativeFxI18nTests.cpp",
+      "sha256": "116bee268d492edde740684cfb95da32a05bf3ba95c729f2f43b509439e53f38"
+    },
+    {
+      "file": "Develop/I18nExample.hpp",
+      "sha256": "6224e28198d6a03eaa6f511e2a5c523eaeac376ed666ea16f8b4dc87c7f0d437"
+    },
+    {
+      "file": "Develop/NativeFx/ExampleNativeFx.cpp",
+      "sha256": "c7c9b2fd7a82d7f8c5c472b551b395338ef77ebf883a0cf8d4cbca47eb113c39"
+    },
+    {
+      "file": "Develop/Node/ExampleNode.cpp",
+      "sha256": "a008b0f6eac12e3ae8411938c178590a9430f9a33836423fb6f449dcd87b7c44"
+    },
+    {
+      "file": "src/native_fx/src/I18n.cpp",
+      "sha256": "c87ef0046e4a608b6944e7c87506307f0da3976140337af120c3218cf7d61826"
+    },
+    {
+      "file": "src/native_fx/src/NativeFxApi.cpp",
+      "sha256": "e8a5c32992e0207dca29ba56df140cbb75c0c830cbfc36619a7c3cb49684d345"
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "sha256": "cc7c76bb55a92cb23a083d050eef089ac67775643ad0a7a947f49039cab27240"
+    },
+    {
+      "file": "src/ui/src/FxSettingsWindow.cpp",
+      "sha256": "b04efc2734cec388d9de5f85767197ee1e0775c29b2e64a76b3fa7edffc1db48"
+    },
+    {
+      "file": "src/ui/src/I18nManager.cpp",
+      "sha256": "934ba732ad220d064d25599764e171edfe9253eb5900e74d5e6a128816a6a563"
+    },
+    {
+      "file": "src/ui/src/HostI18n.cpp",
+      "sha256": "eb5cba83d7bd5c5096ba093a60577bad59a91a22c63f523329d7e56c3abf0025"
+    },
+    {
+      "file": "Docs/i18n/S5-strings.tsv",
+      "sha256": "19f7705565dbde2d2b65f79699edd5cc3b5ee12d4a26ca2afa58d8fa324dc5c3"
+    },
+    {
+      "file": "Docs/i18n/S5-shared-strings.tsv",
+      "sha256": "ebaa9d1e9b58696504f065fb6652137d60f5176687ad10d50a2a6381e1f3ef08"
+    },
+    {
+      "file": "build/release/bin/wjn_native_fx_i18n_tests.exe",
+      "sha256": "60bc13cca27a34a2093f82f2502dfbe5682902d4550d80af42217afb16bb774d"
+    },
+    {
+      "file": "build/release/bin/ui.dll",
+      "sha256": "51b9bc07134e08287307f62174b02a480474f852980cf7a82eab814fdebe0039"
+    },
+    {
+      "file": "build/release/bin/examples/native_fx/wjn_example_native_fx.dll",
+      "sha256": "1a0d7272efee19aa19393a05e9e6f9cbcd40601f23e252d25109cb5aaf493413"
+    },
+    {
+      "file": "build/release/bin/examples/node/wjn_example_node.dll",
+      "sha256": "587ba9cea273c7907fd699317ba0adf05e7da5b85ae9cf90688ee6f685209376"
+    },
+    {
+      "file": "src/native_fx/effects/gate/src/Ui.cpp",
+      "sha256": "e0477c68ef209515eb761d6150e84a22dbf8fdbc869829385a78c4f84272e7fe"
+    },
+    {
+      "file": "build/release/bin/nodes/native_fx/gate/mod_gate.dll",
+      "sha256": "9925077c4822867ef6b836828ff0e6cd20ba26e3c1f84f4a56211177855cef20"
+    },
+    {
+      "file": "src/native_fx/effects/graphic_eq/src/Ui.cpp",
+      "sha256": "e3c9868c2649fc0699092d36a42b7a16fb87cc3c5163636f75d359b14a65ac4e"
+    },
+    {
+      "file": "build/release/bin/nodes/native_fx/graphic_eq/mod_graphic_eq.dll",
+      "sha256": "f47be63ddaecb85dd67bb09d95e0958aae315ec9cda60f338da92bec4b7f37cd"
+    },
+    {
+      "file": "src/native_fx/effects/deesser/src/Ui.cpp",
+      "sha256": "808bf36b0dfc2378a527869602ac18cc79ec2265382da4e43fa126608133d26f"
+    },
+    {
+      "file": "build/release/bin/nodes/native_fx/deesser/mod_deesser.dll",
+      "sha256": "04adbb4bfbcfee9aca9f99d26b59c8a7e03ec46fd08ce25a0b0da9e18994dd8d"
+    },
+    {
+      "file": "src/native_fx/effects/compressor/src/Ui.cpp",
+      "sha256": "b39e64d96133864c31261ce3f5df29d6dbf51ef1d46e7fc06468f48d56f33cd7"
+    },
+    {
+      "file": "build/release/bin/nodes/native_fx/compressor/mod_compressor.dll",
+      "sha256": "89df71bdb80dad23fa7c54f89eaac2b42e3b58a2ea7a8acc829bf684f2214ce3"
+    },
+    {
+      "file": "src/native_fx/effects/limiter/src/Ui.cpp",
+      "sha256": "b04775ba74866d8377b339fb7d040293a52312ce1d8696766d1fc52c65117999"
+    },
+    {
+      "file": "build/release/bin/nodes/native_fx/limiter/mod_limiter.dll",
+      "sha256": "30560a6f861901cf9c767322f95276ca651836510ec189900fd55d5a9693d34d"
+    },
+    {
+      "file": "src/native_fx/effects/delay/src/Ui.cpp",
+      "sha256": "36d64e0fbb65325219ef2911cce2e5c5115734cd767f55e4f034cffef643ab8f"
+    },
+    {
+      "file": "build/release/bin/nodes/native_fx/delay/mod_delay.dll",
+      "sha256": "11140b63d9f57205aec2bfbfd5d8199201273fea40c40a3a3398f4035146735c"
+    },
+    {
+      "file": "src/native_fx/effects/parametric_eq/src/Ui.cpp",
+      "sha256": "17f3edc770fd4c54d6c1fabeefedee684264c99291b23d361c58bd4c4ba0f551"
+    },
+    {
+      "file": "build/release/bin/nodes/native_fx/parametric_eq/mod_parametric_eq.dll",
+      "sha256": "55efd70fd6edfae9257240aefef0b03ddfbebd031bb667b8d8e35f5d6ef2116d"
+    },
+    {
+      "file": "src/native_fx/effects/reverb/src/Ui.cpp",
+      "sha256": "bd165bf2f7ce63f637f88c48c4e94f4cc85fd40c02f115c9854d1301eb3c5886"
+    },
+    {
+      "file": "build/release/bin/nodes/native_fx/reverb/mod_reverb.dll",
+      "sha256": "36ed14aad1ba14ded617bb9119940b715a0e85e629916df18a0b69f781099092"
+    },
+    {
+      "file": "locate/en-US.json",
+      "sha256": "33c8724e4400b60dd9b23e71833ace8649264fa9fd3291652cbf121d1ae3ed4b"
+    },
+    {
+      "file": "locate/ja-JP.json",
+      "sha256": "9278cfec54d4e3894da0a2fe22a0b8a8c588f1f18c2f49db3fbdbdf97fbbdd4b"
+    },
+    {
+      "file": "locate/ko-KR.json",
+      "sha256": "726ec065e02604d4ddd9e29af6168f132da8c0c0cf10e1c7727012cb5003aaa8"
+    },
+    {
+      "file": "locate/manifest.json",
+      "sha256": "66123e7df049bc1050003423d6db07faf1936e2f5df610815dd57763c4949231"
+    },
+    {
+      "file": "locate/zh-CN.json",
+      "sha256": "c9541bcfd9b2318c9fa12c1e9ef616410997d53fcdf75588a0c2871cec01e077"
+    },
+    {
+      "file": "src/native_fx/effects/gate/locate/en-US.json",
+      "sha256": "cc9d202b3a6dcbfdbd437821ec2c5d9722289cc4f1c04ba04346c33f10d8e72f"
+    },
+    {
+      "file": "src/native_fx/effects/gate/locate/ja-JP.json",
+      "sha256": "2186077fec30bada43daec1a759aa9405624f2485dbc5c59064f2177acf84f94"
+    },
+    {
+      "file": "src/native_fx/effects/gate/locate/ko-KR.json",
+      "sha256": "15274a801e8a3b48607204a9b2b519d9a5eee6ab578fbed033a34956e573b058"
+    },
+    {
+      "file": "src/native_fx/effects/gate/locate/manifest.json",
+      "sha256": "2855e395c4b3fd41b8dfce0e5cf36efbb9ac32cf41c9d81c863020975550f579"
+    },
+    {
+      "file": "src/native_fx/effects/gate/locate/zh-CN.json",
+      "sha256": "fb0fec211f3cbe9375d59de008bd6d46385f94edcfd7dd1a195f5b75c6f3e0d0"
+    },
+    {
+      "file": "src/native_fx/effects/graphic_eq/locate/en-US.json",
+      "sha256": "3a7eab03874ff69d8bc23d35a80b8c448a4b37740f0faf5dd0d4ee3114300310"
+    },
+    {
+      "file": "src/native_fx/effects/graphic_eq/locate/ja-JP.json",
+      "sha256": "2002280a4218c5a5f88c1f33002846a270e55bf9146ade60a8065e1cb01b433f"
+    },
+    {
+      "file": "src/native_fx/effects/graphic_eq/locate/ko-KR.json",
+      "sha256": "2a6191d8306ef3905e2da2840f6ff80919fcb9f9fbdd1e3398a28e3157e2a4a3"
+    },
+    {
+      "file": "src/native_fx/effects/graphic_eq/locate/manifest.json",
+      "sha256": "a46858c7a2d1af9c4057cb5cfada9699bc5ca87f44dbb80361ed72619ff09b21"
+    },
+    {
+      "file": "src/native_fx/effects/graphic_eq/locate/zh-CN.json",
+      "sha256": "1a6fcb588df71edcfb996ca8f9be5e16cd2c16b8a9f721d809d6615e866367f5"
+    },
+    {
+      "file": "src/native_fx/effects/deesser/locate/en-US.json",
+      "sha256": "661c46e7318913a35586b45331b8f7233a6916cf022c1301ea52c96d4b1fd957"
+    },
+    {
+      "file": "src/native_fx/effects/deesser/locate/ja-JP.json",
+      "sha256": "b6679d1b8245493e627820a08c029e32eb7445a990848f6230c4a725052faaa6"
+    },
+    {
+      "file": "src/native_fx/effects/deesser/locate/ko-KR.json",
+      "sha256": "5cbcc41f70d8033661422a737cbb7bf0974737c64dc6a2acb126e43c3a27fe02"
+    },
+    {
+      "file": "src/native_fx/effects/deesser/locate/manifest.json",
+      "sha256": "d51917ccc0d11a45be0d3260cac2270142b01ea3e496e399f2ca9b8fcf4fe51f"
+    },
+    {
+      "file": "src/native_fx/effects/deesser/locate/zh-CN.json",
+      "sha256": "af0ec8a62a5aa97bd08954b8987f6945e3a3f4390998f84ac34c247f6684d3e9"
+    },
+    {
+      "file": "src/native_fx/effects/compressor/locate/en-US.json",
+      "sha256": "6f28aede30d7f00f6cc7af64cfaf69b6758f54dcba7ea83608b3e42db310bc28"
+    },
+    {
+      "file": "src/native_fx/effects/compressor/locate/ja-JP.json",
+      "sha256": "1a604c56af472e47ef6fb8dd4ebe737eef6069f20724ec3be20dd2c3bdb92827"
+    },
+    {
+      "file": "src/native_fx/effects/compressor/locate/ko-KR.json",
+      "sha256": "b8a9fe57f4df3d20f679830212435918d9d582220a1162f696ca99624cc1a33b"
+    },
+    {
+      "file": "src/native_fx/effects/compressor/locate/manifest.json",
+      "sha256": "9f5d4b195ed4011de62b26ca900e078818e339e1b089deabdc621b5d131c0474"
+    },
+    {
+      "file": "src/native_fx/effects/compressor/locate/zh-CN.json",
+      "sha256": "21f25a937e108d09e4c2b492266ce17d9a0b29469e55c3e11945c25411eb181b"
+    },
+    {
+      "file": "src/native_fx/effects/limiter/locate/en-US.json",
+      "sha256": "b4da7f48b7004a0c136e60c480c30c3bc48ac117e40c8efa4b6658355bdd9319"
+    },
+    {
+      "file": "src/native_fx/effects/limiter/locate/ja-JP.json",
+      "sha256": "d57b11fbb530173047a60706810fccfa20d934eb62ceaad69262306c7ae65bd1"
+    },
+    {
+      "file": "src/native_fx/effects/limiter/locate/ko-KR.json",
+      "sha256": "7f792c0b82c599faa2239ff9cd1e2a22278460d6b2c8e5deead94d56cad58f32"
+    },
+    {
+      "file": "src/native_fx/effects/limiter/locate/manifest.json",
+      "sha256": "8ba36962e5643b3e90a9675e80b58fa2f0058e2e6a66ca90be9ed32bc047498f"
+    },
+    {
+      "file": "src/native_fx/effects/limiter/locate/zh-CN.json",
+      "sha256": "be8e616811b8890ac0019a45bf35c6e2cd9d962fb323ce5e8eb186af10a49048"
+    },
+    {
+      "file": "src/native_fx/effects/delay/locate/en-US.json",
+      "sha256": "cb4de3a967fe410f4b5dfde838ae4090d2552fec56e51455b914fad6be1bd1a8"
+    },
+    {
+      "file": "src/native_fx/effects/delay/locate/ja-JP.json",
+      "sha256": "dbf526cadf52487854e8e0a412e207b89ca8ae0223037f703e23ac6dfc2521ac"
+    },
+    {
+      "file": "src/native_fx/effects/delay/locate/ko-KR.json",
+      "sha256": "3046a3a2eb823dd6044377d0c07d9139e9a461fb9afad036d16835639711ac72"
+    },
+    {
+      "file": "src/native_fx/effects/delay/locate/manifest.json",
+      "sha256": "246355d43557c4b84d28b313aa1de4f6f2ac3b0b479fe726c24fe8e886f2b500"
+    },
+    {
+      "file": "src/native_fx/effects/delay/locate/zh-CN.json",
+      "sha256": "67f6fc57053d0429deb00de262f2a3c51ad7e353bb58d3f3db265bdef8d51bfe"
+    },
+    {
+      "file": "src/native_fx/effects/parametric_eq/locate/en-US.json",
+      "sha256": "cd8922ba7def09ea387ee6b0f109857bf13e13ab43587752eb506639a4f5a6ec"
+    },
+    {
+      "file": "src/native_fx/effects/parametric_eq/locate/ja-JP.json",
+      "sha256": "d20dbdda031603e079ab9e4655b0d40f6651c88901c413c5fc180c7ff24d1ae0"
+    },
+    {
+      "file": "src/native_fx/effects/parametric_eq/locate/ko-KR.json",
+      "sha256": "d8cfb88347842b1c0e360b1efce72260e213aa2f52d9c2d9aecc743cddf67860"
+    },
+    {
+      "file": "src/native_fx/effects/parametric_eq/locate/manifest.json",
+      "sha256": "3fe29f53c24a6778f93d6fa6376a57cc85e88fd6c74a1c086b6694d948b248ea"
+    },
+    {
+      "file": "src/native_fx/effects/parametric_eq/locate/zh-CN.json",
+      "sha256": "286fea119efbf2bd08cc409e1b006a265fd020e5c94b64b4bfd63bc0ac97b518"
+    },
+    {
+      "file": "src/native_fx/effects/reverb/locate/en-US.json",
+      "sha256": "d821370d7acb1acc45e9c2d8fa41a9e1b7214e7159d3834ad68c923f7b365688"
+    },
+    {
+      "file": "src/native_fx/effects/reverb/locate/ja-JP.json",
+      "sha256": "68de649def0c4de67f8bc6396c0719c07a79d81b58a86603f01e55125dc42c61"
+    },
+    {
+      "file": "src/native_fx/effects/reverb/locate/ko-KR.json",
+      "sha256": "c9b017c17b9a160dd6642a9288f0f021dfa843c28fc48ceec10390db0425da06"
+    },
+    {
+      "file": "src/native_fx/effects/reverb/locate/manifest.json",
+      "sha256": "4d26f43deea549fd8d401d8140f8905157a4aeac64a366318b2157b5fa2ef361"
+    },
+    {
+      "file": "src/native_fx/effects/reverb/locate/zh-CN.json",
+      "sha256": "16320a68da262f24bfccc512edc00c36019bece23df3370b1c66e17e01a26198"
+    }
+  ],
+  "rendered": "Docs/i18n/S5-bounded-rendered/20261003T125815820Z-scale-2-deesser_compressor-hot",
+  "log_sha256": "61f3cb21cfa85536cc38e220990edd8143b0407b7aba5d8b075611bc27ad779a",
+  "captures": [
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T125815820Z-scale-2-deesser_compressor-hot/compressor-draft-en-US.png",
+      "sha256": "d704f4ca7fed0c112abdccb86a9afa6850ccdc7b599dd814e5f9272be6a36be6"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T125815820Z-scale-2-deesser_compressor-hot/compressor-draft-ja-JP.png",
+      "sha256": "d704f4ca7fed0c112abdccb86a9afa6850ccdc7b599dd814e5f9272be6a36be6"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T125815820Z-scale-2-deesser_compressor-hot/compressor-draft-ko-KR.png",
+      "sha256": "d704f4ca7fed0c112abdccb86a9afa6850ccdc7b599dd814e5f9272be6a36be6"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T125815820Z-scale-2-deesser_compressor-hot/compressor-draft-zh-CN.png",
+      "sha256": "d704f4ca7fed0c112abdccb86a9afa6850ccdc7b599dd814e5f9272be6a36be6"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T125815820Z-scale-2-deesser_compressor-hot/compressor-mixer-en-US-0-0.png",
+      "sha256": "cfae42043d3b7de28f1325bea4cc2e0fadab542c851d022f6092362d4eead4f5"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T125815820Z-scale-2-deesser_compressor-hot/compressor-mixer-en-US-476-0.png",
+      "sha256": "23ab21c1262aab71bdeaf4bfc5f142212b27c8f111ea84fe2ed64376face2adf"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T125815820Z-scale-2-deesser_compressor-hot/compressor-mixer-ja-JP-0-0.png",
+      "sha256": "878f9d0d80e79590f5a894c716636d67e9eee3b6d825ecb2369742a004237f4d"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T125815820Z-scale-2-deesser_compressor-hot/compressor-mixer-ja-JP-476-0.png",
+      "sha256": "23ab21c1262aab71bdeaf4bfc5f142212b27c8f111ea84fe2ed64376face2adf"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T125815820Z-scale-2-deesser_compressor-hot/compressor-mixer-ko-KR-0-0.png",
+      "sha256": "27cd94769337baf47a71c61c2f27c18643c4a0b943868936b2f60acbe067ece9"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T125815820Z-scale-2-deesser_compressor-hot/compressor-mixer-ko-KR-476-0.png",
+      "sha256": "23ab21c1262aab71bdeaf4bfc5f142212b27c8f111ea84fe2ed64376face2adf"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T125815820Z-scale-2-deesser_compressor-hot/compressor-mixer-zh-CN-0-0.png",
+      "sha256": "9638df2870d924c3c8672f063f9cf4533c04db867a0c559192dd500da4c7cd58"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T125815820Z-scale-2-deesser_compressor-hot/compressor-mixer-zh-CN-476-0.png",
+      "sha256": "de673decba9873582a9a04d1c9ad2810e77e4870a0c5ca0421e46361bb7a1372"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T125815820Z-scale-2-deesser_compressor-hot/compressor-node-en-US-0-0.png",
+      "sha256": "30af69593c85f08ceff4eccf8011bfa3afde9acf4aa4035fc94c8a74b943ffce"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T125815820Z-scale-2-deesser_compressor-hot/compressor-node-en-US-476-0.png",
+      "sha256": "583b5f2e5be6fe4477ad09351b381fdcf8f02f3634650c775fde3ba1c0ff68a7"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T125815820Z-scale-2-deesser_compressor-hot/compressor-node-ja-JP-0-0.png",
+      "sha256": "1a95a4eb614004e25c9f2b6fdf8d51dfd16604100ccada79cc9eeb5efdaee8da"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T125815820Z-scale-2-deesser_compressor-hot/compressor-node-ja-JP-476-0.png",
+      "sha256": "e7db50c7bf91042553feb9c0f4cf6d46edf806a38a8ddc6770f0b33222d916da"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T125815820Z-scale-2-deesser_compressor-hot/compressor-node-ko-KR-0-0.png",
+      "sha256": "7a2f4dc8ccaef3cb6e89a4dc7b961100d7ea31fcfc0490d66ec1098e2d9108e2"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T125815820Z-scale-2-deesser_compressor-hot/compressor-node-ko-KR-476-0.png",
+      "sha256": "ecfdde22ec204be2b721308ff96ccd1453606837b842a5201844f871462ba52b"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T125815820Z-scale-2-deesser_compressor-hot/compressor-node-zh-CN-0-0.png",
+      "sha256": "f19d709208307723c1c57350d333c7d86523dc3f1defdd9b27935665c053b0dc"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T125815820Z-scale-2-deesser_compressor-hot/compressor-node-zh-CN-476-0.png",
+      "sha256": "907da35ee06a961d0453d4893baa9cc30bd4b586bc0c1e6967f161aebcfffab6"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T125815820Z-scale-2-deesser_compressor-hot/compressor-operations-menu-en-US-0-0.png",
+      "sha256": "7ba25937edcd9be12ee376afc5b4fd0a7f5f30193ecc525b093d5b8647aa679a"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T125815820Z-scale-2-deesser_compressor-hot/compressor-operations-menu-ja-JP-0-0.png",
+      "sha256": "e8787cd2942750f2b34d0d9af823ff5696c3446cf69ee4048a8526c5d02fa142"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T125815820Z-scale-2-deesser_compressor-hot/compressor-operations-menu-ko-KR-0-0.png",
+      "sha256": "8d6c5e62661ba45052b6ec8cb0a7d65c8503829c5a942c3522d941375a0f730f"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T125815820Z-scale-2-deesser_compressor-hot/compressor-operations-menu-zh-CN-0-0.png",
+      "sha256": "1fcca5036f16527602dfa3df582b6ae3aa64e662820a177db390102d1d080e21"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T125815820Z-scale-2-deesser_compressor-hot/compressor-partial-fallback-0-0.png",
+      "sha256": "89020f6707136274be7bd0fa1788ac0e285690f9050e674c884c136ef825a918"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T125815820Z-scale-2-deesser_compressor-hot/compressor-partial-fallback-476-0.png",
+      "sha256": "c9715b0452b1a34e81c4c657d3c49ad1f5963dc2a0d3df27c1accc409fff7766"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T125815820Z-scale-2-deesser_compressor-hot/compressor-preset-menu-en-US-0-0.png",
+      "sha256": "11aef542f600c4f7c1abbea7e353f99259bd7d4d40442d224215161fdf9665ca"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T125815820Z-scale-2-deesser_compressor-hot/compressor-preset-menu-ja-JP-0-0.png",
+      "sha256": "2ff297e12d0be2356937f9761b614e5136db2d0b2f27076b2bc6bc9c6890d400"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T125815820Z-scale-2-deesser_compressor-hot/compressor-preset-menu-ko-KR-0-0.png",
+      "sha256": "d0a3b8b3ba23de39db60d8c85b1d50668f68f35f8d1c737ceb2408f7ee2fd171"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T125815820Z-scale-2-deesser_compressor-hot/compressor-preset-menu-zh-CN-0-0.png",
+      "sha256": "261f4894822af7fe63848736eb7d72eb33eb48d6dcd2b2beffaa35959ae0c1ac"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T125815820Z-scale-2-deesser_compressor-hot/compressor-reopened-ko-KR-0-0.png",
+      "sha256": "7a2f4dc8ccaef3cb6e89a4dc7b961100d7ea31fcfc0490d66ec1098e2d9108e2"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T125815820Z-scale-2-deesser_compressor-hot/compressor-reopened-ko-KR-476-0.png",
+      "sha256": "ecfdde22ec204be2b721308ff96ccd1453606837b842a5201844f871462ba52b"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T125815820Z-scale-2-deesser_compressor-hot/deesser-draft-en-US.png",
+      "sha256": "43f4f12234cc7869dd4ec7c43a0a71b57e8c037c351729111c2d7c9afab78215"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T125815820Z-scale-2-deesser_compressor-hot/deesser-draft-ja-JP.png",
+      "sha256": "d8710efdc39d87c23e871cd93c4c9808d18fc420876e1a22892b12c5ed7b3c86"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T125815820Z-scale-2-deesser_compressor-hot/deesser-draft-ko-KR.png",
+      "sha256": "0f2b1a03e131006055f0423a46834da9514539c7b94c2e84531de2ad4c292f2d"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T125815820Z-scale-2-deesser_compressor-hot/deesser-draft-zh-CN.png",
+      "sha256": "94ea278b36abfdc0a22122d9b1cd29b250a977ab3973ef20921727eee5044902"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T125815820Z-scale-2-deesser_compressor-hot/deesser-mixer-en-US-0-0.png",
+      "sha256": "aa0b5fd40220e6ff00836f746dcf2fd8911eab368b2866c67a360eb4f775feb4"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T125815820Z-scale-2-deesser_compressor-hot/deesser-mixer-en-US-476-0.png",
+      "sha256": "b3c78a1bf495a0341842b2e3b1ae173b97bee15843674eecca6d73fb7c5ca2d2"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T125815820Z-scale-2-deesser_compressor-hot/deesser-mixer-ja-JP-0-0.png",
+      "sha256": "48296a47342692815a45a216111528f11b35e9f754221c0f34675a1270d4f14e"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T125815820Z-scale-2-deesser_compressor-hot/deesser-mixer-ja-JP-476-0.png",
+      "sha256": "b3c78a1bf495a0341842b2e3b1ae173b97bee15843674eecca6d73fb7c5ca2d2"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T125815820Z-scale-2-deesser_compressor-hot/deesser-mixer-ko-KR-0-0.png",
+      "sha256": "cdd2499d17738eec51febc0e2ee97ce5e3ed02c57edcf270b83ac2247da458f7"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T125815820Z-scale-2-deesser_compressor-hot/deesser-mixer-ko-KR-476-0.png",
+      "sha256": "b3c78a1bf495a0341842b2e3b1ae173b97bee15843674eecca6d73fb7c5ca2d2"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T125815820Z-scale-2-deesser_compressor-hot/deesser-mixer-zh-CN-0-0.png",
+      "sha256": "327a2546da9e87ccf472b0bf2b0730c96f5ce2847910a8c18066f2a98aa24df7"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T125815820Z-scale-2-deesser_compressor-hot/deesser-mixer-zh-CN-476-0.png",
+      "sha256": "b3dedd38a4237f484c764c08d34870242ba2fd757d10e92769b23664013ac415"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T125815820Z-scale-2-deesser_compressor-hot/deesser-node-en-US-0-0.png",
+      "sha256": "fe7d8ac62f612ef025d391649c74bdc6172806ce01a1bcb3f13ceffb0092628c"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T125815820Z-scale-2-deesser_compressor-hot/deesser-node-en-US-476-0.png",
+      "sha256": "9bb92b5c5d94bf2840375a026f85d843220bf0ea3fe8c37b37d9a44cbd1ec4c0"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T125815820Z-scale-2-deesser_compressor-hot/deesser-node-ja-JP-0-0.png",
+      "sha256": "ae2c9fdce1519736e3c470c9f5679f5ca1043f3c230dd6a153371798bd062c0f"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T125815820Z-scale-2-deesser_compressor-hot/deesser-node-ja-JP-476-0.png",
+      "sha256": "6a3480b1f5859fb73199df2e3ba93c432af5bd9a84fce38e1f585a79d11b38d8"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T125815820Z-scale-2-deesser_compressor-hot/deesser-node-ko-KR-0-0.png",
+      "sha256": "e554de2bffb293cf6125356b9742797bbecbb22fd6742bb5f0801420c81ea07e"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T125815820Z-scale-2-deesser_compressor-hot/deesser-node-ko-KR-476-0.png",
+      "sha256": "b437c55162796ed2c81e41d696ad9e17506199531303adcf6df686499569e505"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T125815820Z-scale-2-deesser_compressor-hot/deesser-node-zh-CN-0-0.png",
+      "sha256": "425f2ddbab3703d0b57be1c7be9d06933b78f1c02d991d7a12dabd4eeb532f0f"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T125815820Z-scale-2-deesser_compressor-hot/deesser-node-zh-CN-476-0.png",
+      "sha256": "4bf8f60e3f7702ee9e6566e03c982a0b38c3f84efcac480e4dcc950dc746f272"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T125815820Z-scale-2-deesser_compressor-hot/deesser-operations-menu-en-US-0-0.png",
+      "sha256": "7ba25937edcd9be12ee376afc5b4fd0a7f5f30193ecc525b093d5b8647aa679a"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T125815820Z-scale-2-deesser_compressor-hot/deesser-operations-menu-ja-JP-0-0.png",
+      "sha256": "e8787cd2942750f2b34d0d9af823ff5696c3446cf69ee4048a8526c5d02fa142"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T125815820Z-scale-2-deesser_compressor-hot/deesser-operations-menu-ko-KR-0-0.png",
+      "sha256": "8d6c5e62661ba45052b6ec8cb0a7d65c8503829c5a942c3522d941375a0f730f"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T125815820Z-scale-2-deesser_compressor-hot/deesser-operations-menu-zh-CN-0-0.png",
+      "sha256": "1fcca5036f16527602dfa3df582b6ae3aa64e662820a177db390102d1d080e21"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T125815820Z-scale-2-deesser_compressor-hot/deesser-partial-fallback-0-0.png",
+      "sha256": "9fa8a895207298e4fc3a9c7cb3a00c65cc4ba04d6506f992d1785f6f9a7a4ce6"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T125815820Z-scale-2-deesser_compressor-hot/deesser-partial-fallback-476-0.png",
+      "sha256": "e3e4e1e93b165539bae7e045302ff458bd452761f13b669bb3f2d6e1471e39eb"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T125815820Z-scale-2-deesser_compressor-hot/deesser-preset-menu-en-US-0-0.png",
+      "sha256": "0e5faf607b93b0e6b913529b14b96cb93cfed2a93f892f94330de9305435645e"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T125815820Z-scale-2-deesser_compressor-hot/deesser-preset-menu-ja-JP-0-0.png",
+      "sha256": "4c3028cbddea14461f189c9603ea2fa972fa9125906ffe904990be6820cacd40"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T125815820Z-scale-2-deesser_compressor-hot/deesser-preset-menu-ko-KR-0-0.png",
+      "sha256": "0f8a704bb5006ddb3bd18b2daf8832d6cda7f9205faf41cc8cdd9f677b4d1168"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T125815820Z-scale-2-deesser_compressor-hot/deesser-preset-menu-zh-CN-0-0.png",
+      "sha256": "e0a400b073616a2c083b0e8d01e54d42e6acf14fd31ca915ee34c07ad98665f2"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T125815820Z-scale-2-deesser_compressor-hot/deesser-reopened-ko-KR-0-0.png",
+      "sha256": "84af687591b2dd6363ca2bc3bc58a7aa7cbe2f7752d01117ca26a86ff362bbc4"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T125815820Z-scale-2-deesser_compressor-hot/deesser-reopened-ko-KR-476-0.png",
+      "sha256": "452eaf6adc91bfa85abb54825dbec0ed8ab960f87d9d742223cbe091bc1abeba"
+    }
+  ],
+  "run_id": "20261003T125815820Z-scale-2-deesser_compressor-hot",
+  "language": "hot",
+  "effects": [
+    "deesser",
+    "compressor"
+  ],
+  "scope": "Effects",
+  "exit_code": 0,
+  "checks": 1811
+}

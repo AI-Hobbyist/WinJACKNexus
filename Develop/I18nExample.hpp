@@ -33,12 +33,18 @@ inline int32_t attach(const WjnI18nHostV1* value) {
     if (host && host!=value) return WJN_I18N_INVALID_ARGUMENT;
     host=value; ++events[0]; return WJN_I18N_OK;
 }
-inline void changed() {
-    ++events[1];
+inline void refreshBindings() {
     std::erase_if(bindings,[](const Binding& item) { return item.owner.isNull(); });
-    for (const auto& binding : bindings) if (binding.owner) binding.apply();
+    const auto snapshot = bindings;
+    for (const auto& binding : snapshot) if (binding.owner) binding.apply();
 }
-inline void detach() { host=nullptr; bindings.clear(); ++events[2]; }
+inline void changed() { ++events[1]; refreshBindings(); }
+inline void detach() {
+    host=nullptr;
+    // Keep weak UI bindings so live windows fall back now and can reattach.
+    refreshBindings();
+    ++events[2];
+}
 }
 
 // Extra example-only probes used by offline DLL contract tests.

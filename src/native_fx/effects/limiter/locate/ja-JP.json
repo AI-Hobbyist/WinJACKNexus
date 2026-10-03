@@ -23,7 +23,7 @@
       "control.threshold": "しきい値",
       "control.ceiling": "出力上限",
       "control.release": "リリース",
-      "control.lookahead": "ルックアヘッド",
+      "control.lookahead": "未使用",
       "control.mode": "モード:",
       "mode.transparent": "透明",
       "mode.modern": "モダン",

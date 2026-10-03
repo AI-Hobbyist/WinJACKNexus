@@ -253,27 +253,34 @@ src/ui/src/AuxSettingsWindow.cpp:469",,原生菜单/共享布局按字体测量�
 common,audioringbuffer.text.audioringbuffer.capacity.must.be.greater.than.zero,"[""AudioRingBuffer capacity must be greater than zero""]",src/common/include/WinJACKNexus/Common/AudioRingBuffer.hpp:38,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 common,channelnames.control.all,"[""All""]",src/common/include/WinJACKNexus/Common/ChannelNames.hpp:13,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 common,standardchannelnames.control.all,"[""All""]",src/common/include/WinJACKNexus/Common/StandardChannelNames.hpp:17,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-example.nativefx,examplenativefx.control.all,"[""All""]","Develop/NativeFx/ExampleNativeFx.cpp:47
-Develop/NativeFx/ExampleNativeFx.cpp:71",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-example.nativefx,examplenativefx.control.gain,"[""Gain""]","Develop/NativeFx/ExampleNativeFx.cpp:58
-Develop/NativeFx/ExampleNativeFx.cpp:67",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-example.nativefx,examplenativefx.label.audioChannel,"[""Channel""]","Develop/NativeFx/ExampleNativeFx.cpp:49
-Develop/NativeFx/ExampleNativeFx.cpp:68",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-example.nativefx,examplenativefx.module.exampleGainName,"[""Example Gain""]","Develop/NativeFx/ExampleNativeFx.cpp:121
+example.nativefx,all,"[""All"", ""すべて"", ""全部"", ""전체""]","Develop/NativeFx/ExampleNativeFx.cpp:47
+Develop/NativeFx/ExampleNativeFx.cpp:71
+Develop/NativeFx/locate/en-US.json!domains.example.nativefx.all
+Develop/NativeFx/locate/ja-JP.json!domains.example.nativefx.all
+Develop/NativeFx/locate/ko-KR.json!domains.example.nativefx.all
+Develop/NativeFx/locate/zh-CN.json!domains.example.nativefx.all",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+example.nativefx,channel,"[""Channel"", ""チャンネル"", ""声道"", ""채널""]","Develop/NativeFx/ExampleNativeFx.cpp:49
+Develop/NativeFx/ExampleNativeFx.cpp:68
+Develop/NativeFx/locate/en-US.json!domains.example.nativefx.channel
+Develop/NativeFx/locate/ja-JP.json!domains.example.nativefx.channel
+Develop/NativeFx/locate/ko-KR.json!domains.example.nativefx.channel
+Develop/NativeFx/locate/zh-CN.json!domains.example.nativefx.channel",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+example.nativefx,gain,"[""Gain"", ""ゲイン"", ""增益"", ""게인""]","Develop/NativeFx/ExampleNativeFx.cpp:58
+Develop/NativeFx/ExampleNativeFx.cpp:67
+Develop/NativeFx/locate/en-US.json!domains.example.nativefx.gain
+Develop/NativeFx/locate/ja-JP.json!domains.example.nativefx.gain
+Develop/NativeFx/locate/ko-KR.json!domains.example.nativefx.gain
+Develop/NativeFx/locate/zh-CN.json!domains.example.nativefx.gain",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+example.nativefx,name,"[""Example Gain"", ""ゲインのサンプル"", ""增益示例"", ""게인 예제""]","Develop/NativeFx/ExampleNativeFx.cpp:121
 Develop/NativeFx/ExampleNativeFx.cpp:165
 Develop/NativeFx/ExampleNativeFx.cpp:187
-Develop/NativeFx/ExampleNativeFx.cpp:291
-Develop/NativeFx/ExampleNativeFx.cpp:395
 Develop/NativeFx/ExampleNativeFx.cpp:41
 Develop/NativeFx/ExampleNativeFx.cpp:65
 Develop/NativeFx/ExampleNativeFx.cpp:66
-Develop/NativeFx/ExampleNativeFx.cpp:99",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-example.nativefx,examplenativefx.text.fixed.eight.channel.gain.example,"[""Fixed eight-channel gain example""]",Develop/NativeFx/ExampleNativeFx.cpp:100,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-example.node,examplenode.category.tools,"[""Tools""]","Develop/Node/ExampleNode.cpp:109
-Develop/Node/ExampleNode.cpp:29",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-example.node,examplenode.text.example.node,"[""Example Node""]","Develop/Node/ExampleNode.cpp:104
-Develop/Node/ExampleNode.cpp:28",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-example.node,examplenode.text.minimal.node.api.implementation.for.integration.validation,"[""Minimal Node API implementation for integration validation.""]",Develop/Node/ExampleNode.cpp:32,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+Develop/NativeFx/locate/en-US.json!domains.example.nativefx.name
+Develop/NativeFx/locate/ja-JP.json!domains.example.nativefx.name
+Develop/NativeFx/locate/ko-KR.json!domains.example.nativefx.name
+Develop/NativeFx/locate/zh-CN.json!domains.example.nativefx.name",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 fxhost,action.add,"[""＋  Add module"", ""＋  モジュールを追加"", ""＋  添加模块"", ""＋  모듈 추가""]","locate/en-US.json!domains.fxhost.action.add
 locate/ja-JP.json!domains.fxhost.action.add
 locate/ko-KR.json!domains.fxhost.action.add
@@ -2466,7 +2473,7 @@ src/native_fx/effects/compressor/locate/ja-JP.json!domains.nativefx.compressor.p
 src/native_fx/effects/compressor/locate/ko-KR.json!domains.nativefx.compressor.preset.custom
 src/native_fx/effects/compressor/locate/zh-CN.json!domains.nativefx.compressor.preset.custom
 src/native_fx/effects/compressor/src/Ui.cpp:145
-src/native_fx/src/NativeFxApi.cpp:392",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+src/native_fx/src/NativeFxApi.cpp:396",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 nativefx.compressor,preset.default,"[""Default"", ""デフォルト"", ""默认"", ""기본값""]","src/native_fx/effects/compressor/locate/en-US.json!domains.nativefx.compressor.preset.default
 src/native_fx/effects/compressor/locate/ja-JP.json!domains.nativefx.compressor.preset.default
 src/native_fx/effects/compressor/locate/ko-KR.json!domains.nativefx.compressor.preset.default
@@ -2474,7 +2481,7 @@ src/native_fx/effects/compressor/locate/zh-CN.json!domains.nativefx.compressor.p
 src/native_fx/effects/compressor/src/Ui.cpp:145
 src/native_fx/effects/compressor/src/Ui.cpp:350
 src/native_fx/effects/compressor/src/Ui.cpp:355
-src/native_fx/src/NativeFxApi.cpp:392",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+src/native_fx/src/NativeFxApi.cpp:396",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 nativefx.compressor,preset.gentleLevel,"[""Gentle Level"", ""柔和平衡"", ""穏やかなレベル調整"", ""부드러운 레벨 조정""]","src/native_fx/effects/compressor/locate/en-US.json!domains.nativefx.compressor.preset.gentleLevel
 src/native_fx/effects/compressor/locate/ja-JP.json!domains.nativefx.compressor.preset.gentleLevel
 src/native_fx/effects/compressor/locate/ko-KR.json!domains.nativefx.compressor.preset.gentleLevel
@@ -2482,7 +2489,7 @@ src/native_fx/effects/compressor/locate/zh-CN.json!domains.nativefx.compressor.p
 src/native_fx/effects/compressor/src/Ui.cpp:145
 src/native_fx/effects/compressor/src/Ui.cpp:350
 src/native_fx/effects/compressor/src/Ui.cpp:355
-src/native_fx/src/NativeFxApi.cpp:392",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+src/native_fx/src/NativeFxApi.cpp:396",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 nativefx.compressor,preset.punchyDrums,"[""Punchy Drums"", ""パンチのあるドラム"", ""有力鼓声"", ""펀치감 있는 드럼""]","src/native_fx/effects/compressor/locate/en-US.json!domains.nativefx.compressor.preset.punchyDrums
 src/native_fx/effects/compressor/locate/ja-JP.json!domains.nativefx.compressor.preset.punchyDrums
 src/native_fx/effects/compressor/locate/ko-KR.json!domains.nativefx.compressor.preset.punchyDrums
@@ -2490,7 +2497,7 @@ src/native_fx/effects/compressor/locate/zh-CN.json!domains.nativefx.compressor.p
 src/native_fx/effects/compressor/src/Ui.cpp:145
 src/native_fx/effects/compressor/src/Ui.cpp:350
 src/native_fx/effects/compressor/src/Ui.cpp:355
-src/native_fx/src/NativeFxApi.cpp:392",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+src/native_fx/src/NativeFxApi.cpp:396",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 nativefx.compressor,window.title,"[""Compressor — %1"", ""Compressor 压缩器 — %1"", ""コンプレッサー — %1"", ""컴프레서 — %1""]","src/native_fx/effects/compressor/include/Logic.inc:161
 src/native_fx/effects/compressor/include/Logic.inc:93
 src/native_fx/effects/compressor/locate/en-US.json!domains.nativefx.compressor.window.title
@@ -2638,13 +2645,13 @@ src/native_fx/effects/deesser/locate/zh-CN.json!domains.nativefx.deesser.preset.
 src/native_fx/effects/deesser/src/Ui.cpp:423
 src/native_fx/effects/deesser/src/Ui.cpp:635
 src/native_fx/effects/deesser/src/Ui.cpp:640
-src/native_fx/src/NativeFxApi.cpp:389",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+src/native_fx/src/NativeFxApi.cpp:393",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 nativefx.deesser,preset.custom,"[""Custom"", ""カスタム"", ""自定义"", ""사용자 정의""]","src/native_fx/effects/deesser/locate/en-US.json!domains.nativefx.deesser.preset.custom
 src/native_fx/effects/deesser/locate/ja-JP.json!domains.nativefx.deesser.preset.custom
 src/native_fx/effects/deesser/locate/ko-KR.json!domains.nativefx.deesser.preset.custom
 src/native_fx/effects/deesser/locate/zh-CN.json!domains.nativefx.deesser.preset.custom
 src/native_fx/effects/deesser/src/Ui.cpp:423
-src/native_fx/src/NativeFxApi.cpp:389",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+src/native_fx/src/NativeFxApi.cpp:393",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 nativefx.deesser,preset.default,"[""Default"", ""デフォルト"", ""默认"", ""기본값""]","src/native_fx/effects/deesser/locate/en-US.json!domains.nativefx.deesser.preset.default
 src/native_fx/effects/deesser/locate/ja-JP.json!domains.nativefx.deesser.preset.default
 src/native_fx/effects/deesser/locate/ko-KR.json!domains.nativefx.deesser.preset.default
@@ -2652,7 +2659,7 @@ src/native_fx/effects/deesser/locate/zh-CN.json!domains.nativefx.deesser.preset.
 src/native_fx/effects/deesser/src/Ui.cpp:422
 src/native_fx/effects/deesser/src/Ui.cpp:635
 src/native_fx/effects/deesser/src/Ui.cpp:640
-src/native_fx/src/NativeFxApi.cpp:389",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+src/native_fx/src/NativeFxApi.cpp:393",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 nativefx.deesser,preset.softVoice,"[""Soft Voice"", ""柔らかな声"", ""柔和人声"", ""부드러운 음성""]","src/native_fx/effects/deesser/locate/en-US.json!domains.nativefx.deesser.preset.softVoice
 src/native_fx/effects/deesser/locate/ja-JP.json!domains.nativefx.deesser.preset.softVoice
 src/native_fx/effects/deesser/locate/ko-KR.json!domains.nativefx.deesser.preset.softVoice
@@ -2660,7 +2667,7 @@ src/native_fx/effects/deesser/locate/zh-CN.json!domains.nativefx.deesser.preset.
 src/native_fx/effects/deesser/src/Ui.cpp:423
 src/native_fx/effects/deesser/src/Ui.cpp:635
 src/native_fx/effects/deesser/src/Ui.cpp:640
-src/native_fx/src/NativeFxApi.cpp:389",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+src/native_fx/src/NativeFxApi.cpp:393",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 nativefx.deesser,window.title,"[""De-Esser — %1"", ""De-Esser 去齿音 — %1"", ""ディエッサー — %1"", ""디에서 — %1""]","src/native_fx/effects/deesser/include/Logic.inc:128
 src/native_fx/effects/deesser/include/Logic.inc:187
 src/native_fx/effects/deesser/locate/en-US.json!domains.nativefx.deesser.window.title
@@ -2815,49 +2822,49 @@ src/native_fx/effects/delay/locate/ko-KR.json!domains.nativefx.delay.preset.ambi
 src/native_fx/effects/delay/locate/zh-CN.json!domains.nativefx.delay.preset.ambientEcho
 src/native_fx/effects/delay/src/Ui.cpp:100
 src/native_fx/effects/delay/src/Ui.cpp:140
-src/native_fx/src/NativeFxApi.cpp:398",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+src/native_fx/src/NativeFxApi.cpp:402",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 nativefx.delay,preset.custom,"[""Custom"", ""カスタム"", ""自定义"", ""사용자 정의""]","src/native_fx/effects/delay/locate/en-US.json!domains.nativefx.delay.preset.custom
 src/native_fx/effects/delay/locate/ja-JP.json!domains.nativefx.delay.preset.custom
 src/native_fx/effects/delay/locate/ko-KR.json!domains.nativefx.delay.preset.custom
 src/native_fx/effects/delay/locate/zh-CN.json!domains.nativefx.delay.preset.custom
 src/native_fx/effects/delay/src/Ui.cpp:100
 src/native_fx/effects/delay/src/Ui.cpp:140
-src/native_fx/src/NativeFxApi.cpp:398",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+src/native_fx/src/NativeFxApi.cpp:402",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 nativefx.delay,preset.default,"[""Default"", ""デフォルト"", ""默认"", ""기본값""]","src/native_fx/effects/delay/locate/en-US.json!domains.nativefx.delay.preset.default
 src/native_fx/effects/delay/locate/ja-JP.json!domains.nativefx.delay.preset.default
 src/native_fx/effects/delay/locate/ko-KR.json!domains.nativefx.delay.preset.default
 src/native_fx/effects/delay/locate/zh-CN.json!domains.nativefx.delay.preset.default
 src/native_fx/effects/delay/src/Ui.cpp:100
 src/native_fx/effects/delay/src/Ui.cpp:140
-src/native_fx/src/NativeFxApi.cpp:398",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+src/native_fx/src/NativeFxApi.cpp:402",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 nativefx.delay,preset.rhythmicEcho,"[""Rhythmic Echo"", ""リズミックエコー"", ""节奏回声"", ""리드미컬 에코""]","src/native_fx/effects/delay/locate/en-US.json!domains.nativefx.delay.preset.rhythmicEcho
 src/native_fx/effects/delay/locate/ja-JP.json!domains.nativefx.delay.preset.rhythmicEcho
 src/native_fx/effects/delay/locate/ko-KR.json!domains.nativefx.delay.preset.rhythmicEcho
 src/native_fx/effects/delay/locate/zh-CN.json!domains.nativefx.delay.preset.rhythmicEcho
 src/native_fx/effects/delay/src/Ui.cpp:100
 src/native_fx/effects/delay/src/Ui.cpp:140
-src/native_fx/src/NativeFxApi.cpp:398",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+src/native_fx/src/NativeFxApi.cpp:402",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 nativefx.delay,preset.shortSlap,"[""Short Slap"", ""短 slap"", ""短いスラップ"", ""짧은 슬랩""]","src/native_fx/effects/delay/locate/en-US.json!domains.nativefx.delay.preset.shortSlap
 src/native_fx/effects/delay/locate/ja-JP.json!domains.nativefx.delay.preset.shortSlap
 src/native_fx/effects/delay/locate/ko-KR.json!domains.nativefx.delay.preset.shortSlap
 src/native_fx/effects/delay/locate/zh-CN.json!domains.nativefx.delay.preset.shortSlap
 src/native_fx/effects/delay/src/Ui.cpp:100
 src/native_fx/effects/delay/src/Ui.cpp:140
-src/native_fx/src/NativeFxApi.cpp:398",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+src/native_fx/src/NativeFxApi.cpp:402",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 nativefx.delay,preset.tapeEcho,"[""Tape Echo"", ""テープエコー"", ""磁带回声"", ""테이프 에코""]","src/native_fx/effects/delay/locate/en-US.json!domains.nativefx.delay.preset.tapeEcho
 src/native_fx/effects/delay/locate/ja-JP.json!domains.nativefx.delay.preset.tapeEcho
 src/native_fx/effects/delay/locate/ko-KR.json!domains.nativefx.delay.preset.tapeEcho
 src/native_fx/effects/delay/locate/zh-CN.json!domains.nativefx.delay.preset.tapeEcho
 src/native_fx/effects/delay/src/Ui.cpp:100
 src/native_fx/effects/delay/src/Ui.cpp:140
-src/native_fx/src/NativeFxApi.cpp:398",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+src/native_fx/src/NativeFxApi.cpp:402",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 nativefx.delay,preset.vocalEcho,"[""Vocal Echo"", ""ボーカルエコー"", ""人声回声"", ""보컬 에코""]","src/native_fx/effects/delay/locate/en-US.json!domains.nativefx.delay.preset.vocalEcho
 src/native_fx/effects/delay/locate/ja-JP.json!domains.nativefx.delay.preset.vocalEcho
 src/native_fx/effects/delay/locate/ko-KR.json!domains.nativefx.delay.preset.vocalEcho
 src/native_fx/effects/delay/locate/zh-CN.json!domains.nativefx.delay.preset.vocalEcho
 src/native_fx/effects/delay/src/Ui.cpp:100
 src/native_fx/effects/delay/src/Ui.cpp:140
-src/native_fx/src/NativeFxApi.cpp:398",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+src/native_fx/src/NativeFxApi.cpp:402",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 nativefx.delay,section.filters,"[""Filters:"", ""フィルター:"", ""滤波器:"", ""필터:""]","src/native_fx/effects/delay/locate/en-US.json!domains.nativefx.delay.section.filters
 src/native_fx/effects/delay/locate/ja-JP.json!domains.nativefx.delay.section.filters
 src/native_fx/effects/delay/locate/ko-KR.json!domains.nativefx.delay.section.filters
@@ -2979,7 +2986,7 @@ src/native_fx/effects/gate/locate/ja-JP.json!domains.nativefx.gate.preset.custom
 src/native_fx/effects/gate/locate/ko-KR.json!domains.nativefx.gate.preset.custom
 src/native_fx/effects/gate/locate/zh-CN.json!domains.nativefx.gate.preset.custom
 src/native_fx/effects/gate/src/Ui.cpp:136
-src/native_fx/src/NativeFxApi.cpp:383",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+src/native_fx/src/NativeFxApi.cpp:387",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 nativefx.gate,preset.default,"[""Default"", ""デフォルト"", ""默认"", ""기본값""]","src/native_fx/effects/gate/locate/en-US.json!domains.nativefx.gate.preset.default
 src/native_fx/effects/gate/locate/ja-JP.json!domains.nativefx.gate.preset.default
 src/native_fx/effects/gate/locate/ko-KR.json!domains.nativefx.gate.preset.default
@@ -2987,7 +2994,7 @@ src/native_fx/effects/gate/locate/zh-CN.json!domains.nativefx.gate.preset.defaul
 src/native_fx/effects/gate/src/Ui.cpp:134
 src/native_fx/effects/gate/src/Ui.cpp:259
 src/native_fx/effects/gate/src/Ui.cpp:265
-src/native_fx/src/NativeFxApi.cpp:383",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+src/native_fx/src/NativeFxApi.cpp:387",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 nativefx.gate,preset.gentle,"[""Gentle Gate"", ""柔和门限"", ""穏やかなゲート"", ""부드러운 게이트""]","src/native_fx/effects/gate/locate/en-US.json!domains.nativefx.gate.preset.gentle
 src/native_fx/effects/gate/locate/ja-JP.json!domains.nativefx.gate.preset.gentle
 src/native_fx/effects/gate/locate/ko-KR.json!domains.nativefx.gate.preset.gentle
@@ -2995,7 +3002,7 @@ src/native_fx/effects/gate/locate/zh-CN.json!domains.nativefx.gate.preset.gentle
 src/native_fx/effects/gate/src/Ui.cpp:136
 src/native_fx/effects/gate/src/Ui.cpp:260
 src/native_fx/effects/gate/src/Ui.cpp:265
-src/native_fx/src/NativeFxApi.cpp:383",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+src/native_fx/src/NativeFxApi.cpp:387",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 nativefx.gate,preset.tight,"[""Tight Gate"", ""タイトゲート"", ""紧门限"", ""타이트 게이트""]","src/native_fx/effects/gate/locate/en-US.json!domains.nativefx.gate.preset.tight
 src/native_fx/effects/gate/locate/ja-JP.json!domains.nativefx.gate.preset.tight
 src/native_fx/effects/gate/locate/ko-KR.json!domains.nativefx.gate.preset.tight
@@ -3003,7 +3010,7 @@ src/native_fx/effects/gate/locate/zh-CN.json!domains.nativefx.gate.preset.tight
 src/native_fx/effects/gate/src/Ui.cpp:135
 src/native_fx/effects/gate/src/Ui.cpp:259
 src/native_fx/effects/gate/src/Ui.cpp:265
-src/native_fx/src/NativeFxApi.cpp:383",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+src/native_fx/src/NativeFxApi.cpp:387",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 nativefx.gate,tooltip.threshold,"[""Threshold\n%1 dB"", ""Threshold\\n%1 dB"", ""しきい値\n%1 dB"", ""阈值\n%1 dB"", ""임계값\n%1 dB""]","src/native_fx/effects/gate/locate/en-US.json!domains.nativefx.gate.tooltip.threshold
 src/native_fx/effects/gate/locate/ja-JP.json!domains.nativefx.gate.tooltip.threshold
 src/native_fx/effects/gate/locate/ko-KR.json!domains.nativefx.gate.tooltip.threshold
@@ -3135,7 +3142,7 @@ src/native_fx/effects/graphic_eq/locate/zh-CN.json!domains.nativefx.graphic-eq.p
 src/native_fx/effects/graphic_eq/src/Ui.cpp:320
 src/native_fx/effects/graphic_eq/src/Ui.cpp:588
 src/native_fx/effects/graphic_eq/src/Ui.cpp:592
-src/native_fx/src/NativeFxApi.cpp:386",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+src/native_fx/src/NativeFxApi.cpp:390",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 nativefx.graphic-eq,preset.classical,"[""Classical"", ""クラシック"", ""古典"", ""클래식""]","src/native_fx/effects/graphic_eq/locate/en-US.json!domains.nativefx.graphic-eq.preset.classical
 src/native_fx/effects/graphic_eq/locate/ja-JP.json!domains.nativefx.graphic-eq.preset.classical
 src/native_fx/effects/graphic_eq/locate/ko-KR.json!domains.nativefx.graphic-eq.preset.classical
@@ -3143,7 +3150,7 @@ src/native_fx/effects/graphic_eq/locate/zh-CN.json!domains.nativefx.graphic-eq.p
 src/native_fx/effects/graphic_eq/src/Ui.cpp:320
 src/native_fx/effects/graphic_eq/src/Ui.cpp:588
 src/native_fx/effects/graphic_eq/src/Ui.cpp:592
-src/native_fx/src/NativeFxApi.cpp:386",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+src/native_fx/src/NativeFxApi.cpp:390",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 nativefx.graphic-eq,preset.custom,"[""Custom"", ""カスタム"", ""自定义"", ""사용자 정의""]","src/native_fx/effects/graphic_eq/locate/en-US.json!domains.nativefx.graphic-eq.preset.custom
 src/native_fx/effects/graphic_eq/locate/ja-JP.json!domains.nativefx.graphic-eq.preset.custom
 src/native_fx/effects/graphic_eq/locate/ko-KR.json!domains.nativefx.graphic-eq.preset.custom
@@ -3151,7 +3158,7 @@ src/native_fx/effects/graphic_eq/locate/zh-CN.json!domains.nativefx.graphic-eq.p
 src/native_fx/effects/graphic_eq/src/Ui.cpp:320
 src/native_fx/effects/graphic_eq/src/Ui.cpp:588
 src/native_fx/effects/graphic_eq/src/Ui.cpp:592
-src/native_fx/src/NativeFxApi.cpp:386",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+src/native_fx/src/NativeFxApi.cpp:390",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 nativefx.graphic-eq,preset.default,"[""Default"", ""デフォルト"", ""默认"", ""기본값""]","src/native_fx/effects/graphic_eq/locate/en-US.json!domains.nativefx.graphic-eq.preset.default
 src/native_fx/effects/graphic_eq/locate/ja-JP.json!domains.nativefx.graphic-eq.preset.default
 src/native_fx/effects/graphic_eq/locate/ko-KR.json!domains.nativefx.graphic-eq.preset.default
@@ -3159,7 +3166,7 @@ src/native_fx/effects/graphic_eq/locate/zh-CN.json!domains.nativefx.graphic-eq.p
 src/native_fx/effects/graphic_eq/src/Ui.cpp:319
 src/native_fx/effects/graphic_eq/src/Ui.cpp:587
 src/native_fx/effects/graphic_eq/src/Ui.cpp:592
-src/native_fx/src/NativeFxApi.cpp:386",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+src/native_fx/src/NativeFxApi.cpp:390",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 nativefx.graphic-eq,preset.vocalBright,"[""Vocal Bright"", ""明るいボーカル"", ""明亮人声"", ""밝은 보컬""]","src/native_fx/effects/graphic_eq/locate/en-US.json!domains.nativefx.graphic-eq.preset.vocalBright
 src/native_fx/effects/graphic_eq/locate/ja-JP.json!domains.nativefx.graphic-eq.preset.vocalBright
 src/native_fx/effects/graphic_eq/locate/ko-KR.json!domains.nativefx.graphic-eq.preset.vocalBright
@@ -3167,7 +3174,7 @@ src/native_fx/effects/graphic_eq/locate/zh-CN.json!domains.nativefx.graphic-eq.p
 src/native_fx/effects/graphic_eq/src/Ui.cpp:319
 src/native_fx/effects/graphic_eq/src/Ui.cpp:587
 src/native_fx/effects/graphic_eq/src/Ui.cpp:592
-src/native_fx/src/NativeFxApi.cpp:386",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+src/native_fx/src/NativeFxApi.cpp:390",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 nativefx.graphic-eq,section.displayOptions,"[""Display options"", ""显示选项"", ""表示オプション"", ""표시 옵션""]","src/native_fx/effects/graphic_eq/locate/en-US.json!domains.nativefx.graphic-eq.section.displayOptions
 src/native_fx/effects/graphic_eq/locate/ja-JP.json!domains.nativefx.graphic-eq.section.displayOptions
 src/native_fx/effects/graphic_eq/locate/ko-KR.json!domains.nativefx.graphic-eq.section.displayOptions
@@ -3193,17 +3200,17 @@ nativefx.limiter,action.copyToAll,"[""Copy current settings to all channels"", "
 src/native_fx/effects/limiter/locate/ja-JP.json!domains.nativefx.limiter.action.copyToAll
 src/native_fx/effects/limiter/locate/ko-KR.json!domains.nativefx.limiter.action.copyToAll
 src/native_fx/effects/limiter/locate/zh-CN.json!domains.nativefx.limiter.action.copyToAll
-src/native_fx/effects/limiter/src/Ui.cpp:403",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+src/native_fx/effects/limiter/src/Ui.cpp:404",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 nativefx.limiter,action.resetAll,"[""Reset all channels"", ""全チャンネルをリセット"", ""重置全部声道"", ""모든 채널 초기화""]","src/native_fx/effects/limiter/locate/en-US.json!domains.nativefx.limiter.action.resetAll
 src/native_fx/effects/limiter/locate/ja-JP.json!domains.nativefx.limiter.action.resetAll
 src/native_fx/effects/limiter/locate/ko-KR.json!domains.nativefx.limiter.action.resetAll
 src/native_fx/effects/limiter/locate/zh-CN.json!domains.nativefx.limiter.action.resetAll
-src/native_fx/effects/limiter/src/Ui.cpp:402",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+src/native_fx/effects/limiter/src/Ui.cpp:403",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 nativefx.limiter,action.resetCurrent,"[""Reset current channel"", ""現在のチャンネルをリセット"", ""重置当前声道"", ""현재 채널 초기화""]","src/native_fx/effects/limiter/locate/en-US.json!domains.nativefx.limiter.action.resetCurrent
 src/native_fx/effects/limiter/locate/ja-JP.json!domains.nativefx.limiter.action.resetCurrent
 src/native_fx/effects/limiter/locate/ko-KR.json!domains.nativefx.limiter.action.resetCurrent
 src/native_fx/effects/limiter/locate/zh-CN.json!domains.nativefx.limiter.action.resetCurrent
-src/native_fx/effects/limiter/src/Ui.cpp:401",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+src/native_fx/effects/limiter/src/Ui.cpp:402",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 nativefx.limiter,axis.inputLevel,"[""Input level (dB)"", ""入力レベル (dB)"", ""输入电平 (dB)"", ""입력 레벨 (dB)""]","src/native_fx/effects/limiter/locate/en-US.json!domains.nativefx.limiter.axis.inputLevel
 src/native_fx/effects/limiter/locate/ja-JP.json!domains.nativefx.limiter.axis.inputLevel
 src/native_fx/effects/limiter/locate/ko-KR.json!domains.nativefx.limiter.axis.inputLevel
@@ -3224,27 +3231,27 @@ nativefx.limiter,control.autoGain,"[""Auto gain"", ""自动增益"", ""自動ゲ
 src/native_fx/effects/limiter/locate/ja-JP.json!domains.nativefx.limiter.control.autoGain
 src/native_fx/effects/limiter/locate/ko-KR.json!domains.nativefx.limiter.control.autoGain
 src/native_fx/effects/limiter/locate/zh-CN.json!domains.nativefx.limiter.control.autoGain
-src/native_fx/effects/limiter/src/Ui.cpp:368",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+src/native_fx/effects/limiter/src/Ui.cpp:369",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 nativefx.limiter,control.ceiling,"[""Output ceiling"", ""出力上限"", ""输出上限"", ""출력 상한""]","src/native_fx/effects/limiter/locate/en-US.json!domains.nativefx.limiter.control.ceiling
 src/native_fx/effects/limiter/locate/ja-JP.json!domains.nativefx.limiter.control.ceiling
 src/native_fx/effects/limiter/locate/ko-KR.json!domains.nativefx.limiter.control.ceiling
 src/native_fx/effects/limiter/locate/zh-CN.json!domains.nativefx.limiter.control.ceiling
 src/native_fx/effects/limiter/src/Ui.cpp:359",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-nativefx.limiter,control.lookahead,"[""Lookahead"", ""ルックアヘッド"", ""前瞻"", ""룩어헤드""]","src/native_fx/effects/limiter/locate/en-US.json!domains.nativefx.limiter.control.lookahead
+nativefx.limiter,control.lookahead,"[""Unused"", ""未使用"", ""미사용""]","src/native_fx/effects/limiter/locate/en-US.json!domains.nativefx.limiter.control.lookahead
 src/native_fx/effects/limiter/locate/ja-JP.json!domains.nativefx.limiter.control.lookahead
 src/native_fx/effects/limiter/locate/ko-KR.json!domains.nativefx.limiter.control.lookahead
 src/native_fx/effects/limiter/locate/zh-CN.json!domains.nativefx.limiter.control.lookahead
-src/native_fx/effects/limiter/src/Ui.cpp:361",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+src/native_fx/effects/limiter/src/Ui.cpp:362",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 nativefx.limiter,control.mode,"[""Mode:"", ""モード:"", ""模式:"", ""모드:""]","src/native_fx/effects/limiter/locate/en-US.json!domains.nativefx.limiter.control.mode
 src/native_fx/effects/limiter/locate/ja-JP.json!domains.nativefx.limiter.control.mode
 src/native_fx/effects/limiter/locate/ko-KR.json!domains.nativefx.limiter.control.mode
 src/native_fx/effects/limiter/locate/zh-CN.json!domains.nativefx.limiter.control.mode
-src/native_fx/effects/limiter/src/Ui.cpp:362",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+src/native_fx/effects/limiter/src/Ui.cpp:363",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 nativefx.limiter,control.oversampling,"[""Oversampling:"", ""オーバーサンプリング:"", ""过采样:"", ""오버샘플링:""]","src/native_fx/effects/limiter/locate/en-US.json!domains.nativefx.limiter.control.oversampling
 src/native_fx/effects/limiter/locate/ja-JP.json!domains.nativefx.limiter.control.oversampling
 src/native_fx/effects/limiter/locate/ko-KR.json!domains.nativefx.limiter.control.oversampling
 src/native_fx/effects/limiter/locate/zh-CN.json!domains.nativefx.limiter.control.oversampling
-src/native_fx/effects/limiter/src/Ui.cpp:365",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+src/native_fx/effects/limiter/src/Ui.cpp:366",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 nativefx.limiter,control.release,"[""Release"", ""リリース"", ""释放时间"", ""릴리스""]","src/native_fx/effects/limiter/locate/en-US.json!domains.nativefx.limiter.control.release
 src/native_fx/effects/limiter/locate/ja-JP.json!domains.nativefx.limiter.control.release
 src/native_fx/effects/limiter/locate/ko-KR.json!domains.nativefx.limiter.control.release
@@ -3275,7 +3282,7 @@ nativefx.limiter,hint.lookahead,"[""(Lookahead)""]","src/native_fx/effects/limit
 src/native_fx/effects/limiter/locate/ja-JP.json!domains.nativefx.limiter.hint.lookahead
 src/native_fx/effects/limiter/locate/ko-KR.json!domains.nativefx.limiter.hint.lookahead
 src/native_fx/effects/limiter/locate/zh-CN.json!domains.nativefx.limiter.hint.lookahead
-src/native_fx/effects/limiter/src/Ui.cpp:361",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+src/native_fx/effects/limiter/src/Ui.cpp:362",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 nativefx.limiter,hint.release,"[""(Release)""]","src/native_fx/effects/limiter/locate/en-US.json!domains.nativefx.limiter.hint.release
 src/native_fx/effects/limiter/locate/ja-JP.json!domains.nativefx.limiter.hint.release
 src/native_fx/effects/limiter/locate/ko-KR.json!domains.nativefx.limiter.hint.release
@@ -3305,17 +3312,17 @@ nativefx.limiter,mode.brickwall,"[""Brickwall"", ""ブリックウォール"", "
 src/native_fx/effects/limiter/locate/ja-JP.json!domains.nativefx.limiter.mode.brickwall
 src/native_fx/effects/limiter/locate/ko-KR.json!domains.nativefx.limiter.mode.brickwall
 src/native_fx/effects/limiter/locate/zh-CN.json!domains.nativefx.limiter.mode.brickwall
-src/native_fx/effects/limiter/src/Ui.cpp:363",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+src/native_fx/effects/limiter/src/Ui.cpp:364",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 nativefx.limiter,mode.modern,"[""Modern"", ""モダン"", ""现代"", ""모던""]","src/native_fx/effects/limiter/locate/en-US.json!domains.nativefx.limiter.mode.modern
 src/native_fx/effects/limiter/locate/ja-JP.json!domains.nativefx.limiter.mode.modern
 src/native_fx/effects/limiter/locate/ko-KR.json!domains.nativefx.limiter.mode.modern
 src/native_fx/effects/limiter/locate/zh-CN.json!domains.nativefx.limiter.mode.modern
-src/native_fx/effects/limiter/src/Ui.cpp:363",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+src/native_fx/effects/limiter/src/Ui.cpp:364",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 nativefx.limiter,mode.transparent,"[""Transparent"", ""透明"", ""투명""]","src/native_fx/effects/limiter/locate/en-US.json!domains.nativefx.limiter.mode.transparent
 src/native_fx/effects/limiter/locate/ja-JP.json!domains.nativefx.limiter.mode.transparent
 src/native_fx/effects/limiter/locate/ko-KR.json!domains.nativefx.limiter.mode.transparent
 src/native_fx/effects/limiter/locate/zh-CN.json!domains.nativefx.limiter.mode.transparent
-src/native_fx/effects/limiter/src/Ui.cpp:363",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+src/native_fx/effects/limiter/src/Ui.cpp:364",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 nativefx.limiter,module.description,"[""8 チャンネルのネイティブ・リミッター画面。"", ""8채널 네이티브 리미터 화면."", ""Eight-channel native limiter UI."", ""八声道原生限幅器界面。""]","src/native_fx/effects/limiter/locate/en-US.json!domains.nativefx.limiter.module.description
 src/native_fx/effects/limiter/locate/ja-JP.json!domains.nativefx.limiter.module.description
 src/native_fx/effects/limiter/locate/ko-KR.json!domains.nativefx.limiter.module.description
@@ -3333,33 +3340,33 @@ src/native_fx/effects/limiter/locate/ja-JP.json!domains.nativefx.limiter.preset.
 src/native_fx/effects/limiter/locate/ko-KR.json!domains.nativefx.limiter.preset.broadcast
 src/native_fx/effects/limiter/locate/zh-CN.json!domains.nativefx.limiter.preset.broadcast
 src/native_fx/effects/limiter/src/Ui.cpp:192
-src/native_fx/effects/limiter/src/Ui.cpp:388
-src/native_fx/effects/limiter/src/Ui.cpp:391
-src/native_fx/src/NativeFxApi.cpp:395",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+src/native_fx/effects/limiter/src/Ui.cpp:389
+src/native_fx/effects/limiter/src/Ui.cpp:392
+src/native_fx/src/NativeFxApi.cpp:399",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 nativefx.limiter,preset.custom,"[""Custom"", ""カスタム"", ""自定义"", ""사용자 정의""]","src/native_fx/effects/limiter/locate/en-US.json!domains.nativefx.limiter.preset.custom
 src/native_fx/effects/limiter/locate/ja-JP.json!domains.nativefx.limiter.preset.custom
 src/native_fx/effects/limiter/locate/ko-KR.json!domains.nativefx.limiter.preset.custom
 src/native_fx/effects/limiter/locate/zh-CN.json!domains.nativefx.limiter.preset.custom
 src/native_fx/effects/limiter/src/Ui.cpp:192
-src/native_fx/effects/limiter/src/Ui.cpp:388
-src/native_fx/effects/limiter/src/Ui.cpp:391
-src/native_fx/src/NativeFxApi.cpp:395",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+src/native_fx/effects/limiter/src/Ui.cpp:389
+src/native_fx/effects/limiter/src/Ui.cpp:392
+src/native_fx/src/NativeFxApi.cpp:399",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 nativefx.limiter,preset.default,"[""Default"", ""デフォルト"", ""默认"", ""기본값""]","src/native_fx/effects/limiter/locate/en-US.json!domains.nativefx.limiter.preset.default
 src/native_fx/effects/limiter/locate/ja-JP.json!domains.nativefx.limiter.preset.default
 src/native_fx/effects/limiter/locate/ko-KR.json!domains.nativefx.limiter.preset.default
 src/native_fx/effects/limiter/locate/zh-CN.json!domains.nativefx.limiter.preset.default
 src/native_fx/effects/limiter/src/Ui.cpp:192
-src/native_fx/effects/limiter/src/Ui.cpp:388
-src/native_fx/effects/limiter/src/Ui.cpp:391
-src/native_fx/src/NativeFxApi.cpp:395",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+src/native_fx/effects/limiter/src/Ui.cpp:389
+src/native_fx/effects/limiter/src/Ui.cpp:392
+src/native_fx/src/NativeFxApi.cpp:399",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 nativefx.limiter,preset.maxLoudness,"[""Max Loudness"", ""最大ラウドネス"", ""最大响度"", ""최대 라우드니스""]","src/native_fx/effects/limiter/locate/en-US.json!domains.nativefx.limiter.preset.maxLoudness
 src/native_fx/effects/limiter/locate/ja-JP.json!domains.nativefx.limiter.preset.maxLoudness
 src/native_fx/effects/limiter/locate/ko-KR.json!domains.nativefx.limiter.preset.maxLoudness
 src/native_fx/effects/limiter/locate/zh-CN.json!domains.nativefx.limiter.preset.maxLoudness
 src/native_fx/effects/limiter/src/Ui.cpp:192
-src/native_fx/effects/limiter/src/Ui.cpp:388
-src/native_fx/effects/limiter/src/Ui.cpp:391
-src/native_fx/src/NativeFxApi.cpp:395",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+src/native_fx/effects/limiter/src/Ui.cpp:389
+src/native_fx/effects/limiter/src/Ui.cpp:392
+src/native_fx/src/NativeFxApi.cpp:399",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 nativefx.limiter,window.title,"[""Limiter — %1"", ""Limiter 限幅器 — %1"", ""リミッター — %1"", ""리미터 — %1""]","src/native_fx/effects/limiter/include/Logic.inc:61
 src/native_fx/effects/limiter/include/Logic.inc:92
 src/native_fx/effects/limiter/locate/en-US.json!domains.nativefx.limiter.window.title
@@ -3589,37 +3596,37 @@ src/native_fx/effects/parametric_eq/locate/ja-JP.json!domains.nativefx.parametri
 src/native_fx/effects/parametric_eq/locate/ko-KR.json!domains.nativefx.parametric-eq.preset.bassBoost
 src/native_fx/effects/parametric_eq/locate/zh-CN.json!domains.nativefx.parametric-eq.preset.bassBoost
 src/native_fx/effects/parametric_eq/src/Ui.cpp:59
-src/native_fx/src/NativeFxApi.cpp:401",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+src/native_fx/src/NativeFxApi.cpp:405",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 nativefx.parametric-eq,preset.custom,"[""Custom"", ""カスタム"", ""自定义"", ""사용자 정의""]","src/native_fx/effects/parametric_eq/locate/en-US.json!domains.nativefx.parametric-eq.preset.custom
 src/native_fx/effects/parametric_eq/locate/ja-JP.json!domains.nativefx.parametric-eq.preset.custom
 src/native_fx/effects/parametric_eq/locate/ko-KR.json!domains.nativefx.parametric-eq.preset.custom
 src/native_fx/effects/parametric_eq/locate/zh-CN.json!domains.nativefx.parametric-eq.preset.custom
 src/native_fx/effects/parametric_eq/src/Ui.cpp:59
-src/native_fx/src/NativeFxApi.cpp:401",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+src/native_fx/src/NativeFxApi.cpp:405",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 nativefx.parametric-eq,preset.default,"[""Default"", ""デフォルト"", ""默认"", ""기본값""]","src/native_fx/effects/parametric_eq/locate/en-US.json!domains.nativefx.parametric-eq.preset.default
 src/native_fx/effects/parametric_eq/locate/ja-JP.json!domains.nativefx.parametric-eq.preset.default
 src/native_fx/effects/parametric_eq/locate/ko-KR.json!domains.nativefx.parametric-eq.preset.default
 src/native_fx/effects/parametric_eq/locate/zh-CN.json!domains.nativefx.parametric-eq.preset.default
 src/native_fx/effects/parametric_eq/src/Ui.cpp:59
-src/native_fx/src/NativeFxApi.cpp:401",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+src/native_fx/src/NativeFxApi.cpp:405",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 nativefx.parametric-eq,preset.presence,"[""Presence"", ""プレゼンス"", ""存在感"", ""존재감""]","src/native_fx/effects/parametric_eq/locate/en-US.json!domains.nativefx.parametric-eq.preset.presence
 src/native_fx/effects/parametric_eq/locate/ja-JP.json!domains.nativefx.parametric-eq.preset.presence
 src/native_fx/effects/parametric_eq/locate/ko-KR.json!domains.nativefx.parametric-eq.preset.presence
 src/native_fx/effects/parametric_eq/locate/zh-CN.json!domains.nativefx.parametric-eq.preset.presence
 src/native_fx/effects/parametric_eq/src/Ui.cpp:59
-src/native_fx/src/NativeFxApi.cpp:401",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+src/native_fx/src/NativeFxApi.cpp:405",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 nativefx.parametric-eq,preset.vocalClear,"[""Vocal Clear"", ""明瞭なボーカル"", ""清晰人声"", ""선명한 보컬""]","src/native_fx/effects/parametric_eq/locate/en-US.json!domains.nativefx.parametric-eq.preset.vocalClear
 src/native_fx/effects/parametric_eq/locate/ja-JP.json!domains.nativefx.parametric-eq.preset.vocalClear
 src/native_fx/effects/parametric_eq/locate/ko-KR.json!domains.nativefx.parametric-eq.preset.vocalClear
 src/native_fx/effects/parametric_eq/locate/zh-CN.json!domains.nativefx.parametric-eq.preset.vocalClear
 src/native_fx/effects/parametric_eq/src/Ui.cpp:59
-src/native_fx/src/NativeFxApi.cpp:401",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+src/native_fx/src/NativeFxApi.cpp:405",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 nativefx.parametric-eq,preset.warmth,"[""Warmth"", ""温かみ"", ""温暖"", ""따뜻함""]","src/native_fx/effects/parametric_eq/locate/en-US.json!domains.nativefx.parametric-eq.preset.warmth
 src/native_fx/effects/parametric_eq/locate/ja-JP.json!domains.nativefx.parametric-eq.preset.warmth
 src/native_fx/effects/parametric_eq/locate/ko-KR.json!domains.nativefx.parametric-eq.preset.warmth
 src/native_fx/effects/parametric_eq/locate/zh-CN.json!domains.nativefx.parametric-eq.preset.warmth
 src/native_fx/effects/parametric_eq/src/Ui.cpp:59
-src/native_fx/src/NativeFxApi.cpp:401",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+src/native_fx/src/NativeFxApi.cpp:405",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 nativefx.parametric-eq,section.analysisSettings,"[""Analysis settings"", ""分析设置"", ""解析設定"", ""분석 설정""]","src/native_fx/effects/parametric_eq/locate/en-US.json!domains.nativefx.parametric-eq.section.analysisSettings
 src/native_fx/effects/parametric_eq/locate/ja-JP.json!domains.nativefx.parametric-eq.section.analysisSettings
 src/native_fx/effects/parametric_eq/locate/ko-KR.json!domains.nativefx.parametric-eq.section.analysisSettings
@@ -3768,44 +3775,44 @@ src/native_fx/effects/reverb/locate/ja-JP.json!domains.nativefx.reverb.preset.br
 src/native_fx/effects/reverb/locate/ko-KR.json!domains.nativefx.reverb.preset.brightPlate
 src/native_fx/effects/reverb/locate/zh-CN.json!domains.nativefx.reverb.preset.brightPlate
 src/native_fx/effects/reverb/src/Ui.cpp:30
-src/native_fx/src/NativeFxApi.cpp:404",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+src/native_fx/src/NativeFxApi.cpp:408",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 nativefx.reverb,preset.cathedral,"[""Cathedral"", ""大教堂"", ""大聖堂"", ""대성당""]","src/native_fx/effects/reverb/locate/en-US.json!domains.nativefx.reverb.preset.cathedral
 src/native_fx/effects/reverb/locate/ja-JP.json!domains.nativefx.reverb.preset.cathedral
 src/native_fx/effects/reverb/locate/ko-KR.json!domains.nativefx.reverb.preset.cathedral
 src/native_fx/effects/reverb/locate/zh-CN.json!domains.nativefx.reverb.preset.cathedral
 src/native_fx/effects/reverb/src/Ui.cpp:30
-src/native_fx/src/NativeFxApi.cpp:404",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+src/native_fx/src/NativeFxApi.cpp:408",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 nativefx.reverb,preset.custom,"[""Custom"", ""カスタム"", ""自定义"", ""사용자 정의""]","src/native_fx/effects/reverb/locate/en-US.json!domains.nativefx.reverb.preset.custom
 src/native_fx/effects/reverb/locate/ja-JP.json!domains.nativefx.reverb.preset.custom
 src/native_fx/effects/reverb/locate/ko-KR.json!domains.nativefx.reverb.preset.custom
 src/native_fx/effects/reverb/locate/zh-CN.json!domains.nativefx.reverb.preset.custom
 src/native_fx/effects/reverb/src/Ui.cpp:23
 src/native_fx/effects/reverb/src/Ui.cpp:30
-src/native_fx/src/NativeFxApi.cpp:404",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+src/native_fx/src/NativeFxApi.cpp:408",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 nativefx.reverb,preset.default,"[""Default"", ""デフォルト"", ""默认"", ""기본값""]","src/native_fx/effects/reverb/locate/en-US.json!domains.nativefx.reverb.preset.default
 src/native_fx/effects/reverb/locate/ja-JP.json!domains.nativefx.reverb.preset.default
 src/native_fx/effects/reverb/locate/ko-KR.json!domains.nativefx.reverb.preset.default
 src/native_fx/effects/reverb/locate/zh-CN.json!domains.nativefx.reverb.preset.default
 src/native_fx/effects/reverb/src/Ui.cpp:30
-src/native_fx/src/NativeFxApi.cpp:404",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+src/native_fx/src/NativeFxApi.cpp:408",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 nativefx.reverb,preset.smallRoom,"[""Small Room"", ""小さな部屋"", ""小房间"", ""작은 방""]","src/native_fx/effects/reverb/locate/en-US.json!domains.nativefx.reverb.preset.smallRoom
 src/native_fx/effects/reverb/locate/ja-JP.json!domains.nativefx.reverb.preset.smallRoom
 src/native_fx/effects/reverb/locate/ko-KR.json!domains.nativefx.reverb.preset.smallRoom
 src/native_fx/effects/reverb/locate/zh-CN.json!domains.nativefx.reverb.preset.smallRoom
 src/native_fx/effects/reverb/src/Ui.cpp:30
-src/native_fx/src/NativeFxApi.cpp:404",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+src/native_fx/src/NativeFxApi.cpp:408",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 nativefx.reverb,preset.studioBooth,"[""Studio Booth"", ""录音隔间"", ""録音ブース"", ""녹음 부스""]","src/native_fx/effects/reverb/locate/en-US.json!domains.nativefx.reverb.preset.studioBooth
 src/native_fx/effects/reverb/locate/ja-JP.json!domains.nativefx.reverb.preset.studioBooth
 src/native_fx/effects/reverb/locate/ko-KR.json!domains.nativefx.reverb.preset.studioBooth
 src/native_fx/effects/reverb/locate/zh-CN.json!domains.nativefx.reverb.preset.studioBooth
 src/native_fx/effects/reverb/src/Ui.cpp:30
-src/native_fx/src/NativeFxApi.cpp:404",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+src/native_fx/src/NativeFxApi.cpp:408",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 nativefx.reverb,preset.vintageSpring,"[""Vintage Spring"", ""ヴィンテージ・スプリング"", ""复古弹簧"", ""빈티지 스프링""]","src/native_fx/effects/reverb/locate/en-US.json!domains.nativefx.reverb.preset.vintageSpring
 src/native_fx/effects/reverb/locate/ja-JP.json!domains.nativefx.reverb.preset.vintageSpring
 src/native_fx/effects/reverb/locate/ko-KR.json!domains.nativefx.reverb.preset.vintageSpring
 src/native_fx/effects/reverb/locate/zh-CN.json!domains.nativefx.reverb.preset.vintageSpring
 src/native_fx/effects/reverb/src/Ui.cpp:30
-src/native_fx/src/NativeFxApi.cpp:404",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+src/native_fx/src/NativeFxApi.cpp:408",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 nativefx.reverb,scene.church,"[""Church"", ""教会"", ""教堂"", ""교회""]","src/native_fx/effects/reverb/locate/en-US.json!domains.nativefx.reverb.scene.church
 src/native_fx/effects/reverb/locate/ja-JP.json!domains.nativefx.reverb.scene.church
 src/native_fx/effects/reverb/locate/ko-KR.json!domains.nativefx.reverb.scene.church
@@ -4645,30 +4652,30 @@ ui,clientName.applied,"[""Applied"", ""已应用"", ""適用しました"", ""�
 locate/ja-JP.json!domains.ui.clientName.applied
 locate/ko-KR.json!domains.ui.clientName.applied
 locate/zh-CN.json!domains.ui.clientName.applied
-src/ui/src/Controls.cpp:1699",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+src/ui/src/Controls.cpp:1701",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 ui,clientName.apply,"[""Apply"", ""应用"", ""適用"", ""적용""]","locate/en-US.json!domains.ui.clientName.apply
 locate/ja-JP.json!domains.ui.clientName.apply
 locate/ko-KR.json!domains.ui.clientName.apply
 locate/zh-CN.json!domains.ui.clientName.apply
-src/ui/src/Controls.cpp:1668",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+src/ui/src/Controls.cpp:1670",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 ui,clientName.empty,"[""Name cannot be empty"", ""名前を空にすることはできません"", ""名称不能为空"", ""이름을 비워 둘 수 없습니다""]","locate/en-US.json!domains.ui.clientName.empty
 locate/ja-JP.json!domains.ui.clientName.empty
 locate/ko-KR.json!domains.ui.clientName.empty
 locate/zh-CN.json!domains.ui.clientName.empty
-src/ui/src/Controls.cpp:1698",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+src/ui/src/Controls.cpp:1700",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 ui,clientName.label,"[""Client name"", ""クライアント名"", ""客户端名称"", ""클라이언트 이름""]","locate/en-US.json!domains.ui.clientName.label
 locate/ja-JP.json!domains.ui.clientName.label
 locate/ko-KR.json!domains.ui.clientName.label
 locate/zh-CN.json!domains.ui.clientName.label
-src/ui/src/Controls.cpp:1662",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+src/ui/src/Controls.cpp:1664",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 ui,clientName.rejected,"[""Unable to apply name"", ""名前を適用できません"", ""无法应用名称"", ""이름을 적용할 수 없습니다""]","locate/en-US.json!domains.ui.clientName.rejected
 locate/ja-JP.json!domains.ui.clientName.rejected
 locate/ko-KR.json!domains.ui.clientName.rejected
 locate/zh-CN.json!domains.ui.clientName.rejected
-src/ui/src/Controls.cpp:1700",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-ui,controls.action.collapseSidebar,"[""收缩侧边栏""]",src/ui/src/Controls.cpp:1359,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-ui,controls.action.expandSidebar,"[""展开侧边栏""]",src/ui/src/Controls.cpp:1358,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-ui,controls.placeholder.filterInput,"[""输入筛选""]",src/ui/src/Controls.cpp:803,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+src/ui/src/Controls.cpp:1702",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+ui,controls.action.collapseSidebar,"[""收缩侧边栏""]",src/ui/src/Controls.cpp:1361,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+ui,controls.action.expandSidebar,"[""展开侧边栏""]",src/ui/src/Controls.cpp:1360,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+ui,controls.placeholder.filterInput,"[""输入筛选""]",src/ui/src/Controls.cpp:805,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 ui,i18nmanager.fallback.unknown,"[""Unknown""]","src/ui/src/I18nManager.cpp:621
 src/ui/src/I18nManager.cpp:626",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 ui,statistics.extrema,"[""Min: %1    Max: %2"", ""最小：%1    最大：%2"", ""최솟값: %1    최댓값: %2""]","locate/en-US.json!domains.ui.statistics.extrema
@@ -4897,21 +4904,5 @@ Develop/Node/locate/zh-CN.json!domains.example.node.name",,元数据/语言包�
 example.node,description,"[""Minimal Node API implementation for integration validation.""]",Develop/Node/locate/en-US.json!domains.example.node.description,,元数据/语言包显示，布局度量并保留完整 tooltip,语言包项见根目录 i18n翻译核对.md；其它未实施（S0 清单）,描述符/内置主题/语言包的显示角色；身份字段不变
 example.node,greeting,"[""{count} node for {name}"", ""{count} nodes for {name}""]","Develop/Node/locate/en-US.json!domains.example.node.greeting.one
 Develop/Node/locate/en-US.json!domains.example.node.greeting.other","{count},{name}",元数据/语言包显示，布局度量并保留完整 tooltip,语言包项见根目录 i18n翻译核对.md；其它未实施（S0 清单）,描述符/内置主题/语言包的显示角色；身份字段不变
-example.nativefx,name,"[""Example Gain"", ""ゲインのサンプル"", ""增益示例"", ""게인 예제""]","Develop/NativeFx/locate/en-US.json!domains.example.nativefx.name
-Develop/NativeFx/locate/ja-JP.json!domains.example.nativefx.name
-Develop/NativeFx/locate/ko-KR.json!domains.example.nativefx.name
-Develop/NativeFx/locate/zh-CN.json!domains.example.nativefx.name",,元数据/语言包显示，布局度量并保留完整 tooltip,语言包项见根目录 i18n翻译核对.md；其它未实施（S0 清单）,描述符/内置主题/语言包的显示角色；身份字段不变
-example.nativefx,gain,"[""Gain"", ""ゲイン"", ""增益"", ""게인""]","Develop/NativeFx/locate/en-US.json!domains.example.nativefx.gain
-Develop/NativeFx/locate/ja-JP.json!domains.example.nativefx.gain
-Develop/NativeFx/locate/ko-KR.json!domains.example.nativefx.gain
-Develop/NativeFx/locate/zh-CN.json!domains.example.nativefx.gain",,元数据/语言包显示，布局度量并保留完整 tooltip,语言包项见根目录 i18n翻译核对.md；其它未实施（S0 清单）,描述符/内置主题/语言包的显示角色；身份字段不变
-example.nativefx,channel,"[""Channel"", ""チャンネル"", ""声道"", ""채널""]","Develop/NativeFx/locate/en-US.json!domains.example.nativefx.channel
-Develop/NativeFx/locate/ja-JP.json!domains.example.nativefx.channel
-Develop/NativeFx/locate/ko-KR.json!domains.example.nativefx.channel
-Develop/NativeFx/locate/zh-CN.json!domains.example.nativefx.channel",,元数据/语言包显示，布局度量并保留完整 tooltip,语言包项见根目录 i18n翻译核对.md；其它未实施（S0 清单）,描述符/内置主题/语言包的显示角色；身份字段不变
-example.nativefx,all,"[""All"", ""すべて"", ""全部"", ""전체""]","Develop/NativeFx/locate/en-US.json!domains.example.nativefx.all
-Develop/NativeFx/locate/ja-JP.json!domains.example.nativefx.all
-Develop/NativeFx/locate/ko-KR.json!domains.example.nativefx.all
-Develop/NativeFx/locate/zh-CN.json!domains.example.nativefx.all",,元数据/语言包显示，布局度量并保留完整 tooltip,语言包项见根目录 i18n翻译核对.md；其它未实施（S0 清单）,描述符/内置主题/语言包的显示角色；身份字段不变
 theme,defaultTheme.name,"[""WinJACKNexus 默认主题""]",themes/template/winjacknexus-default.wjnskin!meta.json!name,,元数据/语言包显示，布局度量并保留完整 tooltip,语言包项见根目录 i18n翻译核对.md；其它未实施（S0 清单）,描述符/内置主题/语言包的显示角色；身份字段不变
 theme,defaultTheme.description,"[""当前内置外观的完整模块级颜色、图表、电平与背景默认值。""]",themes/template/winjacknexus-default.wjnskin!meta.json!description,,元数据/语言包显示，布局度量并保留完整 tooltip,语言包项见根目录 i18n翻译核对.md；其它未实施（S0 清单）,描述符/内置主题/语言包的显示角色；身份字段不变

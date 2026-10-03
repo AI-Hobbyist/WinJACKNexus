@@ -358,7 +358,8 @@ void LimiterWidget::paintEvent(QPaintEvent*){
     dial(p,{591,156},(s.thresholdDb+24)/30,QStringLiteral("%1 dB").arg(s.thresholdDb,0,'f',1),NativeFx::I18n::text("control.threshold", "Threshold"),NativeFx::I18n::text("hint.threshold", "(Threshold)"),knobColors);
     dial(p,{685,156},(s.ceilingDb+12)/24,QStringLiteral("%1 dB").arg(s.ceilingDb,0,'f',1),NativeFx::I18n::text("control.ceiling", "Output ceiling"),NativeFx::I18n::text("hint.ceiling", "(Ceiling)"),knobColors);
     dial(p,{591,299},(s.releaseMs-10)/490,QStringLiteral("%1 ms").arg(s.releaseMs,0,'f',0),NativeFx::I18n::text("control.release", "Release"),NativeFx::I18n::text("hint.release", "(Release)"),knobColors);
-    dial(p,{685,299},s.lookaheadDb/12,QStringLiteral("%1 dB").arg(s.lookaheadDb,0,'f',1),NativeFx::I18n::text("control.lookahead", "Lookahead"),NativeFx::I18n::text("hint.lookahead", "(Lookahead)"),knobColors);
+    // The legacy field is persisted but is not consumed by LimiterProcessor.
+    dial(p,{685,299},s.lookaheadDb/12,QStringLiteral("%1 dB").arg(s.lookaheadDb,0,'f',1),NativeFx::I18n::text("control.lookahead", "Unused"),NativeFx::I18n::text("hint.lookahead", "(Lookahead)"),knobColors);
     box(p,{16,430,723,59},8,QColor(18,38,58));label(p,{26,448,44,23},NativeFx::I18n::text("control.mode", "Mode:"),14,muted);
     const QString modes[]={NativeFx::I18n::text("mode.transparent", "Transparent"),NativeFx::I18n::text("mode.modern", "Modern"),NativeFx::I18n::text("mode.brickwall", "Brickwall")};
     for(int i=0;i<3;++i){box(p,{qreal(71+i*84),443,84,36},5,i==s.mode?QColor(9,62,96):QColor(24,45,67),i==s.mode?cyan:QColor(64,96,130));label(p,{qreal(71+i*84),443,84,36},modes[i],15,i==s.mode?ink:muted);}

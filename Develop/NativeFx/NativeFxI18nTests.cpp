@@ -50,6 +50,21 @@ using namespace WinJACKNexus;
 using namespace WinJACKNexus::UI;
 namespace {
 int checks = 0;
+class PopupBudget final : public QObject {
+public:
+    int shows = 0;
+protected:
+    bool eventFilter(QObject* object, QEvent* event) override {
+        if (event->type()==QEvent::Show) {
+            auto* widget=qobject_cast<QWidget*>(object);
+            if (widget && widget->isWindow()) {
+                if (shows==100) { std::fprintf(stderr,"S5 FAILED: refusing another popup; budget 100 / 100 exhausted\n"); std::exit(2); }
+                ++shows;
+            }
+        }
+        return false;
+    }
+};
 void check(bool condition, const char* message) {
     ++checks;
     if (!condition) { std::fprintf(stderr, "S5 FAILED: %s\n", message); std::exit(1); }
@@ -89,7 +104,9 @@ void bindings(QObject& root) {
     }
 }
 void capture(QWidget& widget, const QString& output, const QString& name) {
-    widget.show(); widget.raise(); widget.activateWindow(); settle(150);
+    const bool popup=widget.windowType()==Qt::Popup || widget.windowType()==Qt::ToolTip;
+    if (!popup) { widget.show(); widget.raise(); widget.activateWindow(); }
+    widget.repaint(); settle(150);
     check(widget.isVisible() && widget.windowHandle() && widget.windowHandle()->isExposed(), "actual visible exposed Windows window");
     check(widget.font().family() == QApplication::font().family(), "system font inherited");
     QTextLayout layout(QStringLiteral("English 简体中文 日本語 한국어 −∞"),widget.font());
@@ -102,14 +119,25 @@ void capture(QWidget& widget, const QString& output, const QString& name) {
                      std::min(window->height(),std::max(100,available.height()-100)));
     for (int y=0; y<window->height(); y+=step.height()) for (int x=0; x<window->width(); x+=step.width()) {
         const QRect tile(QPoint(x,y),QSize(std::min(step.width(),window->width()-x),std::min(step.height(),window->height()-y)));
-        window->move(available.topLeft()+QPoint(30,30)-tile.topLeft()); settle();
+        if (!popup) window->move(available.topLeft()+QPoint(30,30)-tile.topLeft());
+        settle();
         const QRect actual(window->mapToGlobal(tile.topLeft()),tile.size());
         auto* screen = QGuiApplication::screenAt(actual.center());
         check(screen && screen->availableGeometry().contains(actual), "entire capture region on visible desktop");
-        const auto pixels = screen->grabWindow(window->winId(),x,y,tile.width(),tile.height());
+        check(window->isVisible() && window->windowHandle()->isExposed(),"capture window remains visible after placement");
+        const auto relative=actual.topLeft()-screen->geometry().topLeft();
+        const auto pixels = screen->grabWindow(0,relative.x(),relative.y(),tile.width(),tile.height());
+        if (popup) {
+            const auto bitmap=pixels.toImage(); bool varied=false;
+            if (!bitmap.isNull()) for(int row=0;row<bitmap.height() && !varied;++row)
+                for(int column=0;column<bitmap.width();++column)
+                    if (bitmap.pixel(column,row)!=bitmap.pixel(0,0)) { varied=true; break; }
+            check(varied,"native popup desktop capture contains rendered content, not a blank image");
+        }
         check(!pixels.isNull() && pixels.save(output+'/'+name+QStringLiteral("-%1-%2.png").arg(y).arg(x)), "capture native screen pixels");
     }
-    window->move(position); bindings(widget);
+    if (!popup) window->move(position);
+    bindings(widget);
 }
 void clientName(HostI18n& host, const QString& output) {
     int writes = 0;
@@ -144,28 +172,40 @@ void clientName(HostI18n& host, const QString& output) {
 }
 class ElisionWindow final : public QWidget {
 public:
+    bool viewportMapping = false;
     QString fullText() const { return localizedText("ui","clientName.label","Client name").repeated(12); }
 protected:
     void paintEvent(QPaintEvent*) override {
-        QPainter painter(this); painter.translate(30,30);
+        QPainter painter(this);
+        if (viewportMapping) { painter.setWindow(0,0,400,240); painter.setViewport(rect()); }
+        painter.translate(30,30);
         Controls::drawElidedText(painter,QRectF(0,0,65,35),fullText(),font(),palette().color(QPalette::Text));
     }
 };
 void elision(HostI18n& host,const QString& output) {
+    for (bool viewport : {false,true}) {
     ElisionWindow widget; widget.resize(200,120); widget.move(50,50);
+    widget.viewportMapping = viewport;
+    const auto hover = viewport ? QPoint(17,17) : QPoint(35,35);
     widget.show(); widget.raise(); widget.activateWindow(); settle(); QString error;
     check(widget.windowHandle() && widget.windowHandle()->isExposed(),"tooltip fixture is a real exposed Windows window");
     for (const auto& language : I18nManager::supportedLanguages()) {
+        // Native Qt hideText is deferred. Finish the previous capture's leave/
+        // hide cycle before opening a fresh tooltip at the stationary cursor.
+        QToolTip::hideText(); settle(450);
         check(host.manager().setLanguage(language,&error),"select elision language"); widget.repaint();
-        QCursor::setPos(widget.mapToGlobal(QPoint(35,35))); settle();
-        QHelpEvent help(QEvent::ToolTip,QPoint(35,35),widget.mapToGlobal(QPoint(35,35)));
+        QCursor::setPos(widget.mapToGlobal(hover)); settle();
+        QHelpEvent help(QEvent::ToolTip,hover,widget.mapToGlobal(hover));
         QCoreApplication::sendEvent(&widget,&help); settle();
         if (!QToolTip::isVisible() || QToolTip::text()!=Qt::convertFromPlainText(widget.fullText()))
             std::fprintf(stderr,"Tooltip diagnostic: visible=%d actual=[%s] expected=[%s]\n",int(QToolTip::isVisible()),QToolTip::text().toUtf8().constData(),Qt::convertFromPlainText(widget.fullText()).toUtf8().constData());
         check(QToolTip::isVisible() && QToolTip::text()==Qt::convertFromPlainText(widget.fullText()),"transformed text hit rectangle exposes complete unshrunk caption");
         check(host.manager().setLanguage(language==QStringLiteral("en-US")?QStringLiteral("ko-KR"):QStringLiteral("en-US"),&error),"change language while full tooltip is visible"); settle();
         check(QToolTip::isVisible() && QToolTip::text()==Qt::convertFromPlainText(widget.fullText()),"already visible full tooltip refreshes immediately with language");
-        QToolTip::hideText(); capture(widget,output,QStringLiteral("shared-elision-")+language);
+        check(host.manager().setLanguage(language,&error),"restore named capture language while tooltip remains open"); settle();
+        check(QToolTip::isVisible() && QToolTip::text()==Qt::convertFromPlainText(widget.fullText()),"restored capture language refreshes complete tooltip");
+        QToolTip::hideText(); capture(widget,output,QStringLiteral("shared-elision-")+language+(viewport?QStringLiteral("-viewport"):QString{}));
+    }
     }
 }
 void module(HostI18n& host, const QString& runtime, const QString& output, const QString& effect, const QStringList& languages) {
@@ -263,10 +303,13 @@ void module(HostI18n& host, const QString& runtime, const QString& output, const
         check(draft && draft->isVisible() && draft->text()==QStringLiteral("1.") && draft->selectionStart()==1
               && draft->selectedText()==QStringLiteral(".") && draft->locale()==draftLocale,"actual numeric draft, selection, editor and number locale preserved");
         check(snapshot(instance)==before && snapshot(second)==secondBefore && QByteArray(nodeSettings(node))==nodeBefore,"pending input and language switch never commit either placement parameters");
+        check(host.manager().setLanguage(language,&error),"restore named numeric capture language"); settle();
+        check(draft && draft->isVisible() && draft->text()==QStringLiteral("1.") && draft->selectionStart()==1,"restoring capture language preserves pending numeric draft");
         const QRect draftRect(draft->mapToGlobal(QPoint(0,0)),draft->size());
         auto* draftScreen=QGuiApplication::screenAt(draftRect.center());
         check(draftScreen && draftScreen->availableGeometry().contains(draftRect),"numeric draft entirely visible on real desktop");
-        const auto draftPixels=draftScreen->grabWindow(nodePanel->winId(),draft->x(),draft->y(),draft->width(),draft->height());
+        const auto draftOrigin=draftRect.topLeft()-draftScreen->geometry().topLeft();
+        const auto draftPixels=draftScreen->grabWindow(0,draftOrigin.x(),draftOrigin.y(),draft->width(),draft->height());
         check(!draftPixels.isNull() && draftPixels.save(output+'/'+effect+QStringLiteral("-draft-")+language+QStringLiteral(".png")),"capture actual current-language pending input");
         QKeyEvent escape(QEvent::KeyPress,Qt::Key_Escape,Qt::NoModifier); QCoreApplication::sendEvent(draft,&escape); settle();
         check(!draft || !draft->isVisible(),"Escape cancels pending numeric editor");
@@ -277,8 +320,12 @@ void module(HostI18n& host, const QString& runtime, const QString& output, const
         else if (effect=="delay") menuPoint={530,185};
         else if (effect=="parametric_eq") menuPoint={qRound(969.0*nodePanel->width()/1536),qRound(171.0*nodePanel->height()/1136)};
         bool menuChecked=false;
-        QTimer::singleShot(180,nodePanel,[&] {
+        QTimer presetProbe; presetProbe.setInterval(100); int presetAttempts=0;
+        QObject::connect(&presetProbe,&QTimer::timeout,nodePanel,[&] {
+            check(++presetAttempts<50,"actual preset menu appears within bounded observation");
             auto* menu=qobject_cast<QMenu*>(QApplication::activePopupWidget());
+            if (!menu || !menu->isVisible() || !menu->windowHandle() || !menu->windowHandle()->isExposed()) return;
+            presetProbe.stop();
             check(menu && menu->isVisible() && menu->windowHandle() && menu->windowHandle()->isExposed(),"actual preset menu exposed on Windows");
             const auto actions=menu->actions(); const auto keys=presetKeys(effect);
             check(!actions.isEmpty() && actions.size()<=keys.size(),"factory menu preserves stable preset order");
@@ -287,13 +334,17 @@ void module(HostI18n& host, const QString& runtime, const QString& output, const
                 data.append(actions[i]->data());
                 check(actions[i]->text()==host.manager().text(domain,keys[i],"MISSING"),"open menu uses current-language preset caption by index");
             }
-            check(host.manager().setLanguage(language,&error),"hot switch while module preset menu is open"); settle();
+            check(host.manager().setLanguage(alternate,&error),"hot switch while module preset menu is open"); settle();
             check(menu->isVisible() && menu->actions()==actions,"language preserves actual open menu and action identities");
             for (int i=0;i<actions.size();++i) check(actions[i]->data()==data[i]
                 && actions[i]->text()==host.manager().text(domain,keys[i],"MISSING"),"existing menu action relocalizes with stable data and index");
+            check(host.manager().setLanguage(language,&error),"restore named preset menu capture language"); settle();
+            for (int i=0;i<actions.size();++i) check(actions[i]->data()==data[i]
+                && actions[i]->text()==host.manager().text(domain,keys[i],"MISSING"),"restored preset menu retains translated caption and stable identity");
             capture(*menu,output,effect+QStringLiteral("-preset-menu-")+language);
             menuChecked=true; menu->close();
         });
+        presetProbe.start();
         QMouseEvent openMenu(QEvent::MouseButtonPress,QPointF(menuPoint),QPointF(nodePanel->mapToGlobal(menuPoint)),Qt::LeftButton,Qt::LeftButton,Qt::NoModifier);
         QCoreApplication::sendEvent(nodePanel,&openMenu); settle(250);
         check(menuChecked && QByteArray(nodeSettings(node))==nodeBefore,"opening, translating and dismissing preset menu does not select or mutate state");
@@ -305,15 +356,24 @@ void module(HostI18n& host, const QString& runtime, const QString& output, const
             else if (effect=="delay") { operationPoint={705,185}; operationKeys={"action.resetCurrent","action.resetAll"}; }
             else if (effect=="parametric_eq") { operationPoint={qRound(1315.0*nodePanel->width()/1536),qRound(171.0*nodePanel->height()/1136)}; operationKeys={"action.resetDefault"}; }
             bool operationsChecked=false;
-            QTimer::singleShot(180,nodePanel,[&] {
-                auto* menu=qobject_cast<QMenu*>(QApplication::activePopupWidget()); check(menu && menu->isVisible(),"actual module operations menu open");
+            QTimer operationsProbe; operationsProbe.setInterval(100); int operationsAttempts=0;
+            QObject::connect(&operationsProbe,&QTimer::timeout,nodePanel,[&] {
+                check(++operationsAttempts<50,"actual operations menu appears within bounded observation");
+                auto* menu=qobject_cast<QMenu*>(QApplication::activePopupWidget());
+                if (!menu || !menu->isVisible() || !menu->windowHandle() || !menu->windowHandle()->isExposed()) return;
+                operationsProbe.stop();
+                check(menu && menu->isVisible(),"actual module operations menu open");
                 const auto actions=menu->actions(); check(actions.size()==operationKeys.size(),"actual reset/copy menu operations retain order");
                 check(host.manager().setLanguage(alternate,&error),"language switches while reset/copy menu remains open"); settle();
                 check(menu->isVisible() && menu->actions()==actions,"actual operations actions retain object identity");
                 for (int i=0;i<actions.size();++i) if (!operationKeys[i].isEmpty())
                     check(actions[i]->text()==host.manager().text(domain,operationKeys[i],"MISSING"),"open reset/copy caption relocalizes by semantic key");
+                check(host.manager().setLanguage(language,&error),"restore named operations menu capture language"); settle();
+                for (int i=0;i<actions.size();++i) if (!operationKeys[i].isEmpty())
+                    check(actions[i]->text()==host.manager().text(domain,operationKeys[i],"MISSING"),"restored operation caption matches capture language");
                 capture(*menu,output,effect+QStringLiteral("-operations-menu-")+language); operationsChecked=true; menu->close();
             });
+            operationsProbe.start();
             QMouseEvent openOperations(QEvent::MouseButtonPress,QPointF(operationPoint),QPointF(nodePanel->mapToGlobal(operationPoint)),Qt::LeftButton,Qt::LeftButton,Qt::NoModifier);
             QCoreApplication::sendEvent(nodePanel,&openOperations); settle(250);
             check(operationsChecked && QByteArray(nodeSettings(node))==nodeBefore,"translation and dismissal never trigger reset/copy operations");
@@ -338,6 +398,9 @@ void module(HostI18n& host, const QString& runtime, const QString& output, const
                       && filename->selectedText().size()==4 && dialog->directory().absolutePath()==directory,"file dialog draft, selection and directory preserved");
                 check(dialog->windowTitle()==host.manager().text(domain,save?"dialog.savePreset":"dialog.loadPreset","MISSING")
                       && types->itemText(0)==host.manager().text(domain,"filter.presetFiles","MISSING"),"existing file dialog title and JSON filter relocalize");
+                check(host.manager().setLanguage(language,&error),"restore named preset dialog capture language"); settle();
+                check(filename->text()==QStringLiteral("Draft_日本語_한국어.json") && filename->selectionStart()==1
+                      && dialog->windowTitle()==host.manager().text(domain,save?"dialog.savePreset":"dialog.loadPreset","MISSING"),"restored dialog caption and pending filename match capture evidence");
                 capture(*dialog,output,effect+(save?QStringLiteral("-save-dialog-"):QStringLiteral("-load-dialog-"))+language);
                 dialogChecked=true; dialog->reject();
             });
@@ -469,13 +532,24 @@ void community(HostI18n& host,const QString& runtime,const QString& output,const
         check(draft->text()==QStringLiteral("1.") && draft->selectionStart()==1 && draft->selectedText()==QStringLiteral(".")
               && spin->value()==value && QByteArray(settings(node))==draftBefore,"example numeric draft, selection and state preserved during language switch");
     }
+    check(host.manager().setLanguage(QStringLiteral("ja-JP"),&error),"force non-English before community detach");
+    const QByteArray detachedBefore(settings(node));
     nodeLease.reset(); fxLease.reset();
     check(view->windowTitle()==QStringLiteral("Example Gain") && window->windowTitle()==QStringLiteral("Example Gain — Example_User_Name"),"real detached community windows fall back to local English");
+    check(QByteArray(settings(node))==detachedBefore,"community detach does not alter serialized parameters");
+    fxLease=host.manager().registerLibrary(path,I18nManager::Extension::nativeFx,0,&error);
+    nodeLease=host.manager().registerLibrary(path,I18nManager::Extension::node,0,&error);
+    check(bool(fxLease) && bool(nodeLease) && host.manager().setLanguage(QStringLiteral("ko-KR"),&error),"live community windows reattach both placements");
+    const auto reattachedName=localizedText("example.nativefx","name","MISSING");
+    check(view->windowTitle()==reattachedName && window->windowTitle()==reattachedName+QStringLiteral(" — Example_User_Name")
+          && QByteArray(settings(node))==detachedBefore,"reattach refreshes same live windows without parameter change");
+    nodeLease.reset(); fxLease.reset();
     node->destroyWindow(hwnd); destroyNode(node); destroy(instance); check(library.unload(),"actual community DLL unloads after UI destruction");
 }
 }
 int main(int argc,char** argv) {
     QApplication app(argc,argv); app.setQuitOnLastWindowClosed(false);
+    PopupBudget popupBudget; app.installEventFilter(&popupBudget);
     check(app.platformName()==QStringLiteral("windows"),"offscreen forbidden; actual platform windows");
     app.setFont(QFontDatabase::systemFont(QFontDatabase::GeneralFont));
     const auto args=app.arguments(); check(args.size()>=3,"runtime root and output path supplied");
@@ -491,11 +565,29 @@ int main(int argc,char** argv) {
     if (cold>=0) check(host.manager().selectedLanguage()==languages[0],"fresh process restores exact language");
     ThemeCore core; check(core.setOverride(QStringLiteral("--wjn-theme-global-font-source"),QStringLiteral("system"),{},&error),"system font selected through existing Theme Token");
     ThemeManager::installThemeCore(&core); ThemeManager themes; themes.watchApplication(&app);
-    for (const auto* effect : {"gate","graphic_eq","deesser","compressor","limiter","delay","parametric_eq","reverb"}) module(host,args[1],args[2],QString::fromLatin1(effect),languages);
-    fxHost(host,args[2],languages);
-    community(host,args[1],args[2],languages);
+    const QStringList allEffects={"gate","graphic_eq","deesser","compressor","limiter","delay","parametric_eq","reverb"};
+    const auto effectArgument=args.indexOf(QStringLiteral("--effects"));
+    check(effectArgument<0 || args.size()>effectArgument+1,"effect scope supplied");
+    const bool sharedOnly=args.contains(QStringLiteral("--elision-only"));
+    const bool communityOnly=args.contains(QStringLiteral("--community-only"));
+    const bool hostOnly=args.contains(QStringLiteral("--host-only"));
+    check(int(sharedOnly)+int(communityOnly)+int(hostOnly)<=1 &&
+          (effectArgument<0 || !(sharedOnly || communityOnly || hostOnly)),"one explicit test scope per bounded invocation");
+    const bool defaultScope=effectArgument<0 && !(sharedOnly || communityOnly || hostOnly);
+    const auto effects=(sharedOnly || communityOnly || hostOnly)?QStringList{}:
+        (effectArgument<0?allEffects:args[effectArgument+1].split(','));
+    const bool runHost=defaultScope || hostOnly || args.contains(QStringLiteral("--include-host"));
+    const bool runCommunity=defaultScope || communityOnly || args.contains(QStringLiteral("--include-community"));
+    const bool runShared=cold<0 && (defaultScope || sharedOnly || args.contains(QStringLiteral("--include-shared")));
+    std::printf("S5 scope: effects=%s host=%d community=%d shared=%d cold=%s\n",
+                effects.join(',').toUtf8().constData(),int(runHost),int(runCommunity),int(runShared),
+                (cold>=0?languages[0]:QStringLiteral("hot")).toUtf8().constData()); std::fflush(stdout);
+    for (const auto& effect : effects) { check(allEffects.contains(effect),"valid effect scope"); module(host,args[1],args[2],effect,languages); }
+    if (runHost) fxHost(host,args[2],languages);
+    if (runCommunity) community(host,args[1],args[2],languages);
     check(host.manager().setLanguage(QStringLiteral("en-US"),&error),"language change after actual FX host destruction has no dangling binding");
-    if (cold<0) { clientName(host,args[2]); elision(host,args[2]); }
+    if (runShared) { clientName(host,args[2]); elision(host,args[2]); }
     std::printf("S5 module Windows checks PASS: %d; platform=%s font=%s scale=%s\n",checks,app.platformName().toUtf8().constData(),app.font().family().toUtf8().constData(),qgetenv("QT_SCALE_FACTOR").constData());
+    std::printf("S5 popup budget: %d / 100\n",popupBudget.shows);
     return 0;
 }

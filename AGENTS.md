@@ -26,6 +26,7 @@
 - Follow the repository's existing implementation and verification workflow; use TDD only when explicitly requested.
 - Run only tests that work without a running JACK server. Use offline model, module-loading and UI rendering checks for local debugging.
 - 强制实窗验证：禁止使用兼容性极差的 offscreen 进行 UI 测试或验收；所有 UI 验证必须在可见的 Windows 实窗中进行（`QT_QPA_PLATFORM=windows`），测试默认加载系统字体。运行前核对实际平台、窗口可见性及字体配置，offscreen 结果不得作为完成证据。
+- 单批实窗测试累计弹窗上限为 100 次，窗口、菜单、对话框及 tooltip 的每次显示均计入；运行前估算预算并缩减重复显示，优先复用窗口。超过预算的覆盖项拆成独立批次，逐批检查结果与弹窗计数后再继续，禁止连续启动多个测试进程绕过批次上限。
 - Finish all intended changes before running one build-and-test verification pass for the task. If that pass finds a failure, fix it and rerun only the necessary verification.
 - Build only in the repository's existing `build` directory. Do not create or use an alternate build directory.
 - Always compile the Release configuration. Unless the user explicitly requests a full Release build, compile only the targets needed for the Release overlay package and package only its required runtime files.

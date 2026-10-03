@@ -114,6 +114,13 @@ S5_IDS = ('gate','graphic-eq','deesser','compressor','limiter','delay','parametr
 def s5_call(r):
     file, text, ctx = r['file'], r['literal'], r['context']
     records, domain = [], ''
+    if file=='Develop/NativeFx/ExampleNativeFx.cpp' and not (
+            'return {' in ctx or 'WjnFxMeta meta' in ctx or 'wjn_get_node_name' in ctx
+            or text=='Fixed eight-channel gain example'):
+        # Constructor English and its synchronous binding share one visible key.
+        example_keys={'Example Gain':'name','Gain':'gain','Channel':'channel','All':'all'}
+        if text in example_keys:
+            return 'translate','example.nativefx',example_keys[text]
     if file.startswith('src/native_fx/effects/') and file.endswith(('Ui.cpp','Logic.inc')):
         effect = file.split('/')[3]
         records = [row for row in S5_RECORDS if row['effect']==effect]
@@ -139,6 +146,13 @@ def s5_call(r):
 
 def classify(r, decisions):
     text, ctx, file = r['literal'], r['context'], r['file']
+    if file=='Develop/NativeFx/ExampleNativeFx.cpp' and (
+            'return {' in ctx or 'WjnFxMeta meta' in ctx or 'wjn_get_node_name' in ctx
+            or text=='Fixed eight-channel gain example'):
+        return 'exclude','','社区 Native Fx 既有 SDK 元数据/导出身份；可见名称由 example.nativefx/name 单独翻译，身份值不改写'
+    if file=='Develop/Node/ExampleNode.cpp' and text in (
+            'Example Node','Tools','Minimal Node API implementation for integration validation.'):
+        return 'exclude','','社区 Node 既有 NodeInfo/导出身份；宿主使用 optional descriptor 的 example.node/name 与 description 翻译可见副本'
     s5_runtime=s5_call(r)
     if s5_runtime:
         return s5_runtime[0],s5_runtime[2] if s5_runtime[0]=='translate' else '',('S5 English 显示基线；实际 key、四语言草稿及待审校状态见核对表' if s5_runtime[0]=='translate' else 'S5 稳定语言 key；参数、预设索引及模块身份保持原样')

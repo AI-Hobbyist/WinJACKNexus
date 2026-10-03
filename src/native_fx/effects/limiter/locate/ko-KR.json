@@ -23,7 +23,7 @@
       "control.threshold": "임계값",
       "control.ceiling": "출력 상한",
       "control.release": "릴리스",
-      "control.lookahead": "룩어헤드",
+      "control.lookahead": "미사용",
       "control.mode": "모드:",
       "mode.transparent": "투명",
       "mode.modern": "모던",

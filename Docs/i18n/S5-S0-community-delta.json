@@ -1,0 +1,653 @@
+{
+  "date": "2026-10-03",
+  "changed_files": [
+    "src/native_fx/effects/limiter/src/Ui.cpp"
+  ],
+  "resource_changes": [],
+  "before_occurrences": 9535,
+  "after_occurrences": 9535,
+  "added": [
+    {
+      "id": "s0.da252bfff927",
+      "domain": "nativefx.limiter",
+      "file": "src/native_fx/effects/limiter/src/Ui.cpp",
+      "line": 362,
+      "literal": "Unused",
+      "context": "dial(p,{685,299},s.lookaheadDb/12,QStringLiteral(\"%1 dB\").arg(s.lookaheadDb,0,'f',1),NativeFx::I18n::text(\"control.lookahead\", \"Unused\"),NativeFx::I18n::text(\"hint.lookahead\", \"(Lookahead)\"),knobColors);",
+      "evidence_class": "other-review",
+      "disposition": "pending",
+      "proposed_key": "",
+      "notes": ""
+    }
+  ],
+  "removed": [
+    {
+      "id": "s0.16370e412858",
+      "domain": "nativefx.limiter",
+      "file": "src/native_fx/effects/limiter/src/Ui.cpp",
+      "line": "361",
+      "literal": "Lookahead",
+      "context": "dial(p,{685,299},s.lookaheadDb/12,QStringLiteral(\"%1 dB\").arg(s.lookaheadDb,0,'f',1),NativeFx::I18n::text(\"control.lookahead\", \"Lookahead\"),NativeFx::I18n::text(\"hint.lookahead\", \"(Lookahead)\"),knobColors);",
+      "evidence_class": "other-review",
+      "disposition": "pending",
+      "proposed_key": "",
+      "notes": ""
+    }
+  ],
+  "relocated": [
+    {
+      "file": "src/native_fx/effects/limiter/src/Ui.cpp",
+      "literal": "%1x",
+      "before_lines": [
+        "366",
+        "419"
+      ],
+      "after_lines": [
+        367,
+        420
+      ]
+    },
+    {
+      "file": "src/native_fx/effects/limiter/src/Ui.cpp",
+      "literal": "Auto gain",
+      "before_lines": [
+        "368"
+      ],
+      "after_lines": [
+        369
+      ]
+    },
+    {
+      "file": "src/native_fx/effects/limiter/src/Ui.cpp",
+      "literal": "Brickwall",
+      "before_lines": [
+        "363"
+      ],
+      "after_lines": [
+        364
+      ]
+    },
+    {
+      "file": "src/native_fx/effects/limiter/src/Ui.cpp",
+      "literal": "Broadcast",
+      "before_lines": [
+        "192",
+        "388",
+        "391"
+      ],
+      "after_lines": [
+        192,
+        389,
+        392
+      ]
+    },
+    {
+      "file": "src/native_fx/effects/limiter/src/Ui.cpp",
+      "literal": "Copy current settings to all channels",
+      "before_lines": [
+        "403",
+        "403"
+      ],
+      "after_lines": [
+        404,
+        404
+      ]
+    },
+    {
+      "file": "src/native_fx/effects/limiter/src/Ui.cpp",
+      "literal": "Custom",
+      "before_lines": [
+        "192",
+        "388",
+        "391"
+      ],
+      "after_lines": [
+        192,
+        389,
+        392
+      ]
+    },
+    {
+      "file": "src/native_fx/effects/limiter/src/Ui.cpp",
+      "literal": "Default",
+      "before_lines": [
+        "192",
+        "388",
+        "391"
+      ],
+      "after_lines": [
+        192,
+        389,
+        392
+      ]
+    },
+    {
+      "file": "src/native_fx/effects/limiter/src/Ui.cpp",
+      "literal": "Max Loudness",
+      "before_lines": [
+        "192",
+        "388",
+        "391"
+      ],
+      "after_lines": [
+        192,
+        389,
+        392
+      ]
+    },
+    {
+      "file": "src/native_fx/effects/limiter/src/Ui.cpp",
+      "literal": "Mode:",
+      "before_lines": [
+        "362"
+      ],
+      "after_lines": [
+        363
+      ]
+    },
+    {
+      "file": "src/native_fx/effects/limiter/src/Ui.cpp",
+      "literal": "Modern",
+      "before_lines": [
+        "363"
+      ],
+      "after_lines": [
+        364
+      ]
+    },
+    {
+      "file": "src/native_fx/effects/limiter/src/Ui.cpp",
+      "literal": "Oversampling:",
+      "before_lines": [
+        "365"
+      ],
+      "after_lines": [
+        366
+      ]
+    },
+    {
+      "file": "src/native_fx/effects/limiter/src/Ui.cpp",
+      "literal": "Reset all channels",
+      "before_lines": [
+        "402",
+        "402"
+      ],
+      "after_lines": [
+        403,
+        403
+      ]
+    },
+    {
+      "file": "src/native_fx/effects/limiter/src/Ui.cpp",
+      "literal": "Reset current channel",
+      "before_lines": [
+        "401",
+        "401"
+      ],
+      "after_lines": [
+        402,
+        402
+      ]
+    },
+    {
+      "file": "src/native_fx/effects/limiter/src/Ui.cpp",
+      "literal": "Transparent",
+      "before_lines": [
+        "363"
+      ],
+      "after_lines": [
+        364
+      ]
+    },
+    {
+      "file": "src/native_fx/effects/limiter/src/Ui.cpp",
+      "literal": "action.copyToAll",
+      "before_lines": [
+        "403",
+        "403"
+      ],
+      "after_lines": [
+        404,
+        404
+      ]
+    },
+    {
+      "file": "src/native_fx/effects/limiter/src/Ui.cpp",
+      "literal": "action.resetAll",
+      "before_lines": [
+        "402",
+        "402"
+      ],
+      "after_lines": [
+        403,
+        403
+      ]
+    },
+    {
+      "file": "src/native_fx/effects/limiter/src/Ui.cpp",
+      "literal": "action.resetCurrent",
+      "before_lines": [
+        "401",
+        "401"
+      ],
+      "after_lines": [
+        402,
+        402
+      ]
+    },
+    {
+      "file": "src/native_fx/effects/limiter/src/Ui.cpp",
+      "literal": "control.autoGain",
+      "before_lines": [
+        "368"
+      ],
+      "after_lines": [
+        369
+      ]
+    },
+    {
+      "file": "src/native_fx/effects/limiter/src/Ui.cpp",
+      "literal": "control.mode",
+      "before_lines": [
+        "362"
+      ],
+      "after_lines": [
+        363
+      ]
+    },
+    {
+      "file": "src/native_fx/effects/limiter/src/Ui.cpp",
+      "literal": "control.oversampling",
+      "before_lines": [
+        "365"
+      ],
+      "after_lines": [
+        366
+      ]
+    },
+    {
+      "file": "src/native_fx/effects/limiter/src/Ui.cpp",
+      "literal": "mode.brickwall",
+      "before_lines": [
+        "363"
+      ],
+      "after_lines": [
+        364
+      ]
+    },
+    {
+      "file": "src/native_fx/effects/limiter/src/Ui.cpp",
+      "literal": "mode.modern",
+      "before_lines": [
+        "363"
+      ],
+      "after_lines": [
+        364
+      ]
+    },
+    {
+      "file": "src/native_fx/effects/limiter/src/Ui.cpp",
+      "literal": "mode.transparent",
+      "before_lines": [
+        "363"
+      ],
+      "after_lines": [
+        364
+      ]
+    },
+    {
+      "file": "src/native_fx/effects/limiter/src/Ui.cpp",
+      "literal": "preset.broadcast",
+      "before_lines": [
+        "192",
+        "388",
+        "390"
+      ],
+      "after_lines": [
+        192,
+        389,
+        391
+      ]
+    },
+    {
+      "file": "src/native_fx/effects/limiter/src/Ui.cpp",
+      "literal": "preset.custom",
+      "before_lines": [
+        "192",
+        "388",
+        "390"
+      ],
+      "after_lines": [
+        192,
+        389,
+        391
+      ]
+    },
+    {
+      "file": "src/native_fx/effects/limiter/src/Ui.cpp",
+      "literal": "preset.default",
+      "before_lines": [
+        "192",
+        "388",
+        "390"
+      ],
+      "after_lines": [
+        192,
+        389,
+        391
+      ]
+    },
+    {
+      "file": "src/native_fx/effects/limiter/src/Ui.cpp",
+      "literal": "preset.maxLoudness",
+      "before_lines": [
+        "192",
+        "388",
+        "390"
+      ],
+      "after_lines": [
+        192,
+        389,
+        391
+      ]
+    },
+    {
+      "file": "src/native_fx/effects/limiter/src/Ui.cpp",
+      "literal": "text",
+      "before_lines": [
+        "392",
+        "401",
+        "402",
+        "403"
+      ],
+      "after_lines": [
+        393,
+        402,
+        403,
+        404
+      ]
+    },
+    {
+      "file": "src/native_fx/effects/limiter/src/Ui.cpp",
+      "literal": "⌄",
+      "before_lines": [
+        "193",
+        "367"
+      ],
+      "after_lines": [
+        193,
+        368
+      ]
+    }
+  ],
+  "usage_changed": [
+    {
+      "file": "src/native_fx/effects/limiter/src/Ui.cpp",
+      "literal": "%1 dB",
+      "before": [
+        {
+          "id": "s0.1cbd073c0b18",
+          "domain": "nativefx.limiter",
+          "file": "src/native_fx/effects/limiter/src/Ui.cpp",
+          "line": "291",
+          "literal": "%1 dB",
+          "context": "label(p,{207,397,58,20},activeChannels>0?QStringLiteral(\"%1 dB\").arg(gainReductionDb,0,'f',1):QStringLiteral(\"0.0 dB\"),12);",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.1cbd073c0b18",
+          "domain": "nativefx.limiter",
+          "file": "src/native_fx/effects/limiter/src/Ui.cpp",
+          "line": "348",
+          "literal": "%1 dB",
+          "context": "label(p,{410,135,76,17},QStringLiteral(\"%1 dB\").arg(s.thresholdDb,0,'f',1),12,muted);",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.1cbd073c0b18",
+          "domain": "nativefx.limiter",
+          "file": "src/native_fx/effects/limiter/src/Ui.cpp",
+          "line": "358",
+          "literal": "%1 dB",
+          "context": "dial(p,{591,156},(s.thresholdDb+24)/30,QStringLiteral(\"%1 dB\").arg(s.thresholdDb,0,'f',1),NativeFx::I18n::text(\"control.threshold\", \"Threshold\"),NativeFx::I18n::text(\"hint.threshold\", \"(Threshold)\"),knobColors);",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.1cbd073c0b18",
+          "domain": "nativefx.limiter",
+          "file": "src/native_fx/effects/limiter/src/Ui.cpp",
+          "line": "359",
+          "literal": "%1 dB",
+          "context": "dial(p,{685,156},(s.ceilingDb+12)/24,QStringLiteral(\"%1 dB\").arg(s.ceilingDb,0,'f',1),NativeFx::I18n::text(\"control.ceiling\", \"Output ceiling\"),NativeFx::I18n::text(\"hint.ceiling\", \"(Ceiling)\"),knobColors);",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.1cbd073c0b18",
+          "domain": "nativefx.limiter",
+          "file": "src/native_fx/effects/limiter/src/Ui.cpp",
+          "line": "361",
+          "literal": "%1 dB",
+          "context": "dial(p,{685,299},s.lookaheadDb/12,QStringLiteral(\"%1 dB\").arg(s.lookaheadDb,0,'f',1),NativeFx::I18n::text(\"control.lookahead\", \"Lookahead\"),NativeFx::I18n::text(\"hint.lookahead\", \"(Lookahead)\"),knobColors);",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        }
+      ],
+      "after": [
+        {
+          "id": "s0.1cbd073c0b18",
+          "domain": "nativefx.limiter",
+          "file": "src/native_fx/effects/limiter/src/Ui.cpp",
+          "line": 291,
+          "literal": "%1 dB",
+          "context": "label(p,{207,397,58,20},activeChannels>0?QStringLiteral(\"%1 dB\").arg(gainReductionDb,0,'f',1):QStringLiteral(\"0.0 dB\"),12);",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.1cbd073c0b18",
+          "domain": "nativefx.limiter",
+          "file": "src/native_fx/effects/limiter/src/Ui.cpp",
+          "line": 348,
+          "literal": "%1 dB",
+          "context": "label(p,{410,135,76,17},QStringLiteral(\"%1 dB\").arg(s.thresholdDb,0,'f',1),12,muted);",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.1cbd073c0b18",
+          "domain": "nativefx.limiter",
+          "file": "src/native_fx/effects/limiter/src/Ui.cpp",
+          "line": 358,
+          "literal": "%1 dB",
+          "context": "dial(p,{591,156},(s.thresholdDb+24)/30,QStringLiteral(\"%1 dB\").arg(s.thresholdDb,0,'f',1),NativeFx::I18n::text(\"control.threshold\", \"Threshold\"),NativeFx::I18n::text(\"hint.threshold\", \"(Threshold)\"),knobColors);",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.1cbd073c0b18",
+          "domain": "nativefx.limiter",
+          "file": "src/native_fx/effects/limiter/src/Ui.cpp",
+          "line": 359,
+          "literal": "%1 dB",
+          "context": "dial(p,{685,156},(s.ceilingDb+12)/24,QStringLiteral(\"%1 dB\").arg(s.ceilingDb,0,'f',1),NativeFx::I18n::text(\"control.ceiling\", \"Output ceiling\"),NativeFx::I18n::text(\"hint.ceiling\", \"(Ceiling)\"),knobColors);",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.1cbd073c0b18",
+          "domain": "nativefx.limiter",
+          "file": "src/native_fx/effects/limiter/src/Ui.cpp",
+          "line": 362,
+          "literal": "%1 dB",
+          "context": "dial(p,{685,299},s.lookaheadDb/12,QStringLiteral(\"%1 dB\").arg(s.lookaheadDb,0,'f',1),NativeFx::I18n::text(\"control.lookahead\", \"Unused\"),NativeFx::I18n::text(\"hint.lookahead\", \"(Lookahead)\"),knobColors);",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "file": "src/native_fx/effects/limiter/src/Ui.cpp",
+      "literal": "(Lookahead)",
+      "before": [
+        {
+          "id": "s0.a33f798981c2",
+          "domain": "nativefx.limiter",
+          "file": "src/native_fx/effects/limiter/src/Ui.cpp",
+          "line": "361",
+          "literal": "(Lookahead)",
+          "context": "dial(p,{685,299},s.lookaheadDb/12,QStringLiteral(\"%1 dB\").arg(s.lookaheadDb,0,'f',1),NativeFx::I18n::text(\"control.lookahead\", \"Lookahead\"),NativeFx::I18n::text(\"hint.lookahead\", \"(Lookahead)\"),knobColors);",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        }
+      ],
+      "after": [
+        {
+          "id": "s0.a33f798981c2",
+          "domain": "nativefx.limiter",
+          "file": "src/native_fx/effects/limiter/src/Ui.cpp",
+          "line": 362,
+          "literal": "(Lookahead)",
+          "context": "dial(p,{685,299},s.lookaheadDb/12,QStringLiteral(\"%1 dB\").arg(s.lookaheadDb,0,'f',1),NativeFx::I18n::text(\"control.lookahead\", \"Unused\"),NativeFx::I18n::text(\"hint.lookahead\", \"(Lookahead)\"),knobColors);",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "file": "src/native_fx/effects/limiter/src/Ui.cpp",
+      "literal": "control.lookahead",
+      "before": [
+        {
+          "id": "s0.c1c09878e1a9",
+          "domain": "nativefx.limiter",
+          "file": "src/native_fx/effects/limiter/src/Ui.cpp",
+          "line": "361",
+          "literal": "control.lookahead",
+          "context": "dial(p,{685,299},s.lookaheadDb/12,QStringLiteral(\"%1 dB\").arg(s.lookaheadDb,0,'f',1),NativeFx::I18n::text(\"control.lookahead\", \"Lookahead\"),NativeFx::I18n::text(\"hint.lookahead\", \"(Lookahead)\"),knobColors);",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        }
+      ],
+      "after": [
+        {
+          "id": "s0.c1c09878e1a9",
+          "domain": "nativefx.limiter",
+          "file": "src/native_fx/effects/limiter/src/Ui.cpp",
+          "line": 362,
+          "literal": "control.lookahead",
+          "context": "dial(p,{685,299},s.lookaheadDb/12,QStringLiteral(\"%1 dB\").arg(s.lookaheadDb,0,'f',1),NativeFx::I18n::text(\"control.lookahead\", \"Unused\"),NativeFx::I18n::text(\"hint.lookahead\", \"(Lookahead)\"),knobColors);",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "file": "src/native_fx/effects/limiter/src/Ui.cpp",
+      "literal": "hint.lookahead",
+      "before": [
+        {
+          "id": "s0.0babdd574c51",
+          "domain": "nativefx.limiter",
+          "file": "src/native_fx/effects/limiter/src/Ui.cpp",
+          "line": "361",
+          "literal": "hint.lookahead",
+          "context": "dial(p,{685,299},s.lookaheadDb/12,QStringLiteral(\"%1 dB\").arg(s.lookaheadDb,0,'f',1),NativeFx::I18n::text(\"control.lookahead\", \"Lookahead\"),NativeFx::I18n::text(\"hint.lookahead\", \"(Lookahead)\"),knobColors);",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        }
+      ],
+      "after": [
+        {
+          "id": "s0.0babdd574c51",
+          "domain": "nativefx.limiter",
+          "file": "src/native_fx/effects/limiter/src/Ui.cpp",
+          "line": 362,
+          "literal": "hint.lookahead",
+          "context": "dial(p,{685,299},s.lookaheadDb/12,QStringLiteral(\"%1 dB\").arg(s.lookaheadDb,0,'f',1),NativeFx::I18n::text(\"control.lookahead\", \"Unused\"),NativeFx::I18n::text(\"hint.lookahead\", \"(Lookahead)\"),knobColors);",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        }
+      ]
+    }
+  ],
+  "catalog_added": [],
+  "catalog_retired": [
+    {
+      "domain": "example.nativefx",
+      "key": "examplenativefx.control.all",
+      "sources": "[\"All\"]"
+    },
+    {
+      "domain": "example.nativefx",
+      "key": "examplenativefx.control.gain",
+      "sources": "[\"Gain\"]"
+    },
+    {
+      "domain": "example.nativefx",
+      "key": "examplenativefx.label.audioChannel",
+      "sources": "[\"Channel\"]"
+    },
+    {
+      "domain": "example.nativefx",
+      "key": "examplenativefx.module.exampleGainName",
+      "sources": "[\"Example Gain\"]"
+    },
+    {
+      "domain": "example.nativefx",
+      "key": "examplenativefx.text.fixed.eight.channel.gain.example",
+      "sources": "[\"Fixed eight-channel gain example\"]"
+    },
+    {
+      "domain": "example.node",
+      "key": "examplenode.category.tools",
+      "sources": "[\"Tools\"]"
+    },
+    {
+      "domain": "example.node",
+      "key": "examplenode.text.example.node",
+      "sources": "[\"Example Node\"]"
+    },
+    {
+      "domain": "example.node",
+      "key": "examplenode.text.minimal.node.api.implementation.for.integration.validation",
+      "sources": "[\"Minimal Node API implementation for integration validation.\"]"
+    }
+  ],
+  "catalog_changed_sources": []
+}

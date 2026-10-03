@@ -23,7 +23,7 @@
       "control.threshold": "阈值",
       "control.ceiling": "输出上限",
       "control.release": "释放时间",
-      "control.lookahead": "前瞻",
+      "control.lookahead": "未使用",
       "control.mode": "模式:",
       "mode.transparent": "透明",
       "mode.modern": "现代",

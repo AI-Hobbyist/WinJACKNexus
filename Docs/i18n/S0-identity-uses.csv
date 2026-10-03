@@ -154,12 +154,12 @@ s0.396875ecea3b,ui,src/ui/src/Controls.cpp,202,transparent,"if (value == QString
 s0.3b36f8fa63aa,ui,src/ui/src/Controls.cpp,203,rgb(,"if (value.startsWith(QStringLiteral(""rgb("")) || value.startsWith(QStringLiteral(""rgba(""))) {",exclude,保持稳定身份；显示文字另行翻译
 s0.2da6c07d5e3c,ui,src/ui/src/Controls.cpp,203,rgba(,"if (value.startsWith(QStringLiteral(""rgb("")) || value.startsWith(QStringLiteral(""rgba(""))) {",exclude,保持稳定身份；显示文字另行翻译
 s0.2da6c07d5e3c,ui,src/ui/src/Controls.cpp,204,rgba(,"const bool alpha = value.startsWith(QStringLiteral(""rgba(""));",exclude,保持稳定身份；显示文字另行翻译
-s0.2d8f5f9842a7,ui,src/ui/src/Controls.cpp,715,button,"if (key == QStringLiteral(""button"")) return new ActionButton({}, parent);",exclude,保持稳定身份；显示文字另行翻译
-s0.33155c6ab05e,ui,src/ui/src/Controls.cpp,716,slider,"if (key == QStringLiteral(""slider"")) return new RangeSlider(Qt::Horizontal, parent);",exclude,保持稳定身份；显示文字另行翻译
-s0.d1f6fa9daa9c,ui,src/ui/src/Controls.cpp,717,dropdown,"if (key == QStringLiteral(""dropdown"")) return new ChoiceField(parent);",exclude,保持稳定身份；显示文字另行翻译
-s0.9f87334e6c21,ui,src/ui/src/Controls.cpp,718,toggle,"if (key == QStringLiteral(""toggle"")) return new ToggleButton(parent);",exclude,保持稳定身份；显示文字另行翻译
-s0.3900cda495d1,ui,src/ui/src/Controls.cpp,719,label,"if (key == QStringLiteral(""label"")) return new TextLabel(parent);",exclude,保持稳定身份；显示文字另行翻译
-s0.526c71df1a88,ui,src/ui/src/Controls.cpp,720,card,"if (key == QStringLiteral(""card"")) return new QFrame(parent);",exclude,保持稳定身份；显示文字另行翻译
+s0.2d8f5f9842a7,ui,src/ui/src/Controls.cpp,717,button,"if (key == QStringLiteral(""button"")) return new ActionButton({}, parent);",exclude,保持稳定身份；显示文字另行翻译
+s0.33155c6ab05e,ui,src/ui/src/Controls.cpp,718,slider,"if (key == QStringLiteral(""slider"")) return new RangeSlider(Qt::Horizontal, parent);",exclude,保持稳定身份；显示文字另行翻译
+s0.d1f6fa9daa9c,ui,src/ui/src/Controls.cpp,719,dropdown,"if (key == QStringLiteral(""dropdown"")) return new ChoiceField(parent);",exclude,保持稳定身份；显示文字另行翻译
+s0.9f87334e6c21,ui,src/ui/src/Controls.cpp,720,toggle,"if (key == QStringLiteral(""toggle"")) return new ToggleButton(parent);",exclude,保持稳定身份；显示文字另行翻译
+s0.3900cda495d1,ui,src/ui/src/Controls.cpp,721,label,"if (key == QStringLiteral(""label"")) return new TextLabel(parent);",exclude,保持稳定身份；显示文字另行翻译
+s0.526c71df1a88,ui,src/ui/src/Controls.cpp,722,card,"if (key == QStringLiteral(""card"")) return new QFrame(parent);",exclude,保持稳定身份；显示文字另行翻译
 s0.2477af03f406,fxhost,src/ui/src/FxSettingsWindow.cpp,362,accent-primary,"const bool accentRole = role == QStringLiteral(""accent-primary"")",exclude,保持稳定身份；显示文字另行翻译
 s0.df630a981a86,fxhost,src/ui/src/FxSettingsWindow.cpp,363,control-button-border-hover,"|| role == QStringLiteral(""control-button-border-hover"")",exclude,保持稳定身份；显示文字另行翻译
 s0.e212cdf85e4a,fxhost,src/ui/src/FxSettingsWindow.cpp,364,control-list-border-selected,"|| role == QStringLiteral(""control-list-border-selected"")",exclude,保持稳定身份；显示文字另行翻译

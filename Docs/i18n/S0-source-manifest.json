@@ -582,7 +582,7 @@
     },
     {
       "file": "src/native_fx/effects/deesser/src/Ui.cpp",
-      "sha256": "68aa47e26a8f3c49513333a4f1dad4efa438139fa0c0787a3900fa363a2edf78",
+      "sha256": "808bf36b0dfc2378a527869602ac18cc79ec2265382da4e43fa126608133d26f",
       "lines": 696
     },
     {
@@ -732,8 +732,8 @@
     },
     {
       "file": "src/native_fx/effects/limiter/src/Ui.cpp",
-      "sha256": "760d5b33088785b94d4e01e5f027828b98b2f8242d3c6c9968383db70b4e2094",
-      "lines": 442
+      "sha256": "b04775ba74866d8377b339fb7d040293a52312ce1d8696766d1fc52c65117999",
+      "lines": 443
     },
     {
       "file": "src/native_fx/effects/parametric_eq/include/Dsp.hpp",
@@ -827,8 +827,8 @@
     },
     {
       "file": "src/native_fx/src/NativeFxApi.cpp",
-      "sha256": "27b2578fc82fc660dbec192d23d459976073c897ee8390193ba55a1bd9060101",
-      "lines": 599
+      "sha256": "e8a5c32992e0207dca29ba56df140cbb75c0c830cbfc36619a7c3cb49684d345",
+      "lines": 603
     },
     {
       "file": "src/node/include/WinJACKNexus/Node/Export.hpp",
@@ -1152,8 +1152,8 @@
     },
     {
       "file": "src/ui/src/Controls.cpp",
-      "sha256": "2b1d9fbbcdddeb3a7d146f8a990d9648acb691e5f68b82d2051d7868762f99f3",
-      "lines": 1712
+      "sha256": "cc7c76bb55a92cb23a083d050eef089ac67775643ad0a7a947f49039cab27240",
+      "lines": 1714
     },
     {
       "file": "src/ui/src/FxLevelMeterWidget.cpp",
@@ -1352,8 +1352,8 @@
     },
     {
       "file": "Develop/I18nExample.hpp",
-      "sha256": "1f2e0785470cfe03eaf57e0152aad6204b96ceffa6210bacb926cb19797194c9",
-      "lines": 60
+      "sha256": "6224e28198d6a03eaa6f511e2a5c523eaeac376ed666ea16f8b4dc87c7f0d437",
+      "lines": 66
     },
     {
       "file": "Develop/NativeFx/ExampleNativeFx.cpp",

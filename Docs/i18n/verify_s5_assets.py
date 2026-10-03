@@ -7,6 +7,7 @@ import csv
 import hashlib
 import json
 import re
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -69,34 +70,114 @@ def main():
     assert scope and all((r['domain'],r['key']) in identities for r in scope), [(r['file'],r['line'],r['key']) for r in scope if (r['domain'],r['key']) not in identities]
     with (OUT/'S0-pending.csv').open(encoding='utf-8-sig',newline='') as file:
         assert not list(csv.DictReader(file))
+    # Old unbounded matrix logs and black menu captures cannot satisfy this gate.
+    # Each new record is one foreground invocation, with immutable source/runtime
+    # fingerprints and a measured popup budget. Preserve full coverage by union.
+    from PIL import Image
     runs=[]
-    for scale in ('1','1.5','2'):
-        for cold in ('',)+LANGUAGES:
-            suffix = '-cold-'+cold if cold else ''
-            path=OUT/f'S5-tests-scale-{scale}{suffix}.log'
-            log=path.read_text(encoding='utf-8-sig')
-            match=re.search(r'S5 module Windows checks PASS: (\d+); platform=windows font=(.+?) scale='+re.escape(scale),log)
-            assert match and int(match[1])>0, path
-            rendered=OUT/'S5-rendered'/('scale-'+scale)/('cold-'+cold if cold else 'hot')
-            images=list(rendered.glob('*.png'))
-            assert images, rendered
-            locales=(cold,) if cold else LANGUAGES
-            for effect in EFFECTS:
+    coverage={}
+    for record_path in sorted((OUT/'S5-bounded-records').glob('*.json')):
+        run=json.loads(record_path.read_text(encoding='utf-8-sig'))
+        assert run['scale'] in ('1','1.5','2') and run['language'] in ('hot',)+LANGUAGES
+        assert run['exit_code']==0 and run['platform']=='windows'
+        assert 0 < run['popup_shows'] <= 100 and run['checks']>0
+        assert run['scope'] in ('Effects','Host','Community','Shared')
+        assert run['evidence'] and run['captures']
+        for fingerprint in run['evidence']+run['captures']:
+            path=ROOT/fingerprint['file']
+            assert digest(path)==fingerprint['sha256'], ('stale run evidence',record_path,path)
+        required_fingerprints={
+            'Develop/NativeFx/NativeFxI18nTests.cpp','Develop/I18nExample.hpp',
+            'src/ui/src/Controls.cpp','src/ui/src/FxSettingsWindow.cpp',
+            'build/release/bin/wjn_native_fx_i18n_tests.exe','build/release/bin/ui.dll'}
+        required_fingerprints.update('build/release/bin/nodes/native_fx/'+effect+'/mod_'+effect+'.dll' for effect in EFFECTS)
+        assert required_fingerprints <= {entry['file'] for entry in run['evidence']}
+        path=ROOT/run['log']
+        assert digest(path)==run['log_sha256']
+        log=path.read_text(encoding='utf-8-sig')
+        match=re.search(r'S5 module Windows checks PASS: (\d+); platform=windows font=(.+?) scale=([\d.]+)',log)
+        budget=re.search(r'S5 popup budget: (\d+) / 100',log)
+        assert match and budget and int(match[1])==run['checks'] and match[2]==run['font'] and match[3]==run['scale']
+        assert int(budget[1])==run['popup_shows'] and 'S5 FAILED' not in log
+        is_effect=run['scope']=='Effects'
+        assert (bool(run['effects']) if is_effect else not run['effects'])
+        assert set(run['effects']) <= set(EFFECTS)
+        if is_effect and run['language']=='hot':
+            assert len(run['effects'])<=2
+        expected_scope='S5 scope: effects='+','.join(run['effects'])
+        expected_scope+=f" host={int(run['scope']=='Host')} community={int(run['scope']=='Community')} shared={int(run['scope']=='Shared')} cold={run['language']}"
+        assert expected_scope in log, ('scope metadata disagrees',record_path)
+        names={Path(entry['file']).name for entry in run['captures']}
+        def has_capture(stem):
+            assert any(name.startswith(stem) and name.endswith('.png') for name in names), (record_path,stem)
+        locales=LANGUAGES if run['language']=='hot' else (run['language'],)
+        group=coverage.setdefault((run['scale'],run['language']),set())
+        if is_effect:
+            for effect in run['effects']:
                 for locale in locales:
                     for kind in ('mixer','node','preset-menu','draft'):
-                        assert list(rendered.glob(effect+'-'+kind+'-'+locale+'*.png')), (effect,kind,locale,scale)
-                assert list(rendered.glob(effect+'-partial-fallback*.png')), effect
-            runs.append({'scale':scale,'cold':cold,'checks':int(match[1]),'font':match[2],
-                         'captures':len(images),'log':str(path.relative_to(ROOT)), 'sha256':digest(path)})
+                        has_capture(effect+'-'+kind+'-'+locale)
+                    if effect not in ('graphic_eq','reverb'):
+                        has_capture(effect+'-operations-menu-'+locale)
+                    if effect=='graphic_eq':
+                        for kind in ('load-dialog','save-dialog'):
+                            has_capture(effect+'-'+kind+'-'+locale)
+                has_capture(effect+'-partial-fallback')
+                group.add(effect)
+        elif run['scope']=='Host':
+            for effect in EFFECTS:
+                for locale in locales:
+                    has_capture('fx-host-'+effect.replace('_','-')+'-'+locale)
+            group.add('host')
+        elif run['scope']=='Community':
+            for locale in locales:
+                for kind in ('node','mixer'):
+                    has_capture('community-'+kind+'-'+locale)
+            group.add('community')
+        else:
+            assert run['language']=='hot'
+            for locale in LANGUAGES:
+                has_capture('client-name-'+locale)
+                has_capture('shared-elision-'+locale+'-0-0')
+                has_capture('shared-elision-'+locale+'-viewport')
+            group.add('shared')
+        for entry in run['captures']:
+            if '-menu-' in entry['file']:
+                with Image.open(ROOT/entry['file']) as bitmap:
+                    assert any(low!=high for low,high in bitmap.convert('RGB').getextrema()), ('blank native menu',entry['file'])
+        runs.append({'record':str(record_path.relative_to(ROOT)), 'scale':run['scale'],'cold':run['language'],
+                     'checks':run['checks'],'popup_shows':run['popup_shows'],'font':run['font'],
+                     'captures':len(names),'log':run['log'],'sha256':run['log_sha256']})
+    missing=[]
+    for scale in ('1','1.5','2'):
+        for language in ('hot',)+LANGUAGES:
+            expected=set(EFFECTS)|{'host','community'}
+            if language=='hot': expected.add('shared')
+            covered=coverage.get((scale,language),set())
+            if expected-covered:
+                missing.append({'scale':scale,'language':language,'missing':sorted(expected-covered)})
+    if '--progress' not in sys.argv:
+        assert not missing, ('missing bounded coverage',missing)
     source_paths=[ROOT/'src/native_fx/src/I18n.cpp', ROOT/'src/native_fx/src/NativeFxApi.cpp', ROOT/'src/ui/src/Controls.cpp',
-                  ROOT/'src/ui/src/FxSettingsWindow.cpp',ROOT/'Develop/NativeFx/NativeFxI18nTests.cpp']
+                  ROOT/'src/ui/src/FxSettingsWindow.cpp',ROOT/'Develop/NativeFx/NativeFxI18nTests.cpp',
+                  ROOT/'Develop/I18nExample.hpp', ROOT/'Develop/NativeFx/ExampleNativeFx.cpp',
+                  ROOT/'Develop/Node/ExampleNode.cpp',ROOT/'src/ui/src/I18nManager.cpp',ROOT/'src/ui/src/HostI18n.cpp',
+                  ROOT/'Docs/i18n/S5-strings.tsv', ROOT/'Docs/i18n/S5-shared-strings.tsv',
+                  runtime/'ui.dll',runtime/'wjn_native_fx_i18n_tests.exe',
+                  runtime/'examples/native_fx/wjn_example_native_fx.dll', runtime/'examples/node/wjn_example_node.dll']
     source_paths.extend(ROOT/'src/native_fx/effects'/effect/'src/Ui.cpp' for effect in EFFECTS)
     evidence.extend({'file':str(path.relative_to(ROOT)), 'sha256':digest(path)} for path in source_paths)
-    report={'stage':'S5','result':'PASS','scope':'catalog/deployment/inventory/Windows test evidence consistency',
+    progress='--progress' in sys.argv
+    report={'stage':'S5','result':'INCOMPLETE' if progress else 'PASS','scope':'catalog/deployment/inventory/Windows test evidence consistency',
             'module_keys':len(records),'shared_keys':len(shared),'source_display_occurrences':len(scope),
-            'runs':runs,'evidence':evidence,'human_review':'pending S6; automated checks do not approve translations'}
-    (OUT/'S5-verification.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
-    print(f'S5 assets PASS: {len(records)} module keys, {len(shared)} shared keys, {len(scope)} source displays, {sum(r["captures"] for r in runs)} native Windows captures.')
+            'runs':runs,'evidence':evidence,'missing_bounded_coverage':missing,
+            'human_review':'pending S6; automated checks do not approve translations'}
+    destination='S5-bounded-progress.json' if progress else 'S5-verification.json'
+    (OUT/destination).write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+    if progress:
+        print(f'S5 bounded evidence valid: {len(runs)} batches, {sum(r["captures"] for r in runs)} captures; stage INCOMPLETE, {len(missing)} scale/language groups lack full coverage.')
+    else:
+        print(f'S5 assets PASS: {len(records)} module keys, {len(shared)} shared keys, {len(scope)} source displays, {sum(r["captures"] for r in runs)} native Windows captures.')
 
 if __name__=='__main__':
     main()

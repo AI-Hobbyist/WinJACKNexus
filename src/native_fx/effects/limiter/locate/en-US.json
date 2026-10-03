@@ -23,7 +23,7 @@
       "control.threshold": "Threshold",
       "control.ceiling": "Output ceiling",
       "control.release": "Release",
-      "control.lookahead": "Lookahead",
+      "control.lookahead": "Unused",
       "control.mode": "Mode:",
       "mode.transparent": "Transparent",
       "mode.modern": "Modern",
