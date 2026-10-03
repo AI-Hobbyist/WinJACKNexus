@@ -1,0 +1,51 @@
+{
+  "formatVersion": 1,
+  "moduleId": "limiter",
+  "domains": [
+    "nativefx.limiter"
+  ],
+  "defaultLanguage": "en-US",
+  "catalogVersion": 1,
+  "languages": {
+    "en-US": "en-US.json",
+    "zh-CN": "zh-CN.json",
+    "ja-JP": "ja-JP.json",
+    "ko-KR": "ko-KR.json"
+  },
+  "requiredKeys": {
+    "nativefx.limiter": [
+      "module.name",
+      "module.description",
+      "control.targetChannels",
+      "control.all",
+      "label.preset",
+      "preset.default",
+      "preset.custom",
+      "axis.inputLevel",
+      "axis.outputLevel",
+      "window.title",
+      "description.limiter",
+      "preset.broadcast",
+      "preset.maxLoudness",
+      "label.inputLevel",
+      "label.outputLevel",
+      "control.threshold",
+      "control.ceiling",
+      "control.release",
+      "control.lookahead",
+      "control.mode",
+      "mode.transparent",
+      "mode.modern",
+      "mode.brickwall",
+      "control.oversampling",
+      "control.autoGain",
+      "action.resetCurrent",
+      "action.resetAll",
+      "action.copyToAll",
+      "hint.threshold",
+      "hint.ceiling",
+      "hint.release",
+      "hint.lookahead"
+    ]
+  }
+}

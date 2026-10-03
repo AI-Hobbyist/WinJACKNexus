@@ -2,6 +2,7 @@
 #include <WinJACKNexus/Common/ChannelNames.hpp>
 #include <WinJACKNexus/NativeFx/reverb/Ui.hpp>
 #include <WinJACKNexus/UI/Controls.hpp>
+#include <WinJACKNexus/NativeFx/I18n.hpp>
 #include <WinJACKNexus/UI/ApplicationSettings.hpp>
 #include <QMouseEvent>
 #include <QWheelEvent>
@@ -17,21 +18,33 @@ namespace {
 using Parameters=ReverbWidget::Parameters;
 const QColor background(11,26,42), panel(17,34,53), pale(216,230,252), muted(157,181,219), cyan(42,205,255), violet(194,114,247);
 constexpr auto channels = WinJACKNexus::Common::surroundChannelChoices;
-constexpr const char* scenes[]={"Room","Hall","Plate","Church","Studio","Spring","Custom"};
-constexpr const char* presets[]={"Default","Small Room","Bright Plate","Cathedral","Studio Booth","Vintage Spring","Custom"};
+QString sceneName(int index) {
+    constexpr const char* keys[] = {"scene.room", "scene.hall", "scene.plate", "scene.church", "scene.studio", "scene.spring", "preset.custom"};
+    constexpr const char* english[] = {"Room", "Hall", "Plate", "Church", "Studio", "Spring", "Custom"};
+    const int selected = std::clamp(index, 0, 6);
+    return NativeFx::I18n::text(keys[selected], english[selected]);
+}
+
+QString presetName(int index) {
+    constexpr const char* keys[] = {"preset.default", "preset.smallRoom", "preset.brightPlate", "preset.cathedral", "preset.studioBooth", "preset.vintageSpring", "preset.custom"};
+    constexpr const char* english[] = {"Default", "Small Room", "Bright Plate", "Cathedral", "Studio Booth", "Vintage Spring", "Custom"};
+    const int selected = std::clamp(index, 0, 6);
+    return NativeFx::I18n::text(keys[selected], english[selected]);
+}
+
 constexpr int presetForScene(int scene) { return scene==0?1:scene==1?0:scene; }
 void box(QPainter& p,QRectF r,qreal radius,QColor fill,QColor edge={}) {
     Controls::drawSurface(p,r,fill,edge,radius);
 }
 void text(QPainter& p,QRectF r,const QString& s,int size,QColor color,bool bold=false,int flags=Qt::AlignCenter) {
-    QFont f(QStringLiteral("Microsoft YaHei UI"),size);f.setBold(bold);
+    QFont f=p.font();f.setPointSize(size);f.setBold(bold);
     const auto themed = color == pale
         ? Controls::themeTokenColor("native-fx-reverb", "text-primary", color)
         : color == muted
             ? Controls::themeTokenColor("native-fx-reverb", "text-muted", color)
             : color == Qt::white
                 ? Controls::themeTokenColor("native-fx-reverb", "text-heading", color) : color;
-    Controls::drawText(p,r,s,f,themed,Qt::Alignment(flags));
+    Controls::drawElidedText(p,r,s,f,themed,Qt::Alignment(flags));
 }
 void line(QPainter& p,QPointF a,QPointF b,QColor color,qreal width=1) {p.setPen(QPen(color,width));p.setBrush(Qt::NoBrush);p.drawLine(a,b);}
 float value(const Parameters& p,int i) {
@@ -149,7 +162,12 @@ void sceneImage(QPainter& p,const QRectF r,const Parameters& v) {
 }
 }
 
-ReverbWidget::ReverbWidget(QWidget* parent):QWidget(parent) {setFixedSize(770,645);setWindowTitle(QStringLiteral("Reverb 混响"));setMouseTracking(true);dragRefreshTimer_.setParent(this);dragRefreshTimer_.setObjectName(QStringLiteral("nativeFxDragRefreshTimer"));bindRefreshTimer(dragRefreshTimer_,this);connect(&dragRefreshTimer_,&QTimer::timeout,this,[this]{update();});}
+ReverbWidget::ReverbWidget(QWidget* parent):QWidget(parent) {setFixedSize(770,645);setWindowTitle(NativeFx::I18n::text("module.name", "Reverb"));setMouseTracking(true);dragRefreshTimer_.setParent(this);dragRefreshTimer_.setObjectName(QStringLiteral("nativeFxDragRefreshTimer"));bindRefreshTimer(dragRefreshTimer_,this);connect(&dragRefreshTimer_,&QTimer::timeout,this,[this]{update();});
+    NativeFx::I18n::bind(this, [this] {
+        setWindowTitle(NativeFx::I18n::text("module.name", "Reverb"));
+        setAccessibleDescription(NativeFx::I18n::text("module.description", "Eight-channel native room reverb."));
+        update();
+    });}
 ReverbWidget::Parameters ReverbWidget::displayedParameters() const noexcept {
     if(channel_>=0) return values_[static_cast<std::size_t>(channel_)];
     auto displayed=values_[0];
@@ -220,10 +238,10 @@ void ReverbWidget::paintEvent(QPaintEvent*){
          themed("control-knob-cyan-indicator-normal",cyan),
          themed("control-knob-track",QColor(48,73,97))});
     box(p,{1,1,768,135},9,QColor(20,38,57),QColor(45,73,99));
-    text(p,{17,11,125,32},QStringLiteral("作用声道"),18,Qt::white,true,Qt::AlignLeft|Qt::AlignVCenter);
+    text(p,{17,11,125,32},NativeFx::I18n::text("control.targetChannels", "Channel"),18,Qt::white,true,Qt::AlignLeft|Qt::AlignVCenter);
     for(int i=0;i<9;++i){const int x=17+i*83;const bool chosen=i==channel_+1;
         box(p,{qreal(x),68,77,40},6,chosen?QColor(13,66,102):QColor(24,43,63),chosen?cyan:QColor(58,84,110));
-        text(p,{qreal(x),68,77,40},QString::fromLatin1(channels[i]),15,chosen?cyan:muted);
+        text(p,{qreal(x),68,77,40},(i == 0 ? NativeFx::I18n::text("control.all", "All") : QString::fromLatin1(channels[i])),15,chosen?cyan:muted);
     }
     p.save();p.translate(0,143);const auto& v=displayedParameters();
     QLinearGradient mainGrad(0,0,770,502);mainGrad.setColorAt(0,QColor(28,32,77));mainGrad.setColorAt(.53,QColor(16,33,55));mainGrad.setColorAt(1,QColor(8,28,43));
@@ -231,22 +249,22 @@ void ReverbWidget::paintEvent(QPaintEvent*){
     Controls::drawSurface(p,QRectF(9,9,746,70),mainGrad,{},9);
     box(p,{20,18,55,55},7,QColor(83,57,166),QColor(125,103,229));
     QPolygonF cube{{47,26},{63,35},{63,56},{47,65},{31,56},{31,35}};p.setPen(QPen(Qt::white,2));p.setBrush(Qt::NoBrush);p.drawPolygon(cube);line(p,{31,35},{47,45},Qt::white,2);line(p,{63,35},{47,45},Qt::white,2);line(p,{47,45},{47,65},Qt::white,2);
-    text(p,{94,17,245,33},QStringLiteral("Reverb 混响"),21,Qt::white,true,Qt::AlignLeft|Qt::AlignVCenter);
-    text(p,{94,50,265,24},QStringLiteral("模拟真实空间，增强声音的空间感"),13,muted,false,Qt::AlignLeft|Qt::AlignVCenter);
+    text(p,{94,17,245,33},NativeFx::I18n::text("module.name", "Reverb"),21,Qt::white,true,Qt::AlignLeft|Qt::AlignVCenter);
+    text(p,{94,50,265,24},NativeFx::I18n::text("description.reverb", "Simulate rooms and add a sense of space"),13,muted,false,Qt::AlignLeft|Qt::AlignVCenter);
     Controls::drawToggle(p,{362,35,37,20},v.enabled,
         themed("control-toggle-indicator-on",QColor(14,126,227)),
         themed("control-toggle-indicator-off",QColor(52,68,83)));
-    text(p,{424,28,43,34},QStringLiteral("预设:"),12,muted);
+    text(p,{424,28,43,34},NativeFx::I18n::text("label.preset", "Preset:"),12,muted);
     box(p,{474,29,148,34},6,QColor(18,35,56),QColor(66,91,124));
-    text(p,{485,29,111,34},QString::fromLatin1(presets[preset_]),12,pale);
+    text(p,{485,29,111,34},presetName(preset_),12,pale);
     text(p,{598,29,16,34},QStringLiteral("⌄"),14,muted);
     for(int n=0;n<3;++n){const int x=634+n*38;box(p,{qreal(x),29,31,34},5,QColor(27,47,73),QColor(63,89,124));text(p,{qreal(x),29,31,34},n==2?QStringLiteral("•••"):(n==0?QStringLiteral("‹"):QStringLiteral("›")),18,muted);}
     box(p,{20,87,516,314},8,QColor(13,30,48),QColor(42,67,92));
-    text(p,{31,90,90,23},QStringLiteral("混响类型:"),12,muted,false,Qt::AlignLeft|Qt::AlignVCenter);
+    text(p,{31,90,90,23},NativeFx::I18n::text("control.reverbType", "Reverb type:"),12,muted,false,Qt::AlignLeft|Qt::AlignVCenter);
     for(int i=0;i<7;++i){const int y=119+i*39;const bool selected=i==v.scene;
         box(p,{31,qreal(y),91,35},5,selected?QColor(13,67,101):QColor(25,46,68),
             selected?themed("scene-accent-cyan",cyan):QColor(62,91,124));
-        text(p,{31,qreal(y),91,35},QString::fromLatin1(scenes[i]),12,pale);
+        text(p,{31,qreal(y),91,35},sceneName(i),12,pale);
     }
     sceneImage(p,{142,93,383,156},v);
     QLinearGradient captionShade(0,217,0,249);
@@ -254,18 +272,18 @@ void ReverbWidget::paintEvent(QPaintEvent*){
     p.fillRect(QRectF(143,217,381,31),captionShade);
     text(p,{145,221,24,28},QStringLiteral("‹"),24,Qt::white);text(p,{496,221,24,28},QStringLiteral("›"),24,Qt::white);
     const QString sceneCaption=v.scene==6
-        ?QStringLiteral("Custom · %1 m²").arg(int(3.14159F*std::pow(1+v.size*.12F,2)))
-        :QString::fromLatin1(presets[preset_]);
+        ?NativeFx::I18n::text("label.customRoomArea", "Custom · %1 m²").arg(int(3.14159F*std::pow(1+v.size*.12F,2)))
+        :presetName(preset_);
     text(p,{222,222,221,22},sceneCaption,11,Qt::white);
     const QPoint top[]={{185,291},{280,291},{380,291},{478,291}};
-    const QString topNames[]={QStringLiteral("混响时间"),QStringLiteral("空间大小"),QStringLiteral("预延迟"),QStringLiteral("扩散")};
-    const QString english[]={QStringLiteral("(Decay)"),QStringLiteral("(Size)"),QStringLiteral("(Pre-Delay)"),QStringLiteral("(Diffusion)")};
+    const QString topNames[]={NativeFx::I18n::text("control.decay", "Decay"),NativeFx::I18n::text("control.roomSize", "Room size"),NativeFx::I18n::text("control.preDelay", "Pre-delay"),NativeFx::I18n::text("control.diffusion", "Diffusion")};
+    const QString english[]={NativeFx::I18n::text("hint.decay", "(Decay)"),NativeFx::I18n::text("hint.size", "(Size)"),NativeFx::I18n::text("hint.predelay", "(Pre-Delay)"),NativeFx::I18n::text("hint.diffusion", "(Diffusion)")};
     for(int i=0;i<4;++i){const auto c=top[i];Controls::drawKnob(p,c,(value(v,i)-minimum[i])/(maximum[i]-minimum[i]),26,violetColors);
         text(p,{qreal(c.x()-47),319,94,22},shown(v,i),12,Qt::white);
         text(p,{qreal(c.x()-47),341,94,21},topNames[i],12,pale);text(p,{qreal(c.x()-49),363,98,19},english[i],10,muted);
     }
-    const QString groups[]={QStringLiteral("早期反射"),QStringLiteral("高频阻尼"),QStringLiteral("低频阻尼")};
-    const QString labels[]={QStringLiteral("电平"),QStringLiteral("时间"),QStringLiteral("截止频率"),QStringLiteral("衰减"),QStringLiteral("截止频率"),QStringLiteral("衰减")};
+    const QString groups[]={NativeFx::I18n::text("section.earlyReflections", "Early reflections"),NativeFx::I18n::text("section.highDamping", "High damping"),NativeFx::I18n::text("section.lowDamping", "Low damping")};
+    const QString labels[]={NativeFx::I18n::text("control.level", "Level"),NativeFx::I18n::text("label.time", "Time"),NativeFx::I18n::text("control.cutoff", "Cutoff frequency"),NativeFx::I18n::text("control.attenuation", "Attenuation"),NativeFx::I18n::text("control.cutoff", "Cutoff frequency"),NativeFx::I18n::text("control.attenuation", "Attenuation")};
     for(int row=0;row<3;++row){const int y=87+row*105;box(p,{546,qreal(y),198,100},8,QColor(19,38,58),QColor(43,70,97));
         text(p,{555,qreal(y+2),87,19},groups[row],12,muted,false,Qt::AlignLeft|Qt::AlignVCenter);
         for(int col=0;col<2;++col){const int i=4+row*2+col,x=col?688:596;Controls::drawKnob(p,{qreal(x),qreal(y+44)},(value(v,i)-minimum[i])/(maximum[i]-minimum[i]),21,row==2?cyanColors:violetColors);
@@ -278,15 +296,15 @@ void ReverbWidget::paintEvent(QPaintEvent*){
     const QPoint bottom[]={{110,444},{224,444},{420,444},{652,444}};
     for(int n=0;n<4;++n){const int i=10+n;Controls::drawKnob(p,bottom[n],(value(v,i)-minimum[i])/(maximum[i]-minimum[i]),26,cyanColors);
     }
-    text(p,{31,428,39,32},QStringLiteral("混合"),12,muted);
-    text(p,{312,428,81,32},QStringLiteral("立体声宽度:"),9,muted);
-    text(p,{538,428,78,32},QStringLiteral("输出电平:"),11,muted);
+    text(p,{31,428,39,32},NativeFx::I18n::text("control.mix", "Mix"),12,muted);
+    text(p,{312,428,81,32},NativeFx::I18n::text("control.stereoWidth", "Stereo width:"),9,muted);
+    text(p,{538,428,78,32},NativeFx::I18n::text("label.outputLevel", "Output level:"),11,muted);
     text(p,{141,430,48,29},shown(v,10),12,pale,false,Qt::AlignLeft|Qt::AlignVCenter);
     text(p,{253,430,57,29},shown(v,11),12,pale,false,Qt::AlignLeft|Qt::AlignVCenter);
     text(p,{449,430,64,29},shown(v,12),12,pale,false,Qt::AlignLeft|Qt::AlignVCenter);
     text(p,{681,430,61,29},shown(v,13),12,pale,false,Qt::AlignLeft|Qt::AlignVCenter);
-    text(p,{141,462,48,18},QStringLiteral("Wet"),10,muted);
-    text(p,{253,462,57,18},QStringLiteral("Dry"),10,muted);
+    text(p,{141,462,48,18},NativeFx::I18n::text("control.wet", "Wet"),10,muted);
+    text(p,{253,462,57,18},NativeFx::I18n::text("control.dry", "Dry"),10,muted);
     p.restore();
 }
 void ReverbWidget::mousePressEvent(QMouseEvent* e){
@@ -303,8 +321,8 @@ void ReverbWidget::mousePressEvent(QMouseEvent* e){
     const QPoint m=q-QPoint(0,143);
     if(QRect(362,35,37,20).contains(m)){edit([&](Parameters& v){v.enabled=!v.enabled;});return;}
     if(QRect(474,29,148,34).contains(m)||QRect(710,29,31,34).contains(m)){
-        QMenu menu(this);menu.setStyleSheet(QStringLiteral("QMenu{background:#142b43;color:#d8e6fc;border:1px solid #49648c;}QMenu::item{padding:6px 22px;}QMenu::item:selected{background:#14547c;}"));
-        for(int i=0;i<7;++i){auto* action=menu.addAction(QString::fromLatin1(presets[i]));connect(action,&QAction::triggered,this,[this,i]{choosePreset(i);});}
+        QMenu menu(this);
+        for(int i=0;i<7;++i){auto* action=menu.addAction(presetName(i));NativeFx::I18n::bind(action, [action, i] { action->setText(presetName(i)); });connect(action,&QAction::triggered,this,[this,i]{choosePreset(i);});}
         menu.exec(mapToGlobal(QPoint(474,206)));return;
     }
     if(QRect(634,29,69,34).contains(m)){choosePreset((preset_+(m.x()<670?6:1))%7);return;}

@@ -1,0 +1,45 @@
+{
+  "formatVersion": 1,
+  "moduleId": "compressor",
+  "domains": [
+    "nativefx.compressor"
+  ],
+  "defaultLanguage": "en-US",
+  "catalogVersion": 1,
+  "languages": {
+    "en-US": "en-US.json",
+    "zh-CN": "zh-CN.json",
+    "ja-JP": "ja-JP.json",
+    "ko-KR": "ko-KR.json"
+  },
+  "requiredKeys": {
+    "nativefx.compressor": [
+      "module.name",
+      "module.description",
+      "control.threshold",
+      "control.ratio",
+      "control.attack",
+      "control.release",
+      "control.targetChannels",
+      "control.all",
+      "label.preset",
+      "preset.default",
+      "preset.custom",
+      "axis.inputLevel",
+      "axis.outputLevel",
+      "control.sidechainFilter",
+      "filter.highPass",
+      "filter.lowPass",
+      "action.restoreDefaults",
+      "window.title",
+      "description.compressor",
+      "preset.punchyDrums",
+      "preset.gentleLevel",
+      "control.softKnee",
+      "control.makeupGain",
+      "control.detectorMode",
+      "meter.peak",
+      "control.autoGain"
+    ]
+  }
+}

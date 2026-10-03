@@ -55,7 +55,10 @@ public:
     WinJACKNexus::UI::ReverbWidget* createEffectWidget(QWidget* parent = nullptr) noexcept {
         try {if(!window_){auto* widget=new WinJACKNexus::UI::ReverbWidget(parent);
                 widget->setAttribute(Qt::WA_DeleteOnClose,false);
-                widget->setWindowTitle(QStringLiteral("Reverb 混响 — %1").arg(QString::fromStdString(clientName_)));
+                WinJACKNexus::NativeFx::I18n::bind(widget, [this, widget] {
+                    widget->setWindowTitle(WinJACKNexus::NativeFx::I18n::text("window.title", "Reverb — %1").arg(QString::fromStdString(clientName_)));
+                    widget->update();
+                });
                 widget->setParameters(values_);
                 widget->setChangeHandler([this](std::size_t i,const Parameters& v){values_[i]=v;atomic_[i].store(v);});window_=widget;}
             return window_;
@@ -75,7 +78,7 @@ public:
         try {const auto next=trimmed.toStdString();if(next==clientName_)return true;
             if(client_.isOpen())return false;
             clientName_=next;clientId_=next;
-            if(window_)window_->setWindowTitle(QStringLiteral("Reverb 混响 — %1").arg(trimmed));
+            if(window_)window_->setWindowTitle(WinJACKNexus::NativeFx::I18n::text("window.title", "Reverb — %1").arg(trimmed));
             if(settingsWidget_)settingsWidget_->setClientName(trimmed);return true;
         }catch(...){return false;}
     }

@@ -46,7 +46,10 @@ public:
     WinJACKNexus::UI::DelayWidget* createEffectWidget(QWidget* parent = nullptr) noexcept {
         try {if(!window_){auto* w=new WinJACKNexus::UI::DelayWidget(parent);
                 w->setAttribute(Qt::WA_DeleteOnClose,false);
-                w->setWindowTitle(QStringLiteral("Delay 延迟 — %1").arg(QString::fromStdString(clientName_)));
+                WinJACKNexus::NativeFx::I18n::bind(w, [this, w] {
+                    w->setWindowTitle(WinJACKNexus::NativeFx::I18n::text("window.title", "Delay — %1").arg(QString::fromStdString(clientName_)));
+                    w->update();
+                });
                 w->setParameters(values_);w->setChangeHandler([this](std::size_t i,const auto& v){values_[i]=v;atomic_[i].store(v);});window_=w;}
             return window_;
         }catch(...){return nullptr;}
@@ -65,7 +68,7 @@ public:
         try {const auto next=trimmed.toStdString();if(next==clientName_)return true;
             if(client_.isOpen())return false;
             clientName_=next;clientId_=next;
-            if(window_)window_->setWindowTitle(QStringLiteral("Delay 延迟 — %1").arg(trimmed));
+            if(window_)window_->setWindowTitle(WinJACKNexus::NativeFx::I18n::text("window.title", "Delay — %1").arg(trimmed));
             if(settingsWidget_)settingsWidget_->setClientName(trimmed);return true;
         }catch(...){return false;}
     }

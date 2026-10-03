@@ -3,6 +3,7 @@
 #include <WinJACKNexus/NativeFx/parametric_eq/Ui.hpp>
 #include <WinJACKNexus/UI/ApplicationSettings.hpp>
 #include <WinJACKNexus/UI/Controls.hpp>
+#include <WinJACKNexus/NativeFx/I18n.hpp>
 #include <QMouseEvent>
 #include <QPainter>
 #include <QPainterPath>
@@ -22,7 +23,13 @@ QPoint widgetPoint(const QWidget& widget, qreal x, qreal y) {
             static_cast<int>(std::lround((mainTop+y)*widget.height()/designHeight))};
 }
 constexpr auto channelNames = WinJACKNexus::Common::surroundChannelNames;
-constexpr std::array<const char*, 5> shapeNames {"低架 (Low Shelf)", "峰值 (Peaking)", "高架 (High Shelf)", "低通 (Low Pass)", "高通 (High Pass)"};
+QString shapeName(int index) {
+    constexpr const char* keys[] = {"filter.lowShelf", "filter.peaking", "filter.highShelf", "filter.lowPass", "filter.highPass"};
+    constexpr const char* english[] = {"Low shelf", "Peaking", "High shelf", "Low-pass", "High-pass"};
+    const int selected = std::clamp(index, 0, 4);
+    return NativeFx::I18n::text(keys[selected], english[selected]);
+}
+
 const QColor background("#081c2f"), panel("#10263b"), line("#2b5374"), textColor("#e8f2ff"), muted("#b7d2fa");
 const std::array<QColor, 4> bandColors {QColor("#14a9ff"), QColor("#11d7a9"), QColor("#f15bb9"), QColor("#ffcc42")};
 float logX(float frequency) { return 101.0F + static_cast<float>(std::log(std::clamp(frequency, 20.0F, 20000.0F) / 20.0F) / std::log(1000.0)) * 1155.0F; }
@@ -39,7 +46,7 @@ void label(QPainter& p, QRectF r, const QString& value, int size = 17, QColor co
         ? Controls::themeTokenColor("native-fx-parametric-eq", "text-primary", color)
         : color == muted
             ? Controls::themeTokenColor("native-fx-parametric-eq", "text-muted", color) : color;
-    Controls::drawText(p,r,value,font,themed,align);
+    Controls::drawElidedText(p,r,value,font,themed,align);
 }
 void switchControl(QPainter& p, QRectF r, bool on, QColor accent = QColor("#087afa"),
                    const char* onRole = "control-toggle-indicator-on") {
@@ -49,7 +56,7 @@ void switchControl(QPainter& p, QRectF r, bool on, QColor accent = QColor("#087a
 }
 QString frequencyText(float hz) { return hz >= 1000 ? QString::number(hz / 1000.0F, 'f', hz >= 10000 ? 1 : 1) + QStringLiteral(" kHz") : QString::number(hz, 'f', 0) + QStringLiteral(" Hz"); }
 QString gainText(float db) { return QString::number(db, 'f', 1).prepend(db > 0 ? "+" : "") + QStringLiteral(" dB"); }
-QString presetName(int index) { static const QStringList names {QStringLiteral("Default"), QStringLiteral("Vocal Clear"), QStringLiteral("Bass Boost"), QStringLiteral("Warmth"), QStringLiteral("Presence"), QStringLiteral("Custom")}; return names[std::clamp(index, 0, 5)]; }
+QString presetName(int index) { const QStringList names {NativeFx::I18n::text("preset.default", "Default"), NativeFx::I18n::text("preset.vocalClear", "Vocal Clear"), NativeFx::I18n::text("preset.bassBoost", "Bass Boost"), NativeFx::I18n::text("preset.warmth", "Warmth"), NativeFx::I18n::text("preset.presence", "Presence"), NativeFx::I18n::text("preset.custom", "Custom")}; return names[std::clamp(index, 0, 5)]; }
 
 WinJACKNexus::Common::ParametricEqParameters presetParameters(int index) {
     WinJACKNexus::Common::ParametricEqParameters preset;
@@ -163,24 +170,18 @@ QIcon shapeMenuIcon(Shape shape)
     return QIcon(pixmap);
 }
 
-void styleEffectMenu(QMenu& menu)
-{
-    menu.setStyleSheet(QStringLiteral(
-        "QMenu { background: #11263b; color: #e8f2ff; border: 1px solid #416581; }"
-        "QMenu::item { padding: 5px 16px 5px 8px; }"
-        "QMenu::item:selected { background: #1d4e70; }"));
-}
 }
 
 ParametricEqWidget::ParametricEqWidget(QWidget* parent) : QWidget(parent, parent ? Qt::Widget : Qt::Window), spectrumTimer_(this)
 {
     if (!parent) setAttribute(Qt::WA_NativeWindow, true);
-    setWindowTitle(QStringLiteral("Parametric EQ 参量均衡器"));
+    setWindowTitle(NativeFx::I18n::text("module.name", "Parametric EQ"));
     setFixedSize(1229, 909); setMouseTracking(true);
     spectrum_.inputDb.fill(-96); spectrum_.outputDb.fill(-96);
     spectrumTimer_.setObjectName(QStringLiteral("nativeFxSpectrumRefreshTimer"));
     bindRefreshTimer(spectrumTimer_, this);
     connect(&spectrumTimer_, &QTimer::timeout, this, &ParametricEqWidget::pollSpectrum);
+    NativeFx::I18n::bind(this, [this] { setWindowTitle(NativeFx::I18n::text("module.name", "Parametric EQ")); setAccessibleDescription(NativeFx::I18n::text("module.description", "Eight-channel four-band parametric equalizer.")); update(); });
 }
 void ParametricEqWidget::setParameters(const std::array<Parameters, 8>& value) { parameters_ = value; refreshPresetSelection(); if(dragBand_<0 && dragKnob_<0) update(); }
 void ParametricEqWidget::setChangeHandler(ChangeHandler value) { changeHandler_ = std::move(value); }
@@ -276,11 +277,11 @@ void ParametricEqWidget::paintEvent(QPaintEvent*) {
     const auto mapGain=[this](float db){return gainY(db,displayRange_);};
     const double responseRate=hasSpectrum_?spectrumFrame_.sampleRate:48000.0;
     rounded(p,{0,0,1535,109},QColor("#17283a"),line,9);
-    label(p,{16,12,300,33},QStringLiteral("作用声道"),21,textColor,Qt::AlignVCenter|Qt::AlignLeft,true);
+    label(p,{16,12,300,33},NativeFx::I18n::text("control.targetChannels", "Channel"),21,textColor,Qt::AlignVCenter|Qt::AlignLeft,true);
     for (int i=-1;i<8;++i) {
         const int x=17+(i+1)*92; QRectF rect(x,58,78,40);
         rounded(p,rect,i==selectedChannel_?QColor("#123c5b"):QColor("#1c3043"),i==selectedChannel_?QColor("#00baff"):QColor("#3b5771"),6);
-        label(p,rect,i<0?QStringLiteral("All"):QString::fromLatin1(channelNames[static_cast<std::size_t>(i)]),16,i==selectedChannel_?QColor("#56d5ff"):muted);
+        label(p,rect,i<0?NativeFx::I18n::text("control.all", "All"):QString::fromLatin1(channelNames[static_cast<std::size_t>(i)]),16,i==selectedChannel_?QColor("#56d5ff"):muted);
     }
     p.translate(0,mainTop);
     QLinearGradient outer(0,0,0,1024); outer.setColorAt(0,QColor("#07314a")); outer.setColorAt(1,QColor("#071b2e"));
@@ -289,10 +290,10 @@ void ParametricEqWidget::paintEvent(QPaintEvent*) {
     rounded(p,{13,14,1510,94},QColor("#102c45"),themeAccent,10);
     rounded(p,{26,24,78,77},QColor("#006b78"),QColor("#22d0d2"),11);
     for (int i=0;i<4;++i) { p.setPen(QPen(QColor("#b9faff"),6,Qt::SolidLine,Qt::RoundCap)); p.drawLine(43+i*12,78,43+i*12,74-11*i-(i==3?-10:0)); }
-    label(p,{130,24,490,40},QStringLiteral("Parametric EQ 参量均衡器"),30,textColor,Qt::AlignVCenter|Qt::AlignLeft,true);
-    label(p,{130,69,490,29},QStringLiteral("精确调整频率、增益与带宽，塑造声音特性"),20,muted,Qt::AlignVCenter|Qt::AlignLeft);
+    label(p,{130,24,490,40},NativeFx::I18n::text("module.name", "Parametric EQ"),30,textColor,Qt::AlignVCenter|Qt::AlignLeft,true);
+    label(p,{130,69,490,29},NativeFx::I18n::text("description.parametricEq", "Shape the sound with frequency, gain and bandwidth"),20,muted,Qt::AlignVCenter|Qt::AlignLeft);
     switchControl(p,{637,43,57,34},params.enabled,themeAccent,"control-toggle-main-indicator-on");
-    label(p,{747,39,69,43},QStringLiteral("预设:"),20,muted);
+    label(p,{747,39,69,43},NativeFx::I18n::text("label.preset", "Preset:"),20,muted);
     rounded(p,{819,37,320,48},QColor("#10253b"));
     label(p,{836,37,255,48},presetName(selectedPreset_),22,textColor,Qt::AlignVCenter|Qt::AlignLeft);
     label(p,{1093,37,35,48},QStringLiteral("⌄"),27,muted);
@@ -360,12 +361,12 @@ void ParametricEqWidget::paintEvent(QPaintEvent*) {
         p.drawLine(x,y,x+29,y);
     };
     legendLine(820,172,showSpectrum_?themed("chart-series-input-spectrum-stroke", QColor("#ffc66b")):QColor("#62788a"),Qt::DashLine);
-    label(p,{854,159,96,25},QStringLiteral("输入频谱"),15,muted,Qt::AlignLeft|Qt::AlignVCenter);
+    label(p,{854,159,96,25},NativeFx::I18n::text("label.inputSpectrum", "Input spectrum"),15,muted,Qt::AlignLeft|Qt::AlignVCenter);
     legendLine(966,172,showSpectrum_?themed("chart-series-processed-spectrum-stroke", QColor("#45dbf3")):QColor("#62788a"),Qt::SolidLine);
-    label(p,{1000,159,96,25},QStringLiteral("处理后频谱"),15,muted,Qt::AlignLeft|Qt::AlignVCenter);
+    label(p,{1000,159,96,25},NativeFx::I18n::text("label.processedSpectrum", "Processed spectrum"),15,muted,Qt::AlignLeft|Qt::AlignVCenter);
     legendLine(1110,172,showResponse_?themed("chart-series-total-response-stroke", QColor("#e2f2ff")):QColor("#62788a"),Qt::SolidLine);
-    label(p,{1144,159,94,25},QStringLiteral("综合响应"),15,muted,Qt::AlignLeft|Qt::AlignVCenter);
-    const std::array<QString,4> legendBands {QStringLiteral("1 低频"),QStringLiteral("2 低中频"),QStringLiteral("3 高中频"),QStringLiteral("4 高频")};
+    label(p,{1144,159,94,25},NativeFx::I18n::text("label.combinedResponse", "Combined response"),15,muted,Qt::AlignLeft|Qt::AlignVCenter);
+    const std::array<QString,4> legendBands {NativeFx::I18n::text("band.low", "1 Low"),NativeFx::I18n::text("band.lowMid", "2 Low mid"),NativeFx::I18n::text("band.highMid", "3 High mid"),NativeFx::I18n::text("band.high", "4 High")};
     for (std::size_t b=0;b<4;++b) {
         const int x=822+static_cast<int>(b)*103;
         Controls::drawMarker(p,QPointF(x+5,199),5,
@@ -373,26 +374,26 @@ void ParametricEqWidget::paintEvent(QPaintEvent*) {
         label(p,{double(x+17),186,86,25},legendBands[b],14,muted,Qt::AlignLeft|Qt::AlignVCenter);
     }
     for (int db=displayRange_;db>=-displayRange_;db-=displayRange_/3) label(p,{55,mapGain(float(db))-12,34,24},db>0?"+"+QString::number(db):QString::number(db),15,muted,Qt::AlignRight|Qt::AlignVCenter);
-    p.save(); p.translate(45,306); p.rotate(-90); label(p,{-80,-15,160,25},QStringLiteral("增益 (dB)"),17,muted); p.restore();
+    p.save(); p.translate(45,306); p.rotate(-90); label(p,{-80,-15,160,25},NativeFx::I18n::text("axis.gain", "Gain (dB)"),17,muted); p.restore();
     for (float freq:std::array<float,10>{20,50,100,200,500,1000,2000,5000,10000,20000}) label(p,{logX(freq)-30,491,60,24},freq>=1000?QString::number(int(freq/1000))+"k":QString::number(int(freq)),15,muted);
-    label(p,{680,515,155,25},QStringLiteral("频率 (Hz)"),17,muted);
+    label(p,{680,515,155,25},NativeFx::I18n::text("axis.frequency", "Frequency (Hz)"),17,muted);
     for (std::size_t b=0;b<4;++b) if (showLabels_ && params.bands[b].enabled) {
         const auto x=logX(params.bands[b].frequencyHz), y=mapGain(params.bands[b].gainDb);
         Controls::drawMarker(p,QPointF(x,y),16,themedBandColors[b],QColor("#f0f8ff"),2);
         label(p,{x-15,y-15,30,30},QString::number(b+1),19,Qt::white,Qt::AlignCenter,true);
     }
     rounded(p,{1283,120,228,196},QColor("#122941"));
-    label(p,{1298,130,190,28},QStringLiteral("显示选项"),18,textColor,Qt::AlignLeft|Qt::AlignVCenter,true);
-    const std::array<QString,4> optionNames {QStringLiteral("频谱分析"),QStringLiteral("参数曲线"),QStringLiteral("频点标签"),QStringLiteral("网格线")};
+    label(p,{1298,130,190,28},NativeFx::I18n::text("section.displayOptions", "Display options"),18,textColor,Qt::AlignLeft|Qt::AlignVCenter,true);
+    const std::array<QString,4> optionNames {NativeFx::I18n::text("control.spectrumAnalysis", "Spectrum analysis"),NativeFx::I18n::text("control.parameterCurve", "Parameter curve"),NativeFx::I18n::text("control.frequencyLabels", "Frequency labels"),NativeFx::I18n::text("control.gridLines", "Grid lines")};
     const std::array<bool,4> options {showSpectrum_,showResponse_,showLabels_,showGrid_};
     for(int i=0;i<4;++i) { rounded(p,{1298,169+i*34.0,28,28},options[i]?QColor("#087bfc"):QColor("#253f59"),QColor("#33597a"),5); if(options[i]) label(p,{1298,169+i*34.0,28,28},QStringLiteral("✓"),21); label(p,{1337,168+i*34.0,151,29},optionNames[i],19,muted,Qt::AlignLeft|Qt::AlignVCenter); }
     rounded(p,{1283,325,228,224},QColor("#122941"));
-    label(p,{1298,334,190,28},QStringLiteral("分析设置"),18,textColor,Qt::AlignLeft|Qt::AlignVCenter,true);
-    const std::array<QString,3> settings {QStringLiteral("FFT 大小:"),QStringLiteral("平滑:"),QStringLiteral("显示范围:")};
-    const std::array<QString,3> values {QString::number(fftSize_),smoothing_==0?QStringLiteral("低"):smoothing_==1?QStringLiteral("中"):QStringLiteral("高"),QStringLiteral("±%1 dB").arg(displayRange_)};
+    label(p,{1298,334,190,28},NativeFx::I18n::text("section.analysisSettings", "Analysis settings"),18,textColor,Qt::AlignLeft|Qt::AlignVCenter,true);
+    const std::array<QString,3> settings {NativeFx::I18n::text("control.fftSize", "FFT size:"),NativeFx::I18n::text("control.smoothing", "Smoothing:"),NativeFx::I18n::text("control.displayRange", "Display range:")};
+    const std::array<QString,3> values {QString::number(fftSize_),smoothing_==0?NativeFx::I18n::text("level.low", "Low"):smoothing_==1?NativeFx::I18n::text("level.medium", "Medium"):NativeFx::I18n::text("level.high", "High"),QStringLiteral("±%1 dB").arg(displayRange_)};
     for(int i=0;i<3;++i) { label(p,{1298,367+i*47.0,102,40},settings[i],16,muted,Qt::AlignLeft|Qt::AlignVCenter); rounded(p,{1402,367+i*47.0,97,40},QColor("#10263a")); label(p,{1408,367+i*47.0,89,40},values[i]+QStringLiteral("  ⌄"),16,textColor); }
 
-    const std::array<QString,4> names {QStringLiteral("Low 低频"),QStringLiteral("Low Mid 低中频"),QStringLiteral("High Mid 高中频"),QStringLiteral("High 高频")};
+    const std::array<QString,4> names {NativeFx::I18n::text("band.lowCaption", "Low"),NativeFx::I18n::text("band.lowMidCaption", "Low mid"),NativeFx::I18n::text("band.highMidCaption", "High mid"),NativeFx::I18n::text("band.highCaption", "High")};
     for (int b=0;b<4;++b) {
         const int x=25+374*b; const auto& band=params.bands[static_cast<std::size_t>(b)]; QColor tint=themedBandColors[static_cast<std::size_t>(b)];
         rounded(p,{double(x),560,365,327},QColor("#0e2639"),tint.darker(160));
@@ -404,7 +405,7 @@ void ParametricEqWidget::paintEvent(QPaintEvent*) {
         rounded(p,{double(x+13),621,70,41},QColor("#102c44"));
         drawShapeIcon(p,{double(x+27),630,42,23},band.shape,muted);
         rounded(p,{double(x+90),621,262,41},themed("surface-panel", QColor("#10263b")));
-        label(p,{double(x+104),621,220,41},QString::fromUtf8(shapeNames[static_cast<int>(band.shape)]),17,textColor,Qt::AlignLeft|Qt::AlignVCenter);
+        label(p,{double(x+104),621,220,41},shapeName(static_cast<int>(band.shape)),17,textColor,Qt::AlignLeft|Qt::AlignVCenter);
         label(p,{double(x+322),621,25,41},QStringLiteral("⌄"),22,muted);
         for (int k=0;k<3;++k) {
             const int cx=x+66+k*117; const float value=k==0?std::log(std::max(20.0F,band.frequencyHz)/20.0F)/std::log(1000.0F):k==1?(band.q-0.1F)/9.9F:(band.gainDb+18)/36;
@@ -415,7 +416,7 @@ void ParametricEqWidget::paintEvent(QPaintEvent*) {
                  themed("control-knob-track", QColor("#314e68"))});
             Controls::drawKnob(p,{double(cx),719},value,34,colors);
             label(p,{double(cx-54),760,108,26},k==0?frequencyText(band.frequencyHz):k==1?QString::number(band.q,'f',1):gainText(band.gainDb),17);
-            label(p,{double(cx-58),788,116,23},k==0?QStringLiteral("频率 (Freq)"):k==1?QStringLiteral("Q 值"):QStringLiteral("增益 (Gain)"),16,muted);
+            label(p,{double(cx-58),788,116,23},k==0?NativeFx::I18n::text("control.frequency", "Frequency"):k==1?NativeFx::I18n::text("control.qFactor", "Q factor"):NativeFx::I18n::text("control.gain", "Gain"),16,muted);
         }
         for (int s=0;s<5;++s) {
             QRectF r(x+13+s*70.0,824,70,48); rounded(p,r,s==static_cast<int>(band.shape)?header:QColor("#102437"),s==static_cast<int>(band.shape)?tint:line,6);
@@ -425,7 +426,7 @@ void ParametricEqWidget::paintEvent(QPaintEvent*) {
     rounded(p,{25,899,558,95},QColor("#10283d"));
     rounded(p,{591,899,548,95},QColor("#10283d"));
     rounded(p,{1147,899,365,95},QColor("#10283d"));
-    label(p,{45,917,136,55},QStringLiteral("高通滤波 (HPF)"),18,muted); switchControl(p,{183,932,49,30},params.highPassEnabled);
+    label(p,{45,917,136,55},NativeFx::I18n::text("filter.highPassCaption", "High-pass (HPF)"),18,muted); switchControl(p,{183,932,49,30},params.highPassEnabled);
     rounded(p,{248,926,48,42},QColor("#102337")); drawShapeIcon(p,{256,934,32,26},Shape::highPass,muted);
     rounded(p,{307,926,122,42},QColor("#102337")); label(p,{307,926,122,42},QString::number(params.highPassSlope)+QStringLiteral(" dB/Oct ⌄"),16);
     const auto filterColors=Controls::paletteFor(*this,
@@ -434,15 +435,15 @@ void ParametricEqWidget::paintEvent(QPaintEvent*) {
          themed("control-knob-track", QColor("#314e68"))});
     Controls::drawKnob(p,{475,946},std::log(std::max(20.0F,params.highPassHz)/20.0F)/std::log(100.0F),25,filterColors);
     label(p,{516,925,59,43},frequencyText(params.highPassHz),16);
-    label(p,{607,917,132,55},QStringLiteral("低通滤波 (LPF)"),18,muted); switchControl(p,{740,932,49,30},params.lowPassEnabled);
+    label(p,{607,917,132,55},NativeFx::I18n::text("filter.lowPassCaption", "Low-pass (LPF)"),18,muted); switchControl(p,{740,932,49,30},params.lowPassEnabled);
     rounded(p,{805,926,48,42},QColor("#102337")); drawShapeIcon(p,{813,934,32,26},Shape::lowPass,muted);
     rounded(p,{864,926,122,42},QColor("#102337")); label(p,{864,926,122,42},QString::number(params.lowPassSlope)+QStringLiteral(" dB/Oct ⌄"),16);
     Controls::drawKnob(p,{1022,946},std::log(std::max(200.0F,params.lowPassHz)/200.0F)/std::log(100.0F),25,filterColors);
     label(p,{1063,925,75,43},frequencyText(params.lowPassHz),16);
-    label(p,{1166,917,90,55},QStringLiteral("输出增益:"),18,muted);
+    label(p,{1166,917,90,55},NativeFx::I18n::text("control.outputGain", "Output gain:"),18,muted);
     Controls::drawKnob(p,{1286,946},(params.outputGainDb+18)/36,25,filterColors);
     label(p,{1324,925,70,43},gainText(params.outputGainDb),16);
-    rounded(p,{1400,922,103,49},QColor("#1e3957"),QColor("#69a5dd")); label(p,{1400,922,103,49},QStringLiteral("重置"),18);
+    rounded(p,{1400,922,103,49},QColor("#1e3957"),QColor("#69a5dd")); label(p,{1400,922,103,49},NativeFx::I18n::text("action.reset", "Reset"),18);
 }
 
 QPointF ParametricEqWidget::designPoint(const QPointF& pos) const { return {pos.x()*designWidth/width(),pos.y()*designHeight/height()-mainTop}; }
@@ -486,14 +487,14 @@ void ParametricEqWidget::mousePressEvent(QMouseEvent* event) {
     const auto params=displayed();
     if(QRectF(637,43,57,34).contains(point)) {const bool target=!params.enabled; apply([&](Parameters& p){p.enabled=target;}); return;}
     if(QRectF(819,37,320,48).contains(point)) {
-        QMenu menu(this); for(int i=0;i<5;++i) { auto* action=menu.addAction(presetName(i)); connect(action,&QAction::triggered,this,[this,i]{selectPreset(i);}); }
+        QMenu menu(this); for(int i=0;i<5;++i) { auto* action=menu.addAction(presetName(i));action->setData(i);NativeFx::I18n::bind(action, [action,i] { action->setText(presetName(i)); }); connect(action,&QAction::triggered,this,[this,i]{selectPreset(i);}); }
         menu.exec(mapToGlobal(event->pos())); return;
     }
     if(y>=37 && y<=85 && x>=1158 && x<1272) {
         const int next=selectedPreset_==5?(x<1215?4:0):(selectedPreset_+(x<1215?4:1))%5;
         selectPreset(next); return;
     }
-    if(y>=37 && y<=85 && x>=1290 && x<1338) { QMenu menu(this); auto* reset=menu.addAction(QStringLiteral("重置为 Default")); connect(reset,&QAction::triggered,this,[this]{selectPreset(0);}); menu.exec(mapToGlobal(event->pos())); return; }
+    if(y>=37 && y<=85 && x>=1290 && x<1338) { QMenu menu(this); auto* reset=menu.addAction(NativeFx::I18n::text("action.resetDefault", "Reset to default"));NativeFx::I18n::bindProperty(reset, "text", "action.resetDefault", "Reset to default"); connect(reset,&QAction::triggered,this,[this]{selectPreset(0);}); menu.exec(mapToGlobal(event->pos())); return; }
     for(int index=0;index<15;++index) {
         const auto bounds=knobReadout(index);
         if(!bounds.contains(point))continue;
@@ -508,13 +509,18 @@ void ParametricEqWidget::mousePressEvent(QMouseEvent* event) {
         const int row=int((y-367)/47);
         if(row>=0 && row<3 && QRectF(1402,367+row*47,97,40).contains(point)) {
             QMenu menu(this);
-            styleEffectMenu(menu);
             const std::array<QString,3> fftChoices {QStringLiteral("1024"),QStringLiteral("2048"),QStringLiteral("4096")};
-            const std::array<QString,3> smoothingChoices {QStringLiteral("低"),QStringLiteral("中"),QStringLiteral("高")};
+            const std::array<QString,3> smoothingChoices {NativeFx::I18n::text("level.low", "Low"),NativeFx::I18n::text("level.medium", "Medium"),NativeFx::I18n::text("level.high", "High")};
             const std::array<QString,3> rangeChoices {QStringLiteral("±12 dB"),QStringLiteral("±18 dB"),QStringLiteral("±24 dB")};
             for(int option=0;option<3;++option) {
                 const auto& choices=row==0?fftChoices:row==1?smoothingChoices:rangeChoices;
                 auto* action=menu.addAction(choices[static_cast<std::size_t>(option)]);
+                action->setData(option);
+                if (row == 1) NativeFx::I18n::bind(action, [action,option] {
+                    constexpr const char* keys[] = {"level.low", "level.medium", "level.high"};
+                    constexpr const char* english[] = {"Low", "Medium", "High"};
+                    action->setText(NativeFx::I18n::text(keys[option], english[option]));
+                });
                 const int selected=row==0?(fftSize_==1024?0:fftSize_==2048?1:2)
                     :row==1?smoothing_:(displayRange_==12?0:displayRange_==18?1:2);
                 action->setCheckable(true);
@@ -546,8 +552,7 @@ void ParametricEqWidget::mousePressEvent(QMouseEvent* event) {
         if(y<611 && x>left+294) { const bool target=!params.bands[static_cast<std::size_t>(b)].enabled; apply([&](Parameters& p){p.bands[static_cast<std::size_t>(b)].enabled=target;}); return; }
         if(y>=621 && y<=662) {
             QMenu menu(this);
-            styleEffectMenu(menu);
-            for(int s=0;s<5;++s) {auto* action=menu.addAction(shapeMenuIcon(static_cast<Shape>(s)),QString::fromUtf8(shapeNames[s])); connect(action,&QAction::triggered,this,[this,b,s]{apply([&](Parameters& p){p.bands[static_cast<std::size_t>(b)].shape=static_cast<Shape>(s);});});} menu.exec(mapToGlobal(widgetPoint(*this,left+90,667))); return;
+            for(int s=0;s<5;++s) {auto* action=menu.addAction(shapeMenuIcon(static_cast<Shape>(s)),shapeName(s));action->setData(s);NativeFx::I18n::bind(action, [action,s] { action->setText(shapeName(s)); }); connect(action,&QAction::triggered,this,[this,b,s]{apply([&](Parameters& p){p.bands[static_cast<std::size_t>(b)].shape=static_cast<Shape>(s);});});} menu.exec(mapToGlobal(widgetPoint(*this,left+90,667))); return;
         }
         if(y>=824 && y<872) {const int s=std::clamp(int((x-left-13)/70),0,4); apply([&](Parameters& p){p.bands[static_cast<std::size_t>(b)].shape=static_cast<Shape>(s);}); return;}
         if(y>=673 && y<758) {for(int k=0;k<3;++k) if(std::abs(x-(left+66+k*117))<45) {dragKnob_=b*3+k;lastMouse_=point;spectrumTimer_.start();return;}}
@@ -558,7 +563,6 @@ void ParametricEqWidget::mousePressEvent(QMouseEvent* event) {
         if((x>=307 && x<429) || (x>=864 && x<986)) {
             const bool highPass=x<429;
             QMenu menu(this);
-            styleEffectMenu(menu);
             for(const int slope:std::array<int,3>{12,24,48}) {
                 auto* action=menu.addAction(QStringLiteral("%1 dB/Oct").arg(slope));
                 connect(action,&QAction::triggered,this,[this,highPass,slope] {

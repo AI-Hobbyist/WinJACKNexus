@@ -1,0 +1,2477 @@
+[
+  {
+    "effect": "gate",
+    "key": "module.name",
+    "en-US": "Gate",
+    "zh-CN": "Gate 门限",
+    "ja-JP": "ゲート",
+    "ko-KR": "게이트",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "gate",
+    "key": "module.description",
+    "en-US": "Eight-channel native downward gate.",
+    "zh-CN": "八声道原生向下门限。",
+    "ja-JP": "8 チャンネルのネイティブ・ダウンワードゲート。",
+    "ko-KR": "8채널 네이티브 다운워드 게이트.",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "graphic_eq",
+    "key": "module.name",
+    "en-US": "Graphic EQ",
+    "zh-CN": "Graphic EQ 图示均衡器",
+    "ja-JP": "グラフィック EQ",
+    "ko-KR": "그래픽 EQ",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "graphic_eq",
+    "key": "module.description",
+    "en-US": "Eight-channel 31-band graphic equalizer.",
+    "zh-CN": "八声道 31 段图示均衡器。",
+    "ja-JP": "8 チャンネル・31 バンドのグラフィック EQ。",
+    "ko-KR": "8채널 31밴드 그래픽 EQ.",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "deesser",
+    "key": "module.name",
+    "en-US": "De-Esser",
+    "zh-CN": "De-Esser 去齿音",
+    "ja-JP": "ディエッサー",
+    "ko-KR": "디에서",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "deesser",
+    "key": "module.description",
+    "en-US": "Eight-channel native sibilance suppressor.",
+    "zh-CN": "八声道原生齿音抑制器。",
+    "ja-JP": "8 チャンネルのネイティブ歯擦音抑制器。",
+    "ko-KR": "8채널 네이티브 치찰음 억제기.",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "compressor",
+    "key": "module.name",
+    "en-US": "Compressor",
+    "zh-CN": "Compressor 压缩器",
+    "ja-JP": "コンプレッサー",
+    "ko-KR": "컴프레서",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "compressor",
+    "key": "module.description",
+    "en-US": "Eight-channel native compressor control UI.",
+    "zh-CN": "八声道原生压缩器控制界面。",
+    "ja-JP": "8 チャンネルのネイティブ・コンプレッサー操作画面。",
+    "ko-KR": "8채널 네이티브 컴프레서 제어 화면.",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "limiter",
+    "key": "module.name",
+    "en-US": "Limiter",
+    "zh-CN": "Limiter 限幅器",
+    "ja-JP": "リミッター",
+    "ko-KR": "리미터",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "limiter",
+    "key": "module.description",
+    "en-US": "Eight-channel native limiter UI.",
+    "zh-CN": "八声道原生限幅器界面。",
+    "ja-JP": "8 チャンネルのネイティブ・リミッター画面。",
+    "ko-KR": "8채널 네이티브 리미터 화면.",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "delay",
+    "key": "module.name",
+    "en-US": "Delay",
+    "zh-CN": "Delay 延迟",
+    "ja-JP": "ディレイ",
+    "ko-KR": "딜레이",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "delay",
+    "key": "module.description",
+    "en-US": "Eight-channel native delay interface.",
+    "zh-CN": "八声道原生延迟界面。",
+    "ja-JP": "8 チャンネルのネイティブ・ディレイ画面。",
+    "ko-KR": "8채널 네이티브 딜레이 화면.",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "parametric_eq",
+    "key": "module.name",
+    "en-US": "Parametric EQ",
+    "zh-CN": "Parametric EQ 参量均衡器",
+    "ja-JP": "パラメトリック EQ",
+    "ko-KR": "파라메트릭 EQ",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "parametric_eq",
+    "key": "module.description",
+    "en-US": "Eight-channel four-band parametric equalizer.",
+    "zh-CN": "八声道四段参量均衡器。",
+    "ja-JP": "8 チャンネル・4 バンドのパラメトリック EQ。",
+    "ko-KR": "8채널 4밴드 파라메트릭 EQ.",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "reverb",
+    "key": "module.name",
+    "en-US": "Reverb",
+    "zh-CN": "Reverb 混响",
+    "ja-JP": "リバーブ",
+    "ko-KR": "리버브",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "reverb",
+    "key": "module.description",
+    "en-US": "Eight-channel native room reverb.",
+    "zh-CN": "八声道原生房间混响。",
+    "ja-JP": "8 チャンネルのネイティブ・ルームリバーブ。",
+    "ko-KR": "8채널 네이티브 룸 리버브.",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "gate",
+    "key": "window.title",
+    "en-US": "Gate — %1",
+    "zh-CN": "Gate 门限 — %1",
+    "ja-JP": "ゲート — %1",
+    "ko-KR": "게이트 — %1",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "gate",
+    "key": "control.threshold",
+    "en-US": "Threshold",
+    "zh-CN": "阈值",
+    "ja-JP": "しきい値",
+    "ko-KR": "임계값",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "gate",
+    "key": "control.ratio",
+    "en-US": "Ratio",
+    "zh-CN": "比率",
+    "ja-JP": "比率",
+    "ko-KR": "비율",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "gate",
+    "key": "control.attack",
+    "en-US": "Attack",
+    "zh-CN": "起始时间\n(Attack)",
+    "ja-JP": "アタック",
+    "ko-KR": "어택",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "gate",
+    "key": "control.release",
+    "en-US": "Release",
+    "zh-CN": "释放时间\n(Release)",
+    "ja-JP": "リリース",
+    "ko-KR": "릴리스",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "gate",
+    "key": "control.floor",
+    "en-US": "Floor",
+    "zh-CN": "底噪(地板)\n(Floor)",
+    "ja-JP": "フロア",
+    "ko-KR": "플로어",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "gate",
+    "key": "control.hysteresis",
+    "en-US": "Hysteresis",
+    "zh-CN": "滞后\n(Hold)",
+    "ja-JP": "ヒステリシス",
+    "ko-KR": "히스테리시스",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "gate",
+    "key": "control.targetChannels",
+    "en-US": "Channel",
+    "zh-CN": "作用声道",
+    "ja-JP": "対象チャンネル",
+    "ko-KR": "대상 채널",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "gate",
+    "key": "control.all",
+    "en-US": "All",
+    "zh-CN": "全部",
+    "ja-JP": "全て",
+    "ko-KR": "전체",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "gate",
+    "key": "description.gate",
+    "en-US": "Reduce noise below the threshold",
+    "zh-CN": "抑制低于阈值的信号，减少底噪",
+    "ja-JP": "しきい値以下の信号を抑えてノイズを低減",
+    "ko-KR": "임계값 이하 신호를 억제하여 노이즈 감소",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "gate",
+    "key": "label.preset",
+    "en-US": "Preset:",
+    "zh-CN": "预设:",
+    "ja-JP": "プリセット:",
+    "ko-KR": "프리셋:",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "gate",
+    "key": "preset.default",
+    "en-US": "Default",
+    "zh-CN": "默认",
+    "ja-JP": "デフォルト",
+    "ko-KR": "기본값",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "gate",
+    "key": "preset.tight",
+    "en-US": "Tight Gate",
+    "zh-CN": "紧门限",
+    "ja-JP": "タイトゲート",
+    "ko-KR": "타이트 게이트",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "gate",
+    "key": "preset.gentle",
+    "en-US": "Gentle Gate",
+    "zh-CN": "柔和门限",
+    "ja-JP": "穏やかなゲート",
+    "ko-KR": "부드러운 게이트",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "gate",
+    "key": "preset.custom",
+    "en-US": "Custom",
+    "zh-CN": "自定义",
+    "ja-JP": "カスタム",
+    "ko-KR": "사용자 정의",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "gate",
+    "key": "tooltip.threshold",
+    "en-US": "Threshold\n%1 dB",
+    "zh-CN": "阈值\n%1 dB",
+    "ja-JP": "しきい値\n%1 dB",
+    "ko-KR": "임계값\n%1 dB",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "gate",
+    "key": "axis.inputLevel",
+    "en-US": "Input level (dB)",
+    "zh-CN": "输入电平 (dB)",
+    "ja-JP": "入力レベル (dB)",
+    "ko-KR": "입력 레벨 (dB)",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "gate",
+    "key": "axis.outputLevel",
+    "en-US": "Output level (dB)",
+    "zh-CN": "输出电平 (dB)",
+    "ja-JP": "出力レベル (dB)",
+    "ko-KR": "출력 레벨 (dB)",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "gate",
+    "key": "control.sidechainFilter",
+    "en-US": "Sidechain filter",
+    "zh-CN": "侧链滤波",
+    "ja-JP": "サイドチェーンフィルター",
+    "ko-KR": "사이드체인 필터",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "gate",
+    "key": "filter.highPass",
+    "en-US": "High-pass",
+    "zh-CN": "高通",
+    "ja-JP": "ハイパス",
+    "ko-KR": "하이패스",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "gate",
+    "key": "filter.lowPass",
+    "en-US": "Low-pass",
+    "zh-CN": "低通",
+    "ja-JP": "ローパス",
+    "ko-KR": "로우패스",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "gate",
+    "key": "action.restoreDefaults",
+    "en-US": "Restore defaults",
+    "zh-CN": "恢复默认值",
+    "ja-JP": "デフォルトに戻す",
+    "ko-KR": "기본값 복원",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "compressor",
+    "key": "control.threshold",
+    "en-US": "Threshold",
+    "zh-CN": "阈值",
+    "ja-JP": "しきい値",
+    "ko-KR": "임계값",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "compressor",
+    "key": "control.ratio",
+    "en-US": "Ratio",
+    "zh-CN": "比率",
+    "ja-JP": "比率",
+    "ko-KR": "비율",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "compressor",
+    "key": "control.attack",
+    "en-US": "Attack",
+    "zh-CN": "起始时间\n(Attack)",
+    "ja-JP": "アタック",
+    "ko-KR": "어택",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "compressor",
+    "key": "control.release",
+    "en-US": "Release",
+    "zh-CN": "释放时间\n(Release)",
+    "ja-JP": "リリース",
+    "ko-KR": "릴리스",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "compressor",
+    "key": "control.targetChannels",
+    "en-US": "Channel",
+    "zh-CN": "作用声道",
+    "ja-JP": "対象チャンネル",
+    "ko-KR": "대상 채널",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "compressor",
+    "key": "control.all",
+    "en-US": "All",
+    "zh-CN": "全部",
+    "ja-JP": "全て",
+    "ko-KR": "전체",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "compressor",
+    "key": "label.preset",
+    "en-US": "Preset:",
+    "zh-CN": "预设:",
+    "ja-JP": "プリセット:",
+    "ko-KR": "프리셋:",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "compressor",
+    "key": "preset.default",
+    "en-US": "Default",
+    "zh-CN": "默认",
+    "ja-JP": "デフォルト",
+    "ko-KR": "기본값",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "compressor",
+    "key": "preset.custom",
+    "en-US": "Custom",
+    "zh-CN": "自定义",
+    "ja-JP": "カスタム",
+    "ko-KR": "사용자 정의",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "compressor",
+    "key": "axis.inputLevel",
+    "en-US": "Input level (dB)",
+    "zh-CN": "输入电平 (dB)",
+    "ja-JP": "入力レベル (dB)",
+    "ko-KR": "입력 레벨 (dB)",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "compressor",
+    "key": "axis.outputLevel",
+    "en-US": "Output level (dB)",
+    "zh-CN": "输出电平 (dB)",
+    "ja-JP": "出力レベル (dB)",
+    "ko-KR": "출력 레벨 (dB)",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "compressor",
+    "key": "control.sidechainFilter",
+    "en-US": "Sidechain filter",
+    "zh-CN": "侧链滤波",
+    "ja-JP": "サイドチェーンフィルター",
+    "ko-KR": "사이드체인 필터",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "compressor",
+    "key": "filter.highPass",
+    "en-US": "High-pass",
+    "zh-CN": "高通",
+    "ja-JP": "ハイパス",
+    "ko-KR": "하이패스",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "compressor",
+    "key": "filter.lowPass",
+    "en-US": "Low-pass",
+    "zh-CN": "低通",
+    "ja-JP": "ローパス",
+    "ko-KR": "로우패스",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "compressor",
+    "key": "action.restoreDefaults",
+    "en-US": "Restore defaults",
+    "zh-CN": "恢复默认值",
+    "ja-JP": "デフォルトに戻す",
+    "ko-KR": "기본값 복원",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "deesser",
+    "key": "control.threshold",
+    "en-US": "Threshold",
+    "zh-CN": "阈值",
+    "ja-JP": "しきい値",
+    "ko-KR": "임계값",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "deesser",
+    "key": "control.attack",
+    "en-US": "Attack",
+    "zh-CN": "起始时间\n(Attack)",
+    "ja-JP": "アタック",
+    "ko-KR": "어택",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "deesser",
+    "key": "control.release",
+    "en-US": "Release",
+    "zh-CN": "释放时间\n(Release)",
+    "ja-JP": "リリース",
+    "ko-KR": "릴리스",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "deesser",
+    "key": "control.targetChannels",
+    "en-US": "Channel",
+    "zh-CN": "作用声道",
+    "ja-JP": "対象チャンネル",
+    "ko-KR": "대상 채널",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "deesser",
+    "key": "control.all",
+    "en-US": "All",
+    "zh-CN": "全部",
+    "ja-JP": "全て",
+    "ko-KR": "전체",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "deesser",
+    "key": "label.preset",
+    "en-US": "Preset:",
+    "zh-CN": "预设:",
+    "ja-JP": "プリセット:",
+    "ko-KR": "프리셋:",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "deesser",
+    "key": "preset.default",
+    "en-US": "Default",
+    "zh-CN": "默认",
+    "ja-JP": "デフォルト",
+    "ko-KR": "기본값",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "deesser",
+    "key": "preset.custom",
+    "en-US": "Custom",
+    "zh-CN": "自定义",
+    "ja-JP": "カスタム",
+    "ko-KR": "사용자 정의",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "deesser",
+    "key": "action.restoreDefaults",
+    "en-US": "Restore defaults",
+    "zh-CN": "恢复默认值",
+    "ja-JP": "デフォルトに戻す",
+    "ko-KR": "기본값 복원",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "compressor",
+    "key": "window.title",
+    "en-US": "Compressor — %1",
+    "zh-CN": "Compressor 压缩器 — %1",
+    "ja-JP": "コンプレッサー — %1",
+    "ko-KR": "컴프레서 — %1",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "deesser",
+    "key": "window.title",
+    "en-US": "De-Esser — %1",
+    "zh-CN": "De-Esser 去齿音 — %1",
+    "ja-JP": "ディエッサー — %1",
+    "ko-KR": "디에서 — %1",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "compressor",
+    "key": "description.compressor",
+    "en-US": "Control dynamics for a steadier level",
+    "zh-CN": "控制动态范围，使电平更稳定",
+    "ja-JP": "ダイナミクスを制御してレベルを安定させる",
+    "ko-KR": "다이내믹스를 제어하여 레벨 안정화",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "compressor",
+    "key": "preset.punchyDrums",
+    "en-US": "Punchy Drums",
+    "zh-CN": "有力鼓声",
+    "ja-JP": "パンチのあるドラム",
+    "ko-KR": "펀치감 있는 드럼",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "compressor",
+    "key": "preset.gentleLevel",
+    "en-US": "Gentle Level",
+    "zh-CN": "柔和平衡",
+    "ja-JP": "穏やかなレベル調整",
+    "ko-KR": "부드러운 레벨 조정",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "compressor",
+    "key": "control.softKnee",
+    "en-US": "Soft knee",
+    "zh-CN": "拐点 (Soft Knee)",
+    "ja-JP": "ソフトニー",
+    "ko-KR": "소프트 니",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "compressor",
+    "key": "control.makeupGain",
+    "en-US": "Makeup gain",
+    "zh-CN": "输出增益\n(Makeup)",
+    "ja-JP": "メイクアップゲイン",
+    "ko-KR": "메이크업 게인",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "compressor",
+    "key": "control.detectorMode",
+    "en-US": "Detector:",
+    "zh-CN": "检测模式:",
+    "ja-JP": "検出方式:",
+    "ko-KR": "검출 방식:",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "compressor",
+    "key": "meter.peak",
+    "en-US": "Peak",
+    "zh-CN": "峰值",
+    "ja-JP": "ピーク",
+    "ko-KR": "피크",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "compressor",
+    "key": "control.autoGain",
+    "en-US": "Auto gain",
+    "zh-CN": "自动增益",
+    "ja-JP": "自動ゲイン",
+    "ko-KR": "자동 게인",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "deesser",
+    "key": "description.deesser",
+    "en-US": "Detect and reduce sibilance (S, SH)",
+    "zh-CN": "检测并抑制齿音频段（S、SH 等）",
+    "ja-JP": "歯擦音の帯域を検出して抑制（S、SH など）",
+    "ko-KR": "치찰음 대역 감지 및 억제 (S, SH 등)",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "deesser",
+    "key": "control.centerFrequency",
+    "en-US": "Center frequency",
+    "zh-CN": "中心频率",
+    "ja-JP": "中心周波数",
+    "ko-KR": "중심 주파수",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "deesser",
+    "key": "control.bandwidth",
+    "en-US": "Bandwidth",
+    "zh-CN": "带宽",
+    "ja-JP": "帯域幅",
+    "ko-KR": "대역폭",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "deesser",
+    "key": "control.outputGain",
+    "en-US": "Output gain",
+    "zh-CN": "输出增益",
+    "ja-JP": "出力ゲイン",
+    "ko-KR": "출력 게인",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "deesser",
+    "key": "preset.brightVocal",
+    "en-US": "Bright Vocal",
+    "zh-CN": "明亮人声",
+    "ja-JP": "明るいボーカル",
+    "ko-KR": "밝은 보컬",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "deesser",
+    "key": "preset.softVoice",
+    "en-US": "Soft Voice",
+    "zh-CN": "柔和人声",
+    "ja-JP": "柔らかな声",
+    "ko-KR": "부드러운 음성",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "deesser",
+    "key": "label.input",
+    "en-US": "Input",
+    "zh-CN": "输入",
+    "ja-JP": "入力",
+    "ko-KR": "입력",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "deesser",
+    "key": "label.processed",
+    "en-US": "Processed",
+    "zh-CN": "处理后",
+    "ja-JP": "処理後",
+    "ko-KR": "처리 후",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "deesser",
+    "key": "control.mode",
+    "en-US": "Mode:",
+    "zh-CN": "模式:",
+    "ja-JP": "モード:",
+    "ko-KR": "모드:",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "deesser",
+    "key": "mode.wideband",
+    "en-US": "Wideband",
+    "zh-CN": "宽带",
+    "ja-JP": "ワイドバンド",
+    "ko-KR": "광대역",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "deesser",
+    "key": "mode.splitBand",
+    "en-US": "Split band",
+    "zh-CN": "分频",
+    "ja-JP": "スプリットバンド",
+    "ko-KR": "분할 대역",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "deesser",
+    "key": "mode.dynamicEq",
+    "en-US": "Dynamic EQ",
+    "zh-CN": "动态 EQ",
+    "ja-JP": "ダイナミック EQ",
+    "ko-KR": "다이내믹 EQ",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "deesser",
+    "key": "control.detectorMode",
+    "en-US": "Detector:",
+    "zh-CN": "检测模式:",
+    "ja-JP": "検出方式:",
+    "ko-KR": "검출 방식:",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "deesser",
+    "key": "meter.peak",
+    "en-US": "Peak",
+    "zh-CN": "峰值",
+    "ja-JP": "ピーク",
+    "ko-KR": "피크",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "deesser",
+    "key": "control.monitor",
+    "en-US": "Monitor:",
+    "zh-CN": "监听:",
+    "ja-JP": "モニター:",
+    "ko-KR": "모니터:",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "deesser",
+    "key": "control.off",
+    "en-US": "Off",
+    "zh-CN": "关",
+    "ja-JP": "オフ",
+    "ko-KR": "끔",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "deesser",
+    "key": "listen.sibilance",
+    "en-US": "Sibilance",
+    "zh-CN": "齿音",
+    "ja-JP": "歯擦音",
+    "ko-KR": "치찰음",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "deesser",
+    "key": "listen.original",
+    "en-US": "Original",
+    "zh-CN": "原始",
+    "ja-JP": "原音",
+    "ko-KR": "원음",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "deesser",
+    "key": "help.detector",
+    "en-US": "RMS detects average energy; Peak responds to instantaneous sibilance.",
+    "zh-CN": "RMS 使用平均能量检测；峰值响应瞬时齿音。",
+    "ja-JP": "RMS は平均エネルギーを検出し、ピークは瞬間的な歯擦音に反応します。",
+    "ko-KR": "RMS는 평균 에너지를 검출하며 피크는 순간적인 치찰음에 반응합니다.",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "limiter",
+    "key": "control.targetChannels",
+    "en-US": "Channel",
+    "zh-CN": "作用声道",
+    "ja-JP": "対象チャンネル",
+    "ko-KR": "대상 채널",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "limiter",
+    "key": "control.all",
+    "en-US": "All",
+    "zh-CN": "全部",
+    "ja-JP": "全て",
+    "ko-KR": "전체",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "limiter",
+    "key": "label.preset",
+    "en-US": "Preset:",
+    "zh-CN": "预设:",
+    "ja-JP": "プリセット:",
+    "ko-KR": "프리셋:",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "limiter",
+    "key": "preset.default",
+    "en-US": "Default",
+    "zh-CN": "默认",
+    "ja-JP": "デフォルト",
+    "ko-KR": "기본값",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "limiter",
+    "key": "preset.custom",
+    "en-US": "Custom",
+    "zh-CN": "自定义",
+    "ja-JP": "カスタム",
+    "ko-KR": "사용자 정의",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "limiter",
+    "key": "axis.inputLevel",
+    "en-US": "Input level (dB)",
+    "zh-CN": "输入电平 (dB)",
+    "ja-JP": "入力レベル (dB)",
+    "ko-KR": "입력 레벨 (dB)",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "limiter",
+    "key": "axis.outputLevel",
+    "en-US": "Output level (dB)",
+    "zh-CN": "输出电平 (dB)",
+    "ja-JP": "出力レベル (dB)",
+    "ko-KR": "출력 레벨 (dB)",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "limiter",
+    "key": "window.title",
+    "en-US": "Limiter — %1",
+    "zh-CN": "Limiter 限幅器 — %1",
+    "ja-JP": "リミッター — %1",
+    "ko-KR": "리미터 — %1",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "reverb",
+    "key": "control.targetChannels",
+    "en-US": "Channel",
+    "zh-CN": "作用声道",
+    "ja-JP": "対象チャンネル",
+    "ko-KR": "대상 채널",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "reverb",
+    "key": "control.all",
+    "en-US": "All",
+    "zh-CN": "全部",
+    "ja-JP": "全て",
+    "ko-KR": "전체",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "reverb",
+    "key": "label.preset",
+    "en-US": "Preset:",
+    "zh-CN": "预设:",
+    "ja-JP": "プリセット:",
+    "ko-KR": "프리셋:",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "reverb",
+    "key": "preset.default",
+    "en-US": "Default",
+    "zh-CN": "默认",
+    "ja-JP": "デフォルト",
+    "ko-KR": "기본값",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "reverb",
+    "key": "preset.custom",
+    "en-US": "Custom",
+    "zh-CN": "自定义",
+    "ja-JP": "カスタム",
+    "ko-KR": "사용자 정의",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "reverb",
+    "key": "window.title",
+    "en-US": "Reverb — %1",
+    "zh-CN": "Reverb 混响 — %1",
+    "ja-JP": "リバーブ — %1",
+    "ko-KR": "리버브 — %1",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "graphic_eq",
+    "key": "control.targetChannels",
+    "en-US": "Channel",
+    "zh-CN": "作用声道",
+    "ja-JP": "対象チャンネル",
+    "ko-KR": "대상 채널",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "graphic_eq",
+    "key": "control.all",
+    "en-US": "All",
+    "zh-CN": "全部",
+    "ja-JP": "全て",
+    "ko-KR": "전체",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "graphic_eq",
+    "key": "label.preset",
+    "en-US": "Preset:",
+    "zh-CN": "预设:",
+    "ja-JP": "プリセット:",
+    "ko-KR": "프리셋:",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "graphic_eq",
+    "key": "preset.default",
+    "en-US": "Default",
+    "zh-CN": "默认",
+    "ja-JP": "デフォルト",
+    "ko-KR": "기본값",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "graphic_eq",
+    "key": "preset.custom",
+    "en-US": "Custom",
+    "zh-CN": "自定义",
+    "ja-JP": "カスタム",
+    "ko-KR": "사용자 정의",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "graphic_eq",
+    "key": "window.title",
+    "en-US": "Graphic EQ — %1",
+    "zh-CN": "Graphic EQ 图示均衡器 — %1",
+    "ja-JP": "グラフィック EQ — %1",
+    "ko-KR": "그래픽 EQ — %1",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "limiter",
+    "key": "description.limiter",
+    "en-US": "Prevent overload and limit peak output",
+    "zh-CN": "防止信号过载，控制最大输出电平",
+    "ja-JP": "過負荷を防ぎ、最大出力レベルを制限",
+    "ko-KR": "과부하 방지 및 최대 출력 레벨 제한",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "limiter",
+    "key": "preset.broadcast",
+    "en-US": "Broadcast",
+    "zh-CN": "广播",
+    "ja-JP": "放送",
+    "ko-KR": "방송",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "limiter",
+    "key": "preset.maxLoudness",
+    "en-US": "Max Loudness",
+    "zh-CN": "最大响度",
+    "ja-JP": "最大ラウドネス",
+    "ko-KR": "최대 라우드니스",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "limiter",
+    "key": "label.inputLevel",
+    "en-US": "Input level",
+    "zh-CN": "输入电平",
+    "ja-JP": "入力レベル",
+    "ko-KR": "입력 레벨",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "limiter",
+    "key": "label.outputLevel",
+    "en-US": "Output level",
+    "zh-CN": "输出电平",
+    "ja-JP": "出力レベル",
+    "ko-KR": "출력 레벨",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "limiter",
+    "key": "control.threshold",
+    "en-US": "Threshold",
+    "zh-CN": "阈值",
+    "ja-JP": "しきい値",
+    "ko-KR": "임계값",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "limiter",
+    "key": "control.ceiling",
+    "en-US": "Output ceiling",
+    "zh-CN": "输出上限",
+    "ja-JP": "出力上限",
+    "ko-KR": "출력 상한",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "limiter",
+    "key": "control.release",
+    "en-US": "Release",
+    "zh-CN": "释放时间",
+    "ja-JP": "リリース",
+    "ko-KR": "릴리스",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "limiter",
+    "key": "control.lookahead",
+    "en-US": "Lookahead",
+    "zh-CN": "前瞻",
+    "ja-JP": "ルックアヘッド",
+    "ko-KR": "룩어헤드",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "limiter",
+    "key": "control.mode",
+    "en-US": "Mode:",
+    "zh-CN": "模式:",
+    "ja-JP": "モード:",
+    "ko-KR": "모드:",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "limiter",
+    "key": "mode.transparent",
+    "en-US": "Transparent",
+    "zh-CN": "透明",
+    "ja-JP": "透明",
+    "ko-KR": "투명",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "limiter",
+    "key": "mode.modern",
+    "en-US": "Modern",
+    "zh-CN": "现代",
+    "ja-JP": "モダン",
+    "ko-KR": "모던",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "limiter",
+    "key": "mode.brickwall",
+    "en-US": "Brickwall",
+    "zh-CN": "砖墙",
+    "ja-JP": "ブリックウォール",
+    "ko-KR": "브릭월",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "limiter",
+    "key": "control.oversampling",
+    "en-US": "Oversampling:",
+    "zh-CN": "过采样:",
+    "ja-JP": "オーバーサンプリング:",
+    "ko-KR": "오버샘플링:",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "limiter",
+    "key": "control.autoGain",
+    "en-US": "Auto gain",
+    "zh-CN": "自动增益",
+    "ja-JP": "自動ゲイン",
+    "ko-KR": "자동 게인",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "limiter",
+    "key": "action.resetCurrent",
+    "en-US": "Reset current channel",
+    "zh-CN": "重置当前声道",
+    "ja-JP": "現在のチャンネルをリセット",
+    "ko-KR": "현재 채널 초기화",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "limiter",
+    "key": "action.resetAll",
+    "en-US": "Reset all channels",
+    "zh-CN": "重置全部声道",
+    "ja-JP": "全チャンネルをリセット",
+    "ko-KR": "모든 채널 초기화",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "limiter",
+    "key": "action.copyToAll",
+    "en-US": "Copy current settings to all channels",
+    "zh-CN": "将当前设置复制到全部声道",
+    "ja-JP": "現在の設定を全チャンネルにコピー",
+    "ko-KR": "현재 설정을 모든 채널에 복사",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "reverb",
+    "key": "description.reverb",
+    "en-US": "Simulate rooms and add a sense of space",
+    "zh-CN": "模拟真实空间，增强声音的空间感",
+    "ja-JP": "実際の空間を再現し、音に広がりを加える",
+    "ko-KR": "실제 공간을 재현하여 공간감 강화",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "reverb",
+    "key": "scene.room",
+    "en-US": "Room",
+    "zh-CN": "房间",
+    "ja-JP": "ルーム",
+    "ko-KR": "룸",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "reverb",
+    "key": "scene.hall",
+    "en-US": "Hall",
+    "zh-CN": "大厅",
+    "ja-JP": "ホール",
+    "ko-KR": "홀",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "reverb",
+    "key": "scene.plate",
+    "en-US": "Plate",
+    "zh-CN": "板式",
+    "ja-JP": "プレート",
+    "ko-KR": "플레이트",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "reverb",
+    "key": "scene.church",
+    "en-US": "Church",
+    "zh-CN": "教堂",
+    "ja-JP": "教会",
+    "ko-KR": "교회",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "reverb",
+    "key": "scene.studio",
+    "en-US": "Studio",
+    "zh-CN": "录音室",
+    "ja-JP": "スタジオ",
+    "ko-KR": "스튜디오",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "reverb",
+    "key": "scene.spring",
+    "en-US": "Spring",
+    "zh-CN": "弹簧",
+    "ja-JP": "スプリング",
+    "ko-KR": "스프링",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "reverb",
+    "key": "preset.smallRoom",
+    "en-US": "Small Room",
+    "zh-CN": "小房间",
+    "ja-JP": "小さな部屋",
+    "ko-KR": "작은 방",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "reverb",
+    "key": "preset.brightPlate",
+    "en-US": "Bright Plate",
+    "zh-CN": "明亮板式",
+    "ja-JP": "明るいプレート",
+    "ko-KR": "밝은 플레이트",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "reverb",
+    "key": "preset.cathedral",
+    "en-US": "Cathedral",
+    "zh-CN": "大教堂",
+    "ja-JP": "大聖堂",
+    "ko-KR": "대성당",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "reverb",
+    "key": "preset.studioBooth",
+    "en-US": "Studio Booth",
+    "zh-CN": "录音隔间",
+    "ja-JP": "録音ブース",
+    "ko-KR": "녹음 부스",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "reverb",
+    "key": "preset.vintageSpring",
+    "en-US": "Vintage Spring",
+    "zh-CN": "复古弹簧",
+    "ja-JP": "ヴィンテージ・スプリング",
+    "ko-KR": "빈티지 스프링",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "reverb",
+    "key": "control.reverbType",
+    "en-US": "Reverb type:",
+    "zh-CN": "混响类型:",
+    "ja-JP": "リバーブの種類:",
+    "ko-KR": "리버브 유형:",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "reverb",
+    "key": "label.customRoomArea",
+    "en-US": "Custom · %1 m²",
+    "zh-CN": "自定义 · %1 m²",
+    "ja-JP": "カスタム · %1 m²",
+    "ko-KR": "사용자 정의 · %1 m²",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "reverb",
+    "key": "control.decay",
+    "en-US": "Decay",
+    "zh-CN": "混响时间",
+    "ja-JP": "残響時間",
+    "ko-KR": "잔향 시간",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "reverb",
+    "key": "control.roomSize",
+    "en-US": "Room size",
+    "zh-CN": "空间大小",
+    "ja-JP": "空間の大きさ",
+    "ko-KR": "공간 크기",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "reverb",
+    "key": "control.preDelay",
+    "en-US": "Pre-delay",
+    "zh-CN": "预延迟",
+    "ja-JP": "プリディレイ",
+    "ko-KR": "프리딜레이",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "reverb",
+    "key": "control.diffusion",
+    "en-US": "Diffusion",
+    "zh-CN": "扩散",
+    "ja-JP": "拡散",
+    "ko-KR": "확산",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "reverb",
+    "key": "section.earlyReflections",
+    "en-US": "Early reflections",
+    "zh-CN": "早期反射",
+    "ja-JP": "初期反射",
+    "ko-KR": "초기 반사",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "reverb",
+    "key": "section.highDamping",
+    "en-US": "High damping",
+    "zh-CN": "高频阻尼",
+    "ja-JP": "高域ダンピング",
+    "ko-KR": "고역 감쇠",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "reverb",
+    "key": "section.lowDamping",
+    "en-US": "Low damping",
+    "zh-CN": "低频阻尼",
+    "ja-JP": "低域ダンピング",
+    "ko-KR": "저역 감쇠",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "reverb",
+    "key": "control.level",
+    "en-US": "Level",
+    "zh-CN": "电平",
+    "ja-JP": "レベル",
+    "ko-KR": "레벨",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "reverb",
+    "key": "label.time",
+    "en-US": "Time",
+    "zh-CN": "时间",
+    "ja-JP": "時間",
+    "ko-KR": "시간",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "reverb",
+    "key": "control.cutoff",
+    "en-US": "Cutoff frequency",
+    "zh-CN": "截止频率",
+    "ja-JP": "カットオフ周波数",
+    "ko-KR": "차단 주파수",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "reverb",
+    "key": "control.attenuation",
+    "en-US": "Attenuation",
+    "zh-CN": "衰减",
+    "ja-JP": "減衰",
+    "ko-KR": "감쇠",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "reverb",
+    "key": "control.mix",
+    "en-US": "Mix",
+    "zh-CN": "混合",
+    "ja-JP": "ミックス",
+    "ko-KR": "믹스",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "reverb",
+    "key": "control.stereoWidth",
+    "en-US": "Stereo width:",
+    "zh-CN": "立体声宽度:",
+    "ja-JP": "ステレオ幅:",
+    "ko-KR": "스테레오 폭:",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "reverb",
+    "key": "label.outputLevel",
+    "en-US": "Output level:",
+    "zh-CN": "输出电平:",
+    "ja-JP": "出力レベル:",
+    "ko-KR": "출력 레벨:",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "reverb",
+    "key": "control.wet",
+    "en-US": "Wet",
+    "zh-CN": "湿信号",
+    "ja-JP": "ウェット",
+    "ko-KR": "웻",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "reverb",
+    "key": "control.dry",
+    "en-US": "Dry",
+    "zh-CN": "干信号",
+    "ja-JP": "ドライ",
+    "ko-KR": "드라이",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "graphic_eq",
+    "key": "description.graphicEq",
+    "en-US": "31-band EQ · Shape the frequency response",
+    "zh-CN": "31 段图示均衡 · 精确调整频响响应",
+    "ja-JP": "31 バンド EQ · 周波数特性を正確に調整",
+    "ko-KR": "31밴드 EQ · 주파수 응답 정밀 조정",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "graphic_eq",
+    "key": "preset.vocalBright",
+    "en-US": "Vocal Bright",
+    "zh-CN": "明亮人声",
+    "ja-JP": "明るいボーカル",
+    "ko-KR": "밝은 보컬",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "graphic_eq",
+    "key": "preset.bassBoost",
+    "en-US": "Bass Boost",
+    "zh-CN": "低频增强",
+    "ja-JP": "低域ブースト",
+    "ko-KR": "저역 부스트",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "graphic_eq",
+    "key": "preset.classical",
+    "en-US": "Classical",
+    "zh-CN": "古典",
+    "ja-JP": "クラシック",
+    "ko-KR": "클래식",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "graphic_eq",
+    "key": "label.inputReference",
+    "en-US": "Input reference",
+    "zh-CN": "输入参考",
+    "ja-JP": "入力基準",
+    "ko-KR": "입력 기준",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "graphic_eq",
+    "key": "label.postEq",
+    "en-US": "Post EQ",
+    "zh-CN": "EQ 后",
+    "ja-JP": "EQ 後",
+    "ko-KR": "EQ 후",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "graphic_eq",
+    "key": "label.activeChannelCount",
+    "en-US": "%1/8 channels",
+    "zh-CN": "%1/8 路",
+    "ja-JP": "%1/8 チャンネル",
+    "ko-KR": "%1/8채널",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "graphic_eq",
+    "key": "action.reset",
+    "en-US": "Reset",
+    "zh-CN": "重置",
+    "ja-JP": "リセット",
+    "ko-KR": "초기화",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "graphic_eq",
+    "key": "action.flatten",
+    "en-US": "Flat",
+    "zh-CN": "平直",
+    "ja-JP": "フラット",
+    "ko-KR": "플랫",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "graphic_eq",
+    "key": "action.load",
+    "en-US": "Load…",
+    "zh-CN": "加载…",
+    "ja-JP": "読み込み…",
+    "ko-KR": "불러오기…",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "graphic_eq",
+    "key": "action.save",
+    "en-US": "Save…",
+    "zh-CN": "保存…",
+    "ja-JP": "保存…",
+    "ko-KR": "저장…",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "graphic_eq",
+    "key": "control.outputGain",
+    "en-US": "Output gain",
+    "zh-CN": "输出增益",
+    "ja-JP": "出力ゲイン",
+    "ko-KR": "출력 게인",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "graphic_eq",
+    "key": "control.displayMode",
+    "en-US": "Display mode",
+    "zh-CN": "显示模式",
+    "ja-JP": "表示モード",
+    "ko-KR": "표시 모드",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "graphic_eq",
+    "key": "label.bandCount",
+    "en-US": "31 bands",
+    "zh-CN": "31 段",
+    "ja-JP": "31 バンド",
+    "ko-KR": "31밴드",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "graphic_eq",
+    "key": "view.bands",
+    "en-US": "Band view",
+    "zh-CN": "分频视图",
+    "ja-JP": "バンド表示",
+    "ko-KR": "밴드 보기",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "graphic_eq",
+    "key": "view.curve",
+    "en-US": "Curve view",
+    "zh-CN": "曲线视图",
+    "ja-JP": "カーブ表示",
+    "ko-KR": "곡선 보기",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "graphic_eq",
+    "key": "label.selectedItem",
+    "en-US": "Selected %1",
+    "zh-CN": "选中 %1",
+    "ja-JP": "選択中 %1",
+    "ko-KR": "선택 항목 %1",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "graphic_eq",
+    "key": "section.displayOptions",
+    "en-US": "Display options",
+    "zh-CN": "显示选项",
+    "ja-JP": "表示オプション",
+    "ko-KR": "표시 옵션",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "graphic_eq",
+    "key": "control.showFrequencies",
+    "en-US": "Show frequencies",
+    "zh-CN": "显示频率值",
+    "ja-JP": "周波数を表示",
+    "ko-KR": "주파수 표시",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "graphic_eq",
+    "key": "control.showCurve",
+    "en-US": "Show curve",
+    "zh-CN": "显示曲线",
+    "ja-JP": "カーブを表示",
+    "ko-KR": "곡선 표시",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "graphic_eq",
+    "key": "dialog.loadPreset",
+    "en-US": "Load EQ preset",
+    "zh-CN": "加载均衡器预设",
+    "ja-JP": "EQ プリセットを読み込み",
+    "ko-KR": "EQ 프리셋 불러오기",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "graphic_eq",
+    "key": "filter.presetFiles",
+    "en-US": "EQ presets (*.json)",
+    "zh-CN": "EQ 预设 (*.json)",
+    "ja-JP": "EQ プリセット (*.json)",
+    "ko-KR": "EQ 프리셋 (*.json)",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "graphic_eq",
+    "key": "dialog.savePreset",
+    "en-US": "Save EQ preset",
+    "zh-CN": "保存均衡器预设",
+    "ja-JP": "EQ プリセットを保存",
+    "ko-KR": "EQ 프리셋 저장",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "limiter",
+    "key": "hint.threshold",
+    "en-US": "(Threshold)",
+    "zh-CN": "(Threshold)",
+    "ja-JP": "(Threshold)",
+    "ko-KR": "(Threshold)",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "limiter",
+    "key": "hint.ceiling",
+    "en-US": "(Ceiling)",
+    "zh-CN": "(Ceiling)",
+    "ja-JP": "(Ceiling)",
+    "ko-KR": "(Ceiling)",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "limiter",
+    "key": "hint.release",
+    "en-US": "(Release)",
+    "zh-CN": "(Release)",
+    "ja-JP": "(Release)",
+    "ko-KR": "(Release)",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "limiter",
+    "key": "hint.lookahead",
+    "en-US": "(Lookahead)",
+    "zh-CN": "(Lookahead)",
+    "ja-JP": "(Lookahead)",
+    "ko-KR": "(Lookahead)",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "reverb",
+    "key": "hint.decay",
+    "en-US": "(Decay)",
+    "zh-CN": "(Decay)",
+    "ja-JP": "(Decay)",
+    "ko-KR": "(Decay)",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "reverb",
+    "key": "hint.size",
+    "en-US": "(Size)",
+    "zh-CN": "(Size)",
+    "ja-JP": "(Size)",
+    "ko-KR": "(Size)",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "reverb",
+    "key": "hint.predelay",
+    "en-US": "(Pre-Delay)",
+    "zh-CN": "(Pre-Delay)",
+    "ja-JP": "(Pre-Delay)",
+    "ko-KR": "(Pre-Delay)",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "reverb",
+    "key": "hint.diffusion",
+    "en-US": "(Diffusion)",
+    "zh-CN": "(Diffusion)",
+    "ja-JP": "(Diffusion)",
+    "ko-KR": "(Diffusion)",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "delay",
+    "key": "control.targetChannels",
+    "en-US": "Channel",
+    "zh-CN": "作用声道",
+    "ja-JP": "対象チャンネル",
+    "ko-KR": "대상 채널",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "delay",
+    "key": "control.all",
+    "en-US": "All",
+    "zh-CN": "全部",
+    "ja-JP": "全て",
+    "ko-KR": "전체",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "delay",
+    "key": "label.preset",
+    "en-US": "Preset:",
+    "zh-CN": "预设:",
+    "ja-JP": "プリセット:",
+    "ko-KR": "프리셋:",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "delay",
+    "key": "preset.default",
+    "en-US": "Default",
+    "zh-CN": "默认",
+    "ja-JP": "デフォルト",
+    "ko-KR": "기본값",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "delay",
+    "key": "preset.custom",
+    "en-US": "Custom",
+    "zh-CN": "自定义",
+    "ja-JP": "カスタム",
+    "ko-KR": "사용자 정의",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "delay",
+    "key": "filter.highPass",
+    "en-US": "High-pass",
+    "zh-CN": "高通",
+    "ja-JP": "ハイパス",
+    "ko-KR": "하이패스",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "delay",
+    "key": "filter.lowPass",
+    "en-US": "Low-pass",
+    "zh-CN": "低通",
+    "ja-JP": "ローパス",
+    "ko-KR": "로우패스",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "delay",
+    "key": "window.title",
+    "en-US": "Delay — %1",
+    "zh-CN": "Delay 延迟 — %1",
+    "ja-JP": "ディレイ — %1",
+    "ko-KR": "딜레이 — %1",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "parametric_eq",
+    "key": "control.targetChannels",
+    "en-US": "Channel",
+    "zh-CN": "作用声道",
+    "ja-JP": "対象チャンネル",
+    "ko-KR": "대상 채널",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "parametric_eq",
+    "key": "control.all",
+    "en-US": "All",
+    "zh-CN": "全部",
+    "ja-JP": "全て",
+    "ko-KR": "전체",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "parametric_eq",
+    "key": "label.preset",
+    "en-US": "Preset:",
+    "zh-CN": "预设:",
+    "ja-JP": "プリセット:",
+    "ko-KR": "프리셋:",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "parametric_eq",
+    "key": "preset.default",
+    "en-US": "Default",
+    "zh-CN": "默认",
+    "ja-JP": "デフォルト",
+    "ko-KR": "기본값",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "parametric_eq",
+    "key": "preset.custom",
+    "en-US": "Custom",
+    "zh-CN": "自定义",
+    "ja-JP": "カスタム",
+    "ko-KR": "사용자 정의",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "parametric_eq",
+    "key": "filter.highPass",
+    "en-US": "High-pass",
+    "zh-CN": "高通",
+    "ja-JP": "ハイパス",
+    "ko-KR": "하이패스",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "parametric_eq",
+    "key": "filter.lowPass",
+    "en-US": "Low-pass",
+    "zh-CN": "低通",
+    "ja-JP": "ローパス",
+    "ko-KR": "로우패스",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "parametric_eq",
+    "key": "window.title",
+    "en-US": "Parametric EQ — %1",
+    "zh-CN": "Parametric EQ 参量均衡器 — %1",
+    "ja-JP": "パラメトリック EQ — %1",
+    "ko-KR": "파라메트릭 EQ — %1",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "delay",
+    "key": "preset.vocalEcho",
+    "en-US": "Vocal Echo",
+    "zh-CN": "人声回声",
+    "ja-JP": "ボーカルエコー",
+    "ko-KR": "보컬 에코",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "delay",
+    "key": "preset.shortSlap",
+    "en-US": "Short Slap",
+    "zh-CN": "短 slap",
+    "ja-JP": "短いスラップ",
+    "ko-KR": "짧은 슬랩",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "delay",
+    "key": "preset.rhythmicEcho",
+    "en-US": "Rhythmic Echo",
+    "zh-CN": "节奏回声",
+    "ja-JP": "リズミックエコー",
+    "ko-KR": "리드미컬 에코",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "delay",
+    "key": "preset.ambientEcho",
+    "en-US": "Ambient Echo",
+    "zh-CN": "氛围长回声",
+    "ja-JP": "アンビエントエコー",
+    "ko-KR": "앰비언트 에코",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "delay",
+    "key": "preset.tapeEcho",
+    "en-US": "Tape Echo",
+    "zh-CN": "磁带回声",
+    "ja-JP": "テープエコー",
+    "ko-KR": "테이프 에코",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "delay",
+    "key": "view.timeline",
+    "en-US": "Timeline",
+    "zh-CN": "时间轴",
+    "ja-JP": "タイムライン",
+    "ko-KR": "타임라인",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "delay",
+    "key": "view.echoDecay",
+    "en-US": "Echo decay",
+    "zh-CN": "回声衰减",
+    "ja-JP": "エコーの減衰",
+    "ko-KR": "에코 감쇠",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "delay",
+    "key": "mode.normal",
+    "en-US": "Normal",
+    "zh-CN": "正常",
+    "ja-JP": "通常",
+    "ko-KR": "일반",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "delay",
+    "key": "mode.additive",
+    "en-US": "Additive",
+    "zh-CN": "叠加",
+    "ja-JP": "加算",
+    "ko-KR": "가산",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "delay",
+    "key": "description.delay",
+    "en-US": "Create echoes and a sense of space",
+    "zh-CN": "创造回声与空间感",
+    "ja-JP": "エコーと空間の広がりを作る",
+    "ko-KR": "에코와 공간감 생성",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "delay",
+    "key": "control.timeMode",
+    "en-US": "Time mode:",
+    "zh-CN": "时间模式:",
+    "ja-JP": "時間モード:",
+    "ko-KR": "시간 모드:",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "delay",
+    "key": "mode.sync",
+    "en-US": "Sync",
+    "zh-CN": "同步",
+    "ja-JP": "同期",
+    "ko-KR": "동기화",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "delay",
+    "key": "mode.freeTime",
+    "en-US": "Free",
+    "zh-CN": "自由",
+    "ja-JP": "フリー",
+    "ko-KR": "자유",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "delay",
+    "key": "control.noteValue",
+    "en-US": "Note value:",
+    "zh-CN": "音符值:",
+    "ja-JP": "音価:",
+    "ko-KR": "음표 값:",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "delay",
+    "key": "control.dottedNote",
+    "en-US": "Dotted",
+    "zh-CN": "点音符",
+    "ja-JP": "付点",
+    "ko-KR": "점음표",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "delay",
+    "key": "control.view",
+    "en-US": "View:",
+    "zh-CN": "视图:",
+    "ja-JP": "表示:",
+    "ko-KR": "보기:",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "delay",
+    "key": "control.delayTimeBpm",
+    "en-US": "Delay time · %1 BPM",
+    "zh-CN": "延迟时间 · %1 BPM",
+    "ja-JP": "ディレイ時間 · %1 BPM",
+    "ko-KR": "딜레이 시간 · %1 BPM",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "delay",
+    "key": "control.delayTime",
+    "en-US": "Delay time",
+    "zh-CN": "延迟时间 (Time)",
+    "ja-JP": "ディレイ時間",
+    "ko-KR": "딜레이 시간",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "delay",
+    "key": "control.feedback",
+    "en-US": "Feedback",
+    "zh-CN": "反馈",
+    "ja-JP": "フィードバック",
+    "ko-KR": "피드백",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "delay",
+    "key": "control.wet",
+    "en-US": "Wet",
+    "zh-CN": "湿信号",
+    "ja-JP": "ウェット",
+    "ko-KR": "웻",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "delay",
+    "key": "control.dry",
+    "en-US": "Dry",
+    "zh-CN": "干信号",
+    "ja-JP": "ドライ",
+    "ko-KR": "드라이",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "delay",
+    "key": "section.filters",
+    "en-US": "Filters:",
+    "zh-CN": "滤波器:",
+    "ja-JP": "フィルター:",
+    "ko-KR": "필터:",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "delay",
+    "key": "control.mixMode",
+    "en-US": "Mix mode:",
+    "zh-CN": "混合模式:",
+    "ja-JP": "ミックスモード:",
+    "ko-KR": "믹스 모드:",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "delay",
+    "key": "action.resetCurrent",
+    "en-US": "Reset current channel",
+    "zh-CN": "重置当前声道",
+    "ja-JP": "現在のチャンネルをリセット",
+    "ko-KR": "현재 채널 초기화",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "delay",
+    "key": "action.resetAll",
+    "en-US": "Reset all channels",
+    "zh-CN": "重置所有声道",
+    "ja-JP": "全チャンネルをリセット",
+    "ko-KR": "모든 채널 초기화",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "parametric_eq",
+    "key": "filter.lowShelf",
+    "en-US": "Low shelf",
+    "zh-CN": "低架 (Low Shelf)",
+    "ja-JP": "ローシェルフ",
+    "ko-KR": "로우 셸프",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "parametric_eq",
+    "key": "filter.peaking",
+    "en-US": "Peaking",
+    "zh-CN": "峰值 (Peaking)",
+    "ja-JP": "ピーキング",
+    "ko-KR": "피킹",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "parametric_eq",
+    "key": "filter.highShelf",
+    "en-US": "High shelf",
+    "zh-CN": "高架 (High Shelf)",
+    "ja-JP": "ハイシェルフ",
+    "ko-KR": "하이 셸프",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "parametric_eq",
+    "key": "preset.vocalClear",
+    "en-US": "Vocal Clear",
+    "zh-CN": "清晰人声",
+    "ja-JP": "明瞭なボーカル",
+    "ko-KR": "선명한 보컬",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "parametric_eq",
+    "key": "preset.bassBoost",
+    "en-US": "Bass Boost",
+    "zh-CN": "低频增强",
+    "ja-JP": "低域ブースト",
+    "ko-KR": "저역 부스트",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "parametric_eq",
+    "key": "preset.warmth",
+    "en-US": "Warmth",
+    "zh-CN": "温暖",
+    "ja-JP": "温かみ",
+    "ko-KR": "따뜻함",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "parametric_eq",
+    "key": "preset.presence",
+    "en-US": "Presence",
+    "zh-CN": "存在感",
+    "ja-JP": "プレゼンス",
+    "ko-KR": "존재감",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "parametric_eq",
+    "key": "description.parametricEq",
+    "en-US": "Shape the sound with frequency, gain and bandwidth",
+    "zh-CN": "精确调整频率、增益与带宽，塑造声音特性",
+    "ja-JP": "周波数・ゲイン・帯域幅を調整して音を整える",
+    "ko-KR": "주파수, 게인 및 대역폭으로 음색 조정",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "parametric_eq",
+    "key": "label.inputSpectrum",
+    "en-US": "Input spectrum",
+    "zh-CN": "输入频谱",
+    "ja-JP": "入力スペクトル",
+    "ko-KR": "입력 스펙트럼",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "parametric_eq",
+    "key": "label.processedSpectrum",
+    "en-US": "Processed spectrum",
+    "zh-CN": "处理后频谱",
+    "ja-JP": "処理後のスペクトル",
+    "ko-KR": "처리 후 스펙트럼",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "parametric_eq",
+    "key": "label.combinedResponse",
+    "en-US": "Combined response",
+    "zh-CN": "综合响应",
+    "ja-JP": "合成特性",
+    "ko-KR": "합성 응답",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "parametric_eq",
+    "key": "band.low",
+    "en-US": "1 Low",
+    "zh-CN": "1 低频",
+    "ja-JP": "1 低域",
+    "ko-KR": "1 저역",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "parametric_eq",
+    "key": "band.lowMid",
+    "en-US": "2 Low mid",
+    "zh-CN": "2 低中频",
+    "ja-JP": "2 中低域",
+    "ko-KR": "2 중저역",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "parametric_eq",
+    "key": "band.highMid",
+    "en-US": "3 High mid",
+    "zh-CN": "3 高中频",
+    "ja-JP": "3 中高域",
+    "ko-KR": "3 중고역",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "parametric_eq",
+    "key": "band.high",
+    "en-US": "4 High",
+    "zh-CN": "4 高频",
+    "ja-JP": "4 高域",
+    "ko-KR": "4 고역",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "parametric_eq",
+    "key": "axis.gain",
+    "en-US": "Gain (dB)",
+    "zh-CN": "增益 (dB)",
+    "ja-JP": "ゲイン (dB)",
+    "ko-KR": "게인 (dB)",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "parametric_eq",
+    "key": "axis.frequency",
+    "en-US": "Frequency (Hz)",
+    "zh-CN": "频率 (Hz)",
+    "ja-JP": "周波数 (Hz)",
+    "ko-KR": "주파수 (Hz)",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "parametric_eq",
+    "key": "section.displayOptions",
+    "en-US": "Display options",
+    "zh-CN": "显示选项",
+    "ja-JP": "表示オプション",
+    "ko-KR": "표시 옵션",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "parametric_eq",
+    "key": "control.spectrumAnalysis",
+    "en-US": "Spectrum analysis",
+    "zh-CN": "频谱分析",
+    "ja-JP": "スペクトル解析",
+    "ko-KR": "스펙트럼 분석",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "parametric_eq",
+    "key": "control.parameterCurve",
+    "en-US": "Parameter curve",
+    "zh-CN": "参数曲线",
+    "ja-JP": "パラメーターカーブ",
+    "ko-KR": "파라미터 곡선",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "parametric_eq",
+    "key": "control.frequencyLabels",
+    "en-US": "Frequency labels",
+    "zh-CN": "频点标签",
+    "ja-JP": "周波数ラベル",
+    "ko-KR": "주파수 레이블",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "parametric_eq",
+    "key": "control.gridLines",
+    "en-US": "Grid lines",
+    "zh-CN": "网格线",
+    "ja-JP": "グリッド線",
+    "ko-KR": "격자선",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "parametric_eq",
+    "key": "section.analysisSettings",
+    "en-US": "Analysis settings",
+    "zh-CN": "分析设置",
+    "ja-JP": "解析設定",
+    "ko-KR": "분석 설정",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "parametric_eq",
+    "key": "control.fftSize",
+    "en-US": "FFT size:",
+    "zh-CN": "FFT 大小:",
+    "ja-JP": "FFT サイズ:",
+    "ko-KR": "FFT 크기:",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "parametric_eq",
+    "key": "control.smoothing",
+    "en-US": "Smoothing:",
+    "zh-CN": "平滑:",
+    "ja-JP": "平滑化:",
+    "ko-KR": "평활화:",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "parametric_eq",
+    "key": "control.displayRange",
+    "en-US": "Display range:",
+    "zh-CN": "显示范围:",
+    "ja-JP": "表示範囲:",
+    "ko-KR": "표시 범위:",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "parametric_eq",
+    "key": "level.low",
+    "en-US": "Low",
+    "zh-CN": "低",
+    "ja-JP": "低",
+    "ko-KR": "낮음",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "parametric_eq",
+    "key": "level.medium",
+    "en-US": "Medium",
+    "zh-CN": "中",
+    "ja-JP": "中",
+    "ko-KR": "중간",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "parametric_eq",
+    "key": "level.high",
+    "en-US": "High",
+    "zh-CN": "高",
+    "ja-JP": "高",
+    "ko-KR": "높음",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "parametric_eq",
+    "key": "band.lowCaption",
+    "en-US": "Low",
+    "zh-CN": "Low 低频",
+    "ja-JP": "低域",
+    "ko-KR": "저역",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "parametric_eq",
+    "key": "band.lowMidCaption",
+    "en-US": "Low mid",
+    "zh-CN": "Low Mid 低中频",
+    "ja-JP": "中低域",
+    "ko-KR": "중저역",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "parametric_eq",
+    "key": "band.highMidCaption",
+    "en-US": "High mid",
+    "zh-CN": "High Mid 高中频",
+    "ja-JP": "中高域",
+    "ko-KR": "중고역",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "parametric_eq",
+    "key": "band.highCaption",
+    "en-US": "High",
+    "zh-CN": "High 高频",
+    "ja-JP": "高域",
+    "ko-KR": "고역",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "parametric_eq",
+    "key": "control.frequency",
+    "en-US": "Frequency",
+    "zh-CN": "频率 (Freq)",
+    "ja-JP": "周波数",
+    "ko-KR": "주파수",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "parametric_eq",
+    "key": "control.qFactor",
+    "en-US": "Q factor",
+    "zh-CN": "Q 值",
+    "ja-JP": "Q 値",
+    "ko-KR": "Q값",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "parametric_eq",
+    "key": "control.gain",
+    "en-US": "Gain",
+    "zh-CN": "增益 (Gain)",
+    "ja-JP": "ゲイン",
+    "ko-KR": "게인",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "parametric_eq",
+    "key": "filter.highPassCaption",
+    "en-US": "High-pass (HPF)",
+    "zh-CN": "高通滤波 (HPF)",
+    "ja-JP": "ハイパス (HPF)",
+    "ko-KR": "하이패스 (HPF)",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "parametric_eq",
+    "key": "filter.lowPassCaption",
+    "en-US": "Low-pass (LPF)",
+    "zh-CN": "低通滤波 (LPF)",
+    "ja-JP": "ローパス (LPF)",
+    "ko-KR": "로우패스 (LPF)",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "parametric_eq",
+    "key": "control.outputGain",
+    "en-US": "Output gain:",
+    "zh-CN": "输出增益:",
+    "ja-JP": "出力ゲイン:",
+    "ko-KR": "출력 게인:",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "parametric_eq",
+    "key": "action.reset",
+    "en-US": "Reset",
+    "zh-CN": "重置",
+    "ja-JP": "リセット",
+    "ko-KR": "초기화",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "parametric_eq",
+    "key": "action.resetDefault",
+    "en-US": "Reset to default",
+    "zh-CN": "重置为 Default",
+    "ja-JP": "デフォルトに戻す",
+    "ko-KR": "기본값으로 초기화",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "delay",
+    "key": "hint.feedback",
+    "en-US": "(Feedback)",
+    "zh-CN": "(Feedback)",
+    "ja-JP": "(Feedback)",
+    "ko-KR": "(Feedback)",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "delay",
+    "key": "hint.wet",
+    "en-US": "(Wet)",
+    "zh-CN": "(Wet)",
+    "ja-JP": "(Wet)",
+    "ko-KR": "(Wet)",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  },
+  {
+    "effect": "delay",
+    "key": "hint.dry",
+    "en-US": "(Dry)",
+    "zh-CN": "(Dry)",
+    "ja-JP": "(Dry)",
+    "ko-KR": "(Dry)",
+    "review": "待 S6 母语/领域审校；S5 实施中未验收"
+  }
+]

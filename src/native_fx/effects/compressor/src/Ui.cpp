@@ -3,6 +3,7 @@
 #include <WinJACKNexus/NativeFx/compressor/Ui.hpp>
 #include <WinJACKNexus/UI/ApplicationSettings.hpp>
 #include <WinJACKNexus/UI/Controls.hpp>
+#include <WinJACKNexus/NativeFx/I18n.hpp>
 #include <QLinearGradient>
 #include <QMenu>
 #include <QMouseEvent>
@@ -44,7 +45,7 @@ void label(QPainter& p,QRectF r,const QString& text,int size,QColor color=ink,bo
         ? Controls::themeTokenColor("native-fx-compressor", "text-primary", color)
         : color == muted
             ? Controls::themeTokenColor("native-fx-compressor", "text-muted", color) : color;
-    Controls::drawText(p,r,text,font,themed,Qt::Alignment(align));
+    Controls::drawElidedText(p,r,text,font,themed,Qt::Alignment(align));
 }
 void toggle(QPainter& p,QRectF r,bool on) {
     Controls::drawToggle(p,r,on,
@@ -55,9 +56,11 @@ QPointF graph(float x,float y) {return {plotRect.left()+(x+60)*plotRect.width()/
 }
 
 CompressorWidget::CompressorWidget(QWidget* parent):QWidget(parent) {
-    setFixedSize(770,665);if (!parent) setWindowFlags(Qt::Window);setWindowTitle(QStringLiteral("Compressor 压缩器"));
+    setFixedSize(770,665);if (!parent) setWindowFlags(Qt::Window);setWindowTitle(NativeFx::I18n::text("module.name", "Compressor"));
     bindRefreshTimer(meterTimer_, this);
     connect(&meterTimer_, &QTimer::timeout, this, &CompressorWidget::pollMeters);
+    NativeFx::I18n::bind(this, [this] {
+        setAccessibleDescription(NativeFx::I18n::text("module.description", "Eight-channel native compressor control UI.")); setWindowTitle(NativeFx::I18n::text("module.name", "Compressor")); update(); });
 }
 void CompressorWidget::setParameters(const std::array<CompressorParameters,8>& values) {
     parameters_=values;
@@ -118,11 +121,11 @@ void CompressorWidget::paintEvent(QPaintEvent*) {
     p.fillRect(rect(),Controls::themeColor(*this,"fxBackground",
         Controls::themeTokenColor("native-fx-compressor", "surface-window", QColor(13,28,45))));
     box(p,{10,5,748,126},9,QColor(22,40,60),QColor(47,75,103));
-    label(p,{25,24,170,28},QStringLiteral("作用声道"),19,ink,true,Qt::AlignVCenter|Qt::AlignLeft);
+    label(p,{25,24,170,28},NativeFx::I18n::text("control.targetChannels", "Channel"),19,ink,true,Qt::AlignVCenter|Qt::AlignLeft);
     for(int i=0;i<9;++i) {
         const QRectF r(26+i*72,62,64,40);const bool chosen=i==0?selectedChannel_<0:selectedChannel_==i-1;
         box(p,r,5,chosen?QColor(12,58,88):QColor(24,43,63),chosen?cyan:QColor(64,91,120));
-        label(p,r,QString::fromLatin1(channels[i]),16,chosen?QColor(126,220,255):muted);
+        label(p,r,(i == 0 ? NativeFx::I18n::text("control.all", "All") : QString::fromLatin1(channels[i])),16,chosen?QColor(126,220,255):muted);
     }
     p.save();p.translate(0,145);
     QLinearGradient background(0,0,770,515);
@@ -134,12 +137,12 @@ void CompressorWidget::paintEvent(QPaintEvent*) {
     box(p,{21,24,57,58},7,icon,amber);
     p.setPen(QPen(QColor(255,193,118),3));QPainterPath curve;curve.moveTo(35,69);curve.cubicTo(35,49,50,38,66,38);p.drawPath(curve);
     p.setPen(Qt::NoPen);p.setBrush(QColor(255,193,118));p.drawEllipse(QPointF(66,38),2.5,2.5);
-    label(p,{97,24,233,34},QStringLiteral("Compressor 压缩器"),21,ink,true,Qt::AlignLeft|Qt::AlignVCenter);
-    label(p,{98,59,233,23},QStringLiteral("控制动态范围，使电平更稳定"),15,muted,false,Qt::AlignLeft|Qt::AlignVCenter);
+    label(p,{97,24,233,34},NativeFx::I18n::text("module.name", "Compressor"),21,ink,true,Qt::AlignLeft|Qt::AlignVCenter);
+    label(p,{98,59,233,23},NativeFx::I18n::text("description.compressor", "Control dynamics for a steadier level"),15,muted,false,Qt::AlignLeft|Qt::AlignVCenter);
     toggle(p,{346,43,34,21},displayed().enabled);
-    label(p,{413,39,44,28},QStringLiteral("预设:"),14,muted);
+    label(p,{413,39,44,28},NativeFx::I18n::text("label.preset", "Preset:"),14,muted);
     box(p,{459,37,168,32},5,QColor(19,36,56),QColor(61,94,130));
-    label(p,{469,37,137,32},selectedPreset_==0?QStringLiteral("Default"):selectedPreset_==1?QStringLiteral("Punchy Drums"):selectedPreset_==2?QStringLiteral("Gentle Level"):QStringLiteral("Custom"),15,ink,false,Qt::AlignLeft|Qt::AlignVCenter);
+    label(p,{469,37,137,32},selectedPreset_==0?NativeFx::I18n::text("preset.default", "Default"):selectedPreset_==1?NativeFx::I18n::text("preset.punchyDrums", "Punchy Drums"):selectedPreset_==2?NativeFx::I18n::text("preset.gentleLevel", "Gentle Level"):NativeFx::I18n::text("preset.custom", "Custom"),15,ink,false,Qt::AlignLeft|Qt::AlignVCenter);
     label(p,{601,37,23,32},QStringLiteral("⌄"),19,muted);
     for(int i=0;i<2;++i) {const int x=638+i*37;box(p,{qreal(x),37,30,32},5,QColor(27,51,77),QColor(63,101,141));label(p,{qreal(x),37,30,32},i?QStringLiteral("›"):QStringLiteral("‹"),25,muted);}
     box(p,{713,37,30,32},5,QColor(27,51,77),QColor(63,101,141));label(p,{713,37,30,32},QStringLiteral("•••"),13,muted);
@@ -275,12 +278,12 @@ void CompressorWidget::paintEvent(QPaintEvent*) {
     Controls::drawMeter(p,{gainReductionTrack.left(),gainReductionTrack.top(),
                            gainReductionTrack.width()+31,gainReductionTrack.height()},
                         -gainReductionDb,std::nullopt,reductionStyle);
-    p.save();p.translate(12,308);p.rotate(-90);label(p,{0,0,100,25},QStringLiteral("输出电平 (dB)"),15,muted);p.restore();
-    label(p,{157,388,148,25},QStringLiteral("输入电平 (dB)"),15,muted);
+    p.save();p.translate(12,308);p.rotate(-90);label(p,{0,0,100,25},NativeFx::I18n::text("axis.outputLevel", "Output level (dB)"),15,muted);p.restore();
+    label(p,{157,388,148,25},NativeFx::I18n::text("axis.inputLevel", "Input level (dB)"),15,muted);
     box(p,{234,120,82,48},8,QColor(33,51,72),QColor(88,113,144));
-    label(p,{239,122,73,22},QStringLiteral("Threshold"),13,ink);
+    label(p,{239,122,73,22},NativeFx::I18n::text("control.threshold", "Threshold"),13,ink);
     label(p,{239,143,73,21},QStringLiteral("%1 dB").arg(s.thresholdDb,0,'f',1),14,ink);
-    const QString names[]={QStringLiteral("阈值"),QStringLiteral("比率"),QStringLiteral("拐点 (Soft Knee)"),QStringLiteral("起始时间\n(Attack)"),QStringLiteral("释放时间\n(Release)"),QStringLiteral("输出增益\n(Makeup)")};
+    const QString names[]={NativeFx::I18n::text("control.threshold", "Threshold"),NativeFx::I18n::text("control.ratio", "Ratio"),NativeFx::I18n::text("control.softKnee", "Soft knee"),NativeFx::I18n::text("control.attack", "Attack"),NativeFx::I18n::text("control.release", "Release"),NativeFx::I18n::text("control.makeupGain", "Makeup gain")};
     const auto knobColors=Controls::paletteFor(*this,
         {Controls::themeTokenColor("native-fx-compressor", "control-knob-background-base", QColor(13,28,45)),
          QColor(30,52,73), ink,
@@ -295,18 +298,18 @@ void CompressorWidget::paintEvent(QPaintEvent*) {
         label(p,{c.x()-58,c.y()+59,116,43},names[i],14,muted);
     }
     box(p,{22,423,187,67},8,QColor(20,39,60),QColor(47,75,104));
-    label(p,{36,427,97,22},QStringLiteral("检测模式:"),14,muted,false,Qt::AlignLeft|Qt::AlignVCenter);
+    label(p,{36,427,97,22},NativeFx::I18n::text("control.detectorMode", "Detector:"),14,muted,false,Qt::AlignLeft|Qt::AlignVCenter);
     box(p,{36,452,80,29},4,s.rms?QColor(26,48,71):QColor(15,65,101),s.rms?QColor(61,90,123):cyan);
     box(p,{117,452,77,29},4,s.rms?QColor(15,65,101):QColor(26,48,71),s.rms?cyan:QColor(61,90,123));
-    label(p,{36,452,80,29},QStringLiteral("峰值"),14,ink);label(p,{117,452,77,29},QStringLiteral("RMS"),14,ink);
+    label(p,{36,452,80,29},NativeFx::I18n::text("meter.peak", "Peak"),14,ink);label(p,{117,452,77,29},QStringLiteral("RMS"),14,ink);
     box(p,{219,423,403,67},8,QColor(20,39,60),QColor(47,75,104));
-    label(p,{232,440,67,31},QStringLiteral("侧链滤波"),14,muted);toggle(p,{304,445,32,21},s.sidechainFilter);
-    label(p,{352,440,32,31},QStringLiteral("高通"),14,muted);
+    label(p,{232,440,67,31},NativeFx::I18n::text("control.sidechainFilter", "Sidechain filter"),14,muted);toggle(p,{304,445,32,21},s.sidechainFilter);
+    label(p,{352,440,32,31},NativeFx::I18n::text("filter.highPass", "High-pass"),14,muted);
     box(p,{389,440,81,31},5,QColor(17,34,54),QColor(61,91,125));label(p,{392,440,70,31},QStringLiteral("%1 Hz").arg(s.highPassHz,0,'f',0),14,ink);
-    label(p,{485,440,32,31},QStringLiteral("低通"),14,muted);
+    label(p,{485,440,32,31},NativeFx::I18n::text("filter.lowPass", "Low-pass"),14,muted);
     box(p,{522,440,86,31},5,QColor(17,34,54),QColor(61,91,125));label(p,{524,440,79,31},QStringLiteral("%1 kHz").arg(s.lowPassHz/1000,0,'f',1),14,ink);
     box(p,{629,423,116,67},8,QColor(20,39,60),QColor(47,75,104));
-    label(p,{640,440,57,31},QStringLiteral("自动增益"),14,muted);toggle(p,{702,445,32,21},s.autoMakeup);
+    label(p,{640,440,57,31},NativeFx::I18n::text("control.autoGain", "Auto gain"),14,muted);toggle(p,{702,445,32,21},s.autoMakeup);
     p.restore();
 }
 
@@ -344,12 +347,20 @@ void CompressorWidget::mousePressEvent(QMouseEvent* e) {
     else if(QRectF(298,438,43,35).contains(q))apply([](auto& p){p.sidechainFilter=!p.sidechainFilter;});
     else if(QRectF(696,438,43,35).contains(q))apply([](auto& p){p.autoMakeup=!p.autoMakeup;});
     else if(QRectF(459,37,168,32).contains(q)) {
-        QMenu menu(this);const QStringList names={QStringLiteral("Default"),QStringLiteral("Punchy Drums"),QStringLiteral("Gentle Level")};
-        for(int i=0;i<3;++i){auto* action=menu.addAction(names[i]);connect(action,&QAction::triggered,this,[this,i]{applyPreset(i);});}
+        QMenu menu(this);const QStringList names={NativeFx::I18n::text("preset.default", "Default"),NativeFx::I18n::text("preset.punchyDrums", "Punchy Drums"),NativeFx::I18n::text("preset.gentleLevel", "Gentle Level")};
+        for(int i=0;i<3;++i){
+            auto* action=menu.addAction(names[i]);
+            NativeFx::I18n::bind(action, [action, i] {
+                constexpr const char* keys[] = {"preset.default", "preset.punchyDrums", "preset.gentleLevel"};
+                constexpr const char* english[] = {"Default", "Punchy Drums", "Gentle Level"};
+                action->setText(NativeFx::I18n::text(keys[i], english[i]));
+            });
+            connect(action,&QAction::triggered,this,[this,i]{applyPreset(i);});
+        }
         menu.exec(mapToGlobal(QPoint(459,214)));
     } else if(QRectF(638,37,30,32).contains(q))applyPreset(selectedPreset_-1);
     else if(QRectF(675,37,30,32).contains(q))applyPreset(selectedPreset_+1);
-    else if(QRectF(713,37,30,32).contains(q)){QMenu menu(this);auto* action=menu.addAction(QStringLiteral("恢复默认值"));connect(action,&QAction::triggered,this,[this]{applyPreset(0);});menu.exec(mapToGlobal(QPoint(713,214)));}
+    else if(QRectF(713,37,30,32).contains(q)){QMenu menu(this);auto* action=menu.addAction(NativeFx::I18n::text("action.restoreDefaults", "Restore defaults"));NativeFx::I18n::bind(action, [action] { action->setText(NativeFx::I18n::text("action.restoreDefaults", "Restore defaults")); });connect(action,&QAction::triggered,this,[this]{applyPreset(0);});menu.exec(mapToGlobal(QPoint(713,214)));}
     else if(QRectF(389,440,81,31).contains(q)) {QMenu menu(this);for(float hz:{20,40,60,80,120,160,250,500,1000,2000}){auto* action=menu.addAction(QStringLiteral("%1 Hz").arg(hz));connect(action,&QAction::triggered,this,[this,hz]{apply([hz](auto& p){p.highPassHz=hz;});});}menu.exec(mapToGlobal(QPoint(389,616)));}
     else if(QRectF(522,440,86,31).contains(q)) {QMenu menu(this);for(float hz:{500,1000,2000,4000,8000,12000,16000,20000}){auto* action=menu.addAction(QStringLiteral("%1 kHz").arg(hz/1000));connect(action,&QAction::triggered,this,[this,hz]{apply([hz](auto& p){p.lowPassHz=hz;});});}menu.exec(mapToGlobal(QPoint(522,616)));}
 }

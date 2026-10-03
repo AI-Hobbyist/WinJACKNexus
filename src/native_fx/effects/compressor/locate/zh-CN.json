@@ -1,0 +1,36 @@
+{
+  "formatVersion": 1,
+  "catalogVersion": 1,
+  "moduleId": "compressor",
+  "language": "zh-CN",
+  "domains": {
+    "nativefx.compressor": {
+      "module.name": "Compressor 压缩器",
+      "module.description": "八声道原生压缩器控制界面。",
+      "control.threshold": "阈值",
+      "control.ratio": "比率",
+      "control.attack": "起始时间\n(Attack)",
+      "control.release": "释放时间\n(Release)",
+      "control.targetChannels": "作用声道",
+      "control.all": "全部",
+      "label.preset": "预设:",
+      "preset.default": "默认",
+      "preset.custom": "自定义",
+      "axis.inputLevel": "输入电平 (dB)",
+      "axis.outputLevel": "输出电平 (dB)",
+      "control.sidechainFilter": "侧链滤波",
+      "filter.highPass": "高通",
+      "filter.lowPass": "低通",
+      "action.restoreDefaults": "恢复默认值",
+      "window.title": "Compressor 压缩器 — %1",
+      "description.compressor": "控制动态范围，使电平更稳定",
+      "preset.punchyDrums": "有力鼓声",
+      "preset.gentleLevel": "柔和平衡",
+      "control.softKnee": "拐点 (Soft Knee)",
+      "control.makeupGain": "输出增益\n(Makeup)",
+      "control.detectorMode": "检测模式:",
+      "meter.peak": "峰值",
+      "control.autoGain": "自动增益"
+    }
+  }
+}

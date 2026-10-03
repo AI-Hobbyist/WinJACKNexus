@@ -1,0 +1,41 @@
+{
+  "formatVersion": 1,
+  "catalogVersion": 1,
+  "moduleId": "graphic-eq",
+  "language": "zh-CN",
+  "domains": {
+    "nativefx.graphic-eq": {
+      "module.name": "Graphic EQ 图示均衡器",
+      "module.description": "八声道 31 段图示均衡器。",
+      "control.targetChannels": "作用声道",
+      "control.all": "全部",
+      "label.preset": "预设:",
+      "preset.default": "默认",
+      "preset.custom": "自定义",
+      "window.title": "Graphic EQ 图示均衡器 — %1",
+      "description.graphicEq": "31 段图示均衡 · 精确调整频响响应",
+      "preset.vocalBright": "明亮人声",
+      "preset.bassBoost": "低频增强",
+      "preset.classical": "古典",
+      "label.inputReference": "输入参考",
+      "label.postEq": "EQ 后",
+      "label.activeChannelCount": "%1/8 路",
+      "action.reset": "重置",
+      "action.flatten": "平直",
+      "action.load": "加载…",
+      "action.save": "保存…",
+      "control.outputGain": "输出增益",
+      "control.displayMode": "显示模式",
+      "label.bandCount": "31 段",
+      "view.bands": "分频视图",
+      "view.curve": "曲线视图",
+      "label.selectedItem": "选中 %1",
+      "section.displayOptions": "显示选项",
+      "control.showFrequencies": "显示频率值",
+      "control.showCurve": "显示曲线",
+      "dialog.loadPreset": "加载均衡器预设",
+      "filter.presetFiles": "EQ 预设 (*.json)",
+      "dialog.savePreset": "保存均衡器预设"
+    }
+  }
+}

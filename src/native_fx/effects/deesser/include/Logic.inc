@@ -124,7 +124,10 @@ public:
             if (effectWidget_) return effectWidget_;
             auto* widget = new DeEsserWidget(parent);
             widget->setAttribute(Qt::WA_DeleteOnClose, false);
-            widget->setWindowTitle(QStringLiteral("De-Esser 去齿音 — %1").arg(QString::fromStdString(clientName_)));
+            WinJACKNexus::NativeFx::I18n::bind(widget, [this, widget] {
+                widget->setWindowTitle(WinJACKNexus::NativeFx::I18n::text("window.title", "De-Esser — %1").arg(QString::fromStdString(clientName_)));
+                widget->update();
+            });
             widget->setParameters(settings_);
             std::array<WinJACKNexus::Common::AudioRingBuffer<
                 WinJACKNexus::Common::DeEsserSpectrumSample>*, 8> spectrumSources {};
@@ -181,7 +184,7 @@ public:
                 }
                 if (!reconnect(connections)) return false;
             }
-            if (effectWidget_) effectWidget_->setWindowTitle(QStringLiteral("De-Esser 去齿音 — %1").arg(trimmed));
+            if (effectWidget_) effectWidget_->setWindowTitle(WinJACKNexus::NativeFx::I18n::text("window.title", "De-Esser — %1").arg(trimmed));
             if (clientNameWidget_) clientNameWidget_->setClientName(trimmed);
             return true;
         } catch (...) { return false; }

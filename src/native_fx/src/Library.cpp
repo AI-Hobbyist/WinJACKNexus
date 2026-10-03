@@ -10,6 +10,7 @@
 #error Each Native Fx DLL must declare WJN_FX_MODULE_INDEX
 #endif
 #include <WinJACKNexus/UI/Controls.hpp>
+#include <WinJACKNexus/NativeFx/I18n.hpp>
 #if WJN_FX_MODULE_INDEX == 0
 #include <WinJACKNexus/NativeFx/gate/Ui.hpp>
 #elif WJN_FX_MODULE_INDEX == 1

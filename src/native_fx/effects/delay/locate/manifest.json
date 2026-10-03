@@ -1,0 +1,57 @@
+{
+  "formatVersion": 1,
+  "moduleId": "delay",
+  "domains": [
+    "nativefx.delay"
+  ],
+  "defaultLanguage": "en-US",
+  "catalogVersion": 1,
+  "languages": {
+    "en-US": "en-US.json",
+    "zh-CN": "zh-CN.json",
+    "ja-JP": "ja-JP.json",
+    "ko-KR": "ko-KR.json"
+  },
+  "requiredKeys": {
+    "nativefx.delay": [
+      "module.name",
+      "module.description",
+      "control.targetChannels",
+      "control.all",
+      "label.preset",
+      "preset.default",
+      "preset.custom",
+      "filter.highPass",
+      "filter.lowPass",
+      "window.title",
+      "preset.vocalEcho",
+      "preset.shortSlap",
+      "preset.rhythmicEcho",
+      "preset.ambientEcho",
+      "preset.tapeEcho",
+      "view.timeline",
+      "view.echoDecay",
+      "mode.normal",
+      "mode.additive",
+      "description.delay",
+      "control.timeMode",
+      "mode.sync",
+      "mode.freeTime",
+      "control.noteValue",
+      "control.dottedNote",
+      "control.view",
+      "control.delayTimeBpm",
+      "control.delayTime",
+      "control.feedback",
+      "control.wet",
+      "control.dry",
+      "section.filters",
+      "control.mixMode",
+      "action.resetCurrent",
+      "action.resetAll",
+      "hint.feedback",
+      "hint.wet",
+      "hint.dry"
+    ]
+  }
+}

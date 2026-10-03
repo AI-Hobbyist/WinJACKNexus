@@ -1,0 +1,41 @@
+{
+  "formatVersion": 1,
+  "catalogVersion": 1,
+  "moduleId": "deesser",
+  "language": "en-US",
+  "domains": {
+    "nativefx.deesser": {
+      "module.name": "De-Esser",
+      "module.description": "Eight-channel native sibilance suppressor.",
+      "control.threshold": "Threshold",
+      "control.attack": "Attack",
+      "control.release": "Release",
+      "control.targetChannels": "Channel",
+      "control.all": "All",
+      "label.preset": "Preset:",
+      "preset.default": "Default",
+      "preset.custom": "Custom",
+      "action.restoreDefaults": "Restore defaults",
+      "window.title": "De-Esser — %1",
+      "description.deesser": "Detect and reduce sibilance (S, SH)",
+      "control.centerFrequency": "Center frequency",
+      "control.bandwidth": "Bandwidth",
+      "control.outputGain": "Output gain",
+      "preset.brightVocal": "Bright Vocal",
+      "preset.softVoice": "Soft Voice",
+      "label.input": "Input",
+      "label.processed": "Processed",
+      "control.mode": "Mode:",
+      "mode.wideband": "Wideband",
+      "mode.splitBand": "Split band",
+      "mode.dynamicEq": "Dynamic EQ",
+      "control.detectorMode": "Detector:",
+      "meter.peak": "Peak",
+      "control.monitor": "Monitor:",
+      "control.off": "Off",
+      "listen.sibilance": "Sibilance",
+      "listen.original": "Original",
+      "help.detector": "RMS detects average energy; Peak responds to instantaneous sibilance."
+    }
+  }
+}

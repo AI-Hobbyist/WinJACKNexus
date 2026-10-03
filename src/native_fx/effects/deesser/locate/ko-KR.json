@@ -1,0 +1,41 @@
+{
+  "formatVersion": 1,
+  "catalogVersion": 1,
+  "moduleId": "deesser",
+  "language": "ko-KR",
+  "domains": {
+    "nativefx.deesser": {
+      "module.name": "디에서",
+      "module.description": "8채널 네이티브 치찰음 억제기.",
+      "control.threshold": "임계값",
+      "control.attack": "어택",
+      "control.release": "릴리스",
+      "control.targetChannels": "대상 채널",
+      "control.all": "전체",
+      "label.preset": "프리셋:",
+      "preset.default": "기본값",
+      "preset.custom": "사용자 정의",
+      "action.restoreDefaults": "기본값 복원",
+      "window.title": "디에서 — %1",
+      "description.deesser": "치찰음 대역 감지 및 억제 (S, SH 등)",
+      "control.centerFrequency": "중심 주파수",
+      "control.bandwidth": "대역폭",
+      "control.outputGain": "출력 게인",
+      "preset.brightVocal": "밝은 보컬",
+      "preset.softVoice": "부드러운 음성",
+      "label.input": "입력",
+      "label.processed": "처리 후",
+      "control.mode": "모드:",
+      "mode.wideband": "광대역",
+      "mode.splitBand": "분할 대역",
+      "mode.dynamicEq": "다이내믹 EQ",
+      "control.detectorMode": "검출 방식:",
+      "meter.peak": "피크",
+      "control.monitor": "모니터:",
+      "control.off": "끔",
+      "listen.sibilance": "치찰음",
+      "listen.original": "원음",
+      "help.detector": "RMS는 평균 에너지를 검출하며 피크는 순간적인 치찰음에 반응합니다."
+    }
+  }
+}

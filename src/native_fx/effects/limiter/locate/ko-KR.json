@@ -1,0 +1,42 @@
+{
+  "formatVersion": 1,
+  "catalogVersion": 1,
+  "moduleId": "limiter",
+  "language": "ko-KR",
+  "domains": {
+    "nativefx.limiter": {
+      "module.name": "리미터",
+      "module.description": "8채널 네이티브 리미터 화면.",
+      "control.targetChannels": "대상 채널",
+      "control.all": "전체",
+      "label.preset": "프리셋:",
+      "preset.default": "기본값",
+      "preset.custom": "사용자 정의",
+      "axis.inputLevel": "입력 레벨 (dB)",
+      "axis.outputLevel": "출력 레벨 (dB)",
+      "window.title": "리미터 — %1",
+      "description.limiter": "과부하 방지 및 최대 출력 레벨 제한",
+      "preset.broadcast": "방송",
+      "preset.maxLoudness": "최대 라우드니스",
+      "label.inputLevel": "입력 레벨",
+      "label.outputLevel": "출력 레벨",
+      "control.threshold": "임계값",
+      "control.ceiling": "출력 상한",
+      "control.release": "릴리스",
+      "control.lookahead": "룩어헤드",
+      "control.mode": "모드:",
+      "mode.transparent": "투명",
+      "mode.modern": "모던",
+      "mode.brickwall": "브릭월",
+      "control.oversampling": "오버샘플링:",
+      "control.autoGain": "자동 게인",
+      "action.resetCurrent": "현재 채널 초기화",
+      "action.resetAll": "모든 채널 초기화",
+      "action.copyToAll": "현재 설정을 모든 채널에 복사",
+      "hint.threshold": "(Threshold)",
+      "hint.ceiling": "(Ceiling)",
+      "hint.release": "(Release)",
+      "hint.lookahead": "(Lookahead)"
+    }
+  }
+}

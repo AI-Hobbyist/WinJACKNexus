@@ -1,0 +1,16 @@
+{
+  "date": "2026-10-03",
+  "changed_files": [
+    "src/ui/src/Controls.cpp"
+  ],
+  "resource_changes": [],
+  "before_occurrences": 9015,
+  "after_occurrences": 9015,
+  "added": [],
+  "removed": [],
+  "relocated": [],
+  "usage_changed": [],
+  "catalog_added": [],
+  "catalog_retired": [],
+  "catalog_changed_sources": []
+}

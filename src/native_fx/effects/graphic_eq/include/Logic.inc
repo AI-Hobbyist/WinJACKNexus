@@ -91,7 +91,10 @@ public:
             if (effectWidget_) return effectWidget_;
             auto* widget = new WinJACKNexus::UI::GraphicEqWidget(parent);
             widget->setAttribute(Qt::WA_DeleteOnClose, false);
-            widget->setWindowTitle(QStringLiteral("Graphic EQ 图示均衡器 — %1").arg(QString::fromStdString(clientName_)));
+            WinJACKNexus::NativeFx::I18n::bind(widget, [this, widget] {
+                widget->setWindowTitle(WinJACKNexus::NativeFx::I18n::text("window.title", "Graphic EQ — %1").arg(QString::fromStdString(clientName_)));
+                widget->update();
+            });
             widget->setParameters(settings_);
             widget->setChangeHandler([this](std::size_t index, const WinJACKNexus::Common::GraphicEqParameters& p) {
                 settings_[index] = p; atomic_[index].store(p);
@@ -169,7 +172,7 @@ public:
                     return false;
             }
             if (effectWidget_)
-                effectWidget_->setWindowTitle(QStringLiteral("Graphic EQ 图示均衡器 — %1").arg(trimmed));
+                effectWidget_->setWindowTitle(WinJACKNexus::NativeFx::I18n::text("window.title", "Graphic EQ — %1").arg(trimmed));
             if (clientNameWidget_)
                 clientNameWidget_->setClientName(trimmed);
             return true;

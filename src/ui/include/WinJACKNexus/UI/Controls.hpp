@@ -58,6 +58,12 @@ WINJACK_UI_API void drawSurface(QPainter& painter, const QRectF& bounds,
 WINJACK_UI_API void drawText(QPainter& painter, const QRectF& bounds,
     const QString& value, const QFont& font, const QColor& color,
     Qt::Alignment alignment = Qt::AlignCenter);
+/* Elides each explicit line using the supplied font. On a QWidget painter,
+   clipped text exposes its complete source through a native tooltip in the
+   transformed hit rectangle. Call during paintEvent; no source value changes. */
+WINJACK_UI_API void drawElidedText(QPainter& painter, const QRectF& bounds,
+    const QString& value, const QFont& font, const QColor& color,
+    Qt::Alignment alignment = Qt::AlignCenter);
 WINJACK_UI_API void drawMarker(QPainter& painter, const QPointF& center, qreal radius,
     const QBrush& fill, const QColor& border = {}, qreal borderWidth = 1.0);
 WINJACK_UI_API void drawToggle(QPainter& painter, const QRectF& bounds, bool on,
@@ -501,6 +507,9 @@ public:
     void setClientName(const QString& clientName);
 private:
     void apply();
+    void refreshStatus();
+    enum class ApplyStatus { none, empty, applied, rejected };
+    ApplyStatus applyStatus_ = ApplyStatus::none;
     QLineEdit* editor_ = nullptr;
     QLabel* status_ = nullptr;
     ApplyHandler handler_;

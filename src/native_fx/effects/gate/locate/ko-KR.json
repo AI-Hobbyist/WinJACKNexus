@@ -1,0 +1,34 @@
+{
+  "formatVersion": 1,
+  "catalogVersion": 1,
+  "moduleId": "gate",
+  "language": "ko-KR",
+  "domains": {
+    "nativefx.gate": {
+      "module.name": "게이트",
+      "module.description": "8채널 네이티브 다운워드 게이트.",
+      "window.title": "게이트 — %1",
+      "control.threshold": "임계값",
+      "control.ratio": "비율",
+      "control.attack": "어택",
+      "control.release": "릴리스",
+      "control.floor": "플로어",
+      "control.hysteresis": "히스테리시스",
+      "control.targetChannels": "대상 채널",
+      "control.all": "전체",
+      "description.gate": "임계값 이하 신호를 억제하여 노이즈 감소",
+      "label.preset": "프리셋:",
+      "preset.default": "기본값",
+      "preset.tight": "타이트 게이트",
+      "preset.gentle": "부드러운 게이트",
+      "preset.custom": "사용자 정의",
+      "tooltip.threshold": "임계값\n%1 dB",
+      "axis.inputLevel": "입력 레벨 (dB)",
+      "axis.outputLevel": "출력 레벨 (dB)",
+      "control.sidechainFilter": "사이드체인 필터",
+      "filter.highPass": "하이패스",
+      "filter.lowPass": "로우패스",
+      "action.restoreDefaults": "기본값 복원"
+    }
+  }
+}

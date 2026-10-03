@@ -3,8 +3,11 @@
 #include <WinJACKNexus/NativeFx/graphic_eq/Ui.hpp>
 #include <WinJACKNexus/UI/ApplicationSettings.hpp>
 #include <WinJACKNexus/UI/Controls.hpp>
+#include <WinJACKNexus/NativeFx/I18n.hpp>
 
 #include <QFileDialog>
+#include <QComboBox>
+#include <QSignalBlocker>
 #include <QFile>
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -21,6 +24,26 @@
 
 namespace WinJACKNexus::UI {
 namespace {
+QString choosePresetFile(QWidget* owner, bool save) {
+    QFileDialog dialog(owner);
+    dialog.setObjectName(QStringLiteral("nativeFxPresetFileDialog"));
+    dialog.setOption(QFileDialog::DontUseNativeDialog);
+    dialog.setAcceptMode(save ? QFileDialog::AcceptSave : QFileDialog::AcceptOpen);
+    dialog.setFileMode(save ? QFileDialog::AnyFile : QFileDialog::ExistingFile);
+    dialog.setNameFilter(NativeFx::I18n::text("filter.presetFiles", "EQ presets (*.json)"));
+    NativeFx::I18n::bind(&dialog, [&dialog, save] {
+        dialog.setWindowTitle(save
+            ? NativeFx::I18n::text("dialog.savePreset", "Save EQ preset")
+            : NativeFx::I18n::text("dialog.loadPreset", "Load EQ preset"));
+        // The glob is always *.json. Relabel its existing choice without
+        // resetting directory, selection, or the pending filename editor.
+        if (auto* types = dialog.findChild<QComboBox*>(QStringLiteral("fileTypeCombo"))) {
+            const QSignalBlocker block(types);
+            types->setItemText(0, NativeFx::I18n::text("filter.presetFiles", "EQ presets (*.json)"));
+        }
+    });
+    return dialog.exec() == QDialog::Accepted ? dialog.selectedFiles().value(0) : QString{};
+}
 using WinJACKNexus::Common::graphicEqBandCount;
 using WinJACKNexus::Common::graphicEqFrequencies;
 constexpr qreal selectorHeight = 146.0;
@@ -40,7 +63,7 @@ void drawText(QPainter& painter, const QRectF& bounds, const QString& value, int
     auto font = painter.font();
     font.setPixelSize(size <= 13 ? std::max(size + 2, qRound(size * 1.18)) : size);
     font.setBold(bold);
-    Controls::drawText(painter,bounds,value,font,color,align);
+    Controls::drawElidedText(painter,bounds,value,font,color,align);
 }
 
 QString freqLabel(float frequency)
@@ -88,7 +111,7 @@ QPainterPath smoothCurve(const std::array<QPointF, graphicEqBandCount>& points)
 GraphicEqWidget::GraphicEqWidget(QWidget* parent) : QWidget(parent, parent ? Qt::Widget : Qt::Window), spectrumTimer_(this)
 {
     if (!parent) setAttribute(Qt::WA_NativeWindow, true);
-    setWindowTitle(QStringLiteral("Graphic EQ 图示均衡器"));
+    setWindowTitle(NativeFx::I18n::text("module.name", "Graphic EQ"));
     setFixedSize(760, 658);
     setMouseTracking(true);
     spectrum_.inputDb.fill(-96.0F);
@@ -96,6 +119,11 @@ GraphicEqWidget::GraphicEqWidget(QWidget* parent) : QWidget(parent, parent ? Qt:
     spectrumTimer_.setObjectName(QStringLiteral("nativeFxSpectrumRefreshTimer"));
     bindRefreshTimer(spectrumTimer_, this);
     connect(&spectrumTimer_, &QTimer::timeout, this, &GraphicEqWidget::pollSpectrumFrame);
+    NativeFx::I18n::bind(this, [this] {
+        setWindowTitle(NativeFx::I18n::text("module.name", "Graphic EQ"));
+        setAccessibleDescription(NativeFx::I18n::text("module.description", "Eight-channel 31-band graphic equalizer."));
+        update();
+    });
 }
 
 void GraphicEqWidget::setParameters(const std::array<Parameters, 8>& parameters)
@@ -256,12 +284,12 @@ void GraphicEqWidget::paintEvent(QPaintEvent*)
 
     // Channel strip follows the supplied reference while retaining all eight bed channels.
     rounded(p, { 7, 8, 740, 128 }, QColor(21, 39, 59), QColor(47, 75, 104), 11);
-    drawText(p, { 22, 23, 110, 31 }, QStringLiteral("作用声道"), 18, text, Qt::AlignLeft, true);
+    drawText(p, { 22, 23, 110, 31 }, NativeFx::I18n::text("control.targetChannels", "Channel"), 18, text, Qt::AlignLeft, true);
     const auto channels = WinJACKNexus::Common::standardChannelChoices();
     for (int i = 0; i < static_cast<int>(channels.size()); ++i) {
         const auto button = channelButton(i);
         const bool selected = i == (selectedChannel_ < 0 ? 0 : selectedChannel_ + 1);
-        Controls::drawButton(p, button, channels[static_cast<std::size_t>(i)], selected, controls, 14);
+        Controls::drawButton(p, button, (i == 0 ? NativeFx::I18n::text("control.all", "All") : channels[static_cast<std::size_t>(i)]), selected, controls, 14);
     }
 
     p.translate(0, selectorHeight);
@@ -277,8 +305,8 @@ void GraphicEqWidget::paintEvent(QPaintEvent*)
     p.drawRoundedRect(QRectF(40, 31, 7, 29), 1, 1);
     p.drawRoundedRect(QRectF(51, 20, 7, 40), 1, 1);
     p.drawRoundedRect(QRectF(62, 39, 7, 21), 1, 1);
-    drawText(p, { 87, 15, 263, 33 }, QStringLiteral("Graphic EQ 图示均衡器"), 23, text, Qt::AlignLeft, true);
-    drawText(p, { 88, 48, 238, 20 }, QStringLiteral("31 段图示均衡 · 精确调整频响响应"), 12, muted, Qt::AlignLeft);
+    drawText(p, { 87, 15, 263, 33 }, NativeFx::I18n::text("module.name", "Graphic EQ"), 23, text, Qt::AlignLeft, true);
+    drawText(p, { 88, 48, 238, 20 }, NativeFx::I18n::text("description.graphicEq", "31-band EQ · Shape the frequency response"), 12, muted, Qt::AlignLeft);
 
     const auto params = displayed();
     // Compact switch matches the pill switch shown in the reference.
@@ -286,10 +314,10 @@ void GraphicEqWidget::paintEvent(QPaintEvent*)
     Controls::drawToggle(p, { 356, 29, 38, 22 }, params.enabled,
         themed("control-toggle-indicator-on", cyan),
         themed("control-toggle-indicator-off", QColor(49, 68, 84)));
-    drawText(p, { 410, 27, 35, 33 }, QStringLiteral("预设:"), 12, muted,
+    drawText(p, { 410, 27, 35, 33 }, NativeFx::I18n::text("label.preset", "Preset:"), 12, muted,
              Qt::AlignLeft | Qt::AlignVCenter);
-    const std::array<QString, 5> presets { QStringLiteral("Default"), QStringLiteral("Vocal Bright"),
-        QStringLiteral("Bass Boost"), QStringLiteral("Classical"), QStringLiteral("Custom") };
+    const std::array<QString, 5> presets { NativeFx::I18n::text("preset.default", "Default"), NativeFx::I18n::text("preset.vocalBright", "Vocal Bright"),
+        NativeFx::I18n::text("preset.bassBoost", "Bass Boost"), NativeFx::I18n::text("preset.classical", "Classical"), NativeFx::I18n::text("preset.custom", "Custom") };
     Controls::drawDropdown(p, { 446, 27, 174, 33 },
         presets[static_cast<std::size_t>(std::clamp(selectedPreset_, 0, 4))], controls, 14);
     for (int i = 0; i < 2; ++i) {
@@ -387,12 +415,12 @@ void GraphicEqWidget::paintEvent(QPaintEvent*)
 
         p.setPen(QPen(QColor::fromRgb(inputSpectrumStyle.stroke.rgb()), 1.6, Qt::DashLine));
         p.drawLine(QPointF(405, 112), QPointF(423, 112));
-        drawText(p, { 426, 103, 58, 18 }, QStringLiteral("输入参考"), 10, muted);
+        drawText(p, { 426, 103, 58, 18 }, NativeFx::I18n::text("label.inputReference", "Input reference"), 10, muted);
         p.setPen(QPen(QColor::fromRgb(outputSpectrumStyle.stroke.rgb()), 1.6));
         p.drawLine(QPointF(490, 112), QPointF(508, 112));
-        drawText(p, { 511, 103, 55, 18 }, QStringLiteral("EQ 后"), 10, muted);
+        drawText(p, { 511, 103, 55, 18 }, NativeFx::I18n::text("label.postEq", "Post EQ"), 10, muted);
         if (selectedChannel_ < 0)
-            drawText(p, { 568, 103, 56, 18 }, QStringLiteral("%1/8 路").arg(spectrum_.activeChannelCount), 10, muted);
+            drawText(p, { 568, 103, 56, 18 }, NativeFx::I18n::text("label.activeChannelCount", "%1/8 channels").arg(spectrum_.activeChannelCount), 10, muted);
     }
     const bool drawCurve = showCurve_ && viewMode_ != 1;
     const bool drawFaders = viewMode_ != 2;
@@ -419,8 +447,8 @@ void GraphicEqWidget::paintEvent(QPaintEvent*)
     }
     Q_UNUSED(graphHeight);
 
-    const std::array<QString, 4> actions { QStringLiteral("重置"), QStringLiteral("平直"),
-        QStringLiteral("加载…"), QStringLiteral("保存…") };
+    const std::array<QString, 4> actions { NativeFx::I18n::text("action.reset", "Reset"), NativeFx::I18n::text("action.flatten", "Flat"),
+        NativeFx::I18n::text("action.load", "Load…"), NativeFx::I18n::text("action.save", "Save…") };
     for (int i = 0; i < static_cast<int>(actions.size()); ++i) {
         const QRectF button(650, 149 + i * 54, 90, 42);
         Controls::drawButton(p, button, actions[static_cast<std::size_t>(i)], false, controls, 14);
@@ -430,12 +458,12 @@ void GraphicEqWidget::paintEvent(QPaintEvent*)
     rounded(p, { 18, 392, 168, 100 }, QColor(14, 33, 51), QColor(35, 65, 90), 8);
     rounded(p, { 197, 392, 387, 100 }, QColor(14, 33, 51), QColor(35, 65, 90), 8);
     rounded(p, { 592, 392, 148, 100 }, QColor(14, 33, 51), QColor(35, 65, 90), 8);
-    drawText(p, { 31, 399, 139, 20 }, QStringLiteral("输出增益"), 12, muted, Qt::AlignLeft);
+    drawText(p, { 31, 399, 139, 20 }, NativeFx::I18n::text("control.outputGain", "Output gain"), 12, muted, Qt::AlignLeft);
     const auto outputNormalized = (params.outputGainDb + 24.0) / 36.0;
     Controls::drawKnob(p, { 119, 442 }, outputNormalized, 29, knobColors);
     drawText(p, { 81, 469, 76, 17 }, QStringLiteral("%1 dB").arg(params.outputGainDb, 0, 'f', 1), 12, text);
-    drawText(p, { 211, 399, 345, 20 }, QStringLiteral("显示模式"), 12, muted, Qt::AlignLeft);
-    const std::array<QString, 3> viewLabels { QStringLiteral("31 段"), QStringLiteral("分频视图"), QStringLiteral("曲线视图") };
+    drawText(p, { 211, 399, 345, 20 }, NativeFx::I18n::text("control.displayMode", "Display mode"), 12, muted, Qt::AlignLeft);
+    const std::array<QString, 3> viewLabels { NativeFx::I18n::text("label.bandCount", "31 bands"), NativeFx::I18n::text("view.bands", "Band view"), NativeFx::I18n::text("view.curve", "Curve view") };
     for (int i = 0; i < 3; ++i) {
         const QRectF button(211 + i * 126, 428, 119, 34);
         const bool active = viewMode_ == i;
@@ -446,12 +474,12 @@ void GraphicEqWidget::paintEvent(QPaintEvent*)
     const auto selectedBand = static_cast<std::size_t>(std::clamp(selectedBand_, 0,
         static_cast<int>(graphicEqBandCount) - 1));
     drawText(p, { 211, 467, 171, 21 },
-        QStringLiteral("选中 %1").arg(freqLabel(graphicEqFrequencies[selectedBand])),
+        NativeFx::I18n::text("label.selectedItem", "Selected %1").arg(freqLabel(graphicEqFrequencies[selectedBand])),
         11, muted, Qt::AlignLeft);
     rounded(p, { 391, 466, 174, 23 }, QColor(16, 37, 56), QColor(41, 72, 97), 4);
     drawText(p, { 394, 467, 168, 21 },
         QStringLiteral("%1 dB").arg(params.bandGainsDb[selectedBand], 0, 'f', 1), 11, text);
-    drawText(p, { 604, 399, 125, 20 }, QStringLiteral("显示选项"), 12, muted, Qt::AlignLeft);
+    drawText(p, { 604, 399, 125, 20 }, NativeFx::I18n::text("section.displayOptions", "Display options"), 12, muted, Qt::AlignLeft);
     const auto checkbox = [&](qreal y, bool checked, const QString& label) {
         const QRectF box(608, y, 18, 18);
         rounded(p, box, checked ? QColor(0, 116, 170) : QColor(14, 32, 49),
@@ -459,8 +487,8 @@ void GraphicEqWidget::paintEvent(QPaintEvent*)
         if (checked) drawText(p, box, QStringLiteral("✓"), 12, Qt::white);
         drawText(p, { 635, y - 2, 93, 22 }, label, 11, text, Qt::AlignLeft);
     };
-    checkbox(428, showFrequencyValues_, QStringLiteral("显示频率值"));
-    checkbox(460, showCurve_, QStringLiteral("显示曲线"));
+    checkbox(428, showFrequencyValues_, NativeFx::I18n::text("control.showFrequencies", "Show frequencies"));
+    checkbox(460, showCurve_, NativeFx::I18n::text("control.showCurve", "Show curve"));
     p.restore();
 }
 
@@ -555,14 +583,14 @@ void GraphicEqWidget::mousePressEvent(QMouseEvent* event)
     if (localY >= 27 && localY <= 60 && point.x() >= 446 && point.x() <= 620) {
         auto* menu = new QMenu(this);
         menu->setAttribute(Qt::WA_DeleteOnClose, true);
-        menu->setStyleSheet(QStringLiteral(
-            "QMenu { background: #10263a; color: #e1edf8; border: 1px solid #315775; padding: 4px; }"
-            "QMenu::item { padding: 7px 22px; }"
-            "QMenu::item:selected { background: #075478; color: #56d9f4; }"));
-        const std::array<QString, 5> presets { QStringLiteral("Default"), QStringLiteral("Vocal Bright"),
-            QStringLiteral("Bass Boost"), QStringLiteral("Classical"), QStringLiteral("Custom") };
+
+        const std::array<QString, 5> presets { NativeFx::I18n::text("preset.default", "Default"), NativeFx::I18n::text("preset.vocalBright", "Vocal Bright"),
+            NativeFx::I18n::text("preset.bassBoost", "Bass Boost"), NativeFx::I18n::text("preset.classical", "Classical"), NativeFx::I18n::text("preset.custom", "Custom") };
         for (int i = 0; i < static_cast<int>(presets.size()); ++i) {
             auto* action = menu->addAction(presets[static_cast<std::size_t>(i)]);
+            constexpr const char* keys[] = {"preset.default", "preset.vocalBright", "preset.bassBoost", "preset.classical", "preset.custom"};
+            constexpr const char* english[] = {"Default", "Vocal Bright", "Bass Boost", "Classical", "Custom"};
+            NativeFx::I18n::bindProperty(action, "text", keys[i], english[i]);
             action->setCheckable(true);
             action->setChecked(i == selectedPreset_);
         }
@@ -646,7 +674,7 @@ void GraphicEqWidget::mouseReleaseEvent(QMouseEvent*)
 
 void GraphicEqWidget::loadPresetFile()
 {
-    const auto path = QFileDialog::getOpenFileName(this, QStringLiteral("加载均衡器预设"), {}, QStringLiteral("EQ preset (*.json)"));
+    const auto path = choosePresetFile(this, false);
     if (path.isEmpty()) return;
     QFile file(path);
     if (!file.open(QIODevice::ReadOnly)) return;
@@ -664,7 +692,7 @@ void GraphicEqWidget::loadPresetFile()
 
 void GraphicEqWidget::savePresetFile()
 {
-    const auto path = QFileDialog::getSaveFileName(this, QStringLiteral("保存均衡器预设"), {}, QStringLiteral("EQ preset (*.json)"));
+    const auto path = choosePresetFile(this, true);
     if (path.isEmpty()) return;
     QJsonArray bands;
     for (const auto gain : displayed().bandGainsDb) bands.append(gain);

@@ -1,5 +1,6 @@
 /* This file is part of WinJACKNexus. SPDX-License-Identifier: AGPL-3.0-only */
 #include <WinJACKNexus/NativeFx/NativeFxApi.h>
+#include <WinJACKNexus/NativeFx/I18n.hpp>
 #include <WinJACKNexus/UI/Controls.hpp>
 #if WJN_FX_MODULE_INDEX <= 7
 #include <WinJACKNexus/UI/ThemeCore.hpp>
@@ -378,23 +379,35 @@ uint32_t wjn_fx_preset_count(void) {
 }
 const char* wjn_fx_preset_name(uint32_t index) {
 #if WJN_FX_MODULE_INDEX == 0
-    static const char* names[] = {"Default", "Tight Gate", "Gentle Gate", "Custom"};
+    static constexpr const char* keys[] = {"preset.default", "preset.tight", "preset.gentle", "preset.custom"};
+    static constexpr const char* english[] = {"Default", "Tight Gate", "Gentle Gate", "Custom"};
 #elif WJN_FX_MODULE_INDEX == 1
-    static const char* names[] = {"Default", "Vocal Bright", "Bass Boost", "Classical", "Custom"};
+    static constexpr const char* keys[] = {"preset.default", "preset.vocalBright", "preset.bassBoost", "preset.classical", "preset.custom"};
+    static constexpr const char* english[] = {"Default", "Vocal Bright", "Bass Boost", "Classical", "Custom"};
 #elif WJN_FX_MODULE_INDEX == 2
-    static const char* names[] = {"Default", "Bright Vocal", "Soft Voice", "Custom"};
+    static constexpr const char* keys[] = {"preset.default", "preset.brightVocal", "preset.softVoice", "preset.custom"};
+    static constexpr const char* english[] = {"Default", "Bright Vocal", "Soft Voice", "Custom"};
 #elif WJN_FX_MODULE_INDEX == 3
-    static const char* names[] = {"Default", "Punchy Drums", "Gentle Level", "Custom"};
+    static constexpr const char* keys[] = {"preset.default", "preset.punchyDrums", "preset.gentleLevel", "preset.custom"};
+    static constexpr const char* english[] = {"Default", "Punchy Drums", "Gentle Level", "Custom"};
 #elif WJN_FX_MODULE_INDEX == 4
-    static const char* names[] = {"Default", "Broadcast", "Max Loudness", "Custom"};
+    static constexpr const char* keys[] = {"preset.default", "preset.broadcast", "preset.maxLoudness", "preset.custom"};
+    static constexpr const char* english[] = {"Default", "Broadcast", "Max Loudness", "Custom"};
 #elif WJN_FX_MODULE_INDEX == 5
-    static const char* names[] = {"Default", "人声回声", "短 slap", "节奏回声", "氛围长回声", "磁带回声", "Custom"};
+    static constexpr const char* keys[] = {"preset.default", "preset.vocalEcho", "preset.shortSlap", "preset.rhythmicEcho", "preset.ambientEcho", "preset.tapeEcho", "preset.custom"};
+    static constexpr const char* english[] = {"Default", "Vocal Echo", "Short Slap", "Rhythmic Echo", "Ambient Echo", "Tape Echo", "Custom"};
 #elif WJN_FX_MODULE_INDEX == 6
-    static const char* names[] = {"Default", "Vocal Clear", "Bass Boost", "Warmth", "Presence", "Custom"};
-#else
-    static const char* names[] = {"Default", "Small Room", "Bright Plate", "Cathedral", "Studio Booth", "Vintage Spring", "Custom"};
+    static constexpr const char* keys[] = {"preset.default", "preset.vocalClear", "preset.bassBoost", "preset.warmth", "preset.presence", "preset.custom"};
+    static constexpr const char* english[] = {"Default", "Vocal Clear", "Bass Boost", "Warmth", "Presence", "Custom"};
+#elif WJN_FX_MODULE_INDEX == 7
+    static constexpr const char* keys[] = {"preset.default", "preset.smallRoom", "preset.brightPlate", "preset.cathedral", "preset.studioBooth", "preset.vintageSpring", "preset.custom"};
+    static constexpr const char* english[] = {"Default", "Small Room", "Bright Plate", "Cathedral", "Studio Booth", "Vintage Spring", "Custom"};
 #endif
-    return index < wjn_fx_preset_count() ? names[index] : nullptr;
+    if (index >= std::size(keys)) return nullptr;
+    static std::array<QByteArray, std::size(keys)> names;
+    const auto current = WinJACKNexus::NativeFx::I18n::text(keys[index], english[index]).toUtf8();
+    if (names[index] != current) names[index] = current;
+    return names[index].constData();
 }
 int wjn_fx_current_preset(const WjnFxInstance* instance) { return instance ? instance->currentPreset() : -1; }
 void wjn_fx_select_preset(WjnFxInstance* instance, int index) { if (instance) instance->selectPreset(index); }

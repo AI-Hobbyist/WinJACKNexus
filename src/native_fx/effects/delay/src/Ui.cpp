@@ -2,6 +2,7 @@
 #include <WinJACKNexus/Common/ChannelNames.hpp>
 #include <WinJACKNexus/NativeFx/delay/Ui.hpp>
 #include <WinJACKNexus/UI/Controls.hpp>
+#include <WinJACKNexus/NativeFx/I18n.hpp>
 #include <WinJACKNexus/UI/ApplicationSettings.hpp>
 #include <QLineEdit>
 #include <QMouseEvent>
@@ -22,12 +23,12 @@ void box(QPainter& p,QRectF r,qreal radius,QColor fill,QColor edge={}) {
     Controls::drawSurface(p,r,fill,edge,radius);
 }
 void label(QPainter& p,QRectF r,const QString& text,int size,QColor color,bool bold=false) {
-    QFont font(QStringLiteral("Microsoft YaHei UI"),size);font.setBold(bold);
+    QFont font=p.font();font.setPointSize(size);font.setBold(bold);
     const auto themed = color == pale
         ? Controls::themeTokenColor("native-fx-delay", "text-primary", color)
         : color == muted
             ? Controls::themeTokenColor("native-fx-delay", "text-muted", color) : color;
-    Controls::drawText(p,r,text,font,themed);
+    Controls::drawElidedText(p,r,text,font,themed);
 }
 void chevron(QPainter& p,QPointF c) {p.setPen(QPen(muted,1.3));p.drawLine(c+QPointF(-4,-2),c+QPointF(0,2));p.drawLine(c+QPointF(0,2),c+QPointF(4,-2));}
 void toggle(QPainter& p,QRectF r,bool on) {
@@ -36,15 +37,6 @@ void toggle(QPainter& p,QRectF r,bool on) {
         Controls::themeTokenColor("native-fx-delay", "control-toggle-indicator-off", QColor(42,64,88)));
 }
 void styleCombo(QComboBox* combo) {
-    combo->setStyleSheet(QStringLiteral(
-        "QComboBox { background:#142639; color:#d5e5ff; border:1px solid #3f5c77; "
-        "border-radius:5px; padding:2px 7px; }"
-        "QComboBox:hover { border-color:#2bccff; }"
-        "QComboBox::drop-down { border:0; width:23px; }"
-        "QComboBox QLineEdit { border:0; background:transparent; color:#d5e5ff; padding:0; }"
-        "QComboBox QAbstractItemView { background:#172b40; color:#d5e5ff; "
-        "selection-background-color:#0d4164; selection-color:#ffffff; "
-        "border:1px solid #3f5c77; outline:0; }"));
     combo->setMaxVisibleItems(12);
     combo->setFocusPolicy(Qt::StrongFocus);
     combo->hide();
@@ -53,13 +45,6 @@ void drawSelect(QPainter& p,QRectF r,const QString& value) {
     box(p,r,5,QColor(18,36,55),QColor(60,86,111));
     label(p,{r.x()+7,r.y(),r.width()-29,r.height()},value,12,pale);
     chevron(p,{r.right()-15,r.center().y()});
-}
-void styleMenu(QMenu& menu) {
-    menu.setStyleSheet(QStringLiteral(
-        "QMenu { background: #10263a; color: #e1edf8; border: 1px solid #315775; padding: 4px; }"
-        "QMenu::item { padding: 7px 22px; }"
-        "QMenu::item:selected { background: #075478; color: #56d9f4; }"
-        "QMenu::item:checked { color: #56d9f4; }"));
 }
 void addComboItem(QComboBox* combo,const QString& text,const QVariant& data={}) {
     const int index=combo->count();
@@ -106,24 +91,24 @@ void setDial(DelayParameters& parameters,int index,double target) {
 }
 }
 DelayWidget::DelayWidget(QWidget* parent):QWidget(parent) {
-    setFixedSize(750,645);setMouseTracking(true);setWindowTitle(QStringLiteral("Delay 延迟"));
+    setFixedSize(750,645);setMouseTracking(true);setWindowTitle(NativeFx::I18n::text("module.name", "Delay"));
     dragRefreshTimer_.setParent(this);
     dragRefreshTimer_.setObjectName(QStringLiteral("nativeFxDragRefreshTimer"));
     bindRefreshTimer(dragRefreshTimer_, this);
     connect(&dragRefreshTimer_, &QTimer::timeout, this, [this] { update(); });
-    presetCombo_=new QComboBox(this);presetCombo_->setGeometry(455,168,160,34);styleCombo(presetCombo_);
-    presetCombo_->addItems({QStringLiteral("Default"),QStringLiteral("人声回声"),QStringLiteral("短 slap"),QStringLiteral("节奏回声"),QStringLiteral("氛围长回声"),QStringLiteral("磁带回声"),QStringLiteral("Custom")});
-    noteCombo_=new QComboBox(this);noteCombo_->setGeometry(202,263,82,34);styleCombo(noteCombo_);
+    presetCombo_=new Controls::ChoiceField(this);presetCombo_->setGeometry(455,168,160,34);styleCombo(presetCombo_);
+    presetCombo_->addItems({NativeFx::I18n::text("preset.default", "Default"),NativeFx::I18n::text("preset.vocalEcho", "Vocal Echo"),NativeFx::I18n::text("preset.shortSlap", "Short Slap"),NativeFx::I18n::text("preset.rhythmicEcho", "Rhythmic Echo"),NativeFx::I18n::text("preset.ambientEcho", "Ambient Echo"),NativeFx::I18n::text("preset.tapeEcho", "Tape Echo"),NativeFx::I18n::text("preset.custom", "Custom")});
+    noteCombo_=new Controls::ChoiceField(this);noteCombo_->setGeometry(202,263,82,34);styleCombo(noteCombo_);
     for(const auto& text:{QStringLiteral("1/16"),QStringLiteral("1/8"),QStringLiteral("1/4"),QStringLiteral("1/2"),QStringLiteral("1")})addComboItem(noteCombo_,text);
-    viewCombo_=new QComboBox(this);viewCombo_->setGeometry(599,244,120,35);styleCombo(viewCombo_);
-    addComboItem(viewCombo_,QStringLiteral("时间轴"));addComboItem(viewCombo_,QStringLiteral("回声衰减"));
-    highPassCombo_=new QComboBox(this);highPassCombo_->setGeometry(406,545,92,30);styleCombo(highPassCombo_);
+    viewCombo_=new Controls::ChoiceField(this);viewCombo_->setGeometry(599,244,120,35);styleCombo(viewCombo_);
+    addComboItem(viewCombo_,NativeFx::I18n::text("view.timeline", "Timeline"));addComboItem(viewCombo_,NativeFx::I18n::text("view.echoDecay", "Echo decay"));
+    highPassCombo_=new Controls::ChoiceField(this);highPassCombo_->setGeometry(406,545,92,30);styleCombo(highPassCombo_);
     for(int hz:{100,150,200,300,400,600,800,1000,1200,1600,2000})addComboItem(highPassCombo_,QStringLiteral("%1 Hz").arg(hz),hz);
-    lowPassCombo_=new QComboBox(this);lowPassCombo_->setGeometry(406,582,92,30);styleCombo(lowPassCombo_);
+    lowPassCombo_=new Controls::ChoiceField(this);lowPassCombo_->setGeometry(406,582,92,30);styleCombo(lowPassCombo_);
     for(int hz:{2000,3000,4000,5000,6000,8000,10000,12000,16000,20000})addComboItem(lowPassCombo_,QStringLiteral("%1 kHz").arg(hz/1000.0,0,'f',1),hz);
     for(auto* combo:{highPassCombo_,lowPassCombo_}){combo->setEditable(true);combo->lineEdit()->setReadOnly(true);combo->lineEdit()->setFrame(false);}
-    mixCombo_=new QComboBox(this);mixCombo_->setGeometry(628,560,90,35);styleCombo(mixCombo_);
-    addComboItem(mixCombo_,QStringLiteral("正常"));addComboItem(mixCombo_,QStringLiteral("叠加"));
+    mixCombo_=new Controls::ChoiceField(this);mixCombo_->setGeometry(628,560,90,35);styleCombo(mixCombo_);
+    addComboItem(mixCombo_,NativeFx::I18n::text("mode.normal", "Normal"));addComboItem(mixCombo_,NativeFx::I18n::text("mode.additive", "Additive"));
     mixCombo_->setEditable(true);mixCombo_->lineEdit()->setReadOnly(true);mixCombo_->lineEdit()->setAlignment(Qt::AlignCenter);mixCombo_->lineEdit()->setFrame(false);
 
     connect(presetCombo_,qOverload<int>(&QComboBox::currentIndexChanged),this,[this](int index){
@@ -147,6 +132,19 @@ DelayWidget::DelayWidget(QWidget* parent):QWidget(parent) {
     connect(mixCombo_,qOverload<int>(&QComboBox::currentIndexChanged),this,[this](int index){if(index>=0)edit([&](auto& v){v.mixMode=index;});});
     for(auto* combo:{presetCombo_,noteCombo_,viewCombo_,highPassCombo_,lowPassCombo_,mixCombo_})combo->hide();
     syncControls();
+    NativeFx::I18n::bind(this, [this] {
+        setWindowTitle(NativeFx::I18n::text("module.name", "Delay"));
+        setAccessibleDescription(NativeFx::I18n::text("module.description", "Eight-channel native delay interface."));
+        const QSignalBlocker presetBlock(presetCombo_), viewBlock(viewCombo_), mixBlock(mixCombo_);
+        constexpr const char* keys[] = {"preset.default", "preset.vocalEcho", "preset.shortSlap", "preset.rhythmicEcho", "preset.ambientEcho", "preset.tapeEcho", "preset.custom"};
+        constexpr const char* english[] = {"Default", "Vocal Echo", "Short Slap", "Rhythmic Echo", "Ambient Echo", "Tape Echo", "Custom"};
+        for (int i=0;i<7;++i) presetCombo_->setItemText(i, NativeFx::I18n::text(keys[i], english[i]));
+        viewCombo_->setItemText(0, NativeFx::I18n::text("view.timeline", "Timeline"));
+        viewCombo_->setItemText(1, NativeFx::I18n::text("view.echoDecay", "Echo decay"));
+        mixCombo_->setItemText(0, NativeFx::I18n::text("mode.normal", "Normal"));
+        mixCombo_->setItemText(1, NativeFx::I18n::text("mode.additive", "Additive"));
+        update();
+    });
 }
 void DelayWidget::setParameters(const std::array<DelayParameters,8>& values) {
     values_=values;
@@ -202,31 +200,31 @@ void DelayWidget::paintEvent(QPaintEvent*) {
     p.fillRect(rect(),Controls::themeColor(*this,"fxBackground",
         Controls::themeTokenColor("native-fx-delay", "surface-window", QColor(12,26,43))));
     box(p,{7,7,736,126},9,QColor(21,39,59),QColor(45,75,107));
-    label(p,{20,17,130,36},QStringLiteral("作用声道"),18,Qt::white,true);
-    for(int i=0;i<9;++i){int x=20+i*79;box(p,{qreal(x),65,70,43},6,i==channel_+1?QColor(13,65,100):QColor(24,42,61),i==channel_+1?cyan:QColor(60,86,111));label(p,{qreal(x),65,70,43},QString::fromLatin1(channels[i]),14,i==channel_+1?cyan:pale);}
+    label(p,{20,17,130,36},NativeFx::I18n::text("control.targetChannels", "Channel"),18,Qt::white,true);
+    for(int i=0;i<9;++i){int x=20+i*79;box(p,{qreal(x),65,70,43},6,i==channel_+1?QColor(13,65,100):QColor(24,42,61),i==channel_+1?cyan:QColor(60,86,111));label(p,{qreal(x),65,70,43},(i == 0 ? NativeFx::I18n::text("control.all", "All") : QString::fromLatin1(channels[i])),14,i==channel_+1?cyan:pale);}
     box(p,{3,141,744,499},10,
         Controls::themeTokenColor("native-fx-delay", "surface-panel", QColor(16,33,52)),
         QColor(18,157,231));
     box(p,{12,151,726,68},8,QColor(22,42,62));
     box(p,{14,153,54,54},5,QColor(11,147,190),QColor(23,194,235));
     p.setPen(QPen(Qt::white,2));p.setBrush(Qt::NoBrush);p.drawEllipse(QPointF(41,180),17,17);p.drawLine(QPointF(41,180),QPointF(41,168));p.drawLine(QPointF(41,180),QPointF(51,183));
-    label(p,{77,156,155,34},QStringLiteral("Delay 延迟"),20,Qt::white,true);
-    label(p,{78,187,142,23},QStringLiteral("创造回声与空间感"),12,cyan);
+    label(p,{77,156,155,34},NativeFx::I18n::text("module.name", "Delay"),20,Qt::white,true);
+    label(p,{78,187,142,23},NativeFx::I18n::text("description.delay", "Create echoes and a sense of space"),12,cyan);
     toggle(p,{340,171,37,21},values_[channel_<0?0:channel_].enabled);
-    label(p,{402,169,48,24},QStringLiteral("预设:"),12,muted);
+    label(p,{402,169,48,24},NativeFx::I18n::text("label.preset", "Preset:"),12,muted);
     drawSelect(p,{455,168,160,34},presetCombo_->currentText());
     for(int i=0;i<3;++i){const int x=624+i*35;
         box(p,{qreal(x),168,29,34},5,QColor(24,43,64),QColor(61,90,119));
         label(p,{qreal(x),168,29,34},i==2?QStringLiteral("•••"):i==0?QStringLiteral("‹"):QStringLiteral("›"),17,muted);
     }
     box(p,{12,220,726,408},8,QColor(14,29,46),QColor(43,69,94));
-    label(p,{26,231,70,25},QStringLiteral("时间模式:"),12,pale);
-    for(int i=0;i<2;++i){int x=28+i*78;box(p,{qreal(x),263,76,34},5,values_[channel_<0?0:channel_].sync==bool(i)?QColor(13,61,92):QColor(22,42,63),values_[channel_<0?0:channel_].sync==bool(i)?cyan:QColor(55,83,112));label(p,{qreal(x),263,76,34},i?QStringLiteral("同步"):QStringLiteral("自由"),12,pale);}
-    label(p,{202,231,60,25},QStringLiteral("音符值:"),12,pale);
+    label(p,{26,231,70,25},NativeFx::I18n::text("control.timeMode", "Time mode:"),12,pale);
+    for(int i=0;i<2;++i){int x=28+i*78;box(p,{qreal(x),263,76,34},5,values_[channel_<0?0:channel_].sync==bool(i)?QColor(13,61,92):QColor(22,42,63),values_[channel_<0?0:channel_].sync==bool(i)?cyan:QColor(55,83,112));label(p,{qreal(x),263,76,34},i?NativeFx::I18n::text("mode.sync", "Sync"):NativeFx::I18n::text("mode.freeTime", "Free"),12,pale);}
+    label(p,{202,231,60,25},NativeFx::I18n::text("control.noteValue", "Note value:"),12,pale);
     drawSelect(p,{202,263,82,34},noteCombo_->currentText());
     const auto& v=values_[channel_<0?0:channel_];const QString notes[]={QStringLiteral("1/16"),QStringLiteral("1/8"),QStringLiteral("1/4"),QStringLiteral("1/2"),QStringLiteral("1")};
-    label(p,{298,266,48,27},QStringLiteral("点音符"),11,pale);toggle(p,{347,269,38,21},v.dotted);
-    label(p,{550,246,47,30},QStringLiteral("视图:"),12,pale);
+    label(p,{298,266,48,27},NativeFx::I18n::text("control.dottedNote", "Dotted"),11,pale);toggle(p,{347,269,38,21},v.dotted);
+    label(p,{550,246,47,30},NativeFx::I18n::text("control.view", "View:"),12,pale);
     drawSelect(p,{599,244,120,35},viewCombo_->currentText());
     const auto controlColors=Controls::paletteFor(*this,
         {Controls::themeTokenColor("native-fx-delay", "control-knob-background-base", QColor(12,26,43)),
@@ -236,10 +234,10 @@ void DelayWidget::paintEvent(QPaintEvent*) {
     Controls::drawKnob(p,{170,355},v.sync?std::clamp((v.bpm-30.0F)/270.0F,0.0F,1.0F):std::clamp(v.timeMs/2000.0F,0.0F,1.0F),38,controlColors);
     const float shownMs=WinJACKNexus::Common::DelayProcessor::delayMilliseconds(v);
     label(p,{111,397,118,24},QStringLiteral("%1 ms").arg(shownMs,0,'f',0),13,Qt::white);
-    label(p,{98,421,144,40},v.sync?QStringLiteral("延迟时间 · %1 BPM").arg(v.bpm,0,'f',0):QStringLiteral("延迟时间 (Time)"),12,pale);
+    label(p,{98,421,144,40},v.sync?NativeFx::I18n::text("control.delayTimeBpm", "Delay time · %1 BPM").arg(v.bpm,0,'f',0):NativeFx::I18n::text("control.delayTime", "Delay time"),12,pale);
     for(int i=1;i<4;++i){int x=i==1?64:i==2?168:273;float n=i==1?v.feedback/95.0F:(i==2?v.wetDb:v.dryDb)+60.0F; if(i!=1)n/=66.0F;Controls::drawKnob(p,{qreal(x),526},n,30,controlColors);QString t=i==1?QStringLiteral("%1 %").arg(v.feedback,0,'f',0):QStringLiteral("%1 dB").arg(i==2?v.wetDb:v.dryDb,0,'f',1);label(p,{qreal(x-46),559,92,22},t,12,Qt::white);}
-    label(p,{25,583,80,20},QStringLiteral("反馈"),12,pale);label(p,{125,583,86,20},QStringLiteral("湿信号"),12,pale);label(p,{231,583,86,20},QStringLiteral("干信号"),12,pale);
-    label(p,{25,603,80,21},QStringLiteral("(Feedback)"),10,pale);label(p,{125,603,86,21},QStringLiteral("(Wet)"),10,pale);label(p,{231,603,86,21},QStringLiteral("(Dry)"),10,pale);
+    label(p,{25,583,80,20},NativeFx::I18n::text("control.feedback", "Feedback"),12,pale);label(p,{125,583,86,20},NativeFx::I18n::text("control.wet", "Wet"),12,pale);label(p,{231,583,86,20},NativeFx::I18n::text("control.dry", "Dry"),12,pale);
+    label(p,{25,603,80,21},NativeFx::I18n::text("hint.feedback", "(Feedback)"),10,pale);label(p,{125,603,86,21},NativeFx::I18n::text("hint.wet", "(Wet)"),10,pale);label(p,{231,603,86,21},NativeFx::I18n::text("hint.dry", "(Dry)"),10,pale);
     box(p,{334,301,388,206},6,
         Controls::themeTokenColor("native-fx-delay", "chart-background", QColor(9,25,40)),
         QColor(49,77,105));
@@ -275,16 +273,16 @@ void DelayWidget::paintEvent(QPaintEvent*) {
         p.drawLine(x,baseline-(view_?height:height/2),x,baseline+(view_?0:height/2));
     }
     p.restore();
-    label(p,{347,344,22,25},channel_<0?QStringLiteral("All"):QString::fromLatin1(channels[channel_+1]),11,pale);
+    label(p,{347,344,22,25},channel_<0?NativeFx::I18n::text("control.all", "All"):QString::fromLatin1(channels[channel_+1]),11,pale);
     for(int i=0;i<7;++i)label(p,{qreal(337+i*47),469,47,29},QString::number(i*250),9,muted);
     label(p,{682,469,38,29},QStringLiteral("(ms)"),9,muted);
     box(p,{334,508,190,119},7,QColor(20,40,60),QColor(40,69,93));
-    label(p,{344,513,76,24},QStringLiteral("滤波器:"),12,pale);
-    for(int i=0;i<2;++i){int y=548+i*37;box(p,{347,qreal(y),19,19},10,QColor(12,40,61),QColor(60,92,120));p.setPen(Qt::NoPen);p.setBrush(i?v.lowPass?cyan:muted:v.highPass?cyan:muted);p.drawEllipse(QPointF(356,y+9),5,5);label(p,{371,qreal(y-3),37,26},i?QStringLiteral("低通"):QStringLiteral("高通"),10,muted);}
+    label(p,{344,513,76,24},NativeFx::I18n::text("section.filters", "Filters:"),12,pale);
+    for(int i=0;i<2;++i){int y=548+i*37;box(p,{347,qreal(y),19,19},10,QColor(12,40,61),QColor(60,92,120));p.setPen(Qt::NoPen);p.setBrush(i?v.lowPass?cyan:muted:v.highPass?cyan:muted);p.drawEllipse(QPointF(356,y+9),5,5);label(p,{371,qreal(y-3),37,26},i?NativeFx::I18n::text("filter.lowPass", "Low-pass"):NativeFx::I18n::text("filter.highPass", "High-pass"),10,muted);}
     drawSelect(p,{406,545,92,30},highPassCombo_->lineEdit()->text());
     drawSelect(p,{406,582,92,30},lowPassCombo_->lineEdit()->text());
     box(p,{524,508,198,119},7,QColor(20,40,60),QColor(40,69,93));
-    label(p,{570,522,106,26},QStringLiteral("混合模式:"),12,pale);
+    label(p,{570,522,106,26},NativeFx::I18n::text("control.mixMode", "Mix mode:"),12,pale);
     drawSelect(p,{570,560,106,35},mixCombo_->currentText());
 }
 void DelayWidget::mousePressEvent(QMouseEvent* e) {
@@ -300,8 +298,10 @@ void DelayWidget::mousePressEvent(QMouseEvent* e) {
         return;
     }
     auto showChoices=[this](QComboBox* combo,QPoint origin){
-        QMenu menu(this);styleMenu(menu);
+        QMenu menu(this);
         for(int i=0;i<combo->count();++i){auto* action=menu.addAction(combo->itemText(i));
+            action->setData(i);
+            NativeFx::I18n::bind(action, [action, combo, i] { action->setText(combo->itemText(i)); });
             action->setCheckable(true);action->setChecked(i==combo->currentIndex());
             connect(action,&QAction::triggered,this,[combo,i]{combo->setCurrentIndex(i);});
         }
@@ -314,7 +314,7 @@ void DelayWidget::mousePressEvent(QMouseEvent* e) {
             const int current=std::clamp(presetCombo_->currentIndex(),0,count-1);
             presetCombo_->setCurrentIndex((current+(button==0?count-1:1))%count);
         }else{
-            QMenu menu(this);styleMenu(menu);
+            QMenu menu(this);
             auto reset=[this](bool all){
                 const int first=all||channel_<0?0:channel_;
                 const int end=all||channel_<0?8:channel_+1;
@@ -324,8 +324,10 @@ void DelayWidget::mousePressEvent(QMouseEvent* e) {
                 }
                 preset_=0;syncControls();update();
             };
-            auto* current=menu.addAction(QStringLiteral("重置当前声道"));
-            auto* every=menu.addAction(QStringLiteral("重置所有声道"));
+            auto* current=menu.addAction(NativeFx::I18n::text("action.resetCurrent", "Reset current channel"));
+            NativeFx::I18n::bindProperty(current, "text", "action.resetCurrent", "Reset current channel");
+            auto* every=menu.addAction(NativeFx::I18n::text("action.resetAll", "Reset all channels"));
+            NativeFx::I18n::bindProperty(every, "text", "action.resetAll", "Reset all channels");
             connect(current,&QAction::triggered,this,[reset]{reset(false);});
             connect(every,&QAction::triggered,this,[reset]{reset(true);});
             menu.exec(mapToGlobal(QPoint(705,202)));

@@ -1,0 +1,36 @@
+{
+  "formatVersion": 1,
+  "catalogVersion": 1,
+  "moduleId": "compressor",
+  "language": "en-US",
+  "domains": {
+    "nativefx.compressor": {
+      "module.name": "Compressor",
+      "module.description": "Eight-channel native compressor control UI.",
+      "control.threshold": "Threshold",
+      "control.ratio": "Ratio",
+      "control.attack": "Attack",
+      "control.release": "Release",
+      "control.targetChannels": "Channel",
+      "control.all": "All",
+      "label.preset": "Preset:",
+      "preset.default": "Default",
+      "preset.custom": "Custom",
+      "axis.inputLevel": "Input level (dB)",
+      "axis.outputLevel": "Output level (dB)",
+      "control.sidechainFilter": "Sidechain filter",
+      "filter.highPass": "High-pass",
+      "filter.lowPass": "Low-pass",
+      "action.restoreDefaults": "Restore defaults",
+      "window.title": "Compressor — %1",
+      "description.compressor": "Control dynamics for a steadier level",
+      "preset.punchyDrums": "Punchy Drums",
+      "preset.gentleLevel": "Gentle Level",
+      "control.softKnee": "Soft knee",
+      "control.makeupGain": "Makeup gain",
+      "control.detectorMode": "Detector:",
+      "meter.peak": "Peak",
+      "control.autoGain": "Auto gain"
+    }
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "formatVersion": 1,
+  "catalogVersion": 1,
+  "moduleId": "deesser",
+  "language": "ja-JP",
+  "domains": {
+    "nativefx.deesser": {
+      "module.name": "ディエッサー",
+      "module.description": "8 チャンネルのネイティブ歯擦音抑制器。",
+      "control.threshold": "しきい値",
+      "control.attack": "アタック",
+      "control.release": "リリース",
+      "control.targetChannels": "対象チャンネル",
+      "control.all": "全て",
+      "label.preset": "プリセット:",
+      "preset.default": "デフォルト",
+      "preset.custom": "カスタム",
+      "action.restoreDefaults": "デフォルトに戻す",
+      "window.title": "ディエッサー — %1",
+      "description.deesser": "歯擦音の帯域を検出して抑制（S、SH など）",
+      "control.centerFrequency": "中心周波数",
+      "control.bandwidth": "帯域幅",
+      "control.outputGain": "出力ゲイン",
+      "preset.brightVocal": "明るいボーカル",
+      "preset.softVoice": "柔らかな声",
+      "label.input": "入力",
+      "label.processed": "処理後",
+      "control.mode": "モード:",
+      "mode.wideband": "ワイドバンド",
+      "mode.splitBand": "スプリットバンド",
+      "mode.dynamicEq": "ダイナミック EQ",
+      "control.detectorMode": "検出方式:",
+      "meter.peak": "ピーク",
+      "control.monitor": "モニター:",
+      "control.off": "オフ",
+      "listen.sibilance": "歯擦音",
+      "listen.original": "原音",
+      "help.detector": "RMS は平均エネルギーを検出し、ピークは瞬間的な歯擦音に反応します。"
+    }
+  }
+}

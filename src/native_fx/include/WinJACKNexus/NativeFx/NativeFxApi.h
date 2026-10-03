@@ -107,7 +107,10 @@ WJN_FX_API int wjn_fx_read_live_analysis(const WjnFxInstance* instance,
     void* spectrum, uint32_t spectrumBytes);
 WJN_FX_API void wjn_fx_set_channel(WjnFxInstance* instance, int channel);
 WJN_FX_API void wjn_fx_set_theme(WjnFxInstance* instance, const WjnFxTheme* theme);
-/* Optional preset bridge used by the mixer host. Names and indices match the editor. */
+/* Optional preset bridge used by the mixer host. Display names follow the
+   current UI language; indices remain stable and must be used for identity.
+   Call on the UI thread and copy the borrowed UTF-8 result immediately; it
+   remains valid until the next name query for that index or DLL unload. */
 WJN_FX_API uint32_t wjn_fx_preset_count(void);
 WJN_FX_API const char* wjn_fx_preset_name(uint32_t index);
 WJN_FX_API int wjn_fx_current_preset(const WjnFxInstance* instance);

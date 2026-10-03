@@ -2,6 +2,7 @@
 #include <WinJACKNexus/NativeFx/limiter/Ui.hpp>
 #include <WinJACKNexus/UI/ApplicationSettings.hpp>
 #include <WinJACKNexus/UI/Controls.hpp>
+#include <WinJACKNexus/NativeFx/I18n.hpp>
 #include <QMouseEvent>
 #include <QPainter>
 #include <QPainterPath>
@@ -23,7 +24,7 @@ void label(QPainter& p,QRectF r,QString s,int size,QColor color=ink,bool bold=fa
         ? Controls::themeTokenColor("native-fx-limiter", "text-primary", color)
         : color == muted
             ? Controls::themeTokenColor("native-fx-limiter", "text-muted", color) : color;
-    Controls::drawText(p,r,s,f,themed,align);
+    Controls::drawElidedText(p,r,s,f,themed,align);
 }
 void toggle(QPainter& p,QRectF r,bool on){
     Controls::drawToggle(p,r,on,
@@ -38,8 +39,13 @@ void dial(QPainter& p,QPointF c,float fraction,QString number,QString name,QStri
 }
 }
 LimiterWidget::LimiterWidget(QWidget* parent):QWidget(parent){
-    if (!parent) setWindowFlags(Qt::Window);setFixedSize(768,650);setWindowTitle(QStringLiteral("Limiter 限幅器"));
+    if (!parent) setWindowFlags(Qt::Window);setFixedSize(768,650);setWindowTitle(NativeFx::I18n::text("module.name", "Limiter"));
     bindRefreshTimer(meterTimer_, this);connect(&meterTimer_,&QTimer::timeout,this,&LimiterWidget::pollMeters);
+    NativeFx::I18n::bind(this, [this] {
+        setWindowTitle(NativeFx::I18n::text("module.name", "Limiter"));
+        setAccessibleDescription(NativeFx::I18n::text("module.description", "Eight-channel native limiter UI."));
+        update();
+    });
 }
 void LimiterWidget::setParameters(const std::array<LimiterParameters,8>& values){
     values_=values;
@@ -166,10 +172,10 @@ void LimiterWidget::paintEvent(QPaintEvent*){
     p.fillRect(rect(),Controls::themeColor(*this,"fxBackground",
         Controls::themeTokenColor("native-fx-limiter", "surface-window", QColor(13,28,45))));
     box(p,{7,8,754,126},10,QColor(21,39,58));
-    label(p,{22,22,170,30},QStringLiteral("作用声道"),19,ink,true,Qt::AlignLeft|Qt::AlignVCenter);
+    label(p,{22,22,170,30},NativeFx::I18n::text("control.targetChannels", "Channel"),19,ink,true,Qt::AlignLeft|Qt::AlignVCenter);
     for(int i=0;i<9;++i){QRectF r(22+i*80,66,72,40);bool active=i==channel_+1;
         box(p,r,5,active?QColor(10,56,87):QColor(25,43,61),active?cyan:QColor(65,91,119));
-        label(p,r,QString::fromLatin1(channels[i]),15,active?QColor(119,221,255):muted);}
+        label(p,r,(i == 0 ? NativeFx::I18n::text("control.all", "All") : QString::fromLatin1(channels[i])),15,active?QColor(119,221,255):muted);}
     p.save();p.translate(0,145);
     QLinearGradient bg(0,0,750,500);
     bg.setColorAt(0,Controls::themeTokenColor("native-fx-limiter", "surface-panel-start", QColor(20,36,55)));
@@ -179,11 +185,11 @@ void LimiterWidget::paintEvent(QPaintEvent*){
     box(p,{16,25,54,55},7,QColor(100,35,55),pink);
     p.setPen(Qt::NoPen);p.setBrush(QColor(255,140,158));
     for(QRectF r: {QRectF(24,36,9,9),QRectF(36,36,19,9),QRectF(24,48,19,9),QRectF(46,48,15,9),QRectF(24,60,12,8)})p.drawRect(r);
-    label(p,{89,23,248,32},QStringLiteral("Limiter 限幅器"),23,ink,true,Qt::AlignLeft|Qt::AlignVCenter);
-    label(p,{89,53,248,22},QStringLiteral("防止信号过载，控制最大输出电平"),14,muted,false,Qt::AlignLeft|Qt::AlignVCenter);
-    toggle(p,{341,40,36,21},shown().enabled);label(p,{394,38,42,28},QStringLiteral("预设:"),14,muted);
+    label(p,{89,23,248,32},NativeFx::I18n::text("module.name", "Limiter"),23,ink,true,Qt::AlignLeft|Qt::AlignVCenter);
+    label(p,{89,53,248,22},NativeFx::I18n::text("description.limiter", "Prevent overload and limit peak output"),14,muted,false,Qt::AlignLeft|Qt::AlignVCenter);
+    toggle(p,{341,40,36,21},shown().enabled);label(p,{394,38,42,28},NativeFx::I18n::text("label.preset", "Preset:"),14,muted);
     box(p,{444,36,160,34},5,QColor(18,36,55));
-    const QString presets[]={QStringLiteral("Default"),QStringLiteral("Broadcast"),QStringLiteral("Max Loudness"),QStringLiteral("Custom")};
+    const QString presets[]={NativeFx::I18n::text("preset.default", "Default"),NativeFx::I18n::text("preset.broadcast", "Broadcast"),NativeFx::I18n::text("preset.maxLoudness", "Max Loudness"),NativeFx::I18n::text("preset.custom", "Custom")};
     label(p,{455,36,125,34},presets[preset_],15,ink,false,Qt::AlignLeft|Qt::AlignVCenter);label(p,{580,36,22,34},QStringLiteral("⌄"),19,muted);
     for(int i=0;i<2;++i){const int x=616+i*38;box(p,{qreal(x),37,29,32},5,QColor(28,49,70));label(p,{qreal(x),37,29,32},i?QStringLiteral("›"):QStringLiteral("‹"),24,muted);}
     box(p,{692,37,31,32},5,QColor(28,49,70));label(p,{692,37,31,32},QStringLiteral("•••"),13,muted);
@@ -211,7 +217,7 @@ void LimiterWidget::paintEvent(QPaintEvent*){
             if(meters_[static_cast<std::size_t>(c)].active)
                 gainReductionDb+=meters_[static_cast<std::size_t>(c)].gainReductionDb/static_cast<float>(activeChannels);
     }
-    label(p,{28,104,79,23},QStringLiteral("输入电平"),14,muted);label(p,{112,104,79,23},QStringLiteral("输出电平"),14,muted);
+    label(p,{28,104,79,23},NativeFx::I18n::text("label.inputLevel", "Input level"),14,muted);label(p,{112,104,79,23},NativeFx::I18n::text("label.outputLevel", "Output level"),14,muted);
     label(p,{213,104,45,23},QStringLiteral("GR"),14,muted);
     double smoothedInputPower=0.0,smoothedOutputPower=0.0;
     double peakInputPower=0.0,peakOutputPower=0.0;
@@ -242,7 +248,7 @@ void LimiterWidget::paintEvent(QPaintEvent*){
         style.border=QColor(65,88,109);
         Controls::drawMeter(p,QRectF(x,151,11,224),active?level:-60.0,
             active?std::optional<double>(peak):std::nullopt,style);
-        const QString channelLabel=channel_<0?QStringLiteral("All"):QString::fromLatin1(channels[channel_+1]);
+        const QString channelLabel=channel_<0?NativeFx::I18n::text("control.all", "All"):QString::fromLatin1(channels[channel_+1]);
         label(p,{qreal(x-8),377,27,21},channelLabel,12);
         label(p,{qreal(x-12),397,35,20},numericMeterActive_?QStringLiteral("%1").arg(numeric,0,'f',1):QStringLiteral("-inf"),10);
         style.ticks={{12,QStringLiteral("+12")},{6,QStringLiteral("+6")},
@@ -338,28 +344,28 @@ void LimiterWidget::paintEvent(QPaintEvent*){
     Controls::drawCurvePath(p,curve,transferStyle,transferStyle.showFill?&fill:nullptr);
     const QPointF knee=point(s.thresholdDb,s.thresholdDb);
     Controls::drawMarker(p,knee,6,pink);
-    box(p,{409,114,78,40},6,QColor(25,46,71),QColor(78,111,147));label(p,{410,118,76,16},QStringLiteral("Threshold"),12,muted);
+    box(p,{409,114,78,40},6,QColor(25,46,71),QColor(78,111,147));label(p,{410,118,76,16},NativeFx::I18n::text("control.threshold", "Threshold"),12,muted);
     label(p,{410,135,76,17},QStringLiteral("%1 dB").arg(s.thresholdDb,0,'f',1),12,muted);
     const qreal ceilingY=plot.bottom()-(std::clamp(s.ceilingDb,-60.0F,12.0F)+60.0F)*plot.height()/72.0F;
     p.setPen(QPen(QColor(255,194,45),3));p.drawLine(QPointF(plot.right(),plot.top()),QPointF(plot.right(),ceilingY));
-    label(p,{371,351,120,22},QStringLiteral("输入电平 (dB)"),14,muted);
-    p.save();p.translate(278,289);p.rotate(-90);label(p,{0,0,128,23},QStringLiteral("输出电平 (dB)"),14,muted);p.restore();
+    label(p,{371,351,120,22},NativeFx::I18n::text("axis.inputLevel", "Input level (dB)"),14,muted);
+    p.save();p.translate(278,289);p.rotate(-90);label(p,{0,0,128,23},NativeFx::I18n::text("axis.outputLevel", "Output level (dB)"),14,muted);p.restore();
     const auto knobColors=Controls::paletteFor(*this,
         {Controls::themeTokenColor("native-fx-limiter", "control-knob-background-base", QColor(13,28,45)),
          QColor(22,41,62), ink,
          Controls::themeTokenColor("native-fx-limiter", "control-knob-indicator-normal", pink),
          Controls::themeTokenColor("native-fx-limiter", "control-knob-track", QColor(58,91,124))});
-    dial(p,{591,156},(s.thresholdDb+24)/30,QStringLiteral("%1 dB").arg(s.thresholdDb,0,'f',1),QStringLiteral("阈值"),QStringLiteral("(Threshold)"),knobColors);
-    dial(p,{685,156},(s.ceilingDb+12)/24,QStringLiteral("%1 dB").arg(s.ceilingDb,0,'f',1),QStringLiteral("释放上限"),QStringLiteral("(Ceiling)"),knobColors);
-    dial(p,{591,299},(s.releaseMs-10)/490,QStringLiteral("%1 ms").arg(s.releaseMs,0,'f',0),QStringLiteral("释放时间"),QStringLiteral("(Release)"),knobColors);
-    dial(p,{685,299},s.lookaheadDb/12,QStringLiteral("%1 dB").arg(s.lookaheadDb,0,'f',1),QStringLiteral("前瞻"),QStringLiteral("(Lookahead)"),knobColors);
-    box(p,{16,430,723,59},8,QColor(18,38,58));label(p,{26,448,44,23},QStringLiteral("模式:"),14,muted);
-    const QString modes[]={QStringLiteral("透明"),QStringLiteral("现代"),QStringLiteral("砖墙")};
+    dial(p,{591,156},(s.thresholdDb+24)/30,QStringLiteral("%1 dB").arg(s.thresholdDb,0,'f',1),NativeFx::I18n::text("control.threshold", "Threshold"),NativeFx::I18n::text("hint.threshold", "(Threshold)"),knobColors);
+    dial(p,{685,156},(s.ceilingDb+12)/24,QStringLiteral("%1 dB").arg(s.ceilingDb,0,'f',1),NativeFx::I18n::text("control.ceiling", "Output ceiling"),NativeFx::I18n::text("hint.ceiling", "(Ceiling)"),knobColors);
+    dial(p,{591,299},(s.releaseMs-10)/490,QStringLiteral("%1 ms").arg(s.releaseMs,0,'f',0),NativeFx::I18n::text("control.release", "Release"),NativeFx::I18n::text("hint.release", "(Release)"),knobColors);
+    dial(p,{685,299},s.lookaheadDb/12,QStringLiteral("%1 dB").arg(s.lookaheadDb,0,'f',1),NativeFx::I18n::text("control.lookahead", "Lookahead"),NativeFx::I18n::text("hint.lookahead", "(Lookahead)"),knobColors);
+    box(p,{16,430,723,59},8,QColor(18,38,58));label(p,{26,448,44,23},NativeFx::I18n::text("control.mode", "Mode:"),14,muted);
+    const QString modes[]={NativeFx::I18n::text("mode.transparent", "Transparent"),NativeFx::I18n::text("mode.modern", "Modern"),NativeFx::I18n::text("mode.brickwall", "Brickwall")};
     for(int i=0;i<3;++i){box(p,{qreal(71+i*84),443,84,36},5,i==s.mode?QColor(9,62,96):QColor(24,45,67),i==s.mode?cyan:QColor(64,96,130));label(p,{qreal(71+i*84),443,84,36},modes[i],15,i==s.mode?ink:muted);}
-    label(p,{351,448,62,23},QStringLiteral("过采样:"),14,muted);box(p,{417,443,110,36},5,QColor(20,39,59));
+    label(p,{351,448,62,23},NativeFx::I18n::text("control.oversampling", "Oversampling:"),14,muted);box(p,{417,443,110,36},5,QColor(20,39,59));
     label(p,{429,443,64,36},QStringLiteral("%1x").arg(s.oversampling),15,ink,false,Qt::AlignLeft|Qt::AlignVCenter);
     label(p,{493,443,30,36},QStringLiteral("⌄"),17,muted);
-    label(p,{595,448,67,23},QStringLiteral("自动增益"),14,muted);toggle(p,{673,450,37,22},s.autoGain);p.restore();
+    label(p,{595,448,67,23},NativeFx::I18n::text("control.autoGain", "Auto gain"),14,muted);toggle(p,{673,450,37,22},s.autoGain);p.restore();
 }
 void LimiterWidget::mousePressEvent(QMouseEvent* e){
     if(e->button()!=Qt::LeftButton)return;auto q=e->position();
@@ -379,8 +385,12 @@ void LimiterWidget::mousePressEvent(QMouseEvent* e){
     QPointF v=q-QPointF(0,145);if(v.y()>40&&v.y()<62&&v.x()>340&&v.x()<378){const bool enabled=!shown().enabled;apply([enabled](auto& s){s.enabled=enabled;});return;}
     if(v.y()>36&&v.y()<70&&v.x()>444&&v.x()<604){
         QMenu menu(this);
-        const QString names[]={QStringLiteral("Default"),QStringLiteral("Broadcast"),QStringLiteral("Max Loudness"),QStringLiteral("Custom")};
-        for(int i=0;i<4;++i){auto* action=menu.addAction(names[i]);action->setCheckable(true);action->setChecked(preset_==i);
+        const QString names[]={NativeFx::I18n::text("preset.default", "Default"),NativeFx::I18n::text("preset.broadcast", "Broadcast"),NativeFx::I18n::text("preset.maxLoudness", "Max Loudness"),NativeFx::I18n::text("preset.custom", "Custom")};
+        for(int i=0;i<4;++i){auto* action=menu.addAction(names[i]);
+            constexpr const char* keys[] = {"preset.default", "preset.broadcast", "preset.maxLoudness", "preset.custom"};
+            constexpr const char* english[] = {"Default", "Broadcast", "Max Loudness", "Custom"};
+            NativeFx::I18n::bindProperty(action, "text", keys[i], english[i]);
+            action->setCheckable(true);action->setChecked(preset_==i);
             connect(action,&QAction::triggered,this,[this,i]{applyPreset(i);});}
         menu.exec(mapToGlobal(QPoint(444,215)));return;
     }
@@ -388,9 +398,9 @@ void LimiterWidget::mousePressEvent(QMouseEvent* e){
     if(v.y()>37&&v.y()<69&&v.x()>654&&v.x()<683){applyPreset((preset_+1)%4);return;}
     if(v.y()>37&&v.y()<69&&v.x()>692&&v.x()<723){
         QMenu menu(this);
-        auto* resetCurrent=menu.addAction(QStringLiteral("重置当前声道"));
-        auto* resetAll=menu.addAction(QStringLiteral("重置全部声道"));
-        menu.addSeparator();auto* copyAll=menu.addAction(QStringLiteral("将当前设置复制到全部声道"));
+        auto* resetCurrent=menu.addAction(NativeFx::I18n::text("action.resetCurrent", "Reset current channel"));NativeFx::I18n::bindProperty(resetCurrent, "text", "action.resetCurrent", "Reset current channel");
+        auto* resetAll=menu.addAction(NativeFx::I18n::text("action.resetAll", "Reset all channels"));NativeFx::I18n::bindProperty(resetAll, "text", "action.resetAll", "Reset all channels");
+        menu.addSeparator();auto* copyAll=menu.addAction(NativeFx::I18n::text("action.copyToAll", "Copy current settings to all channels"));NativeFx::I18n::bindProperty(copyAll, "text", "action.copyToAll", "Copy current settings to all channels");
         connect(resetCurrent,&QAction::triggered,this,[this]{apply([](auto& s){s=LimiterParameters{};});preset_=0;update();});
         connect(resetAll,&QAction::triggered,this,[this]{
             for(std::size_t i=0;i<values_.size();++i){values_[i]=LimiterParameters{};if(onChange_)onChange_(i,values_[i]);}

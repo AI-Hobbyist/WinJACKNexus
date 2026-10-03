@@ -1,0 +1,34 @@
+{
+  "formatVersion": 1,
+  "catalogVersion": 1,
+  "moduleId": "gate",
+  "language": "zh-CN",
+  "domains": {
+    "nativefx.gate": {
+      "module.name": "Gate 门限",
+      "module.description": "八声道原生向下门限。",
+      "window.title": "Gate 门限 — %1",
+      "control.threshold": "阈值",
+      "control.ratio": "比率",
+      "control.attack": "起始时间\n(Attack)",
+      "control.release": "释放时间\n(Release)",
+      "control.floor": "底噪(地板)\n(Floor)",
+      "control.hysteresis": "滞后\n(Hold)",
+      "control.targetChannels": "作用声道",
+      "control.all": "全部",
+      "description.gate": "抑制低于阈值的信号，减少底噪",
+      "label.preset": "预设:",
+      "preset.default": "默认",
+      "preset.tight": "紧门限",
+      "preset.gentle": "柔和门限",
+      "preset.custom": "自定义",
+      "tooltip.threshold": "阈值\n%1 dB",
+      "axis.inputLevel": "输入电平 (dB)",
+      "axis.outputLevel": "输出电平 (dB)",
+      "control.sidechainFilter": "侧链滤波",
+      "filter.highPass": "高通",
+      "filter.lowPass": "低通",
+      "action.restoreDefaults": "恢复默认值"
+    }
+  }
+}

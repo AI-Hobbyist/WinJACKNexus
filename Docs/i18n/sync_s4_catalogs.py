@@ -34,10 +34,12 @@ def main():
     domains = sorted({r['domain'] for r in records})
     manifest_path = ROOT / 'locate/manifest.json'
     manifest = json.loads(manifest_path.read_text(encoding='utf-8'))
-    manifest['catalogVersion'] = 4
+    manifest['catalogVersion'] = max(4, manifest['catalogVersion'])
     manifest['domains'] = list(dict.fromkeys(manifest['domains'] + domains))
     for domain in domains:
-        manifest['requiredKeys'][domain] = [r['key'] for r in records if r['domain'] == domain]
+        stage_keys = [r['key'] for r in records if r['domain'] == domain]
+        later_keys = [k for k in manifest['requiredKeys'].get(domain, []) if domain == 'ui' and k.startswith('clientName.')]
+        manifest['requiredKeys'][domain] = stage_keys + later_keys
     manifest_path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2)+'\n', encoding='utf-8')
     for language in LANGUAGES:
         path = ROOT / 'locate' / f'{language}.json'

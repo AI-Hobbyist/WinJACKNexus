@@ -2,6 +2,8 @@
 #include <WinJACKNexus/Common/ChannelNames.hpp>
 #include <WinJACKNexus/NativeFx/gate/Ui.hpp>
 #include <WinJACKNexus/UI/Controls.hpp>
+#include <WinJACKNexus/NativeFx/I18n.hpp>
+#include <QSignalBlocker>
 #include <WinJACKNexus/UI/ApplicationSettings.hpp>
 #include <QMouseEvent>
 #include <QMenu>
@@ -15,7 +17,7 @@ namespace WinJACKNexus::UI {
 namespace {
 const QColor cyan(43, 197, 255), pale(205, 223, 250), muted(151, 181, 224);
 constexpr auto channels = WinJACKNexus::Common::surroundChannelChoices;
-constexpr const char* labels[] = { "阈值", "比率", "起始时间\n(Attack)", "释放时间\n(Release)", "底噪(地板)\n(Floor)", "滞后\n(Hold)" };
+
 constexpr QPoint dialCenters[] = { {440,144}, {562,144}, {684,144}, {440,292}, {562,292}, {684,292} };
 constexpr float minima[] = { -60, 1, 0.1F, 1, -90, 0 };
 constexpr float maxima[] = { 0, 20, 200, 2000, 0, 24 };
@@ -24,8 +26,8 @@ void box(QPainter& p, QRectF r, qreal radius, QColor fill, QColor edge = {}) {
     Controls::drawSurface(p,r,fill,edge,radius);
 }
 void label(QPainter& p, QRectF r, const QString& text, int size, QColor color, bool bold = false) {
-    QFont f(QStringLiteral("Microsoft YaHei UI"), size); f.setBold(bold);
-    Controls::drawText(p,r,text,f,color);
+    QFont f = p.font(); f.setPointSize(size); f.setBold(bold);
+    Controls::drawElidedText(p,r,text,f,color);
 }
 void toggle(QPainter& p, QRectF r, bool on) {
     Controls::drawToggle(p, r, on,
@@ -66,11 +68,16 @@ float valueAtNormalized(int i,float n) {
 }
 
 GateEffectWidget::GateEffectWidget(QWidget* parent):QWidget(parent) {
-    setFixedSize(754,654); setMouseTracking(true); setWindowTitle(QStringLiteral("Gate 门限"));
+    setFixedSize(754,654); setMouseTracking(true); setWindowTitle(NativeFx::I18n::text("module.name", "Gate"));
     dragRefreshTimer_.setParent(this);
     dragRefreshTimer_.setObjectName(QStringLiteral("nativeFxDragRefreshTimer"));
     bindRefreshTimer(dragRefreshTimer_, this);
     connect(&dragRefreshTimer_, &QTimer::timeout, this, [this] { update(); });
+    NativeFx::I18n::bind(this, [this] {
+        setAccessibleDescription(NativeFx::I18n::text("module.description", "Eight-channel native downward gate."));
+        setWindowTitle(NativeFx::I18n::text("module.name", "Gate"));
+        update();
+    });
 }
 void GateEffectWidget::setParameters(const std::array<Parameters,8>& p) {
     parameters_=p;
@@ -99,16 +106,17 @@ void GateEffectWidget::apply(const std::function<void(Parameters&)>& edit) {
 }
 
 void GateEffectWidget::paintEvent(QPaintEvent*) {
+    const QString labels[] = { NativeFx::I18n::text("control.threshold", "Threshold"), NativeFx::I18n::text("control.ratio", "Ratio"), NativeFx::I18n::text("control.attack", "Attack"), NativeFx::I18n::text("control.release", "Release"), NativeFx::I18n::text("control.floor", "Floor"), NativeFx::I18n::text("control.hysteresis", "Hysteresis") };
     QPainter p(this); p.setRenderHint(QPainter::Antialiasing);
     const auto primary = Controls::themeTokenColor("native-fx-gate", "text-primary", Qt::white);
     const auto muted = Controls::themeTokenColor("native-fx-gate", "text-muted", QColor(151,181,224));
     p.fillRect(rect(), Controls::themeColor(*this, "fxBackground", QColor(13,28,45)));
     box(p,{7,8,740,128},11,QColor(21,39,59),QColor(47,75,104));
-    label(p,{22,23,110,31},QStringLiteral("作用声道"),18,primary,true);
+    label(p,{22,23,110,31},NativeFx::I18n::text("control.targetChannels", "Channel"),18,primary,true);
     for(int i=0;i<9;++i) {
         QRectF r(22+i*80,68,72,40); const bool chosen=i==selectedChannel_+1;
         box(p,r,5,chosen?QColor(13,56,88):QColor(24,43,63),chosen?cyan:QColor(60,86,112));
-        label(p,r,QString::fromLatin1(channels[i]),12,chosen?cyan:muted);
+        label(p,r,(i == 0 ? NativeFx::I18n::text("control.all", "All") : QString::fromLatin1(channels[i])),12,chosen?cyan:muted);
     }
     p.save(); p.translate(0,145);
     QLinearGradient outer(0,0,0,509); outer.setColorAt(0,QColor(15,33,52)); outer.setColorAt(1,QColor(15,30,47));
@@ -118,14 +126,14 @@ void GateEffectWidget::paintEvent(QPaintEvent*) {
     p.setPen(QPen(cyan,3)); QPainterPath wave; wave.moveTo(25,44); wave.lineTo(33,44);
     wave.lineTo(39,26); wave.lineTo(44,59); wave.lineTo(49,32); wave.lineTo(54,53);
     wave.lineTo(60,39); wave.lineTo(68,44); p.drawPath(wave);
-    label(p,{90,12,145,32},QStringLiteral("Gate 门限"),19,primary,true);
-    label(p,{90,46,209,22},QStringLiteral("抑制低于阈值的信号，减少底噪"),10,muted);
+    label(p,{90,12,145,32},NativeFx::I18n::text("module.name", "Gate"),19,primary,true);
+    label(p,{90,46,209,22},NativeFx::I18n::text("description.gate", "Reduce noise below the threshold"),10,muted);
     box(p,{316,15,72,58},10,QColor(30,52,77)); toggle(p,{334,33,37,20},displayed().enabled);
-    label(p,{401,27,42,29},QStringLiteral("预设:"),10,muted);
+    label(p,{401,27,42,29},NativeFx::I18n::text("label.preset", "Preset:"),10,muted);
     box(p,{446,26,170,34},5,QColor(19,36,56),QColor(66,103,144));
-    label(p,{452,26,139,34},selectedPreset_==0?QStringLiteral("Default"):
-          selectedPreset_==1?QStringLiteral("Tight Gate"):
-          selectedPreset_==2?QStringLiteral("Gentle Gate"):QStringLiteral("Custom"),11,primary);
+    label(p,{452,26,139,34},selectedPreset_==0?NativeFx::I18n::text("preset.default", "Default"):
+          selectedPreset_==1?NativeFx::I18n::text("preset.tight", "Tight Gate"):
+          selectedPreset_==2?NativeFx::I18n::text("preset.gentle", "Gentle Gate"):NativeFx::I18n::text("preset.custom", "Custom"),11,primary);
     chevron(p,{600,43});
     for(int i=0;i<2;++i) {
         const int x=628+i*38; box(p,{qreal(x),27,30,32},5,QColor(27,51,77),QColor(63,101,141));
@@ -171,16 +179,16 @@ void GateEffectWidget::paintEvent(QPaintEvent*) {
     Controls::drawMarker(p,marker,6,Qt::white,cyan,2); p.restore();
     const qreal tooltipX=std::clamp(marker.x()-45.0,115.0,270.0);
     box(p,{tooltipX,116,91,48},8,QColor(32,54,78),QColor(85,119,154));
-    label(p,{tooltipX,118,91,44},QStringLiteral("Threshold\n%1 dB").arg(s.thresholdDb,0,'f',1),10,primary);
+    label(p,{tooltipX,118,91,44},NativeFx::I18n::text("tooltip.threshold", "Threshold\n%1 dB").arg(s.thresholdDb,0,'f',1),10,primary);
     p.setPen(QPen(muted,1));
     for(int t=-60;t<=0;t+=12) {
         int x=int(plot(float(t),-60).x()),y=int(plot(-60,float(t)).y());
         p.drawText(QRectF(x-17,364,34,17),Qt::AlignCenter,QString::number(t));
         p.drawText(QRectF(42,y-9,29,18),Qt::AlignRight|Qt::AlignVCenter,QString::number(t));
     }
-    label(p,{160,387,145,24},QStringLiteral("输入电平 (dB)"),12,muted);
+    label(p,{160,387,145,24},NativeFx::I18n::text("axis.inputLevel", "Input level (dB)"),12,muted);
     p.save(); p.translate(35,310); p.rotate(-90);
-    label(p,{0,0,150,20},QStringLiteral("输出电平 (dB)"),11,muted); p.restore();
+    label(p,{0,0,150,20},NativeFx::I18n::text("axis.outputLevel", "Output level (dB)"),11,muted); p.restore();
     const auto knobColors=Controls::paletteFor(*this,
         {Controls::themeTokenColor("native-fx-gate", "control-knob-background-base", QColor(13,28,45)),
          QColor(22,41,62),primary,
@@ -190,16 +198,16 @@ void GateEffectWidget::paintEvent(QPaintEvent*) {
         QPoint c=dialCenters[i]; float norm=normalizedValue(s,i);
         Controls::drawKnob(p,QPointF(c),norm,36,knobColors);
         label(p,{qreal(c.x()-55),qreal(c.y()+36),110,21},formatted(s,i),11,primary);
-        label(p,{qreal(c.x()-61),qreal(c.y()+57),122,37},QString::fromUtf8(labels[i]),10,muted);
+        label(p,{qreal(c.x()-61),qreal(c.y()+57),122,37},labels[i],10,muted);
     }
     box(p,{22,427,430,61},9,QColor(20,39,61),QColor(47,75,104));
     box(p,{463,427,267,61},9,QColor(20,39,61),QColor(47,75,104));
-    label(p,{29,442,111,30},QStringLiteral("侧链滤波"),11,muted);
+    label(p,{29,442,111,30},NativeFx::I18n::text("control.sidechainFilter", "Sidechain filter"),11,muted);
     toggle(p,{167,447,36,20},s.sidechainFilter);
-    label(p,{223,442,66,30},QStringLiteral("高通"),10,muted);
+    label(p,{223,442,66,30},NativeFx::I18n::text("filter.highPass", "High-pass"),10,muted);
     box(p,{291,441,140,35},5,QColor(20,39,60),QColor(62,98,138));
     label(p,{301,441,111,35},QStringLiteral("%1 Hz").arg(s.highPassHz,0,'f',0),11,primary);
-    chevron(p,{416,459}); label(p,{473,442,83,30},QStringLiteral("低通"),10,muted);
+    chevron(p,{416,459}); label(p,{473,442,83,30},NativeFx::I18n::text("filter.lowPass", "Low-pass"),10,muted);
     box(p,{572,441,137,35},5,QColor(20,39,60),QColor(62,98,138));
     label(p,{583,441,108,35},QStringLiteral("%1 kHz").arg(s.lowPassHz/1000,0,'f',1),11,primary);
     chevron(p,{694,459}); p.restore();
@@ -248,10 +256,15 @@ void GateEffectWidget::mousePressEvent(QMouseEvent* e) {
     else if(QRectF(167,441,37,35).contains(q)) apply([](Parameters& p){p.sidechainFilter=!p.sidechainFilter;});
     else if(QRectF(446,26,170,34).contains(q)) {
         QMenu menu(this);
-        const QStringList names={QStringLiteral("Default"),QStringLiteral("Tight Gate"),
-                                 QStringLiteral("Gentle Gate")};
+        const QStringList names={NativeFx::I18n::text("preset.default", "Default"),NativeFx::I18n::text("preset.tight", "Tight Gate"),
+                                 NativeFx::I18n::text("preset.gentle", "Gentle Gate")};
         for(int i=0;i<3;++i) {
             auto* action=menu.addAction(names[i]);
+            NativeFx::I18n::bind(action, [action, i] {
+                constexpr const char* keys[] = {"preset.default", "preset.tight", "preset.gentle"};
+                constexpr const char* english[] = {"Default", "Tight Gate", "Gentle Gate"};
+                action->setText(NativeFx::I18n::text(keys[i], english[i]));
+            });
             connect(action,&QAction::triggered,this,[this,i]{applyPreset(i);});
         }
         menu.exec(mapToGlobal(QPoint(446,205)));
@@ -260,7 +273,8 @@ void GateEffectWidget::mousePressEvent(QMouseEvent* e) {
     else if(QRectF(666,27,30,32).contains(q)) applyPreset(selectedPreset_+1);
     else if(QRectF(707,27,31,32).contains(q)) {
         QMenu menu(this);
-        auto* reset=menu.addAction(QStringLiteral("恢复默认值"));
+        auto* reset=menu.addAction(NativeFx::I18n::text("action.restoreDefaults", "Restore defaults"));
+        NativeFx::I18n::bind(reset, [reset] { reset->setText(NativeFx::I18n::text("action.restoreDefaults", "Restore defaults")); });
         connect(reset,&QAction::triggered,this,[this]{applyPreset(0);});
         menu.exec(mapToGlobal(QPoint(707,205)));
     }

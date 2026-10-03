@@ -1,0 +1,42 @@
+{
+  "formatVersion": 1,
+  "catalogVersion": 1,
+  "moduleId": "limiter",
+  "language": "zh-CN",
+  "domains": {
+    "nativefx.limiter": {
+      "module.name": "Limiter 限幅器",
+      "module.description": "八声道原生限幅器界面。",
+      "control.targetChannels": "作用声道",
+      "control.all": "全部",
+      "label.preset": "预设:",
+      "preset.default": "默认",
+      "preset.custom": "自定义",
+      "axis.inputLevel": "输入电平 (dB)",
+      "axis.outputLevel": "输出电平 (dB)",
+      "window.title": "Limiter 限幅器 — %1",
+      "description.limiter": "防止信号过载，控制最大输出电平",
+      "preset.broadcast": "广播",
+      "preset.maxLoudness": "最大响度",
+      "label.inputLevel": "输入电平",
+      "label.outputLevel": "输出电平",
+      "control.threshold": "阈值",
+      "control.ceiling": "输出上限",
+      "control.release": "释放时间",
+      "control.lookahead": "前瞻",
+      "control.mode": "模式:",
+      "mode.transparent": "透明",
+      "mode.modern": "现代",
+      "mode.brickwall": "砖墙",
+      "control.oversampling": "过采样:",
+      "control.autoGain": "自动增益",
+      "action.resetCurrent": "重置当前声道",
+      "action.resetAll": "重置全部声道",
+      "action.copyToAll": "将当前设置复制到全部声道",
+      "hint.threshold": "(Threshold)",
+      "hint.ceiling": "(Ceiling)",
+      "hint.release": "(Release)",
+      "hint.lookahead": "(Lookahead)"
+    }
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "formatVersion": 1,
+  "catalogVersion": 1,
+  "moduleId": "gate",
+  "language": "ja-JP",
+  "domains": {
+    "nativefx.gate": {
+      "module.name": "ゲート",
+      "module.description": "8 チャンネルのネイティブ・ダウンワードゲート。",
+      "window.title": "ゲート — %1",
+      "control.threshold": "しきい値",
+      "control.ratio": "比率",
+      "control.attack": "アタック",
+      "control.release": "リリース",
+      "control.floor": "フロア",
+      "control.hysteresis": "ヒステリシス",
+      "control.targetChannels": "対象チャンネル",
+      "control.all": "全て",
+      "description.gate": "しきい値以下の信号を抑えてノイズを低減",
+      "label.preset": "プリセット:",
+      "preset.default": "デフォルト",
+      "preset.tight": "タイトゲート",
+      "preset.gentle": "穏やかなゲート",
+      "preset.custom": "カスタム",
+      "tooltip.threshold": "しきい値\n%1 dB",
+      "axis.inputLevel": "入力レベル (dB)",
+      "axis.outputLevel": "出力レベル (dB)",
+      "control.sidechainFilter": "サイドチェーンフィルター",
+      "filter.highPass": "ハイパス",
+      "filter.lowPass": "ローパス",
+      "action.restoreDefaults": "デフォルトに戻す"
+    }
+  }
+}

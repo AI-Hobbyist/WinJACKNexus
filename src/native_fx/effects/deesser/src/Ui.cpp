@@ -3,6 +3,7 @@
 #include <WinJACKNexus/NativeFx/deesser/Ui.hpp>
 #include <WinJACKNexus/UI/ApplicationSettings.hpp>
 #include <WinJACKNexus/UI/Controls.hpp>
+#include <WinJACKNexus/NativeFx/I18n.hpp>
 
 #include <QMouseEvent>
 #include <QMenu>
@@ -21,8 +22,7 @@ namespace {
 const QColor background(9, 23, 39), panel(13, 29, 47), border(36, 102, 157);
 const QColor text(222, 235, 249), muted(143, 166, 189), purple(165, 91, 255);
 const auto channels = WinJACKNexus::Common::standardChannelChoices();
-const std::array<QString, 6> captions { QStringLiteral("中心频率"), QStringLiteral("带宽 (Q)"),
-    QStringLiteral("阈值"), QStringLiteral("起始时间"), QStringLiteral("释放时间"), QStringLiteral("输出增益") };
+
 const std::array<QPointF, 6> knobs { QPointF(480, 142), QPointF(587, 142), QPointF(694, 142),
     QPointF(480, 273), QPointF(587, 273), QPointF(694, 273) };
 float knobValue(const Common::DeEsserParameters& p, int index) noexcept {
@@ -67,7 +67,7 @@ void textAt(QPainter& p, const QRectF& r, const QString& s, int px, const QColor
         ? Controls::themeTokenColor("native-fx-deesser", "text-primary", color)
         : color == muted
             ? Controls::themeTokenColor("native-fx-deesser", "text-muted", color) : color;
-    Controls::drawText(p,r,s,f,themed,alignment);
+    Controls::drawElidedText(p,r,s,f,themed,alignment);
 }
 
 QString valueText(const std::array<float, 6>& v, int i)
@@ -105,7 +105,7 @@ void button(QPainter& p, QRectF r, const QString& label, bool selected, int size
 DeEsserWidget::DeEsserWidget(QWidget* parent) : QWidget(parent, parent ? Qt::Widget : Qt::Window)
 {
     if (!parent) setAttribute(Qt::WA_NativeWindow, true);
-    setWindowTitle(QStringLiteral("De-Esser 去齿音"));
+    setWindowTitle(NativeFx::I18n::text("module.name", "De-Esser"));
     setFixedSize(768, 650);
     setMouseTracking(true);
     for (std::size_t i = 0; i < spectrumFftSize_; ++i) {
@@ -121,6 +121,8 @@ DeEsserWidget::DeEsserWidget(QWidget* parent) : QWidget(parent, parent ? Qt::Wid
     });
     bindRefreshTimer(spectrumTimer_, this);
     spectrumTimer_.start();
+    NativeFx::I18n::bind(this, [this] {
+        setAccessibleDescription(NativeFx::I18n::text("module.description", "Eight-channel native sibilance suppressor.")); setWindowTitle(NativeFx::I18n::text("module.name", "De-Esser")); update(); });
 }
 
 void DeEsserWidget::setSpectrumSources(
@@ -371,6 +373,8 @@ void DeEsserWidget::selectPreset(int index)
 
 void DeEsserWidget::paintEvent(QPaintEvent*)
 {
+    const std::array<QString, 6> captions { NativeFx::I18n::text("control.centerFrequency", "Center frequency"), NativeFx::I18n::text("control.bandwidth", "Bandwidth"),
+    NativeFx::I18n::text("control.threshold", "Threshold"), NativeFx::I18n::text("control.attack", "Attack"), NativeFx::I18n::text("control.release", "Release"), NativeFx::I18n::text("control.outputGain", "Output gain") };
     const auto shown = displayed();
     const std::array<float, 6> values {shown.centerFrequencyHz, shown.bandwidthHz,
         shown.thresholdDb, shown.attackMs, shown.releaseMs, shown.outputGainDb};
@@ -382,7 +386,7 @@ void DeEsserWidget::paintEvent(QPaintEvent*)
     // Nine channel buttons keep the reference's dark, inset selector style while
     // exposing All plus all eight native-effect channels.
     rounded(p, {7, 8, 754, 128}, 11, QColor(21, 39, 59), QColor(47, 75, 104));
-    textAt(p, {22, 18, 150, 34}, QStringLiteral("作用声道"), 20, text, Qt::AlignLeft, true);
+    textAt(p, {22, 18, 150, 34}, NativeFx::I18n::text("control.targetChannels", "Channel"), 20, text, Qt::AlignLeft, true);
     for (int i = 0; i < 9; ++i) {
         const QRectF r(22 + i * 80, 68, 72, 40);
         const bool selected = i == (selectedChannel_ < 0 ? 0 : selectedChannel_ + 1);
@@ -392,7 +396,7 @@ void DeEsserWidget::paintEvent(QPaintEvent*)
             Controls::drawSurface(p,r.adjusted(1,1,-1,-1),Qt::NoBrush,
                 QColor(0,162,255,35),5,5);
         }
-        textAt(p, r, channels[static_cast<std::size_t>(i)], 16,
+        textAt(p, r, (i == 0 ? NativeFx::I18n::text("control.all", "All") : channels[static_cast<std::size_t>(i)]), 16,
                selected ? QColor(91, 222, 255) : QColor(168, 194, 229));
     }
 
@@ -406,17 +410,17 @@ void DeEsserWidget::paintEvent(QPaintEvent*)
     QPainterPath logo; logo.moveTo(63, 33); logo.lineTo(57, 33); logo.cubicTo(53, 24, 42, 24, 40, 32);
     logo.cubicTo(38, 41, 54, 43, 54, 50); logo.cubicTo(54, 57, 44, 59, 39, 52); logo.lineTo(34, 52);
     p.drawPath(logo); p.drawLine(QPointF(28, 42), QPointF(34, 42)); p.drawLine(QPointF(62, 42), QPointF(68, 42));
-    textAt(p, {95, 13, 240, 37}, QStringLiteral("De-Esser 去齿音"), 26, text, Qt::AlignLeft, true);
-    textAt(p, {95, 48, 265, 22}, QStringLiteral("检测并抑制齿音频段（S、SH 等）"), 14, muted, Qt::AlignLeft);
+    textAt(p, {95, 13, 240, 37}, NativeFx::I18n::text("module.name", "De-Esser"), 26, text, Qt::AlignLeft, true);
+    textAt(p, {95, 48, 265, 22}, NativeFx::I18n::text("description.deesser", "Detect and reduce sibilance (S, SH)"), 14, muted, Qt::AlignLeft);
     rounded(p, {326, 15, 58, 58}, 10, QColor(25, 42, 62));
     Controls::drawToggle(p, {337, 32, 37, 20}, shown.enabled,
         Controls::themeTokenColor("native-fx-deesser", "control-toggle-indicator-on", QColor(0, 137, 220)),
         Controls::themeTokenColor("native-fx-deesser", "control-toggle-indicator-off", QColor(57, 71, 89)));
-    textAt(p, {400, 26, 43, 34}, QStringLiteral("预设:"), 13, muted,
+    textAt(p, {400, 26, 43, 34}, NativeFx::I18n::text("label.preset", "Preset:"), 13, muted,
            Qt::AlignLeft | Qt::AlignVCenter);
     rounded(p, {453, 26, 166, 34}, 5, QColor(13, 28, 46), QColor(52, 82, 112));
-    const std::array<QString, 4> presets { QStringLiteral("Default"),
-        QStringLiteral("Bright Vocal"), QStringLiteral("Soft Voice"), QStringLiteral("Custom") };
+    const std::array<QString, 4> presets { NativeFx::I18n::text("preset.default", "Default"),
+        NativeFx::I18n::text("preset.brightVocal", "Bright Vocal"), NativeFx::I18n::text("preset.softVoice", "Soft Voice"), NativeFx::I18n::text("preset.custom", "Custom") };
     textAt(p, {463, 26, 135, 34}, presets[static_cast<std::size_t>(selectedPreset_)], 14, text);
     textAt(p, {597, 26, 18, 34}, QStringLiteral("⌄"), 17, muted);
     for (int i = 0; i < 2; ++i) {
@@ -520,12 +524,12 @@ void DeEsserWidget::paintEvent(QPaintEvent*)
             "native-fx-deesser", "chart-series-input-spectrum-stroke", QColor(67, 207, 224, 205));
         p.setPen(QPen(QColor(inputLegend.red(), inputLegend.green(), inputLegend.blue(), 230), 1.4));
         p.drawLine(QPointF(82, 128), QPointF(94, 128));
-        textAt(p, {97, 119, 30, 18}, QStringLiteral("输入"), 10, text);
+        textAt(p, {97, 119, 30, 18}, NativeFx::I18n::text("label.input", "Input"), 10, text);
         const auto outputLegend = Controls::themeTokenColor(
             "native-fx-deesser", "chart-series-output-spectrum-stroke", QColor(127, 83, 184, 205));
         p.setPen(QPen(QColor(outputLegend.red(), outputLegend.green(), outputLegend.blue(), 230), 1.4));
         p.drawLine(QPointF(131, 128), QPointF(143, 128));
-        textAt(p, {146, 119, 54, 18}, QStringLiteral("处理后"), 10, text);
+        textAt(p, {146, 119, 54, 18}, NativeFx::I18n::text("label.processed", "Processed"), 10, text);
     }
     p.setPen(QPen(Controls::themeTokenColor("native-fx-deesser", "chart-center-guide", QColor(174, 100, 255)),
         1.4, Qt::DashLine));
@@ -535,7 +539,7 @@ void DeEsserWidget::paintEvent(QPaintEvent*)
     p.restore();
     const qreal tooltipX = std::clamp(centerX - 36, graph.left(), graph.right() - 73);
     rounded(p, {tooltipX, 111, 73, 47}, 6, QColor(32, 34, 63), QColor(88, 64, 133));
-    textAt(p, {tooltipX + 4, 113, 65, 20}, QStringLiteral("中心频率"), 12, text);
+    textAt(p, {tooltipX + 4, 113, 65, 20}, NativeFx::I18n::text("control.centerFrequency", "Center frequency"), 12, text);
     textAt(p, {tooltipX + 4, 132, 65, 20}, valueText(values, 0), 13, text);
 
     rounded(p, {429, 94, 314, 274}, 11, QColor(19, 36, 56), QColor(39, 66, 94));
@@ -551,21 +555,21 @@ void DeEsserWidget::paintEvent(QPaintEvent*)
     }
 
     rounded(p, {20, 376, 389, 99}, 8, QColor(13, 31, 50), QColor(40, 75, 105));
-    textAt(p, {30, 409, 52, 34}, QStringLiteral("模式:"), 14, muted,
+    textAt(p, {30, 409, 52, 34}, NativeFx::I18n::text("control.mode", "Mode:"), 14, muted,
            Qt::AlignLeft | Qt::AlignVCenter);
-    const std::array<QString, 3> modes { QStringLiteral("宽带"), QStringLiteral("分频"), QStringLiteral("动态 EQ") };
+    const std::array<QString, 3> modes { NativeFx::I18n::text("mode.wideband", "Wideband"), NativeFx::I18n::text("mode.splitBand", "Split band"), NativeFx::I18n::text("mode.dynamicEq", "Dynamic EQ") };
     for (int i = 0; i < 3; ++i) button(p, {85.0 + i * 87.0, 409, 84, 34}, modes[i], static_cast<int>(shown.mode) == i, 14);
     rounded(p, {429, 376, 312, 99}, 8, QColor(13, 31, 50), QColor(40, 75, 105));
-    textAt(p, {443, 382, 70, 34}, QStringLiteral("检测模式:"), 14, muted,
+    textAt(p, {443, 382, 70, 34}, NativeFx::I18n::text("control.detectorMode", "Detector:"), 14, muted,
            Qt::AlignLeft | Qt::AlignVCenter);
     button(p, {521, 382, 84, 34}, QStringLiteral("RMS"), shown.detector == Common::DeEsserDetector::Rms, 14);
-    button(p, {611, 382, 86, 34}, QStringLiteral("峰值"), shown.detector == Common::DeEsserDetector::Peak, 14);
+    button(p, {611, 382, 86, 34}, NativeFx::I18n::text("meter.peak", "Peak"), shown.detector == Common::DeEsserDetector::Peak, 14);
     button(p, {702, 382, 29, 34}, QStringLiteral("i"), false, 13);
-    textAt(p, {443, 423, 67, 34}, QStringLiteral("监听:"), 14, muted,
+    textAt(p, {443, 423, 67, 34}, NativeFx::I18n::text("control.monitor", "Monitor:"), 14, muted,
            Qt::AlignLeft | Qt::AlignVCenter);
-    button(p, {521, 423, 65, 34}, QStringLiteral("关"), shown.listen == Common::DeEsserListen::Off, 14);
-    button(p, {592, 423, 65, 34}, QStringLiteral("齿音"), shown.listen == Common::DeEsserListen::Sibilance, 13);
-    button(p, {663, 423, 70, 34}, QStringLiteral("原始"), shown.listen == Common::DeEsserListen::Original, 13);
+    button(p, {521, 423, 65, 34}, NativeFx::I18n::text("control.off", "Off"), shown.listen == Common::DeEsserListen::Off, 14);
+    button(p, {592, 423, 65, 34}, NativeFx::I18n::text("listen.sibilance", "Sibilance"), shown.listen == Common::DeEsserListen::Sibilance, 13);
+    button(p, {663, 423, 70, 34}, NativeFx::I18n::text("listen.original", "Original"), shown.listen == Common::DeEsserListen::Original, 13);
     p.restore();
 }
 
@@ -628,9 +632,14 @@ void DeEsserWidget::mousePressEvent(QMouseEvent* event)
     if (QRectF(326, 15, 58, 58).contains(main)) { const bool enabled = !displayed().enabled; apply([enabled](Parameters& p) { p.enabled = enabled; }); return; }
     if (QRectF(453, 26, 166, 34).contains(main)) {
         QMenu menu(this);
-        const std::array<QString, 3> presets {QStringLiteral("Default"), QStringLiteral("Bright Vocal"), QStringLiteral("Soft Voice")};
+        const std::array<QString, 3> presets {NativeFx::I18n::text("preset.default", "Default"), NativeFx::I18n::text("preset.brightVocal", "Bright Vocal"), NativeFx::I18n::text("preset.softVoice", "Soft Voice")};
         for (int i = 0; i < 3; ++i) {
             auto* action = menu.addAction(presets[static_cast<std::size_t>(i)]);
+            NativeFx::I18n::bind(action, [action, i] {
+                constexpr const char* keys[] = {"preset.default", "preset.brightVocal", "preset.softVoice"};
+                constexpr const char* english[] = {"Default", "Bright Vocal", "Soft Voice"};
+                action->setText(NativeFx::I18n::text(keys[i], english[i]));
+            });
             connect(action, &QAction::triggered, this, [this, i] { selectPreset(i); });
         }
         menu.exec(mapToGlobal(QPoint(453, 205)));
@@ -640,7 +649,8 @@ void DeEsserWidget::mousePressEvent(QMouseEvent* event)
     if (QRectF(669, 27, 30, 32).contains(main)) { selectPreset((selectedPreset_ + 1) % 3); return; }
     if (QRectF(709, 27, 31, 32).contains(main)) {
         QMenu menu(this);
-        auto* reset = menu.addAction(QStringLiteral("恢复 Default"));
+        auto* reset = menu.addAction(NativeFx::I18n::text("action.restoreDefaults", "Restore defaults"));
+        NativeFx::I18n::bind(reset, [reset] { reset->setText(NativeFx::I18n::text("action.restoreDefaults", "Restore defaults")); });
         connect(reset, &QAction::triggered, this, [this] { selectPreset(0); });
         menu.exec(mapToGlobal(QPoint(709, 205)));
         return;
@@ -650,7 +660,7 @@ void DeEsserWidget::mousePressEvent(QMouseEvent* event)
     if (QRectF(611, 382, 86, 34).contains(main)) { apply([](Parameters& p) { p.detector = Common::DeEsserDetector::Peak; }); return; }
     if (QRectF(702, 382, 29, 34).contains(main)) {
         QToolTip::showText(mapToGlobal(pt.toPoint()),
-                           QStringLiteral("RMS 使用平均能量检测；峰值响应瞬时齿音。"), this);
+                           NativeFx::I18n::text("help.detector", "RMS detects average energy; Peak responds to instantaneous sibilance."), this);
         return;
     }
     if (QRectF(521, 423, 65, 34).contains(main)) { apply([](Parameters& p) { p.listen = Common::DeEsserListen::Off; }); return; }

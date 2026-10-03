@@ -1,0 +1,50 @@
+{
+  "formatVersion": 1,
+  "moduleId": "deesser",
+  "domains": [
+    "nativefx.deesser"
+  ],
+  "defaultLanguage": "en-US",
+  "catalogVersion": 1,
+  "languages": {
+    "en-US": "en-US.json",
+    "zh-CN": "zh-CN.json",
+    "ja-JP": "ja-JP.json",
+    "ko-KR": "ko-KR.json"
+  },
+  "requiredKeys": {
+    "nativefx.deesser": [
+      "module.name",
+      "module.description",
+      "control.threshold",
+      "control.attack",
+      "control.release",
+      "control.targetChannels",
+      "control.all",
+      "label.preset",
+      "preset.default",
+      "preset.custom",
+      "action.restoreDefaults",
+      "window.title",
+      "description.deesser",
+      "control.centerFrequency",
+      "control.bandwidth",
+      "control.outputGain",
+      "preset.brightVocal",
+      "preset.softVoice",
+      "label.input",
+      "label.processed",
+      "control.mode",
+      "mode.wideband",
+      "mode.splitBand",
+      "mode.dynamicEq",
+      "control.detectorMode",
+      "meter.peak",
+      "control.monitor",
+      "control.off",
+      "listen.sibilance",
+      "listen.original",
+      "help.detector"
+    ]
+  }
+}

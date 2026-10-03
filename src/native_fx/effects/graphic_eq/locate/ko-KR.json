@@ -1,0 +1,41 @@
+{
+  "formatVersion": 1,
+  "catalogVersion": 1,
+  "moduleId": "graphic-eq",
+  "language": "ko-KR",
+  "domains": {
+    "nativefx.graphic-eq": {
+      "module.name": "그래픽 EQ",
+      "module.description": "8채널 31밴드 그래픽 EQ.",
+      "control.targetChannels": "대상 채널",
+      "control.all": "전체",
+      "label.preset": "프리셋:",
+      "preset.default": "기본값",
+      "preset.custom": "사용자 정의",
+      "window.title": "그래픽 EQ — %1",
+      "description.graphicEq": "31밴드 EQ · 주파수 응답 정밀 조정",
+      "preset.vocalBright": "밝은 보컬",
+      "preset.bassBoost": "저역 부스트",
+      "preset.classical": "클래식",
+      "label.inputReference": "입력 기준",
+      "label.postEq": "EQ 후",
+      "label.activeChannelCount": "%1/8채널",
+      "action.reset": "초기화",
+      "action.flatten": "플랫",
+      "action.load": "불러오기…",
+      "action.save": "저장…",
+      "control.outputGain": "출력 게인",
+      "control.displayMode": "표시 모드",
+      "label.bandCount": "31밴드",
+      "view.bands": "밴드 보기",
+      "view.curve": "곡선 보기",
+      "label.selectedItem": "선택 항목 %1",
+      "section.displayOptions": "표시 옵션",
+      "control.showFrequencies": "주파수 표시",
+      "control.showCurve": "곡선 표시",
+      "dialog.loadPreset": "EQ 프리셋 불러오기",
+      "filter.presetFiles": "EQ 프리셋 (*.json)",
+      "dialog.savePreset": "EQ 프리셋 저장"
+    }
+  }
+}

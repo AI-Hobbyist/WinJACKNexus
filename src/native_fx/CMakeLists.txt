@@ -6,7 +6,7 @@ set(wjn_native_fx_targets)
 set(wjn_native_fx_index 0)
 foreach(fx IN LISTS wjn_native_fx_ids)
     set(target "mod_${fx}")
-    add_library(${target} SHARED src/Library.cpp src/NativeFxApi.cpp
+    add_library(${target} SHARED src/Library.cpp src/NativeFxApi.cpp src/I18n.cpp
         effects/${fx}/src/Ui.cpp effects/${fx}/Meta.hpp effects/${fx}/include/Logic.inc
         effects/${fx}/include/Dsp.hpp effects/${fx}/src/Dsp.cpp)
     if(fx STREQUAL "graphic_eq" OR fx STREQUAL "parametric_eq")
@@ -29,6 +29,18 @@ foreach(fx IN LISTS wjn_native_fx_ids)
     set_target_properties(${target} PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${WJN_OUTPUT_DIR}/nodes/native_fx/${fx}"
         LIBRARY_OUTPUT_DIRECTORY "${WJN_OUTPUT_DIR}/nodes/native_fx/${fx}")
+    add_custom_target(${target}_i18n_catalogs
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+            "${CMAKE_CURRENT_SOURCE_DIR}/effects/${fx}/locate"
+            "${WJN_OUTPUT_DIR}/nodes/native_fx/${fx}/locate"
+        DEPENDS
+            "${CMAKE_CURRENT_SOURCE_DIR}/effects/${fx}/locate/manifest.json"
+            "${CMAKE_CURRENT_SOURCE_DIR}/effects/${fx}/locate/en-US.json"
+            "${CMAKE_CURRENT_SOURCE_DIR}/effects/${fx}/locate/zh-CN.json"
+            "${CMAKE_CURRENT_SOURCE_DIR}/effects/${fx}/locate/ja-JP.json"
+            "${CMAKE_CURRENT_SOURCE_DIR}/effects/${fx}/locate/ko-KR.json"
+        COMMENT "Deploy ${fx} i18n catalogs" VERBATIM)
+    add_dependencies(${target} ${target}_i18n_catalogs)
     foreach(configuration IN ITEMS Debug Release RelWithDebInfo MinSizeRel)
         string(TOUPPER "${configuration}" configuration_upper)
         set_target_properties(${target} PROPERTIES

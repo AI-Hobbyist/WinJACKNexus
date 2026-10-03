@@ -1,0 +1,41 @@
+{
+  "formatVersion": 1,
+  "catalogVersion": 1,
+  "moduleId": "graphic-eq",
+  "language": "ja-JP",
+  "domains": {
+    "nativefx.graphic-eq": {
+      "module.name": "グラフィック EQ",
+      "module.description": "8 チャンネル・31 バンドのグラフィック EQ。",
+      "control.targetChannels": "対象チャンネル",
+      "control.all": "全て",
+      "label.preset": "プリセット:",
+      "preset.default": "デフォルト",
+      "preset.custom": "カスタム",
+      "window.title": "グラフィック EQ — %1",
+      "description.graphicEq": "31 バンド EQ · 周波数特性を正確に調整",
+      "preset.vocalBright": "明るいボーカル",
+      "preset.bassBoost": "低域ブースト",
+      "preset.classical": "クラシック",
+      "label.inputReference": "入力基準",
+      "label.postEq": "EQ 後",
+      "label.activeChannelCount": "%1/8 チャンネル",
+      "action.reset": "リセット",
+      "action.flatten": "フラット",
+      "action.load": "読み込み…",
+      "action.save": "保存…",
+      "control.outputGain": "出力ゲイン",
+      "control.displayMode": "表示モード",
+      "label.bandCount": "31 バンド",
+      "view.bands": "バンド表示",
+      "view.curve": "カーブ表示",
+      "label.selectedItem": "選択中 %1",
+      "section.displayOptions": "表示オプション",
+      "control.showFrequencies": "周波数を表示",
+      "control.showCurve": "カーブを表示",
+      "dialog.loadPreset": "EQ プリセットを読み込み",
+      "filter.presetFiles": "EQ プリセット (*.json)",
+      "dialog.savePreset": "EQ プリセットを保存"
+    }
+  }
+}

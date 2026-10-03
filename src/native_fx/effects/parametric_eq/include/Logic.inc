@@ -129,7 +129,10 @@ public:
             if(effectWidget_)return effectWidget_;
             auto* widget=new ParametricEqWidget(parent);
             widget->setAttribute(Qt::WA_DeleteOnClose,false);
-            widget->setWindowTitle(QStringLiteral("Parametric EQ 参量均衡器 — %1").arg(QString::fromStdString(clientName_)));
+            WinJACKNexus::NativeFx::I18n::bind(widget, [this, widget] {
+                widget->setWindowTitle(WinJACKNexus::NativeFx::I18n::text("window.title", "Parametric EQ — %1").arg(QString::fromStdString(clientName_)));
+                widget->update();
+            });
             widget->setParameters(settings_);
             widget->setChangeHandler([this](std::size_t index,const ParametricEqParameters& p){settings_[index]=p;atomic_[index].store(p);});
             widget->setSpectrumFrameReader([this](WinJACKNexus::Common::GraphicEqSpectrumFrame& frame){return analyzer_->tryPopLatest(frame);});
@@ -159,7 +162,7 @@ public:
                 if(!openClient()){clientName_=old;if(openClient())reconnect(connections);return false;}
                 if(!reconnect(connections))return false;
             }
-            if(effectWidget_)effectWidget_->setWindowTitle(QStringLiteral("Parametric EQ 参量均衡器 — %1").arg(trimmed));
+            if(effectWidget_)effectWidget_->setWindowTitle(WinJACKNexus::NativeFx::I18n::text("window.title", "Parametric EQ — %1").arg(trimmed));
             if(clientNameWidget_)clientNameWidget_->setClientName(trimmed);
             return true;
         }catch(...){return false;}

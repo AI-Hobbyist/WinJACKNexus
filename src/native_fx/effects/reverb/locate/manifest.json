@@ -1,0 +1,61 @@
+{
+  "formatVersion": 1,
+  "moduleId": "reverb",
+  "domains": [
+    "nativefx.reverb"
+  ],
+  "defaultLanguage": "en-US",
+  "catalogVersion": 1,
+  "languages": {
+    "en-US": "en-US.json",
+    "zh-CN": "zh-CN.json",
+    "ja-JP": "ja-JP.json",
+    "ko-KR": "ko-KR.json"
+  },
+  "requiredKeys": {
+    "nativefx.reverb": [
+      "module.name",
+      "module.description",
+      "control.targetChannels",
+      "control.all",
+      "label.preset",
+      "preset.default",
+      "preset.custom",
+      "window.title",
+      "description.reverb",
+      "scene.room",
+      "scene.hall",
+      "scene.plate",
+      "scene.church",
+      "scene.studio",
+      "scene.spring",
+      "preset.smallRoom",
+      "preset.brightPlate",
+      "preset.cathedral",
+      "preset.studioBooth",
+      "preset.vintageSpring",
+      "control.reverbType",
+      "label.customRoomArea",
+      "control.decay",
+      "control.roomSize",
+      "control.preDelay",
+      "control.diffusion",
+      "section.earlyReflections",
+      "section.highDamping",
+      "section.lowDamping",
+      "control.level",
+      "label.time",
+      "control.cutoff",
+      "control.attenuation",
+      "control.mix",
+      "control.stereoWidth",
+      "label.outputLevel",
+      "control.wet",
+      "control.dry",
+      "hint.decay",
+      "hint.size",
+      "hint.predelay",
+      "hint.diffusion"
+    ]
+  }
+}

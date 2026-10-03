@@ -1,0 +1,42 @@
+{
+  "formatVersion": 1,
+  "catalogVersion": 1,
+  "moduleId": "limiter",
+  "language": "ja-JP",
+  "domains": {
+    "nativefx.limiter": {
+      "module.name": "リミッター",
+      "module.description": "8 チャンネルのネイティブ・リミッター画面。",
+      "control.targetChannels": "対象チャンネル",
+      "control.all": "全て",
+      "label.preset": "プリセット:",
+      "preset.default": "デフォルト",
+      "preset.custom": "カスタム",
+      "axis.inputLevel": "入力レベル (dB)",
+      "axis.outputLevel": "出力レベル (dB)",
+      "window.title": "リミッター — %1",
+      "description.limiter": "過負荷を防ぎ、最大出力レベルを制限",
+      "preset.broadcast": "放送",
+      "preset.maxLoudness": "最大ラウドネス",
+      "label.inputLevel": "入力レベル",
+      "label.outputLevel": "出力レベル",
+      "control.threshold": "しきい値",
+      "control.ceiling": "出力上限",
+      "control.release": "リリース",
+      "control.lookahead": "ルックアヘッド",
+      "control.mode": "モード:",
+      "mode.transparent": "透明",
+      "mode.modern": "モダン",
+      "mode.brickwall": "ブリックウォール",
+      "control.oversampling": "オーバーサンプリング:",
+      "control.autoGain": "自動ゲイン",
+      "action.resetCurrent": "現在のチャンネルをリセット",
+      "action.resetAll": "全チャンネルをリセット",
+      "action.copyToAll": "現在の設定を全チャンネルにコピー",
+      "hint.threshold": "(Threshold)",
+      "hint.ceiling": "(Ceiling)",
+      "hint.release": "(Release)",
+      "hint.lookahead": "(Lookahead)"
+    }
+  }
+}

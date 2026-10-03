@@ -1,0 +1,36 @@
+{
+  "formatVersion": 1,
+  "catalogVersion": 1,
+  "moduleId": "compressor",
+  "language": "ko-KR",
+  "domains": {
+    "nativefx.compressor": {
+      "module.name": "컴프레서",
+      "module.description": "8채널 네이티브 컴프레서 제어 화면.",
+      "control.threshold": "임계값",
+      "control.ratio": "비율",
+      "control.attack": "어택",
+      "control.release": "릴리스",
+      "control.targetChannels": "대상 채널",
+      "control.all": "전체",
+      "label.preset": "프리셋:",
+      "preset.default": "기본값",
+      "preset.custom": "사용자 정의",
+      "axis.inputLevel": "입력 레벨 (dB)",
+      "axis.outputLevel": "출력 레벨 (dB)",
+      "control.sidechainFilter": "사이드체인 필터",
+      "filter.highPass": "하이패스",
+      "filter.lowPass": "로우패스",
+      "action.restoreDefaults": "기본값 복원",
+      "window.title": "컴프레서 — %1",
+      "description.compressor": "다이내믹스를 제어하여 레벨 안정화",
+      "preset.punchyDrums": "펀치감 있는 드럼",
+      "preset.gentleLevel": "부드러운 레벨 조정",
+      "control.softKnee": "소프트 니",
+      "control.makeupGain": "메이크업 게인",
+      "control.detectorMode": "검출 방식:",
+      "meter.peak": "피크",
+      "control.autoGain": "자동 게인"
+    }
+  }
+}

@@ -499,3 +499,7 @@ S4 长文本契约：共享 `Controls::ChoiceField` 的非编辑显示和 `Contr
 `MeterCsvWriter::Status` 和 `MeterCsvPreviewState` 增加 `MeterCsvStatusKind`、原始详情及丢弃计数，供 GUI 按当前语言生成状态说明；旧 `rotationStatus` 字段保留兼容。写入线程不查询翻译，CSV 表头、数字格式和文件命名保持原协议。`unspecified` 状态仍显示调用方的旧状态文本。该新增数据布局要求本次涉及的 meter 模块与宿主一同重编，不能混用旧二进制。S4 测试源码已覆盖实际窗口、实际探针 DLL、CSV 写入和 PNG 导出；Release 与三档 Windows 实窗通过，证据见 `Docs/i18n/S4-completion.md`。
 
 接线盘自绘节点的长标题按现有端口布局宽度省略，使用原有系统/主题字体及字号；完整标题保存在 tooltip，原始工程名称/别名仍保留全文。语言刷新重算显示几何及连线路径，不更新工程模型或重建音频客户端。实窗截图必须包含实际 OpenGL 视口；S3 使用 Windows 窗口表面捕获，不以漏掉加速视口的 QWidget 重绘截图验收画布。
+
+## 自绘文本省略（S5 实施中，尚未 Release/实窗验收）
+
+`Controls::drawElidedText(QPainter&, const QRectF&, const QString&, const QFont&, const QColor&, Qt::Alignment = Qt::AlignCenter)` 保留 `drawText` 的既有合同，新增按传入字体和可用宽度逐行省略的绘制方法。QWidget 的 paintEvent 调用时，以 combinedTransform 将文字矩形映射到控件坐标，为截断区域登记原生 tooltip 全文；绘制开始清理上次区域，控件销毁自动清理。QImage 等非 QWidget 绘制只提供省略文本，不创建 tooltip。语言或布局变化应重绘；不缩小字体、不修改语言源/参数/用户名称。Gate、Compressor、De-Esser 已有调用点，三档实窗、绘制变换和完整提示需由 S5 调用点测试验收。

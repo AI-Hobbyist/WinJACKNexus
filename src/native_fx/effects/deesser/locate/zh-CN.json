@@ -1,0 +1,41 @@
+{
+  "formatVersion": 1,
+  "catalogVersion": 1,
+  "moduleId": "deesser",
+  "language": "zh-CN",
+  "domains": {
+    "nativefx.deesser": {
+      "module.name": "De-Esser 去齿音",
+      "module.description": "八声道原生齿音抑制器。",
+      "control.threshold": "阈值",
+      "control.attack": "起始时间\n(Attack)",
+      "control.release": "释放时间\n(Release)",
+      "control.targetChannels": "作用声道",
+      "control.all": "全部",
+      "label.preset": "预设:",
+      "preset.default": "默认",
+      "preset.custom": "自定义",
+      "action.restoreDefaults": "恢复默认值",
+      "window.title": "De-Esser 去齿音 — %1",
+      "description.deesser": "检测并抑制齿音频段（S、SH 等）",
+      "control.centerFrequency": "中心频率",
+      "control.bandwidth": "带宽",
+      "control.outputGain": "输出增益",
+      "preset.brightVocal": "明亮人声",
+      "preset.softVoice": "柔和人声",
+      "label.input": "输入",
+      "label.processed": "处理后",
+      "control.mode": "模式:",
+      "mode.wideband": "宽带",
+      "mode.splitBand": "分频",
+      "mode.dynamicEq": "动态 EQ",
+      "control.detectorMode": "检测模式:",
+      "meter.peak": "峰值",
+      "control.monitor": "监听:",
+      "control.off": "关",
+      "listen.sibilance": "齿音",
+      "listen.original": "原始",
+      "help.detector": "RMS 使用平均能量检测；峰值响应瞬时齿音。"
+    }
+  }
+}

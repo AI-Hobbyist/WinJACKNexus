@@ -1,0 +1,43 @@
+{
+  "formatVersion": 1,
+  "moduleId": "gate",
+  "domains": [
+    "nativefx.gate"
+  ],
+  "defaultLanguage": "en-US",
+  "catalogVersion": 1,
+  "languages": {
+    "en-US": "en-US.json",
+    "zh-CN": "zh-CN.json",
+    "ja-JP": "ja-JP.json",
+    "ko-KR": "ko-KR.json"
+  },
+  "requiredKeys": {
+    "nativefx.gate": [
+      "module.name",
+      "module.description",
+      "window.title",
+      "control.threshold",
+      "control.ratio",
+      "control.attack",
+      "control.release",
+      "control.floor",
+      "control.hysteresis",
+      "control.targetChannels",
+      "control.all",
+      "description.gate",
+      "label.preset",
+      "preset.default",
+      "preset.tight",
+      "preset.gentle",
+      "preset.custom",
+      "tooltip.threshold",
+      "axis.inputLevel",
+      "axis.outputLevel",
+      "control.sidechainFilter",
+      "filter.highPass",
+      "filter.lowPass",
+      "action.restoreDefaults"
+    ]
+  }
+}

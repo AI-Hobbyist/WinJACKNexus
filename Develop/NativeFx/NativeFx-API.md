@@ -303,3 +303,9 @@ a host, it uses local English. `i18n_contract_tests` verify two host leases,
 late editor creation, live text refresh preserving gain, UI rendering,
 detach and real DLL unload without a JACK server. Example-only lifecycle
 and query probes do not add requirements to production effects.
+
+### Built-in i18n migration (S5 in progress, unverified)
+
+The eight built-in DLLs compile a private `NativeFx/I18n.hpp` display bridge. Each descriptor derives its stable module ID from Meta.hpp, owns `nativefx.<id>`, and uses that DLL directory’s `locate/`. Node and mixer registration share the existing optional v1 exports and host lease; audio/DSP and preset indices remain unchanged. QObject display callbacks use guarded owners and a copied callback list during language notification. Detached or standalone display falls back to complete local English call-site strings. Current implementation is partial and has no S5 Release or real-window acceptance evidence.
+
+The shared `Controls::drawElidedText` declaration has the same arguments as `drawText`, with per-line elision and full native tooltips for QWidget paint rectangles. Its S5 call-site verification remains pending; see Docs/UI-API.md.

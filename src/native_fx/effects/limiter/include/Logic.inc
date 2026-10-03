@@ -57,7 +57,10 @@ public:
     WinJACKNexus::UI::LimiterWidget* createEffectWidget(QWidget* parent = nullptr) noexcept {
         try {if(!window_){auto* w=new WinJACKNexus::UI::LimiterWidget(parent);
                 w->setAttribute(Qt::WA_DeleteOnClose,false);
-                w->setWindowTitle(QStringLiteral("Limiter 限幅器 — %1").arg(QString::fromStdString(clientName_)));
+                WinJACKNexus::NativeFx::I18n::bind(w, [this, w] {
+                    w->setWindowTitle(WinJACKNexus::NativeFx::I18n::text("window.title", "Limiter — %1").arg(QString::fromStdString(clientName_)));
+                    w->update();
+                });
                 w->setParameters(values_);w->setChangeHandler([this](std::size_t i,const auto& v){values_[i]=v;atomic_[i].store(v);});
                 w->setMeterReader([this]{
                     std::array<WinJACKNexus::Common::LimiterMeter,8> meters{};
@@ -86,7 +89,7 @@ public:
         try {auto next=trimmed.toStdString();if(next==clientName_)return true;
             if(client_.isOpen())return false;
             clientName_=next;clientId_=next;
-            if(window_)window_->setWindowTitle(QStringLiteral("Limiter 限幅器 — %1").arg(trimmed));
+            if(window_)window_->setWindowTitle(WinJACKNexus::NativeFx::I18n::text("window.title", "Limiter — %1").arg(trimmed));
             if(settingsWidget_)settingsWidget_->setClientName(trimmed);
             return true;
         }catch(...){return false;}

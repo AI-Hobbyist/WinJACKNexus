@@ -103,7 +103,11 @@ public:
             if(effectWidget_) return effectWidget_;
             auto* widget=new GateEffectWidget(parent);
             widget->setAttribute(Qt::WA_DeleteOnClose,false);
-            widget->setWindowTitle(QStringLiteral("Gate 门限 — %1").arg(QString::fromStdString(clientName_)));
+            WinJACKNexus::NativeFx::I18n::bind(widget, [this, widget] {
+                widget->setWindowTitle(WinJACKNexus::NativeFx::I18n::text("window.title", "Gate — %1")
+                    .arg(QString::fromStdString(clientName_)));
+                widget->update();
+            });
             widget->setParameters(settings_);
             widget->setChangeHandler([this](std::size_t index,const GateParameters& p) {
                 settings_[index]=p; atomic_[index].store(p);
@@ -161,7 +165,7 @@ public:
                 return false;
             }
             if(effectWidget_)
-                effectWidget_->setWindowTitle(QStringLiteral("Gate 门限 — %1").arg(trimmed));
+                effectWidget_->setWindowTitle(WinJACKNexus::NativeFx::I18n::text("window.title", "Gate — %1").arg(trimmed));
             if(clientNameWidget_) clientNameWidget_->setClientName(trimmed);
             return reconnect(connections);
         } catch(...) { return false; }

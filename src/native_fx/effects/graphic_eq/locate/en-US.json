@@ -1,0 +1,41 @@
+{
+  "formatVersion": 1,
+  "catalogVersion": 1,
+  "moduleId": "graphic-eq",
+  "language": "en-US",
+  "domains": {
+    "nativefx.graphic-eq": {
+      "module.name": "Graphic EQ",
+      "module.description": "Eight-channel 31-band graphic equalizer.",
+      "control.targetChannels": "Channel",
+      "control.all": "All",
+      "label.preset": "Preset:",
+      "preset.default": "Default",
+      "preset.custom": "Custom",
+      "window.title": "Graphic EQ — %1",
+      "description.graphicEq": "31-band EQ · Shape the frequency response",
+      "preset.vocalBright": "Vocal Bright",
+      "preset.bassBoost": "Bass Boost",
+      "preset.classical": "Classical",
+      "label.inputReference": "Input reference",
+      "label.postEq": "Post EQ",
+      "label.activeChannelCount": "%1/8 channels",
+      "action.reset": "Reset",
+      "action.flatten": "Flat",
+      "action.load": "Load…",
+      "action.save": "Save…",
+      "control.outputGain": "Output gain",
+      "control.displayMode": "Display mode",
+      "label.bandCount": "31 bands",
+      "view.bands": "Band view",
+      "view.curve": "Curve view",
+      "label.selectedItem": "Selected %1",
+      "section.displayOptions": "Display options",
+      "control.showFrequencies": "Show frequencies",
+      "control.showCurve": "Show curve",
+      "dialog.loadPreset": "Load EQ preset",
+      "filter.presetFiles": "EQ presets (*.json)",
+      "dialog.savePreset": "Save EQ preset"
+    }
+  }
+}

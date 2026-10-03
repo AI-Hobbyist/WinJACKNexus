@@ -1,0 +1,34 @@
+{
+  "formatVersion": 1,
+  "catalogVersion": 1,
+  "moduleId": "gate",
+  "language": "en-US",
+  "domains": {
+    "nativefx.gate": {
+      "module.name": "Gate",
+      "module.description": "Eight-channel native downward gate.",
+      "window.title": "Gate — %1",
+      "control.threshold": "Threshold",
+      "control.ratio": "Ratio",
+      "control.attack": "Attack",
+      "control.release": "Release",
+      "control.floor": "Floor",
+      "control.hysteresis": "Hysteresis",
+      "control.targetChannels": "Channel",
+      "control.all": "All",
+      "description.gate": "Reduce noise below the threshold",
+      "label.preset": "Preset:",
+      "preset.default": "Default",
+      "preset.tight": "Tight Gate",
+      "preset.gentle": "Gentle Gate",
+      "preset.custom": "Custom",
+      "tooltip.threshold": "Threshold\n%1 dB",
+      "axis.inputLevel": "Input level (dB)",
+      "axis.outputLevel": "Output level (dB)",
+      "control.sidechainFilter": "Sidechain filter",
+      "filter.highPass": "High-pass",
+      "filter.lowPass": "Low-pass",
+      "action.restoreDefaults": "Restore defaults"
+    }
+  }
+}

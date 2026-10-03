@@ -1,5 +1,6 @@
 /* This file is part of WinJACKNexus. SPDX-License-Identifier: AGPL-3.0-only */
 #include <WinJACKNexus/UI/Controls.hpp>
+#include <WinJACKNexus/UI/LocalizedText.hpp>
 #include <WinJACKNexus/UI/ThemeCore.hpp>
 #include <WinJACKNexus/UI/ThemeManager.hpp>
 #include <QPalette>
@@ -43,6 +44,31 @@
 
 namespace WinJACKNexus::UI::Controls {
 namespace {
+class PaintedTextTooltips final : public QObject {
+public:
+    struct Region { QRectF bounds; QString text; };
+    explicit PaintedTextTooltips(QWidget* widget) : QObject(widget) {
+        setObjectName(QStringLiteral("wjnPaintedTextTooltips"));
+        widget->installEventFilter(this);
+    }
+    std::vector<Region> regions;
+protected:
+    bool eventFilter(QObject* watched, QEvent* event) override {
+        if (event->type() == QEvent::Paint) {
+            regions.clear();
+        } else if (event->type() == QEvent::ToolTip) {
+            auto* help = static_cast<QHelpEvent*>(event);
+            for (auto it = regions.rbegin(); it != regions.rend(); ++it) {
+                if (!it->bounds.contains(help->pos())) continue;
+                QToolTip::showText(help->globalPos(), Qt::convertFromPlainText(it->text),
+                                  static_cast<QWidget*>(watched), it->bounds.toAlignedRect());
+                return true;
+            }
+        }
+        return QObject::eventFilter(watched, event);
+    }
+};
+
 class NumericValueEditor final : public QLineEdit {
 public:
     NumericValueEditor(const NumericControlSpec& spec, std::function<void(double)> apply,
@@ -179,6 +205,32 @@ void drawText(QPainter& painter, const QRectF& bounds, const QString& value,
     painter.setFont(font);
     painter.setPen(color);
     painter.drawText(bounds, alignment, value);
+}
+
+void drawElidedText(QPainter& painter, const QRectF& bounds, const QString& value,
+                    const QFont& font, const QColor& color, Qt::Alignment alignment) {
+    const QFontMetricsF metrics(font, painter.device());
+    auto lines = value.split(QLatin1Char('\n'));
+    bool clipped = false;
+    for (auto& line : lines) {
+        const auto displayed = metrics.elidedText(line, Qt::ElideRight, std::max(0.0, bounds.width()));
+        clipped |= displayed != line;
+        line = displayed;
+    }
+    clipped |= metrics.boundingRect(bounds, int(alignment), value).height() > bounds.height();
+    auto* widget = dynamic_cast<QWidget*>(painter.device());
+    if (widget) {
+        auto* holder = widget->findChild<QObject*>(QStringLiteral("wjnPaintedTextTooltips"), Qt::FindDirectChildrenOnly);
+        auto* tooltips = dynamic_cast<PaintedTextTooltips*>(holder);
+        if (!tooltips) tooltips = new PaintedTextTooltips(widget);
+        if (clipped) {
+            // combinedTransform includes logical viewport mapping, without the
+            // device pixel scaling that would move a QWidget's hover hit area.
+            const auto hit = painter.combinedTransform().mapRect(bounds).intersected(widget->rect());
+            if (!hit.isEmpty()) tooltips->regions.push_back({hit, value});
+        }
+    }
+    drawText(painter, bounds, lines.join(QLatin1Char('\n')), font, color, alignment);
 }
 
 void drawMarker(QPainter& painter, const QPointF& center, qreal radius,
@@ -1585,11 +1637,14 @@ ClientNameWidget::ClientNameWidget(QString clientName, ApplyHandler handler, QWi
     editor_->setObjectName(QStringLiteral("gate.clientName"));
     editor_->setMaxLength(32);
     editor_->setFixedHeight(sidebarControlHeight);
-    form->addRow(QStringLiteral("客户端名称"), editor_);
+    auto* nameLabel = new TextLabel(this);
+    bindLocalizedText(nameLabel, "text", "ui", "clientName.label", "Client name");
+    form->addRow(nameLabel, editor_);
     layout->addLayout(form);
     auto* actions = new QHBoxLayout;
     status_ = new TextLabel(this);
-    auto* applyButton = new ActionButton(QStringLiteral("应用"), this);
+    auto* applyButton = new ActionButton(this);
+    bindLocalizedText(applyButton, "text", "ui", "clientName.apply", "Apply");
     applyButton->setFixedHeight(sidebarControlHeight);
     applyButton->setObjectName(QStringLiteral("gate.applyClientName"));
     actions->addWidget(status_, 1);
@@ -1597,20 +1652,32 @@ ClientNameWidget::ClientNameWidget(QString clientName, ApplyHandler handler, QWi
     layout->addLayout(actions);
     connect(applyButton, &QPushButton::clicked, this, [this] { apply(); });
     connect(editor_, &QLineEdit::returnPressed, this, [this] { apply(); });
-    connect(editor_, &QLineEdit::textChanged, this, [this] { status_->clear(); });
+    connect(editor_, &QLineEdit::textChanged, this, [this] { applyStatus_ = ApplyStatus::none; refreshStatus(); });
+    if (auto* manager = I18nManager::installed()) manager->bind(this, [this] { refreshStatus(); });
 }
 
 void ClientNameWidget::setClientName(const QString& clientName) {
     editor_->setText(clientName);
-    status_->clear();
+    applyStatus_ = ApplyStatus::none;
+    refreshStatus();
 }
 
 void ClientNameWidget::apply() {
     const auto value = editor_->text().trimmed();
-    if (value.isEmpty()) { status_->setText(QStringLiteral("名称不能为空")); return; }
+    if (value.isEmpty()) { applyStatus_ = ApplyStatus::empty; refreshStatus(); return; }
     const bool success = handler_ && handler_(value);
-    status_->setText(success ? QStringLiteral("已应用") : QStringLiteral("名称无法应用"));
     if (success) editor_->setText(value);
+    applyStatus_ = success ? ApplyStatus::applied : ApplyStatus::rejected;
+    refreshStatus();
+}
+
+void ClientNameWidget::refreshStatus() {
+    switch (applyStatus_) {
+    case ApplyStatus::none: status_->clear(); break;
+    case ApplyStatus::empty: status_->setText(localizedText("ui", "clientName.empty", "Name cannot be empty")); break;
+    case ApplyStatus::applied: status_->setText(localizedText("ui", "clientName.applied", "Applied")); break;
+    case ApplyStatus::rejected: status_->setText(localizedText("ui", "clientName.rejected", "Unable to apply name")); break;
+    }
 }
 
 EmbeddedFxEditor::EmbeddedFxEditor(QWidget* editor, int stripHeight, QWidget* parent)

@@ -1,0 +1,50 @@
+{
+  "formatVersion": 1,
+  "moduleId": "graphic-eq",
+  "domains": [
+    "nativefx.graphic-eq"
+  ],
+  "defaultLanguage": "en-US",
+  "catalogVersion": 1,
+  "languages": {
+    "en-US": "en-US.json",
+    "zh-CN": "zh-CN.json",
+    "ja-JP": "ja-JP.json",
+    "ko-KR": "ko-KR.json"
+  },
+  "requiredKeys": {
+    "nativefx.graphic-eq": [
+      "module.name",
+      "module.description",
+      "control.targetChannels",
+      "control.all",
+      "label.preset",
+      "preset.default",
+      "preset.custom",
+      "window.title",
+      "description.graphicEq",
+      "preset.vocalBright",
+      "preset.bassBoost",
+      "preset.classical",
+      "label.inputReference",
+      "label.postEq",
+      "label.activeChannelCount",
+      "action.reset",
+      "action.flatten",
+      "action.load",
+      "action.save",
+      "control.outputGain",
+      "control.displayMode",
+      "label.bandCount",
+      "view.bands",
+      "view.curve",
+      "label.selectedItem",
+      "section.displayOptions",
+      "control.showFrequencies",
+      "control.showCurve",
+      "dialog.loadPreset",
+      "filter.presetFiles",
+      "dialog.savePreset"
+    ]
+  }
+}

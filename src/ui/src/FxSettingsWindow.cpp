@@ -250,6 +250,8 @@ public:
     struct Module {
         QLibrary library;
         ThemeNamespaceRegistry::Lease themeLease;
+        I18nDomainLease languageLease;
+        QString displayDomain, displayKey;
         WjnFxMeta info {};
         Create create {};
         Clone clone {};
@@ -267,6 +269,14 @@ public:
         SetChanged setChanged {};
         SetLive setLive {};
     };
+
+    QString moduleDisplayName(const Module& module) const {
+        if (module.languageLease && !module.displayDomain.isEmpty()) {
+            if (const auto* manager = I18nManager::installed())
+                return manager->text(module.displayDomain, module.displayKey, QString::fromUtf8(module.info.name));
+        }
+        return QString::fromUtf8(module.info.name);
+    }
 
     struct Effect {
         int id {};
@@ -700,6 +710,17 @@ public:
                 candidate->library.fileName(), &candidate->themeLease, &themeError);
             if (!themeError.isEmpty()) qWarning().noquote() << "Native Fx theme descriptor:" << themeError;
             candidate->info = *info;
+            if (auto* manager = I18nManager::installed()) {
+                QString languageError;
+                candidate->languageLease = manager->registerLibrary(candidate->library.fileName(), I18nManager::Extension::nativeFx, 0, &languageError);
+                if (candidate->languageLease) {
+                    const auto descriptor = reinterpret_cast<const char* (*)(std::uint32_t)>(candidate->library.resolve("wjn_fx_i18n_descriptor_json"));
+                    const auto display = QJsonDocument::fromJson(QByteArray(descriptor(0))).object().value(QStringLiteral("displayNameKey")).toObject();
+                    candidate->displayDomain = display.value(QStringLiteral("domain")).toString();
+                    candidate->displayKey = display.value(QStringLiteral("key")).toString();
+                }
+                if (!languageError.isEmpty()) qWarning().noquote() << "Native Fx i18n descriptor:" << languageError;
+            }
             available.push_back(candidate.get());
             loadedModules.push_back(std::move(candidate));
         }
@@ -720,12 +741,14 @@ public:
         }
         refreshPresets();
         if (auto* manager = I18nManager::installed())
-            manager->bind(&owner, [this] { refreshLocalizedDisplay(); });
+            languageConnection = manager->bind(&owner, [this] { refreshLocalizedDisplay(); });
         if (auto* core = ThemeManager::installedThemeCore())
             QObject::connect(core, &ThemeCore::themeChanged, &owner, [this] { applyTheme(); });
     }
 
     void refreshLocalizedDisplay() {
+        for (int row = 0; row < list->count(); ++row) refreshListItem(list->item(row));
+        updateChainListWidth();
         {
             const QSignalBlocker blocker(presets);
             if (presets->count() > 0)
@@ -735,11 +758,16 @@ public:
             ? fxText("meter.inputOutput", "Input/output levels")
             : fxText("meter.channel", "Input/output (%1)").arg(selectedChannelLabel));
         if (auto* effect = selected()) {
-            moduleName->setText(fxText("section.selectedModule", "Module settings - %1%2").arg(effect->name,
+            if (effect->module->presetName) {
+                const QSignalBlocker blocker(modulePreset);
+                for (int i = 0; i < modulePreset->count(); ++i)
+                    modulePreset->setItemText(i, QString::fromUtf8(effect->module->presetName(static_cast<std::uint32_t>(i))));
+            }
+            moduleName->setText(fxText("section.selectedModule", "Module settings - %1%2").arg(moduleDisplayName(*effect->module),
                 selectedChannel < 0 ? QString() : QStringLiteral(" · %1").arg(selectedChannelLabel)));
             if (!effect->editor) {
                 if (auto* label = qobject_cast<QLabel*>(editorArea->widget()))
-                    label->setText(fxText("error.editor", "Unable to load the %1 controls").arg(effect->name));
+                    label->setText(fxText("error.editor", "Unable to load the %1 controls").arg(moduleDisplayName(*effect->module)));
             }
         } else {
             moduleName->setText(available.isEmpty()
@@ -756,6 +784,7 @@ public:
     }
 
     ~Impl() {
+        QObject::disconnect(languageConnection);
         // Each instance owns its editor; remove it from the viewport before destruction.
         editorArea->takeWidget();
         for (const auto& effect : effects) if (effect.instance) effect.module->destroy(effect.instance);
@@ -772,7 +801,7 @@ public:
             :fxText("meter.channel", "Input/output (%1)").arg(selectedChannelLabel));
         if(meterRefresh)meterRefresh();
         if(auto* effect=selected())
-            moduleName->setText(fxText("section.selectedModule", "Module settings - %1%2").arg(effect->name,
+            moduleName->setText(fxText("section.selectedModule", "Module settings - %1%2").arg(moduleDisplayName(*effect->module),
                 selectedChannel<0?QString():QStringLiteral(" · %1").arg(selectedChannelLabel)));
     }
 
@@ -823,8 +852,9 @@ public:
         if (!item) return;
         const int id = item->data(Qt::UserRole).toInt();
         for (const auto& effect : effects) if (effect.id == id) {
-            item->setText(effect.name);
-            item->setSizeHint(QSize(cardWidth(effect.name),74));
+            item->setText(moduleDisplayName(*effect.module));
+            item->setToolTip(moduleDisplayName(*effect.module));
+            item->setSizeHint(QSize(cardWidth(moduleDisplayName(*effect.module)),74));
             item->setData(Qt::UserRole + 1, effect.glyph);
             item->setData(Qt::UserRole + 2, effect.color);
             item->setData(Qt::UserRole + 3, master->isChecked() && effect.enabled);
@@ -893,7 +923,7 @@ public:
         effects.push_back(effect);
         auto* item = new QListWidgetItem;
         item->setData(Qt::UserRole, effect.id);
-        item->setSizeHint(QSize(cardWidth(effect.name),74));
+        item->setSizeHint(QSize(cardWidth(moduleDisplayName(*effect.module)),74));
         list->insertItem(row, item);
         refreshListItem(item);
         updateChainListWidth();
@@ -993,7 +1023,11 @@ public:
         for (auto* module : available) {
             const auto* info = &module->info;
             auto* action = replacements->addAction(QStringLiteral("%1   %2").arg(
-                QString::fromUtf8(info->iconGlyph), QString::fromUtf8(info->name)));
+                QString::fromUtf8(info->iconGlyph), moduleDisplayName(*module)));
+            action->setData(QString::fromUtf8(info->id));
+            if (auto* manager = I18nManager::installed()) manager->bind(action, [this, action, module] {
+                action->setText(QStringLiteral("%1   %2").arg(QString::fromUtf8(module->info.iconGlyph), moduleDisplayName(*module)));
+            });
             QObject::connect(action, &QAction::triggered, &owner,
                              [this, id, module] { replaceEffect(id, module); });
         }
@@ -1019,7 +1053,11 @@ public:
         for (auto* module : available) {
             const auto* info = &module->info;
             auto* action = menu.addAction(QStringLiteral("%1   %2").arg(
-                QString::fromUtf8(info->iconGlyph), QString::fromUtf8(info->name)));
+                QString::fromUtf8(info->iconGlyph), moduleDisplayName(*module)));
+            action->setData(QString::fromUtf8(info->id));
+            if (auto* manager = I18nManager::installed()) manager->bind(action, [this, action, module] {
+                action->setText(QStringLiteral("%1   %2").arg(QString::fromUtf8(module->info.iconGlyph), moduleDisplayName(*module)));
+            });
             QObject::connect(action, &QAction::triggered, &owner, [this, module] { addEffect(module, true); });
         }
         menu.exec(menuPosition(menu, anchor->mapToGlobal(QPoint(0, anchor->height())), anchor));
@@ -1057,7 +1095,7 @@ public:
             return;
         }
         modulePower->setEnabled(master->isChecked());
-        moduleName->setText(fxText("section.selectedModule", "Module settings - %1%2").arg(effect->name,
+        moduleName->setText(fxText("section.selectedModule", "Module settings - %1%2").arg(moduleDisplayName(*effect->module),
             selectedChannel<0?QString():QStringLiteral(" · %1").arg(selectedChannelLabel)));
         {
             const QSignalBlocker blocker(modulePreset);
@@ -1083,7 +1121,7 @@ public:
             effect->module->selectChannel(effect->instance, selectedChannel);
             editorArea->setWidget(effect->editor);
         }
-        else editorArea->setWidget(new Controls::TextLabel(fxText("error.editor", "Unable to load the %1 controls").arg(effect->name)));
+        else editorArea->setWidget(new Controls::TextLabel(fxText("error.editor", "Unable to load the %1 controls").arg(moduleDisplayName(*effect->module))));
         syncModulePreset();
     }
 
@@ -1329,6 +1367,7 @@ public:
     QHBoxLayout* channelRow {};
     QLabel* meterTitle {};
     std::function<void()> meterRefresh;
+    QMetaObject::Connection languageConnection;
     std::vector<std::unique_ptr<Module>> loadedModules;
     int selectedChannel = -1;
     QString selectedChannelLabel {QStringLiteral("All")};

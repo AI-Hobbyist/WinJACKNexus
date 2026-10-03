@@ -1,0 +1,42 @@
+{
+  "formatVersion": 1,
+  "catalogVersion": 1,
+  "moduleId": "limiter",
+  "language": "en-US",
+  "domains": {
+    "nativefx.limiter": {
+      "module.name": "Limiter",
+      "module.description": "Eight-channel native limiter UI.",
+      "control.targetChannels": "Channel",
+      "control.all": "All",
+      "label.preset": "Preset:",
+      "preset.default": "Default",
+      "preset.custom": "Custom",
+      "axis.inputLevel": "Input level (dB)",
+      "axis.outputLevel": "Output level (dB)",
+      "window.title": "Limiter — %1",
+      "description.limiter": "Prevent overload and limit peak output",
+      "preset.broadcast": "Broadcast",
+      "preset.maxLoudness": "Max Loudness",
+      "label.inputLevel": "Input level",
+      "label.outputLevel": "Output level",
+      "control.threshold": "Threshold",
+      "control.ceiling": "Output ceiling",
+      "control.release": "Release",
+      "control.lookahead": "Lookahead",
+      "control.mode": "Mode:",
+      "mode.transparent": "Transparent",
+      "mode.modern": "Modern",
+      "mode.brickwall": "Brickwall",
+      "control.oversampling": "Oversampling:",
+      "control.autoGain": "Auto gain",
+      "action.resetCurrent": "Reset current channel",
+      "action.resetAll": "Reset all channels",
+      "action.copyToAll": "Copy current settings to all channels",
+      "hint.threshold": "(Threshold)",
+      "hint.ceiling": "(Ceiling)",
+      "hint.release": "(Release)",
+      "hint.lookahead": "(Lookahead)"
+    }
+  }
+}
