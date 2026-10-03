@@ -15,12 +15,21 @@
  */
 #include <QApplication>
 #include <QIcon>
+#include <WinJACKNexus/VstScanner/Language.hpp>
 
 #include <WinJACKNexus/VstScanner/MainWindow.hpp>
 
 int main(int argc, char* argv[])
 {
     QApplication application(argc, argv);
+    // Restore the application's saved selection before constructing any UI.
+    // Scanner settings remain separate; no language selection is written here.
+    WinJACKNexus::UI::HostI18n language;
+    QString languageError;
+    auto scannerLanguageLease = WinJACKNexus::VstScanner::initializeLanguage(
+        language, QCoreApplication::applicationDirPath(), &languageError);
+    if (!scannerLanguageLease)
+        qWarning("Scanner catalog initialization: %s", qPrintable(languageError));
     application.setWindowIcon(QIcon(QStringLiteral(":/WinJACKNexus/VstScanner/vst_scan.ico")));
     QStringList initialPaths;
     QString outputDirectory;

@@ -103,6 +103,21 @@ target_compile_definitions(vst_scanner PRIVATE WIN32_LEAN_AND_MEAN NOMINMAX)
 target_link_libraries(vst_scanner PRIVATE wjn_vst_scanner_core WinJACKNexus::UI Qt6::Widgets)
 set_target_properties(vst_scanner PROPERTIES OUTPUT_NAME "Vst Scanner")
 
+# The scanner starts independently of the host; deploy its own complete domain.
+qt_add_resources(vst_scanner vst_scanner_i18n
+    PREFIX "/WinJACKNexus/VstScanner/i18n"
+    BASE "${CMAKE_CURRENT_SOURCE_DIR}/locate"
+    FILES
+        "${CMAKE_CURRENT_SOURCE_DIR}/locate/manifest.json"
+        "${CMAKE_CURRENT_SOURCE_DIR}/locate/en-US.json"
+)
+add_custom_command(TARGET vst_scanner POST_BUILD
+    COMMAND "${CMAKE_COMMAND}" -E copy_directory
+        "${CMAKE_CURRENT_SOURCE_DIR}/locate"
+        "$<TARGET_FILE_DIR:vst_scanner>/vstscanner/locate"
+    VERBATIM
+)
+
 foreach(target IN ITEMS wjn_vst_scanner_core vst_scanner vst_scanner_probe64)
     set_target_properties(
         ${target}
@@ -117,4 +132,16 @@ endforeach()
 
 if(BUILD_TESTING AND EXISTS "${PROJECT_SOURCE_DIR}/tests/vst_scanner/CMakeLists.txt")
     add_subdirectory("${PROJECT_SOURCE_DIR}/tests/vst_scanner" tests_vst_scanner)
+    add_executable(wjn_vst_scanner_i18n_tests tests/I18nTests.cpp src/MainWindow.cpp)
+    target_link_libraries(wjn_vst_scanner_i18n_tests PRIVATE wjn_vst_scanner_core WinJACKNexus::UI Qt6::Widgets)
+    target_compile_features(wjn_vst_scanner_i18n_tests PRIVATE cxx_std_20)
+    target_compile_definitions(wjn_vst_scanner_i18n_tests PRIVATE WIN32_LEAN_AND_MEAN NOMINMAX)
+    target_compile_options(wjn_vst_scanner_i18n_tests PRIVATE /utf-8)
+    set_target_properties(wjn_vst_scanner_i18n_tests PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY_RELEASE "${WJN_OUTPUT_DIR}")
+    add_dependencies(wjn_vst_scanner_i18n_tests vst_scanner)
+    qt_add_resources(wjn_vst_scanner_i18n_tests vst_scanner_test_i18n
+        PREFIX "/WinJACKNexus/VstScanner/i18n"
+        BASE "${CMAKE_CURRENT_SOURCE_DIR}/locate"
+        FILES "${CMAKE_CURRENT_SOURCE_DIR}/locate/manifest.json" "${CMAKE_CURRENT_SOURCE_DIR}/locate/en-US.json")
 endif()

@@ -56,6 +56,26 @@
 namespace WinJACKNexus::VstScanner {
 namespace {
 
+// Keep the core usable without QApplication or a UI dependency. Translation is
+// scoped to this scan request, including nested scans and exception unwinding.
+thread_local const ScanTextCallback* scanTextCallback = nullptr;
+class ScanLanguageScope final {
+public:
+    explicit ScanLanguageScope(const ScanTextCallback& callback)
+        : previous_(scanTextCallback) { scanTextCallback = &callback; }
+    ~ScanLanguageScope() { scanTextCallback = previous_; }
+    ScanLanguageScope(const ScanLanguageScope&) = delete;
+    ScanLanguageScope& operator=(const ScanLanguageScope&) = delete;
+private:
+    const ScanTextCallback* previous_;
+};
+QString scannerText(const char* key, const char* english)
+{
+    return scanTextCallback && *scanTextCallback
+        ? (*scanTextCallback)(key, english) : QString::fromUtf8(english);
+}
+
+
 namespace fs = std::filesystem;
 
 constexpr int currentVst2ProbeVersion = 1;
@@ -352,13 +372,13 @@ bool executeIsolatedProbe(const fs::path& path,
     else if (bits == 32)
         probeName = QStringLiteral("Vst Scanner Probe32.exe");
     else {
-        error = QStringLiteral("不支持的插件位宽: %1").arg(bits);
+        error = scannerText("message.unsupportedBits", "Unsupported plug-in bit depth: %1").arg(bits);
         return false;
     }
 
     const auto probePath = Common::PathUtils::moduleDirectory() / probeName.toStdWString();
     if (!fs::is_regular_file(probePath)) {
-        error = QStringLiteral("未找到隔离探测器: ") + pathString(probePath);
+        error = scannerText("message.probeMissing", "Isolated probe not found: ") + pathString(probePath);
         return false;
     }
 
@@ -375,7 +395,7 @@ bool executeIsolatedProbe(const fs::path& path,
     process.setProcessChannelMode(QProcess::SeparateChannels);
     process.start();
     if (!process.waitForStarted(3000)) {
-        error = QStringLiteral("无法启动隔离探测器: ") + process.errorString();
+        error = scannerText("message.probeStart", "Cannot start isolated probe: ") + process.errorString();
         QFile::remove(resultPath);
         return false;
     }
@@ -384,7 +404,7 @@ bool executeIsolatedProbe(const fs::path& path,
     if (!process.waitForFinished(probeTimeoutMs)) {
         process.kill();
         process.waitForFinished(2000);
-        error = QStringLiteral("插件探测超时，已终止隔离进程");
+        error = scannerText("message.probeTimeout", "Plug-in probe timed out; isolated process terminated");
         QFile::remove(resultPath);
         return false;
     }
@@ -392,8 +412,8 @@ bool executeIsolatedProbe(const fs::path& path,
     QFile resultFile(resultPath);
     if (!resultFile.open(QIODevice::ReadOnly)) {
         error = process.exitStatus() == QProcess::CrashExit
-            ? QStringLiteral("插件探测进程崩溃，已保留扫描器进程")
-            : QStringLiteral("隔离探测器未生成结果: ") + process.errorString();
+            ? scannerText("message.probeCrash", "Plug-in probe crashed; scanner kept running")
+            : scannerText("message.probeNoResult", "Isolated probe produced no result: ") + process.errorString();
         QFile::remove(resultPath);
         return false;
     }
@@ -403,7 +423,7 @@ bool executeIsolatedProbe(const fs::path& path,
     resultFile.close();
     QFile::remove(resultPath);
     if (parseError.error != QJsonParseError::NoError || !document.isObject()) {
-        error = QStringLiteral("隔离探测结果不是有效 JSON");
+        error = scannerText("message.probeJson", "Isolated probe result is not valid JSON");
         return false;
     }
 
@@ -412,7 +432,7 @@ bool executeIsolatedProbe(const fs::path& path,
         skippable = result.value(QStringLiteral("skippable")).toBool();
         error = result.value(QStringLiteral("error")).toString();
         if (error.isEmpty())
-            error = QStringLiteral("隔离探测器返回失败");
+            error = scannerText("message.probeFailed", "Isolated probe reported failure");
         return false;
     }
     return true;
@@ -574,7 +594,7 @@ QVector<PluginInfo> runIsolatedProbe(const fs::path& path,
     }
 
     if (result.isEmpty() && !hasProbeClasses) {
-        error = QStringLiteral("隔离探测器没有返回可用插件 class");
+        error = scannerText("message.probeNoClass", "Isolated probe returned no usable plug-in classes");
         return {};
     }
     error = childErrors.join(QStringLiteral("; "));
@@ -613,7 +633,7 @@ QVector<PluginInfo> readVst3ModuleInfo(const fs::path& path, int bits, QString& 
 
     QFile file(pathString(moduleInfoPath));
     if (!file.open(QIODevice::ReadOnly)) {
-        error = QStringLiteral("无法读取 moduleinfo.json: ") + pathString(moduleInfoPath);
+        error = scannerText("message.moduleRead", "Cannot read moduleinfo.json: ") + pathString(moduleInfoPath);
         return {};
     }
 
@@ -622,7 +642,7 @@ QVector<PluginInfo> readVst3ModuleInfo(const fs::path& path, int bits, QString& 
     const auto parsed = Steinberg::ModuleInfoLib::parseJson(
         std::string_view(bytes.constData(), static_cast<std::size_t>(bytes.size())), &parserErrors);
     if (!parsed) {
-        error = QStringLiteral("moduleinfo.json 解析失败: ")
+        error = scannerText("message.moduleParse", "Cannot parse moduleinfo.json: ")
             + QString::fromStdString(parserErrors.str()).trimmed();
         return {};
     }
@@ -761,7 +781,7 @@ bool writeInfoFile(const fs::path& outputDirectory, PluginInfo& info, QString& e
     std::error_code directoryError;
     fs::create_directories(directory, directoryError);
     if (directoryError) {
-        error = QStringLiteral("无法创建 info 目录: ") + pathString(directory);
+        error = scannerText("message.infoDirectory", "Cannot create info directory: ") + pathString(directory);
         return false;
     }
 
@@ -800,12 +820,12 @@ bool writeInfoFile(const fs::path& outputDirectory, PluginInfo& info, QString& e
 
     QSaveFile file(pathString(target));
     if (!file.open(QIODevice::WriteOnly)) {
-        error = QStringLiteral("无法写入 info 文件: ") + pathString(target);
+        error = scannerText("message.infoWrite", "Cannot write info file: ") + pathString(target);
         return false;
     }
     const auto data = QJsonDocument(object).toJson(QJsonDocument::Indented);
     if (file.write(data) != data.size() || !file.commit()) {
-        error = QStringLiteral("无法提交 info 文件: ") + pathString(target);
+        error = scannerText("message.infoCommit", "Cannot commit info file: ") + pathString(target);
         return false;
     }
     info.infoFile = pathString(target);
@@ -859,6 +879,7 @@ std::optional<PluginInfo> Scanner::loadInfoFile(const QString& infoFile)
 
 ScanReport Scanner::scan(const ScanOptions& options) const
 {
+    const ScanLanguageScope language(options.textCallback);
     ScanReport report;
     const auto outputDirectory = options.outputDirectory.trimmed().isEmpty()
         ? Common::PathUtils::moduleDirectory() / L"nodes" / L"VSTPlugins"
@@ -869,7 +890,7 @@ ScanReport Scanner::scan(const ScanOptions& options) const
     if (outputError) {
         appendMessage(report,
                       pathString(normalizedOutputDirectory),
-                      QStringLiteral("无法创建输出目录"),
+                      scannerText("message.outputCreate", "Cannot create output directory"),
                       true);
         return report;
     }
@@ -909,7 +930,7 @@ ScanReport Scanner::scan(const ScanOptions& options) const
         const auto path = Common::PathUtils::normalize(filePath(searchPath));
         std::error_code error;
         if (!fs::exists(path, error)) {
-            appendMessage(report, pathString(path), QStringLiteral("扫描路径不存在"), true);
+            appendMessage(report, pathString(path), scannerText("message.pathMissing", "Scan path does not exist"), true);
             continue;
         }
         collect(path);
@@ -944,7 +965,7 @@ ScanReport Scanner::scan(const ScanOptions& options) const
         seen.insert(key);
         const auto [binary, bits] = findVst3Binary(path);
         if (binary.empty() || (bits != 32 && bits != 64)) {
-            appendMessage(report, pathString(path), QStringLiteral("未找到可识别位宽的 VST3 二进制"), true);
+            appendMessage(report, pathString(path), scannerText("message.vst3Binary", "No VST3 binary with a recognized bit depth found"), true);
             return;
         }
         const auto existingEntries = loadExistingEntries(normalizedOutputDirectory, normalizedPath(path));
@@ -960,7 +981,7 @@ ScanReport Scanner::scan(const ScanOptions& options) const
                })) {
             appendMessage(report,
                           pathString(path),
-                          QStringLiteral("跳过已验证 VST3，使用现有 info 条目"),
+                          scannerText("message.vst3Skipped", "Skipped verified VST3; using existing info entries"),
                           false);
             return;
         }
@@ -985,8 +1006,8 @@ ScanReport Scanner::scan(const ScanOptions& options) const
             appendMessage(report,
                           pathString(path),
                           probeError.isEmpty()
-                              ? QStringLiteral("已隔离加载 VST3，获取真实 class 信息")
-                              : QStringLiteral("已枚举并隔离探测 VST3；部分 class 加载失败，已保留插件条目: ") + probeError,
+                              ? scannerText("message.vst3Loaded", "Loaded VST3 in isolation and obtained class information")
+                              : scannerText("message.vst3Partial", "VST3 classes probed in isolation; some failed to load, entries kept: ") + probeError,
                           false);
             for (auto& info : infos) {
                 if (!info.infoFile.isEmpty())
@@ -995,7 +1016,7 @@ ScanReport Scanner::scan(const ScanOptions& options) const
         } else if (hasProbeClasses) {
             appendMessage(report,
                           pathString(path),
-                          QStringLiteral("VST3 class 已验证，跳过本次探测"),
+                          scannerText("message.vst3ClassSkipped", "VST3 classes already verified; skipping probe"),
                           false);
             return;
         } else if (infos.isEmpty()) {
@@ -1009,7 +1030,7 @@ ScanReport Scanner::scan(const ScanOptions& options) const
         } else {
             appendMessage(report,
                           pathString(path),
-                          QStringLiteral("隔离加载未返回 class，已保留 moduleinfo 静态信息: ") + probeError,
+                          scannerText("message.vst3Static", "Isolated load returned no classes; keeping static moduleinfo data: ") + probeError,
                           false);
         }
         if (probedInfos.isEmpty()) {
@@ -1034,7 +1055,7 @@ ScanReport Scanner::scan(const ScanOptions& options) const
                 && existing->verified) {
                 appendMessage(report,
                               pathString(path),
-                              QStringLiteral("跳过已验证 VST2，使用现有 info 条目"),
+                              scannerText("message.vst2Skipped", "Skipped verified VST2; using existing info entries"),
                               false);
                 return;
             }
@@ -1063,7 +1084,7 @@ ScanReport Scanner::scan(const ScanOptions& options) const
             if (probeSkippable) {
                 appendMessage(report,
                               pathString(path),
-                              QStringLiteral("跳过无效 VST DLL")
+                              scannerText("message.invalidDll", "Skipped invalid VST DLL")
                                   + (probeError.isEmpty() ? QString() : QStringLiteral(": ") + probeError),
                               false);
                 return;

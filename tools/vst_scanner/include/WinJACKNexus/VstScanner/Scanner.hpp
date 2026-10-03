@@ -42,6 +42,9 @@ struct PluginInfo final {
 
 using ScanProgressCallback = std::function<void(int completed, int total, const QString& currentPath)>;
 using ScanInfoWrittenCallback = std::function<void(const PluginInfo& info)>;
+// Display-only translation; keys and English fallbacks never affect probing,
+// plug-in identity, output paths or serialized catalog fields.
+using ScanTextCallback = std::function<QString(const char* key, const char* english)>;
 
 struct ScanOptions final {
     QStringList searchPaths;
@@ -49,6 +52,7 @@ struct ScanOptions final {
     ScanProgressCallback progressCallback;
     ScanInfoWrittenCallback infoWrittenCallback;
     bool rescanVerifiedPlugins {};
+    ScanTextCallback textCallback;
 };
 
 struct ScanMessage final {
