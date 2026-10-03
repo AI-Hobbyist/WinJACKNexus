@@ -2,6 +2,10 @@
 
 2026-10-04，实施中，尚未完成。
 
+VST 宿主已接入独立 `vst` 域及可选 Node i18n v1 服务，57 个四语言草稿 key，完整 English 和部署 manifest。原 Node v2、主题 ID、插件 class ID、进程/端口枚举及工程字段保持。提示状态以 key/English/参数保存；打开的控件和状态按语言通知刷新，Qt 文件/类选择窗口也建立标题、描述及筛选文字绑定。
+
+所需 Release 编译通过，保持 VST2=ON，并继续包含 VST2/VST3 支持。首次编译因缺少 QVariant 的完整定义失败，补 include 后只重编必要目标；失败与修复日志分别保留。唯一一次实际 DLL 实窗测试通过 77 项检查，默认系统字体 Microsoft YaHei UI，实际 windows 平台，1 次窗口显示，无追加缩放矩阵。四语言复用同一窗口，操作/已存状态更新、未提交路径草稿/选区/焦点、枚举 data 和工程字节保持，双租约、最后 detach 回退 English 和 DLL 卸载通过。韩语实际桌面截图已查看，控件和状态可读，日文/韩文路径草稿及选区保留，无黑图或其他应用画面。见 `S6-vst-verification.json`、`S6-vst-ko-KR.png`、`S6-vst-tests.log`。未运行真实插件/VSTProcess/JACK 集成或模态对话框交互测试，不将这次检查扩大为这些范围通过。
+
 VST Scanner 使用现有 HostI18n 在创建窗口前恢复宿主保存的语言选择，扫描路径/输出目录设置继续由扫描器独立保存。独立 `vstscanner` 域共 67 个四语言草稿 key：43 个窗口/操作/状态 key，24 个扫描错误与进度消息 key。运行目录为 `vstscanner/locate`，模块内部仍遵守固定 `locate` 合同，English manifest/包同时内嵌。插件类别 ID、格式 ID、路径、info 文件与插件元数据保持为稳定身份。
 
 扫描核心仅接收每次请求的显示翻译 callback，不依赖 UI 库。作用域退出时恢复 callback，避免后续独立扫描继续借用 GUI；未提供 callback 时使用 English。业务窗口复用公共控件，移除扫描器原有局部硬编码调色板与提示文字 QSS。

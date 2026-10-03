@@ -204,3 +204,8 @@ untranslated community modules, and adds no required Node v2 export.
 Built-in Native Fx node descriptors use `nativefx.<Meta.id>` and the module-local `locate/` directory. Their node and mixer placements expose the same optional i18n v1 domain; retain independent host leases until their instances and windows have been destroyed. Releasing one placement must keep live windows in the other placement localized. SDK names, JACK client and port identities and settings JSON remain untranslated.
 
 Native Fx standalone titles refresh their translated effect name together with the current user client name. ExampleNativeFx demonstrates the same behavior with its existing `example.nativefx/name` key; no host or a detached host uses local English. `Develop/NativeFx/NativeFxI18nTests.cpp` exercises real DLLs and Windows node windows without calling INode::init or opening JACK clients. These additions have not yet passed S5 Release or real-window verification.
+
+
+### VST 宿主的 i18n v1 接入（2026-10-04）
+
+`mod_vst_host.dll` 实现既有可选 i18n v1 导出，模块 ID 为 `module-winjacknexus-vst-host`，域为 `vst`，固定目录为 DLL 所在目录的 `locate`，catalogVersion 为 1。Node v2 及其稳定插件/工程身份保持。显示状态保留 key 与参数，语言通知不重启 VSTProcess、不提交设置；最终租约释放后，仍存活的设置控件回退调用点 English。实际 DLL 单次 Windows 实窗调用点验证通过 77 项检查，见 `Docs/i18n/S6-vst-verification.json`；真实插件、进程和 JACK 集成不在该验证范围。

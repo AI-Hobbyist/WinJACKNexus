@@ -1,0 +1,112 @@
+{
+  "stage": "S6",
+  "module": "VST host",
+  "result": "PASS",
+  "keys": 57,
+  "checks": 77,
+  "module_test_runs": 1,
+  "popup_shows": 1,
+  "platform": "windows",
+  "font": "Microsoft YaHei UI",
+  "scope": "Actual DLL settings window, four-language hot text/status, drafts/selection/focus, stable enum data and serialized bytes, dual leases, detach fallback and unload; catalog/deployment consistency.",
+  "not_verified": [
+    "VSTProcess/plugin loading or JACK integration",
+    "Modal file and class-choice dialog interaction",
+    "Additional cold-start and scale matrices"
+  ],
+  "human_review": "pending user review; automated and image checks do not approve translations",
+  "evidence": [
+    {
+      "file": "src\\vst\\locate\\manifest.json",
+      "sha256": "02cd47e2873d86b76333b219c81465d72040b235e7633ee63b8192e0d2305480"
+    },
+    {
+      "file": "build\\release\\bin\\nodes\\vst\\locate\\manifest.json",
+      "sha256": "02cd47e2873d86b76333b219c81465d72040b235e7633ee63b8192e0d2305480"
+    },
+    {
+      "file": "Docs\\i18n\\S6-vst-strings.tsv",
+      "sha256": "acca3b1712515d595dfdaa8c0d53fefe84e206053938716ebbee4b689ee2368f"
+    },
+    {
+      "file": "src\\vst\\locate\\en-US.json",
+      "sha256": "63649942fbe423f86636ce8c4170e2c4e09b0f0efbc9871f77a216e9cfee72f9"
+    },
+    {
+      "file": "build\\release\\bin\\nodes\\vst\\locate\\en-US.json",
+      "sha256": "63649942fbe423f86636ce8c4170e2c4e09b0f0efbc9871f77a216e9cfee72f9"
+    },
+    {
+      "file": "src\\vst\\locate\\zh-CN.json",
+      "sha256": "37bd7d438a3aa44a2a65d56663952288589720a6a5874acd565ee3856b1d6117"
+    },
+    {
+      "file": "build\\release\\bin\\nodes\\vst\\locate\\zh-CN.json",
+      "sha256": "37bd7d438a3aa44a2a65d56663952288589720a6a5874acd565ee3856b1d6117"
+    },
+    {
+      "file": "src\\vst\\locate\\ja-JP.json",
+      "sha256": "52867f7d8200d90e111f363c55b8da8c730d20e54f626b1f7a0cd6893f66098a"
+    },
+    {
+      "file": "build\\release\\bin\\nodes\\vst\\locate\\ja-JP.json",
+      "sha256": "52867f7d8200d90e111f363c55b8da8c730d20e54f626b1f7a0cd6893f66098a"
+    },
+    {
+      "file": "src\\vst\\locate\\ko-KR.json",
+      "sha256": "f8622608ec41f955bc3ea4e6b0bcdb66fdc32ddc89cd8c8a30010052a715c2cb"
+    },
+    {
+      "file": "build\\release\\bin\\nodes\\vst\\locate\\ko-KR.json",
+      "sha256": "f8622608ec41f955bc3ea4e6b0bcdb66fdc32ddc89cd8c8a30010052a715c2cb"
+    },
+    {
+      "file": "src\\vst\\src\\Library.cpp",
+      "sha256": "a318130ad139087f44416c276f269dd63f61b2babbeb0346b0cb90e5c8726da7"
+    },
+    {
+      "file": "src\\vst\\src\\I18n.cpp",
+      "sha256": "757aaf34a46c5a79a098c30f13bc479f63d2e68cddd2aa4fda151b88530c603e"
+    },
+    {
+      "file": "src\\vst\\src\\I18n.hpp",
+      "sha256": "6759f16d992ee13afd1343bf5f62fff14ca4acddcc132e7dbf05c329632b7178"
+    },
+    {
+      "file": "src\\vst\\CMakeLists.txt",
+      "sha256": "83684eb97aa6b64a95ac6086244d3739a53837618bda226edf50dbe0a7b9e9a4"
+    },
+    {
+      "file": "Develop\\VstI18nTests.cpp",
+      "sha256": "4269dd697792587cdf282adbbba27e20039debf194cb85785593ffb0bfb11ffd"
+    },
+    {
+      "file": "build\\release\\bin\\nodes\\vst\\mod_vst_host.dll",
+      "sha256": "e7919613f5ed627ec50f914e27b2e797abe6e71f3e33dd9f8aa4b8c6090f8754"
+    },
+    {
+      "file": "build\\release\\bin\\wjn_vst_i18n_tests.exe",
+      "sha256": "c761d2e756595966bf3b80cf6fe218e2f964d398f157a322ebc2ad23f0d81060"
+    },
+    {
+      "file": "build\\release\\bin\\ui.dll",
+      "sha256": "96566dbfad5aafff892354e357990f9091a7e3f041188df15ce5af50d6b736a0"
+    },
+    {
+      "file": "Docs\\i18n\\S6-vst-tests.log",
+      "sha256": "c31b409164153f8c5ac08c766f7e2bcdbfd2fc46e4db6e65fa2f6e9ddff1dbe6"
+    },
+    {
+      "file": "Docs\\i18n\\S6-vst-ko-KR.png",
+      "sha256": "f2e88de75cbdfb256c51d50d59ba76227166d822e2cfc3e5944e431c41310de2"
+    },
+    {
+      "file": "Docs\\i18n\\S6-vst-build.log",
+      "sha256": "7a76f0b5919ee181a254ee03080c8cf1b705a5eaee399d5a05c438ac6c924465"
+    },
+    {
+      "file": "Docs\\i18n\\S6-vst-build-repair.log",
+      "sha256": "5c61ca29ad636c0b9af203140c7ca447a8365f28291874fcd77996cb6c467cf6"
+    }
+  ]
+}

@@ -10,6 +10,8 @@
  */
 #include <WinJACKNexus/Node/NodeApi.h>
 #include <WinJACKNexus/UI/Controls.hpp>
+#include "I18n.hpp"
+#include <QSignalBlocker>
 
 #include "public.sdk/source/vst/hosting/hostclasses.h"
 #include "public.sdk/source/vst/hosting/module.h"
@@ -50,6 +52,36 @@
 #endif
 
 namespace {
+using VstI18n::Text;
+using VstI18n::text;
+inline Text vstText(const char* key,const char* english) { return text(key,english); }
+
+WinJACKNexus::UI::Controls::ActionButton* vstButton(const Text& value,QWidget* parent) {
+    auto* button=new WinJACKNexus::UI::Controls::ActionButton(value.string(),parent);
+    VstI18n::property(button,"text",value); return button;
+}
+WinJACKNexus::UI::Controls::TextLabel* vstLabel(const Text& value,QWidget* parent) {
+    auto* label=new WinJACKNexus::UI::Controls::TextLabel(value.string(),parent);
+    VstI18n::property(label,"text",value); return label;
+}
+void vstRow(QFormLayout* form,const Text& value,QWidget* field) {
+    form->addRow(vstLabel(value,field->parentWidget()),field);
+}
+void vstItem(QComboBox* choice,const Text& value,int data) {
+    const int index=choice->count(); choice->addItem(value.string(),data);
+    VstI18n::bind(choice,[choice,index,value] {
+        const QSignalBlocker blocker(choice); choice->setItemText(index,value.string());
+    });
+}
+QString vstFile(QWidget* parent,const Text& title,const QString& initial,const Text& filter,bool save=false) {
+    QFileDialog dialog(parent,title.string(),initial,filter.string());
+    dialog.setAcceptMode(save ? QFileDialog::AcceptSave : QFileDialog::AcceptOpen);
+    dialog.setFileMode(save ? QFileDialog::AnyFile : QFileDialog::ExistingFile);
+    VstI18n::property(&dialog,"windowTitle",title);
+    VstI18n::bind(&dialog,[&dialog,filter] { dialog.setNameFilter(filter.string()); });
+    return dialog.exec()==QDialog::Accepted ? dialog.selectedFiles().value(0) : QString{};
+}
+
 
 constexpr auto kNodeName = "VST Plugin";
 constexpr auto kNodeCategory = "VST";
@@ -112,7 +144,7 @@ VstIntPtr VSTCALLBACK shellHostCallback(AEffect*, VstInt32 opcode, VstInt32, Vst
 
 using Vst2EntryProc = AEffect* (VSTCALLBACK*) (audioMasterCallback);
 
-QVector<InternalPlugin> shellPlugins(const QString& path, QString& error)
+QVector<InternalPlugin> shellPlugins(const QString& path, Text& error)
 {
     const auto module = LoadLibraryExW(reinterpret_cast<LPCWSTR>(path.utf16()), nullptr, LOAD_WITH_ALTERED_SEARCH_PATH);
     if (module == nullptr)
@@ -146,7 +178,7 @@ QVector<InternalPlugin> shellPlugins(const QString& path, QString& error)
                 result.push_back({ childName, QString::number(id) });
         }
         if (result.isEmpty())
-            error = QStringLiteral("The VST2 Shell did not provide any internal plugins.");
+            error = vstText("error.shellEmpty", "The VST2 Shell did not provide any internal plugins.");
     }
     effect->dispatcher(effect, effClose, 0, 0, nullptr, 0.0F);
     FreeLibrary(module);
@@ -154,14 +186,14 @@ QVector<InternalPlugin> shellPlugins(const QString& path, QString& error)
 }
 #endif
 
-QString chooseInternalPlugin(const QString& title, const QString& description, const QVector<InternalPlugin>& plugins)
+QString chooseInternalPlugin(const Text& title, const Text& description, const QVector<InternalPlugin>& plugins)
 {
     QDialog dialog;
-    dialog.setWindowTitle(title);
+    VstI18n::property(&dialog,"windowTitle",title);
     auto* layout = new QVBoxLayout(&dialog);
-    layout->addWidget(new WinJACKNexus::UI::Controls::TextLabel(description, &dialog));
+    layout->addWidget(vstLabel(description, &dialog));
     auto* filter = new WinJACKNexus::UI::Controls::SearchField(&dialog);
-    filter->setPlaceholderText(QStringLiteral("Filter or enter plugin name / ID"));
+    VstI18n::property(filter,"placeholderText",vstText("choose.filter", "Filter or enter plugin name / ID"));
     layout->addWidget(filter);
     auto* list = new WinJACKNexus::UI::Controls::ListField(&dialog);
     for (const auto& plugin : plugins) {
@@ -203,7 +235,7 @@ QString displayNameForInternalPlugin(const QVector<InternalPlugin>& plugins, con
     return selected == plugins.cend() ? id : selected->name;
 }
 
-QVector<InternalPlugin> vst3Plugins(const QString& path, QString& error)
+QVector<InternalPlugin> vst3Plugins(const QString& path, Text& error)
 {
     std::string moduleError;
     auto module = VST3::Hosting::Module::create(path.toStdString(), moduleError);
@@ -221,7 +253,7 @@ QVector<InternalPlugin> vst3Plugins(const QString& path, QString& error)
                            QString::fromStdString(classInfo.ID().toString(false)) });
     }
     if (result.isEmpty())
-        error = QStringLiteral("The VST3 factory did not provide any audio plugin classes.");
+        error = vstText("error.factoryEmpty", "The VST3 factory did not provide any audio plugin classes.");
     return result;
 }
 
@@ -344,11 +376,11 @@ public:
             return false;
         const auto response = sendPipeCommand("save-preset " + selectedPath.toUtf8() + "\n");
         if (!response.contains(QStringLiteral("\"ok\":true"))) {
-            status_ = response.isEmpty() ? QStringLiteral("Unable to save the VST preset.") : response;
+            status_ = response.isEmpty() ? vstText("error.savePreset", "Unable to save the VST preset.") : Text(response);
             return false;
         }
         presetPath_ = selectedPath;
-        status_ = QStringLiteral("VST preset saved.");
+        status_ = vstText("status.saved", "VST preset saved.");
         return true;
     }
 
@@ -356,19 +388,19 @@ public:
     {
         const auto selectedPath = path.trimmed();
         if (selectedPath.isEmpty() || !QFileInfo::exists(selectedPath)) {
-            status_ = QStringLiteral("The selected VST preset file does not exist.");
+            status_ = vstText("error.presetMissing", "The selected VST preset file does not exist.");
             return false;
         }
         const auto response = sendPipeCommand("load-preset " + selectedPath.toUtf8() + "\n");
         if (!response.contains(QStringLiteral("\"ok\":true"))) {
-            status_ = response.isEmpty() ? QStringLiteral("Unable to load the VST preset.") : response;
+            status_ = response.isEmpty() ? vstText("error.loadPreset", "Unable to load the VST preset.") : Text(response);
             return false;
         }
         presetPath_ = selectedPath;
         QFile file(selectedPath);
         if (file.open(QIODevice::ReadOnly))
             presetData_ = file.readAll();
-        status_ = QStringLiteral("VST preset loaded.");
+        status_ = vstText("status.loaded", "VST preset loaded.");
         return true;
     }
 
@@ -442,10 +474,10 @@ public:
             return true;
         if (QApplication::instance() == nullptr)
             return false;
-        const auto path = QFileDialog::getOpenFileName(nullptr,
-                                                      QStringLiteral("Choose VST plugin"),
+        const auto path = vstFile(nullptr,
+                                                      vstText("choose.plugin", "Choose VST plugin"),
                                                       {},
-                                                      QStringLiteral("VST plugins (*.vst3 *.dll)"));
+                                                      vstText("filter.plugin", "VST plugins (*.vst3 *.dll)"));
         if (path.isEmpty())
             return false;
         return applySettings(path, {}, ProcessBits::automatic, PortDisplayMode::defaultNames);
@@ -455,10 +487,10 @@ public:
     {
         const auto response = sendPipeCommand("open-editor\n");
         if (response.contains(QStringLiteral("\"ok\":true"))) {
-            status_ = QStringLiteral("The plugin editor is open in a separate window.");
+            status_ = vstText("status.editor", "The plugin editor is open in a separate window.");
             return true;
         }
-        status_ = response.isEmpty() ? QStringLiteral("Unable to contact VSTProcess.") : response;
+        status_ = response.isEmpty() ? vstText("error.contact", "Unable to contact VSTProcess.") : Text(response);
         return false;
     }
 
@@ -466,11 +498,11 @@ public:
     {
         stopProcess();
         if (path_.isEmpty()) {
-            status_ = QStringLiteral("Choose a VST plugin to start its sandbox.");
+            status_ = vstText("status.choose", "Choose a VST plugin to start its sandbox.");
             return true;
         }
         if (!QFileInfo::exists(path_)) {
-            status_ = QStringLiteral("The configured plugin path does not exist.");
+            status_ = vstText("error.pathMissing", "The configured plugin path does not exist.");
             return false;
         }
 
@@ -478,13 +510,13 @@ public:
         const auto executable = QCoreApplication::applicationDirPath()
             + QStringLiteral("/VSTProcess") + (resolvedBits == ProcessBits::x86 ? QStringLiteral("32.exe") : QStringLiteral("64.exe"));
         if (!QFileInfo::exists(executable)) {
-            status_ = QStringLiteral("The required VSTProcess executable is not available.");
+            status_ = vstText("error.processMissing", "The required VSTProcess executable is not available.");
             return false;
         }
         executable_ = executable;
 
         if (path_.endsWith(QStringLiteral(".vst3"), Qt::CaseInsensitive)) {
-            QString factoryError;
+            Text factoryError;
             const auto plugins = vst3Plugins(path_, factoryError);
             if (!factoryError.isEmpty()) {
                 status_ = factoryError;
@@ -498,7 +530,7 @@ public:
                     return plugin.name.compare(internalPlugin_, Qt::CaseInsensitive) == 0;
                 });
                 if (configuredName == plugins.cend()) {
-                    status_ = QStringLiteral("The configured VST3 plugin name is not exposed by this module.");
+                    status_ = vstText("error.vst3Name", "The configured VST3 plugin name is not exposed by this module.");
                     return false;
                 }
                 internalPlugin_ = configuredName->id;
@@ -506,14 +538,14 @@ public:
             }
             if (internalPlugin_.isEmpty() && plugins.size() > 1) {
                 if (QApplication::instance() == nullptr) {
-                    status_ = QStringLiteral("Choose a VST3 plugin class before starting this node.");
+                    status_ = vstText("status.chooseClass", "Choose a VST3 plugin class before starting this node.");
                     return false;
                 }
-                internalPlugin_ = chooseInternalPlugin(QStringLiteral("Choose VST3 Plugin"),
-                                                        QStringLiteral("Choose a VST3 plugin class or enter its class ID."),
+                internalPlugin_ = chooseInternalPlugin(vstText("choose.vst3", "Choose VST3 Plugin"),
+                                                        vstText("choose.vst3Description", "Choose a VST3 plugin class or enter its class ID."),
                                                         plugins);
                 if (internalPlugin_.isEmpty()) {
-                    status_ = QStringLiteral("VST3 plugin class selection was cancelled.");
+                    status_ = vstText("status.vst3Cancelled", "VST3 plugin class selection was cancelled.");
                     return false;
                 }
             }
@@ -523,7 +555,7 @@ public:
 
 #if WJN_ENABLE_VST2
         if (path_.endsWith(QStringLiteral(".dll"), Qt::CaseInsensitive) && internalPlugin_.isEmpty()) {
-            QString shellError;
+            Text shellError;
             const auto plugins = shellPlugins(path_, shellError);
             if (!shellError.isEmpty()) {
                 status_ = shellError;
@@ -531,14 +563,14 @@ public:
             }
             if (!plugins.isEmpty()) {
                 if (QApplication::instance() == nullptr) {
-                    status_ = QStringLiteral("Choose an internal VST2 Shell plugin before starting this node.");
+                    status_ = vstText("status.chooseShell", "Choose an internal VST2 Shell plugin before starting this node.");
                     return false;
                 }
-                internalPlugin_ = chooseInternalPlugin(QStringLiteral("Choose VST2 Shell Plugin"),
-                                                        QStringLiteral("Choose an internal plugin or enter its name / numeric ID."),
+                internalPlugin_ = chooseInternalPlugin(vstText("choose.shell", "Choose VST2 Shell Plugin"),
+                                                        vstText("choose.shellDescription", "Choose an internal plugin or enter its name / numeric ID."),
                                                         plugins);
                 if (internalPlugin_.isEmpty()) {
-                    status_ = QStringLiteral("VST2 Shell plugin selection was cancelled.");
+                    status_ = vstText("status.shellCancelled", "VST2 Shell plugin selection was cancelled.");
                     return false;
                 }
                 internalPluginName_ = displayNameForInternalPlugin(plugins, internalPlugin_);
@@ -553,7 +585,7 @@ private:
     bool startProcess(bool bypass) noexcept
     {
         if (process_ && process_->state() != QProcess::NotRunning) {
-            status_ = QStringLiteral("The previous VSTProcess is still running.");
+            status_ = vstText("error.previousProcess", "The previous VSTProcess is still running.");
             return false;
         }
         process_.reset();
@@ -591,11 +623,11 @@ private:
             if (stopping_ || process_.get() != launchedProcess)
                 return;
             if (bypass) {
-                status_ = QStringLiteral("The bypass VSTProcess stopped (exit %1). Restart the plugin to recover.").arg(exitCode);
+                status_ = vstText("status.bypassStopped", "The bypass VSTProcess stopped (exit %1). Restart the plugin to recover.").arg(exitCode);
                 return;
             }
             bypassed_ = true;
-            status_ = QStringLiteral("VSTProcess crashed (exit %1); switching this node to bypass.").arg(exitCode);
+            status_ = vstText("status.crash", "VSTProcess crashed (exit %1); switching this node to bypass.").arg(exitCode);
             if (inputCount_ <= 0 && outputCount_ <= 0 && midiInputCount_ <= 0)
                 return;
             QTimer::singleShot(0, processWatcher_.get(), [this, launchedProcess] {
@@ -605,7 +637,7 @@ private:
         });
         process_->start();
         if (!process_->waitForStarted(3000)) {
-            status_ = QStringLiteral("Unable to start VSTProcess.");
+            status_ = vstText("error.start", "Unable to start VSTProcess.");
             process_.reset();
             return false;
         }
@@ -618,7 +650,7 @@ private:
             Sleep(25);
         }
         if (!status.contains(QStringLiteral("\"active\":true"))) {
-            status_ = status.isEmpty() ? QStringLiteral("VSTProcess did not make its control pipe ready before the startup deadline.") : status;
+            status_ = status.isEmpty() ? vstText("error.pipeTimeout", "VSTProcess did not make its control pipe ready before the startup deadline.") : Text(status);
             stopProcess();
             return false;
         }
@@ -638,8 +670,8 @@ private:
         bypassed_ = bypass;
         if (!bypass && !presetData_.isEmpty() && !restorePresetState())
             return false;
-        status_ = bypass ? QStringLiteral("VSTProcess is bypassing plugin I/O after a plugin crash.")
-                          : QStringLiteral("VSTProcess is running.");
+        status_ = bypass ? vstText("status.bypass", "VSTProcess is bypassing plugin I/O after a plugin crash.")
+                          : vstText("status.running", "VSTProcess is running.");
         return true;
     }
 
@@ -700,11 +732,11 @@ private:
         QTemporaryFile file;
         file.setAutoRemove(true);
         if (!file.open()) {
-            status_ = QStringLiteral("Unable to create a temporary VST preset file.");
+            status_ = vstText("error.tempPreset", "Unable to create a temporary VST preset file.");
             return false;
         }
         if (file.write(presetData_) != presetData_.size()) {
-            status_ = QStringLiteral("Unable to write the VST preset state.");
+            status_ = vstText("error.writeState", "Unable to write the VST preset state.");
             return false;
         }
         const auto path = file.fileName();
@@ -712,7 +744,7 @@ private:
         const auto response = sendPipeCommand("load-preset " + path.toUtf8() + "\n", 3000);
         if (response.contains(QStringLiteral("\"ok\":true")))
             return true;
-        status_ = response.isEmpty() ? QStringLiteral("Unable to restore the VST preset state.") : response;
+        status_ = response.isEmpty() ? vstText("error.restoreState", "Unable to restore the VST preset state.") : Text(response);
         return false;
     }
 
@@ -723,7 +755,7 @@ private:
         stopping_ = true;
         requestShutdown();
         if (!process_->waitForFinished(5000) && process_->state() != QProcess::NotRunning) {
-            status_ = QStringLiteral("VSTProcess did not exit cleanly; terminating its sandbox.");
+            status_ = vstText("status.terminate", "VSTProcess did not exit cleanly; terminating its sandbox.");
             process_->kill();
             process_->waitForFinished(1000);
         }
@@ -736,7 +768,7 @@ private:
     QString path_;
     QString clientName_;
     QString pipeName_;
-    QString status_ { QStringLiteral("Not started.") };
+    Text status_ { vstText("status.notStarted", "Not started.") };
     QString instanceId_ { QUuid::createUuid().toString(QUuid::WithoutBraces) };
     QString internalPlugin_;
     QString internalPluginName_;
@@ -773,7 +805,7 @@ SettingsWidget::SettingsWidget(VstHostNode& node, QWidget* parent)
     path_->setFixedHeight(Controls::sidebarControlHeight);
     path_->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
     path_->setText(node.pluginPath());
-    auto* browse = new Controls::ActionButton(QStringLiteral("Browse"), this);
+    auto* browse = vstButton(vstText("action.browse", "Browse"), this);
     browse->setFixedHeight(Controls::sidebarControlHeight);
     auto* pathRow = new QWidget(this);
     auto* pathLayout = new QHBoxLayout(pathRow);
@@ -787,7 +819,7 @@ SettingsWidget::SettingsWidget(VstHostNode& node, QWidget* parent)
     presetPath_->setFixedHeight(Controls::sidebarControlHeight);
     presetPath_->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
     presetPath_->setText(node.presetPath());
-    auto* browsePreset = new Controls::ActionButton(QStringLiteral("Browse"), this);
+    auto* browsePreset = vstButton(vstText("action.browse", "Browse"), this);
     browsePreset->setFixedHeight(Controls::sidebarControlHeight);
     auto* presetRow = new QWidget(this);
     auto* presetLayout = new QHBoxLayout(presetRow);
@@ -796,27 +828,27 @@ SettingsWidget::SettingsWidget(VstHostNode& node, QWidget* parent)
     presetLayout->addWidget(browsePreset);
     bits_ = new Controls::ChoiceField(this);
     bits_->setFixedHeight(Controls::sidebarControlHeight);
-    bits_->addItem(QStringLiteral("Auto"), static_cast<int>(ProcessBits::automatic));
-    bits_->addItem(QStringLiteral("64-bit"), static_cast<int>(ProcessBits::x64));
-    bits_->addItem(QStringLiteral("32-bit"), static_cast<int>(ProcessBits::x86));
+    vstItem(bits_, vstText("process.auto", "Auto"), static_cast<int>(ProcessBits::automatic));
+    vstItem(bits_, vstText("process.64", "64-bit"), static_cast<int>(ProcessBits::x64));
+    vstItem(bits_, vstText("process.32", "32-bit"), static_cast<int>(ProcessBits::x86));
     bits_->setCurrentIndex(bits_->findData(static_cast<int>(node.processBits())));
     portDisplayMode_ = new Controls::ChoiceField(this);
     portDisplayMode_->setFixedHeight(Controls::sidebarControlHeight);
-    portDisplayMode_->addItem(QStringLiteral("Default plugin names"), static_cast<int>(PortDisplayMode::defaultNames));
-    portDisplayMode_->addItem(QStringLiteral("Bus and channel labels"), static_cast<int>(PortDisplayMode::busLabels));
-    portDisplayMode_->addItem(QStringLiteral("Standard channel names"), static_cast<int>(PortDisplayMode::standardChannels));
-    portDisplayMode_->addItem(QStringLiteral("JACK default names"), static_cast<int>(PortDisplayMode::jackDefault));
+    vstItem(portDisplayMode_, vstText("port.default", "Default plugin names"), static_cast<int>(PortDisplayMode::defaultNames));
+    vstItem(portDisplayMode_, vstText("port.bus", "Bus and channel labels"), static_cast<int>(PortDisplayMode::busLabels));
+    vstItem(portDisplayMode_, vstText("port.standard", "Standard channel names"), static_cast<int>(PortDisplayMode::standardChannels));
+    vstItem(portDisplayMode_, vstText("port.jack", "JACK default names"), static_cast<int>(PortDisplayMode::jackDefault));
     portDisplayMode_->setCurrentIndex(portDisplayMode_->findData(static_cast<int>(node.portDisplayMode())));
-    form->addRow(QStringLiteral("Plugin"), pathRow);
-    form->addRow(QStringLiteral("Client name"), clientName_);
-    form->addRow(QStringLiteral("Preset"), presetRow);
-    form->addRow(QStringLiteral("Process"), bits_);
-    form->addRow(QStringLiteral("Port display"), portDisplayMode_);
+    vstRow(form, vstText("field.plugin", "Plugin"), pathRow);
+    vstRow(form, vstText("field.client", "Client name"), clientName_);
+    vstRow(form, vstText("field.preset", "Preset"), presetRow);
+    vstRow(form, vstText("field.process", "Process"), bits_);
+    vstRow(form, vstText("field.port", "Port display"), portDisplayMode_);
     layout->addLayout(form);
-    auto* reload = new Controls::ActionButton(QStringLiteral("Apply and reload"), this);
-    auto* loadPreset = new Controls::ActionButton(QStringLiteral("Load preset"), this);
-    auto* savePreset = new Controls::ActionButton(QStringLiteral("Save preset as"), this);
-    restart_ = new Controls::ActionButton(QStringLiteral("Restart plugin"), this);
+    auto* reload = vstButton(vstText("action.apply", "Apply and reload"), this);
+    auto* loadPreset = vstButton(vstText("action.load", "Load preset"), this);
+    auto* savePreset = vstButton(vstText("action.save", "Save preset as"), this);
+    restart_ = vstButton(vstText("action.restart", "Restart plugin"), this);
     reload->setFixedHeight(Controls::sidebarControlHeight);
     loadPreset->setFixedHeight(Controls::sidebarControlHeight);
     savePreset->setFixedHeight(Controls::sidebarControlHeight);
@@ -829,14 +861,14 @@ SettingsWidget::SettingsWidget(VstHostNode& node, QWidget* parent)
     layout->addWidget(restart_);
     layout->addWidget(status_);
     connect(browse, &QPushButton::clicked, this, [this] {
-        const auto path = QFileDialog::getOpenFileName(this, QStringLiteral("Choose VST plugin"), path_->text(),
-                                                       QStringLiteral("VST plugins (*.vst3 *.dll)"));
+        const auto path = vstFile(this, vstText("choose.plugin", "Choose VST plugin"), path_->text(),
+                                                       vstText("filter.plugin", "VST plugins (*.vst3 *.dll)"));
         if (!path.isEmpty())
             path_->setText(path);
     });
     connect(browsePreset, &QPushButton::clicked, this, [this] {
-        const auto path = QFileDialog::getOpenFileName(this, QStringLiteral("Choose VST preset"), presetPath_->text(),
-                                                       QStringLiteral("WinJACKNexus VST preset (*.fbx)"));
+        const auto path = vstFile(this, vstText("choose.preset", "Choose VST preset"), presetPath_->text(),
+                                                       vstText("filter.preset", "WinJACKNexus VST preset (*.fbx)"));
         if (!path.isEmpty())
             presetPath_->setText(path);
     });
@@ -857,15 +889,15 @@ SettingsWidget::SettingsWidget(VstHostNode& node, QWidget* parent)
         refresh();
     });
     connect(savePreset, &QPushButton::clicked, this, [this] {
-        const auto path = QFileDialog::getSaveFileName(this, QStringLiteral("Save VST preset"), presetPath_->text(),
-                                                       QStringLiteral("WinJACKNexus VST preset (*.fbx)"));
+        const auto path = vstFile(this, vstText("choose.save", "Save VST preset"), presetPath_->text(),
+                                                       vstText("filter.preset", "WinJACKNexus VST preset (*.fbx)"), true);
         if (!path.isEmpty()) {
             presetPath_->setText(path);
             node_.savePreset(path);
         }
         refresh();
     });
-    refresh();
+    VstI18n::bind(this,[this] { refresh(); });
 }
 
 void SettingsWidget::refresh()
