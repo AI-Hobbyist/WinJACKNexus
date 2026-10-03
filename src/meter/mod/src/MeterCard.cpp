@@ -14,11 +14,13 @@
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 #include <WinJACKNexus/Meter/Mod/MeterCard.hpp>
+#include <WinJACKNexus/Meter/Mod/LocalizedDisplay.hpp>
 
 #include <WinJACKNexus/Common/MeterLoudnessPresetCatalog.hpp>
 
 #include <WinJACKNexus/UI/MeterLevelBar.hpp>
 #include <WinJACKNexus/UI/Controls.hpp>
+#include <WinJACKNexus/UI/LocalizedText.hpp>
 #include <WinJACKNexus/UI/MetricReadout.hpp>
 #include <WinJACKNexus/UI/ThemePalette.hpp>
 #include <WinJACKNexus/UI/ThemeCore.hpp>
@@ -50,6 +52,18 @@ namespace WinJACKNexus::Meter::Mod {
 
 namespace {
 
+using WinJACKNexus::UI::bindLocalizedText;
+using WinJACKNexus::UI::I18nManager;
+QString cardText(const char* key, const char* english) {
+    return WinJACKNexus::UI::localizedText("meterbridge", key, english);
+}
+WinJACKNexus::UI::Controls::TextLabel* cardLabel(const char* key, const char* english, QWidget* parent) {
+    auto* result = new WinJACKNexus::UI::Controls::TextLabel({}, parent);
+    bindLocalizedText(result, "text", "meterbridge", key, english);
+    return result;
+}
+
+
 constexpr int minimumMeterCardHeight = 560;
 
 QColor meterColor(const char* role, const char* fallback)
@@ -70,15 +84,15 @@ QString stateText(MeterProbeState state)
 {
     switch (state) {
     case MeterProbeState::silent:
-        return QStringLiteral("静音");
+        return cardText("state.silent", "Silent");
     case MeterProbeState::active:
-        return QStringLiteral("活动");
+        return cardText("state.active", "Active");
     case MeterProbeState::overload:
-        return QStringLiteral("超限");
+        return cardText("state.overload", "Overload");
     case MeterProbeState::offline:
-        return QStringLiteral("离线");
+        return cardText("state.offline", "Offline");
     }
-    return QStringLiteral("未知");
+    return cardText("state.unknown", "Unknown");
 }
 
 std::optional<double> asDouble(const std::optional<float>& value)
@@ -192,8 +206,8 @@ MeterCard::MeterCard(MeterViewDataProvider& provider,
     presetSelector_ = new WinJACKNexus::UI::Controls::ChoiceField(presetPanel);
     presetSelector_->setObjectName(QStringLiteral("meterCard.preset"));
     presetSelector_->setProperty("meterCardControl", QStringLiteral("preset"));
-    presetSelector_->setAccessibleName(QStringLiteral("响度预设（Loudness Preset）"));
-    presetSelector_->setToolTip(QStringLiteral("选择此探针的显示参考预设"));
+    bindLocalizedText(presetSelector_, "accessibleName", "meterbridge", "preset.accessible", "Loudness preset");
+    bindLocalizedText(presetSelector_, "toolTip", "meterbridge", "preset.help", "Choose the display reference preset for this probe");
     presetSelector_->setFixedHeight(WinJACKNexus::UI::Controls::sidebarControlHeight);
     auto presetFont = presetSelector_->font();
     presetFont.setPixelSize(16);
@@ -208,7 +222,7 @@ MeterCard::MeterCard(MeterViewDataProvider& provider,
     presetLayout->addWidget(presetSelector_, 1);
     presetRefreshButton_ = new WinJACKNexus::UI::Controls::IconActionButton(presetPanel);
     presetRefreshButton_->setObjectName(QStringLiteral("meterCard.presetRefresh"));
-    presetRefreshButton_->setText(QStringLiteral("刷新"));
+    bindLocalizedText(presetRefreshButton_, "text", "meterbridge", "action.refresh", "Refresh");
     presetRefreshButton_->setToolButtonStyle(Qt::ToolButtonTextOnly);
     presetRefreshButton_->setFixedHeight(WinJACKNexus::UI::Controls::sidebarControlHeight);
     presetLayout->addWidget(presetRefreshButton_);
@@ -271,12 +285,12 @@ MeterCard::MeterCard(MeterViewDataProvider& provider,
         QColor accent;
     };
     const std::array definitions {
-        MetricDefinition { QStringLiteral("Peak"), QStringLiteral("峰值（Peak）"), QStringLiteral("dBFS"), meterColor("chart-series-peak-stroke", "#ff5269") },
-        MetricDefinition { QStringLiteral("RMS"), QStringLiteral("均方根（RMS）"), QStringLiteral("dBFS"), meterColor("chart-series-rms-stroke", "#ff8a47") },
+        MetricDefinition { QStringLiteral("Peak"), cardText("metric.peak", "Peak"), QStringLiteral("dBFS"), meterColor("chart-series-peak-stroke", "#ff5269") },
+        MetricDefinition { QStringLiteral("RMS"), cardText("metric.rms", "RMS"), QStringLiteral("dBFS"), meterColor("chart-series-rms-stroke", "#ff8a47") },
         MetricDefinition { QStringLiteral("dBTP"), QStringLiteral("dBTP"), QStringLiteral("dBTP"), meterColor("chart-series-true-peak-stroke", "#ffd143") },
-        MetricDefinition { QStringLiteral("Momentary"), QStringLiteral("瞬时（M）"), QStringLiteral("LUFS"), meterColor("chart-series-momentary-stroke", "#43e88d") },
-        MetricDefinition { QStringLiteral("Short-term"), QStringLiteral("短时（S）"), QStringLiteral("LUFS"), meterColor("chart-series-short-term-stroke", "#48c9ff") },
-        MetricDefinition { QStringLiteral("Integrated"), QStringLiteral("综合（I）"), QStringLiteral("LUFS"), meterColor("chart-series-integrated-stroke", "#4b95ff") },
+        MetricDefinition { QStringLiteral("Momentary"), cardText("metric.momentary", "Momentary (M)"), QStringLiteral("LUFS"), meterColor("chart-series-momentary-stroke", "#43e88d") },
+        MetricDefinition { QStringLiteral("Short-term"), cardText("metric.shortTerm", "Short-term (S)"), QStringLiteral("LUFS"), meterColor("chart-series-short-term-stroke", "#48c9ff") },
+        MetricDefinition { QStringLiteral("Integrated"), cardText("metric.integrated", "Integrated (I)"), QStringLiteral("LUFS"), meterColor("chart-series-integrated-stroke", "#4b95ff") },
         MetricDefinition { QStringLiteral("LRA"), QStringLiteral("LRA"), QStringLiteral("LU"), meterColor("chart-series-lra-stroke", "#b96aff") }
     };
     std::array<WinJACKNexus::UI::MetricReadout**, 7> readoutTargets {
@@ -287,6 +301,17 @@ MeterCard::MeterCard(MeterViewDataProvider& provider,
         auto* readout = new WinJACKNexus::UI::MetricReadout(metricsPanel);
         readout->setObjectName(QStringLiteral("meterCard.readout.%1").arg(definition.objectName));
         readout->setLabel(definition.label);
+        const auto refreshLabel = [readout, index] {
+            switch (index) {
+            case 0: readout->setLabel(cardText("metric.peak", "Peak")); break;
+            case 1: readout->setLabel(cardText("metric.rms", "RMS")); break;
+            case 3: readout->setLabel(cardText("metric.momentary", "Momentary (M)")); break;
+            case 4: readout->setLabel(cardText("metric.shortTerm", "Short-term (S)")); break;
+            case 5: readout->setLabel(cardText("metric.integrated", "Integrated (I)")); break;
+            default: break;
+            }
+        };
+        if (auto* manager = I18nManager::installed()) manager->bind(readout, refreshLabel);
         readout->setUnit(definition.unit);
         readout->setPrecision(1);
         readout->setPeakValueRefreshEnabled(index == 0 || index == 2);
@@ -308,20 +333,24 @@ MeterCard::MeterCard(MeterViewDataProvider& provider,
     contentLayout->addWidget(metricsPanel, 1);
     rootLayout->addWidget(contentPanel, 1);
 
-    resetAction_ = new QAction(style()->standardIcon(QStyle::SP_BrowserReload), QStringLiteral("重置响度"), this);
+    resetAction_ = new QAction(style()->standardIcon(QStyle::SP_BrowserReload), cardText("action.reset", "Reset loudness"), this);
+    bindLocalizedText(resetAction_, "text", "meterbridge", "action.reset", "Reset loudness");
     resetAction_->setObjectName(QStringLiteral("meterCard.resetAction"));
-    resetAction_->setToolTip(QStringLiteral("重置当前响度会话"));
-    recordingAction_ = new QAction(style()->standardIcon(QStyle::SP_MediaPlay), QStringLiteral("记录响度"), this);
+    bindLocalizedText(resetAction_, "toolTip", "meterbridge", "action.resetHelp", "Reset the current loudness session");
+    recordingAction_ = new QAction(style()->standardIcon(QStyle::SP_MediaPlay), cardText("action.record", "Record loudness"), this);
     recordingAction_->setObjectName(QStringLiteral("meterCard.recordingAction"));
     recordingAction_->setCheckable(true);
-    recordingAction_->setToolTip(QStringLiteral("开始或停止响度记录"));
-    historyAction_ = new QAction(style()->standardIcon(QStyle::SP_FileDialogContentsView), QStringLiteral("历史图表"), this);
+    bindLocalizedText(recordingAction_, "toolTip", "meterbridge", "action.recordHelp", "Start or stop loudness recording");
+    historyAction_ = new QAction(style()->standardIcon(QStyle::SP_FileDialogContentsView), cardText("action.history", "History chart"), this);
+    bindLocalizedText(historyAction_, "text", "meterbridge", "action.history", "History chart");
     historyAction_->setObjectName(QStringLiteral("meterCard.historyAction"));
-    historyAction_->setToolTip(QStringLiteral("打开此探针的历史图表"));
-    automaticResetAction_ = new QAction(QStringLiteral("自动重置"), this);
+    bindLocalizedText(historyAction_, "toolTip", "meterbridge", "action.historyHelp", "Open the history chart for this probe");
+    automaticResetAction_ = new QAction(cardText("action.autoReset", "Automatic reset"), this);
+    bindLocalizedText(automaticResetAction_, "text", "meterbridge", "action.autoReset", "Automatic reset");
     automaticResetAction_->setObjectName(QStringLiteral("meterCard.automaticResetAction"));
     automaticResetAction_->setCheckable(true);
-    locateAction_ = new QAction(QStringLiteral("在接线盘中定位"), this);
+    locateAction_ = new QAction(cardText("action.locate", "Locate in patchbay"), this);
+    bindLocalizedText(locateAction_, "text", "meterbridge", "action.locate", "Locate in patchbay");
     locateAction_->setObjectName(QStringLiteral("meterCard.locateAction"));
 
     auto* actionsPanel = new QFrame(this);
@@ -367,6 +396,8 @@ MeterCard::MeterCard(MeterViewDataProvider& provider,
     connect(locateAction_, &QAction::triggered, this, [this] {
         dispatch(MeterViewCommandType::selectInPatchbay);
     });
+    if (auto* manager = I18nManager::installed())
+        manager->bind(this, [this] { refreshLocalizedDisplay(); });
     applyTheme();
     if (auto* core = WinJACKNexus::UI::ThemeManager::installedThemeCore())
         connect(core, &WinJACKNexus::UI::ThemeCore::themeChanged,
@@ -452,6 +483,21 @@ void MeterCard::applyTheme()
         WinJACKNexus::UI::Controls::applyPalette(button, actionColors);
 }
 
+void MeterCard::refreshLocalizedDisplay()
+{
+    stateLabel_->setText(stateText(displayState_));
+    setToolTip(cardText("card.identityHelp", "Instance: %1\nName revision: %2").arg(instanceId_).arg(nameRevision_));
+    layoutLabel_->setText(Localized::layoutName(layoutFallback_, displayChannelCount_, displayCustomLayout_));
+    const QSignalBlocker presetBlocker(presetSelector_);
+    for (int index = 0; index < presetSelector_->count(); ++index) {
+        if (const auto* preset = Common::findMeterLoudnessPreset(presetSelector_->itemData(index).toString().toStdString()))
+            presetSelector_->setItemText(index, Localized::presetName(*preset));
+    }
+    const QSignalBlocker blocker(recordingAction_);
+    recordingAction_->setText(recordingAction_->isChecked()
+        ? cardText("action.stopRecord", "Stop recording") : cardText("action.record", "Record loudness"));
+}
+
 void MeterCard::setSnapshot(const MeterViewSnapshot& snapshot)
 {
     instanceId_ = snapshot.instanceId;
@@ -459,9 +505,14 @@ void MeterCard::setSnapshot(const MeterViewSnapshot& snapshot)
     presetId_ = snapshot.presetId;
     if (presetRevision_ != WinJACKNexus::Common::customMeterLoudnessPresetRevision()) configurePresetSelector();
     titleLabel_->setText(snapshot.clientName);
-    layoutLabel_->setText(snapshot.layoutLabel);
-    stateLabel_->setText(stateText(snapshot.state));
-    setToolTip(QStringLiteral("实例：%1\n名称版本：%2").arg(snapshot.instanceId).arg(snapshot.nameRevision));
+    layoutFallback_ = snapshot.layoutLabel;
+    displayChannelCount_ = snapshot.channels.size();
+    displayCustomLayout_ = snapshot.channelLayoutEditable;
+    layoutLabel_->setText(Localized::layoutName(snapshot));
+    displayState_ = snapshot.state;
+    nameRevision_ = snapshot.nameRevision;
+    stateLabel_->setText(stateText(displayState_));
+    setToolTip(cardText("card.identityHelp", "Instance: %1\nName revision: %2").arg(instanceId_).arg(nameRevision_));
 
     auto presetIndex = presetSelector_->findData(snapshot.presetId);
     if (presetIndex < 0) {
@@ -472,7 +523,7 @@ void MeterCard::setSnapshot(const MeterViewSnapshot& snapshot)
     presetSelector_->setCurrentIndex(presetIndex);
     const QSignalBlocker recordingBlocker(recordingAction_);
     recordingAction_->setChecked(snapshot.recordingEnabled);
-    recordingAction_->setText(snapshot.recordingEnabled ? QStringLiteral("停止记录") : QStringLiteral("记录响度"));
+    recordingAction_->setText(snapshot.recordingEnabled ? cardText("action.stopRecord", "Stop recording") : cardText("action.record", "Record loudness"));
     const QSignalBlocker automaticResetBlocker(automaticResetAction_);
     automaticResetAction_->setChecked(snapshot.automaticResetEnabled);
 
@@ -563,7 +614,7 @@ void MeterCard::createCustomPreset()
     }
     QDialog dialog(this);
     dialog.setObjectName(QStringLiteral("meterCard.customPresetDialog"));
-    dialog.setWindowTitle(QStringLiteral("创建自定义响度参考"));
+    bindLocalizedText(&dialog, "windowTitle", "meterbridge", "preset.createTitle", "Create a custom loudness reference");
     auto* root = new QVBoxLayout(&dialog);
     auto* form = new QFormLayout;
     auto* name = new Controls::TextField(&dialog);
@@ -580,7 +631,8 @@ void MeterCard::createCustomPreset()
     name->setFixedHeight(Controls::sidebarControlHeight);
     auto* target = field("lufsPreset.target", -70, 0, preset.targetIntegratedLufs, QStringLiteral(" LUFS"));
     auto* peak = field("lufsPreset.truePeak", -60, 12, preset.maximumTruePeakDbtp, QStringLiteral(" dBTP"));
-    auto* range = new Controls::ToggleField(QStringLiteral("启用目标范围"), &dialog);
+    auto* range = new Controls::ToggleField(cardText("preset.range", "Enable target range"), &dialog);
+    bindLocalizedText(range, "text", "meterbridge", "preset.range", "Enable target range");
     range->setObjectName(QStringLiteral("lufsPreset.range"));
     range->setFixedHeight(Controls::sidebarControlHeight);
     range->setChecked(preset.alternateTargetHighLufs.has_value());
@@ -589,16 +641,18 @@ void MeterCard::createCustomPreset()
     upper->setEnabled(range->isChecked());
     connect(range, &QCheckBox::toggled, upper, &QWidget::setEnabled);
     connect(target, qOverload<double>(&QDoubleSpinBox::valueChanged), upper, &QDoubleSpinBox::setMinimum);
-    form->addRow(QStringLiteral("名称"), name);
-    form->addRow(QStringLiteral("综合响度目标/下限"), target);
-    form->addRow(range); form->addRow(QStringLiteral("综合响度上限"), upper);
-    form->addRow(QStringLiteral("最大真峰值"), peak);
+    form->addRow(cardLabel("preset.name", "Name", &dialog), name);
+    form->addRow(cardLabel("preset.lower", "Integrated loudness target/lower limit", &dialog), target);
+    form->addRow(range); form->addRow(cardLabel("preset.upper", "Integrated loudness upper limit", &dialog), upper);
+    form->addRow(cardLabel("preset.truePeak", "Maximum true peak", &dialog), peak);
     root->addLayout(form);
     auto* actions = new QHBoxLayout;
-    auto* save = new Controls::ActionButton(QStringLiteral("保存"), &dialog);
+    auto* save = new Controls::ActionButton(cardText("action.save", "Save"), &dialog);
+    bindLocalizedText(save, "text", "meterbridge", "action.save", "Save");
     save->setObjectName(QStringLiteral("lufsPreset.save"));
-    auto* cancel = new Controls::ActionButton(QStringLiteral("取消"), &dialog);
-    Controls::Palette colors;
+    auto* cancel = new Controls::ActionButton(cardText("action.cancel", "Cancel"), &dialog);
+bindLocalizedText(cancel, "text", "meterbridge", "action.cancel", "Cancel");
+        Controls::Palette colors;
     colors.panel = meterColor("control-preset-action-surface", "#13263b");
     colors.text = meterColor("control-preset-action-text", "#dbeaff");
     colors.border = meterColor("control-preset-action-border", "#274b6c");
@@ -621,7 +675,18 @@ void MeterCard::createCustomPreset()
             presetSelector_->setCurrentIndex(presetSelector_->findData(preset.id));
             return;
         }
-        QMessageBox::warning(this, QStringLiteral("响度参考保存失败"), error);
+        QMessageBox message(QMessageBox::Warning, {}, {}, QMessageBox::Ok, this);
+        message.setTextFormat(Qt::PlainText);
+        const auto refreshError = [&message, error] {
+            if (error == QStringLiteral("预设名称或参考值无效"))
+                message.setText(cardText("preset.invalid", "Invalid preset name or reference values"));
+            else if (error.startsWith(QStringLiteral("无法创建目录：")))
+                message.setText(cardText("preset.directoryFailure", "Unable to create directory: %1").arg(error.mid(QStringLiteral("无法创建目录：").size())));
+            else message.setText(error);
+        };
+        if (auto* manager = I18nManager::installed()) manager->bind(&message, refreshError); else refreshError();
+        bindLocalizedText(&message, "windowTitle", "meterbridge", "preset.saveError", "Loudness reference save failed");
+        message.exec();
     }
     const QSignalBlocker blocker(presetSelector_);
     presetSelector_->setCurrentIndex(std::max(0, presetSelector_->findData(presetId_)));
@@ -632,7 +697,7 @@ void MeterCard::configurePresetSelector()
     const QSignalBlocker blocker(presetSelector_);
     presetSelector_->clear();
     for (const auto& preset : WinJACKNexus::Common::meterLoudnessPresetCatalog)
-        presetSelector_->addItem(QString::fromUtf8(preset.displayName), QString::fromLatin1(preset.id));
+        presetSelector_->addItem(Localized::presetName(preset), QString::fromLatin1(preset.id));
     for (const auto& preset : WinJACKNexus::Common::customMeterLoudnessPresets())
         presetSelector_->addItem(preset.displayName, preset.id);
     presetSelector_->setCurrentIndex(std::max(0, presetSelector_->findData(presetId_)));

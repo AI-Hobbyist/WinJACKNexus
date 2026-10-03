@@ -54,6 +54,7 @@ protected:
 
 private:
     void applyTheme();
+    void refreshLocalizedDisplay();
     void dispatch(MeterViewCommandType type, std::optional<bool> enabled = std::nullopt, const QString& presetId = {});
     void configurePresetSelector();
     void createCustomPreset();
@@ -64,6 +65,11 @@ private:
     QString instanceId_;
     QString clientName_;
     QString presetId_;
+    MeterProbeState displayState_ = MeterProbeState::offline;
+    quint64 nameRevision_ = 0;
+    QString layoutFallback_;
+    std::size_t displayChannelCount_ = 0;
+    bool displayCustomLayout_ = false;
     QLabel* numberLabel_ = nullptr;
     QLabel* titleLabel_ = nullptr;
     QLabel* layoutLabel_ = nullptr;

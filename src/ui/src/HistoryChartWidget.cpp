@@ -13,6 +13,7 @@
  *
  * SPDX-License-Identifier: AGPL-3.0-only
  */
+#include <WinJACKNexus/UI/LocalizedText.hpp>
 #include <WinJACKNexus/UI/HistoryChartWidget.hpp>
 #include <WinJACKNexus/UI/Controls.hpp>
 
@@ -76,6 +77,8 @@ QString formatHoverTime(std::int64_t timestampMilliseconds,
 HistoryChartWidget::HistoryChartWidget(QWidget* parent)
     : PaintableWidget(parent)
 {
+    if (auto* manager = I18nManager::installed())
+        manager->bind(this, [this] { update(); });
     setMinimumSize(320, 190);
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     setMouseTracking(true);
@@ -496,7 +499,7 @@ void HistoryChartWidget::paintContent(QPainter& painter)
                                 tooltipRect.width() - padding * 2.0,
                                 headerHeight),
                          Qt::AlignLeft | Qt::AlignVCenter,
-                         QStringLiteral("时间 %1").arg(formatHoverTime(*hoverTimeMilliseconds_, timeDisplayOffsetMilliseconds_)));
+                         localizedText("ui", "chart.hoverTime", "Time %1").arg(formatHoverTime(*hoverTimeMilliseconds_, timeDisplayOffsetMilliseconds_)));
         painter.setFont(font());
         const auto innerWidth = tooltipRect.width() - padding * 2.0 - columnGap * (columns - 1);
         const auto columnWidth = std::max<qreal>(1.0, innerWidth / columns);

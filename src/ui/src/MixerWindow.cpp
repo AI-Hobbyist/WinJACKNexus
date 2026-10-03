@@ -4,6 +4,7 @@
 #include <WinJACKNexus/UI/ApplicationSettings.hpp>
 #include <WinJACKNexus/UI/Controls.hpp>
 #include <WinJACKNexus/UI/LocalizedText.hpp>
+#include "LocalizedMixerErrors.hpp"
 #include <WinJACKNexus/UI/FxSettingsWindow.hpp>
 #include <WinJACKNexus/UI/MixerPolarPlot.hpp>
 #include <WinJACKNexus/UI/ThemeCore.hpp>
@@ -222,10 +223,6 @@ public:
             const std::array layouts {Common::MixerLayout::mono, Common::MixerLayout::stereo,
                                       Common::MixerLayout::surround51, Common::MixerLayout::surround71};
             for (const auto candidate : layouts) {
-                const auto name = candidate == Common::MixerLayout::mono ? mixerText("layout.mono","Mono")
-                    : candidate == Common::MixerLayout::stereo ? mixerText("layout.stereo","Stereo")
-                    : candidate == Common::MixerLayout::surround51 ? QStringLiteral("5.1")
-                    : QStringLiteral("7.1");
                 auto* action = mixerLayoutAction(menu,candidate);
                 action->setCheckable(true);
                 action->setChecked(candidate == layout);
@@ -1531,8 +1528,8 @@ public:
         QString error;
         if (commit && commit(candidate, &error)) return true;
         WJN_LOG_ERROR("Mixer topology commit failed: %s", error.toUtf8().constData());
-        QMessageBox::warning(&owner, mixerText("error.topologyTitle","Topology update failed"),
-            error.isEmpty() ? mixerText("error.registerPorts","Unable to register mixer ports. The previous state has been retained.") : error);
+        MixerErrors::warning(&owner, "error.topologyTitle", "Topology update failed", error,
+            "error.registerPorts", "Unable to register mixer ports. The previous state has been retained.");
         return false;
     }
 
@@ -1696,7 +1693,7 @@ public:
                 }
                 QString error;
                 if (!candidate.setSend(source->modelId, send, &error)) {
-                    QMessageBox::warning(&owner, mixerText("error.auxRouteTitle","Invalid AUX routing"), error);
+                    MixerErrors::warning(&owner, "error.auxRouteTitle", "Invalid AUX routing", error);
                     return false;
                 }
                 sourceStrip = candidate.strip(source->modelId);
@@ -2670,12 +2667,17 @@ public:
 
     void populateChannelMenu(QMenu* menu)
     {
+        const auto previousActions = menu->actions();
+        for (auto* action : previousActions)
+            if (auto* submenu = action->menu(); submenu && submenu->parent() == menu) delete submenu;
         menu->clear();
         const auto iconColor=Controls::themeTokenColor(QStringLiteral("sel-main"),QStringLiteral("control-header-icon"),QColor("#e8f2ff"));
         const std::array names{mixerText("section.inputs","Inputs"),QStringLiteral("AUX"),QStringLiteral("Sub Mix"),mixerText("section.listenMaster","Monitor/Master")};
         for(int group=0;group<4;++group) {
             const auto kind=group==0?MixerChannelIcon::input:group==1?MixerChannelIcon::aux:group==2?MixerChannelIcon::subMix:MixerChannelIcon::master;
             auto* category=menu->addMenu(QIcon(mixerChannelIcon(kind,iconColor,24,owner.devicePixelRatioF())),names[group]);
+            if (group == 0) bindLocalizedText(category, "title", "mixer", "section.inputs", "Inputs");
+            if (group == 3) bindLocalizedText(category, "title", "mixer", "section.listenMaster", "Monitor/Master");
             for(int i=0;i<static_cast<int>(channels.size());++i) {
                 const auto& channel=channels[i];
                 const int channelGroup=channel.number==QStringLiteral("MAIN")?3:channel.subMix?2:channel.auxId?1:0;
@@ -2689,6 +2691,7 @@ public:
             }
             if(group==3) {
                 auto* action=category->addAction(QIcon(mixerChannelIcon(MixerChannelIcon::monitor,iconColor,24,owner.devicePixelRatioF())),mixerText("label.monitor","Monitor"));
+                bindLocalizedText(action, "text", "mixer", "label.monitor", "Monitor");
                 action->setData(QVariant::fromValue<qulonglong>(0));action->setCheckable(true);action->setChecked(selectedMonitor);
                 connect(action,&QAction::triggered,selWindow,[this] {showMonitorSel();});
             }

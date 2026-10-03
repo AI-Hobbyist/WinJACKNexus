@@ -17,6 +17,7 @@
 
 #include <QString>
 
+#include <cstddef>
 #include <cstdint>
 #include <optional>
 #include <vector>
@@ -115,10 +116,18 @@ struct MeterHistoryViewSettings final {
     bool operator==(const MeterHistoryViewSettings&) const = default;
 };
 
+enum class MeterCsvStatusKind {
+    unspecified, waiting, stopped, recording, queueFull, writerClosed, sessionClosed,
+    noDirectory, directoryFailure, openFailure, writeFailure, previewRecording, previewIdle
+};
+
 struct MeterCsvPreviewState final {
     QString logRootDirectory;
     QString activeFilePath;
     QString rotationStatus;
+    MeterCsvStatusKind statusKind = MeterCsvStatusKind::unspecified;
+    QString statusDetail;
+    std::size_t droppedRecordCount = 0;
 
     bool operator==(const MeterCsvPreviewState&) const = default;
 };

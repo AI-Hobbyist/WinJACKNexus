@@ -9,9 +9,10 @@ OUT = ROOT / 'Docs/i18n'
 LANGUAGES = ('zh-CN', 'en-US', 'ja-JP', 'ko-KR')
 SOURCES = {
     'aux': ('src/ui/src/AuxSettingsWindow.cpp',),
-    'mixer': ('src/ui/src/MixerWindow.cpp', 'src/ui/src/MixerOverview.hpp'),
-    'fxhost': ('src/ui/src/FxSettingsWindow.cpp',),
-    'meterbridge': ('src/meter/mod/',),
+    'mixer': ('src/ui/src/MixerWindow.cpp', 'src/ui/src/MixerOverview.hpp', 'src/ui/src/LocalizedMixerErrors.hpp'),
+    'fxhost': ('src/ui/src/FxSettingsWindow.cpp', 'src/ui/src/FxLevelMeterWidget.cpp'),
+    'ui': ('src/ui/src/HistoryChartWidget.cpp', 'src/ui/src/MetricStatisticsWidget.cpp'),
+    'meterbridge': ('src/meter/mod/', 'src/meter/probe/Library.cpp'),
 }
 
 

@@ -42,6 +42,8 @@ public:
         QString activeFilePath;
         QString rotationStatus;
         std::size_t droppedRecordCount {};
+        MeterCsvStatusKind statusKind = MeterCsvStatusKind::unspecified;
+        QString statusDetail;
     };
 
     MeterCsvWriter();
@@ -72,7 +74,7 @@ private:
     void workerLoop();
     void process(const QueueEvent& event);
     void writeRecord(const Record& record);
-    void closeSessionInWorker(const QString& instanceId, const QString& status);
+    void closeSessionInWorker(const QString& instanceId, const QString& status, MeterCsvStatusKind kind);
     void setStatus(const QString& instanceId, Status status);
 
     mutable std::mutex queueMutex_;

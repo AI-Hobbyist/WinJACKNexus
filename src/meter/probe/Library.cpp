@@ -23,6 +23,7 @@
 #include <WinJACKNexus/Common/SilenceResetController.hpp>
 #include <WinJACKNexus/Node/NodeApi.h>
 #include <WinJACKNexus/UI/Controls.hpp>
+#include <WinJACKNexus/UI/LocalizedText.hpp>
 
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -577,6 +578,32 @@ void restoreJackConnections(const std::vector<JackConnection>& connections,
     }
 }
 
+QString probeText(const char* key, const char* english) {
+    return WinJACKNexus::UI::localizedText("meterbridge", key, english);
+}
+WinJACKNexus::UI::Controls::TextLabel* probeLabel(const char* key, const char* english, QWidget* parent) {
+    auto* label = new WinJACKNexus::UI::Controls::TextLabel({}, parent);
+    WinJACKNexus::UI::bindLocalizedText(label,"text","meterbridge",key,english);
+    return label;
+}
+QString probeRoleText(const char* id) {
+    if (std::string_view(id) == "unassigned") return probeText("probe.role.unassigned", "Unassigned");
+    if (std::string_view(id) == "mono") return probeText("probe.role.mono", "Mono (M)");
+    if (std::string_view(id) == "frontLeft") return probeText("probe.role.frontLeft", "Front left (L)");
+    if (std::string_view(id) == "frontRight") return probeText("probe.role.frontRight", "Front right (R)");
+    if (std::string_view(id) == "frontCenter") return probeText("probe.role.frontCenter", "Front center (C)");
+    if (std::string_view(id) == "sideLeft") return probeText("probe.role.sideLeft", "Side left (Ls)");
+    if (std::string_view(id) == "sideRight") return probeText("probe.role.sideRight", "Side right (Rs)");
+    if (std::string_view(id) == "rearLeft") return probeText("probe.role.rearLeft", "Rear left (Lb)");
+    if (std::string_view(id) == "rearRight") return probeText("probe.role.rearRight", "Rear right (Rb)");
+    if (std::string_view(id) == "topFrontLeft") return probeText("probe.role.topFrontLeft", "Top front left");
+    if (std::string_view(id) == "topFrontRight") return probeText("probe.role.topFrontRight", "Top front right");
+    if (std::string_view(id) == "topRearLeft") return probeText("probe.role.topRearLeft", "Top rear left");
+    if (std::string_view(id) == "topRearRight") return probeText("probe.role.topRearRight", "Top rear right");
+    if (std::string_view(id) == "lfe") return probeText("probe.role.lfe", "Low-frequency effects (LFE)");
+    return QString::fromLatin1(id);
+}
+
 class MeterProbeSettingsPanel final : public QWidget {
 public:
     using SettingsProvider = std::function<ProbeSettings()>;
@@ -605,10 +632,11 @@ public:
         clientNameEditor_->setObjectName(QStringLiteral("meterProbeClientNameEditor"));
         clientNameEditor_->setFixedHeight(WinJACKNexus::UI::Controls::sidebarControlHeight);
         clientNameEditor_->setMaxLength(127);
-        clientNameEditor_->setPlaceholderText(QStringLiteral("例如 Meter-Program"));
-        form->addRow(QStringLiteral("客户端名称"), clientNameEditor_);
+        WinJACKNexus::UI::bindLocalizedText(clientNameEditor_, "placeholderText", "meterbridge", "probe.clientPlaceholder", "For example: Meter-Program");
+        form->addRow(probeLabel("probe.clientName", "Client name", this), clientNameEditor_);
 
-        autoResetCheckBox_ = new WinJACKNexus::UI::Controls::ToggleField(QStringLiteral("自动重置响度"), this);
+        autoResetCheckBox_ = new WinJACKNexus::UI::Controls::ToggleField(probeText("probe.autoReset", "Reset loudness automatically"), this);
+        WinJACKNexus::UI::bindLocalizedText(autoResetCheckBox_,"text","meterbridge","probe.autoReset","Reset loudness automatically");
         autoResetCheckBox_->setObjectName(QStringLiteral("meterProbeAutoResetCheckBox"));
         autoResetCheckBox_->setFixedHeight(WinJACKNexus::UI::Controls::sidebarControlHeight);
         form->addRow(QString(), autoResetCheckBox_);
@@ -618,27 +646,27 @@ public:
             channelCountSpinBox_->setObjectName(QStringLiteral("meterProbeChannelCountSpinBox"));
             channelCountSpinBox_->setFixedHeight(WinJACKNexus::UI::Controls::sidebarControlHeight);
             channelCountSpinBox_->setRange(1, static_cast<int>(maximumChannelCount));
-            form->addRow(QStringLiteral("输入声道"), channelCountSpinBox_);
+            form->addRow(probeLabel("probe.inputs", "Input channels", this), channelCountSpinBox_);
         } else {
             fixedLayoutLabel_ = new WinJACKNexus::UI::Controls::TextLabel(this);
             fixedLayoutLabel_->setObjectName(QStringLiteral("meterProbeFixedLayoutLabel"));
             fixedLayoutLabel_->setMinimumHeight(WinJACKNexus::UI::Controls::sidebarControlHeight);
             fixedLayoutLabel_->setWordWrap(true);
-            form->addRow(QStringLiteral("声道布局"), fixedLayoutLabel_);
+            form->addRow(probeLabel("probe.layout", "Channel layout", this), fixedLayoutLabel_);
         }
         layout->addLayout(form);
 
         if (kind_ == ProbeKind::custom) {
-            auto* channelTitle = new WinJACKNexus::UI::Controls::TextLabel(QStringLiteral("通道设置"), this);
+            auto* channelTitle = probeLabel("probe.channelSettings", "Channel settings", this);
             layout->addWidget(channelTitle);
 
             channelTable_ = new WinJACKNexus::UI::Controls::TableField(this);
             channelTable_->setObjectName(QStringLiteral("meterProbeChannelTable"));
             channelTable_->setColumnCount(4);
             channelTable_->setHorizontalHeaderLabels({
-                QStringLiteral("端口"),
-                QStringLiteral("名称"),
-                QStringLiteral("角色"),
+                probeText("probe.port", "Port"),
+                probeText("probe.name", "Name"),
+                probeText("probe.role", "Role"),
                 QStringLiteral("LFE")
             });
             channelTable_->verticalHeader()->setVisible(false);
@@ -656,7 +684,8 @@ public:
         }
 
         auto* actionRow = new QHBoxLayout;
-        applyButton_ = new WinJACKNexus::UI::Controls::ActionButton(QStringLiteral("应用"), this);
+        applyButton_ = new WinJACKNexus::UI::Controls::ActionButton(probeText("probe.apply", "Apply"), this);
+        WinJACKNexus::UI::bindLocalizedText(applyButton_,"text","meterbridge","probe.apply","Apply");
         applyButton_->setObjectName(QStringLiteral("meterProbeApplyButton"));
         applyButton_->setFixedHeight(WinJACKNexus::UI::Controls::sidebarControlHeight);
         statusLabel_ = new WinJACKNexus::UI::Controls::TextLabel(this);
@@ -672,6 +701,8 @@ public:
                     [this](int channelCount) { rebuildChannelTable(static_cast<std::size_t>(channelCount)); });
         }
         refresh();
+        if (auto* manager = WinJACKNexus::UI::I18nManager::installed())
+            manager->bind(this,[this] { refreshLocalizedDisplay(); });
     }
 
     void refresh()
@@ -680,6 +711,7 @@ public:
             return;
 
         const auto settings = settingsProvider_();
+        displayedSettings_ = settings;
         const QSignalBlocker clientNameBlocker(clientNameEditor_);
         const QSignalBlocker autoResetBlocker(autoResetCheckBox_);
         clientNameEditor_->setText(QString::fromUtf8(settings.clientName.c_str()));
@@ -692,30 +724,54 @@ public:
         } else if (fixedLayoutLabel_ != nullptr) {
             fixedLayoutLabel_->setText(layoutDescription(settings));
         }
+        displayStatus_ = 0;
         statusLabel_->clear();
     }
 
 private:
+    void refreshLocalizedDisplay() {
+        if (fixedLayoutLabel_) fixedLayoutLabel_->setText(layoutDescription(displayedSettings_));
+        if (channelTable_) {
+            const QSignalBlocker blocker(channelTable_);
+            channelTable_->setHorizontalHeaderLabels({probeText("probe.port","Port"),probeText("probe.name","Name"),probeText("probe.role","Role"),QStringLiteral("LFE")});
+            for (int row = 0; row < channelTable_->rowCount(); ++row) {
+                if (auto* editor = qobject_cast<QComboBox*>(channelTable_->cellWidget(row,2))) {
+                    const QSignalBlocker roleBlocker(editor);
+                    for (int index = 0; index < editor->count(); ++index)
+                        editor->setItemText(index,probeRoleText(editor->itemData(index).toByteArray().constData()));
+                }
+            }
+        }
+        refreshStatus();
+    }
+    void refreshStatus() {
+        switch (displayStatus_) {
+        case 1: statusLabel_->setText(probeText("probe.unavailable","Settings unavailable")); break;
+        case 2: statusLabel_->setText(probeText("probe.applyFailure","Unable to apply settings")); break;
+        case 3: statusLabel_->setText(probeText("probe.applied","Applied")); break;
+        default: statusLabel_->clear(); break;
+        }
+    }
+
     struct RoleOption final {
         const char* id;
-        const char* label;
     };
 
     static constexpr std::array roleOptions {
-        RoleOption { "unassigned", "未分配" },
-        RoleOption { "mono", "单声道 (M)" },
-        RoleOption { "frontLeft", "前左 (L)" },
-        RoleOption { "frontRight", "前右 (R)" },
-        RoleOption { "frontCenter", "前中 (C)" },
-        RoleOption { "sideLeft", "侧左 (Ls)" },
-        RoleOption { "sideRight", "侧右 (Rs)" },
-        RoleOption { "rearLeft", "后左 (Lb)" },
-        RoleOption { "rearRight", "后右 (Rb)" },
-        RoleOption { "topFrontLeft", "顶部前左" },
-        RoleOption { "topFrontRight", "顶部前右" },
-        RoleOption { "topRearLeft", "顶部后左" },
-        RoleOption { "topRearRight", "顶部后右" },
-        RoleOption { "lfe", "低频效果 (LFE)" }
+        RoleOption { "unassigned" },
+        RoleOption { "mono" },
+        RoleOption { "frontLeft" },
+        RoleOption { "frontRight" },
+        RoleOption { "frontCenter" },
+        RoleOption { "sideLeft" },
+        RoleOption { "sideRight" },
+        RoleOption { "rearLeft" },
+        RoleOption { "rearRight" },
+        RoleOption { "topFrontLeft" },
+        RoleOption { "topFrontRight" },
+        RoleOption { "topRearLeft" },
+        RoleOption { "topRearRight" },
+        RoleOption { "lfe" }
     };
 
     static QString layoutDescription(const ProbeSettings& settings)
@@ -723,7 +779,7 @@ private:
         QStringList names;
         for (std::size_t index = 0; index < settings.channelCount; ++index)
             names.append(QString::fromUtf8(settings.channels[index].name.c_str()));
-        return QStringLiteral("固定：%1（%2 声道）")
+        return probeText("probe.fixedLayout", "Fixed: %1 (%2 channels)")
             .arg(names.join(QStringLiteral(" / ")))
             .arg(static_cast<int>(settings.channelCount));
     }
@@ -777,7 +833,7 @@ private:
             roleEditor->setObjectName(QStringLiteral("meterProbeChannelRoleEditor"));
             roleEditor->setFixedHeight(WinJACKNexus::UI::Controls::sidebarControlHeight);
             for (const auto& option : roleOptions)
-                roleEditor->addItem(QString::fromUtf8(option.label), QString::fromLatin1(option.id));
+                roleEditor->addItem(probeRoleText(option.id), QString::fromLatin1(option.id));
             const auto roleIndex = roleEditor->findData(QString::fromLatin1(roleId(channel.role)));
             roleEditor->setCurrentIndex(roleIndex >= 0 ? roleIndex : 0);
             channelTable_->setCellWidget(row, 2, roleEditor);
@@ -799,7 +855,7 @@ private:
     void apply()
     {
         if (!applyHandler_) {
-            statusLabel_->setText(QStringLiteral("设置不可用"));
+            displayStatus_ = 1; refreshStatus();
             return;
         }
 
@@ -807,14 +863,16 @@ private:
         if (kind_ == ProbeKind::custom && channelCountSpinBox_ != nullptr)
             resizeCustomLayout(settings, static_cast<std::size_t>(channelCountSpinBox_->value()));
         if (!applyHandler_(settings)) {
-            statusLabel_->setText(QStringLiteral("未能应用设置"));
+            displayStatus_ = 2; refreshStatus();
             return;
         }
 
         refresh();
-        statusLabel_->setText(QStringLiteral("已应用"));
+        statusLabel_->setText(probeText("probe.applied", "Applied"));
     }
 
+    ProbeSettings displayedSettings_;
+    int displayStatus_ = 0;
     ProbeKind kind_;
     SettingsProvider settingsProvider_;
     ApplyHandler applyHandler_;

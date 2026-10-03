@@ -397,6 +397,7 @@ MeterViewSnapshot MockMeterDataProvider::makeSnapshot(std::uint16_t previewIndex
     snapshot.globalSettings = globalSettings_;
     snapshot.csvPreview.logRootDirectory = globalSettings_.logRootDirectory;
     snapshot.csvPreview.activeFilePath = QStringLiteral("%1/%2-preview.csv").arg(globalSettings_.logRootDirectory, snapshot.instanceId);
+    snapshot.csvPreview.statusKind = snapshot.recordingEnabled ? MeterCsvStatusKind::previewRecording : MeterCsvStatusKind::previewIdle;
     snapshot.csvPreview.rotationStatus = snapshot.recordingEnabled
         ? QStringLiteral("预览记录已启用；轮换间隔：60 分钟")
         : QStringLiteral("预览记录空闲；不会写入文件");

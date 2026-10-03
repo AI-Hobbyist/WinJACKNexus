@@ -15,6 +15,7 @@
  */
 #include <WinJACKNexus/Meter/Mod/MeterSettingsWidget.hpp>
 #include <WinJACKNexus/UI/Controls.hpp>
+#include <WinJACKNexus/UI/LocalizedText.hpp>
 
 #include <QCheckBox>
 #include <QComboBox>
@@ -38,6 +39,17 @@ namespace WinJACKNexus::Meter::Mod {
 
 namespace Controls = WinJACKNexus::UI::Controls;
 
+namespace {
+using WinJACKNexus::UI::bindLocalizedText;
+using WinJACKNexus::UI::localizedText;
+Controls::TextLabel* settingsLabel(const char* key, const char* english, QWidget* parent) {
+    auto* label = new Controls::TextLabel({}, parent);
+    bindLocalizedText(label, "text", "meterbridge", key, english);
+    return label;
+}
+}
+
+
 MeterSettingsWidget::MeterSettingsWidget(MeterViewDataProvider& provider,
                                          std::function<void()> requestRefresh,
                                          QWidget* parent)
@@ -54,7 +66,8 @@ MeterSettingsWidget::MeterSettingsWidget(MeterViewDataProvider& provider,
     rootLayout->setContentsMargins(8, 8, 8, 8);
     rootLayout->setSpacing(8);
 
-    auto* globalGroup = new Controls::GroupPanel(QStringLiteral("显示设置"), this);
+    auto* globalGroup = new Controls::GroupPanel(localizedText("meterbridge", "settings.display", "Display settings"), this);
+    bindLocalizedText(globalGroup, "title", "meterbridge", "settings.display", "Display settings");
     globalGroup->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
     globalGroup->setObjectName(QStringLiteral("meterSettings.globalGroup"));
     auto* globalLayout = new QFormLayout(globalGroup);
@@ -64,49 +77,57 @@ MeterSettingsWidget::MeterSettingsWidget(MeterViewDataProvider& provider,
     silenceThresholdSpinBox_ = new Controls::DecimalField(globalGroup);
     silenceThresholdSpinBox_->setFixedHeight(Controls::sidebarControlHeight);
     silenceThresholdSpinBox_->setObjectName(QStringLiteral("meterSettings.silenceThreshold"));
-    silenceThresholdSpinBox_->setAccessibleName(QStringLiteral("静音阈值"));
+    bindLocalizedText(silenceThresholdSpinBox_, "accessibleName", "meterbridge", "settings.threshold", "Silence threshold");
     silenceThresholdSpinBox_->setRange(-144.0, 0.0);
     silenceThresholdSpinBox_->setDecimals(1);
     silenceThresholdSpinBox_->setSuffix(QStringLiteral(" dBFS"));
-    globalLayout->addRow(QStringLiteral("静音阈值"), silenceThresholdSpinBox_);
+    globalLayout->addRow(settingsLabel("settings.threshold", "Silence threshold", globalGroup), silenceThresholdSpinBox_);
 
     silenceDurationSpinBox_ = new Controls::DecimalField(globalGroup);
     silenceDurationSpinBox_->setFixedHeight(Controls::sidebarControlHeight);
     silenceDurationSpinBox_->setObjectName(QStringLiteral("meterSettings.silenceDuration"));
-    silenceDurationSpinBox_->setAccessibleName(QStringLiteral("静音时长"));
+    bindLocalizedText(silenceDurationSpinBox_, "accessibleName", "meterbridge", "settings.duration", "Silence duration");
     silenceDurationSpinBox_->setRange(0.1, 60.0);
     silenceDurationSpinBox_->setDecimals(1);
-    silenceDurationSpinBox_->setSuffix(QStringLiteral(" 秒"));
-    globalLayout->addRow(QStringLiteral("静音时长"), silenceDurationSpinBox_);
+    silenceDurationSpinBox_->setSuffix(QStringLiteral(" s"));
+    globalLayout->addRow(settingsLabel("settings.duration", "Silence duration", globalGroup), silenceDurationSpinBox_);
 
     logRootDirectoryEdit_ = new Controls::TextField(globalGroup);
     logRootDirectoryEdit_->setFixedHeight(Controls::sidebarControlHeight);
     logRootDirectoryEdit_->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
     logRootDirectoryEdit_->setObjectName(QStringLiteral("meterSettings.logRoot"));
-    logRootDirectoryEdit_->setAccessibleName(QStringLiteral("CSV 日志根目录"));
-    logRootDirectoryEdit_->setToolTip(QStringLiteral("实时 CSV 记录的保存根目录；PNG 导出单独选择位置。留空时不写入 CSV。"));
-    globalLayout->addRow(QStringLiteral("CSV 目录"), logRootDirectoryEdit_);
+    bindLocalizedText(logRootDirectoryEdit_, "accessibleName", "meterbridge", "settings.logRoot", "CSV log root directory");
+    bindLocalizedText(logRootDirectoryEdit_, "toolTip", "meterbridge", "settings.logHelp", "Root directory for live CSV logs. Choose the PNG export location separately. Leave empty to disable CSV output.");
+    globalLayout->addRow(settingsLabel("settings.csvDirectory", "CSV directory", globalGroup), logRootDirectoryEdit_);
     rootLayout->addWidget(globalGroup);
 
-    customChannelsGroup_ = new Controls::GroupPanel(QStringLiteral("自定义声道"), this);
+    customChannelsGroup_ = new Controls::GroupPanel(localizedText("meterbridge", "settings.customChannels", "Custom channels"), this);
+    bindLocalizedText(customChannelsGroup_, "title", "meterbridge", "settings.customChannels", "Custom channels");
     customChannelsGroup_->setObjectName(QStringLiteral("meterSettings.customChannels"));
     auto* customLayout = new QVBoxLayout(customChannelsGroup_);
     customLayout->setContentsMargins(6, 8, 6, 6);
     auto* countLayout = new QHBoxLayout;
-    countLayout->addWidget(new Controls::TextLabel(QStringLiteral("声道数"), customChannelsGroup_));
+    countLayout->addWidget(settingsLabel("settings.channelCount", "Channel count", customChannelsGroup_));
     customChannelCountSpinBox_ = new Controls::IntegerField(customChannelsGroup_);
     customChannelCountSpinBox_->setFixedHeight(Controls::sidebarControlHeight);
     customChannelCountSpinBox_->setObjectName(QStringLiteral("meterSettings.channelCount"));
-    customChannelCountSpinBox_->setAccessibleName(QStringLiteral("自定义声道数量"));
+    bindLocalizedText(customChannelCountSpinBox_, "accessibleName", "meterbridge", "settings.customCount", "Custom channel count");
     customChannelCountSpinBox_->setRange(1, maximumMeterChannelCount);
     countLayout->addWidget(customChannelCountSpinBox_, 1);
     customLayout->addLayout(countLayout);
 
     channelTable_ = new Controls::TableField(customChannelsGroup_);
     channelTable_->setObjectName(QStringLiteral("meterSettings.channelTable"));
-    channelTable_->setAccessibleName(QStringLiteral("自定义声道分配"));
+    bindLocalizedText(channelTable_, "accessibleName", "meterbridge", "settings.assignment", "Custom channel assignment");
     channelTable_->setColumnCount(3);
-    channelTable_->setHorizontalHeaderLabels({ QStringLiteral("名称"), QStringLiteral("角色"), QStringLiteral("LFE") });
+    channelTable_->setHorizontalHeaderLabels({ localizedText("meterbridge", "settings.name", "Name"), localizedText("meterbridge", "settings.role", "Role"), QStringLiteral("LFE") });
+    if (auto* manager = WinJACKNexus::UI::I18nManager::installed())
+        manager->bind(channelTable_, [this] {
+            const QSignalBlocker blocker(channelTable_);
+            channelTable_->setHorizontalHeaderLabels({
+                localizedText("meterbridge", "settings.name", "Name"),
+                localizedText("meterbridge", "settings.role", "Role"), QStringLiteral("LFE") });
+        });
     channelTable_->verticalHeader()->setVisible(false);
     channelTable_->horizontalHeader()->setStretchLastSection(false);
     channelTable_->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
@@ -227,7 +248,11 @@ void MeterSettingsWidget::rebuildChannelTable(const MeterViewSnapshot& snapshot)
 
         auto* lfeCheckBox = new Controls::ToggleField({}, channelTable_);
         lfeCheckBox->setObjectName(QStringLiteral("meterSettings.channelLfe.%1").arg(index));
-        lfeCheckBox->setAccessibleName(QStringLiteral("声道 %1 的 LFE 标记").arg(index + 1));
+        const auto updateLfeName = [lfeCheckBox, index] {
+            lfeCheckBox->setAccessibleName(localizedText("meterbridge", "settings.channelLfe", "LFE flag for channel %1").arg(index + 1));
+        };
+        if (auto* manager = WinJACKNexus::UI::I18nManager::installed()) manager->bind(lfeCheckBox, updateLfeName);
+        else updateLfeName();
         lfeCheckBox->setChecked(channel.isLfe);
         lfeCheckBox->setEnabled(channelLayoutEditable_);
         channelTable_->setCellWidget(row, 2, lfeCheckBox);

@@ -426,6 +426,10 @@ std::vector<MeterViewSnapshot> LiveMeterDataProvider::snapshots(bool includeHist
         snapshot.csvPreview.rotationStatus = state.recordingEnabled
             ? (csvStatus.rotationStatus.isEmpty() ? QStringLiteral("CSV 等待第一条记录") : csvStatus.rotationStatus)
             : QStringLiteral("CSV 记录已停止");
+        snapshot.csvPreview.statusKind = !state.recordingEnabled ? MeterCsvStatusKind::stopped
+            : csvStatus.rotationStatus.isEmpty() ? MeterCsvStatusKind::waiting : csvStatus.statusKind;
+        snapshot.csvPreview.statusDetail = csvStatus.statusDetail;
+        snapshot.csvPreview.droppedRecordCount = csvStatus.droppedRecordCount;
         snapshot.channelLayoutEditable = false;
         snapshot.channels.reserve(descriptor.channelCount);
         for (std::size_t index = 0; index < descriptor.channelCount; ++index) {

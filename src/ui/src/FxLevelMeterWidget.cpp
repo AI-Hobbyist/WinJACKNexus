@@ -1,8 +1,10 @@
+#include <WinJACKNexus/UI/LocalizedText.hpp>
 #include <WinJACKNexus/UI/FxLevelMeterWidget.hpp>
 #include <WinJACKNexus/UI/ApplicationSettings.hpp>
 #include <WinJACKNexus/UI/Controls.hpp>
 
 #include <QPainter>
+#include <QFontMetrics>
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -15,6 +17,8 @@ constexpr double maximumDb = 12.0;
 }
 
 FxLevelMeterWidget::FxLevelMeterWidget(QWidget* parent) : QWidget(parent) {
+    if (auto* manager = I18nManager::installed())
+        manager->bind(this, [this] { update(); });
     setObjectName(QStringLiteral("fxLevelMeter"));
     setMinimumHeight(82);
     animationTimer_.setParent(this);
@@ -82,7 +86,11 @@ void FxLevelMeterWidget::setLevels(double inputDb, double outputDb) {
 }
 
 QRectF FxLevelMeterWidget::barRect(int row) const noexcept {
-    return {34.0, row == 0 ? 7.0 : 34.0, std::max(1.0, width() - 43.0), 17.0};
+    const QFontMetrics metrics(font());
+    const auto labelWidth = std::max(metrics.horizontalAdvance(localizedText("fxhost", "endpoint.input", "Input")),
+                                     metrics.horizontalAdvance(localizedText("fxhost", "endpoint.output", "Output"))) + 5;
+    const auto left = std::max(34, labelWidth);
+    return {static_cast<qreal>(left), row == 0 ? 7.0 : 34.0, std::max(1.0, width() - left - 9.0), 17.0};
 }
 
 qreal FxLevelMeterWidget::positionForDb(double db) const noexcept {
@@ -104,8 +112,8 @@ void FxLevelMeterWidget::paintEvent(QPaintEvent*) {
     for (int row = 0; row < 2; ++row) {
         const QRectF bar = barRect(row);
         painter.setPen(themed("meter-level-label",QColor("#afc7e5")));
-        painter.drawText(QRectF(0, bar.top(), 29, bar.height()), Qt::AlignVCenter | Qt::AlignLeft,
-                         row == 0 ? QStringLiteral("输入") : QStringLiteral("输出"));
+        painter.drawText(QRectF(0, bar.top(), bar.left() - 5, bar.height()), Qt::AlignVCenter | Qt::AlignLeft,
+                         row == 0 ? localizedText("fxhost", "endpoint.input", "Input") : localizedText("fxhost", "endpoint.output", "Output"));
         const double value = row == 0 ? displayInputDb_ : displayOutputDb_;
         Controls::MeterStyle style;
         style.minimumDb = minimumDb;

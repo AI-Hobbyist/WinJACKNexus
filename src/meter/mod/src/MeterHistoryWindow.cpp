@@ -14,12 +14,14 @@
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 #include <WinJACKNexus/Meter/Mod/MeterHistoryWindow.hpp>
+#include <WinJACKNexus/Meter/Mod/LocalizedDisplay.hpp>
 
 #include <WinJACKNexus/Common/MeterLoudnessPresetCatalog.hpp>
 #include <WinJACKNexus/Common/MeterCustomLoudnessPresets.hpp>
 #include <WinJACKNexus/Meter/Mod/MeterSettingsWidget.hpp>
 #include <WinJACKNexus/UI/ApplicationSettings.hpp>
 #include <WinJACKNexus/UI/Controls.hpp>
+#include <WinJACKNexus/UI/LocalizedText.hpp>
 #include <WinJACKNexus/UI/HistoryChartWidget.hpp>
 #include <WinJACKNexus/UI/HistoryLegendWidget.hpp>
 #include <WinJACKNexus/UI/MetricStatisticsWidget.hpp>
@@ -44,6 +46,7 @@
 #include <QHBoxLayout>
 #include <QHideEvent>
 #include <QLabel>
+#include <QLineEdit>
 #include <QMessageBox>
 #include <QPainter>
 #include <QSlider>
@@ -68,6 +71,37 @@
 namespace WinJACKNexus::Meter::Mod {
 
 namespace {
+
+using WinJACKNexus::UI::bindLocalizedText;
+using WinJACKNexus::UI::I18nManager;
+QString historyText(const char* key, const char* english) {
+    return WinJACKNexus::UI::localizedText("meterbridge", key, english);
+}
+WinJACKNexus::UI::Controls::TextLabel* historyLabel(const char* key, const char* english, QWidget* parent) {
+    auto* result = new WinJACKNexus::UI::Controls::TextLabel({}, parent);
+    bindLocalizedText(result, "text", "meterbridge", key, english);
+    return result;
+}
+
+
+QString csvDisplayText(const MeterCsvPreviewState& status) {
+    switch (status.statusKind) {
+    case MeterCsvStatusKind::waiting: return historyText("csv.waiting", "CSV waiting for the first record");
+    case MeterCsvStatusKind::stopped: return historyText("csv.stopped", "CSV recording stopped");
+    case MeterCsvStatusKind::recording: return historyText("csv.recording", "CSV recording");
+    case MeterCsvStatusKind::queueFull: return historyText("csv.queueFull", "CSV write queue is full; %1 records dropped").arg(static_cast<qulonglong>(status.droppedRecordCount));
+    case MeterCsvStatusKind::writerClosed: return historyText("csv.writerClosed", "CSV writer closed");
+    case MeterCsvStatusKind::sessionClosed: return historyText("csv.sessionClosed", "CSV session closed; waiting for the next record");
+    case MeterCsvStatusKind::noDirectory: return historyText("csv.noDirectory", "CSV not written: log root directory is not set");
+    case MeterCsvStatusKind::directoryFailure: return historyText("csv.directoryFailure", "CSV not written: unable to create directory %1").arg(status.statusDetail);
+    case MeterCsvStatusKind::openFailure: return historyText("csv.openFailure", "CSV not written: unable to open file %1").arg(status.statusDetail);
+    case MeterCsvStatusKind::writeFailure: return historyText("csv.writeFailure", "CSV write failed: the disk may not be writable");
+    case MeterCsvStatusKind::previewRecording: return historyText("csv.previewRecording", "Preview recording enabled; rotation interval: 60 minutes");
+    case MeterCsvStatusKind::previewIdle: return historyText("csv.previewIdle", "Preview recording idle; no files will be written");
+    case MeterCsvStatusKind::unspecified: return status.rotationStatus;
+    }
+    return status.rotationStatus;
+}
 
 constexpr std::int64_t historyDataRefreshIntervalMilliseconds = 100;
 
@@ -98,16 +132,16 @@ struct SeriesDefinition final {
     WinJACKNexus::UI::HistoryChartAxis axis;
 };
 
-const std::array<SeriesDefinition, 8>& seriesDefinitions()
+std::array<SeriesDefinition, 8> seriesDefinitions()
 {
-    static const std::array definitions {
-        SeriesDefinition { QStringLiteral("peak"), QStringLiteral("峰值（Peak）"), QStringLiteral("dBFS"), QColor(QStringLiteral("#ff5269")), WinJACKNexus::UI::HistoryChartAxis::left },
-        SeriesDefinition { QStringLiteral("rms"), QStringLiteral("均方根（RMS）"), QStringLiteral("dBFS"), QColor(QStringLiteral("#ff8a47")), WinJACKNexus::UI::HistoryChartAxis::left },
-        SeriesDefinition { QStringLiteral("lfe"), QStringLiteral("LFE 峰值（LFE Peak）"), QStringLiteral("dBFS"), QColor(QStringLiteral("#ff78c7")), WinJACKNexus::UI::HistoryChartAxis::left },
+    const std::array definitions {
+        SeriesDefinition { QStringLiteral("peak"), historyText("history.peak", "Peak"), QStringLiteral("dBFS"), QColor(QStringLiteral("#ff5269")), WinJACKNexus::UI::HistoryChartAxis::left },
+        SeriesDefinition { QStringLiteral("rms"), historyText("history.rms", "RMS"), QStringLiteral("dBFS"), QColor(QStringLiteral("#ff8a47")), WinJACKNexus::UI::HistoryChartAxis::left },
+        SeriesDefinition { QStringLiteral("lfe"), historyText("history.lfe", "LFE peak"), QStringLiteral("dBFS"), QColor(QStringLiteral("#ff78c7")), WinJACKNexus::UI::HistoryChartAxis::left },
         SeriesDefinition { QStringLiteral("true-peak"), QStringLiteral("dBTP"), QStringLiteral("dBTP"), QColor(QStringLiteral("#ffd143")), WinJACKNexus::UI::HistoryChartAxis::left },
-        SeriesDefinition { QStringLiteral("momentary"), QStringLiteral("瞬时（Momentary）"), QStringLiteral("LUFS"), QColor(QStringLiteral("#43e88d")), WinJACKNexus::UI::HistoryChartAxis::left },
-        SeriesDefinition { QStringLiteral("short-term"), QStringLiteral("短时（Short-term）"), QStringLiteral("LUFS"), QColor(QStringLiteral("#48c9ff")), WinJACKNexus::UI::HistoryChartAxis::left },
-        SeriesDefinition { QStringLiteral("integrated"), QStringLiteral("综合（Integrated）"), QStringLiteral("LUFS"), QColor(QStringLiteral("#4b95ff")), WinJACKNexus::UI::HistoryChartAxis::left },
+        SeriesDefinition { QStringLiteral("momentary"), historyText("history.momentary", "Momentary"), QStringLiteral("LUFS"), QColor(QStringLiteral("#43e88d")), WinJACKNexus::UI::HistoryChartAxis::left },
+        SeriesDefinition { QStringLiteral("short-term"), historyText("history.shortTerm", "Short-term"), QStringLiteral("LUFS"), QColor(QStringLiteral("#48c9ff")), WinJACKNexus::UI::HistoryChartAxis::left },
+        SeriesDefinition { QStringLiteral("integrated"), historyText("history.integrated", "Integrated"), QStringLiteral("LUFS"), QColor(QStringLiteral("#4b95ff")), WinJACKNexus::UI::HistoryChartAxis::left },
         SeriesDefinition { QStringLiteral("lra"), QStringLiteral("LRA"), QStringLiteral("LU"), QColor(QStringLiteral("#b96aff")), WinJACKNexus::UI::HistoryChartAxis::right }
     };
     return definitions;
@@ -175,14 +209,14 @@ QString formatReferenceValue(double value)
 QString integratedReferenceLabel(const WinJACKNexus::Common::MeterLoudnessPreset& preset)
 {
     if (!preset.alternateTargetHighLufs.has_value())
-        return QStringLiteral("综合响度（Integrated） %1 LUFS").arg(formatReferenceValue(preset.targetIntegratedLufs));
-    return QStringLiteral("综合响度（Integrated） %1 至 %2 LUFS")
+        return historyText("reference.integrated", "Integrated loudness %1 LUFS").arg(formatReferenceValue(preset.targetIntegratedLufs));
+    return historyText("reference.range", "Integrated loudness %1 to %2 LUFS")
         .arg(formatReferenceValue(preset.targetIntegratedLufs), formatReferenceValue(*preset.alternateTargetHighLufs));
 }
 
 QString truePeakReferenceLabel(const WinJACKNexus::Common::MeterLoudnessPreset& preset)
 {
-    return QStringLiteral("最大真峰值（dBTP） %1 dBTP").arg(formatReferenceValue(preset.maximumTruePeakDbtp));
+    return historyText("reference.truePeak", "Maximum true peak %1 dBTP").arg(formatReferenceValue(preset.maximumTruePeakDbtp));
 }
 
 }
@@ -222,10 +256,10 @@ MeterHistoryWindow::MeterHistoryWindow(MeterViewDataProvider& provider,
     returnButton->setObjectName(QStringLiteral("meterHistory.returnButton"));
     returnButton->setProperty("meterHistoryControl", QStringLiteral("action"));
     returnButton->setIcon(style()->standardIcon(QStyle::SP_ArrowBack));
-    returnButton->setText(QStringLiteral("返回电平表桥"));
+    bindLocalizedText(returnButton, "text", "meterbridge", "history.return", "Return to meter bridge");
     returnButton->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
     returnButton->setFixedHeight(Controls::sidebarControlHeight);
-    returnButton->setToolTip(QStringLiteral("返回电平表桥窗口"));
+    bindLocalizedText(returnButton, "toolTip", "meterbridge", "history.returnHelp", "Return to the meter bridge window");
     if (settingsLayout != nullptr)
         settingsLayout->insertWidget(0, returnButton);
     connect(returnButton, &QToolButton::clicked, this, [this] {
@@ -236,19 +270,19 @@ MeterHistoryWindow::MeterHistoryWindow(MeterViewDataProvider& provider,
     viewModeSelector_ = new Controls::ChoiceField(settingsWidget_);
     Controls::applyPalette(viewModeSelector_, controlColors);
     viewModeSelector_->setObjectName(QStringLiteral("meterHistory.viewMode"));
-    viewModeSelector_->setAccessibleName(QStringLiteral("历史刷新形式"));
+    bindLocalizedText(viewModeSelector_, "accessibleName", "meterbridge", "history.modeAccessible", "History refresh mode");
     viewModeSelector_->setFixedHeight(Controls::sidebarControlHeight);
     viewModeSelector_->setMinimumWidth(180);
-    viewModeSelector_->addItem(QStringLiteral("滚动（实时滚动）"), static_cast<int>(MeterHistoryViewMode::realtimeScroll));
-    viewModeSelector_->addItem(QStringLiteral("扫描"), static_cast<int>(MeterHistoryViewMode::scanning));
+    viewModeSelector_->addItem(historyText("history.scroll", "Scroll (live)"), static_cast<int>(MeterHistoryViewMode::realtimeScroll));
+    viewModeSelector_->addItem(historyText("history.scan", "Scan"), static_cast<int>(MeterHistoryViewMode::scanning));
 
     timeWindowSpinBox_ = new Controls::IntegerField(settingsWidget_);
     timeWindowSpinBox_->setObjectName(QStringLiteral("meterHistory.timeWindow"));
-    timeWindowSpinBox_->setAccessibleName(QStringLiteral("历史时间窗口（秒）"));
+    bindLocalizedText(timeWindowSpinBox_, "accessibleName", "meterbridge", "history.windowAccessible", "History time window (seconds)");
     timeWindowSpinBox_->setFixedHeight(Controls::sidebarControlHeight);
     timeWindowSpinBox_->setRange(static_cast<int>(minimumMeterHistoryWindowMilliseconds / 1000),
                                   static_cast<int>(maximumMeterHistoryWindowMilliseconds / 1000));
-    timeWindowSpinBox_->setSuffix(QStringLiteral(" 秒"));
+    timeWindowSpinBox_->setSuffix(QStringLiteral(" s"));
     timeWindowSpinBox_->setValue(static_cast<int>(defaultMeterHistoryWindowMilliseconds / 1000));
 
     auto* displaySettingsGroup = settingsWidget_->findChild<QGroupBox*>(QStringLiteral("meterSettings.globalGroup"));
@@ -256,21 +290,22 @@ MeterHistoryWindow::MeterHistoryWindow(MeterViewDataProvider& provider,
         ? qobject_cast<QFormLayout*>(displaySettingsGroup->layout())
         : nullptr;
     if (displaySettingsLayout != nullptr) {
-        displaySettingsLayout->addRow(QStringLiteral("刷新形式"), viewModeSelector_);
-        displaySettingsLayout->addRow(QStringLiteral("时间窗口"), timeWindowSpinBox_);
+        displaySettingsLayout->addRow(historyLabel("history.mode", "Refresh mode", displaySettingsGroup), viewModeSelector_);
+        displaySettingsLayout->addRow(historyLabel("history.window", "Time window", displaySettingsGroup), timeWindowSpinBox_);
     }
 
-    auto* seriesGroup = new Controls::GroupPanel(QStringLiteral("曲线显示"), settingsWidget_);
+    auto* seriesGroup = new Controls::GroupPanel(historyText("history.series", "Series visibility"), settingsWidget_);
+    bindLocalizedText(seriesGroup, "title", "meterbridge", "history.series", "Series visibility");
     seriesGroup->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
     seriesGroup->setObjectName(QStringLiteral("meterHistory.seriesGroup"));
     auto* seriesLayout = new QVBoxLayout(seriesGroup);
     seriesLayout->setContentsMargins(8, 10, 8, 6);
     seriesLayout->setSpacing(2);
     for (std::size_t index = 0; index < seriesDefinitions().size(); ++index) {
-        const auto& definition = seriesDefinitions()[index];
+        const auto definition = seriesDefinitions()[index];
         auto* checkBox = new Controls::ToggleField(definition.label, seriesGroup);
         checkBox->setObjectName(QStringLiteral("meterHistory.series.%1").arg(definition.id));
-        checkBox->setAccessibleName(QStringLiteral("显示 %1 曲线").arg(definition.label));
+        checkBox->setAccessibleName(historyText("history.seriesAccessible", "Show %1 series").arg(definition.label));
         checkBox->setChecked(true);
         auto seriesColors = controlColors;
         seriesColors.text = seriesThemeColor(definition);
@@ -301,7 +336,8 @@ MeterHistoryWindow::MeterHistoryWindow(MeterViewDataProvider& provider,
         std::pair { QStringLiteral("integrated"), integratedReferenceLabel(initialReferencePreset) },
         std::pair { QStringLiteral("dbtp"), truePeakReferenceLabel(initialReferencePreset) }
     };
-    auto* referenceGroup = new Controls::GroupPanel(QStringLiteral("参考线"), settingsWidget_);
+    auto* referenceGroup = new Controls::GroupPanel(historyText("history.references", "Reference lines"), settingsWidget_);
+    bindLocalizedText(referenceGroup, "title", "meterbridge", "history.references", "Reference lines");
     referenceGroup->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
     referenceGroup->setObjectName(QStringLiteral("meterHistory.referenceGroup"));
     auto* referenceLayout = new QVBoxLayout(referenceGroup);
@@ -312,7 +348,7 @@ MeterHistoryWindow::MeterHistoryWindow(MeterViewDataProvider& provider,
         auto* checkBox = new Controls::ToggleField(label, referenceGroup);
         Controls::applyPalette(checkBox, controlColors);
         checkBox->setObjectName(QStringLiteral("meterHistory.reference.%1").arg(id));
-        checkBox->setAccessibleName(QStringLiteral("显示 %1 参考线").arg(label));
+        checkBox->setAccessibleName(historyText("history.referenceAccessible", "Show %1 reference line").arg(label));
         checkBox->setChecked(true);
         referenceLineVisibility_.insert(id, true);
         referenceLineCheckBoxes_[index] = checkBox;
@@ -341,12 +377,12 @@ MeterHistoryWindow::MeterHistoryWindow(MeterViewDataProvider& provider,
     auto* controls = new QHBoxLayout(controlsFrame);
     controls->setContentsMargins(10, 6, 10, 6);
     controls->setSpacing(6);
-    controls->addWidget(new Controls::TextLabel(QStringLiteral("通道"), controlsFrame));
+    controls->addWidget(historyLabel("history.channel", "Channel", controlsFrame));
     channelSelector_ = new Controls::ChoiceField(controlsFrame);
     Controls::applyPalette(channelSelector_, controlColors);
     channelSelector_->setObjectName(QStringLiteral("meterHistory.channelSelector"));
-    channelSelector_->setAccessibleName(QStringLiteral("历史图表通道"));
-    channelSelector_->setToolTip(QStringLiteral("切换要查看的模拟通道历史"));
+    bindLocalizedText(channelSelector_, "accessibleName", "meterbridge", "history.channelAccessible", "History chart channel");
+    bindLocalizedText(channelSelector_, "toolTip", "meterbridge", "history.channelHelp", "Choose the channel history to view");
     channelSelector_->setMinimumContentsLength(14);
     channelSelector_->setMinimumWidth(270);
     channelSelector_->setMaximumWidth(420);
@@ -359,21 +395,24 @@ MeterHistoryWindow::MeterHistoryWindow(MeterViewDataProvider& provider,
     scanCursorSlider_ = new Controls::RangeSlider(Qt::Horizontal, chartSurface);
     Controls::applyPalette(scanCursorSlider_, controlColors);
     scanCursorSlider_->setObjectName(QStringLiteral("meterHistory.scanCursor"));
-    scanCursorSlider_->setAccessibleName(QStringLiteral("扫描游标"));
+    bindLocalizedText(scanCursorSlider_, "accessibleName", "meterbridge", "history.cursor", "Scan cursor");
     scanCursorSlider_->setMinimumWidth(150);
     scanCursorSlider_->setFixedHeight(Controls::sidebarControlHeight);
     controls->addWidget(scanCursorSlider_);
 
-    pauseAction_ = new QAction(style()->standardIcon(QStyle::SP_MediaPause), QStringLiteral("暂停"), this);
+    pauseAction_ = new QAction(style()->standardIcon(QStyle::SP_MediaPause), historyText("history.pause", "Pause"), this);
+    bindLocalizedText(pauseAction_, "text", "meterbridge", "history.pause", "Pause");
     pauseAction_->setObjectName(QStringLiteral("meterHistory.pauseAction"));
     pauseAction_->setCheckable(true);
-    pauseAction_->setToolTip(QStringLiteral("冻结历史视图，不停止模拟测量"));
-    clearAction_ = new QAction(style()->standardIcon(QStyle::SP_TrashIcon), QStringLiteral("清空数据"), this);
+    bindLocalizedText(pauseAction_, "toolTip", "meterbridge", "history.pauseHelp", "Freeze the history view while measurement continues");
+    clearAction_ = new QAction(style()->standardIcon(QStyle::SP_TrashIcon), historyText("history.clear", "Clear history"), this);
+    bindLocalizedText(clearAction_, "text", "meterbridge", "history.clear", "Clear history");
     clearAction_->setObjectName(QStringLiteral("meterHistory.clearAction"));
-    clearAction_->setToolTip(QStringLiteral("清空模拟历史，不重置响度"));
-    exportAction_ = new QAction(style()->standardIcon(QStyle::SP_DialogSaveButton), QStringLiteral("导出图表"), this);
+    bindLocalizedText(clearAction_, "toolTip", "meterbridge", "history.clearHelp", "Clear history while retaining loudness measurements");
+    exportAction_ = new QAction(style()->standardIcon(QStyle::SP_DialogSaveButton), historyText("history.export", "Export chart"), this);
+    bindLocalizedText(exportAction_, "text", "meterbridge", "history.export", "Export chart");
     exportAction_->setObjectName(QStringLiteral("meterHistory.exportAction"));
-    exportAction_->setToolTip(QStringLiteral("将当前可见图表保存为 PNG"));
+    bindLocalizedText(exportAction_, "toolTip", "meterbridge", "history.exportHelp", "Save the visible chart as PNG");
     auto* pauseButton = createActionButton(pauseAction_, QStringLiteral("meterHistory.pauseButton"), controlsFrame, controlColors);
     pauseButton->setProperty("meterHistoryControl", QStringLiteral("action"));
     auto* clearButton = createActionButton(clearAction_, QStringLiteral("meterHistory.clearButton"), controlsFrame, controlColors);
@@ -383,10 +422,10 @@ MeterHistoryWindow::MeterHistoryWindow(MeterViewDataProvider& provider,
     chartSettingsButton->setObjectName(QStringLiteral("meterHistory.chartSettingsButton"));
     chartSettingsButton->setProperty("meterHistoryControl", QStringLiteral("action"));
     chartSettingsButton->setIcon(style()->standardIcon(QStyle::SP_FileDialogDetailedView));
-    chartSettingsButton->setText(QStringLiteral("图表设置"));
+    bindLocalizedText(chartSettingsButton, "text", "meterbridge", "history.chartSettings", "Chart settings");
     chartSettingsButton->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
     chartSettingsButton->setFixedHeight(Controls::sidebarControlHeight);
-    chartSettingsButton->setToolTip(QStringLiteral("查看左侧图表设置"));
+    bindLocalizedText(chartSettingsButton, "toolTip", "meterbridge", "history.chartSettingsHelp", "Show chart settings on the left");
     connect(chartSettingsButton, &QToolButton::clicked, this, [this, splitter] {
         const auto totalWidth = std::max(1, splitter->width());
         splitter->setSizes({ 312, std::max(1, totalWidth - 312) });
@@ -401,9 +440,9 @@ MeterHistoryWindow::MeterHistoryWindow(MeterViewDataProvider& provider,
     chart_->setObjectName(QStringLiteral("meterHistory.chart"));
     chart_->setValueRange(-72.0, 12.0);
     chart_->setRightValueRange(0.0, 84.0);
-    chart_->setVerticalAxisLabel(QStringLiteral("电平（Level） / 响度（Loudness） (dB / LUFS)"));
+    chart_->setVerticalAxisLabel(historyText("history.levelAxis", "Level / Loudness (dB / LUFS)"));
     chart_->setRightVerticalAxisLabel(QStringLiteral("LRA (LU)"));
-    chart_->setHorizontalAxisLabel(QStringLiteral("系统时间"));
+    chart_->setHorizontalAxisLabel(historyText("history.timeAxis", "System time"));
     auto historyPalette = WinJACKNexus::UI::ThemePalette::darkRack();
     historyPalette.setColor(QStringLiteral("window-bg"), meterColor("surface-page", "#061523"));
     historyPalette.setColor(QStringLiteral("panel-bg"), meterColor("control-tab-surface-disabled", "#0a1d30"));
@@ -424,7 +463,7 @@ MeterHistoryWindow::MeterHistoryWindow(MeterViewDataProvider& provider,
     legend_->setThemePalette(historyPalette);
     rootLayout->addWidget(legend_);
 
-    auto* statisticsTitle = new Controls::TextLabel(QStringLiteral("统计信息（当前视图）"), chartSurface);
+    auto* statisticsTitle = historyLabel("history.statistics", "Statistics (current view)", chartSurface);
     statisticsTitle->setObjectName(QStringLiteral("meterHistory.statisticsTitle"));
     statisticsTitle->setStyleSheet(QStringLiteral("color: %1; font-weight: 600; padding: 3px 0;")
         .arg(meterCssColor("control-history-group-text", "#b8d7f6")));
@@ -435,7 +474,8 @@ MeterHistoryWindow::MeterHistoryWindow(MeterViewDataProvider& provider,
     statistics_->setThemePalette(historyPalette);
     rootLayout->addWidget(statistics_);
 
-    auto* csvGroup = new Controls::GroupPanel(QStringLiteral("实时记录到 CSV"), settingsWidget_);
+    auto* csvGroup = new Controls::GroupPanel(historyText("history.csv", "Live CSV recording"), settingsWidget_);
+    bindLocalizedText(csvGroup, "title", "meterbridge", "history.csv", "Live CSV recording");
     csvGroup->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
     auto* csvLayout = new QVBoxLayout(csvGroup);
     csvLayout->setContentsMargins(8, 10, 8, 6);
@@ -449,14 +489,15 @@ MeterHistoryWindow::MeterHistoryWindow(MeterViewDataProvider& provider,
     exportStatusLabel_ = new Controls::TextLabel(csvGroup);
     exportStatusLabel_->setObjectName(QStringLiteral("meterHistory.exportStatus"));
     exportStatusLabel_->setWordWrap(true);
-    recordingAction_ = new QAction(style()->standardIcon(QStyle::SP_MediaPlay), QStringLiteral("记录响度"), this);
+    recordingAction_ = new QAction(style()->standardIcon(QStyle::SP_MediaPlay), historyText("action.record", "Record loudness"), this);
     recordingAction_->setObjectName(QStringLiteral("meterHistory.recordingAction"));
     recordingAction_->setCheckable(true);
-    recordingAction_->setToolTip(QStringLiteral("切换模拟响度记录状态"));
-    recordingCheckBox_ = new Controls::ToggleField(QStringLiteral("启用实时记录到 CSV"), csvGroup);
+    bindLocalizedText(recordingAction_, "toolTip", "meterbridge", "history.recordHelp", "Start or stop loudness recording");
+    recordingCheckBox_ = new Controls::ToggleField(historyText("history.csvEnable", "Enable live CSV recording"), csvGroup);
     Controls::applyPalette(recordingCheckBox_, controlColors);
+    bindLocalizedText(recordingCheckBox_, "text", "meterbridge", "history.csvEnable", "Enable live CSV recording");
     recordingCheckBox_->setObjectName(QStringLiteral("meterHistory.recordingToggle"));
-    recordingCheckBox_->setAccessibleName(QStringLiteral("启用实时记录到 CSV"));
+    bindLocalizedText(recordingCheckBox_, "accessibleName", "meterbridge", "history.csvEnable", "Enable live CSV recording");
     auto* recordingButton = createActionButton(recordingAction_, QStringLiteral("meterHistory.recordingButton"), csvGroup, controlColors);
     recordingButton->hide();
     auto* exportButton = createActionButton(exportAction_, QStringLiteral("meterHistory.exportButton"), csvGroup, controlColors);
@@ -522,29 +563,55 @@ MeterHistoryWindow::MeterHistoryWindow(MeterViewDataProvider& provider,
         dispatch(std::move(command));
     });
     connect(clearAction_, &QAction::triggered, this, [this] {
-        if (QMessageBox::question(this,
-                                  QStringLiteral("清空历史数据"),
-                                  QStringLiteral("仅清空模拟历史数据，响度数值不会改变。"))
-            != QMessageBox::Yes)
-            return;
+        QMessageBox question(QMessageBox::Question, {}, {}, QMessageBox::Yes | QMessageBox::No, this);
+        bindLocalizedText(&question, "windowTitle", "meterbridge", "history.clearTitle", "Clear history data");
+        bindLocalizedText(&question, "text", "meterbridge", "history.clearConfirm", "Clear history data only. Loudness measurements will remain unchanged.");
+        if (question.exec() != QMessageBox::Yes) return;
         MeterViewCommand command;
         command.type = MeterViewCommandType::clearHistory;
         dispatch(std::move(command));
     });
     connect(exportAction_, &QAction::triggered, this, [this] {
-        QString path = QFileDialog::getSaveFileName(this, QStringLiteral("导出图表 PNG"),
-            QDir::homePath() + QStringLiteral("/meter-history-%1.png").arg(QDateTime::currentDateTime().toString(QStringLiteral("yyyyMMdd-HHmmss"))),
-            QStringLiteral("PNG 图像 (*.png)"));
+        QFileDialog chooser(this, {}, QDir::homePath() + QStringLiteral("/meter-history-%1.png").arg(
+            QDateTime::currentDateTime().toString(QStringLiteral("yyyyMMdd-HHmmss"))));
+        chooser.setObjectName(QStringLiteral("meterHistory.pngExportDialog"));
+        chooser.setOption(QFileDialog::DontUseNativeDialog);
+        chooser.setAcceptMode(QFileDialog::AcceptSave);
+        chooser.setFileMode(QFileDialog::AnyFile);
+        chooser.setDefaultSuffix(QStringLiteral("png"));
+        bindLocalizedText(&chooser, "windowTitle", "meterbridge", "history.exportTitle", "Export chart as PNG");
+        const auto refreshFilter = [&chooser] {
+            auto* edit = chooser.findChild<QLineEdit*>(QStringLiteral("fileNameEdit"));
+            const auto text = edit ? edit->text() : QString();
+            const auto cursor = edit ? edit->cursorPosition() : 0;
+            const auto selection = edit ? edit->selectionStart() : -1;
+            const auto length = edit ? edit->selectedText().size() : 0;
+            chooser.setNameFilter(historyText("history.pngFilter", "PNG images (*.png)"));
+            if (edit) {
+                const QSignalBlocker blocker(edit);
+                edit->setText(text);
+                if (selection >= 0) edit->setSelection(selection, length); else edit->setCursorPosition(cursor);
+            }
+        };
+        if (auto* manager = I18nManager::installed()) manager->bind(&chooser, refreshFilter); else refreshFilter();
+        QString path = chooser.exec() == QDialog::Accepted ? chooser.selectedFiles().value(0) : QString();
         if (path.isEmpty()) return;
         if (!path.endsWith(QStringLiteral(".png"), Qt::CaseInsensitive)) path += QStringLiteral(".png");
         const auto image = chart_->grab().toImage();
         QSaveFile file(path);
         if (image.isNull() || !file.open(QIODevice::WriteOnly) || !image.save(&file, "PNG") || !file.commit()) {
-            exportStatusLabel_->setText(QStringLiteral("PNG 导出失败：%1").arg(file.errorString()));
-            QMessageBox::warning(this, QStringLiteral("导出图表"), exportStatusLabel_->text());
+            exportStatus_ = 2; exportDetail_ = file.errorString(); refreshExportStatus();
+            QMessageBox message(QMessageBox::Warning, {}, {}, QMessageBox::Ok, this);
+            message.setTextFormat(Qt::PlainText);
+            bindLocalizedText(&message, "windowTitle", "meterbridge", "history.export", "Export chart");
+            const auto refresh = [this, &message] {
+                message.setText(historyText("history.exportFailure", "PNG export failed: %1").arg(exportDetail_));
+            };
+            if (auto* manager = I18nManager::installed()) manager->bind(&message, refresh); else refresh();
+            message.exec();
             return;
         }
-        exportStatusLabel_->setText(QStringLiteral("PNG 已保存：%1").arg(path));
+        exportStatus_ = 1; exportDetail_ = path; refreshExportStatus();
     });
     connect(recordingAction_, &QAction::toggled, this, [this](bool enabled) {
         MeterViewCommand command;
@@ -562,6 +629,8 @@ MeterHistoryWindow::MeterHistoryWindow(MeterViewDataProvider& provider,
                 command.enabled = visible;
                 dispatch(std::move(command));
             });
+    if (auto* manager = I18nManager::installed())
+        manager->bind(this, [this] { refreshLocalizedDisplay(); });
     applyTheme();
     new WinJACKNexus::UI::ThemeBackgroundOverlay(QStringLiteral("meter-bridge"), this);
     if (auto* core = WinJACKNexus::UI::ThemeManager::installedThemeCore())
@@ -699,15 +768,18 @@ void MeterHistoryWindow::setSnapshots(const std::vector<MeterViewSnapshot>& snap
     bool selectorChanged = channelSelector_->count() != static_cast<int>(snapshots.size());
     for (std::size_t index = 0; !selectorChanged && index < snapshots.size(); ++index) {
         const auto& snapshot = snapshots[index];
-        const auto label = QStringLiteral("%1（%2）").arg(snapshot.clientName, snapshot.layoutLabel);
+        const auto label = QStringLiteral("%1（%2）").arg(snapshot.clientName, Localized::layoutName(snapshot));
         selectorChanged = channelSelector_->itemData(static_cast<int>(index)).toString() != snapshot.instanceId
             || channelSelector_->itemText(static_cast<int>(index)) != label;
     }
     if (selectorChanged) {
         const QSignalBlocker selectorBlocker(channelSelector_);
         channelSelector_->clear();
-        for (const auto& snapshot : snapshots)
-            channelSelector_->addItem(QStringLiteral("%1（%2）").arg(snapshot.clientName, snapshot.layoutLabel), snapshot.instanceId);
+        for (const auto& snapshot : snapshots) {
+            channelSelector_->addItem(QStringLiteral("%1（%2）").arg(snapshot.clientName, Localized::layoutName(snapshot)), snapshot.instanceId);
+            channelSelector_->setItemData(channelSelector_->count() - 1, QVariantList {
+                snapshot.clientName, snapshot.layoutLabel, static_cast<int>(snapshot.channels.size()), snapshot.channelLayoutEditable }, Qt::UserRole + 1);
+        }
     }
     channelSelector_->setEnabled(!snapshots.empty());
     int selectedIndex = -1;
@@ -813,7 +885,7 @@ void MeterHistoryWindow::setSnapshot(const MeterViewSnapshot& snapshot)
             auto* checkBox = seriesVisibilityCheckBoxes_[index];
             if (checkBox == nullptr)
                 continue;
-            const auto& id = seriesDefinitions()[index].id;
+            const auto id = seriesDefinitions()[index].id;
             const QSignalBlocker seriesBlocker(checkBox);
             checkBox->setChecked(std::find(snapshot_.historyView.visibleSeriesIds.cbegin(),
                                            snapshot_.historyView.visibleSeriesIds.cend(),
@@ -827,7 +899,7 @@ void MeterHistoryWindow::setSnapshot(const MeterViewSnapshot& snapshot)
         recordingAction_->blockSignals(false);
         const QSignalBlocker recordingBlocker(recordingCheckBox_);
         recordingCheckBox_->setChecked(snapshot_.recordingEnabled);
-        recordingAction_->setText(snapshot_.recordingEnabled ? QStringLiteral("停止记录") : QStringLiteral("记录响度"));
+        recordingAction_->setText(snapshot_.recordingEnabled ? historyText("action.stopRecord", "Stop recording") : historyText("action.record", "Record loudness"));
     }
     if (historyChanged || historyViewChanged) {
         updateLegend();
@@ -1012,7 +1084,7 @@ void MeterHistoryWindow::updateChart()
     std::vector<WinJACKNexus::UI::HistoryChartSeries> series;
     series.reserve(seriesDefinitions().size());
     for (std::size_t seriesIndex = 0; seriesIndex < seriesDefinitions().size(); ++seriesIndex) {
-        const auto& definition = seriesDefinitions()[seriesIndex];
+        const auto definition = seriesDefinitions()[seriesIndex];
         const auto& id = definition.id;
         WinJACKNexus::UI::HistoryChartSeries item;
         item.id = id;
@@ -1084,7 +1156,7 @@ void MeterHistoryWindow::updateLegend()
     }
     legend_->setEntries(std::move(entries));
     for (std::size_t index = 0; index < seriesDefinitions().size(); ++index) {
-        const auto& definition = seriesDefinitions()[index];
+        const auto definition = seriesDefinitions()[index];
         const auto color = seriesThemeColor(definition);
         if (auto* checkBox = seriesVisibilityCheckBoxes_[index]) {
             checkBox->setProperty("textColor", color);
@@ -1127,12 +1199,59 @@ void MeterHistoryWindow::updateStatistics(std::int64_t startMilliseconds, std::i
     statistics_->setEntries(std::move(entries));
 }
 
+void MeterHistoryWindow::refreshLocalizedDisplay()
+{
+    const auto definitions = seriesDefinitions();
+    const QSignalBlocker channelBlocker(channelSelector_);
+    for (int index = 0; index < channelSelector_->count(); ++index) {
+        const auto data = channelSelector_->itemData(index, Qt::UserRole + 1).toList();
+        if (data.size() == 4)
+            channelSelector_->setItemText(index, QStringLiteral("%1（%2）").arg(data[0].toString(),
+                Localized::layoutName(data[1].toString(), static_cast<std::size_t>(data[2].toInt()), data[3].toBool())));
+    }
+    const QSignalBlocker modeBlocker(viewModeSelector_);
+    for (int index = 0; index < viewModeSelector_->count(); ++index) {
+        const auto scrolling = viewModeSelector_->itemData(index).toInt() == static_cast<int>(MeterHistoryViewMode::realtimeScroll);
+        viewModeSelector_->setItemText(index, scrolling ? historyText("history.scroll", "Scroll (live)") : historyText("history.scan", "Scan"));
+    }
+    for (std::size_t index = 0; index < definitions.size(); ++index) {
+        if (auto* choice = seriesVisibilityCheckBoxes_[index]) {
+            const QSignalBlocker blocker(choice);
+            choice->setText(definitions[index].label);
+            choice->setAccessibleName(historyText("history.seriesAccessible", "Show %1 series").arg(definitions[index].label));
+        }
+    }
+    const auto relabel = [&definitions](auto& entries) {
+        for (auto& entry : entries)
+            for (const auto& definition : definitions)
+                if (entry.id == definition.id) { entry.label = definition.label; break; }
+    };
+    auto series = chart_->series(); relabel(series); chart_->setSeries(std::move(series));
+    auto entries = legend_->entries(); relabel(entries); legend_->setEntries(std::move(entries));
+    auto statistics = statistics_->entries(); relabel(statistics); statistics_->setEntries(std::move(statistics));
+    chart_->setVerticalAxisLabel(historyText("history.levelAxis", "Level / Loudness (dB / LUFS)"));
+    chart_->setHorizontalAxisLabel(historyText("history.timeAxis", "System time"));
+    const QSignalBlocker recordingBlocker(recordingAction_);
+    recordingAction_->setText(recordingAction_->isChecked()
+        ? historyText("action.stopRecord", "Stop recording") : historyText("action.record", "Record loudness"));
+    updateReferenceLines();
+    csvStatusLabel_->setText(csvDisplayText(snapshot_.csvPreview));
+    refreshExportStatus();
+}
+
+void MeterHistoryWindow::refreshExportStatus()
+{
+    exportStatusLabel_->setText(exportStatus_ == 1
+        ? historyText("history.exportSaved", "PNG saved: %1").arg(exportDetail_)
+        : exportStatus_ == 2 ? historyText("history.exportFailure", "PNG export failed: %1").arg(exportDetail_)
+        : historyText("history.exportHint", "Export the visible chart as PNG."));
+}
+
 void MeterHistoryWindow::updateCsvPreview()
 {
     csvPathLabel_->setText(snapshot_.csvPreview.activeFilePath);
-    csvStatusLabel_->setText(snapshot_.csvPreview.rotationStatus);
-    if (exportStatusLabel_->text().isEmpty())
-    exportStatusLabel_->setText(QStringLiteral("可将当前可见图表导出为 PNG。"));
+    csvStatusLabel_->setText(csvDisplayText(snapshot_.csvPreview));
+    refreshExportStatus();
 }
 
 void MeterHistoryWindow::updateReferenceLines()
@@ -1147,13 +1266,15 @@ void MeterHistoryWindow::updateReferenceLines()
         referenceLineCheckBoxes_[0]->setText(integratedLabel);
     if (referenceLineCheckBoxes_[1] != nullptr)
         referenceLineCheckBoxes_[1]->setText(truePeakLabel);
+    for (auto* choice : referenceLineCheckBoxes_)
+        if (choice) choice->setAccessibleName(historyText("history.referenceAccessible", "Show %1 reference line").arg(choice->text()));
 
     std::vector<WinJACKNexus::UI::HistoryChartReferenceLine> lines;
     lines.reserve(preset.alternateTargetHighLufs.has_value() ? 3 : 2);
     lines.push_back({
         preset.targetIntegratedLufs,
         preset.alternateTargetHighLufs.has_value()
-            ? QStringLiteral("综合响度（Integrated）下限 %1 LUFS").arg(formatReferenceValue(preset.targetIntegratedLufs))
+            ? historyText("reference.lower", "Integrated loudness lower limit %1 LUFS").arg(formatReferenceValue(preset.targetIntegratedLufs))
             : integratedLabel,
         QColor(QStringLiteral("#4b95ff")),
         Qt::DashLine,
@@ -1162,7 +1283,7 @@ void MeterHistoryWindow::updateReferenceLines()
     if (preset.alternateTargetHighLufs.has_value()) {
         lines.push_back({
             *preset.alternateTargetHighLufs,
-            QStringLiteral("综合响度（Integrated）上限 %1 LUFS").arg(formatReferenceValue(*preset.alternateTargetHighLufs)),
+            historyText("reference.upper", "Integrated loudness upper limit %1 LUFS").arg(formatReferenceValue(*preset.alternateTargetHighLufs)),
             QColor(QStringLiteral("#4b95ff")),
             Qt::DashLine,
             visible(QStringLiteral("integrated"))

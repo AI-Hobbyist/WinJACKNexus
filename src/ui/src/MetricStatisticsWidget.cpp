@@ -13,6 +13,7 @@
  *
  * SPDX-License-Identifier: AGPL-3.0-only
  */
+#include <WinJACKNexus/UI/LocalizedText.hpp>
 #include <WinJACKNexus/UI/MetricStatisticsWidget.hpp>
 
 #include <QFont>
@@ -43,6 +44,8 @@ constexpr int margin = 6;
 MetricStatisticsWidget::MetricStatisticsWidget(QWidget* parent)
     : QWidget(parent)
 {
+    if (auto* manager = I18nManager::installed())
+        manager->bind(this, [this] { update(); });
     setMinimumSize(entryMinimumWidth + margin * 2, entryHeight + margin * 2);
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
 }
@@ -160,7 +163,7 @@ void MetricStatisticsWidget::paintEvent(QPaintEvent*)
 
         painter.setFont(labelFont);
         painter.setPen(muted);
-        const auto detail = QStringLiteral("最小：%1    最大：%2").arg(displayValue(entry.minimumValue), displayValue(entry.maximumValue));
+        const auto detail = localizedText("ui", "statistics.extrema", "Min: %1    Max: %2").arg(displayValue(entry.minimumValue), displayValue(entry.maximumValue));
         painter.drawText(QRect(contentBounds.left(), bounds.bottom() - labelMetrics.height() - 4,
                                contentBounds.width(), labelMetrics.height()),
                          Qt::AlignLeft | Qt::AlignVCenter,

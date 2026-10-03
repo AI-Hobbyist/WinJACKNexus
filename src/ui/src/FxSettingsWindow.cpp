@@ -4,6 +4,7 @@
 #include <WinJACKNexus/UI/ApplicationSettings.hpp>
 #include <WinJACKNexus/UI/FxLevelMeterWidget.hpp>
 #include <WinJACKNexus/UI/Controls.hpp>
+#include <WinJACKNexus/UI/LocalizedText.hpp>
 #include <WinJACKNexus/UI/ThemeNamespaceRegistry.hpp>
 #include <WinJACKNexus/UI/ThemeCore.hpp>
 #include <WinJACKNexus/UI/ThemeBackground.hpp>
@@ -50,10 +51,29 @@
 
 namespace WinJACKNexus::UI {
 namespace {
+QString fxText(const char* key, const char* english) {
+    return localizedText("fxhost", key, english);
+}
+Controls::TextLabel* fxLabel(const char* key, const char* english, QWidget* parent = nullptr) {
+    auto* label = new Controls::TextLabel({}, parent);
+    bindLocalizedText(label, "text", "fxhost", key, english);
+    return label;
+}
+QAction* fxAction(QMenu& menu, const char* key, const char* english) {
+    auto* action = menu.addAction(fxText(key, english));
+    bindLocalizedText(action, "text", "fxhost", key, english);
+    return action;
+}
 QPushButton* button(const QString& text, QWidget* parent, const char* objectName = "") {
     auto* result = new Controls::ActionButton(text, parent);
     result->setObjectName(QString::fromLatin1(objectName));
     result->setCursor(Qt::PointingHandCursor);
+    return result;
+}
+
+QPushButton* fxButton(const char* key, const char* english, QWidget* parent, const char* objectName = "") {
+    auto* result = button(fxText(key, english), parent, objectName);
+    bindLocalizedText(result, "text", "fxhost", key, english);
     return result;
 }
 
@@ -349,7 +369,7 @@ public:
         : owner(window), sourceChannels(sourceChannels) {
         owner.setWindowFlag(Qt::Window);
         Q_UNUSED(source);
-        owner.setWindowTitle(QStringLiteral("FX 设置"));
+        bindLocalizedText(&owner, "windowTitle", "fxhost", "window.title", "FX settings");
         owner.resize(1398, 874);
         owner.setMinimumSize(1250, 720);
         owner.setObjectName(QStringLiteral("fxWindow"));
@@ -368,7 +388,7 @@ public:
         auto* leftLayout = new QHBoxLayout(leftControls);
         leftLayout->setContentsMargins(0, 0, 0, 0);
         leftLayout->setSpacing(12);
-        auto* title = new Controls::TextLabel(owner.windowTitle(), leftControls);
+        auto* title = fxLabel("window.title", "FX settings", leftControls);
         title->setObjectName(QStringLiteral("fxSourceTitle"));
         QFont titleFont = title->font(); titleFont.setPixelSize(24); titleFont.setBold(true); title->setFont(titleFont);
         leftLayout->addWidget(title);
@@ -376,7 +396,7 @@ public:
         master = new Controls::ToggleButton(leftControls);
         master->setObjectName(QStringLiteral("fxChainToggle"));
         master->setChecked(false);
-        master->setToolTip(QStringLiteral("FX 链总开关"));
+        bindLocalizedText(master, "toolTip", "fxhost", "control.chainPower", "Enable FX chain");
         QObject::connect(master, &QAbstractButton::toggled, &owner, [this](bool enabled) {
             syncChainPower();
             if (!loading && chainEnabledHandler) chainEnabledHandler(enabled);
@@ -398,6 +418,9 @@ public:
         for (const auto& name : visibleChannels) {
             auto* choice = button(name, channelControls);
             choice->setObjectName(QStringLiteral("fxChannel%1").arg(name));
+            choice->setProperty("fxChannelIdentity", name);
+            if (name == QStringLiteral("All"))
+                bindLocalizedText(choice, "text", "fxhost", "channel.all", "All");
             choice->setCheckable(true);
             choice->setMinimumWidth(54);
             choice->setChecked(name == QStringLiteral("All"));
@@ -416,15 +439,15 @@ public:
         rightLayout->setContentsMargins(0, 0, 0, 0);
         rightLayout->setSpacing(8);
         rightLayout->addStretch();
-        rightLayout->addWidget(new Controls::TextLabel(QStringLiteral("预设："), rightControls));
+        rightLayout->addWidget(fxLabel("label.preset", "Preset:", rightControls));
         presets = new Controls::ChoiceField(rightControls);
         presets->setObjectName(QStringLiteral("fxWindowPreset"));
-        presets->addItem(QStringLiteral("当前效果链"));
+        presets->addItem(fxText("preset.currentChain", "Current FX chain"));
         presets->setMinimumWidth(185);
         rightLayout->addWidget(presets);
-        auto* save = button(QStringLiteral("保存"), rightControls, "fxChainPresetSave");
-        auto* saveAs = button(QStringLiteral("另存为"), rightControls, "fxChainPresetSaveAs");
-        auto* refresh = button(QStringLiteral("刷新"), rightControls, "fxChainPresetRefresh");
+        auto* save = fxButton("action.save", "Save", rightControls, "fxChainPresetSave");
+        auto* saveAs = fxButton("action.saveAs", "Save as", rightControls, "fxChainPresetSaveAs");
+        auto* refresh = fxButton("action.refresh", "Refresh", rightControls, "fxChainPresetRefresh");
         for (auto* action : {save, saveAs, refresh}) {
             action->setProperty("fxChainPresetAction", true);
             rightLayout->addWidget(action);
@@ -455,12 +478,12 @@ public:
         modulePower->setCheckable(true);
         modulePower->setFixedWidth(40);
         moduleHeader->addWidget(modulePower);
-        moduleName = new Controls::TextLabel(QStringLiteral("模块设置"), modulePanel);
+        moduleName = new Controls::TextLabel(fxText("section.module", "Module settings"), modulePanel);
         moduleName->setObjectName(QStringLiteral("fxModuleTitle"));
         moduleName->setFont(bold);
         moduleHeader->addWidget(moduleName);
         moduleHeader->addStretch();
-        moduleHeader->addWidget(new Controls::TextLabel(QStringLiteral("预设："), modulePanel));
+        moduleHeader->addWidget(fxLabel("label.preset", "Preset:", modulePanel));
         modulePreset = new Controls::ChoiceField(modulePanel);
         modulePreset->setObjectName(QStringLiteral("fxModulePreset"));
         modulePreset->setMinimumWidth(170);
@@ -486,11 +509,11 @@ public:
         auto* footerLayout = new QVBoxLayout(footer);
         footerLayout->setContentsMargins(13, 8, 13, 7);
         auto* chainHeader = new QHBoxLayout;
-        auto* chainLabel = new Controls::TextLabel(QStringLiteral("效果链"), footer);
+        auto* chainLabel = fxLabel("section.chain", "FX chain", footer);
         chainLabel->setFont(bold);
         chainHeader->addWidget(chainLabel);
         chainHeader->addStretch();
-        auto* add = button(QStringLiteral("＋  添加模块"), footer, "primary");
+        auto* add = fxButton("action.add", "＋  Add module", footer, "primary");
         chainHeader->addWidget(add);
         footerLayout->addLayout(chainHeader);
         chainScroll = new Controls::ScrollField(footer);
@@ -516,7 +539,7 @@ public:
             return chip;
         };
         flowLayout->addStretch();
-        auto* inputChip=endpoint(QStringLiteral("In"),QStringLiteral("输入"));
+        auto* inputChip=endpoint(QStringLiteral("In"),fxText("endpoint.input", "Input"));
         flowLayout->addWidget(inputChip);
         list = new Controls::ListField(chainContent);
         list->setObjectName(QStringLiteral("fxChainList"));
@@ -550,8 +573,16 @@ public:
             }
         }, [this](int id, QPoint position) { showEffectMenu(id, position); }, list));
         flowLayout->addWidget(list);
-        auto* outputChip=endpoint(QStringLiteral("Out"),QStringLiteral("输出"));
+        auto* outputChip=endpoint(QStringLiteral("Out"),fxText("endpoint.output", "Output"));
         flowLayout->addWidget(outputChip);
+        if (auto* manager = I18nManager::installed()) {
+            manager->bind(inputChip, [inputChip] {
+                inputChip->setText(QStringLiteral("In\n") + fxText("endpoint.input", "Input"));
+            });
+            manager->bind(outputChip, [outputChip] {
+                outputChip->setText(QStringLiteral("Out\n") + fxText("endpoint.output", "Output"));
+            });
+        }
         flowLayout->addStretch();
         chainContent->setEndpoints(inputChip,outputChip);
         chainScroll->setWidget(chainContent);
@@ -562,7 +593,7 @@ public:
         auto* meterLayout = new QVBoxLayout(meterPanel);
         meterLayout->setContentsMargins(12, 7, 12, 7);
         auto* meterSelectors = new QHBoxLayout;
-        meterTitle = new Controls::TextLabel(QStringLiteral("输入/输出电平"), meterPanel);
+        meterTitle = new Controls::TextLabel(fxText("meter.inputOutput", "Input/output levels"), meterPanel);
         meterTitle->setObjectName(QStringLiteral("fxMeterTitle"));
         meterSelectors->addWidget(meterTitle);
         meterSelectors->addStretch();
@@ -684,12 +715,44 @@ public:
             }
         }
         if (available.isEmpty()) {
-            moduleName->setText(QStringLiteral("Native Fx 加载失败"));
-            editorArea->setWidget(new Controls::TextLabel(QStringLiteral("找不到 Native Fx 模块：%1").arg(modulesPath)));
+            moduleName->setText(fxText("error.modulesUnavailable", "Native Fx loading failed"));
+            editorArea->setWidget(new Controls::TextLabel(fxText("error.modulesPath", "Native Fx modules not found: %1").arg(modulesPath)));
         }
         refreshPresets();
+        if (auto* manager = I18nManager::installed())
+            manager->bind(&owner, [this] { refreshLocalizedDisplay(); });
         if (auto* core = ThemeManager::installedThemeCore())
             QObject::connect(core, &ThemeCore::themeChanged, &owner, [this] { applyTheme(); });
+    }
+
+    void refreshLocalizedDisplay() {
+        {
+            const QSignalBlocker blocker(presets);
+            if (presets->count() > 0)
+                presets->setItemText(0, fxText("preset.currentChain", "Current FX chain"));
+        }
+        if (meterTitle) meterTitle->setText(selectedChannel < 0
+            ? fxText("meter.inputOutput", "Input/output levels")
+            : fxText("meter.channel", "Input/output (%1)").arg(selectedChannelLabel));
+        if (auto* effect = selected()) {
+            moduleName->setText(fxText("section.selectedModule", "Module settings - %1%2").arg(effect->name,
+                selectedChannel < 0 ? QString() : QStringLiteral(" · %1").arg(selectedChannelLabel)));
+            if (!effect->editor) {
+                if (auto* label = qobject_cast<QLabel*>(editorArea->widget()))
+                    label->setText(fxText("error.editor", "Unable to load the %1 controls").arg(effect->name));
+            }
+        } else {
+            moduleName->setText(available.isEmpty()
+                ? fxText("error.modulesUnavailable", "Native Fx loading failed")
+                : fxText("section.module", "Module settings"));
+            if (auto* label = qobject_cast<QLabel*>(editorArea->widget()))
+                label->setText(available.isEmpty()
+                    ? fxText("error.modulesPath", "Native Fx modules not found: %1").arg(
+                        QCoreApplication::applicationDirPath() + QStringLiteral("/nodes/native_fx"))
+                    : fxText("status.selectModule", "Select an FX module"));
+        }
+        if (!missingEffects.empty())
+            moduleName->setText(fxText("error.partialChain", "Some FX could not be loaded. Their original parameters have been retained."));
     }
 
     ~Impl() {
@@ -702,14 +765,14 @@ public:
     {
         for (auto* other : channelButtons) other->setChecked(other == choice);
         selectedChannel = channelIndex;
-        selectedChannelLabel = choice->text();
+        selectedChannelLabel = choice->property("fxChannelIdentity").toString();
         for (auto& effect : effects)
             if (effect.instance) effect.module->selectChannel(effect.instance, selectedChannel);
-        if(meterTitle)meterTitle->setText(selectedChannel<0?QStringLiteral("输入/输出电平")
-            :QStringLiteral("输入/输出(%1)").arg(selectedChannelLabel));
+        if(meterTitle)meterTitle->setText(selectedChannel<0?fxText("meter.inputOutput", "Input/output levels")
+            :fxText("meter.channel", "Input/output (%1)").arg(selectedChannelLabel));
         if(meterRefresh)meterRefresh();
         if(auto* effect=selected())
-            moduleName->setText(QStringLiteral("模块设置 - %1%2").arg(effect->name,
+            moduleName->setText(fxText("section.selectedModule", "Module settings - %1%2").arg(effect->name,
                 selectedChannel<0?QString():QStringLiteral(" · %1").arg(selectedChannelLabel)));
     }
 
@@ -727,6 +790,9 @@ public:
         for (const auto& name : visibleChannels) {
             auto* choice = button(name, channelRow->parentWidget());
             choice->setObjectName(QStringLiteral("fxChannel%1").arg(name));
+            choice->setProperty("fxChannelIdentity", name);
+            if (name == QStringLiteral("All"))
+                bindLocalizedText(choice, "text", "fxhost", "channel.all", "All");
             choice->setCheckable(true);
             choice->setMinimumWidth(61);
             choice->setChecked(name == QStringLiteral("All"));
@@ -739,7 +805,7 @@ public:
         }
         selectedChannel = -1;
         selectedChannelLabel = QStringLiteral("All");
-        if(meterTitle)meterTitle->setText(QStringLiteral("输入/输出电平"));
+        if(meterTitle)meterTitle->setText(fxText("meter.inputOutput", "Input/output levels"));
         if(meterRefresh)meterRefresh();
         for (auto& effect : effects)
             if (effect.instance) effect.module->selectChannel(effect.instance, selectedChannel);
@@ -917,12 +983,13 @@ public:
         auto* effect = effectFor(id);
         if (!effect) return;
         QMenu menu(list);
-        auto* clone = menu.addAction(QStringLiteral("克隆"));
+        auto* clone = fxAction(menu, "action.clone", "Clone");
         clone->setEnabled(effect->module->clone != nullptr);
         QObject::connect(clone, &QAction::triggered, &owner, [this, id] { cloneEffect(id); });
-        auto* remove = menu.addAction(QStringLiteral("删除"));
+        auto* remove = fxAction(menu, "action.delete", "Delete");
         QObject::connect(remove, &QAction::triggered, &owner, [this, id] { deleteEffect(id); });
-        auto* replacements = menu.addMenu(QStringLiteral("替换"));
+        auto* replacements = menu.addMenu(fxText("action.replace", "Replace"));
+        bindLocalizedText(replacements, "title", "fxhost", "action.replace", "Replace");
         for (auto* module : available) {
             const auto* info = &module->info;
             auto* action = replacements->addAction(QStringLiteral("%1   %2").arg(
@@ -978,7 +1045,7 @@ public:
     void showSelected() {
         auto* effect = selected();
         if (!effect) {
-            moduleName->setText(QStringLiteral("模块设置"));
+            moduleName->setText(fxText("section.module", "Module settings"));
             { const QSignalBlocker blocker(modulePreset); modulePreset->clear(); }
             modulePower->setChecked(false);
             modulePower->setEnabled(false);
@@ -986,11 +1053,11 @@ public:
                 old->hide();
                 old->setParent(editorParking);
             }
-            editorArea->setWidget(new Controls::TextLabel(QStringLiteral("选择 FX 模块")));
+            editorArea->setWidget(new Controls::TextLabel(fxText("status.selectModule", "Select an FX module")));
             return;
         }
         modulePower->setEnabled(master->isChecked());
-        moduleName->setText(QStringLiteral("模块设置 - %1%2").arg(effect->name,
+        moduleName->setText(fxText("section.selectedModule", "Module settings - %1%2").arg(effect->name,
             selectedChannel<0?QString():QStringLiteral(" · %1").arg(selectedChannelLabel)));
         {
             const QSignalBlocker blocker(modulePreset);
@@ -1016,7 +1083,7 @@ public:
             effect->module->selectChannel(effect->instance, selectedChannel);
             editorArea->setWidget(effect->editor);
         }
-        else editorArea->setWidget(new Controls::TextLabel(QStringLiteral("无法加载 %1 控制界面").arg(effect->name)));
+        else editorArea->setWidget(new Controls::TextLabel(fxText("error.editor", "Unable to load the %1 controls").arg(effect->name)));
         syncModulePreset();
     }
 
@@ -1053,11 +1120,22 @@ public:
         return QCoreApplication::applicationDirPath() + QStringLiteral("/fx_chain_presets");
     }
 
+    struct PresetFailure {
+        const char* key {};
+        const char* english {};
+        QString detail;
+        QString message() const {
+            if (!key) return detail;
+            const auto text = fxText(key, english);
+            return detail.isNull() ? text : text.arg(detail);
+        }
+    };
+
     bool readPreset(const QString& path, QString& name,
-                    std::vector<Common::MixerEffectState>& chain, bool& enabled, QString& error) const {
+                    std::vector<Common::MixerEffectState>& chain, bool& enabled, PresetFailure& error) const {
         QFile file(path);
-        if (!file.open(QIODevice::ReadOnly)) { error = file.errorString(); return false; }
-        if (file.size() > 16 * 1024 * 1024) { error = QStringLiteral("预设文件过大"); return false; }
+        if (!file.open(QIODevice::ReadOnly)) { error = {nullptr, nullptr, file.errorString()}; return false; }
+        if (file.size() > 16 * 1024 * 1024) { error = {"error.fileTooLarge", "Preset file is too large", {}}; return false; }
         QJsonParseError parse;
         const auto document = QJsonDocument::fromJson(file.readAll(), &parse);
         const auto object = document.object();
@@ -1067,7 +1145,7 @@ public:
             || !object.value("name").isString() || object.value("name").toString().trimmed().isEmpty()
             || !object.value("enabled").isBool() || !object.value("effects").isArray()
             || object.value("effects").toArray().size() > 256) {
-            error = QStringLiteral("不是有效的效果链预设或版本不支持"); return false;
+            error = {"error.invalidPreset", "Invalid FX chain preset or unsupported version", {}}; return false;
         }
         std::vector<Common::MixerEffectState> result;
         for (const auto& value : object.value("effects").toArray()) {
@@ -1077,7 +1155,7 @@ public:
                 || effect.value("moduleId").toString().trimmed().isEmpty()
                 || !effect.value("enabled").isBool() || !effect.value("parameters").isObject()
                 || preset < -1 || preset > 2147483647 || preset != std::floor(preset)) {
-                error = QStringLiteral("效果链模块数据无效"); return false;
+                error = {"error.invalidModule", "Invalid FX chain module data", {}}; return false;
             }
             Common::MixerEffectState state;
             state.moduleId = effect.value("moduleId").toString();
@@ -1087,7 +1165,7 @@ public:
             const auto snapshot = state.parameters.value("snapshot");
             if (!snapshot.isUndefined() && (!snapshot.isString()
                 || !QByteArray::fromBase64Encoding(snapshot.toString().toLatin1(), QByteArray::AbortOnBase64DecodingErrors))) {
-                error = QStringLiteral("模块参数快照无效"); return false;
+                error = {"error.invalidSnapshot", "Invalid module parameter snapshot", {}}; return false;
             }
             result.push_back(std::move(state));
         }
@@ -1100,23 +1178,31 @@ public:
     void refreshPresets() {
         const QSignalBlocker blocker(presets);
         presets->clear();
-        presets->addItem(QStringLiteral("当前效果链"), QString());
+        presets->addItem(fxText("preset.currentChain", "Current FX chain"), QString());
         const QDir directory(presetDirectory());
         for (const auto& entry : directory.entryInfoList({QStringLiteral("*.json")}, QDir::Files, QDir::Name)) {
-            QString name, error;
+            QString name;
+            PresetFailure error;
             bool enabled;
             std::vector<Common::MixerEffectState> chain;
             if (readPreset(entry.absoluteFilePath(), name, chain, enabled, error))
                 presets->addItem(name, entry.absoluteFilePath());
-            else qWarning().noquote() << "FX chain preset:" << entry.fileName() << error;
+            else qWarning().noquote() << "FX chain preset:" << entry.fileName() << error.message();
         }
         const int index = presets->findData(selectedPresetPath);
         presets->setCurrentIndex(std::max(0, index));
         if (index < 0) selectedPresetPath.clear();
     }
 
-    void presetError(const QString& error) {
-        QMessageBox::warning(&owner, QStringLiteral("效果链预设"), error);
+    void presetError(const PresetFailure& error) {
+        QMessageBox dialog(QMessageBox::Warning, {}, {}, QMessageBox::Ok, &owner);
+        dialog.setObjectName(QStringLiteral("fxChainPresetErrorDialog"));
+        dialog.setTextFormat(Qt::PlainText);
+        bindLocalizedText(&dialog, "windowTitle", "fxhost", "dialog.presetError", "FX chain preset");
+        const auto refresh = [&dialog, error] { dialog.setText(error.message()); };
+        if (auto* manager = I18nManager::installed()) manager->bind(&dialog, refresh);
+        else refresh();
+        dialog.exec();
     }
 
     void savePreset(bool saveAs) {
@@ -1125,16 +1211,16 @@ public:
         if (saveAs || path.isEmpty()) {
             QDialog dialog(&owner);
             dialog.setObjectName(QStringLiteral("fxChainPresetNameDialog"));
-            dialog.setWindowTitle(QStringLiteral("另存效果链预设"));
+            bindLocalizedText(&dialog, "windowTitle", "fxhost", "dialog.saveAs", "Save FX chain preset as");
             auto* layout = new QVBoxLayout(&dialog);
-            layout->addWidget(new Controls::TextLabel(QStringLiteral("预设名称"), &dialog));
+            layout->addWidget(fxLabel("label.presetName", "Preset name", &dialog));
             auto* field = new Controls::TextField(&dialog);
             field->setObjectName(QStringLiteral("fxChainPresetName"));
             field->setText(path.isEmpty() ? QString() : name);
             layout->addWidget(field);
             auto* actions = new QHBoxLayout;
-            auto* accept = button(QStringLiteral("保存"), &dialog, "fxChainPresetNameSave");
-            auto* cancel = button(QStringLiteral("取消"), &dialog);
+            auto* accept = fxButton("action.save", "Save", &dialog, "fxChainPresetNameSave");
+            auto* cancel = fxButton("action.cancel", "Cancel", &dialog);
             accept->setProperty("fxChainPresetAction", true);
             cancel->setProperty("fxChainPresetAction", true);
             accept->setEnabled(!field->text().trimmed().isEmpty());
@@ -1153,7 +1239,7 @@ public:
                 + QUuid::createUuid().toString(QUuid::WithoutBraces) + QStringLiteral(".json");
         }
         std::vector<Common::MixerEffectState> chain;
-        if (!captureChain(chain)) { presetError(QStringLiteral("无法读取模块参数，未保存预设")); return; }
+        if (!captureChain(chain)) { presetError({"error.capture", "Unable to read module parameters. The preset was not saved.", {}}); return; }
         QJsonArray effects;
         for (const auto& effect : chain)
             effects.append(QJsonObject {{"moduleId", effect.moduleId}, {"enabled", effect.enabled},
@@ -1161,11 +1247,11 @@ public:
         const QJsonObject object {{"format", QStringLiteral("WinJACKNexus.FxChainPreset")},
                                   {"version", 1}, {"name", name}, {"enabled", master->isChecked()},
                                   {"effects", effects}};
-        if (!QDir().mkpath(presetDirectory())) { presetError(QStringLiteral("无法创建预设目录：%1").arg(presetDirectory())); return; }
+        if (!QDir().mkpath(presetDirectory())) { presetError({"error.directory", "Unable to create the preset directory: %1", presetDirectory()}); return; }
         QSaveFile file(path);
         const auto bytes = QJsonDocument(object).toJson();
         if (!file.open(QIODevice::WriteOnly) || file.write(bytes) != bytes.size() || !file.commit()) {
-            presetError(QStringLiteral("保存失败：%1").arg(file.errorString())); return;
+            presetError({"error.save", "Save failed: %1", file.errorString()}); return;
         }
         selectedPresetPath = path;
         refreshPresets();
@@ -1174,7 +1260,8 @@ public:
     void selectChainPreset(int index) {
         const auto path = presets->itemData(index).toString();
         if (path.isEmpty()) { selectedPresetPath.clear(); return; }
-        QString name, error;
+        QString name;
+        PresetFailure error;
         bool enabled;
         std::vector<Common::MixerEffectState> chain;
         if (!readPreset(path, name, chain, enabled, error)) {
@@ -1233,7 +1320,7 @@ public:
         master->setChecked(enabled);
         syncChainPower();
         if (!missingEffects.empty())
-            moduleName->setText(QStringLiteral("部分 FX 无法加载，原参数已保留"));
+            moduleName->setText(fxText("error.partialChain", "Some FX could not be loaded. Their original parameters have been retained."));
         loading = false;
     }
 
@@ -1339,7 +1426,7 @@ void FxSettingsWindow::addDefaultMasterEffects() {
 }
 void FxSettingsWindow::setSourceName(const QString& name) {
     Q_UNUSED(name);
-    setWindowTitle(QStringLiteral("FX 设置"));
+    setWindowTitle(fxText("window.title", "FX settings"));
     if (auto* title=findChild<QLabel*>(QStringLiteral("fxSourceTitle"))) title->setText(windowTitle());
 }
 void FxSettingsWindow::loadChain(const std::vector<Common::MixerEffectState>& effects, bool enabled) {

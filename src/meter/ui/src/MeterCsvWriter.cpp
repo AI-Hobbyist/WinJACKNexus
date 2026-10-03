@@ -91,6 +91,8 @@ void MeterCsvWriter::enqueue(Record record)
     if (queue_.size() >= maximumQueueRecordCount) {
         auto status = this->status(record.instanceId);
         ++status.droppedRecordCount;
+        status.statusKind = MeterCsvStatusKind::queueFull;
+        status.statusDetail.clear();
         status.rotationStatus = QStringLiteral("CSV 写入队列已满，已丢弃 %1 条记录").arg(status.droppedRecordCount);
         setStatus(record.instanceId, std::move(status));
         return;
@@ -151,7 +153,7 @@ void MeterCsvWriter::workerLoop()
     for (auto& [instanceId, session] : sessions_) {
         if (session->file.isOpen())
             session->file.close();
-        setStatus(instanceId, { {}, QStringLiteral("CSV 写入已关闭"), status(instanceId).droppedRecordCount });
+        setStatus(instanceId, { {}, QStringLiteral("CSV 写入已关闭"), status(instanceId).droppedRecordCount, MeterCsvStatusKind::writerClosed, {} });
     }
     sessions_.clear();
 }
@@ -159,7 +161,7 @@ void MeterCsvWriter::workerLoop()
 void MeterCsvWriter::process(const QueueEvent& event)
 {
     if (event.type == QueueEvent::Type::close) {
-        closeSessionInWorker(event.instanceId, QStringLiteral("CSV 会话已关闭，等待下一条记录"));
+        closeSessionInWorker(event.instanceId, QStringLiteral("CSV 会话已关闭，等待下一条记录"), MeterCsvStatusKind::sessionClosed);
         return;
     }
     writeRecord(event.record);
@@ -169,7 +171,7 @@ void MeterCsvWriter::writeRecord(const Record& record)
 {
     const auto root = record.logRootDirectory.trimmed();
     if (root.isEmpty()) {
-        closeSessionInWorker(record.instanceId, QStringLiteral("CSV 未写入：未设置日志保存根目录"));
+        closeSessionInWorker(record.instanceId, QStringLiteral("CSV 未写入：未设置日志保存根目录"), MeterCsvStatusKind::noDirectory);
         return;
     }
 
@@ -177,7 +179,7 @@ void MeterCsvWriter::writeRecord(const Record& record)
     if (session == sessions_.end()) {
         const auto directory = QDir(root).filePath(sanitizeDirectoryName(record.clientName));
         if (!QDir().mkpath(directory)) {
-            setStatus(record.instanceId, { {}, QStringLiteral("CSV 未写入：无法创建目录 %1").arg(directory), status(record.instanceId).droppedRecordCount });
+            setStatus(record.instanceId, { {}, QStringLiteral("CSV 未写入：无法创建目录 %1").arg(directory), status(record.instanceId).droppedRecordCount, MeterCsvStatusKind::directoryFailure, directory });
             return;
         }
 
@@ -189,7 +191,7 @@ void MeterCsvWriter::writeRecord(const Record& record)
         auto newSession = std::make_unique<Session>();
         newSession->file.setFileName(filePath);
         if (!newSession->file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-            setStatus(record.instanceId, { {}, QStringLiteral("CSV 未写入：无法打开文件 %1").arg(filePath), status(record.instanceId).droppedRecordCount });
+            setStatus(record.instanceId, { {}, QStringLiteral("CSV 未写入：无法打开文件 %1").arg(filePath), status(record.instanceId).droppedRecordCount, MeterCsvStatusKind::openFailure, filePath });
             return;
         }
         newSession->filePath = filePath;
@@ -214,15 +216,15 @@ void MeterCsvWriter::writeRecord(const Record& record)
     }.join(u',') + u'\n';
     const auto rowUtf8 = row.toUtf8();
     if (session->second->file.write(rowUtf8) != rowUtf8.size()) {
-        closeSessionInWorker(record.instanceId, QStringLiteral("CSV 写入失败：磁盘可能不可写"));
+        closeSessionInWorker(record.instanceId, QStringLiteral("CSV 写入失败：磁盘可能不可写"), MeterCsvStatusKind::writeFailure);
         return;
     }
     session->second->file.flush();
     const auto previousStatus = status(record.instanceId);
-    setStatus(record.instanceId, { session->second->filePath, QStringLiteral("CSV 正在记录"), previousStatus.droppedRecordCount });
+    setStatus(record.instanceId, { session->second->filePath, QStringLiteral("CSV 正在记录"), previousStatus.droppedRecordCount, MeterCsvStatusKind::recording, {} });
 }
 
-void MeterCsvWriter::closeSessionInWorker(const QString& instanceId, const QString& statusText)
+void MeterCsvWriter::closeSessionInWorker(const QString& instanceId, const QString& statusText, MeterCsvStatusKind kind)
 {
     const auto session = sessions_.find(instanceId);
     if (session != sessions_.end()) {
@@ -231,7 +233,7 @@ void MeterCsvWriter::closeSessionInWorker(const QString& instanceId, const QStri
         sessions_.erase(session);
     }
     const auto previousStatus = status(instanceId);
-    setStatus(instanceId, { {}, statusText, previousStatus.droppedRecordCount });
+    setStatus(instanceId, { {}, statusText, previousStatus.droppedRecordCount, kind, {} });
 }
 
 void MeterCsvWriter::setStatus(const QString& instanceId, Status status)

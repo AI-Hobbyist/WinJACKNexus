@@ -73,6 +73,8 @@ protected:
 
 private:
     void applyTheme();
+    void refreshLocalizedDisplay();
+    void refreshExportStatus();
     void applyRefreshRate(int framesPerSecond);
     struct ScanOverwritePoint final {
         std::int64_t timestampMilliseconds = 0;
@@ -123,6 +125,8 @@ private:
     QLabel* csvStatusLabel_ = nullptr;
     QLabel* exportStatusLabel_ = nullptr;
     int refreshRate_ = 60;
+    int exportStatus_ = 0;
+    QString exportDetail_;
 };
 
 }
