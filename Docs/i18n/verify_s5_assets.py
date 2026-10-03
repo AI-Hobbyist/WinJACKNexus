@@ -185,6 +185,8 @@ def main():
     policy=json.loads(policy_path.read_text(encoding='utf-8'))
     assert policy['instruction']=='后续不再进行缩放测试。节省时间'
     assert policy['additional_scale_tests'] is False
+    assert policy['additional_user_instruction']=='后续每个模块只测试一次，节省时间，不想等了'
+    assert policy['maximum_future_test_runs_per_module']==1
     required_missing=[]
     for language in ('hot',)+LANGUAGES:
         expected=set(EFFECTS)|{'host','community'}
@@ -194,8 +196,10 @@ def main():
             required_missing.append({'language':language,'missing':sorted(expected-covered)})
     # The user discontinued further scale tests. Preserve their original gaps
     # without claiming those combinations passed; language/behavior gates remain.
+    remaining_cold=[entry for entry in required_missing if entry['language']!='hot']
+    required_missing=[entry for entry in required_missing if entry['language']=='hot']
     if '--progress' not in sys.argv:
-        assert not required_missing, ('missing required language coverage',required_missing)
+        assert not required_missing, ('missing required one-pass coverage',required_missing)
     evidence.append({'file':str(policy_path.relative_to(ROOT)), 'sha256':digest(policy_path)})
     source_paths=[ROOT/'src/native_fx/src/I18n.cpp', ROOT/'src/native_fx/src/NativeFxApi.cpp', ROOT/'src/ui/src/Controls.cpp',
                   ROOT/'src/ui/src/FxSettingsWindow.cpp',ROOT/'Develop/NativeFx/NativeFxI18nTests.cpp',
@@ -211,6 +215,7 @@ def main():
             'module_keys':len(records),'shared_keys':len(shared),'source_display_occurrences':len(scope),
             'runs':runs,'evidence':evidence,'missing_bounded_coverage':missing,
             'missing_required_language_coverage':required_missing,
+            'unverified_cold_start_coverage':remaining_cold,
             'validation_policy':policy,
             'historical_runs_not_counted':historical,
             'qt_resource_transition':transition,

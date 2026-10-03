@@ -43,3 +43,11 @@ GR 表改用公共 `Controls::drawMeter` 的 `fillOriginDb=0` 从 0 dB 向负衰
 实际窗口的表面渐变两端、文字、旋钮外环、开关、图表背景/网格、曲线及其下方填充、两条电平表三段和 GR 分段已接入模块 token。无外部主题与发布默认 `.wjnskin` 的实窗截图逐像素相同；修改 token 后重绘的截图保存在 `tests/preview/PostS12/Limiter/`，改色文件名为 `-modified.png`。截图观感：**人工验收跳过/未人工验证**。
 
 现有 `build` 的 `mod_limiter` Debug 单模块编译、完整 `ALL_BUILD` Debug 退出 0；`theme_limiter_native_fx`、先前四个模块 UI 测试、`native_limiter_tests`、`native_fx_api_tests`、`theme_default_template` 8/8 通过。验证仅含模块加载与 UI，未运行 JACK 客户端或端口连接集成。证据见 `build/PostS12-Limiter-*.log`。
+
+## i18n S5 完成记录（2026-10-03）
+
+本模块 S5 显示接入、所需 Release 构建和实窗验证已完成，按用户最新单次模块验证范围验收。独立 locate 包含 32 个 key 的完整 English、中文、日语和韩语；节点及调音台独立窗口、预设/操作显示接入可选 i18n v1，不改变稳定身份、工程字段或声道参数。
+
+沿用实际 DLL 四语言热切换记录 [20261003T140124696Z-scale-2-limiter_delay-hot](../Docs/i18n/S5-bounded-records/20261003T140124696Z-scale-2-limiter_delay-hot.json)，覆盖多实例、双宿主、卸载/重新打开、English fallback、数字草稿及选区保持；组合批次检查数不能当作本模块独立检查数。平台为 windows，默认系统字体，使用原生窗口归属核对后的可见实窗截图，未运行 JACK 连接集成测试。
+
+最终资源及二进制一致性见 [S5 核对](../Docs/i18n/S5-verification.json)，范围、构建日志和未验证场景见 [完成记录](../Docs/i18n/S5-completion.md)。依用户要求不追加缩放或重复模块测试；未补齐的冷启动/缩放矩阵不标为通过。译文仍待 S6 用户人工审校。

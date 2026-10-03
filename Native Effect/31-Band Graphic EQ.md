@@ -54,3 +54,11 @@ Graphic EQ 运行时会在频响图背景同时绘制输入参考频谱和 EQ �
 实际窗口的频段滑条轨道/边框/填充/滑块、输出增益旋钮及其外环、开关、主次网格、输入/输出频谱、输出频谱渐变填充和总响应曲线已读取模块 token。实际 Windows 弹窗中无主题与加载发布默认 `.wjnskin` 后的截图逐像素相同；修改 token 后窗口重绘，滑条、旋钮及图表颜色变化的截图保存在 `tests/preview/PostS12/GraphicEq/`，改色文件为 `-modified.png`。人工观感验收跳过/未人工验证。
 
 现有 `build` 的 `mod_graphic_eq` Debug 单模块编译及完整 `ALL_BUILD` Debug 均通过；`theme_graphic_eq_native_fx`、`theme_gate_native_fx`、`native_graphic_eq_tests`、`native_fx_api_tests`、`theme_default_template` 5/5 通过。首次组合回归中 `native_fx_api_tests` 仍是 Gate 阶段旧可执行文件，输出旧断言后失败；重新编译调用方测试并复跑 5/5 通过，失败日志保留 `build/PostS12-GraphicEq-Regression-first-failed.log`。只验证模块加载与 UI，未运行 JACK 客户端/端口连接集成。证据见 `build/PostS12-GraphicEq-*.log`。
+
+## i18n S5 完成记录（2026-10-03）
+
+本模块 S5 显示接入、所需 Release 构建和实窗验证已完成，按用户最新单次模块验证范围验收。独立 locate 包含 31 个 key 的完整 English、中文、日语和韩语；节点及调音台独立窗口、预设/操作显示接入可选 i18n v1，不改变稳定身份、工程字段或声道参数。
+
+沿用实际 DLL 四语言热切换记录 [20261003T135552421Z-scale-2-graphic_eq-hot](../Docs/i18n/S5-bounded-records/20261003T135552421Z-scale-2-graphic_eq-hot.json)，覆盖多实例、双宿主、卸载/重新打开、English fallback、数字草稿及选区保持；组合批次检查数不能当作本模块独立检查数。平台为 windows，默认系统字体，使用原生窗口归属核对后的可见实窗截图，未运行 JACK 连接集成测试。
+
+最终资源及二进制一致性见 [S5 核对](../Docs/i18n/S5-verification.json)，范围、构建日志和未验证场景见 [完成记录](../Docs/i18n/S5-completion.md)。依用户要求不追加缩放或重复模块测试；未补齐的冷启动/缩放矩阵不标为通过。译文仍待 S6 用户人工审校。
