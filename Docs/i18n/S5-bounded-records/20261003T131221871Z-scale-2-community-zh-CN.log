@@ -1,0 +1,3 @@
+S5 scope: effects= host=0 community=1 shared=0 cold=zh-CN
+S5 module Windows checks PASS: 91; platform=windows font=Microsoft YaHei UI scale=2
+S5 popup budget: 2 / 100

@@ -115,6 +115,50 @@
       "captures": 2,
       "log": "Docs/i18n/S5-bounded-records/20261003T130805009Z-scale-2-community-en-US.log",
       "sha256": "50c7cce48e82fe0381077c2e12534227edf3277076c2fa37bca4ee53ec92de0b"
+    },
+    {
+      "record": "Docs\\i18n\\S5-bounded-records\\20261003T131057766Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-zh-CN.json",
+      "scale": "2",
+      "cold": "zh-CN",
+      "checks": 2726,
+      "popup_shows": 48,
+      "font": "Microsoft YaHei UI",
+      "captures": 96,
+      "log": "Docs/i18n/S5-bounded-records/20261003T131057766Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-zh-CN.log",
+      "sha256": "9d68f5e33537d0e699bc4d135eda693f8e25112a3ec5a3517bc3100232a697cc"
+    },
+    {
+      "record": "Docs\\i18n\\S5-bounded-records\\20261003T131156573Z-scale-2-host-zh-CN.json",
+      "scale": "2",
+      "cold": "zh-CN",
+      "checks": 502,
+      "popup_shows": 1,
+      "font": "Microsoft YaHei UI",
+      "captures": 32,
+      "log": "Docs/i18n/S5-bounded-records/20261003T131156573Z-scale-2-host-zh-CN.log",
+      "sha256": "8fcb4b38c624b08ded4aa35609d0256d85e81a2258b627c47cccc393aea0d10c"
+    },
+    {
+      "record": "Docs\\i18n\\S5-bounded-records\\20261003T131221871Z-scale-2-community-zh-CN.json",
+      "scale": "2",
+      "cold": "zh-CN",
+      "checks": 91,
+      "popup_shows": 2,
+      "font": "Microsoft YaHei UI",
+      "captures": 2,
+      "log": "Docs/i18n/S5-bounded-records/20261003T131221871Z-scale-2-community-zh-CN.log",
+      "sha256": "a02919171fcdf77d18116a98b516ee98895075fa1b2611501939f9f291771f37"
+    },
+    {
+      "record": "Docs\\i18n\\S5-bounded-records\\20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP.json",
+      "scale": "2",
+      "cold": "ja-JP",
+      "checks": 2726,
+      "popup_shows": 48,
+      "font": "Microsoft YaHei UI",
+      "captures": 96,
+      "log": "Docs/i18n/S5-bounded-records/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP.log",
+      "sha256": "353bc2d66b1b70faa46abfbaa186129925cbb7ab284c5f1c60966c0889f00ada"
     }
   ],
   "evidence": [
@@ -540,34 +584,10 @@
     },
     {
       "scale": "2",
-      "language": "zh-CN",
-      "missing": [
-        "community",
-        "compressor",
-        "deesser",
-        "delay",
-        "gate",
-        "graphic_eq",
-        "host",
-        "limiter",
-        "parametric_eq",
-        "reverb"
-      ]
-    },
-    {
-      "scale": "2",
       "language": "ja-JP",
       "missing": [
         "community",
-        "compressor",
-        "deesser",
-        "delay",
-        "gate",
-        "graphic_eq",
-        "host",
-        "limiter",
-        "parametric_eq",
-        "reverb"
+        "host"
       ]
     },
     {

@@ -1,0 +1,720 @@
+{
+  "scope": "Effects",
+  "rendered": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP",
+  "language": "ja-JP",
+  "captures": [
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/compressor-draft-ja-JP.png",
+      "sha256": "519ae11db4e73aff0e273aec639f197d2bd1d25ce47dc832136f3608bac88141"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/compressor-mixer-ja-JP-0-0.png",
+      "sha256": "f68b93e2c7a779dd8f51c9e63cbcc5aff56dbc224efc76f9c4f3124a0d6534fd"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/compressor-mixer-ja-JP-476-0.png",
+      "sha256": "de1da55942ac9bade40e2b6ad3725708f0200495e386b9a16b1d13ce4219f05a"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/compressor-node-ja-JP-0-0.png",
+      "sha256": "6df3b21ddaca6c3516d9619642b070f39b4d3a74ac258b2d6fc294f37c5fd98d"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/compressor-node-ja-JP-476-0.png",
+      "sha256": "e267cb677e2d64b554577293296bea81caa5b367911f052b417435398b957c28"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/compressor-operations-menu-ja-JP-0-0.png",
+      "sha256": "e8787cd2942750f2b34d0d9af823ff5696c3446cf69ee4048a8526c5d02fa142"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/compressor-partial-fallback-0-0.png",
+      "sha256": "c247754a037d4fa318953a80ee42650ea6d5b3fef1f6da10c5601e20a1b848e4"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/compressor-partial-fallback-476-0.png",
+      "sha256": "2c15c05589463b54904b7547349d4a77cc7625d20d031818ff044b8db3b6ba68"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/compressor-preset-menu-ja-JP-0-0.png",
+      "sha256": "2ff297e12d0be2356937f9761b614e5136db2d0b2f27076b2bc6bc9c6890d400"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/compressor-reopened-ja-JP-0-0.png",
+      "sha256": "04bb4c6c4d10cbc08963504ed7f4a39f9e9db2d75563d4d77abfece46d714a98"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/compressor-reopened-ja-JP-476-0.png",
+      "sha256": "a2ae1074779dc952c45c4391f3aff1ef09e9d7ff40bf414d184de463c8fa4983"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/deesser-draft-ja-JP.png",
+      "sha256": "95a438a191b0fbf5f02294eddd0b3e962d1102ff03df667c86386388cbac1be4"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/deesser-mixer-ja-JP-0-0.png",
+      "sha256": "8b1ecec6566e3f96edf6eeb5a3464841019ccd08ab04ff40e95cf733d48b9d7e"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/deesser-mixer-ja-JP-476-0.png",
+      "sha256": "efeedbdf44090acfe1290a722be00534cdc4190d98b00f30075a9efd758ce6a0"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/deesser-node-ja-JP-0-0.png",
+      "sha256": "56879da48f6beaf8b319929547d5b9362a7f0a060f0f400127b7f676fe80936f"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/deesser-node-ja-JP-476-0.png",
+      "sha256": "fd716c811397964e0b71d9b403a4c128fafaa9c89462404c2c1e1d757c987738"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/deesser-operations-menu-ja-JP-0-0.png",
+      "sha256": "e8787cd2942750f2b34d0d9af823ff5696c3446cf69ee4048a8526c5d02fa142"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/deesser-partial-fallback-0-0.png",
+      "sha256": "b60dcb8af2329fa2ebd0171f77aa46bdf35d18673502c64ea0133f33277abf83"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/deesser-partial-fallback-476-0.png",
+      "sha256": "efeedbdf44090acfe1290a722be00534cdc4190d98b00f30075a9efd758ce6a0"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/deesser-preset-menu-ja-JP-0-0.png",
+      "sha256": "4c3028cbddea14461f189c9603ea2fa972fa9125906ffe904990be6820cacd40"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/deesser-reopened-ja-JP-0-0.png",
+      "sha256": "83aa1d38cbba67b054e6427821b753e0f59c1daf3d8bf4f6df6627d18d40d8a5"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/deesser-reopened-ja-JP-476-0.png",
+      "sha256": "c9b3344b2c18c2dd99fc5a5b6ba022c452b4e891623f4017f1ecfa568bbf54b5"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/delay-draft-ja-JP.png",
+      "sha256": "8b7299186128c32f21939beb0ddbdbd2a22909712ee1fa22f7b9f888f3002b87"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/delay-mixer-ja-JP-0-0.png",
+      "sha256": "02e4b0ca54db524efb2fbceb6e04971e823ad1a9f64f9b0397868a6701efaabc"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/delay-mixer-ja-JP-476-0.png",
+      "sha256": "8ec4c8fdf6c84250139832e75c204ada2026d9c67170505d5af91aaa86140663"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/delay-node-ja-JP-0-0.png",
+      "sha256": "02e4b0ca54db524efb2fbceb6e04971e823ad1a9f64f9b0397868a6701efaabc"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/delay-node-ja-JP-476-0.png",
+      "sha256": "3fe06dbecb50150d2744d6aa9891f1939b95c8a0b3518072430ffbcc259eb5e1"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/delay-operations-menu-ja-JP-0-0.png",
+      "sha256": "cb912e4afa4d7163e1051e1ecae8ffa360c05066f0efeaebe307933734042d4a"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/delay-partial-fallback-0-0.png",
+      "sha256": "0337b7a6875b33609da8391716385821f4b92578592b278266e8577a25fc6c16"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/delay-partial-fallback-476-0.png",
+      "sha256": "8ec4c8fdf6c84250139832e75c204ada2026d9c67170505d5af91aaa86140663"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/delay-preset-menu-ja-JP-0-0.png",
+      "sha256": "e81bc7ed3f63bc3c5d7c20edb6a5fd5d12678bb5fecb5c11e36afa45ed925916"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/delay-reopened-ja-JP-0-0.png",
+      "sha256": "f9eb3e6a20611e8276553a177ae5f5b80353cf688a1a889404c2448082bd6997"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/delay-reopened-ja-JP-476-0.png",
+      "sha256": "5929407a2d1631085566bd83bbccbb99485d3d359a0d9eca0fd9d001795cc888"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/gate-draft-ja-JP.png",
+      "sha256": "ca7b19f15c43b560c32bd77cb44a26d23e3a1d45301e096a5e88d7adda90b618"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/gate-mixer-ja-JP-0-0.png",
+      "sha256": "c3ead57ada215446dab91731018cc3c1210a3028c6f0b7af6d2a96da39695d88"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/gate-mixer-ja-JP-476-0.png",
+      "sha256": "51728bba44386b0e7089f7a7d4ff8c05325a6f4a57bb23cb1d22bd5422f5cd0c"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/gate-node-ja-JP-0-0.png",
+      "sha256": "ddc27b99ce6b2480ec0d4f744cb26fe338383fefe58926bcc6456159c12c4465"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/gate-node-ja-JP-476-0.png",
+      "sha256": "41567c3ed5d5efb52184409278f3c38ba345d66432d6f0454d4b454815cfde7d"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/gate-operations-menu-ja-JP-0-0.png",
+      "sha256": "e8787cd2942750f2b34d0d9af823ff5696c3446cf69ee4048a8526c5d02fa142"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/gate-partial-fallback-0-0.png",
+      "sha256": "3487c20b0446b8955a5b71361c031fe1be232e4466cba1334dfcc67c989a78f4"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/gate-partial-fallback-476-0.png",
+      "sha256": "670693c5c11da5e738968e9af5cc78a541642103746c45c4c90267b7adcc240f"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/gate-preset-menu-ja-JP-0-0.png",
+      "sha256": "2a8b43bc7910f1606344826adb7633106f89b38993bc9b08cd34eae28e967ec2"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/gate-reopened-ja-JP-0-0.png",
+      "sha256": "e984233a4901e3f8d05bfd85805a1abc88a928d11882a86c4194137cd8faaefc"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/gate-reopened-ja-JP-476-0.png",
+      "sha256": "5523340b18753566619a79f2ed8b2de2371f1aacde3c7fc7895868968d251d72"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/graphic_eq-draft-ja-JP.png",
+      "sha256": "1e3a2283c4b6ba346aab5be1ec54aa1fdfa7899e326e20860b431e3c478e0dcb"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/graphic_eq-load-dialog-ja-JP-0-0.png",
+      "sha256": "2d0569a1f266d02a34d370f19b6ff54bc8a53f54e1532355862d354f46b6abfa"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/graphic_eq-mixer-ja-JP-0-0.png",
+      "sha256": "f54b901acfe1f34f699b55b33133f2108a44ba60b83b8a5ccede3162abae6529"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/graphic_eq-mixer-ja-JP-476-0.png",
+      "sha256": "25576ad057d588dade2bd502b64303bd1258db04d8e380e92c19c96fb5de786d"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/graphic_eq-node-ja-JP-0-0.png",
+      "sha256": "737c48767796600b7f768831e6eba0737f02470db2ba858debf740414246ed08"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/graphic_eq-node-ja-JP-476-0.png",
+      "sha256": "7f490ee5fda5105e71fc5de60f091de348e8ce83385080ec76883b8d134de420"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/graphic_eq-partial-fallback-0-0.png",
+      "sha256": "19bd50757039fa49177c759f90377b3212b0bf9d574e0628179eaa07ea48285f"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/graphic_eq-partial-fallback-476-0.png",
+      "sha256": "35e609a83068caed2a4d540ad39807892a2eb9d672957ff8ef869ce5c74c21d3"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/graphic_eq-preset-menu-ja-JP-0-0.png",
+      "sha256": "409b93a2ec5695ee1712b00f1a535f54e84878647482621b7b53b4259b765f01"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/graphic_eq-reopened-ja-JP-0-0.png",
+      "sha256": "83bf8a98493d579d2daa86ac62e5933e9ed68a873089b251e2623b17aeea3856"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/graphic_eq-reopened-ja-JP-476-0.png",
+      "sha256": "15b77ac8da97dea54c3fa87cd94e86c1574300458347db8586c41ab973558e98"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/graphic_eq-save-dialog-ja-JP-0-0.png",
+      "sha256": "cd542f7a45407035a8e75096b502d356f592d97deae1a56c25313dbc9709f48b"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/limiter-draft-ja-JP.png",
+      "sha256": "715bdc22c24e5c46c21ce3c17cc099107e8e0f079d24a46cff4e2e2f25217e90"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/limiter-mixer-ja-JP-0-0.png",
+      "sha256": "571ac85ba8f6f26b5cc04ae90d90fb9c05958bf6e31d88df38cc74af40521b54"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/limiter-mixer-ja-JP-476-0.png",
+      "sha256": "2865424cda62d4c8ccb425811ca53a5985fbe2db3e4bc12fc7899f8780dca485"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/limiter-node-ja-JP-0-0.png",
+      "sha256": "4b3e576e7a2e064f77d42774725855a22e0f721f03f7363a6e3f51d508e98997"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/limiter-node-ja-JP-476-0.png",
+      "sha256": "f7e15d9545d8adb267af20f2d0c7ae0194e43668d90b6b988443482fed2addae"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/limiter-operations-menu-ja-JP-0-0.png",
+      "sha256": "8aac02748f33f178cd9123f85c25830adc1f3a85de87ee03fc1e46597b9e4d0c"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/limiter-partial-fallback-0-0.png",
+      "sha256": "9e09878db44d46c404b83d4a3cde3fae849444086d32806aa17165aa93371416"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/limiter-partial-fallback-476-0.png",
+      "sha256": "efeedbdf44090acfe1290a722be00534cdc4190d98b00f30075a9efd758ce6a0"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/limiter-preset-menu-ja-JP-0-0.png",
+      "sha256": "95560c93f2a3efa61355578e7d5aa94307c15677e48f23adb4c3246474d81ac4"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/limiter-reopened-ja-JP-0-0.png",
+      "sha256": "9e09878db44d46c404b83d4a3cde3fae849444086d32806aa17165aa93371416"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/limiter-reopened-ja-JP-476-0.png",
+      "sha256": "b6aad490742e845c9065638a19a023660b0f7a5a4a92ba9f73c74fb7dc9f00db"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/parametric_eq-draft-ja-JP.png",
+      "sha256": "e16c0df4610d7a569dfc970bdd1ebbb7c0cacc967c87540e6d7f7743e5e43b21"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/parametric_eq-mixer-ja-JP-0-0.png",
+      "sha256": "942d29a88fecf45c4b947a1721facae7562760adbf59bf1bb8655a2894d7be29"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/parametric_eq-mixer-ja-JP-0-860.png",
+      "sha256": "563008bcd71c585045002f5e2a52270f49536efff338876cc82c38c02269974f"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/parametric_eq-mixer-ja-JP-476-0.png",
+      "sha256": "4fbd01dc44ab8215b0e4211df5b678bfb715a5bb24447839c14217149631f620"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/parametric_eq-mixer-ja-JP-476-860.png",
+      "sha256": "98cf98f44452870fbedd95fdae5ef62d55db8adc3c57df7877ff93881f238ad5"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/parametric_eq-node-ja-JP-0-0.png",
+      "sha256": "7b0146404fbcb853ddbb26c441b0b49eac4fd2f51d84076264f2d4cdadf653bd"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/parametric_eq-node-ja-JP-0-860.png",
+      "sha256": "563008bcd71c585045002f5e2a52270f49536efff338876cc82c38c02269974f"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/parametric_eq-node-ja-JP-476-0.png",
+      "sha256": "59c2fa28816a3e18dcb5670d54a011a89a6789a036d0660c8cf13f8d22eeb2f0"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/parametric_eq-node-ja-JP-476-860.png",
+      "sha256": "cbc5dd78c112975ac99486394c88d0bbe87cf8edc72edea8ff04fb24f39ea55b"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/parametric_eq-operations-menu-ja-JP-0-0.png",
+      "sha256": "e8787cd2942750f2b34d0d9af823ff5696c3446cf69ee4048a8526c5d02fa142"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/parametric_eq-partial-fallback-0-0.png",
+      "sha256": "c4a676d0bb9acf2a8c270997266a96b6ce6a7cfa07a41433be76cebf783bf19c"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/parametric_eq-partial-fallback-0-860.png",
+      "sha256": "84c06264934d3dbbd15d61af4ac3154de3e16ce92a804d6117cae86c95972de0"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/parametric_eq-partial-fallback-476-0.png",
+      "sha256": "c5d44600d0ba5beaf0b2a12e28e8aeab10b5f4b8dd20780d8b64a83f951100aa"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/parametric_eq-partial-fallback-476-860.png",
+      "sha256": "72da0e9cb5dc6d2f253b74741acc957b57e2d703e4a70a3dc6f88efd437e2641"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/parametric_eq-preset-menu-ja-JP-0-0.png",
+      "sha256": "a168af571ff147b96ef386c6c2f0a81bb13b6b525dfa0ff534283609a466e710"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/parametric_eq-reopened-ja-JP-0-0.png",
+      "sha256": "953e7ce10835000e28e9ce41bd288592d20b689d44a9df23b384f1e26513b0f7"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/parametric_eq-reopened-ja-JP-0-860.png",
+      "sha256": "84c06264934d3dbbd15d61af4ac3154de3e16ce92a804d6117cae86c95972de0"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/parametric_eq-reopened-ja-JP-476-0.png",
+      "sha256": "ecfb1343e840c18a8c5894dd8839802536d2fcf93b4685ac949287ec85be215a"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/parametric_eq-reopened-ja-JP-476-860.png",
+      "sha256": "cbc5dd78c112975ac99486394c88d0bbe87cf8edc72edea8ff04fb24f39ea55b"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/reverb-draft-ja-JP.png",
+      "sha256": "06dcff97bb31e1320db7ac9970e7242a2193b708692fd97cd23f79a332d7aa4d"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/reverb-mixer-ja-JP-0-0.png",
+      "sha256": "ef42ccfc091baa2411436097cc35c74fa849458e553016e15d8278d694426e63"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/reverb-mixer-ja-JP-476-0.png",
+      "sha256": "f5b7edba6d6ee146a50d3c455e4e2e06f9eaf62b4e8f1fdd505e564c4a5144b8"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/reverb-node-ja-JP-0-0.png",
+      "sha256": "e43c49fc1c4555d60ca4aa079dcefc76343a4a1ba62d6647c05da12bfe48279b"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/reverb-node-ja-JP-476-0.png",
+      "sha256": "6c2f8ff82c36ab7952bd6f0c45f67efd49667a7268e797fbcec566d8f54671c9"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/reverb-partial-fallback-0-0.png",
+      "sha256": "5630f63e047c83486b91ec923db7bc315eeab27426e0bf1e6affc6f411b9cd4f"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/reverb-partial-fallback-476-0.png",
+      "sha256": "f5b7edba6d6ee146a50d3c455e4e2e06f9eaf62b4e8f1fdd505e564c4a5144b8"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/reverb-preset-menu-ja-JP-0-0.png",
+      "sha256": "7d9e214da45a28d9e4948084a66880792cc3566d24c9478c46f34bee8afbefb4"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/reverb-reopened-ja-JP-0-0.png",
+      "sha256": "5630f63e047c83486b91ec923db7bc315eeab27426e0bf1e6affc6f411b9cd4f"
+    },
+    {
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP/reverb-reopened-ja-JP-476-0.png",
+      "sha256": "6ba08608d07e436fa2bc8760a073021e16fa89bb32678db5365f97a2a3c24967"
+    }
+  ],
+  "run_id": "20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP",
+  "font": "Microsoft YaHei UI",
+  "evidence": [
+    {
+      "file": "Develop/NativeFx/NativeFxI18nTests.cpp",
+      "sha256": "116bee268d492edde740684cfb95da32a05bf3ba95c729f2f43b509439e53f38"
+    },
+    {
+      "file": "Develop/I18nExample.hpp",
+      "sha256": "6224e28198d6a03eaa6f511e2a5c523eaeac376ed666ea16f8b4dc87c7f0d437"
+    },
+    {
+      "file": "Develop/NativeFx/ExampleNativeFx.cpp",
+      "sha256": "c7c9b2fd7a82d7f8c5c472b551b395338ef77ebf883a0cf8d4cbca47eb113c39"
+    },
+    {
+      "file": "Develop/Node/ExampleNode.cpp",
+      "sha256": "a008b0f6eac12e3ae8411938c178590a9430f9a33836423fb6f449dcd87b7c44"
+    },
+    {
+      "file": "src/native_fx/src/I18n.cpp",
+      "sha256": "c87ef0046e4a608b6944e7c87506307f0da3976140337af120c3218cf7d61826"
+    },
+    {
+      "file": "src/native_fx/src/NativeFxApi.cpp",
+      "sha256": "e8a5c32992e0207dca29ba56df140cbb75c0c830cbfc36619a7c3cb49684d345"
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "sha256": "cc7c76bb55a92cb23a083d050eef089ac67775643ad0a7a947f49039cab27240"
+    },
+    {
+      "file": "src/ui/src/FxSettingsWindow.cpp",
+      "sha256": "b04efc2734cec388d9de5f85767197ee1e0775c29b2e64a76b3fa7edffc1db48"
+    },
+    {
+      "file": "src/ui/src/I18nManager.cpp",
+      "sha256": "934ba732ad220d064d25599764e171edfe9253eb5900e74d5e6a128816a6a563"
+    },
+    {
+      "file": "src/ui/src/HostI18n.cpp",
+      "sha256": "eb5cba83d7bd5c5096ba093a60577bad59a91a22c63f523329d7e56c3abf0025"
+    },
+    {
+      "file": "Docs/i18n/S5-strings.tsv",
+      "sha256": "19f7705565dbde2d2b65f79699edd5cc3b5ee12d4a26ca2afa58d8fa324dc5c3"
+    },
+    {
+      "file": "Docs/i18n/S5-shared-strings.tsv",
+      "sha256": "ebaa9d1e9b58696504f065fb6652137d60f5176687ad10d50a2a6381e1f3ef08"
+    },
+    {
+      "file": "build/release/bin/wjn_native_fx_i18n_tests.exe",
+      "sha256": "60bc13cca27a34a2093f82f2502dfbe5682902d4550d80af42217afb16bb774d"
+    },
+    {
+      "file": "build/release/bin/ui.dll",
+      "sha256": "51b9bc07134e08287307f62174b02a480474f852980cf7a82eab814fdebe0039"
+    },
+    {
+      "file": "build/release/bin/examples/native_fx/wjn_example_native_fx.dll",
+      "sha256": "1a0d7272efee19aa19393a05e9e6f9cbcd40601f23e252d25109cb5aaf493413"
+    },
+    {
+      "file": "build/release/bin/examples/node/wjn_example_node.dll",
+      "sha256": "587ba9cea273c7907fd699317ba0adf05e7da5b85ae9cf90688ee6f685209376"
+    },
+    {
+      "file": "src/native_fx/effects/gate/src/Ui.cpp",
+      "sha256": "e0477c68ef209515eb761d6150e84a22dbf8fdbc869829385a78c4f84272e7fe"
+    },
+    {
+      "file": "build/release/bin/nodes/native_fx/gate/mod_gate.dll",
+      "sha256": "9925077c4822867ef6b836828ff0e6cd20ba26e3c1f84f4a56211177855cef20"
+    },
+    {
+      "file": "src/native_fx/effects/graphic_eq/src/Ui.cpp",
+      "sha256": "e3c9868c2649fc0699092d36a42b7a16fb87cc3c5163636f75d359b14a65ac4e"
+    },
+    {
+      "file": "build/release/bin/nodes/native_fx/graphic_eq/mod_graphic_eq.dll",
+      "sha256": "f47be63ddaecb85dd67bb09d95e0958aae315ec9cda60f338da92bec4b7f37cd"
+    },
+    {
+      "file": "src/native_fx/effects/deesser/src/Ui.cpp",
+      "sha256": "808bf36b0dfc2378a527869602ac18cc79ec2265382da4e43fa126608133d26f"
+    },
+    {
+      "file": "build/release/bin/nodes/native_fx/deesser/mod_deesser.dll",
+      "sha256": "04adbb4bfbcfee9aca9f99d26b59c8a7e03ec46fd08ce25a0b0da9e18994dd8d"
+    },
+    {
+      "file": "src/native_fx/effects/compressor/src/Ui.cpp",
+      "sha256": "b39e64d96133864c31261ce3f5df29d6dbf51ef1d46e7fc06468f48d56f33cd7"
+    },
+    {
+      "file": "build/release/bin/nodes/native_fx/compressor/mod_compressor.dll",
+      "sha256": "89df71bdb80dad23fa7c54f89eaac2b42e3b58a2ea7a8acc829bf684f2214ce3"
+    },
+    {
+      "file": "src/native_fx/effects/limiter/src/Ui.cpp",
+      "sha256": "b04775ba74866d8377b339fb7d040293a52312ce1d8696766d1fc52c65117999"
+    },
+    {
+      "file": "build/release/bin/nodes/native_fx/limiter/mod_limiter.dll",
+      "sha256": "30560a6f861901cf9c767322f95276ca651836510ec189900fd55d5a9693d34d"
+    },
+    {
+      "file": "src/native_fx/effects/delay/src/Ui.cpp",
+      "sha256": "36d64e0fbb65325219ef2911cce2e5c5115734cd767f55e4f034cffef643ab8f"
+    },
+    {
+      "file": "build/release/bin/nodes/native_fx/delay/mod_delay.dll",
+      "sha256": "11140b63d9f57205aec2bfbfd5d8199201273fea40c40a3a3398f4035146735c"
+    },
+    {
+      "file": "src/native_fx/effects/parametric_eq/src/Ui.cpp",
+      "sha256": "17f3edc770fd4c54d6c1fabeefedee684264c99291b23d361c58bd4c4ba0f551"
+    },
+    {
+      "file": "build/release/bin/nodes/native_fx/parametric_eq/mod_parametric_eq.dll",
+      "sha256": "55efd70fd6edfae9257240aefef0b03ddfbebd031bb667b8d8e35f5d6ef2116d"
+    },
+    {
+      "file": "src/native_fx/effects/reverb/src/Ui.cpp",
+      "sha256": "bd165bf2f7ce63f637f88c48c4e94f4cc85fd40c02f115c9854d1301eb3c5886"
+    },
+    {
+      "file": "build/release/bin/nodes/native_fx/reverb/mod_reverb.dll",
+      "sha256": "36ed14aad1ba14ded617bb9119940b715a0e85e629916df18a0b69f781099092"
+    },
+    {
+      "file": "locate/en-US.json",
+      "sha256": "33c8724e4400b60dd9b23e71833ace8649264fa9fd3291652cbf121d1ae3ed4b"
+    },
+    {
+      "file": "locate/ja-JP.json",
+      "sha256": "9278cfec54d4e3894da0a2fe22a0b8a8c588f1f18c2f49db3fbdbdf97fbbdd4b"
+    },
+    {
+      "file": "locate/ko-KR.json",
+      "sha256": "726ec065e02604d4ddd9e29af6168f132da8c0c0cf10e1c7727012cb5003aaa8"
+    },
+    {
+      "file": "locate/manifest.json",
+      "sha256": "66123e7df049bc1050003423d6db07faf1936e2f5df610815dd57763c4949231"
+    },
+    {
+      "file": "locate/zh-CN.json",
+      "sha256": "c9541bcfd9b2318c9fa12c1e9ef616410997d53fcdf75588a0c2871cec01e077"
+    },
+    {
+      "file": "src/native_fx/effects/gate/locate/en-US.json",
+      "sha256": "cc9d202b3a6dcbfdbd437821ec2c5d9722289cc4f1c04ba04346c33f10d8e72f"
+    },
+    {
+      "file": "src/native_fx/effects/gate/locate/ja-JP.json",
+      "sha256": "2186077fec30bada43daec1a759aa9405624f2485dbc5c59064f2177acf84f94"
+    },
+    {
+      "file": "src/native_fx/effects/gate/locate/ko-KR.json",
+      "sha256": "15274a801e8a3b48607204a9b2b519d9a5eee6ab578fbed033a34956e573b058"
+    },
+    {
+      "file": "src/native_fx/effects/gate/locate/manifest.json",
+      "sha256": "2855e395c4b3fd41b8dfce0e5cf36efbb9ac32cf41c9d81c863020975550f579"
+    },
+    {
+      "file": "src/native_fx/effects/gate/locate/zh-CN.json",
+      "sha256": "fb0fec211f3cbe9375d59de008bd6d46385f94edcfd7dd1a195f5b75c6f3e0d0"
+    },
+    {
+      "file": "src/native_fx/effects/graphic_eq/locate/en-US.json",
+      "sha256": "3a7eab03874ff69d8bc23d35a80b8c448a4b37740f0faf5dd0d4ee3114300310"
+    },
+    {
+      "file": "src/native_fx/effects/graphic_eq/locate/ja-JP.json",
+      "sha256": "2002280a4218c5a5f88c1f33002846a270e55bf9146ade60a8065e1cb01b433f"
+    },
+    {
+      "file": "src/native_fx/effects/graphic_eq/locate/ko-KR.json",
+      "sha256": "2a6191d8306ef3905e2da2840f6ff80919fcb9f9fbdd1e3398a28e3157e2a4a3"
+    },
+    {
+      "file": "src/native_fx/effects/graphic_eq/locate/manifest.json",
+      "sha256": "a46858c7a2d1af9c4057cb5cfada9699bc5ca87f44dbb80361ed72619ff09b21"
+    },
+    {
+      "file": "src/native_fx/effects/graphic_eq/locate/zh-CN.json",
+      "sha256": "1a6fcb588df71edcfb996ca8f9be5e16cd2c16b8a9f721d809d6615e866367f5"
+    },
+    {
+      "file": "src/native_fx/effects/deesser/locate/en-US.json",
+      "sha256": "661c46e7318913a35586b45331b8f7233a6916cf022c1301ea52c96d4b1fd957"
+    },
+    {
+      "file": "src/native_fx/effects/deesser/locate/ja-JP.json",
+      "sha256": "b6679d1b8245493e627820a08c029e32eb7445a990848f6230c4a725052faaa6"
+    },
+    {
+      "file": "src/native_fx/effects/deesser/locate/ko-KR.json",
+      "sha256": "5cbcc41f70d8033661422a737cbb7bf0974737c64dc6a2acb126e43c3a27fe02"
+    },
+    {
+      "file": "src/native_fx/effects/deesser/locate/manifest.json",
+      "sha256": "d51917ccc0d11a45be0d3260cac2270142b01ea3e496e399f2ca9b8fcf4fe51f"
+    },
+    {
+      "file": "src/native_fx/effects/deesser/locate/zh-CN.json",
+      "sha256": "af0ec8a62a5aa97bd08954b8987f6945e3a3f4390998f84ac34c247f6684d3e9"
+    },
+    {
+      "file": "src/native_fx/effects/compressor/locate/en-US.json",
+      "sha256": "6f28aede30d7f00f6cc7af64cfaf69b6758f54dcba7ea83608b3e42db310bc28"
+    },
+    {
+      "file": "src/native_fx/effects/compressor/locate/ja-JP.json",
+      "sha256": "1a604c56af472e47ef6fb8dd4ebe737eef6069f20724ec3be20dd2c3bdb92827"
+    },
+    {
+      "file": "src/native_fx/effects/compressor/locate/ko-KR.json",
+      "sha256": "b8a9fe57f4df3d20f679830212435918d9d582220a1162f696ca99624cc1a33b"
+    },
+    {
+      "file": "src/native_fx/effects/compressor/locate/manifest.json",
+      "sha256": "9f5d4b195ed4011de62b26ca900e078818e339e1b089deabdc621b5d131c0474"
+    },
+    {
+      "file": "src/native_fx/effects/compressor/locate/zh-CN.json",
+      "sha256": "21f25a937e108d09e4c2b492266ce17d9a0b29469e55c3e11945c25411eb181b"
+    },
+    {
+      "file": "src/native_fx/effects/limiter/locate/en-US.json",
+      "sha256": "b4da7f48b7004a0c136e60c480c30c3bc48ac117e40c8efa4b6658355bdd9319"
+    },
+    {
+      "file": "src/native_fx/effects/limiter/locate/ja-JP.json",
+      "sha256": "d57b11fbb530173047a60706810fccfa20d934eb62ceaad69262306c7ae65bd1"
+    },
+    {
+      "file": "src/native_fx/effects/limiter/locate/ko-KR.json",
+      "sha256": "7f792c0b82c599faa2239ff9cd1e2a22278460d6b2c8e5deead94d56cad58f32"
+    },
+    {
+      "file": "src/native_fx/effects/limiter/locate/manifest.json",
+      "sha256": "8ba36962e5643b3e90a9675e80b58fa2f0058e2e6a66ca90be9ed32bc047498f"
+    },
+    {
+      "file": "src/native_fx/effects/limiter/locate/zh-CN.json",
+      "sha256": "be8e616811b8890ac0019a45bf35c6e2cd9d962fb323ce5e8eb186af10a49048"
+    },
+    {
+      "file": "src/native_fx/effects/delay/locate/en-US.json",
+      "sha256": "cb4de3a967fe410f4b5dfde838ae4090d2552fec56e51455b914fad6be1bd1a8"
+    },
+    {
+      "file": "src/native_fx/effects/delay/locate/ja-JP.json",
+      "sha256": "dbf526cadf52487854e8e0a412e207b89ca8ae0223037f703e23ac6dfc2521ac"
+    },
+    {
+      "file": "src/native_fx/effects/delay/locate/ko-KR.json",
+      "sha256": "3046a3a2eb823dd6044377d0c07d9139e9a461fb9afad036d16835639711ac72"
+    },
+    {
+      "file": "src/native_fx/effects/delay/locate/manifest.json",
+      "sha256": "246355d43557c4b84d28b313aa1de4f6f2ac3b0b479fe726c24fe8e886f2b500"
+    },
+    {
+      "file": "src/native_fx/effects/delay/locate/zh-CN.json",
+      "sha256": "67f6fc57053d0429deb00de262f2a3c51ad7e353bb58d3f3db265bdef8d51bfe"
+    },
+    {
+      "file": "src/native_fx/effects/parametric_eq/locate/en-US.json",
+      "sha256": "cd8922ba7def09ea387ee6b0f109857bf13e13ab43587752eb506639a4f5a6ec"
+    },
+    {
+      "file": "src/native_fx/effects/parametric_eq/locate/ja-JP.json",
+      "sha256": "d20dbdda031603e079ab9e4655b0d40f6651c88901c413c5fc180c7ff24d1ae0"
+    },
+    {
+      "file": "src/native_fx/effects/parametric_eq/locate/ko-KR.json",
+      "sha256": "d8cfb88347842b1c0e360b1efce72260e213aa2f52d9c2d9aecc743cddf67860"
+    },
+    {
+      "file": "src/native_fx/effects/parametric_eq/locate/manifest.json",
+      "sha256": "3fe29f53c24a6778f93d6fa6376a57cc85e88fd6c74a1c086b6694d948b248ea"
+    },
+    {
+      "file": "src/native_fx/effects/parametric_eq/locate/zh-CN.json",
+      "sha256": "286fea119efbf2bd08cc409e1b006a265fd020e5c94b64b4bfd63bc0ac97b518"
+    },
+    {
+      "file": "src/native_fx/effects/reverb/locate/en-US.json",
+      "sha256": "d821370d7acb1acc45e9c2d8fa41a9e1b7214e7159d3834ad68c923f7b365688"
+    },
+    {
+      "file": "src/native_fx/effects/reverb/locate/ja-JP.json",
+      "sha256": "68de649def0c4de67f8bc6396c0719c07a79d81b58a86603f01e55125dc42c61"
+    },
+    {
+      "file": "src/native_fx/effects/reverb/locate/ko-KR.json",
+      "sha256": "c9b017c17b9a160dd6642a9288f0f021dfa843c28fc48ceec10390db0425da06"
+    },
+    {
+      "file": "src/native_fx/effects/reverb/locate/manifest.json",
+      "sha256": "4d26f43deea549fd8d401d8140f8905157a4aeac64a366318b2157b5fa2ef361"
+    },
+    {
+      "file": "src/native_fx/effects/reverb/locate/zh-CN.json",
+      "sha256": "16320a68da262f24bfccc512edc00c36019bece23df3370b1c66e17e01a26198"
+    }
+  ],
+  "effects": [
+    "gate",
+    "graphic_eq",
+    "deesser",
+    "compressor",
+    "limiter",
+    "delay",
+    "parametric_eq",
+    "reverb"
+  ],
+  "platform": "windows",
+  "log": "Docs/i18n/S5-bounded-records/20261003T131231605Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP.log",
+  "exit_code": 0,
+  "scale": "2",
+  "checks": 2726,
+  "popup_shows": 48,
+  "log_sha256": "353bc2d66b1b70faa46abfbaa186129925cbb7ab284c5f1c60966c0889f00ada"
+}

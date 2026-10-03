@@ -8,6 +8,8 @@
 
 200% 后续抽查：`20261003T130314264Z-scale-2-limiter_delay-hot/limiter-node-ko-KR-0-0.png` 及 `-476-0.png` 合并覆盖上下分块，韩文输出上限、未使用字段“미사용”和模式可读；历史括号 Lookahead 保留，不能解读为已实现前视 DSP。`20261003T130429963Z-scale-2-parametric_eq_reverb-hot/reverb-node-ja-JP-0-0.png` 首块的房间类型及参数可读，长说明按区域省略，无覆盖旋钮数值；其余内容仍以同批分块记录为准。
 
+200% 简体中文冷启动抽查：`20261003T131057766Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-zh-CN/gate-preset-menu-zh-CN-0-0.png` 显示默认/紧门限/柔和门限，无黑图；同目录 `graphic_eq-load-dialog-zh-CN-0-0.png` 显示中文打开/取消和 EQ 预设筛选，日文/韩文文件名草稿及选区保留，原生表格按可用宽度省略。文件大小列显示“体积”，已列入 S6 术语审校，尚未认定该译文通过。
+
 ## 已查看的截图
 
 | 缩放 | 实际截图 | 观察 |
