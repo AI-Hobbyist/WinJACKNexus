@@ -2880,8 +2880,8 @@ public:
     {
         const qreal available = scrollableAreaWidth();
         const qreal minimum = std::min(channelWidth, available / 3.0);
-        const qreal desiredAux = std::max(channelWidth, auxChannelCount() * channelWidth);
-        const qreal desiredSubMix = std::max(channelWidth, subMixCount() * channelWidth);
+        const qreal desiredAux = std::max(channelWidth, std::min(auxChannelCount(), 4) * channelWidth);
+        const qreal desiredSubMix = std::max(channelWidth, std::min(subMixCount(), 4) * channelWidth);
         const qreal secondaryBudget = std::max(0.0, available - minimum);
         if (desiredAux + desiredSubMix <= secondaryBudget)
             return {available - desiredAux - desiredSubMix, desiredAux, desiredSubMix};
