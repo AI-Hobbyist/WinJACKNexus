@@ -40,6 +40,8 @@
 #include <vector>
 #include <utility>
 
+#include "SelThemeAccent.hpp"
+
 namespace WinJACKNexus::UI {
 namespace {
 
@@ -93,11 +95,16 @@ QColor mixerFaderColor(const QString& kind)
         QStringLiteral("fader-%1-thumb").arg(kind), fallback);
 }
 
+QString mixerChannelKind(const Channel& channel)
+{
+    return channel.number == QStringLiteral("MAIN") ? QStringLiteral("master")
+        : channel.subMix ? QStringLiteral("submix")
+        : channel.auxId ? QStringLiteral("aux") : QStringLiteral("input");
+}
+
 QColor defaultChannelColor(const Channel& channel)
 {
-    return mixerFaderColor(channel.number == QStringLiteral("MAIN") ? QStringLiteral("master")
-        : channel.subMix ? QStringLiteral("submix")
-        : channel.auxId ? QStringLiteral("aux") : QStringLiteral("input"));
+    return mixerFaderColor(mixerChannelKind(channel));
 }
 
 QColor displayChannelColor(const Channel& channel)
@@ -147,6 +154,12 @@ public:
         peaks.fill(-72.0);
         layoutButton = new Controls::ActionButton({}, this);
         layoutButton->setObjectName(QStringLiteral("monitorLayoutButton"));
+        layoutButton->setProperty("accentColor", selThemeAccent(QStringLiteral("monitor")));
+        if (auto* core = ThemeManager::installedThemeCore())
+            connect(core, &ThemeCore::themeChanged, this, [this] {
+                layoutButton->setProperty("accentColor", selThemeAccent(QStringLiteral("monitor")));
+                update();
+            });
         connect(layoutButton, &QPushButton::clicked, this, [this] {
             QMenu menu(layoutButton);
             const std::array layouts {Common::MixerLayout::mono, Common::MixerLayout::stereo,
@@ -212,7 +225,7 @@ protected:
         painter.fillRect(rect(), themed("surface-empty", QColor("#0b1a2b")));
         const QRectF plot(14, 12, width() * .69, height() - 24);
         const QRectF sidebar(width() * .72, 12, width() * .25, height() - 24);
-        const auto border = themed("monitor-border", QColor("#2b4662"));
+        const auto border = selThemeAccent(QStringLiteral("monitor"));
         Controls::drawSurface(painter, plot,
             themed("monitor-plot-surface", QColor("#102235")), border, 7);
         Controls::drawSurface(painter, sidebar,
@@ -335,6 +348,8 @@ public:
 
     void applyTheme()
     {
+        const QColor accent = channel ? selThemeAccent(mixerChannelKind(*channel))
+            : selThemeAccent(QStringLiteral("input"));
         const auto opacity = ThemeBackground::componentOpacity(QStringLiteral("sel-main"));
         for (auto* child : {static_cast<QWidget*>(name), static_cast<QWidget*>(comment),
                             static_cast<QWidget*>(modeButton)}) {
@@ -353,7 +368,7 @@ public:
         QString modeStyle = QStringLiteral("QPushButton {background:%surface%;color:%text%;border:1px solid %border%;border-radius:5px;font-size:15px;text-align:left;padding:4px 30px 4px 12px;} QPushButton:disabled {color:%disabled-text%;border-color:%border%;}");
         modeStyle.replace(QStringLiteral("%surface%"), css("control-mode-surface", "#102033"));
         modeStyle.replace(QStringLiteral("%text%"), css("control-mode-text", "#eff6ff"));
-        modeStyle.replace(QStringLiteral("%border%"), css("control-mode-border", "#36516d"));
+        modeStyle.replace(QStringLiteral("%border%"), accent.name());
         modeStyle.replace(QStringLiteral("%disabled-text%"), css("control-mode-text-disabled", "#879ab0"));
         modeButton->setStyleSheet(modeStyle);
         modeArrow->setStyleSheet(QStringLiteral("color:%1;background:transparent;font-size:15px;")
@@ -361,7 +376,7 @@ public:
         QString editStyle = QStringLiteral("QLineEdit {background:%surface%;color:%text%;border:1px solid %border%;border-radius:5px;padding:4px 12px;font-size:15px;}");
         editStyle.replace(QStringLiteral("%surface%"), css("control-edit-surface", "#102033"));
         editStyle.replace(QStringLiteral("%text%"), css("control-edit-text", "#eff6ff"));
-        editStyle.replace(QStringLiteral("%border%"), css("control-edit-border", "#36516d"));
+        editStyle.replace(QStringLiteral("%border%"), accent.name());
         name->setStyleSheet(editStyle);
         comment->setStyleSheet(editStyle);
     }
@@ -369,6 +384,7 @@ public:
     void setChannel(Channel* next)
     {
         channel = next;
+        applyTheme();
         if (channel) {
             const bool switched=displayedId!=channel->id;
             if(switched){displayedId=channel->id;selectedPoint=0;polarContour={};draggedVolume=false;draggedInputGain=false;}
@@ -454,15 +470,16 @@ protected:
         p.translate(contentOrigin());
         p.scale(contentScale(), contentScale());
         p.fillRect(QRect(0, 0, 1394, 813), themed("surface-empty", QColor("#0b1a2b")));
-        const QColor border=channel?displayChannelColor(*channel)
+        const QColor border=channel?selThemeAccent(mixerChannelKind(*channel))
             : themed("border-panel",QColor("#2b4662"));
         const QColor ink=themed("text-primary",QColor("#e8f2ff"));
         const QColor muted=themed("text-muted",QColor("#aec7eb"));
-        const QColor blue=themed("control-knob-indicator-normal",QColor("#26bfff"));
+        const QColor controlAccent=channel ? selThemeAccent(mixerChannelKind(*channel))
+            : selThemeAccent(QStringLiteral("input"));
         const auto knobColors=Controls::paletteFor(*this,
             {themed("control-knob-background-base",QColor("#0b1a2b")),
              themed("control-knob-panel",QColor("#1b3b57")),
-             themed("control-knob-text",QColor("#d9f4ff")),blue,
+             themed("control-knob-text",QColor("#d9f4ff")),controlAccent,
              themed("control-knob-track",QColor("#254762"))});
         auto panel = [&](QRectF r) { Controls::drawSurface(p,r,themed("surface-panel",QColor("#102235")),border,7); };
         auto text = [&](QRectF r, const QString& s, int size=15, QColor c=QColor("#e8f2ff"), bool bold=false, int align=Qt::AlignLeft|Qt::AlignVCenter) {
@@ -481,12 +498,11 @@ protected:
             };
             style.inactiveFill = Controls::themeTokenColor(QStringLiteral("sel-main"),
                 role("-surface-normal"), global("surface-normal", style.inactiveFill));
-            style.activeFill = Controls::themeTokenColor(QStringLiteral("sel-main"),
-                role("-surface-selected"), global("surface-selected", style.activeFill));
+            style.activeFill = controlAccent;
+            style.activeFill.setAlpha(85);
             style.inactiveBorder = Controls::themeTokenColor(QStringLiteral("sel-main"),
                 role("-border-normal"), global("border-normal", style.inactiveBorder));
-            style.activeBorder = Controls::themeTokenColor(QStringLiteral("sel-main"),
-                role("-border-selected"), global("border-selected", style.activeBorder));
+            style.activeBorder = controlAccent;
             style.inactiveText = Controls::themeTokenColor(QStringLiteral("sel-main"),
                 role("-text-normal"), muted);
             style.activeText = Controls::themeTokenColor(QStringLiteral("sel-main"),
@@ -495,7 +511,7 @@ protected:
         };
         auto toggle = [&](QRectF r, bool checked) {
             Controls::drawToggle(p, r, checked,
-                themed("control-toggle-indicator-on",QColor("#168dff")),
+                controlAccent,
                 themed("control-toggle-indicator-off",QColor("#263e53")));
         };
         auto modeToggle = [&](QRectF r,const QString& label,bool checked,QColor accent) {
@@ -638,7 +654,7 @@ protected:
         text({center.x()-24,516,48,20},QStringLiteral("180°"),12,muted,false,Qt::AlignCenter);
         }else{
             Controls::Palette panColors;
-            panColors.border=themed("control-pan-border",QColor("#254762"));panColors.accent=blue;
+            panColors.border=themed("control-pan-border",QColor("#254762"));panColors.accent=controlAccent;
             panColors.panel=themed("control-knob-panel",QColor("#1b3b57"));
             panColors.text=themed("control-knob-text",QColor("#d9f4ff"));
             Controls::drawPanKnob(p,center,pannerBus?pannerBus->classicPan:0.0,170,panColors);
@@ -2151,6 +2167,8 @@ public:
         const auto found = selectedMonitor ? channels.cend() : std::find_if(channels.cbegin(), channels.cend(), [this](const Channel& item) {
             return item.id == selectedChannelId;
         });
+        const QColor controlAccent = selThemeAccent(found != channels.cend()
+            ? mixerChannelKind(*found) : QStringLiteral("monitor"));
         const QColor headerBackground = found != channels.cend() ? displayChannelColor(*found)
             : mixerFaderColor(QStringLiteral("monitor"));
         const qreal headerBrightness = .299 * headerBackground.red() + .587 * headerBackground.green()
@@ -2171,19 +2189,19 @@ public:
         if(selSelector) {
             for(const auto& pair : {std::pair{"surfaceColor","control-channel-selector-surface"},
                                   std::pair{"textColor","control-channel-selector-text"},
-                                  std::pair{"borderColor","control-channel-selector-border"},
-                                  std::pair{"accentColor","control-channel-selector-accent"}})
+                                  std::pair{"borderColor","control-channel-selector-border"}})
                 selSelector->setProperty(pair.first,Controls::themeTokenColor(QStringLiteral("sel-main"),QString::fromLatin1(pair.second),
-                    QColor(pair.first==QStringLiteral("textColor")?"#e8f2ff":pair.first==QStringLiteral("accentColor")?"#31c6ff":"#1b3048")));
+                    QColor(pair.first==QStringLiteral("textColor")?"#e8f2ff":"#1b3048")));
+            selSelector->setProperty("accentColor", controlAccent);
         }
         if (selPaletteButton) {
             for (const auto& pair : {std::pair{"surfaceColor","control-channel-selector-surface"},
                                     std::pair{"textColor","control-channel-selector-text"},
-                                    std::pair{"borderColor","control-channel-selector-border"},
-                                    std::pair{"accentColor","control-channel-selector-accent"}})
+                                    std::pair{"borderColor","control-channel-selector-border"}})
                 selPaletteButton->setProperty(pair.first,Controls::themeTokenColor(QStringLiteral("sel-main"),
                     QString::fromLatin1(pair.second),QColor(pair.first==QStringLiteral("textColor")
-                        ? "#e8f2ff" : pair.first==QStringLiteral("accentColor") ? "#31c6ff" : "#1b3048")));
+                        ? "#e8f2ff" : "#1b3048")));
+            selPaletteButton->setProperty("accentColor", controlAccent);
             const auto ink = Controls::themeTokenColor(QStringLiteral("sel-main"),
                 QStringLiteral("control-header-icon"),QColor("#e8f2ff"));
             const std::array swatches {mixerFaderColor(QStringLiteral("input")),
@@ -2209,6 +2227,20 @@ public:
                 selHeader->setStyleSheet(QStringLiteral("#selHeader {background:%1;border-radius:6px;} #selHeader QLabel {color:%2;background:transparent;}").arg(headerBackground.name(),headerForeground.name()));
             }
         }
+        if (selWindow) {
+            const auto color = [](const char* role, const char* fallback) {
+                return Controls::themeTokenColor(QStringLiteral("sel-main"),
+                    QString::fromLatin1(role), QColor(QString::fromLatin1(fallback))).name();
+            };
+            const QString style = QStringLiteral("#selLargeScreen {background:%1;color:%2;} #selHeader QPushButton {background:%3;color:%4;border:1px solid %5;border-radius:6px;padding:6px 18px;font-size:16px;} #selHeader QPushButton:checked {background:%6;border:1px solid %7;color:%8;}")
+                .arg(color("surface-empty", "#08192b"), color("text-primary", "#e9f2ff"),
+                     color("control-channel-selector-surface", "#1b3048"),
+                     color("control-channel-selector-text", "#d5e8ff"),
+                     color("control-channel-selector-border", "#3b5675"),
+                     controlAccent.darker(250).name(), controlAccent.name(),
+                     color("text-primary", "#e9f2ff"));
+            if (selWindow->styleSheet() != style) selWindow->setStyleSheet(style);
+        }
         if(selSubTab)selSubTab->setVisible(found!=channels.cend()&&found->number!=QStringLiteral("MAIN"));
         if(selAuxTab)selAuxTab->setVisible(found!=channels.cend()&&found->number!=QStringLiteral("MAIN")&&!found->subMix);
         if(selStack&&found!=channels.cend()&&(found->number==QStringLiteral("MAIN")||found->subMix)&&(selStack->currentIndex()==1 || (found->number==QStringLiteral("MAIN")&&selStack->currentIndex()==3))){
@@ -2225,6 +2257,7 @@ public:
                 const auto selectedBus = auxSettingsWindow->selectedBusId();
                 const auto key = current->auxId ? QStringLiteral("aux:%1").arg(current->auxId)
                                                : QStringLiteral("input:%1").arg(current->id);
+                auxSettingsWindow->setProperty("selSourceKind", mixerChannelKind(*current));
                 auxSettingsWindow->setSource(key, current->name, current->auxId, current->layout, auxSourceNumber(*current));
                 auxSettingsWindow->selectBus(selectedBus);
             }
@@ -2238,6 +2271,7 @@ public:
                         auxWindowChannelId = current->id;
                         const auto key = current->auxId ? QStringLiteral("aux:%1").arg(current->auxId)
                                                         : QStringLiteral("input:%1").arg(current->id);
+                        auxSettingsWindow->setProperty("selSourceKind", mixerChannelKind(*current));
                         auxSettingsWindow->setSource(key,current->name,current->auxId,current->layout,auxSourceNumber(*current));
                         auxSettingsWindow->setChainEnabled(model && current->modelId
                             ? model->strip(current->modelId)->auxSendsEnabled : current->aux);
@@ -2392,7 +2426,6 @@ public:
             selWindow->setWindowTitle(QStringLiteral("通道详情"));
             selWindow->resize(1394, 885);
             selWindow->setMinimumSize(1100, 760);
-            selWindow->setStyleSheet(QStringLiteral("#selLargeScreen {background:#08192b;color:#e9f2ff;} #selHeader QPushButton {background:#1b3048;color:#d5e8ff;border:1px solid #3b5675;border-radius:6px;padding:6px 18px;font-size:16px;} #selHeader QPushButton:checked {background:#123d62;border:1px solid #2bc7ff;color:white;}"));
             auto* layout = new QVBoxLayout(selWindow);
             layout->setContentsMargins(5,8,5,5);
             layout->setSpacing(0);
@@ -2637,6 +2670,7 @@ public:
         }
         const auto selfId = subMode ? (found->subMix ? found->id : 0) : found->auxId;
         const auto key=subMode?QStringLiteral("sub:%1").arg(found->id):found->auxId?QStringLiteral("aux:%1").arg(found->auxId):QStringLiteral("input:%1").arg(found->id);
+        auxSettingsWindow->setProperty("selSourceKind", mixerChannelKind(*found));
         auxSettingsWindow->setSource(key,found->name,selfId,found->layout,auxSourceNumber(*found));
         if (model && found->modelId) {
             if (const auto* strip = model->strip(found->modelId)) {
@@ -2692,6 +2726,7 @@ public:
         const auto found=std::find_if(channels.cbegin(),channels.cend(),[this](const Channel& c){return c.id==selectedChannelId;});
         if(found==channels.cend())return;
         auto* fx=fxSettingsFor(static_cast<int>(std::distance(channels.cbegin(),found)));
+        fx->setProperty("selSourceKind", mixerChannelKind(*found));
         auto* oldItem=selFxPage->layout()->itemAt(0);
         auto* current=oldItem?oldItem->widget():nullptr;
         if(current!=fx){

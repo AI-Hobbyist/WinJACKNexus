@@ -7158,6 +7158,46 @@
       "default": "#45d877",
       "inherits": [],
       "description": "sel-main / control fx accent"
+    },
+    {
+      "name": "--wjn-theme-sel-main-control-accent-input",
+      "ownerScope": "sel-main",
+      "type": "color",
+      "default": "var(--wjn-theme-mixer-fader-input-thumb)",
+      "inherits": [],
+      "description": "SEL control accent for Input channels; defaults to the Input fader thumb"
+    },
+    {
+      "name": "--wjn-theme-sel-main-control-accent-aux",
+      "ownerScope": "sel-main",
+      "type": "color",
+      "default": "var(--wjn-theme-mixer-fader-aux-thumb)",
+      "inherits": [],
+      "description": "SEL control accent for AUX channels; defaults to the AUX fader thumb"
+    },
+    {
+      "name": "--wjn-theme-sel-main-control-accent-submix",
+      "ownerScope": "sel-main",
+      "type": "color",
+      "default": "var(--wjn-theme-mixer-fader-submix-thumb)",
+      "inherits": [],
+      "description": "SEL control accent for Submix channels; defaults to the Submix fader thumb"
+    },
+    {
+      "name": "--wjn-theme-sel-main-control-accent-master",
+      "ownerScope": "sel-main",
+      "type": "color",
+      "default": "var(--wjn-theme-mixer-fader-master-thumb)",
+      "inherits": [],
+      "description": "SEL control accent for Master; defaults to the Master fader thumb"
+    },
+    {
+      "name": "--wjn-theme-sel-main-control-accent-monitor",
+      "ownerScope": "sel-main",
+      "type": "color",
+      "default": "var(--wjn-theme-mixer-fader-monitor-thumb)",
+      "inherits": [],
+      "description": "SEL control accent for Monitor; defaults to the Monitor fader thumb"
     }
   ]
 }

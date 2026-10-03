@@ -861,4 +861,14 @@
   --wjn-theme-sel-main-control-header-icon: #e8f2ff;
   /* sel-main / control-fx-accent; type=color */
   --wjn-theme-sel-main-control-fx-accent: #45d877;
+  /* sel-main / Input control accent; type=color */
+  --wjn-theme-sel-main-control-accent-input: var(--wjn-theme-mixer-fader-input-thumb);
+  /* sel-main / AUX control accent; type=color */
+  --wjn-theme-sel-main-control-accent-aux: var(--wjn-theme-mixer-fader-aux-thumb);
+  /* sel-main / Submix control accent; type=color */
+  --wjn-theme-sel-main-control-accent-submix: var(--wjn-theme-mixer-fader-submix-thumb);
+  /* sel-main / Master control accent; type=color */
+  --wjn-theme-sel-main-control-accent-master: var(--wjn-theme-mixer-fader-master-thumb);
+  /* sel-main / Monitor control accent; type=color */
+  --wjn-theme-sel-main-control-accent-monitor: var(--wjn-theme-mixer-fader-monitor-thumb);
 }

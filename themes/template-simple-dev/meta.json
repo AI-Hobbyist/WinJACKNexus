@@ -1,0 +1,16 @@
+{
+  "formatVersion": 1,
+  "themeApiVersion": 1,
+  "id": "org.example-simple-dev",
+  "name": "Simple Dev",
+  "version": "1.0.0",
+  "author": "Your name",
+  "description": "Minimal editable theme inheriting SEL accents from mixer fader colors.",
+  "homepage": "",
+  "kind": "full",
+  "namespaces": [
+    "--wjn-theme-global-",
+    "--wjn-theme-mixer-",
+    "--wjn-theme-sel-main-"
+  ]
+}

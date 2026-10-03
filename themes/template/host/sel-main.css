@@ -226,20 +226,30 @@
   --wjn-theme-sel-main-background-component-opacity: var(--wjn-theme-patchbay-background-component-opacity);
   /* sel-main content background image; null means undefined and inherits the patchbay image; type=image */
   /* --wjn-theme-sel-main-background-image: inherited from --wjn-theme-patchbay-background-image; keep undeclared to inherit. */
-  /* sel-main / control-pfl-accent; type=color */
+  /* sel-main / control pfl accent; type=color */
   --wjn-theme-sel-main-control-pfl-accent: #ffe15a;
-  /* sel-main / control-afl-accent; type=color */
+  /* sel-main / control afl accent; type=color */
   --wjn-theme-sel-main-control-afl-accent: #ffe15a;
-  /* sel-main / control-channel-selector-surface; type=color */
+  /* sel-main / control channel selector surface; type=color */
   --wjn-theme-sel-main-control-channel-selector-surface: #1b3048;
-  /* sel-main / control-channel-selector-text; type=color */
+  /* sel-main / control channel selector text; type=color */
   --wjn-theme-sel-main-control-channel-selector-text: #e8f2ff;
-  /* sel-main / control-channel-selector-border; type=color */
+  /* sel-main / control channel selector border; type=color */
   --wjn-theme-sel-main-control-channel-selector-border: #3b5675;
-  /* sel-main / control-channel-selector-accent; type=color */
+  /* sel-main / control channel selector accent; type=color */
   --wjn-theme-sel-main-control-channel-selector-accent: #31c6ff;
-  /* sel-main / control-header-icon; type=color */
+  /* sel-main / control header icon; type=color */
   --wjn-theme-sel-main-control-header-icon: #e8f2ff;
-  /* sel-main / control-fx-accent; type=color */
+  /* sel-main / control fx accent; type=color */
   --wjn-theme-sel-main-control-fx-accent: #45d877;
+  /* SEL control accent for Input channels; defaults to the Input fader thumb; type=color */
+  --wjn-theme-sel-main-control-accent-input: var(--wjn-theme-mixer-fader-input-thumb);
+  /* SEL control accent for AUX channels; defaults to the AUX fader thumb; type=color */
+  --wjn-theme-sel-main-control-accent-aux: var(--wjn-theme-mixer-fader-aux-thumb);
+  /* SEL control accent for Submix channels; defaults to the Submix fader thumb; type=color */
+  --wjn-theme-sel-main-control-accent-submix: var(--wjn-theme-mixer-fader-submix-thumb);
+  /* SEL control accent for Master; defaults to the Master fader thumb; type=color */
+  --wjn-theme-sel-main-control-accent-master: var(--wjn-theme-mixer-fader-master-thumb);
+  /* SEL control accent for Monitor; defaults to the Monitor fader thumb; type=color */
+  --wjn-theme-sel-main-control-accent-monitor: var(--wjn-theme-mixer-fader-monitor-thumb);
 }

@@ -449,11 +449,13 @@ bool ThemePackage::loadFromDirectory(const QString& path, ThemePackage* result, 
         const auto directory = info.isDir();
         auto logical = QDir::fromNativeSeparators(root.relativeFilePath(info.absoluteFilePath()));
         if (directory) logical += '/';
-        if (!directory && ((!logical.contains('/')
-                            && (logical.endsWith(QStringLiteral(".md"), Qt::CaseInsensitive)
-                                || logical.endsWith(QStringLiteral(".wjnskin"), Qt::CaseInsensitive)
-                                || logical == QStringLiteral("build_theme.py")))
-                           || logical == QStringLiteral("assets/.gitkeep"))) continue;
+        if (!directory
+            && (logical == QStringLiteral("Theme-v1-Registry.json")
+                || logical == QStringLiteral("assets/.gitkeep")
+                || (!logical.contains('/')
+                    && (logical.endsWith(QStringLiteral(".md"), Qt::CaseInsensitive)
+                        || logical.endsWith(QStringLiteral(".wjnskin"), Qt::CaseInsensitive)
+                        || logical == QStringLiteral("build_theme.py"))))) continue;
         if (info.isSymLink() || !validPath(logical, directory) || !allowedEntry(logical, directory))
             return fail(error, "unsupported Dev theme entry: " + logical);
         if (entries.contains(logical) || entries.size() >= maxEntries)

@@ -9,11 +9,13 @@
 #include <WinJACKNexus/UI/ThemeBackground.hpp>
 #include <WinJACKNexus/UI/ThemeManager.hpp>
 #include <WinJACKNexus/NativeFx/NativeFxApi.h>
+#include "SelThemeAccent.hpp"
 
 #include <QBoxLayout>
 #include <QComboBox>
 #include <QCoreApplication>
 #include <QDirIterator>
+#include <QEvent>
 #include <QDialog>
 #include <QDebug>
 #include <QFile>
@@ -114,10 +116,14 @@ public:
         const bool selected = option.state & QStyle::State_Selected;
         const bool enabled = index.data(Qt::UserRole + 3).toBool();
         const QColor accent(index.data(Qt::UserRole + 2).toString());
+        const QString sourceKind = option.widget ? option.widget->property("selSourceKind").toString() : QString();
+        const QColor selectedAccent = sourceKind.isEmpty()
+            ? themed("control-fx-chain-card-border-selected", QColor("#42cbfb"))
+            : selThemeAccent(sourceKind);
         Controls::drawSurface(*painter, card,
                               enabled ? themed("control-fx-chain-card-surface-normal",QColor("#214b62"))
                                       : themed("control-fx-chain-card-surface-disabled",QColor("#15273a")),
-                              selected ? themed("control-fx-chain-card-border-selected",QColor("#42cbfb"))
+                              selected ? selectedAccent
                                        : enabled ? accent
                                                  : themed("control-fx-chain-card-border-disabled",QColor("#344d69")),
                               7, selected ? 2.0 : 1.2);
@@ -301,9 +307,18 @@ public:
             {"%endpoint-border%", "control-chain-endpoint-border", "#567a9a"},
             {"%endpoint-text%", "control-chain-endpoint-text", "#f1f7ff"}
         }};
-        for (const auto& entry : replacements)
-            style.replace(QString::fromLatin1(entry[0]), cssColor(entry[1], entry[2]));
+        const QString sourceKind = owner.property("selSourceKind").toString();
+        const QColor sourceAccent = sourceKind.isEmpty() ? QColor() : selThemeAccent(sourceKind);
+        for (const auto& entry : replacements) {
+            const QString role = QString::fromLatin1(entry[1]);
+            const bool accentRole = role == QStringLiteral("accent-primary")
+                || role == QStringLiteral("control-button-border-hover")
+                || role == QStringLiteral("control-list-border-selected");
+            style.replace(QString::fromLatin1(entry[0]), accentRole && sourceAccent.isValid()
+                ? sourceAccent.name() : cssColor(entry[1], entry[2]));
+        }
         owner.setStyleSheet(style);
+        if (list) list->setProperty("selSourceKind", sourceKind);
         if (chainContent) chainContent->update();
         if (list) list->viewport()->update();
         owner.update();
@@ -1253,6 +1268,13 @@ FxSettingsWindow::FxSettingsWindow(const QString& sourceName, const QStringList&
     updateOpacity();
     if (auto* core = ThemeManager::installedThemeCore())
         connect(core, &ThemeCore::themeChanged, this, updateOpacity);
+}
+
+bool FxSettingsWindow::event(QEvent* event) {
+    if (event->type() == QEvent::DynamicPropertyChange && impl_
+        && static_cast<QDynamicPropertyChangeEvent*>(event)->propertyName() == "selSourceKind")
+        impl_->applyTheme();
+    return QWidget::event(event);
 }
 
 void FxSettingsWindow::paintEvent(QPaintEvent* event) {

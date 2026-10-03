@@ -6,6 +6,7 @@
 #include <WinJACKNexus/UI/ThemeCore.hpp>
 #include <WinJACKNexus/UI/ThemeBackground.hpp>
 #include <WinJACKNexus/UI/ThemeManager.hpp>
+#include "SelThemeAccent.hpp"
 
 #include <QFontMetricsF>
 #include <QHelpEvent>
@@ -53,10 +54,10 @@ void panel(QPainter& painter, const QRectF& rect, const QColor& border = QColor(
         Controls::themeTokenColor("sel-aux","surface-panel",QColor("#102235")),border,7);
 }
 
-void toggle(QPainter& painter, const QRectF& rect, bool checked)
+void toggle(QPainter& painter, const QRectF& rect, bool checked, const QColor& accent)
 {
     Controls::drawToggle(painter, rect, checked,
-        Controls::themeTokenColor("sel-aux","control-toggle-indicator-on",QColor("#187ee8")),
+        accent,
         Controls::themeTokenColor("sel-aux","control-toggle-indicator-off",QColor("#38516d")));
 }
 
@@ -595,23 +596,25 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
     const auto sy = impl_->scaleY();
     const auto label = themed("text-primary",QColor("#e8f2ff"));
     const auto secondary = themed("text-muted",QColor("#aec7eb"));
-    const auto cyan = themed("control-knob-indicator-normal",QColor("#26bfff"));
+    const QString sourceKind = property("selSourceKind").toString();
+    const QColor controlAccent = selThemeAccent(sourceKind.isEmpty()
+        ? QStringLiteral("input") : sourceKind);
     const auto knobColors=Controls::paletteFor(*this,
         {themed("control-knob-background-base",QColor("#0b1a2b")),
          themed("control-knob-panel",QColor("#1b3b57")),
-         themed("control-knob-text",QColor("#d9f4ff")),cyan,
+         themed("control-knob-text",QColor("#d9f4ff")),controlAccent,
          themed("control-knob-track",QColor("#254762"))});
 
-    panel(painter, impl_->leftPanel(), themed("border-panel",QColor("#2b4662")));
+    panel(painter, impl_->leftPanel(), controlAccent);
     text(painter, impl_->scaled(26, 12, 172, 38), impl_->subMixMode ? QStringLiteral("Sub Mix") : QStringLiteral("AUX"), label, 18 * sy,
          Qt::AlignLeft | Qt::AlignVCenter, true);
     if (!impl_->subMixMode) {
-    toggle(painter, impl_->masterToggle(), impl_->chainEnabled);
+    toggle(painter, impl_->masterToggle(), impl_->chainEnabled, controlAccent);
     Controls::drawSurface(painter,impl_->addButton(),
         themed("control-add-surface",QColor("#073158")),
-        themed("control-add-border",QColor("#0b699d")),6);
+        controlAccent,6);
     text(painter, impl_->addButton(), QStringLiteral("＋  添加 AUX"),
-         themed("control-add-text",QColor("#54d8ff")), 15 * sy);
+         controlAccent, 15 * sy);
     Controls::drawSurface(painter,impl_->removeButton(),
         themed("control-remove-surface",QColor("#172d42")),
         themed("control-remove-border",QColor("#0b699d")),6);
@@ -640,7 +643,7 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
         if (selected)
             painter.fillRect(QRectF(row.left(), row.top() + 3, 5 * sx, row.height() - 6), busAccent);
 
-        toggle(painter, impl_->listPowerToggle(index), impl_->chainEnabled && bus.enabled && !bus.selfRoute);
+        toggle(painter, impl_->listPowerToggle(index), impl_->chainEnabled && bus.enabled && !bus.selfRoute, controlAccent);
         text(painter, { row.left() + 64 * sx, row.top() + 10 * sy, 94 * sx, 25 * sy },
              elidedName(painter, bus.name, 15 * sy, 94 * sx, true), label, 15 * sy, Qt::AlignLeft | Qt::AlignVCenter, true);
         text(painter, { row.left() + 64 * sx, row.top() + 36 * sy, 94 * sx, 22 * sy }, channelNames(bus.targetLayout),
@@ -661,13 +664,14 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
         painter.restore();
         text(painter, { knobCenter.x() - 38 * sx, row.top() + 55 * sy, 76 * sx, 16 * sy },
              bus.selfRoute ? QStringLiteral("自身 禁用") : dbText(level),
-             bus.selfRoute ? secondary : cyan, 10 * sy);
+             bus.selfRoute ? secondary : controlAccent, 10 * sy);
 
         const QRectF pre(row.left() + 220 * sx, row.top() + 18 * sy, 45 * sx, 36 * sy);
         const QRectF post(row.left() + 265 * sx, row.top() + 18 * sy, 48 * sx, 36 * sy);
-        const auto routeActive = themed("control-route-surface-selected",QColor("#087ee4"));
+        QColor routeActive = controlAccent;
+        routeActive.setAlpha(85);
         const auto routeIdle = themed("control-route-surface-normal",QColor("#172d43"));
-        const auto routeBorder = themed("control-route-border",QColor("#315370"));
+        const auto routeBorder = controlAccent;
         if (!impl_->subMixMode) {
         Controls::drawSurface(painter,pre,bus.preFader ? routeActive : routeIdle,routeBorder,5);
         Controls::drawSurface(painter,post,!bus.preFader ? routeActive : routeIdle,routeBorder,5);
@@ -697,8 +701,8 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
     Controls::drawSurface(painter,scrollbarThumb,
         !listScrollable ? themed("control-scrollbar-thumb-disabled",QColor("#29465b"))
             : impl_->listScrollbarDragging
-                ? themed("control-scrollbar-thumb-dragging",QColor("#56d7ff"))
-                : themed("control-scrollbar-thumb-normal",QColor("#258fc3")),
+                ? controlAccent.lighter(120)
+                : controlAccent,
         {},scrollbarThumb.width()*.5);
 
     auto* bus = impl_->selected();
@@ -710,7 +714,7 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
     painter.scale(sx, sy);
     const auto drawPanel=[&](QRectF rect){
         Controls::drawSurface(painter,rect,themed("surface-panel",QColor("#102235")),
-            themed("border-panel",QColor("#2b4662")),7);
+            controlAccent,7);
     };
     const auto drawText=[&](QRectF rect,const QString& value,int size=15,QColor color=QColor("#e8f2ff"),bool bold=false,int align=Qt::AlignLeft|Qt::AlignVCenter){
         auto font=painter.font();font.setPixelSize(size);font.setBold(bold);
@@ -727,12 +731,11 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
         };
         style.inactiveFill=Controls::themeTokenColor(QStringLiteral("sel-aux"),
             role("-surface-normal"),global("surface-normal",style.inactiveFill));
-        style.activeFill=Controls::themeTokenColor(QStringLiteral("sel-aux"),
-            role("-surface-selected"),global("surface-selected",style.activeFill));
+        style.activeFill=controlAccent;
+        style.activeFill.setAlpha(85);
         style.inactiveBorder=Controls::themeTokenColor(QStringLiteral("sel-aux"),
             role("-border-normal"),global("border-normal",style.inactiveBorder));
-        style.activeBorder=Controls::themeTokenColor(QStringLiteral("sel-aux"),
-            role("-border-selected"),global("border-selected",style.activeBorder));
+        style.activeBorder=controlAccent;
         style.inactiveText=Controls::themeTokenColor(QStringLiteral("sel-aux"),
             role("-text-normal"),secondary);
         style.activeText=Controls::themeTokenColor(QStringLiteral("sel-aux"),
@@ -742,7 +745,7 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
     };
     const auto drawToggle=[&](QRectF rect,bool active){
         Controls::drawToggle(painter,rect,active,
-            themed("control-toggle-indicator-on",QColor("#168dff")),
+            controlAccent,
             themed("control-toggle-indicator-off",QColor("#263e53")));
     };
     const auto drawMuteSolo=[&](QRectF rect,const QString& value,bool active,QColor accent){
@@ -771,7 +774,7 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
     if(classic){
         Controls::Palette panColors;
         panColors.border=themed("control-pan-border",QColor("#254762"));
-        panColors.accent=cyan;
+        panColors.accent=controlAccent;
         panColors.panel=themed("control-knob-panel",QColor("#1b3b57"));
         panColors.text=themed("control-knob-text",QColor("#d9f4ff"));
         Controls::drawPanKnob(painter,center,bus->classicPan,170,panColors);

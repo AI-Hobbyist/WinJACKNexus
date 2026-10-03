@@ -1,0 +1,4 @@
+/* Sparse full theme: undeclared tokens use the built-in registry defaults. */
+:root {
+  --wjn-theme-global-font-source: system;
+}

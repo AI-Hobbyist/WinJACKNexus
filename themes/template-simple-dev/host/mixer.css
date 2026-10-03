@@ -1,0 +1,8 @@
+/* Change a type's fader thumb here to recolor its SEL controls by default. */
+:root {
+  --wjn-theme-mixer-fader-input-thumb: #9aa8b7;
+  --wjn-theme-mixer-fader-aux-thumb: #33b6ff;
+  --wjn-theme-mixer-fader-submix-thumb: #37d879;
+  --wjn-theme-mixer-fader-master-thumb: #ff5353;
+  --wjn-theme-mixer-fader-monitor-thumb: #ffe15a;
+}

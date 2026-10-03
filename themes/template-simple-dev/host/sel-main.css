@@ -1,0 +1,8 @@
+/* Each SEL accent inherits its channel TYPE's fader thumb, never a channel's custom color. */
+:root {
+  --wjn-theme-sel-main-control-accent-input: var(--wjn-theme-mixer-fader-input-thumb);
+  --wjn-theme-sel-main-control-accent-aux: var(--wjn-theme-mixer-fader-aux-thumb);
+  --wjn-theme-sel-main-control-accent-submix: var(--wjn-theme-mixer-fader-submix-thumb);
+  --wjn-theme-sel-main-control-accent-master: var(--wjn-theme-mixer-fader-master-thumb);
+  --wjn-theme-sel-main-control-accent-monitor: var(--wjn-theme-mixer-fader-monitor-thumb);
+}

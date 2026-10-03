@@ -28,6 +28,7 @@ public:
         float[8], void*, std::uint32_t)> handler);
 
 protected:
+    bool event(QEvent* event) override;
     void paintEvent(QPaintEvent* event) override;
 
 private:
