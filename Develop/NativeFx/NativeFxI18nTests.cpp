@@ -1,4 +1,8 @@
 /* Actual Native Fx DLLs, offline instances and Windows UI. SPDX-License-Identifier: AGPL-3.0-only */
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#include <windows.h>
 #include <WinJACKNexus/NativeFx/NativeFxApi.h>
 #include <WinJACKNexus/Node/NodeApi.h>
 #include <WinJACKNexus/UI/HostI18n.hpp>
@@ -18,6 +22,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
+#include <QImage>
 #include <QLabel>
 #include <QLibrary>
 #include <QListWidget>
@@ -103,9 +108,65 @@ void bindings(QObject& root) {
               "actual bound property has current catalog text");
     }
 }
+class NativeCaptureProtection final {
+public:
+    explicit NativeCaptureProtection(QWidget& window) : window_(window),
+        handle_(reinterpret_cast<HWND>(window.winId())),
+        wasTopmost_((GetWindowLongPtrW(handle_,GWL_EXSTYLE)&WS_EX_TOPMOST)!=0) {
+        check(SetWindowPos(handle_,HWND_TOPMOST,0,0,0,0,
+            SWP_NOMOVE|SWP_NOSIZE|SWP_NOACTIVATE)!=0,"temporarily expose only the tested window above other applications");
+    }
+    ~NativeCaptureProtection() {
+        if (!wasTopmost_) SetWindowPos(handle_,HWND_NOTOPMOST,0,0,0,0,
+            SWP_NOMOVE|SWP_NOSIZE|SWP_NOACTIVATE);
+    }
+    QImage pixels(const QRect& region) const {
+        RECT client{};
+        check(GetClientRect(handle_,&client)!=0,"native capture client rectangle exists");
+        const auto scaleX=double(client.right-client.left)/window_.width();
+        const auto scaleY=double(client.bottom-client.top)/window_.height();
+        POINT origin{qRound(region.x()*scaleX),qRound(region.y()*scaleY)};
+        const int width=qRound((region.x()+region.width())*scaleX)-origin.x;
+        const int height=qRound((region.y()+region.height())*scaleY)-origin.y;
+        check(width>0 && height>0 && ClientToScreen(handle_,&origin)!=0,"capture has positive native desktop dimensions");
+        for (const auto fraction : {QPointF(.1,.1),QPointF(.9,.1),QPointF(.5,.5),QPointF(.1,.9),QPointF(.9,.9)}) {
+            const POINT sample{origin.x+qRound((width-1)*fraction.x()),origin.y+qRound((height-1)*fraction.y())};
+            const auto observed=WindowFromPoint(sample);
+            check(observed && GetAncestor(observed,GA_ROOT)==handle_,"native capture samples belong to the tested window, not an overlapping application");
+        }
+        // Read the physical visible desktop, using the same native coordinates
+        // checked above. Do not infer physical positions from Qt scale factors.
+        const auto desktop=GetDC(nullptr);
+        check(desktop!=nullptr,"visible desktop device context exists");
+        const auto memory=CreateCompatibleDC(desktop);
+        const auto bitmap=CreateCompatibleBitmap(desktop,width,height);
+        check(memory && bitmap,"desktop pixel capture storage exists");
+        const auto previous=SelectObject(memory,bitmap);
+        check(BitBlt(memory,0,0,width,height,desktop,origin.x,origin.y,SRCCOPY|CAPTUREBLT)!=0,"copy actual visible desktop pixels");
+        SelectObject(memory,previous);
+        QImage result(width,height,QImage::Format_RGB32);
+        BITMAPINFO information{};
+        information.bmiHeader.biSize=sizeof(BITMAPINFOHEADER);
+        information.bmiHeader.biWidth=width;
+        information.bmiHeader.biHeight=-height;
+        information.bmiHeader.biPlanes=1;
+        information.bmiHeader.biBitCount=32;
+        information.bmiHeader.biCompression=BI_RGB;
+        const auto rows=GetDIBits(memory,bitmap,0,height,result.bits(),&information,DIB_RGB_COLORS);
+        DeleteObject(bitmap); DeleteDC(memory); ReleaseDC(nullptr,desktop);
+        check(rows==height,"read every row of native desktop capture");
+        return result;
+    }
+private:
+    QWidget& window_;
+    HWND handle_;
+    bool wasTopmost_;
+};
 void capture(QWidget& widget, const QString& output, const QString& name) {
     const bool popup=widget.windowType()==Qt::Popup || widget.windowType()==Qt::ToolTip;
     if (!popup) { widget.show(); widget.raise(); widget.activateWindow(); }
+    if (!popup) { QToolTip::hideText(); settle(350); }
+    NativeCaptureProtection protection(*widget.window());
     widget.repaint(); settle(150);
     check(widget.isVisible() && widget.windowHandle() && widget.windowHandle()->isExposed(), "actual visible exposed Windows window");
     check(widget.font().family() == QApplication::font().family(), "system font inherited");
@@ -125,10 +186,9 @@ void capture(QWidget& widget, const QString& output, const QString& name) {
         auto* screen = QGuiApplication::screenAt(actual.center());
         check(screen && screen->availableGeometry().contains(actual), "entire capture region on visible desktop");
         check(window->isVisible() && window->windowHandle()->isExposed(),"capture window remains visible after placement");
-        const auto relative=actual.topLeft()-screen->geometry().topLeft();
-        const auto pixels = screen->grabWindow(0,relative.x(),relative.y(),tile.width(),tile.height());
+        const auto pixels = protection.pixels(tile);
         if (popup) {
-            const auto bitmap=pixels.toImage(); bool varied=false;
+            const auto& bitmap=pixels; bool varied=false;
             if (!bitmap.isNull()) for(int row=0;row<bitmap.height() && !varied;++row)
                 for(int column=0;column<bitmap.width();++column)
                     if (bitmap.pixel(column,row)!=bitmap.pixel(0,0)) { varied=true; break; }
@@ -308,9 +368,12 @@ void module(HostI18n& host, const QString& runtime, const QString& output, const
         const QRect draftRect(draft->mapToGlobal(QPoint(0,0)),draft->size());
         auto* draftScreen=QGuiApplication::screenAt(draftRect.center());
         check(draftScreen && draftScreen->availableGeometry().contains(draftRect),"numeric draft entirely visible on real desktop");
-        const auto draftOrigin=draftRect.topLeft()-draftScreen->geometry().topLeft();
-        const auto draftPixels=draftScreen->grabWindow(0,draftOrigin.x(),draftOrigin.y(),draft->width(),draft->height());
+        QToolTip::hideText(); settle(350);
+        {
+        NativeCaptureProtection draftProtection(*nodePanel);
+        const auto draftPixels=draftProtection.pixels(QRect(draft->mapTo(nodePanel,QPoint{}),draft->size()));
         check(!draftPixels.isNull() && draftPixels.save(output+'/'+effect+QStringLiteral("-draft-")+language+QStringLiteral(".png")),"capture actual current-language pending input");
+        }
         QKeyEvent escape(QEvent::KeyPress,Qt::Key_Escape,Qt::NoModifier); QCoreApplication::sendEvent(draft,&escape); settle();
         check(!draft || !draft->isVisible(),"Escape cancels pending numeric editor");
         // Enter the real preset menu, then change language while its native window is open.
@@ -589,5 +652,6 @@ int main(int argc,char** argv) {
     if (runShared) { clientName(host,args[2]); elision(host,args[2]); }
     std::printf("S5 module Windows checks PASS: %d; platform=%s font=%s scale=%s\n",checks,app.platformName().toUtf8().constData(),app.font().family().toUtf8().constData(),qgetenv("QT_SCALE_FACTOR").constData());
     std::printf("S5 popup budget: %d / 100\n",popupBudget.shows);
+    std::printf("S5 capture protocol: native-window-ownership-v2\n");
     return 0;
 }

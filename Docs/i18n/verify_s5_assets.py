@@ -74,8 +74,13 @@ def main():
     # Each new record is one foreground invocation, with immutable source/runtime
     # fingerprints and a measured popup budget. Preserve full coverage by union.
     from PIL import Image
+    from verify_qt_size_correction import verify as verify_qt_transition
+    transition=verify_qt_transition()
     runs=[]
+    historical=[]
     coverage={}
+    fresh_dialogs=set()
+    required_dialogs={('1','hot'),('1.5','hot'),('2','hot')}
     for record_path in sorted((OUT/'S5-bounded-records').glob('*.json')):
         run=json.loads(record_path.read_text(encoding='utf-8-sig'))
         assert run['scale'] in ('1','1.5','2') and run['language'] in ('hot',)+LANGUAGES
@@ -83,6 +88,16 @@ def main():
         assert 0 < run['popup_shows'] <= 100 and run['checks']>0
         assert run['scope'] in ('Effects','Host','Community','Shared')
         assert run['evidence'] and run['captures']
+        if 'capture_protocol' not in run:
+            # Retain immutable history, but occlusion was not checked by that
+            # fixture. It cannot satisfy the visible-window completion gate.
+            assert digest(ROOT/run['log'])==run['log_sha256']
+            for entry in run['captures']:
+                assert digest(ROOT/entry['file'])==entry['sha256']
+            historical.append({'record':str(record_path.relative_to(ROOT)),
+                               'reason':'historical behavior evidence; native pixel ownership not proven'})
+            continue
+        assert run['capture_protocol']=='native-window-ownership-v2'
         for fingerprint in run['evidence']+run['captures']:
             path=ROOT/fingerprint['file']
             assert digest(path)==fingerprint['sha256'], ('stale run evidence',record_path,path)
@@ -99,6 +114,7 @@ def main():
         budget=re.search(r'S5 popup budget: (\d+) / 100',log)
         assert match and budget and int(match[1])==run['checks'] and match[2]==run['font'] and match[3]==run['scale']
         assert int(budget[1])==run['popup_shows'] and 'S5 FAILED' not in log
+        assert 'S5 capture protocol: native-window-ownership-v2' in log
         is_effect=run['scope']=='Effects'
         assert (bool(run['effects']) if is_effect else not run['effects'])
         assert set(run['effects']) <= set(EFFECTS)
@@ -113,6 +129,8 @@ def main():
         locales=LANGUAGES if run['language']=='hot' else (run['language'],)
         group=coverage.setdefault((run['scale'],run['language']),set())
         if is_effect:
+            if 'graphic_eq' in run['effects']:
+                fresh_dialogs.add((run['scale'],run['language']))
             for effect in run['effects']:
                 for locale in locales:
                     for kind in ('mixer','node','preset-menu','draft'):
@@ -147,7 +165,8 @@ def main():
                     assert any(low!=high for low,high in bitmap.convert('RGB').getextrema()), ('blank native menu',entry['file'])
         runs.append({'record':str(record_path.relative_to(ROOT)), 'scale':run['scale'],'cold':run['language'],
                      'checks':run['checks'],'popup_shows':run['popup_shows'],'font':run['font'],
-                     'captures':len(names),'log':run['log'],'sha256':run['log_sha256']})
+                     'captures':len(names),'log':run['log'],'sha256':run['log_sha256'],
+                     'runtime_basis':'current runtime with native-window-ownership-v2'})
     missing=[]
     for scale in ('1','1.5','2'):
         for language in ('hot',)+LANGUAGES:
@@ -156,6 +175,12 @@ def main():
             covered=coverage.get((scale,language),set())
             if expected-covered:
                 missing.append({'scale':scale,'language':language,'missing':sorted(expected-covered)})
+    for scale,language in sorted(required_dialogs-fresh_dialogs):
+        group=next((entry for entry in missing if entry['scale']==scale and entry['language']==language),None)
+        if group is None:
+            missing.append({'scale':scale,'language':language,'missing':['corrected Qt file-dialog regression']})
+        else:
+            group['missing'].append('corrected Qt file-dialog regression')
     if '--progress' not in sys.argv:
         assert not missing, ('missing bounded coverage',missing)
     source_paths=[ROOT/'src/native_fx/src/I18n.cpp', ROOT/'src/native_fx/src/NativeFxApi.cpp', ROOT/'src/ui/src/Controls.cpp',
@@ -171,6 +196,8 @@ def main():
     report={'stage':'S5','result':'INCOMPLETE' if progress else 'PASS','scope':'catalog/deployment/inventory/Windows test evidence consistency',
             'module_keys':len(records),'shared_keys':len(shared),'source_display_occurrences':len(scope),
             'runs':runs,'evidence':evidence,'missing_bounded_coverage':missing,
+            'historical_runs_not_counted':historical,
+            'qt_resource_transition':transition,
             'human_review':'pending S6; automated checks do not approve translations'}
     destination='S5-bounded-progress.json' if progress else 'S5-verification.json'
     (OUT/destination).write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')

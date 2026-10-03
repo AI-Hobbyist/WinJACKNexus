@@ -29,6 +29,8 @@ $sourceFiles=@(
     'src/ui/src/Controls.cpp','src/ui/src/FxSettingsWindow.cpp',
     'src/ui/src/I18nManager.cpp','src/ui/src/HostI18n.cpp',
     'Docs/i18n/S5-strings.tsv','Docs/i18n/S5-shared-strings.tsv',
+    'src/ui/resources/qt-overrides-zh_CN.ts','src/ui/resources/qt-translations.qrc.in',
+    'build/release/bin/locate/qt/qtbase_zh_CN.qm',
     'build/release/bin/wjn_native_fx_i18n_tests.exe','build/release/bin/ui.dll',
     'build/release/bin/examples/native_fx/wjn_example_native_fx.dll',
     'build/release/bin/examples/node/wjn_example_node.dll'
@@ -64,6 +66,7 @@ $log=Get-Content -LiteralPath 'build.log' -Raw
 $budget=[regex]::Match($log,'S5 popup budget: (\d+) / 100')
 $pass=[regex]::Match($log,'S5 module Windows checks PASS: (\d+); platform=windows font=(.+?) scale=([\d.]+)')
 if (!$budget.Success -or [int]$budget.Groups[1].Value -gt 100 -or !$pass.Success -or $pass.Groups[3].Value -ne $Scale) { throw 'Missing valid Windows PASS and popup budget evidence.' }
+if (!$log.Contains('S5 capture protocol: native-window-ownership-v2')) { throw 'Native window ownership capture proof is required.' }
 foreach ($fingerprint in $fingerprints) {
     if ((Get-FileHash -LiteralPath (Join-Path $repositoryRoot $fingerprint.file) -Algorithm SHA256).Hash.ToLowerInvariant() -ne $fingerprint.sha256) { throw "Evidence changed during test: $($fingerprint.file)" }
 }
@@ -72,6 +75,7 @@ $captures=@(Get-ChildItem -LiteralPath (Join-Path $repositoryRoot $outputRelativ
 })
 if ($captures.Count -eq 0) { throw 'No native desktop captures.' }
 $record=@{run_id=$runId;scale=$Scale;scope=$Scope;effects=@($Effects);language=$Language;
+    capture_protocol='native-window-ownership-v2';
     exit_code=$testExit;popup_shows=[int]$budget.Groups[1].Value;checks=[int]$pass.Groups[1].Value;
     platform='windows';font=$pass.Groups[2].Value;log=$logRelative;
     log_sha256=(Get-FileHash -LiteralPath (Join-Path $repositoryRoot $logRelative) -Algorithm SHA256).Hash.ToLowerInvariant();
