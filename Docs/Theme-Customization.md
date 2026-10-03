@@ -9,7 +9,7 @@
 ## 制作与安装
 
 1. 复制 `themes/template` 到个人工作目录，修改 `meta.json` 中稳定的 `id`、名称、版本、作者、介绍和可选主页。
-2. 全局外观修改根目录 `style.css`；宿主界面修改 `host/<模块>.css`，接线盘节点修改 `node/patchbay.css`，Native Fx 修改 `native_fx/<效果>.css`（共享项在 `native_fx/common.css`）。每个文件保留单个 `:root` 和 token 名称。模板合计写出 807 个显式默认值，并注释列出 14 个继承图片 token。`Docs/Theme-v1-Registry.json` 是类型、归属与继承规则的完整清单。
+2. 全局外观修改根目录 `style.css`；宿主界面修改 `host/<模块>.css`，接线盘节点修改 `node/patchbay.css`，Native Fx 修改 `native_fx/<效果>.css`（共享项在 `native_fx/common.css`）。每个文件保留单个 `:root` 和 token 名称。模板合计写出 817 个显式默认值，并注释列出 15 个继承图片 token。`Docs/Theme-v1-Registry.json` 是类型、归属与继承规则的完整清单。
 3. 把图片、TTF/OTF 字体放在 `assets/`，仅用 `url("assets/文件名")` 引用。无图片时使用 `none`，字体默认 `system`。
 4. 开发时可将整个模板文件夹放进主程序同级 `themes/`，直接以文件夹形式加载。托盘主题名称末尾标记 `(Dev)`；当前选中 Dev 主题时，托盘子菜单提供“刷新当前 Dev 主题”，可在修改文件后重新读取。也可以运行模板中的 `python build_theme.py` 得到 `.wjnskin`，在“主题管理”导入、预览、应用。应用完整包会安装到主程序同级 `themes/`。重新展开托盘菜单会重新扫描包文件和 Dev 文件夹；同一 ID 的 Dev 文件夹优先于包文件。
 
@@ -27,6 +27,7 @@ token 格式是 `--wjn-theme-<模块>-<角色>`。同类控件按模块分别设
 | `patchbay` | 节点卡片、标题/标签、Audio 与 MIDI 输入/输出端口、连线正常/悬停/选中/无效状态、工具栏自绘按钮与缩放控件、右键框选、全览框节点和视口，以及背景。`overview-viewport` 是全览框中可拖动的小方框；缩放画布时它反向变化，并保持最小可抓取尺寸。 |
 | `mixer` | 输入、AUX、Submix、监听、主控推子的 `thumb`、`track`、`grip`，PFL/AFL 状态按钮、监听面板与三段电平。未自定义的通道颜色以及总览类型标题跟随对应 `fader-{input,aux,submix,master}-thumb`；监听使用 `fader-monitor-thumb`。监听通道条的 SEL 与其他通道条共用 `control-button-surface-normal`、`control-button-text-normal`，其边框色由 `monitor-select-accent` 控制。 |
 | `sel-main` | 通道旋钮、控制按钮、主电平及发送电平、输入/输出极坐标曲线与背景；声像模式、输入/输出曲线和重置按钮分别使用 `control-panner-{mode,input,output,reset}-button-*`。标题旁的调色板菜单可为 Input、AUX、Submix、Master 设置或恢复默认通道颜色。 |
+| `sel-monitor` | 监听 SEL 的独立背景图片、位置、缩放、模糊与叠层；默认继承接线盘背景。监听控件及图表继续使用 `sel-main` Token。 |
 | `sel-aux` | AUX 与 Submix 共用界面的旋钮、开关、发送电平、输入/输出极坐标曲线与背景；声像模式、输入/输出曲线和重置按钮分别使用 `control-panner-{mode,input,output,reset}-button-*`。 |
 | `sel-fx` | 效果链卡片、端点和状态控件、电平与背景；效果本身窗口属于各 `native-fx-*` 作用域。 |
 | `meter-bridge` | 电平卡片、读数/标签、三段电平、历史图表与八条测量曲线、背景。 |
@@ -45,9 +46,13 @@ token 格式是 `--wjn-theme-<模块>-<角色>`。同类控件按模块分别设
 
 `chart-series-<语义>-stroke` 只给线条改色；`-fill`、`-fill-start`、`-fill-end` 改面积或渐变。SEL Main/AUX 的 `polar-input` 与 `polar-output` 是两条不同的极坐标曲线。电平表桥的 `peak`、`rms`、`lfe`、`true-peak`、`momentary`、`short-term`、`integrated`、`lra` 是八条独立历史序列。Compressor 的 `level-fill` 是响应曲线下的动画面积；Limiter 的 `transfer-fill` 是传输曲线填充；Graphic EQ 的输出频谱填充有 start/end 两端；Parametric EQ 的 `band-1`～`band-4` 与 `total-response` 分开设色。
 
+SEL 空间声像图和 FX 链箭头在图表 Token 保持内置默认值时，随所选通道类型的强调色同步。完整主题或覆盖层若为相应图表 Token 指定不同颜色或 `var(...)`，则优先按该自定义值绘制；输入/输出曲线及箭头线段/箭头分别保留独立的自定义入口。
+
 `meter-<种类>-zone-<段>-active/inactive` 分别控制亮起与未亮起格。`level` 三段边界固定为低段 `< -12 dB`、中段 `-12～0 dB`、高段 `>= 0 dB`，可见标尺上限为 `+12 dB`；颜色不能修改边界。调音台、SEL、电平表桥和 Limiter 的 level 表使用 low/mid/high；Compressor/Limiter 的 reduction 表使用 `single` 段。峰值、削波、刻度、标签、底色和边框是同表的独立 token。建议在模板中同时调整 active/inactive 成对颜色，以免未亮起区域掩盖分段。
 
 ## 背景与叠层
+
+监听 SEL 使用独立的 `sel-monitor-background-*` 配置。未单独指定时，它的图片和背景参数继承接线盘；可在主题管理的背景模块列表中单独选择 `sel-monitor`。
 
 除 `global` 外，各模块的背景图片及其相关选项默认继承 `patchbay`；默认主题和模板通过 `var(--wjn-theme-patchbay-background-...)` 保持联动，模块内显式设置可覆盖继承。`background-image` 可不声明以继承接线盘图片、写 `none` 禁用，或写 `url("assets/...")` 自定义。`size` 选 original/contain/cover/stretch；`scale` 为 0.05～4 的等比缩放；repeat、position-x/y、opacity、blur-radius、component-opacity、overlay-enabled、overlay-opacity 均可按模块设置。`position-x/y` 支持百分比和 px，可让角色固定四角或一侧。上层覆盖模式：透明背景图片最佳。
 

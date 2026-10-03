@@ -7198,6 +7198,116 @@
       "default": "var(--wjn-theme-mixer-fader-monitor-thumb)",
       "inherits": [],
       "description": "SEL control accent for Monitor; defaults to the Monitor fader thumb"
+    },
+    {
+      "name": "--wjn-theme-sel-monitor-background-opacity",
+      "ownerScope": "sel-monitor",
+      "type": "opacity",
+      "default": "1",
+      "inherits": [
+        "--wjn-theme-patchbay-background-opacity"
+      ],
+      "description": "sel-monitor / background opacity"
+    },
+    {
+      "name": "--wjn-theme-sel-monitor-background-size",
+      "ownerScope": "sel-monitor",
+      "type": "background-size",
+      "default": "cover",
+      "inherits": [
+        "--wjn-theme-patchbay-background-size"
+      ],
+      "description": "sel-monitor / background size"
+    },
+    {
+      "name": "--wjn-theme-sel-monitor-background-scale",
+      "ownerScope": "sel-monitor",
+      "type": "background-scale",
+      "default": "1",
+      "inherits": [
+        "--wjn-theme-patchbay-background-scale"
+      ],
+      "description": "sel-monitor / background scale"
+    },
+    {
+      "name": "--wjn-theme-sel-monitor-background-repeat",
+      "ownerScope": "sel-monitor",
+      "type": "background-repeat",
+      "default": "no-repeat",
+      "inherits": [
+        "--wjn-theme-patchbay-background-repeat"
+      ],
+      "description": "sel-monitor / background repeat"
+    },
+    {
+      "name": "--wjn-theme-sel-monitor-background-position-x",
+      "ownerScope": "sel-monitor",
+      "type": "position",
+      "default": "50%",
+      "inherits": [
+        "--wjn-theme-patchbay-background-position-x"
+      ],
+      "description": "sel-monitor / background position x"
+    },
+    {
+      "name": "--wjn-theme-sel-monitor-background-position-y",
+      "ownerScope": "sel-monitor",
+      "type": "position",
+      "default": "50%",
+      "inherits": [
+        "--wjn-theme-patchbay-background-position-y"
+      ],
+      "description": "sel-monitor / background position y"
+    },
+    {
+      "name": "--wjn-theme-sel-monitor-background-overlay-enabled",
+      "ownerScope": "sel-monitor",
+      "type": "boolean",
+      "default": "false",
+      "inherits": [
+        "--wjn-theme-patchbay-background-overlay-enabled"
+      ],
+      "description": "sel-monitor / background overlay enabled"
+    },
+    {
+      "name": "--wjn-theme-sel-monitor-background-overlay-opacity",
+      "ownerScope": "sel-monitor",
+      "type": "opacity",
+      "default": "0.12",
+      "inherits": [
+        "--wjn-theme-patchbay-background-overlay-opacity"
+      ],
+      "description": "sel-monitor / background overlay opacity"
+    },
+    {
+      "name": "--wjn-theme-sel-monitor-background-blur-radius",
+      "ownerScope": "sel-monitor",
+      "type": "blur-radius",
+      "default": "0px",
+      "inherits": [
+        "--wjn-theme-patchbay-background-blur-radius"
+      ],
+      "description": "sel-monitor / background blur radius"
+    },
+    {
+      "name": "--wjn-theme-sel-monitor-background-component-opacity",
+      "ownerScope": "sel-monitor",
+      "type": "opacity",
+      "default": "1",
+      "inherits": [
+        "--wjn-theme-patchbay-background-component-opacity"
+      ],
+      "description": "sel-monitor / background component opacity"
+    },
+    {
+      "name": "--wjn-theme-sel-monitor-background-image",
+      "ownerScope": "sel-monitor",
+      "type": "image",
+      "default": null,
+      "inherits": [
+        "--wjn-theme-patchbay-background-image"
+      ],
+      "description": "sel-monitor content background image; null means undefined and inherits the patchbay image"
     }
   ]
 }

@@ -346,6 +346,10 @@ hosts the mixer FX chain and module-provided editors; a native effect keeps
 its own processing and parameter snapshot under the Native Fx API. UI widgets
 are created and destroyed on the Qt UI thread. Destroy an effect editor
 before unloading the DLL that supplies its code.
+The FX window and its header display the fixed title `FX 设置`; `setSourceName`
+keeps its existing signature for source updates but does not append the source
+name to that title. The channel choices remain centered in the space between
+the title controls and preset controls.
 
 The Node module export contract and project JSON envelope are specified in
 [`Node-API.md`](../Develop/Node/Node-API.md); the Native Fx lifecycle, snapshots and live

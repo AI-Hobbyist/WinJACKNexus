@@ -80,19 +80,35 @@ protected:
         if (!input_ || !output_) return;
         QPainter painter(this);
         painter.setRenderHint(QPainter::Antialiasing);
-        const QPointF start = input_->geometry().center();
-        const QPointF end = output_->geometry().center();
-        const qreal y = (start.y() + end.y()) / 2;
-        const qreal tip = end.x() - 12;
-        painter.setPen(QPen(Controls::themeTokenColor(QStringLiteral("sel-fx"),
-            QStringLiteral("chart-chain-connection-stroke"), QColor(90,169,219,220)),
+        const QRectF inputRect(input_->geometry());
+        const QRectF outputRect(output_->geometry());
+        const qreal start = inputRect.right() + 2;
+        const qreal tip = outputRect.left() - 2;
+        if (tip - start < 8) return;
+        const qreal y = (inputRect.center().y() + outputRect.center().y()) / 2;
+        const qreal headLength = std::min<qreal>(13, (tip - start) * 0.35);
+        const qreal headHalfHeight = std::min<qreal>(8, headLength * 0.6);
+        const QString sourceKind = property("selSourceKind").toString();
+        const QColor accent = sourceKind.isEmpty() ? QColor() : selThemeAccent(sourceKind);
+        const auto chainColor = [&accent](const char* role, const QColor& fallback) {
+            QColor color = Controls::themeTokenColor(QStringLiteral("sel-fx"),
+                QString::fromLatin1(role), fallback);
+            if (accent.isValid() && selThemeRoleUsesDefault(
+                    QStringLiteral("sel-fx"), QString::fromLatin1(role))) {
+                const int alpha = color.alpha();
+                color = accent;
+                color.setAlpha(alpha);
+            }
+            return color;
+        };
+        painter.setPen(QPen(chainColor("chart-chain-connection-stroke", QColor(90,169,219,220)),
             3, Qt::SolidLine, Qt::RoundCap));
-        painter.drawLine(QPointF(start.x(), y), QPointF(tip - 13, y));
+        painter.drawLine(QPointF(start, y), QPointF(tip - headLength, y));
         painter.setPen(Qt::NoPen);
-        painter.setBrush(Controls::themeTokenColor(QStringLiteral("sel-fx"),
-            QStringLiteral("chart-chain-arrow-fill"), QColor(90,169,219,230)));
-        painter.drawPolygon(QPolygonF {QPointF(tip, y), QPointF(tip - 17, y - 8),
-                               QPointF(tip - 17, y + 8)});
+        painter.setBrush(chainColor("chart-chain-arrow-fill", QColor(90,169,219,230)));
+        painter.drawPolygon(QPolygonF {QPointF(tip, y),
+            QPointF(tip - headLength, y - headHalfHeight),
+            QPointF(tip - headLength, y + headHalfHeight)});
     }
 
 private:
@@ -119,7 +135,9 @@ public:
         const QString sourceKind = option.widget ? option.widget->property("selSourceKind").toString() : QString();
         const QColor selectedAccent = sourceKind.isEmpty()
             ? themed("control-fx-chain-card-border-selected", QColor("#42cbfb"))
-            : selThemeAccent(sourceKind);
+            : selThemedAccent(QStringLiteral("sel-fx"),
+                QStringLiteral("control-fx-chain-card-border-selected"),
+                selThemeAccent(sourceKind), QColor("#42cbfb"));
         Controls::drawSurface(*painter, card,
                               enabled ? themed("control-fx-chain-card-surface-normal",QColor("#214b62"))
                                       : themed("control-fx-chain-card-surface-disabled",QColor("#15273a")),
@@ -313,12 +331,15 @@ public:
             const QString role = QString::fromLatin1(entry[1]);
             const bool accentRole = role == QStringLiteral("accent-primary")
                 || role == QStringLiteral("control-button-border-hover")
-                || role == QStringLiteral("control-list-border-selected");
+                || role == QStringLiteral("control-list-border-selected")
+                || role == QStringLiteral("control-chain-endpoint-border");
             style.replace(QString::fromLatin1(entry[0]), accentRole && sourceAccent.isValid()
+                && selThemeRoleUsesDefault(QStringLiteral("sel-fx"), role)
                 ? sourceAccent.name() : cssColor(entry[1], entry[2]));
         }
         owner.setStyleSheet(style);
         if (list) list->setProperty("selSourceKind", sourceKind);
+        if (chainContent) chainContent->setProperty("selSourceKind", sourceKind);
         if (chainContent) chainContent->update();
         if (list) list->viewport()->update();
         owner.update();
@@ -327,9 +348,10 @@ public:
     explicit Impl(FxSettingsWindow& window, const QString& source, const QStringList& sourceChannels)
         : owner(window), sourceChannels(sourceChannels) {
         owner.setWindowFlag(Qt::Window);
-        owner.setWindowTitle(QStringLiteral("FX 设置 - %1").arg(source));
+        Q_UNUSED(source);
+        owner.setWindowTitle(QStringLiteral("FX 设置"));
         owner.resize(1398, 874);
-        owner.setMinimumSize(1100, 720);
+        owner.setMinimumSize(1250, 720);
         owner.setObjectName(QStringLiteral("fxWindow"));
         applyTheme();
 
@@ -367,8 +389,7 @@ public:
         channelControls->setStyleSheet(QStringLiteral("QWidget#fxChannelControls { background: transparent; border: 0; }"));
         auto* channelLayout = new QHBoxLayout(channelControls);
         channelLayout->setContentsMargins(0, 0, 0, 0);
-        channelLayout->setSpacing(8);
-        channelLayout->addWidget(new Controls::TextLabel(QStringLiteral("作用声道："), channelControls));
+        channelLayout->setSpacing(0);
         channelRow = new QHBoxLayout;
         channelRow->setSpacing(6);
         QStringList visibleChannels { QStringLiteral("All") };
@@ -412,12 +433,14 @@ public:
         QObject::connect(saveAs, &QPushButton::clicked, &owner, [this] { savePreset(true); });
         QObject::connect(refresh, &QPushButton::clicked, &owner, [this] { refreshPresets(); });
         QObject::connect(presets, &QComboBox::activated, &owner, [this](int index) { selectChainPreset(index); });
-        const auto sideWidth = std::max(leftControls->sizeHint().width(), rightControls->sizeHint().width());
-        leftControls->setMinimumWidth(sideWidth);
-        rightControls->setMinimumWidth(sideWidth);
-        headerLayout->addWidget(leftControls, 1);
-        headerLayout->addWidget(channelControls, 0, Qt::AlignCenter);
-        headerLayout->addWidget(rightControls, 1);
+        leftControls->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
+        channelControls->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
+        rightControls->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
+        headerLayout->addWidget(leftControls);
+        headerLayout->addStretch();
+        headerLayout->addWidget(channelControls, 0, Qt::AlignVCenter);
+        headerLayout->addStretch();
+        headerLayout->addWidget(rightControls);
         root->addWidget(header);
 
         auto* body = new QVBoxLayout;
@@ -1315,7 +1338,8 @@ void FxSettingsWindow::addDefaultMasterEffects() {
     }
 }
 void FxSettingsWindow::setSourceName(const QString& name) {
-    setWindowTitle(QStringLiteral("FX 设置 - %1").arg(name));
+    Q_UNUSED(name);
+    setWindowTitle(QStringLiteral("FX 设置"));
     if (auto* title=findChild<QLabel*>(QStringLiteral("fxSourceTitle"))) title->setText(windowTitle());
 }
 void FxSettingsWindow::loadChain(const std::vector<Common::MixerEffectState>& effects, bool enabled) {

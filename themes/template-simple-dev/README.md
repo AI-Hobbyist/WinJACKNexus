@@ -1,6 +1,6 @@
 # Simple Dev 主题模板
 
-本模板与 [`../template`](../template/README.md) 具有相同的模块结构：根目录 `style.css`，以及 `host/`、`node/`、`native_fx/` 下全部模块 CSS。17 个命名空间和全部模块级 Token 均保留；**Simple** 指部分默认值使用 `var(...)` 继承，并非省略模块或控件。未声明的 14 个背景图片 Token 按注册表规则继承。
+本模板与 [`../template`](../template/README.md) 具有相同的模块结构：根目录 `style.css`，以及 `host/`、`node/`、`native_fx/` 下全部模块 CSS。18 个命名空间和全部模块级 Token 均保留；**Simple** 指部分默认值使用 `var(...)` 继承，并非省略模块或控件。未声明的 15 个背景图片 Token 按注册表规则继承。
 
 先修改 `meta.json` 的 `id`、名称和作者，再按模块编辑 CSS。通用背景选项、部分相同语义且相同默认值的控件与电平项引用 `global`；其他模块值可独立修改。每个图表语义与电平颜色分段都有模块级 Token，若需独立改色，可把对应的 `var(...)` 换为明确颜色。五种 `control-accent-*` 默认引用对应类型的推子 Token；通道调色板设置的单条通道自定义颜色不会改变主题 Token。
 

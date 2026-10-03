@@ -7,6 +7,7 @@
 #include <WinJACKNexus/UI/ThemeBackground.hpp>
 #include <WinJACKNexus/UI/ThemeManager.hpp>
 #include "SelThemeAccent.hpp"
+#include "MixerPolarAccent.hpp"
 
 #include <QFontMetricsF>
 #include <QHelpEvent>
@@ -602,19 +603,26 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
     const auto knobColors=Controls::paletteFor(*this,
         {themed("control-knob-background-base",QColor("#0b1a2b")),
          themed("control-knob-panel",QColor("#1b3b57")),
-         themed("control-knob-text",QColor("#d9f4ff")),controlAccent,
+         themed("control-knob-text",QColor("#d9f4ff")),
+         selThemedAccent(QStringLiteral("sel-aux"),QStringLiteral("control-knob-indicator-normal"),
+             controlAccent,QColor("#28d7e5")),
          themed("control-knob-track",QColor("#254762"))});
 
-    panel(painter, impl_->leftPanel(), controlAccent);
+    panel(painter, impl_->leftPanel(), selThemedAccent(QStringLiteral("sel-aux"),
+        QStringLiteral("border-panel"),controlAccent,QColor("#2b4662")));
     text(painter, impl_->scaled(26, 12, 172, 38), impl_->subMixMode ? QStringLiteral("Sub Mix") : QStringLiteral("AUX"), label, 18 * sy,
          Qt::AlignLeft | Qt::AlignVCenter, true);
     if (!impl_->subMixMode) {
-    toggle(painter, impl_->masterToggle(), impl_->chainEnabled, controlAccent);
+    toggle(painter, impl_->masterToggle(), impl_->chainEnabled,
+        selThemedAccent(QStringLiteral("sel-aux"),QStringLiteral("control-toggle-indicator-on"),
+            controlAccent,QColor("#28d7e5")));
     Controls::drawSurface(painter,impl_->addButton(),
         themed("control-add-surface",QColor("#073158")),
-        controlAccent,6);
+        selThemedAccent(QStringLiteral("sel-aux"),QStringLiteral("control-add-border"),
+            controlAccent,QColor("#33b6ff")),6);
     text(painter, impl_->addButton(), QStringLiteral("＋  添加 AUX"),
-         controlAccent, 15 * sy);
+         selThemedAccent(QStringLiteral("sel-aux"),QStringLiteral("control-add-text"),
+             controlAccent,QColor("#33b6ff")), 15 * sy);
     Controls::drawSurface(painter,impl_->removeButton(),
         themed("control-remove-surface",QColor("#172d42")),
         themed("control-remove-border",QColor("#0b699d")),6);
@@ -643,7 +651,9 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
         if (selected)
             painter.fillRect(QRectF(row.left(), row.top() + 3, 5 * sx, row.height() - 6), busAccent);
 
-        toggle(painter, impl_->listPowerToggle(index), impl_->chainEnabled && bus.enabled && !bus.selfRoute, controlAccent);
+        toggle(painter, impl_->listPowerToggle(index), impl_->chainEnabled && bus.enabled && !bus.selfRoute,
+            selThemedAccent(QStringLiteral("sel-aux"),QStringLiteral("control-toggle-indicator-on"),
+                controlAccent,QColor("#28d7e5")));
         text(painter, { row.left() + 64 * sx, row.top() + 10 * sy, 94 * sx, 25 * sy },
              elidedName(painter, bus.name, 15 * sy, 94 * sx, true), label, 15 * sy, Qt::AlignLeft | Qt::AlignVCenter, true);
         text(painter, { row.left() + 64 * sx, row.top() + 36 * sy, 94 * sx, 22 * sy }, channelNames(bus.targetLayout),
@@ -668,10 +678,11 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
 
         const QRectF pre(row.left() + 220 * sx, row.top() + 18 * sy, 45 * sx, 36 * sy);
         const QRectF post(row.left() + 265 * sx, row.top() + 18 * sy, 48 * sx, 36 * sy);
-        QColor routeActive = controlAccent;
-        routeActive.setAlpha(85);
+        const QColor routeActive = selThemedAccentSurface(QStringLiteral("sel-aux"),
+            QStringLiteral("control-route-surface-selected"),controlAccent,QColor("#144964"),85);
         const auto routeIdle = themed("control-route-surface-normal",QColor("#172d43"));
-        const auto routeBorder = controlAccent;
+        const auto routeBorder = selThemedAccent(QStringLiteral("sel-aux"),
+            QStringLiteral("control-route-border"),controlAccent,QColor("#33b6ff"));
         if (!impl_->subMixMode) {
         Controls::drawSurface(painter,pre,bus.preFader ? routeActive : routeIdle,routeBorder,5);
         Controls::drawSurface(painter,post,!bus.preFader ? routeActive : routeIdle,routeBorder,5);
@@ -701,8 +712,10 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
     Controls::drawSurface(painter,scrollbarThumb,
         !listScrollable ? themed("control-scrollbar-thumb-disabled",QColor("#29465b"))
             : impl_->listScrollbarDragging
-                ? controlAccent.lighter(120)
-                : controlAccent,
+                ? selThemedAccent(QStringLiteral("sel-aux"),QStringLiteral("control-scrollbar-thumb-dragging"),
+                    controlAccent.lighter(120),QColor("#33b6ff"))
+                : selThemedAccent(QStringLiteral("sel-aux"),QStringLiteral("control-scrollbar-thumb-normal"),
+                    controlAccent,QColor("#33b6ff")),
         {},scrollbarThumb.width()*.5);
 
     auto* bus = impl_->selected();
@@ -714,7 +727,8 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
     painter.scale(sx, sy);
     const auto drawPanel=[&](QRectF rect){
         Controls::drawSurface(painter,rect,themed("surface-panel",QColor("#102235")),
-            controlAccent,7);
+            selThemedAccent(QStringLiteral("sel-aux"),QStringLiteral("border-panel"),
+                controlAccent,QColor("#2b4662")),7);
     };
     const auto drawText=[&](QRectF rect,const QString& value,int size=15,QColor color=QColor("#e8f2ff"),bool bold=false,int align=Qt::AlignLeft|Qt::AlignVCenter){
         auto font=painter.font();font.setPixelSize(size);font.setBold(bold);
@@ -731,11 +745,12 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
         };
         style.inactiveFill=Controls::themeTokenColor(QStringLiteral("sel-aux"),
             role("-surface-normal"),global("surface-normal",style.inactiveFill));
-        style.activeFill=controlAccent;
-        style.activeFill.setAlpha(85);
+        style.activeFill=selThemedAccentSurface(QStringLiteral("sel-aux"),
+            role("-surface-selected"),controlAccent,style.activeFill,85);
         style.inactiveBorder=Controls::themeTokenColor(QStringLiteral("sel-aux"),
             role("-border-normal"),global("border-normal",style.inactiveBorder));
-        style.activeBorder=controlAccent;
+        style.activeBorder=selThemedAccent(QStringLiteral("sel-aux"),
+            role("-border-selected"),controlAccent,style.activeBorder);
         style.inactiveText=Controls::themeTokenColor(QStringLiteral("sel-aux"),
             role("-text-normal"),secondary);
         style.activeText=Controls::themeTokenColor(QStringLiteral("sel-aux"),
@@ -745,7 +760,8 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
     };
     const auto drawToggle=[&](QRectF rect,bool active){
         Controls::drawToggle(painter,rect,active,
-            controlAccent,
+            selThemedAccent(QStringLiteral("sel-aux"),QStringLiteral("control-toggle-indicator-on"),
+                controlAccent,QColor("#28d7e5")),
             themed("control-toggle-indicator-off",QColor("#263e53")));
     };
     const auto drawMuteSolo=[&](QRectF rect,const QString& value,bool active,QColor accent){
@@ -774,7 +790,8 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
     if(classic){
         Controls::Palette panColors;
         panColors.border=themed("control-pan-border",QColor("#254762"));
-        panColors.accent=controlAccent;
+        panColors.accent=selThemedAccent(QStringLiteral("sel-aux"),
+            QStringLiteral("control-knob-indicator-normal"),controlAccent,QColor("#28d7e5"));
         panColors.panel=themed("control-knob-panel",QColor("#1b3b57"));
         panColors.text=themed("control-knob-text",QColor("#d9f4ff"));
         Controls::drawPanKnob(painter,center,bus->classicPan,170,panColors);
@@ -786,12 +803,13 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
         drawText({center.x()-110,339,220,30},QStringLiteral("%1 %2%").arg(direction).arg(qRound(std::abs(bus->classicPan)*100)),16,label,true,Qt::AlignCenter);
     }else{
         constexpr qreal radius=190,pointRadius=159;
-        drawMixerPolarGrid(painter,center,radius,QStringLiteral("sel-aux"));
+        drawMixerPolarGrid(painter,center,radius,QStringLiteral("sel-aux"),controlAccent);
         if(bus->showPolarCurves) {
             const auto contour = impl_->polarEnabled()
                 ? impl_->polarCurve.contour() : Common::MixerPolarContour {};
             drawMixerPolarCurves(painter,{420,95,531,448},center,radius,contour,
-                                 bus->showInputCurve,bus->showOutputCurve,QStringLiteral("sel-aux"));
+                                 bus->showInputCurve,bus->showOutputCurve,
+                                 QStringLiteral("sel-aux"),controlAccent);
             if(!contour.valid) drawText({center.x()-62,center.y()-12,124,24},
                                         QStringLiteral("无信号"),13,secondary,false,Qt::AlignCenter);
         }
@@ -803,7 +821,8 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
             if(!Common::auxHasSpatialPoint(bus->targetLayout,i))continue;
             const auto gain=i<static_cast<int>(outputGains.size())
                 ? outputGains[i]:0.0;
-            drawMixerPolarReferencePoint(painter,center+references[i]*pointRadius,gain,QStringLiteral("sel-aux"));
+            drawMixerPolarReferencePoint(painter,center+references[i]*pointRadius,gain,
+                                         QStringLiteral("sel-aux"),controlAccent);
         }
         const auto labels=Common::auxLayoutChannelLabels(bus->sourceLayout);
         for(int i=0;i<static_cast<int>(bus->adjustablePoints.size());++i){
@@ -811,7 +830,8 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
             const auto point=center+bus->adjustablePoints[i]*pointRadius;
             const bool selected=i==selectedPoint;
             const auto outerRadius=Common::auxInfluencePixelRadius(impl_->pointInfluence(*bus,i));
-            drawMixerPolarHandle(painter,point,outerRadius,selected,QStringLiteral("sel-aux"));
+            drawMixerPolarHandle(painter,point,outerRadius,selected,
+                                 QStringLiteral("sel-aux"),controlAccent);
             if(i<labels.size())drawText({point.x()-17,point.y()+14,34,19},labels[i],12,label,true,Qt::AlignCenter);
         }
         drawMixerPolarCenter(painter,center,QStringLiteral("sel-aux"));
