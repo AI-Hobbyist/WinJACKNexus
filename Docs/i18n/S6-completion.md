@@ -7,3 +7,6 @@ VST Scanner 独立域 77 key、启动语言恢复、探测错误 key/参数与 E
 所需 Release 编译通过。既有实际 VST 宿主唯一一次实窗77检查/1显示、Theme唯一一次195检查/5显示/24所属桌面截图通过；Probe32/64各一次缺失DLL协议检查通过。Scanner唯一执行在建窗前失败，修复重编后不复跑；共享新增显示、补漏角色/图例/错误/旁通警告实窗未验证。旧行为证据保留原基线，源码/编译证明不替代实窗。全部已知限制见 S4-S7-acceptance-audit.json。
 
 证据：S6-scanner-verification.json、S6-vst-verification.json、S6-theme-verification.json、S6-shared-verification.json、S6-supplement-verification.json、S6-dual-table-verification.json；译文核对与后续意见见根 i18n翻译核对.md 和 S6-human-review.md。本次人工审校延后不改公开接口或应用代码，不追加编译/模块执行/窗口。
+
+
+最新人工验收状态：已跳过（用户指令）。所有人工审校/人工实窗/人工安装重启验收默认跳过，注明未验证影响后继续，不阻塞交付或目标。此前“待用户意见/审校后续”不再是前置条件；未验证行为仍不标通过。自动测试范围和既有结果保持，本次零构建/模块执行/弹窗。

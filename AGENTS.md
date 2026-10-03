@@ -22,6 +22,8 @@
 
 ## Build and process rules
 
+- 人工验收默认跳过：凡需人工审校、人工界面检查、人工安装/部署验收或人工确认验收结论的事项，按用户指令默认跳过，记录“已跳过（用户指令）”、范围及未验证影响，然后继续实施和交付；不等待、不反复请求验收、不因此阻塞目标。跳过不代表通过。自动构建/测试继续按既定范围执行；后续用户明确要求人工验收时再执行该项。
+
 - After an intentional JACK port-name change makes connections saved in an existing project stale, ask the user to reconnect the affected ports and save the project. Treat this as the project update step; focus verification on current port naming and connection behavior.
 - Follow the repository's existing implementation and verification workflow; use TDD only when explicitly requested.
 - Run only tests that work without a running JACK server. Use offline model, module-loading and UI rendering checks for local debugging.

@@ -15,8 +15,12 @@
     "Native window ownership of captures",
     "Catalog, deployment, identity and lifecycle verification"
   ],
-  "reporting": "Human review is deferred by the user until after technical delivery. Retain all known runtime, cold-start and scale gaps explicitly; do not call unverified scenarios passed.",
+  "reporting": "Record all manual acceptance as skipped by user, never as passed. Preserve automatic test failures and all runtime/cold-start/scale limitations; continue delivery without waiting for manual conclusions.",
   "human_review_instruction": "直接继续，审核后续再搞",
   "human_review_deferred_by_user": true,
-  "human_review_is_delivery_precondition": false
+  "human_review_is_delivery_precondition": false,
+  "human_acceptance_instruction": "一切任何需要人工验收的一律默认跳过然后注明并继续，避免目标阻塞",
+  "human_acceptance_default": "skip, record scope and unverified impact, then continue",
+  "human_acceptance_blocks_goal": false,
+  "human_review_default": "SKIPPED_BY_USER"
 }

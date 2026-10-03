@@ -2,7 +2,7 @@
   "objective": "依次完成S4~S7，完成测试一步就提交推送一次",
   "date": "2026-10-04",
   "implementation_and_package_record_commit": "e23e06a7325f620483c6cfcbce78e268f562dbb8",
-  "result": "TECHNICAL_DELIVERY_PROVIDED_HUMAN_REVIEW_DEFERRED_RUNTIME_GAPS_RETAINED",
+  "result": "TECHNICAL_DELIVERY_COMPLETE_MANUAL_ACCEPTANCE_SKIPPED_BY_USER_LIMITS_RETAINED",
   "requirements": [
     {
       "id": "11.S4",
@@ -29,7 +29,7 @@
     {
       "id": "11.S6",
       "requirement": "VST scanner language restore, host errors, four-language terminology review and layout corrections",
-      "status": "IMPLEMENTATION_DELIVERED_REVIEW_DEFERRED",
+      "status": "IMPLEMENTATION_DELIVERED_MANUAL_REVIEW_SKIPPED_BY_USER",
       "evidence": [
         "S6-scanner-verification.json",
         "S6-vst-verification.json",
@@ -42,7 +42,7 @@
     {
       "id": "11.S7",
       "requirement": "CMake deployment, overlay manifest, resource versions, deployable package and retained language selection",
-      "status": "OVERLAY_DELIVERED_STATIC_PASS_RUNTIME_LIMITS_RETAINED",
+      "status": "OVERLAY_DELIVERED_STATIC_PASS_MANUAL_DEPLOYMENT_ACCEPTANCE_SKIPPED_BY_USER",
       "evidence": [
         "S7-resource-inventory.json",
         "S7-overlay-manifest.json",
@@ -244,12 +244,12 @@
     {
       "id": "12.final.review",
       "requirement": "Four-language/native/audio-domain human review and final release acceptance",
-      "status": "DEFERRED_BY_USER",
+      "status": "SKIPPED_BY_USER",
       "evidence": [
         "S6-human-review.md",
         "S7-overlay-manifest.json"
       ],
-      "limit": "User explicitly deferred review until after technical delivery; Size approval does not approve other translations."
+      "limit": "All manual review/acceptance defaults to skipped under the latest explicit user instruction; not passed and not a goal blocker."
     }
   ],
   "historical_evidence_fingerprints": [
@@ -392,10 +392,7 @@
     "All 1196 table-one required key rows and 4784 language cells match current catalogs or explicit example fallback entries.",
     "Delivery archive overlay-e0b1f6e.zip matches the current S7 report; draft archive and proof are preserved separately."
   ],
-  "remaining": [
-    "Four-language/audio terminology review is deferred to later by the user.",
-    "Known runtime/cold-start/deployment limitations remain disclosed; no module is rerun to fill them."
-  ],
+  "remaining": [],
   "module_runs_added": 0,
   "ui_shows_added": 0,
   "not_claimed": [
@@ -407,5 +404,34 @@
     "instruction": "直接继续，审核后续再搞",
     "human_review": "deferred; no longer blocks technical delivery",
     "unchanged": "one module run, no further scaling, all unverified scenarios remain unverified"
-  }
+  },
+  "manual_acceptance_policy": {
+    "instruction": "一切任何需要人工验收的一律默认跳过然后注明并继续，避免目标阻塞",
+    "default": "SKIPPED_BY_USER",
+    "blocking": false,
+    "does_not_mean": "passed or runtime behavior proven"
+  },
+  "known_limitations": [
+    "Manual native-language/audio-domain review skipped by user.",
+    "Manual visible-window and existing-install/restart acceptance skipped by user.",
+    "Earlier automatic Scanner startup failure was repaired and rebuilt without rerun under the one-module-run limit.",
+    "Shared/supplemental runtime behavior and historic cold-start gaps retain no new automatic acceptance."
+  ],
+  "manual_acceptance_items": [
+    {
+      "item": "Four-language/audio-term human review",
+      "status": "SKIPPED_BY_USER",
+      "impact": "Translation quality has no whole-language human approval."
+    },
+    {
+      "item": "Manual current-version visible-window acceptance",
+      "status": "SKIPPED_BY_USER",
+      "impact": "No additional visual acceptance for Scanner/shared/supplemental behavior."
+    },
+    {
+      "item": "Manual installation and restart acceptance",
+      "status": "SKIPPED_BY_USER",
+      "impact": "No claim of installing the package or observing first-start settings on a target installation."
+    }
+  ]
 }
