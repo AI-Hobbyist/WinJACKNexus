@@ -1,6 +1,6 @@
 {
   "formatVersion": 1,
-  "catalogVersion": 9,
+  "catalogVersion": 10,
   "moduleId": "winjacknexus-host",
   "language": "en-US",
   "domains": {
@@ -791,7 +791,10 @@
       "namespace.exportDuplicate": "duplicate module or namespace inside one export table",
       "namespace.bindingIndex": "binding index changed while still registered",
       "namespace.owner": "conflicting module descriptor or owner: {detail}",
-      "namespace.namespaceOwner": "namespace already owned by another module: {detail}"
+      "namespace.namespaceOwner": "namespace already owned by another module: {detail}",
+      "catalog.directory": "Cannot create theme directory: {detail}",
+      "catalog.notInstalled": "Theme is not in the installation directory: {detail}",
+      "catalog.changed": "The theme file has changed; refresh the list"
     }
   }
 }

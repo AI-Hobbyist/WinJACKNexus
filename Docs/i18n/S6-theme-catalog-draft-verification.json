@@ -1,0 +1,68 @@
+{
+  "stage": "S6",
+  "result": "THEME_CATALOG_DIALOG_SOURCE_PASS_RUNTIME_PENDING",
+  "catalog_templates": 3,
+  "menu_error_display_boundaries": 3,
+  "file_dialog_workflows": 4,
+  "canonical_catalog_backend_preserved": true,
+  "host_catalog_version": 10,
+  "host_keys": 774,
+  "module_builds": 0,
+  "module_test_runs": 0,
+  "ui_shows": 0,
+  "remaining": [
+    "Final fixture/capture preparation, Release build/deployment and one Windows run",
+    "S0 source reconciliation",
+    "User human review"
+  ],
+  "evidence": [
+    {
+      "file": "src\\ui\\src\\ThemeCatalog.cpp",
+      "sha256": "dcfc9fd7e3065f662dfd1a493f88e89e2b1cdf3fed73ab5bbd9a5e1511733df1"
+    },
+    {
+      "file": "src\\ui\\src\\LocalizedThemeMessages.hpp",
+      "sha256": "be4e047c2f2f3ad098fb731b90ec3c001652b61e3df3c7621fd52c2d273ad1e7"
+    },
+    {
+      "file": "Docs\\i18n\\S6-theme-catalog-strings.tsv",
+      "sha256": "5812242c4dfb76fd4cacc142819145d58b88cbc5c3e682a6298407e32354606a"
+    },
+    {
+      "file": "src\\ui\\src\\LocalizedThemeDialogs.hpp",
+      "sha256": "be23f0bb858a02a02376f7340b2d12ada14cdbd060e5d7ee6587be1ac629ac29"
+    },
+    {
+      "file": "src\\ui\\src\\ThemeManagementDialog.cpp",
+      "sha256": "9c410c4346d8f2dec21da77579ba1a071520c63820de8c43cb7653c97085128a"
+    },
+    {
+      "file": "tests\\theme\\ThemeManagementTests.cpp",
+      "sha256": "ccf83ee690be44d24aa6c2d264adb54797ca8e9f9bf2853c696268223bc9dfb9"
+    },
+    {
+      "file": "Docs\\i18n\\S6-theme-diagnostic-boundaries.md",
+      "sha256": "369e1a2abac04c7551b176881b82e31a4aebac7987fee6c5ddf4f4e3649e1835"
+    },
+    {
+      "file": "Docs\\UI-API.md",
+      "sha256": "e806b4242518dac4d1e1915971adf4c3fda67a2af5138f365df76f18e852f887"
+    },
+    {
+      "file": "locate\\en-US.json",
+      "sha256": "5e6826174d5a096a01b3132ec0929bb227f614b2cb336517e909514801be9504"
+    },
+    {
+      "file": "locate\\zh-CN.json",
+      "sha256": "fc9efef71c30fa0d26efa7847cd8d07983b33439eacd24c134691f6439708cb9"
+    },
+    {
+      "file": "locate\\ja-JP.json",
+      "sha256": "eef5cbf84a87774044cd5af91bdedbc62c01758dd25e47797b5a8a9f36f24fd1"
+    },
+    {
+      "file": "locate\\ko-KR.json",
+      "sha256": "3fb33cda7920fa53c1aeaae6c0261bbfbcefaa5ca66b9cdd209246650eb87e45"
+    }
+  ]
+}

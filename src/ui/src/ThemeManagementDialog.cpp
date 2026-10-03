@@ -6,6 +6,7 @@
 #include <QSignalBlocker>
 #include <QVariant>
 #include "LocalizedThemeMessages.hpp"
+#include "LocalizedThemeDialogs.hpp"
 #include <QScrollBar>
 #include <QTextCursor>
 #include <QTextDocument>
@@ -172,6 +173,7 @@ ThemeManagementDialog::ThemeManagementDialog(ThemeCore& core, QWidget* parent)
     overviewLayout->addWidget(view_->diagnostics, 1);
     auto* packageActions = new QHBoxLayout;
     auto* importButton = themeButton("package.import", "Import theme package", overview);
+    importButton->setObjectName(QStringLiteral("theme.importPackage"));
     view_->preview = themeButton("preview", "Preview", overview);
     view_->apply = themeButton("apply", "Apply", overview);
     view_->cancel = themeButton("preview.cancel", "Cancel preview", overview);
@@ -346,8 +348,8 @@ ThemeManagementDialog::ThemeManagementDialog(ThemeCore& core, QWidget* parent)
 
     connect(importButton, &QPushButton::clicked, this, [this] {
         QDir().mkpath(themesDirectory());
-        const auto path = QFileDialog::getOpenFileName(this, themeText("package.import", "Import theme package"),
-            themesDirectory(), themeText("file.themeFilter", "WinJACKNexus themes (*.wjnskin)"));
+        const auto path = ThemeDialogs::file(this, false, themesDirectory(), "package.import", "Import theme package",
+            "file.themeFilter", "WinJACKNexus themes (*.wjnskin)");
         QString error;
         if (!path.isEmpty() && !openPackage(path, &error)) themeRawStatus(view_->status, error);
     });
@@ -384,8 +386,8 @@ ThemeManagementDialog::ThemeManagementDialog(ThemeCore& core, QWidget* parent)
         else themeStatus(view_->status, "status.colorApplied", "Color applied");
     });
     connect(importFontButton, &QPushButton::clicked, this, [this] {
-        const auto path = QFileDialog::getOpenFileName(this, themeText("file.fontTitle", "Choose font"), {},
-            themeText("file.fontFilter", "Fonts (*.ttf *.otf)"));
+        const auto path = ThemeDialogs::file(this, false, {}, "file.fontTitle", "Choose font",
+            "file.fontFilter", "Fonts (*.ttf *.otf)");
         QString error;
         if (!path.isEmpty() && !importFont(path, &error)) themeRawStatus(view_->status, error);
     });
@@ -403,8 +405,8 @@ ThemeManagementDialog::ThemeManagementDialog(ThemeCore& core, QWidget* parent)
         view_->overlayOpacity->setEnabled(enabled);
     });
     connect(chooseImage, &QPushButton::clicked, this, [this] {
-        const auto path = QFileDialog::getOpenFileName(this, themeText("file.imageTitle", "Choose background image"), {},
-            themeText("file.imageFilter", "Images (*.png *.jpg *.jpeg *.webp)"));
+        const auto path = ThemeDialogs::file(this, false, {}, "file.imageTitle", "Choose background image",
+            "file.imageFilter", "Images (*.png *.jpg *.jpeg *.webp)");
         QString error;
         if (!path.isEmpty() && !importImage(path, &error)) themeRawStatus(view_->status, error);
     });
@@ -419,8 +421,8 @@ ThemeManagementDialog::ThemeManagementDialog(ThemeCore& core, QWidget* parent)
             ? QStringLiteral("winjacknexus-default.wjnskin")
             : scope.isEmpty() ? QStringLiteral("custom.wjnskin")
                               : QStringLiteral("module-%1.wjnskin").arg(scope.mid(12, scope.size() - 13)));
-        const auto path = QFileDialog::getSaveFileName(this, themeText("file.exportTitle", "Export theme"), suggested,
-            themeText("file.themeFilter", "WinJACKNexus themes (*.wjnskin)"));
+        const auto path = ThemeDialogs::file(this, true, suggested, "file.exportTitle", "Export theme",
+            "file.themeFilter", "WinJACKNexus themes (*.wjnskin)");
         QString error;
         if (!path.isEmpty() && !exportToFile(path, scope, builtIn, &error)) themeRawStatus(view_->status, error);
         else if (!path.isEmpty()) themeStatus(view_->status, "status.exported", "Theme package exported");

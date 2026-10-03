@@ -515,3 +515,13 @@ S6 Theme management display update (implementation in progress): the dialog bind
 S6 Theme diagnostic display update (implementation in progress): the private `LocalizedThemeMessages.hpp` adapter follows the existing canonical-model/display-copy boundary used by MixerErrors. ThemeCore source, public diagnostic tuple layout, codes, tokens, line numbers and English payloads stay unchanged. Known templates are translated only when presenting a diagnostic/status; named `detail` arguments preserve literal resource paths and token/type identifiers. Unknown diagnostics remain original text. The dialog retains canonical returned errors for language refresh and refreshes only read-only diagnostic text, bounded cursor positions and scroll position. Added call-site source checks cover an actual parser warning, stable snapshot, independent four-language displayed warning expectations and opaque/literal arguments; not compiled or run yet.
 
 S6 package/namespace display extension (implementation in progress): the private display adapter now covers 69 package and 40 namespace templates, including 115 original source occurrences. Both backend source files retain their prior hashes. A recognized diagnostic preceded by a file/module identity is translated with the prefix retained; suffix searching is bounded to eight separators and unknown content remains original. Theme identity/status labels use plain text for literal metadata and diagnostics. Test source adds real invalid archive/UTF-8 descriptor failures, retained canonical payload and empty registry/lease, independent four-language display expectations and wrapper identity preservation; no compilation or runtime result is claimed yet.
+
+
+S6 Theme file/menu display update (runtime pending): ThemeManagementDialog uses
+owned Qt file dialogs for theme/font/image import and theme export. Open titles
+and filters follow language changes while filename text, cursor, selection and
+directory are retained. ThemeCatalog::createMenu's reportError callback supplies
+the localized display copy of recognized project errors; direct Catalog methods
+and diagnostics() retain canonical strings. No exported signatures or diagnostic
+layouts changed. Fixture call-site source covers live file refresh/cancellation
+and actual menu failures; compilation and the single Windows run are pending.

@@ -1,6 +1,6 @@
 {
   "formatVersion": 1,
-  "catalogVersion": 9,
+  "catalogVersion": 10,
   "moduleId": "winjacknexus-host",
   "language": "ko-KR",
   "domains": {
@@ -791,7 +791,10 @@
       "namespace.exportDuplicate": "같은 내보내기 테이블 안에 모듈 또는 네임스페이스가 중복됩니다",
       "namespace.bindingIndex": "등록된 상태에서 바인딩 인덱스가 변경되었습니다",
       "namespace.owner": "모듈 디스크립터 또는 소유자가 충돌합니다: {detail}",
-      "namespace.namespaceOwner": "네임스페이스를 이미 다른 모듈이 소유하고 있습니다: {detail}"
+      "namespace.namespaceOwner": "네임스페이스를 이미 다른 모듈이 소유하고 있습니다: {detail}",
+      "catalog.directory": "테마 디렉터리를 만들 수 없습니다: {detail}",
+      "catalog.notInstalled": "테마가 설치 디렉터리에 없습니다: {detail}",
+      "catalog.changed": "테마 파일이 변경되었습니다. 목록을 새로 고치세요"
     }
   }
 }

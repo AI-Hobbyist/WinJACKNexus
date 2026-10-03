@@ -8,6 +8,9 @@ namespace WinJACKNexus::UI::ThemeMessages {
 inline QString canonical(const char* english) { return QString::fromUtf8(english); }
 struct Rule { const char* key; const char* original; const char* english; };
 inline const Rule rules[] {
+    { "catalog.directory", "无法创建主题目录：%1", "Cannot create theme directory: {detail}" },
+    { "catalog.notInstalled", "主题不在安装目录中：%1", "Theme is not in the installation directory: {detail}" },
+    { "catalog.changed", "主题文件已改变，请刷新列表", "The theme file has changed; refresh the list" },
     { "error.color", "Invalid color value format", "Invalid color value format" },
     { "error.directory", "Cannot create theme directory", "Cannot create theme directory" },
     { "error.imageLimit", "Background image exceeds the size limit or cannot be read", "Background image exceeds the size limit or cannot be read" },

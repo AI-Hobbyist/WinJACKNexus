@@ -1,0 +1,4 @@
+"key"	"canonical"	"en-US"	"zh-CN"	"ja-JP"	"ko-KR"	"source_file"
+"catalog.directory"	"无法创建主题目录：%1"	"Cannot create theme directory: {detail}"	"无法创建主题目录：{detail}"	"テーマディレクトリを作成できません: {detail}"	"테마 디렉터리를 만들 수 없습니다: {detail}"	"src/ui/src/ThemeCatalog.cpp"
+"catalog.notInstalled"	"主题不在安装目录中：%1"	"Theme is not in the installation directory: {detail}"	"主题不在安装目录中：{detail}"	"テーマがインストールディレクトリにありません: {detail}"	"테마가 설치 디렉터리에 없습니다: {detail}"	"src/ui/src/ThemeCatalog.cpp"
+"catalog.changed"	"主题文件已改变，请刷新列表"	"The theme file has changed; refresh the list"	"主题文件已改变，请刷新列表"	"テーマファイルが変更されました。リストを更新してください"	"테마 파일이 변경되었습니다. 목록을 새로 고치세요"	"src/ui/src/ThemeCatalog.cpp"

@@ -46,15 +46,15 @@ def main():
                    for row in rows), candidate
     manifest_path = ROOT/'locate/manifest.json'
     manifest = json.loads(manifest_path.read_text(encoding='utf-8'))
-    assert manifest['catalogVersion'] == 9
-    assert sum(map(len, manifest['requiredKeys'].values())) == 771
-    assert len(manifest['requiredKeys']['theme']) == 235
+    assert manifest['catalogVersion'] == 10
+    assert sum(map(len, manifest['requiredKeys'].values())) == 774
+    assert len(manifest['requiredKeys']['theme']) == 238
     paths.append(manifest_path)
     tokens = lambda text: sorted(re.findall(r'\{\w+\}', text))
     for language in ('en-US', 'zh-CN', 'ja-JP', 'ko-KR'):
         path = ROOT/'locate'/f'{language}.json'
         catalog = json.loads(path.read_text(encoding='utf-8'))
-        assert catalog['catalogVersion'] == 9 and catalog['language'] == language
+        assert catalog['catalogVersion'] == 10 and catalog['language'] == language
         for domain, required in manifest['requiredKeys'].items():
             assert set(catalog['domains'][domain]) == set(required)
         for row in rows:
@@ -65,9 +65,9 @@ def main():
     result = {'stage': 'S6', 'result': 'THEME_PACKAGE_NAMESPACE_SOURCE_PASS_RUNTIME_PENDING',
               'display_templates': 109, 'mapped_original_occurrences': 115,
               'package_and_registry_sources_unchanged': True,
-              'host_catalog_version': 9, 'host_keys': 771, 'theme_keys': 235,
+              'host_catalog_version': 10, 'host_keys': 774, 'theme_keys': 238,
               'module_builds': 0, 'module_test_runs': 0, 'ui_shows': 0,
-              'remaining': ['Catalog/background/font presentation', 'Open file-dialog refresh',
+              'remaining': ['Diagnostic call-path reconciliation', 'File-dialog call-site runtime acceptance',
                             'Final build/deployment/one real-window run', 'S0 and human review'],
               'evidence': [{'file': str(path.relative_to(ROOT)),
                             'sha256': hashlib.sha256(path.read_bytes()).hexdigest()}

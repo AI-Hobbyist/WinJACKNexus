@@ -1,6 +1,6 @@
 {
   "formatVersion": 1,
-  "catalogVersion": 9,
+  "catalogVersion": 10,
   "moduleId": "winjacknexus-host",
   "language": "ja-JP",
   "domains": {
@@ -791,7 +791,10 @@
       "namespace.exportDuplicate": "同じエクスポートテーブル内でモジュールまたは名前空間が重複しています",
       "namespace.bindingIndex": "登録中にバインディングのインデックスが変更されました",
       "namespace.owner": "モジュールの記述子または所有者が競合しています：{detail}",
-      "namespace.namespaceOwner": "名前空間は既に別のモジュールが所有しています：{detail}"
+      "namespace.namespaceOwner": "名前空間は既に別のモジュールが所有しています：{detail}",
+      "catalog.directory": "テーマディレクトリを作成できません: {detail}",
+      "catalog.notInstalled": "テーマがインストールディレクトリにありません: {detail}",
+      "catalog.changed": "テーマファイルが変更されました。リストを更新してください"
     }
   }
 }

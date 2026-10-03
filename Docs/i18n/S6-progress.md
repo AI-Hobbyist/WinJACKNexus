@@ -51,3 +51,8 @@ VST Scanner 使用现有 HostI18n 在创建窗口前恢复宿主保存的语言�
 测试源码增补实际坏 ZIP 和坏 UTF-8 descriptor 失败、canonical payload、注册/租约为空、四语言独立显示预期及文件名前缀保持；仍未编译或执行。草稿中 Korean descriptor 统一使用技术术语 디스크립터，全部仍待用户审校。
 
 四语言源码/词表/占位符/模板核对 PASS：S6-theme-package-namespace-draft-verification.json、S6-theme-package-namespace-draft.log。宿主源码包 v9/771，theme 域共 235 项（窗口 80、core 46、package/namespace 109）；原窗口/core 草稿校验同步到该版本。实际 bin 仍为 v6，没有新增 Release/部署或实窗证据，S0 来源快照仍对应 8564c61。目录/背景/字体显示及打开的文件框刷新还需补齐，然后统一编译并执行主题模块的一次实窗测试。本轮无编译、模块测试或弹窗，S6 尚未完成。
+
+
+2026-10-04 Theme 模块显示边界收尾：新增 Catalog 三项菜单失败草稿，源码语言包 v10/774（theme 238 项）。createMenu 的刷新/切换/Dev 重载三处只翻译回调显示副本；原始 Catalog API、缓存和选择保存行为保持。核对现有调用链：Catalog diagnostics() 无应用调用、启动失败只进 qWarning；背景 paint 的所有应用调用省略诊断输出，fontDiagnostic() 只有测试读取；这些原始接口/缓存文本与 Dev 技术标记的逐项理由见 S6-theme-diagnostic-boundaries.md，最终 S0 尚待同步。
+
+四类导入主题/字体/背景及导出文件框改为既有项目模式的 owned Qt QFileDialog，标题/筛选项绑定当前语言，保留文件名、光标和双向选区。未添加业务视觉样式。fixture 源码加入四类打开中语言刷新/取消检查及实际 Catalog 菜单回调的四语言独立错误预期；尚未编译执行。源码/语言包核对通过（S6-theme-catalog-draft-verification.json），不代表实窗通过。实际 bin 仍 v6，本轮零编译、零模块执行、零弹窗；下一步完善实桌面所属窗口截图和运行前检查，再统一 Release 构建/部署及唯一一次 Theme 模块实窗。S6 与用户人工审校未完成。

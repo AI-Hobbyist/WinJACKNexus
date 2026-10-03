@@ -13,7 +13,7 @@
     "theme"
   ],
   "defaultLanguage": "en-US",
-  "catalogVersion": 9,
+  "catalogVersion": 10,
   "languages": {
     "en-US": "en-US.json",
     "zh-CN": "zh-CN.json",
@@ -808,7 +808,10 @@
       "namespace.exportDuplicate",
       "namespace.bindingIndex",
       "namespace.owner",
-      "namespace.namespaceOwner"
+      "namespace.namespaceOwner",
+      "catalog.directory",
+      "catalog.notInstalled",
+      "catalog.changed"
     ]
   }
 }

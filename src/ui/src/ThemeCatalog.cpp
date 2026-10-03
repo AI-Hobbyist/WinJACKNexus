@@ -1,6 +1,7 @@
 /* This file is part of WinJACKNexus. SPDX-License-Identifier: AGPL-3.0-only */
 #include <WinJACKNexus/UI/ThemeCatalog.hpp>
 #include <WinJACKNexus/UI/HostI18n.hpp>
+#include "LocalizedThemeMessages.hpp"
 
 #include <WinJACKNexus/UI/ThemeCore.hpp>
 #include <WinJACKNexus/UI/ThemePackage.hpp>
@@ -229,7 +230,7 @@ QMenu* ThemeCatalog::createMenu(QWidget* parent, std::function<void()> openManag
     connect(menu, &QMenu::aboutToShow, menu,
             [this, menu, group, openManagement, reportError] {
         QString issue;
-        if (!refresh(&issue) && reportError) reportError(issue);
+        if (!refresh(&issue) && reportError) reportError(ThemeMessages::display(issue));
         for (auto* action : group->actions()) group->removeAction(action);
         menu->clear();
         const auto addTheme = [this, menu, group, reportError](const QString& id,
@@ -242,7 +243,7 @@ QMenu* ThemeCatalog::createMenu(QWidget* parent, std::function<void()> openManag
             group->addAction(action);
             connect(action, &QAction::triggered, menu, [this, id, group, reportError] {
                 QString issue;
-                if (!activate(id, &issue) && reportError) reportError(issue);
+                if (!activate(id, &issue) && reportError) reportError(ThemeMessages::display(issue));
                 for (auto* item : group->actions())
                     item->setChecked(item->data().toString() == selectedId_);
             });
@@ -258,7 +259,7 @@ QMenu* ThemeCatalog::createMenu(QWidget* parent, std::function<void()> openManag
             bindHostText(reload,"text","action.refreshDevTheme","Reload current Dev theme");
             connect(reload, &QAction::triggered, menu, [this, reportError] {
                 QString issue;
-                if (!activate(selectedId_, &issue) && reportError) reportError(issue);
+                if (!activate(selectedId_, &issue) && reportError) reportError(ThemeMessages::display(issue));
             });
         }
         menu->addSeparator();

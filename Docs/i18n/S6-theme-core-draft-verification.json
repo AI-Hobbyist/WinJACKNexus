@@ -3,14 +3,14 @@
   "result": "THEME_CORE_DISPLAY_SOURCE_PASS_RUNTIME_PENDING",
   "core_templates": 46,
   "core_source_unchanged": true,
-  "host_catalog_version": 9,
-  "host_keys": 771,
+  "host_catalog_version": 10,
+  "host_keys": 774,
   "module_builds": 0,
   "module_test_runs": 0,
   "ui_shows": 0,
   "remaining": [
-    "Catalog/background/font display mappings",
-    "Open file-dialog refresh",
+    "Diagnostic call-path reconciliation",
+    "File-dialog call-site runtime acceptance",
     "Final build/deployment/one real-window run",
     "S0 refresh and user human review"
   ],
@@ -21,7 +21,7 @@
     },
     {
       "file": "src\\ui\\src\\LocalizedThemeMessages.hpp",
-      "sha256": "8431dfd2f76e5d3891f0bdc7cd3f79d1a6e8ab7f24be6a4f9d470071eb6da871"
+      "sha256": "be4e047c2f2f3ad098fb731b90ec3c001652b61e3df3c7621fd52c2d273ad1e7"
     },
     {
       "file": "Docs\\i18n\\S6-theme-core-strings.tsv",
@@ -29,35 +29,35 @@
     },
     {
       "file": "locate\\manifest.json",
-      "sha256": "baff28ded9654d57c09876c566dce957857fde618b0dc87bd12100d36be0f4e9"
+      "sha256": "910e0686e3db8520a1936fb66d1c5d5e1d6dcb88355e5649b199cfa4737ad0b6"
     },
     {
       "file": "src\\ui\\src\\ThemeManagementDialog.cpp",
-      "sha256": "8d3cd49806c0d8af97af82302633f47525c9bff871d4d90c8bbe9ea27da44856"
+      "sha256": "9c410c4346d8f2dec21da77579ba1a071520c63820de8c43cb7653c97085128a"
     },
     {
       "file": "tests\\theme\\ThemeManagementTests.cpp",
-      "sha256": "69358132d9b185e9bc8570ea3b5fa21a9a055a20fb0a6de72f516afc5cae5715"
+      "sha256": "ccf83ee690be44d24aa6c2d264adb54797ca8e9f9bf2853c696268223bc9dfb9"
     },
     {
       "file": "Docs\\UI-API.md",
-      "sha256": "aff2357667faffde5d186de2fe52d58f7eae75e4a67447db884fc547e87b0730"
+      "sha256": "e806b4242518dac4d1e1915971adf4c3fda67a2af5138f365df76f18e852f887"
     },
     {
       "file": "locate\\en-US.json",
-      "sha256": "43894ed54e665c144bcdafe3ef1e8893c7a9001a0e3be564586bc54d06f889bc"
+      "sha256": "5e6826174d5a096a01b3132ec0929bb227f614b2cb336517e909514801be9504"
     },
     {
       "file": "locate\\zh-CN.json",
-      "sha256": "3134167c7c60fbc76968623885192b7846dff9d781a323f5fb1e376bf108fe10"
+      "sha256": "fc9efef71c30fa0d26efa7847cd8d07983b33439eacd24c134691f6439708cb9"
     },
     {
       "file": "locate\\ja-JP.json",
-      "sha256": "0e776c0edbfa846d2cf1db192fbbbd074ae85379e592ef5b186082fbfd93a647"
+      "sha256": "eef5cbf84a87774044cd5af91bdedbc62c01758dd25e47797b5a8a9f36f24fd1"
     },
     {
       "file": "locate\\ko-KR.json",
-      "sha256": "e8a543a504d8e8ea7560b7549eb7e0af8f10d196d370b71e0fdfcd299f8e05ab"
+      "sha256": "3fb33cda7920fa53c1aeaae6c0261bbfbcefaa5ca66b9cdd209246650eb87e45"
     }
   ]
 }

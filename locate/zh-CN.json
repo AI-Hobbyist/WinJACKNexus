@@ -1,6 +1,6 @@
 {
   "formatVersion": 1,
-  "catalogVersion": 9,
+  "catalogVersion": 10,
   "moduleId": "winjacknexus-host",
   "language": "zh-CN",
   "domains": {
@@ -791,7 +791,10 @@
       "namespace.exportDuplicate": "同一导出表内的模块或命名空间重复",
       "namespace.bindingIndex": "仍在注册时绑定索引发生变化",
       "namespace.owner": "模块描述符或所有者冲突：{detail}",
-      "namespace.namespaceOwner": "命名空间已由另一模块拥有：{detail}"
+      "namespace.namespaceOwner": "命名空间已由另一模块拥有：{detail}",
+      "catalog.directory": "无法创建主题目录：{detail}",
+      "catalog.notInstalled": "主题不在安装目录中：{detail}",
+      "catalog.changed": "主题文件已改变，请刷新列表"
     }
   }
 }

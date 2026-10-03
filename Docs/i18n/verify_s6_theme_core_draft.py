@@ -32,15 +32,15 @@ def main():
         assert declaration in rules
     manifest_path = ROOT/'locate/manifest.json'
     manifest = json.loads(manifest_path.read_text(encoding='utf-8'))
-    assert manifest['catalogVersion'] == 9
-    assert sum(map(len, manifest['requiredKeys'].values())) == 771
+    assert manifest['catalogVersion'] == 10
+    assert sum(map(len, manifest['requiredKeys'].values())) == 774
     paths = [core, header, table, manifest_path,
              ROOT/'src/ui/src/ThemeManagementDialog.cpp',
              ROOT/'tests/theme/ThemeManagementTests.cpp', ROOT/'Docs/UI-API.md']
     for language in ('en-US', 'zh-CN', 'ja-JP', 'ko-KR'):
         path = ROOT/'locate'/f'{language}.json'
         catalog = json.loads(path.read_text(encoding='utf-8'))
-        assert catalog['catalogVersion'] == 9
+        assert catalog['catalogVersion'] == 10
         for row in rows:
             value = catalog['domains']['theme'][row['key']]
             assert value == row[language] and value.strip()
@@ -48,10 +48,10 @@ def main():
         paths.append(path)
     result = {'stage': 'S6', 'result': 'THEME_CORE_DISPLAY_SOURCE_PASS_RUNTIME_PENDING',
               'core_templates': 46, 'core_source_unchanged': True,
-              'host_catalog_version': 9, 'host_keys': 771,
+              'host_catalog_version': 10, 'host_keys': 774,
               'module_builds': 0, 'module_test_runs': 0, 'ui_shows': 0,
-              'remaining': ['Catalog/background/font display mappings',
-                            'Open file-dialog refresh', 'Final build/deployment/one real-window run',
+              'remaining': ['Diagnostic call-path reconciliation',
+                            'File-dialog call-site runtime acceptance', 'Final build/deployment/one real-window run',
                             'S0 refresh and user human review'],
               'evidence': [{'file': str(path.relative_to(ROOT)),
                             'sha256': hashlib.sha256(path.read_bytes()).hexdigest()}

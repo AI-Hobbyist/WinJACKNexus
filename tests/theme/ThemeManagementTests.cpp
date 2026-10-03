@@ -1,13 +1,16 @@
 /* This file is part of WinJACKNexus. SPDX-License-Identifier: AGPL-3.0-only */
 #include <WinJACKNexus/UI/ThemeCore.hpp>
+#include <WinJACKNexus/UI/ThemeCatalog.hpp>
 #include <WinJACKNexus/UI/ThemeManagementDialog.hpp>
 #include <WinJACKNexus/UI/ThemeManager.hpp>
 #include <WinJACKNexus/UI/ThemePackage.hpp>
 #include <WinJACKNexus/UI/HostI18n.hpp>
 #include <WinJACKNexus/UI/ThemeNamespaceRegistry.hpp>
 #include "../../src/ui/src/LocalizedThemeMessages.hpp"
+#include "../../src/ui/src/LocalizedThemeDialogs.hpp"
 
 #include <QApplication>
+#include <QAction>
 #include <QCoreApplication>
 #include <QCheckBox>
 #include <QComboBox>
@@ -15,6 +18,7 @@
 #include <QDoubleSpinBox>
 #include <QFile>
 #include <QFileInfo>
+#include <QFileDialog>
 #include <QFontDatabase>
 #include <QTemporaryDir>
 #include <QJsonArray>
@@ -22,11 +26,14 @@
 #include <QJsonObject>
 #include <QLabel>
 #include <QLineEdit>
+#include <QMenu>
 #include <QPushButton>
 #include <QPlainTextEdit>
 #include <QScreen>
 #include <QSpinBox>
+#include <QSettings>
 #include <QTabWidget>
+#include <QTimer>
 
 #include <cstdio>
 
@@ -48,16 +55,23 @@ QJsonObject metadata() {
 int main(int argc, char** argv) {
     QApplication application(argc, argv);
     check(QApplication::platformName() == QStringLiteral("windows"), "Theme UI verification requires Windows platform");
+    if (failures) return 2;
     application.setFont(QFontDatabase::systemFont(QFontDatabase::GeneralFont));
     check(application.primaryScreen() != nullptr, "actual Windows display is available");
+    check(application.font().family() == QFontDatabase::systemFont(QFontDatabase::GeneralFont).family(),
+          "system font is configured before any window");
+    if (failures) return 2;
     QTemporaryDir languageSettings;
     I18nOptions languageOptions;
     languageOptions.settingsFile = languageSettings.filePath(QStringLiteral("language.ini"));
     HostI18n languageHost(languageOptions);
     QString languageError;
     check(languageHost.initialize(QCoreApplication::applicationDirPath(), &languageError), "Theme i18n host initializes with isolated language settings");
+    if (failures) return 2;
     QDir().mkpath(QStringLiteral("tests/preview/S10"));
     ThemeCore core;
+    check(core.isValid(), "required default Theme DLL is loaded before UI verification");
+    if (failures) return 2;
     ThemeManager::installThemeCore(&core);
     ThemeManagementDialog dialog(core);
     dialog.show();
@@ -148,6 +162,91 @@ int main(int argc, char** argv) {
         imageMode->setCurrentIndex(imageMode->findData(originalMode));
     } else check(false, "Theme authoring drafts exist for language call-site checks");
     core.restoreDefault();
+    // Four file workflows in this same single module run; cancellation avoids file writes.
+    struct FileCase {
+        const char* key; const char* english; const char* filterKey; const char* filterEnglish;
+        bool save;
+    };
+    const FileCase fileCases[] {
+        {"package.import", "Import theme package", "file.themeFilter", "WinJACKNexus themes (*.wjnskin)", false},
+        {"file.fontTitle", "Choose font", "file.fontFilter", "Fonts (*.ttf *.otf)", false},
+        {"file.imageTitle", "Choose background image", "file.imageFilter", "Images (*.png *.jpg *.jpeg *.webp)", false},
+        {"file.exportTitle", "Export theme", "file.themeFilter", "WinJACKNexus themes (*.wjnskin)", true}
+    };
+    for (const auto& item : fileCases) {
+        check(languageHost.manager().setLanguage(QStringLiteral("en-US"), &languageError), "file dialog initial language");
+        bool visited = false;
+        QTimer deadline;
+        deadline.setSingleShot(true);
+        QObject::connect(&deadline, &QTimer::timeout, &dialog, [&] {
+            check(false, "owned file dialog verification must finish within five seconds");
+            if (auto* pending = dialog.findChild<QFileDialog*>(QStringLiteral("theme.fileDialog"))) pending->reject();
+        });
+        deadline.start(5000);
+        QTimer::singleShot(100, &dialog, [&] {
+            auto* fileDialog = dialog.findChild<QFileDialog*>(QStringLiteral("theme.fileDialog"));
+            check(fileDialog && fileDialog->isVisible(), "owned file workflow has an actual visible Windows dialog");
+            if (!fileDialog) return;
+            visited = true;
+            auto* edit = fileDialog->findChild<QLineEdit*>(QStringLiteral("fileNameEdit"));
+            check(edit != nullptr, "file dialog filename editor exists");
+            const auto directory = fileDialog->directory().absolutePath();
+            if (edit) { edit->setText(QStringLiteral("draft {detail} %1.wjnskin")); edit->setSelection(8, -5); }
+            const auto cursor = edit ? edit->cursorPosition() : 0;
+            const auto selection = edit ? edit->selectedText() : QString{};
+            for (const auto& language : {"en-US", "zh-CN", "ja-JP", "ko-KR"}) {
+                check(languageHost.manager().setLanguage(QString::fromLatin1(language), &languageError), "open file dialog hot language switch");
+                check(fileDialog->windowTitle() == localizedText("theme", item.key, item.english)
+                      && fileDialog->nameFilters() == QStringList{localizedText("theme", item.filterKey, item.filterEnglish)},
+                      "open file dialog title and wildcard filter follow current catalog");
+                check(fileDialog->directory().absolutePath() == directory && edit
+                      && edit->text() == QStringLiteral("draft {detail} %1.wjnskin")
+                      && edit->cursorPosition() == cursor && edit->selectedText() == selection,
+                      "open file language refresh preserves directory, filename and reverse selection");
+            }
+            fileDialog->reject();
+        });
+        const auto result = ThemeDialogs::file(&dialog, item.save, languageSettings.path(),
+                                               item.key, item.english, item.filterKey, item.filterEnglish);
+        deadline.stop();
+        check(visited && result.isEmpty(), "cancelling translated file workflow returns no path");
+    }
+    {
+        QTemporaryDir installed;
+        QSettings isolatedSettings(languageSettings.filePath(QStringLiteral("catalog.ini")), QSettings::IniFormat);
+        ThemeCatalog catalog(core, isolatedSettings, installed.path());
+        QString canonical;
+        check(!catalog.activate(QStringLiteral("missing-id"), &canonical)
+              && canonical == QStringLiteral("主题不在安装目录中：missing-id"),
+              "catalog API retains original diagnostic and theme identity");
+        const auto fixturePath = installed.filePath(QStringLiteral("catalog.wjnskin"));
+        check(diagnosticPackage.saveToFile(fixturePath, &languageError), "prepare isolated menu package");
+        QString displayed;
+        auto* menu = catalog.createMenu(&dialog, [] {}, [&](const QString& text) { displayed = text; });
+        check(QMetaObject::invokeMethod(menu, "aboutToShow", Qt::DirectConnection), "populate actual theme menu callback");
+        QAction* fixtureAction = nullptr;
+        for (auto* action : menu->actions())
+            if (action->data().toString() == diagnosticPackage.id()) fixtureAction = action;
+        auto changedMetadata = metadata();
+        changedMetadata.insert(QStringLiteral("id"), QStringLiteral("org.winjacknexus-changed-fixture"));
+        ThemePackage changed;
+        check(ThemePackage::create(changedMetadata, ":root { }", {}, &changed, &languageError)
+              && changed.saveToFile(fixturePath, &languageError), "change package identity after menu discovery");
+        const QStringList languages {"en-US", "zh-CN", "ja-JP", "ko-KR"};
+        const QStringList expected {QStringLiteral("The theme file has changed; refresh the list"),
+            QStringLiteral("主题文件已改变，请刷新列表"),
+            QStringLiteral("テーマファイルが変更されました。リストを更新してください"),
+            QStringLiteral("테마 파일이 변경되었습니다. 목록을 새로 고치세요")};
+        for (int index = 0; index < languages.size(); ++index) {
+            check(languageHost.manager().setLanguage(languages[index], &languageError), "catalog menu language");
+            displayed.clear();
+            if (fixtureAction) fixtureAction->trigger();
+            check(fixtureAction && displayed == expected[index], "actual menu failure callback translates in four languages");
+            check(!catalog.activate(diagnosticPackage.id(), &canonical)
+                  && canonical == QStringLiteral("主题文件已改变，请刷新列表"), "menu display translation leaves API diagnostic canonical");
+        }
+        delete menu;
+    }
     check(languageHost.manager().setLanguage(QStringLiteral("zh-CN"), &languageError),
           "select explicit language for existing Chinese authoring checks");
     if (tabs) {
