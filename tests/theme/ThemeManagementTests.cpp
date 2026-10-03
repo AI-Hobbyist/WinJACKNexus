@@ -4,6 +4,7 @@
 #include <WinJACKNexus/UI/ThemeManager.hpp>
 #include <WinJACKNexus/UI/ThemePackage.hpp>
 #include <WinJACKNexus/UI/HostI18n.hpp>
+#include <WinJACKNexus/UI/ThemeNamespaceRegistry.hpp>
 #include "../../src/ui/src/LocalizedThemeMessages.hpp"
 
 #include <QApplication>
@@ -87,6 +88,19 @@ int main(int argc, char** argv) {
     for (const auto& item : diagnosticSnapshot->diagnostics())
         canonicalFound |= item.code == QStringLiteral("unknown-token") && item.message == canonicalWarning;
     check(canonicalFound, "model warning tuple retains canonical English and stable code");
+    ThemePackage rejectedPackage;
+    QString packageFailure;
+    check(!ThemePackage::loadFromBytes(QByteArray("not a ZIP"), &rejectedPackage, &packageFailure)
+          && packageFailure == QStringLiteral("package size is outside 22 bytes..32 MiB"),
+          "actual package failure retains canonical English");
+    ThemeNamespaceRegistry isolatedNamespaces;
+    ThemeNamespaceRegistry::Lease rejectedNamespace;
+    QString namespaceFailure;
+    check(!isolatedNamespaces.registerInternal(QByteArray(1, char(0xff)), QStringLiteral("i18n-invalid-fixture"),
+                                               &rejectedNamespace, &namespaceFailure)
+          && namespaceFailure == QStringLiteral("descriptor is not bounded UTF-8")
+          && rejectedNamespace.isEmpty() && isolatedNamespaces.moduleIds().isEmpty(),
+          "actual malformed namespace descriptor fails without registering identity");
     if (nameDraft && colorDraft && backgroundScope && imageMode && tabs) {
         const auto originalName = nameDraft->text();
         const auto originalColor = colorDraft->text();
@@ -103,6 +117,14 @@ int main(int argc, char** argv) {
             QStringLiteral("未知 token 保留在主题包中，但绘制时忽略"),
             QStringLiteral("不明なトークンはパッケージに保持されますが、描画には使用されません"),
             QStringLiteral("알 수 없는 토큰은 패키지에 보존되지만 그리기에는 사용되지 않습니다")};
+        const QStringList packageMessages {packageFailure,
+            QStringLiteral("主题包大小不在 22 字节至 32 MiB 范围内"),
+            QStringLiteral("パッケージのサイズが 22 バイトから 32 MiB の範囲外です"),
+            QStringLiteral("패키지 크기가 22바이트부터 32 MiB까지의 범위를 벗어납니다")};
+        const QStringList namespaceMessages {namespaceFailure,
+            QStringLiteral("描述符不是符合长度限制的 UTF-8"),
+            QStringLiteral("記述子が長さの制限を満たす UTF-8 ではありません"),
+            QStringLiteral("디스크립터가 길이 제한을 충족하는 UTF-8이 아닙니다")};
         for (int index = 0; index < languages.size(); ++index) {
             check(languageHost.manager().setLanguage(languages[index], &languageError), "Theme language switch");
             check(dialog.windowTitle() == titles[index], "Theme title has independent four-language expectation");
@@ -112,6 +134,10 @@ int main(int argc, char** argv) {
                   "language refresh preserves stable enum selection");
             check(diagnosticsView && diagnosticsView->toPlainText().contains(warnings[index]), "actual stored diagnostic display refreshes in four languages");
             check(core.snapshot() == diagnosticSnapshot, "language refresh does not rebuild or mutate Theme snapshot");
+            check(ThemeMessages::display(packageFailure) == packageMessages[index], "actual package failure display has independent four-language expectation");
+            check(ThemeMessages::display(namespaceFailure) == namespaceMessages[index], "actual namespace failure display has independent four-language expectation");
+            check(ThemeMessages::display(QStringLiteral("module.wjnskin: ") + packageFailure)
+                  == QStringLiteral("module.wjnskin: ") + packageMessages[index], "wrapper filename stays original while nested project diagnostic translates");
             const auto literalDetail = QStringLiteral("assets/{detail} %1.png");
             check(ThemeMessages::display(QStringLiteral("export resource is missing: ") + literalDetail).endsWith(literalDetail),
                   "named diagnostic argument retains literal placeholder-looking resource path");

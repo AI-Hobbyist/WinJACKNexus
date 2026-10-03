@@ -45,3 +45,9 @@ VST Scanner 使用现有 HostI18n 在创建窗口前恢复宿主保存的语言�
 主题管理八项本窗口错误现返回 canonical English，状态控件存它的原文并在语言通知时显示翻译副本；成功状态继续保存稳定 key。snapshot 诊断只更新只读文本，恢复有界光标位置和滚动条，不重建快照、不调用编辑区刷新。调用点测试源码增补实际 unknown-token 解析警告、四语言独立显示预期、快照保持、占位符形状路径和未知诊断保持检查，尚未编译或执行。
 
 源词表/模板/四语言包静态核对 PASS，见 S6-theme-core-draft-verification.json 与 S6-theme-core-draft.log；窗口 80 项源码核对也已按 v8 同步。它不代表编译、部署或运行时通过，实际 bin 仍为 v6，S0 来源快照仍为 8564c61。Package、NamespaceRegistry、Catalog、背景/字体显示边界及打开的文件对话框仍待补齐，随后统一编译并运行主题模块的一次实窗测试。本轮无编译、模块测试或弹窗，S6 尚未完成。
+
+2026-10-04 ThemePackage/ThemeNamespaceRegistry 显示接入：新增 109 个四语言草稿模板（主题包 69、命名空间 40），逐出现覆盖原清单中两文件共 115 次来源（重复输出/注册目标保护共用明确模板）。两后台文件 SHA-256 与 8564c61 快照一致，ZIP/UTF-8/CRC/大小预算/ID/namespace/token 校验、原始 English 错误、注册结果及租约不改。模板仅在显示边界使用，detail 参数保留文件、字段及模块身份。已知诊断前带文件/模块前缀时保留前缀，仅翻译完整已知后缀；最多检查八个分隔点，未知内容原样。主题身份/状态采用 PlainText，保持字面元数据和诊断内容。
+
+测试源码增补实际坏 ZIP 和坏 UTF-8 descriptor 失败、canonical payload、注册/租约为空、四语言独立显示预期及文件名前缀保持；仍未编译或执行。草稿中 Korean descriptor 统一使用技术术语 디스크립터，全部仍待用户审校。
+
+四语言源码/词表/占位符/模板核对 PASS：S6-theme-package-namespace-draft-verification.json、S6-theme-package-namespace-draft.log。宿主源码包 v9/771，theme 域共 235 项（窗口 80、core 46、package/namespace 109）；原窗口/core 草稿校验同步到该版本。实际 bin 仍为 v6，没有新增 Release/部署或实窗证据，S0 来源快照仍对应 8564c61。目录/背景/字体显示及打开的文件框刷新还需补齐，然后统一编译并执行主题模块的一次实窗测试。本轮无编译、模块测试或弹窗，S6 尚未完成。

@@ -31,3 +31,5 @@
 2026-10-04 主题管理新增 80 项四语言草稿，见 `S6-theme-ui-strings.tsv`。包括背景尺寸/平铺选项、Opacity/透明度语义和主题包导入导出术语，待用户意见；该批仍在实施，只有源码/语言包静态核对，没有新增 Release 或实窗验收。
 
 2026-10-04 新增 ThemeCore 46 项诊断草稿（S6-theme-core-strings.tsv），包含 CSS/registry/资源/导出语义。原始 token、类型、路径和诊断代码保持，显示说明待用户四语言审校；目前只有源码一致性检查，无人工批准或运行时验收。
+
+2026-10-04 主题包/命名空间新增 109 项草稿（S6-theme-package-namespace-strings.tsv）。ZIP 记录、CRC、资源预算、Dev 主题、descriptor 与 namespace 语义待用户审校；ID/token/字段/路径作为 detail 原样保留。Korean descriptor 使用 디스크립터，当前没有人工批准或运行时验收。

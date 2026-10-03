@@ -3,13 +3,13 @@
   "result": "THEME_CORE_DISPLAY_SOURCE_PASS_RUNTIME_PENDING",
   "core_templates": 46,
   "core_source_unchanged": true,
-  "host_catalog_version": 8,
-  "host_keys": 662,
+  "host_catalog_version": 9,
+  "host_keys": 771,
   "module_builds": 0,
   "module_test_runs": 0,
   "ui_shows": 0,
   "remaining": [
-    "Package/namespace/catalog/background/font display mappings",
+    "Catalog/background/font display mappings",
     "Open file-dialog refresh",
     "Final build/deployment/one real-window run",
     "S0 refresh and user human review"
@@ -21,7 +21,7 @@
     },
     {
       "file": "src\\ui\\src\\LocalizedThemeMessages.hpp",
-      "sha256": "ace3c14658bf2175ef6bab56355e9c067cccbd34c33c0f0ca1433b444a3a9fca"
+      "sha256": "8431dfd2f76e5d3891f0bdc7cd3f79d1a6e8ab7f24be6a4f9d470071eb6da871"
     },
     {
       "file": "Docs\\i18n\\S6-theme-core-strings.tsv",
@@ -29,35 +29,35 @@
     },
     {
       "file": "locate\\manifest.json",
-      "sha256": "4f5a5cdda1e6c782d140b4aea680ad4ba73355f585e05607da42e4a9193d67d9"
+      "sha256": "baff28ded9654d57c09876c566dce957857fde618b0dc87bd12100d36be0f4e9"
     },
     {
       "file": "src\\ui\\src\\ThemeManagementDialog.cpp",
-      "sha256": "e13c9d6ec49bb49a6528fe2ecb681b49e1e6643d026496d3fc0697180ecae7b3"
+      "sha256": "8d3cd49806c0d8af97af82302633f47525c9bff871d4d90c8bbe9ea27da44856"
     },
     {
       "file": "tests\\theme\\ThemeManagementTests.cpp",
-      "sha256": "ec42029f093c3a1cd444e9b7dd33f212affbda34c44133db476ed1530a48e309"
+      "sha256": "69358132d9b185e9bc8570ea3b5fa21a9a055a20fb0a6de72f516afc5cae5715"
     },
     {
       "file": "Docs\\UI-API.md",
-      "sha256": "c8f92ac0e98e0fc01963fe00b23addc0f2995e41cfb7d45db48bb2ebca3e7516"
+      "sha256": "aff2357667faffde5d186de2fe52d58f7eae75e4a67447db884fc547e87b0730"
     },
     {
       "file": "locate\\en-US.json",
-      "sha256": "a8fcb391fabd07a62e06e725720bea7906d6f874f16d69a4c63bf260be4990fb"
+      "sha256": "43894ed54e665c144bcdafe3ef1e8893c7a9001a0e3be564586bc54d06f889bc"
     },
     {
       "file": "locate\\zh-CN.json",
-      "sha256": "e353e1e3d97b0ebb0942f272475e54de88d0a2873d5cc1660439c5d7da661ed7"
+      "sha256": "3134167c7c60fbc76968623885192b7846dff9d781a323f5fb1e376bf108fe10"
     },
     {
       "file": "locate\\ja-JP.json",
-      "sha256": "6b21969daf1bffb58a4c24bbbcc7661cd47320b99a05e296126f3292d8d6e506"
+      "sha256": "0e776c0edbfa846d2cf1db192fbbbd074ae85379e592ef5b186082fbfd93a647"
     },
     {
       "file": "locate\\ko-KR.json",
-      "sha256": "fdfb029adad631ab7579fab8cdf0ab472f0d7c8ef0f6f3fa3f779c2ba33f625b"
+      "sha256": "e8a543a504d8e8ea7560b7549eb7e0af8f10d196d370b71e0fdfcd299f8e05ab"
     }
   ]
 }

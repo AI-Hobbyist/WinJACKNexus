@@ -1,0 +1,69 @@
+{
+  "stage": "S6",
+  "result": "THEME_PACKAGE_NAMESPACE_SOURCE_PASS_RUNTIME_PENDING",
+  "display_templates": 109,
+  "mapped_original_occurrences": 115,
+  "package_and_registry_sources_unchanged": true,
+  "host_catalog_version": 9,
+  "host_keys": 771,
+  "theme_keys": 235,
+  "module_builds": 0,
+  "module_test_runs": 0,
+  "ui_shows": 0,
+  "remaining": [
+    "Catalog/background/font presentation",
+    "Open file-dialog refresh",
+    "Final build/deployment/one real-window run",
+    "S0 and human review"
+  ],
+  "evidence": [
+    {
+      "file": "Docs\\i18n\\S6-theme-package-namespace-strings.tsv",
+      "sha256": "dba73c15cbc1f4d8a6f614f409440a8e78cd8714a2a68fe11aee68d41484a3d7"
+    },
+    {
+      "file": "src\\ui\\src\\LocalizedThemeMessages.hpp",
+      "sha256": "8431dfd2f76e5d3891f0bdc7cd3f79d1a6e8ab7f24be6a4f9d470071eb6da871"
+    },
+    {
+      "file": "tests\\theme\\ThemeManagementTests.cpp",
+      "sha256": "69358132d9b185e9bc8570ea3b5fa21a9a055a20fb0a6de72f516afc5cae5715"
+    },
+    {
+      "file": "src\\ui\\src\\ThemeManagementDialog.cpp",
+      "sha256": "8d3cd49806c0d8af97af82302633f47525c9bff871d4d90c8bbe9ea27da44856"
+    },
+    {
+      "file": "Docs\\UI-API.md",
+      "sha256": "aff2357667faffde5d186de2fe52d58f7eae75e4a67447db884fc547e87b0730"
+    },
+    {
+      "file": "src\\ui\\src\\ThemeNamespaceRegistry.cpp",
+      "sha256": "b2ae21077dd3d923511b5ab7cad59e5acc964ee89decd8156e89f784568de764"
+    },
+    {
+      "file": "src\\ui\\src\\ThemePackage.cpp",
+      "sha256": "f1d1ddc6da01d5c15ce3c4f3117a538e307fc0108117d7cf008c148c59616d3c"
+    },
+    {
+      "file": "locate\\manifest.json",
+      "sha256": "baff28ded9654d57c09876c566dce957857fde618b0dc87bd12100d36be0f4e9"
+    },
+    {
+      "file": "locate\\en-US.json",
+      "sha256": "43894ed54e665c144bcdafe3ef1e8893c7a9001a0e3be564586bc54d06f889bc"
+    },
+    {
+      "file": "locate\\zh-CN.json",
+      "sha256": "3134167c7c60fbc76968623885192b7846dff9d781a323f5fb1e376bf108fe10"
+    },
+    {
+      "file": "locate\\ja-JP.json",
+      "sha256": "0e776c0edbfa846d2cf1db192fbbbd074ae85379e592ef5b186082fbfd93a647"
+    },
+    {
+      "file": "locate\\ko-KR.json",
+      "sha256": "e8a543a504d8e8ea7560b7549eb7e0af8f10d196d370b71e0fdfcd299f8e05ab"
+    }
+  ]
+}

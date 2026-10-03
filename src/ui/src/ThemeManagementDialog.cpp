@@ -161,6 +161,7 @@ ThemeManagementDialog::ThemeManagementDialog(ThemeCore& core, QWidget* parent)
     auto* overview = new QWidget(tabs);
     auto* overviewLayout = new QVBoxLayout(overview);
     view_->identity = new C::TextLabel(overview);
+    view_->identity->setTextFormat(Qt::PlainText);
     view_->identity->setWordWrap(true);
     overviewLayout->addWidget(view_->identity);
     view_->homepage = themeButton("homepage.open", "Open author homepage", overview);
@@ -324,6 +325,7 @@ ThemeManagementDialog::ThemeManagementDialog(ThemeCore& core, QWidget* parent)
     themeTab(tabs, exports, "tab.export", "Export");
 
     view_->status = new C::TextLabel(this);
+    view_->status->setTextFormat(Qt::PlainText);
     view_->status->setObjectName(QStringLiteral("theme.status"));
     if (auto* manager = I18nManager::installed())
         manager->bind(view_->status, [label = view_->status] {

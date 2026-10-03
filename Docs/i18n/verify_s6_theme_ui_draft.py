@@ -25,9 +25,9 @@ def main():
     assert 'const QSignalBlocker blocker(field);' in code
     manifest_path = ROOT/'locate/manifest.json'
     manifest = json.loads(manifest_path.read_text(encoding='utf-8'))
-    assert manifest['catalogVersion'] == 8
+    assert manifest['catalogVersion'] == 9
     assert keys <= set(manifest['requiredKeys']['theme'])
-    assert sum(map(len, manifest['requiredKeys'].values())) == 662
+    assert sum(map(len, manifest['requiredKeys'].values())) == 771
     paths = [source, table, manifest_path,
              ROOT/'src/ui/include/WinJACKNexus/UI/ThemeManagementDialog.hpp',
              ROOT/'tests/theme/ThemeManagementTests.cpp', ROOT/'Docs/UI-API.md']
@@ -49,20 +49,20 @@ def main():
             assert '| theme | '+row['key']+' |' in review
         paths.append(path)
     result = {'stage': 'S6', 'result': 'THEME_UI_SOURCE_DRAFT_PASS_IMPLEMENTATION_OPEN',
-              'theme_ui_keys': 80, 'host_catalog_version': 8, 'host_keys': 662,
+              'theme_ui_keys': 80, 'host_catalog_version': 9, 'host_keys': 771,
               'module_test_runs': 0, 'module_builds': 0, 'ui_shows': 0,
-              'remaining': ['Theme package/namespace registry/catalog diagnostic display',
+              'remaining': ['Catalog/background/font diagnostic display',
                             'Complete remaining canonical error mappings',
                             'Open file-dialog title/filter refresh',
                             'Call-site checks, final Release deployment and one module UI run',
                             'Final S0 reconciliation and user human review'],
-              'runtime': 'Existing v6 deployment has not been rebuilt for these v8 sources.',
+              'runtime': 'Existing v6 deployment has not been rebuilt for these v9 sources.',
               'evidence': [{'file': str(path.relative_to(ROOT)),
                             'sha256': hashlib.sha256(path.read_bytes()).hexdigest()}
                            for path in paths]}
     (OUT/'S6-theme-ui-draft-verification.json').write_text(
         json.dumps(result, ensure_ascii=False, indent=2)+'\n', encoding='utf-8')
-    print('Theme UI source draft PASS: 80 keys, four languages, host v8/662. Build/deployment/UI acceptance pending remaining implementation.')
+    print('Theme UI source draft PASS: 80 keys, four languages, host v9/771. Build/deployment/UI acceptance pending remaining implementation.')
 
 
 if __name__ == '__main__':
