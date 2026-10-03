@@ -71,7 +71,17 @@
       "message.vst3ClassSkipped": "VST3 classes already verified; skipping probe",
       "message.vst3Static": "Isolated load returned no classes; keeping static moduleinfo data: ",
       "message.vst2Skipped": "Skipped verified VST2; using existing info entries",
-      "message.invalidDll": "Skipped invalid VST DLL"
+      "message.invalidDll": "Skipped invalid VST DLL",
+      "probe.noComponent": "VST3 factory returned no usable component class",
+      "probe.invalidClassId": "Invalid VST3 class ID: %1",
+      "probe.missingClassId": "VST3 factory cannot find class ID: %1",
+      "probe.createComponent": "Cannot create VST3 component class: %1",
+      "probe.initializeComponent": "Cannot initialize VST3 component: %1",
+      "probe.loadLibrary": "LoadLibraryExW failed",
+      "probe.missingEntry": "VST2 module has no VSTPluginMain/main entry point",
+      "probe.invalidEffect": "VST2 module returned an invalid AEffect",
+      "probe.vst2Disabled": "VST2 probing is disabled",
+      "probe.failed": "Plug-in probe failed"
     }
   }
 }

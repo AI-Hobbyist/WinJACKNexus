@@ -71,7 +71,17 @@
       "message.vst3ClassSkipped": "VST3 클래스가 이미 검증되어 검사 건너뛰기",
       "message.vst3Static": "격리 로드가 클래스를 반환하지 않아 정적 moduleinfo 데이터 유지: ",
       "message.vst2Skipped": "검증된 VST2 건너뛰기, 기존 info 항목 사용",
-      "message.invalidDll": "유효하지 않은 VST DLL 건너뛰기"
+      "message.invalidDll": "유효하지 않은 VST DLL 건너뛰기",
+      "probe.noComponent": "VST3 팩터리가 사용 가능한 컴포넌트 클래스를 반환하지 않았습니다",
+      "probe.invalidClassId": "유효하지 않은 VST3 클래스 ID: %1",
+      "probe.missingClassId": "VST3 팩터리에서 클래스 ID를 찾을 수 없습니다: %1",
+      "probe.createComponent": "VST3 컴포넌트 클래스를 생성할 수 없습니다: %1",
+      "probe.initializeComponent": "VST3 컴포넌트를 초기화할 수 없습니다: %1",
+      "probe.loadLibrary": "LoadLibraryExW 실패",
+      "probe.missingEntry": "VST2 모듈에 VSTPluginMain/main 진입점이 없습니다",
+      "probe.invalidEffect": "VST2 모듈이 유효하지 않은 AEffect를 반환했습니다",
+      "probe.vst2Disabled": "VST2 검사가 비활성화되었습니다",
+      "probe.failed": "플러그인 검사 실패"
     }
   }
 }

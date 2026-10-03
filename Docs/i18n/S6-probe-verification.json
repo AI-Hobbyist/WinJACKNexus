@@ -1,0 +1,39 @@
+{
+  "stage": "S6",
+  "result": "PASS_LIMITED_FAILURE_PATH",
+  "scope": "VST2 missing-library IPC for actual Release Probe32/Probe64",
+  "ui_runs": 0,
+  "records": [
+    {
+      "bits": 32,
+      "runs": 1,
+      "exit_code": 1,
+      "result": {
+        "ok": false,
+        "skippable": false,
+        "error": "LoadLibraryExW failed",
+        "error_key": "probe.loadLibrary",
+        "error_args": []
+      },
+      "binary_sha256": "15d7c24e46b6eee8bcca1aa53abbd7088115db7e43d84a0d469243709a63ca3d"
+    },
+    {
+      "bits": 64,
+      "runs": 1,
+      "exit_code": 1,
+      "result": {
+        "ok": false,
+        "skippable": false,
+        "error": "LoadLibraryExW failed",
+        "error_key": "probe.loadLibrary",
+        "error_args": []
+      },
+      "binary_sha256": "a507976b102b99e13e3a9f20f3eac277c0d1e9bbc5ffff9964618e3978cb6652"
+    }
+  ],
+  "unverified": [
+    "Other VST2/VST3 runtime branches",
+    "Scanner-side translated runtime presentation",
+    "Real plug-in loading and audio integration"
+  ]
+}

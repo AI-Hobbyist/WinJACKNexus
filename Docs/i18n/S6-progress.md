@@ -2,18 +2,22 @@
 
 2026-10-04，实施中，尚未完成。
 
-最新清单刷新与对账通过：275 个源码文件、9,690 次字符串出现、1,302 个唯一显示 key、未分类 0，见 `S0-verification.json` 与 `S6-S0-verification.log`。VST 宿主/扫描器调用点已映射实际 `vst` / `vstscanner` key，独立包纳入资源清单。扫描器 `Instruments/Effects` 是已交付 info 文件目录身份，位数 `%1-bit` 是标准单位格式，均有明确排除理由，不替换路径或数值。
+本次 Probe 修改前的清单刷新与对账通过：275 个源码文件、9,690 次字符串出现、1,302 个唯一显示 key、未分类 0，见 `S0-verification.json` 与 `S6-S0-verification.log`。VST 宿主/扫描器调用点已映射实际 `vst` / `vstscanner` key，独立包纳入资源清单。扫描器 `Instruments/Effects` 是已交付 info 文件目录身份，位数 `%1-bit` 是标准单位格式，均有明确排除理由，不替换路径或数值。
 
-最新差异导航仍有 369 次源码出现等待核对：theme 250、meterbridge 49、mixer 45、vstscanner 10、patchbay 5、ui 5，其他 5。它包含旧 key 提案、后台诊断、默认用户内容和真正未接入的显示项，不能视为缺译数量或覆盖率。扫描器十项均位于 `ProbeMain.cpp`，会经 IPC 返回 GUI，目前尚需处理其显示/协议边界。共享 UI 的筛选输入、侧边栏提示等亦待处理；其余项须逐条以调用路径判定，不通过统一排除掩盖遗漏。见 `S6-coverage-gaps.json`。本轮未启动模块测试或 UI 窗口。
+本次 Probe 修改前的差异导航有 369 次源码出现等待核对：theme 250、meterbridge 49、mixer 45、vstscanner 10、patchbay 5、ui 5，其他 5。它包含旧 key 提案、后台诊断、默认用户内容和真正未接入的显示项，不能视为缺译数量或覆盖率。扫描器十项均位于 `ProbeMain.cpp`，会经 IPC 返回 GUI，本轮已处理其显示/协议边界，变更后的 S0 清单和候选数须另行刷新。共享 UI 的筛选输入、侧边栏提示等亦待处理；其余项须逐条以调用路径判定，不通过统一排除掩盖遗漏。见 `S6-coverage-gaps.json`。该清单刷新轮未启动模块测试或 UI 窗口。
 
 VST 宿主已接入独立 `vst` 域及可选 Node i18n v1 服务，57 个四语言草稿 key，完整 English 和部署 manifest。原 Node v2、主题 ID、插件 class ID、进程/端口枚举及工程字段保持。提示状态以 key/English/参数保存；打开的控件和状态按语言通知刷新，Qt 文件/类选择窗口也建立标题、描述及筛选文字绑定。
 
 所需 Release 编译通过，保持 VST2=ON，并继续包含 VST2/VST3 支持。首次编译因缺少 QVariant 的完整定义失败，补 include 后只重编必要目标；失败与修复日志分别保留。唯一一次实际 DLL 实窗测试通过 77 项检查，默认系统字体 Microsoft YaHei UI，实际 windows 平台，1 次窗口显示，无追加缩放矩阵。四语言复用同一窗口，操作/已存状态更新、未提交路径草稿/选区/焦点、枚举 data 和工程字节保持，双租约、最后 detach 回退 English 和 DLL 卸载通过。韩语实际桌面截图已查看，控件和状态可读，日文/韩文路径草稿及选区保留，无黑图或其他应用画面。见 `S6-vst-verification.json`、`S6-vst-ko-KR.png`、`S6-vst-tests.log`。未运行真实插件/VSTProcess/JACK 集成或模态对话框交互测试，不将这次检查扩大为这些范围通过。
 
-VST Scanner 使用现有 HostI18n 在创建窗口前恢复宿主保存的语言选择，扫描路径/输出目录设置继续由扫描器独立保存。独立 `vstscanner` 域共 67 个四语言草稿 key：43 个窗口/操作/状态 key，24 个扫描错误与进度消息 key。运行目录为 `vstscanner/locate`，模块内部仍遵守固定 `locate` 合同，English manifest/包同时内嵌。插件类别 ID、格式 ID、路径、info 文件与插件元数据保持为稳定身份。
+VST Scanner 使用现有 HostI18n 在创建窗口前恢复宿主保存的语言选择，扫描路径/输出目录设置继续由扫描器独立保存。独立 `vstscanner` 域共 77 个四语言草稿 key（首轮 67 个，本轮增加十个 Probe 错误）：43 个窗口/操作/状态 key，24 个扫描错误与进度消息 key。运行目录为 `vstscanner/locate`，模块内部仍遵守固定 `locate` 合同，English manifest/包同时内嵌。插件类别 ID、格式 ID、路径、info 文件与插件元数据保持为稳定身份。
 
 扫描核心仅接收每次请求的显示翻译 callback，不依赖 UI 库。作用域退出时恢复 callback，避免后续独立扫描继续借用 GUI；未提供 callback 时使用 English。业务窗口复用公共控件，移除扫描器原有局部硬编码调色板与提示文字 QSS。
 
 必要 Release 构建通过，保持 VST2=ON，包含扫描器、32/64 位探测器及支持 VST2/VST3 的 `mod_vst_host`。首次且唯一模块验证在创建窗口前失败：`locatePath must be locate`，退出码 2。已将注册调整为扫描器模块根目录及其固定 `locate`，必要目标重编通过。按用户每模块只测试一次的要求，不重复运行模块测试；未生成实窗截图，修正后的语言恢复、界面与扫描交互均保留未验证说明，不能将编译或资源核对作为实窗通过。
 
 证据见 `S6-scanner-build.log`、`S6-scanner-tests.log`、`S6-scanner-build-repair.log` 与 `S6-scanner-verification.json`。保留失败日志，不追认为 PASS。当前修改后 S0 清单尚需刷新；其余 VST 宿主显示、共享遗漏项和完整双表闭合继续处理。四语言人工审校由用户提供意见，目前仅“体积→大小”已确认，其他语言/术语尚未批准。
+
+2026-10-04 Probe 错误协议完成本轮实施与有限验证：项目错误以稳定 `error_key/error_args` 或 `probe_error_key/probe_error_args` 传输，旧 `error/probe_error` 保留完整 English 回退，SDK 原始错误不套用项目 key。Scanner 白名单映射 key 后才调用请求内文本服务，并校验参数数量与字符串类型；未知 key/不合规参数退回原文，成功/跳过/verified 判断仍基于原协议字段。四语言资源与双表同步新增十项，共 77 个草稿 key。
+
+必要 Release 目标编译成功，实际 Probe32/Probe64 各执行一次离线缺失 DLL 场景，通过 exit=1、ok=false、skippable=false、英文错误及稳定 key/空参数数组核对。见 `S6-probe-build.log`、`S6-probe-tests.log`、`S6-probe-verification.json`。此验证只覆盖 VST2 LoadLibraryExW 失败路径；其他 VST2/VST3 分支和 Scanner 运行时译文显示尚未验证。未复跑 Scanner/VST 宿主/Native Fx 实窗测试，未追加缩放测试、没有 UI 弹窗。资源及部署静态核对独立记录，不替代实窗或用户审校。

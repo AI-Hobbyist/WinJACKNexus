@@ -186,7 +186,7 @@ std::string jsonInteger(std::int64_t value)
     return std::to_string(value);
 }
 
-std::string jsonObject(std::initializer_list<std::pair<std::string, std::string>> fields)
+std::string jsonObject(const std::vector<std::pair<std::string, std::string>>& fields)
 {
     std::string result = "{";
     bool first = true;
@@ -272,6 +272,30 @@ bool parseClassId(const std::string& value, VST3::UID& classId)
     return true;
 }
 
+// Display metadata is additive; ok/skippable/classes retain their protocol meaning.
+struct ProbeError final {
+    std::string text;
+    std::string key;
+    std::vector<std::string> args;
+    bool empty() const { return text.empty(); }
+};
+
+void appendErrorFields(std::vector<std::pair<std::string, std::string>>& fields,
+                       std::string_view prefix, const ProbeError& error)
+{
+    if (error.empty())
+        return;
+    const auto name = std::string(prefix);
+    fields.emplace_back(name, jsonString(error.text));
+    if (!error.key.empty()) {
+        fields.emplace_back(name + "_key", jsonString(error.key));
+        std::vector<std::string> args;
+        for (const auto& value : error.args)
+            args.push_back(jsonString(value));
+        fields.emplace_back(name + "_args", jsonArray(args));
+    }
+}
+
 struct Vst3ClassDescriptor final {
     VST3::UID classId {};
     std::string name;
@@ -283,16 +307,16 @@ struct Vst3ClassDescriptor final {
 
 class Vst3Module final {
 public:
-    bool open(const fs::path& path, std::string& error)
+    bool open(const fs::path& path, ProbeError& error)
     {
-        module = VST3::Hosting::Module::create(pathString(path), error);
+        module = VST3::Hosting::Module::create(pathString(path), error.text);
         if (module == nullptr)
             return false;
         module->getFactory().setHostContext(&hostApplication);
         return true;
     }
 
-    std::vector<Vst3ClassDescriptor> classes(std::string& error) const
+    std::vector<Vst3ClassDescriptor> classes(ProbeError& error) const
     {
         if (module == nullptr)
             return {};
@@ -314,7 +338,7 @@ public:
             result.push_back(std::move(descriptor));
         }
         if (result.empty())
-            error = "VST3 factory 没有返回可用 component class";
+            error = { "VST3 factory returned no usable component class", "probe.noComponent", {  } };
         return result;
     }
 
@@ -376,7 +400,7 @@ std::string descriptorJson(const Vst3ClassDescriptor& descriptor)
 std::string probeResult(const char* type,
                         const std::vector<std::string>& classes,
                         bool isShell,
-                        std::string_view probeError = {})
+                        const ProbeError& probeError = {})
 {
     std::vector<std::pair<std::string, std::string>> fields {
         { "ok", "true" },
@@ -385,8 +409,7 @@ std::string probeResult(const char* type,
     if (isShell)
         fields.emplace_back("is_shell", "true");
     fields.emplace_back("classes", jsonArray(classes));
-    if (!probeError.empty())
-        fields.emplace_back("probe_error", jsonString(probeError));
+    appendErrorFields(fields, "probe_error", probeError);
 
     std::string result = "{";
     for (std::size_t index = 0; index < fields.size(); ++index) {
@@ -412,7 +435,7 @@ PluginInfo makeVst3ClassInfo(const Vst3ClassDescriptor& descriptor, const std::s
     return plugin;
 }
 
-bool probeVst3Factory(const fs::path& path, std::string& output, std::string& error)
+bool probeVst3Factory(const fs::path& path, std::string& output, ProbeError& error)
 {
     Vst3Module module;
     if (!module.open(path, error))
@@ -431,14 +454,14 @@ bool probeVst3Factory(const fs::path& path, std::string& output, std::string& er
 bool probeVst3Class(const fs::path& path,
                     const std::string& classIdText,
                     std::string& output,
-                    std::string& error)
+                    ProbeError& error)
 {
     Vst3Module module;
     if (!module.open(path, error))
         return false;
     VST3::UID requestedId {};
     if (!parseClassId(classIdText, requestedId)) {
-        error = "VST3 class ID 无效: " + classIdText;
+        error = { "Invalid VST3 class ID: " + classIdText, "probe.invalidClassId", { classIdText } };
         return false;
     }
 
@@ -449,21 +472,21 @@ bool probeVst3Class(const fs::path& path,
                                              return value.classId == requestedId;
                                          });
     if (descriptor == descriptors.cend()) {
-        error = "VST3 factory 找不到 class ID: " + classIdText;
+        error = { "VST3 factory cannot find class ID: " + classIdText, "probe.missingClassId", { classIdText } };
         return false;
     }
 
     auto plugin = makeVst3ClassInfo(*descriptor, classIdText);
     auto component = module.module->getFactory().createInstance<Steinberg::Vst::IComponent>(descriptor->classId);
     if (!component) {
-        error = "VST3 component class 创建失败: " + descriptor->name;
+        error = { "Cannot create VST3 component class: " + descriptor->name, "probe.createComponent", { descriptor->name } };
         output = probeResult("vst3", { pluginJson(plugin) }, false, error);
         return true;
     }
 
     const auto initialized = component->initialize(&module.hostApplication) == Steinberg::kResultOk;
     if (!initialized) {
-        error = "VST3 component initialize 失败: " + descriptor->name;
+        error = { "Cannot initialize VST3 component: " + descriptor->name, "probe.initializeComponent", { descriptor->name } };
     } else {
         component->terminate();
     }
@@ -517,20 +540,20 @@ PluginInfo makeVst2Info(const std::string& name,
 bool probeVst2(const fs::path& path,
                const std::string& internalId,
                std::string& output,
-               std::string& error,
+               ProbeError& error,
                bool& skippable)
 {
     skippable = false;
     const auto module = LoadLibraryExW(path.wstring().c_str(), nullptr, LOAD_WITH_ALTERED_SEARCH_PATH);
     if (module == nullptr) {
-        error = "LoadLibraryW 失败";
+        error = { "LoadLibraryExW failed", "probe.loadLibrary", {  } };
         return false;
     }
     auto entry = reinterpret_cast<Vst2EntryProc>(GetProcAddress(module, "VSTPluginMain"));
     if (entry == nullptr)
         entry = reinterpret_cast<Vst2EntryProc>(GetProcAddress(module, "main"));
     if (entry == nullptr) {
-        error = "VST2 模块没有 VSTPluginMain/main";
+        error = { "VST2 module has no VSTPluginMain/main entry point", "probe.missingEntry", {  } };
         FreeLibrary(module);
         return false;
     }
@@ -543,7 +566,7 @@ bool probeVst2(const fs::path& path,
     auto* effect = entry(vst2HostCallback);
     currentVst2UniqueId = 0;
     if (effect == nullptr || effect->magic != kEffectMagic || effect->dispatcher == nullptr) {
-        error = "VST2 模块返回无效 AEffect";
+        error = { "VST2 module returned an invalid AEffect", "probe.invalidEffect", {  } };
         skippable = true;
         FreeLibrary(module);
         return false;
@@ -604,13 +627,14 @@ bool probeVst2(const fs::path& path,
 }
 #endif
 
-std::string failure(std::string_view message, bool skippable)
+std::string failure(const ProbeError& error, bool skippable)
 {
-    return jsonObject({
+    std::vector<std::pair<std::string, std::string>> fields {
         { "ok", "false" },
-        { "error", jsonString(message) },
         { "skippable", jsonBool(skippable) }
-    });
+    };
+    appendErrorFields(fields, "error", error);
+    return jsonObject(fields);
 }
 
 }
@@ -636,7 +660,7 @@ int wmain(int argc, wchar_t* argv[])
     const auto path = fs::path(argv[2]);
     const auto selectedId = classMode ? utf8FromWide(argv[4]) : std::string();
     const auto outputPath = fs::path(argv[classMode ? 6 : 4]);
-    std::string error;
+    ProbeError error;
     std::string output;
     bool skippable = false;
     bool success = false;
@@ -652,11 +676,14 @@ int wmain(int argc, wchar_t* argv[])
                     error,
                     skippable);
 #else
-        error = "VST2 探测未启用";
+        error = { "VST2 probing is disabled", "probe.vst2Disabled", {  } };
 #endif
     }
-    if (!success)
-        output = failure(error.empty() ? "插件探测失败" : error, skippable);
+    if (!success) {
+        if (error.empty())
+            error = { "Plug-in probe failed", "probe.failed", {} };
+        output = failure(error, skippable);
+    }
     const auto outputSuccess = writeFileAtomically(outputPath, output);
     if (comInitialized)
         CoUninitialize();

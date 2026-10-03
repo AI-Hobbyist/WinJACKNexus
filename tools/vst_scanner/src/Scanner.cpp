@@ -358,6 +358,66 @@ PluginInfo makeVst3Info(const fs::path& path,
     return info;
 }
 
+// Accept only known project display keys. SDK/legacy errors remain opaque text.
+QString localizedProbeError(const QJsonObject& object, const QString& field)
+{
+    const auto fallback = object.value(field).toString();
+    const auto key = object.value(field + QStringLiteral("_key")).toString();
+    const auto arguments = object.value(field + QStringLiteral("_args")).toArray();
+    QString text;
+    int expectedArguments = 0;
+    if (key == QStringLiteral("probe.noComponent")) {
+        text = scannerText("probe.noComponent", "VST3 factory returned no usable component class");
+        expectedArguments = 0;
+    }
+    else if (key == QStringLiteral("probe.invalidClassId")) {
+        text = scannerText("probe.invalidClassId", "Invalid VST3 class ID: %1");
+        expectedArguments = 1;
+    }
+    else if (key == QStringLiteral("probe.missingClassId")) {
+        text = scannerText("probe.missingClassId", "VST3 factory cannot find class ID: %1");
+        expectedArguments = 1;
+    }
+    else if (key == QStringLiteral("probe.createComponent")) {
+        text = scannerText("probe.createComponent", "Cannot create VST3 component class: %1");
+        expectedArguments = 1;
+    }
+    else if (key == QStringLiteral("probe.initializeComponent")) {
+        text = scannerText("probe.initializeComponent", "Cannot initialize VST3 component: %1");
+        expectedArguments = 1;
+    }
+    else if (key == QStringLiteral("probe.loadLibrary")) {
+        text = scannerText("probe.loadLibrary", "LoadLibraryExW failed");
+        expectedArguments = 0;
+    }
+    else if (key == QStringLiteral("probe.missingEntry")) {
+        text = scannerText("probe.missingEntry", "VST2 module has no VSTPluginMain/main entry point");
+        expectedArguments = 0;
+    }
+    else if (key == QStringLiteral("probe.invalidEffect")) {
+        text = scannerText("probe.invalidEffect", "VST2 module returned an invalid AEffect");
+        expectedArguments = 0;
+    }
+    else if (key == QStringLiteral("probe.vst2Disabled")) {
+        text = scannerText("probe.vst2Disabled", "VST2 probing is disabled");
+        expectedArguments = 0;
+    }
+    else if (key == QStringLiteral("probe.failed")) {
+        text = scannerText("probe.failed", "Plug-in probe failed");
+        expectedArguments = 0;
+    }
+    else
+        return fallback;
+    if (fallback.isEmpty() || arguments.size() != expectedArguments)
+        return fallback;
+    for (const auto& argument : arguments) {
+        if (!argument.isString())
+            return fallback;
+        text = text.arg(argument.toString());
+    }
+    return text;
+}
+
 bool executeIsolatedProbe(const fs::path& path,
                           int bits,
                           const QStringList& arguments,
@@ -430,7 +490,7 @@ bool executeIsolatedProbe(const fs::path& path,
     result = document.object();
     if (!result.value(QStringLiteral("ok")).toBool()) {
         skippable = result.value(QStringLiteral("skippable")).toBool();
-        error = result.value(QStringLiteral("error")).toString();
+        error = localizedProbeError(result, QStringLiteral("error"));
         if (error.isEmpty())
             error = scannerText("message.probeFailed", "Isolated probe reported failure");
         return false;
@@ -570,7 +630,7 @@ QVector<PluginInfo> runIsolatedProbe(const fs::path& path,
                 applyProbeInfo(info, classes.at(0).toObject(), true);
                 verified = childResult.value(QStringLiteral("probe_error")).toString().isEmpty();
             }
-            const auto probeError = childResult.value(QStringLiteral("probe_error")).toString();
+            const auto probeError = localizedProbeError(childResult, QStringLiteral("probe_error"));
             if (!probeError.isEmpty())
                 childErrors.push_back(info.name + QStringLiteral(": ") + probeError);
         } else if (childSkippable) {

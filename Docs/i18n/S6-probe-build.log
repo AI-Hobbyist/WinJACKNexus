@@ -1,0 +1,23 @@
+适用于 .NET Framework MSBuild 版本 18.10.1-1.26427.6+3cd27c13e
+
+  common.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\common.dll
+  Automatic MOC for target wjn_default_theme
+  node.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\node.dll
+  Performing build step for 'wjn_vst_scanner_probe32'
+  wjn_default_theme.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\wjn_default_theme.dll
+  Automatic MOC for target ui
+  閫傜敤浜?.NET Framework MSBuild 鐗堟湰 18.10.1-1.26427.6+3cd27c13e
+  
+  Scanner.cpp
+  ui.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\ui.dll
+    ProbeMain.cpp
+    vst_scanner_probe32.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\Vst Scanner Probe32.exe
+  No install step for 'wjn_vst_scanner_probe32'
+  No test step for 'wjn_vst_scanner_probe32'
+  Completed 'wjn_vst_scanner_probe32'
+  ProbeMain.cpp
+  wjn_vst_scanner_core.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\lib\Release\wjn_vst_scanner_core.lib
+  vst_scanner_probe64.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\Vst Scanner Probe64.exe
+  Running rcc for resource vst_scanner_i18n
+  qrc_vst_scanner_i18n.cpp
+  vst_scanner.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\Vst Scanner.exe

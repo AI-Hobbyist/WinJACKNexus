@@ -80,7 +80,17 @@
       "message.vst3ClassSkipped",
       "message.vst3Static",
       "message.vst2Skipped",
-      "message.invalidDll"
+      "message.invalidDll",
+      "probe.noComponent",
+      "probe.invalidClassId",
+      "probe.missingClassId",
+      "probe.createComponent",
+      "probe.initializeComponent",
+      "probe.loadLibrary",
+      "probe.missingEntry",
+      "probe.invalidEffect",
+      "probe.vst2Disabled",
+      "probe.failed"
     ]
   }
 }

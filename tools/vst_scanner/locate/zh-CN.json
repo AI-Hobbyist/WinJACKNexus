@@ -71,7 +71,17 @@
       "message.vst3ClassSkipped": "VST3 class 已验证，跳过本次探测",
       "message.vst3Static": "隔离加载未返回 class，已保留 moduleinfo 静态信息: ",
       "message.vst2Skipped": "跳过已验证 VST2，使用现有 info 条目",
-      "message.invalidDll": "跳过无效 VST DLL"
+      "message.invalidDll": "跳过无效 VST DLL",
+      "probe.noComponent": "VST3 factory 没有返回可用 component class",
+      "probe.invalidClassId": "VST3 class ID 无效：%1",
+      "probe.missingClassId": "VST3 factory 找不到 class ID：%1",
+      "probe.createComponent": "VST3 component class 创建失败：%1",
+      "probe.initializeComponent": "VST3 component 初始化失败：%1",
+      "probe.loadLibrary": "LoadLibraryExW 失败",
+      "probe.missingEntry": "VST2 模块没有 VSTPluginMain/main 入口",
+      "probe.invalidEffect": "VST2 模块返回无效 AEffect",
+      "probe.vst2Disabled": "VST2 探测未启用",
+      "probe.failed": "插件探测失败"
     }
   }
 }

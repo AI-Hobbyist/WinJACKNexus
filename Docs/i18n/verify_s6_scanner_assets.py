@@ -13,7 +13,7 @@ def sha(path):
 def main():
     rows = list(csv.DictReader((OUT/'S6-scanner-strings.tsv').open(encoding='utf-8', newline=''), delimiter='\t'))
     keys = {row['key'] for row in rows}
-    assert len(rows) == len(keys) == 67
+    assert len(rows) == len(keys) == 77
     source = ROOT/'tools/vst_scanner/locate'
     runtime = ROOT/'build/release/bin'
     deployed = runtime/'vstscanner/locate'
@@ -47,10 +47,22 @@ def main():
     core = source_files[-1].read_text(encoding='utf-8')
     assert 'WinJACKNexus/UI' not in core
     assert not re.search(r'QStringLiteral\("[^"\n]*[\u4e00-\u9fff]', core)
+    probe = (ROOT/'tools/vst_scanner/src/ProbeMain.cpp').read_text(encoding='utf-8')
+    probe_keys = set(re.findall(r'"(probe\.[A-Za-z0-9]+)"', probe))
+    assert probe_keys == {key for key in keys if key.startswith('probe.')}
+    assert 'pathString(path), error.text)' in probe  # SDK diagnostic stays opaque.
+    assert 'localizedProbeError(result, QStringLiteral("error"))' in core
+    assert 'localizedProbeError(childResult, QStringLiteral("probe_error"))' in core
+    assert 'verified = childResult.value(QStringLiteral("probe_error")).toString().isEmpty()' in core
+    protocol = json.loads((OUT/'S6-probe-verification.json').read_text(encoding='utf-8'))
+    assert protocol['result'] == 'PASS_LIMITED_FAILURE_PATH' and protocol['ui_runs'] == 0
+    for item in protocol['records']:
+        assert item['runs'] == 1
+        assert item['binary_sha256'] == sha(runtime/f"Vst Scanner Probe{item['bits']}.exe")
     paths += source_files + [ROOT/'tools/vst_scanner/include/WinJACKNexus/VstScanner'/name
         for name in ('Language.hpp', 'Scanner.hpp', 'MainWindow.hpp')]
     paths += [ROOT/'tools/vst_scanner/CMakeLists.txt', ROOT/'tools/vst_scanner/tests/I18nTests.cpp',
-        OUT/'S6-scanner-strings.tsv', runtime/'Vst Scanner.exe', runtime/'Vst Scanner Probe64.exe',
+        OUT/'S6-scanner-strings.tsv', ROOT/'tools/vst_scanner/src/ProbeMain.cpp', OUT/'S6-probe-build.log', OUT/'S6-probe-tests.log', OUT/'S6-probe-verification.json', OUT/'verify_s6_probe_protocol.py', runtime/'Vst Scanner.exe', runtime/'Vst Scanner Probe64.exe',
         runtime/'Vst Scanner Probe32.exe', runtime/'ui.dll', runtime/'nodes/vst/mod_vst_host.dll',
         runtime/'wjn_vst_scanner_i18n_tests.exe', OUT/'S6-scanner-tests.log',
         OUT/'S6-scanner-build.log', OUT/'S6-scanner-build-repair.log']
@@ -61,9 +73,11 @@ def main():
         'ui_test_runs':1, 'ui_test_exit_code':2, 'ui_window_created':False,
         'ui_status':'First run failed before window creation. Registration path repaired and Release rebuilt; no repeated module test per user instruction.',
         'human_review':'pending user review',
+        'probe_protocol':'Two architectures, one missing-library run each; other runtime branches and translated UI are unverified.',
+        'ui_test_executable':'Historical first-run fixture; not rebuilt or rerun for the additional probe keys.',
         'evidence':[{'file':str(path.relative_to(ROOT)), 'sha256':sha(path)} for path in paths]}
     (OUT/'S6-scanner-verification.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
-    print('S6 scanner catalogs/deployment PASS: 67 keys, four languages; UI UNVERIFIED (single run failed before window creation).')
+    print('S6 scanner catalogs/deployment PASS: 77 keys, four languages; UI UNVERIFIED (single run failed before window creation).')
 
 if __name__ == '__main__':
     main()
