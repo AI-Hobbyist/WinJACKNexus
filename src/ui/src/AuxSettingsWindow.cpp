@@ -2,6 +2,7 @@
 #include <WinJACKNexus/UI/AuxSettingsWindow.hpp>
 #include <WinJACKNexus/UI/ApplicationSettings.hpp>
 #include <WinJACKNexus/UI/Controls.hpp>
+#include <WinJACKNexus/UI/LocalizedText.hpp>
 #include <WinJACKNexus/UI/MixerPolarPlot.hpp>
 #include <WinJACKNexus/UI/ThemeCore.hpp>
 #include <WinJACKNexus/UI/ThemeBackground.hpp>
@@ -28,6 +29,16 @@
 
 namespace WinJACKNexus::UI {
 namespace {
+
+QString auxText(const char* key,const char* english) {
+    return localizedText("aux",key,english);
+}
+QAction* auxAction(QMenu& menu,const char* key,const char* english) {
+    auto* action=menu.addAction(auxText(key,english));
+    action->setData(QString::fromUtf8(key));
+    bindLocalizedText(action,"text","aux",key,english);
+    return action;
+}
 
 using Common::AuxBusState;
 using Common::AuxChannelLayout;
@@ -86,12 +97,21 @@ double positionFromDb(double value)
 QString channelNames(AuxChannelLayout layout)
 {
     switch(layout){
-    case AuxChannelLayout::mono: return QStringLiteral("单声道");
-    case AuxChannelLayout::stereo: return QStringLiteral("立体声");
+    case AuxChannelLayout::mono: return auxText("layout.mono","Mono");
+    case AuxChannelLayout::stereo: return auxText("layout.stereo","Stereo");
     case AuxChannelLayout::surround51: return QStringLiteral("5.1");
     case AuxChannelLayout::surround71: return QStringLiteral("7.1");
     }
     return {};
+}
+
+QAction* auxLayoutAction(QMenu& menu,AuxChannelLayout layout) {
+    auto* action=menu.addAction(channelNames(layout));
+    action->setData(static_cast<int>(layout));
+    if (auto* manager=I18nManager::installed()) manager->bind(action,[action,layout] {
+        action->setText(channelNames(layout));
+    });
+    return action;
 }
 
 QString mappingLabel(const QString& sourceNumber, const AuxBusState& bus)
@@ -441,7 +461,12 @@ AuxSettingsWindow::AuxSettingsWindow(std::shared_ptr<Common::AuxMixerState> stat
     : QWidget(parent, Qt::Window)
     , impl_(std::make_unique<Impl>(*this, std::move(state)))
 {
-    setWindowTitle(QStringLiteral("WinJACKNexus - AUX 设置"));
+    if (auto* manager=I18nManager::installed()) manager->bind(this,[this] {
+        setWindowTitle(impl_->sourceName.isEmpty()?auxText("window.title","WinJACKNexus - AUX settings")
+            :auxText("window.sourceTitle","WinJACKNexus - %1 AUX settings").arg(impl_->sourceName));
+        update();
+    });
+    else setWindowTitle(auxText("window.title","WinJACKNexus - AUX settings"));
     setMinimumSize(980, 640);
     resize(1360, 813);
     setMouseTracking(true);
@@ -466,6 +491,7 @@ void AuxSettingsWindow::setSource(const QString& sourceKey, const QString& sourc
     impl_->sourceKey = sourceKey;
     impl_->busMeters.clear();
     impl_->sourceName = sourceName;
+    setProperty("wjn.sourceName",sourceName);
     impl_->sourceNumber = sourceNumber.isEmpty() ? sourceName : sourceNumber;
     impl_->selfAuxId = selfAuxId;
     impl_->sourceLayout = layout;
@@ -478,7 +504,7 @@ void AuxSettingsWindow::setSource(const QString& sourceKey, const QString& sourc
     impl_->selectedPoint = 0;
     impl_->lastAcceptedState = *impl_->state;
     impl_->publishPan();
-    setWindowTitle(QStringLiteral("WinJACKNexus - %1 AUX 设置").arg(sourceName));
+    setWindowTitle(auxText("window.sourceTitle","WinJACKNexus - %1 AUX settings").arg(sourceName));
     update();
 }
 
@@ -620,7 +646,7 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
         themed("control-add-surface",QColor("#073158")),
         selThemedAccent(QStringLiteral("sel-aux"),QStringLiteral("control-add-border"),
             controlAccent,QColor("#33b6ff")),6);
-    text(painter, impl_->addButton(), QStringLiteral("＋  添加 AUX"),
+    text(painter, impl_->addButton(), auxText("action.add","\uff0b  Add AUX"),
          selThemedAccent(QStringLiteral("sel-aux"),QStringLiteral("control-add-text"),
              controlAccent,QColor("#33b6ff")), 15 * sy);
     Controls::drawSurface(painter,impl_->removeButton(),
@@ -673,7 +699,7 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
         Controls::drawKnob(painter,{0,0},normalized,20,listColors);
         painter.restore();
         text(painter, { knobCenter.x() - 38 * sx, row.top() + 55 * sy, 76 * sx, 16 * sy },
-             bus.selfRoute ? QStringLiteral("自身 禁用") : dbText(level),
+             bus.selfRoute ? auxText("route.selfDisabled","Self route disabled") : dbText(level),
              bus.selfRoute ? secondary : controlAccent, 10 * sy);
 
         const QRectF pre(row.left() + 220 * sx, row.top() + 18 * sy, 45 * sx, 36 * sy);
@@ -778,13 +804,13 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
     const bool canClassic=Common::auxSupportsClassicPan(bus->sourceLayout,bus->targetLayout);
     const bool classic=canClassic&&bus->panMode==Common::AuxPanMode::classic;
     drawPanel({406,11,559,544});drawPanel({406,566,559,235});drawPanel({976,11,359,790});
-    drawText({420,20,250,29},QStringLiteral("声像器"),17,label,true);
+    drawText({420,20,250,29},auxText("section.panner","Panner"),17,label,true);
     drawText({784,20,165,29},bus->name,12,secondary,false,Qt::AlignRight|Qt::AlignVCenter);
-    drawButton({420,52,137,34},QStringLiteral("空间声像器"),"control-panner-mode-button",!classic);
+    drawButton({420,52,137,34},auxText("mode.spatial","Spatial panner"),"control-panner-mode-button",!classic);
     painter.save();if(!canClassic)painter.setOpacity(.32);
-    drawButton({567,52,137,34},QStringLiteral("经典 Pan"),"control-panner-mode-button",classic);
+    drawButton({567,52,137,34},auxText("mode.classic","Classic Pan"),"control-panner-mode-button",classic);
     painter.restore();
-    if(!classic){drawText({711,52,133,34},QStringLiteral("显示极坐标曲线"),13,secondary);drawToggle({851,56,42,24},bus->showPolarCurves);}
+    if(!classic){drawText({711,52,133,34},auxText("control.polarCurve","Show polar curve"),13,secondary);drawToggle({851,56,42,24},bus->showPolarCurves);}
     drawPanel({420,95,531,448});
     const QPointF center(686,319);
     if(classic){
@@ -795,7 +821,7 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
         panColors.panel=themed("control-knob-panel",QColor("#1b3b57"));
         panColors.text=themed("control-knob-text",QColor("#d9f4ff"));
         Controls::drawPanKnob(painter,center,bus->classicPan,170,panColors);
-        drawText({center.x()-110,105,220,35},QStringLiteral("声像"),19,label,true,Qt::AlignCenter);
+        drawText({center.x()-110,105,220,35},auxText("control.pan","Pan"),19,label,true,Qt::AlignCenter);
         drawText({center.x()-190,505,90,25},QStringLiteral("L100%"),15,secondary,true,Qt::AlignCenter);
         drawText({center.x()-20,505,40,25},QStringLiteral("C"),17,secondary,true,Qt::AlignCenter);
         drawText({center.x()+100,505,90,25},QStringLiteral("R100%"),15,secondary,true,Qt::AlignCenter);
@@ -811,7 +837,7 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
                                  bus->showInputCurve,bus->showOutputCurve,
                                  QStringLiteral("sel-aux"),controlAccent);
             if(!contour.valid) drawText({center.x()-62,center.y()-12,124,24},
-                                        QStringLiteral("无信号"),13,secondary,false,Qt::AlignCenter);
+                                        auxText("status.noSignal","No signal"),13,secondary,false,Qt::AlignCenter);
         }
         const auto selectedPoint=impl_->effectiveSelectedPoint();
         const auto outputGains=selectedPoint>=0
@@ -840,16 +866,16 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
         drawText({center.x()-radius-53,309,45,20},QStringLiteral("270°"),12,secondary);
         drawText({center.x()-24,516,48,20},QStringLiteral("180°"),12,secondary,false,Qt::AlignCenter);
         if(bus->showPolarCurves){
-            drawButton({420,508,70,27},QStringLiteral("输入"),"control-panner-input-button",bus->showInputCurve);
-            drawButton({495,508,70,27},QStringLiteral("输出"),"control-panner-output-button",bus->showOutputCurve);
+            drawButton({420,508,70,27},auxText("label.input","Input"),"control-panner-input-button",bus->showInputCurve);
+            drawButton({495,508,70,27},auxText("label.output","Output"),"control-panner-output-button",bus->showOutputCurve);
         }
     }
-    drawText({420,574,300,27},QStringLiteral("空间声像参数"),17,label,true);
+    drawText({420,574,300,27},auxText("section.spatialParameters","Spatial pan parameters"),17,label,true);
     painter.save();if(classic)painter.setOpacity(.32);
     for(int i=0;i<3;++i){
         const qreal x=420+i*178;
         drawPanel({x,609,168,178});
-        drawText({x+10,616,148,25},i==0?QStringLiteral("宽度"):i==1?QStringLiteral("前后"):QStringLiteral("角度"),15,label,true,Qt::AlignCenter);
+        drawText({x+10,616,148,25},i==0?auxText("control.width","Width"):i==1?auxText("control.frontRear","Front/rear"):auxText("control.angle","Angle"),15,label,true,Qt::AlignCenter);
         const auto selectedPoint=impl_->effectiveSelectedPoint();
         const qreal fraction=i==0?bus->width:i==1&&selectedPoint>=0?(bus->adjustablePoints[selectedPoint].y()+1)/2:(bus->angleDegrees+180)/360;
         Controls::drawKnob(painter,{x+84,694},fraction,35,knobColors);
@@ -857,9 +883,9 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
         drawText({x+10,748,148,26},value,15,label,true,Qt::AlignCenter);
     }
     painter.restore();
-    drawText({992,20,135,29},QStringLiteral("分控旋钮"),17,label,true);
-    drawText({992,54,90,28},QStringLiteral("全通道链接"),13,secondary);drawToggle({1085,57,42,24},bus->sendsLinked);
-    drawButton({1220,52,100,34},QStringLiteral("重置"),"control-panner-reset-button");
+    drawText({992,20,135,29},auxText("section.independentKnobs","Per-channel knobs"),17,label,true);
+    drawText({992,54,90,28},auxText("control.linkChannels","Link all channels"),13,secondary);drawToggle({1085,57,42,24},bus->sendsLinked);
+    drawButton({1220,52,100,34},auxText("action.reset","Reset"),"control-panner-reset-button");
     const auto sendLabels = WinJACKNexus::Common::standardChannelLabels(8);
     Controls::MeterStyle sendMeter;
     sendMeter.border=themed("meter-aux-send-border",QColor("#06131f"));
@@ -882,7 +908,7 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
         drawText({x+7,y+23,30,28},i==0&&bus->sourceLayout==AuxChannelLayout::mono
                      ? QStringLiteral("M") : sendLabels[i],i==3?12:15,label,true,Qt::AlignCenter);
         if(i==3&&i<static_cast<int>(bus->sends.size()))
-            drawText({x+3,y+48,38,16},QStringLiteral("强度"),11,secondary,false,Qt::AlignCenter);
+            drawText({x+3,y+48,38,16},auxText("control.strength","Strength"),11,secondary,false,Qt::AlignCenter);
         const auto* send=i<static_cast<int>(bus->sends.size())?&bus->sends[i]:nullptr;
         const qreal level=send?send->levelDb:0.0,meterDb=send?send->meterDb:-72.0;
         Controls::drawKnob(painter,{x+70,y+32},(level+72)/84.0,23,knobColors);
@@ -919,7 +945,7 @@ void AuxSettingsWindow::mousePressEvent(QMouseEvent* event)
         const std::array layouts { Common::AuxChannelLayout::mono, Common::AuxChannelLayout::stereo,
                                    Common::AuxChannelLayout::surround51, Common::AuxChannelLayout::surround71 };
         for (const auto layout : layouts) {
-            connect(menu.addAction(Common::auxLayoutName(layout)), &QAction::triggered, this, [this, layout] {
+            connect(auxLayoutAction(menu,layout), &QAction::triggered, this, [this, layout] {
                 addBus(layout);
             });
         }
@@ -964,8 +990,8 @@ void AuxSettingsWindow::mousePressEvent(QMouseEvent* event)
         if (impl_->listGear(index).contains(position)) {
             const auto id = bus.id;
             QMenu menu(this);
-            auto* clone = menu.addAction(QStringLiteral("克隆"));
-            auto* remove = menu.addAction(QStringLiteral("删除"));
+            auto* clone = auxAction(menu,"action.clone","Clone");
+            auto* remove = auxAction(menu,"action.delete","Delete");
             remove->setEnabled(impl_->buses().size() > 1 || static_cast<bool>(impl_->stateCommit));
             connect(clone, &QAction::triggered, this, [this, id] {
                 if (auto* copied = impl_->state->cloneBus(id)) {
@@ -984,11 +1010,12 @@ void AuxSettingsWindow::mousePressEvent(QMouseEvent* event)
                     impl_->changed();
                 }
             });
-            auto* typeMenu = menu.addMenu(QStringLiteral("切换声道类型"));
+            auto* typeMenu = menu.addMenu(auxText("action.layout","Change channel layout"));
+            bindLocalizedText(typeMenu,"title","aux","action.layout","Change channel layout");
             const std::array layouts { Common::AuxChannelLayout::mono, Common::AuxChannelLayout::stereo,
                                        Common::AuxChannelLayout::surround51, Common::AuxChannelLayout::surround71 };
             for (const auto layout : layouts) {
-                auto* action = typeMenu->addAction(Common::auxLayoutName(layout));
+                auto* action = auxLayoutAction(*typeMenu,layout);
                 action->setCheckable(true);
                 action->setChecked(bus.targetLayout == layout);
                 connect(action, &QAction::triggered, this, [this, id, layout] {

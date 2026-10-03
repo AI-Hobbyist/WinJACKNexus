@@ -107,7 +107,7 @@ protected:
                 color("text-primary","#dce9ff"));
         }
         if(channels_.empty()) {
-            Controls::drawText(painter,rect(),QStringLiteral("暂无通道"),font(),color("text-muted","#a9bbd7"));
+            Controls::drawText(painter,rect(),mixerText("status.noChannels","No channels"),font(),color("text-muted","#a9bbd7"));
         }
     }
     void resizeEvent(QResizeEvent* event) override {

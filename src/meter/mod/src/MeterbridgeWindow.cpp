@@ -19,6 +19,7 @@
 #include <WinJACKNexus/Meter/Mod/MeterHistoryWindow.hpp>
 #include <WinJACKNexus/UI/ApplicationSettings.hpp>
 #include <WinJACKNexus/UI/Controls.hpp>
+#include <WinJACKNexus/UI/LocalizedText.hpp>
 #include <WinJACKNexus/UI/ThemeCore.hpp>
 #include <WinJACKNexus/UI/ThemeBackground.hpp>
 #include <WinJACKNexus/UI/ThemeManager.hpp>
@@ -74,7 +75,7 @@ MeterbridgeWindow::MeterbridgeWindow(MeterViewDataProvider& provider, QWidget* p
     , provider_(provider)
 {
     setObjectName(QStringLiteral("meterbridge.window"));
-    setWindowTitle(QStringLiteral("WinJACKNexus - 电平表桥"));
+    WinJACKNexus::UI::bindLocalizedText(this,"windowTitle","meterbridge","window.title","WinJACKNexus - Meter bridge");
     resize(1080, 740);
 
     tabs_ = new QTabWidget(this);
@@ -104,17 +105,22 @@ MeterbridgeWindow::MeterbridgeWindow(MeterViewDataProvider& provider, QWidget* p
     cardScrollArea_->setWidget(cardContainer_);
     rootLayout->addWidget(cardScrollArea_, 1);
 
-    emptyState_ = new WinJACKNexus::UI::Controls::TextLabel(QStringLiteral("暂无电平表探针"), central);
+    emptyState_ = new WinJACKNexus::UI::Controls::TextLabel({}, central);
+    WinJACKNexus::UI::bindLocalizedText(emptyState_,"text","meterbridge","status.noProbes","No meter probes");
     emptyState_->setObjectName(QStringLiteral("meterbridge.emptyState"));
     emptyState_->setAlignment(Qt::AlignCenter);
     emptyState_->setMinimumHeight(180);
     rootLayout->addWidget(emptyState_, 1);
-    tabs_->addTab(central, QStringLiteral("电平表桥"));
+    tabs_->addTab(central, WinJACKNexus::UI::localizedText("meterbridge","view.bridge","Meter bridge"));
     historyPage_ = new MeterHistoryWindow(provider_,
                                           [this] { refresh(); },
                                           [this] { tabs_->setCurrentIndex(0); },
                                           tabs_);
-    historyTabIndex_ = tabs_->addTab(historyPage_, QStringLiteral("历史图表"));
+    historyTabIndex_ = tabs_->addTab(historyPage_, WinJACKNexus::UI::localizedText("meterbridge","view.history","History chart"));
+    if (auto* manager=WinJACKNexus::UI::I18nManager::installed()) manager->bind(tabs_,[this] {
+        tabs_->setTabText(0,WinJACKNexus::UI::localizedText("meterbridge","view.bridge","Meter bridge"));
+        tabs_->setTabText(historyTabIndex_,WinJACKNexus::UI::localizedText("meterbridge","view.history","History chart"));
+    });
     tabs_->setTabEnabled(historyTabIndex_, false);
     setCentralWidget(tabs_);
     new WinJACKNexus::UI::ThemeBackgroundOverlay(QStringLiteral("meter-bridge"), central);

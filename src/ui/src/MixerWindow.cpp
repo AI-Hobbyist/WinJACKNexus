@@ -3,6 +3,7 @@
 #include <WinJACKNexus/UI/AuxSettingsWindow.hpp>
 #include <WinJACKNexus/UI/ApplicationSettings.hpp>
 #include <WinJACKNexus/UI/Controls.hpp>
+#include <WinJACKNexus/UI/LocalizedText.hpp>
 #include <WinJACKNexus/UI/FxSettingsWindow.hpp>
 #include <WinJACKNexus/UI/MixerPolarPlot.hpp>
 #include <WinJACKNexus/UI/ThemeCore.hpp>
@@ -45,6 +46,44 @@
 
 namespace WinJACKNexus::UI {
 namespace {
+
+QString mixerText(const char* key,const char* english) {
+    return localizedText("mixer",key,english);
+}
+QAction* mixerAction(QMenu& menu,const char* key,const char* english) {
+    auto* action=menu.addAction(mixerText(key,english));
+    action->setData(QString::fromUtf8(key));
+    bindLocalizedText(action,"text","mixer",key,english);
+    return action;
+}
+QMenu* mixerMenu(QMenu& parent,const char* key,const char* english) {
+    auto* menu=parent.addMenu(mixerText(key,english));
+    bindLocalizedText(menu,"title","mixer",key,english);
+    return menu;
+}
+QMenu* mixerMenu(QMenuBar& parent,const char* key,const char* english) {
+    auto* menu=parent.addMenu(mixerText(key,english));
+    bindLocalizedText(menu,"title","mixer",key,english);
+    return menu;
+}
+QString mixerLayoutCaption(Common::AuxChannelLayout layout) {
+    if(layout==Common::AuxChannelLayout::mono) return mixerText("layout.mono","Mono");
+    if(layout==Common::AuxChannelLayout::stereo) return mixerText("layout.stereo","Stereo");
+    return Common::auxLayoutName(layout);
+}
+QString mixerLayoutCaption(Common::MixerLayout layout) {
+    if(layout==Common::MixerLayout::mono) return mixerText("layout.mono","Mono");
+    if(layout==Common::MixerLayout::stereo) return mixerText("layout.stereo","Stereo");
+    return layout==Common::MixerLayout::surround51?QStringLiteral("5.1"):QStringLiteral("7.1");
+}
+template<class Layout> QAction* mixerLayoutAction(QMenu& menu,Layout layout) {
+    auto* action=menu.addAction(mixerLayoutCaption(layout));
+    action->setData(static_cast<int>(layout));
+    if(auto* manager=I18nManager::installed()) manager->bind(action,[action,layout] {
+        action->setText(mixerLayoutCaption(layout));
+    });
+    return action;
+}
 
 #include "MixerChannelIcons.hpp"
 
@@ -183,11 +222,11 @@ public:
             const std::array layouts {Common::MixerLayout::mono, Common::MixerLayout::stereo,
                                       Common::MixerLayout::surround51, Common::MixerLayout::surround71};
             for (const auto candidate : layouts) {
-                const auto name = candidate == Common::MixerLayout::mono ? QStringLiteral("单声道")
-                    : candidate == Common::MixerLayout::stereo ? QStringLiteral("立体声")
+                const auto name = candidate == Common::MixerLayout::mono ? mixerText("layout.mono","Mono")
+                    : candidate == Common::MixerLayout::stereo ? mixerText("layout.stereo","Stereo")
                     : candidate == Common::MixerLayout::surround51 ? QStringLiteral("5.1")
                     : QStringLiteral("7.1");
-                auto* action = menu.addAction(name);
+                auto* action = mixerLayoutAction(menu,candidate);
                 action->setCheckable(true);
                 action->setChecked(candidate == layout);
                 connect(action, &QAction::triggered, this, [this, candidate] {
@@ -197,6 +236,10 @@ public:
             menu.exec(layoutButton->mapToGlobal(QPoint(0, layoutButton->height())));
         });
         setLayoutMode(Common::MixerLayout::stereo);
+        if(auto* manager=I18nManager::installed()) manager->bind(this,[this] {
+            layoutButton->setText(mixerLayoutCaption(layout));
+            update();
+        });
         new ThemeBackgroundOverlay(QStringLiteral("sel-monitor"), this);
     }
 
@@ -208,8 +251,8 @@ public:
             peaks.fill(-72.0);
         }
         layout = next;
-        layoutButton->setText(next == Common::MixerLayout::mono ? QStringLiteral("单声道")
-            : next == Common::MixerLayout::stereo ? QStringLiteral("立体声")
+        layoutButton->setText(next == Common::MixerLayout::mono ? mixerText("layout.mono","Mono")
+            : next == Common::MixerLayout::stereo ? mixerText("layout.stereo","Stereo")
             : next == Common::MixerLayout::surround51 ? QStringLiteral("5.1")
             : QStringLiteral("7.1"));
         update();
@@ -255,11 +298,11 @@ protected:
         auto font = painter.font(); font.setPixelSize(20); font.setBold(true);
         font.setPixelSize(16);
         Controls::drawText(painter, QRectF(sidebar.left() + 18, sidebar.top() + 16,
-            sidebar.width() - 36, 30), QStringLiteral("通用"), font,
+            sidebar.width() - 36, 30), mixerText("section.general","General"), font,
             themed("text-primary", QColor("#e8f2ff")));
         font.setBold(false); font.setPixelSize(14);
         Controls::drawText(painter, QRectF(sidebar.left() + 18, sidebar.top() + 63,
-            sidebar.width() - 36, 24), QStringLiteral("监听通道模式"), font,
+            sidebar.width() - 36, 24), mixerText("control.monitorLayout","Monitor channel layout"), font,
             themed("text-muted", QColor("#aec7eb")));
         const auto center = QPointF(plot.center().x(), plot.center().y() + 8);
         const auto radius = std::min(plot.width(), plot.height()) * .36;
@@ -281,7 +324,7 @@ protected:
         }
         drawMixerPolarCenter(painter, center);
         Controls::drawText(painter, QRectF(plot.left() + 20, plot.top() + 14,
-            plot.width() - 40, 24), QStringLiteral("空间声像 · 只读"), font,
+            plot.width() - 40, 24), mixerText("label.readOnlyPan","Spatial pan · Read only"), font,
             themed("text-muted", QColor("#aec7eb")));
         const auto labels = Common::mixerChannelLabels(Common::MixerLayout::surround71);
         const auto meterTop = sidebar.top() + 166;
@@ -346,7 +389,7 @@ public:
             const std::array layouts {Common::AuxChannelLayout::mono, Common::AuxChannelLayout::stereo,
                                       Common::AuxChannelLayout::surround51, Common::AuxChannelLayout::surround71};
             for (const auto layout : layouts) {
-                auto* action = menu.addAction(Common::auxLayoutName(layout));
+                auto* action = mixerLayoutAction(menu,layout);
                 action->setCheckable(true);
                 action->setChecked(channel->layout == layout);
                 connect(action, &QAction::triggered, this, [this, layout] {
@@ -368,6 +411,10 @@ public:
         if (auto* core = ThemeManager::installedThemeCore())
             connect(core, &ThemeCore::themeChanged, this, [this] { applyTheme(); update(); });
         new ThemeBackgroundOverlay(QStringLiteral("sel-main"), this);
+        if(auto* manager=I18nManager::installed()) manager->bind(this,[this] {
+            if(channel) modeButton->setText(mixerLayoutCaption(channel->layout));
+            update();
+        });
     }
 
     void applyTheme()
@@ -416,7 +463,7 @@ public:
             if(switched){displayedId=channel->id;selectedPoint=0;polarContour={};draggedVolume=false;draggedInputGain=false;}
             if (switched || !name->hasFocus()) name->setText(channel->name);
             if (switched || !comment->hasFocus()) comment->setText(channel->source);
-            modeButton->setText(Common::auxLayoutName(channel->layout));
+            modeButton->setText(mixerLayoutCaption(channel->layout));
             modeButton->setEnabled(channel->number != QStringLiteral("MAIN"));
             modeArrow->setVisible(channel->number != QStringLiteral("MAIN"));
             auto& state=channel->selState;
@@ -558,12 +605,12 @@ protected:
             Controls::drawStyledButton(p, r, label, checked, style);
         };
         panel({14, 11, 287, 790});
-        text({29, 22, 240, 21}, QStringLiteral("通道名"), 14, ink, true);
-        text({29, 102, 240, 21}, QStringLiteral("注释"), 14, ink, true);
-        text({29, 182, 240, 21}, QStringLiteral("通道模式"), 14, ink, true);
+        text({29, 22, 240, 21}, mixerText("label.channelName","Channel name"), 14, ink, true);
+        text({29, 102, 240, 21}, mixerText("label.comment","Comment"), 14, ink, true);
+        text({29, 182, 240, 21}, mixerText("control.stripLayout","Channel layout"), 14, ink, true);
         const bool mainOutput=channel && channel->number==QStringLiteral("MAIN");
         if(!mainOutput) {
-            text({29,268,118,20},QStringLiteral("增益"),14,muted,false,Qt::AlignCenter);
+            text({29,268,118,20},mixerText("control.gain","Gain"),14,muted,false,Qt::AlignCenter);
             const qreal gain=channel?std::clamp(channel->inputGainDb,-12.0,12.0):0.0;
             Controls::drawKnob(p,{88,319},(gain+12.0)/24.0,25,knobColors);
             text(gainReadoutRect(),QStringLiteral("%1%2 dB").arg(gain>=0?QStringLiteral("+"):QString()).arg(gain,0,'f',1),
@@ -571,7 +618,7 @@ protected:
         }
         const qreal volumeX=mainOutput?29:165;
         const qreal volumeWidth=mainOutput?254:118;
-        text({volumeX,268,volumeWidth,20},QStringLiteral("音量"),14,muted,false,Qt::AlignCenter);
+        text({volumeX,268,volumeWidth,20},mixerText("control.volume","Volume"),14,muted,false,Qt::AlignCenter);
         Controls::drawKnob(p,{mainOutput?156.0:224.0,319},channel?1-channel->fader:0,25,knobColors);
         text(volumeReadoutRect(),faderDbText(channel?channel->fader:1),13,ink,true,Qt::AlignCenter);
         const auto actions=sidebarActions();
@@ -594,7 +641,7 @@ protected:
         }
         for(int m=0;m<2;++m) {
             const int x=24+m*138; panel({qreal(x),480,125,318});
-            text({qreal(x),488,125,31},m?QStringLiteral("输出"):QStringLiteral("输入"),16,ink,false,Qt::AlignCenter);
+            text({qreal(x),488,125,31},m?mixerText("label.output","Output"):mixerText("label.input","Input"),16,ink,false,Qt::AlignCenter);
             constexpr qreal meterTop=528, meterBottom=745;
             const qreal current=channel ? (m ? channel->outputMeterBallistics.levelDb()
                                                  : channel->inputMeterBallistics.levelDb()) : -72.0;
@@ -628,20 +675,20 @@ protected:
         panel({313, 11, 650, 544});
         panel({313, 566, 650, 235});
         panel({974, 11, 403, 790});
-        text({330,20,250,29},QStringLiteral("声像器"),17,ink,true);
+        text({330,20,250,29},mixerText("section.panner","Panner"),17,ink,true);
         const auto* pannerBus=selectedBus();
         const bool classic=pannerBus&&pannerBus->panMode==Common::AuxPanMode::classic;
         const bool canUseClassic=channel&&Common::auxSupportsClassicPan(channel->layout,channel->layout);
-        button({330,52,137,34},QStringLiteral("空间声像器"),"control-panner-mode-button",!classic);
+        button({330,52,137,34},mixerText("mode.spatial","Spatial panner"),"control-panner-mode-button",!classic);
         p.save();if(!canUseClassic)p.setOpacity(.32);
-        button({477,52,137,34},QStringLiteral("经典 Pan"),"control-panner-mode-button",classic);
+        button({477,52,137,34},mixerText("mode.classic","Classic Pan"),"control-panner-mode-button",classic);
         p.restore();
         if(!classic){
-            text({638,52,118,34},QStringLiteral("显示极坐标曲线"),14,muted);
+            text({638,52,118,34},mixerText("control.polarCurve","Show polar curve"),14,muted);
             toggle({761,56,42,25},pannerBus&&pannerBus->showPolarCurves);
             if(pannerBus&&pannerBus->showPolarCurves){
-                button({809,52,58,34},QStringLiteral("输入"),"control-panner-input-button",pannerBus->showInputCurve);
-                button({872,52,58,34},QStringLiteral("输出"),"control-panner-output-button",pannerBus->showOutputCurve);
+                button({809,52,58,34},mixerText("label.input","Input"),"control-panner-input-button",pannerBus->showInputCurve);
+                button({872,52,58,34},mixerText("label.output","Output"),"control-panner-output-button",pannerBus->showOutputCurve);
             }
         }
         panel({330,95,616,448});
@@ -664,7 +711,7 @@ protected:
                                  pannerBus->showInputCurve,pannerBus->showOutputCurve,
                                  QStringLiteral("sel-main"),controlAccent);
             if(!polarContour.valid) text({center.x()-62,center.y()-12,124,24},
-                                         QStringLiteral("无信号"),13,muted,false,Qt::AlignCenter);
+                                         mixerText("status.noSignal","No signal"),13,muted,false,Qt::AlignCenter);
         }
         if(pannerBus){
             for(int i=0;i<static_cast<int>(pannerBus->adjustablePoints.size());++i){
@@ -697,12 +744,12 @@ protected:
             text({center.x()-185,center.y()+186,85,26},QStringLiteral("L100%"),15,muted,true,Qt::AlignCenter);
             text({center.x()-25,center.y()+186,50,26},QStringLiteral("C"),17,muted,true,Qt::AlignCenter);
             text({center.x()+100,center.y()+186,85,26},QStringLiteral("R100%"),15,muted,true,Qt::AlignCenter);
-            text({center.x()-115,center.y()-205,230,30},QStringLiteral("声像"),19,ink,true,Qt::AlignCenter);
+            text({center.x()-115,center.y()-205,230,30},mixerText("control.pan","Pan"),19,ink,true,Qt::AlignCenter);
             text({center.x()-110,center.y()+20,220,35},QStringLiteral("%1%2%").arg(pannerBus&&pannerBus->classicPan>0?QStringLiteral("R "):pannerBus&&pannerBus->classicPan<0?QStringLiteral("L "):QStringLiteral("C ")).arg(qRound(std::abs(pannerBus?pannerBus->classicPan:0.0)*100)),16,ink,true,Qt::AlignCenter);
         }
-        text({330,574,350,27},QStringLiteral("空间声像参数"),17,ink,true);
+        text({330,574,350,27},mixerText("section.spatialParameters","Spatial pan parameters"),17,ink,true);
         p.save();if(classic)p.setOpacity(.32);
-        const std::array<QString,3> parameters {QStringLiteral("宽度"),QStringLiteral("前后"),QStringLiteral("角度")};
+        const std::array<QString,3> parameters {mixerText("control.width","Width"),mixerText("control.frontRear","Front/rear"),mixerText("control.angle","Angle")};
         for(int i=0;i<3;++i){
             const qreal x=330+i*206;
             panel({x,609,194,178});
@@ -715,10 +762,10 @@ protected:
             text({x+18,748,158,26},readout,15,ink,true,Qt::AlignCenter);
         }
         p.restore();
-        text({991,20,190,29},QStringLiteral("分控旋钮"),17,ink,true);
-        text({992,54,81,28},QStringLiteral("全通道链接"),13,muted);
+        text({991,20,190,29},mixerText("section.independentKnobs","Per-channel knobs"),17,ink,true);
+        text({992,54,81,28},mixerText("control.linkChannels","Link all channels"),13,muted);
         toggle({1077,56,42,24},linked);
-        button({1256,51,105,34},QStringLiteral("重置"),"control-panner-reset-button");
+        button({1256,51,105,34},mixerText("action.reset","Reset"),"control-panner-reset-button");
         const auto* bus=pannerBus;
         const auto labels = WinJACKNexus::Common::standardChannelLabels(8);
         const int activeCount=channel?Common::auxLayoutChannelLabels(channel->layout).size():0;
@@ -728,7 +775,7 @@ protected:
             panel({x,y,370,80});
             text({x+10,y+23,35,28},i==0&&channel&&channel->layout==Common::AuxChannelLayout::mono
                      ? QStringLiteral("M") : labels[i],15,ink,true,Qt::AlignCenter);
-            if(i==3&&i<activeCount)text({x+7,y+48,41,16},QStringLiteral("强度"),11,muted,false,Qt::AlignCenter);
+            if(i==3&&i<activeCount)text({x+7,y+48,41,16},mixerText("control.strength","Strength"),11,muted,false,Qt::AlignCenter);
             const qreal sendLevel=bus&&i<static_cast<int>(bus->sends.size())?bus->sends[i].levelDb:0.0;
             const qreal sourceDb = channel && channel->realMeter
                 ? channel->channelInputLevels[static_cast<std::size_t>(i)]
@@ -1484,8 +1531,8 @@ public:
         QString error;
         if (commit && commit(candidate, &error)) return true;
         WJN_LOG_ERROR("Mixer topology commit failed: %s", error.toUtf8().constData());
-        QMessageBox::warning(&owner, QStringLiteral("拓扑更新失败"),
-            error.isEmpty() ? QStringLiteral("无法注册调音台端口，原有状态已保留。") : error);
+        QMessageBox::warning(&owner, mixerText("error.topologyTitle","Topology update failed"),
+            error.isEmpty() ? mixerText("error.registerPorts","Unable to register mixer ports. The previous state has been retained.") : error);
         return false;
     }
 
@@ -1649,7 +1696,7 @@ public:
                 }
                 QString error;
                 if (!candidate.setSend(source->modelId, send, &error)) {
-                    QMessageBox::warning(&owner, QStringLiteral("AUX 路由无效"), error);
+                    QMessageBox::warning(&owner, mixerText("error.auxRouteTitle","Invalid AUX routing"), error);
                     return false;
                 }
                 sourceStrip = candidate.strip(source->modelId);
@@ -2052,7 +2099,7 @@ public:
                 updateSel();owner.update();return;
             }
             auto copied=channels[index];copied.id=nextChannelId++;copied.modelId=copied.id;
-            copied.name+=QStringLiteral(" 副本");channels.insert(channels.end()-1,copied);
+            copied.name+=mixerText("name.copySuffix"," Copy");channels.insert(channels.end()-1,copied);
             updateSel();owner.update();return;
         }
         if (channels[index].auxId) {
@@ -2077,7 +2124,7 @@ public:
             Channel copied = channels[index];
             copied.id = nextChannelId++;
             copied.modelId = copiedModelId;
-            copied.name += QStringLiteral(" 副本");
+            copied.name += mixerText("name.copySuffix"," Copy");
             copied.number = QString::number(copied.id);
             copiedId = copied.id;
             channels.insert(channels.begin() + index + 1, copied);
@@ -2257,7 +2304,7 @@ public:
         }
         if (subSettingsWindow && selStack && selStack->currentIndex()==3
             && subMixViewSignature()!=subViewSignature) showSelAux(true);
-        selLabel->setText(selectedMonitor?QStringLiteral("监听"):found == channels.cend() ? QStringLiteral("未选择通道") : found->name);
+        selLabel->setText(selectedMonitor?mixerText("label.monitor","Monitor"):found == channels.cend() ? mixerText("status.noSelection","No channel selected") : found->name);
         if(selHeader){
             if(headerBackground!=lastHeaderColor || headerForeground!=lastHeaderTextColor){
                 lastHeaderColor=headerBackground;
@@ -2293,7 +2340,7 @@ public:
             auto* current = found == channels.cend() ? nullptr : &channels[std::distance(channels.cbegin(), found)];
             selMain->setChannel(current);
             if (current && auxSettingsWindow && auxWindowChannelId == current->id
-                && auxSettingsWindow->windowTitle() != QStringLiteral("WinJACKNexus - %1 AUX 设置").arg(current->name)) {
+                && auxSettingsWindow->property("wjn.sourceName").toString() != current->name) {
                 const auto selectedBus = auxSettingsWindow->selectedBusId();
                 const auto key = current->auxId ? QStringLiteral("aux:%1").arg(current->auxId)
                                                : QStringLiteral("input:%1").arg(current->id);
@@ -2348,7 +2395,7 @@ public:
         if(overviewFixedMasters) {
             const auto& master=channels[masterIndex()];
             overviewFixedMasters->setChannels({
-                {monitorOverviewId,0,QStringLiteral("监听"),Controls::themeTokenColor(QStringLiteral("mixer"),QStringLiteral("fader-monitor-thumb"),QColor("#f4cd42")),
+                {monitorOverviewId,0,mixerText("label.monitor","Monitor"),Controls::themeTokenColor(QStringLiteral("mixer"),QStringLiteral("fader-monitor-thumb"),QColor("#f4cd42")),
                  monitorFader,monitorMeter.levelDb(),monitorMeter.peakDb(),selectedMonitor,3},
                 {master.id,master.modelId,QStringLiteral("MASTER"),displayChannelColor(master),master.fader,
                  master.meterBallistics.levelDb(),master.meterBallistics.peakDb(),!selectedMonitor&&master.id==selectedChannelId,4}});
@@ -2409,15 +2456,17 @@ public:
             overviewWindow=new MixerOverviewScreen(&owner);
             overviewWindow->setAttribute(Qt::WA_DeleteOnClose);
             overviewWindow->setObjectName(QStringLiteral("mixerChannelOverview"));
-            overviewWindow->setWindowTitle(QStringLiteral("通道总览"));
+            bindLocalizedText(overviewWindow,"windowTitle","mixer","view.overview","Channel overview");
             overviewWindow->resize(1100,800);overviewWindow->setMinimumSize(480,680);
             auto* layout=new QVBoxLayout(overviewWindow);layout->setContentsMargins(8,8,8,8);layout->setSpacing(8);
             for(int group=0;group<3;++group) {
                 auto* card=new QWidget(overviewWindow);overviewCards[group]=card;
                 card->setObjectName(QStringLiteral("overviewCard%1").arg(group));
                 auto* cardLayout=new QVBoxLayout(card);cardLayout->setContentsMargins(6,6,6,6);cardLayout->setSpacing(4);
-                auto* title=new Controls::TextLabel(group==0?QStringLiteral("Inputs"):group==1?QStringLiteral("AUX"):QStringLiteral("Sub Mix/Monitor/Master"),card);
+                auto* title=new Controls::TextLabel(group==0?mixerText("section.inputs","Inputs"):group==1?QStringLiteral("AUX"):mixerText("section.subMonitorMaster","Sub Mix/Monitor/Master"),card);
                 title->setObjectName(QStringLiteral("overviewTitle%1").arg(group));title->setFixedHeight(28);
+                if(group!=1) bindLocalizedText(title,"text","mixer",group==0?"section.inputs":"section.subMonitorMaster",
+                    group==0?"Inputs":"Sub Mix/Monitor/Master");
                 auto font=title->font();font.setPixelSize(15);font.setBold(true);title->setFont(font);
                 overviewTitles[group]=title;cardLayout->addWidget(title);
                 auto* scroll=new Controls::ScrollField(card);scroll->setWidgetResizable(true);
@@ -2463,7 +2512,7 @@ public:
             selWindow = new QWidget(&owner, Qt::Window);
             selWindow->setAttribute(Qt::WA_DeleteOnClose);
             selWindow->setObjectName(QStringLiteral("selLargeScreen"));
-            selWindow->setWindowTitle(QStringLiteral("通道详情"));
+            bindLocalizedText(selWindow,"windowTitle","mixer","view.details","Channel details");
             selWindow->resize(1394, 885);
             selWindow->setMinimumSize(1100, 760);
             auto* layout = new QVBoxLayout(selWindow);
@@ -2481,28 +2530,29 @@ public:
             selIcon = new Controls::TextLabel(header);
             selIcon->setObjectName(QStringLiteral("selChannelTypeIcon"));selIcon->setFixedSize(32,32);
             headerLayout->addWidget(selIcon);
-            auto* prefix = new Controls::TextLabel(QStringLiteral("通道详情 ·"),header);
+            auto* prefix = new Controls::TextLabel(mixerText("label.detailsPrefix","Channel details ·"),header);
+            bindLocalizedText(prefix,"text","mixer","label.detailsPrefix","Channel details ·");
             QFont prefixFont=prefix->font();prefixFont.setPixelSize(24);prefixFont.setBold(true);prefix->setFont(prefixFont);
             headerLayout->addWidget(prefix);
             headerLayout->addWidget(selLabel,1);
             selPaletteButton=new Controls::IconActionButton(header);
             selPaletteButton->setObjectName(QStringLiteral("selChannelColorPalette"));
-            selPaletteButton->setToolTip(QStringLiteral("通道颜色"));
+            bindLocalizedText(selPaletteButton,"toolTip","mixer","control.channelColor","Channel color");
             selPaletteButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
             selPaletteButton->setIconSize(QSize(24,24));
             selPaletteButton->setFixedSize(38,38);
             selPaletteButton->setPopupMode(QToolButton::InstantPopup);
             auto* colorMenu=new QMenu(selPaletteButton);
             colorMenu->setObjectName(QStringLiteral("selChannelColorMenu"));
-            auto* setColorAction=colorMenu->addAction(QStringLiteral("设置通道颜色"));
-            resetColorAction=colorMenu->addAction(QStringLiteral("恢复默认颜色"));
+            auto* setColorAction=mixerAction(*colorMenu,"action.setColor","Set channel color");
+            resetColorAction=mixerAction(*colorMenu,"action.defaultColor","Restore default color");
             connect(setColorAction,&QAction::triggered,selWindow,[this] {
                 const auto found=std::find_if(channels.cbegin(),channels.cend(),[this](const Channel& item) {
                     return item.id==selectedChannelId;
                 });
                 if(selectedMonitor || found==channels.cend())return;
                 QColorDialog dialog(displayChannelColor(*found),selWindow);
-                dialog.setWindowTitle(QStringLiteral("设置通道颜色 · RGB / HEX"));
+                bindLocalizedText(&dialog,"windowTitle","mixer","dialog.colorTitle","Set channel color · RGB / HEX");
                 dialog.setOption(QColorDialog::DontUseNativeDialog);
                 dialog.setOption(QColorDialog::ShowAlphaChannel,false);
                 if(dialog.exec()==QDialog::Accepted)
@@ -2515,7 +2565,8 @@ public:
             headerLayout->addWidget(selPaletteButton);
             selSelector=new Controls::IconActionButton(header);
             selSelector->setObjectName(QStringLiteral("selChannelSelector"));
-            selSelector->setText(QStringLiteral("切换通道 ▾"));selSelector->setToolButtonStyle(Qt::ToolButtonTextOnly);
+            selSelector->setText(mixerText("action.switchChannel","Select channel ▾"));selSelector->setToolButtonStyle(Qt::ToolButtonTextOnly);
+            bindLocalizedText(selSelector,"text","mixer","action.switchChannel","Select channel ▾");
             selSelector->setFixedSize(140,38);selSelector->setPopupMode(QToolButton::InstantPopup);
             auto* channelMenu=new QMenu(selSelector);channelMenu->setObjectName(QStringLiteral("selChannelSelectorMenu"));
             selSelector->setMenu(channelMenu);
@@ -2586,6 +2637,7 @@ public:
             for(const int i : {0,1,3,2}) {
                 auto* tab = new Controls::ActionButton(tabs[i],header);
                 tab->setObjectName(QStringLiteral("selTab%1").arg(tabs[i]));
+                if(i==0) bindLocalizedText(tab,"text","mixer","tab.main","Main");
                 tab->setCheckable(true);
                 tab->setChecked(i==0);
                 tab->setFixedWidth(106);
@@ -2620,7 +2672,7 @@ public:
     {
         menu->clear();
         const auto iconColor=Controls::themeTokenColor(QStringLiteral("sel-main"),QStringLiteral("control-header-icon"),QColor("#e8f2ff"));
-        const std::array names{QStringLiteral("Inputs"),QStringLiteral("AUX"),QStringLiteral("Sub Mix"),QStringLiteral("Listen/Master")};
+        const std::array names{mixerText("section.inputs","Inputs"),QStringLiteral("AUX"),QStringLiteral("Sub Mix"),mixerText("section.listenMaster","Monitor/Master")};
         for(int group=0;group<4;++group) {
             const auto kind=group==0?MixerChannelIcon::input:group==1?MixerChannelIcon::aux:group==2?MixerChannelIcon::subMix:MixerChannelIcon::master;
             auto* category=menu->addMenu(QIcon(mixerChannelIcon(kind,iconColor,24,owner.devicePixelRatioF())),names[group]);
@@ -2636,7 +2688,7 @@ public:
                 });
             }
             if(group==3) {
-                auto* action=category->addAction(QIcon(mixerChannelIcon(MixerChannelIcon::monitor,iconColor,24,owner.devicePixelRatioF())),QStringLiteral("监听"));
+                auto* action=category->addAction(QIcon(mixerChannelIcon(MixerChannelIcon::monitor,iconColor,24,owner.devicePixelRatioF())),mixerText("label.monitor","Monitor"));
                 action->setData(QVariant::fromValue<qulonglong>(0));action->setCheckable(true);action->setChecked(selectedMonitor);
                 connect(action,&QAction::triggered,selWindow,[this] {showMonitorSel();});
             }
@@ -3209,7 +3261,7 @@ MixerWindow::MixerWindow(Common::DigitalMixerState* state, TopologyCommit commit
                                    std::move(channelMeterRead),
                                    std::move(effectAnalysisRead)))
 {
-    setWindowTitle(QStringLiteral("WinJACKNexus - 调音台"));
+    bindLocalizedText(this,"windowTitle","mixer","window.title","WinJACKNexus - Mixer");
     setMinimumSize(760, 560);
     resize(1600, 768);
     setAttribute(Qt::WA_OpaquePaintEvent);
@@ -3222,22 +3274,22 @@ MixerWindow::MixerWindow(Common::DigitalMixerState* state, TopologyCommit commit
         });
     auto* menuBar = this->menuBar();
     menuBar->setObjectName(QStringLiteral("mixerMenuBar"));
-    auto* channelsMenu = menuBar->addMenu(QStringLiteral("通道管理"));
-    auto* inputsMenu = channelsMenu->addMenu(QStringLiteral("添加输入通道"));
-    auto* auxMenu = channelsMenu->addMenu(QStringLiteral("添加AUX通道"));
-    auto* subMenu = channelsMenu->addMenu(QStringLiteral("添加 Sub Mix 通道"));
+    auto* channelsMenu = mixerMenu(*menuBar,"menu.channels","Channels");
+    auto* inputsMenu = mixerMenu(*channelsMenu,"action.addInput","Add input channel");
+    auto* auxMenu = mixerMenu(*channelsMenu,"action.addAux","Add AUX channel");
+    auto* subMenu = mixerMenu(*channelsMenu,"action.addSubMix","Add Sub Mix channel");
     const std::array layouts { Common::AuxChannelLayout::mono, Common::AuxChannelLayout::stereo,
                                Common::AuxChannelLayout::surround51, Common::AuxChannelLayout::surround71 };
     for (const auto layout : layouts) {
-        connect(inputsMenu->addAction(Common::auxLayoutName(layout)), &QAction::triggered, this,
+        connect(mixerLayoutAction(*inputsMenu,layout), &QAction::triggered, this,
                 [this, layout] { impl_->addInput(layout); });
-        connect(auxMenu->addAction(Common::auxLayoutName(layout)), &QAction::triggered, this,
+        connect(mixerLayoutAction(*auxMenu,layout), &QAction::triggered, this,
                 [this, layout] { impl_->addAux(layout); });
-        connect(subMenu->addAction(Common::auxLayoutName(layout)), &QAction::triggered, this,
+        connect(mixerLayoutAction(*subMenu,layout), &QAction::triggered, this,
                 [this, layout] { impl_->addSubMix(layout); });
     }
-    auto* globalMenu = menuBar->addMenu(QStringLiteral("全局"));
-    connect(globalMenu->addAction(QStringLiteral("关闭所有通道独奏/静音")), &QAction::triggered, this, [this] {
+    auto* globalMenu = mixerMenu(*menuBar,"menu.global","Global");
+    connect(mixerAction(*globalMenu,"action.clearSoloMute","Clear solo and mute on all channels"), &QAction::triggered, this, [this] {
         for (auto& channel : impl_->channels) { channel.solo = false; channel.mute = false; }
         if (impl_->model) {
             Common::DigitalMixerState candidate = *impl_->model;
@@ -3252,15 +3304,27 @@ MixerWindow::MixerWindow(Common::DigitalMixerState* state, TopologyCommit commit
         }
         update();
     });
-    auto* resetColorsAction = globalMenu->addAction(QStringLiteral("恢复所有通道到默认颜色"));
+    auto* resetColorsAction = mixerAction(*globalMenu,"action.defaultColors","Restore default colors on all channels");
     resetColorsAction->setObjectName(QStringLiteral("mixerResetAllChannelColors"));
     connect(resetColorsAction, &QAction::triggered, this,
             [this] { impl_->resetAllChannelColors(); });
-    auto* largeScreenMenu=menuBar->addMenu(QStringLiteral("查看大屏"));
-    connect(largeScreenMenu->addAction(QStringLiteral("通道详情")), &QAction::triggered, this,
+    auto* largeScreenMenu=mixerMenu(*menuBar,"menu.largeViews","Large views");
+    connect(mixerAction(*largeScreenMenu,"view.details","Channel details"), &QAction::triggered, this,
             [this] { impl_->showLargeScreen(); });
-    connect(largeScreenMenu->addAction(QStringLiteral("通道总览")), &QAction::triggered, this,
+    connect(mixerAction(*largeScreenMenu,"view.overview","Channel overview"), &QAction::triggered, this,
             [this] { impl_->showOverview(); });
+    if(auto* manager=I18nManager::installed()) manager->bind(this,[this] {
+        // Refresh display caches without rebinding editors or committing a model.
+        if(impl_->selLabel) {
+            const auto found=std::find_if(impl_->channels.cbegin(),impl_->channels.cend(),[this](const auto& channel) {
+                return channel.id==impl_->selectedChannelId;
+            });
+            impl_->selLabel->setText(impl_->selectedMonitor?mixerText("label.monitor","Monitor")
+                :found==impl_->channels.cend()?mixerText("status.noSelection","No channel selected"):found->name);
+        }
+        impl_->updateOverview();
+        update();
+    });
 }
 
 MixerWindow::~MixerWindow()
@@ -3334,7 +3398,7 @@ void MixerWindow::paintEvent(QPaintEvent*)
                                    monitorCard.width() - 6, 24 * heightScale}, monitorYellow, monitorYellow, 3);
     drawAdaptiveText(painter, {monitorCard.left(), monitorCard.top() + 2 * heightScale,
                                monitorCard.width(), 20 * heightScale},
-                     QStringLiteral("监听"), mixerNameTextColor(monitorYellow), 16 * heightScale, 10 * heightScale,
+                     mixerText("label.monitor","Monitor"), mixerNameTextColor(monitorYellow), 16 * heightScale, 10 * heightScale,
                      Qt::AlignCenter, true);
     const auto monitorMeterRect = impl_->monitorMeterRect(heightScale);
     Controls::MeterStyle monitorStyle;
@@ -3535,23 +3599,23 @@ void MixerWindow::mousePressEvent(QMouseEvent* event)
         const auto index = impl_->hitChannel(event->position());
         if (index < 0) return;
         QMenu menu(this);
-        auto* remove = menu.addAction(QStringLiteral("删除通道"));
-        auto* copy = menu.addAction(QStringLiteral("复制通道"));
+        auto* remove = mixerAction(menu,"action.deleteChannel","Delete channel");
+        auto* copy = mixerAction(menu,"action.duplicateChannel","Duplicate channel");
         remove->setEnabled(index != impl_->masterIndex()
                            && (index < impl_->inputChannelCount ? impl_->inputChannelCount > 1
                                                                : impl_->auxChannelCount() > 1));
         copy->setEnabled(index != impl_->masterIndex());
-        auto* typeMenu = menu.addMenu(QStringLiteral("通道类型"));
+        auto* typeMenu = mixerMenu(menu,"menu.channelType","Channel type");
         typeMenu->setEnabled(index != impl_->masterIndex());
         const std::array layouts { Common::AuxChannelLayout::mono, Common::AuxChannelLayout::stereo,
                                    Common::AuxChannelLayout::surround51, Common::AuxChannelLayout::surround71 };
         for (const auto layout : layouts) {
-            auto* action = typeMenu->addAction(Common::auxLayoutName(layout));
+            auto* action = mixerLayoutAction(*typeMenu,layout);
             action->setCheckable(true);
             action->setChecked(impl_->channels[index].layout == layout);
         }
         menu.addSeparator();
-        auto* sel = menu.addAction(QStringLiteral("打开SEL设置"));
+        auto* sel = mixerAction(menu,"action.openSel","Open SEL settings");
         const auto id = impl_->channels[index].id;
         const auto withChannel = [this, id](auto action) {
             const auto found = std::find_if(impl_->channels.begin(), impl_->channels.end(), [id](const Channel& item) {

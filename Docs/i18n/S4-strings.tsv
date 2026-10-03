@@ -1,0 +1,88 @@
+domain	key	zh-CN	en-US	ja-JP	ko-KR
+meterbridge	window.title	WinJACKNexus - 电平表桥	WinJACKNexus - Meter bridge	WinJACKNexus - メーターブリッジ	WinJACKNexus - 미터 브리지
+meterbridge	status.noProbes	暂无电平表探针	No meter probes	メータープローブがありません	미터 프로브 없음
+meterbridge	view.bridge	电平表桥	Meter bridge	メーターブリッジ	미터 브리지
+meterbridge	view.history	历史图表	History chart	履歴グラフ	기록 그래프
+aux	layout.mono	单声道	Mono	モノラル	모노
+aux	layout.stereo	立体声	Stereo	ステレオ	스테레오
+aux	window.title	WinJACKNexus - AUX 设置	WinJACKNexus - AUX settings	WinJACKNexus - AUX 設定	WinJACKNexus - AUX 설정
+aux	window.sourceTitle	WinJACKNexus - %1 AUX 设置	WinJACKNexus - %1 AUX settings	WinJACKNexus - %1 AUX 設定	WinJACKNexus - %1 AUX 설정
+aux	action.add	＋  添加 AUX	＋  Add AUX	＋  AUX を追加	＋  AUX 추가
+aux	route.selfDisabled	自身 禁用	Self route disabled	自己ルーティング無効	자체 라우팅 비활성화
+aux	section.panner	声像器	Panner	パンナー	패너
+aux	mode.spatial	空间声像器	Spatial panner	空間パンナー	공간 패너
+aux	mode.classic	经典 Pan	Classic Pan	クラシック Pan	클래식 Pan
+aux	control.polarCurve	显示极坐标曲线	Show polar curve	極座標曲線を表示	극좌표 곡선 표시
+aux	control.pan	声像	Pan	パン	팬
+aux	status.noSignal	无信号	No signal	信号なし	신호 없음
+aux	label.input	输入	Input	入力	입력
+aux	label.output	输出	Output	出力	출력
+aux	section.spatialParameters	空间声像参数	Spatial pan parameters	空間パンのパラメーター	공간 팬 매개변수
+aux	control.width	宽度	Width	幅	폭
+aux	control.frontRear	前后	Front/rear	前後	전후
+aux	control.angle	角度	Angle	角度	각도
+aux	section.independentKnobs	分控旋钮	Per-channel knobs	チャンネル別ノブ	채널별 노브
+aux	control.linkChannels	全通道链接	Link all channels	全チャンネルをリンク	모든 채널 연결
+aux	action.reset	重置	Reset	リセット	초기화
+aux	control.strength	强度	Strength	強度	강도
+aux	action.clone	克隆	Clone	複製	복제
+aux	action.delete	删除	Delete	削除	삭제
+aux	action.layout	切换声道类型	Change channel layout	チャンネル構成を変更	채널 구성 변경
+mixer	status.noChannels	暂无通道	No channels	チャンネルがありません	채널 없음
+mixer	layout.mono	单声道	Mono	モノラル	모노
+mixer	layout.stereo	立体声	Stereo	ステレオ	스테레오
+mixer	section.general	通用	General	一般	일반
+mixer	control.monitorLayout	监听通道模式	Monitor channel layout	モニターのチャンネル構成	모니터 채널 구성
+mixer	label.readOnlyPan	空间声像 · 只读	Spatial pan · Read only	空間パン · 読み取り専用	공간 팬 · 읽기 전용
+mixer	label.channelName	通道名	Channel name	チャンネル名	채널 이름
+mixer	label.comment	注释	Comment	コメント	주석
+mixer	control.stripLayout	通道模式	Channel layout	チャンネル構成	채널 구성
+mixer	control.gain	增益	Gain	ゲイン	게인
+mixer	control.volume	音量	Volume	音量	음량
+mixer	label.output	输出	Output	出力	출력
+mixer	label.input	输入	Input	入力	입력
+mixer	section.panner	声像器	Panner	パンナー	패너
+mixer	mode.spatial	空间声像器	Spatial panner	空間パンナー	공간 패너
+mixer	mode.classic	经典 Pan	Classic Pan	クラシック Pan	클래식 Pan
+mixer	control.polarCurve	显示极坐标曲线	Show polar curve	極座標曲線を表示	극좌표 곡선 표시
+mixer	status.noSignal	无信号	No signal	信号なし	신호 없음
+mixer	control.pan	声像	Pan	パン	팬
+mixer	section.spatialParameters	空间声像参数	Spatial pan parameters	空間パンのパラメーター	공간 팬 매개변수
+mixer	control.width	宽度	Width	幅	폭
+mixer	control.frontRear	前后	Front/rear	前後	전후
+mixer	control.angle	角度	Angle	角度	각도
+mixer	section.independentKnobs	分控旋钮	Per-channel knobs	チャンネル別ノブ	채널별 노브
+mixer	control.linkChannels	全通道链接	Link all channels	全チャンネルをリンク	모든 채널 연결
+mixer	action.reset	重置	Reset	リセット	초기화
+mixer	control.strength	强度	Strength	強度	강도
+mixer	error.topologyTitle	拓扑更新失败	Topology update failed	トポロジーの更新に失敗しました	토폴로지 업데이트 실패
+mixer	error.registerPorts	无法注册调音台端口，原有状态已保留。	Unable to register mixer ports. The previous state has been retained.	ミキサーのポートを登録できません。元の状態を保持しました。	믹서 포트를 등록할 수 없습니다. 이전 상태가 유지되었습니다.
+mixer	error.auxRouteTitle	AUX 路由无效	Invalid AUX routing	AUX ルーティングが無効です	잘못된 AUX 라우팅
+mixer	name.copySuffix	 副本	 Copy	 のコピー	 복사본
+mixer	label.monitor	监听	Monitor	モニター	모니터
+mixer	status.noSelection	未选择通道	No channel selected	チャンネル未選択	선택된 채널 없음
+mixer	view.overview	通道总览	Channel overview	チャンネル一覧	채널 개요
+mixer	section.inputs	Inputs	Inputs	入力	입력
+mixer	section.subMonitorMaster	Sub Mix/Monitor/Master	Sub Mix/Monitor/Master	Sub Mix/モニター/マスター	Sub Mix/모니터/마스터
+mixer	view.details	通道详情	Channel details	チャンネル詳細	채널 상세
+mixer	label.detailsPrefix	通道详情 ·	Channel details ·	チャンネル詳細 ·	채널 상세 ·
+mixer	control.channelColor	通道颜色	Channel color	チャンネルの色	채널 색상
+mixer	action.setColor	设置通道颜色	Set channel color	チャンネルの色を設定	채널 색상 설정
+mixer	action.defaultColor	恢复默认颜色	Restore default color	既定の色に戻す	기본 색상 복원
+mixer	dialog.colorTitle	设置通道颜色 · RGB / HEX	Set channel color · RGB / HEX	チャンネルの色を設定 · RGB / HEX	채널 색상 설정 · RGB / HEX
+mixer	action.switchChannel	切换通道 ▾	Select channel ▾	チャンネルを選択 ▾	채널 선택 ▾
+mixer	tab.main	Main	Main	メイン	메인
+mixer	section.listenMaster	Listen/Master	Monitor/Master	モニター/マスター	모니터/마스터
+mixer	window.title	WinJACKNexus - 调音台	WinJACKNexus - Mixer	WinJACKNexus - ミキサー	WinJACKNexus - 믹서
+mixer	menu.channels	通道管理	Channels	チャンネル管理	채널 관리
+mixer	action.addInput	添加输入通道	Add input channel	入力チャンネルを追加	입력 채널 추가
+mixer	action.addAux	添加AUX通道	Add AUX channel	AUX チャンネルを追加	AUX 채널 추가
+mixer	action.addSubMix	添加 Sub Mix 通道	Add Sub Mix channel	Sub Mix チャンネルを追加	Sub Mix 채널 추가
+mixer	menu.global	全局	Global	全体	전체
+mixer	action.clearSoloMute	关闭所有通道独奏/静音	Clear solo and mute on all channels	全チャンネルのソロとミュートを解除	모든 채널의 솔로 및 음소거 해제
+mixer	action.defaultColors	恢复所有通道到默认颜色	Restore default colors on all channels	全チャンネルを既定の色に戻す	모든 채널의 기본 색상 복원
+mixer	menu.largeViews	查看大屏	Large views	大画面表示	큰 화면 보기
+mixer	action.deleteChannel	删除通道	Delete channel	チャンネルを削除	채널 삭제
+mixer	action.duplicateChannel	复制通道	Duplicate channel	チャンネルを複製	채널 복제
+mixer	menu.channelType	通道类型	Channel type	チャンネル種別	채널 유형
+mixer	action.openSel	打开SEL设置	Open SEL settings	SEL 設定を開く	SEL 설정 열기
