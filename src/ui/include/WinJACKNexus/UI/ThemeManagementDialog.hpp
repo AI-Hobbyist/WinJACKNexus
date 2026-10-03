@@ -34,6 +34,7 @@ protected:
 private:
     struct View;
     void refresh();
+    void refreshLocalizedIdentity();
     void refreshBackgroundEditor();
     bool applyBackground(QString* error);
     bool importImage(const QString& path, QString* error);

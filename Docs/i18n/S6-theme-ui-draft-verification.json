@@ -1,0 +1,60 @@
+{
+  "stage": "S6",
+  "result": "THEME_UI_SOURCE_DRAFT_PASS_IMPLEMENTATION_OPEN",
+  "theme_ui_keys": 80,
+  "host_catalog_version": 7,
+  "host_keys": 616,
+  "module_test_runs": 0,
+  "module_builds": 0,
+  "ui_shows": 0,
+  "remaining": [
+    "Theme core/package/registry/catalog diagnostic display",
+    "Returned-error status refresh after language change",
+    "Open file-dialog title/filter refresh",
+    "Call-site checks, final Release deployment and one module UI run",
+    "Final S0 reconciliation and user human review"
+  ],
+  "runtime": "Existing v6 deployment has not been rebuilt for these v7 sources.",
+  "evidence": [
+    {
+      "file": "src\\ui\\src\\ThemeManagementDialog.cpp",
+      "sha256": "45f9ff11325a89879fd60a3b5427f1ba04b8ec15875d88d61a9fc3586b605568"
+    },
+    {
+      "file": "Docs\\i18n\\S6-theme-ui-strings.tsv",
+      "sha256": "03c7e322c213cde73d48151848386c3910766f1424fba9f157c5720fe37ba898"
+    },
+    {
+      "file": "locate\\manifest.json",
+      "sha256": "9b1dd2fc757a1b349e6909f3d1ad85e37b57ddf52c55337fc1d811d6901adf5f"
+    },
+    {
+      "file": "src\\ui\\include\\WinJACKNexus\\UI\\ThemeManagementDialog.hpp",
+      "sha256": "9f939be7d058b93428038c1cf5ae15dd03ff7be8d366f168ad0f07a24c932bdb"
+    },
+    {
+      "file": "tests\\theme\\ThemeManagementTests.cpp",
+      "sha256": "48c5c1309f7641d61153af8881c61cbd6033573353eaaafbafdfac674c82172e"
+    },
+    {
+      "file": "Docs\\UI-API.md",
+      "sha256": "ff015d85bdad7c2b0eb3938f8026442389fff20625f6fcdbe9b8939094f73714"
+    },
+    {
+      "file": "locate\\en-US.json",
+      "sha256": "d824f97c48d14bd164c884a3b9c067c5fe0a65e7f8f92d9b664f4a5dac926779"
+    },
+    {
+      "file": "locate\\zh-CN.json",
+      "sha256": "e2f29907a788061d13e438f053ddee125063a8980205ab0c833b4db4585516b2"
+    },
+    {
+      "file": "locate\\ja-JP.json",
+      "sha256": "06283d52ef239fed94db2b05efddc639e7d647b4c4c1d43a791d56ad46229d0d"
+    },
+    {
+      "file": "locate\\ko-KR.json",
+      "sha256": "e2c5141b2b7de48a13cacc652288570eecab7d6d5dd7ac6f20f9255a0433616d"
+    }
+  ]
+}

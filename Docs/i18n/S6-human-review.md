@@ -27,3 +27,5 @@
 2026-10-04 新增 `vstscanner/probe.*` 十项错误草稿，扫描器共 77 项。见 `S6-scanner-strings.tsv`。需核对 VST3 factory/component/class ID、VST2 entry point/AEffect 等专业术语在四语言中的表达；插件名称和 class ID 参数保持原始内容。当前没有新增人工批准。
 
 2026-10-04 共享 Controls 增补三项草稿（输入筛选/展开侧边栏/收缩侧边栏），四语言详见 `S6-shared-strings.tsv`。专业译文审校待用户；这次编译与静态部署核对没有新增人工批准或实窗验收。
+
+2026-10-04 主题管理新增 80 项四语言草稿，见 `S6-theme-ui-strings.tsv`。包括背景尺寸/平铺选项、Opacity/透明度语义和主题包导入导出术语，待用户意见；该批仍在实施，只有源码/语言包静态核对，没有新增 Release 或实窗验收。

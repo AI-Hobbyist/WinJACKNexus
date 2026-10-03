@@ -2,6 +2,9 @@
 #include <WinJACKNexus/UI/ThemeManagementDialog.hpp>
 
 #include <WinJACKNexus/UI/Controls.hpp>
+#include <WinJACKNexus/UI/LocalizedText.hpp>
+#include <QSignalBlocker>
+#include <QVariant>
 #include <WinJACKNexus/UI/ThemeCore.hpp>
 #include <WinJACKNexus/UI/ThemeManager.hpp>
 #include <WinJACKNexus/UI/ThemeNamespaceRegistry.hpp>
@@ -26,6 +29,54 @@ namespace WinJACKNexus::UI {
 namespace {
 namespace C = Controls;
 
+QString themeText(const char* key, const char* english) {
+    return localizedText("theme", key, english);
+}
+C::TextLabel* themeLabel(const char* key, const char* english, QWidget* parent) {
+    auto* label = new C::TextLabel({}, parent);
+    bindLocalizedText(label, "text", "theme", key, english);
+    return label;
+}
+C::ActionButton* themeButton(const char* key, const char* english, QWidget* parent) {
+    auto* button = new C::ActionButton({}, parent);
+    bindLocalizedText(button, "text", "theme", key, english);
+    return button;
+}
+C::ToggleField* themeToggle(const char* key, const char* english, QWidget* parent) {
+    auto* toggle = new C::ToggleField({}, parent);
+    bindLocalizedText(toggle, "text", "theme", key, english);
+    return toggle;
+}
+void themeTab(C::TabField* tabs, QWidget* page, const char* key, const char* english) {
+    const auto index = tabs->addTab(page, themeText(key, english));
+    if (auto* manager = I18nManager::installed())
+        manager->bind(page, [tabs, page, key = QByteArray(key), english = QByteArray(english)] {
+            const auto current = tabs->indexOf(page);
+            if (current >= 0) tabs->setTabText(current, themeText(key.constData(), english.constData()));
+        });
+    Q_UNUSED(index);
+}
+void themeChoice(C::ChoiceField* field, const QString& value, const char* key, const char* english) {
+    field->addItem(themeText(key, english), value);
+    if (auto* manager = I18nManager::installed())
+        manager->bind(field, [field, value, key = QByteArray(key), english = QByteArray(english)] {
+            const auto index = field->findData(value);
+            if (index < 0) return;
+            const QSignalBlocker blocker(field);
+            field->setItemText(index, themeText(key.constData(), english.constData()));
+        });
+}
+void themeStatus(C::TextLabel* label, const char* key, const char* english) {
+    label->setProperty("wjn.theme.statusKey", QByteArray(key));
+    label->setProperty("wjn.theme.statusEnglish", QByteArray(english));
+    label->setText(themeText(key, english));
+}
+void themeRawStatus(C::TextLabel* label, const QString& error) {
+    label->setProperty("wjn.theme.statusKey", QByteArray{});
+    label->setProperty("wjn.theme.statusEnglish", QByteArray{});
+    label->setText(error);
+}
+
 QString themesDirectory() {
     return QDir(QCoreApplication::applicationDirPath()).filePath(QStringLiteral("themes"));
 }
@@ -39,7 +90,17 @@ QString cssNumber(double number) {
 }
 
 void addChoice(C::ChoiceField* field, const QStringList& values) {
-    for (const auto& value : values) field->addItem(value, value);
+    for (const auto& value : values) {
+        if (value == QStringLiteral("original")) { themeChoice(field, value, "size.original", "Original size"); continue; }
+        if (value == QStringLiteral("contain")) { themeChoice(field, value, "size.contain", "Fit inside"); continue; }
+        if (value == QStringLiteral("cover")) { themeChoice(field, value, "size.cover", "Fill and crop"); continue; }
+        if (value == QStringLiteral("stretch")) { themeChoice(field, value, "size.stretch", "Stretch"); continue; }
+        if (value == QStringLiteral("no-repeat")) { themeChoice(field, value, "repeat.no-repeat", "No tiling"); continue; }
+        if (value == QStringLiteral("repeat")) { themeChoice(field, value, "repeat.repeat", "Tile both axes"); continue; }
+        if (value == QStringLiteral("repeat-x")) { themeChoice(field, value, "repeat.repeat-x", "Tile horizontally"); continue; }
+        if (value == QStringLiteral("repeat-y")) { themeChoice(field, value, "repeat.repeat-y", "Tile vertically"); continue; }
+        field->addItem(value, value);
+    }
 }
 
 void selectValue(C::ChoiceField* field, const QString& value) {
@@ -83,7 +144,7 @@ struct ThemeManagementDialog::View final {
 ThemeManagementDialog::ThemeManagementDialog(ThemeCore& core, QWidget* parent)
     : QDialog(parent), core_(core), view_(std::make_unique<View>()) {
     setObjectName(QStringLiteral("theme.management"));
-    setWindowTitle(QStringLiteral("主题管理"));
+    bindLocalizedText(this, "windowTitle", "theme", "title", "Theme management");
     resize(860, 680);
     auto* layout = new QVBoxLayout(this);
     auto* tabs = new C::TabField(this);
@@ -95,21 +156,21 @@ ThemeManagementDialog::ThemeManagementDialog(ThemeCore& core, QWidget* parent)
     view_->identity = new C::TextLabel(overview);
     view_->identity->setWordWrap(true);
     overviewLayout->addWidget(view_->identity);
-    view_->homepage = new C::ActionButton(QStringLiteral("打开作者主页"), overview);
+    view_->homepage = themeButton("homepage.open", "Open author homepage", overview);
     overviewLayout->addWidget(view_->homepage);
     view_->diagnostics = new C::LogField(overview);
     view_->diagnostics->setObjectName(QStringLiteral("theme.diagnostics"));
     view_->diagnostics->setReadOnly(true);
     overviewLayout->addWidget(view_->diagnostics, 1);
     auto* packageActions = new QHBoxLayout;
-    auto* importButton = new C::ActionButton(QStringLiteral("导入主题包"), overview);
-    view_->preview = new C::ActionButton(QStringLiteral("预览"), overview);
-    view_->apply = new C::ActionButton(QStringLiteral("应用"), overview);
-    view_->cancel = new C::ActionButton(QStringLiteral("取消预览"), overview);
+    auto* importButton = themeButton("package.import", "Import theme package", overview);
+    view_->preview = themeButton("preview", "Preview", overview);
+    view_->apply = themeButton("apply", "Apply", overview);
+    view_->cancel = themeButton("preview.cancel", "Cancel preview", overview);
     for (auto* button : {importButton, view_->preview, view_->apply, view_->cancel})
         packageActions->addWidget(button);
     overviewLayout->addLayout(packageActions);
-    tabs->addTab(overview, QStringLiteral("主题与诊断"));
+    themeTab(tabs, overview, "tab.overview", "Theme and diagnostics");
 
     auto* colors = new QWidget(tabs);
     auto* colorLayout = new QFormLayout(colors);
@@ -120,25 +181,25 @@ ThemeManagementDialog::ThemeManagementDialog(ThemeCore& core, QWidget* parent)
     for (const auto& name : registry.names())
         if (registry.token(name).type == QStringLiteral("color"))
             view_->colorToken->addItem(name, name);
-    colorLayout->addRow(QStringLiteral("颜色 token"), view_->colorToken);
+    colorLayout->addRow(themeLabel("color.token", "Color token", colorLayout->parentWidget()), view_->colorToken);
     view_->colorName = new C::TextField(colors);
     view_->colorName->setPlaceholderText(QStringLiteral("--wjn-theme-..."));
-    colorLayout->addRow(QStringLiteral("完整 token 名"), view_->colorName);
+    colorLayout->addRow(themeLabel("color.name", "Full token name", colorLayout->parentWidget()), view_->colorName);
     view_->colorValue = new C::TextField(colors);
     view_->colorValue->setObjectName(QStringLiteral("theme.colorValue"));
     view_->colorValue->setPlaceholderText(QStringLiteral("#RRGGBB / rgb(...) / rgba(...)"));
-    colorLayout->addRow(QStringLiteral("颜色值"), view_->colorValue);
-    auto* setColor = new C::ActionButton(QStringLiteral("应用颜色"), colors);
+    colorLayout->addRow(themeLabel("color.value", "Color value", colorLayout->parentWidget()), view_->colorValue);
+    auto* setColor = themeButton("color.apply", "Apply color", colors);
     colorLayout->addRow(setColor);
     view_->fontName = new C::TextLabel(colors);
-    colorLayout->addRow(QStringLiteral("全局字体"), view_->fontName);
+    colorLayout->addRow(themeLabel("font.global", "Global font", colorLayout->parentWidget()), view_->fontName);
     auto* fontActions = new QHBoxLayout;
-    auto* importFontButton = new C::ActionButton(QStringLiteral("导入 TTF/OTF"), colors);
-    auto* systemFontButton = new C::ActionButton(QStringLiteral("恢复系统字体"), colors);
+    auto* importFontButton = themeButton("font.import", "Import TTF/OTF", colors);
+    auto* systemFontButton = themeButton("font.system", "Restore system font", colors);
     fontActions->addWidget(importFontButton);
     fontActions->addWidget(systemFontButton);
     colorLayout->addRow(fontActions);
-    tabs->addTab(colors, QStringLiteral("颜色与字体"));
+    themeTab(tabs, colors, "tab.colors", "Colors and fonts");
 
     auto* backgrounds = new QWidget(tabs);
     auto* backgroundForm = new QFormLayout(backgrounds);
@@ -148,37 +209,46 @@ ThemeManagementDialog::ThemeManagementDialog(ThemeCore& core, QWidget* parent)
         QStringLiteral("sel-main"), QStringLiteral("sel-monitor"),
         QStringLiteral("sel-aux"), QStringLiteral("sel-fx"),
         QStringLiteral("meter-bridge")};
-    for (const auto& scope : scopes) view_->backgroundScope->addItem(scope, scope);
-    backgroundForm->addRow(QStringLiteral("模块区域"), view_->backgroundScope);
+    for (const auto& scope : scopes) {
+        if (scope == QStringLiteral("patchbay")) { themeChoice(view_->backgroundScope, scope, "scope.patchbay", "Patchbay"); continue; }
+        if (scope == QStringLiteral("mixer")) { themeChoice(view_->backgroundScope, scope, "scope.mixer", "Mixer"); continue; }
+        if (scope == QStringLiteral("mixer-overview")) { themeChoice(view_->backgroundScope, scope, "scope.mixer-overview", "Mixer overview"); continue; }
+        if (scope == QStringLiteral("sel-main")) { themeChoice(view_->backgroundScope, scope, "scope.sel-main", "Main mixer"); continue; }
+        if (scope == QStringLiteral("sel-monitor")) { themeChoice(view_->backgroundScope, scope, "scope.sel-monitor", "Monitor mixer"); continue; }
+        if (scope == QStringLiteral("sel-aux")) { themeChoice(view_->backgroundScope, scope, "scope.sel-aux", "Aux mixer"); continue; }
+        if (scope == QStringLiteral("sel-fx")) { themeChoice(view_->backgroundScope, scope, "scope.sel-fx", "FX mixer"); continue; }
+        if (scope == QStringLiteral("meter-bridge")) { themeChoice(view_->backgroundScope, scope, "scope.meter-bridge", "Meter bridge"); continue; }
+    }
+    backgroundForm->addRow(themeLabel("background.scope", "Module region", backgroundForm->parentWidget()), view_->backgroundScope);
     view_->imageMode = new C::ChoiceField(backgrounds);
     view_->imageMode->setObjectName(QStringLiteral("theme.imageMode"));
-    view_->imageMode->addItem(QStringLiteral("继承接线盘"), QStringLiteral("inherit"));
-    view_->imageMode->addItem(QStringLiteral("自定义图片"), QStringLiteral("custom"));
-    view_->imageMode->addItem(QStringLiteral("无图片"), QStringLiteral("none"));
-    auto* chooseImage = new C::ActionButton(QStringLiteral("选择图片"), backgrounds);
+    themeChoice(view_->imageMode, QStringLiteral("inherit"), "image.inherit", "Inherit patchbay image");
+    themeChoice(view_->imageMode, QStringLiteral("custom"), "image.custom", "Custom image");
+    themeChoice(view_->imageMode, QStringLiteral("none"), "image.none", "No image");
+    auto* chooseImage = themeButton("image.choose", "Choose image", backgrounds);
     auto* imageRow = new QHBoxLayout;
     imageRow->addWidget(view_->imageMode, 1);
     imageRow->addWidget(chooseImage);
-    backgroundForm->addRow(QStringLiteral("图片来源"), imageRow);
+    backgroundForm->addRow(themeLabel("image.source", "Image source", backgroundForm->parentWidget()), imageRow);
     view_->size = new C::ChoiceField(backgrounds);
     addChoice(view_->size, {QStringLiteral("original"), QStringLiteral("contain"),
                             QStringLiteral("cover"), QStringLiteral("stretch")});
-    backgroundForm->addRow(QStringLiteral("尺寸模式"), view_->size);
+    backgroundForm->addRow(themeLabel("background.size", "Size mode", backgroundForm->parentWidget()), view_->size);
     view_->scale = new C::DecimalField(backgrounds);
     view_->scale->setRange(0.05, 4.0);
     view_->scale->setSingleStep(0.05);
     view_->scale->setDecimals(2);
-    backgroundForm->addRow(QStringLiteral("等比缩放"), view_->scale);
+    backgroundForm->addRow(themeLabel("background.scale", "Uniform scale", backgroundForm->parentWidget()), view_->scale);
     view_->repeat = new C::ChoiceField(backgrounds);
     addChoice(view_->repeat, {QStringLiteral("no-repeat"), QStringLiteral("repeat"),
                               QStringLiteral("repeat-x"), QStringLiteral("repeat-y")});
-    backgroundForm->addRow(QStringLiteral("平铺"), view_->repeat);
+    backgroundForm->addRow(themeLabel("background.repeat", "Tiling", backgroundForm->parentWidget()), view_->repeat);
     view_->x = new C::TextField(backgrounds);
     view_->y = new C::TextField(backgrounds);
     view_->x->setPlaceholderText(QStringLiteral("50% / 12px"));
     view_->y->setPlaceholderText(QStringLiteral("50% / 12px"));
-    backgroundForm->addRow(QStringLiteral("横向位置"), view_->x);
-    backgroundForm->addRow(QStringLiteral("纵向位置"), view_->y);
+    backgroundForm->addRow(themeLabel("background.x", "Horizontal position", backgroundForm->parentWidget()), view_->x);
+    backgroundForm->addRow(themeLabel("background.y", "Vertical position", backgroundForm->parentWidget()), view_->y);
     const auto opacity = [backgrounds] {
         auto* field = new C::DecimalField(backgrounds);
         field->setRange(0.0, 1.0);
@@ -187,39 +257,43 @@ ThemeManagementDialog::ThemeManagementDialog(ThemeCore& core, QWidget* parent)
         return field;
     };
     view_->imageOpacity = opacity();
-    backgroundForm->addRow(QStringLiteral("图片透明度"), view_->imageOpacity);
+    backgroundForm->addRow(themeLabel("image.opacity", "Image opacity", backgroundForm->parentWidget()), view_->imageOpacity);
     view_->blur = new C::DecimalField(backgrounds);
     view_->blur->setObjectName(QStringLiteral("theme.blurRadius"));
     view_->blur->setRange(0.0, 64.0);
     view_->blur->setDecimals(0);
     view_->blur->setSuffix(QStringLiteral(" px"));
-    backgroundForm->addRow(QStringLiteral("高斯模糊"), view_->blur);
+    backgroundForm->addRow(themeLabel("background.blur", "Gaussian blur", backgroundForm->parentWidget()), view_->blur);
     view_->componentOpacity = opacity();
     view_->componentOpacity->setObjectName(QStringLiteral("theme.componentOpacity"));
-    backgroundForm->addRow(QStringLiteral("组件透明度"), view_->componentOpacity);
-    view_->overlay = new C::ToggleField(QStringLiteral("上层覆盖"), backgrounds);
+    backgroundForm->addRow(themeLabel("component.opacity", "Component opacity", backgroundForm->parentWidget()), view_->componentOpacity);
+    view_->overlay = themeToggle("overlay.enabled", "Upper overlay", backgrounds);
     view_->overlay->setObjectName(QStringLiteral("theme.upperOverlay"));
-    backgroundForm->addRow(QStringLiteral("叠层模式"), view_->overlay);
+    backgroundForm->addRow(themeLabel("overlay.mode", "Layer mode", backgroundForm->parentWidget()), view_->overlay);
     view_->overlayOpacity = opacity();
-    backgroundForm->addRow(QStringLiteral("上层图片透明度"), view_->overlayOpacity);
-    view_->overlayHint = new C::TextLabel(QStringLiteral("上层覆盖模式：透明背景图片最佳"), backgrounds);
+    backgroundForm->addRow(themeLabel("overlay.opacity", "Upper image opacity", backgroundForm->parentWidget()), view_->overlayOpacity);
+    view_->overlayHint = themeLabel("overlay.hint", "Upper overlay: images with transparent backgrounds work best", backgrounds);
     view_->overlayHint->setObjectName(QStringLiteral("theme.overlayHint"));
     backgroundForm->addRow(view_->overlayHint);
-    auto* applyBackgroundButton = new C::ActionButton(QStringLiteral("应用背景设置"), backgrounds);
+    auto* applyBackgroundButton = themeButton("background.apply", "Apply background settings", backgrounds);
     applyBackgroundButton->setObjectName(QStringLiteral("theme.applyBackground"));
     backgroundForm->addRow(applyBackgroundButton);
-    tabs->addTab(backgrounds, QStringLiteral("背景"));
+    themeTab(tabs, backgrounds, "tab.background", "Background");
 
     auto* exports = new QWidget(tabs);
     auto* exportForm = new QFormLayout(exports);
     view_->name = new C::TextField(exports);
+    view_->name->setObjectName(QStringLiteral("theme.metadata.name"));
     view_->author = new C::TextField(exports);
+    view_->author->setObjectName(QStringLiteral("theme.metadata.author"));
     view_->description = new C::TextField(exports);
+    view_->description->setObjectName(QStringLiteral("theme.metadata.description"));
     view_->homepageEdit = new C::TextField(exports);
-    exportForm->addRow(QStringLiteral("主题名称"), view_->name);
-    exportForm->addRow(QStringLiteral("作者"), view_->author);
-    exportForm->addRow(QStringLiteral("介绍"), view_->description);
-    exportForm->addRow(QStringLiteral("主页"), view_->homepageEdit);
+    view_->homepageEdit->setObjectName(QStringLiteral("theme.metadata.homepage"));
+    exportForm->addRow(themeLabel("metadata.name", "Theme name", exportForm->parentWidget()), view_->name);
+    exportForm->addRow(themeLabel("metadata.author", "Author", exportForm->parentWidget()), view_->author);
+    exportForm->addRow(themeLabel("metadata.description", "Description", exportForm->parentWidget()), view_->description);
+    exportForm->addRow(themeLabel("metadata.homepage", "Homepage", exportForm->parentWidget()), view_->homepageEdit);
     view_->fragmentScope = new C::ChoiceField(exports);
     QSet<QString> exportScopeSet;
     for (const auto& name : registry.names())
@@ -233,17 +307,23 @@ ThemeManagementDialog::ThemeManagementDialog(ThemeCore& core, QWidget* parent)
     exportScopes.sort();
     for (const auto& scope : exportScopes)
         view_->fragmentScope->addItem(scope, QStringLiteral("--wjn-theme-") + scope + '-');
-    exportForm->addRow(QStringLiteral("片段命名空间"), view_->fragmentScope);
-    auto* exportFull = new C::ActionButton(QStringLiteral("导出当前完整主题"), exports);
-    auto* exportDefault = new C::ActionButton(QStringLiteral("导出默认主题模板"), exports);
-    auto* exportFragment = new C::ActionButton(QStringLiteral("导出模块片段"), exports);
+    exportForm->addRow(themeLabel("fragment.namespace", "Fragment namespace", exportForm->parentWidget()), view_->fragmentScope);
+    auto* exportFull = themeButton("export.full", "Export current full theme", exports);
+    auto* exportDefault = themeButton("export.default", "Export default theme template", exports);
+    auto* exportFragment = themeButton("export.fragment", "Export module fragment", exports);
     exportForm->addRow(exportFull);
     exportForm->addRow(exportDefault);
     exportForm->addRow(exportFragment);
-    tabs->addTab(exports, QStringLiteral("导出"));
+    themeTab(tabs, exports, "tab.export", "Export");
 
     view_->status = new C::TextLabel(this);
     view_->status->setObjectName(QStringLiteral("theme.status"));
+    if (auto* manager = I18nManager::installed())
+        manager->bind(view_->status, [label = view_->status] {
+            const auto key = label->property("wjn.theme.statusKey").toByteArray();
+            const auto english = label->property("wjn.theme.statusEnglish").toByteArray();
+            if (!key.isEmpty()) label->setText(themeText(key.constData(), english.constData()));
+        });
     layout->addWidget(view_->status);
 
     const auto activeMeta = core_.activeFullTheme().metadata();
@@ -255,18 +335,18 @@ ThemeManagementDialog::ThemeManagementDialog(ThemeCore& core, QWidget* parent)
 
     connect(importButton, &QPushButton::clicked, this, [this] {
         QDir().mkpath(themesDirectory());
-        const auto path = QFileDialog::getOpenFileName(this, QStringLiteral("导入主题包"),
-            themesDirectory(), QStringLiteral("WinJACKNexus 主题 (*.wjnskin)"));
+        const auto path = QFileDialog::getOpenFileName(this, themeText("package.import", "Import theme package"),
+            themesDirectory(), themeText("file.themeFilter", "WinJACKNexus themes (*.wjnskin)"));
         QString error;
-        if (!path.isEmpty() && !openPackage(path, &error)) view_->status->setText(error);
+        if (!path.isEmpty() && !openPackage(path, &error)) themeRawStatus(view_->status, error);
     });
     connect(view_->preview, &QPushButton::clicked, this, [this] {
         QString error;
-        if (!preview(&error)) view_->status->setText(error);
+        if (!preview(&error)) themeRawStatus(view_->status, error);
     });
     connect(view_->apply, &QPushButton::clicked, this, [this] {
         QString error;
-        if (!apply(&error)) view_->status->setText(error);
+        if (!apply(&error)) themeRawStatus(view_->status, error);
     });
     connect(view_->cancel, &QPushButton::clicked, this, [this] { cancelPreview(); });
     connect(view_->homepage, &QPushButton::clicked, this, [this] {
@@ -286,19 +366,22 @@ ThemeManagementDialog::ThemeManagementDialog(ThemeCore& core, QWidget* parent)
         QString error;
         if (!ThemeRegistry::valueMatchesType(QStringLiteral("color"), value)
             || !core_.setOverride(name, value, {}, &error))
-            view_->status->setText(error.isEmpty() ? QStringLiteral("颜色值格式错误") : error);
-        else view_->status->setText(QStringLiteral("颜色已应用"));
+        {
+            if (error.isEmpty()) themeStatus(view_->status, "error.color", "Invalid color value format");
+            else themeRawStatus(view_->status, error);
+        }
+        else themeStatus(view_->status, "status.colorApplied", "Color applied");
     });
     connect(importFontButton, &QPushButton::clicked, this, [this] {
-        const auto path = QFileDialog::getOpenFileName(this, QStringLiteral("选择字体"), {},
-            QStringLiteral("字体 (*.ttf *.otf)"));
+        const auto path = QFileDialog::getOpenFileName(this, themeText("file.fontTitle", "Choose font"), {},
+            themeText("file.fontFilter", "Fonts (*.ttf *.otf)"));
         QString error;
-        if (!path.isEmpty() && !importFont(path, &error)) view_->status->setText(error);
+        if (!path.isEmpty() && !importFont(path, &error)) themeRawStatus(view_->status, error);
     });
     connect(systemFontButton, &QPushButton::clicked, this, [this] {
         QString error;
         if (!core_.setOverride(QStringLiteral("--wjn-theme-global-font-source"),
-                               QStringLiteral("system"), {}, &error)) view_->status->setText(error);
+                               QStringLiteral("system"), {}, &error)) themeRawStatus(view_->status, error);
     });
     connect(view_->backgroundScope, qOverload<int>(&QComboBox::currentIndexChanged),
             this, [this] { refreshBackgroundEditor(); });
@@ -309,15 +392,15 @@ ThemeManagementDialog::ThemeManagementDialog(ThemeCore& core, QWidget* parent)
         view_->overlayOpacity->setEnabled(enabled);
     });
     connect(chooseImage, &QPushButton::clicked, this, [this] {
-        const auto path = QFileDialog::getOpenFileName(this, QStringLiteral("选择背景图片"), {},
-            QStringLiteral("图片 (*.png *.jpg *.jpeg *.webp)"));
+        const auto path = QFileDialog::getOpenFileName(this, themeText("file.imageTitle", "Choose background image"), {},
+            themeText("file.imageFilter", "Images (*.png *.jpg *.jpeg *.webp)"));
         QString error;
-        if (!path.isEmpty() && !importImage(path, &error)) view_->status->setText(error);
+        if (!path.isEmpty() && !importImage(path, &error)) themeRawStatus(view_->status, error);
     });
     connect(applyBackgroundButton, &QPushButton::clicked, this, [this] {
         QString error;
-        if (!applyBackground(&error)) view_->status->setText(error);
-        else view_->status->setText(QStringLiteral("背景设置已应用"));
+        if (!applyBackground(&error)) themeRawStatus(view_->status, error);
+        else themeStatus(view_->status, "status.backgroundApplied", "Background settings applied");
     });
     const auto exportAction = [this](const QString& scope, bool builtIn) {
         QDir().mkpath(themesDirectory());
@@ -325,11 +408,11 @@ ThemeManagementDialog::ThemeManagementDialog(ThemeCore& core, QWidget* parent)
             ? QStringLiteral("winjacknexus-default.wjnskin")
             : scope.isEmpty() ? QStringLiteral("custom.wjnskin")
                               : QStringLiteral("module-%1.wjnskin").arg(scope.mid(12, scope.size() - 13)));
-        const auto path = QFileDialog::getSaveFileName(this, QStringLiteral("导出主题"), suggested,
-            QStringLiteral("WinJACKNexus 主题 (*.wjnskin)"));
+        const auto path = QFileDialog::getSaveFileName(this, themeText("file.exportTitle", "Export theme"), suggested,
+            themeText("file.themeFilter", "WinJACKNexus themes (*.wjnskin)"));
         QString error;
-        if (!path.isEmpty() && !exportToFile(path, scope, builtIn, &error)) view_->status->setText(error);
-        else if (!path.isEmpty()) view_->status->setText(QStringLiteral("主题包已导出"));
+        if (!path.isEmpty() && !exportToFile(path, scope, builtIn, &error)) themeRawStatus(view_->status, error);
+        else if (!path.isEmpty()) themeStatus(view_->status, "status.exported", "Theme package exported");
     };
     connect(exportFull, &QPushButton::clicked, this, [exportAction] { exportAction({}, false); });
     connect(exportDefault, &QPushButton::clicked, this, [exportAction] { exportAction({}, true); });
@@ -341,6 +424,8 @@ ThemeManagementDialog::ThemeManagementDialog(ThemeCore& core, QWidget* parent)
     view_->colorValue->setText(core_.snapshot()->value(view_->colorName->text()));
     refreshBackgroundEditor();
     refresh();
+    if (auto* manager = I18nManager::installed())
+        manager->bind(this, [this] { refreshLocalizedIdentity(); });
 }
 
 ThemeManagementDialog::~ThemeManagementDialog() = default;
@@ -380,7 +465,7 @@ bool ThemeManagementDialog::apply(QString* error) {
         }
         QDir folder(themesDirectory());
         if (!folder.exists() && !QDir().mkpath(folder.absolutePath())) {
-            if (error) *error = QStringLiteral("无法创建主题目录");
+            if (error) *error = themeText("error.directory", "Cannot create theme directory");
             return false;
         }
         QString destination = folder.filePath(candidate_.id() + QStringLiteral(".wjnskin"));
@@ -440,12 +525,12 @@ bool ThemeManagementDialog::exportToFile(const QString& path, const QString& nam
 bool ThemeManagementDialog::importImage(const QString& path, QString* error) {
     QFile file(path);
     if (!file.open(QIODevice::ReadOnly) || file.size() > 16 * 1024 * 1024) {
-        if (error) *error = QStringLiteral("背景图片超过大小限制或不可读取");
+        if (error) *error = themeText("error.imageLimit", "Background image exceeds the size limit or cannot be read");
         return false;
     }
     QImageReader reader(&file);
     if (!reader.canRead()) {
-        if (error) *error = QStringLiteral("无法读取背景图片");
+        if (error) *error = themeText("error.imageRead", "Cannot read background image");
         return false;
     }
     file.seek(0);
@@ -467,12 +552,12 @@ bool ThemeManagementDialog::importImage(const QString& path, QString* error) {
 bool ThemeManagementDialog::importFont(const QString& path, QString* error) {
     QFile file(path);
     if (!file.open(QIODevice::ReadOnly) || file.size() > 16 * 1024 * 1024) {
-        if (error) *error = QStringLiteral("字体文件超过大小限制或不可读取");
+        if (error) *error = themeText("error.fontLimit", "Font file exceeds the size limit or cannot be read");
         return false;
     }
     const auto bytes = file.readAll();
     if (QFontDatabase::addApplicationFontFromData(bytes) < 0) {
-        if (error) *error = QStringLiteral("字体文件无效");
+        if (error) *error = themeText("error.fontInvalid", "Invalid font file");
         return false;
     }
     const auto logical = QStringLiteral("assets/imported-font.%1")
@@ -503,7 +588,7 @@ bool ThemeManagementDialog::applyBackground(QString* error) {
     const auto overlayOpacity = cssNumber(view_->overlayOpacity->value());
     if (!ThemeRegistry::valueMatchesType(QStringLiteral("position"), x)
         || !ThemeRegistry::valueMatchesType(QStringLiteral("position"), y)) {
-        if (error) *error = QStringLiteral("位置须为百分比或 px 值");
+        if (error) *error = themeText("error.position", "Position must be a percentage or px value");
         return false;
     }
     if (mode == "none") {
@@ -519,7 +604,7 @@ bool ThemeManagementDialog::applyBackground(QString* error) {
                                    QStringLiteral("url(\"%1\")").arg(imported.resourceNames().first()),
                                    imported, error)) return false;
         } else if (!core_.declaredValue(token(scope, QStringLiteral("image"))).startsWith("url(")) {
-            if (error) *error = QStringLiteral("先选择一张自定义图片");
+            if (error) *error = themeText("error.chooseImage", "Choose a custom image first");
             return false;
         }
     }
@@ -563,17 +648,24 @@ void ThemeManagementDialog::refreshBackgroundEditor() {
     view_->overlayOpacity->setEnabled(view_->overlay->isChecked());
 }
 
-void ThemeManagementDialog::refresh() {
-    ThemeManager themeAdapter;
-    themeAdapter.applyToWidget(this);
+void ThemeManagementDialog::refreshLocalizedIdentity() {
     const auto meta = candidate_.isValid() ? candidate_.metadata() : core_.activeFullTheme().metadata();
     const auto name = meta.value("name").toString(QStringLiteral("WinJACKNexus Default"));
     const auto author = meta.value("author").toString(QStringLiteral("WinJACKNexus"));
-    const auto description = meta.value("description").toString(QStringLiteral("Built-in default appearance"));
+    const auto description = meta.value("id").toString() == core_.defaultTheme().id()
+        ? themeText("identity.defaultDescription", "Built-in default appearance")
+        : meta.value("description").toString();
     const auto homepage = meta.value("homepage").toString();
-    view_->identity->setText(QStringLiteral("%1\n作者：%2\n%3\n主页：%4")
-        .arg(name, author, description, homepage.isEmpty() ? QStringLiteral("未提供") : homepage));
+    view_->identity->setText(themeText("identity.summary", "%1\nAuthor: %2\n%3\nHomepage: %4")
+        .arg(name, author, description, homepage.isEmpty()
+            ? themeText("identity.noHomepage", "Not provided") : homepage));
     view_->homepage->setEnabled(!homepage.isEmpty());
+}
+
+void ThemeManagementDialog::refresh() {
+    ThemeManager themeAdapter;
+    themeAdapter.applyToWidget(this);
+    refreshLocalizedIdentity();
     view_->preview->setEnabled(candidate_.isValid() && candidate_.metadata().value("kind") == "full"
                                && !previewing_);
     view_->apply->setEnabled(candidate_.isValid());

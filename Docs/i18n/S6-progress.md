@@ -33,3 +33,9 @@ VST Scanner 使用现有 HostI18n 在创建窗口前恢复宿主保存的语言�
 当前差异导航 352 次候选：Theme 246、meterbridge 49、mixer 45、patchbay 5、common 3、ui 2、host 1、node 1。Probe 与三项共享 Controls 已对齐实际 key。Theme 明确排除四项 importImage/importFont 的临时资源载体 metadata：完整/片段导出使用 editedMetadata()，用户内容和包身份保留。其余 Theme 候选继续保持开放，不能将错误一律归为内部日志：refresh() 实际显示 snapshot diagnostic.message，颜色/导入/应用/导出回调将 error 显示到 status。
 
 已保存 `S6-theme-source-audit.json` 与当前源码哈希，标明 246 次候选及另外需核对显示副本的 scope/size/repeat enum 站点。后续语言刷新不能直接复用会重载编辑值的 refresh()/refreshBackgroundEditor()，须单独更新显示并保持草稿、选区、dirty 状态与 token/currentData。来源核对通过见 `S6-theme-audit-verification.json`，它仅验证清单成员和哈希，不证明翻译/实窗完成。本轮没有模块编译、UI 测试或弹窗。Theme 实施、其他候选核对、用户审校与 S7 仍待完成。
+
+2026-10-04 ThemeManagementDialog 显示层实施：新增 80 个 `theme` 四语言草稿 key（控件、页签、已知 scope/size/repeat 显示副本、文件选择文案、八项本窗口错误及只读身份模板），宿主源码语言包 v7/616。复用 Controls 创建标签/按钮/开关，绑定文本；选项仅更新 itemText 并阻断信号，currentData/CSS/token/命名空间不改。编辑区默认 metadata、导出 editedMetadata() 及资源内容保持原始文本；只读身份为内置主题说明提供独立译文。已存成功状态记录 key，语言切换刷新它；外部/底层返回错误仍作为原文状态保留，后续需完成错误刷新。
+
+语言通知独立调用 refreshLocalizedIdentity()，不调用会重载草稿的 refresh()/refreshBackgroundEditor()。元数据编辑字段新增稳定对象名，供既有 ThemeManagementTests 调用点检查；测试源码增加隔离 language.ini、Windows 平台/系统字体配置、四语言独立标题预期及草稿/选区/enum data 保持检查，尚未编译或执行。
+
+源词表、manifest、四语言 JSON 与双表静态一致性核对 PASS：`S6-theme-ui-draft-verification.json`、`S6-theme-ui-draft.log`。这不是 Release/部署或实窗证据：实际运行目录仍是 v6，S0 与主题来源审计哈希快照对应 8564c61，当前 Theme 源码修改尚待模块收尾刷新。ThemeCore/Package/Registry/Catalog 诊断、返回错误热刷新及打开中的文件选择框刷新仍需实施；完成全部主题修改后统一编译、部署并运行一次模块实窗测试。本轮没有编译、UI 测试或弹窗，未消耗主题模块单次验证。S6 尚未完成。
