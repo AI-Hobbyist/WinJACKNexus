@@ -250,9 +250,6 @@ locate/ko-KR.json!domains.aux.window.title
 locate/zh-CN.json!domains.aux.window.title
 src/ui/src/AuxSettingsWindow.cpp:465
 src/ui/src/AuxSettingsWindow.cpp:469",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-common,audioringbuffer.text.audioringbuffer.capacity.must.be.greater.than.zero,"[""AudioRingBuffer capacity must be greater than zero""]",src/common/include/WinJACKNexus/Common/AudioRingBuffer.hpp:38,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-common,channelnames.control.all,"[""All""]",src/common/include/WinJACKNexus/Common/ChannelNames.hpp:13,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-common,standardchannelnames.control.all,"[""All""]",src/common/include/WinJACKNexus/Common/StandardChannelNames.hpp:17,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 example.nativefx,all,"[""All"", ""すべて"", ""全部"", ""전체""]","Develop/NativeFx/ExampleNativeFx.cpp:47
 Develop/NativeFx/ExampleNativeFx.cpp:71
 Develop/NativeFx/locate/en-US.json!domains.example.nativefx.all
@@ -672,7 +669,6 @@ locate/ja-JP.json!domains.host.language.failure.title
 locate/ko-KR.json!domains.host.language.failure.title
 locate/zh-CN.json!domains.host.language.failure.title
 src/app/main.cpp:973",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-host,main.text.theme.page.count,"[""theme page count: %1""]",src/app/main.cpp:1120,%1,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 host,menu.file,"[""File"", ""ファイル"", ""文件"", ""파일""]","locate/en-US.json!domains.host.menu.file
 locate/ja-JP.json!domains.host.menu.file
 locate/ko-KR.json!domains.host.menu.file
@@ -1338,8 +1334,6 @@ locate/ja-JP.json!domains.meterbridge.layout.stereo
 locate/ko-KR.json!domains.meterbridge.layout.stereo
 locate/zh-CN.json!domains.meterbridge.layout.stereo
 src/meter/mod/include/WinJACKNexus/Meter/Mod/LocalizedDisplay.hpp:46",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-meterbridge,livemeterdataprovider.status.unassigned,"[""未分配""]","src/meter/ui/src/LiveMeterDataProvider.cpp:110
-src/meter/ui/src/LiveMeterDataProvider.cpp:112",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 meterbridge,metric.integrated,"[""Integrated (I)"", ""統合（I）"", ""综合（I）"", ""통합（I）""]","locate/en-US.json!domains.meterbridge.metric.integrated
 locate/ja-JP.json!domains.meterbridge.metric.integrated
 locate/ko-KR.json!domains.meterbridge.metric.integrated
@@ -1756,7 +1750,7 @@ meterbridge,settings.channelLfe,"[""LFE flag for channel %1"", ""チャンネル
 locate/ja-JP.json!domains.meterbridge.settings.channelLfe
 locate/ko-KR.json!domains.meterbridge.settings.channelLfe
 locate/zh-CN.json!domains.meterbridge.settings.channelLfe
-src/meter/mod/src/MeterSettingsWidget.cpp:252",%1,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+src/meter/mod/src/MeterSettingsWidget.cpp:261",%1,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 meterbridge,settings.csvDirectory,"[""CSV directory"", ""CSV 保存先"", ""CSV 目录"", ""CSV 디렉터리""]","locate/en-US.json!domains.meterbridge.settings.csvDirectory
 locate/ja-JP.json!domains.meterbridge.settings.csvDirectory
 locate/ko-KR.json!domains.meterbridge.settings.csvDirectory
@@ -1813,6 +1807,11 @@ locate/ko-KR.json!domains.meterbridge.settings.threshold
 locate/zh-CN.json!domains.meterbridge.settings.threshold
 src/meter/mod/src/MeterSettingsWidget.cpp:80
 src/meter/mod/src/MeterSettingsWidget.cpp:84",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+meterbridge,settings.unassigned,"[""Unassigned"", ""未分配"", ""未割り当て"", ""할당되지 않음""]","locate/en-US.json!domains.meterbridge.settings.unassigned
+locate/ja-JP.json!domains.meterbridge.settings.unassigned
+locate/ko-KR.json!domains.meterbridge.settings.unassigned
+locate/zh-CN.json!domains.meterbridge.settings.unassigned
+src/meter/mod/src/MeterSettingsWidget.cpp:244",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 meterbridge,state.active,"[""Active"", ""信号あり"", ""活动"", ""활성""]","locate/en-US.json!domains.meterbridge.state.active
 locate/ja-JP.json!domains.meterbridge.state.active
 locate/ko-KR.json!domains.meterbridge.state.active
@@ -1921,11 +1920,6 @@ locate/ko-KR.json!domains.mixer.action.switchChannel
 locate/zh-CN.json!domains.mixer.action.switchChannel
 src/ui/src/MixerWindow.cpp:2569
 src/ui/src/MixerWindow.cpp:2570",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-mixer,auxmixerstate.layout.mono,"[""单声道""]",src/common/src/AuxMixerState.cpp:22,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-mixer,auxmixerstate.layout.stereoWithCount,"[""立体声 (2.0)""]",src/common/src/AuxMixerState.cpp:23,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-mixer,auxmixerstate.module.delayNameEnglish,"[""Delay""]",src/common/src/AuxMixerState.cpp:61,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-mixer,auxmixerstate.module.reverbNameEnglish,"[""Reverb""]",src/common/src/AuxMixerState.cpp:60,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-mixer,auxmixerstate.output.monitor,"[""Monitor""]",src/common/src/AuxMixerState.cpp:59,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 mixer,control.angle,"[""Angle"", ""角度"", ""각도""]","locate/en-US.json!domains.mixer.control.angle
 locate/ja-JP.json!domains.mixer.control.angle
 locate/ko-KR.json!domains.mixer.control.angle
@@ -1991,46 +1985,21 @@ locate/ja-JP.json!domains.mixer.dialog.colorTitle
 locate/ko-KR.json!domains.mixer.dialog.colorTitle
 locate/zh-CN.json!domains.mixer.dialog.colorTitle
 src/ui/src/MixerWindow.cpp:2556",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-mixer,digitalmixerprocessor.error.auxRoutingCycle,"[""AUX 路由存在环""]",src/common/src/DigitalMixerProcessor.cpp:283,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-mixer,digitalmixerstate.error.busRoutingCycle,"[""总线路由存在环""]",src/common/src/DigitalMixerState.cpp:569,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-mixer,digitalmixerstate.error.invalidAuxJson,"[""AUX JSON 无效""]",src/common/src/DigitalMixerState.cpp:628,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-mixer,digitalmixerstate.error.invalidAuxPanner,"[""AUX 声像参数无效""]",src/common/src/DigitalMixerState.cpp:458,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-mixer,digitalmixerstate.error.invalidAuxParametersOrIdentity,"[""AUX 参数或身份无效""]",src/common/src/DigitalMixerState.cpp:528,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-mixer,digitalmixerstate.error.invalidChannelJson,"[""CH JSON 无效""]",src/common/src/DigitalMixerState.cpp:622,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-mixer,digitalmixerstate.error.invalidChannelParametersOrIdentity,"[""CH 参数或身份无效""]",src/common/src/DigitalMixerState.cpp:525,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-mixer,digitalmixerstate.error.invalidJsonSyntax,"[""JSON 格式错误""]",src/common/src/DigitalMixerState.cpp:595,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-mixer,digitalmixerstate.error.invalidJsonVersionOrFields,"[""JSON 版本或字段无效""]",src/common/src/DigitalMixerState.cpp:606,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-mixer,digitalmixerstate.error.invalidMainJson,"[""MAIN JSON 无效""]",src/common/src/DigitalMixerState.cpp:618,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-mixer,digitalmixerstate.error.invalidMainParameters,"[""MAIN 参数无效""]",src/common/src/DigitalMixerState.cpp:523,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-mixer,digitalmixerstate.error.invalidMonitorFader,"[""监听推子参数无效""]",src/common/src/DigitalMixerState.cpp:502,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-mixer,digitalmixerstate.error.invalidMonitorFaderJson,"[""监听推子 JSON 无效""]",src/common/src/DigitalMixerState.cpp:611,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-mixer,digitalmixerstate.error.invalidMonitorLayoutJson,"[""监听布局 JSON 无效""]",src/common/src/DigitalMixerState.cpp:615,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-mixer,digitalmixerstate.error.invalidOrDuplicateAuxRoute,"[""AUX 路由无效或重复""]",src/common/src/DigitalMixerState.cpp:549,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-mixer,digitalmixerstate.error.invalidOrSelfAuxRoute,"[""无效或自发 AUX 路由""]",src/common/src/DigitalMixerState.cpp:456,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-mixer,digitalmixerstate.error.invalidPortNameFromChannelName,"[""通道名生成了无效或重复的 JACK 端口名""]",src/common/src/DigitalMixerState.cpp:537,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-mixer,digitalmixerstate.error.invalidSubMixChannelJson,"[""Sub Mix 通道 JSON 无效""]",src/common/src/DigitalMixerState.cpp:639,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-mixer,digitalmixerstate.error.invalidSubMixJson,"[""Sub Mix JSON 无效""]",src/common/src/DigitalMixerState.cpp:634,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-mixer,digitalmixerstate.error.invalidSubMixParametersOrIdentity,"[""Sub Mix 参数或身份无效""]",src/common/src/DigitalMixerState.cpp:531,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-mixer,digitalmixerstate.error.invalidSubMixRoute,"[""无效的 Sub Mix 路由""]",src/common/src/DigitalMixerState.cpp:438,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-mixer,digitalmixerstate.error.mainMustBePermanentStereoBus,"[""MAIN 必须是不可删除的立体声总线""]",src/common/src/DigitalMixerState.cpp:500,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-mixer,effectgraph.error.channelSnapshotMissing,"[""%1 缺少逐声道参数快照。请在 FX 设置中重新添加。""]",src/mixer/EffectGraph.cpp:38,%1,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-mixer,effectgraph.error.fxChainTopologyChanged,"[""FX 链拓扑已变更。""]",src/mixer/EffectGraph.cpp:166,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-mixer,effectgraph.error.invalidFxSampleRate,"[""无效的 FX 采样率。""]",src/mixer/EffectGraph.cpp:65,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-mixer,effectgraph.error.invalidSnapshotBase64,"[""%1 的参数快照 Base64 格式无效。""]",src/mixer/EffectGraph.cpp:44,%1,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-mixer,effectgraph.error.invalidSnapshotLength,"[""%1 的参数快照长度无效。""]",src/mixer/EffectGraph.cpp:48,%1,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-mixer,effectgraph.error.snapshotImportFailed,"[""%1 的参数快照导入失败。""]",src/mixer/EffectGraph.cpp:131,%1,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-mixer,effectgraph.error.snapshotVersionOrModuleMismatch,"[""%1 的参数快照版本或模块身份不匹配。""]",src/mixer/EffectGraph.cpp:59,%1,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-mixer,effectgraph.warning.nativeFxUnavailablePreserved,"[""Native Fx %1 不可用，已旁通并保留配置。\\n""]",src/mixer/EffectGraph.cpp:122,%1,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 mixer,error.auxPan,"[""AUX パンのパラメーターが無効です"", ""AUX 声像参数无效"", ""Invalid AUX pan parameters"", ""잘못된 AUX 팬 매개변수""]","locate/en-US.json!domains.mixer.error.auxPan
 locate/ja-JP.json!domains.mixer.error.auxPan
 locate/ko-KR.json!domains.mixer.error.auxPan
 locate/zh-CN.json!domains.mixer.error.auxPan
-src/ui/src/LocalizedMixerErrors.hpp:12",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+src/ui/src/LocalizedMixerErrors.hpp:16",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 mixer,error.auxParameters,"[""AUX のパラメーターまたは識別情報が無効です"", ""AUX 参数或身份无效"", ""Invalid AUX parameters or identity"", ""잘못된 AUX 매개변수 또는 식별 정보""]","locate/en-US.json!domains.mixer.error.auxParameters
 locate/ja-JP.json!domains.mixer.error.auxParameters
 locate/ko-KR.json!domains.mixer.error.auxParameters
 locate/zh-CN.json!domains.mixer.error.auxParameters
-src/ui/src/LocalizedMixerErrors.hpp:17",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+src/ui/src/LocalizedMixerErrors.hpp:21",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+mixer,error.auxRouteCycle,"[""AUX routing contains a cycle"", ""AUX ルーティングに循環があります"", ""AUX 路由存在环"", ""AUX 라우팅에 순환이 있습니다""]","locate/en-US.json!domains.mixer.error.auxRouteCycle
+locate/ja-JP.json!domains.mixer.error.auxRouteCycle
+locate/ko-KR.json!domains.mixer.error.auxRouteCycle
+locate/zh-CN.json!domains.mixer.error.auxRouteCycle
+src/ui/src/LocalizedMixerErrors.hpp:12",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 mixer,error.auxRouteTitle,"[""AUX ルーティングが無効です"", ""AUX 路由无效"", ""Invalid AUX routing"", ""잘못된 AUX 라우팅""]","locate/en-US.json!domains.mixer.error.auxRouteTitle
 locate/ja-JP.json!domains.mixer.error.auxRouteTitle
 locate/ko-KR.json!domains.mixer.error.auxRouteTitle
@@ -2040,87 +2009,98 @@ mixer,error.duplicateRoute,"[""AUX ルーティングが無効、または重複
 locate/ja-JP.json!domains.mixer.error.duplicateRoute
 locate/ko-KR.json!domains.mixer.error.duplicateRoute
 locate/zh-CN.json!domains.mixer.error.duplicateRoute
-src/ui/src/LocalizedMixerErrors.hpp:20",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+src/ui/src/LocalizedMixerErrors.hpp:24",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 mixer,error.effectTopology,"[""FX チェーンの構成が変更されました。"", ""FX 链拓扑已变更。"", ""FX 체인 토폴로지가 변경되었습니다."", ""The FX chain topology has changed.""]","locate/en-US.json!domains.mixer.error.effectTopology
 locate/ja-JP.json!domains.mixer.error.effectTopology
 locate/ko-KR.json!domains.mixer.error.effectTopology
 locate/zh-CN.json!domains.mixer.error.effectTopology
-src/ui/src/LocalizedMixerErrors.hpp:22",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+src/ui/src/LocalizedMixerErrors.hpp:26",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+mixer,error.fxSampleRate,"[""FX のサンプルレートが無効です。"", ""FX 샘플 레이트가 유효하지 않습니다."", ""Invalid FX sample rate."", ""无效的 FX 采样率。""]","locate/en-US.json!domains.mixer.error.fxSampleRate
+locate/ja-JP.json!domains.mixer.error.fxSampleRate
+locate/ko-KR.json!domains.mixer.error.fxSampleRate
+locate/zh-CN.json!domains.mixer.error.fxSampleRate
+src/ui/src/LocalizedMixerErrors.hpp:13",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 mixer,error.inputParameters,"[""CH のパラメーターまたは識別情報が無効です"", ""CH 参数或身份无效"", ""Invalid CH parameters or identity"", ""잘못된 CH 매개변수 또는 식별 정보""]","locate/en-US.json!domains.mixer.error.inputParameters
 locate/ja-JP.json!domains.mixer.error.inputParameters
 locate/ko-KR.json!domains.mixer.error.inputParameters
 locate/zh-CN.json!domains.mixer.error.inputParameters
-src/ui/src/LocalizedMixerErrors.hpp:16",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+src/ui/src/LocalizedMixerErrors.hpp:20",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 mixer,error.mainBus,"[""MAIN must be a permanent stereo bus"", ""MAIN は削除不可のステレオバスである必要があります"", ""MAIN 必须是不可删除的立体声总线"", ""MAIN은 삭제할 수 없는 스테레오 버스여야 합니다""]","locate/en-US.json!domains.mixer.error.mainBus
 locate/ja-JP.json!domains.mixer.error.mainBus
 locate/ko-KR.json!domains.mixer.error.mainBus
 locate/zh-CN.json!domains.mixer.error.mainBus
-src/ui/src/LocalizedMixerErrors.hpp:13",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+src/ui/src/LocalizedMixerErrors.hpp:17",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 mixer,error.mainParameters,"[""Invalid MAIN parameters"", ""MAIN のパラメーターが無効です"", ""MAIN 参数无效"", ""잘못된 MAIN 매개변수""]","locate/en-US.json!domains.mixer.error.mainParameters
 locate/ja-JP.json!domains.mixer.error.mainParameters
 locate/ko-KR.json!domains.mixer.error.mainParameters
 locate/zh-CN.json!domains.mixer.error.mainParameters
-src/ui/src/LocalizedMixerErrors.hpp:15",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+src/ui/src/LocalizedMixerErrors.hpp:19",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+mixer,error.mapPorts,"[""JACK ポートをマッピングできません。"", ""JACK 端口映射失败。"", ""JACK 포트를 매핑할 수 없습니다."", ""Unable to map JACK ports.""]","locate/en-US.json!domains.mixer.error.mapPorts
+locate/ja-JP.json!domains.mixer.error.mapPorts
+locate/ko-KR.json!domains.mixer.error.mapPorts
+locate/zh-CN.json!domains.mixer.error.mapPorts
+src/ui/src/LocalizedMixerErrors.hpp:11",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 mixer,error.missingSnapshot,"[""%1 has no per-channel parameter snapshot. Add it again in FX settings."", ""%1 にチャンネル別パラメーターのスナップショットがありません。FX 設定で追加し直してください。"", ""%1 缺少逐声道参数快照。请在 FX 设置中重新添加。"", ""%1의 채널별 매개변수 스냅샷이 없습니다. FX 설정에서 다시 추가하세요.""]","locate/en-US.json!domains.mixer.error.missingSnapshot
 locate/ja-JP.json!domains.mixer.error.missingSnapshot
 locate/ko-KR.json!domains.mixer.error.missingSnapshot
 locate/zh-CN.json!domains.mixer.error.missingSnapshot
-src/ui/src/LocalizedMixerErrors.hpp:24",%1,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+src/ui/src/LocalizedMixerErrors.hpp:28",%1,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 mixer,error.monitorParameters,"[""Invalid monitor fader parameters"", ""モニターフェーダーのパラメーターが無効です"", ""监听推子参数无效"", ""잘못된 모니터 페이더 매개변수""]","locate/en-US.json!domains.mixer.error.monitorParameters
 locate/ja-JP.json!domains.mixer.error.monitorParameters
 locate/ko-KR.json!domains.mixer.error.monitorParameters
 locate/zh-CN.json!domains.mixer.error.monitorParameters
-src/ui/src/LocalizedMixerErrors.hpp:14",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+src/ui/src/LocalizedMixerErrors.hpp:18",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 mixer,error.portName,"[""The channel name produces an invalid or duplicate JACK port name"", ""チャンネル名から無効または重複した JACK ポート名が生成されます"", ""通道名生成了无效或重复的 JACK 端口名"", ""채널 이름으로 잘못되거나 중복된 JACK 포트 이름이 생성됩니다""]","locate/en-US.json!domains.mixer.error.portName
 locate/ja-JP.json!domains.mixer.error.portName
 locate/ko-KR.json!domains.mixer.error.portName
 locate/zh-CN.json!domains.mixer.error.portName
-src/ui/src/LocalizedMixerErrors.hpp:19",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+src/ui/src/LocalizedMixerErrors.hpp:23",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 mixer,error.registerPorts,"[""Unable to register mixer ports. The previous state has been retained."", ""ミキサーのポートを登録できません。元の状態を保持しました。"", ""无法注册调音台端口，原有状态已保留。"", ""믹서 포트를 등록할 수 없습니다. 이전 상태가 유지되었습니다.""]","locate/en-US.json!domains.mixer.error.registerPorts
 locate/ja-JP.json!domains.mixer.error.registerPorts
 locate/ko-KR.json!domains.mixer.error.registerPorts
 locate/zh-CN.json!domains.mixer.error.registerPorts
+src/ui/src/LocalizedMixerErrors.hpp:10
 src/ui/src/MixerWindow.cpp:1536",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 mixer,error.routeCycle,"[""Bus routing contains a cycle"", ""バスのルーティングに循環があります"", ""总线路由存在环"", ""버스 라우팅에 순환이 있습니다""]","locate/en-US.json!domains.mixer.error.routeCycle
 locate/ja-JP.json!domains.mixer.error.routeCycle
 locate/ko-KR.json!domains.mixer.error.routeCycle
 locate/zh-CN.json!domains.mixer.error.routeCycle
-src/ui/src/LocalizedMixerErrors.hpp:21",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+src/ui/src/LocalizedMixerErrors.hpp:25",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 mixer,error.selfAuxRoute,"[""AUX ルーティングが無効、または自身を参照しています"", ""Invalid or self-referencing AUX routing"", ""无效或自发 AUX 路由"", ""잘못된 또는 자체 참조 AUX 라우팅""]","locate/en-US.json!domains.mixer.error.selfAuxRoute
 locate/ja-JP.json!domains.mixer.error.selfAuxRoute
 locate/ko-KR.json!domains.mixer.error.selfAuxRoute
 locate/zh-CN.json!domains.mixer.error.selfAuxRoute
-src/ui/src/LocalizedMixerErrors.hpp:11",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+src/ui/src/LocalizedMixerErrors.hpp:15",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 mixer,error.snapshotBase64,"[""%1 のパラメータースナップショットの Base64 形式が無効です。"", ""%1 的参数快照 Base64 格式无效。"", ""%1 매개변수 스냅샷의 Base64 형식이 잘못되었습니다."", ""Invalid Base64 parameter snapshot for %1.""]","locate/en-US.json!domains.mixer.error.snapshotBase64
 locate/ja-JP.json!domains.mixer.error.snapshotBase64
 locate/ko-KR.json!domains.mixer.error.snapshotBase64
 locate/zh-CN.json!domains.mixer.error.snapshotBase64
-src/ui/src/LocalizedMixerErrors.hpp:26",%1,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+src/ui/src/LocalizedMixerErrors.hpp:30",%1,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 mixer,error.snapshotIdentity,"[""%1 のパラメータースナップショットのバージョンまたはモジュール識別情報が一致しません。"", ""%1 的参数快照版本或模块身份不匹配。"", ""%1 매개변수 스냅샷의 버전 또는 모듈 식별 정보가 일치하지 않습니다."", ""Parameter snapshot version or module identity mismatch for %1.""]","locate/en-US.json!domains.mixer.error.snapshotIdentity
 locate/ja-JP.json!domains.mixer.error.snapshotIdentity
 locate/ko-KR.json!domains.mixer.error.snapshotIdentity
 locate/zh-CN.json!domains.mixer.error.snapshotIdentity
-src/ui/src/LocalizedMixerErrors.hpp:30",%1,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+src/ui/src/LocalizedMixerErrors.hpp:34",%1,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 mixer,error.snapshotImport,"[""%1 のパラメータースナップショットの読み込みに失敗しました。"", ""%1 的参数快照导入失败。"", ""%1 매개변수 스냅샷 가져오기 실패."", ""Parameter snapshot import failed for %1.""]","locate/en-US.json!domains.mixer.error.snapshotImport
 locate/ja-JP.json!domains.mixer.error.snapshotImport
 locate/ko-KR.json!domains.mixer.error.snapshotImport
 locate/zh-CN.json!domains.mixer.error.snapshotImport
-src/ui/src/LocalizedMixerErrors.hpp:32",%1,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+src/ui/src/LocalizedMixerErrors.hpp:36",%1,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 mixer,error.snapshotSize,"[""%1 のパラメータースナップショットのサイズが無効です。"", ""%1 的参数快照长度无效。"", ""%1 매개변수 스냅샷 크기가 잘못되었습니다."", ""Invalid parameter snapshot size for %1.""]","locate/en-US.json!domains.mixer.error.snapshotSize
 locate/ja-JP.json!domains.mixer.error.snapshotSize
 locate/ko-KR.json!domains.mixer.error.snapshotSize
 locate/zh-CN.json!domains.mixer.error.snapshotSize
-src/ui/src/LocalizedMixerErrors.hpp:28",%1,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+src/ui/src/LocalizedMixerErrors.hpp:32",%1,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 mixer,error.subParameters,"[""Invalid Sub Mix parameters or identity"", ""Sub Mix のパラメーターまたは識別情報が無効です"", ""Sub Mix 参数或身份无效"", ""잘못된 Sub Mix 매개변수 또는 식별 정보""]","locate/en-US.json!domains.mixer.error.subParameters
 locate/ja-JP.json!domains.mixer.error.subParameters
 locate/ko-KR.json!domains.mixer.error.subParameters
 locate/zh-CN.json!domains.mixer.error.subParameters
-src/ui/src/LocalizedMixerErrors.hpp:18",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+src/ui/src/LocalizedMixerErrors.hpp:22",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 mixer,error.subRoute,"[""Invalid Sub Mix routing"", ""Sub Mix ルーティングが無効です"", ""无效的 Sub Mix 路由"", ""잘못된 Sub Mix 라우팅""]","locate/en-US.json!domains.mixer.error.subRoute
 locate/ja-JP.json!domains.mixer.error.subRoute
 locate/ko-KR.json!domains.mixer.error.subRoute
 locate/zh-CN.json!domains.mixer.error.subRoute
-src/ui/src/LocalizedMixerErrors.hpp:10",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+src/ui/src/LocalizedMixerErrors.hpp:14",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 mixer,error.topologyTitle,"[""Topology update failed"", ""トポロジーの更新に失敗しました"", ""拓扑更新失败"", ""토폴로지 업데이트 실패""]","locate/en-US.json!domains.mixer.error.topologyTitle
 locate/ja-JP.json!domains.mixer.error.topologyTitle
 locate/ko-KR.json!domains.mixer.error.topologyTitle
@@ -2146,6 +2126,7 @@ mixer,label.input,"[""Input"", ""入力"", ""输入"", ""입력""]","locate/en-U
 locate/ja-JP.json!domains.mixer.label.input
 locate/ko-KR.json!domains.mixer.label.input
 locate/zh-CN.json!domains.mixer.label.input
+src/ui/src/MixerPolarPlot.cpp:229
 src/ui/src/MixerWindow.cpp:644
 src/ui/src/MixerWindow.cpp:690",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 mixer,label.monitor,"[""Monitor"", ""モニター"", ""监听"", ""모니터""]","locate/en-US.json!domains.mixer.label.monitor
@@ -2162,6 +2143,7 @@ mixer,label.output,"[""Output"", ""出力"", ""输出"", ""출력""]","locate/en
 locate/ja-JP.json!domains.mixer.label.output
 locate/ko-KR.json!domains.mixer.label.output
 locate/zh-CN.json!domains.mixer.label.output
+src/ui/src/MixerPolarPlot.cpp:238
 src/ui/src/MixerWindow.cpp:644
 src/ui/src/MixerWindow.cpp:691",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 mixer,label.readOnlyPan,"[""Spatial pan · Read only"", ""空間パン · 読み取り専用"", ""空间声像 · 只读"", ""공간 팬 · 읽기 전용""]","locate/en-US.json!domains.mixer.label.readOnlyPan
@@ -2183,13 +2165,6 @@ locate/zh-CN.json!domains.mixer.layout.stereo
 src/ui/src/MixerWindow.cpp:255
 src/ui/src/MixerWindow.cpp:75
 src/ui/src/MixerWindow.cpp:80",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-mixer,library.error.jackPortMappingFailed,"[""JACK 端口映射失败。""]",src/mixer/Library.cpp:228,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-mixer,library.error.jackPortRegistrationFailed,"[""JACK 端口注册失败，旧拓扑已保留。""]",src/mixer/Library.cpp:223,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-mixer,library.text.digital.mixer,"[""Digital Mixer""]","src/mixer/Library.cpp:34
-src/mixer/Library.cpp:583
-src/mixer/Library.cpp:584",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-mixer,library.text.single.instance.digital.mixer.node,"[""Single-instance Digital Mixer node.""]",src/mixer/Library.cpp:35,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-mixer,library.warning.fxModuleBypassed,"[""FX 模块已旁通""]",src/mixer/Library.cpp:260,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 mixer,menu.channelType,"[""Channel type"", ""チャンネル種別"", ""通道类型"", ""채널 유형""]","locate/en-US.json!domains.mixer.menu.channelType
 locate/ja-JP.json!domains.mixer.menu.channelType
 locate/ko-KR.json!domains.mixer.menu.channelType
@@ -2210,8 +2185,6 @@ locate/ja-JP.json!domains.mixer.menu.largeViews
 locate/ko-KR.json!domains.mixer.menu.largeViews
 locate/zh-CN.json!domains.mixer.menu.largeViews
 src/ui/src/MixerWindow.cpp:3320",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-mixer,mixerpolarplot.label.input,"[""输入""]",src/ui/src/MixerPolarPlot.cpp:228,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-mixer,mixerpolarplot.label.output,"[""输出""]",src/ui/src/MixerPolarPlot.cpp:237,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 mixer,mode.classic,"[""Classic Pan"", ""クラシック Pan"", ""经典 Pan"", ""클래식 Pan""]","locate/en-US.json!domains.mixer.mode.classic
 locate/ja-JP.json!domains.mixer.mode.classic
 locate/ko-KR.json!domains.mixer.mode.classic
@@ -2308,6 +2281,16 @@ locate/ko-KR.json!domains.mixer.view.overview
 locate/zh-CN.json!domains.mixer.view.overview
 src/ui/src/MixerWindow.cpp:2460
 src/ui/src/MixerWindow.cpp:3323",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+mixer,warning.effectsBypassed,"[""FX modules bypassed"", ""FX モジュールをバイパスしました"", ""FX 模块已旁通"", ""FX 모듈이 바이패스되었습니다""]","locate/en-US.json!domains.mixer.warning.effectsBypassed
+locate/ja-JP.json!domains.mixer.warning.effectsBypassed
+locate/ko-KR.json!domains.mixer.warning.effectsBypassed
+locate/zh-CN.json!domains.mixer.warning.effectsBypassed
+src/mixer/Library.cpp:263",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+mixer,warning.unavailableEffect,"[""Native Fx {module} is unavailable; bypassed with its configuration retained."", ""Native Fx {module} は利用できません。設定を保持してバイパスしました。"", ""Native Fx {module} 不可用，已旁通并保留配置。"", ""Native Fx {module}을 사용할 수 없습니다. 설정을 보존한 채 바이패스했습니다.""]","locate/en-US.json!domains.mixer.warning.unavailableEffect
+locate/ja-JP.json!domains.mixer.warning.unavailableEffect
+locate/ko-KR.json!domains.mixer.warning.unavailableEffect
+locate/zh-CN.json!domains.mixer.warning.unavailableEffect
+src/mixer/Library.cpp:267",{module},原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 mixer,window.title,"[""WinJACKNexus - Mixer"", ""WinJACKNexus - ミキサー"", ""WinJACKNexus - 调音台"", ""WinJACKNexus - 믹서""]","locate/en-US.json!domains.mixer.window.title
 locate/ja-JP.json!domains.mixer.window.title
 locate/ko-KR.json!domains.mixer.window.title
@@ -3817,7 +3800,6 @@ src/native_fx/effects/reverb/locate/en-US.json!domains.nativefx.reverb.window.ti
 src/native_fx/effects/reverb/locate/ja-JP.json!domains.nativefx.reverb.window.title
 src/native_fx/effects/reverb/locate/ko-KR.json!domains.nativefx.reverb.window.title
 src/native_fx/effects/reverb/locate/zh-CN.json!domains.nativefx.reverb.window.title",%1,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-node,nodeapi.category.interface,"[""Interface""]",src/node/src/NodeApi.cpp:35,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 patchbay,about.text,"[""WinJACKNexus\nJACK audio routing and mixing workstation\nAGPL-3.0-or-later"", ""WinJACKNexus\nJACK オーディオルーティング・ミキシングワークステーション\nAGPL-3.0-or-later"", ""WinJACKNexus\nJACK 音频路由与调音工作台\nAGPL-3.0-or-later"", ""WinJACKNexus\nJACK 오디오 라우팅 및 믹싱 워크스테이션\nAGPL-3.0-or-later"", ""WinJACKNexus\\nJACK audio routing and mixing workstation\\nAGPL-3.0-or-later""]","locate/en-US.json!domains.patchbay.about.text
 locate/ja-JP.json!domains.patchbay.about.text
 locate/ko-KR.json!domains.patchbay.about.text
@@ -4214,11 +4196,6 @@ locate/ja-JP.json!domains.patchbay.interface.name
 locate/ko-KR.json!domains.patchbay.interface.name
 locate/zh-CN.json!domains.patchbay.interface.name
 src/patchbay/mod/src/PatchbayCanvas.cpp:2487",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-patchbay,internalloader.control.bypass,"[""Bypass""]",src/patchbay/plugins/src/InternalLoader.cpp:97,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-patchbay,internalloader.control.gain,"[""Gain""]","src/patchbay/plugins/src/InternalLoader.cpp:32
-src/patchbay/plugins/src/InternalLoader.cpp:96",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-patchbay,internalloader.meter.peakEnglish,"[""Peak""]",src/patchbay/plugins/src/InternalLoader.cpp:70,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-patchbay,internalloader.text.peak.meter,"[""Peak Meter""]",src/patchbay/plugins/src/InternalLoader.cpp:98,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 patchbay,library.filter,"[""Filter nodes"", ""ノードを絞り込む"", ""筛选节点"", ""노드 필터""]","locate/en-US.json!domains.patchbay.library.filter
 locate/ja-JP.json!domains.patchbay.library.filter
 locate/ko-KR.json!domains.patchbay.library.filter
@@ -5586,8 +5563,6 @@ locate/ja-JP.json!domains.ui.dock.expand
 locate/ko-KR.json!domains.ui.dock.expand
 locate/zh-CN.json!domains.ui.dock.expand
 src/ui/src/Controls.cpp:1371",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-ui,i18nmanager.fallback.unknown,"[""Unknown""]","src/ui/src/I18nManager.cpp:621
-src/ui/src/I18nManager.cpp:626",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 ui,statistics.extrema,"[""Min: %1    Max: %2"", ""最小：%1    最大：%2"", ""최솟값: %1    최댓값: %2""]","locate/en-US.json!domains.ui.statistics.extrema
 locate/ja-JP.json!domains.ui.statistics.extrema
 locate/ko-KR.json!domains.ui.statistics.extrema
@@ -6280,8 +6255,8 @@ tools/vst_scanner/locate/zh-CN.json!domains.vstscanner.written
 tools/vst_scanner/src/MainWindow.cpp:547",%1,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 meterbridge,library.descriptor.displayName,"[""Meterbridge""]",src/meter/mod/Library.cpp:88,,元数据/语言包显示，布局度量并保留完整 tooltip,语言包项见根目录 i18n翻译核对.md；其它未实施（S0 清单）,描述符/内置主题/语言包的显示角色；身份字段不变
 meterbridge,library.descriptor.tokens.wjn-theme-module-winjacknexus-meterbridge-node-card-background.description,"[""Host-drawn card background for the Meterbridge node type""]",src/meter/mod/Library.cpp:88,,元数据/语言包显示，布局度量并保留完整 tooltip,语言包项见根目录 i18n翻译核对.md；其它未实施（S0 清单）,描述符/内置主题/语言包的显示角色；身份字段不变
-mixer,library.descriptor.displayName,"[""Digital Mixer""]",src/mixer/Library.cpp:568,,元数据/语言包显示，布局度量并保留完整 tooltip,语言包项见根目录 i18n翻译核对.md；其它未实施（S0 清单）,描述符/内置主题/语言包的显示角色；身份字段不变
-mixer,library.descriptor.tokens.wjn-theme-module-winjacknexus-digital-mixer-node-card-background.description,"[""Host-drawn card background for the Digital Mixer node type""]",src/mixer/Library.cpp:568,,元数据/语言包显示，布局度量并保留完整 tooltip,语言包项见根目录 i18n翻译核对.md；其它未实施（S0 清单）,描述符/内置主题/语言包的显示角色；身份字段不变
+mixer,library.descriptor.displayName,"[""Digital Mixer""]",src/mixer/Library.cpp:580,,元数据/语言包显示，布局度量并保留完整 tooltip,语言包项见根目录 i18n翻译核对.md；其它未实施（S0 清单）,描述符/内置主题/语言包的显示角色；身份字段不变
+mixer,library.descriptor.tokens.wjn-theme-module-winjacknexus-digital-mixer-node-card-background.description,"[""Host-drawn card background for the Digital Mixer node type""]",src/mixer/Library.cpp:580,,元数据/语言包显示，布局度量并保留完整 tooltip,语言包项见根目录 i18n翻译核对.md；其它未实施（S0 清单）,描述符/内置主题/语言包的显示角色；身份字段不变
 patchbay,library.descriptor.displayName,"[""Patchbay""]",src/patchbay/mod/src/Library.cpp:2998,,元数据/语言包显示，布局度量并保留完整 tooltip,语言包项见根目录 i18n翻译核对.md；其它未实施（S0 清单）,描述符/内置主题/语言包的显示角色；身份字段不变
 patchbay,library.descriptor.tokens.wjn-theme-module-winjacknexus-patchbay-node-card-background.description,"[""Host-drawn card background for the Patchbay node type""]",src/patchbay/mod/src/Library.cpp:2998,,元数据/语言包显示，布局度量并保留完整 tooltip,语言包项见根目录 i18n翻译核对.md；其它未实施（S0 清单）,描述符/内置主题/语言包的显示角色；身份字段不变
 vst,library.descriptor.displayName,"[""VST Host""]",src/vst/src/Library.cpp:923,,元数据/语言包显示，布局度量并保留完整 tooltip,语言包项见根目录 i18n翻译核对.md；其它未实施（S0 清单）,描述符/内置主题/语言包的显示角色；身份字段不变

@@ -13,7 +13,7 @@
     "theme"
   ],
   "defaultLanguage": "en-US",
-  "catalogVersion": 10,
+  "catalogVersion": 11,
   "languages": {
     "en-US": "en-US.json",
     "zh-CN": "zh-CN.json",
@@ -443,7 +443,8 @@
       "probe.role.topFrontRight",
       "probe.role.topRearLeft",
       "probe.role.topRearRight",
-      "probe.role.lfe"
+      "probe.role.lfe",
+      "settings.unassigned"
     ],
     "mixer": [
       "status.noChannels",
@@ -522,7 +523,12 @@
       "error.snapshotSize",
       "error.snapshotIdentity",
       "error.snapshotImport",
-      "section.subMix"
+      "section.subMix",
+      "error.mapPorts",
+      "error.auxRouteCycle",
+      "error.fxSampleRate",
+      "warning.effectsBypassed",
+      "warning.unavailableEffect"
     ],
     "fxhost": [
       "window.title",

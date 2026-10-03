@@ -364,11 +364,6 @@ s0.7f9a39fd9424,host,startup.themeFailure.message,Unable to load the required de
 1062:             hostText(""startup.themeFailure.message"",""Unable to load the required default theme DLL. The application cannot start.\n{detail}"",
 1063:                 {{QStringLiteral(""detail""),themeCore->initializationError()}}));
 1064:         return 1;",{detail},原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S2 实际运行时 key；四语言草稿已提供，待母语/领域审校,S2 已接入 host 域的 English 字面兜底，实际四语言包及审校见核对表
-s0.2679d6e1ab90,host,main.text.theme.page.count,theme page count: %1,src/app/main.cpp,1120,"mismatches.append(QStringLiteral(""theme page count: %1"")",display-source,"1118:             QStringLiteral(""theme-background""), QStringLiteral(""theme-export"")};
-1119:         if (tabs == nullptr || tabs->count() != pages.size()) {
-1120:             mismatches.append(QStringLiteral(""theme page count: %1"")
-1121:                 .arg(tabs == nullptr ? 0 : tabs->count()));
-1122:             matched = false;",%1,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S0 key 提案；四语言译文和母语审校尚未实施,项目拥有的自然语言显示/错误模板；保留其中技术参数与标识
 s0.eef7384356f7,host,jack.autoStartFailed,Unable to start or connect to jackd using the JACK server settings.,src/app/main.cpp,1137,"hostText(""jack.autoStartFailed"",""Unable to start or connect to jackd using the JACK server settings.""));",display-source,"1135:         WJN_LOG_WARN(""Configured JACK server startup failed"");
 1136:         QMessageBox::warning(nullptr, application.applicationName(),
 1137:                              hostText(""jack.autoStartFailed"",""Unable to start or connect to jackd using the JACK server settings.""));
@@ -469,156 +464,6 @@ s0.8b46bdc19b38,host,error.patchbayWindow,Unable to create the patchbay window.,
 1218:                               hostText(""error.patchbayWindow"",""Unable to create the patchbay window.""));
 1219:         CloseHandle(instanceMutex);
 1220:         return 1;",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S2 实际运行时 key；四语言草稿已提供，待母语/领域审校,S2 已接入 host 域的 English 字面兜底，实际四语言包及审校见核对表
-s0.ad0d0a3f0afd,common,audioringbuffer.text.audioringbuffer.capacity.must.be.greater.than.zero,AudioRingBuffer capacity must be greater than zero,src/common/include/WinJACKNexus/Common/AudioRingBuffer.hpp,38,"throw std::invalid_argument(""AudioRingBuffer capacity must be greater than zero"");",display-source,"36:     {
-37:         if (capacity == 0)
-38:             throw std::invalid_argument(""AudioRingBuffer capacity must be greater than zero"");
-39:     }
-40: ",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S0 key 提案；四语言译文和母语审校尚未实施,项目拥有的自然语言显示/错误模板；保留其中技术参数与标识
-s0.6e0f5cddd357,common,channelnames.control.all,All,src/common/include/WinJACKNexus/Common/ChannelNames.hpp,13,"auto result=standardChannelLabels(8);result.prepend(QStringLiteral(""All""));return result;",display-source,"11: }
-12: inline QStringList standardChannelChoices() {
-13:  auto result=standardChannelLabels(8);result.prepend(QStringLiteral(""All""));return result;
-14: }
-15: inline const char* standardRoleName(MeterChannelRole role) noexcept {",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S0 key 提案；四语言译文和母语审校尚未实施,按源码使用场景指定语义 key；技术标识/单位/占位参数保持原样
-s0.eaae4e5d7043,common,standardchannelnames.control.all,All,src/common/include/WinJACKNexus/Common/StandardChannelNames.hpp,17,"""All"",surroundChannelNames[0],surroundChannelNames[1],surroundChannelNames[2],surroundChannelNames[3],",display-source,"15: };
-16: inline constexpr std::array<const char*,9> surroundChannelChoices {
-17:  ""All"",surroundChannelNames[0],surroundChannelNames[1],surroundChannelNames[2],surroundChannelNames[3],
-18:  surroundChannelNames[4],surroundChannelNames[5],surroundChannelNames[6],surroundChannelNames[7]
-19: };",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S0 key 提案；四语言译文和母语审校尚未实施,按源码使用场景指定语义 key；技术标识/单位/占位参数保持原样
-s0.41d1ddf9a0a3,mixer,auxmixerstate.layout.mono,单声道,src/common/src/AuxMixerState.cpp,22,"case AuxChannelLayout::mono: return QStringLiteral(""单声道"");",display-source,"20: {
-21:     switch (layout) {
-22:     case AuxChannelLayout::mono: return QStringLiteral(""单声道"");
-23:     case AuxChannelLayout::stereo: return QStringLiteral(""立体声 (2.0)"");
-24:     case AuxChannelLayout::surround51: return QStringLiteral(""5.1"");",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S0 key 提案；四语言译文和母语审校尚未实施,按源码使用场景指定语义 key；技术标识/单位/占位参数保持原样
-s0.8482a3825aaa,mixer,auxmixerstate.layout.stereoWithCount,立体声 (2.0),src/common/src/AuxMixerState.cpp,23,"case AuxChannelLayout::stereo: return QStringLiteral(""立体声 (2.0)"");",display-source,"21:     switch (layout) {
-22:     case AuxChannelLayout::mono: return QStringLiteral(""单声道"");
-23:     case AuxChannelLayout::stereo: return QStringLiteral(""立体声 (2.0)"");
-24:     case AuxChannelLayout::surround51: return QStringLiteral(""5.1"");
-25:     case AuxChannelLayout::surround71: return QStringLiteral(""7.1"");",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S0 key 提案；四语言译文和母语审校尚未实施,按源码使用场景指定语义 key；技术标识/单位/占位参数保持原样
-s0.28f50093e3ec,mixer,auxmixerstate.output.monitor,Monitor,src/common/src/AuxMixerState.cpp,59,"std::tuple { QStringLiteral(""Monitor""), AuxChannelLayout::stereo, AuxChannelLayout::stereo },",display-source,"57: {
-58:     const auto definitions = std::array {
-59:         std::tuple { QStringLiteral(""Monitor""), AuxChannelLayout::stereo, AuxChannelLayout::stereo },
-60:         std::tuple { QStringLiteral(""Reverb""), AuxChannelLayout::stereo, AuxChannelLayout::stereo },
-61:         std::tuple { QStringLiteral(""Delay""), AuxChannelLayout::stereo, AuxChannelLayout::stereo }",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S0 key 提案；四语言译文和母语审校尚未实施,按源码使用场景指定语义 key；技术标识/单位/占位参数保持原样
-s0.bf84a3b0708e,mixer,auxmixerstate.module.reverbNameEnglish,Reverb,src/common/src/AuxMixerState.cpp,60,"std::tuple { QStringLiteral(""Reverb""), AuxChannelLayout::stereo, AuxChannelLayout::stereo },",display-source,"58:     const auto definitions = std::array {
-59:         std::tuple { QStringLiteral(""Monitor""), AuxChannelLayout::stereo, AuxChannelLayout::stereo },
-60:         std::tuple { QStringLiteral(""Reverb""), AuxChannelLayout::stereo, AuxChannelLayout::stereo },
-61:         std::tuple { QStringLiteral(""Delay""), AuxChannelLayout::stereo, AuxChannelLayout::stereo }
-62:     };",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S0 key 提案；四语言译文和母语审校尚未实施,按源码使用场景指定语义 key；技术标识/单位/占位参数保持原样
-s0.ebb048e6c438,mixer,auxmixerstate.module.delayNameEnglish,Delay,src/common/src/AuxMixerState.cpp,61,"std::tuple { QStringLiteral(""Delay""), AuxChannelLayout::stereo, AuxChannelLayout::stereo }",display-source,"59:         std::tuple { QStringLiteral(""Monitor""), AuxChannelLayout::stereo, AuxChannelLayout::stereo },
-60:         std::tuple { QStringLiteral(""Reverb""), AuxChannelLayout::stereo, AuxChannelLayout::stereo },
-61:         std::tuple { QStringLiteral(""Delay""), AuxChannelLayout::stereo, AuxChannelLayout::stereo }
-62:     };
-63:     for (const auto& [name, source, target] : definitions)",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S0 key 提案；四语言译文和母语审校尚未实施,按源码使用场景指定语义 key；技术标识/单位/占位参数保持原样
-s0.deb56ad56f53,mixer,digitalmixerprocessor.error.auxRoutingCycle,AUX 路由存在环,src/common/src/DigitalMixerProcessor.cpp,283,"if (error) *error = QStringLiteral(""AUX 路由存在环"");",display-source,"281:         const auto next = std::find(indegree.cbegin(), indegree.cend(), 0);
-282:         if (next == indegree.cend()) {
-283:             if (error) *error = QStringLiteral(""AUX 路由存在环"");
-284:             return false;
-285:         }",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S0 key 提案；四语言译文和母语审校尚未实施,按源码使用场景指定语义 key；技术标识/单位/占位参数保持原样
-s0.e60859572607,mixer,digitalmixerstate.error.invalidSubMixRoute,无效的 Sub Mix 路由,src/common/src/DigitalMixerState.cpp,438,"return fail(error, QStringLiteral(""无效的 Sub Mix 路由""));",display-source,"436:     if (!source || source->kind == MixerStripKind::main
-437:         || (targetId && (!target || target->kind != MixerStripKind::subMix || sourceId == targetId)))
-438:         return fail(error, QStringLiteral(""无效的 Sub Mix 路由""));
-439:     if (targetId) return setSend(sourceId, {targetId, true, false,
-440:         defaultMixerPanner(source->layout, target->layout)}, error);",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S0 key 提案；四语言译文和母语审校尚未实施,按源码使用场景指定语义 key；技术标识/单位/占位参数保持原样
-s0.7c4f7948c2c5,mixer,digitalmixerstate.error.invalidOrSelfAuxRoute,无效或自发 AUX 路由,src/common/src/DigitalMixerState.cpp,456,"return fail(error, QStringLiteral(""无效或自发 AUX 路由""));",display-source,"454:         || (source->kind == MixerStripKind::subMix && destination->kind == MixerStripKind::aux)
-455:         || (destination->kind == MixerStripKind::subMix && send.preFader) || sourceId == send.targetId)
-456:         return fail(error, QStringLiteral(""无效或自发 AUX 路由""));
-457:     if (!validPanner(send.panner, source->layout, destination->layout))
-458:         return fail(error, QStringLiteral(""AUX 声像参数无效""));",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S0 key 提案；四语言译文和母语审校尚未实施,按源码使用场景指定语义 key；技术标识/单位/占位参数保持原样
-s0.11d2691f1ddb,mixer,digitalmixerstate.error.invalidAuxPanner,AUX 声像参数无效,src/common/src/DigitalMixerState.cpp,458,"return fail(error, QStringLiteral(""AUX 声像参数无效""));",display-source,"456:         return fail(error, QStringLiteral(""无效或自发 AUX 路由""));
-457:     if (!validPanner(send.panner, source->layout, destination->layout))
-458:         return fail(error, QStringLiteral(""AUX 声像参数无效""));
-459:     auto copy = *this;
-460:     auto* copySource = copy.strip(sourceId);",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S0 key 提案；四语言译文和母语审校尚未实施,按源码使用场景指定语义 key；技术标识/单位/占位参数保持原样
-s0.3ac5d9b29f48,mixer,digitalmixerstate.error.mainMustBePermanentStereoBus,MAIN 必须是不可删除的立体声总线,src/common/src/DigitalMixerState.cpp,500,"return fail(error, QStringLiteral(""MAIN 必须是不可删除的立体声总线""));",display-source,"498:         || main_.layout != MixerLayout::stereo || main_.solo
-499:         || main_.listenMode != MixerListenMode::off || !main_.sends.empty())
-500:         return fail(error, QStringLiteral(""MAIN 必须是不可删除的立体声总线""));
-501:     if (!inRange(monitorFaderPosition_, 0, 1) || !isMixerLayout(monitorLayout_))
-502:         return fail(error, QStringLiteral(""监听推子参数无效""));",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S0 key 提案；四语言译文和母语审校尚未实施,按源码使用场景指定语义 key；技术标识/单位/占位参数保持原样
-s0.c6d36e124442,mixer,digitalmixerstate.error.invalidMonitorFader,监听推子参数无效,src/common/src/DigitalMixerState.cpp,502,"return fail(error, QStringLiteral(""监听推子参数无效""));",display-source,"500:         return fail(error, QStringLiteral(""MAIN 必须是不可删除的立体声总线""));
-501:     if (!inRange(monitorFaderPosition_, 0, 1) || !isMixerLayout(monitorLayout_))
-502:         return fail(error, QStringLiteral(""监听推子参数无效""));
-503:     std::set<std::uint64_t> ids;
-504:     std::set<std::uint32_t> inputNumbers, auxNumbers, subMixNumbers;",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S0 key 提案；四语言译文和母语审校尚未实施,按源码使用场景指定语义 key；技术标识/单位/占位参数保持原样
-s0.f944e4112f94,mixer,digitalmixerstate.error.invalidMainParameters,MAIN 参数无效,src/common/src/DigitalMixerState.cpp,523,"if (!checkStrip(main_, MixerStripKind::main)) return fail(error, QStringLiteral(""MAIN 参数无效""));",display-source,"521:         return true;
-522:     };
-523:     if (!checkStrip(main_, MixerStripKind::main)) return fail(error, QStringLiteral(""MAIN 参数无效""));
-524:     for (const auto& item : inputs_) {
-525:         if (!checkStrip(item, MixerStripKind::input)) return fail(error, QStringLiteral(""CH 参数或身份无效""));",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S0 key 提案；四语言译文和母语审校尚未实施,按源码使用场景指定语义 key；技术标识/单位/占位参数保持原样
-s0.0b3afd3db9c3,mixer,digitalmixerstate.error.invalidChannelParametersOrIdentity,CH 参数或身份无效,src/common/src/DigitalMixerState.cpp,525,"if (!checkStrip(item, MixerStripKind::input)) return fail(error, QStringLiteral(""CH 参数或身份无效""));",display-source,"523:     if (!checkStrip(main_, MixerStripKind::main)) return fail(error, QStringLiteral(""MAIN 参数无效""));
-524:     for (const auto& item : inputs_) {
-525:         if (!checkStrip(item, MixerStripKind::input)) return fail(error, QStringLiteral(""CH 参数或身份无效""));
-526:     }
-527:     for (const auto& item : auxiliaries_) {",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S0 key 提案；四语言译文和母语审校尚未实施,按源码使用场景指定语义 key；技术标识/单位/占位参数保持原样
-s0.6641e82e7962,mixer,digitalmixerstate.error.invalidAuxParametersOrIdentity,AUX 参数或身份无效,src/common/src/DigitalMixerState.cpp,528,"if (!checkStrip(item, MixerStripKind::aux)) return fail(error, QStringLiteral(""AUX 参数或身份无效""));",display-source,"526:     }
-527:     for (const auto& item : auxiliaries_) {
-528:         if (!checkStrip(item, MixerStripKind::aux)) return fail(error, QStringLiteral(""AUX 参数或身份无效""));
-529:     }
-530:     for (const auto& item : subMixes_) {",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S0 key 提案；四语言译文和母语审校尚未实施,按源码使用场景指定语义 key；技术标识/单位/占位参数保持原样
-s0.70868be56861,mixer,digitalmixerstate.error.invalidSubMixParametersOrIdentity,Sub Mix 参数或身份无效,src/common/src/DigitalMixerState.cpp,531,"if (!checkStrip(item, MixerStripKind::subMix)) return fail(error, QStringLiteral(""Sub Mix 参数或身份无效""));",display-source,"529:     }
-530:     for (const auto& item : subMixes_) {
-531:         if (!checkStrip(item, MixerStripKind::subMix)) return fail(error, QStringLiteral(""Sub Mix 参数或身份无效""));
-532:     }
-533:     std::set<QString> portNames;",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S0 key 提案；四语言译文和母语审校尚未实施,按源码使用场景指定语义 key；技术标识/单位/占位参数保持原样
-s0.b37ee47d0eef,mixer,digitalmixerstate.error.invalidPortNameFromChannelName,通道名生成了无效或重复的 JACK 端口名,src/common/src/DigitalMixerState.cpp,537,"return fail(error, QStringLiteral(""通道名生成了无效或重复的 JACK 端口名""));",display-source,"535:         if (port.name.contains(QLatin1Char(':')) || port.name.contains(QLatin1Char('\0'))
-536:             || !portNames.insert(port.name).second)
-537:             return fail(error, QStringLiteral(""通道名生成了无效或重复的 JACK 端口名""));
-538:     }
-539:     for (const auto* list : {&inputs_, &auxiliaries_, &subMixes_}) {",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S0 key 提案；四语言译文和母语审校尚未实施,按源码使用场景指定语义 key；技术标识/单位/占位参数保持原样
-s0.f89772bcc510,mixer,digitalmixerstate.error.invalidOrDuplicateAuxRoute,AUX 路由无效或重复,src/common/src/DigitalMixerState.cpp,549,"return fail(error, QStringLiteral(""AUX 路由无效或重复""));",display-source,"547:                     || !targets.insert(target->id).second
-548:                     || !validPanner(send.panner, source.layout, target->layout))
-549:                     return fail(error, QStringLiteral(""AUX 路由无效或重复""));
-550:             }
-551:         }",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S0 key 提案；四语言译文和母语审校尚未实施,按源码使用场景指定语义 key；技术标识/单位/占位参数保持原样
-s0.53eb32b45f6a,mixer,digitalmixerstate.error.busRoutingCycle,总线路由存在环,src/common/src/DigitalMixerState.cpp,569,"if (!visit(visit, bus.id)) return fail(error, QStringLiteral(""总线路由存在环""));",display-source,"567:     for (const auto* list : {&auxiliaries_, &subMixes_})
-568:         for (const auto& bus : *list)
-569:             if (!visit(visit, bus.id)) return fail(error, QStringLiteral(""总线路由存在环""));
-570:     return true;
-571: }",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S0 key 提案；四语言译文和母语审校尚未实施,按源码使用场景指定语义 key；技术标识/单位/占位参数保持原样
-s0.72f38c31f37f,mixer,digitalmixerstate.error.invalidJsonSyntax,JSON 格式错误,src/common/src/DigitalMixerState.cpp,595,"return fail(error, QStringLiteral(""JSON 格式错误""));",display-source,"593:     const auto document = QJsonDocument::fromJson(json, &parseError);
-594:     if (parseError.error != QJsonParseError::NoError || !document.isObject())
-595:         return fail(error, QStringLiteral(""JSON 格式错误""));
-596:     const auto root = document.object();
-597:     int version = 0, inputNumber = 0, auxNumber = 0;",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S0 key 提案；四语言译文和母语审校尚未实施,按源码使用场景指定语义 key；技术标识/单位/占位参数保持原样
-s0.838fb550c709,mixer,digitalmixerstate.error.invalidJsonVersionOrFields,JSON 版本或字段无效,src/common/src/DigitalMixerState.cpp,606,"|| !getObject(root, ""main"", main)) return fail(error, QStringLiteral(""JSON 版本或字段无效""));",display-source,"604:         || !getInt(root, ""nextAuxNumber"", auxNumber) || auxNumber < 1
-605:         || !getArray(root, ""inputs"", inputs) || !getArray(root, ""auxiliaries"", auxiliaries)
-606:         || !getObject(root, ""main"", main)) return fail(error, QStringLiteral(""JSON 版本或字段无效""));
-607:     candidate.nextInputNumber_ = static_cast<std::uint32_t>(inputNumber);
-608:     candidate.nextAuxNumber_ = static_cast<std::uint32_t>(auxNumber);",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S0 key 提案；四语言译文和母语审校尚未实施,按源码使用场景指定语义 key；技术标识/单位/占位参数保持原样
-s0.f6fbc632efca,mixer,digitalmixerstate.error.invalidMonitorFaderJson,监听推子 JSON 无效,src/common/src/DigitalMixerState.cpp,611,"return fail(error, QStringLiteral(""监听推子 JSON 无效""));",display-source,"609:     if (root.contains(""monitorFaderPosition"")
-610:         && !getNumber(root, ""monitorFaderPosition"", candidate.monitorFaderPosition_))
-611:         return fail(error, QStringLiteral(""监听推子 JSON 无效""));
-612:     if (root.contains(""monitorLayout"")) {
-613:         int layout = 0;",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S0 key 提案；四语言译文和母语审校尚未实施,按源码使用场景指定语义 key；技术标识/单位/占位参数保持原样
-s0.3a85d060f754,mixer,digitalmixerstate.error.invalidMonitorLayoutJson,监听布局 JSON 无效,src/common/src/DigitalMixerState.cpp,615,"return fail(error, QStringLiteral(""监听布局 JSON 无效""));",display-source,"613:         int layout = 0;
-614:         if (!getInt(root, ""monitorLayout"", layout))
-615:             return fail(error, QStringLiteral(""监听布局 JSON 无效""));
-616:         candidate.monitorLayout_ = static_cast<MixerLayout>(layout);
-617:     }",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S0 key 提案；四语言译文和母语审校尚未实施,按源码使用场景指定语义 key；技术标识/单位/占位参数保持原样
-s0.ddba676daeb5,mixer,digitalmixerstate.error.invalidMainJson,MAIN JSON 无效,src/common/src/DigitalMixerState.cpp,618,"if (!readStrip(main, candidate.main_)) return fail(error, QStringLiteral(""MAIN JSON 无效""));",display-source,"616:         candidate.monitorLayout_ = static_cast<MixerLayout>(layout);
-617:     }
-618:     if (!readStrip(main, candidate.main_)) return fail(error, QStringLiteral(""MAIN JSON 无效""));
-619:     for (const auto& item : inputs) {
-620:         MixerStripState strip;",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S0 key 提案；四语言译文和母语审校尚未实施,按源码使用场景指定语义 key；技术标识/单位/占位参数保持原样
-s0.3f8e50f267c5,mixer,digitalmixerstate.error.invalidChannelJson,CH JSON 无效,src/common/src/DigitalMixerState.cpp,622,"return fail(error, QStringLiteral(""CH JSON 无效""));",display-source,"620:         MixerStripState strip;
-621:         if (!item.isObject() || !readStrip(item.toObject(), strip))
-622:             return fail(error, QStringLiteral(""CH JSON 无效""));
-623:         candidate.inputs_.push_back(std::move(strip));
-624:     }",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S0 key 提案；四语言译文和母语审校尚未实施,按源码使用场景指定语义 key；技术标识/单位/占位参数保持原样
-s0.5b878a520194,mixer,digitalmixerstate.error.invalidAuxJson,AUX JSON 无效,src/common/src/DigitalMixerState.cpp,628,"return fail(error, QStringLiteral(""AUX JSON 无效""));",display-source,"626:         MixerStripState strip;
-627:         if (!item.isObject() || !readStrip(item.toObject(), strip))
-628:             return fail(error, QStringLiteral(""AUX JSON 无效""));
-629:         candidate.auxiliaries_.push_back(std::move(strip));
-630:     }",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S0 key 提案；四语言译文和母语审校尚未实施,按源码使用场景指定语义 key；技术标识/单位/占位参数保持原样
-s0.cd40cf47ffd4,mixer,digitalmixerstate.error.invalidSubMixJson,Sub Mix JSON 无效,src/common/src/DigitalMixerState.cpp,634,"return fail(error, QStringLiteral(""Sub Mix JSON 无效""));",display-source,"632:         int number = 0;
-633:         if (!getArray(root, ""subMixes"", subMixes) || !getInt(root, ""nextSubMixNumber"", number) || number < 1)
-634:             return fail(error, QStringLiteral(""Sub Mix JSON 无效""));
-635:         candidate.nextSubMixNumber_ = static_cast<std::uint32_t>(number);
-636:         for (const auto& item : subMixes) {",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S0 key 提案；四语言译文和母语审校尚未实施,按源码使用场景指定语义 key；技术标识/单位/占位参数保持原样
-s0.f9ff4a96664d,mixer,digitalmixerstate.error.invalidSubMixChannelJson,Sub Mix 通道 JSON 无效,src/common/src/DigitalMixerState.cpp,639,"return fail(error, QStringLiteral(""Sub Mix 通道 JSON 无效""));",display-source,"637:             MixerStripState strip;
-638:             if (!item.isObject() || !readStrip(item.toObject(), strip))
-639:                 return fail(error, QStringLiteral(""Sub Mix 通道 JSON 无效""));
-640:             candidate.subMixes_.push_back(std::move(strip));
-641:         }",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S0 key 提案；四语言译文和母语审校尚未实施,按源码使用场景指定语义 key；技术标识/单位/占位参数保持原样
 s0.3b6ba90f54d7,meterbridge,preset.spotify-default,Music - Spotify Default (-14 LUFS),src/meter/mod/include/WinJACKNexus/Meter/Mod/LocalizedDisplay.hpp,10,"if (std::strcmp(preset.id, ""spotify-default"") == 0) return UI::localizedText(""meterbridge"", ""preset.spotify-default"", ""Music - Spotify Default (-14 LUFS)"");",display-source,"8: namespace WinJACKNexus::Meter::Mod::Localized {
 9: inline QString presetName(const Common::MeterLoudnessPreset& preset) {
 10:     if (std::strcmp(preset.id, ""spotify-default"") == 0) return UI::localizedText(""meterbridge"", ""preset.spotify-default"", ""Music - Spotify Default (-14 LUFS)"");
@@ -1569,11 +1414,16 @@ s0.58663b00ce7e,meterbridge,settings.role,Role,src/meter/mod/src/MeterSettingsWi
 129:                 localizedText(""meterbridge"", ""settings.role"", ""Role""), QStringLiteral(""LFE"") });
 130:         });
 131:     channelTable_->verticalHeader()->setVisible(false);",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S4 实际运行时 key；四语言草稿已提供，待母语/领域审校,S4 English 显示基线；实际 key、四语言草稿及待审校状态见核对表
-s0.a161a76a1235,meterbridge,settings.channelLfe,LFE flag for channel %1,src/meter/mod/src/MeterSettingsWidget.cpp,252,"lfeCheckBox->setAccessibleName(localizedText(""meterbridge"", ""settings.channelLfe"", ""LFE flag for channel %1"").arg(index + 1));",display-source,"250:         lfeCheckBox->setObjectName(QStringLiteral(""meterSettings.channelLfe.%1"").arg(index));
-251:         const auto updateLfeName = [lfeCheckBox, index] {
-252:             lfeCheckBox->setAccessibleName(localizedText(""meterbridge"", ""settings.channelLfe"", ""LFE flag for channel %1"").arg(index + 1));
-253:         };
-254:         if (auto* manager = WinJACKNexus::UI::I18nManager::installed()) manager->bind(lfeCheckBox, updateLfeName);",%1,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S4 实际运行时 key；四语言草稿已提供，待母语/领域审校,S4 English 显示基线；实际 key、四语言草稿及待审校状态见核对表
+s0.16cc92b19d7c,meterbridge,settings.unassigned,Unassigned,src/meter/mod/src/MeterSettingsWidget.cpp,244,"localizedText(""meterbridge"", ""settings.unassigned"", ""Unassigned""));",display-source,"242:             const auto index = roleSelector->findData(QStringLiteral(""未分配""));
+243:             if (index >= 0) roleSelector->setItemText(index,
+244:                 localizedText(""meterbridge"", ""settings.unassigned"", ""Unassigned""));
+245:         };
+246:         if (auto* manager = WinJACKNexus::UI::I18nManager::installed()) manager->bind(roleSelector, refreshRole);",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S6 实际运行时 key；四语言草稿已提供，待母语/领域审校,S6 实际 English 显示基线；key 与四语言草稿见核对表，人工审校仍待用户意见
+s0.a161a76a1235,meterbridge,settings.channelLfe,LFE flag for channel %1,src/meter/mod/src/MeterSettingsWidget.cpp,261,"lfeCheckBox->setAccessibleName(localizedText(""meterbridge"", ""settings.channelLfe"", ""LFE flag for channel %1"").arg(index + 1));",display-source,"259:         lfeCheckBox->setObjectName(QStringLiteral(""meterSettings.channelLfe.%1"").arg(index));
+260:         const auto updateLfeName = [lfeCheckBox, index] {
+261:             lfeCheckBox->setAccessibleName(localizedText(""meterbridge"", ""settings.channelLfe"", ""LFE flag for channel %1"").arg(index + 1));
+262:         };
+263:         if (auto* manager = WinJACKNexus::UI::I18nManager::installed()) manager->bind(lfeCheckBox, updateLfeName);",%1,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S4 实际运行时 key；四语言草稿已提供，待母语/领域审校,S4 English 显示基线；实际 key、四语言草稿及待审校状态见核对表
 s0.37d42466a2e9,meterbridge,probe.role.unassigned,Unassigned,src/meter/probe/Library.cpp,590,"if (std::string_view(id) == ""unassigned"") return probeText(""probe.role.unassigned"", ""Unassigned"");",display-source,"588: }
 589: QString probeRoleText(const char* id) {
 590:     if (std::string_view(id) == ""unassigned"") return probeText(""probe.role.unassigned"", ""Unassigned"");
@@ -1744,96 +1594,16 @@ s0.ddda9d9ffe7c,meterbridge,probe.applied,Applied,src/meter/probe/Library.cpp,87
 871:         statusLabel_->setText(probeText(""probe.applied"", ""Applied""));
 872:     }
 873: ",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S4 实际运行时 key；四语言草稿已提供，待母语/领域审校,S4 English 显示基线；实际 key、四语言草稿及待审校状态见核对表
-s0.2a3e4330db98,meterbridge,livemeterdataprovider.status.unassigned,未分配,src/meter/ui/src/LiveMeterDataProvider.cpp,110,"return QStringLiteral(""未分配"");",display-source,"108:         return QStringLiteral(""LFE"");
-109:     case MeterChannelRole::unassigned:
-110:         return QStringLiteral(""未分配"");
-111:     }
-112:     return QStringLiteral(""未分配"");",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S0 key 提案；四语言译文和母语审校尚未实施,按源码使用场景指定语义 key；技术标识/单位/占位参数保持原样
-s0.2a3e4330db98,meterbridge,livemeterdataprovider.status.unassigned,未分配,src/meter/ui/src/LiveMeterDataProvider.cpp,112,"return QStringLiteral(""未分配"");",display-source,"110:         return QStringLiteral(""未分配"");
-111:     }
-112:     return QStringLiteral(""未分配"");
-113: }
-114: ",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S0 key 提案；四语言译文和母语审校尚未实施,按源码使用场景指定语义 key；技术标识/单位/占位参数保持原样
-s0.f03affe86276,mixer,effectgraph.error.channelSnapshotMissing,%1 缺少逐声道参数快照。请在 FX 设置中重新添加。,src/mixer/EffectGraph.cpp,38,"return fail(error, QStringLiteral(""%1 缺少逐声道参数快照。请在 FX 设置中重新添加。"")",display-source,"36:             return true;
-37:         }
-38:         return fail(error, QStringLiteral(""%1 缺少逐声道参数快照。请在 FX 设置中重新添加。"")
-39:                     .arg(state.moduleId));
-40:     }",%1,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S0 key 提案；四语言译文和母语审校尚未实施,按源码使用场景指定语义 key；技术标识/单位/占位参数保持原样
-s0.5cb50ae28b5d,mixer,effectgraph.error.invalidSnapshotBase64,%1 的参数快照 Base64 格式无效。,src/mixer/EffectGraph.cpp,44,"return fail(error, QStringLiteral(""%1 的参数快照 Base64 格式无效。"").arg(state.moduleId));",display-source,"42:         encoded.toLatin1(), QByteArray::AbortOnBase64DecodingErrors);
-43:     if (!decoded)
-44:         return fail(error, QStringLiteral(""%1 的参数快照 Base64 格式无效。"").arg(state.moduleId));
-45:     bytes = decoded.decoded;
-46:     if (bytes.size() != static_cast<qsizetype>(effect.snapshotSize)",%1,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S0 key 提案；四语言译文和母语审校尚未实施,按源码使用场景指定语义 key；技术标识/单位/占位参数保持原样
-s0.de01f4a6f3dd,mixer,effectgraph.error.invalidSnapshotLength,%1 的参数快照长度无效。,src/mixer/EffectGraph.cpp,48,"return fail(error, QStringLiteral(""%1 的参数快照长度无效。"") .arg(state.moduleId));",display-source,"46:     if (bytes.size() != static_cast<qsizetype>(effect.snapshotSize)
-47:         || bytes.size() < static_cast<qsizetype>(sizeof(WjnFxParameterSnapshotHeader)))
-48:         return fail(error, QStringLiteral(""%1 的参数快照长度无效。"") .arg(state.moduleId));
-49:     WjnFxParameterSnapshotHeader header {};
-50:     std::memcpy(&header, bytes.constData(), sizeof(header));",%1,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S0 key 提案；四语言译文和母语审校尚未实施,按源码使用场景指定语义 key；技术标识/单位/占位参数保持原样
-s0.80ace60140be,mixer,effectgraph.error.snapshotVersionOrModuleMismatch,%1 的参数快照版本或模块身份不匹配。,src/mixer/EffectGraph.cpp,59,"return fail(error, QStringLiteral(""%1 的参数快照版本或模块身份不匹配。"") .arg(state.moduleId));",display-source,"57:         || moduleId.size() >= static_cast<qsizetype>(sizeof(header.moduleId))
-58:         || std::strncmp(header.moduleId, moduleId.constData(), sizeof(header.moduleId)) != 0)
-59:         return fail(error, QStringLiteral(""%1 的参数快照版本或模块身份不匹配。"") .arg(state.moduleId));
-60:     return true;
-61: }",%1,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S0 key 提案；四语言译文和母语审校尚未实施,按源码使用场景指定语义 key；技术标识/单位/占位参数保持原样
-s0.3fd0c60bb99a,mixer,effectgraph.error.invalidFxSampleRate,无效的 FX 采样率。,src/mixer/EffectGraph.cpp,65,"if (sampleRate < 8000.0) return fail(error, QStringLiteral(""无效的 FX 采样率。""));",display-source,"63: bool EffectGraph::configure(const Common::DigitalMixerState& state, double sampleRate, QString* error)
-64: {
-65:     if (sampleRate < 8000.0) return fail(error, QStringLiteral(""无效的 FX 采样率。""));
-66:     EffectGraph candidate;
-67:     const auto modulesPath = QCoreApplication::applicationDirPath()",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S0 key 提案；四语言译文和母语审校尚未实施,按源码使用场景指定语义 key；技术标识/单位/占位参数保持原样
-s0.4b3d865aee25,mixer,effectgraph.warning.nativeFxUnavailablePreserved,Native Fx %1 不可用，已旁通并保留配置。\n,src/mixer/EffectGraph.cpp,122,"candidate.warning_ += QStringLiteral(""Native Fx %1 不可用，已旁通并保留配置。\n"")",display-source,"120:                 loaded->moduleId = stateEffect.moduleId;
-121:                 loaded->missing = true;
-122:                 candidate.warning_ += QStringLiteral(""Native Fx %1 不可用，已旁通并保留配置。\n"")
-123:                     .arg(stateEffect.moduleId);
-124:                 chain.effects.push_back(std::move(loaded));",%1,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S0 key 提案；四语言译文和母语审校尚未实施,按源码使用场景指定语义 key；技术标识/单位/占位参数保持原样
-s0.2561412e392c,mixer,effectgraph.error.snapshotImportFailed,%1 的参数快照导入失败。,src/mixer/EffectGraph.cpp,131,"return fail(error, QStringLiteral(""%1 的参数快照导入失败。"") .arg(stateEffect.moduleId));",display-source,"129:             if (!snapshot.isEmpty()
-130:                 && loaded->import(loaded->instance, snapshot.constData(), snapshot.size()) != 1)
-131:                 return fail(error, QStringLiteral(""%1 的参数快照导入失败。"") .arg(stateEffect.moduleId));
-132:             loaded->snapshot = std::move(snapshot);
-133:             chain.effects.push_back(std::move(loaded));",%1,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S0 key 提案；四语言译文和母语审校尚未实施,按源码使用场景指定语义 key；技术标识/单位/占位参数保持原样
-s0.3398157650c1,mixer,effectgraph.error.fxChainTopologyChanged,FX 链拓扑已变更。,src/mixer/EffectGraph.cpp,166,"if (!sameTopology(state)) return fail(error, QStringLiteral(""FX 链拓扑已变更。""));",display-source,"164: bool EffectGraph::validateSnapshots(const Common::DigitalMixerState& state, QString* error) const
-165: {
-166:     if (!sameTopology(state)) return fail(error, QStringLiteral(""FX 链拓扑已变更。""));
-167:     std::size_t index = 0;
-168:     const auto validate = [&](const Common::MixerStripState& strip) {",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S0 key 提案；四语言译文和母语审校尚未实施,按源码使用场景指定语义 key；技术标识/单位/占位参数保持原样
-s0.6ea29fe44233,mixer,library.text.digital.mixer,Digital Mixer,src/mixer/Library.cpp,34,"return { ""Digital Mixer"", ""Digital Mixer"", ""0.1.0"", ""WinJACKNexus"",",display-source,"32:     WinJACKNexus::Node::NodeInfo info() const noexcept override
-33:     {
-34:         return { ""Digital Mixer"", ""Digital Mixer"", ""0.1.0"", ""WinJACKNexus"",
-35:                  ""Single-instance Digital Mixer node."" };
-36:     }",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S0 key 提案；四语言译文和母语审校尚未实施,项目拥有的自然语言显示/错误模板；保留其中技术参数与标识
-s0.6ea29fe44233,mixer,library.text.digital.mixer,Digital Mixer,src/mixer/Library.cpp,34,"return { ""Digital Mixer"", ""Digital Mixer"", ""0.1.0"", ""WinJACKNexus"",",display-source,"32:     WinJACKNexus::Node::NodeInfo info() const noexcept override
-33:     {
-34:         return { ""Digital Mixer"", ""Digital Mixer"", ""0.1.0"", ""WinJACKNexus"",
-35:                  ""Single-instance Digital Mixer node."" };
-36:     }",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S0 key 提案；四语言译文和母语审校尚未实施,项目拥有的自然语言显示/错误模板；保留其中技术参数与标识
-s0.f8f580b35971,mixer,library.text.single.instance.digital.mixer.node,Single-instance Digital Mixer node.,src/mixer/Library.cpp,35,"""Single-instance Digital Mixer node."" };",display-source,"33:     {
-34:         return { ""Digital Mixer"", ""Digital Mixer"", ""0.1.0"", ""WinJACKNexus"",
-35:                  ""Single-instance Digital Mixer node."" };
-36:     }
-37: ",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S0 key 提案；四语言译文和母语审校尚未实施,项目拥有的自然语言显示/错误模板；保留其中技术参数与标识
-s0.cd1d4e7bc7b8,mixer,library.error.jackPortRegistrationFailed,JACK 端口注册失败，旧拓扑已保留。,src/mixer/Library.cpp,223,"if (error) *error = QStringLiteral(""JACK 端口注册失败，旧拓扑已保留。"");",display-source,"221:                 if (!replacePorts(desired, true)) {
-222:                     switchingPorts_.store(false, std::memory_order_release);
-223:                     if (error) *error = QStringLiteral(""JACK 端口注册失败，旧拓扑已保留。"");
-224:                     return false;
-225:                 }",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S0 key 提案；四语言译文和母语审校尚未实施,按源码使用场景指定语义 key；技术标识/单位/占位参数保持原样
-s0.5bde0c2155f0,mixer,library.error.jackPortMappingFailed,JACK 端口映射失败。,src/mixer/Library.cpp,228,"if (error) *error = QStringLiteral(""JACK 端口映射失败。"");",display-source,"226:                 if (!bindPortBuffers(desired)) {
-227:                     switchingPorts_.store(false, std::memory_order_release);
-228:                     if (error) *error = QStringLiteral(""JACK 端口映射失败。"");
-229:                     return false;
-230:                 }",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S0 key 提案；四语言译文和母语审校尚未实施,按源码使用场景指定语义 key；技术标识/单位/占位参数保持原样
-s0.1e542000af2a,mixer,library.warning.fxModuleBypassed,FX 模块已旁通,src/mixer/Library.cpp,260,"QStringLiteral(""FX 模块已旁通""), warning, QMessageBox::Ok, window_);",display-source,"258:         lastEffectWarning_ = warning;
-259:         auto* notice = new QMessageBox(QMessageBox::Warning,
-260:             QStringLiteral(""FX 模块已旁通""), warning, QMessageBox::Ok, window_);
-261:         notice->setAttribute(Qt::WA_DeleteOnClose);
-262:         notice->show();",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S0 key 提案；四语言译文和母语审校尚未实施,按源码使用场景指定语义 key；技术标识/单位/占位参数保持原样
-s0.6ea29fe44233,mixer,library.text.digital.mixer,Digital Mixer,src/mixer/Library.cpp,583,"const char* wjn_get_node_name(std::uint32_t index) { return index == 0 ? ""Digital Mixer"" : """"; }",display-source,"581: }
-582: std::uint32_t wjn_get_node_count(void) { return 1; }
-583: const char* wjn_get_node_name(std::uint32_t index) { return index == 0 ? ""Digital Mixer"" : """"; }
-584: const char* wjn_get_node_category(std::uint32_t index) { return index == 0 ? ""Digital Mixer"" : """"; }
-585: WinJACKNexus::Node::INode* wjn_create_node(std::uint32_t index)",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S0 key 提案；四语言译文和母语审校尚未实施,项目拥有的自然语言显示/错误模板；保留其中技术参数与标识
-s0.6ea29fe44233,mixer,library.text.digital.mixer,Digital Mixer,src/mixer/Library.cpp,584,"const char* wjn_get_node_category(std::uint32_t index) { return index == 0 ? ""Digital Mixer"" : """"; }",display-source,"582: std::uint32_t wjn_get_node_count(void) { return 1; }
-583: const char* wjn_get_node_name(std::uint32_t index) { return index == 0 ? ""Digital Mixer"" : """"; }
-584: const char* wjn_get_node_category(std::uint32_t index) { return index == 0 ? ""Digital Mixer"" : """"; }
-585: WinJACKNexus::Node::INode* wjn_create_node(std::uint32_t index)
-586: {",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S0 key 提案；四语言译文和母语审校尚未实施,项目拥有的自然语言显示/错误模板；保留其中技术参数与标识
+s0.0a733ab48d64,mixer,warning.effectsBypassed,FX modules bypassed,src/mixer/Library.cpp,263,"""warning.effectsBypassed"", ""FX modules bypassed"");",display-source,"261:         notice->setTextFormat(Qt::PlainText);
+262:         WinJACKNexus::UI::bindLocalizedText(notice, ""windowTitle"", ""mixer"",
+263:             ""warning.effectsBypassed"", ""FX modules bypassed"");
+264:         const auto refresh = [notice, modules = effects_.unavailableModules()] {
+265:             QStringList lines;",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S6 实际运行时 key；四语言草稿已提供，待母语/领域审校,S6 实际 English 显示基线；key 与四语言草稿见核对表，人工审校仍待用户意见
+s0.3c142afc3686,mixer,warning.unavailableEffect,Native Fx {module} is unavailable; bypassed with its configuration retained.,src/mixer/Library.cpp,267,"lines.append(WinJACKNexus::UI::localizedText(""mixer"", ""warning.unavailableEffect"", ""Native Fx {module} is unavailable; bypassed with its configuration retained."",",display-source,"265:             QStringList lines;
+266:             for (const auto& module : modules)
+267:                 lines.append(WinJACKNexus::UI::localizedText(""mixer"", ""warning.unavailableEffect"", ""Native Fx {module} is unavailable; bypassed with its configuration retained."",
+268:                     {{QStringLiteral(""module""), module}}));
+269:             notice->setText(lines.join(QLatin1Char('\n')));",{module},原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S6 实际运行时 key；四语言草稿已提供，待母语/领域审校,S6 实际 English 显示基线；key 与四语言草稿见核对表，人工审校仍待用户意见
 s0.f8d55b2d3d47,nativefx.compressor,window.title,Compressor — %1,src/native_fx/effects/compressor/include/Logic.inc,93,"widget->setWindowTitle(WinJACKNexus::NativeFx::I18n::text(""window.title"", ""Compressor — %1"").arg(QString::fromStdString(clientName_)));",display-source,"91:                 widget->setAttribute(Qt::WA_DeleteOnClose, false);
 92:                 WinJACKNexus::NativeFx::I18n::bind(widget, [this, widget] {
 93:                     widget->setWindowTitle(WinJACKNexus::NativeFx::I18n::text(""window.title"", ""Compressor — %1"").arg(QString::fromStdString(clientName_)));
@@ -3889,11 +3659,6 @@ s0.89e8378fbc4f,nativefx.reverb,preset.custom,Custom,src/native_fx/src/NativeFxA
 408:     static constexpr const char* english[] = {""Default"", ""Small Room"", ""Bright Plate"", ""Cathedral"", ""Studio Booth"", ""Vintage Spring"", ""Custom""};
 409: #endif
 410:     if (index >= std::size(keys)) return nullptr;",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S5 实际运行时 key；四语言草稿已提供，待母语/领域审校,S5 English 显示基线；实际 key、四语言草稿及待审校状态见核对表
-s0.776293417dcd,node,nodeapi.category.interface,Interface,src/node/src/NodeApi.cpp,35,"return ""Interface"";",display-source,"33: const char* wjn_get_node_category(uint32_t)
-34: {
-35:     return ""Interface"";
-36: }
-37: ",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S0 key 提案；四语言译文和母语审校尚未实施,按源码使用场景指定语义 key；技术标识/单位/占位参数保持原样
 s0.711dd25b9f98,patchbay,dialog.saveProject,Save patchbay project,src/patchbay/mod/include/mod_patchbay/LocalizedDialogs.hpp,72,"save?""Save patchbay project"":""Open patchbay project"");",display-source,"70:     dialog.setFileMode(save?QFileDialog::AnyFile:QFileDialog::ExistingFile);
 71:     bind(&dialog,""windowTitle"",save?""dialog.saveProject"":""dialog.openProject"",
 72:          save?""Save patchbay project"":""Open patchbay project"");
@@ -4559,31 +4324,6 @@ s0.67862bbaea1f,patchbay,action.paste,Paste nodes,src/patchbay/mod/src/PatchbayC
 2607:         paste = canvasAction(menu,""action.paste"",""Paste nodes"");
 2608:     const auto* selected = menu.exec(event->globalPos());
 2609:     if (selected == fit)",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S3 实际运行时 key；四语言草稿已提供，待母语/领域审校,S3 English 显示基线；实际 key、四语言值及待人工审校状态见核对表
-s0.2d830fdc060f,patchbay,internalloader.control.gain,Gain,src/patchbay/plugins/src/InternalLoader.cpp,32,"parameters_.push_back({ ""gain"", ""Gain"", 1.0F, 0.0F, 4.0F });",display-source,"30:     {
-31:         if (descriptor_.identifier == ""internal:gain"")
-32:             parameters_.push_back({ ""gain"", ""Gain"", 1.0F, 0.0F, 4.0F });
-33:     }
-34: ",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S0 key 提案；四语言译文和母语审校尚未实施,按源码使用场景指定语义 key；技术标识/单位/占位参数保持原样
-s0.fea42b8d4252,patchbay,internalloader.meter.peakEnglish,Peak,src/patchbay/plugins/src/InternalLoader.cpp,70,"values.push_back({ ""peak"", ""Peak"", peak_, 0.0F, 1.0F });",display-source,"68:         auto values = parameters_;
-69:         if (descriptor_.identifier == ""internal:meter"")
-70:             values.push_back({ ""peak"", ""Peak"", peak_, 0.0F, 1.0F });
-71:         return values;
-72:     }",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S0 key 提案；四语言译文和母语审校尚未实施,按源码使用场景指定语义 key；技术标识/单位/占位参数保持原样
-s0.2d830fdc060f,patchbay,internalloader.control.gain,Gain,src/patchbay/plugins/src/InternalLoader.cpp,96,"{ PluginKind::internal, ""internal:gain"", ""Gain"", ""WinJACKNexus"", ""0.1.0"", {}, true },",display-source,"94: {
-95:     return {
-96:         { PluginKind::internal, ""internal:gain"", ""Gain"", ""WinJACKNexus"", ""0.1.0"", {}, true },
-97:         { PluginKind::internal, ""internal:bypass"", ""Bypass"", ""WinJACKNexus"", ""0.1.0"", {}, true },
-98:         { PluginKind::internal, ""internal:meter"", ""Peak Meter"", ""WinJACKNexus"", ""0.1.0"", {}, true }",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S0 key 提案；四语言译文和母语审校尚未实施,按源码使用场景指定语义 key；技术标识/单位/占位参数保持原样
-s0.b6915472afcc,patchbay,internalloader.control.bypass,Bypass,src/patchbay/plugins/src/InternalLoader.cpp,97,"{ PluginKind::internal, ""internal:bypass"", ""Bypass"", ""WinJACKNexus"", ""0.1.0"", {}, true },",display-source,"95:     return {
-96:         { PluginKind::internal, ""internal:gain"", ""Gain"", ""WinJACKNexus"", ""0.1.0"", {}, true },
-97:         { PluginKind::internal, ""internal:bypass"", ""Bypass"", ""WinJACKNexus"", ""0.1.0"", {}, true },
-98:         { PluginKind::internal, ""internal:meter"", ""Peak Meter"", ""WinJACKNexus"", ""0.1.0"", {}, true }
-99:     };",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S0 key 提案；四语言译文和母语审校尚未实施,按源码使用场景指定语义 key；技术标识/单位/占位参数保持原样
-s0.23f08a10a911,patchbay,internalloader.text.peak.meter,Peak Meter,src/patchbay/plugins/src/InternalLoader.cpp,98,"{ PluginKind::internal, ""internal:meter"", ""Peak Meter"", ""WinJACKNexus"", ""0.1.0"", {}, true }",display-source,"96:         { PluginKind::internal, ""internal:gain"", ""Gain"", ""WinJACKNexus"", ""0.1.0"", {}, true },
-97:         { PluginKind::internal, ""internal:bypass"", ""Bypass"", ""WinJACKNexus"", ""0.1.0"", {}, true },
-98:         { PluginKind::internal, ""internal:meter"", ""Peak Meter"", ""WinJACKNexus"", ""0.1.0"", {}, true }
-99:     };
-100: }",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S0 key 提案；四语言译文和母语审校尚未实施,项目拥有的自然语言显示/错误模板；保留其中技术参数与标识
 s0.1704ced11324,aux,layout.mono,Mono,src/ui/src/AuxSettingsWindow.cpp,100,"case AuxChannelLayout::mono: return auxText(""layout.mono"",""Mono"");",display-source,"98: {
 99:     switch(layout){
 100:     case AuxChannelLayout::mono: return auxText(""layout.mono"",""Mono"");
@@ -5099,106 +4839,116 @@ s0.fba876b7a6a5,host,menu.language,Language,src/ui/src/HostI18n.cpp,86,"menu->se
 86:         menu->setTitle(hostText(""menu.language"",""Language""));
 87:         for (auto* item:group->actions()) {
 88:             item->setText(languageDisplayName(item->data().toString()));",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S2 实际运行时 key；四语言草稿已提供，待母语/领域审校,S2 已接入 host 域的 English 字面兜底，实际四语言包及审校见核对表
-s0.9baad6fa66a8,ui,i18nmanager.fallback.unknown,Unknown,src/ui/src/I18nManager.cpp,621,"if (source.isEmpty()) source=impl_->options.showMissingKeys ? domain+QLatin1Char('/')+key : QStringLiteral(""Unknown"");",display-source,"619:         impl_->log(QStringLiteral(""I18N_MISSING_KEY""),domain+QLatin1Char('/')+key);
-620:         source=fallback;
-621:         if (source.isEmpty()) source=impl_->options.showMissingKeys ? domain+QLatin1Char('/')+key : QStringLiteral(""Unknown"");
-622:     }
-623:     QString result,error;",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S0 key 提案；四语言译文和母语审校尚未实施,按源码使用场景指定语义 key；技术标识/单位/占位参数保持原样
-s0.9baad6fa66a8,ui,i18nmanager.fallback.unknown,Unknown,src/ui/src/I18nManager.cpp,626,"if (!format(fallback,arguments,count,&result)) result=QStringLiteral(""Unknown"");",display-source,"624:     if (!format(source,arguments,count,&result,&error)) {
-625:         impl_->log(QStringLiteral(""I18N_FORMAT_ERROR""),domain+QLatin1Char('/')+key+QStringLiteral("": "")+error);
-626:         if (!format(fallback,arguments,count,&result)) result=QStringLiteral(""Unknown"");
-627:     }
-628:     return result;",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S0 key 提案；四语言译文和母语审校尚未实施,按源码使用场景指定语义 key；技术标识/单位/占位参数保持原样
-s0.bb7cc3bfaa35,mixer,error.subRoute,Invalid Sub Mix routing,src/ui/src/LocalizedMixerErrors.hpp,10,"if (canonical == QStringLiteral(""无效的 Sub Mix 路由"")) return localizedText(""mixer"", ""error.subRoute"", ""Invalid Sub Mix routing"");",display-source,"8: // copy at the GUI boundary; audio processing, persisted state and logs retain it.
+s0.af2652a70077,mixer,error.registerPorts,Unable to register mixer ports. The previous state has been retained.,src/ui/src/LocalizedMixerErrors.hpp,10,"if (canonical == QStringLiteral(""JACK 端口注册失败，旧拓扑已保留。"")) return localizedText(""mixer"", ""error.registerPorts"", ""Unable to register mixer ports. The previous state has been retained."");",display-source,"8: // copy at the GUI boundary; audio processing, persisted state and logs retain it.
 9: inline QString display(const QString& canonical) {
-10:     if (canonical == QStringLiteral(""无效的 Sub Mix 路由"")) return localizedText(""mixer"", ""error.subRoute"", ""Invalid Sub Mix routing"");
-11:     if (canonical == QStringLiteral(""无效或自发 AUX 路由"")) return localizedText(""mixer"", ""error.selfAuxRoute"", ""Invalid or self-referencing AUX routing"");
-12:     if (canonical == QStringLiteral(""AUX 声像参数无效"")) return localizedText(""mixer"", ""error.auxPan"", ""Invalid AUX pan parameters"");",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S4 实际运行时 key；四语言草稿已提供，待母语/领域审校,S4 English 显示基线；实际 key、四语言草稿及待审校状态见核对表
-s0.a915b07da3d7,mixer,error.selfAuxRoute,Invalid or self-referencing AUX routing,src/ui/src/LocalizedMixerErrors.hpp,11,"if (canonical == QStringLiteral(""无效或自发 AUX 路由"")) return localizedText(""mixer"", ""error.selfAuxRoute"", ""Invalid or self-referencing AUX routing"");",display-source,"9: inline QString display(const QString& canonical) {
-10:     if (canonical == QStringLiteral(""无效的 Sub Mix 路由"")) return localizedText(""mixer"", ""error.subRoute"", ""Invalid Sub Mix routing"");
-11:     if (canonical == QStringLiteral(""无效或自发 AUX 路由"")) return localizedText(""mixer"", ""error.selfAuxRoute"", ""Invalid or self-referencing AUX routing"");
-12:     if (canonical == QStringLiteral(""AUX 声像参数无效"")) return localizedText(""mixer"", ""error.auxPan"", ""Invalid AUX pan parameters"");
-13:     if (canonical == QStringLiteral(""MAIN 必须是不可删除的立体声总线"")) return localizedText(""mixer"", ""error.mainBus"", ""MAIN must be a permanent stereo bus"");",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S4 实际运行时 key；四语言草稿已提供，待母语/领域审校,S4 English 显示基线；实际 key、四语言草稿及待审校状态见核对表
-s0.06ee9f5bc494,mixer,error.auxPan,Invalid AUX pan parameters,src/ui/src/LocalizedMixerErrors.hpp,12,"if (canonical == QStringLiteral(""AUX 声像参数无效"")) return localizedText(""mixer"", ""error.auxPan"", ""Invalid AUX pan parameters"");",display-source,"10:     if (canonical == QStringLiteral(""无效的 Sub Mix 路由"")) return localizedText(""mixer"", ""error.subRoute"", ""Invalid Sub Mix routing"");
-11:     if (canonical == QStringLiteral(""无效或自发 AUX 路由"")) return localizedText(""mixer"", ""error.selfAuxRoute"", ""Invalid or self-referencing AUX routing"");
-12:     if (canonical == QStringLiteral(""AUX 声像参数无效"")) return localizedText(""mixer"", ""error.auxPan"", ""Invalid AUX pan parameters"");
-13:     if (canonical == QStringLiteral(""MAIN 必须是不可删除的立体声总线"")) return localizedText(""mixer"", ""error.mainBus"", ""MAIN must be a permanent stereo bus"");
-14:     if (canonical == QStringLiteral(""监听推子参数无效"")) return localizedText(""mixer"", ""error.monitorParameters"", ""Invalid monitor fader parameters"");",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S4 实际运行时 key；四语言草稿已提供，待母语/领域审校,S4 English 显示基线；实际 key、四语言草稿及待审校状态见核对表
-s0.270524979665,mixer,error.mainBus,MAIN must be a permanent stereo bus,src/ui/src/LocalizedMixerErrors.hpp,13,"if (canonical == QStringLiteral(""MAIN 必须是不可删除的立体声总线"")) return localizedText(""mixer"", ""error.mainBus"", ""MAIN must be a permanent stereo bus"");",display-source,"11:     if (canonical == QStringLiteral(""无效或自发 AUX 路由"")) return localizedText(""mixer"", ""error.selfAuxRoute"", ""Invalid or self-referencing AUX routing"");
-12:     if (canonical == QStringLiteral(""AUX 声像参数无效"")) return localizedText(""mixer"", ""error.auxPan"", ""Invalid AUX pan parameters"");
-13:     if (canonical == QStringLiteral(""MAIN 必须是不可删除的立体声总线"")) return localizedText(""mixer"", ""error.mainBus"", ""MAIN must be a permanent stereo bus"");
-14:     if (canonical == QStringLiteral(""监听推子参数无效"")) return localizedText(""mixer"", ""error.monitorParameters"", ""Invalid monitor fader parameters"");
-15:     if (canonical == QStringLiteral(""MAIN 参数无效"")) return localizedText(""mixer"", ""error.mainParameters"", ""Invalid MAIN parameters"");",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S4 实际运行时 key；四语言草稿已提供，待母语/领域审校,S4 English 显示基线；实际 key、四语言草稿及待审校状态见核对表
-s0.e1b248faca17,mixer,error.monitorParameters,Invalid monitor fader parameters,src/ui/src/LocalizedMixerErrors.hpp,14,"if (canonical == QStringLiteral(""监听推子参数无效"")) return localizedText(""mixer"", ""error.monitorParameters"", ""Invalid monitor fader parameters"");",display-source,"12:     if (canonical == QStringLiteral(""AUX 声像参数无效"")) return localizedText(""mixer"", ""error.auxPan"", ""Invalid AUX pan parameters"");
-13:     if (canonical == QStringLiteral(""MAIN 必须是不可删除的立体声总线"")) return localizedText(""mixer"", ""error.mainBus"", ""MAIN must be a permanent stereo bus"");
-14:     if (canonical == QStringLiteral(""监听推子参数无效"")) return localizedText(""mixer"", ""error.monitorParameters"", ""Invalid monitor fader parameters"");
-15:     if (canonical == QStringLiteral(""MAIN 参数无效"")) return localizedText(""mixer"", ""error.mainParameters"", ""Invalid MAIN parameters"");
-16:     if (canonical == QStringLiteral(""CH 参数或身份无效"")) return localizedText(""mixer"", ""error.inputParameters"", ""Invalid CH parameters or identity"");",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S4 实际运行时 key；四语言草稿已提供，待母语/领域审校,S4 English 显示基线；实际 key、四语言草稿及待审校状态见核对表
-s0.7c50065b7c0f,mixer,error.mainParameters,Invalid MAIN parameters,src/ui/src/LocalizedMixerErrors.hpp,15,"if (canonical == QStringLiteral(""MAIN 参数无效"")) return localizedText(""mixer"", ""error.mainParameters"", ""Invalid MAIN parameters"");",display-source,"13:     if (canonical == QStringLiteral(""MAIN 必须是不可删除的立体声总线"")) return localizedText(""mixer"", ""error.mainBus"", ""MAIN must be a permanent stereo bus"");
-14:     if (canonical == QStringLiteral(""监听推子参数无效"")) return localizedText(""mixer"", ""error.monitorParameters"", ""Invalid monitor fader parameters"");
-15:     if (canonical == QStringLiteral(""MAIN 参数无效"")) return localizedText(""mixer"", ""error.mainParameters"", ""Invalid MAIN parameters"");
-16:     if (canonical == QStringLiteral(""CH 参数或身份无效"")) return localizedText(""mixer"", ""error.inputParameters"", ""Invalid CH parameters or identity"");
-17:     if (canonical == QStringLiteral(""AUX 参数或身份无效"")) return localizedText(""mixer"", ""error.auxParameters"", ""Invalid AUX parameters or identity"");",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S4 实际运行时 key；四语言草稿已提供，待母语/领域审校,S4 English 显示基线；实际 key、四语言草稿及待审校状态见核对表
-s0.06c4ff7e2421,mixer,error.inputParameters,Invalid CH parameters or identity,src/ui/src/LocalizedMixerErrors.hpp,16,"if (canonical == QStringLiteral(""CH 参数或身份无效"")) return localizedText(""mixer"", ""error.inputParameters"", ""Invalid CH parameters or identity"");",display-source,"14:     if (canonical == QStringLiteral(""监听推子参数无效"")) return localizedText(""mixer"", ""error.monitorParameters"", ""Invalid monitor fader parameters"");
-15:     if (canonical == QStringLiteral(""MAIN 参数无效"")) return localizedText(""mixer"", ""error.mainParameters"", ""Invalid MAIN parameters"");
-16:     if (canonical == QStringLiteral(""CH 参数或身份无效"")) return localizedText(""mixer"", ""error.inputParameters"", ""Invalid CH parameters or identity"");
-17:     if (canonical == QStringLiteral(""AUX 参数或身份无效"")) return localizedText(""mixer"", ""error.auxParameters"", ""Invalid AUX parameters or identity"");
-18:     if (canonical == QStringLiteral(""Sub Mix 参数或身份无效"")) return localizedText(""mixer"", ""error.subParameters"", ""Invalid Sub Mix parameters or identity"");",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S4 实际运行时 key；四语言草稿已提供，待母语/领域审校,S4 English 显示基线；实际 key、四语言草稿及待审校状态见核对表
-s0.09e4010d67d6,mixer,error.auxParameters,Invalid AUX parameters or identity,src/ui/src/LocalizedMixerErrors.hpp,17,"if (canonical == QStringLiteral(""AUX 参数或身份无效"")) return localizedText(""mixer"", ""error.auxParameters"", ""Invalid AUX parameters or identity"");",display-source,"15:     if (canonical == QStringLiteral(""MAIN 参数无效"")) return localizedText(""mixer"", ""error.mainParameters"", ""Invalid MAIN parameters"");
-16:     if (canonical == QStringLiteral(""CH 参数或身份无效"")) return localizedText(""mixer"", ""error.inputParameters"", ""Invalid CH parameters or identity"");
-17:     if (canonical == QStringLiteral(""AUX 参数或身份无效"")) return localizedText(""mixer"", ""error.auxParameters"", ""Invalid AUX parameters or identity"");
-18:     if (canonical == QStringLiteral(""Sub Mix 参数或身份无效"")) return localizedText(""mixer"", ""error.subParameters"", ""Invalid Sub Mix parameters or identity"");
-19:     if (canonical == QStringLiteral(""通道名生成了无效或重复的 JACK 端口名"")) return localizedText(""mixer"", ""error.portName"", ""The channel name produces an invalid or duplicate JACK port name"");",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S4 实际运行时 key；四语言草稿已提供，待母语/领域审校,S4 English 显示基线；实际 key、四语言草稿及待审校状态见核对表
-s0.6c9d76aafbbe,mixer,error.subParameters,Invalid Sub Mix parameters or identity,src/ui/src/LocalizedMixerErrors.hpp,18,"if (canonical == QStringLiteral(""Sub Mix 参数或身份无效"")) return localizedText(""mixer"", ""error.subParameters"", ""Invalid Sub Mix parameters or identity"");",display-source,"16:     if (canonical == QStringLiteral(""CH 参数或身份无效"")) return localizedText(""mixer"", ""error.inputParameters"", ""Invalid CH parameters or identity"");
-17:     if (canonical == QStringLiteral(""AUX 参数或身份无效"")) return localizedText(""mixer"", ""error.auxParameters"", ""Invalid AUX parameters or identity"");
-18:     if (canonical == QStringLiteral(""Sub Mix 参数或身份无效"")) return localizedText(""mixer"", ""error.subParameters"", ""Invalid Sub Mix parameters or identity"");
-19:     if (canonical == QStringLiteral(""通道名生成了无效或重复的 JACK 端口名"")) return localizedText(""mixer"", ""error.portName"", ""The channel name produces an invalid or duplicate JACK port name"");
-20:     if (canonical == QStringLiteral(""AUX 路由无效或重复"")) return localizedText(""mixer"", ""error.duplicateRoute"", ""Invalid or duplicate AUX routing"");",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S4 实际运行时 key；四语言草稿已提供，待母语/领域审校,S4 English 显示基线；实际 key、四语言草稿及待审校状态见核对表
-s0.6cba23fb755c,mixer,error.portName,The channel name produces an invalid or duplicate JACK port name,src/ui/src/LocalizedMixerErrors.hpp,19,"if (canonical == QStringLiteral(""通道名生成了无效或重复的 JACK 端口名"")) return localizedText(""mixer"", ""error.portName"", ""The channel name produces an invalid or duplicate JACK port name"");",display-source,"17:     if (canonical == QStringLiteral(""AUX 参数或身份无效"")) return localizedText(""mixer"", ""error.auxParameters"", ""Invalid AUX parameters or identity"");
-18:     if (canonical == QStringLiteral(""Sub Mix 参数或身份无效"")) return localizedText(""mixer"", ""error.subParameters"", ""Invalid Sub Mix parameters or identity"");
-19:     if (canonical == QStringLiteral(""通道名生成了无效或重复的 JACK 端口名"")) return localizedText(""mixer"", ""error.portName"", ""The channel name produces an invalid or duplicate JACK port name"");
-20:     if (canonical == QStringLiteral(""AUX 路由无效或重复"")) return localizedText(""mixer"", ""error.duplicateRoute"", ""Invalid or duplicate AUX routing"");
-21:     if (canonical == QStringLiteral(""总线路由存在环"")) return localizedText(""mixer"", ""error.routeCycle"", ""Bus routing contains a cycle"");",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S4 实际运行时 key；四语言草稿已提供，待母语/领域审校,S4 English 显示基线；实际 key、四语言草稿及待审校状态见核对表
-s0.faa4d6108f3c,mixer,error.duplicateRoute,Invalid or duplicate AUX routing,src/ui/src/LocalizedMixerErrors.hpp,20,"if (canonical == QStringLiteral(""AUX 路由无效或重复"")) return localizedText(""mixer"", ""error.duplicateRoute"", ""Invalid or duplicate AUX routing"");",display-source,"18:     if (canonical == QStringLiteral(""Sub Mix 参数或身份无效"")) return localizedText(""mixer"", ""error.subParameters"", ""Invalid Sub Mix parameters or identity"");
-19:     if (canonical == QStringLiteral(""通道名生成了无效或重复的 JACK 端口名"")) return localizedText(""mixer"", ""error.portName"", ""The channel name produces an invalid or duplicate JACK port name"");
-20:     if (canonical == QStringLiteral(""AUX 路由无效或重复"")) return localizedText(""mixer"", ""error.duplicateRoute"", ""Invalid or duplicate AUX routing"");
-21:     if (canonical == QStringLiteral(""总线路由存在环"")) return localizedText(""mixer"", ""error.routeCycle"", ""Bus routing contains a cycle"");
-22:     if (canonical == QStringLiteral(""FX 链拓扑已变更。"")) return localizedText(""mixer"", ""error.effectTopology"", ""The FX chain topology has changed."");",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S4 实际运行时 key；四语言草稿已提供，待母语/领域审校,S4 English 显示基线；实际 key、四语言草稿及待审校状态见核对表
-s0.f7c4e59c0960,mixer,error.routeCycle,Bus routing contains a cycle,src/ui/src/LocalizedMixerErrors.hpp,21,"if (canonical == QStringLiteral(""总线路由存在环"")) return localizedText(""mixer"", ""error.routeCycle"", ""Bus routing contains a cycle"");",display-source,"19:     if (canonical == QStringLiteral(""通道名生成了无效或重复的 JACK 端口名"")) return localizedText(""mixer"", ""error.portName"", ""The channel name produces an invalid or duplicate JACK port name"");
-20:     if (canonical == QStringLiteral(""AUX 路由无效或重复"")) return localizedText(""mixer"", ""error.duplicateRoute"", ""Invalid or duplicate AUX routing"");
-21:     if (canonical == QStringLiteral(""总线路由存在环"")) return localizedText(""mixer"", ""error.routeCycle"", ""Bus routing contains a cycle"");
-22:     if (canonical == QStringLiteral(""FX 链拓扑已变更。"")) return localizedText(""mixer"", ""error.effectTopology"", ""The FX chain topology has changed."");
-23:     if (canonical.endsWith(QStringLiteral("" 缺少逐声道参数快照。请在 FX 设置中重新添加。"")))",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S4 实际运行时 key；四语言草稿已提供，待母语/领域审校,S4 English 显示基线；实际 key、四语言草稿及待审校状态见核对表
-s0.eaa2ced1b0a7,mixer,error.effectTopology,The FX chain topology has changed.,src/ui/src/LocalizedMixerErrors.hpp,22,"if (canonical == QStringLiteral(""FX 链拓扑已变更。"")) return localizedText(""mixer"", ""error.effectTopology"", ""The FX chain topology has changed."");",display-source,"20:     if (canonical == QStringLiteral(""AUX 路由无效或重复"")) return localizedText(""mixer"", ""error.duplicateRoute"", ""Invalid or duplicate AUX routing"");
-21:     if (canonical == QStringLiteral(""总线路由存在环"")) return localizedText(""mixer"", ""error.routeCycle"", ""Bus routing contains a cycle"");
-22:     if (canonical == QStringLiteral(""FX 链拓扑已变更。"")) return localizedText(""mixer"", ""error.effectTopology"", ""The FX chain topology has changed."");
-23:     if (canonical.endsWith(QStringLiteral("" 缺少逐声道参数快照。请在 FX 设置中重新添加。"")))
-24:         return localizedText(""mixer"", ""error.missingSnapshot"", ""%1 has no per-channel parameter snapshot. Add it again in FX settings."").arg(canonical.left(canonical.size() - QStringLiteral("" 缺少逐声道参数快照。请在 FX 设置中重新添加。"").size()));",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S4 实际运行时 key；四语言草稿已提供，待母语/领域审校,S4 English 显示基线；实际 key、四语言草稿及待审校状态见核对表
-s0.4c115dedf96b,mixer,error.missingSnapshot,%1 has no per-channel parameter snapshot. Add it again in FX settings.,src/ui/src/LocalizedMixerErrors.hpp,24,"return localizedText(""mixer"", ""error.missingSnapshot"", ""%1 has no per-channel parameter snapshot. Add it again in FX settings."").arg(canonical.left(canonical.size() - QStringLiteral("" 缺少逐声道参数快照。请在 FX 设置中重新添加。"").size()));",display-source,"22:     if (canonical == QStringLiteral(""FX 链拓扑已变更。"")) return localizedText(""mixer"", ""error.effectTopology"", ""The FX chain topology has changed."");
-23:     if (canonical.endsWith(QStringLiteral("" 缺少逐声道参数快照。请在 FX 设置中重新添加。"")))
-24:         return localizedText(""mixer"", ""error.missingSnapshot"", ""%1 has no per-channel parameter snapshot. Add it again in FX settings."").arg(canonical.left(canonical.size() - QStringLiteral("" 缺少逐声道参数快照。请在 FX 设置中重新添加。"").size()));
-25:     if (canonical.endsWith(QStringLiteral("" 的参数快照 Base64 格式无效。"")))
-26:         return localizedText(""mixer"", ""error.snapshotBase64"", ""Invalid Base64 parameter snapshot for %1."").arg(canonical.left(canonical.size() - QStringLiteral("" 的参数快照 Base64 格式无效。"").size()));",%1,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S4 实际运行时 key；四语言草稿已提供，待母语/领域审校,S4 English 显示基线；实际 key、四语言草稿及待审校状态见核对表
-s0.4bd1240a590f,mixer,error.snapshotBase64,Invalid Base64 parameter snapshot for %1.,src/ui/src/LocalizedMixerErrors.hpp,26,"return localizedText(""mixer"", ""error.snapshotBase64"", ""Invalid Base64 parameter snapshot for %1."").arg(canonical.left(canonical.size() - QStringLiteral("" 的参数快照 Base64 格式无效。"").size()));",display-source,"24:         return localizedText(""mixer"", ""error.missingSnapshot"", ""%1 has no per-channel parameter snapshot. Add it again in FX settings."").arg(canonical.left(canonical.size() - QStringLiteral("" 缺少逐声道参数快照。请在 FX 设置中重新添加。"").size()));
-25:     if (canonical.endsWith(QStringLiteral("" 的参数快照 Base64 格式无效。"")))
-26:         return localizedText(""mixer"", ""error.snapshotBase64"", ""Invalid Base64 parameter snapshot for %1."").arg(canonical.left(canonical.size() - QStringLiteral("" 的参数快照 Base64 格式无效。"").size()));
-27:     if (canonical.endsWith(QStringLiteral("" 的参数快照长度无效。"")))
-28:         return localizedText(""mixer"", ""error.snapshotSize"", ""Invalid parameter snapshot size for %1."").arg(canonical.left(canonical.size() - QStringLiteral("" 的参数快照长度无效。"").size()));",%1,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S4 实际运行时 key；四语言草稿已提供，待母语/领域审校,S4 English 显示基线；实际 key、四语言草稿及待审校状态见核对表
-s0.0cf1f2457102,mixer,error.snapshotSize,Invalid parameter snapshot size for %1.,src/ui/src/LocalizedMixerErrors.hpp,28,"return localizedText(""mixer"", ""error.snapshotSize"", ""Invalid parameter snapshot size for %1."").arg(canonical.left(canonical.size() - QStringLiteral("" 的参数快照长度无效。"").size()));",display-source,"26:         return localizedText(""mixer"", ""error.snapshotBase64"", ""Invalid Base64 parameter snapshot for %1."").arg(canonical.left(canonical.size() - QStringLiteral("" 的参数快照 Base64 格式无效。"").size()));
-27:     if (canonical.endsWith(QStringLiteral("" 的参数快照长度无效。"")))
-28:         return localizedText(""mixer"", ""error.snapshotSize"", ""Invalid parameter snapshot size for %1."").arg(canonical.left(canonical.size() - QStringLiteral("" 的参数快照长度无效。"").size()));
-29:     if (canonical.endsWith(QStringLiteral("" 的参数快照版本或模块身份不匹配。"")))
-30:         return localizedText(""mixer"", ""error.snapshotIdentity"", ""Parameter snapshot version or module identity mismatch for %1."").arg(canonical.left(canonical.size() - QStringLiteral("" 的参数快照版本或模块身份不匹配。"").size()));",%1,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S4 实际运行时 key；四语言草稿已提供，待母语/领域审校,S4 English 显示基线；实际 key、四语言草稿及待审校状态见核对表
-s0.90dd6603f456,mixer,error.snapshotIdentity,Parameter snapshot version or module identity mismatch for %1.,src/ui/src/LocalizedMixerErrors.hpp,30,"return localizedText(""mixer"", ""error.snapshotIdentity"", ""Parameter snapshot version or module identity mismatch for %1."").arg(canonical.left(canonical.size() - QStringLiteral("" 的参数快照版本或模块身份不匹配。"").size()));",display-source,"28:         return localizedText(""mixer"", ""error.snapshotSize"", ""Invalid parameter snapshot size for %1."").arg(canonical.left(canonical.size() - QStringLiteral("" 的参数快照长度无效。"").size()));
-29:     if (canonical.endsWith(QStringLiteral("" 的参数快照版本或模块身份不匹配。"")))
-30:         return localizedText(""mixer"", ""error.snapshotIdentity"", ""Parameter snapshot version or module identity mismatch for %1."").arg(canonical.left(canonical.size() - QStringLiteral("" 的参数快照版本或模块身份不匹配。"").size()));
-31:     if (canonical.endsWith(QStringLiteral("" 的参数快照导入失败。"")))
-32:         return localizedText(""mixer"", ""error.snapshotImport"", ""Parameter snapshot import failed for %1."").arg(canonical.left(canonical.size() - QStringLiteral("" 的参数快照导入失败。"").size()));",%1,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S4 实际运行时 key；四语言草稿已提供，待母语/领域审校,S4 English 显示基线；实际 key、四语言草稿及待审校状态见核对表
-s0.d4ee15db6b48,mixer,error.snapshotImport,Parameter snapshot import failed for %1.,src/ui/src/LocalizedMixerErrors.hpp,32,"return localizedText(""mixer"", ""error.snapshotImport"", ""Parameter snapshot import failed for %1."").arg(canonical.left(canonical.size() - QStringLiteral("" 的参数快照导入失败。"").size()));",display-source,"30:         return localizedText(""mixer"", ""error.snapshotIdentity"", ""Parameter snapshot version or module identity mismatch for %1."").arg(canonical.left(canonical.size() - QStringLiteral("" 的参数快照版本或模块身份不匹配。"").size()));
-31:     if (canonical.endsWith(QStringLiteral("" 的参数快照导入失败。"")))
-32:         return localizedText(""mixer"", ""error.snapshotImport"", ""Parameter snapshot import failed for %1."").arg(canonical.left(canonical.size() - QStringLiteral("" 的参数快照导入失败。"").size()));
-33:     return canonical;
-34: }",%1,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S4 实际运行时 key；四语言草稿已提供，待母语/领域审校,S4 English 显示基线；实际 key、四语言草稿及待审校状态见核对表
+10:     if (canonical == QStringLiteral(""JACK 端口注册失败，旧拓扑已保留。"")) return localizedText(""mixer"", ""error.registerPorts"", ""Unable to register mixer ports. The previous state has been retained."");
+11:     if (canonical == QStringLiteral(""JACK 端口映射失败。"")) return localizedText(""mixer"", ""error.mapPorts"", ""Unable to map JACK ports."");
+12:     if (canonical == QStringLiteral(""AUX 路由存在环"")) return localizedText(""mixer"", ""error.auxRouteCycle"", ""AUX routing contains a cycle"");",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S6 实际运行时 key；四语言草稿已提供，待母语/领域审校,S6 实际 English 显示基线；key 与四语言草稿见核对表，人工审校仍待用户意见
+s0.5edee951ddfd,mixer,error.mapPorts,Unable to map JACK ports.,src/ui/src/LocalizedMixerErrors.hpp,11,"if (canonical == QStringLiteral(""JACK 端口映射失败。"")) return localizedText(""mixer"", ""error.mapPorts"", ""Unable to map JACK ports."");",display-source,"9: inline QString display(const QString& canonical) {
+10:     if (canonical == QStringLiteral(""JACK 端口注册失败，旧拓扑已保留。"")) return localizedText(""mixer"", ""error.registerPorts"", ""Unable to register mixer ports. The previous state has been retained."");
+11:     if (canonical == QStringLiteral(""JACK 端口映射失败。"")) return localizedText(""mixer"", ""error.mapPorts"", ""Unable to map JACK ports."");
+12:     if (canonical == QStringLiteral(""AUX 路由存在环"")) return localizedText(""mixer"", ""error.auxRouteCycle"", ""AUX routing contains a cycle"");
+13:     if (canonical == QStringLiteral(""无效的 FX 采样率。"")) return localizedText(""mixer"", ""error.fxSampleRate"", ""Invalid FX sample rate."");",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S6 实际运行时 key；四语言草稿已提供，待母语/领域审校,S6 实际 English 显示基线；key 与四语言草稿见核对表，人工审校仍待用户意见
+s0.3809c9a4f88e,mixer,error.auxRouteCycle,AUX routing contains a cycle,src/ui/src/LocalizedMixerErrors.hpp,12,"if (canonical == QStringLiteral(""AUX 路由存在环"")) return localizedText(""mixer"", ""error.auxRouteCycle"", ""AUX routing contains a cycle"");",display-source,"10:     if (canonical == QStringLiteral(""JACK 端口注册失败，旧拓扑已保留。"")) return localizedText(""mixer"", ""error.registerPorts"", ""Unable to register mixer ports. The previous state has been retained."");
+11:     if (canonical == QStringLiteral(""JACK 端口映射失败。"")) return localizedText(""mixer"", ""error.mapPorts"", ""Unable to map JACK ports."");
+12:     if (canonical == QStringLiteral(""AUX 路由存在环"")) return localizedText(""mixer"", ""error.auxRouteCycle"", ""AUX routing contains a cycle"");
+13:     if (canonical == QStringLiteral(""无效的 FX 采样率。"")) return localizedText(""mixer"", ""error.fxSampleRate"", ""Invalid FX sample rate."");
+14:     if (canonical == QStringLiteral(""无效的 Sub Mix 路由"")) return localizedText(""mixer"", ""error.subRoute"", ""Invalid Sub Mix routing"");",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S6 实际运行时 key；四语言草稿已提供，待母语/领域审校,S6 实际 English 显示基线；key 与四语言草稿见核对表，人工审校仍待用户意见
+s0.4ee4483f8f1a,mixer,error.fxSampleRate,Invalid FX sample rate.,src/ui/src/LocalizedMixerErrors.hpp,13,"if (canonical == QStringLiteral(""无效的 FX 采样率。"")) return localizedText(""mixer"", ""error.fxSampleRate"", ""Invalid FX sample rate."");",display-source,"11:     if (canonical == QStringLiteral(""JACK 端口映射失败。"")) return localizedText(""mixer"", ""error.mapPorts"", ""Unable to map JACK ports."");
+12:     if (canonical == QStringLiteral(""AUX 路由存在环"")) return localizedText(""mixer"", ""error.auxRouteCycle"", ""AUX routing contains a cycle"");
+13:     if (canonical == QStringLiteral(""无效的 FX 采样率。"")) return localizedText(""mixer"", ""error.fxSampleRate"", ""Invalid FX sample rate."");
+14:     if (canonical == QStringLiteral(""无效的 Sub Mix 路由"")) return localizedText(""mixer"", ""error.subRoute"", ""Invalid Sub Mix routing"");
+15:     if (canonical == QStringLiteral(""无效或自发 AUX 路由"")) return localizedText(""mixer"", ""error.selfAuxRoute"", ""Invalid or self-referencing AUX routing"");",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S6 实际运行时 key；四语言草稿已提供，待母语/领域审校,S6 实际 English 显示基线；key 与四语言草稿见核对表，人工审校仍待用户意见
+s0.bb7cc3bfaa35,mixer,error.subRoute,Invalid Sub Mix routing,src/ui/src/LocalizedMixerErrors.hpp,14,"if (canonical == QStringLiteral(""无效的 Sub Mix 路由"")) return localizedText(""mixer"", ""error.subRoute"", ""Invalid Sub Mix routing"");",display-source,"12:     if (canonical == QStringLiteral(""AUX 路由存在环"")) return localizedText(""mixer"", ""error.auxRouteCycle"", ""AUX routing contains a cycle"");
+13:     if (canonical == QStringLiteral(""无效的 FX 采样率。"")) return localizedText(""mixer"", ""error.fxSampleRate"", ""Invalid FX sample rate."");
+14:     if (canonical == QStringLiteral(""无效的 Sub Mix 路由"")) return localizedText(""mixer"", ""error.subRoute"", ""Invalid Sub Mix routing"");
+15:     if (canonical == QStringLiteral(""无效或自发 AUX 路由"")) return localizedText(""mixer"", ""error.selfAuxRoute"", ""Invalid or self-referencing AUX routing"");
+16:     if (canonical == QStringLiteral(""AUX 声像参数无效"")) return localizedText(""mixer"", ""error.auxPan"", ""Invalid AUX pan parameters"");",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S4 实际运行时 key；四语言草稿已提供，待母语/领域审校,S4 English 显示基线；实际 key、四语言草稿及待审校状态见核对表
+s0.a915b07da3d7,mixer,error.selfAuxRoute,Invalid or self-referencing AUX routing,src/ui/src/LocalizedMixerErrors.hpp,15,"if (canonical == QStringLiteral(""无效或自发 AUX 路由"")) return localizedText(""mixer"", ""error.selfAuxRoute"", ""Invalid or self-referencing AUX routing"");",display-source,"13:     if (canonical == QStringLiteral(""无效的 FX 采样率。"")) return localizedText(""mixer"", ""error.fxSampleRate"", ""Invalid FX sample rate."");
+14:     if (canonical == QStringLiteral(""无效的 Sub Mix 路由"")) return localizedText(""mixer"", ""error.subRoute"", ""Invalid Sub Mix routing"");
+15:     if (canonical == QStringLiteral(""无效或自发 AUX 路由"")) return localizedText(""mixer"", ""error.selfAuxRoute"", ""Invalid or self-referencing AUX routing"");
+16:     if (canonical == QStringLiteral(""AUX 声像参数无效"")) return localizedText(""mixer"", ""error.auxPan"", ""Invalid AUX pan parameters"");
+17:     if (canonical == QStringLiteral(""MAIN 必须是不可删除的立体声总线"")) return localizedText(""mixer"", ""error.mainBus"", ""MAIN must be a permanent stereo bus"");",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S4 实际运行时 key；四语言草稿已提供，待母语/领域审校,S4 English 显示基线；实际 key、四语言草稿及待审校状态见核对表
+s0.06ee9f5bc494,mixer,error.auxPan,Invalid AUX pan parameters,src/ui/src/LocalizedMixerErrors.hpp,16,"if (canonical == QStringLiteral(""AUX 声像参数无效"")) return localizedText(""mixer"", ""error.auxPan"", ""Invalid AUX pan parameters"");",display-source,"14:     if (canonical == QStringLiteral(""无效的 Sub Mix 路由"")) return localizedText(""mixer"", ""error.subRoute"", ""Invalid Sub Mix routing"");
+15:     if (canonical == QStringLiteral(""无效或自发 AUX 路由"")) return localizedText(""mixer"", ""error.selfAuxRoute"", ""Invalid or self-referencing AUX routing"");
+16:     if (canonical == QStringLiteral(""AUX 声像参数无效"")) return localizedText(""mixer"", ""error.auxPan"", ""Invalid AUX pan parameters"");
+17:     if (canonical == QStringLiteral(""MAIN 必须是不可删除的立体声总线"")) return localizedText(""mixer"", ""error.mainBus"", ""MAIN must be a permanent stereo bus"");
+18:     if (canonical == QStringLiteral(""监听推子参数无效"")) return localizedText(""mixer"", ""error.monitorParameters"", ""Invalid monitor fader parameters"");",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S4 实际运行时 key；四语言草稿已提供，待母语/领域审校,S4 English 显示基线；实际 key、四语言草稿及待审校状态见核对表
+s0.270524979665,mixer,error.mainBus,MAIN must be a permanent stereo bus,src/ui/src/LocalizedMixerErrors.hpp,17,"if (canonical == QStringLiteral(""MAIN 必须是不可删除的立体声总线"")) return localizedText(""mixer"", ""error.mainBus"", ""MAIN must be a permanent stereo bus"");",display-source,"15:     if (canonical == QStringLiteral(""无效或自发 AUX 路由"")) return localizedText(""mixer"", ""error.selfAuxRoute"", ""Invalid or self-referencing AUX routing"");
+16:     if (canonical == QStringLiteral(""AUX 声像参数无效"")) return localizedText(""mixer"", ""error.auxPan"", ""Invalid AUX pan parameters"");
+17:     if (canonical == QStringLiteral(""MAIN 必须是不可删除的立体声总线"")) return localizedText(""mixer"", ""error.mainBus"", ""MAIN must be a permanent stereo bus"");
+18:     if (canonical == QStringLiteral(""监听推子参数无效"")) return localizedText(""mixer"", ""error.monitorParameters"", ""Invalid monitor fader parameters"");
+19:     if (canonical == QStringLiteral(""MAIN 参数无效"")) return localizedText(""mixer"", ""error.mainParameters"", ""Invalid MAIN parameters"");",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S4 实际运行时 key；四语言草稿已提供，待母语/领域审校,S4 English 显示基线；实际 key、四语言草稿及待审校状态见核对表
+s0.e1b248faca17,mixer,error.monitorParameters,Invalid monitor fader parameters,src/ui/src/LocalizedMixerErrors.hpp,18,"if (canonical == QStringLiteral(""监听推子参数无效"")) return localizedText(""mixer"", ""error.monitorParameters"", ""Invalid monitor fader parameters"");",display-source,"16:     if (canonical == QStringLiteral(""AUX 声像参数无效"")) return localizedText(""mixer"", ""error.auxPan"", ""Invalid AUX pan parameters"");
+17:     if (canonical == QStringLiteral(""MAIN 必须是不可删除的立体声总线"")) return localizedText(""mixer"", ""error.mainBus"", ""MAIN must be a permanent stereo bus"");
+18:     if (canonical == QStringLiteral(""监听推子参数无效"")) return localizedText(""mixer"", ""error.monitorParameters"", ""Invalid monitor fader parameters"");
+19:     if (canonical == QStringLiteral(""MAIN 参数无效"")) return localizedText(""mixer"", ""error.mainParameters"", ""Invalid MAIN parameters"");
+20:     if (canonical == QStringLiteral(""CH 参数或身份无效"")) return localizedText(""mixer"", ""error.inputParameters"", ""Invalid CH parameters or identity"");",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S4 实际运行时 key；四语言草稿已提供，待母语/领域审校,S4 English 显示基线；实际 key、四语言草稿及待审校状态见核对表
+s0.7c50065b7c0f,mixer,error.mainParameters,Invalid MAIN parameters,src/ui/src/LocalizedMixerErrors.hpp,19,"if (canonical == QStringLiteral(""MAIN 参数无效"")) return localizedText(""mixer"", ""error.mainParameters"", ""Invalid MAIN parameters"");",display-source,"17:     if (canonical == QStringLiteral(""MAIN 必须是不可删除的立体声总线"")) return localizedText(""mixer"", ""error.mainBus"", ""MAIN must be a permanent stereo bus"");
+18:     if (canonical == QStringLiteral(""监听推子参数无效"")) return localizedText(""mixer"", ""error.monitorParameters"", ""Invalid monitor fader parameters"");
+19:     if (canonical == QStringLiteral(""MAIN 参数无效"")) return localizedText(""mixer"", ""error.mainParameters"", ""Invalid MAIN parameters"");
+20:     if (canonical == QStringLiteral(""CH 参数或身份无效"")) return localizedText(""mixer"", ""error.inputParameters"", ""Invalid CH parameters or identity"");
+21:     if (canonical == QStringLiteral(""AUX 参数或身份无效"")) return localizedText(""mixer"", ""error.auxParameters"", ""Invalid AUX parameters or identity"");",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S4 实际运行时 key；四语言草稿已提供，待母语/领域审校,S4 English 显示基线；实际 key、四语言草稿及待审校状态见核对表
+s0.06c4ff7e2421,mixer,error.inputParameters,Invalid CH parameters or identity,src/ui/src/LocalizedMixerErrors.hpp,20,"if (canonical == QStringLiteral(""CH 参数或身份无效"")) return localizedText(""mixer"", ""error.inputParameters"", ""Invalid CH parameters or identity"");",display-source,"18:     if (canonical == QStringLiteral(""监听推子参数无效"")) return localizedText(""mixer"", ""error.monitorParameters"", ""Invalid monitor fader parameters"");
+19:     if (canonical == QStringLiteral(""MAIN 参数无效"")) return localizedText(""mixer"", ""error.mainParameters"", ""Invalid MAIN parameters"");
+20:     if (canonical == QStringLiteral(""CH 参数或身份无效"")) return localizedText(""mixer"", ""error.inputParameters"", ""Invalid CH parameters or identity"");
+21:     if (canonical == QStringLiteral(""AUX 参数或身份无效"")) return localizedText(""mixer"", ""error.auxParameters"", ""Invalid AUX parameters or identity"");
+22:     if (canonical == QStringLiteral(""Sub Mix 参数或身份无效"")) return localizedText(""mixer"", ""error.subParameters"", ""Invalid Sub Mix parameters or identity"");",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S4 实际运行时 key；四语言草稿已提供，待母语/领域审校,S4 English 显示基线；实际 key、四语言草稿及待审校状态见核对表
+s0.09e4010d67d6,mixer,error.auxParameters,Invalid AUX parameters or identity,src/ui/src/LocalizedMixerErrors.hpp,21,"if (canonical == QStringLiteral(""AUX 参数或身份无效"")) return localizedText(""mixer"", ""error.auxParameters"", ""Invalid AUX parameters or identity"");",display-source,"19:     if (canonical == QStringLiteral(""MAIN 参数无效"")) return localizedText(""mixer"", ""error.mainParameters"", ""Invalid MAIN parameters"");
+20:     if (canonical == QStringLiteral(""CH 参数或身份无效"")) return localizedText(""mixer"", ""error.inputParameters"", ""Invalid CH parameters or identity"");
+21:     if (canonical == QStringLiteral(""AUX 参数或身份无效"")) return localizedText(""mixer"", ""error.auxParameters"", ""Invalid AUX parameters or identity"");
+22:     if (canonical == QStringLiteral(""Sub Mix 参数或身份无效"")) return localizedText(""mixer"", ""error.subParameters"", ""Invalid Sub Mix parameters or identity"");
+23:     if (canonical == QStringLiteral(""通道名生成了无效或重复的 JACK 端口名"")) return localizedText(""mixer"", ""error.portName"", ""The channel name produces an invalid or duplicate JACK port name"");",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S4 实际运行时 key；四语言草稿已提供，待母语/领域审校,S4 English 显示基线；实际 key、四语言草稿及待审校状态见核对表
+s0.6c9d76aafbbe,mixer,error.subParameters,Invalid Sub Mix parameters or identity,src/ui/src/LocalizedMixerErrors.hpp,22,"if (canonical == QStringLiteral(""Sub Mix 参数或身份无效"")) return localizedText(""mixer"", ""error.subParameters"", ""Invalid Sub Mix parameters or identity"");",display-source,"20:     if (canonical == QStringLiteral(""CH 参数或身份无效"")) return localizedText(""mixer"", ""error.inputParameters"", ""Invalid CH parameters or identity"");
+21:     if (canonical == QStringLiteral(""AUX 参数或身份无效"")) return localizedText(""mixer"", ""error.auxParameters"", ""Invalid AUX parameters or identity"");
+22:     if (canonical == QStringLiteral(""Sub Mix 参数或身份无效"")) return localizedText(""mixer"", ""error.subParameters"", ""Invalid Sub Mix parameters or identity"");
+23:     if (canonical == QStringLiteral(""通道名生成了无效或重复的 JACK 端口名"")) return localizedText(""mixer"", ""error.portName"", ""The channel name produces an invalid or duplicate JACK port name"");
+24:     if (canonical == QStringLiteral(""AUX 路由无效或重复"")) return localizedText(""mixer"", ""error.duplicateRoute"", ""Invalid or duplicate AUX routing"");",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S4 实际运行时 key；四语言草稿已提供，待母语/领域审校,S4 English 显示基线；实际 key、四语言草稿及待审校状态见核对表
+s0.6cba23fb755c,mixer,error.portName,The channel name produces an invalid or duplicate JACK port name,src/ui/src/LocalizedMixerErrors.hpp,23,"if (canonical == QStringLiteral(""通道名生成了无效或重复的 JACK 端口名"")) return localizedText(""mixer"", ""error.portName"", ""The channel name produces an invalid or duplicate JACK port name"");",display-source,"21:     if (canonical == QStringLiteral(""AUX 参数或身份无效"")) return localizedText(""mixer"", ""error.auxParameters"", ""Invalid AUX parameters or identity"");
+22:     if (canonical == QStringLiteral(""Sub Mix 参数或身份无效"")) return localizedText(""mixer"", ""error.subParameters"", ""Invalid Sub Mix parameters or identity"");
+23:     if (canonical == QStringLiteral(""通道名生成了无效或重复的 JACK 端口名"")) return localizedText(""mixer"", ""error.portName"", ""The channel name produces an invalid or duplicate JACK port name"");
+24:     if (canonical == QStringLiteral(""AUX 路由无效或重复"")) return localizedText(""mixer"", ""error.duplicateRoute"", ""Invalid or duplicate AUX routing"");
+25:     if (canonical == QStringLiteral(""总线路由存在环"")) return localizedText(""mixer"", ""error.routeCycle"", ""Bus routing contains a cycle"");",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S4 实际运行时 key；四语言草稿已提供，待母语/领域审校,S4 English 显示基线；实际 key、四语言草稿及待审校状态见核对表
+s0.faa4d6108f3c,mixer,error.duplicateRoute,Invalid or duplicate AUX routing,src/ui/src/LocalizedMixerErrors.hpp,24,"if (canonical == QStringLiteral(""AUX 路由无效或重复"")) return localizedText(""mixer"", ""error.duplicateRoute"", ""Invalid or duplicate AUX routing"");",display-source,"22:     if (canonical == QStringLiteral(""Sub Mix 参数或身份无效"")) return localizedText(""mixer"", ""error.subParameters"", ""Invalid Sub Mix parameters or identity"");
+23:     if (canonical == QStringLiteral(""通道名生成了无效或重复的 JACK 端口名"")) return localizedText(""mixer"", ""error.portName"", ""The channel name produces an invalid or duplicate JACK port name"");
+24:     if (canonical == QStringLiteral(""AUX 路由无效或重复"")) return localizedText(""mixer"", ""error.duplicateRoute"", ""Invalid or duplicate AUX routing"");
+25:     if (canonical == QStringLiteral(""总线路由存在环"")) return localizedText(""mixer"", ""error.routeCycle"", ""Bus routing contains a cycle"");
+26:     if (canonical == QStringLiteral(""FX 链拓扑已变更。"")) return localizedText(""mixer"", ""error.effectTopology"", ""The FX chain topology has changed."");",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S4 实际运行时 key；四语言草稿已提供，待母语/领域审校,S4 English 显示基线；实际 key、四语言草稿及待审校状态见核对表
+s0.f7c4e59c0960,mixer,error.routeCycle,Bus routing contains a cycle,src/ui/src/LocalizedMixerErrors.hpp,25,"if (canonical == QStringLiteral(""总线路由存在环"")) return localizedText(""mixer"", ""error.routeCycle"", ""Bus routing contains a cycle"");",display-source,"23:     if (canonical == QStringLiteral(""通道名生成了无效或重复的 JACK 端口名"")) return localizedText(""mixer"", ""error.portName"", ""The channel name produces an invalid or duplicate JACK port name"");
+24:     if (canonical == QStringLiteral(""AUX 路由无效或重复"")) return localizedText(""mixer"", ""error.duplicateRoute"", ""Invalid or duplicate AUX routing"");
+25:     if (canonical == QStringLiteral(""总线路由存在环"")) return localizedText(""mixer"", ""error.routeCycle"", ""Bus routing contains a cycle"");
+26:     if (canonical == QStringLiteral(""FX 链拓扑已变更。"")) return localizedText(""mixer"", ""error.effectTopology"", ""The FX chain topology has changed."");
+27:     if (canonical.endsWith(QStringLiteral("" 缺少逐声道参数快照。请在 FX 设置中重新添加。"")))",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S4 实际运行时 key；四语言草稿已提供，待母语/领域审校,S4 English 显示基线；实际 key、四语言草稿及待审校状态见核对表
+s0.eaa2ced1b0a7,mixer,error.effectTopology,The FX chain topology has changed.,src/ui/src/LocalizedMixerErrors.hpp,26,"if (canonical == QStringLiteral(""FX 链拓扑已变更。"")) return localizedText(""mixer"", ""error.effectTopology"", ""The FX chain topology has changed."");",display-source,"24:     if (canonical == QStringLiteral(""AUX 路由无效或重复"")) return localizedText(""mixer"", ""error.duplicateRoute"", ""Invalid or duplicate AUX routing"");
+25:     if (canonical == QStringLiteral(""总线路由存在环"")) return localizedText(""mixer"", ""error.routeCycle"", ""Bus routing contains a cycle"");
+26:     if (canonical == QStringLiteral(""FX 链拓扑已变更。"")) return localizedText(""mixer"", ""error.effectTopology"", ""The FX chain topology has changed."");
+27:     if (canonical.endsWith(QStringLiteral("" 缺少逐声道参数快照。请在 FX 设置中重新添加。"")))
+28:         return localizedText(""mixer"", ""error.missingSnapshot"", ""%1 has no per-channel parameter snapshot. Add it again in FX settings."").arg(canonical.left(canonical.size() - QStringLiteral("" 缺少逐声道参数快照。请在 FX 设置中重新添加。"").size()));",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S4 实际运行时 key；四语言草稿已提供，待母语/领域审校,S4 English 显示基线；实际 key、四语言草稿及待审校状态见核对表
+s0.4c115dedf96b,mixer,error.missingSnapshot,%1 has no per-channel parameter snapshot. Add it again in FX settings.,src/ui/src/LocalizedMixerErrors.hpp,28,"return localizedText(""mixer"", ""error.missingSnapshot"", ""%1 has no per-channel parameter snapshot. Add it again in FX settings."").arg(canonical.left(canonical.size() - QStringLiteral("" 缺少逐声道参数快照。请在 FX 设置中重新添加。"").size()));",display-source,"26:     if (canonical == QStringLiteral(""FX 链拓扑已变更。"")) return localizedText(""mixer"", ""error.effectTopology"", ""The FX chain topology has changed."");
+27:     if (canonical.endsWith(QStringLiteral("" 缺少逐声道参数快照。请在 FX 设置中重新添加。"")))
+28:         return localizedText(""mixer"", ""error.missingSnapshot"", ""%1 has no per-channel parameter snapshot. Add it again in FX settings."").arg(canonical.left(canonical.size() - QStringLiteral("" 缺少逐声道参数快照。请在 FX 设置中重新添加。"").size()));
+29:     if (canonical.endsWith(QStringLiteral("" 的参数快照 Base64 格式无效。"")))
+30:         return localizedText(""mixer"", ""error.snapshotBase64"", ""Invalid Base64 parameter snapshot for %1."").arg(canonical.left(canonical.size() - QStringLiteral("" 的参数快照 Base64 格式无效。"").size()));",%1,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S4 实际运行时 key；四语言草稿已提供，待母语/领域审校,S4 English 显示基线；实际 key、四语言草稿及待审校状态见核对表
+s0.4bd1240a590f,mixer,error.snapshotBase64,Invalid Base64 parameter snapshot for %1.,src/ui/src/LocalizedMixerErrors.hpp,30,"return localizedText(""mixer"", ""error.snapshotBase64"", ""Invalid Base64 parameter snapshot for %1."").arg(canonical.left(canonical.size() - QStringLiteral("" 的参数快照 Base64 格式无效。"").size()));",display-source,"28:         return localizedText(""mixer"", ""error.missingSnapshot"", ""%1 has no per-channel parameter snapshot. Add it again in FX settings."").arg(canonical.left(canonical.size() - QStringLiteral("" 缺少逐声道参数快照。请在 FX 设置中重新添加。"").size()));
+29:     if (canonical.endsWith(QStringLiteral("" 的参数快照 Base64 格式无效。"")))
+30:         return localizedText(""mixer"", ""error.snapshotBase64"", ""Invalid Base64 parameter snapshot for %1."").arg(canonical.left(canonical.size() - QStringLiteral("" 的参数快照 Base64 格式无效。"").size()));
+31:     if (canonical.endsWith(QStringLiteral("" 的参数快照长度无效。"")))
+32:         return localizedText(""mixer"", ""error.snapshotSize"", ""Invalid parameter snapshot size for %1."").arg(canonical.left(canonical.size() - QStringLiteral("" 的参数快照长度无效。"").size()));",%1,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S4 实际运行时 key；四语言草稿已提供，待母语/领域审校,S4 English 显示基线；实际 key、四语言草稿及待审校状态见核对表
+s0.0cf1f2457102,mixer,error.snapshotSize,Invalid parameter snapshot size for %1.,src/ui/src/LocalizedMixerErrors.hpp,32,"return localizedText(""mixer"", ""error.snapshotSize"", ""Invalid parameter snapshot size for %1."").arg(canonical.left(canonical.size() - QStringLiteral("" 的参数快照长度无效。"").size()));",display-source,"30:         return localizedText(""mixer"", ""error.snapshotBase64"", ""Invalid Base64 parameter snapshot for %1."").arg(canonical.left(canonical.size() - QStringLiteral("" 的参数快照 Base64 格式无效。"").size()));
+31:     if (canonical.endsWith(QStringLiteral("" 的参数快照长度无效。"")))
+32:         return localizedText(""mixer"", ""error.snapshotSize"", ""Invalid parameter snapshot size for %1."").arg(canonical.left(canonical.size() - QStringLiteral("" 的参数快照长度无效。"").size()));
+33:     if (canonical.endsWith(QStringLiteral("" 的参数快照版本或模块身份不匹配。"")))
+34:         return localizedText(""mixer"", ""error.snapshotIdentity"", ""Parameter snapshot version or module identity mismatch for %1."").arg(canonical.left(canonical.size() - QStringLiteral("" 的参数快照版本或模块身份不匹配。"").size()));",%1,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S4 实际运行时 key；四语言草稿已提供，待母语/领域审校,S4 English 显示基线；实际 key、四语言草稿及待审校状态见核对表
+s0.90dd6603f456,mixer,error.snapshotIdentity,Parameter snapshot version or module identity mismatch for %1.,src/ui/src/LocalizedMixerErrors.hpp,34,"return localizedText(""mixer"", ""error.snapshotIdentity"", ""Parameter snapshot version or module identity mismatch for %1."").arg(canonical.left(canonical.size() - QStringLiteral("" 的参数快照版本或模块身份不匹配。"").size()));",display-source,"32:         return localizedText(""mixer"", ""error.snapshotSize"", ""Invalid parameter snapshot size for %1."").arg(canonical.left(canonical.size() - QStringLiteral("" 的参数快照长度无效。"").size()));
+33:     if (canonical.endsWith(QStringLiteral("" 的参数快照版本或模块身份不匹配。"")))
+34:         return localizedText(""mixer"", ""error.snapshotIdentity"", ""Parameter snapshot version or module identity mismatch for %1."").arg(canonical.left(canonical.size() - QStringLiteral("" 的参数快照版本或模块身份不匹配。"").size()));
+35:     if (canonical.endsWith(QStringLiteral("" 的参数快照导入失败。"")))
+36:         return localizedText(""mixer"", ""error.snapshotImport"", ""Parameter snapshot import failed for %1."").arg(canonical.left(canonical.size() - QStringLiteral("" 的参数快照导入失败。"").size()));",%1,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S4 实际运行时 key；四语言草稿已提供，待母语/领域审校,S4 English 显示基线；实际 key、四语言草稿及待审校状态见核对表
+s0.d4ee15db6b48,mixer,error.snapshotImport,Parameter snapshot import failed for %1.,src/ui/src/LocalizedMixerErrors.hpp,36,"return localizedText(""mixer"", ""error.snapshotImport"", ""Parameter snapshot import failed for %1."").arg(canonical.left(canonical.size() - QStringLiteral("" 的参数快照导入失败。"").size()));",display-source,"34:         return localizedText(""mixer"", ""error.snapshotIdentity"", ""Parameter snapshot version or module identity mismatch for %1."").arg(canonical.left(canonical.size() - QStringLiteral("" 的参数快照版本或模块身份不匹配。"").size()));
+35:     if (canonical.endsWith(QStringLiteral("" 的参数快照导入失败。"")))
+36:         return localizedText(""mixer"", ""error.snapshotImport"", ""Parameter snapshot import failed for %1."").arg(canonical.left(canonical.size() - QStringLiteral("" 的参数快照导入失败。"").size()));
+37:     return canonical;
+38: }",%1,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S4 实际运行时 key；四语言草稿已提供，待母语/领域审校,S4 English 显示基线；实际 key、四语言草稿及待审校状态见核对表
 s0.e71df3a9a26a,theme,catalog.directory,Cannot create theme directory: {detail},src/ui/src/LocalizedThemeMessages.hpp,11,"{ ""catalog.directory"", ""无法创建主题目录：%1"", ""Cannot create theme directory: {detail}"" },",display-source,"9: struct Rule { const char* key; const char* original; const char* english; };
 10: inline const Rule rules[] {
 11:     { ""catalog.directory"", ""无法创建主题目录：%1"", ""Cannot create theme directory: {detail}"" },
@@ -6644,16 +6394,16 @@ s0.c61228e67c39,mixer,status.noChannels,No channels,src/ui/src/MixerOverview.hpp
 110:             Controls::drawText(painter,rect(),mixerText(""status.noChannels"",""No channels""),font(),color(""text-muted"",""#a9bbd7""));
 111:         }
 112:     }",,自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip,S4 实际运行时 key；四语言草稿已提供，待母语/领域审校,S4 English 显示基线；实际 key、四语言草稿及待审校状态见核对表
-s0.844e951a94aa,mixer,mixerpolarplot.label.input,输入,src/ui/src/MixerPolarPlot.cpp,228,"Qt::AlignLeft | Qt::AlignVCenter, QStringLiteral(""输入""));",display-source,"226:             ? inputStroke : polarColor(themeScope, ""chart-legend-input-text"", inputStroke));
-227:         painter.drawText(QRectF(legend.left() + 28, legend.top() + 1, 70, 20),
-228:                          Qt::AlignLeft | Qt::AlignVCenter, QStringLiteral(""输入""));
-229:     }
-230:     if (showOutput) {",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S0 key 提案；四语言译文和母语审校尚未实施,按源码使用场景指定语义 key；技术标识/单位/占位参数保持原样
-s0.c5a8a6ac8f7b,mixer,mixerpolarplot.label.output,输出,src/ui/src/MixerPolarPlot.cpp,237,"Qt::AlignLeft | Qt::AlignVCenter, QStringLiteral(""输出""));",display-source,"235:             ? outputStroke : polarColor(themeScope, ""chart-legend-output-text"", outputStroke));
-236:         painter.drawText(QRectF(legend.left() + 28, legend.top() + 21, 70, 20),
-237:                          Qt::AlignLeft | Qt::AlignVCenter, QStringLiteral(""输出""));
-238:     }
-239:     if (contour.inputOverrange || contour.outputOverrange) {",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S0 key 提案；四语言译文和母语审校尚未实施,按源码使用场景指定语义 key；技术标识/单位/占位参数保持原样
+s0.105d969bb63e,mixer,label.input,Input,src/ui/src/MixerPolarPlot.cpp,229,"Qt::AlignLeft | Qt::AlignVCenter, localizedText(""mixer"", ""label.input"", ""Input""));",display-source,"227:             ? inputStroke : polarColor(themeScope, ""chart-legend-input-text"", inputStroke));
+228:         painter.drawText(QRectF(legend.left() + 28, legend.top() + 1, 70, 20),
+229:                          Qt::AlignLeft | Qt::AlignVCenter, localizedText(""mixer"", ""label.input"", ""Input""));
+230:     }
+231:     if (showOutput) {",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S6 实际运行时 key；四语言草稿已提供，待母语/领域审校,S6 实际 English 显示基线；key 与四语言草稿见核对表，人工审校仍待用户意见
+s0.164a12b95429,mixer,label.output,Output,src/ui/src/MixerPolarPlot.cpp,238,"Qt::AlignLeft | Qt::AlignVCenter, localizedText(""mixer"", ""label.output"", ""Output""));",display-source,"236:             ? outputStroke : polarColor(themeScope, ""chart-legend-output-text"", outputStroke));
+237:         painter.drawText(QRectF(legend.left() + 28, legend.top() + 21, 70, 20),
+238:                          Qt::AlignLeft | Qt::AlignVCenter, localizedText(""mixer"", ""label.output"", ""Output""));
+239:     }
+240:     if (contour.inputOverrange || contour.outputOverrange) {",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S6 实际运行时 key；四语言草稿已提供，待母语/领域审校,S6 实际 English 显示基线；key 与四语言草稿见核对表，人工审校仍待用户意见
 s0.f58b105d76cd,mixer,layout.mono,Mono,src/ui/src/MixerWindow.cpp,74,"if(layout==Common::AuxChannelLayout::mono) return mixerText(""layout.mono"",""Mono"");",display-source,"72: }
 73: QString mixerLayoutCaption(Common::AuxChannelLayout layout) {
 74:     if(layout==Common::AuxChannelLayout::mono) return mixerText(""layout.mono"",""Mono"");

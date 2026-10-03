@@ -8,6 +8,7 @@
 #include <QByteArray>
 #include <QLibrary>
 #include <QString>
+#include <QStringList>
 
 #include <cstddef>
 #include <cstdint>
@@ -28,6 +29,7 @@ public:
                           float input[8], float output[8], float reduction[8],
                           void* spectrum, std::uint32_t spectrumBytes) noexcept;
     const QString& warning() const noexcept { return warning_; }
+    const QStringList& unavailableModules() const noexcept { return unavailableModules_; }
 
 private:
     struct Effect final {
@@ -60,6 +62,7 @@ private:
                                QByteArray& bytes, QString* error);
     std::vector<Chain> chains_;
     QString warning_;
+    QStringList unavailableModules_;
 };
 
 }

@@ -1,6 +1,6 @@
 {
   "formatVersion": 1,
-  "catalogVersion": 10,
+  "catalogVersion": 11,
   "moduleId": "winjacknexus-host",
   "language": "ko-KR",
   "domains": {
@@ -426,7 +426,8 @@
       "probe.role.topFrontRight": "상단 전방 오른쪽",
       "probe.role.topRearLeft": "상단 후방 왼쪽",
       "probe.role.topRearRight": "상단 후방 오른쪽",
-      "probe.role.lfe": "저주파 효과 (LFE)"
+      "probe.role.lfe": "저주파 효과 (LFE)",
+      "settings.unassigned": "할당되지 않음"
     },
     "mixer": {
       "status.noChannels": "채널 없음",
@@ -505,7 +506,12 @@
       "error.snapshotSize": "%1 매개변수 스냅샷 크기가 잘못되었습니다.",
       "error.snapshotIdentity": "%1 매개변수 스냅샷의 버전 또는 모듈 식별 정보가 일치하지 않습니다.",
       "error.snapshotImport": "%1 매개변수 스냅샷 가져오기 실패.",
-      "section.subMix": "서브 믹스"
+      "section.subMix": "서브 믹스",
+      "error.mapPorts": "JACK 포트를 매핑할 수 없습니다.",
+      "error.auxRouteCycle": "AUX 라우팅에 순환이 있습니다",
+      "error.fxSampleRate": "FX 샘플 레이트가 유효하지 않습니다.",
+      "warning.effectsBypassed": "FX 모듈이 바이패스되었습니다",
+      "warning.unavailableEffect": "Native Fx {module}을 사용할 수 없습니다. 설정을 보존한 채 바이패스했습니다."
     },
     "fxhost": {
       "window.title": "FX 설정",

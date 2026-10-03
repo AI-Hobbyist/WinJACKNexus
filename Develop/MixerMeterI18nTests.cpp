@@ -183,7 +183,8 @@ struct Provider final : MeterViewDataProvider {
     std::vector<MeterViewSnapshot> rows;
     int commands = 0;
     std::vector<MeterViewSnapshot> snapshots() const override { return rows; }
-    bool dispatch(const MeterViewCommand&) override { ++commands; return true; }
+    MeterViewCommand lastCommand;
+    bool dispatch(const MeterViewCommand& command) override { lastCommand = command; ++commands; return true; }
 };
 Provider fixture() {
     Provider provider;
@@ -200,6 +201,7 @@ Provider fixture() {
         snapshot.channels = {{QStringLiteral("Left user"),QStringLiteral("M+030"),false}, {QStringLiteral("Right user"),QStringLiteral("M-030"),false}};
         if (index == 1) for (int channel = 2; channel < 8; ++channel)
             snapshot.channels.push_back({QStringLiteral("User %1").arg(channel), QStringLiteral("LFE"), channel == 3});
+        if (index == 1) snapshot.channels[2].speakerRole = QStringLiteral("未分配");
         snapshot.currentMetrics = {-12.0F,-20.0F,-11.5F,-23.0F,-24.0F,-23.0F,7.5F};
         snapshot.historyView.mode = MeterHistoryViewMode::scanning;
         snapshot.historyView.paused = true;
@@ -368,6 +370,21 @@ int main(int argc, char** argv) {
         check(host.manager().setLanguage(alternate,&error),"switch with custom channel draft"); settle();
         check(table->cellWidget(0,0) == channelDraft && channelDraft->text() == QStringLiteral("未提交_Channel_日本語") && channelDraft->selectionStart() == 1,"channel editor identity/draft/selection preserved");
         check(provider.commands == beforeTable,"table language update emits no model command");
+        auto* role = qobject_cast<QComboBox*>(table->cellWidget(2,1));
+        check(role && role->currentData().toString() == QStringLiteral("未分配"), "unassigned role retains its canonical data during hot language change");
+        check(role->currentText() == localizedText("meterbridge", "settings.unassigned", "Unassigned"), "unassigned role displays the current language");
+        const auto unassignedIndex = role->currentIndex();
+        role->setCurrentIndex(role->findData(QStringLiteral("M+030")));
+        role->setCurrentIndex(unassignedIndex);
+        check(provider.commands == beforeTable + 2 && provider.lastCommand.type == MeterViewCommandType::setChannelRole
+            && provider.lastCommand.textValue == QStringLiteral("未分配"), "role command sends original data rather than translated display text");
+        for (const auto& entry : std::initializer_list<std::pair<QString, const char*>>{
+            {QStringLiteral("JACK 端口注册失败，旧拓扑已保留。"), "error.registerPorts"},
+            {QStringLiteral("JACK 端口映射失败。"), "error.mapPorts"},
+            {QStringLiteral("AUX 路由存在环"), "error.auxRouteCycle"},
+            {QStringLiteral("无效的 FX 采样率。"), "error.fxSampleRate"}})
+            check(MixerErrors::display(entry.first) == localizedText("mixer", entry.second, "missing"), "canonical mixer failure uses its current-language display key");
+
         channelDraft->setText(oldChannelName);
         check(host.manager().setLanguage(language,&error),"restore language after table test");
         expose(*details);

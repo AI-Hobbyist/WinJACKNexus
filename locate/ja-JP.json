@@ -1,6 +1,6 @@
 {
   "formatVersion": 1,
-  "catalogVersion": 10,
+  "catalogVersion": 11,
   "moduleId": "winjacknexus-host",
   "language": "ja-JP",
   "domains": {
@@ -426,7 +426,8 @@
       "probe.role.topFrontRight": "上方前方右",
       "probe.role.topRearLeft": "上方後方左",
       "probe.role.topRearRight": "上方後方右",
-      "probe.role.lfe": "低域効果 (LFE)"
+      "probe.role.lfe": "低域効果 (LFE)",
+      "settings.unassigned": "未割り当て"
     },
     "mixer": {
       "status.noChannels": "チャンネルがありません",
@@ -505,7 +506,12 @@
       "error.snapshotSize": "%1 のパラメータースナップショットのサイズが無効です。",
       "error.snapshotIdentity": "%1 のパラメータースナップショットのバージョンまたはモジュール識別情報が一致しません。",
       "error.snapshotImport": "%1 のパラメータースナップショットの読み込みに失敗しました。",
-      "section.subMix": "サブミックス"
+      "section.subMix": "サブミックス",
+      "error.mapPorts": "JACK ポートをマッピングできません。",
+      "error.auxRouteCycle": "AUX ルーティングに循環があります",
+      "error.fxSampleRate": "FX のサンプルレートが無効です。",
+      "warning.effectsBypassed": "FX モジュールをバイパスしました",
+      "warning.unavailableEffect": "Native Fx {module} は利用できません。設定を保持してバイパスしました。"
     },
     "fxhost": {
       "window.title": "FX 設定",

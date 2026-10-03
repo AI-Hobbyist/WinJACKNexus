@@ -7,6 +7,10 @@ namespace WinJACKNexus::UI::MixerErrors {
 // The existing model API returns canonical diagnostics. Adapt only the display
 // copy at the GUI boundary; audio processing, persisted state and logs retain it.
 inline QString display(const QString& canonical) {
+    if (canonical == QStringLiteral("JACK 端口注册失败，旧拓扑已保留。")) return localizedText("mixer", "error.registerPorts", "Unable to register mixer ports. The previous state has been retained.");
+    if (canonical == QStringLiteral("JACK 端口映射失败。")) return localizedText("mixer", "error.mapPorts", "Unable to map JACK ports.");
+    if (canonical == QStringLiteral("AUX 路由存在环")) return localizedText("mixer", "error.auxRouteCycle", "AUX routing contains a cycle");
+    if (canonical == QStringLiteral("无效的 FX 采样率。")) return localizedText("mixer", "error.fxSampleRate", "Invalid FX sample rate.");
     if (canonical == QStringLiteral("无效的 Sub Mix 路由")) return localizedText("mixer", "error.subRoute", "Invalid Sub Mix routing");
     if (canonical == QStringLiteral("无效或自发 AUX 路由")) return localizedText("mixer", "error.selfAuxRoute", "Invalid or self-referencing AUX routing");
     if (canonical == QStringLiteral("AUX 声像参数无效")) return localizedText("mixer", "error.auxPan", "Invalid AUX pan parameters");

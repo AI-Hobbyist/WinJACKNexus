@@ -419,6 +419,7 @@ locate/en-US.json,domains.meterbridge.probe.role.topFrontRight,Top front right,m
 locate/en-US.json,domains.meterbridge.probe.role.topRearLeft,Top rear left,meterbridge,probe.role.topRearLeft,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
 locate/en-US.json,domains.meterbridge.probe.role.topRearRight,Top rear right,meterbridge,probe.role.topRearRight,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
 locate/en-US.json,domains.meterbridge.probe.role.lfe,Low-frequency effects (LFE),meterbridge,probe.role.lfe,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.meterbridge.settings.unassigned,Unassigned,meterbridge,settings.unassigned,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
 locate/en-US.json,domains.mixer.status.noChannels,No channels,mixer,status.noChannels,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
 locate/en-US.json,domains.mixer.layout.mono,Mono,mixer,layout.mono,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
 locate/en-US.json,domains.mixer.layout.stereo,Stereo,mixer,layout.stereo,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
@@ -496,6 +497,11 @@ locate/en-US.json,domains.mixer.error.snapshotSize,Invalid parameter snapshot si
 locate/en-US.json,domains.mixer.error.snapshotIdentity,Parameter snapshot version or module identity mismatch for %1.,mixer,error.snapshotIdentity,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
 locate/en-US.json,domains.mixer.error.snapshotImport,Parameter snapshot import failed for %1.,mixer,error.snapshotImport,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
 locate/en-US.json,domains.mixer.section.subMix,Sub Mix,mixer,section.subMix,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.mixer.error.mapPorts,Unable to map JACK ports.,mixer,error.mapPorts,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.mixer.error.auxRouteCycle,AUX routing contains a cycle,mixer,error.auxRouteCycle,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.mixer.error.fxSampleRate,Invalid FX sample rate.,mixer,error.fxSampleRate,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.mixer.warning.effectsBypassed,FX modules bypassed,mixer,warning.effectsBypassed,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.mixer.warning.unavailableEffect,Native Fx {module} is unavailable; bypassed with its configuration retained.,mixer,warning.unavailableEffect,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
 locate/en-US.json,domains.fxhost.window.title,FX settings,fxhost,window.title,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
 locate/en-US.json,domains.fxhost.control.chainPower,Enable FX chain,fxhost,control.chainPower,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
 locate/en-US.json,domains.fxhost.label.preset,Preset:,fxhost,label.preset,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
@@ -1202,6 +1208,7 @@ locate/ja-JP.json,domains.meterbridge.probe.role.topFrontRight,上方前方右,m
 locate/ja-JP.json,domains.meterbridge.probe.role.topRearLeft,上方後方左,meterbridge,probe.role.topRearLeft,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
 locate/ja-JP.json,domains.meterbridge.probe.role.topRearRight,上方後方右,meterbridge,probe.role.topRearRight,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
 locate/ja-JP.json,domains.meterbridge.probe.role.lfe,低域効果 (LFE),meterbridge,probe.role.lfe,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.meterbridge.settings.unassigned,未割り当て,meterbridge,settings.unassigned,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
 locate/ja-JP.json,domains.mixer.status.noChannels,チャンネルがありません,mixer,status.noChannels,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
 locate/ja-JP.json,domains.mixer.layout.mono,モノラル,mixer,layout.mono,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
 locate/ja-JP.json,domains.mixer.layout.stereo,ステレオ,mixer,layout.stereo,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
@@ -1279,6 +1286,11 @@ locate/ja-JP.json,domains.mixer.error.snapshotSize,%1 のパラメータース�
 locate/ja-JP.json,domains.mixer.error.snapshotIdentity,%1 のパラメータースナップショットのバージョンまたはモジュール識別情報が一致しません。,mixer,error.snapshotIdentity,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
 locate/ja-JP.json,domains.mixer.error.snapshotImport,%1 のパラメータースナップショットの読み込みに失敗しました。,mixer,error.snapshotImport,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
 locate/ja-JP.json,domains.mixer.section.subMix,サブミックス,mixer,section.subMix,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.mixer.error.mapPorts,JACK ポートをマッピングできません。,mixer,error.mapPorts,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.mixer.error.auxRouteCycle,AUX ルーティングに循環があります,mixer,error.auxRouteCycle,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.mixer.error.fxSampleRate,FX のサンプルレートが無効です。,mixer,error.fxSampleRate,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.mixer.warning.effectsBypassed,FX モジュールをバイパスしました,mixer,warning.effectsBypassed,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.mixer.warning.unavailableEffect,Native Fx {module} は利用できません。設定を保持してバイパスしました。,mixer,warning.unavailableEffect,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
 locate/ja-JP.json,domains.fxhost.window.title,FX 設定,fxhost,window.title,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
 locate/ja-JP.json,domains.fxhost.control.chainPower,FX チェーンを有効化,fxhost,control.chainPower,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
 locate/ja-JP.json,domains.fxhost.label.preset,プリセット：,fxhost,label.preset,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
@@ -1985,6 +1997,7 @@ locate/ko-KR.json,domains.meterbridge.probe.role.topFrontRight,상단 전방 오
 locate/ko-KR.json,domains.meterbridge.probe.role.topRearLeft,상단 후방 왼쪽,meterbridge,probe.role.topRearLeft,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
 locate/ko-KR.json,domains.meterbridge.probe.role.topRearRight,상단 후방 오른쪽,meterbridge,probe.role.topRearRight,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
 locate/ko-KR.json,domains.meterbridge.probe.role.lfe,저주파 효과 (LFE),meterbridge,probe.role.lfe,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.meterbridge.settings.unassigned,할당되지 않음,meterbridge,settings.unassigned,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
 locate/ko-KR.json,domains.mixer.status.noChannels,채널 없음,mixer,status.noChannels,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
 locate/ko-KR.json,domains.mixer.layout.mono,모노,mixer,layout.mono,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
 locate/ko-KR.json,domains.mixer.layout.stereo,스테레오,mixer,layout.stereo,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
@@ -2062,6 +2075,11 @@ locate/ko-KR.json,domains.mixer.error.snapshotSize,%1 매개변수 스냅샷 크
 locate/ko-KR.json,domains.mixer.error.snapshotIdentity,%1 매개변수 스냅샷의 버전 또는 모듈 식별 정보가 일치하지 않습니다.,mixer,error.snapshotIdentity,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
 locate/ko-KR.json,domains.mixer.error.snapshotImport,%1 매개변수 스냅샷 가져오기 실패.,mixer,error.snapshotImport,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
 locate/ko-KR.json,domains.mixer.section.subMix,서브 믹스,mixer,section.subMix,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.mixer.error.mapPorts,JACK 포트를 매핑할 수 없습니다.,mixer,error.mapPorts,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.mixer.error.auxRouteCycle,AUX 라우팅에 순환이 있습니다,mixer,error.auxRouteCycle,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.mixer.error.fxSampleRate,FX 샘플 레이트가 유효하지 않습니다.,mixer,error.fxSampleRate,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.mixer.warning.effectsBypassed,FX 모듈이 바이패스되었습니다,mixer,warning.effectsBypassed,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.mixer.warning.unavailableEffect,Native Fx {module}을 사용할 수 없습니다. 설정을 보존한 채 바이패스했습니다.,mixer,warning.unavailableEffect,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
 locate/ko-KR.json,domains.fxhost.window.title,FX 설정,fxhost,window.title,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
 locate/ko-KR.json,domains.fxhost.control.chainPower,FX 체인 활성화,fxhost,control.chainPower,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
 locate/ko-KR.json,domains.fxhost.label.preset,프리셋:,fxhost,label.preset,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
@@ -2777,6 +2795,7 @@ locate/manifest.json,requiredKeys.meterbridge.168,probe.role.topFrontRight,i18n.
 locate/manifest.json,requiredKeys.meterbridge.169,probe.role.topRearLeft,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
 locate/manifest.json,requiredKeys.meterbridge.170,probe.role.topRearRight,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
 locate/manifest.json,requiredKeys.meterbridge.171,probe.role.lfe,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.meterbridge.172,settings.unassigned,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
 locate/manifest.json,requiredKeys.mixer.0,status.noChannels,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
 locate/manifest.json,requiredKeys.mixer.1,layout.mono,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
 locate/manifest.json,requiredKeys.mixer.2,layout.stereo,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
@@ -2854,6 +2873,11 @@ locate/manifest.json,requiredKeys.mixer.73,error.snapshotSize,i18n.metadata,,exc
 locate/manifest.json,requiredKeys.mixer.74,error.snapshotIdentity,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
 locate/manifest.json,requiredKeys.mixer.75,error.snapshotImport,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
 locate/manifest.json,requiredKeys.mixer.76,section.subMix,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.mixer.77,error.mapPorts,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.mixer.78,error.auxRouteCycle,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.mixer.79,error.fxSampleRate,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.mixer.80,warning.effectsBypassed,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.mixer.81,warning.unavailableEffect,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
 locate/manifest.json,requiredKeys.fxhost.0,window.title,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
 locate/manifest.json,requiredKeys.fxhost.1,control.chainPower,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
 locate/manifest.json,requiredKeys.fxhost.2,label.preset,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
@@ -3557,6 +3581,7 @@ locate/zh-CN.json,domains.meterbridge.probe.role.topFrontRight,顶部前右,mete
 locate/zh-CN.json,domains.meterbridge.probe.role.topRearLeft,顶部后左,meterbridge,probe.role.topRearLeft,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
 locate/zh-CN.json,domains.meterbridge.probe.role.topRearRight,顶部后右,meterbridge,probe.role.topRearRight,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
 locate/zh-CN.json,domains.meterbridge.probe.role.lfe,低频效果 (LFE),meterbridge,probe.role.lfe,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.meterbridge.settings.unassigned,未分配,meterbridge,settings.unassigned,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
 locate/zh-CN.json,domains.mixer.status.noChannels,暂无通道,mixer,status.noChannels,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
 locate/zh-CN.json,domains.mixer.layout.mono,单声道,mixer,layout.mono,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
 locate/zh-CN.json,domains.mixer.layout.stereo,立体声,mixer,layout.stereo,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
@@ -3634,6 +3659,11 @@ locate/zh-CN.json,domains.mixer.error.snapshotSize,%1 的参数快照长度无�
 locate/zh-CN.json,domains.mixer.error.snapshotIdentity,%1 的参数快照版本或模块身份不匹配。,mixer,error.snapshotIdentity,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
 locate/zh-CN.json,domains.mixer.error.snapshotImport,%1 的参数快照导入失败。,mixer,error.snapshotImport,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
 locate/zh-CN.json,domains.mixer.section.subMix,分组混音,mixer,section.subMix,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.mixer.error.mapPorts,JACK 端口映射失败。,mixer,error.mapPorts,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.mixer.error.auxRouteCycle,AUX 路由存在环,mixer,error.auxRouteCycle,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.mixer.error.fxSampleRate,无效的 FX 采样率。,mixer,error.fxSampleRate,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.mixer.warning.effectsBypassed,FX 模块已旁通,mixer,warning.effectsBypassed,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.mixer.warning.unavailableEffect,Native Fx {module} 不可用，已旁通并保留配置。,mixer,warning.unavailableEffect,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
 locate/zh-CN.json,domains.fxhost.window.title,FX 设置,fxhost,window.title,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
 locate/zh-CN.json,domains.fxhost.control.chainPower,FX 链总开关,fxhost,control.chainPower,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
 locate/zh-CN.json,domains.fxhost.label.preset,预设：,fxhost,label.preset,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表

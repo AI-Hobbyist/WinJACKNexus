@@ -1,6 +1,7 @@
 /* This file is part of WinJACKNexus. SPDX-License-Identifier: AGPL-3.0-only */
 #include <WinJACKNexus/UI/MixerPolarPlot.hpp>
 #include <WinJACKNexus/UI/Controls.hpp>
+#include <WinJACKNexus/UI/LocalizedText.hpp>
 #include "MixerPolarAccent.hpp"
 #include "SelThemeAccent.hpp"
 
@@ -225,7 +226,7 @@ void drawMixerPolarCurves(QPainter& painter, QRectF panel, QPointF center, qreal
         painter.setPen(accent.isValid() && selThemeRoleUsesDefault(themeScope, QStringLiteral("chart-legend-input-text"))
             ? inputStroke : polarColor(themeScope, "chart-legend-input-text", inputStroke));
         painter.drawText(QRectF(legend.left() + 28, legend.top() + 1, 70, 20),
-                         Qt::AlignLeft | Qt::AlignVCenter, QStringLiteral("输入"));
+                         Qt::AlignLeft | Qt::AlignVCenter, localizedText("mixer", "label.input", "Input"));
     }
     if (showOutput) {
         painter.setPen(QPen(outputStroke, 2, Qt::DashLine));
@@ -234,7 +235,7 @@ void drawMixerPolarCurves(QPainter& painter, QRectF panel, QPointF center, qreal
         painter.setPen(accent.isValid() && selThemeRoleUsesDefault(themeScope, QStringLiteral("chart-legend-output-text"))
             ? outputStroke : polarColor(themeScope, "chart-legend-output-text", outputStroke));
         painter.drawText(QRectF(legend.left() + 28, legend.top() + 21, 70, 20),
-                         Qt::AlignLeft | Qt::AlignVCenter, QStringLiteral("输出"));
+                         Qt::AlignLeft | Qt::AlignVCenter, localizedText("mixer", "label.output", "Output"));
     }
     if (contour.inputOverrange || contour.outputOverrange) {
         painter.setPen(polarColor(themeScope, "chart-overrange-label", QColor("#ff6c6c")));

@@ -145,6 +145,14 @@ def s5_call(r):
     return None
 
 def s6_call(r):
+    supplement = OUT/'S6-supplement-strings.tsv'
+    if supplement.exists():
+        with supplement.open(encoding='utf-8',newline='') as file:
+            for row in csv.DictReader(file,delimiter='\t'):
+                if r['file'] != row['source_file'] or '"'+row['key']+'"' not in r['context']: continue
+                if r['literal'] == row['key']: return 'exclude',row['domain'],row['key']
+                if r['literal'] == json.dumps(row['en-US'],ensure_ascii=False)[1:-1]:
+                    return 'translate',row['domain'],row['key']
     if r['file'] in ('src/ui/src/ThemeManagementDialog.cpp', 'src/ui/src/LocalizedThemeDialogs.hpp'):
         # Helpers accept different first arguments, but the reviewed literal
         # English/key pair remains on the same line as the extracted occurrence.
@@ -198,6 +206,13 @@ def s6_call(r):
 
 def classify(r, decisions):
     text, ctx, file = r['literal'], r['context'], r['file']
+    resolved = OUT/'S6-remaining-source-audit.json'
+    if resolved.exists():
+        for item in json.loads(resolved.read_text(encoding='utf-8'))['rows']:
+            if item['file']==file and item['source']==text and item['control_context']==ctx and item['disposition'] in ('preserve','canonical_display_mapped'):
+                return 'exclude','',item['reason']+'；逐来源见 S6-remaining-source-audit.json'
+    if file == 'src/meter/mod/src/MeterSettingsWidget.cpp' and text=='未分配' and 'findData(' in ctx:
+        return 'exclude','','声道角色 canonical 身份匹配；settings.unassigned 单独翻译 itemText，currentData 派发和保存仍原文'
     meter_audit_path = OUT/'S6-meter-source-audit.json'
     if file.startswith(('src/meter/ui/', 'src/common/')) and meter_audit_path.exists():
         audit = json.loads(meter_audit_path.read_text(encoding='utf-8'))

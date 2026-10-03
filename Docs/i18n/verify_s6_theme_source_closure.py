@@ -27,7 +27,7 @@ def main():
     assert '| S6 Theme canonical |' in excluded
     source_report=json.loads((OUT/'S0-verification.json').read_text(encoding='utf-8'))
     assert source_report['result']=='PASS' and source_report['source_files']==277
-    assert source_report['source_occurrences']==10389
+    assert source_report['source_occurrences']==sum(int(r['literal_occurrences']) for r in read('S0-file-coverage.csv'))
     paths=[OUT/'S0-verification.json',OUT/'S0-classified-literals.csv',OUT/'S0-keys.csv',
            OUT/'S0-exclusions.csv',OUT/'S0-key-catalog.csv',OUT/'S0-resource-fields.csv',
            OUT/'S6-coverage-gaps.json',OUT/'classify_s0.py',ROOT/'i18n翻译核对.md',
@@ -35,10 +35,10 @@ def main():
     result={'stage':'S6','result':'THEME_SOURCE_KEY_AND_DUAL_TABLE_CLOSURE_PASS_S6_OPEN',
             'theme_display_keys':238,'theme_unmatched_occurrences':0,
             'remaining_other_occurrences':gaps['unmatched_occurrences'],'remaining_domains':gaps['domains'],
-            'source_snapshot':'4c06e27 (current application sources unchanged by this reconciliation)',
+            'source_snapshot':'S0-source-manifest.json (current supplemental source hashes)',
             'runtime_evidence':'S6-theme-verification.json; single Theme run retained',
             'limits':['This proves Theme source/key membership and recorded canonical display boundaries only.',
-                      'The remaining other source candidates still need call-path review; membership is not UI acceptance.',
+                      'Remaining candidate call-path decisions are recorded in S6-remaining-source-audit.json; membership is not UI acceptance.',
                       'User language/audio-domain review remains outstanding.'],
             'evidence':[{'file':str(p.relative_to(ROOT)),'sha256':hashlib.sha256(p.read_bytes()).hexdigest()} for p in paths]}
     (OUT/'S6-theme-source-closure.json').write_text(json.dumps(result,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')

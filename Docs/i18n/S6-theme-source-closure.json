@@ -3,59 +3,51 @@
   "result": "THEME_SOURCE_KEY_AND_DUAL_TABLE_CLOSURE_PASS_S6_OPEN",
   "theme_display_keys": 238,
   "theme_unmatched_occurrences": 0,
-  "remaining_other_occurrences": 59,
-  "remaining_domains": {
-    "host": 1,
-    "common": 3,
-    "mixer": 45,
-    "meterbridge": 2,
-    "node": 1,
-    "patchbay": 5,
-    "ui": 2
-  },
-  "source_snapshot": "4c06e27 (current application sources unchanged by this reconciliation)",
+  "remaining_other_occurrences": 0,
+  "remaining_domains": {},
+  "source_snapshot": "S0-source-manifest.json (current supplemental source hashes)",
   "runtime_evidence": "S6-theme-verification.json; single Theme run retained",
   "limits": [
     "This proves Theme source/key membership and recorded canonical display boundaries only.",
-    "The remaining other source candidates still need call-path review; membership is not UI acceptance.",
+    "Remaining candidate call-path decisions are recorded in S6-remaining-source-audit.json; membership is not UI acceptance.",
     "User language/audio-domain review remains outstanding."
   ],
   "evidence": [
     {
       "file": "Docs\\i18n\\S0-verification.json",
-      "sha256": "be28a075279afcbe3f23bc1b720ec60e91fa745a19e93c9538f19ba9f4c73377"
+      "sha256": "d84ab2fb3c02ad7687774e16feb27d5c87970a358ae315a89aa1e52236fd001b"
     },
     {
       "file": "Docs\\i18n\\S0-classified-literals.csv",
-      "sha256": "4a987504af497dc90f4eb24fa03a896b826c5e31b7f12f6b65ff37a3697b59c8"
+      "sha256": "d822504b064900c740ccbf0a7d0f9b9262f94ce43e3c6bd31b2e343d28004694"
     },
     {
       "file": "Docs\\i18n\\S0-keys.csv",
-      "sha256": "b37eee0f5b5a253f7e3e67f710af5c0616df6d517de39d9525667ecf1671ec70"
+      "sha256": "e70b632fbd69be44e2e401b8fbf76e17b91ed5d41799454e6a936b2462d71b8b"
     },
     {
       "file": "Docs\\i18n\\S0-exclusions.csv",
-      "sha256": "8e7afcb569f85cf67866bcababb87387c6d449ac655a99a974014907236e168b"
+      "sha256": "8b983bfda622fe9f3e57a03d463937d32d4b284c98eb10c7ed16e008e867cc9e"
     },
     {
       "file": "Docs\\i18n\\S0-key-catalog.csv",
-      "sha256": "025012283c77ff3888e9c0e9ea6bcaf452d0f76f9e20fcb819d283d6b0e6e7a7"
+      "sha256": "4fea39d127c6a079e72678051d5c7345de5a789782542810805d265fc7b607e7"
     },
     {
       "file": "Docs\\i18n\\S0-resource-fields.csv",
-      "sha256": "f45ac95689fb85e949b078e5bb0b24ff9dd2dda6d7549afd1d53a5189317b286"
+      "sha256": "30d3beac83cbea8fe95b39c845da7c957f013846dfc149ec05ddc606c6ee265c"
     },
     {
       "file": "Docs\\i18n\\S6-coverage-gaps.json",
-      "sha256": "633cbf5f959e357067f208a6c0a8e49c573aeafdc7ade7f9650fb000ed26b944"
+      "sha256": "da967cdb1e11bca78cb25c21daa23e0279a63d5c326a1555e7b34559468b4622"
     },
     {
       "file": "Docs\\i18n\\classify_s0.py",
-      "sha256": "4d8dc39aeadd3d8c005ee678d95d51c81b5b7b6c968fd216727b186a9258b4c6"
+      "sha256": "ecd88fd50102a8778e6736c896aa5a2c57af923a838c1b63d525f4654a444528"
     },
     {
       "file": "i18n翻译核对.md",
-      "sha256": "2f34cc6119a4bb5c7255e1260602eec2721590a00f5b8099ff1dbfe806b739be"
+      "sha256": "1497673dbc95e6728abb9f97695143a40e111946d510f8e870fba4f302025952"
     },
     {
       "file": "Docs\\i18n\\S6-theme-diagnostic-boundaries.md",

@@ -1,234 +1,3139 @@
 {
   "date": "2026-10-04",
-  "changed_files": [],
-  "resource_changes": [],
+  "changed_files": [
+    "src/meter/mod/src/MeterSettingsWidget.cpp",
+    "src/mixer/EffectGraph.cpp",
+    "src/mixer/EffectGraph.hpp",
+    "src/mixer/Library.cpp",
+    "src/ui/src/LocalizedMixerErrors.hpp",
+    "src/ui/src/MixerPolarPlot.cpp"
+  ],
+  "resource_changes": [
+    "locate/en-US.json",
+    "locate/ja-JP.json",
+    "locate/ko-KR.json",
+    "locate/manifest.json",
+    "locate/zh-CN.json"
+  ],
   "before_occurrences": 10389,
-  "after_occurrences": 10389,
-  "added": [],
-  "removed": [],
-  "relocated": [],
-  "usage_changed": [],
-  "catalog_added": [],
+  "after_occurrences": 10420,
+  "added": [
+    {
+      "id": "s0.16cc92b19d7c",
+      "domain": "meterbridge",
+      "file": "src/meter/mod/src/MeterSettingsWidget.cpp",
+      "line": 244,
+      "literal": "Unassigned",
+      "context": "localizedText(\"meterbridge\", \"settings.unassigned\", \"Unassigned\"));",
+      "evidence_class": "other-review",
+      "disposition": "pending",
+      "proposed_key": "",
+      "notes": ""
+    },
+    {
+      "id": "s0.cc3506200229",
+      "domain": "meterbridge",
+      "file": "src/meter/mod/src/MeterSettingsWidget.cpp",
+      "line": 244,
+      "literal": "settings.unassigned",
+      "context": "localizedText(\"meterbridge\", \"settings.unassigned\", \"Unassigned\"));",
+      "evidence_class": "other-review",
+      "disposition": "pending",
+      "proposed_key": "",
+      "notes": ""
+    },
+    {
+      "id": "s0.3f6bbe2acb48",
+      "domain": "meterbridge",
+      "file": "src/meter/mod/src/MeterSettingsWidget.cpp",
+      "line": 242,
+      "literal": "未分配",
+      "context": "const auto index = roleSelector->findData(QStringLiteral(\"未分配\"));",
+      "evidence_class": "cjk-review",
+      "disposition": "pending",
+      "proposed_key": "",
+      "notes": ""
+    },
+    {
+      "id": "s0.0a733ab48d64",
+      "domain": "mixer",
+      "file": "src/mixer/Library.cpp",
+      "line": 263,
+      "literal": "FX modules bypassed",
+      "context": "\"warning.effectsBypassed\", \"FX modules bypassed\");",
+      "evidence_class": "other-review",
+      "disposition": "pending",
+      "proposed_key": "",
+      "notes": ""
+    },
+    {
+      "id": "s0.3c142afc3686",
+      "domain": "mixer",
+      "file": "src/mixer/Library.cpp",
+      "line": 267,
+      "literal": "Native Fx {module} is unavailable; bypassed with its configuration retained.",
+      "context": "lines.append(WinJACKNexus::UI::localizedText(\"mixer\", \"warning.unavailableEffect\", \"Native Fx {module} is unavailable; bypassed with its configuration retained.\",",
+      "evidence_class": "other-review",
+      "disposition": "pending",
+      "proposed_key": "",
+      "notes": ""
+    },
+    {
+      "id": "s0.aab3c11d1f34",
+      "domain": "mixer",
+      "file": "src/mixer/Library.cpp",
+      "line": 262,
+      "literal": "mixer",
+      "context": "WinJACKNexus::UI::bindLocalizedText(notice, \"windowTitle\", \"mixer\",",
+      "evidence_class": "ui-context-review",
+      "disposition": "pending",
+      "proposed_key": "",
+      "notes": ""
+    },
+    {
+      "id": "s0.aab3c11d1f34",
+      "domain": "mixer",
+      "file": "src/mixer/Library.cpp",
+      "line": 267,
+      "literal": "mixer",
+      "context": "lines.append(WinJACKNexus::UI::localizedText(\"mixer\", \"warning.unavailableEffect\", \"Native Fx {module} is unavailable; bypassed with its configuration retained.\",",
+      "evidence_class": "other-review",
+      "disposition": "pending",
+      "proposed_key": "",
+      "notes": ""
+    },
+    {
+      "id": "s0.d8975587d4ba",
+      "domain": "mixer",
+      "file": "src/mixer/Library.cpp",
+      "line": 268,
+      "literal": "module",
+      "context": "{{QStringLiteral(\"module\"), module}}));",
+      "evidence_class": "other-review",
+      "disposition": "pending",
+      "proposed_key": "",
+      "notes": ""
+    },
+    {
+      "id": "s0.eeac00b26b6d",
+      "domain": "mixer",
+      "file": "src/mixer/Library.cpp",
+      "line": 263,
+      "literal": "warning.effectsBypassed",
+      "context": "\"warning.effectsBypassed\", \"FX modules bypassed\");",
+      "evidence_class": "other-review",
+      "disposition": "pending",
+      "proposed_key": "",
+      "notes": ""
+    },
+    {
+      "id": "s0.c515a3bed293",
+      "domain": "mixer",
+      "file": "src/mixer/Library.cpp",
+      "line": 267,
+      "literal": "warning.unavailableEffect",
+      "context": "lines.append(WinJACKNexus::UI::localizedText(\"mixer\", \"warning.unavailableEffect\", \"Native Fx {module} is unavailable; bypassed with its configuration retained.\",",
+      "evidence_class": "other-review",
+      "disposition": "pending",
+      "proposed_key": "",
+      "notes": ""
+    },
+    {
+      "id": "s0.e4006e06ea92",
+      "domain": "mixer",
+      "file": "src/mixer/Library.cpp",
+      "line": 262,
+      "literal": "windowTitle",
+      "context": "WinJACKNexus::UI::bindLocalizedText(notice, \"windowTitle\", \"mixer\",",
+      "evidence_class": "ui-context-review",
+      "disposition": "pending",
+      "proposed_key": "",
+      "notes": ""
+    },
+    {
+      "id": "s0.3809c9a4f88e",
+      "domain": "ui",
+      "file": "src/ui/src/LocalizedMixerErrors.hpp",
+      "line": 12,
+      "literal": "AUX routing contains a cycle",
+      "context": "if (canonical == QStringLiteral(\"AUX 路由存在环\")) return localizedText(\"mixer\", \"error.auxRouteCycle\", \"AUX routing contains a cycle\");",
+      "evidence_class": "other-review",
+      "disposition": "pending",
+      "proposed_key": "",
+      "notes": ""
+    },
+    {
+      "id": "s0.4076e23ed013",
+      "domain": "ui",
+      "file": "src/ui/src/LocalizedMixerErrors.hpp",
+      "line": 12,
+      "literal": "AUX 路由存在环",
+      "context": "if (canonical == QStringLiteral(\"AUX 路由存在环\")) return localizedText(\"mixer\", \"error.auxRouteCycle\", \"AUX routing contains a cycle\");",
+      "evidence_class": "cjk-review",
+      "disposition": "pending",
+      "proposed_key": "",
+      "notes": ""
+    },
+    {
+      "id": "s0.4ee4483f8f1a",
+      "domain": "ui",
+      "file": "src/ui/src/LocalizedMixerErrors.hpp",
+      "line": 13,
+      "literal": "Invalid FX sample rate.",
+      "context": "if (canonical == QStringLiteral(\"无效的 FX 采样率。\")) return localizedText(\"mixer\", \"error.fxSampleRate\", \"Invalid FX sample rate.\");",
+      "evidence_class": "other-review",
+      "disposition": "pending",
+      "proposed_key": "",
+      "notes": ""
+    },
+    {
+      "id": "s0.dba013aa9adf",
+      "domain": "ui",
+      "file": "src/ui/src/LocalizedMixerErrors.hpp",
+      "line": 11,
+      "literal": "JACK 端口映射失败。",
+      "context": "if (canonical == QStringLiteral(\"JACK 端口映射失败。\")) return localizedText(\"mixer\", \"error.mapPorts\", \"Unable to map JACK ports.\");",
+      "evidence_class": "cjk-review",
+      "disposition": "pending",
+      "proposed_key": "",
+      "notes": ""
+    },
+    {
+      "id": "s0.8b53194e8355",
+      "domain": "ui",
+      "file": "src/ui/src/LocalizedMixerErrors.hpp",
+      "line": 10,
+      "literal": "JACK 端口注册失败，旧拓扑已保留。",
+      "context": "if (canonical == QStringLiteral(\"JACK 端口注册失败，旧拓扑已保留。\")) return localizedText(\"mixer\", \"error.registerPorts\", \"Unable to register mixer ports. The previous state has been retained.\");",
+      "evidence_class": "cjk-review",
+      "disposition": "pending",
+      "proposed_key": "",
+      "notes": ""
+    },
+    {
+      "id": "s0.5edee951ddfd",
+      "domain": "ui",
+      "file": "src/ui/src/LocalizedMixerErrors.hpp",
+      "line": 11,
+      "literal": "Unable to map JACK ports.",
+      "context": "if (canonical == QStringLiteral(\"JACK 端口映射失败。\")) return localizedText(\"mixer\", \"error.mapPorts\", \"Unable to map JACK ports.\");",
+      "evidence_class": "other-review",
+      "disposition": "pending",
+      "proposed_key": "",
+      "notes": ""
+    },
+    {
+      "id": "s0.af2652a70077",
+      "domain": "ui",
+      "file": "src/ui/src/LocalizedMixerErrors.hpp",
+      "line": 10,
+      "literal": "Unable to register mixer ports. The previous state has been retained.",
+      "context": "if (canonical == QStringLiteral(\"JACK 端口注册失败，旧拓扑已保留。\")) return localizedText(\"mixer\", \"error.registerPorts\", \"Unable to register mixer ports. The previous state has been retained.\");",
+      "evidence_class": "other-review",
+      "disposition": "pending",
+      "proposed_key": "",
+      "notes": ""
+    },
+    {
+      "id": "s0.0df6cc100561",
+      "domain": "ui",
+      "file": "src/ui/src/LocalizedMixerErrors.hpp",
+      "line": 12,
+      "literal": "error.auxRouteCycle",
+      "context": "if (canonical == QStringLiteral(\"AUX 路由存在环\")) return localizedText(\"mixer\", \"error.auxRouteCycle\", \"AUX routing contains a cycle\");",
+      "evidence_class": "other-review",
+      "disposition": "pending",
+      "proposed_key": "",
+      "notes": ""
+    },
+    {
+      "id": "s0.5dba1ddeef19",
+      "domain": "ui",
+      "file": "src/ui/src/LocalizedMixerErrors.hpp",
+      "line": 13,
+      "literal": "error.fxSampleRate",
+      "context": "if (canonical == QStringLiteral(\"无效的 FX 采样率。\")) return localizedText(\"mixer\", \"error.fxSampleRate\", \"Invalid FX sample rate.\");",
+      "evidence_class": "other-review",
+      "disposition": "pending",
+      "proposed_key": "",
+      "notes": ""
+    },
+    {
+      "id": "s0.0c532c6a00a4",
+      "domain": "ui",
+      "file": "src/ui/src/LocalizedMixerErrors.hpp",
+      "line": 11,
+      "literal": "error.mapPorts",
+      "context": "if (canonical == QStringLiteral(\"JACK 端口映射失败。\")) return localizedText(\"mixer\", \"error.mapPorts\", \"Unable to map JACK ports.\");",
+      "evidence_class": "other-review",
+      "disposition": "pending",
+      "proposed_key": "",
+      "notes": ""
+    },
+    {
+      "id": "s0.50b63f11e3f5",
+      "domain": "ui",
+      "file": "src/ui/src/LocalizedMixerErrors.hpp",
+      "line": 10,
+      "literal": "error.registerPorts",
+      "context": "if (canonical == QStringLiteral(\"JACK 端口注册失败，旧拓扑已保留。\")) return localizedText(\"mixer\", \"error.registerPorts\", \"Unable to register mixer ports. The previous state has been retained.\");",
+      "evidence_class": "other-review",
+      "disposition": "pending",
+      "proposed_key": "",
+      "notes": ""
+    },
+    {
+      "id": "s0.c6af30f436a3",
+      "domain": "ui",
+      "file": "src/ui/src/LocalizedMixerErrors.hpp",
+      "line": 13,
+      "literal": "无效的 FX 采样率。",
+      "context": "if (canonical == QStringLiteral(\"无效的 FX 采样率。\")) return localizedText(\"mixer\", \"error.fxSampleRate\", \"Invalid FX sample rate.\");",
+      "evidence_class": "cjk-review",
+      "disposition": "pending",
+      "proposed_key": "",
+      "notes": ""
+    },
+    {
+      "id": "s0.105d969bb63e",
+      "domain": "ui",
+      "file": "src/ui/src/MixerPolarPlot.cpp",
+      "line": 229,
+      "literal": "Input",
+      "context": "Qt::AlignLeft | Qt::AlignVCenter, localizedText(\"mixer\", \"label.input\", \"Input\"));",
+      "evidence_class": "ui-context-review",
+      "disposition": "pending",
+      "proposed_key": "",
+      "notes": ""
+    },
+    {
+      "id": "s0.164a12b95429",
+      "domain": "ui",
+      "file": "src/ui/src/MixerPolarPlot.cpp",
+      "line": 238,
+      "literal": "Output",
+      "context": "Qt::AlignLeft | Qt::AlignVCenter, localizedText(\"mixer\", \"label.output\", \"Output\"));",
+      "evidence_class": "ui-context-review",
+      "disposition": "pending",
+      "proposed_key": "",
+      "notes": ""
+    },
+    {
+      "id": "s0.0146ae2fba58",
+      "domain": "ui",
+      "file": "src/ui/src/MixerPolarPlot.cpp",
+      "line": 229,
+      "literal": "label.input",
+      "context": "Qt::AlignLeft | Qt::AlignVCenter, localizedText(\"mixer\", \"label.input\", \"Input\"));",
+      "evidence_class": "ui-context-review",
+      "disposition": "pending",
+      "proposed_key": "",
+      "notes": ""
+    },
+    {
+      "id": "s0.4363ac115fb1",
+      "domain": "ui",
+      "file": "src/ui/src/MixerPolarPlot.cpp",
+      "line": 238,
+      "literal": "label.output",
+      "context": "Qt::AlignLeft | Qt::AlignVCenter, localizedText(\"mixer\", \"label.output\", \"Output\"));",
+      "evidence_class": "ui-context-review",
+      "disposition": "pending",
+      "proposed_key": "",
+      "notes": ""
+    },
+    {
+      "id": "s0.9c6f605486ab",
+      "domain": "ui",
+      "file": "src/ui/src/MixerPolarPlot.cpp",
+      "line": 229,
+      "literal": "mixer",
+      "context": "Qt::AlignLeft | Qt::AlignVCenter, localizedText(\"mixer\", \"label.input\", \"Input\"));",
+      "evidence_class": "ui-context-review",
+      "disposition": "pending",
+      "proposed_key": "",
+      "notes": ""
+    },
+    {
+      "id": "s0.9c6f605486ab",
+      "domain": "ui",
+      "file": "src/ui/src/MixerPolarPlot.cpp",
+      "line": 238,
+      "literal": "mixer",
+      "context": "Qt::AlignLeft | Qt::AlignVCenter, localizedText(\"mixer\", \"label.output\", \"Output\"));",
+      "evidence_class": "ui-context-review",
+      "disposition": "pending",
+      "proposed_key": "",
+      "notes": ""
+    }
+  ],
+  "removed": [
+    {
+      "id": "s0.1e542000af2a",
+      "domain": "mixer",
+      "file": "src/mixer/Library.cpp",
+      "line": "260",
+      "literal": "FX 模块已旁通",
+      "context": "QStringLiteral(\"FX 模块已旁通\"), warning, QMessageBox::Ok, window_);",
+      "evidence_class": "cjk-review",
+      "disposition": "pending",
+      "proposed_key": "",
+      "notes": ""
+    },
+    {
+      "id": "s0.844e951a94aa",
+      "domain": "ui",
+      "file": "src/ui/src/MixerPolarPlot.cpp",
+      "line": "228",
+      "literal": "输入",
+      "context": "Qt::AlignLeft | Qt::AlignVCenter, QStringLiteral(\"输入\"));",
+      "evidence_class": "cjk-review",
+      "disposition": "pending",
+      "proposed_key": "",
+      "notes": ""
+    },
+    {
+      "id": "s0.c5a8a6ac8f7b",
+      "domain": "ui",
+      "file": "src/ui/src/MixerPolarPlot.cpp",
+      "line": "237",
+      "literal": "输出",
+      "context": "Qt::AlignLeft | Qt::AlignVCenter, QStringLiteral(\"输出\"));",
+      "evidence_class": "cjk-review",
+      "disposition": "pending",
+      "proposed_key": "",
+      "notes": ""
+    }
+  ],
+  "relocated": [
+    {
+      "file": "src/meter/mod/src/MeterSettingsWidget.cpp",
+      "literal": "LFE flag for channel %1",
+      "before_lines": [
+        "252"
+      ],
+      "after_lines": [
+        261
+      ]
+    },
+    {
+      "file": "src/meter/mod/src/MeterSettingsWidget.cpp",
+      "literal": "meterSettings.channelLfe.%1",
+      "before_lines": [
+        "250"
+      ],
+      "after_lines": [
+        259
+      ]
+    },
+    {
+      "file": "src/meter/mod/src/MeterSettingsWidget.cpp",
+      "literal": "settings.channelLfe",
+      "before_lines": [
+        "252"
+      ],
+      "after_lines": [
+        261
+      ]
+    },
+    {
+      "file": "src/mixer/EffectGraph.cpp",
+      "literal": "%1 的参数快照导入失败。",
+      "before_lines": [
+        "131"
+      ],
+      "after_lines": [
+        132
+      ]
+    },
+    {
+      "file": "src/mixer/EffectGraph.cpp",
+      "literal": "FX 链拓扑已变更。",
+      "before_lines": [
+        "166"
+      ],
+      "after_lines": [
+        168
+      ]
+    },
+    {
+      "file": "src/mixer/EffectGraph.cpp",
+      "literal": "Native Fx %1 不可用，已旁通并保留配置。\\n",
+      "before_lines": [
+        "122"
+      ],
+      "after_lines": [
+        123
+      ]
+    },
+    {
+      "file": "src/mixer/Library.cpp",
+      "literal": "",
+      "before_lines": [
+        "583",
+        "584",
+        "599"
+      ],
+      "after_lines": [
+        595,
+        596,
+        611
+      ]
+    },
+    {
+      "file": "src/mixer/Library.cpp",
+      "literal": "0.1.0",
+      "before_lines": [
+        "34"
+      ],
+      "after_lines": [
+        35
+      ]
+    },
+    {
+      "file": "src/mixer/Library.cpp",
+      "literal": "2",
+      "before_lines": [
+        "564"
+      ],
+      "after_lines": [
+        576
+      ]
+    },
+    {
+      "file": "src/mixer/Library.cpp",
+      "literal": "C",
+      "before_lines": [
+        "606",
+        "612",
+        "620"
+      ],
+      "after_lines": [
+        618,
+        624,
+        632
+      ]
+    },
+    {
+      "file": "src/mixer/Library.cpp",
+      "literal": "Digital Mixer",
+      "before_lines": [
+        "34",
+        "34",
+        "583",
+        "584"
+      ],
+      "after_lines": [
+        35,
+        35,
+        595,
+        596
+      ]
+    },
+    {
+      "file": "src/mixer/Library.cpp",
+      "literal": "DigitalMixer",
+      "before_lines": [
+        "41"
+      ],
+      "after_lines": [
+        42
+      ]
+    },
+    {
+      "file": "src/mixer/Library.cpp",
+      "literal": "JACK 端口映射失败。",
+      "before_lines": [
+        "228"
+      ],
+      "after_lines": [
+        229
+      ]
+    },
+    {
+      "file": "src/mixer/Library.cpp",
+      "literal": "JACK 端口注册失败，旧拓扑已保留。",
+      "before_lines": [
+        "223"
+      ],
+      "after_lines": [
+        224
+      ]
+    },
+    {
+      "file": "src/mixer/Library.cpp",
+      "literal": "Single-instance Digital Mixer node.",
+      "before_lines": [
+        "35"
+      ],
+      "after_lines": [
+        36
+      ]
+    },
+    {
+      "file": "src/mixer/Library.cpp",
+      "literal": "Unable to restore original mixer port name",
+      "before_lines": [
+        "469"
+      ],
+      "after_lines": [
+        481
+      ]
+    },
+    {
+      "file": "src/mixer/Library.cpp",
+      "literal": "Unable to restore temporary mixer port name",
+      "before_lines": [
+        "462"
+      ],
+      "after_lines": [
+        474
+      ]
+    },
+    {
+      "file": "src/mixer/Library.cpp",
+      "literal": "WinJACKNexus",
+      "before_lines": [
+        "34"
+      ],
+      "after_lines": [
+        35
+      ]
+    },
+    {
+      "file": "src/mixer/Library.cpp",
+      "literal": "__wjn_tmp_%1_%2",
+      "before_lines": [
+        "452"
+      ],
+      "after_lines": [
+        464
+      ]
+    },
+    {
+      "file": "src/mixer/Library.cpp",
+      "literal": "{\r\n        \"descriptorVersion\":1,\"themeApiVersion\":1,\r\n        \"moduleId\":\"module-winjacknexus-digital-mixer\",\r\n        \"namespace\":\"--wjn-theme-module-winjacknexus-digital-mixer-\",\r\n        \"displayName\":\"Digital Mixer\",\r\n        \"tokens\":[{\r\n            \"name\":\"--wjn-theme-module-winjacknexus-digital-mixer-node-card-background\",\r\n            \"type\":\"color\",\r\n            \"default\":\"var(--wjn-theme-patchbay-node-card-background)\",\r\n            \"description\":\"Host-drawn card background for the Digital Mixer node type\"\r\n        }]\r\n    }",
+      "before_lines": [
+        "568"
+      ],
+      "after_lines": [
+        580
+      ]
+    },
+    {
+      "file": "src/ui/src/LocalizedMixerErrors.hpp",
+      "literal": "",
+      "before_lines": [
+        "40",
+        "40"
+      ],
+      "after_lines": [
+        44,
+        44
+      ]
+    },
+    {
+      "file": "src/ui/src/LocalizedMixerErrors.hpp",
+      "literal": " 的参数快照 Base64 格式无效。",
+      "before_lines": [
+        "25",
+        "26"
+      ],
+      "after_lines": [
+        29,
+        30
+      ]
+    },
+    {
+      "file": "src/ui/src/LocalizedMixerErrors.hpp",
+      "literal": " 的参数快照导入失败。",
+      "before_lines": [
+        "31",
+        "32"
+      ],
+      "after_lines": [
+        35,
+        36
+      ]
+    },
+    {
+      "file": "src/ui/src/LocalizedMixerErrors.hpp",
+      "literal": " 的参数快照版本或模块身份不匹配。",
+      "before_lines": [
+        "29",
+        "30"
+      ],
+      "after_lines": [
+        33,
+        34
+      ]
+    },
+    {
+      "file": "src/ui/src/LocalizedMixerErrors.hpp",
+      "literal": " 的参数快照长度无效。",
+      "before_lines": [
+        "27",
+        "28"
+      ],
+      "after_lines": [
+        31,
+        32
+      ]
+    },
+    {
+      "file": "src/ui/src/LocalizedMixerErrors.hpp",
+      "literal": " 缺少逐声道参数快照。请在 FX 设置中重新添加。",
+      "before_lines": [
+        "23",
+        "24"
+      ],
+      "after_lines": [
+        27,
+        28
+      ]
+    },
+    {
+      "file": "src/ui/src/LocalizedMixerErrors.hpp",
+      "literal": "%1 has no per-channel parameter snapshot. Add it again in FX settings.",
+      "before_lines": [
+        "24"
+      ],
+      "after_lines": [
+        28
+      ]
+    },
+    {
+      "file": "src/ui/src/LocalizedMixerErrors.hpp",
+      "literal": "AUX 参数或身份无效",
+      "before_lines": [
+        "17"
+      ],
+      "after_lines": [
+        21
+      ]
+    },
+    {
+      "file": "src/ui/src/LocalizedMixerErrors.hpp",
+      "literal": "AUX 声像参数无效",
+      "before_lines": [
+        "12"
+      ],
+      "after_lines": [
+        16
+      ]
+    },
+    {
+      "file": "src/ui/src/LocalizedMixerErrors.hpp",
+      "literal": "AUX 路由无效或重复",
+      "before_lines": [
+        "20"
+      ],
+      "after_lines": [
+        24
+      ]
+    },
+    {
+      "file": "src/ui/src/LocalizedMixerErrors.hpp",
+      "literal": "Bus routing contains a cycle",
+      "before_lines": [
+        "21"
+      ],
+      "after_lines": [
+        25
+      ]
+    },
+    {
+      "file": "src/ui/src/LocalizedMixerErrors.hpp",
+      "literal": "CH 参数或身份无效",
+      "before_lines": [
+        "16"
+      ],
+      "after_lines": [
+        20
+      ]
+    },
+    {
+      "file": "src/ui/src/LocalizedMixerErrors.hpp",
+      "literal": "FX 链拓扑已变更。",
+      "before_lines": [
+        "22"
+      ],
+      "after_lines": [
+        26
+      ]
+    },
+    {
+      "file": "src/ui/src/LocalizedMixerErrors.hpp",
+      "literal": "Invalid AUX pan parameters",
+      "before_lines": [
+        "12"
+      ],
+      "after_lines": [
+        16
+      ]
+    },
+    {
+      "file": "src/ui/src/LocalizedMixerErrors.hpp",
+      "literal": "Invalid AUX parameters or identity",
+      "before_lines": [
+        "17"
+      ],
+      "after_lines": [
+        21
+      ]
+    },
+    {
+      "file": "src/ui/src/LocalizedMixerErrors.hpp",
+      "literal": "Invalid Base64 parameter snapshot for %1.",
+      "before_lines": [
+        "26"
+      ],
+      "after_lines": [
+        30
+      ]
+    },
+    {
+      "file": "src/ui/src/LocalizedMixerErrors.hpp",
+      "literal": "Invalid CH parameters or identity",
+      "before_lines": [
+        "16"
+      ],
+      "after_lines": [
+        20
+      ]
+    },
+    {
+      "file": "src/ui/src/LocalizedMixerErrors.hpp",
+      "literal": "Invalid MAIN parameters",
+      "before_lines": [
+        "15"
+      ],
+      "after_lines": [
+        19
+      ]
+    },
+    {
+      "file": "src/ui/src/LocalizedMixerErrors.hpp",
+      "literal": "Invalid Sub Mix parameters or identity",
+      "before_lines": [
+        "18"
+      ],
+      "after_lines": [
+        22
+      ]
+    },
+    {
+      "file": "src/ui/src/LocalizedMixerErrors.hpp",
+      "literal": "Invalid Sub Mix routing",
+      "before_lines": [
+        "10"
+      ],
+      "after_lines": [
+        14
+      ]
+    },
+    {
+      "file": "src/ui/src/LocalizedMixerErrors.hpp",
+      "literal": "Invalid monitor fader parameters",
+      "before_lines": [
+        "14"
+      ],
+      "after_lines": [
+        18
+      ]
+    },
+    {
+      "file": "src/ui/src/LocalizedMixerErrors.hpp",
+      "literal": "Invalid or duplicate AUX routing",
+      "before_lines": [
+        "20"
+      ],
+      "after_lines": [
+        24
+      ]
+    },
+    {
+      "file": "src/ui/src/LocalizedMixerErrors.hpp",
+      "literal": "Invalid or self-referencing AUX routing",
+      "before_lines": [
+        "11"
+      ],
+      "after_lines": [
+        15
+      ]
+    },
+    {
+      "file": "src/ui/src/LocalizedMixerErrors.hpp",
+      "literal": "Invalid parameter snapshot size for %1.",
+      "before_lines": [
+        "28"
+      ],
+      "after_lines": [
+        32
+      ]
+    },
+    {
+      "file": "src/ui/src/LocalizedMixerErrors.hpp",
+      "literal": "MAIN must be a permanent stereo bus",
+      "before_lines": [
+        "13"
+      ],
+      "after_lines": [
+        17
+      ]
+    },
+    {
+      "file": "src/ui/src/LocalizedMixerErrors.hpp",
+      "literal": "MAIN 参数无效",
+      "before_lines": [
+        "15"
+      ],
+      "after_lines": [
+        19
+      ]
+    },
+    {
+      "file": "src/ui/src/LocalizedMixerErrors.hpp",
+      "literal": "MAIN 必须是不可删除的立体声总线",
+      "before_lines": [
+        "13"
+      ],
+      "after_lines": [
+        17
+      ]
+    },
+    {
+      "file": "src/ui/src/LocalizedMixerErrors.hpp",
+      "literal": "Parameter snapshot import failed for %1.",
+      "before_lines": [
+        "32"
+      ],
+      "after_lines": [
+        36
+      ]
+    },
+    {
+      "file": "src/ui/src/LocalizedMixerErrors.hpp",
+      "literal": "Parameter snapshot version or module identity mismatch for %1.",
+      "before_lines": [
+        "30"
+      ],
+      "after_lines": [
+        34
+      ]
+    },
+    {
+      "file": "src/ui/src/LocalizedMixerErrors.hpp",
+      "literal": "Sub Mix 参数或身份无效",
+      "before_lines": [
+        "18"
+      ],
+      "after_lines": [
+        22
+      ]
+    },
+    {
+      "file": "src/ui/src/LocalizedMixerErrors.hpp",
+      "literal": "The FX chain topology has changed.",
+      "before_lines": [
+        "22"
+      ],
+      "after_lines": [
+        26
+      ]
+    },
+    {
+      "file": "src/ui/src/LocalizedMixerErrors.hpp",
+      "literal": "The channel name produces an invalid or duplicate JACK port name",
+      "before_lines": [
+        "19"
+      ],
+      "after_lines": [
+        23
+      ]
+    },
+    {
+      "file": "src/ui/src/LocalizedMixerErrors.hpp",
+      "literal": "error.auxPan",
+      "before_lines": [
+        "12"
+      ],
+      "after_lines": [
+        16
+      ]
+    },
+    {
+      "file": "src/ui/src/LocalizedMixerErrors.hpp",
+      "literal": "error.auxParameters",
+      "before_lines": [
+        "17"
+      ],
+      "after_lines": [
+        21
+      ]
+    },
+    {
+      "file": "src/ui/src/LocalizedMixerErrors.hpp",
+      "literal": "error.duplicateRoute",
+      "before_lines": [
+        "20"
+      ],
+      "after_lines": [
+        24
+      ]
+    },
+    {
+      "file": "src/ui/src/LocalizedMixerErrors.hpp",
+      "literal": "error.effectTopology",
+      "before_lines": [
+        "22"
+      ],
+      "after_lines": [
+        26
+      ]
+    },
+    {
+      "file": "src/ui/src/LocalizedMixerErrors.hpp",
+      "literal": "error.inputParameters",
+      "before_lines": [
+        "16"
+      ],
+      "after_lines": [
+        20
+      ]
+    },
+    {
+      "file": "src/ui/src/LocalizedMixerErrors.hpp",
+      "literal": "error.mainBus",
+      "before_lines": [
+        "13"
+      ],
+      "after_lines": [
+        17
+      ]
+    },
+    {
+      "file": "src/ui/src/LocalizedMixerErrors.hpp",
+      "literal": "error.mainParameters",
+      "before_lines": [
+        "15"
+      ],
+      "after_lines": [
+        19
+      ]
+    },
+    {
+      "file": "src/ui/src/LocalizedMixerErrors.hpp",
+      "literal": "error.missingSnapshot",
+      "before_lines": [
+        "24"
+      ],
+      "after_lines": [
+        28
+      ]
+    },
+    {
+      "file": "src/ui/src/LocalizedMixerErrors.hpp",
+      "literal": "error.monitorParameters",
+      "before_lines": [
+        "14"
+      ],
+      "after_lines": [
+        18
+      ]
+    },
+    {
+      "file": "src/ui/src/LocalizedMixerErrors.hpp",
+      "literal": "error.portName",
+      "before_lines": [
+        "19"
+      ],
+      "after_lines": [
+        23
+      ]
+    },
+    {
+      "file": "src/ui/src/LocalizedMixerErrors.hpp",
+      "literal": "error.routeCycle",
+      "before_lines": [
+        "21"
+      ],
+      "after_lines": [
+        25
+      ]
+    },
+    {
+      "file": "src/ui/src/LocalizedMixerErrors.hpp",
+      "literal": "error.selfAuxRoute",
+      "before_lines": [
+        "11"
+      ],
+      "after_lines": [
+        15
+      ]
+    },
+    {
+      "file": "src/ui/src/LocalizedMixerErrors.hpp",
+      "literal": "error.snapshotBase64",
+      "before_lines": [
+        "26"
+      ],
+      "after_lines": [
+        30
+      ]
+    },
+    {
+      "file": "src/ui/src/LocalizedMixerErrors.hpp",
+      "literal": "error.snapshotIdentity",
+      "before_lines": [
+        "30"
+      ],
+      "after_lines": [
+        34
+      ]
+    },
+    {
+      "file": "src/ui/src/LocalizedMixerErrors.hpp",
+      "literal": "error.snapshotImport",
+      "before_lines": [
+        "32"
+      ],
+      "after_lines": [
+        36
+      ]
+    },
+    {
+      "file": "src/ui/src/LocalizedMixerErrors.hpp",
+      "literal": "error.snapshotSize",
+      "before_lines": [
+        "28"
+      ],
+      "after_lines": [
+        32
+      ]
+    },
+    {
+      "file": "src/ui/src/LocalizedMixerErrors.hpp",
+      "literal": "error.subParameters",
+      "before_lines": [
+        "18"
+      ],
+      "after_lines": [
+        22
+      ]
+    },
+    {
+      "file": "src/ui/src/LocalizedMixerErrors.hpp",
+      "literal": "error.subRoute",
+      "before_lines": [
+        "10"
+      ],
+      "after_lines": [
+        14
+      ]
+    },
+    {
+      "file": "src/ui/src/LocalizedMixerErrors.hpp",
+      "literal": "windowTitle",
+      "before_lines": [
+        "39"
+      ],
+      "after_lines": [
+        43
+      ]
+    },
+    {
+      "file": "src/ui/src/LocalizedMixerErrors.hpp",
+      "literal": "总线路由存在环",
+      "before_lines": [
+        "21"
+      ],
+      "after_lines": [
+        25
+      ]
+    },
+    {
+      "file": "src/ui/src/LocalizedMixerErrors.hpp",
+      "literal": "无效或自发 AUX 路由",
+      "before_lines": [
+        "11"
+      ],
+      "after_lines": [
+        15
+      ]
+    },
+    {
+      "file": "src/ui/src/LocalizedMixerErrors.hpp",
+      "literal": "无效的 Sub Mix 路由",
+      "before_lines": [
+        "10"
+      ],
+      "after_lines": [
+        14
+      ]
+    },
+    {
+      "file": "src/ui/src/LocalizedMixerErrors.hpp",
+      "literal": "监听推子参数无效",
+      "before_lines": [
+        "14"
+      ],
+      "after_lines": [
+        18
+      ]
+    },
+    {
+      "file": "src/ui/src/LocalizedMixerErrors.hpp",
+      "literal": "通道名生成了无效或重复的 JACK 端口名",
+      "before_lines": [
+        "19"
+      ],
+      "after_lines": [
+        23
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerPolarPlot.cpp",
+      "literal": "#1b3d56",
+      "before_lines": [
+        "58"
+      ],
+      "after_lines": [
+        59
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerPolarPlot.cpp",
+      "literal": "#244a66",
+      "before_lines": [
+        "49"
+      ],
+      "after_lines": [
+        50
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerPolarPlot.cpp",
+      "literal": "#28c9f3",
+      "before_lines": [
+        "186"
+      ],
+      "after_lines": [
+        187
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerPolarPlot.cpp",
+      "literal": "#2e9dff",
+      "before_lines": [
+        "145"
+      ],
+      "after_lines": [
+        146
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerPolarPlot.cpp",
+      "literal": "#385773",
+      "before_lines": [
+        "216"
+      ],
+      "after_lines": [
+        217
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerPolarPlot.cpp",
+      "literal": "#426884",
+      "before_lines": [
+        "58"
+      ],
+      "after_lines": [
+        59
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerPolarPlot.cpp",
+      "literal": "#42a8ff",
+      "before_lines": [
+        "145"
+      ],
+      "after_lines": [
+        146
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerPolarPlot.cpp",
+      "literal": "#4b708a",
+      "before_lines": [
+        "192"
+      ],
+      "after_lines": [
+        193
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerPolarPlot.cpp",
+      "literal": "#79e3ff",
+      "before_lines": [
+        "118",
+        "131"
+      ],
+      "after_lines": [
+        119,
+        132
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerPolarPlot.cpp",
+      "literal": "#7ee8ff",
+      "before_lines": [
+        "134"
+      ],
+      "after_lines": [
+        135
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerPolarPlot.cpp",
+      "literal": "#9ab8cc",
+      "before_lines": [
+        "210"
+      ],
+      "after_lines": [
+        211
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerPolarPlot.cpp",
+      "literal": "#9dc3ff",
+      "before_lines": [
+        "140"
+      ],
+      "after_lines": [
+        141
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerPolarPlot.cpp",
+      "literal": "#e8fbff",
+      "before_lines": [
+        "140"
+      ],
+      "after_lines": [
+        141
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerPolarPlot.cpp",
+      "literal": "#ff6c6c",
+      "before_lines": [
+        "240"
+      ],
+      "after_lines": [
+        241
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerPolarPlot.cpp",
+      "literal": "#ffa44a",
+      "before_lines": [
+        "188"
+      ],
+      "after_lines": [
+        189
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerPolarPlot.cpp",
+      "literal": "+12 dBFS",
+      "before_lines": [
+        "242"
+      ],
+      "after_lines": [
+        243
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerPolarPlot.cpp",
+      "literal": "0 dBFS",
+      "before_lines": [
+        "212"
+      ],
+      "after_lines": [
+        213
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerPolarPlot.cpp",
+      "literal": "MixerPolarAccent.hpp",
+      "before_lines": [
+        "4"
+      ],
+      "after_lines": [
+        5
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerPolarPlot.cpp",
+      "literal": "SelThemeAccent.hpp",
+      "before_lines": [
+        "5"
+      ],
+      "after_lines": [
+        6
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerPolarPlot.cpp",
+      "literal": "chart-axis-label",
+      "before_lines": [
+        "210"
+      ],
+      "after_lines": [
+        211
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerPolarPlot.cpp",
+      "literal": "chart-center-marker",
+      "before_lines": [
+        "160"
+      ],
+      "after_lines": [
+        161
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerPolarPlot.cpp",
+      "literal": "chart-grid-axis-major",
+      "before_lines": [
+        "56"
+      ],
+      "after_lines": [
+        57
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerPolarPlot.cpp",
+      "literal": "chart-grid-axis-minor",
+      "before_lines": [
+        "56"
+      ],
+      "after_lines": [
+        57
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerPolarPlot.cpp",
+      "literal": "chart-grid-ring",
+      "before_lines": [
+        "48",
+        "49"
+      ],
+      "after_lines": [
+        49,
+        50
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerPolarPlot.cpp",
+      "literal": "chart-grid-zero",
+      "before_lines": [
+        "191",
+        "192"
+      ],
+      "after_lines": [
+        192,
+        193
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerPolarPlot.cpp",
+      "literal": "chart-handle-border-normal",
+      "before_lines": [
+        "138"
+      ],
+      "after_lines": [
+        139
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerPolarPlot.cpp",
+      "literal": "chart-handle-border-selected",
+      "before_lines": [
+        "138"
+      ],
+      "after_lines": [
+        139
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerPolarPlot.cpp",
+      "literal": "chart-handle-influence-fill",
+      "before_lines": [
+        "121",
+        "122",
+        "123"
+      ],
+      "after_lines": [
+        122,
+        123,
+        124
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerPolarPlot.cpp",
+      "literal": "chart-handle-influence-stroke-normal",
+      "before_lines": [
+        "115"
+      ],
+      "after_lines": [
+        116
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerPolarPlot.cpp",
+      "literal": "chart-handle-influence-stroke-selected",
+      "before_lines": [
+        "114"
+      ],
+      "after_lines": [
+        115
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerPolarPlot.cpp",
+      "literal": "chart-handle-marker",
+      "before_lines": [
+        "130",
+        "131"
+      ],
+      "after_lines": [
+        131,
+        132
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerPolarPlot.cpp",
+      "literal": "chart-handle-ring",
+      "before_lines": [
+        "133",
+        "134"
+      ],
+      "after_lines": [
+        134,
+        135
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerPolarPlot.cpp",
+      "literal": "chart-handle-surface-normal",
+      "before_lines": [
+        "143"
+      ],
+      "after_lines": [
+        144
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerPolarPlot.cpp",
+      "literal": "chart-handle-surface-selected",
+      "before_lines": [
+        "143"
+      ],
+      "after_lines": [
+        144
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerPolarPlot.cpp",
+      "literal": "chart-legend-border",
+      "before_lines": [
+        "215",
+        "216"
+      ],
+      "after_lines": [
+        216,
+        217
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerPolarPlot.cpp",
+      "literal": "chart-legend-input-text",
+      "before_lines": [
+        "225",
+        "226"
+      ],
+      "after_lines": [
+        226,
+        227
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerPolarPlot.cpp",
+      "literal": "chart-legend-output-text",
+      "before_lines": [
+        "234",
+        "235"
+      ],
+      "after_lines": [
+        235,
+        236
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerPolarPlot.cpp",
+      "literal": "chart-legend-surface",
+      "before_lines": [
+        "218"
+      ],
+      "after_lines": [
+        219
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerPolarPlot.cpp",
+      "literal": "chart-overrange-label",
+      "before_lines": [
+        "240"
+      ],
+      "after_lines": [
+        241
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerPolarPlot.cpp",
+      "literal": "chart-reference-fill",
+      "before_lines": [
+        "83",
+        "84",
+        "87"
+      ],
+      "after_lines": [
+        84,
+        85,
+        88
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerPolarPlot.cpp",
+      "literal": "chart-reference-stroke",
+      "before_lines": [
+        "81",
+        "82",
+        "85"
+      ],
+      "after_lines": [
+        82,
+        83,
+        86
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerPolarPlot.cpp",
+      "literal": "chart-series-polar-input-stroke",
+      "before_lines": [
+        "185",
+        "186"
+      ],
+      "after_lines": [
+        186,
+        187
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerPolarPlot.cpp",
+      "literal": "chart-series-polar-output-stroke",
+      "before_lines": [
+        "187",
+        "188"
+      ],
+      "after_lines": [
+        188,
+        189
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerPolarPlot.cpp",
+      "literal": "sel-main",
+      "before_lines": [
+        "32",
+        "67",
+        "99",
+        "152",
+        "169"
+      ],
+      "after_lines": [
+        33,
+        68,
+        100,
+        153,
+        170
+      ]
+    }
+  ],
+  "usage_changed": [
+    {
+      "file": "src/meter/mod/src/MeterSettingsWidget.cpp",
+      "literal": "M+000",
+      "before": [
+        {
+          "id": "s0.6c4a289acbf1",
+          "domain": "meterbridge",
+          "file": "src/meter/mod/src/MeterSettingsWidget.cpp",
+          "line": "230",
+          "literal": "M+000",
+          "context": "roleSelector->addItems({ QStringLiteral(\"M+030\"), QStringLiteral(\"M-030\"), QStringLiteral(\"M+000\"),",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        }
+      ],
+      "after": [
+        {
+          "id": "s0.6c4a289acbf1",
+          "domain": "meterbridge",
+          "file": "src/meter/mod/src/MeterSettingsWidget.cpp",
+          "line": 230,
+          "literal": "M+000",
+          "context": "for (const auto& role : { QStringLiteral(\"M+030\"), QStringLiteral(\"M-030\"), QStringLiteral(\"M+000\"),",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "file": "src/meter/mod/src/MeterSettingsWidget.cpp",
+      "literal": "M+030",
+      "before": [
+        {
+          "id": "s0.843d9b62698a",
+          "domain": "meterbridge",
+          "file": "src/meter/mod/src/MeterSettingsWidget.cpp",
+          "line": "230",
+          "literal": "M+030",
+          "context": "roleSelector->addItems({ QStringLiteral(\"M+030\"), QStringLiteral(\"M-030\"), QStringLiteral(\"M+000\"),",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        }
+      ],
+      "after": [
+        {
+          "id": "s0.843d9b62698a",
+          "domain": "meterbridge",
+          "file": "src/meter/mod/src/MeterSettingsWidget.cpp",
+          "line": 230,
+          "literal": "M+030",
+          "context": "for (const auto& role : { QStringLiteral(\"M+030\"), QStringLiteral(\"M-030\"), QStringLiteral(\"M+000\"),",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "file": "src/meter/mod/src/MeterSettingsWidget.cpp",
+      "literal": "M+135",
+      "before": [
+        {
+          "id": "s0.417825debb37",
+          "domain": "meterbridge",
+          "file": "src/meter/mod/src/MeterSettingsWidget.cpp",
+          "line": "232",
+          "literal": "M+135",
+          "context": "QStringLiteral(\"M+135\"), QStringLiteral(\"M-135\"), QStringLiteral(\"U+000\") });",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        }
+      ],
+      "after": [
+        {
+          "id": "s0.417825debb37",
+          "domain": "meterbridge",
+          "file": "src/meter/mod/src/MeterSettingsWidget.cpp",
+          "line": 232,
+          "literal": "M+135",
+          "context": "QStringLiteral(\"M+135\"), QStringLiteral(\"M-135\"), QStringLiteral(\"U+000\") })",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "file": "src/meter/mod/src/MeterSettingsWidget.cpp",
+      "literal": "M-030",
+      "before": [
+        {
+          "id": "s0.dc5c0b11d6c9",
+          "domain": "meterbridge",
+          "file": "src/meter/mod/src/MeterSettingsWidget.cpp",
+          "line": "230",
+          "literal": "M-030",
+          "context": "roleSelector->addItems({ QStringLiteral(\"M+030\"), QStringLiteral(\"M-030\"), QStringLiteral(\"M+000\"),",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        }
+      ],
+      "after": [
+        {
+          "id": "s0.dc5c0b11d6c9",
+          "domain": "meterbridge",
+          "file": "src/meter/mod/src/MeterSettingsWidget.cpp",
+          "line": 230,
+          "literal": "M-030",
+          "context": "for (const auto& role : { QStringLiteral(\"M+030\"), QStringLiteral(\"M-030\"), QStringLiteral(\"M+000\"),",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "file": "src/meter/mod/src/MeterSettingsWidget.cpp",
+      "literal": "M-135",
+      "before": [
+        {
+          "id": "s0.da5daad141f0",
+          "domain": "meterbridge",
+          "file": "src/meter/mod/src/MeterSettingsWidget.cpp",
+          "line": "232",
+          "literal": "M-135",
+          "context": "QStringLiteral(\"M+135\"), QStringLiteral(\"M-135\"), QStringLiteral(\"U+000\") });",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        }
+      ],
+      "after": [
+        {
+          "id": "s0.da5daad141f0",
+          "domain": "meterbridge",
+          "file": "src/meter/mod/src/MeterSettingsWidget.cpp",
+          "line": 232,
+          "literal": "M-135",
+          "context": "QStringLiteral(\"M+135\"), QStringLiteral(\"M-135\"), QStringLiteral(\"U+000\") })",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "file": "src/meter/mod/src/MeterSettingsWidget.cpp",
+      "literal": "U+000",
+      "before": [
+        {
+          "id": "s0.c3e4cffc2e72",
+          "domain": "meterbridge",
+          "file": "src/meter/mod/src/MeterSettingsWidget.cpp",
+          "line": "232",
+          "literal": "U+000",
+          "context": "QStringLiteral(\"M+135\"), QStringLiteral(\"M-135\"), QStringLiteral(\"U+000\") });",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        }
+      ],
+      "after": [
+        {
+          "id": "s0.c3e4cffc2e72",
+          "domain": "meterbridge",
+          "file": "src/meter/mod/src/MeterSettingsWidget.cpp",
+          "line": 232,
+          "literal": "U+000",
+          "context": "QStringLiteral(\"M+135\"), QStringLiteral(\"M-135\"), QStringLiteral(\"U+000\") })",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "file": "src/meter/mod/src/MeterSettingsWidget.cpp",
+      "literal": "meterbridge",
+      "before": [
+        {
+          "id": "s0.003163c3afc1",
+          "domain": "meterbridge",
+          "file": "src/meter/mod/src/MeterSettingsWidget.cpp",
+          "line": "47",
+          "literal": "meterbridge",
+          "context": "bindLocalizedText(label, \"text\", \"meterbridge\", key, english);",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.003163c3afc1",
+          "domain": "meterbridge",
+          "file": "src/meter/mod/src/MeterSettingsWidget.cpp",
+          "line": "69",
+          "literal": "meterbridge",
+          "context": "auto* globalGroup = new Controls::GroupPanel(localizedText(\"meterbridge\", \"settings.display\", \"Display settings\"), this);",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.003163c3afc1",
+          "domain": "meterbridge",
+          "file": "src/meter/mod/src/MeterSettingsWidget.cpp",
+          "line": "70",
+          "literal": "meterbridge",
+          "context": "bindLocalizedText(globalGroup, \"title\", \"meterbridge\", \"settings.display\", \"Display settings\");",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.003163c3afc1",
+          "domain": "meterbridge",
+          "file": "src/meter/mod/src/MeterSettingsWidget.cpp",
+          "line": "80",
+          "literal": "meterbridge",
+          "context": "bindLocalizedText(silenceThresholdSpinBox_, \"accessibleName\", \"meterbridge\", \"settings.threshold\", \"Silence threshold\");",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.003163c3afc1",
+          "domain": "meterbridge",
+          "file": "src/meter/mod/src/MeterSettingsWidget.cpp",
+          "line": "89",
+          "literal": "meterbridge",
+          "context": "bindLocalizedText(silenceDurationSpinBox_, \"accessibleName\", \"meterbridge\", \"settings.duration\", \"Silence duration\");",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.003163c3afc1",
+          "domain": "meterbridge",
+          "file": "src/meter/mod/src/MeterSettingsWidget.cpp",
+          "line": "99",
+          "literal": "meterbridge",
+          "context": "bindLocalizedText(logRootDirectoryEdit_, \"accessibleName\", \"meterbridge\", \"settings.logRoot\", \"CSV log root directory\");",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.003163c3afc1",
+          "domain": "meterbridge",
+          "file": "src/meter/mod/src/MeterSettingsWidget.cpp",
+          "line": "100",
+          "literal": "meterbridge",
+          "context": "bindLocalizedText(logRootDirectoryEdit_, \"toolTip\", \"meterbridge\", \"settings.logHelp\", \"Root directory for live CSV logs. Choose the PNG export location separately. Leave empty to disable CSV output.\");",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.003163c3afc1",
+          "domain": "meterbridge",
+          "file": "src/meter/mod/src/MeterSettingsWidget.cpp",
+          "line": "104",
+          "literal": "meterbridge",
+          "context": "customChannelsGroup_ = new Controls::GroupPanel(localizedText(\"meterbridge\", \"settings.customChannels\", \"Custom channels\"), this);",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.003163c3afc1",
+          "domain": "meterbridge",
+          "file": "src/meter/mod/src/MeterSettingsWidget.cpp",
+          "line": "105",
+          "literal": "meterbridge",
+          "context": "bindLocalizedText(customChannelsGroup_, \"title\", \"meterbridge\", \"settings.customChannels\", \"Custom channels\");",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.003163c3afc1",
+          "domain": "meterbridge",
+          "file": "src/meter/mod/src/MeterSettingsWidget.cpp",
+          "line": "114",
+          "literal": "meterbridge",
+          "context": "bindLocalizedText(customChannelCountSpinBox_, \"accessibleName\", \"meterbridge\", \"settings.customCount\", \"Custom channel count\");",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.003163c3afc1",
+          "domain": "meterbridge",
+          "file": "src/meter/mod/src/MeterSettingsWidget.cpp",
+          "line": "121",
+          "literal": "meterbridge",
+          "context": "bindLocalizedText(channelTable_, \"accessibleName\", \"meterbridge\", \"settings.assignment\", \"Custom channel assignment\");",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.003163c3afc1",
+          "domain": "meterbridge",
+          "file": "src/meter/mod/src/MeterSettingsWidget.cpp",
+          "line": "123",
+          "literal": "meterbridge",
+          "context": "channelTable_->setHorizontalHeaderLabels({ localizedText(\"meterbridge\", \"settings.name\", \"Name\"), localizedText(\"meterbridge\", \"settings.role\", \"Role\"), QStringLiteral(\"LFE\") });",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.003163c3afc1",
+          "domain": "meterbridge",
+          "file": "src/meter/mod/src/MeterSettingsWidget.cpp",
+          "line": "123",
+          "literal": "meterbridge",
+          "context": "channelTable_->setHorizontalHeaderLabels({ localizedText(\"meterbridge\", \"settings.name\", \"Name\"), localizedText(\"meterbridge\", \"settings.role\", \"Role\"), QStringLiteral(\"LFE\") });",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.003163c3afc1",
+          "domain": "meterbridge",
+          "file": "src/meter/mod/src/MeterSettingsWidget.cpp",
+          "line": "128",
+          "literal": "meterbridge",
+          "context": "localizedText(\"meterbridge\", \"settings.name\", \"Name\"),",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.003163c3afc1",
+          "domain": "meterbridge",
+          "file": "src/meter/mod/src/MeterSettingsWidget.cpp",
+          "line": "129",
+          "literal": "meterbridge",
+          "context": "localizedText(\"meterbridge\", \"settings.role\", \"Role\"), QStringLiteral(\"LFE\") });",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.003163c3afc1",
+          "domain": "meterbridge",
+          "file": "src/meter/mod/src/MeterSettingsWidget.cpp",
+          "line": "252",
+          "literal": "meterbridge",
+          "context": "lfeCheckBox->setAccessibleName(localizedText(\"meterbridge\", \"settings.channelLfe\", \"LFE flag for channel %1\").arg(index + 1));",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        }
+      ],
+      "after": [
+        {
+          "id": "s0.003163c3afc1",
+          "domain": "meterbridge",
+          "file": "src/meter/mod/src/MeterSettingsWidget.cpp",
+          "line": 47,
+          "literal": "meterbridge",
+          "context": "bindLocalizedText(label, \"text\", \"meterbridge\", key, english);",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.003163c3afc1",
+          "domain": "meterbridge",
+          "file": "src/meter/mod/src/MeterSettingsWidget.cpp",
+          "line": 69,
+          "literal": "meterbridge",
+          "context": "auto* globalGroup = new Controls::GroupPanel(localizedText(\"meterbridge\", \"settings.display\", \"Display settings\"), this);",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.003163c3afc1",
+          "domain": "meterbridge",
+          "file": "src/meter/mod/src/MeterSettingsWidget.cpp",
+          "line": 70,
+          "literal": "meterbridge",
+          "context": "bindLocalizedText(globalGroup, \"title\", \"meterbridge\", \"settings.display\", \"Display settings\");",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.003163c3afc1",
+          "domain": "meterbridge",
+          "file": "src/meter/mod/src/MeterSettingsWidget.cpp",
+          "line": 80,
+          "literal": "meterbridge",
+          "context": "bindLocalizedText(silenceThresholdSpinBox_, \"accessibleName\", \"meterbridge\", \"settings.threshold\", \"Silence threshold\");",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.003163c3afc1",
+          "domain": "meterbridge",
+          "file": "src/meter/mod/src/MeterSettingsWidget.cpp",
+          "line": 89,
+          "literal": "meterbridge",
+          "context": "bindLocalizedText(silenceDurationSpinBox_, \"accessibleName\", \"meterbridge\", \"settings.duration\", \"Silence duration\");",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.003163c3afc1",
+          "domain": "meterbridge",
+          "file": "src/meter/mod/src/MeterSettingsWidget.cpp",
+          "line": 99,
+          "literal": "meterbridge",
+          "context": "bindLocalizedText(logRootDirectoryEdit_, \"accessibleName\", \"meterbridge\", \"settings.logRoot\", \"CSV log root directory\");",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.003163c3afc1",
+          "domain": "meterbridge",
+          "file": "src/meter/mod/src/MeterSettingsWidget.cpp",
+          "line": 100,
+          "literal": "meterbridge",
+          "context": "bindLocalizedText(logRootDirectoryEdit_, \"toolTip\", \"meterbridge\", \"settings.logHelp\", \"Root directory for live CSV logs. Choose the PNG export location separately. Leave empty to disable CSV output.\");",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.003163c3afc1",
+          "domain": "meterbridge",
+          "file": "src/meter/mod/src/MeterSettingsWidget.cpp",
+          "line": 104,
+          "literal": "meterbridge",
+          "context": "customChannelsGroup_ = new Controls::GroupPanel(localizedText(\"meterbridge\", \"settings.customChannels\", \"Custom channels\"), this);",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.003163c3afc1",
+          "domain": "meterbridge",
+          "file": "src/meter/mod/src/MeterSettingsWidget.cpp",
+          "line": 105,
+          "literal": "meterbridge",
+          "context": "bindLocalizedText(customChannelsGroup_, \"title\", \"meterbridge\", \"settings.customChannels\", \"Custom channels\");",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.003163c3afc1",
+          "domain": "meterbridge",
+          "file": "src/meter/mod/src/MeterSettingsWidget.cpp",
+          "line": 114,
+          "literal": "meterbridge",
+          "context": "bindLocalizedText(customChannelCountSpinBox_, \"accessibleName\", \"meterbridge\", \"settings.customCount\", \"Custom channel count\");",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.003163c3afc1",
+          "domain": "meterbridge",
+          "file": "src/meter/mod/src/MeterSettingsWidget.cpp",
+          "line": 121,
+          "literal": "meterbridge",
+          "context": "bindLocalizedText(channelTable_, \"accessibleName\", \"meterbridge\", \"settings.assignment\", \"Custom channel assignment\");",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.003163c3afc1",
+          "domain": "meterbridge",
+          "file": "src/meter/mod/src/MeterSettingsWidget.cpp",
+          "line": 123,
+          "literal": "meterbridge",
+          "context": "channelTable_->setHorizontalHeaderLabels({ localizedText(\"meterbridge\", \"settings.name\", \"Name\"), localizedText(\"meterbridge\", \"settings.role\", \"Role\"), QStringLiteral(\"LFE\") });",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.003163c3afc1",
+          "domain": "meterbridge",
+          "file": "src/meter/mod/src/MeterSettingsWidget.cpp",
+          "line": 123,
+          "literal": "meterbridge",
+          "context": "channelTable_->setHorizontalHeaderLabels({ localizedText(\"meterbridge\", \"settings.name\", \"Name\"), localizedText(\"meterbridge\", \"settings.role\", \"Role\"), QStringLiteral(\"LFE\") });",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.003163c3afc1",
+          "domain": "meterbridge",
+          "file": "src/meter/mod/src/MeterSettingsWidget.cpp",
+          "line": 128,
+          "literal": "meterbridge",
+          "context": "localizedText(\"meterbridge\", \"settings.name\", \"Name\"),",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.003163c3afc1",
+          "domain": "meterbridge",
+          "file": "src/meter/mod/src/MeterSettingsWidget.cpp",
+          "line": 129,
+          "literal": "meterbridge",
+          "context": "localizedText(\"meterbridge\", \"settings.role\", \"Role\"), QStringLiteral(\"LFE\") });",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.003163c3afc1",
+          "domain": "meterbridge",
+          "file": "src/meter/mod/src/MeterSettingsWidget.cpp",
+          "line": 244,
+          "literal": "meterbridge",
+          "context": "localizedText(\"meterbridge\", \"settings.unassigned\", \"Unassigned\"));",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.003163c3afc1",
+          "domain": "meterbridge",
+          "file": "src/meter/mod/src/MeterSettingsWidget.cpp",
+          "line": 261,
+          "literal": "meterbridge",
+          "context": "lfeCheckBox->setAccessibleName(localizedText(\"meterbridge\", \"settings.channelLfe\", \"LFE flag for channel %1\").arg(index + 1));",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "file": "src/ui/src/LocalizedMixerErrors.hpp",
+      "literal": "mixer",
+      "before": [
+        {
+          "id": "s0.ae0073a0fd84",
+          "domain": "ui",
+          "file": "src/ui/src/LocalizedMixerErrors.hpp",
+          "line": "10",
+          "literal": "mixer",
+          "context": "if (canonical == QStringLiteral(\"无效的 Sub Mix 路由\")) return localizedText(\"mixer\", \"error.subRoute\", \"Invalid Sub Mix routing\");",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.ae0073a0fd84",
+          "domain": "ui",
+          "file": "src/ui/src/LocalizedMixerErrors.hpp",
+          "line": "11",
+          "literal": "mixer",
+          "context": "if (canonical == QStringLiteral(\"无效或自发 AUX 路由\")) return localizedText(\"mixer\", \"error.selfAuxRoute\", \"Invalid or self-referencing AUX routing\");",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.ae0073a0fd84",
+          "domain": "ui",
+          "file": "src/ui/src/LocalizedMixerErrors.hpp",
+          "line": "12",
+          "literal": "mixer",
+          "context": "if (canonical == QStringLiteral(\"AUX 声像参数无效\")) return localizedText(\"mixer\", \"error.auxPan\", \"Invalid AUX pan parameters\");",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.ae0073a0fd84",
+          "domain": "ui",
+          "file": "src/ui/src/LocalizedMixerErrors.hpp",
+          "line": "13",
+          "literal": "mixer",
+          "context": "if (canonical == QStringLiteral(\"MAIN 必须是不可删除的立体声总线\")) return localizedText(\"mixer\", \"error.mainBus\", \"MAIN must be a permanent stereo bus\");",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.ae0073a0fd84",
+          "domain": "ui",
+          "file": "src/ui/src/LocalizedMixerErrors.hpp",
+          "line": "14",
+          "literal": "mixer",
+          "context": "if (canonical == QStringLiteral(\"监听推子参数无效\")) return localizedText(\"mixer\", \"error.monitorParameters\", \"Invalid monitor fader parameters\");",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.ae0073a0fd84",
+          "domain": "ui",
+          "file": "src/ui/src/LocalizedMixerErrors.hpp",
+          "line": "15",
+          "literal": "mixer",
+          "context": "if (canonical == QStringLiteral(\"MAIN 参数无效\")) return localizedText(\"mixer\", \"error.mainParameters\", \"Invalid MAIN parameters\");",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.ae0073a0fd84",
+          "domain": "ui",
+          "file": "src/ui/src/LocalizedMixerErrors.hpp",
+          "line": "16",
+          "literal": "mixer",
+          "context": "if (canonical == QStringLiteral(\"CH 参数或身份无效\")) return localizedText(\"mixer\", \"error.inputParameters\", \"Invalid CH parameters or identity\");",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.ae0073a0fd84",
+          "domain": "ui",
+          "file": "src/ui/src/LocalizedMixerErrors.hpp",
+          "line": "17",
+          "literal": "mixer",
+          "context": "if (canonical == QStringLiteral(\"AUX 参数或身份无效\")) return localizedText(\"mixer\", \"error.auxParameters\", \"Invalid AUX parameters or identity\");",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.ae0073a0fd84",
+          "domain": "ui",
+          "file": "src/ui/src/LocalizedMixerErrors.hpp",
+          "line": "18",
+          "literal": "mixer",
+          "context": "if (canonical == QStringLiteral(\"Sub Mix 参数或身份无效\")) return localizedText(\"mixer\", \"error.subParameters\", \"Invalid Sub Mix parameters or identity\");",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.ae0073a0fd84",
+          "domain": "ui",
+          "file": "src/ui/src/LocalizedMixerErrors.hpp",
+          "line": "19",
+          "literal": "mixer",
+          "context": "if (canonical == QStringLiteral(\"通道名生成了无效或重复的 JACK 端口名\")) return localizedText(\"mixer\", \"error.portName\", \"The channel name produces an invalid or duplicate JACK port name\");",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.ae0073a0fd84",
+          "domain": "ui",
+          "file": "src/ui/src/LocalizedMixerErrors.hpp",
+          "line": "20",
+          "literal": "mixer",
+          "context": "if (canonical == QStringLiteral(\"AUX 路由无效或重复\")) return localizedText(\"mixer\", \"error.duplicateRoute\", \"Invalid or duplicate AUX routing\");",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.ae0073a0fd84",
+          "domain": "ui",
+          "file": "src/ui/src/LocalizedMixerErrors.hpp",
+          "line": "21",
+          "literal": "mixer",
+          "context": "if (canonical == QStringLiteral(\"总线路由存在环\")) return localizedText(\"mixer\", \"error.routeCycle\", \"Bus routing contains a cycle\");",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.ae0073a0fd84",
+          "domain": "ui",
+          "file": "src/ui/src/LocalizedMixerErrors.hpp",
+          "line": "22",
+          "literal": "mixer",
+          "context": "if (canonical == QStringLiteral(\"FX 链拓扑已变更。\")) return localizedText(\"mixer\", \"error.effectTopology\", \"The FX chain topology has changed.\");",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.ae0073a0fd84",
+          "domain": "ui",
+          "file": "src/ui/src/LocalizedMixerErrors.hpp",
+          "line": "24",
+          "literal": "mixer",
+          "context": "return localizedText(\"mixer\", \"error.missingSnapshot\", \"%1 has no per-channel parameter snapshot. Add it again in FX settings.\").arg(canonical.left(canonical.size() - QStringLiteral(\" 缺少逐声道参数快照。请在 FX 设置中重新添加。\").size()));",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.ae0073a0fd84",
+          "domain": "ui",
+          "file": "src/ui/src/LocalizedMixerErrors.hpp",
+          "line": "26",
+          "literal": "mixer",
+          "context": "return localizedText(\"mixer\", \"error.snapshotBase64\", \"Invalid Base64 parameter snapshot for %1.\").arg(canonical.left(canonical.size() - QStringLiteral(\" 的参数快照 Base64 格式无效。\").size()));",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.ae0073a0fd84",
+          "domain": "ui",
+          "file": "src/ui/src/LocalizedMixerErrors.hpp",
+          "line": "28",
+          "literal": "mixer",
+          "context": "return localizedText(\"mixer\", \"error.snapshotSize\", \"Invalid parameter snapshot size for %1.\").arg(canonical.left(canonical.size() - QStringLiteral(\" 的参数快照长度无效。\").size()));",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.ae0073a0fd84",
+          "domain": "ui",
+          "file": "src/ui/src/LocalizedMixerErrors.hpp",
+          "line": "30",
+          "literal": "mixer",
+          "context": "return localizedText(\"mixer\", \"error.snapshotIdentity\", \"Parameter snapshot version or module identity mismatch for %1.\").arg(canonical.left(canonical.size() - QStringLiteral(\" 的参数快照版本或模块身份不匹配。\").size()));",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.ae0073a0fd84",
+          "domain": "ui",
+          "file": "src/ui/src/LocalizedMixerErrors.hpp",
+          "line": "32",
+          "literal": "mixer",
+          "context": "return localizedText(\"mixer\", \"error.snapshotImport\", \"Parameter snapshot import failed for %1.\").arg(canonical.left(canonical.size() - QStringLiteral(\" 的参数快照导入失败。\").size()));",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.ae0073a0fd84",
+          "domain": "ui",
+          "file": "src/ui/src/LocalizedMixerErrors.hpp",
+          "line": "39",
+          "literal": "mixer",
+          "context": "bindLocalizedText(&dialog, \"windowTitle\", \"mixer\", titleKey, titleEnglish);",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.ae0073a0fd84",
+          "domain": "ui",
+          "file": "src/ui/src/LocalizedMixerErrors.hpp",
+          "line": "43",
+          "literal": "mixer",
+          "context": "? localizedText(\"mixer\", key.constData(), english.constData()) : display(canonical));",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        }
+      ],
+      "after": [
+        {
+          "id": "s0.ae0073a0fd84",
+          "domain": "ui",
+          "file": "src/ui/src/LocalizedMixerErrors.hpp",
+          "line": 10,
+          "literal": "mixer",
+          "context": "if (canonical == QStringLiteral(\"JACK 端口注册失败，旧拓扑已保留。\")) return localizedText(\"mixer\", \"error.registerPorts\", \"Unable to register mixer ports. The previous state has been retained.\");",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.ae0073a0fd84",
+          "domain": "ui",
+          "file": "src/ui/src/LocalizedMixerErrors.hpp",
+          "line": 11,
+          "literal": "mixer",
+          "context": "if (canonical == QStringLiteral(\"JACK 端口映射失败。\")) return localizedText(\"mixer\", \"error.mapPorts\", \"Unable to map JACK ports.\");",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.ae0073a0fd84",
+          "domain": "ui",
+          "file": "src/ui/src/LocalizedMixerErrors.hpp",
+          "line": 12,
+          "literal": "mixer",
+          "context": "if (canonical == QStringLiteral(\"AUX 路由存在环\")) return localizedText(\"mixer\", \"error.auxRouteCycle\", \"AUX routing contains a cycle\");",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.ae0073a0fd84",
+          "domain": "ui",
+          "file": "src/ui/src/LocalizedMixerErrors.hpp",
+          "line": 13,
+          "literal": "mixer",
+          "context": "if (canonical == QStringLiteral(\"无效的 FX 采样率。\")) return localizedText(\"mixer\", \"error.fxSampleRate\", \"Invalid FX sample rate.\");",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.ae0073a0fd84",
+          "domain": "ui",
+          "file": "src/ui/src/LocalizedMixerErrors.hpp",
+          "line": 14,
+          "literal": "mixer",
+          "context": "if (canonical == QStringLiteral(\"无效的 Sub Mix 路由\")) return localizedText(\"mixer\", \"error.subRoute\", \"Invalid Sub Mix routing\");",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.ae0073a0fd84",
+          "domain": "ui",
+          "file": "src/ui/src/LocalizedMixerErrors.hpp",
+          "line": 15,
+          "literal": "mixer",
+          "context": "if (canonical == QStringLiteral(\"无效或自发 AUX 路由\")) return localizedText(\"mixer\", \"error.selfAuxRoute\", \"Invalid or self-referencing AUX routing\");",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.ae0073a0fd84",
+          "domain": "ui",
+          "file": "src/ui/src/LocalizedMixerErrors.hpp",
+          "line": 16,
+          "literal": "mixer",
+          "context": "if (canonical == QStringLiteral(\"AUX 声像参数无效\")) return localizedText(\"mixer\", \"error.auxPan\", \"Invalid AUX pan parameters\");",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.ae0073a0fd84",
+          "domain": "ui",
+          "file": "src/ui/src/LocalizedMixerErrors.hpp",
+          "line": 17,
+          "literal": "mixer",
+          "context": "if (canonical == QStringLiteral(\"MAIN 必须是不可删除的立体声总线\")) return localizedText(\"mixer\", \"error.mainBus\", \"MAIN must be a permanent stereo bus\");",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.ae0073a0fd84",
+          "domain": "ui",
+          "file": "src/ui/src/LocalizedMixerErrors.hpp",
+          "line": 18,
+          "literal": "mixer",
+          "context": "if (canonical == QStringLiteral(\"监听推子参数无效\")) return localizedText(\"mixer\", \"error.monitorParameters\", \"Invalid monitor fader parameters\");",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.ae0073a0fd84",
+          "domain": "ui",
+          "file": "src/ui/src/LocalizedMixerErrors.hpp",
+          "line": 19,
+          "literal": "mixer",
+          "context": "if (canonical == QStringLiteral(\"MAIN 参数无效\")) return localizedText(\"mixer\", \"error.mainParameters\", \"Invalid MAIN parameters\");",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.ae0073a0fd84",
+          "domain": "ui",
+          "file": "src/ui/src/LocalizedMixerErrors.hpp",
+          "line": 20,
+          "literal": "mixer",
+          "context": "if (canonical == QStringLiteral(\"CH 参数或身份无效\")) return localizedText(\"mixer\", \"error.inputParameters\", \"Invalid CH parameters or identity\");",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.ae0073a0fd84",
+          "domain": "ui",
+          "file": "src/ui/src/LocalizedMixerErrors.hpp",
+          "line": 21,
+          "literal": "mixer",
+          "context": "if (canonical == QStringLiteral(\"AUX 参数或身份无效\")) return localizedText(\"mixer\", \"error.auxParameters\", \"Invalid AUX parameters or identity\");",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.ae0073a0fd84",
+          "domain": "ui",
+          "file": "src/ui/src/LocalizedMixerErrors.hpp",
+          "line": 22,
+          "literal": "mixer",
+          "context": "if (canonical == QStringLiteral(\"Sub Mix 参数或身份无效\")) return localizedText(\"mixer\", \"error.subParameters\", \"Invalid Sub Mix parameters or identity\");",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.ae0073a0fd84",
+          "domain": "ui",
+          "file": "src/ui/src/LocalizedMixerErrors.hpp",
+          "line": 23,
+          "literal": "mixer",
+          "context": "if (canonical == QStringLiteral(\"通道名生成了无效或重复的 JACK 端口名\")) return localizedText(\"mixer\", \"error.portName\", \"The channel name produces an invalid or duplicate JACK port name\");",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.ae0073a0fd84",
+          "domain": "ui",
+          "file": "src/ui/src/LocalizedMixerErrors.hpp",
+          "line": 24,
+          "literal": "mixer",
+          "context": "if (canonical == QStringLiteral(\"AUX 路由无效或重复\")) return localizedText(\"mixer\", \"error.duplicateRoute\", \"Invalid or duplicate AUX routing\");",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.ae0073a0fd84",
+          "domain": "ui",
+          "file": "src/ui/src/LocalizedMixerErrors.hpp",
+          "line": 25,
+          "literal": "mixer",
+          "context": "if (canonical == QStringLiteral(\"总线路由存在环\")) return localizedText(\"mixer\", \"error.routeCycle\", \"Bus routing contains a cycle\");",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.ae0073a0fd84",
+          "domain": "ui",
+          "file": "src/ui/src/LocalizedMixerErrors.hpp",
+          "line": 26,
+          "literal": "mixer",
+          "context": "if (canonical == QStringLiteral(\"FX 链拓扑已变更。\")) return localizedText(\"mixer\", \"error.effectTopology\", \"The FX chain topology has changed.\");",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.ae0073a0fd84",
+          "domain": "ui",
+          "file": "src/ui/src/LocalizedMixerErrors.hpp",
+          "line": 28,
+          "literal": "mixer",
+          "context": "return localizedText(\"mixer\", \"error.missingSnapshot\", \"%1 has no per-channel parameter snapshot. Add it again in FX settings.\").arg(canonical.left(canonical.size() - QStringLiteral(\" 缺少逐声道参数快照。请在 FX 设置中重新添加。\").size()));",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.ae0073a0fd84",
+          "domain": "ui",
+          "file": "src/ui/src/LocalizedMixerErrors.hpp",
+          "line": 30,
+          "literal": "mixer",
+          "context": "return localizedText(\"mixer\", \"error.snapshotBase64\", \"Invalid Base64 parameter snapshot for %1.\").arg(canonical.left(canonical.size() - QStringLiteral(\" 的参数快照 Base64 格式无效。\").size()));",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.ae0073a0fd84",
+          "domain": "ui",
+          "file": "src/ui/src/LocalizedMixerErrors.hpp",
+          "line": 32,
+          "literal": "mixer",
+          "context": "return localizedText(\"mixer\", \"error.snapshotSize\", \"Invalid parameter snapshot size for %1.\").arg(canonical.left(canonical.size() - QStringLiteral(\" 的参数快照长度无效。\").size()));",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.ae0073a0fd84",
+          "domain": "ui",
+          "file": "src/ui/src/LocalizedMixerErrors.hpp",
+          "line": 34,
+          "literal": "mixer",
+          "context": "return localizedText(\"mixer\", \"error.snapshotIdentity\", \"Parameter snapshot version or module identity mismatch for %1.\").arg(canonical.left(canonical.size() - QStringLiteral(\" 的参数快照版本或模块身份不匹配。\").size()));",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.ae0073a0fd84",
+          "domain": "ui",
+          "file": "src/ui/src/LocalizedMixerErrors.hpp",
+          "line": 36,
+          "literal": "mixer",
+          "context": "return localizedText(\"mixer\", \"error.snapshotImport\", \"Parameter snapshot import failed for %1.\").arg(canonical.left(canonical.size() - QStringLiteral(\" 的参数快照导入失败。\").size()));",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.ae0073a0fd84",
+          "domain": "ui",
+          "file": "src/ui/src/LocalizedMixerErrors.hpp",
+          "line": 43,
+          "literal": "mixer",
+          "context": "bindLocalizedText(&dialog, \"windowTitle\", \"mixer\", titleKey, titleEnglish);",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.ae0073a0fd84",
+          "domain": "ui",
+          "file": "src/ui/src/LocalizedMixerErrors.hpp",
+          "line": 47,
+          "literal": "mixer",
+          "context": "? localizedText(\"mixer\", key.constData(), english.constData()) : display(canonical));",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        }
+      ]
+    }
+  ],
+  "catalog_added": [
+    {
+      "domain": "meterbridge",
+      "key": "settings.unassigned",
+      "sources": "[\"Unassigned\", \"未分配\", \"未割り当て\", \"할당되지 않음\"]",
+      "locations": "locate/en-US.json!domains.meterbridge.settings.unassigned\nlocate/ja-JP.json!domains.meterbridge.settings.unassigned\nlocate/ko-KR.json!domains.meterbridge.settings.unassigned\nlocate/zh-CN.json!domains.meterbridge.settings.unassigned\nsrc/meter/mod/src/MeterSettingsWidget.cpp:244",
+      "placeholders": "",
+      "layout": "原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName",
+      "translation_status": "未实施（S0 清单）",
+      "semantic_review": "Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校"
+    },
+    {
+      "domain": "mixer",
+      "key": "error.auxRouteCycle",
+      "sources": "[\"AUX routing contains a cycle\", \"AUX ルーティングに循環があります\", \"AUX 路由存在环\", \"AUX 라우팅에 순환이 있습니다\"]",
+      "locations": "locate/en-US.json!domains.mixer.error.auxRouteCycle\nlocate/ja-JP.json!domains.mixer.error.auxRouteCycle\nlocate/ko-KR.json!domains.mixer.error.auxRouteCycle\nlocate/zh-CN.json!domains.mixer.error.auxRouteCycle\nsrc/ui/src/LocalizedMixerErrors.hpp:12",
+      "placeholders": "",
+      "layout": "原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName",
+      "translation_status": "未实施（S0 清单）",
+      "semantic_review": "Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校"
+    },
+    {
+      "domain": "mixer",
+      "key": "error.fxSampleRate",
+      "sources": "[\"FX のサンプルレートが無効です。\", \"FX 샘플 레이트가 유효하지 않습니다.\", \"Invalid FX sample rate.\", \"无效的 FX 采样率。\"]",
+      "locations": "locate/en-US.json!domains.mixer.error.fxSampleRate\nlocate/ja-JP.json!domains.mixer.error.fxSampleRate\nlocate/ko-KR.json!domains.mixer.error.fxSampleRate\nlocate/zh-CN.json!domains.mixer.error.fxSampleRate\nsrc/ui/src/LocalizedMixerErrors.hpp:13",
+      "placeholders": "",
+      "layout": "原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName",
+      "translation_status": "未实施（S0 清单）",
+      "semantic_review": "Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校"
+    },
+    {
+      "domain": "mixer",
+      "key": "error.mapPorts",
+      "sources": "[\"JACK ポートをマッピングできません。\", \"JACK 端口映射失败。\", \"JACK 포트를 매핑할 수 없습니다.\", \"Unable to map JACK ports.\"]",
+      "locations": "locate/en-US.json!domains.mixer.error.mapPorts\nlocate/ja-JP.json!domains.mixer.error.mapPorts\nlocate/ko-KR.json!domains.mixer.error.mapPorts\nlocate/zh-CN.json!domains.mixer.error.mapPorts\nsrc/ui/src/LocalizedMixerErrors.hpp:11",
+      "placeholders": "",
+      "layout": "原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName",
+      "translation_status": "未实施（S0 清单）",
+      "semantic_review": "Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校"
+    },
+    {
+      "domain": "mixer",
+      "key": "warning.effectsBypassed",
+      "sources": "[\"FX modules bypassed\", \"FX モジュールをバイパスしました\", \"FX 模块已旁通\", \"FX 모듈이 바이패스되었습니다\"]",
+      "locations": "locate/en-US.json!domains.mixer.warning.effectsBypassed\nlocate/ja-JP.json!domains.mixer.warning.effectsBypassed\nlocate/ko-KR.json!domains.mixer.warning.effectsBypassed\nlocate/zh-CN.json!domains.mixer.warning.effectsBypassed\nsrc/mixer/Library.cpp:263",
+      "placeholders": "",
+      "layout": "原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName",
+      "translation_status": "未实施（S0 清单）",
+      "semantic_review": "Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校"
+    },
+    {
+      "domain": "mixer",
+      "key": "warning.unavailableEffect",
+      "sources": "[\"Native Fx {module} is unavailable; bypassed with its configuration retained.\", \"Native Fx {module} は利用できません。設定を保持してバイパスしました。\", \"Native Fx {module} 不可用，已旁通并保留配置。\", \"Native Fx {module}을 사용할 수 없습니다. 설정을 보존한 채 바이패스했습니다.\"]",
+      "locations": "locate/en-US.json!domains.mixer.warning.unavailableEffect\nlocate/ja-JP.json!domains.mixer.warning.unavailableEffect\nlocate/ko-KR.json!domains.mixer.warning.unavailableEffect\nlocate/zh-CN.json!domains.mixer.warning.unavailableEffect\nsrc/mixer/Library.cpp:267",
+      "placeholders": "{module}",
+      "layout": "原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName",
+      "translation_status": "未实施（S0 清单）",
+      "semantic_review": "Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校"
+    }
+  ],
   "catalog_retired": [
     {
-      "domain": "meterbridge",
-      "key": "livemeterdataprovider.demo.customName",
-      "sources": "[\"自定义 %1\"]"
+      "domain": "common",
+      "key": "audioringbuffer.text.audioringbuffer.capacity.must.be.greater.than.zero",
+      "sources": "[\"AudioRingBuffer capacity must be greater than zero\"]"
+    },
+    {
+      "domain": "common",
+      "key": "channelnames.control.all",
+      "sources": "[\"All\"]"
+    },
+    {
+      "domain": "common",
+      "key": "standardchannelnames.control.all",
+      "sources": "[\"All\"]"
+    },
+    {
+      "domain": "host",
+      "key": "main.text.theme.page.count",
+      "sources": "[\"theme page count: %1\"]"
     },
     {
       "domain": "meterbridge",
-      "key": "livemeterdataprovider.label.multichannelCount",
-      "sources": "[\"多声道 %1\"]"
+      "key": "livemeterdataprovider.status.unassigned",
+      "sources": "[\"未分配\"]"
     },
     {
-      "domain": "meterbridge",
-      "key": "livemeterdataprovider.layout.mono",
+      "domain": "mixer",
+      "key": "auxmixerstate.layout.mono",
       "sources": "[\"单声道\"]"
     },
     {
-      "domain": "meterbridge",
-      "key": "livemeterdataprovider.layout.stereo",
-      "sources": "[\"立体声\"]"
+      "domain": "mixer",
+      "key": "auxmixerstate.layout.stereoWithCount",
+      "sources": "[\"立体声 (2.0)\"]"
     },
     {
-      "domain": "meterbridge",
-      "key": "livemeterdataprovider.status.csvRecordingStopped",
-      "sources": "[\"CSV 记录已停止\"]"
+      "domain": "mixer",
+      "key": "auxmixerstate.module.delayNameEnglish",
+      "sources": "[\"Delay\"]"
     },
     {
-      "domain": "meterbridge",
-      "key": "livemeterdataprovider.status.csvWaitingFirstRecord",
-      "sources": "[\"CSV 等待第一条记录\"]"
+      "domain": "mixer",
+      "key": "auxmixerstate.module.reverbNameEnglish",
+      "sources": "[\"Reverb\"]"
     },
     {
-      "domain": "meterbridge",
-      "key": "metercsvwriter.error.csvCreateDirectoryFailed",
-      "sources": "[\"CSV 未写入：无法创建目录 %1\"]"
+      "domain": "mixer",
+      "key": "auxmixerstate.output.monitor",
+      "sources": "[\"Monitor\"]"
     },
     {
-      "domain": "meterbridge",
-      "key": "metercsvwriter.error.csvOpenFileFailed",
-      "sources": "[\"CSV 未写入：无法打开文件 %1\"]"
+      "domain": "mixer",
+      "key": "digitalmixerprocessor.error.auxRoutingCycle",
+      "sources": "[\"AUX 路由存在环\"]"
     },
     {
-      "domain": "meterbridge",
-      "key": "metercsvwriter.error.csvWriteFailed",
-      "sources": "[\"CSV 写入失败：磁盘可能不可写\"]"
+      "domain": "mixer",
+      "key": "digitalmixerstate.error.busRoutingCycle",
+      "sources": "[\"总线路由存在环\"]"
     },
     {
-      "domain": "meterbridge",
-      "key": "metercsvwriter.label.unnamed",
-      "sources": "[\"Unnamed\"]"
+      "domain": "mixer",
+      "key": "digitalmixerstate.error.invalidAuxJson",
+      "sources": "[\"AUX JSON 无效\"]"
     },
     {
-      "domain": "meterbridge",
-      "key": "metercsvwriter.status.csvNotWrittenDirectoryMissing",
-      "sources": "[\"CSV 未写入：未设置日志保存根目录\"]"
+      "domain": "mixer",
+      "key": "digitalmixerstate.error.invalidAuxPanner",
+      "sources": "[\"AUX 声像参数无效\"]"
     },
     {
-      "domain": "meterbridge",
-      "key": "metercsvwriter.status.csvRecording",
-      "sources": "[\"CSV 正在记录\"]"
+      "domain": "mixer",
+      "key": "digitalmixerstate.error.invalidAuxParametersOrIdentity",
+      "sources": "[\"AUX 参数或身份无效\"]"
     },
     {
-      "domain": "meterbridge",
-      "key": "metercsvwriter.status.csvSessionClosed",
-      "sources": "[\"CSV 会话已关闭，等待下一条记录\"]"
+      "domain": "mixer",
+      "key": "digitalmixerstate.error.invalidChannelJson",
+      "sources": "[\"CH JSON 无效\"]"
     },
     {
-      "domain": "meterbridge",
-      "key": "metercsvwriter.status.csvWritingDisabled",
-      "sources": "[\"CSV 写入已关闭\"]"
+      "domain": "mixer",
+      "key": "digitalmixerstate.error.invalidChannelParametersOrIdentity",
+      "sources": "[\"CH 参数或身份无效\"]"
     },
     {
-      "domain": "meterbridge",
-      "key": "metercsvwriter.warning.csvQueueFullRecordsDropped",
-      "sources": "[\"CSV 写入队列已满，已丢弃 %1 条记录\"]"
+      "domain": "mixer",
+      "key": "digitalmixerstate.error.invalidJsonSyntax",
+      "sources": "[\"JSON 格式错误\"]"
     },
     {
-      "domain": "meterbridge",
-      "key": "metercustomloudnesspresets.error.createDirectoryFailed",
-      "sources": "[\"无法创建目录：%1\"]"
+      "domain": "mixer",
+      "key": "digitalmixerstate.error.invalidJsonVersionOrFields",
+      "sources": "[\"JSON 版本或字段无效\"]"
     },
     {
-      "domain": "meterbridge",
-      "key": "metercustomloudnesspresets.error.invalidPresetNameOrReference",
-      "sources": "[\"预设名称或参考值无效\"]"
+      "domain": "mixer",
+      "key": "digitalmixerstate.error.invalidMainJson",
+      "sources": "[\"MAIN JSON 无效\"]"
     },
     {
-      "domain": "meterbridge",
-      "key": "meterloudnesspresetcatalog.preset.customReference",
-      "sources": "[\"自定义参考\"]"
+      "domain": "mixer",
+      "key": "digitalmixerstate.error.invalidMainParameters",
+      "sources": "[\"MAIN 参数无效\"]"
     },
     {
-      "domain": "meterbridge",
-      "key": "mockmeterdataprovider.control.mute",
-      "sources": "[\"静音\"]"
+      "domain": "mixer",
+      "key": "digitalmixerstate.error.invalidMonitorFader",
+      "sources": "[\"监听推子参数无效\"]"
     },
     {
-      "domain": "meterbridge",
-      "key": "mockmeterdataprovider.demo.customBusName",
-      "sources": "[\"自定义总线\"]"
+      "domain": "mixer",
+      "key": "digitalmixerstate.error.invalidMonitorFaderJson",
+      "sources": "[\"监听推子 JSON 无效\"]"
     },
     {
-      "domain": "meterbridge",
-      "key": "mockmeterdataprovider.demo.customChannelRange",
-      "sources": "[\"自定义 1-16 声道\"]"
+      "domain": "mixer",
+      "key": "digitalmixerstate.error.invalidMonitorLayoutJson",
+      "sources": "[\"监听布局 JSON 无效\"]"
     },
     {
-      "domain": "meterbridge",
-      "key": "mockmeterdataprovider.demo.customEightChannels",
-      "sources": "[\"自定义 8\"]"
+      "domain": "mixer",
+      "key": "digitalmixerstate.error.invalidOrDuplicateAuxRoute",
+      "sources": "[\"AUX 路由无效或重复\"]"
     },
     {
-      "domain": "meterbridge",
-      "key": "mockmeterdataprovider.demo.customMultipleLfe",
-      "sources": "[\"自定义多 LFE\"]"
+      "domain": "mixer",
+      "key": "digitalmixerstate.error.invalidOrSelfAuxRoute",
+      "sources": "[\"无效或自发 AUX 路由\"]"
     },
     {
-      "domain": "meterbridge",
-      "key": "mockmeterdataprovider.demo.customName",
-      "sources": "[\"自定义 %1\"]"
+      "domain": "mixer",
+      "key": "digitalmixerstate.error.invalidPortNameFromChannelName",
+      "sources": "[\"通道名生成了无效或重复的 JACK 端口名\"]"
     },
     {
-      "domain": "meterbridge",
-      "key": "mockmeterdataprovider.demo.immersiveStems",
-      "sources": "[\"沉浸式分轨\"]"
+      "domain": "mixer",
+      "key": "digitalmixerstate.error.invalidSubMixChannelJson",
+      "sources": "[\"Sub Mix 通道 JSON 无效\"]"
     },
     {
-      "domain": "meterbridge",
-      "key": "mockmeterdataprovider.demo.longHistory",
-      "sources": "[\"长历史\"]"
+      "domain": "mixer",
+      "key": "digitalmixerstate.error.invalidSubMixJson",
+      "sources": "[\"Sub Mix JSON 无效\"]"
     },
     {
-      "domain": "meterbridge",
-      "key": "mockmeterdataprovider.demo.longProgramMix",
-      "sources": "[\"长节目混音\"]"
+      "domain": "mixer",
+      "key": "digitalmixerstate.error.invalidSubMixParametersOrIdentity",
+      "sources": "[\"Sub Mix 参数或身份无效\"]"
     },
     {
-      "domain": "meterbridge",
-      "key": "mockmeterdataprovider.demo.microphoneName",
-      "sources": "[\"话筒 %1\"]"
+      "domain": "mixer",
+      "key": "digitalmixerstate.error.invalidSubMixRoute",
+      "sources": "[\"无效的 Sub Mix 路由\"]"
     },
     {
-      "domain": "meterbridge",
-      "key": "mockmeterdataprovider.demo.monoWithoutLfe",
-      "sources": "[\"不含 LFE 的单声道\"]"
+      "domain": "mixer",
+      "key": "digitalmixerstate.error.mainMustBePermanentStereoBus",
+      "sources": "[\"MAIN 必须是不可删除的立体声总线\"]"
     },
     {
-      "domain": "meterbridge",
-      "key": "mockmeterdataprovider.demo.musicBedName",
-      "sources": "[\"音乐底\"]"
+      "domain": "mixer",
+      "key": "effectgraph.error.channelSnapshotMissing",
+      "sources": "[\"%1 缺少逐声道参数快照。请在 FX 设置中重新添加。\"]"
     },
     {
-      "domain": "meterbridge",
-      "key": "mockmeterdataprovider.demo.narrationName",
-      "sources": "[\"旁白\"]"
+      "domain": "mixer",
+      "key": "effectgraph.error.fxChainTopologyChanged",
+      "sources": "[\"FX 链拓扑已变更。\"]"
     },
     {
-      "domain": "meterbridge",
-      "key": "mockmeterdataprovider.demo.normalProgram",
-      "sources": "[\"正常节目\"]"
+      "domain": "mixer",
+      "key": "effectgraph.error.invalidFxSampleRate",
+      "sources": "[\"无效的 FX 采样率。\"]"
     },
     {
-      "domain": "meterbridge",
-      "key": "mockmeterdataprovider.demo.offlineProbeName",
-      "sources": "[\"离线探针\"]"
+      "domain": "mixer",
+      "key": "effectgraph.error.invalidSnapshotBase64",
+      "sources": "[\"%1 的参数快照 Base64 格式无效。\"]"
     },
     {
-      "domain": "meterbridge",
-      "key": "mockmeterdataprovider.demo.overLimit",
-      "sources": "[\"超限\"]"
+      "domain": "mixer",
+      "key": "effectgraph.error.invalidSnapshotLength",
+      "sources": "[\"%1 的参数快照长度无效。\"]"
     },
     {
-      "domain": "meterbridge",
-      "key": "mockmeterdataprovider.demo.renamedClient",
-      "sources": "[\"已改名客户端\"]"
+      "domain": "mixer",
+      "key": "effectgraph.error.snapshotImportFailed",
+      "sources": "[\"%1 的参数快照导入失败。\"]"
     },
     {
-      "domain": "meterbridge",
-      "key": "mockmeterdataprovider.demo.resetSession",
-      "sources": "[\"重置会话\"]"
+      "domain": "mixer",
+      "key": "effectgraph.error.snapshotVersionOrModuleMismatch",
+      "sources": "[\"%1 的参数快照版本或模块身份不匹配。\"]"
     },
     {
-      "domain": "meterbridge",
-      "key": "mockmeterdataprovider.demo.secondProgramName",
-      "sources": "[\"节目-2\"]"
+      "domain": "mixer",
+      "key": "effectgraph.warning.nativeFxUnavailablePreserved",
+      "sources": "[\"Native Fx %1 不可用，已旁通并保留配置。\\\\n\"]"
     },
     {
-      "domain": "meterbridge",
-      "key": "mockmeterdataprovider.demo.surroundProgramName",
-      "sources": "[\"节目 5.1\"]"
+      "domain": "mixer",
+      "key": "library.error.jackPortMappingFailed",
+      "sources": "[\"JACK 端口映射失败。\"]"
     },
     {
-      "domain": "meterbridge",
-      "key": "mockmeterdataprovider.demo.surroundWithLfe",
-      "sources": "[\"含 LFE 的 5.1\"]"
+      "domain": "mixer",
+      "key": "library.error.jackPortRegistrationFailed",
+      "sources": "[\"JACK 端口注册失败，旧拓扑已保留。\"]"
     },
     {
-      "domain": "meterbridge",
-      "key": "mockmeterdataprovider.layout.mono",
-      "sources": "[\"单声道\"]"
+      "domain": "mixer",
+      "key": "library.text.digital.mixer",
+      "sources": "[\"Digital Mixer\"]"
     },
     {
-      "domain": "meterbridge",
-      "key": "mockmeterdataprovider.layout.stereo",
-      "sources": "[\"立体声\"]"
+      "domain": "mixer",
+      "key": "library.text.single.instance.digital.mixer.node",
+      "sources": "[\"Single-instance Digital Mixer node.\"]"
     },
     {
-      "domain": "meterbridge",
-      "key": "mockmeterdataprovider.status.offline",
-      "sources": "[\"离线\"]"
+      "domain": "mixer",
+      "key": "library.warning.fxModuleBypassed",
+      "sources": "[\"FX 模块已旁通\"]"
     },
     {
-      "domain": "meterbridge",
-      "key": "mockmeterdataprovider.status.previewRecordingEnabled",
-      "sources": "[\"预览记录已启用；轮换间隔：60 分钟\"]"
+      "domain": "mixer",
+      "key": "mixerpolarplot.label.input",
+      "sources": "[\"输入\"]"
     },
     {
-      "domain": "meterbridge",
-      "key": "mockmeterdataprovider.status.previewRecordingIdle",
-      "sources": "[\"预览记录空闲；不会写入文件\"]"
+      "domain": "mixer",
+      "key": "mixerpolarplot.label.output",
+      "sources": "[\"输出\"]"
+    },
+    {
+      "domain": "node",
+      "key": "nodeapi.category.interface",
+      "sources": "[\"Interface\"]"
+    },
+    {
+      "domain": "patchbay",
+      "key": "internalloader.control.bypass",
+      "sources": "[\"Bypass\"]"
+    },
+    {
+      "domain": "patchbay",
+      "key": "internalloader.control.gain",
+      "sources": "[\"Gain\"]"
+    },
+    {
+      "domain": "patchbay",
+      "key": "internalloader.meter.peakEnglish",
+      "sources": "[\"Peak\"]"
+    },
+    {
+      "domain": "patchbay",
+      "key": "internalloader.text.peak.meter",
+      "sources": "[\"Peak Meter\"]"
+    },
+    {
+      "domain": "ui",
+      "key": "i18nmanager.fallback.unknown",
+      "sources": "[\"Unknown\"]"
     }
   ],
   "catalog_changed_sources": []

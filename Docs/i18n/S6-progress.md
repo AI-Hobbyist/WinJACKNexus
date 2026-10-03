@@ -65,3 +65,6 @@ VST Scanner 使用现有 HostI18n 在创建窗口前恢复宿主保存的语言�
 
 
 2026-10-04 Meter 49 个旧 key 候选逐调用链核对完成：47 处保留原始数据/API/CSV 路径/预览用户名称或未消费的场景 helper；显示布局、已知预设和 CSV 状态已有独立 stable ID/enum 翻译。两处 live “未分配”实际进入声道角色下拉框，确认漏译，保留开放，待实现 itemText 翻译与 itemData 原始值分离。见 S6-meter-source-review.md、S6-meter-source-audit.json、S6-meter-source-verification.json。源审计及 S0 核对 PASS；当前 277 文件/10389 出现、1726 翻译源/8656 保留项/7 结构化，未分类 0，1253 唯一显示 key；退休 44 个旧模型 key 提案。全局余 59 次（host1/common3/mixer45/meter2/node1/patchbay5/ui2）。这是源码/双表核对，不代表漏译修复或新实窗通过，本轮零构建/零模块执行/零弹窗，S6/S7 与人工审校仍未完成。
+
+
+2026-10-04 S6 剩余来源与显示补漏完成源码/编译核对：原 bd1a8f6 清单的 59 次候选全部逐项审查，31 项保留后台/技术/用户内容，25 项保留原始 API 字符串并在已确认的 GUI 边界翻译，3 项旧 UI literal 已替换。未分配角色使用 itemData 保存原始值，语言刷新阻断信号；极坐标输入/输出复用现有 key；四类 mixer 错误显示映射新增三 key/复用一 key，FX 旁通标题及正文使用两 key 和原始模块 ID 参数。六项新增四语言草稿、三项复用：宿主源码/实际部署 v11/780。必要 Release wjn_mixer_meter_i18n_tests 及依赖编译成功 exit 0，调用点检查只编译未执行；零新增模块测试、零弹窗。源码/资源/部署核对 PASS，当前 277 文件/10420 出现、1676 翻译源/8737 保留项/7 结构化、未分类 0、1206 唯一显示 key，差异六 key 新增、53 旧提案退休，未映射候选 0。原始 SDK/序列化/错误/警告去重保持。双表与审校词表同步。新增角色、图例、错误及旁通警告行为实窗未验证，旧实窗报告保留原基线，不借新 DLL 哈希扩称通过。S6 人工审校未完成，S7 尚未完成。见 [补漏记录](S6-supplement-completion.md)、[核对证据](S6-supplement-verification.json)、[逐项来源决定](S6-remaining-source-audit.json)。

@@ -447,8 +447,8 @@
     },
     {
       "file": "src/meter/mod/src/MeterSettingsWidget.cpp",
-      "sha256": "f3f6429a2a969d4eac71cb09b33f6592e928553ee30dd4b5d8f7b76d9459c83b",
-      "lines": 269
+      "sha256": "5f016186420796ca3d03db03f06eb04808cabf3f18435fd1b247d717a59872e6",
+      "lines": 278
     },
     {
       "file": "src/meter/probe/Library.cpp",
@@ -497,18 +497,18 @@
     },
     {
       "file": "src/mixer/EffectGraph.cpp",
-      "sha256": "9f153eea5550df170c25e22c82b98d8b3eb2060d074c328654349f0a9349e240",
-      "lines": 238
+      "sha256": "d9821c0d02a831e76c93c0ad794188addb3e349563b4ce7d203deca1f3581882",
+      "lines": 240
     },
     {
       "file": "src/mixer/EffectGraph.hpp",
-      "sha256": "bfcec5db88c04e7053a7a1cf4ffa7e27430411f0d1bd5aa4c2ff18a5eaf4d58a",
-      "lines": 65
+      "sha256": "8b1b768772f510257e975dd7f907c6c885d0e496b4642f2d25eb02f21ac2f140",
+      "lines": 68
     },
     {
       "file": "src/mixer/Library.cpp",
-      "sha256": "b590bd7f24bf8036b0777058fbd7f173ae19aa2e14d41080d57bc660963946ec",
-      "lines": 624
+      "sha256": "65f06096efd47bde4072b6a20f98c91759ab96fe5588cb7817f71bc9626b3441",
+      "lines": 636
     },
     {
       "file": "src/native_fx/effects/compressor/include/Dsp.hpp",
@@ -1197,8 +1197,8 @@
     },
     {
       "file": "src/ui/src/LocalizedMixerErrors.hpp",
-      "sha256": "20ad854a8d7e021dbb4878f26fd9fe66fbd31ddbd580554c47f6c2b85efb2db3",
-      "lines": 48
+      "sha256": "16f296ff1f2b2779c265475053057567f31a28ca2c6a3b81c6f6ac7b17d58bff",
+      "lines": 52
     },
     {
       "file": "src/ui/src/LocalizedThemeDialogs.hpp",
@@ -1247,8 +1247,8 @@
     },
     {
       "file": "src/ui/src/MixerPolarPlot.cpp",
-      "sha256": "c7fad498d7e750c7571d033476e19de5aea085db8317334192cdf00deae52332",
-      "lines": 247
+      "sha256": "8ad6755448a18aff831d8f8c68bb0b27da5f77417941d5cb37ae86e2e2896921",
+      "lines": 248
     },
     {
       "file": "src/ui/src/MixerWindow.cpp",
@@ -1391,8 +1391,8 @@
       "lines": 129
     }
   ],
-  "literal_occurrences": 10389,
-  "unique_source_ids": 6982,
+  "literal_occurrences": 10420,
+  "unique_source_ids": 7006,
   "limitations": [
     "Source evidence is not a classified UI/key inventory.",
     "Dynamic text sources and Qt/OS-owned text require separate inspection.",

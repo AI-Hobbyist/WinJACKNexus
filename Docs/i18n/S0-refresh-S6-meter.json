@@ -1,0 +1,235 @@
+{
+  "date": "2026-10-04",
+  "changed_files": [],
+  "resource_changes": [],
+  "before_occurrences": 10389,
+  "after_occurrences": 10389,
+  "added": [],
+  "removed": [],
+  "relocated": [],
+  "usage_changed": [],
+  "catalog_added": [],
+  "catalog_retired": [
+    {
+      "domain": "meterbridge",
+      "key": "livemeterdataprovider.demo.customName",
+      "sources": "[\"自定义 %1\"]"
+    },
+    {
+      "domain": "meterbridge",
+      "key": "livemeterdataprovider.label.multichannelCount",
+      "sources": "[\"多声道 %1\"]"
+    },
+    {
+      "domain": "meterbridge",
+      "key": "livemeterdataprovider.layout.mono",
+      "sources": "[\"单声道\"]"
+    },
+    {
+      "domain": "meterbridge",
+      "key": "livemeterdataprovider.layout.stereo",
+      "sources": "[\"立体声\"]"
+    },
+    {
+      "domain": "meterbridge",
+      "key": "livemeterdataprovider.status.csvRecordingStopped",
+      "sources": "[\"CSV 记录已停止\"]"
+    },
+    {
+      "domain": "meterbridge",
+      "key": "livemeterdataprovider.status.csvWaitingFirstRecord",
+      "sources": "[\"CSV 等待第一条记录\"]"
+    },
+    {
+      "domain": "meterbridge",
+      "key": "metercsvwriter.error.csvCreateDirectoryFailed",
+      "sources": "[\"CSV 未写入：无法创建目录 %1\"]"
+    },
+    {
+      "domain": "meterbridge",
+      "key": "metercsvwriter.error.csvOpenFileFailed",
+      "sources": "[\"CSV 未写入：无法打开文件 %1\"]"
+    },
+    {
+      "domain": "meterbridge",
+      "key": "metercsvwriter.error.csvWriteFailed",
+      "sources": "[\"CSV 写入失败：磁盘可能不可写\"]"
+    },
+    {
+      "domain": "meterbridge",
+      "key": "metercsvwriter.label.unnamed",
+      "sources": "[\"Unnamed\"]"
+    },
+    {
+      "domain": "meterbridge",
+      "key": "metercsvwriter.status.csvNotWrittenDirectoryMissing",
+      "sources": "[\"CSV 未写入：未设置日志保存根目录\"]"
+    },
+    {
+      "domain": "meterbridge",
+      "key": "metercsvwriter.status.csvRecording",
+      "sources": "[\"CSV 正在记录\"]"
+    },
+    {
+      "domain": "meterbridge",
+      "key": "metercsvwriter.status.csvSessionClosed",
+      "sources": "[\"CSV 会话已关闭，等待下一条记录\"]"
+    },
+    {
+      "domain": "meterbridge",
+      "key": "metercsvwriter.status.csvWritingDisabled",
+      "sources": "[\"CSV 写入已关闭\"]"
+    },
+    {
+      "domain": "meterbridge",
+      "key": "metercsvwriter.warning.csvQueueFullRecordsDropped",
+      "sources": "[\"CSV 写入队列已满，已丢弃 %1 条记录\"]"
+    },
+    {
+      "domain": "meterbridge",
+      "key": "metercustomloudnesspresets.error.createDirectoryFailed",
+      "sources": "[\"无法创建目录：%1\"]"
+    },
+    {
+      "domain": "meterbridge",
+      "key": "metercustomloudnesspresets.error.invalidPresetNameOrReference",
+      "sources": "[\"预设名称或参考值无效\"]"
+    },
+    {
+      "domain": "meterbridge",
+      "key": "meterloudnesspresetcatalog.preset.customReference",
+      "sources": "[\"自定义参考\"]"
+    },
+    {
+      "domain": "meterbridge",
+      "key": "mockmeterdataprovider.control.mute",
+      "sources": "[\"静音\"]"
+    },
+    {
+      "domain": "meterbridge",
+      "key": "mockmeterdataprovider.demo.customBusName",
+      "sources": "[\"自定义总线\"]"
+    },
+    {
+      "domain": "meterbridge",
+      "key": "mockmeterdataprovider.demo.customChannelRange",
+      "sources": "[\"自定义 1-16 声道\"]"
+    },
+    {
+      "domain": "meterbridge",
+      "key": "mockmeterdataprovider.demo.customEightChannels",
+      "sources": "[\"自定义 8\"]"
+    },
+    {
+      "domain": "meterbridge",
+      "key": "mockmeterdataprovider.demo.customMultipleLfe",
+      "sources": "[\"自定义多 LFE\"]"
+    },
+    {
+      "domain": "meterbridge",
+      "key": "mockmeterdataprovider.demo.customName",
+      "sources": "[\"自定义 %1\"]"
+    },
+    {
+      "domain": "meterbridge",
+      "key": "mockmeterdataprovider.demo.immersiveStems",
+      "sources": "[\"沉浸式分轨\"]"
+    },
+    {
+      "domain": "meterbridge",
+      "key": "mockmeterdataprovider.demo.longHistory",
+      "sources": "[\"长历史\"]"
+    },
+    {
+      "domain": "meterbridge",
+      "key": "mockmeterdataprovider.demo.longProgramMix",
+      "sources": "[\"长节目混音\"]"
+    },
+    {
+      "domain": "meterbridge",
+      "key": "mockmeterdataprovider.demo.microphoneName",
+      "sources": "[\"话筒 %1\"]"
+    },
+    {
+      "domain": "meterbridge",
+      "key": "mockmeterdataprovider.demo.monoWithoutLfe",
+      "sources": "[\"不含 LFE 的单声道\"]"
+    },
+    {
+      "domain": "meterbridge",
+      "key": "mockmeterdataprovider.demo.musicBedName",
+      "sources": "[\"音乐底\"]"
+    },
+    {
+      "domain": "meterbridge",
+      "key": "mockmeterdataprovider.demo.narrationName",
+      "sources": "[\"旁白\"]"
+    },
+    {
+      "domain": "meterbridge",
+      "key": "mockmeterdataprovider.demo.normalProgram",
+      "sources": "[\"正常节目\"]"
+    },
+    {
+      "domain": "meterbridge",
+      "key": "mockmeterdataprovider.demo.offlineProbeName",
+      "sources": "[\"离线探针\"]"
+    },
+    {
+      "domain": "meterbridge",
+      "key": "mockmeterdataprovider.demo.overLimit",
+      "sources": "[\"超限\"]"
+    },
+    {
+      "domain": "meterbridge",
+      "key": "mockmeterdataprovider.demo.renamedClient",
+      "sources": "[\"已改名客户端\"]"
+    },
+    {
+      "domain": "meterbridge",
+      "key": "mockmeterdataprovider.demo.resetSession",
+      "sources": "[\"重置会话\"]"
+    },
+    {
+      "domain": "meterbridge",
+      "key": "mockmeterdataprovider.demo.secondProgramName",
+      "sources": "[\"节目-2\"]"
+    },
+    {
+      "domain": "meterbridge",
+      "key": "mockmeterdataprovider.demo.surroundProgramName",
+      "sources": "[\"节目 5.1\"]"
+    },
+    {
+      "domain": "meterbridge",
+      "key": "mockmeterdataprovider.demo.surroundWithLfe",
+      "sources": "[\"含 LFE 的 5.1\"]"
+    },
+    {
+      "domain": "meterbridge",
+      "key": "mockmeterdataprovider.layout.mono",
+      "sources": "[\"单声道\"]"
+    },
+    {
+      "domain": "meterbridge",
+      "key": "mockmeterdataprovider.layout.stereo",
+      "sources": "[\"立体声\"]"
+    },
+    {
+      "domain": "meterbridge",
+      "key": "mockmeterdataprovider.status.offline",
+      "sources": "[\"离线\"]"
+    },
+    {
+      "domain": "meterbridge",
+      "key": "mockmeterdataprovider.status.previewRecordingEnabled",
+      "sources": "[\"预览记录已启用；轮换间隔：60 分钟\"]"
+    },
+    {
+      "domain": "meterbridge",
+      "key": "mockmeterdataprovider.status.previewRecordingIdle",
+      "sources": "[\"预览记录空闲；不会写入文件\"]"
+    }
+  ],
+  "catalog_changed_sources": []
+}

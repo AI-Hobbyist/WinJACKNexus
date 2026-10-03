@@ -37,3 +37,5 @@
 2026-10-04：Theme Catalog 三项菜单错误草稿已列入 S6-theme-catalog-strings.tsv 与翻译核对表（宿主 v10/774），待用户审校。文件框复用已有四语言文案，当前是源码接入，尚无实窗验收证据。
 
 2026-10-04：Theme 模块技术验证通过（195 检查、5 显示、24 张实桌面截图），四语言译文仍为待用户审校草稿，技术通过不视为人工审校批准。见 S6-theme-completion.md 与 S6-theme-rendered。
+
+2026-10-04：剩余来源审查新增六项四语言草稿、复用三项现有 key，见 S6-supplement-strings.tsv。需审校未分配角色、JACK 端口错误、AUX 环路及 FX 旁通文案；{module} 为原始模块 ID，必须原样保留。Release 与源码/部署核对不视为人工批准。

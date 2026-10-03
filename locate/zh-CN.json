@@ -1,6 +1,6 @@
 {
   "formatVersion": 1,
-  "catalogVersion": 10,
+  "catalogVersion": 11,
   "moduleId": "winjacknexus-host",
   "language": "zh-CN",
   "domains": {
@@ -426,7 +426,8 @@
       "probe.role.topFrontRight": "顶部前右",
       "probe.role.topRearLeft": "顶部后左",
       "probe.role.topRearRight": "顶部后右",
-      "probe.role.lfe": "低频效果 (LFE)"
+      "probe.role.lfe": "低频效果 (LFE)",
+      "settings.unassigned": "未分配"
     },
     "mixer": {
       "status.noChannels": "暂无通道",
@@ -505,7 +506,12 @@
       "error.snapshotSize": "%1 的参数快照长度无效。",
       "error.snapshotIdentity": "%1 的参数快照版本或模块身份不匹配。",
       "error.snapshotImport": "%1 的参数快照导入失败。",
-      "section.subMix": "分组混音"
+      "section.subMix": "分组混音",
+      "error.mapPorts": "JACK 端口映射失败。",
+      "error.auxRouteCycle": "AUX 路由存在环",
+      "error.fxSampleRate": "无效的 FX 采样率。",
+      "warning.effectsBypassed": "FX 模块已旁通",
+      "warning.unavailableEffect": "Native Fx {module} 不可用，已旁通并保留配置。"
     },
     "fxhost": {
       "window.title": "FX 设置",

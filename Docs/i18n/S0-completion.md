@@ -1,5 +1,7 @@
 # S0 文本和身份清单完成记录
 
+当前基线（2026-10-04）：277 文件、10420 出现、1206 唯一显示 key，未分类 0；原剩余 59 候选决定已完成，未映射候选 0。见 S6-remaining-source-audit.json 和 S6-supplement-verification.json。下文旧数字/待实现记录为历史，未分配显示补漏现已编译，实窗未复跑。
+
 2026-10-04 Meter 49 个旧 key 候选逐调用链核对完成：47 处保留原始数据/API/CSV 路径/预览用户名称或未消费的场景 helper；显示布局、已知预设和 CSV 状态已有独立 stable ID/enum 翻译。两处 live “未分配”实际进入声道角色下拉框，确认漏译，保留开放，待实现 itemText 翻译与 itemData 原始值分离。见 S6-meter-source-review.md、S6-meter-source-audit.json、S6-meter-source-verification.json。源审计及 S0 核对 PASS；当前 277 文件/10389 出现、1726 翻译源/8656 保留项/7 结构化，未分类 0，1253 唯一显示 key；退休 44 个旧模型 key 提案。全局余 59 次（host1/common3/mixer45/meter2/node1/patchbay5/ui2）。这是源码/双表核对，不代表漏译修复或新实窗通过，本轮零构建/零模块执行/零弹窗，S6/S7 与人工审校仍未完成。
 
 日期：2026-10-03。依据：根目录 `i18n国际化.md` 的第 2、6、8、10、11 节及 S0 完成条件。所有中间产物位于 `Docs/i18n`，对应用户指定的 `docs/i18n`。

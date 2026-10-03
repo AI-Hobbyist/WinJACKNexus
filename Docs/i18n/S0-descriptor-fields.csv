@@ -6,13 +6,13 @@ s0.13d7de6d7684,tokens.wjn-theme-module-winjacknexus-meterbridge-node-card-backg
 s0.13d7de6d7684,tokens.wjn-theme-module-winjacknexus-meterbridge-node-card-background.type,color,src/meter/mod/Library.cpp,88,meterbridge,,exclude,描述符结构/域/类型/token/默认样式身份
 s0.13d7de6d7684,tokens.wjn-theme-module-winjacknexus-meterbridge-node-card-background.default,var(--wjn-theme-patchbay-node-card-background),src/meter/mod/Library.cpp,88,meterbridge,,exclude,描述符结构/域/类型/token/默认样式身份
 s0.13d7de6d7684,tokens.wjn-theme-module-winjacknexus-meterbridge-node-card-background.description,Host-drawn card background for the Meterbridge node type,src/meter/mod/Library.cpp,88,meterbridge,library.descriptor.tokens.wjn-theme-module-winjacknexus-meterbridge-node-card-background.description,translate,项目描述符显示名称/说明，身份字段仍原样
-s0.defc6785ba89,moduleId,module-winjacknexus-digital-mixer,src/mixer/Library.cpp,568,mixer,,exclude,描述符结构/域/类型/token/默认样式身份
-s0.defc6785ba89,namespace,--wjn-theme-module-winjacknexus-digital-mixer-,src/mixer/Library.cpp,568,mixer,,exclude,描述符结构/域/类型/token/默认样式身份
-s0.defc6785ba89,displayName,Digital Mixer,src/mixer/Library.cpp,568,mixer,library.descriptor.displayName,translate,项目描述符显示名称/说明，身份字段仍原样
-s0.defc6785ba89,tokens.wjn-theme-module-winjacknexus-digital-mixer-node-card-background.name,--wjn-theme-module-winjacknexus-digital-mixer-node-card-background,src/mixer/Library.cpp,568,mixer,,exclude,描述符结构/域/类型/token/默认样式身份
-s0.defc6785ba89,tokens.wjn-theme-module-winjacknexus-digital-mixer-node-card-background.type,color,src/mixer/Library.cpp,568,mixer,,exclude,描述符结构/域/类型/token/默认样式身份
-s0.defc6785ba89,tokens.wjn-theme-module-winjacknexus-digital-mixer-node-card-background.default,var(--wjn-theme-patchbay-node-card-background),src/mixer/Library.cpp,568,mixer,,exclude,描述符结构/域/类型/token/默认样式身份
-s0.defc6785ba89,tokens.wjn-theme-module-winjacknexus-digital-mixer-node-card-background.description,Host-drawn card background for the Digital Mixer node type,src/mixer/Library.cpp,568,mixer,library.descriptor.tokens.wjn-theme-module-winjacknexus-digital-mixer-node-card-background.description,translate,项目描述符显示名称/说明，身份字段仍原样
+s0.defc6785ba89,moduleId,module-winjacknexus-digital-mixer,src/mixer/Library.cpp,580,mixer,,exclude,描述符结构/域/类型/token/默认样式身份
+s0.defc6785ba89,namespace,--wjn-theme-module-winjacknexus-digital-mixer-,src/mixer/Library.cpp,580,mixer,,exclude,描述符结构/域/类型/token/默认样式身份
+s0.defc6785ba89,displayName,Digital Mixer,src/mixer/Library.cpp,580,mixer,library.descriptor.displayName,translate,项目描述符显示名称/说明，身份字段仍原样
+s0.defc6785ba89,tokens.wjn-theme-module-winjacknexus-digital-mixer-node-card-background.name,--wjn-theme-module-winjacknexus-digital-mixer-node-card-background,src/mixer/Library.cpp,580,mixer,,exclude,描述符结构/域/类型/token/默认样式身份
+s0.defc6785ba89,tokens.wjn-theme-module-winjacknexus-digital-mixer-node-card-background.type,color,src/mixer/Library.cpp,580,mixer,,exclude,描述符结构/域/类型/token/默认样式身份
+s0.defc6785ba89,tokens.wjn-theme-module-winjacknexus-digital-mixer-node-card-background.default,var(--wjn-theme-patchbay-node-card-background),src/mixer/Library.cpp,580,mixer,,exclude,描述符结构/域/类型/token/默认样式身份
+s0.defc6785ba89,tokens.wjn-theme-module-winjacknexus-digital-mixer-node-card-background.description,Host-drawn card background for the Digital Mixer node type,src/mixer/Library.cpp,580,mixer,library.descriptor.tokens.wjn-theme-module-winjacknexus-digital-mixer-node-card-background.description,translate,项目描述符显示名称/说明，身份字段仍原样
 s0.9ebe8e8e1fc9,moduleId,module-winjacknexus-patchbay,src/patchbay/mod/src/Library.cpp,2998,patchbay,,exclude,描述符结构/域/类型/token/默认样式身份
 s0.9ebe8e8e1fc9,namespace,--wjn-theme-module-winjacknexus-patchbay-,src/patchbay/mod/src/Library.cpp,2998,patchbay,,exclude,描述符结构/域/类型/token/默认样式身份
 s0.9ebe8e8e1fc9,displayName,Patchbay,src/patchbay/mod/src/Library.cpp,2998,patchbay,library.descriptor.displayName,translate,项目描述符显示名称/说明，身份字段仍原样

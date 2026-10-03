@@ -1,0 +1,279 @@
+{
+  "stage": "S6",
+  "date": "2026-10-04",
+  "result": "SOURCE_CATALOG_DEPLOYMENT_AND_RELEASE_PASS_RUNTIME_UNVERIFIED",
+  "catalog_version": 11,
+  "required_root_keys": 780,
+  "new_keys": 6,
+  "reused_keys": 3,
+  "remaining_candidates_reviewed": 59,
+  "unmatched_occurrences": 0,
+  "module_test_runs_added": 0,
+  "ui_shows_added": 0,
+  "build_exit_code": 0,
+  "checks": [
+    "root v11 contains 780 required keys",
+    "nine unique supplemental display entries",
+    "en-US complete required key membership",
+    "en-US exactly six added keys",
+    "en-US existing translations retained",
+    "en-US:settings.unassigned term sheet and placeholders match",
+    "en-US:error.mapPorts term sheet and placeholders match",
+    "en-US:error.auxRouteCycle term sheet and placeholders match",
+    "en-US:error.fxSampleRate term sheet and placeholders match",
+    "en-US:warning.effectsBypassed term sheet and placeholders match",
+    "en-US:warning.unavailableEffect term sheet and placeholders match",
+    "en-US:label.input term sheet and placeholders match",
+    "en-US:label.output term sheet and placeholders match",
+    "en-US:error.registerPorts term sheet and placeholders match",
+    "en-US deployed bytes match source",
+    "zh-CN complete required key membership",
+    "zh-CN exactly six added keys",
+    "zh-CN existing translations retained",
+    "zh-CN:settings.unassigned term sheet and placeholders match",
+    "zh-CN:error.mapPorts term sheet and placeholders match",
+    "zh-CN:error.auxRouteCycle term sheet and placeholders match",
+    "zh-CN:error.fxSampleRate term sheet and placeholders match",
+    "zh-CN:warning.effectsBypassed term sheet and placeholders match",
+    "zh-CN:warning.unavailableEffect term sheet and placeholders match",
+    "zh-CN:label.input term sheet and placeholders match",
+    "zh-CN:label.output term sheet and placeholders match",
+    "zh-CN:error.registerPorts term sheet and placeholders match",
+    "zh-CN deployed bytes match source",
+    "ja-JP complete required key membership",
+    "ja-JP exactly six added keys",
+    "ja-JP existing translations retained",
+    "ja-JP:settings.unassigned term sheet and placeholders match",
+    "ja-JP:error.mapPorts term sheet and placeholders match",
+    "ja-JP:error.auxRouteCycle term sheet and placeholders match",
+    "ja-JP:error.fxSampleRate term sheet and placeholders match",
+    "ja-JP:warning.effectsBypassed term sheet and placeholders match",
+    "ja-JP:warning.unavailableEffect term sheet and placeholders match",
+    "ja-JP:label.input term sheet and placeholders match",
+    "ja-JP:label.output term sheet and placeholders match",
+    "ja-JP:error.registerPorts term sheet and placeholders match",
+    "ja-JP deployed bytes match source",
+    "ko-KR complete required key membership",
+    "ko-KR exactly six added keys",
+    "ko-KR existing translations retained",
+    "ko-KR:settings.unassigned term sheet and placeholders match",
+    "ko-KR:error.mapPorts term sheet and placeholders match",
+    "ko-KR:error.auxRouteCycle term sheet and placeholders match",
+    "ko-KR:error.fxSampleRate term sheet and placeholders match",
+    "ko-KR:warning.effectsBypassed term sheet and placeholders match",
+    "ko-KR:warning.unavailableEffect term sheet and placeholders match",
+    "ko-KR:label.input term sheet and placeholders match",
+    "ko-KR:label.output term sheet and placeholders match",
+    "ko-KR:error.registerPorts term sheet and placeholders match",
+    "ko-KR deployed bytes match source",
+    "deployed manifest matches source",
+    "fresh source inventory reconciled",
+    "all proposed display keys map to registered resources",
+    "all 59 original remaining occurrences have individual decisions",
+    "each decision has its recorded call-path reason",
+    "reviewed source fingerprint: src/adapter/src/Library.cpp",
+    "reviewed source fingerprint: src/app/main.cpp",
+    "reviewed source fingerprint: src/common/include/WinJACKNexus/Common/AudioRingBuffer.hpp",
+    "reviewed source fingerprint: src/common/include/WinJACKNexus/Common/ChannelNames.hpp",
+    "reviewed source fingerprint: src/common/include/WinJACKNexus/Common/StandardChannelNames.hpp",
+    "reviewed source fingerprint: src/common/src/AuxMixerState.cpp",
+    "reviewed source fingerprint: src/common/src/DigitalMixerProcessor.cpp",
+    "reviewed source fingerprint: src/common/src/DigitalMixerState.cpp",
+    "reviewed source fingerprint: src/meter/mod/src/MeterSettingsWidget.cpp",
+    "reviewed source fingerprint: src/meter/ui/src/LiveMeterDataProvider.cpp",
+    "reviewed source fingerprint: src/mixer/EffectGraph.cpp",
+    "reviewed source fingerprint: src/mixer/EffectGraph.hpp",
+    "reviewed source fingerprint: src/mixer/Library.cpp",
+    "reviewed source fingerprint: src/native_fx/src/NativeFxApi.cpp",
+    "reviewed source fingerprint: src/node/src/NodeApi.cpp",
+    "reviewed source fingerprint: src/patchbay/mod/src/Library.cpp",
+    "reviewed source fingerprint: src/patchbay/plugins/src/InternalLoader.cpp",
+    "reviewed source fingerprint: src/patchbay/plugins/src/Loader.cpp",
+    "reviewed source fingerprint: src/ui/src/I18nManager.cpp",
+    "reviewed source fingerprint: src/ui/src/LocalizedMixerErrors.hpp",
+    "reviewed source fingerprint: src/ui/src/MixerPolarPlot.cpp",
+    "reviewed source fingerprint: src/ui/src/MixerWindow.cpp",
+    "supplemental translations occur once in table one",
+    "56 preserved/canonical occurrences recorded in table two",
+    "role source separates original data and blocked display refresh",
+    "warning source formats original IDs with plain text and canonical deduplication",
+    "required Release output linked: WinJACKNexus.exe",
+    "required Release output linked: ui.dll",
+    "required Release output linked: nodes/mixer/mod_digital_mixer.dll",
+    "required Release output linked: mod_meterbrigde.dll",
+    "required Release output linked: wjn_mixer_meter_i18n_tests.exe",
+    "modified call-site checks compiled, not executed"
+  ],
+  "limits": [
+    "Source checks do not prove runtime behavior, rendering, or translation quality.",
+    "Existing modules are not rerun. Supplemental role, legend, error and missing-FX notice behavior has no fresh UI acceptance.",
+    "Historical S4/S5/Theme runtime reports retain their original baselines; new DLL hashes are build artifacts only.",
+    "Four-language and audio-domain human review remains pending with the user."
+  ],
+  "evidence": [
+    {
+      "file": "locate/en-US.json",
+      "sha256": "f1fc84b9b7e24ea59b7a7724c4be5f874be741ecfe813d8d2e9b166f0240bd8e"
+    },
+    {
+      "file": "build/release/bin/locate/en-US.json",
+      "sha256": "f1fc84b9b7e24ea59b7a7724c4be5f874be741ecfe813d8d2e9b166f0240bd8e"
+    },
+    {
+      "file": "locate/zh-CN.json",
+      "sha256": "ed8f3671616fca100e94758d41d38383d032d7c8820c5d4b7e8f499fd776f62d"
+    },
+    {
+      "file": "build/release/bin/locate/zh-CN.json",
+      "sha256": "ed8f3671616fca100e94758d41d38383d032d7c8820c5d4b7e8f499fd776f62d"
+    },
+    {
+      "file": "locate/ja-JP.json",
+      "sha256": "e989872b327ce8285b37a6b463f2274b900e4fde7f9ab9626717c4e99dc05fb8"
+    },
+    {
+      "file": "build/release/bin/locate/ja-JP.json",
+      "sha256": "e989872b327ce8285b37a6b463f2274b900e4fde7f9ab9626717c4e99dc05fb8"
+    },
+    {
+      "file": "locate/ko-KR.json",
+      "sha256": "014b68038cae1814fca7de961a5cb0a62460bf4488adfb3e377eb2abc5c59b95"
+    },
+    {
+      "file": "build/release/bin/locate/ko-KR.json",
+      "sha256": "014b68038cae1814fca7de961a5cb0a62460bf4488adfb3e377eb2abc5c59b95"
+    },
+    {
+      "file": "locate/manifest.json",
+      "sha256": "c4288b877b2e789c33a4b120cfa2753a0bcd395c24caa59babafb168342670d1"
+    },
+    {
+      "file": "src/adapter/src/Library.cpp",
+      "sha256": "d3681ed2038296d9b234d7c4e1fb6922c7c7048827c3f81eb5768f864474dfe1"
+    },
+    {
+      "file": "src/app/main.cpp",
+      "sha256": "69367854d2f48da72fa3ac292c4b2d48c9a9b1ca349bc7657930746e49c005f6"
+    },
+    {
+      "file": "src/common/include/WinJACKNexus/Common/AudioRingBuffer.hpp",
+      "sha256": "be89745bf18245b57bcce6aabd8815a7ee5e09990ac002633ef74ce617d8b493"
+    },
+    {
+      "file": "src/common/include/WinJACKNexus/Common/ChannelNames.hpp",
+      "sha256": "15b3e634c4e5fe7fa7ef712d80f00594c600e463ebe9b35c703eeabfb7e9f326"
+    },
+    {
+      "file": "src/common/include/WinJACKNexus/Common/StandardChannelNames.hpp",
+      "sha256": "2079d71b29eb0093126100dc6a1417d694fbd688ddf3c9b885e2a22d1faf332c"
+    },
+    {
+      "file": "src/common/src/AuxMixerState.cpp",
+      "sha256": "2132dae676a96ab5f4bbc92b25591130e4efa7682a6c147b4ef386ab92615db6"
+    },
+    {
+      "file": "src/common/src/DigitalMixerProcessor.cpp",
+      "sha256": "98b3ab7f06489431d76f46be4f50c6e057122061b5538e97ad0a4100eb8ca9d8"
+    },
+    {
+      "file": "src/common/src/DigitalMixerState.cpp",
+      "sha256": "c18754b79f0e473ac9db09ec16adc1043eb78f1128d77a154f1963f0c516aa85"
+    },
+    {
+      "file": "src/meter/mod/src/MeterSettingsWidget.cpp",
+      "sha256": "5f016186420796ca3d03db03f06eb04808cabf3f18435fd1b247d717a59872e6"
+    },
+    {
+      "file": "src/meter/ui/src/LiveMeterDataProvider.cpp",
+      "sha256": "777eedc6b8bedb9b9ad2b55ee5d9047aa7dbbb3639030df85f1f824fb4fd1dfc"
+    },
+    {
+      "file": "src/mixer/EffectGraph.cpp",
+      "sha256": "d9821c0d02a831e76c93c0ad794188addb3e349563b4ce7d203deca1f3581882"
+    },
+    {
+      "file": "src/mixer/EffectGraph.hpp",
+      "sha256": "8b1b768772f510257e975dd7f907c6c885d0e496b4642f2d25eb02f21ac2f140"
+    },
+    {
+      "file": "src/mixer/Library.cpp",
+      "sha256": "65f06096efd47bde4072b6a20f98c91759ab96fe5588cb7817f71bc9626b3441"
+    },
+    {
+      "file": "src/native_fx/src/NativeFxApi.cpp",
+      "sha256": "e8a5c32992e0207dca29ba56df140cbb75c0c830cbfc36619a7c3cb49684d345"
+    },
+    {
+      "file": "src/node/src/NodeApi.cpp",
+      "sha256": "62f86ed50c1d520b66adbb0cecb065a3d24df7799bf99b108d1d685d5327ab56"
+    },
+    {
+      "file": "src/patchbay/mod/src/Library.cpp",
+      "sha256": "be34c7795fd09f4dc92fa078741710a63f46375645eab302b405e67d45fa52b8"
+    },
+    {
+      "file": "src/patchbay/plugins/src/InternalLoader.cpp",
+      "sha256": "778975643f784130a5c02e10c7b559fca4ef01b4e5fe6c1ea9bb9758b6b39b79"
+    },
+    {
+      "file": "src/patchbay/plugins/src/Loader.cpp",
+      "sha256": "dedc4bff4fa8f35d4cdbb098618b234341fddc838b70264e8af32e3f87b35b56"
+    },
+    {
+      "file": "src/ui/src/I18nManager.cpp",
+      "sha256": "934ba732ad220d064d25599764e171edfe9253eb5900e74d5e6a128816a6a563"
+    },
+    {
+      "file": "src/ui/src/LocalizedMixerErrors.hpp",
+      "sha256": "16f296ff1f2b2779c265475053057567f31a28ca2c6a3b81c6f6ac7b17d58bff"
+    },
+    {
+      "file": "src/ui/src/MixerPolarPlot.cpp",
+      "sha256": "8ad6755448a18aff831d8f8c68bb0b27da5f77417941d5cb37ae86e2e2896921"
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "sha256": "ad24d589517fe68f8ff969d9d656e338ed6849bc9c1fe1e82165167754920063"
+    },
+    {
+      "file": "build/release/bin/WinJACKNexus.exe",
+      "sha256": "5db60e6d2c45b2f7427b125c27dab43d272a6bad9db2d43fb47d0e7be2a9c336"
+    },
+    {
+      "file": "build/release/bin/ui.dll",
+      "sha256": "5af5082f700516fdb1b4a446ea53a1296db63b88b83f8aab92c99c5078a1cc0c"
+    },
+    {
+      "file": "build/release/bin/nodes/mixer/mod_digital_mixer.dll",
+      "sha256": "93103e0f81e9856d59e9097d5ec3289c737150b0075b2086fa699f3b542afb74"
+    },
+    {
+      "file": "build/release/bin/mod_meterbrigde.dll",
+      "sha256": "c63dc76b4e975712364fcff5052c6874cde017a936030b3f381da4adf0d9a8ec"
+    },
+    {
+      "file": "build/release/bin/wjn_mixer_meter_i18n_tests.exe",
+      "sha256": "b7537f1fa454ef175f4e7c0a24b9e0470fdcff0ba4e7d8b919059a39571e407c"
+    },
+    {
+      "file": "Docs/i18n/S6-supplement-build.log",
+      "sha256": "3907e12b522557c1f288b54bd338f93fbdf0b18f9f72eea5334b9ad77ed8025a"
+    },
+    {
+      "file": "Docs/i18n/S6-supplement-strings.tsv",
+      "sha256": "cdf86bbb95b837d51360d3e68c50683f2534e26de88eac44deacdeeb44a5d193"
+    },
+    {
+      "file": "Docs/i18n/S6-remaining-source-audit.json",
+      "sha256": "5ff5661a8a68849ad3cc57a751c6f13ab0013c22f5dade03c97b46fa06c6c6b0"
+    },
+    {
+      "file": "Docs/i18n/S0-verification.json",
+      "sha256": "d84ab2fb3c02ad7687774e16feb27d5c87970a358ae315a89aa1e52236fd001b"
+    },
+    {
+      "file": "Develop/MixerMeterI18nTests.cpp",
+      "sha256": "eadeb8bca27c7d935ec461181037157a30e4664f23c67109bab92ab3213f9eff"
+    }
+  ]
+}

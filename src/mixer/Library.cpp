@@ -7,6 +7,7 @@
 #include <WinJACKNexus/Node/NodeApi.h>
 #include <WinJACKNexus/UI/MixerWindow.hpp>
 #include "EffectGraph.hpp"
+#include <WinJACKNexus/UI/LocalizedText.hpp>
 #include <QPointer>
 #include <QMessageBox>
 #include <atomic>
@@ -256,8 +257,19 @@ private:
         if (warning.isEmpty()) { lastEffectWarning_.clear(); return; }
         if (warning == lastEffectWarning_) return;
         lastEffectWarning_ = warning;
-        auto* notice = new QMessageBox(QMessageBox::Warning,
-            QStringLiteral("FX 模块已旁通"), warning, QMessageBox::Ok, window_);
+        auto* notice = new QMessageBox(QMessageBox::Warning, {}, {}, QMessageBox::Ok, window_);
+        notice->setTextFormat(Qt::PlainText);
+        WinJACKNexus::UI::bindLocalizedText(notice, "windowTitle", "mixer",
+            "warning.effectsBypassed", "FX modules bypassed");
+        const auto refresh = [notice, modules = effects_.unavailableModules()] {
+            QStringList lines;
+            for (const auto& module : modules)
+                lines.append(WinJACKNexus::UI::localizedText("mixer", "warning.unavailableEffect", "Native Fx {module} is unavailable; bypassed with its configuration retained.",
+                    {{QStringLiteral("module"), module}}));
+            notice->setText(lines.join(QLatin1Char('\n')));
+        };
+        if (auto* manager = WinJACKNexus::UI::I18nManager::installed()) manager->bind(notice, refresh);
+        else refresh();
         notice->setAttribute(Qt::WA_DeleteOnClose);
         notice->show();
     }

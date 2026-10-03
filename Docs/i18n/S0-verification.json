@@ -3,16 +3,16 @@
   "date": "2026-10-04",
   "result": "PASS",
   "source_files": 277,
-  "source_occurrences": 10389,
+  "source_occurrences": 10420,
   "source_classifications": {
-    "exclude": 8656,
-    "translate": 1726,
+    "exclude": 8737,
+    "translate": 1676,
     "structured": 7
   },
-  "display_key_proposals": 1253,
+  "display_key_proposals": 1206,
   "descriptor_fields": 43,
-  "resource_fields": 10322,
-  "identity_comparison_occurrences": 468,
+  "resource_fields": 10352,
+  "identity_comparison_occurrences": 472,
   "required_domains": [
     "adapter",
     "aux",

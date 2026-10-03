@@ -119,6 +119,7 @@ bool EffectGraph::configure(const Common::DigitalMixerState& state, double sampl
                 loaded = std::make_unique<Effect>();
                 loaded->moduleId = stateEffect.moduleId;
                 loaded->missing = true;
+                candidate.unavailableModules_.append(stateEffect.moduleId);
                 candidate.warning_ += QStringLiteral("Native Fx %1 不可用，已旁通并保留配置。\n")
                     .arg(stateEffect.moduleId);
                 chain.effects.push_back(std::move(loaded));
@@ -141,6 +142,7 @@ bool EffectGraph::configure(const Common::DigitalMixerState& state, double sampl
     if (!append(state.main())) return false;
     chains_ = std::move(candidate.chains_);
     warning_ = std::move(candidate.warning_);
+    unavailableModules_ = std::move(candidate.unavailableModules_);
     return true;
 }
 

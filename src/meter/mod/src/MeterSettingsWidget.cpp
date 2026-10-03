@@ -227,22 +227,31 @@ void MeterSettingsWidget::rebuildChannelTable(const MeterViewSnapshot& snapshot)
         auto* roleSelector = new Controls::ChoiceField(channelTable_);
         roleSelector->setFixedHeight(Controls::sidebarControlHeight);
         roleSelector->setObjectName(QStringLiteral("meterSettings.channelRole.%1").arg(index));
-        roleSelector->addItems({ QStringLiteral("M+030"), QStringLiteral("M-030"), QStringLiteral("M+000"),
+        for (const auto& role : { QStringLiteral("M+030"), QStringLiteral("M-030"), QStringLiteral("M+000"),
                                  QStringLiteral("LFE"), QStringLiteral("M+110"), QStringLiteral("M-110"),
-                                 QStringLiteral("M+135"), QStringLiteral("M-135"), QStringLiteral("U+000") });
-        auto roleIndex = roleSelector->findText(channel.speakerRole);
+                                 QStringLiteral("M+135"), QStringLiteral("M-135"), QStringLiteral("U+000") })
+            roleSelector->addItem(role, role);
+        auto roleIndex = roleSelector->findData(channel.speakerRole);
         if (roleIndex < 0) {
-            roleSelector->addItem(channel.speakerRole);
+            roleSelector->addItem(channel.speakerRole, channel.speakerRole);
             roleIndex = roleSelector->count() - 1;
         }
         roleSelector->setCurrentIndex(roleIndex);
+        const auto refreshRole = [roleSelector] {
+            const QSignalBlocker blocker(roleSelector);
+            const auto index = roleSelector->findData(QStringLiteral("未分配"));
+            if (index >= 0) roleSelector->setItemText(index,
+                localizedText("meterbridge", "settings.unassigned", "Unassigned"));
+        };
+        if (auto* manager = WinJACKNexus::UI::I18nManager::installed()) manager->bind(roleSelector, refreshRole);
+        else refreshRole();
         roleSelector->setEnabled(channelLayoutEditable_);
         channelTable_->setCellWidget(row, 1, roleSelector);
         connect(roleSelector, &QComboBox::currentIndexChanged, this, [this, index, roleSelector](int) {
             MeterViewCommand command;
             command.type = MeterViewCommandType::setChannelRole;
             command.channelIndex = static_cast<std::uint16_t>(index);
-            command.textValue = roleSelector->currentText();
+            command.textValue = roleSelector->currentData().toString();
             dispatch(std::move(command));
         });
 

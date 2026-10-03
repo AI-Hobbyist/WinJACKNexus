@@ -1,6 +1,6 @@
 {
   "formatVersion": 1,
-  "catalogVersion": 10,
+  "catalogVersion": 11,
   "moduleId": "winjacknexus-host",
   "language": "en-US",
   "domains": {
@@ -426,7 +426,8 @@
       "probe.role.topFrontRight": "Top front right",
       "probe.role.topRearLeft": "Top rear left",
       "probe.role.topRearRight": "Top rear right",
-      "probe.role.lfe": "Low-frequency effects (LFE)"
+      "probe.role.lfe": "Low-frequency effects (LFE)",
+      "settings.unassigned": "Unassigned"
     },
     "mixer": {
       "status.noChannels": "No channels",
@@ -505,7 +506,12 @@
       "error.snapshotSize": "Invalid parameter snapshot size for %1.",
       "error.snapshotIdentity": "Parameter snapshot version or module identity mismatch for %1.",
       "error.snapshotImport": "Parameter snapshot import failed for %1.",
-      "section.subMix": "Sub Mix"
+      "section.subMix": "Sub Mix",
+      "error.mapPorts": "Unable to map JACK ports.",
+      "error.auxRouteCycle": "AUX routing contains a cycle",
+      "error.fxSampleRate": "Invalid FX sample rate.",
+      "warning.effectsBypassed": "FX modules bypassed",
+      "warning.unavailableEffect": "Native Fx {module} is unavailable; bypassed with its configuration retained."
     },
     "fxhost": {
       "window.title": "FX settings",
