@@ -72,6 +72,7 @@ QJsonObject stripJson(const MixerStripState& strip)
     return {{"id", QString::number(strip.id)}, {"number", static_cast<int>(strip.number)},
             {"kind", static_cast<int>(strip.kind)}, {"layout", static_cast<int>(strip.layout)},
             {"name", strip.name}, {"comment", strip.comment}, {"color", strip.color.name(QColor::HexRgb)},
+            {"customColor", strip.customColor},
             {"inputGainDb", strip.inputGainDb}, {"faderPosition", strip.faderPosition},
             {"mute", strip.mute}, {"solo", strip.solo},
             {"listenMode", static_cast<int>(strip.listenMode)}, {"mixToMain", strip.mixToMain},
@@ -201,6 +202,15 @@ bool readStrip(const QJsonObject& object, MixerStripState& result)
     result.layout = static_cast<MixerLayout>(layout);
     result.color = QColor(color);
     if (!result.color.isValid() || !readPanner(mainPanner, result.mainPanner)) return false;
+    if (object.contains("customColor")) {
+        if (!getBool(object, "customColor", result.customColor)) return false;
+    } else {
+        // Older projects only stored the color. Preserve values that differ from
+        // the previous built-in colors as explicit channel choices.
+        const QColor legacyDefault(result.kind == MixerStripKind::subMix ? "#37d879"
+            : result.kind == MixerStripKind::main ? "#50dfbd" : "#31c6ff");
+        result.customColor = result.color != legacyDefault;
+    }
     for (const auto& item : sends) {
         if (!item.isObject()) return false;
         MixerAuxSend send;
@@ -289,7 +299,7 @@ DigitalMixerState::DigitalMixerState()
     main_.layout = MixerLayout::stereo;
     main_.name = QStringLiteral("Main L/R");
     main_.comment = QStringLiteral("JACK Out 1/2");
-    main_.color = QColor(QStringLiteral("#50dfbd"));
+    main_.color = QColor(QStringLiteral("#ff5353"));
     main_.faderPosition = mixerUnityFaderPosition;
     main_.solo = false;
     main_.mainPanner = defaultMixerPanner(MixerLayout::stereo, MixerLayout::stereo);
@@ -321,7 +331,8 @@ std::uint64_t DigitalMixerState::add(MixerStripKind kind, MixerLayout layout)
     item.id = nextId_++;
     item.number = nextNumber++;
     item.kind = kind;
-    if(kind==MixerStripKind::subMix)item.color=QColor("#37d879");
+    if (kind == MixerStripKind::aux) item.color = QColor("#33b6ff");
+    if (kind == MixerStripKind::subMix) item.color = QColor("#37d879");
     item.layout = layout;
     item.faderPosition = mixerUnityFaderPosition;
     item.name = QStringLiteral("%1%2").arg(kind == MixerStripKind::input ? QStringLiteral("CH") : kind == MixerStripKind::aux ? QStringLiteral("AUX") : QStringLiteral("SUB"))

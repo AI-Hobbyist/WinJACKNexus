@@ -223,24 +223,11 @@
   --wjn-theme-sel-main-control-mode-border: #36516d;
   --wjn-theme-sel-main-control-mode-text-disabled: #879ab0;
   --wjn-theme-sel-main-control-mode-arrow: #d6eaff;
-  --wjn-theme-sel-main-control-header-surface-default: #123a65;
   --wjn-theme-sel-main-control-header-text-light: #f5fbff;
   --wjn-theme-sel-main-control-header-text-dark: #102033;
   --wjn-theme-sel-main-control-edit-surface: #102033;
   --wjn-theme-sel-main-control-edit-text: #eff6ff;
   --wjn-theme-sel-main-control-edit-border: #36516d;
-  --wjn-theme-sel-main-control-color-button-surface: #172a40;
-  --wjn-theme-sel-main-control-color-button-text: #d6eaff;
-  --wjn-theme-sel-main-control-color-button-border: #50708c;
-  --wjn-theme-sel-main-control-color-picker-surface: #15263a;
-  --wjn-theme-sel-main-control-color-option-1: #24b8ff;
-  --wjn-theme-sel-main-control-color-option-2: #20c5dd;
-  --wjn-theme-sel-main-control-color-option-3: #45d877;
-  --wjn-theme-sel-main-control-color-option-4: #ffd246;
-  --wjn-theme-sel-main-control-color-option-5: #ffae55;
-  --wjn-theme-sel-main-control-color-option-6: #f34d70;
-  --wjn-theme-sel-main-control-color-option-7: #e359da;
-  --wjn-theme-sel-main-control-color-option-8: #9963ec;
   --wjn-theme-sel-main-control-mute-solo-text: #f7f8ff;
   --wjn-theme-sel-main-control-mute-accent: #ff4b62;
   --wjn-theme-sel-main-control-solo-accent: #ffae2d;
@@ -838,24 +825,6 @@
   --wjn-theme-mixer-overview-card-surface: #0b1a2b;
   /* mixer / overview-card-border; type=color */
   --wjn-theme-mixer-overview-card-border: #29435d;
-  /* mixer / overview-title-input-surface; type=color */
-  --wjn-theme-mixer-overview-title-input-surface: #123d62;
-  /* mixer / overview-title-input-text; type=color */
-  --wjn-theme-mixer-overview-title-input-text: #e9f2ff;
-  /* mixer / overview-title-input-border; type=color */
-  --wjn-theme-mixer-overview-title-input-border: #33b6ff;
-  /* mixer / overview-title-aux-surface; type=color */
-  --wjn-theme-mixer-overview-title-aux-surface: #312951;
-  /* mixer / overview-title-aux-text; type=color */
-  --wjn-theme-mixer-overview-title-aux-text: #e9f2ff;
-  /* mixer / overview-title-aux-border; type=color */
-  --wjn-theme-mixer-overview-title-aux-border: #8f78ff;
-  /* mixer / overview-title-submix-surface; type=color */
-  --wjn-theme-mixer-overview-title-submix-surface: #124932;
-  /* mixer / overview-title-submix-text; type=color */
-  --wjn-theme-mixer-overview-title-submix-text: #e9f2ff;
-  /* mixer / overview-title-submix-border; type=color */
-  --wjn-theme-mixer-overview-title-submix-border: #37d879;
 }
 
 :root {

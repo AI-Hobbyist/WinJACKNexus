@@ -1723,14 +1723,6 @@
       "description": "sel-main / control mode arrow"
     },
     {
-      "name": "--wjn-theme-sel-main-control-header-surface-default",
-      "ownerScope": "sel-main",
-      "type": "color",
-      "default": "#123a65",
-      "inherits": [],
-      "description": "sel-main / control header surface default"
-    },
-    {
       "name": "--wjn-theme-sel-main-control-header-text-light",
       "ownerScope": "sel-main",
       "type": "color",
@@ -1769,102 +1761,6 @@
       "default": "#36516d",
       "inherits": [],
       "description": "sel-main / control edit border"
-    },
-    {
-      "name": "--wjn-theme-sel-main-control-color-button-surface",
-      "ownerScope": "sel-main",
-      "type": "color",
-      "default": "#172a40",
-      "inherits": [],
-      "description": "sel-main / control color button surface"
-    },
-    {
-      "name": "--wjn-theme-sel-main-control-color-button-text",
-      "ownerScope": "sel-main",
-      "type": "color",
-      "default": "#d6eaff",
-      "inherits": [],
-      "description": "sel-main / control color button text"
-    },
-    {
-      "name": "--wjn-theme-sel-main-control-color-button-border",
-      "ownerScope": "sel-main",
-      "type": "color",
-      "default": "#50708c",
-      "inherits": [],
-      "description": "sel-main / control color button border"
-    },
-    {
-      "name": "--wjn-theme-sel-main-control-color-picker-surface",
-      "ownerScope": "sel-main",
-      "type": "color",
-      "default": "#15263a",
-      "inherits": [],
-      "description": "sel-main / control color picker surface"
-    },
-    {
-      "name": "--wjn-theme-sel-main-control-color-option-1",
-      "ownerScope": "sel-main",
-      "type": "color",
-      "default": "#24b8ff",
-      "inherits": [],
-      "description": "sel-main / control color option 1"
-    },
-    {
-      "name": "--wjn-theme-sel-main-control-color-option-2",
-      "ownerScope": "sel-main",
-      "type": "color",
-      "default": "#20c5dd",
-      "inherits": [],
-      "description": "sel-main / control color option 2"
-    },
-    {
-      "name": "--wjn-theme-sel-main-control-color-option-3",
-      "ownerScope": "sel-main",
-      "type": "color",
-      "default": "#45d877",
-      "inherits": [],
-      "description": "sel-main / control color option 3"
-    },
-    {
-      "name": "--wjn-theme-sel-main-control-color-option-4",
-      "ownerScope": "sel-main",
-      "type": "color",
-      "default": "#ffd246",
-      "inherits": [],
-      "description": "sel-main / control color option 4"
-    },
-    {
-      "name": "--wjn-theme-sel-main-control-color-option-5",
-      "ownerScope": "sel-main",
-      "type": "color",
-      "default": "#ffae55",
-      "inherits": [],
-      "description": "sel-main / control color option 5"
-    },
-    {
-      "name": "--wjn-theme-sel-main-control-color-option-6",
-      "ownerScope": "sel-main",
-      "type": "color",
-      "default": "#f34d70",
-      "inherits": [],
-      "description": "sel-main / control color option 6"
-    },
-    {
-      "name": "--wjn-theme-sel-main-control-color-option-7",
-      "ownerScope": "sel-main",
-      "type": "color",
-      "default": "#e359da",
-      "inherits": [],
-      "description": "sel-main / control color option 7"
-    },
-    {
-      "name": "--wjn-theme-sel-main-control-color-option-8",
-      "ownerScope": "sel-main",
-      "type": "color",
-      "default": "#9963ec",
-      "inherits": [],
-      "description": "sel-main / control color option 8"
     },
     {
       "name": "--wjn-theme-sel-main-control-mute-solo-text",
@@ -7104,78 +7000,6 @@
       "default": "#29435d",
       "inherits": [],
       "description": "mixer / overview card border"
-    },
-    {
-      "name": "--wjn-theme-mixer-overview-title-input-surface",
-      "ownerScope": "mixer",
-      "type": "color",
-      "default": "#123d62",
-      "inherits": [],
-      "description": "mixer / overview title input surface"
-    },
-    {
-      "name": "--wjn-theme-mixer-overview-title-input-text",
-      "ownerScope": "mixer",
-      "type": "color",
-      "default": "#e9f2ff",
-      "inherits": [],
-      "description": "mixer / overview title input text"
-    },
-    {
-      "name": "--wjn-theme-mixer-overview-title-input-border",
-      "ownerScope": "mixer",
-      "type": "color",
-      "default": "#33b6ff",
-      "inherits": [],
-      "description": "mixer / overview title input border"
-    },
-    {
-      "name": "--wjn-theme-mixer-overview-title-aux-surface",
-      "ownerScope": "mixer",
-      "type": "color",
-      "default": "#312951",
-      "inherits": [],
-      "description": "mixer / overview title aux surface"
-    },
-    {
-      "name": "--wjn-theme-mixer-overview-title-aux-text",
-      "ownerScope": "mixer",
-      "type": "color",
-      "default": "#e9f2ff",
-      "inherits": [],
-      "description": "mixer / overview title aux text"
-    },
-    {
-      "name": "--wjn-theme-mixer-overview-title-aux-border",
-      "ownerScope": "mixer",
-      "type": "color",
-      "default": "#8f78ff",
-      "inherits": [],
-      "description": "mixer / overview title aux border"
-    },
-    {
-      "name": "--wjn-theme-mixer-overview-title-submix-surface",
-      "ownerScope": "mixer",
-      "type": "color",
-      "default": "#124932",
-      "inherits": [],
-      "description": "mixer / overview title submix surface"
-    },
-    {
-      "name": "--wjn-theme-mixer-overview-title-submix-text",
-      "ownerScope": "mixer",
-      "type": "color",
-      "default": "#e9f2ff",
-      "inherits": [],
-      "description": "mixer / overview title submix text"
-    },
-    {
-      "name": "--wjn-theme-mixer-overview-title-submix-border",
-      "ownerScope": "mixer",
-      "type": "color",
-      "default": "#37d879",
-      "inherits": [],
-      "description": "mixer / overview title submix border"
     },
     {
       "name": "--wjn-theme-mixer-overview-background-opacity",

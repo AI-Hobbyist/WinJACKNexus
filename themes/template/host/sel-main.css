@@ -112,8 +112,6 @@
   --wjn-theme-sel-main-control-mode-text-disabled: #879ab0;
   /* sel-main / control mode arrow; type=color */
   --wjn-theme-sel-main-control-mode-arrow: #d6eaff;
-  /* sel-main / control header surface default; type=color */
-  --wjn-theme-sel-main-control-header-surface-default: #123a65;
   /* sel-main / control header text light; type=color */
   --wjn-theme-sel-main-control-header-text-light: #f5fbff;
   /* sel-main / control header text dark; type=color */
@@ -124,30 +122,6 @@
   --wjn-theme-sel-main-control-edit-text: #eff6ff;
   /* sel-main / control edit border; type=color */
   --wjn-theme-sel-main-control-edit-border: #36516d;
-  /* sel-main / control color button surface; type=color */
-  --wjn-theme-sel-main-control-color-button-surface: #172a40;
-  /* sel-main / control color button text; type=color */
-  --wjn-theme-sel-main-control-color-button-text: #d6eaff;
-  /* sel-main / control color button border; type=color */
-  --wjn-theme-sel-main-control-color-button-border: #50708c;
-  /* sel-main / control color picker surface; type=color */
-  --wjn-theme-sel-main-control-color-picker-surface: #15263a;
-  /* sel-main / control color option 1; type=color */
-  --wjn-theme-sel-main-control-color-option-1: #24b8ff;
-  /* sel-main / control color option 2; type=color */
-  --wjn-theme-sel-main-control-color-option-2: #20c5dd;
-  /* sel-main / control color option 3; type=color */
-  --wjn-theme-sel-main-control-color-option-3: #45d877;
-  /* sel-main / control color option 4; type=color */
-  --wjn-theme-sel-main-control-color-option-4: #ffd246;
-  /* sel-main / control color option 5; type=color */
-  --wjn-theme-sel-main-control-color-option-5: #ffae55;
-  /* sel-main / control color option 6; type=color */
-  --wjn-theme-sel-main-control-color-option-6: #f34d70;
-  /* sel-main / control color option 7; type=color */
-  --wjn-theme-sel-main-control-color-option-7: #e359da;
-  /* sel-main / control color option 8; type=color */
-  --wjn-theme-sel-main-control-color-option-8: #9963ec;
   /* sel-main / control mute solo text; type=color */
   --wjn-theme-sel-main-control-mute-solo-text: #f7f8ff;
   /* sel-main / control mute accent; type=color */

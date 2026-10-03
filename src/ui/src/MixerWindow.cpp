@@ -83,6 +83,37 @@ struct Channel {
     qreal outputMeterReadoutDb {-72.0};
 };
 
+QColor mixerFaderColor(const QString& kind)
+{
+    const QColor fallback = kind == QStringLiteral("master") ? QColor("#ff5353")
+        : kind == QStringLiteral("submix") ? QColor("#37d879")
+        : kind == QStringLiteral("monitor") ? QColor("#ffe15a")
+        : kind == QStringLiteral("aux") ? QColor("#33b6ff") : QColor("#9aa8b7");
+    return Controls::themeTokenColor(QStringLiteral("mixer"),
+        QStringLiteral("fader-%1-thumb").arg(kind), fallback);
+}
+
+QColor defaultChannelColor(const Channel& channel)
+{
+    return mixerFaderColor(channel.number == QStringLiteral("MAIN") ? QStringLiteral("master")
+        : channel.subMix ? QStringLiteral("submix")
+        : channel.auxId ? QStringLiteral("aux") : QStringLiteral("input"));
+}
+
+QColor displayChannelColor(const Channel& channel)
+{
+    return channel.customColor ? channel.accent : defaultChannelColor(channel);
+}
+
+QColor mixerNameTextColor(const QColor& background)
+{
+    const qreal brightness = .299 * background.red() + .587 * background.green() + .114 * background.blue();
+    return Controls::themeTokenColor(QStringLiteral("mixer"),
+        brightness > 145 ? QStringLiteral("control-name-text-dark")
+                         : QStringLiteral("control-name-text-light"),
+        brightness > 145 ? QColor("#102033") : QColor("#f5fbff"));
+}
+
 QString auxSourceNumber(const Channel& channel)
 {
     if(channel.auxId)return QStringLiteral("AUX %1").arg(channel.auxId);
@@ -287,8 +318,6 @@ public:
             }
             menu.exec(modeButton->mapToGlobal(QPoint(0, modeButton->height())));
         });
-        colorButton = new Controls::ActionButton(QStringLiteral("..."), this);
-        colorButton->setObjectName(QStringLiteral("selCustomColor"));
         for (auto* edit : { name, comment }) {
             connect(edit, &QLineEdit::editingFinished, this, [this] {
                 if (!channel) return;
@@ -298,49 +327,17 @@ public:
                 if (detailsChanged) detailsChanged();
             });
         }
-        connect(colorButton, &QPushButton::clicked, this, [this] {
-            if (!channel) return;
-            QColorDialog dialog(channel->accent, this);
-            dialog.setWindowTitle(QStringLiteral("自定义通道颜色 · RGB / HEX"));
-            dialog.setOption(QColorDialog::DontUseNativeDialog);
-            dialog.setOption(QColorDialog::ShowAlphaChannel, false);
-            if (dialog.exec() == QDialog::Accepted) {
-                channel->accent = dialog.selectedColor();
-                channel->customColor = true;
-                update();
-                if (changed) changed();
-            }
-        });
         applyTheme();
         if (auto* core = ThemeManager::installedThemeCore())
             connect(core, &ThemeCore::themeChanged, this, [this] { applyTheme(); update(); });
         new ThemeBackgroundOverlay(QStringLiteral("sel-main"), this);
     }
 
-    static std::array<QColor, 8> colorOptions()
-    {
-        constexpr std::array<const char*, 8> roles {
-            "control-color-option-1", "control-color-option-2",
-            "control-color-option-3", "control-color-option-4",
-            "control-color-option-5", "control-color-option-6",
-            "control-color-option-7", "control-color-option-8"
-        };
-        constexpr std::array<const char*, 8> defaults {
-            "#24b8ff", "#20c5dd", "#45d877", "#ffd246",
-            "#ffae55", "#f34d70", "#e359da", "#9963ec"
-        };
-        std::array<QColor, 8> colors;
-        for (std::size_t i = 0; i < colors.size(); ++i)
-            colors[i] = Controls::themeTokenColor(QStringLiteral("sel-main"),
-                QString::fromLatin1(roles[i]), QColor(QString::fromLatin1(defaults[i])));
-        return colors;
-    }
-
     void applyTheme()
     {
         const auto opacity = ThemeBackground::componentOpacity(QStringLiteral("sel-main"));
         for (auto* child : {static_cast<QWidget*>(name), static_cast<QWidget*>(comment),
-                            static_cast<QWidget*>(modeButton), static_cast<QWidget*>(colorButton)}) {
+                            static_cast<QWidget*>(modeButton)}) {
             if (opacity < 1.0) {
                 auto* effect = qobject_cast<QGraphicsOpacityEffect*>(child->graphicsEffect());
                 if (!effect) { effect = new QGraphicsOpacityEffect(child); child->setGraphicsEffect(effect); }
@@ -367,11 +364,6 @@ public:
         editStyle.replace(QStringLiteral("%border%"), css("control-edit-border", "#36516d"));
         name->setStyleSheet(editStyle);
         comment->setStyleSheet(editStyle);
-        QString colorStyle = QStringLiteral("QPushButton {background:%surface%;color:%text%;border:1px solid %border%;border-radius:5px;font-size:15px;}");
-        colorStyle.replace(QStringLiteral("%surface%"), css("control-color-button-surface", "#172a40"));
-        colorStyle.replace(QStringLiteral("%text%"), css("control-color-button-text", "#d6eaff"));
-        colorStyle.replace(QStringLiteral("%border%"), css("control-color-button-border", "#50708c"));
-        colorButton->setStyleSheet(colorStyle);
     }
 
     void setChannel(Channel* next)
@@ -447,7 +439,6 @@ protected:
         place(modeButton, 29, 209, 254, 34);
         modeArrow->setGeometry(modeButton->width()-qRound(24*scale), 0,
                                qRound(18*scale), modeButton->height());
-        place(colorButton, 252, 289, 31, 34);
     }
 
     void paintEvent(QPaintEvent*) override
@@ -463,7 +454,7 @@ protected:
         p.translate(contentOrigin());
         p.scale(contentScale(), contentScale());
         p.fillRect(QRect(0, 0, 1394, 813), themed("surface-empty", QColor("#0b1a2b")));
-        const QColor border=channel&&channel->customColor?channel->accent
+        const QColor border=channel?displayChannelColor(*channel)
             : themed("border-panel",QColor("#2b4662"));
         const QColor ink=themed("text-primary",QColor("#e8f2ff"));
         const QColor muted=themed("text-muted",QColor("#aec7eb"));
@@ -523,23 +514,18 @@ protected:
         text({29, 22, 240, 21}, QStringLiteral("通道名"), 14, ink, true);
         text({29, 102, 240, 21}, QStringLiteral("注释"), 14, ink, true);
         text({29, 182, 240, 21}, QStringLiteral("通道模式"), 14, ink, true);
-        text({29, 262, 240, 21}, QStringLiteral("通道颜色"), 14, ink, true);
-        const auto colors = colorOptions();
-        Controls::drawSurface(p,QRectF(29,289,216,34),
-            themed("control-color-picker-surface",QColor("#15263a")),border,5);
-        for (int i=0;i<8;++i) { p.setPen(Qt::NoPen); p.setBrush(colors[i]); p.drawEllipse(QPointF(47+i*26,306),9,9); }
         const bool mainOutput=channel && channel->number==QStringLiteral("MAIN");
         if(!mainOutput) {
-            text({29,327,118,20},QStringLiteral("增益"),14,muted,false,Qt::AlignCenter);
+            text({29,268,118,20},QStringLiteral("增益"),14,muted,false,Qt::AlignCenter);
             const qreal gain=channel?std::clamp(channel->inputGainDb,-12.0,12.0):0.0;
-            Controls::drawKnob(p,{88,366},(gain+12.0)/24.0,19,knobColors);
-            text({29,387,118,18},QStringLiteral("%1%2 dB").arg(gain>=0?QStringLiteral("+"):QString()).arg(gain,0,'f',1),
+            Controls::drawKnob(p,{88,319},(gain+12.0)/24.0,25,knobColors);
+            text(gainReadoutRect(),QStringLiteral("%1%2 dB").arg(gain>=0?QStringLiteral("+"):QString()).arg(gain,0,'f',1),
                  13,ink,true,Qt::AlignCenter);
         }
         const qreal volumeX=mainOutput?29:165;
         const qreal volumeWidth=mainOutput?254:118;
-        text({volumeX,327,volumeWidth,20},QStringLiteral("音量"),14,muted,false,Qt::AlignCenter);
-        Controls::drawKnob(p,{mainOutput?156.0:224.0,366},channel?1-channel->fader:0,19,knobColors);
+        text({volumeX,268,volumeWidth,20},QStringLiteral("音量"),14,muted,false,Qt::AlignCenter);
+        Controls::drawKnob(p,{mainOutput?156.0:224.0,319},channel?1-channel->fader:0,25,knobColors);
         text(volumeReadoutRect(),faderDbText(channel?channel->fader:1),13,ink,true,Qt::AlignCenter);
         const auto actions=sidebarActions();
         for(std::size_t i=0;i<actions.size();++i) {
@@ -749,8 +735,8 @@ protected:
                 });
             return;
         }
-        if (channel->number!=QStringLiteral("MAIN") && QRectF(29,387,118,18).contains(pt)) {
-            Controls::editNumericValue(this, readoutRect({29,387,118,18}), channel->inputGainDb,
+        if (channel->number!=QStringLiteral("MAIN") && gainReadoutRect().contains(pt)) {
+            Controls::editNumericValue(this, readoutRect(gainReadoutRect()), channel->inputGainDb,
                 {-12,12,0,1}, [this,channelId](double value) {
                     if (!channel || channel->id != channelId) return;
                     channel->inputGainDb=value;
@@ -802,12 +788,10 @@ protected:
                 return;
             }
         }
-        const auto colors = colorOptions();
-        if (pt.y()>=289&&pt.y()<323&&pt.x()>=29&&pt.x()<245) {const int i=int((pt.x()-34)/26);if(i>=0&&i<8){channel->accent=colors[i];channel->customColor=true;}}
-        else if(volumeKnobRect().contains(pt)) {
+        if(volumeKnobRect().contains(pt)) {
             draggedVolume=true;volumeStartY=pt.y();volumeStartPosition=channel->fader;return;
         }
-        else if(channel->number!=QStringLiteral("MAIN") && QRectF(64,343,48,44).contains(pt)) {
+        else if(channel->number!=QStringLiteral("MAIN") && gainKnobRect().contains(pt)) {
             draggedInputGain=true;
             inputGainStartY=pt.y();
             inputGainStartValue=channel->inputGainDb;
@@ -899,7 +883,7 @@ protected:
             });
             return;
         }
-        if (channel->number!=QStringLiteral("MAIN") && QRectF(64,343,48,44).contains(pt)) {
+        if (channel->number!=QStringLiteral("MAIN") && gainKnobRect().contains(pt)) {
             draggedInputGain=false;
             Controls::resetNumericValue({-12,12,0,1},[this](double value) {
                 channel->inputGainDb=value;
@@ -1013,9 +997,11 @@ protected:
         QWidget::wheelEvent(event);
     }
 private:
-    QRectF volumeReadoutRect() const {return {channel&&channel->number==QStringLiteral("MAIN")?29.0:165.0,387,
+    QRectF gainReadoutRect() const { return {29,355,118,18}; }
+    QRectF gainKnobRect() const { return {57,288,62,62}; }
+    QRectF volumeReadoutRect() const {return {channel&&channel->number==QStringLiteral("MAIN")?29.0:165.0,355,
         channel&&channel->number==QStringLiteral("MAIN")?254.0:118.0,18};}
-    QRectF volumeKnobRect() const {return {channel&&channel->number==QStringLiteral("MAIN")?132.0:200.0,343,48,44};}
+    QRectF volumeKnobRect() const {return {channel&&channel->number==QStringLiteral("MAIN")?125.0:193.0,288,62,62};}
     enum class SidebarAction { mute, solo, mix, pfl, afl, fx };
     std::vector<SidebarAction> sidebarActions() const {
         if(channel&&channel->number==QStringLiteral("MAIN"))return {SidebarAction::mute,SidebarAction::fx};
@@ -1096,7 +1082,6 @@ private:
     QLineEdit* comment {};
     QPushButton* modeButton {};
     QLabel* modeArrow {};
-    QPushButton* colorButton {};
     bool linked {true};
     int draggedFader {-1};
     int draggedPoint {-1};
@@ -1486,7 +1471,8 @@ public:
         if (!strip) return false;
         strip->name = channel.name;
         strip->comment = channel.source;
-        strip->color = channel.accent;
+        strip->color = displayChannelColor(channel);
+        strip->customColor = channel.customColor;
         strip->inputGainDb = channel.inputGainDb;
         strip->faderPosition = channel.fader;
         strip->mute = channel.mute;
@@ -1529,6 +1515,7 @@ public:
         channel.name = old->name;
         channel.source = old->comment;
         channel.accent = old->color;
+        channel.customColor = old->customColor;
         channel.inputGainDb = old->inputGainDb;
         channel.fader = old->faderPosition;
         channel.mute = old->mute;
@@ -1640,6 +1627,7 @@ public:
                              strip.color, strip.faderPosition, -72.0, -72.0};
             channel.id = nextChannelId++;
             channel.modelId = strip.id;
+            channel.customColor = strip.customColor;
             channel.realMeter = true;
             channel.layout = asAuxLayout(strip.layout);
             channel.inputGainDb = strip.inputGainDb;
@@ -1658,6 +1646,8 @@ public:
             auto& channel = channels[static_cast<std::size_t>(inputChannelCount) + index];
             const auto& strip = model->auxiliaries()[index];
             channel.modelId = strip.id;
+            channel.accent = strip.color;
+            channel.customColor = strip.customColor;
             channel.realMeter = true;
             channel.name = strip.name;
             channel.source = strip.comment;
@@ -1674,6 +1664,8 @@ public:
         for (const auto& strip : model->subMixes()) insertSubMix(strip);
         auto& master = channels[masterIndex()];
         master.modelId = model->main().id;
+        master.accent = model->main().color;
+        master.customColor = model->main().customColor;
         master.realMeter = true;
         master.name = model->main().name;
         master.source = model->main().comment;
@@ -1727,7 +1719,7 @@ public:
                 channel.fader = Common::mixerUnityFaderPosition;
                 channel.level = -12.0;
                 channel.target = -12.0;
-                channel.accent = QColor("#33b6ff");
+                channel.accent = mixerFaderColor(QStringLiteral("aux"));
             }
             if (existing == channels.cend())
                 channel.name = QStringLiteral("AUX %1").arg(static_cast<int>(rebuilt.size()) - inputChannelCount + 1);
@@ -1756,7 +1748,7 @@ public:
             master.name = QStringLiteral("Main L/R");
             master.source = QStringLiteral("JACK Out 1/2");
             master.number = QStringLiteral("MAIN");
-            master.accent = QColor(QStringLiteral("#50dfbd"));
+            master.accent = mixerFaderColor(QStringLiteral("master"));
             master.fader = Common::mixerUnityFaderPosition;
             master.level = master.target = 4.0;
             master.id = 2000000;
@@ -1886,7 +1878,7 @@ public:
         }
         Channel channel { QStringLiteral("Input %1").arg(nextChannelId),
                           QStringLiteral("Input %1").arg(nextChannelId),
-                          QString::number(nextChannelId), QColor("#45bfff"),
+                          QString::number(nextChannelId), mixerFaderColor(QStringLiteral("input")),
                           Common::mixerUnityFaderPosition, -12.0, -12.0 };
         channel.id = nextChannelId++;
         channel.modelId = modelId;
@@ -1904,6 +1896,7 @@ public:
             strip.color, strip.faderPosition, -72.0, -72.0};
         channel.id = nextChannelId++;
         channel.modelId = strip.id;
+        channel.customColor = strip.customColor;
         channel.realMeter = model != nullptr;
         channel.subMix = true;
         channel.layout = asAuxLayout(strip.layout);
@@ -2097,27 +2090,83 @@ public:
         QString result;
         for (const auto& channel : channels) if (channel.subMix || channel.id == selectedChannelId)
             result += QStringLiteral("%1:%2:%3:%4;").arg(channel.id).arg(channel.name)
-                .arg(static_cast<int>(channel.layout)).arg(channel.accent.name());
+                .arg(static_cast<int>(channel.layout)).arg(displayChannelColor(channel).name());
         return result;
+    }
+
+    void setSelectedChannelColor(const QColor& color, bool custom)
+    {
+        if (selectedMonitor) return;
+        const auto found = std::find_if(channels.begin(), channels.end(), [this](const Channel& item) {
+            return item.id == selectedChannelId;
+        });
+        if (found == channels.end()) return;
+        found->customColor = custom;
+        found->accent = custom ? color : defaultChannelColor(*found);
+        if (!commitChannel(*found)) return;
+        if (found->auxId) auxState->setBusAccent(found->auxId, displayChannelColor(*found));
+        updateSel();
+        updateOverview();
+        owner.update();
+        if (auxSettingsWindow) auxSettingsWindow->update();
+        if (subSettingsWindow) subSettingsWindow->update();
+    }
+
+    void resetAllChannelColors()
+    {
+        const bool hasCustomColor = std::any_of(channels.cbegin(), channels.cend(),
+            [](const Channel& channel) { return channel.customColor; });
+        if (!hasCustomColor) return;
+        if (model) {
+            auto candidate = *model;
+            for (const auto& channel : channels) {
+                if (!channel.modelId) continue;
+                auto* strip = candidate.strip(channel.modelId);
+                if (!strip) return;
+                strip->color = defaultChannelColor(channel);
+                strip->customColor = false;
+            }
+            if (!commitTopology(candidate)) return;
+        }
+        for (auto& channel : channels) {
+            channel.customColor = false;
+            channel.accent = defaultChannelColor(channel);
+        }
+        updateSel();
+        updateOverview();
+        owner.update();
+        if (auxSettingsWindow) auxSettingsWindow->update();
+        if (subSettingsWindow) subSettingsWindow->update();
     }
 
     void updateSel()
     {
         for (const auto& channel : channels)
             if (channel.auxId)
-                if (auto* bus = auxState->bus(channel.auxId)) bus->name = channel.name;
+                if (auto* bus = auxState->bus(channel.auxId)) {
+                    bus->name = channel.name;
+                    bus->accent = displayChannelColor(channel);
+                }
         if (!selLabel) return;
         const auto found = selectedMonitor ? channels.cend() : std::find_if(channels.cbegin(), channels.cend(), [this](const Channel& item) {
             return item.id == selectedChannelId;
         });
+        const QColor headerBackground = found != channels.cend() ? displayChannelColor(*found)
+            : mixerFaderColor(QStringLiteral("monitor"));
+        const qreal headerBrightness = .299 * headerBackground.red() + .587 * headerBackground.green()
+            + .114 * headerBackground.blue();
+        const QColor headerForeground = headerBrightness > 145
+            ? Controls::themeTokenColor(QStringLiteral("sel-main"),
+                QStringLiteral("control-header-text-dark"), QColor("#102033"))
+            : Controls::themeTokenColor(QStringLiteral("sel-main"),
+                QStringLiteral("control-header-text-light"), QColor("#f5fbff"));
         if(selDetailPages)selDetailPages->setCurrentIndex(selectedMonitor?1:0);
         if(selIcon) {
             const auto kind=selectedMonitor?MixerChannelIcon::monitor:found==channels.cend()?MixerChannelIcon::input:
                 found->number==QStringLiteral("MAIN")?MixerChannelIcon::master:found->subMix?MixerChannelIcon::subMix:
                 found->auxId?MixerChannelIcon::aux:MixerChannelIcon::input;
             selIcon->setProperty("channelIconType",static_cast<int>(kind));
-            selIcon->setPixmap(mixerChannelIcon(kind,Controls::themeTokenColor(QStringLiteral("sel-main"),
-                QStringLiteral("control-header-icon"),QColor("#e8f2ff")),32,selIcon->devicePixelRatioF()));
+            selIcon->setPixmap(mixerChannelIcon(kind,headerForeground,32,selIcon->devicePixelRatioF()));
         }
         if(selSelector) {
             for(const auto& pair : {std::pair{"surfaceColor","control-channel-selector-surface"},
@@ -2126,6 +2175,24 @@ public:
                                   std::pair{"accentColor","control-channel-selector-accent"}})
                 selSelector->setProperty(pair.first,Controls::themeTokenColor(QStringLiteral("sel-main"),QString::fromLatin1(pair.second),
                     QColor(pair.first==QStringLiteral("textColor")?"#e8f2ff":pair.first==QStringLiteral("accentColor")?"#31c6ff":"#1b3048")));
+        }
+        if (selPaletteButton) {
+            for (const auto& pair : {std::pair{"surfaceColor","control-channel-selector-surface"},
+                                    std::pair{"textColor","control-channel-selector-text"},
+                                    std::pair{"borderColor","control-channel-selector-border"},
+                                    std::pair{"accentColor","control-channel-selector-accent"}})
+                selPaletteButton->setProperty(pair.first,Controls::themeTokenColor(QStringLiteral("sel-main"),
+                    QString::fromLatin1(pair.second),QColor(pair.first==QStringLiteral("textColor")
+                        ? "#e8f2ff" : pair.first==QStringLiteral("accentColor") ? "#31c6ff" : "#1b3048")));
+            const auto ink = Controls::themeTokenColor(QStringLiteral("sel-main"),
+                QStringLiteral("control-header-icon"),QColor("#e8f2ff"));
+            const std::array swatches {mixerFaderColor(QStringLiteral("input")),
+                mixerFaderColor(QStringLiteral("aux")), mixerFaderColor(QStringLiteral("submix")),
+                mixerFaderColor(QStringLiteral("master"))};
+            selPaletteButton->setIcon(QIcon(mixerPaletteIcon(ink, swatches, 24,
+                selPaletteButton->devicePixelRatioF())));
+            selPaletteButton->setEnabled(found != channels.cend());
+            if (resetColorAction) resetColorAction->setEnabled(found != channels.cend() && found->customColor);
         }
         if(selFxTab)selFxTab->setVisible(!selectedMonitor);
         if(selectedMonitor&&selStack) {
@@ -2136,19 +2203,10 @@ public:
             && subMixViewSignature()!=subViewSignature) showSelAux(true);
         selLabel->setText(selectedMonitor?QStringLiteral("监听"):found == channels.cend() ? QStringLiteral("未选择通道") : found->name);
         if(selHeader){
-            const QColor background=found!=channels.cend()&&found->customColor?found->accent
-                : Controls::themeTokenColor(QStringLiteral("sel-main"),
-                    QStringLiteral("control-header-surface-default"),QColor("#123a65"));
-            const qreal brightness=.299*background.red()+.587*background.green()+.114*background.blue();
-            const QColor foreground=brightness>145
-                ? Controls::themeTokenColor(QStringLiteral("sel-main"),
-                    QStringLiteral("control-header-text-dark"),QColor("#102033"))
-                : Controls::themeTokenColor(QStringLiteral("sel-main"),
-                    QStringLiteral("control-header-text-light"),QColor("#f5fbff"));
-            if(background!=lastHeaderColor || foreground!=lastHeaderTextColor){
-                lastHeaderColor=background;
-                lastHeaderTextColor=foreground;
-                selHeader->setStyleSheet(QStringLiteral("#selHeader {background:%1;border-radius:6px;} #selHeader QLabel {color:%2;background:transparent;}").arg(background.name(),foreground.name()));
+            if(headerBackground!=lastHeaderColor || headerForeground!=lastHeaderTextColor){
+                lastHeaderColor=headerBackground;
+                lastHeaderTextColor=headerForeground;
+                selHeader->setStyleSheet(QStringLiteral("#selHeader {background:%1;border-radius:6px;} #selHeader QLabel {color:%2;background:transparent;}").arg(headerBackground.name(),headerForeground.name()));
             }
         }
         if(selSubTab)selSubTab->setVisible(found!=channels.cend()&&found->number!=QStringLiteral("MAIN"));
@@ -2209,7 +2267,7 @@ public:
         for (int index=0;index<masterIndex();++index) {
             const auto& channel=channels[index];
             const int group=index<inputChannelCount?0:channel.subMix?2:1;
-            groups[group].push_back({channel.id,channel.modelId,channel.name,channel.accent,
+            groups[group].push_back({channel.id,channel.modelId,channel.name,displayChannelColor(channel),
                 channel.fader,channel.meterBallistics.levelDb(),channel.meterBallistics.peakDb(),
                 !selectedMonitor&&channel.id==selectedChannelId,group});
         }
@@ -2218,7 +2276,7 @@ public:
             overviewFixedMasters->setChannels({
                 {monitorOverviewId,0,QStringLiteral("监听"),Controls::themeTokenColor(QStringLiteral("mixer"),QStringLiteral("fader-monitor-thumb"),QColor("#f4cd42")),
                  monitorFader,monitorMeter.levelDb(),monitorMeter.peakDb(),selectedMonitor,3},
-                {master.id,master.modelId,QStringLiteral("MASTER"),master.accent,master.fader,
+                {master.id,master.modelId,QStringLiteral("MASTER"),displayChannelColor(master),master.fader,
                  master.meterBallistics.levelDb(),master.meterBallistics.peakDb(),!selectedMonitor&&master.id==selectedChannelId,4}});
         }
         for(int group=0;group<3;++group) {
@@ -2233,11 +2291,9 @@ public:
                 Controls::applyPalette(overviewScrollBars[group],colors);
             }
             const auto color=[&](const QString& role,const QColor& fallback){return Controls::themeTokenColor(QStringLiteral("mixer"),role,fallback).name();};
-            const auto prefix=QStringLiteral("overview-title-%1-").arg(kind);
+            const auto titleColor=mixerFaderColor(kind);
             const auto titleStyle=QStringLiteral("background:%1;color:%2;border:1px solid %3;border-radius:5px;padding:3px 10px;")
-                .arg(color(prefix+QStringLiteral("surface"),QColor(group==0?"#123d62":group==1?"#312951":"#124932")),
-                     color(prefix+QStringLiteral("text"),QColor("#e9f2ff")),
-                     color(prefix+QStringLiteral("border"),QColor(group==0?"#33b6ff":group==1?"#8f78ff":"#37d879")));
+                .arg(titleColor.name(),mixerNameTextColor(titleColor).name(),titleColor.name());
             if(overviewTitles[group]&&overviewTitles[group]->styleSheet()!=titleStyle)overviewTitles[group]->setStyleSheet(titleStyle);
             const auto cardStyle=QStringLiteral("QWidget#overviewCard%1 {background:%2;border:1px solid %3;border-radius:6px;}")
                 .arg(group).arg(color(QStringLiteral("overview-card-surface"),QColor("#0b1a2b")),color(QStringLiteral("overview-card-border"),QColor("#29435d")));
@@ -2356,6 +2412,34 @@ public:
             QFont prefixFont=prefix->font();prefixFont.setPixelSize(24);prefixFont.setBold(true);prefix->setFont(prefixFont);
             headerLayout->addWidget(prefix);
             headerLayout->addWidget(selLabel,1);
+            selPaletteButton=new Controls::IconActionButton(header);
+            selPaletteButton->setObjectName(QStringLiteral("selChannelColorPalette"));
+            selPaletteButton->setToolTip(QStringLiteral("通道颜色"));
+            selPaletteButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
+            selPaletteButton->setIconSize(QSize(24,24));
+            selPaletteButton->setFixedSize(38,38);
+            selPaletteButton->setPopupMode(QToolButton::InstantPopup);
+            auto* colorMenu=new QMenu(selPaletteButton);
+            colorMenu->setObjectName(QStringLiteral("selChannelColorMenu"));
+            auto* setColorAction=colorMenu->addAction(QStringLiteral("设置通道颜色"));
+            resetColorAction=colorMenu->addAction(QStringLiteral("恢复默认颜色"));
+            connect(setColorAction,&QAction::triggered,selWindow,[this] {
+                const auto found=std::find_if(channels.cbegin(),channels.cend(),[this](const Channel& item) {
+                    return item.id==selectedChannelId;
+                });
+                if(selectedMonitor || found==channels.cend())return;
+                QColorDialog dialog(displayChannelColor(*found),selWindow);
+                dialog.setWindowTitle(QStringLiteral("设置通道颜色 · RGB / HEX"));
+                dialog.setOption(QColorDialog::DontUseNativeDialog);
+                dialog.setOption(QColorDialog::ShowAlphaChannel,false);
+                if(dialog.exec()==QDialog::Accepted)
+                    setSelectedChannelColor(dialog.selectedColor(),true);
+            });
+            connect(resetColorAction,&QAction::triggered,selWindow,[this] {
+                setSelectedChannelColor({},false);
+            });
+            selPaletteButton->setMenu(colorMenu);
+            headerLayout->addWidget(selPaletteButton);
             selSelector=new Controls::IconActionButton(header);
             selSelector->setObjectName(QStringLiteral("selChannelSelector"));
             selSelector->setText(QStringLiteral("切换通道 ▾"));selSelector->setToolButtonStyle(Qt::ToolButtonTextOnly);
@@ -2509,7 +2593,7 @@ public:
             auxState->clearBuses();
             for (const auto& channel : channels) if (channel.subMix) {
                 auto& bus = auxState->addBus(channel.layout);
-                bus.id = channel.id; bus.name = channel.name; bus.accent = channel.accent;
+                bus.id = channel.id; bus.name = channel.name; bus.accent = displayChannelColor(channel);
             }
         }
         auxWindowChannelId=found->id;
@@ -2924,6 +3008,8 @@ public:
     QPointer<QWidget> selWindow;
     QPointer<QLabel> selLabel;
     QPointer<QLabel> selIcon;
+    QPointer<Controls::IconActionButton> selPaletteButton;
+    QPointer<QAction> resetColorAction;
     QPointer<Controls::IconActionButton> selSelector;
     QPointer<QStackedWidget> selDetailPages;
     QPointer<QPushButton> selFxTab;
@@ -3021,6 +3107,7 @@ MixerWindow::MixerWindow(Common::DigitalMixerState* state, TopologyCommit commit
     if (auto* core = ThemeManager::installedThemeCore())
         connect(core, &ThemeCore::themeChanged, this, [this] {
             impl_->updateSel();
+            impl_->updateOverview();
             update();
         });
     auto* menuBar = this->menuBar();
@@ -3055,6 +3142,10 @@ MixerWindow::MixerWindow(Common::DigitalMixerState* state, TopologyCommit commit
         }
         update();
     });
+    auto* resetColorsAction = globalMenu->addAction(QStringLiteral("恢复所有通道到默认颜色"));
+    resetColorsAction->setObjectName(QStringLiteral("mixerResetAllChannelColors"));
+    connect(resetColorsAction, &QAction::triggered, this,
+            [this] { impl_->resetAllChannelColors(); });
     auto* largeScreenMenu=menuBar->addMenu(QStringLiteral("查看大屏"));
     connect(largeScreenMenu->addAction(QStringLiteral("通道详情")), &QAction::triggered, this,
             [this] { impl_->showLargeScreen(); });
@@ -3116,11 +3207,6 @@ void MixerWindow::paintEvent(QPaintEvent*)
     const auto heightScale = std::clamp(height() / 768.0, .72, 1.35);
     const auto label = themed("text-primary", QColor("#dce9ff"));
     const auto secondary = themed("text-muted", QColor("#a9bbd7"));
-    const auto nameTextColor = [&](const QColor& background) {
-        const qreal brightness = .299 * background.red() + .587 * background.green() + .114 * background.blue();
-        return brightness > 145 ? themed("control-name-text-dark", QColor("#102033"))
-                                : themed("control-name-text-light", QColor("#f5fbff"));
-    };
     const auto drawStripButton = [&](const QRectF& button, const QString& text,
                                      const QColor& color, bool active) {
         Controls::drawSurface(painter,button,
@@ -3138,7 +3224,7 @@ void MixerWindow::paintEvent(QPaintEvent*)
                                    monitorCard.width() - 6, 24 * heightScale}, monitorYellow, monitorYellow, 3);
     drawAdaptiveText(painter, {monitorCard.left(), monitorCard.top() + 2 * heightScale,
                                monitorCard.width(), 20 * heightScale},
-                     QStringLiteral("监听"), nameTextColor(monitorYellow), 16 * heightScale, 10 * heightScale,
+                     QStringLiteral("监听"), mixerNameTextColor(monitorYellow), 16 * heightScale, 10 * heightScale,
                      Qt::AlignCenter, true);
     const auto monitorMeterRect = impl_->monitorMeterRect(heightScale);
     Controls::MeterStyle monitorStyle;
@@ -3199,12 +3285,13 @@ void MixerWindow::paintEvent(QPaintEvent*)
             painter.drawLine(QPointF(right, card.top()), QPointF(right, card.bottom()));
         }
 
-        Controls::drawSurface(painter, card.adjusted(1, 1, -1, -1), Qt::NoBrush, channel.accent, 4, 1);
+        const QColor channelColor=displayChannelColor(channel);
+        Controls::drawSurface(painter, card.adjusted(1, 1, -1, -1), Qt::NoBrush, channelColor, 4, 1);
         Controls::drawSurface(painter, {card.left() + 3, card.top() + heightScale,
-                                       card.width() - 6, 24 * heightScale}, channel.accent, channel.accent, 3);
+                                       card.width() - 6, 24 * heightScale}, channelColor, channelColor, 3);
         const auto top = card.top() + 2 * heightScale;
         drawAdaptiveText(painter, { card.left(), top, card.width(), 20 * heightScale }, channel.name,
-                 nameTextColor(channel.accent), 16 * heightScale, 10 * heightScale, Qt::AlignCenter, true);
+                 mixerNameTextColor(channelColor), 16 * heightScale, 10 * heightScale, Qt::AlignCenter, true);
         drawAdaptiveText(painter, { card.left(), top + 26 * heightScale, card.width(), 14 * heightScale }, channel.source,
                  secondary, 12 * heightScale, 8 * heightScale);
 

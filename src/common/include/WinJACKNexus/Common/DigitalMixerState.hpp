@@ -65,7 +65,8 @@ struct WINJACK_COMMON_API MixerStripState final {
     MixerLayout layout { MixerLayout::stereo };
     QString name;
     QString comment;
-    QColor color { "#31c6ff" };
+    QColor color { "#9aa8b7" };
+    bool customColor {};
     double inputGainDb {};
     double faderPosition { mixerUnityFaderPosition };
     bool mute {};
