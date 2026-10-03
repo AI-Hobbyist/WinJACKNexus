@@ -12,7 +12,7 @@
     "ui"
   ],
   "defaultLanguage": "en-US",
-  "catalogVersion": 4,
+  "catalogVersion": 5,
   "languages": {
     "en-US": "en-US.json",
     "zh-CN": "zh-CN.json",
@@ -562,7 +562,12 @@
     ],
     "ui": [
       "chart.hoverTime",
-      "statistics.extrema"
+      "statistics.extrema",
+      "clientName.label",
+      "clientName.apply",
+      "clientName.empty",
+      "clientName.applied",
+      "clientName.rejected"
     ]
   }
 }

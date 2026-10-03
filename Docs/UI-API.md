@@ -502,4 +502,8 @@ S4 长文本契约：共享 `Controls::ChoiceField` 的非编辑显示和 `Contr
 
 ## 自绘文本省略（S5 实施中，尚未 Release/实窗验收）
 
-`Controls::drawElidedText(QPainter&, const QRectF&, const QString&, const QFont&, const QColor&, Qt::Alignment = Qt::AlignCenter)` 保留 `drawText` 的既有合同，新增按传入字体和可用宽度逐行省略的绘制方法。QWidget 的 paintEvent 调用时，以 combinedTransform 将文字矩形映射到控件坐标，为截断区域登记原生 tooltip 全文；绘制开始清理上次区域，控件销毁自动清理。QImage 等非 QWidget 绘制只提供省略文本，不创建 tooltip。语言或布局变化应重绘；不缩小字体、不修改语言源/参数/用户名称。Gate、Compressor、De-Esser 已有调用点，三档实窗、绘制变换和完整提示需由 S5 调用点测试验收。
+`Controls::drawElidedText(QPainter&, const QRectF&, const QString&, const QFont&, const QColor&, Qt::Alignment = Qt::AlignCenter)` 保留 `drawText` 的既有合同，新增按传入字体和可用宽度逐行省略的绘制方法。QWidget 的 paintEvent 调用时，以 combinedTransform 将文字矩形映射到控件坐标，为截断区域登记原生 tooltip 全文；绘制开始清理上次区域，控件销毁自动清理。QImage 等非 QWidget 绘制只提供省略文本，不创建 tooltip。语言或布局变化应重绘；不缩小字体、不修改语言源/参数/用户名称。八个 Native Fx 已有调用点，三档实窗、绘制变换和完整提示需由 S5 调用点测试验收。
+
+`Controls::ClientNameWidget` 的标签、应用按钮及空名称/成功/失败状态查询 `ui/clientName.*`，没有已安装管理器时使用调用点 English。语言通知仅刷新显示，保留名称草稿、选区和最后应用结果，不调用 ApplyHandler。用户编辑清除状态；应用成功时规范化已提交名称，并保留成功状态，直到再次编辑或显式 setClientName。调用点验证位于 `Develop/NativeFx/NativeFxI18nTests.cpp`，当前尚未执行验收。
+
+`drawElidedText` 的已显示全文 tooltip 在语言通知时同步重绘所属 QWidget 并按原命中位置更新；该位置不再有省略区域时关闭提示。只刷新该控件此前显示且仍可见的提示，不在动画每帧重建 tooltip。绘制变换和已打开提示的实际 Windows 调用点验证尚待执行。

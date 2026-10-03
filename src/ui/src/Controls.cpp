@@ -50,6 +50,11 @@ public:
     explicit PaintedTextTooltips(QWidget* widget) : QObject(widget) {
         setObjectName(QStringLiteral("wjnPaintedTextTooltips"));
         widget->installEventFilter(this);
+        if (auto* manager = I18nManager::installed()) manager->bind(this, [this, widget] {
+            if (!shown_ || !QToolTip::isVisible() || QToolTip::text() != shownText_) return;
+            widget->repaint();
+            refreshTooltip(widget);
+        });
     }
     std::vector<Region> regions;
 protected:
@@ -60,12 +65,28 @@ protected:
             auto* help = static_cast<QHelpEvent*>(event);
             for (auto it = regions.rbegin(); it != regions.rend(); ++it) {
                 if (!it->bounds.contains(help->pos())) continue;
-                QToolTip::showText(help->globalPos(), Qt::convertFromPlainText(it->text),
+                shown_ = true; position_ = help->pos(); globalPosition_ = help->globalPos();
+                shownText_ = Qt::convertFromPlainText(it->text);
+                QToolTip::showText(help->globalPos(), shownText_,
                                   static_cast<QWidget*>(watched), it->bounds.toAlignedRect());
                 return true;
             }
         }
         return QObject::eventFilter(watched, event);
+    }
+private:
+    bool shown_ = false;
+    QString shownText_;
+    QPoint position_, globalPosition_;
+    void refreshTooltip(QWidget* widget) {
+        for (auto it = regions.rbegin(); it != regions.rend(); ++it) {
+            if (!it->bounds.contains(position_)) continue;
+            shownText_ = Qt::convertFromPlainText(it->text);
+            QToolTip::showText(globalPosition_, shownText_, widget, it->bounds.toAlignedRect());
+            return;
+        }
+        shown_ = false;
+        QToolTip::hideText();
     }
 };
 
@@ -1643,7 +1664,7 @@ ClientNameWidget::ClientNameWidget(QString clientName, ApplyHandler handler, QWi
     layout->addLayout(form);
     auto* actions = new QHBoxLayout;
     status_ = new TextLabel(this);
-    auto* applyButton = new ActionButton(this);
+    auto* applyButton = new ActionButton(QString{}, this);
     bindLocalizedText(applyButton, "text", "ui", "clientName.apply", "Apply");
     applyButton->setFixedHeight(sidebarControlHeight);
     applyButton->setObjectName(QStringLiteral("gate.applyClientName"));

@@ -1,6 +1,6 @@
 {
   "formatVersion": 1,
-  "catalogVersion": 4,
+  "catalogVersion": 5,
   "moduleId": "winjacknexus-host",
   "language": "en-US",
   "domains": {
@@ -546,7 +546,12 @@
     },
     "ui": {
       "chart.hoverTime": "Time %1",
-      "statistics.extrema": "Min: %1    Max: %2"
+      "statistics.extrema": "Min: %1    Max: %2",
+      "clientName.label": "Client name",
+      "clientName.apply": "Apply",
+      "clientName.empty": "Name cannot be empty",
+      "clientName.applied": "Applied",
+      "clientName.rejected": "Unable to apply name"
     }
   }
 }

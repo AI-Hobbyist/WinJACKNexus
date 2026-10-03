@@ -252,6 +252,10 @@ public:
         });
 #endif
         view_ = new UI::Controls::EmbeddedFxEditor(editor, StripHeight, parent);
+        WinJACKNexus::NativeFx::I18n::bind(view_, [view = view_.data(), editor] {
+            view->setWindowTitle(editor->windowTitle());
+            view->setAccessibleDescription(editor->accessibleDescription());
+        });
         setTheme(palette_);
         return view_;
     }

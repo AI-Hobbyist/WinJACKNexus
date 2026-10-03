@@ -47,7 +47,7 @@ s0.5acecc2a7eee,vst,src/vst/src/Library.cpp,891,"{
             ""description"":""Host-drawn card background for the VST Host node type""
         }]
     }","static constexpr char descriptor[] = R""json({",raw-structured-review,structured,,原始结构化描述符：逐字段提取显示名/说明，协议结构保留,vst
-s0.224f5670e5b0,example.nativefx,Develop/NativeFx/ExampleNativeFx.cpp,385,"{""descriptorVersion"":1,""i18nApiVersion"":1,
+s0.224f5670e5b0,example.nativefx,Develop/NativeFx/ExampleNativeFx.cpp,389,"{""descriptorVersion"":1,""i18nApiVersion"":1,
         ""moduleId"":""example-gain"",""domains"":[""example.nativefx""],""locatePath"":""locate"",""catalogVersion"":1,
         ""displayNameKey"":{""domain"":""example.nativefx"",""key"":""name""}}","return index==0 ? R""json({""descriptorVersion"":1,""i18nApiVersion"":1,",raw-structured-review,structured,,原始结构化描述符：逐字段提取显示名/说明，协议结构保留,example.nativefx
 s0.8daa2b96ab94,example.node,Develop/Node/ExampleNode.cpp,69,"{""descriptorVersion"":1,""i18nApiVersion"":1,

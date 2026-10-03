@@ -517,8 +517,8 @@
     },
     {
       "file": "src/native_fx/effects/compressor/include/Logic.inc",
-      "sha256": "ea905bd7970a702977c8b15596473d64bceab3afbd9789c7f0aaf74cde65a8bf",
-      "lines": 289
+      "sha256": "94112e8a723b41e298b7b7ee95da30808e70717bd3418e17281b205dc638eb28",
+      "lines": 292
     },
     {
       "file": "src/native_fx/effects/compressor/include/WinJACKNexus/NativeFx/compressor/Processor.hpp",
@@ -542,8 +542,8 @@
     },
     {
       "file": "src/native_fx/effects/compressor/src/Ui.cpp",
-      "sha256": "ef6178246e6340d594f386e15b84dd611c4c05481069567bcc5fc93341c7d95f",
-      "lines": 370
+      "sha256": "b39e64d96133864c31261ce3f5df29d6dbf51ef1d46e7fc06468f48d56f33cd7",
+      "lines": 381
     },
     {
       "file": "src/native_fx/effects/deesser/include/Dsp.hpp",
@@ -552,8 +552,8 @@
     },
     {
       "file": "src/native_fx/effects/deesser/include/Logic.inc",
-      "sha256": "03f0ae2f174f89b22b0592cac08481588dd6cc3e92ef93d6fb4b400f63873144",
-      "lines": 284
+      "sha256": "a3867519d3c4b8ab37946bc5040fae80d3f9fa4c1a2477416669dddf2bdc80b6",
+      "lines": 287
     },
     {
       "file": "src/native_fx/effects/deesser/include/WinJACKNexus/NativeFx/deesser/Processor.hpp",
@@ -582,8 +582,8 @@
     },
     {
       "file": "src/native_fx/effects/deesser/src/Ui.cpp",
-      "sha256": "d6d872102374e5ad9a1f9603bf0e5758de5a04d7c001eeeacfba2677c0e9d0bf",
-      "lines": 686
+      "sha256": "68aa47e26a8f3c49513333a4f1dad4efa438139fa0c0787a3900fa363a2edf78",
+      "lines": 696
     },
     {
       "file": "src/native_fx/effects/delay/include/Dsp.hpp",
@@ -592,8 +592,8 @@
     },
     {
       "file": "src/native_fx/effects/delay/include/Logic.inc",
-      "sha256": "16f7f4ece3d6c772b2f8a6cb5351b35703382df5282e19ff15a5d74817fba3b8",
-      "lines": 121
+      "sha256": "7eaf96a139098790a4adbfcf78c9b01ee305dca9b2bdaa020af2df16a3230a6b",
+      "lines": 124
     },
     {
       "file": "src/native_fx/effects/delay/include/WinJACKNexus/NativeFx/delay/Processor.hpp",
@@ -617,8 +617,8 @@
     },
     {
       "file": "src/native_fx/effects/delay/src/Ui.cpp",
-      "sha256": "0bf4fc74b42163810dd7567990f470b4aac428b57099586bb9f23208eae647ca",
-      "lines": 358
+      "sha256": "36d64e0fbb65325219ef2911cce2e5c5115734cd767f55e4f034cffef643ab8f",
+      "lines": 360
     },
     {
       "file": "src/native_fx/effects/gate/include/Dsp.hpp",
@@ -627,8 +627,8 @@
     },
     {
       "file": "src/native_fx/effects/gate/include/Logic.inc",
-      "sha256": "87c148b7e75dddb25229c7da36c2365aec4951143b3938749756390ee483c098",
-      "lines": 255
+      "sha256": "8c78a323e82d55502dd1fdbbd39aa4e52f28e6742b98cc1de9df6991e900d69b",
+      "lines": 259
     },
     {
       "file": "src/native_fx/effects/gate/include/WinJACKNexus/NativeFx/gate/Processor.hpp",
@@ -652,8 +652,8 @@
     },
     {
       "file": "src/native_fx/effects/gate/src/Ui.cpp",
-      "sha256": "c949cee8a293acb857ce7ccff71ede8cd2f4aa89bb276abda4094d683be45b79",
-      "lines": 312
+      "sha256": "e0477c68ef209515eb761d6150e84a22dbf8fdbc869829385a78c4f84272e7fe",
+      "lines": 326
     },
     {
       "file": "src/native_fx/effects/graphic_eq/include/Dsp.hpp",
@@ -662,8 +662,8 @@
     },
     {
       "file": "src/native_fx/effects/graphic_eq/include/Logic.inc",
-      "sha256": "bd02feafd081c5d010933ec2fef98ee087b2569032043a3db45122bea690d9c3",
-      "lines": 277
+      "sha256": "9a01f2bddcc7d2a013e5739f8333a3b4489d1e0cd0ced72685caf58481f1f271",
+      "lines": 280
     },
     {
       "file": "src/native_fx/effects/graphic_eq/include/WinJACKNexus/NativeFx/graphic_eq/Processor.hpp",
@@ -697,8 +697,8 @@
     },
     {
       "file": "src/native_fx/effects/graphic_eq/src/Ui.cpp",
-      "sha256": "3cf1cc76f3ee3f0b271ceca6dd2eac4eda747b26d039ad01b0d0e1fa9eb43c36",
-      "lines": 676
+      "sha256": "e3c9868c2649fc0699092d36a42b7a16fb87cc3c5163636f75d359b14a65ac4e",
+      "lines": 704
     },
     {
       "file": "src/native_fx/effects/limiter/include/Dsp.hpp",
@@ -707,8 +707,8 @@
     },
     {
       "file": "src/native_fx/effects/limiter/include/Logic.inc",
-      "sha256": "ee3615e82bc3c8b3f07cdb60cb83d2961f2cd49326f81e3a4fbc87bb96012ce2",
-      "lines": 171
+      "sha256": "445b2bb2503d7bdf463f92fa0dd90f123b437c60b4ebecc634e1954b8854b76c",
+      "lines": 174
     },
     {
       "file": "src/native_fx/effects/limiter/include/WinJACKNexus/NativeFx/limiter/Processor.hpp",
@@ -732,8 +732,8 @@
     },
     {
       "file": "src/native_fx/effects/limiter/src/Ui.cpp",
-      "sha256": "a2213faf026b3741682d43456243a5ba738fec1b9d54898e283db5108dce4391",
-      "lines": 432
+      "sha256": "760d5b33088785b94d4e01e5f027828b98b2f8242d3c6c9968383db70b4e2094",
+      "lines": 442
     },
     {
       "file": "src/native_fx/effects/parametric_eq/include/Dsp.hpp",
@@ -742,8 +742,8 @@
     },
     {
       "file": "src/native_fx/effects/parametric_eq/include/Logic.inc",
-      "sha256": "50db21440deb23c3ac019482b926db8de9a996a3c7b87161d439db6ce2fe1a2f",
-      "lines": 225
+      "sha256": "7c2823aa13585dce14d416c1f0002c3b86591af69ad5e0b7f38fb529f2fdd881",
+      "lines": 228
     },
     {
       "file": "src/native_fx/effects/parametric_eq/include/WinJACKNexus/NativeFx/parametric_eq/Processor.hpp",
@@ -767,8 +767,8 @@
     },
     {
       "file": "src/native_fx/effects/parametric_eq/src/Ui.cpp",
-      "sha256": "4d9afee1678d910e2c4772b01e7e2ba71b63c3a2824a62a7b476a63719b98fcd",
-      "lines": 604
+      "sha256": "17f3edc770fd4c54d6c1fabeefedee684264c99291b23d361c58bd4c4ba0f551",
+      "lines": 608
     },
     {
       "file": "src/native_fx/effects/reverb/include/Dsp.hpp",
@@ -777,8 +777,8 @@
     },
     {
       "file": "src/native_fx/effects/reverb/include/Logic.inc",
-      "sha256": "5aa452fda34a269143487345f4691d942481d64092aee8bcfc44e0f78ede4211",
-      "lines": 152
+      "sha256": "d2de5be7ae016ef7fc1a475f2e68232ba7e1055c194633ba72ff2c24fde5b352",
+      "lines": 155
     },
     {
       "file": "src/native_fx/effects/reverb/include/WinJACKNexus/NativeFx/reverb/Processor.hpp",
@@ -802,23 +802,33 @@
     },
     {
       "file": "src/native_fx/effects/reverb/src/Ui.cpp",
-      "sha256": "d5e729e63378a291f167ddbedd628a04183fa39a8cb697773df119ac4e7745d2",
-      "lines": 333
+      "sha256": "bd165bf2f7ce63f637f88c48c4e94f4cc85fd40c02f115c9854d1301eb3c5886",
+      "lines": 351
+    },
+    {
+      "file": "src/native_fx/include/WinJACKNexus/NativeFx/I18n.hpp",
+      "sha256": "3f4253285831a25adf7c4d089e27b14802132ba71355aa5b362d50e1ea5314d0",
+      "lines": 13
     },
     {
       "file": "src/native_fx/include/WinJACKNexus/NativeFx/NativeFxApi.h",
-      "sha256": "088fc928922a019f292a5486c00165e3b12316f9be327be3d29a2f2159d05fa4",
-      "lines": 125
+      "sha256": "f9449f751e3048f5f87409ff9e95aa2cd88aec98b878a38b8f5540fc48b8db2d",
+      "lines": 128
+    },
+    {
+      "file": "src/native_fx/src/I18n.cpp",
+      "sha256": "c87ef0046e4a608b6944e7c87506307f0da3976140337af120c3218cf7d61826",
+      "lines": 128
     },
     {
       "file": "src/native_fx/src/Library.cpp",
-      "sha256": "c48cec57bacf6e9db9e3f3fa5c0a921902907d60c138860b12a2315c3588c350",
-      "lines": 225
+      "sha256": "5fdc7f607aef1d35f29b6c486b48d398ae4a44475960e24ed71cbf7e57d22609",
+      "lines": 226
     },
     {
       "file": "src/native_fx/src/NativeFxApi.cpp",
-      "sha256": "b047738a56e6b32add0ec274febee1c195dca7376d194ef1be7213da5c7935f8",
-      "lines": 586
+      "sha256": "27b2578fc82fc660dbec192d23d459976073c897ee8390193ba55a1bd9060101",
+      "lines": 599
     },
     {
       "file": "src/node/include/WinJACKNexus/Node/Export.hpp",
@@ -992,8 +1002,8 @@
     },
     {
       "file": "src/ui/include/WinJACKNexus/UI/Controls.hpp",
-      "sha256": "1723b32338daf0351f774e62c069ae495f13d11997135685ef3468723366a978",
-      "lines": 521
+      "sha256": "b0d467d6155c427405d76677065ad5c9ab52d2daa523a05a978eaceb59ea74d1",
+      "lines": 530
     },
     {
       "file": "src/ui/include/WinJACKNexus/UI/Export.hpp",
@@ -1142,8 +1152,8 @@
     },
     {
       "file": "src/ui/src/Controls.cpp",
-      "sha256": "58be5d5974b6052af6095c37b971080a254aec68de251a2d16c7e9f3ab600bcb",
-      "lines": 1624
+      "sha256": "2b1d9fbbcdddeb3a7d146f8a990d9648acb691e5f68b82d2051d7868762f99f3",
+      "lines": 1712
     },
     {
       "file": "src/ui/src/FxLevelMeterWidget.cpp",
@@ -1152,8 +1162,8 @@
     },
     {
       "file": "src/ui/src/FxSettingsWindow.cpp",
-      "sha256": "2d0ae76d0321828140aba0db82080b3df5cb898cc0bceee3b9157875cb906fb5",
-      "lines": 1450
+      "sha256": "b04efc2734cec388d9de5f85767197ee1e0775c29b2e64a76b3fa7edffc1db48",
+      "lines": 1489
     },
     {
       "file": "src/ui/src/HistoryChartWidget.cpp",
@@ -1347,8 +1357,8 @@
     },
     {
       "file": "Develop/NativeFx/ExampleNativeFx.cpp",
-      "sha256": "272a1d9205e7e70ffa6360062c731484ab191c2102066874ce486ed13808c784",
-      "lines": 412
+      "sha256": "c7c9b2fd7a82d7f8c5c472b551b395338ef77ebf883a0cf8d4cbca47eb113c39",
+      "lines": 416
     },
     {
       "file": "Develop/Node/ExampleNode.cpp",
@@ -1356,8 +1366,8 @@
       "lines": 129
     }
   ],
-  "literal_occurrences": 9015,
-  "unique_source_ids": 5990,
+  "literal_occurrences": 9535,
+  "unique_source_ids": 6320,
   "limitations": [
     "Source evidence is not a classified UI/key inventory.",
     "Dynamic text sources and Qt/OS-owned text require separate inspection.",

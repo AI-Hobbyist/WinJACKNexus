@@ -24,7 +24,11 @@ def main():
     identities = {(r['domain'],r['key']) for r in records}
     assert len(identities) == len(records) == 312
     assert set(SOURCES) == {r['domain'] for r in records}
-    assert identities == {(d,k) for d in SOURCES for k in manifest['requiredKeys'][d]}
+    manifest_identities = {(d,k) for d in SOURCES for k in manifest['requiredKeys'][d]}
+    # S4 owns its 312 records; S5 adds shared client-name chrome to the ui domain.
+    assert identities <= manifest_identities
+    assert all(d == 'ui' and k.startswith('clientName.')
+               for d, k in manifest_identities - identities)
     placeholders = lambda value: set(re.findall(r'%(?:L?\d+|n)|\{[A-Za-z_]\w*\}',value))
     audit = (ROOT/'i18n翻译核对.md').read_text(encoding='utf-8-sig')
     for language in LANGUAGES:

@@ -76,7 +76,7 @@ Qt 标准文本由当前宿主会话管理 QTranslator；中文、日语、韩�
 
 ## S3 宿主域与节点接入
 
-宿主 catalogVersion 为 3，包含 host 84、adapter 22、patchbay 110 个 key，总计 216 个；四语言外部包、编入 ui.dll 的 manifest/English 与实际部署保持一致。新增域不改变 descriptorVersion、i18nApiVersion 或 C ABI。通用域显示查询与 QObject 绑定使用 `LocalizedText.hpp`，精确显示绑定合同及托盘显示映射重载见 `Docs/UI-API.md`。
+S3 验收时宿主 catalogVersion 为 3，包含 host 84、adapter 22、patchbay 110 个 key，总计 216 个。S4 已扩展至 version 4 / 528 个 key；S5 实施中的 version 5 新增五个共享 ClientNameWidget key，总计 533 个，部署及嵌入资源仍待 S5 Release 验证。新增域不改变 descriptorVersion、i18nApiVersion 或 C ABI。通用域显示查询与 QObject 绑定使用 `LocalizedText.hpp`，精确显示绑定合同及托盘显示映射重载见 `Docs/UI-API.md`。
 
 接线盘节点扫描和实际实例加载都使用 `registerLibrary(path, Extension::node, index)`。规范化 DLL 路径与 index 共享弱缓存的租约，扫描树和存活实例各保持强引用；注册在 createNode/init 前完成。工程直接加载扫描目录外 DLL 时同样读取已验证的 displayNameKey。先清除实例 UI、destroyWindow/shutdown/destroyNode，再释放主题与语言租约，最后 FreeLibrary。旧模块缺少可选导出时继续使用原始 metadata/UI；未知分类、第三方插件名称与用户内容不由宿主猜译。
 

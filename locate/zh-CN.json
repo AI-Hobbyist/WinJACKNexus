@@ -1,6 +1,6 @@
 {
   "formatVersion": 1,
-  "catalogVersion": 4,
+  "catalogVersion": 5,
   "moduleId": "winjacknexus-host",
   "language": "zh-CN",
   "domains": {
@@ -546,7 +546,12 @@
     },
     "ui": {
       "chart.hoverTime": "时间 %1",
-      "statistics.extrema": "最小：%1    最大：%2"
+      "statistics.extrema": "最小：%1    最大：%2",
+      "clientName.label": "客户端名称",
+      "clientName.apply": "应用",
+      "clientName.empty": "名称不能为空",
+      "clientName.applied": "已应用",
+      "clientName.rejected": "无法应用名称"
     }
   }
 }

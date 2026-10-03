@@ -1,6 +1,6 @@
 {
   "formatVersion": 1,
-  "catalogVersion": 4,
+  "catalogVersion": 5,
   "moduleId": "winjacknexus-host",
   "language": "ja-JP",
   "domains": {
@@ -546,7 +546,12 @@
     },
     "ui": {
       "chart.hoverTime": "時刻 %1",
-      "statistics.extrema": "最小：%1    最大：%2"
+      "statistics.extrema": "最小：%1    最大：%2",
+      "clientName.label": "クライアント名",
+      "clientName.apply": "適用",
+      "clientName.empty": "名前を空にすることはできません",
+      "clientName.applied": "適用しました",
+      "clientName.rejected": "名前を適用できません"
     }
   }
 }

@@ -199,3 +199,8 @@ the library. `patchbay_i18n_tests` exercises the actual nonaudio ExampleNode
 loader, late creation, language changes without instance recreation, and
 multiple lease consumers. This does not promise translations for old or
 untranslated community modules, and adds no required Node v2 export.
+# S5 built-in Native Fx language integration (implementation pending verification)
+
+Built-in Native Fx node descriptors use `nativefx.<Meta.id>` and the module-local `locate/` directory. Their node and mixer placements expose the same optional i18n v1 domain; retain independent host leases until their instances and windows have been destroyed. Releasing one placement must keep live windows in the other placement localized. SDK names, JACK client and port identities and settings JSON remain untranslated.
+
+Native Fx standalone titles refresh their translated effect name together with the current user client name. ExampleNativeFx demonstrates the same behavior with its existing `example.nativefx/name` key; no host or a detached host uses local English. `Develop/NativeFx/NativeFxI18nTests.cpp` exercises real DLLs and Windows node windows without calling INode::init or opening JACK clients. These additions have not yet passed S5 Release or real-window verification.

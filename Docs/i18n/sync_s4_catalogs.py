@@ -46,12 +46,16 @@ def main():
         catalog = json.loads(path.read_text(encoding='utf-8'))
         catalog['catalogVersion'] = manifest['catalogVersion']
         for domain in domains:
+            later = {k: v for k, v in catalog['domains'].get(domain, {}).items()
+                     if domain == 'ui' and k.startswith('clientName.')}
             catalog['domains'][domain] = {r['key']: r[language] for r in records if r['domain'] == domain}
+            catalog['domains'][domain].update(later)
         path.write_text(json.dumps(catalog, ensure_ascii=False, indent=2)+'\n', encoding='utf-8')
     path = ROOT / 'i18n翻译核对.md'
     results, exclusions = path.read_text(encoding='utf-8-sig').split('## 表二：已忽略翻译的部分', 1)
     results = '\n'.join(line for line in results.splitlines()
-                        if not any(line.startswith('| '+d+' | ') for d in domains)) + '\n'
+                        if line.startswith('| ui | clientName.')
+                        or not any(line.startswith('| '+d+' | ') for d in domains)) + '\n'
     def cell(value):
         return value.replace('|', '&#124;').replace('\n', '<br>')
     rows = ['| '+' | '.join([r['domain'], r['key'], cell(r['source']+'；'+r['location'])]

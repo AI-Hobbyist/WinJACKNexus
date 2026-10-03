@@ -411,7 +411,7 @@ void DeEsserWidget::paintEvent(QPaintEvent*)
     logo.cubicTo(38, 41, 54, 43, 54, 50); logo.cubicTo(54, 57, 44, 59, 39, 52); logo.lineTo(34, 52);
     p.drawPath(logo); p.drawLine(QPointF(28, 42), QPointF(34, 42)); p.drawLine(QPointF(62, 42), QPointF(68, 42));
     textAt(p, {95, 13, 240, 37}, NativeFx::I18n::text("module.name", "De-Esser"), 26, text, Qt::AlignLeft, true);
-    textAt(p, {95, 48, 265, 22}, NativeFx::I18n::text("description.deesser", "Detect and reduce sibilance (S, SH)"), 14, muted, Qt::AlignLeft);
+    textAt(p, {95, 48, 220, 22}, NativeFx::I18n::text("description.deesser", "Detect and reduce sibilance (S, SH)"), 14, muted, Qt::AlignLeft);
     rounded(p, {326, 15, 58, 58}, 10, QColor(25, 42, 62));
     Controls::drawToggle(p, {337, 32, 37, 20}, shown.enabled,
         Controls::themeTokenColor("native-fx-deesser", "control-toggle-indicator-on", QColor(0, 137, 220)),

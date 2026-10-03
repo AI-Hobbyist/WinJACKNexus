@@ -61,7 +61,8 @@ public:
                          [this](double value) { write_(channel_, static_cast<float>(value)); });
         layout->addWidget(group);
         setChannel(-1);
-        ExampleI18n::bind(this,[group,selector,channelLabel,gainLabel] {
+        ExampleI18n::bind(this,[this,group,selector,channelLabel,gainLabel] {
+            setWindowTitle(ExampleI18n::text("example.nativefx","name","Example Gain"));
             group->setTitle(ExampleI18n::text("example.nativefx","name","Example Gain"));
             gainLabel->setText(ExampleI18n::text("example.nativefx","gain","Gain"));
             if (channelLabel) channelLabel->setText(ExampleI18n::text("example.nativefx","channel","Channel"));
@@ -116,8 +117,10 @@ public:
                         if (channel < 0) for (auto& value : gains_) value.store(gain);
                         else gains_[channel].store(gain);
                     });
-                window_->setWindowTitle(QStringLiteral("Example Gain — %1")
-                                            .arg(QString::fromStdString(clientName_)));
+                ExampleI18n::bind(window_,[this] {
+                    window_->setWindowTitle(ExampleI18n::text("example.nativefx","name","Example Gain")
+                                            + QStringLiteral(" — ") + QString::fromStdString(clientName_));
+                });
             }
             window_->show();
             window_->raise();
@@ -159,6 +162,7 @@ public:
             if (!client_.isOpen()) {
                 clientName_ = next;
                 clientId_ = next;
+                if (window_) window_->setWindowTitle(ExampleI18n::text("example.nativefx","name","Example Gain") + QStringLiteral(" — ") + requested);
                 return true;
             }
             std::array<PortConnections, 16> connections;
@@ -180,7 +184,7 @@ public:
                 if (openClient()) reconnect(connections);
                 return false;
             }
-            if (window_) window_->setWindowTitle(QStringLiteral("Example Gain — %1").arg(requested));
+            if (window_) window_->setWindowTitle(ExampleI18n::text("example.nativefx","name","Example Gain") + QStringLiteral(" — ") + requested);
             return reconnect(connections);
         } catch (...) { return false; }
     }

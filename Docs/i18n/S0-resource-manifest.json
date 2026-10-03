@@ -25,23 +25,23 @@
   },
   {
     "file": "locate/en-US.json",
-    "sha256": "71919469f1e3dbd85aeedc4766881c3d456ebfa54f608ff6c51ee7620c992e31"
+    "sha256": "33c8724e4400b60dd9b23e71833ace8649264fa9fd3291652cbf121d1ae3ed4b"
   },
   {
     "file": "locate/ja-JP.json",
-    "sha256": "6d851afc7c150a03451f896eae23031eac10ca72a5a32ac5c8daeeaf603d2f92"
+    "sha256": "9278cfec54d4e3894da0a2fe22a0b8a8c588f1f18c2f49db3fbdbdf97fbbdd4b"
   },
   {
     "file": "locate/ko-KR.json",
-    "sha256": "60b08a6450be0fca61e5d6ca6b69652ee719cd8269f1fffea588e78991ddb05f"
+    "sha256": "726ec065e02604d4ddd9e29af6168f132da8c0c0cf10e1c7727012cb5003aaa8"
   },
   {
     "file": "locate/manifest.json",
-    "sha256": "579d68d57e06f804a753ab1ea4a532a4e686a709207e2cdab5dc1dcd16fa1ec0"
+    "sha256": "66123e7df049bc1050003423d6db07faf1936e2f5df610815dd57763c4949231"
   },
   {
     "file": "locate/zh-CN.json",
-    "sha256": "f5fde30aa1cc22a5714c87bf5d7d8e7af0dd61ed8dc7234497d07eab7be6deec"
+    "sha256": "c9541bcfd9b2318c9fa12c1e9ef616410997d53fcdf75588a0c2871cec01e077"
   },
   {
     "file": "Develop/Node/locate/en-US.json",
@@ -82,5 +82,165 @@
   {
     "file": "Develop/NativeFx/locate/zh-CN.json",
     "sha256": "49b92259acb26c1de19a26aeca6c985d2d46e473e7d8233e688275fdd544388b"
+  },
+  {
+    "file": "src/native_fx/effects/gate/locate/en-US.json",
+    "sha256": "cc9d202b3a6dcbfdbd437821ec2c5d9722289cc4f1c04ba04346c33f10d8e72f"
+  },
+  {
+    "file": "src/native_fx/effects/gate/locate/ja-JP.json",
+    "sha256": "2186077fec30bada43daec1a759aa9405624f2485dbc5c59064f2177acf84f94"
+  },
+  {
+    "file": "src/native_fx/effects/gate/locate/ko-KR.json",
+    "sha256": "15274a801e8a3b48607204a9b2b519d9a5eee6ab578fbed033a34956e573b058"
+  },
+  {
+    "file": "src/native_fx/effects/gate/locate/manifest.json",
+    "sha256": "2855e395c4b3fd41b8dfce0e5cf36efbb9ac32cf41c9d81c863020975550f579"
+  },
+  {
+    "file": "src/native_fx/effects/gate/locate/zh-CN.json",
+    "sha256": "fb0fec211f3cbe9375d59de008bd6d46385f94edcfd7dd1a195f5b75c6f3e0d0"
+  },
+  {
+    "file": "src/native_fx/effects/graphic_eq/locate/en-US.json",
+    "sha256": "3a7eab03874ff69d8bc23d35a80b8c448a4b37740f0faf5dd0d4ee3114300310"
+  },
+  {
+    "file": "src/native_fx/effects/graphic_eq/locate/ja-JP.json",
+    "sha256": "2002280a4218c5a5f88c1f33002846a270e55bf9146ade60a8065e1cb01b433f"
+  },
+  {
+    "file": "src/native_fx/effects/graphic_eq/locate/ko-KR.json",
+    "sha256": "2a6191d8306ef3905e2da2840f6ff80919fcb9f9fbdd1e3398a28e3157e2a4a3"
+  },
+  {
+    "file": "src/native_fx/effects/graphic_eq/locate/manifest.json",
+    "sha256": "a46858c7a2d1af9c4057cb5cfada9699bc5ca87f44dbb80361ed72619ff09b21"
+  },
+  {
+    "file": "src/native_fx/effects/graphic_eq/locate/zh-CN.json",
+    "sha256": "1a6fcb588df71edcfb996ca8f9be5e16cd2c16b8a9f721d809d6615e866367f5"
+  },
+  {
+    "file": "src/native_fx/effects/deesser/locate/en-US.json",
+    "sha256": "661c46e7318913a35586b45331b8f7233a6916cf022c1301ea52c96d4b1fd957"
+  },
+  {
+    "file": "src/native_fx/effects/deesser/locate/ja-JP.json",
+    "sha256": "b6679d1b8245493e627820a08c029e32eb7445a990848f6230c4a725052faaa6"
+  },
+  {
+    "file": "src/native_fx/effects/deesser/locate/ko-KR.json",
+    "sha256": "5cbcc41f70d8033661422a737cbb7bf0974737c64dc6a2acb126e43c3a27fe02"
+  },
+  {
+    "file": "src/native_fx/effects/deesser/locate/manifest.json",
+    "sha256": "d51917ccc0d11a45be0d3260cac2270142b01ea3e496e399f2ca9b8fcf4fe51f"
+  },
+  {
+    "file": "src/native_fx/effects/deesser/locate/zh-CN.json",
+    "sha256": "af0ec8a62a5aa97bd08954b8987f6945e3a3f4390998f84ac34c247f6684d3e9"
+  },
+  {
+    "file": "src/native_fx/effects/compressor/locate/en-US.json",
+    "sha256": "6f28aede30d7f00f6cc7af64cfaf69b6758f54dcba7ea83608b3e42db310bc28"
+  },
+  {
+    "file": "src/native_fx/effects/compressor/locate/ja-JP.json",
+    "sha256": "1a604c56af472e47ef6fb8dd4ebe737eef6069f20724ec3be20dd2c3bdb92827"
+  },
+  {
+    "file": "src/native_fx/effects/compressor/locate/ko-KR.json",
+    "sha256": "b8a9fe57f4df3d20f679830212435918d9d582220a1162f696ca99624cc1a33b"
+  },
+  {
+    "file": "src/native_fx/effects/compressor/locate/manifest.json",
+    "sha256": "9f5d4b195ed4011de62b26ca900e078818e339e1b089deabdc621b5d131c0474"
+  },
+  {
+    "file": "src/native_fx/effects/compressor/locate/zh-CN.json",
+    "sha256": "21f25a937e108d09e4c2b492266ce17d9a0b29469e55c3e11945c25411eb181b"
+  },
+  {
+    "file": "src/native_fx/effects/limiter/locate/en-US.json",
+    "sha256": "62c70530492af1248b97666747802b010d27920d22b1bb4a14b70ce4d2308d26"
+  },
+  {
+    "file": "src/native_fx/effects/limiter/locate/ja-JP.json",
+    "sha256": "88b0a460c7166e7d831c0a4a3cf230b697a9481c5bdd3ab36c0c32013e662833"
+  },
+  {
+    "file": "src/native_fx/effects/limiter/locate/ko-KR.json",
+    "sha256": "0df30beec368689adfef313eecbdba52c3ebd15097247d9c36513ad20385087a"
+  },
+  {
+    "file": "src/native_fx/effects/limiter/locate/manifest.json",
+    "sha256": "8ba36962e5643b3e90a9675e80b58fa2f0058e2e6a66ca90be9ed32bc047498f"
+  },
+  {
+    "file": "src/native_fx/effects/limiter/locate/zh-CN.json",
+    "sha256": "5545a9c382d4df9a9f135ef80567357777a1b63ac9f18dae3b7e566cfb5ff3c4"
+  },
+  {
+    "file": "src/native_fx/effects/delay/locate/en-US.json",
+    "sha256": "cb4de3a967fe410f4b5dfde838ae4090d2552fec56e51455b914fad6be1bd1a8"
+  },
+  {
+    "file": "src/native_fx/effects/delay/locate/ja-JP.json",
+    "sha256": "dbf526cadf52487854e8e0a412e207b89ca8ae0223037f703e23ac6dfc2521ac"
+  },
+  {
+    "file": "src/native_fx/effects/delay/locate/ko-KR.json",
+    "sha256": "3046a3a2eb823dd6044377d0c07d9139e9a461fb9afad036d16835639711ac72"
+  },
+  {
+    "file": "src/native_fx/effects/delay/locate/manifest.json",
+    "sha256": "246355d43557c4b84d28b313aa1de4f6f2ac3b0b479fe726c24fe8e886f2b500"
+  },
+  {
+    "file": "src/native_fx/effects/delay/locate/zh-CN.json",
+    "sha256": "67f6fc57053d0429deb00de262f2a3c51ad7e353bb58d3f3db265bdef8d51bfe"
+  },
+  {
+    "file": "src/native_fx/effects/parametric_eq/locate/en-US.json",
+    "sha256": "cd8922ba7def09ea387ee6b0f109857bf13e13ab43587752eb506639a4f5a6ec"
+  },
+  {
+    "file": "src/native_fx/effects/parametric_eq/locate/ja-JP.json",
+    "sha256": "d20dbdda031603e079ab9e4655b0d40f6651c88901c413c5fc180c7ff24d1ae0"
+  },
+  {
+    "file": "src/native_fx/effects/parametric_eq/locate/ko-KR.json",
+    "sha256": "d8cfb88347842b1c0e360b1efce72260e213aa2f52d9c2d9aecc743cddf67860"
+  },
+  {
+    "file": "src/native_fx/effects/parametric_eq/locate/manifest.json",
+    "sha256": "3fe29f53c24a6778f93d6fa6376a57cc85e88fd6c74a1c086b6694d948b248ea"
+  },
+  {
+    "file": "src/native_fx/effects/parametric_eq/locate/zh-CN.json",
+    "sha256": "286fea119efbf2bd08cc409e1b006a265fd020e5c94b64b4bfd63bc0ac97b518"
+  },
+  {
+    "file": "src/native_fx/effects/reverb/locate/en-US.json",
+    "sha256": "d821370d7acb1acc45e9c2d8fa41a9e1b7214e7159d3834ad68c923f7b365688"
+  },
+  {
+    "file": "src/native_fx/effects/reverb/locate/ja-JP.json",
+    "sha256": "68de649def0c4de67f8bc6396c0719c07a79d81b58a86603f01e55125dc42c61"
+  },
+  {
+    "file": "src/native_fx/effects/reverb/locate/ko-KR.json",
+    "sha256": "c9b017c17b9a160dd6642a9288f0f021dfa843c28fc48ceec10390db0425da06"
+  },
+  {
+    "file": "src/native_fx/effects/reverb/locate/manifest.json",
+    "sha256": "4d26f43deea549fd8d401d8140f8905157a4aeac64a366318b2157b5fa2ef361"
+  },
+  {
+    "file": "src/native_fx/effects/reverb/locate/zh-CN.json",
+    "sha256": "16320a68da262f24bfccc512edc00c36019bece23df3370b1c66e17e01a26198"
   }
 ]

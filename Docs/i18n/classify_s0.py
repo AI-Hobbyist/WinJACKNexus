@@ -108,8 +108,45 @@ def s4_call(r):
             return 'translate', row['domain'], row['key']
     return None
 
+S5_RECORDS = json.loads((OUT/'S5-strings.json').read_text(encoding='utf-8'))
+S5_IDS = ('gate','graphic-eq','deesser','compressor','limiter','delay','parametric-eq','reverb')
+
+def s5_call(r):
+    file, text, ctx = r['file'], r['literal'], r['context']
+    records, domain = [], ''
+    if file.startswith('src/native_fx/effects/') and file.endswith(('Ui.cpp','Logic.inc')):
+        effect = file.split('/')[3]
+        records = [row for row in S5_RECORDS if row['effect']==effect]
+        domain = 'nativefx.'+effect.replace('_','-')
+    elif file=='src/native_fx/src/NativeFxApi.cpp':
+        lines = (ROOT/file).read_text(encoding='utf-8').splitlines()
+        branch = next((re.match(r'#(?:if|elif) WJN_FX_MODULE_INDEX == (\d+)\s*$',line)
+                       for line in reversed(lines[:int(r['line'])])
+                       if re.match(r'#(?:if|elif) WJN_FX_MODULE_INDEX == (\d+)\s*$',line)),None)
+        if branch and ('keys[]' in ctx or 'english[]' in ctx):
+            domain='nativefx.'+S5_IDS[int(branch[1])]
+            records=[row for row in S5_RECORDS if row['effect'].replace('_','-')==S5_IDS[int(branch[1])]]
+    elif file=='src/ui/src/Controls.cpp':
+        records=list(csv.DictReader((OUT/'S5-shared-strings.tsv').open(encoding='utf-8'),delimiter='\t'))
+        domain='ui'
+    for row in records:
+        if text==row['key']:
+            return 'exclude',domain,row['key']
+        spellings={json.dumps(row['en-US'],ensure_ascii=ascii)[1:-1] for ascii in (True,False)}
+        if text in spellings and ('"'+row['key']+'"' in ctx or 'english[]' in ctx):
+            return 'translate',domain,row['key']
+    return None
+
 def classify(r, decisions):
     text, ctx, file = r['literal'], r['context'], r['file']
+    s5_runtime=s5_call(r)
+    if s5_runtime:
+        return s5_runtime[0],s5_runtime[2] if s5_runtime[0]=='translate' else '',('S5 English 显示基线；实际 key、四语言草稿及待审校状态见核对表' if s5_runtime[0]=='translate' else 'S5 稳定语言 key；参数、预设索引及模块身份保持原样')
+    if file in ('src/native_fx/src/I18n.cpp','src/native_fx/include/WinJACKNexus/NativeFx/I18n.hpp'):
+        return 'exclude','','每 DLL 可选 i18n ABI/descriptor/locate/属性/域身份；实际 English 显示基线在模块调用点列出'
+    if file.startswith('src/native_fx/effects/') and (file.endswith('/Meta.hpp')
+            or (file.endswith('/Logic.inc') and re.search(r'return\s*\{',ctx) and '"Native Fx"' in ctx)):
+        return 'exclude','','Native Fx 原始 Meta/NodeInfo 的 SDK 身份、分类、版本与说明；可见名称及说明通过同模块 module.name/module.description 独立翻译'
     s4_runtime = s4_call(r)
     if s4_runtime:
         return s4_runtime[0], s4_runtime[2] if s4_runtime[0]=='translate' else '', ('S4 English 显示基线；实际 key、四语言草稿及待审校状态见核对表' if s4_runtime[0]=='translate' else 'S4 稳定语言 key；显示值另列，禁止用于改写工程或端口身份')
@@ -250,6 +287,8 @@ def classify(r, decisions):
 
 def module_domain(r):
     f = r['file']
+    if f.startswith('src/native_fx/effects/'):
+        return 'nativefx.'+f.split('/')[3].replace('_','-')
     if f == 'src/native_fx/src/NativeFxApi.cpp' and 'static const char* names[]' in r.get('context',''):
         lines = (ROOT/f).read_text(encoding='utf-8-sig').splitlines()
         for line in reversed(lines[:int(r['line'])-1]):
@@ -279,7 +318,8 @@ def main():
         runtime = host_call(r)
         s3_runtime = s3_call(r)
         s4_runtime = s4_call(r)
-        domain = s4_runtime[1] if s4_runtime else 'host' if runtime else s3_runtime[1] if s3_runtime else module_domain(r)
+        s5_runtime = s5_call(r)
+        domain = s5_runtime[1] if s5_runtime else s4_runtime[1] if s4_runtime else 'host' if runtime else s3_runtime[1] if s3_runtime else module_domain(r)
         # The source component separates distinct meanings until explicit sharing is reviewed.
         component = re.sub(r'[^a-z0-9]+','.',Path(r['file']).stem.lower()).strip('.')
         record = dict(r,disposition=kind,proposed_key=key,notes=reason,translation_domain=domain)
@@ -291,13 +331,13 @@ def main():
         if kind == 'translate':
             lines = (ROOT/r['file']).read_text(encoding='utf-8-sig').splitlines()
             pos = int(r['line'])-1
-            keys.append({'source_id':r['id'],'domain':domain,'key':key if runtime or s3_runtime or s4_runtime else component+'.'+key,
+            keys.append({'source_id':r['id'],'domain':domain,'key':key if runtime or s3_runtime or s4_runtime or s5_runtime else component+'.'+key,
                 'source':r['literal'],'file':r['file'],'line':r['line'],'control_context':r['context'],
                 'usage':source_use(r),
                 'source_window':'\n'.join(f'{i+1}: {lines[i]}' for i in range(max(0,pos-2),min(len(lines),pos+3))),
                 'placeholders':','.join(re.findall(r'%(?:L?\d+|n)|\{[A-Za-z_]\w*\}',r['literal'])),
                 'layout':'自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip' if ('/effects/' in r['file'] or 'drawText' in r['context'] or 'MixerOverview' in r['file']) else '原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName',
-                'review':('S4' if s4_runtime else 'S2' if runtime else 'S3')+' 实际运行时 key；四语言草稿已提供，待母语/领域审校' if runtime or s3_runtime or s4_runtime else 'S0 key 提案；四语言译文和母语审校尚未实施','notes':reason})
+                'review':('S5' if s5_runtime else 'S4' if s4_runtime else 'S2' if runtime else 'S3')+' 实际运行时 key；四语言草稿已提供，待母语/领域审校' if runtime or s3_runtime or s4_runtime or s5_runtime else 'S0 key 提案；四语言译文和母语审校尚未实施','notes':reason})
         elif kind == 'exclude':
             excluded.append({'source_id':r['id'],'domain':domain,'source':r['literal'],
                 'file':r['file'],'line':r['line'],'context':r['context'],'reason':reason,'preservation':'原样；周边项目说明另行翻译'})
@@ -323,7 +363,10 @@ def main():
                  'themes/template/winjacknexus-default.wjnskin','themes/template/meta.json'):
         data = (ROOT/name).read_bytes()
         resource_files.append({'file':name,'sha256':hashlib.sha256(data).hexdigest()})
-    for directory in ('locate','Develop/Node/locate','Develop/NativeFx/locate'):
+    package_directories = ['locate','Develop/Node/locate','Develop/NativeFx/locate']
+    package_directories.extend(f'src/native_fx/effects/{effect}/locate'
+        for effect in ('gate','graphic_eq','deesser','compressor','limiter','delay','parametric_eq','reverb'))
+    for directory in package_directories:
         for path in sorted((ROOT/directory).glob('*.json')):
             name = path.relative_to(ROOT).as_posix()
             data = path.read_bytes()

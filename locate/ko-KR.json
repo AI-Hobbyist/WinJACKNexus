@@ -1,6 +1,6 @@
 {
   "formatVersion": 1,
-  "catalogVersion": 4,
+  "catalogVersion": 5,
   "moduleId": "winjacknexus-host",
   "language": "ko-KR",
   "domains": {
@@ -546,7 +546,12 @@
     },
     "ui": {
       "chart.hoverTime": "시간 %1",
-      "statistics.extrema": "최솟값: %1    최댓값: %2"
+      "statistics.extrema": "최솟값: %1    최댓값: %2",
+      "clientName.label": "클라이언트 이름",
+      "clientName.apply": "적용",
+      "clientName.empty": "이름을 비워 둘 수 없습니다",
+      "clientName.applied": "적용됨",
+      "clientName.rejected": "이름을 적용할 수 없습니다"
     }
   }
 }

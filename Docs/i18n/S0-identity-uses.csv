@@ -150,31 +150,31 @@ s0.0535a7ad7f17,patchbay,src/patchbay/plugins/src/InternalLoader.cpp,31,internal
 s0.c67c2c03bf50,patchbay,src/patchbay/plugins/src/InternalLoader.cpp,48,internal:bypass,"if (descriptor_.identifier == ""internal:bypass"") {",exclude,保持稳定身份；显示文字另行翻译
 s0.fcb4cecfc2cd,patchbay,src/patchbay/plugins/src/InternalLoader.cpp,52,internal:meter,"if (descriptor_.identifier == ""internal:meter"") {",exclude,保持稳定身份；显示文字另行翻译
 s0.fcb4cecfc2cd,patchbay,src/patchbay/plugins/src/InternalLoader.cpp,69,internal:meter,"if (descriptor_.identifier == ""internal:meter"")",exclude,保持稳定身份；显示文字另行翻译
-s0.396875ecea3b,ui,src/ui/src/Controls.cpp,155,transparent,"if (value == QStringLiteral(""transparent"")) return QColor(0, 0, 0, 0);",exclude,保持稳定身份；显示文字另行翻译
-s0.3b36f8fa63aa,ui,src/ui/src/Controls.cpp,156,rgb(,"if (value.startsWith(QStringLiteral(""rgb("")) || value.startsWith(QStringLiteral(""rgba(""))) {",exclude,保持稳定身份；显示文字另行翻译
-s0.2da6c07d5e3c,ui,src/ui/src/Controls.cpp,156,rgba(,"if (value.startsWith(QStringLiteral(""rgb("")) || value.startsWith(QStringLiteral(""rgba(""))) {",exclude,保持稳定身份；显示文字另行翻译
-s0.2da6c07d5e3c,ui,src/ui/src/Controls.cpp,157,rgba(,"const bool alpha = value.startsWith(QStringLiteral(""rgba(""));",exclude,保持稳定身份；显示文字另行翻译
-s0.2d8f5f9842a7,ui,src/ui/src/Controls.cpp,642,button,"if (key == QStringLiteral(""button"")) return new ActionButton({}, parent);",exclude,保持稳定身份；显示文字另行翻译
-s0.33155c6ab05e,ui,src/ui/src/Controls.cpp,643,slider,"if (key == QStringLiteral(""slider"")) return new RangeSlider(Qt::Horizontal, parent);",exclude,保持稳定身份；显示文字另行翻译
-s0.d1f6fa9daa9c,ui,src/ui/src/Controls.cpp,644,dropdown,"if (key == QStringLiteral(""dropdown"")) return new ChoiceField(parent);",exclude,保持稳定身份；显示文字另行翻译
-s0.9f87334e6c21,ui,src/ui/src/Controls.cpp,645,toggle,"if (key == QStringLiteral(""toggle"")) return new ToggleButton(parent);",exclude,保持稳定身份；显示文字另行翻译
-s0.3900cda495d1,ui,src/ui/src/Controls.cpp,646,label,"if (key == QStringLiteral(""label"")) return new TextLabel(parent);",exclude,保持稳定身份；显示文字另行翻译
-s0.526c71df1a88,ui,src/ui/src/Controls.cpp,647,card,"if (key == QStringLiteral(""card"")) return new QFrame(parent);",exclude,保持稳定身份；显示文字另行翻译
-s0.2477af03f406,fxhost,src/ui/src/FxSettingsWindow.cpp,352,accent-primary,"const bool accentRole = role == QStringLiteral(""accent-primary"")",exclude,保持稳定身份；显示文字另行翻译
-s0.df630a981a86,fxhost,src/ui/src/FxSettingsWindow.cpp,353,control-button-border-hover,"|| role == QStringLiteral(""control-button-border-hover"")",exclude,保持稳定身份；显示文字另行翻译
-s0.e212cdf85e4a,fxhost,src/ui/src/FxSettingsWindow.cpp,354,control-list-border-selected,"|| role == QStringLiteral(""control-list-border-selected"")",exclude,保持稳定身份；显示文字另行翻译
-s0.9d7923699143,fxhost,src/ui/src/FxSettingsWindow.cpp,355,control-chain-endpoint-border,"|| role == QStringLiteral(""control-chain-endpoint-border"");",exclude,保持稳定身份；显示文字另行翻译
-s0.4f12e6dae73d,fxhost,src/ui/src/FxSettingsWindow.cpp,422,All,"if (name == QStringLiteral(""All""))",exclude,保持稳定身份；显示文字另行翻译
-s0.4f12e6dae73d,fxhost,src/ui/src/FxSettingsWindow.cpp,426,All,"choice->setChecked(name == QStringLiteral(""All""));",exclude,保持稳定身份；显示文字另行翻译
-s0.4f12e6dae73d,fxhost,src/ui/src/FxSettingsWindow.cpp,428,All,"const int channelIndex = name == QStringLiteral(""All"") ? -1 : nativeChannels.indexOf(name);",exclude,保持稳定身份；显示文字另行翻译
-s0.253242377b65,fxhost,src/ui/src/FxSettingsWindow.cpp,606,M,"return channel == QStringLiteral(""M"") ? 0 : nativeChannels.indexOf(channel);",exclude,保持稳定身份；显示文字另行翻译
-s0.4f12e6dae73d,fxhost,src/ui/src/FxSettingsWindow.cpp,609,All,"if (selected != QStringLiteral(""All"")) {",exclude,保持稳定身份；显示文字另行翻译
-s0.c8366b731f78,fxhost,src/ui/src/FxSettingsWindow.cpp,712,parametric-eq,"if (QString::fromUtf8(module->info.id) == QStringLiteral(""parametric-eq"")) {",exclude,保持稳定身份；显示文字另行翻译
-s0.4f12e6dae73d,fxhost,src/ui/src/FxSettingsWindow.cpp,794,All,"if (name == QStringLiteral(""All""))",exclude,保持稳定身份；显示文字另行翻译
-s0.4f12e6dae73d,fxhost,src/ui/src/FxSettingsWindow.cpp,798,All,"choice->setChecked(name == QStringLiteral(""All""));",exclude,保持稳定身份；显示文字另行翻译
-s0.4f12e6dae73d,fxhost,src/ui/src/FxSettingsWindow.cpp,800,All,"const int channelIndex = name == QStringLiteral(""All"") ? -1 : nativeChannels.indexOf(name);",exclude,保持稳定身份；显示文字另行翻译
-s0.44cd962f129e,fxhost,src/ui/src/FxSettingsWindow.cpp,1143,WinJACKNexus.FxChainPreset,"|| object.value(""format"").toString() != QStringLiteral(""WinJACKNexus.FxChainPreset"")",exclude,保持稳定身份；显示文字另行翻译
-s0.10edc8e7805b,fxhost,src/ui/src/FxSettingsWindow.cpp,1385,selSourceKind,"&& static_cast<QDynamicPropertyChangeEvent*>(event)->propertyName() == ""selSourceKind"")",exclude,保持稳定身份；显示文字另行翻译
+s0.396875ecea3b,ui,src/ui/src/Controls.cpp,202,transparent,"if (value == QStringLiteral(""transparent"")) return QColor(0, 0, 0, 0);",exclude,保持稳定身份；显示文字另行翻译
+s0.3b36f8fa63aa,ui,src/ui/src/Controls.cpp,203,rgb(,"if (value.startsWith(QStringLiteral(""rgb("")) || value.startsWith(QStringLiteral(""rgba(""))) {",exclude,保持稳定身份；显示文字另行翻译
+s0.2da6c07d5e3c,ui,src/ui/src/Controls.cpp,203,rgba(,"if (value.startsWith(QStringLiteral(""rgb("")) || value.startsWith(QStringLiteral(""rgba(""))) {",exclude,保持稳定身份；显示文字另行翻译
+s0.2da6c07d5e3c,ui,src/ui/src/Controls.cpp,204,rgba(,"const bool alpha = value.startsWith(QStringLiteral(""rgba(""));",exclude,保持稳定身份；显示文字另行翻译
+s0.2d8f5f9842a7,ui,src/ui/src/Controls.cpp,715,button,"if (key == QStringLiteral(""button"")) return new ActionButton({}, parent);",exclude,保持稳定身份；显示文字另行翻译
+s0.33155c6ab05e,ui,src/ui/src/Controls.cpp,716,slider,"if (key == QStringLiteral(""slider"")) return new RangeSlider(Qt::Horizontal, parent);",exclude,保持稳定身份；显示文字另行翻译
+s0.d1f6fa9daa9c,ui,src/ui/src/Controls.cpp,717,dropdown,"if (key == QStringLiteral(""dropdown"")) return new ChoiceField(parent);",exclude,保持稳定身份；显示文字另行翻译
+s0.9f87334e6c21,ui,src/ui/src/Controls.cpp,718,toggle,"if (key == QStringLiteral(""toggle"")) return new ToggleButton(parent);",exclude,保持稳定身份；显示文字另行翻译
+s0.3900cda495d1,ui,src/ui/src/Controls.cpp,719,label,"if (key == QStringLiteral(""label"")) return new TextLabel(parent);",exclude,保持稳定身份；显示文字另行翻译
+s0.526c71df1a88,ui,src/ui/src/Controls.cpp,720,card,"if (key == QStringLiteral(""card"")) return new QFrame(parent);",exclude,保持稳定身份；显示文字另行翻译
+s0.2477af03f406,fxhost,src/ui/src/FxSettingsWindow.cpp,362,accent-primary,"const bool accentRole = role == QStringLiteral(""accent-primary"")",exclude,保持稳定身份；显示文字另行翻译
+s0.df630a981a86,fxhost,src/ui/src/FxSettingsWindow.cpp,363,control-button-border-hover,"|| role == QStringLiteral(""control-button-border-hover"")",exclude,保持稳定身份；显示文字另行翻译
+s0.e212cdf85e4a,fxhost,src/ui/src/FxSettingsWindow.cpp,364,control-list-border-selected,"|| role == QStringLiteral(""control-list-border-selected"")",exclude,保持稳定身份；显示文字另行翻译
+s0.9d7923699143,fxhost,src/ui/src/FxSettingsWindow.cpp,365,control-chain-endpoint-border,"|| role == QStringLiteral(""control-chain-endpoint-border"");",exclude,保持稳定身份；显示文字另行翻译
+s0.4f12e6dae73d,fxhost,src/ui/src/FxSettingsWindow.cpp,432,All,"if (name == QStringLiteral(""All""))",exclude,保持稳定身份；显示文字另行翻译
+s0.4f12e6dae73d,fxhost,src/ui/src/FxSettingsWindow.cpp,436,All,"choice->setChecked(name == QStringLiteral(""All""));",exclude,保持稳定身份；显示文字另行翻译
+s0.4f12e6dae73d,fxhost,src/ui/src/FxSettingsWindow.cpp,438,All,"const int channelIndex = name == QStringLiteral(""All"") ? -1 : nativeChannels.indexOf(name);",exclude,保持稳定身份；显示文字另行翻译
+s0.253242377b65,fxhost,src/ui/src/FxSettingsWindow.cpp,616,M,"return channel == QStringLiteral(""M"") ? 0 : nativeChannels.indexOf(channel);",exclude,保持稳定身份；显示文字另行翻译
+s0.4f12e6dae73d,fxhost,src/ui/src/FxSettingsWindow.cpp,619,All,"if (selected != QStringLiteral(""All"")) {",exclude,保持稳定身份；显示文字另行翻译
+s0.c8366b731f78,fxhost,src/ui/src/FxSettingsWindow.cpp,733,parametric-eq,"if (QString::fromUtf8(module->info.id) == QStringLiteral(""parametric-eq"")) {",exclude,保持稳定身份；显示文字另行翻译
+s0.4f12e6dae73d,fxhost,src/ui/src/FxSettingsWindow.cpp,823,All,"if (name == QStringLiteral(""All""))",exclude,保持稳定身份；显示文字另行翻译
+s0.4f12e6dae73d,fxhost,src/ui/src/FxSettingsWindow.cpp,827,All,"choice->setChecked(name == QStringLiteral(""All""));",exclude,保持稳定身份；显示文字另行翻译
+s0.4f12e6dae73d,fxhost,src/ui/src/FxSettingsWindow.cpp,829,All,"const int channelIndex = name == QStringLiteral(""All"") ? -1 : nativeChannels.indexOf(name);",exclude,保持稳定身份；显示文字另行翻译
+s0.44cd962f129e,fxhost,src/ui/src/FxSettingsWindow.cpp,1181,WinJACKNexus.FxChainPreset,"|| object.value(""format"").toString() != QStringLiteral(""WinJACKNexus.FxChainPreset"")",exclude,保持稳定身份；显示文字另行翻译
+s0.10edc8e7805b,fxhost,src/ui/src/FxSettingsWindow.cpp,1424,selSourceKind,"&& static_cast<QDynamicPropertyChangeEvent*>(event)->propertyName() == ""selSourceKind"")",exclude,保持稳定身份；显示文字另行翻译
 s0.9aaeca35275e,ui,src/ui/src/HostI18n.cpp,62,zh-CN,"if (selection==QStringLiteral(""zh-CN"")) return QStringLiteral(""简体中文"");",exclude,保持稳定身份；显示文字另行翻译
 s0.7c88ad9e10e9,ui,src/ui/src/HostI18n.cpp,63,ja-JP,"if (selection==QStringLiteral(""ja-JP"")) return QStringLiteral(""日本語"");",exclude,保持稳定身份；显示文字另行翻译
 s0.d4ba066a3cfc,ui,src/ui/src/HostI18n.cpp,64,ko-KR,"if (selection==QStringLiteral(""ko-KR"")) return QStringLiteral(""한국어"");",exclude,保持稳定身份；显示文字另行翻译

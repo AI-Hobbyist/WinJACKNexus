@@ -67,7 +67,7 @@ def main():
     check(sum(int(r['literal_occurrences']) for r in coverage)==len(source),'file occurrence totals match the source inventory')
     domains={r['domain'] for r in catalog}
     required={'host','patchbay','mixer','aux','meterbridge','adapter','fxhost','theme','ui','vst','vstscanner','example.node','example.nativefx'}
-    required.update('nativefx.'+name for name in ('gate','graphic_eq','deesser','compressor','limiter','delay','parametric_eq','reverb'))
+    required.update('nativefx.'+name for name in ('gate','graphic-eq','deesser','compressor','limiter','delay','parametric-eq','reverb'))
     check(required<=domains,'all required UI areas, eight effects and both developer examples have display keys')
     identity=read('S0-identity-uses.csv')
     check(all(any(c['id']==r['source_id'] and c['file']==r['file'] and c['line']==r['line'] for c in classified) for r in identity),'identity comparison evidence resolves to current source occurrences')
