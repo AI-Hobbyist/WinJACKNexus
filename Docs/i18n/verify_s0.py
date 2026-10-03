@@ -81,7 +81,7 @@ def main():
         check(all((r['domain'],r['key']) not in set(actual) for r in delta.get('catalog_retired',[])),'retired keys are absent from the active catalog')
         current_evidence=Counter(map(signature,current))
         check(all(not (Counter(map(signature,item['after']))-current_evidence) for item in delta['usage_changed']),'changed literal usages match their current contexts and occurrence counts')
-    report={'stage':'S0','date':'2026-10-03','result':'PASS',
+    report={'stage':'S0','date':'2026-10-04','result':'PASS',
         'source_files':len(files),'source_occurrences':len(source),'source_classifications':dict(counts),
         'display_key_proposals':len(catalog),'descriptor_fields':len(fields),'resource_fields':len(resources),
         'identity_comparison_occurrences':len(identity),'required_domains':sorted(required),

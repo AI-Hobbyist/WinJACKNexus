@@ -144,8 +144,42 @@ def s5_call(r):
             return 'translate',domain,row['key']
     return None
 
+def s6_call(r):
+    calls = {
+        'src/vst/src/Library.cpp': ('vst', 'vstText'),
+        'tools/vst_scanner/src/MainWindow.cpp': ('vstscanner', 'scannerText'),
+        'tools/vst_scanner/src/Scanner.cpp': ('vstscanner', 'scannerText'),
+    }
+    if r['file'] not in calls:
+        return None
+    domain, function = calls[r['file']]
+    pattern = re.escape(function) + r'\(\s*"([^"\n]+)"\s*,\s*"((?:\\.|[^"\\])*)"'
+    for key, english in re.findall(pattern, r['context']):
+        if r['literal'] == key:
+            return 'exclude', domain, key
+        if r['literal'] == english:
+            return 'translate', domain, key
+    return None
+
 def classify(r, decisions):
     text, ctx, file = r['literal'], r['context'], r['file']
+    s6_runtime = s6_call(r)
+    if s6_runtime:
+        return s6_runtime[0], s6_runtime[2] if s6_runtime[0]=='translate' else '', (
+            'S6 实际 English 显示基线；key 与四语言草稿见核对表，人工审校仍待用户意见'
+            if s6_runtime[0]=='translate' else 'S6 稳定语言 key；插件、工程及进程身份保持原样')
+    if file in ('src/vst/src/I18n.cpp','src/vst/src/I18n.hpp'):
+        return 'exclude','','VST 可选 i18n ABI/域/绑定属性/descriptor 协议；可见 English 在业务调用点及完整语言包另列'
+    if file=='tools/vst_scanner/include/WinJACKNexus/VstScanner/Language.hpp':
+        return 'exclude','','扫描器启动语言注册的资源/schema/域/目录身份及仅写诊断日志的初始化 detail；窗口显示和扫描消息另列'
+    if file=='tools/vst_scanner/src/Scanner.cpp' and text in ('Instruments','Effects') and 'categoryDirectory' in ctx:
+        return 'exclude','','已交付扫描目录结构身份，直接参与 info 文件输出路径；窗口分类说明由 vstscanner/category、effect、instrument 独立翻译'
+    if file=='tools/vst_scanner/src/MainWindow.cpp' and text=='%1-bit' and 'plugin.bits' in ctx:
+        return 'exclude','','位数与标准 bit 技术单位的拼接；表头由 vstscanner/bits 翻译，实际 32/64 位及数值格式保持'
+    if file=='src/vst/src/Library.cpp' and (
+            ('kNodeName =' in ctx and text=='VST Plugin')
+            or (text=='Loads one VST plugin through a native VSTProcess sandbox.' and '"Loads' in ctx)):
+        return 'exclude','','VST 原 NodeInfo/导出 SDK 身份；可见节点名称由 optional descriptor 的 vst/module.name 翻译，SDK 描述不改写'
     if file=='Develop/NativeFx/ExampleNativeFx.cpp' and (
             'return {' in ctx or 'WjnFxMeta meta' in ctx or 'wjn_get_node_name' in ctx
             or text=='Fixed eight-channel gain example'):
@@ -333,7 +367,8 @@ def main():
         s3_runtime = s3_call(r)
         s4_runtime = s4_call(r)
         s5_runtime = s5_call(r)
-        domain = s5_runtime[1] if s5_runtime else s4_runtime[1] if s4_runtime else 'host' if runtime else s3_runtime[1] if s3_runtime else module_domain(r)
+        s6_runtime = s6_call(r)
+        domain = s6_runtime[1] if s6_runtime else s5_runtime[1] if s5_runtime else s4_runtime[1] if s4_runtime else 'host' if runtime else s3_runtime[1] if s3_runtime else module_domain(r)
         # The source component separates distinct meanings until explicit sharing is reviewed.
         component = re.sub(r'[^a-z0-9]+','.',Path(r['file']).stem.lower()).strip('.')
         record = dict(r,disposition=kind,proposed_key=key,notes=reason,translation_domain=domain)
@@ -345,13 +380,13 @@ def main():
         if kind == 'translate':
             lines = (ROOT/r['file']).read_text(encoding='utf-8-sig').splitlines()
             pos = int(r['line'])-1
-            keys.append({'source_id':r['id'],'domain':domain,'key':key if runtime or s3_runtime or s4_runtime or s5_runtime else component+'.'+key,
+            keys.append({'source_id':r['id'],'domain':domain,'key':key if runtime or s3_runtime or s4_runtime or s5_runtime or s6_runtime else component+'.'+key,
                 'source':r['literal'],'file':r['file'],'line':r['line'],'control_context':r['context'],
                 'usage':source_use(r),
                 'source_window':'\n'.join(f'{i+1}: {lines[i]}' for i in range(max(0,pos-2),min(len(lines),pos+3))),
                 'placeholders':','.join(re.findall(r'%(?:L?\d+|n)|\{[A-Za-z_]\w*\}',r['literal'])),
                 'layout':'自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip' if ('/effects/' in r['file'] or 'drawText' in r['context'] or 'MixerOverview' in r['file']) else '原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName',
-                'review':('S5' if s5_runtime else 'S4' if s4_runtime else 'S2' if runtime else 'S3')+' 实际运行时 key；四语言草稿已提供，待母语/领域审校' if runtime or s3_runtime or s4_runtime or s5_runtime else 'S0 key 提案；四语言译文和母语审校尚未实施','notes':reason})
+                'review':('S6' if s6_runtime else 'S5' if s5_runtime else 'S4' if s4_runtime else 'S2' if runtime else 'S3')+' 实际运行时 key；四语言草稿已提供，待母语/领域审校' if runtime or s3_runtime or s4_runtime or s5_runtime or s6_runtime else 'S0 key 提案；四语言译文和母语审校尚未实施','notes':reason})
         elif kind == 'exclude':
             excluded.append({'source_id':r['id'],'domain':domain,'source':r['literal'],
                 'file':r['file'],'line':r['line'],'context':r['context'],'reason':reason,'preservation':'原样；周边项目说明另行翻译'})
@@ -377,7 +412,8 @@ def main():
                  'themes/template/winjacknexus-default.wjnskin','themes/template/meta.json'):
         data = (ROOT/name).read_bytes()
         resource_files.append({'file':name,'sha256':hashlib.sha256(data).hexdigest()})
-    package_directories = ['locate','Develop/Node/locate','Develop/NativeFx/locate']
+    package_directories = ['locate','Develop/Node/locate','Develop/NativeFx/locate',
+                           'src/vst/locate','tools/vst_scanner/locate']
     package_directories.extend(f'src/native_fx/effects/{effect}/locate'
         for effect in ('gate','graphic_eq','deesser','compressor','limiter','delay','parametric_eq','reverb'))
     for directory in package_directories:

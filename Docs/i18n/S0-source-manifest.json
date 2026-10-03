@@ -1306,14 +1306,29 @@
       "lines": 983
     },
     {
+      "file": "src/vst/src/I18n.cpp",
+      "sha256": "757aaf34a46c5a79a098c30f13bc479f63d2e68cddd2aa4fda151b88530c603e",
+      "lines": 75
+    },
+    {
+      "file": "src/vst/src/I18n.hpp",
+      "sha256": "6759f16d992ee13afd1343bf5f62fff14ca4acddcc132e7dbf05c329632b7178",
+      "lines": 28
+    },
+    {
       "file": "src/vst/src/Library.cpp",
-      "sha256": "b766e570ee6968183b770ed355a290b1066beda150ead7dc0d7084bef4efea1f",
-      "lines": 987
+      "sha256": "a318130ad139087f44416c276f269dd63f61b2babbeb0346b0cb90e5c8726da7",
+      "lines": 1019
     },
     {
       "file": "tools/vst_process/src/ProcessMain.cpp",
       "sha256": "e99643dbc818db9f181bf2f8c8190ed225f6d5bb770f736aef99a16559b7bfc4",
       "lines": 2331
+    },
+    {
+      "file": "tools/vst_scanner/include/WinJACKNexus/VstScanner/Language.hpp",
+      "sha256": "0ed06cef8f590a58f072d058162b77d2f96afa53709c5af426764ee4d75a26f6",
+      "lines": 34
     },
     {
       "file": "tools/vst_scanner/include/WinJACKNexus/VstScanner/MainWindow.hpp",
@@ -1322,18 +1337,18 @@
     },
     {
       "file": "tools/vst_scanner/include/WinJACKNexus/VstScanner/Scanner.hpp",
-      "sha256": "c5ce415766b97f4135ece04dd1adfe49351945549275a0d30232e890f6c9872a",
-      "lines": 72
+      "sha256": "5dbf88c3c50d8a3e9f3abddd9d79da877f9ba1c377e2d3b3defe3ca4ccf48cbe",
+      "lines": 76
     },
     {
       "file": "tools/vst_scanner/src/main.cpp",
-      "sha256": "84467a18bc491ceaa1fcd88045512d73e22db904e91383257e0ea4690987119f",
-      "lines": 42
+      "sha256": "84c71fb0d537574741ac32ef7f4557a6a77d8cf6b941c75443d781c0c89f71cf",
+      "lines": 51
     },
     {
       "file": "tools/vst_scanner/src/MainWindow.cpp",
-      "sha256": "d7a49a9ec5b32186f9a7333006130118deccac342b82c025145fe6cec97b7708",
-      "lines": 552
+      "sha256": "79aaad6d8c7d16396ef2f94737b0b14412d7e365b3c27d86b320cd63bb517b3f",
+      "lines": 553
     },
     {
       "file": "tools/vst_scanner/src/ProbeMain.cpp",
@@ -1342,8 +1357,8 @@
     },
     {
       "file": "tools/vst_scanner/src/Scanner.cpp",
-      "sha256": "df1a858802011cfaee1625ffa3c602268c022d020199030b4a6551a19909e871",
-      "lines": 1108
+      "sha256": "599c78014a45d9324b9fa22681787a77414e3088832dec71c9b29f305195a421",
+      "lines": 1129
     },
     {
       "file": "tools/vst_scanner/VstScanner.rc",
@@ -1366,8 +1381,8 @@
       "lines": 129
     }
   ],
-  "literal_occurrences": 9535,
-  "unique_source_ids": 6320,
+  "literal_occurrences": 9690,
+  "unique_source_ids": 6454,
   "limitations": [
     "Source evidence is not a classified UI/key inventory.",
     "Dynamic text sources and Qt/OS-owned text require separate inspection.",

@@ -35,7 +35,7 @@ def main():
     import hashlib
     resource_changes=[r['file'] for r in old_resources
         if not (ROOT/r['file']).exists() or hashlib.sha256((ROOT/r['file']).read_bytes()).hexdigest()!=r['sha256']]
-    delta={'date':'2026-10-03','changed_files':changed,'resource_changes':resource_changes,
+    delta={'date':'2026-10-04','changed_files':changed,'resource_changes':resource_changes,
         'before_occurrences':len(old),'after_occurrences':len(new),
         'added':added,'removed':removed,'relocated':relocated,'usage_changed':usage_changed}
     with (OUT/'S0-key-catalog.csv').open(encoding='utf-8-sig',newline='') as f:

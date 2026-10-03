@@ -84,6 +84,46 @@
     "sha256": "49b92259acb26c1de19a26aeca6c985d2d46e473e7d8233e688275fdd544388b"
   },
   {
+    "file": "src/vst/locate/en-US.json",
+    "sha256": "63649942fbe423f86636ce8c4170e2c4e09b0f0efbc9871f77a216e9cfee72f9"
+  },
+  {
+    "file": "src/vst/locate/ja-JP.json",
+    "sha256": "52867f7d8200d90e111f363c55b8da8c730d20e54f626b1f7a0cd6893f66098a"
+  },
+  {
+    "file": "src/vst/locate/ko-KR.json",
+    "sha256": "f8622608ec41f955bc3ea4e6b0bcdb66fdc32ddc89cd8c8a30010052a715c2cb"
+  },
+  {
+    "file": "src/vst/locate/manifest.json",
+    "sha256": "02cd47e2873d86b76333b219c81465d72040b235e7633ee63b8192e0d2305480"
+  },
+  {
+    "file": "src/vst/locate/zh-CN.json",
+    "sha256": "37bd7d438a3aa44a2a65d56663952288589720a6a5874acd565ee3856b1d6117"
+  },
+  {
+    "file": "tools/vst_scanner/locate/en-US.json",
+    "sha256": "581b42834d0383263f454e8a0abcba406ca556ac364812a88348f7c47fac2c6f"
+  },
+  {
+    "file": "tools/vst_scanner/locate/ja-JP.json",
+    "sha256": "8b24a5a4ad8b05ac66b822b581c0504c9c8ce1064567f2632fff3541491f1541"
+  },
+  {
+    "file": "tools/vst_scanner/locate/ko-KR.json",
+    "sha256": "9cdf561e333990dbb60ccf04911f3b9a66ee09de3cb5b81a1b396a252332cb88"
+  },
+  {
+    "file": "tools/vst_scanner/locate/manifest.json",
+    "sha256": "8db3eedd14ecfdd33e735478b03eef916a476f0c135434f03fbab5a98392e78e"
+  },
+  {
+    "file": "tools/vst_scanner/locate/zh-CN.json",
+    "sha256": "bf289f9329cb3d35c8544c15974ddf19a855602bc45c89b9e71fdf218eb923c2"
+  },
+  {
     "file": "src/native_fx/effects/gate/locate/en-US.json",
     "sha256": "cc9d202b3a6dcbfdbd437821ec2c5d9722289cc4f1c04ba04346c33f10d8e72f"
   },

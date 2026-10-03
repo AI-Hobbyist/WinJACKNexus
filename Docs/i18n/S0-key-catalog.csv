@@ -4684,121 +4684,557 @@ locate/ko-KR.json!domains.ui.statistics.extrema
 locate/zh-CN.json!domains.ui.statistics.extrema
 src/ui/src/MetricStatisticsWidget.cpp:117
 src/ui/src/MetricStatisticsWidget.cpp:185","%1,%2",原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vst,library.action.browse,"[""Browse""]","src/vst/src/Library.cpp:776
-src/vst/src/Library.cpp:790",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vst,library.control.automatic,"[""Auto""]",src/vst/src/Library.cpp:799,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vst,library.label.architecture32Bit,"[""32-bit""]",src/vst/src/Library.cpp:801,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vst,library.label.architecture64Bit,"[""64-bit""]",src/vst/src/Library.cpp:800,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vst,library.label.plugin,"[""Plugin""]",src/vst/src/Library.cpp:810,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vst,library.label.preset,"[""Preset""]",src/vst/src/Library.cpp:812,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vst,library.label.processArchitecture,"[""Process""]",src/vst/src/Library.cpp:813,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vst,library.text.apply.and.reload,"[""Apply and reload""]",src/vst/src/Library.cpp:816,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vst,library.text.bus.and.channel.labels,"[""Bus and channel labels""]",src/vst/src/Library.cpp:806,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vst,library.text.choose.a.vst.plugin.to.start.its.sandbox,"[""Choose a VST plugin to start its sandbox.""]",src/vst/src/Library.cpp:469,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vst,library.text.choose.a.vst3.plugin.class.before.starting.this.node,"[""Choose a VST3 plugin class before starting this node.""]",src/vst/src/Library.cpp:509,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vst,library.text.choose.a.vst3.plugin.class.or.enter.its.class.id,"[""Choose a VST3 plugin class or enter its class ID.""]",src/vst/src/Library.cpp:513,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vst,library.text.choose.an.internal.plugin.or.enter.its.name.numeric.id,"[""Choose an internal plugin or enter its name / numeric ID.""]",src/vst/src/Library.cpp:538,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vst,library.text.choose.an.internal.vst2.shell.plugin.before.starting.this.node,"[""Choose an internal VST2 Shell plugin before starting this node.""]",src/vst/src/Library.cpp:534,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vst,library.text.choose.vst.plugin,"[""Choose VST plugin""]","src/vst/src/Library.cpp:446
-src/vst/src/Library.cpp:832",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vst,library.text.choose.vst.preset,"[""Choose VST preset""]",src/vst/src/Library.cpp:838,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vst,library.text.choose.vst2.shell.plugin,"[""Choose VST2 Shell Plugin""]",src/vst/src/Library.cpp:537,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vst,library.text.choose.vst3.plugin,"[""Choose VST3 Plugin""]",src/vst/src/Library.cpp:512,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vst,library.text.client.name,"[""Client name""]",src/vst/src/Library.cpp:811,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vst,library.text.default.plugin.names,"[""Default plugin names""]",src/vst/src/Library.cpp:805,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vst,library.text.filter.or.enter.plugin.name.id,"[""Filter or enter plugin name / ID""]",src/vst/src/Library.cpp:164,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vst,library.text.jack.default.names,"[""JACK default names""]",src/vst/src/Library.cpp:808,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vst,library.text.load.preset,"[""Load preset""]",src/vst/src/Library.cpp:817,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vst,library.text.loads.one.vst.plugin.through.a.native.vstprocess.sandbox,"[""Loads one VST plugin through a native VSTProcess sandbox.""]",src/vst/src/Library.cpp:279,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vst,library.text.not.started,"[""Not started.""]",src/vst/src/Library.cpp:739,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vst,library.text.port.display,"[""Port display""]",src/vst/src/Library.cpp:814,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vst,library.text.restart.plugin,"[""Restart plugin""]",src/vst/src/Library.cpp:819,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vst,library.text.save.preset.as,"[""Save preset as""]",src/vst/src/Library.cpp:818,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vst,library.text.save.vst.preset,"[""Save VST preset""]",src/vst/src/Library.cpp:860,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vst,library.text.standard.channel.names,"[""Standard channel names""]",src/vst/src/Library.cpp:807,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vst,library.text.the.bypass.vstprocess.stopped.exit.restart.the.plugin.to.recover,"[""The bypass VSTProcess stopped (exit %1). Restart the plugin to recover.""]",src/vst/src/Library.cpp:594,%1,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vst,library.text.the.configured.plugin.path.does.not.exist,"[""The configured plugin path does not exist.""]",src/vst/src/Library.cpp:473,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vst,library.text.the.configured.vst3.plugin.name.is.not.exposed.by.this.module,"[""The configured VST3 plugin name is not exposed by this module.""]",src/vst/src/Library.cpp:501,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vst,library.text.the.plugin.editor.is.open.in.a.separate.window,"[""The plugin editor is open in a separate window.""]",src/vst/src/Library.cpp:458,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vst,library.text.the.previous.vstprocess.is.still.running,"[""The previous VSTProcess is still running.""]",src/vst/src/Library.cpp:556,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vst,library.text.the.required.vstprocess.executable.is.not.available,"[""The required VSTProcess executable is not available.""]",src/vst/src/Library.cpp:481,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vst,library.text.the.selected.vst.preset.file.does.not.exist,"[""The selected VST preset file does not exist.""]",src/vst/src/Library.cpp:359,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vst,library.text.the.vst2.shell.did.not.provide.any.internal.plugins,"[""The VST2 Shell did not provide any internal plugins.""]",src/vst/src/Library.cpp:149,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vst,library.text.the.vst3.factory.did.not.provide.any.audio.plugin.classes,"[""The VST3 factory did not provide any audio plugin classes.""]",src/vst/src/Library.cpp:224,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vst,library.text.unable.to.contact.vstprocess,"[""Unable to contact VSTProcess.""]",src/vst/src/Library.cpp:461,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vst,library.text.unable.to.create.a.temporary.vst.preset.file,"[""Unable to create a temporary VST preset file.""]",src/vst/src/Library.cpp:703,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vst,library.text.unable.to.load.the.vst.preset,"[""Unable to load the VST preset.""]",src/vst/src/Library.cpp:364,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vst,library.text.unable.to.restore.the.vst.preset.state,"[""Unable to restore the VST preset state.""]",src/vst/src/Library.cpp:715,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vst,library.text.unable.to.save.the.vst.preset,"[""Unable to save the VST preset.""]",src/vst/src/Library.cpp:347,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vst,library.text.unable.to.start.vstprocess,"[""Unable to start VSTProcess.""]",src/vst/src/Library.cpp:608,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vst,library.text.unable.to.write.the.vst.preset.state,"[""Unable to write the VST preset state.""]",src/vst/src/Library.cpp:707,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vst,library.text.vst.plugin,"[""VST Plugin""]",src/vst/src/Library.cpp:54,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vst,library.text.vst.plugins.vst3.dll,"[""VST plugins (*.vst3 *.dll)""]","src/vst/src/Library.cpp:448
+vst,action.apply,"[""Apply and reload"", ""应用并重新加载"", ""適用して再ロード"", ""적용 후 다시 로드""]","src/vst/locate/en-US.json!domains.vst.action.apply
+src/vst/locate/ja-JP.json!domains.vst.action.apply
+src/vst/locate/ko-KR.json!domains.vst.action.apply
+src/vst/locate/zh-CN.json!domains.vst.action.apply
+src/vst/src/Library.cpp:848",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vst,action.browse,"[""Browse"", ""参照"", ""浏览"", ""찾아보기""]","src/vst/locate/en-US.json!domains.vst.action.browse
+src/vst/locate/ja-JP.json!domains.vst.action.browse
+src/vst/locate/ko-KR.json!domains.vst.action.browse
+src/vst/locate/zh-CN.json!domains.vst.action.browse
+src/vst/src/Library.cpp:808
+src/vst/src/Library.cpp:822",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vst,action.load,"[""Load preset"", ""プリセットを読み込み"", ""加载预设"", ""프리셋 불러오기""]","src/vst/locate/en-US.json!domains.vst.action.load
+src/vst/locate/ja-JP.json!domains.vst.action.load
+src/vst/locate/ko-KR.json!domains.vst.action.load
+src/vst/locate/zh-CN.json!domains.vst.action.load
+src/vst/src/Library.cpp:849",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vst,action.restart,"[""Restart plugin"", ""プラグインを再起動"", ""重启插件"", ""플러그인 다시 시작""]","src/vst/locate/en-US.json!domains.vst.action.restart
+src/vst/locate/ja-JP.json!domains.vst.action.restart
+src/vst/locate/ko-KR.json!domains.vst.action.restart
+src/vst/locate/zh-CN.json!domains.vst.action.restart
+src/vst/src/Library.cpp:851",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vst,action.save,"[""Save preset as"", ""プリセットを別名で保存"", ""预设另存为"", ""프리셋 다른 이름으로 저장""]","src/vst/locate/en-US.json!domains.vst.action.save
+src/vst/locate/ja-JP.json!domains.vst.action.save
+src/vst/locate/ko-KR.json!domains.vst.action.save
+src/vst/locate/zh-CN.json!domains.vst.action.save
+src/vst/src/Library.cpp:850",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vst,choose.filter,"[""Filter or enter plugin name / ID"", ""筛选或输入插件名称 / ID"", ""絞り込み、またはプラグイン名 / ID を入力"", ""플러그인 이름 / ID로 필터링하거나 입력""]","src/vst/locate/en-US.json!domains.vst.choose.filter
+src/vst/locate/ja-JP.json!domains.vst.choose.filter
+src/vst/locate/ko-KR.json!domains.vst.choose.filter
+src/vst/locate/zh-CN.json!domains.vst.choose.filter
+src/vst/src/Library.cpp:196",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vst,choose.plugin,"[""Choose VST plugin"", ""VST プラグインを選択"", ""VST 플러그인 선택"", ""选择 VST 插件""]","src/vst/locate/en-US.json!domains.vst.choose.plugin
+src/vst/locate/ja-JP.json!domains.vst.choose.plugin
+src/vst/locate/ko-KR.json!domains.vst.choose.plugin
+src/vst/locate/zh-CN.json!domains.vst.choose.plugin
+src/vst/src/Library.cpp:478
+src/vst/src/Library.cpp:864",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vst,choose.preset,"[""Choose VST preset"", ""VST プリセットを選択"", ""VST 프리셋 선택"", ""选择 VST 预设""]","src/vst/locate/en-US.json!domains.vst.choose.preset
+src/vst/locate/ja-JP.json!domains.vst.choose.preset
+src/vst/locate/ko-KR.json!domains.vst.choose.preset
+src/vst/locate/zh-CN.json!domains.vst.choose.preset
+src/vst/src/Library.cpp:870",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vst,choose.save,"[""Save VST preset"", ""VST プリセットを保存"", ""VST 프리셋 저장"", ""保存 VST 预设""]","src/vst/locate/en-US.json!domains.vst.choose.save
+src/vst/locate/ja-JP.json!domains.vst.choose.save
+src/vst/locate/ko-KR.json!domains.vst.choose.save
+src/vst/locate/zh-CN.json!domains.vst.choose.save
+src/vst/src/Library.cpp:892",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vst,choose.shell,"[""Choose VST2 Shell Plugin"", ""VST2 Shell プラグインを選択"", ""VST2 Shell 플러그인 선택"", ""选择 VST2 Shell 插件""]","src/vst/locate/en-US.json!domains.vst.choose.shell
+src/vst/locate/ja-JP.json!domains.vst.choose.shell
+src/vst/locate/ko-KR.json!domains.vst.choose.shell
+src/vst/locate/zh-CN.json!domains.vst.choose.shell
+src/vst/src/Library.cpp:569",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vst,choose.shellDescription,"[""Choose an internal plugin or enter its name / numeric ID."", ""内部プラグインを選択するか、名前 / 数値 ID を入力してください。"", ""选择内部插件或输入其名称 / 数字 ID。"", ""내부 플러그인을 선택하거나 이름 / 숫자 ID를 입력하세요.""]","src/vst/locate/en-US.json!domains.vst.choose.shellDescription
+src/vst/locate/ja-JP.json!domains.vst.choose.shellDescription
+src/vst/locate/ko-KR.json!domains.vst.choose.shellDescription
+src/vst/locate/zh-CN.json!domains.vst.choose.shellDescription
+src/vst/src/Library.cpp:570",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vst,choose.vst3,"[""Choose VST3 Plugin"", ""VST3 プラグインを選択"", ""VST3 플러그인 선택"", ""选择 VST3 插件""]","src/vst/locate/en-US.json!domains.vst.choose.vst3
+src/vst/locate/ja-JP.json!domains.vst.choose.vst3
+src/vst/locate/ko-KR.json!domains.vst.choose.vst3
+src/vst/locate/zh-CN.json!domains.vst.choose.vst3
+src/vst/src/Library.cpp:544",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vst,choose.vst3Description,"[""Choose a VST3 plugin class or enter its class ID."", ""VST3 プラグインクラスを選択するか、クラス ID を入力してください。"", ""VST3 플러그인 클래스를 선택하거나 클래스 ID를 입력하세요."", ""选择 VST3 插件类或输入其类 ID。""]","src/vst/locate/en-US.json!domains.vst.choose.vst3Description
+src/vst/locate/ja-JP.json!domains.vst.choose.vst3Description
+src/vst/locate/ko-KR.json!domains.vst.choose.vst3Description
+src/vst/locate/zh-CN.json!domains.vst.choose.vst3Description
+src/vst/src/Library.cpp:545",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vst,error.contact,"[""Unable to contact VSTProcess."", ""VSTProcess に接続できません。"", ""VSTProcess에 연결할 수 없습니다."", ""无法连接 VSTProcess。""]","src/vst/locate/en-US.json!domains.vst.error.contact
+src/vst/locate/ja-JP.json!domains.vst.error.contact
+src/vst/locate/ko-KR.json!domains.vst.error.contact
+src/vst/locate/zh-CN.json!domains.vst.error.contact
+src/vst/src/Library.cpp:493",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vst,error.factoryEmpty,"[""The VST3 factory did not provide any audio plugin classes."", ""VST3 ファクトリーがオーディオプラグインクラスを返しませんでした。"", ""VST3 工厂未提供音频插件类。"", ""VST3 팩토리가 오디오 플러그인 클래스를 제공하지 않았습니다.""]","src/vst/locate/en-US.json!domains.vst.error.factoryEmpty
+src/vst/locate/ja-JP.json!domains.vst.error.factoryEmpty
+src/vst/locate/ko-KR.json!domains.vst.error.factoryEmpty
+src/vst/locate/zh-CN.json!domains.vst.error.factoryEmpty
+src/vst/src/Library.cpp:256",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vst,error.loadPreset,"[""Unable to load the VST preset."", ""VST プリセットを読み込めません。"", ""VST 프리셋을 불러올 수 없습니다."", ""无法加载 VST 预设。""]","src/vst/locate/en-US.json!domains.vst.error.loadPreset
+src/vst/locate/ja-JP.json!domains.vst.error.loadPreset
+src/vst/locate/ko-KR.json!domains.vst.error.loadPreset
+src/vst/locate/zh-CN.json!domains.vst.error.loadPreset
+src/vst/src/Library.cpp:396",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vst,error.pathMissing,"[""The configured plugin path does not exist."", ""設定されたプラグインパスが存在しません。"", ""配置的插件路径不存在。"", ""설정된 플러그인 경로가 존재하지 않습니다.""]","src/vst/locate/en-US.json!domains.vst.error.pathMissing
+src/vst/locate/ja-JP.json!domains.vst.error.pathMissing
+src/vst/locate/ko-KR.json!domains.vst.error.pathMissing
+src/vst/locate/zh-CN.json!domains.vst.error.pathMissing
+src/vst/src/Library.cpp:505",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vst,error.pipeTimeout,"[""VSTProcess did not make its control pipe ready before the startup deadline."", ""VSTProcess の制御パイプが起動期限内に準備できませんでした。"", ""VSTProcess 未能在启动时限内就绪控制管道。"", ""VSTProcess 제어 파이프가 시작 제한 시간 내에 준비되지 않았습니다.""]","src/vst/locate/en-US.json!domains.vst.error.pipeTimeout
+src/vst/locate/ja-JP.json!domains.vst.error.pipeTimeout
+src/vst/locate/ko-KR.json!domains.vst.error.pipeTimeout
+src/vst/locate/zh-CN.json!domains.vst.error.pipeTimeout
+src/vst/src/Library.cpp:653",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vst,error.presetMissing,"[""The selected VST preset file does not exist."", ""所选 VST 预设文件不存在。"", ""選択した VST プリセットファイルが存在しません。"", ""선택한 VST 프리셋 파일이 존재하지 않습니다.""]","src/vst/locate/en-US.json!domains.vst.error.presetMissing
+src/vst/locate/ja-JP.json!domains.vst.error.presetMissing
+src/vst/locate/ko-KR.json!domains.vst.error.presetMissing
+src/vst/locate/zh-CN.json!domains.vst.error.presetMissing
+src/vst/src/Library.cpp:391",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vst,error.previousProcess,"[""The previous VSTProcess is still running."", ""上一个 VSTProcess 仍在运行。"", ""前の VSTProcess がまだ実行中です。"", ""이전 VSTProcess가 아직 실행 중입니다.""]","src/vst/locate/en-US.json!domains.vst.error.previousProcess
+src/vst/locate/ja-JP.json!domains.vst.error.previousProcess
+src/vst/locate/ko-KR.json!domains.vst.error.previousProcess
+src/vst/locate/zh-CN.json!domains.vst.error.previousProcess
+src/vst/src/Library.cpp:588",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vst,error.processMissing,"[""The required VSTProcess executable is not available."", ""必要な VSTProcess 実行ファイルがありません。"", ""所需 VSTProcess 可执行文件不可用。"", ""필요한 VSTProcess 실행 파일이 없습니다.""]","src/vst/locate/en-US.json!domains.vst.error.processMissing
+src/vst/locate/ja-JP.json!domains.vst.error.processMissing
+src/vst/locate/ko-KR.json!domains.vst.error.processMissing
+src/vst/locate/zh-CN.json!domains.vst.error.processMissing
+src/vst/src/Library.cpp:513",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vst,error.restoreState,"[""Unable to restore the VST preset state."", ""VST プリセットの状態を復元できません。"", ""VST 프리셋 상태를 복원할 수 없습니다."", ""无法恢复 VST 预设状态。""]","src/vst/locate/en-US.json!domains.vst.error.restoreState
+src/vst/locate/ja-JP.json!domains.vst.error.restoreState
+src/vst/locate/ko-KR.json!domains.vst.error.restoreState
+src/vst/locate/zh-CN.json!domains.vst.error.restoreState
+src/vst/src/Library.cpp:747",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vst,error.savePreset,"[""Unable to save the VST preset."", ""VST プリセットを保存できません。"", ""VST 프리셋을 저장할 수 없습니다."", ""无法保存 VST 预设。""]","src/vst/locate/en-US.json!domains.vst.error.savePreset
+src/vst/locate/ja-JP.json!domains.vst.error.savePreset
+src/vst/locate/ko-KR.json!domains.vst.error.savePreset
+src/vst/locate/zh-CN.json!domains.vst.error.savePreset
+src/vst/src/Library.cpp:379",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vst,error.shellEmpty,"[""The VST2 Shell did not provide any internal plugins."", ""VST2 Shell が内部プラグインを返しませんでした。"", ""VST2 Shell 未提供内部插件。"", ""VST2 Shell이 내부 플러그인을 제공하지 않았습니다.""]","src/vst/locate/en-US.json!domains.vst.error.shellEmpty
+src/vst/locate/ja-JP.json!domains.vst.error.shellEmpty
+src/vst/locate/ko-KR.json!domains.vst.error.shellEmpty
+src/vst/locate/zh-CN.json!domains.vst.error.shellEmpty
+src/vst/src/Library.cpp:181",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vst,error.start,"[""Unable to start VSTProcess."", ""VSTProcess を起動できません。"", ""VSTProcess를 시작할 수 없습니다."", ""无法启动 VSTProcess。""]","src/vst/locate/en-US.json!domains.vst.error.start
+src/vst/locate/ja-JP.json!domains.vst.error.start
+src/vst/locate/ko-KR.json!domains.vst.error.start
+src/vst/locate/zh-CN.json!domains.vst.error.start
+src/vst/src/Library.cpp:640",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vst,error.tempPreset,"[""Unable to create a temporary VST preset file."", ""一時 VST プリセットファイルを作成できません。"", ""无法创建临时 VST 预设文件。"", ""임시 VST 프리셋 파일을 만들 수 없습니다.""]","src/vst/locate/en-US.json!domains.vst.error.tempPreset
+src/vst/locate/ja-JP.json!domains.vst.error.tempPreset
+src/vst/locate/ko-KR.json!domains.vst.error.tempPreset
+src/vst/locate/zh-CN.json!domains.vst.error.tempPreset
+src/vst/src/Library.cpp:735",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vst,error.vst3Name,"[""The configured VST3 plugin name is not exposed by this module."", ""このモジュールに設定された VST3 プラグイン名がありません。"", ""此模块未提供配置的 VST3 插件名称。"", ""이 모듈이 설정된 VST3 플러그인 이름을 제공하지 않습니다.""]","src/vst/locate/en-US.json!domains.vst.error.vst3Name
+src/vst/locate/ja-JP.json!domains.vst.error.vst3Name
+src/vst/locate/ko-KR.json!domains.vst.error.vst3Name
+src/vst/locate/zh-CN.json!domains.vst.error.vst3Name
+src/vst/src/Library.cpp:533",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vst,error.writeState,"[""Unable to write the VST preset state."", ""VST プリセットの状態を書き込めません。"", ""VST 프리셋 상태를 기록할 수 없습니다."", ""无法写入 VST 预设状态。""]","src/vst/locate/en-US.json!domains.vst.error.writeState
+src/vst/locate/ja-JP.json!domains.vst.error.writeState
+src/vst/locate/ko-KR.json!domains.vst.error.writeState
+src/vst/locate/zh-CN.json!domains.vst.error.writeState
+src/vst/src/Library.cpp:739",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vst,field.client,"[""Client name"", ""クライアント名"", ""客户端名称"", ""클라이언트 이름""]","src/vst/locate/en-US.json!domains.vst.field.client
+src/vst/locate/ja-JP.json!domains.vst.field.client
+src/vst/locate/ko-KR.json!domains.vst.field.client
+src/vst/locate/zh-CN.json!domains.vst.field.client
+src/vst/src/Library.cpp:843",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vst,field.plugin,"[""Plugin"", ""プラグイン"", ""插件"", ""플러그인""]","src/vst/locate/en-US.json!domains.vst.field.plugin
+src/vst/locate/ja-JP.json!domains.vst.field.plugin
+src/vst/locate/ko-KR.json!domains.vst.field.plugin
+src/vst/locate/zh-CN.json!domains.vst.field.plugin
+src/vst/src/Library.cpp:842",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vst,field.port,"[""Port display"", ""ポート表示"", ""端口显示"", ""포트 표시""]","src/vst/locate/en-US.json!domains.vst.field.port
+src/vst/locate/ja-JP.json!domains.vst.field.port
+src/vst/locate/ko-KR.json!domains.vst.field.port
+src/vst/locate/zh-CN.json!domains.vst.field.port
+src/vst/src/Library.cpp:846",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vst,field.preset,"[""Preset"", ""プリセット"", ""预设"", ""프리셋""]","src/vst/locate/en-US.json!domains.vst.field.preset
+src/vst/locate/ja-JP.json!domains.vst.field.preset
+src/vst/locate/ko-KR.json!domains.vst.field.preset
+src/vst/locate/zh-CN.json!domains.vst.field.preset
+src/vst/src/Library.cpp:844",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vst,field.process,"[""Process"", ""プロセス"", ""进程"", ""프로세스""]","src/vst/locate/en-US.json!domains.vst.field.process
+src/vst/locate/ja-JP.json!domains.vst.field.process
+src/vst/locate/ko-KR.json!domains.vst.field.process
+src/vst/locate/zh-CN.json!domains.vst.field.process
+src/vst/src/Library.cpp:845",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vst,filter.plugin,"[""VST plugins (*.vst3 *.dll)"", ""VST プラグイン (*.vst3 *.dll)"", ""VST 插件 (*.vst3 *.dll)"", ""VST 플러그인 (*.vst3 *.dll)""]","src/vst/locate/en-US.json!domains.vst.filter.plugin
+src/vst/locate/ja-JP.json!domains.vst.filter.plugin
+src/vst/locate/ko-KR.json!domains.vst.filter.plugin
+src/vst/locate/zh-CN.json!domains.vst.filter.plugin
+src/vst/src/Library.cpp:480
+src/vst/src/Library.cpp:865",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vst,filter.preset,"[""WinJACKNexus VST preset (*.fbx)"", ""WinJACKNexus VST プリセット (*.fbx)"", ""WinJACKNexus VST 预设 (*.fbx)"", ""WinJACKNexus VST 프리셋 (*.fbx)""]","src/vst/locate/en-US.json!domains.vst.filter.preset
+src/vst/locate/ja-JP.json!domains.vst.filter.preset
+src/vst/locate/ko-KR.json!domains.vst.filter.preset
+src/vst/locate/zh-CN.json!domains.vst.filter.preset
+src/vst/src/Library.cpp:871
+src/vst/src/Library.cpp:893",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vst,port.bus,"[""Bus and channel labels"", ""バスとチャンネルのラベル"", ""总线和声道标签"", ""버스 및 채널 라벨""]","src/vst/locate/en-US.json!domains.vst.port.bus
+src/vst/locate/ja-JP.json!domains.vst.port.bus
+src/vst/locate/ko-KR.json!domains.vst.port.bus
+src/vst/locate/zh-CN.json!domains.vst.port.bus
+src/vst/src/Library.cpp:838",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vst,port.default,"[""Default plugin names"", ""既定のプラグイン名"", ""默认插件名称"", ""기본 플러그인 이름""]","src/vst/locate/en-US.json!domains.vst.port.default
+src/vst/locate/ja-JP.json!domains.vst.port.default
+src/vst/locate/ko-KR.json!domains.vst.port.default
+src/vst/locate/zh-CN.json!domains.vst.port.default
+src/vst/src/Library.cpp:837",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vst,port.jack,"[""JACK default names"", ""JACK の既定名"", ""JACK 默认名称"", ""JACK 기본 이름""]","src/vst/locate/en-US.json!domains.vst.port.jack
+src/vst/locate/ja-JP.json!domains.vst.port.jack
+src/vst/locate/ko-KR.json!domains.vst.port.jack
+src/vst/locate/zh-CN.json!domains.vst.port.jack
+src/vst/src/Library.cpp:840",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vst,port.standard,"[""Standard channel names"", ""标准声道名称"", ""標準チャンネル名"", ""표준 채널 이름""]","src/vst/locate/en-US.json!domains.vst.port.standard
+src/vst/locate/ja-JP.json!domains.vst.port.standard
+src/vst/locate/ko-KR.json!domains.vst.port.standard
+src/vst/locate/zh-CN.json!domains.vst.port.standard
+src/vst/src/Library.cpp:839",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vst,process.32,"[""32 ビット"", ""32 位"", ""32-bit"", ""32비트""]","src/vst/locate/en-US.json!domains.vst.process.32
+src/vst/locate/ja-JP.json!domains.vst.process.32
+src/vst/locate/ko-KR.json!domains.vst.process.32
+src/vst/locate/zh-CN.json!domains.vst.process.32
 src/vst/src/Library.cpp:833",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vst,library.text.vst.preset.loaded,"[""VST preset loaded.""]",src/vst/src/Library.cpp:371,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vst,library.text.vst.preset.saved,"[""VST preset saved.""]",src/vst/src/Library.cpp:351,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vst,library.text.vst2.shell.plugin.selection.was.cancelled,"[""VST2 Shell plugin selection was cancelled.""]",src/vst/src/Library.cpp:541,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vst,library.text.vst3.plugin.class.selection.was.cancelled,"[""VST3 plugin class selection was cancelled.""]",src/vst/src/Library.cpp:516,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vst,library.text.vstprocess.crashed.exit.switching.this.node.to.bypass,"[""VSTProcess crashed (exit %1); switching this node to bypass.""]",src/vst/src/Library.cpp:598,%1,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vst,library.text.vstprocess.did.not.exit.cleanly.terminating.its.sandbox,"[""VSTProcess did not exit cleanly; terminating its sandbox.""]",src/vst/src/Library.cpp:726,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vst,library.text.vstprocess.did.not.make.its.control.pipe.ready.before.the.startup.deadline,"[""VSTProcess did not make its control pipe ready before the startup deadline.""]",src/vst/src/Library.cpp:621,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vst,library.text.vstprocess.is.bypassing.plugin.i.o.after.a.plugin.crash,"[""VSTProcess is bypassing plugin I/O after a plugin crash.""]",src/vst/src/Library.cpp:641,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vst,library.text.vstprocess.is.running,"[""VSTProcess is running.""]",src/vst/src/Library.cpp:642,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vst,library.text.winjacknexus.vst.preset.fbx,"[""WinJACKNexus VST preset (*.fbx)""]","src/vst/src/Library.cpp:839
-src/vst/src/Library.cpp:861",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vstscanner,mainwindow.action.add,"[""添加""]",tools/vst_scanner/src/MainWindow.cpp:175,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vstscanner,mainwindow.action.cleanupInvalidEntries,"[""清理失效条目""]",tools/vst_scanner/src/MainWindow.cpp:260,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vstscanner,mainwindow.action.deleteEntry,"[""删除条目""]",tools/vst_scanner/src/MainWindow.cpp:256,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vstscanner,mainwindow.action.openOutputDirectory,"[""打开输出目录""]",tools/vst_scanner/src/MainWindow.cpp:141,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vstscanner,mainwindow.action.openPluginLocation,"[""打开插件位置""]",tools/vst_scanner/src/MainWindow.cpp:252,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vstscanner,mainwindow.action.remove,"[""移除""]",tools/vst_scanner/src/MainWindow.cpp:179,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vstscanner,mainwindow.action.scanPlugins,"[""扫描插件""]",tools/vst_scanner/src/MainWindow.cpp:131,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vstscanner,mainwindow.category.effect,"[""Effect""]","tools/vst_scanner/src/MainWindow.cpp:101
-tools/vst_scanner/src/MainWindow.cpp:219",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vstscanner,mainwindow.category.instrument,"[""Instrument""]","tools/vst_scanner/src/MainWindow.cpp:101
-tools/vst_scanner/src/MainWindow.cpp:220",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vstscanner,mainwindow.confirm.deletePluginScanEntry,"[""确定删除当前插件的扫描条目吗？\\n插件文件本身不会被删除。""]",tools/vst_scanner/src/MainWindow.cpp:418,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vstscanner,mainwindow.control.all,"[""全部""]","tools/vst_scanner/src/MainWindow.cpp:212
-tools/vst_scanner/src/MainWindow.cpp:218",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vstscanner,mainwindow.control.rescanVerifiedPlugins,"[""重新扫描已验证插件""]",tools/vst_scanner/src/MainWindow.cpp:137,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vstscanner,mainwindow.dialog.deletePluginEntry,"[""删除插件条目""]",tools/vst_scanner/src/MainWindow.cpp:417,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vstscanner,mainwindow.dialog.selectOutputDirectory,"[""选择输出目录""]","tools/vst_scanner/src/MainWindow.cpp:198
-tools/vst_scanner/src/MainWindow.cpp:201",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vstscanner,mainwindow.dialog.selectVstScanPath,"[""选择 VST 扫描路径""]",tools/vst_scanner/src/MainWindow.cpp:395,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vstscanner,mainwindow.error.deleteFailed,"[""删除失败""]",tools/vst_scanner/src/MainWindow.cpp:422,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vstscanner,mainwindow.error.deleteInfoFileFailed,"[""无法删除 info 文件。""]",tools/vst_scanner/src/MainWindow.cpp:422,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vstscanner,mainwindow.help.doubleClickPluginLocation,"[""双击插件可打开所在位置""]",tools/vst_scanner/src/MainWindow.cpp:147,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vstscanner,mainwindow.label.architecture,"[""位宽""]",tools/vst_scanner/src/MainWindow.cpp:233,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vstscanner,mainwindow.label.architectureBitCount,"[""%1-bit""]",tools/vst_scanner/src/MainWindow.cpp:383,%1,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vstscanner,mainwindow.label.category,"[""类别""]","tools/vst_scanner/src/MainWindow.cpp:216
-tools/vst_scanner/src/MainWindow.cpp:234",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vstscanner,mainwindow.label.format,"[""格式""]","tools/vst_scanner/src/MainWindow.cpp:210
-tools/vst_scanner/src/MainWindow.cpp:232",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vstscanner,mainwindow.label.name,"[""名称""]",tools/vst_scanner/src/MainWindow.cpp:230,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vstscanner,mainwindow.label.outputDirectory,"[""输出目录""]",tools/vst_scanner/src/MainWindow.cpp:192,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vstscanner,mainwindow.label.scanPath,"[""扫描路径""]",tools/vst_scanner/src/MainWindow.cpp:166,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vstscanner,mainwindow.label.vendor,"[""厂商""]",tools/vst_scanner/src/MainWindow.cpp:231,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vstscanner,mainwindow.label.version,"[""版本""]",tools/vst_scanner/src/MainWindow.cpp:235,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vstscanner,mainwindow.placeholder.searchPlugins,"[""搜索名称、厂商、路径""]",tools/vst_scanner/src/MainWindow.cpp:223,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vstscanner,mainwindow.section.scanLog,"[""扫描日志""]",tools/vst_scanner/src/MainWindow.cpp:267,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vstscanner,mainwindow.status.errorPrefix,"[""[错误]""]",tools/vst_scanner/src/MainWindow.cpp:469,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vstscanner,mainwindow.status.infoPrefix,"[""[信息]""]",tools/vst_scanner/src/MainWindow.cpp:469,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vstscanner,mainwindow.status.invalidEntriesRemoved,"[""清理失效条目：%1 个""]",tools/vst_scanner/src/MainWindow.cpp:441,%1,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vstscanner,mainwindow.status.noPluginCandidates,"[""未发现插件候选""]",tools/vst_scanner/src/MainWindow.cpp:519,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vstscanner,mainwindow.status.noPluginsFound,"[""未发现插件""]",tools/vst_scanner/src/MainWindow.cpp:545,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vstscanner,mainwindow.status.pluginCount,"[""插件 %1 个""]",tools/vst_scanner/src/MainWindow.cpp:390,%1,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vstscanner,mainwindow.status.preparingScan,"[""准备扫描...""]","tools/vst_scanner/src/MainWindow.cpp:498
+vst,process.64,"[""64 ビット"", ""64 位"", ""64-bit"", ""64비트""]","src/vst/locate/en-US.json!domains.vst.process.64
+src/vst/locate/ja-JP.json!domains.vst.process.64
+src/vst/locate/ko-KR.json!domains.vst.process.64
+src/vst/locate/zh-CN.json!domains.vst.process.64
+src/vst/src/Library.cpp:832",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vst,process.auto,"[""Auto"", ""自动"", ""自動"", ""자동""]","src/vst/locate/en-US.json!domains.vst.process.auto
+src/vst/locate/ja-JP.json!domains.vst.process.auto
+src/vst/locate/ko-KR.json!domains.vst.process.auto
+src/vst/locate/zh-CN.json!domains.vst.process.auto
+src/vst/src/Library.cpp:831",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vst,status.bypass,"[""VSTProcess is bypassing plugin I/O after a plugin crash."", ""プラグインのクラッシュ後、VSTProcess はプラグイン入出力をバイパスしています。"", ""插件崩溃后，VSTProcess 正在旁通插件输入/输出。"", ""플러그인 충돌 후 VSTProcess가 플러그인 입출력을 바이패스하고 있습니다.""]","src/vst/locate/en-US.json!domains.vst.status.bypass
+src/vst/locate/ja-JP.json!domains.vst.status.bypass
+src/vst/locate/ko-KR.json!domains.vst.status.bypass
+src/vst/locate/zh-CN.json!domains.vst.status.bypass
+src/vst/src/Library.cpp:673",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vst,status.bypassStopped,"[""The bypass VSTProcess stopped (exit %1). Restart the plugin to recover."", ""バイパス中の VSTProcess が停止しました（終了コード %1）。復旧するにはプラグインを再起動してください。"", ""旁通 VSTProcess 已停止（退出码 %1）。请重启插件以恢复。"", ""바이패스 VSTProcess가 중지되었습니다(종료 코드 %1). 복구하려면 플러그인을 다시 시작하세요.""]","src/vst/locate/en-US.json!domains.vst.status.bypassStopped
+src/vst/locate/ja-JP.json!domains.vst.status.bypassStopped
+src/vst/locate/ko-KR.json!domains.vst.status.bypassStopped
+src/vst/locate/zh-CN.json!domains.vst.status.bypassStopped
+src/vst/src/Library.cpp:626",%1,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vst,status.choose,"[""Choose a VST plugin to start its sandbox."", ""VST プラグインを選択してサンドボックスを起動します。"", ""VST 플러그인을 선택하여 샌드박스를 시작하세요."", ""选择 VST 插件以启动其沙盒。""]","src/vst/locate/en-US.json!domains.vst.status.choose
+src/vst/locate/ja-JP.json!domains.vst.status.choose
+src/vst/locate/ko-KR.json!domains.vst.status.choose
+src/vst/locate/zh-CN.json!domains.vst.status.choose
+src/vst/src/Library.cpp:501",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vst,status.chooseClass,"[""Choose a VST3 plugin class before starting this node."", ""このノードを起動する前に VST3 プラグインクラスを選択してください。"", ""启动此节点前请选择 VST3 插件类。"", ""이 노드를 시작하기 전에 VST3 플러그인 클래스를 선택하세요.""]","src/vst/locate/en-US.json!domains.vst.status.chooseClass
+src/vst/locate/ja-JP.json!domains.vst.status.chooseClass
+src/vst/locate/ko-KR.json!domains.vst.status.chooseClass
+src/vst/locate/zh-CN.json!domains.vst.status.chooseClass
+src/vst/src/Library.cpp:541",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vst,status.chooseShell,"[""Choose an internal VST2 Shell plugin before starting this node."", ""このノードを起動する前に VST2 Shell 内部プラグインを選択してください。"", ""启动此节点前请选择 VST2 Shell 内部插件。"", ""이 노드를 시작하기 전에 VST2 Shell 내부 플러그인을 선택하세요.""]","src/vst/locate/en-US.json!domains.vst.status.chooseShell
+src/vst/locate/ja-JP.json!domains.vst.status.chooseShell
+src/vst/locate/ko-KR.json!domains.vst.status.chooseShell
+src/vst/locate/zh-CN.json!domains.vst.status.chooseShell
+src/vst/src/Library.cpp:566",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vst,status.crash,"[""VSTProcess crashed (exit %1); switching this node to bypass."", ""VSTProcess がクラッシュしました（終了コード %1）。このノードをバイパスに切り替えます。"", ""VSTProcess 崩溃（退出码 %1）；此节点切换为旁通。"", ""VSTProcess가 충돌했습니다(종료 코드 %1). 이 노드를 바이패스로 전환합니다.""]","src/vst/locate/en-US.json!domains.vst.status.crash
+src/vst/locate/ja-JP.json!domains.vst.status.crash
+src/vst/locate/ko-KR.json!domains.vst.status.crash
+src/vst/locate/zh-CN.json!domains.vst.status.crash
+src/vst/src/Library.cpp:630",%1,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vst,status.editor,"[""The plugin editor is open in a separate window."", ""プラグインエディターを別ウィンドウで開きました。"", ""插件编辑器已在独立窗口打开。"", ""플러그인 편집기를 별도 창에서 열었습니다.""]","src/vst/locate/en-US.json!domains.vst.status.editor
+src/vst/locate/ja-JP.json!domains.vst.status.editor
+src/vst/locate/ko-KR.json!domains.vst.status.editor
+src/vst/locate/zh-CN.json!domains.vst.status.editor
+src/vst/src/Library.cpp:490",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vst,status.loaded,"[""VST preset loaded."", ""VST プリセットを読み込みました。"", ""VST 预设已加载。"", ""VST 프리셋을 불러왔습니다.""]","src/vst/locate/en-US.json!domains.vst.status.loaded
+src/vst/locate/ja-JP.json!domains.vst.status.loaded
+src/vst/locate/ko-KR.json!domains.vst.status.loaded
+src/vst/locate/zh-CN.json!domains.vst.status.loaded
+src/vst/src/Library.cpp:403",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vst,status.notStarted,"[""Not started."", ""尚未启动。"", ""未起動。"", ""시작되지 않음.""]","src/vst/locate/en-US.json!domains.vst.status.notStarted
+src/vst/locate/ja-JP.json!domains.vst.status.notStarted
+src/vst/locate/ko-KR.json!domains.vst.status.notStarted
+src/vst/locate/zh-CN.json!domains.vst.status.notStarted
+src/vst/src/Library.cpp:771",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vst,status.running,"[""VSTProcess is running."", ""VSTProcess は実行中です。"", ""VSTProcess 正在运行。"", ""VSTProcess가 실행 중입니다.""]","src/vst/locate/en-US.json!domains.vst.status.running
+src/vst/locate/ja-JP.json!domains.vst.status.running
+src/vst/locate/ko-KR.json!domains.vst.status.running
+src/vst/locate/zh-CN.json!domains.vst.status.running
+src/vst/src/Library.cpp:674",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vst,status.saved,"[""VST preset saved."", ""VST プリセットを保存しました。"", ""VST 预设已保存。"", ""VST 프리셋을 저장했습니다.""]","src/vst/locate/en-US.json!domains.vst.status.saved
+src/vst/locate/ja-JP.json!domains.vst.status.saved
+src/vst/locate/ko-KR.json!domains.vst.status.saved
+src/vst/locate/zh-CN.json!domains.vst.status.saved
+src/vst/src/Library.cpp:383",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vst,status.shellCancelled,"[""VST2 Shell plugin selection was cancelled."", ""VST2 Shell プラグインの選択をキャンセルしました。"", ""VST2 Shell 플러그인 선택을 취소했습니다."", ""已取消选择 VST2 Shell 插件。""]","src/vst/locate/en-US.json!domains.vst.status.shellCancelled
+src/vst/locate/ja-JP.json!domains.vst.status.shellCancelled
+src/vst/locate/ko-KR.json!domains.vst.status.shellCancelled
+src/vst/locate/zh-CN.json!domains.vst.status.shellCancelled
+src/vst/src/Library.cpp:573",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vst,status.terminate,"[""VSTProcess did not exit cleanly; terminating its sandbox."", ""VSTProcess が正常に終了しなかったため、サンドボックスを終了します。"", ""VSTProcess 未正常退出；正在终止其沙盒。"", ""VSTProcess가 정상적으로 종료되지 않아 샌드박스를 종료합니다.""]","src/vst/locate/en-US.json!domains.vst.status.terminate
+src/vst/locate/ja-JP.json!domains.vst.status.terminate
+src/vst/locate/ko-KR.json!domains.vst.status.terminate
+src/vst/locate/zh-CN.json!domains.vst.status.terminate
+src/vst/src/Library.cpp:758",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vst,status.vst3Cancelled,"[""VST3 plugin class selection was cancelled."", ""VST3 プラグインクラスの選択をキャンセルしました。"", ""VST3 플러그인 클래스 선택을 취소했습니다."", ""已取消选择 VST3 插件类。""]","src/vst/locate/en-US.json!domains.vst.status.vst3Cancelled
+src/vst/locate/ja-JP.json!domains.vst.status.vst3Cancelled
+src/vst/locate/ko-KR.json!domains.vst.status.vst3Cancelled
+src/vst/locate/zh-CN.json!domains.vst.status.vst3Cancelled
+src/vst/src/Library.cpp:548",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vstscanner,add,"[""Add"", ""添加"", ""追加"", ""추가""]","tools/vst_scanner/locate/en-US.json!domains.vstscanner.add
+tools/vst_scanner/locate/ja-JP.json!domains.vstscanner.add
+tools/vst_scanner/locate/ko-KR.json!domains.vstscanner.add
+tools/vst_scanner/locate/zh-CN.json!domains.vstscanner.add
+tools/vst_scanner/src/MainWindow.cpp:183",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vstscanner,all,"[""All"", ""すべて"", ""全部"", ""전체""]","tools/vst_scanner/locate/en-US.json!domains.vstscanner.all
+tools/vst_scanner/locate/ja-JP.json!domains.vstscanner.all
+tools/vst_scanner/locate/ko-KR.json!domains.vstscanner.all
+tools/vst_scanner/locate/zh-CN.json!domains.vstscanner.all
+tools/vst_scanner/src/MainWindow.cpp:220
+tools/vst_scanner/src/MainWindow.cpp:226",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vstscanner,bits,"[""Bit depth"", ""ビット数"", ""位宽"", ""비트 수""]","tools/vst_scanner/locate/en-US.json!domains.vstscanner.bits
+tools/vst_scanner/locate/ja-JP.json!domains.vstscanner.bits
+tools/vst_scanner/locate/ko-KR.json!domains.vstscanner.bits
+tools/vst_scanner/locate/zh-CN.json!domains.vstscanner.bits
+tools/vst_scanner/src/MainWindow.cpp:241",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vstscanner,cannotDeleteInfo,"[""Cannot delete the info file."", ""info ファイルを削除できません。"", ""info 파일을 삭제할 수 없습니다."", ""无法删除 info 文件。""]","tools/vst_scanner/locate/en-US.json!domains.vstscanner.cannotDeleteInfo
+tools/vst_scanner/locate/ja-JP.json!domains.vstscanner.cannotDeleteInfo
+tools/vst_scanner/locate/ko-KR.json!domains.vstscanner.cannotDeleteInfo
+tools/vst_scanner/locate/zh-CN.json!domains.vstscanner.cannotDeleteInfo
+tools/vst_scanner/src/MainWindow.cpp:422",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vstscanner,category,"[""Category"", ""カテゴリー"", ""类别"", ""분류""]","tools/vst_scanner/locate/en-US.json!domains.vstscanner.category
+tools/vst_scanner/locate/ja-JP.json!domains.vstscanner.category
+tools/vst_scanner/locate/ko-KR.json!domains.vstscanner.category
+tools/vst_scanner/locate/zh-CN.json!domains.vstscanner.category
+tools/vst_scanner/src/MainWindow.cpp:224
+tools/vst_scanner/src/MainWindow.cpp:242",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vstscanner,chooseOutput,"[""Choose output directory"", ""出力フォルダーを選択"", ""选择输出目录"", ""출력 폴더 선택""]","tools/vst_scanner/locate/en-US.json!domains.vstscanner.chooseOutput
+tools/vst_scanner/locate/ja-JP.json!domains.vstscanner.chooseOutput
+tools/vst_scanner/locate/ko-KR.json!domains.vstscanner.chooseOutput
+tools/vst_scanner/locate/zh-CN.json!domains.vstscanner.chooseOutput
+tools/vst_scanner/src/MainWindow.cpp:206
+tools/vst_scanner/src/MainWindow.cpp:209",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vstscanner,choosePath,"[""Choose VST scan path"", ""VST スキャン対象のパスを選択"", ""VST 스캔 경로 선택"", ""选择 VST 扫描路径""]","tools/vst_scanner/locate/en-US.json!domains.vstscanner.choosePath
+tools/vst_scanner/locate/ja-JP.json!domains.vstscanner.choosePath
+tools/vst_scanner/locate/ko-KR.json!domains.vstscanner.choosePath
+tools/vst_scanner/locate/zh-CN.json!domains.vstscanner.choosePath
+tools/vst_scanner/src/MainWindow.cpp:395",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vstscanner,complete,"[""Scan complete"", ""スキャン完了"", ""扫描完成"", ""스캔 완료""]","tools/vst_scanner/locate/en-US.json!domains.vstscanner.complete
+tools/vst_scanner/locate/ja-JP.json!domains.vstscanner.complete
+tools/vst_scanner/locate/ko-KR.json!domains.vstscanner.complete
+tools/vst_scanner/locate/zh-CN.json!domains.vstscanner.complete
 tools/vst_scanner/src/MainWindow.cpp:521",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vstscanner,mainwindow.status.ready,"[""就绪""]",tools/vst_scanner/src/MainWindow.cpp:153,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vstscanner,mainwindow.status.scanComplete,"[""扫描完成""]",tools/vst_scanner/src/MainWindow.cpp:520,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vstscanner,mainwindow.status.scanCompleteDirectoryCount,"[""扫描完成：写入 %1 个条目，当前目录共 %2 个条目。""]",tools/vst_scanner/src/MainWindow.cpp:539,"%1,%2",原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vstscanner,mainwindow.status.scanCompleteWrittenCount,"[""扫描完成：写入 %1 个条目""]",tools/vst_scanner/src/MainWindow.cpp:546,%1,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vstscanner,mainwindow.status.scanningProgress,"[""正在扫描：%1  (%2/%3)""]",tools/vst_scanner/src/MainWindow.cpp:525,"%1,%2,%3",原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vstscanner,mainwindow.status.startingScan,"[""开始扫描...""]",tools/vst_scanner/src/MainWindow.cpp:495,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vstscanner,mainwindow.text.vst.scanner,"[""Vst Scanner""]","tools/vst_scanner/src/MainWindow.cpp:121
-tools/vst_scanner/src/MainWindow.cpp:301
-tools/vst_scanner/src/MainWindow.cpp:325",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vstscanner,mainwindow.tooltip.incrementalScanDefault,"[""默认仅增量扫描未验证或新增的插件""]",tools/vst_scanner/src/MainWindow.cpp:138,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vstscanner,deleteFailed,"[""Deletion failed"", ""删除失败"", ""削除に失敗"", ""삭제 실패""]","tools/vst_scanner/locate/en-US.json!domains.vstscanner.deleteFailed
+tools/vst_scanner/locate/ja-JP.json!domains.vstscanner.deleteFailed
+tools/vst_scanner/locate/ko-KR.json!domains.vstscanner.deleteFailed
+tools/vst_scanner/locate/zh-CN.json!domains.vstscanner.deleteFailed
+tools/vst_scanner/src/MainWindow.cpp:422",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vstscanner,deleteQuestion,"[""Delete the selected scan entry?\nThe plug-in file will be kept."", ""Delete the selected scan entry?\\nThe plug-in file will be kept."", ""确定删除当前插件的扫描条目吗？\n插件文件本身不会被删除。"", ""選択したスキャン項目を削除しますか？\nプラグインファイルは保持されます。"", ""선택한 스캔 항목을 삭제하시겠습니까?\n플러그인 파일은 유지됩니다.""]","tools/vst_scanner/locate/en-US.json!domains.vstscanner.deleteQuestion
+tools/vst_scanner/locate/ja-JP.json!domains.vstscanner.deleteQuestion
+tools/vst_scanner/locate/ko-KR.json!domains.vstscanner.deleteQuestion
+tools/vst_scanner/locate/zh-CN.json!domains.vstscanner.deleteQuestion
+tools/vst_scanner/src/MainWindow.cpp:418",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vstscanner,deleteTitle,"[""Delete plug-in entry"", ""プラグイン項目を削除"", ""删除插件条目"", ""플러그인 항목 삭제""]","tools/vst_scanner/locate/en-US.json!domains.vstscanner.deleteTitle
+tools/vst_scanner/locate/ja-JP.json!domains.vstscanner.deleteTitle
+tools/vst_scanner/locate/ko-KR.json!domains.vstscanner.deleteTitle
+tools/vst_scanner/locate/zh-CN.json!domains.vstscanner.deleteTitle
+tools/vst_scanner/src/MainWindow.cpp:417",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vstscanner,effect,"[""Effect"", ""エフェクト"", ""效果"", ""이펙트""]","tools/vst_scanner/locate/en-US.json!domains.vstscanner.effect
+tools/vst_scanner/locate/ja-JP.json!domains.vstscanner.effect
+tools/vst_scanner/locate/ko-KR.json!domains.vstscanner.effect
+tools/vst_scanner/locate/zh-CN.json!domains.vstscanner.effect
+tools/vst_scanner/src/MainWindow.cpp:110
+tools/vst_scanner/src/MainWindow.cpp:227",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vstscanner,errorPrefix,"[""[Error]"", ""[エラー]"", ""[错误]"", ""[오류]""]","tools/vst_scanner/locate/en-US.json!domains.vstscanner.errorPrefix
+tools/vst_scanner/locate/ja-JP.json!domains.vstscanner.errorPrefix
+tools/vst_scanner/locate/ko-KR.json!domains.vstscanner.errorPrefix
+tools/vst_scanner/locate/zh-CN.json!domains.vstscanner.errorPrefix
+tools/vst_scanner/src/MainWindow.cpp:469",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vstscanner,format,"[""Format"", ""形式"", ""格式"", ""형식""]","tools/vst_scanner/locate/en-US.json!domains.vstscanner.format
+tools/vst_scanner/locate/ja-JP.json!domains.vstscanner.format
+tools/vst_scanner/locate/ko-KR.json!domains.vstscanner.format
+tools/vst_scanner/locate/zh-CN.json!domains.vstscanner.format
+tools/vst_scanner/src/MainWindow.cpp:218
+tools/vst_scanner/src/MainWindow.cpp:240",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vstscanner,incrementalHint,"[""Only scan new or unverified plug-ins by default"", ""既定では新規または未検証のプラグインのみスキャン"", ""默认仅增量扫描未验证或新增的插件"", ""기본적으로 새 플러그인 또는 미검증 플러그인만 스캔""]","tools/vst_scanner/locate/en-US.json!domains.vstscanner.incrementalHint
+tools/vst_scanner/locate/ja-JP.json!domains.vstscanner.incrementalHint
+tools/vst_scanner/locate/ko-KR.json!domains.vstscanner.incrementalHint
+tools/vst_scanner/locate/zh-CN.json!domains.vstscanner.incrementalHint
+tools/vst_scanner/src/MainWindow.cpp:147",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vstscanner,infoPrefix,"[""[Info]"", ""[信息]"", ""[情報]"", ""[정보]""]","tools/vst_scanner/locate/en-US.json!domains.vstscanner.infoPrefix
+tools/vst_scanner/locate/ja-JP.json!domains.vstscanner.infoPrefix
+tools/vst_scanner/locate/ko-KR.json!domains.vstscanner.infoPrefix
+tools/vst_scanner/locate/zh-CN.json!domains.vstscanner.infoPrefix
+tools/vst_scanner/src/MainWindow.cpp:469",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vstscanner,instrument,"[""Instrument"", ""インストゥルメント"", ""乐器"", ""악기""]","tools/vst_scanner/locate/en-US.json!domains.vstscanner.instrument
+tools/vst_scanner/locate/ja-JP.json!domains.vstscanner.instrument
+tools/vst_scanner/locate/ko-KR.json!domains.vstscanner.instrument
+tools/vst_scanner/locate/zh-CN.json!domains.vstscanner.instrument
+tools/vst_scanner/src/MainWindow.cpp:110
+tools/vst_scanner/src/MainWindow.cpp:228",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vstscanner,locationHint,"[""Double-click a plug-in to open its location"", ""ダブルクリックでプラグインの場所を開きます"", ""双击插件可打开所在位置"", ""플러그인을 두 번 클릭하면 위치가 열립니다""]","tools/vst_scanner/locate/en-US.json!domains.vstscanner.locationHint
+tools/vst_scanner/locate/ja-JP.json!domains.vstscanner.locationHint
+tools/vst_scanner/locate/ko-KR.json!domains.vstscanner.locationHint
+tools/vst_scanner/locate/zh-CN.json!domains.vstscanner.locationHint
+tools/vst_scanner/src/MainWindow.cpp:156",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vstscanner,log,"[""Scan log"", ""スキャンログ"", ""扫描日志"", ""스캔 로그""]","tools/vst_scanner/locate/en-US.json!domains.vstscanner.log
+tools/vst_scanner/locate/ja-JP.json!domains.vstscanner.log
+tools/vst_scanner/locate/ko-KR.json!domains.vstscanner.log
+tools/vst_scanner/locate/zh-CN.json!domains.vstscanner.log
+tools/vst_scanner/src/MainWindow.cpp:275",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vstscanner,message.infoCommit,"[""Cannot commit info file: "", ""info ファイルを確定できません: "", ""info 파일을 저장할 수 없습니다: "", ""无法提交 info 文件: ""]","tools/vst_scanner/locate/en-US.json!domains.vstscanner.message.infoCommit
+tools/vst_scanner/locate/ja-JP.json!domains.vstscanner.message.infoCommit
+tools/vst_scanner/locate/ko-KR.json!domains.vstscanner.message.infoCommit
+tools/vst_scanner/locate/zh-CN.json!domains.vstscanner.message.infoCommit
+tools/vst_scanner/src/Scanner.cpp:828",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vstscanner,message.infoDirectory,"[""Cannot create info directory: "", ""info フォルダーを作成できません: "", ""info 폴더를 만들 수 없습니다: "", ""无法创建 info 目录: ""]","tools/vst_scanner/locate/en-US.json!domains.vstscanner.message.infoDirectory
+tools/vst_scanner/locate/ja-JP.json!domains.vstscanner.message.infoDirectory
+tools/vst_scanner/locate/ko-KR.json!domains.vstscanner.message.infoDirectory
+tools/vst_scanner/locate/zh-CN.json!domains.vstscanner.message.infoDirectory
+tools/vst_scanner/src/Scanner.cpp:784",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vstscanner,message.infoWrite,"[""Cannot write info file: "", ""info ファイルを書き込めません: "", ""info 파일을 쓸 수 없습니다: "", ""无法写入 info 文件: ""]","tools/vst_scanner/locate/en-US.json!domains.vstscanner.message.infoWrite
+tools/vst_scanner/locate/ja-JP.json!domains.vstscanner.message.infoWrite
+tools/vst_scanner/locate/ko-KR.json!domains.vstscanner.message.infoWrite
+tools/vst_scanner/locate/zh-CN.json!domains.vstscanner.message.infoWrite
+tools/vst_scanner/src/Scanner.cpp:823",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vstscanner,message.invalidDll,"[""Skipped invalid VST DLL"", ""無効な VST DLL をスキップ"", ""跳过无效 VST DLL"", ""유효하지 않은 VST DLL 건너뛰기""]","tools/vst_scanner/locate/en-US.json!domains.vstscanner.message.invalidDll
+tools/vst_scanner/locate/ja-JP.json!domains.vstscanner.message.invalidDll
+tools/vst_scanner/locate/ko-KR.json!domains.vstscanner.message.invalidDll
+tools/vst_scanner/locate/zh-CN.json!domains.vstscanner.message.invalidDll
+tools/vst_scanner/src/Scanner.cpp:1087",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vstscanner,message.moduleParse,"[""Cannot parse moduleinfo.json: "", ""moduleinfo.json を解析できません: "", ""moduleinfo.json 解析失败: "", ""moduleinfo.json을 파싱할 수 없습니다: ""]","tools/vst_scanner/locate/en-US.json!domains.vstscanner.message.moduleParse
+tools/vst_scanner/locate/ja-JP.json!domains.vstscanner.message.moduleParse
+tools/vst_scanner/locate/ko-KR.json!domains.vstscanner.message.moduleParse
+tools/vst_scanner/locate/zh-CN.json!domains.vstscanner.message.moduleParse
+tools/vst_scanner/src/Scanner.cpp:645",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vstscanner,message.moduleRead,"[""Cannot read moduleinfo.json: "", ""moduleinfo.json を読み取れません: "", ""moduleinfo.json을 읽을 수 없습니다: "", ""无法读取 moduleinfo.json: ""]","tools/vst_scanner/locate/en-US.json!domains.vstscanner.message.moduleRead
+tools/vst_scanner/locate/ja-JP.json!domains.vstscanner.message.moduleRead
+tools/vst_scanner/locate/ko-KR.json!domains.vstscanner.message.moduleRead
+tools/vst_scanner/locate/zh-CN.json!domains.vstscanner.message.moduleRead
+tools/vst_scanner/src/Scanner.cpp:636",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vstscanner,message.outputCreate,"[""Cannot create output directory"", ""出力フォルダーを作成できません"", ""无法创建输出目录"", ""출력 폴더를 만들 수 없습니다""]","tools/vst_scanner/locate/en-US.json!domains.vstscanner.message.outputCreate
+tools/vst_scanner/locate/ja-JP.json!domains.vstscanner.message.outputCreate
+tools/vst_scanner/locate/ko-KR.json!domains.vstscanner.message.outputCreate
+tools/vst_scanner/locate/zh-CN.json!domains.vstscanner.message.outputCreate
+tools/vst_scanner/src/Scanner.cpp:893",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vstscanner,message.pathMissing,"[""Scan path does not exist"", ""スキャン対象のパスが存在しません"", ""扫描路径不存在"", ""스캔 경로가 존재하지 않습니다""]","tools/vst_scanner/locate/en-US.json!domains.vstscanner.message.pathMissing
+tools/vst_scanner/locate/ja-JP.json!domains.vstscanner.message.pathMissing
+tools/vst_scanner/locate/ko-KR.json!domains.vstscanner.message.pathMissing
+tools/vst_scanner/locate/zh-CN.json!domains.vstscanner.message.pathMissing
+tools/vst_scanner/src/Scanner.cpp:933",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vstscanner,message.probeCrash,"[""Plug-in probe crashed; scanner kept running"", ""プラグイン検証がクラッシュしました。スキャナーは実行を継続"", ""插件探测进程崩溃，已保留扫描器进程"", ""플러그인 검사 충돌, 스캐너는 계속 실행됨""]","tools/vst_scanner/locate/en-US.json!domains.vstscanner.message.probeCrash
+tools/vst_scanner/locate/ja-JP.json!domains.vstscanner.message.probeCrash
+tools/vst_scanner/locate/ko-KR.json!domains.vstscanner.message.probeCrash
+tools/vst_scanner/locate/zh-CN.json!domains.vstscanner.message.probeCrash
+tools/vst_scanner/src/Scanner.cpp:415",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vstscanner,message.probeFailed,"[""Isolated probe reported failure"", ""隔离探测器返回失败"", ""隔離プローブが失敗を報告しました"", ""격리된 검사기가 실패를 보고했습니다""]","tools/vst_scanner/locate/en-US.json!domains.vstscanner.message.probeFailed
+tools/vst_scanner/locate/ja-JP.json!domains.vstscanner.message.probeFailed
+tools/vst_scanner/locate/ko-KR.json!domains.vstscanner.message.probeFailed
+tools/vst_scanner/locate/zh-CN.json!domains.vstscanner.message.probeFailed
+tools/vst_scanner/src/Scanner.cpp:435",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vstscanner,message.probeJson,"[""Isolated probe result is not valid JSON"", ""隔离探测结果不是有效 JSON"", ""隔離プローブの結果が有効な JSON ではありません"", ""격리된 검사 결과가 유효한 JSON이 아닙니다""]","tools/vst_scanner/locate/en-US.json!domains.vstscanner.message.probeJson
+tools/vst_scanner/locate/ja-JP.json!domains.vstscanner.message.probeJson
+tools/vst_scanner/locate/ko-KR.json!domains.vstscanner.message.probeJson
+tools/vst_scanner/locate/zh-CN.json!domains.vstscanner.message.probeJson
+tools/vst_scanner/src/Scanner.cpp:426",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vstscanner,message.probeMissing,"[""Isolated probe not found: "", ""未找到隔离探测器: "", ""隔離プローブが見つかりません: "", ""격리된 검사기를 찾지 못했습니다: ""]","tools/vst_scanner/locate/en-US.json!domains.vstscanner.message.probeMissing
+tools/vst_scanner/locate/ja-JP.json!domains.vstscanner.message.probeMissing
+tools/vst_scanner/locate/ko-KR.json!domains.vstscanner.message.probeMissing
+tools/vst_scanner/locate/zh-CN.json!domains.vstscanner.message.probeMissing
+tools/vst_scanner/src/Scanner.cpp:381",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vstscanner,message.probeNoClass,"[""Isolated probe returned no usable plug-in classes"", ""隔离探测器没有返回可用插件 class"", ""隔離プローブから使用可能なプラグインクラスが返されませんでした"", ""격리된 검사기가 사용 가능한 플러그인 클래스를 반환하지 않았습니다""]","tools/vst_scanner/locate/en-US.json!domains.vstscanner.message.probeNoClass
+tools/vst_scanner/locate/ja-JP.json!domains.vstscanner.message.probeNoClass
+tools/vst_scanner/locate/ko-KR.json!domains.vstscanner.message.probeNoClass
+tools/vst_scanner/locate/zh-CN.json!domains.vstscanner.message.probeNoClass
+tools/vst_scanner/src/Scanner.cpp:597",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vstscanner,message.probeNoResult,"[""Isolated probe produced no result: "", ""隔离探测器未生成结果: "", ""隔離プローブの結果がありません: "", ""격리된 검사기 결과가 없습니다: ""]","tools/vst_scanner/locate/en-US.json!domains.vstscanner.message.probeNoResult
+tools/vst_scanner/locate/ja-JP.json!domains.vstscanner.message.probeNoResult
+tools/vst_scanner/locate/ko-KR.json!domains.vstscanner.message.probeNoResult
+tools/vst_scanner/locate/zh-CN.json!domains.vstscanner.message.probeNoResult
+tools/vst_scanner/src/Scanner.cpp:416",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vstscanner,message.probeStart,"[""Cannot start isolated probe: "", ""无法启动隔离探测器: "", ""隔離プローブを起動できません: "", ""격리된 검사기를 시작할 수 없습니다: ""]","tools/vst_scanner/locate/en-US.json!domains.vstscanner.message.probeStart
+tools/vst_scanner/locate/ja-JP.json!domains.vstscanner.message.probeStart
+tools/vst_scanner/locate/ko-KR.json!domains.vstscanner.message.probeStart
+tools/vst_scanner/locate/zh-CN.json!domains.vstscanner.message.probeStart
+tools/vst_scanner/src/Scanner.cpp:398",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vstscanner,message.probeTimeout,"[""Plug-in probe timed out; isolated process terminated"", ""プラグイン検証がタイムアウトし、隔離プロセスを終了しました"", ""插件探测超时，已终止隔离进程"", ""플러그인 검사 시간 초과, 격리된 프로세스 종료""]","tools/vst_scanner/locate/en-US.json!domains.vstscanner.message.probeTimeout
+tools/vst_scanner/locate/ja-JP.json!domains.vstscanner.message.probeTimeout
+tools/vst_scanner/locate/ko-KR.json!domains.vstscanner.message.probeTimeout
+tools/vst_scanner/locate/zh-CN.json!domains.vstscanner.message.probeTimeout
+tools/vst_scanner/src/Scanner.cpp:407",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vstscanner,message.unsupportedBits,"[""Unsupported plug-in bit depth: %1"", ""不支持的插件位宽: %1"", ""未対応のプラグインビット数: %1"", ""지원하지 않는 플러그인 비트 수: %1""]","tools/vst_scanner/locate/en-US.json!domains.vstscanner.message.unsupportedBits
+tools/vst_scanner/locate/ja-JP.json!domains.vstscanner.message.unsupportedBits
+tools/vst_scanner/locate/ko-KR.json!domains.vstscanner.message.unsupportedBits
+tools/vst_scanner/locate/zh-CN.json!domains.vstscanner.message.unsupportedBits
+tools/vst_scanner/src/Scanner.cpp:375",%1,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vstscanner,message.vst2Skipped,"[""Skipped verified VST2; using existing info entries"", ""検証済み VST2 をスキップし、既存の info 項目を使用"", ""跳过已验证 VST2，使用现有 info 条目"", ""검증된 VST2 건너뛰기, 기존 info 항목 사용""]","tools/vst_scanner/locate/en-US.json!domains.vstscanner.message.vst2Skipped
+tools/vst_scanner/locate/ja-JP.json!domains.vstscanner.message.vst2Skipped
+tools/vst_scanner/locate/ko-KR.json!domains.vstscanner.message.vst2Skipped
+tools/vst_scanner/locate/zh-CN.json!domains.vstscanner.message.vst2Skipped
+tools/vst_scanner/src/Scanner.cpp:1058",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vstscanner,message.vst3Binary,"[""No VST3 binary with a recognized bit depth found"", ""ビット数を認識できる VST3 バイナリが見つかりません"", ""未找到可识别位宽的 VST3 二进制"", ""비트 수를 인식할 수 있는 VST3 바이너리를 찾지 못했습니다""]","tools/vst_scanner/locate/en-US.json!domains.vstscanner.message.vst3Binary
+tools/vst_scanner/locate/ja-JP.json!domains.vstscanner.message.vst3Binary
+tools/vst_scanner/locate/ko-KR.json!domains.vstscanner.message.vst3Binary
+tools/vst_scanner/locate/zh-CN.json!domains.vstscanner.message.vst3Binary
+tools/vst_scanner/src/Scanner.cpp:968",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vstscanner,message.vst3ClassSkipped,"[""VST3 class 已验证，跳过本次探测"", ""VST3 classes already verified; skipping probe"", ""VST3 クラスは検証済みのため、検証をスキップ"", ""VST3 클래스가 이미 검증되어 검사 건너뛰기""]","tools/vst_scanner/locate/en-US.json!domains.vstscanner.message.vst3ClassSkipped
+tools/vst_scanner/locate/ja-JP.json!domains.vstscanner.message.vst3ClassSkipped
+tools/vst_scanner/locate/ko-KR.json!domains.vstscanner.message.vst3ClassSkipped
+tools/vst_scanner/locate/zh-CN.json!domains.vstscanner.message.vst3ClassSkipped
+tools/vst_scanner/src/Scanner.cpp:1019",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vstscanner,message.vst3Loaded,"[""Loaded VST3 in isolation and obtained class information"", ""VST3 を隔離ロードし、クラス情報を取得しました"", ""VST3를 격리하여 로드하고 클래스 정보를 가져왔습니다"", ""已隔离加载 VST3，获取真实 class 信息""]","tools/vst_scanner/locate/en-US.json!domains.vstscanner.message.vst3Loaded
+tools/vst_scanner/locate/ja-JP.json!domains.vstscanner.message.vst3Loaded
+tools/vst_scanner/locate/ko-KR.json!domains.vstscanner.message.vst3Loaded
+tools/vst_scanner/locate/zh-CN.json!domains.vstscanner.message.vst3Loaded
+tools/vst_scanner/src/Scanner.cpp:1009",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vstscanner,message.vst3Partial,"[""VST3 classes probed in isolation; some failed to load, entries kept: "", ""VST3 クラスを隔離検証。一部のロードに失敗し、項目を保持: "", ""VST3 클래스 격리 검사, 일부 로드 실패, 항목 유지: "", ""已枚举并隔离探测 VST3；部分 class 加载失败，已保留插件条目: ""]","tools/vst_scanner/locate/en-US.json!domains.vstscanner.message.vst3Partial
+tools/vst_scanner/locate/ja-JP.json!domains.vstscanner.message.vst3Partial
+tools/vst_scanner/locate/ko-KR.json!domains.vstscanner.message.vst3Partial
+tools/vst_scanner/locate/zh-CN.json!domains.vstscanner.message.vst3Partial
+tools/vst_scanner/src/Scanner.cpp:1010",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vstscanner,message.vst3Skipped,"[""Skipped verified VST3; using existing info entries"", ""検証済み VST3 をスキップし、既存の info 項目を使用"", ""跳过已验证 VST3，使用现有 info 条目"", ""검증된 VST3 건너뛰기, 기존 info 항목 사용""]","tools/vst_scanner/locate/en-US.json!domains.vstscanner.message.vst3Skipped
+tools/vst_scanner/locate/ja-JP.json!domains.vstscanner.message.vst3Skipped
+tools/vst_scanner/locate/ko-KR.json!domains.vstscanner.message.vst3Skipped
+tools/vst_scanner/locate/zh-CN.json!domains.vstscanner.message.vst3Skipped
+tools/vst_scanner/src/Scanner.cpp:984",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vstscanner,message.vst3Static,"[""Isolated load returned no classes; keeping static moduleinfo data: "", ""隔离加载未返回 class，已保留 moduleinfo 静态信息: "", ""隔離ロードからクラスが返されず、静的 moduleinfo データを保持: "", ""격리 로드가 클래스를 반환하지 않아 정적 moduleinfo 데이터 유지: ""]","tools/vst_scanner/locate/en-US.json!domains.vstscanner.message.vst3Static
+tools/vst_scanner/locate/ja-JP.json!domains.vstscanner.message.vst3Static
+tools/vst_scanner/locate/ko-KR.json!domains.vstscanner.message.vst3Static
+tools/vst_scanner/locate/zh-CN.json!domains.vstscanner.message.vst3Static
+tools/vst_scanner/src/Scanner.cpp:1033",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vstscanner,name,"[""Name"", ""名前"", ""名称"", ""이름""]","tools/vst_scanner/locate/en-US.json!domains.vstscanner.name
+tools/vst_scanner/locate/ja-JP.json!domains.vstscanner.name
+tools/vst_scanner/locate/ko-KR.json!domains.vstscanner.name
+tools/vst_scanner/locate/zh-CN.json!domains.vstscanner.name
+tools/vst_scanner/src/MainWindow.cpp:238",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vstscanner,noCandidates,"[""No plug-in candidates found"", ""プラグイン候補が見つかりません"", ""未发现插件候选"", ""플러그인 후보를 찾지 못했습니다""]","tools/vst_scanner/locate/en-US.json!domains.vstscanner.noCandidates
+tools/vst_scanner/locate/ja-JP.json!domains.vstscanner.noCandidates
+tools/vst_scanner/locate/ko-KR.json!domains.vstscanner.noCandidates
+tools/vst_scanner/locate/zh-CN.json!domains.vstscanner.noCandidates
+tools/vst_scanner/src/MainWindow.cpp:520",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vstscanner,noPlugins,"[""No plug-ins found"", ""プラグインが見つかりません"", ""未发现插件"", ""플러그인을 찾지 못했습니다""]","tools/vst_scanner/locate/en-US.json!domains.vstscanner.noPlugins
+tools/vst_scanner/locate/ja-JP.json!domains.vstscanner.noPlugins
+tools/vst_scanner/locate/ko-KR.json!domains.vstscanner.noPlugins
+tools/vst_scanner/locate/zh-CN.json!domains.vstscanner.noPlugins
+tools/vst_scanner/src/MainWindow.cpp:546",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vstscanner,openLocation,"[""Open plug-in location"", ""プラグインの場所を開く"", ""打开插件位置"", ""플러그인 위치 열기""]","tools/vst_scanner/locate/en-US.json!domains.vstscanner.openLocation
+tools/vst_scanner/locate/ja-JP.json!domains.vstscanner.openLocation
+tools/vst_scanner/locate/ko-KR.json!domains.vstscanner.openLocation
+tools/vst_scanner/locate/zh-CN.json!domains.vstscanner.openLocation
+tools/vst_scanner/src/MainWindow.cpp:260",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vstscanner,openOutput,"[""Open output directory"", ""出力フォルダーを開く"", ""打开输出目录"", ""출력 폴더 열기""]","tools/vst_scanner/locate/en-US.json!domains.vstscanner.openOutput
+tools/vst_scanner/locate/ja-JP.json!domains.vstscanner.openOutput
+tools/vst_scanner/locate/ko-KR.json!domains.vstscanner.openOutput
+tools/vst_scanner/locate/zh-CN.json!domains.vstscanner.openOutput
+tools/vst_scanner/src/MainWindow.cpp:150",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vstscanner,output,"[""Output directory"", ""出力フォルダー"", ""输出目录"", ""출력 폴더""]","tools/vst_scanner/locate/en-US.json!domains.vstscanner.output
+tools/vst_scanner/locate/ja-JP.json!domains.vstscanner.output
+tools/vst_scanner/locate/ko-KR.json!domains.vstscanner.output
+tools/vst_scanner/locate/zh-CN.json!domains.vstscanner.output
+tools/vst_scanner/src/MainWindow.cpp:200",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vstscanner,paths,"[""Scan paths"", ""スキャン対象のパス"", ""扫描路径"", ""스캔 경로""]","tools/vst_scanner/locate/en-US.json!domains.vstscanner.paths
+tools/vst_scanner/locate/ja-JP.json!domains.vstscanner.paths
+tools/vst_scanner/locate/ko-KR.json!domains.vstscanner.paths
+tools/vst_scanner/locate/zh-CN.json!domains.vstscanner.paths
+tools/vst_scanner/src/MainWindow.cpp:174",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vstscanner,pluginCount,"[""Plug-ins: %1"", ""プラグイン: %1"", ""插件 %1 个"", ""플러그인: %1""]","tools/vst_scanner/locate/en-US.json!domains.vstscanner.pluginCount
+tools/vst_scanner/locate/ja-JP.json!domains.vstscanner.pluginCount
+tools/vst_scanner/locate/ko-KR.json!domains.vstscanner.pluginCount
+tools/vst_scanner/locate/zh-CN.json!domains.vstscanner.pluginCount
+tools/vst_scanner/src/MainWindow.cpp:390",%1,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vstscanner,preparing,"[""Preparing scan..."", ""スキャンを準備..."", ""准备扫描..."", ""스캔 준비...""]","tools/vst_scanner/locate/en-US.json!domains.vstscanner.preparing
+tools/vst_scanner/locate/ja-JP.json!domains.vstscanner.preparing
+tools/vst_scanner/locate/ko-KR.json!domains.vstscanner.preparing
+tools/vst_scanner/locate/zh-CN.json!domains.vstscanner.preparing
+tools/vst_scanner/src/MainWindow.cpp:498
+tools/vst_scanner/src/MainWindow.cpp:522",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 vstscanner,probemain.error.createVst3ComponentFailed,"[""VST3 component class 创建失败: ""]",tools/vst_scanner/src/ProbeMain.cpp:459,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 vstscanner,probemain.error.initializeVst3ComponentFailed,"[""VST3 component initialize 失败: ""]",tools/vst_scanner/src/ProbeMain.cpp:466,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 vstscanner,probemain.error.invalidVst2Effect,"[""VST2 模块返回无效 AEffect""]",tools/vst_scanner/src/ProbeMain.cpp:546,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
@@ -4809,40 +5245,91 @@ vstscanner,probemain.error.pluginProbeFailed,"[""插件探测失败""]",tools/vs
 vstscanner,probemain.error.vst2EntryPointMissing,"[""VST2 模块没有 VSTPluginMain/main""]",tools/vst_scanner/src/ProbeMain.cpp:533,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 vstscanner,probemain.error.vst2ProbeDisabled,"[""VST2 探测未启用""]",tools/vst_scanner/src/ProbeMain.cpp:655,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 vstscanner,probemain.error.vst3FactoryClassIdMissing,"[""VST3 factory 找不到 class ID: ""]",tools/vst_scanner/src/ProbeMain.cpp:452,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vstscanner,scanner.category.effects,"[""Effects""]",tools/vst_scanner/src/Scanner.cpp:756,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vstscanner,scanner.category.instruments,"[""Instruments""]",tools/vst_scanner/src/Scanner.cpp:756,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vstscanner,scanner.error.commitInfoFileFailed,"[""无法提交 info 文件: ""]",tools/vst_scanner/src/Scanner.cpp:808,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vstscanner,scanner.error.createInfoDirectoryFailed,"[""无法创建 info 目录: ""]",tools/vst_scanner/src/Scanner.cpp:764,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vstscanner,scanner.error.createOutputDirectoryFailed,"[""无法创建输出目录""]",tools/vst_scanner/src/Scanner.cpp:872,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vstscanner,scanner.error.invalidProbeResultJson,"[""隔离探测结果不是有效 JSON""]",tools/vst_scanner/src/Scanner.cpp:406,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vstscanner,scanner.error.parseModuleInfoFailed,"[""moduleinfo.json 解析失败: ""]",tools/vst_scanner/src/Scanner.cpp:625,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vstscanner,scanner.error.probeCrashed,"[""插件探测进程崩溃，已保留扫描器进程""]",tools/vst_scanner/src/Scanner.cpp:395,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vstscanner,scanner.error.probeExecutableMissing,"[""未找到隔离探测器: ""]",tools/vst_scanner/src/Scanner.cpp:361,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vstscanner,scanner.error.probeNoResult,"[""隔离探测器未生成结果: ""]",tools/vst_scanner/src/Scanner.cpp:396,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vstscanner,scanner.error.probeNoUsableClass,"[""隔离探测器没有返回可用插件 class""]",tools/vst_scanner/src/Scanner.cpp:577,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vstscanner,scanner.error.probeReportedFailure,"[""隔离探测器返回失败""]",tools/vst_scanner/src/Scanner.cpp:415,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vstscanner,scanner.error.probeTimeout,"[""插件探测超时，已终止隔离进程""]",tools/vst_scanner/src/Scanner.cpp:387,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vstscanner,scanner.error.readModuleInfoFailed,"[""无法读取 moduleinfo.json: ""]",tools/vst_scanner/src/Scanner.cpp:616,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vstscanner,scanner.error.scanPathMissing,"[""扫描路径不存在""]",tools/vst_scanner/src/Scanner.cpp:912,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vstscanner,scanner.error.startProbeFailed,"[""无法启动隔离探测器: ""]",tools/vst_scanner/src/Scanner.cpp:378,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vstscanner,scanner.error.unsupportedPluginArchitecture,"[""不支持的插件位宽: %1""]",tools/vst_scanner/src/Scanner.cpp:355,%1,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vstscanner,scanner.error.vst3ArchitectureUnknown,"[""未找到可识别位宽的 VST3 二进制""]",tools/vst_scanner/src/Scanner.cpp:947,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vstscanner,scanner.error.writeInfoFileFailed,"[""无法写入 info 文件: ""]",tools/vst_scanner/src/Scanner.cpp:803,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vstscanner,scanner.status.skipInvalidVstDll,"[""跳过无效 VST DLL""]",tools/vst_scanner/src/Scanner.cpp:1066,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vstscanner,scanner.status.skipVerifiedVst2,"[""跳过已验证 VST2，使用现有 info 条目""]",tools/vst_scanner/src/Scanner.cpp:1037,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vstscanner,scanner.status.skipVerifiedVst3,"[""跳过已验证 VST3，使用现有 info 条目""]",tools/vst_scanner/src/Scanner.cpp:963,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vstscanner,scanner.status.vst3ClassAlreadyVerified,"[""VST3 class 已验证，跳过本次探测""]",tools/vst_scanner/src/Scanner.cpp:998,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vstscanner,scanner.status.vst3ClassesProbed,"[""已隔离加载 VST3，获取真实 class 信息""]",tools/vst_scanner/src/Scanner.cpp:988,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vstscanner,scanner.warning.noClassStaticInfoPreserved,"[""隔离加载未返回 class，已保留 moduleinfo 静态信息: ""]",tools/vst_scanner/src/Scanner.cpp:1012,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-vstscanner,scanner.warning.partialVst3ClassesPreserved,"[""已枚举并隔离探测 VST3；部分 class 加载失败，已保留插件条目: ""]",tools/vst_scanner/src/Scanner.cpp:989,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vstscanner,ready,"[""Ready"", ""就绪"", ""準備完了"", ""준비됨""]","tools/vst_scanner/locate/en-US.json!domains.vstscanner.ready
+tools/vst_scanner/locate/ja-JP.json!domains.vstscanner.ready
+tools/vst_scanner/locate/ko-KR.json!domains.vstscanner.ready
+tools/vst_scanner/locate/zh-CN.json!domains.vstscanner.ready
+tools/vst_scanner/src/MainWindow.cpp:161",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vstscanner,remove,"[""Remove"", ""削除"", ""移除"", ""제거""]","tools/vst_scanner/locate/en-US.json!domains.vstscanner.remove
+tools/vst_scanner/locate/ja-JP.json!domains.vstscanner.remove
+tools/vst_scanner/locate/ko-KR.json!domains.vstscanner.remove
+tools/vst_scanner/locate/zh-CN.json!domains.vstscanner.remove
+tools/vst_scanner/src/MainWindow.cpp:187",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vstscanner,removeEntry,"[""Delete entry"", ""删除条目"", ""項目を削除"", ""항목 삭제""]","tools/vst_scanner/locate/en-US.json!domains.vstscanner.removeEntry
+tools/vst_scanner/locate/ja-JP.json!domains.vstscanner.removeEntry
+tools/vst_scanner/locate/ko-KR.json!domains.vstscanner.removeEntry
+tools/vst_scanner/locate/zh-CN.json!domains.vstscanner.removeEntry
+tools/vst_scanner/src/MainWindow.cpp:264",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vstscanner,removeMissing,"[""Remove missing entries"", ""存在しない項目を削除"", ""清理失效条目"", ""누락된 항목 제거""]","tools/vst_scanner/locate/en-US.json!domains.vstscanner.removeMissing
+tools/vst_scanner/locate/ja-JP.json!domains.vstscanner.removeMissing
+tools/vst_scanner/locate/ko-KR.json!domains.vstscanner.removeMissing
+tools/vst_scanner/locate/zh-CN.json!domains.vstscanner.removeMissing
+tools/vst_scanner/src/MainWindow.cpp:268",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vstscanner,removedCount,"[""Removed missing entries: %1"", ""存在しない項目を %1 件削除"", ""清理失效条目：%1 个"", ""누락된 항목 %1개 제거""]","tools/vst_scanner/locate/en-US.json!domains.vstscanner.removedCount
+tools/vst_scanner/locate/ja-JP.json!domains.vstscanner.removedCount
+tools/vst_scanner/locate/ko-KR.json!domains.vstscanner.removedCount
+tools/vst_scanner/locate/zh-CN.json!domains.vstscanner.removedCount
+tools/vst_scanner/src/MainWindow.cpp:441",%1,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vstscanner,rescan,"[""Rescan verified plug-ins"", ""検証済みプラグインを再スキャン"", ""重新扫描已验证插件"", ""검증된 플러그인 다시 스캔""]","tools/vst_scanner/locate/en-US.json!domains.vstscanner.rescan
+tools/vst_scanner/locate/ja-JP.json!domains.vstscanner.rescan
+tools/vst_scanner/locate/ko-KR.json!domains.vstscanner.rescan
+tools/vst_scanner/locate/zh-CN.json!domains.vstscanner.rescan
+tools/vst_scanner/src/MainWindow.cpp:146",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vstscanner,scan,"[""Scan plug-ins"", ""プラグインをスキャン"", ""扫描插件"", ""플러그인 스캔""]","tools/vst_scanner/locate/en-US.json!domains.vstscanner.scan
+tools/vst_scanner/locate/ja-JP.json!domains.vstscanner.scan
+tools/vst_scanner/locate/ko-KR.json!domains.vstscanner.scan
+tools/vst_scanner/locate/zh-CN.json!domains.vstscanner.scan
+tools/vst_scanner/src/MainWindow.cpp:140",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vstscanner,scanning,"[""Scanning: %1 (%2/%3)"", ""スキャン中: %1 (%2/%3)"", ""正在扫描：%1  (%2/%3)"", ""스캔 중: %1 (%2/%3)""]","tools/vst_scanner/locate/en-US.json!domains.vstscanner.scanning
+tools/vst_scanner/locate/ja-JP.json!domains.vstscanner.scanning
+tools/vst_scanner/locate/ko-KR.json!domains.vstscanner.scanning
+tools/vst_scanner/locate/zh-CN.json!domains.vstscanner.scanning
+tools/vst_scanner/src/MainWindow.cpp:526","%1,%2,%3",原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vstscanner,search,"[""Search name, vendor or path"", ""名前・メーカー・パスを検索"", ""搜索名称、厂商、路径"", ""이름, 제조사 또는 경로 검색""]","tools/vst_scanner/locate/en-US.json!domains.vstscanner.search
+tools/vst_scanner/locate/ja-JP.json!domains.vstscanner.search
+tools/vst_scanner/locate/ko-KR.json!domains.vstscanner.search
+tools/vst_scanner/locate/zh-CN.json!domains.vstscanner.search
+tools/vst_scanner/src/MainWindow.cpp:231",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vstscanner,starting,"[""Starting scan..."", ""スキャンを開始..."", ""开始扫描..."", ""스캔 시작...""]","tools/vst_scanner/locate/en-US.json!domains.vstscanner.starting
+tools/vst_scanner/locate/ja-JP.json!domains.vstscanner.starting
+tools/vst_scanner/locate/ko-KR.json!domains.vstscanner.starting
+tools/vst_scanner/locate/zh-CN.json!domains.vstscanner.starting
+tools/vst_scanner/src/MainWindow.cpp:495",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vstscanner,summary,"[""Scan complete: %1 entries written, %2 entries in the directory."", ""スキャン完了: %1 件を書き込み、フォルダー内に %2 件。"", ""扫描完成：写入 %1 个条目，当前目录共 %2 个条目。"", ""스캔 완료: %1개 항목 기록, 폴더 내 총 %2개 항목.""]","tools/vst_scanner/locate/en-US.json!domains.vstscanner.summary
+tools/vst_scanner/locate/ja-JP.json!domains.vstscanner.summary
+tools/vst_scanner/locate/ko-KR.json!domains.vstscanner.summary
+tools/vst_scanner/locate/zh-CN.json!domains.vstscanner.summary
+tools/vst_scanner/src/MainWindow.cpp:540","%1,%2",原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vstscanner,title,"[""VST Scanner"", ""VST スキャナー"", ""VST 扫描器"", ""VST 스캐너""]","tools/vst_scanner/locate/en-US.json!domains.vstscanner.title
+tools/vst_scanner/locate/ja-JP.json!domains.vstscanner.title
+tools/vst_scanner/locate/ko-KR.json!domains.vstscanner.title
+tools/vst_scanner/locate/zh-CN.json!domains.vstscanner.title
+tools/vst_scanner/src/MainWindow.cpp:130
+tools/vst_scanner/src/MainWindow.cpp:301
+tools/vst_scanner/src/MainWindow.cpp:325",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vstscanner,vendor,"[""Vendor"", ""メーカー"", ""厂商"", ""제조사""]","tools/vst_scanner/locate/en-US.json!domains.vstscanner.vendor
+tools/vst_scanner/locate/ja-JP.json!domains.vstscanner.vendor
+tools/vst_scanner/locate/ko-KR.json!domains.vstscanner.vendor
+tools/vst_scanner/locate/zh-CN.json!domains.vstscanner.vendor
+tools/vst_scanner/src/MainWindow.cpp:239",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vstscanner,version,"[""Version"", ""バージョン"", ""版本"", ""버전""]","tools/vst_scanner/locate/en-US.json!domains.vstscanner.version
+tools/vst_scanner/locate/ja-JP.json!domains.vstscanner.version
+tools/vst_scanner/locate/ko-KR.json!domains.vstscanner.version
+tools/vst_scanner/locate/zh-CN.json!domains.vstscanner.version
+tools/vst_scanner/src/MainWindow.cpp:243",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+vstscanner,written,"[""Scan complete: %1 entries written"", ""スキャン完了: %1 件を書き込み"", ""扫描完成：写入 %1 个条目"", ""스캔 완료: %1개 항목 기록""]","tools/vst_scanner/locate/en-US.json!domains.vstscanner.written
+tools/vst_scanner/locate/ja-JP.json!domains.vstscanner.written
+tools/vst_scanner/locate/ko-KR.json!domains.vstscanner.written
+tools/vst_scanner/locate/zh-CN.json!domains.vstscanner.written
+tools/vst_scanner/src/MainWindow.cpp:547",%1,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 meterbridge,library.descriptor.displayName,"[""Meterbridge""]",src/meter/mod/Library.cpp:88,,元数据/语言包显示，布局度量并保留完整 tooltip,语言包项见根目录 i18n翻译核对.md；其它未实施（S0 清单）,描述符/内置主题/语言包的显示角色；身份字段不变
 meterbridge,library.descriptor.tokens.wjn-theme-module-winjacknexus-meterbridge-node-card-background.description,"[""Host-drawn card background for the Meterbridge node type""]",src/meter/mod/Library.cpp:88,,元数据/语言包显示，布局度量并保留完整 tooltip,语言包项见根目录 i18n翻译核对.md；其它未实施（S0 清单）,描述符/内置主题/语言包的显示角色；身份字段不变
 mixer,library.descriptor.displayName,"[""Digital Mixer""]",src/mixer/Library.cpp:568,,元数据/语言包显示，布局度量并保留完整 tooltip,语言包项见根目录 i18n翻译核对.md；其它未实施（S0 清单）,描述符/内置主题/语言包的显示角色；身份字段不变
 mixer,library.descriptor.tokens.wjn-theme-module-winjacknexus-digital-mixer-node-card-background.description,"[""Host-drawn card background for the Digital Mixer node type""]",src/mixer/Library.cpp:568,,元数据/语言包显示，布局度量并保留完整 tooltip,语言包项见根目录 i18n翻译核对.md；其它未实施（S0 清单）,描述符/内置主题/语言包的显示角色；身份字段不变
 patchbay,library.descriptor.displayName,"[""Patchbay""]",src/patchbay/mod/src/Library.cpp:2998,,元数据/语言包显示，布局度量并保留完整 tooltip,语言包项见根目录 i18n翻译核对.md；其它未实施（S0 清单）,描述符/内置主题/语言包的显示角色；身份字段不变
 patchbay,library.descriptor.tokens.wjn-theme-module-winjacknexus-patchbay-node-card-background.description,"[""Host-drawn card background for the Patchbay node type""]",src/patchbay/mod/src/Library.cpp:2998,,元数据/语言包显示，布局度量并保留完整 tooltip,语言包项见根目录 i18n翻译核对.md；其它未实施（S0 清单）,描述符/内置主题/语言包的显示角色；身份字段不变
-vst,library.descriptor.displayName,"[""VST Host""]",src/vst/src/Library.cpp:891,,元数据/语言包显示，布局度量并保留完整 tooltip,语言包项见根目录 i18n翻译核对.md；其它未实施（S0 清单）,描述符/内置主题/语言包的显示角色；身份字段不变
-vst,library.descriptor.tokens.wjn-theme-module-winjacknexus-vst-host-node-card-background.description,"[""Host-drawn card background for the VST Host node type""]",src/vst/src/Library.cpp:891,,元数据/语言包显示，布局度量并保留完整 tooltip,语言包项见根目录 i18n翻译核对.md；其它未实施（S0 清单）,描述符/内置主题/语言包的显示角色；身份字段不变
+vst,library.descriptor.displayName,"[""VST Host""]",src/vst/src/Library.cpp:923,,元数据/语言包显示，布局度量并保留完整 tooltip,语言包项见根目录 i18n翻译核对.md；其它未实施（S0 清单）,描述符/内置主题/语言包的显示角色；身份字段不变
+vst,library.descriptor.tokens.wjn-theme-module-winjacknexus-vst-host-node-card-background.description,"[""Host-drawn card background for the VST Host node type""]",src/vst/src/Library.cpp:923,,元数据/语言包显示，布局度量并保留完整 tooltip,语言包项见根目录 i18n翻译核对.md；其它未实施（S0 清单）,描述符/内置主题/语言包的显示角色；身份字段不变
 example.node,examplenode.descriptor.displayName,"[""Example Node""]",Develop/Node/ExampleNode.cpp:81,,元数据/语言包显示，布局度量并保留完整 tooltip,语言包项见根目录 i18n翻译核对.md；其它未实施（S0 清单）,描述符/内置主题/语言包的显示角色；身份字段不变
 example.node,examplenode.descriptor.tokens.wjn-theme-module-winjacknexus-example-node-node-card-background.description,"[""Host-drawn node card background for this example node type""]",Develop/Node/ExampleNode.cpp:81,,元数据/语言包显示，布局度量并保留完整 tooltip,语言包项见根目录 i18n翻译核对.md；其它未实施（S0 清单）,描述符/内置主题/语言包的显示角色；身份字段不变
 host,language.auto,"[""Automatic"", ""自动"", ""自動"", ""자동""]","locate/en-US.json!domains.host.language.auto
@@ -4904,5 +5391,9 @@ Develop/Node/locate/zh-CN.json!domains.example.node.name",,元数据/语言包�
 example.node,description,"[""Minimal Node API implementation for integration validation.""]",Develop/Node/locate/en-US.json!domains.example.node.description,,元数据/语言包显示，布局度量并保留完整 tooltip,语言包项见根目录 i18n翻译核对.md；其它未实施（S0 清单）,描述符/内置主题/语言包的显示角色；身份字段不变
 example.node,greeting,"[""{count} node for {name}"", ""{count} nodes for {name}""]","Develop/Node/locate/en-US.json!domains.example.node.greeting.one
 Develop/Node/locate/en-US.json!domains.example.node.greeting.other","{count},{name}",元数据/语言包显示，布局度量并保留完整 tooltip,语言包项见根目录 i18n翻译核对.md；其它未实施（S0 清单）,描述符/内置主题/语言包的显示角色；身份字段不变
+vst,module.name,"[""VST Plugin"", ""VST プラグイン"", ""VST 插件"", ""VST 플러그인""]","src/vst/locate/en-US.json!domains.vst.module.name
+src/vst/locate/ja-JP.json!domains.vst.module.name
+src/vst/locate/ko-KR.json!domains.vst.module.name
+src/vst/locate/zh-CN.json!domains.vst.module.name",,元数据/语言包显示，布局度量并保留完整 tooltip,语言包项见根目录 i18n翻译核对.md；其它未实施（S0 清单）,描述符/内置主题/语言包的显示角色；身份字段不变
 theme,defaultTheme.name,"[""WinJACKNexus 默认主题""]",themes/template/winjacknexus-default.wjnskin!meta.json!name,,元数据/语言包显示，布局度量并保留完整 tooltip,语言包项见根目录 i18n翻译核对.md；其它未实施（S0 清单）,描述符/内置主题/语言包的显示角色；身份字段不变
 theme,defaultTheme.description,"[""当前内置外观的完整模块级颜色、图表、电平与背景默认值。""]",themes/template/winjacknexus-default.wjnskin!meta.json!description,,元数据/语言包显示，布局度量并保留完整 tooltip,语言包项见根目录 i18n翻译核对.md；其它未实施（S0 清单）,描述符/内置主题/语言包的显示角色；身份字段不变

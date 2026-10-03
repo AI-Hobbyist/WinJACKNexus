@@ -1,17 +1,17 @@
 {
   "stage": "S0",
-  "date": "2026-10-03",
+  "date": "2026-10-04",
   "result": "PASS",
-  "source_files": 272,
-  "source_occurrences": 9535,
+  "source_files": 275,
+  "source_occurrences": 9690,
   "source_classifications": {
-    "exclude": 7868,
-    "translate": 1660,
+    "exclude": 8028,
+    "translate": 1655,
     "structured": 7
   },
-  "display_key_proposals": 1306,
+  "display_key_proposals": 1302,
   "descriptor_fields": 43,
-  "resource_fields": 8416,
+  "resource_fields": 9066,
   "identity_comparison_occurrences": 439,
   "required_domains": [
     "adapter",

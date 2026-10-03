@@ -35,7 +35,7 @@ s0.9ebe8e8e1fc9,patchbay,src/patchbay/mod/src/Library.cpp,2998,"{
 			""description"":""Host-drawn card background for the Patchbay node type""
 		}]
 	}","static constexpr char descriptor[] = R""json({",raw-structured-review,structured,,原始结构化描述符：逐字段提取显示名/说明，协议结构保留,patchbay
-s0.5acecc2a7eee,vst,src/vst/src/Library.cpp,891,"{
+s0.5acecc2a7eee,vst,src/vst/src/Library.cpp,923,"{
         ""descriptorVersion"":1,""themeApiVersion"":1,
         ""moduleId"":""module-winjacknexus-vst-host"",
         ""namespace"":""--wjn-theme-module-winjacknexus-vst-host-"",

@@ -1,0 +1,311 @@
+{"changed_files": ["src/vst/src/I18n.cpp", "src/vst/src/I18n.hpp", "src/vst/src/Library.cpp", "tools/vst_scanner/include/WinJACKNexus/VstScanner/Language.hpp", "tools/vst_scanner/include/WinJACKNexus/VstScanner/Scanner.hpp", "tools/vst_scanner/src/MainWindow.cpp", "tools/vst_scanner/src/Scanner.cpp", "tools/vst_scanner/src/main.cpp"], "resource_changes": [], "added": 230, "removed": 79, "relocated_groups": 147, "usage_changed_groups": 61, "before": 9535, "after": 9690}
+ADDED src/vst/src/I18n.cpp:2 'I18n.hpp' | #include "I18n.hpp"
+ADDED src/vst/src/I18n.cpp:31 'vst' | if (host->text(host->context,"vst",key_.constData(),english_.constData(),
+ADDED src/vst/src/I18n.cpp:35 'vst' | if (host->text(host->context,"vst",key_.constData(),english_.constData(),
+ADDED src/vst/src/I18n.cpp:57 '{"descriptorVersion":1,"i18nApiVersion":1,"moduleId":"module-winjacknexus-vst-host","domains":["vst"],"locatePath":"locate","catalogVersion":1,"displayNameKey":{"domain":"vst","key":"module.name"}}' | static constexpr char descriptor[]=R"({"descriptorVersion":1,"i18nApiVersion":1,"moduleId":"module-winjacknexus-vst-host","domains":["vst"],"locatePath":"locate","catalogVersion":1,"displayNameKey":{"domain":"vst","key":"module.name"}})";
+ADDED src/vst/src/Library.cpp:13 'I18n.hpp' | #include "I18n.hpp"
+ADDED src/vst/src/Library.cpp:848 'action.apply' | auto* reload = vstButton(vstText("action.apply", "Apply and reload"), this);
+ADDED src/vst/src/Library.cpp:808 'action.browse' | auto* browse = vstButton(vstText("action.browse", "Browse"), this);
+ADDED src/vst/src/Library.cpp:822 'action.browse' | auto* browsePreset = vstButton(vstText("action.browse", "Browse"), this);
+ADDED src/vst/src/Library.cpp:849 'action.load' | auto* loadPreset = vstButton(vstText("action.load", "Load preset"), this);
+ADDED src/vst/src/Library.cpp:851 'action.restart' | restart_ = vstButton(vstText("action.restart", "Restart plugin"), this);
+ADDED src/vst/src/Library.cpp:850 'action.save' | auto* savePreset = vstButton(vstText("action.save", "Save preset as"), this);
+ADDED src/vst/src/Library.cpp:196 'choose.filter' | VstI18n::property(filter,"placeholderText",vstText("choose.filter", "Filter or enter plugin name / ID"));
+ADDED src/vst/src/Library.cpp:478 'choose.plugin' | vstText("choose.plugin", "Choose VST plugin"),
+ADDED src/vst/src/Library.cpp:864 'choose.plugin' | const auto path = vstFile(this, vstText("choose.plugin", "Choose VST plugin"), path_->text(),
+ADDED src/vst/src/Library.cpp:870 'choose.preset' | const auto path = vstFile(this, vstText("choose.preset", "Choose VST preset"), presetPath_->text(),
+ADDED src/vst/src/Library.cpp:892 'choose.save' | const auto path = vstFile(this, vstText("choose.save", "Save VST preset"), presetPath_->text(),
+ADDED src/vst/src/Library.cpp:569 'choose.shell' | internalPlugin_ = chooseInternalPlugin(vstText("choose.shell", "Choose VST2 Shell Plugin"),
+ADDED src/vst/src/Library.cpp:570 'choose.shellDescription' | vstText("choose.shellDescription", "Choose an internal plugin or enter its name / numeric ID."),
+ADDED src/vst/src/Library.cpp:544 'choose.vst3' | internalPlugin_ = chooseInternalPlugin(vstText("choose.vst3", "Choose VST3 Plugin"),
+ADDED src/vst/src/Library.cpp:545 'choose.vst3Description' | vstText("choose.vst3Description", "Choose a VST3 plugin class or enter its class ID."),
+ADDED src/vst/src/Library.cpp:493 'error.contact' | status_ = response.isEmpty() ? vstText("error.contact", "Unable to contact VSTProcess.") : Text(response);
+ADDED src/vst/src/Library.cpp:256 'error.factoryEmpty' | error = vstText("error.factoryEmpty", "The VST3 factory did not provide any audio plugin classes.");
+ADDED src/vst/src/Library.cpp:396 'error.loadPreset' | status_ = response.isEmpty() ? vstText("error.loadPreset", "Unable to load the VST preset.") : Text(response);
+ADDED src/vst/src/Library.cpp:505 'error.pathMissing' | status_ = vstText("error.pathMissing", "The configured plugin path does not exist.");
+ADDED src/vst/src/Library.cpp:653 'error.pipeTimeout' | status_ = status.isEmpty() ? vstText("error.pipeTimeout", "VSTProcess did not make its control pipe ready before the startup deadline.") : Text(status);
+ADDED src/vst/src/Library.cpp:391 'error.presetMissing' | status_ = vstText("error.presetMissing", "The selected VST preset file does not exist.");
+ADDED src/vst/src/Library.cpp:588 'error.previousProcess' | status_ = vstText("error.previousProcess", "The previous VSTProcess is still running.");
+ADDED src/vst/src/Library.cpp:513 'error.processMissing' | status_ = vstText("error.processMissing", "The required VSTProcess executable is not available.");
+ADDED src/vst/src/Library.cpp:747 'error.restoreState' | status_ = response.isEmpty() ? vstText("error.restoreState", "Unable to restore the VST preset state.") : Text(response);
+ADDED src/vst/src/Library.cpp:379 'error.savePreset' | status_ = response.isEmpty() ? vstText("error.savePreset", "Unable to save the VST preset.") : Text(response);
+ADDED src/vst/src/Library.cpp:181 'error.shellEmpty' | error = vstText("error.shellEmpty", "The VST2 Shell did not provide any internal plugins.");
+ADDED src/vst/src/Library.cpp:640 'error.start' | status_ = vstText("error.start", "Unable to start VSTProcess.");
+ADDED src/vst/src/Library.cpp:735 'error.tempPreset' | status_ = vstText("error.tempPreset", "Unable to create a temporary VST preset file.");
+ADDED src/vst/src/Library.cpp:533 'error.vst3Name' | status_ = vstText("error.vst3Name", "The configured VST3 plugin name is not exposed by this module.");
+ADDED src/vst/src/Library.cpp:739 'error.writeState' | status_ = vstText("error.writeState", "Unable to write the VST preset state.");
+ADDED src/vst/src/Library.cpp:843 'field.client' | vstRow(form, vstText("field.client", "Client name"), clientName_);
+ADDED src/vst/src/Library.cpp:842 'field.plugin' | vstRow(form, vstText("field.plugin", "Plugin"), pathRow);
+ADDED src/vst/src/Library.cpp:846 'field.port' | vstRow(form, vstText("field.port", "Port display"), portDisplayMode_);
+ADDED src/vst/src/Library.cpp:844 'field.preset' | vstRow(form, vstText("field.preset", "Preset"), presetRow);
+ADDED src/vst/src/Library.cpp:845 'field.process' | vstRow(form, vstText("field.process", "Process"), bits_);
+ADDED src/vst/src/Library.cpp:480 'filter.plugin' | vstText("filter.plugin", "VST plugins (*.vst3 *.dll)"));
+ADDED src/vst/src/Library.cpp:865 'filter.plugin' | vstText("filter.plugin", "VST plugins (*.vst3 *.dll)"));
+ADDED src/vst/src/Library.cpp:871 'filter.preset' | vstText("filter.preset", "WinJACKNexus VST preset (*.fbx)"));
+ADDED src/vst/src/Library.cpp:893 'filter.preset' | vstText("filter.preset", "WinJACKNexus VST preset (*.fbx)"), true);
+ADDED src/vst/src/Library.cpp:196 'placeholderText' | VstI18n::property(filter,"placeholderText",vstText("choose.filter", "Filter or enter plugin name / ID"));
+ADDED src/vst/src/Library.cpp:838 'port.bus' | vstItem(portDisplayMode_, vstText("port.bus", "Bus and channel labels"), static_cast<int>(PortDisplayMode::busLabels));
+ADDED src/vst/src/Library.cpp:837 'port.default' | vstItem(portDisplayMode_, vstText("port.default", "Default plugin names"), static_cast<int>(PortDisplayMode::defaultNames));
+ADDED src/vst/src/Library.cpp:840 'port.jack' | vstItem(portDisplayMode_, vstText("port.jack", "JACK default names"), static_cast<int>(PortDisplayMode::jackDefault));
+ADDED src/vst/src/Library.cpp:839 'port.standard' | vstItem(portDisplayMode_, vstText("port.standard", "Standard channel names"), static_cast<int>(PortDisplayMode::standardChannels));
+ADDED src/vst/src/Library.cpp:833 'process.32' | vstItem(bits_, vstText("process.32", "32-bit"), static_cast<int>(ProcessBits::x86));
+ADDED src/vst/src/Library.cpp:832 'process.64' | vstItem(bits_, vstText("process.64", "64-bit"), static_cast<int>(ProcessBits::x64));
+ADDED src/vst/src/Library.cpp:831 'process.auto' | vstItem(bits_, vstText("process.auto", "Auto"), static_cast<int>(ProcessBits::automatic));
+ADDED src/vst/src/Library.cpp:673 'status.bypass' | status_ = bypass ? vstText("status.bypass", "VSTProcess is bypassing plugin I/O after a plugin crash.")
+ADDED src/vst/src/Library.cpp:626 'status.bypassStopped' | status_ = vstText("status.bypassStopped", "The bypass VSTProcess stopped (exit %1). Restart the plugin to recover.").arg(exitCode);
+ADDED src/vst/src/Library.cpp:501 'status.choose' | status_ = vstText("status.choose", "Choose a VST plugin to start its sandbox.");
+ADDED src/vst/src/Library.cpp:541 'status.chooseClass' | status_ = vstText("status.chooseClass", "Choose a VST3 plugin class before starting this node.");
+ADDED src/vst/src/Library.cpp:566 'status.chooseShell' | status_ = vstText("status.chooseShell", "Choose an internal VST2 Shell plugin before starting this node.");
+ADDED src/vst/src/Library.cpp:630 'status.crash' | status_ = vstText("status.crash", "VSTProcess crashed (exit %1); switching this node to bypass.").arg(exitCode);
+ADDED src/vst/src/Library.cpp:490 'status.editor' | status_ = vstText("status.editor", "The plugin editor is open in a separate window.");
+ADDED src/vst/src/Library.cpp:403 'status.loaded' | status_ = vstText("status.loaded", "VST preset loaded.");
+ADDED src/vst/src/Library.cpp:771 'status.notStarted' | Text status_ { vstText("status.notStarted", "Not started.") };
+ADDED src/vst/src/Library.cpp:674 'status.running' | : vstText("status.running", "VSTProcess is running.");
+ADDED src/vst/src/Library.cpp:383 'status.saved' | status_ = vstText("status.saved", "VST preset saved.");
+ADDED src/vst/src/Library.cpp:573 'status.shellCancelled' | status_ = vstText("status.shellCancelled", "VST2 Shell plugin selection was cancelled.");
+ADDED src/vst/src/Library.cpp:758 'status.terminate' | status_ = vstText("status.terminate", "VSTProcess did not exit cleanly; terminating its sandbox.");
+ADDED src/vst/src/Library.cpp:548 'status.vst3Cancelled' | status_ = vstText("status.vst3Cancelled", "VST3 plugin class selection was cancelled.");
+ADDED src/vst/src/Library.cpp:61 'text' | VstI18n::property(button,"text",value); return button;
+ADDED src/vst/src/Library.cpp:65 'text' | VstI18n::property(label,"text",value); return label;
+ADDED src/vst/src/Library.cpp:80 'windowTitle' | VstI18n::property(&dialog,"windowTitle",title);
+ADDED src/vst/src/Library.cpp:192 'windowTitle' | VstI18n::property(&dialog,"windowTitle",title);
+ADDED tools/vst_scanner/include/WinJACKNexus/VstScanner/Language.hpp:15 ':/WinJACKNexus/VstScanner/i18n/en-US.json' | QFile englishFile(QStringLiteral(":/WinJACKNexus/VstScanner/i18n/en-US.json"));
+ADDED tools/vst_scanner/include/WinJACKNexus/VstScanner/Language.hpp:14 ':/WinJACKNexus/VstScanner/i18n/manifest.json' | QFile manifestFile(QStringLiteral(":/WinJACKNexus/VstScanner/i18n/manifest.json"));
+ADDED tools/vst_scanner/include/WinJACKNexus/VstScanner/Language.hpp:17 'Bundled scanner language resources are unavailable' | if (error) *error = QStringLiteral("Bundled scanner language resources are unavailable");
+ADDED tools/vst_scanner/include/WinJACKNexus/VstScanner/Language.hpp:27 'catalogVersion' | {QStringLiteral("catalogVersion"), manifest[QStringLiteral("catalogVersion")]},
+ADDED tools/vst_scanner/include/WinJACKNexus/VstScanner/Language.hpp:27 'catalogVersion' | {QStringLiteral("catalogVersion"), manifest[QStringLiteral("catalogVersion")]},
+ADDED tools/vst_scanner/include/WinJACKNexus/VstScanner/Language.hpp:23 'descriptorVersion' | {QStringLiteral("descriptorVersion"), 1},
+ADDED tools/vst_scanner/include/WinJACKNexus/VstScanner/Language.hpp:26 'domains' | {QStringLiteral("domains"), manifest[QStringLiteral("domains")]},
+ADDED tools/vst_scanner/include/WinJACKNexus/VstScanner/Language.hpp:26 'domains' | {QStringLiteral("domains"), manifest[QStringLiteral("domains")]},
+ADDED tools/vst_scanner/include/WinJACKNexus/VstScanner/Language.hpp:24 'i18nApiVersion' | {QStringLiteral("i18nApiVersion"), 1},
+ADDED tools/vst_scanner/include/WinJACKNexus/VstScanner/Language.hpp:28 'locate' | {QStringLiteral("locatePath"), QStringLiteral("locate")}
+ADDED tools/vst_scanner/include/WinJACKNexus/VstScanner/Language.hpp:28 'locatePath' | {QStringLiteral("locatePath"), QStringLiteral("locate")}
+ADDED tools/vst_scanner/include/WinJACKNexus/VstScanner/Language.hpp:25 'moduleId' | {QStringLiteral("moduleId"), manifest[QStringLiteral("moduleId")]},
+ADDED tools/vst_scanner/include/WinJACKNexus/VstScanner/Language.hpp:25 'moduleId' | {QStringLiteral("moduleId"), manifest[QStringLiteral("moduleId")]},
+ADDED tools/vst_scanner/include/WinJACKNexus/VstScanner/Language.hpp:31 'vstscanner' | QDir(root).filePath(QStringLiteral("vstscanner")), manifestBytes,
+ADDED tools/vst_scanner/src/MainWindow.cpp:183 'Add' | auto* addPathButton = new UI::Controls::ActionButton(scannerText("add", "Add"), pathGroup);
+ADDED tools/vst_scanner/src/MainWindow.cpp:220 'All' | typeFilter_->addItem(scannerText("all", "All"), QString());
+ADDED tools/vst_scanner/src/MainWindow.cpp:226 'All' | categoryFilter_->addItem(scannerText("all", "All"), QString());
+ADDED tools/vst_scanner/src/MainWindow.cpp:241 'Bit depth' | scannerText("bits", "Bit depth"),
+ADDED tools/vst_scanner/src/MainWindow.cpp:422 'Cannot delete the info file.' | QMessageBox::warning(this, scannerText("deleteFailed", "Deletion failed"), scannerText("cannotDeleteInfo", "Cannot delete the info file."));
+ADDED tools/vst_scanner/src/MainWindow.cpp:224 'Category' | filterLayout->addWidget(new UI::Controls::TextLabel(scannerText("category", "Category"), catalogWidget));
+ADDED tools/vst_scanner/src/MainWindow.cpp:242 'Category' | scannerText("category", "Category"),
+ADDED tools/vst_scanner/src/MainWindow.cpp:395 'Choose VST scan path' | const auto directory = QFileDialog::getExistingDirectory(this, scannerText("choosePath", "Choose VST scan path"));
+ADDED tools/vst_scanner/src/MainWindow.cpp:206 'Choose output directory' | chooseOutputButton->setToolTip(scannerText("chooseOutput", "Choose output directory"));
+ADDED tools/vst_scanner/src/MainWindow.cpp:209 'Choose output directory' | scannerText("chooseOutput", "Choose output directory"),
+ADDED tools/vst_scanner/src/MainWindow.cpp:264 'Delete entry' | auto* removePluginButton = new UI::Controls::ActionButton(scannerText("removeEntry", "Delete entry"), catalogWidget);
+ADDED tools/vst_scanner/src/MainWindow.cpp:417 'Delete plug-in entry' | scannerText("deleteTitle", "Delete plug-in entry"),
+ADDED tools/vst_scanner/src/MainWindow.cpp:418 'Delete the selected scan entry?\\nThe plug-in file will be kept.' | scannerText("deleteQuestion", "Delete the selected scan entry?\nThe plug-in file will be kept."));
+ADDED tools/vst_scanner/src/MainWindow.cpp:422 'Deletion failed' | QMessageBox::warning(this, scannerText("deleteFailed", "Deletion failed"), scannerText("cannotDeleteInfo", "Cannot delete the info file."));
+ADDED tools/vst_scanner/src/MainWindow.cpp:156 'Double-click a plug-in to open its location' | auto* statusHint = new UI::Controls::TextLabel(scannerText("locationHint", "Double-click a plug-in to open its location"), centralWidget);
+ADDED tools/vst_scanner/src/MainWindow.cpp:218 'Format' | filterLayout->addWidget(new UI::Controls::TextLabel(scannerText("format", "Format"), catalogWidget));
+ADDED tools/vst_scanner/src/MainWindow.cpp:240 'Format' | scannerText("format", "Format"),
+ADDED tools/vst_scanner/src/MainWindow.cpp:238 'Name' | pluginTable_->setHorizontalHeaderLabels({ scannerText("name", "Name"),
+ADDED tools/vst_scanner/src/MainWindow.cpp:520 'No plug-in candidates found' | ? scannerText("noCandidates", "No plug-in candidates found")
+ADDED tools/vst_scanner/src/MainWindow.cpp:546 'No plug-ins found' | ? scannerText("noPlugins", "No plug-ins found")
+ADDED tools/vst_scanner/src/MainWindow.cpp:147 'Only scan new or unverified plug-ins by default' | rescanVerifiedPlugins_->setToolTip(scannerText("incrementalHint", "Only scan new or unverified plug-ins by default"));
+ADDED tools/vst_scanner/src/MainWindow.cpp:150 'Open output directory' | auto* openOutputButton = new UI::Controls::ActionButton(scannerText("openOutput", "Open output directory"), centralWidget);
+ADDED tools/vst_scanner/src/MainWindow.cpp:260 'Open plug-in location' | auto* openLocationButton = new UI::Controls::ActionButton(scannerText("openLocation", "Open plug-in location"), catalogWidget);
+ADDED tools/vst_scanner/src/MainWindow.cpp:200 'Output directory' | outputLayout->addWidget(new UI::Controls::TextLabel(scannerText("output", "Output directory"), catalogWidget));
+ADDED tools/vst_scanner/src/MainWindow.cpp:390 'Plug-ins: %1' | statusLabel_->setText(scannerText("pluginCount", "Plug-ins: %1").arg(pluginTable_->rowCount()));
+ADDED tools/vst_scanner/src/MainWindow.cpp:498 'Preparing scan...' | progressLabel_->setText(scannerText("preparing", "Preparing scan..."));
+ADDED tools/vst_scanner/src/MainWindow.cpp:522 'Preparing scan...' | : scannerText("preparing", "Preparing scan..."));
+ADDED tools/vst_scanner/src/MainWindow.cpp:161 'Ready' | progressLabel_ = new UI::Controls::TextLabel(scannerText("ready", "Ready"), centralWidget);
+ADDED tools/vst_scanner/src/MainWindow.cpp:187 'Remove' | auto* removePathButton = new UI::Controls::ActionButton(scannerText("remove", "Remove"), pathGroup);
+ADDED tools/vst_scanner/src/MainWindow.cpp:268 'Remove missing entries' | auto* removeMissingButton = new UI::Controls::ActionButton(scannerText("removeMissing", "Remove missing entries"), catalogWidget);
+ADDED tools/vst_scanner/src/MainWindow.cpp:441 'Removed missing entries: %1' | logView_->appendPlainText(scannerText("removedCount", "Removed missing entries: %1").arg(removed));
+ADDED tools/vst_scanner/src/MainWindow.cpp:146 'Rescan verified plug-ins' | rescanVerifiedPlugins_ = new UI::Controls::ToggleField(scannerText("rescan", "Rescan verified plug-ins"), centralWidget);
+ADDED tools/vst_scanner/src/MainWindow.cpp:521 'Scan complete' | : completed >= total ? scannerText("complete", "Scan complete")
+ADDED tools/vst_scanner/src/MainWindow.cpp:547 'Scan complete: %1 entries written' | : scannerText("written", "Scan complete: %1 entries written").arg(report.plugins.size()));
+ADDED tools/vst_scanner/src/MainWindow.cpp:540 'Scan complete: %1 entries written, %2 entries in the directory.' | logView_->appendPlainText(scannerText("summary", "Scan complete: %1 entries written, %2 entries in the directory.")
+ADDED tools/vst_scanner/src/MainWindow.cpp:275 'Scan log' | auto* logGroup = new UI::Controls::GroupPanel(scannerText("log", "Scan log"), catalogWidget);
+ADDED tools/vst_scanner/src/MainWindow.cpp:174 'Scan paths' | auto* pathGroup = new UI::Controls::GroupPanel(scannerText("paths", "Scan paths"), splitter);
+ADDED tools/vst_scanner/src/MainWindow.cpp:140 'Scan plug-ins' | scanButton_ = new UI::Controls::ActionButton(scannerText("scan", "Scan plug-ins"), centralWidget);
+ADDED tools/vst_scanner/src/MainWindow.cpp:526 'Scanning: %1 (%2/%3)' | progressLabel_->setText(scannerText("scanning", "Scanning: %1 (%2/%3)")
+ADDED tools/vst_scanner/src/MainWindow.cpp:231 'Search name, vendor or path' | filterEdit_->setPlaceholderText(scannerText("search", "Search name, vendor or path"));
+ADDED tools/vst_scanner/src/MainWindow.cpp:495 'Starting scan...' | logView_->appendPlainText(scannerText("starting", "Starting scan..."));
+ADDED tools/vst_scanner/src/MainWindow.cpp:130 'VST Scanner' | setWindowTitle(scannerText("title", "VST Scanner"));
+ADDED tools/vst_scanner/src/MainWindow.cpp:301 'VST Scanner' | QSettings settings(QStringLiteral("WinJACKNexus"), scannerText("title", "VST Scanner"));
+ADDED tools/vst_scanner/src/MainWindow.cpp:325 'VST Scanner' | QSettings settings(QStringLiteral("WinJACKNexus"), scannerText("title", "VST Scanner"));
+ADDED tools/vst_scanner/src/MainWindow.cpp:239 'Vendor' | scannerText("vendor", "Vendor"),
+ADDED tools/vst_scanner/src/MainWindow.cpp:243 'Version' | scannerText("version", "Version") });
+ADDED tools/vst_scanner/src/MainWindow.cpp:469 '[Error]' | const auto prefix = message.error ? scannerText("errorPrefix", "[Error]") : scannerText("infoPrefix", "[Info]");
+ADDED tools/vst_scanner/src/MainWindow.cpp:469 '[Info]' | const auto prefix = message.error ? scannerText("errorPrefix", "[Error]") : scannerText("infoPrefix", "[Info]");
+ADDED tools/vst_scanner/src/MainWindow.cpp:183 'add' | auto* addPathButton = new UI::Controls::ActionButton(scannerText("add", "Add"), pathGroup);
+ADDED tools/vst_scanner/src/MainWindow.cpp:220 'all' | typeFilter_->addItem(scannerText("all", "All"), QString());
+ADDED tools/vst_scanner/src/MainWindow.cpp:226 'all' | categoryFilter_->addItem(scannerText("all", "All"), QString());
+ADDED tools/vst_scanner/src/MainWindow.cpp:241 'bits' | scannerText("bits", "Bit depth"),
+ADDED tools/vst_scanner/src/MainWindow.cpp:422 'cannotDeleteInfo' | QMessageBox::warning(this, scannerText("deleteFailed", "Deletion failed"), scannerText("cannotDeleteInfo", "Cannot delete the info file."));
+ADDED tools/vst_scanner/src/MainWindow.cpp:224 'category' | filterLayout->addWidget(new UI::Controls::TextLabel(scannerText("category", "Category"), catalogWidget));
+ADDED tools/vst_scanner/src/MainWindow.cpp:242 'category' | scannerText("category", "Category"),
+ADDED tools/vst_scanner/src/MainWindow.cpp:206 'chooseOutput' | chooseOutputButton->setToolTip(scannerText("chooseOutput", "Choose output directory"));
+ADDED tools/vst_scanner/src/MainWindow.cpp:209 'chooseOutput' | scannerText("chooseOutput", "Choose output directory"),
+ADDED tools/vst_scanner/src/MainWindow.cpp:395 'choosePath' | const auto directory = QFileDialog::getExistingDirectory(this, scannerText("choosePath", "Choose VST scan path"));
+ADDED tools/vst_scanner/src/MainWindow.cpp:521 'complete' | : completed >= total ? scannerText("complete", "Scan complete")
+ADDED tools/vst_scanner/src/MainWindow.cpp:422 'deleteFailed' | QMessageBox::warning(this, scannerText("deleteFailed", "Deletion failed"), scannerText("cannotDeleteInfo", "Cannot delete the info file."));
+ADDED tools/vst_scanner/src/MainWindow.cpp:418 'deleteQuestion' | scannerText("deleteQuestion", "Delete the selected scan entry?\nThe plug-in file will be kept."));
+ADDED tools/vst_scanner/src/MainWindow.cpp:417 'deleteTitle' | scannerText("deleteTitle", "Delete plug-in entry"),
+ADDED tools/vst_scanner/src/MainWindow.cpp:469 'errorPrefix' | const auto prefix = message.error ? scannerText("errorPrefix", "[Error]") : scannerText("infoPrefix", "[Info]");
+ADDED tools/vst_scanner/src/MainWindow.cpp:218 'format' | filterLayout->addWidget(new UI::Controls::TextLabel(scannerText("format", "Format"), catalogWidget));
+ADDED tools/vst_scanner/src/MainWindow.cpp:240 'format' | scannerText("format", "Format"),
+ADDED tools/vst_scanner/src/MainWindow.cpp:147 'incrementalHint' | rescanVerifiedPlugins_->setToolTip(scannerText("incrementalHint", "Only scan new or unverified plug-ins by default"));
+ADDED tools/vst_scanner/src/MainWindow.cpp:469 'infoPrefix' | const auto prefix = message.error ? scannerText("errorPrefix", "[Error]") : scannerText("infoPrefix", "[Info]");
+ADDED tools/vst_scanner/src/MainWindow.cpp:156 'locationHint' | auto* statusHint = new UI::Controls::TextLabel(scannerText("locationHint", "Double-click a plug-in to open its location"), centralWidget);
+ADDED tools/vst_scanner/src/MainWindow.cpp:275 'log' | auto* logGroup = new UI::Controls::GroupPanel(scannerText("log", "Scan log"), catalogWidget);
+ADDED tools/vst_scanner/src/MainWindow.cpp:238 'name' | pluginTable_->setHorizontalHeaderLabels({ scannerText("name", "Name"),
+ADDED tools/vst_scanner/src/MainWindow.cpp:520 'noCandidates' | ? scannerText("noCandidates", "No plug-in candidates found")
+ADDED tools/vst_scanner/src/MainWindow.cpp:546 'noPlugins' | ? scannerText("noPlugins", "No plug-ins found")
+ADDED tools/vst_scanner/src/MainWindow.cpp:260 'openLocation' | auto* openLocationButton = new UI::Controls::ActionButton(scannerText("openLocation", "Open plug-in location"), catalogWidget);
+ADDED tools/vst_scanner/src/MainWindow.cpp:150 'openOutput' | auto* openOutputButton = new UI::Controls::ActionButton(scannerText("openOutput", "Open output directory"), centralWidget);
+ADDED tools/vst_scanner/src/MainWindow.cpp:200 'output' | outputLayout->addWidget(new UI::Controls::TextLabel(scannerText("output", "Output directory"), catalogWidget));
+ADDED tools/vst_scanner/src/MainWindow.cpp:174 'paths' | auto* pathGroup = new UI::Controls::GroupPanel(scannerText("paths", "Scan paths"), splitter);
+ADDED tools/vst_scanner/src/MainWindow.cpp:390 'pluginCount' | statusLabel_->setText(scannerText("pluginCount", "Plug-ins: %1").arg(pluginTable_->rowCount()));
+ADDED tools/vst_scanner/src/MainWindow.cpp:498 'preparing' | progressLabel_->setText(scannerText("preparing", "Preparing scan..."));
+ADDED tools/vst_scanner/src/MainWindow.cpp:522 'preparing' | : scannerText("preparing", "Preparing scan..."));
+ADDED tools/vst_scanner/src/MainWindow.cpp:161 'ready' | progressLabel_ = new UI::Controls::TextLabel(scannerText("ready", "Ready"), centralWidget);
+ADDED tools/vst_scanner/src/MainWindow.cpp:187 'remove' | auto* removePathButton = new UI::Controls::ActionButton(scannerText("remove", "Remove"), pathGroup);
+ADDED tools/vst_scanner/src/MainWindow.cpp:264 'removeEntry' | auto* removePluginButton = new UI::Controls::ActionButton(scannerText("removeEntry", "Delete entry"), catalogWidget);
+ADDED tools/vst_scanner/src/MainWindow.cpp:268 'removeMissing' | auto* removeMissingButton = new UI::Controls::ActionButton(scannerText("removeMissing", "Remove missing entries"), catalogWidget);
+ADDED tools/vst_scanner/src/MainWindow.cpp:441 'removedCount' | logView_->appendPlainText(scannerText("removedCount", "Removed missing entries: %1").arg(removed));
+ADDED tools/vst_scanner/src/MainWindow.cpp:146 'rescan' | rescanVerifiedPlugins_ = new UI::Controls::ToggleField(scannerText("rescan", "Rescan verified plug-ins"), centralWidget);
+ADDED tools/vst_scanner/src/MainWindow.cpp:140 'scan' | scanButton_ = new UI::Controls::ActionButton(scannerText("scan", "Scan plug-ins"), centralWidget);
+ADDED tools/vst_scanner/src/MainWindow.cpp:526 'scanning' | progressLabel_->setText(scannerText("scanning", "Scanning: %1 (%2/%3)")
+ADDED tools/vst_scanner/src/MainWindow.cpp:231 'search' | filterEdit_->setPlaceholderText(scannerText("search", "Search name, vendor or path"));
+ADDED tools/vst_scanner/src/MainWindow.cpp:495 'starting' | logView_->appendPlainText(scannerText("starting", "Starting scan..."));
+ADDED tools/vst_scanner/src/MainWindow.cpp:540 'summary' | logView_->appendPlainText(scannerText("summary", "Scan complete: %1 entries written, %2 entries in the directory.")
+ADDED tools/vst_scanner/src/MainWindow.cpp:130 'title' | setWindowTitle(scannerText("title", "VST Scanner"));
+ADDED tools/vst_scanner/src/MainWindow.cpp:301 'title' | QSettings settings(QStringLiteral("WinJACKNexus"), scannerText("title", "VST Scanner"));
+ADDED tools/vst_scanner/src/MainWindow.cpp:325 'title' | QSettings settings(QStringLiteral("WinJACKNexus"), scannerText("title", "VST Scanner"));
+ADDED tools/vst_scanner/src/MainWindow.cpp:239 'vendor' | scannerText("vendor", "Vendor"),
+ADDED tools/vst_scanner/src/MainWindow.cpp:243 'version' | scannerText("version", "Version") });
+ADDED tools/vst_scanner/src/MainWindow.cpp:65 'vstscanner' | return manager->text(QStringLiteral("vstscanner"), QString::fromUtf8(key), QString::fromUtf8(english));
+ADDED tools/vst_scanner/src/MainWindow.cpp:547 'written' | : scannerText("written", "Scan complete: %1 entries written").arg(report.plugins.size()));
+ADDED tools/vst_scanner/src/Scanner.cpp:828 'Cannot commit info file: ' | error = scannerText("message.infoCommit", "Cannot commit info file: ") + pathString(target);
+ADDED tools/vst_scanner/src/Scanner.cpp:784 'Cannot create info directory: ' | error = scannerText("message.infoDirectory", "Cannot create info directory: ") + pathString(directory);
+ADDED tools/vst_scanner/src/Scanner.cpp:893 'Cannot create output directory' | scannerText("message.outputCreate", "Cannot create output directory"),
+ADDED tools/vst_scanner/src/Scanner.cpp:645 'Cannot parse moduleinfo.json: ' | error = scannerText("message.moduleParse", "Cannot parse moduleinfo.json: ")
+ADDED tools/vst_scanner/src/Scanner.cpp:636 'Cannot read moduleinfo.json: ' | error = scannerText("message.moduleRead", "Cannot read moduleinfo.json: ") + pathString(moduleInfoPath);
+ADDED tools/vst_scanner/src/Scanner.cpp:398 'Cannot start isolated probe: ' | error = scannerText("message.probeStart", "Cannot start isolated probe: ") + process.errorString();
+ADDED tools/vst_scanner/src/Scanner.cpp:823 'Cannot write info file: ' | error = scannerText("message.infoWrite", "Cannot write info file: ") + pathString(target);
+ADDED tools/vst_scanner/src/Scanner.cpp:1033 'Isolated load returned no classes; keeping static moduleinfo data: ' | scannerText("message.vst3Static", "Isolated load returned no classes; keeping static moduleinfo data: ") + probeError,
+ADDED tools/vst_scanner/src/Scanner.cpp:381 'Isolated probe not found: ' | error = scannerText("message.probeMissing", "Isolated probe not found: ") + pathString(probePath);
+ADDED tools/vst_scanner/src/Scanner.cpp:416 'Isolated probe produced no result: ' | : scannerText("message.probeNoResult", "Isolated probe produced no result: ") + process.errorString();
+ADDED tools/vst_scanner/src/Scanner.cpp:435 'Isolated probe reported failure' | error = scannerText("message.probeFailed", "Isolated probe reported failure");
+ADDED tools/vst_scanner/src/Scanner.cpp:426 'Isolated probe result is not valid JSON' | error = scannerText("message.probeJson", "Isolated probe result is not valid JSON");
+ADDED tools/vst_scanner/src/Scanner.cpp:597 'Isolated probe returned no usable plug-in classes' | error = scannerText("message.probeNoClass", "Isolated probe returned no usable plug-in classes");
+ADDED tools/vst_scanner/src/Scanner.cpp:1009 'Loaded VST3 in isolation and obtained class information' | ? scannerText("message.vst3Loaded", "Loaded VST3 in isolation and obtained class information")
+ADDED tools/vst_scanner/src/Scanner.cpp:968 'No VST3 binary with a recognized bit depth found' | appendMessage(report, pathString(path), scannerText("message.vst3Binary", "No VST3 binary with a recognized bit depth found"), true);
+ADDED tools/vst_scanner/src/Scanner.cpp:415 'Plug-in probe crashed; scanner kept running' | ? scannerText("message.probeCrash", "Plug-in probe crashed; scanner kept running")
+ADDED tools/vst_scanner/src/Scanner.cpp:407 'Plug-in probe timed out; isolated process terminated' | error = scannerText("message.probeTimeout", "Plug-in probe timed out; isolated process terminated");
+ADDED tools/vst_scanner/src/Scanner.cpp:933 'Scan path does not exist' | appendMessage(report, pathString(path), scannerText("message.pathMissing", "Scan path does not exist"), true);
+ADDED tools/vst_scanner/src/Scanner.cpp:1087 'Skipped invalid VST DLL' | scannerText("message.invalidDll", "Skipped invalid VST DLL")
+ADDED tools/vst_scanner/src/Scanner.cpp:1058 'Skipped verified VST2; using existing info entries' | scannerText("message.vst2Skipped", "Skipped verified VST2; using existing info entries"),
+ADDED tools/vst_scanner/src/Scanner.cpp:984 'Skipped verified VST3; using existing info entries' | scannerText("message.vst3Skipped", "Skipped verified VST3; using existing info entries"),
+ADDED tools/vst_scanner/src/Scanner.cpp:375 'Unsupported plug-in bit depth: %1' | error = scannerText("message.unsupportedBits", "Unsupported plug-in bit depth: %1").arg(bits);
+ADDED tools/vst_scanner/src/Scanner.cpp:1019 'VST3 classes already verified; skipping probe' | scannerText("message.vst3ClassSkipped", "VST3 classes already verified; skipping probe"),
+ADDED tools/vst_scanner/src/Scanner.cpp:1010 'VST3 classes probed in isolation; some failed to load, entries kept: ' | : scannerText("message.vst3Partial", "VST3 classes probed in isolation; some failed to load, entries kept: ") + probeError,
+ADDED tools/vst_scanner/src/Scanner.cpp:828 'message.infoCommit' | error = scannerText("message.infoCommit", "Cannot commit info file: ") + pathString(target);
+ADDED tools/vst_scanner/src/Scanner.cpp:784 'message.infoDirectory' | error = scannerText("message.infoDirectory", "Cannot create info directory: ") + pathString(directory);
+ADDED tools/vst_scanner/src/Scanner.cpp:823 'message.infoWrite' | error = scannerText("message.infoWrite", "Cannot write info file: ") + pathString(target);
+ADDED tools/vst_scanner/src/Scanner.cpp:1087 'message.invalidDll' | scannerText("message.invalidDll", "Skipped invalid VST DLL")
+ADDED tools/vst_scanner/src/Scanner.cpp:645 'message.moduleParse' | error = scannerText("message.moduleParse", "Cannot parse moduleinfo.json: ")
+ADDED tools/vst_scanner/src/Scanner.cpp:636 'message.moduleRead' | error = scannerText("message.moduleRead", "Cannot read moduleinfo.json: ") + pathString(moduleInfoPath);
+ADDED tools/vst_scanner/src/Scanner.cpp:893 'message.outputCreate' | scannerText("message.outputCreate", "Cannot create output directory"),
+ADDED tools/vst_scanner/src/Scanner.cpp:933 'message.pathMissing' | appendMessage(report, pathString(path), scannerText("message.pathMissing", "Scan path does not exist"), true);
+ADDED tools/vst_scanner/src/Scanner.cpp:415 'message.probeCrash' | ? scannerText("message.probeCrash", "Plug-in probe crashed; scanner kept running")
+ADDED tools/vst_scanner/src/Scanner.cpp:435 'message.probeFailed' | error = scannerText("message.probeFailed", "Isolated probe reported failure");
+ADDED tools/vst_scanner/src/Scanner.cpp:426 'message.probeJson' | error = scannerText("message.probeJson", "Isolated probe result is not valid JSON");
+ADDED tools/vst_scanner/src/Scanner.cpp:381 'message.probeMissing' | error = scannerText("message.probeMissing", "Isolated probe not found: ") + pathString(probePath);
+ADDED tools/vst_scanner/src/Scanner.cpp:597 'message.probeNoClass' | error = scannerText("message.probeNoClass", "Isolated probe returned no usable plug-in classes");
+ADDED tools/vst_scanner/src/Scanner.cpp:416 'message.probeNoResult' | : scannerText("message.probeNoResult", "Isolated probe produced no result: ") + process.errorString();
+ADDED tools/vst_scanner/src/Scanner.cpp:398 'message.probeStart' | error = scannerText("message.probeStart", "Cannot start isolated probe: ") + process.errorString();
+ADDED tools/vst_scanner/src/Scanner.cpp:407 'message.probeTimeout' | error = scannerText("message.probeTimeout", "Plug-in probe timed out; isolated process terminated");
+ADDED tools/vst_scanner/src/Scanner.cpp:375 'message.unsupportedBits' | error = scannerText("message.unsupportedBits", "Unsupported plug-in bit depth: %1").arg(bits);
+ADDED tools/vst_scanner/src/Scanner.cpp:1058 'message.vst2Skipped' | scannerText("message.vst2Skipped", "Skipped verified VST2; using existing info entries"),
+ADDED tools/vst_scanner/src/Scanner.cpp:968 'message.vst3Binary' | appendMessage(report, pathString(path), scannerText("message.vst3Binary", "No VST3 binary with a recognized bit depth found"), true);
+ADDED tools/vst_scanner/src/Scanner.cpp:1019 'message.vst3ClassSkipped' | scannerText("message.vst3ClassSkipped", "VST3 classes already verified; skipping probe"),
+ADDED tools/vst_scanner/src/Scanner.cpp:1009 'message.vst3Loaded' | ? scannerText("message.vst3Loaded", "Loaded VST3 in isolation and obtained class information")
+ADDED tools/vst_scanner/src/Scanner.cpp:1010 'message.vst3Partial' | : scannerText("message.vst3Partial", "VST3 classes probed in isolation; some failed to load, entries kept: ") + probeError,
+ADDED tools/vst_scanner/src/Scanner.cpp:984 'message.vst3Skipped' | scannerText("message.vst3Skipped", "Skipped verified VST3; using existing info entries"),
+ADDED tools/vst_scanner/src/Scanner.cpp:1033 'message.vst3Static' | scannerText("message.vst3Static", "Isolated load returned no classes; keeping static moduleinfo data: ") + probeError,
+ADDED tools/vst_scanner/src/main.cpp:32 'Scanner catalog initialization: %s' | qWarning("Scanner catalog initialization: %s", qPrintable(languageError));
+REMOVED tools/vst_scanner/src/MainWindow.cpp:291 '#263442' | controlPalette.text = QColor("#263442");
+REMOVED tools/vst_scanner/src/MainWindow.cpp:292 '#3184b9' | controlPalette.accent = QColor("#3184b9");
+REMOVED tools/vst_scanner/src/MainWindow.cpp:293 '#a7b7c5' | controlPalette.border = QColor("#a7b7c5");
+REMOVED tools/vst_scanner/src/MainWindow.cpp:289 '#f7f9fc' | controlPalette.background = QColor("#f7f9fc");
+REMOVED tools/vst_scanner/src/MainWindow.cpp:290 '#ffffff' | controlPalette.panel = QColor("#ffffff");
+REMOVED tools/vst_scanner/src/MainWindow.cpp:121 'Vst Scanner' | setWindowTitle(QStringLiteral("Vst Scanner"));
+REMOVED tools/vst_scanner/src/MainWindow.cpp:301 'Vst Scanner' | QSettings settings(QStringLiteral("WinJACKNexus"), QStringLiteral("Vst Scanner"));
+REMOVED tools/vst_scanner/src/MainWindow.cpp:325 'Vst Scanner' | QSettings settings(QStringLiteral("WinJACKNexus"), QStringLiteral("Vst Scanner"));
+REMOVED tools/vst_scanner/src/MainWindow.cpp:469 '[信息]' | const auto prefix = message.error ? QStringLiteral("[错误]") : QStringLiteral("[信息]");
+REMOVED tools/vst_scanner/src/MainWindow.cpp:469 '[错误]' | const auto prefix = message.error ? QStringLiteral("[错误]") : QStringLiteral("[信息]");
+REMOVED tools/vst_scanner/src/MainWindow.cpp:148 'color: #68727d;' | statusHint->setStyleSheet(QStringLiteral("color: #68727d;"));
+REMOVED tools/vst_scanner/src/MainWindow.cpp:295 'wjnRole' | if (control->property("wjnRole").isValid())
+REMOVED tools/vst_scanner/src/MainWindow.cpp:233 '位宽' | QStringLiteral("位宽"),
+REMOVED tools/vst_scanner/src/MainWindow.cpp:212 '全部' | typeFilter_->addItem(QStringLiteral("全部"), QString());
+REMOVED tools/vst_scanner/src/MainWindow.cpp:218 '全部' | categoryFilter_->addItem(QStringLiteral("全部"), QString());
+REMOVED tools/vst_scanner/src/MainWindow.cpp:498 '准备扫描...' | progressLabel_->setText(QStringLiteral("准备扫描..."));
+REMOVED tools/vst_scanner/src/MainWindow.cpp:521 '准备扫描...' | : QStringLiteral("准备扫描..."));
+REMOVED tools/vst_scanner/src/MainWindow.cpp:422 '删除失败' | QMessageBox::warning(this, QStringLiteral("删除失败"), QStringLiteral("无法删除 info 文件。"));
+REMOVED tools/vst_scanner/src/MainWindow.cpp:417 '删除插件条目' | QStringLiteral("删除插件条目"),
+REMOVED tools/vst_scanner/src/MainWindow.cpp:256 '删除条目' | auto* removePluginButton = new UI::Controls::ActionButton(QStringLiteral("删除条目"), catalogWidget);
+REMOVED tools/vst_scanner/src/MainWindow.cpp:231 '厂商' | QStringLiteral("厂商"),
+REMOVED tools/vst_scanner/src/MainWindow.cpp:147 '双击插件可打开所在位置' | auto* statusHint = new UI::Controls::TextLabel(QStringLiteral("双击插件可打开所在位置"), centralWidget);
+REMOVED tools/vst_scanner/src/MainWindow.cpp:230 '名称' | pluginTable_->setHorizontalHeaderLabels({ QStringLiteral("名称"),
+REMOVED tools/vst_scanner/src/MainWindow.cpp:153 '就绪' | progressLabel_ = new UI::Controls::TextLabel(QStringLiteral("就绪"), centralWidget);
+REMOVED tools/vst_scanner/src/MainWindow.cpp:495 '开始扫描...' | logView_->appendPlainText(QStringLiteral("开始扫描..."));
+REMOVED tools/vst_scanner/src/MainWindow.cpp:252 '打开插件位置' | auto* openLocationButton = new UI::Controls::ActionButton(QStringLiteral("打开插件位置"), catalogWidget);
+REMOVED tools/vst_scanner/src/MainWindow.cpp:141 '打开输出目录' | auto* openOutputButton = new UI::Controls::ActionButton(QStringLiteral("打开输出目录"), centralWidget);
+REMOVED tools/vst_scanner/src/MainWindow.cpp:520 '扫描完成' | : completed >= total ? QStringLiteral("扫描完成")
+REMOVED tools/vst_scanner/src/MainWindow.cpp:546 '扫描完成：写入 %1 个条目' | : QStringLiteral("扫描完成：写入 %1 个条目").arg(report.plugins.size()));
+REMOVED tools/vst_scanner/src/MainWindow.cpp:539 '扫描完成：写入 %1 个条目，当前目录共 %2 个条目。' | logView_->appendPlainText(QStringLiteral("扫描完成：写入 %1 个条目，当前目录共 %2 个条目。")
+REMOVED tools/vst_scanner/src/MainWindow.cpp:131 '扫描插件' | scanButton_ = new UI::Controls::ActionButton(QStringLiteral("扫描插件"), centralWidget);
+REMOVED tools/vst_scanner/src/MainWindow.cpp:267 '扫描日志' | auto* logGroup = new UI::Controls::GroupPanel(QStringLiteral("扫描日志"), catalogWidget);
+REMOVED tools/vst_scanner/src/MainWindow.cpp:166 '扫描路径' | auto* pathGroup = new UI::Controls::GroupPanel(QStringLiteral("扫描路径"), splitter);
+REMOVED tools/vst_scanner/src/MainWindow.cpp:390 '插件 %1 个' | statusLabel_->setText(QStringLiteral("插件 %1 个").arg(pluginTable_->rowCount()));
+REMOVED tools/vst_scanner/src/MainWindow.cpp:223 '搜索名称、厂商、路径' | filterEdit_->setPlaceholderText(QStringLiteral("搜索名称、厂商、路径"));
+REMOVED tools/vst_scanner/src/MainWindow.cpp:422 '无法删除 info 文件。' | QMessageBox::warning(this, QStringLiteral("删除失败"), QStringLiteral("无法删除 info 文件。"));
+REMOVED tools/vst_scanner/src/MainWindow.cpp:545 '未发现插件' | ? QStringLiteral("未发现插件")
+REMOVED tools/vst_scanner/src/MainWindow.cpp:519 '未发现插件候选' | ? QStringLiteral("未发现插件候选")
+REMOVED tools/vst_scanner/src/MainWindow.cpp:210 '格式' | filterLayout->addWidget(new UI::Controls::TextLabel(QStringLiteral("格式"), catalogWidget));
+REMOVED tools/vst_scanner/src/MainWindow.cpp:232 '格式' | QStringLiteral("格式"),
+REMOVED tools/vst_scanner/src/MainWindow.cpp:525 '正在扫描：%1  (%2/%3)' | progressLabel_->setText(QStringLiteral("正在扫描：%1  (%2/%3)")
+REMOVED tools/vst_scanner/src/MainWindow.cpp:175 '添加' | auto* addPathButton = new UI::Controls::ActionButton(QStringLiteral("添加"), pathGroup);
+REMOVED tools/vst_scanner/src/MainWindow.cpp:260 '清理失效条目' | auto* removeMissingButton = new UI::Controls::ActionButton(QStringLiteral("清理失效条目"), catalogWidget);
+REMOVED tools/vst_scanner/src/MainWindow.cpp:441 '清理失效条目：%1 个' | logView_->appendPlainText(QStringLiteral("清理失效条目：%1 个").arg(removed));
+REMOVED tools/vst_scanner/src/MainWindow.cpp:235 '版本' | QStringLiteral("版本") });
+REMOVED tools/vst_scanner/src/MainWindow.cpp:418 '确定删除当前插件的扫描条目吗？\\n插件文件本身不会被删除。' | QStringLiteral("确定删除当前插件的扫描条目吗？\n插件文件本身不会被删除。"));
+REMOVED tools/vst_scanner/src/MainWindow.cpp:179 '移除' | auto* removePathButton = new UI::Controls::ActionButton(QStringLiteral("移除"), pathGroup);
+REMOVED tools/vst_scanner/src/MainWindow.cpp:216 '类别' | filterLayout->addWidget(new UI::Controls::TextLabel(QStringLiteral("类别"), catalogWidget));
+REMOVED tools/vst_scanner/src/MainWindow.cpp:234 '类别' | QStringLiteral("类别"),
+REMOVED tools/vst_scanner/src/MainWindow.cpp:192 '输出目录' | outputLayout->addWidget(new UI::Controls::TextLabel(QStringLiteral("输出目录"), catalogWidget));
+REMOVED tools/vst_scanner/src/MainWindow.cpp:395 '选择 VST 扫描路径' | const auto directory = QFileDialog::getExistingDirectory(this, QStringLiteral("选择 VST 扫描路径"));
+REMOVED tools/vst_scanner/src/MainWindow.cpp:198 '选择输出目录' | chooseOutputButton->setToolTip(QStringLiteral("选择输出目录"));
+REMOVED tools/vst_scanner/src/MainWindow.cpp:201 '选择输出目录' | QStringLiteral("选择输出目录"),
+REMOVED tools/vst_scanner/src/MainWindow.cpp:137 '重新扫描已验证插件' | rescanVerifiedPlugins_ = new UI::Controls::ToggleField(QStringLiteral("重新扫描已验证插件"), centralWidget);
+REMOVED tools/vst_scanner/src/MainWindow.cpp:138 '默认仅增量扫描未验证或新增的插件' | rescanVerifiedPlugins_->setToolTip(QStringLiteral("默认仅增量扫描未验证或新增的插件"));
+REMOVED tools/vst_scanner/src/Scanner.cpp:998 'VST3 class 已验证，跳过本次探测' | QStringLiteral("VST3 class 已验证，跳过本次探测"),
+REMOVED tools/vst_scanner/src/Scanner.cpp:625 'moduleinfo.json 解析失败: ' | error = QStringLiteral("moduleinfo.json 解析失败: ")
+REMOVED tools/vst_scanner/src/Scanner.cpp:355 '不支持的插件位宽: %1' | error = QStringLiteral("不支持的插件位宽: %1").arg(bits);
+REMOVED tools/vst_scanner/src/Scanner.cpp:989 '已枚举并隔离探测 VST3；部分 class 加载失败，已保留插件条目: ' | : QStringLiteral("已枚举并隔离探测 VST3；部分 class 加载失败，已保留插件条目: ") + probeError,
+REMOVED tools/vst_scanner/src/Scanner.cpp:988 '已隔离加载 VST3，获取真实 class 信息' | ? QStringLiteral("已隔离加载 VST3，获取真实 class 信息")
+REMOVED tools/vst_scanner/src/Scanner.cpp:912 '扫描路径不存在' | appendMessage(report, pathString(path), QStringLiteral("扫描路径不存在"), true);
+REMOVED tools/vst_scanner/src/Scanner.cpp:387 '插件探测超时，已终止隔离进程' | error = QStringLiteral("插件探测超时，已终止隔离进程");
+REMOVED tools/vst_scanner/src/Scanner.cpp:395 '插件探测进程崩溃，已保留扫描器进程' | ? QStringLiteral("插件探测进程崩溃，已保留扫描器进程")
+REMOVED tools/vst_scanner/src/Scanner.cpp:803 '无法写入 info 文件: ' | error = QStringLiteral("无法写入 info 文件: ") + pathString(target);
+REMOVED tools/vst_scanner/src/Scanner.cpp:764 '无法创建 info 目录: ' | error = QStringLiteral("无法创建 info 目录: ") + pathString(directory);
+REMOVED tools/vst_scanner/src/Scanner.cpp:872 '无法创建输出目录' | QStringLiteral("无法创建输出目录"),
+REMOVED tools/vst_scanner/src/Scanner.cpp:378 '无法启动隔离探测器: ' | error = QStringLiteral("无法启动隔离探测器: ") + process.errorString();
+REMOVED tools/vst_scanner/src/Scanner.cpp:808 '无法提交 info 文件: ' | error = QStringLiteral("无法提交 info 文件: ") + pathString(target);
+REMOVED tools/vst_scanner/src/Scanner.cpp:616 '无法读取 moduleinfo.json: ' | error = QStringLiteral("无法读取 moduleinfo.json: ") + pathString(moduleInfoPath);
+REMOVED tools/vst_scanner/src/Scanner.cpp:947 '未找到可识别位宽的 VST3 二进制' | appendMessage(report, pathString(path), QStringLiteral("未找到可识别位宽的 VST3 二进制"), true);
+REMOVED tools/vst_scanner/src/Scanner.cpp:361 '未找到隔离探测器: ' | error = QStringLiteral("未找到隔离探测器: ") + pathString(probePath);
+REMOVED tools/vst_scanner/src/Scanner.cpp:1037 '跳过已验证 VST2，使用现有 info 条目' | QStringLiteral("跳过已验证 VST2，使用现有 info 条目"),
+REMOVED tools/vst_scanner/src/Scanner.cpp:963 '跳过已验证 VST3，使用现有 info 条目' | QStringLiteral("跳过已验证 VST3，使用现有 info 条目"),
+REMOVED tools/vst_scanner/src/Scanner.cpp:1066 '跳过无效 VST DLL' | QStringLiteral("跳过无效 VST DLL")
+REMOVED tools/vst_scanner/src/Scanner.cpp:1012 '隔离加载未返回 class，已保留 moduleinfo 静态信息: ' | QStringLiteral("隔离加载未返回 class，已保留 moduleinfo 静态信息: ") + probeError,
+REMOVED tools/vst_scanner/src/Scanner.cpp:396 '隔离探测器未生成结果: ' | : QStringLiteral("隔离探测器未生成结果: ") + process.errorString();
+REMOVED tools/vst_scanner/src/Scanner.cpp:577 '隔离探测器没有返回可用插件 class' | error = QStringLiteral("隔离探测器没有返回可用插件 class");
+REMOVED tools/vst_scanner/src/Scanner.cpp:415 '隔离探测器返回失败' | error = QStringLiteral("隔离探测器返回失败");
+REMOVED tools/vst_scanner/src/Scanner.cpp:406 '隔离探测结果不是有效 JSON' | error = QStringLiteral("隔离探测结果不是有效 JSON");
+Scanned 275 files; 9690 literal occurrences; 6454 source IDs.

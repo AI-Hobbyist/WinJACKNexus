@@ -2,6 +2,10 @@
 
 2026-10-04，实施中，尚未完成。
 
+最新清单刷新与对账通过：275 个源码文件、9,690 次字符串出现、1,302 个唯一显示 key、未分类 0，见 `S0-verification.json` 与 `S6-S0-verification.log`。VST 宿主/扫描器调用点已映射实际 `vst` / `vstscanner` key，独立包纳入资源清单。扫描器 `Instruments/Effects` 是已交付 info 文件目录身份，位数 `%1-bit` 是标准单位格式，均有明确排除理由，不替换路径或数值。
+
+最新差异导航仍有 369 次源码出现等待核对：theme 250、meterbridge 49、mixer 45、vstscanner 10、patchbay 5、ui 5，其他 5。它包含旧 key 提案、后台诊断、默认用户内容和真正未接入的显示项，不能视为缺译数量或覆盖率。扫描器十项均位于 `ProbeMain.cpp`，会经 IPC 返回 GUI，目前尚需处理其显示/协议边界。共享 UI 的筛选输入、侧边栏提示等亦待处理；其余项须逐条以调用路径判定，不通过统一排除掩盖遗漏。见 `S6-coverage-gaps.json`。本轮未启动模块测试或 UI 窗口。
+
 VST 宿主已接入独立 `vst` 域及可选 Node i18n v1 服务，57 个四语言草稿 key，完整 English 和部署 manifest。原 Node v2、主题 ID、插件 class ID、进程/端口枚举及工程字段保持。提示状态以 key/English/参数保存；打开的控件和状态按语言通知刷新，Qt 文件/类选择窗口也建立标题、描述及筛选文字绑定。
 
 所需 Release 编译通过，保持 VST2=ON，并继续包含 VST2/VST3 支持。首次编译因缺少 QVariant 的完整定义失败，补 include 后只重编必要目标；失败与修复日志分别保留。唯一一次实际 DLL 实窗测试通过 77 项检查，默认系统字体 Microsoft YaHei UI，实际 windows 平台，1 次窗口显示，无追加缩放矩阵。四语言复用同一窗口，操作/已存状态更新、未提交路径草稿/选区/焦点、枚举 data 和工程字节保持，双租约、最后 detach 回退 English 和 DLL 卸载通过。韩语实际桌面截图已查看，控件和状态可读，日文/韩文路径草稿及选区保留，无黑图或其他应用画面。见 `S6-vst-verification.json`、`S6-vst-ko-KR.png`、`S6-vst-tests.log`。未运行真实插件/VSTProcess/JACK 集成或模态对话框交互测试，不将这次检查扩大为这些范围通过。

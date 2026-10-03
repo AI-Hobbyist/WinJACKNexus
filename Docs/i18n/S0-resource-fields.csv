@@ -2762,6 +2762,660 @@ Develop/NativeFx/locate/zh-CN.json,domains.example.nativefx.name,增益示例,ex
 Develop/NativeFx/locate/zh-CN.json,domains.example.nativefx.gain,增益,example.nativefx,gain,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
 Develop/NativeFx/locate/zh-CN.json,domains.example.nativefx.channel,声道,example.nativefx,channel,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
 Develop/NativeFx/locate/zh-CN.json,domains.example.nativefx.all,全部,example.nativefx,all,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/en-US.json,moduleId,module-winjacknexus-vst-host,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+src/vst/locate/en-US.json,language,en-US,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+src/vst/locate/en-US.json,domains.vst.error.shellEmpty,The VST2 Shell did not provide any internal plugins.,vst,error.shellEmpty,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/en-US.json,domains.vst.choose.filter,Filter or enter plugin name / ID,vst,choose.filter,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/en-US.json,domains.vst.error.factoryEmpty,The VST3 factory did not provide any audio plugin classes.,vst,error.factoryEmpty,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/en-US.json,domains.vst.error.savePreset,Unable to save the VST preset.,vst,error.savePreset,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/en-US.json,domains.vst.status.saved,VST preset saved.,vst,status.saved,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/en-US.json,domains.vst.error.presetMissing,The selected VST preset file does not exist.,vst,error.presetMissing,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/en-US.json,domains.vst.error.loadPreset,Unable to load the VST preset.,vst,error.loadPreset,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/en-US.json,domains.vst.status.loaded,VST preset loaded.,vst,status.loaded,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/en-US.json,domains.vst.choose.plugin,Choose VST plugin,vst,choose.plugin,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/en-US.json,domains.vst.filter.plugin,VST plugins (*.vst3 *.dll),vst,filter.plugin,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/en-US.json,domains.vst.status.editor,The plugin editor is open in a separate window.,vst,status.editor,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/en-US.json,domains.vst.error.contact,Unable to contact VSTProcess.,vst,error.contact,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/en-US.json,domains.vst.status.choose,Choose a VST plugin to start its sandbox.,vst,status.choose,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/en-US.json,domains.vst.error.pathMissing,The configured plugin path does not exist.,vst,error.pathMissing,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/en-US.json,domains.vst.error.processMissing,The required VSTProcess executable is not available.,vst,error.processMissing,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/en-US.json,domains.vst.error.vst3Name,The configured VST3 plugin name is not exposed by this module.,vst,error.vst3Name,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/en-US.json,domains.vst.status.chooseClass,Choose a VST3 plugin class before starting this node.,vst,status.chooseClass,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/en-US.json,domains.vst.choose.vst3,Choose VST3 Plugin,vst,choose.vst3,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/en-US.json,domains.vst.choose.vst3Description,Choose a VST3 plugin class or enter its class ID.,vst,choose.vst3Description,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/en-US.json,domains.vst.status.vst3Cancelled,VST3 plugin class selection was cancelled.,vst,status.vst3Cancelled,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/en-US.json,domains.vst.status.chooseShell,Choose an internal VST2 Shell plugin before starting this node.,vst,status.chooseShell,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/en-US.json,domains.vst.choose.shell,Choose VST2 Shell Plugin,vst,choose.shell,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/en-US.json,domains.vst.choose.shellDescription,Choose an internal plugin or enter its name / numeric ID.,vst,choose.shellDescription,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/en-US.json,domains.vst.status.shellCancelled,VST2 Shell plugin selection was cancelled.,vst,status.shellCancelled,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/en-US.json,domains.vst.error.previousProcess,The previous VSTProcess is still running.,vst,error.previousProcess,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/en-US.json,domains.vst.status.bypassStopped,The bypass VSTProcess stopped (exit %1). Restart the plugin to recover.,vst,status.bypassStopped,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/en-US.json,domains.vst.status.crash,VSTProcess crashed (exit %1); switching this node to bypass.,vst,status.crash,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/en-US.json,domains.vst.error.start,Unable to start VSTProcess.,vst,error.start,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/en-US.json,domains.vst.error.pipeTimeout,VSTProcess did not make its control pipe ready before the startup deadline.,vst,error.pipeTimeout,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/en-US.json,domains.vst.status.bypass,VSTProcess is bypassing plugin I/O after a plugin crash.,vst,status.bypass,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/en-US.json,domains.vst.status.running,VSTProcess is running.,vst,status.running,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/en-US.json,domains.vst.error.tempPreset,Unable to create a temporary VST preset file.,vst,error.tempPreset,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/en-US.json,domains.vst.error.writeState,Unable to write the VST preset state.,vst,error.writeState,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/en-US.json,domains.vst.error.restoreState,Unable to restore the VST preset state.,vst,error.restoreState,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/en-US.json,domains.vst.status.terminate,VSTProcess did not exit cleanly; terminating its sandbox.,vst,status.terminate,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/en-US.json,domains.vst.status.notStarted,Not started.,vst,status.notStarted,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/en-US.json,domains.vst.port.default,Default plugin names,vst,port.default,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/en-US.json,domains.vst.port.bus,Bus and channel labels,vst,port.bus,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/en-US.json,domains.vst.port.standard,Standard channel names,vst,port.standard,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/en-US.json,domains.vst.port.jack,JACK default names,vst,port.jack,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/en-US.json,domains.vst.field.client,Client name,vst,field.client,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/en-US.json,domains.vst.field.port,Port display,vst,field.port,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/en-US.json,domains.vst.action.apply,Apply and reload,vst,action.apply,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/en-US.json,domains.vst.action.load,Load preset,vst,action.load,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/en-US.json,domains.vst.action.save,Save preset as,vst,action.save,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/en-US.json,domains.vst.action.restart,Restart plugin,vst,action.restart,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/en-US.json,domains.vst.choose.preset,Choose VST preset,vst,choose.preset,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/en-US.json,domains.vst.filter.preset,WinJACKNexus VST preset (*.fbx),vst,filter.preset,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/en-US.json,domains.vst.choose.save,Save VST preset,vst,choose.save,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/en-US.json,domains.vst.action.browse,Browse,vst,action.browse,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/en-US.json,domains.vst.process.auto,Auto,vst,process.auto,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/en-US.json,domains.vst.process.64,64-bit,vst,process.64,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/en-US.json,domains.vst.process.32,32-bit,vst,process.32,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/en-US.json,domains.vst.field.plugin,Plugin,vst,field.plugin,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/en-US.json,domains.vst.field.preset,Preset,vst,field.preset,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/en-US.json,domains.vst.field.process,Process,vst,field.process,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/en-US.json,domains.vst.module.name,VST Plugin,vst,module.name,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ja-JP.json,moduleId,module-winjacknexus-vst-host,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+src/vst/locate/ja-JP.json,language,ja-JP,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+src/vst/locate/ja-JP.json,domains.vst.error.shellEmpty,VST2 Shell が内部プラグインを返しませんでした。,vst,error.shellEmpty,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ja-JP.json,domains.vst.choose.filter,絞り込み、またはプラグイン名 / ID を入力,vst,choose.filter,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ja-JP.json,domains.vst.error.factoryEmpty,VST3 ファクトリーがオーディオプラグインクラスを返しませんでした。,vst,error.factoryEmpty,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ja-JP.json,domains.vst.error.savePreset,VST プリセットを保存できません。,vst,error.savePreset,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ja-JP.json,domains.vst.status.saved,VST プリセットを保存しました。,vst,status.saved,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ja-JP.json,domains.vst.error.presetMissing,選択した VST プリセットファイルが存在しません。,vst,error.presetMissing,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ja-JP.json,domains.vst.error.loadPreset,VST プリセットを読み込めません。,vst,error.loadPreset,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ja-JP.json,domains.vst.status.loaded,VST プリセットを読み込みました。,vst,status.loaded,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ja-JP.json,domains.vst.choose.plugin,VST プラグインを選択,vst,choose.plugin,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ja-JP.json,domains.vst.filter.plugin,VST プラグイン (*.vst3 *.dll),vst,filter.plugin,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ja-JP.json,domains.vst.status.editor,プラグインエディターを別ウィンドウで開きました。,vst,status.editor,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ja-JP.json,domains.vst.error.contact,VSTProcess に接続できません。,vst,error.contact,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ja-JP.json,domains.vst.status.choose,VST プラグインを選択してサンドボックスを起動します。,vst,status.choose,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ja-JP.json,domains.vst.error.pathMissing,設定されたプラグインパスが存在しません。,vst,error.pathMissing,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ja-JP.json,domains.vst.error.processMissing,必要な VSTProcess 実行ファイルがありません。,vst,error.processMissing,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ja-JP.json,domains.vst.error.vst3Name,このモジュールに設定された VST3 プラグイン名がありません。,vst,error.vst3Name,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ja-JP.json,domains.vst.status.chooseClass,このノードを起動する前に VST3 プラグインクラスを選択してください。,vst,status.chooseClass,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ja-JP.json,domains.vst.choose.vst3,VST3 プラグインを選択,vst,choose.vst3,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ja-JP.json,domains.vst.choose.vst3Description,VST3 プラグインクラスを選択するか、クラス ID を入力してください。,vst,choose.vst3Description,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ja-JP.json,domains.vst.status.vst3Cancelled,VST3 プラグインクラスの選択をキャンセルしました。,vst,status.vst3Cancelled,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ja-JP.json,domains.vst.status.chooseShell,このノードを起動する前に VST2 Shell 内部プラグインを選択してください。,vst,status.chooseShell,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ja-JP.json,domains.vst.choose.shell,VST2 Shell プラグインを選択,vst,choose.shell,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ja-JP.json,domains.vst.choose.shellDescription,内部プラグインを選択するか、名前 / 数値 ID を入力してください。,vst,choose.shellDescription,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ja-JP.json,domains.vst.status.shellCancelled,VST2 Shell プラグインの選択をキャンセルしました。,vst,status.shellCancelled,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ja-JP.json,domains.vst.error.previousProcess,前の VSTProcess がまだ実行中です。,vst,error.previousProcess,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ja-JP.json,domains.vst.status.bypassStopped,バイパス中の VSTProcess が停止しました（終了コード %1）。復旧するにはプラグインを再起動してください。,vst,status.bypassStopped,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ja-JP.json,domains.vst.status.crash,VSTProcess がクラッシュしました（終了コード %1）。このノードをバイパスに切り替えます。,vst,status.crash,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ja-JP.json,domains.vst.error.start,VSTProcess を起動できません。,vst,error.start,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ja-JP.json,domains.vst.error.pipeTimeout,VSTProcess の制御パイプが起動期限内に準備できませんでした。,vst,error.pipeTimeout,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ja-JP.json,domains.vst.status.bypass,プラグインのクラッシュ後、VSTProcess はプラグイン入出力をバイパスしています。,vst,status.bypass,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ja-JP.json,domains.vst.status.running,VSTProcess は実行中です。,vst,status.running,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ja-JP.json,domains.vst.error.tempPreset,一時 VST プリセットファイルを作成できません。,vst,error.tempPreset,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ja-JP.json,domains.vst.error.writeState,VST プリセットの状態を書き込めません。,vst,error.writeState,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ja-JP.json,domains.vst.error.restoreState,VST プリセットの状態を復元できません。,vst,error.restoreState,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ja-JP.json,domains.vst.status.terminate,VSTProcess が正常に終了しなかったため、サンドボックスを終了します。,vst,status.terminate,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ja-JP.json,domains.vst.status.notStarted,未起動。,vst,status.notStarted,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ja-JP.json,domains.vst.port.default,既定のプラグイン名,vst,port.default,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ja-JP.json,domains.vst.port.bus,バスとチャンネルのラベル,vst,port.bus,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ja-JP.json,domains.vst.port.standard,標準チャンネル名,vst,port.standard,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ja-JP.json,domains.vst.port.jack,JACK の既定名,vst,port.jack,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ja-JP.json,domains.vst.field.client,クライアント名,vst,field.client,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ja-JP.json,domains.vst.field.port,ポート表示,vst,field.port,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ja-JP.json,domains.vst.action.apply,適用して再ロード,vst,action.apply,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ja-JP.json,domains.vst.action.load,プリセットを読み込み,vst,action.load,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ja-JP.json,domains.vst.action.save,プリセットを別名で保存,vst,action.save,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ja-JP.json,domains.vst.action.restart,プラグインを再起動,vst,action.restart,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ja-JP.json,domains.vst.choose.preset,VST プリセットを選択,vst,choose.preset,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ja-JP.json,domains.vst.filter.preset,WinJACKNexus VST プリセット (*.fbx),vst,filter.preset,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ja-JP.json,domains.vst.choose.save,VST プリセットを保存,vst,choose.save,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ja-JP.json,domains.vst.action.browse,参照,vst,action.browse,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ja-JP.json,domains.vst.process.auto,自動,vst,process.auto,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ja-JP.json,domains.vst.process.64,64 ビット,vst,process.64,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ja-JP.json,domains.vst.process.32,32 ビット,vst,process.32,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ja-JP.json,domains.vst.field.plugin,プラグイン,vst,field.plugin,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ja-JP.json,domains.vst.field.preset,プリセット,vst,field.preset,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ja-JP.json,domains.vst.field.process,プロセス,vst,field.process,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ja-JP.json,domains.vst.module.name,VST プラグイン,vst,module.name,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ko-KR.json,moduleId,module-winjacknexus-vst-host,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+src/vst/locate/ko-KR.json,language,ko-KR,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+src/vst/locate/ko-KR.json,domains.vst.error.shellEmpty,VST2 Shell이 내부 플러그인을 제공하지 않았습니다.,vst,error.shellEmpty,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ko-KR.json,domains.vst.choose.filter,플러그인 이름 / ID로 필터링하거나 입력,vst,choose.filter,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ko-KR.json,domains.vst.error.factoryEmpty,VST3 팩토리가 오디오 플러그인 클래스를 제공하지 않았습니다.,vst,error.factoryEmpty,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ko-KR.json,domains.vst.error.savePreset,VST 프리셋을 저장할 수 없습니다.,vst,error.savePreset,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ko-KR.json,domains.vst.status.saved,VST 프리셋을 저장했습니다.,vst,status.saved,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ko-KR.json,domains.vst.error.presetMissing,선택한 VST 프리셋 파일이 존재하지 않습니다.,vst,error.presetMissing,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ko-KR.json,domains.vst.error.loadPreset,VST 프리셋을 불러올 수 없습니다.,vst,error.loadPreset,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ko-KR.json,domains.vst.status.loaded,VST 프리셋을 불러왔습니다.,vst,status.loaded,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ko-KR.json,domains.vst.choose.plugin,VST 플러그인 선택,vst,choose.plugin,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ko-KR.json,domains.vst.filter.plugin,VST 플러그인 (*.vst3 *.dll),vst,filter.plugin,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ko-KR.json,domains.vst.status.editor,플러그인 편집기를 별도 창에서 열었습니다.,vst,status.editor,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ko-KR.json,domains.vst.error.contact,VSTProcess에 연결할 수 없습니다.,vst,error.contact,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ko-KR.json,domains.vst.status.choose,VST 플러그인을 선택하여 샌드박스를 시작하세요.,vst,status.choose,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ko-KR.json,domains.vst.error.pathMissing,설정된 플러그인 경로가 존재하지 않습니다.,vst,error.pathMissing,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ko-KR.json,domains.vst.error.processMissing,필요한 VSTProcess 실행 파일이 없습니다.,vst,error.processMissing,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ko-KR.json,domains.vst.error.vst3Name,이 모듈이 설정된 VST3 플러그인 이름을 제공하지 않습니다.,vst,error.vst3Name,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ko-KR.json,domains.vst.status.chooseClass,이 노드를 시작하기 전에 VST3 플러그인 클래스를 선택하세요.,vst,status.chooseClass,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ko-KR.json,domains.vst.choose.vst3,VST3 플러그인 선택,vst,choose.vst3,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ko-KR.json,domains.vst.choose.vst3Description,VST3 플러그인 클래스를 선택하거나 클래스 ID를 입력하세요.,vst,choose.vst3Description,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ko-KR.json,domains.vst.status.vst3Cancelled,VST3 플러그인 클래스 선택을 취소했습니다.,vst,status.vst3Cancelled,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ko-KR.json,domains.vst.status.chooseShell,이 노드를 시작하기 전에 VST2 Shell 내부 플러그인을 선택하세요.,vst,status.chooseShell,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ko-KR.json,domains.vst.choose.shell,VST2 Shell 플러그인 선택,vst,choose.shell,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ko-KR.json,domains.vst.choose.shellDescription,내부 플러그인을 선택하거나 이름 / 숫자 ID를 입력하세요.,vst,choose.shellDescription,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ko-KR.json,domains.vst.status.shellCancelled,VST2 Shell 플러그인 선택을 취소했습니다.,vst,status.shellCancelled,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ko-KR.json,domains.vst.error.previousProcess,이전 VSTProcess가 아직 실행 중입니다.,vst,error.previousProcess,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ko-KR.json,domains.vst.status.bypassStopped,바이패스 VSTProcess가 중지되었습니다(종료 코드 %1). 복구하려면 플러그인을 다시 시작하세요.,vst,status.bypassStopped,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ko-KR.json,domains.vst.status.crash,VSTProcess가 충돌했습니다(종료 코드 %1). 이 노드를 바이패스로 전환합니다.,vst,status.crash,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ko-KR.json,domains.vst.error.start,VSTProcess를 시작할 수 없습니다.,vst,error.start,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ko-KR.json,domains.vst.error.pipeTimeout,VSTProcess 제어 파이프가 시작 제한 시간 내에 준비되지 않았습니다.,vst,error.pipeTimeout,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ko-KR.json,domains.vst.status.bypass,플러그인 충돌 후 VSTProcess가 플러그인 입출력을 바이패스하고 있습니다.,vst,status.bypass,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ko-KR.json,domains.vst.status.running,VSTProcess가 실행 중입니다.,vst,status.running,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ko-KR.json,domains.vst.error.tempPreset,임시 VST 프리셋 파일을 만들 수 없습니다.,vst,error.tempPreset,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ko-KR.json,domains.vst.error.writeState,VST 프리셋 상태를 기록할 수 없습니다.,vst,error.writeState,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ko-KR.json,domains.vst.error.restoreState,VST 프리셋 상태를 복원할 수 없습니다.,vst,error.restoreState,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ko-KR.json,domains.vst.status.terminate,VSTProcess가 정상적으로 종료되지 않아 샌드박스를 종료합니다.,vst,status.terminate,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ko-KR.json,domains.vst.status.notStarted,시작되지 않음.,vst,status.notStarted,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ko-KR.json,domains.vst.port.default,기본 플러그인 이름,vst,port.default,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ko-KR.json,domains.vst.port.bus,버스 및 채널 라벨,vst,port.bus,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ko-KR.json,domains.vst.port.standard,표준 채널 이름,vst,port.standard,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ko-KR.json,domains.vst.port.jack,JACK 기본 이름,vst,port.jack,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ko-KR.json,domains.vst.field.client,클라이언트 이름,vst,field.client,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ko-KR.json,domains.vst.field.port,포트 표시,vst,field.port,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ko-KR.json,domains.vst.action.apply,적용 후 다시 로드,vst,action.apply,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ko-KR.json,domains.vst.action.load,프리셋 불러오기,vst,action.load,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ko-KR.json,domains.vst.action.save,프리셋 다른 이름으로 저장,vst,action.save,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ko-KR.json,domains.vst.action.restart,플러그인 다시 시작,vst,action.restart,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ko-KR.json,domains.vst.choose.preset,VST 프리셋 선택,vst,choose.preset,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ko-KR.json,domains.vst.filter.preset,WinJACKNexus VST 프리셋 (*.fbx),vst,filter.preset,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ko-KR.json,domains.vst.choose.save,VST 프리셋 저장,vst,choose.save,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ko-KR.json,domains.vst.action.browse,찾아보기,vst,action.browse,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ko-KR.json,domains.vst.process.auto,자동,vst,process.auto,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ko-KR.json,domains.vst.process.64,64비트,vst,process.64,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ko-KR.json,domains.vst.process.32,32비트,vst,process.32,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ko-KR.json,domains.vst.field.plugin,플러그인,vst,field.plugin,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ko-KR.json,domains.vst.field.preset,프리셋,vst,field.preset,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ko-KR.json,domains.vst.field.process,프로세스,vst,field.process,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/ko-KR.json,domains.vst.module.name,VST 플러그인,vst,module.name,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/manifest.json,moduleId,module-winjacknexus-vst-host,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+src/vst/locate/manifest.json,domains.0,vst,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+src/vst/locate/manifest.json,defaultLanguage,en-US,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+src/vst/locate/manifest.json,languages.en-US,en-US.json,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+src/vst/locate/manifest.json,languages.zh-CN,zh-CN.json,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+src/vst/locate/manifest.json,languages.ja-JP,ja-JP.json,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+src/vst/locate/manifest.json,languages.ko-KR,ko-KR.json,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+src/vst/locate/manifest.json,requiredKeys.vst.0,error.shellEmpty,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+src/vst/locate/manifest.json,requiredKeys.vst.1,choose.filter,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+src/vst/locate/manifest.json,requiredKeys.vst.2,error.factoryEmpty,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+src/vst/locate/manifest.json,requiredKeys.vst.3,error.savePreset,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+src/vst/locate/manifest.json,requiredKeys.vst.4,status.saved,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+src/vst/locate/manifest.json,requiredKeys.vst.5,error.presetMissing,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+src/vst/locate/manifest.json,requiredKeys.vst.6,error.loadPreset,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+src/vst/locate/manifest.json,requiredKeys.vst.7,status.loaded,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+src/vst/locate/manifest.json,requiredKeys.vst.8,choose.plugin,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+src/vst/locate/manifest.json,requiredKeys.vst.9,filter.plugin,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+src/vst/locate/manifest.json,requiredKeys.vst.10,status.editor,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+src/vst/locate/manifest.json,requiredKeys.vst.11,error.contact,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+src/vst/locate/manifest.json,requiredKeys.vst.12,status.choose,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+src/vst/locate/manifest.json,requiredKeys.vst.13,error.pathMissing,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+src/vst/locate/manifest.json,requiredKeys.vst.14,error.processMissing,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+src/vst/locate/manifest.json,requiredKeys.vst.15,error.vst3Name,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+src/vst/locate/manifest.json,requiredKeys.vst.16,status.chooseClass,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+src/vst/locate/manifest.json,requiredKeys.vst.17,choose.vst3,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+src/vst/locate/manifest.json,requiredKeys.vst.18,choose.vst3Description,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+src/vst/locate/manifest.json,requiredKeys.vst.19,status.vst3Cancelled,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+src/vst/locate/manifest.json,requiredKeys.vst.20,status.chooseShell,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+src/vst/locate/manifest.json,requiredKeys.vst.21,choose.shell,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+src/vst/locate/manifest.json,requiredKeys.vst.22,choose.shellDescription,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+src/vst/locate/manifest.json,requiredKeys.vst.23,status.shellCancelled,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+src/vst/locate/manifest.json,requiredKeys.vst.24,error.previousProcess,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+src/vst/locate/manifest.json,requiredKeys.vst.25,status.bypassStopped,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+src/vst/locate/manifest.json,requiredKeys.vst.26,status.crash,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+src/vst/locate/manifest.json,requiredKeys.vst.27,error.start,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+src/vst/locate/manifest.json,requiredKeys.vst.28,error.pipeTimeout,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+src/vst/locate/manifest.json,requiredKeys.vst.29,status.bypass,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+src/vst/locate/manifest.json,requiredKeys.vst.30,status.running,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+src/vst/locate/manifest.json,requiredKeys.vst.31,error.tempPreset,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+src/vst/locate/manifest.json,requiredKeys.vst.32,error.writeState,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+src/vst/locate/manifest.json,requiredKeys.vst.33,error.restoreState,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+src/vst/locate/manifest.json,requiredKeys.vst.34,status.terminate,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+src/vst/locate/manifest.json,requiredKeys.vst.35,status.notStarted,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+src/vst/locate/manifest.json,requiredKeys.vst.36,port.default,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+src/vst/locate/manifest.json,requiredKeys.vst.37,port.bus,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+src/vst/locate/manifest.json,requiredKeys.vst.38,port.standard,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+src/vst/locate/manifest.json,requiredKeys.vst.39,port.jack,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+src/vst/locate/manifest.json,requiredKeys.vst.40,field.client,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+src/vst/locate/manifest.json,requiredKeys.vst.41,field.port,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+src/vst/locate/manifest.json,requiredKeys.vst.42,action.apply,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+src/vst/locate/manifest.json,requiredKeys.vst.43,action.load,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+src/vst/locate/manifest.json,requiredKeys.vst.44,action.save,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+src/vst/locate/manifest.json,requiredKeys.vst.45,action.restart,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+src/vst/locate/manifest.json,requiredKeys.vst.46,choose.preset,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+src/vst/locate/manifest.json,requiredKeys.vst.47,filter.preset,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+src/vst/locate/manifest.json,requiredKeys.vst.48,choose.save,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+src/vst/locate/manifest.json,requiredKeys.vst.49,action.browse,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+src/vst/locate/manifest.json,requiredKeys.vst.50,process.auto,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+src/vst/locate/manifest.json,requiredKeys.vst.51,process.64,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+src/vst/locate/manifest.json,requiredKeys.vst.52,process.32,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+src/vst/locate/manifest.json,requiredKeys.vst.53,field.plugin,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+src/vst/locate/manifest.json,requiredKeys.vst.54,field.preset,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+src/vst/locate/manifest.json,requiredKeys.vst.55,field.process,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+src/vst/locate/manifest.json,requiredKeys.vst.56,module.name,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+src/vst/locate/zh-CN.json,moduleId,module-winjacknexus-vst-host,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+src/vst/locate/zh-CN.json,language,zh-CN,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+src/vst/locate/zh-CN.json,domains.vst.error.shellEmpty,VST2 Shell 未提供内部插件。,vst,error.shellEmpty,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/zh-CN.json,domains.vst.choose.filter,筛选或输入插件名称 / ID,vst,choose.filter,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/zh-CN.json,domains.vst.error.factoryEmpty,VST3 工厂未提供音频插件类。,vst,error.factoryEmpty,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/zh-CN.json,domains.vst.error.savePreset,无法保存 VST 预设。,vst,error.savePreset,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/zh-CN.json,domains.vst.status.saved,VST 预设已保存。,vst,status.saved,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/zh-CN.json,domains.vst.error.presetMissing,所选 VST 预设文件不存在。,vst,error.presetMissing,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/zh-CN.json,domains.vst.error.loadPreset,无法加载 VST 预设。,vst,error.loadPreset,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/zh-CN.json,domains.vst.status.loaded,VST 预设已加载。,vst,status.loaded,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/zh-CN.json,domains.vst.choose.plugin,选择 VST 插件,vst,choose.plugin,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/zh-CN.json,domains.vst.filter.plugin,VST 插件 (*.vst3 *.dll),vst,filter.plugin,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/zh-CN.json,domains.vst.status.editor,插件编辑器已在独立窗口打开。,vst,status.editor,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/zh-CN.json,domains.vst.error.contact,无法连接 VSTProcess。,vst,error.contact,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/zh-CN.json,domains.vst.status.choose,选择 VST 插件以启动其沙盒。,vst,status.choose,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/zh-CN.json,domains.vst.error.pathMissing,配置的插件路径不存在。,vst,error.pathMissing,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/zh-CN.json,domains.vst.error.processMissing,所需 VSTProcess 可执行文件不可用。,vst,error.processMissing,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/zh-CN.json,domains.vst.error.vst3Name,此模块未提供配置的 VST3 插件名称。,vst,error.vst3Name,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/zh-CN.json,domains.vst.status.chooseClass,启动此节点前请选择 VST3 插件类。,vst,status.chooseClass,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/zh-CN.json,domains.vst.choose.vst3,选择 VST3 插件,vst,choose.vst3,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/zh-CN.json,domains.vst.choose.vst3Description,选择 VST3 插件类或输入其类 ID。,vst,choose.vst3Description,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/zh-CN.json,domains.vst.status.vst3Cancelled,已取消选择 VST3 插件类。,vst,status.vst3Cancelled,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/zh-CN.json,domains.vst.status.chooseShell,启动此节点前请选择 VST2 Shell 内部插件。,vst,status.chooseShell,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/zh-CN.json,domains.vst.choose.shell,选择 VST2 Shell 插件,vst,choose.shell,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/zh-CN.json,domains.vst.choose.shellDescription,选择内部插件或输入其名称 / 数字 ID。,vst,choose.shellDescription,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/zh-CN.json,domains.vst.status.shellCancelled,已取消选择 VST2 Shell 插件。,vst,status.shellCancelled,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/zh-CN.json,domains.vst.error.previousProcess,上一个 VSTProcess 仍在运行。,vst,error.previousProcess,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/zh-CN.json,domains.vst.status.bypassStopped,旁通 VSTProcess 已停止（退出码 %1）。请重启插件以恢复。,vst,status.bypassStopped,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/zh-CN.json,domains.vst.status.crash,VSTProcess 崩溃（退出码 %1）；此节点切换为旁通。,vst,status.crash,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/zh-CN.json,domains.vst.error.start,无法启动 VSTProcess。,vst,error.start,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/zh-CN.json,domains.vst.error.pipeTimeout,VSTProcess 未能在启动时限内就绪控制管道。,vst,error.pipeTimeout,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/zh-CN.json,domains.vst.status.bypass,插件崩溃后，VSTProcess 正在旁通插件输入/输出。,vst,status.bypass,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/zh-CN.json,domains.vst.status.running,VSTProcess 正在运行。,vst,status.running,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/zh-CN.json,domains.vst.error.tempPreset,无法创建临时 VST 预设文件。,vst,error.tempPreset,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/zh-CN.json,domains.vst.error.writeState,无法写入 VST 预设状态。,vst,error.writeState,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/zh-CN.json,domains.vst.error.restoreState,无法恢复 VST 预设状态。,vst,error.restoreState,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/zh-CN.json,domains.vst.status.terminate,VSTProcess 未正常退出；正在终止其沙盒。,vst,status.terminate,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/zh-CN.json,domains.vst.status.notStarted,尚未启动。,vst,status.notStarted,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/zh-CN.json,domains.vst.port.default,默认插件名称,vst,port.default,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/zh-CN.json,domains.vst.port.bus,总线和声道标签,vst,port.bus,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/zh-CN.json,domains.vst.port.standard,标准声道名称,vst,port.standard,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/zh-CN.json,domains.vst.port.jack,JACK 默认名称,vst,port.jack,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/zh-CN.json,domains.vst.field.client,客户端名称,vst,field.client,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/zh-CN.json,domains.vst.field.port,端口显示,vst,field.port,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/zh-CN.json,domains.vst.action.apply,应用并重新加载,vst,action.apply,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/zh-CN.json,domains.vst.action.load,加载预设,vst,action.load,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/zh-CN.json,domains.vst.action.save,预设另存为,vst,action.save,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/zh-CN.json,domains.vst.action.restart,重启插件,vst,action.restart,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/zh-CN.json,domains.vst.choose.preset,选择 VST 预设,vst,choose.preset,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/zh-CN.json,domains.vst.filter.preset,WinJACKNexus VST 预设 (*.fbx),vst,filter.preset,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/zh-CN.json,domains.vst.choose.save,保存 VST 预设,vst,choose.save,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/zh-CN.json,domains.vst.action.browse,浏览,vst,action.browse,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/zh-CN.json,domains.vst.process.auto,自动,vst,process.auto,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/zh-CN.json,domains.vst.process.64,64 位,vst,process.64,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/zh-CN.json,domains.vst.process.32,32 位,vst,process.32,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/zh-CN.json,domains.vst.field.plugin,插件,vst,field.plugin,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/zh-CN.json,domains.vst.field.preset,预设,vst,field.preset,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/zh-CN.json,domains.vst.field.process,进程,vst,field.process,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+src/vst/locate/zh-CN.json,domains.vst.module.name,VST 插件,vst,module.name,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/en-US.json,moduleId,vst-scanner,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+tools/vst_scanner/locate/en-US.json,language,en-US,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+tools/vst_scanner/locate/en-US.json,domains.vstscanner.title,VST Scanner,vstscanner,title,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/en-US.json,domains.vstscanner.scan,Scan plug-ins,vstscanner,scan,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/en-US.json,domains.vstscanner.rescan,Rescan verified plug-ins,vstscanner,rescan,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/en-US.json,domains.vstscanner.incrementalHint,Only scan new or unverified plug-ins by default,vstscanner,incrementalHint,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/en-US.json,domains.vstscanner.openOutput,Open output directory,vstscanner,openOutput,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/en-US.json,domains.vstscanner.locationHint,Double-click a plug-in to open its location,vstscanner,locationHint,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/en-US.json,domains.vstscanner.ready,Ready,vstscanner,ready,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/en-US.json,domains.vstscanner.paths,Scan paths,vstscanner,paths,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/en-US.json,domains.vstscanner.add,Add,vstscanner,add,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/en-US.json,domains.vstscanner.remove,Remove,vstscanner,remove,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/en-US.json,domains.vstscanner.output,Output directory,vstscanner,output,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/en-US.json,domains.vstscanner.chooseOutput,Choose output directory,vstscanner,chooseOutput,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/en-US.json,domains.vstscanner.format,Format,vstscanner,format,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/en-US.json,domains.vstscanner.all,All,vstscanner,all,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/en-US.json,domains.vstscanner.category,Category,vstscanner,category,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/en-US.json,domains.vstscanner.effect,Effect,vstscanner,effect,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/en-US.json,domains.vstscanner.instrument,Instrument,vstscanner,instrument,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/en-US.json,domains.vstscanner.search,"Search name, vendor or path",vstscanner,search,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/en-US.json,domains.vstscanner.name,Name,vstscanner,name,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/en-US.json,domains.vstscanner.vendor,Vendor,vstscanner,vendor,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/en-US.json,domains.vstscanner.bits,Bit depth,vstscanner,bits,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/en-US.json,domains.vstscanner.version,Version,vstscanner,version,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/en-US.json,domains.vstscanner.openLocation,Open plug-in location,vstscanner,openLocation,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/en-US.json,domains.vstscanner.removeEntry,Delete entry,vstscanner,removeEntry,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/en-US.json,domains.vstscanner.removeMissing,Remove missing entries,vstscanner,removeMissing,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/en-US.json,domains.vstscanner.log,Scan log,vstscanner,log,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/en-US.json,domains.vstscanner.pluginCount,Plug-ins: %1,vstscanner,pluginCount,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/en-US.json,domains.vstscanner.choosePath,Choose VST scan path,vstscanner,choosePath,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/en-US.json,domains.vstscanner.deleteTitle,Delete plug-in entry,vstscanner,deleteTitle,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/en-US.json,domains.vstscanner.deleteQuestion,"Delete the selected scan entry?
+The plug-in file will be kept.",vstscanner,deleteQuestion,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/en-US.json,domains.vstscanner.deleteFailed,Deletion failed,vstscanner,deleteFailed,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/en-US.json,domains.vstscanner.cannotDeleteInfo,Cannot delete the info file.,vstscanner,cannotDeleteInfo,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/en-US.json,domains.vstscanner.removedCount,Removed missing entries: %1,vstscanner,removedCount,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/en-US.json,domains.vstscanner.errorPrefix,[Error],vstscanner,errorPrefix,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/en-US.json,domains.vstscanner.infoPrefix,[Info],vstscanner,infoPrefix,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/en-US.json,domains.vstscanner.starting,Starting scan...,vstscanner,starting,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/en-US.json,domains.vstscanner.preparing,Preparing scan...,vstscanner,preparing,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/en-US.json,domains.vstscanner.noCandidates,No plug-in candidates found,vstscanner,noCandidates,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/en-US.json,domains.vstscanner.complete,Scan complete,vstscanner,complete,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/en-US.json,domains.vstscanner.scanning,Scanning: %1 (%2/%3),vstscanner,scanning,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/en-US.json,domains.vstscanner.summary,"Scan complete: %1 entries written, %2 entries in the directory.",vstscanner,summary,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/en-US.json,domains.vstscanner.noPlugins,No plug-ins found,vstscanner,noPlugins,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/en-US.json,domains.vstscanner.written,Scan complete: %1 entries written,vstscanner,written,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/en-US.json,domains.vstscanner.message.unsupportedBits,Unsupported plug-in bit depth: %1,vstscanner,message.unsupportedBits,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/en-US.json,domains.vstscanner.message.probeMissing,Isolated probe not found: ,vstscanner,message.probeMissing,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/en-US.json,domains.vstscanner.message.probeStart,Cannot start isolated probe: ,vstscanner,message.probeStart,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/en-US.json,domains.vstscanner.message.probeTimeout,Plug-in probe timed out; isolated process terminated,vstscanner,message.probeTimeout,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/en-US.json,domains.vstscanner.message.probeCrash,Plug-in probe crashed; scanner kept running,vstscanner,message.probeCrash,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/en-US.json,domains.vstscanner.message.probeNoResult,Isolated probe produced no result: ,vstscanner,message.probeNoResult,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/en-US.json,domains.vstscanner.message.probeJson,Isolated probe result is not valid JSON,vstscanner,message.probeJson,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/en-US.json,domains.vstscanner.message.probeFailed,Isolated probe reported failure,vstscanner,message.probeFailed,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/en-US.json,domains.vstscanner.message.probeNoClass,Isolated probe returned no usable plug-in classes,vstscanner,message.probeNoClass,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/en-US.json,domains.vstscanner.message.moduleRead,Cannot read moduleinfo.json: ,vstscanner,message.moduleRead,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/en-US.json,domains.vstscanner.message.moduleParse,Cannot parse moduleinfo.json: ,vstscanner,message.moduleParse,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/en-US.json,domains.vstscanner.message.infoDirectory,Cannot create info directory: ,vstscanner,message.infoDirectory,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/en-US.json,domains.vstscanner.message.infoWrite,Cannot write info file: ,vstscanner,message.infoWrite,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/en-US.json,domains.vstscanner.message.infoCommit,Cannot commit info file: ,vstscanner,message.infoCommit,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/en-US.json,domains.vstscanner.message.outputCreate,Cannot create output directory,vstscanner,message.outputCreate,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/en-US.json,domains.vstscanner.message.pathMissing,Scan path does not exist,vstscanner,message.pathMissing,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/en-US.json,domains.vstscanner.message.vst3Binary,No VST3 binary with a recognized bit depth found,vstscanner,message.vst3Binary,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/en-US.json,domains.vstscanner.message.vst3Skipped,Skipped verified VST3; using existing info entries,vstscanner,message.vst3Skipped,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/en-US.json,domains.vstscanner.message.vst3Loaded,Loaded VST3 in isolation and obtained class information,vstscanner,message.vst3Loaded,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/en-US.json,domains.vstscanner.message.vst3Partial,"VST3 classes probed in isolation; some failed to load, entries kept: ",vstscanner,message.vst3Partial,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/en-US.json,domains.vstscanner.message.vst3ClassSkipped,VST3 classes already verified; skipping probe,vstscanner,message.vst3ClassSkipped,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/en-US.json,domains.vstscanner.message.vst3Static,Isolated load returned no classes; keeping static moduleinfo data: ,vstscanner,message.vst3Static,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/en-US.json,domains.vstscanner.message.vst2Skipped,Skipped verified VST2; using existing info entries,vstscanner,message.vst2Skipped,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/en-US.json,domains.vstscanner.message.invalidDll,Skipped invalid VST DLL,vstscanner,message.invalidDll,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ja-JP.json,moduleId,vst-scanner,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+tools/vst_scanner/locate/ja-JP.json,language,ja-JP,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+tools/vst_scanner/locate/ja-JP.json,domains.vstscanner.title,VST スキャナー,vstscanner,title,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ja-JP.json,domains.vstscanner.scan,プラグインをスキャン,vstscanner,scan,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ja-JP.json,domains.vstscanner.rescan,検証済みプラグインを再スキャン,vstscanner,rescan,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ja-JP.json,domains.vstscanner.incrementalHint,既定では新規または未検証のプラグインのみスキャン,vstscanner,incrementalHint,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ja-JP.json,domains.vstscanner.openOutput,出力フォルダーを開く,vstscanner,openOutput,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ja-JP.json,domains.vstscanner.locationHint,ダブルクリックでプラグインの場所を開きます,vstscanner,locationHint,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ja-JP.json,domains.vstscanner.ready,準備完了,vstscanner,ready,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ja-JP.json,domains.vstscanner.paths,スキャン対象のパス,vstscanner,paths,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ja-JP.json,domains.vstscanner.add,追加,vstscanner,add,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ja-JP.json,domains.vstscanner.remove,削除,vstscanner,remove,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ja-JP.json,domains.vstscanner.output,出力フォルダー,vstscanner,output,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ja-JP.json,domains.vstscanner.chooseOutput,出力フォルダーを選択,vstscanner,chooseOutput,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ja-JP.json,domains.vstscanner.format,形式,vstscanner,format,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ja-JP.json,domains.vstscanner.all,すべて,vstscanner,all,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ja-JP.json,domains.vstscanner.category,カテゴリー,vstscanner,category,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ja-JP.json,domains.vstscanner.effect,エフェクト,vstscanner,effect,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ja-JP.json,domains.vstscanner.instrument,インストゥルメント,vstscanner,instrument,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ja-JP.json,domains.vstscanner.search,名前・メーカー・パスを検索,vstscanner,search,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ja-JP.json,domains.vstscanner.name,名前,vstscanner,name,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ja-JP.json,domains.vstscanner.vendor,メーカー,vstscanner,vendor,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ja-JP.json,domains.vstscanner.bits,ビット数,vstscanner,bits,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ja-JP.json,domains.vstscanner.version,バージョン,vstscanner,version,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ja-JP.json,domains.vstscanner.openLocation,プラグインの場所を開く,vstscanner,openLocation,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ja-JP.json,domains.vstscanner.removeEntry,項目を削除,vstscanner,removeEntry,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ja-JP.json,domains.vstscanner.removeMissing,存在しない項目を削除,vstscanner,removeMissing,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ja-JP.json,domains.vstscanner.log,スキャンログ,vstscanner,log,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ja-JP.json,domains.vstscanner.pluginCount,プラグイン: %1,vstscanner,pluginCount,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ja-JP.json,domains.vstscanner.choosePath,VST スキャン対象のパスを選択,vstscanner,choosePath,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ja-JP.json,domains.vstscanner.deleteTitle,プラグイン項目を削除,vstscanner,deleteTitle,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ja-JP.json,domains.vstscanner.deleteQuestion,"選択したスキャン項目を削除しますか？
+プラグインファイルは保持されます。",vstscanner,deleteQuestion,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ja-JP.json,domains.vstscanner.deleteFailed,削除に失敗,vstscanner,deleteFailed,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ja-JP.json,domains.vstscanner.cannotDeleteInfo,info ファイルを削除できません。,vstscanner,cannotDeleteInfo,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ja-JP.json,domains.vstscanner.removedCount,存在しない項目を %1 件削除,vstscanner,removedCount,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ja-JP.json,domains.vstscanner.errorPrefix,[エラー],vstscanner,errorPrefix,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ja-JP.json,domains.vstscanner.infoPrefix,[情報],vstscanner,infoPrefix,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ja-JP.json,domains.vstscanner.starting,スキャンを開始...,vstscanner,starting,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ja-JP.json,domains.vstscanner.preparing,スキャンを準備...,vstscanner,preparing,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ja-JP.json,domains.vstscanner.noCandidates,プラグイン候補が見つかりません,vstscanner,noCandidates,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ja-JP.json,domains.vstscanner.complete,スキャン完了,vstscanner,complete,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ja-JP.json,domains.vstscanner.scanning,スキャン中: %1 (%2/%3),vstscanner,scanning,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ja-JP.json,domains.vstscanner.summary,スキャン完了: %1 件を書き込み、フォルダー内に %2 件。,vstscanner,summary,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ja-JP.json,domains.vstscanner.noPlugins,プラグインが見つかりません,vstscanner,noPlugins,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ja-JP.json,domains.vstscanner.written,スキャン完了: %1 件を書き込み,vstscanner,written,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ja-JP.json,domains.vstscanner.message.unsupportedBits,未対応のプラグインビット数: %1,vstscanner,message.unsupportedBits,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ja-JP.json,domains.vstscanner.message.probeMissing,隔離プローブが見つかりません: ,vstscanner,message.probeMissing,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ja-JP.json,domains.vstscanner.message.probeStart,隔離プローブを起動できません: ,vstscanner,message.probeStart,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ja-JP.json,domains.vstscanner.message.probeTimeout,プラグイン検証がタイムアウトし、隔離プロセスを終了しました,vstscanner,message.probeTimeout,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ja-JP.json,domains.vstscanner.message.probeCrash,プラグイン検証がクラッシュしました。スキャナーは実行を継続,vstscanner,message.probeCrash,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ja-JP.json,domains.vstscanner.message.probeNoResult,隔離プローブの結果がありません: ,vstscanner,message.probeNoResult,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ja-JP.json,domains.vstscanner.message.probeJson,隔離プローブの結果が有効な JSON ではありません,vstscanner,message.probeJson,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ja-JP.json,domains.vstscanner.message.probeFailed,隔離プローブが失敗を報告しました,vstscanner,message.probeFailed,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ja-JP.json,domains.vstscanner.message.probeNoClass,隔離プローブから使用可能なプラグインクラスが返されませんでした,vstscanner,message.probeNoClass,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ja-JP.json,domains.vstscanner.message.moduleRead,moduleinfo.json を読み取れません: ,vstscanner,message.moduleRead,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ja-JP.json,domains.vstscanner.message.moduleParse,moduleinfo.json を解析できません: ,vstscanner,message.moduleParse,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ja-JP.json,domains.vstscanner.message.infoDirectory,info フォルダーを作成できません: ,vstscanner,message.infoDirectory,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ja-JP.json,domains.vstscanner.message.infoWrite,info ファイルを書き込めません: ,vstscanner,message.infoWrite,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ja-JP.json,domains.vstscanner.message.infoCommit,info ファイルを確定できません: ,vstscanner,message.infoCommit,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ja-JP.json,domains.vstscanner.message.outputCreate,出力フォルダーを作成できません,vstscanner,message.outputCreate,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ja-JP.json,domains.vstscanner.message.pathMissing,スキャン対象のパスが存在しません,vstscanner,message.pathMissing,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ja-JP.json,domains.vstscanner.message.vst3Binary,ビット数を認識できる VST3 バイナリが見つかりません,vstscanner,message.vst3Binary,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ja-JP.json,domains.vstscanner.message.vst3Skipped,検証済み VST3 をスキップし、既存の info 項目を使用,vstscanner,message.vst3Skipped,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ja-JP.json,domains.vstscanner.message.vst3Loaded,VST3 を隔離ロードし、クラス情報を取得しました,vstscanner,message.vst3Loaded,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ja-JP.json,domains.vstscanner.message.vst3Partial,VST3 クラスを隔離検証。一部のロードに失敗し、項目を保持: ,vstscanner,message.vst3Partial,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ja-JP.json,domains.vstscanner.message.vst3ClassSkipped,VST3 クラスは検証済みのため、検証をスキップ,vstscanner,message.vst3ClassSkipped,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ja-JP.json,domains.vstscanner.message.vst3Static,隔離ロードからクラスが返されず、静的 moduleinfo データを保持: ,vstscanner,message.vst3Static,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ja-JP.json,domains.vstscanner.message.vst2Skipped,検証済み VST2 をスキップし、既存の info 項目を使用,vstscanner,message.vst2Skipped,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ja-JP.json,domains.vstscanner.message.invalidDll,無効な VST DLL をスキップ,vstscanner,message.invalidDll,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ko-KR.json,moduleId,vst-scanner,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+tools/vst_scanner/locate/ko-KR.json,language,ko-KR,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+tools/vst_scanner/locate/ko-KR.json,domains.vstscanner.title,VST 스캐너,vstscanner,title,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ko-KR.json,domains.vstscanner.scan,플러그인 스캔,vstscanner,scan,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ko-KR.json,domains.vstscanner.rescan,검증된 플러그인 다시 스캔,vstscanner,rescan,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ko-KR.json,domains.vstscanner.incrementalHint,기본적으로 새 플러그인 또는 미검증 플러그인만 스캔,vstscanner,incrementalHint,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ko-KR.json,domains.vstscanner.openOutput,출력 폴더 열기,vstscanner,openOutput,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ko-KR.json,domains.vstscanner.locationHint,플러그인을 두 번 클릭하면 위치가 열립니다,vstscanner,locationHint,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ko-KR.json,domains.vstscanner.ready,준비됨,vstscanner,ready,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ko-KR.json,domains.vstscanner.paths,스캔 경로,vstscanner,paths,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ko-KR.json,domains.vstscanner.add,추가,vstscanner,add,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ko-KR.json,domains.vstscanner.remove,제거,vstscanner,remove,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ko-KR.json,domains.vstscanner.output,출력 폴더,vstscanner,output,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ko-KR.json,domains.vstscanner.chooseOutput,출력 폴더 선택,vstscanner,chooseOutput,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ko-KR.json,domains.vstscanner.format,형식,vstscanner,format,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ko-KR.json,domains.vstscanner.all,전체,vstscanner,all,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ko-KR.json,domains.vstscanner.category,분류,vstscanner,category,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ko-KR.json,domains.vstscanner.effect,이펙트,vstscanner,effect,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ko-KR.json,domains.vstscanner.instrument,악기,vstscanner,instrument,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ko-KR.json,domains.vstscanner.search,"이름, 제조사 또는 경로 검색",vstscanner,search,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ko-KR.json,domains.vstscanner.name,이름,vstscanner,name,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ko-KR.json,domains.vstscanner.vendor,제조사,vstscanner,vendor,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ko-KR.json,domains.vstscanner.bits,비트 수,vstscanner,bits,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ko-KR.json,domains.vstscanner.version,버전,vstscanner,version,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ko-KR.json,domains.vstscanner.openLocation,플러그인 위치 열기,vstscanner,openLocation,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ko-KR.json,domains.vstscanner.removeEntry,항목 삭제,vstscanner,removeEntry,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ko-KR.json,domains.vstscanner.removeMissing,누락된 항목 제거,vstscanner,removeMissing,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ko-KR.json,domains.vstscanner.log,스캔 로그,vstscanner,log,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ko-KR.json,domains.vstscanner.pluginCount,플러그인: %1,vstscanner,pluginCount,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ko-KR.json,domains.vstscanner.choosePath,VST 스캔 경로 선택,vstscanner,choosePath,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ko-KR.json,domains.vstscanner.deleteTitle,플러그인 항목 삭제,vstscanner,deleteTitle,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ko-KR.json,domains.vstscanner.deleteQuestion,"선택한 스캔 항목을 삭제하시겠습니까?
+플러그인 파일은 유지됩니다.",vstscanner,deleteQuestion,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ko-KR.json,domains.vstscanner.deleteFailed,삭제 실패,vstscanner,deleteFailed,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ko-KR.json,domains.vstscanner.cannotDeleteInfo,info 파일을 삭제할 수 없습니다.,vstscanner,cannotDeleteInfo,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ko-KR.json,domains.vstscanner.removedCount,누락된 항목 %1개 제거,vstscanner,removedCount,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ko-KR.json,domains.vstscanner.errorPrefix,[오류],vstscanner,errorPrefix,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ko-KR.json,domains.vstscanner.infoPrefix,[정보],vstscanner,infoPrefix,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ko-KR.json,domains.vstscanner.starting,스캔 시작...,vstscanner,starting,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ko-KR.json,domains.vstscanner.preparing,스캔 준비...,vstscanner,preparing,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ko-KR.json,domains.vstscanner.noCandidates,플러그인 후보를 찾지 못했습니다,vstscanner,noCandidates,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ko-KR.json,domains.vstscanner.complete,스캔 완료,vstscanner,complete,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ko-KR.json,domains.vstscanner.scanning,스캔 중: %1 (%2/%3),vstscanner,scanning,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ko-KR.json,domains.vstscanner.summary,"스캔 완료: %1개 항목 기록, 폴더 내 총 %2개 항목.",vstscanner,summary,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ko-KR.json,domains.vstscanner.noPlugins,플러그인을 찾지 못했습니다,vstscanner,noPlugins,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ko-KR.json,domains.vstscanner.written,스캔 완료: %1개 항목 기록,vstscanner,written,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ko-KR.json,domains.vstscanner.message.unsupportedBits,지원하지 않는 플러그인 비트 수: %1,vstscanner,message.unsupportedBits,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ko-KR.json,domains.vstscanner.message.probeMissing,격리된 검사기를 찾지 못했습니다: ,vstscanner,message.probeMissing,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ko-KR.json,domains.vstscanner.message.probeStart,격리된 검사기를 시작할 수 없습니다: ,vstscanner,message.probeStart,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ko-KR.json,domains.vstscanner.message.probeTimeout,"플러그인 검사 시간 초과, 격리된 프로세스 종료",vstscanner,message.probeTimeout,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ko-KR.json,domains.vstscanner.message.probeCrash,"플러그인 검사 충돌, 스캐너는 계속 실행됨",vstscanner,message.probeCrash,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ko-KR.json,domains.vstscanner.message.probeNoResult,격리된 검사기 결과가 없습니다: ,vstscanner,message.probeNoResult,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ko-KR.json,domains.vstscanner.message.probeJson,격리된 검사 결과가 유효한 JSON이 아닙니다,vstscanner,message.probeJson,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ko-KR.json,domains.vstscanner.message.probeFailed,격리된 검사기가 실패를 보고했습니다,vstscanner,message.probeFailed,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ko-KR.json,domains.vstscanner.message.probeNoClass,격리된 검사기가 사용 가능한 플러그인 클래스를 반환하지 않았습니다,vstscanner,message.probeNoClass,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ko-KR.json,domains.vstscanner.message.moduleRead,moduleinfo.json을 읽을 수 없습니다: ,vstscanner,message.moduleRead,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ko-KR.json,domains.vstscanner.message.moduleParse,moduleinfo.json을 파싱할 수 없습니다: ,vstscanner,message.moduleParse,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ko-KR.json,domains.vstscanner.message.infoDirectory,info 폴더를 만들 수 없습니다: ,vstscanner,message.infoDirectory,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ko-KR.json,domains.vstscanner.message.infoWrite,info 파일을 쓸 수 없습니다: ,vstscanner,message.infoWrite,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ko-KR.json,domains.vstscanner.message.infoCommit,info 파일을 저장할 수 없습니다: ,vstscanner,message.infoCommit,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ko-KR.json,domains.vstscanner.message.outputCreate,출력 폴더를 만들 수 없습니다,vstscanner,message.outputCreate,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ko-KR.json,domains.vstscanner.message.pathMissing,스캔 경로가 존재하지 않습니다,vstscanner,message.pathMissing,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ko-KR.json,domains.vstscanner.message.vst3Binary,비트 수를 인식할 수 있는 VST3 바이너리를 찾지 못했습니다,vstscanner,message.vst3Binary,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ko-KR.json,domains.vstscanner.message.vst3Skipped,"검증된 VST3 건너뛰기, 기존 info 항목 사용",vstscanner,message.vst3Skipped,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ko-KR.json,domains.vstscanner.message.vst3Loaded,VST3를 격리하여 로드하고 클래스 정보를 가져왔습니다,vstscanner,message.vst3Loaded,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ko-KR.json,domains.vstscanner.message.vst3Partial,"VST3 클래스 격리 검사, 일부 로드 실패, 항목 유지: ",vstscanner,message.vst3Partial,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ko-KR.json,domains.vstscanner.message.vst3ClassSkipped,VST3 클래스가 이미 검증되어 검사 건너뛰기,vstscanner,message.vst3ClassSkipped,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ko-KR.json,domains.vstscanner.message.vst3Static,격리 로드가 클래스를 반환하지 않아 정적 moduleinfo 데이터 유지: ,vstscanner,message.vst3Static,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ko-KR.json,domains.vstscanner.message.vst2Skipped,"검증된 VST2 건너뛰기, 기존 info 항목 사용",vstscanner,message.vst2Skipped,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/ko-KR.json,domains.vstscanner.message.invalidDll,유효하지 않은 VST DLL 건너뛰기,vstscanner,message.invalidDll,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/manifest.json,moduleId,vst-scanner,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+tools/vst_scanner/locate/manifest.json,domains.0,vstscanner,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+tools/vst_scanner/locate/manifest.json,defaultLanguage,en-US,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+tools/vst_scanner/locate/manifest.json,languages.en-US,en-US.json,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+tools/vst_scanner/locate/manifest.json,languages.zh-CN,zh-CN.json,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+tools/vst_scanner/locate/manifest.json,languages.ja-JP,ja-JP.json,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+tools/vst_scanner/locate/manifest.json,languages.ko-KR,ko-KR.json,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+tools/vst_scanner/locate/manifest.json,requiredKeys.vstscanner.0,title,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+tools/vst_scanner/locate/manifest.json,requiredKeys.vstscanner.1,scan,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+tools/vst_scanner/locate/manifest.json,requiredKeys.vstscanner.2,rescan,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+tools/vst_scanner/locate/manifest.json,requiredKeys.vstscanner.3,incrementalHint,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+tools/vst_scanner/locate/manifest.json,requiredKeys.vstscanner.4,openOutput,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+tools/vst_scanner/locate/manifest.json,requiredKeys.vstscanner.5,locationHint,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+tools/vst_scanner/locate/manifest.json,requiredKeys.vstscanner.6,ready,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+tools/vst_scanner/locate/manifest.json,requiredKeys.vstscanner.7,paths,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+tools/vst_scanner/locate/manifest.json,requiredKeys.vstscanner.8,add,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+tools/vst_scanner/locate/manifest.json,requiredKeys.vstscanner.9,remove,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+tools/vst_scanner/locate/manifest.json,requiredKeys.vstscanner.10,output,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+tools/vst_scanner/locate/manifest.json,requiredKeys.vstscanner.11,chooseOutput,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+tools/vst_scanner/locate/manifest.json,requiredKeys.vstscanner.12,format,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+tools/vst_scanner/locate/manifest.json,requiredKeys.vstscanner.13,all,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+tools/vst_scanner/locate/manifest.json,requiredKeys.vstscanner.14,category,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+tools/vst_scanner/locate/manifest.json,requiredKeys.vstscanner.15,effect,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+tools/vst_scanner/locate/manifest.json,requiredKeys.vstscanner.16,instrument,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+tools/vst_scanner/locate/manifest.json,requiredKeys.vstscanner.17,search,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+tools/vst_scanner/locate/manifest.json,requiredKeys.vstscanner.18,name,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+tools/vst_scanner/locate/manifest.json,requiredKeys.vstscanner.19,vendor,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+tools/vst_scanner/locate/manifest.json,requiredKeys.vstscanner.20,bits,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+tools/vst_scanner/locate/manifest.json,requiredKeys.vstscanner.21,version,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+tools/vst_scanner/locate/manifest.json,requiredKeys.vstscanner.22,openLocation,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+tools/vst_scanner/locate/manifest.json,requiredKeys.vstscanner.23,removeEntry,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+tools/vst_scanner/locate/manifest.json,requiredKeys.vstscanner.24,removeMissing,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+tools/vst_scanner/locate/manifest.json,requiredKeys.vstscanner.25,log,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+tools/vst_scanner/locate/manifest.json,requiredKeys.vstscanner.26,pluginCount,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+tools/vst_scanner/locate/manifest.json,requiredKeys.vstscanner.27,choosePath,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+tools/vst_scanner/locate/manifest.json,requiredKeys.vstscanner.28,deleteTitle,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+tools/vst_scanner/locate/manifest.json,requiredKeys.vstscanner.29,deleteQuestion,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+tools/vst_scanner/locate/manifest.json,requiredKeys.vstscanner.30,deleteFailed,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+tools/vst_scanner/locate/manifest.json,requiredKeys.vstscanner.31,cannotDeleteInfo,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+tools/vst_scanner/locate/manifest.json,requiredKeys.vstscanner.32,removedCount,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+tools/vst_scanner/locate/manifest.json,requiredKeys.vstscanner.33,errorPrefix,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+tools/vst_scanner/locate/manifest.json,requiredKeys.vstscanner.34,infoPrefix,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+tools/vst_scanner/locate/manifest.json,requiredKeys.vstscanner.35,starting,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+tools/vst_scanner/locate/manifest.json,requiredKeys.vstscanner.36,preparing,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+tools/vst_scanner/locate/manifest.json,requiredKeys.vstscanner.37,noCandidates,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+tools/vst_scanner/locate/manifest.json,requiredKeys.vstscanner.38,complete,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+tools/vst_scanner/locate/manifest.json,requiredKeys.vstscanner.39,scanning,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+tools/vst_scanner/locate/manifest.json,requiredKeys.vstscanner.40,summary,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+tools/vst_scanner/locate/manifest.json,requiredKeys.vstscanner.41,noPlugins,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+tools/vst_scanner/locate/manifest.json,requiredKeys.vstscanner.42,written,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+tools/vst_scanner/locate/manifest.json,requiredKeys.vstscanner.43,message.unsupportedBits,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+tools/vst_scanner/locate/manifest.json,requiredKeys.vstscanner.44,message.probeMissing,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+tools/vst_scanner/locate/manifest.json,requiredKeys.vstscanner.45,message.probeStart,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+tools/vst_scanner/locate/manifest.json,requiredKeys.vstscanner.46,message.probeTimeout,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+tools/vst_scanner/locate/manifest.json,requiredKeys.vstscanner.47,message.probeCrash,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+tools/vst_scanner/locate/manifest.json,requiredKeys.vstscanner.48,message.probeNoResult,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+tools/vst_scanner/locate/manifest.json,requiredKeys.vstscanner.49,message.probeJson,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+tools/vst_scanner/locate/manifest.json,requiredKeys.vstscanner.50,message.probeFailed,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+tools/vst_scanner/locate/manifest.json,requiredKeys.vstscanner.51,message.probeNoClass,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+tools/vst_scanner/locate/manifest.json,requiredKeys.vstscanner.52,message.moduleRead,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+tools/vst_scanner/locate/manifest.json,requiredKeys.vstscanner.53,message.moduleParse,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+tools/vst_scanner/locate/manifest.json,requiredKeys.vstscanner.54,message.infoDirectory,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+tools/vst_scanner/locate/manifest.json,requiredKeys.vstscanner.55,message.infoWrite,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+tools/vst_scanner/locate/manifest.json,requiredKeys.vstscanner.56,message.infoCommit,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+tools/vst_scanner/locate/manifest.json,requiredKeys.vstscanner.57,message.outputCreate,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+tools/vst_scanner/locate/manifest.json,requiredKeys.vstscanner.58,message.pathMissing,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+tools/vst_scanner/locate/manifest.json,requiredKeys.vstscanner.59,message.vst3Binary,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+tools/vst_scanner/locate/manifest.json,requiredKeys.vstscanner.60,message.vst3Skipped,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+tools/vst_scanner/locate/manifest.json,requiredKeys.vstscanner.61,message.vst3Loaded,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+tools/vst_scanner/locate/manifest.json,requiredKeys.vstscanner.62,message.vst3Partial,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+tools/vst_scanner/locate/manifest.json,requiredKeys.vstscanner.63,message.vst3ClassSkipped,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+tools/vst_scanner/locate/manifest.json,requiredKeys.vstscanner.64,message.vst3Static,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+tools/vst_scanner/locate/manifest.json,requiredKeys.vstscanner.65,message.vst2Skipped,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+tools/vst_scanner/locate/manifest.json,requiredKeys.vstscanner.66,message.invalidDll,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+tools/vst_scanner/locate/zh-CN.json,moduleId,vst-scanner,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+tools/vst_scanner/locate/zh-CN.json,language,zh-CN,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+tools/vst_scanner/locate/zh-CN.json,domains.vstscanner.title,VST 扫描器,vstscanner,title,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/zh-CN.json,domains.vstscanner.scan,扫描插件,vstscanner,scan,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/zh-CN.json,domains.vstscanner.rescan,重新扫描已验证插件,vstscanner,rescan,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/zh-CN.json,domains.vstscanner.incrementalHint,默认仅增量扫描未验证或新增的插件,vstscanner,incrementalHint,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/zh-CN.json,domains.vstscanner.openOutput,打开输出目录,vstscanner,openOutput,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/zh-CN.json,domains.vstscanner.locationHint,双击插件可打开所在位置,vstscanner,locationHint,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/zh-CN.json,domains.vstscanner.ready,就绪,vstscanner,ready,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/zh-CN.json,domains.vstscanner.paths,扫描路径,vstscanner,paths,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/zh-CN.json,domains.vstscanner.add,添加,vstscanner,add,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/zh-CN.json,domains.vstscanner.remove,移除,vstscanner,remove,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/zh-CN.json,domains.vstscanner.output,输出目录,vstscanner,output,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/zh-CN.json,domains.vstscanner.chooseOutput,选择输出目录,vstscanner,chooseOutput,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/zh-CN.json,domains.vstscanner.format,格式,vstscanner,format,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/zh-CN.json,domains.vstscanner.all,全部,vstscanner,all,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/zh-CN.json,domains.vstscanner.category,类别,vstscanner,category,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/zh-CN.json,domains.vstscanner.effect,效果,vstscanner,effect,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/zh-CN.json,domains.vstscanner.instrument,乐器,vstscanner,instrument,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/zh-CN.json,domains.vstscanner.search,搜索名称、厂商、路径,vstscanner,search,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/zh-CN.json,domains.vstscanner.name,名称,vstscanner,name,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/zh-CN.json,domains.vstscanner.vendor,厂商,vstscanner,vendor,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/zh-CN.json,domains.vstscanner.bits,位宽,vstscanner,bits,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/zh-CN.json,domains.vstscanner.version,版本,vstscanner,version,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/zh-CN.json,domains.vstscanner.openLocation,打开插件位置,vstscanner,openLocation,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/zh-CN.json,domains.vstscanner.removeEntry,删除条目,vstscanner,removeEntry,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/zh-CN.json,domains.vstscanner.removeMissing,清理失效条目,vstscanner,removeMissing,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/zh-CN.json,domains.vstscanner.log,扫描日志,vstscanner,log,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/zh-CN.json,domains.vstscanner.pluginCount,插件 %1 个,vstscanner,pluginCount,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/zh-CN.json,domains.vstscanner.choosePath,选择 VST 扫描路径,vstscanner,choosePath,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/zh-CN.json,domains.vstscanner.deleteTitle,删除插件条目,vstscanner,deleteTitle,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/zh-CN.json,domains.vstscanner.deleteQuestion,"确定删除当前插件的扫描条目吗？
+插件文件本身不会被删除。",vstscanner,deleteQuestion,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/zh-CN.json,domains.vstscanner.deleteFailed,删除失败,vstscanner,deleteFailed,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/zh-CN.json,domains.vstscanner.cannotDeleteInfo,无法删除 info 文件。,vstscanner,cannotDeleteInfo,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/zh-CN.json,domains.vstscanner.removedCount,清理失效条目：%1 个,vstscanner,removedCount,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/zh-CN.json,domains.vstscanner.errorPrefix,[错误],vstscanner,errorPrefix,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/zh-CN.json,domains.vstscanner.infoPrefix,[信息],vstscanner,infoPrefix,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/zh-CN.json,domains.vstscanner.starting,开始扫描...,vstscanner,starting,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/zh-CN.json,domains.vstscanner.preparing,准备扫描...,vstscanner,preparing,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/zh-CN.json,domains.vstscanner.noCandidates,未发现插件候选,vstscanner,noCandidates,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/zh-CN.json,domains.vstscanner.complete,扫描完成,vstscanner,complete,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/zh-CN.json,domains.vstscanner.scanning,正在扫描：%1  (%2/%3),vstscanner,scanning,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/zh-CN.json,domains.vstscanner.summary,扫描完成：写入 %1 个条目，当前目录共 %2 个条目。,vstscanner,summary,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/zh-CN.json,domains.vstscanner.noPlugins,未发现插件,vstscanner,noPlugins,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/zh-CN.json,domains.vstscanner.written,扫描完成：写入 %1 个条目,vstscanner,written,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/zh-CN.json,domains.vstscanner.message.unsupportedBits,不支持的插件位宽: %1,vstscanner,message.unsupportedBits,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/zh-CN.json,domains.vstscanner.message.probeMissing,未找到隔离探测器: ,vstscanner,message.probeMissing,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/zh-CN.json,domains.vstscanner.message.probeStart,无法启动隔离探测器: ,vstscanner,message.probeStart,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/zh-CN.json,domains.vstscanner.message.probeTimeout,插件探测超时，已终止隔离进程,vstscanner,message.probeTimeout,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/zh-CN.json,domains.vstscanner.message.probeCrash,插件探测进程崩溃，已保留扫描器进程,vstscanner,message.probeCrash,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/zh-CN.json,domains.vstscanner.message.probeNoResult,隔离探测器未生成结果: ,vstscanner,message.probeNoResult,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/zh-CN.json,domains.vstscanner.message.probeJson,隔离探测结果不是有效 JSON,vstscanner,message.probeJson,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/zh-CN.json,domains.vstscanner.message.probeFailed,隔离探测器返回失败,vstscanner,message.probeFailed,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/zh-CN.json,domains.vstscanner.message.probeNoClass,隔离探测器没有返回可用插件 class,vstscanner,message.probeNoClass,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/zh-CN.json,domains.vstscanner.message.moduleRead,无法读取 moduleinfo.json: ,vstscanner,message.moduleRead,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/zh-CN.json,domains.vstscanner.message.moduleParse,moduleinfo.json 解析失败: ,vstscanner,message.moduleParse,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/zh-CN.json,domains.vstscanner.message.infoDirectory,无法创建 info 目录: ,vstscanner,message.infoDirectory,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/zh-CN.json,domains.vstscanner.message.infoWrite,无法写入 info 文件: ,vstscanner,message.infoWrite,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/zh-CN.json,domains.vstscanner.message.infoCommit,无法提交 info 文件: ,vstscanner,message.infoCommit,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/zh-CN.json,domains.vstscanner.message.outputCreate,无法创建输出目录,vstscanner,message.outputCreate,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/zh-CN.json,domains.vstscanner.message.pathMissing,扫描路径不存在,vstscanner,message.pathMissing,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/zh-CN.json,domains.vstscanner.message.vst3Binary,未找到可识别位宽的 VST3 二进制,vstscanner,message.vst3Binary,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/zh-CN.json,domains.vstscanner.message.vst3Skipped,跳过已验证 VST3，使用现有 info 条目,vstscanner,message.vst3Skipped,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/zh-CN.json,domains.vstscanner.message.vst3Loaded,已隔离加载 VST3，获取真实 class 信息,vstscanner,message.vst3Loaded,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/zh-CN.json,domains.vstscanner.message.vst3Partial,已枚举并隔离探测 VST3；部分 class 加载失败，已保留插件条目: ,vstscanner,message.vst3Partial,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/zh-CN.json,domains.vstscanner.message.vst3ClassSkipped,VST3 class 已验证，跳过本次探测,vstscanner,message.vst3ClassSkipped,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/zh-CN.json,domains.vstscanner.message.vst3Static,隔离加载未返回 class，已保留 moduleinfo 静态信息: ,vstscanner,message.vst3Static,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/zh-CN.json,domains.vstscanner.message.vst2Skipped,跳过已验证 VST2，使用现有 info 条目,vstscanner,message.vst2Skipped,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+tools/vst_scanner/locate/zh-CN.json,domains.vstscanner.message.invalidDll,跳过无效 VST DLL,vstscanner,message.invalidDll,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
 src/native_fx/effects/gate/locate/en-US.json,moduleId,gate,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
 src/native_fx/effects/gate/locate/en-US.json,language,en-US,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
 src/native_fx/effects/gate/locate/en-US.json,domains.nativefx.gate.module.name,Gate,nativefx.gate,module.name,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
