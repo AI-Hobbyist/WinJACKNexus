@@ -1,0 +1,65 @@
+{
+  "stage": "S6",
+  "result": "THEME_SOURCE_KEY_AND_DUAL_TABLE_CLOSURE_PASS_S6_OPEN",
+  "theme_display_keys": 238,
+  "theme_unmatched_occurrences": 0,
+  "remaining_other_occurrences": 106,
+  "remaining_domains": {
+    "host": 1,
+    "common": 3,
+    "meterbridge": 49,
+    "mixer": 45,
+    "node": 1,
+    "patchbay": 5,
+    "ui": 2
+  },
+  "source_snapshot": "4c06e27 (current application sources unchanged by this reconciliation)",
+  "runtime_evidence": "S6-theme-verification.json; single Theme run retained",
+  "limits": [
+    "This proves Theme source/key membership and recorded canonical display boundaries only.",
+    "The 106 other source candidates still need call-path review; membership is not UI acceptance.",
+    "User language/audio-domain review remains outstanding."
+  ],
+  "evidence": [
+    {
+      "file": "Docs\\i18n\\S0-verification.json",
+      "sha256": "12a483a3f31403093e6c4c6bc2e91ab5342497c5ec6071c42d4dcc4385ef4fa6"
+    },
+    {
+      "file": "Docs\\i18n\\S0-classified-literals.csv",
+      "sha256": "d949c72f4a1daf3fbd3003bebb6ccae8af71c6c9b4db6bb3b0a3608788f93826"
+    },
+    {
+      "file": "Docs\\i18n\\S0-keys.csv",
+      "sha256": "74c0268a6e99ba8b1487c633f9b29ffa814efddd7e2d4e42447ccc0c5c231a25"
+    },
+    {
+      "file": "Docs\\i18n\\S0-exclusions.csv",
+      "sha256": "8dab798adca1db292026595dd40f93af24628980818831580712e9a17d81918d"
+    },
+    {
+      "file": "Docs\\i18n\\S0-key-catalog.csv",
+      "sha256": "5135ac205637a57adf5ccb996534cd03087a16a14c032b4ecd95e12445f97fda"
+    },
+    {
+      "file": "Docs\\i18n\\S0-resource-fields.csv",
+      "sha256": "f45ac95689fb85e949b078e5bb0b24ff9dd2dda6d7549afd1d53a5189317b286"
+    },
+    {
+      "file": "Docs\\i18n\\S6-coverage-gaps.json",
+      "sha256": "4e5b7822495d2281391969e16ef34c121d12910ebb500d823f3c597bd3301dd5"
+    },
+    {
+      "file": "Docs\\i18n\\classify_s0.py",
+      "sha256": "37e3d37eccfa51c34a4a8736f96cd00f60fc5e8a57bcfdfc25d527f6891e190e"
+    },
+    {
+      "file": "i18n翻译核对.md",
+      "sha256": "ab864131aa7e66e88cb8f9ea3cd0c8901c3c62dd86b8cdbaec9fc51451022a1a"
+    },
+    {
+      "file": "Docs\\i18n\\S6-theme-diagnostic-boundaries.md",
+      "sha256": "369e1a2abac04c7551b176881b82e31a4aebac7987fee6c5ddf4f4e3649e1835"
+    }
+  ]
+}

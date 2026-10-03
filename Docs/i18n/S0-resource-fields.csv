@@ -541,6 +541,247 @@ locate/en-US.json,domains.ui.clientName.rejected,Unable to apply name,ui,clientN
 locate/en-US.json,domains.ui.choice.filterPlaceholder,Type to filter,ui,choice.filterPlaceholder,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
 locate/en-US.json,domains.ui.dock.expand,Expand sidebar,ui,dock.expand,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
 locate/en-US.json,domains.ui.dock.collapse,Collapse sidebar,ui,dock.collapse,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.title,Theme management,theme,title,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.homepage.open,Open author homepage,theme,homepage.open,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.package.import,Import theme package,theme,package.import,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.preview,Preview,theme,preview,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.apply,Apply,theme,apply,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.preview.cancel,Cancel preview,theme,preview.cancel,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.tab.overview,Theme and diagnostics,theme,tab.overview,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.color.token,Color token,theme,color.token,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.color.name,Full token name,theme,color.name,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.color.value,Color value,theme,color.value,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.color.apply,Apply color,theme,color.apply,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.font.global,Global font,theme,font.global,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.font.import,Import TTF/OTF,theme,font.import,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.font.system,Restore system font,theme,font.system,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.tab.colors,Colors and fonts,theme,tab.colors,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.background.scope,Module region,theme,background.scope,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.image.inherit,Inherit patchbay image,theme,image.inherit,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.image.custom,Custom image,theme,image.custom,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.image.none,No image,theme,image.none,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.image.choose,Choose image,theme,image.choose,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.image.source,Image source,theme,image.source,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.background.size,Size mode,theme,background.size,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.background.scale,Uniform scale,theme,background.scale,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.background.repeat,Tiling,theme,background.repeat,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.background.x,Horizontal position,theme,background.x,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.background.y,Vertical position,theme,background.y,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.image.opacity,Image opacity,theme,image.opacity,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.background.blur,Gaussian blur,theme,background.blur,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.component.opacity,Component opacity,theme,component.opacity,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.overlay.enabled,Upper overlay,theme,overlay.enabled,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.overlay.mode,Layer mode,theme,overlay.mode,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.overlay.opacity,Upper image opacity,theme,overlay.opacity,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.overlay.hint,Upper overlay: images with transparent backgrounds work best,theme,overlay.hint,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.background.apply,Apply background settings,theme,background.apply,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.tab.background,Background,theme,tab.background,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.metadata.name,Theme name,theme,metadata.name,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.metadata.author,Author,theme,metadata.author,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.metadata.description,Description,theme,metadata.description,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.metadata.homepage,Homepage,theme,metadata.homepage,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.fragment.namespace,Fragment namespace,theme,fragment.namespace,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.export.full,Export current full theme,theme,export.full,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.export.default,Export default theme template,theme,export.default,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.export.fragment,Export module fragment,theme,export.fragment,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.tab.export,Export,theme,tab.export,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.file.themeFilter,WinJACKNexus themes (*.wjnskin),theme,file.themeFilter,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.file.fontTitle,Choose font,theme,file.fontTitle,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.file.fontFilter,Fonts (*.ttf *.otf),theme,file.fontFilter,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.file.imageTitle,Choose background image,theme,file.imageTitle,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.file.imageFilter,Images (*.png *.jpg *.jpeg *.webp),theme,file.imageFilter,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.file.exportTitle,Export theme,theme,file.exportTitle,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.status.colorApplied,Color applied,theme,status.colorApplied,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.status.backgroundApplied,Background settings applied,theme,status.backgroundApplied,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.status.exported,Theme package exported,theme,status.exported,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.error.color,Invalid color value format,theme,error.color,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.error.directory,Cannot create theme directory,theme,error.directory,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.error.imageLimit,Background image exceeds the size limit or cannot be read,theme,error.imageLimit,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.error.imageRead,Cannot read background image,theme,error.imageRead,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.error.fontLimit,Font file exceeds the size limit or cannot be read,theme,error.fontLimit,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.error.fontInvalid,Invalid font file,theme,error.fontInvalid,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.error.position,Position must be a percentage or px value,theme,error.position,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.error.chooseImage,Choose a custom image first,theme,error.chooseImage,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.identity.summary,"%1
+Author: %2
+%3
+Homepage: %4",theme,identity.summary,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.identity.noHomepage,Not provided,theme,identity.noHomepage,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.identity.defaultDescription,Built-in default appearance,theme,identity.defaultDescription,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.scope.patchbay,Patchbay,theme,scope.patchbay,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.scope.mixer,Mixer,theme,scope.mixer,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.scope.mixer-overview,Mixer overview,theme,scope.mixer-overview,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.scope.sel-main,Main mixer,theme,scope.sel-main,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.scope.sel-monitor,Monitor mixer,theme,scope.sel-monitor,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.scope.sel-aux,Aux mixer,theme,scope.sel-aux,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.scope.sel-fx,FX mixer,theme,scope.sel-fx,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.scope.meter-bridge,Meter bridge,theme,scope.meter-bridge,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.size.original,Original size,theme,size.original,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.size.contain,Fit inside,theme,size.contain,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.size.cover,Fill and crop,theme,size.cover,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.size.stretch,Stretch,theme,size.stretch,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.repeat.no-repeat,No tiling,theme,repeat.no-repeat,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.repeat.repeat,Tile both axes,theme,repeat.repeat,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.repeat.repeat-x,Tile horizontally,theme,repeat.repeat-x,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.repeat.repeat-y,Tile vertically,theme,repeat.repeat-y,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.core.cssUtf8,style.css is not UTF-8,theme,core.cssUtf8,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.core.cssSize,style.css exceeds 1 MiB,theme,core.cssSize,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.core.commentOpen,unclosed CSS comment at line {detail},theme,core.commentOpen,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.core.commentEnd,stray CSS comment end at line {detail},theme,core.commentEnd,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.core.rootOnly,CSS requires :root blocks only,theme,core.rootOnly,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.core.rootBrace,CSS root opening brace missing,theme,core.rootBrace,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.core.parentheses,unbalanced CSS parentheses,theme,core.parentheses,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.core.nestedBlock,nested CSS block is forbidden,theme,core.nestedBlock,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.core.rootOpen,unclosed CSS root or parentheses,theme,core.rootOpen,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.core.declarationColon,CSS declaration has no colon at line {detail},theme,core.declarationColon,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.core.declarationInvalid,invalid CSS declaration at line {detail},theme,core.declarationInvalid,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.core.unknownToken,Unknown token retained in package but ignored for drawing,theme,core.unknownToken,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.core.namespaceLine,token outside declared namespace at line {detail},theme,core.namespaceLine,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.core.duplicateToken,Later declaration overrides earlier declaration,theme,core.duplicateToken,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.core.rootRequired,CSS requires at least one :root block,theme,core.rootRequired,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.core.referenceCycle,Circular token reference,theme,core.referenceCycle,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.core.referenceUnresolved,Unresolved variable reference,theme,core.referenceUnresolved,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.core.valueType,Value does not match registered type {detail},theme,core.valueType,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.core.resourceAbsent,Resource is absent for the resolved token: {detail},theme,core.resourceAbsent,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.core.registryNull,null registry result,theme,core.registryNull,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.core.registryVersion,invalid theme registry version,theme,core.registryVersion,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.core.registryCount,invalid registry token count,theme,core.registryCount,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.core.registryObject,registry token is not an object,theme,core.registryObject,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.core.registryToken,invalid or duplicate registry token: {detail},theme,core.registryToken,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.core.registryParents,registry inherits must be an array: {detail},theme,core.registryParents,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.core.registryDuplicateParent,invalid duplicate registry parent: {detail},theme,core.registryDuplicateParent,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.core.imageInheritance,undefined image token requires an inheritance source,theme,core.imageInheritance,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.core.registryInheritance,"registry inheritance is missing, mismatched, or cyclic: {detail}",theme,core.registryInheritance,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.core.registryUnavailable,built-in theme registry is unavailable,theme,core.registryUnavailable,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.core.extendedRegistryNull,null extended registry result,theme,core.extendedRegistryNull,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.core.moduleTokenConflict,module token conflicts with registered token: {detail},theme,core.moduleTokenConflict,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.core.registryEmpty,theme registry is empty,theme,core.registryEmpty,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.core.defaultUnavailable,required default theme package is unavailable,theme,core.defaultUnavailable,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.core.fullRequired,expected a valid full theme package,theme,core.fullRequired,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.core.fragmentRequired,expected a valid fragment package,theme,core.fragmentRequired,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.core.overrideToken,unknown override token,theme,core.overrideToken,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.core.previewActive,preview already active,theme,core.previewActive,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.core.fragmentNamespace,invalid fragment namespace,theme,core.fragmentNamespace,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.core.overrideExportState,theme override export has no output or active state,theme,core.overrideExportState,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.core.overrideResource,override resource is missing: {detail},theme,core.overrideResource,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.core.overrideFragment,expected a user override fragment,theme,core.overrideFragment,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.core.exportState,theme export has no active state or output,theme,core.exportState,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.core.sourceCss,source theme CSS is invalid,theme,core.sourceCss,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.core.exportResource,export resource is missing: {detail},theme,core.exportResource,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.core.fragmentEmpty,selected fragment namespace has no declarations,theme,core.fragmentEmpty,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.core.exportScope,export declaration has no module scope: {detail},theme,core.exportScope,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.package.metaSize,meta.json size is invalid,theme,package.metaSize,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.package.metaUtf8,meta.json is not UTF-8,theme,package.metaUtf8,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.package.metaObject,meta.json is not a JSON object,theme,package.metaObject,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.package.apiVersion,unsupported theme format/API version,theme,package.apiVersion,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.package.id,invalid theme id,theme,package.id,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.package.version,invalid theme version,theme,package.version,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.package.metadata,theme name/author/description is invalid,theme,package.metadata,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.package.homepageMissing,theme homepage is missing,theme,package.homepageMissing,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.package.homepage,invalid theme homepage,theme,package.homepage,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.package.kind,invalid theme kind,theme,package.kind,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.package.namespacesMissing,missing namespaces,theme,package.namespacesMissing,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.package.namespace,invalid or duplicate namespace,theme,package.namespace,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.package.previewPath,invalid preview path,theme,package.previewPath,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.package.storedSize,stored entry size mismatch,theme,package.storedSize,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.package.zlibInit,zlib init failed,theme,package.zlibInit,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.package.expandedSize,expanded entry exceeded declared size,theme,package.expandedSize,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.package.deflate,deflate stream is truncated or malformed,theme,package.deflate,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.package.crc,ZIP CRC mismatch: {detail},theme,package.crc,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.package.size,package size is outside 22 bytes..32 MiB,theme,package.size,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.package.zipEnd,ZIP end record missing,theme,package.zipEnd,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.package.zip64Disks,multi-disk ZIP64 is unsupported,theme,package.zip64Disks,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.package.zip64End,invalid ZIP64 end record,theme,package.zip64End,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.package.zipBounds,unsupported ZIP disk or central directory bounds,theme,package.zipBounds,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.package.zipCentral,invalid ZIP central record,theme,package.zipCentral,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.package.zipCentralTruncated,truncated ZIP central entry,theme,package.zipCentralTruncated,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.package.entryUtf8,entry name is not UTF-8,theme,package.entryUtf8,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.package.zipPath,"unsafe, unsupported, or duplicate ZIP path: {detail}",theme,package.zipPath,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.package.zipMethod,unsupported ZIP encryption or method,theme,package.zipMethod,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.package.zip64Central,invalid ZIP64 central entry,theme,package.zip64Central,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.package.zipSymlink,ZIP symbolic links are not allowed,theme,package.zipSymlink,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.package.directoryContent,directory has content,theme,package.directoryContent,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.package.resourceBudget,ZIP resource budget exceeded: {detail},theme,package.resourceBudget,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.package.rootLayout,ZIP root layout is incomplete,theme,package.rootLayout,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.package.localHeader,invalid ZIP local header,theme,package.localHeader,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.package.flags,ZIP local/central flags differ,theme,package.flags,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.package.localBounds,ZIP local name or data bounds differ,theme,package.localBounds,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.package.zip64Local,invalid ZIP64 local entry,theme,package.zip64Local,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.package.localSizes,ZIP local/central sizes differ,theme,package.localSizes,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.package.dataDescriptor,invalid ZIP data descriptor,theme,package.dataDescriptor,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.package.centralOverlap,ZIP entry overlaps central directory,theme,package.centralOverlap,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.package.expandedBudget,expanded package budget exceeded,theme,package.expandedBudget,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.package.entriesOverlap,ZIP entries overlap,theme,package.entriesOverlap,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.package.entryCount,too many ZIP entries,theme,package.entryCount,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.package.outputBudget,ZIP output exceeds size budget,theme,package.outputBudget,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.package.outputSize,ZIP output exceeds 32 MiB,theme,package.outputSize,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.package.nullResult,null theme result,theme,package.nullResult,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.package.open,cannot open theme package: {detail},theme,package.open,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.package.fileSize,theme package exceeds 32 MiB,theme,package.fileSize,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.package.directory,theme directory is missing or linked,theme,package.directory,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.package.devEntry,unsupported Dev theme entry: {detail},theme,package.devEntry,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.package.devCount,duplicate or excessive Dev theme entries,theme,package.devCount,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.package.devEntrySize,Dev theme entry exceeds size budget: {detail},theme,package.devEntrySize,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.package.devRead,cannot read Dev theme entry: {detail},theme,package.devRead,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.package.devChanged,Dev theme entry changed while reading: {detail},theme,package.devChanged,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.package.devBudget,Dev theme exceeds package budget,theme,package.devBudget,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.package.defaultDll,required default theme DLL is unavailable: {detail},theme,package.defaultDll,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.package.defaultApi,default theme DLL API is incompatible,theme,package.defaultApi,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.package.defaultData,default theme DLL has no valid package data,theme,package.defaultData,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.package.cssUtf8,style.css is empty or not UTF-8,theme,package.cssUtf8,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.package.moduleCssUtf8,module CSS is empty or not UTF-8: {detail},theme,package.moduleCssUtf8,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.package.combinedCssSize,combined CSS exceeds 1 MiB,theme,package.combinedCssSize,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.package.previewAsset,preview asset is missing,theme,package.previewAsset,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.package.assetMap,asset map contains a non-asset ZIP name,theme,package.assetMap,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.package.moduleCssPath,invalid module CSS path: {detail},theme,package.moduleCssPath,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.package.sourceResult,invalid source theme or result,theme,package.sourceResult,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.package.assetPath,invalid logical asset path,theme,package.assetPath,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.package.importAsset,cannot read imported asset or it exceeds 16 MiB,theme,package.importAsset,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.package.output,invalid theme or output,theme,package.output,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.package.write,cannot write theme package: {detail},theme,package.write,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.namespace.array,{detail} must be a bounded array,theme,namespace.array,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.namespace.object,{detail} item is not an object,theme,namespace.object,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.namespace.id,{detail} has invalid or duplicate ID,theme,namespace.id,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.namespace.description,{detail} has invalid description,theme,namespace.description,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.namespace.statesMissing,control states are missing,theme,namespace.statesMissing,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.namespace.state,invalid or duplicate control state,theme,namespace.state,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.namespace.meterUnit,invalid meter range or unit,theme,namespace.meterUnit,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.namespace.meterZones,invalid meter zones,theme,namespace.meterZones,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.namespace.meterZoneObject,meter zone is not an object,theme,namespace.meterZoneObject,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.namespace.meterBoundary,invalid meter zone ID or boundary,theme,namespace.meterBoundary,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.namespace.meterMaximum,meter zones do not reach maximum,theme,namespace.meterMaximum,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.namespace.overlayBoolean,background overlay capability must be boolean,theme,namespace.overlayBoolean,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.namespace.utf8,descriptor is not bounded UTF-8,theme,namespace.utf8,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.namespace.json,invalid descriptor JSON: {detail},theme,namespace.json,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.namespace.apiVersion,unsupported descriptor or theme API version,theme,namespace.apiVersion,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.namespace.identity,invalid descriptor identity or namespace,theme,namespace.identity,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.namespace.nativeId,Native Fx namespace does not match module ID,theme,namespace.nativeId,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.namespace.nodeScope,Node namespace must be module-scoped or shared Native Fx,theme,namespace.nodeScope,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.namespace.tokenCount,invalid descriptor token count,theme,namespace.tokenCount,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.namespace.tokenObject,descriptor token is not an object,theme,namespace.tokenObject,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.namespace.token,invalid descriptor token: {detail},theme,namespace.token,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.namespace.parentsArray,token inherits must be an array: {detail},theme,namespace.parentsArray,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.namespace.parent,invalid token parent: {detail},theme,namespace.parent,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.namespace.imageParent,undefined image has no parent: {detail},theme,namespace.imageParent,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.namespace.values,token values must be an object or array: {detail},theme,namespace.values,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.namespace.inheritance,"descriptor inheritance is missing, mismatched, or cyclic: {detail}",theme,namespace.inheritance,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.namespace.variableType,descriptor variable has wrong type: {detail},theme,namespace.variableType,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.namespace.defaultType,descriptor default has wrong type: {detail},theme,namespace.defaultType,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.namespace.frozenToken,descriptor disagrees with frozen built-in token: {detail},theme,namespace.frozenToken,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.namespace.registrationTarget,invalid registration target,theme,namespace.registrationTarget,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.namespace.nativeExports,incomplete or unsupported Native Fx theme exports,theme,namespace.nativeExports,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.namespace.nativeMetadata,invalid Native Fx count or metadata exports,theme,namespace.nativeMetadata,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.namespace.nativeIndex,Native Fx descriptor ID does not match metadata index,theme,namespace.nativeIndex,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.namespace.nodeExports,incomplete or unsupported Node theme exports,theme,namespace.nodeExports,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.namespace.nodeCount,invalid Node count export,theme,namespace.nodeCount,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.namespace.source,invalid descriptor source,theme,namespace.source,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.namespace.exportDuplicate,duplicate module or namespace inside one export table,theme,namespace.exportDuplicate,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.namespace.bindingIndex,binding index changed while still registered,theme,namespace.bindingIndex,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.namespace.owner,conflicting module descriptor or owner: {detail},theme,namespace.owner,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.namespace.namespaceOwner,namespace already owned by another module: {detail},theme,namespace.namespaceOwner,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.catalog.directory,Cannot create theme directory: {detail},theme,catalog.directory,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.catalog.notInstalled,Theme is not in the installation directory: {detail},theme,catalog.notInstalled,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/en-US.json,domains.theme.catalog.changed,The theme file has changed; refresh the list,theme,catalog.changed,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
 locate/ja-JP.json,moduleId,winjacknexus-host,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
 locate/ja-JP.json,language,ja-JP,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
 locate/ja-JP.json,domains.host.settings.global.title,全体設定,host,settings.global.title,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
@@ -1083,6 +1324,247 @@ locate/ja-JP.json,domains.ui.clientName.rejected,名前を適用できません,
 locate/ja-JP.json,domains.ui.choice.filterPlaceholder,入力して絞り込み,ui,choice.filterPlaceholder,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
 locate/ja-JP.json,domains.ui.dock.expand,サイドバーを展開,ui,dock.expand,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
 locate/ja-JP.json,domains.ui.dock.collapse,サイドバーを折りたたむ,ui,dock.collapse,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.title,テーマ管理,theme,title,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.homepage.open,作者のホームページを開く,theme,homepage.open,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.package.import,テーマパッケージをインポート,theme,package.import,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.preview,プレビュー,theme,preview,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.apply,適用,theme,apply,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.preview.cancel,プレビューをキャンセル,theme,preview.cancel,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.tab.overview,テーマと診断,theme,tab.overview,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.color.token,色トークン,theme,color.token,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.color.name,完全なトークン名,theme,color.name,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.color.value,色の値,theme,color.value,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.color.apply,色を適用,theme,color.apply,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.font.global,グローバルフォント,theme,font.global,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.font.import,TTF/OTF をインポート,theme,font.import,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.font.system,システムフォントに戻す,theme,font.system,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.tab.colors,色とフォント,theme,tab.colors,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.background.scope,モジュール領域,theme,background.scope,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.image.inherit,パッチベイの画像を継承,theme,image.inherit,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.image.custom,カスタム画像,theme,image.custom,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.image.none,画像なし,theme,image.none,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.image.choose,画像を選択,theme,image.choose,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.image.source,画像ソース,theme,image.source,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.background.size,サイズモード,theme,background.size,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.background.scale,縦横比を維持して拡大縮小,theme,background.scale,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.background.repeat,タイル表示,theme,background.repeat,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.background.x,水平位置,theme,background.x,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.background.y,垂直位置,theme,background.y,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.image.opacity,画像の不透明度,theme,image.opacity,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.background.blur,ガウスぼかし,theme,background.blur,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.component.opacity,コンポーネントの不透明度,theme,component.opacity,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.overlay.enabled,上部オーバーレイ,theme,overlay.enabled,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.overlay.mode,レイヤーモード,theme,overlay.mode,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.overlay.opacity,上部画像の不透明度,theme,overlay.opacity,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.overlay.hint,上部オーバーレイ：背景が透明な画像が最適です,theme,overlay.hint,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.background.apply,背景設定を適用,theme,background.apply,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.tab.background,背景,theme,tab.background,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.metadata.name,テーマ名,theme,metadata.name,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.metadata.author,作者,theme,metadata.author,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.metadata.description,説明,theme,metadata.description,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.metadata.homepage,ホームページ,theme,metadata.homepage,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.fragment.namespace,フラグメントの名前空間,theme,fragment.namespace,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.export.full,現在の完全なテーマをエクスポート,theme,export.full,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.export.default,既定テーマのテンプレートをエクスポート,theme,export.default,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.export.fragment,モジュールのフラグメントをエクスポート,theme,export.fragment,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.tab.export,エクスポート,theme,tab.export,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.file.themeFilter,WinJACKNexus テーマ (*.wjnskin),theme,file.themeFilter,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.file.fontTitle,フォントを選択,theme,file.fontTitle,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.file.fontFilter,フォント (*.ttf *.otf),theme,file.fontFilter,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.file.imageTitle,背景画像を選択,theme,file.imageTitle,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.file.imageFilter,画像 (*.png *.jpg *.jpeg *.webp),theme,file.imageFilter,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.file.exportTitle,テーマをエクスポート,theme,file.exportTitle,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.status.colorApplied,色を適用しました,theme,status.colorApplied,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.status.backgroundApplied,背景設定を適用しました,theme,status.backgroundApplied,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.status.exported,テーマパッケージをエクスポートしました,theme,status.exported,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.error.color,色の値の形式が無効です,theme,error.color,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.error.directory,テーマのディレクトリを作成できません,theme,error.directory,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.error.imageLimit,背景画像がサイズ制限を超えているか、読み取れません,theme,error.imageLimit,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.error.imageRead,背景画像を読み取れません,theme,error.imageRead,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.error.fontLimit,フォントファイルがサイズ制限を超えているか、読み取れません,theme,error.fontLimit,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.error.fontInvalid,無効なフォントファイルです,theme,error.fontInvalid,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.error.position,位置はパーセントまたは px 値で指定してください,theme,error.position,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.error.chooseImage,先にカスタム画像を選択してください,theme,error.chooseImage,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.identity.summary,"%1
+作者：%2
+%3
+ホームページ：%4",theme,identity.summary,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.identity.noHomepage,未指定,theme,identity.noHomepage,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.identity.defaultDescription,組み込みの既定の外観,theme,identity.defaultDescription,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.scope.patchbay,パッチベイ,theme,scope.patchbay,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.scope.mixer,ミキサー,theme,scope.mixer,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.scope.mixer-overview,ミキサー全体表示,theme,scope.mixer-overview,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.scope.sel-main,メインミキサー,theme,scope.sel-main,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.scope.sel-monitor,モニターミキサー,theme,scope.sel-monitor,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.scope.sel-aux,Aux ミキサー,theme,scope.sel-aux,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.scope.sel-fx,FX ミキサー,theme,scope.sel-fx,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.scope.meter-bridge,メーターブリッジ,theme,scope.meter-bridge,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.size.original,元のサイズ,theme,size.original,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.size.contain,内側に収める,theme,size.contain,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.size.cover,全体を覆って切り抜く,theme,size.cover,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.size.stretch,引き伸ばす,theme,size.stretch,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.repeat.no-repeat,タイル表示なし,theme,repeat.no-repeat,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.repeat.repeat,縦横にタイル表示,theme,repeat.repeat,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.repeat.repeat-x,横方向にタイル表示,theme,repeat.repeat-x,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.repeat.repeat-y,縦方向にタイル表示,theme,repeat.repeat-y,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.core.cssUtf8,style.css は UTF-8 ではありません,theme,core.cssUtf8,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.core.cssSize,style.css が 1 MiB を超えています,theme,core.cssSize,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.core.commentOpen,{detail} 行目の CSS コメントが閉じられていません,theme,core.commentOpen,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.core.commentEnd,{detail} 行目に対応する開始符のない CSS コメント終了符があります,theme,core.commentEnd,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.core.rootOnly,CSS では :root ブロックのみ使用できます,theme,core.rootOnly,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.core.rootBrace,CSS root の開始波括弧がありません,theme,core.rootBrace,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.core.parentheses,CSS の丸括弧が対応していません,theme,core.parentheses,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.core.nestedBlock,CSS ブロックの入れ子は許可されていません,theme,core.nestedBlock,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.core.rootOpen,CSS root または丸括弧が閉じられていません,theme,core.rootOpen,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.core.declarationColon,{detail} 行目の CSS 宣言にコロンがありません,theme,core.declarationColon,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.core.declarationInvalid,{detail} 行目の CSS 宣言が無効です,theme,core.declarationInvalid,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.core.unknownToken,不明なトークンはパッケージに保持されますが、描画には使用されません,theme,core.unknownToken,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.core.namespaceLine,{detail} 行目のトークンが宣言された名前空間の外にあります,theme,core.namespaceLine,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.core.duplicateToken,後の宣言が前の宣言を上書きします,theme,core.duplicateToken,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.core.rootRequired,CSS には少なくとも 1 つの :root ブロックが必要です,theme,core.rootRequired,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.core.referenceCycle,トークン参照が循環しています,theme,core.referenceCycle,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.core.referenceUnresolved,変数参照を解決できません,theme,core.referenceUnresolved,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.core.valueType,値が登録済みの型 {detail} と一致しません,theme,core.valueType,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.core.resourceAbsent,解決済みトークンのリソースがありません：{detail},theme,core.resourceAbsent,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.core.registryNull,レジストリの出力先がありません,theme,core.registryNull,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.core.registryVersion,テーマレジストリのバージョンが無効です,theme,core.registryVersion,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.core.registryCount,レジストリのトークン数が無効です,theme,core.registryCount,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.core.registryObject,レジストリのトークンがオブジェクトではありません,theme,core.registryObject,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.core.registryToken,レジストリのトークンが無効または重複しています：{detail},theme,core.registryToken,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.core.registryParents,レジストリの inherits は配列でなければなりません：{detail},theme,core.registryParents,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.core.registryDuplicateParent,レジストリの親要素が無効または重複しています：{detail},theme,core.registryDuplicateParent,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.core.imageInheritance,未定義の画像トークンには継承元が必要です,theme,core.imageInheritance,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.core.registryInheritance,レジストリの継承が欠落、不一致、または循環しています：{detail},theme,core.registryInheritance,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.core.registryUnavailable,組み込みテーマのレジストリを利用できません,theme,core.registryUnavailable,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.core.extendedRegistryNull,拡張レジストリの出力先がありません,theme,core.extendedRegistryNull,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.core.moduleTokenConflict,モジュールのトークンが登録済みトークンと競合しています：{detail},theme,core.moduleTokenConflict,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.core.registryEmpty,テーマレジストリが空です,theme,core.registryEmpty,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.core.defaultUnavailable,必須の既定テーマパッケージを利用できません,theme,core.defaultUnavailable,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.core.fullRequired,有効な完全テーマパッケージが必要です,theme,core.fullRequired,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.core.fragmentRequired,有効なフラグメントパッケージが必要です,theme,core.fragmentRequired,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.core.overrideToken,不明な上書きトークンです,theme,core.overrideToken,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.core.previewActive,プレビューは既に開始されています,theme,core.previewActive,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.core.fragmentNamespace,フラグメントの名前空間が無効です,theme,core.fragmentNamespace,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.core.overrideExportState,テーマ上書きのエクスポートに出力先または有効な状態がありません,theme,core.overrideExportState,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.core.overrideResource,上書きリソースがありません：{detail},theme,core.overrideResource,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.core.overrideFragment,ユーザー上書きフラグメントが必要です,theme,core.overrideFragment,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.core.exportState,テーマのエクスポートに有効な状態または出力先がありません,theme,core.exportState,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.core.sourceCss,元のテーマの CSS が無効です,theme,core.sourceCss,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.core.exportResource,エクスポートするリソースがありません：{detail},theme,core.exportResource,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.core.fragmentEmpty,選択したフラグメントの名前空間に宣言がありません,theme,core.fragmentEmpty,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.core.exportScope,エクスポートする宣言にモジュールスコープがありません：{detail},theme,core.exportScope,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.package.metaSize,meta.json のサイズが無効です,theme,package.metaSize,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.package.metaUtf8,meta.json は UTF-8 ではありません,theme,package.metaUtf8,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.package.metaObject,meta.json は JSON オブジェクトではありません,theme,package.metaObject,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.package.apiVersion,未対応のテーマ形式または API バージョンです,theme,package.apiVersion,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.package.id,テーマ ID が無効です,theme,package.id,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.package.version,テーマのバージョンが無効です,theme,package.version,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.package.metadata,テーマ名、作者、または説明が無効です,theme,package.metadata,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.package.homepageMissing,テーマのホームページがありません,theme,package.homepageMissing,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.package.homepage,テーマのホームページが無効です,theme,package.homepage,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.package.kind,テーマの種別が無効です,theme,package.kind,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.package.namespacesMissing,名前空間がありません,theme,package.namespacesMissing,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.package.namespace,名前空間が無効または重複しています,theme,package.namespace,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.package.previewPath,プレビューのパスが無効です,theme,package.previewPath,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.package.storedSize,非圧縮エントリーのサイズが一致しません,theme,package.storedSize,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.package.zlibInit,zlib の初期化に失敗しました,theme,package.zlibInit,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.package.expandedSize,展開したエントリーが宣言されたサイズを超えています,theme,package.expandedSize,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.package.deflate,deflate ストリームが途切れているか、形式が不正です,theme,package.deflate,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.package.crc,ZIP の CRC が一致しません：{detail},theme,package.crc,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.package.size,パッケージのサイズが 22 バイトから 32 MiB の範囲外です,theme,package.size,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.package.zipEnd,ZIP の終端レコードがありません,theme,package.zipEnd,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.package.zip64Disks,複数ディスクの ZIP64 は未対応です,theme,package.zip64Disks,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.package.zip64End,ZIP64 の終端レコードが無効です,theme,package.zip64End,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.package.zipBounds,未対応の ZIP ディスクまたは中央ディレクトリの範囲です,theme,package.zipBounds,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.package.zipCentral,ZIP の中央レコードが無効です,theme,package.zipCentral,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.package.zipCentralTruncated,ZIP の中央エントリーが途切れています,theme,package.zipCentralTruncated,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.package.entryUtf8,エントリー名は UTF-8 ではありません,theme,package.entryUtf8,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.package.zipPath,ZIP パスが安全でない、未対応、または重複しています：{detail},theme,package.zipPath,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.package.zipMethod,未対応の ZIP 暗号化または圧縮方式です,theme,package.zipMethod,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.package.zip64Central,ZIP64 の中央エントリーが無効です,theme,package.zip64Central,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.package.zipSymlink,ZIP のシンボリックリンクは許可されていません,theme,package.zipSymlink,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.package.directoryContent,ディレクトリエントリーに内容があります,theme,package.directoryContent,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.package.resourceBudget,ZIP リソースがサイズの上限を超えています：{detail},theme,package.resourceBudget,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.package.rootLayout,ZIP のルート構成が不完全です,theme,package.rootLayout,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.package.localHeader,ZIP のローカルヘッダーが無効です,theme,package.localHeader,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.package.flags,ZIP のローカルと中央のフラグが一致しません,theme,package.flags,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.package.localBounds,ZIP のローカル名またはデータ範囲が一致しません,theme,package.localBounds,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.package.zip64Local,ZIP64 のローカルエントリーが無効です,theme,package.zip64Local,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.package.localSizes,ZIP のローカルと中央のサイズが一致しません,theme,package.localSizes,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.package.dataDescriptor,ZIP のデータ記述子が無効です,theme,package.dataDescriptor,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.package.centralOverlap,ZIP のエントリーが中央ディレクトリと重なっています,theme,package.centralOverlap,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.package.expandedBudget,展開したパッケージがサイズの上限を超えています,theme,package.expandedBudget,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.package.entriesOverlap,ZIP のエントリーが重なっています,theme,package.entriesOverlap,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.package.entryCount,ZIP のエントリーが多すぎます,theme,package.entryCount,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.package.outputBudget,ZIP の出力がサイズの上限を超えています,theme,package.outputBudget,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.package.outputSize,ZIP の出力が 32 MiB を超えています,theme,package.outputSize,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.package.nullResult,テーマの出力先がありません,theme,package.nullResult,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.package.open,テーマパッケージを開けません：{detail},theme,package.open,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.package.fileSize,テーマパッケージが 32 MiB を超えています,theme,package.fileSize,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.package.directory,テーマのディレクトリが存在しないか、リンクになっています,theme,package.directory,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.package.devEntry,未対応の Dev テーマエントリーです：{detail},theme,package.devEntry,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.package.devCount,Dev テーマのエントリーが重複しているか、多すぎます,theme,package.devCount,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.package.devEntrySize,Dev テーマのエントリーがサイズの上限を超えています：{detail},theme,package.devEntrySize,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.package.devRead,Dev テーマのエントリーを読み取れません：{detail},theme,package.devRead,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.package.devChanged,読み取り中に Dev テーマのエントリーが変更されました：{detail},theme,package.devChanged,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.package.devBudget,Dev テーマがパッケージのサイズ上限を超えています,theme,package.devBudget,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.package.defaultDll,必須の既定テーマ DLL を利用できません：{detail},theme,package.defaultDll,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.package.defaultApi,既定テーマ DLL の API に互換性がありません,theme,package.defaultApi,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.package.defaultData,既定テーマ DLL に有効なパッケージデータがありません,theme,package.defaultData,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.package.cssUtf8,style.css が空か、UTF-8 ではありません,theme,package.cssUtf8,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.package.moduleCssUtf8,モジュールの CSS が空か、UTF-8 ではありません：{detail},theme,package.moduleCssUtf8,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.package.combinedCssSize,結合した CSS が 1 MiB を超えています,theme,package.combinedCssSize,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.package.previewAsset,プレビューのリソースがありません,theme,package.previewAsset,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.package.assetMap,リソースの一覧にリソース以外の ZIP 名が含まれています,theme,package.assetMap,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.package.moduleCssPath,モジュールの CSS パスが無効です：{detail},theme,package.moduleCssPath,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.package.sourceResult,元のテーマまたは出力先が無効です,theme,package.sourceResult,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.package.assetPath,論理リソースパスが無効です,theme,package.assetPath,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.package.importAsset,インポートしたリソースを読み取れないか、16 MiB を超えています,theme,package.importAsset,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.package.output,テーマまたは出力先が無効です,theme,package.output,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.package.write,テーマパッケージを書き込めません：{detail},theme,package.write,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.namespace.array,{detail} は要素数が制限された配列でなければなりません,theme,namespace.array,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.namespace.object,{detail} の項目がオブジェクトではありません,theme,namespace.object,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.namespace.id,{detail} の ID が無効または重複しています,theme,namespace.id,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.namespace.description,{detail} の説明が無効です,theme,namespace.description,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.namespace.statesMissing,コントロールの状態がありません,theme,namespace.statesMissing,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.namespace.state,コントロールの状態が無効または重複しています,theme,namespace.state,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.namespace.meterUnit,メーターの範囲または単位が無効です,theme,namespace.meterUnit,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.namespace.meterZones,メーターのゾーンが無効です,theme,namespace.meterZones,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.namespace.meterZoneObject,メーターのゾーンがオブジェクトではありません,theme,namespace.meterZoneObject,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.namespace.meterBoundary,メーターのゾーン ID または境界が無効です,theme,namespace.meterBoundary,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.namespace.meterMaximum,メーターのゾーンが最大値まで達していません,theme,namespace.meterMaximum,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.namespace.overlayBoolean,背景オーバーレイの対応設定は真偽値でなければなりません,theme,namespace.overlayBoolean,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.namespace.utf8,記述子が長さの制限を満たす UTF-8 ではありません,theme,namespace.utf8,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.namespace.json,記述子の JSON が無効です：{detail},theme,namespace.json,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.namespace.apiVersion,未対応の記述子またはテーマ API バージョンです,theme,namespace.apiVersion,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.namespace.identity,記述子の識別情報または名前空間が無効です,theme,namespace.identity,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.namespace.nativeId,Native Fx の名前空間がモジュール ID と一致しません,theme,namespace.nativeId,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.namespace.nodeScope,Node の名前空間はモジュール専用または共有 Native Fx でなければなりません,theme,namespace.nodeScope,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.namespace.tokenCount,記述子のトークン数が無効です,theme,namespace.tokenCount,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.namespace.tokenObject,記述子のトークンがオブジェクトではありません,theme,namespace.tokenObject,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.namespace.token,記述子のトークンが無効です：{detail},theme,namespace.token,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.namespace.parentsArray,トークンの inherits は配列でなければなりません：{detail},theme,namespace.parentsArray,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.namespace.parent,トークンの親要素が無効です：{detail},theme,namespace.parent,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.namespace.imageParent,未定義の画像に親要素がありません：{detail},theme,namespace.imageParent,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.namespace.values,トークンの values はオブジェクトまたは配列でなければなりません：{detail},theme,namespace.values,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.namespace.inheritance,記述子の継承が欠落、不一致、または循環しています：{detail},theme,namespace.inheritance,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.namespace.variableType,記述子の変数の型が誤っています：{detail},theme,namespace.variableType,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.namespace.defaultType,記述子の既定値の型が誤っています：{detail},theme,namespace.defaultType,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.namespace.frozenToken,記述子が凍結された組み込みトークンと一致しません：{detail},theme,namespace.frozenToken,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.namespace.registrationTarget,登録先が無効です,theme,namespace.registrationTarget,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.namespace.nativeExports,Native Fx のテーマエクスポートが不完全または未対応です,theme,namespace.nativeExports,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.namespace.nativeMetadata,Native Fx の件数またはメタデータのエクスポートが無効です,theme,namespace.nativeMetadata,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.namespace.nativeIndex,Native Fx の記述子 ID がメタデータのインデックスと一致しません,theme,namespace.nativeIndex,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.namespace.nodeExports,Node のテーマエクスポートが不完全または未対応です,theme,namespace.nodeExports,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.namespace.nodeCount,Node の件数のエクスポートが無効です,theme,namespace.nodeCount,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.namespace.source,記述子のソースが無効です,theme,namespace.source,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.namespace.exportDuplicate,同じエクスポートテーブル内でモジュールまたは名前空間が重複しています,theme,namespace.exportDuplicate,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.namespace.bindingIndex,登録中にバインディングのインデックスが変更されました,theme,namespace.bindingIndex,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.namespace.owner,モジュールの記述子または所有者が競合しています：{detail},theme,namespace.owner,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.namespace.namespaceOwner,名前空間は既に別のモジュールが所有しています：{detail},theme,namespace.namespaceOwner,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.catalog.directory,テーマディレクトリを作成できません: {detail},theme,catalog.directory,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.catalog.notInstalled,テーマがインストールディレクトリにありません: {detail},theme,catalog.notInstalled,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ja-JP.json,domains.theme.catalog.changed,テーマファイルが変更されました。リストを更新してください,theme,catalog.changed,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
 locate/ko-KR.json,moduleId,winjacknexus-host,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
 locate/ko-KR.json,language,ko-KR,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
 locate/ko-KR.json,domains.host.settings.global.title,전역 설정,host,settings.global.title,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
@@ -1625,6 +2107,247 @@ locate/ko-KR.json,domains.ui.clientName.rejected,이름을 적용할 수 없습�
 locate/ko-KR.json,domains.ui.choice.filterPlaceholder,입력하여 필터링,ui,choice.filterPlaceholder,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
 locate/ko-KR.json,domains.ui.dock.expand,사이드바 펼치기,ui,dock.expand,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
 locate/ko-KR.json,domains.ui.dock.collapse,사이드바 접기,ui,dock.collapse,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.title,테마 관리,theme,title,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.homepage.open,제작자 홈페이지 열기,theme,homepage.open,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.package.import,테마 패키지 가져오기,theme,package.import,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.preview,미리 보기,theme,preview,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.apply,적용,theme,apply,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.preview.cancel,미리 보기 취소,theme,preview.cancel,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.tab.overview,테마 및 진단,theme,tab.overview,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.color.token,색상 토큰,theme,color.token,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.color.name,전체 토큰 이름,theme,color.name,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.color.value,색상 값,theme,color.value,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.color.apply,색상 적용,theme,color.apply,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.font.global,전역 글꼴,theme,font.global,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.font.import,TTF/OTF 가져오기,theme,font.import,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.font.system,시스템 글꼴 복원,theme,font.system,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.tab.colors,색상 및 글꼴,theme,tab.colors,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.background.scope,모듈 영역,theme,background.scope,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.image.inherit,패치베이 이미지 상속,theme,image.inherit,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.image.custom,사용자 지정 이미지,theme,image.custom,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.image.none,이미지 없음,theme,image.none,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.image.choose,이미지 선택,theme,image.choose,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.image.source,이미지 소스,theme,image.source,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.background.size,크기 모드,theme,background.size,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.background.scale,비율 유지 배율,theme,background.scale,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.background.repeat,타일 배치,theme,background.repeat,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.background.x,가로 위치,theme,background.x,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.background.y,세로 위치,theme,background.y,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.image.opacity,이미지 불투명도,theme,image.opacity,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.background.blur,가우시안 흐림,theme,background.blur,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.component.opacity,컴포넌트 불투명도,theme,component.opacity,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.overlay.enabled,상단 오버레이,theme,overlay.enabled,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.overlay.mode,레이어 모드,theme,overlay.mode,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.overlay.opacity,상단 이미지 불투명도,theme,overlay.opacity,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.overlay.hint,상단 오버레이: 배경이 투명한 이미지가 적합합니다,theme,overlay.hint,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.background.apply,배경 설정 적용,theme,background.apply,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.tab.background,배경,theme,tab.background,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.metadata.name,테마 이름,theme,metadata.name,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.metadata.author,제작자,theme,metadata.author,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.metadata.description,설명,theme,metadata.description,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.metadata.homepage,홈페이지,theme,metadata.homepage,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.fragment.namespace,조각 네임스페이스,theme,fragment.namespace,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.export.full,현재 전체 테마 내보내기,theme,export.full,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.export.default,기본 테마 템플릿 내보내기,theme,export.default,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.export.fragment,모듈 조각 내보내기,theme,export.fragment,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.tab.export,내보내기,theme,tab.export,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.file.themeFilter,WinJACKNexus 테마 (*.wjnskin),theme,file.themeFilter,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.file.fontTitle,글꼴 선택,theme,file.fontTitle,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.file.fontFilter,글꼴 (*.ttf *.otf),theme,file.fontFilter,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.file.imageTitle,배경 이미지 선택,theme,file.imageTitle,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.file.imageFilter,이미지 (*.png *.jpg *.jpeg *.webp),theme,file.imageFilter,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.file.exportTitle,테마 내보내기,theme,file.exportTitle,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.status.colorApplied,색상이 적용되었습니다,theme,status.colorApplied,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.status.backgroundApplied,배경 설정이 적용되었습니다,theme,status.backgroundApplied,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.status.exported,테마 패키지를 내보냈습니다,theme,status.exported,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.error.color,색상 값 형식이 유효하지 않습니다,theme,error.color,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.error.directory,테마 디렉터리를 만들 수 없습니다,theme,error.directory,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.error.imageLimit,배경 이미지가 크기 제한을 초과했거나 읽을 수 없습니다,theme,error.imageLimit,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.error.imageRead,배경 이미지를 읽을 수 없습니다,theme,error.imageRead,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.error.fontLimit,글꼴 파일이 크기 제한을 초과했거나 읽을 수 없습니다,theme,error.fontLimit,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.error.fontInvalid,글꼴 파일이 유효하지 않습니다,theme,error.fontInvalid,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.error.position,위치는 백분율 또는 px 값이어야 합니다,theme,error.position,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.error.chooseImage,먼저 사용자 지정 이미지를 선택하십시오,theme,error.chooseImage,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.identity.summary,"%1
+제작자: %2
+%3
+홈페이지: %4",theme,identity.summary,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.identity.noHomepage,제공되지 않음,theme,identity.noHomepage,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.identity.defaultDescription,내장 기본 외형,theme,identity.defaultDescription,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.scope.patchbay,패치베이,theme,scope.patchbay,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.scope.mixer,믹서,theme,scope.mixer,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.scope.mixer-overview,믹서 개요,theme,scope.mixer-overview,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.scope.sel-main,메인 믹서,theme,scope.sel-main,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.scope.sel-monitor,모니터 믹서,theme,scope.sel-monitor,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.scope.sel-aux,보조 믹서,theme,scope.sel-aux,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.scope.sel-fx,FX 믹서,theme,scope.sel-fx,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.scope.meter-bridge,미터 브리지,theme,scope.meter-bridge,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.size.original,원본 크기,theme,size.original,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.size.contain,영역 안에 맞추기,theme,size.contain,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.size.cover,채우고 자르기,theme,size.cover,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.size.stretch,늘이기,theme,size.stretch,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.repeat.no-repeat,타일 배치 안 함,theme,repeat.no-repeat,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.repeat.repeat,양방향 타일 배치,theme,repeat.repeat,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.repeat.repeat-x,가로 타일 배치,theme,repeat.repeat-x,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.repeat.repeat-y,세로 타일 배치,theme,repeat.repeat-y,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.core.cssUtf8,style.css가 UTF-8이 아닙니다,theme,core.cssUtf8,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.core.cssSize,style.css가 1 MiB를 초과합니다,theme,core.cssSize,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.core.commentOpen,{detail}행의 CSS 주석이 닫히지 않았습니다,theme,core.commentOpen,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.core.commentEnd,{detail}행에 시작 기호 없는 CSS 주석 종료 기호가 있습니다,theme,core.commentEnd,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.core.rootOnly,CSS에는 :root 블록만 허용됩니다,theme,core.rootOnly,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.core.rootBrace,CSS root의 여는 중괄호가 없습니다,theme,core.rootBrace,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.core.parentheses,CSS 소괄호가 짝이 맞지 않습니다,theme,core.parentheses,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.core.nestedBlock,중첩 CSS 블록은 허용되지 않습니다,theme,core.nestedBlock,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.core.rootOpen,CSS root 또는 소괄호가 닫히지 않았습니다,theme,core.rootOpen,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.core.declarationColon,{detail}행의 CSS 선언에 콜론이 없습니다,theme,core.declarationColon,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.core.declarationInvalid,{detail}행의 CSS 선언이 유효하지 않습니다,theme,core.declarationInvalid,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.core.unknownToken,알 수 없는 토큰은 패키지에 보존되지만 그리기에는 사용되지 않습니다,theme,core.unknownToken,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.core.namespaceLine,{detail}행의 토큰이 선언된 네임스페이스 밖에 있습니다,theme,core.namespaceLine,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.core.duplicateToken,나중 선언이 이전 선언을 덮어씁니다,theme,core.duplicateToken,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.core.rootRequired,CSS에는 최소 하나의 :root 블록이 필요합니다,theme,core.rootRequired,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.core.referenceCycle,토큰 참조가 순환합니다,theme,core.referenceCycle,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.core.referenceUnresolved,변수 참조를 확인할 수 없습니다,theme,core.referenceUnresolved,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.core.valueType,값이 등록된 형식 {detail}과 일치하지 않습니다,theme,core.valueType,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.core.resourceAbsent,확인된 토큰에 리소스가 없습니다: {detail},theme,core.resourceAbsent,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.core.registryNull,레지스트리 출력이 없습니다,theme,core.registryNull,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.core.registryVersion,테마 레지스트리 버전이 유효하지 않습니다,theme,core.registryVersion,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.core.registryCount,레지스트리 토큰 수가 유효하지 않습니다,theme,core.registryCount,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.core.registryObject,레지스트리 토큰이 객체가 아닙니다,theme,core.registryObject,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.core.registryToken,레지스트리 토큰이 유효하지 않거나 중복됩니다: {detail},theme,core.registryToken,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.core.registryParents,레지스트리 inherits는 배열이어야 합니다: {detail},theme,core.registryParents,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.core.registryDuplicateParent,레지스트리 상위 항목이 유효하지 않거나 중복됩니다: {detail},theme,core.registryDuplicateParent,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.core.imageInheritance,정의되지 않은 이미지 토큰에는 상속 소스가 필요합니다,theme,core.imageInheritance,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.core.registryInheritance,레지스트리 상속이 누락되었거나 일치하지 않거나 순환합니다: {detail},theme,core.registryInheritance,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.core.registryUnavailable,내장 테마 레지스트리를 사용할 수 없습니다,theme,core.registryUnavailable,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.core.extendedRegistryNull,확장 레지스트리 출력이 없습니다,theme,core.extendedRegistryNull,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.core.moduleTokenConflict,모듈 토큰이 등록된 토큰과 충돌합니다: {detail},theme,core.moduleTokenConflict,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.core.registryEmpty,테마 레지스트리가 비어 있습니다,theme,core.registryEmpty,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.core.defaultUnavailable,필수 기본 테마 패키지를 사용할 수 없습니다,theme,core.defaultUnavailable,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.core.fullRequired,유효한 전체 테마 패키지가 필요합니다,theme,core.fullRequired,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.core.fragmentRequired,유효한 조각 패키지가 필요합니다,theme,core.fragmentRequired,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.core.overrideToken,알 수 없는 재정의 토큰입니다,theme,core.overrideToken,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.core.previewActive,미리 보기가 이미 실행 중입니다,theme,core.previewActive,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.core.fragmentNamespace,조각 네임스페이스가 유효하지 않습니다,theme,core.fragmentNamespace,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.core.overrideExportState,테마 재정의 내보내기에 출력 또는 활성 상태가 없습니다,theme,core.overrideExportState,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.core.overrideResource,재정의 리소스가 없습니다: {detail},theme,core.overrideResource,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.core.overrideFragment,사용자 재정의 조각이 필요합니다,theme,core.overrideFragment,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.core.exportState,테마 내보내기에 활성 상태 또는 출력이 없습니다,theme,core.exportState,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.core.sourceCss,원본 테마 CSS가 유효하지 않습니다,theme,core.sourceCss,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.core.exportResource,내보낼 리소스가 없습니다: {detail},theme,core.exportResource,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.core.fragmentEmpty,선택한 조각 네임스페이스에 선언이 없습니다,theme,core.fragmentEmpty,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.core.exportScope,내보낼 선언에 모듈 범위가 없습니다: {detail},theme,core.exportScope,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.package.metaSize,meta.json 크기가 유효하지 않습니다,theme,package.metaSize,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.package.metaUtf8,meta.json이 UTF-8이 아닙니다,theme,package.metaUtf8,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.package.metaObject,meta.json이 JSON 객체가 아닙니다,theme,package.metaObject,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.package.apiVersion,지원하지 않는 테마 형식 또는 API 버전입니다,theme,package.apiVersion,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.package.id,테마 ID가 유효하지 않습니다,theme,package.id,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.package.version,테마 버전이 유효하지 않습니다,theme,package.version,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.package.metadata,"테마 이름, 제작자 또는 설명이 유효하지 않습니다",theme,package.metadata,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.package.homepageMissing,테마 홈페이지가 없습니다,theme,package.homepageMissing,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.package.homepage,테마 홈페이지가 유효하지 않습니다,theme,package.homepage,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.package.kind,테마 종류가 유효하지 않습니다,theme,package.kind,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.package.namespacesMissing,네임스페이스가 없습니다,theme,package.namespacesMissing,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.package.namespace,네임스페이스가 유효하지 않거나 중복됩니다,theme,package.namespace,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.package.previewPath,미리 보기 경로가 유효하지 않습니다,theme,package.previewPath,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.package.storedSize,비압축 항목 크기가 일치하지 않습니다,theme,package.storedSize,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.package.zlibInit,zlib 초기화 실패,theme,package.zlibInit,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.package.expandedSize,압축 해제 항목이 선언된 크기를 초과했습니다,theme,package.expandedSize,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.package.deflate,deflate 스트림이 잘렸거나 형식이 잘못되었습니다,theme,package.deflate,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.package.crc,ZIP CRC가 일치하지 않습니다: {detail},theme,package.crc,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.package.size,패키지 크기가 22바이트부터 32 MiB까지의 범위를 벗어납니다,theme,package.size,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.package.zipEnd,ZIP 종료 레코드가 없습니다,theme,package.zipEnd,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.package.zip64Disks,다중 디스크 ZIP64는 지원하지 않습니다,theme,package.zip64Disks,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.package.zip64End,ZIP64 종료 레코드가 유효하지 않습니다,theme,package.zip64End,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.package.zipBounds,지원하지 않는 ZIP 디스크 또는 중앙 디렉터리 범위입니다,theme,package.zipBounds,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.package.zipCentral,ZIP 중앙 레코드가 유효하지 않습니다,theme,package.zipCentral,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.package.zipCentralTruncated,ZIP 중앙 항목이 잘렸습니다,theme,package.zipCentralTruncated,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.package.entryUtf8,항목 이름이 UTF-8이 아닙니다,theme,package.entryUtf8,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.package.zipPath,ZIP 경로가 안전하지 않거나 지원되지 않거나 중복됩니다: {detail},theme,package.zipPath,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.package.zipMethod,지원하지 않는 ZIP 암호화 또는 압축 방식입니다,theme,package.zipMethod,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.package.zip64Central,ZIP64 중앙 항목이 유효하지 않습니다,theme,package.zip64Central,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.package.zipSymlink,ZIP 심볼릭 링크는 허용되지 않습니다,theme,package.zipSymlink,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.package.directoryContent,디렉터리 항목에 내용이 있습니다,theme,package.directoryContent,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.package.resourceBudget,ZIP 리소스가 크기 제한을 초과했습니다: {detail},theme,package.resourceBudget,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.package.rootLayout,ZIP 루트 구조가 완전하지 않습니다,theme,package.rootLayout,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.package.localHeader,ZIP 로컬 헤더가 유효하지 않습니다,theme,package.localHeader,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.package.flags,ZIP 로컬 및 중앙 플래그가 일치하지 않습니다,theme,package.flags,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.package.localBounds,ZIP 로컬 이름 또는 데이터 범위가 일치하지 않습니다,theme,package.localBounds,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.package.zip64Local,ZIP64 로컬 항목이 유효하지 않습니다,theme,package.zip64Local,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.package.localSizes,ZIP 로컬 및 중앙 크기가 일치하지 않습니다,theme,package.localSizes,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.package.dataDescriptor,ZIP 데이터 디스크립터가 유효하지 않습니다,theme,package.dataDescriptor,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.package.centralOverlap,ZIP 항목이 중앙 디렉터리와 겹칩니다,theme,package.centralOverlap,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.package.expandedBudget,압축 해제 패키지가 크기 제한을 초과했습니다,theme,package.expandedBudget,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.package.entriesOverlap,ZIP 항목이 겹칩니다,theme,package.entriesOverlap,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.package.entryCount,ZIP 항목이 너무 많습니다,theme,package.entryCount,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.package.outputBudget,ZIP 출력이 크기 제한을 초과합니다,theme,package.outputBudget,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.package.outputSize,ZIP 출력이 32 MiB를 초과합니다,theme,package.outputSize,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.package.nullResult,테마 출력이 없습니다,theme,package.nullResult,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.package.open,테마 패키지를 열 수 없습니다: {detail},theme,package.open,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.package.fileSize,테마 패키지가 32 MiB를 초과합니다,theme,package.fileSize,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.package.directory,테마 디렉터리가 없거나 링크입니다,theme,package.directory,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.package.devEntry,지원하지 않는 Dev 테마 항목입니다: {detail},theme,package.devEntry,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.package.devCount,Dev 테마 항목이 중복되거나 너무 많습니다,theme,package.devCount,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.package.devEntrySize,Dev 테마 항목이 크기 제한을 초과합니다: {detail},theme,package.devEntrySize,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.package.devRead,Dev 테마 항목을 읽을 수 없습니다: {detail},theme,package.devRead,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.package.devChanged,읽는 동안 Dev 테마 항목이 변경되었습니다: {detail},theme,package.devChanged,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.package.devBudget,Dev 테마가 패키지 크기 제한을 초과합니다,theme,package.devBudget,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.package.defaultDll,필수 기본 테마 DLL을 사용할 수 없습니다: {detail},theme,package.defaultDll,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.package.defaultApi,기본 테마 DLL API가 호환되지 않습니다,theme,package.defaultApi,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.package.defaultData,기본 테마 DLL에 유효한 패키지 데이터가 없습니다,theme,package.defaultData,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.package.cssUtf8,style.css가 비어 있거나 UTF-8이 아닙니다,theme,package.cssUtf8,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.package.moduleCssUtf8,모듈 CSS가 비어 있거나 UTF-8이 아닙니다: {detail},theme,package.moduleCssUtf8,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.package.combinedCssSize,결합된 CSS가 1 MiB를 초과합니다,theme,package.combinedCssSize,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.package.previewAsset,미리 보기 리소스가 없습니다,theme,package.previewAsset,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.package.assetMap,리소스 맵에 리소스가 아닌 ZIP 이름이 있습니다,theme,package.assetMap,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.package.moduleCssPath,모듈 CSS 경로가 유효하지 않습니다: {detail},theme,package.moduleCssPath,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.package.sourceResult,원본 테마 또는 출력이 유효하지 않습니다,theme,package.sourceResult,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.package.assetPath,논리 리소스 경로가 유효하지 않습니다,theme,package.assetPath,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.package.importAsset,가져온 리소스를 읽을 수 없거나 16 MiB를 초과합니다,theme,package.importAsset,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.package.output,테마 또는 출력이 유효하지 않습니다,theme,package.output,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.package.write,테마 패키지를 쓸 수 없습니다: {detail},theme,package.write,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.namespace.array,{detail}은 요소 수가 제한된 배열이어야 합니다,theme,namespace.array,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.namespace.object,{detail} 항목이 객체가 아닙니다,theme,namespace.object,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.namespace.id,{detail}의 ID가 유효하지 않거나 중복됩니다,theme,namespace.id,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.namespace.description,{detail}의 설명이 유효하지 않습니다,theme,namespace.description,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.namespace.statesMissing,컨트롤 상태가 없습니다,theme,namespace.statesMissing,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.namespace.state,컨트롤 상태가 유효하지 않거나 중복됩니다,theme,namespace.state,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.namespace.meterUnit,미터 범위 또는 단위가 유효하지 않습니다,theme,namespace.meterUnit,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.namespace.meterZones,미터 영역이 유효하지 않습니다,theme,namespace.meterZones,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.namespace.meterZoneObject,미터 영역이 객체가 아닙니다,theme,namespace.meterZoneObject,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.namespace.meterBoundary,미터 영역 ID 또는 경계가 유효하지 않습니다,theme,namespace.meterBoundary,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.namespace.meterMaximum,미터 영역이 최댓값에 도달하지 않습니다,theme,namespace.meterMaximum,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.namespace.overlayBoolean,배경 오버레이 기능 설정은 불리언 값이어야 합니다,theme,namespace.overlayBoolean,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.namespace.utf8,디스크립터가 길이 제한을 충족하는 UTF-8이 아닙니다,theme,namespace.utf8,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.namespace.json,디스크립터 JSON이 유효하지 않습니다: {detail},theme,namespace.json,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.namespace.apiVersion,지원하지 않는 디스크립터 또는 테마 API 버전입니다,theme,namespace.apiVersion,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.namespace.identity,디스크립터 식별 정보 또는 네임스페이스가 유효하지 않습니다,theme,namespace.identity,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.namespace.nativeId,Native Fx 네임스페이스가 모듈 ID와 일치하지 않습니다,theme,namespace.nativeId,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.namespace.nodeScope,Node 네임스페이스는 모듈 전용 또는 공유 Native Fx여야 합니다,theme,namespace.nodeScope,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.namespace.tokenCount,디스크립터 토큰 수가 유효하지 않습니다,theme,namespace.tokenCount,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.namespace.tokenObject,디스크립터 토큰이 객체가 아닙니다,theme,namespace.tokenObject,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.namespace.token,디스크립터 토큰이 유효하지 않습니다: {detail},theme,namespace.token,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.namespace.parentsArray,토큰 inherits는 배열이어야 합니다: {detail},theme,namespace.parentsArray,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.namespace.parent,토큰 상위 항목이 유효하지 않습니다: {detail},theme,namespace.parent,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.namespace.imageParent,정의되지 않은 이미지에 상위 항목이 없습니다: {detail},theme,namespace.imageParent,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.namespace.values,토큰 values는 객체 또는 배열이어야 합니다: {detail},theme,namespace.values,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.namespace.inheritance,디스크립터 상속이 누락되었거나 일치하지 않거나 순환합니다: {detail},theme,namespace.inheritance,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.namespace.variableType,디스크립터 변수 형식이 잘못되었습니다: {detail},theme,namespace.variableType,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.namespace.defaultType,디스크립터 기본값 형식이 잘못되었습니다: {detail},theme,namespace.defaultType,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.namespace.frozenToken,디스크립터가 동결된 내장 토큰과 일치하지 않습니다: {detail},theme,namespace.frozenToken,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.namespace.registrationTarget,등록 대상이 유효하지 않습니다,theme,namespace.registrationTarget,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.namespace.nativeExports,Native Fx 테마 내보내기가 불완전하거나 지원되지 않습니다,theme,namespace.nativeExports,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.namespace.nativeMetadata,Native Fx 개수 또는 메타데이터 내보내기가 유효하지 않습니다,theme,namespace.nativeMetadata,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.namespace.nativeIndex,Native Fx 디스크립터 ID가 메타데이터 인덱스와 일치하지 않습니다,theme,namespace.nativeIndex,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.namespace.nodeExports,Node 테마 내보내기가 불완전하거나 지원되지 않습니다,theme,namespace.nodeExports,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.namespace.nodeCount,Node 개수 내보내기가 유효하지 않습니다,theme,namespace.nodeCount,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.namespace.source,디스크립터 소스가 유효하지 않습니다,theme,namespace.source,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.namespace.exportDuplicate,같은 내보내기 테이블 안에 모듈 또는 네임스페이스가 중복됩니다,theme,namespace.exportDuplicate,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.namespace.bindingIndex,등록된 상태에서 바인딩 인덱스가 변경되었습니다,theme,namespace.bindingIndex,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.namespace.owner,모듈 디스크립터 또는 소유자가 충돌합니다: {detail},theme,namespace.owner,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.namespace.namespaceOwner,네임스페이스를 이미 다른 모듈이 소유하고 있습니다: {detail},theme,namespace.namespaceOwner,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.catalog.directory,테마 디렉터리를 만들 수 없습니다: {detail},theme,catalog.directory,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.catalog.notInstalled,테마가 설치 디렉터리에 없습니다: {detail},theme,catalog.notInstalled,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/ko-KR.json,domains.theme.catalog.changed,테마 파일이 변경되었습니다. 목록을 새로 고치세요,theme,catalog.changed,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
 locate/manifest.json,moduleId,winjacknexus-host,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
 locate/manifest.json,domains.0,host,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
 locate/manifest.json,domains.1,adapter,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
@@ -1634,6 +2357,7 @@ locate/manifest.json,domains.4,meterbridge,i18n.metadata,,exclude,S1 包/schema/
 locate/manifest.json,domains.5,mixer,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
 locate/manifest.json,domains.6,fxhost,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
 locate/manifest.json,domains.7,ui,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,domains.8,theme,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
 locate/manifest.json,defaultLanguage,en-US,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
 locate/manifest.json,languages.en-US,en-US.json,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
 locate/manifest.json,languages.zh-CN,zh-CN.json,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
@@ -2175,6 +2899,244 @@ locate/manifest.json,requiredKeys.ui.6,clientName.rejected,i18n.metadata,,exclud
 locate/manifest.json,requiredKeys.ui.7,choice.filterPlaceholder,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
 locate/manifest.json,requiredKeys.ui.8,dock.expand,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
 locate/manifest.json,requiredKeys.ui.9,dock.collapse,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.0,title,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.1,homepage.open,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.2,package.import,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.3,preview,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.4,apply,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.5,preview.cancel,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.6,tab.overview,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.7,color.token,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.8,color.name,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.9,color.value,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.10,color.apply,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.11,font.global,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.12,font.import,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.13,font.system,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.14,tab.colors,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.15,background.scope,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.16,image.inherit,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.17,image.custom,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.18,image.none,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.19,image.choose,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.20,image.source,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.21,background.size,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.22,background.scale,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.23,background.repeat,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.24,background.x,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.25,background.y,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.26,image.opacity,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.27,background.blur,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.28,component.opacity,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.29,overlay.enabled,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.30,overlay.mode,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.31,overlay.opacity,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.32,overlay.hint,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.33,background.apply,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.34,tab.background,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.35,metadata.name,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.36,metadata.author,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.37,metadata.description,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.38,metadata.homepage,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.39,fragment.namespace,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.40,export.full,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.41,export.default,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.42,export.fragment,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.43,tab.export,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.44,file.themeFilter,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.45,file.fontTitle,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.46,file.fontFilter,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.47,file.imageTitle,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.48,file.imageFilter,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.49,file.exportTitle,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.50,status.colorApplied,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.51,status.backgroundApplied,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.52,status.exported,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.53,error.color,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.54,error.directory,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.55,error.imageLimit,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.56,error.imageRead,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.57,error.fontLimit,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.58,error.fontInvalid,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.59,error.position,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.60,error.chooseImage,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.61,identity.summary,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.62,identity.noHomepage,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.63,identity.defaultDescription,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.64,scope.patchbay,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.65,scope.mixer,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.66,scope.mixer-overview,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.67,scope.sel-main,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.68,scope.sel-monitor,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.69,scope.sel-aux,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.70,scope.sel-fx,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.71,scope.meter-bridge,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.72,size.original,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.73,size.contain,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.74,size.cover,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.75,size.stretch,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.76,repeat.no-repeat,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.77,repeat.repeat,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.78,repeat.repeat-x,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.79,repeat.repeat-y,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.80,core.cssUtf8,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.81,core.cssSize,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.82,core.commentOpen,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.83,core.commentEnd,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.84,core.rootOnly,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.85,core.rootBrace,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.86,core.parentheses,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.87,core.nestedBlock,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.88,core.rootOpen,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.89,core.declarationColon,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.90,core.declarationInvalid,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.91,core.unknownToken,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.92,core.namespaceLine,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.93,core.duplicateToken,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.94,core.rootRequired,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.95,core.referenceCycle,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.96,core.referenceUnresolved,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.97,core.valueType,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.98,core.resourceAbsent,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.99,core.registryNull,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.100,core.registryVersion,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.101,core.registryCount,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.102,core.registryObject,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.103,core.registryToken,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.104,core.registryParents,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.105,core.registryDuplicateParent,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.106,core.imageInheritance,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.107,core.registryInheritance,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.108,core.registryUnavailable,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.109,core.extendedRegistryNull,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.110,core.moduleTokenConflict,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.111,core.registryEmpty,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.112,core.defaultUnavailable,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.113,core.fullRequired,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.114,core.fragmentRequired,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.115,core.overrideToken,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.116,core.previewActive,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.117,core.fragmentNamespace,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.118,core.overrideExportState,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.119,core.overrideResource,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.120,core.overrideFragment,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.121,core.exportState,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.122,core.sourceCss,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.123,core.exportResource,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.124,core.fragmentEmpty,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.125,core.exportScope,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.126,package.metaSize,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.127,package.metaUtf8,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.128,package.metaObject,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.129,package.apiVersion,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.130,package.id,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.131,package.version,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.132,package.metadata,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.133,package.homepageMissing,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.134,package.homepage,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.135,package.kind,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.136,package.namespacesMissing,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.137,package.namespace,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.138,package.previewPath,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.139,package.storedSize,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.140,package.zlibInit,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.141,package.expandedSize,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.142,package.deflate,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.143,package.crc,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.144,package.size,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.145,package.zipEnd,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.146,package.zip64Disks,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.147,package.zip64End,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.148,package.zipBounds,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.149,package.zipCentral,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.150,package.zipCentralTruncated,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.151,package.entryUtf8,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.152,package.zipPath,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.153,package.zipMethod,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.154,package.zip64Central,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.155,package.zipSymlink,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.156,package.directoryContent,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.157,package.resourceBudget,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.158,package.rootLayout,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.159,package.localHeader,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.160,package.flags,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.161,package.localBounds,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.162,package.zip64Local,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.163,package.localSizes,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.164,package.dataDescriptor,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.165,package.centralOverlap,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.166,package.expandedBudget,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.167,package.entriesOverlap,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.168,package.entryCount,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.169,package.outputBudget,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.170,package.outputSize,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.171,package.nullResult,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.172,package.open,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.173,package.fileSize,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.174,package.directory,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.175,package.devEntry,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.176,package.devCount,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.177,package.devEntrySize,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.178,package.devRead,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.179,package.devChanged,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.180,package.devBudget,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.181,package.defaultDll,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.182,package.defaultApi,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.183,package.defaultData,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.184,package.cssUtf8,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.185,package.moduleCssUtf8,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.186,package.combinedCssSize,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.187,package.previewAsset,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.188,package.assetMap,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.189,package.moduleCssPath,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.190,package.sourceResult,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.191,package.assetPath,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.192,package.importAsset,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.193,package.output,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.194,package.write,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.195,namespace.array,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.196,namespace.object,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.197,namespace.id,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.198,namespace.description,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.199,namespace.statesMissing,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.200,namespace.state,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.201,namespace.meterUnit,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.202,namespace.meterZones,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.203,namespace.meterZoneObject,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.204,namespace.meterBoundary,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.205,namespace.meterMaximum,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.206,namespace.overlayBoolean,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.207,namespace.utf8,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.208,namespace.json,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.209,namespace.apiVersion,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.210,namespace.identity,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.211,namespace.nativeId,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.212,namespace.nodeScope,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.213,namespace.tokenCount,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.214,namespace.tokenObject,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.215,namespace.token,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.216,namespace.parentsArray,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.217,namespace.parent,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.218,namespace.imageParent,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.219,namespace.values,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.220,namespace.inheritance,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.221,namespace.variableType,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.222,namespace.defaultType,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.223,namespace.frozenToken,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.224,namespace.registrationTarget,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.225,namespace.nativeExports,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.226,namespace.nativeMetadata,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.227,namespace.nativeIndex,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.228,namespace.nodeExports,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.229,namespace.nodeCount,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.230,namespace.source,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.231,namespace.exportDuplicate,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.232,namespace.bindingIndex,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.233,namespace.owner,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.234,namespace.namespaceOwner,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.235,catalog.directory,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.236,catalog.notInstalled,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
+locate/manifest.json,requiredKeys.theme.237,catalog.changed,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
 locate/zh-CN.json,moduleId,winjacknexus-host,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
 locate/zh-CN.json,language,zh-CN,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
 locate/zh-CN.json,domains.host.settings.global.title,全局设置,host,settings.global.title,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
@@ -2717,6 +3679,247 @@ locate/zh-CN.json,domains.ui.clientName.rejected,无法应用名称,ui,clientNam
 locate/zh-CN.json,domains.ui.choice.filterPlaceholder,输入筛选,ui,choice.filterPlaceholder,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
 locate/zh-CN.json,domains.ui.dock.expand,展开侧边栏,ui,dock.expand,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
 locate/zh-CN.json,domains.ui.dock.collapse,收缩侧边栏,ui,dock.collapse,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.title,主题管理,theme,title,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.homepage.open,打开作者主页,theme,homepage.open,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.package.import,导入主题包,theme,package.import,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.preview,预览,theme,preview,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.apply,应用,theme,apply,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.preview.cancel,取消预览,theme,preview.cancel,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.tab.overview,主题与诊断,theme,tab.overview,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.color.token,颜色 token,theme,color.token,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.color.name,完整 token 名,theme,color.name,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.color.value,颜色值,theme,color.value,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.color.apply,应用颜色,theme,color.apply,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.font.global,全局字体,theme,font.global,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.font.import,导入 TTF/OTF,theme,font.import,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.font.system,恢复系统字体,theme,font.system,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.tab.colors,颜色与字体,theme,tab.colors,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.background.scope,模块区域,theme,background.scope,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.image.inherit,继承接线盘,theme,image.inherit,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.image.custom,自定义图片,theme,image.custom,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.image.none,无图片,theme,image.none,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.image.choose,选择图片,theme,image.choose,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.image.source,图片来源,theme,image.source,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.background.size,尺寸模式,theme,background.size,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.background.scale,等比缩放,theme,background.scale,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.background.repeat,平铺,theme,background.repeat,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.background.x,横向位置,theme,background.x,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.background.y,纵向位置,theme,background.y,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.image.opacity,图片透明度,theme,image.opacity,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.background.blur,高斯模糊,theme,background.blur,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.component.opacity,组件透明度,theme,component.opacity,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.overlay.enabled,上层覆盖,theme,overlay.enabled,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.overlay.mode,叠层模式,theme,overlay.mode,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.overlay.opacity,上层图片透明度,theme,overlay.opacity,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.overlay.hint,上层覆盖模式：透明背景图片最佳,theme,overlay.hint,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.background.apply,应用背景设置,theme,background.apply,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.tab.background,背景,theme,tab.background,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.metadata.name,主题名称,theme,metadata.name,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.metadata.author,作者,theme,metadata.author,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.metadata.description,介绍,theme,metadata.description,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.metadata.homepage,主页,theme,metadata.homepage,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.fragment.namespace,片段命名空间,theme,fragment.namespace,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.export.full,导出当前完整主题,theme,export.full,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.export.default,导出默认主题模板,theme,export.default,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.export.fragment,导出模块片段,theme,export.fragment,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.tab.export,导出,theme,tab.export,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.file.themeFilter,WinJACKNexus 主题 (*.wjnskin),theme,file.themeFilter,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.file.fontTitle,选择字体,theme,file.fontTitle,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.file.fontFilter,字体 (*.ttf *.otf),theme,file.fontFilter,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.file.imageTitle,选择背景图片,theme,file.imageTitle,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.file.imageFilter,图片 (*.png *.jpg *.jpeg *.webp),theme,file.imageFilter,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.file.exportTitle,导出主题,theme,file.exportTitle,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.status.colorApplied,颜色已应用,theme,status.colorApplied,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.status.backgroundApplied,背景设置已应用,theme,status.backgroundApplied,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.status.exported,主题包已导出,theme,status.exported,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.error.color,颜色值格式错误,theme,error.color,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.error.directory,无法创建主题目录,theme,error.directory,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.error.imageLimit,背景图片超过大小限制或不可读取,theme,error.imageLimit,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.error.imageRead,无法读取背景图片,theme,error.imageRead,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.error.fontLimit,字体文件超过大小限制或不可读取,theme,error.fontLimit,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.error.fontInvalid,字体文件无效,theme,error.fontInvalid,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.error.position,位置须为百分比或 px 值,theme,error.position,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.error.chooseImage,先选择一张自定义图片,theme,error.chooseImage,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.identity.summary,"%1
+作者：%2
+%3
+主页：%4",theme,identity.summary,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.identity.noHomepage,未提供,theme,identity.noHomepage,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.identity.defaultDescription,内置默认外观,theme,identity.defaultDescription,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.scope.patchbay,接线盘,theme,scope.patchbay,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.scope.mixer,调音台,theme,scope.mixer,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.scope.mixer-overview,调音台总览,theme,scope.mixer-overview,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.scope.sel-main,主调音台,theme,scope.sel-main,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.scope.sel-monitor,监听调音台,theme,scope.sel-monitor,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.scope.sel-aux,辅助调音台,theme,scope.sel-aux,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.scope.sel-fx,效果调音台,theme,scope.sel-fx,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.scope.meter-bridge,电平表桥,theme,scope.meter-bridge,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.size.original,原始大小,theme,size.original,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.size.contain,完整适配,theme,size.contain,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.size.cover,填满并裁切,theme,size.cover,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.size.stretch,拉伸,theme,size.stretch,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.repeat.no-repeat,不平铺,theme,repeat.no-repeat,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.repeat.repeat,双向平铺,theme,repeat.repeat,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.repeat.repeat-x,横向平铺,theme,repeat.repeat-x,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.repeat.repeat-y,纵向平铺,theme,repeat.repeat-y,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.core.cssUtf8,style.css 不是 UTF-8 编码,theme,core.cssUtf8,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.core.cssSize,style.css 超过 1 MiB,theme,core.cssSize,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.core.commentOpen,第 {detail} 行的 CSS 注释未闭合,theme,core.commentOpen,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.core.commentEnd,第 {detail} 行有多余的 CSS 注释结束符,theme,core.commentEnd,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.core.rootOnly,CSS 仅允许 :root 块,theme,core.rootOnly,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.core.rootBrace,CSS root 缺少左花括号,theme,core.rootBrace,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.core.parentheses,CSS 圆括号不匹配,theme,core.parentheses,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.core.nestedBlock,不允许嵌套 CSS 块,theme,core.nestedBlock,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.core.rootOpen,CSS root 或圆括号未闭合,theme,core.rootOpen,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.core.declarationColon,第 {detail} 行的 CSS 声明缺少冒号,theme,core.declarationColon,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.core.declarationInvalid,第 {detail} 行的 CSS 声明无效,theme,core.declarationInvalid,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.core.unknownToken,未知 token 保留在主题包中，但绘制时忽略,theme,core.unknownToken,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.core.namespaceLine,第 {detail} 行的 token 不属于已声明的命名空间,theme,core.namespaceLine,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.core.duplicateToken,后面的声明覆盖先前声明,theme,core.duplicateToken,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.core.rootRequired,CSS 至少需要一个 :root 块,theme,core.rootRequired,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.core.referenceCycle,token 引用存在循环,theme,core.referenceCycle,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.core.referenceUnresolved,变量引用无法解析,theme,core.referenceUnresolved,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.core.valueType,值与已注册类型 {detail} 不匹配,theme,core.valueType,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.core.resourceAbsent,已解析 token 缺少资源：{detail},theme,core.resourceAbsent,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.core.registryNull,registry 输出为空,theme,core.registryNull,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.core.registryVersion,主题 registry 版本无效,theme,core.registryVersion,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.core.registryCount,registry token 数量无效,theme,core.registryCount,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.core.registryObject,registry token 不是对象,theme,core.registryObject,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.core.registryToken,registry token 无效或重复：{detail},theme,core.registryToken,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.core.registryParents,registry inherits 必须为数组：{detail},theme,core.registryParents,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.core.registryDuplicateParent,registry 父项无效或重复：{detail},theme,core.registryDuplicateParent,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.core.imageInheritance,未定义的图片 token 需要继承来源,theme,core.imageInheritance,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.core.registryInheritance,registry 继承缺失、不匹配或存在循环：{detail},theme,core.registryInheritance,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.core.registryUnavailable,内置主题 registry 不可用,theme,core.registryUnavailable,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.core.extendedRegistryNull,扩展 registry 输出为空,theme,core.extendedRegistryNull,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.core.moduleTokenConflict,模块 token 与已注册 token 冲突：{detail},theme,core.moduleTokenConflict,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.core.registryEmpty,主题 registry 为空,theme,core.registryEmpty,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.core.defaultUnavailable,必需的默认主题包不可用,theme,core.defaultUnavailable,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.core.fullRequired,需要有效的完整主题包,theme,core.fullRequired,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.core.fragmentRequired,需要有效的片段主题包,theme,core.fragmentRequired,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.core.overrideToken,未知的覆盖 token,theme,core.overrideToken,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.core.previewActive,预览已在进行,theme,core.previewActive,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.core.fragmentNamespace,片段命名空间无效,theme,core.fragmentNamespace,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.core.overrideExportState,主题覆盖导出缺少输出或活动状态,theme,core.overrideExportState,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.core.overrideResource,覆盖资源缺失：{detail},theme,core.overrideResource,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.core.overrideFragment,需要用户覆盖片段,theme,core.overrideFragment,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.core.exportState,主题导出缺少活动状态或输出,theme,core.exportState,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.core.sourceCss,源主题 CSS 无效,theme,core.sourceCss,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.core.exportResource,导出资源缺失：{detail},theme,core.exportResource,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.core.fragmentEmpty,所选片段命名空间没有声明,theme,core.fragmentEmpty,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.core.exportScope,导出声明缺少模块区域：{detail},theme,core.exportScope,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.package.metaSize,meta.json 大小无效,theme,package.metaSize,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.package.metaUtf8,meta.json 不是 UTF-8 编码,theme,package.metaUtf8,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.package.metaObject,meta.json 不是 JSON 对象,theme,package.metaObject,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.package.apiVersion,不支持的主题格式/API 版本,theme,package.apiVersion,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.package.id,主题 ID 无效,theme,package.id,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.package.version,主题版本无效,theme,package.version,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.package.metadata,主题名称、作者或介绍无效,theme,package.metadata,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.package.homepageMissing,主题主页缺失,theme,package.homepageMissing,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.package.homepage,主题主页无效,theme,package.homepage,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.package.kind,主题类型无效,theme,package.kind,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.package.namespacesMissing,命名空间缺失,theme,package.namespacesMissing,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.package.namespace,命名空间无效或重复,theme,package.namespace,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.package.previewPath,预览路径无效,theme,package.previewPath,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.package.storedSize,未压缩条目大小不匹配,theme,package.storedSize,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.package.zlibInit,zlib 初始化失败,theme,package.zlibInit,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.package.expandedSize,解压条目超过声明大小,theme,package.expandedSize,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.package.deflate,deflate 数据流被截断或格式错误,theme,package.deflate,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.package.crc,ZIP CRC 不匹配：{detail},theme,package.crc,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.package.size,主题包大小不在 22 字节至 32 MiB 范围内,theme,package.size,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.package.zipEnd,ZIP 结束记录缺失,theme,package.zipEnd,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.package.zip64Disks,不支持多磁盘 ZIP64,theme,package.zip64Disks,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.package.zip64End,ZIP64 结束记录无效,theme,package.zip64End,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.package.zipBounds,不支持的 ZIP 磁盘或中央目录边界,theme,package.zipBounds,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.package.zipCentral,ZIP 中央记录无效,theme,package.zipCentral,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.package.zipCentralTruncated,ZIP 中央条目被截断,theme,package.zipCentralTruncated,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.package.entryUtf8,条目名称不是 UTF-8 编码,theme,package.entryUtf8,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.package.zipPath,ZIP 路径不安全、不支持或重复：{detail},theme,package.zipPath,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.package.zipMethod,不支持的 ZIP 加密或压缩方式,theme,package.zipMethod,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.package.zip64Central,ZIP64 中央条目无效,theme,package.zip64Central,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.package.zipSymlink,ZIP 不允许符号链接,theme,package.zipSymlink,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.package.directoryContent,目录条目含有内容,theme,package.directoryContent,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.package.resourceBudget,ZIP 资源超过大小预算：{detail},theme,package.resourceBudget,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.package.rootLayout,ZIP 根目录结构不完整,theme,package.rootLayout,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.package.localHeader,ZIP 本地头无效,theme,package.localHeader,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.package.flags,ZIP 本地/中央标志不一致,theme,package.flags,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.package.localBounds,ZIP 本地名称或数据边界不一致,theme,package.localBounds,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.package.zip64Local,ZIP64 本地条目无效,theme,package.zip64Local,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.package.localSizes,ZIP 本地/中央大小不一致,theme,package.localSizes,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.package.dataDescriptor,ZIP 数据描述符无效,theme,package.dataDescriptor,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.package.centralOverlap,ZIP 条目与中央目录重叠,theme,package.centralOverlap,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.package.expandedBudget,解压后的主题包超过大小预算,theme,package.expandedBudget,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.package.entriesOverlap,ZIP 条目重叠,theme,package.entriesOverlap,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.package.entryCount,ZIP 条目过多,theme,package.entryCount,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.package.outputBudget,ZIP 输出超过大小预算,theme,package.outputBudget,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.package.outputSize,ZIP 输出超过 32 MiB,theme,package.outputSize,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.package.nullResult,主题输出为空,theme,package.nullResult,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.package.open,无法打开主题包：{detail},theme,package.open,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.package.fileSize,主题包超过 32 MiB,theme,package.fileSize,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.package.directory,主题目录缺失或为链接,theme,package.directory,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.package.devEntry,不支持的 Dev 主题条目：{detail},theme,package.devEntry,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.package.devCount,Dev 主题条目重复或过多,theme,package.devCount,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.package.devEntrySize,Dev 主题条目超过大小预算：{detail},theme,package.devEntrySize,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.package.devRead,无法读取 Dev 主题条目：{detail},theme,package.devRead,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.package.devChanged,Dev 主题条目在读取时发生变化：{detail},theme,package.devChanged,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.package.devBudget,Dev 主题超过主题包大小预算,theme,package.devBudget,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.package.defaultDll,必需的默认主题 DLL 不可用：{detail},theme,package.defaultDll,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.package.defaultApi,默认主题 DLL API 不兼容,theme,package.defaultApi,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.package.defaultData,默认主题 DLL 没有有效的主题包数据,theme,package.defaultData,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.package.cssUtf8,style.css 为空或不是 UTF-8 编码,theme,package.cssUtf8,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.package.moduleCssUtf8,模块 CSS 为空或不是 UTF-8 编码：{detail},theme,package.moduleCssUtf8,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.package.combinedCssSize,合并的 CSS 超过 1 MiB,theme,package.combinedCssSize,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.package.previewAsset,预览资源缺失,theme,package.previewAsset,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.package.assetMap,资源映射含有非资源 ZIP 名称,theme,package.assetMap,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.package.moduleCssPath,模块 CSS 路径无效：{detail},theme,package.moduleCssPath,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.package.sourceResult,源主题或输出无效,theme,package.sourceResult,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.package.assetPath,逻辑资源路径无效,theme,package.assetPath,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.package.importAsset,无法读取导入资源或其大小超过 16 MiB,theme,package.importAsset,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.package.output,主题或输出无效,theme,package.output,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.package.write,无法写入主题包：{detail},theme,package.write,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.namespace.array,{detail} 必须为有数量限制的数组,theme,namespace.array,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.namespace.object,{detail} 条目不是对象,theme,namespace.object,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.namespace.id,{detail} 的 ID 无效或重复,theme,namespace.id,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.namespace.description,{detail} 的说明无效,theme,namespace.description,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.namespace.statesMissing,控件状态缺失,theme,namespace.statesMissing,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.namespace.state,控件状态无效或重复,theme,namespace.state,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.namespace.meterUnit,电平表范围或单位无效,theme,namespace.meterUnit,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.namespace.meterZones,电平表分区无效,theme,namespace.meterZones,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.namespace.meterZoneObject,电平表分区不是对象,theme,namespace.meterZoneObject,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.namespace.meterBoundary,电平表分区 ID 或边界无效,theme,namespace.meterBoundary,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.namespace.meterMaximum,电平表分区未覆盖到最大值,theme,namespace.meterMaximum,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.namespace.overlayBoolean,背景覆盖能力必须为布尔值,theme,namespace.overlayBoolean,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.namespace.utf8,描述符不是符合长度限制的 UTF-8,theme,namespace.utf8,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.namespace.json,描述符 JSON 无效：{detail},theme,namespace.json,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.namespace.apiVersion,不支持的描述符或主题 API 版本,theme,namespace.apiVersion,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.namespace.identity,描述符身份或命名空间无效,theme,namespace.identity,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.namespace.nativeId,Native Fx 命名空间与模块 ID 不匹配,theme,namespace.nativeId,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.namespace.nodeScope,Node 命名空间必须属于模块或共享 Native Fx,theme,namespace.nodeScope,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.namespace.tokenCount,描述符 token 数量无效,theme,namespace.tokenCount,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.namespace.tokenObject,描述符 token 不是对象,theme,namespace.tokenObject,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.namespace.token,描述符 token 无效：{detail},theme,namespace.token,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.namespace.parentsArray,token inherits 必须为数组：{detail},theme,namespace.parentsArray,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.namespace.parent,token 父项无效：{detail},theme,namespace.parent,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.namespace.imageParent,未定义的图片缺少父项：{detail},theme,namespace.imageParent,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.namespace.values,token values 必须为对象或数组：{detail},theme,namespace.values,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.namespace.inheritance,描述符继承缺失、不匹配或存在循环：{detail},theme,namespace.inheritance,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.namespace.variableType,描述符变量类型错误：{detail},theme,namespace.variableType,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.namespace.defaultType,描述符默认值类型错误：{detail},theme,namespace.defaultType,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.namespace.frozenToken,描述符与冻结的内置 token 不一致：{detail},theme,namespace.frozenToken,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.namespace.registrationTarget,注册目标无效,theme,namespace.registrationTarget,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.namespace.nativeExports,Native Fx 主题导出不完整或不支持,theme,namespace.nativeExports,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.namespace.nativeMetadata,Native Fx 数量或元数据导出无效,theme,namespace.nativeMetadata,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.namespace.nativeIndex,Native Fx 描述符 ID 与元数据索引不匹配,theme,namespace.nativeIndex,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.namespace.nodeExports,Node 主题导出不完整或不支持,theme,namespace.nodeExports,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.namespace.nodeCount,Node 数量导出无效,theme,namespace.nodeCount,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.namespace.source,描述符来源无效,theme,namespace.source,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.namespace.exportDuplicate,同一导出表内的模块或命名空间重复,theme,namespace.exportDuplicate,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.namespace.bindingIndex,仍在注册时绑定索引发生变化,theme,namespace.bindingIndex,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.namespace.owner,模块描述符或所有者冲突：{detail},theme,namespace.owner,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.namespace.namespaceOwner,命名空间已由另一模块拥有：{detail},theme,namespace.namespaceOwner,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.catalog.directory,无法创建主题目录：{detail},theme,catalog.directory,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.catalog.notInstalled,主题不在安装目录中：{detail},theme,catalog.notInstalled,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
+locate/zh-CN.json,domains.theme.catalog.changed,主题文件已改变，请刷新列表,theme,catalog.changed,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
 Develop/Node/locate/en-US.json,moduleId,example-node,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
 Develop/Node/locate/en-US.json,language,en-US,i18n.metadata,,exclude,S1 包/schema/域/key/语言/版本映射身份
 Develop/Node/locate/en-US.json,domains.example.node.name,Example Node,example.node,name,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
@@ -4989,20 +6192,20 @@ src/native_fx/effects/reverb/locate/zh-CN.json,domains.nativefx.reverb.hint.deca
 src/native_fx/effects/reverb/locate/zh-CN.json,domains.nativefx.reverb.hint.size,(Size),nativefx.reverb,hint.size,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
 src/native_fx/effects/reverb/locate/zh-CN.json,domains.nativefx.reverb.hint.predelay,(Pre-Delay),nativefx.reverb,hint.predelay,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
 src/native_fx/effects/reverb/locate/zh-CN.json,domains.nativefx.reverb.hint.diffusion,(Diffusion),nativefx.reverb,hint.diffusion,translate,S1 实际语言包显示值；缺译/审校状态见根目录翻译核对表
-themes/template/winjacknexus-default.wjnskin!meta.json,id,org.winjacknexus-default,theme,,exclude,用户模板示例/作者内容/主题身份，原样保留
-themes/template/winjacknexus-default.wjnskin!meta.json,name,WinJACKNexus 默认主题,theme,defaultTheme.name,translate,发行内置主题显示元数据
-themes/template/winjacknexus-default.wjnskin!meta.json,version,1.0.0,theme,,exclude,用户模板示例/作者内容/主题身份，原样保留
-themes/template/winjacknexus-default.wjnskin!meta.json,author,WinJACKNexus,theme,,exclude,用户模板示例/作者内容/主题身份，原样保留
-themes/template/winjacknexus-default.wjnskin!meta.json,description,当前内置外观的完整模块级颜色、图表、电平与背景默认值。,theme,defaultTheme.description,translate,发行内置主题显示元数据
-themes/template/winjacknexus-default.wjnskin!meta.json,homepage,,theme,,exclude,用户模板示例/作者内容/主题身份，原样保留
-themes/template/winjacknexus-default.wjnskin!meta.json,kind,full,theme,,exclude,用户模板示例/作者内容/主题身份，原样保留
-themes/template/meta.json,id,org.example-my-theme,theme,,exclude,用户模板示例/作者内容/主题身份，原样保留
-themes/template/meta.json,name,My Theme,theme,,exclude,用户模板示例/作者内容/主题身份，原样保留
-themes/template/meta.json,version,1.0.0,theme,,exclude,用户模板示例/作者内容/主题身份，原样保留
-themes/template/meta.json,author,Your name,theme,,exclude,用户模板示例/作者内容/主题身份，原样保留
-themes/template/meta.json,description,Describe the theme and its visual intent.,theme,,exclude,用户模板示例/作者内容/主题身份，原样保留
-themes/template/meta.json,homepage,,theme,,exclude,用户模板示例/作者内容/主题身份，原样保留
-themes/template/meta.json,kind,full,theme,,exclude,用户模板示例/作者内容/主题身份，原样保留
+themes/template/winjacknexus-default.wjnskin!meta.json,id,org.winjacknexus-default,theme,,exclude,作者主题名称、产品专名、用户模板示例/元数据或主题身份，原样保留；只读默认说明另列独立翻译
+themes/template/winjacknexus-default.wjnskin!meta.json,name,WinJACKNexus 默认主题,theme,,exclude,作者主题名称、产品专名、用户模板示例/元数据或主题身份，原样保留；只读默认说明另列独立翻译
+themes/template/winjacknexus-default.wjnskin!meta.json,version,1.0.0,theme,,exclude,作者主题名称、产品专名、用户模板示例/元数据或主题身份，原样保留；只读默认说明另列独立翻译
+themes/template/winjacknexus-default.wjnskin!meta.json,author,WinJACKNexus,theme,,exclude,作者主题名称、产品专名、用户模板示例/元数据或主题身份，原样保留；只读默认说明另列独立翻译
+themes/template/winjacknexus-default.wjnskin!meta.json,description,当前内置外观的完整模块级颜色、图表、电平与背景默认值。,theme,identity.defaultDescription,translate,发行内置默认主题只读说明的实际 theme/identity.defaultDescription 显示副本；编辑/导出 metadata 保持原文
+themes/template/winjacknexus-default.wjnskin!meta.json,homepage,,theme,,exclude,作者主题名称、产品专名、用户模板示例/元数据或主题身份，原样保留；只读默认说明另列独立翻译
+themes/template/winjacknexus-default.wjnskin!meta.json,kind,full,theme,,exclude,作者主题名称、产品专名、用户模板示例/元数据或主题身份，原样保留；只读默认说明另列独立翻译
+themes/template/meta.json,id,org.example-my-theme,theme,,exclude,作者主题名称、产品专名、用户模板示例/元数据或主题身份，原样保留；只读默认说明另列独立翻译
+themes/template/meta.json,name,My Theme,theme,,exclude,作者主题名称、产品专名、用户模板示例/元数据或主题身份，原样保留；只读默认说明另列独立翻译
+themes/template/meta.json,version,1.0.0,theme,,exclude,作者主题名称、产品专名、用户模板示例/元数据或主题身份，原样保留；只读默认说明另列独立翻译
+themes/template/meta.json,author,Your name,theme,,exclude,作者主题名称、产品专名、用户模板示例/元数据或主题身份，原样保留；只读默认说明另列独立翻译
+themes/template/meta.json,description,Describe the theme and its visual intent.,theme,,exclude,作者主题名称、产品专名、用户模板示例/元数据或主题身份，原样保留；只读默认说明另列独立翻译
+themes/template/meta.json,homepage,,theme,,exclude,作者主题名称、产品专名、用户模板示例/元数据或主题身份，原样保留；只读默认说明另列独立翻译
+themes/template/meta.json,kind,full,theme,,exclude,作者主题名称、产品专名、用户模板示例/元数据或主题身份，原样保留；只读默认说明另列独立翻译
 Docs/Theme-v1-Registry.json,--wjn-theme-global-surface-window.name,--wjn-theme-global-surface-window,theme,,exclude,冻结主题 token/类型/作用域/默认样式身份
 Docs/Theme-v1-Registry.json,--wjn-theme-global-surface-window.ownerScope,global,theme,,exclude,冻结主题 token/类型/作用域/默认样式身份
 Docs/Theme-v1-Registry.json,--wjn-theme-global-surface-window.type,color,theme,,exclude,冻结主题 token/类型/作用域/默认样式身份

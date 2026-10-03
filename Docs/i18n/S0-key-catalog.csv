@@ -499,8 +499,8 @@ locate/ja-JP.json!domains.host.action.manageThemes
 locate/ko-KR.json!domains.host.action.manageThemes
 locate/zh-CN.json!domains.host.action.manageThemes
 src/app/main.cpp:796
-src/ui/src/ThemeCatalog.cpp:265
-src/ui/src/ThemeCatalog.cpp:267",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+src/ui/src/ThemeCatalog.cpp:266
+src/ui/src/ThemeCatalog.cpp:268",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 host,action.quit,"[""Quit WinJACKNexus"", ""WinJACKNexus を終了"", ""WinJACKNexus 종료"", ""退出 WinJACKNexus""]","locate/en-US.json!domains.host.action.quit
 locate/ja-JP.json!domains.host.action.quit
 locate/ko-KR.json!domains.host.action.quit
@@ -516,8 +516,8 @@ host,action.refreshDevTheme,"[""Reload current Dev theme"", ""刷新当前 Dev �
 locate/ja-JP.json!domains.host.action.refreshDevTheme
 locate/ko-KR.json!domains.host.action.refreshDevTheme
 locate/zh-CN.json!domains.host.action.refreshDevTheme
-src/ui/src/ThemeCatalog.cpp:256
-src/ui/src/ThemeCatalog.cpp:258",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+src/ui/src/ThemeCatalog.cpp:257
+src/ui/src/ThemeCatalog.cpp:259",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 host,error.enableMixer,"[""Enable the mixer in the patchbay under Tools > Audio tools first."", ""先にパッチベイの「ツール > オーディオツール」でミキサーを有効にしてください。"", ""请先在接线盘的工具 > 音频工具中启用调音台。"", ""먼저 패치베이의 도구 > 오디오 도구에서 믹서를 활성화하세요.""]","locate/en-US.json!domains.host.error.enableMixer
 locate/ja-JP.json!domains.host.error.enableMixer
 locate/ko-KR.json!domains.host.error.enableMixer
@@ -690,8 +690,8 @@ locate/ko-KR.json!domains.host.menu.theme
 locate/zh-CN.json!domains.host.menu.theme
 src/app/main.cpp:1140
 src/app/main.cpp:1141
-src/ui/src/ThemeCatalog.cpp:225
-src/ui/src/ThemeCatalog.cpp:226",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+src/ui/src/ThemeCatalog.cpp:226
+src/ui/src/ThemeCatalog.cpp:227",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 host,quick.devices,"[""System devices"", ""システムデバイス"", ""系统设备"", ""시스템 장치""]","locate/en-US.json!domains.host.quick.devices
 locate/ja-JP.json!domains.host.quick.devices
 locate/ko-KR.json!domains.host.quick.devices
@@ -4393,252 +4393,1200 @@ locate/ja-JP.json!domains.patchbay.window.title
 locate/ko-KR.json!domains.patchbay.window.title
 locate/zh-CN.json!domains.patchbay.window.title
 src/patchbay/mod/src/Library.cpp:1509",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themebackground.text.image.dimensions.are.invalid.or.exceed.million.pixels,"[""Image dimensions are invalid or exceed 64 million pixels""]",src/ui/src/ThemeBackground.cpp:87,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themebackground.text.missing.image.resource,"["": missing image resource""]",src/ui/src/ThemeBackground.cpp:172,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themebackground.text.scaled.image.exceeds.million.pixels,"[""Scaled image exceeds 64 million pixels""]",src/ui/src/ThemeBackground.cpp:143,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themecatalog.diagnostic.duplicateThemeId,"["": 重复主题 ID ""]",src/ui/src/ThemeCatalog.cpp:77,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themecatalog.diagnostic.firstDiscovered,"[""（先发现 ""]",src/ui/src/ThemeCatalog.cpp:78,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themecatalog.diagnostic.requiredDefaultTheme,"["": 默认主题由必需 DLL 提供""]",src/ui/src/ThemeCatalog.cpp:68,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themecatalog.error.createThemeDirectoryDetail,"[""无法创建主题目录：""]",src/ui/src/ThemeCatalog.cpp:40,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themecatalog.error.restoreLastThemeFailed,"[""无法恢复上次主题 ""]",src/ui/src/ThemeCatalog.cpp:214,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themecatalog.error.restoreThemeOverrideFailed,"[""无法恢复主题覆盖 ""]",src/ui/src/ThemeCatalog.cpp:132,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themecatalog.error.themeFileChanged,"[""主题文件已改变，请刷新列表""]",src/ui/src/ThemeCatalog.cpp:157,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themecatalog.error.themeOutsideInstallDirectory,"[""主题不在安装目录中：""]",src/ui/src/ThemeCatalog.cpp:153,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themecatalog.label.developmentTheme,"["" (Dev)""]",src/ui/src/ThemeCatalog.cpp:98,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themecatalog.warning.themeSelectionNotSaved,"[""主题已切换，但无法保存选择""]",src/ui/src/ThemeCatalog.cpp:186,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themecore.text.built.in.theme.registry.is.unavailable,"[""built-in theme registry is unavailable""]",src/ui/src/ThemeCore.cpp:391,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themecore.text.circular.token.reference,"[""Circular token reference""]",src/ui/src/ThemeCore.cpp:224,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themecore.text.css.declaration.has.no.colon.at.line,"[""CSS declaration has no colon at line ""]",src/ui/src/ThemeCore.cpp:100,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themecore.text.css.requires.at.least.one.root.block,"[""CSS requires at least one :root block""]",src/ui/src/ThemeCore.cpp:125,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themecore.text.css.requires.root.blocks.only,"[""CSS requires :root blocks only""]",src/ui/src/ThemeCore.cpp:79,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themecore.text.css.root.opening.brace.missing,"[""CSS root opening brace missing""]",src/ui/src/ThemeCore.cpp:82,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themecore.text.expected.a.user.override.fragment,"[""expected a user override fragment""]",src/ui/src/ThemeCore.cpp:617,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themecore.text.expected.a.valid.fragment.package,"[""expected a valid fragment package""]",src/ui/src/ThemeCore.cpp:491,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themecore.text.expected.a.valid.full.theme.package,"[""expected a valid full theme package""]",src/ui/src/ThemeCore.cpp:482,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themecore.text.export.declaration.has.no.module.scope,"[""export declaration has no module scope: ""]",src/ui/src/ThemeCore.cpp:746,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themecore.text.export.resource.is.missing,"[""export resource is missing: ""]",src/ui/src/ThemeCore.cpp:688,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themecore.text.invalid.css.declaration.at.line,"[""invalid CSS declaration at line ""]",src/ui/src/ThemeCore.cpp:105,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themecore.text.invalid.duplicate.registry.parent,"[""invalid duplicate registry parent: ""]",src/ui/src/ThemeCore.cpp:360,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themecore.text.invalid.fragment.namespace,"[""invalid fragment namespace""]",src/ui/src/ThemeCore.cpp:570,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themecore.text.invalid.or.duplicate.registry.token,"[""invalid or duplicate registry token: ""]",src/ui/src/ThemeCore.cpp:355,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themecore.text.invalid.registry.token.count,"[""invalid registry token count""]",src/ui/src/ThemeCore.cpp:332,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themecore.text.invalid.theme.registry.version,"[""invalid theme registry version""]",src/ui/src/ThemeCore.cpp:330,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themecore.text.later.declaration.overrides.earlier.declaration,"[""Later declaration overrides earlier declaration""]",src/ui/src/ThemeCore.cpp:117,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themecore.text.module.token.conflicts.with.registered.token,"[""module token conflicts with registered token: ""]",src/ui/src/ThemeCore.cpp:410,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themecore.text.nested.css.block.is.forbidden,"[""nested CSS block is forbidden""]",src/ui/src/ThemeCore.cpp:90,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themecore.text.null.extended.registry.result,"[""null extended registry result""]",src/ui/src/ThemeCore.cpp:402,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themecore.text.null.registry.result,"[""null registry result""]",src/ui/src/ThemeCore.cpp:326,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themecore.text.override.resource.is.missing,"[""override resource is missing: ""]",src/ui/src/ThemeCore.cpp:594,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themecore.text.per.theme.user.preferences,"[""Per-theme user preferences""]",src/ui/src/ThemeCore.cpp:610,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themecore.text.preview.already.active,"[""preview already active""]",src/ui/src/ThemeCore.cpp:517,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themecore.text.registry.inheritance.is.missing.mismatched.or.cyclic,"[""registry inheritance is missing, mismatched, or cyclic: ""]",src/ui/src/ThemeCore.cpp:383,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themecore.text.registry.inherits.must.be.an.array,"[""registry inherits must be an array: ""]",src/ui/src/ThemeCore.cpp:357,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themecore.text.registry.token.is.not.an.object,"[""registry token is not an object""]",src/ui/src/ThemeCore.cpp:339,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themecore.text.required.default.theme.package.is.unavailable,"[""required default theme package is unavailable""]",src/ui/src/ThemeCore.cpp:465,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themecore.text.resource.is.absent.for.the.resolved.token,"[""Resource is absent for the resolved token: ""]",src/ui/src/ThemeCore.cpp:250,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themecore.text.selected.fragment.namespace.has.no.declarations,"[""selected fragment namespace has no declarations""]",src/ui/src/ThemeCore.cpp:731,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themecore.text.source.theme.css.is.invalid,"[""source theme CSS is invalid""]",src/ui/src/ThemeCore.cpp:661,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themecore.text.stray.css.comment.end.at.line,"[""stray CSS comment end at line ""]",src/ui/src/ThemeCore.cpp:65,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themecore.text.style.css.exceeds.mib,"[""style.css exceeds 1 MiB""]",src/ui/src/ThemeCore.cpp:56,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themecore.text.style.css.is.not.utf,"[""style.css is not UTF-8""]",src/ui/src/ThemeCore.cpp:55,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themecore.text.theme.export.has.no.active.state.or.output,"[""theme export has no active state or output""]",src/ui/src/ThemeCore.cpp:626,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themecore.text.theme.override.export.has.no.output.or.active.state,"[""theme override export has no output or active state""]",src/ui/src/ThemeCore.cpp:577,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themecore.text.theme.registry.is.empty,"[""theme registry is empty""]",src/ui/src/ThemeCore.cpp:463,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themecore.text.token.outside.declared.namespace.at.line,"[""token outside declared namespace at line ""]",src/ui/src/ThemeCore.cpp:114,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themecore.text.unbalanced.css.parentheses,"[""unbalanced CSS parentheses""]",src/ui/src/ThemeCore.cpp:89,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themecore.text.unclosed.css.comment.at.line,"[""unclosed CSS comment at line ""]",src/ui/src/ThemeCore.cpp:61,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themecore.text.unclosed.css.root.or.parentheses,"[""unclosed CSS root or parentheses""]",src/ui/src/ThemeCore.cpp:93,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themecore.text.undefined.image.token.requires.an.inheritance.source,"[""undefined image token requires an inheritance source""]",src/ui/src/ThemeCore.cpp:364,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themecore.text.unknown.override.token,"[""unknown override token""]",src/ui/src/ThemeCore.cpp:504,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themecore.text.unknown.token.retained.in.package.but.ignored.for.drawing,"[""Unknown token retained in package but ignored for drawing""]",src/ui/src/ThemeCore.cpp:109,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themecore.text.unresolved.variable.reference,"[""Unresolved variable reference""]",src/ui/src/ThemeCore.cpp:232,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themecore.text.user.overrides,"[""User overrides""]",src/ui/src/ThemeCore.cpp:608,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themecore.text.value.does.not.match.registered.type,"[""Value does not match registered type ""]",src/ui/src/ThemeCore.cpp:239,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,thememanagementdialog.action.apply,"[""应用""]",src/ui/src/ThemeManagementDialog.cpp:107,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,thememanagementdialog.action.applyBackgroundSettings,"[""应用背景设置""]",src/ui/src/ThemeManagementDialog.cpp:208,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,thememanagementdialog.action.applyColor,"[""应用颜色""]",src/ui/src/ThemeManagementDialog.cpp:131,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,thememanagementdialog.action.cancelPreview,"[""取消预览""]",src/ui/src/ThemeManagementDialog.cpp:108,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,thememanagementdialog.action.export,"[""导出""]",src/ui/src/ThemeManagementDialog.cpp:243,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,thememanagementdialog.action.exportCurrentTheme,"[""导出当前完整主题""]",src/ui/src/ThemeManagementDialog.cpp:237,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,thememanagementdialog.action.exportDefaultThemeTemplate,"[""导出默认主题模板""]",src/ui/src/ThemeManagementDialog.cpp:238,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,thememanagementdialog.action.exportModuleFragment,"[""导出模块片段""]",src/ui/src/ThemeManagementDialog.cpp:239,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,thememanagementdialog.action.importFont,"[""导入 TTF/OTF""]",src/ui/src/ThemeManagementDialog.cpp:136,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,thememanagementdialog.action.importThemePackage,"[""导入主题包""]","src/ui/src/ThemeManagementDialog.cpp:105
-src/ui/src/ThemeManagementDialog.cpp:258",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,thememanagementdialog.action.openAuthorHomepage,"[""打开作者主页""]",src/ui/src/ThemeManagementDialog.cpp:98,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,thememanagementdialog.action.preview,"[""预览""]",src/ui/src/ThemeManagementDialog.cpp:106,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,thememanagementdialog.action.restoreSystemFont,"[""恢复系统字体""]",src/ui/src/ThemeManagementDialog.cpp:137,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,thememanagementdialog.action.selectImage,"[""选择图片""]",src/ui/src/ThemeManagementDialog.cpp:158,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,thememanagementdialog.background.customImage,"[""自定义图片""]",src/ui/src/ThemeManagementDialog.cpp:156,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,thememanagementdialog.background.fit,"[""等比缩放""]",src/ui/src/ThemeManagementDialog.cpp:171,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,thememanagementdialog.background.inheritPatchbay,"[""继承接线盘""]",src/ui/src/ThemeManagementDialog.cpp:155,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,thememanagementdialog.background.noImage,"[""无图片""]",src/ui/src/ThemeManagementDialog.cpp:157,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,thememanagementdialog.background.overlay,"[""上层覆盖""]",src/ui/src/ThemeManagementDialog.cpp:200,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,thememanagementdialog.background.tile,"[""平铺""]",src/ui/src/ThemeManagementDialog.cpp:175,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,thememanagementdialog.control.componentOpacity,"[""组件透明度""]",src/ui/src/ThemeManagementDialog.cpp:199,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,thememanagementdialog.control.gaussianBlur,"[""高斯模糊""]",src/ui/src/ThemeManagementDialog.cpp:196,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,thememanagementdialog.control.globalFont,"[""全局字体""]",src/ui/src/ThemeManagementDialog.cpp:134,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,thememanagementdialog.control.horizontalPosition,"[""横向位置""]",src/ui/src/ThemeManagementDialog.cpp:180,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,thememanagementdialog.control.imageOpacity,"[""图片透明度""]",src/ui/src/ThemeManagementDialog.cpp:190,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,thememanagementdialog.control.imageSource,"[""图片来源""]",src/ui/src/ThemeManagementDialog.cpp:162,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,thememanagementdialog.control.layerMode,"[""叠层模式""]",src/ui/src/ThemeManagementDialog.cpp:202,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,thememanagementdialog.control.overlayOpacity,"[""上层图片透明度""]",src/ui/src/ThemeManagementDialog.cpp:204,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,thememanagementdialog.control.sizeMode,"[""尺寸模式""]",src/ui/src/ThemeManagementDialog.cpp:166,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,thememanagementdialog.control.verticalPosition,"[""纵向位置""]",src/ui/src/ThemeManagementDialog.cpp:181,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,thememanagementdialog.dialog.exportTheme,"[""导出主题""]",src/ui/src/ThemeManagementDialog.cpp:328,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,thememanagementdialog.dialog.selectBackgroundImage,"[""选择背景图片""]",src/ui/src/ThemeManagementDialog.cpp:312,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,thememanagementdialog.dialog.selectFont,"[""选择字体""]",src/ui/src/ThemeManagementDialog.cpp:293,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,thememanagementdialog.dialog.themeManagement,"[""主题管理""]",src/ui/src/ThemeManagementDialog.cpp:86,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,thememanagementdialog.error.backgroundTooLargeOrUnreadable,"[""背景图片超过大小限制或不可读取""]",src/ui/src/ThemeManagementDialog.cpp:443,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,thememanagementdialog.error.createThemeDirectoryFailed,"[""无法创建主题目录""]",src/ui/src/ThemeManagementDialog.cpp:383,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,thememanagementdialog.error.fontTooLargeOrUnreadable,"[""字体文件超过大小限制或不可读取""]",src/ui/src/ThemeManagementDialog.cpp:470,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,thememanagementdialog.error.invalidColorValue,"[""颜色值格式错误""]",src/ui/src/ThemeManagementDialog.cpp:289,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,thememanagementdialog.error.invalidFontFile,"[""字体文件无效""]",src/ui/src/ThemeManagementDialog.cpp:475,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,thememanagementdialog.error.invalidPositionUnit,"[""位置须为百分比或 px 值""]",src/ui/src/ThemeManagementDialog.cpp:506,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,thememanagementdialog.error.readBackgroundImageFailed,"[""无法读取背景图片""]",src/ui/src/ThemeManagementDialog.cpp:448,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,thememanagementdialog.error.selectCustomImageFirst,"[""先选择一张自定义图片""]",src/ui/src/ThemeManagementDialog.cpp:522,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,thememanagementdialog.filter.fontFiles,"[""字体 (*.ttf *.otf)""]",src/ui/src/ThemeManagementDialog.cpp:294,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,thememanagementdialog.filter.imageFiles,"[""图片 (*.png *.jpg *.jpeg *.webp)""]",src/ui/src/ThemeManagementDialog.cpp:313,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,thememanagementdialog.filter.themeFiles,"[""WinJACKNexus 主题 (*.wjnskin)""]","src/ui/src/ThemeManagementDialog.cpp:259
+theme,apply,"[""Apply"", ""应用"", ""適用"", ""적용""]","locate/en-US.json!domains.theme.apply
+locate/ja-JP.json!domains.theme.apply
+locate/ko-KR.json!domains.theme.apply
+locate/zh-CN.json!domains.theme.apply
+src/ui/src/ThemeManagementDialog.cpp:178",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,background.apply,"[""Apply background settings"", ""应用背景设置"", ""背景設定を適用"", ""배경 설정 적용""]","locate/en-US.json!domains.theme.background.apply
+locate/ja-JP.json!domains.theme.background.apply
+locate/ko-KR.json!domains.theme.background.apply
+locate/zh-CN.json!domains.theme.background.apply
+src/ui/src/ThemeManagementDialog.cpp:290",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,background.blur,"[""Gaussian blur"", ""ガウスぼかし"", ""高斯模糊"", ""가우시안 흐림""]","locate/en-US.json!domains.theme.background.blur
+locate/ja-JP.json!domains.theme.background.blur
+locate/ko-KR.json!domains.theme.background.blur
+locate/zh-CN.json!domains.theme.background.blur
+src/ui/src/ThemeManagementDialog.cpp:278",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,background.repeat,"[""Tiling"", ""タイル表示"", ""平铺"", ""타일 배치""]","locate/en-US.json!domains.theme.background.repeat
+locate/ja-JP.json!domains.theme.background.repeat
+locate/ko-KR.json!domains.theme.background.repeat
+locate/zh-CN.json!domains.theme.background.repeat
+src/ui/src/ThemeManagementDialog.cpp:257",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,background.scale,"[""Uniform scale"", ""等比缩放"", ""縦横比を維持して拡大縮小"", ""비율 유지 배율""]","locate/en-US.json!domains.theme.background.scale
+locate/ja-JP.json!domains.theme.background.scale
+locate/ko-KR.json!domains.theme.background.scale
+locate/zh-CN.json!domains.theme.background.scale
+src/ui/src/ThemeManagementDialog.cpp:253",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,background.scope,"[""Module region"", ""モジュール領域"", ""模块区域"", ""모듈 영역""]","locate/en-US.json!domains.theme.background.scope
+locate/ja-JP.json!domains.theme.background.scope
+locate/ko-KR.json!domains.theme.background.scope
+locate/zh-CN.json!domains.theme.background.scope
+src/ui/src/ThemeManagementDialog.cpp:234",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,background.size,"[""Size mode"", ""サイズモード"", ""尺寸模式"", ""크기 모드""]","locate/en-US.json!domains.theme.background.size
+locate/ja-JP.json!domains.theme.background.size
+locate/ko-KR.json!domains.theme.background.size
+locate/zh-CN.json!domains.theme.background.size
+src/ui/src/ThemeManagementDialog.cpp:248",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,background.x,"[""Horizontal position"", ""横向位置"", ""水平位置"", ""가로 위치""]","locate/en-US.json!domains.theme.background.x
+locate/ja-JP.json!domains.theme.background.x
+locate/ko-KR.json!domains.theme.background.x
+locate/zh-CN.json!domains.theme.background.x
+src/ui/src/ThemeManagementDialog.cpp:262",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,background.y,"[""Vertical position"", ""垂直位置"", ""纵向位置"", ""세로 위치""]","locate/en-US.json!domains.theme.background.y
+locate/ja-JP.json!domains.theme.background.y
+locate/ko-KR.json!domains.theme.background.y
+locate/zh-CN.json!domains.theme.background.y
+src/ui/src/ThemeManagementDialog.cpp:263",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,catalog.changed,"[""The theme file has changed; refresh the list"", ""テーマファイルが変更されました。リストを更新してください"", ""主题文件已改变，请刷新列表"", ""테마 파일이 변경되었습니다. 목록을 새로 고치세요""]","locate/en-US.json!domains.theme.catalog.changed
+locate/ja-JP.json!domains.theme.catalog.changed
+locate/ko-KR.json!domains.theme.catalog.changed
+locate/zh-CN.json!domains.theme.catalog.changed
+src/ui/src/LocalizedThemeMessages.hpp:13",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,catalog.directory,"[""Cannot create theme directory: {detail}"", ""テーマディレクトリを作成できません: {detail}"", ""无法创建主题目录：{detail}"", ""테마 디렉터리를 만들 수 없습니다: {detail}""]","locate/en-US.json!domains.theme.catalog.directory
+locate/ja-JP.json!domains.theme.catalog.directory
+locate/ko-KR.json!domains.theme.catalog.directory
+locate/zh-CN.json!domains.theme.catalog.directory
+src/ui/src/LocalizedThemeMessages.hpp:11",{detail},原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,catalog.notInstalled,"[""Theme is not in the installation directory: {detail}"", ""テーマがインストールディレクトリにありません: {detail}"", ""主题不在安装目录中：{detail}"", ""테마가 설치 디렉터리에 없습니다: {detail}""]","locate/en-US.json!domains.theme.catalog.notInstalled
+locate/ja-JP.json!domains.theme.catalog.notInstalled
+locate/ko-KR.json!domains.theme.catalog.notInstalled
+locate/zh-CN.json!domains.theme.catalog.notInstalled
+src/ui/src/LocalizedThemeMessages.hpp:12",{detail},原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,color.apply,"[""Apply color"", ""应用颜色"", ""色を適用"", ""색상 적용""]","locate/en-US.json!domains.theme.color.apply
+locate/ja-JP.json!domains.theme.color.apply
+locate/ko-KR.json!domains.theme.color.apply
+locate/zh-CN.json!domains.theme.color.apply
+src/ui/src/ThemeManagementDialog.cpp:203",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,color.name,"[""Full token name"", ""完全なトークン名"", ""完整 token 名"", ""전체 토큰 이름""]","locate/en-US.json!domains.theme.color.name
+locate/ja-JP.json!domains.theme.color.name
+locate/ko-KR.json!domains.theme.color.name
+locate/zh-CN.json!domains.theme.color.name
+src/ui/src/ThemeManagementDialog.cpp:198",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,color.token,"[""Color token"", ""色トークン"", ""颜色 token"", ""색상 토큰""]","locate/en-US.json!domains.theme.color.token
+locate/ja-JP.json!domains.theme.color.token
+locate/ko-KR.json!domains.theme.color.token
+locate/zh-CN.json!domains.theme.color.token
+src/ui/src/ThemeManagementDialog.cpp:194",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,color.value,"[""Color value"", ""色の値"", ""颜色值"", ""색상 값""]","locate/en-US.json!domains.theme.color.value
+locate/ja-JP.json!domains.theme.color.value
+locate/ko-KR.json!domains.theme.color.value
+locate/zh-CN.json!domains.theme.color.value
+src/ui/src/ThemeManagementDialog.cpp:202",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,component.opacity,"[""Component opacity"", ""コンポーネントの不透明度"", ""组件透明度"", ""컴포넌트 불투명도""]","locate/en-US.json!domains.theme.component.opacity
+locate/ja-JP.json!domains.theme.component.opacity
+locate/ko-KR.json!domains.theme.component.opacity
+locate/zh-CN.json!domains.theme.component.opacity
+src/ui/src/ThemeManagementDialog.cpp:281",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,core.commentEnd,"[""stray CSS comment end at line {detail}"", ""{detail} 行目に対応する開始符のない CSS コメント終了符があります"", ""{detail}행에 시작 기호 없는 CSS 주석 종료 기호가 있습니다"", ""第 {detail} 行有多余的 CSS 注释结束符""]","locate/en-US.json!domains.theme.core.commentEnd
+locate/ja-JP.json!domains.theme.core.commentEnd
+locate/ko-KR.json!domains.theme.core.commentEnd
+locate/zh-CN.json!domains.theme.core.commentEnd
+src/ui/src/LocalizedThemeMessages.hpp:25",{detail},原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,core.commentOpen,"[""unclosed CSS comment at line {detail}"", ""{detail} 行目の CSS コメントが閉じられていません"", ""{detail}행의 CSS 주석이 닫히지 않았습니다"", ""第 {detail} 行的 CSS 注释未闭合""]","locate/en-US.json!domains.theme.core.commentOpen
+locate/ja-JP.json!domains.theme.core.commentOpen
+locate/ko-KR.json!domains.theme.core.commentOpen
+locate/zh-CN.json!domains.theme.core.commentOpen
+src/ui/src/LocalizedThemeMessages.hpp:24",{detail},原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,core.cssSize,"[""style.css exceeds 1 MiB"", ""style.css が 1 MiB を超えています"", ""style.css 超过 1 MiB"", ""style.css가 1 MiB를 초과합니다""]","locate/en-US.json!domains.theme.core.cssSize
+locate/ja-JP.json!domains.theme.core.cssSize
+locate/ko-KR.json!domains.theme.core.cssSize
+locate/zh-CN.json!domains.theme.core.cssSize
+src/ui/src/LocalizedThemeMessages.hpp:23",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,core.cssUtf8,"[""style.css is not UTF-8"", ""style.css は UTF-8 ではありません"", ""style.css 不是 UTF-8 编码"", ""style.css가 UTF-8이 아닙니다""]","locate/en-US.json!domains.theme.core.cssUtf8
+locate/ja-JP.json!domains.theme.core.cssUtf8
+locate/ko-KR.json!domains.theme.core.cssUtf8
+locate/zh-CN.json!domains.theme.core.cssUtf8
+src/ui/src/LocalizedThemeMessages.hpp:22",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,core.declarationColon,"[""CSS declaration has no colon at line {detail}"", ""{detail} 行目の CSS 宣言にコロンがありません"", ""{detail}행의 CSS 선언에 콜론이 없습니다"", ""第 {detail} 行的 CSS 声明缺少冒号""]","locate/en-US.json!domains.theme.core.declarationColon
+locate/ja-JP.json!domains.theme.core.declarationColon
+locate/ko-KR.json!domains.theme.core.declarationColon
+locate/zh-CN.json!domains.theme.core.declarationColon
+src/ui/src/LocalizedThemeMessages.hpp:31",{detail},原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,core.declarationInvalid,"[""invalid CSS declaration at line {detail}"", ""{detail} 行目の CSS 宣言が無効です"", ""{detail}행의 CSS 선언이 유효하지 않습니다"", ""第 {detail} 行的 CSS 声明无效""]","locate/en-US.json!domains.theme.core.declarationInvalid
+locate/ja-JP.json!domains.theme.core.declarationInvalid
+locate/ko-KR.json!domains.theme.core.declarationInvalid
+locate/zh-CN.json!domains.theme.core.declarationInvalid
+src/ui/src/LocalizedThemeMessages.hpp:32",{detail},原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,core.defaultUnavailable,"[""required default theme package is unavailable"", ""必需的默认主题包不可用"", ""必須の既定テーマパッケージを利用できません"", ""필수 기본 테마 패키지를 사용할 수 없습니다""]","locate/en-US.json!domains.theme.core.defaultUnavailable
+locate/ja-JP.json!domains.theme.core.defaultUnavailable
+locate/ko-KR.json!domains.theme.core.defaultUnavailable
+locate/zh-CN.json!domains.theme.core.defaultUnavailable
+src/ui/src/LocalizedThemeMessages.hpp:54",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,core.duplicateToken,"[""Later declaration overrides earlier declaration"", ""后面的声明覆盖先前声明"", ""後の宣言が前の宣言を上書きします"", ""나중 선언이 이전 선언을 덮어씁니다""]","locate/en-US.json!domains.theme.core.duplicateToken
+locate/ja-JP.json!domains.theme.core.duplicateToken
+locate/ko-KR.json!domains.theme.core.duplicateToken
+locate/zh-CN.json!domains.theme.core.duplicateToken
+src/ui/src/LocalizedThemeMessages.hpp:35",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,core.exportResource,"[""export resource is missing: {detail}"", ""エクスポートするリソースがありません：{detail}"", ""导出资源缺失：{detail}"", ""내보낼 리소스가 없습니다: {detail}""]","locate/en-US.json!domains.theme.core.exportResource
+locate/ja-JP.json!domains.theme.core.exportResource
+locate/ko-KR.json!domains.theme.core.exportResource
+locate/zh-CN.json!domains.theme.core.exportResource
+src/ui/src/LocalizedThemeMessages.hpp:65",{detail},原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,core.exportScope,"[""export declaration has no module scope: {detail}"", ""エクスポートする宣言にモジュールスコープがありません：{detail}"", ""导出声明缺少模块区域：{detail}"", ""내보낼 선언에 모듈 범위가 없습니다: {detail}""]","locate/en-US.json!domains.theme.core.exportScope
+locate/ja-JP.json!domains.theme.core.exportScope
+locate/ko-KR.json!domains.theme.core.exportScope
+locate/zh-CN.json!domains.theme.core.exportScope
+src/ui/src/LocalizedThemeMessages.hpp:67",{detail},原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,core.exportState,"[""theme export has no active state or output"", ""テーマのエクスポートに有効な状態または出力先がありません"", ""主题导出缺少活动状态或输出"", ""테마 내보내기에 활성 상태 또는 출력이 없습니다""]","locate/en-US.json!domains.theme.core.exportState
+locate/ja-JP.json!domains.theme.core.exportState
+locate/ko-KR.json!domains.theme.core.exportState
+locate/zh-CN.json!domains.theme.core.exportState
+src/ui/src/LocalizedThemeMessages.hpp:63",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,core.extendedRegistryNull,"[""null extended registry result"", ""扩展 registry 输出为空"", ""拡張レジストリの出力先がありません"", ""확장 레지스트리 출력이 없습니다""]","locate/en-US.json!domains.theme.core.extendedRegistryNull
+locate/ja-JP.json!domains.theme.core.extendedRegistryNull
+locate/ko-KR.json!domains.theme.core.extendedRegistryNull
+locate/zh-CN.json!domains.theme.core.extendedRegistryNull
+src/ui/src/LocalizedThemeMessages.hpp:51",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,core.fragmentEmpty,"[""selected fragment namespace has no declarations"", ""所选片段命名空间没有声明"", ""選択したフラグメントの名前空間に宣言がありません"", ""선택한 조각 네임스페이스에 선언이 없습니다""]","locate/en-US.json!domains.theme.core.fragmentEmpty
+locate/ja-JP.json!domains.theme.core.fragmentEmpty
+locate/ko-KR.json!domains.theme.core.fragmentEmpty
+locate/zh-CN.json!domains.theme.core.fragmentEmpty
+src/ui/src/LocalizedThemeMessages.hpp:66",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,core.fragmentNamespace,"[""invalid fragment namespace"", ""フラグメントの名前空間が無効です"", ""片段命名空间无效"", ""조각 네임스페이스가 유효하지 않습니다""]","locate/en-US.json!domains.theme.core.fragmentNamespace
+locate/ja-JP.json!domains.theme.core.fragmentNamespace
+locate/ko-KR.json!domains.theme.core.fragmentNamespace
+locate/zh-CN.json!domains.theme.core.fragmentNamespace
+src/ui/src/LocalizedThemeMessages.hpp:59",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,core.fragmentRequired,"[""expected a valid fragment package"", ""有効なフラグメントパッケージが必要です"", ""需要有效的片段主题包"", ""유효한 조각 패키지가 필요합니다""]","locate/en-US.json!domains.theme.core.fragmentRequired
+locate/ja-JP.json!domains.theme.core.fragmentRequired
+locate/ko-KR.json!domains.theme.core.fragmentRequired
+locate/zh-CN.json!domains.theme.core.fragmentRequired
+src/ui/src/LocalizedThemeMessages.hpp:56",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,core.fullRequired,"[""expected a valid full theme package"", ""有効な完全テーマパッケージが必要です"", ""需要有效的完整主题包"", ""유효한 전체 테마 패키지가 필요합니다""]","locate/en-US.json!domains.theme.core.fullRequired
+locate/ja-JP.json!domains.theme.core.fullRequired
+locate/ko-KR.json!domains.theme.core.fullRequired
+locate/zh-CN.json!domains.theme.core.fullRequired
+src/ui/src/LocalizedThemeMessages.hpp:55",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,core.imageInheritance,"[""undefined image token requires an inheritance source"", ""未定义的图片 token 需要继承来源"", ""未定義の画像トークンには継承元が必要です"", ""정의되지 않은 이미지 토큰에는 상속 소스가 필요합니다""]","locate/en-US.json!domains.theme.core.imageInheritance
+locate/ja-JP.json!domains.theme.core.imageInheritance
+locate/ko-KR.json!domains.theme.core.imageInheritance
+locate/zh-CN.json!domains.theme.core.imageInheritance
+src/ui/src/LocalizedThemeMessages.hpp:48",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,core.moduleTokenConflict,"[""module token conflicts with registered token: {detail}"", ""モジュールのトークンが登録済みトークンと競合しています：{detail}"", ""模块 token 与已注册 token 冲突：{detail}"", ""모듈 토큰이 등록된 토큰과 충돌합니다: {detail}""]","locate/en-US.json!domains.theme.core.moduleTokenConflict
+locate/ja-JP.json!domains.theme.core.moduleTokenConflict
+locate/ko-KR.json!domains.theme.core.moduleTokenConflict
+locate/zh-CN.json!domains.theme.core.moduleTokenConflict
+src/ui/src/LocalizedThemeMessages.hpp:52",{detail},原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,core.namespaceLine,"[""token outside declared namespace at line {detail}"", ""{detail} 行目のトークンが宣言された名前空間の外にあります"", ""{detail}행의 토큰이 선언된 네임스페이스 밖에 있습니다"", ""第 {detail} 行的 token 不属于已声明的命名空间""]","locate/en-US.json!domains.theme.core.namespaceLine
+locate/ja-JP.json!domains.theme.core.namespaceLine
+locate/ko-KR.json!domains.theme.core.namespaceLine
+locate/zh-CN.json!domains.theme.core.namespaceLine
+src/ui/src/LocalizedThemeMessages.hpp:34",{detail},原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,core.nestedBlock,"[""CSS ブロックの入れ子は許可されていません"", ""nested CSS block is forbidden"", ""不允许嵌套 CSS 块"", ""중첩 CSS 블록은 허용되지 않습니다""]","locate/en-US.json!domains.theme.core.nestedBlock
+locate/ja-JP.json!domains.theme.core.nestedBlock
+locate/ko-KR.json!domains.theme.core.nestedBlock
+locate/zh-CN.json!domains.theme.core.nestedBlock
+src/ui/src/LocalizedThemeMessages.hpp:29",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,core.overrideExportState,"[""theme override export has no output or active state"", ""テーマ上書きのエクスポートに出力先または有効な状態がありません"", ""主题覆盖导出缺少输出或活动状态"", ""테마 재정의 내보내기에 출력 또는 활성 상태가 없습니다""]","locate/en-US.json!domains.theme.core.overrideExportState
+locate/ja-JP.json!domains.theme.core.overrideExportState
+locate/ko-KR.json!domains.theme.core.overrideExportState
+locate/zh-CN.json!domains.theme.core.overrideExportState
+src/ui/src/LocalizedThemeMessages.hpp:60",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,core.overrideFragment,"[""expected a user override fragment"", ""ユーザー上書きフラグメントが必要です"", ""需要用户覆盖片段"", ""사용자 재정의 조각이 필요합니다""]","locate/en-US.json!domains.theme.core.overrideFragment
+locate/ja-JP.json!domains.theme.core.overrideFragment
+locate/ko-KR.json!domains.theme.core.overrideFragment
+locate/zh-CN.json!domains.theme.core.overrideFragment
+src/ui/src/LocalizedThemeMessages.hpp:62",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,core.overrideResource,"[""override resource is missing: {detail}"", ""上書きリソースがありません：{detail}"", ""覆盖资源缺失：{detail}"", ""재정의 리소스가 없습니다: {detail}""]","locate/en-US.json!domains.theme.core.overrideResource
+locate/ja-JP.json!domains.theme.core.overrideResource
+locate/ko-KR.json!domains.theme.core.overrideResource
+locate/zh-CN.json!domains.theme.core.overrideResource
+src/ui/src/LocalizedThemeMessages.hpp:61",{detail},原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,core.overrideToken,"[""unknown override token"", ""不明な上書きトークンです"", ""未知的覆盖 token"", ""알 수 없는 재정의 토큰입니다""]","locate/en-US.json!domains.theme.core.overrideToken
+locate/ja-JP.json!domains.theme.core.overrideToken
+locate/ko-KR.json!domains.theme.core.overrideToken
+locate/zh-CN.json!domains.theme.core.overrideToken
+src/ui/src/LocalizedThemeMessages.hpp:57",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,core.parentheses,"[""CSS の丸括弧が対応していません"", ""CSS 圆括号不匹配"", ""CSS 소괄호가 짝이 맞지 않습니다"", ""unbalanced CSS parentheses""]","locate/en-US.json!domains.theme.core.parentheses
+locate/ja-JP.json!domains.theme.core.parentheses
+locate/ko-KR.json!domains.theme.core.parentheses
+locate/zh-CN.json!domains.theme.core.parentheses
+src/ui/src/LocalizedThemeMessages.hpp:28",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,core.previewActive,"[""preview already active"", ""プレビューは既に開始されています"", ""预览已在进行"", ""미리 보기가 이미 실행 중입니다""]","locate/en-US.json!domains.theme.core.previewActive
+locate/ja-JP.json!domains.theme.core.previewActive
+locate/ko-KR.json!domains.theme.core.previewActive
+locate/zh-CN.json!domains.theme.core.previewActive
+src/ui/src/LocalizedThemeMessages.hpp:58",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,core.referenceCycle,"[""Circular token reference"", ""token 引用存在循环"", ""トークン参照が循環しています"", ""토큰 참조가 순환합니다""]","locate/en-US.json!domains.theme.core.referenceCycle
+locate/ja-JP.json!domains.theme.core.referenceCycle
+locate/ko-KR.json!domains.theme.core.referenceCycle
+locate/zh-CN.json!domains.theme.core.referenceCycle
+src/ui/src/LocalizedThemeMessages.hpp:37",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,core.referenceUnresolved,"[""Unresolved variable reference"", ""变量引用无法解析"", ""変数参照を解決できません"", ""변수 참조를 확인할 수 없습니다""]","locate/en-US.json!domains.theme.core.referenceUnresolved
+locate/ja-JP.json!domains.theme.core.referenceUnresolved
+locate/ko-KR.json!domains.theme.core.referenceUnresolved
+locate/zh-CN.json!domains.theme.core.referenceUnresolved
+src/ui/src/LocalizedThemeMessages.hpp:38",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,core.registryCount,"[""invalid registry token count"", ""registry token 数量无效"", ""レジストリのトークン数が無効です"", ""레지스트리 토큰 수가 유효하지 않습니다""]","locate/en-US.json!domains.theme.core.registryCount
+locate/ja-JP.json!domains.theme.core.registryCount
+locate/ko-KR.json!domains.theme.core.registryCount
+locate/zh-CN.json!domains.theme.core.registryCount
+src/ui/src/LocalizedThemeMessages.hpp:43",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,core.registryDuplicateParent,"[""invalid duplicate registry parent: {detail}"", ""registry 父项无效或重复：{detail}"", ""レジストリの親要素が無効または重複しています：{detail}"", ""레지스트리 상위 항목이 유효하지 않거나 중복됩니다: {detail}""]","locate/en-US.json!domains.theme.core.registryDuplicateParent
+locate/ja-JP.json!domains.theme.core.registryDuplicateParent
+locate/ko-KR.json!domains.theme.core.registryDuplicateParent
+locate/zh-CN.json!domains.theme.core.registryDuplicateParent
+src/ui/src/LocalizedThemeMessages.hpp:47",{detail},原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,core.registryEmpty,"[""theme registry is empty"", ""テーマレジストリが空です"", ""主题 registry 为空"", ""테마 레지스트리가 비어 있습니다""]","locate/en-US.json!domains.theme.core.registryEmpty
+locate/ja-JP.json!domains.theme.core.registryEmpty
+locate/ko-KR.json!domains.theme.core.registryEmpty
+locate/zh-CN.json!domains.theme.core.registryEmpty
+src/ui/src/LocalizedThemeMessages.hpp:53",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,core.registryInheritance,"[""registry inheritance is missing, mismatched, or cyclic: {detail}"", ""registry 继承缺失、不匹配或存在循环：{detail}"", ""レジストリの継承が欠落、不一致、または循環しています：{detail}"", ""레지스트리 상속이 누락되었거나 일치하지 않거나 순환합니다: {detail}""]","locate/en-US.json!domains.theme.core.registryInheritance
+locate/ja-JP.json!domains.theme.core.registryInheritance
+locate/ko-KR.json!domains.theme.core.registryInheritance
+locate/zh-CN.json!domains.theme.core.registryInheritance
+src/ui/src/LocalizedThemeMessages.hpp:49",{detail},原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,core.registryNull,"[""null registry result"", ""registry 输出为空"", ""レジストリの出力先がありません"", ""레지스트리 출력이 없습니다""]","locate/en-US.json!domains.theme.core.registryNull
+locate/ja-JP.json!domains.theme.core.registryNull
+locate/ko-KR.json!domains.theme.core.registryNull
+locate/zh-CN.json!domains.theme.core.registryNull
+src/ui/src/LocalizedThemeMessages.hpp:41",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,core.registryObject,"[""registry token is not an object"", ""registry token 不是对象"", ""レジストリのトークンがオブジェクトではありません"", ""레지스트리 토큰이 객체가 아닙니다""]","locate/en-US.json!domains.theme.core.registryObject
+locate/ja-JP.json!domains.theme.core.registryObject
+locate/ko-KR.json!domains.theme.core.registryObject
+locate/zh-CN.json!domains.theme.core.registryObject
+src/ui/src/LocalizedThemeMessages.hpp:44",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,core.registryParents,"[""registry inherits must be an array: {detail}"", ""registry inherits 必须为数组：{detail}"", ""レジストリの inherits は配列でなければなりません：{detail}"", ""레지스트리 inherits는 배열이어야 합니다: {detail}""]","locate/en-US.json!domains.theme.core.registryParents
+locate/ja-JP.json!domains.theme.core.registryParents
+locate/ko-KR.json!domains.theme.core.registryParents
+locate/zh-CN.json!domains.theme.core.registryParents
+src/ui/src/LocalizedThemeMessages.hpp:46",{detail},原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,core.registryToken,"[""invalid or duplicate registry token: {detail}"", ""registry token 无效或重复：{detail}"", ""レジストリのトークンが無効または重複しています：{detail}"", ""레지스트리 토큰이 유효하지 않거나 중복됩니다: {detail}""]","locate/en-US.json!domains.theme.core.registryToken
+locate/ja-JP.json!domains.theme.core.registryToken
+locate/ko-KR.json!domains.theme.core.registryToken
+locate/zh-CN.json!domains.theme.core.registryToken
+src/ui/src/LocalizedThemeMessages.hpp:45",{detail},原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,core.registryUnavailable,"[""built-in theme registry is unavailable"", ""内置主题 registry 不可用"", ""組み込みテーマのレジストリを利用できません"", ""내장 테마 레지스트리를 사용할 수 없습니다""]","locate/en-US.json!domains.theme.core.registryUnavailable
+locate/ja-JP.json!domains.theme.core.registryUnavailable
+locate/ko-KR.json!domains.theme.core.registryUnavailable
+locate/zh-CN.json!domains.theme.core.registryUnavailable
+src/ui/src/LocalizedThemeMessages.hpp:50",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,core.registryVersion,"[""invalid theme registry version"", ""テーマレジストリのバージョンが無効です"", ""主题 registry 版本无效"", ""테마 레지스트리 버전이 유효하지 않습니다""]","locate/en-US.json!domains.theme.core.registryVersion
+locate/ja-JP.json!domains.theme.core.registryVersion
+locate/ko-KR.json!domains.theme.core.registryVersion
+locate/zh-CN.json!domains.theme.core.registryVersion
+src/ui/src/LocalizedThemeMessages.hpp:42",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,core.resourceAbsent,"[""Resource is absent for the resolved token: {detail}"", ""已解析 token 缺少资源：{detail}"", ""解決済みトークンのリソースがありません：{detail}"", ""확인된 토큰에 리소스가 없습니다: {detail}""]","locate/en-US.json!domains.theme.core.resourceAbsent
+locate/ja-JP.json!domains.theme.core.resourceAbsent
+locate/ko-KR.json!domains.theme.core.resourceAbsent
+locate/zh-CN.json!domains.theme.core.resourceAbsent
+src/ui/src/LocalizedThemeMessages.hpp:40",{detail},原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,core.rootBrace,"[""CSS root opening brace missing"", ""CSS root の開始波括弧がありません"", ""CSS root 缺少左花括号"", ""CSS root의 여는 중괄호가 없습니다""]","locate/en-US.json!domains.theme.core.rootBrace
+locate/ja-JP.json!domains.theme.core.rootBrace
+locate/ko-KR.json!domains.theme.core.rootBrace
+locate/zh-CN.json!domains.theme.core.rootBrace
+src/ui/src/LocalizedThemeMessages.hpp:27",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,core.rootOnly,"[""CSS requires :root blocks only"", ""CSS では :root ブロックのみ使用できます"", ""CSS 仅允许 :root 块"", ""CSS에는 :root 블록만 허용됩니다""]","locate/en-US.json!domains.theme.core.rootOnly
+locate/ja-JP.json!domains.theme.core.rootOnly
+locate/ko-KR.json!domains.theme.core.rootOnly
+locate/zh-CN.json!domains.theme.core.rootOnly
+src/ui/src/LocalizedThemeMessages.hpp:26",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,core.rootOpen,"[""CSS root または丸括弧が閉じられていません"", ""CSS root 或圆括号未闭合"", ""CSS root 또는 소괄호가 닫히지 않았습니다"", ""unclosed CSS root or parentheses""]","locate/en-US.json!domains.theme.core.rootOpen
+locate/ja-JP.json!domains.theme.core.rootOpen
+locate/ko-KR.json!domains.theme.core.rootOpen
+locate/zh-CN.json!domains.theme.core.rootOpen
+src/ui/src/LocalizedThemeMessages.hpp:30",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,core.rootRequired,"[""CSS requires at least one :root block"", ""CSS には少なくとも 1 つの :root ブロックが必要です"", ""CSS 至少需要一个 :root 块"", ""CSS에는 최소 하나의 :root 블록이 필요합니다""]","locate/en-US.json!domains.theme.core.rootRequired
+locate/ja-JP.json!domains.theme.core.rootRequired
+locate/ko-KR.json!domains.theme.core.rootRequired
+locate/zh-CN.json!domains.theme.core.rootRequired
+src/ui/src/LocalizedThemeMessages.hpp:36",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,core.sourceCss,"[""source theme CSS is invalid"", ""元のテーマの CSS が無効です"", ""源主题 CSS 无效"", ""원본 테마 CSS가 유효하지 않습니다""]","locate/en-US.json!domains.theme.core.sourceCss
+locate/ja-JP.json!domains.theme.core.sourceCss
+locate/ko-KR.json!domains.theme.core.sourceCss
+locate/zh-CN.json!domains.theme.core.sourceCss
+src/ui/src/LocalizedThemeMessages.hpp:64",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,core.unknownToken,"[""Unknown token retained in package but ignored for drawing"", ""不明なトークンはパッケージに保持されますが、描画には使用されません"", ""未知 token 保留在主题包中，但绘制时忽略"", ""알 수 없는 토큰은 패키지에 보존되지만 그리기에는 사용되지 않습니다""]","locate/en-US.json!domains.theme.core.unknownToken
+locate/ja-JP.json!domains.theme.core.unknownToken
+locate/ko-KR.json!domains.theme.core.unknownToken
+locate/zh-CN.json!domains.theme.core.unknownToken
+src/ui/src/LocalizedThemeMessages.hpp:33",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,core.valueType,"[""Value does not match registered type {detail}"", ""値が登録済みの型 {detail} と一致しません"", ""值与已注册类型 {detail} 不匹配"", ""값이 등록된 형식 {detail}과 일치하지 않습니다""]","locate/en-US.json!domains.theme.core.valueType
+locate/ja-JP.json!domains.theme.core.valueType
+locate/ko-KR.json!domains.theme.core.valueType
+locate/zh-CN.json!domains.theme.core.valueType
+src/ui/src/LocalizedThemeMessages.hpp:39",{detail},原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,error.chooseImage,"[""Choose a custom image first"", ""先にカスタム画像を選択してください"", ""先选择一张自定义图片"", ""먼저 사용자 지정 이미지를 선택하십시오""]","locate/en-US.json!domains.theme.error.chooseImage
+locate/ja-JP.json!domains.theme.error.chooseImage
+locate/ko-KR.json!domains.theme.error.chooseImage
+locate/zh-CN.json!domains.theme.error.chooseImage
+src/ui/src/LocalizedThemeMessages.hpp:21",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,error.color,"[""Invalid color value format"", ""色の値の形式が無効です"", ""颜色值格式错误"", ""색상 값 형식이 유효하지 않습니다""]","locate/en-US.json!domains.theme.error.color
+locate/ja-JP.json!domains.theme.error.color
+locate/ko-KR.json!domains.theme.error.color
+locate/zh-CN.json!domains.theme.error.color
+src/ui/src/LocalizedThemeMessages.hpp:14
+src/ui/src/ThemeManagementDialog.cpp:385",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,error.directory,"[""Cannot create theme directory"", ""テーマのディレクトリを作成できません"", ""无法创建主题目录"", ""테마 디렉터리를 만들 수 없습니다""]","locate/en-US.json!domains.theme.error.directory
+locate/ja-JP.json!domains.theme.error.directory
+locate/ko-KR.json!domains.theme.error.directory
+locate/zh-CN.json!domains.theme.error.directory
+src/ui/src/LocalizedThemeMessages.hpp:15",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,error.fontInvalid,"[""Invalid font file"", ""字体文件无效"", ""無効なフォントファイルです"", ""글꼴 파일이 유효하지 않습니다""]","locate/en-US.json!domains.theme.error.fontInvalid
+locate/ja-JP.json!domains.theme.error.fontInvalid
+locate/ko-KR.json!domains.theme.error.fontInvalid
+locate/zh-CN.json!domains.theme.error.fontInvalid
+src/ui/src/LocalizedThemeMessages.hpp:19",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,error.fontLimit,"[""Font file exceeds the size limit or cannot be read"", ""フォントファイルがサイズ制限を超えているか、読み取れません"", ""字体文件超过大小限制或不可读取"", ""글꼴 파일이 크기 제한을 초과했거나 읽을 수 없습니다""]","locate/en-US.json!domains.theme.error.fontLimit
+locate/ja-JP.json!domains.theme.error.fontLimit
+locate/ko-KR.json!domains.theme.error.fontLimit
+locate/zh-CN.json!domains.theme.error.fontLimit
+src/ui/src/LocalizedThemeMessages.hpp:18",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,error.imageLimit,"[""Background image exceeds the size limit or cannot be read"", ""背景图片超过大小限制或不可读取"", ""背景画像がサイズ制限を超えているか、読み取れません"", ""배경 이미지가 크기 제한을 초과했거나 읽을 수 없습니다""]","locate/en-US.json!domains.theme.error.imageLimit
+locate/ja-JP.json!domains.theme.error.imageLimit
+locate/ko-KR.json!domains.theme.error.imageLimit
+locate/zh-CN.json!domains.theme.error.imageLimit
+src/ui/src/LocalizedThemeMessages.hpp:16",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,error.imageRead,"[""Cannot read background image"", ""无法读取背景图片"", ""背景画像を読み取れません"", ""배경 이미지를 읽을 수 없습니다""]","locate/en-US.json!domains.theme.error.imageRead
+locate/ja-JP.json!domains.theme.error.imageRead
+locate/ko-KR.json!domains.theme.error.imageRead
+locate/zh-CN.json!domains.theme.error.imageRead
+src/ui/src/LocalizedThemeMessages.hpp:17",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,error.position,"[""Position must be a percentage or px value"", ""位置はパーセントまたは px 値で指定してください"", ""位置须为百分比或 px 值"", ""위치는 백분율 또는 px 값이어야 합니다""]","locate/en-US.json!domains.theme.error.position
+locate/ja-JP.json!domains.theme.error.position
+locate/ko-KR.json!domains.theme.error.position
+locate/zh-CN.json!domains.theme.error.position
+src/ui/src/LocalizedThemeMessages.hpp:20",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,export.default,"[""Export default theme template"", ""导出默认主题模板"", ""既定テーマのテンプレートをエクスポート"", ""기본 테마 템플릿 내보내기""]","locate/en-US.json!domains.theme.export.default
+locate/ja-JP.json!domains.theme.export.default
+locate/ko-KR.json!domains.theme.export.default
+locate/zh-CN.json!domains.theme.export.default
+src/ui/src/ThemeManagementDialog.cpp:324",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,export.fragment,"[""Export module fragment"", ""モジュールのフラグメントをエクスポート"", ""导出模块片段"", ""모듈 조각 내보내기""]","locate/en-US.json!domains.theme.export.fragment
+locate/ja-JP.json!domains.theme.export.fragment
+locate/ko-KR.json!domains.theme.export.fragment
+locate/zh-CN.json!domains.theme.export.fragment
+src/ui/src/ThemeManagementDialog.cpp:325",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,export.full,"[""Export current full theme"", ""导出当前完整主题"", ""現在の完全なテーマをエクスポート"", ""현재 전체 테마 내보내기""]","locate/en-US.json!domains.theme.export.full
+locate/ja-JP.json!domains.theme.export.full
+locate/ko-KR.json!domains.theme.export.full
+locate/zh-CN.json!domains.theme.export.full
+src/ui/src/ThemeManagementDialog.cpp:323",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,file.exportTitle,"[""Export theme"", ""テーマをエクスポート"", ""导出主题"", ""테마 내보내기""]","locate/en-US.json!domains.theme.file.exportTitle
+locate/ja-JP.json!domains.theme.file.exportTitle
+locate/ko-KR.json!domains.theme.file.exportTitle
+locate/zh-CN.json!domains.theme.file.exportTitle
+src/ui/src/ThemeManagementDialog.cpp:426",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,file.fontFilter,"[""Fonts (*.ttf *.otf)"", ""フォント (*.ttf *.otf)"", ""字体 (*.ttf *.otf)"", ""글꼴 (*.ttf *.otf)""]","locate/en-US.json!domains.theme.file.fontFilter
+locate/ja-JP.json!domains.theme.file.fontFilter
+locate/ko-KR.json!domains.theme.file.fontFilter
+locate/zh-CN.json!domains.theme.file.fontFilter
+src/ui/src/ThemeManagementDialog.cpp:392",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,file.fontTitle,"[""Choose font"", ""フォントを選択"", ""选择字体"", ""글꼴 선택""]","locate/en-US.json!domains.theme.file.fontTitle
+locate/ja-JP.json!domains.theme.file.fontTitle
+locate/ko-KR.json!domains.theme.file.fontTitle
+locate/zh-CN.json!domains.theme.file.fontTitle
+src/ui/src/ThemeManagementDialog.cpp:391",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,file.imageFilter,"[""Images (*.png *.jpg *.jpeg *.webp)"", ""图片 (*.png *.jpg *.jpeg *.webp)"", ""画像 (*.png *.jpg *.jpeg *.webp)"", ""이미지 (*.png *.jpg *.jpeg *.webp)""]","locate/en-US.json!domains.theme.file.imageFilter
+locate/ja-JP.json!domains.theme.file.imageFilter
+locate/ko-KR.json!domains.theme.file.imageFilter
+locate/zh-CN.json!domains.theme.file.imageFilter
+src/ui/src/ThemeManagementDialog.cpp:411",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,file.imageTitle,"[""Choose background image"", ""背景画像を選択"", ""选择背景图片"", ""배경 이미지 선택""]","locate/en-US.json!domains.theme.file.imageTitle
+locate/ja-JP.json!domains.theme.file.imageTitle
+locate/ko-KR.json!domains.theme.file.imageTitle
+locate/zh-CN.json!domains.theme.file.imageTitle
+src/ui/src/ThemeManagementDialog.cpp:410",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,file.themeFilter,"[""WinJACKNexus themes (*.wjnskin)"", ""WinJACKNexus テーマ (*.wjnskin)"", ""WinJACKNexus 主题 (*.wjnskin)"", ""WinJACKNexus 테마 (*.wjnskin)""]","locate/en-US.json!domains.theme.file.themeFilter
+locate/ja-JP.json!domains.theme.file.themeFilter
+locate/ko-KR.json!domains.theme.file.themeFilter
+locate/zh-CN.json!domains.theme.file.themeFilter
+src/ui/src/ThemeManagementDialog.cpp:354
+src/ui/src/ThemeManagementDialog.cpp:427",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,font.global,"[""Global font"", ""グローバルフォント"", ""全局字体"", ""전역 글꼴""]","locate/en-US.json!domains.theme.font.global
+locate/ja-JP.json!domains.theme.font.global
+locate/ko-KR.json!domains.theme.font.global
+locate/zh-CN.json!domains.theme.font.global
+src/ui/src/ThemeManagementDialog.cpp:207",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,font.import,"[""Import TTF/OTF"", ""TTF/OTF をインポート"", ""TTF/OTF 가져오기"", ""导入 TTF/OTF""]","locate/en-US.json!domains.theme.font.import
+locate/ja-JP.json!domains.theme.font.import
+locate/ko-KR.json!domains.theme.font.import
+locate/zh-CN.json!domains.theme.font.import
+src/ui/src/ThemeManagementDialog.cpp:209",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,font.system,"[""Restore system font"", ""システムフォントに戻す"", ""恢复系统字体"", ""시스템 글꼴 복원""]","locate/en-US.json!domains.theme.font.system
+locate/ja-JP.json!domains.theme.font.system
+locate/ko-KR.json!domains.theme.font.system
+locate/zh-CN.json!domains.theme.font.system
+src/ui/src/ThemeManagementDialog.cpp:210",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,fragment.namespace,"[""Fragment namespace"", ""フラグメントの名前空間"", ""片段命名空间"", ""조각 네임스페이스""]","locate/en-US.json!domains.theme.fragment.namespace
+locate/ja-JP.json!domains.theme.fragment.namespace
+locate/ko-KR.json!domains.theme.fragment.namespace
+locate/zh-CN.json!domains.theme.fragment.namespace
+src/ui/src/ThemeManagementDialog.cpp:322",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,homepage.open,"[""Open author homepage"", ""作者のホームページを開く"", ""打开作者主页"", ""제작자 홈페이지 열기""]","locate/en-US.json!domains.theme.homepage.open
+locate/ja-JP.json!domains.theme.homepage.open
+locate/ko-KR.json!domains.theme.homepage.open
+locate/zh-CN.json!domains.theme.homepage.open
+src/ui/src/ThemeManagementDialog.cpp:168",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,identity.defaultDescription,"[""Built-in default appearance"", ""内置默认外观"", ""当前内置外观的完整模块级颜色、图表、电平与背景默认值。"", ""組み込みの既定の外観"", ""내장 기본 외형""]","locate/en-US.json!domains.theme.identity.defaultDescription
+locate/ja-JP.json!domains.theme.identity.defaultDescription
+locate/ko-KR.json!domains.theme.identity.defaultDescription
+locate/zh-CN.json!domains.theme.identity.defaultDescription
+src/ui/src/ThemeManagementDialog.cpp:671
+themes/template/winjacknexus-default.wjnskin!meta.json!description",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,identity.noHomepage,"[""Not provided"", ""未指定"", ""未提供"", ""제공되지 않음""]","locate/en-US.json!domains.theme.identity.noHomepage
+locate/ja-JP.json!domains.theme.identity.noHomepage
+locate/ko-KR.json!domains.theme.identity.noHomepage
+locate/zh-CN.json!domains.theme.identity.noHomepage
+src/ui/src/ThemeManagementDialog.cpp:676",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,identity.summary,"[""%1\nAuthor: %2\n%3\nHomepage: %4"", ""%1\n作者：%2\n%3\nホームページ：%4"", ""%1\n作者：%2\n%3\n主页：%4"", ""%1\n제작자: %2\n%3\n홈페이지: %4"", ""%1\\nAuthor: %2\\n%3\\nHomepage: %4""]","locate/en-US.json!domains.theme.identity.summary
+locate/ja-JP.json!domains.theme.identity.summary
+locate/ko-KR.json!domains.theme.identity.summary
+locate/zh-CN.json!domains.theme.identity.summary
+src/ui/src/ThemeManagementDialog.cpp:674","%1,%2,%3,%4",原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,image.choose,"[""Choose image"", ""画像を選択"", ""选择图片"", ""이미지 선택""]","locate/en-US.json!domains.theme.image.choose
+locate/ja-JP.json!domains.theme.image.choose
+locate/ko-KR.json!domains.theme.image.choose
+locate/zh-CN.json!domains.theme.image.choose
+src/ui/src/ThemeManagementDialog.cpp:240",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,image.custom,"[""Custom image"", ""カスタム画像"", ""自定义图片"", ""사용자 지정 이미지""]","locate/en-US.json!domains.theme.image.custom
+locate/ja-JP.json!domains.theme.image.custom
+locate/ko-KR.json!domains.theme.image.custom
+locate/zh-CN.json!domains.theme.image.custom
+src/ui/src/ThemeManagementDialog.cpp:238",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,image.inherit,"[""Inherit patchbay image"", ""パッチベイの画像を継承"", ""继承接线盘"", ""패치베이 이미지 상속""]","locate/en-US.json!domains.theme.image.inherit
+locate/ja-JP.json!domains.theme.image.inherit
+locate/ko-KR.json!domains.theme.image.inherit
+locate/zh-CN.json!domains.theme.image.inherit
+src/ui/src/ThemeManagementDialog.cpp:237",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,image.none,"[""No image"", ""无图片"", ""画像なし"", ""이미지 없음""]","locate/en-US.json!domains.theme.image.none
+locate/ja-JP.json!domains.theme.image.none
+locate/ko-KR.json!domains.theme.image.none
+locate/zh-CN.json!domains.theme.image.none
+src/ui/src/ThemeManagementDialog.cpp:239",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,image.opacity,"[""Image opacity"", ""图片透明度"", ""画像の不透明度"", ""이미지 불투명도""]","locate/en-US.json!domains.theme.image.opacity
+locate/ja-JP.json!domains.theme.image.opacity
+locate/ko-KR.json!domains.theme.image.opacity
+locate/zh-CN.json!domains.theme.image.opacity
+src/ui/src/ThemeManagementDialog.cpp:272",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,image.source,"[""Image source"", ""图片来源"", ""画像ソース"", ""이미지 소스""]","locate/en-US.json!domains.theme.image.source
+locate/ja-JP.json!domains.theme.image.source
+locate/ko-KR.json!domains.theme.image.source
+locate/zh-CN.json!domains.theme.image.source
+src/ui/src/ThemeManagementDialog.cpp:244",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,metadata.author,"[""Author"", ""作者"", ""제작자""]","locate/en-US.json!domains.theme.metadata.author
+locate/ja-JP.json!domains.theme.metadata.author
+locate/ko-KR.json!domains.theme.metadata.author
+locate/zh-CN.json!domains.theme.metadata.author
+src/ui/src/ThemeManagementDialog.cpp:306",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,metadata.description,"[""Description"", ""介绍"", ""説明"", ""설명""]","locate/en-US.json!domains.theme.metadata.description
+locate/ja-JP.json!domains.theme.metadata.description
+locate/ko-KR.json!domains.theme.metadata.description
+locate/zh-CN.json!domains.theme.metadata.description
+src/ui/src/ThemeManagementDialog.cpp:307",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,metadata.homepage,"[""Homepage"", ""ホームページ"", ""主页"", ""홈페이지""]","locate/en-US.json!domains.theme.metadata.homepage
+locate/ja-JP.json!domains.theme.metadata.homepage
+locate/ko-KR.json!domains.theme.metadata.homepage
+locate/zh-CN.json!domains.theme.metadata.homepage
+src/ui/src/ThemeManagementDialog.cpp:308",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,metadata.name,"[""Theme name"", ""テーマ名"", ""主题名称"", ""테마 이름""]","locate/en-US.json!domains.theme.metadata.name
+locate/ja-JP.json!domains.theme.metadata.name
+locate/ko-KR.json!domains.theme.metadata.name
+locate/zh-CN.json!domains.theme.metadata.name
+src/ui/src/ThemeManagementDialog.cpp:305",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,namespace.apiVersion,"[""unsupported descriptor or theme API version"", ""不支持的描述符或主题 API 版本"", ""未対応の記述子またはテーマ API バージョンです"", ""지원하지 않는 디스크립터 또는 테마 API 버전입니다""]","locate/en-US.json!domains.theme.namespace.apiVersion
+locate/ja-JP.json!domains.theme.namespace.apiVersion
+locate/ko-KR.json!domains.theme.namespace.apiVersion
+locate/zh-CN.json!domains.theme.namespace.apiVersion
+src/ui/src/LocalizedThemeMessages.hpp:151",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,namespace.array,"[""{detail} must be a bounded array"", ""{detail} は要素数が制限された配列でなければなりません"", ""{detail} 必须为有数量限制的数组"", ""{detail}은 요소 수가 제한된 배열이어야 합니다""]","locate/en-US.json!domains.theme.namespace.array
+locate/ja-JP.json!domains.theme.namespace.array
+locate/ko-KR.json!domains.theme.namespace.array
+locate/zh-CN.json!domains.theme.namespace.array
+src/ui/src/LocalizedThemeMessages.hpp:137",{detail},原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,namespace.bindingIndex,"[""binding index changed while still registered"", ""仍在注册时绑定索引发生变化"", ""登録中にバインディングのインデックスが変更されました"", ""등록된 상태에서 바인딩 인덱스가 변경되었습니다""]","locate/en-US.json!domains.theme.namespace.bindingIndex
+locate/ja-JP.json!domains.theme.namespace.bindingIndex
+locate/ko-KR.json!domains.theme.namespace.bindingIndex
+locate/zh-CN.json!domains.theme.namespace.bindingIndex
+src/ui/src/LocalizedThemeMessages.hpp:174",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,namespace.defaultType,"[""descriptor default has wrong type: {detail}"", ""描述符默认值类型错误：{detail}"", ""記述子の既定値の型が誤っています：{detail}"", ""디스크립터 기본값 형식이 잘못되었습니다: {detail}""]","locate/en-US.json!domains.theme.namespace.defaultType
+locate/ja-JP.json!domains.theme.namespace.defaultType
+locate/ko-KR.json!domains.theme.namespace.defaultType
+locate/zh-CN.json!domains.theme.namespace.defaultType
+src/ui/src/LocalizedThemeMessages.hpp:164",{detail},原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,namespace.description,"[""{detail} has invalid description"", ""{detail} の説明が無効です"", ""{detail} 的说明无效"", ""{detail}의 설명이 유효하지 않습니다""]","locate/en-US.json!domains.theme.namespace.description
+locate/ja-JP.json!domains.theme.namespace.description
+locate/ko-KR.json!domains.theme.namespace.description
+locate/zh-CN.json!domains.theme.namespace.description
+src/ui/src/LocalizedThemeMessages.hpp:140",{detail},原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,namespace.exportDuplicate,"[""duplicate module or namespace inside one export table"", ""同じエクスポートテーブル内でモジュールまたは名前空間が重複しています"", ""同一导出表内的模块或命名空间重复"", ""같은 내보내기 테이블 안에 모듈 또는 네임스페이스가 중복됩니다""]","locate/en-US.json!domains.theme.namespace.exportDuplicate
+locate/ja-JP.json!domains.theme.namespace.exportDuplicate
+locate/ko-KR.json!domains.theme.namespace.exportDuplicate
+locate/zh-CN.json!domains.theme.namespace.exportDuplicate
+src/ui/src/LocalizedThemeMessages.hpp:173",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,namespace.frozenToken,"[""descriptor disagrees with frozen built-in token: {detail}"", ""描述符与冻结的内置 token 不一致：{detail}"", ""記述子が凍結された組み込みトークンと一致しません：{detail}"", ""디스크립터가 동결된 내장 토큰과 일치하지 않습니다: {detail}""]","locate/en-US.json!domains.theme.namespace.frozenToken
+locate/ja-JP.json!domains.theme.namespace.frozenToken
+locate/ko-KR.json!domains.theme.namespace.frozenToken
+locate/zh-CN.json!domains.theme.namespace.frozenToken
+src/ui/src/LocalizedThemeMessages.hpp:165",{detail},原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,namespace.id,"[""{detail} has invalid or duplicate ID"", ""{detail} の ID が無効または重複しています"", ""{detail} 的 ID 无效或重复"", ""{detail}의 ID가 유효하지 않거나 중복됩니다""]","locate/en-US.json!domains.theme.namespace.id
+locate/ja-JP.json!domains.theme.namespace.id
+locate/ko-KR.json!domains.theme.namespace.id
+locate/zh-CN.json!domains.theme.namespace.id
+src/ui/src/LocalizedThemeMessages.hpp:139",{detail},原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,namespace.identity,"[""invalid descriptor identity or namespace"", ""描述符身份或命名空间无效"", ""記述子の識別情報または名前空間が無効です"", ""디스크립터 식별 정보 또는 네임스페이스가 유효하지 않습니다""]","locate/en-US.json!domains.theme.namespace.identity
+locate/ja-JP.json!domains.theme.namespace.identity
+locate/ko-KR.json!domains.theme.namespace.identity
+locate/zh-CN.json!domains.theme.namespace.identity
+src/ui/src/LocalizedThemeMessages.hpp:152",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,namespace.imageParent,"[""undefined image has no parent: {detail}"", ""未定义的图片缺少父项：{detail}"", ""未定義の画像に親要素がありません：{detail}"", ""정의되지 않은 이미지에 상위 항목이 없습니다: {detail}""]","locate/en-US.json!domains.theme.namespace.imageParent
+locate/ja-JP.json!domains.theme.namespace.imageParent
+locate/ko-KR.json!domains.theme.namespace.imageParent
+locate/zh-CN.json!domains.theme.namespace.imageParent
+src/ui/src/LocalizedThemeMessages.hpp:160",{detail},原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,namespace.inheritance,"[""descriptor inheritance is missing, mismatched, or cyclic: {detail}"", ""描述符继承缺失、不匹配或存在循环：{detail}"", ""記述子の継承が欠落、不一致、または循環しています：{detail}"", ""디스크립터 상속이 누락되었거나 일치하지 않거나 순환합니다: {detail}""]","locate/en-US.json!domains.theme.namespace.inheritance
+locate/ja-JP.json!domains.theme.namespace.inheritance
+locate/ko-KR.json!domains.theme.namespace.inheritance
+locate/zh-CN.json!domains.theme.namespace.inheritance
+src/ui/src/LocalizedThemeMessages.hpp:162",{detail},原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,namespace.json,"[""invalid descriptor JSON: {detail}"", ""描述符 JSON 无效：{detail}"", ""記述子の JSON が無効です：{detail}"", ""디스크립터 JSON이 유효하지 않습니다: {detail}""]","locate/en-US.json!domains.theme.namespace.json
+locate/ja-JP.json!domains.theme.namespace.json
+locate/ko-KR.json!domains.theme.namespace.json
+locate/zh-CN.json!domains.theme.namespace.json
+src/ui/src/LocalizedThemeMessages.hpp:150",{detail},原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,namespace.meterBoundary,"[""invalid meter zone ID or boundary"", ""メーターのゾーン ID または境界が無効です"", ""电平表分区 ID 或边界无效"", ""미터 영역 ID 또는 경계가 유효하지 않습니다""]","locate/en-US.json!domains.theme.namespace.meterBoundary
+locate/ja-JP.json!domains.theme.namespace.meterBoundary
+locate/ko-KR.json!domains.theme.namespace.meterBoundary
+locate/zh-CN.json!domains.theme.namespace.meterBoundary
+src/ui/src/LocalizedThemeMessages.hpp:146",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,namespace.meterMaximum,"[""meter zones do not reach maximum"", ""メーターのゾーンが最大値まで達していません"", ""电平表分区未覆盖到最大值"", ""미터 영역이 최댓값에 도달하지 않습니다""]","locate/en-US.json!domains.theme.namespace.meterMaximum
+locate/ja-JP.json!domains.theme.namespace.meterMaximum
+locate/ko-KR.json!domains.theme.namespace.meterMaximum
+locate/zh-CN.json!domains.theme.namespace.meterMaximum
+src/ui/src/LocalizedThemeMessages.hpp:147",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,namespace.meterUnit,"[""invalid meter range or unit"", ""メーターの範囲または単位が無効です"", ""电平表范围或单位无效"", ""미터 범위 또는 단위가 유효하지 않습니다""]","locate/en-US.json!domains.theme.namespace.meterUnit
+locate/ja-JP.json!domains.theme.namespace.meterUnit
+locate/ko-KR.json!domains.theme.namespace.meterUnit
+locate/zh-CN.json!domains.theme.namespace.meterUnit
+src/ui/src/LocalizedThemeMessages.hpp:143",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,namespace.meterZoneObject,"[""meter zone is not an object"", ""メーターのゾーンがオブジェクトではありません"", ""电平表分区不是对象"", ""미터 영역이 객체가 아닙니다""]","locate/en-US.json!domains.theme.namespace.meterZoneObject
+locate/ja-JP.json!domains.theme.namespace.meterZoneObject
+locate/ko-KR.json!domains.theme.namespace.meterZoneObject
+locate/zh-CN.json!domains.theme.namespace.meterZoneObject
+src/ui/src/LocalizedThemeMessages.hpp:145",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,namespace.meterZones,"[""invalid meter zones"", ""メーターのゾーンが無効です"", ""电平表分区无效"", ""미터 영역이 유효하지 않습니다""]","locate/en-US.json!domains.theme.namespace.meterZones
+locate/ja-JP.json!domains.theme.namespace.meterZones
+locate/ko-KR.json!domains.theme.namespace.meterZones
+locate/zh-CN.json!domains.theme.namespace.meterZones
+src/ui/src/LocalizedThemeMessages.hpp:144",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,namespace.namespaceOwner,"[""namespace already owned by another module: {detail}"", ""名前空間は既に別のモジュールが所有しています：{detail}"", ""命名空间已由另一模块拥有：{detail}"", ""네임스페이스를 이미 다른 모듈이 소유하고 있습니다: {detail}""]","locate/en-US.json!domains.theme.namespace.namespaceOwner
+locate/ja-JP.json!domains.theme.namespace.namespaceOwner
+locate/ko-KR.json!domains.theme.namespace.namespaceOwner
+locate/zh-CN.json!domains.theme.namespace.namespaceOwner
+src/ui/src/LocalizedThemeMessages.hpp:176",{detail},原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,namespace.nativeExports,"[""Native Fx のテーマエクスポートが不完全または未対応です"", ""Native Fx 主题导出不完整或不支持"", ""Native Fx 테마 내보내기가 불완전하거나 지원되지 않습니다"", ""incomplete or unsupported Native Fx theme exports""]","locate/en-US.json!domains.theme.namespace.nativeExports
+locate/ja-JP.json!domains.theme.namespace.nativeExports
+locate/ko-KR.json!domains.theme.namespace.nativeExports
+locate/zh-CN.json!domains.theme.namespace.nativeExports
+src/ui/src/LocalizedThemeMessages.hpp:167",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,namespace.nativeId,"[""Native Fx namespace does not match module ID"", ""Native Fx の名前空間がモジュール ID と一致しません"", ""Native Fx 命名空间与模块 ID 不匹配"", ""Native Fx 네임스페이스가 모듈 ID와 일치하지 않습니다""]","locate/en-US.json!domains.theme.namespace.nativeId
+locate/ja-JP.json!domains.theme.namespace.nativeId
+locate/ko-KR.json!domains.theme.namespace.nativeId
+locate/zh-CN.json!domains.theme.namespace.nativeId
+src/ui/src/LocalizedThemeMessages.hpp:153",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,namespace.nativeIndex,"[""Native Fx descriptor ID does not match metadata index"", ""Native Fx の記述子 ID がメタデータのインデックスと一致しません"", ""Native Fx 描述符 ID 与元数据索引不匹配"", ""Native Fx 디스크립터 ID가 메타데이터 인덱스와 일치하지 않습니다""]","locate/en-US.json!domains.theme.namespace.nativeIndex
+locate/ja-JP.json!domains.theme.namespace.nativeIndex
+locate/ko-KR.json!domains.theme.namespace.nativeIndex
+locate/zh-CN.json!domains.theme.namespace.nativeIndex
+src/ui/src/LocalizedThemeMessages.hpp:169",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,namespace.nativeMetadata,"[""Native Fx の件数またはメタデータのエクスポートが無効です"", ""Native Fx 数量或元数据导出无效"", ""Native Fx 개수 또는 메타데이터 내보내기가 유효하지 않습니다"", ""invalid Native Fx count or metadata exports""]","locate/en-US.json!domains.theme.namespace.nativeMetadata
+locate/ja-JP.json!domains.theme.namespace.nativeMetadata
+locate/ko-KR.json!domains.theme.namespace.nativeMetadata
+locate/zh-CN.json!domains.theme.namespace.nativeMetadata
+src/ui/src/LocalizedThemeMessages.hpp:168",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,namespace.nodeCount,"[""Node の件数のエクスポートが無効です"", ""Node 数量导出无效"", ""Node 개수 내보내기가 유효하지 않습니다"", ""invalid Node count export""]","locate/en-US.json!domains.theme.namespace.nodeCount
+locate/ja-JP.json!domains.theme.namespace.nodeCount
+locate/ko-KR.json!domains.theme.namespace.nodeCount
+locate/zh-CN.json!domains.theme.namespace.nodeCount
+src/ui/src/LocalizedThemeMessages.hpp:171",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,namespace.nodeExports,"[""Node のテーマエクスポートが不完全または未対応です"", ""Node 主题导出不完整或不支持"", ""Node 테마 내보내기가 불완전하거나 지원되지 않습니다"", ""incomplete or unsupported Node theme exports""]","locate/en-US.json!domains.theme.namespace.nodeExports
+locate/ja-JP.json!domains.theme.namespace.nodeExports
+locate/ko-KR.json!domains.theme.namespace.nodeExports
+locate/zh-CN.json!domains.theme.namespace.nodeExports
+src/ui/src/LocalizedThemeMessages.hpp:170",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,namespace.nodeScope,"[""Node namespace must be module-scoped or shared Native Fx"", ""Node の名前空間はモジュール専用または共有 Native Fx でなければなりません"", ""Node 命名空间必须属于模块或共享 Native Fx"", ""Node 네임스페이스는 모듈 전용 또는 공유 Native Fx여야 합니다""]","locate/en-US.json!domains.theme.namespace.nodeScope
+locate/ja-JP.json!domains.theme.namespace.nodeScope
+locate/ko-KR.json!domains.theme.namespace.nodeScope
+locate/zh-CN.json!domains.theme.namespace.nodeScope
+src/ui/src/LocalizedThemeMessages.hpp:154",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,namespace.object,"[""{detail} item is not an object"", ""{detail} の項目がオブジェクトではありません"", ""{detail} 条目不是对象"", ""{detail} 항목이 객체가 아닙니다""]","locate/en-US.json!domains.theme.namespace.object
+locate/ja-JP.json!domains.theme.namespace.object
+locate/ko-KR.json!domains.theme.namespace.object
+locate/zh-CN.json!domains.theme.namespace.object
+src/ui/src/LocalizedThemeMessages.hpp:138",{detail},原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,namespace.overlayBoolean,"[""background overlay capability must be boolean"", ""背景オーバーレイの対応設定は真偽値でなければなりません"", ""背景覆盖能力必须为布尔值"", ""배경 오버레이 기능 설정은 불리언 값이어야 합니다""]","locate/en-US.json!domains.theme.namespace.overlayBoolean
+locate/ja-JP.json!domains.theme.namespace.overlayBoolean
+locate/ko-KR.json!domains.theme.namespace.overlayBoolean
+locate/zh-CN.json!domains.theme.namespace.overlayBoolean
+src/ui/src/LocalizedThemeMessages.hpp:148",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,namespace.owner,"[""conflicting module descriptor or owner: {detail}"", ""モジュールの記述子または所有者が競合しています：{detail}"", ""模块描述符或所有者冲突：{detail}"", ""모듈 디스크립터 또는 소유자가 충돌합니다: {detail}""]","locate/en-US.json!domains.theme.namespace.owner
+locate/ja-JP.json!domains.theme.namespace.owner
+locate/ko-KR.json!domains.theme.namespace.owner
+locate/zh-CN.json!domains.theme.namespace.owner
+src/ui/src/LocalizedThemeMessages.hpp:175",{detail},原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,namespace.parent,"[""invalid token parent: {detail}"", ""token 父项无效：{detail}"", ""トークンの親要素が無効です：{detail}"", ""토큰 상위 항목이 유효하지 않습니다: {detail}""]","locate/en-US.json!domains.theme.namespace.parent
+locate/ja-JP.json!domains.theme.namespace.parent
+locate/ko-KR.json!domains.theme.namespace.parent
+locate/zh-CN.json!domains.theme.namespace.parent
+src/ui/src/LocalizedThemeMessages.hpp:159",{detail},原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,namespace.parentsArray,"[""token inherits must be an array: {detail}"", ""token inherits 必须为数组：{detail}"", ""トークンの inherits は配列でなければなりません：{detail}"", ""토큰 inherits는 배열이어야 합니다: {detail}""]","locate/en-US.json!domains.theme.namespace.parentsArray
+locate/ja-JP.json!domains.theme.namespace.parentsArray
+locate/ko-KR.json!domains.theme.namespace.parentsArray
+locate/zh-CN.json!domains.theme.namespace.parentsArray
+src/ui/src/LocalizedThemeMessages.hpp:158",{detail},原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,namespace.registrationTarget,"[""invalid registration target"", ""注册目标无效"", ""登録先が無効です"", ""등록 대상이 유효하지 않습니다""]","locate/en-US.json!domains.theme.namespace.registrationTarget
+locate/ja-JP.json!domains.theme.namespace.registrationTarget
+locate/ko-KR.json!domains.theme.namespace.registrationTarget
+locate/zh-CN.json!domains.theme.namespace.registrationTarget
+src/ui/src/LocalizedThemeMessages.hpp:166",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,namespace.source,"[""invalid descriptor source"", ""描述符来源无效"", ""記述子のソースが無効です"", ""디스크립터 소스가 유효하지 않습니다""]","locate/en-US.json!domains.theme.namespace.source
+locate/ja-JP.json!domains.theme.namespace.source
+locate/ko-KR.json!domains.theme.namespace.source
+locate/zh-CN.json!domains.theme.namespace.source
+src/ui/src/LocalizedThemeMessages.hpp:172",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,namespace.state,"[""invalid or duplicate control state"", ""コントロールの状態が無効または重複しています"", ""控件状态无效或重复"", ""컨트롤 상태가 유효하지 않거나 중복됩니다""]","locate/en-US.json!domains.theme.namespace.state
+locate/ja-JP.json!domains.theme.namespace.state
+locate/ko-KR.json!domains.theme.namespace.state
+locate/zh-CN.json!domains.theme.namespace.state
+src/ui/src/LocalizedThemeMessages.hpp:142",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,namespace.statesMissing,"[""control states are missing"", ""コントロールの状態がありません"", ""控件状态缺失"", ""컨트롤 상태가 없습니다""]","locate/en-US.json!domains.theme.namespace.statesMissing
+locate/ja-JP.json!domains.theme.namespace.statesMissing
+locate/ko-KR.json!domains.theme.namespace.statesMissing
+locate/zh-CN.json!domains.theme.namespace.statesMissing
+src/ui/src/LocalizedThemeMessages.hpp:141",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,namespace.token,"[""invalid descriptor token: {detail}"", ""描述符 token 无效：{detail}"", ""記述子のトークンが無効です：{detail}"", ""디스크립터 토큰이 유효하지 않습니다: {detail}""]","locate/en-US.json!domains.theme.namespace.token
+locate/ja-JP.json!domains.theme.namespace.token
+locate/ko-KR.json!domains.theme.namespace.token
+locate/zh-CN.json!domains.theme.namespace.token
+src/ui/src/LocalizedThemeMessages.hpp:157",{detail},原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,namespace.tokenCount,"[""invalid descriptor token count"", ""描述符 token 数量无效"", ""記述子のトークン数が無効です"", ""디스크립터 토큰 수가 유효하지 않습니다""]","locate/en-US.json!domains.theme.namespace.tokenCount
+locate/ja-JP.json!domains.theme.namespace.tokenCount
+locate/ko-KR.json!domains.theme.namespace.tokenCount
+locate/zh-CN.json!domains.theme.namespace.tokenCount
+src/ui/src/LocalizedThemeMessages.hpp:155",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,namespace.tokenObject,"[""descriptor token is not an object"", ""描述符 token 不是对象"", ""記述子のトークンがオブジェクトではありません"", ""디스크립터 토큰이 객체가 아닙니다""]","locate/en-US.json!domains.theme.namespace.tokenObject
+locate/ja-JP.json!domains.theme.namespace.tokenObject
+locate/ko-KR.json!domains.theme.namespace.tokenObject
+locate/zh-CN.json!domains.theme.namespace.tokenObject
+src/ui/src/LocalizedThemeMessages.hpp:156",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,namespace.utf8,"[""descriptor is not bounded UTF-8"", ""描述符不是符合长度限制的 UTF-8"", ""記述子が長さの制限を満たす UTF-8 ではありません"", ""디스크립터가 길이 제한을 충족하는 UTF-8이 아닙니다""]","locate/en-US.json!domains.theme.namespace.utf8
+locate/ja-JP.json!domains.theme.namespace.utf8
+locate/ko-KR.json!domains.theme.namespace.utf8
+locate/zh-CN.json!domains.theme.namespace.utf8
+src/ui/src/LocalizedThemeMessages.hpp:149",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,namespace.values,"[""token values must be an object or array: {detail}"", ""token values 必须为对象或数组：{detail}"", ""トークンの values はオブジェクトまたは配列でなければなりません：{detail}"", ""토큰 values는 객체 또는 배열이어야 합니다: {detail}""]","locate/en-US.json!domains.theme.namespace.values
+locate/ja-JP.json!domains.theme.namespace.values
+locate/ko-KR.json!domains.theme.namespace.values
+locate/zh-CN.json!domains.theme.namespace.values
+src/ui/src/LocalizedThemeMessages.hpp:161",{detail},原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,namespace.variableType,"[""descriptor variable has wrong type: {detail}"", ""描述符变量类型错误：{detail}"", ""記述子の変数の型が誤っています：{detail}"", ""디스크립터 변수 형식이 잘못되었습니다: {detail}""]","locate/en-US.json!domains.theme.namespace.variableType
+locate/ja-JP.json!domains.theme.namespace.variableType
+locate/ko-KR.json!domains.theme.namespace.variableType
+locate/zh-CN.json!domains.theme.namespace.variableType
+src/ui/src/LocalizedThemeMessages.hpp:163",{detail},原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,overlay.enabled,"[""Upper overlay"", ""上层覆盖"", ""上部オーバーレイ"", ""상단 오버레이""]","locate/en-US.json!domains.theme.overlay.enabled
+locate/ja-JP.json!domains.theme.overlay.enabled
+locate/ko-KR.json!domains.theme.overlay.enabled
+locate/zh-CN.json!domains.theme.overlay.enabled
+src/ui/src/ThemeManagementDialog.cpp:282",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,overlay.hint,"[""Upper overlay: images with transparent backgrounds work best"", ""上层覆盖模式：透明背景图片最佳"", ""上部オーバーレイ：背景が透明な画像が最適です"", ""상단 오버레이: 배경이 투명한 이미지가 적합합니다""]","locate/en-US.json!domains.theme.overlay.hint
+locate/ja-JP.json!domains.theme.overlay.hint
+locate/ko-KR.json!domains.theme.overlay.hint
+locate/zh-CN.json!domains.theme.overlay.hint
+src/ui/src/ThemeManagementDialog.cpp:287",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,overlay.mode,"[""Layer mode"", ""レイヤーモード"", ""叠层模式"", ""레이어 모드""]","locate/en-US.json!domains.theme.overlay.mode
+locate/ja-JP.json!domains.theme.overlay.mode
+locate/ko-KR.json!domains.theme.overlay.mode
+locate/zh-CN.json!domains.theme.overlay.mode
+src/ui/src/ThemeManagementDialog.cpp:284",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,overlay.opacity,"[""Upper image opacity"", ""上层图片透明度"", ""上部画像の不透明度"", ""상단 이미지 불투명도""]","locate/en-US.json!domains.theme.overlay.opacity
+locate/ja-JP.json!domains.theme.overlay.opacity
+locate/ko-KR.json!domains.theme.overlay.opacity
+locate/zh-CN.json!domains.theme.overlay.opacity
+src/ui/src/ThemeManagementDialog.cpp:286",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,package.apiVersion,"[""unsupported theme format/API version"", ""不支持的主题格式/API 版本"", ""未対応のテーマ形式または API バージョンです"", ""지원하지 않는 테마 형식 또는 API 버전입니다""]","locate/en-US.json!domains.theme.package.apiVersion
+locate/ja-JP.json!domains.theme.package.apiVersion
+locate/ko-KR.json!domains.theme.package.apiVersion
+locate/zh-CN.json!domains.theme.package.apiVersion
+src/ui/src/LocalizedThemeMessages.hpp:71",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,package.assetMap,"[""asset map contains a non-asset ZIP name"", ""リソースの一覧にリソース以外の ZIP 名が含まれています"", ""资源映射含有非资源 ZIP 名称"", ""리소스 맵에 리소스가 아닌 ZIP 이름이 있습니다""]","locate/en-US.json!domains.theme.package.assetMap
+locate/ja-JP.json!domains.theme.package.assetMap
+locate/ko-KR.json!domains.theme.package.assetMap
+locate/zh-CN.json!domains.theme.package.assetMap
+src/ui/src/LocalizedThemeMessages.hpp:130",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,package.assetPath,"[""invalid logical asset path"", ""論理リソースパスが無効です"", ""逻辑资源路径无效"", ""논리 리소스 경로가 유효하지 않습니다""]","locate/en-US.json!domains.theme.package.assetPath
+locate/ja-JP.json!domains.theme.package.assetPath
+locate/ko-KR.json!domains.theme.package.assetPath
+locate/zh-CN.json!domains.theme.package.assetPath
+src/ui/src/LocalizedThemeMessages.hpp:133",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,package.centralOverlap,"[""ZIP entry overlaps central directory"", ""ZIP のエントリーが中央ディレクトリと重なっています"", ""ZIP 条目与中央目录重叠"", ""ZIP 항목이 중앙 디렉터리와 겹칩니다""]","locate/en-US.json!domains.theme.package.centralOverlap
+locate/ja-JP.json!domains.theme.package.centralOverlap
+locate/ko-KR.json!domains.theme.package.centralOverlap
+locate/zh-CN.json!domains.theme.package.centralOverlap
+src/ui/src/LocalizedThemeMessages.hpp:107",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,package.combinedCssSize,"[""combined CSS exceeds 1 MiB"", ""合并的 CSS 超过 1 MiB"", ""結合した CSS が 1 MiB を超えています"", ""결합된 CSS가 1 MiB를 초과합니다""]","locate/en-US.json!domains.theme.package.combinedCssSize
+locate/ja-JP.json!domains.theme.package.combinedCssSize
+locate/ko-KR.json!domains.theme.package.combinedCssSize
+locate/zh-CN.json!domains.theme.package.combinedCssSize
+src/ui/src/LocalizedThemeMessages.hpp:128",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,package.crc,"[""ZIP CRC mismatch: {detail}"", ""ZIP CRC 不匹配：{detail}"", ""ZIP CRC가 일치하지 않습니다: {detail}"", ""ZIP の CRC が一致しません：{detail}""]","locate/en-US.json!domains.theme.package.crc
+locate/ja-JP.json!domains.theme.package.crc
+locate/ko-KR.json!domains.theme.package.crc
+locate/zh-CN.json!domains.theme.package.crc
+src/ui/src/LocalizedThemeMessages.hpp:85",{detail},原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,package.cssUtf8,"[""style.css is empty or not UTF-8"", ""style.css が空か、UTF-8 ではありません"", ""style.css 为空或不是 UTF-8 编码"", ""style.css가 비어 있거나 UTF-8이 아닙니다""]","locate/en-US.json!domains.theme.package.cssUtf8
+locate/ja-JP.json!domains.theme.package.cssUtf8
+locate/ko-KR.json!domains.theme.package.cssUtf8
+locate/zh-CN.json!domains.theme.package.cssUtf8
+src/ui/src/LocalizedThemeMessages.hpp:126",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,package.dataDescriptor,"[""ZIP のデータ記述子が無効です"", ""ZIP 数据描述符无效"", ""ZIP 데이터 디스크립터가 유효하지 않습니다"", ""invalid ZIP data descriptor""]","locate/en-US.json!domains.theme.package.dataDescriptor
+locate/ja-JP.json!domains.theme.package.dataDescriptor
+locate/ko-KR.json!domains.theme.package.dataDescriptor
+locate/zh-CN.json!domains.theme.package.dataDescriptor
+src/ui/src/LocalizedThemeMessages.hpp:106",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,package.defaultApi,"[""default theme DLL API is incompatible"", ""既定テーマ DLL の API に互換性がありません"", ""默认主题 DLL API 不兼容"", ""기본 테마 DLL API가 호환되지 않습니다""]","locate/en-US.json!domains.theme.package.defaultApi
+locate/ja-JP.json!domains.theme.package.defaultApi
+locate/ko-KR.json!domains.theme.package.defaultApi
+locate/zh-CN.json!domains.theme.package.defaultApi
+src/ui/src/LocalizedThemeMessages.hpp:124",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,package.defaultData,"[""default theme DLL has no valid package data"", ""既定テーマ DLL に有効なパッケージデータがありません"", ""默认主题 DLL 没有有效的主题包数据"", ""기본 테마 DLL에 유효한 패키지 데이터가 없습니다""]","locate/en-US.json!domains.theme.package.defaultData
+locate/ja-JP.json!domains.theme.package.defaultData
+locate/ko-KR.json!domains.theme.package.defaultData
+locate/zh-CN.json!domains.theme.package.defaultData
+src/ui/src/LocalizedThemeMessages.hpp:125",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,package.defaultDll,"[""required default theme DLL is unavailable: {detail}"", ""必需的默认主题 DLL 不可用：{detail}"", ""必須の既定テーマ DLL を利用できません：{detail}"", ""필수 기본 테마 DLL을 사용할 수 없습니다: {detail}""]","locate/en-US.json!domains.theme.package.defaultDll
+locate/ja-JP.json!domains.theme.package.defaultDll
+locate/ko-KR.json!domains.theme.package.defaultDll
+locate/zh-CN.json!domains.theme.package.defaultDll
+src/ui/src/LocalizedThemeMessages.hpp:123",{detail},原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,package.deflate,"[""deflate stream is truncated or malformed"", ""deflate ストリームが途切れているか、形式が不正です"", ""deflate 数据流被截断或格式错误"", ""deflate 스트림이 잘렸거나 형식이 잘못되었습니다""]","locate/en-US.json!domains.theme.package.deflate
+locate/ja-JP.json!domains.theme.package.deflate
+locate/ko-KR.json!domains.theme.package.deflate
+locate/zh-CN.json!domains.theme.package.deflate
+src/ui/src/LocalizedThemeMessages.hpp:84",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,package.devBudget,"[""Dev theme exceeds package budget"", ""Dev テーマがパッケージのサイズ上限を超えています"", ""Dev 主题超过主题包大小预算"", ""Dev 테마가 패키지 크기 제한을 초과합니다""]","locate/en-US.json!domains.theme.package.devBudget
+locate/ja-JP.json!domains.theme.package.devBudget
+locate/ko-KR.json!domains.theme.package.devBudget
+locate/zh-CN.json!domains.theme.package.devBudget
+src/ui/src/LocalizedThemeMessages.hpp:122",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,package.devChanged,"[""Dev theme entry changed while reading: {detail}"", ""Dev 主题条目在读取时发生变化：{detail}"", ""読み取り中に Dev テーマのエントリーが変更されました：{detail}"", ""읽는 동안 Dev 테마 항목이 변경되었습니다: {detail}""]","locate/en-US.json!domains.theme.package.devChanged
+locate/ja-JP.json!domains.theme.package.devChanged
+locate/ko-KR.json!domains.theme.package.devChanged
+locate/zh-CN.json!domains.theme.package.devChanged
+src/ui/src/LocalizedThemeMessages.hpp:121",{detail},原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,package.devCount,"[""Dev テーマのエントリーが重複しているか、多すぎます"", ""Dev 主题条目重复或过多"", ""Dev 테마 항목이 중복되거나 너무 많습니다"", ""duplicate or excessive Dev theme entries""]","locate/en-US.json!domains.theme.package.devCount
+locate/ja-JP.json!domains.theme.package.devCount
+locate/ko-KR.json!domains.theme.package.devCount
+locate/zh-CN.json!domains.theme.package.devCount
+src/ui/src/LocalizedThemeMessages.hpp:118",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,package.devEntry,"[""unsupported Dev theme entry: {detail}"", ""不支持的 Dev 主题条目：{detail}"", ""未対応の Dev テーマエントリーです：{detail}"", ""지원하지 않는 Dev 테마 항목입니다: {detail}""]","locate/en-US.json!domains.theme.package.devEntry
+locate/ja-JP.json!domains.theme.package.devEntry
+locate/ko-KR.json!domains.theme.package.devEntry
+locate/zh-CN.json!domains.theme.package.devEntry
+src/ui/src/LocalizedThemeMessages.hpp:117",{detail},原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,package.devEntrySize,"[""Dev theme entry exceeds size budget: {detail}"", ""Dev テーマのエントリーがサイズの上限を超えています：{detail}"", ""Dev 主题条目超过大小预算：{detail}"", ""Dev 테마 항목이 크기 제한을 초과합니다: {detail}""]","locate/en-US.json!domains.theme.package.devEntrySize
+locate/ja-JP.json!domains.theme.package.devEntrySize
+locate/ko-KR.json!domains.theme.package.devEntrySize
+locate/zh-CN.json!domains.theme.package.devEntrySize
+src/ui/src/LocalizedThemeMessages.hpp:119",{detail},原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,package.devRead,"[""Dev テーマのエントリーを読み取れません：{detail}"", ""Dev 테마 항목을 읽을 수 없습니다: {detail}"", ""cannot read Dev theme entry: {detail}"", ""无法读取 Dev 主题条目：{detail}""]","locate/en-US.json!domains.theme.package.devRead
+locate/ja-JP.json!domains.theme.package.devRead
+locate/ko-KR.json!domains.theme.package.devRead
+locate/zh-CN.json!domains.theme.package.devRead
+src/ui/src/LocalizedThemeMessages.hpp:120",{detail},原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,package.directory,"[""theme directory is missing or linked"", ""テーマのディレクトリが存在しないか、リンクになっています"", ""主题目录缺失或为链接"", ""테마 디렉터리가 없거나 링크입니다""]","locate/en-US.json!domains.theme.package.directory
+locate/ja-JP.json!domains.theme.package.directory
+locate/ko-KR.json!domains.theme.package.directory
+locate/zh-CN.json!domains.theme.package.directory
+src/ui/src/LocalizedThemeMessages.hpp:116",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,package.directoryContent,"[""directory has content"", ""ディレクトリエントリーに内容があります"", ""目录条目含有内容"", ""디렉터리 항목에 내용이 있습니다""]","locate/en-US.json!domains.theme.package.directoryContent
+locate/ja-JP.json!domains.theme.package.directoryContent
+locate/ko-KR.json!domains.theme.package.directoryContent
+locate/zh-CN.json!domains.theme.package.directoryContent
+src/ui/src/LocalizedThemeMessages.hpp:98",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,package.entriesOverlap,"[""ZIP entries overlap"", ""ZIP のエントリーが重なっています"", ""ZIP 条目重叠"", ""ZIP 항목이 겹칩니다""]","locate/en-US.json!domains.theme.package.entriesOverlap
+locate/ja-JP.json!domains.theme.package.entriesOverlap
+locate/ko-KR.json!domains.theme.package.entriesOverlap
+locate/zh-CN.json!domains.theme.package.entriesOverlap
+src/ui/src/LocalizedThemeMessages.hpp:109",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,package.entryCount,"[""ZIP のエントリーが多すぎます"", ""ZIP 条目过多"", ""ZIP 항목이 너무 많습니다"", ""too many ZIP entries""]","locate/en-US.json!domains.theme.package.entryCount
+locate/ja-JP.json!domains.theme.package.entryCount
+locate/ko-KR.json!domains.theme.package.entryCount
+locate/zh-CN.json!domains.theme.package.entryCount
+src/ui/src/LocalizedThemeMessages.hpp:110",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,package.entryUtf8,"[""entry name is not UTF-8"", ""エントリー名は UTF-8 ではありません"", ""条目名称不是 UTF-8 编码"", ""항목 이름이 UTF-8이 아닙니다""]","locate/en-US.json!domains.theme.package.entryUtf8
+locate/ja-JP.json!domains.theme.package.entryUtf8
+locate/ko-KR.json!domains.theme.package.entryUtf8
+locate/zh-CN.json!domains.theme.package.entryUtf8
+src/ui/src/LocalizedThemeMessages.hpp:93",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,package.expandedBudget,"[""expanded package budget exceeded"", ""展開したパッケージがサイズの上限を超えています"", ""解压后的主题包超过大小预算"", ""압축 해제 패키지가 크기 제한을 초과했습니다""]","locate/en-US.json!domains.theme.package.expandedBudget
+locate/ja-JP.json!domains.theme.package.expandedBudget
+locate/ko-KR.json!domains.theme.package.expandedBudget
+locate/zh-CN.json!domains.theme.package.expandedBudget
+src/ui/src/LocalizedThemeMessages.hpp:108",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,package.expandedSize,"[""expanded entry exceeded declared size"", ""展開したエントリーが宣言されたサイズを超えています"", ""解压条目超过声明大小"", ""압축 해제 항목이 선언된 크기를 초과했습니다""]","locate/en-US.json!domains.theme.package.expandedSize
+locate/ja-JP.json!domains.theme.package.expandedSize
+locate/ko-KR.json!domains.theme.package.expandedSize
+locate/zh-CN.json!domains.theme.package.expandedSize
+src/ui/src/LocalizedThemeMessages.hpp:83",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,package.fileSize,"[""theme package exceeds 32 MiB"", ""テーマパッケージが 32 MiB を超えています"", ""主题包超过 32 MiB"", ""테마 패키지가 32 MiB를 초과합니다""]","locate/en-US.json!domains.theme.package.fileSize
+locate/ja-JP.json!domains.theme.package.fileSize
+locate/ko-KR.json!domains.theme.package.fileSize
+locate/zh-CN.json!domains.theme.package.fileSize
+src/ui/src/LocalizedThemeMessages.hpp:115",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,package.flags,"[""ZIP local/central flags differ"", ""ZIP のローカルと中央のフラグが一致しません"", ""ZIP 本地/中央标志不一致"", ""ZIP 로컬 및 중앙 플래그가 일치하지 않습니다""]","locate/en-US.json!domains.theme.package.flags
+locate/ja-JP.json!domains.theme.package.flags
+locate/ko-KR.json!domains.theme.package.flags
+locate/zh-CN.json!domains.theme.package.flags
+src/ui/src/LocalizedThemeMessages.hpp:102",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,package.homepage,"[""invalid theme homepage"", ""テーマのホームページが無効です"", ""主题主页无效"", ""테마 홈페이지가 유효하지 않습니다""]","locate/en-US.json!domains.theme.package.homepage
+locate/ja-JP.json!domains.theme.package.homepage
+locate/ko-KR.json!domains.theme.package.homepage
+locate/zh-CN.json!domains.theme.package.homepage
+src/ui/src/LocalizedThemeMessages.hpp:76",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,package.homepageMissing,"[""theme homepage is missing"", ""テーマのホームページがありません"", ""主题主页缺失"", ""테마 홈페이지가 없습니다""]","locate/en-US.json!domains.theme.package.homepageMissing
+locate/ja-JP.json!domains.theme.package.homepageMissing
+locate/ko-KR.json!domains.theme.package.homepageMissing
+locate/zh-CN.json!domains.theme.package.homepageMissing
+src/ui/src/LocalizedThemeMessages.hpp:75",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,package.id,"[""invalid theme id"", ""テーマ ID が無効です"", ""主题 ID 无效"", ""테마 ID가 유효하지 않습니다""]","locate/en-US.json!domains.theme.package.id
+locate/ja-JP.json!domains.theme.package.id
+locate/ko-KR.json!domains.theme.package.id
+locate/zh-CN.json!domains.theme.package.id
+src/ui/src/LocalizedThemeMessages.hpp:72",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,package.import,"[""Import theme package"", ""テーマパッケージをインポート"", ""导入主题包"", ""테마 패키지 가져오기""]","locate/en-US.json!domains.theme.package.import
+locate/ja-JP.json!domains.theme.package.import
+locate/ko-KR.json!domains.theme.package.import
+locate/zh-CN.json!domains.theme.package.import
+src/ui/src/ThemeManagementDialog.cpp:175
+src/ui/src/ThemeManagementDialog.cpp:353",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,package.importAsset,"[""cannot read imported asset or it exceeds 16 MiB"", ""インポートしたリソースを読み取れないか、16 MiB を超えています"", ""无法读取导入资源或其大小超过 16 MiB"", ""가져온 리소스를 읽을 수 없거나 16 MiB를 초과합니다""]","locate/en-US.json!domains.theme.package.importAsset
+locate/ja-JP.json!domains.theme.package.importAsset
+locate/ko-KR.json!domains.theme.package.importAsset
+locate/zh-CN.json!domains.theme.package.importAsset
+src/ui/src/LocalizedThemeMessages.hpp:134",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,package.kind,"[""invalid theme kind"", ""テーマの種別が無効です"", ""主题类型无效"", ""테마 종류가 유효하지 않습니다""]","locate/en-US.json!domains.theme.package.kind
+locate/ja-JP.json!domains.theme.package.kind
+locate/ko-KR.json!domains.theme.package.kind
+locate/zh-CN.json!domains.theme.package.kind
+src/ui/src/LocalizedThemeMessages.hpp:77",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,package.localBounds,"[""ZIP local name or data bounds differ"", ""ZIP のローカル名またはデータ範囲が一致しません"", ""ZIP 本地名称或数据边界不一致"", ""ZIP 로컬 이름 또는 데이터 범위가 일치하지 않습니다""]","locate/en-US.json!domains.theme.package.localBounds
+locate/ja-JP.json!domains.theme.package.localBounds
+locate/ko-KR.json!domains.theme.package.localBounds
+locate/zh-CN.json!domains.theme.package.localBounds
+src/ui/src/LocalizedThemeMessages.hpp:103",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,package.localHeader,"[""ZIP のローカルヘッダーが無効です"", ""ZIP 本地头无效"", ""ZIP 로컬 헤더가 유효하지 않습니다"", ""invalid ZIP local header""]","locate/en-US.json!domains.theme.package.localHeader
+locate/ja-JP.json!domains.theme.package.localHeader
+locate/ko-KR.json!domains.theme.package.localHeader
+locate/zh-CN.json!domains.theme.package.localHeader
+src/ui/src/LocalizedThemeMessages.hpp:101",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,package.localSizes,"[""ZIP local/central sizes differ"", ""ZIP のローカルと中央のサイズが一致しません"", ""ZIP 本地/中央大小不一致"", ""ZIP 로컬 및 중앙 크기가 일치하지 않습니다""]","locate/en-US.json!domains.theme.package.localSizes
+locate/ja-JP.json!domains.theme.package.localSizes
+locate/ko-KR.json!domains.theme.package.localSizes
+locate/zh-CN.json!domains.theme.package.localSizes
+src/ui/src/LocalizedThemeMessages.hpp:105",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,package.metaObject,"[""meta.json is not a JSON object"", ""meta.json は JSON オブジェクトではありません"", ""meta.json 不是 JSON 对象"", ""meta.json이 JSON 객체가 아닙니다""]","locate/en-US.json!domains.theme.package.metaObject
+locate/ja-JP.json!domains.theme.package.metaObject
+locate/ko-KR.json!domains.theme.package.metaObject
+locate/zh-CN.json!domains.theme.package.metaObject
+src/ui/src/LocalizedThemeMessages.hpp:70",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,package.metaSize,"[""meta.json size is invalid"", ""meta.json のサイズが無効です"", ""meta.json 大小无效"", ""meta.json 크기가 유효하지 않습니다""]","locate/en-US.json!domains.theme.package.metaSize
+locate/ja-JP.json!domains.theme.package.metaSize
+locate/ko-KR.json!domains.theme.package.metaSize
+locate/zh-CN.json!domains.theme.package.metaSize
+src/ui/src/LocalizedThemeMessages.hpp:68",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,package.metaUtf8,"[""meta.json is not UTF-8"", ""meta.json は UTF-8 ではありません"", ""meta.json 不是 UTF-8 编码"", ""meta.json이 UTF-8이 아닙니다""]","locate/en-US.json!domains.theme.package.metaUtf8
+locate/ja-JP.json!domains.theme.package.metaUtf8
+locate/ko-KR.json!domains.theme.package.metaUtf8
+locate/zh-CN.json!domains.theme.package.metaUtf8
+src/ui/src/LocalizedThemeMessages.hpp:69",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,package.metadata,"[""theme name/author/description is invalid"", ""テーマ名、作者、または説明が無効です"", ""主题名称、作者或介绍无效"", ""테마 이름, 제작자 또는 설명이 유효하지 않습니다""]","locate/en-US.json!domains.theme.package.metadata
+locate/ja-JP.json!domains.theme.package.metadata
+locate/ko-KR.json!domains.theme.package.metadata
+locate/zh-CN.json!domains.theme.package.metadata
+src/ui/src/LocalizedThemeMessages.hpp:74",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,package.moduleCssPath,"[""invalid module CSS path: {detail}"", ""モジュールの CSS パスが無効です：{detail}"", ""模块 CSS 路径无效：{detail}"", ""모듈 CSS 경로가 유효하지 않습니다: {detail}""]","locate/en-US.json!domains.theme.package.moduleCssPath
+locate/ja-JP.json!domains.theme.package.moduleCssPath
+locate/ko-KR.json!domains.theme.package.moduleCssPath
+locate/zh-CN.json!domains.theme.package.moduleCssPath
+src/ui/src/LocalizedThemeMessages.hpp:131",{detail},原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,package.moduleCssUtf8,"[""module CSS is empty or not UTF-8: {detail}"", ""モジュールの CSS が空か、UTF-8 ではありません：{detail}"", ""模块 CSS 为空或不是 UTF-8 编码：{detail}"", ""모듈 CSS가 비어 있거나 UTF-8이 아닙니다: {detail}""]","locate/en-US.json!domains.theme.package.moduleCssUtf8
+locate/ja-JP.json!domains.theme.package.moduleCssUtf8
+locate/ko-KR.json!domains.theme.package.moduleCssUtf8
+locate/zh-CN.json!domains.theme.package.moduleCssUtf8
+src/ui/src/LocalizedThemeMessages.hpp:127",{detail},原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,package.namespace,"[""invalid or duplicate namespace"", ""名前空間が無効または重複しています"", ""命名空间无效或重复"", ""네임스페이스가 유효하지 않거나 중복됩니다""]","locate/en-US.json!domains.theme.package.namespace
+locate/ja-JP.json!domains.theme.package.namespace
+locate/ko-KR.json!domains.theme.package.namespace
+locate/zh-CN.json!domains.theme.package.namespace
+src/ui/src/LocalizedThemeMessages.hpp:79",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,package.namespacesMissing,"[""missing namespaces"", ""名前空間がありません"", ""命名空间缺失"", ""네임스페이스가 없습니다""]","locate/en-US.json!domains.theme.package.namespacesMissing
+locate/ja-JP.json!domains.theme.package.namespacesMissing
+locate/ko-KR.json!domains.theme.package.namespacesMissing
+locate/zh-CN.json!domains.theme.package.namespacesMissing
+src/ui/src/LocalizedThemeMessages.hpp:78",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,package.nullResult,"[""null theme result"", ""テーマの出力先がありません"", ""主题输出为空"", ""테마 출력이 없습니다""]","locate/en-US.json!domains.theme.package.nullResult
+locate/ja-JP.json!domains.theme.package.nullResult
+locate/ko-KR.json!domains.theme.package.nullResult
+locate/zh-CN.json!domains.theme.package.nullResult
+src/ui/src/LocalizedThemeMessages.hpp:113",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,package.open,"[""cannot open theme package: {detail}"", ""テーマパッケージを開けません：{detail}"", ""无法打开主题包：{detail}"", ""테마 패키지를 열 수 없습니다: {detail}""]","locate/en-US.json!domains.theme.package.open
+locate/ja-JP.json!domains.theme.package.open
+locate/ko-KR.json!domains.theme.package.open
+locate/zh-CN.json!domains.theme.package.open
+src/ui/src/LocalizedThemeMessages.hpp:114",{detail},原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,package.output,"[""invalid theme or output"", ""テーマまたは出力先が無効です"", ""主题或输出无效"", ""테마 또는 출력이 유효하지 않습니다""]","locate/en-US.json!domains.theme.package.output
+locate/ja-JP.json!domains.theme.package.output
+locate/ko-KR.json!domains.theme.package.output
+locate/zh-CN.json!domains.theme.package.output
+src/ui/src/LocalizedThemeMessages.hpp:135",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,package.outputBudget,"[""ZIP output exceeds size budget"", ""ZIP の出力がサイズの上限を超えています"", ""ZIP 输出超过大小预算"", ""ZIP 출력이 크기 제한을 초과합니다""]","locate/en-US.json!domains.theme.package.outputBudget
+locate/ja-JP.json!domains.theme.package.outputBudget
+locate/ko-KR.json!domains.theme.package.outputBudget
+locate/zh-CN.json!domains.theme.package.outputBudget
+src/ui/src/LocalizedThemeMessages.hpp:111",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,package.outputSize,"[""ZIP output exceeds 32 MiB"", ""ZIP の出力が 32 MiB を超えています"", ""ZIP 输出超过 32 MiB"", ""ZIP 출력이 32 MiB를 초과합니다""]","locate/en-US.json!domains.theme.package.outputSize
+locate/ja-JP.json!domains.theme.package.outputSize
+locate/ko-KR.json!domains.theme.package.outputSize
+locate/zh-CN.json!domains.theme.package.outputSize
+src/ui/src/LocalizedThemeMessages.hpp:112",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,package.previewAsset,"[""preview asset is missing"", ""プレビューのリソースがありません"", ""预览资源缺失"", ""미리 보기 리소스가 없습니다""]","locate/en-US.json!domains.theme.package.previewAsset
+locate/ja-JP.json!domains.theme.package.previewAsset
+locate/ko-KR.json!domains.theme.package.previewAsset
+locate/zh-CN.json!domains.theme.package.previewAsset
+src/ui/src/LocalizedThemeMessages.hpp:129",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,package.previewPath,"[""invalid preview path"", ""プレビューのパスが無効です"", ""预览路径无效"", ""미리 보기 경로가 유효하지 않습니다""]","locate/en-US.json!domains.theme.package.previewPath
+locate/ja-JP.json!domains.theme.package.previewPath
+locate/ko-KR.json!domains.theme.package.previewPath
+locate/zh-CN.json!domains.theme.package.previewPath
+src/ui/src/LocalizedThemeMessages.hpp:80",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,package.resourceBudget,"[""ZIP resource budget exceeded: {detail}"", ""ZIP リソースがサイズの上限を超えています：{detail}"", ""ZIP 资源超过大小预算：{detail}"", ""ZIP 리소스가 크기 제한을 초과했습니다: {detail}""]","locate/en-US.json!domains.theme.package.resourceBudget
+locate/ja-JP.json!domains.theme.package.resourceBudget
+locate/ko-KR.json!domains.theme.package.resourceBudget
+locate/zh-CN.json!domains.theme.package.resourceBudget
+src/ui/src/LocalizedThemeMessages.hpp:99",{detail},原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,package.rootLayout,"[""ZIP root layout is incomplete"", ""ZIP のルート構成が不完全です"", ""ZIP 根目录结构不完整"", ""ZIP 루트 구조가 완전하지 않습니다""]","locate/en-US.json!domains.theme.package.rootLayout
+locate/ja-JP.json!domains.theme.package.rootLayout
+locate/ko-KR.json!domains.theme.package.rootLayout
+locate/zh-CN.json!domains.theme.package.rootLayout
+src/ui/src/LocalizedThemeMessages.hpp:100",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,package.size,"[""package size is outside 22 bytes..32 MiB"", ""パッケージのサイズが 22 バイトから 32 MiB の範囲外です"", ""主题包大小不在 22 字节至 32 MiB 范围内"", ""패키지 크기가 22바이트부터 32 MiB까지의 범위를 벗어납니다""]","locate/en-US.json!domains.theme.package.size
+locate/ja-JP.json!domains.theme.package.size
+locate/ko-KR.json!domains.theme.package.size
+locate/zh-CN.json!domains.theme.package.size
+src/ui/src/LocalizedThemeMessages.hpp:86",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,package.sourceResult,"[""invalid source theme or result"", ""元のテーマまたは出力先が無効です"", ""源主题或输出无效"", ""원본 테마 또는 출력이 유효하지 않습니다""]","locate/en-US.json!domains.theme.package.sourceResult
+locate/ja-JP.json!domains.theme.package.sourceResult
+locate/ko-KR.json!domains.theme.package.sourceResult
+locate/zh-CN.json!domains.theme.package.sourceResult
+src/ui/src/LocalizedThemeMessages.hpp:132",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,package.storedSize,"[""stored entry size mismatch"", ""未压缩条目大小不匹配"", ""非圧縮エントリーのサイズが一致しません"", ""비압축 항목 크기가 일치하지 않습니다""]","locate/en-US.json!domains.theme.package.storedSize
+locate/ja-JP.json!domains.theme.package.storedSize
+locate/ko-KR.json!domains.theme.package.storedSize
+locate/zh-CN.json!domains.theme.package.storedSize
+src/ui/src/LocalizedThemeMessages.hpp:81",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,package.version,"[""invalid theme version"", ""テーマのバージョンが無効です"", ""主题版本无效"", ""테마 버전이 유효하지 않습니다""]","locate/en-US.json!domains.theme.package.version
+locate/ja-JP.json!domains.theme.package.version
+locate/ko-KR.json!domains.theme.package.version
+locate/zh-CN.json!domains.theme.package.version
+src/ui/src/LocalizedThemeMessages.hpp:73",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,package.write,"[""cannot write theme package: {detail}"", ""テーマパッケージを書き込めません：{detail}"", ""无法写入主题包：{detail}"", ""테마 패키지를 쓸 수 없습니다: {detail}""]","locate/en-US.json!domains.theme.package.write
+locate/ja-JP.json!domains.theme.package.write
+locate/ko-KR.json!domains.theme.package.write
+locate/zh-CN.json!domains.theme.package.write
+src/ui/src/LocalizedThemeMessages.hpp:136",{detail},原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,package.zip64Central,"[""ZIP64 の中央エントリーが無効です"", ""ZIP64 中央条目无效"", ""ZIP64 중앙 항목이 유효하지 않습니다"", ""invalid ZIP64 central entry""]","locate/en-US.json!domains.theme.package.zip64Central
+locate/ja-JP.json!domains.theme.package.zip64Central
+locate/ko-KR.json!domains.theme.package.zip64Central
+locate/zh-CN.json!domains.theme.package.zip64Central
+src/ui/src/LocalizedThemeMessages.hpp:96",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,package.zip64Disks,"[""multi-disk ZIP64 is unsupported"", ""不支持多磁盘 ZIP64"", ""複数ディスクの ZIP64 は未対応です"", ""다중 디스크 ZIP64는 지원하지 않습니다""]","locate/en-US.json!domains.theme.package.zip64Disks
+locate/ja-JP.json!domains.theme.package.zip64Disks
+locate/ko-KR.json!domains.theme.package.zip64Disks
+locate/zh-CN.json!domains.theme.package.zip64Disks
+src/ui/src/LocalizedThemeMessages.hpp:88",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,package.zip64End,"[""ZIP64 の終端レコードが無効です"", ""ZIP64 结束记录无效"", ""ZIP64 종료 레코드가 유효하지 않습니다"", ""invalid ZIP64 end record""]","locate/en-US.json!domains.theme.package.zip64End
+locate/ja-JP.json!domains.theme.package.zip64End
+locate/ko-KR.json!domains.theme.package.zip64End
+locate/zh-CN.json!domains.theme.package.zip64End
+src/ui/src/LocalizedThemeMessages.hpp:89",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,package.zip64Local,"[""ZIP64 のローカルエントリーが無効です"", ""ZIP64 本地条目无效"", ""ZIP64 로컬 항목이 유효하지 않습니다"", ""invalid ZIP64 local entry""]","locate/en-US.json!domains.theme.package.zip64Local
+locate/ja-JP.json!domains.theme.package.zip64Local
+locate/ko-KR.json!domains.theme.package.zip64Local
+locate/zh-CN.json!domains.theme.package.zip64Local
+src/ui/src/LocalizedThemeMessages.hpp:104",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,package.zipBounds,"[""unsupported ZIP disk or central directory bounds"", ""不支持的 ZIP 磁盘或中央目录边界"", ""未対応の ZIP ディスクまたは中央ディレクトリの範囲です"", ""지원하지 않는 ZIP 디스크 또는 중앙 디렉터리 범위입니다""]","locate/en-US.json!domains.theme.package.zipBounds
+locate/ja-JP.json!domains.theme.package.zipBounds
+locate/ko-KR.json!domains.theme.package.zipBounds
+locate/zh-CN.json!domains.theme.package.zipBounds
+src/ui/src/LocalizedThemeMessages.hpp:90",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,package.zipCentral,"[""ZIP の中央レコードが無効です"", ""ZIP 中央记录无效"", ""ZIP 중앙 레코드가 유효하지 않습니다"", ""invalid ZIP central record""]","locate/en-US.json!domains.theme.package.zipCentral
+locate/ja-JP.json!domains.theme.package.zipCentral
+locate/ko-KR.json!domains.theme.package.zipCentral
+locate/zh-CN.json!domains.theme.package.zipCentral
+src/ui/src/LocalizedThemeMessages.hpp:91",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,package.zipCentralTruncated,"[""ZIP の中央エントリーが途切れています"", ""ZIP 中央条目被截断"", ""ZIP 중앙 항목이 잘렸습니다"", ""truncated ZIP central entry""]","locate/en-US.json!domains.theme.package.zipCentralTruncated
+locate/ja-JP.json!domains.theme.package.zipCentralTruncated
+locate/ko-KR.json!domains.theme.package.zipCentralTruncated
+locate/zh-CN.json!domains.theme.package.zipCentralTruncated
+src/ui/src/LocalizedThemeMessages.hpp:92",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,package.zipEnd,"[""ZIP end record missing"", ""ZIP の終端レコードがありません"", ""ZIP 结束记录缺失"", ""ZIP 종료 레코드가 없습니다""]","locate/en-US.json!domains.theme.package.zipEnd
+locate/ja-JP.json!domains.theme.package.zipEnd
+locate/ko-KR.json!domains.theme.package.zipEnd
+locate/zh-CN.json!domains.theme.package.zipEnd
+src/ui/src/LocalizedThemeMessages.hpp:87",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,package.zipMethod,"[""unsupported ZIP encryption or method"", ""不支持的 ZIP 加密或压缩方式"", ""未対応の ZIP 暗号化または圧縮方式です"", ""지원하지 않는 ZIP 암호화 또는 압축 방식입니다""]","locate/en-US.json!domains.theme.package.zipMethod
+locate/ja-JP.json!domains.theme.package.zipMethod
+locate/ko-KR.json!domains.theme.package.zipMethod
+locate/zh-CN.json!domains.theme.package.zipMethod
+src/ui/src/LocalizedThemeMessages.hpp:95",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,package.zipPath,"[""ZIP パスが安全でない、未対応、または重複しています：{detail}"", ""ZIP 路径不安全、不支持或重复：{detail}"", ""ZIP 경로가 안전하지 않거나 지원되지 않거나 중복됩니다: {detail}"", ""unsafe, unsupported, or duplicate ZIP path: {detail}""]","locate/en-US.json!domains.theme.package.zipPath
+locate/ja-JP.json!domains.theme.package.zipPath
+locate/ko-KR.json!domains.theme.package.zipPath
+locate/zh-CN.json!domains.theme.package.zipPath
+src/ui/src/LocalizedThemeMessages.hpp:94",{detail},原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,package.zipSymlink,"[""ZIP symbolic links are not allowed"", ""ZIP のシンボリックリンクは許可されていません"", ""ZIP 不允许符号链接"", ""ZIP 심볼릭 링크는 허용되지 않습니다""]","locate/en-US.json!domains.theme.package.zipSymlink
+locate/ja-JP.json!domains.theme.package.zipSymlink
+locate/ko-KR.json!domains.theme.package.zipSymlink
+locate/zh-CN.json!domains.theme.package.zipSymlink
+src/ui/src/LocalizedThemeMessages.hpp:97",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,package.zlibInit,"[""zlib init failed"", ""zlib の初期化に失敗しました"", ""zlib 初始化失败"", ""zlib 초기화 실패""]","locate/en-US.json!domains.theme.package.zlibInit
+locate/ja-JP.json!domains.theme.package.zlibInit
+locate/ko-KR.json!domains.theme.package.zlibInit
+locate/zh-CN.json!domains.theme.package.zlibInit
+src/ui/src/LocalizedThemeMessages.hpp:82",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,preview,"[""Preview"", ""プレビュー"", ""预览"", ""미리 보기""]","locate/en-US.json!domains.theme.preview
+locate/ja-JP.json!domains.theme.preview
+locate/ko-KR.json!domains.theme.preview
+locate/zh-CN.json!domains.theme.preview
+src/ui/src/ThemeManagementDialog.cpp:177",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,preview.cancel,"[""Cancel preview"", ""プレビューをキャンセル"", ""取消预览"", ""미리 보기 취소""]","locate/en-US.json!domains.theme.preview.cancel
+locate/ja-JP.json!domains.theme.preview.cancel
+locate/ko-KR.json!domains.theme.preview.cancel
+locate/zh-CN.json!domains.theme.preview.cancel
+src/ui/src/ThemeManagementDialog.cpp:179",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,repeat.no-repeat,"[""No tiling"", ""タイル表示なし"", ""不平铺"", ""타일 배치 안 함""]","locate/en-US.json!domains.theme.repeat.no-repeat
+locate/ja-JP.json!domains.theme.repeat.no-repeat
+locate/ko-KR.json!domains.theme.repeat.no-repeat
+locate/zh-CN.json!domains.theme.repeat.no-repeat
+src/ui/src/ThemeManagementDialog.cpp:106",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,repeat.repeat,"[""Tile both axes"", ""双向平铺"", ""縦横にタイル表示"", ""양방향 타일 배치""]","locate/en-US.json!domains.theme.repeat.repeat
+locate/ja-JP.json!domains.theme.repeat.repeat
+locate/ko-KR.json!domains.theme.repeat.repeat
+locate/zh-CN.json!domains.theme.repeat.repeat
+src/ui/src/ThemeManagementDialog.cpp:107",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,repeat.repeat-x,"[""Tile horizontally"", ""横向平铺"", ""横方向にタイル表示"", ""가로 타일 배치""]","locate/en-US.json!domains.theme.repeat.repeat-x
+locate/ja-JP.json!domains.theme.repeat.repeat-x
+locate/ko-KR.json!domains.theme.repeat.repeat-x
+locate/zh-CN.json!domains.theme.repeat.repeat-x
+src/ui/src/ThemeManagementDialog.cpp:108",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,repeat.repeat-y,"[""Tile vertically"", ""縦方向にタイル表示"", ""纵向平铺"", ""세로 타일 배치""]","locate/en-US.json!domains.theme.repeat.repeat-y
+locate/ja-JP.json!domains.theme.repeat.repeat-y
+locate/ko-KR.json!domains.theme.repeat.repeat-y
+locate/zh-CN.json!domains.theme.repeat.repeat-y
+src/ui/src/ThemeManagementDialog.cpp:109",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,scope.meter-bridge,"[""Meter bridge"", ""メーターブリッジ"", ""电平表桥"", ""미터 브리지""]","locate/en-US.json!domains.theme.scope.meter-bridge
+locate/ja-JP.json!domains.theme.scope.meter-bridge
+locate/ko-KR.json!domains.theme.scope.meter-bridge
+locate/zh-CN.json!domains.theme.scope.meter-bridge
+src/ui/src/ThemeManagementDialog.cpp:232",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,scope.mixer,"[""Mixer"", ""ミキサー"", ""调音台"", ""믹서""]","locate/en-US.json!domains.theme.scope.mixer
+locate/ja-JP.json!domains.theme.scope.mixer
+locate/ko-KR.json!domains.theme.scope.mixer
+locate/zh-CN.json!domains.theme.scope.mixer
+src/ui/src/ThemeManagementDialog.cpp:226",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,scope.mixer-overview,"[""Mixer overview"", ""ミキサー全体表示"", ""调音台总览"", ""믹서 개요""]","locate/en-US.json!domains.theme.scope.mixer-overview
+locate/ja-JP.json!domains.theme.scope.mixer-overview
+locate/ko-KR.json!domains.theme.scope.mixer-overview
+locate/zh-CN.json!domains.theme.scope.mixer-overview
+src/ui/src/ThemeManagementDialog.cpp:227",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,scope.patchbay,"[""Patchbay"", ""パッチベイ"", ""接线盘"", ""패치베이""]","locate/en-US.json!domains.theme.scope.patchbay
+locate/ja-JP.json!domains.theme.scope.patchbay
+locate/ko-KR.json!domains.theme.scope.patchbay
+locate/zh-CN.json!domains.theme.scope.patchbay
+src/ui/src/ThemeManagementDialog.cpp:225",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,scope.sel-aux,"[""Aux mixer"", ""Aux ミキサー"", ""辅助调音台"", ""보조 믹서""]","locate/en-US.json!domains.theme.scope.sel-aux
+locate/ja-JP.json!domains.theme.scope.sel-aux
+locate/ko-KR.json!domains.theme.scope.sel-aux
+locate/zh-CN.json!domains.theme.scope.sel-aux
+src/ui/src/ThemeManagementDialog.cpp:230",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,scope.sel-fx,"[""FX mixer"", ""FX ミキサー"", ""FX 믹서"", ""效果调音台""]","locate/en-US.json!domains.theme.scope.sel-fx
+locate/ja-JP.json!domains.theme.scope.sel-fx
+locate/ko-KR.json!domains.theme.scope.sel-fx
+locate/zh-CN.json!domains.theme.scope.sel-fx
+src/ui/src/ThemeManagementDialog.cpp:231",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,scope.sel-main,"[""Main mixer"", ""メインミキサー"", ""主调音台"", ""메인 믹서""]","locate/en-US.json!domains.theme.scope.sel-main
+locate/ja-JP.json!domains.theme.scope.sel-main
+locate/ko-KR.json!domains.theme.scope.sel-main
+locate/zh-CN.json!domains.theme.scope.sel-main
+src/ui/src/ThemeManagementDialog.cpp:228",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,scope.sel-monitor,"[""Monitor mixer"", ""モニターミキサー"", ""监听调音台"", ""모니터 믹서""]","locate/en-US.json!domains.theme.scope.sel-monitor
+locate/ja-JP.json!domains.theme.scope.sel-monitor
+locate/ko-KR.json!domains.theme.scope.sel-monitor
+locate/zh-CN.json!domains.theme.scope.sel-monitor
+src/ui/src/ThemeManagementDialog.cpp:229",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,size.contain,"[""Fit inside"", ""内側に収める"", ""完整适配"", ""영역 안에 맞추기""]","locate/en-US.json!domains.theme.size.contain
+locate/ja-JP.json!domains.theme.size.contain
+locate/ko-KR.json!domains.theme.size.contain
+locate/zh-CN.json!domains.theme.size.contain
+src/ui/src/ThemeManagementDialog.cpp:103",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,size.cover,"[""Fill and crop"", ""全体を覆って切り抜く"", ""填满并裁切"", ""채우고 자르기""]","locate/en-US.json!domains.theme.size.cover
+locate/ja-JP.json!domains.theme.size.cover
+locate/ko-KR.json!domains.theme.size.cover
+locate/zh-CN.json!domains.theme.size.cover
+src/ui/src/ThemeManagementDialog.cpp:104",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,size.original,"[""Original size"", ""元のサイズ"", ""原始大小"", ""원본 크기""]","locate/en-US.json!domains.theme.size.original
+locate/ja-JP.json!domains.theme.size.original
+locate/ko-KR.json!domains.theme.size.original
+locate/zh-CN.json!domains.theme.size.original
+src/ui/src/ThemeManagementDialog.cpp:102",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,size.stretch,"[""Stretch"", ""引き伸ばす"", ""拉伸"", ""늘이기""]","locate/en-US.json!domains.theme.size.stretch
+locate/ja-JP.json!domains.theme.size.stretch
+locate/ko-KR.json!domains.theme.size.stretch
+locate/zh-CN.json!domains.theme.size.stretch
+src/ui/src/ThemeManagementDialog.cpp:105",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,status.backgroundApplied,"[""Background settings applied"", ""背景設定を適用しました"", ""背景设置已应用"", ""배경 설정이 적용되었습니다""]","locate/en-US.json!domains.theme.status.backgroundApplied
+locate/ja-JP.json!domains.theme.status.backgroundApplied
+locate/ko-KR.json!domains.theme.status.backgroundApplied
+locate/zh-CN.json!domains.theme.status.backgroundApplied
+src/ui/src/ThemeManagementDialog.cpp:418",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,status.colorApplied,"[""Color applied"", ""色を適用しました"", ""颜色已应用"", ""색상이 적용되었습니다""]","locate/en-US.json!domains.theme.status.colorApplied
+locate/ja-JP.json!domains.theme.status.colorApplied
+locate/ko-KR.json!domains.theme.status.colorApplied
+locate/zh-CN.json!domains.theme.status.colorApplied
+src/ui/src/ThemeManagementDialog.cpp:388",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,status.exported,"[""Theme package exported"", ""テーマパッケージをエクスポートしました"", ""主题包已导出"", ""테마 패키지를 내보냈습니다""]","locate/en-US.json!domains.theme.status.exported
+locate/ja-JP.json!domains.theme.status.exported
+locate/ko-KR.json!domains.theme.status.exported
+locate/zh-CN.json!domains.theme.status.exported
+src/ui/src/ThemeManagementDialog.cpp:430",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,tab.background,"[""Background"", ""背景"", ""배경""]","locate/en-US.json!domains.theme.tab.background
+locate/ja-JP.json!domains.theme.tab.background
+locate/ko-KR.json!domains.theme.tab.background
+locate/zh-CN.json!domains.theme.tab.background
+src/ui/src/ThemeManagementDialog.cpp:293",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,tab.colors,"[""Colors and fonts"", ""色とフォント"", ""颜色与字体"", ""색상 및 글꼴""]","locate/en-US.json!domains.theme.tab.colors
+locate/ja-JP.json!domains.theme.tab.colors
+locate/ko-KR.json!domains.theme.tab.colors
+locate/zh-CN.json!domains.theme.tab.colors
+src/ui/src/ThemeManagementDialog.cpp:214",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,tab.export,"[""Export"", ""エクスポート"", ""导出"", ""내보내기""]","locate/en-US.json!domains.theme.tab.export
+locate/ja-JP.json!domains.theme.tab.export
+locate/ko-KR.json!domains.theme.tab.export
+locate/zh-CN.json!domains.theme.tab.export
 src/ui/src/ThemeManagementDialog.cpp:329",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,thememanagementdialog.label.author,"[""作者""]",src/ui/src/ThemeManagementDialog.cpp:220,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,thememanagementdialog.label.colorToken,"[""颜色 token""]",src/ui/src/ThemeManagementDialog.cpp:123,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,thememanagementdialog.label.colorValue,"[""颜色值""]",src/ui/src/ThemeManagementDialog.cpp:130,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,thememanagementdialog.label.description,"[""介绍""]",src/ui/src/ThemeManagementDialog.cpp:221,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,thememanagementdialog.label.fragmentNamespace,"[""片段命名空间""]",src/ui/src/ThemeManagementDialog.cpp:236,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,thememanagementdialog.label.fullTokenName,"[""完整 token 名""]",src/ui/src/ThemeManagementDialog.cpp:126,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,thememanagementdialog.label.homepage,"[""主页""]",src/ui/src/ThemeManagementDialog.cpp:222,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,thememanagementdialog.label.themeName,"[""主题名称""]",src/ui/src/ThemeManagementDialog.cpp:219,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,thememanagementdialog.section.background,"[""背景""]",src/ui/src/ThemeManagementDialog.cpp:211,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,thememanagementdialog.section.colorsAndFonts,"[""颜色与字体""]",src/ui/src/ThemeManagementDialog.cpp:141,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,thememanagementdialog.section.moduleArea,"[""模块区域""]",src/ui/src/ThemeManagementDialog.cpp:152,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,thememanagementdialog.section.themesAndDiagnostics,"[""主题与诊断""]",src/ui/src/ThemeManagementDialog.cpp:112,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,thememanagementdialog.status.backgroundApplied,"[""背景设置已应用""]",src/ui/src/ThemeManagementDialog.cpp:320,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,thememanagementdialog.status.colorApplied,"[""颜色已应用""]",src/ui/src/ThemeManagementDialog.cpp:290,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,thememanagementdialog.status.notProvided,"[""未提供""]",src/ui/src/ThemeManagementDialog.cpp:575,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,thememanagementdialog.status.themeExported,"[""主题包已导出""]",src/ui/src/ThemeManagementDialog.cpp:332,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,thememanagementdialog.text.built.in.default.appearance,"[""Built-in default appearance""]","src/ui/src/ThemeManagementDialog.cpp:253
-src/ui/src/ThemeManagementDialog.cpp:572",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,thememanagementdialog.tooltip.overlayTransparentImage,"[""上层覆盖模式：透明背景图片最佳""]",src/ui/src/ThemeManagementDialog.cpp:205,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,thememanagementdialog.tooltip.themeMetadata,"[""%1\\n作者：%2\\n%3\\n主页：%4""]",src/ui/src/ThemeManagementDialog.cpp:574,"%1,%2,%3,%4",原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,thememanager.text.theme.font.contains.multiple.families.using.the.first,"[""Theme font contains multiple families; using the first""]",src/ui/src/ThemeManager.cpp:161,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,thememanager.text.theme.font.registration.failed.using.system.font,"[""Theme font registration failed; using system font""]",src/ui/src/ThemeManager.cpp:155,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,thememanager.text.theme.font.resource.is.missing.using.system.font,"[""Theme font resource is missing; using system font""]",src/ui/src/ThemeManager.cpp:143,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themenamespaceregistry.text.background.overlay.capability.must.be.boolean,"[""background overlay capability must be boolean""]",src/ui/src/ThemeNamespaceRegistry.cpp:95,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themenamespaceregistry.text.binding.index.changed.while.still.registered,"[""binding index changed while still registered""]",src/ui/src/ThemeNamespaceRegistry.cpp:335,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themenamespaceregistry.text.conflicting.module.descriptor.or.owner,"[""conflicting module descriptor or owner: ""]",src/ui/src/ThemeNamespaceRegistry.cpp:339,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themenamespaceregistry.text.control.states.are.missing,"[""control states are missing""]",src/ui/src/ThemeNamespaceRegistry.cpp:59,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themenamespaceregistry.text.descriptor.default.has.wrong.type,"[""descriptor default has wrong type: ""]",src/ui/src/ThemeNamespaceRegistry.cpp:214,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themenamespaceregistry.text.descriptor.disagrees.with.frozen.built.in.token,"[""descriptor disagrees with frozen built-in token: ""]",src/ui/src/ThemeNamespaceRegistry.cpp:220,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themenamespaceregistry.text.descriptor.inheritance.is.missing.mismatched.or.cyclic,"[""descriptor inheritance is missing, mismatched, or cyclic: ""]",src/ui/src/ThemeNamespaceRegistry.cpp:204,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themenamespaceregistry.text.descriptor.is.not.bounded.utf,"[""descriptor is not bounded UTF-8""]",src/ui/src/ThemeNamespaceRegistry.cpp:103,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themenamespaceregistry.text.descriptor.token.is.not.an.object,"[""descriptor token is not an object""]",src/ui/src/ThemeNamespaceRegistry.cpp:148,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themenamespaceregistry.text.descriptor.variable.has.wrong.type,"[""descriptor variable has wrong type: ""]",src/ui/src/ThemeNamespaceRegistry.cpp:212,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themenamespaceregistry.text.duplicate.module.or.namespace.inside.one.export.table,"[""duplicate module or namespace inside one export table""]",src/ui/src/ThemeNamespaceRegistry.cpp:330,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themenamespaceregistry.text.has.invalid.description,"["" has invalid description""]",src/ui/src/ThemeNamespaceRegistry.cpp:55,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themenamespaceregistry.text.has.invalid.or.duplicate.id,"["" has invalid or duplicate ID""]",src/ui/src/ThemeNamespaceRegistry.cpp:52,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themenamespaceregistry.text.incomplete.or.unsupported.native.fx.theme.exports,"[""incomplete or unsupported Native Fx theme exports""]",src/ui/src/ThemeNamespaceRegistry.cpp:269,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themenamespaceregistry.text.incomplete.or.unsupported.node.theme.exports,"[""incomplete or unsupported Node theme exports""]",src/ui/src/ThemeNamespaceRegistry.cpp:296,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themenamespaceregistry.text.invalid.descriptor.identity.or.namespace,"[""invalid descriptor identity or namespace""]",src/ui/src/ThemeNamespaceRegistry.cpp:118,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themenamespaceregistry.text.invalid.descriptor.json,"[""invalid descriptor JSON: ""]",src/ui/src/ThemeNamespaceRegistry.cpp:107,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themenamespaceregistry.text.invalid.descriptor.source,"[""invalid descriptor source""]",src/ui/src/ThemeNamespaceRegistry.cpp:321,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themenamespaceregistry.text.invalid.descriptor.token,"[""invalid descriptor token: ""]",src/ui/src/ThemeNamespaceRegistry.cpp:163,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themenamespaceregistry.text.invalid.descriptor.token.count,"[""invalid descriptor token count""]",src/ui/src/ThemeNamespaceRegistry.cpp:128,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themenamespaceregistry.text.invalid.meter.range.or.unit,"[""invalid meter range or unit""]",src/ui/src/ThemeNamespaceRegistry.cpp:74,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themenamespaceregistry.text.invalid.meter.zone.id.or.boundary,"[""invalid meter zone ID or boundary""]",src/ui/src/ThemeNamespaceRegistry.cpp:87,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themenamespaceregistry.text.invalid.meter.zones,"[""invalid meter zones""]",src/ui/src/ThemeNamespaceRegistry.cpp:77,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themenamespaceregistry.text.invalid.native.fx.count.or.metadata.exports,"[""invalid Native Fx count or metadata exports""]",src/ui/src/ThemeNamespaceRegistry.cpp:273,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themenamespaceregistry.text.invalid.node.count.export,"[""invalid Node count export""]",src/ui/src/ThemeNamespaceRegistry.cpp:299,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themenamespaceregistry.text.invalid.or.duplicate.control.state,"[""invalid or duplicate control state""]",src/ui/src/ThemeNamespaceRegistry.cpp:65,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themenamespaceregistry.text.invalid.registration.target,"[""invalid registration target""]","src/ui/src/ThemeNamespaceRegistry.cpp:261
-src/ui/src/ThemeNamespaceRegistry.cpp:289
-src/ui/src/ThemeNamespaceRegistry.cpp:312",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themenamespaceregistry.text.invalid.token.parent,"[""invalid token parent: ""]",src/ui/src/ThemeNamespaceRegistry.cpp:170,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themenamespaceregistry.text.item.is.not.an.object,"["" item is not an object""]",src/ui/src/ThemeNamespaceRegistry.cpp:48,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themenamespaceregistry.text.meter.zone.is.not.an.object,"[""meter zone is not an object""]",src/ui/src/ThemeNamespaceRegistry.cpp:81,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themenamespaceregistry.text.meter.zones.do.not.reach.maximum,"[""meter zones do not reach maximum""]",src/ui/src/ThemeNamespaceRegistry.cpp:91,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themenamespaceregistry.text.must.be.a.bounded.array,"["" must be a bounded array""]",src/ui/src/ThemeNamespaceRegistry.cpp:45,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themenamespaceregistry.text.namespace.already.owned.by.another.module,"[""namespace already owned by another module: ""]",src/ui/src/ThemeNamespaceRegistry.cpp:343,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themenamespaceregistry.text.native.fx.descriptor.id.does.not.match.metadata.index,"[""Native Fx descriptor ID does not match metadata index""]",src/ui/src/ThemeNamespaceRegistry.cpp:282,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themenamespaceregistry.text.native.fx.namespace.does.not.match.module.id,"[""Native Fx namespace does not match module ID""]",src/ui/src/ThemeNamespaceRegistry.cpp:121,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themenamespaceregistry.text.node.namespace.must.be.module.scoped.or.shared.native.fx,"[""Node namespace must be module-scoped or shared Native Fx""]",src/ui/src/ThemeNamespaceRegistry.cpp:124,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themenamespaceregistry.text.token.inherits.must.be.an.array,"[""token inherits must be an array: ""]",src/ui/src/ThemeNamespaceRegistry.cpp:166,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themenamespaceregistry.text.token.values.must.be.an.object.or.array,"[""token values must be an object or array: ""]",src/ui/src/ThemeNamespaceRegistry.cpp:177,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themenamespaceregistry.text.undefined.image.has.no.parent,"[""undefined image has no parent: ""]",src/ui/src/ThemeNamespaceRegistry.cpp:174,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themenamespaceregistry.text.unsupported.descriptor.or.theme.api.version,"[""unsupported descriptor or theme API version""]",src/ui/src/ThemeNamespaceRegistry.cpp:111,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themepackage.text.asset.map.contains.a.non.asset.zip.name,"[""asset map contains a non-asset ZIP name""]",src/ui/src/ThemePackage.cpp:539,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themepackage.text.cannot.open.theme.package,"[""cannot open theme package: ""]",src/ui/src/ThemePackage.cpp:430,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themepackage.text.cannot.read.dev.theme.entry,"[""cannot read Dev theme entry: ""]",src/ui/src/ThemePackage.cpp:470,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themepackage.text.cannot.read.imported.asset.or.it.exceeds.mib,"[""cannot read imported asset or it exceeds 16 MiB""]",src/ui/src/ThemePackage.cpp:560,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themepackage.text.cannot.write.theme.package,"[""cannot write theme package: ""]",src/ui/src/ThemePackage.cpp:578,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themepackage.text.combined.css.exceeds.mib,"[""combined CSS exceeds 1 MiB""]",src/ui/src/ThemePackage.cpp:518,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themepackage.text.default.theme.dll.api.is.incompatible,"[""default theme DLL API is incompatible""]",src/ui/src/ThemePackage.cpp:491,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themepackage.text.default.theme.dll.has.no.valid.package.data,"[""default theme DLL has no valid package data""]",src/ui/src/ThemePackage.cpp:495,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themepackage.text.deflate.stream.is.truncated.or.malformed,"[""deflate stream is truncated or malformed""]",src/ui/src/ThemePackage.cpp:217,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themepackage.text.dev.theme.entry.changed.while.reading,"[""Dev theme entry changed while reading: ""]",src/ui/src/ThemePackage.cpp:472,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themepackage.text.dev.theme.entry.exceeds.size.budget,"[""Dev theme entry exceeds size budget: ""]",src/ui/src/ThemePackage.cpp:468,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themepackage.text.dev.theme.exceeds.package.budget,"[""Dev theme exceeds package budget""]",src/ui/src/ThemePackage.cpp:474,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themepackage.text.directory.has.content,"[""directory has content""]",src/ui/src/ThemePackage.cpp:302,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themepackage.text.duplicate.or.excessive.dev.theme.entries,"[""duplicate or excessive Dev theme entries""]",src/ui/src/ThemePackage.cpp:462,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themepackage.text.entry.name.is.not.utf,"[""entry name is not UTF-8""]",src/ui/src/ThemePackage.cpp:285,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themepackage.text.expanded.entry.exceeded.declared.size,"[""expanded entry exceeded declared size""]",src/ui/src/ThemePackage.cpp:209,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themepackage.text.expanded.package.budget.exceeded,"[""expanded package budget exceeded""]",src/ui/src/ThemePackage.cpp:366,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themepackage.text.invalid.logical.asset.path,"[""invalid logical asset path""]",src/ui/src/ThemePackage.cpp:557,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themepackage.text.invalid.module.css.path,"[""invalid module CSS path: ""]",src/ui/src/ThemePackage.cpp:542,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themepackage.text.invalid.or.duplicate.namespace,"[""invalid or duplicate namespace""]",src/ui/src/ThemePackage.cpp:158,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themepackage.text.invalid.preview.path,"[""invalid preview path""]",src/ui/src/ThemePackage.cpp:167,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themepackage.text.invalid.source.theme.or.result,"[""invalid source theme or result""]",src/ui/src/ThemePackage.cpp:555,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themepackage.text.invalid.theme.homepage,"[""invalid theme homepage""]",src/ui/src/ThemePackage.cpp:148,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themepackage.text.invalid.theme.id,"[""invalid theme id""]",src/ui/src/ThemePackage.cpp:132,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themepackage.text.invalid.theme.kind,"[""invalid theme kind""]",src/ui/src/ThemePackage.cpp:151,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themepackage.text.invalid.theme.or.output,"[""invalid theme or output""]",src/ui/src/ThemePackage.cpp:570,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themepackage.text.invalid.theme.version,"[""invalid theme version""]",src/ui/src/ThemePackage.cpp:134,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themepackage.text.invalid.zip.central.record,"[""invalid ZIP central record""]",src/ui/src/ThemePackage.cpp:268,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themepackage.text.invalid.zip.data.descriptor,"[""invalid ZIP data descriptor""]",src/ui/src/ThemePackage.cpp:358,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themepackage.text.invalid.zip.local.header,"[""invalid ZIP local header""]",src/ui/src/ThemePackage.cpp:322,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themepackage.text.invalid.zip64.central.entry,"[""invalid ZIP64 central entry""]",src/ui/src/ThemePackage.cpp:299,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themepackage.text.invalid.zip64.end.record,"[""invalid ZIP64 end record""]",src/ui/src/ThemePackage.cpp:250,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themepackage.text.invalid.zip64.local.entry,"[""invalid ZIP64 local entry""]",src/ui/src/ThemePackage.cpp:346,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themepackage.text.meta.json.is.not.a.json.object,"[""meta.json is not a JSON object""]",src/ui/src/ThemePackage.cpp:123,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themepackage.text.meta.json.is.not.utf,"[""meta.json is not UTF-8""]",src/ui/src/ThemePackage.cpp:119,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themepackage.text.meta.json.size.is.invalid,"[""meta.json size is invalid""]",src/ui/src/ThemePackage.cpp:117,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themepackage.text.missing.namespaces,"[""missing namespaces""]",src/ui/src/ThemePackage.cpp:153,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themepackage.text.module.css.is.empty.or.not.utf,"[""module CSS is empty or not UTF-8: ""]",src/ui/src/ThemePackage.cpp:513,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themepackage.text.multi.disk.zip64.is.unsupported,"[""multi-disk ZIP64 is unsupported""]",src/ui/src/ThemePackage.cpp:242,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themepackage.text.null.theme.result,"[""null theme result""]","src/ui/src/ThemePackage.cpp:428
-src/ui/src/ThemePackage.cpp:437
-src/ui/src/ThemePackage.cpp:483
-src/ui/src/ThemePackage.cpp:499
-src/ui/src/ThemePackage.cpp:536",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themepackage.text.package.size.is.outside.bytes.mib,"[""package size is outside 22 bytes..32 MiB""]",src/ui/src/ThemePackage.cpp:225,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themepackage.text.preview.asset.is.missing,"[""preview asset is missing""]",src/ui/src/ThemePackage.cpp:520,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themepackage.text.required.default.theme.dll.is.unavailable,"[""required default theme DLL is unavailable: ""]",src/ui/src/ThemePackage.cpp:486,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themepackage.text.stored.entry.size.mismatch,"[""stored entry size mismatch""]",src/ui/src/ThemePackage.cpp:185,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themepackage.text.style.css.is.empty.or.not.utf,"[""style.css is empty or not UTF-8""]",src/ui/src/ThemePackage.cpp:506,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themepackage.text.theme.directory.is.missing.or.linked,"[""theme directory is missing or linked""]",src/ui/src/ThemePackage.cpp:439,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themepackage.text.theme.homepage.is.missing,"[""theme homepage is missing""]",src/ui/src/ThemePackage.cpp:141,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themepackage.text.theme.name.author.description.is.invalid,"[""theme name/author/description is invalid""]",src/ui/src/ThemePackage.cpp:140,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themepackage.text.theme.package.exceeds.mib,"[""theme package exceeds 32 MiB""]",src/ui/src/ThemePackage.cpp:431,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themepackage.text.too.many.zip.entries,"[""too many ZIP entries""]",src/ui/src/ThemePackage.cpp:375,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themepackage.text.truncated.zip.central.entry,"[""truncated ZIP central entry""]",src/ui/src/ThemePackage.cpp:282,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themepackage.text.unsafe.unsupported.or.duplicate.zip.path,"[""unsafe, unsupported, or duplicate ZIP path: ""]",src/ui/src/ThemePackage.cpp:288,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themepackage.text.unsupported.dev.theme.entry,"[""unsupported Dev theme entry: ""]",src/ui/src/ThemePackage.cpp:460,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themepackage.text.unsupported.theme.format.api.version,"[""unsupported theme format/API version""]",src/ui/src/ThemePackage.cpp:126,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themepackage.text.unsupported.zip.disk.or.central.directory.bounds,"[""unsupported ZIP disk or central directory bounds""]",src/ui/src/ThemePackage.cpp:259,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themepackage.text.unsupported.zip.encryption.or.method,"[""unsupported ZIP encryption or method""]",src/ui/src/ThemePackage.cpp:291,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themepackage.text.zip.crc.mismatch,"[""ZIP CRC mismatch: ""]",src/ui/src/ThemePackage.cpp:220,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themepackage.text.zip.end.record.missing,"[""ZIP end record missing""]",src/ui/src/ThemePackage.cpp:234,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themepackage.text.zip.entries.overlap,"[""ZIP entries overlap""]",src/ui/src/ThemePackage.cpp:371,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themepackage.text.zip.entry.overlaps.central.directory,"[""ZIP entry overlaps central directory""]",src/ui/src/ThemePackage.cpp:361,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themepackage.text.zip.local.central.flags.differ,"[""ZIP local/central flags differ""]",src/ui/src/ThemePackage.cpp:324,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themepackage.text.zip.local.central.sizes.differ,"[""ZIP local/central sizes differ""]",src/ui/src/ThemePackage.cpp:349,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themepackage.text.zip.local.name.or.data.bounds.differ,"[""ZIP local name or data bounds differ""]",src/ui/src/ThemePackage.cpp:332,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themepackage.text.zip.output.exceeds.mib,"[""ZIP output exceeds 32 MiB""]",src/ui/src/ThemePackage.cpp:409,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themepackage.text.zip.output.exceeds.size.budget,"[""ZIP output exceeds size budget""]",src/ui/src/ThemePackage.cpp:385,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themepackage.text.zip.resource.budget.exceeded,"[""ZIP resource budget exceeded: ""]",src/ui/src/ThemePackage.cpp:308,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themepackage.text.zip.root.layout.is.incomplete,"[""ZIP root layout is incomplete""]",src/ui/src/ThemePackage.cpp:316,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themepackage.text.zip.symbolic.links.are.not.allowed,"[""ZIP symbolic links are not allowed""]",src/ui/src/ThemePackage.cpp:301,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
-theme,themepackage.text.zlib.init.failed,"[""zlib init failed""]",src/ui/src/ThemePackage.cpp:191,,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,tab.overview,"[""Theme and diagnostics"", ""テーマと診断"", ""主题与诊断"", ""테마 및 진단""]","locate/en-US.json!domains.theme.tab.overview
+locate/ja-JP.json!domains.theme.tab.overview
+locate/ko-KR.json!domains.theme.tab.overview
+locate/zh-CN.json!domains.theme.tab.overview
+src/ui/src/ThemeManagementDialog.cpp:183",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
+theme,title,"[""Theme management"", ""テーマ管理"", ""主题管理"", ""테마 관리""]","locate/en-US.json!domains.theme.title
+locate/ja-JP.json!domains.theme.title
+locate/ko-KR.json!domains.theme.title
+locate/zh-CN.json!domains.theme.title
+src/ui/src/ThemeManagementDialog.cpp:155",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,未实施（S0 清单）,Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校
 ui,chart.hoverTime,"[""Time %1"", ""时间 %1"", ""時刻 %1"", ""시간 %1""]","locate/en-US.json!domains.ui.chart.hoverTime
 locate/ja-JP.json!domains.ui.chart.hoverTime
 locate/ko-KR.json!domains.ui.chart.hoverTime
@@ -5450,5 +6398,3 @@ vst,module.name,"[""VST Plugin"", ""VST プラグイン"", ""VST 插件"", ""VST
 src/vst/locate/ja-JP.json!domains.vst.module.name
 src/vst/locate/ko-KR.json!domains.vst.module.name
 src/vst/locate/zh-CN.json!domains.vst.module.name",,元数据/语言包显示，布局度量并保留完整 tooltip,语言包项见根目录 i18n翻译核对.md；其它未实施（S0 清单）,描述符/内置主题/语言包的显示角色；身份字段不变
-theme,defaultTheme.name,"[""WinJACKNexus 默认主题""]",themes/template/winjacknexus-default.wjnskin!meta.json!name,,元数据/语言包显示，布局度量并保留完整 tooltip,语言包项见根目录 i18n翻译核对.md；其它未实施（S0 清单）,描述符/内置主题/语言包的显示角色；身份字段不变
-theme,defaultTheme.description,"[""当前内置外观的完整模块级颜色、图表、电平与背景默认值。""]",themes/template/winjacknexus-default.wjnskin!meta.json!description,,元数据/语言包显示，布局度量并保留完整 tooltip,语言包项见根目录 i18n翻译核对.md；其它未实施（S0 清单）,描述符/内置主题/语言包的显示角色；身份字段不变

@@ -145,6 +145,25 @@ def s5_call(r):
     return None
 
 def s6_call(r):
+    if r['file'] in ('src/ui/src/ThemeManagementDialog.cpp', 'src/ui/src/LocalizedThemeDialogs.hpp'):
+        # Helpers accept different first arguments, but the reviewed literal
+        # English/key pair remains on the same line as the extracted occurrence.
+        rows = list(csv.DictReader((OUT/'S6-theme-ui-strings.tsv').open(encoding='utf-8'), delimiter='\t'))
+        for row in rows:
+            if '"'+row['key']+'"' not in r['context']:
+                continue
+            if r['literal'] == row['key']:
+                return 'exclude', 'theme', row['key']
+            if r['literal'] == json.dumps(row['en-US'],ensure_ascii=False)[1:-1]:
+                return 'translate', 'theme', row['key']
+    if r['file'] == 'src/ui/src/LocalizedThemeMessages.hpp':
+        match = re.match(r'\{\s*"([^"]+)"\s*,\s*"((?:\\.|[^"\\])*)"\s*,\s*"((?:\\.|[^"\\])*)"\s*\}', r['context'])
+        if match:
+            key, original, english = match.groups()
+            if r['literal'] == english:
+                return 'translate', 'theme', key
+            if r['literal'] in (key, original):
+                return 'exclude', 'theme', key
     if r['file'] == 'src/ui/src/Controls.cpp':
         for domain, key, english in re.findall(
                 r'localizedText\(\s*"(ui)"\s*,\s*"([^"\n]+)"\s*,\s*"((?:\\.|[^"\\])*)"', r['context']):
@@ -179,6 +198,29 @@ def s6_call(r):
 
 def classify(r, decisions):
     text, ctx, file = r['literal'], r['context'], r['file']
+    if file == 'src/ui/src/LocalizedThemeMessages.hpp':
+        mapped = s6_call(r)
+        if mapped and mapped[0] == 'exclude':
+            return 'exclude','','Theme 显示适配器的稳定 key/canonical 匹配模板；实际 English 与四语言显示副本另列，不将原始 %1 与显示 detail 参数混为模板'
+    if file == 'src/ui/src/ThemeManagementDialog.cpp' and 'ThemeMessages::canonical(' in ctx:
+        rows = csv.DictReader((OUT/'S6-theme-ui-strings.tsv').open(encoding='utf-8'), delimiter='\t')
+        if any(row['key'].startswith('error.') and text == row['en-US'] for row in rows):
+            return 'exclude','','Theme authoring API 的 canonical English 错误；实际状态控件保存原文，通过 ThemeMessages::display 热刷新，完整显示模板已另列，禁止翻译 API payload'
+    if file == 'src/ui/src/ThemeManagementDialog.cpp' and text == 'Built-in default appearance' and 'identity.defaultDescription' not in ctx:
+        return 'exclude','','可编辑 description 的原始 metadata 缺省值；导出与用户内容保持，内置默认主题的只读显示由 theme/identity.defaultDescription 独立翻译'
+    if file in ('src/ui/src/ThemeCore.cpp','src/ui/src/ThemePackage.cpp','src/ui/src/ThemeNamespaceRegistry.cpp','src/ui/src/ThemeCatalog.cpp'):
+        for name in ('core','package-namespace','catalog'):
+            rows = csv.DictReader((OUT/f'S6-theme-{name}-strings.tsv').open(encoding='utf-8'),delimiter='\t')
+            if any(row['source_file'] == file and text == json.dumps(row['canonical'].replace('%1',''),ensure_ascii=False)[1:-1] for row in rows):
+                return 'exclude','','Theme 后台 canonical 诊断/错误来源；GUI 通过 LocalizedThemeMessages 对已知完整错误翻译副本，模型、校验、业务比较、日志及参数原样；实际带 detail 的 English 模板另列'
+    theme_non_display = {
+        'src/ui/src/ThemeCore.cpp': {'User overrides','Per-theme user preferences'},
+        'src/ui/src/ThemeCatalog.cpp': {': 默认主题由必需 DLL 提供',': 重复主题 ID ','（先发现 ',' (Dev)','无法恢复主题覆盖 ','主题已切换，但无法保存选择','无法恢复上次主题 '},
+        'src/ui/src/ThemeBackground.cpp': {'Image dimensions are invalid or exceed 64 million pixels','Scaled image exceeds 64 million pixels',': missing image resource'},
+        'src/ui/src/ThemeManager.cpp': {'Theme font resource is missing; using system font','Theme font registration failed; using system font','Theme font contains multiple families; using the first'},
+    }
+    if text in theme_non_display.get(file,set()):
+        return 'exclude','','逐调用链核对的内部包元数据、未被应用显示消费的诊断接口/缓存或 Dev 技术标记；具体消费者及保持策略见 S6-theme-diagnostic-boundaries.md，禁止语言变化修改原始数据'
     s6_runtime = s6_call(r)
     if file=='tools/vst_scanner/src/ProbeMain.cpp' and s6_runtime and s6_runtime[0]=='translate' and re.search(r'error\s*=\s*\{\s*"[^"\n]+"\s*\+',ctx):
         return 'exclude','','Probe English 传输回退的拼接前缀，不是完整翻译模板；当前 Scanner 通过同一稳定 key/原始参数显示带 %1 的完整模板（该调用点另列），旧消费端仍接收组装后的完整 English；不将前缀误当成无占位符模板'
@@ -374,7 +416,7 @@ def module_domain(r):
                 return 'nativefx.'+('gate','graphic_eq','deesser','compressor','limiter','delay','parametric_eq','reverb')[int(match[1])]
     if f.startswith('src/ui/'):
         name = Path(f).stem
-        if name.startswith('Theme'): return 'theme'
+        if name.startswith(('Theme','LocalizedTheme')): return 'theme'
         if name in ('MixerWindow','MixerOverview','MixerPolarPlot'): return 'mixer'
         if name == 'AuxSettingsWindow': return 'aux'
         if name.startswith('Fx'): return 'fxhost'
@@ -479,11 +521,11 @@ def main():
         ('themes/template/meta.json',json.loads((ROOT/'themes/template/meta.json').read_text(encoding='utf-8')),False)):
         for field,value in data.items():
             if isinstance(value,str):
-                display = runtime and field in ('name','description')
+                display = runtime and field == 'description'
                 resources.append({'file':file,'field':field,'source':value,'domain':'theme',
-                    'key':'defaultTheme.'+field if display else '',
+                    'key':'identity.defaultDescription' if display else '',
                     'disposition':'translate' if display else 'exclude',
-                    'reason':'发行内置主题显示元数据' if display else '用户模板示例/作者内容/主题身份，原样保留'})
+                    'reason':'发行内置默认主题只读说明的实际 theme/identity.defaultDescription 显示副本；编辑/导出 metadata 保持原文' if display else '作者主题名称、产品专名、用户模板示例/元数据或主题身份，原样保留；只读默认说明另列独立翻译'})
     registry = json.loads((ROOT/'Docs/Theme-v1-Registry.json').read_text(encoding='utf-8'))
     for token in registry['tokens']:
         for field in ('name','ownerScope','type','default','description'):

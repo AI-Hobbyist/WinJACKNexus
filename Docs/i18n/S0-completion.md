@@ -1,6 +1,6 @@
 # S0 文本和身份清单完成记录
 
-最新 S6 刷新（2026-10-04）：275 个源码文件、9,743 次字符串出现，分类为 1,658 次翻译源、8,078 次保留项及 7 份结构化描述符，未分类 0；唯一显示 key 为 1,298 条。已纳入 VST 宿主/扫描器、Probe 错误与共享 Controls 的实际 key、独立 manifest/四语言资源；Probe 传输回退前缀对齐完整占位符模板，四项临时主题资源载体 metadata 按实际资源合并路径保留。核对通过见 `S0-verification.json` 与 `S6-S0-theme-verification.log`。这只证明清单和当前源码一致，不表示四语言全部覆盖或 S6 完成。下文 S3 基线数字为历史记录。
+2026-10-04 Theme 来源及双表闭合：当前应用源码快照 4c06e27，277 文件、10,389 次字符串出现，1773 翻译源、8609 保留项、7 结构化描述符，未分类 0；唯一显示 key 1297。Theme 238 实际 key 已逐源纳入，canonical 后台模板与显示 detail 模板分别记录；发行内置说明使用实际 identity.defaultDescription，作者主题名称/编辑/导出元数据保持。核对表三项 Catalog 草稿归入表一，Theme 排除理由归入表二，代表实窗验证状态同步。S0 分类及 Theme 源码/key/双表核对 PASS；差异为新增 238/退休 239 个显示 key。仅证明 Theme 对账闭合，其他 106 次候选出现（host1/common3/meter49/mixer45/node1/patchbay5/ui2）仍待调用链审查，用户人工审校未完成，S6/S7 不标完成。本轮无应用变更、无构建/模块重测/弹窗。见 S6-theme-source-closure.json 与 S6-coverage-gaps.json。
 
 日期：2026-10-03。依据：根目录 `i18n国际化.md` 的第 2、6、8、10、11 节及 S0 完成条件。所有中间产物位于 `Docs/i18n`，对应用户指定的 `docs/i18n`。
 

@@ -25,23 +25,23 @@
   },
   {
     "file": "locate/en-US.json",
-    "sha256": "2ae1647d6738ebb88db2fa146a4b2b7b2cdd40b6624534e060dc14681e42c811"
+    "sha256": "5e6826174d5a096a01b3132ec0929bb227f614b2cb336517e909514801be9504"
   },
   {
     "file": "locate/ja-JP.json",
-    "sha256": "335a71d2e13ae86685e690af5e91b6006cbcb4c58f00b4253b22f43377e91a40"
+    "sha256": "eef5cbf84a87774044cd5af91bdedbc62c01758dd25e47797b5a8a9f36f24fd1"
   },
   {
     "file": "locate/ko-KR.json",
-    "sha256": "99dc1bd82e4649c130fb46f0a94b9e16063a7a77ebbe998c19d1b7f20408bce8"
+    "sha256": "3fb33cda7920fa53c1aeaae6c0261bbfbcefaa5ca66b9cdd209246650eb87e45"
   },
   {
     "file": "locate/manifest.json",
-    "sha256": "2a588cd4acde7b1c1c22bbfdc70034a8bbcfca165d3d6c17264800927b6bc555"
+    "sha256": "910e0686e3db8520a1936fb66d1c5d5e1d6dcb88355e5649b199cfa4737ad0b6"
   },
   {
     "file": "locate/zh-CN.json",
-    "sha256": "e125ab97166b87376c660f6da16025e0056efb68b7d3958fb58e854997aa7561"
+    "sha256": "fc9efef71c30fa0d26efa7847cd8d07983b33439eacd24c134691f6439708cb9"
   },
   {
     "file": "Develop/Node/locate/en-US.json",

@@ -218,6 +218,9 @@ s0.4197f4536570,ui,src/ui/src/LocalizedMixerErrors.hpp,25, 的参数快照 Base6
 s0.9ed15c41ae86,ui,src/ui/src/LocalizedMixerErrors.hpp,27, 的参数快照长度无效。,"if (canonical.endsWith(QStringLiteral("" 的参数快照长度无效。"")))",exclude,保持稳定身份；显示文字另行翻译
 s0.475716c176b4,ui,src/ui/src/LocalizedMixerErrors.hpp,29, 的参数快照版本或模块身份不匹配。,"if (canonical.endsWith(QStringLiteral("" 的参数快照版本或模块身份不匹配。"")))",exclude,保持稳定身份；显示文字另行翻译
 s0.e230680aabe8,ui,src/ui/src/LocalizedMixerErrors.hpp,31, 的参数快照导入失败。,"if (canonical.endsWith(QStringLiteral("" 的参数快照导入失败。"")))",exclude,保持稳定身份；显示文字另行翻译
+s0.24290199ab27,theme,src/ui/src/LocalizedThemeMessages.hpp,182,%1,"const auto placeholder = original.indexOf(QStringLiteral(""%1""));",exclude,保持稳定身份；显示文字另行翻译
+s0.c2d60ae90c29,theme,src/ui/src/LocalizedThemeMessages.hpp,206,: ,"for (auto separator = source.indexOf(QStringLiteral("": "")); separator >= 0 && wrapperAttempts++ < 8;",exclude,保持稳定身份；显示文字另行翻译
+s0.c2d60ae90c29,theme,src/ui/src/LocalizedThemeMessages.hpp,207,: ,"separator = source.indexOf(QStringLiteral("": ""), separator + 2)) {",exclude,保持稳定身份；显示文字另行翻译
 s0.d466751334f3,mixer,src/ui/src/MixerWindow.cpp,134,master,"const QColor fallback = kind == QStringLiteral(""master"") ? QColor(""#ff5353"")",exclude,保持稳定身份；显示文字另行翻译
 s0.a1b8299a1c28,mixer,src/ui/src/MixerWindow.cpp,135,submix,": kind == QStringLiteral(""submix"") ? QColor(""#37d879"")",exclude,保持稳定身份；显示文字另行翻译
 s0.8fbc853eb29b,mixer,src/ui/src/MixerWindow.cpp,136,monitor,": kind == QStringLiteral(""monitor"") ? QColor(""#ffe15a"")",exclude,保持稳定身份；显示文字另行翻译
@@ -266,11 +269,11 @@ s0.93362a40eed5,theme,src/ui/src/ThemeBackground.cpp,206,no-repeat,"if (repeat =
 s0.42fa882a9386,theme,src/ui/src/ThemeBackground.cpp,213,repeat-x,"if (repeat == ""repeat-x"") area.setTop(y), area.setHeight(size.height());",exclude,保持稳定身份；显示文字另行翻译
 s0.2c45d834d342,theme,src/ui/src/ThemeBackground.cpp,214,repeat-y,"if (repeat == ""repeat-y"") area.setLeft(x), area.setWidth(size.width());",exclude,保持稳定身份；显示文字另行翻译
 s0.866dc4bbaf57,theme,src/ui/src/ThemeBackground.cpp,225,true,"if (!snapshot || snapshot->value(name(scope, QStringLiteral(""overlay-enabled""))) == ""true"")",exclude,保持稳定身份；显示文字另行翻译
-s0.c0bdefbac4f7,theme,src/ui/src/ThemeCatalog.cpp,58,wjnskin,"} else if (file.suffix().compare(QStringLiteral(""wjnskin""), Qt::CaseInsensitive) != 0) continue;",exclude,保持稳定身份；显示文字另行翻译
-s0.b6afa2094ae0,theme,src/ui/src/ThemeCatalog.cpp,66,kind,"if (package.metadata().value(""kind"") != QStringLiteral(""full"")) continue;",exclude,保持稳定身份；显示文字另行翻译
-s0.1df61696e113,theme,src/ui/src/ThemeCatalog.cpp,66,full,"if (package.metadata().value(""kind"") != QStringLiteral(""full"")) continue;",exclude,保持稳定身份；显示文字另行翻译
-s0.b6afa2094ae0,theme,src/ui/src/ThemeCatalog.cpp,156,kind,"if (package.id() != id || package.metadata().value(""kind"") != QStringLiteral(""full""))",exclude,保持稳定身份；显示文字另行翻译
-s0.1df61696e113,theme,src/ui/src/ThemeCatalog.cpp,156,full,"if (package.id() != id || package.metadata().value(""kind"") != QStringLiteral(""full""))",exclude,保持稳定身份；显示文字另行翻译
+s0.c0bdefbac4f7,theme,src/ui/src/ThemeCatalog.cpp,59,wjnskin,"} else if (file.suffix().compare(QStringLiteral(""wjnskin""), Qt::CaseInsensitive) != 0) continue;",exclude,保持稳定身份；显示文字另行翻译
+s0.b6afa2094ae0,theme,src/ui/src/ThemeCatalog.cpp,67,kind,"if (package.metadata().value(""kind"") != QStringLiteral(""full"")) continue;",exclude,保持稳定身份；显示文字另行翻译
+s0.1df61696e113,theme,src/ui/src/ThemeCatalog.cpp,67,full,"if (package.metadata().value(""kind"") != QStringLiteral(""full"")) continue;",exclude,保持稳定身份；显示文字另行翻译
+s0.b6afa2094ae0,theme,src/ui/src/ThemeCatalog.cpp,157,kind,"if (package.id() != id || package.metadata().value(""kind"") != QStringLiteral(""full""))",exclude,保持稳定身份；显示文字另行翻译
+s0.1df61696e113,theme,src/ui/src/ThemeCatalog.cpp,157,full,"if (package.id() != id || package.metadata().value(""kind"") != QStringLiteral(""full""))",exclude,保持稳定身份；显示文字另行翻译
 s0.ed573cff80e9,theme,src/ui/src/ThemeCore.cpp,44,global,"if (scope == ""global"") return QStringLiteral(""style.css"");",exclude,保持稳定身份；显示文字另行翻译
 s0.26d8dce55e43,theme,src/ui/src/ThemeCore.cpp,45,patchbay,"if (scope == ""patchbay"") return QStringLiteral(""node/patchbay.css"");",exclude,保持稳定身份；显示文字另行翻译
 s0.bd7021f86440,theme,src/ui/src/ThemeCore.cpp,46,module-,"if (scope.startsWith(""module-"")) return QStringLiteral(""node/"") + scope + QStringLiteral("".css"");",exclude,保持稳定身份；显示文字另行翻译
@@ -319,24 +322,40 @@ s0.5f5d0f8c1ae9,theme,src/ui/src/ThemeCore.cpp,490,kind,"if (!package.isValid() 
 s0.09ab4a8a9f7c,theme,src/ui/src/ThemeCore.cpp,490,fragment,"if (!package.isValid() || package.metadata().value(""kind"") != ""fragment"")",exclude,保持稳定身份；显示文字另行翻译
 s0.5f5d0f8c1ae9,theme,src/ui/src/ThemeCore.cpp,616,kind,"if (!package.isValid() || package.metadata().value(""kind"") != ""fragment"")",exclude,保持稳定身份；显示文字另行翻译
 s0.09ab4a8a9f7c,theme,src/ui/src/ThemeCore.cpp,616,fragment,"if (!package.isValid() || package.metadata().value(""kind"") != ""fragment"")",exclude,保持稳定身份；显示文字另行翻译
-s0.3c293a8b7d94,theme,src/ui/src/ThemeManagementDialog.cpp,121,color,"if (registry.token(name).type == QStringLiteral(""color""))",exclude,保持稳定身份；显示文字另行翻译
-s0.dbde7cab9870,theme,src/ui/src/ThemeManagementDialog.cpp,364,kind,"if (!candidate_.isValid() || candidate_.metadata().value(""kind"") != ""full"")",exclude,保持稳定身份；显示文字另行翻译
-s0.e01cc99a196c,theme,src/ui/src/ThemeManagementDialog.cpp,364,full,"if (!candidate_.isValid() || candidate_.metadata().value(""kind"") != ""full"")",exclude,保持稳定身份；显示文字另行翻译
-s0.dbde7cab9870,theme,src/ui/src/ThemeManagementDialog.cpp,375,kind,"const bool full = candidate_.metadata().value(""kind"") == ""full"";",exclude,保持稳定身份；显示文字另行翻译
-s0.e01cc99a196c,theme,src/ui/src/ThemeManagementDialog.cpp,375,full,"const bool full = candidate_.metadata().value(""kind"") == ""full"";",exclude,保持稳定身份；显示文字另行翻译
-s0.4dfc4b31c4b0,theme,src/ui/src/ThemeManagementDialog.cpp,388,wjnskin,"if (file.suffix().compare(QStringLiteral(""wjnskin""), Qt::CaseInsensitive) != 0) continue;",exclude,保持稳定身份；显示文字另行翻译
-s0.dbde7cab9870,theme,src/ui/src/ThemeManagementDialog.cpp,402,kind,"} else if (candidate_.metadata().value(""kind"") == ""fragment"") {",exclude,保持稳定身份；显示文字另行翻译
-s0.df52c953c576,theme,src/ui/src/ThemeManagementDialog.cpp,402,fragment,"} else if (candidate_.metadata().value(""kind"") == ""fragment"") {",exclude,保持稳定身份；显示文字另行翻译
-s0.3f5af7e2cd3c,theme,src/ui/src/ThemeManagementDialog.cpp,509,none,"if (mode == ""none"") {",exclude,保持稳定身份；显示文字另行翻译
-s0.8a6d944543de,theme,src/ui/src/ThemeManagementDialog.cpp,511,inherit,"} else if (mode == ""inherit"") {",exclude,保持稳定身份；显示文字另行翻译
-s0.200ee0e14093,theme,src/ui/src/ThemeManagementDialog.cpp,512,patchbay,"if (scope == QStringLiteral(""patchbay"")) core_.removeOverride(token(scope, QStringLiteral(""image"")));",exclude,保持稳定身份；显示文字另行翻译
-s0.83140a8ee742,theme,src/ui/src/ThemeManagementDialog.cpp,521,url(,"} else if (!core_.declaredValue(token(scope, QStringLiteral(""image""))).startsWith(""url("")) {",exclude,保持稳定身份；显示文字另行翻译
-s0.3f5af7e2cd3c,theme,src/ui/src/ThemeManagementDialog.cpp,545,none,"if (declaredImage == QStringLiteral(""none"") || (scope == QStringLiteral(""patchbay"") && declaredImage.isEmpty()))",exclude,保持稳定身份；显示文字另行翻译
-s0.200ee0e14093,theme,src/ui/src/ThemeManagementDialog.cpp,545,patchbay,"if (declaredImage == QStringLiteral(""none"") || (scope == QStringLiteral(""patchbay"") && declaredImage.isEmpty()))",exclude,保持稳定身份；显示文字另行翻译
-s0.83140a8ee742,theme,src/ui/src/ThemeManagementDialog.cpp,547,url(,"else if (importedImages_.contains(scope) || declaredImage.startsWith(""url(""))",exclude,保持稳定身份；显示文字另行翻译
-s0.1da195f13fba,theme,src/ui/src/ThemeManagementDialog.cpp,559,true,"view_->overlay->setChecked(value(QStringLiteral(""overlay-enabled"")) == QStringLiteral(""true""));",exclude,保持稳定身份；显示文字另行翻译
-s0.dbde7cab9870,theme,src/ui/src/ThemeManagementDialog.cpp,577,kind,"view_->preview->setEnabled(candidate_.isValid() && candidate_.metadata().value(""kind"") == ""full""",exclude,保持稳定身份；显示文字另行翻译
-s0.e01cc99a196c,theme,src/ui/src/ThemeManagementDialog.cpp,577,full,"view_->preview->setEnabled(candidate_.isValid() && candidate_.metadata().value(""kind"") == ""full""",exclude,保持稳定身份；显示文字另行翻译
+s0.17e283b8e2df,theme,src/ui/src/ThemeManagementDialog.cpp,102,original,"if (value == QStringLiteral(""original"")) { themeChoice(field, value, ""size.original"", ""Original size""); continue; }",exclude,保持稳定身份；显示文字另行翻译
+s0.8b5f691e1955,theme,src/ui/src/ThemeManagementDialog.cpp,103,contain,"if (value == QStringLiteral(""contain"")) { themeChoice(field, value, ""size.contain"", ""Fit inside""); continue; }",exclude,保持稳定身份；显示文字另行翻译
+s0.35773ca7900c,theme,src/ui/src/ThemeManagementDialog.cpp,104,cover,"if (value == QStringLiteral(""cover"")) { themeChoice(field, value, ""size.cover"", ""Fill and crop""); continue; }",exclude,保持稳定身份；显示文字另行翻译
+s0.8fa56f086545,theme,src/ui/src/ThemeManagementDialog.cpp,105,stretch,"if (value == QStringLiteral(""stretch"")) { themeChoice(field, value, ""size.stretch"", ""Stretch""); continue; }",exclude,保持稳定身份；显示文字另行翻译
+s0.5aeb424d2282,theme,src/ui/src/ThemeManagementDialog.cpp,106,no-repeat,"if (value == QStringLiteral(""no-repeat"")) { themeChoice(field, value, ""repeat.no-repeat"", ""No tiling""); continue; }",exclude,保持稳定身份；显示文字另行翻译
+s0.bbdc7653c018,theme,src/ui/src/ThemeManagementDialog.cpp,107,repeat,"if (value == QStringLiteral(""repeat"")) { themeChoice(field, value, ""repeat.repeat"", ""Tile both axes""); continue; }",exclude,保持稳定身份；显示文字另行翻译
+s0.e541e420dea8,theme,src/ui/src/ThemeManagementDialog.cpp,108,repeat-x,"if (value == QStringLiteral(""repeat-x"")) { themeChoice(field, value, ""repeat.repeat-x"", ""Tile horizontally""); continue; }",exclude,保持稳定身份；显示文字另行翻译
+s0.1164d5314c6b,theme,src/ui/src/ThemeManagementDialog.cpp,109,repeat-y,"if (value == QStringLiteral(""repeat-y"")) { themeChoice(field, value, ""repeat.repeat-y"", ""Tile vertically""); continue; }",exclude,保持稳定身份；显示文字另行翻译
+s0.3c293a8b7d94,theme,src/ui/src/ThemeManagementDialog.cpp,192,color,"if (registry.token(name).type == QStringLiteral(""color""))",exclude,保持稳定身份；显示文字另行翻译
+s0.200ee0e14093,theme,src/ui/src/ThemeManagementDialog.cpp,225,patchbay,"if (scope == QStringLiteral(""patchbay"")) { themeChoice(view_->backgroundScope, scope, ""scope.patchbay"", ""Patchbay""); continue; }",exclude,保持稳定身份；显示文字另行翻译
+s0.65daf3e6b265,theme,src/ui/src/ThemeManagementDialog.cpp,226,mixer,"if (scope == QStringLiteral(""mixer"")) { themeChoice(view_->backgroundScope, scope, ""scope.mixer"", ""Mixer""); continue; }",exclude,保持稳定身份；显示文字另行翻译
+s0.34aba214eb96,theme,src/ui/src/ThemeManagementDialog.cpp,227,mixer-overview,"if (scope == QStringLiteral(""mixer-overview"")) { themeChoice(view_->backgroundScope, scope, ""scope.mixer-overview"", ""Mixer overview""); continue; }",exclude,保持稳定身份；显示文字另行翻译
+s0.3900eb86eec3,theme,src/ui/src/ThemeManagementDialog.cpp,228,sel-main,"if (scope == QStringLiteral(""sel-main"")) { themeChoice(view_->backgroundScope, scope, ""scope.sel-main"", ""Main mixer""); continue; }",exclude,保持稳定身份；显示文字另行翻译
+s0.204caf98ab3a,theme,src/ui/src/ThemeManagementDialog.cpp,229,sel-monitor,"if (scope == QStringLiteral(""sel-monitor"")) { themeChoice(view_->backgroundScope, scope, ""scope.sel-monitor"", ""Monitor mixer""); continue; }",exclude,保持稳定身份；显示文字另行翻译
+s0.2a27180eda66,theme,src/ui/src/ThemeManagementDialog.cpp,230,sel-aux,"if (scope == QStringLiteral(""sel-aux"")) { themeChoice(view_->backgroundScope, scope, ""scope.sel-aux"", ""Aux mixer""); continue; }",exclude,保持稳定身份；显示文字另行翻译
+s0.341af9d5908f,theme,src/ui/src/ThemeManagementDialog.cpp,231,sel-fx,"if (scope == QStringLiteral(""sel-fx"")) { themeChoice(view_->backgroundScope, scope, ""scope.sel-fx"", ""FX mixer""); continue; }",exclude,保持稳定身份；显示文字另行翻译
+s0.6f98372d4bd4,theme,src/ui/src/ThemeManagementDialog.cpp,232,meter-bridge,"if (scope == QStringLiteral(""meter-bridge"")) { themeChoice(view_->backgroundScope, scope, ""scope.meter-bridge"", ""Meter bridge""); continue; }",exclude,保持稳定身份；显示文字另行翻译
+s0.dbde7cab9870,theme,src/ui/src/ThemeManagementDialog.cpp,464,kind,"if (!candidate_.isValid() || candidate_.metadata().value(""kind"") != ""full"")",exclude,保持稳定身份；显示文字另行翻译
+s0.e01cc99a196c,theme,src/ui/src/ThemeManagementDialog.cpp,464,full,"if (!candidate_.isValid() || candidate_.metadata().value(""kind"") != ""full"")",exclude,保持稳定身份；显示文字另行翻译
+s0.dbde7cab9870,theme,src/ui/src/ThemeManagementDialog.cpp,475,kind,"const bool full = candidate_.metadata().value(""kind"") == ""full"";",exclude,保持稳定身份；显示文字另行翻译
+s0.e01cc99a196c,theme,src/ui/src/ThemeManagementDialog.cpp,475,full,"const bool full = candidate_.metadata().value(""kind"") == ""full"";",exclude,保持稳定身份；显示文字另行翻译
+s0.4dfc4b31c4b0,theme,src/ui/src/ThemeManagementDialog.cpp,488,wjnskin,"if (file.suffix().compare(QStringLiteral(""wjnskin""), Qt::CaseInsensitive) != 0) continue;",exclude,保持稳定身份；显示文字另行翻译
+s0.dbde7cab9870,theme,src/ui/src/ThemeManagementDialog.cpp,502,kind,"} else if (candidate_.metadata().value(""kind"") == ""fragment"") {",exclude,保持稳定身份；显示文字另行翻译
+s0.df52c953c576,theme,src/ui/src/ThemeManagementDialog.cpp,502,fragment,"} else if (candidate_.metadata().value(""kind"") == ""fragment"") {",exclude,保持稳定身份；显示文字另行翻译
+s0.3f5af7e2cd3c,theme,src/ui/src/ThemeManagementDialog.cpp,609,none,"if (mode == ""none"") {",exclude,保持稳定身份；显示文字另行翻译
+s0.8a6d944543de,theme,src/ui/src/ThemeManagementDialog.cpp,611,inherit,"} else if (mode == ""inherit"") {",exclude,保持稳定身份；显示文字另行翻译
+s0.200ee0e14093,theme,src/ui/src/ThemeManagementDialog.cpp,612,patchbay,"if (scope == QStringLiteral(""patchbay"")) core_.removeOverride(token(scope, QStringLiteral(""image"")));",exclude,保持稳定身份；显示文字另行翻译
+s0.83140a8ee742,theme,src/ui/src/ThemeManagementDialog.cpp,621,url(,"} else if (!core_.declaredValue(token(scope, QStringLiteral(""image""))).startsWith(""url("")) {",exclude,保持稳定身份；显示文字另行翻译
+s0.3f5af7e2cd3c,theme,src/ui/src/ThemeManagementDialog.cpp,645,none,"if (declaredImage == QStringLiteral(""none"") || (scope == QStringLiteral(""patchbay"") && declaredImage.isEmpty()))",exclude,保持稳定身份；显示文字另行翻译
+s0.200ee0e14093,theme,src/ui/src/ThemeManagementDialog.cpp,645,patchbay,"if (declaredImage == QStringLiteral(""none"") || (scope == QStringLiteral(""patchbay"") && declaredImage.isEmpty()))",exclude,保持稳定身份；显示文字另行翻译
+s0.83140a8ee742,theme,src/ui/src/ThemeManagementDialog.cpp,647,url(,"else if (importedImages_.contains(scope) || declaredImage.startsWith(""url(""))",exclude,保持稳定身份；显示文字另行翻译
+s0.1da195f13fba,theme,src/ui/src/ThemeManagementDialog.cpp,659,true,"view_->overlay->setChecked(value(QStringLiteral(""overlay-enabled"")) == QStringLiteral(""true""));",exclude,保持稳定身份；显示文字另行翻译
+s0.dbde7cab9870,theme,src/ui/src/ThemeManagementDialog.cpp,702,kind,"view_->preview->setEnabled(candidate_.isValid() && candidate_.metadata().value(""kind"") == ""full""",exclude,保持稳定身份；显示文字另行翻译
+s0.e01cc99a196c,theme,src/ui/src/ThemeManagementDialog.cpp,702,full,"view_->preview->setEnabled(candidate_.isValid() && candidate_.metadata().value(""kind"") == ""full""",exclude,保持稳定身份；显示文字另行翻译
 s0.7396dac27ab3,theme,src/ui/src/ThemeManager.cpp,72,transparent,"if (value == QStringLiteral(""transparent"")) return QColor(0, 0, 0, 0);",exclude,保持稳定身份；显示文字另行翻译
 s0.f9c86c3677ee,theme,src/ui/src/ThemeManager.cpp,73,rgb(,"if (value.startsWith(QStringLiteral(""rgb("")) || value.startsWith(QStringLiteral(""rgba(""))) {",exclude,保持稳定身份；显示文字另行翻译
 s0.b2b8234a39d7,theme,src/ui/src/ThemeManager.cpp,73,rgba(,"if (value.startsWith(QStringLiteral(""rgb("")) || value.startsWith(QStringLiteral(""rgba(""))) {",exclude,保持稳定身份；显示文字另行翻译

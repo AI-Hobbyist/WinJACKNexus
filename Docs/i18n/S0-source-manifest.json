@@ -1107,8 +1107,8 @@
     },
     {
       "file": "src/ui/include/WinJACKNexus/UI/ThemeManagementDialog.hpp",
-      "sha256": "e3b7b5c458f523b4f62b569084aeeb9e4c3c5a453e5739810e2851b04dc82945",
-      "lines": 51
+      "sha256": "791712f5eb3872f4f98e0de5eb7aa530a7e46afd90dffb903b460b1036f3dc61",
+      "lines": 53
     },
     {
       "file": "src/ui/include/WinJACKNexus/UI/ThemeManager.hpp",
@@ -1201,6 +1201,16 @@
       "lines": 48
     },
     {
+      "file": "src/ui/src/LocalizedThemeDialogs.hpp",
+      "sha256": "be23f0bb858a02a02376f7340b2d12ada14cdbd060e5d7ee6587be1ac629ac29",
+      "lines": 39
+    },
+    {
+      "file": "src/ui/src/LocalizedThemeMessages.hpp",
+      "sha256": "be4e047c2f2f3ad098fb731b90ec3c001652b61e3df3c7621fd52c2d273ad1e7",
+      "lines": 214
+    },
+    {
       "file": "src/ui/src/MeterLevelBar.cpp",
       "sha256": "be40db0cc6b4dcf2f1d0a64de003c812f29105a7a77743228589a343fa3877f7",
       "lines": 348
@@ -1267,8 +1277,8 @@
     },
     {
       "file": "src/ui/src/ThemeCatalog.cpp",
-      "sha256": "f3848d3828948fae398e1ac9fe596068fd58d118f8529a996c48a1e55e4ba11f",
-      "lines": 272
+      "sha256": "dcfc9fd7e3065f662dfd1a493f88e89e2b1cdf3fed73ab5bbd9a5e1511733df1",
+      "lines": 273
     },
     {
       "file": "src/ui/src/ThemeCore.cpp",
@@ -1277,8 +1287,8 @@
     },
     {
       "file": "src/ui/src/ThemeManagementDialog.cpp",
-      "sha256": "c57b3afeaa7517f3bb3377a40d0032428fce110caf2b3450e386f3ab2edc1379",
-      "lines": 594
+      "sha256": "ab88fb4c634c27078df031efee6123b40a0d6a538d77fb26da8823d45c8347a4",
+      "lines": 716
     },
     {
       "file": "src/ui/src/ThemeManager.cpp",
@@ -1381,8 +1391,8 @@
       "lines": 129
     }
   ],
-  "literal_occurrences": 9743,
-  "unique_source_ids": 6491,
+  "literal_occurrences": 10389,
+  "unique_source_ids": 6982,
   "limitations": [
     "Source evidence is not a classified UI/key inventory.",
     "Dynamic text sources and Qt/OS-owned text require separate inspection.",
