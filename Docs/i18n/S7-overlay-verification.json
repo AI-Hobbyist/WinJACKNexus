@@ -1,0 +1,1982 @@
+{
+  "stage": "S7",
+  "date": "2026-10-04",
+  "result": "DRAFT_ARCHIVE_STATIC_VERIFICATION_PASS_NOT_RELEASE_ACCEPTED",
+  "archive": {
+    "file": "build/WinJACKNexus-i18n-Release-overlay-draft-e0b1f6e.zip",
+    "bytes": 3340223,
+    "sha256": "cab6852e3c1eb87f4b75ce857e352b0fd1e4eb8c71756b8b514acceb3a646ef8"
+  },
+  "payload_runtime_files": 25,
+  "payload_language_resources": 68,
+  "metadata_files": 2,
+  "archive_members": 95,
+  "checks": [
+    "Existing inventory fingerprints and source/deployment equality retained.",
+    "25 PE architectures and all direct/delay imports classified.",
+    "Qt prerequisites byte-match Qt 6.10.3 SDK.",
+    "ZIP CRC, exact member set and complete payload byte/SHA-256 comparison passed.",
+    "No tests, Debug binaries, TS, PDB or user settings/themes/projects in the archive."
+  ],
+  "dependencies": [
+    {
+      "file": "WinJACKNexus.exe",
+      "architecture": "x64",
+      "direct_and_delay_imports": [
+        {
+          "name": "audio.dll",
+          "resolution": "included project runtime"
+        },
+        {
+          "name": "ui.dll",
+          "resolution": "included project runtime"
+        },
+        {
+          "name": "common.dll",
+          "resolution": "included project runtime"
+        },
+        {
+          "name": "Qt6Widgets.dll",
+          "resolution": "existing-install Qt 6.10.3 Release prerequisite"
+        },
+        {
+          "name": "Qt6Gui.dll",
+          "resolution": "existing-install Qt 6.10.3 Release prerequisite"
+        },
+        {
+          "name": "Qt6Core.dll",
+          "resolution": "existing-install Qt 6.10.3 Release prerequisite"
+        },
+        {
+          "name": "KERNEL32.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "MSVCP140.dll",
+          "resolution": "existing-install MSVC redistributable prerequisite (x86 for Probe32, x64 otherwise)"
+        },
+        {
+          "name": "VCRUNTIME140.dll",
+          "resolution": "existing-install MSVC redistributable prerequisite (x86 for Probe32, x64 otherwise)"
+        },
+        {
+          "name": "VCRUNTIME140_1.dll",
+          "resolution": "existing-install MSVC redistributable prerequisite (x86 for Probe32, x64 otherwise)"
+        },
+        {
+          "name": "api-ms-win-crt-stdio-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-string-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-heap-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-runtime-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-math-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-locale-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "SHELL32.dll",
+          "resolution": "Windows system prerequisite"
+        }
+      ]
+    },
+    {
+      "file": "ui.dll",
+      "architecture": "x64",
+      "direct_and_delay_imports": [
+        {
+          "name": "common.dll",
+          "resolution": "included project runtime"
+        },
+        {
+          "name": "Qt6Widgets.dll",
+          "resolution": "existing-install Qt 6.10.3 Release prerequisite"
+        },
+        {
+          "name": "Qt6Gui.dll",
+          "resolution": "existing-install Qt 6.10.3 Release prerequisite"
+        },
+        {
+          "name": "Qt6Core.dll",
+          "resolution": "existing-install Qt 6.10.3 Release prerequisite"
+        },
+        {
+          "name": "KERNEL32.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "USER32.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "MSVCP140.dll",
+          "resolution": "existing-install MSVC redistributable prerequisite (x86 for Probe32, x64 otherwise)"
+        },
+        {
+          "name": "MSVCP140_ATOMIC_WAIT.dll",
+          "resolution": "existing-install MSVC redistributable prerequisite (x86 for Probe32, x64 otherwise)"
+        },
+        {
+          "name": "VCRUNTIME140.dll",
+          "resolution": "existing-install MSVC redistributable prerequisite (x86 for Probe32, x64 otherwise)"
+        },
+        {
+          "name": "VCRUNTIME140_1.dll",
+          "resolution": "existing-install MSVC redistributable prerequisite (x86 for Probe32, x64 otherwise)"
+        },
+        {
+          "name": "api-ms-win-crt-heap-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-math-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-string-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-runtime-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        }
+      ]
+    },
+    {
+      "file": "common.dll",
+      "architecture": "x64",
+      "direct_and_delay_imports": [
+        {
+          "name": "Qt6OpenGLWidgets.dll",
+          "resolution": "existing-install Qt 6.10.3 Release prerequisite"
+        },
+        {
+          "name": "AVRT.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "USER32.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "Qt6Widgets.dll",
+          "resolution": "existing-install Qt 6.10.3 Release prerequisite"
+        },
+        {
+          "name": "Qt6Gui.dll",
+          "resolution": "existing-install Qt 6.10.3 Release prerequisite"
+        },
+        {
+          "name": "Qt6Core.dll",
+          "resolution": "existing-install Qt 6.10.3 Release prerequisite"
+        },
+        {
+          "name": "KERNEL32.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "MSVCP140.dll",
+          "resolution": "existing-install MSVC redistributable prerequisite (x86 for Probe32, x64 otherwise)"
+        },
+        {
+          "name": "VCRUNTIME140.dll",
+          "resolution": "existing-install MSVC redistributable prerequisite (x86 for Probe32, x64 otherwise)"
+        },
+        {
+          "name": "VCRUNTIME140_1.dll",
+          "resolution": "existing-install MSVC redistributable prerequisite (x86 for Probe32, x64 otherwise)"
+        },
+        {
+          "name": "api-ms-win-crt-math-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-string-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-heap-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-environment-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-stdio-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-filesystem-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-runtime-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        }
+      ]
+    },
+    {
+      "file": "node.dll",
+      "architecture": "x64",
+      "direct_and_delay_imports": [
+        {
+          "name": "VCRUNTIME140.dll",
+          "resolution": "existing-install MSVC redistributable prerequisite (x86 for Probe32, x64 otherwise)"
+        },
+        {
+          "name": "VCRUNTIME140_1.dll",
+          "resolution": "existing-install MSVC redistributable prerequisite (x86 for Probe32, x64 otherwise)"
+        },
+        {
+          "name": "api-ms-win-crt-runtime-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-heap-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "KERNEL32.dll",
+          "resolution": "Windows system prerequisite"
+        }
+      ]
+    },
+    {
+      "file": "audio.dll",
+      "architecture": "x64",
+      "direct_and_delay_imports": [
+        {
+          "name": "common.dll",
+          "resolution": "included project runtime"
+        },
+        {
+          "name": "ole32.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "AVRT.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "WINMM.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "KERNEL32.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "MSVCP140.dll",
+          "resolution": "existing-install MSVC redistributable prerequisite (x86 for Probe32, x64 otherwise)"
+        },
+        {
+          "name": "VCRUNTIME140.dll",
+          "resolution": "existing-install MSVC redistributable prerequisite (x86 for Probe32, x64 otherwise)"
+        },
+        {
+          "name": "VCRUNTIME140_1.dll",
+          "resolution": "existing-install MSVC redistributable prerequisite (x86 for Probe32, x64 otherwise)"
+        },
+        {
+          "name": "api-ms-win-crt-heap-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-environment-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-string-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-math-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-runtime-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        }
+      ]
+    },
+    {
+      "file": "patchbay_core.dll",
+      "architecture": "x64",
+      "direct_and_delay_imports": [
+        {
+          "name": "audio.dll",
+          "resolution": "included project runtime"
+        },
+        {
+          "name": "MSVCP140.dll",
+          "resolution": "existing-install MSVC redistributable prerequisite (x86 for Probe32, x64 otherwise)"
+        },
+        {
+          "name": "VCRUNTIME140.dll",
+          "resolution": "existing-install MSVC redistributable prerequisite (x86 for Probe32, x64 otherwise)"
+        },
+        {
+          "name": "VCRUNTIME140_1.dll",
+          "resolution": "existing-install MSVC redistributable prerequisite (x86 for Probe32, x64 otherwise)"
+        },
+        {
+          "name": "api-ms-win-crt-string-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-heap-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-runtime-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "KERNEL32.dll",
+          "resolution": "Windows system prerequisite"
+        }
+      ]
+    },
+    {
+      "file": "mod_patchbay.dll",
+      "architecture": "x64",
+      "direct_and_delay_imports": [
+        {
+          "name": "ui.dll",
+          "resolution": "included project runtime"
+        },
+        {
+          "name": "patchbay_core.dll",
+          "resolution": "included project runtime"
+        },
+        {
+          "name": "audio.dll",
+          "resolution": "included project runtime"
+        },
+        {
+          "name": "common.dll",
+          "resolution": "included project runtime"
+        },
+        {
+          "name": "Qt6Widgets.dll",
+          "resolution": "existing-install Qt 6.10.3 Release prerequisite"
+        },
+        {
+          "name": "Qt6Gui.dll",
+          "resolution": "existing-install Qt 6.10.3 Release prerequisite"
+        },
+        {
+          "name": "Qt6Core.dll",
+          "resolution": "existing-install Qt 6.10.3 Release prerequisite"
+        },
+        {
+          "name": "KERNEL32.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "USER32.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "MSVCP140.dll",
+          "resolution": "existing-install MSVC redistributable prerequisite (x86 for Probe32, x64 otherwise)"
+        },
+        {
+          "name": "VCRUNTIME140.dll",
+          "resolution": "existing-install MSVC redistributable prerequisite (x86 for Probe32, x64 otherwise)"
+        },
+        {
+          "name": "VCRUNTIME140_1.dll",
+          "resolution": "existing-install MSVC redistributable prerequisite (x86 for Probe32, x64 otherwise)"
+        },
+        {
+          "name": "api-ms-win-crt-string-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-heap-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-math-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-runtime-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        }
+      ]
+    },
+    {
+      "file": "mod_meterbrigde.dll",
+      "architecture": "x64",
+      "direct_and_delay_imports": [
+        {
+          "name": "ui.dll",
+          "resolution": "included project runtime"
+        },
+        {
+          "name": "common.dll",
+          "resolution": "included project runtime"
+        },
+        {
+          "name": "Qt6Widgets.dll",
+          "resolution": "existing-install Qt 6.10.3 Release prerequisite"
+        },
+        {
+          "name": "Qt6Gui.dll",
+          "resolution": "existing-install Qt 6.10.3 Release prerequisite"
+        },
+        {
+          "name": "Qt6Core.dll",
+          "resolution": "existing-install Qt 6.10.3 Release prerequisite"
+        },
+        {
+          "name": "MSVCP140.dll",
+          "resolution": "existing-install MSVC redistributable prerequisite (x86 for Probe32, x64 otherwise)"
+        },
+        {
+          "name": "VCRUNTIME140.dll",
+          "resolution": "existing-install MSVC redistributable prerequisite (x86 for Probe32, x64 otherwise)"
+        },
+        {
+          "name": "VCRUNTIME140_1.dll",
+          "resolution": "existing-install MSVC redistributable prerequisite (x86 for Probe32, x64 otherwise)"
+        },
+        {
+          "name": "api-ms-win-crt-heap-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-string-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-math-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-runtime-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "KERNEL32.dll",
+          "resolution": "Windows system prerequisite"
+        }
+      ]
+    },
+    {
+      "file": "nodes/meter/mod_meterbridge_probe.dll",
+      "architecture": "x64",
+      "direct_and_delay_imports": [
+        {
+          "name": "audio.dll",
+          "resolution": "included project runtime"
+        },
+        {
+          "name": "ui.dll",
+          "resolution": "included project runtime"
+        },
+        {
+          "name": "common.dll",
+          "resolution": "included project runtime"
+        },
+        {
+          "name": "Qt6Widgets.dll",
+          "resolution": "existing-install Qt 6.10.3 Release prerequisite"
+        },
+        {
+          "name": "Qt6Gui.dll",
+          "resolution": "existing-install Qt 6.10.3 Release prerequisite"
+        },
+        {
+          "name": "Qt6Core.dll",
+          "resolution": "existing-install Qt 6.10.3 Release prerequisite"
+        },
+        {
+          "name": "KERNEL32.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "MSVCP140.dll",
+          "resolution": "existing-install MSVC redistributable prerequisite (x86 for Probe32, x64 otherwise)"
+        },
+        {
+          "name": "VCRUNTIME140.dll",
+          "resolution": "existing-install MSVC redistributable prerequisite (x86 for Probe32, x64 otherwise)"
+        },
+        {
+          "name": "VCRUNTIME140_1.dll",
+          "resolution": "existing-install MSVC redistributable prerequisite (x86 for Probe32, x64 otherwise)"
+        },
+        {
+          "name": "api-ms-win-crt-heap-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-math-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-string-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-runtime-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        }
+      ]
+    },
+    {
+      "file": "nodes/mixer/mod_digital_mixer.dll",
+      "architecture": "x64",
+      "direct_and_delay_imports": [
+        {
+          "name": "ui.dll",
+          "resolution": "included project runtime"
+        },
+        {
+          "name": "audio.dll",
+          "resolution": "included project runtime"
+        },
+        {
+          "name": "common.dll",
+          "resolution": "included project runtime"
+        },
+        {
+          "name": "Qt6Widgets.dll",
+          "resolution": "existing-install Qt 6.10.3 Release prerequisite"
+        },
+        {
+          "name": "Qt6Core.dll",
+          "resolution": "existing-install Qt 6.10.3 Release prerequisite"
+        },
+        {
+          "name": "MSVCP140.dll",
+          "resolution": "existing-install MSVC redistributable prerequisite (x86 for Probe32, x64 otherwise)"
+        },
+        {
+          "name": "MSVCP140_ATOMIC_WAIT.dll",
+          "resolution": "existing-install MSVC redistributable prerequisite (x86 for Probe32, x64 otherwise)"
+        },
+        {
+          "name": "VCRUNTIME140.dll",
+          "resolution": "existing-install MSVC redistributable prerequisite (x86 for Probe32, x64 otherwise)"
+        },
+        {
+          "name": "VCRUNTIME140_1.dll",
+          "resolution": "existing-install MSVC redistributable prerequisite (x86 for Probe32, x64 otherwise)"
+        },
+        {
+          "name": "api-ms-win-crt-heap-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-runtime-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-string-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "KERNEL32.dll",
+          "resolution": "Windows system prerequisite"
+        }
+      ]
+    },
+    {
+      "file": "nodes/adapter/mod_adapter.dll",
+      "architecture": "x64",
+      "direct_and_delay_imports": [
+        {
+          "name": "ui.dll",
+          "resolution": "included project runtime"
+        },
+        {
+          "name": "audio.dll",
+          "resolution": "included project runtime"
+        },
+        {
+          "name": "common.dll",
+          "resolution": "included project runtime"
+        },
+        {
+          "name": "Qt6Widgets.dll",
+          "resolution": "existing-install Qt 6.10.3 Release prerequisite"
+        },
+        {
+          "name": "Qt6Gui.dll",
+          "resolution": "existing-install Qt 6.10.3 Release prerequisite"
+        },
+        {
+          "name": "Qt6Core.dll",
+          "resolution": "existing-install Qt 6.10.3 Release prerequisite"
+        },
+        {
+          "name": "MSVCP140.dll",
+          "resolution": "existing-install MSVC redistributable prerequisite (x86 for Probe32, x64 otherwise)"
+        },
+        {
+          "name": "VCRUNTIME140.dll",
+          "resolution": "existing-install MSVC redistributable prerequisite (x86 for Probe32, x64 otherwise)"
+        },
+        {
+          "name": "VCRUNTIME140_1.dll",
+          "resolution": "existing-install MSVC redistributable prerequisite (x86 for Probe32, x64 otherwise)"
+        },
+        {
+          "name": "api-ms-win-crt-heap-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-math-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-string-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-runtime-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "KERNEL32.dll",
+          "resolution": "Windows system prerequisite"
+        }
+      ]
+    },
+    {
+      "file": "nodes/vst/mod_vst_host.dll",
+      "architecture": "x64",
+      "direct_and_delay_imports": [
+        {
+          "name": "ui.dll",
+          "resolution": "included project runtime"
+        },
+        {
+          "name": "Qt6Widgets.dll",
+          "resolution": "existing-install Qt 6.10.3 Release prerequisite"
+        },
+        {
+          "name": "Qt6Gui.dll",
+          "resolution": "existing-install Qt 6.10.3 Release prerequisite"
+        },
+        {
+          "name": "Qt6Core.dll",
+          "resolution": "existing-install Qt 6.10.3 Release prerequisite"
+        },
+        {
+          "name": "KERNEL32.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "MSVCP140.dll",
+          "resolution": "existing-install MSVC redistributable prerequisite (x86 for Probe32, x64 otherwise)"
+        },
+        {
+          "name": "VCRUNTIME140.dll",
+          "resolution": "existing-install MSVC redistributable prerequisite (x86 for Probe32, x64 otherwise)"
+        },
+        {
+          "name": "VCRUNTIME140_1.dll",
+          "resolution": "existing-install MSVC redistributable prerequisite (x86 for Probe32, x64 otherwise)"
+        },
+        {
+          "name": "api-ms-win-crt-stdio-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-heap-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-string-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-locale-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-runtime-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        }
+      ]
+    },
+    {
+      "file": "Vst Scanner.exe",
+      "architecture": "x64",
+      "direct_and_delay_imports": [
+        {
+          "name": "ui.dll",
+          "resolution": "included project runtime"
+        },
+        {
+          "name": "common.dll",
+          "resolution": "included project runtime"
+        },
+        {
+          "name": "Qt6Widgets.dll",
+          "resolution": "existing-install Qt 6.10.3 Release prerequisite"
+        },
+        {
+          "name": "Qt6Gui.dll",
+          "resolution": "existing-install Qt 6.10.3 Release prerequisite"
+        },
+        {
+          "name": "Qt6Core.dll",
+          "resolution": "existing-install Qt 6.10.3 Release prerequisite"
+        },
+        {
+          "name": "MSVCP140.dll",
+          "resolution": "existing-install MSVC redistributable prerequisite (x86 for Probe32, x64 otherwise)"
+        },
+        {
+          "name": "VCRUNTIME140.dll",
+          "resolution": "existing-install MSVC redistributable prerequisite (x86 for Probe32, x64 otherwise)"
+        },
+        {
+          "name": "VCRUNTIME140_1.dll",
+          "resolution": "existing-install MSVC redistributable prerequisite (x86 for Probe32, x64 otherwise)"
+        },
+        {
+          "name": "api-ms-win-crt-heap-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-string-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-stdio-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-filesystem-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-runtime-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-convert-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-locale-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-math-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "SHELL32.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "KERNEL32.dll",
+          "resolution": "Windows system prerequisite"
+        }
+      ]
+    },
+    {
+      "file": "Vst Scanner Probe32.exe",
+      "architecture": "x86",
+      "direct_and_delay_imports": [
+        {
+          "name": "KERNEL32.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "ole32.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "MSVCP140.dll",
+          "resolution": "existing-install MSVC redistributable prerequisite (x86 for Probe32, x64 otherwise)"
+        },
+        {
+          "name": "VCRUNTIME140.dll",
+          "resolution": "existing-install MSVC redistributable prerequisite (x86 for Probe32, x64 otherwise)"
+        },
+        {
+          "name": "api-ms-win-crt-heap-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-convert-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-stdio-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-string-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-locale-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-runtime-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-math-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        }
+      ]
+    },
+    {
+      "file": "Vst Scanner Probe64.exe",
+      "architecture": "x64",
+      "direct_and_delay_imports": [
+        {
+          "name": "KERNEL32.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "ole32.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "MSVCP140.dll",
+          "resolution": "existing-install MSVC redistributable prerequisite (x86 for Probe32, x64 otherwise)"
+        },
+        {
+          "name": "VCRUNTIME140.dll",
+          "resolution": "existing-install MSVC redistributable prerequisite (x86 for Probe32, x64 otherwise)"
+        },
+        {
+          "name": "VCRUNTIME140_1.dll",
+          "resolution": "existing-install MSVC redistributable prerequisite (x86 for Probe32, x64 otherwise)"
+        },
+        {
+          "name": "api-ms-win-crt-heap-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-convert-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-stdio-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-string-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-locale-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-runtime-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-math-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        }
+      ]
+    },
+    {
+      "file": "nodes/native_fx/gate/mod_gate.dll",
+      "architecture": "x64",
+      "direct_and_delay_imports": [
+        {
+          "name": "audio.dll",
+          "resolution": "included project runtime"
+        },
+        {
+          "name": "ui.dll",
+          "resolution": "included project runtime"
+        },
+        {
+          "name": "Qt6Widgets.dll",
+          "resolution": "existing-install Qt 6.10.3 Release prerequisite"
+        },
+        {
+          "name": "Qt6Gui.dll",
+          "resolution": "existing-install Qt 6.10.3 Release prerequisite"
+        },
+        {
+          "name": "Qt6Core.dll",
+          "resolution": "existing-install Qt 6.10.3 Release prerequisite"
+        },
+        {
+          "name": "MSVCP140.dll",
+          "resolution": "existing-install MSVC redistributable prerequisite (x86 for Probe32, x64 otherwise)"
+        },
+        {
+          "name": "VCRUNTIME140.dll",
+          "resolution": "existing-install MSVC redistributable prerequisite (x86 for Probe32, x64 otherwise)"
+        },
+        {
+          "name": "VCRUNTIME140_1.dll",
+          "resolution": "existing-install MSVC redistributable prerequisite (x86 for Probe32, x64 otherwise)"
+        },
+        {
+          "name": "api-ms-win-crt-heap-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-stdio-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-math-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-string-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-runtime-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "KERNEL32.dll",
+          "resolution": "Windows system prerequisite"
+        }
+      ]
+    },
+    {
+      "file": "nodes/native_fx/graphic_eq/mod_graphic_eq.dll",
+      "architecture": "x64",
+      "direct_and_delay_imports": [
+        {
+          "name": "audio.dll",
+          "resolution": "included project runtime"
+        },
+        {
+          "name": "ui.dll",
+          "resolution": "included project runtime"
+        },
+        {
+          "name": "Qt6Widgets.dll",
+          "resolution": "existing-install Qt 6.10.3 Release prerequisite"
+        },
+        {
+          "name": "Qt6Gui.dll",
+          "resolution": "existing-install Qt 6.10.3 Release prerequisite"
+        },
+        {
+          "name": "Qt6Core.dll",
+          "resolution": "existing-install Qt 6.10.3 Release prerequisite"
+        },
+        {
+          "name": "MSVCP140.dll",
+          "resolution": "existing-install MSVC redistributable prerequisite (x86 for Probe32, x64 otherwise)"
+        },
+        {
+          "name": "VCRUNTIME140.dll",
+          "resolution": "existing-install MSVC redistributable prerequisite (x86 for Probe32, x64 otherwise)"
+        },
+        {
+          "name": "VCRUNTIME140_1.dll",
+          "resolution": "existing-install MSVC redistributable prerequisite (x86 for Probe32, x64 otherwise)"
+        },
+        {
+          "name": "api-ms-win-crt-heap-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-stdio-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-math-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-string-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-runtime-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "KERNEL32.dll",
+          "resolution": "Windows system prerequisite"
+        }
+      ]
+    },
+    {
+      "file": "nodes/native_fx/deesser/mod_deesser.dll",
+      "architecture": "x64",
+      "direct_and_delay_imports": [
+        {
+          "name": "audio.dll",
+          "resolution": "included project runtime"
+        },
+        {
+          "name": "ui.dll",
+          "resolution": "included project runtime"
+        },
+        {
+          "name": "Qt6Widgets.dll",
+          "resolution": "existing-install Qt 6.10.3 Release prerequisite"
+        },
+        {
+          "name": "Qt6Gui.dll",
+          "resolution": "existing-install Qt 6.10.3 Release prerequisite"
+        },
+        {
+          "name": "Qt6Core.dll",
+          "resolution": "existing-install Qt 6.10.3 Release prerequisite"
+        },
+        {
+          "name": "MSVCP140.dll",
+          "resolution": "existing-install MSVC redistributable prerequisite (x86 for Probe32, x64 otherwise)"
+        },
+        {
+          "name": "VCRUNTIME140.dll",
+          "resolution": "existing-install MSVC redistributable prerequisite (x86 for Probe32, x64 otherwise)"
+        },
+        {
+          "name": "VCRUNTIME140_1.dll",
+          "resolution": "existing-install MSVC redistributable prerequisite (x86 for Probe32, x64 otherwise)"
+        },
+        {
+          "name": "api-ms-win-crt-heap-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-stdio-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-math-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-string-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-runtime-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "KERNEL32.dll",
+          "resolution": "Windows system prerequisite"
+        }
+      ]
+    },
+    {
+      "file": "nodes/native_fx/compressor/mod_compressor.dll",
+      "architecture": "x64",
+      "direct_and_delay_imports": [
+        {
+          "name": "audio.dll",
+          "resolution": "included project runtime"
+        },
+        {
+          "name": "ui.dll",
+          "resolution": "included project runtime"
+        },
+        {
+          "name": "Qt6Widgets.dll",
+          "resolution": "existing-install Qt 6.10.3 Release prerequisite"
+        },
+        {
+          "name": "Qt6Gui.dll",
+          "resolution": "existing-install Qt 6.10.3 Release prerequisite"
+        },
+        {
+          "name": "Qt6Core.dll",
+          "resolution": "existing-install Qt 6.10.3 Release prerequisite"
+        },
+        {
+          "name": "MSVCP140.dll",
+          "resolution": "existing-install MSVC redistributable prerequisite (x86 for Probe32, x64 otherwise)"
+        },
+        {
+          "name": "VCRUNTIME140.dll",
+          "resolution": "existing-install MSVC redistributable prerequisite (x86 for Probe32, x64 otherwise)"
+        },
+        {
+          "name": "VCRUNTIME140_1.dll",
+          "resolution": "existing-install MSVC redistributable prerequisite (x86 for Probe32, x64 otherwise)"
+        },
+        {
+          "name": "api-ms-win-crt-heap-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-stdio-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-math-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-string-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-runtime-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "KERNEL32.dll",
+          "resolution": "Windows system prerequisite"
+        }
+      ]
+    },
+    {
+      "file": "nodes/native_fx/limiter/mod_limiter.dll",
+      "architecture": "x64",
+      "direct_and_delay_imports": [
+        {
+          "name": "audio.dll",
+          "resolution": "included project runtime"
+        },
+        {
+          "name": "ui.dll",
+          "resolution": "included project runtime"
+        },
+        {
+          "name": "Qt6Widgets.dll",
+          "resolution": "existing-install Qt 6.10.3 Release prerequisite"
+        },
+        {
+          "name": "Qt6Gui.dll",
+          "resolution": "existing-install Qt 6.10.3 Release prerequisite"
+        },
+        {
+          "name": "Qt6Core.dll",
+          "resolution": "existing-install Qt 6.10.3 Release prerequisite"
+        },
+        {
+          "name": "MSVCP140.dll",
+          "resolution": "existing-install MSVC redistributable prerequisite (x86 for Probe32, x64 otherwise)"
+        },
+        {
+          "name": "VCRUNTIME140.dll",
+          "resolution": "existing-install MSVC redistributable prerequisite (x86 for Probe32, x64 otherwise)"
+        },
+        {
+          "name": "VCRUNTIME140_1.dll",
+          "resolution": "existing-install MSVC redistributable prerequisite (x86 for Probe32, x64 otherwise)"
+        },
+        {
+          "name": "api-ms-win-crt-heap-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-stdio-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-math-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-string-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-runtime-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "KERNEL32.dll",
+          "resolution": "Windows system prerequisite"
+        }
+      ]
+    },
+    {
+      "file": "nodes/native_fx/delay/mod_delay.dll",
+      "architecture": "x64",
+      "direct_and_delay_imports": [
+        {
+          "name": "audio.dll",
+          "resolution": "included project runtime"
+        },
+        {
+          "name": "ui.dll",
+          "resolution": "included project runtime"
+        },
+        {
+          "name": "Qt6Widgets.dll",
+          "resolution": "existing-install Qt 6.10.3 Release prerequisite"
+        },
+        {
+          "name": "Qt6Gui.dll",
+          "resolution": "existing-install Qt 6.10.3 Release prerequisite"
+        },
+        {
+          "name": "Qt6Core.dll",
+          "resolution": "existing-install Qt 6.10.3 Release prerequisite"
+        },
+        {
+          "name": "MSVCP140.dll",
+          "resolution": "existing-install MSVC redistributable prerequisite (x86 for Probe32, x64 otherwise)"
+        },
+        {
+          "name": "VCRUNTIME140.dll",
+          "resolution": "existing-install MSVC redistributable prerequisite (x86 for Probe32, x64 otherwise)"
+        },
+        {
+          "name": "VCRUNTIME140_1.dll",
+          "resolution": "existing-install MSVC redistributable prerequisite (x86 for Probe32, x64 otherwise)"
+        },
+        {
+          "name": "api-ms-win-crt-heap-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-stdio-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-math-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-string-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-runtime-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "KERNEL32.dll",
+          "resolution": "Windows system prerequisite"
+        }
+      ]
+    },
+    {
+      "file": "nodes/native_fx/parametric_eq/mod_parametric_eq.dll",
+      "architecture": "x64",
+      "direct_and_delay_imports": [
+        {
+          "name": "audio.dll",
+          "resolution": "included project runtime"
+        },
+        {
+          "name": "ui.dll",
+          "resolution": "included project runtime"
+        },
+        {
+          "name": "Qt6Widgets.dll",
+          "resolution": "existing-install Qt 6.10.3 Release prerequisite"
+        },
+        {
+          "name": "Qt6Gui.dll",
+          "resolution": "existing-install Qt 6.10.3 Release prerequisite"
+        },
+        {
+          "name": "Qt6Core.dll",
+          "resolution": "existing-install Qt 6.10.3 Release prerequisite"
+        },
+        {
+          "name": "MSVCP140.dll",
+          "resolution": "existing-install MSVC redistributable prerequisite (x86 for Probe32, x64 otherwise)"
+        },
+        {
+          "name": "VCRUNTIME140.dll",
+          "resolution": "existing-install MSVC redistributable prerequisite (x86 for Probe32, x64 otherwise)"
+        },
+        {
+          "name": "VCRUNTIME140_1.dll",
+          "resolution": "existing-install MSVC redistributable prerequisite (x86 for Probe32, x64 otherwise)"
+        },
+        {
+          "name": "api-ms-win-crt-heap-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-stdio-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-math-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-string-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-runtime-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "KERNEL32.dll",
+          "resolution": "Windows system prerequisite"
+        }
+      ]
+    },
+    {
+      "file": "nodes/native_fx/reverb/mod_reverb.dll",
+      "architecture": "x64",
+      "direct_and_delay_imports": [
+        {
+          "name": "audio.dll",
+          "resolution": "included project runtime"
+        },
+        {
+          "name": "ui.dll",
+          "resolution": "included project runtime"
+        },
+        {
+          "name": "Qt6Widgets.dll",
+          "resolution": "existing-install Qt 6.10.3 Release prerequisite"
+        },
+        {
+          "name": "Qt6Gui.dll",
+          "resolution": "existing-install Qt 6.10.3 Release prerequisite"
+        },
+        {
+          "name": "Qt6Core.dll",
+          "resolution": "existing-install Qt 6.10.3 Release prerequisite"
+        },
+        {
+          "name": "MSVCP140.dll",
+          "resolution": "existing-install MSVC redistributable prerequisite (x86 for Probe32, x64 otherwise)"
+        },
+        {
+          "name": "VCRUNTIME140.dll",
+          "resolution": "existing-install MSVC redistributable prerequisite (x86 for Probe32, x64 otherwise)"
+        },
+        {
+          "name": "VCRUNTIME140_1.dll",
+          "resolution": "existing-install MSVC redistributable prerequisite (x86 for Probe32, x64 otherwise)"
+        },
+        {
+          "name": "api-ms-win-crt-heap-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-stdio-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-math-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-string-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-runtime-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "KERNEL32.dll",
+          "resolution": "Windows system prerequisite"
+        }
+      ]
+    },
+    {
+      "file": "examples/node/wjn_example_node.dll",
+      "architecture": "x64",
+      "direct_and_delay_imports": [
+        {
+          "name": "MSVCP140.dll",
+          "resolution": "existing-install MSVC redistributable prerequisite (x86 for Probe32, x64 otherwise)"
+        },
+        {
+          "name": "VCRUNTIME140.dll",
+          "resolution": "existing-install MSVC redistributable prerequisite (x86 for Probe32, x64 otherwise)"
+        },
+        {
+          "name": "VCRUNTIME140_1.dll",
+          "resolution": "existing-install MSVC redistributable prerequisite (x86 for Probe32, x64 otherwise)"
+        },
+        {
+          "name": "api-ms-win-crt-heap-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-runtime-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "KERNEL32.dll",
+          "resolution": "Windows system prerequisite"
+        }
+      ]
+    },
+    {
+      "file": "examples/native_fx/wjn_example_native_fx.dll",
+      "architecture": "x64",
+      "direct_and_delay_imports": [
+        {
+          "name": "audio.dll",
+          "resolution": "included project runtime"
+        },
+        {
+          "name": "ui.dll",
+          "resolution": "included project runtime"
+        },
+        {
+          "name": "Qt6Widgets.dll",
+          "resolution": "existing-install Qt 6.10.3 Release prerequisite"
+        },
+        {
+          "name": "Qt6Gui.dll",
+          "resolution": "existing-install Qt 6.10.3 Release prerequisite"
+        },
+        {
+          "name": "Qt6Core.dll",
+          "resolution": "existing-install Qt 6.10.3 Release prerequisite"
+        },
+        {
+          "name": "MSVCP140.dll",
+          "resolution": "existing-install MSVC redistributable prerequisite (x86 for Probe32, x64 otherwise)"
+        },
+        {
+          "name": "VCRUNTIME140.dll",
+          "resolution": "existing-install MSVC redistributable prerequisite (x86 for Probe32, x64 otherwise)"
+        },
+        {
+          "name": "VCRUNTIME140_1.dll",
+          "resolution": "existing-install MSVC redistributable prerequisite (x86 for Probe32, x64 otherwise)"
+        },
+        {
+          "name": "api-ms-win-crt-heap-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-stdio-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-string-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "api-ms-win-crt-runtime-l1-1-0.dll",
+          "resolution": "Windows system prerequisite"
+        },
+        {
+          "name": "KERNEL32.dll",
+          "resolution": "Windows system prerequisite"
+        }
+      ]
+    }
+  ],
+  "prerequisites": {
+    "Qt": [
+      "Qt6Core.dll",
+      "Qt6Gui.dll",
+      "Qt6OpenGLWidgets.dll",
+      "Qt6Widgets.dll"
+    ],
+    "Qt_platform": "existing platforms/qwindows.dll from the same Qt 6.10.3 Release installation",
+    "MSVC": "compatible installed x64 and x86 redistributables; no redistributable install is performed",
+    "dynamic_runtime": [
+      "existing wjn_default_theme.dll and its theme runtime",
+      "existing VSTProcess32.exe/VSTProcess64.exe and their architecture-specific dependencies",
+      "existing JACK libjack64.dll/libjack.dll for audio use"
+    ],
+    "scope": "Incremental overlay for a compatible existing WinJACKNexus desktop installation. Static import resolution is checked; dynamic loading and deployment execution are not tested."
+  },
+  "module_test_runs_added": 0,
+  "ui_shows_added": 0,
+  "installed": false,
+  "human_review": "pending user review",
+  "runtime_limits": [
+    "Scanner repaired UI, shared control additions and S6 supplemental UI behavior.",
+    "Remaining cold-start/language/scale combinations recorded in prior S5 evidence.",
+    "Installing this overlay, first-start/restart behavior or preserving an actual existing installation during deployment."
+  ],
+  "source_commit": "e0b1f6ec68f6d5adb5a5cee9ed7fb97e3b5ebb21",
+  "files": [
+    {
+      "path": "Vst Scanner Probe32.exe",
+      "bytes": 135680,
+      "sha256": "15d7c24e46b6eee8bcca1aa53abbd7088115db7e43d84a0d469243709a63ca3d"
+    },
+    {
+      "path": "Vst Scanner Probe64.exe",
+      "bytes": 160768,
+      "sha256": "a507976b102b99e13e3a9f20f3eac277c0d1e9bbc5ffff9964618e3978cb6652"
+    },
+    {
+      "path": "Vst Scanner.exe",
+      "bytes": 539648,
+      "sha256": "cc95ce9f0dd031b854ea42d2f3128a282cdc2c92ff0feba8339d3b47fcb520dc"
+    },
+    {
+      "path": "WinJACKNexus.exe",
+      "bytes": 251904,
+      "sha256": "5db60e6d2c45b2f7427b125c27dab43d272a6bad9db2d43fb47d0e7be2a9c336"
+    },
+    {
+      "path": "audio.dll",
+      "bytes": 96768,
+      "sha256": "342f428fb3810f281dbc1a8eaa6a153ad3f93ad6a7b98ec81c4f42fb799d11b3"
+    },
+    {
+      "path": "common.dll",
+      "bytes": 301056,
+      "sha256": "3b5e4b87c8505ccf6acdda32d6553e626e174bfcb358a79384d5615fe6b5fe90"
+    },
+    {
+      "path": "examples/native_fx/locate/en-US.json",
+      "bytes": 266,
+      "sha256": "67af3cdf28b17064b2d8754615721c02d0bd9ee3da35be6bb5b8de4277fc4b91"
+    },
+    {
+      "path": "examples/native_fx/locate/ja-JP.json",
+      "bytes": 297,
+      "sha256": "81819ab9dddac6bd03164441e9d75c343eb8f49ee340f9abbb31b3608a58f863"
+    },
+    {
+      "path": "examples/native_fx/locate/ko-KR.json",
+      "bytes": 271,
+      "sha256": "fd5ba8119a4f6ffd9d01599a46d5d4660df6e8b583e45aa16843999440f1b782"
+    },
+    {
+      "path": "examples/native_fx/locate/manifest.json",
+      "bytes": 417,
+      "sha256": "89606464e340d208e1cec965f14205dac597c6ccde3c3a8113582f0b2bb3d454"
+    },
+    {
+      "path": "examples/native_fx/locate/zh-CN.json",
+      "bytes": 270,
+      "sha256": "49b92259acb26c1de19a26aeca6c985d2d46e473e7d8233e688275fdd544388b"
+    },
+    {
+      "path": "examples/native_fx/wjn_example_native_fx.dll",
+      "bytes": 78336,
+      "sha256": "1a0d7272efee19aa19393a05e9e6f9cbcd40601f23e252d25109cb5aaf493413"
+    },
+    {
+      "path": "examples/node/locate/en-US.json",
+      "bytes": 393,
+      "sha256": "dbade963e8826e33e2a8335e4cd505de89a05002edb880c7488e9eb7eb87f1c7"
+    },
+    {
+      "path": "examples/node/locate/ja-JP.json",
+      "bytes": 198,
+      "sha256": "55cc908b1430546213975a35b0871c292f16c53a748b1e31efd7360b6ae40f37"
+    },
+    {
+      "path": "examples/node/locate/ko-KR.json",
+      "bytes": 190,
+      "sha256": "4fab617c01cddd49a4e81d19e2f12c999478e6658093196de9a8bf363852111d"
+    },
+    {
+      "path": "examples/node/locate/manifest.json",
+      "bytes": 403,
+      "sha256": "5f8a760e24a5cf89ad6b33ac80a6b1bff3511902503fc26c7b673d439223b904"
+    },
+    {
+      "path": "examples/node/locate/zh-CN.json",
+      "bytes": 189,
+      "sha256": "bf04d64323a4382918720dbab98c4fb7710213d65aac38255174738e986ee0b7"
+    },
+    {
+      "path": "examples/node/wjn_example_node.dll",
+      "bytes": 18432,
+      "sha256": "587ba9cea273c7907fd699317ba0adf05e7da5b85ae9cf90688ee6f685209376"
+    },
+    {
+      "path": "locate/en-US.json",
+      "bytes": 43071,
+      "sha256": "f1fc84b9b7e24ea59b7a7724c4be5f874be741ecfe813d8d2e9b166f0240bd8e"
+    },
+    {
+      "path": "locate/ja-JP.json",
+      "bytes": 53594,
+      "sha256": "e989872b327ce8285b37a6b463f2274b900e4fde7f9ab9626717c4e99dc05fb8"
+    },
+    {
+      "path": "locate/ko-KR.json",
+      "bytes": 49619,
+      "sha256": "014b68038cae1814fca7de961a5cb0a62460bf4488adfb3e377eb2abc5c59b95"
+    },
+    {
+      "path": "locate/manifest.json",
+      "bytes": 22153,
+      "sha256": "c4288b877b2e789c33a4b120cfa2753a0bcd395c24caa59babafb168342670d1"
+    },
+    {
+      "path": "locate/qt/qtbase_ja.qm",
+      "bytes": 129913,
+      "sha256": "2b9581c69b975f59be505b127cd3c19d403ef3d12e0e8386fb97238223e9c1df"
+    },
+    {
+      "path": "locate/qt/qtbase_ko.qm",
+      "bytes": 156799,
+      "sha256": "0179ed1b136e1cb3f583351eaa2c545ba3d83a6ee3f82c32505926a1a5f5f183"
+    },
+    {
+      "path": "locate/qt/qtbase_zh_CN.qm",
+      "bytes": 147222,
+      "sha256": "d882656ae6c4939eceeaf8a36b71198dce41a1cbf61ed3e0319cc0f4f744fa05"
+    },
+    {
+      "path": "locate/zh-CN.json",
+      "bytes": 42184,
+      "sha256": "ed8f3671616fca100e94758d41d38383d032d7c8820c5d4b7e8f499fd776f62d"
+    },
+    {
+      "path": "mod_meterbrigde.dll",
+      "bytes": 471552,
+      "sha256": "c63dc76b4e975712364fcff5052c6874cde017a936030b3f381da4adf0d9a8ec"
+    },
+    {
+      "path": "mod_patchbay.dll",
+      "bytes": 762880,
+      "sha256": "69e5a35c483a4703d85128a9693f72249403db032c080f3e7ed5e72acf64873d"
+    },
+    {
+      "path": "node.dll",
+      "bytes": 12288,
+      "sha256": "807753fa7cf89187721a8aa372dc8e1c4febdc64486f3ed2acea549a01289de7"
+    },
+    {
+      "path": "nodes/adapter/mod_adapter.dll",
+      "bytes": 185344,
+      "sha256": "b793c41dc60c261bb803159ca6207405b9efe5aadd05c1c93f48132f1a124ec6"
+    },
+    {
+      "path": "nodes/meter/mod_meterbridge_probe.dll",
+      "bytes": 142336,
+      "sha256": "101aa8f44d96b027992412086d6a87a430139ecbfa0381ba7c13d011b59cb341"
+    },
+    {
+      "path": "nodes/mixer/mod_digital_mixer.dll",
+      "bytes": 92672,
+      "sha256": "93103e0f81e9856d59e9097d5ec3289c737150b0075b2086fa699f3b542afb74"
+    },
+    {
+      "path": "nodes/native_fx/compressor/locate/en-US.json",
+      "bytes": 1280,
+      "sha256": "6f28aede30d7f00f6cc7af64cfaf69b6758f54dcba7ea83608b3e42db310bc28"
+    },
+    {
+      "path": "nodes/native_fx/compressor/locate/ja-JP.json",
+      "bytes": 1520,
+      "sha256": "1a604c56af472e47ef6fb8dd4ebe737eef6069f20724ec3be20dd2c3bdb92827"
+    },
+    {
+      "path": "nodes/native_fx/compressor/locate/ko-KR.json",
+      "bytes": 1391,
+      "sha256": "b8a9fe57f4df3d20f679830212435918d9d582220a1162f696ca99624cc1a33b"
+    },
+    {
+      "path": "nodes/native_fx/compressor/locate/manifest.json",
+      "bytes": 1060,
+      "sha256": "9f5d4b195ed4011de62b26ca900e078818e339e1b089deabdc621b5d131c0474"
+    },
+    {
+      "path": "nodes/native_fx/compressor/locate/zh-CN.json",
+      "bytes": 1358,
+      "sha256": "21f25a937e108d09e4c2b492266ce17d9a0b29469e55c3e11945c25411eb181b"
+    },
+    {
+      "path": "nodes/native_fx/compressor/mod_compressor.dll",
+      "bytes": 156672,
+      "sha256": "ebd199cdc6234aa6024db599d8a09570cd7ea09db1b98928e6761c93a76dbd50"
+    },
+    {
+      "path": "nodes/native_fx/deesser/locate/en-US.json",
+      "bytes": 1476,
+      "sha256": "661c46e7318913a35586b45331b8f7233a6916cf022c1301ea52c96d4b1fd957"
+    },
+    {
+      "path": "nodes/native_fx/deesser/locate/ja-JP.json",
+      "bytes": 1696,
+      "sha256": "b6679d1b8245493e627820a08c029e32eb7445a990848f6230c4a725052faaa6"
+    },
+    {
+      "path": "nodes/native_fx/deesser/locate/ko-KR.json",
+      "bytes": 1569,
+      "sha256": "5cbcc41f70d8033661422a737cbb7bf0974737c64dc6a2acb126e43c3a27fe02"
+    },
+    {
+      "path": "nodes/native_fx/deesser/locate/manifest.json",
+      "bytes": 1162,
+      "sha256": "d51917ccc0d11a45be0d3260cac2270142b01ea3e496e399f2ca9b8fcf4fe51f"
+    },
+    {
+      "path": "nodes/native_fx/deesser/locate/zh-CN.json",
+      "bytes": 1514,
+      "sha256": "af0ec8a62a5aa97bd08954b8987f6945e3a3f4390998f84ac34c247f6684d3e9"
+    },
+    {
+      "path": "nodes/native_fx/deesser/mod_deesser.dll",
+      "bytes": 159744,
+      "sha256": "681a9bd71bca5a3c4df68a2ead6e9c97dc6adf69de928c752a3f71a5201c9c94"
+    },
+    {
+      "path": "nodes/native_fx/delay/locate/en-US.json",
+      "bytes": 1651,
+      "sha256": "cb4de3a967fe410f4b5dfde838ae4090d2552fec56e51455b914fad6be1bd1a8"
+    },
+    {
+      "path": "nodes/native_fx/delay/locate/ja-JP.json",
+      "bytes": 1918,
+      "sha256": "dbf526cadf52487854e8e0a412e207b89ca8ae0223037f703e23ac6dfc2521ac"
+    },
+    {
+      "path": "nodes/native_fx/delay/locate/ko-KR.json",
+      "bytes": 1760,
+      "sha256": "3046a3a2eb823dd6044377d0c07d9139e9a461fb9afad036d16835639711ac72"
+    },
+    {
+      "path": "nodes/native_fx/delay/locate/manifest.json",
+      "bytes": 1309,
+      "sha256": "246355d43557c4b84d28b313aa1de4f6f2ac3b0b479fe726c24fe8e886f2b500"
+    },
+    {
+      "path": "nodes/native_fx/delay/locate/zh-CN.json",
+      "bytes": 1694,
+      "sha256": "67f6fc57053d0429deb00de262f2a3c51ad7e353bb58d3f3db265bdef8d51bfe"
+    },
+    {
+      "path": "nodes/native_fx/delay/mod_delay.dll",
+      "bytes": 162304,
+      "sha256": "a2b1c9cf788e45ec1e4584fde06fbc48e1e11e40f184fd78addb7727eb76313f"
+    },
+    {
+      "path": "nodes/native_fx/gate/locate/en-US.json",
+      "bytes": 1150,
+      "sha256": "cc9d202b3a6dcbfdbd437821ec2c5d9722289cc4f1c04ba04346c33f10d8e72f"
+    },
+    {
+      "path": "nodes/native_fx/gate/locate/ja-JP.json",
+      "bytes": 1348,
+      "sha256": "2186077fec30bada43daec1a759aa9405624f2485dbc5c59064f2177acf84f94"
+    },
+    {
+      "path": "nodes/native_fx/gate/locate/ko-KR.json",
+      "bytes": 1268,
+      "sha256": "15274a801e8a3b48607204a9b2b519d9a5eee6ab578fbed033a34956e573b058"
+    },
+    {
+      "path": "nodes/native_fx/gate/locate/manifest.json",
+      "bytes": 971,
+      "sha256": "2855e395c4b3fd41b8dfce0e5cf36efbb9ac32cf41c9d81c863020975550f579"
+    },
+    {
+      "path": "nodes/native_fx/gate/locate/zh-CN.json",
+      "bytes": 1219,
+      "sha256": "fb0fec211f3cbe9375d59de008bd6d46385f94edcfd7dd1a195f5b75c6f3e0d0"
+    },
+    {
+      "path": "nodes/native_fx/gate/mod_gate.dll",
+      "bytes": 137728,
+      "sha256": "be1f499eee6144820d48d1c828ac36535ccc71c8b0990f07d0c2fa9c47581cec"
+    },
+    {
+      "path": "nodes/native_fx/graphic_eq/locate/en-US.json",
+      "bytes": 1497,
+      "sha256": "3a7eab03874ff69d8bc23d35a80b8c448a4b37740f0faf5dd0d4ee3114300310"
+    },
+    {
+      "path": "nodes/native_fx/graphic_eq/locate/ja-JP.json",
+      "bytes": 1718,
+      "sha256": "2002280a4218c5a5f88c1f33002846a270e55bf9146ade60a8065e1cb01b433f"
+    },
+    {
+      "path": "nodes/native_fx/graphic_eq/locate/ko-KR.json",
+      "bytes": 1569,
+      "sha256": "2a6191d8306ef3905e2da2840f6ff80919fcb9f9fbdd1e3398a28e3157e2a4a3"
+    },
+    {
+      "path": "nodes/native_fx/graphic_eq/locate/manifest.json",
+      "bytes": 1192,
+      "sha256": "a46858c7a2d1af9c4057cb5cfada9699bc5ca87f44dbb80361ed72619ff09b21"
+    },
+    {
+      "path": "nodes/native_fx/graphic_eq/locate/zh-CN.json",
+      "bytes": 1547,
+      "sha256": "1a6fcb588df71edcfb996ca8f9be5e16cd2c16b8a9f721d809d6615e866367f5"
+    },
+    {
+      "path": "nodes/native_fx/graphic_eq/mod_graphic_eq.dll",
+      "bytes": 173056,
+      "sha256": "02b27c81e11f60bcfbec401a90e62db14f0cea9e4d2d064f339cd437afaebf7c"
+    },
+    {
+      "path": "nodes/native_fx/limiter/locate/en-US.json",
+      "bytes": 1525,
+      "sha256": "b4da7f48b7004a0c136e60c480c30c3bc48ac117e40c8efa4b6658355bdd9319"
+    },
+    {
+      "path": "nodes/native_fx/limiter/locate/ja-JP.json",
+      "bytes": 1739,
+      "sha256": "d57b11fbb530173047a60706810fccfa20d934eb62ceaad69262306c7ae65bd1"
+    },
+    {
+      "path": "nodes/native_fx/limiter/locate/ko-KR.json",
+      "bytes": 1600,
+      "sha256": "7f792c0b82c599faa2239ff9cd1e2a22278460d6b2c8e5deead94d56cad58f32"
+    },
+    {
+      "path": "nodes/native_fx/limiter/locate/manifest.json",
+      "bytes": 1187,
+      "sha256": "8ba36962e5643b3e90a9675e80b58fa2f0058e2e6a66ca90be9ed32bc047498f"
+    },
+    {
+      "path": "nodes/native_fx/limiter/locate/zh-CN.json",
+      "bytes": 1555,
+      "sha256": "be8e616811b8890ac0019a45bf35c6e2cd9d962fb323ce5e8eb186af10a49048"
+    },
+    {
+      "path": "nodes/native_fx/limiter/mod_limiter.dll",
+      "bytes": 156672,
+      "sha256": "4445342e140822a09fc01298f47c16de4f20ee5f216bcc5fb41d95c7e97dd85d"
+    },
+    {
+      "path": "nodes/native_fx/parametric_eq/locate/en-US.json",
+      "bytes": 2331,
+      "sha256": "cd8922ba7def09ea387ee6b0f109857bf13e13ab43587752eb506639a4f5a6ec"
+    },
+    {
+      "path": "nodes/native_fx/parametric_eq/locate/ja-JP.json",
+      "bytes": 2566,
+      "sha256": "d20dbdda031603e079ab9e4655b0d40f6651c88901c413c5fc180c7ff24d1ae0"
+    },
+    {
+      "path": "nodes/native_fx/parametric_eq/locate/ko-KR.json",
+      "bytes": 2437,
+      "sha256": "d8cfb88347842b1c0e360b1efce72260e213aa2f52d9c2d9aecc743cddf67860"
+    },
+    {
+      "path": "nodes/native_fx/parametric_eq/locate/manifest.json",
+      "bytes": 1747,
+      "sha256": "3fe29f53c24a6778f93d6fa6376a57cc85e88fd6c74a1c086b6694d948b248ea"
+    },
+    {
+      "path": "nodes/native_fx/parametric_eq/locate/zh-CN.json",
+      "bytes": 2418,
+      "sha256": "286fea119efbf2bd08cc409e1b006a265fd020e5c94b64b4bfd63bc0ac97b518"
+    },
+    {
+      "path": "nodes/native_fx/parametric_eq/mod_parametric_eq.dll",
+      "bytes": 209408,
+      "sha256": "a08570f3e52425d0903999acc6bc2fd55af00768b99707043a95fa3eda339599"
+    },
+    {
+      "path": "nodes/native_fx/reverb/locate/en-US.json",
+      "bytes": 1818,
+      "sha256": "d821370d7acb1acc45e9c2d8fa41a9e1b7214e7159d3834ad68c923f7b365688"
+    },
+    {
+      "path": "nodes/native_fx/reverb/locate/ja-JP.json",
+      "bytes": 2079,
+      "sha256": "68de649def0c4de67f8bc6396c0719c07a79d81b58a86603f01e55125dc42c61"
+    },
+    {
+      "path": "nodes/native_fx/reverb/locate/ko-KR.json",
+      "bytes": 1925,
+      "sha256": "c9b017c17b9a160dd6642a9288f0f021dfa843c28fc48ceec10390db0425da06"
+    },
+    {
+      "path": "nodes/native_fx/reverb/locate/manifest.json",
+      "bytes": 1427,
+      "sha256": "4d26f43deea549fd8d401d8140f8905157a4aeac64a366318b2157b5fa2ef361"
+    },
+    {
+      "path": "nodes/native_fx/reverb/locate/zh-CN.json",
+      "bytes": 1869,
+      "sha256": "16320a68da262f24bfccc512edc00c36019bece23df3370b1c66e17e01a26198"
+    },
+    {
+      "path": "nodes/native_fx/reverb/mod_reverb.dll",
+      "bytes": 153088,
+      "sha256": "4604ecec122f1796c4322657408a9a5e870fcfbb16966d496b2aa31a5eba71f3"
+    },
+    {
+      "path": "nodes/vst/locate/en-US.json",
+      "bytes": 3598,
+      "sha256": "63649942fbe423f86636ce8c4170e2c4e09b0f0efbc9871f77a216e9cfee72f9"
+    },
+    {
+      "path": "nodes/vst/locate/ja-JP.json",
+      "bytes": 4640,
+      "sha256": "52867f7d8200d90e111f363c55b8da8c730d20e54f626b1f7a0cd6893f66098a"
+    },
+    {
+      "path": "nodes/vst/locate/ko-KR.json",
+      "bytes": 4326,
+      "sha256": "f8622608ec41f955bc3ea4e6b0bcdb66fdc32ddc89cd8c8a30010052a715c2cb"
+    },
+    {
+      "path": "nodes/vst/locate/manifest.json",
+      "bytes": 1789,
+      "sha256": "02cd47e2873d86b76333b219c81465d72040b235e7633ee63b8192e0d2305480"
+    },
+    {
+      "path": "nodes/vst/locate/zh-CN.json",
+      "bytes": 3445,
+      "sha256": "37bd7d438a3aa44a2a65d56663952288589720a6a5874acd565ee3856b1d6117"
+    },
+    {
+      "path": "nodes/vst/mod_vst_host.dll",
+      "bytes": 236032,
+      "sha256": "e7919613f5ed627ec50f914e27b2e797abe6e71f3e33dd9f8aa4b8c6090f8754"
+    },
+    {
+      "path": "patchbay_core.dll",
+      "bytes": 56320,
+      "sha256": "f36aba63d52bf0c4c8b844c34db89bb7c7e4975e02bafce1f9b197704147984a"
+    },
+    {
+      "path": "ui.dll",
+      "bytes": 2370560,
+      "sha256": "5af5082f700516fdb1b4a446ea53a1296db63b88b83f8aab92c99c5078a1cc0c"
+    },
+    {
+      "path": "vstscanner/locate/en-US.json",
+      "bytes": 4368,
+      "sha256": "6f4d8be22f3774e371131ad53d43bdb17af5b6b6381d298b8924cc8633deb1f6"
+    },
+    {
+      "path": "vstscanner/locate/ja-JP.json",
+      "bytes": 5536,
+      "sha256": "72cd4aaa6370b514eceacc346a9c366539ba73611228fccd95e9737e035507ab"
+    },
+    {
+      "path": "vstscanner/locate/ko-KR.json",
+      "bytes": 5125,
+      "sha256": "751164e7e0fce5e11d5f55ac7ea558132d1d815756be82a929012ed6c4b160e3"
+    },
+    {
+      "path": "vstscanner/locate/manifest.json",
+      "bytes": 2200,
+      "sha256": "06268e7ef8ff0311e8e458c1456f9f9147ff67bfad1be401027c7faf00e161cf"
+    },
+    {
+      "path": "vstscanner/locate/zh-CN.json",
+      "bytes": 4306,
+      "sha256": "fc8fbc896af577da60973953c4cdb52d2769549ee246d1b61b1c7d3a4dbbb412"
+    }
+  ]
+}
