@@ -1,6 +1,6 @@
 {
   "formatVersion": 1,
-  "catalogVersion": 5,
+  "catalogVersion": 6,
   "moduleId": "winjacknexus-host",
   "language": "zh-CN",
   "domains": {
@@ -551,7 +551,10 @@
       "clientName.apply": "应用",
       "clientName.empty": "名称不能为空",
       "clientName.applied": "已应用",
-      "clientName.rejected": "无法应用名称"
+      "clientName.rejected": "无法应用名称",
+      "choice.filterPlaceholder": "输入筛选",
+      "dock.expand": "展开侧边栏",
+      "dock.collapse": "收缩侧边栏"
     }
   }
 }

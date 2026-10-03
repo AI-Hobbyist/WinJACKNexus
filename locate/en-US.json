@@ -1,6 +1,6 @@
 {
   "formatVersion": 1,
-  "catalogVersion": 5,
+  "catalogVersion": 6,
   "moduleId": "winjacknexus-host",
   "language": "en-US",
   "domains": {
@@ -551,7 +551,10 @@
       "clientName.apply": "Apply",
       "clientName.empty": "Name cannot be empty",
       "clientName.applied": "Applied",
-      "clientName.rejected": "Unable to apply name"
+      "clientName.rejected": "Unable to apply name",
+      "choice.filterPlaceholder": "Type to filter",
+      "dock.expand": "Expand sidebar",
+      "dock.collapse": "Collapse sidebar"
     }
   }
 }

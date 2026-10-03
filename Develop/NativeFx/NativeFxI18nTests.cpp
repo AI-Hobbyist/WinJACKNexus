@@ -36,6 +36,7 @@
 #include <QHelpEvent>
 #include <QToolTip>
 #include <QMenu>
+#include <QMainWindow>
 #include <QAction>
 #include <QCursor>
 #include <QPushButton>
@@ -242,6 +243,37 @@ protected:
         Controls::drawElidedText(painter,QRectF(0,0,65,35),fullText(),font(),palette().color(QPalette::Text));
     }
 };
+void sharedDefaults(HostI18n& host) {
+    QMainWindow window;
+    auto* choice = new Controls::ChoiceField(&window);
+    choice->addItem(QStringLiteral("Plugin name"), 42);
+    choice->setManualFilterEnabled(true);
+    auto* custom = new Controls::ChoiceField(&window);
+    custom->setManualFilterEnabled(true);
+    custom->lineEdit()->setPlaceholderText(QStringLiteral("Caller placeholder"));
+    window.setCentralWidget(choice);
+    auto* dock = new Controls::DockPanel({}, Qt::LeftDockWidgetArea, &window);
+    dock->setWidget(custom);
+    window.addDockWidget(Qt::LeftDockWidgetArea, dock);
+    auto* arrow = dock->findChild<QToolButton*>(QStringLiteral("dockCollapseButton"));
+    check(arrow, "shared sidebar arrow exists");
+    window.resize(600, 250); window.show(); settle();
+    check(window.windowHandle()->isExposed(), "shared default fixture uses visible Windows window");
+    auto* editor = choice->lineEdit();
+    editor->setText(QStringLiteral("未提交 draft")); editor->setSelection(0, 3);
+    const auto selection = editor->selectedText();
+    QString error;
+    for (const auto& language : I18nManager::supportedLanguages()) {
+        check(host.manager().setLanguage(language, &error), "shared defaults language switch");
+        check(editor->placeholderText() == localizedText("ui", "choice.filterPlaceholder", "Type to filter"), "default filter placeholder translates");
+        check(editor->text() == QStringLiteral("未提交 draft") && editor->selectedText() == selection && choice->itemData(0).toInt() == 42, "filter draft selection and item identity survive language switch");
+        check(custom->lineEdit()->placeholderText() == QStringLiteral("Caller placeholder"), "caller placeholder stays independent");
+        for (bool collapsed : {true, false}) {
+            dock->setCollapsed(collapsed);
+            check(arrow->toolTip() == (collapsed ? localizedText("ui", "dock.expand", "Expand sidebar") : localizedText("ui", "dock.collapse", "Collapse sidebar")), "sidebar tooltip follows language and state");
+        }
+    }
+}
 void elision(HostI18n& host,const QString& output) {
     for (bool viewport : {false,true}) {
     ElisionWindow widget; widget.resize(200,120); widget.move(50,50);
@@ -649,7 +681,7 @@ int main(int argc,char** argv) {
     if (runHost) fxHost(host,args[2],languages);
     if (runCommunity) community(host,args[1],args[2],languages);
     check(host.manager().setLanguage(QStringLiteral("en-US"),&error),"language change after actual FX host destruction has no dangling binding");
-    if (runShared) { clientName(host,args[2]); elision(host,args[2]); }
+    if (runShared) { sharedDefaults(host); clientName(host,args[2]); elision(host,args[2]); }
     std::printf("S5 module Windows checks PASS: %d; platform=%s font=%s scale=%s\n",checks,app.platformName().toUtf8().constData(),app.font().family().toUtf8().constData(),qgetenv("QT_SCALE_FACTOR").constData());
     std::printf("S5 popup budget: %d / 100\n",popupBudget.shows);
     std::printf("S5 capture protocol: native-window-ownership-v2\n");

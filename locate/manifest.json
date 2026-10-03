@@ -12,7 +12,7 @@
     "ui"
   ],
   "defaultLanguage": "en-US",
-  "catalogVersion": 5,
+  "catalogVersion": 6,
   "languages": {
     "en-US": "en-US.json",
     "zh-CN": "zh-CN.json",
@@ -567,7 +567,10 @@
       "clientName.apply",
       "clientName.empty",
       "clientName.applied",
-      "clientName.rejected"
+      "clientName.rejected",
+      "choice.filterPlaceholder",
+      "dock.expand",
+      "dock.collapse"
     ]
   }
 }

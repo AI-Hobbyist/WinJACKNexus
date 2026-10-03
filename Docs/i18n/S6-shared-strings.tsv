@@ -1,0 +1,4 @@
+"domain"	"key"	"en-US"	"zh-CN"	"ja-JP"	"ko-KR"	"review"
+"ui"	"choice.filterPlaceholder"	"Type to filter"	"输入筛选"	"入力して絞り込み"	"입력하여 필터링"	"待用户母语/领域审校"
+"ui"	"dock.expand"	"Expand sidebar"	"展开侧边栏"	"サイドバーを展開"	"사이드바 펼치기"	"待用户母语/领域审校"
+"ui"	"dock.collapse"	"Collapse sidebar"	"收缩侧边栏"	"サイドバーを折りたたむ"	"사이드바 접기"	"待用户母语/领域审校"

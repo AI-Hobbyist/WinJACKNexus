@@ -1,0 +1,93 @@
+{
+  "stage": "S6",
+  "result": "ASSETS_AND_RELEASE_BUILD_PASS_UI_UNVERIFIED",
+  "shared_keys": 3,
+  "host_catalog_version": 6,
+  "host_keys": 536,
+  "module_test_runs": 0,
+  "ui_shows": 0,
+  "call_site_tests": "Compiled successfully; not executed under single module test instruction.",
+  "unverified": [
+    "New placeholder and sidebar tooltip runtime display",
+    "Draft/selection and caller-placeholder checks at runtime"
+  ],
+  "human_review": "Pending user review",
+  "evidence": [
+    {
+      "file": "src\\ui\\src\\Controls.cpp",
+      "sha256": "97aa471134b96809aba8e993754e64af5a67376679c96e30d2d827f0f1094b02"
+    },
+    {
+      "file": "locate\\manifest.json",
+      "sha256": "2a588cd4acde7b1c1c22bbfdc70034a8bbcfca165d3d6c17264800927b6bc555"
+    },
+    {
+      "file": "Docs\\i18n\\S6-shared-strings.tsv",
+      "sha256": "490508aab8e9236bcfc9a4e0a31d31098646188bd208304f3fca901045175d99"
+    },
+    {
+      "file": "Docs\\UI-API.md",
+      "sha256": "532fa0e4c3ae0fec4f7b62cf6aa3161c12ae53c7046a9a450da287d834477da1"
+    },
+    {
+      "file": "Develop\\NativeFx\\NativeFxI18nTests.cpp",
+      "sha256": "7f59352b0dc1e3f8fa14902e0021d5532acd4e420d1e95c655c064b93ffe9eb0"
+    },
+    {
+      "file": "build\\release\\bin\\ui.dll",
+      "sha256": "d7910baef4895191b5fbe297882d8517eafc87dc82388717b57abb2574a7d94a"
+    },
+    {
+      "file": "build\\release\\bin\\WinJACKNexus.exe",
+      "sha256": "469c45d293e786bb364bedbb959173cd9096dd844c244f672f62f120531c57f2"
+    },
+    {
+      "file": "build\\release\\bin\\wjn_native_fx_i18n_tests.exe",
+      "sha256": "d0fcb787cde659f070f94c464ea4532419e41fa9185cd16ce44f5396137fb590"
+    },
+    {
+      "file": "Docs\\i18n\\S6-shared-build.log",
+      "sha256": "15894af381ce4391132a8819741adfb4ebba9fb7dc1cee4b8036a7d214f20b25"
+    },
+    {
+      "file": "build\\release\\bin\\locate\\manifest.json",
+      "sha256": "2a588cd4acde7b1c1c22bbfdc70034a8bbcfca165d3d6c17264800927b6bc555"
+    },
+    {
+      "file": "locate\\en-US.json",
+      "sha256": "2ae1647d6738ebb88db2fa146a4b2b7b2cdd40b6624534e060dc14681e42c811"
+    },
+    {
+      "file": "build\\release\\bin\\locate\\en-US.json",
+      "sha256": "2ae1647d6738ebb88db2fa146a4b2b7b2cdd40b6624534e060dc14681e42c811"
+    },
+    {
+      "file": "locate\\zh-CN.json",
+      "sha256": "e125ab97166b87376c660f6da16025e0056efb68b7d3958fb58e854997aa7561"
+    },
+    {
+      "file": "build\\release\\bin\\locate\\zh-CN.json",
+      "sha256": "e125ab97166b87376c660f6da16025e0056efb68b7d3958fb58e854997aa7561"
+    },
+    {
+      "file": "locate\\ja-JP.json",
+      "sha256": "335a71d2e13ae86685e690af5e91b6006cbcb4c58f00b4253b22f43377e91a40"
+    },
+    {
+      "file": "build\\release\\bin\\locate\\ja-JP.json",
+      "sha256": "335a71d2e13ae86685e690af5e91b6006cbcb4c58f00b4253b22f43377e91a40"
+    },
+    {
+      "file": "locate\\ko-KR.json",
+      "sha256": "99dc1bd82e4649c130fb46f0a94b9e16063a7a77ebbe998c19d1b7f20408bce8"
+    },
+    {
+      "file": "build\\release\\bin\\locate\\ko-KR.json",
+      "sha256": "99dc1bd82e4649c130fb46f0a94b9e16063a7a77ebbe998c19d1b7f20408bce8"
+    },
+    {
+      "file": "src\\ui\\resources\\ui.qrc",
+      "sha256": "c3a03a8de53dad1e2ac8a32e1d795cfcd860bf48ff95e8e8c298dd434e8702a8"
+    }
+  ]
+}

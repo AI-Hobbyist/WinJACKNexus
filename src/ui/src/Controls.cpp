@@ -802,7 +802,15 @@ void ChoiceField::setManualFilterEnabled(bool enabled) {
         auto* search = new TextField(this);
         search->setProperty("wjnEmbedded", true);
         setLineEdit(search);
-        search->setPlaceholderText(QStringLiteral("输入筛选"));
+        const auto placeholder = localizedText("ui", "choice.filterPlaceholder", "Type to filter");
+        search->setPlaceholderText(placeholder);
+        if (auto* manager = I18nManager::installed())
+            manager->bind(search, [search, previous = placeholder, active = true]() mutable {
+                // A caller may replace this default with its own placeholder.
+                if (!active || search->placeholderText() != previous) { active = false; return; }
+                previous = localizedText("ui", "choice.filterPlaceholder", "Type to filter");
+                search->setPlaceholderText(previous);
+            });
         search->setTextMargins(28, 0, 25, 0);
         auto* filter = new QCompleter(model(), search);
         filter->setCaseSensitivity(Qt::CaseInsensitive);
@@ -1351,14 +1359,17 @@ public:
             dock->setCollapsed(!dock->isCollapsed());
         });
         updateCollapsed(false);
+        if (auto* manager = I18nManager::installed())
+            manager->bind(this, [this] { updateCollapsed(dock_->isCollapsed()); });
     }
 
     void updateCollapsed(bool collapsed) {
         arrow_->setText(area_ == Qt::LeftDockWidgetArea
             ? (collapsed ? QStringLiteral("▶") : QStringLiteral("◀"))
             : (collapsed ? QStringLiteral("◀") : QStringLiteral("▶")));
-        arrow_->setToolTip(collapsed ? QStringLiteral("展开侧边栏")
-                                      : QStringLiteral("收缩侧边栏"));
+        arrow_->setToolTip(collapsed
+            ? localizedText("ui", "dock.expand", "Expand sidebar")
+            : localizedText("ui", "dock.collapse", "Collapse sidebar"));
     }
 protected:
     void resizeEvent(QResizeEvent* event) override {

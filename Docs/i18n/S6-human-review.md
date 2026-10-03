@@ -25,3 +25,5 @@
 ## S6 探测错误增补
 
 2026-10-04 新增 `vstscanner/probe.*` 十项错误草稿，扫描器共 77 项。见 `S6-scanner-strings.tsv`。需核对 VST3 factory/component/class ID、VST2 entry point/AEffect 等专业术语在四语言中的表达；插件名称和 class ID 参数保持原始内容。当前没有新增人工批准。
+
+2026-10-04 共享 Controls 增补三项草稿（输入筛选/展开侧边栏/收缩侧边栏），四语言详见 `S6-shared-strings.tsv`。专业译文审校待用户；这次编译与静态部署核对没有新增人工批准或实窗验收。

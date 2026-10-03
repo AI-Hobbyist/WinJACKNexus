@@ -1,6 +1,6 @@
 {
   "formatVersion": 1,
-  "catalogVersion": 5,
+  "catalogVersion": 6,
   "moduleId": "winjacknexus-host",
   "language": "ja-JP",
   "domains": {
@@ -551,7 +551,10 @@
       "clientName.apply": "適用",
       "clientName.empty": "名前を空にすることはできません",
       "clientName.applied": "適用しました",
-      "clientName.rejected": "名前を適用できません"
+      "clientName.rejected": "名前を適用できません",
+      "choice.filterPlaceholder": "入力して絞り込み",
+      "dock.expand": "サイドバーを展開",
+      "dock.collapse": "サイドバーを折りたたむ"
     }
   }
 }

@@ -1,6 +1,6 @@
 {
   "formatVersion": 1,
-  "catalogVersion": 5,
+  "catalogVersion": 6,
   "moduleId": "winjacknexus-host",
   "language": "ko-KR",
   "domains": {
@@ -551,7 +551,10 @@
       "clientName.apply": "적용",
       "clientName.empty": "이름을 비워 둘 수 없습니다",
       "clientName.applied": "적용됨",
-      "clientName.rejected": "이름을 적용할 수 없습니다"
+      "clientName.rejected": "이름을 적용할 수 없습니다",
+      "choice.filterPlaceholder": "입력하여 필터링",
+      "dock.expand": "사이드바 펼치기",
+      "dock.collapse": "사이드바 접기"
     }
   }
 }

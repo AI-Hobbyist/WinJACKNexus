@@ -21,3 +21,9 @@ VST Scanner 使用现有 HostI18n 在创建窗口前恢复宿主保存的语言�
 2026-10-04 Probe 错误协议完成本轮实施与有限验证：项目错误以稳定 `error_key/error_args` 或 `probe_error_key/probe_error_args` 传输，旧 `error/probe_error` 保留完整 English 回退，SDK 原始错误不套用项目 key。Scanner 白名单映射 key 后才调用请求内文本服务，并校验参数数量与字符串类型；未知 key/不合规参数退回原文，成功/跳过/verified 判断仍基于原协议字段。四语言资源与双表同步新增十项，共 77 个草稿 key。
 
 必要 Release 目标编译成功，实际 Probe32/Probe64 各执行一次离线缺失 DLL 场景，通过 exit=1、ok=false、skippable=false、英文错误及稳定 key/空参数数组核对。见 `S6-probe-build.log`、`S6-probe-tests.log`、`S6-probe-verification.json`。此验证只覆盖 VST2 LoadLibraryExW 失败路径；其他 VST2/VST3 分支和 Scanner 运行时译文显示尚未验证。未复跑 Scanner/VST 宿主/Native Fx 实窗测试，未追加缩放测试、没有 UI 弹窗。资源及部署静态核对独立记录，不替代实窗或用户审校。
+
+2026-10-04 共享 Controls 显示补漏：新增 `ui/choice.filterPlaceholder`、`ui/dock.expand`、`ui/dock.collapse` 三项四语言草稿，宿主 manifest/catalog 升为 v6，共 536 个 key，外部部署及内嵌 English 输入同步。ChoiceField 只刷新默认 placeholder，不写输入文本、选区或 item data；调用方覆盖 placeholder 后停止默认刷新。DockPanel 按当前折叠状态刷新箭头提示，构造时没有 i18n manager 则回退完整 English。冻结 UI 文档与既有调用点测试同步。
+
+必要 Release 编译通过，目标为既有共享实窗 fixture，依赖完成 ui.dll 和宿主资源部署，并编译新增调用点检查。没有执行 fixture、没有 UI 显示或缩放测试；遵守每模块只测一次限制，不扩大历史共享实窗证据为新增三项运行时通过。静态资源/部署核对 PASS，新增默认 placeholder、侧栏提示及草稿/调用方覆盖保持的运行行为仍为未验证，人工译文审校待用户。见 `S6-shared-build.log`、`S6-shared-assets.log`、`S6-shared-verification.json`。
+
+历史 S5 v5/533 key 和 DLL 哈希是对应提交的阶段证据，当前 S6 v6/536 与重编 DLL 由本轮证据记录。不要直接重跑历史固定 v5 验收脚本或将其旧哈希宣称为当前发行哈希。Probe 和共享补漏后 S0 清单/候选数仍待统一刷新，Theme 等范围继续审计，S6 尚未完成。
