@@ -510,18 +510,19 @@ S4 长文本契约：共享 `Controls::ChoiceField` 的非编辑显示和 `Contr
 
 S6 shared display update (2026-10-04): `DockPanel` collapse/expand arrow tooltips follow both the installed language and collapsed state (`ui/dock.collapse`, `ui/dock.expand`). No exported signature changed. No manager installed uses complete English. Added call-site checks in `Develop/NativeFx/NativeFxI18nTests.cpp`; compiled only, not rerun under the user’s single module test instruction.
 
-S6 Theme management display update (implementation in progress): the dialog binds labels, buttons and tabs to the `theme` domain. Known background enum labels have translated display text while their CSS/namespace values remain in item data. Language notification refreshes read-only identity and keyed status text separately from background/metadata editing; it does not call the full authoring refresh. Source call-site checks were added to `tests/theme/ThemeManagementTests.cpp`, including independent title expectations and retained drafts/enum selections. Compilation, real-window acceptance, returned diagnostic refresh and open file-dialog refresh remain pending completion of the Theme module.
+S6 Theme management display update (implementation in progress): the dialog binds labels, buttons and tabs to the `theme` domain. Known background enum labels have translated display text while their CSS/namespace values remain in item data. Language notification refreshes read-only identity and keyed status text separately from background/metadata editing; it does not call the full authoring refresh. Source call-site checks were added to `tests/theme/ThemeManagementTests.cpp`, including independent title expectations and retained drafts/enum selections. Returned diagnostics and open file dialogs now refresh separately from authoring; the necessary Release build and single Windows module run passed (195 checks). See Docs/i18n/S6-theme-completion.md.
 
 S6 Theme diagnostic display update (implementation in progress): the private `LocalizedThemeMessages.hpp` adapter follows the existing canonical-model/display-copy boundary used by MixerErrors. ThemeCore source, public diagnostic tuple layout, codes, tokens, line numbers and English payloads stay unchanged. Known templates are translated only when presenting a diagnostic/status; named `detail` arguments preserve literal resource paths and token/type identifiers. Unknown diagnostics remain original text. The dialog retains canonical returned errors for language refresh and refreshes only read-only diagnostic text, bounded cursor positions and scroll position. Added call-site source checks cover an actual parser warning, stable snapshot, independent four-language displayed warning expectations and opaque/literal arguments; not compiled or run yet.
 
 S6 package/namespace display extension (implementation in progress): the private display adapter now covers 69 package and 40 namespace templates, including 115 original source occurrences. Both backend source files retain their prior hashes. A recognized diagnostic preceded by a file/module identity is translated with the prefix retained; suffix searching is bounded to eight separators and unknown content remains original. Theme identity/status labels use plain text for literal metadata and diagnostics. Test source adds real invalid archive/UTF-8 descriptor failures, retained canonical payload and empty registry/lease, independent four-language display expectations and wrapper identity preservation; no compilation or runtime result is claimed yet.
 
 
-S6 Theme file/menu display update (runtime pending): ThemeManagementDialog uses
+S6 Theme file/menu display update (single Windows run passed): ThemeManagementDialog uses
 owned Qt file dialogs for theme/font/image import and theme export. Open titles
 and filters follow language changes while filename text, cursor, selection and
 directory are retained. ThemeCatalog::createMenu's reportError callback supplies
 the localized display copy of recognized project errors; direct Catalog methods
 and diagnostics() retain canonical strings. No exported signatures or diagnostic
-layouts changed. Fixture call-site source covers live file refresh/cancellation
-and actual menu failures; compilation and the single Windows run are pending.
+layouts changed. Fixture call-site checks cover live file refresh/cancellation
+and actual menu failures; Release and the single Windows run passed. Translation
+review and final S0 reconciliation remain pending.

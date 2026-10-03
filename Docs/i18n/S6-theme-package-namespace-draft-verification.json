@@ -1,21 +1,19 @@
 {
   "stage": "S6",
-  "result": "THEME_PACKAGE_NAMESPACE_SOURCE_PASS_RUNTIME_PENDING",
+  "result": "THEME_PACKAGE_NAMESPACE_SOURCE_PASS_RUNTIME_EVIDENCE_SEPARATE",
   "display_templates": 109,
   "mapped_original_occurrences": 115,
   "package_and_registry_sources_unchanged": true,
   "host_catalog_version": 10,
   "host_keys": 774,
   "theme_keys": 238,
-  "module_builds": 0,
-  "module_test_runs": 0,
-  "ui_shows": 0,
+  "module_builds_added": 0,
+  "module_test_runs_added": 0,
+  "ui_shows_added": 0,
   "remaining": [
-    "Diagnostic call-path reconciliation",
-    "File-dialog call-site runtime acceptance",
-    "Final build/deployment/one real-window run",
-    "S0 and human review"
+    "Final S0 reconciliation and user human review"
   ],
+  "runtime_evidence": "Docs/i18n/S6-theme-verification.json",
   "evidence": [
     {
       "file": "Docs\\i18n\\S6-theme-package-namespace-strings.tsv",
@@ -27,23 +25,23 @@
     },
     {
       "file": "tests\\theme\\ThemeManagementTests.cpp",
-      "sha256": "ccf83ee690be44d24aa6c2d264adb54797ca8e9f9bf2853c696268223bc9dfb9"
+      "sha256": "e7075b6942dbc3f5b09c214119853b5c6eae88071972753487e39272aaac938e"
     },
     {
       "file": "src\\ui\\src\\ThemeManagementDialog.cpp",
-      "sha256": "9c410c4346d8f2dec21da77579ba1a071520c63820de8c43cb7653c97085128a"
+      "sha256": "ab88fb4c634c27078df031efee6123b40a0d6a538d77fb26da8823d45c8347a4"
     },
     {
       "file": "Docs\\UI-API.md",
-      "sha256": "e806b4242518dac4d1e1915971adf4c3fda67a2af5138f365df76f18e852f887"
-    },
-    {
-      "file": "src\\ui\\src\\ThemeNamespaceRegistry.cpp",
-      "sha256": "b2ae21077dd3d923511b5ab7cad59e5acc964ee89decd8156e89f784568de764"
+      "sha256": "3296e4da1471458dc41104157e808b3c52e104878cbe3cfc176b92d6762a183e"
     },
     {
       "file": "src\\ui\\src\\ThemePackage.cpp",
       "sha256": "f1d1ddc6da01d5c15ce3c4f3117a538e307fc0108117d7cf008c148c59616d3c"
+    },
+    {
+      "file": "src\\ui\\src\\ThemeNamespaceRegistry.cpp",
+      "sha256": "b2ae21077dd3d923511b5ab7cad59e5acc964ee89decd8156e89f784568de764"
     },
     {
       "file": "locate\\manifest.json",

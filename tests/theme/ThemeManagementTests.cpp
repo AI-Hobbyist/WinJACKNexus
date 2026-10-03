@@ -8,6 +8,7 @@
 #include <WinJACKNexus/UI/ThemeNamespaceRegistry.hpp>
 #include "../../src/ui/src/LocalizedThemeMessages.hpp"
 #include "../../src/ui/src/LocalizedThemeDialogs.hpp"
+#include "NativeDesktopCapture.hpp"
 
 #include <QApplication>
 #include <QAction>
@@ -36,12 +37,38 @@
 #include <QTimer>
 
 #include <cstdio>
+#include <cstdlib>
+#include <QEvent>
 
 using namespace WinJACKNexus::UI;
 namespace {
 int failures = 0;
+int checks = 0;
+QJsonArray captureEvidence;
+QString captureDirectory;
 void check(bool condition, const char* message) {
+    ++checks;
     if (!condition) { std::fprintf(stderr, "FAIL: %s\n", message); ++failures; }
+}
+class ShowBudget final : public QObject {
+public:
+    int shows = 0;
+    bool eventFilter(QObject* object, QEvent* event) override {
+        if (event->type() == QEvent::Show) {
+            auto* widget = qobject_cast<QWidget*>(object);
+            if (widget && widget->isWindow()) {
+                check(++shows <= 100, "at most 100 window/menu/tooltip shows");
+                if (shows > 100) std::exit(2);
+            }
+        }
+        return false;
+    }
+};
+void capture(QWidget& window, const QString& name) {
+    QJsonObject evidence;
+    const auto path = QDir(captureDirectory).filePath(name + QStringLiteral(".png"));
+    check(ThemeTest::capture(window, path, &evidence), "save visible desktop pixels with five native ownership samples");
+    if (!evidence.isEmpty()) captureEvidence.append(evidence);
 }
 QJsonObject metadata() {
     return {{"formatVersion", 1}, {"themeApiVersion", 1},
@@ -54,6 +81,8 @@ QJsonObject metadata() {
 
 int main(int argc, char** argv) {
     QApplication application(argc, argv);
+    ShowBudget budget;
+    application.installEventFilter(&budget);
     check(QApplication::platformName() == QStringLiteral("windows"), "Theme UI verification requires Windows platform");
     if (failures) return 2;
     application.setFont(QFontDatabase::systemFont(QFontDatabase::GeneralFont));
@@ -68,17 +97,20 @@ int main(int argc, char** argv) {
     QString languageError;
     check(languageHost.initialize(QCoreApplication::applicationDirPath(), &languageError), "Theme i18n host initializes with isolated language settings");
     if (failures) return 2;
-    QDir().mkpath(QStringLiteral("tests/preview/S10"));
+    captureDirectory = QStringLiteral("Docs/i18n/S6-theme-rendered");
+    check(QDir().mkpath(captureDirectory), "capture directory exists");
     ThemeCore core;
     check(core.isValid(), "required default Theme DLL is loaded before UI verification");
     if (failures) return 2;
     ThemeManager::installThemeCore(&core);
     ThemeManagementDialog dialog(core);
+    const auto available = application.primaryScreen()->availableGeometry();
+    dialog.resize(qMin(860, available.width() - 40), qMin(680, available.height() - 70));
+    dialog.move(available.topLeft() + QPoint(20, 20));
     dialog.show();
-    application.processEvents();
-    const auto baseline = dialog.grab().toImage();
-    check(baseline.save(QStringLiteral("tests/preview/S10/theme-management-unmodified.png")),
-          "save actual management popup baseline");
+    ThemeTest::settle();
+    check(dialog.isVisible() && dialog.windowHandle()->isExposed(), "management window is visible and exposed");
+    capture(dialog, QStringLiteral("baseline"));
     auto* overlay = dialog.findChild<QCheckBox*>(QStringLiteral("theme.upperOverlay"));
     auto* blur = dialog.findChild<QDoubleSpinBox*>(QStringLiteral("theme.blurRadius"));
     auto* componentOpacity = dialog.findChild<QDoubleSpinBox*>(QStringLiteral("theme.componentOpacity"));
@@ -91,6 +123,9 @@ int main(int argc, char** argv) {
           "management background controls exist through shared UI API");
     auto* nameDraft = dialog.findChild<QLineEdit*>(QStringLiteral("theme.metadata.name"));
     auto* colorDraft = dialog.findChild<QLineEdit*>(QStringLiteral("theme.colorValue"));
+    auto* colorTokenDraft = dialog.findChild<QLineEdit*>(QStringLiteral("theme.colorName"));
+    auto* colorApply = dialog.findChild<QPushButton*>(QStringLiteral("theme.applyColor"));
+    auto* status = dialog.findChild<QLabel*>(QStringLiteral("theme.status"));
     auto* diagnosticsView = dialog.findChild<QPlainTextEdit*>(QStringLiteral("theme.diagnostics"));
     ThemePackage diagnosticPackage;
     check(ThemePackage::create(metadata(), ":root { --wjn-theme-global-unrecognized-i18n: 1; }", {},
@@ -118,7 +153,14 @@ int main(int argc, char** argv) {
     if (nameDraft && colorDraft && backgroundScope && imageMode && tabs) {
         const auto originalName = nameDraft->text();
         const auto originalColor = colorDraft->text();
+        const auto originalToken = colorTokenDraft ? colorTokenDraft->text() : QString{};
         const auto originalMode = imageMode->currentData();
+        check(colorTokenDraft && colorApply && status, "actual error status call-site controls exist");
+        if (colorTokenDraft && colorApply) {
+            colorTokenDraft->setText(QStringLiteral("--wjn-theme-global-invalid-fixture"));
+            colorDraft->setText(QStringLiteral("#123456"));
+            colorApply->click();
+        }
         nameDraft->setText(QStringLiteral("未提交 Theme name")); nameDraft->setSelection(0, 3);
         colorDraft->setText(QStringLiteral("#123456 draft"));
         const auto selection = nameDraft->selectedText();
@@ -139,6 +181,9 @@ int main(int argc, char** argv) {
             QStringLiteral("描述符不是符合长度限制的 UTF-8"),
             QStringLiteral("記述子が長さの制限を満たす UTF-8 ではありません"),
             QStringLiteral("디스크립터가 길이 제한을 충족하는 UTF-8이 아닙니다")};
+        const QStringList statusMessages {QStringLiteral("unknown override token"),
+            QStringLiteral("未知的覆盖 token"), QStringLiteral("不明な上書きトークンです"),
+            QStringLiteral("알 수 없는 재정의 토큰입니다")};
         for (int index = 0; index < languages.size(); ++index) {
             check(languageHost.manager().setLanguage(languages[index], &languageError), "Theme language switch");
             check(dialog.windowTitle() == titles[index], "Theme title has independent four-language expectation");
@@ -148,6 +193,9 @@ int main(int argc, char** argv) {
                   "language refresh preserves stable enum selection");
             check(diagnosticsView && diagnosticsView->toPlainText().contains(warnings[index]), "actual stored diagnostic display refreshes in four languages");
             check(core.snapshot() == diagnosticSnapshot, "language refresh does not rebuild or mutate Theme snapshot");
+            check(status && status->text() == statusMessages[index]
+                  && status->property("wjn.theme.statusCanonical").toString() == QStringLiteral("unknown override token"),
+                  "actual stored error status retranslates without changing canonical payload");
             check(ThemeMessages::display(packageFailure) == packageMessages[index], "actual package failure display has independent four-language expectation");
             check(ThemeMessages::display(namespaceFailure) == namespaceMessages[index], "actual namespace failure display has independent four-language expectation");
             check(ThemeMessages::display(QStringLiteral("module.wjnskin: ") + packageFailure)
@@ -157,8 +205,11 @@ int main(int argc, char** argv) {
                   "named diagnostic argument retains literal placeholder-looking resource path");
             check(ThemeMessages::display(QStringLiteral("Opaque vendor diagnostic: 123")) == QStringLiteral("Opaque vendor diagnostic: 123"),
                   "unrecognized vendor diagnostic remains opaque");
+            ThemeTest::settle();
+            capture(dialog, QStringLiteral("diagnostic-") + languages[index]);
         }
         nameDraft->setText(originalName); colorDraft->setText(originalColor);
+        if (colorTokenDraft) colorTokenDraft->setText(originalToken);
         imageMode->setCurrentIndex(imageMode->findData(originalMode));
     } else check(false, "Theme authoring drafts exist for language call-site checks");
     core.restoreDefault();
@@ -203,6 +254,8 @@ int main(int argc, char** argv) {
                       && edit->text() == QStringLiteral("draft {detail} %1.wjnskin")
                       && edit->cursorPosition() == cursor && edit->selectedText() == selection,
                       "open file language refresh preserves directory, filename and reverse selection");
+                ThemeTest::settle();
+                capture(*fileDialog, QString::fromLatin1(item.key) + QLatin1Char('-') + QString::fromLatin1(language));
             }
             fileDialog->reject();
         });
@@ -283,9 +336,7 @@ int main(int argc, char** argv) {
               && hint->isVisible() && blur && !blur->isEnabled()
               && componentOpacity && !componentOpacity->isEnabled(),
               "upper overlay recommends transparent PNG and disables blur/component opacity");
-        check(dialog.grab().toImage().save(
-            QStringLiteral("tests/preview/S10/theme-overlay-hint-modified.png")),
-            "save upper-overlay hint screenshot");
+        capture(dialog, QStringLiteral("overlay-hint-zh-CN"));
     }
     if (backgroundScope && imageMode && applyBackground) {
         const auto mixerIndex = backgroundScope->findData(QStringLiteral("mixer"));
@@ -312,9 +363,7 @@ int main(int argc, char** argv) {
         application.processEvents();
         check(core.snapshot()->value(QStringLiteral("--wjn-theme-global-accent-primary")) == "#ff00ff",
               "color editor applies valid token override");
-        check(dialog.grab().toImage().save(
-            QStringLiteral("tests/preview/S10/theme-color-modified.png")),
-            "save modified management popup");
+        capture(dialog, QStringLiteral("color-zh-CN"));
     }
     QString error;
     const auto defaultPath = QStringLiteral("build/S10-default-export.wjnskin");
@@ -359,9 +408,7 @@ int main(int argc, char** argv) {
           && core.snapshot()->value(QStringLiteral("--wjn-theme-global-accent-primary")) == "#112233",
           "preview applies candidate without committing");
     application.processEvents();
-    check(dialog.grab().toImage().save(
-        QStringLiteral("tests/preview/S10/theme-preview-modified.png")),
-        "save candidate preview popup");
+    capture(dialog, QStringLiteral("preview-zh-CN"));
     check(dialog.cancelPreview()
           && core.snapshot()->value(QStringLiteral("--wjn-theme-global-accent-primary")) == "#ff00ff",
           "cancel preview restores user override");
@@ -386,5 +433,15 @@ int main(int argc, char** argv) {
     dialog.close();
     QFile::remove(installed);
     ThemeManager::installThemeCore(nullptr);
+    const QJsonObject evidence {{"checks", checks}, {"failures", failures}, {"window_shows", budget.shows},
+        {"platform", QApplication::platformName()}, {"font", application.font().family()},
+        {"module_test_runs", 1}, {"scale_matrix_runs", 0}, {"captures", captureEvidence}};
+    QFile report(QStringLiteral("Docs/i18n/S6-theme-runtime.json"));
+    check(report.open(QIODevice::WriteOnly)
+          && report.write(QJsonDocument(evidence).toJson()) > 0, "write actual runtime evidence");
+    std::printf("S6 Theme %s: %d checks, %d failures, %d shows, %lld native captures; platform=%s; font=%s\n",
+                failures ? "FAIL" : "PASS", checks, failures, budget.shows,
+                static_cast<long long>(captureEvidence.size()), qPrintable(QApplication::platformName()),
+                qPrintable(application.font().family()));
     return failures ? 1 : 0;
 }

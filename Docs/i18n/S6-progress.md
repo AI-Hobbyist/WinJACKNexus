@@ -56,3 +56,6 @@ VST Scanner 使用现有 HostI18n 在创建窗口前恢复宿主保存的语言�
 2026-10-04 Theme 模块显示边界收尾：新增 Catalog 三项菜单失败草稿，源码语言包 v10/774（theme 238 项）。createMenu 的刷新/切换/Dev 重载三处只翻译回调显示副本；原始 Catalog API、缓存和选择保存行为保持。核对现有调用链：Catalog diagnostics() 无应用调用、启动失败只进 qWarning；背景 paint 的所有应用调用省略诊断输出，fontDiagnostic() 只有测试读取；这些原始接口/缓存文本与 Dev 技术标记的逐项理由见 S6-theme-diagnostic-boundaries.md，最终 S0 尚待同步。
 
 四类导入主题/字体/背景及导出文件框改为既有项目模式的 owned Qt QFileDialog，标题/筛选项绑定当前语言，保留文件名、光标和双向选区。未添加业务视觉样式。fixture 源码加入四类打开中语言刷新/取消检查及实际 Catalog 菜单回调的四语言独立错误预期；尚未编译执行。源码/语言包核对通过（S6-theme-catalog-draft-verification.json），不代表实窗通过。实际 bin 仍 v6，本轮零编译、零模块执行、零弹窗；下一步完善实桌面所属窗口截图和运行前检查，再统一 Release 构建/部署及唯一一次 Theme 模块实窗。S6 与用户人工审校未完成。
+
+
+2026-10-04 Theme 模块技术验证完成：在现有 build 编译所需 Release 目标，初次截图辅助代码坐标类型编译错误已修复，仅重编必要目标；未启动第二次 UI 测试。唯一一次 Windows 实窗执行 exit 0：195 检查、0 失败、5 显示、24 张 native-window-ownership-v2 桌面截图，默认系统字体 Microsoft YaHei UI，不追加缩放。四语言窗口/诊断/存储错误状态、元数据与颜色草稿、稳定 enum、四类打开文件框的标题/筛选/文件名/反向选区/目录保持及取消、实际 Catalog 菜单错误回调和既有预览/应用/导出流程通过。源码及部署五 JSON v10/774 一致。截图已抽查，见 Docs/i18n/S6-theme-completion.md、S6-theme-verification.json。所有错误分支未逐一触发、未测试文件接受/覆盖确认或单独托盘消息；这些不扩称通过。Theme 不再复跑；S0 最终对账与用户人工审校未完成，S6/S7 保持未完成。

@@ -1,0 +1,196 @@
+{
+  "stage": "S6",
+  "result": "THEME_RELEASE_AND_SINGLE_WINDOWS_PASS_HUMAN_REVIEW_PENDING",
+  "host_catalog_version": 10,
+  "host_keys": 774,
+  "theme_keys": 238,
+  "module_test_runs": 1,
+  "checks": 195,
+  "failures": 0,
+  "window_shows": 5,
+  "native_captures": 24,
+  "platform": "windows",
+  "font": "Microsoft YaHei UI",
+  "scale_matrix_runs": 0,
+  "coverage": [
+    "Four-language live Theme labels, diagnostic/error status and retained authoring drafts",
+    "Four open file workflows: live title/filter, filename, directory and reverse selection",
+    "Actual package/namespace failure payloads and Catalog menu failure callbacks",
+    "Existing authoring/background/color/default export/preview/apply/round-trip workflow"
+  ],
+  "limitations": [
+    "Each canonical template is source/catalog checked; not every failure branch executed",
+    "File workflows cancelled; no interactive save-overwrite confirmation tested",
+    "Catalog menu callback tested; no separate tray notification UI test",
+    "No cold-start/language/scale matrix reruns; no JACK integration",
+    "Source audit S0 reconciliation and user human review remain outstanding"
+  ],
+  "deployment": [
+    {
+      "file": "build\\release\\bin\\locate\\manifest.json",
+      "sha256": "910e0686e3db8520a1936fb66d1c5d5e1d6dcb88355e5649b199cfa4737ad0b6"
+    },
+    {
+      "file": "build\\release\\bin\\locate\\en-US.json",
+      "sha256": "5e6826174d5a096a01b3132ec0929bb227f614b2cb336517e909514801be9504"
+    },
+    {
+      "file": "build\\release\\bin\\locate\\zh-CN.json",
+      "sha256": "fc9efef71c30fa0d26efa7847cd8d07983b33439eacd24c134691f6439708cb9"
+    },
+    {
+      "file": "build\\release\\bin\\locate\\ja-JP.json",
+      "sha256": "eef5cbf84a87774044cd5af91bdedbc62c01758dd25e47797b5a8a9f36f24fd1"
+    },
+    {
+      "file": "build\\release\\bin\\locate\\ko-KR.json",
+      "sha256": "3fb33cda7920fa53c1aeaae6c0261bbfbcefaa5ca66b9cdd209246650eb87e45"
+    }
+  ],
+  "evidence": [
+    {
+      "file": "Docs\\i18n\\S6-theme-runtime.json",
+      "sha256": "5f3238ccb7efdac5d655f2fd6457a770e8cd7e032d0f16bae5b2417b02c9ed05"
+    },
+    {
+      "file": "Docs\\i18n\\S6-theme-tests.log",
+      "sha256": "357f0e937ec80dc7cf7ef50e57b6e37ac70d1b750c4940270e2b632178bddc27"
+    },
+    {
+      "file": "Docs\\i18n\\S6-theme-build.log",
+      "sha256": "8ecac1ba09afae6a7d87d9f73e1ff3c0e48301503847d2a69995872ce4ac0171"
+    },
+    {
+      "file": "tests\\theme\\ThemeManagementTests.cpp",
+      "sha256": "e7075b6942dbc3f5b09c214119853b5c6eae88071972753487e39272aaac938e"
+    },
+    {
+      "file": "tests\\theme\\NativeDesktopCapture.hpp",
+      "sha256": "aa96784b199dece8ef21169a7cdb92d9b4a6ba31a8da9fd4c047e67e543840db"
+    },
+    {
+      "file": "src\\ui\\src\\ThemeCatalog.cpp",
+      "sha256": "dcfc9fd7e3065f662dfd1a493f88e89e2b1cdf3fed73ab5bbd9a5e1511733df1"
+    },
+    {
+      "file": "src\\ui\\src\\ThemeManagementDialog.cpp",
+      "sha256": "ab88fb4c634c27078df031efee6123b40a0d6a538d77fb26da8823d45c8347a4"
+    },
+    {
+      "file": "src\\ui\\src\\LocalizedThemeMessages.hpp",
+      "sha256": "be4e047c2f2f3ad098fb731b90ec3c001652b61e3df3c7621fd52c2d273ad1e7"
+    },
+    {
+      "file": "src\\ui\\src\\LocalizedThemeDialogs.hpp",
+      "sha256": "be23f0bb858a02a02376f7340b2d12ada14cdbd060e5d7ee6587be1ac629ac29"
+    },
+    {
+      "file": "build\\release\\bin\\ui.dll",
+      "sha256": "806604e05086a24ba131845cf7a9e2ad92363bf64a3811ed48da8c8531de0160"
+    },
+    {
+      "file": "build\\release\\bin\\wjn_default_theme.dll",
+      "sha256": "80e24432a43ab832dc891c6db78341071246e999cbea2042e6b84a850ff0945d"
+    },
+    {
+      "file": "build\\release\\bin\\wjn_theme_management_tests.exe",
+      "sha256": "e801831347561af89dd82a30a8b17f3d45ed2dd50baa5a84f9dd331c10a29417"
+    },
+    {
+      "file": "Docs\\i18n\\S6-theme-rendered\\baseline.png",
+      "sha256": "796f4ae0b9886d650447b1a2c290b7d236720d6091dab5aa1aa0624b5f7a277f"
+    },
+    {
+      "file": "Docs\\i18n\\S6-theme-rendered\\diagnostic-en-US.png",
+      "sha256": "2501b906f27b7a870ab942e4c1b8abb6e5f7e90ee5e6a9fba96b2f1a95211e77"
+    },
+    {
+      "file": "Docs\\i18n\\S6-theme-rendered\\diagnostic-zh-CN.png",
+      "sha256": "fd80d91d322dda0f771216d8212c0c94bed56f93e0ca51f2d84b4d2297566050"
+    },
+    {
+      "file": "Docs\\i18n\\S6-theme-rendered\\diagnostic-ja-JP.png",
+      "sha256": "992dfd83e47bb25e5755aec1cc77168c7824b4f7b88301c48c232f48be03b3cc"
+    },
+    {
+      "file": "Docs\\i18n\\S6-theme-rendered\\diagnostic-ko-KR.png",
+      "sha256": "48583fb93878185c005b6b6b40cde3d95f042db2ccfd1083465ed30bd6432285"
+    },
+    {
+      "file": "Docs\\i18n\\S6-theme-rendered\\package.import-en-US.png",
+      "sha256": "e11b1da3c96711c2fec14b2c5cb0a36ea75cd7583a16349a15e198ec656ec2b9"
+    },
+    {
+      "file": "Docs\\i18n\\S6-theme-rendered\\package.import-zh-CN.png",
+      "sha256": "6b4bbb8e8ab7f9aff8095a5b44a7ccc2753e41c94c2f431d812742a61246d069"
+    },
+    {
+      "file": "Docs\\i18n\\S6-theme-rendered\\package.import-ja-JP.png",
+      "sha256": "a2101f6828c4093c0db49d52446cdb83584e32b05e2b4b4a59c9ae7d9b8ed5fc"
+    },
+    {
+      "file": "Docs\\i18n\\S6-theme-rendered\\package.import-ko-KR.png",
+      "sha256": "dd54030a7a9ee4b7bb0fe21c9f90e58cbd0197b11648f01df165b72f677ebd66"
+    },
+    {
+      "file": "Docs\\i18n\\S6-theme-rendered\\file.fontTitle-en-US.png",
+      "sha256": "8608a46211138b8d0be9361c4252f4da15d13b69b9b190f927955a17fb2c0e2a"
+    },
+    {
+      "file": "Docs\\i18n\\S6-theme-rendered\\file.fontTitle-zh-CN.png",
+      "sha256": "8a7bf4b76c3ecf9b06b6643ce62e49d23220fb6a121e410b8f6530eea342ee4b"
+    },
+    {
+      "file": "Docs\\i18n\\S6-theme-rendered\\file.fontTitle-ja-JP.png",
+      "sha256": "74c479c4f27e481abf91fb59c1ef5423c79e06b4401fd93c3c46f489474899dd"
+    },
+    {
+      "file": "Docs\\i18n\\S6-theme-rendered\\file.fontTitle-ko-KR.png",
+      "sha256": "51c4a05bf96e2906a3e295a1312691a448b22d4318e86577588c5a656bb2c2f1"
+    },
+    {
+      "file": "Docs\\i18n\\S6-theme-rendered\\file.imageTitle-en-US.png",
+      "sha256": "fc3774daa1a4cd6eed79a68434afc2e1a43682ca6dd2266a8948a736f67087f4"
+    },
+    {
+      "file": "Docs\\i18n\\S6-theme-rendered\\file.imageTitle-zh-CN.png",
+      "sha256": "9f1c11538c519c368ae804b8518485aef7cbe679c84cb7393e1ac3ce6aa5f629"
+    },
+    {
+      "file": "Docs\\i18n\\S6-theme-rendered\\file.imageTitle-ja-JP.png",
+      "sha256": "01cbed3cbffea99bb00d01fa0dfc4075f881045a0e2f964a64fad56a1dcff831"
+    },
+    {
+      "file": "Docs\\i18n\\S6-theme-rendered\\file.imageTitle-ko-KR.png",
+      "sha256": "aedd1460ffb7631b24c0b0c4c4eb8d955d3de462427c067b9dce30c1f0c9675d"
+    },
+    {
+      "file": "Docs\\i18n\\S6-theme-rendered\\file.exportTitle-en-US.png",
+      "sha256": "79467ae906458be7573cc1bb40761482b3d2a7cd519f2a068b810ce853c7f05b"
+    },
+    {
+      "file": "Docs\\i18n\\S6-theme-rendered\\file.exportTitle-zh-CN.png",
+      "sha256": "82b02e2c9d0f6fc821e6cf4d02473c88ca08493ce8c431731417f7b012620bc8"
+    },
+    {
+      "file": "Docs\\i18n\\S6-theme-rendered\\file.exportTitle-ja-JP.png",
+      "sha256": "827643f946ac4e953418bd06e0b07d3d616572e8fbc31c52dbca52c16ebacf38"
+    },
+    {
+      "file": "Docs\\i18n\\S6-theme-rendered\\file.exportTitle-ko-KR.png",
+      "sha256": "0b75c01067b7203f7923bf195119e2794a60f06fa27adae0868c753b2f9f231f"
+    },
+    {
+      "file": "Docs\\i18n\\S6-theme-rendered\\overlay-hint-zh-CN.png",
+      "sha256": "2f53761e9b44b9a5a1966daa43b0feaf1d5e3b42d7c7b6b968a64159f4bdb798"
+    },
+    {
+      "file": "Docs\\i18n\\S6-theme-rendered\\color-zh-CN.png",
+      "sha256": "73759b86fab55a600b4f18e46ca51c095cc0b5a4f3fd23f3dd89fb9c8d375f6e"
+    },
+    {
+      "file": "Docs\\i18n\\S6-theme-rendered\\preview-zh-CN.png",
+      "sha256": "13787b9047235144d5a5c39bbb06e50425abb8a297db389fa7f806bb4461e900"
+    }
+  ]
+}

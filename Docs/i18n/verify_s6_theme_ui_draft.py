@@ -51,21 +51,17 @@ def main():
             assert tokens(value) == tokens(row['en-US'])
             assert '| theme | '+row['key']+' |' in review
         paths.append(path)
-    result = {'stage': 'S6', 'result': 'THEME_UI_SOURCE_DRAFT_PASS_IMPLEMENTATION_OPEN',
+    result = {'stage': 'S6', 'result': 'THEME_UI_SOURCE_DRAFT_PASS_RUNTIME_EVIDENCE_SEPARATE',
               'theme_ui_keys': 80, 'host_catalog_version': 10, 'host_keys': 774,
-              'module_test_runs': 0, 'module_builds': 0, 'ui_shows': 0,
-              'remaining': ['Diagnostic call-path reconciliation',
-                            'Complete remaining canonical error mappings',
-                            'File-dialog call-site runtime acceptance',
-                            'Call-site checks, final Release deployment and one module UI run',
-                            'Final S0 reconciliation and user human review'],
-              'runtime': 'Existing v6 deployment has not been rebuilt for these v9 sources.',
+              'module_test_runs_added': 0, 'module_builds_added': 0, 'ui_shows_added': 0,
+              'remaining': ['Final S0 reconciliation and user human review'],
+              'runtime_evidence': 'Docs/i18n/S6-theme-verification.json',
               'evidence': [{'file': str(path.relative_to(ROOT)),
                             'sha256': hashlib.sha256(path.read_bytes()).hexdigest()}
                            for path in paths]}
     (OUT/'S6-theme-ui-draft-verification.json').write_text(
         json.dumps(result, ensure_ascii=False, indent=2)+'\n', encoding='utf-8')
-    print('Theme UI source draft PASS: 80 keys, four languages, host v10/774. Build/deployment/UI acceptance pending remaining implementation.')
+    print('Theme UI source draft PASS: 80 keys, four languages, host v10/774. Runtime evidence is separate in S6-theme-verification.json.')
 
 
 if __name__ == '__main__':

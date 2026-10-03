@@ -193,6 +193,7 @@ ThemeManagementDialog::ThemeManagementDialog(ThemeCore& core, QWidget* parent)
             view_->colorToken->addItem(name, name);
     colorLayout->addRow(themeLabel("color.token", "Color token", colorLayout->parentWidget()), view_->colorToken);
     view_->colorName = new C::TextField(colors);
+    view_->colorName->setObjectName(QStringLiteral("theme.colorName"));
     view_->colorName->setPlaceholderText(QStringLiteral("--wjn-theme-..."));
     colorLayout->addRow(themeLabel("color.name", "Full token name", colorLayout->parentWidget()), view_->colorName);
     view_->colorValue = new C::TextField(colors);
@@ -200,6 +201,7 @@ ThemeManagementDialog::ThemeManagementDialog(ThemeCore& core, QWidget* parent)
     view_->colorValue->setPlaceholderText(QStringLiteral("#RRGGBB / rgb(...) / rgba(...)"));
     colorLayout->addRow(themeLabel("color.value", "Color value", colorLayout->parentWidget()), view_->colorValue);
     auto* setColor = themeButton("color.apply", "Apply color", colors);
+    setColor->setObjectName(QStringLiteral("theme.applyColor"));
     colorLayout->addRow(setColor);
     view_->fontName = new C::TextLabel(colors);
     colorLayout->addRow(themeLabel("font.global", "Global font", colorLayout->parentWidget()), view_->fontName);

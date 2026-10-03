@@ -46,19 +46,18 @@ def main():
             assert value == row[language] and value.strip()
             assert tokens(value) == tokens(row['en-US'])
         paths.append(path)
-    result = {'stage': 'S6', 'result': 'THEME_CORE_DISPLAY_SOURCE_PASS_RUNTIME_PENDING',
+    result = {'stage': 'S6', 'result': 'THEME_CORE_DISPLAY_SOURCE_PASS_RUNTIME_EVIDENCE_SEPARATE',
               'core_templates': 46, 'core_source_unchanged': True,
               'host_catalog_version': 10, 'host_keys': 774,
-              'module_builds': 0, 'module_test_runs': 0, 'ui_shows': 0,
-              'remaining': ['Diagnostic call-path reconciliation',
-                            'File-dialog call-site runtime acceptance', 'Final build/deployment/one real-window run',
-                            'S0 refresh and user human review'],
+              'module_builds_added': 0, 'module_test_runs_added': 0, 'ui_shows_added': 0,
+              'remaining': ['Final S0 reconciliation and user human review'],
+              'runtime_evidence': 'Docs/i18n/S6-theme-verification.json',
               'evidence': [{'file': str(path.relative_to(ROOT)),
                             'sha256': hashlib.sha256(path.read_bytes()).hexdigest()}
                            for path in paths]}
     (OUT/'S6-theme-core-draft-verification.json').write_text(
         json.dumps(result, ensure_ascii=False, indent=2)+'\n', encoding='utf-8')
-    print('ThemeCore display source PASS: 46 templates, canonical parser/diagnostic source unchanged; runtime/build acceptance pending.')
+    print('ThemeCore display source PASS: 46 templates, canonical parser/diagnostic source unchanged; runtime evidence is separate in S6-theme-verification.json.')
 
 
 if __name__ == '__main__':

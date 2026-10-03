@@ -44,16 +44,16 @@ def main():
             assert value == row[lang] and value.strip()
             assert re.findall(r'\{\w+\}',value) == re.findall(r'\{\w+\}',row['en-US'])
         paths.append(path)
-    result = {'stage':'S6', 'result':'THEME_CATALOG_DIALOG_SOURCE_PASS_RUNTIME_PENDING',
+    result = {'stage':'S6', 'result':'THEME_CATALOG_DIALOG_SOURCE_PASS_RUNTIME_EVIDENCE_SEPARATE',
               'catalog_templates':3, 'menu_error_display_boundaries':3,
               'file_dialog_workflows':4, 'canonical_catalog_backend_preserved':True,
               'host_catalog_version':10, 'host_keys':774,
-              'module_builds':0, 'module_test_runs':0, 'ui_shows':0,
-              'remaining':['Final fixture/capture preparation, Release build/deployment and one Windows run',
-                           'S0 source reconciliation', 'User human review'],
+              'module_builds_added':0, 'module_test_runs_added':0, 'ui_shows_added':0,
+              'remaining': ['Final S0 reconciliation and user human review'],
+              'runtime_evidence': 'Docs/i18n/S6-theme-verification.json',
               'evidence':[{'file':str(p.relative_to(ROOT)), 'sha256':hashlib.sha256(p.read_bytes()).hexdigest()} for p in paths]}
     (OUT/'S6-theme-catalog-draft-verification.json').write_text(json.dumps(result,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
-    print('Theme Catalog/dialog source PASS: 3 menu boundaries, 4 bound file workflows; runtime pending.')
+    print('Theme Catalog/dialog source PASS: 3 menu boundaries, 4 bound file workflows; runtime evidence is separate in S6-theme-verification.json.')
 
 
 if __name__ == '__main__':
