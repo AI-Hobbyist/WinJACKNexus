@@ -209,6 +209,18 @@
       "log": "Docs/i18n/S5-bounded-records/20261003T144152080Z-scale-1-shared-hot.log",
       "sha256": "3c603130b99ef8deb7a2ae29a01cbadd00561640af4146a28e12164fec3ab49e",
       "runtime_basis": "current runtime with native-window-ownership-v2"
+    },
+    {
+      "record": "Docs\\i18n\\S5-bounded-records\\20261003T144439352Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP.json",
+      "scale": "2",
+      "cold": "ja-JP",
+      "checks": 3838,
+      "popup_shows": 48,
+      "font": "Microsoft YaHei UI",
+      "captures": 96,
+      "log": "Docs/i18n/S5-bounded-records/20261003T144439352Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-ja-JP.log",
+      "sha256": "45e0d848f502fdcc4f1393071b9f03a03b0bed147a653e08dc1109d43ef38dcb",
+      "runtime_basis": "current runtime with native-window-ownership-v2"
     }
   ],
   "evidence": [
@@ -371,6 +383,10 @@
     {
       "file": "src\\native_fx\\effects\\reverb\\locate\\ko-KR.json",
       "sha256": "c9b017c17b9a160dd6642a9288f0f021dfa843c28fc48ceec10390db0425da06"
+    },
+    {
+      "file": "Docs\\i18n\\S5-validation-policy.json",
+      "sha256": "a91437299360d9723ca7f0c17d8b430088c9275cf07a503f614fa904f0e9cdb8"
     },
     {
       "file": "src\\native_fx\\src\\I18n.cpp",
@@ -637,15 +653,7 @@
       "language": "ja-JP",
       "missing": [
         "community",
-        "compressor",
-        "deesser",
-        "delay",
-        "gate",
-        "graphic_eq",
-        "host",
-        "limiter",
-        "parametric_eq",
-        "reverb"
+        "host"
       ]
     },
     {
@@ -665,6 +673,46 @@
       ]
     }
   ],
+  "missing_required_language_coverage": [
+    {
+      "language": "ja-JP",
+      "missing": [
+        "community",
+        "host"
+      ]
+    },
+    {
+      "language": "ko-KR",
+      "missing": [
+        "community",
+        "compressor",
+        "deesser",
+        "delay",
+        "gate",
+        "graphic_eq",
+        "host",
+        "limiter",
+        "parametric_eq",
+        "reverb"
+      ]
+    }
+  ],
+  "validation_policy": {
+    "date": "2026-10-03",
+    "authority": "user instruction in this thread",
+    "instruction": "后续不再进行缩放测试。节省时间",
+    "additional_scale_tests": false,
+    "required_coverage": "Every effect, host and community in hot switching and all four cold-start languages; shared controls in hot switching. Existing verified evidence may satisfy these requirements at any tested scale.",
+    "preserved_requirements": [
+      "Visible Windows windows",
+      "System fonts by default",
+      "No offscreen",
+      "At most 100 popup shows per batch",
+      "Native window ownership of captures",
+      "Catalog, deployment, identity and lifecycle verification"
+    ],
+    "reporting": "Keep the original scale matrix gaps visible as unverified scope; do not describe discontinued matrix combinations as passed. Human language review remains pending S6."
+  },
   "historical_runs_not_counted": [
     {
       "record": "Docs\\i18n\\S5-bounded-records\\20261003T125345493Z-scale-2-gate_graphic_eq-hot.json",

@@ -181,8 +181,22 @@ def main():
             missing.append({'scale':scale,'language':language,'missing':['corrected Qt file-dialog regression']})
         else:
             group['missing'].append('corrected Qt file-dialog regression')
+    policy_path=OUT/'S5-validation-policy.json'
+    policy=json.loads(policy_path.read_text(encoding='utf-8'))
+    assert policy['instruction']=='后续不再进行缩放测试。节省时间'
+    assert policy['additional_scale_tests'] is False
+    required_missing=[]
+    for language in ('hot',)+LANGUAGES:
+        expected=set(EFFECTS)|{'host','community'}
+        if language=='hot': expected.add('shared')
+        covered=set().union(*(items for (scale,locale),items in coverage.items() if locale==language))
+        if expected-covered:
+            required_missing.append({'language':language,'missing':sorted(expected-covered)})
+    # The user discontinued further scale tests. Preserve their original gaps
+    # without claiming those combinations passed; language/behavior gates remain.
     if '--progress' not in sys.argv:
-        assert not missing, ('missing bounded coverage',missing)
+        assert not required_missing, ('missing required language coverage',required_missing)
+    evidence.append({'file':str(policy_path.relative_to(ROOT)), 'sha256':digest(policy_path)})
     source_paths=[ROOT/'src/native_fx/src/I18n.cpp', ROOT/'src/native_fx/src/NativeFxApi.cpp', ROOT/'src/ui/src/Controls.cpp',
                   ROOT/'src/ui/src/FxSettingsWindow.cpp',ROOT/'Develop/NativeFx/NativeFxI18nTests.cpp',
                   ROOT/'Develop/I18nExample.hpp', ROOT/'Develop/NativeFx/ExampleNativeFx.cpp',
@@ -196,13 +210,15 @@ def main():
     report={'stage':'S5','result':'INCOMPLETE' if progress else 'PASS','scope':'catalog/deployment/inventory/Windows test evidence consistency',
             'module_keys':len(records),'shared_keys':len(shared),'source_display_occurrences':len(scope),
             'runs':runs,'evidence':evidence,'missing_bounded_coverage':missing,
+            'missing_required_language_coverage':required_missing,
+            'validation_policy':policy,
             'historical_runs_not_counted':historical,
             'qt_resource_transition':transition,
             'human_review':'pending S6; automated checks do not approve translations'}
     destination='S5-bounded-progress.json' if progress else 'S5-verification.json'
     (OUT/destination).write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
     if progress:
-        print(f'S5 bounded evidence valid: {len(runs)} batches, {sum(r["captures"] for r in runs)} captures; stage INCOMPLETE, {len(missing)} scale/language groups lack full coverage.')
+        print(f'S5 bounded evidence valid: {len(runs)} batches, {sum(r["captures"] for r in runs)} captures; stage INCOMPLETE, {len(required_missing)} required language groups lack full coverage; {len(missing)} discontinued scale groups remain unverified.')
     else:
         print(f'S5 assets PASS: {len(records)} module keys, {len(shared)} shared keys, {len(scope)} source displays, {sum(r["captures"] for r in runs)} native Windows captures.')
 

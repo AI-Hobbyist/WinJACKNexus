@@ -1,0 +1,9 @@
+{
+  "date": "2026-10-03",
+  "authority": "user instruction in this thread",
+  "instruction": "后续不再进行缩放测试。节省时间",
+  "additional_scale_tests": false,
+  "required_coverage": "Every effect, host and community in hot switching and all four cold-start languages; shared controls in hot switching. Existing verified evidence may satisfy these requirements at any tested scale.",
+  "preserved_requirements": ["Visible Windows windows", "System fonts by default", "No offscreen", "At most 100 popup shows per batch", "Native window ownership of captures", "Catalog, deployment, identity and lifecycle verification"],
+  "reporting": "Keep the original scale matrix gaps visible as unverified scope; do not describe discontinued matrix combinations as passed. Human language review remains pending S6."
+}
