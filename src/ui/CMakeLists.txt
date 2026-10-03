@@ -85,6 +85,21 @@ wjn_configure_shared_target(ui WJN_UI_BUILD)
 target_compile_options(ui PRIVATE /utf-8)
 set_target_properties(ui PROPERTIES AUTOMOC ON AUTORCC ON)
 set(WJN_QT_TRANSLATIONS_DIR "${WJN_QT6_DIR}/../../../translations")
+set(WJN_QT_ZH_CN_CATALOG "${PROJECT_BINARY_DIR}/qtbase_zh_CN.qm")
+set(WJN_QT_ZH_CN_OVERRIDES "${CMAKE_CURRENT_SOURCE_DIR}/resources/qt-overrides-zh_CN.ts")
+set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
+    "${WJN_QT_ZH_CN_OVERRIDES}" "${WJN_QT_TRANSLATIONS_DIR}/qtbase_zh_CN.qm")
+# Merge reviewed application terminology after the SDK catalog. Keep the SDK
+# intact and use the same corrected catalog for bundled fallback and deployment.
+execute_process(
+    COMMAND "${WJN_QT6_DIR}/../../../bin/lconvert.exe"
+        -i "${WJN_QT_TRANSLATIONS_DIR}/qtbase_zh_CN.qm"
+        -i "${WJN_QT_ZH_CN_OVERRIDES}" -o "${WJN_QT_ZH_CN_CATALOG}"
+    RESULT_VARIABLE WJN_QT_CATALOG_RESULT)
+if(NOT WJN_QT_CATALOG_RESULT EQUAL 0)
+    message(FATAL_ERROR "Unable to merge reviewed Qt Chinese translations")
+endif()
+set(WJN_QT_ZH_CN_CATALOG "${WJN_QT_ZH_CN_CATALOG}" PARENT_SCOPE)
 configure_file(resources/qt-translations.qrc.in
     "${CMAKE_CURRENT_BINARY_DIR}/qt-translations.qrc" @ONLY)
 target_sources(ui PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/qt-translations.qrc")

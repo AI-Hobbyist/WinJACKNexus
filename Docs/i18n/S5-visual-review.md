@@ -10,6 +10,8 @@
 
 200% 简体中文冷启动抽查：`20261003T131057766Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-zh-CN/gate-preset-menu-zh-CN-0-0.png` 显示默认/紧门限/柔和门限，无黑图；同目录 `graphic_eq-load-dialog-zh-CN-0-0.png` 显示中文打开/取消和 EQ 预设筛选，日文/韩文文件名草稿及选区保留，原生表格按可用宽度省略。文件大小列显示“体积”，已列入 S6 术语审校，尚未认定该译文通过。
 
+用户随后明确要求改成“大小”。已查看修正版 `20261003T132219801Z-scale-2-graphic_eq-zh-CN/graphic_eq-load-dialog-zh-CN-0-0.png`：列标题显示“大小”，中文打开/取消及筛选保持，文件名草稿和选区仍保留。该意见仅作为两条中文文件大小译文的确认，其他术语与语言仍待审校。
+
 ## 已查看的截图
 
 | 缩放 | 实际截图 | 观察 |

@@ -1,5 +1,5 @@
 <RCC><qresource prefix="/WinJACKNexus/UI/i18n/qt">
-<file alias="qtbase_zh_CN.qm">@WJN_QT_TRANSLATIONS_DIR@/qtbase_zh_CN.qm</file>
+<file alias="qtbase_zh_CN.qm">@WJN_QT_ZH_CN_CATALOG@</file>
 <file alias="qtbase_ja.qm">@WJN_QT_TRANSLATIONS_DIR@/qtbase_ja.qm</file>
 <file alias="qtbase_ko.qm">@WJN_QT_TRANSLATIONS_DIR@/qtbase_ko.qm</file>
 </qresource></RCC>

@@ -53,7 +53,7 @@ add_custom_command(TARGET WinJACKNexus POST_BUILD
     COMMAND "${CMAKE_COMMAND}" -E make_directory
         "$<TARGET_FILE_DIR:WinJACKNexus>/locate/qt"
     COMMAND "${CMAKE_COMMAND}" -E copy_if_different
-        "${WJN_QT6_DIR}/../../../translations/qtbase_zh_CN.qm"
+        "${WJN_QT_ZH_CN_CATALOG}"
         "${WJN_QT6_DIR}/../../../translations/qtbase_ja.qm"
         "${WJN_QT6_DIR}/../../../translations/qtbase_ko.qm"
         "$<TARGET_FILE_DIR:WinJACKNexus>/locate/qt"

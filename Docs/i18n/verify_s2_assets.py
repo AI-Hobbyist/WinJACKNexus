@@ -34,7 +34,8 @@ def main():
         packages.append({'language': language, 'keys': len(keys)})
     assert (runtime / 'locate/manifest.json').read_bytes() == (ROOT / 'locate/manifest.json').read_bytes()
     for name in ('qtbase_zh_CN.qm', 'qtbase_ja.qm', 'qtbase_ko.qm'):
-        assert (runtime / 'locate/qt' / name).read_bytes() == (Path('C:/Qt/6.10.3/msvc2022_64/translations') / name).read_bytes()
+        source = ROOT/'build'/name if name=='qtbase_zh_CN.qm' else Path('C:/Qt/6.10.3/msvc2022_64/translations')/name
+        assert (runtime / 'locate/qt' / name).read_bytes() == source.read_bytes()
     test_log = (OUT / 'S2-tests.log').read_text(encoding='utf-8-sig')
     assert '100% tests passed' in test_log
     assert test_log.count('QT_QPA_PLATFORM=windows') >= 1
