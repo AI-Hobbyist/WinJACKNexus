@@ -2,23 +2,23 @@
   "stage": "S6",
   "result": "THEME_UI_SOURCE_DRAFT_PASS_IMPLEMENTATION_OPEN",
   "theme_ui_keys": 80,
-  "host_catalog_version": 7,
-  "host_keys": 616,
+  "host_catalog_version": 8,
+  "host_keys": 662,
   "module_test_runs": 0,
   "module_builds": 0,
   "ui_shows": 0,
   "remaining": [
-    "Theme core/package/registry/catalog diagnostic display",
-    "Returned-error status refresh after language change",
+    "Theme package/namespace registry/catalog diagnostic display",
+    "Complete remaining canonical error mappings",
     "Open file-dialog title/filter refresh",
     "Call-site checks, final Release deployment and one module UI run",
     "Final S0 reconciliation and user human review"
   ],
-  "runtime": "Existing v6 deployment has not been rebuilt for these v7 sources.",
+  "runtime": "Existing v6 deployment has not been rebuilt for these v8 sources.",
   "evidence": [
     {
       "file": "src\\ui\\src\\ThemeManagementDialog.cpp",
-      "sha256": "45f9ff11325a89879fd60a3b5427f1ba04b8ec15875d88d61a9fc3586b605568"
+      "sha256": "e13c9d6ec49bb49a6528fe2ecb681b49e1e6643d026496d3fc0697180ecae7b3"
     },
     {
       "file": "Docs\\i18n\\S6-theme-ui-strings.tsv",
@@ -26,35 +26,39 @@
     },
     {
       "file": "locate\\manifest.json",
-      "sha256": "9b1dd2fc757a1b349e6909f3d1ad85e37b57ddf52c55337fc1d811d6901adf5f"
+      "sha256": "4f5a5cdda1e6c782d140b4aea680ad4ba73355f585e05607da42e4a9193d67d9"
     },
     {
       "file": "src\\ui\\include\\WinJACKNexus\\UI\\ThemeManagementDialog.hpp",
-      "sha256": "9f939be7d058b93428038c1cf5ae15dd03ff7be8d366f168ad0f07a24c932bdb"
+      "sha256": "791712f5eb3872f4f98e0de5eb7aa530a7e46afd90dffb903b460b1036f3dc61"
     },
     {
       "file": "tests\\theme\\ThemeManagementTests.cpp",
-      "sha256": "48c5c1309f7641d61153af8881c61cbd6033573353eaaafbafdfac674c82172e"
+      "sha256": "ec42029f093c3a1cd444e9b7dd33f212affbda34c44133db476ed1530a48e309"
     },
     {
       "file": "Docs\\UI-API.md",
-      "sha256": "ff015d85bdad7c2b0eb3938f8026442389fff20625f6fcdbe9b8939094f73714"
+      "sha256": "c8f92ac0e98e0fc01963fe00b23addc0f2995e41cfb7d45db48bb2ebca3e7516"
+    },
+    {
+      "file": "src\\ui\\src\\LocalizedThemeMessages.hpp",
+      "sha256": "ace3c14658bf2175ef6bab56355e9c067cccbd34c33c0f0ca1433b444a3a9fca"
     },
     {
       "file": "locate\\en-US.json",
-      "sha256": "d824f97c48d14bd164c884a3b9c067c5fe0a65e7f8f92d9b664f4a5dac926779"
+      "sha256": "a8fcb391fabd07a62e06e725720bea7906d6f874f16d69a4c63bf260be4990fb"
     },
     {
       "file": "locate\\zh-CN.json",
-      "sha256": "e2f29907a788061d13e438f053ddee125063a8980205ab0c833b4db4585516b2"
+      "sha256": "e353e1e3d97b0ebb0942f272475e54de88d0a2873d5cc1660439c5d7da661ed7"
     },
     {
       "file": "locate\\ja-JP.json",
-      "sha256": "06283d52ef239fed94db2b05efddc639e7d647b4c4c1d43a791d56ad46229d0d"
+      "sha256": "6b21969daf1bffb58a4c24bbbcc7661cd47320b99a05e296126f3292d8d6e506"
     },
     {
       "file": "locate\\ko-KR.json",
-      "sha256": "e2c5141b2b7de48a13cacc652288570eecab7d6d5dd7ac6f20f9255a0433616d"
+      "sha256": "fdfb029adad631ab7579fab8cdf0ab472f0d7c8ef0f6f3fa3f779c2ba33f625b"
     }
   ]
 }

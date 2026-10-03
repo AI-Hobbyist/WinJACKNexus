@@ -4,6 +4,7 @@
 #include <WinJACKNexus/UI/ThemeManager.hpp>
 #include <WinJACKNexus/UI/ThemePackage.hpp>
 #include <WinJACKNexus/UI/HostI18n.hpp>
+#include "../../src/ui/src/LocalizedThemeMessages.hpp"
 
 #include <QApplication>
 #include <QCoreApplication>
@@ -21,6 +22,7 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QPushButton>
+#include <QPlainTextEdit>
 #include <QScreen>
 #include <QSpinBox>
 #include <QTabWidget>
@@ -74,6 +76,17 @@ int main(int argc, char** argv) {
           "management background controls exist through shared UI API");
     auto* nameDraft = dialog.findChild<QLineEdit*>(QStringLiteral("theme.metadata.name"));
     auto* colorDraft = dialog.findChild<QLineEdit*>(QStringLiteral("theme.colorValue"));
+    auto* diagnosticsView = dialog.findChild<QPlainTextEdit*>(QStringLiteral("theme.diagnostics"));
+    ThemePackage diagnosticPackage;
+    check(ThemePackage::create(metadata(), ":root { --wjn-theme-global-unrecognized-i18n: 1; }", {},
+                               &diagnosticPackage, &languageError)
+          && core.setFullTheme(diagnosticPackage, &languageError), "actual parser emits unknown-token diagnostic");
+    const QString canonicalWarning = QStringLiteral("Unknown token retained in package but ignored for drawing");
+    const auto diagnosticSnapshot = core.snapshot();
+    bool canonicalFound = false;
+    for (const auto& item : diagnosticSnapshot->diagnostics())
+        canonicalFound |= item.code == QStringLiteral("unknown-token") && item.message == canonicalWarning;
+    check(canonicalFound, "model warning tuple retains canonical English and stable code");
     if (nameDraft && colorDraft && backgroundScope && imageMode && tabs) {
         const auto originalName = nameDraft->text();
         const auto originalColor = colorDraft->text();
@@ -86,6 +99,10 @@ int main(int argc, char** argv) {
         const auto scope = backgroundScope->currentData();
         const QStringList languages {"en-US", "zh-CN", "ja-JP", "ko-KR"};
         const QStringList titles {"Theme management", "主题管理", "テーマ管理", "테마 관리"};
+        const QStringList warnings {canonicalWarning,
+            QStringLiteral("未知 token 保留在主题包中，但绘制时忽略"),
+            QStringLiteral("不明なトークンはパッケージに保持されますが、描画には使用されません"),
+            QStringLiteral("알 수 없는 토큰은 패키지에 보존되지만 그리기에는 사용되지 않습니다")};
         for (int index = 0; index < languages.size(); ++index) {
             check(languageHost.manager().setLanguage(languages[index], &languageError), "Theme language switch");
             check(dialog.windowTitle() == titles[index], "Theme title has independent four-language expectation");
@@ -93,10 +110,18 @@ int main(int argc, char** argv) {
                   && colorDraft->text() == QStringLiteral("#123456 draft"), "language refresh preserves metadata/color draft and selection");
             check(imageMode->currentData() == QStringLiteral("custom") && backgroundScope->currentData() == scope,
                   "language refresh preserves stable enum selection");
+            check(diagnosticsView && diagnosticsView->toPlainText().contains(warnings[index]), "actual stored diagnostic display refreshes in four languages");
+            check(core.snapshot() == diagnosticSnapshot, "language refresh does not rebuild or mutate Theme snapshot");
+            const auto literalDetail = QStringLiteral("assets/{detail} %1.png");
+            check(ThemeMessages::display(QStringLiteral("export resource is missing: ") + literalDetail).endsWith(literalDetail),
+                  "named diagnostic argument retains literal placeholder-looking resource path");
+            check(ThemeMessages::display(QStringLiteral("Opaque vendor diagnostic: 123")) == QStringLiteral("Opaque vendor diagnostic: 123"),
+                  "unrecognized vendor diagnostic remains opaque");
         }
         nameDraft->setText(originalName); colorDraft->setText(originalColor);
         imageMode->setCurrentIndex(imageMode->findData(originalMode));
     } else check(false, "Theme authoring drafts exist for language call-site checks");
+    core.restoreDefault();
     check(languageHost.manager().setLanguage(QStringLiteral("zh-CN"), &languageError),
           "select explicit language for existing Chinese authoring checks");
     if (tabs) {

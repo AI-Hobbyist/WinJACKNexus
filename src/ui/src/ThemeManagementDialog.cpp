@@ -5,6 +5,10 @@
 #include <WinJACKNexus/UI/LocalizedText.hpp>
 #include <QSignalBlocker>
 #include <QVariant>
+#include "LocalizedThemeMessages.hpp"
+#include <QScrollBar>
+#include <QTextCursor>
+#include <QTextDocument>
 #include <WinJACKNexus/UI/ThemeCore.hpp>
 #include <WinJACKNexus/UI/ThemeManager.hpp>
 #include <WinJACKNexus/UI/ThemeNamespaceRegistry.hpp>
@@ -24,6 +28,7 @@
 #include <QSet>
 #include <QUrl>
 #include <QVBoxLayout>
+#include <algorithm>
 
 namespace WinJACKNexus::UI {
 namespace {
@@ -67,6 +72,7 @@ void themeChoice(C::ChoiceField* field, const QString& value, const char* key, c
         });
 }
 void themeStatus(C::TextLabel* label, const char* key, const char* english) {
+    label->setProperty("wjn.theme.statusCanonical", QVariant{});
     label->setProperty("wjn.theme.statusKey", QByteArray(key));
     label->setProperty("wjn.theme.statusEnglish", QByteArray(english));
     label->setText(themeText(key, english));
@@ -74,7 +80,8 @@ void themeStatus(C::TextLabel* label, const char* key, const char* english) {
 void themeRawStatus(C::TextLabel* label, const QString& error) {
     label->setProperty("wjn.theme.statusKey", QByteArray{});
     label->setProperty("wjn.theme.statusEnglish", QByteArray{});
-    label->setText(error);
+    label->setProperty("wjn.theme.statusCanonical", error);
+    label->setText(ThemeMessages::display(error));
 }
 
 QString themesDirectory() {
@@ -323,6 +330,8 @@ ThemeManagementDialog::ThemeManagementDialog(ThemeCore& core, QWidget* parent)
             const auto key = label->property("wjn.theme.statusKey").toByteArray();
             const auto english = label->property("wjn.theme.statusEnglish").toByteArray();
             if (!key.isEmpty()) label->setText(themeText(key.constData(), english.constData()));
+            else if (label->property("wjn.theme.statusCanonical").isValid())
+                label->setText(ThemeMessages::display(label->property("wjn.theme.statusCanonical").toString()));
         });
     layout->addWidget(view_->status);
 
@@ -425,7 +434,7 @@ ThemeManagementDialog::ThemeManagementDialog(ThemeCore& core, QWidget* parent)
     refreshBackgroundEditor();
     refresh();
     if (auto* manager = I18nManager::installed())
-        manager->bind(this, [this] { refreshLocalizedIdentity(); });
+        manager->bind(this, [this] { refreshLocalizedIdentity(); refreshLocalizedDiagnostics(); });
 }
 
 ThemeManagementDialog::~ThemeManagementDialog() = default;
@@ -465,7 +474,7 @@ bool ThemeManagementDialog::apply(QString* error) {
         }
         QDir folder(themesDirectory());
         if (!folder.exists() && !QDir().mkpath(folder.absolutePath())) {
-            if (error) *error = themeText("error.directory", "Cannot create theme directory");
+            if (error) *error = ThemeMessages::canonical("Cannot create theme directory");
             return false;
         }
         QString destination = folder.filePath(candidate_.id() + QStringLiteral(".wjnskin"));
@@ -525,12 +534,12 @@ bool ThemeManagementDialog::exportToFile(const QString& path, const QString& nam
 bool ThemeManagementDialog::importImage(const QString& path, QString* error) {
     QFile file(path);
     if (!file.open(QIODevice::ReadOnly) || file.size() > 16 * 1024 * 1024) {
-        if (error) *error = themeText("error.imageLimit", "Background image exceeds the size limit or cannot be read");
+        if (error) *error = ThemeMessages::canonical("Background image exceeds the size limit or cannot be read");
         return false;
     }
     QImageReader reader(&file);
     if (!reader.canRead()) {
-        if (error) *error = themeText("error.imageRead", "Cannot read background image");
+        if (error) *error = ThemeMessages::canonical("Cannot read background image");
         return false;
     }
     file.seek(0);
@@ -552,12 +561,12 @@ bool ThemeManagementDialog::importImage(const QString& path, QString* error) {
 bool ThemeManagementDialog::importFont(const QString& path, QString* error) {
     QFile file(path);
     if (!file.open(QIODevice::ReadOnly) || file.size() > 16 * 1024 * 1024) {
-        if (error) *error = themeText("error.fontLimit", "Font file exceeds the size limit or cannot be read");
+        if (error) *error = ThemeMessages::canonical("Font file exceeds the size limit or cannot be read");
         return false;
     }
     const auto bytes = file.readAll();
     if (QFontDatabase::addApplicationFontFromData(bytes) < 0) {
-        if (error) *error = themeText("error.fontInvalid", "Invalid font file");
+        if (error) *error = ThemeMessages::canonical("Invalid font file");
         return false;
     }
     const auto logical = QStringLiteral("assets/imported-font.%1")
@@ -588,7 +597,7 @@ bool ThemeManagementDialog::applyBackground(QString* error) {
     const auto overlayOpacity = cssNumber(view_->overlayOpacity->value());
     if (!ThemeRegistry::valueMatchesType(QStringLiteral("position"), x)
         || !ThemeRegistry::valueMatchesType(QStringLiteral("position"), y)) {
-        if (error) *error = themeText("error.position", "Position must be a percentage or px value");
+        if (error) *error = ThemeMessages::canonical("Position must be a percentage or px value");
         return false;
     }
     if (mode == "none") {
@@ -604,7 +613,7 @@ bool ThemeManagementDialog::applyBackground(QString* error) {
                                    QStringLiteral("url(\"%1\")").arg(imported.resourceNames().first()),
                                    imported, error)) return false;
         } else if (!core_.declaredValue(token(scope, QStringLiteral("image"))).startsWith("url(")) {
-            if (error) *error = themeText("error.chooseImage", "Choose a custom image first");
+            if (error) *error = ThemeMessages::canonical("Choose a custom image first");
             return false;
         }
     }
@@ -662,6 +671,24 @@ void ThemeManagementDialog::refreshLocalizedIdentity() {
     view_->homepage->setEnabled(!homepage.isEmpty());
 }
 
+void ThemeManagementDialog::refreshLocalizedDiagnostics() {
+    QStringList lines;
+    for (const auto& item : core_.snapshot()->diagnostics())
+        lines.append(QStringLiteral("%1:%2 %3 %4").arg(item.line)
+            .arg(item.code, item.token, ThemeMessages::display(item.message)));
+    const auto text = lines.join('\n');
+    if (view_->diagnostics->toPlainText() == text) return;
+    const auto oldCursor = view_->diagnostics->textCursor();
+    const auto scroll = view_->diagnostics->verticalScrollBar()->value();
+    view_->diagnostics->setPlainText(text);
+    auto cursor = view_->diagnostics->textCursor();
+    const auto end = view_->diagnostics->document()->characterCount() - 1;
+    cursor.setPosition(std::min(oldCursor.anchor(), end));
+    cursor.setPosition(std::min(oldCursor.position(), end), QTextCursor::KeepAnchor);
+    view_->diagnostics->setTextCursor(cursor);
+    view_->diagnostics->verticalScrollBar()->setValue(scroll);
+}
+
 void ThemeManagementDialog::refresh() {
     ThemeManager themeAdapter;
     themeAdapter.applyToWidget(this);
@@ -670,10 +697,7 @@ void ThemeManagementDialog::refresh() {
                                && !previewing_);
     view_->apply->setEnabled(candidate_.isValid());
     view_->cancel->setEnabled(previewing_);
-    QStringList lines;
-    for (const auto& item : core_.snapshot()->diagnostics())
-        lines.append(QStringLiteral("%1:%2 %3 %4").arg(item.line).arg(item.code, item.token, item.message));
-    view_->diagnostics->setPlainText(lines.join('\n'));
+    refreshLocalizedDiagnostics();
     view_->fontName->setText(core_.snapshot()->value(QStringLiteral("--wjn-theme-global-font-source")));
     refreshBackgroundEditor();
 }

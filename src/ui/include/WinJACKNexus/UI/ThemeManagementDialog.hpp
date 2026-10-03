@@ -35,6 +35,7 @@ private:
     struct View;
     void refresh();
     void refreshLocalizedIdentity();
+    void refreshLocalizedDiagnostics();
     void refreshBackgroundEditor();
     bool applyBackground(QString* error);
     bool importImage(const QString& path, QString* error);

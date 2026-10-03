@@ -39,3 +39,9 @@ VST Scanner 使用现有 HostI18n 在创建窗口前恢复宿主保存的语言�
 语言通知独立调用 refreshLocalizedIdentity()，不调用会重载草稿的 refresh()/refreshBackgroundEditor()。元数据编辑字段新增稳定对象名，供既有 ThemeManagementTests 调用点检查；测试源码增加隔离 language.ini、Windows 平台/系统字体配置、四语言独立标题预期及草稿/选区/enum data 保持检查，尚未编译或执行。
 
 源词表、manifest、四语言 JSON 与双表静态一致性核对 PASS：`S6-theme-ui-draft-verification.json`、`S6-theme-ui-draft.log`。这不是 Release/部署或实窗证据：实际运行目录仍是 v6，S0 与主题来源审计哈希快照对应 8564c61，当前 Theme 源码修改尚待模块收尾刷新。ThemeCore/Package/Registry/Catalog 诊断、返回错误热刷新及打开中的文件选择框刷新仍需实施；完成全部主题修改后统一编译、部署并运行一次模块实窗测试。本轮没有编译、UI 测试或弹窗，未消耗主题模块单次验证。S6 尚未完成。
+
+2026-10-04 ThemeCore 诊断显示接入：新增 46 个四语言 `theme/core.*` 草稿模板，宿主源码语言包 v8/662（theme 域共 126 项：窗口 80、core 46）。私有 LocalizedThemeMessages 按项目既有 MixerErrors 的边界，仅把已知原始诊断匹配为显示 key；不将译文回传解析器、保存字段或业务判断。ThemeCore.cpp 与 8564c61 的源码 SHA-256 完全一致，公开 ThemeDiagnostic 布局、code/token/line/message 和 canonical English 保持。动态行号、路径、类型用命名 detail 参数，未知 SDK/OS 消息原样；不把用户参数再次当占位符解释。
+
+主题管理八项本窗口错误现返回 canonical English，状态控件存它的原文并在语言通知时显示翻译副本；成功状态继续保存稳定 key。snapshot 诊断只更新只读文本，恢复有界光标位置和滚动条，不重建快照、不调用编辑区刷新。调用点测试源码增补实际 unknown-token 解析警告、四语言独立显示预期、快照保持、占位符形状路径和未知诊断保持检查，尚未编译或执行。
+
+源词表/模板/四语言包静态核对 PASS，见 S6-theme-core-draft-verification.json 与 S6-theme-core-draft.log；窗口 80 项源码核对也已按 v8 同步。它不代表编译、部署或运行时通过，实际 bin 仍为 v6，S0 来源快照仍为 8564c61。Package、NamespaceRegistry、Catalog、背景/字体显示边界及打开的文件对话框仍待补齐，随后统一编译并运行主题模块的一次实窗测试。本轮无编译、模块测试或弹窗，S6 尚未完成。
