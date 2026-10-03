@@ -145,6 +145,22 @@ def s5_call(r):
     return None
 
 def s6_call(r):
+    if r['file'] == 'src/ui/src/Controls.cpp':
+        for domain, key, english in re.findall(
+                r'localizedText\(\s*"(ui)"\s*,\s*"([^"\n]+)"\s*,\s*"((?:\\.|[^"\\])*)"', r['context']):
+            if r['literal'] in (domain, key):
+                return 'exclude', domain, key
+            if r['literal'] == english:
+                return 'translate', domain, key
+    if r['file'] == 'tools/vst_scanner/src/ProbeMain.cpp':
+        # Transport English and structured key/args represent the same display
+        # template resolved by the Scanner.cpp whitelist, not error identities.
+        for english, key in re.findall(
+                r'error\s*=\s*\{\s*"([^"\n]+)"[^\n]*?,\s*"(probe\.[A-Za-z0-9]+)"', r['context']):
+            if r['literal'] == key:
+                return 'exclude', 'vstscanner', key
+            if r['literal'] == english:
+                return 'translate', 'vstscanner', key
     calls = {
         'src/vst/src/Library.cpp': ('vst', 'vstText'),
         'tools/vst_scanner/src/MainWindow.cpp': ('vstscanner', 'scannerText'),
@@ -164,6 +180,8 @@ def s6_call(r):
 def classify(r, decisions):
     text, ctx, file = r['literal'], r['context'], r['file']
     s6_runtime = s6_call(r)
+    if file=='tools/vst_scanner/src/ProbeMain.cpp' and s6_runtime and s6_runtime[0]=='translate' and re.search(r'error\s*=\s*\{\s*"[^"\n]+"\s*\+',ctx):
+        return 'exclude','','Probe English 传输回退的拼接前缀，不是完整翻译模板；当前 Scanner 通过同一稳定 key/原始参数显示带 %1 的完整模板（该调用点另列），旧消费端仍接收组装后的完整 English；不将前缀误当成无占位符模板'
     if s6_runtime:
         return s6_runtime[0], s6_runtime[2] if s6_runtime[0]=='translate' else '', (
             'S6 实际 English 显示基线；key 与四语言草稿见核对表，人工审校仍待用户意见'
@@ -172,6 +190,16 @@ def classify(r, decisions):
         return 'exclude','','VST 可选 i18n ABI/域/绑定属性/descriptor 协议；可见 English 在业务调用点及完整语言包另列'
     if file=='tools/vst_scanner/include/WinJACKNexus/VstScanner/Language.hpp':
         return 'exclude','','扫描器启动语言注册的资源/schema/域/目录身份及仅写诊断日志的初始化 detail；窗口显示和扫描消息另列'
+    if file in ('tools/vst_scanner/src/ProbeMain.cpp','tools/vst_scanner/src/Scanner.cpp') and text in ('_key','_args'):
+        return 'exclude','','S6 Probe IPC 显示元数据字段后缀；稳定协议身份，完整 English 回退和对应译文另列'
+    if file=='tools/vst_scanner/src/Scanner.cpp' and re.search(r'key\s*==\s*QStringLiteral\(',ctx):
+        probe_keys = json.loads((ROOT/'tools/vst_scanner/locate/manifest.json').read_text(encoding='utf-8'))['requiredKeys']['vstscanner']
+        if text.startswith('probe.') and text in probe_keys:
+            return 'exclude','','Probe 项目错误显示 key 白名单比较，禁止比较译文；scannerText 的实际 English 模板另列翻译'
+    if file=='src/ui/src/ThemeManagementDialog.cpp' and text in (
+            'Imported image','Temporary image resource for theme export',
+            'Imported font','Temporary font resource for theme export'):
+        return 'exclude','','importImage/importFont 临时资源载体的 metadata；仅将资源及 token 合并到当前主题，完整/片段导出使用 editedMetadata() 的用户内容，禁止语言切换改写包内容；实际控件及错误仍另列翻译'
     if file=='tools/vst_scanner/src/Scanner.cpp' and text in ('Instruments','Effects') and 'categoryDirectory' in ctx:
         return 'exclude','','已交付扫描目录结构身份，直接参与 info 文件输出路径；窗口分类说明由 vstscanner/category、effect、instrument 独立翻译'
     if file=='tools/vst_scanner/src/MainWindow.cpp' and text=='%1-bit' and 'plugin.bits' in ctx:

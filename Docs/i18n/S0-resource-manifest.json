@@ -25,23 +25,23 @@
   },
   {
     "file": "locate/en-US.json",
-    "sha256": "33c8724e4400b60dd9b23e71833ace8649264fa9fd3291652cbf121d1ae3ed4b"
+    "sha256": "2ae1647d6738ebb88db2fa146a4b2b7b2cdd40b6624534e060dc14681e42c811"
   },
   {
     "file": "locate/ja-JP.json",
-    "sha256": "9278cfec54d4e3894da0a2fe22a0b8a8c588f1f18c2f49db3fbdbdf97fbbdd4b"
+    "sha256": "335a71d2e13ae86685e690af5e91b6006cbcb4c58f00b4253b22f43377e91a40"
   },
   {
     "file": "locate/ko-KR.json",
-    "sha256": "726ec065e02604d4ddd9e29af6168f132da8c0c0cf10e1c7727012cb5003aaa8"
+    "sha256": "99dc1bd82e4649c130fb46f0a94b9e16063a7a77ebbe998c19d1b7f20408bce8"
   },
   {
     "file": "locate/manifest.json",
-    "sha256": "66123e7df049bc1050003423d6db07faf1936e2f5df610815dd57763c4949231"
+    "sha256": "2a588cd4acde7b1c1c22bbfdc70034a8bbcfca165d3d6c17264800927b6bc555"
   },
   {
     "file": "locate/zh-CN.json",
-    "sha256": "c9541bcfd9b2318c9fa12c1e9ef616410997d53fcdf75588a0c2871cec01e077"
+    "sha256": "e125ab97166b87376c660f6da16025e0056efb68b7d3958fb58e854997aa7561"
   },
   {
     "file": "Develop/Node/locate/en-US.json",
@@ -105,23 +105,23 @@
   },
   {
     "file": "tools/vst_scanner/locate/en-US.json",
-    "sha256": "581b42834d0383263f454e8a0abcba406ca556ac364812a88348f7c47fac2c6f"
+    "sha256": "6f4d8be22f3774e371131ad53d43bdb17af5b6b6381d298b8924cc8633deb1f6"
   },
   {
     "file": "tools/vst_scanner/locate/ja-JP.json",
-    "sha256": "8b24a5a4ad8b05ac66b822b581c0504c9c8ce1064567f2632fff3541491f1541"
+    "sha256": "72cd4aaa6370b514eceacc346a9c366539ba73611228fccd95e9737e035507ab"
   },
   {
     "file": "tools/vst_scanner/locate/ko-KR.json",
-    "sha256": "9cdf561e333990dbb60ccf04911f3b9a66ee09de3cb5b81a1b396a252332cb88"
+    "sha256": "751164e7e0fce5e11d5f55ac7ea558132d1d815756be82a929012ed6c4b160e3"
   },
   {
     "file": "tools/vst_scanner/locate/manifest.json",
-    "sha256": "8db3eedd14ecfdd33e735478b03eef916a476f0c135434f03fbab5a98392e78e"
+    "sha256": "06268e7ef8ff0311e8e458c1456f9f9147ff67bfad1be401027c7faf00e161cf"
   },
   {
     "file": "tools/vst_scanner/locate/zh-CN.json",
-    "sha256": "bf289f9329cb3d35c8544c15974ddf19a855602bc45c89b9e71fdf218eb923c2"
+    "sha256": "fc8fbc896af577da60973953c4cdb52d2769549ee246d1b61b1c7d3a4dbbb412"
   },
   {
     "file": "src/native_fx/effects/gate/locate/en-US.json",

@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "D:\UserData\Desktop\Project\WinJACKNexus\Docs\i18n\verify_s0.py", line 95, in <module>
+    if __name__=='__main__': main()
+                             ^^^^^^
+  File "D:\UserData\Desktop\Project\WinJACKNexus\Docs\i18n\verify_s0.py", line 53, in main
+    raise AssertionError('same-key placeholder mismatch: '+key[0]+'/'+key[1])
+AssertionError: same-key placeholder mismatch: vstscanner/probe.invalidClassId

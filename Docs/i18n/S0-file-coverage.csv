@@ -228,7 +228,7 @@ src/ui/include/WinJACKNexus/UI/TrayController.hpp,8561f6fb92481f71b8613f3cb5c4b2
 src/ui/src/AnimatedWidget.cpp,711d4dc1069c79b365fff2782bee90915eeadfb1a39470f1857d9513ee22397d,0,0,0,0,0,ui,已扫描，无字符串 UI 源
 src/ui/src/ApplicationSettings.cpp,8a855a0e8771a9599233c10e8bc12c88c316049675736211bc1a1cb33ab6b85a,14,0,14,0,0,ui,显示文字/元数据/错误 + 固定协议/技术项分别对账
 src/ui/src/AuxSettingsWindow.cpp,96ee2ddcea8bb613b44aa8045f86e68db37a84b8c2c96063618f044625b14213,266,29,237,0,0,aux,显示文字/元数据/错误 + 固定协议/技术项分别对账
-src/ui/src/Controls.cpp,cc7c76bb55a92cb23a083d050eef089ac67775643ad0a7a947f49039cab27240,165,8,157,0,0,ui,显示文字/元数据/错误 + 固定协议/技术项分别对账
+src/ui/src/Controls.cpp,97aa471134b96809aba8e993754e64af5a67376679c96e30d2d827f0f1094b02,174,9,165,0,0,ui,显示文字/元数据/错误 + 固定协议/技术项分别对账
 src/ui/src/FxLevelMeterWidget.cpp,e980376f816c95c848592655121b596876a7bd2490a0ae76e9f41de56836a5d9,48,4,44,0,0,fxhost,显示文字/元数据/错误 + 固定协议/技术项分别对账
 src/ui/src/FxSettingsWindow.cpp,b04efc2734cec388d9de5f85767197ee1e0775c29b2e64a76b3fa7edffc1db48,431,58,373,0,0,fxhost,显示文字/元数据/错误 + 固定协议/技术项分别对账
 src/ui/src/HistoryChartWidget.cpp,869b6bdf72ee704855db05f25ee6cf1bdc43f90d8bbc95e0b2bc54f033e0a026,26,1,25,0,0,ui,显示文字/元数据/错误 + 固定协议/技术项分别对账
@@ -253,7 +253,7 @@ src/ui/src/SelThemeAccent.hpp,d69caff9f8d21bec786d6555e994c5707cbb14b125c9a3ceb0
 src/ui/src/ThemeBackground.cpp,3892306b0b7311c246e9e809e6d3fc012b54ef40c804303f454585f6c88cf825,29,3,26,0,0,theme,显示文字/元数据/错误 + 固定协议/技术项分别对账
 src/ui/src/ThemeCatalog.cpp,f3848d3828948fae398e1ac9fe596068fd58d118f8529a996c48a1e55e4ba11f,53,16,37,0,0,"host,theme",显示文字/元数据/错误 + 固定协议/技术项分别对账
 src/ui/src/ThemeCore.cpp,b8b7609be1207d1d21a25d9fdde5fd7b308808b9dab9775ac6b3c4b928fec836,220,48,172,0,0,theme,显示文字/元数据/错误 + 固定协议/技术项分别对账
-src/ui/src/ThemeManagementDialog.cpp,c57b3afeaa7517f3bb3377a40d0032428fce110caf2b3450e386f3ab2edc1379,235,71,164,0,0,theme,显示文字/元数据/错误 + 固定协议/技术项分别对账
+src/ui/src/ThemeManagementDialog.cpp,c57b3afeaa7517f3bb3377a40d0032428fce110caf2b3450e386f3ab2edc1379,235,67,168,0,0,theme,显示文字/元数据/错误 + 固定协议/技术项分别对账
 src/ui/src/ThemeManager.cpp,a892bed30231d120460452725b2df6a44c9c8ee00ab995ba0740311be5c3f2a2,64,3,61,0,0,theme,显示文字/元数据/错误 + 固定协议/技术项分别对账
 src/ui/src/ThemeNamespaceRegistry.cpp,b2ae21077dd3d923511b5ab7cad59e5acc964ee89decd8156e89f784568de764,108,42,66,0,0,theme,显示文字/元数据/错误 + 固定协议/技术项分别对账
 src/ui/src/ThemePackage.cpp,f1d1ddc6da01d5c15ce3c4f3117a538e307fc0108117d7cf008c148c59616d3c,148,73,75,0,0,theme,显示文字/元数据/错误 + 固定协议/技术项分别对账
@@ -268,8 +268,8 @@ tools/vst_scanner/include/WinJACKNexus/VstScanner/MainWindow.hpp,65fe01b1c217269
 tools/vst_scanner/include/WinJACKNexus/VstScanner/Scanner.hpp,5dbf88c3c50d8a3e9f3abddd9d79da877f9ba1c377e2d3b3defe3ca4ccf48cbe,0,0,0,0,0,vstscanner,已扫描，无字符串 UI 源
 tools/vst_scanner/src/main.cpp,84c71fb0d537574741ac32ef7f4557a6a77d8cf6b941c75443d781c0c89f71cf,5,0,5,0,0,vstscanner,显示文字/元数据/错误 + 固定协议/技术项分别对账
 tools/vst_scanner/src/MainWindow.cpp,79aaad6d8c7d16396ef2f94737b0b14412d7e365b3c27d86b320cd63bb517b3f,139,52,87,0,0,vstscanner,显示文字/元数据/错误 + 固定协议/技术项分别对账
-tools/vst_scanner/src/ProbeMain.cpp,99a312c982bee752cdb25ea459eeabb9cf795f84e9726b0ef3d1604fea721377,74,10,64,0,0,vstscanner,显示文字/元数据/错误 + 固定协议/技术项分别对账
-tools/vst_scanner/src/Scanner.cpp,599c78014a45d9324b9fa22681787a77414e3088832dec71c9b29f305195a421,179,24,155,0,0,vstscanner,显示文字/元数据/错误 + 固定协议/技术项分别对账
+tools/vst_scanner/src/ProbeMain.cpp,e19726b11aef317cc22e31376b5ed03dfcaa7844a476ffb6c0984d5deec79475,86,6,80,0,0,vstscanner,显示文字/元数据/错误 + 固定协议/技术项分别对账
+tools/vst_scanner/src/Scanner.cpp,6c610d8e4db654ad7cdc9b7bc2610436c963142999876fe491123ea363f9f58f,211,34,177,0,0,vstscanner,显示文字/元数据/错误 + 固定协议/技术项分别对账
 tools/vst_scanner/VstScanner.rc,4ffc00d43b37ed2048f9ad7b95df34a6435382622b828d4675f457b50813ab10,1,0,1,0,0,vstscanner,显示文字/元数据/错误 + 固定协议/技术项分别对账
 Develop/I18nExample.hpp,6224e28198d6a03eaa6f511e2a5c523eaeac376ed666ea16f8b4dc87c7f0d437,2,0,2,0,0,example.i18nexample.hpp,显示文字/元数据/错误 + 固定协议/技术项分别对账
 Develop/NativeFx/ExampleNativeFx.cpp,c7c9b2fd7a82d7f8c5c472b551b395338ef77ebf883a0cf8d4cbca47eb113c39,68,12,55,1,0,example.nativefx,显示文字/元数据/错误 + 固定协议/技术项分别对账

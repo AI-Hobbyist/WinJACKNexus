@@ -1152,8 +1152,8 @@
     },
     {
       "file": "src/ui/src/Controls.cpp",
-      "sha256": "cc7c76bb55a92cb23a083d050eef089ac67775643ad0a7a947f49039cab27240",
-      "lines": 1714
+      "sha256": "97aa471134b96809aba8e993754e64af5a67376679c96e30d2d827f0f1094b02",
+      "lines": 1725
     },
     {
       "file": "src/ui/src/FxLevelMeterWidget.cpp",
@@ -1352,13 +1352,13 @@
     },
     {
       "file": "tools/vst_scanner/src/ProbeMain.cpp",
-      "sha256": "99a312c982bee752cdb25ea459eeabb9cf795f84e9726b0ef3d1604fea721377",
-      "lines": 664
+      "sha256": "e19726b11aef317cc22e31376b5ed03dfcaa7844a476ffb6c0984d5deec79475",
+      "lines": 691
     },
     {
       "file": "tools/vst_scanner/src/Scanner.cpp",
-      "sha256": "599c78014a45d9324b9fa22681787a77414e3088832dec71c9b29f305195a421",
-      "lines": 1129
+      "sha256": "6c610d8e4db654ad7cdc9b7bc2610436c963142999876fe491123ea363f9f58f",
+      "lines": 1189
     },
     {
       "file": "tools/vst_scanner/VstScanner.rc",
@@ -1381,8 +1381,8 @@
       "lines": 129
     }
   ],
-  "literal_occurrences": 9690,
-  "unique_source_ids": 6454,
+  "literal_occurrences": 9743,
+  "unique_source_ids": 6491,
   "limitations": [
     "Source evidence is not a classified UI/key inventory.",
     "Dynamic text sources and Qt/OS-owned text require separate inspection.",

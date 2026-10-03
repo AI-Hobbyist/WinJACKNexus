@@ -410,31 +410,41 @@ s0.e06095300590,vstprocess,tools/vst_process/src/ProcessMain.cpp,2241,quit,"else
 s0.14fc40af9b0f,vstscanner,tools/vst_scanner/src/main.cpp,39,--output,"if (argument == QStringLiteral(""--output"") && index + 1 < arguments.size()) {",exclude,保持稳定身份；显示文字另行翻译
 s0.9f02e705187b,vstscanner,tools/vst_scanner/src/main.cpp,41,--output=,"} else if (argument.startsWith(QStringLiteral(""--output=""))) {",exclude,保持稳定身份；显示文字另行翻译
 s0.68b0d2081cae,vstscanner,tools/vst_scanner/src/MainWindow.cpp,103,vst3,"return plugin.type.compare(QStringLiteral(""vst3""), Qt::CaseInsensitive) == 0",exclude,保持稳定身份；显示文字另行翻译
-s0.993d90642234,vstscanner,tools/vst_scanner/src/ProbeMain.cpp,310,controller,"if (categoryLower.find(""controller"") != std::string::npos",exclude,保持稳定身份；显示文字另行翻译
-s0.4487c4433e64,vstscanner,tools/vst_scanner/src/ProbeMain.cpp,311,service,"|| categoryLower.find(""service"") != std::string::npos",exclude,保持稳定身份；显示文字另行翻译
-s0.68caa51e7c99,vstscanner,tools/vst_scanner/src/ProbeMain.cpp,312,compatibility,"|| categoryLower.find(""compatibility"") != std::string::npos)",exclude,保持稳定身份；显示文字另行翻译
+s0.993d90642234,vstscanner,tools/vst_scanner/src/ProbeMain.cpp,334,controller,"if (categoryLower.find(""controller"") != std::string::npos",exclude,保持稳定身份；显示文字另行翻译
+s0.4487c4433e64,vstscanner,tools/vst_scanner/src/ProbeMain.cpp,335,service,"|| categoryLower.find(""service"") != std::string::npos",exclude,保持稳定身份；显示文字另行翻译
+s0.68caa51e7c99,vstscanner,tools/vst_scanner/src/ProbeMain.cpp,336,compatibility,"|| categoryLower.find(""compatibility"") != std::string::npos)",exclude,保持稳定身份；显示文字另行翻译
 s0.b39d2cb0282a,vstscanner,tools/vst_scanner/src/Scanner.cpp,280,VSTPluginMain,"if (std::strcmp(name, ""VSTPluginMain"") == 0 || std::strcmp(name, ""main"") == 0) {",exclude,保持稳定身份；显示文字另行翻译
 s0.018da6d7ab65,vstscanner,tools/vst_scanner/src/Scanner.cpp,280,main,"if (std::strcmp(name, ""VSTPluginMain"") == 0 || std::strcmp(name, ""main"") == 0) {",exclude,保持稳定身份；显示文字另行翻译
-s0.0108e165529a,vstscanner,tools/vst_scanner/src/Scanner.cpp,487,vst3,"{ type == QStringLiteral(""vst3"") ? QStringLiteral(""--vst3"")",exclude,保持稳定身份；显示文字另行翻译
-s0.0108e165529a,vstscanner,tools/vst_scanner/src/Scanner.cpp,502,vst3,"|| (type.compare(QStringLiteral(""vst3""), Qt::CaseInsensitive) == 0 && childCount > 1);",exclude,保持稳定身份；显示文字另行翻译
-s0.f3e02a3d8df9,vstscanner,tools/vst_scanner/src/Scanner.cpp,527,vst2,"const auto refreshVst2Classification = type.compare(QStringLiteral(""vst2""), Qt::CaseInsensitive) == 0",exclude,保持稳定身份；显示文字另行翻译
-s0.f3e02a3d8df9,vstscanner,tools/vst_scanner/src/Scanner.cpp,532,vst2,"const auto refreshVst2Midi = type.compare(QStringLiteral(""vst2""), Qt::CaseInsensitive) == 0",exclude,保持稳定身份；显示文字另行翻译
-s0.0108e165529a,vstscanner,tools/vst_scanner/src/Scanner.cpp,551,vst3,"type == QStringLiteral(""vst3"") ? QStringLiteral(""--vst3"") : QStringLiteral(""--vst2"")",exclude,保持稳定身份；显示文字另行翻译
-s0.0108e165529a,vstscanner,tools/vst_scanner/src/Scanner.cpp,553,vst3,"if (type == QStringLiteral(""vst3"")) {",exclude,保持稳定身份；显示文字另行翻译
-s0.0108e165529a,vstscanner,tools/vst_scanner/src/Scanner.cpp,584,vst3,"if (type.compare(QStringLiteral(""vst3""), Qt::CaseInsensitive) == 0 && !moduleInfo.isEmpty()) {",exclude,保持稳定身份；显示文字另行翻译
-s0.1a8a8afdbbc4,vstscanner,tools/vst_scanner/src/Scanner.cpp,701,.vstinfo,"if (extension != QStringLiteral("".vstinfo"") && extension != QStringLiteral("".vst3info""))",exclude,保持稳定身份；显示文字另行翻译
-s0.cfa14a95c935,vstscanner,tools/vst_scanner/src/Scanner.cpp,701,.vst3info,"if (extension != QStringLiteral("".vstinfo"") && extension != QStringLiteral("".vst3info""))",exclude,保持稳定身份；显示文字另行翻译
-s0.1a8a8afdbbc4,vstscanner,tools/vst_scanner/src/Scanner.cpp,739,.vstinfo,"if (extension != QStringLiteral("".vstinfo"") && extension != QStringLiteral("".vst3info""))",exclude,保持稳定身份；显示文字另行翻译
-s0.cfa14a95c935,vstscanner,tools/vst_scanner/src/Scanner.cpp,739,.vst3info,"if (extension != QStringLiteral("".vstinfo"") && extension != QStringLiteral("".vst3info""))",exclude,保持稳定身份；显示文字另行翻译
-s0.f3e02a3d8df9,vstscanner,tools/vst_scanner/src/Scanner.cpp,749,vst2,"if (info.type.compare(QStringLiteral(""vst2""), Qt::CaseInsensitive) != 0)",exclude,保持稳定身份；显示文字另行翻译
-s0.1a8a8afdbbc4,vstscanner,tools/vst_scanner/src/Scanner.cpp,757,.vstinfo,"|| lowerExtension(iterator->path()) != QStringLiteral("".vstinfo""))",exclude,保持稳定身份；显示文字另行翻译
-s0.f3e02a3d8df9,vstscanner,tools/vst_scanner/src/Scanner.cpp,773,vst2,"const auto formatDirectory = info.type.compare(QStringLiteral(""vst2""), Qt::CaseInsensitive) == 0",exclude,保持稳定身份；显示文字另行翻译
-s0.f3e02a3d8df9,vstscanner,tools/vst_scanner/src/Scanner.cpp,788,vst2,"const auto extension = info.type.compare(QStringLiteral(""vst2""), Qt::CaseInsensitive) == 0",exclude,保持稳定身份；显示文字另行翻译
-s0.f3e02a3d8df9,vstscanner,tools/vst_scanner/src/Scanner.cpp,814,vst2,"if (info.type.compare(QStringLiteral(""vst2""), Qt::CaseInsensitive) == 0) {",exclude,保持稳定身份；显示文字另行翻译
-s0.4ce5f33a5ced,vstscanner,tools/vst_scanner/src/Scanner.cpp,868,instrument,"info.category.compare(QStringLiteral(""instrument""), Qt::CaseInsensitive) == 0);",exclude,保持稳定身份；显示文字另行翻译
-s0.ea507af57996,vstscanner,tools/vst_scanner/src/Scanner.cpp,912,.vst3,"if (lowerExtension(path) == QStringLiteral("".vst3"")) {",exclude,保持稳定身份；显示文字另行翻译
-s0.03405ec85e24,vstscanner,tools/vst_scanner/src/Scanner.cpp,925,.dll,"if (extension == QStringLiteral("".dll"") || extension == QStringLiteral("".vst3""))",exclude,保持稳定身份；显示文字另行翻译
-s0.ea507af57996,vstscanner,tools/vst_scanner/src/Scanner.cpp,925,.vst3,"if (extension == QStringLiteral("".dll"") || extension == QStringLiteral("".vst3""))",exclude,保持稳定身份；显示文字另行翻译
-s0.ea507af57996,vstscanner,tools/vst_scanner/src/Scanner.cpp,1115,.vst3,"if (fs::is_directory(path, error) && extension == QStringLiteral("".vst3""))",exclude,保持稳定身份；显示文字另行翻译
-s0.03405ec85e24,vstscanner,tools/vst_scanner/src/Scanner.cpp,1117,.dll,"else if (fs::is_regular_file(path, error) && extension == QStringLiteral("".dll""))",exclude,保持稳定身份；显示文字另行翻译
-s0.ea507af57996,vstscanner,tools/vst_scanner/src/Scanner.cpp,1119,.vst3,"else if (fs::is_regular_file(path, error) && extension == QStringLiteral("".vst3""))",exclude,保持稳定身份；显示文字另行翻译
+s0.4c124e220061,vstscanner,tools/vst_scanner/src/Scanner.cpp,369,probe.noComponent,"if (key == QStringLiteral(""probe.noComponent"")) {",exclude,保持稳定身份；显示文字另行翻译
+s0.65c5e134a617,vstscanner,tools/vst_scanner/src/Scanner.cpp,373,probe.invalidClassId,"else if (key == QStringLiteral(""probe.invalidClassId"")) {",exclude,保持稳定身份；显示文字另行翻译
+s0.75d31edbf187,vstscanner,tools/vst_scanner/src/Scanner.cpp,377,probe.missingClassId,"else if (key == QStringLiteral(""probe.missingClassId"")) {",exclude,保持稳定身份；显示文字另行翻译
+s0.88995e06ea9e,vstscanner,tools/vst_scanner/src/Scanner.cpp,381,probe.createComponent,"else if (key == QStringLiteral(""probe.createComponent"")) {",exclude,保持稳定身份；显示文字另行翻译
+s0.7c6a1153c092,vstscanner,tools/vst_scanner/src/Scanner.cpp,385,probe.initializeComponent,"else if (key == QStringLiteral(""probe.initializeComponent"")) {",exclude,保持稳定身份；显示文字另行翻译
+s0.7b1f0a1debed,vstscanner,tools/vst_scanner/src/Scanner.cpp,389,probe.loadLibrary,"else if (key == QStringLiteral(""probe.loadLibrary"")) {",exclude,保持稳定身份；显示文字另行翻译
+s0.49fd829e9080,vstscanner,tools/vst_scanner/src/Scanner.cpp,393,probe.missingEntry,"else if (key == QStringLiteral(""probe.missingEntry"")) {",exclude,保持稳定身份；显示文字另行翻译
+s0.e07d37c1b774,vstscanner,tools/vst_scanner/src/Scanner.cpp,397,probe.invalidEffect,"else if (key == QStringLiteral(""probe.invalidEffect"")) {",exclude,保持稳定身份；显示文字另行翻译
+s0.88b19f6ec721,vstscanner,tools/vst_scanner/src/Scanner.cpp,401,probe.vst2Disabled,"else if (key == QStringLiteral(""probe.vst2Disabled"")) {",exclude,保持稳定身份；显示文字另行翻译
+s0.04c311eedf50,vstscanner,tools/vst_scanner/src/Scanner.cpp,405,probe.failed,"else if (key == QStringLiteral(""probe.failed"")) {",exclude,保持稳定身份；显示文字另行翻译
+s0.0108e165529a,vstscanner,tools/vst_scanner/src/Scanner.cpp,547,vst3,"{ type == QStringLiteral(""vst3"") ? QStringLiteral(""--vst3"")",exclude,保持稳定身份；显示文字另行翻译
+s0.0108e165529a,vstscanner,tools/vst_scanner/src/Scanner.cpp,562,vst3,"|| (type.compare(QStringLiteral(""vst3""), Qt::CaseInsensitive) == 0 && childCount > 1);",exclude,保持稳定身份；显示文字另行翻译
+s0.f3e02a3d8df9,vstscanner,tools/vst_scanner/src/Scanner.cpp,587,vst2,"const auto refreshVst2Classification = type.compare(QStringLiteral(""vst2""), Qt::CaseInsensitive) == 0",exclude,保持稳定身份；显示文字另行翻译
+s0.f3e02a3d8df9,vstscanner,tools/vst_scanner/src/Scanner.cpp,592,vst2,"const auto refreshVst2Midi = type.compare(QStringLiteral(""vst2""), Qt::CaseInsensitive) == 0",exclude,保持稳定身份；显示文字另行翻译
+s0.0108e165529a,vstscanner,tools/vst_scanner/src/Scanner.cpp,611,vst3,"type == QStringLiteral(""vst3"") ? QStringLiteral(""--vst3"") : QStringLiteral(""--vst2"")",exclude,保持稳定身份；显示文字另行翻译
+s0.0108e165529a,vstscanner,tools/vst_scanner/src/Scanner.cpp,613,vst3,"if (type == QStringLiteral(""vst3"")) {",exclude,保持稳定身份；显示文字另行翻译
+s0.0108e165529a,vstscanner,tools/vst_scanner/src/Scanner.cpp,644,vst3,"if (type.compare(QStringLiteral(""vst3""), Qt::CaseInsensitive) == 0 && !moduleInfo.isEmpty()) {",exclude,保持稳定身份；显示文字另行翻译
+s0.1a8a8afdbbc4,vstscanner,tools/vst_scanner/src/Scanner.cpp,761,.vstinfo,"if (extension != QStringLiteral("".vstinfo"") && extension != QStringLiteral("".vst3info""))",exclude,保持稳定身份；显示文字另行翻译
+s0.cfa14a95c935,vstscanner,tools/vst_scanner/src/Scanner.cpp,761,.vst3info,"if (extension != QStringLiteral("".vstinfo"") && extension != QStringLiteral("".vst3info""))",exclude,保持稳定身份；显示文字另行翻译
+s0.1a8a8afdbbc4,vstscanner,tools/vst_scanner/src/Scanner.cpp,799,.vstinfo,"if (extension != QStringLiteral("".vstinfo"") && extension != QStringLiteral("".vst3info""))",exclude,保持稳定身份；显示文字另行翻译
+s0.cfa14a95c935,vstscanner,tools/vst_scanner/src/Scanner.cpp,799,.vst3info,"if (extension != QStringLiteral("".vstinfo"") && extension != QStringLiteral("".vst3info""))",exclude,保持稳定身份；显示文字另行翻译
+s0.f3e02a3d8df9,vstscanner,tools/vst_scanner/src/Scanner.cpp,809,vst2,"if (info.type.compare(QStringLiteral(""vst2""), Qt::CaseInsensitive) != 0)",exclude,保持稳定身份；显示文字另行翻译
+s0.1a8a8afdbbc4,vstscanner,tools/vst_scanner/src/Scanner.cpp,817,.vstinfo,"|| lowerExtension(iterator->path()) != QStringLiteral("".vstinfo""))",exclude,保持稳定身份；显示文字另行翻译
+s0.f3e02a3d8df9,vstscanner,tools/vst_scanner/src/Scanner.cpp,833,vst2,"const auto formatDirectory = info.type.compare(QStringLiteral(""vst2""), Qt::CaseInsensitive) == 0",exclude,保持稳定身份；显示文字另行翻译
+s0.f3e02a3d8df9,vstscanner,tools/vst_scanner/src/Scanner.cpp,848,vst2,"const auto extension = info.type.compare(QStringLiteral(""vst2""), Qt::CaseInsensitive) == 0",exclude,保持稳定身份；显示文字另行翻译
+s0.f3e02a3d8df9,vstscanner,tools/vst_scanner/src/Scanner.cpp,874,vst2,"if (info.type.compare(QStringLiteral(""vst2""), Qt::CaseInsensitive) == 0) {",exclude,保持稳定身份；显示文字另行翻译
+s0.4ce5f33a5ced,vstscanner,tools/vst_scanner/src/Scanner.cpp,928,instrument,"info.category.compare(QStringLiteral(""instrument""), Qt::CaseInsensitive) == 0);",exclude,保持稳定身份；显示文字另行翻译
+s0.ea507af57996,vstscanner,tools/vst_scanner/src/Scanner.cpp,972,.vst3,"if (lowerExtension(path) == QStringLiteral("".vst3"")) {",exclude,保持稳定身份；显示文字另行翻译
+s0.03405ec85e24,vstscanner,tools/vst_scanner/src/Scanner.cpp,985,.dll,"if (extension == QStringLiteral("".dll"") || extension == QStringLiteral("".vst3""))",exclude,保持稳定身份；显示文字另行翻译
+s0.ea507af57996,vstscanner,tools/vst_scanner/src/Scanner.cpp,985,.vst3,"if (extension == QStringLiteral("".dll"") || extension == QStringLiteral("".vst3""))",exclude,保持稳定身份；显示文字另行翻译
+s0.ea507af57996,vstscanner,tools/vst_scanner/src/Scanner.cpp,1175,.vst3,"if (fs::is_directory(path, error) && extension == QStringLiteral("".vst3""))",exclude,保持稳定身份；显示文字另行翻译
+s0.03405ec85e24,vstscanner,tools/vst_scanner/src/Scanner.cpp,1177,.dll,"else if (fs::is_regular_file(path, error) && extension == QStringLiteral("".dll""))",exclude,保持稳定身份；显示文字另行翻译
+s0.ea507af57996,vstscanner,tools/vst_scanner/src/Scanner.cpp,1179,.vst3,"else if (fs::is_regular_file(path, error) && extension == QStringLiteral("".vst3""))",exclude,保持稳定身份；显示文字另行翻译

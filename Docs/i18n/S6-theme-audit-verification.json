@@ -1,0 +1,9 @@
+{
+  "stage": "S6",
+  "result": "SOURCE_INVENTORY_PASS_THEME_OPEN",
+  "theme_pending_occurrences": 246,
+  "all_candidate_occurrences": 352,
+  "ui_runs": 0,
+  "module_builds": 0,
+  "scope": "Current source hashes and inventory membership only; no translation or runtime acceptance."
+}

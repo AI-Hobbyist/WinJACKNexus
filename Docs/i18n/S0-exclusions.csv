@@ -4713,103 +4713,111 @@ s0.096c92b6daa3,ui,wjnEmbedded,src/ui/src/Controls.cpp,772,"if (!property(""wjnE
 s0.9dcb903b4084,ui,wjnRole,src/ui/src/Controls.cpp,792,"setProperty(""wjnRole"", QStringLiteral(""choice""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
 s0.716a543f2c10,ui,choice,src/ui/src/Controls.cpp,792,"setProperty(""wjnRole"", QStringLiteral(""choice""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
 s0.096c92b6daa3,ui,wjnEmbedded,src/ui/src/Controls.cpp,803,"search->setProperty(""wjnEmbedded"", true);",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
-s0.ba89bfda3a4b,ui,wjnChoiceEditor,src/ui/src/Controls.cpp,836,"if (isEditable() && lineEdit() && !lineEdit()->property(""wjnChoiceEditor"").toBool()) {",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
-s0.ba89bfda3a4b,ui,wjnChoiceEditor,src/ui/src/Controls.cpp,837,"lineEdit()->setProperty(""wjnChoiceEditor"", true);",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
-s0.fd129853d54b,ui,background: transparent; border: none; padding: 0;,src/ui/src/Controls.cpp,839,"lineEdit()->setStyleSheet(QStringLiteral(""background: transparent; border: none; padding: 0;""));",匹配表达式或样式语法,原样；周边项目说明另行翻译
-s0.9dcb903b4084,ui,wjnRole,src/ui/src/Controls.cpp,858,"setProperty(""wjnRole"", QStringLiteral(""action""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
-s0.3d1e65168ace,ui,action,src/ui/src/Controls.cpp,858,"setProperty(""wjnRole"", QStringLiteral(""action""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
-s0.27b7d1f2165e,ui,patchbayZoomControl,src/ui/src/Controls.cpp,893,"setObjectName(QStringLiteral(""patchbayZoomControl""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
-s0.d1a06352254c,ui,patchbay,src/ui/src/Controls.cpp,913,"return themeTokenColor(QStringLiteral(""patchbay""), role, fallback);",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
-s0.7042d674fe53,ui,control-zoom-surface,src/ui/src/Controls.cpp,915,"const QColor surface = color(QStringLiteral(""control-zoom-surface""), QColor(""#1e2b34""));",机器 token、域、序列化键或稳定 ID（周边显示说明单列）,原样；周边项目说明另行翻译
-s0.f6a91a50b705,ui,#1e2b34,src/ui/src/Controls.cpp,915,"const QColor surface = color(QStringLiteral(""control-zoom-surface""), QColor(""#1e2b34""));",颜色机器格式,原样；周边项目说明另行翻译
-s0.9a65481581a3,ui,control-zoom-border,src/ui/src/Controls.cpp,916,"const QColor border = color(QStringLiteral(""control-zoom-border""), QColor(""#4b5f73""));",机器 token、域、序列化键或稳定 ID（周边显示说明单列）,原样；周边项目说明另行翻译
-s0.e130a692128f,ui,#4b5f73,src/ui/src/Controls.cpp,916,"const QColor border = color(QStringLiteral(""control-zoom-border""), QColor(""#4b5f73""));",颜色机器格式,原样；周边项目说明另行翻译
-s0.a33fddb37fc0,ui,control-zoom-icon,src/ui/src/Controls.cpp,917,"const QColor icon = color(QStringLiteral(""control-zoom-icon""), QColor(""#43c7a8""));",机器 token、域、序列化键或稳定 ID（周边显示说明单列）,原样；周边项目说明另行翻译
-s0.b4cdac7432b7,ui,#43c7a8,src/ui/src/Controls.cpp,917,"const QColor icon = color(QStringLiteral(""control-zoom-icon""), QColor(""#43c7a8""));",颜色机器格式,原样；周边项目说明另行翻译
-s0.cd078838cb87,ui,control-zoom-text,src/ui/src/Controls.cpp,918,"const QColor caption = color(QStringLiteral(""control-zoom-text""), QColor(""#e6eef4""));",机器 token、域、序列化键或稳定 ID（周边显示说明单列）,原样；周边项目说明另行翻译
-s0.5bfbd341e14d,ui,#e6eef4,src/ui/src/Controls.cpp,918,"const QColor caption = color(QStringLiteral(""control-zoom-text""), QColor(""#e6eef4""));",颜色机器格式,原样；周边项目说明另行翻译
-s0.2861fd9ec339,ui,control-zoom-hover,src/ui/src/Controls.cpp,919,"const QColor hover = color(QStringLiteral(""control-zoom-hover""), QColor(""#33495b""));",机器 token、域、序列化键或稳定 ID（周边显示说明单列）,原样；周边项目说明另行翻译
-s0.f25da8aa4278,ui,#33495b,src/ui/src/Controls.cpp,919,"const QColor hover = color(QStringLiteral(""control-zoom-hover""), QColor(""#33495b""));",颜色机器格式,原样；周边项目说明另行翻译
-s0.9dcb903b4084,ui,wjnRole,src/ui/src/Controls.cpp,977,"setProperty(""wjnRole"", QStringLiteral(""dialogActions""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
-s0.d750ce79838f,ui,dialogActions,src/ui/src/Controls.cpp,977,"setProperty(""wjnRole"", QStringLiteral(""dialogActions""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
-s0.e064f4f96e4a,ui,wjn.standardButton,src/ui/src/Controls.cpp,1002,"result->setProperty(""wjn.standardButton"",static_cast<int>(standard));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
-s0.e064f4f96e4a,ui,wjn.standardButton,src/ui/src/Controls.cpp,1007,"if (item->property(""wjn.standardButton"").isValid()",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
-s0.e064f4f96e4a,ui,wjn.standardButton,src/ui/src/Controls.cpp,1008,"&& item->property(""wjn.standardButton"").toInt()==static_cast<int>(standard)) return item;",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
-s0.e064f4f96e4a,ui,wjn.standardButton,src/ui/src/Controls.cpp,1015,"if (!item->property(""wjn.standardButton"").isValid()) continue;",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
-s0.e064f4f96e4a,ui,wjn.standardButton,src/ui/src/Controls.cpp,1016,"const auto standard=static_cast<StandardButton>(item->property(""wjn.standardButton"").toInt());",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
-s0.9dcb903b4084,ui,wjnRole,src/ui/src/Controls.cpp,1025,"setProperty(""wjnRole"", QStringLiteral(""iconAction""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
-s0.e9fe9b5cb804,ui,iconAction,src/ui/src/Controls.cpp,1025,"setProperty(""wjnRole"", QStringLiteral(""iconAction""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
-s0.9dcb903b4084,ui,wjnRole,src/ui/src/Controls.cpp,1072,"setProperty(""wjnRole"", QStringLiteral(""number""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
-s0.76d07ae09009,ui,number,src/ui/src/Controls.cpp,1072,"setProperty(""wjnRole"", QStringLiteral(""number""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
-s0.fd129853d54b,ui,background: transparent; border: none; padding: 0;,src/ui/src/Controls.cpp,1076,"lineEdit()->setStyleSheet(QStringLiteral(""background: transparent; border: none; padding: 0;""));",匹配表达式或样式语法,原样；周边项目说明另行翻译
+s0.c80816f17457,ui,ui,src/ui/src/Controls.cpp,805,"const auto placeholder = localizedText(""ui"", ""choice.filterPlaceholder"", ""Type to filter"");",S6 稳定语言 key；插件、工程及进程身份保持原样,原样；周边项目说明另行翻译
+s0.76f723fe4db2,ui,choice.filterPlaceholder,src/ui/src/Controls.cpp,805,"const auto placeholder = localizedText(""ui"", ""choice.filterPlaceholder"", ""Type to filter"");",S6 稳定语言 key；插件、工程及进程身份保持原样,原样；周边项目说明另行翻译
+s0.c80816f17457,ui,ui,src/ui/src/Controls.cpp,811,"previous = localizedText(""ui"", ""choice.filterPlaceholder"", ""Type to filter"");",S6 稳定语言 key；插件、工程及进程身份保持原样,原样；周边项目说明另行翻译
+s0.76f723fe4db2,ui,choice.filterPlaceholder,src/ui/src/Controls.cpp,811,"previous = localizedText(""ui"", ""choice.filterPlaceholder"", ""Type to filter"");",S6 稳定语言 key；插件、工程及进程身份保持原样,原样；周边项目说明另行翻译
+s0.ba89bfda3a4b,ui,wjnChoiceEditor,src/ui/src/Controls.cpp,844,"if (isEditable() && lineEdit() && !lineEdit()->property(""wjnChoiceEditor"").toBool()) {",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
+s0.ba89bfda3a4b,ui,wjnChoiceEditor,src/ui/src/Controls.cpp,845,"lineEdit()->setProperty(""wjnChoiceEditor"", true);",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
+s0.fd129853d54b,ui,background: transparent; border: none; padding: 0;,src/ui/src/Controls.cpp,847,"lineEdit()->setStyleSheet(QStringLiteral(""background: transparent; border: none; padding: 0;""));",匹配表达式或样式语法,原样；周边项目说明另行翻译
+s0.9dcb903b4084,ui,wjnRole,src/ui/src/Controls.cpp,866,"setProperty(""wjnRole"", QStringLiteral(""action""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
+s0.3d1e65168ace,ui,action,src/ui/src/Controls.cpp,866,"setProperty(""wjnRole"", QStringLiteral(""action""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
+s0.27b7d1f2165e,ui,patchbayZoomControl,src/ui/src/Controls.cpp,901,"setObjectName(QStringLiteral(""patchbayZoomControl""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
+s0.d1a06352254c,ui,patchbay,src/ui/src/Controls.cpp,921,"return themeTokenColor(QStringLiteral(""patchbay""), role, fallback);",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
+s0.7042d674fe53,ui,control-zoom-surface,src/ui/src/Controls.cpp,923,"const QColor surface = color(QStringLiteral(""control-zoom-surface""), QColor(""#1e2b34""));",机器 token、域、序列化键或稳定 ID（周边显示说明单列）,原样；周边项目说明另行翻译
+s0.f6a91a50b705,ui,#1e2b34,src/ui/src/Controls.cpp,923,"const QColor surface = color(QStringLiteral(""control-zoom-surface""), QColor(""#1e2b34""));",颜色机器格式,原样；周边项目说明另行翻译
+s0.9a65481581a3,ui,control-zoom-border,src/ui/src/Controls.cpp,924,"const QColor border = color(QStringLiteral(""control-zoom-border""), QColor(""#4b5f73""));",机器 token、域、序列化键或稳定 ID（周边显示说明单列）,原样；周边项目说明另行翻译
+s0.e130a692128f,ui,#4b5f73,src/ui/src/Controls.cpp,924,"const QColor border = color(QStringLiteral(""control-zoom-border""), QColor(""#4b5f73""));",颜色机器格式,原样；周边项目说明另行翻译
+s0.a33fddb37fc0,ui,control-zoom-icon,src/ui/src/Controls.cpp,925,"const QColor icon = color(QStringLiteral(""control-zoom-icon""), QColor(""#43c7a8""));",机器 token、域、序列化键或稳定 ID（周边显示说明单列）,原样；周边项目说明另行翻译
+s0.b4cdac7432b7,ui,#43c7a8,src/ui/src/Controls.cpp,925,"const QColor icon = color(QStringLiteral(""control-zoom-icon""), QColor(""#43c7a8""));",颜色机器格式,原样；周边项目说明另行翻译
+s0.cd078838cb87,ui,control-zoom-text,src/ui/src/Controls.cpp,926,"const QColor caption = color(QStringLiteral(""control-zoom-text""), QColor(""#e6eef4""));",机器 token、域、序列化键或稳定 ID（周边显示说明单列）,原样；周边项目说明另行翻译
+s0.5bfbd341e14d,ui,#e6eef4,src/ui/src/Controls.cpp,926,"const QColor caption = color(QStringLiteral(""control-zoom-text""), QColor(""#e6eef4""));",颜色机器格式,原样；周边项目说明另行翻译
+s0.2861fd9ec339,ui,control-zoom-hover,src/ui/src/Controls.cpp,927,"const QColor hover = color(QStringLiteral(""control-zoom-hover""), QColor(""#33495b""));",机器 token、域、序列化键或稳定 ID（周边显示说明单列）,原样；周边项目说明另行翻译
+s0.f25da8aa4278,ui,#33495b,src/ui/src/Controls.cpp,927,"const QColor hover = color(QStringLiteral(""control-zoom-hover""), QColor(""#33495b""));",颜色机器格式,原样；周边项目说明另行翻译
+s0.9dcb903b4084,ui,wjnRole,src/ui/src/Controls.cpp,985,"setProperty(""wjnRole"", QStringLiteral(""dialogActions""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
+s0.d750ce79838f,ui,dialogActions,src/ui/src/Controls.cpp,985,"setProperty(""wjnRole"", QStringLiteral(""dialogActions""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
+s0.e064f4f96e4a,ui,wjn.standardButton,src/ui/src/Controls.cpp,1010,"result->setProperty(""wjn.standardButton"",static_cast<int>(standard));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
+s0.e064f4f96e4a,ui,wjn.standardButton,src/ui/src/Controls.cpp,1015,"if (item->property(""wjn.standardButton"").isValid()",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
+s0.e064f4f96e4a,ui,wjn.standardButton,src/ui/src/Controls.cpp,1016,"&& item->property(""wjn.standardButton"").toInt()==static_cast<int>(standard)) return item;",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
+s0.e064f4f96e4a,ui,wjn.standardButton,src/ui/src/Controls.cpp,1023,"if (!item->property(""wjn.standardButton"").isValid()) continue;",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
+s0.e064f4f96e4a,ui,wjn.standardButton,src/ui/src/Controls.cpp,1024,"const auto standard=static_cast<StandardButton>(item->property(""wjn.standardButton"").toInt());",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
+s0.9dcb903b4084,ui,wjnRole,src/ui/src/Controls.cpp,1033,"setProperty(""wjnRole"", QStringLiteral(""iconAction""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
+s0.e9fe9b5cb804,ui,iconAction,src/ui/src/Controls.cpp,1033,"setProperty(""wjnRole"", QStringLiteral(""iconAction""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
 s0.9dcb903b4084,ui,wjnRole,src/ui/src/Controls.cpp,1080,"setProperty(""wjnRole"", QStringLiteral(""number""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
 s0.76d07ae09009,ui,number,src/ui/src/Controls.cpp,1080,"setProperty(""wjnRole"", QStringLiteral(""number""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
 s0.fd129853d54b,ui,background: transparent; border: none; padding: 0;,src/ui/src/Controls.cpp,1084,"lineEdit()->setStyleSheet(QStringLiteral(""background: transparent; border: none; padding: 0;""));",匹配表达式或样式语法,原样；周边项目说明另行翻译
-s0.9dcb903b4084,ui,wjnRole,src/ui/src/Controls.cpp,1088,"setProperty(""wjnRole"", QStringLiteral(""toggle""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
-s0.9f87334e6c21,ui,toggle,src/ui/src/Controls.cpp,1088,"setProperty(""wjnRole"", QStringLiteral(""toggle""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
-s0.9dcb903b4084,ui,wjnRole,src/ui/src/Controls.cpp,1113,"setProperty(""wjnRole"", QStringLiteral(""range""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
-s0.9750ddc64133,ui,range,src/ui/src/Controls.cpp,1113,"setProperty(""wjnRole"", QStringLiteral(""range""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
-s0.9dcb903b4084,ui,wjnRole,src/ui/src/Controls.cpp,1140,"setProperty(""wjnRole"", QStringLiteral(""progress""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
-s0.2a71504c37b1,ui,progress,src/ui/src/Controls.cpp,1140,"setProperty(""wjnRole"", QStringLiteral(""progress""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
-s0.bd194d0cf6f2,ui,global,src/ui/src/Controls.cpp,1170,"defaults.background = themeTokenColor(""global"", ""surface-window"", native.color(QPalette::Window));",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
-s0.39dd761d2f80,ui,surface-window,src/ui/src/Controls.cpp,1170,"defaults.background = themeTokenColor(""global"", ""surface-window"", native.color(QPalette::Window));",机器 token、域、序列化键或稳定 ID（周边显示说明单列）,原样；周边项目说明另行翻译
-s0.bd194d0cf6f2,ui,global,src/ui/src/Controls.cpp,1171,"defaults.panel = themeTokenColor(""global"", ""surface-panel"", native.color(QPalette::Base));",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
-s0.9291e84e801f,ui,surface-panel,src/ui/src/Controls.cpp,1171,"defaults.panel = themeTokenColor(""global"", ""surface-panel"", native.color(QPalette::Base));",机器 token、域、序列化键或稳定 ID（周边显示说明单列）,原样；周边项目说明另行翻译
-s0.bd194d0cf6f2,ui,global,src/ui/src/Controls.cpp,1172,"defaults.text = themeTokenColor(""global"", ""text-primary"", native.color(QPalette::Text));",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
-s0.2119575bcfaa,ui,text-primary,src/ui/src/Controls.cpp,1172,"defaults.text = themeTokenColor(""global"", ""text-primary"", native.color(QPalette::Text));",机器 token、域、序列化键或稳定 ID（周边显示说明单列）,原样；周边项目说明另行翻译
-s0.bd194d0cf6f2,ui,global,src/ui/src/Controls.cpp,1173,"defaults.accent = themeTokenColor(""global"", ""accent-primary"", native.color(QPalette::Highlight));",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
-s0.1e7151f1c2c6,ui,accent-primary,src/ui/src/Controls.cpp,1173,"defaults.accent = themeTokenColor(""global"", ""accent-primary"", native.color(QPalette::Highlight));",机器 token、域、序列化键或稳定 ID（周边显示说明单列）,原样；周边项目说明另行翻译
-s0.bd194d0cf6f2,ui,global,src/ui/src/Controls.cpp,1174,"defaults.border = themeTokenColor(""global"", ""border-normal"", native.color(QPalette::Mid));",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
-s0.d9feba1d4a0a,ui,border-normal,src/ui/src/Controls.cpp,1174,"defaults.border = themeTokenColor(""global"", ""border-normal"", native.color(QPalette::Mid));",机器 token、域、序列化键或稳定 ID（周边显示说明单列）,原样；周边项目说明另行翻译
-s0.fb126eae497c,ui,accentColor,src/ui/src/Controls.cpp,1181,"const auto accent = themeColor(widget, ""accentColor"", colors.accent);",camelCase 字段、对象、属性或协议身份,原样；周边项目说明另行翻译
-s0.2780013066c1,ui,surfaceColor,src/ui/src/Controls.cpp,1182,"const auto surface = themeColor(widget, ""surfaceColor"", colors.panel);",camelCase 字段、对象、属性或协议身份,原样；周边项目说明另行翻译
-s0.fdc1b038e18d,ui,borderColor,src/ui/src/Controls.cpp,1183,"const auto border = themeColor(widget, ""borderColor"", colors.border);",camelCase 字段、对象、属性或协议身份,原样；周边项目说明另行翻译
-s0.f1c96607fabc,ui,×,src/ui/src/Controls.cpp,1269,"close->setText(QStringLiteral(""×""));",空值、符号、纯数值或无自然语言的格式串,原样；周边项目说明另行翻译
-s0.1c557567a625,ui,dockResizeGrip,src/ui/src/Controls.cpp,1341,"setObjectName(QStringLiteral(""dockResizeGrip""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
-s0.c0ef53052d9c,ui,dockCollapseButton,src/ui/src/Controls.cpp,1347,"arrow_->setObjectName(QStringLiteral(""dockCollapseButton""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
-s0.366feedc6b83,ui,▶,src/ui/src/Controls.cpp,1358,"? (collapsed ? QStringLiteral(""▶"") : QStringLiteral(""◀""))",空值、符号、纯数值或无自然语言的格式串,原样；周边项目说明另行翻译
-s0.725009bc9a1e,ui,◀,src/ui/src/Controls.cpp,1358,"? (collapsed ? QStringLiteral(""▶"") : QStringLiteral(""◀""))",空值、符号、纯数值或无自然语言的格式串,原样；周边项目说明另行翻译
-s0.725009bc9a1e,ui,◀,src/ui/src/Controls.cpp,1359,": (collapsed ? QStringLiteral(""◀"") : QStringLiteral(""▶"")));",空值、符号、纯数值或无自然语言的格式串,原样；周边项目说明另行翻译
-s0.366feedc6b83,ui,▶,src/ui/src/Controls.cpp,1359,": (collapsed ? QStringLiteral(""◀"") : QStringLiteral(""▶"")));",空值、符号、纯数值或无自然语言的格式串,原样；周边项目说明另行翻译
-s0.9dcb903b4084,ui,wjnRole,src/ui/src/Controls.cpp,1433,"setProperty(""wjnRole"", QStringLiteral(""scrollbar""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
-s0.0be6a0947153,ui,scrollbar,src/ui/src/Controls.cpp,1433,"setProperty(""wjnRole"", QStringLiteral(""scrollbar""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
-s0.d4bdde61c772,ui,‹,src/ui/src/Controls.cpp,1454,"? QStringLiteral(""‹"") : QStringLiteral(""↑""), font(), colors.text);",空值、符号、纯数值或无自然语言的格式串,原样；周边项目说明另行翻译
-s0.7bc55f60cdaf,ui,↑,src/ui/src/Controls.cpp,1454,"? QStringLiteral(""‹"") : QStringLiteral(""↑""), font(), colors.text);",空值、符号、纯数值或无自然语言的格式串,原样；周边项目说明另行翻译
-s0.22552012c883,ui,›,src/ui/src/Controls.cpp,1457,"? QStringLiteral(""›"") : QStringLiteral(""↓""), font(), colors.text);",空值、符号、纯数值或无自然语言的格式串,原样；周边项目说明另行翻译
-s0.422dcce34a8b,ui,↓,src/ui/src/Controls.cpp,1457,"? QStringLiteral(""›"") : QStringLiteral(""↓""), font(), colors.text);",空值、符号、纯数值或无自然语言的格式串,原样；周边项目说明另行翻译
-s0.9dcb903b4084,ui,wjnRole,src/ui/src/Controls.cpp,1461,"setProperty(""wjnRole"", QStringLiteral(""scrollArea""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
-s0.cc4729743d11,ui,scrollArea,src/ui/src/Controls.cpp,1461,"setProperty(""wjnRole"", QStringLiteral(""scrollArea""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
-s0.9dcb903b4084,ui,wjnRole,src/ui/src/Controls.cpp,1467,"setProperty(""wjnRole"", QStringLiteral(""list""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
-s0.ca0d698faca5,ui,list,src/ui/src/Controls.cpp,1467,"setProperty(""wjnRole"", QStringLiteral(""list""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
-s0.9dcb903b4084,ui,wjnRole,src/ui/src/Controls.cpp,1474,"setProperty(""wjnRole"", QStringLiteral(""table""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
-s0.0f6c2d924a36,ui,table,src/ui/src/Controls.cpp,1474,"setProperty(""wjnRole"", QStringLiteral(""table""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
-s0.9dcb903b4084,ui,wjnRole,src/ui/src/Controls.cpp,1482,"setProperty(""wjnRole"", QStringLiteral(""group""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
-s0.eee2e07d24d3,ui,group,src/ui/src/Controls.cpp,1482,"setProperty(""wjnRole"", QStringLiteral(""group""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
-s0.9dcb903b4084,ui,wjnRole,src/ui/src/Controls.cpp,1500,"setProperty(""wjnRole"", QStringLiteral(""label""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
-s0.3900cda495d1,ui,label,src/ui/src/Controls.cpp,1500,"setProperty(""wjnRole"", QStringLiteral(""label""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
-s0.93209d532e7e,ui,wjnText,src/ui/src/Controls.cpp,1536,"colors.text = themeColor(*this, ""wjnText"", palette().color(QPalette::WindowText));",camelCase 字段、对象、属性或协议身份,原样；周边项目说明另行翻译
-s0.9dcb903b4084,ui,wjnRole,src/ui/src/Controls.cpp,1544,"setProperty(""wjnRole"", QStringLiteral(""tabs""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
-s0.2f217f68f978,ui,tabs,src/ui/src/Controls.cpp,1544,"setProperty(""wjnRole"", QStringLiteral(""tabs""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
-s0.9dcb903b4084,ui,wjnRole,src/ui/src/Controls.cpp,1556,"setProperty(""wjnRole"", QStringLiteral(""log""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
-s0.2f4978d8f664,ui,log,src/ui/src/Controls.cpp,1556,"setProperty(""wjnRole"", QStringLiteral(""log""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
-s0.9dcb903b4084,ui,wjnRole,src/ui/src/Controls.cpp,1595,"setProperty(""wjnRole"", QStringLiteral(""splitter""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
-s0.442cdc672a6b,ui,splitter,src/ui/src/Controls.cpp,1595,"setProperty(""wjnRole"", QStringLiteral(""splitter""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
-s0.9dcb903b4084,ui,wjnRole,src/ui/src/Controls.cpp,1604,"setProperty(""wjnRole"", QStringLiteral(""dock""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
-s0.dbc681dabb0e,ui,dock,src/ui/src/Controls.cpp,1604,"setProperty(""wjnRole"", QStringLiteral(""dock""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
-s0.97ebb22524ec,ui,gate.clientName,src/ui/src/Controls.cpp,1660,"editor_->setObjectName(QStringLiteral(""gate.clientName""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
-s0.d330a8cdd76b,ui,text,src/ui/src/Controls.cpp,1664,"bindLocalizedText(nameLabel, ""text"", ""ui"", ""clientName.label"", ""Client name"");",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
-s0.c80816f17457,ui,ui,src/ui/src/Controls.cpp,1664,"bindLocalizedText(nameLabel, ""text"", ""ui"", ""clientName.label"", ""Client name"");",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
-s0.5305a753fe70,ui,clientName.label,src/ui/src/Controls.cpp,1664,"bindLocalizedText(nameLabel, ""text"", ""ui"", ""clientName.label"", ""Client name"");",S5 稳定语言 key；参数、预设索引及模块身份保持原样,原样；周边项目说明另行翻译
-s0.d330a8cdd76b,ui,text,src/ui/src/Controls.cpp,1670,"bindLocalizedText(applyButton, ""text"", ""ui"", ""clientName.apply"", ""Apply"");",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
-s0.c80816f17457,ui,ui,src/ui/src/Controls.cpp,1670,"bindLocalizedText(applyButton, ""text"", ""ui"", ""clientName.apply"", ""Apply"");",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
-s0.b6780f06a87a,ui,clientName.apply,src/ui/src/Controls.cpp,1670,"bindLocalizedText(applyButton, ""text"", ""ui"", ""clientName.apply"", ""Apply"");",S5 稳定语言 key；参数、预设索引及模块身份保持原样,原样；周边项目说明另行翻译
-s0.768c03e6f502,ui,gate.applyClientName,src/ui/src/Controls.cpp,1672,"applyButton->setObjectName(QStringLiteral(""gate.applyClientName""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
-s0.c80816f17457,ui,ui,src/ui/src/Controls.cpp,1700,"case ApplyStatus::empty: status_->setText(localizedText(""ui"", ""clientName.empty"", ""Name cannot be empty"")); break;",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
-s0.d301c61764d1,ui,clientName.empty,src/ui/src/Controls.cpp,1700,"case ApplyStatus::empty: status_->setText(localizedText(""ui"", ""clientName.empty"", ""Name cannot be empty"")); break;",S5 稳定语言 key；参数、预设索引及模块身份保持原样,原样；周边项目说明另行翻译
-s0.c80816f17457,ui,ui,src/ui/src/Controls.cpp,1701,"case ApplyStatus::applied: status_->setText(localizedText(""ui"", ""clientName.applied"", ""Applied"")); break;",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
-s0.87112879e1bf,ui,clientName.applied,src/ui/src/Controls.cpp,1701,"case ApplyStatus::applied: status_->setText(localizedText(""ui"", ""clientName.applied"", ""Applied"")); break;",S5 稳定语言 key；参数、预设索引及模块身份保持原样,原样；周边项目说明另行翻译
-s0.c80816f17457,ui,ui,src/ui/src/Controls.cpp,1702,"case ApplyStatus::rejected: status_->setText(localizedText(""ui"", ""clientName.rejected"", ""Unable to apply name"")); break;",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
-s0.2871c977a095,ui,clientName.rejected,src/ui/src/Controls.cpp,1702,"case ApplyStatus::rejected: status_->setText(localizedText(""ui"", ""clientName.rejected"", ""Unable to apply name"")); break;",S5 稳定语言 key；参数、预设索引及模块身份保持原样,原样；周边项目说明另行翻译
+s0.9dcb903b4084,ui,wjnRole,src/ui/src/Controls.cpp,1088,"setProperty(""wjnRole"", QStringLiteral(""number""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
+s0.76d07ae09009,ui,number,src/ui/src/Controls.cpp,1088,"setProperty(""wjnRole"", QStringLiteral(""number""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
+s0.fd129853d54b,ui,background: transparent; border: none; padding: 0;,src/ui/src/Controls.cpp,1092,"lineEdit()->setStyleSheet(QStringLiteral(""background: transparent; border: none; padding: 0;""));",匹配表达式或样式语法,原样；周边项目说明另行翻译
+s0.9dcb903b4084,ui,wjnRole,src/ui/src/Controls.cpp,1096,"setProperty(""wjnRole"", QStringLiteral(""toggle""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
+s0.9f87334e6c21,ui,toggle,src/ui/src/Controls.cpp,1096,"setProperty(""wjnRole"", QStringLiteral(""toggle""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
+s0.9dcb903b4084,ui,wjnRole,src/ui/src/Controls.cpp,1121,"setProperty(""wjnRole"", QStringLiteral(""range""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
+s0.9750ddc64133,ui,range,src/ui/src/Controls.cpp,1121,"setProperty(""wjnRole"", QStringLiteral(""range""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
+s0.9dcb903b4084,ui,wjnRole,src/ui/src/Controls.cpp,1148,"setProperty(""wjnRole"", QStringLiteral(""progress""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
+s0.2a71504c37b1,ui,progress,src/ui/src/Controls.cpp,1148,"setProperty(""wjnRole"", QStringLiteral(""progress""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
+s0.bd194d0cf6f2,ui,global,src/ui/src/Controls.cpp,1178,"defaults.background = themeTokenColor(""global"", ""surface-window"", native.color(QPalette::Window));",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
+s0.39dd761d2f80,ui,surface-window,src/ui/src/Controls.cpp,1178,"defaults.background = themeTokenColor(""global"", ""surface-window"", native.color(QPalette::Window));",机器 token、域、序列化键或稳定 ID（周边显示说明单列）,原样；周边项目说明另行翻译
+s0.bd194d0cf6f2,ui,global,src/ui/src/Controls.cpp,1179,"defaults.panel = themeTokenColor(""global"", ""surface-panel"", native.color(QPalette::Base));",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
+s0.9291e84e801f,ui,surface-panel,src/ui/src/Controls.cpp,1179,"defaults.panel = themeTokenColor(""global"", ""surface-panel"", native.color(QPalette::Base));",机器 token、域、序列化键或稳定 ID（周边显示说明单列）,原样；周边项目说明另行翻译
+s0.bd194d0cf6f2,ui,global,src/ui/src/Controls.cpp,1180,"defaults.text = themeTokenColor(""global"", ""text-primary"", native.color(QPalette::Text));",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
+s0.2119575bcfaa,ui,text-primary,src/ui/src/Controls.cpp,1180,"defaults.text = themeTokenColor(""global"", ""text-primary"", native.color(QPalette::Text));",机器 token、域、序列化键或稳定 ID（周边显示说明单列）,原样；周边项目说明另行翻译
+s0.bd194d0cf6f2,ui,global,src/ui/src/Controls.cpp,1181,"defaults.accent = themeTokenColor(""global"", ""accent-primary"", native.color(QPalette::Highlight));",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
+s0.1e7151f1c2c6,ui,accent-primary,src/ui/src/Controls.cpp,1181,"defaults.accent = themeTokenColor(""global"", ""accent-primary"", native.color(QPalette::Highlight));",机器 token、域、序列化键或稳定 ID（周边显示说明单列）,原样；周边项目说明另行翻译
+s0.bd194d0cf6f2,ui,global,src/ui/src/Controls.cpp,1182,"defaults.border = themeTokenColor(""global"", ""border-normal"", native.color(QPalette::Mid));",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
+s0.d9feba1d4a0a,ui,border-normal,src/ui/src/Controls.cpp,1182,"defaults.border = themeTokenColor(""global"", ""border-normal"", native.color(QPalette::Mid));",机器 token、域、序列化键或稳定 ID（周边显示说明单列）,原样；周边项目说明另行翻译
+s0.fb126eae497c,ui,accentColor,src/ui/src/Controls.cpp,1189,"const auto accent = themeColor(widget, ""accentColor"", colors.accent);",camelCase 字段、对象、属性或协议身份,原样；周边项目说明另行翻译
+s0.2780013066c1,ui,surfaceColor,src/ui/src/Controls.cpp,1190,"const auto surface = themeColor(widget, ""surfaceColor"", colors.panel);",camelCase 字段、对象、属性或协议身份,原样；周边项目说明另行翻译
+s0.fdc1b038e18d,ui,borderColor,src/ui/src/Controls.cpp,1191,"const auto border = themeColor(widget, ""borderColor"", colors.border);",camelCase 字段、对象、属性或协议身份,原样；周边项目说明另行翻译
+s0.f1c96607fabc,ui,×,src/ui/src/Controls.cpp,1277,"close->setText(QStringLiteral(""×""));",空值、符号、纯数值或无自然语言的格式串,原样；周边项目说明另行翻译
+s0.1c557567a625,ui,dockResizeGrip,src/ui/src/Controls.cpp,1349,"setObjectName(QStringLiteral(""dockResizeGrip""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
+s0.c0ef53052d9c,ui,dockCollapseButton,src/ui/src/Controls.cpp,1355,"arrow_->setObjectName(QStringLiteral(""dockCollapseButton""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
+s0.366feedc6b83,ui,▶,src/ui/src/Controls.cpp,1368,"? (collapsed ? QStringLiteral(""▶"") : QStringLiteral(""◀""))",空值、符号、纯数值或无自然语言的格式串,原样；周边项目说明另行翻译
+s0.725009bc9a1e,ui,◀,src/ui/src/Controls.cpp,1368,"? (collapsed ? QStringLiteral(""▶"") : QStringLiteral(""◀""))",空值、符号、纯数值或无自然语言的格式串,原样；周边项目说明另行翻译
+s0.725009bc9a1e,ui,◀,src/ui/src/Controls.cpp,1369,": (collapsed ? QStringLiteral(""◀"") : QStringLiteral(""▶"")));",空值、符号、纯数值或无自然语言的格式串,原样；周边项目说明另行翻译
+s0.366feedc6b83,ui,▶,src/ui/src/Controls.cpp,1369,": (collapsed ? QStringLiteral(""◀"") : QStringLiteral(""▶"")));",空值、符号、纯数值或无自然语言的格式串,原样；周边项目说明另行翻译
+s0.c80816f17457,ui,ui,src/ui/src/Controls.cpp,1371,"? localizedText(""ui"", ""dock.expand"", ""Expand sidebar"")",S6 稳定语言 key；插件、工程及进程身份保持原样,原样；周边项目说明另行翻译
+s0.8c29d7ec4e14,ui,dock.expand,src/ui/src/Controls.cpp,1371,"? localizedText(""ui"", ""dock.expand"", ""Expand sidebar"")",S6 稳定语言 key；插件、工程及进程身份保持原样,原样；周边项目说明另行翻译
+s0.c80816f17457,ui,ui,src/ui/src/Controls.cpp,1372,": localizedText(""ui"", ""dock.collapse"", ""Collapse sidebar""));",S6 稳定语言 key；插件、工程及进程身份保持原样,原样；周边项目说明另行翻译
+s0.cd0c8cd1e7a9,ui,dock.collapse,src/ui/src/Controls.cpp,1372,": localizedText(""ui"", ""dock.collapse"", ""Collapse sidebar""));",S6 稳定语言 key；插件、工程及进程身份保持原样,原样；周边项目说明另行翻译
+s0.9dcb903b4084,ui,wjnRole,src/ui/src/Controls.cpp,1444,"setProperty(""wjnRole"", QStringLiteral(""scrollbar""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
+s0.0be6a0947153,ui,scrollbar,src/ui/src/Controls.cpp,1444,"setProperty(""wjnRole"", QStringLiteral(""scrollbar""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
+s0.d4bdde61c772,ui,‹,src/ui/src/Controls.cpp,1465,"? QStringLiteral(""‹"") : QStringLiteral(""↑""), font(), colors.text);",空值、符号、纯数值或无自然语言的格式串,原样；周边项目说明另行翻译
+s0.7bc55f60cdaf,ui,↑,src/ui/src/Controls.cpp,1465,"? QStringLiteral(""‹"") : QStringLiteral(""↑""), font(), colors.text);",空值、符号、纯数值或无自然语言的格式串,原样；周边项目说明另行翻译
+s0.22552012c883,ui,›,src/ui/src/Controls.cpp,1468,"? QStringLiteral(""›"") : QStringLiteral(""↓""), font(), colors.text);",空值、符号、纯数值或无自然语言的格式串,原样；周边项目说明另行翻译
+s0.422dcce34a8b,ui,↓,src/ui/src/Controls.cpp,1468,"? QStringLiteral(""›"") : QStringLiteral(""↓""), font(), colors.text);",空值、符号、纯数值或无自然语言的格式串,原样；周边项目说明另行翻译
+s0.9dcb903b4084,ui,wjnRole,src/ui/src/Controls.cpp,1472,"setProperty(""wjnRole"", QStringLiteral(""scrollArea""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
+s0.cc4729743d11,ui,scrollArea,src/ui/src/Controls.cpp,1472,"setProperty(""wjnRole"", QStringLiteral(""scrollArea""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
+s0.9dcb903b4084,ui,wjnRole,src/ui/src/Controls.cpp,1478,"setProperty(""wjnRole"", QStringLiteral(""list""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
+s0.ca0d698faca5,ui,list,src/ui/src/Controls.cpp,1478,"setProperty(""wjnRole"", QStringLiteral(""list""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
+s0.9dcb903b4084,ui,wjnRole,src/ui/src/Controls.cpp,1485,"setProperty(""wjnRole"", QStringLiteral(""table""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
+s0.0f6c2d924a36,ui,table,src/ui/src/Controls.cpp,1485,"setProperty(""wjnRole"", QStringLiteral(""table""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
+s0.9dcb903b4084,ui,wjnRole,src/ui/src/Controls.cpp,1493,"setProperty(""wjnRole"", QStringLiteral(""group""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
+s0.eee2e07d24d3,ui,group,src/ui/src/Controls.cpp,1493,"setProperty(""wjnRole"", QStringLiteral(""group""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
+s0.9dcb903b4084,ui,wjnRole,src/ui/src/Controls.cpp,1511,"setProperty(""wjnRole"", QStringLiteral(""label""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
+s0.3900cda495d1,ui,label,src/ui/src/Controls.cpp,1511,"setProperty(""wjnRole"", QStringLiteral(""label""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
+s0.93209d532e7e,ui,wjnText,src/ui/src/Controls.cpp,1547,"colors.text = themeColor(*this, ""wjnText"", palette().color(QPalette::WindowText));",camelCase 字段、对象、属性或协议身份,原样；周边项目说明另行翻译
+s0.9dcb903b4084,ui,wjnRole,src/ui/src/Controls.cpp,1555,"setProperty(""wjnRole"", QStringLiteral(""tabs""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
+s0.2f217f68f978,ui,tabs,src/ui/src/Controls.cpp,1555,"setProperty(""wjnRole"", QStringLiteral(""tabs""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
+s0.9dcb903b4084,ui,wjnRole,src/ui/src/Controls.cpp,1567,"setProperty(""wjnRole"", QStringLiteral(""log""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
+s0.2f4978d8f664,ui,log,src/ui/src/Controls.cpp,1567,"setProperty(""wjnRole"", QStringLiteral(""log""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
+s0.9dcb903b4084,ui,wjnRole,src/ui/src/Controls.cpp,1606,"setProperty(""wjnRole"", QStringLiteral(""splitter""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
+s0.442cdc672a6b,ui,splitter,src/ui/src/Controls.cpp,1606,"setProperty(""wjnRole"", QStringLiteral(""splitter""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
+s0.9dcb903b4084,ui,wjnRole,src/ui/src/Controls.cpp,1615,"setProperty(""wjnRole"", QStringLiteral(""dock""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
+s0.dbc681dabb0e,ui,dock,src/ui/src/Controls.cpp,1615,"setProperty(""wjnRole"", QStringLiteral(""dock""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
+s0.97ebb22524ec,ui,gate.clientName,src/ui/src/Controls.cpp,1671,"editor_->setObjectName(QStringLiteral(""gate.clientName""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
+s0.d330a8cdd76b,ui,text,src/ui/src/Controls.cpp,1675,"bindLocalizedText(nameLabel, ""text"", ""ui"", ""clientName.label"", ""Client name"");",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
+s0.c80816f17457,ui,ui,src/ui/src/Controls.cpp,1675,"bindLocalizedText(nameLabel, ""text"", ""ui"", ""clientName.label"", ""Client name"");",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
+s0.5305a753fe70,ui,clientName.label,src/ui/src/Controls.cpp,1675,"bindLocalizedText(nameLabel, ""text"", ""ui"", ""clientName.label"", ""Client name"");",S5 稳定语言 key；参数、预设索引及模块身份保持原样,原样；周边项目说明另行翻译
+s0.d330a8cdd76b,ui,text,src/ui/src/Controls.cpp,1681,"bindLocalizedText(applyButton, ""text"", ""ui"", ""clientName.apply"", ""Apply"");",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
+s0.c80816f17457,ui,ui,src/ui/src/Controls.cpp,1681,"bindLocalizedText(applyButton, ""text"", ""ui"", ""clientName.apply"", ""Apply"");",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
+s0.b6780f06a87a,ui,clientName.apply,src/ui/src/Controls.cpp,1681,"bindLocalizedText(applyButton, ""text"", ""ui"", ""clientName.apply"", ""Apply"");",S5 稳定语言 key；参数、预设索引及模块身份保持原样,原样；周边项目说明另行翻译
+s0.768c03e6f502,ui,gate.applyClientName,src/ui/src/Controls.cpp,1683,"applyButton->setObjectName(QStringLiteral(""gate.applyClientName""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
+s0.c80816f17457,ui,ui,src/ui/src/Controls.cpp,1711,"case ApplyStatus::empty: status_->setText(localizedText(""ui"", ""clientName.empty"", ""Name cannot be empty"")); break;",S6 稳定语言 key；插件、工程及进程身份保持原样,原样；周边项目说明另行翻译
+s0.d301c61764d1,ui,clientName.empty,src/ui/src/Controls.cpp,1711,"case ApplyStatus::empty: status_->setText(localizedText(""ui"", ""clientName.empty"", ""Name cannot be empty"")); break;",S6 稳定语言 key；插件、工程及进程身份保持原样,原样；周边项目说明另行翻译
+s0.c80816f17457,ui,ui,src/ui/src/Controls.cpp,1712,"case ApplyStatus::applied: status_->setText(localizedText(""ui"", ""clientName.applied"", ""Applied"")); break;",S6 稳定语言 key；插件、工程及进程身份保持原样,原样；周边项目说明另行翻译
+s0.87112879e1bf,ui,clientName.applied,src/ui/src/Controls.cpp,1712,"case ApplyStatus::applied: status_->setText(localizedText(""ui"", ""clientName.applied"", ""Applied"")); break;",S6 稳定语言 key；插件、工程及进程身份保持原样,原样；周边项目说明另行翻译
+s0.c80816f17457,ui,ui,src/ui/src/Controls.cpp,1713,"case ApplyStatus::rejected: status_->setText(localizedText(""ui"", ""clientName.rejected"", ""Unable to apply name"")); break;",S6 稳定语言 key；插件、工程及进程身份保持原样,原样；周边项目说明另行翻译
+s0.2871c977a095,ui,clientName.rejected,src/ui/src/Controls.cpp,1713,"case ApplyStatus::rejected: status_->setText(localizedText(""ui"", ""clientName.rejected"", ""Unable to apply name"")); break;",S6 稳定语言 key；插件、工程及进程身份保持原样,原样；周边项目说明另行翻译
 s0.926db62e9aca,fxhost,fxLevelMeter,src/ui/src/FxLevelMeterWidget.cpp,22,"setObjectName(QStringLiteral(""fxLevelMeter""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
 s0.570a06541165,fxhost,fxhost,src/ui/src/FxLevelMeterWidget.cpp,90,"const auto labelWidth = std::max(metrics.horizontalAdvance(localizedText(""fxhost"", ""endpoint.input"", ""Input"")),",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
 s0.c26b9a8c4e0a,fxhost,endpoint.input,src/ui/src/FxLevelMeterWidget.cpp,90,"const auto labelWidth = std::max(metrics.horizontalAdvance(localizedText(""fxhost"", ""endpoint.input"", ""Input"")),",S4 稳定语言 key；显示值另列，禁止用于改写工程或端口身份,原样；周边项目说明另行翻译
@@ -6900,11 +6908,13 @@ s0.3e29f7ba6c3f,theme,themeApiVersion,src/ui/src/ThemeManagementDialog.cpp,455,"
 s0.5a213ec58579,theme,id,src/ui/src/ThemeManagementDialog.cpp,456,"{""id"", ""org.winjacknexus-author-image""}, {""name"", ""Imported image""},",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
 s0.7c6e31408c6d,theme,org.winjacknexus-author-image,src/ui/src/ThemeManagementDialog.cpp,456,"{""id"", ""org.winjacknexus-author-image""}, {""name"", ""Imported image""},",机器 token、域、序列化键或稳定 ID（周边显示说明单列）,原样；周边项目说明另行翻译
 s0.ba2be311845d,theme,name,src/ui/src/ThemeManagementDialog.cpp,456,"{""id"", ""org.winjacknexus-author-image""}, {""name"", ""Imported image""},",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
+s0.2037036fe841,theme,Imported image,src/ui/src/ThemeManagementDialog.cpp,456,"{""id"", ""org.winjacknexus-author-image""}, {""name"", ""Imported image""},",importImage/importFont 临时资源载体的 metadata；仅将资源及 token 合并到当前主题，完整/片段导出使用 editedMetadata() 的用户内容，禁止语言切换改写包内容；实际控件及错误仍另列翻译,原样；周边项目说明另行翻译
 s0.113605502b51,theme,version,src/ui/src/ThemeManagementDialog.cpp,457,"{""version"", ""1.0.0""}, {""author"", ""WinJACKNexus""},",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
 s0.0a298422d155,theme,1.0.0,src/ui/src/ThemeManagementDialog.cpp,457,"{""version"", ""1.0.0""}, {""author"", ""WinJACKNexus""},",空值、符号、纯数值或无自然语言的格式串,原样；周边项目说明另行翻译
 s0.e98aabac272e,theme,author,src/ui/src/ThemeManagementDialog.cpp,457,"{""version"", ""1.0.0""}, {""author"", ""WinJACKNexus""},",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
 s0.77122370d6bd,theme,WinJACKNexus,src/ui/src/ThemeManagementDialog.cpp,457,"{""version"", ""1.0.0""}, {""author"", ""WinJACKNexus""},",产品名、文件夹、设置组、类名、客户名或系统身份,原样；周边项目说明另行翻译
 s0.fc7f202f1f98,theme,description,src/ui/src/ThemeManagementDialog.cpp,458,"{""description"", ""Temporary image resource for theme export""}, {""homepage"", """"},",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
+s0.9ac3636671e9,theme,Temporary image resource for theme export,src/ui/src/ThemeManagementDialog.cpp,458,"{""description"", ""Temporary image resource for theme export""}, {""homepage"", """"},",importImage/importFont 临时资源载体的 metadata；仅将资源及 token 合并到当前主题，完整/片段导出使用 editedMetadata() 的用户内容，禁止语言切换改写包内容；实际控件及错误仍另列翻译,原样；周边项目说明另行翻译
 s0.b357ec6477a2,theme,homepage,src/ui/src/ThemeManagementDialog.cpp,458,"{""description"", ""Temporary image resource for theme export""}, {""homepage"", """"},",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
 s0.7f67cdc97fd5,theme,,src/ui/src/ThemeManagementDialog.cpp,458,"{""description"", ""Temporary image resource for theme export""}, {""homepage"", """"},",空值、符号、纯数值或无自然语言的格式串,原样；周边项目说明另行翻译
 s0.dbde7cab9870,theme,kind,src/ui/src/ThemeManagementDialog.cpp,459,"{""kind"", ""full""}, {""namespaces"", QJsonArray {QStringLiteral(""--wjn-theme-"") + scope + '-'}}};",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
@@ -6919,11 +6929,13 @@ s0.3e29f7ba6c3f,theme,themeApiVersion,src/ui/src/ThemeManagementDialog.cpp,480,"
 s0.5a213ec58579,theme,id,src/ui/src/ThemeManagementDialog.cpp,481,"{""id"", ""org.winjacknexus-author-font""}, {""name"", ""Imported font""},",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
 s0.a7289be5bd5e,theme,org.winjacknexus-author-font,src/ui/src/ThemeManagementDialog.cpp,481,"{""id"", ""org.winjacknexus-author-font""}, {""name"", ""Imported font""},",机器 token、域、序列化键或稳定 ID（周边显示说明单列）,原样；周边项目说明另行翻译
 s0.ba2be311845d,theme,name,src/ui/src/ThemeManagementDialog.cpp,481,"{""id"", ""org.winjacknexus-author-font""}, {""name"", ""Imported font""},",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
+s0.5b6e34f4bd19,theme,Imported font,src/ui/src/ThemeManagementDialog.cpp,481,"{""id"", ""org.winjacknexus-author-font""}, {""name"", ""Imported font""},",importImage/importFont 临时资源载体的 metadata；仅将资源及 token 合并到当前主题，完整/片段导出使用 editedMetadata() 的用户内容，禁止语言切换改写包内容；实际控件及错误仍另列翻译,原样；周边项目说明另行翻译
 s0.113605502b51,theme,version,src/ui/src/ThemeManagementDialog.cpp,482,"{""version"", ""1.0.0""}, {""author"", ""WinJACKNexus""},",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
 s0.0a298422d155,theme,1.0.0,src/ui/src/ThemeManagementDialog.cpp,482,"{""version"", ""1.0.0""}, {""author"", ""WinJACKNexus""},",空值、符号、纯数值或无自然语言的格式串,原样；周边项目说明另行翻译
 s0.e98aabac272e,theme,author,src/ui/src/ThemeManagementDialog.cpp,482,"{""version"", ""1.0.0""}, {""author"", ""WinJACKNexus""},",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
 s0.77122370d6bd,theme,WinJACKNexus,src/ui/src/ThemeManagementDialog.cpp,482,"{""version"", ""1.0.0""}, {""author"", ""WinJACKNexus""},",产品名、文件夹、设置组、类名、客户名或系统身份,原样；周边项目说明另行翻译
 s0.fc7f202f1f98,theme,description,src/ui/src/ThemeManagementDialog.cpp,483,"{""description"", ""Temporary font resource for theme export""}, {""homepage"", """"},",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
+s0.571622f0fc8a,theme,Temporary font resource for theme export,src/ui/src/ThemeManagementDialog.cpp,483,"{""description"", ""Temporary font resource for theme export""}, {""homepage"", """"},",importImage/importFont 临时资源载体的 metadata；仅将资源及 token 合并到当前主题，完整/片段导出使用 editedMetadata() 的用户内容，禁止语言切换改写包内容；实际控件及错误仍另列翻译,原样；周边项目说明另行翻译
 s0.b357ec6477a2,theme,homepage,src/ui/src/ThemeManagementDialog.cpp,483,"{""description"", ""Temporary font resource for theme export""}, {""homepage"", """"},",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
 s0.7f67cdc97fd5,theme,,src/ui/src/ThemeManagementDialog.cpp,483,"{""description"", ""Temporary font resource for theme export""}, {""homepage"", """"},",空值、符号、纯数值或无自然语言的格式串,原样；周边项目说明另行翻译
 s0.dbde7cab9870,theme,kind,src/ui/src/ThemeManagementDialog.cpp,484,"{""kind"", ""full""}, {""namespaces"", QJsonArray {""--wjn-theme-global-""}}};",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
@@ -7775,51 +7787,67 @@ s0.d94955fd107d,vstscanner,false,tools/vst_scanner/src/ProbeMain.cpp,181,"return
 s0.72678ee6661f,vstscanner,{,tools/vst_scanner/src/ProbeMain.cpp,191,"std::string result = ""{"";",空值、符号、纯数值或无自然语言的格式串,原样；周边项目说明另行翻译
 s0.ccaad6214cb8,vstscanner,[,tools/vst_scanner/src/ProbeMain.cpp,207,"std::string result = ""["";",空值、符号、纯数值或无自然语言的格式串,原样；周边项目说明另行翻译
 s0.abea1170c79b,vstscanner,.tmp-,tools/vst_scanner/src/ProbeMain.cpp,220,"+ L"".tmp-""",命令参数、MIME、路径、扩展名或 JSON 序列化片段,原样；周边项目说明另行翻译
-s0.993d90642234,vstscanner,controller,tools/vst_scanner/src/ProbeMain.cpp,310,"if (categoryLower.find(""controller"") != std::string::npos",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
-s0.4487c4433e64,vstscanner,service,tools/vst_scanner/src/ProbeMain.cpp,311,"|| categoryLower.find(""service"") != std::string::npos",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
-s0.68caa51e7c99,vstscanner,compatibility,tools/vst_scanner/src/ProbeMain.cpp,312,"|| categoryLower.find(""compatibility"") != std::string::npos)",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
-s0.2a34c9b5c5eb,vstscanner,name,tools/vst_scanner/src/ProbeMain.cpp,340,"{ ""name"", jsonString(plugin.name) },",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
-s0.5d0714520448,vstscanner,vendor,tools/vst_scanner/src/ProbeMain.cpp,341,"{ ""vendor"", jsonString(plugin.vendor) },",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
-s0.b85b4de50e7b,vstscanner,version,tools/vst_scanner/src/ProbeMain.cpp,342,"{ ""version"", jsonString(plugin.version) },",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
-s0.5ea6cce8544c,vstscanner,category,tools/vst_scanner/src/ProbeMain.cpp,343,"{ ""category"", jsonString(plugin.category) },",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
-s0.ad1de543aa6a,vstscanner,subcategory,tools/vst_scanner/src/ProbeMain.cpp,344,"{ ""subcategory"", jsonString(plugin.subcategory) },",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
-s0.b1e38df44b87,vstscanner,internal_plugin,tools/vst_scanner/src/ProbeMain.cpp,345,"{ ""internal_plugin"", jsonString(plugin.internalPlugin) }",机器 token、域、序列化键或稳定 ID（周边显示说明单列）,原样；周边项目说明另行翻译
-s0.1a84207da867,vstscanner,class_id,tools/vst_scanner/src/ProbeMain.cpp,348,"fields.emplace_back(""class_id"", jsonString(plugin.classId));",机器 token、域、序列化键或稳定 ID（周边显示说明单列）,原样；周边项目说明另行翻译
-s0.ad94598ec016,vstscanner,unique_id,tools/vst_scanner/src/ProbeMain.cpp,350,"fields.emplace_back(""unique_id"", jsonInteger(plugin.uniqueId));",机器 token、域、序列化键或稳定 ID（周边显示说明单列）,原样；周边项目说明另行翻译
-s0.72678ee6661f,vstscanner,{,tools/vst_scanner/src/ProbeMain.cpp,352,"std::string result = ""{"";",空值、符号、纯数值或无自然语言的格式串,原样；周边项目说明另行翻译
-s0.1a84207da867,vstscanner,class_id,tools/vst_scanner/src/ProbeMain.cpp,367,"{ ""class_id"", jsonString(classIdString(descriptor.classId)) },",机器 token、域、序列化键或稳定 ID（周边显示说明单列）,原样；周边项目说明另行翻译
-s0.2a34c9b5c5eb,vstscanner,name,tools/vst_scanner/src/ProbeMain.cpp,368,"{ ""name"", jsonString(descriptor.name) },",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
-s0.5d0714520448,vstscanner,vendor,tools/vst_scanner/src/ProbeMain.cpp,369,"{ ""vendor"", jsonString(descriptor.vendor) },",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
-s0.b85b4de50e7b,vstscanner,version,tools/vst_scanner/src/ProbeMain.cpp,370,"{ ""version"", jsonString(descriptor.version) },",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
-s0.5ea6cce8544c,vstscanner,category,tools/vst_scanner/src/ProbeMain.cpp,371,"{ ""category"", jsonString(descriptor.category) },",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
-s0.ad1de543aa6a,vstscanner,subcategory,tools/vst_scanner/src/ProbeMain.cpp,372,"{ ""subcategory"", jsonString(descriptor.subcategory) }",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
-s0.4ca85b9891d1,vstscanner,ok,tools/vst_scanner/src/ProbeMain.cpp,382,"{ ""ok"", ""true"" },",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
-s0.8debf01b0c9d,vstscanner,true,tools/vst_scanner/src/ProbeMain.cpp,382,"{ ""ok"", ""true"" },",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
-s0.ee994d1bb44e,vstscanner,type,tools/vst_scanner/src/ProbeMain.cpp,383,"{ ""type"", jsonString(type) }",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
-s0.bb11a03c69e2,vstscanner,is_shell,tools/vst_scanner/src/ProbeMain.cpp,386,"fields.emplace_back(""is_shell"", ""true"");",机器 token、域、序列化键或稳定 ID（周边显示说明单列）,原样；周边项目说明另行翻译
-s0.8debf01b0c9d,vstscanner,true,tools/vst_scanner/src/ProbeMain.cpp,386,"fields.emplace_back(""is_shell"", ""true"");",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
-s0.01e4501ec2a7,vstscanner,classes,tools/vst_scanner/src/ProbeMain.cpp,387,"fields.emplace_back(""classes"", jsonArray(classes));",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
-s0.a63e73de0d68,vstscanner,probe_error,tools/vst_scanner/src/ProbeMain.cpp,389,"fields.emplace_back(""probe_error"", jsonString(probeError));",机器 token、域、序列化键或稳定 ID（周边显示说明单列）,原样；周边项目说明另行翻译
-s0.72678ee6661f,vstscanner,{,tools/vst_scanner/src/ProbeMain.cpp,391,"std::string result = ""{"";",空值、符号、纯数值或无自然语言的格式串,原样；周边项目说明另行翻译
-s0.31876e5d6b94,vstscanner,vst3,tools/vst_scanner/src/ProbeMain.cpp,427,"output = probeResult(""vst3"", classes, false);",主题/预设/协议/默认保存名称或机器格式身份,原样；周边项目说明另行翻译
-s0.31876e5d6b94,vstscanner,vst3,tools/vst_scanner/src/ProbeMain.cpp,460,"output = probeResult(""vst3"", { pluginJson(plugin) }, false, error);",主题/预设/协议/默认保存名称或机器格式身份,原样；周边项目说明另行翻译
-s0.31876e5d6b94,vstscanner,vst3,tools/vst_scanner/src/ProbeMain.cpp,470,"output = probeResult(""vst3"", { pluginJson(plugin) }, false, error);",主题/预设/协议/默认保存名称或机器格式身份,原样；周边项目说明另行翻译
-s0.55022fe85ab9,vstscanner,instrument,tools/vst_scanner/src/ProbeMain.cpp,508,"result.category = isInstrument ? ""instrument"" : ""effect"";",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
-s0.f1c4a5361c78,vstscanner,effect,tools/vst_scanner/src/ProbeMain.cpp,508,"result.category = isInstrument ? ""instrument"" : ""effect"";",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
-s0.2c4af296d4a9,vstscanner,VSTPluginMain,tools/vst_scanner/src/ProbeMain.cpp,529,"auto entry = reinterpret_cast<Vst2EntryProc>(GetProcAddress(module, ""VSTPluginMain""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
-s0.421b0ceba59c,vstscanner,main,tools/vst_scanner/src/ProbeMain.cpp,531,"entry = reinterpret_cast<Vst2EntryProc>(GetProcAddress(module, ""main""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
-s0.1e48240a2be7,vstscanner,vst2,tools/vst_scanner/src/ProbeMain.cpp,600,"output = probeResult(""vst2"",",主题/预设/协议/默认保存名称或机器格式身份,原样；周边项目说明另行翻译
-s0.4ca85b9891d1,vstscanner,ok,tools/vst_scanner/src/ProbeMain.cpp,610,"{ ""ok"", ""false"" },",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
-s0.d94955fd107d,vstscanner,false,tools/vst_scanner/src/ProbeMain.cpp,610,"{ ""ok"", ""false"" },",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
-s0.7990ca33cfc7,vstscanner,error,tools/vst_scanner/src/ProbeMain.cpp,611,"{ ""error"", jsonString(message) },",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
-s0.cc815d328321,vstscanner,skippable,tools/vst_scanner/src/ProbeMain.cpp,612,"{ ""skippable"", jsonBool(skippable) }",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
-s0.0134b8453059,vstscanner,--vst3,tools/vst_scanner/src/ProbeMain.cpp,622,"&& (std::wstring_view(argv[1]) == L""--vst3""",命令参数、环境键、内部名称或导出符号,原样；周边项目说明另行翻译
-s0.2efd5f857b10,vstscanner,--vst2,tools/vst_scanner/src/ProbeMain.cpp,623,"|| std::wstring_view(argv[1]) == L""--vst2"");",命令参数、环境键、内部名称或导出符号,原样；周边项目说明另行翻译
-s0.77556a4022bd,vstscanner,--output,tools/vst_scanner/src/ProbeMain.cpp,624,"const auto listMode = argc == 5 && std::wstring_view(argv[3]) == L""--output"";",命令参数、环境键、内部名称或导出符号,原样；周边项目说明另行翻译
-s0.67d33b1b38de,vstscanner,--class-id,tools/vst_scanner/src/ProbeMain.cpp,626,"&& (std::wstring_view(argv[3]) == L""--class-id""",命令参数、环境键、内部名称或导出符号,原样；周边项目说明另行翻译
-s0.37b4b41a6b82,vstscanner,--internal-id,tools/vst_scanner/src/ProbeMain.cpp,627,"|| std::wstring_view(argv[3]) == L""--internal-id"")",命令参数、环境键、内部名称或导出符号,原样；周边项目说明另行翻译
-s0.77556a4022bd,vstscanner,--output,tools/vst_scanner/src/ProbeMain.cpp,628,"&& std::wstring_view(argv[5]) == L""--output"";",命令参数、环境键、内部名称或导出符号,原样；周边项目说明另行翻译
-s0.0134b8453059,vstscanner,--vst3,tools/vst_scanner/src/ProbeMain.cpp,643,"if (format == L""--vst3"") {",命令参数、环境键、内部名称或导出符号,原样；周边项目说明另行翻译
+s0.075fb06c0aea,vstscanner,_key,tools/vst_scanner/src/ProbeMain.cpp,291,"fields.emplace_back(name + ""_key"", jsonString(error.key));",S6 Probe IPC 显示元数据字段后缀；稳定协议身份，完整 English 回退和对应译文另列,原样；周边项目说明另行翻译
+s0.44cbf28f14fb,vstscanner,_args,tools/vst_scanner/src/ProbeMain.cpp,295,"fields.emplace_back(name + ""_args"", jsonArray(args));",S6 Probe IPC 显示元数据字段后缀；稳定协议身份，完整 English 回退和对应译文另列,原样；周边项目说明另行翻译
+s0.993d90642234,vstscanner,controller,tools/vst_scanner/src/ProbeMain.cpp,334,"if (categoryLower.find(""controller"") != std::string::npos",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
+s0.4487c4433e64,vstscanner,service,tools/vst_scanner/src/ProbeMain.cpp,335,"|| categoryLower.find(""service"") != std::string::npos",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
+s0.68caa51e7c99,vstscanner,compatibility,tools/vst_scanner/src/ProbeMain.cpp,336,"|| categoryLower.find(""compatibility"") != std::string::npos)",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
+s0.82d0cf6ea845,vstscanner,probe.noComponent,tools/vst_scanner/src/ProbeMain.cpp,341,"error = { ""VST3 factory returned no usable component class"", ""probe.noComponent"", {  } };",S6 稳定语言 key；插件、工程及进程身份保持原样,原样；周边项目说明另行翻译
+s0.2a34c9b5c5eb,vstscanner,name,tools/vst_scanner/src/ProbeMain.cpp,364,"{ ""name"", jsonString(plugin.name) },",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
+s0.5d0714520448,vstscanner,vendor,tools/vst_scanner/src/ProbeMain.cpp,365,"{ ""vendor"", jsonString(plugin.vendor) },",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
+s0.b85b4de50e7b,vstscanner,version,tools/vst_scanner/src/ProbeMain.cpp,366,"{ ""version"", jsonString(plugin.version) },",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
+s0.5ea6cce8544c,vstscanner,category,tools/vst_scanner/src/ProbeMain.cpp,367,"{ ""category"", jsonString(plugin.category) },",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
+s0.ad1de543aa6a,vstscanner,subcategory,tools/vst_scanner/src/ProbeMain.cpp,368,"{ ""subcategory"", jsonString(plugin.subcategory) },",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
+s0.b1e38df44b87,vstscanner,internal_plugin,tools/vst_scanner/src/ProbeMain.cpp,369,"{ ""internal_plugin"", jsonString(plugin.internalPlugin) }",机器 token、域、序列化键或稳定 ID（周边显示说明单列）,原样；周边项目说明另行翻译
+s0.1a84207da867,vstscanner,class_id,tools/vst_scanner/src/ProbeMain.cpp,372,"fields.emplace_back(""class_id"", jsonString(plugin.classId));",机器 token、域、序列化键或稳定 ID（周边显示说明单列）,原样；周边项目说明另行翻译
+s0.ad94598ec016,vstscanner,unique_id,tools/vst_scanner/src/ProbeMain.cpp,374,"fields.emplace_back(""unique_id"", jsonInteger(plugin.uniqueId));",机器 token、域、序列化键或稳定 ID（周边显示说明单列）,原样；周边项目说明另行翻译
+s0.72678ee6661f,vstscanner,{,tools/vst_scanner/src/ProbeMain.cpp,376,"std::string result = ""{"";",空值、符号、纯数值或无自然语言的格式串,原样；周边项目说明另行翻译
+s0.1a84207da867,vstscanner,class_id,tools/vst_scanner/src/ProbeMain.cpp,391,"{ ""class_id"", jsonString(classIdString(descriptor.classId)) },",机器 token、域、序列化键或稳定 ID（周边显示说明单列）,原样；周边项目说明另行翻译
+s0.2a34c9b5c5eb,vstscanner,name,tools/vst_scanner/src/ProbeMain.cpp,392,"{ ""name"", jsonString(descriptor.name) },",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
+s0.5d0714520448,vstscanner,vendor,tools/vst_scanner/src/ProbeMain.cpp,393,"{ ""vendor"", jsonString(descriptor.vendor) },",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
+s0.b85b4de50e7b,vstscanner,version,tools/vst_scanner/src/ProbeMain.cpp,394,"{ ""version"", jsonString(descriptor.version) },",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
+s0.5ea6cce8544c,vstscanner,category,tools/vst_scanner/src/ProbeMain.cpp,395,"{ ""category"", jsonString(descriptor.category) },",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
+s0.ad1de543aa6a,vstscanner,subcategory,tools/vst_scanner/src/ProbeMain.cpp,396,"{ ""subcategory"", jsonString(descriptor.subcategory) }",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
+s0.4ca85b9891d1,vstscanner,ok,tools/vst_scanner/src/ProbeMain.cpp,406,"{ ""ok"", ""true"" },",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
+s0.8debf01b0c9d,vstscanner,true,tools/vst_scanner/src/ProbeMain.cpp,406,"{ ""ok"", ""true"" },",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
+s0.ee994d1bb44e,vstscanner,type,tools/vst_scanner/src/ProbeMain.cpp,407,"{ ""type"", jsonString(type) }",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
+s0.bb11a03c69e2,vstscanner,is_shell,tools/vst_scanner/src/ProbeMain.cpp,410,"fields.emplace_back(""is_shell"", ""true"");",机器 token、域、序列化键或稳定 ID（周边显示说明单列）,原样；周边项目说明另行翻译
+s0.8debf01b0c9d,vstscanner,true,tools/vst_scanner/src/ProbeMain.cpp,410,"fields.emplace_back(""is_shell"", ""true"");",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
+s0.01e4501ec2a7,vstscanner,classes,tools/vst_scanner/src/ProbeMain.cpp,411,"fields.emplace_back(""classes"", jsonArray(classes));",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
+s0.a63e73de0d68,vstscanner,probe_error,tools/vst_scanner/src/ProbeMain.cpp,412,"appendErrorFields(fields, ""probe_error"", probeError);",机器 token、域、序列化键或稳定 ID（周边显示说明单列）,原样；周边项目说明另行翻译
+s0.72678ee6661f,vstscanner,{,tools/vst_scanner/src/ProbeMain.cpp,414,"std::string result = ""{"";",空值、符号、纯数值或无自然语言的格式串,原样；周边项目说明另行翻译
+s0.31876e5d6b94,vstscanner,vst3,tools/vst_scanner/src/ProbeMain.cpp,450,"output = probeResult(""vst3"", classes, false);",主题/预设/协议/默认保存名称或机器格式身份,原样；周边项目说明另行翻译
+s0.09148e12142c,vstscanner,Invalid VST3 class ID: ,tools/vst_scanner/src/ProbeMain.cpp,464,"error = { ""Invalid VST3 class ID: "" + classIdText, ""probe.invalidClassId"", { classIdText } };",Probe English 传输回退的拼接前缀，不是完整翻译模板；当前 Scanner 通过同一稳定 key/原始参数显示带 %1 的完整模板（该调用点另列），旧消费端仍接收组装后的完整 English；不将前缀误当成无占位符模板,原样；周边项目说明另行翻译
+s0.ab04a5f433c8,vstscanner,probe.invalidClassId,tools/vst_scanner/src/ProbeMain.cpp,464,"error = { ""Invalid VST3 class ID: "" + classIdText, ""probe.invalidClassId"", { classIdText } };",S6 稳定语言 key；插件、工程及进程身份保持原样,原样；周边项目说明另行翻译
+s0.d3cb6f6be6eb,vstscanner,VST3 factory cannot find class ID: ,tools/vst_scanner/src/ProbeMain.cpp,475,"error = { ""VST3 factory cannot find class ID: "" + classIdText, ""probe.missingClassId"", { classIdText } };",Probe English 传输回退的拼接前缀，不是完整翻译模板；当前 Scanner 通过同一稳定 key/原始参数显示带 %1 的完整模板（该调用点另列），旧消费端仍接收组装后的完整 English；不将前缀误当成无占位符模板,原样；周边项目说明另行翻译
+s0.2cb425e4deb3,vstscanner,probe.missingClassId,tools/vst_scanner/src/ProbeMain.cpp,475,"error = { ""VST3 factory cannot find class ID: "" + classIdText, ""probe.missingClassId"", { classIdText } };",S6 稳定语言 key；插件、工程及进程身份保持原样,原样；周边项目说明另行翻译
+s0.e4ae51f3f656,vstscanner,Cannot create VST3 component class: ,tools/vst_scanner/src/ProbeMain.cpp,482,"error = { ""Cannot create VST3 component class: "" + descriptor->name, ""probe.createComponent"", { descriptor->name } };",Probe English 传输回退的拼接前缀，不是完整翻译模板；当前 Scanner 通过同一稳定 key/原始参数显示带 %1 的完整模板（该调用点另列），旧消费端仍接收组装后的完整 English；不将前缀误当成无占位符模板,原样；周边项目说明另行翻译
+s0.3fcaa75a073e,vstscanner,probe.createComponent,tools/vst_scanner/src/ProbeMain.cpp,482,"error = { ""Cannot create VST3 component class: "" + descriptor->name, ""probe.createComponent"", { descriptor->name } };",S6 稳定语言 key；插件、工程及进程身份保持原样,原样；周边项目说明另行翻译
+s0.31876e5d6b94,vstscanner,vst3,tools/vst_scanner/src/ProbeMain.cpp,483,"output = probeResult(""vst3"", { pluginJson(plugin) }, false, error);",主题/预设/协议/默认保存名称或机器格式身份,原样；周边项目说明另行翻译
+s0.54aed3f6b6cc,vstscanner,Cannot initialize VST3 component: ,tools/vst_scanner/src/ProbeMain.cpp,489,"error = { ""Cannot initialize VST3 component: "" + descriptor->name, ""probe.initializeComponent"", { descriptor->name } };",Probe English 传输回退的拼接前缀，不是完整翻译模板；当前 Scanner 通过同一稳定 key/原始参数显示带 %1 的完整模板（该调用点另列），旧消费端仍接收组装后的完整 English；不将前缀误当成无占位符模板,原样；周边项目说明另行翻译
+s0.3c4389b0cbe4,vstscanner,probe.initializeComponent,tools/vst_scanner/src/ProbeMain.cpp,489,"error = { ""Cannot initialize VST3 component: "" + descriptor->name, ""probe.initializeComponent"", { descriptor->name } };",S6 稳定语言 key；插件、工程及进程身份保持原样,原样；周边项目说明另行翻译
+s0.31876e5d6b94,vstscanner,vst3,tools/vst_scanner/src/ProbeMain.cpp,493,"output = probeResult(""vst3"", { pluginJson(plugin) }, false, error);",主题/预设/协议/默认保存名称或机器格式身份,原样；周边项目说明另行翻译
+s0.55022fe85ab9,vstscanner,instrument,tools/vst_scanner/src/ProbeMain.cpp,531,"result.category = isInstrument ? ""instrument"" : ""effect"";",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
+s0.f1c4a5361c78,vstscanner,effect,tools/vst_scanner/src/ProbeMain.cpp,531,"result.category = isInstrument ? ""instrument"" : ""effect"";",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
+s0.b1ed7ca94b78,vstscanner,probe.loadLibrary,tools/vst_scanner/src/ProbeMain.cpp,549,"error = { ""LoadLibraryExW failed"", ""probe.loadLibrary"", {  } };",S6 稳定语言 key；插件、工程及进程身份保持原样,原样；周边项目说明另行翻译
+s0.2c4af296d4a9,vstscanner,VSTPluginMain,tools/vst_scanner/src/ProbeMain.cpp,552,"auto entry = reinterpret_cast<Vst2EntryProc>(GetProcAddress(module, ""VSTPluginMain""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
+s0.421b0ceba59c,vstscanner,main,tools/vst_scanner/src/ProbeMain.cpp,554,"entry = reinterpret_cast<Vst2EntryProc>(GetProcAddress(module, ""main""));",对象/属性/导出稳定身份,原样；周边项目说明另行翻译
+s0.2186a37a90ae,vstscanner,probe.missingEntry,tools/vst_scanner/src/ProbeMain.cpp,556,"error = { ""VST2 module has no VSTPluginMain/main entry point"", ""probe.missingEntry"", {  } };",S6 稳定语言 key；插件、工程及进程身份保持原样,原样；周边项目说明另行翻译
+s0.2139df82938b,vstscanner,probe.invalidEffect,tools/vst_scanner/src/ProbeMain.cpp,569,"error = { ""VST2 module returned an invalid AEffect"", ""probe.invalidEffect"", {  } };",S6 稳定语言 key；插件、工程及进程身份保持原样,原样；周边项目说明另行翻译
+s0.1e48240a2be7,vstscanner,vst2,tools/vst_scanner/src/ProbeMain.cpp,623,"output = probeResult(""vst2"",",主题/预设/协议/默认保存名称或机器格式身份,原样；周边项目说明另行翻译
+s0.4ca85b9891d1,vstscanner,ok,tools/vst_scanner/src/ProbeMain.cpp,633,"{ ""ok"", ""false"" },",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
+s0.d94955fd107d,vstscanner,false,tools/vst_scanner/src/ProbeMain.cpp,633,"{ ""ok"", ""false"" },",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
+s0.cc815d328321,vstscanner,skippable,tools/vst_scanner/src/ProbeMain.cpp,634,"{ ""skippable"", jsonBool(skippable) }",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
+s0.7990ca33cfc7,vstscanner,error,tools/vst_scanner/src/ProbeMain.cpp,636,"appendErrorFields(fields, ""error"", error);",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
+s0.0134b8453059,vstscanner,--vst3,tools/vst_scanner/src/ProbeMain.cpp,646,"&& (std::wstring_view(argv[1]) == L""--vst3""",命令参数、环境键、内部名称或导出符号,原样；周边项目说明另行翻译
+s0.2efd5f857b10,vstscanner,--vst2,tools/vst_scanner/src/ProbeMain.cpp,647,"|| std::wstring_view(argv[1]) == L""--vst2"");",命令参数、环境键、内部名称或导出符号,原样；周边项目说明另行翻译
+s0.77556a4022bd,vstscanner,--output,tools/vst_scanner/src/ProbeMain.cpp,648,"const auto listMode = argc == 5 && std::wstring_view(argv[3]) == L""--output"";",命令参数、环境键、内部名称或导出符号,原样；周边项目说明另行翻译
+s0.67d33b1b38de,vstscanner,--class-id,tools/vst_scanner/src/ProbeMain.cpp,650,"&& (std::wstring_view(argv[3]) == L""--class-id""",命令参数、环境键、内部名称或导出符号,原样；周边项目说明另行翻译
+s0.37b4b41a6b82,vstscanner,--internal-id,tools/vst_scanner/src/ProbeMain.cpp,651,"|| std::wstring_view(argv[3]) == L""--internal-id"")",命令参数、环境键、内部名称或导出符号,原样；周边项目说明另行翻译
+s0.77556a4022bd,vstscanner,--output,tools/vst_scanner/src/ProbeMain.cpp,652,"&& std::wstring_view(argv[5]) == L""--output"";",命令参数、环境键、内部名称或导出符号,原样；周边项目说明另行翻译
+s0.0134b8453059,vstscanner,--vst3,tools/vst_scanner/src/ProbeMain.cpp,667,"if (format == L""--vst3"") {",命令参数、环境键、内部名称或导出符号,原样；周边项目说明另行翻译
+s0.260d29afeeeb,vstscanner,probe.vst2Disabled,tools/vst_scanner/src/ProbeMain.cpp,679,"error = { ""VST2 probing is disabled"", ""probe.vst2Disabled"", {  } };",S6 稳定语言 key；插件、工程及进程身份保持原样,原样；周边项目说明另行翻译
+s0.070cc8145db6,vstscanner,probe.failed,tools/vst_scanner/src/ProbeMain.cpp,684,"error = { ""Plug-in probe failed"", ""probe.failed"", {} };",S6 稳定语言 key；插件、工程及进程身份保持原样,原样；周边项目说明另行翻译
 s0.45ac10d21aad,vstscanner,pluginterfaces/base/ipluginbase.h,tools/vst_scanner/src/Scanner.cpp,21,"#include ""pluginterfaces/base/ipluginbase.h""",编译依赖/链接库标识,原样；周边项目说明另行翻译
 s0.dc573ac5be16,vstscanner,public.sdk/source/vst/moduleinfo/moduleinfoparser.h,tools/vst_scanner/src/Scanner.cpp,22,"#include ""public.sdk/source/vst/moduleinfo/moduleinfoparser.h""",编译依赖/链接库标识,原样；周边项目说明另行翻译
 s0.a8408a481d93,vstscanner,pluginterfaces/vst2.x/aeffectx.h,tools/vst_scanner/src/Scanner.cpp,29,"#    include ""pluginterfaces/vst2.x/aeffectx.h""",编译依赖/链接库标识,原样；周边项目说明另行翻译
@@ -7844,137 +7872,159 @@ s0.eaead6b20d0f,vstscanner,moduleinfo.json,tools/vst_scanner/src/Scanner.cpp,331
 s0.4ce5f33a5ced,vstscanner,instrument,tools/vst_scanner/src/Scanner.cpp,340,"? QStringLiteral(""instrument"")",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
 s0.d6d62f1ea018,vstscanner,effect,tools/vst_scanner/src/Scanner.cpp,341,": QStringLiteral(""effect"");",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
 s0.0108e165529a,vstscanner,vst3,tools/vst_scanner/src/Scanner.cpp,352,"auto info = basePluginInfo(path, QStringLiteral(""vst3""), bits);",主题/预设/协议/默认保存名称或机器格式身份,原样；周边项目说明另行翻译
-s0.5661578be48e,vstscanner,Vst Scanner Probe64.exe,tools/vst_scanner/src/Scanner.cpp,371,"probeName = QStringLiteral(""Vst Scanner Probe64.exe"");",文件/资源/网址路径或加载身份,原样；周边项目说明另行翻译
-s0.286232df0f18,vstscanner,Vst Scanner Probe32.exe,tools/vst_scanner/src/Scanner.cpp,373,"probeName = QStringLiteral(""Vst Scanner Probe32.exe"");",文件/资源/网址路径或加载身份,原样；周边项目说明另行翻译
-s0.4def3e595c75,vstscanner,message.unsupportedBits,tools/vst_scanner/src/Scanner.cpp,375,"error = scannerText(""message.unsupportedBits"", ""Unsupported plug-in bit depth: %1"").arg(bits);",S6 稳定语言 key；插件、工程及进程身份保持原样,原样；周边项目说明另行翻译
-s0.2d2fb237301a,vstscanner,message.probeMissing,tools/vst_scanner/src/Scanner.cpp,381,"error = scannerText(""message.probeMissing"", ""Isolated probe not found: "") + pathString(probePath);",S6 稳定语言 key；插件、工程及进程身份保持原样,原样；周边项目说明另行翻译
-s0.f4d78372486f,vstscanner,/WinJACKNexus-VstProbe-,tools/vst_scanner/src/Scanner.cpp,386,"+ QStringLiteral(""/WinJACKNexus-VstProbe-"")",命令参数、MIME、路径、扩展名或 JSON 序列化片段,原样；周边项目说明另行翻译
-s0.de3a0b01b754,vstscanner,.json,tools/vst_scanner/src/Scanner.cpp,388,"+ QStringLiteral("".json"");",文件/资源/网址路径或加载身份,原样；周边项目说明另行翻译
-s0.3a1de85f8d32,vstscanner,--output,tools/vst_scanner/src/Scanner.cpp,393,"processArguments.append({ QStringLiteral(""--output""), resultPath });",命令参数、环境键、内部名称或导出符号,原样；周边项目说明另行翻译
-s0.8fe6e9eaa923,vstscanner,message.probeStart,tools/vst_scanner/src/Scanner.cpp,398,"error = scannerText(""message.probeStart"", ""Cannot start isolated probe: "") + process.errorString();",S6 稳定语言 key；插件、工程及进程身份保持原样,原样；周边项目说明另行翻译
-s0.3d2e40ce27f8,vstscanner,message.probeTimeout,tools/vst_scanner/src/Scanner.cpp,407,"error = scannerText(""message.probeTimeout"", ""Plug-in probe timed out; isolated process terminated"");",S6 稳定语言 key；插件、工程及进程身份保持原样,原样；周边项目说明另行翻译
-s0.1cbaabdbb666,vstscanner,message.probeCrash,tools/vst_scanner/src/Scanner.cpp,415,"? scannerText(""message.probeCrash"", ""Plug-in probe crashed; scanner kept running"")",S6 稳定语言 key；插件、工程及进程身份保持原样,原样；周边项目说明另行翻译
-s0.66068c8010e2,vstscanner,message.probeNoResult,tools/vst_scanner/src/Scanner.cpp,416,": scannerText(""message.probeNoResult"", ""Isolated probe produced no result: "") + process.errorString();",S6 稳定语言 key；插件、工程及进程身份保持原样,原样；周边项目说明另行翻译
-s0.85597fd76843,vstscanner,message.probeJson,tools/vst_scanner/src/Scanner.cpp,426,"error = scannerText(""message.probeJson"", ""Isolated probe result is not valid JSON"");",S6 稳定语言 key；插件、工程及进程身份保持原样,原样；周边项目说明另行翻译
-s0.90e72cc57a40,vstscanner,ok,tools/vst_scanner/src/Scanner.cpp,431,"if (!result.value(QStringLiteral(""ok"")).toBool()) {",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
-s0.85927ee9ca6b,vstscanner,skippable,tools/vst_scanner/src/Scanner.cpp,432,"skippable = result.value(QStringLiteral(""skippable"")).toBool();",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
-s0.59c5fc5c73fe,vstscanner,error,tools/vst_scanner/src/Scanner.cpp,433,"error = result.value(QStringLiteral(""error"")).toString();",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
-s0.7ba3e98797b0,vstscanner,message.probeFailed,tools/vst_scanner/src/Scanner.cpp,435,"error = scannerText(""message.probeFailed"", ""Isolated probe reported failure"");",S6 稳定语言 key；插件、工程及进程身份保持原样,原样；周边项目说明另行翻译
-s0.144150af6946,vstscanner,name,tools/vst_scanner/src/Scanner.cpp,443,"const auto name = object.value(QStringLiteral(""name"")).toString().trimmed();",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
-s0.5f50f45b895a,vstscanner,vendor,tools/vst_scanner/src/Scanner.cpp,446,"const auto vendor = object.value(QStringLiteral(""vendor"")).toString().trimmed();",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
-s0.add188f496aa,vstscanner,version,tools/vst_scanner/src/Scanner.cpp,447,"const auto version = object.value(QStringLiteral(""version"")).toString().trimmed();",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
-s0.4932d4d910c0,vstscanner,category,tools/vst_scanner/src/Scanner.cpp,453,"object.value(QStringLiteral(""category"")).toString(),",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
-s0.1e330c57b08a,vstscanner,subcategory,tools/vst_scanner/src/Scanner.cpp,454,"object.value(QStringLiteral(""subcategory"")).toString());",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
-s0.1d4324dd0d9b,vstscanner, > ,tools/vst_scanner/src/Scanner.cpp,460,"return childName.isEmpty() ? pathString(path) : fileName + QStringLiteral("" > "") + childName;",空值、符号、纯数值或无自然语言的格式串,原样；周边项目说明另行翻译
-s0.0108e165529a,vstscanner,vst3,tools/vst_scanner/src/Scanner.cpp,487,"{ type == QStringLiteral(""vst3"") ? QStringLiteral(""--vst3"")",主题/预设/协议/默认保存名称或机器格式身份,原样；周边项目说明另行翻译
-s0.dab4ead31c86,vstscanner,--vst3,tools/vst_scanner/src/Scanner.cpp,487,"{ type == QStringLiteral(""vst3"") ? QStringLiteral(""--vst3"")",命令参数、环境键、内部名称或导出符号,原样；周边项目说明另行翻译
-s0.9c703e7362b6,vstscanner,--vst2,tools/vst_scanner/src/Scanner.cpp,488,": QStringLiteral(""--vst2"") },",命令参数、环境键、内部名称或导出符号,原样；周边项目说明另行翻译
-s0.f8adc27577c8,vstscanner,classes,tools/vst_scanner/src/Scanner.cpp,494,"const auto descriptors = factoryResult.value(QStringLiteral(""classes"")).toArray();",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
-s0.800d31e9ec95,vstscanner,is_shell,tools/vst_scanner/src/Scanner.cpp,495,"const auto isShell = factoryResult.value(QStringLiteral(""is_shell"")).toBool();",机器 token、域、序列化键或稳定 ID（周边显示说明单列）,原样；周边项目说明另行翻译
-s0.144150af6946,vstscanner,name,tools/vst_scanner/src/Scanner.cpp,498,"if (!value.toObject().value(QStringLiteral(""name"")).toString().trimmed().isEmpty())",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
-s0.0108e165529a,vstscanner,vst3,tools/vst_scanner/src/Scanner.cpp,502,"|| (type.compare(QStringLiteral(""vst3""), Qt::CaseInsensitive) == 0 && childCount > 1);",主题/预设/协议/默认保存名称或机器格式身份,原样；周边项目说明另行翻译
-s0.144150af6946,vstscanner,name,tools/vst_scanner/src/Scanner.cpp,514,"info.name = descriptor.value(QStringLiteral(""name"")).toString().trimmed();",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
-s0.5f50f45b895a,vstscanner,vendor,tools/vst_scanner/src/Scanner.cpp,515,"info.vendor = descriptor.value(QStringLiteral(""vendor"")).toString().trimmed();",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
-s0.add188f496aa,vstscanner,version,tools/vst_scanner/src/Scanner.cpp,516,"info.version = descriptor.value(QStringLiteral(""version"")).toString().trimmed();",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
-s0.debf27113a06,vstscanner,internal_plugin,tools/vst_scanner/src/Scanner.cpp,517,"info.internalPlugin = descriptor.value(QStringLiteral(""internal_plugin"")).toString().trimmed();",机器 token、域、序列化键或稳定 ID（周边显示说明单列）,原样；周边项目说明另行翻译
-s0.4932d4d910c0,vstscanner,category,tools/vst_scanner/src/Scanner.cpp,519,"descriptor.value(QStringLiteral(""category"")).toString(),",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
-s0.1e330c57b08a,vstscanner,subcategory,tools/vst_scanner/src/Scanner.cpp,520,"descriptor.value(QStringLiteral(""subcategory"")).toString());",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
-s0.f3e02a3d8df9,vstscanner,vst2,tools/vst_scanner/src/Scanner.cpp,527,"const auto refreshVst2Classification = type.compare(QStringLiteral(""vst2""), Qt::CaseInsensitive) == 0",主题/预设/协议/默认保存名称或机器格式身份,原样；周边项目说明另行翻译
-s0.f3e02a3d8df9,vstscanner,vst2,tools/vst_scanner/src/Scanner.cpp,532,"const auto refreshVst2Midi = type.compare(QStringLiteral(""vst2""), Qt::CaseInsensitive) == 0",主题/预设/协议/默认保存名称或机器格式身份,原样；周边项目说明另行翻译
-s0.0affe574de9c,vstscanner,class_id,tools/vst_scanner/src/Scanner.cpp,548,"const auto selectedId = descriptor.value(QStringLiteral(""class_id"")).toString();",机器 token、域、序列化键或稳定 ID（周边显示说明单列）,原样；周边项目说明另行翻译
-s0.3a87d9b4e968,vstscanner,unique_id,tools/vst_scanner/src/Scanner.cpp,549,"const auto uniqueId = descriptor.value(QStringLiteral(""unique_id"")).toVariant().toLongLong();",机器 token、域、序列化键或稳定 ID（周边显示说明单列）,原样；周边项目说明另行翻译
-s0.0108e165529a,vstscanner,vst3,tools/vst_scanner/src/Scanner.cpp,551,"type == QStringLiteral(""vst3"") ? QStringLiteral(""--vst3"") : QStringLiteral(""--vst2"")",主题/预设/协议/默认保存名称或机器格式身份,原样；周边项目说明另行翻译
-s0.dab4ead31c86,vstscanner,--vst3,tools/vst_scanner/src/Scanner.cpp,551,"type == QStringLiteral(""vst3"") ? QStringLiteral(""--vst3"") : QStringLiteral(""--vst2"")",命令参数、环境键、内部名称或导出符号,原样；周边项目说明另行翻译
-s0.9c703e7362b6,vstscanner,--vst2,tools/vst_scanner/src/Scanner.cpp,551,"type == QStringLiteral(""vst3"") ? QStringLiteral(""--vst3"") : QStringLiteral(""--vst2"")",命令参数、环境键、内部名称或导出符号,原样；周边项目说明另行翻译
-s0.0108e165529a,vstscanner,vst3,tools/vst_scanner/src/Scanner.cpp,553,"if (type == QStringLiteral(""vst3"")) {",主题/预设/协议/默认保存名称或机器格式身份,原样；周边项目说明另行翻译
-s0.77fb71dfa738,vstscanner,--class-id,tools/vst_scanner/src/Scanner.cpp,554,"childArguments.append({ QStringLiteral(""--class-id""), selectedId });",命令参数、环境键、内部名称或导出符号,原样；周边项目说明另行翻译
-s0.064daa13b39e,vstscanner,--internal-id,tools/vst_scanner/src/Scanner.cpp,556,"childArguments.append({ QStringLiteral(""--internal-id""), QString::number(uniqueId) });",命令参数、环境键、内部名称或导出符号,原样；周边项目说明另行翻译
-s0.f8adc27577c8,vstscanner,classes,tools/vst_scanner/src/Scanner.cpp,568,"const auto classes = childResult.value(QStringLiteral(""classes"")).toArray();",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
-s0.a78cc217472d,vstscanner,probe_error,tools/vst_scanner/src/Scanner.cpp,571,"verified = childResult.value(QStringLiteral(""probe_error"")).toString().isEmpty();",机器 token、域、序列化键或稳定 ID（周边显示说明单列）,原样；周边项目说明另行翻译
-s0.a78cc217472d,vstscanner,probe_error,tools/vst_scanner/src/Scanner.cpp,573,"const auto probeError = childResult.value(QStringLiteral(""probe_error"")).toString();",机器 token、域、序列化键或稳定 ID（周边显示说明单列）,原样；周边项目说明另行翻译
-s0.87d19fd890d5,vstscanner,: ,tools/vst_scanner/src/Scanner.cpp,575,"childErrors.push_back(info.name + QStringLiteral("": "") + probeError);",空值、符号、纯数值或无自然语言的格式串,原样；周边项目说明另行翻译
-s0.87d19fd890d5,vstscanner,: ,tools/vst_scanner/src/Scanner.cpp,581,"childErrors.push_back(info.name + QStringLiteral("": "") + childError);",空值、符号、纯数值或无自然语言的格式串,原样；周边项目说明另行翻译
-s0.0108e165529a,vstscanner,vst3,tools/vst_scanner/src/Scanner.cpp,584,"if (type.compare(QStringLiteral(""vst3""), Qt::CaseInsensitive) == 0 && !moduleInfo.isEmpty()) {",主题/预设/协议/默认保存名称或机器格式身份,原样；周边项目说明另行翻译
-s0.ffdc57de4ec4,vstscanner,message.probeNoClass,tools/vst_scanner/src/Scanner.cpp,597,"error = scannerText(""message.probeNoClass"", ""Isolated probe returned no usable plug-in classes"");",S6 稳定语言 key；插件、工程及进程身份保持原样,原样；周边项目说明另行翻译
-s0.172287b39e54,vstscanner,; ,tools/vst_scanner/src/Scanner.cpp,600,"error = childErrors.join(QStringLiteral(""; ""));",空值、符号、纯数值或无自然语言的格式串,原样；周边项目说明另行翻译
-s0.c24aabe4cc14,vstscanner,message.moduleRead,tools/vst_scanner/src/Scanner.cpp,636,"error = scannerText(""message.moduleRead"", ""Cannot read moduleinfo.json: "") + pathString(moduleInfoPath);",S6 稳定语言 key；插件、工程及进程身份保持原样,原样；周边项目说明另行翻译
-s0.29b697b2774f,vstscanner,message.moduleParse,tools/vst_scanner/src/Scanner.cpp,645,"error = scannerText(""message.moduleParse"", ""Cannot parse moduleinfo.json: "")",S6 稳定语言 key；插件、工程及进程身份保持原样,原样；周边项目说明另行翻译
-s0.ccf6a8651f2b,vstscanner,controller,tools/vst_scanner/src/Scanner.cpp,656,"if (category.toLower().contains(QStringLiteral(""controller""))",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
-s0.19b8ae0a50bc,vstscanner,service,tools/vst_scanner/src/Scanner.cpp,657,"|| category.toLower().contains(QStringLiteral(""service""))",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
-s0.52667458eb31,vstscanner,compatibility,tools/vst_scanner/src/Scanner.cpp,658,"|| category.toLower().contains(QStringLiteral(""compatibility"")))",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
-s0.1a8a8afdbbc4,vstscanner,.vstinfo,tools/vst_scanner/src/Scanner.cpp,701,"if (extension != QStringLiteral("".vstinfo"") && extension != QStringLiteral("".vst3info""))",命令参数、MIME、路径、扩展名或 JSON 序列化片段,原样；周边项目说明另行翻译
-s0.cfa14a95c935,vstscanner,.vst3info,tools/vst_scanner/src/Scanner.cpp,701,"if (extension != QStringLiteral("".vstinfo"") && extension != QStringLiteral("".vst3info""))",命令参数、MIME、路径、扩展名或 JSON 序列化片段,原样；周边项目说明另行翻译
-s0.1a8a8afdbbc4,vstscanner,.vstinfo,tools/vst_scanner/src/Scanner.cpp,739,"if (extension != QStringLiteral("".vstinfo"") && extension != QStringLiteral("".vst3info""))",命令参数、MIME、路径、扩展名或 JSON 序列化片段,原样；周边项目说明另行翻译
-s0.cfa14a95c935,vstscanner,.vst3info,tools/vst_scanner/src/Scanner.cpp,739,"if (extension != QStringLiteral("".vstinfo"") && extension != QStringLiteral("".vst3info""))",命令参数、MIME、路径、扩展名或 JSON 序列化片段,原样；周边项目说明另行翻译
-s0.f3e02a3d8df9,vstscanner,vst2,tools/vst_scanner/src/Scanner.cpp,749,"if (info.type.compare(QStringLiteral(""vst2""), Qt::CaseInsensitive) != 0)",主题/预设/协议/默认保存名称或机器格式身份,原样；周边项目说明另行翻译
-s0.1a8a8afdbbc4,vstscanner,.vstinfo,tools/vst_scanner/src/Scanner.cpp,757,"|| lowerExtension(iterator->path()) != QStringLiteral("".vstinfo""))",命令参数、MIME、路径、扩展名或 JSON 序列化片段,原样；周边项目说明另行翻译
-s0.f3e02a3d8df9,vstscanner,vst2,tools/vst_scanner/src/Scanner.cpp,773,"const auto formatDirectory = info.type.compare(QStringLiteral(""vst2""), Qt::CaseInsensitive) == 0",主题/预设/协议/默认保存名称或机器格式身份,原样；周边项目说明另行翻译
-s0.178fc09b9ba8,vstscanner,VST2,tools/vst_scanner/src/Scanner.cpp,774,"? QStringLiteral(""VST2"")",导出/模块/缩写技术标识，说明另行翻译,原样；周边项目说明另行翻译
-s0.2a78f3a2bdac,vstscanner,VST3,tools/vst_scanner/src/Scanner.cpp,775,": QStringLiteral(""VST3"");",导出/模块/缩写技术标识，说明另行翻译,原样；周边项目说明另行翻译
-s0.5953666232a0,vstscanner,Instruments,tools/vst_scanner/src/Scanner.cpp,776,"const auto categoryDirectory = info.isInstrument ? QStringLiteral(""Instruments"") : QStringLiteral(""Effects"");",已交付扫描目录结构身份，直接参与 info 文件输出路径；窗口分类说明由 vstscanner/category、effect、instrument 独立翻译,原样；周边项目说明另行翻译
-s0.f5e7374fa350,vstscanner,Effects,tools/vst_scanner/src/Scanner.cpp,776,"const auto categoryDirectory = info.isInstrument ? QStringLiteral(""Instruments"") : QStringLiteral(""Effects"");",已交付扫描目录结构身份，直接参与 info 文件输出路径；窗口分类说明由 vstscanner/category、effect、instrument 独立翻译,原样；周边项目说明另行翻译
-s0.e9e0005b7e53,vstscanner,message.infoDirectory,tools/vst_scanner/src/Scanner.cpp,784,"error = scannerText(""message.infoDirectory"", ""Cannot create info directory: "") + pathString(directory);",S6 稳定语言 key；插件、工程及进程身份保持原样,原样；周边项目说明另行翻译
-s0.f3e02a3d8df9,vstscanner,vst2,tools/vst_scanner/src/Scanner.cpp,788,"const auto extension = info.type.compare(QStringLiteral(""vst2""), Qt::CaseInsensitive) == 0",主题/预设/协议/默认保存名称或机器格式身份,原样；周边项目说明另行翻译
-s0.1a8a8afdbbc4,vstscanner,.vstinfo,tools/vst_scanner/src/Scanner.cpp,789,"? QStringLiteral("".vstinfo"")",命令参数、MIME、路径、扩展名或 JSON 序列化片段,原样；周边项目说明另行翻译
-s0.cfa14a95c935,vstscanner,.vst3info,tools/vst_scanner/src/Scanner.cpp,790,": QStringLiteral("".vst3info"");",命令参数、MIME、路径、扩展名或 JSON 序列化片段,原样；周边项目说明另行翻译
-s0.a8a0ddd386f2,vstscanner,plugin,tools/vst_scanner/src/Scanner.cpp,791,"const auto stem = safePathPart(info.name, QStringLiteral(""plugin""));",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
-s0.255f726cc8de,vstscanner,_,tools/vst_scanner/src/Scanner.cpp,799,"target = directory / (stem + QStringLiteral(""_"") + QString::number(suffix++) + extension).toStdWString();",空值、符号、纯数值或无自然语言的格式串,原样；周边项目说明另行翻译
-s0.144150af6946,vstscanner,name,tools/vst_scanner/src/Scanner.cpp,803,"{ QStringLiteral(""name""), info.name },",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
-s0.5f50f45b895a,vstscanner,vendor,tools/vst_scanner/src/Scanner.cpp,804,"{ QStringLiteral(""vendor""), info.vendor },",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
-s0.add188f496aa,vstscanner,version,tools/vst_scanner/src/Scanner.cpp,805,"{ QStringLiteral(""version""), info.version },",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
-s0.b98f4a9ed5a4,vstscanner,type,tools/vst_scanner/src/Scanner.cpp,806,"{ QStringLiteral(""type""), info.type },",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
-s0.bc05f49b2f19,vstscanner,bits,tools/vst_scanner/src/Scanner.cpp,807,"{ QStringLiteral(""bits""), info.bits },",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
-s0.bc24b796b5b1,vstscanner,path,tools/vst_scanner/src/Scanner.cpp,808,"{ QStringLiteral(""path""), info.path },",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
-s0.4932d4d910c0,vstscanner,category,tools/vst_scanner/src/Scanner.cpp,809,"{ QStringLiteral(""category""), info.category },",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
-s0.1e330c57b08a,vstscanner,subcategory,tools/vst_scanner/src/Scanner.cpp,810,"{ QStringLiteral(""subcategory""), info.subcategory },",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
-s0.b42f123ab86f,vstscanner,isInstrument,tools/vst_scanner/src/Scanner.cpp,811,"{ QStringLiteral(""isInstrument""), info.isInstrument },",camelCase 字段、对象、属性或协议身份,原样；周边项目说明另行翻译
-s0.b8432ca8d1ee,vstscanner,verified,tools/vst_scanner/src/Scanner.cpp,812,"{ QStringLiteral(""verified""), info.verified }",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
-s0.f3e02a3d8df9,vstscanner,vst2,tools/vst_scanner/src/Scanner.cpp,814,"if (info.type.compare(QStringLiteral(""vst2""), Qt::CaseInsensitive) == 0) {",主题/预设/协议/默认保存名称或机器格式身份,原样；周边项目说明另行翻译
-s0.35838ab2b35e,vstscanner,vst2ProbeVersion,tools/vst_scanner/src/Scanner.cpp,816,"object.insert(QStringLiteral(""vst2ProbeVersion""), info.vst2ProbeVersion);",结构字段/设置键/查询身份；对应显示值单列,原样；周边项目说明另行翻译
-s0.debf27113a06,vstscanner,internal_plugin,tools/vst_scanner/src/Scanner.cpp,819,"object.insert(QStringLiteral(""internal_plugin""), info.internalPlugin);",机器 token、域、序列化键或稳定 ID（周边显示说明单列）,原样；周边项目说明另行翻译
-s0.6cbc47018425,vstscanner,message.infoWrite,tools/vst_scanner/src/Scanner.cpp,823,"error = scannerText(""message.infoWrite"", ""Cannot write info file: "") + pathString(target);",S6 稳定语言 key；插件、工程及进程身份保持原样,原样；周边项目说明另行翻译
-s0.3c62f807f3a8,vstscanner,message.infoCommit,tools/vst_scanner/src/Scanner.cpp,828,"error = scannerText(""message.infoCommit"", ""Cannot commit info file: "") + pathString(target);",S6 稳定语言 key；插件、工程及进程身份保持原样,原样；周边项目说明另行翻译
-s0.2672d42afc0e,vstscanner,VST scanner: %s (%s),tools/vst_scanner/src/Scanner.cpp,840,"WJN_LOG_WARN(""VST scanner: %s (%s)"", qPrintable(text), qPrintable(path));",诊断日志事件/原始详情；UI 外层提示另行翻译,原样；周边项目说明另行翻译
-s0.2672d42afc0e,vstscanner,VST scanner: %s (%s),tools/vst_scanner/src/Scanner.cpp,842,"WJN_LOG_INFO(""VST scanner: %s (%s)"", qPrintable(text), qPrintable(path));",诊断日志事件/原始详情；UI 外层提示另行翻译,原样；周边项目说明另行翻译
-s0.144150af6946,vstscanner,name,tools/vst_scanner/src/Scanner.cpp,859,"info.name = object.value(QStringLiteral(""name"")).toString();",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
-s0.5f50f45b895a,vstscanner,vendor,tools/vst_scanner/src/Scanner.cpp,860,"info.vendor = object.value(QStringLiteral(""vendor"")).toString();",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
-s0.add188f496aa,vstscanner,version,tools/vst_scanner/src/Scanner.cpp,861,"info.version = object.value(QStringLiteral(""version"")).toString();",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
-s0.b98f4a9ed5a4,vstscanner,type,tools/vst_scanner/src/Scanner.cpp,862,"info.type = object.value(QStringLiteral(""type"")).toString();",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
-s0.bc05f49b2f19,vstscanner,bits,tools/vst_scanner/src/Scanner.cpp,863,"info.bits = object.value(QStringLiteral(""bits"")).toInt();",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
-s0.bc24b796b5b1,vstscanner,path,tools/vst_scanner/src/Scanner.cpp,864,"info.path = object.value(QStringLiteral(""path"")).toString();",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
-s0.4932d4d910c0,vstscanner,category,tools/vst_scanner/src/Scanner.cpp,865,"info.category = object.value(QStringLiteral(""category"")).toString();",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
-s0.1e330c57b08a,vstscanner,subcategory,tools/vst_scanner/src/Scanner.cpp,866,"info.subcategory = object.value(QStringLiteral(""subcategory"")).toString();",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
-s0.b42f123ab86f,vstscanner,isInstrument,tools/vst_scanner/src/Scanner.cpp,867,"info.isInstrument = object.value(QStringLiteral(""isInstrument"")).toBool(",camelCase 字段、对象、属性或协议身份,原样；周边项目说明另行翻译
-s0.4ce5f33a5ced,vstscanner,instrument,tools/vst_scanner/src/Scanner.cpp,868,"info.category.compare(QStringLiteral(""instrument""), Qt::CaseInsensitive) == 0);",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
-s0.b8432ca8d1ee,vstscanner,verified,tools/vst_scanner/src/Scanner.cpp,869,"info.verified = !object.contains(QStringLiteral(""verified""))",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
-s0.b8432ca8d1ee,vstscanner,verified,tools/vst_scanner/src/Scanner.cpp,870,"|| object.value(QStringLiteral(""verified"")).toBool();",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
-s0.35838ab2b35e,vstscanner,vst2ProbeVersion,tools/vst_scanner/src/Scanner.cpp,871,"info.vst2ProbeVersion = object.value(QStringLiteral(""vst2ProbeVersion"")).toInt();",结构字段/设置键/查询身份；对应显示值单列,原样；周边项目说明另行翻译
-s0.debf27113a06,vstscanner,internal_plugin,tools/vst_scanner/src/Scanner.cpp,872,"info.internalPlugin = object.value(QStringLiteral(""internal_plugin"")).toString();",机器 token、域、序列化键或稳定 ID（周边显示说明单列）,原样；周边项目说明另行翻译
-s0.22b52eabf9ba,vstscanner,nodes,tools/vst_scanner/src/Scanner.cpp,885,"? Common::PathUtils::moduleDirectory() / L""nodes"" / L""VSTPlugins""",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
-s0.1e81a7c4055c,vstscanner,VSTPlugins,tools/vst_scanner/src/Scanner.cpp,885,"? Common::PathUtils::moduleDirectory() / L""nodes"" / L""VSTPlugins""",产品名、文件夹、设置组、类名、客户名或系统身份,原样；周边项目说明另行翻译
-s0.3ba4291e88b2,vstscanner,message.outputCreate,tools/vst_scanner/src/Scanner.cpp,893,"scannerText(""message.outputCreate"", ""Cannot create output directory""),",S6 稳定语言 key；插件、工程及进程身份保持原样,原样；周边项目说明另行翻译
-s0.ea507af57996,vstscanner,.vst3,tools/vst_scanner/src/Scanner.cpp,912,"if (lowerExtension(path) == QStringLiteral("".vst3"")) {",命令参数、MIME、路径、扩展名或 JSON 序列化片段,原样；周边项目说明另行翻译
-s0.03405ec85e24,vstscanner,.dll,tools/vst_scanner/src/Scanner.cpp,925,"if (extension == QStringLiteral("".dll"") || extension == QStringLiteral("".vst3""))",文件/资源/网址路径或加载身份,原样；周边项目说明另行翻译
-s0.ea507af57996,vstscanner,.vst3,tools/vst_scanner/src/Scanner.cpp,925,"if (extension == QStringLiteral("".dll"") || extension == QStringLiteral("".vst3""))",命令参数、MIME、路径、扩展名或 JSON 序列化片段,原样；周边项目说明另行翻译
-s0.48aa4a9f8dbf,vstscanner,message.pathMissing,tools/vst_scanner/src/Scanner.cpp,933,"appendMessage(report, pathString(path), scannerText(""message.pathMissing"", ""Scan path does not exist""), true);",S6 稳定语言 key；插件、工程及进程身份保持原样,原样；周边项目说明另行翻译
-s0.253be7d64cd4,vstscanner,message.vst3Binary,tools/vst_scanner/src/Scanner.cpp,968,"appendMessage(report, pathString(path), scannerText(""message.vst3Binary"", ""No VST3 binary with a recognized bit depth found""), true);",S6 稳定语言 key；插件、工程及进程身份保持原样,原样；周边项目说明另行翻译
-s0.5a07a7390e57,vstscanner,message.vst3Skipped,tools/vst_scanner/src/Scanner.cpp,984,"scannerText(""message.vst3Skipped"", ""Skipped verified VST3; using existing info entries""),",S6 稳定语言 key；插件、工程及进程身份保持原样,原样；周边项目说明另行翻译
-s0.0108e165529a,vstscanner,vst3,tools/vst_scanner/src/Scanner.cpp,993,"QStringLiteral(""vst3""),",主题/预设/协议/默认保存名称或机器格式身份,原样；周边项目说明另行翻译
-s0.c0261e95a4b9,vstscanner,message.vst3Loaded,tools/vst_scanner/src/Scanner.cpp,1009,"? scannerText(""message.vst3Loaded"", ""Loaded VST3 in isolation and obtained class information"")",S6 稳定语言 key；插件、工程及进程身份保持原样,原样；周边项目说明另行翻译
-s0.5b95b9e4759d,vstscanner,message.vst3Partial,tools/vst_scanner/src/Scanner.cpp,1010,": scannerText(""message.vst3Partial"", ""VST3 classes probed in isolation; some failed to load, entries kept: "") + probeError,",S6 稳定语言 key；插件、工程及进程身份保持原样,原样；周边项目说明另行翻译
-s0.f29a637eada4,vstscanner,message.vst3ClassSkipped,tools/vst_scanner/src/Scanner.cpp,1019,"scannerText(""message.vst3ClassSkipped"", ""VST3 classes already verified; skipping probe""),",S6 稳定语言 key；插件、工程及进程身份保持原样,原样；周边项目说明另行翻译
-s0.0108e165529a,vstscanner,vst3,tools/vst_scanner/src/Scanner.cpp,1023,"auto fallback = basePluginInfo(path, QStringLiteral(""vst3""), bits);",主题/预设/协议/默认保存名称或机器格式身份,原样；周边项目说明另行翻译
-s0.4f003a955fbe,vstscanner,message.vst3Static,tools/vst_scanner/src/Scanner.cpp,1033,"scannerText(""message.vst3Static"", ""Isolated load returned no classes; keeping static moduleinfo data: "") + probeError,",S6 稳定语言 key；插件、工程及进程身份保持原样,原样；周边项目说明另行翻译
-s0.f3e02a3d8df9,vstscanner,vst2,tools/vst_scanner/src/Scanner.cpp,1053,"auto candidate = basePluginInfo(path, QStringLiteral(""vst2""), pe.bits);",主题/预设/协议/默认保存名称或机器格式身份,原样；周边项目说明另行翻译
-s0.71537a094a30,vstscanner,message.vst2Skipped,tools/vst_scanner/src/Scanner.cpp,1058,"scannerText(""message.vst2Skipped"", ""Skipped verified VST2; using existing info entries""),",S6 稳定语言 key；插件、工程及进程身份保持原样,原样；周边项目说明另行翻译
-s0.f3e02a3d8df9,vstscanner,vst2,tools/vst_scanner/src/Scanner.cpp,1072,"QStringLiteral(""vst2""),",主题/预设/协议/默认保存名称或机器格式身份,原样；周边项目说明另行翻译
-s0.6f873606b91c,vstscanner,message.invalidDll,tools/vst_scanner/src/Scanner.cpp,1087,"scannerText(""message.invalidDll"", ""Skipped invalid VST DLL"")",S6 稳定语言 key；插件、工程及进程身份保持原样,原样；周边项目说明另行翻译
-s0.87d19fd890d5,vstscanner,: ,tools/vst_scanner/src/Scanner.cpp,1088,"+ (probeError.isEmpty() ? QString() : QStringLiteral("": "") + probeError),",空值、符号、纯数值或无自然语言的格式串,原样；周边项目说明另行翻译
-s0.f3e02a3d8df9,vstscanner,vst2,tools/vst_scanner/src/Scanner.cpp,1093,"savePlugin(basePluginInfo(path, QStringLiteral(""vst2""), pe.bits));",主题/预设/协议/默认保存名称或机器格式身份,原样；周边项目说明另行翻译
-s0.f3e02a3d8df9,vstscanner,vst2,tools/vst_scanner/src/Scanner.cpp,1101,"auto fallback = basePluginInfo(path, QStringLiteral(""vst2""), pe.bits);",主题/预设/协议/默认保存名称或机器格式身份,原样；周边项目说明另行翻译
-s0.ea507af57996,vstscanner,.vst3,tools/vst_scanner/src/Scanner.cpp,1115,"if (fs::is_directory(path, error) && extension == QStringLiteral("".vst3""))",命令参数、MIME、路径、扩展名或 JSON 序列化片段,原样；周边项目说明另行翻译
-s0.03405ec85e24,vstscanner,.dll,tools/vst_scanner/src/Scanner.cpp,1117,"else if (fs::is_regular_file(path, error) && extension == QStringLiteral("".dll""))",文件/资源/网址路径或加载身份,原样；周边项目说明另行翻译
-s0.ea507af57996,vstscanner,.vst3,tools/vst_scanner/src/Scanner.cpp,1119,"else if (fs::is_regular_file(path, error) && extension == QStringLiteral("".vst3""))",命令参数、MIME、路径、扩展名或 JSON 序列化片段,原样；周边项目说明另行翻译
+s0.ad51a60ae5aa,vstscanner,_key,tools/vst_scanner/src/Scanner.cpp,365,"const auto key = object.value(field + QStringLiteral(""_key"")).toString();",S6 Probe IPC 显示元数据字段后缀；稳定协议身份，完整 English 回退和对应译文另列,原样；周边项目说明另行翻译
+s0.624a99fc63d8,vstscanner,_args,tools/vst_scanner/src/Scanner.cpp,366,"const auto arguments = object.value(field + QStringLiteral(""_args"")).toArray();",S6 Probe IPC 显示元数据字段后缀；稳定协议身份，完整 English 回退和对应译文另列,原样；周边项目说明另行翻译
+s0.4c124e220061,vstscanner,probe.noComponent,tools/vst_scanner/src/Scanner.cpp,369,"if (key == QStringLiteral(""probe.noComponent"")) {",Probe 项目错误显示 key 白名单比较，禁止比较译文；scannerText 的实际 English 模板另列翻译,原样；周边项目说明另行翻译
+s0.4c124e220061,vstscanner,probe.noComponent,tools/vst_scanner/src/Scanner.cpp,370,"text = scannerText(""probe.noComponent"", ""VST3 factory returned no usable component class"");",S6 稳定语言 key；插件、工程及进程身份保持原样,原样；周边项目说明另行翻译
+s0.65c5e134a617,vstscanner,probe.invalidClassId,tools/vst_scanner/src/Scanner.cpp,373,"else if (key == QStringLiteral(""probe.invalidClassId"")) {",Probe 项目错误显示 key 白名单比较，禁止比较译文；scannerText 的实际 English 模板另列翻译,原样；周边项目说明另行翻译
+s0.65c5e134a617,vstscanner,probe.invalidClassId,tools/vst_scanner/src/Scanner.cpp,374,"text = scannerText(""probe.invalidClassId"", ""Invalid VST3 class ID: %1"");",S6 稳定语言 key；插件、工程及进程身份保持原样,原样；周边项目说明另行翻译
+s0.75d31edbf187,vstscanner,probe.missingClassId,tools/vst_scanner/src/Scanner.cpp,377,"else if (key == QStringLiteral(""probe.missingClassId"")) {",Probe 项目错误显示 key 白名单比较，禁止比较译文；scannerText 的实际 English 模板另列翻译,原样；周边项目说明另行翻译
+s0.75d31edbf187,vstscanner,probe.missingClassId,tools/vst_scanner/src/Scanner.cpp,378,"text = scannerText(""probe.missingClassId"", ""VST3 factory cannot find class ID: %1"");",S6 稳定语言 key；插件、工程及进程身份保持原样,原样；周边项目说明另行翻译
+s0.88995e06ea9e,vstscanner,probe.createComponent,tools/vst_scanner/src/Scanner.cpp,381,"else if (key == QStringLiteral(""probe.createComponent"")) {",Probe 项目错误显示 key 白名单比较，禁止比较译文；scannerText 的实际 English 模板另列翻译,原样；周边项目说明另行翻译
+s0.88995e06ea9e,vstscanner,probe.createComponent,tools/vst_scanner/src/Scanner.cpp,382,"text = scannerText(""probe.createComponent"", ""Cannot create VST3 component class: %1"");",S6 稳定语言 key；插件、工程及进程身份保持原样,原样；周边项目说明另行翻译
+s0.7c6a1153c092,vstscanner,probe.initializeComponent,tools/vst_scanner/src/Scanner.cpp,385,"else if (key == QStringLiteral(""probe.initializeComponent"")) {",Probe 项目错误显示 key 白名单比较，禁止比较译文；scannerText 的实际 English 模板另列翻译,原样；周边项目说明另行翻译
+s0.7c6a1153c092,vstscanner,probe.initializeComponent,tools/vst_scanner/src/Scanner.cpp,386,"text = scannerText(""probe.initializeComponent"", ""Cannot initialize VST3 component: %1"");",S6 稳定语言 key；插件、工程及进程身份保持原样,原样；周边项目说明另行翻译
+s0.7b1f0a1debed,vstscanner,probe.loadLibrary,tools/vst_scanner/src/Scanner.cpp,389,"else if (key == QStringLiteral(""probe.loadLibrary"")) {",Probe 项目错误显示 key 白名单比较，禁止比较译文；scannerText 的实际 English 模板另列翻译,原样；周边项目说明另行翻译
+s0.7b1f0a1debed,vstscanner,probe.loadLibrary,tools/vst_scanner/src/Scanner.cpp,390,"text = scannerText(""probe.loadLibrary"", ""LoadLibraryExW failed"");",S6 稳定语言 key；插件、工程及进程身份保持原样,原样；周边项目说明另行翻译
+s0.49fd829e9080,vstscanner,probe.missingEntry,tools/vst_scanner/src/Scanner.cpp,393,"else if (key == QStringLiteral(""probe.missingEntry"")) {",Probe 项目错误显示 key 白名单比较，禁止比较译文；scannerText 的实际 English 模板另列翻译,原样；周边项目说明另行翻译
+s0.49fd829e9080,vstscanner,probe.missingEntry,tools/vst_scanner/src/Scanner.cpp,394,"text = scannerText(""probe.missingEntry"", ""VST2 module has no VSTPluginMain/main entry point"");",S6 稳定语言 key；插件、工程及进程身份保持原样,原样；周边项目说明另行翻译
+s0.e07d37c1b774,vstscanner,probe.invalidEffect,tools/vst_scanner/src/Scanner.cpp,397,"else if (key == QStringLiteral(""probe.invalidEffect"")) {",Probe 项目错误显示 key 白名单比较，禁止比较译文；scannerText 的实际 English 模板另列翻译,原样；周边项目说明另行翻译
+s0.e07d37c1b774,vstscanner,probe.invalidEffect,tools/vst_scanner/src/Scanner.cpp,398,"text = scannerText(""probe.invalidEffect"", ""VST2 module returned an invalid AEffect"");",S6 稳定语言 key；插件、工程及进程身份保持原样,原样；周边项目说明另行翻译
+s0.88b19f6ec721,vstscanner,probe.vst2Disabled,tools/vst_scanner/src/Scanner.cpp,401,"else if (key == QStringLiteral(""probe.vst2Disabled"")) {",Probe 项目错误显示 key 白名单比较，禁止比较译文；scannerText 的实际 English 模板另列翻译,原样；周边项目说明另行翻译
+s0.88b19f6ec721,vstscanner,probe.vst2Disabled,tools/vst_scanner/src/Scanner.cpp,402,"text = scannerText(""probe.vst2Disabled"", ""VST2 probing is disabled"");",S6 稳定语言 key；插件、工程及进程身份保持原样,原样；周边项目说明另行翻译
+s0.04c311eedf50,vstscanner,probe.failed,tools/vst_scanner/src/Scanner.cpp,405,"else if (key == QStringLiteral(""probe.failed"")) {",Probe 项目错误显示 key 白名单比较，禁止比较译文；scannerText 的实际 English 模板另列翻译,原样；周边项目说明另行翻译
+s0.04c311eedf50,vstscanner,probe.failed,tools/vst_scanner/src/Scanner.cpp,406,"text = scannerText(""probe.failed"", ""Plug-in probe failed"");",S6 稳定语言 key；插件、工程及进程身份保持原样,原样；周边项目说明另行翻译
+s0.5661578be48e,vstscanner,Vst Scanner Probe64.exe,tools/vst_scanner/src/Scanner.cpp,431,"probeName = QStringLiteral(""Vst Scanner Probe64.exe"");",文件/资源/网址路径或加载身份,原样；周边项目说明另行翻译
+s0.286232df0f18,vstscanner,Vst Scanner Probe32.exe,tools/vst_scanner/src/Scanner.cpp,433,"probeName = QStringLiteral(""Vst Scanner Probe32.exe"");",文件/资源/网址路径或加载身份,原样；周边项目说明另行翻译
+s0.4def3e595c75,vstscanner,message.unsupportedBits,tools/vst_scanner/src/Scanner.cpp,435,"error = scannerText(""message.unsupportedBits"", ""Unsupported plug-in bit depth: %1"").arg(bits);",S6 稳定语言 key；插件、工程及进程身份保持原样,原样；周边项目说明另行翻译
+s0.2d2fb237301a,vstscanner,message.probeMissing,tools/vst_scanner/src/Scanner.cpp,441,"error = scannerText(""message.probeMissing"", ""Isolated probe not found: "") + pathString(probePath);",S6 稳定语言 key；插件、工程及进程身份保持原样,原样；周边项目说明另行翻译
+s0.f4d78372486f,vstscanner,/WinJACKNexus-VstProbe-,tools/vst_scanner/src/Scanner.cpp,446,"+ QStringLiteral(""/WinJACKNexus-VstProbe-"")",命令参数、MIME、路径、扩展名或 JSON 序列化片段,原样；周边项目说明另行翻译
+s0.de3a0b01b754,vstscanner,.json,tools/vst_scanner/src/Scanner.cpp,448,"+ QStringLiteral("".json"");",文件/资源/网址路径或加载身份,原样；周边项目说明另行翻译
+s0.3a1de85f8d32,vstscanner,--output,tools/vst_scanner/src/Scanner.cpp,453,"processArguments.append({ QStringLiteral(""--output""), resultPath });",命令参数、环境键、内部名称或导出符号,原样；周边项目说明另行翻译
+s0.8fe6e9eaa923,vstscanner,message.probeStart,tools/vst_scanner/src/Scanner.cpp,458,"error = scannerText(""message.probeStart"", ""Cannot start isolated probe: "") + process.errorString();",S6 稳定语言 key；插件、工程及进程身份保持原样,原样；周边项目说明另行翻译
+s0.3d2e40ce27f8,vstscanner,message.probeTimeout,tools/vst_scanner/src/Scanner.cpp,467,"error = scannerText(""message.probeTimeout"", ""Plug-in probe timed out; isolated process terminated"");",S6 稳定语言 key；插件、工程及进程身份保持原样,原样；周边项目说明另行翻译
+s0.1cbaabdbb666,vstscanner,message.probeCrash,tools/vst_scanner/src/Scanner.cpp,475,"? scannerText(""message.probeCrash"", ""Plug-in probe crashed; scanner kept running"")",S6 稳定语言 key；插件、工程及进程身份保持原样,原样；周边项目说明另行翻译
+s0.66068c8010e2,vstscanner,message.probeNoResult,tools/vst_scanner/src/Scanner.cpp,476,": scannerText(""message.probeNoResult"", ""Isolated probe produced no result: "") + process.errorString();",S6 稳定语言 key；插件、工程及进程身份保持原样,原样；周边项目说明另行翻译
+s0.85597fd76843,vstscanner,message.probeJson,tools/vst_scanner/src/Scanner.cpp,486,"error = scannerText(""message.probeJson"", ""Isolated probe result is not valid JSON"");",S6 稳定语言 key；插件、工程及进程身份保持原样,原样；周边项目说明另行翻译
+s0.90e72cc57a40,vstscanner,ok,tools/vst_scanner/src/Scanner.cpp,491,"if (!result.value(QStringLiteral(""ok"")).toBool()) {",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
+s0.85927ee9ca6b,vstscanner,skippable,tools/vst_scanner/src/Scanner.cpp,492,"skippable = result.value(QStringLiteral(""skippable"")).toBool();",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
+s0.59c5fc5c73fe,vstscanner,error,tools/vst_scanner/src/Scanner.cpp,493,"error = localizedProbeError(result, QStringLiteral(""error""));",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
+s0.7ba3e98797b0,vstscanner,message.probeFailed,tools/vst_scanner/src/Scanner.cpp,495,"error = scannerText(""message.probeFailed"", ""Isolated probe reported failure"");",S6 稳定语言 key；插件、工程及进程身份保持原样,原样；周边项目说明另行翻译
+s0.144150af6946,vstscanner,name,tools/vst_scanner/src/Scanner.cpp,503,"const auto name = object.value(QStringLiteral(""name"")).toString().trimmed();",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
+s0.5f50f45b895a,vstscanner,vendor,tools/vst_scanner/src/Scanner.cpp,506,"const auto vendor = object.value(QStringLiteral(""vendor"")).toString().trimmed();",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
+s0.add188f496aa,vstscanner,version,tools/vst_scanner/src/Scanner.cpp,507,"const auto version = object.value(QStringLiteral(""version"")).toString().trimmed();",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
+s0.4932d4d910c0,vstscanner,category,tools/vst_scanner/src/Scanner.cpp,513,"object.value(QStringLiteral(""category"")).toString(),",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
+s0.1e330c57b08a,vstscanner,subcategory,tools/vst_scanner/src/Scanner.cpp,514,"object.value(QStringLiteral(""subcategory"")).toString());",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
+s0.1d4324dd0d9b,vstscanner, > ,tools/vst_scanner/src/Scanner.cpp,520,"return childName.isEmpty() ? pathString(path) : fileName + QStringLiteral("" > "") + childName;",空值、符号、纯数值或无自然语言的格式串,原样；周边项目说明另行翻译
+s0.0108e165529a,vstscanner,vst3,tools/vst_scanner/src/Scanner.cpp,547,"{ type == QStringLiteral(""vst3"") ? QStringLiteral(""--vst3"")",主题/预设/协议/默认保存名称或机器格式身份,原样；周边项目说明另行翻译
+s0.dab4ead31c86,vstscanner,--vst3,tools/vst_scanner/src/Scanner.cpp,547,"{ type == QStringLiteral(""vst3"") ? QStringLiteral(""--vst3"")",命令参数、环境键、内部名称或导出符号,原样；周边项目说明另行翻译
+s0.9c703e7362b6,vstscanner,--vst2,tools/vst_scanner/src/Scanner.cpp,548,": QStringLiteral(""--vst2"") },",命令参数、环境键、内部名称或导出符号,原样；周边项目说明另行翻译
+s0.f8adc27577c8,vstscanner,classes,tools/vst_scanner/src/Scanner.cpp,554,"const auto descriptors = factoryResult.value(QStringLiteral(""classes"")).toArray();",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
+s0.800d31e9ec95,vstscanner,is_shell,tools/vst_scanner/src/Scanner.cpp,555,"const auto isShell = factoryResult.value(QStringLiteral(""is_shell"")).toBool();",机器 token、域、序列化键或稳定 ID（周边显示说明单列）,原样；周边项目说明另行翻译
+s0.144150af6946,vstscanner,name,tools/vst_scanner/src/Scanner.cpp,558,"if (!value.toObject().value(QStringLiteral(""name"")).toString().trimmed().isEmpty())",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
+s0.0108e165529a,vstscanner,vst3,tools/vst_scanner/src/Scanner.cpp,562,"|| (type.compare(QStringLiteral(""vst3""), Qt::CaseInsensitive) == 0 && childCount > 1);",主题/预设/协议/默认保存名称或机器格式身份,原样；周边项目说明另行翻译
+s0.144150af6946,vstscanner,name,tools/vst_scanner/src/Scanner.cpp,574,"info.name = descriptor.value(QStringLiteral(""name"")).toString().trimmed();",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
+s0.5f50f45b895a,vstscanner,vendor,tools/vst_scanner/src/Scanner.cpp,575,"info.vendor = descriptor.value(QStringLiteral(""vendor"")).toString().trimmed();",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
+s0.add188f496aa,vstscanner,version,tools/vst_scanner/src/Scanner.cpp,576,"info.version = descriptor.value(QStringLiteral(""version"")).toString().trimmed();",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
+s0.debf27113a06,vstscanner,internal_plugin,tools/vst_scanner/src/Scanner.cpp,577,"info.internalPlugin = descriptor.value(QStringLiteral(""internal_plugin"")).toString().trimmed();",机器 token、域、序列化键或稳定 ID（周边显示说明单列）,原样；周边项目说明另行翻译
+s0.4932d4d910c0,vstscanner,category,tools/vst_scanner/src/Scanner.cpp,579,"descriptor.value(QStringLiteral(""category"")).toString(),",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
+s0.1e330c57b08a,vstscanner,subcategory,tools/vst_scanner/src/Scanner.cpp,580,"descriptor.value(QStringLiteral(""subcategory"")).toString());",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
+s0.f3e02a3d8df9,vstscanner,vst2,tools/vst_scanner/src/Scanner.cpp,587,"const auto refreshVst2Classification = type.compare(QStringLiteral(""vst2""), Qt::CaseInsensitive) == 0",主题/预设/协议/默认保存名称或机器格式身份,原样；周边项目说明另行翻译
+s0.f3e02a3d8df9,vstscanner,vst2,tools/vst_scanner/src/Scanner.cpp,592,"const auto refreshVst2Midi = type.compare(QStringLiteral(""vst2""), Qt::CaseInsensitive) == 0",主题/预设/协议/默认保存名称或机器格式身份,原样；周边项目说明另行翻译
+s0.0affe574de9c,vstscanner,class_id,tools/vst_scanner/src/Scanner.cpp,608,"const auto selectedId = descriptor.value(QStringLiteral(""class_id"")).toString();",机器 token、域、序列化键或稳定 ID（周边显示说明单列）,原样；周边项目说明另行翻译
+s0.3a87d9b4e968,vstscanner,unique_id,tools/vst_scanner/src/Scanner.cpp,609,"const auto uniqueId = descriptor.value(QStringLiteral(""unique_id"")).toVariant().toLongLong();",机器 token、域、序列化键或稳定 ID（周边显示说明单列）,原样；周边项目说明另行翻译
+s0.0108e165529a,vstscanner,vst3,tools/vst_scanner/src/Scanner.cpp,611,"type == QStringLiteral(""vst3"") ? QStringLiteral(""--vst3"") : QStringLiteral(""--vst2"")",主题/预设/协议/默认保存名称或机器格式身份,原样；周边项目说明另行翻译
+s0.dab4ead31c86,vstscanner,--vst3,tools/vst_scanner/src/Scanner.cpp,611,"type == QStringLiteral(""vst3"") ? QStringLiteral(""--vst3"") : QStringLiteral(""--vst2"")",命令参数、环境键、内部名称或导出符号,原样；周边项目说明另行翻译
+s0.9c703e7362b6,vstscanner,--vst2,tools/vst_scanner/src/Scanner.cpp,611,"type == QStringLiteral(""vst3"") ? QStringLiteral(""--vst3"") : QStringLiteral(""--vst2"")",命令参数、环境键、内部名称或导出符号,原样；周边项目说明另行翻译
+s0.0108e165529a,vstscanner,vst3,tools/vst_scanner/src/Scanner.cpp,613,"if (type == QStringLiteral(""vst3"")) {",主题/预设/协议/默认保存名称或机器格式身份,原样；周边项目说明另行翻译
+s0.77fb71dfa738,vstscanner,--class-id,tools/vst_scanner/src/Scanner.cpp,614,"childArguments.append({ QStringLiteral(""--class-id""), selectedId });",命令参数、环境键、内部名称或导出符号,原样；周边项目说明另行翻译
+s0.064daa13b39e,vstscanner,--internal-id,tools/vst_scanner/src/Scanner.cpp,616,"childArguments.append({ QStringLiteral(""--internal-id""), QString::number(uniqueId) });",命令参数、环境键、内部名称或导出符号,原样；周边项目说明另行翻译
+s0.f8adc27577c8,vstscanner,classes,tools/vst_scanner/src/Scanner.cpp,628,"const auto classes = childResult.value(QStringLiteral(""classes"")).toArray();",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
+s0.a78cc217472d,vstscanner,probe_error,tools/vst_scanner/src/Scanner.cpp,631,"verified = childResult.value(QStringLiteral(""probe_error"")).toString().isEmpty();",机器 token、域、序列化键或稳定 ID（周边显示说明单列）,原样；周边项目说明另行翻译
+s0.a78cc217472d,vstscanner,probe_error,tools/vst_scanner/src/Scanner.cpp,633,"const auto probeError = localizedProbeError(childResult, QStringLiteral(""probe_error""));",机器 token、域、序列化键或稳定 ID（周边显示说明单列）,原样；周边项目说明另行翻译
+s0.87d19fd890d5,vstscanner,: ,tools/vst_scanner/src/Scanner.cpp,635,"childErrors.push_back(info.name + QStringLiteral("": "") + probeError);",空值、符号、纯数值或无自然语言的格式串,原样；周边项目说明另行翻译
+s0.87d19fd890d5,vstscanner,: ,tools/vst_scanner/src/Scanner.cpp,641,"childErrors.push_back(info.name + QStringLiteral("": "") + childError);",空值、符号、纯数值或无自然语言的格式串,原样；周边项目说明另行翻译
+s0.0108e165529a,vstscanner,vst3,tools/vst_scanner/src/Scanner.cpp,644,"if (type.compare(QStringLiteral(""vst3""), Qt::CaseInsensitive) == 0 && !moduleInfo.isEmpty()) {",主题/预设/协议/默认保存名称或机器格式身份,原样；周边项目说明另行翻译
+s0.ffdc57de4ec4,vstscanner,message.probeNoClass,tools/vst_scanner/src/Scanner.cpp,657,"error = scannerText(""message.probeNoClass"", ""Isolated probe returned no usable plug-in classes"");",S6 稳定语言 key；插件、工程及进程身份保持原样,原样；周边项目说明另行翻译
+s0.172287b39e54,vstscanner,; ,tools/vst_scanner/src/Scanner.cpp,660,"error = childErrors.join(QStringLiteral(""; ""));",空值、符号、纯数值或无自然语言的格式串,原样；周边项目说明另行翻译
+s0.c24aabe4cc14,vstscanner,message.moduleRead,tools/vst_scanner/src/Scanner.cpp,696,"error = scannerText(""message.moduleRead"", ""Cannot read moduleinfo.json: "") + pathString(moduleInfoPath);",S6 稳定语言 key；插件、工程及进程身份保持原样,原样；周边项目说明另行翻译
+s0.29b697b2774f,vstscanner,message.moduleParse,tools/vst_scanner/src/Scanner.cpp,705,"error = scannerText(""message.moduleParse"", ""Cannot parse moduleinfo.json: "")",S6 稳定语言 key；插件、工程及进程身份保持原样,原样；周边项目说明另行翻译
+s0.ccf6a8651f2b,vstscanner,controller,tools/vst_scanner/src/Scanner.cpp,716,"if (category.toLower().contains(QStringLiteral(""controller""))",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
+s0.19b8ae0a50bc,vstscanner,service,tools/vst_scanner/src/Scanner.cpp,717,"|| category.toLower().contains(QStringLiteral(""service""))",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
+s0.52667458eb31,vstscanner,compatibility,tools/vst_scanner/src/Scanner.cpp,718,"|| category.toLower().contains(QStringLiteral(""compatibility"")))",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
+s0.1a8a8afdbbc4,vstscanner,.vstinfo,tools/vst_scanner/src/Scanner.cpp,761,"if (extension != QStringLiteral("".vstinfo"") && extension != QStringLiteral("".vst3info""))",命令参数、MIME、路径、扩展名或 JSON 序列化片段,原样；周边项目说明另行翻译
+s0.cfa14a95c935,vstscanner,.vst3info,tools/vst_scanner/src/Scanner.cpp,761,"if (extension != QStringLiteral("".vstinfo"") && extension != QStringLiteral("".vst3info""))",命令参数、MIME、路径、扩展名或 JSON 序列化片段,原样；周边项目说明另行翻译
+s0.1a8a8afdbbc4,vstscanner,.vstinfo,tools/vst_scanner/src/Scanner.cpp,799,"if (extension != QStringLiteral("".vstinfo"") && extension != QStringLiteral("".vst3info""))",命令参数、MIME、路径、扩展名或 JSON 序列化片段,原样；周边项目说明另行翻译
+s0.cfa14a95c935,vstscanner,.vst3info,tools/vst_scanner/src/Scanner.cpp,799,"if (extension != QStringLiteral("".vstinfo"") && extension != QStringLiteral("".vst3info""))",命令参数、MIME、路径、扩展名或 JSON 序列化片段,原样；周边项目说明另行翻译
+s0.f3e02a3d8df9,vstscanner,vst2,tools/vst_scanner/src/Scanner.cpp,809,"if (info.type.compare(QStringLiteral(""vst2""), Qt::CaseInsensitive) != 0)",主题/预设/协议/默认保存名称或机器格式身份,原样；周边项目说明另行翻译
+s0.1a8a8afdbbc4,vstscanner,.vstinfo,tools/vst_scanner/src/Scanner.cpp,817,"|| lowerExtension(iterator->path()) != QStringLiteral("".vstinfo""))",命令参数、MIME、路径、扩展名或 JSON 序列化片段,原样；周边项目说明另行翻译
+s0.f3e02a3d8df9,vstscanner,vst2,tools/vst_scanner/src/Scanner.cpp,833,"const auto formatDirectory = info.type.compare(QStringLiteral(""vst2""), Qt::CaseInsensitive) == 0",主题/预设/协议/默认保存名称或机器格式身份,原样；周边项目说明另行翻译
+s0.178fc09b9ba8,vstscanner,VST2,tools/vst_scanner/src/Scanner.cpp,834,"? QStringLiteral(""VST2"")",导出/模块/缩写技术标识，说明另行翻译,原样；周边项目说明另行翻译
+s0.2a78f3a2bdac,vstscanner,VST3,tools/vst_scanner/src/Scanner.cpp,835,": QStringLiteral(""VST3"");",导出/模块/缩写技术标识，说明另行翻译,原样；周边项目说明另行翻译
+s0.5953666232a0,vstscanner,Instruments,tools/vst_scanner/src/Scanner.cpp,836,"const auto categoryDirectory = info.isInstrument ? QStringLiteral(""Instruments"") : QStringLiteral(""Effects"");",已交付扫描目录结构身份，直接参与 info 文件输出路径；窗口分类说明由 vstscanner/category、effect、instrument 独立翻译,原样；周边项目说明另行翻译
+s0.f5e7374fa350,vstscanner,Effects,tools/vst_scanner/src/Scanner.cpp,836,"const auto categoryDirectory = info.isInstrument ? QStringLiteral(""Instruments"") : QStringLiteral(""Effects"");",已交付扫描目录结构身份，直接参与 info 文件输出路径；窗口分类说明由 vstscanner/category、effect、instrument 独立翻译,原样；周边项目说明另行翻译
+s0.e9e0005b7e53,vstscanner,message.infoDirectory,tools/vst_scanner/src/Scanner.cpp,844,"error = scannerText(""message.infoDirectory"", ""Cannot create info directory: "") + pathString(directory);",S6 稳定语言 key；插件、工程及进程身份保持原样,原样；周边项目说明另行翻译
+s0.f3e02a3d8df9,vstscanner,vst2,tools/vst_scanner/src/Scanner.cpp,848,"const auto extension = info.type.compare(QStringLiteral(""vst2""), Qt::CaseInsensitive) == 0",主题/预设/协议/默认保存名称或机器格式身份,原样；周边项目说明另行翻译
+s0.1a8a8afdbbc4,vstscanner,.vstinfo,tools/vst_scanner/src/Scanner.cpp,849,"? QStringLiteral("".vstinfo"")",命令参数、MIME、路径、扩展名或 JSON 序列化片段,原样；周边项目说明另行翻译
+s0.cfa14a95c935,vstscanner,.vst3info,tools/vst_scanner/src/Scanner.cpp,850,": QStringLiteral("".vst3info"");",命令参数、MIME、路径、扩展名或 JSON 序列化片段,原样；周边项目说明另行翻译
+s0.a8a0ddd386f2,vstscanner,plugin,tools/vst_scanner/src/Scanner.cpp,851,"const auto stem = safePathPart(info.name, QStringLiteral(""plugin""));",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
+s0.255f726cc8de,vstscanner,_,tools/vst_scanner/src/Scanner.cpp,859,"target = directory / (stem + QStringLiteral(""_"") + QString::number(suffix++) + extension).toStdWString();",空值、符号、纯数值或无自然语言的格式串,原样；周边项目说明另行翻译
+s0.144150af6946,vstscanner,name,tools/vst_scanner/src/Scanner.cpp,863,"{ QStringLiteral(""name""), info.name },",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
+s0.5f50f45b895a,vstscanner,vendor,tools/vst_scanner/src/Scanner.cpp,864,"{ QStringLiteral(""vendor""), info.vendor },",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
+s0.add188f496aa,vstscanner,version,tools/vst_scanner/src/Scanner.cpp,865,"{ QStringLiteral(""version""), info.version },",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
+s0.b98f4a9ed5a4,vstscanner,type,tools/vst_scanner/src/Scanner.cpp,866,"{ QStringLiteral(""type""), info.type },",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
+s0.bc05f49b2f19,vstscanner,bits,tools/vst_scanner/src/Scanner.cpp,867,"{ QStringLiteral(""bits""), info.bits },",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
+s0.bc24b796b5b1,vstscanner,path,tools/vst_scanner/src/Scanner.cpp,868,"{ QStringLiteral(""path""), info.path },",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
+s0.4932d4d910c0,vstscanner,category,tools/vst_scanner/src/Scanner.cpp,869,"{ QStringLiteral(""category""), info.category },",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
+s0.1e330c57b08a,vstscanner,subcategory,tools/vst_scanner/src/Scanner.cpp,870,"{ QStringLiteral(""subcategory""), info.subcategory },",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
+s0.b42f123ab86f,vstscanner,isInstrument,tools/vst_scanner/src/Scanner.cpp,871,"{ QStringLiteral(""isInstrument""), info.isInstrument },",camelCase 字段、对象、属性或协议身份,原样；周边项目说明另行翻译
+s0.b8432ca8d1ee,vstscanner,verified,tools/vst_scanner/src/Scanner.cpp,872,"{ QStringLiteral(""verified""), info.verified }",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
+s0.f3e02a3d8df9,vstscanner,vst2,tools/vst_scanner/src/Scanner.cpp,874,"if (info.type.compare(QStringLiteral(""vst2""), Qt::CaseInsensitive) == 0) {",主题/预设/协议/默认保存名称或机器格式身份,原样；周边项目说明另行翻译
+s0.35838ab2b35e,vstscanner,vst2ProbeVersion,tools/vst_scanner/src/Scanner.cpp,876,"object.insert(QStringLiteral(""vst2ProbeVersion""), info.vst2ProbeVersion);",结构字段/设置键/查询身份；对应显示值单列,原样；周边项目说明另行翻译
+s0.debf27113a06,vstscanner,internal_plugin,tools/vst_scanner/src/Scanner.cpp,879,"object.insert(QStringLiteral(""internal_plugin""), info.internalPlugin);",机器 token、域、序列化键或稳定 ID（周边显示说明单列）,原样；周边项目说明另行翻译
+s0.6cbc47018425,vstscanner,message.infoWrite,tools/vst_scanner/src/Scanner.cpp,883,"error = scannerText(""message.infoWrite"", ""Cannot write info file: "") + pathString(target);",S6 稳定语言 key；插件、工程及进程身份保持原样,原样；周边项目说明另行翻译
+s0.3c62f807f3a8,vstscanner,message.infoCommit,tools/vst_scanner/src/Scanner.cpp,888,"error = scannerText(""message.infoCommit"", ""Cannot commit info file: "") + pathString(target);",S6 稳定语言 key；插件、工程及进程身份保持原样,原样；周边项目说明另行翻译
+s0.2672d42afc0e,vstscanner,VST scanner: %s (%s),tools/vst_scanner/src/Scanner.cpp,900,"WJN_LOG_WARN(""VST scanner: %s (%s)"", qPrintable(text), qPrintable(path));",诊断日志事件/原始详情；UI 外层提示另行翻译,原样；周边项目说明另行翻译
+s0.2672d42afc0e,vstscanner,VST scanner: %s (%s),tools/vst_scanner/src/Scanner.cpp,902,"WJN_LOG_INFO(""VST scanner: %s (%s)"", qPrintable(text), qPrintable(path));",诊断日志事件/原始详情；UI 外层提示另行翻译,原样；周边项目说明另行翻译
+s0.144150af6946,vstscanner,name,tools/vst_scanner/src/Scanner.cpp,919,"info.name = object.value(QStringLiteral(""name"")).toString();",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
+s0.5f50f45b895a,vstscanner,vendor,tools/vst_scanner/src/Scanner.cpp,920,"info.vendor = object.value(QStringLiteral(""vendor"")).toString();",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
+s0.add188f496aa,vstscanner,version,tools/vst_scanner/src/Scanner.cpp,921,"info.version = object.value(QStringLiteral(""version"")).toString();",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
+s0.b98f4a9ed5a4,vstscanner,type,tools/vst_scanner/src/Scanner.cpp,922,"info.type = object.value(QStringLiteral(""type"")).toString();",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
+s0.bc05f49b2f19,vstscanner,bits,tools/vst_scanner/src/Scanner.cpp,923,"info.bits = object.value(QStringLiteral(""bits"")).toInt();",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
+s0.bc24b796b5b1,vstscanner,path,tools/vst_scanner/src/Scanner.cpp,924,"info.path = object.value(QStringLiteral(""path"")).toString();",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
+s0.4932d4d910c0,vstscanner,category,tools/vst_scanner/src/Scanner.cpp,925,"info.category = object.value(QStringLiteral(""category"")).toString();",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
+s0.1e330c57b08a,vstscanner,subcategory,tools/vst_scanner/src/Scanner.cpp,926,"info.subcategory = object.value(QStringLiteral(""subcategory"")).toString();",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
+s0.b42f123ab86f,vstscanner,isInstrument,tools/vst_scanner/src/Scanner.cpp,927,"info.isInstrument = object.value(QStringLiteral(""isInstrument"")).toBool(",camelCase 字段、对象、属性或协议身份,原样；周边项目说明另行翻译
+s0.4ce5f33a5ced,vstscanner,instrument,tools/vst_scanner/src/Scanner.cpp,928,"info.category.compare(QStringLiteral(""instrument""), Qt::CaseInsensitive) == 0);",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
+s0.b8432ca8d1ee,vstscanner,verified,tools/vst_scanner/src/Scanner.cpp,929,"info.verified = !object.contains(QStringLiteral(""verified""))",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
+s0.b8432ca8d1ee,vstscanner,verified,tools/vst_scanner/src/Scanner.cpp,930,"|| object.value(QStringLiteral(""verified"")).toBool();",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
+s0.35838ab2b35e,vstscanner,vst2ProbeVersion,tools/vst_scanner/src/Scanner.cpp,931,"info.vst2ProbeVersion = object.value(QStringLiteral(""vst2ProbeVersion"")).toInt();",结构字段/设置键/查询身份；对应显示值单列,原样；周边项目说明另行翻译
+s0.debf27113a06,vstscanner,internal_plugin,tools/vst_scanner/src/Scanner.cpp,932,"info.internalPlugin = object.value(QStringLiteral(""internal_plugin"")).toString();",机器 token、域、序列化键或稳定 ID（周边显示说明单列）,原样；周边项目说明另行翻译
+s0.22b52eabf9ba,vstscanner,nodes,tools/vst_scanner/src/Scanner.cpp,945,"? Common::PathUtils::moduleDirectory() / L""nodes"" / L""VSTPlugins""",已检查的短小写词：字段/枚举/token/协议身份；显示名称单列,原样；周边项目说明另行翻译
+s0.1e81a7c4055c,vstscanner,VSTPlugins,tools/vst_scanner/src/Scanner.cpp,945,"? Common::PathUtils::moduleDirectory() / L""nodes"" / L""VSTPlugins""",产品名、文件夹、设置组、类名、客户名或系统身份,原样；周边项目说明另行翻译
+s0.3ba4291e88b2,vstscanner,message.outputCreate,tools/vst_scanner/src/Scanner.cpp,953,"scannerText(""message.outputCreate"", ""Cannot create output directory""),",S6 稳定语言 key；插件、工程及进程身份保持原样,原样；周边项目说明另行翻译
+s0.ea507af57996,vstscanner,.vst3,tools/vst_scanner/src/Scanner.cpp,972,"if (lowerExtension(path) == QStringLiteral("".vst3"")) {",命令参数、MIME、路径、扩展名或 JSON 序列化片段,原样；周边项目说明另行翻译
+s0.03405ec85e24,vstscanner,.dll,tools/vst_scanner/src/Scanner.cpp,985,"if (extension == QStringLiteral("".dll"") || extension == QStringLiteral("".vst3""))",文件/资源/网址路径或加载身份,原样；周边项目说明另行翻译
+s0.ea507af57996,vstscanner,.vst3,tools/vst_scanner/src/Scanner.cpp,985,"if (extension == QStringLiteral("".dll"") || extension == QStringLiteral("".vst3""))",命令参数、MIME、路径、扩展名或 JSON 序列化片段,原样；周边项目说明另行翻译
+s0.48aa4a9f8dbf,vstscanner,message.pathMissing,tools/vst_scanner/src/Scanner.cpp,993,"appendMessage(report, pathString(path), scannerText(""message.pathMissing"", ""Scan path does not exist""), true);",S6 稳定语言 key；插件、工程及进程身份保持原样,原样；周边项目说明另行翻译
+s0.253be7d64cd4,vstscanner,message.vst3Binary,tools/vst_scanner/src/Scanner.cpp,1028,"appendMessage(report, pathString(path), scannerText(""message.vst3Binary"", ""No VST3 binary with a recognized bit depth found""), true);",S6 稳定语言 key；插件、工程及进程身份保持原样,原样；周边项目说明另行翻译
+s0.5a07a7390e57,vstscanner,message.vst3Skipped,tools/vst_scanner/src/Scanner.cpp,1044,"scannerText(""message.vst3Skipped"", ""Skipped verified VST3; using existing info entries""),",S6 稳定语言 key；插件、工程及进程身份保持原样,原样；周边项目说明另行翻译
+s0.0108e165529a,vstscanner,vst3,tools/vst_scanner/src/Scanner.cpp,1053,"QStringLiteral(""vst3""),",主题/预设/协议/默认保存名称或机器格式身份,原样；周边项目说明另行翻译
+s0.c0261e95a4b9,vstscanner,message.vst3Loaded,tools/vst_scanner/src/Scanner.cpp,1069,"? scannerText(""message.vst3Loaded"", ""Loaded VST3 in isolation and obtained class information"")",S6 稳定语言 key；插件、工程及进程身份保持原样,原样；周边项目说明另行翻译
+s0.5b95b9e4759d,vstscanner,message.vst3Partial,tools/vst_scanner/src/Scanner.cpp,1070,": scannerText(""message.vst3Partial"", ""VST3 classes probed in isolation; some failed to load, entries kept: "") + probeError,",S6 稳定语言 key；插件、工程及进程身份保持原样,原样；周边项目说明另行翻译
+s0.f29a637eada4,vstscanner,message.vst3ClassSkipped,tools/vst_scanner/src/Scanner.cpp,1079,"scannerText(""message.vst3ClassSkipped"", ""VST3 classes already verified; skipping probe""),",S6 稳定语言 key；插件、工程及进程身份保持原样,原样；周边项目说明另行翻译
+s0.0108e165529a,vstscanner,vst3,tools/vst_scanner/src/Scanner.cpp,1083,"auto fallback = basePluginInfo(path, QStringLiteral(""vst3""), bits);",主题/预设/协议/默认保存名称或机器格式身份,原样；周边项目说明另行翻译
+s0.4f003a955fbe,vstscanner,message.vst3Static,tools/vst_scanner/src/Scanner.cpp,1093,"scannerText(""message.vst3Static"", ""Isolated load returned no classes; keeping static moduleinfo data: "") + probeError,",S6 稳定语言 key；插件、工程及进程身份保持原样,原样；周边项目说明另行翻译
+s0.f3e02a3d8df9,vstscanner,vst2,tools/vst_scanner/src/Scanner.cpp,1113,"auto candidate = basePluginInfo(path, QStringLiteral(""vst2""), pe.bits);",主题/预设/协议/默认保存名称或机器格式身份,原样；周边项目说明另行翻译
+s0.71537a094a30,vstscanner,message.vst2Skipped,tools/vst_scanner/src/Scanner.cpp,1118,"scannerText(""message.vst2Skipped"", ""Skipped verified VST2; using existing info entries""),",S6 稳定语言 key；插件、工程及进程身份保持原样,原样；周边项目说明另行翻译
+s0.f3e02a3d8df9,vstscanner,vst2,tools/vst_scanner/src/Scanner.cpp,1132,"QStringLiteral(""vst2""),",主题/预设/协议/默认保存名称或机器格式身份,原样；周边项目说明另行翻译
+s0.6f873606b91c,vstscanner,message.invalidDll,tools/vst_scanner/src/Scanner.cpp,1147,"scannerText(""message.invalidDll"", ""Skipped invalid VST DLL"")",S6 稳定语言 key；插件、工程及进程身份保持原样,原样；周边项目说明另行翻译
+s0.87d19fd890d5,vstscanner,: ,tools/vst_scanner/src/Scanner.cpp,1148,"+ (probeError.isEmpty() ? QString() : QStringLiteral("": "") + probeError),",空值、符号、纯数值或无自然语言的格式串,原样；周边项目说明另行翻译
+s0.f3e02a3d8df9,vstscanner,vst2,tools/vst_scanner/src/Scanner.cpp,1153,"savePlugin(basePluginInfo(path, QStringLiteral(""vst2""), pe.bits));",主题/预设/协议/默认保存名称或机器格式身份,原样；周边项目说明另行翻译
+s0.f3e02a3d8df9,vstscanner,vst2,tools/vst_scanner/src/Scanner.cpp,1161,"auto fallback = basePluginInfo(path, QStringLiteral(""vst2""), pe.bits);",主题/预设/协议/默认保存名称或机器格式身份,原样；周边项目说明另行翻译
+s0.ea507af57996,vstscanner,.vst3,tools/vst_scanner/src/Scanner.cpp,1175,"if (fs::is_directory(path, error) && extension == QStringLiteral("".vst3""))",命令参数、MIME、路径、扩展名或 JSON 序列化片段,原样；周边项目说明另行翻译
+s0.03405ec85e24,vstscanner,.dll,tools/vst_scanner/src/Scanner.cpp,1177,"else if (fs::is_regular_file(path, error) && extension == QStringLiteral("".dll""))",文件/资源/网址路径或加载身份,原样；周边项目说明另行翻译
+s0.ea507af57996,vstscanner,.vst3,tools/vst_scanner/src/Scanner.cpp,1179,"else if (fs::is_regular_file(path, error) && extension == QStringLiteral("".vst3""))",命令参数、MIME、路径、扩展名或 JSON 序列化片段,原样；周边项目说明另行翻译
 s0.c964deebdc3a,vstscanner,../../ico/vst_scan.ico,tools/vst_scanner/VstScanner.rc,19,"IDI_ICON1 ICON ""../../ico/vst_scan.ico""",Windows 版本资源/产品元数据，不是应用操作界面,原样；周边项目说明另行翻译
 s0.9322881f14ae,example.i18nexample.hpp,C,Develop/I18nExample.hpp,56,"extern ""C"" WJN_EXAMPLE_EXPORT uint32_t wjn_example_i18n_events(uint32_t event) {",技术声道/声像标记或效果图标缩写，保持原样,原样；周边项目说明另行翻译
 s0.9322881f14ae,example.i18nexample.hpp,C,Develop/I18nExample.hpp,59,"extern ""C"" WJN_EXAMPLE_EXPORT int32_t wjn_example_i18n_query(const char* domain, const char* key,",技术声道/声像标记或效果图标缩写，保持原样,原样；周边项目说明另行翻译

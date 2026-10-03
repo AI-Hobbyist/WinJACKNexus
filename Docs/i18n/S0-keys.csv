@@ -4964,46 +4964,51 @@ s0.0dcf55b93e18,aux,action.layout,Change channel layout,src/ui/src/AuxSettingsWi
 1014:             bindLocalizedText(typeMenu,""title"",""aux"",""action.layout"",""Change channel layout"");
 1015:             const std::array layouts { Common::AuxChannelLayout::mono, Common::AuxChannelLayout::stereo,
 1016:                                        Common::AuxChannelLayout::surround51, Common::AuxChannelLayout::surround71 };",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S4 实际运行时 key；四语言草稿已提供，待母语/领域审校,S4 English 显示基线；实际 key、四语言草稿及待审校状态见核对表
-s0.aee4febb92f4,ui,controls.placeholder.filterInput,输入筛选,src/ui/src/Controls.cpp,805,"search->setPlaceholderText(QStringLiteral(""输入筛选""));",display-source,"803:         search->setProperty(""wjnEmbedded"", true);
+s0.c04dd34e1f59,ui,choice.filterPlaceholder,Type to filter,src/ui/src/Controls.cpp,805,"const auto placeholder = localizedText(""ui"", ""choice.filterPlaceholder"", ""Type to filter"");",display-source,"803:         search->setProperty(""wjnEmbedded"", true);
 804:         setLineEdit(search);
-805:         search->setPlaceholderText(QStringLiteral(""输入筛选""));
-806:         search->setTextMargins(28, 0, 25, 0);
-807:         auto* filter = new QCompleter(model(), search);",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S0 key 提案；四语言译文和母语审校尚未实施,按源码使用场景指定语义 key；技术标识/单位/占位参数保持原样
-s0.401607176706,ui,controls.action.expandSidebar,展开侧边栏,src/ui/src/Controls.cpp,1360,"arrow_->setToolTip(collapsed ? QStringLiteral(""展开侧边栏"")",display-source,"1358:             ? (collapsed ? QStringLiteral(""▶"") : QStringLiteral(""◀""))
-1359:             : (collapsed ? QStringLiteral(""◀"") : QStringLiteral(""▶"")));
-1360:         arrow_->setToolTip(collapsed ? QStringLiteral(""展开侧边栏"")
-1361:                                       : QStringLiteral(""收缩侧边栏""));
-1362:     }",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S0 key 提案；四语言译文和母语审校尚未实施,按源码使用场景指定语义 key；技术标识/单位/占位参数保持原样
-s0.123231c5f36d,ui,controls.action.collapseSidebar,收缩侧边栏,src/ui/src/Controls.cpp,1361,": QStringLiteral(""收缩侧边栏""));",display-source,"1359:             : (collapsed ? QStringLiteral(""◀"") : QStringLiteral(""▶"")));
-1360:         arrow_->setToolTip(collapsed ? QStringLiteral(""展开侧边栏"")
-1361:                                       : QStringLiteral(""收缩侧边栏""));
-1362:     }
-1363: protected:",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S0 key 提案；四语言译文和母语审校尚未实施,按源码使用场景指定语义 key；技术标识/单位/占位参数保持原样
-s0.32b1421709a0,ui,clientName.label,Client name,src/ui/src/Controls.cpp,1664,"bindLocalizedText(nameLabel, ""text"", ""ui"", ""clientName.label"", ""Client name"");",display-source,"1662:     editor_->setFixedHeight(sidebarControlHeight);
-1663:     auto* nameLabel = new TextLabel(this);
-1664:     bindLocalizedText(nameLabel, ""text"", ""ui"", ""clientName.label"", ""Client name"");
-1665:     form->addRow(nameLabel, editor_);
-1666:     layout->addLayout(form);",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S5 实际运行时 key；四语言草稿已提供，待母语/领域审校,S5 English 显示基线；实际 key、四语言草稿及待审校状态见核对表
-s0.1c4f46a34909,ui,clientName.apply,Apply,src/ui/src/Controls.cpp,1670,"bindLocalizedText(applyButton, ""text"", ""ui"", ""clientName.apply"", ""Apply"");",display-source,"1668:     status_ = new TextLabel(this);
-1669:     auto* applyButton = new ActionButton(QString{}, this);
-1670:     bindLocalizedText(applyButton, ""text"", ""ui"", ""clientName.apply"", ""Apply"");
-1671:     applyButton->setFixedHeight(sidebarControlHeight);
-1672:     applyButton->setObjectName(QStringLiteral(""gate.applyClientName""));",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S5 实际运行时 key；四语言草稿已提供，待母语/领域审校,S5 English 显示基线；实际 key、四语言草稿及待审校状态见核对表
-s0.c2fa705ea457,ui,clientName.empty,Name cannot be empty,src/ui/src/Controls.cpp,1700,"case ApplyStatus::empty: status_->setText(localizedText(""ui"", ""clientName.empty"", ""Name cannot be empty"")); break;",display-source,"1698:     switch (applyStatus_) {
-1699:     case ApplyStatus::none: status_->clear(); break;
-1700:     case ApplyStatus::empty: status_->setText(localizedText(""ui"", ""clientName.empty"", ""Name cannot be empty"")); break;
-1701:     case ApplyStatus::applied: status_->setText(localizedText(""ui"", ""clientName.applied"", ""Applied"")); break;
-1702:     case ApplyStatus::rejected: status_->setText(localizedText(""ui"", ""clientName.rejected"", ""Unable to apply name"")); break;",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S5 实际运行时 key；四语言草稿已提供，待母语/领域审校,S5 English 显示基线；实际 key、四语言草稿及待审校状态见核对表
-s0.6fb501e8902c,ui,clientName.applied,Applied,src/ui/src/Controls.cpp,1701,"case ApplyStatus::applied: status_->setText(localizedText(""ui"", ""clientName.applied"", ""Applied"")); break;",display-source,"1699:     case ApplyStatus::none: status_->clear(); break;
-1700:     case ApplyStatus::empty: status_->setText(localizedText(""ui"", ""clientName.empty"", ""Name cannot be empty"")); break;
-1701:     case ApplyStatus::applied: status_->setText(localizedText(""ui"", ""clientName.applied"", ""Applied"")); break;
-1702:     case ApplyStatus::rejected: status_->setText(localizedText(""ui"", ""clientName.rejected"", ""Unable to apply name"")); break;
-1703:     }",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S5 实际运行时 key；四语言草稿已提供，待母语/领域审校,S5 English 显示基线；实际 key、四语言草稿及待审校状态见核对表
-s0.546c50dc815b,ui,clientName.rejected,Unable to apply name,src/ui/src/Controls.cpp,1702,"case ApplyStatus::rejected: status_->setText(localizedText(""ui"", ""clientName.rejected"", ""Unable to apply name"")); break;",display-source,"1700:     case ApplyStatus::empty: status_->setText(localizedText(""ui"", ""clientName.empty"", ""Name cannot be empty"")); break;
-1701:     case ApplyStatus::applied: status_->setText(localizedText(""ui"", ""clientName.applied"", ""Applied"")); break;
-1702:     case ApplyStatus::rejected: status_->setText(localizedText(""ui"", ""clientName.rejected"", ""Unable to apply name"")); break;
-1703:     }
-1704: }",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S5 实际运行时 key；四语言草稿已提供，待母语/领域审校,S5 English 显示基线；实际 key、四语言草稿及待审校状态见核对表
+805:         const auto placeholder = localizedText(""ui"", ""choice.filterPlaceholder"", ""Type to filter"");
+806:         search->setPlaceholderText(placeholder);
+807:         if (auto* manager = I18nManager::installed())",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S6 实际运行时 key；四语言草稿已提供，待母语/领域审校,S6 实际 English 显示基线；key 与四语言草稿见核对表，人工审校仍待用户意见
+s0.c04dd34e1f59,ui,choice.filterPlaceholder,Type to filter,src/ui/src/Controls.cpp,811,"previous = localizedText(""ui"", ""choice.filterPlaceholder"", ""Type to filter"");",display-source,"809:                 // A caller may replace this default with its own placeholder.
+810:                 if (!active || search->placeholderText() != previous) { active = false; return; }
+811:                 previous = localizedText(""ui"", ""choice.filterPlaceholder"", ""Type to filter"");
+812:                 search->setPlaceholderText(previous);
+813:             });",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S6 实际运行时 key；四语言草稿已提供，待母语/领域审校,S6 实际 English 显示基线；key 与四语言草稿见核对表，人工审校仍待用户意见
+s0.a80599d3c9df,ui,dock.expand,Expand sidebar,src/ui/src/Controls.cpp,1371,"? localizedText(""ui"", ""dock.expand"", ""Expand sidebar"")",display-source,"1369:             : (collapsed ? QStringLiteral(""◀"") : QStringLiteral(""▶"")));
+1370:         arrow_->setToolTip(collapsed
+1371:             ? localizedText(""ui"", ""dock.expand"", ""Expand sidebar"")
+1372:             : localizedText(""ui"", ""dock.collapse"", ""Collapse sidebar""));
+1373:     }",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S6 实际运行时 key；四语言草稿已提供，待母语/领域审校,S6 实际 English 显示基线；key 与四语言草稿见核对表，人工审校仍待用户意见
+s0.363139fad6f4,ui,dock.collapse,Collapse sidebar,src/ui/src/Controls.cpp,1372,": localizedText(""ui"", ""dock.collapse"", ""Collapse sidebar""));",display-source,"1370:         arrow_->setToolTip(collapsed
+1371:             ? localizedText(""ui"", ""dock.expand"", ""Expand sidebar"")
+1372:             : localizedText(""ui"", ""dock.collapse"", ""Collapse sidebar""));
+1373:     }
+1374: protected:",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S6 实际运行时 key；四语言草稿已提供，待母语/领域审校,S6 实际 English 显示基线；key 与四语言草稿见核对表，人工审校仍待用户意见
+s0.32b1421709a0,ui,clientName.label,Client name,src/ui/src/Controls.cpp,1675,"bindLocalizedText(nameLabel, ""text"", ""ui"", ""clientName.label"", ""Client name"");",display-source,"1673:     editor_->setFixedHeight(sidebarControlHeight);
+1674:     auto* nameLabel = new TextLabel(this);
+1675:     bindLocalizedText(nameLabel, ""text"", ""ui"", ""clientName.label"", ""Client name"");
+1676:     form->addRow(nameLabel, editor_);
+1677:     layout->addLayout(form);",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S5 实际运行时 key；四语言草稿已提供，待母语/领域审校,S5 English 显示基线；实际 key、四语言草稿及待审校状态见核对表
+s0.1c4f46a34909,ui,clientName.apply,Apply,src/ui/src/Controls.cpp,1681,"bindLocalizedText(applyButton, ""text"", ""ui"", ""clientName.apply"", ""Apply"");",display-source,"1679:     status_ = new TextLabel(this);
+1680:     auto* applyButton = new ActionButton(QString{}, this);
+1681:     bindLocalizedText(applyButton, ""text"", ""ui"", ""clientName.apply"", ""Apply"");
+1682:     applyButton->setFixedHeight(sidebarControlHeight);
+1683:     applyButton->setObjectName(QStringLiteral(""gate.applyClientName""));",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S5 实际运行时 key；四语言草稿已提供，待母语/领域审校,S5 English 显示基线；实际 key、四语言草稿及待审校状态见核对表
+s0.c2fa705ea457,ui,clientName.empty,Name cannot be empty,src/ui/src/Controls.cpp,1711,"case ApplyStatus::empty: status_->setText(localizedText(""ui"", ""clientName.empty"", ""Name cannot be empty"")); break;",display-source,"1709:     switch (applyStatus_) {
+1710:     case ApplyStatus::none: status_->clear(); break;
+1711:     case ApplyStatus::empty: status_->setText(localizedText(""ui"", ""clientName.empty"", ""Name cannot be empty"")); break;
+1712:     case ApplyStatus::applied: status_->setText(localizedText(""ui"", ""clientName.applied"", ""Applied"")); break;
+1713:     case ApplyStatus::rejected: status_->setText(localizedText(""ui"", ""clientName.rejected"", ""Unable to apply name"")); break;",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S6 实际运行时 key；四语言草稿已提供，待母语/领域审校,S6 实际 English 显示基线；key 与四语言草稿见核对表，人工审校仍待用户意见
+s0.6fb501e8902c,ui,clientName.applied,Applied,src/ui/src/Controls.cpp,1712,"case ApplyStatus::applied: status_->setText(localizedText(""ui"", ""clientName.applied"", ""Applied"")); break;",display-source,"1710:     case ApplyStatus::none: status_->clear(); break;
+1711:     case ApplyStatus::empty: status_->setText(localizedText(""ui"", ""clientName.empty"", ""Name cannot be empty"")); break;
+1712:     case ApplyStatus::applied: status_->setText(localizedText(""ui"", ""clientName.applied"", ""Applied"")); break;
+1713:     case ApplyStatus::rejected: status_->setText(localizedText(""ui"", ""clientName.rejected"", ""Unable to apply name"")); break;
+1714:     }",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S6 实际运行时 key；四语言草稿已提供，待母语/领域审校,S6 实际 English 显示基线；key 与四语言草稿见核对表，人工审校仍待用户意见
+s0.546c50dc815b,ui,clientName.rejected,Unable to apply name,src/ui/src/Controls.cpp,1713,"case ApplyStatus::rejected: status_->setText(localizedText(""ui"", ""clientName.rejected"", ""Unable to apply name"")); break;",display-source,"1711:     case ApplyStatus::empty: status_->setText(localizedText(""ui"", ""clientName.empty"", ""Name cannot be empty"")); break;
+1712:     case ApplyStatus::applied: status_->setText(localizedText(""ui"", ""clientName.applied"", ""Applied"")); break;
+1713:     case ApplyStatus::rejected: status_->setText(localizedText(""ui"", ""clientName.rejected"", ""Unable to apply name"")); break;
+1714:     }
+1715: }",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S6 实际运行时 key；四语言草稿已提供，待母语/领域审校,S6 实际 English 显示基线；key 与四语言草稿见核对表，人工审校仍待用户意见
 s0.57bed4e921b1,fxhost,endpoint.input,Input,src/ui/src/FxLevelMeterWidget.cpp,90,"const auto labelWidth = std::max(metrics.horizontalAdvance(localizedText(""fxhost"", ""endpoint.input"", ""Input"")),",display-source,"88: QRectF FxLevelMeterWidget::barRect(int row) const noexcept {
 89:     const QFontMetrics metrics(font());
 90:     const auto labelWidth = std::max(metrics.horizontalAdvance(localizedText(""fxhost"", ""endpoint.input"", ""Input"")),
@@ -6499,16 +6504,6 @@ s0.e3f01f167554,theme,thememanagementdialog.error.readBackgroundImageFailed,无�
 448:         if (error) *error = QStringLiteral(""无法读取背景图片"");
 449:         return false;
 450:     }",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S0 key 提案；四语言译文和母语审校尚未实施,按源码使用场景指定语义 key；技术标识/单位/占位参数保持原样
-s0.2037036fe841,theme,thememanagementdialog.text.imported.image,Imported image,src/ui/src/ThemeManagementDialog.cpp,456,"{""id"", ""org.winjacknexus-author-image""}, {""name"", ""Imported image""},",display-source,"454:     const auto scope = view_->backgroundScope->currentData().toString();
-455:     const QJsonObject meta {{""formatVersion"", 1}, {""themeApiVersion"", 1},
-456:         {""id"", ""org.winjacknexus-author-image""}, {""name"", ""Imported image""},
-457:         {""version"", ""1.0.0""}, {""author"", ""WinJACKNexus""},
-458:         {""description"", ""Temporary image resource for theme export""}, {""homepage"", """"},",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S0 key 提案；四语言译文和母语审校尚未实施,项目拥有的自然语言显示/错误模板；保留其中技术参数与标识
-s0.9ac3636671e9,theme,thememanagementdialog.text.temporary.image.resource.for.theme.export,Temporary image resource for theme export,src/ui/src/ThemeManagementDialog.cpp,458,"{""description"", ""Temporary image resource for theme export""}, {""homepage"", """"},",display-source,"456:         {""id"", ""org.winjacknexus-author-image""}, {""name"", ""Imported image""},
-457:         {""version"", ""1.0.0""}, {""author"", ""WinJACKNexus""},
-458:         {""description"", ""Temporary image resource for theme export""}, {""homepage"", """"},
-459:         {""kind"", ""full""}, {""namespaces"", QJsonArray {QStringLiteral(""--wjn-theme-"") + scope + '-'}}};
-460:     ThemePackage package;",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S0 key 提案；四语言译文和母语审校尚未实施,项目拥有的自然语言显示/错误模板；保留其中技术参数与标识
 s0.8408bc443439,theme,thememanagementdialog.error.fontTooLargeOrUnreadable,字体文件超过大小限制或不可读取,src/ui/src/ThemeManagementDialog.cpp,470,"if (error) *error = QStringLiteral(""字体文件超过大小限制或不可读取"");",display-source,"468:     QFile file(path);
 469:     if (!file.open(QIODevice::ReadOnly) || file.size() > 16 * 1024 * 1024) {
 470:         if (error) *error = QStringLiteral(""字体文件超过大小限制或不可读取"");
@@ -6519,16 +6514,6 @@ s0.35e83b98bfbd,theme,thememanagementdialog.error.invalidFontFile,字体文件�
 475:         if (error) *error = QStringLiteral(""字体文件无效"");
 476:         return false;
 477:     }",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S0 key 提案；四语言译文和母语审校尚未实施,按源码使用场景指定语义 key；技术标识/单位/占位参数保持原样
-s0.5b6e34f4bd19,theme,thememanagementdialog.text.imported.font,Imported font,src/ui/src/ThemeManagementDialog.cpp,481,"{""id"", ""org.winjacknexus-author-font""}, {""name"", ""Imported font""},",display-source,"479:         .arg(QFileInfo(path).suffix().toLower());
-480:     const QJsonObject meta {{""formatVersion"", 1}, {""themeApiVersion"", 1},
-481:         {""id"", ""org.winjacknexus-author-font""}, {""name"", ""Imported font""},
-482:         {""version"", ""1.0.0""}, {""author"", ""WinJACKNexus""},
-483:         {""description"", ""Temporary font resource for theme export""}, {""homepage"", """"},",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S0 key 提案；四语言译文和母语审校尚未实施,项目拥有的自然语言显示/错误模板；保留其中技术参数与标识
-s0.571622f0fc8a,theme,thememanagementdialog.text.temporary.font.resource.for.theme.export,Temporary font resource for theme export,src/ui/src/ThemeManagementDialog.cpp,483,"{""description"", ""Temporary font resource for theme export""}, {""homepage"", """"},",display-source,"481:         {""id"", ""org.winjacknexus-author-font""}, {""name"", ""Imported font""},
-482:         {""version"", ""1.0.0""}, {""author"", ""WinJACKNexus""},
-483:         {""description"", ""Temporary font resource for theme export""}, {""homepage"", """"},
-484:         {""kind"", ""full""}, {""namespaces"", QJsonArray {""--wjn-theme-global-""}}};
-485:     ThemePackage package;",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S0 key 提案；四语言译文和母语审校尚未实施,项目拥有的自然语言显示/错误模板；保留其中技术参数与标识
 s0.bfa8b062f8a8,theme,thememanagementdialog.error.invalidPositionUnit,位置须为百分比或 px 值,src/ui/src/ThemeManagementDialog.cpp,506,"if (error) *error = QStringLiteral(""位置须为百分比或 px 值"");",display-source,"504:     if (!ThemeRegistry::valueMatchesType(QStringLiteral(""position""), x)
 505:         || !ThemeRegistry::valueMatchesType(QStringLiteral(""position""), y)) {
 506:         if (error) *error = QStringLiteral(""位置须为百分比或 px 值"");
@@ -8044,176 +8029,206 @@ s0.ea4ae5697414,vstscanner,written,Scan complete: %1 entries written,tools/vst_s
 547:                                 : scannerText(""written"", ""Scan complete: %1 entries written"").arg(report.plugins.size()));
 548:     scanButton_->setEnabled(true);
 549:     rescanVerifiedPlugins_->setEnabled(true);",%1,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S6 实际运行时 key；四语言草稿已提供，待母语/领域审校,S6 实际 English 显示基线；key 与四语言草稿见核对表，人工审校仍待用户意见
-s0.e8df994915c8,vstscanner,probemain.error.noUsableVst3ComponentClass,VST3 factory 没有返回可用 component class,tools/vst_scanner/src/ProbeMain.cpp,317,"error = ""VST3 factory 没有返回可用 component class"";",display-source,"315:         }
-316:         if (result.empty())
-317:             error = ""VST3 factory 没有返回可用 component class"";
-318:         return result;
-319:     }",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S0 key 提案；四语言译文和母语审校尚未实施,按源码使用场景指定语义 key；技术标识/单位/占位参数保持原样
-s0.1099bb278457,vstscanner,probemain.error.invalidVst3ClassId,VST3 class ID 无效: ,tools/vst_scanner/src/ProbeMain.cpp,441,"error = ""VST3 class ID 无效: "" + classIdText;",display-source,"439:     VST3::UID requestedId {};
-440:     if (!parseClassId(classIdText, requestedId)) {
-441:         error = ""VST3 class ID 无效: "" + classIdText;
-442:         return false;
-443:     }",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S0 key 提案；四语言译文和母语审校尚未实施,按源码使用场景指定语义 key；技术标识/单位/占位参数保持原样
-s0.fd45b768a40c,vstscanner,probemain.error.vst3FactoryClassIdMissing,VST3 factory 找不到 class ID: ,tools/vst_scanner/src/ProbeMain.cpp,452,"error = ""VST3 factory 找不到 class ID: "" + classIdText;",display-source,"450:                                          });
-451:     if (descriptor == descriptors.cend()) {
-452:         error = ""VST3 factory 找不到 class ID: "" + classIdText;
-453:         return false;
-454:     }",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S0 key 提案；四语言译文和母语审校尚未实施,按源码使用场景指定语义 key；技术标识/单位/占位参数保持原样
-s0.8d715ac42f70,vstscanner,probemain.error.createVst3ComponentFailed,VST3 component class 创建失败: ,tools/vst_scanner/src/ProbeMain.cpp,459,"error = ""VST3 component class 创建失败: "" + descriptor->name;",display-source,"457:     auto component = module.module->getFactory().createInstance<Steinberg::Vst::IComponent>(descriptor->classId);
-458:     if (!component) {
-459:         error = ""VST3 component class 创建失败: "" + descriptor->name;
-460:         output = probeResult(""vst3"", { pluginJson(plugin) }, false, error);
-461:         return true;",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S0 key 提案；四语言译文和母语审校尚未实施,按源码使用场景指定语义 key；技术标识/单位/占位参数保持原样
-s0.bf8b14fb91cc,vstscanner,probemain.error.initializeVst3ComponentFailed,VST3 component initialize 失败: ,tools/vst_scanner/src/ProbeMain.cpp,466,"error = ""VST3 component initialize 失败: "" + descriptor->name;",display-source,"464:     const auto initialized = component->initialize(&module.hostApplication) == Steinberg::kResultOk;
-465:     if (!initialized) {
-466:         error = ""VST3 component initialize 失败: "" + descriptor->name;
-467:     } else {
-468:         component->terminate();",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S0 key 提案；四语言译文和母语审校尚未实施,按源码使用场景指定语义 key；技术标识/单位/占位参数保持原样
-s0.2baa2b6c835c,vstscanner,probemain.error.loadLibraryFailed,LoadLibraryW 失败,tools/vst_scanner/src/ProbeMain.cpp,526,"error = ""LoadLibraryW 失败"";",display-source,"524:     const auto module = LoadLibraryExW(path.wstring().c_str(), nullptr, LOAD_WITH_ALTERED_SEARCH_PATH);
-525:     if (module == nullptr) {
-526:         error = ""LoadLibraryW 失败"";
-527:         return false;
-528:     }",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S0 key 提案；四语言译文和母语审校尚未实施,按源码使用场景指定语义 key；技术标识/单位/占位参数保持原样
-s0.d0ac4809f62b,vstscanner,probemain.error.vst2EntryPointMissing,VST2 模块没有 VSTPluginMain/main,tools/vst_scanner/src/ProbeMain.cpp,533,"error = ""VST2 模块没有 VSTPluginMain/main"";",display-source,"531:         entry = reinterpret_cast<Vst2EntryProc>(GetProcAddress(module, ""main""));
-532:     if (entry == nullptr) {
-533:         error = ""VST2 模块没有 VSTPluginMain/main"";
-534:         FreeLibrary(module);
-535:         return false;",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S0 key 提案；四语言译文和母语审校尚未实施,按源码使用场景指定语义 key；技术标识/单位/占位参数保持原样
-s0.20696d4fb9c4,vstscanner,probemain.error.invalidVst2Effect,VST2 模块返回无效 AEffect,tools/vst_scanner/src/ProbeMain.cpp,546,"error = ""VST2 模块返回无效 AEffect"";",display-source,"544:     currentVst2UniqueId = 0;
-545:     if (effect == nullptr || effect->magic != kEffectMagic || effect->dispatcher == nullptr) {
-546:         error = ""VST2 模块返回无效 AEffect"";
-547:         skippable = true;
-548:         FreeLibrary(module);",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S0 key 提案；四语言译文和母语审校尚未实施,按源码使用场景指定语义 key；技术标识/单位/占位参数保持原样
-s0.73a906a7549f,vstscanner,probemain.error.vst2ProbeDisabled,VST2 探测未启用,tools/vst_scanner/src/ProbeMain.cpp,655,"error = ""VST2 探测未启用"";",display-source,"653:                     skippable);
-654: #else
-655:         error = ""VST2 探测未启用"";
-656: #endif
-657:     }",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S0 key 提案；四语言译文和母语审校尚未实施,按源码使用场景指定语义 key；技术标识/单位/占位参数保持原样
-s0.dc58cee78db1,vstscanner,probemain.error.pluginProbeFailed,插件探测失败,tools/vst_scanner/src/ProbeMain.cpp,659,"output = failure(error.empty() ? ""插件探测失败"" : error, skippable);",display-source,"657:     }
-658:     if (!success)
-659:         output = failure(error.empty() ? ""插件探测失败"" : error, skippable);
-660:     const auto outputSuccess = writeFileAtomically(outputPath, output);
-661:     if (comInitialized)",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S0 key 提案；四语言译文和母语审校尚未实施,按源码使用场景指定语义 key；技术标识/单位/占位参数保持原样
-s0.93237cd90b29,vstscanner,message.unsupportedBits,Unsupported plug-in bit depth: %1,tools/vst_scanner/src/Scanner.cpp,375,"error = scannerText(""message.unsupportedBits"", ""Unsupported plug-in bit depth: %1"").arg(bits);",display-source,"373:         probeName = QStringLiteral(""Vst Scanner Probe32.exe"");
-374:     else {
-375:         error = scannerText(""message.unsupportedBits"", ""Unsupported plug-in bit depth: %1"").arg(bits);
-376:         return false;
-377:     }",%1,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S6 实际运行时 key；四语言草稿已提供，待母语/领域审校,S6 实际 English 显示基线；key 与四语言草稿见核对表，人工审校仍待用户意见
-s0.586f382afb7f,vstscanner,message.probeMissing,Isolated probe not found: ,tools/vst_scanner/src/Scanner.cpp,381,"error = scannerText(""message.probeMissing"", ""Isolated probe not found: "") + pathString(probePath);",display-source,"379:     const auto probePath = Common::PathUtils::moduleDirectory() / probeName.toStdWString();
-380:     if (!fs::is_regular_file(probePath)) {
-381:         error = scannerText(""message.probeMissing"", ""Isolated probe not found: "") + pathString(probePath);
-382:         return false;
-383:     }",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S6 实际运行时 key；四语言草稿已提供，待母语/领域审校,S6 实际 English 显示基线；key 与四语言草稿见核对表，人工审校仍待用户意见
-s0.597e8b240c76,vstscanner,message.probeStart,Cannot start isolated probe: ,tools/vst_scanner/src/Scanner.cpp,398,"error = scannerText(""message.probeStart"", ""Cannot start isolated probe: "") + process.errorString();",display-source,"396:     process.start();
-397:     if (!process.waitForStarted(3000)) {
-398:         error = scannerText(""message.probeStart"", ""Cannot start isolated probe: "") + process.errorString();
-399:         QFile::remove(resultPath);
-400:         return false;",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S6 实际运行时 key；四语言草稿已提供，待母语/领域审校,S6 实际 English 显示基线；key 与四语言草稿见核对表，人工审校仍待用户意见
-s0.1190639f3d3e,vstscanner,message.probeTimeout,Plug-in probe timed out; isolated process terminated,tools/vst_scanner/src/Scanner.cpp,407,"error = scannerText(""message.probeTimeout"", ""Plug-in probe timed out; isolated process terminated"");",display-source,"405:         process.kill();
-406:         process.waitForFinished(2000);
-407:         error = scannerText(""message.probeTimeout"", ""Plug-in probe timed out; isolated process terminated"");
-408:         QFile::remove(resultPath);
-409:         return false;",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S6 实际运行时 key；四语言草稿已提供，待母语/领域审校,S6 实际 English 显示基线；key 与四语言草稿见核对表，人工审校仍待用户意见
-s0.da2daceb12af,vstscanner,message.probeCrash,Plug-in probe crashed; scanner kept running,tools/vst_scanner/src/Scanner.cpp,415,"? scannerText(""message.probeCrash"", ""Plug-in probe crashed; scanner kept running"")",display-source,"413:     if (!resultFile.open(QIODevice::ReadOnly)) {
-414:         error = process.exitStatus() == QProcess::CrashExit
-415:             ? scannerText(""message.probeCrash"", ""Plug-in probe crashed; scanner kept running"")
-416:             : scannerText(""message.probeNoResult"", ""Isolated probe produced no result: "") + process.errorString();
-417:         QFile::remove(resultPath);",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S6 实际运行时 key；四语言草稿已提供，待母语/领域审校,S6 实际 English 显示基线；key 与四语言草稿见核对表，人工审校仍待用户意见
-s0.45b0d4b234e0,vstscanner,message.probeNoResult,Isolated probe produced no result: ,tools/vst_scanner/src/Scanner.cpp,416,": scannerText(""message.probeNoResult"", ""Isolated probe produced no result: "") + process.errorString();",display-source,"414:         error = process.exitStatus() == QProcess::CrashExit
-415:             ? scannerText(""message.probeCrash"", ""Plug-in probe crashed; scanner kept running"")
-416:             : scannerText(""message.probeNoResult"", ""Isolated probe produced no result: "") + process.errorString();
-417:         QFile::remove(resultPath);
-418:         return false;",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S6 实际运行时 key；四语言草稿已提供，待母语/领域审校,S6 实际 English 显示基线；key 与四语言草稿见核对表，人工审校仍待用户意见
-s0.3c0bd65c3962,vstscanner,message.probeJson,Isolated probe result is not valid JSON,tools/vst_scanner/src/Scanner.cpp,426,"error = scannerText(""message.probeJson"", ""Isolated probe result is not valid JSON"");",display-source,"424:     QFile::remove(resultPath);
-425:     if (parseError.error != QJsonParseError::NoError || !document.isObject()) {
-426:         error = scannerText(""message.probeJson"", ""Isolated probe result is not valid JSON"");
-427:         return false;
-428:     }",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S6 实际运行时 key；四语言草稿已提供，待母语/领域审校,S6 实际 English 显示基线；key 与四语言草稿见核对表，人工审校仍待用户意见
-s0.0eccce9701f3,vstscanner,message.probeFailed,Isolated probe reported failure,tools/vst_scanner/src/Scanner.cpp,435,"error = scannerText(""message.probeFailed"", ""Isolated probe reported failure"");",display-source,"433:         error = result.value(QStringLiteral(""error"")).toString();
-434:         if (error.isEmpty())
-435:             error = scannerText(""message.probeFailed"", ""Isolated probe reported failure"");
+s0.9c41312e8e49,vstscanner,probe.noComponent,VST3 factory returned no usable component class,tools/vst_scanner/src/ProbeMain.cpp,341,"error = { ""VST3 factory returned no usable component class"", ""probe.noComponent"", {  } };",display-source,"339:         }
+340:         if (result.empty())
+341:             error = { ""VST3 factory returned no usable component class"", ""probe.noComponent"", {  } };
+342:         return result;
+343:     }",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S6 实际运行时 key；四语言草稿已提供，待母语/领域审校,S6 实际 English 显示基线；key 与四语言草稿见核对表，人工审校仍待用户意见
+s0.c1576f0ae200,vstscanner,probe.loadLibrary,LoadLibraryExW failed,tools/vst_scanner/src/ProbeMain.cpp,549,"error = { ""LoadLibraryExW failed"", ""probe.loadLibrary"", {  } };",display-source,"547:     const auto module = LoadLibraryExW(path.wstring().c_str(), nullptr, LOAD_WITH_ALTERED_SEARCH_PATH);
+548:     if (module == nullptr) {
+549:         error = { ""LoadLibraryExW failed"", ""probe.loadLibrary"", {  } };
+550:         return false;
+551:     }",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S6 实际运行时 key；四语言草稿已提供，待母语/领域审校,S6 实际 English 显示基线；key 与四语言草稿见核对表，人工审校仍待用户意见
+s0.ce1e671aedc9,vstscanner,probe.missingEntry,VST2 module has no VSTPluginMain/main entry point,tools/vst_scanner/src/ProbeMain.cpp,556,"error = { ""VST2 module has no VSTPluginMain/main entry point"", ""probe.missingEntry"", {  } };",display-source,"554:         entry = reinterpret_cast<Vst2EntryProc>(GetProcAddress(module, ""main""));
+555:     if (entry == nullptr) {
+556:         error = { ""VST2 module has no VSTPluginMain/main entry point"", ""probe.missingEntry"", {  } };
+557:         FreeLibrary(module);
+558:         return false;",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S6 实际运行时 key；四语言草稿已提供，待母语/领域审校,S6 实际 English 显示基线；key 与四语言草稿见核对表，人工审校仍待用户意见
+s0.904609ce7746,vstscanner,probe.invalidEffect,VST2 module returned an invalid AEffect,tools/vst_scanner/src/ProbeMain.cpp,569,"error = { ""VST2 module returned an invalid AEffect"", ""probe.invalidEffect"", {  } };",display-source,"567:     currentVst2UniqueId = 0;
+568:     if (effect == nullptr || effect->magic != kEffectMagic || effect->dispatcher == nullptr) {
+569:         error = { ""VST2 module returned an invalid AEffect"", ""probe.invalidEffect"", {  } };
+570:         skippable = true;
+571:         FreeLibrary(module);",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S6 实际运行时 key；四语言草稿已提供，待母语/领域审校,S6 实际 English 显示基线；key 与四语言草稿见核对表，人工审校仍待用户意见
+s0.812ee6748240,vstscanner,probe.vst2Disabled,VST2 probing is disabled,tools/vst_scanner/src/ProbeMain.cpp,679,"error = { ""VST2 probing is disabled"", ""probe.vst2Disabled"", {  } };",display-source,"677:                     skippable);
+678: #else
+679:         error = { ""VST2 probing is disabled"", ""probe.vst2Disabled"", {  } };
+680: #endif
+681:     }",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S6 实际运行时 key；四语言草稿已提供，待母语/领域审校,S6 实际 English 显示基线；key 与四语言草稿见核对表，人工审校仍待用户意见
+s0.3aba00353d7d,vstscanner,probe.failed,Plug-in probe failed,tools/vst_scanner/src/ProbeMain.cpp,684,"error = { ""Plug-in probe failed"", ""probe.failed"", {} };",display-source,"682:     if (!success) {
+683:         if (error.empty())
+684:             error = { ""Plug-in probe failed"", ""probe.failed"", {} };
+685:         output = failure(error, skippable);
+686:     }",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S6 实际运行时 key；四语言草稿已提供，待母语/领域审校,S6 实际 English 显示基线；key 与四语言草稿见核对表，人工审校仍待用户意见
+s0.16ba64b5955d,vstscanner,probe.noComponent,VST3 factory returned no usable component class,tools/vst_scanner/src/Scanner.cpp,370,"text = scannerText(""probe.noComponent"", ""VST3 factory returned no usable component class"");",display-source,"368:     int expectedArguments = 0;
+369:     if (key == QStringLiteral(""probe.noComponent"")) {
+370:         text = scannerText(""probe.noComponent"", ""VST3 factory returned no usable component class"");
+371:         expectedArguments = 0;
+372:     }",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S6 实际运行时 key；四语言草稿已提供，待母语/领域审校,S6 实际 English 显示基线；key 与四语言草稿见核对表，人工审校仍待用户意见
+s0.844584a1e9c5,vstscanner,probe.invalidClassId,Invalid VST3 class ID: %1,tools/vst_scanner/src/Scanner.cpp,374,"text = scannerText(""probe.invalidClassId"", ""Invalid VST3 class ID: %1"");",display-source,"372:     }
+373:     else if (key == QStringLiteral(""probe.invalidClassId"")) {
+374:         text = scannerText(""probe.invalidClassId"", ""Invalid VST3 class ID: %1"");
+375:         expectedArguments = 1;
+376:     }",%1,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S6 实际运行时 key；四语言草稿已提供，待母语/领域审校,S6 实际 English 显示基线；key 与四语言草稿见核对表，人工审校仍待用户意见
+s0.9b62852b7ef4,vstscanner,probe.missingClassId,VST3 factory cannot find class ID: %1,tools/vst_scanner/src/Scanner.cpp,378,"text = scannerText(""probe.missingClassId"", ""VST3 factory cannot find class ID: %1"");",display-source,"376:     }
+377:     else if (key == QStringLiteral(""probe.missingClassId"")) {
+378:         text = scannerText(""probe.missingClassId"", ""VST3 factory cannot find class ID: %1"");
+379:         expectedArguments = 1;
+380:     }",%1,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S6 实际运行时 key；四语言草稿已提供，待母语/领域审校,S6 实际 English 显示基线；key 与四语言草稿见核对表，人工审校仍待用户意见
+s0.2b992e8e4b3f,vstscanner,probe.createComponent,Cannot create VST3 component class: %1,tools/vst_scanner/src/Scanner.cpp,382,"text = scannerText(""probe.createComponent"", ""Cannot create VST3 component class: %1"");",display-source,"380:     }
+381:     else if (key == QStringLiteral(""probe.createComponent"")) {
+382:         text = scannerText(""probe.createComponent"", ""Cannot create VST3 component class: %1"");
+383:         expectedArguments = 1;
+384:     }",%1,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S6 实际运行时 key；四语言草稿已提供，待母语/领域审校,S6 实际 English 显示基线；key 与四语言草稿见核对表，人工审校仍待用户意见
+s0.87caafff1fb4,vstscanner,probe.initializeComponent,Cannot initialize VST3 component: %1,tools/vst_scanner/src/Scanner.cpp,386,"text = scannerText(""probe.initializeComponent"", ""Cannot initialize VST3 component: %1"");",display-source,"384:     }
+385:     else if (key == QStringLiteral(""probe.initializeComponent"")) {
+386:         text = scannerText(""probe.initializeComponent"", ""Cannot initialize VST3 component: %1"");
+387:         expectedArguments = 1;
+388:     }",%1,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S6 实际运行时 key；四语言草稿已提供，待母语/领域审校,S6 实际 English 显示基线；key 与四语言草稿见核对表，人工审校仍待用户意见
+s0.609297a66cee,vstscanner,probe.loadLibrary,LoadLibraryExW failed,tools/vst_scanner/src/Scanner.cpp,390,"text = scannerText(""probe.loadLibrary"", ""LoadLibraryExW failed"");",display-source,"388:     }
+389:     else if (key == QStringLiteral(""probe.loadLibrary"")) {
+390:         text = scannerText(""probe.loadLibrary"", ""LoadLibraryExW failed"");
+391:         expectedArguments = 0;
+392:     }",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S6 实际运行时 key；四语言草稿已提供，待母语/领域审校,S6 实际 English 显示基线；key 与四语言草稿见核对表，人工审校仍待用户意见
+s0.5d810942a98c,vstscanner,probe.missingEntry,VST2 module has no VSTPluginMain/main entry point,tools/vst_scanner/src/Scanner.cpp,394,"text = scannerText(""probe.missingEntry"", ""VST2 module has no VSTPluginMain/main entry point"");",display-source,"392:     }
+393:     else if (key == QStringLiteral(""probe.missingEntry"")) {
+394:         text = scannerText(""probe.missingEntry"", ""VST2 module has no VSTPluginMain/main entry point"");
+395:         expectedArguments = 0;
+396:     }",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S6 实际运行时 key；四语言草稿已提供，待母语/领域审校,S6 实际 English 显示基线；key 与四语言草稿见核对表，人工审校仍待用户意见
+s0.d08d3f4214fc,vstscanner,probe.invalidEffect,VST2 module returned an invalid AEffect,tools/vst_scanner/src/Scanner.cpp,398,"text = scannerText(""probe.invalidEffect"", ""VST2 module returned an invalid AEffect"");",display-source,"396:     }
+397:     else if (key == QStringLiteral(""probe.invalidEffect"")) {
+398:         text = scannerText(""probe.invalidEffect"", ""VST2 module returned an invalid AEffect"");
+399:         expectedArguments = 0;
+400:     }",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S6 实际运行时 key；四语言草稿已提供，待母语/领域审校,S6 实际 English 显示基线；key 与四语言草稿见核对表，人工审校仍待用户意见
+s0.091d36fbe6a9,vstscanner,probe.vst2Disabled,VST2 probing is disabled,tools/vst_scanner/src/Scanner.cpp,402,"text = scannerText(""probe.vst2Disabled"", ""VST2 probing is disabled"");",display-source,"400:     }
+401:     else if (key == QStringLiteral(""probe.vst2Disabled"")) {
+402:         text = scannerText(""probe.vst2Disabled"", ""VST2 probing is disabled"");
+403:         expectedArguments = 0;
+404:     }",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S6 实际运行时 key；四语言草稿已提供，待母语/领域审校,S6 实际 English 显示基线；key 与四语言草稿见核对表，人工审校仍待用户意见
+s0.03ce0959f98c,vstscanner,probe.failed,Plug-in probe failed,tools/vst_scanner/src/Scanner.cpp,406,"text = scannerText(""probe.failed"", ""Plug-in probe failed"");",display-source,"404:     }
+405:     else if (key == QStringLiteral(""probe.failed"")) {
+406:         text = scannerText(""probe.failed"", ""Plug-in probe failed"");
+407:         expectedArguments = 0;
+408:     }",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S6 实际运行时 key；四语言草稿已提供，待母语/领域审校,S6 实际 English 显示基线；key 与四语言草稿见核对表，人工审校仍待用户意见
+s0.93237cd90b29,vstscanner,message.unsupportedBits,Unsupported plug-in bit depth: %1,tools/vst_scanner/src/Scanner.cpp,435,"error = scannerText(""message.unsupportedBits"", ""Unsupported plug-in bit depth: %1"").arg(bits);",display-source,"433:         probeName = QStringLiteral(""Vst Scanner Probe32.exe"");
+434:     else {
+435:         error = scannerText(""message.unsupportedBits"", ""Unsupported plug-in bit depth: %1"").arg(bits);
 436:         return false;
-437:     }",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S6 实际运行时 key；四语言草稿已提供，待母语/领域审校,S6 实际 English 显示基线；key 与四语言草稿见核对表，人工审校仍待用户意见
-s0.79dc15c8d1ea,vstscanner,message.probeNoClass,Isolated probe returned no usable plug-in classes,tools/vst_scanner/src/Scanner.cpp,597,"error = scannerText(""message.probeNoClass"", ""Isolated probe returned no usable plug-in classes"");",display-source,"595: 
-596:     if (result.isEmpty() && !hasProbeClasses) {
-597:         error = scannerText(""message.probeNoClass"", ""Isolated probe returned no usable plug-in classes"");
-598:         return {};
-599:     }",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S6 实际运行时 key；四语言草稿已提供，待母语/领域审校,S6 实际 English 显示基线；key 与四语言草稿见核对表，人工审校仍待用户意见
-s0.afbdbee7fe72,vstscanner,message.moduleRead,Cannot read moduleinfo.json: ,tools/vst_scanner/src/Scanner.cpp,636,"error = scannerText(""message.moduleRead"", ""Cannot read moduleinfo.json: "") + pathString(moduleInfoPath);",display-source,"634:     QFile file(pathString(moduleInfoPath));
-635:     if (!file.open(QIODevice::ReadOnly)) {
-636:         error = scannerText(""message.moduleRead"", ""Cannot read moduleinfo.json: "") + pathString(moduleInfoPath);
-637:         return {};
-638:     }",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S6 实际运行时 key；四语言草稿已提供，待母语/领域审校,S6 实际 English 显示基线；key 与四语言草稿见核对表，人工审校仍待用户意见
-s0.9d2e73012469,vstscanner,message.moduleParse,Cannot parse moduleinfo.json: ,tools/vst_scanner/src/Scanner.cpp,645,"error = scannerText(""message.moduleParse"", ""Cannot parse moduleinfo.json: "")",display-source,"643:         std::string_view(bytes.constData(), static_cast<std::size_t>(bytes.size())), &parserErrors);
-644:     if (!parsed) {
-645:         error = scannerText(""message.moduleParse"", ""Cannot parse moduleinfo.json: "")
-646:             + QString::fromStdString(parserErrors.str()).trimmed();
-647:         return {};",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S6 实际运行时 key；四语言草稿已提供，待母语/领域审校,S6 实际 English 显示基线；key 与四语言草稿见核对表，人工审校仍待用户意见
-s0.0a78c2e5e38d,vstscanner,message.infoDirectory,Cannot create info directory: ,tools/vst_scanner/src/Scanner.cpp,784,"error = scannerText(""message.infoDirectory"", ""Cannot create info directory: "") + pathString(directory);",display-source,"782:     fs::create_directories(directory, directoryError);
-783:     if (directoryError) {
-784:         error = scannerText(""message.infoDirectory"", ""Cannot create info directory: "") + pathString(directory);
-785:         return false;
-786:     }",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S6 实际运行时 key；四语言草稿已提供，待母语/领域审校,S6 实际 English 显示基线；key 与四语言草稿见核对表，人工审校仍待用户意见
-s0.2c4245ae7000,vstscanner,message.infoWrite,Cannot write info file: ,tools/vst_scanner/src/Scanner.cpp,823,"error = scannerText(""message.infoWrite"", ""Cannot write info file: "") + pathString(target);",display-source,"821:     QSaveFile file(pathString(target));
-822:     if (!file.open(QIODevice::WriteOnly)) {
-823:         error = scannerText(""message.infoWrite"", ""Cannot write info file: "") + pathString(target);
-824:         return false;
-825:     }",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S6 实际运行时 key；四语言草稿已提供，待母语/领域审校,S6 实际 English 显示基线；key 与四语言草稿见核对表，人工审校仍待用户意见
-s0.578214b9486d,vstscanner,message.infoCommit,Cannot commit info file: ,tools/vst_scanner/src/Scanner.cpp,828,"error = scannerText(""message.infoCommit"", ""Cannot commit info file: "") + pathString(target);",display-source,"826:     const auto data = QJsonDocument(object).toJson(QJsonDocument::Indented);
-827:     if (file.write(data) != data.size() || !file.commit()) {
-828:         error = scannerText(""message.infoCommit"", ""Cannot commit info file: "") + pathString(target);
-829:         return false;
-830:     }",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S6 实际运行时 key；四语言草稿已提供，待母语/领域审校,S6 实际 English 显示基线；key 与四语言草稿见核对表，人工审校仍待用户意见
-s0.f70e695a0699,vstscanner,message.outputCreate,Cannot create output directory,tools/vst_scanner/src/Scanner.cpp,893,"scannerText(""message.outputCreate"", ""Cannot create output directory""),",display-source,"891:         appendMessage(report,
-892:                       pathString(normalizedOutputDirectory),
-893:                       scannerText(""message.outputCreate"", ""Cannot create output directory""),
-894:                       true);
-895:         return report;",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S6 实际运行时 key；四语言草稿已提供，待母语/领域审校,S6 实际 English 显示基线；key 与四语言草稿见核对表，人工审校仍待用户意见
-s0.ca8811088b7c,vstscanner,message.pathMissing,Scan path does not exist,tools/vst_scanner/src/Scanner.cpp,933,"appendMessage(report, pathString(path), scannerText(""message.pathMissing"", ""Scan path does not exist""), true);",display-source,"931:         std::error_code error;
-932:         if (!fs::exists(path, error)) {
-933:             appendMessage(report, pathString(path), scannerText(""message.pathMissing"", ""Scan path does not exist""), true);
-934:             continue;
-935:         }",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S6 实际运行时 key；四语言草稿已提供，待母语/领域审校,S6 实际 English 显示基线；key 与四语言草稿见核对表，人工审校仍待用户意见
-s0.a7023fa1f473,vstscanner,message.vst3Binary,No VST3 binary with a recognized bit depth found,tools/vst_scanner/src/Scanner.cpp,968,"appendMessage(report, pathString(path), scannerText(""message.vst3Binary"", ""No VST3 binary with a recognized bit depth found""), true);",display-source,"966:         const auto [binary, bits] = findVst3Binary(path);
-967:         if (binary.empty() || (bits != 32 && bits != 64)) {
-968:             appendMessage(report, pathString(path), scannerText(""message.vst3Binary"", ""No VST3 binary with a recognized bit depth found""), true);
-969:             return;
-970:         }",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S6 实际运行时 key；四语言草稿已提供，待母语/领域审校,S6 实际 English 显示基线；key 与四语言草稿见核对表，人工审校仍待用户意见
-s0.7e1c6f9f916b,vstscanner,message.vst3Skipped,Skipped verified VST3; using existing info entries,tools/vst_scanner/src/Scanner.cpp,984,"scannerText(""message.vst3Skipped"", ""Skipped verified VST3; using existing info entries""),",display-source,"982:             appendMessage(report,
-983:                           pathString(path),
-984:                           scannerText(""message.vst3Skipped"", ""Skipped verified VST3; using existing info entries""),
-985:                           false);
-986:             return;",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S6 实际运行时 key；四语言草稿已提供，待母语/领域审校,S6 实际 English 显示基线；key 与四语言草稿见核对表，人工审校仍待用户意见
-s0.930c2b0b45af,vstscanner,message.vst3Loaded,Loaded VST3 in isolation and obtained class information,tools/vst_scanner/src/Scanner.cpp,1009,"? scannerText(""message.vst3Loaded"", ""Loaded VST3 in isolation and obtained class information"")",display-source,"1007:                           pathString(path),
-1008:                           probeError.isEmpty()
-1009:                               ? scannerText(""message.vst3Loaded"", ""Loaded VST3 in isolation and obtained class information"")
-1010:                               : scannerText(""message.vst3Partial"", ""VST3 classes probed in isolation; some failed to load, entries kept: "") + probeError,
-1011:                           false);",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S6 实际运行时 key；四语言草稿已提供，待母语/领域审校,S6 实际 English 显示基线；key 与四语言草稿见核对表，人工审校仍待用户意见
-s0.a4853d8c689d,vstscanner,message.vst3Partial,"VST3 classes probed in isolation; some failed to load, entries kept: ",tools/vst_scanner/src/Scanner.cpp,1010,": scannerText(""message.vst3Partial"", ""VST3 classes probed in isolation; some failed to load, entries kept: "") + probeError,",display-source,"1008:                           probeError.isEmpty()
-1009:                               ? scannerText(""message.vst3Loaded"", ""Loaded VST3 in isolation and obtained class information"")
-1010:                               : scannerText(""message.vst3Partial"", ""VST3 classes probed in isolation; some failed to load, entries kept: "") + probeError,
-1011:                           false);
-1012:             for (auto& info : infos) {",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S6 实际运行时 key；四语言草稿已提供，待母语/领域审校,S6 实际 English 显示基线；key 与四语言草稿见核对表，人工审校仍待用户意见
-s0.a0b30bb9e068,vstscanner,message.vst3ClassSkipped,VST3 classes already verified; skipping probe,tools/vst_scanner/src/Scanner.cpp,1019,"scannerText(""message.vst3ClassSkipped"", ""VST3 classes already verified; skipping probe""),",display-source,"1017:             appendMessage(report,
-1018:                           pathString(path),
-1019:                           scannerText(""message.vst3ClassSkipped"", ""VST3 classes already verified; skipping probe""),
-1020:                           false);
-1021:             return;",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S6 实际运行时 key；四语言草稿已提供，待母语/领域审校,S6 实际 English 显示基线；key 与四语言草稿见核对表，人工审校仍待用户意见
-s0.90e3da65dda2,vstscanner,message.vst3Static,Isolated load returned no classes; keeping static moduleinfo data: ,tools/vst_scanner/src/Scanner.cpp,1033,"scannerText(""message.vst3Static"", ""Isolated load returned no classes; keeping static moduleinfo data: "") + probeError,",display-source,"1031:             appendMessage(report,
-1032:                           pathString(path),
-1033:                           scannerText(""message.vst3Static"", ""Isolated load returned no classes; keeping static moduleinfo data: "") + probeError,
-1034:                           false);
-1035:         }",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S6 实际运行时 key；四语言草稿已提供，待母语/领域审校,S6 实际 English 显示基线；key 与四语言草稿见核对表，人工审校仍待用户意见
-s0.9515e4cfe6ac,vstscanner,message.vst2Skipped,Skipped verified VST2; using existing info entries,tools/vst_scanner/src/Scanner.cpp,1058,"scannerText(""message.vst2Skipped"", ""Skipped verified VST2; using existing info entries""),",display-source,"1056:                 appendMessage(report,
-1057:                               pathString(path),
-1058:                               scannerText(""message.vst2Skipped"", ""Skipped verified VST2; using existing info entries""),
-1059:                               false);
-1060:                 return;",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S6 实际运行时 key；四语言草稿已提供，待母语/领域审校,S6 实际 English 显示基线；key 与四语言草稿见核对表，人工审校仍待用户意见
-s0.56099cebfd05,vstscanner,message.invalidDll,Skipped invalid VST DLL,tools/vst_scanner/src/Scanner.cpp,1087,"scannerText(""message.invalidDll"", ""Skipped invalid VST DLL"")",display-source,"1085:                 appendMessage(report,
-1086:                               pathString(path),
-1087:                               scannerText(""message.invalidDll"", ""Skipped invalid VST DLL"")
-1088:                                   + (probeError.isEmpty() ? QString() : QStringLiteral("": "") + probeError),
-1089:                               false);",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S6 实际运行时 key；四语言草稿已提供，待母语/领域审校,S6 实际 English 显示基线；key 与四语言草稿见核对表，人工审校仍待用户意见
+437:     }",%1,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S6 实际运行时 key；四语言草稿已提供，待母语/领域审校,S6 实际 English 显示基线；key 与四语言草稿见核对表，人工审校仍待用户意见
+s0.586f382afb7f,vstscanner,message.probeMissing,Isolated probe not found: ,tools/vst_scanner/src/Scanner.cpp,441,"error = scannerText(""message.probeMissing"", ""Isolated probe not found: "") + pathString(probePath);",display-source,"439:     const auto probePath = Common::PathUtils::moduleDirectory() / probeName.toStdWString();
+440:     if (!fs::is_regular_file(probePath)) {
+441:         error = scannerText(""message.probeMissing"", ""Isolated probe not found: "") + pathString(probePath);
+442:         return false;
+443:     }",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S6 实际运行时 key；四语言草稿已提供，待母语/领域审校,S6 实际 English 显示基线；key 与四语言草稿见核对表，人工审校仍待用户意见
+s0.597e8b240c76,vstscanner,message.probeStart,Cannot start isolated probe: ,tools/vst_scanner/src/Scanner.cpp,458,"error = scannerText(""message.probeStart"", ""Cannot start isolated probe: "") + process.errorString();",display-source,"456:     process.start();
+457:     if (!process.waitForStarted(3000)) {
+458:         error = scannerText(""message.probeStart"", ""Cannot start isolated probe: "") + process.errorString();
+459:         QFile::remove(resultPath);
+460:         return false;",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S6 实际运行时 key；四语言草稿已提供，待母语/领域审校,S6 实际 English 显示基线；key 与四语言草稿见核对表，人工审校仍待用户意见
+s0.1190639f3d3e,vstscanner,message.probeTimeout,Plug-in probe timed out; isolated process terminated,tools/vst_scanner/src/Scanner.cpp,467,"error = scannerText(""message.probeTimeout"", ""Plug-in probe timed out; isolated process terminated"");",display-source,"465:         process.kill();
+466:         process.waitForFinished(2000);
+467:         error = scannerText(""message.probeTimeout"", ""Plug-in probe timed out; isolated process terminated"");
+468:         QFile::remove(resultPath);
+469:         return false;",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S6 实际运行时 key；四语言草稿已提供，待母语/领域审校,S6 实际 English 显示基线；key 与四语言草稿见核对表，人工审校仍待用户意见
+s0.da2daceb12af,vstscanner,message.probeCrash,Plug-in probe crashed; scanner kept running,tools/vst_scanner/src/Scanner.cpp,475,"? scannerText(""message.probeCrash"", ""Plug-in probe crashed; scanner kept running"")",display-source,"473:     if (!resultFile.open(QIODevice::ReadOnly)) {
+474:         error = process.exitStatus() == QProcess::CrashExit
+475:             ? scannerText(""message.probeCrash"", ""Plug-in probe crashed; scanner kept running"")
+476:             : scannerText(""message.probeNoResult"", ""Isolated probe produced no result: "") + process.errorString();
+477:         QFile::remove(resultPath);",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S6 实际运行时 key；四语言草稿已提供，待母语/领域审校,S6 实际 English 显示基线；key 与四语言草稿见核对表，人工审校仍待用户意见
+s0.45b0d4b234e0,vstscanner,message.probeNoResult,Isolated probe produced no result: ,tools/vst_scanner/src/Scanner.cpp,476,": scannerText(""message.probeNoResult"", ""Isolated probe produced no result: "") + process.errorString();",display-source,"474:         error = process.exitStatus() == QProcess::CrashExit
+475:             ? scannerText(""message.probeCrash"", ""Plug-in probe crashed; scanner kept running"")
+476:             : scannerText(""message.probeNoResult"", ""Isolated probe produced no result: "") + process.errorString();
+477:         QFile::remove(resultPath);
+478:         return false;",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S6 实际运行时 key；四语言草稿已提供，待母语/领域审校,S6 实际 English 显示基线；key 与四语言草稿见核对表，人工审校仍待用户意见
+s0.3c0bd65c3962,vstscanner,message.probeJson,Isolated probe result is not valid JSON,tools/vst_scanner/src/Scanner.cpp,486,"error = scannerText(""message.probeJson"", ""Isolated probe result is not valid JSON"");",display-source,"484:     QFile::remove(resultPath);
+485:     if (parseError.error != QJsonParseError::NoError || !document.isObject()) {
+486:         error = scannerText(""message.probeJson"", ""Isolated probe result is not valid JSON"");
+487:         return false;
+488:     }",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S6 实际运行时 key；四语言草稿已提供，待母语/领域审校,S6 实际 English 显示基线；key 与四语言草稿见核对表，人工审校仍待用户意见
+s0.0eccce9701f3,vstscanner,message.probeFailed,Isolated probe reported failure,tools/vst_scanner/src/Scanner.cpp,495,"error = scannerText(""message.probeFailed"", ""Isolated probe reported failure"");",display-source,"493:         error = localizedProbeError(result, QStringLiteral(""error""));
+494:         if (error.isEmpty())
+495:             error = scannerText(""message.probeFailed"", ""Isolated probe reported failure"");
+496:         return false;
+497:     }",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S6 实际运行时 key；四语言草稿已提供，待母语/领域审校,S6 实际 English 显示基线；key 与四语言草稿见核对表，人工审校仍待用户意见
+s0.79dc15c8d1ea,vstscanner,message.probeNoClass,Isolated probe returned no usable plug-in classes,tools/vst_scanner/src/Scanner.cpp,657,"error = scannerText(""message.probeNoClass"", ""Isolated probe returned no usable plug-in classes"");",display-source,"655: 
+656:     if (result.isEmpty() && !hasProbeClasses) {
+657:         error = scannerText(""message.probeNoClass"", ""Isolated probe returned no usable plug-in classes"");
+658:         return {};
+659:     }",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S6 实际运行时 key；四语言草稿已提供，待母语/领域审校,S6 实际 English 显示基线；key 与四语言草稿见核对表，人工审校仍待用户意见
+s0.afbdbee7fe72,vstscanner,message.moduleRead,Cannot read moduleinfo.json: ,tools/vst_scanner/src/Scanner.cpp,696,"error = scannerText(""message.moduleRead"", ""Cannot read moduleinfo.json: "") + pathString(moduleInfoPath);",display-source,"694:     QFile file(pathString(moduleInfoPath));
+695:     if (!file.open(QIODevice::ReadOnly)) {
+696:         error = scannerText(""message.moduleRead"", ""Cannot read moduleinfo.json: "") + pathString(moduleInfoPath);
+697:         return {};
+698:     }",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S6 实际运行时 key；四语言草稿已提供，待母语/领域审校,S6 实际 English 显示基线；key 与四语言草稿见核对表，人工审校仍待用户意见
+s0.9d2e73012469,vstscanner,message.moduleParse,Cannot parse moduleinfo.json: ,tools/vst_scanner/src/Scanner.cpp,705,"error = scannerText(""message.moduleParse"", ""Cannot parse moduleinfo.json: "")",display-source,"703:         std::string_view(bytes.constData(), static_cast<std::size_t>(bytes.size())), &parserErrors);
+704:     if (!parsed) {
+705:         error = scannerText(""message.moduleParse"", ""Cannot parse moduleinfo.json: "")
+706:             + QString::fromStdString(parserErrors.str()).trimmed();
+707:         return {};",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S6 实际运行时 key；四语言草稿已提供，待母语/领域审校,S6 实际 English 显示基线；key 与四语言草稿见核对表，人工审校仍待用户意见
+s0.0a78c2e5e38d,vstscanner,message.infoDirectory,Cannot create info directory: ,tools/vst_scanner/src/Scanner.cpp,844,"error = scannerText(""message.infoDirectory"", ""Cannot create info directory: "") + pathString(directory);",display-source,"842:     fs::create_directories(directory, directoryError);
+843:     if (directoryError) {
+844:         error = scannerText(""message.infoDirectory"", ""Cannot create info directory: "") + pathString(directory);
+845:         return false;
+846:     }",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S6 实际运行时 key；四语言草稿已提供，待母语/领域审校,S6 实际 English 显示基线；key 与四语言草稿见核对表，人工审校仍待用户意见
+s0.2c4245ae7000,vstscanner,message.infoWrite,Cannot write info file: ,tools/vst_scanner/src/Scanner.cpp,883,"error = scannerText(""message.infoWrite"", ""Cannot write info file: "") + pathString(target);",display-source,"881:     QSaveFile file(pathString(target));
+882:     if (!file.open(QIODevice::WriteOnly)) {
+883:         error = scannerText(""message.infoWrite"", ""Cannot write info file: "") + pathString(target);
+884:         return false;
+885:     }",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S6 实际运行时 key；四语言草稿已提供，待母语/领域审校,S6 实际 English 显示基线；key 与四语言草稿见核对表，人工审校仍待用户意见
+s0.578214b9486d,vstscanner,message.infoCommit,Cannot commit info file: ,tools/vst_scanner/src/Scanner.cpp,888,"error = scannerText(""message.infoCommit"", ""Cannot commit info file: "") + pathString(target);",display-source,"886:     const auto data = QJsonDocument(object).toJson(QJsonDocument::Indented);
+887:     if (file.write(data) != data.size() || !file.commit()) {
+888:         error = scannerText(""message.infoCommit"", ""Cannot commit info file: "") + pathString(target);
+889:         return false;
+890:     }",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S6 实际运行时 key；四语言草稿已提供，待母语/领域审校,S6 实际 English 显示基线；key 与四语言草稿见核对表，人工审校仍待用户意见
+s0.f70e695a0699,vstscanner,message.outputCreate,Cannot create output directory,tools/vst_scanner/src/Scanner.cpp,953,"scannerText(""message.outputCreate"", ""Cannot create output directory""),",display-source,"951:         appendMessage(report,
+952:                       pathString(normalizedOutputDirectory),
+953:                       scannerText(""message.outputCreate"", ""Cannot create output directory""),
+954:                       true);
+955:         return report;",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S6 实际运行时 key；四语言草稿已提供，待母语/领域审校,S6 实际 English 显示基线；key 与四语言草稿见核对表，人工审校仍待用户意见
+s0.ca8811088b7c,vstscanner,message.pathMissing,Scan path does not exist,tools/vst_scanner/src/Scanner.cpp,993,"appendMessage(report, pathString(path), scannerText(""message.pathMissing"", ""Scan path does not exist""), true);",display-source,"991:         std::error_code error;
+992:         if (!fs::exists(path, error)) {
+993:             appendMessage(report, pathString(path), scannerText(""message.pathMissing"", ""Scan path does not exist""), true);
+994:             continue;
+995:         }",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S6 实际运行时 key；四语言草稿已提供，待母语/领域审校,S6 实际 English 显示基线；key 与四语言草稿见核对表，人工审校仍待用户意见
+s0.a7023fa1f473,vstscanner,message.vst3Binary,No VST3 binary with a recognized bit depth found,tools/vst_scanner/src/Scanner.cpp,1028,"appendMessage(report, pathString(path), scannerText(""message.vst3Binary"", ""No VST3 binary with a recognized bit depth found""), true);",display-source,"1026:         const auto [binary, bits] = findVst3Binary(path);
+1027:         if (binary.empty() || (bits != 32 && bits != 64)) {
+1028:             appendMessage(report, pathString(path), scannerText(""message.vst3Binary"", ""No VST3 binary with a recognized bit depth found""), true);
+1029:             return;
+1030:         }",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S6 实际运行时 key；四语言草稿已提供，待母语/领域审校,S6 实际 English 显示基线；key 与四语言草稿见核对表，人工审校仍待用户意见
+s0.7e1c6f9f916b,vstscanner,message.vst3Skipped,Skipped verified VST3; using existing info entries,tools/vst_scanner/src/Scanner.cpp,1044,"scannerText(""message.vst3Skipped"", ""Skipped verified VST3; using existing info entries""),",display-source,"1042:             appendMessage(report,
+1043:                           pathString(path),
+1044:                           scannerText(""message.vst3Skipped"", ""Skipped verified VST3; using existing info entries""),
+1045:                           false);
+1046:             return;",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S6 实际运行时 key；四语言草稿已提供，待母语/领域审校,S6 实际 English 显示基线；key 与四语言草稿见核对表，人工审校仍待用户意见
+s0.930c2b0b45af,vstscanner,message.vst3Loaded,Loaded VST3 in isolation and obtained class information,tools/vst_scanner/src/Scanner.cpp,1069,"? scannerText(""message.vst3Loaded"", ""Loaded VST3 in isolation and obtained class information"")",display-source,"1067:                           pathString(path),
+1068:                           probeError.isEmpty()
+1069:                               ? scannerText(""message.vst3Loaded"", ""Loaded VST3 in isolation and obtained class information"")
+1070:                               : scannerText(""message.vst3Partial"", ""VST3 classes probed in isolation; some failed to load, entries kept: "") + probeError,
+1071:                           false);",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S6 实际运行时 key；四语言草稿已提供，待母语/领域审校,S6 实际 English 显示基线；key 与四语言草稿见核对表，人工审校仍待用户意见
+s0.a4853d8c689d,vstscanner,message.vst3Partial,"VST3 classes probed in isolation; some failed to load, entries kept: ",tools/vst_scanner/src/Scanner.cpp,1070,": scannerText(""message.vst3Partial"", ""VST3 classes probed in isolation; some failed to load, entries kept: "") + probeError,",display-source,"1068:                           probeError.isEmpty()
+1069:                               ? scannerText(""message.vst3Loaded"", ""Loaded VST3 in isolation and obtained class information"")
+1070:                               : scannerText(""message.vst3Partial"", ""VST3 classes probed in isolation; some failed to load, entries kept: "") + probeError,
+1071:                           false);
+1072:             for (auto& info : infos) {",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S6 实际运行时 key；四语言草稿已提供，待母语/领域审校,S6 实际 English 显示基线；key 与四语言草稿见核对表，人工审校仍待用户意见
+s0.a0b30bb9e068,vstscanner,message.vst3ClassSkipped,VST3 classes already verified; skipping probe,tools/vst_scanner/src/Scanner.cpp,1079,"scannerText(""message.vst3ClassSkipped"", ""VST3 classes already verified; skipping probe""),",display-source,"1077:             appendMessage(report,
+1078:                           pathString(path),
+1079:                           scannerText(""message.vst3ClassSkipped"", ""VST3 classes already verified; skipping probe""),
+1080:                           false);
+1081:             return;",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S6 实际运行时 key；四语言草稿已提供，待母语/领域审校,S6 实际 English 显示基线；key 与四语言草稿见核对表，人工审校仍待用户意见
+s0.90e3da65dda2,vstscanner,message.vst3Static,Isolated load returned no classes; keeping static moduleinfo data: ,tools/vst_scanner/src/Scanner.cpp,1093,"scannerText(""message.vst3Static"", ""Isolated load returned no classes; keeping static moduleinfo data: "") + probeError,",display-source,"1091:             appendMessage(report,
+1092:                           pathString(path),
+1093:                           scannerText(""message.vst3Static"", ""Isolated load returned no classes; keeping static moduleinfo data: "") + probeError,
+1094:                           false);
+1095:         }",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S6 实际运行时 key；四语言草稿已提供，待母语/领域审校,S6 实际 English 显示基线；key 与四语言草稿见核对表，人工审校仍待用户意见
+s0.9515e4cfe6ac,vstscanner,message.vst2Skipped,Skipped verified VST2; using existing info entries,tools/vst_scanner/src/Scanner.cpp,1118,"scannerText(""message.vst2Skipped"", ""Skipped verified VST2; using existing info entries""),",display-source,"1116:                 appendMessage(report,
+1117:                               pathString(path),
+1118:                               scannerText(""message.vst2Skipped"", ""Skipped verified VST2; using existing info entries""),
+1119:                               false);
+1120:                 return;",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S6 实际运行时 key；四语言草稿已提供，待母语/领域审校,S6 实际 English 显示基线；key 与四语言草稿见核对表，人工审校仍待用户意见
+s0.56099cebfd05,vstscanner,message.invalidDll,Skipped invalid VST DLL,tools/vst_scanner/src/Scanner.cpp,1147,"scannerText(""message.invalidDll"", ""Skipped invalid VST DLL"")",display-source,"1145:                 appendMessage(report,
+1146:                               pathString(path),
+1147:                               scannerText(""message.invalidDll"", ""Skipped invalid VST DLL"")
+1148:                                   + (probeError.isEmpty() ? QString() : QStringLiteral("": "") + probeError),
+1149:                               false);",,原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName,S6 实际运行时 key；四语言草稿已提供，待母语/领域审校,S6 实际 English 显示基线；key 与四语言草稿见核对表，人工审校仍待用户意见
 s0.0df5c4b0d115,example.nativefx,name,Example Gain,Develop/NativeFx/ExampleNativeFx.cpp,41,"auto* group = new Controls::GroupPanel(QStringLiteral(""Example Gain""), this);",display-source,"39:         : QWidget(parent), read_(std::move(read)), write_(std::move(write)) {
 40:         auto* layout = new QVBoxLayout(this);
 41:         auto* group = new Controls::GroupPanel(QStringLiteral(""Example Gain""), this);

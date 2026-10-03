@@ -2,7 +2,7 @@
 
 2026-10-04，实施中，尚未完成。
 
-本次 Probe 修改前的清单刷新与对账通过：275 个源码文件、9,690 次字符串出现、1,302 个唯一显示 key、未分类 0，见 `S0-verification.json` 与 `S6-S0-verification.log`。VST 宿主/扫描器调用点已映射实际 `vst` / `vstscanner` key，独立包纳入资源清单。扫描器 `Instruments/Effects` 是已交付 info 文件目录身份，位数 `%1-bit` 是标准单位格式，均有明确排除理由，不替换路径或数值。
+历史 Probe 修改前清单（对应 e05802d）的刷新与对账通过：275 个源码文件、9,690 次字符串出现、1,302 个唯一显示 key、未分类 0，见历史 `S6-S0-verification.log`；当前 S0-verification.json 已更新为本轮结果。VST 宿主/扫描器调用点已映射实际 `vst` / `vstscanner` key，独立包纳入资源清单。扫描器 `Instruments/Effects` 是已交付 info 文件目录身份，位数 `%1-bit` 是标准单位格式，均有明确排除理由，不替换路径或数值。
 
 本次 Probe 修改前的差异导航有 369 次源码出现等待核对：theme 250、meterbridge 49、mixer 45、vstscanner 10、patchbay 5、ui 5，其他 5。它包含旧 key 提案、后台诊断、默认用户内容和真正未接入的显示项，不能视为缺译数量或覆盖率。扫描器十项均位于 `ProbeMain.cpp`，会经 IPC 返回 GUI，本轮已处理其显示/协议边界，变更后的 S0 清单和候选数须另行刷新。共享 UI 的筛选输入、侧边栏提示等亦待处理；其余项须逐条以调用路径判定，不通过统一排除掩盖遗漏。见 `S6-coverage-gaps.json`。该清单刷新轮未启动模块测试或 UI 窗口。
 
@@ -27,3 +27,9 @@ VST Scanner 使用现有 HostI18n 在创建窗口前恢复宿主保存的语言�
 必要 Release 编译通过，目标为既有共享实窗 fixture，依赖完成 ui.dll 和宿主资源部署，并编译新增调用点检查。没有执行 fixture、没有 UI 显示或缩放测试；遵守每模块只测一次限制，不扩大历史共享实窗证据为新增三项运行时通过。静态资源/部署核对 PASS，新增默认 placeholder、侧栏提示及草稿/调用方覆盖保持的运行行为仍为未验证，人工译文审校待用户。见 `S6-shared-build.log`、`S6-shared-assets.log`、`S6-shared-verification.json`。
 
 历史 S5 v5/533 key 和 DLL 哈希是对应提交的阶段证据，当前 S6 v6/536 与重编 DLL 由本轮证据记录。不要直接重跑历史固定 v5 验收脚本或将其旧哈希宣称为当前发行哈希。Probe 和共享补漏后 S0 清单/候选数仍待统一刷新，Theme 等范围继续审计，S6 尚未完成。
+
+2026-10-04 Probe/共享补漏后的 S0 清单统一刷新完成并通过：275 文件、9,743 次出现、1,658 翻译源、8,078 保留项、7 份结构化描述符、未分类 0、1,298 唯一显示 key。相对 e05802d 清单新增 13 key、退休 17 key；这些变化是来源映射和临时资源 metadata 分类调整，不是缩减翻译目标。首次核对发现新 IPC 字段/key 比较未分类，补明确身份理由；随后发现 Probe English 回退前缀与 Scanner 完整 %1 模板被误视为相同源模板，分清传输拼接片段与完整显示模板后校验通过。失败日志与修正证据均保留。
+
+当前差异导航 352 次候选：Theme 246、meterbridge 49、mixer 45、patchbay 5、common 3、ui 2、host 1、node 1。Probe 与三项共享 Controls 已对齐实际 key。Theme 明确排除四项 importImage/importFont 的临时资源载体 metadata：完整/片段导出使用 editedMetadata()，用户内容和包身份保留。其余 Theme 候选继续保持开放，不能将错误一律归为内部日志：refresh() 实际显示 snapshot diagnostic.message，颜色/导入/应用/导出回调将 error 显示到 status。
+
+已保存 `S6-theme-source-audit.json` 与当前源码哈希，标明 246 次候选及另外需核对显示副本的 scope/size/repeat enum 站点。后续语言刷新不能直接复用会重载编辑值的 refresh()/refreshBackgroundEditor()，须单独更新显示并保持草稿、选区、dirty 状态与 token/currentData。来源核对通过见 `S6-theme-audit-verification.json`，它仅验证清单成员和哈希，不证明翻译/实窗完成。本轮没有模块编译、UI 测试或弹窗。Theme 实施、其他候选核对、用户审校与 S7 仍待完成。
