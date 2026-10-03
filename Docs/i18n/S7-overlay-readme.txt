@@ -1,6 +1,6 @@
-﻿WinJACKNexus i18n Release 增量覆盖包（待审校草稿）
+﻿WinJACKNexus i18n Release 增量覆盖包（人工审校后续）
 
-这不是完整安装包；S6 四语言/音频领域人工审校仍待用户意见，尚未发行验收。
+这不是完整安装包；按用户“直接继续，审核后续再搞”指令交付，四语言/音频领域人工审校后续进行。既有未验证项继续明示，不声称实窗或安装验收通过。
 仅供与现有 WinJACKNexus、Qt 6.10.3 Release 和 MSVC 运行库兼容的安装使用。
 Probe32 使用 x86 MSVC 运行库，其他文件使用 x64；保留既有 Qt platforms/qwindows.dll、默认主题、VSTProcess32/64 及 JACK 环境。
 

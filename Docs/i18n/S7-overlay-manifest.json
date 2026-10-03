@@ -1,9 +1,10 @@
 {
   "format_version": 1,
-  "package_kind": "incremental Release overlay draft",
+  "package_kind": "incremental Release overlay",
   "source_commit": "e0b1f6ec68f6d5adb5a5cee9ed7fb97e3b5ebb21",
-  "human_review": "pending user four-language/audio-domain review",
+  "human_review": "deferred by user: 直接继续，审核后续再搞",
   "release_accepted": false,
+  "delivery_status": "delivered with human review deferred",
   "resources": [
     {
       "module_id": "winjacknexus-host",

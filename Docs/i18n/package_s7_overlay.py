@@ -1,4 +1,5 @@
 """Create and verify the reviewable incremental overlay; no UI/module execution."""
+import argparse
 import hashlib
 import json
 import re
@@ -26,6 +27,10 @@ def machine(path):
 
 
 def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--review-deferred', action='store_true', help='Deliver the overlay under the user instruction to review later.')
+    deferred = parser.parse_args().review_deferred
+    human_review = 'deferred by user: 直接继续，审核后续再搞' if deferred else 'pending user four-language/audio-domain review'
     inventory = json.loads((OUT / 'S7-resource-inventory.json').read_text(encoding='utf-8'))
     assert inventory['status'] == 'RESOURCE_INVENTORY_PREPARED_NOT_RELEASE_ACCEPTED'
     members = {}
@@ -77,8 +82,9 @@ def main():
                      'MSVC': 'compatible installed x64 and x86 redistributables; no redistributable install is performed',
                      'dynamic_runtime': ['existing wjn_default_theme.dll and its theme runtime', 'existing VSTProcess32.exe/VSTProcess64.exe and their architecture-specific dependencies', 'existing JACK libjack64.dll/libjack.dll for audio use'],
                      'scope': 'Incremental overlay for a compatible existing WinJACKNexus desktop installation. Static import resolution is checked; dynamic loading and deployment execution are not tested.'}
-    metadata = {'format_version': 1, 'package_kind': 'incremental Release overlay draft', 'source_commit': inventory['implementation_commit'],
-                'human_review': 'pending user four-language/audio-domain review', 'release_accepted': False,
+    metadata = {'format_version': 1, 'package_kind': 'incremental Release overlay' if deferred else 'incremental Release overlay draft', 'source_commit': inventory['implementation_commit'],
+                'human_review': human_review, 'release_accepted': False,
+                'delivery_status': 'delivered with human review deferred' if deferred else 'draft',
                 'resources': [{'module_id': m['module_id'], 'catalog_version': m['catalog_version'], 'domains': m['domains'], 'language_coverage': m['language_coverage']} for m in inventory['modules']],
                 'prerequisites': prerequisites, 'files': [{'path': name, 'bytes': len(value), 'sha256': digest(value)} for name, value in sorted(members.items())],
                 'not_verified': ['Scanner repaired UI, shared control additions and S6 supplemental UI behavior.', 'Remaining cold-start/language/scale combinations recorded in prior S5 evidence.', 'Installing this overlay, first-start/restart behavior or preserving an actual existing installation during deployment.'],
@@ -100,9 +106,14 @@ Probe32 使用 x86 MSVC 运行库，其他文件使用 x64；保留既有 Qt pla
 归档 CRC、成员、逐文件 SHA-256、PE 架构及直接/延迟导入检查仅证明包结构和静态依赖，不代表运行时/译文审校通过。
 更多证据与待审校词表见仓库 Docs/i18n/S6-human-review.md、S6-supplement-verification.json 和 S7-overlay-verification.json。
 '''
+    if deferred:
+        instructions = instructions.replace('（待审校草稿）', '（人工审校后续）').replace(
+            'S6 四语言/音频领域人工审校仍待用户意见，尚未发行验收。',
+            '按用户“直接继续，审核后续再搞”指令交付，四语言/音频领域人工审校后续进行。既有未验证项继续明示，不声称实窗或安装验收通过。')
     members['i18n-overlay-manifest.json'] = (json.dumps(metadata, ensure_ascii=False, indent=2) + '\n').encode('utf-8')
     members['i18n-overlay-readme.txt'] = instructions.encode('utf-8-sig')
-    archive = ROOT / 'build' / ('WinJACKNexus-i18n-Release-overlay-draft-' + inventory['implementation_commit'][:7] + '.zip')
+    prefix = 'WinJACKNexus-i18n-Release-overlay-' if deferred else 'WinJACKNexus-i18n-Release-overlay-draft-'
+    archive = ROOT / 'build' / (prefix + inventory['implementation_commit'][:7] + '.zip')
     # Use a fresh path to preserve any previous package.
     assert not archive.exists(), 'Archive already exists; inspect it rather than silently replacing it.'
     with zipfile.ZipFile(archive, 'x', compression=zipfile.ZIP_DEFLATED, compresslevel=6) as package:
@@ -116,17 +127,17 @@ Probe32 使用 x86 MSVC 运行库，其他文件使用 x64；保留既有 Qt pla
         assert all(package.read(name) == value for name, value in members.items())
         assert all(not re.search(r'(\.ts$|\.pdb$|tests|fixture|themes/|\.ini$|\.dmp$|\.log$)', name, re.I) for name in names)
         assert json.loads(package.read('i18n-overlay-manifest.json')) == metadata
-    report = {'stage': 'S7', 'date': '2026-10-04', 'result': 'DRAFT_ARCHIVE_STATIC_VERIFICATION_PASS_NOT_RELEASE_ACCEPTED',
+    report = {'stage': 'S7', 'date': '2026-10-04', 'result': 'DELIVERY_ARCHIVE_STATIC_VERIFICATION_PASS_HUMAN_REVIEW_DEFERRED' if deferred else 'DRAFT_ARCHIVE_STATIC_VERIFICATION_PASS_NOT_RELEASE_ACCEPTED',
               'archive': {'file': str(archive.relative_to(ROOT)).replace('\\', '/'), 'bytes': archive.stat().st_size, 'sha256': digest(archive.read_bytes())},
               'payload_runtime_files': 25, 'payload_language_resources': 68, 'metadata_files': 2, 'archive_members': len(members),
               'checks': ['Existing inventory fingerprints and source/deployment equality retained.', '25 PE architectures and all direct/delay imports classified.', 'Qt prerequisites byte-match Qt 6.10.3 SDK.', 'ZIP CRC, exact member set and complete payload byte/SHA-256 comparison passed.', 'No tests, Debug binaries, TS, PDB or user settings/themes/projects in the archive.'],
               'dependencies': dependencies, 'prerequisites': prerequisites, 'module_test_runs_added': 0, 'ui_shows_added': 0,
-              'installed': False, 'human_review': 'pending user review', 'runtime_limits': metadata['not_verified'],
+              'installed': False, 'human_review': human_review, 'runtime_limits': metadata['not_verified'],
               'source_commit': inventory['implementation_commit'], 'files': metadata['files']}
     (OUT / 'S7-overlay-verification.json').write_text(json.dumps(report, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
     (OUT / 'S7-overlay-manifest.json').write_text(json.dumps(metadata, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
     (OUT / 'S7-overlay-readme.txt').write_text(instructions, encoding='utf-8-sig')
-    print(f'S7 draft archive static verification PASS: {archive.name}, {len(members)} members, {archive.stat().st_size} bytes; no module run or installation.')
+    print(f'S7 archive static verification PASS: {archive.name}, {len(members)} members, {archive.stat().st_size} bytes; no module run or installation; human review: {human_review}.')
 
 
 if __name__ == '__main__':

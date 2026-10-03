@@ -1,11 +1,11 @@
 {
   "stage": "S7",
   "date": "2026-10-04",
-  "result": "DRAFT_ARCHIVE_STATIC_VERIFICATION_PASS_NOT_RELEASE_ACCEPTED",
+  "result": "DELIVERY_ARCHIVE_STATIC_VERIFICATION_PASS_HUMAN_REVIEW_DEFERRED",
   "archive": {
-    "file": "build/WinJACKNexus-i18n-Release-overlay-draft-e0b1f6e.zip",
-    "bytes": 3340223,
-    "sha256": "cab6852e3c1eb87f4b75ce857e352b0fd1e4eb8c71756b8b514acceb3a646ef8"
+    "file": "build/WinJACKNexus-i18n-Release-overlay-e0b1f6e.zip",
+    "bytes": 3340362,
+    "sha256": "e1716c7dbb9fe3e26947171493d37313f8eb7ddd3e90058c0458637f8bcc650e"
   },
   "payload_runtime_files": 25,
   "payload_language_resources": 68,
@@ -1505,7 +1505,7 @@
   "module_test_runs_added": 0,
   "ui_shows_added": 0,
   "installed": false,
-  "human_review": "pending user review",
+  "human_review": "deferred by user: 直接继续，审核后续再搞",
   "runtime_limits": [
     "Scanner repaired UI, shared control additions and S6 supplemental UI behavior.",
     "Remaining cold-start/language/scale combinations recorded in prior S5 evidence.",

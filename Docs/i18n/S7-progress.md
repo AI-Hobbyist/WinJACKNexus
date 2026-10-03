@@ -12,3 +12,6 @@ S7 资源工具最初按所有值均为字符串进行断言，遇到 ExampleNod
 2026-10-04 S7 增量覆盖包草稿已生成：build/WinJACKNexus-i18n-Release-overlay-draft-e0b1f6e.zip，95 成员（25 项目运行时、68 JSON/QM、2 交付元数据文件），3340223 字节。现有 Release 基线 e0b1f6e，宿主 v11/780，13 个模块资源。全部来源/部署/归档字节及 SHA-256、ZIP CRC/成员白名单通过；25 PE 架构与直接/延迟导入分类通过，Qt 前提 DLL 与 Qt 6.10.3 SDK 逐字节相同。Probe32 是 x86，其他项目文件 x64；两 Probe 都不依赖 Qt DLL，需各自兼容 MSVC 运行库。包不含 Debug、测试程序、TS/PDB、用户设置/主题/工程；未安装覆盖、未操作或终止应用音频进程、零新增模块执行/零弹窗。草稿不称完整安装或发行验收通过；既有 Qt/默认主题/VSTProcess/JACK 依赖需由兼容安装提供，动态加载与实际安装/重启未验证，S6 人工审校及已记录的实窗缺口保留。见 [草稿清单](S7-overlay-manifest.json)、[归档证据](S7-overlay-verification.json)、[部署说明](S7-overlay-readme.txt)。
 
 压缩包 SHA-256：cab6852e3c1eb87f4b75ce857e352b0fd1e4eb8c71756b8b514acceb3a646ef8。归档是可评审草稿，本地 build 中提供，Git 提交仅维护生成工具/清单/证据/说明，不将二进制归档纳入源码仓库。
+
+
+2026-10-04 按用户最新指令“直接继续，审核后续再搞”：四语言母语/音频领域人工审校移至本次技术交付之后，不再作为继续打包交付的前置门槛；未收到的审校结论仍不标通过。此前单次模块测试、不再缩放、系统字体/可见 Windows 实窗/禁止 offscreen/单批显示最多 100 次要求保持。S6 技术实施与源码/语言包/全核对表收尾完成，人工审校后续；S7 增量包已交付：build/WinJACKNexus-i18n-Release-overlay-e0b1f6e.zip，95 成员、3340362 字节。归档 CRC、成员、全文件哈希、来源/部署一致性、25 PE 架构及静态导入核对通过；零新增编译/模块执行/弹窗，未操作用户安装或运行进程。原 draft 包与四份证据保留为 S7-draft-overlay-*。既有未验证 UI/冷启动/动态依赖/实际部署重启继续随包记录，不声称它们通过。见 [S6 技术交付](S6-completion.md)、[S7 交付记录](S7-completion.md)、[归档证据](S7-overlay-verification.json)。

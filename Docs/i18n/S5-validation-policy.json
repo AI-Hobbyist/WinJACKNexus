@@ -7,6 +7,16 @@
   "maximum_future_test_runs_per_module": 1,
   "execution_policy": "After completing the intended implementation, run each module once. Reuse existing valid results; do not repeat module tests for separate languages, scales or broad regressions. Preserve uncovered scenarios as unverified rather than passed.",
   "required_coverage": "Reuse a current verified four-language hot-switch test for every effect, host, community and shared controls. Do not launch repeated module runs to fill cold-start or scale matrices. Keep existing cold-start results and report remaining gaps explicitly.",
-  "preserved_requirements": ["Visible Windows windows", "System fonts by default", "No offscreen", "At most 100 popup shows per batch", "Native window ownership of captures", "Catalog, deployment, identity and lifecycle verification"],
-  "reporting": "Keep the original scale matrix gaps visible as unverified scope; do not describe discontinued matrix combinations as passed. Human language review remains pending S6."
+  "preserved_requirements": [
+    "Visible Windows windows",
+    "System fonts by default",
+    "No offscreen",
+    "At most 100 popup shows per batch",
+    "Native window ownership of captures",
+    "Catalog, deployment, identity and lifecycle verification"
+  ],
+  "reporting": "Human review is deferred by the user until after technical delivery. Retain all known runtime, cold-start and scale gaps explicitly; do not call unverified scenarios passed.",
+  "human_review_instruction": "直接继续，审核后续再搞",
+  "human_review_deferred_by_user": true,
+  "human_review_is_delivery_precondition": false
 }
