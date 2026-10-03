@@ -149,6 +149,66 @@
       "log": "Docs/i18n/S5-bounded-records/20261003T143001444Z-scale-2-community-en-US.log",
       "sha256": "20278752c7449fe748a3abe2fd4d974c3e4b1d0ba29f32da36d3ab989c071598",
       "runtime_basis": "current runtime with native-window-ownership-v2"
+    },
+    {
+      "record": "Docs\\i18n\\S5-bounded-records\\20261003T143902908Z-scale-2-graphic_eq_limiter_delay_parametric_eq_reverb-en-US.json",
+      "scale": "2",
+      "cold": "en-US",
+      "checks": 2470,
+      "popup_shows": 30,
+      "font": "Microsoft YaHei UI",
+      "captures": 63,
+      "log": "Docs/i18n/S5-bounded-records/20261003T143902908Z-scale-2-graphic_eq_limiter_delay_parametric_eq_reverb-en-US.log",
+      "sha256": "55616f961ea3e4883a3d0b2be79e5c0af0ac92752fa6f17a8167cf6a1a87fb8b",
+      "runtime_basis": "current runtime with native-window-ownership-v2"
+    },
+    {
+      "record": "Docs\\i18n\\S5-bounded-records\\20261003T143952477Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-zh-CN.json",
+      "scale": "2",
+      "cold": "zh-CN",
+      "checks": 3838,
+      "popup_shows": 48,
+      "font": "Microsoft YaHei UI",
+      "captures": 96,
+      "log": "Docs/i18n/S5-bounded-records/20261003T143952477Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-zh-CN.log",
+      "sha256": "def043dfb6866ceaa86ffe2ec2f859728c9eec0c83329b40fc234684f3248bc1",
+      "runtime_basis": "current runtime with native-window-ownership-v2"
+    },
+    {
+      "record": "Docs\\i18n\\S5-bounded-records\\20261003T144114201Z-scale-2-host-zh-CN.json",
+      "scale": "2",
+      "cold": "zh-CN",
+      "checks": 862,
+      "popup_shows": 1,
+      "font": "Microsoft YaHei UI",
+      "captures": 32,
+      "log": "Docs/i18n/S5-bounded-records/20261003T144114201Z-scale-2-host-zh-CN.log",
+      "sha256": "da707a1a540ecdc1be6fbfef0df6fe16460680b948b652d09766c9c36ceffc25",
+      "runtime_basis": "current runtime with native-window-ownership-v2"
+    },
+    {
+      "record": "Docs\\i18n\\S5-bounded-records\\20261003T144136625Z-scale-2-community-zh-CN.json",
+      "scale": "2",
+      "cold": "zh-CN",
+      "checks": 115,
+      "popup_shows": 2,
+      "font": "Microsoft YaHei UI",
+      "captures": 2,
+      "log": "Docs/i18n/S5-bounded-records/20261003T144136625Z-scale-2-community-zh-CN.log",
+      "sha256": "6ec06760adffe85d0530cd52f0d67474bd1a60cdf5422793cf9fed969f6e925e",
+      "runtime_basis": "current runtime with native-window-ownership-v2"
+    },
+    {
+      "record": "Docs\\i18n\\S5-bounded-records\\20261003T144152080Z-scale-1-shared-hot.json",
+      "scale": "1",
+      "cold": "hot",
+      "checks": 580,
+      "popup_shows": 19,
+      "font": "Microsoft YaHei UI",
+      "captures": 12,
+      "log": "Docs/i18n/S5-bounded-records/20261003T144152080Z-scale-1-shared-hot.log",
+      "sha256": "3c603130b99ef8deb7a2ae29a01cbadd00561640af4146a28e12164fec3ab49e",
+      "runtime_basis": "current runtime with native-window-ownership-v2"
     }
   ],
   "evidence": [
@@ -424,7 +484,6 @@
         "limiter",
         "parametric_eq",
         "reverb",
-        "shared",
         "corrected Qt file-dialog regression"
       ]
     },
@@ -560,33 +619,6 @@
     {
       "scale": "1.5",
       "language": "ko-KR",
-      "missing": [
-        "community",
-        "compressor",
-        "deesser",
-        "delay",
-        "gate",
-        "graphic_eq",
-        "host",
-        "limiter",
-        "parametric_eq",
-        "reverb"
-      ]
-    },
-    {
-      "scale": "2",
-      "language": "en-US",
-      "missing": [
-        "delay",
-        "graphic_eq",
-        "limiter",
-        "parametric_eq",
-        "reverb"
-      ]
-    },
-    {
-      "scale": "2",
-      "language": "zh-CN",
       "missing": [
         "community",
         "compressor",

@@ -2,6 +2,8 @@
 
 2026-10-03，验收进行中。当前截图来自系统字体、可见 Windows 实窗的桌面像素读取；未使用 offscreen。旧 QScreen 抓取记录仅保留历史用途。旧大矩阵已停止，当前改为最多 100 次显示的独立批次，本记录不能作为 S5 完成声明。
 
+最新已查看 `20261003T143902908Z-scale-2-graphic_eq_limiter_delay_parametric_eq_reverb-en-US/graphic_eq-load-dialog-en-US-0-0.png` 与 `20261003T143952477Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-zh-CN/graphic_eq-load-dialog-zh-CN-0-0.png`：200% 冷启动分别显示 Size 与“大小”，加载/取消及 EQ 预设过滤可读，含日文/韩文的文件名草稿及选区保留；截图为实际测试对话框，无黑图或其他应用画面。原生目录项按列宽省略，未将目录名称当作待翻译 UI。
+
 最新纠正：旧桌面抓取在一张 150% EQ 截图中读到了 LMMS 界面，Qt visible/exposed 本身不足以证明截图归属。旧协议的截图记录仅保留历史用途，不计入最终视觉覆盖。新协议使用测试窗口临时置顶、HWND 客户区物理坐标、五点窗口归属检查与实际桌面像素读取；抓取后恢复原置顶状态。其余应用及音频进程保持运行。
 
 新协议已实际查看 `20261003T135344830Z-scale-1.5-graphic_eq-zh-CN/` 的加载对话框、预设菜单与数字草稿：对应 EQ 内容可读，无其他应用画面，中文“大小”正确，数字草稿 `1.` 的选区保留。已查看 `20261003T135552421Z-scale-2-graphic_eq-hot/graphic_eq-load-dialog-zh-CN-0-0.png`，200% 下同样正确显示“大小”、打开/取消及完整文件名草稿。三个初步 EQ 补验批次仅存本地诊断，未发布误抓到的 LMMS 画面。
