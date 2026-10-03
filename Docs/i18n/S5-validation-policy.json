@@ -3,6 +3,9 @@
   "authority": "user instruction in this thread",
   "instruction": "后续不再进行缩放测试。节省时间",
   "additional_scale_tests": false,
+  "additional_user_instruction": "后续每个模块只测试一次，节省时间，不想等了",
+  "maximum_future_test_runs_per_module": 1,
+  "execution_policy": "After completing the intended implementation, run each module once. Reuse existing valid results; do not repeat module tests for separate languages, scales or broad regressions. Preserve uncovered scenarios as unverified rather than passed.",
   "required_coverage": "Every effect, host and community in hot switching and all four cold-start languages; shared controls in hot switching. Existing verified evidence may satisfy these requirements at any tested scale.",
   "preserved_requirements": ["Visible Windows windows", "System fonts by default", "No offscreen", "At most 100 popup shows per batch", "Native window ownership of captures", "Catalog, deployment, identity and lifecycle verification"],
   "reporting": "Keep the original scale matrix gaps visible as unverified scope; do not describe discontinued matrix combinations as passed. Human language review remains pending S6."
