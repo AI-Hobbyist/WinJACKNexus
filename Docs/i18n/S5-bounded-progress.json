@@ -60,6 +60,61 @@
       "captures": 8,
       "log": "Docs/i18n/S5-bounded-records/20261003T125933405Z-scale-2-community-hot.log",
       "sha256": "e776058a8670865b0a160bd8b71da3d5111a5b71d4e5b54b0602472f3d568c9e"
+    },
+    {
+      "record": "Docs\\i18n\\S5-bounded-records\\20261003T130314264Z-scale-2-limiter_delay-hot.json",
+      "scale": "2",
+      "cold": "hot",
+      "checks": 1943,
+      "popup_shows": 24,
+      "font": "Microsoft YaHei UI",
+      "captures": 64,
+      "log": "Docs/i18n/S5-bounded-records/20261003T130314264Z-scale-2-limiter_delay-hot.log",
+      "sha256": "0a635c3ae0f0ed2e2452303a0265780ac13565fdfea2ad82afcc7112ba07d01d"
+    },
+    {
+      "record": "Docs\\i18n\\S5-bounded-records\\20261003T130429963Z-scale-2-parametric_eq_reverb-hot.json",
+      "scale": "2",
+      "cold": "hot",
+      "checks": 1815,
+      "popup_shows": 20,
+      "font": "Microsoft YaHei UI",
+      "captures": 80,
+      "log": "Docs/i18n/S5-bounded-records/20261003T130429963Z-scale-2-parametric_eq_reverb-hot.log",
+      "sha256": "ee920ff1341363b6a1079dee5000352d003dce65e3af8b49882717938116cebc"
+    },
+    {
+      "record": "Docs\\i18n\\S5-bounded-records\\20261003T130530903Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-en-US.json",
+      "scale": "2",
+      "cold": "en-US",
+      "checks": 2726,
+      "popup_shows": 48,
+      "font": "Microsoft YaHei UI",
+      "captures": 96,
+      "log": "Docs/i18n/S5-bounded-records/20261003T130530903Z-scale-2-gate_graphic_eq_deesser_compressor_limiter_delay_parametric_eq_reverb-en-US.log",
+      "sha256": "57af4f436eacaa9cc3e654b45a57c7708ab8cebe190810e243fa81a60fd817cc"
+    },
+    {
+      "record": "Docs\\i18n\\S5-bounded-records\\20261003T130712338Z-scale-2-host-en-US.json",
+      "scale": "2",
+      "cold": "en-US",
+      "checks": 502,
+      "popup_shows": 1,
+      "font": "Microsoft YaHei UI",
+      "captures": 32,
+      "log": "Docs/i18n/S5-bounded-records/20261003T130712338Z-scale-2-host-en-US.log",
+      "sha256": "fdf3f8dc7bf6dd229a13ed2219aa012df2b054edcb34ca656430635244fa118d"
+    },
+    {
+      "record": "Docs\\i18n\\S5-bounded-records\\20261003T130805009Z-scale-2-community-en-US.json",
+      "scale": "2",
+      "cold": "en-US",
+      "checks": 91,
+      "popup_shows": 2,
+      "font": "Microsoft YaHei UI",
+      "captures": 2,
+      "log": "Docs/i18n/S5-bounded-records/20261003T130805009Z-scale-2-community-en-US.log",
+      "sha256": "50c7cce48e82fe0381077c2e12534227edf3277076c2fa37bca4ee53ec92de0b"
     }
   ],
   "evidence": [
@@ -470,32 +525,6 @@
     {
       "scale": "1.5",
       "language": "ko-KR",
-      "missing": [
-        "community",
-        "compressor",
-        "deesser",
-        "delay",
-        "gate",
-        "graphic_eq",
-        "host",
-        "limiter",
-        "parametric_eq",
-        "reverb"
-      ]
-    },
-    {
-      "scale": "2",
-      "language": "hot",
-      "missing": [
-        "delay",
-        "limiter",
-        "parametric_eq",
-        "reverb"
-      ]
-    },
-    {
-      "scale": "2",
-      "language": "en-US",
       "missing": [
         "community",
         "compressor",

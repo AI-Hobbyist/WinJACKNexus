@@ -6,6 +6,8 @@
 
 已查看 `20261003T125815820Z-scale-2-deesser_compressor-hot/compressor-node-ja-JP-0-0.png`：200% 首块中日文声道、模块名、参数及曲线可读，副标题与轴说明按固定区域省略，没有覆盖电源开关或旋钮数值；大窗口其余区域由同批分块截图记录，未将首块视为整窗证据。
 
+200% 后续抽查：`20261003T130314264Z-scale-2-limiter_delay-hot/limiter-node-ko-KR-0-0.png` 及 `-476-0.png` 合并覆盖上下分块，韩文输出上限、未使用字段“미사용”和模式可读；历史括号 Lookahead 保留，不能解读为已实现前视 DSP。`20261003T130429963Z-scale-2-parametric_eq_reverb-hot/reverb-node-ja-JP-0-0.png` 首块的房间类型及参数可读，长说明按区域省略，无覆盖旋钮数值；其余内容仍以同批分块记录为准。
+
 ## 已查看的截图
 
 | 缩放 | 实际截图 | 观察 |
