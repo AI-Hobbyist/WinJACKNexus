@@ -1,8 +1,153 @@
-/* Change a type's fader thumb here to recolor its SEL controls by default. */
+/* mixer module theme tokens. Keep token names and the :root block. */
 :root {
-  --wjn-theme-mixer-fader-input-thumb: #9aa8b7;
-  --wjn-theme-mixer-fader-aux-thumb: #33b6ff;
-  --wjn-theme-mixer-fader-submix-thumb: #37d879;
-  --wjn-theme-mixer-fader-master-thumb: #ff5353;
+  /* mixer / surface empty; type=color */
+  --wjn-theme-mixer-surface-empty: #07131f;
+  /* mixer / text primary; type=color */
+  --wjn-theme-mixer-text-primary: #dce9ff;
+  /* mixer / text muted; type=color */
+  --wjn-theme-mixer-text-muted: #a9bbd7;
+  /* mixer / monitor header surface; type=color */
+  --wjn-theme-mixer-monitor-header-surface: #76692b;
+  /* mixer / monitor select accent; type=color */
+  --wjn-theme-mixer-monitor-select-accent: #ffe15a;
+  /* mixer / monitor meter low active; type=color */
+  --wjn-theme-mixer-monitor-meter-low-active: #2bce75;
+  /* mixer / monitor meter low inactive; type=color */
+  --wjn-theme-mixer-monitor-meter-low-inactive: #163e2e;
+  /* mixer / monitor meter mid active; type=color */
+  --wjn-theme-mixer-monitor-meter-mid-active: #f4cd42;
+  /* mixer / monitor meter mid inactive; type=color */
+  --wjn-theme-mixer-monitor-meter-mid-inactive: #4a3f1d;
+  /* mixer / monitor meter high active; type=color */
+  --wjn-theme-mixer-monitor-meter-high-active: #f35656;
+  /* mixer / monitor meter high inactive; type=color */
+  --wjn-theme-mixer-monitor-meter-high-inactive: #4c242a;
+  /* mixer / fader monitor thumb; type=color */
   --wjn-theme-mixer-fader-monitor-thumb: #ffe15a;
+  /* mixer / fader monitor track; type=color */
+  --wjn-theme-mixer-fader-monitor-track: #0a0f15;
+  /* mixer / fader monitor grip; type=color */
+  --wjn-theme-mixer-fader-monitor-grip: #07131f;
+  /* mixer / control button pfl accent; type=color */
+  --wjn-theme-mixer-control-button-pfl-accent: #ffe15a;
+  /* mixer / control button afl accent; type=color */
+  --wjn-theme-mixer-control-button-afl-accent: #ffe15a;
+  /* mixer / Input/AUX draggable width separator; type=color */
+  --wjn-theme-mixer-resize-handle: #6d8fac;
+  /* mixer / AUX/Listen fixed category separator; type=color */
+  --wjn-theme-mixer-category-divider: #5d7e9d;
+  /* mixer / group divider; type=color */
+  --wjn-theme-mixer-group-divider: #243c57;
+  /* mixer / control meter mode surface post; type=color */
+  --wjn-theme-mixer-control-meter-mode-surface-post: #163a51;
+  /* mixer / control meter mode surface input; type=color */
+  --wjn-theme-mixer-control-meter-mode-surface-input: #182735;
+  /* mixer / control meter mode border post; type=color */
+  --wjn-theme-mixer-control-meter-mode-border-post: #33b6ff;
+  /* mixer / control meter mode border input; type=color */
+  --wjn-theme-mixer-control-meter-mode-border-input: #6f849a;
+  /* mixer / control meter mode text post; type=color */
+  --wjn-theme-mixer-control-meter-mode-text-post: #8edcff;
+  /* mixer / control scrollbar track; type=color */
+  --wjn-theme-mixer-control-scrollbar-track: #101c29;
+  /* mixer / control scrollbar input thumb; type=color */
+  --wjn-theme-mixer-control-scrollbar-input-thumb: #45bfff;
+  /* mixer / control scrollbar aux thumb; type=color */
+  --wjn-theme-mixer-control-scrollbar-aux-thumb: #8f78ff;
+  /* mixer / meter level surface; type=color */
+  --wjn-theme-mixer-meter-level-surface: #101a22;
+  /* mixer / meter level surface border; type=color */
+  --wjn-theme-mixer-meter-level-surface-border: #0a0f14;
+  /* mixer / meter level threshold line; type=color */
+  --wjn-theme-mixer-meter-level-threshold-line: #07131f;
+  /* mixer / fader input thumb; type=color */
+  --wjn-theme-mixer-fader-input-thumb: #9aa8b7;
+  /* mixer / fader aux thumb; type=color */
+  --wjn-theme-mixer-fader-aux-thumb: #33b6ff;
+  /* mixer / fader master thumb; type=color */
+  --wjn-theme-mixer-fader-master-thumb: #ff5353;
+  /* mixer / fader input track; type=color */
+  --wjn-theme-mixer-fader-input-track: #0a0f15;
+  /* mixer / fader aux track; type=color */
+  --wjn-theme-mixer-fader-aux-track: #0a0f15;
+  /* mixer / fader master track; type=color */
+  --wjn-theme-mixer-fader-master-track: #0a0f15;
+  /* mixer / fader input grip; type=color */
+  --wjn-theme-mixer-fader-input-grip: #07131f;
+  /* mixer / fader aux grip; type=color */
+  --wjn-theme-mixer-fader-aux-grip: #07131f;
+  /* mixer / fader master grip; type=color */
+  --wjn-theme-mixer-fader-master-grip: #07131f;
+  /* mixer / control button surface normal; type=color */
+  --wjn-theme-mixer-control-button-surface-normal: #16283a;
+  /* mixer / control button text normal; type=color */
+  --wjn-theme-mixer-control-button-text-normal: #a9bbd7;
+  /* mixer / control button text selected; type=color */
+  --wjn-theme-mixer-control-button-text-selected: #ffffff;
+  /* mixer / control button surface selected opacity; type=opacity */
+  --wjn-theme-mixer-control-button-surface-selected-opacity: 0.254902;
+  /* mixer / control button border normal opacity; type=opacity */
+  --wjn-theme-mixer-control-button-border-normal-opacity: 0.745098;
+  /* mixer / control button mute accent; type=color */
+  --wjn-theme-mixer-control-button-mute-accent: #ff4f55;
+  /* mixer / control button solo accent; type=color */
+  --wjn-theme-mixer-control-button-solo-accent: #f7aa2f;
+  /* mixer / control button select accent; type=color */
+  --wjn-theme-mixer-control-button-select-accent: #66809b;
+  /* mixer / control button mix accent; type=color */
+  --wjn-theme-mixer-control-button-mix-accent: #24b8ff;
+  /* mixer / meter level zone low active; type=color */
+  --wjn-theme-mixer-meter-level-zone-low-active: #26dc68;
+  /* mixer / meter level zone low inactive; type=color */
+  --wjn-theme-mixer-meter-level-zone-low-inactive: var(--wjn-theme-global-meter-level-zone-low-inactive);
+  /* mixer / meter level zone mid active; type=color */
+  --wjn-theme-mixer-meter-level-zone-mid-active: #ffe15a;
+  /* mixer / meter level zone mid inactive; type=color */
+  --wjn-theme-mixer-meter-level-zone-mid-inactive: var(--wjn-theme-global-meter-level-zone-mid-inactive);
+  /* mixer / meter level zone high active; type=color */
+  --wjn-theme-mixer-meter-level-zone-high-active: #ff5353;
+  /* mixer / meter level zone high inactive; type=color */
+  --wjn-theme-mixer-meter-level-zone-high-inactive: var(--wjn-theme-global-meter-level-zone-high-inactive);
+  /* mixer / meter level border; type=color */
+  --wjn-theme-mixer-meter-level-border: #07131f;
+  /* mixer / background opacity; type=opacity */
+  --wjn-theme-mixer-background-opacity: var(--wjn-theme-patchbay-background-opacity);
+  /* mixer / background size; type=background-size */
+  --wjn-theme-mixer-background-size: var(--wjn-theme-patchbay-background-size);
+  /* mixer / background scale; type=background-scale */
+  --wjn-theme-mixer-background-scale: var(--wjn-theme-patchbay-background-scale);
+  /* mixer / background repeat; type=background-repeat */
+  --wjn-theme-mixer-background-repeat: var(--wjn-theme-patchbay-background-repeat);
+  /* mixer / background position x; type=position */
+  --wjn-theme-mixer-background-position-x: var(--wjn-theme-patchbay-background-position-x);
+  /* mixer / background position y; type=position */
+  --wjn-theme-mixer-background-position-y: var(--wjn-theme-patchbay-background-position-y);
+  /* mixer / background overlay enabled; type=boolean */
+  --wjn-theme-mixer-background-overlay-enabled: var(--wjn-theme-patchbay-background-overlay-enabled);
+  /* mixer / background overlay opacity; type=opacity */
+  --wjn-theme-mixer-background-overlay-opacity: var(--wjn-theme-patchbay-background-overlay-opacity);
+  /* mixer / background blur radius; type=blur-radius */
+  --wjn-theme-mixer-background-blur-radius: var(--wjn-theme-patchbay-background-blur-radius);
+  /* mixer / background component opacity; type=opacity */
+  --wjn-theme-mixer-background-component-opacity: var(--wjn-theme-patchbay-background-component-opacity);
+  /* mixer content background image; null means undefined and inherits the patchbay image; type=image */
+  /* --wjn-theme-mixer-background-image: inherited from --wjn-theme-patchbay-background-image; keep undeclared to inherit. */
+  /* mixer / control name text dark; type=color */
+  --wjn-theme-mixer-control-name-text-dark: #102033;
+  /* mixer / control name text light; type=color */
+  --wjn-theme-mixer-control-name-text-light: #f5fbff;
+  /* mixer / fader-submix-thumb; type=color */
+  --wjn-theme-mixer-fader-submix-thumb: #37d879;
+  /* mixer / fader-submix-track; type=color */
+  --wjn-theme-mixer-fader-submix-track: #0a0f15;
+  /* mixer / fader-submix-grip; type=color */
+  --wjn-theme-mixer-fader-submix-grip: #07131f;
+  /* mixer / control-scrollbar-submix-thumb; type=color */
+  --wjn-theme-mixer-control-scrollbar-submix-thumb: #37d879;
+  /* mixer / resize-submix-handle; type=color */
+  --wjn-theme-mixer-resize-submix-handle: #6d8fac;
+  /* mixer / overview-card-surface; type=color */
+  --wjn-theme-mixer-overview-card-surface: #0b1a2b;
+  /* mixer / overview-card-border; type=color */
+  --wjn-theme-mixer-overview-card-border: #29435d;
 }

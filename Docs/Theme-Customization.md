@@ -4,7 +4,7 @@
 
 运行时的唯一默认主题由主程序同级 `wjn_default_theme.dll` 提供；DLL 缺失或无效时主程序拒绝启动。模板目录中的 `winjacknexus-default.wjnskin` 是默认配色对照包，不会作为第二个默认主题进入列表。
 
-只需改动几种通道推子及 SEL 控件配色时，可使用 [`template-simple-dev`](../themes/template-simple-dev/README.md)。SEL 的五种 `control-accent-*` 默认引用对应的 `mixer-fader-*-thumb`；通道调色板的单条通道自定义颜色不会改变 SEL 控件，电平表分段也独立。
+可使用 [`template-simple-dev`](../themes/template-simple-dev/README.md) 从完整模块结构开始编辑：它与完整模板列出相同的模块和 Token，仅将部分默认值写为 `var(...)` 继承。SEL 的五种 `control-accent-*` 默认引用对应的 `mixer-fader-*-thumb`；通道调色板的单条通道自定义颜色不会改变主题 Token，电平表分段也保留各模块独立的 Token。
 
 ## 制作与安装
 

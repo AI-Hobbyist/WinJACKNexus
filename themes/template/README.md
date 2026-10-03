@@ -2,7 +2,7 @@
 
 此文件夹是完整主题的开发模板。根目录 `style.css` 管理全局 token，`meta.json` 管理主题信息；`host/`、`node/`、`native_fx/` 中每个 CSS 只对应一个模块。全部文件合计列出 807 个显式默认 token，并逐个标注类型与模块归属；另有 14 个背景图片 token 以注释形式标出继承关系。模板覆盖旋钮外环、调音台各类推子、声像器按钮、全部模块控件、图表语义和电平表颜色分段。
 
-如只想调整几种通道推子及 SEL 控件强调色，可从 [`../template-simple-dev`](../template-simple-dev/README.md) 开始。SEL 控件按通道类型继承推子配色；单条通道的自定义颜色只用于通道标识，不改变这些控件。
+如希望从共享默认值开始编辑，可使用 [`../template-simple-dev`](../template-simple-dev/README.md)。它保留与本模板相同的模块结构和 Token，只将部分默认值写成 `var(...)` 继承。SEL 控件按通道类型继承推子配色；单条通道的自定义颜色只用于通道标识，不改变这些控件。
 
 1. 修改 `meta.json` 的 `id`、`name`、`author`、`description` 和 `version`。
 2. 修改 `style.css` 或对应分类文件夹中的模块 CSS。图片和字体放在 `assets/`，在 CSS 中用 `url("assets/文件名")` 引用。

@@ -1,7 +1,8 @@
 # Simple Dev theme instructions
 
-- Read `README.md`, `../template/Theme-Customization.md`, and the local `Theme-v1-Registry.json` before editing. Use the registry to check token type, module scope, default, and inheritance.
-- Use this sparse template to start quickly, then aim to cover every installed host, Node, and Native Fx module before delivering a complete theme. Review each registered namespace and document any module intentionally left on inherited defaults.
+- Read `README.md`, the local `Theme-Customization.md`, and `Theme-v1-Registry.json` before editing. Use the registry to check token type, module scope, default, and inheritance.
+- Preserve the complete template structure: global, every host, Node, and Native Fx module CSS, and all declared namespaces. Simple means selected defaults inherit via `var(...)`; do not omit modules or their Token declarations.
+- Aim to cover every installed module when delivering a theme. Review each namespace and document values intentionally left inherited.
 - Keep the `mixer` fader thumb tokens and `sel-main` per-type accent aliases distinct from channel custom colors. Never use a channel's color-picker value as a SEL control token.
 - Preserve one `:root` block per CSS file and the declared module namespace.
 - Keep text and background colors clearly distinguishable in every state, including translucent overlays; never use near-matching colors. Recheck text contrast after changing a fader or SEL accent.

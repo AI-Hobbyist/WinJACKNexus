@@ -1,7 +1,9 @@
 # Simple Dev 主题模板
 
-这是一个可直接放在主程序同级 `themes/` 下加载的精简完整主题。未声明的外观沿用程序默认主题。先修改 `meta.json` 中的 `id` 和名称，再编辑 `host/mixer.css` 的五种推子颜色；SEL 控件默认继承对应类型推子的颜色，和通道调色板设置的单条通道自定义颜色无关。电平表的颜色分段保持独立。
+本模板与 [`../template`](../template/README.md) 具有相同的模块结构：根目录 `style.css`，以及 `host/`、`node/`、`native_fx/` 下全部模块 CSS。17 个命名空间和全部模块级 Token 均保留；**Simple** 指部分默认值使用 `var(...)` 继承，并非省略模块或控件。未声明的 14 个背景图片 Token 按注册表规则继承。
 
-需要让 SEL 控件与同类型推子使用不同颜色时，在 `host/sel-main.css` 将相应的 `control-accent-*` 值改为明确的颜色。完整的模块级 Token、图表语义、电平表颜色分段及背景选项见 [`../template/Theme-Customization.md`](../template/Theme-Customization.md)。本目录的 [`Theme-v1-Registry.json`](Theme-v1-Registry.json) 列出 Token 规范，仅供开发参考，不会进入主题包。
+先修改 `meta.json` 的 `id`、名称和作者，再按模块编辑 CSS。通用背景选项、部分相同语义且相同默认值的控件与电平项引用 `global`；其他模块值可独立修改。每个图表语义与电平颜色分段都有模块级 Token，若需独立改色，可把对应的 `var(...)` 换为明确颜色。五种 `control-accent-*` 默认引用对应类型的推子 Token；通道调色板设置的单条通道自定义颜色不会改变主题 Token。
 
-在此目录运行 `python build_theme.py`，生成包位于上一级 `themes/`。也可以直接选择 Dev 目录并通过“刷新当前 Dev 主题”预览编辑结果。
+完整的模块语义、图表、电平分段和背景选项见本目录的 [`Theme-Customization.md`](Theme-Customization.md)。[`Theme-v1-Registry.json`](Theme-v1-Registry.json) 列出所有 Token 的类型、归属、默认值与继承规则，仅供开发参考，不会进入主题包。目录内的 `winjacknexus-default.wjnskin` 是默认主题对照包。
+
+把此目录放在主程序同级 `themes/` 下可作为 Dev 主题加载。修改后使用“刷新当前 Dev 主题”；也可在本目录运行 `python build_theme.py`，在上一级 `themes/` 生成 `.wjnskin` 包。主题视觉效果由人工验收。

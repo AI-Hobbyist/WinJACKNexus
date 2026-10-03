@@ -1,0 +1,23 @@
+:root {
+  /* mixer-overview / background opacity; type=opacity */
+  --wjn-theme-mixer-overview-background-opacity: var(--wjn-theme-patchbay-background-opacity);
+  /* mixer-overview / background size; type=background-size */
+  --wjn-theme-mixer-overview-background-size: var(--wjn-theme-patchbay-background-size);
+  /* mixer-overview / background scale; type=background-scale */
+  --wjn-theme-mixer-overview-background-scale: var(--wjn-theme-patchbay-background-scale);
+  /* mixer-overview / background repeat; type=background-repeat */
+  --wjn-theme-mixer-overview-background-repeat: var(--wjn-theme-patchbay-background-repeat);
+  /* mixer-overview / background position x; type=position */
+  --wjn-theme-mixer-overview-background-position-x: var(--wjn-theme-patchbay-background-position-x);
+  /* mixer-overview / background position y; type=position */
+  --wjn-theme-mixer-overview-background-position-y: var(--wjn-theme-patchbay-background-position-y);
+  /* mixer-overview / background overlay enabled; type=boolean */
+  --wjn-theme-mixer-overview-background-overlay-enabled: var(--wjn-theme-patchbay-background-overlay-enabled);
+  /* mixer-overview / background overlay opacity; type=opacity */
+  --wjn-theme-mixer-overview-background-overlay-opacity: var(--wjn-theme-patchbay-background-overlay-opacity);
+  /* mixer-overview / background blur radius; type=blur-radius */
+  --wjn-theme-mixer-overview-background-blur-radius: var(--wjn-theme-patchbay-background-blur-radius);
+  /* mixer-overview / background component opacity; type=opacity */
+  --wjn-theme-mixer-overview-background-component-opacity: var(--wjn-theme-patchbay-background-component-opacity);
+  /* --wjn-theme-mixer-overview-background-image: inherited from --wjn-theme-patchbay-background-image; leave undefined to inherit. */
+}

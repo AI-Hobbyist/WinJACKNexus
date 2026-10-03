@@ -1,0 +1,57 @@
+/* native-fx-reverb module theme tokens. Keep token names and the :root block. */
+:root {
+  /* native-fx-reverb / surface window; type=color */
+  --wjn-theme-native-fx-reverb-surface-window: #0b1a2a;
+  /* native-fx-reverb / surface panel; type=color */
+  --wjn-theme-native-fx-reverb-surface-panel: #112034;
+  /* native-fx-reverb / text primary; type=color */
+  --wjn-theme-native-fx-reverb-text-primary: #d8e6fc;
+  /* native-fx-reverb / text heading; type=color */
+  --wjn-theme-native-fx-reverb-text-heading: #ffffff;
+  /* native-fx-reverb / text muted; type=color */
+  --wjn-theme-native-fx-reverb-text-muted: #9db5db;
+  /* native-fx-reverb / control knob indicator normal; type=color */
+  --wjn-theme-native-fx-reverb-control-knob-indicator-normal: #c272f7;
+  /* native-fx-reverb / scene accent cyan; type=color */
+  --wjn-theme-native-fx-reverb-scene-accent-cyan: #2acdff;
+  /* native-fx-reverb / scene accent violet; type=color */
+  --wjn-theme-native-fx-reverb-scene-accent-violet: #c272f7;
+  /* native-fx-reverb / scene shape light; type=color */
+  --wjn-theme-native-fx-reverb-scene-shape-light: #aba2dc;
+  /* native-fx-reverb / scene glow; type=color */
+  --wjn-theme-native-fx-reverb-scene-glow: #a994f2;
+  /* native-fx-reverb / background opacity; type=opacity */
+  --wjn-theme-native-fx-reverb-background-opacity: var(--wjn-theme-patchbay-background-opacity);
+  /* native-fx-reverb / background size; type=background-size */
+  --wjn-theme-native-fx-reverb-background-size: var(--wjn-theme-patchbay-background-size);
+  /* native-fx-reverb / background scale; type=background-scale */
+  --wjn-theme-native-fx-reverb-background-scale: var(--wjn-theme-patchbay-background-scale);
+  /* native-fx-reverb / background repeat; type=background-repeat */
+  --wjn-theme-native-fx-reverb-background-repeat: var(--wjn-theme-patchbay-background-repeat);
+  /* native-fx-reverb / background position x; type=position */
+  --wjn-theme-native-fx-reverb-background-position-x: var(--wjn-theme-patchbay-background-position-x);
+  /* native-fx-reverb / background position y; type=position */
+  --wjn-theme-native-fx-reverb-background-position-y: var(--wjn-theme-patchbay-background-position-y);
+  /* native-fx-reverb / background overlay enabled; type=boolean */
+  --wjn-theme-native-fx-reverb-background-overlay-enabled: var(--wjn-theme-patchbay-background-overlay-enabled);
+  /* native-fx-reverb / background overlay opacity; type=opacity */
+  --wjn-theme-native-fx-reverb-background-overlay-opacity: var(--wjn-theme-patchbay-background-overlay-opacity);
+  /* native-fx-reverb / background blur radius; type=blur-radius */
+  --wjn-theme-native-fx-reverb-background-blur-radius: var(--wjn-theme-patchbay-background-blur-radius);
+  /* native-fx-reverb / background component opacity; type=opacity */
+  --wjn-theme-native-fx-reverb-background-component-opacity: var(--wjn-theme-patchbay-background-component-opacity);
+  /* native-fx-reverb / control knob background base; type=color */
+  --wjn-theme-native-fx-reverb-control-knob-background-base: #0b1a2a;
+  /* native-fx-reverb / control knob track; type=color */
+  --wjn-theme-native-fx-reverb-control-knob-track: #304961;
+  /* native-fx-reverb / control knob violet indicator normal; type=color */
+  --wjn-theme-native-fx-reverb-control-knob-violet-indicator-normal: #c272f7;
+  /* native-fx-reverb / control knob cyan indicator normal; type=color */
+  --wjn-theme-native-fx-reverb-control-knob-cyan-indicator-normal: #2acdff;
+  /* native-fx-reverb / control toggle indicator on; type=color */
+  --wjn-theme-native-fx-reverb-control-toggle-indicator-on: #0e7ee3;
+  /* native-fx-reverb / control toggle indicator off; type=color */
+  --wjn-theme-native-fx-reverb-control-toggle-indicator-off: #344453;
+  /* native-fx-reverb content background image; null means undefined and inherits the patchbay image; type=image */
+  /* --wjn-theme-native-fx-reverb-background-image: inherited from --wjn-theme-patchbay-background-image; keep undeclared to inherit. */
+}

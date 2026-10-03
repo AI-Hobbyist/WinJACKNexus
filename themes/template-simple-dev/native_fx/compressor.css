@@ -1,0 +1,59 @@
+/* native-fx-compressor module theme tokens. Keep token names and the :root block. */
+:root {
+  /* native-fx-compressor / surface window; type=color */
+  --wjn-theme-native-fx-compressor-surface-window: #0d1c2d;
+  /* native-fx-compressor / surface panel start; type=color */
+  --wjn-theme-native-fx-compressor-surface-panel-start: #112437;
+  /* native-fx-compressor / surface panel end; type=color */
+  --wjn-theme-native-fx-compressor-surface-panel-end: #0b1d2f;
+  /* native-fx-compressor / text primary; type=color */
+  --wjn-theme-native-fx-compressor-text-primary: #eaf0ff;
+  /* native-fx-compressor / text muted; type=color */
+  --wjn-theme-native-fx-compressor-text-muted: #a8bfe4;
+  /* native-fx-compressor / control knob indicator normal; type=color */
+  --wjn-theme-native-fx-compressor-control-knob-indicator-normal: #ff9f41;
+  /* native-fx-compressor / chart background; type=color */
+  --wjn-theme-native-fx-compressor-chart-background: #0d1d2e;
+  /* native-fx-compressor / chart grid minor; type=color */
+  --wjn-theme-native-fx-compressor-chart-grid-minor: rgba(61,82,101,0.254902);
+  /* native-fx-compressor / chart grid major; type=color */
+  --wjn-theme-native-fx-compressor-chart-grid-major: rgba(66,91,114,0.588235);
+  /* native-fx-compressor / chart series transfer stroke; type=color */
+  --wjn-theme-native-fx-compressor-chart-series-transfer-stroke: #ff9f41;
+  /* native-fx-compressor / chart series level fill fill; type=color */
+  --wjn-theme-native-fx-compressor-chart-series-level-fill-fill: rgba(198,111,35,0.282353);
+  /* native-fx-compressor / meter reduction zone single active; type=color */
+  --wjn-theme-native-fx-compressor-meter-reduction-zone-single-active: #ef3748;
+  /* native-fx-compressor / meter reduction zone single inactive; type=color */
+  --wjn-theme-native-fx-compressor-meter-reduction-zone-single-inactive: #242c39;
+  /* native-fx-compressor / background opacity; type=opacity */
+  --wjn-theme-native-fx-compressor-background-opacity: var(--wjn-theme-patchbay-background-opacity);
+  /* native-fx-compressor / background size; type=background-size */
+  --wjn-theme-native-fx-compressor-background-size: var(--wjn-theme-patchbay-background-size);
+  /* native-fx-compressor / background scale; type=background-scale */
+  --wjn-theme-native-fx-compressor-background-scale: var(--wjn-theme-patchbay-background-scale);
+  /* native-fx-compressor / background repeat; type=background-repeat */
+  --wjn-theme-native-fx-compressor-background-repeat: var(--wjn-theme-patchbay-background-repeat);
+  /* native-fx-compressor / background position x; type=position */
+  --wjn-theme-native-fx-compressor-background-position-x: var(--wjn-theme-patchbay-background-position-x);
+  /* native-fx-compressor / background position y; type=position */
+  --wjn-theme-native-fx-compressor-background-position-y: var(--wjn-theme-patchbay-background-position-y);
+  /* native-fx-compressor / background overlay enabled; type=boolean */
+  --wjn-theme-native-fx-compressor-background-overlay-enabled: var(--wjn-theme-patchbay-background-overlay-enabled);
+  /* native-fx-compressor / background overlay opacity; type=opacity */
+  --wjn-theme-native-fx-compressor-background-overlay-opacity: var(--wjn-theme-patchbay-background-overlay-opacity);
+  /* native-fx-compressor / background blur radius; type=blur-radius */
+  --wjn-theme-native-fx-compressor-background-blur-radius: var(--wjn-theme-patchbay-background-blur-radius);
+  /* native-fx-compressor / background component opacity; type=opacity */
+  --wjn-theme-native-fx-compressor-background-component-opacity: var(--wjn-theme-patchbay-background-component-opacity);
+  /* native-fx-compressor / control knob background base; type=color */
+  --wjn-theme-native-fx-compressor-control-knob-background-base: #0d1c2d;
+  /* native-fx-compressor / control knob track; type=color */
+  --wjn-theme-native-fx-compressor-control-knob-track: #4a5865;
+  /* native-fx-compressor / control toggle indicator on; type=color */
+  --wjn-theme-native-fx-compressor-control-toggle-indicator-on: #0872ce;
+  /* native-fx-compressor / control toggle indicator off; type=color */
+  --wjn-theme-native-fx-compressor-control-toggle-indicator-off: #1c2e44;
+  /* native-fx-compressor content background image; null means undefined and inherits the patchbay image; type=image */
+  /* --wjn-theme-native-fx-compressor-background-image: inherited from --wjn-theme-patchbay-background-image; keep undeclared to inherit. */
+}
