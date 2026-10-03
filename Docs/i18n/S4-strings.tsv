@@ -63,7 +63,7 @@ mixer	label.monitor	监听	Monitor	モニター	모니터
 mixer	status.noSelection	未选择通道	No channel selected	チャンネル未選択	선택된 채널 없음
 mixer	view.overview	通道总览	Channel overview	チャンネル一覧	채널 개요
 mixer	section.inputs	Inputs	Inputs	入力	입력
-mixer	section.subMonitorMaster	Sub Mix/Monitor/Master	Sub Mix/Monitor/Master	Sub Mix/モニター/マスター	Sub Mix/모니터/마스터
+mixer	section.subMonitorMaster	分组混音/监听/主控	Sub Mix/Monitor/Master	サブミックス/モニター/マスター	서브 믹스/모니터/마스터
 mixer	view.details	通道详情	Channel details	チャンネル詳細	채널 상세
 mixer	label.detailsPrefix	通道详情 ·	Channel details ·	チャンネル詳細 ·	채널 상세 ·
 mixer	control.channelColor	通道颜色	Channel color	チャンネルの色	채널 색상
@@ -313,3 +313,5 @@ meterbridge	probe.role.topFrontRight	顶部前右	Top front right	上方前方�
 meterbridge	probe.role.topRearLeft	顶部后左	Top rear left	上方後方左	상단 후방 왼쪽
 meterbridge	probe.role.topRearRight	顶部后右	Top rear right	上方後方右	상단 후방 오른쪽
 meterbridge	probe.role.lfe	低频效果 (LFE)	Low-frequency effects (LFE)	低域効果 (LFE)	저주파 효과 (LFE)
+aux	label.subMix	分组混音	Sub Mix	サブミックス	서브 믹스
+mixer	section.subMix	分组混音	Sub Mix	サブミックス	서브 믹스

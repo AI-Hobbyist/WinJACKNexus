@@ -53,6 +53,7 @@ Q_SIGNALS:
     void entryVisibilityChanged(const QString& id, bool visible);
 
 protected:
+    bool event(QEvent* event) override;
     void paintEvent(QPaintEvent* event) override;
     void mouseReleaseEvent(QMouseEvent* event) override;
 

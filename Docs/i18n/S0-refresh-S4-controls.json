@@ -1,0 +1,6662 @@
+{
+  "date": "2026-10-03",
+  "changed_files": [
+    "src/ui/include/WinJACKNexus/UI/Controls.hpp",
+    "src/ui/include/WinJACKNexus/UI/MixerWindow.hpp",
+    "src/ui/src/Controls.cpp",
+    "src/ui/src/MixerWindow.cpp"
+  ],
+  "resource_changes": [],
+  "before_occurrences": 9012,
+  "after_occurrences": 9012,
+  "added": [],
+  "removed": [],
+  "relocated": [
+    {
+      "file": "src/ui/include/WinJACKNexus/UI/Controls.hpp",
+      "literal": "#263437",
+      "before_lines": [
+        "269",
+        "286",
+        "314",
+        "351",
+        "366",
+        "382",
+        "398",
+        "414"
+      ],
+      "after_lines": [
+        270,
+        287,
+        315,
+        352,
+        367,
+        383,
+        399,
+        415
+      ]
+    },
+    {
+      "file": "src/ui/include/WinJACKNexus/UI/Controls.hpp",
+      "literal": "#3b4d4d",
+      "before_lines": [
+        "270",
+        "287",
+        "315",
+        "352",
+        "367",
+        "383",
+        "399",
+        "415"
+      ],
+      "after_lines": [
+        271,
+        288,
+        316,
+        353,
+        368,
+        384,
+        400,
+        416
+      ]
+    },
+    {
+      "file": "src/ui/include/WinJACKNexus/UI/Controls.hpp",
+      "literal": "#43c7a8",
+      "before_lines": [
+        "268",
+        "285",
+        "313",
+        "350",
+        "365",
+        "381",
+        "397",
+        "413"
+      ],
+      "after_lines": [
+        269,
+        286,
+        314,
+        351,
+        366,
+        382,
+        398,
+        414
+      ]
+    },
+    {
+      "file": "src/ui/include/WinJACKNexus/UI/Controls.hpp",
+      "literal": "#e7f0ec",
+      "before_lines": [
+        "271",
+        "288",
+        "316",
+        "384",
+        "416"
+      ],
+      "after_lines": [
+        272,
+        289,
+        317,
+        385,
+        417
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "#102033",
+      "before_lines": [
+        "52"
+      ],
+      "after_lines": [
+        55
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "#187ee8",
+      "before_lines": [
+        "213"
+      ],
+      "after_lines": [
+        216
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "#1e2b34",
+      "before_lines": [
+        "821"
+      ],
+      "after_lines": [
+        840
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "#31c6ff",
+      "before_lines": [
+        "56"
+      ],
+      "after_lines": [
+        59
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "#33495b",
+      "before_lines": [
+        "825"
+      ],
+      "after_lines": [
+        844
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "#38516d",
+      "before_lines": [
+        "214"
+      ],
+      "after_lines": [
+        217
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "#43c7a8",
+      "before_lines": [
+        "823"
+      ],
+      "after_lines": [
+        842
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "#4b5f73",
+      "before_lines": [
+        "822"
+      ],
+      "after_lines": [
+        841
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "#e6eef4",
+      "before_lines": [
+        "824"
+      ],
+      "after_lines": [
+        843
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "#eff6ff",
+      "before_lines": [
+        "54"
+      ],
+      "after_lines": [
+        57
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "--wjn-theme-",
+      "before_lines": [
+        "149"
+      ],
+      "after_lines": [
+        152
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "QLineEdit {background:%1;color:%2;",
+      "before_lines": [
+        "57"
+      ],
+      "after_lines": [
+        60
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "accent-primary",
+      "before_lines": [
+        "1079"
+      ],
+      "after_lines": [
+        1098
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "accentColor",
+      "before_lines": [
+        "127",
+        "128",
+        "1087"
+      ],
+      "after_lines": [
+        130,
+        131,
+        1106
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "action",
+      "before_lines": [
+        "764"
+      ],
+      "after_lines": [
+        783
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "background: transparent; border: none; padding: 0;",
+      "before_lines": [
+        "689",
+        "745",
+        "982",
+        "990"
+      ],
+      "after_lines": [
+        693,
+        764,
+        1001,
+        1009
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "border-normal",
+      "before_lines": [
+        "1080"
+      ],
+      "after_lines": [
+        1099
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "border:1px solid %3;border-radius:4px;}",
+      "before_lines": [
+        "58"
+      ],
+      "after_lines": [
+        61
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "borderColor",
+      "before_lines": [
+        "131",
+        "132",
+        "1089"
+      ],
+      "after_lines": [
+        134,
+        135,
+        1108
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "button",
+      "before_lines": [
+        "638"
+      ],
+      "after_lines": [
+        642
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "card",
+      "before_lines": [
+        "643"
+      ],
+      "after_lines": [
+        647
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "choice",
+      "before_lines": [
+        "713"
+      ],
+      "after_lines": [
+        717
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "control-input-border-focus",
+      "before_lines": [
+        "55"
+      ],
+      "after_lines": [
+        58
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "control-input-surface-normal",
+      "before_lines": [
+        "51"
+      ],
+      "after_lines": [
+        54
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "control-input-text-normal",
+      "before_lines": [
+        "53"
+      ],
+      "after_lines": [
+        56
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "control-toggle-indicator-selected",
+      "before_lines": [
+        "213"
+      ],
+      "after_lines": [
+        216
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "control-toggle-surface-normal",
+      "before_lines": [
+        "214"
+      ],
+      "after_lines": [
+        217
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "control-zoom-border",
+      "before_lines": [
+        "822"
+      ],
+      "after_lines": [
+        841
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "control-zoom-hover",
+      "before_lines": [
+        "825"
+      ],
+      "after_lines": [
+        844
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "control-zoom-icon",
+      "before_lines": [
+        "823"
+      ],
+      "after_lines": [
+        842
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "control-zoom-surface",
+      "before_lines": [
+        "821"
+      ],
+      "after_lines": [
+        840
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "control-zoom-text",
+      "before_lines": [
+        "824"
+      ],
+      "after_lines": [
+        843
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "dialogActions",
+      "before_lines": [
+        "883"
+      ],
+      "after_lines": [
+        902
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "dock",
+      "before_lines": [
+        "1490"
+      ],
+      "after_lines": [
+        1529
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "dockCollapseButton",
+      "before_lines": [
+        "1253"
+      ],
+      "after_lines": [
+        1272
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "dockResizeGrip",
+      "before_lines": [
+        "1247"
+      ],
+      "after_lines": [
+        1266
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "dropdown",
+      "before_lines": [
+        "640"
+      ],
+      "after_lines": [
+        644
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "field",
+      "before_lines": [
+        "685"
+      ],
+      "after_lines": [
+        689
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "fxAccent",
+      "before_lines": [
+        "122",
+        "212",
+        "222"
+      ],
+      "after_lines": [
+        125,
+        215,
+        225
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "fxBackground",
+      "before_lines": [
+        "124",
+        "219"
+      ],
+      "after_lines": [
+        127,
+        222
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "fxBorder",
+      "before_lines": [
+        "123",
+        "223"
+      ],
+      "after_lines": [
+        126,
+        226
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "fxPanel",
+      "before_lines": [
+        "125",
+        "220"
+      ],
+      "after_lines": [
+        128,
+        223
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "fxText",
+      "before_lines": [
+        "126",
+        "221"
+      ],
+      "after_lines": [
+        129,
+        224
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "gate.applyClientName",
+      "before_lines": [
+        "1555"
+      ],
+      "after_lines": [
+        1594
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "gate.clientName",
+      "before_lines": [
+        "1546"
+      ],
+      "after_lines": [
+        1585
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "global",
+      "before_lines": [
+        "51",
+        "53",
+        "55",
+        "212",
+        "214",
+        "1076",
+        "1077",
+        "1078",
+        "1079",
+        "1080"
+      ],
+      "after_lines": [
+        54,
+        56,
+        58,
+        215,
+        217,
+        1095,
+        1096,
+        1097,
+        1098,
+        1099
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "group",
+      "before_lines": [
+        "1388"
+      ],
+      "after_lines": [
+        1407
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "iconAction",
+      "before_lines": [
+        "931"
+      ],
+      "after_lines": [
+        950
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "label",
+      "before_lines": [
+        "642",
+        "1406"
+      ],
+      "after_lines": [
+        646,
+        1425
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "list",
+      "before_lines": [
+        "1373"
+      ],
+      "after_lines": [
+        1392
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "log",
+      "before_lines": [
+        "1442"
+      ],
+      "after_lines": [
+        1481
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "number",
+      "before_lines": [
+        "978",
+        "986"
+      ],
+      "after_lines": [
+        997,
+        1005
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "numericValueEditor",
+      "before_lines": [
+        "48",
+        "93"
+      ],
+      "after_lines": [
+        51,
+        96
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "patchbay",
+      "before_lines": [
+        "819"
+      ],
+      "after_lines": [
+        838
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "patchbayZoomControl",
+      "before_lines": [
+        "799"
+      ],
+      "after_lines": [
+        818
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "progress",
+      "before_lines": [
+        "1046"
+      ],
+      "after_lines": [
+        1065
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "range",
+      "before_lines": [
+        "1019"
+      ],
+      "after_lines": [
+        1038
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "rgb(",
+      "before_lines": [
+        "153"
+      ],
+      "after_lines": [
+        156
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "rgba(",
+      "before_lines": [
+        "153",
+        "154"
+      ],
+      "after_lines": [
+        156,
+        157
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "scrollArea",
+      "before_lines": [
+        "1367"
+      ],
+      "after_lines": [
+        1386
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "scrollbar",
+      "before_lines": [
+        "1339"
+      ],
+      "after_lines": [
+        1358
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "slider",
+      "before_lines": [
+        "639"
+      ],
+      "after_lines": [
+        643
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "splitter",
+      "before_lines": [
+        "1481"
+      ],
+      "after_lines": [
+        1520
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "surface-panel",
+      "before_lines": [
+        "1077"
+      ],
+      "after_lines": [
+        1096
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "surface-window",
+      "before_lines": [
+        "1076"
+      ],
+      "after_lines": [
+        1095
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "surfaceColor",
+      "before_lines": [
+        "129",
+        "130",
+        "1088"
+      ],
+      "after_lines": [
+        132,
+        133,
+        1107
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "table",
+      "before_lines": [
+        "1380"
+      ],
+      "after_lines": [
+        1399
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "tabs",
+      "before_lines": [
+        "1430"
+      ],
+      "after_lines": [
+        1469
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "text-primary",
+      "before_lines": [
+        "1078"
+      ],
+      "after_lines": [
+        1097
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "textColor",
+      "before_lines": [
+        "133",
+        "134"
+      ],
+      "after_lines": [
+        136,
+        137
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "toggle",
+      "before_lines": [
+        "641",
+        "994"
+      ],
+      "after_lines": [
+        645,
+        1013
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "transparent",
+      "before_lines": [
+        "152"
+      ],
+      "after_lines": [
+        155
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "tree",
+      "before_lines": [
+        "660"
+      ],
+      "after_lines": [
+        664
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "wjn.standardButton",
+      "before_lines": [
+        "908",
+        "913",
+        "914",
+        "921",
+        "922"
+      ],
+      "after_lines": [
+        927,
+        932,
+        933,
+        940,
+        941
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "wjnChoiceEditor",
+      "before_lines": [
+        "742",
+        "743"
+      ],
+      "after_lines": [
+        761,
+        762
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "wjnEmbedded",
+      "before_lines": [
+        "693",
+        "724"
+      ],
+      "after_lines": [
+        697,
+        728
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "wjnRole",
+      "before_lines": [
+        "660",
+        "685",
+        "713",
+        "764",
+        "883",
+        "931",
+        "978",
+        "986",
+        "994",
+        "1019",
+        "1046",
+        "1339",
+        "1367",
+        "1373",
+        "1380",
+        "1388",
+        "1406",
+        "1430",
+        "1442",
+        "1481",
+        "1490"
+      ],
+      "after_lines": [
+        664,
+        689,
+        717,
+        783,
+        902,
+        950,
+        997,
+        1005,
+        1013,
+        1038,
+        1065,
+        1358,
+        1386,
+        1392,
+        1399,
+        1407,
+        1425,
+        1469,
+        1481,
+        1520,
+        1529
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "wjnText",
+      "before_lines": [
+        "1422"
+      ],
+      "after_lines": [
+        1461
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "×",
+      "before_lines": [
+        "1175"
+      ],
+      "after_lines": [
+        1194
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "‹",
+      "before_lines": [
+        "1360"
+      ],
+      "after_lines": [
+        1379
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "›",
+      "before_lines": [
+        "1363"
+      ],
+      "after_lines": [
+        1382
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "↑",
+      "before_lines": [
+        "1360"
+      ],
+      "after_lines": [
+        1379
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "↓",
+      "before_lines": [
+        "1363"
+      ],
+      "after_lines": [
+        1382
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "▶",
+      "before_lines": [
+        "1264",
+        "1265"
+      ],
+      "after_lines": [
+        1283,
+        1284
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "◀",
+      "before_lines": [
+        "1264",
+        "1265"
+      ],
+      "after_lines": [
+        1283,
+        1284
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "名称不能为空",
+      "before_lines": [
+        "1571"
+      ],
+      "after_lines": [
+        1610
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "名称无法应用",
+      "before_lines": [
+        "1573"
+      ],
+      "after_lines": [
+        1612
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "客户端名称",
+      "before_lines": [
+        "1549"
+      ],
+      "after_lines": [
+        1588
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "展开侧边栏",
+      "before_lines": [
+        "1266"
+      ],
+      "after_lines": [
+        1285
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "已应用",
+      "before_lines": [
+        "1573"
+      ],
+      "after_lines": [
+        1612
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "应用",
+      "before_lines": [
+        "1553"
+      ],
+      "after_lines": [
+        1592
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "收缩侧边栏",
+      "before_lines": [
+        "1267"
+      ],
+      "after_lines": [
+        1286
+      ]
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "literal": "输入筛选",
+      "before_lines": [
+        "726"
+      ],
+      "after_lines": [
+        730
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": " Copy",
+      "before_lines": [
+        "2099",
+        "2124"
+      ],
+      "after_lines": [
+        2102,
+        2127
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": " dB",
+      "before_lines": [
+        "1279"
+      ],
+      "after_lines": [
+        1282
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#06131f",
+      "before_lines": [
+        "784"
+      ],
+      "after_lines": [
+        786
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#07131f",
+      "before_lines": [
+        "345",
+        "3382",
+        "3411",
+        "3504",
+        "3524"
+      ],
+      "after_lines": [
+        347,
+        3385,
+        3414,
+        3507,
+        3527
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#07141f",
+      "before_lines": [
+        "651"
+      ],
+      "after_lines": [
+        653
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#08192b",
+      "before_lines": [
+        "2318"
+      ],
+      "after_lines": [
+        2321
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#0a0f14",
+      "before_lines": [
+        "3420",
+        "3496"
+      ],
+      "after_lines": [
+        3423,
+        3499
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#0b1a2b",
+      "before_lines": [
+        "284",
+        "537",
+        "542",
+        "551",
+        "2417"
+      ],
+      "after_lines": [
+        286,
+        539,
+        544,
+        553,
+        2420
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#101a22",
+      "before_lines": [
+        "3419",
+        "3495"
+      ],
+      "after_lines": [
+        3422,
+        3498
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#101c29",
+      "before_lines": [
+        "2405",
+        "3578"
+      ],
+      "after_lines": [
+        2408,
+        3581
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#102033",
+      "before_lines": [
+        "162",
+        "437",
+        "446",
+        "2258"
+      ],
+      "after_lines": [
+        164,
+        439,
+        448,
+        2261
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#102234",
+      "before_lines": [
+        "786",
+        "788",
+        "790"
+      ],
+      "after_lines": [
+        788,
+        790,
+        792
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#102235",
+      "before_lines": [
+        "292",
+        "294",
+        "557"
+      ],
+      "after_lines": [
+        294,
+        296,
+        559
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#123e2d",
+      "before_lines": [
+        "653"
+      ],
+      "after_lines": [
+        655
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#16283a",
+      "before_lines": [
+        "3392"
+      ],
+      "after_lines": [
+        3395
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#163a51",
+      "before_lines": [
+        "3487"
+      ],
+      "after_lines": [
+        3490
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#163e2e",
+      "before_lines": [
+        "348",
+        "3413",
+        "3506"
+      ],
+      "after_lines": [
+        350,
+        3416,
+        3509
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#172538",
+      "before_lines": [
+        "337"
+      ],
+      "after_lines": [
+        339
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#17d675",
+      "before_lines": [
+        "652",
+        "785"
+      ],
+      "after_lines": [
+        654,
+        787
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#182735",
+      "before_lines": [
+        "3488"
+      ],
+      "after_lines": [
+        3491
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#1b3048",
+      "before_lines": [
+        "2274",
+        "2284",
+        "2319"
+      ],
+      "after_lines": [
+        2277,
+        2287,
+        2322
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#1b3b57",
+      "before_lines": [
+        "552",
+        "738"
+      ],
+      "after_lines": [
+        554,
+        740
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#243c57",
+      "before_lines": [
+        "3458",
+        "3462"
+      ],
+      "after_lines": [
+        3461,
+        3465
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#24b8ff",
+      "before_lines": [
+        "629",
+        "3541"
+      ],
+      "after_lines": [
+        631,
+        3544
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#254762",
+      "before_lines": [
+        "440",
+        "449",
+        "556",
+        "735"
+      ],
+      "after_lines": [
+        442,
+        451,
+        558,
+        737
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#263e53",
+      "before_lines": [
+        "590"
+      ],
+      "after_lines": [
+        592
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#26dc68",
+      "before_lines": [
+        "3505"
+      ],
+      "after_lines": [
+        3508
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#28d7e5",
+      "before_lines": [
+        "555",
+        "589",
+        "737"
+      ],
+      "after_lines": [
+        557,
+        591,
+        739
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#29435d",
+      "before_lines": [
+        "2417"
+      ],
+      "after_lines": [
+        2420
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#2b4662",
+      "before_lines": [
+        "290",
+        "546"
+      ],
+      "after_lines": [
+        292,
+        548
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#2bce75",
+      "before_lines": [
+        "347",
+        "3412"
+      ],
+      "after_lines": [
+        349,
+        3415
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#33b6ff",
+      "before_lines": [
+        "134",
+        "3489",
+        "3556"
+      ],
+      "after_lines": [
+        136,
+        3492,
+        3559
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#34475b",
+      "before_lines": [
+        "338"
+      ],
+      "after_lines": [
+        340
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#37d879",
+      "before_lines": [
+        "132",
+        "2022",
+        "2406",
+        "3555",
+        "3585"
+      ],
+      "after_lines": [
+        134,
+        2025,
+        2409,
+        3558,
+        3588
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#3b5675",
+      "before_lines": [
+        "2321"
+      ],
+      "after_lines": [
+        2324
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#45bfff",
+      "before_lines": [
+        "1318",
+        "1319",
+        "2406",
+        "3452",
+        "3582"
+      ],
+      "after_lines": [
+        1321,
+        1322,
+        2409,
+        3455,
+        3585
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#45d877",
+      "before_lines": [
+        "632"
+      ],
+      "after_lines": [
+        634
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#483d1e",
+      "before_lines": [
+        "655"
+      ],
+      "after_lines": [
+        657
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#4a2429",
+      "before_lines": [
+        "657"
+      ],
+      "after_lines": [
+        659
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#4a3f1d",
+      "before_lines": [
+        "350",
+        "3415",
+        "3508"
+      ],
+      "after_lines": [
+        352,
+        3418,
+        3511
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#4c242a",
+      "before_lines": [
+        "352",
+        "3417",
+        "3510"
+      ],
+      "after_lines": [
+        354,
+        3420,
+        3513
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#5d7e9d",
+      "before_lines": [
+        "3596"
+      ],
+      "after_lines": [
+        3599
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#66809b",
+      "before_lines": [
+        "3538"
+      ],
+      "after_lines": [
+        3541
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#6d8fac",
+      "before_lines": [
+        "3587",
+        "3591"
+      ],
+      "after_lines": [
+        3590,
+        3594
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#6f849a",
+      "before_lines": [
+        "3490"
+      ],
+      "after_lines": [
+        3493
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#70c9f4",
+      "before_lines": [
+        "1322",
+        "1323"
+      ],
+      "after_lines": [
+        1325,
+        1326
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#879ab0",
+      "before_lines": [
+        "340",
+        "441"
+      ],
+      "after_lines": [
+        342,
+        443
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#8da5d8",
+      "before_lines": [
+        "1320",
+        "1321",
+        "1324",
+        "1325"
+      ],
+      "after_lines": [
+        1323,
+        1324,
+        1327,
+        1328
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#8edcff",
+      "before_lines": [
+        "3492"
+      ],
+      "after_lines": [
+        3495
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#8f78ff",
+      "before_lines": [
+        "2406",
+        "3583"
+      ],
+      "after_lines": [
+        2409,
+        3586
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#9aa8b7",
+      "before_lines": [
+        "134",
+        "3555"
+      ],
+      "after_lines": [
+        136,
+        3558
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#a9bbd7",
+      "before_lines": [
+        "2408",
+        "3388"
+      ],
+      "after_lines": [
+        2411,
+        3391
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#aec7eb",
+      "before_lines": [
+        "303",
+        "320",
+        "325",
+        "355",
+        "548"
+      ],
+      "after_lines": [
+        305,
+        322,
+        327,
+        357,
+        550
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#d5e8ff",
+      "before_lines": [
+        "2320"
+      ],
+      "after_lines": [
+        2323
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#d6eaff",
+      "before_lines": [
+        "444"
+      ],
+      "after_lines": [
+        446
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#d9f4ff",
+      "before_lines": [
+        "553",
+        "739"
+      ],
+      "after_lines": [
+        555,
+        741
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#dce9ff",
+      "before_lines": [
+        "3387"
+      ],
+      "after_lines": [
+        3390
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#e8f2ff",
+      "before_lines": [
+        "299",
+        "547",
+        "558",
+        "2274",
+        "2284",
+        "2288",
+        "2675"
+      ],
+      "after_lines": [
+        301,
+        549,
+        560,
+        2277,
+        2287,
+        2291,
+        2678
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#e9f2ff",
+      "before_lines": [
+        "2318",
+        "2325"
+      ],
+      "after_lines": [
+        2321,
+        2328
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#eff6ff",
+      "before_lines": [
+        "438",
+        "447"
+      ],
+      "after_lines": [
+        440,
+        449
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#f2484d",
+      "before_lines": [
+        "656",
+        "789"
+      ],
+      "after_lines": [
+        658,
+        791
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#f2df48",
+      "before_lines": [
+        "654",
+        "787"
+      ],
+      "after_lines": [
+        656,
+        789
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#f35656",
+      "before_lines": [
+        "351",
+        "3416"
+      ],
+      "after_lines": [
+        353,
+        3419
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#f4cd42",
+      "before_lines": [
+        "349",
+        "2395",
+        "3414"
+      ],
+      "after_lines": [
+        351,
+        2398,
+        3417
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#f5fbff",
+      "before_lines": [
+        "162",
+        "2260"
+      ],
+      "after_lines": [
+        164,
+        2263
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#f7aa2f",
+      "before_lines": [
+        "3536"
+      ],
+      "after_lines": [
+        3539
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#f7f8ff",
+      "before_lines": [
+        "599"
+      ],
+      "after_lines": [
+        601
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#f7fbff",
+      "before_lines": [
+        "346"
+      ],
+      "after_lines": [
+        348
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#ff4b62",
+      "before_lines": [
+        "624",
+        "802"
+      ],
+      "after_lines": [
+        626,
+        804
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#ff4f55",
+      "before_lines": [
+        "3533"
+      ],
+      "after_lines": [
+        3536
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#ff5353",
+      "before_lines": [
+        "131",
+        "3509",
+        "3556"
+      ],
+      "after_lines": [
+        133,
+        3512,
+        3559
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#ffae2d",
+      "before_lines": [
+        "628",
+        "804"
+      ],
+      "after_lines": [
+        630,
+        806
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#ffe15a",
+      "before_lines": [
+        "133",
+        "199",
+        "217",
+        "630",
+        "631",
+        "3400",
+        "3507"
+      ],
+      "after_lines": [
+        135,
+        201,
+        219,
+        632,
+        633,
+        3403,
+        3510
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#ffffff",
+      "before_lines": [
+        "3395"
+      ],
+      "after_lines": [
+        3398
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#selHeader {background:%1;border-radius:6px;} #selHeader QLabel {color:%2;background:transparent;}",
+      "before_lines": [
+        "2309"
+      ],
+      "after_lines": [
+        2312
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#selLargeScreen {background:%1;color:%2;} #selHeader QPushButton {background:%3;color:%4;border:1px solid %5;border-radius:6px;padding:6px 18px;font-size:16px;} #selHeader QPushButton:checked {background:%6;border:1px solid %7;color:%8;}",
+      "before_lines": [
+        "2317"
+      ],
+      "after_lines": [
+        2320
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#selPages {background:#0b1a2b;}",
+      "before_lines": [
+        "2587"
+      ],
+      "after_lines": [
+        2590
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "%1 dB",
+      "before_lines": [
+        "669",
+        "782"
+      ],
+      "after_lines": [
+        671,
+        784
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "%1%",
+      "before_lines": [
+        "756",
+        "757"
+      ],
+      "after_lines": [
+        758,
+        759
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "%1%2 dB",
+      "before_lines": [
+        "613"
+      ],
+      "after_lines": [
+        615
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "%1%2%",
+      "before_lines": [
+        "745"
+      ],
+      "after_lines": [
+        747
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "%1:%2:%3:%4;",
+      "before_lines": [
+        "2188"
+      ],
+      "after_lines": [
+        2191
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "%1°",
+      "before_lines": [
+        "758"
+      ],
+      "after_lines": [
+        760
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "%border%",
+      "before_lines": [
+        "439",
+        "448"
+      ],
+      "after_lines": [
+        441,
+        450
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "%disabled-text%",
+      "before_lines": [
+        "441"
+      ],
+      "after_lines": [
+        443
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "%surface%",
+      "before_lines": [
+        "437",
+        "446"
+      ],
+      "after_lines": [
+        439,
+        448
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "%text%",
+      "before_lines": [
+        "438",
+        "447"
+      ],
+      "after_lines": [
+        440,
+        449
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "+",
+      "before_lines": [
+        "613",
+        "1278"
+      ],
+      "after_lines": [
+        615,
+        1281
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "+12",
+      "before_lines": [
+        "793",
+        "3512"
+      ],
+      "after_lines": [
+        795,
+        3515
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "-12",
+      "before_lines": [
+        "660",
+        "792",
+        "3513"
+      ],
+      "after_lines": [
+        662,
+        794,
+        3516
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "-24",
+      "before_lines": [
+        "660",
+        "792",
+        "3513"
+      ],
+      "after_lines": [
+        662,
+        794,
+        3516
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "-36",
+      "before_lines": [
+        "3514"
+      ],
+      "after_lines": [
+        3517
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "-48",
+      "before_lines": [
+        "661",
+        "791",
+        "3514"
+      ],
+      "after_lines": [
+        663,
+        793,
+        3517
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "-60",
+      "before_lines": [
+        "3515"
+      ],
+      "after_lines": [
+        3518
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "-72",
+      "before_lines": [
+        "661",
+        "791",
+        "3515"
+      ],
+      "after_lines": [
+        663,
+        793,
+        3518
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "-border-normal",
+      "before_lines": [
+        "577"
+      ],
+      "after_lines": [
+        579
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "-border-selected",
+      "before_lines": [
+        "579"
+      ],
+      "after_lines": [
+        581
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "-surface-normal",
+      "before_lines": [
+        "573"
+      ],
+      "after_lines": [
+        575
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "-surface-selected",
+      "before_lines": [
+        "575"
+      ],
+      "after_lines": [
+        577
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "-text-normal",
+      "before_lines": [
+        "581"
+      ],
+      "after_lines": [
+        583
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "-text-selected",
+      "before_lines": [
+        "583"
+      ],
+      "after_lines": [
+        585
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "0",
+      "before_lines": [
+        "659",
+        "793",
+        "3512"
+      ],
+      "after_lines": [
+        661,
+        795,
+        3515
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "0°",
+      "before_lines": [
+        "729"
+      ],
+      "after_lines": [
+        731
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "1",
+      "before_lines": [
+        "1318"
+      ],
+      "after_lines": [
+        1321
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "12",
+      "before_lines": [
+        "659"
+      ],
+      "after_lines": [
+        661
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "180°",
+      "before_lines": [
+        "732"
+      ],
+      "after_lines": [
+        734
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "2",
+      "before_lines": [
+        "1319"
+      ],
+      "after_lines": [
+        1322
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "270°",
+      "before_lines": [
+        "731"
+      ],
+      "after_lines": [
+        733
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "3",
+      "before_lines": [
+        "1320"
+      ],
+      "after_lines": [
+        1323
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "4",
+      "before_lines": [
+        "1321"
+      ],
+      "after_lines": [
+        1324
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "5",
+      "before_lines": [
+        "1322"
+      ],
+      "after_lines": [
+        1325
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "5.1",
+      "before_lines": [
+        "78",
+        "253"
+      ],
+      "after_lines": [
+        80,
+        255
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "6",
+      "before_lines": [
+        "1323"
+      ],
+      "after_lines": [
+        1326
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "7",
+      "before_lines": [
+        "1324"
+      ],
+      "after_lines": [
+        1327
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "7.1",
+      "before_lines": [
+        "78",
+        "254"
+      ],
+      "after_lines": [
+        80,
+        256
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "8",
+      "before_lines": [
+        "1325"
+      ],
+      "after_lines": [
+        1328
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "90°",
+      "before_lines": [
+        "730"
+      ],
+      "after_lines": [
+        732
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "AFL",
+      "before_lines": [
+        "631",
+        "3546"
+      ],
+      "after_lines": [
+        633,
+        3549
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "AUX",
+      "before_lines": [
+        "2463",
+        "2572",
+        "2652",
+        "2676"
+      ],
+      "after_lines": [
+        2466,
+        2575,
+        2655,
+        2679
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "AUX %1",
+      "before_lines": [
+        "167",
+        "1710",
+        "1750",
+        "1821",
+        "1827",
+        "2043",
+        "2116",
+        "2117"
+      ],
+      "after_lines": [
+        169,
+        1713,
+        1753,
+        1824,
+        1830,
+        2046,
+        2119,
+        2120
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Add AUX channel",
+      "before_lines": [
+        "3284"
+      ],
+      "after_lines": [
+        3287
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Add Sub Mix channel",
+      "before_lines": [
+        "3285"
+      ],
+      "after_lines": [
+        3288
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Add input channel",
+      "before_lines": [
+        "3283"
+      ],
+      "after_lines": [
+        3286
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Analog In 1",
+      "before_lines": [
+        "1318"
+      ],
+      "after_lines": [
+        1321
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Analog In 2",
+      "before_lines": [
+        "1319"
+      ],
+      "after_lines": [
+        1322
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Angle",
+      "before_lines": [
+        "749"
+      ],
+      "after_lines": [
+        751
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Bus 7",
+      "before_lines": [
+        "1324"
+      ],
+      "after_lines": [
+        1327
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Bus 8",
+      "before_lines": [
+        "1325"
+      ],
+      "after_lines": [
+        1328
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Bus In 7",
+      "before_lines": [
+        "1324"
+      ],
+      "after_lines": [
+        1327
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Bus In 8",
+      "before_lines": [
+        "1325"
+      ],
+      "after_lines": [
+        1328
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "C",
+      "before_lines": [
+        "742"
+      ],
+      "after_lines": [
+        744
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "C ",
+      "before_lines": [
+        "745"
+      ],
+      "after_lines": [
+        747
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "CH ",
+      "before_lines": [
+        "168"
+      ],
+      "after_lines": [
+        170
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "CH %1",
+      "before_lines": [
+        "169",
+        "1722",
+        "1887"
+      ],
+      "after_lines": [
+        171,
+        1725,
+        1890
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Channel color",
+      "before_lines": [
+        "2537"
+      ],
+      "after_lines": [
+        2540
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Channel details",
+      "before_lines": [
+        "2512",
+        "3317"
+      ],
+      "after_lines": [
+        2515,
+        3320
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Channel details ·",
+      "before_lines": [
+        "2530",
+        "2531"
+      ],
+      "after_lines": [
+        2533,
+        2534
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Channel layout",
+      "before_lines": [
+        "607"
+      ],
+      "after_lines": [
+        609
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Channel name",
+      "before_lines": [
+        "605"
+      ],
+      "after_lines": [
+        607
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Channel overview",
+      "before_lines": [
+        "2456",
+        "3319"
+      ],
+      "after_lines": [
+        2459,
+        3322
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Channel type",
+      "before_lines": [
+        "3613"
+      ],
+      "after_lines": [
+        3616
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Channels",
+      "before_lines": [
+        "3282"
+      ],
+      "after_lines": [
+        3285
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Classic Pan",
+      "before_lines": [
+        "681"
+      ],
+      "after_lines": [
+        683
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Clear solo and mute on all channels",
+      "before_lines": [
+        "3297"
+      ],
+      "after_lines": [
+        3300
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Comment",
+      "before_lines": [
+        "606"
+      ],
+      "after_lines": [
+        608
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Delete channel",
+      "before_lines": [
+        "3607"
+      ],
+      "after_lines": [
+        3610
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Duplicate channel",
+      "before_lines": [
+        "3608"
+      ],
+      "after_lines": [
+        3611
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "FX",
+      "before_lines": [
+        "632",
+        "2572",
+        "2652"
+      ],
+      "after_lines": [
+        634,
+        2575,
+        2655
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Front/rear",
+      "before_lines": [
+        "749"
+      ],
+      "after_lines": [
+        751
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Gain",
+      "before_lines": [
+        "610"
+      ],
+      "after_lines": [
+        612
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "General",
+      "before_lines": [
+        "298"
+      ],
+      "after_lines": [
+        300
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Global",
+      "before_lines": [
+        "3296"
+      ],
+      "after_lines": [
+        3299
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "IN",
+      "before_lines": [
+        "3491"
+      ],
+      "after_lines": [
+        3494
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Input",
+      "before_lines": [
+        "641",
+        "687"
+      ],
+      "after_lines": [
+        643,
+        689
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Input %1",
+      "before_lines": [
+        "1975",
+        "1976"
+      ],
+      "after_lines": [
+        1978,
+        1979
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Inputs",
+      "before_lines": [
+        "2463",
+        "2466",
+        "2676",
+        "2680"
+      ],
+      "after_lines": [
+        2466,
+        2469,
+        2679,
+        2683
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Invalid AUX routing",
+      "before_lines": [
+        "1696"
+      ],
+      "after_lines": [
+        1699
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "JACK Out 1/2",
+      "before_lines": [
+        "1845"
+      ],
+      "after_lines": [
+        1848
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "L ",
+      "before_lines": [
+        "745"
+      ],
+      "after_lines": [
+        747
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "L100%",
+      "before_lines": [
+        "741"
+      ],
+      "after_lines": [
+        743
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Large views",
+      "before_lines": [
+        "3316"
+      ],
+      "after_lines": [
+        3319
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Line 3",
+      "before_lines": [
+        "1320"
+      ],
+      "after_lines": [
+        1323
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Line 4",
+      "before_lines": [
+        "1321"
+      ],
+      "after_lines": [
+        1324
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Line In 3",
+      "before_lines": [
+        "1320"
+      ],
+      "after_lines": [
+        1323
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Line In 4",
+      "before_lines": [
+        "1321"
+      ],
+      "after_lines": [
+        1324
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Link all channels",
+      "before_lines": [
+        "763"
+      ],
+      "after_lines": [
+        765
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "LocalizedMixerErrors.hpp",
+      "before_lines": [
+        "7"
+      ],
+      "after_lines": [
+        9
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "M",
+      "before_lines": [
+        "627",
+        "774",
+        "801",
+        "1962",
+        "3532"
+      ],
+      "after_lines": [
+        629,
+        776,
+        803,
+        1965,
+        3535
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "MAIN",
+      "before_lines": [
+        "141",
+        "384",
+        "464",
+        "465",
+        "608",
+        "834",
+        "890",
+        "982",
+        "1036",
+        "1098",
+        "1099",
+        "1100",
+        "1103",
+        "1346",
+        "1349",
+        "1838",
+        "1846",
+        "2264",
+        "2328",
+        "2329",
+        "2330",
+        "2330",
+        "2621",
+        "2685",
+        "2713",
+        "3529"
+      ],
+      "after_lines": [
+        143,
+        386,
+        466,
+        467,
+        610,
+        836,
+        892,
+        984,
+        1038,
+        1100,
+        1101,
+        1102,
+        1105,
+        1349,
+        1352,
+        1841,
+        1849,
+        2267,
+        2331,
+        2332,
+        2333,
+        2333,
+        2624,
+        2688,
+        2716,
+        3532
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "MASTER",
+      "before_lines": [
+        "2397"
+      ],
+      "after_lines": [
+        2400
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "MIX",
+      "before_lines": [
+        "629",
+        "3540"
+      ],
+      "after_lines": [
+        631,
+        3543
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "MUTE",
+      "before_lines": [
+        "3532"
+      ],
+      "after_lines": [
+        3535
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Main",
+      "before_lines": [
+        "2572",
+        "2637",
+        "2652"
+      ],
+      "after_lines": [
+        2575,
+        2640,
+        2655
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Main L/R",
+      "before_lines": [
+        "1844"
+      ],
+      "after_lines": [
+        1847
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Mic 1",
+      "before_lines": [
+        "1318"
+      ],
+      "after_lines": [
+        1321
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Mic 2",
+      "before_lines": [
+        "1319"
+      ],
+      "after_lines": [
+        1322
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Mixer FX chain updated id=%llu enabled=%d effects=%llu",
+      "before_lines": [
+        "1921"
+      ],
+      "after_lines": [
+        1924
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Mixer channel selected id=%u name=%s",
+      "before_lines": [
+        "2373"
+      ],
+      "after_lines": [
+        2376
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Mixer channel updated id=%llu name=%s gainDb=%.2f fader=%.4f mute=%d solo=%d mixToMain=%d",
+      "before_lines": [
+        "1604"
+      ],
+      "after_lines": [
+        1607
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Mixer meter mode id=%llu mode=%s",
+      "before_lines": [
+        "3737"
+      ],
+      "after_lines": [
+        3740
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Mixer topology commit failed: %s",
+      "before_lines": [
+        "1530"
+      ],
+      "after_lines": [
+        1533
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "MixerChannelIcons.hpp",
+      "before_lines": [
+        "89"
+      ],
+      "after_lines": [
+        91
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "MixerOverview.hpp",
+      "before_lines": [
+        "1299"
+      ],
+      "after_lines": [
+        1302
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "MixerPolarAccent.hpp",
+      "before_lines": [
+        "46"
+      ],
+      "after_lines": [
+        48
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Monitor",
+      "before_lines": [
+        "2304",
+        "2395",
+        "2695",
+        "2696",
+        "3327",
+        "3406"
+      ],
+      "after_lines": [
+        2307,
+        2398,
+        2698,
+        2699,
+        3330,
+        3409
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Monitor channel layout",
+      "before_lines": [
+        "302"
+      ],
+      "after_lines": [
+        304
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Monitor/Master",
+      "before_lines": [
+        "2676",
+        "2682"
+      ],
+      "after_lines": [
+        2679,
+        2685
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Mono",
+      "before_lines": [
+        "71",
+        "76",
+        "251"
+      ],
+      "after_lines": [
+        73,
+        78,
+        253
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "No channel selected",
+      "before_lines": [
+        "2304",
+        "3328"
+      ],
+      "after_lines": [
+        2307,
+        3331
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "No signal",
+      "before_lines": [
+        "711"
+      ],
+      "after_lines": [
+        713
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Open SEL settings",
+      "before_lines": [
+        "3623"
+      ],
+      "after_lines": [
+        3626
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Output",
+      "before_lines": [
+        "641",
+        "688"
+      ],
+      "after_lines": [
+        643,
+        690
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "PFL",
+      "before_lines": [
+        "630",
+        "3543"
+      ],
+      "after_lines": [
+        632,
+        3546
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "POST",
+      "before_lines": [
+        "3491"
+      ],
+      "after_lines": [
+        3494
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Pan",
+      "before_lines": [
+        "744"
+      ],
+      "after_lines": [
+        746
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Panner",
+      "before_lines": [
+        "675"
+      ],
+      "after_lines": [
+        677
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Per-channel knobs",
+      "before_lines": [
+        "762"
+      ],
+      "after_lines": [
+        764
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "QLineEdit {background:%surface%;color:%text%;border:1px solid %border%;border-radius:5px;padding:4px 12px;font-size:15px;}",
+      "before_lines": [
+        "445"
+      ],
+      "after_lines": [
+        447
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "QPushButton {background:%surface%;color:%text%;border:1px solid %border%;border-radius:5px;font-size:15px;text-align:left;padding:4px 30px 4px 12px;} QPushButton:disabled {color:%disabled-text%;border-color:%border%;}",
+      "before_lines": [
+        "436"
+      ],
+      "after_lines": [
+        438
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "QWidget#overviewCard%1 {background:%2;border:1px solid %3;border-radius:6px;}",
+      "before_lines": [
+        "2416"
+      ],
+      "after_lines": [
+        2419
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "R ",
+      "before_lines": [
+        "745"
+      ],
+      "after_lines": [
+        747
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "R100%",
+      "before_lines": [
+        "743"
+      ],
+      "after_lines": [
+        745
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Reset",
+      "before_lines": [
+        "765"
+      ],
+      "after_lines": [
+        767
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Restore default color",
+      "before_lines": [
+        "2545"
+      ],
+      "after_lines": [
+        2548
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Restore default colors on all channels",
+      "before_lines": [
+        "3312"
+      ],
+      "after_lines": [
+        3315
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "S",
+      "before_lines": [
+        "628",
+        "803",
+        "3535"
+      ],
+      "after_lines": [
+        630,
+        805,
+        3538
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "SEL",
+      "before_lines": [
+        "3425",
+        "3537"
+      ],
+      "after_lines": [
+        3428,
+        3540
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "SUB %1",
+      "before_lines": [
+        "1991"
+      ],
+      "after_lines": [
+        1994
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "SUB%1",
+      "before_lines": [
+        "2020"
+      ],
+      "after_lines": [
+        2023
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "SelThemeAccent.hpp",
+      "before_lines": [
+        "45"
+      ],
+      "after_lines": [
+        47
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Select channel ▾",
+      "before_lines": [
+        "2565",
+        "2566"
+      ],
+      "after_lines": [
+        2568,
+        2569
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Set channel color",
+      "before_lines": [
+        "2544"
+      ],
+      "after_lines": [
+        2547
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Set channel color · RGB / HEX",
+      "before_lines": [
+        "2552"
+      ],
+      "after_lines": [
+        2555
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Show polar curve",
+      "before_lines": [
+        "684"
+      ],
+      "after_lines": [
+        686
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Spatial pan parameters",
+      "before_lines": [
+        "747"
+      ],
+      "after_lines": [
+        749
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Spatial pan · Read only",
+      "before_lines": [
+        "324"
+      ],
+      "after_lines": [
+        326
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Spatial panner",
+      "before_lines": [
+        "679"
+      ],
+      "after_lines": [
+        681
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Stereo",
+      "before_lines": [
+        "72",
+        "77",
+        "252"
+      ],
+      "after_lines": [
+        74,
+        79,
+        254
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Strength",
+      "before_lines": [
+        "775"
+      ],
+      "after_lines": [
+        777
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Sub Mix",
+      "before_lines": [
+        "2572",
+        "2638",
+        "2652",
+        "2676",
+        "2681"
+      ],
+      "after_lines": [
+        2575,
+        2641,
+        2655,
+        2679,
+        2684
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Sub Mix/Monitor/Master",
+      "before_lines": [
+        "2463",
+        "2466"
+      ],
+      "after_lines": [
+        2466,
+        2469
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Topology update failed",
+      "before_lines": [
+        "1531"
+      ],
+      "after_lines": [
+        1534
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "USB 5",
+      "before_lines": [
+        "1322"
+      ],
+      "after_lines": [
+        1325
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "USB 6",
+      "before_lines": [
+        "1323"
+      ],
+      "after_lines": [
+        1326
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "USB In 5",
+      "before_lines": [
+        "1322"
+      ],
+      "after_lines": [
+        1325
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "USB In 6",
+      "before_lines": [
+        "1323"
+      ],
+      "after_lines": [
+        1326
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Unable to register mixer ports. The previous state has been retained.",
+      "before_lines": [
+        "1532"
+      ],
+      "after_lines": [
+        1535
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Volume",
+      "before_lines": [
+        "618"
+      ],
+      "after_lines": [
+        620
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Width",
+      "before_lines": [
+        "749"
+      ],
+      "after_lines": [
+        751
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "WinJACKNexus - Mixer",
+      "before_lines": [
+        "3269"
+      ],
+      "after_lines": [
+        3272
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "accentColor",
+      "before_lines": [
+        "198",
+        "216",
+        "2275",
+        "2285"
+      ],
+      "after_lines": [
+        200,
+        218,
+        2278,
+        2288
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "action.addAux",
+      "before_lines": [
+        "3284"
+      ],
+      "after_lines": [
+        3287
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "action.addInput",
+      "before_lines": [
+        "3283"
+      ],
+      "after_lines": [
+        3286
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "action.addSubMix",
+      "before_lines": [
+        "3285"
+      ],
+      "after_lines": [
+        3288
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "action.clearSoloMute",
+      "before_lines": [
+        "3297"
+      ],
+      "after_lines": [
+        3300
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "action.defaultColor",
+      "before_lines": [
+        "2545"
+      ],
+      "after_lines": [
+        2548
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "action.defaultColors",
+      "before_lines": [
+        "3312"
+      ],
+      "after_lines": [
+        3315
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "action.deleteChannel",
+      "before_lines": [
+        "3607"
+      ],
+      "after_lines": [
+        3610
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "action.duplicateChannel",
+      "before_lines": [
+        "3608"
+      ],
+      "after_lines": [
+        3611
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "action.openSel",
+      "before_lines": [
+        "3623"
+      ],
+      "after_lines": [
+        3626
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "action.reset",
+      "before_lines": [
+        "765"
+      ],
+      "after_lines": [
+        767
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "action.setColor",
+      "before_lines": [
+        "2544"
+      ],
+      "after_lines": [
+        2547
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "action.switchChannel",
+      "before_lines": [
+        "2565",
+        "2566"
+      ],
+      "after_lines": [
+        2568,
+        2569
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "aux",
+      "before_lines": [
+        "134",
+        "143",
+        "1818",
+        "2290",
+        "2402",
+        "3552"
+      ],
+      "after_lines": [
+        136,
+        145,
+        1821,
+        2293,
+        2405,
+        3555
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "aux:%1",
+      "before_lines": [
+        "1659",
+        "2172",
+        "2342",
+        "2356",
+        "2613",
+        "2769"
+      ],
+      "after_lines": [
+        1662,
+        2175,
+        2345,
+        2359,
+        2616,
+        2772
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "background:%1;color:%2;border:1px solid %3;border-radius:5px;padding:3px 10px;",
+      "before_lines": [
+        "2413"
+      ],
+      "after_lines": [
+        2416
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "border-normal",
+      "before_lines": [
+        "577"
+      ],
+      "after_lines": [
+        579
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "border-panel",
+      "before_lines": [
+        "546"
+      ],
+      "after_lines": [
+        548
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "borderColor",
+      "before_lines": [
+        "2272",
+        "2281"
+      ],
+      "after_lines": [
+        2275,
+        2284
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "category-divider",
+      "before_lines": [
+        "3596"
+      ],
+      "after_lines": [
+        3599
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "channelIconType",
+      "before_lines": [
+        "2266"
+      ],
+      "after_lines": [
+        2269
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "color:%1;background:transparent;font-size:15px;",
+      "before_lines": [
+        "443"
+      ],
+      "after_lines": [
+        445
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control-afl-accent",
+      "before_lines": [
+        "631"
+      ],
+      "after_lines": [
+        633
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control-button-",
+      "before_lines": [
+        "570"
+      ],
+      "after_lines": [
+        572
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control-button-afl-accent",
+      "before_lines": [
+        "3547"
+      ],
+      "after_lines": [
+        3550
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control-button-mix-accent",
+      "before_lines": [
+        "629",
+        "3541"
+      ],
+      "after_lines": [
+        631,
+        3544
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control-button-mute-accent",
+      "before_lines": [
+        "3533"
+      ],
+      "after_lines": [
+        3536
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control-button-pfl-accent",
+      "before_lines": [
+        "3544"
+      ],
+      "after_lines": [
+        3547
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control-button-select-accent",
+      "before_lines": [
+        "3538"
+      ],
+      "after_lines": [
+        3541
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control-button-solo-accent",
+      "before_lines": [
+        "3536"
+      ],
+      "after_lines": [
+        3539
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control-button-surface-normal",
+      "before_lines": [
+        "3392"
+      ],
+      "after_lines": [
+        3395
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control-button-text-normal",
+      "before_lines": [
+        "3396"
+      ],
+      "after_lines": [
+        3399
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control-button-text-selected",
+      "before_lines": [
+        "3395"
+      ],
+      "after_lines": [
+        3398
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control-channel-selector-accent",
+      "before_lines": [
+        "199",
+        "217",
+        "2276",
+        "2286",
+        "2323"
+      ],
+      "after_lines": [
+        201,
+        219,
+        2279,
+        2289,
+        2326
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control-channel-selector-border",
+      "before_lines": [
+        "2272",
+        "2281",
+        "2321"
+      ],
+      "after_lines": [
+        2275,
+        2284,
+        2324
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control-channel-selector-surface",
+      "before_lines": [
+        "2270",
+        "2279",
+        "2319"
+      ],
+      "after_lines": [
+        2273,
+        2282,
+        2322
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control-channel-selector-text",
+      "before_lines": [
+        "2271",
+        "2280",
+        "2320"
+      ],
+      "after_lines": [
+        2274,
+        2283,
+        2323
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control-edit-border",
+      "before_lines": [
+        "449"
+      ],
+      "after_lines": [
+        451
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control-edit-surface",
+      "before_lines": [
+        "446"
+      ],
+      "after_lines": [
+        448
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control-edit-text",
+      "before_lines": [
+        "447"
+      ],
+      "after_lines": [
+        449
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control-fx-accent",
+      "before_lines": [
+        "632"
+      ],
+      "after_lines": [
+        634
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control-header-icon",
+      "before_lines": [
+        "2288",
+        "2675"
+      ],
+      "after_lines": [
+        2291,
+        2678
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control-header-text-dark",
+      "before_lines": [
+        "2258"
+      ],
+      "after_lines": [
+        2261
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control-header-text-light",
+      "before_lines": [
+        "2260"
+      ],
+      "after_lines": [
+        2263
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control-knob-background-base",
+      "before_lines": [
+        "551"
+      ],
+      "after_lines": [
+        553
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control-knob-indicator-normal",
+      "before_lines": [
+        "554",
+        "737"
+      ],
+      "after_lines": [
+        556,
+        739
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control-knob-panel",
+      "before_lines": [
+        "552",
+        "738"
+      ],
+      "after_lines": [
+        554,
+        740
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control-knob-text",
+      "before_lines": [
+        "553",
+        "739"
+      ],
+      "after_lines": [
+        555,
+        741
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control-knob-track",
+      "before_lines": [
+        "556"
+      ],
+      "after_lines": [
+        558
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control-meter-mode-border-input",
+      "before_lines": [
+        "3490"
+      ],
+      "after_lines": [
+        3493
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control-meter-mode-border-post",
+      "before_lines": [
+        "3489"
+      ],
+      "after_lines": [
+        3492
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control-meter-mode-surface-input",
+      "before_lines": [
+        "3488"
+      ],
+      "after_lines": [
+        3491
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control-meter-mode-surface-post",
+      "before_lines": [
+        "3487"
+      ],
+      "after_lines": [
+        3490
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control-meter-mode-text-post",
+      "before_lines": [
+        "3492"
+      ],
+      "after_lines": [
+        3495
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control-mode-arrow",
+      "before_lines": [
+        "444"
+      ],
+      "after_lines": [
+        446
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control-mode-border",
+      "before_lines": [
+        "440"
+      ],
+      "after_lines": [
+        442
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control-mode-surface",
+      "before_lines": [
+        "437"
+      ],
+      "after_lines": [
+        439
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control-mode-text",
+      "before_lines": [
+        "438"
+      ],
+      "after_lines": [
+        440
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control-mode-text-disabled",
+      "before_lines": [
+        "441"
+      ],
+      "after_lines": [
+        443
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control-mute-accent",
+      "before_lines": [
+        "624",
+        "802"
+      ],
+      "after_lines": [
+        626,
+        804
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control-mute-solo-text",
+      "before_lines": [
+        "599"
+      ],
+      "after_lines": [
+        601
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control-name-text-dark",
+      "before_lines": [
+        "160"
+      ],
+      "after_lines": [
+        162
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control-name-text-light",
+      "before_lines": [
+        "161"
+      ],
+      "after_lines": [
+        163
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control-pan-border",
+      "before_lines": [
+        "735"
+      ],
+      "after_lines": [
+        737
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control-panner-input-button",
+      "before_lines": [
+        "687"
+      ],
+      "after_lines": [
+        689
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control-panner-mode-button",
+      "before_lines": [
+        "679",
+        "681"
+      ],
+      "after_lines": [
+        681,
+        683
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control-panner-output-button",
+      "before_lines": [
+        "688"
+      ],
+      "after_lines": [
+        690
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control-panner-reset-button",
+      "before_lines": [
+        "765"
+      ],
+      "after_lines": [
+        767
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control-pfl-accent",
+      "before_lines": [
+        "630"
+      ],
+      "after_lines": [
+        632
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control-scrollbar-%1-thumb",
+      "before_lines": [
+        "2406"
+      ],
+      "after_lines": [
+        2409
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control-scrollbar-aux-thumb",
+      "before_lines": [
+        "3583"
+      ],
+      "after_lines": [
+        3586
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control-scrollbar-input-thumb",
+      "before_lines": [
+        "3582"
+      ],
+      "after_lines": [
+        3585
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control-scrollbar-submix-thumb",
+      "before_lines": [
+        "3585"
+      ],
+      "after_lines": [
+        3588
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control-scrollbar-track",
+      "before_lines": [
+        "2405",
+        "3578"
+      ],
+      "after_lines": [
+        2408,
+        3581
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control-solo-accent",
+      "before_lines": [
+        "628",
+        "804"
+      ],
+      "after_lines": [
+        630,
+        806
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control-toggle-indicator-off",
+      "before_lines": [
+        "590"
+      ],
+      "after_lines": [
+        592
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control-toggle-indicator-on",
+      "before_lines": [
+        "589"
+      ],
+      "after_lines": [
+        591
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control.angle",
+      "before_lines": [
+        "749"
+      ],
+      "after_lines": [
+        751
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control.channelColor",
+      "before_lines": [
+        "2537"
+      ],
+      "after_lines": [
+        2540
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control.frontRear",
+      "before_lines": [
+        "749"
+      ],
+      "after_lines": [
+        751
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control.gain",
+      "before_lines": [
+        "610"
+      ],
+      "after_lines": [
+        612
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control.linkChannels",
+      "before_lines": [
+        "763"
+      ],
+      "after_lines": [
+        765
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control.monitorLayout",
+      "before_lines": [
+        "302"
+      ],
+      "after_lines": [
+        304
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control.pan",
+      "before_lines": [
+        "744"
+      ],
+      "after_lines": [
+        746
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control.polarCurve",
+      "before_lines": [
+        "684"
+      ],
+      "after_lines": [
+        686
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control.strength",
+      "before_lines": [
+        "775"
+      ],
+      "after_lines": [
+        777
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control.stripLayout",
+      "before_lines": [
+        "607"
+      ],
+      "after_lines": [
+        609
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control.volume",
+      "before_lines": [
+        "618"
+      ],
+      "after_lines": [
+        620
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control.width",
+      "before_lines": [
+        "749"
+      ],
+      "after_lines": [
+        751
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "dialog.colorTitle",
+      "before_lines": [
+        "2552"
+      ],
+      "after_lines": [
+        2555
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "error.auxRouteTitle",
+      "before_lines": [
+        "1696"
+      ],
+      "after_lines": [
+        1699
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "error.registerPorts",
+      "before_lines": [
+        "1532"
+      ],
+      "after_lines": [
+        1535
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "error.topologyTitle",
+      "before_lines": [
+        "1531"
+      ],
+      "after_lines": [
+        1534
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "fader-%1-grip",
+      "before_lines": [
+        "3564"
+      ],
+      "after_lines": [
+        3567
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "fader-%1-thumb",
+      "before_lines": [
+        "136",
+        "3554"
+      ],
+      "after_lines": [
+        138,
+        3557
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "fader-%1-track",
+      "before_lines": [
+        "3561"
+      ],
+      "after_lines": [
+        3564
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "fader-monitor-grip",
+      "before_lines": [
+        "3429"
+      ],
+      "after_lines": [
+        3432
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "fader-monitor-thumb",
+      "before_lines": [
+        "2395",
+        "3400"
+      ],
+      "after_lines": [
+        2398,
+        3403
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "fader-monitor-track",
+      "before_lines": [
+        "3428"
+      ],
+      "after_lines": [
+        3431
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "global",
+      "before_lines": [
+        "569"
+      ],
+      "after_lines": [
+        571
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "group-divider",
+      "before_lines": [
+        "3452",
+        "3458",
+        "3462"
+      ],
+      "after_lines": [
+        3455,
+        3461,
+        3465
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "input",
+      "before_lines": [
+        "143",
+        "420",
+        "544",
+        "1977",
+        "2289",
+        "2402",
+        "3551"
+      ],
+      "after_lines": [
+        145,
+        422,
+        546,
+        1980,
+        2292,
+        2405,
+        3554
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "input:%1",
+      "before_lines": [
+        "1660",
+        "2173",
+        "2343",
+        "2357",
+        "2613",
+        "2769"
+      ],
+      "after_lines": [
+        1663,
+        2176,
+        2346,
+        2360,
+        2616,
+        2772
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "label.channelName",
+      "before_lines": [
+        "605"
+      ],
+      "after_lines": [
+        607
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "label.comment",
+      "before_lines": [
+        "606"
+      ],
+      "after_lines": [
+        608
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "label.detailsPrefix",
+      "before_lines": [
+        "2530",
+        "2531"
+      ],
+      "after_lines": [
+        2533,
+        2534
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "label.input",
+      "before_lines": [
+        "641",
+        "687"
+      ],
+      "after_lines": [
+        643,
+        689
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "label.monitor",
+      "before_lines": [
+        "2304",
+        "2395",
+        "2695",
+        "2696",
+        "3327",
+        "3406"
+      ],
+      "after_lines": [
+        2307,
+        2398,
+        2698,
+        2699,
+        3330,
+        3409
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "label.output",
+      "before_lines": [
+        "641",
+        "688"
+      ],
+      "after_lines": [
+        643,
+        690
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "label.readOnlyPan",
+      "before_lines": [
+        "324"
+      ],
+      "after_lines": [
+        326
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "layout.mono",
+      "before_lines": [
+        "71",
+        "76",
+        "251"
+      ],
+      "after_lines": [
+        73,
+        78,
+        253
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "layout.stereo",
+      "before_lines": [
+        "72",
+        "77",
+        "252"
+      ],
+      "after_lines": [
+        74,
+        79,
+        254
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "master",
+      "before_lines": [
+        "131",
+        "141",
+        "1847",
+        "2291",
+        "3552"
+      ],
+      "after_lines": [
+        133,
+        143,
+        1850,
+        2294,
+        3555
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "menu.channelType",
+      "before_lines": [
+        "3613"
+      ],
+      "after_lines": [
+        3616
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "menu.channels",
+      "before_lines": [
+        "3282"
+      ],
+      "after_lines": [
+        3285
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "menu.global",
+      "before_lines": [
+        "3296"
+      ],
+      "after_lines": [
+        3299
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "menu.largeViews",
+      "before_lines": [
+        "3316"
+      ],
+      "after_lines": [
+        3319
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "meter-aux-send-border",
+      "before_lines": [
+        "784"
+      ],
+      "after_lines": [
+        786
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "meter-aux-send-zone-high-active",
+      "before_lines": [
+        "789"
+      ],
+      "after_lines": [
+        791
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "meter-aux-send-zone-high-inactive",
+      "before_lines": [
+        "790"
+      ],
+      "after_lines": [
+        792
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "meter-aux-send-zone-low-active",
+      "before_lines": [
+        "785"
+      ],
+      "after_lines": [
+        787
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "meter-aux-send-zone-low-inactive",
+      "before_lines": [
+        "786"
+      ],
+      "after_lines": [
+        788
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "meter-aux-send-zone-mid-active",
+      "before_lines": [
+        "787"
+      ],
+      "after_lines": [
+        789
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "meter-aux-send-zone-mid-inactive",
+      "before_lines": [
+        "788"
+      ],
+      "after_lines": [
+        790
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "meter-level-border",
+      "before_lines": [
+        "345",
+        "651",
+        "3411",
+        "3504"
+      ],
+      "after_lines": [
+        347,
+        653,
+        3414,
+        3507
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "meter-level-surface",
+      "before_lines": [
+        "3419",
+        "3495"
+      ],
+      "after_lines": [
+        3422,
+        3498
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "meter-level-surface-border",
+      "before_lines": [
+        "3420",
+        "3496"
+      ],
+      "after_lines": [
+        3423,
+        3499
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "meter-level-threshold-line",
+      "before_lines": [
+        "3524"
+      ],
+      "after_lines": [
+        3527
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "meter-level-zone-high-active",
+      "before_lines": [
+        "656",
+        "3509"
+      ],
+      "after_lines": [
+        658,
+        3512
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "meter-level-zone-high-inactive",
+      "before_lines": [
+        "657",
+        "3510"
+      ],
+      "after_lines": [
+        659,
+        3513
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "meter-level-zone-low-active",
+      "before_lines": [
+        "652",
+        "3505"
+      ],
+      "after_lines": [
+        654,
+        3508
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "meter-level-zone-low-inactive",
+      "before_lines": [
+        "653",
+        "3506"
+      ],
+      "after_lines": [
+        655,
+        3509
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "meter-level-zone-mid-active",
+      "before_lines": [
+        "654",
+        "3507"
+      ],
+      "after_lines": [
+        656,
+        3510
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "meter-level-zone-mid-inactive",
+      "before_lines": [
+        "655",
+        "3508"
+      ],
+      "after_lines": [
+        657,
+        3511
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "mixer",
+      "before_lines": [
+        "52",
+        "57",
+        "62",
+        "67",
+        "135",
+        "159",
+        "635",
+        "2395",
+        "2405",
+        "2406",
+        "2408",
+        "2411",
+        "2456",
+        "2465",
+        "2512",
+        "2531",
+        "2537",
+        "2552",
+        "2566",
+        "2637",
+        "2638",
+        "2680",
+        "2681",
+        "2682",
+        "2696",
+        "3269",
+        "3378",
+        "3383",
+        "3384",
+        "3598"
+      ],
+      "after_lines": [
+        54,
+        59,
+        64,
+        69,
+        137,
+        161,
+        637,
+        2398,
+        2408,
+        2409,
+        2411,
+        2414,
+        2459,
+        2468,
+        2515,
+        2534,
+        2540,
+        2555,
+        2569,
+        2640,
+        2641,
+        2683,
+        2684,
+        2685,
+        2699,
+        3272,
+        3381,
+        3386,
+        3387,
+        3601
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "mixer-overview",
+      "before_lines": [
+        "2383",
+        "2501"
+      ],
+      "after_lines": [
+        2386,
+        2504
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "mixerChannelOverview",
+      "before_lines": [
+        "2455"
+      ],
+      "after_lines": [
+        2458
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "mixerFocusLeadingOffset",
+      "before_lines": [
+        "2447"
+      ],
+      "after_lines": [
+        2450
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "mixerFocusedStripId",
+      "before_lines": [
+        "2446"
+      ],
+      "after_lines": [
+        2449
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "mixerMenuBar",
+      "before_lines": [
+        "3281"
+      ],
+      "after_lines": [
+        3284
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "mixerOverviewFixedMasters",
+      "before_lines": [
+        "2495"
+      ],
+      "after_lines": [
+        2498
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "mixerResetAllChannelColors",
+      "before_lines": [
+        "3313"
+      ],
+      "after_lines": [
+        3316
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "mode.classic",
+      "before_lines": [
+        "681"
+      ],
+      "after_lines": [
+        683
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "mode.spatial",
+      "before_lines": [
+        "679"
+      ],
+      "after_lines": [
+        681
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "monitor",
+      "before_lines": [
+        "133",
+        "199",
+        "217",
+        "290",
+        "306",
+        "2251",
+        "2253"
+      ],
+      "after_lines": [
+        135,
+        201,
+        219,
+        292,
+        308,
+        2254,
+        2256
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "monitor-border",
+      "before_lines": [
+        "290"
+      ],
+      "after_lines": [
+        292
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "monitor-meter-disabled-border",
+      "before_lines": [
+        "338"
+      ],
+      "after_lines": [
+        340
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "monitor-meter-disabled-label",
+      "before_lines": [
+        "340"
+      ],
+      "after_lines": [
+        342
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "monitor-meter-disabled-surface",
+      "before_lines": [
+        "337"
+      ],
+      "after_lines": [
+        339
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "monitor-meter-high-active",
+      "before_lines": [
+        "351",
+        "3416"
+      ],
+      "after_lines": [
+        353,
+        3419
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "monitor-meter-high-inactive",
+      "before_lines": [
+        "352",
+        "3417"
+      ],
+      "after_lines": [
+        354,
+        3420
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "monitor-meter-low-active",
+      "before_lines": [
+        "347",
+        "3412"
+      ],
+      "after_lines": [
+        349,
+        3415
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "monitor-meter-low-inactive",
+      "before_lines": [
+        "348",
+        "3413"
+      ],
+      "after_lines": [
+        350,
+        3416
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "monitor-meter-mid-active",
+      "before_lines": [
+        "349",
+        "3414"
+      ],
+      "after_lines": [
+        351,
+        3417
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "monitor-meter-mid-inactive",
+      "before_lines": [
+        "350",
+        "3415"
+      ],
+      "after_lines": [
+        352,
+        3418
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "monitor-meter-peak",
+      "before_lines": [
+        "346"
+      ],
+      "after_lines": [
+        348
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "monitor-plot-surface",
+      "before_lines": [
+        "292"
+      ],
+      "after_lines": [
+        294
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "monitor-select-accent",
+      "before_lines": [
+        "3424"
+      ],
+      "after_lines": [
+        3427
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "monitor-sidebar-surface",
+      "before_lines": [
+        "294"
+      ],
+      "after_lines": [
+        296
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "monitorLayoutButton",
+      "before_lines": [
+        "197"
+      ],
+      "after_lines": [
+        199
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "monitorSelPage",
+      "before_lines": [
+        "192"
+      ],
+      "after_lines": [
+        194
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "name.copySuffix",
+      "before_lines": [
+        "2099",
+        "2124"
+      ],
+      "after_lines": [
+        2102,
+        2127
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "overview-card-border",
+      "before_lines": [
+        "2417"
+      ],
+      "after_lines": [
+        2420
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "overview-card-surface",
+      "before_lines": [
+        "2417"
+      ],
+      "after_lines": [
+        2420
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "overviewCard%1",
+      "before_lines": [
+        "2461"
+      ],
+      "after_lines": [
+        2464
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "overviewScrollBar%1",
+      "before_lines": [
+        "2473"
+      ],
+      "after_lines": [
+        2476
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "overviewTitle%1",
+      "before_lines": [
+        "2464"
+      ],
+      "after_lines": [
+        2467
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "post-fader",
+      "before_lines": [
+        "3739"
+      ],
+      "after_lines": [
+        3742
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "post-gain",
+      "before_lines": [
+        "3739"
+      ],
+      "after_lines": [
+        3742
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "resize-handle",
+      "before_lines": [
+        "3591"
+      ],
+      "after_lines": [
+        3594
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "resize-submix-handle",
+      "before_lines": [
+        "3587"
+      ],
+      "after_lines": [
+        3590
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "section.general",
+      "before_lines": [
+        "298"
+      ],
+      "after_lines": [
+        300
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "section.independentKnobs",
+      "before_lines": [
+        "762"
+      ],
+      "after_lines": [
+        764
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "section.inputs",
+      "before_lines": [
+        "2463",
+        "2465",
+        "2676",
+        "2680"
+      ],
+      "after_lines": [
+        2466,
+        2468,
+        2679,
+        2683
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "section.listenMaster",
+      "before_lines": [
+        "2676",
+        "2682"
+      ],
+      "after_lines": [
+        2679,
+        2685
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "section.panner",
+      "before_lines": [
+        "675"
+      ],
+      "after_lines": [
+        677
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "section.spatialParameters",
+      "before_lines": [
+        "747"
+      ],
+      "after_lines": [
+        749
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "section.subMix",
+      "before_lines": [
+        "2638",
+        "2676",
+        "2681"
+      ],
+      "after_lines": [
+        2641,
+        2679,
+        2684
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "section.subMonitorMaster",
+      "before_lines": [
+        "2463",
+        "2465"
+      ],
+      "after_lines": [
+        2466,
+        2468
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "sel-main",
+      "before_lines": [
+        "198",
+        "216",
+        "279",
+        "289",
+        "307",
+        "309",
+        "318",
+        "410",
+        "421",
+        "433",
+        "439",
+        "448",
+        "533",
+        "538",
+        "539",
+        "545",
+        "554",
+        "572",
+        "574",
+        "576",
+        "578",
+        "580",
+        "582",
+        "588",
+        "695",
+        "704",
+        "709",
+        "723",
+        "728",
+        "736",
+        "2257",
+        "2259",
+        "2273",
+        "2275",
+        "2282",
+        "2285",
+        "2287",
+        "2314",
+        "2323",
+        "2675"
+      ],
+      "after_lines": [
+        200,
+        218,
+        281,
+        291,
+        309,
+        311,
+        320,
+        412,
+        423,
+        435,
+        441,
+        450,
+        535,
+        540,
+        541,
+        547,
+        556,
+        574,
+        576,
+        578,
+        580,
+        582,
+        584,
+        590,
+        697,
+        706,
+        711,
+        725,
+        730,
+        738,
+        2260,
+        2262,
+        2276,
+        2278,
+        2285,
+        2288,
+        2290,
+        2317,
+        2326,
+        2678
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "sel-monitor",
+      "before_lines": [
+        "201",
+        "240",
+        "285",
+        "286"
+      ],
+      "after_lines": [
+        203,
+        242,
+        287,
+        288
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "selActiveSendCount",
+      "before_lines": [
+        "484"
+      ],
+      "after_lines": [
+        486
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "selChannelColorMenu",
+      "before_lines": [
+        "2543"
+      ],
+      "after_lines": [
+        2546
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "selChannelColorPalette",
+      "before_lines": [
+        "2536"
+      ],
+      "after_lines": [
+        2539
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "selChannelComment",
+      "before_lines": [
+        "376"
+      ],
+      "after_lines": [
+        378
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "selChannelLayout",
+      "before_lines": [
+        "483"
+      ],
+      "after_lines": [
+        485
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "selChannelMode",
+      "before_lines": [
+        "378"
+      ],
+      "after_lines": [
+        380
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "selChannelModeArrow",
+      "before_lines": [
+        "380"
+      ],
+      "after_lines": [
+        382
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "selChannelName",
+      "before_lines": [
+        "374"
+      ],
+      "after_lines": [
+        376
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "selChannelSelector",
+      "before_lines": [
+        "2564"
+      ],
+      "after_lines": [
+        2567
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "selChannelSelectorMenu",
+      "before_lines": [
+        "2568"
+      ],
+      "after_lines": [
+        2571
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "selChannelTypeIcon",
+      "before_lines": [
+        "2528"
+      ],
+      "after_lines": [
+        2531
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "selClassicPan",
+      "before_lines": [
+        "482",
+        "901",
+        "1010",
+        "1045"
+      ],
+      "after_lines": [
+        484,
+        903,
+        1012,
+        1047
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "selDetailViews",
+      "before_lines": [
+        "2574"
+      ],
+      "after_lines": [
+        2577
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "selHeader",
+      "before_lines": [
+        "2519"
+      ],
+      "after_lines": [
+        2522
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "selInputCurveVisible",
+      "before_lines": [
+        "1160"
+      ],
+      "after_lines": [
+        1162
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "selInputGainDb",
+      "before_lines": [
+        "485",
+        "839",
+        "986",
+        "1039"
+      ],
+      "after_lines": [
+        487,
+        841,
+        988,
+        1041
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "selInputMeterReadoutDb",
+      "before_lines": [
+        "1427"
+      ],
+      "after_lines": [
+        1430
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "selLargeScreen",
+      "before_lines": [
+        "2511"
+      ],
+      "after_lines": [
+        2514
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "selMainPage",
+      "before_lines": [
+        "371"
+      ],
+      "after_lines": [
+        373
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "selOutputCurveVisible",
+      "before_lines": [
+        "1161"
+      ],
+      "after_lines": [
+        1163
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "selOutputMeterReadoutDb",
+      "before_lines": [
+        "1428"
+      ],
+      "after_lines": [
+        1431
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "selPages",
+      "before_lines": [
+        "2586"
+      ],
+      "after_lines": [
+        2589
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "selPanMode",
+      "before_lines": [
+        "481",
+        "896",
+        "897"
+      ],
+      "after_lines": [
+        483,
+        898,
+        899
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "selPannerAngle",
+      "before_lines": [
+        "1163"
+      ],
+      "after_lines": [
+        1165
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "selPannerFrontBack",
+      "before_lines": [
+        "1168"
+      ],
+      "after_lines": [
+        1170
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "selPannerInfluence",
+      "before_lines": [
+        "1166"
+      ],
+      "after_lines": [
+        1168
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "selPannerWidth",
+      "before_lines": [
+        "1162"
+      ],
+      "after_lines": [
+        1164
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "selPolarCurvesVisible",
+      "before_lines": [
+        "1159"
+      ],
+      "after_lines": [
+        1161
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "selPolarDataValid",
+      "before_lines": [
+        "502"
+      ],
+      "after_lines": [
+        504
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "selSelectedChannel",
+      "before_lines": [
+        "2525"
+      ],
+      "after_lines": [
+        2528
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "selSendLevels",
+      "before_lines": [
+        "1145"
+      ],
+      "after_lines": [
+        1147
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "selSourceKind",
+      "before_lines": [
+        "2344",
+        "2358",
+        "2770",
+        "2826"
+      ],
+      "after_lines": [
+        2347,
+        2361,
+        2773,
+        2829
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "selSubMixRoutes",
+      "before_lines": [
+        "2733"
+      ],
+      "after_lines": [
+        2736
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "selTab%1",
+      "before_lines": [
+        "2636",
+        "2652"
+      ],
+      "after_lines": [
+        2639,
+        2655
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "selTabMain",
+      "before_lines": [
+        "2300",
+        "2333"
+      ],
+      "after_lines": [
+        2303,
+        2336
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "status.noSelection",
+      "before_lines": [
+        "2304",
+        "3328"
+      ],
+      "after_lines": [
+        2307,
+        3331
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "status.noSignal",
+      "before_lines": [
+        "711"
+      ],
+      "after_lines": [
+        713
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "sub:%1",
+      "before_lines": [
+        "1659",
+        "2769"
+      ],
+      "after_lines": [
+        1662,
+        2772
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "submix",
+      "before_lines": [
+        "132",
+        "142",
+        "2290",
+        "2402",
+        "3551"
+      ],
+      "after_lines": [
+        134,
+        144,
+        2293,
+        2405,
+        3554
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "surface-empty",
+      "before_lines": [
+        "284",
+        "537",
+        "542",
+        "2318",
+        "3382"
+      ],
+      "after_lines": [
+        286,
+        539,
+        544,
+        2321,
+        3385
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "surface-normal",
+      "before_lines": [
+        "573"
+      ],
+      "after_lines": [
+        575
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "surface-panel",
+      "before_lines": [
+        "557"
+      ],
+      "after_lines": [
+        559
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "surfaceColor",
+      "before_lines": [
+        "2270",
+        "2279"
+      ],
+      "after_lines": [
+        2273,
+        2282
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "tab.main",
+      "before_lines": [
+        "2637"
+      ],
+      "after_lines": [
+        2640
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "text",
+      "before_lines": [
+        "57",
+        "2465",
+        "2531",
+        "2566",
+        "2637",
+        "2638",
+        "2696"
+      ],
+      "after_lines": [
+        59,
+        2468,
+        2534,
+        2569,
+        2640,
+        2641,
+        2699
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "text-muted",
+      "before_lines": [
+        "303",
+        "320",
+        "325",
+        "355",
+        "548",
+        "2408",
+        "3388"
+      ],
+      "after_lines": [
+        305,
+        322,
+        327,
+        357,
+        550,
+        2411,
+        3391
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "text-primary",
+      "before_lines": [
+        "299",
+        "547",
+        "2318",
+        "2325",
+        "3387"
+      ],
+      "after_lines": [
+        301,
+        549,
+        2321,
+        2328,
+        3390
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "text-selected",
+      "before_lines": [
+        "583"
+      ],
+      "after_lines": [
+        585
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "textColor",
+      "before_lines": [
+        "2271",
+        "2274",
+        "2280",
+        "2283"
+      ],
+      "after_lines": [
+        2274,
+        2277,
+        2283,
+        2286
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "title",
+      "before_lines": [
+        "62",
+        "67",
+        "2680",
+        "2681",
+        "2682"
+      ],
+      "after_lines": [
+        64,
+        69,
+        2683,
+        2684,
+        2685
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "toolTip",
+      "before_lines": [
+        "2537"
+      ],
+      "after_lines": [
+        2540
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "view.details",
+      "before_lines": [
+        "2512",
+        "3317"
+      ],
+      "after_lines": [
+        2515,
+        3320
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "view.overview",
+      "before_lines": [
+        "2456",
+        "3319"
+      ],
+      "after_lines": [
+        2459,
+        3322
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "window.title",
+      "before_lines": [
+        "3269"
+      ],
+      "after_lines": [
+        3272
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "windowTitle",
+      "before_lines": [
+        "2456",
+        "2512",
+        "2552",
+        "3269"
+      ],
+      "after_lines": [
+        2459,
+        2515,
+        2555,
+        3272
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "wjn.sourceName",
+      "before_lines": [
+        "2340"
+      ],
+      "after_lines": [
+        2343
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "×",
+      "before_lines": [
+        "2656"
+      ],
+      "after_lines": [
+        2659
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "−∞",
+      "before_lines": [
+        "669",
+        "1276"
+      ],
+      "after_lines": [
+        671,
+        1279
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "▾",
+      "before_lines": [
+        "379"
+      ],
+      "after_lines": [
+        381
+      ]
+    }
+  ],
+  "usage_changed": [],
+  "catalog_added": [],
+  "catalog_retired": [],
+  "catalog_changed_sources": []
+}

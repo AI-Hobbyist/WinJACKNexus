@@ -18,6 +18,8 @@
 
 #include <QFont>
 #include <QFontMetrics>
+#include <QHelpEvent>
+#include <QToolTip>
 #include <QPainter>
 #include <QSizePolicy>
 
@@ -103,6 +105,23 @@ QSize MetricStatisticsWidget::sizeHint() const
     const auto columns = std::max(1, static_cast<int>(entries_.size()));
     const auto rows = std::max(1, (static_cast<int>(entries_.size()) + columns - 1) / columns);
     return QSize(columns * entryMinimumWidth + margin * 2, rows * entryHeight + margin * 2);
+}
+
+bool MetricStatisticsWidget::event(QEvent* event)
+{
+    if (event->type() == QEvent::ToolTip) {
+        const auto* help = static_cast<QHelpEvent*>(event);
+        for (int index = 0; index < static_cast<int>(entries_.size()); ++index) {
+            if (!entryRect(index).contains(help->pos())) continue;
+            const auto& entry = entries_[static_cast<std::size_t>(index)];
+            const auto detail = localizedText("ui", "statistics.extrema", "Min: %1    Max: %2")
+                .arg(displayValue(entry.minimumValue),displayValue(entry.maximumValue));
+            const auto text = entry.label+'\n'+displayValue(entry.currentValue)+' '+entry.unit+'\n'+detail;
+            QToolTip::showText(help->globalPos(),text,this);
+            event->accept(); return true;
+        }
+    }
+    return QWidget::event(event);
 }
 
 void MetricStatisticsWidget::paintEvent(QPaintEvent*)

@@ -391,6 +391,11 @@
       "lines": 23
     },
     {
+      "file": "src/meter/mod/include/WinJACKNexus/Meter/Mod/LocalizedDisplay.hpp",
+      "sha256": "35771e2dc7b9d92503d770145d3d2858cc9ac5548f43c9c42d983586360d7300",
+      "lines": 55
+    },
+    {
       "file": "src/meter/mod/include/WinJACKNexus/Meter/Mod/MeterbridgeService.hpp",
       "sha256": "175138146658e339d126763214dd4e7621ba5e88e35b4828212e51f579fbbe3f",
       "lines": 53
@@ -402,13 +407,13 @@
     },
     {
       "file": "src/meter/mod/include/WinJACKNexus/Meter/Mod/MeterCard.hpp",
-      "sha256": "d35fee5bfa226eca582d431a4588ac5d2c084680fee1a3266f2595a8fdb900f1",
-      "lines": 92
+      "sha256": "275313db73c8cd08cf32569d78907776ae2bd9b11b6ce1b8879362c5f1693edf",
+      "lines": 98
     },
     {
       "file": "src/meter/mod/include/WinJACKNexus/Meter/Mod/MeterHistoryWindow.hpp",
-      "sha256": "cfad9535ac16fb14a7087c9c19ca3ab128daf667be12a6a6ea4eefe6935f6d39",
-      "lines": 128
+      "sha256": "559aacdddd889da5d987ae9dd3b91ae0ac27ae4e541dfe2ab4bc1cbbf8f048a2",
+      "lines": 132
     },
     {
       "file": "src/meter/mod/include/WinJACKNexus/Meter/Mod/MeterSettingsWidget.hpp",
@@ -427,28 +432,28 @@
     },
     {
       "file": "src/meter/mod/src/MeterbridgeWindow.cpp",
-      "sha256": "f2b72e60f0aa6e47070c834235ba7d155086c9cfc255fcee453d93845c37510e",
-      "lines": 421
+      "sha256": "1b562a986645cedaebb680ae4c98e06096b65b5cb3107a33f01fd742f8e7ccb0",
+      "lines": 427
     },
     {
       "file": "src/meter/mod/src/MeterCard.cpp",
-      "sha256": "901bbc8b69f73675457c9f34bc0e6f0840b351f25c21286ce1d8c1c543d7333f",
-      "lines": 642
+      "sha256": "8585ed971f53eec96cf4e352fb3543751faa964a6ba432bd55d090038df53e23",
+      "lines": 707
     },
     {
       "file": "src/meter/mod/src/MeterHistoryWindow.cpp",
-      "sha256": "103fc4fb452e0465d18242df725e89ef0e30809da0c0fd833b19aba3d5469c62",
-      "lines": 1181
+      "sha256": "8628a445297e138ec6251ad9b6777b009308b8bd3174d2a01e30131985dc4666",
+      "lines": 1302
     },
     {
       "file": "src/meter/mod/src/MeterSettingsWidget.cpp",
-      "sha256": "9cf14906a544c62ac2f888cc45c414549b34b9df2287bc325fd3b79d6349d42c",
-      "lines": 244
+      "sha256": "f3f6429a2a969d4eac71cb09b33f6592e928553ee30dd4b5d8f7b76d9459c83b",
+      "lines": 269
     },
     {
       "file": "src/meter/probe/Library.cpp",
-      "sha256": "afb2c00935f3223bee9e437c00f7d839516b4e580eef9ff34379501fdfa41ed0",
-      "lines": 1263
+      "sha256": "706842f9acffc6e171e9f6276887e7f4fb548ff7278593b12d3afce690b9b2dc",
+      "lines": 1321
     },
     {
       "file": "src/meter/ui/include/WinJACKNexus/Meter/LiveMeterDataProvider.hpp",
@@ -457,8 +462,8 @@
     },
     {
       "file": "src/meter/ui/include/WinJACKNexus/Meter/MeterCsvWriter.hpp",
-      "sha256": "efc58e1f647e3e20ee42350e336088db2b739dbed537232e04b391aa875338af",
-      "lines": 91
+      "sha256": "9ad87a0a27cf6973c39cc851fb55070c771084361c328022e1b37f08cbfb13be",
+      "lines": 93
     },
     {
       "file": "src/meter/ui/include/WinJACKNexus/Meter/MeterViewDataProvider.hpp",
@@ -467,8 +472,8 @@
     },
     {
       "file": "src/meter/ui/include/WinJACKNexus/Meter/MeterViewSnapshot.hpp",
-      "sha256": "a3dc44e52c5e060043973e8398c908008300e93b501c4499ea0959d779ca5111",
-      "lines": 155
+      "sha256": "28cdd00f99476172b0f444ba4817e0a91240841cab09972b4d40a75c806ac932",
+      "lines": 164
     },
     {
       "file": "src/meter/ui/include/WinJACKNexus/Meter/MockMeterDataProvider.hpp",
@@ -477,18 +482,18 @@
     },
     {
       "file": "src/meter/ui/src/LiveMeterDataProvider.cpp",
-      "sha256": "192cb3c06319191173d8975646499b25688316b1bd61dfe78953f09c0f045dca",
-      "lines": 575
+      "sha256": "777eedc6b8bedb9b9ad2b55ee5d9047aa7dbbb3639030df85f1f824fb4fd1dfc",
+      "lines": 579
     },
     {
       "file": "src/meter/ui/src/MeterCsvWriter.cpp",
-      "sha256": "de9d3be8008561af6e3e065dafe72688d7deac14c6d4c4264f64a37c516e0645",
-      "lines": 243
+      "sha256": "f47ee583cb78c7c1f7492462c131c052eda45900f972e87a3eff6b63c537f9fd",
+      "lines": 245
     },
     {
       "file": "src/meter/ui/src/MockMeterDataProvider.cpp",
-      "sha256": "088e8d64c35819b440d7b45996692caec503fb043b7b8b8317d76349d5708bdf",
-      "lines": 496
+      "sha256": "5d0db36cb51325523a2f0ba2d68d67352730cb1c02d7668efc49f91bc5ec072e",
+      "lines": 497
     },
     {
       "file": "src/mixer/EffectGraph.cpp",
@@ -987,8 +992,8 @@
     },
     {
       "file": "src/ui/include/WinJACKNexus/UI/Controls.hpp",
-      "sha256": "26ef72f62ea03ff50be9c181ad6ee3641c89f185dfa2d618d94f5b6d9522a683",
-      "lines": 518
+      "sha256": "1723b32338daf0351f774e62c069ae495f13d11997135685ef3468723366a978",
+      "lines": 521
     },
     {
       "file": "src/ui/include/WinJACKNexus/UI/Export.hpp",
@@ -1012,8 +1017,8 @@
     },
     {
       "file": "src/ui/include/WinJACKNexus/UI/HistoryLegendWidget.hpp",
-      "sha256": "a3da62bc83b1a0506f9f8c6803288870a4e3833bf388d25a28e87f49d1f73e79",
-      "lines": 67
+      "sha256": "9f78face92996aa76ad99147f22f5b94720adfd776299a539ac387fcc9639a98",
+      "lines": 68
     },
     {
       "file": "src/ui/include/WinJACKNexus/UI/HostI18n.hpp",
@@ -1052,8 +1057,8 @@
     },
     {
       "file": "src/ui/include/WinJACKNexus/UI/MetricStatisticsWidget.hpp",
-      "sha256": "45007d1f51c4c3c02ce9c9a4a43e5d40c188c9ffe4a59266c8d21f4326bcdcb4",
-      "lines": 68
+      "sha256": "4bdc9910fa7b984617b9365aed7e92c0be018edaab5d8e761e93ac201ca9fda8",
+      "lines": 69
     },
     {
       "file": "src/ui/include/WinJACKNexus/UI/MixerPolarPlot.hpp",
@@ -1062,8 +1067,8 @@
     },
     {
       "file": "src/ui/include/WinJACKNexus/UI/MixerWindow.hpp",
-      "sha256": "3f2262ff5e5ab58c3cdd1888d9b808d822edff363f1bf4e1f58fcc70cb172aaf",
-      "lines": 57
+      "sha256": "712f38717df2af696af516f8bcb8caff769ccb09895033bcfc241c75fddc7ff4",
+      "lines": 58
     },
     {
       "file": "src/ui/include/WinJACKNexus/UI/NativeWindowUtils.hpp",
@@ -1132,33 +1137,33 @@
     },
     {
       "file": "src/ui/src/AuxSettingsWindow.cpp",
-      "sha256": "a41fe25e05462a9b14b50cf1b21522200c0f4aec4db60839da730d7fda679de1",
-      "lines": 1355
+      "sha256": "96ee2ddcea8bb613b44aa8045f86e68db37a84b8c2c96063618f044625b14213",
+      "lines": 1382
     },
     {
       "file": "src/ui/src/Controls.cpp",
-      "sha256": "a27877760ce4a70daaabc3ef7872425785e66c9ee41597dfed160679f65a72c2",
-      "lines": 1585
+      "sha256": "58be5d5974b6052af6095c37b971080a254aec68de251a2d16c7e9f3ab600bcb",
+      "lines": 1624
     },
     {
       "file": "src/ui/src/FxLevelMeterWidget.cpp",
-      "sha256": "04cb7f48937387b366c091cfa57bc9ca8ab85d9342e4ad61f1051d58d410ccae",
-      "lines": 145
+      "sha256": "e980376f816c95c848592655121b596876a7bd2490a0ae76e9f41de56836a5d9",
+      "lines": 153
     },
     {
       "file": "src/ui/src/FxSettingsWindow.cpp",
-      "sha256": "603658afb4fdd2a9daf57a0a2b6e819ebadaae3e42c92bbcbf8ed58e08c278a7",
-      "lines": 1363
+      "sha256": "2d0ae76d0321828140aba0db82080b3df5cb898cc0bceee3b9157875cb906fb5",
+      "lines": 1450
     },
     {
       "file": "src/ui/src/HistoryChartWidget.cpp",
-      "sha256": "aff45050f0ac5fc6193a588fc3504b7ad86fbe9e53d5a24a878a199b0644a885",
-      "lines": 694
+      "sha256": "869b6bdf72ee704855db05f25ee6cf1bdc43f90d8bbc95e0b2bc54f033e0a026",
+      "lines": 697
     },
     {
       "file": "src/ui/src/HistoryLegendWidget.cpp",
-      "sha256": "55e7e113b7ec86ea42729cc7bb38e4e9a5c99cf4b990a93dbc82923788ab552b",
-      "lines": 161
+      "sha256": "26b9e430dd76d53313ee01345d9f493fab7bf3803976be774f29a8cbea28f572",
+      "lines": 176
     },
     {
       "file": "src/ui/src/HostI18n.cpp",
@@ -1181,6 +1186,11 @@
       "lines": 25
     },
     {
+      "file": "src/ui/src/LocalizedMixerErrors.hpp",
+      "sha256": "20ad854a8d7e021dbb4878f26fd9fe66fbd31ddbd580554c47f6c2b85efb2db3",
+      "lines": 48
+    },
+    {
       "file": "src/ui/src/MeterLevelBar.cpp",
       "sha256": "be40db0cc6b4dcf2f1d0a64de003c812f29105a7a77743228589a343fa3877f7",
       "lines": 348
@@ -1197,8 +1207,8 @@
     },
     {
       "file": "src/ui/src/MetricStatisticsWidget.cpp",
-      "sha256": "9a81ef37c337ab73bd2268d80f5711a4c822a41f80a12c620556e8467c3cfe26",
-      "lines": 209
+      "sha256": "7adfb2b61cada1bd41b722f638173a11fba921d1106e7cfcd637bd9ecb43bea7",
+      "lines": 231
     },
     {
       "file": "src/ui/src/MixerChannelIcons.hpp",
@@ -1207,7 +1217,7 @@
     },
     {
       "file": "src/ui/src/MixerOverview.hpp",
-      "sha256": "87784143d762fc3748903ed0e911d51b60144e45e18018718826750e5a071985",
+      "sha256": "050e7fd50dd48a44e736bdd80d2e50a446c1cfdfb50d5afe3616924f6e410fc4",
       "lines": 171
     },
     {
@@ -1222,8 +1232,8 @@
     },
     {
       "file": "src/ui/src/MixerWindow.cpp",
-      "sha256": "54330af1836afc172c7f7cdea5b9c6330b5dc98a37be46f0c633962d2a758704",
-      "lines": 3845
+      "sha256": "ad24d589517fe68f8ff969d9d656e338ed6849bc9c1fe1e82165167754920063",
+      "lines": 3936
     },
     {
       "file": "src/ui/src/NativeWindowUtils.cpp",
@@ -1346,8 +1356,8 @@
       "lines": 129
     }
   ],
-  "literal_occurrences": 8111,
-  "unique_source_ids": 5512,
+  "literal_occurrences": 9015,
+  "unique_source_ids": 5990,
   "limitations": [
     "Source evidence is not a classified UI/key inventory.",
     "Dynamic text sources and Qt/OS-owned text require separate inspection.",

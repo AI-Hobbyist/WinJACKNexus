@@ -1,0 +1,2 @@
+{"changed_files": ["src/ui/include/WinJACKNexus/UI/Controls.hpp", "src/ui/include/WinJACKNexus/UI/MixerWindow.hpp", "src/ui/src/Controls.cpp", "src/ui/src/MixerWindow.cpp"], "resource_changes": [], "added": 0, "removed": 0, "relocated_groups": 567, "usage_changed_groups": 0, "before": 9012, "after": 9012}
+Scanned 270 files; 9012 literal occurrences; 5990 source IDs.

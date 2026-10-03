@@ -3,6 +3,9 @@
 #include <WinJACKNexus/UI/AuxSettingsWindow.hpp>
 #include <WinJACKNexus/UI/ApplicationSettings.hpp>
 #include <WinJACKNexus/UI/Controls.hpp>
+#include <QHelpEvent>
+#include <QToolTip>
+#include <QTextDocument>
 #include <WinJACKNexus/UI/LocalizedText.hpp>
 #include "LocalizedMixerErrors.hpp"
 #include <WinJACKNexus/UI/FxSettingsWindow.hpp>
@@ -1267,7 +1270,8 @@ void drawAdaptiveText(QPainter& painter, const QRectF& rect, const QString& text
         size -= 1.0;
     }
     font.setPixelSize(std::max(1, qRound(std::max(size, minimumSize))));
-    Controls::drawText(painter,rect,text,font,color,Qt::Alignment(alignment));
+    const auto display = QFontMetricsF(font).elidedText(text,Qt::ElideRight,availableWidth);
+    Controls::drawText(painter,rect,display,font,color,Qt::Alignment(alignment));
 }
 
 QString faderDbText(qreal position)
@@ -2635,6 +2639,7 @@ public:
                 auto* tab = new Controls::ActionButton(tabs[i],header);
                 tab->setObjectName(QStringLiteral("selTab%1").arg(tabs[i]));
                 if(i==0) bindLocalizedText(tab,"text","mixer","tab.main","Main");
+                if(i==3) bindLocalizedText(tab,"text","mixer","section.subMix","Sub Mix");
                 tab->setCheckable(true);
                 tab->setChecked(i==0);
                 tab->setFixedWidth(106);
@@ -2672,11 +2677,12 @@ public:
             if (auto* submenu = action->menu(); submenu && submenu->parent() == menu) delete submenu;
         menu->clear();
         const auto iconColor=Controls::themeTokenColor(QStringLiteral("sel-main"),QStringLiteral("control-header-icon"),QColor("#e8f2ff"));
-        const std::array names{mixerText("section.inputs","Inputs"),QStringLiteral("AUX"),QStringLiteral("Sub Mix"),mixerText("section.listenMaster","Monitor/Master")};
+        const std::array names{mixerText("section.inputs","Inputs"),QStringLiteral("AUX"),mixerText("section.subMix","Sub Mix"),mixerText("section.listenMaster","Monitor/Master")};
         for(int group=0;group<4;++group) {
             const auto kind=group==0?MixerChannelIcon::input:group==1?MixerChannelIcon::aux:group==2?MixerChannelIcon::subMix:MixerChannelIcon::master;
             auto* category=menu->addMenu(QIcon(mixerChannelIcon(kind,iconColor,24,owner.devicePixelRatioF())),names[group]);
             if (group == 0) bindLocalizedText(category, "title", "mixer", "section.inputs", "Inputs");
+            if (group == 2) bindLocalizedText(category, "title", "mixer", "section.subMix", "Sub Mix");
             if (group == 3) bindLocalizedText(category, "title", "mixer", "section.listenMaster", "Monitor/Master");
             for(int i=0;i<static_cast<int>(channels.size());++i) {
                 const auto& channel=channels[i];
@@ -3804,6 +3810,24 @@ void MixerWindow::mouseDoubleClickEvent(QMouseEvent* event)
         channel.fader=faderPositionForDb(db);
         impl_->commitChannel(channel); update();
     });
+}
+
+bool MixerWindow::event(QEvent* event)
+{
+    if (event->type() == QEvent::ToolTip && impl_) {
+        const auto* help = static_cast<QHelpEvent*>(event);
+        const auto heightScale = std::clamp(height()/768.0,.72,1.35);
+        for (int index = 0; index < static_cast<int>(impl_->channels.size()); ++index) {
+            const auto card = impl_->channelRect(index);
+            if (QRectF(card.left(),card.top(),card.width(),44*heightScale).contains(help->pos())
+                && impl_->viewportForChannel(index).contains(help->pos())) {
+                const auto name = impl_->channels[index].name;
+                QToolTip::showText(help->globalPos(),Qt::mightBeRichText(name) ? Qt::convertFromPlainText(name) : name,this);
+                event->accept(); return true;
+            }
+        }
+    }
+    return QMainWindow::event(event);
 }
 
 void MixerWindow::mouseMoveEvent(QMouseEvent* event)

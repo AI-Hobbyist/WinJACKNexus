@@ -59,3 +59,9 @@ S0 验证按当前源码重新通过；S1 核心、schema、实际包与真实 D
 初次完整 S3 差异保存为 S0-refresh-S3-initial.json：7 个源码文件、5 个资源变化，新增 360 次、移除 95 次原文，373 组位置及 33 组上下文变化；活动 key 新增 132、退休 131。分类程序曾错误给实际 S3 key 附加组件前缀，已修复，旧分类差异保留供追溯；S2 目录基线另保留在 S0-refresh-pre-S3-catalog.json。历史差异没有被后续空刷新替代。
 
 后续长标题/捕获调整记录在 S0-refresh-S3-canvas.json，最终 Qt 输入提示刷新与 NOMINMAX 调整记录在 S0-refresh-delta.json：两文件变化、0 新增/移除原文字面种类、196 组位置移动及 1 组次数/上下文变化，重复技术域名增加一次出现；无新 key 或退休 key。最终 SHA-256、源出现次数、资源、占位符、显示与忽略清单对账 PASS。S3 验证器同时检查当前源码范围内的 155 次显示源/122 个 key 全部属于实际 S3 四语言清单。
+
+## S4 最终同步
+
+当前 270 个源码文件、9015 次字面出现；translate 1628、exclude 7380、structured 7、pending 0；1368 个显示 key、6896 个资源字段、43 个描述符字符串字段。S4 312 个运行时 key 覆盖其源码范围内 420 次显示出现。当前源码与资源重新校验 PASS。
+
+历史 S3 最后差异保留为 S0-refresh-pre-S4.json；S4 初始完整差异、Sub Mix 补漏、控件与 tooltip 修正分别保存为 S0-refresh-S4-initial.json、S0-refresh-S4-submix.json、S0-refresh-S4-controls.json、S0-refresh-S4-tooltip.json；S0-refresh-delta.json 为最终普通标签绘制条件调整。S4 完成与运行时证据见 S4-completion.md 和 S4-verification.json。

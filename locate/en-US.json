@@ -251,7 +251,8 @@
       "control.strength": "Strength",
       "action.clone": "Clone",
       "action.delete": "Delete",
-      "action.layout": "Change channel layout"
+      "action.layout": "Change channel layout",
+      "label.subMix": "Sub Mix"
     },
     "meterbridge": {
       "window.title": "WinJACKNexus - Meter bridge",
@@ -503,7 +504,8 @@
       "error.snapshotBase64": "Invalid Base64 parameter snapshot for %1.",
       "error.snapshotSize": "Invalid parameter snapshot size for %1.",
       "error.snapshotIdentity": "Parameter snapshot version or module identity mismatch for %1.",
-      "error.snapshotImport": "Parameter snapshot import failed for %1."
+      "error.snapshotImport": "Parameter snapshot import failed for %1.",
+      "section.subMix": "Sub Mix"
     },
     "fxhost": {
       "window.title": "FX settings",

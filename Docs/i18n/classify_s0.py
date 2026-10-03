@@ -85,8 +85,48 @@ def s3_call(r):
             return 'translate', row['domain'], row['key']
     return None
 
+S4_RECORDS = json.loads((OUT/'S4-strings.json').read_text(encoding='utf-8'))
+S4_SOURCES = {
+    'aux': ('src/ui/src/AuxSettingsWindow.cpp',),
+    'mixer': ('src/ui/src/MixerWindow.cpp', 'src/ui/src/MixerOverview.hpp', 'src/ui/src/LocalizedMixerErrors.hpp'),
+    'fxhost': ('src/ui/src/FxSettingsWindow.cpp', 'src/ui/src/FxLevelMeterWidget.cpp'),
+    'ui': ('src/ui/src/HistoryChartWidget.cpp', 'src/ui/src/MetricStatisticsWidget.cpp'),
+    'meterbridge': ('src/meter/mod/', 'src/meter/probe/Library.cpp'),
+}
+
+def s4_call(r):
+    if r['file']=='src/ui/src/MixerWindow.cpp' and r['literal'] in ('Inputs','Sub Mix/Monitor/Master') and 'group==0?' in r['context']:
+        return 'translate', 'mixer', 'section.inputs' if r['literal']=='Inputs' else 'section.subMonitorMaster'
+    domains = [domain for domain, paths in S4_SOURCES.items() if r['file'].startswith(paths)]
+    for row in S4_RECORDS:
+        if row['domain'] not in domains:
+            continue
+        if r['literal'] == row['key']:
+            return 'exclude', row['domain'], row['key']
+        spellings = {json.dumps(row['en-US'], ensure_ascii=ascii)[1:-1] for ascii in (True, False)}
+        if r['literal'] in spellings and ('"'+row['key']+'"') in r['context']:
+            return 'translate', row['domain'], row['key']
+    return None
+
 def classify(r, decisions):
     text, ctx, file = r['literal'], r['context'], r['file']
+    s4_runtime = s4_call(r)
+    if s4_runtime:
+        return s4_runtime[0], s4_runtime[2] if s4_runtime[0]=='translate' else '', ('S4 English 显示基线；实际 key、四语言草稿及待审校状态见核对表' if s4_runtime[0]=='translate' else 'S4 稳定语言 key；显示值另列，禁止用于改写工程或端口身份')
+    if file=='src/ui/src/LocalizedMixerErrors.hpp' and re.search(r'[\u3400-\u9fff]',text):
+        return 'exclude','','旧模型诊断匹配身份或截取后缀；GUI 副本由 mixer/error.* 翻译，模型和日志原文不改写'
+    if file=='src/meter/mod/src/MeterCard.cpp' and text in ('预设名称或参考值无效','无法创建目录：'):
+        return 'exclude','','预设写入 API 的旧诊断匹配身份；窗口以 preset.invalid/preset.directoryFailure 翻译显示副本，保留原始路径'
+    if file=='src/ui/src/FxSettingsWindow.cpp' and text in ('All','In','Out','In\\n','Out\\n'):
+        return 'exclude','','All 为声道选择的内部身份；In/Out 为端点技术缩写。显示 All 与端点说明分别由 channel.all、endpoint.* 翻译，身份不用于显示翻译结果判断'
+    if file in ('src/meter/mod/Library.cpp','src/meter/probe/Library.cpp') and text in {'Meterbridge','Meter','Top-level Meterbridge window module.','Meter Mono','Single-channel Meterbridge probe.','Meter Stereo','Two-channel Meterbridge probe.','Meter 5.1','5.1-channel Meterbridge probe.','Meter 7.1','7.1-channel Meterbridge probe.','Meter Custom','Custom-channel Meterbridge probe.','Host-drawn card background for this meter probe type'}:
+        return 'exclude','','既有 NodeInfo/导出名称/分类或主题开发说明身份；节点库名称和描述已有 S3 patchbay/node.meter* 显示翻译，主题开发说明不在操作 UI 呈现'
+    if file=='src/ui/src/AuxSettingsWindow.cpp' and text in ('Pre','Post'):
+        return 'exclude','','Pre/Post 为紧凑前/后推子技术标记；操作说明独立翻译，路由枚举保持原样'
+    if file=='src/ui/src/MixerWindow.cpp' and text in ('MASTER','POST','IN','MUTE'):
+        return 'exclude','','计划术语表保留的总线/前后推子/静音技术标记；菜单操作说明独立翻译，既有 SEL objectName 和通道身份保持原样'
+    if file=='src/ui/src/MixerWindow.cpp' and text in ('Main','Sub Mix') and ('const std::array<QString,4> tabs' in ctx or 'selTab%1' in ctx):
+        return 'exclude','','SEL 页签对象身份数组；可见标签由 mixer/tab.main、section.subMix 独立绑定'
     s3_runtime=s3_call(r)
     if s3_runtime:
         return s3_runtime[0],s3_runtime[2] if s3_runtime[0]=='translate' else '',('S3 English 显示基线；实际 key、四语言值及待人工审校状态见核对表' if s3_runtime[0]=='translate' else 'S3 稳定语言 key，显示基线另列')
@@ -238,7 +278,8 @@ def main():
         kind, key, reason = classify(r,decisions)
         runtime = host_call(r)
         s3_runtime = s3_call(r)
-        domain = 'host' if runtime else s3_runtime[1] if s3_runtime else module_domain(r)
+        s4_runtime = s4_call(r)
+        domain = s4_runtime[1] if s4_runtime else 'host' if runtime else s3_runtime[1] if s3_runtime else module_domain(r)
         # The source component separates distinct meanings until explicit sharing is reviewed.
         component = re.sub(r'[^a-z0-9]+','.',Path(r['file']).stem.lower()).strip('.')
         record = dict(r,disposition=kind,proposed_key=key,notes=reason,translation_domain=domain)
@@ -250,13 +291,13 @@ def main():
         if kind == 'translate':
             lines = (ROOT/r['file']).read_text(encoding='utf-8-sig').splitlines()
             pos = int(r['line'])-1
-            keys.append({'source_id':r['id'],'domain':domain,'key':key if runtime or s3_runtime else component+'.'+key,
+            keys.append({'source_id':r['id'],'domain':domain,'key':key if runtime or s3_runtime or s4_runtime else component+'.'+key,
                 'source':r['literal'],'file':r['file'],'line':r['line'],'control_context':r['context'],
                 'usage':source_use(r),
                 'source_window':'\n'.join(f'{i+1}: {lines[i]}' for i in range(max(0,pos-2),min(len(lines),pos+3))),
                 'placeholders':','.join(re.findall(r'%(?:L?\d+|n)|\{[A-Za-z_]\w*\}',r['literal'])),
                 'layout':'自绘/固定 rect：按调用点布局与 hit rect 测量，超长省略+完整 tooltip' if ('/effects/' in r['file'] or 'drawText' in r['context'] or 'MixerOverview' in r['file']) else '原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName',
-                'review':('S2' if runtime else 'S3')+' 实际运行时 key；四语言草稿已提供，待母语/领域审校' if runtime or s3_runtime else 'S0 key 提案；四语言译文和母语审校尚未实施','notes':reason})
+                'review':('S4' if s4_runtime else 'S2' if runtime else 'S3')+' 实际运行时 key；四语言草稿已提供，待母语/领域审校' if runtime or s3_runtime or s4_runtime else 'S0 key 提案；四语言译文和母语审校尚未实施','notes':reason})
         elif kind == 'exclude':
             excluded.append({'source_id':r['id'],'domain':domain,'source':r['literal'],
                 'file':r['file'],'line':r['line'],'context':r['context'],'reason':reason,'preservation':'原样；周边项目说明另行翻译'})

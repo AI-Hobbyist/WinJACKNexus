@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: AGPL-3.0-only */
 #include <WinJACKNexus/UI/HostI18n.hpp>
 #include <WinJACKNexus/UI/LocalizedText.hpp>
+#include <WinJACKNexus/UI/Controls.hpp>
 #include <WinJACKNexus/UI/MixerWindow.hpp>
 #include <WinJACKNexus/UI/AuxSettingsWindow.hpp>
 #include <WinJACKNexus/UI/FxSettingsWindow.hpp>
@@ -48,6 +49,9 @@
 #include <QCheckBox>
 #include <QSignalBlocker>
 #include <QImage>
+#include <QLibrary>
+#include <QHelpEvent>
+#include <QToolTip>
 #include <algorithm>
 #include <cstdio>
 #include <cstdlib>
@@ -56,6 +60,7 @@ using namespace WinJACKNexus;
 using namespace WinJACKNexus::UI;
 using namespace WinJACKNexus::Meter;
 using namespace WinJACKNexus::Meter::Mod;
+namespace WinJACKNexus::Node { class INode; }
 namespace {
 int checks = 0;
 void check(bool value, const char* reason) {
@@ -76,7 +81,15 @@ void bound(QObject& root) {
         const auto target = property.mid(9);
         const auto domain = object->property((QByteArray("wjn.i18nDomain.") + target).constData()).toByteArray();
         const auto key = object->property(property).toByteArray();
-        check(object->property(target).toString() == localizedText(domain.constData(), key.constData(), "missing"), "bound display property uses the active domain catalog");
+        const auto actual = object->property(target).toString();
+        const auto expected = localizedText(domain.constData(),key.constData(),"missing");
+        const auto* iconButton = dynamic_cast<Controls::IconActionButton*>(object);
+        // The frozen shared control contract adds the complete caption to an
+        // elided button's existing help. Verify both strings, not only the help.
+        const bool expandedHelp = target == "toolTip" && iconButton
+            && actual == iconButton->text()+'\n'+expected;
+        if (actual != expected && !expandedHelp) std::fprintf(stderr,"S4 binding mismatch: object=%s property=%s domain=%s key=%s actual=[%s] expected=[%s]\n",object->objectName().toUtf8().constData(),target.constData(),domain.constData(),key.constData(),actual.toUtf8().constData(),expected.toUtf8().constData());
+        check(actual == expected || expandedHelp, "bound display property uses the active domain catalog and documented complete-caption tooltip");
     }
 }
 void capture(QWidget& widget, const QString& directory, const QString& file) {
@@ -88,6 +101,83 @@ void capture(QWidget& widget, const QString& directory, const QString& file) {
         for (auto glyph : run.glyphIndexes()) check(glyph != 0, "system font and Qt font fallback cover four-language glyphs");
     const auto image = widget.window()->screen()->grabWindow(widget.window()->winId());
     check(!image.isNull() && image.save(directory + '/' + file + QStringLiteral(".png")), "capture actual visible native window");
+    // Large fixed reference windows exceed the desktop at high DPI. Move the
+    // same native window through the desktop and capture each exposed region;
+    // pixels outside the monitor cannot serve as rendering evidence.
+    auto* window = widget.window();
+    const auto position = window->pos();
+    const auto available = window->screen()->availableGeometry().adjusted(32,32,-32,-32);
+    const QSize tileSize = window->size().boundedTo(available.size());
+    if (window->width() > tileSize.width() || window->height() > tileSize.height()) {
+        for (int y = 0; y < window->height(); y += tileSize.height())
+            for (int x = 0; x < window->width(); x += tileSize.width()) {
+                const QRect tile(QPoint(x,y),QSize(std::min(tileSize.width(),window->width()-x),std::min(tileSize.height(),window->height()-y)));
+                window->move(available.topLeft()-tile.topLeft()); settle(100);
+                const QRect actual(window->mapToGlobal(tile.topLeft()),tile.size());
+                // The window center can cross to the other monitor while this
+                // particular region remains on the original monitor.
+                auto* visibleScreen = QGuiApplication::screenAt(actual.center());
+                const bool fullyVisible = visibleScreen && visibleScreen->availableGeometry().contains(actual);
+                if (!fullyVisible) std::fprintf(stderr,"S4 tile mismatch: file=%s tile=%d,%d,%d,%d actual=%d,%d,%d,%d\n",file.toUtf8().constData(),tile.x(),tile.y(),tile.width(),tile.height(),actual.x(),actual.y(),actual.width(),actual.height());
+                check(fullyVisible,"each captured native-window region is entirely on the actual desktop");
+                const auto part = visibleScreen->grabWindow(window->winId(),tile.x(),tile.y(),tile.width(),tile.height());
+                check(!part.isNull() && part.save(directory+'/'+file+QStringLiteral("-tile-%1-%2.png").arg(y).arg(x)),"capture all high-DPI window content in exposed desktop regions");
+            }
+        window->move(position); settle();
+    }
+}
+void probeWindows(HostI18n& host, const QString& runtime, const QString& output, const QString& language) {
+    QLibrary library(QDir(runtime).filePath(QStringLiteral("nodes/meter/mod_meterbridge_probe.dll")));
+    check(library.load(), "actual meter probe DLL loads offline");
+    using Node = WinJACKNexus::Node::INode;
+    const auto count = reinterpret_cast<std::uint32_t(*)()>(library.resolve("wjn_get_node_count"));
+    const auto create = reinterpret_cast<Node*(*)(std::uint32_t)>(library.resolve("wjn_create_node"));
+    const auto destroy = reinterpret_cast<void(*)(Node*)>(library.resolve("wjn_destroy_node"));
+    const auto settings = reinterpret_cast<const char*(*)(Node*)>(library.resolve("wjn_get_node_settings_json"));
+    const auto widget = reinterpret_cast<QWidget*(*)(Node*,QWidget*)>(library.resolve("wjn_create_settings_widget"));
+    const auto destroyWidget = reinterpret_cast<void(*)(Node*,QWidget*)>(library.resolve("wjn_destroy_settings_widget"));
+    check(count && create && destroy && settings && widget && destroyWidget, "actual probe exports available");
+    check(count() == 5, "all five probe kinds covered");
+    QString error;
+    for (std::uint32_t index = 0; index < count(); ++index) {
+        auto* node = create(index); check(node, "probe created without JACK initialization");
+        const QByteArray before(settings(node));
+        auto* panel = widget(node,nullptr); check(panel, "actual probe settings panel");
+        panel->resize(700,500);
+        capture(*panel,output,QStringLiteral("probe-%1-%2").arg(index).arg(language));
+        auto* edit = panel->findChild<QLineEdit*>(QStringLiteral("meterProbeClientNameEditor"));
+        check(edit,"actual probe client name editor");
+        edit->setFocus(); edit->setText(QStringLiteral("未提交_Probe_日本語")); edit->setSelection(1,4);
+        auto* table = panel->findChild<QTableWidget*>(QStringLiteral("meterProbeChannelTable"));
+        QComboBox* role = table ? qobject_cast<QComboBox*>(table->cellWidget(0,2)) : nullptr;
+        const auto roleId = role ? role->currentData() : QVariant();
+        check(!table || role, "custom probe has real role editor");
+        const auto alternate = language == QStringLiteral("en-US") ? QStringLiteral("ko-KR") : QStringLiteral("en-US");
+        check(host.manager().setLanguage(alternate,&error),"switch with actual probe draft"); settle();
+        check(edit->text() == QStringLiteral("未提交_Probe_日本語") && edit->selectionStart() == 1 && edit->selectedText().size() == 4,"probe draft and selection preserved");
+        check(QByteArray(settings(node)) == before,"probe settings and JACK identity unchanged by language switch");
+        if (role) {
+            check(table->cellWidget(0,2) == role && role->currentData() == roleId,"probe role editor and stable role ID preserved");
+            for (int item = 0; item < role->count(); ++item) {
+                const auto key = QByteArray("probe.role.") + role->itemData(item).toByteArray();
+                check(role->itemText(item) == localizedText("meterbridge",key.constData(),"missing"),"all actual role captions relocalize by stable ID");
+            }
+            const auto minimum = role->minimumWidth(), maximum = role->maximumWidth();
+            role->setFixedWidth(60); settle();
+            QHelpEvent roleHelp(QEvent::ToolTip,QPoint(2,2),role->mapToGlobal(QPoint(2,2)));
+            QCoreApplication::sendEvent(role,&roleHelp); settle();
+            check(QToolTip::text() == role->currentText(),"elided role caption exposes its complete current-language tooltip");
+            QToolTip::hideText(); role->setMinimumWidth(minimum); role->setMaximumWidth(maximum);
+        }
+        capture(*panel,output,QStringLiteral("probe-hot-%1-%2").arg(index).arg(language));
+        destroyWidget(node,panel);
+        check(host.manager().setLanguage(language,&error),"restore probe language");
+        panel = widget(node,nullptr); check(panel,"probe settings reopen");
+        bound(*panel);
+        check(QByteArray(settings(node)) == before,"reopening probe preserves serialized state");
+        destroyWidget(node,panel); destroy(node);
+    }
+    check(library.unload(),"probe DLL unloads after widget and node destruction");
 }
 struct Provider final : MeterViewDataProvider {
     std::vector<MeterViewSnapshot> rows;
@@ -155,7 +245,7 @@ int main(int argc, char** argv) {
     const auto input = model.add(Common::MixerStripKind::input, Common::MixerLayout::stereo);
     model.add(Common::MixerStripKind::aux, Common::MixerLayout::stereo);
     model.add(Common::MixerStripKind::subMix, Common::MixerLayout::surround71);
-    model.strip(input)->name = QStringLiteral("用户_日本語_한국어_LongName");
+    model.strip(input)->name = QStringLiteral("用户_日本語_한국어_LongName_").repeated(12);
     model.strip(input)->comment = QStringLiteral("Keep comment 123.45");
     const auto modelBytes = model.toJson(); int commits = 0;
     MixerWindow mixer(&model, [&](const Common::DigitalMixerState&, QString*) { ++commits; return true; }, [](std::uint64_t,bool) { return 0.0F; });
@@ -172,9 +262,22 @@ int main(int argc, char** argv) {
     MeterCard card(provider, [] {}, [](const QString&) {}); card.setSnapshot(provider.rows[0]);
     Provider empty; MeterbridgeWindow emptyBridge(empty);
     if (cold) {
+        probeWindows(host,arguments[1],output,arguments[5]);
         expose(history); bound(history);
         check(history.statistics()->entries().size() == 8, "cold history renders all eight metrics");
         check(history.chart()->verticalAxisLabel() == localizedText("meterbridge","history.levelAxis","missing"), "cold chart first frame uses restored language");
+        const auto language = arguments[5];
+        capture(history,output,QStringLiteral("cold-history-")+language); history.hide();
+        capture(mixer,output,QStringLiteral("cold-mixer-")+language); mixer.hide();
+        auto* coldDetails = mixer.openView(MixerWindow::View::channelDetails);
+        capture(*coldDetails,output,QStringLiteral("cold-sel-")+language); coldDetails->hide();
+        auto* coldOverview = mixer.openView(MixerWindow::View::channelOverview);
+        capture(*coldOverview,output,QStringLiteral("cold-overview-")+language); coldOverview->hide();
+        capture(aux,output,QStringLiteral("cold-aux-")+language); aux.hide();
+        capture(sub,output,QStringLiteral("cold-submix-")+language); sub.hide();
+        capture(card,output,QStringLiteral("cold-card-")+language); card.hide();
+        capture(bridge,output,QStringLiteral("cold-bridge-")+language); bridge.hide();
+        capture(emptyBridge,output,QStringLiteral("cold-bridge-empty-")+language); emptyBridge.hide();
         capture(fx, output, QStringLiteral("cold-fx-") + arguments[5]);
         std::printf("S4 cold %s: %d checks PASS\n",arguments[5].toUtf8().constData(),checks);
         ThemeManager::installThemeCore(nullptr); return 0;
@@ -208,12 +311,31 @@ int main(int argc, char** argv) {
                 check(history.chart()->series()[i].points[point].timestampMilliseconds == points[i].points[point].timestampMilliseconds
                     && history.chart()->series()[i].points[point].value == points[i].points[point].value, "rendered measured points remain unchanged");
         }
-        check(card.findChild<MetricReadout*>(QStringLiteral("meterCard.readout.Integrated"))->label() == localizedText("meterbridge","metric.integrated","missing"), "card metric cache uses current language");
+        auto* integratedReadout = dynamic_cast<MetricReadout*>(card.findChild<QWidget*>(QStringLiteral("meterCard.readout.Integrated")));
+        check(integratedReadout && integratedReadout->label() == localizedText("meterbridge","metric.integrated","missing"), "card metric cache uses current language");
         check(history.chart()->verticalAxisLabel() == localizedText("meterbridge","history.levelAxis","missing"), "history axis cache uses current language");
         capture(history,output,QStringLiteral("history-")+language);
+        auto* statistics = history.statistics();
+        QHelpEvent statisticsHelp(QEvent::ToolTip,QPoint(12,12),statistics->mapToGlobal(QPoint(12,12)));
+        QCoreApplication::sendEvent(statistics,&statisticsHelp); settle();
+        check(QToolTip::text().contains(statistics->entries()[0].label)
+            && QToolTip::text().contains(localizedText("ui","statistics.extrema","missing").arg(QStringLiteral("-12.0"),QStringLiteral("-12.0"))),"statistics tooltip retains full current-language label, values and extrema");
+        QToolTip::hideText();
+        auto* legend = history.findChild<HistoryLegendWidget*>(); check(legend,"actual history legend");
+        QHelpEvent legendHelp(QEvent::ToolTip,QPoint(12,12),legend->mapToGlobal(QPoint(12,12)));
+        QCoreApplication::sendEvent(legend,&legendHelp); settle();
+        check(QToolTip::text() == legend->entries()[0].label,"legend tooltip retains full current-language series label");
+        QToolTip::hideText();
         capture(mixer,output,QStringLiteral("mixer-")+language);
         auto* details = mixer.openView(MixerWindow::View::channelDetails); check(details,"actual SEL view");
         capture(*details,output,QStringLiteral("sel-")+language); details->hide();
+        auto* fullName = details->findChild<QLabel*>(QStringLiteral("selSelectedChannel"));
+        check(fullName && fullName->text() == model.strip(input)->name,"SEL retains complete long user name");
+        expose(*details);
+        QHelpEvent nameHelp(QEvent::ToolTip,QPoint(2,2),fullName->mapToGlobal(QPoint(2,2)));
+        QCoreApplication::sendEvent(fullName,&nameHelp); settle();
+        check(QToolTip::text() == model.strip(input)->name,"elided SEL name exposes complete tooltip");
+        QToolTip::hideText(); details->hide();
         auto* overview = mixer.openView(MixerWindow::View::channelOverview); check(overview,"actual overview view");
         capture(*overview,output,QStringLiteral("overview-")+language); overview->hide();
         capture(aux,output,QStringLiteral("aux-")+language); aux.hide();
@@ -222,6 +344,7 @@ int main(int argc, char** argv) {
         capture(card,output,QStringLiteral("card-")+language); card.hide();
         capture(bridge,output,QStringLiteral("bridge-")+language); bridge.hide();
         capture(emptyBridge,output,QStringLiteral("bridge-empty-")+language); emptyBridge.hide();
+        probeWindows(host,arguments[1],output,language);
         const auto alternate = language == QStringLiteral("en-US") ? QStringLiteral("ja-JP") : QStringLiteral("en-US");
         expose(history);
         auto* numeric = history.settingsWidget()->findChild<QDoubleSpinBox*>(QStringLiteral("meterSettings.silenceThreshold"));
@@ -300,8 +423,10 @@ int main(int argc, char** argv) {
         const auto exportPath = isolated.filePath(QStringLiteral("chart-")+language+QStringLiteral(".png"));
         QTimer::singleShot(100,&app,[&] {
             auto* dialog = qobject_cast<QFileDialog*>(QApplication::activeModalWidget()); check(dialog,"actual PNG QFileDialog");
-            dialog->setDirectory(isolated.path()); dialog->selectFile(QFileInfo(exportPath).fileName());
-            auto* edit = dialog->findChild<QLineEdit*>(QStringLiteral("fileNameEdit")); check(edit,"actual file name editor"); edit->setSelection(0,3);
+            dialog->setDirectory(isolated.path()); settle(160);
+            auto* edit = dialog->findChild<QLineEdit*>(QStringLiteral("fileNameEdit")); check(edit,"actual file name editor");
+            edit->setText(QFileInfo(exportPath).fileName()); edit->setSelection(0,3);
+            check(dialog->selectedFiles().value(0) == exportPath,"actual PNG chooser selects the requested isolated path");
             const auto filename = edit->text();
             check(host.manager().setLanguage(alternate,&error),"switch inside PNG chooser"); settle();
             check(edit->text() == filename && edit->selectionStart() == 0,"PNG filename and selection preserved");
@@ -325,7 +450,7 @@ int main(int argc, char** argv) {
         history.hide(); mixer.hide();
         QProcess child; child.setProcessChannelMode(QProcess::ForwardedChannels);
         child.start(QCoreApplication::applicationFilePath(), {arguments[1], output, QStringLiteral("--cold"),settingsPath,language});
-        check(child.waitForFinished(30000) && child.exitStatus() == QProcess::NormalExit && child.exitCode() == 0, "actual cold process succeeds");
+        check(child.waitForFinished(60000) && child.exitStatus() == QProcess::NormalExit && child.exitCode() == 0, "actual cold process succeeds");
     }
     {
         MeterCsvWriter writer;
@@ -337,7 +462,7 @@ int main(int argc, char** argv) {
         check(status.statusKind == MeterCsvStatusKind::recording && !status.activeFilePath.isEmpty(),"writer publishes stable recording status and original file path");
         QFile file(status.activeFilePath); check(file.open(QIODevice::ReadOnly),"actual CSV file readable");
         const auto csvBytes = file.readAll();
-        check(csvBytes.startsWith("localTime,elapsedMilliseconds,peakDbfs,rmsDbfs,truePeakDbtp,lfePeakDbfs,momentaryLufs,shortTermLufs,integratedLufs,lraLu\n"),"CSV machine header remains stable English");
+        check(csvBytes.startsWith("localTime,elapsedMilliseconds,peakDbfs,rmsDbfs,truePeakDbtp,lfePeakDbfs,momentaryLufs,shortTermLufs,integratedLufs,lraLu\r\n"),"CSV machine header and existing Windows text newline remain stable");
         check(csvBytes.contains(",-12.000000,-20.000000,"),"CSV decimal data remains locale-independent");
         writer.closeSession(record.instanceId); check(writer.waitForIdle(5000),"real CSV session closes");
         check(writer.status(record.instanceId).statusKind == MeterCsvStatusKind::sessionClosed,"closed session status uses stable enum");

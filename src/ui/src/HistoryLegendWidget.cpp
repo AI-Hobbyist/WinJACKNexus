@@ -16,6 +16,8 @@
 #include <WinJACKNexus/UI/HistoryLegendWidget.hpp>
 
 #include <QFontMetrics>
+#include <QHelpEvent>
+#include <QToolTip>
 #include <QMouseEvent>
 #include <QPainter>
 #include <QSizePolicy>
@@ -123,6 +125,19 @@ void HistoryLegendWidget::paintEvent(QPaintEvent*)
                          Qt::AlignLeft | Qt::AlignVCenter,
                          metrics.elidedText(entry.label, Qt::ElideRight, std::max(0, bounds.right() - box.right() - 7)));
     }
+}
+
+bool HistoryLegendWidget::event(QEvent* event)
+{
+    if (event->type() == QEvent::ToolTip) {
+        const auto* help = static_cast<QHelpEvent*>(event);
+        for (int index = 0; index < static_cast<int>(entries_.size()); ++index) {
+            if (!entryRect(index).contains(help->pos())) continue;
+            QToolTip::showText(help->globalPos(),entries_[static_cast<std::size_t>(index)].label,this);
+            event->accept(); return true;
+        }
+    }
+    return QWidget::event(event);
 }
 
 void HistoryLegendWidget::mouseReleaseEvent(QMouseEvent* event)

@@ -251,7 +251,8 @@
       "control.strength": "強度",
       "action.clone": "複製",
       "action.delete": "削除",
-      "action.layout": "チャンネル構成を変更"
+      "action.layout": "チャンネル構成を変更",
+      "label.subMix": "サブミックス"
     },
     "meterbridge": {
       "window.title": "WinJACKNexus - メーターブリッジ",
@@ -463,7 +464,7 @@
       "status.noSelection": "チャンネル未選択",
       "view.overview": "チャンネル一覧",
       "section.inputs": "入力",
-      "section.subMonitorMaster": "Sub Mix/モニター/マスター",
+      "section.subMonitorMaster": "サブミックス/モニター/マスター",
       "view.details": "チャンネル詳細",
       "label.detailsPrefix": "チャンネル詳細 ·",
       "control.channelColor": "チャンネルの色",
@@ -503,7 +504,8 @@
       "error.snapshotBase64": "%1 のパラメータースナップショットの Base64 形式が無効です。",
       "error.snapshotSize": "%1 のパラメータースナップショットのサイズが無効です。",
       "error.snapshotIdentity": "%1 のパラメータースナップショットのバージョンまたはモジュール識別情報が一致しません。",
-      "error.snapshotImport": "%1 のパラメータースナップショットの読み込みに失敗しました。"
+      "error.snapshotImport": "%1 のパラメータースナップショットの読み込みに失敗しました。",
+      "section.subMix": "サブミックス"
     },
     "fxhost": {
       "window.title": "FX 設定",

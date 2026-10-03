@@ -251,7 +251,8 @@
       "control.strength": "强度",
       "action.clone": "克隆",
       "action.delete": "删除",
-      "action.layout": "切换声道类型"
+      "action.layout": "切换声道类型",
+      "label.subMix": "分组混音"
     },
     "meterbridge": {
       "window.title": "WinJACKNexus - 电平表桥",
@@ -463,7 +464,7 @@
       "status.noSelection": "未选择通道",
       "view.overview": "通道总览",
       "section.inputs": "Inputs",
-      "section.subMonitorMaster": "Sub Mix/Monitor/Master",
+      "section.subMonitorMaster": "分组混音/监听/主控",
       "view.details": "通道详情",
       "label.detailsPrefix": "通道详情 ·",
       "control.channelColor": "通道颜色",
@@ -503,7 +504,8 @@
       "error.snapshotBase64": "%1 的参数快照 Base64 格式无效。",
       "error.snapshotSize": "%1 的参数快照长度无效。",
       "error.snapshotIdentity": "%1 的参数快照版本或模块身份不匹配。",
-      "error.snapshotImport": "%1 的参数快照导入失败。"
+      "error.snapshotImport": "%1 的参数快照导入失败。",
+      "section.subMix": "分组混音"
     },
     "fxhost": {
       "window.title": "FX 设置",

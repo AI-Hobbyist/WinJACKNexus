@@ -15,6 +15,9 @@
 #include <QFormLayout>
 #include <QHBoxLayout>
 #include <QHeaderView>
+#include <QHelpEvent>
+#include <QToolTip>
+#include <QtMath>
 #include <QLineEdit>
 #include <QLinearGradient>
 #include <QMainWindow>
@@ -387,8 +390,9 @@ void drawDropdown(QPainter& painter, const QRectF& bounds, const QString& captio
     painter.drawRoundedRect(bounds, 5, 5);
     auto font=painter.font(); font.setPixelSize(fontSize); painter.setFont(font);
     painter.setPen(colors.text);
-    painter.drawText(bounds.adjusted(manualFilter ? 28 : 12,0,-29,0),
-                     Qt::AlignVCenter | Qt::AlignLeft, caption);
+    const auto textBounds = bounds.adjusted(manualFilter ? 28 : 12,0,-29,0);
+    painter.drawText(textBounds, Qt::AlignVCenter | Qt::AlignLeft,
+                     QFontMetrics(font).elidedText(caption,Qt::ElideRight,std::max(0,qFloor(textBounds.width()))));
     if (manualFilter) {
         painter.setPen(QPen(colors.accent, 1.5));
         const QPointF search(bounds.left()+15, bounds.center().y()-2);
@@ -736,6 +740,21 @@ void ChoiceField::setManualFilterEnabled(bool enabled) {
 
 bool ChoiceField::manualFilterEnabled() const noexcept {
     return manualFilterEnabled_;
+}
+
+bool ChoiceField::event(QEvent* event) {
+    if (event->type() == QEvent::ToolTip && !isEditable()) {
+        auto displayFont = font();
+        displayFont.setPixelSize(std::max(11,font().pixelSize() > 0 ? font().pixelSize() : 14));
+        if (QFontMetrics(displayFont).horizontalAdvance(currentText()) > width()-43) {
+            const auto* help = static_cast<QHelpEvent*>(event);
+            auto fullText = currentText();
+            if (!toolTip().isEmpty() && toolTip() != fullText) fullText += '\n'+toolTip();
+            QToolTip::showText(help->globalPos(),Qt::mightBeRichText(fullText) ? Qt::convertFromPlainText(fullText) : fullText,this);
+            event->accept(); return true;
+        }
+    }
+    return QComboBox::event(event);
 }
 
 void ChoiceField::paintEvent(QPaintEvent*) {
@@ -1411,8 +1430,28 @@ TextLabel::TextLabel(const QString& value, QWidget* parent)
     setText(value);
 }
 
+QSize TextLabel::minimumSizeHint() const {
+    auto result = QLabel::minimumSizeHint();
+    if (!wordWrap() && !(textInteractionFlags() & (Qt::TextSelectableByMouse | Qt::TextSelectableByKeyboard | Qt::TextEditable))
+        && pixmap().isNull() && textFormat() != Qt::RichText)
+        result.setWidth(0);
+    return result;
+}
+
+bool TextLabel::event(QEvent* event) {
+    if (event->type() == QEvent::ToolTip && !wordWrap() && textFormat() != Qt::RichText
+        && QFontMetrics(font()).horizontalAdvance(text()) > contentsRect().width()-2*margin()) {
+        const auto* help = static_cast<QHelpEvent*>(event);
+        auto fullText = text();
+        if (!toolTip().isEmpty() && toolTip() != fullText) fullText += '\n'+toolTip();
+        QToolTip::showText(help->globalPos(),Qt::mightBeRichText(fullText) ? Qt::convertFromPlainText(fullText) : fullText,this);
+        event->accept(); return true;
+    }
+    return QLabel::event(event);
+}
+
 void TextLabel::paintEvent(QPaintEvent* event) {
-    if (textInteractionFlags() != Qt::NoTextInteraction || !pixmap().isNull()
+    if ((textInteractionFlags() & (Qt::TextSelectableByMouse | Qt::TextSelectableByKeyboard | Qt::TextEditable)) || !pixmap().isNull()
         || textFormat() == Qt::RichText) {
         QLabel::paintEvent(event);
         return;
@@ -1422,8 +1461,8 @@ void TextLabel::paintEvent(QPaintEvent* event) {
     colors.text = themeColor(*this, "wjnText", palette().color(QPalette::WindowText));
     const auto flags = static_cast<Qt::Alignment>(int(alignment())
         | (wordWrap() ? int(Qt::TextWordWrap) : 0));
-    drawText(painter, QRectF(contentsRect()).adjusted(margin(), margin(),
-             -margin(), -margin()), text(), font(), colors.text, flags);
+    const auto bounds = QRectF(contentsRect()).adjusted(margin(),margin(),-margin(),-margin());
+    drawText(painter,bounds,wordWrap() ? text() : QFontMetrics(font()).elidedText(text(),Qt::ElideRight,std::max(0,qFloor(bounds.width()))),font(),colors.text,flags);
 }
 
 TabField::TabField(QWidget* parent) : QTabWidget(parent) {

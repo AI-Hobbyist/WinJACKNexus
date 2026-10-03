@@ -490,4 +490,12 @@ All four SEL strip types have an 音量 knob bound directly to the strip's fader
 
 S3 新增 `TrayController::setNodeGuiEntries(entries, displayNames)` 重载，第二个参数是按稳定 entry.id 索引的 `QHash<QString,QString>`。原单参数接口与 TrayNodeGuiEntry 对象布局保持不变，name/category 继续保留原始元数据身份，用于设备方向、分类与排序；displayNames 只用于菜单显示，不覆盖 clientName 用户值。忽略不存在的 id 与空显示值；更新/清空列表会移除旧显示映射。实际模块切换语言时重新提供显示映射；快捷栏缓存签名包括显示值。原生节点动作 data 保存 entry.id；设备菜单重建先销毁旧子菜单与回调。`patchbay_i18n_tests` 在实际 Windows 快捷栏中检查两种重载、原始设备分类、用户名称和回调身份；S1/S2 回归同时通过。
 
+S4 显示契约：Mixer、AUX/Sub Mix、FX 链和 meter 窗口使用当前语言刷新既有显示属性与自绘文字。语言刷新不得提交编辑、调用 setSource、切换声道、加载预设、替换 FX 编辑器或重读测量历史。`HistoryChartWidget` 的悬浮时间说明及 `MetricStatisticsWidget` 的极值说明自动刷新；点、时间游标、曲线可见性、数值、选择和扫描状态保持原值。公共函数签名不变。
+
+S4 长文本契约：共享 `Controls::ChoiceField` 的非编辑显示和 `Controls::TextLabel` 的普通单行显示按实际字体/可用矩形省略，保留原始 `currentText()`/`text()` 及无障碍文本。鼠标提示在截断时提供完整文本，并保留已有帮助内容。普通单行 TextLabel 的最小宽度不由完整长名称撑开布局；富文本、图片、可选择文本与换行标签保持 QLabel 行为。Mixer 自绘名称在最小字体后仍过长时省略，名称区域提示全文。测试使用实际 SEL 的超长用户名称及实际探针的角色下拉框；窗口缩放、切换语言后显示与原始身份分别检查。S4 Release 与系统字体 Windows 实窗 100%/150%/200% 验证通过，证据见 `Docs/i18n/S4-completion.md`。
+
+`HistoryLegendWidget` 的条目提示提供完整标签；`MetricStatisticsWidget` 的条目提示提供完整标签、当前数值/单位和按当前语言格式化的极值，即使卡片空间不足也能读到完整内容。文本查询仅发生于 GUI 提示事件，不修改条目或测量值。共享标签/选择框与 Mixer 的用户文本在看似富文本时转义显示，不能把用户名称当成 HTML。
+
+`MeterCsvWriter::Status` 和 `MeterCsvPreviewState` 增加 `MeterCsvStatusKind`、原始详情及丢弃计数，供 GUI 按当前语言生成状态说明；旧 `rotationStatus` 字段保留兼容。写入线程不查询翻译，CSV 表头、数字格式和文件命名保持原协议。`unspecified` 状态仍显示调用方的旧状态文本。该新增数据布局要求本次涉及的 meter 模块与宿主一同重编，不能混用旧二进制。S4 测试源码已覆盖实际窗口、实际探针 DLL、CSV 写入和 PNG 导出；Release 与三档 Windows 实窗通过，证据见 `Docs/i18n/S4-completion.md`。
+
 接线盘自绘节点的长标题按现有端口布局宽度省略，使用原有系统/主题字体及字号；完整标题保存在 tooltip，原始工程名称/别名仍保留全文。语言刷新重算显示几何及连线路径，不更新工程模型或重建音频客户端。实窗截图必须包含实际 OpenGL 视口；S3 使用 Windows 窗口表面捕获，不以漏掉加速视口的 QWidget 重绘截图验收画布。

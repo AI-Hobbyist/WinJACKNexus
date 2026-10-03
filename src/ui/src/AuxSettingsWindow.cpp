@@ -636,7 +636,7 @@ void AuxSettingsWindow::paintEvent(QPaintEvent*)
 
     panel(painter, impl_->leftPanel(), selThemedAccent(QStringLiteral("sel-aux"),
         QStringLiteral("border-panel"),controlAccent,QColor("#2b4662")));
-    text(painter, impl_->scaled(26, 12, 172, 38), impl_->subMixMode ? QStringLiteral("Sub Mix") : QStringLiteral("AUX"), label, 18 * sy,
+    text(painter, impl_->scaled(26, 12, 172, 38), impl_->subMixMode ? auxText("label.subMix","Sub Mix") : QStringLiteral("AUX"), label, 18 * sy,
          Qt::AlignLeft | Qt::AlignVCenter, true);
     if (!impl_->subMixMode) {
     toggle(painter, impl_->masterToggle(), impl_->chainEnabled,

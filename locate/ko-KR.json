@@ -251,7 +251,8 @@
       "control.strength": "강도",
       "action.clone": "복제",
       "action.delete": "삭제",
-      "action.layout": "채널 구성 변경"
+      "action.layout": "채널 구성 변경",
+      "label.subMix": "서브 믹스"
     },
     "meterbridge": {
       "window.title": "WinJACKNexus - 미터 브리지",
@@ -463,7 +464,7 @@
       "status.noSelection": "선택된 채널 없음",
       "view.overview": "채널 개요",
       "section.inputs": "입력",
-      "section.subMonitorMaster": "Sub Mix/모니터/마스터",
+      "section.subMonitorMaster": "서브 믹스/모니터/마스터",
       "view.details": "채널 상세",
       "label.detailsPrefix": "채널 상세 ·",
       "control.channelColor": "채널 색상",
@@ -503,7 +504,8 @@
       "error.snapshotBase64": "%1 매개변수 스냅샷의 Base64 형식이 잘못되었습니다.",
       "error.snapshotSize": "%1 매개변수 스냅샷 크기가 잘못되었습니다.",
       "error.snapshotIdentity": "%1 매개변수 스냅샷의 버전 또는 모듈 식별 정보가 일치하지 않습니다.",
-      "error.snapshotImport": "%1 매개변수 스냅샷 가져오기 실패."
+      "error.snapshotImport": "%1 매개변수 스냅샷 가져오기 실패.",
+      "section.subMix": "서브 믹스"
     },
     "fxhost": {
       "window.title": "FX 설정",

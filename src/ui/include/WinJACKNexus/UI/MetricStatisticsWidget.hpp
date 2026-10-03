@@ -52,6 +52,7 @@ public:
     QSize sizeHint() const override;
 
 protected:
+    bool event(QEvent* event) override;
     void paintEvent(QPaintEvent* event) override;
 
 private:

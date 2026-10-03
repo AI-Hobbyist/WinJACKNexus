@@ -338,7 +338,7 @@
     "ko-KR": "모노",
     "source": "单声道",
     "review": "待母语/领域审校",
-    "location": "src/ui/src/MixerWindow.cpp:251；src/ui/src/MixerWindow.cpp:71；src/ui/src/MixerWindow.cpp:76"
+    "location": "src/ui/src/MixerWindow.cpp:254；src/ui/src/MixerWindow.cpp:74；src/ui/src/MixerWindow.cpp:79"
   },
   {
     "domain": "mixer",
@@ -349,7 +349,7 @@
     "ko-KR": "스테레오",
     "source": "立体声",
     "review": "待母语/领域审校",
-    "location": "src/ui/src/MixerWindow.cpp:252；src/ui/src/MixerWindow.cpp:72；src/ui/src/MixerWindow.cpp:77"
+    "location": "src/ui/src/MixerWindow.cpp:255；src/ui/src/MixerWindow.cpp:75；src/ui/src/MixerWindow.cpp:80"
   },
   {
     "domain": "mixer",
@@ -360,7 +360,7 @@
     "ko-KR": "일반",
     "source": "通用",
     "review": "待母语/领域审校",
-    "location": "src/ui/src/MixerWindow.cpp:298"
+    "location": "src/ui/src/MixerWindow.cpp:301"
   },
   {
     "domain": "mixer",
@@ -371,7 +371,7 @@
     "ko-KR": "모니터 채널 구성",
     "source": "监听通道模式",
     "review": "待母语/领域审校",
-    "location": "src/ui/src/MixerWindow.cpp:302"
+    "location": "src/ui/src/MixerWindow.cpp:305"
   },
   {
     "domain": "mixer",
@@ -382,7 +382,7 @@
     "ko-KR": "공간 팬 · 읽기 전용",
     "source": "空间声像 · 只读",
     "review": "待母语/领域审校",
-    "location": "src/ui/src/MixerWindow.cpp:324"
+    "location": "src/ui/src/MixerWindow.cpp:327"
   },
   {
     "domain": "mixer",
@@ -393,7 +393,7 @@
     "ko-KR": "채널 이름",
     "source": "通道名",
     "review": "待母语/领域审校",
-    "location": "src/ui/src/MixerWindow.cpp:605"
+    "location": "src/ui/src/MixerWindow.cpp:608"
   },
   {
     "domain": "mixer",
@@ -404,7 +404,7 @@
     "ko-KR": "주석",
     "source": "注释",
     "review": "待母语/领域审校",
-    "location": "src/ui/src/MixerWindow.cpp:606"
+    "location": "src/ui/src/MixerWindow.cpp:609"
   },
   {
     "domain": "mixer",
@@ -415,7 +415,7 @@
     "ko-KR": "채널 구성",
     "source": "通道模式",
     "review": "待母语/领域审校",
-    "location": "src/ui/src/MixerWindow.cpp:607"
+    "location": "src/ui/src/MixerWindow.cpp:610"
   },
   {
     "domain": "mixer",
@@ -426,7 +426,7 @@
     "ko-KR": "게인",
     "source": "增益",
     "review": "待母语/领域审校",
-    "location": "src/ui/src/MixerWindow.cpp:610"
+    "location": "src/ui/src/MixerWindow.cpp:613"
   },
   {
     "domain": "mixer",
@@ -437,7 +437,7 @@
     "ko-KR": "음량",
     "source": "音量",
     "review": "待母语/领域审校",
-    "location": "src/ui/src/MixerWindow.cpp:618"
+    "location": "src/ui/src/MixerWindow.cpp:621"
   },
   {
     "domain": "mixer",
@@ -448,7 +448,7 @@
     "ko-KR": "출력",
     "source": "输出",
     "review": "待母语/领域审校",
-    "location": "src/ui/src/MixerWindow.cpp:641；src/ui/src/MixerWindow.cpp:688"
+    "location": "src/ui/src/MixerWindow.cpp:644；src/ui/src/MixerWindow.cpp:691"
   },
   {
     "domain": "mixer",
@@ -459,7 +459,7 @@
     "ko-KR": "입력",
     "source": "输入",
     "review": "待母语/领域审校",
-    "location": "src/ui/src/MixerWindow.cpp:641；src/ui/src/MixerWindow.cpp:687"
+    "location": "src/ui/src/MixerWindow.cpp:644；src/ui/src/MixerWindow.cpp:690"
   },
   {
     "domain": "mixer",
@@ -470,7 +470,7 @@
     "ko-KR": "패너",
     "source": "声像器",
     "review": "待母语/领域审校",
-    "location": "src/ui/src/MixerWindow.cpp:675"
+    "location": "src/ui/src/MixerWindow.cpp:678"
   },
   {
     "domain": "mixer",
@@ -481,7 +481,7 @@
     "ko-KR": "공간 패너",
     "source": "空间声像器",
     "review": "待母语/领域审校",
-    "location": "src/ui/src/MixerWindow.cpp:679"
+    "location": "src/ui/src/MixerWindow.cpp:682"
   },
   {
     "domain": "mixer",
@@ -492,7 +492,7 @@
     "ko-KR": "클래식 Pan",
     "source": "经典 Pan",
     "review": "待母语/领域审校",
-    "location": "src/ui/src/MixerWindow.cpp:681"
+    "location": "src/ui/src/MixerWindow.cpp:684"
   },
   {
     "domain": "mixer",
@@ -503,7 +503,7 @@
     "ko-KR": "극좌표 곡선 표시",
     "source": "显示极坐标曲线",
     "review": "待母语/领域审校",
-    "location": "src/ui/src/MixerWindow.cpp:684"
+    "location": "src/ui/src/MixerWindow.cpp:687"
   },
   {
     "domain": "mixer",
@@ -514,7 +514,7 @@
     "ko-KR": "신호 없음",
     "source": "无信号",
     "review": "待母语/领域审校",
-    "location": "src/ui/src/MixerWindow.cpp:711"
+    "location": "src/ui/src/MixerWindow.cpp:714"
   },
   {
     "domain": "mixer",
@@ -525,7 +525,7 @@
     "ko-KR": "팬",
     "source": "声像",
     "review": "待母语/领域审校",
-    "location": "src/ui/src/MixerWindow.cpp:744"
+    "location": "src/ui/src/MixerWindow.cpp:747"
   },
   {
     "domain": "mixer",
@@ -536,7 +536,7 @@
     "ko-KR": "공간 팬 매개변수",
     "source": "空间声像参数",
     "review": "待母语/领域审校",
-    "location": "src/ui/src/MixerWindow.cpp:747"
+    "location": "src/ui/src/MixerWindow.cpp:750"
   },
   {
     "domain": "mixer",
@@ -547,7 +547,7 @@
     "ko-KR": "폭",
     "source": "宽度",
     "review": "待母语/领域审校",
-    "location": "src/ui/src/MixerWindow.cpp:749"
+    "location": "src/ui/src/MixerWindow.cpp:752"
   },
   {
     "domain": "mixer",
@@ -558,7 +558,7 @@
     "ko-KR": "전후",
     "source": "前后",
     "review": "待母语/领域审校",
-    "location": "src/ui/src/MixerWindow.cpp:749"
+    "location": "src/ui/src/MixerWindow.cpp:752"
   },
   {
     "domain": "mixer",
@@ -569,7 +569,7 @@
     "ko-KR": "각도",
     "source": "角度",
     "review": "待母语/领域审校",
-    "location": "src/ui/src/MixerWindow.cpp:749"
+    "location": "src/ui/src/MixerWindow.cpp:752"
   },
   {
     "domain": "mixer",
@@ -580,7 +580,7 @@
     "ko-KR": "채널별 노브",
     "source": "分控旋钮",
     "review": "待母语/领域审校",
-    "location": "src/ui/src/MixerWindow.cpp:762"
+    "location": "src/ui/src/MixerWindow.cpp:765"
   },
   {
     "domain": "mixer",
@@ -591,7 +591,7 @@
     "ko-KR": "모든 채널 연결",
     "source": "全通道链接",
     "review": "待母语/领域审校",
-    "location": "src/ui/src/MixerWindow.cpp:763"
+    "location": "src/ui/src/MixerWindow.cpp:766"
   },
   {
     "domain": "mixer",
@@ -602,7 +602,7 @@
     "ko-KR": "초기화",
     "source": "重置",
     "review": "待母语/领域审校",
-    "location": "src/ui/src/MixerWindow.cpp:765"
+    "location": "src/ui/src/MixerWindow.cpp:768"
   },
   {
     "domain": "mixer",
@@ -613,7 +613,7 @@
     "ko-KR": "강도",
     "source": "强度",
     "review": "待母语/领域审校",
-    "location": "src/ui/src/MixerWindow.cpp:775"
+    "location": "src/ui/src/MixerWindow.cpp:778"
   },
   {
     "domain": "mixer",
@@ -624,7 +624,7 @@
     "ko-KR": "토폴로지 업데이트 실패",
     "source": "拓扑更新失败",
     "review": "待母语/领域审校",
-    "location": "src/ui/src/MixerWindow.cpp:1531"
+    "location": "src/ui/src/MixerWindow.cpp:1535"
   },
   {
     "domain": "mixer",
@@ -635,7 +635,7 @@
     "ko-KR": "믹서 포트를 등록할 수 없습니다. 이전 상태가 유지되었습니다.",
     "source": "无法注册调音台端口，原有状态已保留。",
     "review": "待母语/领域审校",
-    "location": "src/ui/src/MixerWindow.cpp:1532"
+    "location": "src/ui/src/MixerWindow.cpp:1536"
   },
   {
     "domain": "mixer",
@@ -646,7 +646,7 @@
     "ko-KR": "잘못된 AUX 라우팅",
     "source": "AUX 路由无效",
     "review": "待母语/领域审校",
-    "location": "src/ui/src/MixerWindow.cpp:1696"
+    "location": "src/ui/src/MixerWindow.cpp:1700"
   },
   {
     "domain": "mixer",
@@ -657,7 +657,7 @@
     "ko-KR": " 복사본",
     "source": " 副本",
     "review": "待母语/领域审校",
-    "location": "src/ui/src/MixerWindow.cpp:2099；src/ui/src/MixerWindow.cpp:2124"
+    "location": "src/ui/src/MixerWindow.cpp:2103；src/ui/src/MixerWindow.cpp:2128"
   },
   {
     "domain": "mixer",
@@ -668,7 +668,7 @@
     "ko-KR": "모니터",
     "source": "监听",
     "review": "待母语/领域审校",
-    "location": "src/ui/src/MixerWindow.cpp:2304；src/ui/src/MixerWindow.cpp:2395；src/ui/src/MixerWindow.cpp:2693；src/ui/src/MixerWindow.cpp:2694；src/ui/src/MixerWindow.cpp:3325；src/ui/src/MixerWindow.cpp:3404"
+    "location": "src/ui/src/MixerWindow.cpp:2308；src/ui/src/MixerWindow.cpp:2399；src/ui/src/MixerWindow.cpp:2699；src/ui/src/MixerWindow.cpp:2700；src/ui/src/MixerWindow.cpp:3331；src/ui/src/MixerWindow.cpp:3410"
   },
   {
     "domain": "mixer",
@@ -679,7 +679,7 @@
     "ko-KR": "선택된 채널 없음",
     "source": "未选择通道",
     "review": "待母语/领域审校",
-    "location": "src/ui/src/MixerWindow.cpp:2304；src/ui/src/MixerWindow.cpp:3326"
+    "location": "src/ui/src/MixerWindow.cpp:2308；src/ui/src/MixerWindow.cpp:3332"
   },
   {
     "domain": "mixer",
@@ -690,7 +690,7 @@
     "ko-KR": "채널 개요",
     "source": "通道总览",
     "review": "待母语/领域审校",
-    "location": "src/ui/src/MixerWindow.cpp:2456；src/ui/src/MixerWindow.cpp:3317"
+    "location": "src/ui/src/MixerWindow.cpp:2460；src/ui/src/MixerWindow.cpp:3323"
   },
   {
     "domain": "mixer",
@@ -701,18 +701,18 @@
     "ko-KR": "입력",
     "source": "Inputs",
     "review": "待母语/领域审校",
-    "location": "src/ui/src/MixerWindow.cpp:2463；src/ui/src/MixerWindow.cpp:2465；src/ui/src/MixerWindow.cpp:2675；src/ui/src/MixerWindow.cpp:2679"
+    "location": "src/ui/src/MixerWindow.cpp:2467；src/ui/src/MixerWindow.cpp:2469；src/ui/src/MixerWindow.cpp:2680；src/ui/src/MixerWindow.cpp:2684"
   },
   {
     "domain": "mixer",
     "key": "section.subMonitorMaster",
-    "zh-CN": "Sub Mix/Monitor/Master",
+    "zh-CN": "分组混音/监听/主控",
     "en-US": "Sub Mix/Monitor/Master",
-    "ja-JP": "Sub Mix/モニター/マスター",
-    "ko-KR": "Sub Mix/모니터/마스터",
-    "source": "Sub Mix/Monitor/Master",
+    "ja-JP": "サブミックス/モニター/マスター",
+    "ko-KR": "서브 믹스/모니터/마스터",
+    "source": "分组混音/监听/主控",
     "review": "待母语/领域审校",
-    "location": "src/ui/src/MixerWindow.cpp:2463；src/ui/src/MixerWindow.cpp:2465"
+    "location": "src/ui/src/MixerWindow.cpp:2467；src/ui/src/MixerWindow.cpp:2469"
   },
   {
     "domain": "mixer",
@@ -723,7 +723,7 @@
     "ko-KR": "채널 상세",
     "source": "通道详情",
     "review": "待母语/领域审校",
-    "location": "src/ui/src/MixerWindow.cpp:2512；src/ui/src/MixerWindow.cpp:3315"
+    "location": "src/ui/src/MixerWindow.cpp:2516；src/ui/src/MixerWindow.cpp:3321"
   },
   {
     "domain": "mixer",
@@ -734,7 +734,7 @@
     "ko-KR": "채널 상세 ·",
     "source": "通道详情 ·",
     "review": "待母语/领域审校",
-    "location": "src/ui/src/MixerWindow.cpp:2530；src/ui/src/MixerWindow.cpp:2531"
+    "location": "src/ui/src/MixerWindow.cpp:2534；src/ui/src/MixerWindow.cpp:2535"
   },
   {
     "domain": "mixer",
@@ -745,7 +745,7 @@
     "ko-KR": "채널 색상",
     "source": "通道颜色",
     "review": "待母语/领域审校",
-    "location": "src/ui/src/MixerWindow.cpp:2537"
+    "location": "src/ui/src/MixerWindow.cpp:2541"
   },
   {
     "domain": "mixer",
@@ -756,7 +756,7 @@
     "ko-KR": "채널 색상 설정",
     "source": "设置通道颜色",
     "review": "待母语/领域审校",
-    "location": "src/ui/src/MixerWindow.cpp:2544"
+    "location": "src/ui/src/MixerWindow.cpp:2548"
   },
   {
     "domain": "mixer",
@@ -767,7 +767,7 @@
     "ko-KR": "기본 색상 복원",
     "source": "恢复默认颜色",
     "review": "待母语/领域审校",
-    "location": "src/ui/src/MixerWindow.cpp:2545"
+    "location": "src/ui/src/MixerWindow.cpp:2549"
   },
   {
     "domain": "mixer",
@@ -778,7 +778,7 @@
     "ko-KR": "채널 색상 설정 · RGB / HEX",
     "source": "设置通道颜色 · RGB / HEX",
     "review": "待母语/领域审校",
-    "location": "src/ui/src/MixerWindow.cpp:2552"
+    "location": "src/ui/src/MixerWindow.cpp:2556"
   },
   {
     "domain": "mixer",
@@ -789,7 +789,7 @@
     "ko-KR": "채널 선택 ▾",
     "source": "切换通道 ▾",
     "review": "待母语/领域审校",
-    "location": "src/ui/src/MixerWindow.cpp:2565；src/ui/src/MixerWindow.cpp:2566"
+    "location": "src/ui/src/MixerWindow.cpp:2569；src/ui/src/MixerWindow.cpp:2570"
   },
   {
     "domain": "mixer",
@@ -800,7 +800,7 @@
     "ko-KR": "메인",
     "source": "Main",
     "review": "待母语/领域审校",
-    "location": "src/ui/src/MixerWindow.cpp:2637"
+    "location": "src/ui/src/MixerWindow.cpp:2641"
   },
   {
     "domain": "mixer",
@@ -811,7 +811,7 @@
     "ko-KR": "모니터/마스터",
     "source": "Listen/Master",
     "review": "待母语/领域审校",
-    "location": "src/ui/src/MixerWindow.cpp:2675；src/ui/src/MixerWindow.cpp:2680"
+    "location": "src/ui/src/MixerWindow.cpp:2680；src/ui/src/MixerWindow.cpp:2686"
   },
   {
     "domain": "mixer",
@@ -822,7 +822,7 @@
     "ko-KR": "WinJACKNexus - 믹서",
     "source": "WinJACKNexus - 调音台",
     "review": "待母语/领域审校",
-    "location": "src/ui/src/MixerWindow.cpp:3267"
+    "location": "src/ui/src/MixerWindow.cpp:3273"
   },
   {
     "domain": "mixer",
@@ -833,7 +833,7 @@
     "ko-KR": "채널 관리",
     "source": "通道管理",
     "review": "待母语/领域审校",
-    "location": "src/ui/src/MixerWindow.cpp:3280"
+    "location": "src/ui/src/MixerWindow.cpp:3286"
   },
   {
     "domain": "mixer",
@@ -844,7 +844,7 @@
     "ko-KR": "입력 채널 추가",
     "source": "添加输入通道",
     "review": "待母语/领域审校",
-    "location": "src/ui/src/MixerWindow.cpp:3281"
+    "location": "src/ui/src/MixerWindow.cpp:3287"
   },
   {
     "domain": "mixer",
@@ -855,7 +855,7 @@
     "ko-KR": "AUX 채널 추가",
     "source": "添加AUX通道",
     "review": "待母语/领域审校",
-    "location": "src/ui/src/MixerWindow.cpp:3282"
+    "location": "src/ui/src/MixerWindow.cpp:3288"
   },
   {
     "domain": "mixer",
@@ -866,7 +866,7 @@
     "ko-KR": "Sub Mix 채널 추가",
     "source": "添加 Sub Mix 通道",
     "review": "待母语/领域审校",
-    "location": "src/ui/src/MixerWindow.cpp:3283"
+    "location": "src/ui/src/MixerWindow.cpp:3289"
   },
   {
     "domain": "mixer",
@@ -877,7 +877,7 @@
     "ko-KR": "전체",
     "source": "全局",
     "review": "待母语/领域审校",
-    "location": "src/ui/src/MixerWindow.cpp:3294"
+    "location": "src/ui/src/MixerWindow.cpp:3300"
   },
   {
     "domain": "mixer",
@@ -888,7 +888,7 @@
     "ko-KR": "모든 채널의 솔로 및 음소거 해제",
     "source": "关闭所有通道独奏/静音",
     "review": "待母语/领域审校",
-    "location": "src/ui/src/MixerWindow.cpp:3295"
+    "location": "src/ui/src/MixerWindow.cpp:3301"
   },
   {
     "domain": "mixer",
@@ -899,7 +899,7 @@
     "ko-KR": "모든 채널의 기본 색상 복원",
     "source": "恢复所有通道到默认颜色",
     "review": "待母语/领域审校",
-    "location": "src/ui/src/MixerWindow.cpp:3310"
+    "location": "src/ui/src/MixerWindow.cpp:3316"
   },
   {
     "domain": "mixer",
@@ -910,7 +910,7 @@
     "ko-KR": "큰 화면 보기",
     "source": "查看大屏",
     "review": "待母语/领域审校",
-    "location": "src/ui/src/MixerWindow.cpp:3314"
+    "location": "src/ui/src/MixerWindow.cpp:3320"
   },
   {
     "domain": "mixer",
@@ -921,7 +921,7 @@
     "ko-KR": "채널 삭제",
     "source": "删除通道",
     "review": "待母语/领域审校",
-    "location": "src/ui/src/MixerWindow.cpp:3605"
+    "location": "src/ui/src/MixerWindow.cpp:3611"
   },
   {
     "domain": "mixer",
@@ -932,7 +932,7 @@
     "ko-KR": "채널 복제",
     "source": "复制通道",
     "review": "待母语/领域审校",
-    "location": "src/ui/src/MixerWindow.cpp:3606"
+    "location": "src/ui/src/MixerWindow.cpp:3612"
   },
   {
     "domain": "mixer",
@@ -943,7 +943,7 @@
     "ko-KR": "채널 유형",
     "source": "通道类型",
     "review": "待母语/领域审校",
-    "location": "src/ui/src/MixerWindow.cpp:3611"
+    "location": "src/ui/src/MixerWindow.cpp:3617"
   },
   {
     "domain": "mixer",
@@ -954,7 +954,7 @@
     "ko-KR": "SEL 설정 열기",
     "source": "打开SEL设置",
     "review": "待母语/领域审校",
-    "location": "src/ui/src/MixerWindow.cpp:3621"
+    "location": "src/ui/src/MixerWindow.cpp:3627"
   },
   {
     "domain": "fxhost",
@@ -1339,7 +1339,7 @@
     "ko-KR": "최솟값: %1    최댓값: %2",
     "source": "最小：%1    最大：%2",
     "review": "待母语/领域审校",
-    "location": "src/ui/src/MetricStatisticsWidget.cpp:166"
+    "location": "src/ui/src/MetricStatisticsWidget.cpp:117；src/ui/src/MetricStatisticsWidget.cpp:185"
   },
   {
     "domain": "meterbridge",
@@ -3408,5 +3408,27 @@
     "source": "低频效果 (LFE)",
     "review": "待母语/领域审校",
     "location": "src/meter/probe/Library.cpp:603"
+  },
+  {
+    "domain": "aux",
+    "key": "label.subMix",
+    "zh-CN": "分组混音",
+    "en-US": "Sub Mix",
+    "ja-JP": "サブミックス",
+    "ko-KR": "서브 믹스",
+    "source": "分组混音",
+    "review": "待母语/领域审校",
+    "location": "src/ui/src/AuxSettingsWindow.cpp:639"
+  },
+  {
+    "domain": "mixer",
+    "key": "section.subMix",
+    "zh-CN": "分组混音",
+    "en-US": "Sub Mix",
+    "ja-JP": "サブミックス",
+    "ko-KR": "서브 믹스",
+    "source": "分组混音",
+    "review": "待母语/领域审校",
+    "location": "src/ui/src/MixerWindow.cpp:2642；src/ui/src/MixerWindow.cpp:2680；src/ui/src/MixerWindow.cpp:2685"
   }
 ]

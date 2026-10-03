@@ -267,7 +267,8 @@
       "control.strength",
       "action.clone",
       "action.delete",
-      "action.layout"
+      "action.layout",
+      "label.subMix"
     ],
     "meterbridge": [
       "window.title",
@@ -519,7 +520,8 @@
       "error.snapshotBase64",
       "error.snapshotSize",
       "error.snapshotIdentity",
-      "error.snapshotImport"
+      "error.snapshotImport",
+      "section.subMix"
     ],
     "fxhost": [
       "window.title",

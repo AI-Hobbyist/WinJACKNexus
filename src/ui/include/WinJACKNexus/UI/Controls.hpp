@@ -262,6 +262,7 @@ public:
     void setManualFilterEnabled(bool enabled);
     bool manualFilterEnabled() const noexcept;
 protected:
+    bool event(QEvent* event) override;
     void paintEvent(QPaintEvent* event) override;
 private:
     bool manualFilterEnabled_ = false;
@@ -449,7 +450,9 @@ class WINJACK_UI_API TextLabel final : public QLabel {
 public:
     explicit TextLabel(QWidget* parent = nullptr);
     TextLabel(const QString& value, QWidget* parent = nullptr);
+    QSize minimumSizeHint() const override;
 protected:
+    bool event(QEvent* event) override;
     void paintEvent(QPaintEvent* event) override;
 };
 

@@ -1,0 +1,53 @@
+Start testing: Oct 03 18:46 韩国标准时间
+----------------------------------------------------------
+4/58 Testing: patchbay_i18n_tests
+4/58 Test: patchbay_i18n_tests
+Command: "D:/UserData/Desktop/Project/WinJACKNexus/build/release/bin/wjn_patchbay_i18n_tests.exe" "D:/UserData/Desktop/Project/WinJACKNexus/build/release/bin" "D:/UserData/Desktop/Project/WinJACKNexus/build/release/bin/nodes/adapter/mod_adapter.dll" "D:/UserData/Desktop/Project/WinJACKNexus/build/release/bin/examples/node/wjn_example_node.dll" "D:/UserData/Desktop/Project/WinJACKNexus/Docs/i18n/S3-rendered/scale-1"
+Directory: D:/UserData/Desktop/Project/WinJACKNexus/build/Develop
+"patchbay_i18n_tests" start time: Oct 03 18:46 韩国标准时间
+Output:
+----------------------------------------------------------
+SYSTEM_FONT Microsoft YaHei UI
+S3 PASS: 8037 real-window checks
+<end of output>
+Test time =  24.91 sec
+----------------------------------------------------------
+Test Passed.
+"patchbay_i18n_tests" end time: Oct 03 18:46 韩国标准时间
+"patchbay_i18n_tests" time elapsed: 00:00:24
+----------------------------------------------------------
+
+5/58 Testing: host_i18n_tests
+5/58 Test: host_i18n_tests
+Command: "D:/UserData/Desktop/Project/WinJACKNexus/build/release/bin/wjn_host_i18n_tests.exe" "D:/UserData/Desktop/Project/WinJACKNexus/build/release/bin" "D:/UserData/Desktop/Project/WinJACKNexus/Docs/i18n/S2-rendered/scale-1"
+Directory: D:/UserData/Desktop/Project/WinJACKNexus/build/Develop
+"host_i18n_tests" start time: Oct 03 18:46 韩国标准时间
+Output:
+----------------------------------------------------------
+SYSTEM_FONT Microsoft YaHei UI
+PASS host i18n assertions 402
+<end of output>
+Test time =  19.41 sec
+----------------------------------------------------------
+Test Passed.
+"host_i18n_tests" end time: Oct 03 18:46 韩国标准时间
+"host_i18n_tests" time elapsed: 00:00:19
+----------------------------------------------------------
+
+6/58 Testing: i18n_contract_tests
+6/58 Test: i18n_contract_tests
+Command: "D:/UserData/Desktop/Project/WinJACKNexus/build/release/bin/wjn_i18n_tests.exe" "D:/UserData/Desktop/Project/WinJACKNexus/build/release/bin/examples/node/wjn_example_node.dll" "D:/UserData/Desktop/Project/WinJACKNexus/build/release/bin/examples/native_fx/wjn_example_native_fx.dll" "D:/UserData/Desktop/Project/WinJACKNexus/build/release/bin/node.dll"
+Directory: D:/UserData/Desktop/Project/WinJACKNexus/build/Develop
+"i18n_contract_tests" start time: Oct 03 18:46 韩国标准时间
+Output:
+----------------------------------------------------------
+S1 i18n PASS: 201 offline checks
+<end of output>
+Test time =   0.93 sec
+----------------------------------------------------------
+Test Passed.
+"i18n_contract_tests" end time: Oct 03 18:46 韩国标准时间
+"i18n_contract_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Oct 03 18:46 韩国标准时间

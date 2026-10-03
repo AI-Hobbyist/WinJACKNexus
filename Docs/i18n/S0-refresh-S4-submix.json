@@ -1,0 +1,3704 @@
+{
+  "date": "2026-10-03",
+  "changed_files": [
+    "src/ui/src/AuxSettingsWindow.cpp",
+    "src/ui/src/MixerWindow.cpp"
+  ],
+  "resource_changes": [
+    "locate/en-US.json",
+    "locate/ja-JP.json",
+    "locate/ko-KR.json",
+    "locate/manifest.json",
+    "locate/zh-CN.json"
+  ],
+  "before_occurrences": 9002,
+  "after_occurrences": 9012,
+  "added": [
+    {
+      "id": "s0.cbeb91a164b1",
+      "domain": "ui",
+      "file": "src/ui/src/AuxSettingsWindow.cpp",
+      "line": 639,
+      "literal": "label.subMix",
+      "context": "text(painter, impl_->scaled(26, 12, 172, 38), impl_->subMixMode ? auxText(\"label.subMix\",\"Sub Mix\") : QStringLiteral(\"AUX\"), label, 18 * sy,",
+      "evidence_class": "ui-context-review",
+      "disposition": "pending",
+      "proposed_key": "",
+      "notes": ""
+    },
+    {
+      "id": "s0.d0d504ebc49d",
+      "domain": "ui",
+      "file": "src/ui/src/MixerWindow.cpp",
+      "line": 2638,
+      "literal": "section.subMix",
+      "context": "if(i==3) bindLocalizedText(tab,\"text\",\"mixer\",\"section.subMix\",\"Sub Mix\");",
+      "evidence_class": "other-review",
+      "disposition": "pending",
+      "proposed_key": "",
+      "notes": ""
+    },
+    {
+      "id": "s0.d0d504ebc49d",
+      "domain": "ui",
+      "file": "src/ui/src/MixerWindow.cpp",
+      "line": 2676,
+      "literal": "section.subMix",
+      "context": "const std::array names{mixerText(\"section.inputs\",\"Inputs\"),QStringLiteral(\"AUX\"),mixerText(\"section.subMix\",\"Sub Mix\"),mixerText(\"section.listenMaster\",\"Monitor/Master\")};",
+      "evidence_class": "other-review",
+      "disposition": "pending",
+      "proposed_key": "",
+      "notes": ""
+    },
+    {
+      "id": "s0.d0d504ebc49d",
+      "domain": "ui",
+      "file": "src/ui/src/MixerWindow.cpp",
+      "line": 2681,
+      "literal": "section.subMix",
+      "context": "if (group == 2) bindLocalizedText(category, \"title\", \"mixer\", \"section.subMix\", \"Sub Mix\");",
+      "evidence_class": "ui-context-review",
+      "disposition": "pending",
+      "proposed_key": "",
+      "notes": ""
+    }
+  ],
+  "removed": [],
+  "relocated": [
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#07131f",
+      "before_lines": [
+        "345",
+        "3380",
+        "3409",
+        "3502",
+        "3522"
+      ],
+      "after_lines": [
+        345,
+        3382,
+        3411,
+        3504,
+        3524
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#0a0f14",
+      "before_lines": [
+        "3418",
+        "3494"
+      ],
+      "after_lines": [
+        3420,
+        3496
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#101a22",
+      "before_lines": [
+        "3417",
+        "3493"
+      ],
+      "after_lines": [
+        3419,
+        3495
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#101c29",
+      "before_lines": [
+        "2405",
+        "3576"
+      ],
+      "after_lines": [
+        2405,
+        3578
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#16283a",
+      "before_lines": [
+        "3390"
+      ],
+      "after_lines": [
+        3392
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#163a51",
+      "before_lines": [
+        "3485"
+      ],
+      "after_lines": [
+        3487
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#163e2e",
+      "before_lines": [
+        "348",
+        "3411",
+        "3504"
+      ],
+      "after_lines": [
+        348,
+        3413,
+        3506
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#182735",
+      "before_lines": [
+        "3486"
+      ],
+      "after_lines": [
+        3488
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#243c57",
+      "before_lines": [
+        "3456",
+        "3460"
+      ],
+      "after_lines": [
+        3458,
+        3462
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#24b8ff",
+      "before_lines": [
+        "629",
+        "3539"
+      ],
+      "after_lines": [
+        629,
+        3541
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#26dc68",
+      "before_lines": [
+        "3503"
+      ],
+      "after_lines": [
+        3505
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#2bce75",
+      "before_lines": [
+        "347",
+        "3410"
+      ],
+      "after_lines": [
+        347,
+        3412
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#33b6ff",
+      "before_lines": [
+        "134",
+        "3487",
+        "3554"
+      ],
+      "after_lines": [
+        134,
+        3489,
+        3556
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#37d879",
+      "before_lines": [
+        "132",
+        "2022",
+        "2406",
+        "3553",
+        "3583"
+      ],
+      "after_lines": [
+        132,
+        2022,
+        2406,
+        3555,
+        3585
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#45bfff",
+      "before_lines": [
+        "1318",
+        "1319",
+        "2406",
+        "3450",
+        "3580"
+      ],
+      "after_lines": [
+        1318,
+        1319,
+        2406,
+        3452,
+        3582
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#4a3f1d",
+      "before_lines": [
+        "350",
+        "3413",
+        "3506"
+      ],
+      "after_lines": [
+        350,
+        3415,
+        3508
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#4c242a",
+      "before_lines": [
+        "352",
+        "3415",
+        "3508"
+      ],
+      "after_lines": [
+        352,
+        3417,
+        3510
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#5d7e9d",
+      "before_lines": [
+        "3594"
+      ],
+      "after_lines": [
+        3596
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#66809b",
+      "before_lines": [
+        "3536"
+      ],
+      "after_lines": [
+        3538
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#6d8fac",
+      "before_lines": [
+        "3585",
+        "3589"
+      ],
+      "after_lines": [
+        3587,
+        3591
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#6f849a",
+      "before_lines": [
+        "3488"
+      ],
+      "after_lines": [
+        3490
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#8edcff",
+      "before_lines": [
+        "3490"
+      ],
+      "after_lines": [
+        3492
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#8f78ff",
+      "before_lines": [
+        "2406",
+        "3581"
+      ],
+      "after_lines": [
+        2406,
+        3583
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#9aa8b7",
+      "before_lines": [
+        "134",
+        "3553"
+      ],
+      "after_lines": [
+        134,
+        3555
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#a9bbd7",
+      "before_lines": [
+        "2408",
+        "3386"
+      ],
+      "after_lines": [
+        2408,
+        3388
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#dce9ff",
+      "before_lines": [
+        "3385"
+      ],
+      "after_lines": [
+        3387
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#e8f2ff",
+      "before_lines": [
+        "299",
+        "547",
+        "558",
+        "2274",
+        "2284",
+        "2288",
+        "2674"
+      ],
+      "after_lines": [
+        299,
+        547,
+        558,
+        2274,
+        2284,
+        2288,
+        2675
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#f35656",
+      "before_lines": [
+        "351",
+        "3414"
+      ],
+      "after_lines": [
+        351,
+        3416
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#f4cd42",
+      "before_lines": [
+        "349",
+        "2395",
+        "3412"
+      ],
+      "after_lines": [
+        349,
+        2395,
+        3414
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#f7aa2f",
+      "before_lines": [
+        "3534"
+      ],
+      "after_lines": [
+        3536
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#ff4f55",
+      "before_lines": [
+        "3531"
+      ],
+      "after_lines": [
+        3533
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#ff5353",
+      "before_lines": [
+        "131",
+        "3507",
+        "3554"
+      ],
+      "after_lines": [
+        131,
+        3509,
+        3556
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#ffe15a",
+      "before_lines": [
+        "133",
+        "199",
+        "217",
+        "630",
+        "631",
+        "3398",
+        "3505"
+      ],
+      "after_lines": [
+        133,
+        199,
+        217,
+        630,
+        631,
+        3400,
+        3507
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "#ffffff",
+      "before_lines": [
+        "3393"
+      ],
+      "after_lines": [
+        3395
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "+12",
+      "before_lines": [
+        "793",
+        "3510"
+      ],
+      "after_lines": [
+        793,
+        3512
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "-12",
+      "before_lines": [
+        "660",
+        "792",
+        "3511"
+      ],
+      "after_lines": [
+        660,
+        792,
+        3513
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "-24",
+      "before_lines": [
+        "660",
+        "792",
+        "3511"
+      ],
+      "after_lines": [
+        660,
+        792,
+        3513
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "-36",
+      "before_lines": [
+        "3512"
+      ],
+      "after_lines": [
+        3514
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "-48",
+      "before_lines": [
+        "661",
+        "791",
+        "3512"
+      ],
+      "after_lines": [
+        661,
+        791,
+        3514
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "-60",
+      "before_lines": [
+        "3513"
+      ],
+      "after_lines": [
+        3515
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "-72",
+      "before_lines": [
+        "661",
+        "791",
+        "3513"
+      ],
+      "after_lines": [
+        661,
+        791,
+        3515
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "0",
+      "before_lines": [
+        "659",
+        "793",
+        "3510"
+      ],
+      "after_lines": [
+        659,
+        793,
+        3512
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "AFL",
+      "before_lines": [
+        "631",
+        "3544"
+      ],
+      "after_lines": [
+        631,
+        3546
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Add AUX channel",
+      "before_lines": [
+        "3282"
+      ],
+      "after_lines": [
+        3284
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Add Sub Mix channel",
+      "before_lines": [
+        "3283"
+      ],
+      "after_lines": [
+        3285
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Add input channel",
+      "before_lines": [
+        "3281"
+      ],
+      "after_lines": [
+        3283
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Channel details",
+      "before_lines": [
+        "2512",
+        "3315"
+      ],
+      "after_lines": [
+        2512,
+        3317
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Channel overview",
+      "before_lines": [
+        "2456",
+        "3317"
+      ],
+      "after_lines": [
+        2456,
+        3319
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Channel type",
+      "before_lines": [
+        "3611"
+      ],
+      "after_lines": [
+        3613
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Channels",
+      "before_lines": [
+        "3280"
+      ],
+      "after_lines": [
+        3282
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Clear solo and mute on all channels",
+      "before_lines": [
+        "3295"
+      ],
+      "after_lines": [
+        3297
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Delete channel",
+      "before_lines": [
+        "3605"
+      ],
+      "after_lines": [
+        3607
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Duplicate channel",
+      "before_lines": [
+        "3606"
+      ],
+      "after_lines": [
+        3608
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "FX",
+      "before_lines": [
+        "632",
+        "2572",
+        "2651"
+      ],
+      "after_lines": [
+        632,
+        2572,
+        2652
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Global",
+      "before_lines": [
+        "3294"
+      ],
+      "after_lines": [
+        3296
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "IN",
+      "before_lines": [
+        "3489"
+      ],
+      "after_lines": [
+        3491
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Large views",
+      "before_lines": [
+        "3314"
+      ],
+      "after_lines": [
+        3316
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "M",
+      "before_lines": [
+        "627",
+        "774",
+        "801",
+        "1962",
+        "3530"
+      ],
+      "after_lines": [
+        627,
+        774,
+        801,
+        1962,
+        3532
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "MAIN",
+      "before_lines": [
+        "141",
+        "384",
+        "464",
+        "465",
+        "608",
+        "834",
+        "890",
+        "982",
+        "1036",
+        "1098",
+        "1099",
+        "1100",
+        "1103",
+        "1346",
+        "1349",
+        "1838",
+        "1846",
+        "2264",
+        "2328",
+        "2329",
+        "2330",
+        "2330",
+        "2621",
+        "2683",
+        "2711",
+        "3527"
+      ],
+      "after_lines": [
+        141,
+        384,
+        464,
+        465,
+        608,
+        834,
+        890,
+        982,
+        1036,
+        1098,
+        1099,
+        1100,
+        1103,
+        1346,
+        1349,
+        1838,
+        1846,
+        2264,
+        2328,
+        2329,
+        2330,
+        2330,
+        2621,
+        2685,
+        2713,
+        3529
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "MIX",
+      "before_lines": [
+        "629",
+        "3538"
+      ],
+      "after_lines": [
+        629,
+        3540
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "MUTE",
+      "before_lines": [
+        "3530"
+      ],
+      "after_lines": [
+        3532
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Main",
+      "before_lines": [
+        "2572",
+        "2637",
+        "2651"
+      ],
+      "after_lines": [
+        2572,
+        2637,
+        2652
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Mixer meter mode id=%llu mode=%s",
+      "before_lines": [
+        "3735"
+      ],
+      "after_lines": [
+        3737
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Monitor",
+      "before_lines": [
+        "2304",
+        "2395",
+        "2693",
+        "2694",
+        "3325",
+        "3404"
+      ],
+      "after_lines": [
+        2304,
+        2395,
+        2695,
+        2696,
+        3327,
+        3406
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "No channel selected",
+      "before_lines": [
+        "2304",
+        "3326"
+      ],
+      "after_lines": [
+        2304,
+        3328
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Open SEL settings",
+      "before_lines": [
+        "3621"
+      ],
+      "after_lines": [
+        3623
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "PFL",
+      "before_lines": [
+        "630",
+        "3541"
+      ],
+      "after_lines": [
+        630,
+        3543
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "POST",
+      "before_lines": [
+        "3489"
+      ],
+      "after_lines": [
+        3491
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Restore default colors on all channels",
+      "before_lines": [
+        "3310"
+      ],
+      "after_lines": [
+        3312
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "S",
+      "before_lines": [
+        "628",
+        "803",
+        "3533"
+      ],
+      "after_lines": [
+        628,
+        803,
+        3535
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "SEL",
+      "before_lines": [
+        "3423",
+        "3535"
+      ],
+      "after_lines": [
+        3425,
+        3537
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "WinJACKNexus - Mixer",
+      "before_lines": [
+        "3267"
+      ],
+      "after_lines": [
+        3269
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "action.addAux",
+      "before_lines": [
+        "3282"
+      ],
+      "after_lines": [
+        3284
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "action.addInput",
+      "before_lines": [
+        "3281"
+      ],
+      "after_lines": [
+        3283
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "action.addSubMix",
+      "before_lines": [
+        "3283"
+      ],
+      "after_lines": [
+        3285
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "action.clearSoloMute",
+      "before_lines": [
+        "3295"
+      ],
+      "after_lines": [
+        3297
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "action.defaultColors",
+      "before_lines": [
+        "3310"
+      ],
+      "after_lines": [
+        3312
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "action.deleteChannel",
+      "before_lines": [
+        "3605"
+      ],
+      "after_lines": [
+        3607
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "action.duplicateChannel",
+      "before_lines": [
+        "3606"
+      ],
+      "after_lines": [
+        3608
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "action.openSel",
+      "before_lines": [
+        "3621"
+      ],
+      "after_lines": [
+        3623
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "aux",
+      "before_lines": [
+        "134",
+        "143",
+        "1818",
+        "2290",
+        "2402",
+        "3550"
+      ],
+      "after_lines": [
+        134,
+        143,
+        1818,
+        2290,
+        2402,
+        3552
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "aux:%1",
+      "before_lines": [
+        "1659",
+        "2172",
+        "2342",
+        "2356",
+        "2613",
+        "2767"
+      ],
+      "after_lines": [
+        1659,
+        2172,
+        2342,
+        2356,
+        2613,
+        2769
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "category-divider",
+      "before_lines": [
+        "3594"
+      ],
+      "after_lines": [
+        3596
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control-button-afl-accent",
+      "before_lines": [
+        "3545"
+      ],
+      "after_lines": [
+        3547
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control-button-mix-accent",
+      "before_lines": [
+        "629",
+        "3539"
+      ],
+      "after_lines": [
+        629,
+        3541
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control-button-mute-accent",
+      "before_lines": [
+        "3531"
+      ],
+      "after_lines": [
+        3533
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control-button-pfl-accent",
+      "before_lines": [
+        "3542"
+      ],
+      "after_lines": [
+        3544
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control-button-select-accent",
+      "before_lines": [
+        "3536"
+      ],
+      "after_lines": [
+        3538
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control-button-solo-accent",
+      "before_lines": [
+        "3534"
+      ],
+      "after_lines": [
+        3536
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control-button-surface-normal",
+      "before_lines": [
+        "3390"
+      ],
+      "after_lines": [
+        3392
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control-button-text-normal",
+      "before_lines": [
+        "3394"
+      ],
+      "after_lines": [
+        3396
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control-button-text-selected",
+      "before_lines": [
+        "3393"
+      ],
+      "after_lines": [
+        3395
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control-header-icon",
+      "before_lines": [
+        "2288",
+        "2674"
+      ],
+      "after_lines": [
+        2288,
+        2675
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control-meter-mode-border-input",
+      "before_lines": [
+        "3488"
+      ],
+      "after_lines": [
+        3490
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control-meter-mode-border-post",
+      "before_lines": [
+        "3487"
+      ],
+      "after_lines": [
+        3489
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control-meter-mode-surface-input",
+      "before_lines": [
+        "3486"
+      ],
+      "after_lines": [
+        3488
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control-meter-mode-surface-post",
+      "before_lines": [
+        "3485"
+      ],
+      "after_lines": [
+        3487
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control-meter-mode-text-post",
+      "before_lines": [
+        "3490"
+      ],
+      "after_lines": [
+        3492
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control-scrollbar-aux-thumb",
+      "before_lines": [
+        "3581"
+      ],
+      "after_lines": [
+        3583
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control-scrollbar-input-thumb",
+      "before_lines": [
+        "3580"
+      ],
+      "after_lines": [
+        3582
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control-scrollbar-submix-thumb",
+      "before_lines": [
+        "3583"
+      ],
+      "after_lines": [
+        3585
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "control-scrollbar-track",
+      "before_lines": [
+        "2405",
+        "3576"
+      ],
+      "after_lines": [
+        2405,
+        3578
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "fader-%1-grip",
+      "before_lines": [
+        "3562"
+      ],
+      "after_lines": [
+        3564
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "fader-%1-thumb",
+      "before_lines": [
+        "136",
+        "3552"
+      ],
+      "after_lines": [
+        136,
+        3554
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "fader-%1-track",
+      "before_lines": [
+        "3559"
+      ],
+      "after_lines": [
+        3561
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "fader-monitor-grip",
+      "before_lines": [
+        "3427"
+      ],
+      "after_lines": [
+        3429
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "fader-monitor-thumb",
+      "before_lines": [
+        "2395",
+        "3398"
+      ],
+      "after_lines": [
+        2395,
+        3400
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "fader-monitor-track",
+      "before_lines": [
+        "3426"
+      ],
+      "after_lines": [
+        3428
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "group-divider",
+      "before_lines": [
+        "3450",
+        "3456",
+        "3460"
+      ],
+      "after_lines": [
+        3452,
+        3458,
+        3462
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "input",
+      "before_lines": [
+        "143",
+        "420",
+        "544",
+        "1977",
+        "2289",
+        "2402",
+        "3549"
+      ],
+      "after_lines": [
+        143,
+        420,
+        544,
+        1977,
+        2289,
+        2402,
+        3551
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "input:%1",
+      "before_lines": [
+        "1660",
+        "2173",
+        "2343",
+        "2357",
+        "2613",
+        "2767"
+      ],
+      "after_lines": [
+        1660,
+        2173,
+        2343,
+        2357,
+        2613,
+        2769
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "label.monitor",
+      "before_lines": [
+        "2304",
+        "2395",
+        "2693",
+        "2694",
+        "3325",
+        "3404"
+      ],
+      "after_lines": [
+        2304,
+        2395,
+        2695,
+        2696,
+        3327,
+        3406
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "master",
+      "before_lines": [
+        "131",
+        "141",
+        "1847",
+        "2291",
+        "3550"
+      ],
+      "after_lines": [
+        131,
+        141,
+        1847,
+        2291,
+        3552
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "menu.channelType",
+      "before_lines": [
+        "3611"
+      ],
+      "after_lines": [
+        3613
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "menu.channels",
+      "before_lines": [
+        "3280"
+      ],
+      "after_lines": [
+        3282
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "menu.global",
+      "before_lines": [
+        "3294"
+      ],
+      "after_lines": [
+        3296
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "menu.largeViews",
+      "before_lines": [
+        "3314"
+      ],
+      "after_lines": [
+        3316
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "meter-level-border",
+      "before_lines": [
+        "345",
+        "651",
+        "3409",
+        "3502"
+      ],
+      "after_lines": [
+        345,
+        651,
+        3411,
+        3504
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "meter-level-surface",
+      "before_lines": [
+        "3417",
+        "3493"
+      ],
+      "after_lines": [
+        3419,
+        3495
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "meter-level-surface-border",
+      "before_lines": [
+        "3418",
+        "3494"
+      ],
+      "after_lines": [
+        3420,
+        3496
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "meter-level-threshold-line",
+      "before_lines": [
+        "3522"
+      ],
+      "after_lines": [
+        3524
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "meter-level-zone-high-active",
+      "before_lines": [
+        "656",
+        "3507"
+      ],
+      "after_lines": [
+        656,
+        3509
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "meter-level-zone-high-inactive",
+      "before_lines": [
+        "657",
+        "3508"
+      ],
+      "after_lines": [
+        657,
+        3510
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "meter-level-zone-low-active",
+      "before_lines": [
+        "652",
+        "3503"
+      ],
+      "after_lines": [
+        652,
+        3505
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "meter-level-zone-low-inactive",
+      "before_lines": [
+        "653",
+        "3504"
+      ],
+      "after_lines": [
+        653,
+        3506
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "meter-level-zone-mid-active",
+      "before_lines": [
+        "654",
+        "3505"
+      ],
+      "after_lines": [
+        654,
+        3507
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "meter-level-zone-mid-inactive",
+      "before_lines": [
+        "655",
+        "3506"
+      ],
+      "after_lines": [
+        655,
+        3508
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "mixerMenuBar",
+      "before_lines": [
+        "3279"
+      ],
+      "after_lines": [
+        3281
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "mixerResetAllChannelColors",
+      "before_lines": [
+        "3311"
+      ],
+      "after_lines": [
+        3313
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "monitor-meter-high-active",
+      "before_lines": [
+        "351",
+        "3414"
+      ],
+      "after_lines": [
+        351,
+        3416
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "monitor-meter-high-inactive",
+      "before_lines": [
+        "352",
+        "3415"
+      ],
+      "after_lines": [
+        352,
+        3417
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "monitor-meter-low-active",
+      "before_lines": [
+        "347",
+        "3410"
+      ],
+      "after_lines": [
+        347,
+        3412
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "monitor-meter-low-inactive",
+      "before_lines": [
+        "348",
+        "3411"
+      ],
+      "after_lines": [
+        348,
+        3413
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "monitor-meter-mid-active",
+      "before_lines": [
+        "349",
+        "3412"
+      ],
+      "after_lines": [
+        349,
+        3414
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "monitor-meter-mid-inactive",
+      "before_lines": [
+        "350",
+        "3413"
+      ],
+      "after_lines": [
+        350,
+        3415
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "monitor-select-accent",
+      "before_lines": [
+        "3422"
+      ],
+      "after_lines": [
+        3424
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "post-fader",
+      "before_lines": [
+        "3737"
+      ],
+      "after_lines": [
+        3739
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "post-gain",
+      "before_lines": [
+        "3737"
+      ],
+      "after_lines": [
+        3739
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "resize-handle",
+      "before_lines": [
+        "3589"
+      ],
+      "after_lines": [
+        3591
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "resize-submix-handle",
+      "before_lines": [
+        "3585"
+      ],
+      "after_lines": [
+        3587
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "sel-main",
+      "before_lines": [
+        "198",
+        "216",
+        "279",
+        "289",
+        "307",
+        "309",
+        "318",
+        "410",
+        "421",
+        "433",
+        "439",
+        "448",
+        "533",
+        "538",
+        "539",
+        "545",
+        "554",
+        "572",
+        "574",
+        "576",
+        "578",
+        "580",
+        "582",
+        "588",
+        "695",
+        "704",
+        "709",
+        "723",
+        "728",
+        "736",
+        "2257",
+        "2259",
+        "2273",
+        "2275",
+        "2282",
+        "2285",
+        "2287",
+        "2314",
+        "2323",
+        "2674"
+      ],
+      "after_lines": [
+        198,
+        216,
+        279,
+        289,
+        307,
+        309,
+        318,
+        410,
+        421,
+        433,
+        439,
+        448,
+        533,
+        538,
+        539,
+        545,
+        554,
+        572,
+        574,
+        576,
+        578,
+        580,
+        582,
+        588,
+        695,
+        704,
+        709,
+        723,
+        728,
+        736,
+        2257,
+        2259,
+        2273,
+        2275,
+        2282,
+        2285,
+        2287,
+        2314,
+        2323,
+        2675
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "selSourceKind",
+      "before_lines": [
+        "2344",
+        "2358",
+        "2768",
+        "2824"
+      ],
+      "after_lines": [
+        2344,
+        2358,
+        2770,
+        2826
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "selSubMixRoutes",
+      "before_lines": [
+        "2731"
+      ],
+      "after_lines": [
+        2733
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "selTab%1",
+      "before_lines": [
+        "2636",
+        "2651"
+      ],
+      "after_lines": [
+        2636,
+        2652
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "status.noSelection",
+      "before_lines": [
+        "2304",
+        "3326"
+      ],
+      "after_lines": [
+        2304,
+        3328
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "sub:%1",
+      "before_lines": [
+        "1659",
+        "2767"
+      ],
+      "after_lines": [
+        1659,
+        2769
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "submix",
+      "before_lines": [
+        "132",
+        "142",
+        "2290",
+        "2402",
+        "3549"
+      ],
+      "after_lines": [
+        132,
+        142,
+        2290,
+        2402,
+        3551
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "surface-empty",
+      "before_lines": [
+        "284",
+        "537",
+        "542",
+        "2318",
+        "3380"
+      ],
+      "after_lines": [
+        284,
+        537,
+        542,
+        2318,
+        3382
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "text-muted",
+      "before_lines": [
+        "303",
+        "320",
+        "325",
+        "355",
+        "548",
+        "2408",
+        "3386"
+      ],
+      "after_lines": [
+        303,
+        320,
+        325,
+        355,
+        548,
+        2408,
+        3388
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "text-primary",
+      "before_lines": [
+        "299",
+        "547",
+        "2318",
+        "2325",
+        "3385"
+      ],
+      "after_lines": [
+        299,
+        547,
+        2318,
+        2325,
+        3387
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "view.details",
+      "before_lines": [
+        "2512",
+        "3315"
+      ],
+      "after_lines": [
+        2512,
+        3317
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "view.overview",
+      "before_lines": [
+        "2456",
+        "3317"
+      ],
+      "after_lines": [
+        2456,
+        3319
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "window.title",
+      "before_lines": [
+        "3267"
+      ],
+      "after_lines": [
+        3269
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "windowTitle",
+      "before_lines": [
+        "2456",
+        "2512",
+        "2552",
+        "3267"
+      ],
+      "after_lines": [
+        2456,
+        2512,
+        2552,
+        3269
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "×",
+      "before_lines": [
+        "2655"
+      ],
+      "after_lines": [
+        2656
+      ]
+    }
+  ],
+  "usage_changed": [
+    {
+      "file": "src/ui/src/AuxSettingsWindow.cpp",
+      "literal": "AUX",
+      "before": [
+        {
+          "id": "s0.995bae545ba3",
+          "domain": "ui",
+          "file": "src/ui/src/AuxSettingsWindow.cpp",
+          "line": "639",
+          "literal": "AUX",
+          "context": "text(painter, impl_->scaled(26, 12, 172, 38), impl_->subMixMode ? QStringLiteral(\"Sub Mix\") : QStringLiteral(\"AUX\"), label, 18 * sy,",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        }
+      ],
+      "after": [
+        {
+          "id": "s0.995bae545ba3",
+          "domain": "ui",
+          "file": "src/ui/src/AuxSettingsWindow.cpp",
+          "line": 639,
+          "literal": "AUX",
+          "context": "text(painter, impl_->scaled(26, 12, 172, 38), impl_->subMixMode ? auxText(\"label.subMix\",\"Sub Mix\") : QStringLiteral(\"AUX\"), label, 18 * sy,",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "file": "src/ui/src/AuxSettingsWindow.cpp",
+      "literal": "Sub Mix",
+      "before": [
+        {
+          "id": "s0.d5a8c9dee3da",
+          "domain": "ui",
+          "file": "src/ui/src/AuxSettingsWindow.cpp",
+          "line": "639",
+          "literal": "Sub Mix",
+          "context": "text(painter, impl_->scaled(26, 12, 172, 38), impl_->subMixMode ? QStringLiteral(\"Sub Mix\") : QStringLiteral(\"AUX\"), label, 18 * sy,",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        }
+      ],
+      "after": [
+        {
+          "id": "s0.d5a8c9dee3da",
+          "domain": "ui",
+          "file": "src/ui/src/AuxSettingsWindow.cpp",
+          "line": 639,
+          "literal": "Sub Mix",
+          "context": "text(painter, impl_->scaled(26, 12, 172, 38), impl_->subMixMode ? auxText(\"label.subMix\",\"Sub Mix\") : QStringLiteral(\"AUX\"), label, 18 * sy,",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "AUX",
+      "before": [
+        {
+          "id": "s0.2e510a8bb8ed",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": "2463",
+          "literal": "AUX",
+          "context": "auto* title=new Controls::TextLabel(group==0?mixerText(\"section.inputs\",\"Inputs\"):group==1?QStringLiteral(\"AUX\"):mixerText(\"section.subMonitorMaster\",\"Sub Mix/Monitor/Master\"),card);",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.2e510a8bb8ed",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": "2572",
+          "literal": "AUX",
+          "context": "const std::array<QString,4> tabs { QStringLiteral(\"Main\"),QStringLiteral(\"AUX\"),QStringLiteral(\"FX\"),QStringLiteral(\"Sub Mix\") };",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.2e510a8bb8ed",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": "2651",
+          "literal": "AUX",
+          "context": "for(int j=0;j<4;++j)if(auto* item=header->findChild<QPushButton*>(QStringLiteral(\"selTab%1\").arg(std::array<QString,4>{QStringLiteral(\"Main\"),QStringLiteral(\"AUX\"),QStringLiteral(\"FX\"),QStringLiteral(\"Sub Mix\")}[j])))item->setChecked(j==i);",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.2e510a8bb8ed",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": "2675",
+          "literal": "AUX",
+          "context": "const std::array names{mixerText(\"section.inputs\",\"Inputs\"),QStringLiteral(\"AUX\"),QStringLiteral(\"Sub Mix\"),mixerText(\"section.listenMaster\",\"Monitor/Master\")};",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        }
+      ],
+      "after": [
+        {
+          "id": "s0.2e510a8bb8ed",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": 2463,
+          "literal": "AUX",
+          "context": "auto* title=new Controls::TextLabel(group==0?mixerText(\"section.inputs\",\"Inputs\"):group==1?QStringLiteral(\"AUX\"):mixerText(\"section.subMonitorMaster\",\"Sub Mix/Monitor/Master\"),card);",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.2e510a8bb8ed",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": 2572,
+          "literal": "AUX",
+          "context": "const std::array<QString,4> tabs { QStringLiteral(\"Main\"),QStringLiteral(\"AUX\"),QStringLiteral(\"FX\"),QStringLiteral(\"Sub Mix\") };",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.2e510a8bb8ed",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": 2652,
+          "literal": "AUX",
+          "context": "for(int j=0;j<4;++j)if(auto* item=header->findChild<QPushButton*>(QStringLiteral(\"selTab%1\").arg(std::array<QString,4>{QStringLiteral(\"Main\"),QStringLiteral(\"AUX\"),QStringLiteral(\"FX\"),QStringLiteral(\"Sub Mix\")}[j])))item->setChecked(j==i);",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.2e510a8bb8ed",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": 2676,
+          "literal": "AUX",
+          "context": "const std::array names{mixerText(\"section.inputs\",\"Inputs\"),QStringLiteral(\"AUX\"),mixerText(\"section.subMix\",\"Sub Mix\"),mixerText(\"section.listenMaster\",\"Monitor/Master\")};",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Inputs",
+      "before": [
+        {
+          "id": "s0.7609491d632a",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": "2463",
+          "literal": "Inputs",
+          "context": "auto* title=new Controls::TextLabel(group==0?mixerText(\"section.inputs\",\"Inputs\"):group==1?QStringLiteral(\"AUX\"):mixerText(\"section.subMonitorMaster\",\"Sub Mix/Monitor/Master\"),card);",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.7609491d632a",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": "2466",
+          "literal": "Inputs",
+          "context": "group==0?\"Inputs\":\"Sub Mix/Monitor/Master\");",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.7609491d632a",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": "2675",
+          "literal": "Inputs",
+          "context": "const std::array names{mixerText(\"section.inputs\",\"Inputs\"),QStringLiteral(\"AUX\"),QStringLiteral(\"Sub Mix\"),mixerText(\"section.listenMaster\",\"Monitor/Master\")};",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.7609491d632a",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": "2679",
+          "literal": "Inputs",
+          "context": "if (group == 0) bindLocalizedText(category, \"title\", \"mixer\", \"section.inputs\", \"Inputs\");",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        }
+      ],
+      "after": [
+        {
+          "id": "s0.7609491d632a",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": 2463,
+          "literal": "Inputs",
+          "context": "auto* title=new Controls::TextLabel(group==0?mixerText(\"section.inputs\",\"Inputs\"):group==1?QStringLiteral(\"AUX\"):mixerText(\"section.subMonitorMaster\",\"Sub Mix/Monitor/Master\"),card);",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.7609491d632a",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": 2466,
+          "literal": "Inputs",
+          "context": "group==0?\"Inputs\":\"Sub Mix/Monitor/Master\");",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.7609491d632a",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": 2676,
+          "literal": "Inputs",
+          "context": "const std::array names{mixerText(\"section.inputs\",\"Inputs\"),QStringLiteral(\"AUX\"),mixerText(\"section.subMix\",\"Sub Mix\"),mixerText(\"section.listenMaster\",\"Monitor/Master\")};",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.7609491d632a",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": 2680,
+          "literal": "Inputs",
+          "context": "if (group == 0) bindLocalizedText(category, \"title\", \"mixer\", \"section.inputs\", \"Inputs\");",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Monitor/Master",
+      "before": [
+        {
+          "id": "s0.4d5b78fc7c33",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": "2675",
+          "literal": "Monitor/Master",
+          "context": "const std::array names{mixerText(\"section.inputs\",\"Inputs\"),QStringLiteral(\"AUX\"),QStringLiteral(\"Sub Mix\"),mixerText(\"section.listenMaster\",\"Monitor/Master\")};",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.4d5b78fc7c33",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": "2680",
+          "literal": "Monitor/Master",
+          "context": "if (group == 3) bindLocalizedText(category, \"title\", \"mixer\", \"section.listenMaster\", \"Monitor/Master\");",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        }
+      ],
+      "after": [
+        {
+          "id": "s0.4d5b78fc7c33",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": 2676,
+          "literal": "Monitor/Master",
+          "context": "const std::array names{mixerText(\"section.inputs\",\"Inputs\"),QStringLiteral(\"AUX\"),mixerText(\"section.subMix\",\"Sub Mix\"),mixerText(\"section.listenMaster\",\"Monitor/Master\")};",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.4d5b78fc7c33",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": 2682,
+          "literal": "Monitor/Master",
+          "context": "if (group == 3) bindLocalizedText(category, \"title\", \"mixer\", \"section.listenMaster\", \"Monitor/Master\");",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "Sub Mix",
+      "before": [
+        {
+          "id": "s0.f2463db87eae",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": "2572",
+          "literal": "Sub Mix",
+          "context": "const std::array<QString,4> tabs { QStringLiteral(\"Main\"),QStringLiteral(\"AUX\"),QStringLiteral(\"FX\"),QStringLiteral(\"Sub Mix\") };",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.f2463db87eae",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": "2651",
+          "literal": "Sub Mix",
+          "context": "for(int j=0;j<4;++j)if(auto* item=header->findChild<QPushButton*>(QStringLiteral(\"selTab%1\").arg(std::array<QString,4>{QStringLiteral(\"Main\"),QStringLiteral(\"AUX\"),QStringLiteral(\"FX\"),QStringLiteral(\"Sub Mix\")}[j])))item->setChecked(j==i);",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.f2463db87eae",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": "2675",
+          "literal": "Sub Mix",
+          "context": "const std::array names{mixerText(\"section.inputs\",\"Inputs\"),QStringLiteral(\"AUX\"),QStringLiteral(\"Sub Mix\"),mixerText(\"section.listenMaster\",\"Monitor/Master\")};",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        }
+      ],
+      "after": [
+        {
+          "id": "s0.f2463db87eae",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": 2572,
+          "literal": "Sub Mix",
+          "context": "const std::array<QString,4> tabs { QStringLiteral(\"Main\"),QStringLiteral(\"AUX\"),QStringLiteral(\"FX\"),QStringLiteral(\"Sub Mix\") };",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.f2463db87eae",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": 2638,
+          "literal": "Sub Mix",
+          "context": "if(i==3) bindLocalizedText(tab,\"text\",\"mixer\",\"section.subMix\",\"Sub Mix\");",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.f2463db87eae",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": 2652,
+          "literal": "Sub Mix",
+          "context": "for(int j=0;j<4;++j)if(auto* item=header->findChild<QPushButton*>(QStringLiteral(\"selTab%1\").arg(std::array<QString,4>{QStringLiteral(\"Main\"),QStringLiteral(\"AUX\"),QStringLiteral(\"FX\"),QStringLiteral(\"Sub Mix\")}[j])))item->setChecked(j==i);",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.f2463db87eae",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": 2676,
+          "literal": "Sub Mix",
+          "context": "const std::array names{mixerText(\"section.inputs\",\"Inputs\"),QStringLiteral(\"AUX\"),mixerText(\"section.subMix\",\"Sub Mix\"),mixerText(\"section.listenMaster\",\"Monitor/Master\")};",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.f2463db87eae",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": 2681,
+          "literal": "Sub Mix",
+          "context": "if (group == 2) bindLocalizedText(category, \"title\", \"mixer\", \"section.subMix\", \"Sub Mix\");",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "mixer",
+      "before": [
+        {
+          "id": "s0.bf7e0e375696",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": "52",
+          "literal": "mixer",
+          "context": "return localizedText(\"mixer\",key,english);",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.bf7e0e375696",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": "57",
+          "literal": "mixer",
+          "context": "bindLocalizedText(action,\"text\",\"mixer\",key,english);",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.bf7e0e375696",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": "62",
+          "literal": "mixer",
+          "context": "bindLocalizedText(menu,\"title\",\"mixer\",key,english);",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.bf7e0e375696",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": "67",
+          "literal": "mixer",
+          "context": "bindLocalizedText(menu,\"title\",\"mixer\",key,english);",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.bf7e0e375696",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": "135",
+          "literal": "mixer",
+          "context": "return Controls::themeTokenColor(QStringLiteral(\"mixer\"),",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.bf7e0e375696",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": "159",
+          "literal": "mixer",
+          "context": "return Controls::themeTokenColor(QStringLiteral(\"mixer\"),",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.bf7e0e375696",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": "635",
+          "literal": "mixer",
+          "context": "? Controls::themeTokenColor(QStringLiteral(\"mixer\"),QString::fromLatin1(role),QColor(fallback))",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.bf7e0e375696",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": "2395",
+          "literal": "mixer",
+          "context": "{monitorOverviewId,0,mixerText(\"label.monitor\",\"Monitor\"),Controls::themeTokenColor(QStringLiteral(\"mixer\"),QStringLiteral(\"fader-monitor-thumb\"),QColor(\"#f4cd42\")),",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.bf7e0e375696",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": "2405",
+          "literal": "mixer",
+          "context": "colors.panel=Controls::themeTokenColor(QStringLiteral(\"mixer\"),QStringLiteral(\"control-scrollbar-track\"),QColor(\"#101c29\"));",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.bf7e0e375696",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": "2406",
+          "literal": "mixer",
+          "context": "colors.accent=Controls::themeTokenColor(QStringLiteral(\"mixer\"),QStringLiteral(\"control-scrollbar-%1-thumb\").arg(kind),QColor(group==0?\"#45bfff\":group==1?\"#8f78ff\":\"#37d879\"));",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.bf7e0e375696",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": "2408",
+          "literal": "mixer",
+          "context": "colors.text=Controls::themeTokenColor(QStringLiteral(\"mixer\"),QStringLiteral(\"text-muted\"),QColor(\"#a9bbd7\"));",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.bf7e0e375696",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": "2411",
+          "literal": "mixer",
+          "context": "const auto color=[&](const QString& role,const QColor& fallback){return Controls::themeTokenColor(QStringLiteral(\"mixer\"),role,fallback).name();};",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.bf7e0e375696",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": "2456",
+          "literal": "mixer",
+          "context": "bindLocalizedText(overviewWindow,\"windowTitle\",\"mixer\",\"view.overview\",\"Channel overview\");",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.bf7e0e375696",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": "2465",
+          "literal": "mixer",
+          "context": "if(group!=1) bindLocalizedText(title,\"text\",\"mixer\",group==0?\"section.inputs\":\"section.subMonitorMaster\",",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.bf7e0e375696",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": "2512",
+          "literal": "mixer",
+          "context": "bindLocalizedText(selWindow,\"windowTitle\",\"mixer\",\"view.details\",\"Channel details\");",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.bf7e0e375696",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": "2531",
+          "literal": "mixer",
+          "context": "bindLocalizedText(prefix,\"text\",\"mixer\",\"label.detailsPrefix\",\"Channel details ·\");",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.bf7e0e375696",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": "2537",
+          "literal": "mixer",
+          "context": "bindLocalizedText(selPaletteButton,\"toolTip\",\"mixer\",\"control.channelColor\",\"Channel color\");",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.bf7e0e375696",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": "2552",
+          "literal": "mixer",
+          "context": "bindLocalizedText(&dialog,\"windowTitle\",\"mixer\",\"dialog.colorTitle\",\"Set channel color · RGB / HEX\");",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.bf7e0e375696",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": "2566",
+          "literal": "mixer",
+          "context": "bindLocalizedText(selSelector,\"text\",\"mixer\",\"action.switchChannel\",\"Select channel ▾\");",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.bf7e0e375696",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": "2637",
+          "literal": "mixer",
+          "context": "if(i==0) bindLocalizedText(tab,\"text\",\"mixer\",\"tab.main\",\"Main\");",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.bf7e0e375696",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": "2679",
+          "literal": "mixer",
+          "context": "if (group == 0) bindLocalizedText(category, \"title\", \"mixer\", \"section.inputs\", \"Inputs\");",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.bf7e0e375696",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": "2680",
+          "literal": "mixer",
+          "context": "if (group == 3) bindLocalizedText(category, \"title\", \"mixer\", \"section.listenMaster\", \"Monitor/Master\");",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.bf7e0e375696",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": "2694",
+          "literal": "mixer",
+          "context": "bindLocalizedText(action, \"text\", \"mixer\", \"label.monitor\", \"Monitor\");",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.bf7e0e375696",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": "3267",
+          "literal": "mixer",
+          "context": "bindLocalizedText(this,\"windowTitle\",\"mixer\",\"window.title\",\"WinJACKNexus - Mixer\");",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.bf7e0e375696",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": "3376",
+          "literal": "mixer",
+          "context": "return Controls::themeTokenColor(QStringLiteral(\"mixer\"), QString::fromLatin1(role), fallback);",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.bf7e0e375696",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": "3381",
+          "literal": "mixer",
+          "context": "ThemeBackground::paint(painter, rect(), QStringLiteral(\"mixer\"));",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.bf7e0e375696",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": "3382",
+          "literal": "mixer",
+          "context": "painter.setOpacity(ThemeBackground::componentOpacity(QStringLiteral(\"mixer\")));",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.bf7e0e375696",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": "3596",
+          "literal": "mixer",
+          "context": "ThemeBackground::paint(painter, rect(), QStringLiteral(\"mixer\"), true);",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        }
+      ],
+      "after": [
+        {
+          "id": "s0.bf7e0e375696",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": 52,
+          "literal": "mixer",
+          "context": "return localizedText(\"mixer\",key,english);",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.bf7e0e375696",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": 57,
+          "literal": "mixer",
+          "context": "bindLocalizedText(action,\"text\",\"mixer\",key,english);",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.bf7e0e375696",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": 62,
+          "literal": "mixer",
+          "context": "bindLocalizedText(menu,\"title\",\"mixer\",key,english);",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.bf7e0e375696",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": 67,
+          "literal": "mixer",
+          "context": "bindLocalizedText(menu,\"title\",\"mixer\",key,english);",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.bf7e0e375696",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": 135,
+          "literal": "mixer",
+          "context": "return Controls::themeTokenColor(QStringLiteral(\"mixer\"),",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.bf7e0e375696",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": 159,
+          "literal": "mixer",
+          "context": "return Controls::themeTokenColor(QStringLiteral(\"mixer\"),",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.bf7e0e375696",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": 635,
+          "literal": "mixer",
+          "context": "? Controls::themeTokenColor(QStringLiteral(\"mixer\"),QString::fromLatin1(role),QColor(fallback))",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.bf7e0e375696",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": 2395,
+          "literal": "mixer",
+          "context": "{monitorOverviewId,0,mixerText(\"label.monitor\",\"Monitor\"),Controls::themeTokenColor(QStringLiteral(\"mixer\"),QStringLiteral(\"fader-monitor-thumb\"),QColor(\"#f4cd42\")),",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.bf7e0e375696",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": 2405,
+          "literal": "mixer",
+          "context": "colors.panel=Controls::themeTokenColor(QStringLiteral(\"mixer\"),QStringLiteral(\"control-scrollbar-track\"),QColor(\"#101c29\"));",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.bf7e0e375696",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": 2406,
+          "literal": "mixer",
+          "context": "colors.accent=Controls::themeTokenColor(QStringLiteral(\"mixer\"),QStringLiteral(\"control-scrollbar-%1-thumb\").arg(kind),QColor(group==0?\"#45bfff\":group==1?\"#8f78ff\":\"#37d879\"));",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.bf7e0e375696",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": 2408,
+          "literal": "mixer",
+          "context": "colors.text=Controls::themeTokenColor(QStringLiteral(\"mixer\"),QStringLiteral(\"text-muted\"),QColor(\"#a9bbd7\"));",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.bf7e0e375696",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": 2411,
+          "literal": "mixer",
+          "context": "const auto color=[&](const QString& role,const QColor& fallback){return Controls::themeTokenColor(QStringLiteral(\"mixer\"),role,fallback).name();};",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.bf7e0e375696",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": 2456,
+          "literal": "mixer",
+          "context": "bindLocalizedText(overviewWindow,\"windowTitle\",\"mixer\",\"view.overview\",\"Channel overview\");",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.bf7e0e375696",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": 2465,
+          "literal": "mixer",
+          "context": "if(group!=1) bindLocalizedText(title,\"text\",\"mixer\",group==0?\"section.inputs\":\"section.subMonitorMaster\",",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.bf7e0e375696",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": 2512,
+          "literal": "mixer",
+          "context": "bindLocalizedText(selWindow,\"windowTitle\",\"mixer\",\"view.details\",\"Channel details\");",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.bf7e0e375696",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": 2531,
+          "literal": "mixer",
+          "context": "bindLocalizedText(prefix,\"text\",\"mixer\",\"label.detailsPrefix\",\"Channel details ·\");",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.bf7e0e375696",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": 2537,
+          "literal": "mixer",
+          "context": "bindLocalizedText(selPaletteButton,\"toolTip\",\"mixer\",\"control.channelColor\",\"Channel color\");",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.bf7e0e375696",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": 2552,
+          "literal": "mixer",
+          "context": "bindLocalizedText(&dialog,\"windowTitle\",\"mixer\",\"dialog.colorTitle\",\"Set channel color · RGB / HEX\");",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.bf7e0e375696",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": 2566,
+          "literal": "mixer",
+          "context": "bindLocalizedText(selSelector,\"text\",\"mixer\",\"action.switchChannel\",\"Select channel ▾\");",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.bf7e0e375696",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": 2637,
+          "literal": "mixer",
+          "context": "if(i==0) bindLocalizedText(tab,\"text\",\"mixer\",\"tab.main\",\"Main\");",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.bf7e0e375696",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": 2638,
+          "literal": "mixer",
+          "context": "if(i==3) bindLocalizedText(tab,\"text\",\"mixer\",\"section.subMix\",\"Sub Mix\");",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.bf7e0e375696",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": 2680,
+          "literal": "mixer",
+          "context": "if (group == 0) bindLocalizedText(category, \"title\", \"mixer\", \"section.inputs\", \"Inputs\");",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.bf7e0e375696",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": 2681,
+          "literal": "mixer",
+          "context": "if (group == 2) bindLocalizedText(category, \"title\", \"mixer\", \"section.subMix\", \"Sub Mix\");",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.bf7e0e375696",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": 2682,
+          "literal": "mixer",
+          "context": "if (group == 3) bindLocalizedText(category, \"title\", \"mixer\", \"section.listenMaster\", \"Monitor/Master\");",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.bf7e0e375696",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": 2696,
+          "literal": "mixer",
+          "context": "bindLocalizedText(action, \"text\", \"mixer\", \"label.monitor\", \"Monitor\");",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.bf7e0e375696",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": 3269,
+          "literal": "mixer",
+          "context": "bindLocalizedText(this,\"windowTitle\",\"mixer\",\"window.title\",\"WinJACKNexus - Mixer\");",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.bf7e0e375696",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": 3378,
+          "literal": "mixer",
+          "context": "return Controls::themeTokenColor(QStringLiteral(\"mixer\"), QString::fromLatin1(role), fallback);",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.bf7e0e375696",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": 3383,
+          "literal": "mixer",
+          "context": "ThemeBackground::paint(painter, rect(), QStringLiteral(\"mixer\"));",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.bf7e0e375696",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": 3384,
+          "literal": "mixer",
+          "context": "painter.setOpacity(ThemeBackground::componentOpacity(QStringLiteral(\"mixer\")));",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.bf7e0e375696",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": 3598,
+          "literal": "mixer",
+          "context": "ThemeBackground::paint(painter, rect(), QStringLiteral(\"mixer\"), true);",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "section.inputs",
+      "before": [
+        {
+          "id": "s0.6a8625bcf2b4",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": "2463",
+          "literal": "section.inputs",
+          "context": "auto* title=new Controls::TextLabel(group==0?mixerText(\"section.inputs\",\"Inputs\"):group==1?QStringLiteral(\"AUX\"):mixerText(\"section.subMonitorMaster\",\"Sub Mix/Monitor/Master\"),card);",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.6a8625bcf2b4",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": "2465",
+          "literal": "section.inputs",
+          "context": "if(group!=1) bindLocalizedText(title,\"text\",\"mixer\",group==0?\"section.inputs\":\"section.subMonitorMaster\",",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.6a8625bcf2b4",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": "2675",
+          "literal": "section.inputs",
+          "context": "const std::array names{mixerText(\"section.inputs\",\"Inputs\"),QStringLiteral(\"AUX\"),QStringLiteral(\"Sub Mix\"),mixerText(\"section.listenMaster\",\"Monitor/Master\")};",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.6a8625bcf2b4",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": "2679",
+          "literal": "section.inputs",
+          "context": "if (group == 0) bindLocalizedText(category, \"title\", \"mixer\", \"section.inputs\", \"Inputs\");",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        }
+      ],
+      "after": [
+        {
+          "id": "s0.6a8625bcf2b4",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": 2463,
+          "literal": "section.inputs",
+          "context": "auto* title=new Controls::TextLabel(group==0?mixerText(\"section.inputs\",\"Inputs\"):group==1?QStringLiteral(\"AUX\"):mixerText(\"section.subMonitorMaster\",\"Sub Mix/Monitor/Master\"),card);",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.6a8625bcf2b4",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": 2465,
+          "literal": "section.inputs",
+          "context": "if(group!=1) bindLocalizedText(title,\"text\",\"mixer\",group==0?\"section.inputs\":\"section.subMonitorMaster\",",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.6a8625bcf2b4",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": 2676,
+          "literal": "section.inputs",
+          "context": "const std::array names{mixerText(\"section.inputs\",\"Inputs\"),QStringLiteral(\"AUX\"),mixerText(\"section.subMix\",\"Sub Mix\"),mixerText(\"section.listenMaster\",\"Monitor/Master\")};",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.6a8625bcf2b4",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": 2680,
+          "literal": "section.inputs",
+          "context": "if (group == 0) bindLocalizedText(category, \"title\", \"mixer\", \"section.inputs\", \"Inputs\");",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "section.listenMaster",
+      "before": [
+        {
+          "id": "s0.bdf3c4053b36",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": "2675",
+          "literal": "section.listenMaster",
+          "context": "const std::array names{mixerText(\"section.inputs\",\"Inputs\"),QStringLiteral(\"AUX\"),QStringLiteral(\"Sub Mix\"),mixerText(\"section.listenMaster\",\"Monitor/Master\")};",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.bdf3c4053b36",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": "2680",
+          "literal": "section.listenMaster",
+          "context": "if (group == 3) bindLocalizedText(category, \"title\", \"mixer\", \"section.listenMaster\", \"Monitor/Master\");",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        }
+      ],
+      "after": [
+        {
+          "id": "s0.bdf3c4053b36",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": 2676,
+          "literal": "section.listenMaster",
+          "context": "const std::array names{mixerText(\"section.inputs\",\"Inputs\"),QStringLiteral(\"AUX\"),mixerText(\"section.subMix\",\"Sub Mix\"),mixerText(\"section.listenMaster\",\"Monitor/Master\")};",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.bdf3c4053b36",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": 2682,
+          "literal": "section.listenMaster",
+          "context": "if (group == 3) bindLocalizedText(category, \"title\", \"mixer\", \"section.listenMaster\", \"Monitor/Master\");",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "text",
+      "before": [
+        {
+          "id": "s0.727be960488c",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": "57",
+          "literal": "text",
+          "context": "bindLocalizedText(action,\"text\",\"mixer\",key,english);",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.727be960488c",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": "2465",
+          "literal": "text",
+          "context": "if(group!=1) bindLocalizedText(title,\"text\",\"mixer\",group==0?\"section.inputs\":\"section.subMonitorMaster\",",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.727be960488c",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": "2531",
+          "literal": "text",
+          "context": "bindLocalizedText(prefix,\"text\",\"mixer\",\"label.detailsPrefix\",\"Channel details ·\");",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.727be960488c",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": "2566",
+          "literal": "text",
+          "context": "bindLocalizedText(selSelector,\"text\",\"mixer\",\"action.switchChannel\",\"Select channel ▾\");",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.727be960488c",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": "2637",
+          "literal": "text",
+          "context": "if(i==0) bindLocalizedText(tab,\"text\",\"mixer\",\"tab.main\",\"Main\");",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.727be960488c",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": "2694",
+          "literal": "text",
+          "context": "bindLocalizedText(action, \"text\", \"mixer\", \"label.monitor\", \"Monitor\");",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        }
+      ],
+      "after": [
+        {
+          "id": "s0.727be960488c",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": 57,
+          "literal": "text",
+          "context": "bindLocalizedText(action,\"text\",\"mixer\",key,english);",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.727be960488c",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": 2465,
+          "literal": "text",
+          "context": "if(group!=1) bindLocalizedText(title,\"text\",\"mixer\",group==0?\"section.inputs\":\"section.subMonitorMaster\",",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.727be960488c",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": 2531,
+          "literal": "text",
+          "context": "bindLocalizedText(prefix,\"text\",\"mixer\",\"label.detailsPrefix\",\"Channel details ·\");",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.727be960488c",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": 2566,
+          "literal": "text",
+          "context": "bindLocalizedText(selSelector,\"text\",\"mixer\",\"action.switchChannel\",\"Select channel ▾\");",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.727be960488c",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": 2637,
+          "literal": "text",
+          "context": "if(i==0) bindLocalizedText(tab,\"text\",\"mixer\",\"tab.main\",\"Main\");",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.727be960488c",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": 2638,
+          "literal": "text",
+          "context": "if(i==3) bindLocalizedText(tab,\"text\",\"mixer\",\"section.subMix\",\"Sub Mix\");",
+          "evidence_class": "other-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.727be960488c",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": 2696,
+          "literal": "text",
+          "context": "bindLocalizedText(action, \"text\", \"mixer\", \"label.monitor\", \"Monitor\");",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "literal": "title",
+      "before": [
+        {
+          "id": "s0.65aeac71d941",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": "62",
+          "literal": "title",
+          "context": "bindLocalizedText(menu,\"title\",\"mixer\",key,english);",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.65aeac71d941",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": "67",
+          "literal": "title",
+          "context": "bindLocalizedText(menu,\"title\",\"mixer\",key,english);",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.65aeac71d941",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": "2679",
+          "literal": "title",
+          "context": "if (group == 0) bindLocalizedText(category, \"title\", \"mixer\", \"section.inputs\", \"Inputs\");",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.65aeac71d941",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": "2680",
+          "literal": "title",
+          "context": "if (group == 3) bindLocalizedText(category, \"title\", \"mixer\", \"section.listenMaster\", \"Monitor/Master\");",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        }
+      ],
+      "after": [
+        {
+          "id": "s0.65aeac71d941",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": 62,
+          "literal": "title",
+          "context": "bindLocalizedText(menu,\"title\",\"mixer\",key,english);",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.65aeac71d941",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": 67,
+          "literal": "title",
+          "context": "bindLocalizedText(menu,\"title\",\"mixer\",key,english);",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.65aeac71d941",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": 2680,
+          "literal": "title",
+          "context": "if (group == 0) bindLocalizedText(category, \"title\", \"mixer\", \"section.inputs\", \"Inputs\");",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.65aeac71d941",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": 2681,
+          "literal": "title",
+          "context": "if (group == 2) bindLocalizedText(category, \"title\", \"mixer\", \"section.subMix\", \"Sub Mix\");",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        },
+        {
+          "id": "s0.65aeac71d941",
+          "domain": "ui",
+          "file": "src/ui/src/MixerWindow.cpp",
+          "line": 2682,
+          "literal": "title",
+          "context": "if (group == 3) bindLocalizedText(category, \"title\", \"mixer\", \"section.listenMaster\", \"Monitor/Master\");",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        }
+      ]
+    }
+  ],
+  "catalog_added": [
+    {
+      "domain": "aux",
+      "key": "label.subMix",
+      "sources": "[\"Sub Mix\", \"サブミックス\", \"分组混音\", \"서브 믹스\"]",
+      "locations": "locate/en-US.json!domains.aux.label.subMix\nlocate/ja-JP.json!domains.aux.label.subMix\nlocate/ko-KR.json!domains.aux.label.subMix\nlocate/zh-CN.json!domains.aux.label.subMix\nsrc/ui/src/AuxSettingsWindow.cpp:639",
+      "placeholders": "",
+      "layout": "原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName",
+      "translation_status": "未实施（S0 清单）",
+      "semantic_review": "Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校"
+    },
+    {
+      "domain": "mixer",
+      "key": "section.subMix",
+      "sources": "[\"Sub Mix\", \"サブミックス\", \"分组混音\", \"서브 믹스\"]",
+      "locations": "locate/en-US.json!domains.mixer.section.subMix\nlocate/ja-JP.json!domains.mixer.section.subMix\nlocate/ko-KR.json!domains.mixer.section.subMix\nlocate/zh-CN.json!domains.mixer.section.subMix\nsrc/ui/src/MixerWindow.cpp:2638\nsrc/ui/src/MixerWindow.cpp:2676\nsrc/ui/src/MixerWindow.cpp:2681",
+      "placeholders": "",
+      "layout": "原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName",
+      "translation_status": "未实施（S0 清单）",
+      "semantic_review": "Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校"
+    }
+  ],
+  "catalog_retired": [
+    {
+      "domain": "mixer",
+      "key": "mixerwindow.section.busMonitorMaster",
+      "sources": "[\"Sub Mix/Monitor/Master\"]"
+    },
+    {
+      "domain": "mixer",
+      "key": "mixerwindow.section.inputs",
+      "sources": "[\"Inputs\"]"
+    }
+  ],
+  "catalog_changed_sources": [
+    {
+      "before": {
+        "domain": "mixer",
+        "key": "section.subMonitorMaster",
+        "sources": "[\"Sub Mix/Monitor/Master\", \"Sub Mix/モニター/マスター\", \"Sub Mix/모니터/마스터\"]"
+      },
+      "after": {
+        "domain": "mixer",
+        "key": "section.subMonitorMaster",
+        "sources": "[\"Sub Mix/Monitor/Master\", \"サブミックス/モニター/マスター\", \"分组混音/监听/主控\", \"서브 믹스/모니터/마스터\"]",
+        "locations": "locate/en-US.json!domains.mixer.section.subMonitorMaster\nlocate/ja-JP.json!domains.mixer.section.subMonitorMaster\nlocate/ko-KR.json!domains.mixer.section.subMonitorMaster\nlocate/zh-CN.json!domains.mixer.section.subMonitorMaster\nsrc/ui/src/MixerWindow.cpp:2463\nsrc/ui/src/MixerWindow.cpp:2466",
+        "placeholders": "",
+        "layout": "原生菜单/共享布局按字体测量；保留编辑值、焦点与完整 accessibleName",
+        "translation_status": "未实施（S0 清单）",
+        "semantic_review": "Gate/Limiter 疑点见 S0-glossary/identity-risks；其它按调用上下文；译文仍需领域/母语审校"
+      }
+    }
+  ]
+}
