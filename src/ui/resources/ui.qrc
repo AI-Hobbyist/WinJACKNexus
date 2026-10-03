@@ -4,9 +4,15 @@
 <RCC>
     <qresource prefix="/WinJACKNexus/UI">
         <file>themes/dark-rack.qss</file>
+        <file alias="i18n/en-US.json">../../../locate/en-US.json</file>
+        <file alias="i18n/manifest.json">../../../locate/manifest.json</file>
         <file>themes/light-console.qss</file>
         <file alias="themes/v1-registry.json">../../../Docs/Theme-v1-Registry.json</file>
         <file>icons/plus.svg</file>
+        <file>icons/pin.svg</file>
+        <file>icons/hide.svg</file>
+        <file>icons/theme.svg</file>
+        <file>icons/copy.svg</file>
         <file>icons/settings.svg</file>
         <file alias="icons/WinJACKNexus.png">../../../ico/WinJACKNexus.png</file>
     </qresource>

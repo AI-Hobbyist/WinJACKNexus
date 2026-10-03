@@ -1,0 +1,14 @@
+{
+  "formatVersion": 1,
+  "catalogVersion": 1,
+  "moduleId": "example-gain",
+  "language": "ko-KR",
+  "domains": {
+    "example.nativefx": {
+      "name": "게인 예제",
+      "gain": "게인",
+      "channel": "채널",
+      "all": "전체"
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "formatVersion": 1,
+  "catalogVersion": 1,
+  "moduleId": "example-gain",
+  "language": "ja-JP",
+  "domains": {
+    "example.nativefx": {
+      "name": "ゲインのサンプル",
+      "gain": "ゲイン",
+      "channel": "チャンネル",
+      "all": "すべて"
+    }
+  }
+}

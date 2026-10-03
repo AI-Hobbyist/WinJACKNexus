@@ -48,7 +48,7 @@ ApplicationSettings& ApplicationSettings::instance()
 
 ApplicationSettings::ApplicationSettings()
 {
-    QSettings settings(QStringLiteral("WinJACKNexus"), QStringLiteral("Application"));
+    QSettings settings(QSettings::defaultFormat(), QSettings::UserScope, QStringLiteral("WinJACKNexus"), QStringLiteral("Application"));
     frameRate_ = normalizedFrameRate(settings.value(QStringLiteral("frameRate"), defaultFrameRate).toInt());
     peakValueRefreshMilliseconds_ = std::clamp(
         settings.value(QStringLiteral("peakValueRefreshMilliseconds"), 50).toInt(), 8, 1000);
@@ -64,7 +64,7 @@ int ApplicationSettings::frameRate() const noexcept
 void ApplicationSettings::setFrameRate(int framesPerSecond)
 {
     const auto normalizedRate = normalizedFrameRate(framesPerSecond);
-    QSettings settings(QStringLiteral("WinJACKNexus"), QStringLiteral("Application"));
+    QSettings settings(QSettings::defaultFormat(), QSettings::UserScope, QStringLiteral("WinJACKNexus"), QStringLiteral("Application"));
     settings.setValue(QStringLiteral("frameRate"), normalizedRate);
     if (frameRate_ == normalizedRate)
         return;
@@ -82,7 +82,7 @@ void ApplicationSettings::setPeakValueRefreshMilliseconds(int milliseconds)
     const auto normalized = std::clamp(milliseconds, 8, 1000);
     if (peakValueRefreshMilliseconds_ == normalized) return;
     peakValueRefreshMilliseconds_ = normalized;
-    QSettings(QStringLiteral("WinJACKNexus"), QStringLiteral("Application"))
+    QSettings(QSettings::defaultFormat(), QSettings::UserScope, QStringLiteral("WinJACKNexus"), QStringLiteral("Application"))
         .setValue(QStringLiteral("peakValueRefreshMilliseconds"), normalized);
     Q_EMIT peakValueRefreshMillisecondsChanged(normalized);
 }
@@ -97,7 +97,7 @@ void ApplicationSettings::setPeakHoldSeconds(double seconds)
     const auto normalized = std::isfinite(seconds) ? std::clamp(seconds, 0.0, 10.0) : 1.0;
     if (peakHoldSeconds_ == normalized) return;
     peakHoldSeconds_ = normalized;
-    QSettings(QStringLiteral("WinJACKNexus"), QStringLiteral("Application"))
+    QSettings(QSettings::defaultFormat(), QSettings::UserScope, QStringLiteral("WinJACKNexus"), QStringLiteral("Application"))
         .setValue(QStringLiteral("peakHoldSeconds"), normalized);
     Q_EMIT peakHoldSecondsChanged(normalized);
 }

@@ -1,0 +1,23 @@
+{
+  "formatVersion": 1,
+  "moduleId": "example-gain",
+  "domains": [
+    "example.nativefx"
+  ],
+  "defaultLanguage": "en-US",
+  "catalogVersion": 1,
+  "languages": {
+    "en-US": "en-US.json",
+    "zh-CN": "zh-CN.json",
+    "ja-JP": "ja-JP.json",
+    "ko-KR": "ko-KR.json"
+  },
+  "requiredKeys": {
+    "example.nativefx": [
+      "name",
+      "gain",
+      "channel",
+      "all"
+    ]
+  }
+}

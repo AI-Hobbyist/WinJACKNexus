@@ -1,0 +1,90 @@
+{
+  "stage": "S1",
+  "date": "2026-10-03",
+  "result": "PASS",
+  "configuration": "Release",
+  "test": "i18n_contract_tests",
+  "test_assertions_including_fixture_checks": 201,
+  "packages": [
+    {
+      "root": "locate",
+      "moduleId": "winjacknexus-host",
+      "languages": [
+        "en-US",
+        "zh-CN",
+        "ja-JP",
+        "ko-KR"
+      ],
+      "english_keys": 216
+    },
+    {
+      "root": "Develop/Node/locate",
+      "moduleId": "example-node",
+      "languages": [
+        "en-US",
+        "zh-CN",
+        "ja-JP",
+        "ko-KR"
+      ],
+      "english_keys": 3
+    },
+    {
+      "root": "Develop/NativeFx/locate",
+      "moduleId": "example-gain",
+      "languages": [
+        "en-US",
+        "zh-CN",
+        "ja-JP",
+        "ko-KR"
+      ],
+      "english_keys": 4
+    }
+  ],
+  "source_hashes": {
+    "Develop/CMakeLists.txt": "784bbae8305ba71265d4b9316208d31418dd8c3923d3f2399e30cb379c6f1935",
+    "Develop/I18nCAbi.c": "6bf594486eb563f11081d4db26d2f25dd1012a3b1740e87bd3121d3ebae72c0e",
+    "Develop/I18nExample.hpp": "1f2e0785470cfe03eaf57e0152aad6204b96ceffa6210bacb926cb19797194c9",
+    "Develop/I18nTests.cpp": "069f1c5f517cf1815e829370e397fd2c9ad5a65d06fefd3947339844a109beb0",
+    "Develop/NativeFx/ExampleNativeFx.cpp": "272a1d9205e7e70ffa6360062c731484ab191c2102066874ce486ed13808c784",
+    "Develop/NativeFx/locate/en-US.json": "67af3cdf28b17064b2d8754615721c02d0bd9ee3da35be6bb5b8de4277fc4b91",
+    "Develop/NativeFx/locate/ja-JP.json": "81819ab9dddac6bd03164441e9d75c343eb8f49ee340f9abbb31b3608a58f863",
+    "Develop/NativeFx/locate/ko-KR.json": "fd5ba8119a4f6ffd9d01599a46d5d4660df6e8b583e45aa16843999440f1b782",
+    "Develop/NativeFx/locate/manifest.json": "89606464e340d208e1cec965f14205dac597c6ccde3c3a8113582f0b2bb3d454",
+    "Develop/NativeFx/locate/zh-CN.json": "49b92259acb26c1de19a26aeca6c985d2d46e473e7d8233e688275fdd544388b",
+    "Develop/Node/ExampleNode.cpp": "a008b0f6eac12e3ae8411938c178590a9430f9a33836423fb6f449dcd87b7c44",
+    "Develop/Node/locate/en-US.json": "dbade963e8826e33e2a8335e4cd505de89a05002edb880c7488e9eb7eb87f1c7",
+    "Develop/Node/locate/ja-JP.json": "55cc908b1430546213975a35b0871c292f16c53a748b1e31efd7360b6ae40f37",
+    "Develop/Node/locate/ko-KR.json": "4fab617c01cddd49a4e81d19e2f12c999478e6658093196de9a8bf363852111d",
+    "Develop/Node/locate/manifest.json": "5f8a760e24a5cf89ad6b33ac80a6b1bff3511902503fc26c7b673d439223b904",
+    "Develop/Node/locate/zh-CN.json": "bf04d64323a4382918720dbab98c4fb7710213d65aac38255174738e986ee0b7",
+    "Docs/i18n/schema/catalog.schema.json": "6ecae38fd58dc418995313f49ab7fb05317356193d36edfd1c872bc234887f2d",
+    "Docs/i18n/schema/descriptor.schema.json": "ea194d78d565d0aaf4af369a52028dc7800776efc258d8873c8a7644f2c4c870",
+    "Docs/i18n/schema/manifest.schema.json": "453b44541fcbb33ed66c4cca40070ec1a783faa6593c48fb3908150515d16743",
+    "locate/en-US.json": "7aa8362b9b1e4f7e637179a8829e724c1a7ce8a21dec7b63d809dc6ac7983e74",
+    "locate/ja-JP.json": "12d1c9f5b490cc55c34f57efa8ac04400ae9aa53054be00b023af8bda68332ce",
+    "locate/ko-KR.json": "d3e8e64a7b2eec0ad6883c95148ec39cf2f914a811edf1013f7de79f781544ec",
+    "locate/manifest.json": "147e7e3661e4d2ca651e50cd466422e090fa913d5a5d379d99badcf4694860d9",
+    "locate/zh-CN.json": "9ddd5451c8e1d06552f0535ee185308ea1af795f4fa4e3bcc6d190ac2f6ecb86",
+    "src/common/include/WinJACKNexus/Common/I18nApi.h": "ba5f89acd74ebc3ecaddb96835d8c79301aac0b3e1c18e679f0acf86abd06909",
+    "src/native_fx/CMakeLists.txt": "5eac9e1656abdd293748b0c646a37f2da87d18a075c45edacacc648243c34ea3",
+    "src/native_fx/include/WinJACKNexus/NativeFx/NativeFxApi.h": "088fc928922a019f292a5486c00165e3b12316f9be327be3d29a2f2159d05fa4",
+    "src/node/CMakeLists.txt": "825a11133e8f97db61dc3975b67543cc2a38a64902d8aa6c86356a2628125077",
+    "src/node/include/WinJACKNexus/Node/NodeApi.h": "6ec93b74a0ee0462cd7991a5997b500a6224798b3107938d55f64941b60d27ea",
+    "src/ui/CMakeLists.txt": "6d4ee607eac8b5a1989578ffb27c8d1143db3914219abaeaab488fd05be1307c",
+    "src/ui/include/WinJACKNexus/UI/I18nManager.hpp": "7b96d00d11868a7a15a1cc8ec6f9e8af608f51b8aee91285c45b09f635b0a472",
+    "src/ui/resources/ui.qrc": "c3a03a8de53dad1e2ac8a32e1d795cfcd860bf48ff95e8e8c298dd434e8702a8",
+    "src/ui/src/I18nManager.cpp": "934ba732ad220d064d25599764e171edfe9253eb5900e74d5e6a128816a6a563"
+  },
+  "artifact_hashes": {
+    "build/release/bin/ui.dll": "0dd4ae1fcebcd947c52f9e1ef7024fbeb4bf26544123e584b8310d2701e23a1e",
+    "build/release/bin/node.dll": "807753fa7cf89187721a8aa372dc8e1c4febdc64486f3ed2acea549a01289de7",
+    "build/release/bin/examples/node/wjn_example_node.dll": "bb7d13eaf3503e1fba68d3caaeca91e3e8a98f0898d0c6a5ba94c9cb54b80981",
+    "build/release/bin/examples/native_fx/wjn_example_native_fx.dll": "34e25fb5e2de5f5d8fce56c5a519a1f25272c3e5bb9a037363cb6e005a54cb2c",
+    "build/release/bin/wjn_i18n_tests.exe": "34d9e3fcfaf1647fa1b8740bae3db4d886aba69c44e3674ff97060479893a533"
+  },
+  "limits": [
+    "S1 core and example verification; production window migration remains S2-S6.",
+    "Example translations await human review; English fallback is not a completed translation.",
+    "No JACK server or running application was used."
+  ]
+}

@@ -1,0 +1,1938 @@
+{
+  "date": "2026-10-03",
+  "changed_files": [
+    "src/patchbay/mod/src/PatchbayCanvas.cpp"
+  ],
+  "resource_changes": [],
+  "before_occurrences": 8110,
+  "after_occurrences": 8110,
+  "added": [],
+  "removed": [],
+  "relocated": [
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": " ",
+      "before_lines": [
+        "3038",
+        "3042"
+      ],
+      "after_lines": [
+        3036,
+        3040
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": " %1",
+      "before_lines": [
+        "1019"
+      ],
+      "after_lines": [
+        1017
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "#101820",
+      "before_lines": [
+        "784"
+      ],
+      "after_lines": [
+        782
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "#43c7a8",
+      "before_lines": [
+        "767",
+        "793"
+      ],
+      "after_lines": [
+        765,
+        791
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "#4b5f73",
+      "before_lines": [
+        "783"
+      ],
+      "after_lines": [
+        781
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "#81d4fa",
+      "before_lines": [
+        "788"
+      ],
+      "after_lines": [
+        786
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "-",
+      "before_lines": [
+        "1009",
+        "1017"
+      ],
+      "after_lines": [
+        1007,
+        1015
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": ".vst3",
+      "before_lines": [
+        "1142"
+      ],
+      "after_lines": [
+        1140
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "/input",
+      "before_lines": [
+        "1105",
+        "1741"
+      ],
+      "after_lines": [
+        1103,
+        1739
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "/interface-",
+      "before_lines": [
+        "1009",
+        "1017"
+      ],
+      "after_lines": [
+        1007,
+        1015
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "/output",
+      "before_lines": [
+        "1106",
+        "1742"
+      ],
+      "after_lines": [
+        1104,
+        1740
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": ":/patchbay/theme/style.css",
+      "before_lines": [
+        "2211"
+      ],
+      "after_lines": [
+        2209
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "Center on node",
+      "before_lines": [
+        "2450"
+      ],
+      "after_lines": [
+        2448
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "Copy node",
+      "before_lines": [
+        "2462"
+      ],
+      "after_lines": [
+        2460
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "Copy selected nodes",
+      "before_lines": [
+        "2425"
+      ],
+      "after_lines": [
+        2423
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "Delete node",
+      "before_lines": [
+        "2463"
+      ],
+      "after_lines": [
+        2461
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "Delete selected nodes",
+      "before_lines": [
+        "2426"
+      ],
+      "after_lines": [
+        2424
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "Disconnect",
+      "before_lines": [
+        "2399"
+      ],
+      "after_lines": [
+        2397
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "Disconnect all",
+      "before_lines": [
+        "2456"
+      ],
+      "after_lines": [
+        2454
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "Display name",
+      "before_lines": [
+        "2513"
+      ],
+      "after_lines": [
+        2511
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "Fit all nodes",
+      "before_lines": [
+        "2602"
+      ],
+      "after_lines": [
+        2600
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "Interface name",
+      "before_lines": [
+        "2486"
+      ],
+      "after_lines": [
+        2484
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "Paste nodes",
+      "before_lines": [
+        "2427",
+        "2606"
+      ],
+      "after_lines": [
+        2425,
+        2604
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "Patchbay",
+      "before_lines": [
+        "686"
+      ],
+      "after_lines": [
+        684
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "Rename node",
+      "before_lines": [
+        "2451",
+        "2513"
+      ],
+      "after_lines": [
+        2449,
+        2511
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "Rename subgraph",
+      "before_lines": [
+        "2476"
+      ],
+      "after_lines": [
+        2474
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "Rename subgraph interface",
+      "before_lines": [
+        "2486"
+      ],
+      "after_lines": [
+        2484
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "Reset zoom",
+      "before_lines": [
+        "2603"
+      ],
+      "after_lines": [
+        2601
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "Show module GUI",
+      "before_lines": [
+        "2465"
+      ],
+      "after_lines": [
+        2463
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "Split/join group",
+      "before_lines": [
+        "2454"
+      ],
+      "after_lines": [
+        2452
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "Sub Graph",
+      "before_lines": [
+        "863"
+      ],
+      "after_lines": [
+        861
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "Sub Graph Audio In",
+      "before_lines": [
+        "990"
+      ],
+      "after_lines": [
+        988
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "Sub Graph Audio Out",
+      "before_lines": [
+        "994"
+      ],
+      "after_lines": [
+        992
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "Sub Graph MIDI In",
+      "before_lines": [
+        "998"
+      ],
+      "after_lines": [
+        996
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "Sub Graph MIDI Out",
+      "before_lines": [
+        "1002"
+      ],
+      "after_lines": [
+        1000
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "Subgraph",
+      "before_lines": [
+        "866"
+      ],
+      "after_lines": [
+        864
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "Subgraph name",
+      "before_lines": [
+        "2476"
+      ],
+      "after_lines": [
+        2474
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "Subgraph {number}",
+      "before_lines": [
+        "867"
+      ],
+      "after_lines": [
+        865
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "WinJACKNexus",
+      "before_lines": [
+        "686",
+        "1203"
+      ],
+      "after_lines": [
+        684,
+        1201
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "WinJACKNexus-Patchbay",
+      "before_lines": [
+        "1519"
+      ],
+      "after_lines": [
+        1517
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "action.center",
+      "before_lines": [
+        "2450"
+      ],
+      "after_lines": [
+        2448
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "action.copy",
+      "before_lines": [
+        "2462"
+      ],
+      "after_lines": [
+        2460
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "action.copySelected",
+      "before_lines": [
+        "2425"
+      ],
+      "after_lines": [
+        2423
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "action.disconnect",
+      "before_lines": [
+        "2399"
+      ],
+      "after_lines": [
+        2397
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "action.disconnectAll",
+      "before_lines": [
+        "2456"
+      ],
+      "after_lines": [
+        2454
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "action.fitAll",
+      "before_lines": [
+        "2602"
+      ],
+      "after_lines": [
+        2600
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "action.paste",
+      "before_lines": [
+        "2427",
+        "2606"
+      ],
+      "after_lines": [
+        2425,
+        2604
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "action.remove",
+      "before_lines": [
+        "2463"
+      ],
+      "after_lines": [
+        2461
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "action.removeSelected",
+      "before_lines": [
+        "2426"
+      ],
+      "after_lines": [
+        2424
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "action.rename",
+      "before_lines": [
+        "2451",
+        "2513"
+      ],
+      "after_lines": [
+        2449,
+        2511
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "action.resetZoom",
+      "before_lines": [
+        "2603"
+      ],
+      "after_lines": [
+        2601
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "action.showGui",
+      "before_lines": [
+        "2465"
+      ],
+      "after_lines": [
+        2463
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "action.splitJoin",
+      "before_lines": [
+        "2454"
+      ],
+      "after_lines": [
+        2452
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "alias",
+      "before_lines": [
+        "1060",
+        "1076",
+        "1267",
+        "1285"
+      ],
+      "after_lines": [
+        1058,
+        1074,
+        1265,
+        1283
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "alive",
+      "before_lines": [
+        "1066",
+        "1080",
+        "1089",
+        "1189",
+        "1273",
+        "1289",
+        "1300",
+        "1384"
+      ],
+      "after_lines": [
+        1064,
+        1078,
+        1087,
+        1187,
+        1271,
+        1287,
+        1298,
+        1382
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "app",
+      "before_lines": [
+        "1203"
+      ],
+      "after_lines": [
+        1201
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "arguments",
+      "before_lines": [
+        "741",
+        "1706"
+      ],
+      "after_lines": [
+        739,
+        1704
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "audio_in",
+      "before_lines": [
+        "987"
+      ],
+      "after_lines": [
+        985
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "audio_out",
+      "before_lines": [
+        "991"
+      ],
+      "after_lines": [
+        989
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "bits",
+      "before_lines": [
+        "1131"
+      ],
+      "after_lines": [
+        1129
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "box-selection-border",
+      "before_lines": [
+        "767"
+      ],
+      "after_lines": [
+        765
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "box-selection-fill",
+      "before_lines": [
+        "768"
+      ],
+      "after_lines": [
+        766
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "button-border",
+      "before_lines": [
+        "2219"
+      ],
+      "after_lines": [
+        2217
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "button-hover",
+      "before_lines": [
+        "2219"
+      ],
+      "after_lines": [
+        2217
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "canvas.inputGroup",
+      "before_lines": [
+        "1751"
+      ],
+      "after_lines": [
+        1749
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "canvas.outputGroup",
+      "before_lines": [
+        "1754"
+      ],
+      "after_lines": [
+        1752
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "canvas.systemCapture",
+      "before_lines": [
+        "1754"
+      ],
+      "after_lines": [
+        1752
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "canvas.systemPlayback",
+      "before_lines": [
+        "1751"
+      ],
+      "after_lines": [
+        1749
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "client",
+      "before_lines": [
+        "1074",
+        "1124",
+        "1281",
+        "1324"
+      ],
+      "after_lines": [
+        1072,
+        1122,
+        1279,
+        1322
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "clientName",
+      "before_lines": [
+        "1146",
+        "1146"
+      ],
+      "after_lines": [
+        1144,
+        1144
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "clients",
+      "before_lines": [
+        "1204",
+        "1260"
+      ],
+      "after_lines": [
+        1202,
+        1258
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "color",
+      "before_lines": [
+        "272",
+        "278",
+        "280",
+        "626",
+        "2771",
+        "2875"
+      ],
+      "after_lines": [
+        272,
+        278,
+        280,
+        624,
+        2769,
+        2873
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "connections",
+      "before_lines": [
+        "1197",
+        "1206",
+        "1293",
+        "1379"
+      ],
+      "after_lines": [
+        1195,
+        1204,
+        1291,
+        1377
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "context",
+      "before_lines": [
+        "1126",
+        "1149",
+        "1193",
+        "1313",
+        "1352"
+      ],
+      "after_lines": [
+        1124,
+        1147,
+        1191,
+        1311,
+        1350
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "dark",
+      "before_lines": [
+        "230",
+        "2217"
+      ],
+      "after_lines": [
+        230,
+        2215
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "destination",
+      "before_lines": [
+        "1088",
+        "1188",
+        "1297",
+        "1383"
+      ],
+      "after_lines": [
+        1086,
+        1186,
+        1295,
+        1381
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "dialog.renameInterface",
+      "before_lines": [
+        "2486"
+      ],
+      "after_lines": [
+        2484
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "dialog.renameSubgraph",
+      "before_lines": [
+        "2476"
+      ],
+      "after_lines": [
+        2474
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "direction",
+      "before_lines": [
+        "1078",
+        "1161",
+        "1287",
+        "1342"
+      ],
+      "after_lines": [
+        1076,
+        1159,
+        1285,
+        1340
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "english",
+      "before_lines": [
+        "741",
+        "1706"
+      ],
+      "after_lines": [
+        739,
+        1704
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "externalPort",
+      "before_lines": [
+        "1157",
+        "1338"
+      ],
+      "after_lines": [
+        1155,
+        1336
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "graph.defaultName",
+      "before_lines": [
+        "866"
+      ],
+      "after_lines": [
+        864
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "graph.name",
+      "before_lines": [
+        "2476"
+      ],
+      "after_lines": [
+        2474
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "graph.numberedName",
+      "before_lines": [
+        "867"
+      ],
+      "after_lines": [
+        865
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "hover",
+      "before_lines": [
+        "626"
+      ],
+      "after_lines": [
+        624
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "icon",
+      "before_lines": [
+        "1061",
+        "1268"
+      ],
+      "after_lines": [
+        1059,
+        1266
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "id",
+      "before_lines": [
+        "1058",
+        "1073",
+        "1155",
+        "1174",
+        "1263",
+        "1280",
+        "1336",
+        "1360"
+      ],
+      "after_lines": [
+        1056,
+        1071,
+        1153,
+        1172,
+        1261,
+        1278,
+        1334,
+        1358
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "index",
+      "before_lines": [
+        "1123",
+        "1141",
+        "1311"
+      ],
+      "after_lines": [
+        1121,
+        1139,
+        1309
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "interface.name",
+      "before_lines": [
+        "2486"
+      ],
+      "after_lines": [
+        2484
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "interfaces",
+      "before_lines": [
+        "1178",
+        "1196",
+        "1365",
+        "1373"
+      ],
+      "after_lines": [
+        1176,
+        1194,
+        1363,
+        1371
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "internalPlugin",
+      "before_lines": [
+        "1145",
+        "1145"
+      ],
+      "after_lines": [
+        1143,
+        1143
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "invalid",
+      "before_lines": [
+        "281",
+        "2772",
+        "2876"
+      ],
+      "after_lines": [
+        281,
+        2770,
+        2874
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "key",
+      "before_lines": [
+        "740",
+        "1098",
+        "1401",
+        "1706"
+      ],
+      "after_lines": [
+        738,
+        1096,
+        1399,
+        1704
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "kind",
+      "before_lines": [
+        "1077",
+        "1160",
+        "1286",
+        "1341"
+      ],
+      "after_lines": [
+        1075,
+        1158,
+        1284,
+        1339
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "layout/%1/split",
+      "before_lines": [
+        "1397",
+        "1666",
+        "1667",
+        "1948",
+        "2527"
+      ],
+      "after_lines": [
+        1395,
+        1664,
+        1665,
+        1946,
+        2525
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "layout/%1/x",
+      "before_lines": [
+        "1096",
+        "1395",
+        "1404",
+        "1662",
+        "1663",
+        "1744",
+        "3075",
+        "3088"
+      ],
+      "after_lines": [
+        1094,
+        1393,
+        1402,
+        1660,
+        1661,
+        1742,
+        3073,
+        3086
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "layout/%1/y",
+      "before_lines": [
+        "1097",
+        "1396",
+        "1405",
+        "1664",
+        "1745",
+        "3076",
+        "3089"
+      ],
+      "after_lines": [
+        1095,
+        1394,
+        1403,
+        1662,
+        1743,
+        3074,
+        3087
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "layouts",
+      "before_lines": [
+        "1207",
+        "1399"
+      ],
+      "after_lines": [
+        1205,
+        1397
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "light",
+      "before_lines": [
+        "230",
+        "2217"
+      ],
+      "after_lines": [
+        230,
+        2215
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "main",
+      "before_lines": [
+        "1313",
+        "1354"
+      ],
+      "after_lines": [
+        1311,
+        1352
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "meterbridgeWindow",
+      "before_lines": [
+        "1216",
+        "1217",
+        "1217",
+        "1258",
+        "1258"
+      ],
+      "after_lines": [
+        1214,
+        1215,
+        1215,
+        1256,
+        1256
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "meters",
+      "before_lines": [
+        "1215",
+        "1215",
+        "1257",
+        "1257"
+      ],
+      "after_lines": [
+        1213,
+        1213,
+        1255,
+        1255
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "midi_in",
+      "before_lines": [
+        "995"
+      ],
+      "after_lines": [
+        993
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "midi_out",
+      "before_lines": [
+        "999"
+      ],
+      "after_lines": [
+        997
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "mixers",
+      "before_lines": [
+        "1211"
+      ],
+      "after_lines": [
+        1209
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "mod_vst_host",
+      "before_lines": [
+        "1129"
+      ],
+      "after_lines": [
+        1127
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "modulePath",
+      "before_lines": [
+        "1140",
+        "1329",
+        "1331"
+      ],
+      "after_lines": [
+        1138,
+        1327,
+        1329
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "modules",
+      "before_lines": [
+        "1208",
+        "1323"
+      ],
+      "after_lines": [
+        1206,
+        1321
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "name",
+      "before_lines": [
+        "1059",
+        "1075",
+        "1159",
+        "1175",
+        "1264",
+        "1282",
+        "1340",
+        "1361",
+        "1749"
+      ],
+      "after_lines": [
+        1057,
+        1073,
+        1157,
+        1173,
+        1262,
+        1280,
+        1338,
+        1359,
+        1747
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "node",
+      "before_lines": [
+        "234",
+        "1139",
+        "1331"
+      ],
+      "after_lines": [
+        234,
+        1137,
+        1329
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "node-port-label-audio-background",
+      "before_lines": [
+        "480"
+      ],
+      "after_lines": [
+        481
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "node-port-label-audio-text",
+      "before_lines": [
+        "487"
+      ],
+      "after_lines": [
+        488
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "node-port-label-background",
+      "before_lines": [
+        "482"
+      ],
+      "after_lines": [
+        483
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "node-port-label-midi-background",
+      "before_lines": [
+        "481"
+      ],
+      "after_lines": [
+        482
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "node-port-label-midi-text",
+      "before_lines": [
+        "488"
+      ],
+      "after_lines": [
+        489
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "node-port-label-text",
+      "before_lines": [
+        "486",
+        "489"
+      ],
+      "after_lines": [
+        487,
+        490
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "node-port-separator",
+      "before_lines": [
+        "472"
+      ],
+      "after_lines": [
+        473
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "node.displayName",
+      "before_lines": [
+        "2513"
+      ],
+      "after_lines": [
+        2511
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "nodes",
+      "before_lines": [
+        "1195",
+        "1357"
+      ],
+      "after_lines": [
+        1193,
+        1355
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "number",
+      "before_lines": [
+        "867"
+      ],
+      "after_lines": [
+        865
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "ordinal",
+      "before_lines": [
+        "1079",
+        "1288"
+      ],
+      "after_lines": [
+        1077,
+        1286
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "overview-border",
+      "before_lines": [
+        "783"
+      ],
+      "after_lines": [
+        781
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "overview-node",
+      "before_lines": [
+        "788"
+      ],
+      "after_lines": [
+        786
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "overview-surface",
+      "before_lines": [
+        "784"
+      ],
+      "after_lines": [
+        782
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "overview-viewport",
+      "before_lines": [
+        "793"
+      ],
+      "after_lines": [
+        791
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "patchbay",
+      "before_lines": [
+        "74",
+        "79",
+        "248",
+        "752",
+        "760",
+        "1850",
+        "2188"
+      ],
+      "after_lines": [
+        74,
+        79,
+        248,
+        750,
+        758,
+        1848,
+        2186
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "path",
+      "before_lines": [
+        "1122",
+        "1130",
+        "1137",
+        "1140",
+        "1144",
+        "1324"
+      ],
+      "after_lines": [
+        1120,
+        1128,
+        1135,
+        1138,
+        1142,
+        1322
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "port",
+      "before_lines": [
+        "1156",
+        "1337"
+      ],
+      "after_lines": [
+        1154,
+        1335
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "portDisplayMode",
+      "before_lines": [
+        "1147",
+        "1147"
+      ],
+      "after_lines": [
+        1145,
+        1145
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "ports",
+      "before_lines": [
+        "1205",
+        "1277"
+      ],
+      "after_lines": [
+        1203,
+        1275
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "selected",
+      "before_lines": [
+        "282",
+        "625"
+      ],
+      "after_lines": [
+        282,
+        623
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "settings",
+      "before_lines": [
+        "1125",
+        "1148",
+        "1318"
+      ],
+      "after_lines": [
+        1123,
+        1146,
+        1316
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "settingsBase64",
+      "before_lines": [
+        "1317"
+      ],
+      "after_lines": [
+        1315
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "source",
+      "before_lines": [
+        "1087",
+        "1187",
+        "1296",
+        "1382"
+      ],
+      "after_lines": [
+        1085,
+        1185,
+        1294,
+        1380
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "split",
+      "before_lines": [
+        "1065",
+        "1272"
+      ],
+      "after_lines": [
+        1063,
+        1270
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "subgraph-",
+      "before_lines": [
+        "854"
+      ],
+      "after_lines": [
+        852
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "subgraphs",
+      "before_lines": [
+        "1210",
+        "1349"
+      ],
+      "after_lines": [
+        1208,
+        1347
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "surface-window",
+      "before_lines": [
+        "2187"
+      ],
+      "after_lines": [
+        2185
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "switches",
+      "before_lines": [
+        "1212"
+      ],
+      "after_lines": [
+        1210
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "system",
+      "before_lines": [
+        "1659",
+        "1668",
+        "1748"
+      ],
+      "after_lines": [
+        1657,
+        1666,
+        1746
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "system capture",
+      "before_lines": [
+        "1754"
+      ],
+      "after_lines": [
+        1752
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "system playback",
+      "before_lines": [
+        "1751"
+      ],
+      "after_lines": [
+        1749
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "text",
+      "before_lines": [
+        "79",
+        "235",
+        "2219"
+      ],
+      "after_lines": [
+        79,
+        235,
+        2217
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "title",
+      "before_lines": [
+        "1194",
+        "1353"
+      ],
+      "after_lines": [
+        1192,
+        1351
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "toolbar",
+      "before_lines": [
+        "2219"
+      ],
+      "after_lines": [
+        2217
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "toolbar-border",
+      "before_lines": [
+        "2219"
+      ],
+      "after_lines": [
+        2217
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "type",
+      "before_lines": [
+        "1142",
+        "1158",
+        "1339"
+      ],
+      "after_lines": [
+        1140,
+        1156,
+        1337
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "uri",
+      "before_lines": [
+        "1062",
+        "1269"
+      ],
+      "after_lines": [
+        1060,
+        1267
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "version",
+      "before_lines": [
+        "1202",
+        "1250"
+      ],
+      "after_lines": [
+        1200,
+        1248
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "vst2",
+      "before_lines": [
+        "1143"
+      ],
+      "after_lines": [
+        1141
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "vst3",
+      "before_lines": [
+        "1143"
+      ],
+      "after_lines": [
+        1141
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "vsts",
+      "before_lines": [
+        "1209",
+        "1327"
+      ],
+      "after_lines": [
+        1207,
+        1325
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "window",
+      "before_lines": [
+        "2219"
+      ],
+      "after_lines": [
+        2217
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "x",
+      "before_lines": [
+        "1063",
+        "1099",
+        "1162",
+        "1176",
+        "1270",
+        "1343",
+        "1362",
+        "1404"
+      ],
+      "after_lines": [
+        1061,
+        1097,
+        1160,
+        1174,
+        1268,
+        1341,
+        1360,
+        1402
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "y",
+      "before_lines": [
+        "1064",
+        "1100",
+        "1163",
+        "1177",
+        "1271",
+        "1343",
+        "1362",
+        "1405"
+      ],
+      "after_lines": [
+        1062,
+        1098,
+        1161,
+        1175,
+        1269,
+        1341,
+        1360,
+        1403
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "{name} · Inputs",
+      "before_lines": [
+        "1751"
+      ],
+      "after_lines": [
+        1749
+      ]
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "{name} · Outputs",
+      "before_lines": [
+        "1754"
+      ],
+      "after_lines": [
+        1752
+      ]
+    }
+  ],
+  "usage_changed": [
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "literal": "node-title-text",
+      "before": [
+        {
+          "id": "s0.922136055975",
+          "domain": "patchbay",
+          "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+          "line": "466",
+          "literal": "node-title-text",
+          "context": "title, titleFont, color(QStringLiteral(\"node-title-text\"), theme.text), Qt::AlignVCenter | Qt::AlignLeft);",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        }
+      ],
+      "after": [
+        {
+          "id": "s0.922136055975",
+          "domain": "patchbay",
+          "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+          "line": 467,
+          "literal": "node-title-text",
+          "context": "titleFont, color(QStringLiteral(\"node-title-text\"), theme.text), Qt::AlignVCenter | Qt::AlignLeft);",
+          "evidence_class": "ui-context-review",
+          "disposition": "pending",
+          "proposed_key": "",
+          "notes": ""
+        }
+      ]
+    }
+  ],
+  "catalog_added": [],
+  "catalog_retired": [],
+  "catalog_changed_sources": []
+}

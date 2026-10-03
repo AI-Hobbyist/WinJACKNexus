@@ -5,6 +5,7 @@
 #include <WinJACKNexus/Audio/JackGraph.hpp>
 #include <WinJACKNexus/Audio/JackPort.hpp>
 #include <WinJACKNexus/UI/Controls.hpp>
+#include "../I18nExample.hpp"
 
 #include <QFormLayout>
 #include <QJsonArray>
@@ -39,11 +40,14 @@ public:
         auto* layout = new QVBoxLayout(this);
         auto* group = new Controls::GroupPanel(QStringLiteral("Example Gain"), this);
         auto* form = new QFormLayout(group);
+        Controls::ChoiceField* selector = nullptr;
+        Controls::TextLabel* channelLabel = nullptr;
         if (standalone) {
-            auto* selector = new Controls::ChoiceField(group);
+            selector = new Controls::ChoiceField(group);
             selector->addItem(QStringLiteral("All"));
             for (const auto* name : channels) selector->addItem(QString::fromLatin1(name));
-            form->addRow(QStringLiteral("声道"), selector);
+            channelLabel = new Controls::TextLabel(QStringLiteral("Channel"), group);
+            form->addRow(channelLabel, selector);
             QObject::connect(selector, qOverload<int>(&QComboBox::currentIndexChanged), this,
                              [this](int index) { setChannel(index - 1); });
         }
@@ -51,11 +55,21 @@ public:
         gain_->setRange(0.0, 2.0);
         gain_->setSingleStep(0.05);
         gain_->setDecimals(2);
-        form->addRow(QStringLiteral("增益"), gain_);
+        auto* gainLabel = new Controls::TextLabel(QStringLiteral("Gain"), group);
+        form->addRow(gainLabel, gain_);
         QObject::connect(gain_, qOverload<double>(&QDoubleSpinBox::valueChanged), this,
                          [this](double value) { write_(channel_, static_cast<float>(value)); });
         layout->addWidget(group);
         setChannel(-1);
+        ExampleI18n::bind(this,[group,selector,channelLabel,gainLabel] {
+            group->setTitle(ExampleI18n::text("example.nativefx","name","Example Gain"));
+            gainLabel->setText(ExampleI18n::text("example.nativefx","gain","Gain"));
+            if (channelLabel) channelLabel->setText(ExampleI18n::text("example.nativefx","channel","Channel"));
+            if (selector) {
+                const QSignalBlocker block(selector);
+                selector->setItemText(0,ExampleI18n::text("example.nativefx","all","All"));
+            }
+        });
     }
 
     void setChannel(int channel) {
@@ -365,6 +379,14 @@ int wjn_fx_node_set_client_name(void* node, const char* utf8Name) {
     return effect && effect->setClientName(utf8Name) ? 1 : 0;
 }
 const char* wjn_get_node_api_version(void) { return "2"; }
+uint32_t wjn_fx_i18n_api_version(void) { return WJN_I18N_API_VERSION; }
+uint32_t wjn_get_node_i18n_api_version(void) { return WJN_I18N_API_VERSION; }
+const char* wjn_fx_i18n_descriptor_json(uint32_t index) {
+    return index==0 ? R"json({"descriptorVersion":1,"i18nApiVersion":1,
+        "moduleId":"example-gain","domains":["example.nativefx"],"locatePath":"locate","catalogVersion":1,
+        "displayNameKey":{"domain":"example.nativefx","key":"name"}})json" : nullptr;
+}
+const char* wjn_get_node_i18n_descriptor_json(uint32_t index) { return wjn_fx_i18n_descriptor_json(index); }
 uint32_t wjn_get_node_count(void) { return 1; }
 const char* wjn_get_node_name(uint32_t index) { return index == 0 ? "Example Gain" : ""; }
 const char* wjn_get_node_category(uint32_t index) { return index == 0 ? "Native Fx" : ""; }

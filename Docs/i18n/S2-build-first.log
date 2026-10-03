@@ -1,0 +1,336 @@
+CMake is re-running because D:/UserData/Desktop/Project/WinJACKNexus/build/src/ui/CMakeFiles/generate.stamp is out-of-date.
+  the file 'D:/UserData/Desktop/Project/WinJACKNexus/src/ui/CMakeLists.txt'
+  is newer than 'D:/UserData/Desktop/Project/WinJACKNexus/build/src/ui/CMakeFiles/generate.stamp.depend'
+  result='-1'
+-- Selecting Windows SDK version 10.0.26100.0 to target Windows 10.0.26200.
+-- Could NOT find WrapVulkanHeaders (missing: Vulkan_INCLUDE_DIR) 
+-- Could NOT find WrapVulkanHeaders (missing: Vulkan_INCLUDE_DIR) 
+-- Configuring done (1.3s)
+-- Generating done (3.3s)
+-- Build files have been written to: D:/UserData/Desktop/Project/WinJACKNexus/build
+适用于 .NET Framework MSBuild 版本 18.10.1-1.26427.6+3cd27c13e
+
+  Automatic MOC for target wjn_default_theme
+  node.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\node.dll
+  common.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\common.dll
+  audio.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\audio.dll
+  meterbridge_ui_model.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\lib\Release\meterbridge_ui_model.lib
+  wjn_default_theme.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\wjn_default_theme.dll
+  Automatic MOC for target ui
+  patchbay_core.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\patchbay_core.dll
+  2>Automatic RCC for qt-translations.qrc
+  1>Automatic RCC for resources/ui.qrc
+  Library.cpp
+  ApplicationSettings.cpp
+  I18nManager.cpp
+  HostI18n.cpp
+  AnimatedWidget.cpp
+  AuxSettingsWindow.cpp
+  FxSettingsWindow.cpp
+  FxLevelMeterWidget.cpp
+  HistoryChartWidget.cpp
+  Controls.cpp
+  HistoryLegendWidget.cpp
+  MetricReadout.cpp
+  MetricStatisticsWidget.cpp
+  MeterLevelBar.cpp
+  IconManager.cpp
+  MeterWidget.cpp
+  MixerWindow.cpp
+  MixerPolarPlot.cpp
+  NativeWindowUtils.cpp
+  PaintableWidget.cpp
+  正在生成代码...
+  正在编译...
+  ThemeManager.cpp
+  ThemeCore.cpp
+  ThemeCatalog.cpp
+  ThemeBackground.cpp
+  ThemeManagementDialog.cpp
+  ThemeNamespaceRegistry.cpp
+  ThemePackage.cpp
+  ThemePalette.cpp
+  TrayController.cpp
+  mocs_compilation_Release.cpp
+  qrc_ui_Release.cpp
+  qrc_qt-translations_Release.cpp
+  正在生成代码...
+    正在创建库 D:/UserData/Desktop/Project/WinJACKNexus/build/lib/ui.lib 和对象 D:/UserData/Desktop/Project/WinJACKNexus/build/lib/ui.exp
+  ui.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\ui.dll
+  Automatic MOC for target mod_patchbay
+  MeterCard.cpp
+  EffectGraph.cpp
+  Library.cpp
+  Library.cpp
+D:\UserData\Desktop\Project\WinJACKNexus\src\native_fx\include\WinJACKNexus\NativeFx\NativeFxApi.h(70,20): warning C4273: “wjn_i18n_attach_host”: dll 链接不一致 [D:\UserData\Desktop\Project\WinJACKNexus\build\src\patchbay\mod\mod_patchbay.vcxproj]
+  (编译源文件“../../../../src/patchbay/mod/src/Library.cpp”)
+      D:\UserData\Desktop\Project\WinJACKNexus\src\node\include\WinJACKNexus\Node\NodeApi.h(39,26):
+      参见“wjn_i18n_attach_host”的前一个定义
+  
+D:\UserData\Desktop\Project\WinJACKNexus\src\native_fx\include\WinJACKNexus\NativeFx\NativeFxApi.h(71,17): warning C4273: “wjn_i18n_language_changed”: dll 链接不一致 [D:\UserData\Desktop\Project\WinJACKNexus\build\src\patchbay\mod\mod_patchbay.vcxproj]
+  (编译源文件“../../../../src/patchbay/mod/src/Library.cpp”)
+      D:\UserData\Desktop\Project\WinJACKNexus\src\node\include\WinJACKNexus\Node\NodeApi.h(40,23):
+      参见“wjn_i18n_language_changed”的前一个定义
+  
+D:\UserData\Desktop\Project\WinJACKNexus\src\native_fx\include\WinJACKNexus\NativeFx\NativeFxApi.h(72,17): warning C4273: “wjn_i18n_detach_host”: dll 链接不一致 [D:\UserData\Desktop\Project\WinJACKNexus\build\src\patchbay\mod\mod_patchbay.vcxproj]
+  (编译源文件“../../../../src/patchbay/mod/src/Library.cpp”)
+      D:\UserData\Desktop\Project\WinJACKNexus\src\node\include\WinJACKNexus\Node\NodeApi.h(41,23):
+      参见“wjn_i18n_detach_host”的前一个定义
+  
+  Library.cpp
+  MeterHistoryWindow.cpp
+    正在创建库 D:/UserData/Desktop/Project/WinJACKNexus/build/lib/mod_meterbridge_probe.lib 和对象 D:/UserData/Desktop/Project/WinJACKNexus/build/lib/mod_meterbridge_probe.exp
+  mod_meterbridge_probe.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\nodes\meter\mod_meterbridge_probe.dll
+D:\UserData\Desktop\Project\WinJACKNexus\src\native_fx\include\WinJACKNexus\NativeFx\NativeFxApi.h(70,20): warning C4273: “wjn_i18n_attach_host”: dll 链接不一致 [D:\UserData\Desktop\Project\WinJACKNexus\build\src\mixer\mod_digital_mixer.vcxproj]
+  (编译源文件“../../../src/mixer/Library.cpp”)
+      D:\UserData\Desktop\Project\WinJACKNexus\src\node\include\WinJACKNexus\Node\NodeApi.h(39,26):
+      参见“wjn_i18n_attach_host”的前一个定义
+  
+D:\UserData\Desktop\Project\WinJACKNexus\src\native_fx\include\WinJACKNexus\NativeFx\NativeFxApi.h(71,17): warning C4273: “wjn_i18n_language_changed”: dll 链接不一致 [D:\UserData\Desktop\Project\WinJACKNexus\build\src\mixer\mod_digital_mixer.vcxproj]
+  (编译源文件“../../../src/mixer/Library.cpp”)
+      D:\UserData\Desktop\Project\WinJACKNexus\src\node\include\WinJACKNexus\Node\NodeApi.h(40,23):
+      参见“wjn_i18n_language_changed”的前一个定义
+  
+D:\UserData\Desktop\Project\WinJACKNexus\src\native_fx\include\WinJACKNexus\NativeFx\NativeFxApi.h(72,17): warning C4273: “wjn_i18n_detach_host”: dll 链接不一致 [D:\UserData\Desktop\Project\WinJACKNexus\build\src\mixer\mod_digital_mixer.vcxproj]
+  (编译源文件“../../../src/mixer/Library.cpp”)
+      D:\UserData\Desktop\Project\WinJACKNexus\src\node\include\WinJACKNexus\Node\NodeApi.h(41,23):
+      参见“wjn_i18n_detach_host”的前一个定义
+  
+  正在生成代码...
+  PatchbayCanvas.cpp
+    正在创建库 D:/UserData/Desktop/Project/WinJACKNexus/build/lib/mod_digital_mixer.lib 和对象 D:/UserData/Desktop/Project/WinJACKNexus/build/lib/mod_digital_mixer.exp
+  mod_digital_mixer.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\nodes\mixer\mod_digital_mixer.dll
+  MeterSettingsWidget.cpp
+  MeterbridgeWindow.cpp
+  正在生成代码...
+  正在生成代码...
+    正在创建库 D:/UserData/Desktop/Project/WinJACKNexus/build/lib/mod_patchbay.lib 和对象 D:/UserData/Desktop/Project/WinJACKNexus/build/lib/mod_patchbay.exp
+  mod_patchbay.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\mod_patchbay.dll
+  meterbridge_mod_ui.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\lib\Release\meterbridge_mod_ui.lib
+  Library.cpp
+    正在创建库 D:/UserData/Desktop/Project/WinJACKNexus/build/lib/mod_meterbrigde.lib 和对象 D:/UserData/Desktop/Project/WinJACKNexus/build/lib/mod_meterbrigde.exp
+  mod_meterbrigde.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\mod_meterbrigde.dll
+  Library.cpp
+  Library.cpp
+  Library.cpp
+  Library.cpp
+  Library.cpp
+  Library.cpp
+  NativeFxApi.cpp
+  NativeFxApi.cpp
+  NativeFxApi.cpp
+  NativeFxApi.cpp
+  NativeFxApi.cpp
+  NativeFxApi.cpp
+  Ui.cpp
+  Ui.cpp
+  Ui.cpp
+  Ui.cpp
+  Ui.cpp
+  Ui.cpp
+  Dsp.cpp
+  Dsp.cpp
+  Dsp.cpp
+  Dsp.cpp
+  正在生成代码...
+  Dsp.cpp
+  正在生成代码...
+  正在生成代码...
+  正在生成代码...
+  正在生成代码...
+    正在创建库 D:/UserData/Desktop/Project/WinJACKNexus/build/lib/mod_gate.lib 和对象 D:/UserData/Desktop/Project/WinJACKNexus/build/lib/mod_gate.exp
+  mod_gate.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\nodes\native_fx\gate\mod_gate.dll
+  Library.cpp
+    正在创建库 D:/UserData/Desktop/Project/WinJACKNexus/build/lib/mod_delay.lib 和对象 D:/UserData/Desktop/Project/WinJACKNexus/build/lib/mod_delay.exp
+  mod_delay.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\nodes\native_fx\delay\mod_delay.dll
+    正在创建库 D:/UserData/Desktop/Project/WinJACKNexus/build/lib/mod_compressor.lib 和对象 D:/UserData/Desktop/Project/WinJACKNexus/build/lib/mod_compressor.exp
+  mod_compressor.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\nodes\native_fx\compressor\mod_compressor.dll
+  Library.cpp
+    正在创建库 D:/UserData/Desktop/Project/WinJACKNexus/build/lib/mod_deesser.lib 和对象 D:/UserData/Desktop/Project/WinJACKNexus/build/lib/mod_deesser.exp
+  mod_deesser.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\nodes\native_fx\deesser\mod_deesser.dll
+    正在创建库 D:/UserData/Desktop/Project/WinJACKNexus/build/lib/mod_limiter.lib 和对象 D:/UserData/Desktop/Project/WinJACKNexus/build/lib/mod_limiter.exp
+  mod_limiter.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\nodes\native_fx\limiter\mod_limiter.dll
+  Dsp.cpp
+  SpectrumAnalyzer.cpp
+  NativeFxApi.cpp
+  正在生成代码...
+  NativeFxApi.cpp
+    正在创建库 D:/UserData/Desktop/Project/WinJACKNexus/build/lib/mod_graphic_eq.lib 和对象 D:/UserData/Desktop/Project/WinJACKNexus/build/lib/mod_graphic_eq.exp
+  mod_graphic_eq.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\nodes\native_fx\graphic_eq\mod_graphic_eq.dll
+  Ui.cpp
+  Ui.cpp
+  Dsp.cpp
+  正在生成代码...
+    正在创建库 D:/UserData/Desktop/Project/WinJACKNexus/build/lib/mod_reverb.lib 和对象 D:/UserData/Desktop/Project/WinJACKNexus/build/lib/mod_reverb.exp
+  mod_reverb.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\nodes\native_fx\reverb\mod_reverb.dll
+  Dsp.cpp
+  SpectrumAnalyzer.cpp
+  正在生成代码...
+    正在创建库 D:/UserData/Desktop/Project/WinJACKNexus/build/lib/mod_parametric_eq.lib 和对象 D:/UserData/Desktop/Project/WinJACKNexus/build/lib/mod_parametric_eq.exp
+  mod_parametric_eq.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\nodes\native_fx\parametric_eq\mod_parametric_eq.dll
+  main.cpp
+  WinJACKNexus.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\WinJACKNexus.exe
+  Deploying Qt runtime dependencies for WinJACKNexus.exe
+EXEC : warning : Cannot find Visual Studio installation directory, VCINSTALLDIR is not set. [D:\UserData\Desktop\Project\WinJACKNexus\build\src\app\WinJACKNexus.vcxproj]
+  Adding local dependencyD:/UserData/Desktop/Project/WinJACKNexus/build/release/bin/audio.dll
+  Adding local dependencyD:/UserData/Desktop/Project/WinJACKNexus/build/release/bin/ui.dll
+  Adding local dependencyD:/UserData/Desktop/Project/WinJACKNexus/build/release/bin/common.dll
+  Adding local dependencyD:/UserData/Desktop/Project/WinJACKNexus/build/release/bin/icuuc.dll
+  D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\WinJACKNexus.exe 64 bit, release executable
+  Adding in plugin type generic for module: Qt6Gui
+  Adding Qt6Network for qtuiotouchplugin.dll from plugin type: generic
+  Adding in plugin type iconengines for module: Qt6Gui
+  Adding Qt6Svg for qsvgicon.dll from plugin type: iconengines
+  Adding in plugin type imageformats for module: Qt6Gui
+  Adding Qt6Pdf for qpdf.dll from plugin type: imageformats
+  Adding in plugin type networkinformation for module: Qt6Network
+  Adding in plugin type platforminputcontexts for module: Qt6Gui
+  Skipping plugin qtvirtualkeyboardplugin.dll due to disabled dependencies (Qt6Qml Qt6Quick).
+  Adding in plugin type platforms for module: Qt6Gui
+  Adding in plugin type styles for module: Qt6Widgets
+  Adding in plugin type tls for module: Qt6Network
+  Skipping plugin qopensslbackend.dll. Use -force-openssl or specify -openssl-root if you want to use it.
+  Performing additional pass of finding Qt plugins due to updated Qt module list: Qt6Core Qt6Gui Qt6Network Qt6OpenGL Qt6OpenGLWidgets Qt6Pdf Qt6Svg Qt6Widgets
+  Adding in plugin type generic for module: Qt6Gui
+  Adding in plugin type iconengines for module: Qt6Gui
+  Adding in plugin type imageformats for module: Qt6Gui
+  Adding in plugin type networkinformation for module: Qt6Network
+  Adding in plugin type platforminputcontexts for module: Qt6Gui
+  Skipping plugin qtvirtualkeyboardplugin.dll due to disabled dependencies (Qt6Qml Qt6Quick).
+  Adding in plugin type platforms for module: Qt6Gui
+  Adding in plugin type styles for module: Qt6Widgets
+  Adding in plugin type tls for module: Qt6Network
+  Skipping plugin qopensslbackend.dll. Use -force-openssl or specify -openssl-root if you want to use it.
+  Direct dependencies: Qt6Core Qt6Gui Qt6OpenGL Qt6OpenGLWidgets Qt6Widgets
+  All dependencies   : Qt6Core Qt6Gui Qt6OpenGL Qt6OpenGLWidgets Qt6Widgets
+  To be deployed     : Qt6Core Qt6Gui Qt6Network Qt6OpenGL Qt6OpenGLWidgets Qt6Pdf Qt6Svg Qt6Widgets
+  icuuc.dll is up to date.
+  Qt6Core.dll is up to date.
+  Qt6Gui.dll is up to date.
+  Qt6Network.dll is up to date.
+  Qt6OpenGL.dll is up to date.
+  Qt6OpenGLWidgets.dll is up to date.
+  Qt6Pdf.dll is up to date.
+  Qt6Svg.dll is up to date.
+  Qt6Widgets.dll is up to date.
+  opengl32sw.dll is up to date.
+  D3Dcompiler_47.dll is up to date.
+  dxcompiler.dll is up to date.
+  dxil.dll is up to date.
+  qtuiotouchplugin.dll is up to date.
+  qsvgicon.dll is up to date.
+  qgif.dll is up to date.
+  qicns.dll is up to date.
+  qico.dll is up to date.
+  qjpeg.dll is up to date.
+  qpdf.dll is up to date.
+  qsvg.dll is up to date.
+  qtga.dll is up to date.
+  qtiff.dll is up to date.
+  qwbmp.dll is up to date.
+  qwebp.dll is up to date.
+  qnetworklistmanager.dll is up to date.
+  qwindows.dll is up to date.
+  qmodernwindowsstyle.dll is up to date.
+  qcertonlybackend.dll is up to date.
+  qschannelbackend.dll is up to date.
+适用于 .NET Framework MSBuild 版本 18.10.1-1.26427.6+3cd27c13e
+
+  node.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\node.dll
+  common.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\common.dll
+  Automatic MOC for target wjn_default_theme
+  audio.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\audio.dll
+  meterbridge_ui_model.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\lib\Release\meterbridge_ui_model.lib
+  patchbay_core.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\patchbay_core.dll
+  wjn_default_theme.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\wjn_default_theme.dll
+  Automatic MOC for target ui
+  ui.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\ui.dll
+  Automatic MOC for target mod_patchbay
+  mod_digital_mixer.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\nodes\mixer\mod_digital_mixer.dll
+  mod_meterbridge_probe.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\nodes\meter\mod_meterbridge_probe.dll
+  meterbridge_mod_ui.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\lib\Release\meterbridge_mod_ui.lib
+  mod_meterbrigde.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\mod_meterbrigde.dll
+  mod_patchbay.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\mod_patchbay.dll
+  mod_gate.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\nodes\native_fx\gate\mod_gate.dll
+  mod_delay.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\nodes\native_fx\delay\mod_delay.dll
+  mod_compressor.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\nodes\native_fx\compressor\mod_compressor.dll
+  mod_deesser.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\nodes\native_fx\deesser\mod_deesser.dll
+  mod_graphic_eq.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\nodes\native_fx\graphic_eq\mod_graphic_eq.dll
+  mod_reverb.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\nodes\native_fx\reverb\mod_reverb.dll
+  mod_limiter.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\nodes\native_fx\limiter\mod_limiter.dll
+  mod_parametric_eq.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\nodes\native_fx\parametric_eq\mod_parametric_eq.dll
+  WinJACKNexus.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\WinJACKNexus.exe
+  Deploying Qt runtime dependencies for WinJACKNexus.exe
+  Adding local dependencyD:/UserData/Desktop/Project/WinJACKNexus/build/release/bin/audio.dll
+  Adding local dependencyD:/UserData/Desktop/Project/WinJACKNexus/build/release/bin/ui.dll
+  Adding local dependencyD:/UserData/Desktop/Project/WinJACKNexus/build/release/bin/common.dll
+  Adding local dependencyD:/UserData/Desktop/Project/WinJACKNexus/build/release/bin/icuuc.dll
+  D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\WinJACKNexus.exe 64 bit, release executable
+  Adding in plugin type generic for module: Qt6Gui
+  Adding Qt6Network for qtuiotouchplugin.dll from plugin type: generic
+  Adding in plugin type iconengines for module: Qt6Gui
+  Adding Qt6Svg for qsvgicon.dll from plugin type: iconengines
+  Adding in plugin type imageformats for module: Qt6Gui
+  Adding Qt6Pdf for qpdf.dll from plugin type: imageformats
+  Adding in plugin type networkinformation for module: Qt6Network
+  Adding in plugin type platforminputcontexts for module: Qt6Gui
+EXEC : warning : Cannot find Visual Studio installation directory, VCINSTALLDIR is not set. [D:\UserData\Desktop\Project\WinJACKNexus\build\src\app\WinJACKNexus.vcxproj]
+  Skipping plugin qtvirtualkeyboardplugin.dll due to disabled dependencies (Qt6Qml Qt6Quick).
+  Adding in plugin type platforms for module: Qt6Gui
+  Adding in plugin type styles for module: Qt6Widgets
+  Adding in plugin type tls for module: Qt6Network
+  Skipping plugin qopensslbackend.dll. Use -force-openssl or specify -openssl-root if you want to use it.
+  Performing additional pass of finding Qt plugins due to updated Qt module list: Qt6Core Qt6Gui Qt6Network Qt6OpenGL Qt6OpenGLWidgets Qt6Pdf Qt6Svg Qt6Widgets
+  Adding in plugin type generic for module: Qt6Gui
+  Adding in plugin type iconengines for module: Qt6Gui
+  Adding in plugin type imageformats for module: Qt6Gui
+  Adding in plugin type networkinformation for module: Qt6Network
+  Adding in plugin type platforminputcontexts for module: Qt6Gui
+  Skipping plugin qtvirtualkeyboardplugin.dll due to disabled dependencies (Qt6Qml Qt6Quick).
+  Adding in plugin type platforms for module: Qt6Gui
+  Adding in plugin type styles for module: Qt6Widgets
+  Adding in plugin type tls for module: Qt6Network
+  Skipping plugin qopensslbackend.dll. Use -force-openssl or specify -openssl-root if you want to use it.
+  Direct dependencies: Qt6Core Qt6Gui Qt6OpenGL Qt6OpenGLWidgets Qt6Widgets
+  All dependencies   : Qt6Core Qt6Gui Qt6OpenGL Qt6OpenGLWidgets Qt6Widgets
+  To be deployed     : Qt6Core Qt6Gui Qt6Network Qt6OpenGL Qt6OpenGLWidgets Qt6Pdf Qt6Svg Qt6Widgets
+  icuuc.dll is up to date.
+  Qt6Core.dll is up to date.
+  Qt6Gui.dll is up to date.
+  Qt6Network.dll is up to date.
+  Qt6OpenGL.dll is up to date.
+  Qt6OpenGLWidgets.dll is up to date.
+  Qt6Pdf.dll is up to date.
+  Qt6Svg.dll is up to date.
+  Qt6Widgets.dll is up to date.
+  opengl32sw.dll is up to date.
+  D3Dcompiler_47.dll is up to date.
+  dxcompiler.dll is up to date.
+  dxil.dll is up to date.
+  qtuiotouchplugin.dll is up to date.
+  qsvgicon.dll is up to date.
+  qgif.dll is up to date.
+  qicns.dll is up to date.
+  qico.dll is up to date.
+  qjpeg.dll is up to date.
+  qpdf.dll is up to date.
+  qsvg.dll is up to date.
+  qtga.dll is up to date.
+  qtiff.dll is up to date.
+  qwbmp.dll is up to date.
+  qwebp.dll is up to date.
+  qnetworklistmanager.dll is up to date.
+  qwindows.dll is up to date.
+  qmodernwindowsstyle.dll is up to date.
+  qcertonlybackend.dll is up to date.
+  qschannelbackend.dll is up to date.
+  HostI18nTests.cpp
+C:\Qt\6.10.3\msvc2022_64\include\QtCore\qobject.h(169,23): error C2338: static assertion failed: 'No Q_OBJECT in the class passed to QObject::findChildren' [D:\UserData\Desktop\Project\WinJACKNexus\build\Develop\wjn_host_i18n_tests.vcxproj]
+  (编译源文件“../../Develop/HostI18nTests.cpp”)
+      C:\Qt\6.10.3\msvc2022_64\include\QtCore\qobject.h(169,23):
+      模板实例化上下文(最早的实例化上下文)为
+          D:\UserData\Desktop\Project\WinJACKNexus\Develop\HostI18nTests.cpp(70,25):
+          查看对正在编译的函数 模板 实例化“QList<WinJACKNexus::UI::Controls::DialogButtonBar *> QObject::findChildren<WinJACKNexus::UI::Controls::DialogButtonBar*>(Qt::FindChildOptions) const”的引用
+          C:\Qt\6.10.3\msvc2022_64\include\QtCore\qobject.h(186,16):
+          查看对正在编译的函数 模板 实例化“QList<WinJACKNexus::UI::Controls::DialogButtonBar *> QObject::findChildren<WinJACKNexus::UI::Controls::DialogButtonBar*>(QAnyStringView,Qt::FindChildOptions) const”的引用
+  

@@ -1,0 +1,2282 @@
+{
+  "date": "2026-10-03",
+  "changed_files": [
+    "src/app/main.cpp"
+  ],
+  "resource_changes": [],
+  "before_occurrences": 7824,
+  "after_occurrences": 7826,
+  "added": [
+    {
+      "id": "s0.d08ffdcbb307",
+      "domain": "host",
+      "file": "src/app/main.cpp",
+      "line": 286,
+      "literal": "&Choose",
+      "context": "dialog.setLabelText(QFileDialog::Accept,QCoreApplication::translate(\"QFileDialog\",\"&Choose\"));",
+      "evidence_class": "ui-context-review",
+      "disposition": "pending",
+      "proposed_key": "",
+      "notes": ""
+    },
+    {
+      "id": "s0.d96723db7e9a",
+      "domain": "host",
+      "file": "src/app/main.cpp",
+      "line": 286,
+      "literal": "QFileDialog",
+      "context": "dialog.setLabelText(QFileDialog::Accept,QCoreApplication::translate(\"QFileDialog\",\"&Choose\"));",
+      "evidence_class": "ui-context-review",
+      "disposition": "pending",
+      "proposed_key": "",
+      "notes": ""
+    }
+  ],
+  "removed": [],
+  "relocated": [
+    {
+      "file": "src/app/main.cpp",
+      "literal": " dBFS",
+      "before_lines": [
+        "763"
+      ],
+      "after_lines": [
+        774
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": " ms",
+      "before_lines": [
+        "724"
+      ],
+      "after_lines": [
+        735
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": " s",
+      "before_lines": [
+        "735",
+        "769"
+      ],
+      "after_lines": [
+        746,
+        780
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "%1 %2 %3: %4",
+      "before_lines": [
+        "1094"
+      ],
+      "after_lines": [
+        1105
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "%1%",
+      "before_lines": [
+        "806",
+        "836"
+      ],
+      "after_lines": [
+        817,
+        847
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "%1/%2-%3.png",
+      "before_lines": [
+        "1099"
+      ],
+      "after_lines": [
+        1110
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "--settings-layout-test=",
+      "before_lines": [
+        "1076"
+      ],
+      "after_lines": [
+        1087
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "-P95",
+      "before_lines": [
+        "528"
+      ],
+      "after_lines": [
+        539
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "-R",
+      "before_lines": [
+        "528",
+        "572"
+      ],
+      "after_lines": [
+        539,
+        583
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "-S",
+      "before_lines": [
+        "528",
+        "572"
+      ],
+      "after_lines": [
+        539,
+        583
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "-d",
+      "before_lines": [
+        "529",
+        "533",
+        "573"
+      ],
+      "after_lines": [
+        540,
+        544,
+        584
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "-l",
+      "before_lines": [
+        "573"
+      ],
+      "after_lines": [
+        584
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "-n",
+      "before_lines": [
+        "571"
+      ],
+      "after_lines": [
+        582
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "-p",
+      "before_lines": [
+        "531"
+      ],
+      "after_lines": [
+        542
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "-r",
+      "before_lines": [
+        "530"
+      ],
+      "after_lines": [
+        541
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "120 FPS",
+      "before_lines": [
+        "715"
+      ],
+      "after_lines": [
+        726
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "30 FPS",
+      "before_lines": [
+        "713"
+      ],
+      "after_lines": [
+        724
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "60 FPS",
+      "before_lines": [
+        "714"
+      ],
+      "after_lines": [
+        725
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": ":/WinJACKNexus/UI/icons/WinJACKNexus.png",
+      "before_lines": [
+        "995"
+      ],
+      "after_lines": [
+        1006
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "Application",
+      "before_lines": [
+        "742",
+        "798",
+        "831",
+        "862",
+        "979",
+        "1022"
+      ],
+      "after_lines": [
+        753,
+        809,
+        842,
+        873,
+        990,
+        1033
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "Application settings",
+      "before_lines": [
+        "701"
+      ],
+      "after_lines": [
+        712
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "Application start logTracing=%d",
+      "before_lines": [
+        "982"
+      ],
+      "after_lines": [
+        993
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "Application stopping",
+      "before_lines": [
+        "988"
+      ],
+      "after_lines": [
+        999
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "Browse",
+      "before_lines": [
+        "344",
+        "774"
+      ],
+      "after_lines": [
+        355,
+        785
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "C:/Program Files/JACK2",
+      "before_lines": [
+        "400"
+      ],
+      "after_lines": [
+        411
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "Clear",
+      "before_lines": [
+        "775"
+      ],
+      "after_lines": [
+        786
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "Configured JACK server startup failed",
+      "before_lines": [
+        "1124"
+      ],
+      "after_lines": [
+        1135
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "Copy startup command",
+      "before_lines": [
+        "382",
+        "383"
+      ],
+      "after_lines": [
+        393,
+        394
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "DSP {load}% · XRun {count}",
+      "before_lines": [
+        "924"
+      ],
+      "after_lines": [
+        935
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "Default theme initialization failed: %s",
+      "before_lines": [
+        "1045"
+      ],
+      "after_lines": [
+        1056
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "Detailed log tracing %s",
+      "before_lines": [
+        "829"
+      ],
+      "after_lines": [
+        840
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "Device",
+      "before_lines": [
+        "362"
+      ],
+      "after_lines": [
+        373
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "Diagnostic logging",
+      "before_lines": [
+        "744"
+      ],
+      "after_lines": [
+        755
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "Driver",
+      "before_lines": [
+        "353"
+      ],
+      "after_lines": [
+        364
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "Enable detailed log tracing",
+      "before_lines": [
+        "739"
+      ],
+      "after_lines": [
+        750
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "Enable the mixer in the patchbay under Tools > Audio tools first.",
+      "before_lines": [
+        "1193"
+      ],
+      "after_lines": [
+        1204
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "Frames per period",
+      "before_lines": [
+        "370"
+      ],
+      "after_lines": [
+        381
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "Global settings",
+      "before_lines": [
+        "697",
+        "1145",
+        "1146"
+      ],
+      "after_lines": [
+        708,
+        1156,
+        1157
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "Initial patchbay window creation failed",
+      "before_lines": [
+        "1204"
+      ],
+      "after_lines": [
+        1215
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "JACK offline",
+      "before_lines": [
+        "927"
+      ],
+      "after_lines": [
+        938
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "JACK server settings",
+      "before_lines": [
+        "339",
+        "1153",
+        "1154"
+      ],
+      "after_lines": [
+        350,
+        1164,
+        1165
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "Jackd",
+      "before_lines": [
+        "399",
+        "604",
+        "799",
+        "1059"
+      ],
+      "after_lines": [
+        410,
+        615,
+        810,
+        1070
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "Language",
+      "before_lines": [
+        "707"
+      ],
+      "after_lines": [
+        718
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "Language switch failed",
+      "before_lines": [
+        "962"
+      ],
+      "after_lines": [
+        973
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "Local\\\\WinJACKNexus.SingleInstance",
+      "before_lines": [
+        "966"
+      ],
+      "after_lines": [
+        977
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "Log root directory",
+      "before_lines": [
+        "782"
+      ],
+      "after_lines": [
+        793
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "Manage themes\\u2026",
+      "before_lines": [
+        "785"
+      ],
+      "after_lines": [
+        796
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "Meter bridge",
+      "before_lines": [
+        "756",
+        "1199"
+      ],
+      "after_lines": [
+        767,
+        1210
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "Meterbridge",
+      "before_lines": [
+        "810",
+        "868"
+      ],
+      "after_lines": [
+        821,
+        879
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "Mixer",
+      "before_lines": [
+        "1193",
+        "1194"
+      ],
+      "after_lines": [
+        1204,
+        1205
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "Not set; CSV logging unavailable",
+      "before_lines": [
+        "773"
+      ],
+      "after_lines": [
+        784
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "Patchbay",
+      "before_lines": [
+        "1185"
+      ],
+      "after_lines": [
+        1196
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "Peak hold time",
+      "before_lines": [
+        "737"
+      ],
+      "after_lines": [
+        748
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "Peak value refresh interval",
+      "before_lines": [
+        "727"
+      ],
+      "after_lines": [
+        738
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "PortAudio device, e.g. ASIO::FL Studio ASIO",
+      "before_lines": [
+        "357"
+      ],
+      "after_lines": [
+        368
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "Qt application initialized",
+      "before_lines": [
+        "976"
+      ],
+      "after_lines": [
+        987
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "Quick access bar opacity",
+      "before_lines": [
+        "753"
+      ],
+      "after_lines": [
+        764
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "Refresh",
+      "before_lines": [
+        "358"
+      ],
+      "after_lines": [
+        369
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "Restart JACK",
+      "before_lines": [
+        "392",
+        "393"
+      ],
+      "after_lines": [
+        403,
+        404
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "Sample rate",
+      "before_lines": [
+        "366"
+      ],
+      "after_lines": [
+        377
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "Select meter bridge CSV log root directory",
+      "before_lines": [
+        "846"
+      ],
+      "after_lines": [
+        857
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "Select the directory containing jackd.exe",
+      "before_lines": [
+        "417"
+      ],
+      "after_lines": [
+        428
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "Silence duration",
+      "before_lines": [
+        "770"
+      ],
+      "after_lines": [
+        781
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "Silence threshold",
+      "before_lines": [
+        "764"
+      ],
+      "after_lines": [
+        775
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "Single-instance lock acquired",
+      "before_lines": [
+        "974"
+      ],
+      "after_lines": [
+        985
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "Start JACK",
+      "before_lines": [
+        "390",
+        "391"
+      ],
+      "after_lines": [
+        401,
+        402
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "Start jackd with WinJACKNexus",
+      "before_lines": [
+        "371"
+      ],
+      "after_lines": [
+        382
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "Start jackd with these settings only if no ready JACK server is detected.",
+      "before_lines": [
+        "373"
+      ],
+      "after_lines": [
+        384
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "Startup command (JACK2 arguments in README)",
+      "before_lines": [
+        "377"
+      ],
+      "after_lines": [
+        388
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "Stop JACK",
+      "before_lines": [
+        "394",
+        "395"
+      ],
+      "after_lines": [
+        405,
+        406
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "The Digital Mixer window is currently unavailable.",
+      "before_lines": [
+        "1194"
+      ],
+      "after_lines": [
+        1205
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "Theme",
+      "before_lines": [
+        "1129",
+        "1130"
+      ],
+      "after_lines": [
+        1140,
+        1141
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "Theme loading finished valid=%d",
+      "before_lines": [
+        "1042"
+      ],
+      "after_lines": [
+        1053
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "Theme loading started asynchronously",
+      "before_lines": [
+        "1013"
+      ],
+      "after_lines": [
+        1024
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "Theme restore:",
+      "before_lines": [
+        "1029"
+      ],
+      "after_lines": [
+        1040
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "Theme switch failed",
+      "before_lines": [
+        "1136",
+        "1143"
+      ],
+      "after_lines": [
+        1147,
+        1154
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "UI frame rate",
+      "before_lines": [
+        "718"
+      ],
+      "after_lines": [
+        729
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "Unable to change the language: {detail}",
+      "before_lines": [
+        "963"
+      ],
+      "after_lines": [
+        974
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "Unable to create the meter bridge window.",
+      "before_lines": [
+        "1199"
+      ],
+      "after_lines": [
+        1210
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "Unable to create the patchbay window.",
+      "before_lines": [
+        "1185",
+        "1207"
+      ],
+      "after_lines": [
+        1196,
+        1218
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "Unable to initialize language resources: {detail}",
+      "before_lines": [
+        "956"
+      ],
+      "after_lines": [
+        967
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "Unable to load the meter bridge module.",
+      "before_lines": [
+        "1177"
+      ],
+      "after_lines": [
+        1188
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "Unable to load the patchbay module.",
+      "before_lines": [
+        "1168"
+      ],
+      "after_lines": [
+        1179
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "Unable to load the required default theme DLL. The application cannot start.\\n{detail}",
+      "before_lines": [
+        "1051"
+      ],
+      "after_lines": [
+        1062
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "Unable to start jackd.exe.",
+      "before_lines": [
+        "668"
+      ],
+      "after_lines": [
+        679
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "Unable to start or connect to jackd using the JACK server settings.",
+      "before_lines": [
+        "1126"
+      ],
+      "after_lines": [
+        1137
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "Unable to stop the running jackd.exe.",
+      "before_lines": [
+        "640"
+      ],
+      "after_lines": [
+        651
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "WJN_THEME_STARTUP_PROBE",
+      "before_lines": [
+        "1048"
+      ],
+      "after_lines": [
+        1059
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "WinJACKNexus",
+      "before_lines": [
+        "399",
+        "604",
+        "742",
+        "798",
+        "799",
+        "810",
+        "831",
+        "862",
+        "868",
+        "950",
+        "978",
+        "1021",
+        "1059"
+      ],
+      "after_lines": [
+        410,
+        615,
+        753,
+        809,
+        810,
+        821,
+        842,
+        873,
+        879,
+        961,
+        989,
+        1032,
+        1070
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "WinJACKNexus is already running.",
+      "before_lines": [
+        "971"
+      ],
+      "after_lines": [
+        982
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "WinJACKNexus theme startup failed",
+      "before_lines": [
+        "1050"
+      ],
+      "after_lines": [
+        1061
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "WinJACKNexus-DeviceProbe-%1",
+      "before_lines": [
+        "569"
+      ],
+      "after_lines": [
+        580
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "WinJACKNexus-Monitor",
+      "before_lines": [
+        "912"
+      ],
+      "after_lines": [
+        923
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "\\\"%1\\\"",
+      "before_lines": [
+        "488"
+      ],
+      "after_lines": [
+        499
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "\\\"%1\\\" %2",
+      "before_lines": [
+        "544"
+      ],
+      "after_lines": [
+        555
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "\\\\s",
+      "before_lines": [
+        "487"
+      ],
+      "after_lines": [
+        498
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "^\\s*Name\\s*[=:]\\s*(.+?)\\s*$",
+      "before_lines": [
+        "494"
+      ],
+      "after_lines": [
+        505
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "accessibleName",
+      "before_lines": [
+        "383"
+      ],
+      "after_lines": [
+        394
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "action",
+      "before_lines": [
+        "1091"
+      ],
+      "after_lines": [
+        1102
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "action.browse",
+      "before_lines": [
+        "344",
+        "774"
+      ],
+      "after_lines": [
+        355,
+        785
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "action.clear",
+      "before_lines": [
+        "775"
+      ],
+      "after_lines": [
+        786
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "action.manageThemes",
+      "before_lines": [
+        "785"
+      ],
+      "after_lines": [
+        796
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "action.refresh",
+      "before_lines": [
+        "358"
+      ],
+      "after_lines": [
+        369
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "application.frameRate",
+      "before_lines": [
+        "712"
+      ],
+      "after_lines": [
+        723
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "application.language",
+      "before_lines": [
+        "705"
+      ],
+      "after_lines": [
+        716
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "application.logTracingEnabled",
+      "before_lines": [
+        "741"
+      ],
+      "after_lines": [
+        752
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "application.peakHoldSeconds",
+      "before_lines": [
+        "731"
+      ],
+      "after_lines": [
+        742
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "application.peakValueRefreshMilliseconds",
+      "before_lines": [
+        "722"
+      ],
+      "after_lines": [
+        733
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "application.quickAccessOpacity",
+      "before_lines": [
+        "747"
+      ],
+      "after_lines": [
+        758
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "autoStart",
+      "before_lines": [
+        "405",
+        "610"
+      ],
+      "after_lines": [
+        416,
+        621
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "bufferSize",
+      "before_lines": [
+        "404",
+        "609"
+      ],
+      "after_lines": [
+        415,
+        620
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "build/settings-layout-%1.txt",
+      "before_lines": [
+        "1117"
+      ],
+      "after_lines": [
+        1128
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "choice",
+      "before_lines": [
+        "1090"
+      ],
+      "after_lines": [
+        1101
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "copy",
+      "before_lines": [
+        "381"
+      ],
+      "after_lines": [
+        392
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "count",
+      "before_lines": [
+        "926"
+      ],
+      "after_lines": [
+        937
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "detail",
+      "before_lines": [
+        "957",
+        "964",
+        "1052"
+      ],
+      "after_lines": [
+        968,
+        975,
+        1063
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "device",
+      "before_lines": [
+        "402",
+        "607"
+      ],
+      "after_lines": [
+        413,
+        618
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "directory",
+      "before_lines": [
+        "400",
+        "605"
+      ],
+      "after_lines": [
+        411,
+        616
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "disabled",
+      "before_lines": [
+        "829"
+      ],
+      "after_lines": [
+        840
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "driver",
+      "before_lines": [
+        "401",
+        "606"
+      ],
+      "after_lines": [
+        412,
+        617
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "dummy",
+      "before_lines": [
+        "352",
+        "401"
+      ],
+      "after_lines": [
+        363,
+        412
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "enabled",
+      "before_lines": [
+        "829"
+      ],
+      "after_lines": [
+        840
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "error.enableMixer",
+      "before_lines": [
+        "1193"
+      ],
+      "after_lines": [
+        1204
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "error.meterbridgeLoad",
+      "before_lines": [
+        "1177"
+      ],
+      "after_lines": [
+        1188
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "error.meterbridgeWindow",
+      "before_lines": [
+        "1199"
+      ],
+      "after_lines": [
+        1210
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "error.mixerWindow",
+      "before_lines": [
+        "1194"
+      ],
+      "after_lines": [
+        1205
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "error.patchbayLoad",
+      "before_lines": [
+        "1168"
+      ],
+      "after_lines": [
+        1179
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "error.patchbayWindow",
+      "before_lines": [
+        "1185",
+        "1207"
+      ],
+      "after_lines": [
+        1196,
+        1218
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "error.themeSwitch",
+      "before_lines": [
+        "1136",
+        "1143"
+      ],
+      "after_lines": [
+        1147,
+        1154
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "field",
+      "before_lines": [
+        "1089"
+      ],
+      "after_lines": [
+        1100
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "global-settings",
+      "before_lines": [
+        "1104"
+      ],
+      "after_lines": [
+        1115
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "jack-settings",
+      "before_lines": [
+        "1103"
+      ],
+      "after_lines": [
+        1114
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "jack.autoStart",
+      "before_lines": [
+        "371"
+      ],
+      "after_lines": [
+        382
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "jack.autoStart.help",
+      "before_lines": [
+        "373"
+      ],
+      "after_lines": [
+        384
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "jack.autoStartFailed",
+      "before_lines": [
+        "1126"
+      ],
+      "after_lines": [
+        1137
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "jack.chooseDirectory",
+      "before_lines": [
+        "417"
+      ],
+      "after_lines": [
+        428
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "jack.command",
+      "before_lines": [
+        "377"
+      ],
+      "after_lines": [
+        388
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "jack.copyCommand",
+      "before_lines": [
+        "382",
+        "383"
+      ],
+      "after_lines": [
+        393,
+        394
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "jack.device",
+      "before_lines": [
+        "362"
+      ],
+      "after_lines": [
+        373
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "jack.deviceHint",
+      "before_lines": [
+        "357"
+      ],
+      "after_lines": [
+        368
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "jack.directory",
+      "before_lines": [
+        "348"
+      ],
+      "after_lines": [
+        359
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "jack.driver",
+      "before_lines": [
+        "353"
+      ],
+      "after_lines": [
+        364
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "jack.notFound",
+      "before_lines": [
+        "562",
+        "660"
+      ],
+      "after_lines": [
+        573,
+        671
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "jack.periodFrames",
+      "before_lines": [
+        "370"
+      ],
+      "after_lines": [
+        381
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "jack.restart",
+      "before_lines": [
+        "392",
+        "393"
+      ],
+      "after_lines": [
+        403,
+        404
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "jack.sampleRate",
+      "before_lines": [
+        "366"
+      ],
+      "after_lines": [
+        377
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "jack.settings.title",
+      "before_lines": [
+        "339",
+        "1153",
+        "1154"
+      ],
+      "after_lines": [
+        350,
+        1164,
+        1165
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "jack.start",
+      "before_lines": [
+        "390",
+        "391"
+      ],
+      "after_lines": [
+        401,
+        402
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "jack.startFailed",
+      "before_lines": [
+        "668"
+      ],
+      "after_lines": [
+        679
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "jack.stop",
+      "before_lines": [
+        "394",
+        "395"
+      ],
+      "after_lines": [
+        405,
+        406
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "jack.stopFailed",
+      "before_lines": [
+        "640"
+      ],
+      "after_lines": [
+        651
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "jackServer.autoStart",
+      "before_lines": [
+        "372"
+      ],
+      "after_lines": [
+        383
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "jackd directory",
+      "before_lines": [
+        "348"
+      ],
+      "after_lines": [
+        359
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "jackd.exe",
+      "before_lines": [
+        "302",
+        "512"
+      ],
+      "after_lines": [
+        313,
+        523
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "jackd.exe was not found in the selected directory.",
+      "before_lines": [
+        "562",
+        "660"
+      ],
+      "after_lines": [
+        573,
+        671
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "language.failure.message",
+      "before_lines": [
+        "963"
+      ],
+      "after_lines": [
+        974
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "language.failure.title",
+      "before_lines": [
+        "962"
+      ],
+      "after_lines": [
+        973
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "load",
+      "before_lines": [
+        "925"
+      ],
+      "after_lines": [
+        936
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "logRootDirectory",
+      "before_lines": [
+        "813",
+        "871"
+      ],
+      "after_lines": [
+        824,
+        882
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "logTracingEnabled",
+      "before_lines": [
+        "743",
+        "832",
+        "979"
+      ],
+      "after_lines": [
+        754,
+        843,
+        990
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "menu.theme",
+      "before_lines": [
+        "1129",
+        "1130"
+      ],
+      "after_lines": [
+        1140,
+        1141
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "mod_meterbrigde.dll",
+      "before_lines": [
+        "244",
+        "1173"
+      ],
+      "after_lines": [
+        244,
+        1184
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "mod_patchbay.dll",
+      "before_lines": [
+        "1164"
+      ],
+      "after_lines": [
+        1175
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "number",
+      "before_lines": [
+        "1090"
+      ],
+      "after_lines": [
+        1101
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "placeholderText",
+      "before_lines": [
+        "357",
+        "773"
+      ],
+      "after_lines": [
+        368,
+        784
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "portaudio",
+      "before_lines": [
+        "352",
+        "517",
+        "573"
+      ],
+      "after_lines": [
+        363,
+        528,
+        584
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "quickAccessOpacity",
+      "before_lines": [
+        "801",
+        "802",
+        "807",
+        "808",
+        "863",
+        "1061",
+        "1062",
+        "1065",
+        "1066"
+      ],
+      "after_lines": [
+        812,
+        813,
+        818,
+        819,
+        874,
+        1072,
+        1073,
+        1076,
+        1077
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "sampleRate",
+      "before_lines": [
+        "403",
+        "608"
+      ],
+      "after_lines": [
+        414,
+        619
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "settings.application",
+      "before_lines": [
+        "701"
+      ],
+      "after_lines": [
+        712
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "settings.chooseCsvRoot",
+      "before_lines": [
+        "846"
+      ],
+      "after_lines": [
+        857
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "settings.frameRate",
+      "before_lines": [
+        "718"
+      ],
+      "after_lines": [
+        729
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "settings.global.title",
+      "before_lines": [
+        "697",
+        "1145",
+        "1146"
+      ],
+      "after_lines": [
+        708,
+        1156,
+        1157
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "settings.language",
+      "before_lines": [
+        "707"
+      ],
+      "after_lines": [
+        718
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "settings.logRoot",
+      "before_lines": [
+        "782"
+      ],
+      "after_lines": [
+        793
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "settings.logging",
+      "before_lines": [
+        "744"
+      ],
+      "after_lines": [
+        755
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "settings.loggingEnabled",
+      "before_lines": [
+        "739"
+      ],
+      "after_lines": [
+        750
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "settings.noCsvRoot",
+      "before_lines": [
+        "773"
+      ],
+      "after_lines": [
+        784
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "settings.opacity",
+      "before_lines": [
+        "753"
+      ],
+      "after_lines": [
+        764
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "settings.peakHold",
+      "before_lines": [
+        "737"
+      ],
+      "after_lines": [
+        748
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "settings.peakRefresh",
+      "before_lines": [
+        "727"
+      ],
+      "after_lines": [
+        738
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "settings.silenceDuration",
+      "before_lines": [
+        "770"
+      ],
+      "after_lines": [
+        781
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "settings.silenceThreshold",
+      "before_lines": [
+        "764"
+      ],
+      "after_lines": [
+        775
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "silenceDurationSeconds",
+      "before_lines": [
+        "812",
+        "870"
+      ],
+      "after_lines": [
+        823,
+        881
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "silenceThresholdDbfs",
+      "before_lines": [
+        "811",
+        "869"
+      ],
+      "after_lines": [
+        822,
+        880
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "startup.alreadyRunning",
+      "before_lines": [
+        "971"
+      ],
+      "after_lines": [
+        982
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "startup.i18nFailure",
+      "before_lines": [
+        "956"
+      ],
+      "after_lines": [
+        967
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "startup.themeFailure.message",
+      "before_lines": [
+        "1051"
+      ],
+      "after_lines": [
+        1062
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "startup.themeFailure.title",
+      "before_lines": [
+        "1050"
+      ],
+      "after_lines": [
+        1061
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "status.jackLoad",
+      "before_lines": [
+        "924"
+      ],
+      "after_lines": [
+        935
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "status.jackOffline",
+      "before_lines": [
+        "927"
+      ],
+      "after_lines": [
+        938
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "tests/preview/ControlHeights",
+      "before_lines": [
+        "1080"
+      ],
+      "after_lines": [
+        1091
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "text",
+      "before_lines": [
+        "264",
+        "269",
+        "274",
+        "391",
+        "393",
+        "395",
+        "1130",
+        "1146",
+        "1154"
+      ],
+      "after_lines": [
+        264,
+        269,
+        274,
+        402,
+        404,
+        406,
+        1141,
+        1157,
+        1165
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "theme page count: %1",
+      "before_lines": [
+        "1109"
+      ],
+      "after_lines": [
+        1120
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "theme-background",
+      "before_lines": [
+        "1107"
+      ],
+      "after_lines": [
+        1118
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "theme-colors",
+      "before_lines": [
+        "1106"
+      ],
+      "after_lines": [
+        1117
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "theme-export",
+      "before_lines": [
+        "1107"
+      ],
+      "after_lines": [
+        1118
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "theme-overview",
+      "before_lines": [
+        "1106"
+      ],
+      "after_lines": [
+        1117
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "toggle",
+      "before_lines": [
+        "1091"
+      ],
+      "after_lines": [
+        1102
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "toolTip",
+      "before_lines": [
+        "373",
+        "382"
+      ],
+      "after_lines": [
+        384,
+        393
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "view.meterbridge",
+      "before_lines": [
+        "756",
+        "1199"
+      ],
+      "after_lines": [
+        767,
+        1210
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "view.mixer",
+      "before_lines": [
+        "1193",
+        "1194"
+      ],
+      "after_lines": [
+        1204,
+        1205
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "view.patchbay",
+      "before_lines": [
+        "1185"
+      ],
+      "after_lines": [
+        1196
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "windowTitle",
+      "before_lines": [
+        "282",
+        "339",
+        "697"
+      ],
+      "after_lines": [
+        282,
+        350,
+        708
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "wjnRole",
+      "before_lines": [
+        "1088"
+      ],
+      "after_lines": [
+        1099
+      ]
+    },
+    {
+      "file": "src/app/main.cpp",
+      "literal": "wjn_patchbay_show_digital_mixer_view",
+      "before_lines": [
+        "1191"
+      ],
+      "after_lines": [
+        1202
+      ]
+    }
+  ],
+  "usage_changed": [],
+  "catalog_added": [],
+  "catalog_retired": [],
+  "catalog_changed_sources": []
+}

@@ -15,6 +15,8 @@
  */
 #include <WinJACKNexus/UI/ApplicationSettings.hpp>
 #include <WinJACKNexus/UI/Controls.hpp>
+#include <WinJACKNexus/UI/HostI18n.hpp>
+#include <WinJACKNexus/UI/IconManager.hpp>
 #include <WinJACKNexus/UI/ThemeCore.hpp>
 #include <WinJACKNexus/UI/ThemeCatalog.hpp>
 #include <WinJACKNexus/UI/ThemeManager.hpp>
@@ -248,32 +250,53 @@ void notifyMeterbridgeSettingsChanged()
         reload();
 }
 
-class CopyIconButton final : public QToolButton {
-public:
-    explicit CopyIconButton(QWidget* parent = nullptr)
-        : QToolButton(parent)
-    {
-        setFixedSize(28, 28);
-        setCursor(Qt::PointingHandCursor);
-    }
-
-protected:
-    void paintEvent(QPaintEvent*) override
-    {
-        QPainter painter(this);
-        painter.setRenderHint(QPainter::Antialiasing);
-
-        const auto bounds = QRectF(rect()).adjusted(1.0, 1.0, -1.0, -1.0);
-        painter.setPen(QPen(underMouse() ? QColor(QStringLiteral("#5db1d7")) : QColor(QStringLiteral("#5a6570"))));
-        painter.setBrush(underMouse() ? QColor(QStringLiteral("#3d4854")) : QColor(QStringLiteral("#303841")));
-        painter.drawRoundedRect(bounds, 4.0, 4.0);
-
-        painter.setPen(QPen(QColor(QStringLiteral("#f1f5f8")), 1.5, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
-        painter.setBrush(Qt::NoBrush);
-        painter.drawRoundedRect(QRectF(10.0, 6.0, 10.0, 12.0), 1.5, 1.5);
-        painter.drawRoundedRect(QRectF(7.0, 10.0, 10.0, 12.0), 1.5, 1.5);
-    }
-};
+using WinJACKNexus::UI::hostText;
+using WinJACKNexus::UI::bindHostText;
+namespace Controls = WinJACKNexus::UI::Controls;
+Controls::GroupPanel* hostGroup(const char* key,const char* english,QWidget* parent) {
+    auto* group=new Controls::GroupPanel({},parent);
+    bindHostText(group,"title",key,english);
+    return group;
+}
+Controls::TextLabel* hostLabel(const char* key,const char* english,QWidget* parent) {
+    auto* label=new Controls::TextLabel(parent);
+    label->setWordWrap(true);
+    bindHostText(label,"text",key,english);
+    return label;
+}
+Controls::ActionButton* hostButton(const char* key,const char* english,QWidget* parent) {
+    auto* button=new Controls::ActionButton({},parent);
+    bindHostText(button,"text",key,english);
+    return button;
+}
+Controls::ToggleField* hostToggle(const char* key,const char* english,QWidget* parent) {
+    auto* toggle=new Controls::ToggleField({},parent);
+    bindHostText(toggle,"text",key,english);
+    return toggle;
+}
+void configureDirectoryDialog(QFileDialog& dialog,const char* key,const char* english,const QString& current) {
+    dialog.setOption(QFileDialog::DontUseNativeDialog);
+    dialog.setFileMode(QFileDialog::Directory);
+    dialog.setOption(QFileDialog::ShowDirsOnly);
+    dialog.setDirectory(current);
+    bindHostText(&dialog,"windowTitle",key,english);
+    // Qt's LanguageChange resets the Directory accept label to the generic Open
+    // label. Keep the directory-specific Qt translation explicit in its options.
+    const auto refreshAccept=[&dialog] {
+        dialog.setLabelText(QFileDialog::Accept,QCoreApplication::translate("QFileDialog","&Choose"));
+    };
+    if (auto* manager=WinJACKNexus::UI::I18nManager::installed()) manager->bind(&dialog,[&dialog,refreshAccept] {
+        refreshAccept();
+        // The translator posts LanguageChange; refresh once after Qt handles it.
+        QTimer::singleShot(0,&dialog,refreshAccept);
+    });
+    else refreshAccept();
+}
+QString chooseDirectory(QWidget* parent,const char* key,const char* english,const QString& current) {
+    QFileDialog dialog(parent);
+    configureDirectoryDialog(dialog,key,english,current);
+    return dialog.exec()==QDialog::Accepted?dialog.selectedFiles().value(0):QString{};
+}
 
 std::vector<DWORD> jackdProcessIds(DWORD ignoredProcessId = 0)
 {
@@ -320,66 +343,71 @@ bool stopJackdProcesses(DWORD ignoredProcessId = 0)
 
 class JackServerSettingsDialog final : public QDialog {
 public:
-    explicit JackServerSettingsDialog(QWidget* parent = nullptr)
-        : QDialog(parent)
+    explicit JackServerSettingsDialog(QWidget* parent = nullptr, bool offline = false)
+        : QDialog(parent), offline_(offline)
     {
         namespace Controls = WinJACKNexus::UI::Controls;
-        setWindowTitle(QStringLiteral("JACK 服务器设置"));
+        bindHostText(this,"windowTitle","jack.settings.title","JACK server settings");
         resize(726, 318);
         auto* layout = new QVBoxLayout(this);
         auto* form = new QFormLayout;
         jackdDirectory_ = new Controls::TextField(this);
-        auto* browseButton = new Controls::ActionButton(QStringLiteral("浏览"), this);
+        auto* browseButton = hostButton("action.browse","Browse",this);
         auto* directoryLayout = new QHBoxLayout;
         directoryLayout->addWidget(jackdDirectory_);
         directoryLayout->addWidget(browseButton);
-        form->addRow(QStringLiteral("jackd 目录"), directoryLayout);
+        form->addRow(hostLabel("jack.directory","jackd directory",this), directoryLayout);
 
         driver_ = new Controls::ChoiceField(this);
         driver_->setEditable(true);
         driver_->addItems({ QStringLiteral("dummy"), QStringLiteral("portaudio") });
-        form->addRow(QStringLiteral("驱动"), driver_);
+        form->addRow(hostLabel("jack.driver","Driver",this), driver_);
         device_ = new Controls::ChoiceField(this);
         device_->setEditable(true);
         device_->setInsertPolicy(QComboBox::NoInsert);
-        device_->setPlaceholderText(QStringLiteral("PortAudio 设备，例如 ASIO::FL Studio ASIO"));
-        deviceRefreshButton_ = new Controls::ActionButton(QStringLiteral("刷新"), this);
+        bindHostText(device_->lineEdit(),"placeholderText","jack.deviceHint","PortAudio device, e.g. ASIO::FL Studio ASIO");
+        deviceRefreshButton_ = hostButton("action.refresh","Refresh",this);
         auto* deviceLayout = new QHBoxLayout;
         deviceLayout->addWidget(device_);
         deviceLayout->addWidget(deviceRefreshButton_);
-        form->addRow(QStringLiteral("设备"), deviceLayout);
+        form->addRow(hostLabel("jack.device","Device",this), deviceLayout);
         sampleRate_ = new Controls::IntegerField(this);
         sampleRate_->setRange(8000, 384000);
         sampleRate_->setSingleStep(1000);
-        form->addRow(QStringLiteral("采样率"), sampleRate_);
+        form->addRow(hostLabel("jack.sampleRate","Sample rate",this), sampleRate_);
         bufferSize_ = new Controls::IntegerField(this);
         bufferSize_->setRange(0, 8192);
         bufferSize_->setSingleStep(32);
-        form->addRow(QStringLiteral("每周期帧数"), bufferSize_);
-        autoStart_ = new Controls::ToggleField(QStringLiteral("启动 WinJACKNexus 时自动启动 jackd"), this);
+        form->addRow(hostLabel("jack.periodFrames","Frames per period",this), bufferSize_);
+        autoStart_ = hostToggle("jack.autoStart","Start jackd with WinJACKNexus",this);
         autoStart_->setObjectName(QStringLiteral("jackServer.autoStart"));
-        autoStart_->setToolTip(QStringLiteral("仅在未检测到已就绪的 JACK 服务器时使用当前配置启动 jackd。"));
+        bindHostText(autoStart_,"toolTip","jack.autoStart.help","Start jackd with these settings only if no ready JACK server is detected.");
         form->addRow(QString(), autoStart_);
         layout->addLayout(form);
 
-        layout->addWidget(new Controls::TextLabel(QStringLiteral("启动命令（对应 README 的 JACK2 参数）"), this));
+        layout->addWidget(hostLabel("jack.command","Startup command (JACK2 arguments in README)",this));
         commandPreview_ = new WinJACKNexus::UI::Controls::ReadOnlyField(this);
-        auto* copyButton = new CopyIconButton(this);
-        copyButton->setToolTip(QStringLiteral("复制启动命令"));
-        copyButton->setAccessibleName(QStringLiteral("复制启动命令"));
+        auto* copyButton = new Controls::IconActionButton(this);
+        copyButton->setFixedSize(Controls::sidebarControlHeight,Controls::sidebarControlHeight);
+        WinJACKNexus::UI::IconManager::bindThemedIcon(copyButton,QStringLiteral("copy"));
+        bindHostText(copyButton,"toolTip","jack.copyCommand","Copy startup command");
+        bindHostText(copyButton,"accessibleName","jack.copyCommand","Copy startup command");
         auto* commandLayout = new QHBoxLayout;
         commandLayout->addWidget(commandPreview_);
         commandLayout->addWidget(copyButton);
         layout->addLayout(commandLayout);
 
         auto* buttons = new Controls::DialogButtonBar(this);
-        startButton_ = buttons->addButton(QStringLiteral("启动 JACK"), QDialogButtonBox::AcceptRole);
-        restartButton_ = buttons->addButton(QStringLiteral("重启 JACK"), QDialogButtonBox::ResetRole);
-        stopButton_ = buttons->addButton(QStringLiteral("停止 JACK"), QDialogButtonBox::DestructiveRole);
+        startButton_ = buttons->addButton(hostText("jack.start","Start JACK"), QDialogButtonBox::AcceptRole);
+        bindHostText(startButton_,"text","jack.start","Start JACK");
+        restartButton_ = buttons->addButton(hostText("jack.restart","Restart JACK"), QDialogButtonBox::ResetRole);
+        bindHostText(restartButton_,"text","jack.restart","Restart JACK");
+        stopButton_ = buttons->addButton(hostText("jack.stop","Stop JACK"), QDialogButtonBox::DestructiveRole);
+        bindHostText(stopButton_,"text","jack.stop","Stop JACK");
         buttons->addButton(QDialogButtonBox::Close);
         layout->addWidget(buttons);
 
-        QSettings settings(QStringLiteral("WinJACKNexus"), QStringLiteral("Jackd"));
+        QSettings settings(QSettings::defaultFormat(), QSettings::UserScope, QStringLiteral("WinJACKNexus"), QStringLiteral("Jackd"));
         jackdDirectory_->setText(settings.value(QStringLiteral("directory"), QStringLiteral("C:/Program Files/JACK2")).toString());
         driver_->setCurrentText(settings.value(QStringLiteral("driver"), QStringLiteral("dummy")).toString());
         device_->setEditText(settings.value(QStringLiteral("device")).toString());
@@ -388,15 +416,16 @@ public:
         autoStart_->setChecked(settings.value(QStringLiteral("autoStart"), false).toBool());
         updateCommandPreview();
         updateDeviceControls();
-        if (usesPortAudio())
+        if (!offline && usesPortAudio())
             refreshDeviceList();
-        updateServerState();
-        statusTimer_.setInterval(1000);
+        if (!offline) updateServerState();
+        else { startButton_->setEnabled(false); restartButton_->setEnabled(false); stopButton_->setEnabled(false); }
+        WinJACKNexus::UI::bindRefreshTimer(statusTimer_,this);
         connect(&statusTimer_, &QTimer::timeout, this, [this] { updateServerState(); });
-        statusTimer_.start();
+        if (!offline) statusTimer_.start();
 
         connect(browseButton, &QPushButton::clicked, this, [this] {
-            const auto directory = QFileDialog::getExistingDirectory(this, QStringLiteral("选择 jackd.exe 所在目录"), jackdDirectory_->text());
+            const auto directory = chooseDirectory(this,"jack.chooseDirectory","Select the directory containing jackd.exe",jackdDirectory_->text());
             if (!directory.isEmpty())
                 jackdDirectory_->setText(directory);
         });
@@ -452,6 +481,7 @@ public:
 
     bool startAutomaticallyIfConfigured()
     {
+        if (offline_) return true;
         if (!autoStart_->isChecked())
             return true;
         if (!WinJACKNexus::Audio::JackServerGuard::isServerReady()
@@ -534,12 +564,13 @@ private:
 
     void refreshDeviceList(bool notifyOnFailure = false)
     {
+        if (offline_) return;
         if (!usesPortAudio() || deviceProbe_.state() != QProcess::NotRunning)
             return;
         const auto program = jackdProgram();
         if (!QFileInfo(program).isExecutable()) {
             if (notifyOnFailure)
-                QMessageBox::warning(this, windowTitle(), QStringLiteral("未在所选目录中找到 jackd.exe。"));
+                QMessageBox::warning(this, windowTitle(), hostText("jack.notFound","jackd.exe was not found in the selected directory."));
             return;
         }
 
@@ -572,6 +603,7 @@ private:
 
     void updateServerState()
     {
+        if (offline_) return;
         const auto running = serverRunning();
         startButton_->setEnabled(!running);
         restartButton_->setEnabled(running);
@@ -580,7 +612,7 @@ private:
 
     void saveSettings() const
     {
-        QSettings settings(QStringLiteral("WinJACKNexus"), QStringLiteral("Jackd"));
+        QSettings settings(QSettings::defaultFormat(), QSettings::UserScope, QStringLiteral("WinJACKNexus"), QStringLiteral("Jackd"));
         settings.setValue(QStringLiteral("directory"), QDir::cleanPath(jackdDirectory_->text()));
         settings.setValue(QStringLiteral("driver"), driver_->currentText().trimmed());
         settings.setValue(QStringLiteral("device"), device_->currentText().trimmed());
@@ -603,6 +635,7 @@ private:
 
     bool stopJackd()
     {
+        if (offline_) return false;
         if (!serverRunning()) {
             updateServerState();
             return true;
@@ -615,7 +648,7 @@ private:
         const auto stopped = stopJackdProcesses(static_cast<DWORD>(deviceProbe_.processId()));
         updateServerState();
         if (!stopped && serverRunning())
-            QMessageBox::warning(this, windowTitle(), QStringLiteral("无法停止正在运行的 jackd.exe。"));
+            QMessageBox::warning(this, windowTitle(), hostText("jack.stopFailed","Unable to stop the running jackd.exe."));
         return stopped;
     }
 
@@ -627,6 +660,7 @@ private:
 
     bool startJackd(bool waitForStart = false, bool notifyOnFailure = true)
     {
+        if (offline_) return false;
         if (serverRunning()) {
             updateServerState();
             return true;
@@ -634,7 +668,7 @@ private:
         const auto program = jackdProgram();
         if (!QFileInfo(program).isExecutable()) {
             if (notifyOnFailure)
-                QMessageBox::warning(this, windowTitle(), QStringLiteral("未在所选目录中找到 jackd.exe。"));
+                QMessageBox::warning(this, windowTitle(), hostText("jack.notFound","jackd.exe was not found in the selected directory."));
             return false;
         }
         saveSettings();
@@ -642,7 +676,7 @@ private:
         const auto started = !waitForStart || process_.waitForStarted(3000);
         updateServerState();
         if (!started && notifyOnFailure)
-            QMessageBox::warning(this, windowTitle(), QStringLiteral("无法启动 jackd.exe。"));
+            QMessageBox::warning(this, windowTitle(), hostText("jack.startFailed","Unable to start jackd.exe."));
         return started;
     }
 
@@ -661,6 +695,7 @@ private:
     QProcess deviceProbe_;
     QByteArray deviceProbeOutput_;
     QTimer statusTimer_;
+    bool offline_ = false;
 };
 
 class GlobalSettingsDialog final : public QDialog {
@@ -670,13 +705,18 @@ public:
         : QDialog(parent)
     {
         namespace Controls = WinJACKNexus::UI::Controls;
-        setWindowTitle(QStringLiteral("全局设置"));
+        bindHostText(this,"windowTitle","settings.global.title","Global settings");
         resize(620, 410);
 
         auto* layout = new QVBoxLayout(this);
-        auto* applicationGroup = new Controls::GroupPanel(QStringLiteral("应用设置"), this);
+        auto* applicationGroup = hostGroup("settings.application","Application settings",this);
         auto* applicationForm = new QFormLayout(applicationGroup);
         applicationForm->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
+        auto* language=new Controls::ChoiceField(applicationGroup);
+        language->setObjectName(QStringLiteral("application.language"));
+        language->setFixedHeight(Controls::sidebarControlHeight);
+        applicationForm->addRow(hostLabel("settings.language","Language",applicationGroup),language);
+        if (auto* host=WinJACKNexus::UI::HostI18n::installed()) host->bindLanguageChoice(language);
 
         frameRate_ = new Controls::ChoiceField(applicationGroup);
         frameRate_->setFixedHeight(Controls::sidebarControlHeight);
@@ -686,7 +726,7 @@ public:
         frameRate_->addItem(QStringLiteral("120 FPS"), 120);
         const auto frameRateIndex = frameRate_->findData(WinJACKNexus::UI::ApplicationSettings::instance().frameRate());
         frameRate_->setCurrentIndex(frameRateIndex >= 0 ? frameRateIndex : 1);
-        applicationForm->addRow(QStringLiteral("界面帧率"), frameRate_);
+        applicationForm->addRow(hostLabel("settings.frameRate","UI frame rate",this), frameRate_);
 
         peakValueRefresh_ = new Controls::IntegerField(applicationGroup);
         peakValueRefresh_->setFixedHeight(Controls::sidebarControlHeight);
@@ -695,7 +735,7 @@ public:
         peakValueRefresh_->setSuffix(QStringLiteral(" ms"));
         peakValueRefresh_->setValue(WinJACKNexus::UI::ApplicationSettings::instance()
                                         .peakValueRefreshMilliseconds());
-        applicationForm->addRow(QStringLiteral("峰值表数值刷新频率"), peakValueRefresh_);
+        applicationForm->addRow(hostLabel("settings.peakRefresh","Peak value refresh interval",this), peakValueRefresh_);
 
         peakHold_ = new Controls::DecimalField(applicationGroup);
         peakHold_->setFixedHeight(Controls::sidebarControlHeight);
@@ -705,14 +745,14 @@ public:
         peakHold_->setDecimals(1);
         peakHold_->setSuffix(QStringLiteral(" s"));
         peakHold_->setValue(WinJACKNexus::UI::ApplicationSettings::instance().peakHoldSeconds());
-        applicationForm->addRow(QStringLiteral("峰值保持时长"), peakHold_);
+        applicationForm->addRow(hostLabel("settings.peakHold","Peak hold time",this), peakHold_);
 
-        logTracing_ = new Controls::ToggleField(QStringLiteral("启用详细日志跟踪"), applicationGroup);
+        logTracing_ = hostToggle("settings.loggingEnabled","Enable detailed log tracing",applicationGroup);
         logTracing_->setFixedHeight(Controls::sidebarControlHeight);
         logTracing_->setObjectName(QStringLiteral("application.logTracingEnabled"));
-        logTracing_->setChecked(QSettings(QStringLiteral("WinJACKNexus"), QStringLiteral("Application"))
+        logTracing_->setChecked(QSettings(QSettings::defaultFormat(), QSettings::UserScope, QStringLiteral("WinJACKNexus"), QStringLiteral("Application"))
             .value(QStringLiteral("logTracingEnabled"), true).toBool());
-        applicationForm->addRow(QStringLiteral("诊断日志"), logTracing_);
+        applicationForm->addRow(hostLabel("settings.logging","Diagnostic logging",this), logTracing_);
 
         opacitySlider_ = new Controls::RangeSlider(Qt::Horizontal, applicationGroup);
         opacitySlider_->setObjectName(QStringLiteral("application.quickAccessOpacity"));
@@ -721,10 +761,10 @@ public:
         auto* opacityLayout = new QHBoxLayout;
         opacityLayout->addWidget(opacitySlider_);
         opacityLayout->addWidget(opacityValue_);
-        applicationForm->addRow(QStringLiteral("状态栏透明度"), opacityLayout);
+        applicationForm->addRow(hostLabel("settings.opacity","Quick access bar opacity",this), opacityLayout);
         layout->addWidget(applicationGroup);
 
-        auto* meterbridgeGroup = new Controls::GroupPanel(QStringLiteral("电平表桥"), this);
+        auto* meterbridgeGroup = hostGroup("view.meterbridge","Meter bridge",this);
         auto* meterbridgeForm = new QFormLayout(meterbridgeGroup);
         meterbridgeForm->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
         meterbridgeSilenceThreshold_ = new Controls::DecimalField(meterbridgeGroup);
@@ -732,28 +772,28 @@ public:
         meterbridgeSilenceThreshold_->setRange(-144.0, 0.0);
         meterbridgeSilenceThreshold_->setDecimals(1);
         meterbridgeSilenceThreshold_->setSuffix(QStringLiteral(" dBFS"));
-        meterbridgeForm->addRow(QStringLiteral("静音阈值"), meterbridgeSilenceThreshold_);
+        meterbridgeForm->addRow(hostLabel("settings.silenceThreshold","Silence threshold",this), meterbridgeSilenceThreshold_);
         meterbridgeSilenceDuration_ = new Controls::DecimalField(meterbridgeGroup);
         meterbridgeSilenceDuration_->setFixedHeight(Controls::sidebarControlHeight);
         meterbridgeSilenceDuration_->setRange(0.1, 60.0);
         meterbridgeSilenceDuration_->setDecimals(1);
-        meterbridgeSilenceDuration_->setSuffix(QStringLiteral(" 秒"));
-        meterbridgeForm->addRow(QStringLiteral("静音时长"), meterbridgeSilenceDuration_);
+        meterbridgeSilenceDuration_->setSuffix(QStringLiteral(" s"));
+        meterbridgeForm->addRow(hostLabel("settings.silenceDuration","Silence duration",this), meterbridgeSilenceDuration_);
         meterbridgeLogRootDirectory_ = new WinJACKNexus::UI::Controls::ReadOnlyField(meterbridgeGroup);
         meterbridgeLogRootDirectory_->setFixedHeight(Controls::sidebarControlHeight);
-        meterbridgeLogRootDirectory_->setPlaceholderText(QStringLiteral("未设置，CSV 记录不可用"));
-        auto* meterbridgeLogBrowseButton = new Controls::ActionButton(QStringLiteral("浏览"), meterbridgeGroup);
-        auto* meterbridgeLogClearButton = new Controls::ActionButton(QStringLiteral("清除"), meterbridgeGroup);
+        bindHostText(meterbridgeLogRootDirectory_,"placeholderText","settings.noCsvRoot","Not set; CSV logging unavailable");
+        auto* meterbridgeLogBrowseButton = hostButton("action.browse","Browse",meterbridgeGroup);
+        auto* meterbridgeLogClearButton = hostButton("action.clear","Clear",meterbridgeGroup);
         meterbridgeLogBrowseButton->setFixedHeight(Controls::sidebarControlHeight);
         meterbridgeLogClearButton->setFixedHeight(Controls::sidebarControlHeight);
         auto* meterbridgeLogLayout = new QHBoxLayout;
         meterbridgeLogLayout->addWidget(meterbridgeLogRootDirectory_, 1);
         meterbridgeLogLayout->addWidget(meterbridgeLogBrowseButton);
         meterbridgeLogLayout->addWidget(meterbridgeLogClearButton);
-        meterbridgeForm->addRow(QStringLiteral("日志保存根目录"), meterbridgeLogLayout);
+        meterbridgeForm->addRow(hostLabel("settings.logRoot","Log root directory",this), meterbridgeLogLayout);
         layout->addWidget(meterbridgeGroup);
 
-        auto* themesButton = new Controls::ActionButton(QStringLiteral("主题管理…"), this);
+        auto* themesButton = hostButton("action.manageThemes","Manage themes\u2026",this);
         layout->addWidget(themesButton);
         connect(themesButton, &QPushButton::clicked, this, [&themes] {
             themes.show();
@@ -766,8 +806,8 @@ public:
             closeButton->setFixedHeight(Controls::sidebarControlHeight);
         layout->addWidget(buttons);
 
-        QSettings applicationSettings(QStringLiteral("WinJACKNexus"), QStringLiteral("Application"));
-        QSettings legacyJackdSettings(QStringLiteral("WinJACKNexus"), QStringLiteral("Jackd"));
+        QSettings applicationSettings(QSettings::defaultFormat(), QSettings::UserScope, QStringLiteral("WinJACKNexus"), QStringLiteral("Application"));
+        QSettings legacyJackdSettings(QSettings::defaultFormat(), QSettings::UserScope, QStringLiteral("WinJACKNexus"), QStringLiteral("Jackd"));
         const auto opacity = std::clamp(applicationSettings.value(
             QStringLiteral("quickAccessOpacity"),
             legacyJackdSettings.value(QStringLiteral("quickAccessOpacity"), WinJACKNexus::UI::TrayController::quickAccessOpacity())).toInt(),
@@ -778,7 +818,7 @@ public:
         if (!applicationSettings.contains(QStringLiteral("quickAccessOpacity")))
             applicationSettings.setValue(QStringLiteral("quickAccessOpacity"), opacity);
 
-        QSettings meterbridgeSettings(QStringLiteral("WinJACKNexus"), QStringLiteral("Meterbridge"));
+        QSettings meterbridgeSettings(QSettings::defaultFormat(), QSettings::UserScope, QStringLiteral("WinJACKNexus"), QStringLiteral("Meterbridge"));
         meterbridgeSilenceThreshold_->setValue(std::clamp(meterbridgeSettings.value(QStringLiteral("silenceThresholdDbfs"), -70.0).toDouble(), -144.0, 0.0));
         meterbridgeSilenceDuration_->setValue(std::clamp(meterbridgeSettings.value(QStringLiteral("silenceDurationSeconds"), 3.0).toDouble(), 0.1, 60.0));
         const auto logRootDirectory = meterbridgeSettings.value(QStringLiteral("logRootDirectory")).toString().trimmed();
@@ -799,7 +839,7 @@ public:
             WinJACKNexus::Common::Logger::instance().setDetailedLoggingEnabled(enabled);
             WJN_LOG_INFO("Detailed log tracing %s", enabled ? "enabled" : "disabled");
             WinJACKNexus::Common::Logger::instance().flush();
-            QSettings(QStringLiteral("WinJACKNexus"), QStringLiteral("Application"))
+            QSettings(QSettings::defaultFormat(), QSettings::UserScope, QStringLiteral("WinJACKNexus"), QStringLiteral("Application"))
                 .setValue(QStringLiteral("logTracingEnabled"), enabled);
         });
         connect(opacitySlider_, &QSlider::valueChanged, this, [this](int value) {
@@ -814,7 +854,7 @@ public:
             saveMeterbridgeSettings();
         });
         connect(meterbridgeLogBrowseButton, &QPushButton::clicked, this, [this] {
-            const auto directory = QFileDialog::getExistingDirectory(this, QStringLiteral("选择 Meterbridge CSV 日志根目录"), meterbridgeLogRootDirectory_->text());
+            const auto directory = chooseDirectory(this,"settings.chooseCsvRoot","Select meter bridge CSV log root directory",meterbridgeLogRootDirectory_->text());
             if (!directory.isEmpty()) {
                 meterbridgeLogRootDirectory_->setText(QDir::fromNativeSeparators(QDir::cleanPath(directory)));
                 saveMeterbridgeSettings();
@@ -830,13 +870,13 @@ public:
 private:
     void saveApplicationSettings() const
     {
-        QSettings settings(QStringLiteral("WinJACKNexus"), QStringLiteral("Application"));
+        QSettings settings(QSettings::defaultFormat(), QSettings::UserScope, QStringLiteral("WinJACKNexus"), QStringLiteral("Application"));
         settings.setValue(QStringLiteral("quickAccessOpacity"), opacitySlider_->value());
     }
 
     void saveMeterbridgeSettings() const
     {
-        QSettings settings(QStringLiteral("WinJACKNexus"), QStringLiteral("Meterbridge"));
+        QSettings settings(QSettings::defaultFormat(), QSettings::UserScope, QStringLiteral("WinJACKNexus"), QStringLiteral("Meterbridge"));
         settings.setValue(QStringLiteral("silenceThresholdDbfs"), meterbridgeSilenceThreshold_->value());
         settings.setValue(QStringLiteral("silenceDurationSeconds"), meterbridgeSilenceDuration_->value());
         settings.setValue(QStringLiteral("logRootDirectory"), meterbridgeLogRootDirectory_->text());
@@ -854,12 +894,14 @@ private:
     QLineEdit* meterbridgeLogRootDirectory_ = nullptr;
 };
 
-class JackMonitor final {
+class JackMonitor final : public QObject {
 public:
     explicit JackMonitor(WinJACKNexus::UI::TrayController& tray)
         : tray_(tray)
     {
-        timer_.setInterval(1000);
+        WinJACKNexus::UI::bindRefreshTimer(timer_,this);
+        if (auto* manager=WinJACKNexus::UI::I18nManager::installed())
+            manager->bind(this,[this] { render(); });
         QObject::connect(&timer_, &QTimer::timeout, [&] { refresh(); });
         timer_.start();
         refresh();
@@ -875,27 +917,39 @@ private:
     void refresh()
     {
         if (!client_.isOpen()) {
+            const auto now=GetTickCount64();
+            if (now<nextConnectionAttempt_) return;
+            nextConnectionAttempt_=now+1000;
             if (!client_.open({ "WinJACKNexus-Monitor", false, true, nullptr })) {
-                WinJACKNexus::UI::TrayController::setQuickAccessStatus(QStringLiteral("JACK 离线"));
+                render();
                 return;
             }
             client_.setXRunCallback(&JackMonitor::onXRun, this);
             client_.activate();
         }
-        WinJACKNexus::UI::TrayController::setQuickAccessStatus(
-            QStringLiteral("DSP %1% · XRun %2")
-                .arg(client_.cpuLoad(), 0, 'f', 1)
-                .arg(xruns_.load(std::memory_order_relaxed)));
+        lastLoad_=client_.cpuLoad();
+        render();
+    }
+    void render() const {
+        WinJACKNexus::UI::TrayController::setQuickAccessStatus(client_.isOpen()
+            ?hostText("status.jackLoad","DSP {load}% · XRun {count}",
+                {{QStringLiteral("load"),QString::number(lastLoad_,'f',1)},
+                 {QStringLiteral("count"),QString::number(xruns_.load(std::memory_order_relaxed))}})
+            :hostText("status.jackOffline","JACK offline"));
     }
 
     WinJACKNexus::UI::TrayController& tray_;
     WinJACKNexus::Audio::JackClient client_;
     std::atomic_uint64_t xruns_ { 0 };
     QTimer timer_;
+    ULONGLONG nextConnectionAttempt_=0;
+    double lastLoad_=0;
 };
 
 }
 
+
+#ifndef WJN_HOST_I18N_TEST
 int main(int argc, char* argv[])
 {
     auto& logger = WinJACKNexus::Common::Logger::instance();
@@ -903,21 +957,36 @@ int main(int argc, char* argv[])
     const auto dumpDirectory = WinJACKNexus::Common::PathUtils::logDirectory().wstring();
     wcsncpy_s(crashDumpDirectory, dumpDirectory.c_str(), _TRUNCATE);
     SetUnhandledExceptionFilter(&writeCrashDump);
+    QApplication application(argc, argv);
+    application.setApplicationName(QStringLiteral("WinJACKNexus"));
+    application.setQuitOnLastWindowClosed(false);
+    WinJACKNexus::UI::HostI18n hostI18n;
+    QString i18nError;
+    if (!hostI18n.initialize(QCoreApplication::applicationDirPath(), &i18nError)) {
+        QMessageBox::critical(nullptr, application.applicationName(),
+            hostText("startup.i18nFailure","Unable to initialize language resources: {detail}",
+                {{QStringLiteral("detail"),i18nError}}));
+        return 1;
+    }
+    QObject::connect(&hostI18n,&WinJACKNexus::UI::HostI18n::languageSelectionFailed,
+        &application,[](const QString& detail) {
+            QMessageBox::warning(nullptr,hostText("language.failure.title","Language switch failed"),
+                hostText("language.failure.message","Unable to change the language: {detail}",
+                    {{QStringLiteral("detail"),detail}}));
+        });
     const auto instanceMutex = CreateMutexW(nullptr, TRUE, L"Local\\WinJACKNexus.SingleInstance");
     if (instanceMutex == nullptr || GetLastError() == ERROR_ALREADY_EXISTS) {
         if (instanceMutex != nullptr)
             CloseHandle(instanceMutex);
-        MessageBoxW(nullptr, L"WinJACKNexus 已在运行。", L"WinJACKNexus", MB_OK | MB_ICONINFORMATION);
+        QMessageBox::information(nullptr,application.applicationName(),
+            hostText("startup.alreadyRunning","WinJACKNexus is already running."));
         return 0;
     }
     WJN_LOG_INFO("Single-instance lock acquired");
     logger.flush();
-    QApplication application(argc, argv);
     WJN_LOG_INFO("Qt application initialized");
     logger.flush();
-    application.setApplicationName(QStringLiteral("WinJACKNexus"));
-    application.setQuitOnLastWindowClosed(false);
-    const bool logTracingEnabled = QSettings(QStringLiteral("WinJACKNexus"),
+    const bool logTracingEnabled = QSettings(QSettings::defaultFormat(), QSettings::UserScope, QStringLiteral("WinJACKNexus"),
         QStringLiteral("Application")).value(QStringLiteral("logTracingEnabled"), true).toBool();
     logger.setDetailedLoggingEnabled(logTracingEnabled);
     qInstallMessageHandler(logQtMessage);
@@ -941,11 +1010,10 @@ int main(int argc, char* argv[])
 
     WinJACKNexus::UI::TrayController tray;
     const bool trayAvailable = tray.initialize(applicationIcon, application.applicationName());
-    if (trayAvailable) {
-        QObject::connect(&tray, &WinJACKNexus::UI::TrayController::quitRequested,
-                         &application, &QApplication::quit);
-        tray.setThemeLoadingProgress(0);
-    }
+    if (!trayAvailable) tray.initializeFallback();
+    QObject::connect(&tray, &WinJACKNexus::UI::TrayController::quitRequested,
+                     &application, &QApplication::quit);
+    tray.setThemeLoadingProgress(0);
 
     std::unique_ptr<QSettings> applicationSettings;
     std::unique_ptr<WinJACKNexus::UI::ThemeCore> themeCore;
@@ -961,7 +1029,7 @@ int main(int argc, char* argv[])
                 tray.setThemeLoadingProgress(progress);
             }, Qt::QueuedConnection);
         };
-        applicationSettings = std::make_unique<QSettings>(QStringLiteral("WinJACKNexus"),
+        applicationSettings = std::make_unique<QSettings>(QSettings::defaultFormat(), QSettings::UserScope, QStringLiteral("WinJACKNexus"),
             QStringLiteral("Application"));
         themeCore = std::make_unique<WinJACKNexus::UI::ThemeCore>();
         report(30);
@@ -990,16 +1058,16 @@ int main(int argc, char* argv[])
         logger.flush();
         if (qEnvironmentVariableIsSet("WJN_THEME_STARTUP_PROBE"))
             return 1;
-        const auto message = QStringLiteral("无法加载必需的默认主题 DLL，程序无法启动。\n%1")
-            .arg(themeCore->initializationError()).toStdWString();
-        MessageBoxW(nullptr, message.c_str(), L"WinJACKNexus 主题启动失败", MB_OK | MB_ICONERROR);
+        QMessageBox::critical(nullptr,hostText("startup.themeFailure.title","WinJACKNexus theme startup failed"),
+            hostText("startup.themeFailure.message","Unable to load the required default theme DLL. The application cannot start.\n{detail}",
+                {{QStringLiteral("detail"),themeCore->initializationError()}}));
         return 1;
     }
     WinJACKNexus::UI::ThemeManager::installThemeCore(themeCore.get());
     WinJACKNexus::UI::ThemeManager themeManager;
     themeManager.watchApplication(&application);
 
-    QSettings legacyJackdSettings(QStringLiteral("WinJACKNexus"), QStringLiteral("Jackd"));
+    QSettings legacyJackdSettings(QSettings::defaultFormat(), QSettings::UserScope, QStringLiteral("WinJACKNexus"), QStringLiteral("Jackd"));
     const auto quickAccessOpacity = std::clamp(applicationSettings->value(
         QStringLiteral("quickAccessOpacity"),
         legacyJackdSettings.value(QStringLiteral("quickAccessOpacity"), 50)).toInt(),
@@ -1066,31 +1134,35 @@ int main(int argc, char* argv[])
     if (!jackServerSettingsDialog.startAutomaticallyIfConfigured()) {
         WJN_LOG_WARN("Configured JACK server startup failed");
         QMessageBox::warning(nullptr, application.applicationName(),
-                             QStringLiteral("未能按 JACK 服务器设置启动或连接 jackd。"));
+                             hostText("jack.autoStartFailed","Unable to start or connect to jackd using the JACK server settings."));
     }
-    if (trayAvailable) {
-        auto* themeAction = tray.addMenuAction(QStringLiteral("主题"));
+    if (tray.contextMenu()) {
+        auto* themeAction = tray.addMenuAction(hostText("menu.theme","Theme"));
+        bindHostText(themeAction,"text","menu.theme","Theme");
         themeAction->setMenu(themeCatalog->createMenu(tray.contextMenu(), [&themeManagementDialog] {
             themeManagementDialog.show();
             themeManagementDialog.raise();
             themeManagementDialog.activateWindow();
         }, [&tray](const QString& issue) {
-            tray.showMessage(QStringLiteral("主题切换失败"), issue, 1);
+            tray.showMessage(hostText("error.themeSwitch","Theme switch failed"), issue, 1);
         }));
         tray.setQuickAccessThemeMenu(themeCatalog->createMenu(tray.contextMenu(), [&themeManagementDialog] {
             themeManagementDialog.show();
             themeManagementDialog.raise();
             themeManagementDialog.activateWindow();
         }, [&tray](const QString& issue) {
-            tray.showMessage(QStringLiteral("主题切换失败"), issue, 1);
+            tray.showMessage(hostText("error.themeSwitch","Theme switch failed"), issue, 1);
         }));
-        auto* globalSettingsAction = tray.addMenuAction(QStringLiteral("全局设置"));
+        auto* globalSettingsAction = tray.addMenuAction(hostText("settings.global.title","Global settings"));
+        bindHostText(globalSettingsAction,"text","settings.global.title","Global settings");
+        tray.setQuickAccessSettingsAction(globalSettingsAction);
         QObject::connect(globalSettingsAction, &QAction::triggered, &application, [&globalSettingsDialog] {
             globalSettingsDialog.show();
             globalSettingsDialog.raise();
             globalSettingsDialog.activateWindow();
         });
-        auto* jackServerSettingsAction = tray.addMenuAction(QStringLiteral("JACK 服务器设置"));
+        auto* jackServerSettingsAction = tray.addMenuAction(hostText("jack.settings.title","JACK server settings"));
+        bindHostText(jackServerSettingsAction,"text","jack.settings.title","JACK server settings");
         QObject::connect(jackServerSettingsAction, &QAction::triggered, &application, [&jackServerSettingsDialog] {
             jackServerSettingsDialog.show();
             jackServerSettingsDialog.raise();
@@ -1104,7 +1176,7 @@ int main(int argc, char* argv[])
     if (!patchbayModule.load(patchbayPath)) {
         logger.flush();
         QMessageBox::critical(nullptr, application.applicationName(),
-                              QStringLiteral("无法加载接线盘模块。"));
+                              hostText("error.patchbayLoad","Unable to load the patchbay module."));
         return 1;
     }
 
@@ -1113,15 +1185,15 @@ int main(int argc, char* argv[])
     if (!meterbridgeModule.load(meterbridgePath)) {
         logger.flush();
         QMessageBox::critical(nullptr, application.applicationName(),
-                              QStringLiteral("无法加载电平表桥模块。"));
+                              hostText("error.meterbridgeLoad","Unable to load the meter bridge module."));
         return 1;
     }
 
-    if (trayAvailable) {
+    if (tray.contextMenu()) {
         tray.registerPlaceholder(tray.patchbayAction());
         QObject::connect(tray.patchbayAction(), &QAction::triggered, &application, [&tray, &patchbayModule] {
             if (patchbayModule.node()->createWindow(nullptr) == nullptr)
-                tray.showMessage(QStringLiteral("接线盘"), QStringLiteral("无法创建接线盘窗口。"), 2);
+                tray.showMessage(hostText("view.patchbay","Patchbay"), hostText("error.patchbayWindow","Unable to create the patchbay window."), 2);
         });
         const std::array<QAction*,3> mixerViews {tray.mixerAction(),tray.mixerDetailsAction(),tray.mixerOverviewAction()};
         for(int view=0;view<static_cast<int>(mixerViews.size());++view)
@@ -1129,13 +1201,13 @@ int main(int argc, char* argv[])
                 using ShowView=int (*)(int);
                 const auto show=reinterpret_cast<ShowView>(GetProcAddress(patchbayModule.moduleHandle(),"wjn_patchbay_show_digital_mixer_view"));
                 const int result=show?show(view):-1;
-                if(result==0)tray.showMessage(QStringLiteral("调音台"),QStringLiteral("请先在接线盘的工具 > 音频工具中启用调音台。"),2);
-                else if(result<0)tray.showMessage(QStringLiteral("调音台"),QStringLiteral("Digital Mixer 窗口暂时无法打开。"),2);
+                if(result==0)tray.showMessage(hostText("view.mixer","Mixer"),hostText("error.enableMixer","Enable the mixer in the patchbay under Tools > Audio tools first."),2);
+                else if(result<0)tray.showMessage(hostText("view.mixer","Mixer"),hostText("error.mixerWindow","The Digital Mixer window is currently unavailable."),2);
             });
             tray.registerPlaceholder(tray.meterbridgeAction());
             QObject::connect(tray.meterbridgeAction(), &QAction::triggered, &application, [&tray, &meterbridgeModule] {
                 if (meterbridgeModule.node()->createWindow(nullptr) == nullptr)
-                tray.showMessage(QStringLiteral("电平表桥"), QStringLiteral("无法创建电平表桥窗口。"), 2);
+                tray.showMessage(hostText("view.meterbridge","Meter bridge"), hostText("error.meterbridgeWindow","Unable to create the meter bridge window."), 2);
             });
     }
 
@@ -1143,7 +1215,7 @@ int main(int argc, char* argv[])
         WJN_LOG_ERROR("Initial patchbay window creation failed");
         logger.flush();
         QMessageBox::critical(nullptr, application.applicationName(),
-                              QStringLiteral("无法创建接线盘窗口。"));
+                              hostText("error.patchbayWindow","Unable to create the patchbay window."));
         CloseHandle(instanceMutex);
         return 1;
     }
@@ -1153,3 +1225,5 @@ int main(int argc, char* argv[])
     CloseHandle(instanceMutex);
     return exitCode;
 }
+
+#endif // WJN_HOST_I18N_TEST

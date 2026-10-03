@@ -284,3 +284,22 @@ exercise the built DLL through its exported API.
 ## Shared standard channel names
 
 Common `StandardChannelNames.hpp` owns the vocabulary L/C/R/Lw/Rw/Ls/Rs/Lrb/Rrb/LFE/Ltf/Rtf/Ltm/Rtm/Ltr/Rtr. `ChannelNames.hpp` supplies Qt labels and meter role names. Vocabulary order is not sample order: existing 5.1/7.1 buffers remain L/R/C/LFE/Ls/Rs[/Lrb/Rrb]; mono is M. Mixer ports, FX selectors, MAIN/AUX/monitor controls, spatial panner labels, Native Fx, adapter ports, VST standard-name ports and probe defaults reuse this source. Adapter audio ports are directly named M or their standard speaker names, replacing capture_N/playback_N. VST standard mode retains in_/out_ prefixes; Native Fx retains in_/out_ prefixes. Existing custom probe names are retained. After changed port names, reconnect affected ports and save the project.
+# Optional i18n v1 extension (S1)
+
+The required Native Fx v1 API and `WjnFxMeta` layout remain unchanged.
+`NativeFxApi.h` includes `WinJACKNexus/Common/I18nApi.h`. Hosts dynamically
+probe `wjn_fx_i18n_api_version()` and
+`wjn_fx_i18n_descriptor_json(uint32_t index)`; version is 1, invalid index
+returns NULL. Node-capable effects may expose both Node and FX descriptor
+exports, using the same moduleId/domains/locate root. Lifecycle exports
+attach/change/detach apply once per DLL, not once per instance or host.
+
+The exact C signatures, statuses, buffer sizes, formatter, domain isolation,
+threading and unload rules are frozen in [I18n API v1](../../Docs/I18n-API.md).
+The ExampleNativeFx supplies its own four-language locate package and
+refreshes the actual shared-control GainPanel from the host service. DSP,
+parameters, client/port names and user names retain their identity. Without
+a host, it uses local English. `i18n_contract_tests` verify two host leases,
+late editor creation, live text refresh preserving gain, UI rendering,
+detach and real DLL unload without a JACK server. Example-only lifecycle
+and query probes do not add requirements to production effects.

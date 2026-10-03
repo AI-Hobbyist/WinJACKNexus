@@ -14,6 +14,7 @@
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 #include <WinJACKNexus/Node/NodeApi.h>
+#include "../I18nExample.hpp"
 
 #include <cstdint>
 
@@ -61,6 +62,13 @@ private:
 const char* wjn_get_node_api_version(void)
 {
     return "2";
+}
+
+uint32_t wjn_get_node_i18n_api_version(void) { return WJN_I18N_API_VERSION; }
+const char* wjn_get_node_i18n_descriptor_json(uint32_t index) {
+    return index==0 ? R"json({"descriptorVersion":1,"i18nApiVersion":1,
+        "moduleId":"example-node","domains":["example.node"],"locatePath":"locate","catalogVersion":1,
+        "displayNameKey":{"domain":"example.node","key":"name"}})json" : nullptr;
 }
 
 std::uint32_t wjn_get_node_theme_api_version(void)

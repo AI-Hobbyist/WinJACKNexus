@@ -14,6 +14,7 @@ foreach(fx IN LISTS wjn_native_fx_ids)
     endif()
     target_include_directories(${target} PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/include
+        ${PROJECT_SOURCE_DIR}/src/common/include
         ${CMAKE_CURRENT_SOURCE_DIR}/effects/${fx}/include)
     if(fx STREQUAL "parametric_eq")
         target_include_directories(${target} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/effects/graphic_eq/include)

@@ -16,6 +16,7 @@ target_link_libraries(WinJACKNexus
 )
 
 target_compile_features(WinJACKNexus PRIVATE cxx_std_20)
+target_compile_options(WinJACKNexus PRIVATE /utf-8)
 target_compile_definitions(WinJACKNexus PRIVATE WIN32_LEAN_AND_MEAN NOMINMAX)
 target_link_options(WinJACKNexus PRIVATE "/MANIFEST:EMBED" "/MANIFESTINPUT:${CMAKE_CURRENT_SOURCE_DIR}/WinJACKNexus.manifest")
 add_dependencies(WinJACKNexus mod_patchbay mod_digital_mixer mod_meterbrigde mod_meterbridge_probe mod_native_fx wjn_default_theme)
@@ -46,6 +47,16 @@ add_custom_command(TARGET WinJACKNexus POST_BUILD
         "$<TARGET_FILE_DIR:WinJACKNexus>"
     COMMAND "${CMAKE_COMMAND}" -E make_directory
         "$<TARGET_FILE_DIR:WinJACKNexus>/themes"
+    COMMAND "${CMAKE_COMMAND}" -E copy_directory
+        "${PROJECT_SOURCE_DIR}/locate"
+        "$<TARGET_FILE_DIR:WinJACKNexus>/locate"
+    COMMAND "${CMAKE_COMMAND}" -E make_directory
+        "$<TARGET_FILE_DIR:WinJACKNexus>/locate/qt"
+    COMMAND "${CMAKE_COMMAND}" -E copy_if_different
+        "${WJN_QT6_DIR}/../../../translations/qtbase_zh_CN.qm"
+        "${WJN_QT6_DIR}/../../../translations/qtbase_ja.qm"
+        "${WJN_QT6_DIR}/../../../translations/qtbase_ko.qm"
+        "$<TARGET_FILE_DIR:WinJACKNexus>/locate/qt"
     COMMAND "${CMAKE_COMMAND}" -E copy_directory
         "${PROJECT_SOURCE_DIR}/themes"
         "$<TARGET_FILE_DIR:WinJACKNexus>/themes"

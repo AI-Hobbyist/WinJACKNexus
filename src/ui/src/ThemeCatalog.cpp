@@ -1,5 +1,6 @@
 /* This file is part of WinJACKNexus. SPDX-License-Identifier: AGPL-3.0-only */
 #include <WinJACKNexus/UI/ThemeCatalog.hpp>
+#include <WinJACKNexus/UI/HostI18n.hpp>
 
 #include <WinJACKNexus/UI/ThemeCore.hpp>
 #include <WinJACKNexus/UI/ThemePackage.hpp>
@@ -221,7 +222,8 @@ QString ThemeCatalog::directory() const { return directory_; }
 
 QMenu* ThemeCatalog::createMenu(QWidget* parent, std::function<void()> openManagement,
                                 std::function<void(const QString&)> reportError) {
-    auto* menu = new QMenu(QStringLiteral("主题"), parent);
+    auto* menu = new QMenu(hostText("menu.theme","Theme"), parent);
+    bindHostText(menu,"title","menu.theme","Theme");
     auto* group = new QActionGroup(menu);
     group->setExclusive(true);
     connect(menu, &QMenu::aboutToShow, menu,
@@ -251,16 +253,18 @@ QMenu* ThemeCatalog::createMenu(QWidget* parent, std::function<void()> openManag
                                            [this](const auto& entry) { return entry.id == selectedId_; });
         if (selected != entries_.cend() && selected->dev) {
             menu->addSeparator();
-            auto* reload = menu->addAction(QStringLiteral("刷新当前 Dev 主题"));
+            auto* reload = menu->addAction(hostText("action.refreshDevTheme","Reload current Dev theme"));
             reload->setObjectName(QStringLiteral("theme.menu.refresh-dev"));
+            bindHostText(reload,"text","action.refreshDevTheme","Reload current Dev theme");
             connect(reload, &QAction::triggered, menu, [this, reportError] {
                 QString issue;
                 if (!activate(selectedId_, &issue) && reportError) reportError(issue);
             });
         }
         menu->addSeparator();
-        auto* manage = menu->addAction(QStringLiteral("主题管理…"));
+        auto* manage = menu->addAction(hostText("action.manageThemes","Manage themes\u2026"));
         manage->setObjectName(QStringLiteral("theme.menu.management"));
+        bindHostText(manage,"text","action.manageThemes","Manage themes\u2026");
         connect(manage, &QAction::triggered, menu, openManagement);
     });
     return menu;

@@ -15,6 +15,9 @@
  */
 #include <WinJACKNexus/UI/TrayController.hpp>
 #include <WinJACKNexus/UI/Controls.hpp>
+#include <WinJACKNexus/UI/ApplicationSettings.hpp>
+#include <WinJACKNexus/UI/HostI18n.hpp>
+#include <WinJACKNexus/UI/IconManager.hpp>
 
 #include <QAction>
 #include <QApplication>
@@ -41,75 +44,22 @@ namespace {
 
 std::vector<TrayController*> trayControllers;
 std::vector<TrayNodeGuiEntry> nodeGuiEntries;
+QHash<QString,QString> nodeGuiDisplayNames;
+QString entryDisplayName(const TrayNodeGuiEntry& entry) {return nodeGuiDisplayNames.value(entry.id,entry.name);}
 QString quickAccessStatus;
 QPointer<QMenu> quickAccessFileMenu;
 QMetaObject::Connection quickAccessFileMenuDestroyed;
 constexpr int quickAccessSideRegionWidth = 128;
-constexpr int quickAccessAutoHideIntervalMilliseconds = 40;
 constexpr int quickAccessTopEdgeHeight = 2;
 int quickAccessOpacityPercent = 50;
 
-enum class QuickAccessIcon {
-    pin,
-    hide,
-    theme
-};
-
-class QuickAccessIconButton final : public QToolButton {
-public:
-    explicit QuickAccessIconButton(QuickAccessIcon icon, QWidget* parent = nullptr)
-        : QToolButton(parent)
-        , icon_(icon)
-    {
-        setFixedSize(28, 28);
-        setCursor(Qt::PointingHandCursor);
-    }
-
-protected:
-    void paintEvent(QPaintEvent*) override
-    {
-        QPainter painter(this);
-        painter.setRenderHint(QPainter::Antialiasing);
-
-        const auto bounds = QRectF(rect()).adjusted(1.0, 1.0, -1.0, -1.0);
-        const auto active = isCheckable() && isChecked();
-        const auto background = isDown() ? QColor(QStringLiteral("#1e5068"))
-            : underMouse() ? QColor(QStringLiteral("#3d4854"))
-            : active ? QColor(QStringLiteral("#275d75"))
-            : QColor(QStringLiteral("#303841"));
-        painter.setPen(QPen(active ? QColor(QStringLiteral("#5db1d7")) : QColor(QStringLiteral("#5a6570"))));
-        painter.setBrush(background);
-        painter.drawRoundedRect(bounds, 4.0, 4.0);
-
-        const auto iconColor = active ? QColor(QStringLiteral("#a8e6ff")) : QColor(QStringLiteral("#f1f5f8"));
-        painter.setPen(QPen(iconColor, 1.7, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
-        painter.setBrush(Qt::NoBrush);
-        if (icon_ == QuickAccessIcon::pin) {
-            QPolygonF pin { QPointF(9.0, 7.0), QPointF(19.0, 7.0), QPointF(17.0, 12.0),
-                            QPointF(17.0, 14.0), QPointF(11.0, 14.0), QPointF(11.0, 12.0),
-                            QPointF(9.0, 7.0) };
-            painter.drawPolyline(pin);
-            painter.drawLine(QPointF(14.0, 14.0), QPointF(14.0, 21.0));
-        } else if (icon_ == QuickAccessIcon::hide) {
-            painter.drawEllipse(QRectF(5.0, 9.0, 18.0, 10.0));
-            painter.drawEllipse(QRectF(12.0, 12.0, 4.0, 4.0));
-            painter.drawLine(QPointF(6.0, 7.0), QPointF(22.0, 21.0));
-        } else {
-            painter.drawEllipse(QRectF(5.0, 5.0, 18.0, 18.0));
-            painter.setPen(Qt::NoPen);
-            painter.setBrush(iconColor);
-            painter.drawEllipse(QRectF(8.0, 9.0, 3.0, 3.0));
-            painter.drawEllipse(QRectF(13.0, 7.0, 3.0, 3.0));
-            painter.drawEllipse(QRectF(18.0, 10.0, 3.0, 3.0));
-            painter.drawEllipse(QRectF(8.0, 16.0, 3.0, 3.0));
-            painter.setBrush(background);
-            painter.drawEllipse(QRectF(14.0, 15.0, 7.0, 6.0));
-        }
-    }
-
-private:
-    QuickAccessIcon icon_;
-};
+Controls::IconActionButton* iconButton(const QString& name,QWidget* parent) {
+    auto* button=new Controls::IconActionButton(parent);
+    button->setFixedSize(Controls::sidebarControlHeight,Controls::sidebarControlHeight);
+    button->setToolButtonStyle(Qt::ToolButtonIconOnly);
+    IconManager::bindThemedIcon(button,name);
+    return button;
+}
 
 class QuickAccessBar final : public QFrame {
     using EntryList = std::vector<const TrayNodeGuiEntry*>;
@@ -130,14 +80,8 @@ public:
                    | Qt::WindowDoesNotAcceptFocus);
         setAttribute(Qt::WA_DeleteOnClose, false);
         setObjectName(QStringLiteral("quickAccessBar"));
-        setStyleSheet(QStringLiteral(
-            "QFrame#quickAccessBar { background: #1f2428; border: 1px solid #5a6570;"
-            " border-top-left-radius: 0px; border-top-right-radius: 0px;"
-            " border-bottom-left-radius: 6px; border-bottom-right-radius: 6px; }"
-            "QLabel { color: #d8dee4; }"
-            "QToolButton { color: #f1f5f8; background: #303841; border: 1px solid #5a6570; border-radius: 4px; padding: 5px 9px; }"
-            "QToolButton:hover { background: #3d4854; }"
-            "QToolButton:checked { background: #275d75; border-color: #5db1d7; }"));
+        setAutoFillBackground(true);
+
 
         auto* outerLayout = new QVBoxLayout(this);
         outerLayout->setContentsMargins(10, 7, 10, 3);
@@ -147,7 +91,6 @@ public:
         layout->setContentsMargins(0, 0, 0, 0);
         layout->setSpacing(8);
         auto* title = new Controls::TextLabel(QStringLiteral("WinJACKNexus"), this);
-        title->setStyleSheet(QStringLiteral("font-weight: 700;"));
         title->setFixedWidth(quickAccessSideRegionWidth);
         title->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
         layout->addWidget(title);
@@ -155,32 +98,36 @@ public:
 
         fileButton_ = new Controls::IconActionButton(this);
         fileButton_->setObjectName(QStringLiteral("quickAccessFileButton"));
-        fileButton_->setText(QStringLiteral("文件"));
-        fileButton_->setToolTip(QStringLiteral("新建、打开和保存工程"));
+        fileButton_->setText(hostText("menu.file","File"));
+        fileButton_->setToolTip(hostText("quick.file.help","Create, open and save projects"));
         fileButton_->setPopupMode(QToolButton::InstantPopup);
         fileButton_->setEnabled(false);
         layout->addWidget(fileButton_);
+        settingsButton_=new Controls::IconActionButton(this);
+        settingsButton_->setObjectName(QStringLiteral("quickAccessSettingsButton"));
+        settingsButton_->setEnabled(false);
+        layout->addWidget(settingsButton_);
 
         patchbayButton_ = new Controls::IconActionButton(this);
-        patchbayButton_->setText(QStringLiteral("接线盘"));
-        patchbayButton_->setToolTip(QStringLiteral("打开接线盘"));
+        patchbayButton_->setText(hostText("view.patchbay","Patchbay"));
+        patchbayButton_->setToolTip(hostText("quick.patchbay.help","Open patchbay"));
         layout->addWidget(patchbayButton_);
 
         meterbridgeButton_ = new Controls::IconActionButton(this);
-        meterbridgeButton_->setText(QStringLiteral("电平表桥"));
-        meterbridgeButton_->setToolTip(QStringLiteral("打开电平表桥"));
+        meterbridgeButton_->setText(hostText("view.meterbridge","Meter bridge"));
+        meterbridgeButton_->setToolTip(hostText("quick.meterbridge.help","Open meter bridge"));
         layout->addWidget(meterbridgeButton_);
 
         mixerButton_ = new Controls::IconActionButton(this);
         mixerButton_->setObjectName(QStringLiteral("quickAccessMixerButton"));
         mixerButton_->setPopupMode(QToolButton::InstantPopup);
-        mixerButton_->setText(QStringLiteral("调音台"));
-        mixerButton_->setToolTip(QStringLiteral("打开调音台"));
+        mixerButton_->setText(hostText("view.mixer","Mixer"));
+        mixerButton_->setToolTip(hostText("quick.mixer.help","Open mixer"));
         layout->addWidget(mixerButton_);
 
         systemDevicesButton_ = new Controls::IconActionButton(this);
-        systemDevicesButton_->setText(QStringLiteral("系统设备"));
-        systemDevicesButton_->setToolTip(QStringLiteral("打开已添加的 WASAPI 和 MIDI 设备节点"));
+        systemDevicesButton_->setText(hostText("quick.devices","System devices"));
+        systemDevicesButton_->setToolTip(hostText("quick.devices.help","Open added WASAPI and MIDI device nodes"));
         systemDevicesButton_->setToolButtonStyle(Qt::ToolButtonTextOnly);
         systemDevicesButton_->setPopupMode(QToolButton::InstantPopup);
         systemDevicesMenu_ = new QMenu(systemDevicesButton_);
@@ -191,12 +138,12 @@ public:
         contentLayout_->setSpacing(6);
         layout->addLayout(contentLayout_);
 
-        pinButton_ = new QuickAccessIconButton(QuickAccessIcon::pin, this);
+        pinButton_ = iconButton(QStringLiteral("pin"), this);
         pinButton_->setObjectName(QStringLiteral("quickAccessPinButton"));
         pinButton_->setCheckable(true);
         pinButton_->setChecked(true);
-        pinButton_->setToolTip(QStringLiteral("保持快捷栏位于其他窗口上方"));
-        pinButton_->setAccessibleName(QStringLiteral("置顶快捷栏"));
+        pinButton_->setToolTip(hostText("quick.pin.help","Keep the quick access bar above other windows"));
+        pinButton_->setAccessibleName(hostText("quick.pin","Pin quick access bar"));
         layout->addWidget(pinButton_);
         setOpacity(quickAccessOpacityPercent);
         connect(pinButton_, &QToolButton::toggled, this, [this](bool pinned) {
@@ -205,17 +152,17 @@ public:
             centerAtTop();
         });
 
-        auto* hideButton = new QuickAccessIconButton(QuickAccessIcon::hide, this);
-        hideButton->setObjectName(QStringLiteral("quickAccessHideButton"));
-        hideButton->setToolTip(QStringLiteral("收起快捷栏"));
-        hideButton->setAccessibleName(QStringLiteral("收起快捷栏"));
-        layout->addWidget(hideButton);
-        connect(hideButton, &QToolButton::clicked, this, [this] { setExpanded(false, activeScreen()); });
+        hideButton_ = iconButton(QStringLiteral("hide"), this);
+        hideButton_->setObjectName(QStringLiteral("quickAccessHideButton"));
+        hideButton_->setToolTip(hostText("quick.hide","Collapse quick access bar"));
+        hideButton_->setAccessibleName(hostText("quick.hide","Collapse quick access bar"));
+        layout->addWidget(hideButton_);
+        connect(hideButton_, &QToolButton::clicked, this, [this] { setExpanded(false, activeScreen()); });
 
-        themeButton_ = new QuickAccessIconButton(QuickAccessIcon::theme, this);
+        themeButton_ = iconButton(QStringLiteral("theme"), this);
         themeButton_->setObjectName(QStringLiteral("quickAccessThemeButton"));
-        themeButton_->setToolTip(QStringLiteral("切换皮肤"));
-        themeButton_->setAccessibleName(QStringLiteral("切换皮肤"));
+        themeButton_->setToolTip(hostText("quick.theme","Switch theme"));
+        themeButton_->setAccessibleName(hostText("quick.theme","Switch theme"));
         themeButton_->setPopupMode(QToolButton::InstantPopup);
         layout->addWidget(themeButton_);
         layout->addStretch();
@@ -223,7 +170,7 @@ public:
         statusLabel_ = new Controls::TextLabel(this);
         statusLabel_->setFixedWidth(quickAccessSideRegionWidth);
         statusLabel_->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
-        statusLabel_->setToolTip(QStringLiteral("JACK DSP 使用率与 XRun 计数"));
+        statusLabel_->setToolTip(hostText("quick.status.help","JACK DSP usage and XRun count"));
         layout->addWidget(statusLabel_);
 
         themeProgress_ = new Controls::ProgressField(this);
@@ -234,11 +181,12 @@ public:
         themeProgress_->hide();
         outerLayout->addWidget(themeProgress_);
 
-        autoHideTimer_.setInterval(quickAccessAutoHideIntervalMilliseconds);
+        bindRefreshTimer(autoHideTimer_,this);
         connect(&autoHideTimer_, &QTimer::timeout, this, [this] {
             updateAutoVisibility();
         });
         autoHideTimer_.start();
+        if (auto* manager=I18nManager::installed()) manager->bind(this,[this] { retranslate(); });
     }
 
     void setPatchbayAction(QAction* action)
@@ -281,6 +229,37 @@ public:
     {
         themeButton_->setMenu(menu);
         themeButton_->setEnabled(menu != nullptr);
+    }
+
+    void setSettingsAction(QAction* action) {
+        settingsButton_->setDefaultAction(action);
+        settingsButton_->setEnabled(action!=nullptr);
+    }
+
+    void retranslate() {
+        fileButton_->setText(hostText("menu.file","File"));
+        fileButton_->setToolTip(hostText("quick.file.help","Create, open and save projects"));
+        patchbayButton_->setText(hostText("view.patchbay","Patchbay"));
+        patchbayButton_->setToolTip(hostText("quick.patchbay.help","Open patchbay"));
+        meterbridgeButton_->setText(hostText("view.meterbridge","Meter bridge"));
+        meterbridgeButton_->setToolTip(hostText("quick.meterbridge.help","Open meter bridge"));
+        mixerButton_->setText(hostText("view.mixer","Mixer"));
+        mixerButton_->setToolTip(hostText("quick.mixer.help","Open mixer"));
+        systemDevicesButton_->setText(hostText("quick.devices","System devices"));
+        systemDevicesButton_->setToolTip(hostText("quick.devices.help","Open added WASAPI and MIDI device nodes"));
+        pinButton_->setToolTip(hostText("quick.pin.help","Keep the quick access bar above other windows"));
+        pinButton_->setAccessibleName(hostText("quick.pin","Pin quick access bar"));
+        hideButton_->setToolTip(hostText("quick.hide","Collapse quick access bar"));
+        hideButton_->setAccessibleName(hideButton_->toolTip());
+        themeButton_->setToolTip(hostText("quick.theme","Switch theme"));
+        themeButton_->setAccessibleName(themeButton_->toolTip());
+        statusLabel_->setToolTip(hostText("quick.status.help","JACK DSP usage and XRun count"));
+        for (auto* button : {patchbayButton_,meterbridgeButton_,mixerButton_,systemDevicesButton_})
+            button->setAccessibleName(button->text());
+        fileButton_->setAccessibleName(fileButton_->text());
+        entriesInitialized_=false;
+        setEntries(nodeGuiEntries);
+        recenterAfterLayout();
     }
 
     void setFileMenu(QMenu* menu)
@@ -336,7 +315,7 @@ public:
                 continue;
             }
 
-            const auto category = entry.category.isEmpty() ? QStringLiteral("其他") : entry.category;
+            const auto category = entry.category;
             const auto project = entry.clientName.isEmpty() ? entry.name : entry.clientName;
             groupedEntries[category][project].push_back(&entry);
         }
@@ -355,7 +334,7 @@ public:
 
         for (const auto& [category, projects] : groupedEntries) {
             auto* categoryButton = new Controls::IconActionButton(this);
-            categoryButton->setText(category);
+            categoryButton->setText(category.isEmpty()?hostText("tray.other","Other"):category);
             categoryButton->setToolButtonStyle(Qt::ToolButtonTextOnly);
             categoryButton->setPopupMode(QToolButton::InstantPopup);
             auto* categoryMenu = new QMenu(categoryButton);
@@ -482,6 +461,7 @@ private:
             signature += entry.clientName;
             signature += QChar::Null;
             signature += entry.name;
+            signature += entryDisplayName(entry);
             signature += QChar::Null;
         }
         return signature;
@@ -509,13 +489,14 @@ private:
 
     static void addNoRelatedEntriesAction(QMenu* menu)
     {
-        auto* action = menu->addAction(QStringLiteral("无相关条目"));
+        auto* action = menu->addAction(hostText("tray.noEntries","No matching entries"));
         action->setEnabled(false);
     }
 
     void addEntryAction(QMenu* menu, const TrayNodeGuiEntry& entry, const QString& text)
     {
         auto* action = menu->addAction(text);
+        action->setData(entry.id);
         connect(action, &QAction::triggered, this, [show = entry.show] {
             show();
         });
@@ -535,12 +516,12 @@ private:
         }
         for (const auto& [project, nodes] : projects) {
             if (nodes.size() == 1) {
-                addEntryAction(menu, *nodes.front(), project);
+                addEntryAction(menu, *nodes.front(),nodes.front()->clientName.isEmpty()?entryDisplayName(*nodes.front()):project);
                 continue;
             }
-            auto* nodeMenu = menu->addMenu(project);
+            auto* nodeMenu = menu->addMenu(nodes.front()->clientName.isEmpty()?entryDisplayName(*nodes.front()):project);
             for (const auto* node : nodes)
-                addEntryAction(nodeMenu, *node, node->name);
+                addEntryAction(nodeMenu, *node, entryDisplayName(*node));
         }
     }
 
@@ -552,7 +533,7 @@ private:
             return;
         }
         for (const auto* entry : entries) {
-            const auto name = entry->clientName.isEmpty() ? entry->name : entry->clientName;
+            const auto name = entry->clientName.isEmpty() ? entryDisplayName(*entry) : entry->clientName;
             addEntryAction(directionMenu, *entry, name);
         }
     }
@@ -562,13 +543,17 @@ private:
                                   const EntryList& midiInputEntries,
                                   const EntryList& midiOutputEntries)
     {
+        // QMenu::clear removes submenu actions, but QObject-owned submenus
+        // survive it. Destroy them so old display text and node callbacks
+        // cannot remain among this menu's children after a rebuild.
+        qDeleteAll(systemDevicesMenu_->findChildren<QMenu*>(QString{},Qt::FindDirectChildrenOnly));
         systemDevicesMenu_->clear();
         auto* wasapiMenu = systemDevicesMenu_->addMenu(QStringLiteral("WASAPI"));
-        addSystemDeviceDirectionMenu(wasapiMenu, QStringLiteral("In"), wasapiInputEntries);
-        addSystemDeviceDirectionMenu(wasapiMenu, QStringLiteral("Out"), wasapiOutputEntries);
+        addSystemDeviceDirectionMenu(wasapiMenu, hostText("tray.device.input","In"), wasapiInputEntries);
+        addSystemDeviceDirectionMenu(wasapiMenu, hostText("tray.device.output","Out"), wasapiOutputEntries);
         auto* midiMenu = systemDevicesMenu_->addMenu(QStringLiteral("MIDI"));
-        addSystemDeviceDirectionMenu(midiMenu, QStringLiteral("In"), midiInputEntries);
-        addSystemDeviceDirectionMenu(midiMenu, QStringLiteral("Out"), midiOutputEntries);
+        addSystemDeviceDirectionMenu(midiMenu, hostText("tray.device.input","In"), midiInputEntries);
+        addSystemDeviceDirectionMenu(midiMenu, hostText("tray.device.output","Out"), midiOutputEntries);
     }
 
     void recenterAfterLayout()
@@ -590,6 +575,8 @@ private:
     QToolButton* themeButton_ = nullptr;
     QToolButton* systemDevicesButton_ = nullptr;
     QToolButton* pinButton_ = nullptr;
+    QToolButton* hideButton_ = nullptr;
+    Controls::IconActionButton* settingsButton_ = nullptr;
     Controls::IconActionButton* fileButton_ = nullptr;
     QAction* patchbayAction_ = nullptr;
     QAction* meterbridgeAction_ = nullptr;
@@ -621,6 +608,7 @@ public:
     QAction* quitAction = nullptr;
     QuickAccessBar* quickAccessBar = nullptr;
     QPointer<QMenu> quickAccessThemeMenu;
+    QPointer<QAction> settingsAction;
 };
 
 TrayController::TrayController(QObject* parent)
@@ -664,7 +652,16 @@ bool TrayController::initialize(const QIcon& icon, const QString& tooltip)
     impl_->quickAccessBar->showCentered();
     impl_->tray->setContextMenu(impl_->menu);
     impl_->tray->show();
+    if (auto* manager=I18nManager::installed()) manager->bind(this,[this] { retranslate(); });
     return true;
+}
+void TrayController::initializeFallback() {
+    if (impl_->menu) return;
+    impl_->menu=new QMenu;
+    buildPlaceholderMenu();
+    rebuildQuickAccessBar();
+    impl_->quickAccessBar->showCentered();
+    if (auto* manager=I18nManager::installed()) manager->bind(this,[this] { retranslate(); });
 }
 
 void TrayController::shutdown()
@@ -695,6 +692,7 @@ void TrayController::shutdown()
     impl_->quickAccessAction = nullptr;
     impl_->nodeGuiSeparator = nullptr;
     impl_->quitAction = nullptr;
+    impl_->settingsAction.clear();
 }
 
 bool TrayController::isVisible() const
@@ -742,39 +740,65 @@ QMenu* TrayController::contextMenu() const
 
 void TrayController::buildPlaceholderMenu()
 {
-    impl_->placeholderPatchbay = impl_->menu->addAction(QStringLiteral("接线盘"));
+    impl_->placeholderPatchbay = impl_->menu->addAction(hostText("view.patchbay","Patchbay"));
     impl_->placeholderPatchbay->setEnabled(false);
-    impl_->placeholderPatchbay->setToolTip(QStringLiteral("敬请期待:节点注册后可用"));
+    impl_->placeholderPatchbay->setToolTip(hostText("tray.nodePending","Available after node registration"));
 
-    impl_->placeholderMixer = new QAction(QStringLiteral("调音台"), impl_->menu);
+    impl_->placeholderMixer = new QAction(hostText("view.mixer","Mixer"), impl_->menu);
     impl_->placeholderMixer->setEnabled(false);
-    impl_->placeholderMixer->setToolTip(QStringLiteral("由快捷栏打开"));
+    impl_->placeholderMixer->setToolTip(hostText("tray.quickOpen","Open from the quick access bar"));
     auto* mixerMenu=new QMenu(impl_->menu);
     mixerMenu->setObjectName(QStringLiteral("quickAccessMixerMenu"));
-    auto* openMixer=mixerMenu->addAction(QStringLiteral("调音台"));
+    auto* openMixer=mixerMenu->addAction(hostText("view.mixer","Mixer"));
     connect(openMixer,&QAction::triggered,impl_->placeholderMixer,&QAction::trigger);
-    impl_->mixerDetails=mixerMenu->addAction(QStringLiteral("通道详情"));
-    impl_->mixerOverview=mixerMenu->addAction(QStringLiteral("通道总览"));
+    impl_->mixerDetails=mixerMenu->addAction(hostText("view.channelDetails","Channel details"));
+    impl_->mixerOverview=mixerMenu->addAction(hostText("view.channelOverview","Channel overview"));
     impl_->placeholderMixer->setMenu(mixerMenu);
     for(auto* action:mixerMenu->actions())action->setEnabled(false);
 
-    impl_->placeholderMeterbridge = new QAction(QStringLiteral("电平表桥"), impl_->menu);
+    impl_->placeholderMeterbridge = new QAction(hostText("view.meterbridge","Meter bridge"), impl_->menu);
     impl_->placeholderMeterbridge->setEnabled(false);
-    impl_->placeholderMeterbridge->setToolTip(QStringLiteral("由快捷栏打开"));
+    impl_->placeholderMeterbridge->setToolTip(hostText("tray.quickOpen","Open from the quick access bar"));
 
-    impl_->quickAccessAction = impl_->menu->addAction(QStringLiteral("快速入口"));
+    impl_->quickAccessAction = impl_->menu->addAction(hostText("tray.quickAccess","Quick access"));
     connect(impl_->quickAccessAction, &QAction::triggered, this, [this] {
         if (impl_->quickAccessBar != nullptr)
             impl_->quickAccessBar->showCentered();
     });
 
     impl_->nodeGuiSeparator = impl_->menu->addSeparator();
-    impl_->quitAction = impl_->menu->addAction(QStringLiteral("退出 WinJACKNexus"));
+    impl_->quitAction = impl_->menu->addAction(hostText("action.quit","Quit WinJACKNexus"));
     connect(impl_->quitAction, &QAction::triggered, this, &TrayController::quitRequested);
+    if (auto* host=HostI18n::installed()) {
+        auto* languages=host->createLanguageMenu(impl_->menu);
+        impl_->menu->insertMenu(impl_->nodeGuiSeparator,languages);
+    }
+}
+void TrayController::retranslate() {
+    if (!impl_->menu) return;
+    impl_->placeholderPatchbay->setText(hostText("view.patchbay","Patchbay"));
+    impl_->placeholderPatchbay->setToolTip(hostText("tray.nodePending","Available after node registration"));
+    impl_->placeholderMixer->setText(hostText("view.mixer","Mixer"));
+    impl_->placeholderMixer->setToolTip(hostText("tray.quickOpen","Open from the quick access bar"));
+    impl_->placeholderMixer->menu()->actions().first()->setText(hostText("view.mixer","Mixer"));
+    impl_->mixerDetails->setText(hostText("view.channelDetails","Channel details"));
+    impl_->mixerOverview->setText(hostText("view.channelOverview","Channel overview"));
+    impl_->placeholderMeterbridge->setText(hostText("view.meterbridge","Meter bridge"));
+    impl_->placeholderMeterbridge->setToolTip(hostText("tray.quickOpen","Open from the quick access bar"));
+    impl_->quickAccessAction->setText(hostText("tray.quickAccess","Quick access"));
+    impl_->quitAction->setText(hostText("action.quit","Quit WinJACKNexus"));
 }
 
 void TrayController::setNodeGuiEntries(std::vector<TrayNodeGuiEntry> entries)
 {
+    setNodeGuiEntries(std::move(entries),{});
+}
+void TrayController::setNodeGuiEntries(std::vector<TrayNodeGuiEntry> entries,const QHash<QString,QString>& displayNames)
+{
+    nodeGuiDisplayNames.clear();
+    for (const auto& entry:entries)
+        if (const auto found=displayNames.constFind(entry.id);found!=displayNames.cend() && !found->isEmpty())
+            nodeGuiDisplayNames.insert(entry.id,*found);
     std::sort(entries.begin(), entries.end(), [](const auto& left, const auto& right) {
         if (left.category == right.category && left.clientName == right.clientName)
             return left.name < right.name;
@@ -830,13 +854,19 @@ void TrayController::rebuildQuickAccessBar()
     if (impl_->menu == nullptr || impl_->nodeGuiSeparator == nullptr)
         return;
 
-    if (impl_->quickAccessBar == nullptr)
+    if (impl_->quickAccessBar == nullptr) {
         impl_->quickAccessBar = new QuickAccessBar;
+        impl_->quickAccessBar->setContextMenuPolicy(Qt::CustomContextMenu);
+        connect(impl_->quickAccessBar,&QWidget::customContextMenuRequested,this,[this](const QPoint& point) {
+            if (impl_->menu) impl_->menu->popup(impl_->quickAccessBar->mapToGlobal(point));
+        });
+    }
     impl_->quickAccessBar->setPatchbayAction(impl_->placeholderPatchbay);
     impl_->quickAccessBar->setMixerAction(impl_->placeholderMixer);
     impl_->quickAccessBar->setMeterbridgeAction(impl_->placeholderMeterbridge);
     impl_->quickAccessBar->setThemeMenu(impl_->quickAccessThemeMenu);
     impl_->quickAccessBar->setFileMenu(quickAccessFileMenu);
+    impl_->quickAccessBar->setSettingsAction(impl_->settingsAction);
     impl_->quickAccessBar->setStatus(quickAccessStatus);
     impl_->quickAccessBar->setEntries(nodeGuiEntries);
     impl_->quickAccessAction->setEnabled(true);
@@ -870,6 +900,10 @@ void TrayController::setQuickAccessThemeMenu(QMenu* menu)
     impl_->quickAccessThemeMenu = menu;
     if (impl_->quickAccessBar != nullptr)
         impl_->quickAccessBar->setThemeMenu(menu);
+}
+void TrayController::setQuickAccessSettingsAction(QAction* action) {
+    impl_->settingsAction=action;
+    if (impl_->quickAccessBar) impl_->quickAccessBar->setSettingsAction(action);
 }
 
 void TrayController::setQuickAccessFileMenu(QMenu* menu)

@@ -29,6 +29,7 @@
 #include <WinJACKNexus/Common/Logger.hpp>
 #include <WinJACKNexus/UI/ApplicationSettings.hpp>
 #include <WinJACKNexus/UI/Controls.hpp>
+#include <WinJACKNexus/UI/LocalizedText.hpp>
 #include <WinJACKNexus/UI/MeterWidget.hpp>
 
 #include <QApplication>
@@ -343,7 +344,7 @@ public:
     using ValuesProvider = std::function<SettingsValues()>;
     using ApplyHandler = std::function<bool(const SettingsValues&)>;
 
-    SettingsPanel(QString title,
+    SettingsPanel(const char* titleKey,const char* titleEnglish,
                   bool showChannels,
                   DeviceProvider deviceProvider,
                   ValuesProvider valuesProvider,
@@ -356,12 +357,13 @@ public:
         namespace Controls = WinJACKNexus::UI::Controls;
         setWindowFlags(Qt::Widget | Qt::FramelessWindowHint);
         setAutoFillBackground(true);
-        setWindowTitle(std::move(title));
+        WinJACKNexus::UI::bindLocalizedText(this,"windowTitle","adapter",titleKey,titleEnglish);
         auto* form = new QFormLayout(this);
         form->setRowWrapPolicy(QFormLayout::WrapAllRows);
         form->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
-        const auto label = [this](const QString& text) {
-            auto* result = new Controls::TextLabel(text, this);
+        const auto label = [this](const char* key,const char* english) {
+            auto* result = new Controls::TextLabel(this);
+            WinJACKNexus::UI::bindLocalizedText(result,"text","adapter",key,english);
             result->setWordWrap(true);
             // Form label columns use the width hint even when rows are wrapped.
             // Ignoring that hint collapses the label to zero width.
@@ -373,7 +375,7 @@ public:
         clientNameEditor_->setObjectName(QStringLiteral("clientNameEditor"));
         clientNameEditor_->setFixedHeight(Controls::sidebarControlHeight);
         clientNameEditor_->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
-        form->addRow(label(QStringLiteral("Client name")), clientNameEditor_);
+        form->addRow(label("settings.clientName","Client name"), clientNameEditor_);
 
         auto* deviceRow = new QVBoxLayout;
         deviceCombo_ = new Controls::ChoiceField(this);
@@ -388,12 +390,13 @@ public:
         deviceCompleter->setCaseSensitivity(Qt::CaseInsensitive);
         deviceCompleter->setFilterMode(Qt::MatchContains);
         deviceCombo_->setCompleter(deviceCompleter);
-        refreshButton_ = new Controls::ActionButton(QStringLiteral("Refresh"), this);
+        refreshButton_ = new Controls::ActionButton({}, this);
+        WinJACKNexus::UI::bindLocalizedText(refreshButton_,"text","adapter","action.refresh","Refresh");
         refreshButton_->setObjectName(QStringLiteral("refreshButton"));
         refreshButton_->setFixedHeight(Controls::sidebarControlHeight);
         deviceRow->addWidget(deviceCombo_);
         deviceRow->addWidget(refreshButton_);
-        form->addRow(label(QStringLiteral("Device")), deviceRow);
+        form->addRow(label("settings.device","Device"), deviceRow);
 
         if (showChannels) {
             channelsSpinBox_ = new Controls::IntegerField(this);
@@ -401,13 +404,14 @@ public:
             channelsSpinBox_->setFixedHeight(Controls::sidebarControlHeight);
             channelsSpinBox_->setRange(1, static_cast<int>(maxAudioChannels));
             channelsSpinBox_->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
-            form->addRow(label(QStringLiteral("JACK channels")), channelsSpinBox_);
+            form->addRow(label("settings.channels","JACK channels"), channelsSpinBox_);
             connect(channelsSpinBox_, qOverload<int>(&QSpinBox::valueChanged), this,
                     [this](int) { apply(); });
         }
 
         auto* actionRow = new QVBoxLayout;
-        applyButton_ = new Controls::ActionButton(QStringLiteral("Apply"), this);
+        applyButton_ = new Controls::ActionButton({}, this);
+        WinJACKNexus::UI::bindLocalizedText(applyButton_,"text","adapter","action.apply","Apply");
         applyButton_->setObjectName(QStringLiteral("applyButton"));
         applyButton_->setFixedHeight(Controls::sidebarControlHeight);
         statusLabel_ = new WinJACKNexus::UI::Controls::TextLabel(this);
@@ -418,6 +422,8 @@ public:
         actionRow->addWidget(applyButton_);
         actionRow->addWidget(statusLabel_);
         form->addRow(actionRow);
+        if (auto* manager=WinJACKNexus::UI::I18nManager::installed())
+            manager->bind(statusLabel_,[this] { refreshStatus(); });
 
         connect(refreshButton_, &QPushButton::clicked, this, [this] { refreshDevices(); });
         connect(applyButton_, &QPushButton::clicked, this, [this] { apply(); });
@@ -460,7 +466,7 @@ private:
             ? currentIndex
             : deviceCombo_->findText(deviceCombo_->currentText(), Qt::MatchFixedString);
         if (selectedIndex < 0) {
-            statusLabel_->setText(QStringLiteral("Select a listed device"));
+            setStatus("status.selectDevice","Select a listed device");
             return;
         }
 
@@ -469,14 +475,22 @@ private:
         values.clientName = clientNameEditor_->text();
         values.channels = channelsSpinBox_ != nullptr ? channelsSpinBox_->value() : 0;
         if (applyHandler_(values)) {
-            statusLabel_->setText(QStringLiteral("Applied"));
+            setStatus("status.applied","Applied");
             refreshDevices();
         } else {
-            statusLabel_->setText(QStringLiteral("Unable to apply"));
+            setStatus("status.applyFailed","Unable to apply");
             refreshDevices();
         }
     }
 
+    void setStatus(const char* key,const char* english) {
+        statusKey_=key; statusEnglish_=english; refreshStatus();
+    }
+    void refreshStatus() {
+        statusLabel_->setText(statusKey_?WinJACKNexus::UI::localizedText("adapter",statusKey_,statusEnglish_):QString{});
+    }
+    const char* statusKey_=nullptr;
+    const char* statusEnglish_="";
     DeviceProvider deviceProvider_;
     ValuesProvider valuesProvider_;
     ApplyHandler applyHandler_;
@@ -671,10 +685,10 @@ public:
         }
         layout->addWidget(meterArray_, 1);
 
-        auto* footer = new WinJACKNexus::UI::Controls::TextLabel(mode_ == Mode::audio
-                                      ? QStringLiteral("Peak dBFS  |  -70 to +12 dB")
-                                      : QStringLiteral("Recent Note-On velocity  |  0 to 127"),
-                                  this);
+        auto* footer = new WinJACKNexus::UI::Controls::TextLabel(this);
+        WinJACKNexus::UI::bindLocalizedText(footer,"text","adapter",
+            mode_==Mode::audio?"meter.audioRange":"meter.midiRange",
+            mode_==Mode::audio?"Peak dBFS  |  -70 to +12 dB":"Recent Note-On velocity  |  0 to 127");
         footer->setProperty("wjnRole", QStringLiteral("meter-footer"));
         layout->addWidget(footer);
 
@@ -871,7 +885,7 @@ public:
         if (settingsPanel_ == nullptr) {
             try {
                 settingsPanel_ = new SettingsPanel(
-                    QStringLiteral("WASAPI In settings"),
+                    "settings.wasapiIn","WASAPI input settings",
                     true,
                     [this] {
                         return wasapiSettingsDevices(deviceEnumerator_,
@@ -1281,7 +1295,7 @@ public:
         if (settingsPanel_ == nullptr) {
             try {
                 settingsPanel_ = new SettingsPanel(
-                    QStringLiteral("WASAPI Out settings"),
+                    "settings.wasapiOut","WASAPI output settings",
                     true,
                     [this] {
                         return wasapiSettingsDevices(deviceEnumerator_,
@@ -1735,7 +1749,7 @@ public:
         if (settingsPanel_ == nullptr) {
             try {
                 settingsPanel_ = new SettingsPanel(
-                    QStringLiteral("System MIDI In settings"),
+                    "settings.midiIn","System MIDI input settings",
                     false,
                     [this] {
                         return midiSettingsDevices(deviceEnumerator_,
@@ -2017,7 +2031,7 @@ public:
         if (settingsPanel_ == nullptr) {
             try {
                 settingsPanel_ = new SettingsPanel(
-                    QStringLiteral("System MIDI Out settings"),
+                    "settings.midiOut","System MIDI output settings",
                     false,
                     [this] {
                         return midiSettingsDevices(deviceEnumerator_,

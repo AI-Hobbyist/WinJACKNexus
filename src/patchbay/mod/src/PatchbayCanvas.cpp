@@ -13,13 +13,18 @@
  *
  * SPDX-License-Identifier: AGPL-3.0-only
  */
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
 #include <mod_patchbay/PatchbayCanvas.hpp>
 #include <mod_patchbay/ProjectStateCodec.hpp>
+#include <mod_patchbay/LocalizedDialogs.hpp>
 
 #include <WinJACKNexus/Audio/JackApi.hpp>
 #include <WinJACKNexus/Audio/JackClient.hpp>
 #include <WinJACKNexus/Common/GraphicsView.hpp>
 #include <WinJACKNexus/UI/Controls.hpp>
+#include <WinJACKNexus/UI/LocalizedText.hpp>
 #include <WinJACKNexus/UI/ThemeCore.hpp>
 #include <WinJACKNexus/UI/ThemeBackground.hpp>
 #include <WinJACKNexus/UI/ThemeManager.hpp>
@@ -67,6 +72,16 @@
 #include <utility>
 
 namespace {
+
+QString canvasText(const char* key,const char* english,const QVariantMap& arguments={}) {
+    return WinJACKNexus::UI::localizedText("patchbay",key,english,arguments);
+}
+QAction* canvasAction(QMenu& menu,const char* key,const char* english) {
+    auto* action=menu.addAction(canvasText(key,english));
+    action->setData(QString::fromUtf8(key));
+    WinJACKNexus::UI::bindLocalizedText(action,"text","patchbay",key,english);
+    return action;
+}
 
 using namespace WinJACKNexus::Patchbay::Core;
 
@@ -362,7 +377,7 @@ public:
             nodeWidth_ = widths.node;
         setFlag(ItemIsSelectable);
         setFlag(ItemIsMovable);
-        setToolTip(QString::fromStdString(client_.name));
+        setToolTip(QString::fromStdString(client_.alias.empty()?client_.name:client_.alias));
     }
 
     QRectF boundingRect() const override
@@ -373,6 +388,13 @@ public:
     static qreal preferredWidth(const ClientInfo& client, const std::vector<PortInfo>& ports)
     {
         return labelWidths(client, ports).node;
+    }
+    void setDisplayTitle(const QString& title) {
+        prepareGeometryChange();
+        client_.alias=title.toStdString();
+        const auto widths=labelWidths(client_,ports_);
+        inputLabelWidth_=widths.input; outputLabelWidth_=widths.output; nodeWidth_=widths.node;
+        setToolTip(title); update();
     }
 
     QPointF portPosition(const std::string& portId) const
@@ -444,7 +466,8 @@ public:
         titleFont.setWeight(QFont::DemiBold);
         const QString title = QString::fromStdString(client_.alias.empty() ? client_.name : client_.alias);
         Controls::drawText(*painter, QRectF(12.0, 0.0, nodeWidth_ - 24.0, kHeaderHeight),
-                           title, titleFont, color(QStringLiteral("node-title-text"), theme.text), Qt::AlignVCenter | Qt::AlignLeft);
+                           QFontMetrics(titleFont).elidedText(title,Qt::ElideRight,static_cast<int>(nodeWidth_-24.0)),
+                           titleFont, color(QStringLiteral("node-title-text"), theme.text), Qt::AlignVCenter | Qt::AlignLeft);
 
         QFont portFont = QApplication::font();
         portFont.setPointSize(9);
@@ -555,12 +578,9 @@ private:
                 widths.output = std::max(widths.output, width);
         }
 
-        QFont titleFont = QApplication::font();
-        titleFont.setPointSize(10);
-        titleFont.setWeight(QFont::DemiBold);
-        const auto title = QString::fromStdString(client.alias.empty() ? client.name : client.alias);
-        widths.node = std::max({ kMinimumNodeWidth, widths.input + widths.output + 48.0,
-                                 static_cast<qreal>(QFontMetrics(titleFont).horizontalAdvance(title) + 24) });
+        // A user title must not stretch the card beyond its port layout.
+        // Painting elides it at the existing font size; tooltip retains it.
+        widths.node = std::max(kMinimumNodeWidth,widths.input+widths.output+48.0);
         return widths;
     }
 
@@ -713,6 +733,16 @@ PatchbayCanvas::PatchbayCanvas(PatchbaySceneContext context, QWidget* parent)
     if (auto* core = WinJACKNexus::UI::ThemeManager::installedThemeCore())
         connect(core, &WinJACKNexus::UI::ThemeCore::themeChanged, this, [this] { refreshTheme(); });
     refreshTheme();
+    if (auto* manager=WinJACKNexus::UI::I18nManager::installed()) manager->bind(this,[this] {
+        for (auto* item:scene()->items()) {
+            const auto display=item->data(5).toMap();
+            if (display.isEmpty()) continue;
+            if (auto* node=dynamic_cast<CanvasNode*>(item))
+                node->setDisplayTitle(canvasText(display.value("key").toByteArray().constData(),
+                    display.value("english").toByteArray().constData(),display.value("arguments").toMap()));
+        }
+        updateConnectionPaths(); viewport()->update();
+    });
 }
 
 void PatchbayCanvas::drawBackground(QPainter* painter, const QRectF& sceneRect)
@@ -834,8 +864,8 @@ std::string PatchbayCanvas::addSubGraph(const QString& name, const QPointF& posi
     if (displayName.isEmpty() || displayName == QStringLiteral("Sub Graph")) {
         for (std::size_t suffix = 1; ; ++suffix) {
             const auto candidate = suffix == 1
-                ? QStringLiteral("Sub Graph")
-                : QStringLiteral("Sub Graph %1").arg(static_cast<qulonglong>(suffix));
+                ? canvasText("graph.defaultName","Subgraph")
+                : canvasText("graph.numberedName","Subgraph {number}",{{"number",QString::number(suffix)}});
             if (std::none_of(subGraphNodes_.cbegin(), subGraphNodes_.cend(), [&candidate](const auto& node) {
                     return node.name == candidate;
                 })) {
@@ -1662,7 +1692,8 @@ void PatchbayCanvas::setSnapshot(const Snapshot& snapshot)
         if (!client.alive || generatedClientIds.contains(client.id))
             continue;
 
-        const auto addNode = [this, &client, &portsByClient, &nodesByPort, &selectedClientIds](std::vector<PortInfo> ports, QPointF position, Direction portDirection, const QString& layoutKey, const QString& label) {
+        const auto addNode = [this, &client, &portsByClient, &nodesByPort, &selectedClientIds](std::vector<PortInfo> ports, QPointF position, Direction portDirection, const QString& layoutKey, const char* key,const char* english,const QVariantMap& arguments) {
+            const auto label=canvasText(key,english,arguments);
             ClientInfo displayClient = client;
             displayClient.alias = label.toStdString();
             auto* node = new CanvasNode(std::move(displayClient), std::move(ports),
@@ -1673,6 +1704,8 @@ void PatchbayCanvas::setSnapshot(const Snapshot& snapshot)
             node->setData(0, QString::fromStdString(client.id));
             node->setData(3, layoutKey);
             node->setData(4, position);
+            node->setData(5,QVariantMap{{"key",QByteArray(key)},{"english",QByteArray(english)},{"arguments",arguments}});
+            node->setDisplayTitle(label);
             node->setSelected(selectedClientIds.contains(client.id));
             scene()->addItem(node);
             for (const auto& port : portsByClient[client.id]) {
@@ -1714,11 +1747,12 @@ void PatchbayCanvas::setSnapshot(const Snapshot& snapshot)
             return settings.contains(xKey) ? QPointF(settings.value(xKey).toDouble(), settings.value(yKey).toDouble()) : fallback;
         };
         const bool isSystem = client.id == "system";
+        const QVariantMap labelArguments{{QStringLiteral("name"),QString::fromStdString(client.alias.empty()?client.name:client.alias)}};
         addNode(std::move(inputs), positionFor(inputLayoutKey, { client.x, client.y }), Direction::input, inputLayoutKey,
-            isSystem ? QStringLiteral("system playback") : QString::fromStdString(client.name) + QStringLiteral(" · 输入"));
+            isSystem?"canvas.systemPlayback":"canvas.inputGroup",isSystem?"system playback":"{name} · Inputs",labelArguments);
         const auto inputWidth = CanvasNode::preferredWidth(client, inputs);
         addNode(std::move(outputs), positionFor(outputLayoutKey, { client.x + inputWidth + 52.0, client.y }), Direction::output, outputLayoutKey,
-            isSystem ? QStringLiteral("system capture") : QString::fromStdString(client.name) + QStringLiteral(" · 输出"));
+            isSystem?"canvas.systemCapture":"canvas.outputGroup",isSystem?"system capture":"{name} · Outputs",labelArguments);
     }
 
     for (const auto& interfaceNode : interfaceNodes_) {
@@ -2363,7 +2397,7 @@ void PatchbayCanvas::contextMenuEvent(QContextMenuEvent* event)
     if (item != nullptr && item->data(1).isValid()) {
         const auto source = item->data(1).toString().toStdString();
         const auto destination = item->data(2).toString().toStdString();
-        auto* disconnect = menu.addAction(QStringLiteral("断开连接"));
+        auto* disconnect = canvasAction(menu,"action.disconnect","Disconnect");
         if (menu.exec(event->globalPos()) == disconnect) {
             const auto exists = std::any_of(snapshot_.connections.cbegin(), snapshot_.connections.cend(), [&source, &destination](const ConnectionInfo& connection) {
                 return connection.sourcePortId == source && connection.destinationPortId == destination;
@@ -2389,9 +2423,9 @@ void PatchbayCanvas::contextMenuEvent(QContextMenuEvent* event)
             return !excludeBoxSelection_ || !excludeBoxSelection_(id);
         });
     if (selectedCount > 1 || (item == nullptr && selectedCount > 0)) {
-        auto* copySelected = menu.addAction(QStringLiteral("复制选中节点"));
-        auto* removeSelected = menu.addAction(QStringLiteral("删除选中节点"));
-        QAction* pasteSelected = copiedNodes_.empty() ? nullptr : menu.addAction(QStringLiteral("粘贴节点"));
+        auto* copySelected = canvasAction(menu,"action.copySelected","Copy selected nodes");
+        auto* removeSelected = canvasAction(menu,"action.removeSelected","Delete selected nodes");
+        QAction* pasteSelected = copiedNodes_.empty() ? nullptr : canvasAction(menu,"action.paste","Paste nodes");
         const auto* chosen = menu.exec(event->globalPos());
         if (chosen == copySelected) copySelectedNodes();
         else if (chosen == removeSelected) removeSelectedNodes();
@@ -2414,22 +2448,22 @@ void PatchbayCanvas::contextMenuEvent(QContextMenuEvent* event)
         });
         const bool isInterfaceNode = interfaceNode != interfaceNodes_.cend();
         const bool canSplit = client != snapshot_.clients.cend() && !isSubGraph && clientCanSplit(snapshot_, id);
-        auto* center = menu.addAction(QStringLiteral("居中显示节点"));
-        auto* rename = menu.addAction(QStringLiteral("重命名节点"));
+        auto* center = canvasAction(menu,"action.center","Center on node");
+        auto* rename = canvasAction(menu,"action.rename","Rename node");
         QAction* split = nullptr;
         if (canSplit)
-            split = menu.addAction(QStringLiteral("Split/Join Group"));
+            split = canvasAction(menu,"action.splitJoin","Split/join group");
         menu.addSeparator();
-        auto* disconnectAll = menu.addAction(QStringLiteral("断开全部连接"));
+        auto* disconnectAll = canvasAction(menu,"action.disconnectAll","Disconnect all");
         QAction* copy = nullptr;
         QAction* remove = nullptr;
         QAction* showGui = nullptr;
         if (isModuleNode || isSubGraph || isInterfaceNode) {
             menu.addSeparator();
-            copy = menu.addAction(QStringLiteral("复制节点"));
-            remove = menu.addAction(QStringLiteral("删除节点"));
+            copy = canvasAction(menu,"action.copy","Copy node");
+            remove = canvasAction(menu,"action.remove","Delete node");
             if (canShowModuleGui)
-                showGui = menu.addAction(QStringLiteral("显示自带 GUI"));
+                showGui = canvasAction(menu,"action.showGui","Show module GUI");
         }
         const auto* selected = menu.exec(event->globalPos());
         if (selected == center) {
@@ -2440,8 +2474,7 @@ void PatchbayCanvas::contextMenuEvent(QContextMenuEvent* event)
             });
             if (subGraph != subGraphNodes_.cend()) {
                 bool accepted = false;
-                const auto name = QInputDialog::getText(this, QStringLiteral("重命名子图"), QStringLiteral("子图名称"),
-                                                        QLineEdit::Normal, subGraph->name, &accepted);
+                const auto name = PatchbayDialogs::text(this,"dialog.renameSubgraph","Rename subgraph","graph.name","Subgraph name", subGraph->name, &accepted);
                 if (accepted)
                     renameSubGraph(id, name);
                 return;
@@ -2451,8 +2484,7 @@ void PatchbayCanvas::contextMenuEvent(QContextMenuEvent* event)
             });
             if (interfaceNode != interfaceNodes_.end()) {
                 bool accepted = false;
-                const auto name = QInputDialog::getText(this, QStringLiteral("重命名子图接口"), QStringLiteral("接口名称"),
-                                                        QLineEdit::Normal, interfaceNode->name, &accepted).trimmed();
+                const auto name = PatchbayDialogs::text(this,"dialog.renameInterface","Rename subgraph interface","interface.name","Interface name", interfaceNode->name, &accepted).trimmed();
                 if (accepted && !name.isEmpty() && name != interfaceNode->name) {
                     interfaceNode->name = name;
                     const auto port = std::find_if(snapshot_.ports.begin(), snapshot_.ports.end(), [&interfaceNode](const auto& value) {
@@ -2479,8 +2511,7 @@ void PatchbayCanvas::contextMenuEvent(QContextMenuEvent* event)
             });
             if (mutableClient != snapshot_.clients.end()) {
                 bool accepted = false;
-                const auto alias = QInputDialog::getText(this, QStringLiteral("重命名节点"), QStringLiteral("显示名称"),
-                                                          QLineEdit::Normal, QString::fromStdString(mutableClient->alias), &accepted);
+                const auto alias = PatchbayDialogs::text(this,"action.rename","Rename node","node.displayName","Display name", QString::fromStdString(mutableClient->alias), &accepted);
                 if (accepted && !alias.trimmed().isEmpty()) {
                     mutableClient->alias = alias.trimmed().toStdString();
                     setSnapshot(snapshot_);
@@ -2569,11 +2600,11 @@ void PatchbayCanvas::contextMenuEvent(QContextMenuEvent* event)
         return;
     }
 
-    auto* fit = menu.addAction(QStringLiteral("适配全部节点"));
-    auto* reset = menu.addAction(QStringLiteral("重置缩放"));
+    auto* fit = canvasAction(menu,"action.fitAll","Fit all nodes");
+    auto* reset = canvasAction(menu,"action.resetZoom","Reset zoom");
     QAction* paste = nullptr;
     if (!copiedNodes_.empty() || !copiedSubGraphName_.isEmpty() || !copiedInterfaceType_.isEmpty() || pasteModuleNode_ != nullptr)
-        paste = menu.addAction(QStringLiteral("粘贴节点"));
+        paste = canvasAction(menu,"action.paste","Paste nodes");
     const auto* selected = menu.exec(event->globalPos());
     if (selected == fit)
         zoomFit();

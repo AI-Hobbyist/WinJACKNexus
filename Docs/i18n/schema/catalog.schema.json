@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:winjacknexus:i18n:v1:catalog",
+  "type": "object",
+  "properties": {
+    "formatVersion": {
+      "const": 1
+    },
+    "catalogVersion": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 2147483647
+    },
+    "moduleId": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,255}$"
+    },
+    "language": {
+      "enum": [
+        "en-US",
+        "zh-CN",
+        "ja-JP",
+        "ko-KR"
+      ]
+    },
+    "domains": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string",
+        "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,255}$"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "propertyNames": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,255}$"
+        },
+        "additionalProperties": {
+          "oneOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32768
+            },
+            {
+              "type": "object",
+              "properties": {
+                "one": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 32768
+                },
+                "other": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 32768
+                }
+              },
+              "required": [
+                "one",
+                "other"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "other": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 32768
+                }
+              },
+              "required": [
+                "other"
+              ],
+              "additionalProperties": false
+            }
+          ]
+        }
+      }
+    }
+  },
+  "required": [
+    "formatVersion",
+    "catalogVersion",
+    "moduleId",
+    "language",
+    "domains"
+  ],
+  "additionalProperties": false
+}

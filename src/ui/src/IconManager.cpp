@@ -17,8 +17,41 @@
 
 #include <QPainter>
 #include <QFile>
+#include <QAbstractButton>
+#include <QDynamicPropertyChangeEvent>
+#include <QPalette>
 
 namespace WinJACKNexus::UI {
+namespace {
+class IconBinding final : public QObject {
+public:
+    IconBinding(QAbstractButton* button, QString name, QSize size)
+        : QObject(button),button_(button),name_(std::move(name)),size_(size) {
+        button_->installEventFilter(this); refresh();
+    }
+    bool eventFilter(QObject*,QEvent* event) override {
+        if (event->type()==QEvent::Paint || event->type()==QEvent::PaletteChange || (event->type()==QEvent::DynamicPropertyChange
+            && static_cast<QDynamicPropertyChangeEvent*>(event)->propertyName()=="textColor")) refresh();
+        return false;
+    }
+private:
+    void refresh() {
+        const auto color=button_->property("textColor").value<QColor>();
+        const auto effective=color.isValid()?color:button_->palette().color(QPalette::ButtonText);
+        if (effective==lastColor_) return;
+        lastColor_=effective;
+        button_->setIcon(QIcon(IconManager::pixmap(name_,size_,effective)));
+        button_->setIconSize(size_);
+    }
+    QAbstractButton* button_;
+    QString name_;
+    QSize size_;
+    QColor lastColor_;
+};
+}
+void IconManager::bindThemedIcon(QAbstractButton* button,const QString& name,const QSize& size) {
+    if (button) new IconBinding(button,name,size);
+}
 
 QIcon IconManager::icon(const QString& name)
 {

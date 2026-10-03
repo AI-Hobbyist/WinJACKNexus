@@ -4,6 +4,8 @@
 add_library(ui SHARED
     src/Library.cpp
     src/ApplicationSettings.cpp
+    src/I18nManager.cpp
+    src/HostI18n.cpp
     src/AnimatedWidget.cpp
     src/AuxSettingsWindow.cpp
     src/FxSettingsWindow.cpp
@@ -31,6 +33,9 @@ add_library(ui SHARED
     src/TrayController.cpp
     include/WinJACKNexus/UI/Export.hpp
     include/WinJACKNexus/UI/ApplicationSettings.hpp
+    include/WinJACKNexus/UI/I18nManager.hpp
+    include/WinJACKNexus/UI/HostI18n.hpp
+    include/WinJACKNexus/UI/LocalizedText.hpp
     include/WinJACKNexus/UI/AnimatedWidget.hpp
     include/WinJACKNexus/UI/AuxSettingsWindow.hpp
     include/WinJACKNexus/UI/FxSettingsWindow.hpp
@@ -77,5 +82,10 @@ find_package(Qt6ZlibPrivate 6.10.3 EXACT CONFIG REQUIRED
 target_link_libraries(ui PRIVATE Qt6::ZlibPrivate)
 
 wjn_configure_shared_target(ui WJN_UI_BUILD)
+target_compile_options(ui PRIVATE /utf-8)
 set_target_properties(ui PROPERTIES AUTOMOC ON AUTORCC ON)
+set(WJN_QT_TRANSLATIONS_DIR "${WJN_QT6_DIR}/../../../translations")
+configure_file(resources/qt-translations.qrc.in
+    "${CMAKE_CURRENT_BINARY_DIR}/qt-translations.qrc" @ONLY)
+target_sources(ui PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/qt-translations.qrc")
 add_library(WinJACKNexus::UI ALIAS ui)

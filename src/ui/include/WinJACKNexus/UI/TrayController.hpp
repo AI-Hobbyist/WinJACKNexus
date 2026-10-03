@@ -18,6 +18,7 @@
 #include <WinJACKNexus/UI/Export.hpp>
 
 #include <QIcon>
+#include <QHash>
 #include <QObject>
 #include <QString>
 
@@ -61,6 +62,8 @@ public:
      * @return 托盘是否可用并初始化成功
      */
     bool initialize(const QIcon& icon = {}, const QString& tooltip = {});
+    /** Build the same native menu and quick bar without an OS tray icon. */
+    void initializeFallback();
     /** 隐藏并释放托盘资源(析构时自动调用) */
     void shutdown();
 
@@ -85,6 +88,7 @@ public:
     QAction* meterbridgeAction() const;  // 电平表桥
     QAction* switchAction() const;       // 信号切换开关
     void setQuickAccessThemeMenu(QMenu* menu);
+    void setQuickAccessSettingsAction(QAction* action);
     /** 将补丁台的原生文件菜单绑定到所有快捷栏；菜单所有权由调用方保留。 */
     static void setQuickAccessFileMenu(QMenu* menu);
     void setPlaceholderEnabled(bool enabled);          // 启用/禁用接线盘入口
@@ -97,6 +101,9 @@ public:
 
     /** 更新所有快速入口栏中按分类组织的自定义节点 GUI 项目。 */
     static void setNodeGuiEntries(std::vector<TrayNodeGuiEntry> entries);
+    // Names are display-only, indexed by stable entry.id; the original metadata
+    // continues to determine device type, grouping and callback identity.
+    static void setNodeGuiEntries(std::vector<TrayNodeGuiEntry> entries,const QHash<QString,QString>& displayNames);
     static void clearNodeGuiEntries();
     /** 更新快速入口栏显示的 JACK DSP 与 XRun 状态。 */
     static void setQuickAccessStatus(const QString& status);
@@ -119,6 +126,7 @@ Q_SIGNALS:
 private:
     void buildPlaceholderMenu();
     void rebuildQuickAccessBar();
+    void retranslate();
 
     class Impl;
     Impl* impl_;

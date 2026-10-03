@@ -18,10 +18,49 @@ foreach(configuration IN ITEMS Debug Release RelWithDebInfo MinSizeRel)
         LIBRARY_OUTPUT_DIRECTORY_${configuration_upper} "${wjn_example_native_fx_dir}")
 endforeach()
 
+add_custom_command(TARGET wjn_example_native_fx POST_BUILD
+    COMMAND "${CMAKE_COMMAND}" -E copy_directory
+        "${CMAKE_CURRENT_SOURCE_DIR}/NativeFx/locate"
+        "$<TARGET_FILE_DIR:wjn_example_native_fx>/locate")
+
 if(BUILD_TESTING)
+    add_executable(wjn_patchbay_i18n_tests PatchbayI18nTests.cpp)
+    target_include_directories(wjn_patchbay_i18n_tests PRIVATE ${PROJECT_SOURCE_DIR}/src/patchbay/mod/include ${PROJECT_SOURCE_DIR}/src/native_fx/include)
+    target_compile_definitions(wjn_patchbay_i18n_tests PRIVATE WJN_NODE_IMPLEMENTATION WIN32_LEAN_AND_MEAN NOMINMAX)
+    target_compile_options(wjn_patchbay_i18n_tests PRIVATE /utf-8)
+    target_link_libraries(wjn_patchbay_i18n_tests PRIVATE WinJACKNexus::UI WinJACKNexus::Audio WinJACKNexus::Node WinJACKNexus::Common mod_patchbay patchbay_core Qt6::Widgets)
+    set_target_properties(wjn_patchbay_i18n_tests PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEASE "${WJN_OUTPUT_DIR}")
+    add_dependencies(wjn_patchbay_i18n_tests WinJACKNexus mod_adapter wjn_example_node)
+    add_test(NAME patchbay_i18n_tests COMMAND wjn_patchbay_i18n_tests "$<TARGET_FILE_DIR:WinJACKNexus>" "$<TARGET_FILE:mod_adapter>" "$<TARGET_FILE:wjn_example_node>" "${PROJECT_SOURCE_DIR}/Docs/i18n/S3-rendered/scale-1")
+    set_tests_properties(patchbay_i18n_tests PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=windows;QT_PLUGIN_PATH=C:/Qt/6.10.3/msvc2022_64/plugins")
+    set_property(TEST patchbay_i18n_tests PROPERTY ENVIRONMENT_MODIFICATION "PATH=path_list_prepend:${WJN_OUTPUT_DIR}" "PATH=path_list_prepend:C:/Qt/6.10.3/msvc2022_64/bin")
+    add_executable(wjn_host_i18n_tests HostI18nTests.cpp)
+    target_link_libraries(wjn_host_i18n_tests PRIVATE WinJACKNexus::UI WinJACKNexus::Audio WinJACKNexus::Node WinJACKNexus::Common Qt6::Widgets)
+    target_compile_definitions(wjn_host_i18n_tests PRIVATE WIN32_LEAN_AND_MEAN NOMINMAX)
+    target_compile_options(wjn_host_i18n_tests PRIVATE /utf-8)
+    set_target_properties(wjn_host_i18n_tests PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEASE "${WJN_OUTPUT_DIR}")
+    add_dependencies(wjn_host_i18n_tests WinJACKNexus)
+    add_test(NAME host_i18n_tests COMMAND wjn_host_i18n_tests "$<TARGET_FILE_DIR:WinJACKNexus>" "${PROJECT_SOURCE_DIR}/Docs/i18n/S2-rendered/scale-1")
+    set_tests_properties(host_i18n_tests PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=windows;QT_PLUGIN_PATH=C:/Qt/6.10.3/msvc2022_64/plugins")
+    set_property(TEST host_i18n_tests PROPERTY ENVIRONMENT_MODIFICATION "PATH=path_list_prepend:${WJN_OUTPUT_DIR}" "PATH=path_list_prepend:C:/Qt/6.10.3/msvc2022_64/bin")
+    enable_language(C)
+    add_executable(wjn_i18n_tests I18nTests.cpp I18nCAbi.c)
+    set_property(TARGET wjn_i18n_tests PROPERTY C_STANDARD 11)
+    target_link_libraries(wjn_i18n_tests PRIVATE WinJACKNexus::UI)
+    target_compile_definitions(wjn_i18n_tests PRIVATE WIN32_LEAN_AND_MEAN NOMINMAX)
+    set_target_properties(wjn_i18n_tests PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEASE "${WJN_OUTPUT_DIR}")
+    add_dependencies(wjn_i18n_tests wjn_example_node wjn_example_native_fx node)
+    add_test(NAME i18n_contract_tests COMMAND wjn_i18n_tests
+        "$<TARGET_FILE:wjn_example_node>" "$<TARGET_FILE:wjn_example_native_fx>" "$<TARGET_FILE:node>")
+    set_tests_properties(i18n_contract_tests PROPERTIES ENVIRONMENT
+        "QT_QPA_PLATFORM=windows;QT_QPA_PLATFORM_PLUGIN_PATH=C:/Qt/6.10.3/msvc2022_64/plugins/platforms")
+    set_property(TEST i18n_contract_tests PROPERTY ENVIRONMENT_MODIFICATION
+        "PATH=path_list_prepend:${WJN_OUTPUT_DIR}"
+        "PATH=path_list_prepend:C:/Qt/6.10.3/msvc2022_64/bin")
     add_executable(wjn_native_fx_boundary_tests NativeFx/NativeFxBoundaryTests.cpp)
     target_include_directories(wjn_native_fx_boundary_tests PRIVATE
         ${PROJECT_SOURCE_DIR}/src/native_fx/include
+        ${PROJECT_SOURCE_DIR}/src/common/include
         ${PROJECT_SOURCE_DIR}/src/node/include)
     target_link_libraries(wjn_native_fx_boundary_tests PRIVATE Qt6::Widgets)
     wjn_configure_shared_target(wjn_native_fx_boundary_tests WJN_DEVELOP_TEST_BUILD)

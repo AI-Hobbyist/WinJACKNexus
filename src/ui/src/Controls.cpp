@@ -904,7 +904,27 @@ QPushButton* DialogButtonBar::addButton(StandardButton standard) {
     const auto role = buttonRole(placeholder);
     removeButton(placeholder);
     delete placeholder;
-    return addButton(label, role);
+    auto* result=addButton(label, role);
+    result->setProperty("wjn.standardButton",static_cast<int>(standard));
+    return result;
+}
+QPushButton* DialogButtonBar::button(StandardButton standard) const {
+    for (auto* item:findChildren<QPushButton*>(QString{},Qt::FindDirectChildrenOnly))
+        if (item->property("wjn.standardButton").isValid()
+            && item->property("wjn.standardButton").toInt()==static_cast<int>(standard)) return item;
+    return QDialogButtonBox::button(standard);
+}
+bool DialogButtonBar::event(QEvent* event) {
+    const bool handled=QDialogButtonBox::event(event);
+    if (event->type()==QEvent::LanguageChange) {
+        for (auto* item:findChildren<QPushButton*>(QString{},Qt::FindDirectChildrenOnly)) {
+            if (!item->property("wjn.standardButton").isValid()) continue;
+            const auto standard=static_cast<StandardButton>(item->property("wjn.standardButton").toInt());
+            QDialogButtonBox probe(standard);
+            if (auto* native=probe.button(standard)) item->setText(native->text());
+        }
+    }
+    return handled;
 }
 
 IconActionButton::IconActionButton(QWidget* parent) : QToolButton(parent) {
@@ -946,8 +966,12 @@ void IconActionButton::paintEvent(QPaintEvent*) {
         icon().paint(&painter, iconRect.toRect(), Qt::AlignCenter,
                      isEnabled() ? QIcon::Normal : QIcon::Disabled);
     }
-    if (toolButtonStyle() != Qt::ToolButtonIconOnly || !hasIcon)
-        drawText(painter, textRect, text(), font(), textColor_, Qt::AlignCenter);
+    if (toolButtonStyle() != Qt::ToolButtonIconOnly || !hasIcon) {
+        const auto visible=fontMetrics().elidedText(text(),Qt::ElideRight,std::max(0,qRound(textRect.width())));
+        if (visible!=text() && !toolTip().contains(text()))
+            setToolTip(toolTip().isEmpty()?text():text()+QLatin1Char('\n')+toolTip());
+        drawText(painter, textRect, visible, font(), textColor_, Qt::AlignCenter);
+    }
 }
 
 IntegerField::IntegerField(QWidget* parent) : QSpinBox(parent) {

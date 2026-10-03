@@ -15,6 +15,7 @@ target_link_libraries(mod_adapter
 
 wjn_configure_shared_target(mod_adapter WJN_ADAPTER_BUILD)
 target_compile_definitions(mod_adapter PRIVATE WJN_NODE_IMPLEMENTATION WIN32_LEAN_AND_MEAN NOMINMAX)
+target_compile_options(mod_adapter PRIVATE $<$<CXX_COMPILER_ID:MSVC>:/utf-8>)
 set_target_properties(mod_adapter PROPERTIES
     OUTPUT_NAME "mod_adapter"
     RUNTIME_OUTPUT_DIRECTORY "${WJN_OUTPUT_DIR}/nodes/adapter"

@@ -1,0 +1,3 @@
+Current evidence matches: 13 sources, 5 Release files, 204 captures
+Catalog: 3 {'host': 84, 'adapter': 22, 'patchbay': 110}
+UI checks: [('1', 8037, 'Microsoft YaHei UI'), ('1.5', 8037, 'Microsoft YaHei UI'), ('2', 8037, 'Microsoft YaHei UI')]

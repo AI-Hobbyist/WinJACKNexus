@@ -1,0 +1,16 @@
+{
+  "formatVersion": 1,
+  "catalogVersion": 1,
+  "moduleId": "example-node",
+  "language": "en-US",
+  "domains": {
+    "example.node": {
+      "name": "Example Node",
+      "description": "Minimal Node API implementation for integration validation.",
+      "greeting": {
+        "one": "{count} node for {name}",
+        "other": "{count} nodes for {name}"
+      }
+    }
+  }
+}

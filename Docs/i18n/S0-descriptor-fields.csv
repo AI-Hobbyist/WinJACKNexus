@@ -1,0 +1,44 @@
+﻿source_id,field,source,file,line,domain,key,disposition,reason
+s0.13d7de6d7684,moduleId,module-winjacknexus-meterbridge,src/meter/mod/Library.cpp,88,meterbridge,,exclude,描述符结构/域/类型/token/默认样式身份
+s0.13d7de6d7684,namespace,--wjn-theme-module-winjacknexus-meterbridge-,src/meter/mod/Library.cpp,88,meterbridge,,exclude,描述符结构/域/类型/token/默认样式身份
+s0.13d7de6d7684,displayName,Meterbridge,src/meter/mod/Library.cpp,88,meterbridge,library.descriptor.displayName,translate,项目描述符显示名称/说明，身份字段仍原样
+s0.13d7de6d7684,tokens.wjn-theme-module-winjacknexus-meterbridge-node-card-background.name,--wjn-theme-module-winjacknexus-meterbridge-node-card-background,src/meter/mod/Library.cpp,88,meterbridge,,exclude,描述符结构/域/类型/token/默认样式身份
+s0.13d7de6d7684,tokens.wjn-theme-module-winjacknexus-meterbridge-node-card-background.type,color,src/meter/mod/Library.cpp,88,meterbridge,,exclude,描述符结构/域/类型/token/默认样式身份
+s0.13d7de6d7684,tokens.wjn-theme-module-winjacknexus-meterbridge-node-card-background.default,var(--wjn-theme-patchbay-node-card-background),src/meter/mod/Library.cpp,88,meterbridge,,exclude,描述符结构/域/类型/token/默认样式身份
+s0.13d7de6d7684,tokens.wjn-theme-module-winjacknexus-meterbridge-node-card-background.description,Host-drawn card background for the Meterbridge node type,src/meter/mod/Library.cpp,88,meterbridge,library.descriptor.tokens.wjn-theme-module-winjacknexus-meterbridge-node-card-background.description,translate,项目描述符显示名称/说明，身份字段仍原样
+s0.defc6785ba89,moduleId,module-winjacknexus-digital-mixer,src/mixer/Library.cpp,568,mixer,,exclude,描述符结构/域/类型/token/默认样式身份
+s0.defc6785ba89,namespace,--wjn-theme-module-winjacknexus-digital-mixer-,src/mixer/Library.cpp,568,mixer,,exclude,描述符结构/域/类型/token/默认样式身份
+s0.defc6785ba89,displayName,Digital Mixer,src/mixer/Library.cpp,568,mixer,library.descriptor.displayName,translate,项目描述符显示名称/说明，身份字段仍原样
+s0.defc6785ba89,tokens.wjn-theme-module-winjacknexus-digital-mixer-node-card-background.name,--wjn-theme-module-winjacknexus-digital-mixer-node-card-background,src/mixer/Library.cpp,568,mixer,,exclude,描述符结构/域/类型/token/默认样式身份
+s0.defc6785ba89,tokens.wjn-theme-module-winjacknexus-digital-mixer-node-card-background.type,color,src/mixer/Library.cpp,568,mixer,,exclude,描述符结构/域/类型/token/默认样式身份
+s0.defc6785ba89,tokens.wjn-theme-module-winjacknexus-digital-mixer-node-card-background.default,var(--wjn-theme-patchbay-node-card-background),src/mixer/Library.cpp,568,mixer,,exclude,描述符结构/域/类型/token/默认样式身份
+s0.defc6785ba89,tokens.wjn-theme-module-winjacknexus-digital-mixer-node-card-background.description,Host-drawn card background for the Digital Mixer node type,src/mixer/Library.cpp,568,mixer,library.descriptor.tokens.wjn-theme-module-winjacknexus-digital-mixer-node-card-background.description,translate,项目描述符显示名称/说明，身份字段仍原样
+s0.9ebe8e8e1fc9,moduleId,module-winjacknexus-patchbay,src/patchbay/mod/src/Library.cpp,2998,patchbay,,exclude,描述符结构/域/类型/token/默认样式身份
+s0.9ebe8e8e1fc9,namespace,--wjn-theme-module-winjacknexus-patchbay-,src/patchbay/mod/src/Library.cpp,2998,patchbay,,exclude,描述符结构/域/类型/token/默认样式身份
+s0.9ebe8e8e1fc9,displayName,Patchbay,src/patchbay/mod/src/Library.cpp,2998,patchbay,library.descriptor.displayName,translate,项目描述符显示名称/说明，身份字段仍原样
+s0.9ebe8e8e1fc9,tokens.wjn-theme-module-winjacknexus-patchbay-node-card-background.name,--wjn-theme-module-winjacknexus-patchbay-node-card-background,src/patchbay/mod/src/Library.cpp,2998,patchbay,,exclude,描述符结构/域/类型/token/默认样式身份
+s0.9ebe8e8e1fc9,tokens.wjn-theme-module-winjacknexus-patchbay-node-card-background.type,color,src/patchbay/mod/src/Library.cpp,2998,patchbay,,exclude,描述符结构/域/类型/token/默认样式身份
+s0.9ebe8e8e1fc9,tokens.wjn-theme-module-winjacknexus-patchbay-node-card-background.default,var(--wjn-theme-patchbay-node-card-background),src/patchbay/mod/src/Library.cpp,2998,patchbay,,exclude,描述符结构/域/类型/token/默认样式身份
+s0.9ebe8e8e1fc9,tokens.wjn-theme-module-winjacknexus-patchbay-node-card-background.description,Host-drawn card background for the Patchbay node type,src/patchbay/mod/src/Library.cpp,2998,patchbay,library.descriptor.tokens.wjn-theme-module-winjacknexus-patchbay-node-card-background.description,translate,项目描述符显示名称/说明，身份字段仍原样
+s0.5acecc2a7eee,moduleId,module-winjacknexus-vst-host,src/vst/src/Library.cpp,891,vst,,exclude,描述符结构/域/类型/token/默认样式身份
+s0.5acecc2a7eee,namespace,--wjn-theme-module-winjacknexus-vst-host-,src/vst/src/Library.cpp,891,vst,,exclude,描述符结构/域/类型/token/默认样式身份
+s0.5acecc2a7eee,displayName,VST Host,src/vst/src/Library.cpp,891,vst,library.descriptor.displayName,translate,项目描述符显示名称/说明，身份字段仍原样
+s0.5acecc2a7eee,tokens.wjn-theme-module-winjacknexus-vst-host-node-card-background.name,--wjn-theme-module-winjacknexus-vst-host-node-card-background,src/vst/src/Library.cpp,891,vst,,exclude,描述符结构/域/类型/token/默认样式身份
+s0.5acecc2a7eee,tokens.wjn-theme-module-winjacknexus-vst-host-node-card-background.type,color,src/vst/src/Library.cpp,891,vst,,exclude,描述符结构/域/类型/token/默认样式身份
+s0.5acecc2a7eee,tokens.wjn-theme-module-winjacknexus-vst-host-node-card-background.default,var(--wjn-theme-patchbay-node-card-background),src/vst/src/Library.cpp,891,vst,,exclude,描述符结构/域/类型/token/默认样式身份
+s0.5acecc2a7eee,tokens.wjn-theme-module-winjacknexus-vst-host-node-card-background.description,Host-drawn card background for the VST Host node type,src/vst/src/Library.cpp,891,vst,library.descriptor.tokens.wjn-theme-module-winjacknexus-vst-host-node-card-background.description,translate,项目描述符显示名称/说明，身份字段仍原样
+s0.224f5670e5b0,moduleId,example-gain,Develop/NativeFx/ExampleNativeFx.cpp,385,example.nativefx,,exclude,描述符结构/域/类型/token/默认样式身份
+s0.224f5670e5b0,locatePath,locate,Develop/NativeFx/ExampleNativeFx.cpp,385,example.nativefx,,exclude,描述符结构/域/类型/token/默认样式身份
+s0.224f5670e5b0,displayNameKey.domain,example.nativefx,Develop/NativeFx/ExampleNativeFx.cpp,385,example.nativefx,,exclude,描述符结构/域/类型/token/默认样式身份
+s0.224f5670e5b0,displayNameKey.key,name,Develop/NativeFx/ExampleNativeFx.cpp,385,example.nativefx,,exclude,描述符结构/域/类型/token/默认样式身份
+s0.8daa2b96ab94,moduleId,example-node,Develop/Node/ExampleNode.cpp,69,example.node,,exclude,描述符结构/域/类型/token/默认样式身份
+s0.8daa2b96ab94,locatePath,locate,Develop/Node/ExampleNode.cpp,69,example.node,,exclude,描述符结构/域/类型/token/默认样式身份
+s0.8daa2b96ab94,displayNameKey.domain,example.node,Develop/Node/ExampleNode.cpp,69,example.node,,exclude,描述符结构/域/类型/token/默认样式身份
+s0.8daa2b96ab94,displayNameKey.key,name,Develop/Node/ExampleNode.cpp,69,example.node,,exclude,描述符结构/域/类型/token/默认样式身份
+s0.cf79dc40b7d0,moduleId,module-winjacknexus-example-node,Develop/Node/ExampleNode.cpp,81,example.node,,exclude,描述符结构/域/类型/token/默认样式身份
+s0.cf79dc40b7d0,namespace,--wjn-theme-module-winjacknexus-example-node-,Develop/Node/ExampleNode.cpp,81,example.node,,exclude,描述符结构/域/类型/token/默认样式身份
+s0.cf79dc40b7d0,displayName,Example Node,Develop/Node/ExampleNode.cpp,81,example.node,examplenode.descriptor.displayName,translate,项目描述符显示名称/说明，身份字段仍原样
+s0.cf79dc40b7d0,tokens.wjn-theme-module-winjacknexus-example-node-node-card-background.name,--wjn-theme-module-winjacknexus-example-node-node-card-background,Develop/Node/ExampleNode.cpp,81,example.node,,exclude,描述符结构/域/类型/token/默认样式身份
+s0.cf79dc40b7d0,tokens.wjn-theme-module-winjacknexus-example-node-node-card-background.type,color,Develop/Node/ExampleNode.cpp,81,example.node,,exclude,描述符结构/域/类型/token/默认样式身份
+s0.cf79dc40b7d0,tokens.wjn-theme-module-winjacknexus-example-node-node-card-background.default,var(--wjn-theme-patchbay-node-card-background),Develop/Node/ExampleNode.cpp,81,example.node,,exclude,描述符结构/域/类型/token/默认样式身份
+s0.cf79dc40b7d0,tokens.wjn-theme-module-winjacknexus-example-node-node-card-background.description,Host-drawn node card background for this example node type,Develop/Node/ExampleNode.cpp,81,example.node,examplenode.descriptor.tokens.wjn-theme-module-winjacknexus-example-node-node-card-background.description,translate,项目描述符显示名称/说明，身份字段仍原样

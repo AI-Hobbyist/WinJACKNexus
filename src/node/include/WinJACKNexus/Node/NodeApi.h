@@ -18,6 +18,7 @@
 #include <WinJACKNexus/Node/Export.hpp>
 
 #include <stdint.h>
+#include <WinJACKNexus/Common/I18nApi.h>
 
 #ifdef __cplusplus
 class QWidget;
@@ -32,6 +33,12 @@ WINJACK_NODE_API uint32_t wjn_get_node_count(void);
 enum { WJN_NODE_THEME_API_VERSION = 1u };
 WINJACK_NODE_API uint32_t wjn_get_node_theme_api_version(void);
 WINJACK_NODE_API const char* wjn_get_node_theme_namespace_json(uint32_t index);
+/* Optional i18n capability; existing Node v2 ABI is unchanged. */
+WINJACK_NODE_API uint32_t wjn_get_node_i18n_api_version(void);
+WINJACK_NODE_API const char* wjn_get_node_i18n_descriptor_json(uint32_t index);
+WINJACK_NODE_API int32_t wjn_i18n_attach_host(const WjnI18nHostV1* host);
+WINJACK_NODE_API void wjn_i18n_language_changed(const char* locale, uint64_t revision);
+WINJACK_NODE_API void wjn_i18n_detach_host(void);
 WINJACK_NODE_API const char* wjn_get_node_name(uint32_t index);
 WINJACK_NODE_API const char* wjn_get_node_category(uint32_t index);
 // Optional Native Fx visual metadata for node-capable modules.

@@ -1,0 +1,22 @@
+{
+  "formatVersion": 1,
+  "moduleId": "example-node",
+  "domains": [
+    "example.node"
+  ],
+  "defaultLanguage": "en-US",
+  "catalogVersion": 1,
+  "languages": {
+    "en-US": "en-US.json",
+    "zh-CN": "zh-CN.json",
+    "ja-JP": "ja-JP.json",
+    "ko-KR": "ko-KR.json"
+  },
+  "requiredKeys": {
+    "example.node": [
+      "name",
+      "description",
+      "greeting"
+    ]
+  }
+}

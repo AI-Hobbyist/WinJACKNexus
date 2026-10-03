@@ -7,6 +7,17 @@ The exported surface is marked `WINJACK_UI_API`; implementation details in
 `src/ui/src` are not an API. This document records the v1 contract for
 application content controls.
 
+## Internationalization core (optional v1)
+
+`I18nManager.hpp` exports `I18nManager`, the move-only `I18nDomainLease` and
+`I18nOptions`. It provides GUI-thread registration/switching, an immutable
+translation snapshot, same-module English fallback, persisted auto/manual
+selection and immediate lifetime-bound UI refresh. Link `WinJACKNexus::UI`.
+The frozen signatures, package schema, formatter rules, DLL lifecycle and
+thread contract are defined in [I18n API v1](I18n-API.md). This adds no control
+styles or independent UI refresh timer. The host must initialize language
+before constructing application windows; business text migration is separate.
+
 ## Shared controls
 
 [`Controls.hpp`](../src/ui/include/WinJACKNexus/UI/Controls.hpp) is the
@@ -465,3 +476,18 @@ When a process ThemeCore is installed, patchbay construction preserves the appli
 Input, AUX and Sub Mix detail sidebars use two rows of three shared-drawn buttons: M / S / MIX and PFL / AFL / FX. MASTER uses two rows of one button: M and FX, with no input Gain, Solo, MIX or listen controls. M toggles explicit mute, S toggles SIP solo, MIX enables routing to MAIN, and PFL/AFL are mutually exclusive listen selections. PFL samples after gain before mute/fader; AFL follows mute/fader. FX enables or bypasses the existing effect chain and synchronizes an open FX editor. Buttons use the same geometry for painting and hit detection; MIX uses the main mixer's `--wjn-theme-mixer-control-button-mix-accent`; `--wjn-theme-sel-main-control-fx-accent` is registered alongside existing M/S/PFL/AFL accents. Changes commit through the mixer model; failed commits restore button state. SEL input/output meter readouts display −∞ at the silent meter floor.
 
 All four SEL strip types have an 音量 knob bound directly to the strip's fader position. Input/AUX/Sub Mix place it beside input Gain (labelled 增益); MASTER has this volume knob alone. Dragging updates the actual fader, main/overview fader edits repaint the same knob, double-click resets to 0 dB, and clicking its dB value opens the shared -72 to +12 dB numeric editor. The bottom knob position is −∞, matching the fader. Switching strips cancels knob dragging and numeric edits resolve the original stable strip identity. The volume knob shares the existing knob palette with Gain and the other SEL knobs, including `--wjn-theme-sel-main-control-knob-indicator-normal` and its global knob inheritance; it has no separate volume color token.
+
+### S2 宿主语言与标准按钮扩展（S2 Release 与实窗验证通过）
+
+宿主初始化与查询/绑定入口见 `HostI18n.hpp` 和 `Docs/I18n-API.md`。`TrayController::initializeFallback()` 在没有系统托盘时建立快捷栏及原生上下文菜单；`setQuickAccessSettingsAction(QAction*)` 将宿主全局设置动作接到快捷栏，动作由调用方持有，控制器使用 QPointer。
+
+`Controls::DialogButtonBar::button(StandardButton)` 返回通过共享控件替换的标准按钮；LanguageChange 时同步其 Qt 标准译文。`IconManager::bindThemedIcon(QAbstractButton*, name, size=QSize(20,20))` 将主题文字颜色用于图标遮罩，绑定由按钮持有，调色板/主题属性变化后更新。`IconActionButton` 按实际字体和可用宽度省略显示长文本，完整 text 与无障碍名称保留；省略时 tooltip 保留完整名称及既有说明。
+
+## 通用域文本绑定（S3 Release 与 Windows 调用点验证通过）
+
+`WinJACKNexus/UI/LocalizedText.hpp` 提供内联 `localizedText(domain,key,english,arguments={})` 和 `bindLocalizedText(object,property,domain,key,english,arguments={})`。通过已安装 I18nManager 查询当前域；未安装时使用 English 格式化兜底。绑定立即应用，随后按快照修订刷新；QObject 上下文销毁后自动断开。域/key/property/English/参数均复制，不借用调用方字符缓冲区。绑定仅用于显示属性，不用于用户编辑文本或业务身份。`wjn.i18n.<property>` 与 `wjn.i18nDomain.<property>` 记录 key 和域，供实际调用点验证。动态状态在已有一次绑定中刷新，不能每次状态变化重复注册。
+
+
+S3 新增 `TrayController::setNodeGuiEntries(entries, displayNames)` 重载，第二个参数是按稳定 entry.id 索引的 `QHash<QString,QString>`。原单参数接口与 TrayNodeGuiEntry 对象布局保持不变，name/category 继续保留原始元数据身份，用于设备方向、分类与排序；displayNames 只用于菜单显示，不覆盖 clientName 用户值。忽略不存在的 id 与空显示值；更新/清空列表会移除旧显示映射。实际模块切换语言时重新提供显示映射；快捷栏缓存签名包括显示值。原生节点动作 data 保存 entry.id；设备菜单重建先销毁旧子菜单与回调。`patchbay_i18n_tests` 在实际 Windows 快捷栏中检查两种重载、原始设备分类、用户名称和回调身份；S1/S2 回归同时通过。
+
+接线盘自绘节点的长标题按现有端口布局宽度省略，使用原有系统/主题字体及字号；完整标题保存在 tooltip，原始工程名称/别名仍保留全文。语言刷新重算显示几何及连线路径，不更新工程模型或重建音频客户端。实窗截图必须包含实际 OpenGL 视口；S3 使用 Windows 窗口表面捕获，不以漏掉加速视口的 QWidget 重绘截图验收画布。

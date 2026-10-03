@@ -1,6 +1,7 @@
 /* This file is part of WinJACKNexus. SPDX-License-Identifier: AGPL-3.0-only */
 #pragma once
 #include <stdint.h>
+#include <WinJACKNexus/Common/I18nApi.h>
 
 #if defined(_WIN32)
 # if defined(WJN_NATIVE_FX_BUILD)
@@ -63,6 +64,12 @@ WJN_FX_API const WjnFxMeta* wjn_fx_meta(uint32_t index);
 enum { WJN_FX_THEME_API_VERSION = 1u };
 WJN_FX_API uint32_t wjn_fx_theme_api_version(void);
 WJN_FX_API const char* wjn_fx_theme_namespace_json(uint32_t index);
+/* Optional i18n v1, independent of the required Native Fx v1 ABI. */
+WJN_FX_API uint32_t wjn_fx_i18n_api_version(void);
+WJN_FX_API const char* wjn_fx_i18n_descriptor_json(uint32_t index);
+WJN_FX_API int32_t wjn_i18n_attach_host(const WjnI18nHostV1* host);
+WJN_FX_API void wjn_i18n_language_changed(const char* locale, uint64_t revision);
+WJN_FX_API void wjn_i18n_detach_host(void);
 WJN_FX_API WjnFxInstance* wjn_fx_create_mixer(uint32_t index);
 /* Copies the module's per-channel parameters into a fresh instance. Audio
    history and the editor are reset; the host owns the returned instance. */

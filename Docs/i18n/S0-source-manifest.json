@@ -1,0 +1,1356 @@
+{
+  "scope": [
+    "src",
+    "tools",
+    "Develop"
+  ],
+  "files": [
+    {
+      "file": "src/adapter/src/Library.cpp",
+      "sha256": "d3681ed2038296d9b234d7c4e1fb6922c7c7048827c3f81eb5768f864474dfe1",
+      "lines": 2375
+    },
+    {
+      "file": "src/app/main.cpp",
+      "sha256": "69367854d2f48da72fa3ac292c4b2d48c9a9b1ca349bc7657930746e49c005f6",
+      "lines": 1229
+    },
+    {
+      "file": "src/app/WinJACKNexus.rc",
+      "sha256": "7dca4919242b5c2556f8065baf9f0bc4f3652ea2e1a8f46d90d2fd6e8ffb73a4",
+      "lines": 19
+    },
+    {
+      "file": "src/audio/include/WinJACKNexus/Audio/Export.hpp",
+      "sha256": "7777dd81c1bbc333b7d44c2fd21ca1f9d88c21c7c175b59fd4ce1211891cb254",
+      "lines": 26
+    },
+    {
+      "file": "src/audio/include/WinJACKNexus/Audio/JackApi.hpp",
+      "sha256": "9aa8da5881c2d8589c3f39fc40bcda4ff7faa54173ebab22680e2d0c0adea528",
+      "lines": 148
+    },
+    {
+      "file": "src/audio/include/WinJACKNexus/Audio/JackClient.hpp",
+      "sha256": "7d567e5e27e4181fa8239007850d7e77af76dc7c85a39854cfc73fc2e88e08b2",
+      "lines": 67
+    },
+    {
+      "file": "src/audio/include/WinJACKNexus/Audio/JackGraph.hpp",
+      "sha256": "307dd58c73dd47e2089df4edcd4cd887cbbc95f421ba741eae834b3f9e243506",
+      "lines": 42
+    },
+    {
+      "file": "src/audio/include/WinJACKNexus/Audio/JackMidiBuffer.hpp",
+      "sha256": "1421b465fbb971e5171ac92017420d43d16d3d3518cf05591035014bac1d2c7d",
+      "lines": 83
+    },
+    {
+      "file": "src/audio/include/WinJACKNexus/Audio/JackPort.hpp",
+      "sha256": "9c3b3bc350c495c2f160bcfbdf1f7cdd22a425607677d8ed4f824e7e26ae495e",
+      "lines": 63
+    },
+    {
+      "file": "src/audio/include/WinJACKNexus/Audio/JackRingBuffer.hpp",
+      "sha256": "32cd4f6d564473f775a733156567372e98ec33517ff4b01a44f2701dac693d80",
+      "lines": 60
+    },
+    {
+      "file": "src/audio/include/WinJACKNexus/Audio/JackServerGuard.hpp",
+      "sha256": "7fd0f42391a557b49d7a7e3f00a263eef9c0d5abdf518a7b9da72c53acd6334e",
+      "lines": 55
+    },
+    {
+      "file": "src/audio/include/WinJACKNexus/Audio/JackVersion.hpp",
+      "sha256": "373249253bd29cc087288b6e3086f76debbc74c332cd44f7065266f4ff3c3316",
+      "lines": 24
+    },
+    {
+      "file": "src/audio/include/WinJACKNexus/Audio/MidiDevice.hpp",
+      "sha256": "46c52309d3c577cd71d1f31f41fdf443f2504745e8c41f920d58aa0be85c2b74",
+      "lines": 55
+    },
+    {
+      "file": "src/audio/include/WinJACKNexus/Audio/MidiEvent.hpp",
+      "sha256": "03904acf274310fc4bfb7b6b53f21a26af4d5f9964d27e2599110acd73af4994",
+      "lines": 39
+    },
+    {
+      "file": "src/audio/include/WinJACKNexus/Audio/MidiStream.hpp",
+      "sha256": "87592a554f421f925a3b2f446d60ff74de91c265fb38224b201cd91c789e76cb",
+      "lines": 62
+    },
+    {
+      "file": "src/audio/include/WinJACKNexus/Audio/WasapiDevice.hpp",
+      "sha256": "5ed509fd30c764eaa60234e42e27ddee60cb5302ce5eee680b25cfa3f7ef8f5a",
+      "lines": 53
+    },
+    {
+      "file": "src/audio/include/WinJACKNexus/Audio/WasapiFormat.hpp",
+      "sha256": "ea144821d45bf3aedf1b77c3df5c9a9f16dabc7ac335517a460c20703de0df4a",
+      "lines": 34
+    },
+    {
+      "file": "src/audio/include/WinJACKNexus/Audio/WasapiStream.hpp",
+      "sha256": "f1a998ce8cb92bcc762aa302465922f39c04918effae3affffad92041fc5ab4f",
+      "lines": 68
+    },
+    {
+      "file": "src/audio/src/JackApi.cpp",
+      "sha256": "a69d0e4ac9ea2c431f54000ff10f8eccf4700faf3b95fb92e217c53a352e6c25",
+      "lines": 633
+    },
+    {
+      "file": "src/audio/src/JackClient.cpp",
+      "sha256": "11fd39a1b2740d4608fe4b4a72e0519df2f765deaac3afe3ab965d216914c1cc",
+      "lines": 215
+    },
+    {
+      "file": "src/audio/src/JackGraph.cpp",
+      "sha256": "931aea5d297477efb69c91e7760fc5843ec846b34b75adc1a894c6572516ddb5",
+      "lines": 64
+    },
+    {
+      "file": "src/audio/src/JackPort.cpp",
+      "sha256": "57aff09c79fe0891a1dfce505137e12c194b16c9f61948cf042dc046521f856b",
+      "lines": 156
+    },
+    {
+      "file": "src/audio/src/JackRingBuffer.cpp",
+      "sha256": "8ba1329b1e3809ebb2227a0bb9e1be54108a03d2257a26a0cb57d7ee4b93deed",
+      "lines": 152
+    },
+    {
+      "file": "src/audio/src/JackServerGuard.cpp",
+      "sha256": "c1cd789a13d4d859488f5406cf2156f851160790c30901cbe73498604bd32ba7",
+      "lines": 220
+    },
+    {
+      "file": "src/audio/src/Library.cpp",
+      "sha256": "1a2b8a80f6194b6a78b55c32b24a54bb774a8a29a7eacf92d01e45322bdd1e1d",
+      "lines": 25
+    },
+    {
+      "file": "src/audio/src/MidiDevice.cpp",
+      "sha256": "ac9b9bae1f9755170c084ac9d6f8c0e902cdf68063482f750f7bb43c536aa7a0",
+      "lines": 97
+    },
+    {
+      "file": "src/audio/src/MidiEvent.cpp",
+      "sha256": "197c6010c52304d5a6b3b5fd62cc3abb3f203c44f35afce4f8b947ec43e4f12e",
+      "lines": 67
+    },
+    {
+      "file": "src/audio/src/MidiStream.cpp",
+      "sha256": "a8aec28021085057b85d766ecf97b1565fe7e40af2f21023c2eb8cff7fcf1fe9",
+      "lines": 278
+    },
+    {
+      "file": "src/audio/src/WasapiDevice.cpp",
+      "sha256": "bb1929ad957c273579c9f674c0176c41c515da2b6bdf9122ae97de5122d43386",
+      "lines": 213
+    },
+    {
+      "file": "src/audio/src/WasapiStream.cpp",
+      "sha256": "2256135bd37b7d48ae2187da51bc53acebc0eac2d9be22e782341eec0578df72",
+      "lines": 579
+    },
+    {
+      "file": "src/common/include/WinJACKNexus/Common/Atomic.hpp",
+      "sha256": "ab2d67204476c29235cab47c987e8eb8cb1af3562ba9bc83b92304669edf537f",
+      "lines": 87
+    },
+    {
+      "file": "src/common/include/WinJACKNexus/Common/AudioRingBuffer.hpp",
+      "sha256": "be89745bf18245b57bcce6aabd8815a7ee5e09990ac002633ef74ce617d8b493",
+      "lines": 124
+    },
+    {
+      "file": "src/common/include/WinJACKNexus/Common/AuxMixerState.hpp",
+      "sha256": "7abdf027e6583932c5eb54191c04932555752726c315cbf0c24ca4695a1fc22c",
+      "lines": 119
+    },
+    {
+      "file": "src/common/include/WinJACKNexus/Common/ChannelLayout.hpp",
+      "sha256": "8bac22978ad77e4e95aca1454514ec789e76de03ebe7df79f5b1fe6d48a742ed",
+      "lines": 164
+    },
+    {
+      "file": "src/common/include/WinJACKNexus/Common/ChannelNames.hpp",
+      "sha256": "15b3e634c4e5fe7fa7ef712d80f00594c600e463ebe9b35c703eeabfb7e9f326",
+      "lines": 33
+    },
+    {
+      "file": "src/common/include/WinJACKNexus/Common/DigitalMixerProcessor.hpp",
+      "sha256": "2725a171fc1c03358acdf9b44f667deb2d60aba712073fc8f09e980f040d07d7",
+      "lines": 127
+    },
+    {
+      "file": "src/common/include/WinJACKNexus/Common/DigitalMixerState.hpp",
+      "sha256": "0d57af3348a80cbb81bfce0bca91fabcb4d230dd852c26f47a63a7b5897a42ef",
+      "lines": 136
+    },
+    {
+      "file": "src/common/include/WinJACKNexus/Common/Export.hpp",
+      "sha256": "548290ba1e5aa07fb617f71a16a5d556300f429bca7ebfd35dd09a126f6132c2",
+      "lines": 26
+    },
+    {
+      "file": "src/common/include/WinJACKNexus/Common/GraphicsView.hpp",
+      "sha256": "0c046bd6515f46ca4178d0b48eb8c0b668c827cb32056386186edd82f669d78c",
+      "lines": 26
+    },
+    {
+      "file": "src/common/include/WinJACKNexus/Common/I18nApi.h",
+      "sha256": "ba5f89acd74ebc3ecaddb96835d8c79301aac0b3e1c18e679f0acf86abd06909",
+      "lines": 35
+    },
+    {
+      "file": "src/common/include/WinJACKNexus/Common/LockFreeSpscQueue.hpp",
+      "sha256": "a4af96083421600dfce5a3d507bf965a7870bacd14bab380380ea1b1e300358e",
+      "lines": 108
+    },
+    {
+      "file": "src/common/include/WinJACKNexus/Common/Logger.hpp",
+      "sha256": "59ce0e7825ba6f274695dbab0fa0bda4fdbb9b7536f52c61eddce98a5b1e9163",
+      "lines": 73
+    },
+    {
+      "file": "src/common/include/WinJACKNexus/Common/LoudnessEngine.hpp",
+      "sha256": "c86418f59cb1aeced85bb182958c9b98f982a713f8bf43f867da3320b15993f9",
+      "lines": 69
+    },
+    {
+      "file": "src/common/include/WinJACKNexus/Common/Metadata.hpp",
+      "sha256": "c54381ae57b27d2d3c362a857d5ed5a5ba838ea1c37f6739ac4638cd51e77b1b",
+      "lines": 39
+    },
+    {
+      "file": "src/common/include/WinJACKNexus/Common/MeterCustomLoudnessPresets.hpp",
+      "sha256": "01d277185d16129d163ea59776eb4401bbe5325f621bca7bc5324f6ca58df23c",
+      "lines": 21
+    },
+    {
+      "file": "src/common/include/WinJACKNexus/Common/MeterLoudnessPresetCatalog.hpp",
+      "sha256": "05d87be003695a12e53a89f6ea309eb3a2cbf6c1f086c5544aa2d5cf87afa89b",
+      "lines": 63
+    },
+    {
+      "file": "src/common/include/WinJACKNexus/Common/MeterProbeRegistry.hpp",
+      "sha256": "888442c1ab6789d35f0875552f1061bc7f1245d049ae1507422e1a25904afd8f",
+      "lines": 99
+    },
+    {
+      "file": "src/common/include/WinJACKNexus/Common/MeterSnapshot.hpp",
+      "sha256": "30f456e9e5127afac6bf097b5030ed2ba1396824308d3403cded34f621a1171d",
+      "lines": 40
+    },
+    {
+      "file": "src/common/include/WinJACKNexus/Common/MixerPolarAnalysis.hpp",
+      "sha256": "4ce35fcbad6685d1860de1ddad80c1a855168fd893c7fc9161866734ee745c2d",
+      "lines": 56
+    },
+    {
+      "file": "src/common/include/WinJACKNexus/Common/MixerPolarCurve.hpp",
+      "sha256": "1ddd40d45f1a2570cd164cadd4cab1f6e98d7a575658eace1ef3142164857a2f",
+      "lines": 33
+    },
+    {
+      "file": "src/common/include/WinJACKNexus/Common/PathUtils.hpp",
+      "sha256": "4db1adfbf9b0437bd137e9a9d0a0849a9094866e26a9f9b7b51175b2067f4cec",
+      "lines": 33
+    },
+    {
+      "file": "src/common/include/WinJACKNexus/Common/RealtimeObject.hpp",
+      "sha256": "aa119c05e19c4c0d876c1fac2e981e3f7b58a000331d1d066eb2c68c63468fef",
+      "lines": 120
+    },
+    {
+      "file": "src/common/include/WinJACKNexus/Common/ScopedGuard.hpp",
+      "sha256": "0cf7808dcd7bdbba115060b6c2a3dd0939be9db2c75be04cb5e34072f046cfa6",
+      "lines": 71
+    },
+    {
+      "file": "src/common/include/WinJACKNexus/Common/SilenceResetController.hpp",
+      "sha256": "86b5b376ffc84609617e5cf9a79d0b05edb7b1286919a6d46db26d3bf921e207",
+      "lines": 98
+    },
+    {
+      "file": "src/common/include/WinJACKNexus/Common/StandardChannelNames.hpp",
+      "sha256": "2079d71b29eb0093126100dc6a1417d694fbd688ddf3c9b885e2a22d1faf332c",
+      "lines": 32
+    },
+    {
+      "file": "src/common/include/WinJACKNexus/Common/Thread.hpp",
+      "sha256": "a8be31812c85fbbf81217cc6e9f534e9c61bbac7bb34d90e96bf19ce37801080",
+      "lines": 51
+    },
+    {
+      "file": "src/common/include/WinJACKNexus/Common/Timer.hpp",
+      "sha256": "5b3f188ac016d9cba602c0d46791a425e00ac681f027574e5f03564fc2144e2f",
+      "lines": 40
+    },
+    {
+      "file": "src/common/include/WinJACKNexus/Common/Version.hpp",
+      "sha256": "9718e45865d235a61357c4d0b9512bbf70dbd2d295abd9900045a255229c90f9",
+      "lines": 51
+    },
+    {
+      "file": "src/common/include/WinJACKNexus/Common/Window.hpp",
+      "sha256": "1f6baa5506a1f140497081ce059f2f294776beb5bdc3665e37ff0783725823a3",
+      "lines": 38
+    },
+    {
+      "file": "src/common/src/AuxMixerState.cpp",
+      "sha256": "2132dae676a96ab5f4bbc92b25591130e4efa7682a6c147b4ef386ab92615db6",
+      "lines": 401
+    },
+    {
+      "file": "src/common/src/DigitalMixerProcessor.cpp",
+      "sha256": "98b3ab7f06489431d76f46be4f50c6e057122061b5538e97ad0a4100eb8ca9d8",
+      "lines": 598
+    },
+    {
+      "file": "src/common/src/DigitalMixerState.cpp",
+      "sha256": "c18754b79f0e473ac9db09ec16adc1043eb78f1128d77a154f1963f0c516aa85",
+      "lines": 648
+    },
+    {
+      "file": "src/common/src/GraphicsView.cpp",
+      "sha256": "82e7df33f96033c37f7951d163e1e20b30606c17b96ff5dea89e933492411609",
+      "lines": 31
+    },
+    {
+      "file": "src/common/src/Library.cpp",
+      "sha256": "242a5156857bd2a5b16d539f130f8d4c74d76f179dc1002479332b243640d793",
+      "lines": 25
+    },
+    {
+      "file": "src/common/src/Logger.cpp",
+      "sha256": "30706438ac1a1c25c62c3c6e827161322307277924e7d1c70e442826f1c31c80",
+      "lines": 271
+    },
+    {
+      "file": "src/common/src/LoudnessEngine.cpp",
+      "sha256": "5fc2006cea3678b0d41394793c29caf88b764171a120833d713cf9ef61e2d4e3",
+      "lines": 558
+    },
+    {
+      "file": "src/common/src/Metadata.cpp",
+      "sha256": "85602e923c08433a97aa6eb62989d35545adb9fec8fe64a82662956e44645e6c",
+      "lines": 231
+    },
+    {
+      "file": "src/common/src/MeterCustomLoudnessPresets.cpp",
+      "sha256": "0604e7aeed848e55a065849cf951a00d2910d3d02e2ac764b0be92105b61495c",
+      "lines": 78
+    },
+    {
+      "file": "src/common/src/MeterProbeRegistry.cpp",
+      "sha256": "96f6d942fa50712fcc102797f216fabb3f774489c6f58d4c7e67fdad6a6258c0",
+      "lines": 167
+    },
+    {
+      "file": "src/common/src/MixerPolarAnalysis.cpp",
+      "sha256": "cf2e18348191f7e7373550d052ce25f2acb19d63268b89526eeb76c84945ac9a",
+      "lines": 71
+    },
+    {
+      "file": "src/common/src/MixerPolarCurve.cpp",
+      "sha256": "51451c2f75070ce1c57c0d7484b7aa7af2e0fbb3bfc50c48d751c2a8dd7f6082",
+      "lines": 116
+    },
+    {
+      "file": "src/common/src/PathUtils.cpp",
+      "sha256": "92e6742511436ea3b755f9afcf24fd9494be4d1fe4905b25b257428a82958a7e",
+      "lines": 77
+    },
+    {
+      "file": "src/common/src/Thread.cpp",
+      "sha256": "7fca960373e04721f0471282bde7bf663035b391dffdbd8137ff187b4949e0f8",
+      "lines": 134
+    },
+    {
+      "file": "src/common/src/Timer.cpp",
+      "sha256": "8b86cf3cc4b018d599181df73a5210c2461286c3479986e8c57be7469221875c",
+      "lines": 54
+    },
+    {
+      "file": "src/common/src/Version.cpp",
+      "sha256": "55871849c8b75706318dc046a2c3d1d40ed4c8f0b8fa2217d89d8260933d4261",
+      "lines": 88
+    },
+    {
+      "file": "src/common/src/Window.cpp",
+      "sha256": "83cdcc4fd184a43c9f4b1a127e915012d959717dbf45f3a81e5c4bd171cc3949",
+      "lines": 53
+    },
+    {
+      "file": "src/default_theme/DefaultTheme.cpp",
+      "sha256": "a1e958f9dbd0e9d9583dfc29cdd434630ee7b871380ba550d4e17ca17b96dd64",
+      "lines": 23
+    },
+    {
+      "file": "src/meter/mod/include/WinJACKNexus/Meter/Mod/MeterbridgeService.hpp",
+      "sha256": "175138146658e339d126763214dd4e7621ba5e88e35b4828212e51f579fbbe3f",
+      "lines": 53
+    },
+    {
+      "file": "src/meter/mod/include/WinJACKNexus/Meter/Mod/MeterbridgeWindow.hpp",
+      "sha256": "273ec992d289cca10c867375d8ca7bbbf9ba8492cb30c7b6d04bb68e450a00f3",
+      "lines": 91
+    },
+    {
+      "file": "src/meter/mod/include/WinJACKNexus/Meter/Mod/MeterCard.hpp",
+      "sha256": "d35fee5bfa226eca582d431a4588ac5d2c084680fee1a3266f2595a8fdb900f1",
+      "lines": 92
+    },
+    {
+      "file": "src/meter/mod/include/WinJACKNexus/Meter/Mod/MeterHistoryWindow.hpp",
+      "sha256": "cfad9535ac16fb14a7087c9c19ca3ab128daf667be12a6a6ea4eefe6935f6d39",
+      "lines": 128
+    },
+    {
+      "file": "src/meter/mod/include/WinJACKNexus/Meter/Mod/MeterSettingsWidget.hpp",
+      "sha256": "509ce9eb280b298e0a418a58a7db257f5aefac35576d2803d72e8890606b01d4",
+      "lines": 59
+    },
+    {
+      "file": "src/meter/mod/Library.cpp",
+      "sha256": "1cce5e5b5d96c1783f8bcae3e65d24a120c4ee88d0d427ad802855ebef67fabe",
+      "lines": 189
+    },
+    {
+      "file": "src/meter/mod/src/MeterbridgeService.cpp",
+      "sha256": "65f4c9868bb446c03ad5f0968ed73de2b7ab5140d7c2235044abc6e04d7ed7fb",
+      "lines": 108
+    },
+    {
+      "file": "src/meter/mod/src/MeterbridgeWindow.cpp",
+      "sha256": "f2b72e60f0aa6e47070c834235ba7d155086c9cfc255fcee453d93845c37510e",
+      "lines": 421
+    },
+    {
+      "file": "src/meter/mod/src/MeterCard.cpp",
+      "sha256": "901bbc8b69f73675457c9f34bc0e6f0840b351f25c21286ce1d8c1c543d7333f",
+      "lines": 642
+    },
+    {
+      "file": "src/meter/mod/src/MeterHistoryWindow.cpp",
+      "sha256": "103fc4fb452e0465d18242df725e89ef0e30809da0c0fd833b19aba3d5469c62",
+      "lines": 1181
+    },
+    {
+      "file": "src/meter/mod/src/MeterSettingsWidget.cpp",
+      "sha256": "9cf14906a544c62ac2f888cc45c414549b34b9df2287bc325fd3b79d6349d42c",
+      "lines": 244
+    },
+    {
+      "file": "src/meter/probe/Library.cpp",
+      "sha256": "afb2c00935f3223bee9e437c00f7d839516b4e580eef9ff34379501fdfa41ed0",
+      "lines": 1263
+    },
+    {
+      "file": "src/meter/ui/include/WinJACKNexus/Meter/LiveMeterDataProvider.hpp",
+      "sha256": "9eb5ad9953b2712fa71f89e5cb1b838f532ff878b2148496836baafa130106f5",
+      "lines": 85
+    },
+    {
+      "file": "src/meter/ui/include/WinJACKNexus/Meter/MeterCsvWriter.hpp",
+      "sha256": "efc58e1f647e3e20ee42350e336088db2b739dbed537232e04b391aa875338af",
+      "lines": 91
+    },
+    {
+      "file": "src/meter/ui/include/WinJACKNexus/Meter/MeterViewDataProvider.hpp",
+      "sha256": "a6f9ab493b9ef317493880ac14c7c90825b05195c9fb4d4f929f5ece49fc857c",
+      "lines": 37
+    },
+    {
+      "file": "src/meter/ui/include/WinJACKNexus/Meter/MeterViewSnapshot.hpp",
+      "sha256": "a3dc44e52c5e060043973e8398c908008300e93b501c4499ea0959d779ca5111",
+      "lines": 155
+    },
+    {
+      "file": "src/meter/ui/include/WinJACKNexus/Meter/MockMeterDataProvider.hpp",
+      "sha256": "98fac17d35a9400dde3856de8068c189da2f71e0576175c96fbadf758c7ea97a",
+      "lines": 95
+    },
+    {
+      "file": "src/meter/ui/src/LiveMeterDataProvider.cpp",
+      "sha256": "192cb3c06319191173d8975646499b25688316b1bd61dfe78953f09c0f045dca",
+      "lines": 575
+    },
+    {
+      "file": "src/meter/ui/src/MeterCsvWriter.cpp",
+      "sha256": "de9d3be8008561af6e3e065dafe72688d7deac14c6d4c4264f64a37c516e0645",
+      "lines": 243
+    },
+    {
+      "file": "src/meter/ui/src/MockMeterDataProvider.cpp",
+      "sha256": "088e8d64c35819b440d7b45996692caec503fb043b7b8b8317d76349d5708bdf",
+      "lines": 496
+    },
+    {
+      "file": "src/mixer/EffectGraph.cpp",
+      "sha256": "9f153eea5550df170c25e22c82b98d8b3eb2060d074c328654349f0a9349e240",
+      "lines": 238
+    },
+    {
+      "file": "src/mixer/EffectGraph.hpp",
+      "sha256": "bfcec5db88c04e7053a7a1cf4ffa7e27430411f0d1bd5aa4c2ff18a5eaf4d58a",
+      "lines": 65
+    },
+    {
+      "file": "src/mixer/Library.cpp",
+      "sha256": "b590bd7f24bf8036b0777058fbd7f173ae19aa2e14d41080d57bc660963946ec",
+      "lines": 624
+    },
+    {
+      "file": "src/native_fx/effects/compressor/include/Dsp.hpp",
+      "sha256": "6800ffc06877cc6b031af12209e34d74fc332febe6b2afe330b7241ce15558f6",
+      "lines": 15
+    },
+    {
+      "file": "src/native_fx/effects/compressor/include/Logic.inc",
+      "sha256": "ea905bd7970a702977c8b15596473d64bceab3afbd9789c7f0aaf74cde65a8bf",
+      "lines": 289
+    },
+    {
+      "file": "src/native_fx/effects/compressor/include/WinJACKNexus/NativeFx/compressor/Processor.hpp",
+      "sha256": "dc5ef0bcfb481c02eca1c23b0f3b9517d7ddea276b7cf4b5461e203a6762a08b",
+      "lines": 56
+    },
+    {
+      "file": "src/native_fx/effects/compressor/include/WinJACKNexus/NativeFx/compressor/Ui.hpp",
+      "sha256": "b77fc111c75e93bcc0eb02fd2d8e7a62afca2db803fe8c337c3e2052b31cac74",
+      "lines": 57
+    },
+    {
+      "file": "src/native_fx/effects/compressor/Meta.hpp",
+      "sha256": "04072e08ab8e8053031c5838bbd43eea8f678684340d107516367a45fca6feb5",
+      "lines": 4
+    },
+    {
+      "file": "src/native_fx/effects/compressor/src/Dsp.cpp",
+      "sha256": "6efbdf3a11008f6c28dc271dc2f89ea30bdf74b8761433554601fab827a296b4",
+      "lines": 170
+    },
+    {
+      "file": "src/native_fx/effects/compressor/src/Ui.cpp",
+      "sha256": "ef6178246e6340d594f386e15b84dd611c4c05481069567bcc5fc93341c7d95f",
+      "lines": 370
+    },
+    {
+      "file": "src/native_fx/effects/deesser/include/Dsp.hpp",
+      "sha256": "46c1e786800844f8f7ed8ec569640d3ccc9b0b0c7208314e2655aadc839d9b1b",
+      "lines": 15
+    },
+    {
+      "file": "src/native_fx/effects/deesser/include/Logic.inc",
+      "sha256": "03f0ae2f174f89b22b0592cac08481588dd6cc3e92ef93d6fb4b400f63873144",
+      "lines": 284
+    },
+    {
+      "file": "src/native_fx/effects/deesser/include/WinJACKNexus/NativeFx/deesser/Processor.hpp",
+      "sha256": "0c9283865473586b9f40f1e3d51e86d7a29485add27c81e3e95eab0b0a5fd42d",
+      "lines": 51
+    },
+    {
+      "file": "src/native_fx/effects/deesser/include/WinJACKNexus/NativeFx/deesser/SpectrumSample.hpp",
+      "sha256": "1141705a73c3e9fe8b9b9a2c5efb9860ea0b740e68ff0ea816d8e7101079350a",
+      "lines": 23
+    },
+    {
+      "file": "src/native_fx/effects/deesser/include/WinJACKNexus/NativeFx/deesser/Ui.hpp",
+      "sha256": "e108c5303ff4c505a14cdcdd050340d16be68a7cbde1ebd93da2327b94cf73e6",
+      "lines": 82
+    },
+    {
+      "file": "src/native_fx/effects/deesser/Meta.hpp",
+      "sha256": "cdccdf1f308fde1635c7eb7c0a86d76cb9b6c2c3206f9284bc03592ad0623ec7",
+      "lines": 4
+    },
+    {
+      "file": "src/native_fx/effects/deesser/src/Dsp.cpp",
+      "sha256": "215347e5ea5c051034249ea8513e0f1ccd6305160e9725295e729024cc0b45ef",
+      "lines": 121
+    },
+    {
+      "file": "src/native_fx/effects/deesser/src/Ui.cpp",
+      "sha256": "d6d872102374e5ad9a1f9603bf0e5758de5a04d7c001eeeacfba2677c0e9d0bf",
+      "lines": 686
+    },
+    {
+      "file": "src/native_fx/effects/delay/include/Dsp.hpp",
+      "sha256": "a5290578d5757e2d2c0a1720132a202176bcc34feba53b5f3f5f2fa6d53306f2",
+      "lines": 15
+    },
+    {
+      "file": "src/native_fx/effects/delay/include/Logic.inc",
+      "sha256": "16f7f4ece3d6c772b2f8a6cb5351b35703382df5282e19ff15a5d74817fba3b8",
+      "lines": 121
+    },
+    {
+      "file": "src/native_fx/effects/delay/include/WinJACKNexus/NativeFx/delay/Processor.hpp",
+      "sha256": "1fa3c1624f61ea046538523ec7c35e91b83a6411f63c3b011ee456bbade7679e",
+      "lines": 24
+    },
+    {
+      "file": "src/native_fx/effects/delay/include/WinJACKNexus/NativeFx/delay/Ui.hpp",
+      "sha256": "55c65e0dce5ff1e7d15a731b362664489a45e6011e821e308c1b1fe41d569713",
+      "lines": 47
+    },
+    {
+      "file": "src/native_fx/effects/delay/Meta.hpp",
+      "sha256": "88856f4458e80b46bc7346edea52d04da35927019dbba3bd2e3bec94617c09fc",
+      "lines": 4
+    },
+    {
+      "file": "src/native_fx/effects/delay/src/Dsp.cpp",
+      "sha256": "0e7e58ca0bd6efecc25c1da5b2ef57560e6512c561c507dd721de2bf32950a6e",
+      "lines": 48
+    },
+    {
+      "file": "src/native_fx/effects/delay/src/Ui.cpp",
+      "sha256": "0bf4fc74b42163810dd7567990f470b4aac428b57099586bb9f23208eae647ca",
+      "lines": 358
+    },
+    {
+      "file": "src/native_fx/effects/gate/include/Dsp.hpp",
+      "sha256": "10000332f87c339d035d3152661253b8032219e43f4b81150012bf3407394005",
+      "lines": 15
+    },
+    {
+      "file": "src/native_fx/effects/gate/include/Logic.inc",
+      "sha256": "87c148b7e75dddb25229c7da36c2365aec4951143b3938749756390ee483c098",
+      "lines": 255
+    },
+    {
+      "file": "src/native_fx/effects/gate/include/WinJACKNexus/NativeFx/gate/Processor.hpp",
+      "sha256": "52271ea8e7ee968c7cd7f9dc05025ba3a48d3934a89f823729aee1c65479d8d2",
+      "lines": 49
+    },
+    {
+      "file": "src/native_fx/effects/gate/include/WinJACKNexus/NativeFx/gate/Ui.hpp",
+      "sha256": "c29bebff84adb3df5e31df5b3db32c93823cbff8286ed03ec568c8835ee5e2b2",
+      "lines": 44
+    },
+    {
+      "file": "src/native_fx/effects/gate/Meta.hpp",
+      "sha256": "7c6f5283ec4eba46f77d0ebfb01ab05f465c1c4c1fb20efe880fac6769c99cdd",
+      "lines": 4
+    },
+    {
+      "file": "src/native_fx/effects/gate/src/Dsp.cpp",
+      "sha256": "db95cb6a42c82a4c946d9211aedf2c361a483f7e37ed2910b8380f6651b30166",
+      "lines": 91
+    },
+    {
+      "file": "src/native_fx/effects/gate/src/Ui.cpp",
+      "sha256": "c949cee8a293acb857ce7ccff71ede8cd2f4aa89bb276abda4094d683be45b79",
+      "lines": 312
+    },
+    {
+      "file": "src/native_fx/effects/graphic_eq/include/Dsp.hpp",
+      "sha256": "4cef344af50d9617e562bfd8b00f66fae3d3cbb60bf1bb10fdf6c1019137b17e",
+      "lines": 15
+    },
+    {
+      "file": "src/native_fx/effects/graphic_eq/include/Logic.inc",
+      "sha256": "bd02feafd081c5d010933ec2fef98ee087b2569032043a3db45122bea690d9c3",
+      "lines": 277
+    },
+    {
+      "file": "src/native_fx/effects/graphic_eq/include/WinJACKNexus/NativeFx/graphic_eq/Processor.hpp",
+      "sha256": "ae45c493366669a3268bf1e6824f2c83e9a51e22c25d48b9f0eb55bd0eb59fb9",
+      "lines": 67
+    },
+    {
+      "file": "src/native_fx/effects/graphic_eq/include/WinJACKNexus/NativeFx/graphic_eq/SpectrumAnalyzer.hpp",
+      "sha256": "d338611a5a33908eb28afa8237615e42e8767c8e6153e36c8cedf36dc4381532",
+      "lines": 67
+    },
+    {
+      "file": "src/native_fx/effects/graphic_eq/include/WinJACKNexus/NativeFx/graphic_eq/Ui.hpp",
+      "sha256": "22f15d2100c16bbb78590488f3690415d86ac45717317b365837c7924dd5a0f7",
+      "lines": 67
+    },
+    {
+      "file": "src/native_fx/effects/graphic_eq/Meta.hpp",
+      "sha256": "71806742d811639cde14b44b0602f8d3b4ba784d578e0f83ce04f449e88b214f",
+      "lines": 4
+    },
+    {
+      "file": "src/native_fx/effects/graphic_eq/src/Dsp.cpp",
+      "sha256": "71c2fd01c3f2deab345c3488d14910d61ed0eb58f18483df67b1f856476eb321",
+      "lines": 96
+    },
+    {
+      "file": "src/native_fx/effects/graphic_eq/src/SpectrumAnalyzer.cpp",
+      "sha256": "80abad3bf878163ec5c59feb2752aed06788275168db00ee123c8106cdbf88c6",
+      "lines": 250
+    },
+    {
+      "file": "src/native_fx/effects/graphic_eq/src/Ui.cpp",
+      "sha256": "3cf1cc76f3ee3f0b271ceca6dd2eac4eda747b26d039ad01b0d0e1fa9eb43c36",
+      "lines": 676
+    },
+    {
+      "file": "src/native_fx/effects/limiter/include/Dsp.hpp",
+      "sha256": "af9f2d03ef95c287bf455cda7413d3416c28e06769e51632fa796c9bb96cae38",
+      "lines": 15
+    },
+    {
+      "file": "src/native_fx/effects/limiter/include/Logic.inc",
+      "sha256": "ee3615e82bc3c8b3f07cdb60cb83d2961f2cd49326f81e3a4fbc87bb96012ce2",
+      "lines": 171
+    },
+    {
+      "file": "src/native_fx/effects/limiter/include/WinJACKNexus/NativeFx/limiter/Processor.hpp",
+      "sha256": "d3e19d689c5a7bad4216a70ac95f55d251c0c3561157d5bf2e23f3eac38aca09",
+      "lines": 46
+    },
+    {
+      "file": "src/native_fx/effects/limiter/include/WinJACKNexus/NativeFx/limiter/Ui.hpp",
+      "sha256": "97094b2c4f128f9a5fce67f055c617e51630302df14ac2985fd1e1fc269dd696",
+      "lines": 55
+    },
+    {
+      "file": "src/native_fx/effects/limiter/Meta.hpp",
+      "sha256": "fbef4b557dc34309df190d7e4edabc57e084fae2ee5ab61d91bd320d62ef1829",
+      "lines": 4
+    },
+    {
+      "file": "src/native_fx/effects/limiter/src/Dsp.cpp",
+      "sha256": "df2845ce79743b74dd31aa20d03215efda62d138785531fc2d2f637dffc32833",
+      "lines": 81
+    },
+    {
+      "file": "src/native_fx/effects/limiter/src/Ui.cpp",
+      "sha256": "a2213faf026b3741682d43456243a5ba738fec1b9d54898e283db5108dce4391",
+      "lines": 432
+    },
+    {
+      "file": "src/native_fx/effects/parametric_eq/include/Dsp.hpp",
+      "sha256": "c17605b44bb502badf686d955564c62e0a42e92200a657f68b5ff3dd3937437b",
+      "lines": 15
+    },
+    {
+      "file": "src/native_fx/effects/parametric_eq/include/Logic.inc",
+      "sha256": "50db21440deb23c3ac019482b926db8de9a996a3c7b87161d439db6ce2fe1a2f",
+      "lines": 225
+    },
+    {
+      "file": "src/native_fx/effects/parametric_eq/include/WinJACKNexus/NativeFx/parametric_eq/Processor.hpp",
+      "sha256": "4ecda369214aace395edacc40818b84a80f885ed32cb548d8b8df477453f44be",
+      "lines": 59
+    },
+    {
+      "file": "src/native_fx/effects/parametric_eq/include/WinJACKNexus/NativeFx/parametric_eq/Ui.hpp",
+      "sha256": "0c2de8c7e0cc805519510617cd2224be52782503806c40676b8b59a942b396b6",
+      "lines": 59
+    },
+    {
+      "file": "src/native_fx/effects/parametric_eq/Meta.hpp",
+      "sha256": "45d08a53eb470f5e9ded10c712ebda24f471e9eaa99b7a7cba73e529780a2eab",
+      "lines": 4
+    },
+    {
+      "file": "src/native_fx/effects/parametric_eq/src/Dsp.cpp",
+      "sha256": "b7ce4b2046dd6c4e8c5a33f622774d699a206c588cb27d8a2c9e07975ee0789c",
+      "lines": 144
+    },
+    {
+      "file": "src/native_fx/effects/parametric_eq/src/Ui.cpp",
+      "sha256": "4d9afee1678d910e2c4772b01e7e2ba71b63c3a2824a62a7b476a63719b98fcd",
+      "lines": 604
+    },
+    {
+      "file": "src/native_fx/effects/reverb/include/Dsp.hpp",
+      "sha256": "16d389f38b4ad84034c63fe532bbdafef39dae28f08c6e0a6833f7e2d470effe",
+      "lines": 15
+    },
+    {
+      "file": "src/native_fx/effects/reverb/include/Logic.inc",
+      "sha256": "5aa452fda34a269143487345f4691d942481d64092aee8bcfc44e0f78ede4211",
+      "lines": 152
+    },
+    {
+      "file": "src/native_fx/effects/reverb/include/WinJACKNexus/NativeFx/reverb/Processor.hpp",
+      "sha256": "cf5675a3434a4be6e87878e113090510c54c288bd0e20f817adaf05a5d80068b",
+      "lines": 29
+    },
+    {
+      "file": "src/native_fx/effects/reverb/include/WinJACKNexus/NativeFx/reverb/Ui.hpp",
+      "sha256": "bc4af429f0e32529a0529acf256bcfb6ee4608c9a3038664c64ecb7561091b7f",
+      "lines": 45
+    },
+    {
+      "file": "src/native_fx/effects/reverb/Meta.hpp",
+      "sha256": "99af92d6a1907ad81940536da87eedd3fdde9c768bf262409d93dc687cb20c8b",
+      "lines": 4
+    },
+    {
+      "file": "src/native_fx/effects/reverb/src/Dsp.cpp",
+      "sha256": "2d2d237b26ee438349ccc7588daf8d5844baf0b1e4f746a415cefaf16bf734fb",
+      "lines": 74
+    },
+    {
+      "file": "src/native_fx/effects/reverb/src/Ui.cpp",
+      "sha256": "d5e729e63378a291f167ddbedd628a04183fa39a8cb697773df119ac4e7745d2",
+      "lines": 333
+    },
+    {
+      "file": "src/native_fx/include/WinJACKNexus/NativeFx/NativeFxApi.h",
+      "sha256": "088fc928922a019f292a5486c00165e3b12316f9be327be3d29a2f2159d05fa4",
+      "lines": 125
+    },
+    {
+      "file": "src/native_fx/src/Library.cpp",
+      "sha256": "c48cec57bacf6e9db9e3f3fa5c0a921902907d60c138860b12a2315c3588c350",
+      "lines": 225
+    },
+    {
+      "file": "src/native_fx/src/NativeFxApi.cpp",
+      "sha256": "b047738a56e6b32add0ec274febee1c195dca7376d194ef1be7213da5c7935f8",
+      "lines": 586
+    },
+    {
+      "file": "src/node/include/WinJACKNexus/Node/Export.hpp",
+      "sha256": "9b9771bbc40ca5f6bb4a7aa0d4401b7cece5671eb5acc2265c3cec1c88b84207",
+      "lines": 26
+    },
+    {
+      "file": "src/node/include/WinJACKNexus/Node/INode.hpp",
+      "sha256": "ca0d2b3626137f1eed5d011ba0dc86630a81aa54b343a4225c9e6fdd15b60b6b",
+      "lines": 40
+    },
+    {
+      "file": "src/node/include/WinJACKNexus/Node/NodeApi.h",
+      "sha256": "6ec93b74a0ee0462cd7991a5997b500a6224798b3107938d55f64941b60d27ea",
+      "lines": 71
+    },
+    {
+      "file": "src/node/include/WinJACKNexus/Node/NodeInfo.hpp",
+      "sha256": "ddefe84f6e1f4fdf17079f0b6ef6b0a277b7aae28533a5d2d772f7ebb1ce3df1",
+      "lines": 30
+    },
+    {
+      "file": "src/node/src/NodeApi.cpp",
+      "sha256": "62f86ed50c1d520b66adbb0cecb065a3d24df7799bf99b108d1d685d5327ab56",
+      "lines": 73
+    },
+    {
+      "file": "src/patchbay/core/include/WinJACKNexus/Patchbay/Core/ClientInfo.hpp",
+      "sha256": "9f028c92cb52bfefcbbd0e532170bb30de67c52267cfbd6befc73e659d07193a",
+      "lines": 36
+    },
+    {
+      "file": "src/patchbay/core/include/WinJACKNexus/Patchbay/Core/ConnectionInfo.hpp",
+      "sha256": "2e378d7cd3a8ab0d6cbc593789481354a1ece26ab72b264bb2785042747f245b",
+      "lines": 30
+    },
+    {
+      "file": "src/patchbay/core/include/WinJACKNexus/Patchbay/Core/Export.hpp",
+      "sha256": "636da0b8cae393247838e8d5ae90e950089db4d40ded6d3f3a08125e89fe1391",
+      "lines": 26
+    },
+    {
+      "file": "src/patchbay/core/include/WinJACKNexus/Patchbay/Core/GraphModel.hpp",
+      "sha256": "b7f74803d109e7de42695717603e1efece7a539fab7199dd1ddedd03e533c733",
+      "lines": 37
+    },
+    {
+      "file": "src/patchbay/core/include/WinJACKNexus/Patchbay/Core/PortInfo.hpp",
+      "sha256": "c0ef28c45b222094aa9a3986497927697541e7828cc42a651a96421d3c5e2cae",
+      "lines": 37
+    },
+    {
+      "file": "src/patchbay/core/include/WinJACKNexus/Patchbay/Core/SearchModel.hpp",
+      "sha256": "28963a7371f18ef3694bd504d97251371d3f1edbedfa3b1a622f740a13c6c17b",
+      "lines": 31
+    },
+    {
+      "file": "src/patchbay/core/include/WinJACKNexus/Patchbay/Core/Snapshot.hpp",
+      "sha256": "4eec197a94808bcbe213cdec4b111888138ae890bee26db91e3a7bb1d09612fa",
+      "lines": 56
+    },
+    {
+      "file": "src/patchbay/core/include/WinJACKNexus/Patchbay/Core/Types.hpp",
+      "sha256": "e440ed6e1806a34a8bb6a58848b5167da0a03ea5827ebb9255341efaf9bffdfa",
+      "lines": 54
+    },
+    {
+      "file": "src/patchbay/core/src/GraphModel.cpp",
+      "sha256": "9ea2bceea18c5d4bd8daab246958041dd264f6b48ccda8cce89caf6115d0e7d3",
+      "lines": 130
+    },
+    {
+      "file": "src/patchbay/core/src/Library.cpp",
+      "sha256": "d55e7d067e62afe155f19d8861e1647a0cecd5d3f35190bc200ae082628a2bb2",
+      "lines": 24
+    },
+    {
+      "file": "src/patchbay/core/src/SearchModel.cpp",
+      "sha256": "e68593961f4e87585edd99b903864063be51dd518d644b8346786b9f7b877226",
+      "lines": 62
+    },
+    {
+      "file": "src/patchbay/core/src/Snapshot.cpp",
+      "sha256": "4a636a69bd939fad54bdcbf18b68186181cdde98438f603a31f88c2f657c0f56",
+      "lines": 108
+    },
+    {
+      "file": "src/patchbay/mod/include/mod_patchbay/Export.hpp",
+      "sha256": "307f344a44bfbe688e72594b35534cf33f03751d2bfb710bdb220b9025ecf06a",
+      "lines": 26
+    },
+    {
+      "file": "src/patchbay/mod/include/mod_patchbay/LocalizedDialogs.hpp",
+      "sha256": "9cbd2352b4531ed585ab9fd87bca75e4f1f5bd9b39db7316be982e003988e659",
+      "lines": 89
+    },
+    {
+      "file": "src/patchbay/mod/include/mod_patchbay/PatchbayCanvas.hpp",
+      "sha256": "16b90038aba0e64b2079ab90fd9efd1270f7a812350c022043d35cc598d79150",
+      "lines": 281
+    },
+    {
+      "file": "src/patchbay/mod/include/mod_patchbay/ProjectStateCodec.hpp",
+      "sha256": "437b61a86e1bd4d4ddb652327d07267803f5a3dc73920feee86ea2c1561f4ce0",
+      "lines": 44
+    },
+    {
+      "file": "src/patchbay/mod/src/Library.cpp",
+      "sha256": "be34c7795fd09f4dc92fa078741710a63f46375645eab302b405e67d45fa52b8",
+      "lines": 3045
+    },
+    {
+      "file": "src/patchbay/mod/src/PatchbayCanvas.cpp",
+      "sha256": "2601ed430c6cbb8f0f7dd4efd2f42d2d2d1ac21e2329cd2e1303dd465ebc6cf8",
+      "lines": 3220
+    },
+    {
+      "file": "src/patchbay/plugins/include/WinJACKNexus/Patchbay/Plugins/Export.hpp",
+      "sha256": "1ac84172aeb7d5d12748e52f24c26a839563c9110d64f79a1f332eab096532f5",
+      "lines": 26
+    },
+    {
+      "file": "src/patchbay/plugins/include/WinJACKNexus/Patchbay/Plugins/InternalLoader.hpp",
+      "sha256": "f4e00e353a877c1bb3fa5cecba3649197c1c1277b0f6509c97bb70403919eaf8",
+      "lines": 32
+    },
+    {
+      "file": "src/patchbay/plugins/include/WinJACKNexus/Patchbay/Plugins/IPluginInstance.hpp",
+      "sha256": "808cb7ac903f48756402b28fdf17c9841197d4900bc7d023e646e3b39bf3d74b",
+      "lines": 50
+    },
+    {
+      "file": "src/patchbay/plugins/include/WinJACKNexus/Patchbay/Plugins/Loader.hpp",
+      "sha256": "33f83868df82a83fafea10fee2c581a2b42352c2b01e820c266345425f3d2e67",
+      "lines": 32
+    },
+    {
+      "file": "src/patchbay/plugins/include/WinJACKNexus/Patchbay/Plugins/PluginDescriptor.hpp",
+      "sha256": "5ac0b2132496097b61c1f965d7d8f5a802410531d84787e8d69ab943e7142301",
+      "lines": 41
+    },
+    {
+      "file": "src/patchbay/plugins/src/InternalLoader.cpp",
+      "sha256": "778975643f784130a5c02e10c7b559fca4ef01b4e5fe6c1ea9bb9758b6b39b79",
+      "lines": 111
+    },
+    {
+      "file": "src/patchbay/plugins/src/Library.cpp",
+      "sha256": "f74d3d25be954459b4f1c2ecb2a4d6017ff841b4a97aae202b0350cc9e6fb595",
+      "lines": 24
+    },
+    {
+      "file": "src/patchbay/plugins/src/Loader.cpp",
+      "sha256": "dedc4bff4fa8f35d4cdbb098618b234341fddc838b70264e8af32e3f87b35b56",
+      "lines": 32
+    },
+    {
+      "file": "src/ui/include/WinJACKNexus/UI/AnimatedWidget.hpp",
+      "sha256": "fcfc7a2fc30117276fc50c89f6764ee4bc041173851718e069c44c97c2c50b36",
+      "lines": 63
+    },
+    {
+      "file": "src/ui/include/WinJACKNexus/UI/ApplicationSettings.hpp",
+      "sha256": "804e7aee4198d56989c2bedd8399d58e7c1e7af32f278470f67a44f9956fada2",
+      "lines": 55
+    },
+    {
+      "file": "src/ui/include/WinJACKNexus/UI/AuxSettingsWindow.hpp",
+      "sha256": "2b03fddbe57c0a635bfcba80d1c268e76a5d4ad5faa668b02bdaf02cc13ac022",
+      "lines": 52
+    },
+    {
+      "file": "src/ui/include/WinJACKNexus/UI/Controls.hpp",
+      "sha256": "26ef72f62ea03ff50be9c181ad6ee3641c89f185dfa2d618d94f5b6d9522a683",
+      "lines": 518
+    },
+    {
+      "file": "src/ui/include/WinJACKNexus/UI/Export.hpp",
+      "sha256": "308a5c80390ab17cdb1f790c55c1d86eb624fae9de9ee4eb06e54c047f24c5f3",
+      "lines": 26
+    },
+    {
+      "file": "src/ui/include/WinJACKNexus/UI/FxLevelMeterWidget.hpp",
+      "sha256": "438bd1ec9dc33874fac38ff24a828bf9d6f9834d2af53bb45a15326bc7063d46",
+      "lines": 43
+    },
+    {
+      "file": "src/ui/include/WinJACKNexus/UI/FxSettingsWindow.hpp",
+      "sha256": "a7bbc69f57bcf059147d7753927aea9112168de794eb4b6cf68bcc8eecfec67c",
+      "lines": 39
+    },
+    {
+      "file": "src/ui/include/WinJACKNexus/UI/HistoryChartWidget.hpp",
+      "sha256": "2c93cf19dc875cbfad279fd88b046203199450391eef49e4799d875ca852f714",
+      "lines": 149
+    },
+    {
+      "file": "src/ui/include/WinJACKNexus/UI/HistoryLegendWidget.hpp",
+      "sha256": "a3da62bc83b1a0506f9f8c6803288870a4e3833bf388d25a28e87f49d1f73e79",
+      "lines": 67
+    },
+    {
+      "file": "src/ui/include/WinJACKNexus/UI/HostI18n.hpp",
+      "sha256": "aa425dd7c686b7007d1d00790859a3f79bc5a2bf677aa8dee05dc4bacd785c34",
+      "lines": 37
+    },
+    {
+      "file": "src/ui/include/WinJACKNexus/UI/I18nManager.hpp",
+      "sha256": "7b96d00d11868a7a15a1cc8ec6f9e8af608f51b8aee91285c45b09f635b0a472",
+      "lines": 84
+    },
+    {
+      "file": "src/ui/include/WinJACKNexus/UI/IconManager.hpp",
+      "sha256": "59ab969cfa3be28347de3d24ec06492e8d8016de875fca5e89deeb515c223fa5",
+      "lines": 41
+    },
+    {
+      "file": "src/ui/include/WinJACKNexus/UI/LocalizedText.hpp",
+      "sha256": "8d7b5aa07d5f4d51759c396c0df0b1c4b2987bbe73021483e38dc614c5308f88",
+      "lines": 28
+    },
+    {
+      "file": "src/ui/include/WinJACKNexus/UI/MeterLevelBar.hpp",
+      "sha256": "1c69f182565e2385f3749a4784c53453c818a45009f11a5ab80018ca3d6a6cae",
+      "lines": 89
+    },
+    {
+      "file": "src/ui/include/WinJACKNexus/UI/MeterWidget.hpp",
+      "sha256": "245049d1eb11dc4acf34aaeb10d1b9f0e857bce77cd4c3354c8ee2c4aa32292c",
+      "lines": 139
+    },
+    {
+      "file": "src/ui/include/WinJACKNexus/UI/MetricReadout.hpp",
+      "sha256": "24aaedc2ca280fcc042539c5e9aad270d400b01ae8f3bc624197f1b5165160e4",
+      "lines": 73
+    },
+    {
+      "file": "src/ui/include/WinJACKNexus/UI/MetricStatisticsWidget.hpp",
+      "sha256": "45007d1f51c4c3c02ce9c9a4a43e5d40c188c9ffe4a59266c8d21f4326bcdcb4",
+      "lines": 68
+    },
+    {
+      "file": "src/ui/include/WinJACKNexus/UI/MixerPolarPlot.hpp",
+      "sha256": "68a9e3637cf90de3a1f7047d2d05f0e570dd4bdc3f6e61f3858055dc83dbc802",
+      "lines": 35
+    },
+    {
+      "file": "src/ui/include/WinJACKNexus/UI/MixerWindow.hpp",
+      "sha256": "3f2262ff5e5ab58c3cdd1888d9b808d822edff363f1bf4e1f58fcc70cb172aaf",
+      "lines": 57
+    },
+    {
+      "file": "src/ui/include/WinJACKNexus/UI/NativeWindowUtils.hpp",
+      "sha256": "8e5ac9d8ac09b0e7529da38354d59c3f8c6461a4ec98953f31736235d24af6fc",
+      "lines": 38
+    },
+    {
+      "file": "src/ui/include/WinJACKNexus/UI/PaintableWidget.hpp",
+      "sha256": "da700136949117c6d1a8fb5ed0dcad28a1c05ca702a570f2adcef30d24c0d174",
+      "lines": 63
+    },
+    {
+      "file": "src/ui/include/WinJACKNexus/UI/ThemeBackground.hpp",
+      "sha256": "6f6f5be0bf986f7e5847b46c238f46c51c4ec03db5b0a68bdccad28229ad9a89",
+      "lines": 38
+    },
+    {
+      "file": "src/ui/include/WinJACKNexus/UI/ThemeCatalog.hpp",
+      "sha256": "daf0236771a6e7a3ef1c3a61cf924647c2bf19c9bebe5cf5dc93b4501cd29f40",
+      "lines": 55
+    },
+    {
+      "file": "src/ui/include/WinJACKNexus/UI/ThemeCore.hpp",
+      "sha256": "df16b50522aa4103098b5f04cafe46f6fa29c1c400a52d7d38f2d3f1e9c4188d",
+      "lines": 115
+    },
+    {
+      "file": "src/ui/include/WinJACKNexus/UI/ThemeManagementDialog.hpp",
+      "sha256": "e3b7b5c458f523b4f62b569084aeeb9e4c3c5a453e5739810e2851b04dc82945",
+      "lines": 51
+    },
+    {
+      "file": "src/ui/include/WinJACKNexus/UI/ThemeManager.hpp",
+      "sha256": "f2977a1649a75f0844bc24ce1a02661fc55333a2b7ab2aeace3ad719572b539b",
+      "lines": 95
+    },
+    {
+      "file": "src/ui/include/WinJACKNexus/UI/ThemeNamespaceRegistry.hpp",
+      "sha256": "13eee900b6d7df6de214eba143dea235b125a3824da61ec342e208bd450640fe",
+      "lines": 92
+    },
+    {
+      "file": "src/ui/include/WinJACKNexus/UI/ThemePackage.hpp",
+      "sha256": "53698f6b298d7a6fef165597bf65cfe91ccd10de09ef33b873dc6bbf77f2aba3",
+      "lines": 70
+    },
+    {
+      "file": "src/ui/include/WinJACKNexus/UI/ThemePalette.hpp",
+      "sha256": "e7b61a700fef48e817f97cb8613f66c68510c8262bfaa872058ba480f0f7868d",
+      "lines": 52
+    },
+    {
+      "file": "src/ui/include/WinJACKNexus/UI/TrayController.hpp",
+      "sha256": "8561f6fb92481f71b8613f3cb5c4b2603f8ea55e7c280add13e0549cabfde1e1",
+      "lines": 135
+    },
+    {
+      "file": "src/ui/src/AnimatedWidget.cpp",
+      "sha256": "711d4dc1069c79b365fff2782bee90915eeadfb1a39470f1857d9513ee22397d",
+      "lines": 113
+    },
+    {
+      "file": "src/ui/src/ApplicationSettings.cpp",
+      "sha256": "8a855a0e8771a9599233c10e8bc12c88c316049675736211bc1a1cb33ab6b85a",
+      "lines": 116
+    },
+    {
+      "file": "src/ui/src/AuxSettingsWindow.cpp",
+      "sha256": "a41fe25e05462a9b14b50cf1b21522200c0f4aec4db60839da730d7fda679de1",
+      "lines": 1355
+    },
+    {
+      "file": "src/ui/src/Controls.cpp",
+      "sha256": "a27877760ce4a70daaabc3ef7872425785e66c9ee41597dfed160679f65a72c2",
+      "lines": 1585
+    },
+    {
+      "file": "src/ui/src/FxLevelMeterWidget.cpp",
+      "sha256": "04cb7f48937387b366c091cfa57bc9ca8ab85d9342e4ad61f1051d58d410ccae",
+      "lines": 145
+    },
+    {
+      "file": "src/ui/src/FxSettingsWindow.cpp",
+      "sha256": "603658afb4fdd2a9daf57a0a2b6e819ebadaae3e42c92bbcbf8ed58e08c278a7",
+      "lines": 1363
+    },
+    {
+      "file": "src/ui/src/HistoryChartWidget.cpp",
+      "sha256": "aff45050f0ac5fc6193a588fc3504b7ad86fbe9e53d5a24a878a199b0644a885",
+      "lines": 694
+    },
+    {
+      "file": "src/ui/src/HistoryLegendWidget.cpp",
+      "sha256": "55e7e113b7ec86ea42729cc7bb38e4e9a5c99cf4b990a93dbc82923788ab552b",
+      "lines": 161
+    },
+    {
+      "file": "src/ui/src/HostI18n.cpp",
+      "sha256": "eb5cba83d7bd5c5096ba093a60577bad59a91a22c63f523329d7e56c3abf0025",
+      "lines": 126
+    },
+    {
+      "file": "src/ui/src/I18nManager.cpp",
+      "sha256": "934ba732ad220d064d25599764e171edfe9253eb5900e74d5e6a128816a6a563",
+      "lines": 635
+    },
+    {
+      "file": "src/ui/src/IconManager.cpp",
+      "sha256": "b93d1aa8924da1dba2fa66de9d8b0038a08a196a5108537e9418352f26337320",
+      "lines": 92
+    },
+    {
+      "file": "src/ui/src/Library.cpp",
+      "sha256": "346d3128415a1bd6ec7b5860cc2ae27ce729fff5022cb84a6034075463f61282",
+      "lines": 25
+    },
+    {
+      "file": "src/ui/src/MeterLevelBar.cpp",
+      "sha256": "be40db0cc6b4dcf2f1d0a64de003c812f29105a7a77743228589a343fa3877f7",
+      "lines": 348
+    },
+    {
+      "file": "src/ui/src/MeterWidget.cpp",
+      "sha256": "31a77b2ed5ba2063c692797524845d3a2a8a8d3bbcaecf26ea1af7b6c965f284",
+      "lines": 500
+    },
+    {
+      "file": "src/ui/src/MetricReadout.cpp",
+      "sha256": "485815028232efcb776c9544fbfe1c161c5f9712e229a403dbe78102ff22a536",
+      "lines": 251
+    },
+    {
+      "file": "src/ui/src/MetricStatisticsWidget.cpp",
+      "sha256": "9a81ef37c337ab73bd2268d80f5711a4c822a41f80a12c620556e8467c3cfe26",
+      "lines": 209
+    },
+    {
+      "file": "src/ui/src/MixerChannelIcons.hpp",
+      "sha256": "c4cc83403218cd09a81450f7c4ffe61549c1fde25be850b3e7bce96803203136",
+      "lines": 62
+    },
+    {
+      "file": "src/ui/src/MixerOverview.hpp",
+      "sha256": "87784143d762fc3748903ed0e911d51b60144e45e18018718826750e5a071985",
+      "lines": 171
+    },
+    {
+      "file": "src/ui/src/MixerPolarAccent.hpp",
+      "sha256": "4af954a3920ae85d3a45b8e0be3d9f5f1931d50a455c8f68e1aea35f7e592468",
+      "lines": 23
+    },
+    {
+      "file": "src/ui/src/MixerPolarPlot.cpp",
+      "sha256": "c7fad498d7e750c7571d033476e19de5aea085db8317334192cdf00deae52332",
+      "lines": 247
+    },
+    {
+      "file": "src/ui/src/MixerWindow.cpp",
+      "sha256": "54330af1836afc172c7f7cdea5b9c6330b5dc98a37be46f0c633962d2a758704",
+      "lines": 3845
+    },
+    {
+      "file": "src/ui/src/NativeWindowUtils.cpp",
+      "sha256": "398cd21bb8f3db27228f6188c2f7d89801d8817b176b773bb07a2876fe4f5e74",
+      "lines": 120
+    },
+    {
+      "file": "src/ui/src/PaintableWidget.cpp",
+      "sha256": "4c66e8341b702e601573030b2abcca99ca5b4d138f326a4e123098bd83d3fe21",
+      "lines": 117
+    },
+    {
+      "file": "src/ui/src/SelThemeAccent.hpp",
+      "sha256": "d69caff9f8d21bec786d6555e994c5707cbb14b125c9a3ceb04806d34e9430f1",
+      "lines": 62
+    },
+    {
+      "file": "src/ui/src/ThemeBackground.cpp",
+      "sha256": "3892306b0b7311c246e9e809e6d3fc012b54ef40c804303f454585f6c88cf825",
+      "lines": 255
+    },
+    {
+      "file": "src/ui/src/ThemeCatalog.cpp",
+      "sha256": "f3848d3828948fae398e1ac9fe596068fd58d118f8529a996c48a1e55e4ba11f",
+      "lines": 272
+    },
+    {
+      "file": "src/ui/src/ThemeCore.cpp",
+      "sha256": "b8b7609be1207d1d21a25d9fdde5fd7b308808b9dab9775ac6b3c4b928fec836",
+      "lines": 778
+    },
+    {
+      "file": "src/ui/src/ThemeManagementDialog.cpp",
+      "sha256": "c57b3afeaa7517f3bb3377a40d0032428fce110caf2b3450e386f3ab2edc1379",
+      "lines": 594
+    },
+    {
+      "file": "src/ui/src/ThemeManager.cpp",
+      "sha256": "a892bed30231d120460452725b2df6a44c9c8ee00ab995ba0740311be5c3f2a2",
+      "lines": 466
+    },
+    {
+      "file": "src/ui/src/ThemeNamespaceRegistry.cpp",
+      "sha256": "b2ae21077dd3d923511b5ab7cad59e5acc964ee89decd8156e89f784568de764",
+      "lines": 398
+    },
+    {
+      "file": "src/ui/src/ThemePackage.cpp",
+      "sha256": "f1d1ddc6da01d5c15ce3c4f3117a538e307fc0108117d7cf008c148c59616d3c",
+      "lines": 608
+    },
+    {
+      "file": "src/ui/src/ThemePalette.cpp",
+      "sha256": "aaa63f6401946dfa36c0b97da8b75b29f91b765993452a789b660f34054b8f21",
+      "lines": 156
+    },
+    {
+      "file": "src/ui/src/TrayController.cpp",
+      "sha256": "a42d876d2b0a752254308548255e06792af5f9af370b29ee50b96ea8ecd82c04",
+      "lines": 983
+    },
+    {
+      "file": "src/vst/src/Library.cpp",
+      "sha256": "b766e570ee6968183b770ed355a290b1066beda150ead7dc0d7084bef4efea1f",
+      "lines": 987
+    },
+    {
+      "file": "tools/vst_process/src/ProcessMain.cpp",
+      "sha256": "e99643dbc818db9f181bf2f8c8190ed225f6d5bb770f736aef99a16559b7bfc4",
+      "lines": 2331
+    },
+    {
+      "file": "tools/vst_scanner/include/WinJACKNexus/VstScanner/MainWindow.hpp",
+      "sha256": "65fe01b1c2172690192c8b9cfe930edac561c239e593c8ebcc7ad2a23400c966",
+      "lines": 72
+    },
+    {
+      "file": "tools/vst_scanner/include/WinJACKNexus/VstScanner/Scanner.hpp",
+      "sha256": "c5ce415766b97f4135ece04dd1adfe49351945549275a0d30232e890f6c9872a",
+      "lines": 72
+    },
+    {
+      "file": "tools/vst_scanner/src/main.cpp",
+      "sha256": "84467a18bc491ceaa1fcd88045512d73e22db904e91383257e0ea4690987119f",
+      "lines": 42
+    },
+    {
+      "file": "tools/vst_scanner/src/MainWindow.cpp",
+      "sha256": "d7a49a9ec5b32186f9a7333006130118deccac342b82c025145fe6cec97b7708",
+      "lines": 552
+    },
+    {
+      "file": "tools/vst_scanner/src/ProbeMain.cpp",
+      "sha256": "99a312c982bee752cdb25ea459eeabb9cf795f84e9726b0ef3d1604fea721377",
+      "lines": 664
+    },
+    {
+      "file": "tools/vst_scanner/src/Scanner.cpp",
+      "sha256": "df1a858802011cfaee1625ffa3c602268c022d020199030b4a6551a19909e871",
+      "lines": 1108
+    },
+    {
+      "file": "tools/vst_scanner/VstScanner.rc",
+      "sha256": "4ffc00d43b37ed2048f9ad7b95df34a6435382622b828d4675f457b50813ab10",
+      "lines": 19
+    },
+    {
+      "file": "Develop/I18nExample.hpp",
+      "sha256": "1f2e0785470cfe03eaf57e0152aad6204b96ceffa6210bacb926cb19797194c9",
+      "lines": 60
+    },
+    {
+      "file": "Develop/NativeFx/ExampleNativeFx.cpp",
+      "sha256": "272a1d9205e7e70ffa6360062c731484ab191c2102066874ce486ed13808c784",
+      "lines": 412
+    },
+    {
+      "file": "Develop/Node/ExampleNode.cpp",
+      "sha256": "a008b0f6eac12e3ae8411938c178590a9430f9a33836423fb6f449dcd87b7c44",
+      "lines": 129
+    }
+  ],
+  "literal_occurrences": 8111,
+  "unique_source_ids": 5512,
+  "limitations": [
+    "Source evidence is not a classified UI/key inventory.",
+    "Dynamic text sources and Qt/OS-owned text require separate inspection.",
+    "Adjacent literal fragments are retained individually; raw JSON requires field review."
+  ]
+}

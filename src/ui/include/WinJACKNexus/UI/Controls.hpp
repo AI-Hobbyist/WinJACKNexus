@@ -294,6 +294,9 @@ public:
     DialogButtonBar(StandardButtons buttons, QWidget* parent = nullptr);
     QPushButton* addButton(const QString& text, ButtonRole role);
     QPushButton* addButton(StandardButton button);
+    QPushButton* button(StandardButton standard) const;
+protected:
+    bool event(QEvent* event) override;
 };
 
 class WINJACK_UI_API IconActionButton final : public QToolButton {

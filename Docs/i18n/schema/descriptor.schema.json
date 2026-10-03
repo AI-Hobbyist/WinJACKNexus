@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:winjacknexus:i18n:v1:descriptor",
+  "type": "object",
+  "properties": {
+    "descriptorVersion": {
+      "const": 1
+    },
+    "i18nApiVersion": {
+      "const": 1
+    },
+    "moduleId": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,255}$"
+    },
+    "domains": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,255}$"
+      }
+    },
+    "locatePath": {
+      "const": "locate"
+    },
+    "catalogVersion": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 2147483647
+    },
+    "displayNameKey": {
+      "type": "object",
+      "properties": {
+        "domain": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,255}$"
+        },
+        "key": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,255}$"
+        }
+      },
+      "required": [
+        "domain",
+        "key"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "descriptorVersion",
+    "i18nApiVersion",
+    "moduleId",
+    "domains",
+    "locatePath",
+    "catalogVersion"
+  ],
+  "additionalProperties": false
+}

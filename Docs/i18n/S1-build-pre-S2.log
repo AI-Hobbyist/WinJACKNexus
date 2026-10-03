@@ -1,0 +1,22 @@
+CMake is re-running because D:/UserData/Desktop/Project/WinJACKNexus/build/src/native_fx/CMakeFiles/generate.stamp is out-of-date.
+  the file 'D:/UserData/Desktop/Project/WinJACKNexus/src/native_fx/CMakeLists.txt'
+  is newer than 'D:/UserData/Desktop/Project/WinJACKNexus/build/src/native_fx/CMakeFiles/generate.stamp.depend'
+  result='-1'
+-- Selecting Windows SDK version 10.0.26100.0 to target Windows 10.0.26200.
+-- Could NOT find WrapVulkanHeaders (missing: Vulkan_INCLUDE_DIR) 
+-- Could NOT find WrapVulkanHeaders (missing: Vulkan_INCLUDE_DIR) 
+-- Configuring done (1.0s)
+-- Generating done (2.2s)
+-- Build files have been written to: D:/UserData/Desktop/Project/WinJACKNexus/build
+适用于 .NET Framework MSBuild 版本 18.10.1-1.26427.6+3cd27c13e
+
+  node.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\node.dll
+  Automatic MOC for target wjn_default_theme
+  wjn_example_node.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\examples\node\wjn_example_node.dll
+  common.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\common.dll
+  wjn_default_theme.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\wjn_default_theme.dll
+  Automatic MOC for target ui
+  audio.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\audio.dll
+  ui.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\ui.dll
+  wjn_example_native_fx.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\examples\native_fx\wjn_example_native_fx.dll
+  wjn_i18n_tests.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\wjn_i18n_tests.exe

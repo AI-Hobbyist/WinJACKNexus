@@ -1,0 +1,815 @@
+source	key
+: 默认主题由必需 DLL 提供	diagnostic.requiredDefaultTheme
+: 重复主题 ID 	diagnostic.duplicateThemeId
+· 输出	label.outputSuffix
+· 输入	label.inputSuffix
+（先发现 	diagnostic.firstDiscovered
+[错误]	status.errorPrefix
+[信息]	status.infoPrefix
+%1 的参数快照 Base64 格式无效。	error.invalidSnapshotBase64
+%1 的参数快照版本或模块身份不匹配。	error.snapshotVersionOrModuleMismatch
+%1 的参数快照导入失败。	error.snapshotImportFailed
+%1 的参数快照长度无效。	error.invalidSnapshotLength
+%1 缺少逐声道参数快照。请在 FX 设置中重新添加。	error.channelSnapshotMissing
+%1/8 路	label.activeChannelCount
+%1\n作者：%2\n%3\n主页：%4	tooltip.themeMetadata
+＋  添加 AUX	action.addAux
+＋  添加模块	action.addModule
+1 低频	band.low
+2 低中频	band.lowMid
+3 高中频	band.highMid
+31 段	label.bandCount
+31 段图示均衡 · 精确调整频响响应	description.graphicEqualizer
+4 高频	band.high
+版本	label.version
+帮助	menu.help
+保持快捷栏位于其他窗口上方	tooltip.keepQuickBarOnTop
+保存	action.save
+保存…	action.saveEllipsis
+保存工程	action.saveProject
+保存间隔（秒，0 为关闭）	label.autoSaveInterval
+保存接线盘工程	dialog.savePatchbayProject
+保存均衡器预设	dialog.saveEqPreset
+保存失败	error.saveFailedTitle
+保存失败：%1	error.saveFailedDetail
+背景	section.background
+背景设置已应用	status.backgroundApplied
+背景图片超过大小限制或不可读取	error.backgroundTooLargeOrUnreadable
+比率	control.ratio
+编辑	menu.edit
+不含 LFE 的单声道	demo.monoWithoutLfe
+不是有效的效果链预设或版本不支持	error.invalidFxChainPresetVersion
+不支持的插件位宽: %1	error.unsupportedPluginArchitecture
+部分 FX 无法加载，原参数已保留	warning.partialFxLoadPreserved
+采样率	control.sampleRate
+参考线	section.referenceLines
+参数	section.parameters
+参数曲线	control.parameterCurve
+侧链滤波	control.sidechainFilter
+侧右 (Rs)	role.sideRight
+侧左 (Ls)	role.sideLeft
+插件 %1 个	status.pluginCount
+插件探测超时，已终止隔离进程	error.probeTimeout
+插件探测进程崩溃，已保留扫描器进程	error.probeCrashed
+插件探测失败	error.pluginProbeFailed
+查看大屏	action.showOverview
+查看左侧图表设置	tooltip.showChartSettings
+拆分输入和输出	action.splitInputsOutputs
+厂商	label.vendor
+超限	demo.overLimit
+沉浸式分轨	demo.immersiveStems
+尺寸模式	control.sizeMode
+齿音	listen.sibilance
+处理后	label.postProcessing
+处理后频谱	label.processedSpectrum
+创建自定义响度参考	dialog.createLoudnessReference
+创造回声与空间感	description.delay
+磁带回声	preset.tapeEcho
+此工程包含调音台节点。是否启用调音台？	confirm.enableMixerFromProject
+打开插件位置	action.openPluginLocation
+打开此探针的历史图表	tooltip.openProbeHistory
+打开电平表桥	action.openMeterBridge
+打开调音台	action.openMixer
+打开工程...	action.openProject
+打开接线盘	action.openPatchbay
+打开接线盘工程	dialog.openPatchbayProject
+打开失败	error.openFailedTitle
+打开输出目录	action.openOutputDirectory
+打开已添加的 WASAPI 和 MIDI 设备节点	tooltip.openDeviceNodes
+打开作者主页	action.openAuthorHomepage
+打开SEL设置	action.openSelSettings
+带宽 (Q)	control.bandwidthQ
+单声道	layout.mono
+单声道 (M)	layout.monoWithChannelLabel
+当前工程有未保存的更改。是否保存？	confirm.saveProjectChanges
+当前效果链	label.currentFxChain
+导出	action.export
+导出当前完整主题	action.exportCurrentTheme
+导出模块片段	action.exportModuleFragment
+导出默认主题模板	action.exportDefaultThemeTemplate
+导出图表	action.exportChart
+导出图表 PNG	dialog.exportChartPng
+导出主题	dialog.exportTheme
+导入 TTF/OTF	action.importFont
+导入主题包	action.importThemePackage
+等比缩放	background.fit
+低	level.low
+低架 (Low Shelf)	filter.lowShelf
+低频效果 (LFE)	role.lowFrequencyEffects
+低频阻尼	control.lowDamping
+低通	filter.lowPass
+低通 (Low Pass)	filter.lowPassWithEnglish
+低通滤波 (LPF)	filter.lowPassWithAbbreviation
+底噪(地板)\n(Floor)	control.attenuationFloor
+点音符	control.dottedNote
+电平	control.level
+电平（Level） / 响度（Loudness） (dB / LUFS)	axis.levelAndLoudness
+电平表桥	view.meterBridge
+调音台	view.mixer
+调音台恢复失败	error.restoreMixerFailed
+叠层模式	control.layerMode
+叠加	mode.additive
+顶部后右	role.topRearRight
+顶部后左	role.topRearLeft
+顶部前右	role.topFrontRight
+顶部前左	role.topFrontLeft
+动态 EQ	mode.dynamicEq
+冻结历史视图，不停止模拟测量	tooltip.freezeHistoryView
+端口	label.port
+短 slap	preset.shortSlap
+短时（S）	meter.shortTermCompact
+短时（Short-term）	meter.shortTerm
+断开连接	action.disconnect
+断开全部连接	action.disconnectAll
+多声道 %1	label.multichannelCount
+反馈	control.feedback
+返回电平表桥	action.backToMeterBridge
+返回电平表桥窗口	tooltip.backToMeterBridge
+防止信号过载，控制最大输出电平	description.limiter
+分控旋钮	control.independentKnobs
+分频	mode.splitBand
+分频视图	view.bands
+分析设置	section.analysisSettings
+氛围长回声	preset.ambientEcho
+峰值	meter.peak
+峰值 (Peaking)	filter.peaking
+峰值（Peak）	meter.peakWithEnglish
+峰值保持时长	control.peakHoldDuration
+峰值表数值刷新频率	control.peakReadoutRefresh
+复制节点	action.duplicateNode
+复制启动命令	action.copyStartupCommand
+复制通道	action.duplicateChannel
+复制选中节点	action.copySelectedNodes
+副本	label.copySuffix
+干信号	control.drySignal
+高	level.high
+高架 (High Shelf)	filter.highShelf
+高频阻尼	control.highDamping
+高斯模糊	control.gaussianBlur
+高通	filter.highPass
+高通 (High Pass)	filter.highPassWithEnglish
+高通滤波 (HPF)	filter.highPassWithAbbreviation
+格式	label.format
+隔离加载未返回 class，已保留 moduleinfo 静态信息: 	warning.noClassStaticInfoPreserved
+隔离探测结果不是有效 JSON	error.invalidProbeResultJson
+隔离探测器返回失败	error.probeReportedFailure
+隔离探测器没有返回可用插件 class	error.probeNoUsableClass
+隔离探测器未生成结果: 	error.probeNoResult
+根目录	label.rootDirectory
+工程另存为...	action.saveProjectAs
+工具	menu.tools
+固定：%1（%2 声道）	label.fixedChannelLayout
+拐点 (Soft Knee)	control.softKnee
+关	control.off
+关闭窗口	action.closeWindow
+关闭所有通道独奏/静音	action.clearAllSoloMute
+关于	menu.about
+关于 WinJACKNexus	dialog.about
+滚动（实时滚动）	history.scrollingMode
+过采样:	control.oversampling
+含 LFE 的 5.1	demo.surroundWithLfe
+横向位置	control.horizontalPosition
+后右 (Rb)	role.rearRight
+后左 (Lb)	role.rearLeft
+话筒 %1	demo.microphoneName
+恢复 Default	action.restoreDefaultPreset
+恢复默认值	action.restoreDefaults
+恢复系统字体	action.restoreSystemFont
+回声衰减	control.echoDecay
+混合	control.mix
+混合模式:	control.mixMode
+混响类型:	control.reverbType
+混响时间	control.reverbTime
+活动	status.active
+记录响度	action.recordLoudness
+继承接线盘	background.inheritPatchbay
+加载…	action.loadEllipsis
+加载均衡器预设	dialog.loadEqPreset
+监听	control.monitor
+监听:	control.monitorLabel
+监听布局 JSON 无效	error.invalidMonitorLayoutJson
+监听通道模式	control.monitorChannelMode
+监听推子 JSON 无效	error.invalidMonitorFaderJson
+监听推子参数无效	error.invalidMonitorFader
+检测并抑制齿音频段（S、SH 等）	description.deEsser
+检测模式:	control.detectorMode
+将当前可见图表保存为 PNG	tooltip.exportVisibleChart
+将当前设置复制到全部声道	action.copySettingsToAllChannels
+角度	control.angle
+角色	label.role
+接口名称	label.interfaceName
+接线盘	view.patchbay
+节点	section.nodes
+节点启动失败	error.nodeStartupFailed
+节目 5.1	demo.surroundProgramName
+节目-2	demo.secondProgramName
+节奏回声	preset.rhythmicEcho
+截止频率	control.cutoffFrequency
+介绍	label.description
+界面帧率	control.uiFrameRate
+仅清空模拟历史数据，响度数值不会改变。	confirm.clearHistoryKeepLoudness
+仅在未检测到已就绪的 JACK 服务器时使用当前配置启动 jackd。	help.startJackOnlyIfNotReady
+经典 Pan	mode.classicPan
+精确调整频率、增益与带宽，塑造声音特性	description.parametricEq
+敬请期待:节点注册后可用	status.nodeRegistrationRequired
+静音	control.mute
+静音时长	control.silenceDuration
+静音阈值	control.silenceThreshold
+就绪	status.ready
+居中显示节点	action.centerNode
+均方根（RMS）	meter.rms
+开始或停止响度记录	tooltip.toggleLoudnessRecording
+开始扫描...	status.startingScan
+可将当前可见图表导出为 PNG。	help.exportVisibleChart
+克隆	action.clone
+客户端名称	label.clientName
+空间大小	control.roomSize
+空间声像 · 只读	label.readOnlySpatialPan
+空间声像参数	section.spatialPanParameters
+空间声像器	control.spatialPanner
+控制动态范围，使电平更稳定	description.compressor
+快速入口	menu.quickAccess
+宽带	mode.wideband
+宽度	control.width
+扩散	control.diffusion
+类别	label.category
+离线	status.offline
+离线探针	demo.offlineProbeName
+历史时间窗口（秒）	control.historyWindowSeconds
+历史刷新形式	control.historyRefreshMode
+历史图表	view.historyChart
+历史图表通道	control.historyChannel
+立体声	layout.stereo
+立体声 (2.0)	layout.stereoWithCount
+立体声宽度:	control.stereoWidth
+例如 Meter-Program	placeholder.clientNameExample
+另存为	action.saveAs
+另存效果链预设	dialog.saveFxChainPresetAs
+浏览	action.browse
+滤波器:	section.filters
+每周期帧数	control.framesPerPeriod
+秒	unit.secondsWord
+名称	label.name
+名称不能为空	error.nameEmpty
+名称无法应用	error.nameCannotApply
+模块参数快照无效	error.invalidModuleSnapshot
+模块区域	section.moduleArea
+模块设置	section.moduleSettings
+模块设置 - %1%2	dialog.moduleSettings
+模拟真实空间，增强声音的空间感	description.reverb
+模式:	control.mode
+默认仅增量扫描未验证或新增的插件	tooltip.incrementalScanDefault
+旁白	demo.narrationName
+片段命名空间	label.fragmentNamespace
+频点标签	control.frequencyPointLabels
+频率 (Freq)	control.frequencyWithEnglish
+频率 (Hz)	control.frequencyHz
+频谱分析	control.spectrumAnalysis
+平滑:	control.smoothing
+平铺	background.tile
+平直	action.flattenEq
+其他	category.other
+其他工具	menu.otherTools
+启动 JACK	action.startJack
+启动 WinJACKNexus 时自动启动 jackd	control.autoStartJack
+启动命令（对应 README 的 JACK2 参数）	label.startupCommand
+启用	action.enable
+启用调音台	action.enableMixer
+启用目标范围	control.enableTargetRange
+启用实时记录到 CSV	control.enableCsvRecording
+启用详细日志跟踪	control.enableDetailedLogging
+起始时间	control.attack
+起始时间\n(Attack)	control.attackWithEnglish
+前后	control.frontRear
+前右 (R)	role.frontRight
+前瞻	control.lookaheadUnimplemented
+前中 (C)	role.frontCenter
+前左 (L)	role.frontLeft
+强度	control.strength
+切换模拟响度记录状态	tooltip.toggleSimulatedRecording
+切换皮肤	action.switchTheme
+切换声道类型	action.switchChannelLayout
+切换通道 ▾	action.switchChannel
+切换要查看的模拟通道历史	tooltip.switchSimulatedHistoryChannel
+清除	action.clear
+清空历史数据	dialog.clearHistory
+清空模拟历史，不重置响度	tooltip.clearSimulatedHistory
+清空数据	action.clearData
+清理失效条目	action.cleanupInvalidEntries
+清理失效条目：%1 个	status.invalidEntriesRemoved
+请先在接线盘的工具 > 音频工具中启用调音台。	help.enableMixerFirst
+曲线视图	view.curve
+曲线显示	control.curveVisibility
+驱动	control.driver
+取消	action.cancel
+取消预览	action.cancelPreview
+全部	control.all
+全局	section.global
+全局设置	dialog.globalSettings
+全局字体	control.globalFont
+全通道链接	control.linkAllChannels
+确定删除当前插件的扫描条目吗？\n插件文件本身不会被删除。	confirm.deletePluginScanEntry
+人声回声	preset.vocalEcho
+日志保存根目录	label.logRootDirectory
+日志跟踪	menu.logTracing
+扫描	history.scanningMode
+扫描 VST	action.scanVst
+扫描插件	action.scanPlugins
+扫描路径	label.scanPath
+扫描路径不存在	error.scanPathMissing
+扫描器不可用	error.scannerUnavailable
+扫描器启动失败	error.scannerStartupFailed
+扫描日志	section.scanLog
+扫描完成	status.scanComplete
+扫描完成：写入 %1 个条目	status.scanCompleteWrittenCount
+扫描完成：写入 %1 个条目，当前目录共 %2 个条目。	status.scanCompleteDirectoryCount
+扫描游标	control.scanCursor
+筛选节点	placeholder.filterNodes
+删除	action.delete
+删除插件条目	dialog.deletePluginEntry
+删除节点	action.deleteNode
+删除失败	error.deleteFailed
+删除条目	action.deleteEntry
+删除通道	action.deleteChannel
+删除选中节点	action.deleteSelectedNodes
+上层覆盖	background.overlay
+上层覆盖模式：透明背景图片最佳	tooltip.overlayTransparentImage
+上层图片透明度	control.overlayOpacity
+设备	label.device
+设置不可用	error.settingsUnavailable
+声道	label.audioChannel
+声道 %1 的 LFE 标记	label.channelLfeFlag
+声道布局	control.channelLayout
+声道数	label.channelCount
+声像	control.pan
+声像器	control.panner
+湿信号	control.wetSignal
+时间	label.time
+时间 %1	label.timeValue
+时间窗口	control.timeWindow
+时间模式:	control.timeMode
+时间轴	control.timeAxis
+实例：%1\n名称版本：%2	tooltip.instanceNameVersion
+实时 CSV 记录的保存根目录；PNG 导出单独选择位置。留空时不写入 CSV。	help.csvRootDirectory
+实时记录到 CSV	control.recordCsvRealtime
+视图	menu.view
+视图:	control.view
+适配	action.fit
+适配画布	action.fitCanvas
+适配全部节点	action.fitAllNodes
+释放上限	control.releaseLimit
+释放时间	control.release
+释放时间\n(Release)	control.releaseWithEnglish
+收起快捷栏	action.collapseQuickBar
+收缩侧边栏	action.collapseSidebar
+输出	label.output
+输出电平	label.outputLevel
+输出电平 (dB)	axis.outputLevelDb
+输出电平:	label.outputLevelColon
+输出目录	label.outputDirectory
+输出增益	control.outputGain
+输出增益:	control.outputGainColon
+输出增益\n(Makeup)	control.makeupGain
+输入	label.input
+输入/输出(%1)	label.inputOutputCount
+输入/输出电平	label.inputOutputLevel
+输入参考	label.inputReference
+输入电平	label.inputLevel
+输入电平 (dB)	axis.inputLevelDb
+输入频谱	label.inputSpectrum
+输入筛选	placeholder.filterInput
+输入声道	label.inputChannels
+刷新	action.refresh
+刷新当前 Dev 主题	action.refreshDevelopmentTheme
+刷新节点库	action.refreshNodeLibrary
+刷新形式	control.refreshMode
+衰减	control.attenuation
+双击插件可打开所在位置	help.doubleClickPluginLocation
+瞬时（M）	meter.momentaryCompact
+瞬时（Momentary）	meter.momentary
+搜索节点或端口	placeholder.searchNodesPorts
+搜索名称、厂商、路径	placeholder.searchPlugins
+拓扑更新失败	error.topologyUpdateFailed
+替换	mode.replace
+添加	action.add
+添加 Sub Mix 通道	action.addSubMixChannel
+添加输入通道	action.addInputChannel
+添加AUX通道	action.addAuxChannel
+跳过无效 VST DLL	status.skipInvalidVstDll
+跳过已验证 VST2，使用现有 info 条目	status.skipVerifiedVst2
+跳过已验证 VST3，使用现有 info 条目	status.skipVerifiedVst3
+停止 JACK	action.stopJack
+停止记录	action.stopRecording
+通道	label.channelStrip
+通道管理	section.channelManagement
+通道类型	control.stripType
+通道名	label.channelName
+通道名生成了无效或重复的 JACK 端口名	error.invalidPortNameFromChannelName
+通道模式	control.stripMode
+通道设置	section.stripSettings
+通道详情	view.channelDetails
+通道详情 ·	label.channelDetailsPrefix
+通道颜色	control.channelColor
+通道总览	view.channelOverview
+通用	section.general
+同步	mode.sync
+统计信息（当前视图）	section.currentViewStatistics
+透明	background.transparent
+图表设置	section.chartSettings
+图片 (*.png *.jpg *.jpeg *.webp)	filter.imageFiles
+图片来源	control.imageSource
+图片透明度	control.imageOpacity
+图形	section.graphics
+退出 WinJACKNexus	action.quit
+完整 token 名	label.fullTokenName
+网格线	control.gridLines
+未保存的工程	dialog.unsavedProject
+未发现插件	status.noPluginsFound
+未发现插件候选	status.noPluginCandidates
+未分配	status.unassigned
+未能按 JACK 服务器设置启动或连接 jackd。	error.startOrConnectJackFailed
+未能应用设置	error.applySettingsFailed
+未设置，CSV 记录不可用	status.csvDirectoryNotSet
+未提供	status.notProvided
+未选择节点	status.noNodeSelected
+未选择通道	status.noChannelSelected
+未在所选目录中找到 jackd.exe。	error.jackExecutableMissing
+未找到 VST Scanner.exe。	error.scannerExecutableMissing
+未找到隔离探测器: 	error.probeExecutableMissing
+未找到可识别位宽的 VST3 二进制	error.vst3ArchitectureUnknown
+未知	status.unknown
+位宽	label.architecture
+位置须为百分比或 px 值	error.invalidPositionUnit
+文件	menu.file
+无法保存接线盘工程。	error.savePatchbayProjectFailed
+无法初始化所选模块节点。请确认 JACK 服务和对应系统设备可用。	error.initializeNodeFailed
+无法创建 info 目录: 	error.createInfoDirectoryFailed
+无法创建电平表桥窗口。	error.createMeterBridgeWindowFailed
+无法创建接线盘窗口。	error.createPatchbayWindowFailed
+无法创建目录：%1	error.createDirectoryFailed
+无法创建输出目录	error.createOutputDirectoryFailed
+无法创建预设目录：%1	error.createPresetDirectoryFailed
+无法创建主题目录	error.createThemeDirectoryFailed
+无法创建主题目录：	error.createThemeDirectoryDetail
+无法打开日志文件夹。\n%1	error.openLogFolderFailed
+无法读取 moduleinfo.json: 	error.readModuleInfoFailed
+无法读取背景图片	error.readBackgroundImageFailed
+无法读取接线盘工程。	error.readPatchbayProjectFailed
+无法读取模块参数，未保存预设	error.readParametersPresetNotSaved
+无法恢复工程中保存的调音台设置。	error.restoreProjectMixerFailed
+无法恢复上次主题 	error.restoreLastThemeFailed
+无法恢复主题覆盖 	error.restoreThemeOverrideFailed
+无法加载 %1 控制界面	error.loadControlInterfaceFailed
+无法加载必需的默认主题 DLL，程序无法启动。\n%1	error.requiredDefaultThemeLoadFailed
+无法加载电平表桥模块。	error.loadMeterBridgeModuleFailed
+无法加载接线盘模块。	error.loadPatchbayModuleFailed
+无法启动 jackd.exe。	error.startJackExecutableFailed
+无法启动 VST Scanner.exe。	error.startScannerExecutableFailed
+无法启动隔离探测器: 	error.startProbeFailed
+无法删除 info 文件。	error.deleteInfoFileFailed
+无法提交 info 文件: 	error.commitInfoFileFailed
+无法停止正在运行的 jackd.exe。	error.stopJackExecutableFailed
+无法写入 info 文件: 	error.writeInfoFileFailed
+无法注册调音台端口，原有状态已保留。	error.registerMixerPortsFailed
+无图片	background.noImage
+无相关条目	status.noRelevantEntries
+无效的 FX 采样率。	error.invalidFxSampleRate
+无效的 Sub Mix 路由	error.invalidSubMixRoute
+无效或自发 AUX 路由	error.invalidOrSelfAuxRoute
+无信号	status.noSignal
+系统设备	category.systemDevices
+系统时间	axis.systemTime
+先选择一张自定义图片	error.selectCustomImageFirst
+显示 %1 参考线	tooltip.showReferenceLine
+显示 %1 曲线	tooltip.showCurve
+显示范围:	control.displayRange
+显示极坐标曲线	control.showPolarCurve
+显示名称	label.displayName
+显示模式	control.displayMode
+显示频率值	control.showFrequencyValues
+显示曲线	control.showCurve
+显示设置	section.displaySettings
+显示选项	section.displayOptions
+显示自带 GUI	action.showModuleGui
+现代	mode.modern
+响度参考保存失败	error.saveLoudnessReferenceFailed
+响度预设（Loudness Preset）	control.loudnessPreset
+效果链	section.fxChain
+效果链模块数据无效	error.invalidFxChainModuleData
+效果链预设	dialog.fxChainPreset
+新建、打开和保存工程	tooltip.projectActions
+新建工程	action.newProject
+选择 FX 模块	dialog.selectFxModule
+选择 jackd.exe 所在目录	dialog.selectJackDirectory
+选择 Meterbridge CSV 日志根目录	dialog.selectMeterCsvRoot
+选择 VST 扫描路径	dialog.selectVstScanPath
+选择背景图片	dialog.selectBackgroundImage
+选择此探针的显示参考预设	tooltip.selectProbeReferencePreset
+选择输出目录	dialog.selectOutputDirectory
+选择图片	action.selectImage
+选择字体	dialog.selectFont
+选中 %1	label.selectedItem
+延迟时间 · %1 BPM	control.delayTimeBpm
+延迟时间 (Time)	control.delayTime
+颜色 token	label.colorToken
+颜色已应用	status.colorApplied
+颜色与字体	section.colorsAndFonts
+颜色值	label.colorValue
+颜色值格式错误	error.invalidColorValue
+移除	action.remove
+已改名客户端	demo.renamedClient
+已隔离加载 VST3，获取真实 class 信息	status.vst3ClassesProbed
+已枚举并隔离探测 VST3；部分 class 加载失败，已保留插件条目: 	warning.partialVst3ClassesPreserved
+已应用	status.applied
+抑制低于阈值的信号，减少底噪	description.gate
+音符值:	control.noteValue
+音乐底	demo.musicBedName
+音量	control.volume
+音频工具	menu.audioTools
+应用	action.apply
+应用背景设置	action.applyBackgroundSettings
+应用设置	dialog.applicationSettings
+应用颜色	action.applyColor
+由快捷栏打开	status.openedFromQuickBar
+预览	action.preview
+预览记录空闲；不会写入文件	status.previewRecordingIdle
+预览记录已启用；轮换间隔：60 分钟	status.previewRecordingEnabled
+预设:	label.presetColon
+预设：	label.presetFullWidthColon
+预设名称	label.presetName
+预设名称或参考值无效	error.invalidPresetNameOrReference
+预设文件过大	error.presetFileTooLarge
+预延迟	control.preDelay
+阈值	control.threshold
+原始	listen.original
+在接线盘中定位	action.locateInPatchbay
+暂不启用	action.deferEnable
+暂时无法打开电平表桥。	error.meterBridgeTemporarilyUnavailable
+暂停	action.pause
+暂无电平表探针	status.noMeterProbes
+暂无通道	status.noChannels
+早期反射	control.earlyReflections
+增益	control.gain
+增益 (dB)	control.gainDb
+增益 (Gain)	control.gainWithEnglish
+粘贴节点	action.pasteNodes
+展开侧边栏	action.expandSidebar
+长节目混音	demo.longProgramMix
+长历史	demo.longHistory
+找不到 Native Fx 模块：%1	error.nativeFxModuleMissing
+诊断日志	section.diagnosticLogs
+正常	mode.normal
+正常节目	demo.normalProgram
+正在扫描：%1  (%2/%3)	status.scanningProgress
+滞后\n(Hold)	control.hysteresis
+置顶快捷栏	control.quickBarAlwaysOnTop
+中	level.medium
+中心频率	control.centerFrequency
+重命名节点	dialog.renameNode
+重命名子图	dialog.renameSubGraph
+重命名子图接口	dialog.renameSubGraphInterface
+重启 JACK	action.restartJack
+重新扫描已验证插件	control.rescanVerifiedPlugins
+重置	action.reset
+重置当前声道	action.resetCurrentChannel
+重置当前响度会话	tooltip.resetLoudnessSession
+重置会话	demo.resetSession
+重置全部声道	action.resetAllChannels
+重置缩放	action.resetZoom
+重置所有声道	action.resetEveryChannel
+重置为 Default	action.resetToDefaultPreset
+重置响度	action.resetLoudness
+主题	menu.theme
+主题包已导出	status.themeExported
+主题不在安装目录中：	error.themeOutsideInstallDirectory
+主题管理	dialog.themeManagement
+主题管理…	action.manageThemesEllipsis
+主题管理器	action.manageThemes
+主题名称	label.themeName
+主题切换失败	error.switchThemeFailed
+主题文件已改变，请刷新列表	error.themeFileChanged
+主题已切换，但无法保存选择	warning.themeSelectionNotSaved
+主题与诊断	section.themesAndDiagnostics
+主图	label.mainGraph
+主页	label.homepage
+注释	label.comment
+砖墙	mode.brickwall
+状态栏透明度	control.statusBarOpacity
+准备扫描...	status.preparingScan
+字体 (*.ttf *.otf)	filter.fontFiles
+字体文件超过大小限制或不可读取	error.fontTooLargeOrUnreadable
+字体文件无效	error.invalidFontFile
+自定义 %1	demo.customName
+自定义 1-16 声道	demo.customChannelRange
+自定义 8	demo.customEightChannels
+自定义参考	preset.customReference
+自定义多 LFE	demo.customMultipleLfe
+自定义声道	layout.custom
+自定义声道分配	section.customChannelAssignment
+自定义声道数量	control.customChannelCount
+自定义图片	background.customImage
+自定义总线	demo.customBusName
+自动保存	control.autoSave
+自动保存间隔...	action.setAutoSaveInterval
+自动增益	control.autoGain
+自动重置	control.autoReset
+自动重置响度	control.autoResetLoudness
+自身 禁用	status.selfRouteDisabled
+自由	mode.freeTime
+子图名称	label.subGraphName
+综合（I）	meter.integratedCompact
+综合（Integrated）	meter.integrated
+综合响度（Integrated） %1 至 %2 LUFS	label.integratedLoudnessRange
+综合响度（Integrated） %1 LUFS	label.integratedLoudnessValue
+综合响度（Integrated）上限 %1 LUFS	label.integratedLoudnessUpperBound
+综合响度（Integrated）下限 %1 LUFS	label.integratedLoudnessLowerBound
+综合响度目标/下限	control.integratedTargetOrLowerBound
+综合响度上限	control.integratedUpperBound
+综合响应	label.combinedResponse
+总线路由存在环	error.busRoutingCycle
+纵向位置	control.verticalPosition
+组件透明度	control.componentOpacity
+最大真峰值	control.maximumTruePeak
+最大真峰值（dBTP） %1 dBTP	label.maximumTruePeakValue
+最小：%1    最大：%2	label.minimumMaximumValues
+作用声道	control.targetChannels
+作者	label.author
+AUX 参数或身份无效	error.invalidAuxParametersOrIdentity
+AUX 路由存在环	error.auxRoutingCycle
+AUX 路由无效	error.invalidAuxRoute
+AUX 路由无效或重复	error.invalidOrDuplicateAuxRoute
+AUX 声像参数无效	error.invalidAuxPanner
+AUX JSON 无效	error.invalidAuxJson
+CH 参数或身份无效	error.invalidChannelParametersOrIdentity
+CH JSON 无效	error.invalidChannelJson
+Compressor 压缩器	module.compressorName
+Compressor 压缩器 — %1	window.compressorTitle
+CSV 等待第一条记录	status.csvWaitingFirstRecord
+CSV 会话已关闭，等待下一条记录	status.csvSessionClosed
+CSV 记录已停止	status.csvRecordingStopped
+CSV 目录	label.csvDirectory
+CSV 日志根目录	label.csvLogRootDirectory
+CSV 未写入：未设置日志保存根目录	status.csvNotWrittenDirectoryMissing
+CSV 未写入：无法创建目录 %1	error.csvCreateDirectoryFailed
+CSV 未写入：无法打开文件 %1	error.csvOpenFileFailed
+CSV 写入队列已满，已丢弃 %1 条记录	warning.csvQueueFullRecordsDropped
+CSV 写入失败：磁盘可能不可写	error.csvWriteFailed
+CSV 写入已关闭	status.csvWritingDisabled
+CSV 正在记录	status.csvRecording
+De-Esser 去齿音	module.deEsserName
+De-Esser 去齿音 — %1	window.deEsserTitle
+Delay 延迟	module.delayName
+Delay 延迟 — %1	window.delayTitle
+Digital Mixer 窗口暂时无法打开。	error.mixerWindowTemporarilyUnavailable
+EQ 后	label.postEq
+FFT 大小:	control.fftSize
+FX 链拓扑已变更。	error.fxChainTopologyChanged
+FX 链总开关	control.fxChainEnabled
+FX 模块已旁通	warning.fxModuleBypassed
+FX 设置	window.fxSettingsTitlePlain
+Gate 门限	module.gateName
+Gate 门限 — %1	window.gateTitle
+Graphic EQ 图示均衡器	module.graphicEqName
+Graphic EQ 图示均衡器 — %1	window.graphicEqTitle
+High 高频	band.highWithEnglish
+High Mid 高中频	band.highMidWithEnglish
+JACK 端口映射失败。	error.jackPortMappingFailed
+JACK 端口注册失败，旧拓扑已保留。	error.jackPortRegistrationFailed
+JACK 服务器设置	dialog.jackServerSettings
+JACK 离线	status.jackOffline
+JACK DSP 使用率与 XRun 计数	tooltip.jackDspAndXrun
+jackd 目录	label.jackDirectory
+JSON 版本或字段无效	error.invalidJsonVersionOrFields
+JSON 格式错误	error.invalidJsonSyntax
+LFE 峰值（LFE Peak）	meter.lfePeak
+Limiter 限幅器	module.limiterName
+Limiter 限幅器 — %1	window.limiterTitle
+LoadLibraryW 失败	error.loadLibraryFailed
+Low 低频	band.lowWithEnglish
+Low Mid 低中频	band.lowMidWithEnglish
+MAIN 必须是不可删除的立体声总线	error.mainMustBePermanentStereoBus
+MAIN 参数无效	error.invalidMainParameters
+MAIN JSON 无效	error.invalidMainJson
+moduleinfo.json 解析失败: 	error.parseModuleInfoFailed
+Native Fx %1 不可用，已旁通并保留配置。\n	warning.nativeFxUnavailablePreserved
+Native Fx 加载失败	error.nativeFxLoadFailed
+Parametric EQ 参量均衡器	module.parametricEqName
+Parametric EQ 参量均衡器 — %1	window.parametricEqTitle
+PNG 导出失败：%1	error.exportPngFailed
+PNG 图像 (*.png)	filter.pngImages
+PNG 已保存：%1	status.pngSaved
+PortAudio 设备，例如 ASIO::FL Studio ASIO	placeholder.portAudioDeviceExample
+Q 值	control.qFactor
+Reverb 混响	module.reverbName
+Reverb 混响 — %1	window.reverbTitle
+RMS 使用平均能量检测；峰值响应瞬时齿音。	help.rmsAndPeakDetection
+Sub Mix 参数或身份无效	error.invalidSubMixParametersOrIdentity
+Sub Mix 通道 JSON 无效	error.invalidSubMixChannelJson
+Sub Mix JSON 无效	error.invalidSubMixJson
+VST2 模块返回无效 AEffect	error.invalidVst2Effect
+VST2 模块没有 VSTPluginMain/main	error.vst2EntryPointMissing
+VST2 探测未启用	error.vst2ProbeDisabled
+VST3 class 已验证，跳过本次探测	status.vst3ClassAlreadyVerified
+VST3 class ID 无效: 	error.invalidVst3ClassId
+VST3 component class 创建失败: 	error.createVst3ComponentFailed
+VST3 component initialize 失败: 	error.initializeVst3ComponentFailed
+VST3 factory 没有返回可用 component class	error.noUsableVst3ComponentClass
+VST3 factory 找不到 class ID: 	error.vst3FactoryClassIdMissing
+WinJACKNexus - %1 AUX 设置	window.channelAuxSettingsTitle
+WinJACKNexus - 电平表桥	window.meterBridgeTitle
+WinJACKNexus - 调音台	window.mixerTitle
+WinJACKNexus - 接线盘	window.patchbayTitle
+WinJACKNexus - AUX 设置	window.auxSettingsTitle
+WinJACKNexus 工程 (*.wjnproj)	filter.projectFiles
+WinJACKNexus 已在运行。	status.applicationAlreadyRunning
+WinJACKNexus 主题 (*.wjnskin)	filter.themeFiles
+WinJACKNexus 主题启动失败	error.themeStartupFailed
+WinJACKNexus\nJACK 音频路由与调音工作台\nAGPL-3.0-or-later	description.aboutApplication
+(Ceiling)	control.ceilingEnglishCaption
+(Dev)	label.developmentTheme
+(Diffusion)	control.diffusionEnglishCaption
+(Dry)	control.dryEnglishCaption
+(Feedback)	control.feedbackEnglishCaption
+(Lookahead)	control.lookaheadEnglishCaptionUnimplemented
+(Pre-Delay)	control.preDelayEnglishCaption
+(Release)	control.releaseEnglishCaption
+(Size)	control.sizeEnglishCaption
+(Threshold)	control.thresholdEnglishCaption
+(Wet)	control.wetEnglishCaption
+All	control.all
+Applied	status.applied
+Apply	action.apply
+Broadcast	preset.broadcast
+Browse	action.browse
+Bypass	control.bypass
+Cathedral	preset.cathedral
+Church	scene.church
+Classical	preset.classical
+Custom · %1 m²	label.customRoomArea
+Default	preset.default
+Device	label.device
+Dry	control.dry
+Effect	category.effect
+Effects	category.effects
+Gain	control.gain
+Hall	scene.hall
+In	label.inputEndpoint
+Instrument	category.instrument
+Instruments	category.instruments
+Interface	category.interface
+Listen/Master	section.listenAndMaster
+Meter	category.meter
+Out	label.outputEndpoint
+Plate	scene.plate
+Plugin	label.plugin
+Post	route.postFader
+Pre	route.preFader
+Presence	preset.presence
+Process	label.processArchitecture
+Refresh	action.refresh
+Room	scene.room
+Spring	scene.spring
+Studio	scene.studio
+Threshold	control.threshold
+Threshold\n%1 dB	tooltip.thresholdValue
+Tools	category.tools
+Unnamed	label.unnamed
+Warmth	preset.warmth
+Wet	control.wet
+32-bit	label.architecture32Bit
+64-bit	label.architecture64Bit
+%1-bit	label.architectureBitCount
+%1\n%2\n%3 %4-bit\n%5	tooltip.vstPluginMetadata
+Auto	control.automatic
+Compressor	module.compressorNameEnglish
+Custom	preset.custom
+De-Esser	module.deEsserNameEnglish
+Delay	module.delayNameEnglish
+Gate	module.gateNameEnglish
+Inputs	section.inputs
+Limiter	module.limiterNameEnglish
+Peak	meter.peakEnglish
+Preset	label.preset
+Reverb	module.reverbNameEnglish
+EQ preset (*.json)	filter.eqPresetFiles
+MUTE	control.muteMasterCaption
+MASTER	label.masterCaption
+POST	meter.postFaderMode
+IN	meter.inputMode
+Example Gain	module.exampleGainName
+Example Gain — %1	window.exampleGainTitle
+Sub Graph	category.subGraph
+Sub Graph %1	label.defaultSubGraphName
+(Decay)	control.decayEnglishCaption
+Main	tab.main
+Meter 5.1	module.surround51ProbeName
+Meter 7.1	module.surround71ProbeName
+Monitor	output.monitor
+Meterbridge	module.meterBridgeName
+Patchbay	module.patchbayName
+恢复所有通道到默认颜色	action.restoreAllChannelColors
+恢复默认颜色	action.restoreDefaultColor
+设置通道颜色	action.setChannelColor
+设置通道颜色 · RGB / HEX	dialog.setChannelColor
+Unknown	fallback.unknown
+Channel	label.audioChannel

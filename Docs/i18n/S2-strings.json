@@ -1,0 +1,758 @@
+[
+  {
+    "key": "settings.global.title",
+    "source": "全局设置",
+    "en-US": "Global settings",
+    "zh-CN": "全局设置",
+    "ja-JP": "全体設定",
+    "ko-KR": "전역 설정",
+    "review": "待母语/领域审校"
+  },
+  {
+    "key": "settings.application",
+    "source": "应用设置",
+    "en-US": "Application settings",
+    "zh-CN": "应用设置",
+    "ja-JP": "アプリケーション設定",
+    "ko-KR": "애플리케이션 설정",
+    "review": "待母语/领域审校"
+  },
+  {
+    "key": "settings.language",
+    "source": "语言",
+    "en-US": "Language",
+    "zh-CN": "语言",
+    "ja-JP": "言語",
+    "ko-KR": "언어",
+    "review": "待母语/领域审校"
+  },
+  {
+    "key": "settings.frameRate",
+    "source": "界面帧率",
+    "en-US": "UI frame rate",
+    "zh-CN": "界面帧率",
+    "ja-JP": "UI フレームレート",
+    "ko-KR": "UI 프레임 속도",
+    "review": "待母语/领域审校"
+  },
+  {
+    "key": "settings.peakRefresh",
+    "source": "峰值表数值刷新频率",
+    "en-US": "Peak value refresh interval",
+    "zh-CN": "峰值表数值刷新频率",
+    "ja-JP": "ピーク値の更新間隔",
+    "ko-KR": "피크 값 갱신 간격",
+    "review": "待母语/领域审校"
+  },
+  {
+    "key": "settings.peakHold",
+    "source": "峰值保持时长",
+    "en-US": "Peak hold time",
+    "zh-CN": "峰值保持时长",
+    "ja-JP": "ピークホールド時間",
+    "ko-KR": "피크 유지 시간",
+    "review": "待母语/领域审校"
+  },
+  {
+    "key": "settings.logging",
+    "source": "诊断日志",
+    "en-US": "Diagnostic logging",
+    "zh-CN": "诊断日志",
+    "ja-JP": "診断ログ",
+    "ko-KR": "진단 로그",
+    "review": "待母语/领域审校"
+  },
+  {
+    "key": "settings.loggingEnabled",
+    "source": "启用详细日志跟踪",
+    "en-US": "Enable detailed log tracing",
+    "zh-CN": "启用详细日志跟踪",
+    "ja-JP": "詳細ログを有効にする",
+    "ko-KR": "상세 로그 추적 사용",
+    "review": "待母语/领域审校"
+  },
+  {
+    "key": "settings.opacity",
+    "source": "状态栏透明度",
+    "en-US": "Quick access bar opacity",
+    "zh-CN": "状态栏透明度",
+    "ja-JP": "クイックアクセスバーの不透明度",
+    "ko-KR": "빠른 접근 표시줄 불투명도",
+    "review": "待母语/领域审校"
+  },
+  {
+    "key": "settings.silenceThreshold",
+    "source": "静音阈值",
+    "en-US": "Silence threshold",
+    "zh-CN": "静音阈值",
+    "ja-JP": "無音のしきい値",
+    "ko-KR": "무음 임계값",
+    "review": "待母语/领域审校"
+  },
+  {
+    "key": "settings.silenceDuration",
+    "source": "静音时长",
+    "en-US": "Silence duration",
+    "zh-CN": "静音时长",
+    "ja-JP": "無音の継続時間",
+    "ko-KR": "무음 지속 시간",
+    "review": "待母语/领域审校"
+  },
+  {
+    "key": "settings.logRoot",
+    "source": "日志保存根目录",
+    "en-US": "Log root directory",
+    "zh-CN": "日志保存根目录",
+    "ja-JP": "ログの保存先フォルダー",
+    "ko-KR": "로그 저장 루트 폴더",
+    "review": "待母语/领域审校"
+  },
+  {
+    "key": "settings.noCsvRoot",
+    "source": "未设置，CSV 记录不可用",
+    "en-US": "Not set; CSV logging unavailable",
+    "zh-CN": "未设置，CSV 记录不可用",
+    "ja-JP": "未設定：CSV 記録は利用できません",
+    "ko-KR": "미설정: CSV 기록을 사용할 수 없음",
+    "review": "待母语/领域审校"
+  },
+  {
+    "key": "settings.chooseCsvRoot",
+    "source": "选择 Meterbridge CSV 日志根目录",
+    "en-US": "Select meter bridge CSV log root directory",
+    "zh-CN": "选择 Meterbridge CSV 日志根目录",
+    "ja-JP": "メーターブリッジの CSV ログ保存先を選択",
+    "ko-KR": "미터 브리지 CSV 로그 저장 폴더 선택",
+    "review": "待母语/领域审校"
+  },
+  {
+    "key": "jack.settings.title",
+    "source": "JACK 服务器设置",
+    "en-US": "JACK server settings",
+    "zh-CN": "JACK 服务器设置",
+    "ja-JP": "JACK サーバー設定",
+    "ko-KR": "JACK 서버 설정",
+    "review": "待母语/领域审校"
+  },
+  {
+    "key": "jack.directory",
+    "source": "jackd 目录",
+    "en-US": "jackd directory",
+    "zh-CN": "jackd 目录",
+    "ja-JP": "jackd のフォルダー",
+    "ko-KR": "jackd 폴더",
+    "review": "待母语/领域审校"
+  },
+  {
+    "key": "jack.driver",
+    "source": "驱动",
+    "en-US": "Driver",
+    "zh-CN": "驱动",
+    "ja-JP": "ドライバー",
+    "ko-KR": "드라이버",
+    "review": "待母语/领域审校"
+  },
+  {
+    "key": "jack.device",
+    "source": "设备",
+    "en-US": "Device",
+    "zh-CN": "设备",
+    "ja-JP": "デバイス",
+    "ko-KR": "장치",
+    "review": "待母语/领域审校"
+  },
+  {
+    "key": "jack.deviceHint",
+    "source": "PortAudio 设备，例如 ASIO::FL Studio ASIO",
+    "en-US": "PortAudio device, e.g. ASIO::FL Studio ASIO",
+    "zh-CN": "PortAudio 设备，例如 ASIO::FL Studio ASIO",
+    "ja-JP": "PortAudio デバイス（例：ASIO::FL Studio ASIO）",
+    "ko-KR": "PortAudio 장치, 예: ASIO::FL Studio ASIO",
+    "review": "待母语/领域审校"
+  },
+  {
+    "key": "jack.sampleRate",
+    "source": "采样率",
+    "en-US": "Sample rate",
+    "zh-CN": "采样率",
+    "ja-JP": "サンプルレート",
+    "ko-KR": "샘플 레이트",
+    "review": "待母语/领域审校"
+  },
+  {
+    "key": "jack.periodFrames",
+    "source": "每周期帧数",
+    "en-US": "Frames per period",
+    "zh-CN": "每周期帧数",
+    "ja-JP": "周期あたりのフレーム数",
+    "ko-KR": "주기당 프레임 수",
+    "review": "待母语/领域审校"
+  },
+  {
+    "key": "jack.autoStart",
+    "source": "启动 WinJACKNexus 时自动启动 jackd",
+    "en-US": "Start jackd with WinJACKNexus",
+    "zh-CN": "启动 WinJACKNexus 时自动启动 jackd",
+    "ja-JP": "WinJACKNexus と同時に jackd を起動",
+    "ko-KR": "WinJACKNexus 시작 시 jackd 자동 시작",
+    "review": "待母语/领域审校"
+  },
+  {
+    "key": "jack.autoStart.help",
+    "source": "仅在未检测到已就绪的 JACK 服务器时使用当前配置启动 jackd。",
+    "en-US": "Start jackd with these settings only if no ready JACK server is detected.",
+    "zh-CN": "仅在未检测到已就绪的 JACK 服务器时使用当前配置启动 jackd。",
+    "ja-JP": "準備完了の JACK サーバーが見つからない場合にのみ、この設定で jackd を起動します。",
+    "ko-KR": "준비된 JACK 서버가 감지되지 않을 때만 현재 설정으로 jackd를 시작합니다.",
+    "review": "待母语/领域审校"
+  },
+  {
+    "key": "jack.command",
+    "source": "启动命令（对应 README 的 JACK2 参数）",
+    "en-US": "Startup command (JACK2 arguments in README)",
+    "zh-CN": "启动命令（对应 README 的 JACK2 参数）",
+    "ja-JP": "起動コマンド（README の JACK2 引数）",
+    "ko-KR": "시작 명령(README의 JACK2 인수)",
+    "review": "待母语/领域审校"
+  },
+  {
+    "key": "jack.copyCommand",
+    "source": "复制启动命令",
+    "en-US": "Copy startup command",
+    "zh-CN": "复制启动命令",
+    "ja-JP": "起動コマンドをコピー",
+    "ko-KR": "시작 명령 복사",
+    "review": "待母语/领域审校"
+  },
+  {
+    "key": "jack.start",
+    "source": "启动 JACK",
+    "en-US": "Start JACK",
+    "zh-CN": "启动 JACK",
+    "ja-JP": "JACK を起動",
+    "ko-KR": "JACK 시작",
+    "review": "待母语/领域审校"
+  },
+  {
+    "key": "jack.restart",
+    "source": "重启 JACK",
+    "en-US": "Restart JACK",
+    "zh-CN": "重启 JACK",
+    "ja-JP": "JACK を再起動",
+    "ko-KR": "JACK 다시 시작",
+    "review": "待母语/领域审校"
+  },
+  {
+    "key": "jack.stop",
+    "source": "停止 JACK",
+    "en-US": "Stop JACK",
+    "zh-CN": "停止 JACK",
+    "ja-JP": "JACK を停止",
+    "ko-KR": "JACK 중지",
+    "review": "待母语/领域审校"
+  },
+  {
+    "key": "jack.chooseDirectory",
+    "source": "选择 jackd.exe 所在目录",
+    "en-US": "Select the directory containing jackd.exe",
+    "zh-CN": "选择 jackd.exe 所在目录",
+    "ja-JP": "jackd.exe のあるフォルダーを選択",
+    "ko-KR": "jackd.exe가 있는 폴더 선택",
+    "review": "待母语/领域审校"
+  },
+  {
+    "key": "jack.notFound",
+    "source": "未在所选目录中找到 jackd.exe。",
+    "en-US": "jackd.exe was not found in the selected directory.",
+    "zh-CN": "未在所选目录中找到 jackd.exe。",
+    "ja-JP": "選択したフォルダーに jackd.exe が見つかりません。",
+    "ko-KR": "선택한 폴더에서 jackd.exe를 찾을 수 없습니다.",
+    "review": "待母语/领域审校"
+  },
+  {
+    "key": "jack.stopFailed",
+    "source": "无法停止正在运行的 jackd.exe。",
+    "en-US": "Unable to stop the running jackd.exe.",
+    "zh-CN": "无法停止正在运行的 jackd.exe。",
+    "ja-JP": "実行中の jackd.exe を停止できません。",
+    "ko-KR": "실행 중인 jackd.exe를 중지할 수 없습니다.",
+    "review": "待母语/领域审校"
+  },
+  {
+    "key": "jack.startFailed",
+    "source": "无法启动 jackd.exe。",
+    "en-US": "Unable to start jackd.exe.",
+    "zh-CN": "无法启动 jackd.exe。",
+    "ja-JP": "jackd.exe を起動できません。",
+    "ko-KR": "jackd.exe를 시작할 수 없습니다.",
+    "review": "待母语/领域审校"
+  },
+  {
+    "key": "jack.autoStartFailed",
+    "source": "未能按 JACK 服务器设置启动或连接 jackd。",
+    "en-US": "Unable to start or connect to jackd using the JACK server settings.",
+    "zh-CN": "未能按 JACK 服务器设置启动或连接 jackd。",
+    "ja-JP": "JACK サーバー設定を使用して jackd を起動または接続できません。",
+    "ko-KR": "JACK 서버 설정으로 jackd를 시작하거나 연결할 수 없습니다.",
+    "review": "待母语/领域审校"
+  },
+  {
+    "key": "status.jackOffline",
+    "source": "JACK 离线",
+    "en-US": "JACK offline",
+    "zh-CN": "JACK 离线",
+    "ja-JP": "JACK オフライン",
+    "ko-KR": "JACK 오프라인",
+    "review": "待母语/领域审校"
+  },
+  {
+    "key": "status.jackLoad",
+    "source": "DSP {load}% · XRun {count}",
+    "en-US": "DSP {load}% · XRun {count}",
+    "zh-CN": "DSP {load}% · XRun {count}",
+    "ja-JP": "DSP {load}% · XRun {count}",
+    "ko-KR": "DSP {load}% · XRun {count}",
+    "review": "待母语/领域审校"
+  },
+  {
+    "key": "action.browse",
+    "source": "浏览",
+    "en-US": "Browse",
+    "zh-CN": "浏览",
+    "ja-JP": "参照",
+    "ko-KR": "찾아보기",
+    "review": "待母语/领域审校"
+  },
+  {
+    "key": "action.refresh",
+    "source": "刷新",
+    "en-US": "Refresh",
+    "zh-CN": "刷新",
+    "ja-JP": "更新",
+    "ko-KR": "새로 고침",
+    "review": "待母语/领域审校"
+  },
+  {
+    "key": "action.clear",
+    "source": "清除",
+    "en-US": "Clear",
+    "zh-CN": "清除",
+    "ja-JP": "クリア",
+    "ko-KR": "지우기",
+    "review": "待母语/领域审校"
+  },
+  {
+    "key": "menu.theme",
+    "source": "主题",
+    "en-US": "Theme",
+    "zh-CN": "主题",
+    "ja-JP": "テーマ",
+    "ko-KR": "테마",
+    "review": "待母语/领域审校"
+  },
+  {
+    "key": "action.manageThemes",
+    "source": "主题管理…",
+    "en-US": "Manage themes…",
+    "zh-CN": "主题管理…",
+    "ja-JP": "テーマを管理…",
+    "ko-KR": "테마 관리…",
+    "review": "待母语/领域审校"
+  },
+  {
+    "key": "error.themeSwitch",
+    "source": "主题切换失败",
+    "en-US": "Theme switch failed",
+    "zh-CN": "主题切换失败",
+    "ja-JP": "テーマの切り替えに失敗",
+    "ko-KR": "테마 변경 실패",
+    "review": "待母语/领域审校"
+  },
+  {
+    "key": "view.patchbay",
+    "source": "接线盘",
+    "en-US": "Patchbay",
+    "zh-CN": "接线盘",
+    "ja-JP": "パッチベイ",
+    "ko-KR": "패치베이",
+    "review": "待母语/领域审校"
+  },
+  {
+    "key": "view.mixer",
+    "source": "调音台",
+    "en-US": "Mixer",
+    "zh-CN": "调音台",
+    "ja-JP": "ミキサー",
+    "ko-KR": "믹서",
+    "review": "待母语/领域审校"
+  },
+  {
+    "key": "view.meterbridge",
+    "source": "电平表桥",
+    "en-US": "Meter bridge",
+    "zh-CN": "电平表桥",
+    "ja-JP": "メーターブリッジ",
+    "ko-KR": "미터 브리지",
+    "review": "待母语/领域审校"
+  },
+  {
+    "key": "view.channelDetails",
+    "source": "通道详情",
+    "en-US": "Channel details",
+    "zh-CN": "通道详情",
+    "ja-JP": "チャンネル詳細",
+    "ko-KR": "채널 상세",
+    "review": "待母语/领域审校"
+  },
+  {
+    "key": "view.channelOverview",
+    "source": "通道总览",
+    "en-US": "Channel overview",
+    "zh-CN": "通道总览",
+    "ja-JP": "チャンネル一覧",
+    "ko-KR": "채널 개요",
+    "review": "待母语/领域审校"
+  },
+  {
+    "key": "error.patchbayLoad",
+    "source": "无法加载接线盘模块。",
+    "en-US": "Unable to load the patchbay module.",
+    "zh-CN": "无法加载接线盘模块。",
+    "ja-JP": "パッチベイモジュールを読み込めません。",
+    "ko-KR": "패치베이 모듈을 불러올 수 없습니다.",
+    "review": "待母语/领域审校"
+  },
+  {
+    "key": "error.meterbridgeLoad",
+    "source": "无法加载电平表桥模块。",
+    "en-US": "Unable to load the meter bridge module.",
+    "zh-CN": "无法加载电平表桥模块。",
+    "ja-JP": "メーターブリッジモジュールを読み込めません。",
+    "ko-KR": "미터 브리지 모듈을 불러올 수 없습니다.",
+    "review": "待母语/领域审校"
+  },
+  {
+    "key": "error.patchbayWindow",
+    "source": "无法创建接线盘窗口。",
+    "en-US": "Unable to create the patchbay window.",
+    "zh-CN": "无法创建接线盘窗口。",
+    "ja-JP": "パッチベイウィンドウを作成できません。",
+    "ko-KR": "패치베이 창을 만들 수 없습니다.",
+    "review": "待母语/领域审校"
+  },
+  {
+    "key": "error.meterbridgeWindow",
+    "source": "无法创建电平表桥窗口。",
+    "en-US": "Unable to create the meter bridge window.",
+    "zh-CN": "无法创建电平表桥窗口。",
+    "ja-JP": "メーターブリッジウィンドウを作成できません。",
+    "ko-KR": "미터 브리지 창을 만들 수 없습니다.",
+    "review": "待母语/领域审校"
+  },
+  {
+    "key": "error.enableMixer",
+    "source": "请先在接线盘的工具 > 音频工具中启用调音台。",
+    "en-US": "Enable the mixer in the patchbay under Tools > Audio tools first.",
+    "zh-CN": "请先在接线盘的工具 > 音频工具中启用调音台。",
+    "ja-JP": "先にパッチベイの「ツール > オーディオツール」でミキサーを有効にしてください。",
+    "ko-KR": "먼저 패치베이의 도구 > 오디오 도구에서 믹서를 활성화하세요.",
+    "review": "待母语/领域审校"
+  },
+  {
+    "key": "error.mixerWindow",
+    "source": "Digital Mixer 窗口暂时无法打开。",
+    "en-US": "The Digital Mixer window is currently unavailable.",
+    "zh-CN": "Digital Mixer 窗口暂时无法打开。",
+    "ja-JP": "現在、Digital Mixer ウィンドウを開けません。",
+    "ko-KR": "현재 Digital Mixer 창을 열 수 없습니다.",
+    "review": "待母语/领域审校"
+  },
+  {
+    "key": "menu.file",
+    "source": "文件",
+    "en-US": "File",
+    "zh-CN": "文件",
+    "ja-JP": "ファイル",
+    "ko-KR": "파일",
+    "review": "待母语/领域审校"
+  },
+  {
+    "key": "quick.file.help",
+    "source": "新建、打开和保存工程",
+    "en-US": "Create, open and save projects",
+    "zh-CN": "新建、打开和保存工程",
+    "ja-JP": "プロジェクトを新規作成、開く、保存",
+    "ko-KR": "프로젝트 만들기, 열기 및 저장",
+    "review": "待母语/领域审校"
+  },
+  {
+    "key": "quick.patchbay.help",
+    "source": "打开接线盘",
+    "en-US": "Open patchbay",
+    "zh-CN": "打开接线盘",
+    "ja-JP": "パッチベイを開く",
+    "ko-KR": "패치베이 열기",
+    "review": "待母语/领域审校"
+  },
+  {
+    "key": "quick.mixer.help",
+    "source": "打开调音台",
+    "en-US": "Open mixer",
+    "zh-CN": "打开调音台",
+    "ja-JP": "ミキサーを開く",
+    "ko-KR": "믹서 열기",
+    "review": "待母语/领域审校"
+  },
+  {
+    "key": "quick.meterbridge.help",
+    "source": "打开电平表桥",
+    "en-US": "Open meter bridge",
+    "zh-CN": "打开电平表桥",
+    "ja-JP": "メーターブリッジを開く",
+    "ko-KR": "미터 브리지 열기",
+    "review": "待母语/领域审校"
+  },
+  {
+    "key": "quick.devices",
+    "source": "系统设备",
+    "en-US": "System devices",
+    "zh-CN": "系统设备",
+    "ja-JP": "システムデバイス",
+    "ko-KR": "시스템 장치",
+    "review": "待母语/领域审校"
+  },
+  {
+    "key": "quick.devices.help",
+    "source": "打开已添加的 WASAPI 和 MIDI 设备节点",
+    "en-US": "Open added WASAPI and MIDI device nodes",
+    "zh-CN": "打开已添加的 WASAPI 和 MIDI 设备节点",
+    "ja-JP": "追加済みの WASAPI と MIDI デバイスノードを開く",
+    "ko-KR": "추가된 WASAPI 및 MIDI 장치 노드 열기",
+    "review": "待母语/领域审校"
+  },
+  {
+    "key": "quick.pin.help",
+    "source": "保持快捷栏位于其他窗口上方",
+    "en-US": "Keep the quick access bar above other windows",
+    "zh-CN": "保持快捷栏位于其他窗口上方",
+    "ja-JP": "クイックアクセスバーを他のウィンドウの前面に表示",
+    "ko-KR": "빠른 접근 표시줄을 다른 창 위에 유지",
+    "review": "待母语/领域审校"
+  },
+  {
+    "key": "quick.pin",
+    "source": "置顶快捷栏",
+    "en-US": "Pin quick access bar",
+    "zh-CN": "置顶快捷栏",
+    "ja-JP": "クイックアクセスバーを最前面に固定",
+    "ko-KR": "빠른 접근 표시줄 맨 위에 고정",
+    "review": "待母语/领域审校"
+  },
+  {
+    "key": "quick.hide",
+    "source": "收起快捷栏",
+    "en-US": "Collapse quick access bar",
+    "zh-CN": "收起快捷栏",
+    "ja-JP": "クイックアクセスバーを折りたたむ",
+    "ko-KR": "빠른 접근 표시줄 접기",
+    "review": "待母语/领域审校"
+  },
+  {
+    "key": "quick.theme",
+    "source": "切换皮肤",
+    "en-US": "Switch theme",
+    "zh-CN": "切换皮肤",
+    "ja-JP": "テーマを切り替える",
+    "ko-KR": "테마 변경",
+    "review": "待母语/领域审校"
+  },
+  {
+    "key": "quick.status.help",
+    "source": "JACK DSP 使用率与 XRun 计数",
+    "en-US": "JACK DSP usage and XRun count",
+    "zh-CN": "JACK DSP 使用率与 XRun 计数",
+    "ja-JP": "JACK の DSP 使用率と XRun 回数",
+    "ko-KR": "JACK DSP 사용률 및 XRun 횟수",
+    "review": "待母语/领域审校"
+  },
+  {
+    "key": "tray.nodePending",
+    "source": "敬请期待:节点注册后可用",
+    "en-US": "Available after node registration",
+    "zh-CN": "敬请期待:节点注册后可用",
+    "ja-JP": "ノード登録後に利用できます",
+    "ko-KR": "노드 등록 후 사용 가능",
+    "review": "待母语/领域审校"
+  },
+  {
+    "key": "tray.quickOpen",
+    "source": "由快捷栏打开",
+    "en-US": "Open from the quick access bar",
+    "zh-CN": "由快捷栏打开",
+    "ja-JP": "クイックアクセスバーから開く",
+    "ko-KR": "빠른 접근 표시줄에서 열기",
+    "review": "待母语/领域审校"
+  },
+  {
+    "key": "tray.quickAccess",
+    "source": "快速入口",
+    "en-US": "Quick access",
+    "zh-CN": "快速入口",
+    "ja-JP": "クイックアクセス",
+    "ko-KR": "빠른 접근",
+    "review": "待母语/领域审校"
+  },
+  {
+    "key": "action.quit",
+    "source": "退出 WinJACKNexus",
+    "en-US": "Quit WinJACKNexus",
+    "zh-CN": "退出 WinJACKNexus",
+    "ja-JP": "WinJACKNexus を終了",
+    "ko-KR": "WinJACKNexus 종료",
+    "review": "待母语/领域审校"
+  },
+  {
+    "key": "tray.other",
+    "source": "其他",
+    "en-US": "Other",
+    "zh-CN": "其他",
+    "ja-JP": "その他",
+    "ko-KR": "기타",
+    "review": "待母语/领域审校"
+  },
+  {
+    "key": "tray.noEntries",
+    "source": "无相关条目",
+    "en-US": "No matching entries",
+    "zh-CN": "无相关条目",
+    "ja-JP": "該当する項目はありません",
+    "ko-KR": "해당 항목 없음",
+    "review": "待母语/领域审校"
+  },
+  {
+    "key": "tray.device.input",
+    "source": "输入",
+    "en-US": "In",
+    "zh-CN": "输入",
+    "ja-JP": "入力",
+    "ko-KR": "입력",
+    "review": "待母语/领域审校"
+  },
+  {
+    "key": "tray.device.output",
+    "source": "输出",
+    "en-US": "Out",
+    "zh-CN": "输出",
+    "ja-JP": "出力",
+    "ko-KR": "출력",
+    "review": "待母语/领域审校"
+  },
+  {
+    "key": "menu.language",
+    "source": "语言",
+    "en-US": "Language",
+    "zh-CN": "语言",
+    "ja-JP": "言語",
+    "ko-KR": "언어",
+    "review": "待母语/领域审校"
+  },
+  {
+    "key": "language.auto",
+    "source": "自动",
+    "en-US": "Automatic",
+    "zh-CN": "自动",
+    "ja-JP": "自動",
+    "ko-KR": "자동",
+    "review": "待母语/领域审校"
+  },
+  {
+    "key": "language.autoEffective",
+    "source": "自动（{language}）",
+    "en-US": "Automatic ({language})",
+    "zh-CN": "自动（{language}）",
+    "ja-JP": "自動（{language}）",
+    "ko-KR": "자동({language})",
+    "review": "待母语/领域审校"
+  },
+  {
+    "key": "language.failure.title",
+    "source": "语言切换失败",
+    "en-US": "Language switch failed",
+    "zh-CN": "语言切换失败",
+    "ja-JP": "言語の切り替えに失敗",
+    "ko-KR": "언어 변경 실패",
+    "review": "待母语/领域审校"
+  },
+  {
+    "key": "language.failure.message",
+    "source": "无法切换语言，已保留原语言。{detail}",
+    "en-US": "Unable to switch language. The previous language was kept. {detail}",
+    "zh-CN": "无法切换语言，已保留原语言。{detail}",
+    "ja-JP": "言語を切り替えられません。元の言語を維持しました。{detail}",
+    "ko-KR": "언어를 변경할 수 없습니다. 이전 언어를 유지합니다. {detail}",
+    "review": "待母语/领域审校"
+  },
+  {
+    "key": "startup.alreadyRunning",
+    "source": "WinJACKNexus 已在运行。",
+    "en-US": "WinJACKNexus is already running.",
+    "zh-CN": "WinJACKNexus 已在运行。",
+    "ja-JP": "WinJACKNexus は既に実行中です。",
+    "ko-KR": "WinJACKNexus가 이미 실행 중입니다.",
+    "review": "待母语/领域审校"
+  },
+  {
+    "key": "startup.themeFailure.title",
+    "source": "WinJACKNexus 主题启动失败",
+    "en-US": "WinJACKNexus theme startup failed",
+    "zh-CN": "WinJACKNexus 主题启动失败",
+    "ja-JP": "WinJACKNexus のテーマ初期化に失敗",
+    "ko-KR": "WinJACKNexus 테마 초기화 실패",
+    "review": "待母语/领域审校"
+  },
+  {
+    "key": "startup.themeFailure.message",
+    "source": "无法加载必需的默认主题 DLL，程序无法启动。{detail}",
+    "en-US": "Unable to load the required default theme DLL. The application cannot start. {detail}",
+    "zh-CN": "无法加载必需的默认主题 DLL，程序无法启动。{detail}",
+    "ja-JP": "必要な既定テーマ DLL を読み込めないため、アプリケーションを起動できません。{detail}",
+    "ko-KR": "필수 기본 테마 DLL을 불러올 수 없어 애플리케이션을 시작할 수 없습니다. {detail}",
+    "review": "待母语/领域审校"
+  },
+  {
+    "key": "startup.i18nFailure",
+    "source": "语言资源初始化失败。{detail}",
+    "en-US": "Language resource initialization failed. {detail}",
+    "zh-CN": "语言资源初始化失败。{detail}",
+    "ja-JP": "言語リソースの初期化に失敗しました。{detail}",
+    "ko-KR": "언어 리소스 초기화 실패. {detail}",
+    "review": "待母语/领域审校"
+  },
+  {
+    "key": "action.refreshDevTheme",
+    "source": "刷新当前 Dev 主题",
+    "en-US": "Reload current Dev theme",
+    "zh-CN": "刷新当前 Dev 主题",
+    "ja-JP": "現在の Dev テーマを再読み込み",
+    "ko-KR": "현재 Dev 테마 다시 불러오기",
+    "review": "待母语/领域审校"
+  },
+  {
+    "key": "error.unknown",
+    "source": "未知",
+    "en-US": "Unknown",
+    "zh-CN": "未知",
+    "ja-JP": "不明",
+    "ko-KR": "알 수 없음",
+    "review": "待母语/领域审校"
+  },
+  {
+    "key": "status.loading",
+    "source": "加载中…",
+    "en-US": "Loading…",
+    "zh-CN": "加载中…",
+    "ja-JP": "読み込み中…",
+    "ko-KR": "불러오는 중…",
+    "review": "待母语/领域审校"
+  }
+]

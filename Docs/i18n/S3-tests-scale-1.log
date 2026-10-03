@@ -1,0 +1,62 @@
+UpdateCTestConfiguration  from :D:/UserData/Desktop/Project/WinJACKNexus/build/DartConfiguration.tcl
+Parse Config file:D:/UserData/Desktop/Project/WinJACKNexus/build/DartConfiguration.tcl
+Test project D:/UserData/Desktop/Project/WinJACKNexus/build
+Constructing a list of tests
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 3
+    Start 3: patchbay_i18n_tests
+
+3: Test command: D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\wjn_patchbay_i18n_tests.exe "D:/UserData/Desktop/Project/WinJACKNexus/build/release/bin" "D:/UserData/Desktop/Project/WinJACKNexus/build/release/bin/nodes/adapter/mod_adapter.dll" "D:/UserData/Desktop/Project/WinJACKNexus/build/release/bin/examples/node/wjn_example_node.dll" "D:/UserData/Desktop/Project/WinJACKNexus/Docs/i18n/S3-rendered/scale-1"
+3: Working Directory: D:/UserData/Desktop/Project/WinJACKNexus/build/Develop
+3: Environment variables: 
+3:  QT_QPA_PLATFORM=windows
+3:  QT_PLUGIN_PATH=C:/Qt/6.10.3/msvc2022_64/plugins
+3: Environment variable modifications: 
+3:  PATH=path_list_prepend:D:/UserData/Desktop/Project/WinJACKNexus/build/release/bin
+3:  PATH=path_list_prepend:C:/Qt/6.10.3/msvc2022_64/bin
+3: Test timeout computed to be: 1500
+3: SYSTEM_FONT Microsoft YaHei UI
+3: S3 PASS: 8037 real-window checks
+1/3 Test #3: patchbay_i18n_tests ..............   Passed   20.80 sec
+test 4
+    Start 4: host_i18n_tests
+
+4: Test command: D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\wjn_host_i18n_tests.exe "D:/UserData/Desktop/Project/WinJACKNexus/build/release/bin" "D:/UserData/Desktop/Project/WinJACKNexus/Docs/i18n/S2-rendered/scale-1"
+4: Working Directory: D:/UserData/Desktop/Project/WinJACKNexus/build/Develop
+4: Environment variables: 
+4:  QT_QPA_PLATFORM=windows
+4:  QT_PLUGIN_PATH=C:/Qt/6.10.3/msvc2022_64/plugins
+4: Environment variable modifications: 
+4:  PATH=path_list_prepend:D:/UserData/Desktop/Project/WinJACKNexus/build/release/bin
+4:  PATH=path_list_prepend:C:/Qt/6.10.3/msvc2022_64/bin
+4: Test timeout computed to be: 1500
+4: SYSTEM_FONT Microsoft YaHei UI
+4: PASS host i18n assertions 402
+2/3 Test #4: host_i18n_tests ..................   Passed   17.32 sec
+test 5
+    Start 5: i18n_contract_tests
+
+5: Test command: D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\wjn_i18n_tests.exe "D:/UserData/Desktop/Project/WinJACKNexus/build/release/bin/examples/node/wjn_example_node.dll" "D:/UserData/Desktop/Project/WinJACKNexus/build/release/bin/examples/native_fx/wjn_example_native_fx.dll" "D:/UserData/Desktop/Project/WinJACKNexus/build/release/bin/node.dll"
+5: Working Directory: D:/UserData/Desktop/Project/WinJACKNexus/build/Develop
+5: Environment variables: 
+5:  QT_QPA_PLATFORM=windows
+5:  QT_QPA_PLATFORM_PLUGIN_PATH=C:/Qt/6.10.3/msvc2022_64/plugins/platforms
+5: Environment variable modifications: 
+5:  PATH=path_list_prepend:D:/UserData/Desktop/Project/WinJACKNexus/build/release/bin
+5:  PATH=path_list_prepend:C:/Qt/6.10.3/msvc2022_64/bin
+5: Test timeout computed to be: 1500
+5: S1 i18n PASS: 201 offline checks
+3/3 Test #5: i18n_contract_tests ..............   Passed    0.91 sec
+
+The following tests passed:
+	patchbay_i18n_tests
+	host_i18n_tests
+	i18n_contract_tests
+
+100% tests passed, 0 tests failed out of 3
+
+Total Test time (real) =  39.05 sec

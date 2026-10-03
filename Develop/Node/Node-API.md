@@ -166,3 +166,36 @@ SEL adds a Sub Mix tab for all strips except MAIN/Monitor. It reuses `AuxSetting
 Digital Mixer exports `int wjn_digital_mixer_show_view(INode* node, int view)` through dynamic lookup. Views are 0=调音台, 1=通道详情, 2=通道总览. It opens only the requested view and returns 1 on success, 0 for an invalid/null node or unsupported view. Closing one view keeps the shared controller until `destroyWindow` or node shutdown. The required Node v2 ABI is unchanged; `createWindow` still opens view 0.
 
 Patchbay exports `int wjn_patchbay_show_digital_mixer_view(int view)` for the host shortcut menu: 1=opened, 0=no loaded mixer, -1=invalid view or opening failure. The existing `wjn_patchbay_show_digital_mixer()` remains view 0. Older mixer modules without the optional export retain view-0 support through `createWindow`; unavailable detail/overview entries report failure.
+# Optional i18n v1 extension (S1)
+
+Node v2 required exports and `INode` layout remain unchanged. Include
+`WinJACKNexus/Common/I18nApi.h` (also included by NodeApi.h); old modules need
+not implement the optional declarations. Hosts resolve
+`wjn_get_node_i18n_api_version()` and
+`wjn_get_node_i18n_descriptor_json(uint32_t index)` dynamically; version is 1,
+invalid index returns NULL. Lifecycle exports, when used, must include all
+three of `wjn_i18n_attach_host`, `wjn_i18n_language_changed` and
+`wjn_i18n_detach_host`.
+
+The exact signatures, UTF-8 buffer/status rules, path limits, English
+completeness, GUI-thread rules and lease/unload order are frozen in
+[I18n API v1](../../Docs/I18n-API.md). `I18nManager::registerLibrary` is the
+host call site; absence of the extension preserves original metadata/UI.
+The buildable ExampleNode exports it and has its own `locate` directory,
+with intentionally missing translated entries to demonstrate same-module
+English fallback. Its output is `examples/node/wjn_example_node.dll`, so
+its language root cannot collide with the application's locate package.
+Offline `i18n_contract_tests` verify the actual DLL service and unload
+without starting a JACK client. Example-only `wjn_example_i18n_events` and
+`wjn_example_i18n_query` are test probes, not public Node API requirements.
+
+The S3 patchbay host consumes this extension in both its node-library scan
+and its actual instance loader, including project-loaded DLLs outside the
+scan directory. It shares a domain lease by canonical DLL path and node
+index, reads the validated displayNameKey, and preserves raw Node v2
+metadata for identity. Registration precedes createNode/init; destruction
+clears UI and destroys the node before releasing the lease and unloading
+the library. `patchbay_i18n_tests` exercises the actual nonaudio ExampleNode
+loader, late creation, language changes without instance recreation, and
+multiple lease consumers. This does not promise translations for old or
+untranslated community modules, and adds no required Node v2 export.

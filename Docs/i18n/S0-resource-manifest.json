@@ -1,0 +1,86 @@
+[
+  {
+    "file": "src/ui/resources/ui.qrc",
+    "sha256": "c3a03a8de53dad1e2ac8a32e1d795cfcd860bf48ff95e8e8c298dd434e8702a8"
+  },
+  {
+    "file": "src/default_theme/resources/default_theme.qrc",
+    "sha256": "b054e0614393d59f53d1c96c72ea109a25e78b39fbd2a9b8c5741fc2e300086d"
+  },
+  {
+    "file": "src/patchbay/mod/resources/patchbay.qrc",
+    "sha256": "7c5a789b251d6fa4fae5c992b2553dc0cf7d7546abd3432ced43c58d5d6707d9"
+  },
+  {
+    "file": "Docs/Theme-v1-Registry.json",
+    "sha256": "8278494a4a36083608ac481786fe3091543664d4b9bae8bb650cdf8e4e87377a"
+  },
+  {
+    "file": "themes/template/winjacknexus-default.wjnskin",
+    "sha256": "1b07bcc65ef1fa8243b2111ce18370d86bd5668b68b92d7b2fbab3222c3b5e42"
+  },
+  {
+    "file": "themes/template/meta.json",
+    "sha256": "0ef9fb4dcf7344aef1b81cfebc6f345da917dd3de189a07ae391f82f876e739d"
+  },
+  {
+    "file": "locate/en-US.json",
+    "sha256": "7aa8362b9b1e4f7e637179a8829e724c1a7ce8a21dec7b63d809dc6ac7983e74"
+  },
+  {
+    "file": "locate/ja-JP.json",
+    "sha256": "12d1c9f5b490cc55c34f57efa8ac04400ae9aa53054be00b023af8bda68332ce"
+  },
+  {
+    "file": "locate/ko-KR.json",
+    "sha256": "d3e8e64a7b2eec0ad6883c95148ec39cf2f914a811edf1013f7de79f781544ec"
+  },
+  {
+    "file": "locate/manifest.json",
+    "sha256": "147e7e3661e4d2ca651e50cd466422e090fa913d5a5d379d99badcf4694860d9"
+  },
+  {
+    "file": "locate/zh-CN.json",
+    "sha256": "9ddd5451c8e1d06552f0535ee185308ea1af795f4fa4e3bcc6d190ac2f6ecb86"
+  },
+  {
+    "file": "Develop/Node/locate/en-US.json",
+    "sha256": "dbade963e8826e33e2a8335e4cd505de89a05002edb880c7488e9eb7eb87f1c7"
+  },
+  {
+    "file": "Develop/Node/locate/ja-JP.json",
+    "sha256": "55cc908b1430546213975a35b0871c292f16c53a748b1e31efd7360b6ae40f37"
+  },
+  {
+    "file": "Develop/Node/locate/ko-KR.json",
+    "sha256": "4fab617c01cddd49a4e81d19e2f12c999478e6658093196de9a8bf363852111d"
+  },
+  {
+    "file": "Develop/Node/locate/manifest.json",
+    "sha256": "5f8a760e24a5cf89ad6b33ac80a6b1bff3511902503fc26c7b673d439223b904"
+  },
+  {
+    "file": "Develop/Node/locate/zh-CN.json",
+    "sha256": "bf04d64323a4382918720dbab98c4fb7710213d65aac38255174738e986ee0b7"
+  },
+  {
+    "file": "Develop/NativeFx/locate/en-US.json",
+    "sha256": "67af3cdf28b17064b2d8754615721c02d0bd9ee3da35be6bb5b8de4277fc4b91"
+  },
+  {
+    "file": "Develop/NativeFx/locate/ja-JP.json",
+    "sha256": "81819ab9dddac6bd03164441e9d75c343eb8f49ee340f9abbb31b3608a58f863"
+  },
+  {
+    "file": "Develop/NativeFx/locate/ko-KR.json",
+    "sha256": "fd5ba8119a4f6ffd9d01599a46d5d4660df6e8b583e45aa16843999440f1b782"
+  },
+  {
+    "file": "Develop/NativeFx/locate/manifest.json",
+    "sha256": "89606464e340d208e1cec965f14205dac597c6ccde3c3a8113582f0b2bb3d454"
+  },
+  {
+    "file": "Develop/NativeFx/locate/zh-CN.json",
+    "sha256": "49b92259acb26c1de19a26aeca6c985d2d46e473e7d8233e688275fdd544388b"
+  }
+]

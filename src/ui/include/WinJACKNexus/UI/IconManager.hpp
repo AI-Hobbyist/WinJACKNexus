@@ -22,6 +22,7 @@
 #include <QPixmap>
 #include <QSize>
 #include <QString>
+class QAbstractButton;
 
 namespace WinJACKNexus::UI {
 
@@ -32,6 +33,9 @@ public:
     static QPixmap pixmap(const QString& name, const QSize& size, const QColor& tint = {});
     static bool hasIcon(const QString& name);
     static QString resourcePath(const QString& name);
+    // Reuses the button's shared textColor/palette, including live theme changes.
+    static void bindThemedIcon(QAbstractButton* button, const QString& name,
+        const QSize& size = QSize(20, 20));
 };
 
 }
