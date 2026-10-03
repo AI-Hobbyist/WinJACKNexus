@@ -1,0 +1,403 @@
+{
+  "objective": "依次完成S4~S7，完成测试一步就提交推送一次",
+  "date": "2026-10-04",
+  "implementation_and_package_record_commit": "e23e06a7325f620483c6cfcbce78e268f562dbb8",
+  "result": "NOT_COMPLETE_REQUIREMENT_AUDIT",
+  "requirements": [
+    {
+      "id": "11.S4",
+      "requirement": "Mixer/SEL/overview/AUX/FX/meter/history/CSV/PNG four-language state-preserving behavior",
+      "status": "HISTORICAL_PASS_CURRENT_SUPPLEMENT_RUNTIME_UNVERIFIED",
+      "evidence": [
+        "S4-completion.md",
+        "S4-verification.json",
+        "S6-supplement-verification.json"
+      ],
+      "limit": "Supplemental role/legend/errors/FX notice compiled; no second module execution."
+    },
+    {
+      "id": "11.S5",
+      "requirement": "Eight Native Fx and shared/community API integration with complete English",
+      "status": "PASS_REVISED_TEST_SCOPE_HUMAN_REVIEW_PENDING",
+      "evidence": [
+        "S5-completion.md",
+        "S5-verification.json",
+        "S7-resource-inventory.json"
+      ],
+      "limit": "Retain original cold-start/language/scale gaps; example-node has six deliberate non-English fallback entries, not translated entries."
+    },
+    {
+      "id": "11.S6",
+      "requirement": "VST scanner language restore, host errors, four-language terminology review and layout corrections",
+      "status": "INCOMPLETE",
+      "evidence": [
+        "S6-scanner-verification.json",
+        "S6-vst-verification.json",
+        "S6-theme-verification.json",
+        "S6-human-review.md"
+      ],
+      "limit": "Scanner only execution failed before a window; repaired source rebuilt without rerun. Human review remains pending."
+    },
+    {
+      "id": "11.S7",
+      "requirement": "CMake deployment, overlay manifest, resource versions, deployable package and retained language selection",
+      "status": "DRAFT_STATIC_PASS_DEPLOYMENT_ACCEPTANCE_MISSING",
+      "evidence": [
+        "S7-resource-inventory.json",
+        "S7-overlay-manifest.json",
+        "S7-overlay-verification.json",
+        "S7-overlay-readme.txt"
+      ],
+      "limit": "95-member archive verified. No actual existing-install deployment/restart proof; runtime prerequisites documented, not all dynamically loaded."
+    },
+    {
+      "id": "12.1.1",
+      "requirement": "English/four-language keys, unknown/duplicate keys/domains and size limits",
+      "status": "CURRENT_RESOURCE_PASS_HISTORICAL_CONTRACT_PASS",
+      "evidence": [
+        "S7-resource-inventory.json",
+        "S1-verification.json"
+      ],
+      "limit": "Resource checks reject duplicate JSON keys and constrain domains/keys/sizes. Runtime invalid-input handling retained as historical S1 proof."
+    },
+    {
+      "id": "12.1.2",
+      "requirement": "Placeholders/plurals/UTF-8/nonempty/corrupt/missing files and English fallback",
+      "status": "CURRENT_RESOURCE_PASS_HISTORICAL_CONTRACT_PASS",
+      "evidence": [
+        "prepare_s7_resources.py",
+        "S7-resource-inventory.json",
+        "S1-verification.json"
+      ],
+      "limit": "Current values/plurals are checked; corruption/fallback behavior uses existing contract evidence, not a new execution."
+    },
+    {
+      "id": "12.1.3",
+      "requirement": "Auto locale resolution, multiple preferences and unsupported languages",
+      "status": "HISTORICAL_CONTRACT_PASS",
+      "evidence": [
+        "S1-completion.md",
+        "S1-verification.json"
+      ],
+      "limit": "No new module test."
+    },
+    {
+      "id": "12.1.4",
+      "requirement": "Optional Node/NativeFx versions, old DLLs, indexes, duplicates, instances, dual leases and unload",
+      "status": "HISTORICAL_MODULE_CONTRACT_PASS",
+      "evidence": [
+        "S1-completion.md",
+        "S5-completion.md",
+        "S6-vst-verification.json"
+      ],
+      "limit": "Current binary fingerprints differ for some rebuilt modules; historical behavior does not prove every new binary."
+    },
+    {
+      "id": "12.1.5",
+      "requirement": "Per-module domain and language-resource root isolation",
+      "status": "HISTORICAL_CONTRACT_AND_CURRENT_RESOURCE_PASS",
+      "evidence": [
+        "S1-completion.md",
+        "S7-resource-inventory.json"
+      ],
+      "limit": "Current allowlist/path/domain checks supplement historical parser and C ABI domain-isolation tests."
+    },
+    {
+      "id": "12.2.1",
+      "requirement": "Every language save/restart first render equals manually switched render",
+      "status": "PARTIAL_HISTORICAL_EVIDENCE",
+      "evidence": [
+        "S4-completion.md",
+        "S5-verification.json",
+        "S6-scanner-verification.json"
+      ],
+      "limit": "Known S5 cold-start gaps and repaired Scanner first-render gap remain unverified under no repeated module runs."
+    },
+    {
+      "id": "12.2.2",
+      "requirement": "Auto system preferences for four locales and unsupported locale, selected setting remains auto",
+      "status": "HISTORICAL_CONTRACT_PASS",
+      "evidence": [
+        "S1-completion.md",
+        "S1-verification.json"
+      ],
+      "limit": "Actual new overlay installation has not executed this path."
+    },
+    {
+      "id": "12.2.3",
+      "requirement": "Actual host/sidebar/menu/SEL/FX/overview/meter first frame and hot refresh",
+      "status": "PARTIAL_HISTORICAL_EVIDENCE",
+      "evidence": [
+        "S4-verification.json",
+        "S5-verification.json",
+        "S6-shared-verification.json",
+        "S6-supplement-verification.json"
+      ],
+      "limit": "Shared placeholder/sidebar additions and supplemental displays have compiled/source proof only."
+    },
+    {
+      "id": "12.2.4",
+      "requirement": "Opened/later-created windows, late modules, reopened FX and dynamic preset menus",
+      "status": "HISTORICAL_PASS_WITH_CURRENT_GAPS",
+      "evidence": [
+        "S4-completion.md",
+        "S5-completion.md",
+        "S6-theme-verification.json"
+      ],
+      "limit": "Retain scope for original module runs. New warning/role behavior has no new runtime proof."
+    },
+    {
+      "id": "12.2.5",
+      "requirement": "Offline-only execution without JACK or interrupting running audio",
+      "status": "COMPLIED_FOR_CURRENT_DELIVERY",
+      "evidence": [
+        "S6-supplement-build.log",
+        "S7-overlay-verification.json"
+      ],
+      "limit": "Current delivery step executes no module, UI, JACK or process termination."
+    },
+    {
+      "id": "12.2.6",
+      "requirement": "Visible Windows/system-font UI, no offscreen and font fallback/high-DPI checks",
+      "status": "HISTORICAL_PASS_NEW_UI_UNVERIFIED",
+      "evidence": [
+        "S4-verification.json",
+        "S5-verification.json",
+        "S6-theme-verification.json",
+        "S5-validation-policy.json"
+      ],
+      "limit": "No new UI execution. Historic scale results retained; further scaling forbidden."
+    },
+    {
+      "id": "12.2.7",
+      "requirement": "Focus/accessibility/numeric editing/tooltip/layout and stable identity",
+      "status": "HISTORICAL_PASS_NEW_UI_UNVERIFIED",
+      "evidence": [
+        "S4-completion.md",
+        "S5-completion.md",
+        "S6-theme-verification.json",
+        "S6-supplement-verification.json"
+      ],
+      "limit": "Do not use static role signal blockers as proof of actual new-window behavior."
+    },
+    {
+      "id": "12.2.8",
+      "requirement": "Elision/full-text tooltip preserves underlying contents under size/language changes",
+      "status": "HISTORICAL_PASS_REVISED_SCOPE",
+      "evidence": [
+        "S4-completion.md",
+        "S5-completion.md",
+        "S5-validation-policy.json"
+      ],
+      "limit": "No further scaling or broad module regressions; cold/runtime gaps remain."
+    },
+    {
+      "id": "12.3.build",
+      "requirement": "Existing build, needed Release targets, VST2/VST3 settings, PowerShell/Tee/exit checks",
+      "status": "PASS_WITH_RECORDED_WARNINGS",
+      "evidence": [
+        "S6-supplement-build.log",
+        "S6-progress.md",
+        "S7-progress.md"
+      ],
+      "limit": "No ALL_BUILD/full build/new build directory. Nonfatal C4273/VCINSTALLDIR warnings recorded."
+    },
+    {
+      "id": "12.3.package",
+      "requirement": "Host/plugin locate, required Qt QM, runtime only and version association",
+      "status": "CURRENT_STATIC_PASS",
+      "evidence": [
+        "S7-resource-inventory.json",
+        "S7-overlay-verification.json"
+      ],
+      "limit": "Compatible Qt 6.10.3/MSVC and existing dynamic VSTProcess/JACK/default-theme environment required; not a full install."
+    },
+    {
+      "id": "12.final.tables",
+      "requirement": "Translation/exclusion dual tables match current packages and reviewed sources",
+      "status": "CURRENT_SOURCE_AND_TABLE_CELL_MATCH_HUMAN_MEANING_UNREVIEWED",
+      "evidence": [
+        "S0-verification.json",
+        "S6-remaining-source-audit.json",
+        "S6-supplement-verification.json",
+        "i18n翻译核对.md",
+        "S6-dual-table-verification.json"
+      ],
+      "limit": "1196 rows/4784 cells exact match including six explicit fallback cells; semantic accuracy still requires user review."
+    },
+    {
+      "id": "12.final.api",
+      "requirement": "Public contracts, community examples and contract checks delivered",
+      "status": "DELIVERED_WITH_HISTORICAL_TEST_BASELINES",
+      "evidence": [
+        "Docs/I18n-API.md",
+        "Docs/UI-API.md",
+        "Develop/Node/Node-API.md",
+        "Develop/NativeFx/NativeFx-API.md",
+        "S1-completion.md",
+        "S5-completion.md"
+      ],
+      "limit": "Read public contracts from repository; example-node deliberate fallback remains explicit."
+    },
+    {
+      "id": "12.final.review",
+      "requirement": "Four-language/native/audio-domain human review and final release acceptance",
+      "status": "MISSING_USER_REVIEW",
+      "evidence": [
+        "S6-human-review.md",
+        "S7-overlay-manifest.json"
+      ],
+      "limit": "Reviewer is the user; only Size→大小 was explicitly approved. Continue is not approval. No whole-language/module review conclusion received."
+    }
+  ],
+  "historical_evidence_fingerprints": [
+    {
+      "report": "S1-verification.json",
+      "report_sha256": "8a1772f95ee6621b9dc1a913c52622c5b0bd54556db72213f67bf2856b07e640",
+      "referenced_files": 38,
+      "missing_files": [],
+      "different_from_historical_hash": [
+        "Develop/CMakeLists.txt",
+        "Develop/I18nExample.hpp",
+        "Develop/NativeFx/ExampleNativeFx.cpp",
+        "locate/en-US.json",
+        "locate/ja-JP.json",
+        "locate/ko-KR.json",
+        "locate/manifest.json",
+        "locate/zh-CN.json",
+        "src/native_fx/CMakeLists.txt",
+        "src/native_fx/include/WinJACKNexus/NativeFx/NativeFxApi.h",
+        "src/ui/CMakeLists.txt",
+        "build/release/bin/ui.dll",
+        "build/release/bin/examples/node/wjn_example_node.dll",
+        "build/release/bin/examples/native_fx/wjn_example_native_fx.dll",
+        "build/release/bin/wjn_i18n_tests.exe"
+      ],
+      "interpretation": "Retain original historical scope; differing fingerprints are not current runtime acceptance."
+    },
+    {
+      "report": "S4-verification.json",
+      "report_sha256": "d35643befab08c1692f0748415db296fab0d5525b9d88467aa4f5cf522feb923",
+      "referenced_files": 1090,
+      "missing_files": [],
+      "different_from_historical_hash": [
+        "Develop/MixerMeterI18nTests.cpp",
+        "Develop/CMakeLists.txt",
+        "Docs/UI-API.md",
+        "src/meter/mod/src/MeterSettingsWidget.cpp",
+        "src/ui/include/WinJACKNexus/UI/Controls.hpp",
+        "src/ui/include/WinJACKNexus/UI/ThemeManagementDialog.hpp",
+        "src/ui/src/Controls.cpp",
+        "src/ui/src/FxSettingsWindow.cpp",
+        "src/ui/src/LocalizedMixerErrors.hpp",
+        "src/ui/src/MixerPolarPlot.cpp",
+        "src/ui/src/ThemeCatalog.cpp",
+        "src/ui/src/ThemeManagementDialog.cpp",
+        "build/release/bin/WinJACKNexus.exe",
+        "build/release/bin/ui.dll",
+        "build/release/bin/mod_meterbrigde.dll",
+        "build/release/bin/wjn_mixer_meter_i18n_tests.exe",
+        "build/release/bin/nodes/meter/mod_meterbridge_probe.dll"
+      ],
+      "interpretation": "Retain original historical scope; differing fingerprints are not current runtime acceptance."
+    },
+    {
+      "report": "S5-verification.json",
+      "report_sha256": "5ba1c2dbfe266c347d59a232c325b2745e9109f7215ff6080e9a74c5b175eca2",
+      "referenced_files": 65,
+      "missing_files": [],
+      "different_from_historical_hash": [
+        "build\\release\\bin\\nodes\\native_fx\\gate\\mod_gate.dll",
+        "build\\release\\bin\\nodes\\native_fx\\graphic_eq\\mod_graphic_eq.dll",
+        "build\\release\\bin\\nodes\\native_fx\\deesser\\mod_deesser.dll",
+        "build\\release\\bin\\nodes\\native_fx\\compressor\\mod_compressor.dll",
+        "build\\release\\bin\\nodes\\native_fx\\limiter\\mod_limiter.dll",
+        "build\\release\\bin\\nodes\\native_fx\\delay\\mod_delay.dll",
+        "build\\release\\bin\\nodes\\native_fx\\parametric_eq\\mod_parametric_eq.dll",
+        "build\\release\\bin\\nodes\\native_fx\\reverb\\mod_reverb.dll",
+        "src\\ui\\src\\Controls.cpp",
+        "Develop\\NativeFx\\NativeFxI18nTests.cpp",
+        "build\\release\\bin\\ui.dll",
+        "build\\release\\bin\\wjn_native_fx_i18n_tests.exe"
+      ],
+      "interpretation": "Retain original historical scope; differing fingerprints are not current runtime acceptance."
+    },
+    {
+      "report": "S6-scanner-verification.json",
+      "report_sha256": "6dd2c423364d480b61ed067390469baac83f71e8edaa18e17e42a003ae9bfa86",
+      "referenced_files": 33,
+      "missing_files": [],
+      "different_from_historical_hash": [
+        "build\\release\\bin\\ui.dll"
+      ],
+      "interpretation": "Retain original historical scope; differing fingerprints are not current runtime acceptance."
+    },
+    {
+      "report": "S6-vst-verification.json",
+      "report_sha256": "9e05f34b3949e266495e959218fa6e9607cb4f57fc990daac015317df5aa980c",
+      "referenced_files": 23,
+      "missing_files": [],
+      "different_from_historical_hash": [
+        "build\\release\\bin\\ui.dll"
+      ],
+      "interpretation": "Retain original historical scope; differing fingerprints are not current runtime acceptance."
+    },
+    {
+      "report": "S6-shared-verification.json",
+      "report_sha256": "df9246f9d529b55cf25b2605d264e1a9d2615ced9b1f882f84677e2e8b643a99",
+      "referenced_files": 19,
+      "missing_files": [],
+      "different_from_historical_hash": [
+        "locate\\manifest.json",
+        "Docs\\UI-API.md",
+        "build\\release\\bin\\ui.dll",
+        "build\\release\\bin\\WinJACKNexus.exe",
+        "build\\release\\bin\\locate\\manifest.json",
+        "locate\\en-US.json",
+        "build\\release\\bin\\locate\\en-US.json",
+        "locate\\zh-CN.json",
+        "build\\release\\bin\\locate\\zh-CN.json",
+        "locate\\ja-JP.json",
+        "build\\release\\bin\\locate\\ja-JP.json",
+        "locate\\ko-KR.json",
+        "build\\release\\bin\\locate\\ko-KR.json"
+      ],
+      "interpretation": "Retain original historical scope; differing fingerprints are not current runtime acceptance."
+    },
+    {
+      "report": "S6-theme-verification.json",
+      "report_sha256": "aefdca082b1b091ff3c2377ad5a9fb21fe66b476913dcb0ae0caa434efe4f2ad",
+      "referenced_files": 36,
+      "missing_files": [],
+      "different_from_historical_hash": [
+        "build\\release\\bin\\ui.dll"
+      ],
+      "interpretation": "Retain original historical scope; differing fingerprints are not current runtime acceptance."
+    },
+    {
+      "report": "S6-supplement-verification.json",
+      "report_sha256": "eee8a46ed03ada9fc632ef37a142dfe1f655db381ca11ba351d577355aa71fdb",
+      "referenced_files": 41,
+      "missing_files": [],
+      "different_from_historical_hash": [],
+      "interpretation": "Retain original historical scope; differing fingerprints are not current runtime acceptance."
+    }
+  ],
+  "current_proofs": [
+    "277 current source fingerprints match S0-source-manifest.json.",
+    "25 runtime and 68 deployed resource fingerprints match the prepared inventory.",
+    "Draft archive digest matches its verified 95-member report.",
+    "All 1196 table-one required key rows and 4784 language cells match current catalogs or explicit example fallback entries."
+  ],
+  "remaining": [
+    "User four-language/audio terminology review and coverage conclusion.",
+    "Existing documented UI/cold-start/deployment acceptance gaps; automation cannot fill them while honoring one execution per module."
+  ],
+  "module_runs_added": 0,
+  "ui_shows_added": 0,
+  "not_claimed": [
+    "Overall i18n completion",
+    "Current DLL runtime acceptance from historical checks",
+    "Installed deployment or reviewed translations"
+  ]
+}
