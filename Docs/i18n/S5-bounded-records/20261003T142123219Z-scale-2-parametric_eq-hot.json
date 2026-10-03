@@ -1,0 +1,550 @@
+{
+  "language": "hot",
+  "captures": [
+    {
+      "sha256": "38122ed7f7e0abee4e49918b6aee023a6ce7be7ad2fb4670e79f003037e1462d",
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T142123219Z-scale-2-parametric_eq-hot/parametric_eq-draft-en-US.png"
+    },
+    {
+      "sha256": "38122ed7f7e0abee4e49918b6aee023a6ce7be7ad2fb4670e79f003037e1462d",
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T142123219Z-scale-2-parametric_eq-hot/parametric_eq-draft-ja-JP.png"
+    },
+    {
+      "sha256": "38122ed7f7e0abee4e49918b6aee023a6ce7be7ad2fb4670e79f003037e1462d",
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T142123219Z-scale-2-parametric_eq-hot/parametric_eq-draft-ko-KR.png"
+    },
+    {
+      "sha256": "38122ed7f7e0abee4e49918b6aee023a6ce7be7ad2fb4670e79f003037e1462d",
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T142123219Z-scale-2-parametric_eq-hot/parametric_eq-draft-zh-CN.png"
+    },
+    {
+      "sha256": "e613b4f8787b536780ebcf151e9bb800c38fe1322be3209cea6796897c80a225",
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T142123219Z-scale-2-parametric_eq-hot/parametric_eq-mixer-en-US-0-0.png"
+    },
+    {
+      "sha256": "49b948eba48dfe5f7c29a99a060540aa67f330709f6cc1b1ad5179ac9b5207b9",
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T142123219Z-scale-2-parametric_eq-hot/parametric_eq-mixer-en-US-0-860.png"
+    },
+    {
+      "sha256": "24499766c5f9a182aa8901a8c7176a02de21472e1efb980b01937c35f62d795c",
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T142123219Z-scale-2-parametric_eq-hot/parametric_eq-mixer-en-US-476-0.png"
+    },
+    {
+      "sha256": "12fb97ebb7808436e6d3d33b9bb4b0e876fe839c84f8ad86e11f1e679b791ecf",
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T142123219Z-scale-2-parametric_eq-hot/parametric_eq-mixer-en-US-476-860.png"
+    },
+    {
+      "sha256": "6259c769ca435a19947a8049125c9e7f4c0568d9a39f5dff3a843a151281a7a9",
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T142123219Z-scale-2-parametric_eq-hot/parametric_eq-mixer-ja-JP-0-0.png"
+    },
+    {
+      "sha256": "f587f23067a21e77bbe1b9ec1dd7d3c2a5858149a9f2a75bd2bf2991c836b6da",
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T142123219Z-scale-2-parametric_eq-hot/parametric_eq-mixer-ja-JP-0-860.png"
+    },
+    {
+      "sha256": "8c3d0779d8c1432c6034a46c5e9dfc95d74ce2b4761efcccb5addb8b0ec0db7d",
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T142123219Z-scale-2-parametric_eq-hot/parametric_eq-mixer-ja-JP-476-0.png"
+    },
+    {
+      "sha256": "c539b6acbe31e6869473f48b5d76e5e8b9921324b9956d5d37b74b361bd1cf12",
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T142123219Z-scale-2-parametric_eq-hot/parametric_eq-mixer-ja-JP-476-860.png"
+    },
+    {
+      "sha256": "f5e70796d14f2a32c7fcd347ecfd22d0c54fee201f20f739cdb39aeea336b9f0",
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T142123219Z-scale-2-parametric_eq-hot/parametric_eq-mixer-ko-KR-0-0.png"
+    },
+    {
+      "sha256": "eb916c25dd09be3bbc356c38e0be56f229c44e9b4b8ad83e5f310633c354c0df",
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T142123219Z-scale-2-parametric_eq-hot/parametric_eq-mixer-ko-KR-0-860.png"
+    },
+    {
+      "sha256": "f83eaa86dd7a5134d5fc1037671f28dc1f8d1797d11253277c9151644e6f763a",
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T142123219Z-scale-2-parametric_eq-hot/parametric_eq-mixer-ko-KR-476-0.png"
+    },
+    {
+      "sha256": "99c030eccbbaf479d0679e2d901ff1fc69b9a44ed24f91c5fb574fa6348e3d45",
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T142123219Z-scale-2-parametric_eq-hot/parametric_eq-mixer-ko-KR-476-860.png"
+    },
+    {
+      "sha256": "e07d7a82a89ef45446585020048e3a87319c1855a0991af9bc82fe848d36a461",
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T142123219Z-scale-2-parametric_eq-hot/parametric_eq-mixer-zh-CN-0-0.png"
+    },
+    {
+      "sha256": "fafdd441be72855ca7fdf7d36037b6c3b5ea4add1ff5b4c39df45abd8575d091",
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T142123219Z-scale-2-parametric_eq-hot/parametric_eq-mixer-zh-CN-0-860.png"
+    },
+    {
+      "sha256": "23135b5ad19ddbb120437470b45848e922e2a681bb292b7c57b73c84c7d56f37",
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T142123219Z-scale-2-parametric_eq-hot/parametric_eq-mixer-zh-CN-476-0.png"
+    },
+    {
+      "sha256": "dd43f1fb113be3c6cf787b8b84d52d8d769d2cad2df5dffd0480b5d50d1d0730",
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T142123219Z-scale-2-parametric_eq-hot/parametric_eq-mixer-zh-CN-476-860.png"
+    },
+    {
+      "sha256": "258e551d51ddd956d94c053f2718c2127078eee430082baa19ff79e9a8c435c9",
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T142123219Z-scale-2-parametric_eq-hot/parametric_eq-node-en-US-0-0.png"
+    },
+    {
+      "sha256": "6ee90f36abf084da49172a4fd2235bb50fde01f44e1bdba6824ecd74c76c7b74",
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T142123219Z-scale-2-parametric_eq-hot/parametric_eq-node-en-US-0-860.png"
+    },
+    {
+      "sha256": "a9df748e9614ab73b39ba934cd5e3c7aab28e284d0b167578466e10c12270cb7",
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T142123219Z-scale-2-parametric_eq-hot/parametric_eq-node-en-US-476-0.png"
+    },
+    {
+      "sha256": "c35f2d3093fbda4dd4869a1742e84250fe6c118abf3cb867512465ba85e164b8",
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T142123219Z-scale-2-parametric_eq-hot/parametric_eq-node-en-US-476-860.png"
+    },
+    {
+      "sha256": "d402669ec0acd860b745b6bb4c458c6377db477da32124a377627a88cf67bdd9",
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T142123219Z-scale-2-parametric_eq-hot/parametric_eq-node-ja-JP-0-0.png"
+    },
+    {
+      "sha256": "7498dea93d9260a71a2a5d84791832ea02550097c90f34afe32d773b1f7a523e",
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T142123219Z-scale-2-parametric_eq-hot/parametric_eq-node-ja-JP-0-860.png"
+    },
+    {
+      "sha256": "76a12e4f7efb5ccd346bb86de629fb47454c409fd8e0b85f9c476b160a80fb9e",
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T142123219Z-scale-2-parametric_eq-hot/parametric_eq-node-ja-JP-476-0.png"
+    },
+    {
+      "sha256": "d5b185541842fb00caf15f8c3fe5034fa2883279ccea9c714d8b4ef8bec00669",
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T142123219Z-scale-2-parametric_eq-hot/parametric_eq-node-ja-JP-476-860.png"
+    },
+    {
+      "sha256": "1966a29acb6ca913c1a3ab92ac28a63992300f1f3a9c3ca1df93e33e36947918",
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T142123219Z-scale-2-parametric_eq-hot/parametric_eq-node-ko-KR-0-0.png"
+    },
+    {
+      "sha256": "2a44820703ef8821256efc40791b7bedc49387d7e58d89bbe7320544d4d4459d",
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T142123219Z-scale-2-parametric_eq-hot/parametric_eq-node-ko-KR-0-860.png"
+    },
+    {
+      "sha256": "94aa1bb415ab2387ad3487fe9bea8489ac142d365fa5a445b870b7938f19967f",
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T142123219Z-scale-2-parametric_eq-hot/parametric_eq-node-ko-KR-476-0.png"
+    },
+    {
+      "sha256": "b2ff72805b318bd8796cdb06d765783ffbeb1fe69dea4ed219a329513f35adbb",
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T142123219Z-scale-2-parametric_eq-hot/parametric_eq-node-ko-KR-476-860.png"
+    },
+    {
+      "sha256": "9d2eedebf8ea0946388244a9cc8c9afcac26929dd2d3cf7d257f89847d7dd188",
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T142123219Z-scale-2-parametric_eq-hot/parametric_eq-node-zh-CN-0-0.png"
+    },
+    {
+      "sha256": "0ccc52bf7099158a75b50c05b9bcfe338a6d31ecf8f8753379c0ead1ee2af23d",
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T142123219Z-scale-2-parametric_eq-hot/parametric_eq-node-zh-CN-0-860.png"
+    },
+    {
+      "sha256": "1d68af37c8a3ec74c217e9a9479200486dcf4e0a41e4f48d9883589b99f46c33",
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T142123219Z-scale-2-parametric_eq-hot/parametric_eq-node-zh-CN-476-0.png"
+    },
+    {
+      "sha256": "d251174c90204231920e5b250526166005c647e4ac41434569717348bfa44097",
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T142123219Z-scale-2-parametric_eq-hot/parametric_eq-node-zh-CN-476-860.png"
+    },
+    {
+      "sha256": "edaa62de2d24d771ee482e3428b1dfd888c4b8404eae72372b1627405aaa8238",
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T142123219Z-scale-2-parametric_eq-hot/parametric_eq-operations-menu-en-US-0-0.png"
+    },
+    {
+      "sha256": "e8787cd2942750f2b34d0d9af823ff5696c3446cf69ee4048a8526c5d02fa142",
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T142123219Z-scale-2-parametric_eq-hot/parametric_eq-operations-menu-ja-JP-0-0.png"
+    },
+    {
+      "sha256": "cd0dcfd3110cf500c3e2dc1965d6459b576bce6f32c8876a780a931221476aee",
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T142123219Z-scale-2-parametric_eq-hot/parametric_eq-operations-menu-ko-KR-0-0.png"
+    },
+    {
+      "sha256": "7babf81b12510ea733d9b8b087cc3d42fa69feb2a9c89e1a85be68a5252603af",
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T142123219Z-scale-2-parametric_eq-hot/parametric_eq-operations-menu-zh-CN-0-0.png"
+    },
+    {
+      "sha256": "d3337149d07fa8cdf89b7a826a86ac20e4b668795380a6df96bc3979f52e913d",
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T142123219Z-scale-2-parametric_eq-hot/parametric_eq-partial-fallback-0-0.png"
+    },
+    {
+      "sha256": "d34e0b01e28b52cde6d67c70d28fa006d02e408c0d6987b1ff7af0dbbefc1739",
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T142123219Z-scale-2-parametric_eq-hot/parametric_eq-partial-fallback-0-860.png"
+    },
+    {
+      "sha256": "d6b191f46cbe5257564178437e23ff54e86c2b3008a4fc7d49a86c68a4211647",
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T142123219Z-scale-2-parametric_eq-hot/parametric_eq-partial-fallback-476-0.png"
+    },
+    {
+      "sha256": "28147a8a3d288145336524f1450dc67e433934e9ea2404003931db4dd5c57d2f",
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T142123219Z-scale-2-parametric_eq-hot/parametric_eq-partial-fallback-476-860.png"
+    },
+    {
+      "sha256": "57fe073f5797a41b978691ac1f3f42d01ff3605b597e10b33cbefb860feb63d1",
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T142123219Z-scale-2-parametric_eq-hot/parametric_eq-preset-menu-en-US-0-0.png"
+    },
+    {
+      "sha256": "a168af571ff147b96ef386c6c2f0a81bb13b6b525dfa0ff534283609a466e710",
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T142123219Z-scale-2-parametric_eq-hot/parametric_eq-preset-menu-ja-JP-0-0.png"
+    },
+    {
+      "sha256": "dea4b2d00237e30240210943f09833874d410a92f2a13df6b2df58e8c8734a8a",
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T142123219Z-scale-2-parametric_eq-hot/parametric_eq-preset-menu-ko-KR-0-0.png"
+    },
+    {
+      "sha256": "870ef4ef9cabaa5c06c14b8c5800c219286f0ce1a21e060fcb38196918a92d72",
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T142123219Z-scale-2-parametric_eq-hot/parametric_eq-preset-menu-zh-CN-0-0.png"
+    },
+    {
+      "sha256": "1966a29acb6ca913c1a3ab92ac28a63992300f1f3a9c3ca1df93e33e36947918",
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T142123219Z-scale-2-parametric_eq-hot/parametric_eq-reopened-ko-KR-0-0.png"
+    },
+    {
+      "sha256": "2a44820703ef8821256efc40791b7bedc49387d7e58d89bbe7320544d4d4459d",
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T142123219Z-scale-2-parametric_eq-hot/parametric_eq-reopened-ko-KR-0-860.png"
+    },
+    {
+      "sha256": "94aa1bb415ab2387ad3487fe9bea8489ac142d365fa5a445b870b7938f19967f",
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T142123219Z-scale-2-parametric_eq-hot/parametric_eq-reopened-ko-KR-476-0.png"
+    },
+    {
+      "sha256": "b2ff72805b318bd8796cdb06d765783ffbeb1fe69dea4ed219a329513f35adbb",
+      "file": "Docs/i18n/S5-bounded-rendered/20261003T142123219Z-scale-2-parametric_eq-hot/parametric_eq-reopened-ko-KR-476-860.png"
+    }
+  ],
+  "checks": 1600,
+  "capture_protocol": "native-window-ownership-v2",
+  "font": "Microsoft YaHei UI",
+  "popup_shows": 12,
+  "scale": "2",
+  "scope": "Effects",
+  "exit_code": 0,
+  "platform": "windows",
+  "evidence": [
+    {
+      "sha256": "c6832c1fac10d249f36f4b23d38d2e3477b7212d007630711adcb287e42c3325",
+      "file": "Develop/NativeFx/NativeFxI18nTests.cpp"
+    },
+    {
+      "sha256": "6224e28198d6a03eaa6f511e2a5c523eaeac376ed666ea16f8b4dc87c7f0d437",
+      "file": "Develop/I18nExample.hpp"
+    },
+    {
+      "sha256": "c7c9b2fd7a82d7f8c5c472b551b395338ef77ebf883a0cf8d4cbca47eb113c39",
+      "file": "Develop/NativeFx/ExampleNativeFx.cpp"
+    },
+    {
+      "sha256": "a008b0f6eac12e3ae8411938c178590a9430f9a33836423fb6f449dcd87b7c44",
+      "file": "Develop/Node/ExampleNode.cpp"
+    },
+    {
+      "sha256": "c87ef0046e4a608b6944e7c87506307f0da3976140337af120c3218cf7d61826",
+      "file": "src/native_fx/src/I18n.cpp"
+    },
+    {
+      "sha256": "e8a5c32992e0207dca29ba56df140cbb75c0c830cbfc36619a7c3cb49684d345",
+      "file": "src/native_fx/src/NativeFxApi.cpp"
+    },
+    {
+      "sha256": "cc7c76bb55a92cb23a083d050eef089ac67775643ad0a7a947f49039cab27240",
+      "file": "src/ui/src/Controls.cpp"
+    },
+    {
+      "sha256": "b04efc2734cec388d9de5f85767197ee1e0775c29b2e64a76b3fa7edffc1db48",
+      "file": "src/ui/src/FxSettingsWindow.cpp"
+    },
+    {
+      "sha256": "934ba732ad220d064d25599764e171edfe9253eb5900e74d5e6a128816a6a563",
+      "file": "src/ui/src/I18nManager.cpp"
+    },
+    {
+      "sha256": "eb5cba83d7bd5c5096ba093a60577bad59a91a22c63f523329d7e56c3abf0025",
+      "file": "src/ui/src/HostI18n.cpp"
+    },
+    {
+      "sha256": "19f7705565dbde2d2b65f79699edd5cc3b5ee12d4a26ca2afa58d8fa324dc5c3",
+      "file": "Docs/i18n/S5-strings.tsv"
+    },
+    {
+      "sha256": "ebaa9d1e9b58696504f065fb6652137d60f5176687ad10d50a2a6381e1f3ef08",
+      "file": "Docs/i18n/S5-shared-strings.tsv"
+    },
+    {
+      "sha256": "4ad0c70179d2d7dfb28c4ce69b4359459f05c466cc33686be99b5d186fa8fdf7",
+      "file": "src/ui/resources/qt-overrides-zh_CN.ts"
+    },
+    {
+      "sha256": "22b9620db1b090e5788ecf0ad8fc56170d8343019fa9f77a628f22fc26a43de7",
+      "file": "src/ui/resources/qt-translations.qrc.in"
+    },
+    {
+      "sha256": "d882656ae6c4939eceeaf8a36b71198dce41a1cbf61ed3e0319cc0f4f744fa05",
+      "file": "build/release/bin/locate/qt/qtbase_zh_CN.qm"
+    },
+    {
+      "sha256": "9774362433f24a8176dc1a662dd4857ac9796f44dd69ade9a9e0a5cda9418ed7",
+      "file": "build/release/bin/wjn_native_fx_i18n_tests.exe"
+    },
+    {
+      "sha256": "66f6c53d750f03df839a625bb3dfaa38e051b364bf849855c5b61c5a6c306894",
+      "file": "build/release/bin/ui.dll"
+    },
+    {
+      "sha256": "1a0d7272efee19aa19393a05e9e6f9cbcd40601f23e252d25109cb5aaf493413",
+      "file": "build/release/bin/examples/native_fx/wjn_example_native_fx.dll"
+    },
+    {
+      "sha256": "587ba9cea273c7907fd699317ba0adf05e7da5b85ae9cf90688ee6f685209376",
+      "file": "build/release/bin/examples/node/wjn_example_node.dll"
+    },
+    {
+      "sha256": "e0477c68ef209515eb761d6150e84a22dbf8fdbc869829385a78c4f84272e7fe",
+      "file": "src/native_fx/effects/gate/src/Ui.cpp"
+    },
+    {
+      "sha256": "9925077c4822867ef6b836828ff0e6cd20ba26e3c1f84f4a56211177855cef20",
+      "file": "build/release/bin/nodes/native_fx/gate/mod_gate.dll"
+    },
+    {
+      "sha256": "e3c9868c2649fc0699092d36a42b7a16fb87cc3c5163636f75d359b14a65ac4e",
+      "file": "src/native_fx/effects/graphic_eq/src/Ui.cpp"
+    },
+    {
+      "sha256": "f47be63ddaecb85dd67bb09d95e0958aae315ec9cda60f338da92bec4b7f37cd",
+      "file": "build/release/bin/nodes/native_fx/graphic_eq/mod_graphic_eq.dll"
+    },
+    {
+      "sha256": "808bf36b0dfc2378a527869602ac18cc79ec2265382da4e43fa126608133d26f",
+      "file": "src/native_fx/effects/deesser/src/Ui.cpp"
+    },
+    {
+      "sha256": "04adbb4bfbcfee9aca9f99d26b59c8a7e03ec46fd08ce25a0b0da9e18994dd8d",
+      "file": "build/release/bin/nodes/native_fx/deesser/mod_deesser.dll"
+    },
+    {
+      "sha256": "b39e64d96133864c31261ce3f5df29d6dbf51ef1d46e7fc06468f48d56f33cd7",
+      "file": "src/native_fx/effects/compressor/src/Ui.cpp"
+    },
+    {
+      "sha256": "89df71bdb80dad23fa7c54f89eaac2b42e3b58a2ea7a8acc829bf684f2214ce3",
+      "file": "build/release/bin/nodes/native_fx/compressor/mod_compressor.dll"
+    },
+    {
+      "sha256": "b04775ba74866d8377b339fb7d040293a52312ce1d8696766d1fc52c65117999",
+      "file": "src/native_fx/effects/limiter/src/Ui.cpp"
+    },
+    {
+      "sha256": "30560a6f861901cf9c767322f95276ca651836510ec189900fd55d5a9693d34d",
+      "file": "build/release/bin/nodes/native_fx/limiter/mod_limiter.dll"
+    },
+    {
+      "sha256": "36d64e0fbb65325219ef2911cce2e5c5115734cd767f55e4f034cffef643ab8f",
+      "file": "src/native_fx/effects/delay/src/Ui.cpp"
+    },
+    {
+      "sha256": "11140b63d9f57205aec2bfbfd5d8199201273fea40c40a3a3398f4035146735c",
+      "file": "build/release/bin/nodes/native_fx/delay/mod_delay.dll"
+    },
+    {
+      "sha256": "17f3edc770fd4c54d6c1fabeefedee684264c99291b23d361c58bd4c4ba0f551",
+      "file": "src/native_fx/effects/parametric_eq/src/Ui.cpp"
+    },
+    {
+      "sha256": "55efd70fd6edfae9257240aefef0b03ddfbebd031bb667b8d8e35f5d6ef2116d",
+      "file": "build/release/bin/nodes/native_fx/parametric_eq/mod_parametric_eq.dll"
+    },
+    {
+      "sha256": "bd165bf2f7ce63f637f88c48c4e94f4cc85fd40c02f115c9854d1301eb3c5886",
+      "file": "src/native_fx/effects/reverb/src/Ui.cpp"
+    },
+    {
+      "sha256": "36ed14aad1ba14ded617bb9119940b715a0e85e629916df18a0b69f781099092",
+      "file": "build/release/bin/nodes/native_fx/reverb/mod_reverb.dll"
+    },
+    {
+      "sha256": "33c8724e4400b60dd9b23e71833ace8649264fa9fd3291652cbf121d1ae3ed4b",
+      "file": "locate/en-US.json"
+    },
+    {
+      "sha256": "9278cfec54d4e3894da0a2fe22a0b8a8c588f1f18c2f49db3fbdbdf97fbbdd4b",
+      "file": "locate/ja-JP.json"
+    },
+    {
+      "sha256": "726ec065e02604d4ddd9e29af6168f132da8c0c0cf10e1c7727012cb5003aaa8",
+      "file": "locate/ko-KR.json"
+    },
+    {
+      "sha256": "66123e7df049bc1050003423d6db07faf1936e2f5df610815dd57763c4949231",
+      "file": "locate/manifest.json"
+    },
+    {
+      "sha256": "c9541bcfd9b2318c9fa12c1e9ef616410997d53fcdf75588a0c2871cec01e077",
+      "file": "locate/zh-CN.json"
+    },
+    {
+      "sha256": "cc9d202b3a6dcbfdbd437821ec2c5d9722289cc4f1c04ba04346c33f10d8e72f",
+      "file": "src/native_fx/effects/gate/locate/en-US.json"
+    },
+    {
+      "sha256": "2186077fec30bada43daec1a759aa9405624f2485dbc5c59064f2177acf84f94",
+      "file": "src/native_fx/effects/gate/locate/ja-JP.json"
+    },
+    {
+      "sha256": "15274a801e8a3b48607204a9b2b519d9a5eee6ab578fbed033a34956e573b058",
+      "file": "src/native_fx/effects/gate/locate/ko-KR.json"
+    },
+    {
+      "sha256": "2855e395c4b3fd41b8dfce0e5cf36efbb9ac32cf41c9d81c863020975550f579",
+      "file": "src/native_fx/effects/gate/locate/manifest.json"
+    },
+    {
+      "sha256": "fb0fec211f3cbe9375d59de008bd6d46385f94edcfd7dd1a195f5b75c6f3e0d0",
+      "file": "src/native_fx/effects/gate/locate/zh-CN.json"
+    },
+    {
+      "sha256": "3a7eab03874ff69d8bc23d35a80b8c448a4b37740f0faf5dd0d4ee3114300310",
+      "file": "src/native_fx/effects/graphic_eq/locate/en-US.json"
+    },
+    {
+      "sha256": "2002280a4218c5a5f88c1f33002846a270e55bf9146ade60a8065e1cb01b433f",
+      "file": "src/native_fx/effects/graphic_eq/locate/ja-JP.json"
+    },
+    {
+      "sha256": "2a6191d8306ef3905e2da2840f6ff80919fcb9f9fbdd1e3398a28e3157e2a4a3",
+      "file": "src/native_fx/effects/graphic_eq/locate/ko-KR.json"
+    },
+    {
+      "sha256": "a46858c7a2d1af9c4057cb5cfada9699bc5ca87f44dbb80361ed72619ff09b21",
+      "file": "src/native_fx/effects/graphic_eq/locate/manifest.json"
+    },
+    {
+      "sha256": "1a6fcb588df71edcfb996ca8f9be5e16cd2c16b8a9f721d809d6615e866367f5",
+      "file": "src/native_fx/effects/graphic_eq/locate/zh-CN.json"
+    },
+    {
+      "sha256": "661c46e7318913a35586b45331b8f7233a6916cf022c1301ea52c96d4b1fd957",
+      "file": "src/native_fx/effects/deesser/locate/en-US.json"
+    },
+    {
+      "sha256": "b6679d1b8245493e627820a08c029e32eb7445a990848f6230c4a725052faaa6",
+      "file": "src/native_fx/effects/deesser/locate/ja-JP.json"
+    },
+    {
+      "sha256": "5cbcc41f70d8033661422a737cbb7bf0974737c64dc6a2acb126e43c3a27fe02",
+      "file": "src/native_fx/effects/deesser/locate/ko-KR.json"
+    },
+    {
+      "sha256": "d51917ccc0d11a45be0d3260cac2270142b01ea3e496e399f2ca9b8fcf4fe51f",
+      "file": "src/native_fx/effects/deesser/locate/manifest.json"
+    },
+    {
+      "sha256": "af0ec8a62a5aa97bd08954b8987f6945e3a3f4390998f84ac34c247f6684d3e9",
+      "file": "src/native_fx/effects/deesser/locate/zh-CN.json"
+    },
+    {
+      "sha256": "6f28aede30d7f00f6cc7af64cfaf69b6758f54dcba7ea83608b3e42db310bc28",
+      "file": "src/native_fx/effects/compressor/locate/en-US.json"
+    },
+    {
+      "sha256": "1a604c56af472e47ef6fb8dd4ebe737eef6069f20724ec3be20dd2c3bdb92827",
+      "file": "src/native_fx/effects/compressor/locate/ja-JP.json"
+    },
+    {
+      "sha256": "b8a9fe57f4df3d20f679830212435918d9d582220a1162f696ca99624cc1a33b",
+      "file": "src/native_fx/effects/compressor/locate/ko-KR.json"
+    },
+    {
+      "sha256": "9f5d4b195ed4011de62b26ca900e078818e339e1b089deabdc621b5d131c0474",
+      "file": "src/native_fx/effects/compressor/locate/manifest.json"
+    },
+    {
+      "sha256": "21f25a937e108d09e4c2b492266ce17d9a0b29469e55c3e11945c25411eb181b",
+      "file": "src/native_fx/effects/compressor/locate/zh-CN.json"
+    },
+    {
+      "sha256": "b4da7f48b7004a0c136e60c480c30c3bc48ac117e40c8efa4b6658355bdd9319",
+      "file": "src/native_fx/effects/limiter/locate/en-US.json"
+    },
+    {
+      "sha256": "d57b11fbb530173047a60706810fccfa20d934eb62ceaad69262306c7ae65bd1",
+      "file": "src/native_fx/effects/limiter/locate/ja-JP.json"
+    },
+    {
+      "sha256": "7f792c0b82c599faa2239ff9cd1e2a22278460d6b2c8e5deead94d56cad58f32",
+      "file": "src/native_fx/effects/limiter/locate/ko-KR.json"
+    },
+    {
+      "sha256": "8ba36962e5643b3e90a9675e80b58fa2f0058e2e6a66ca90be9ed32bc047498f",
+      "file": "src/native_fx/effects/limiter/locate/manifest.json"
+    },
+    {
+      "sha256": "be8e616811b8890ac0019a45bf35c6e2cd9d962fb323ce5e8eb186af10a49048",
+      "file": "src/native_fx/effects/limiter/locate/zh-CN.json"
+    },
+    {
+      "sha256": "cb4de3a967fe410f4b5dfde838ae4090d2552fec56e51455b914fad6be1bd1a8",
+      "file": "src/native_fx/effects/delay/locate/en-US.json"
+    },
+    {
+      "sha256": "dbf526cadf52487854e8e0a412e207b89ca8ae0223037f703e23ac6dfc2521ac",
+      "file": "src/native_fx/effects/delay/locate/ja-JP.json"
+    },
+    {
+      "sha256": "3046a3a2eb823dd6044377d0c07d9139e9a461fb9afad036d16835639711ac72",
+      "file": "src/native_fx/effects/delay/locate/ko-KR.json"
+    },
+    {
+      "sha256": "246355d43557c4b84d28b313aa1de4f6f2ac3b0b479fe726c24fe8e886f2b500",
+      "file": "src/native_fx/effects/delay/locate/manifest.json"
+    },
+    {
+      "sha256": "67f6fc57053d0429deb00de262f2a3c51ad7e353bb58d3f3db265bdef8d51bfe",
+      "file": "src/native_fx/effects/delay/locate/zh-CN.json"
+    },
+    {
+      "sha256": "cd8922ba7def09ea387ee6b0f109857bf13e13ab43587752eb506639a4f5a6ec",
+      "file": "src/native_fx/effects/parametric_eq/locate/en-US.json"
+    },
+    {
+      "sha256": "d20dbdda031603e079ab9e4655b0d40f6651c88901c413c5fc180c7ff24d1ae0",
+      "file": "src/native_fx/effects/parametric_eq/locate/ja-JP.json"
+    },
+    {
+      "sha256": "d8cfb88347842b1c0e360b1efce72260e213aa2f52d9c2d9aecc743cddf67860",
+      "file": "src/native_fx/effects/parametric_eq/locate/ko-KR.json"
+    },
+    {
+      "sha256": "3fe29f53c24a6778f93d6fa6376a57cc85e88fd6c74a1c086b6694d948b248ea",
+      "file": "src/native_fx/effects/parametric_eq/locate/manifest.json"
+    },
+    {
+      "sha256": "286fea119efbf2bd08cc409e1b006a265fd020e5c94b64b4bfd63bc0ac97b518",
+      "file": "src/native_fx/effects/parametric_eq/locate/zh-CN.json"
+    },
+    {
+      "sha256": "d821370d7acb1acc45e9c2d8fa41a9e1b7214e7159d3834ad68c923f7b365688",
+      "file": "src/native_fx/effects/reverb/locate/en-US.json"
+    },
+    {
+      "sha256": "68de649def0c4de67f8bc6396c0719c07a79d81b58a86603f01e55125dc42c61",
+      "file": "src/native_fx/effects/reverb/locate/ja-JP.json"
+    },
+    {
+      "sha256": "c9b017c17b9a160dd6642a9288f0f021dfa843c28fc48ceec10390db0425da06",
+      "file": "src/native_fx/effects/reverb/locate/ko-KR.json"
+    },
+    {
+      "sha256": "4d26f43deea549fd8d401d8140f8905157a4aeac64a366318b2157b5fa2ef361",
+      "file": "src/native_fx/effects/reverb/locate/manifest.json"
+    },
+    {
+      "sha256": "16320a68da262f24bfccc512edc00c36019bece23df3370b1c66e17e01a26198",
+      "file": "src/native_fx/effects/reverb/locate/zh-CN.json"
+    }
+  ],
+  "log": "Docs/i18n/S5-bounded-records/20261003T142123219Z-scale-2-parametric_eq-hot.log",
+  "run_id": "20261003T142123219Z-scale-2-parametric_eq-hot",
+  "effects": [
+    "parametric_eq"
+  ],
+  "rendered": "Docs/i18n/S5-bounded-rendered/20261003T142123219Z-scale-2-parametric_eq-hot",
+  "log_sha256": "cc90bb9449ab0a0c55fd0c7735373a29b0e86c8a9cc4e93b6f375469b2f2e44c"
+}

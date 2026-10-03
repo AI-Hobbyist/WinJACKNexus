@@ -65,6 +65,90 @@
       "log": "Docs/i18n/S5-bounded-records/20261003T140537352Z-scale-2-community-hot.log",
       "sha256": "1bb0a0cb02ab40ba36cfd4ed0b436c5ae0d5bccc75bd90cbcbdd03933adb23ea",
       "runtime_basis": "current runtime with native-window-ownership-v2"
+    },
+    {
+      "record": "Docs\\i18n\\S5-bounded-records\\20261003T141614352Z-scale-2-gate_deesser-hot.json",
+      "scale": "2",
+      "cold": "hot",
+      "checks": 2559,
+      "popup_shows": 24,
+      "font": "Microsoft YaHei UI",
+      "captures": 64,
+      "log": "Docs/i18n/S5-bounded-records/20261003T141614352Z-scale-2-gate_deesser-hot.log",
+      "sha256": "ad4e77b209bebe7f194a44b51b476d4349cf1c26c7580c50071987cb9608ffe4",
+      "runtime_basis": "current runtime with native-window-ownership-v2"
+    },
+    {
+      "record": "Docs\\i18n\\S5-bounded-records\\20261003T141857552Z-scale-2-compressor_reverb-hot.json",
+      "scale": "2",
+      "cold": "hot",
+      "checks": 2419,
+      "popup_shows": 20,
+      "font": "Microsoft YaHei UI",
+      "captures": 60,
+      "log": "Docs/i18n/S5-bounded-records/20261003T141857552Z-scale-2-compressor_reverb-hot.log",
+      "sha256": "ced5bc88143251663d029dfdf90424b535971fb0ce28b5f03b0b53bf3e00ee32",
+      "runtime_basis": "current runtime with native-window-ownership-v2"
+    },
+    {
+      "record": "Docs\\i18n\\S5-bounded-records\\20261003T142123219Z-scale-2-parametric_eq-hot.json",
+      "scale": "2",
+      "cold": "hot",
+      "checks": 1600,
+      "popup_shows": 12,
+      "font": "Microsoft YaHei UI",
+      "captures": 52,
+      "log": "Docs/i18n/S5-bounded-records/20261003T142123219Z-scale-2-parametric_eq-hot.log",
+      "sha256": "cc90bb9449ab0a0c55fd0c7735373a29b0e86c8a9cc4e93b6f375469b2f2e44c",
+      "runtime_basis": "current runtime with native-window-ownership-v2"
+    },
+    {
+      "record": "Docs\\i18n\\S5-bounded-records\\20261003T142336555Z-scale-2-shared-hot.json",
+      "scale": "2",
+      "cold": "hot",
+      "checks": 580,
+      "popup_shows": 19,
+      "font": "Microsoft YaHei UI",
+      "captures": 12,
+      "log": "Docs/i18n/S5-bounded-records/20261003T142336555Z-scale-2-shared-hot.log",
+      "sha256": "7fa40ad4c997287f701238ef231433f94767f4405459dcec921029f32589438b",
+      "runtime_basis": "current runtime with native-window-ownership-v2"
+    },
+    {
+      "record": "Docs\\i18n\\S5-bounded-records\\20261003T142843428Z-scale-2-gate_deesser_compressor-en-US.json",
+      "scale": "2",
+      "cold": "en-US",
+      "checks": 1379,
+      "popup_shows": 18,
+      "font": "Microsoft YaHei UI",
+      "captures": 33,
+      "log": "Docs/i18n/S5-bounded-records/20261003T142843428Z-scale-2-gate_deesser_compressor-en-US.log",
+      "sha256": "8fee2e30c7a0bbbc2203ea7c097265830011ae478c86a49165fc4be92c80c73d",
+      "runtime_basis": "current runtime with native-window-ownership-v2"
+    },
+    {
+      "record": "Docs\\i18n\\S5-bounded-records\\20261003T142938154Z-scale-2-host-en-US.json",
+      "scale": "2",
+      "cold": "en-US",
+      "checks": 862,
+      "popup_shows": 1,
+      "font": "Microsoft YaHei UI",
+      "captures": 32,
+      "log": "Docs/i18n/S5-bounded-records/20261003T142938154Z-scale-2-host-en-US.log",
+      "sha256": "7edd2955b0e7e4683c6605675776f531424d1066f2b72b4f98b8f10d060d135b",
+      "runtime_basis": "current runtime with native-window-ownership-v2"
+    },
+    {
+      "record": "Docs\\i18n\\S5-bounded-records\\20261003T143001444Z-scale-2-community-en-US.json",
+      "scale": "2",
+      "cold": "en-US",
+      "checks": 115,
+      "popup_shows": 2,
+      "font": "Microsoft YaHei UI",
+      "captures": 2,
+      "log": "Docs/i18n/S5-bounded-records/20261003T143001444Z-scale-2-community-en-US.log",
+      "sha256": "20278752c7449fe748a3abe2fd4d974c3e4b1d0ba29f32da36d3ab989c071598",
+      "runtime_basis": "current runtime with native-window-ownership-v2"
     }
   ],
   "evidence": [
@@ -491,27 +575,10 @@
     },
     {
       "scale": "2",
-      "language": "hot",
-      "missing": [
-        "compressor",
-        "deesser",
-        "gate",
-        "parametric_eq",
-        "reverb",
-        "shared"
-      ]
-    },
-    {
-      "scale": "2",
       "language": "en-US",
       "missing": [
-        "community",
-        "compressor",
-        "deesser",
         "delay",
-        "gate",
         "graphic_eq",
-        "host",
         "limiter",
         "parametric_eq",
         "reverb"
