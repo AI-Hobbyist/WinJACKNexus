@@ -5,8 +5,11 @@
   "language": "zh-CN",
   "domains": {
     "midi.midi_matrix": {
-      "name": "midi matrix",
-      "description": "MIDI 工具节点"
+      "name": "MIDI 矩阵",
+      "description": "MIDI 工具节点",
+      "help": "行是输入端口，列是输出端口。保留原始 MIDI 通道号。",
+      "input": "输入",
+      "output": "输出"
     }
   }
 }

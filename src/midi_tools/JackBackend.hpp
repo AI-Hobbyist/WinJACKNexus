@@ -75,4 +75,9 @@ inline std::vector<Core::PortIdentity> splitPorts(){
     for(unsigned c=1;c<=16;++c)ports.push_back({"MIDI_OUT_"+std::string(c<10?"0":"")+std::to_string(c),false,Core::PortType::midi});
     return ports;
 }
+inline std::vector<Core::PortIdentity> matrixPorts(){
+    std::vector<Core::PortIdentity> ports;
+    for(bool input:{true,false})for(unsigned c=1;c<=16;++c)ports.push_back({std::string(input?"MIDI_IN_":"MIDI_OUT_")+std::string(c<10?"0":"")+std::to_string(c),input,Core::PortType::midi});
+    return ports;
+}
 }

@@ -5,8 +5,11 @@
   "language": "ko-KR",
   "domains": {
     "midi.midi_matrix": {
-      "name": "midi matrix",
-      "description": "MIDI 도구 노드"
+      "name": "MIDI 매트릭스",
+      "description": "MIDI 도구 노드",
+      "help": "행은 입력 포트, 열은 출력 포트입니다. 원래 MIDI 채널을 유지합니다.",
+      "input": "입력",
+      "output": "출력"
     }
   }
 }

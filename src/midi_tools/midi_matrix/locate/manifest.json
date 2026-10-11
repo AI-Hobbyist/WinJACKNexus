@@ -15,7 +15,10 @@
   "requiredKeys": {
     "midi.midi_matrix": [
       "name",
-      "description"
+      "description",
+      "help",
+      "input",
+      "output"
     ]
   }
 }

@@ -5,8 +5,11 @@
   "language": "ja-JP",
   "domains": {
     "midi.midi_matrix": {
-      "name": "midi matrix",
-      "description": "MIDI ツールノード"
+      "name": "MIDI マトリックス",
+      "description": "MIDI ツールノード",
+      "help": "行は入力ポート、列は出力ポートです。元の MIDI チャンネルを保持します。",
+      "input": "入力",
+      "output": "出力"
     }
   }
 }

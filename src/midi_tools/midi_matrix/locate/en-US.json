@@ -5,8 +5,11 @@
   "language": "en-US",
   "domains": {
     "midi.midi_matrix": {
-      "name": "midi matrix",
-      "description": "MIDI Tools node"
+      "name": "MIDI matrix",
+      "description": "MIDI Tools node",
+      "help": "Rows are input ports; columns are output ports. Original MIDI channels are preserved.",
+      "input": "Input",
+      "output": "Output"
     }
   }
 }
