@@ -107,9 +107,25 @@ int main(int argc, char **argv)
             std::cout << "Preparation " << resource.spec.id << ": " << int(resource.state) << " "
                       << resource.detail << '\n';
         }
-        check(info[0].state == ResourceState::ready && info[1].state == ResourceState::ready,
-              "both genuine engines prepared");
-        check(p.core.preparedBytes() <= maxPreparedSampleBytes, "global prepared budget");
+        check(info[0].state == ResourceState::unloaded &&
+                  info[1].state == ResourceState::unloaded && p.core.preparedBytes() == 0 &&
+                  p.core.activeResources() == 0,
+              "import only registers the catalog, including SFZ");
+        p.message({0x90, 60, 100});
+        check(p.peak() == 0, "empty selection never falls back to the first resource");
+        state.preferred = "sf2";
+        check(p.core.submit(state), "explicit SF2 selection");
+        p.wait(2);
+        check(p.core.activeResources() == 1 &&
+                  p.core.resources()[0].state == ResourceState::ready &&
+                  p.core.resources()[1].state == ResourceState::unloaded,
+              "exactly the selected resource is prepared");
+        const auto prepared = p.core.preparedBytes();
+        const auto destroyed = p.core.destroyedResources();
+        check(p.core.submit(state), "repeat active selection");
+        p.wait(2);
+        check(p.core.preparedBytes() == prepared && p.core.destroyedResources() == destroyed,
+              "repeated selection reuses the resident engine");
         // A truncated JACK cycle and a full in-memory cycle use the same recovery.
         p.message({0x90, 60, 100});
         const auto overflowBefore = p.status.overflow;
@@ -143,6 +159,14 @@ int main(int argc, char **argv)
         }
         p.core.silence();
         p.message({0xc0, 2});
+        check(!p.status.channels[0].matched, "program changes do not select another resource");
+        auto sfzState = state;
+        sfzState.preferred = "sfz";
+        check(p.core.submit(sfzState), "explicit SFZ selection");
+        p.wait(2);
+        check(p.core.activeResources() == 1 && p.core.destroyedResources() > destroyed,
+              "switch retires SF2 before preparing SFZ");
+        p.message({0xc0, 2});
         check(p.status.channels[0].matched &&
                   std::string(p.status.channels[0].resource.data()) == "sfz",
               "exact SFZ mapping");
@@ -155,7 +179,7 @@ int main(int argc, char **argv)
         p.message({0xb0, 64, 127});
         p.message({0xc0, 1});
         p.message({0x80, 60, 0});
-        check(p.peak() > 0.001f, "old SFZ sustain remains after selecting SF2");
+        check(p.peak() > 0.001f, "SFZ sustain remains across unmatched programs within the selected resource");
         p.message({0xb0, 64, 0});
         for (unsigned i = 0; i < 16; ++i)
         {
@@ -166,29 +190,22 @@ int main(int argc, char **argv)
         check(!p.status.channels[0].matched, "unmapped program has no piano fallback");
         p.message({0x90, 60, 100});
         check(p.peak() < 0.00001f, "unmapped note suppressed");
+        check(p.core.submit(state), "switch back to SF2");
+        p.wait(2);
         p.message({0xc0, 0});
         // UI controls are separate from MIDI volume/expression and survive reset.
         auto mixed = state;
         mixed.channels[0].gainDb = -6;
         check(p.core.submit(mixed), "gain snapshot");
         p.wait(2);
-        // Fill the handoff queue while its audio consumer is deliberately paused.
-        for (unsigned index = 0; index < 2; ++index)
+        // Control publication and reclamation must also complete without callbacks.
+        check(p.core.submit(mixed), "paused audio control request");
+        for (unsigned attempt = 0; attempt < 1000 && p.core.loading(); ++attempt)
         {
-            auto queued = mixed;
-            queued.channels[0].gainDb = -double(index + 1);
-            check(p.core.submit(queued), "queue fill request");
-            for (unsigned attempt = 0; attempt < 1000 && p.core.loading(); ++attempt)
-            {
-                std::this_thread::sleep_for(std::chrono::milliseconds(2));
-            }
-            check(!p.core.loading(), "two snapshots published without audio consumer");
+            std::this_thread::sleep_for(std::chrono::milliseconds(2));
         }
-        check(p.core.submit(mixed), "full queue request");
-        std::this_thread::sleep_for(std::chrono::milliseconds(20));
-        check(p.core.loading(), "full handoff queue defers publication");
-        p.wait(2);
-        check(!p.core.loading(), "audio consumption resolves queue pressure");
+        check(!p.core.loading(), "control publication does not require another callback");
+        p.block();
         p.message({0x90, 60, 100});
         for (unsigned i = 0; i < 8; ++i)
         {
@@ -253,7 +270,7 @@ int main(int argc, char **argv)
             p.block();
         }
         check(p.peak() < 0.00001f, "release handled while muted");
-        // Missing references restore legally; an import failure keeps the playable bank.
+        // Missing catalog entries remain unloaded until explicitly selected.
         auto broken = state;
         broken.resources.push_back({"missing", root + "/missing.sf2", "sf2"});
         check(p.core.submit(broken, true), "failed import request");
@@ -264,9 +281,18 @@ int main(int argc, char **argv)
         p.core.silence();
         check(p.core.submit(broken, false), "missing reference restore");
         p.wait(3);
+        check(p.core.resources()[2].state == ResourceState::unloaded,
+              "unselected missing file remains catalog-only");
+        broken.preferred = "missing";
+        check(p.core.submit(broken, true), "select missing file, legacy preserve flag ignored");
+        p.wait(3);
+        check(p.core.activeResources() == 0 && p.core.preparedBytes() == 0,
+              "failed selection releases old engine and stays silent");
+        p.message({0x90, 60, 100});
+        check(p.peak() == 0, "failed selection never restores old resource");
         check(p.core.resources()[2].state == ResourceState::missing,
               "missing distinct from invalid JSON");
-        // Preferred conflict priority and persisted import order.
+        // Explicit selected resource overrides catalog order; empty selection stays silent.
         auto conflict = state;
         conflict.resources[1].program = 0;
         conflict.preferred = "sfz";
@@ -277,7 +303,8 @@ int main(int argc, char **argv)
         conflict.preferred.clear();
         check(p.core.submit(conflict), "import-order preference");
         p.wait(2);
-        check(std::string(p.status.channels[0].resource.data()) == "sf2", "import order fallback");
+        check(!p.status.channels[0].matched && p.core.activeResources() == 0 &&
+                  p.core.preparedBytes() == 0, "empty selection releases the engine without fallback");
         // Latest-wins cancellation/queue pressure and resource removal do not delete files.
         for (unsigned i = 0; i < 20; ++i)
         {
@@ -289,6 +316,7 @@ int main(int argc, char **argv)
         p.message({0x90, 60, 100});
         auto empty = state;
         empty.resources.clear();
+        empty.preferred.clear();
         check(p.core.submit(empty), "remove references");
         p.wait(0);
         for (unsigned i = 0; i < 8; ++i)
@@ -304,6 +332,7 @@ int main(int argc, char **argv)
               "Unicode fixture copy");
         SynthSettings unicodeState;
         unicodeState.resources = {{"unicode", unicode.toStdString(), "sf2"}};
+        unicodeState.preferred = "unicode";
         check(p.core.submit(unicodeState), "Unicode submit");
         p.wait(1);
         check(p.core.resources()[0].state == ResourceState::ready, "real Unicode SF2 path");
@@ -322,6 +351,7 @@ int main(int argc, char **argv)
         missingSample.close();
         unicodeState.resources[0] = {"missing-sample", missingSample.fileName().toStdString(),
                                      "sfz"};
+        unicodeState.preferred = "missing-sample";
         check(p.core.submit(unicodeState), "missing SFZ sample request");
         p.wait(1);
         check(p.core.resources()[0].state == ResourceState::failed,
@@ -368,6 +398,7 @@ int main(int argc, char **argv)
             Probe budgetProbe;
             SynthSettings budgetState;
             budgetState.resources = {{"padded", paddedPath.toStdString(), "sf2"}};
+            budgetState.preferred = "padded";
             check(budgetProbe.core.submit(budgetState), "default budget request");
             budgetProbe.wait(1);
             check(budgetProbe.core.resources()[0].state == ResourceState::budget,
@@ -386,7 +417,9 @@ int main(int argc, char **argv)
             check(budgetProbe.core.resources()[0].state == ResourceState::budget,
                   "lower limit applies to the next preparation");
             budgetProbe.message({0x90, 62, 100});
-            check(budgetProbe.peak() > 0, "failed preparation preserves existing playable bank");
+            check(budgetProbe.peak() == 0 && budgetProbe.core.activeResources() == 0 &&
+                      budgetProbe.core.preparedBytes() == 0,
+                  "budget failure frees previous resource and stays silent");
         }
         setResourceBudgetMiB(0);
         check(resourceBudgetMiB() == 1, "budget lower bound");
@@ -394,7 +427,7 @@ int main(int argc, char **argv)
         check(resourceBudgetMiB() == maximumResourceBudgetMiB, "budget upper bound");
         setResourceBudgetMiB(64);
 
-        // Five playable resource owners exceed the four-generation channel bound.
+        // Multiple catalog entries never imply multiple resident engines.
         SynthSettings generations;
         for (unsigned index = 0; index < 5; ++index)
         {
@@ -413,8 +446,28 @@ int main(int argc, char **argv)
             p.wait(5);
             p.message({0x90, uint8_t(60 + index), 100});
         }
-        check(p.status.evicted > 0 && p.core.preparedBytes() <= maxPreparedSampleBytes,
-              "oldest channel generation cleared within the bounded budget");
+        check(p.core.activeResources() == 1 && p.core.preparedBytes() <= maxPreparedSampleBytes,
+              "single resource survives repeated selection changes");
+        const auto beforeRapid = p.core.destroyedResources();
+        for (unsigned index = 0; index < 30; ++index)
+        {
+            generations.preferred = generations.resources[index % 5].id;
+            check(p.core.submit(generations), "rapid A/B/C selection");
+        }
+        generations.preferred = generations.resources[2].id;
+        check(p.core.submit(generations), "latest selection");
+        p.wait(5);
+        p.message({0x90, 60, 100});
+        check(std::string(p.status.channels[0].resource.data()) == generations.preferred &&
+                  p.core.activeResources() == 1 && p.core.destroyedResources() >= beforeRapid,
+              "only latest candidate can become playable");
+        auto deleted = generations;
+        deleted.resources.erase(deleted.resources.begin());
+        const auto beforeUnselectedDelete = p.core.destroyedResources();
+        check(p.core.submit(deleted), "delete unselected item");
+        p.wait(4);
+        check(p.core.destroyedResources() == beforeUnselectedDelete && p.core.activeResources() == 1,
+              "deleting unselected resource leaves resident engine unchanged");
         p.message({0xb0, 120, 0});
         for (unsigned index = 0; index < 4; ++index)
         {
@@ -423,12 +476,35 @@ int main(int argc, char **argv)
         check(p.peak() < 0.00001f, "all-sound-off releases every retained generation");
 
         p.core.setRequiredRate(44100);
-        p.wait(5);
+        p.wait(4);
         check(p.core.preparedBytes() <= maxPreparedSampleBytes, "rate rebuild bounded");
-        std::cout << "PASS genuine SF2/SFZ,16-way channel separation, exact mapping/old owners, "
-                     "independent mix/reset/mute, failed/missing imports, "
-                     "priority/cancel/remove/Unicode/corrupt/rate lifecycle; preparedBytes="
-                  << p.core.preparedBytes() << "\n";
+        auto cleared = generations;
+        cleared.preferred.clear();
+        check(p.core.submit(cleared), "clear while callback is stopped");
+        for (unsigned attempt = 0; attempt < 2000 && p.core.loading(); ++attempt)
+        {
+            std::this_thread::sleep_for(std::chrono::milliseconds(2));
+        }
+        check(!p.core.loading() && p.core.preparedBytes() == 0 && p.core.activeResources() == 0,
+              "callback absence cannot delay release");
+        {
+            SynthCore restored;
+            SynthSettings saved;
+            check(parseSettings(settingsJson(generations).c_str(), saved), "saved selected ID");
+            check(restored.submit(saved), "restore selected item without callbacks");
+            for (unsigned attempt = 0; attempt < 2000 && restored.loading(); ++attempt)
+            {
+                std::this_thread::sleep_for(std::chrono::milliseconds(2));
+            }
+            check(!restored.loading() && restored.activeResources() == 1,
+                  "restore loads only persisted selection");
+            restored.setRequiredRate(96000);
+            check(restored.submit(cleared), "cancel rate rebuild before destruction");
+        }
+        std::cout << "PASS SF2/SFZ single-selection lifecycle, catalog-only import, release, "
+                     "failure/retry, cancellation, restoration, Unicode, budgets, rate, "
+                     "offline synthesis and callback absence; destroyed="
+                  << p.core.destroyedResources() << "\n";
         return 0;
     }
     catch (const std::exception &e)

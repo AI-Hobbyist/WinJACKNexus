@@ -75,7 +75,7 @@ class SynthNode final : public WinJACKNexus::Node::INode, public MT::ClientSetti
             if (!window_)
             {
                 WinJACKNexus::UI::MidiSynthBindings bindings;
-                bindings.edit = [this](const auto &value, bool preserve) {
+                bindings.edit = [this](const auto &value, bool) {
                     auto candidate = value;
                     core_.status(lastStatus_);
                     if (lastStatus_.revision >= submitted_)
@@ -89,7 +89,7 @@ class SynthNode final : public WinJACKNexus::Node::INode, public MT::ClientSetti
                         }
                     }
                     candidate.clientName = actualName();
-                    if (!core_.submit(candidate, preserve))
+                    if (!core_.submit(candidate))
                     {
                         return false;
                     }

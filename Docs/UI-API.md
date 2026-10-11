@@ -532,3 +532,7 @@ S6 supplemental display contract (2026-10-04): Meter settings role choices keep 
 ## Node SDK v3 单节点迁移
 
 Node 模块的必需发现/工厂入口和可选 Node 主题、语言描述符均不再接收类型索引；数量入口已删除。主题与语言描述符入口版本均为 2，JSON/Theme Token/主机语言服务仍遵守原 v1 数据契约。`ThemeNamespaceRegistry::registerNodeModule` 每个 DLL 只注册一个描述符。`I18nManager::registerLibrary(..., Extension::node, index, ...)` 的共享注册接口仅允许保留参数值 0；非零拒绝，Native Fx 的独立元数据索引不变。宿主在变更后的入口调用前检查 Node v3。详见 [Node SDK](../Develop/Node/Node-API.md)。
+
+## MidiSynthWindow 资源激活契约（公开仓库前 S1，2026-10-11）
+
+资源列表仅浏览目录，不触发完整 SF2/SFZ 引擎加载；导入后显示“未加载”。通过既有 `synth-prefer` 操作明确激活资源，绑定提交 `preferred` 稳定 ID。该 ID 现在表示唯一激活资源，空 ID 表示无激活资源，不再按目录顺序回退。重复激活 ready 资源不重载；失败资源可重试。切换先停止旧资源并由工作线程释放，再准备新资源；失败保持静音。`MidiSynthBindings::edit` 的既有 bool 参数保留签名兼容，不能要求加载失败恢复旧引擎。删除当前目录项清空激活 ID，关闭编辑窗口仍保持处理。新增 `ResourceState::unloaded` 表示未准备的目录项；读取预置仅针对激活资源。

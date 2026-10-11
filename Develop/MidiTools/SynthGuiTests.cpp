@@ -22,6 +22,20 @@
 
 namespace Core = WinJACKNexus::Common::MidiTools;
 namespace UI = WinJACKNexus::UI;
+class WindowShowCounter final : public QObject
+{
+  public:
+    unsigned shows{};
+    bool eventFilter(QObject *object, QEvent *event) override
+    {
+        const auto *widget = qobject_cast<QWidget *>(object);
+        if (event->type() == QEvent::Show && widget && widget->isWindow())
+        {
+            ++shows;
+        }
+        return false;
+    }
+};
 void check(bool condition, const char *message)
 {
     if (!condition)
@@ -119,6 +133,8 @@ void captureInformationTooltip(QWidget &window, const QString &path, const QStri
 int main(int argc, char **argv)
 {
     QApplication app(argc, argv);
+    WindowShowCounter windowCounter;
+    app.installEventFilter(&windowCounter);
     try
     {
         check(argc == 4 && app.platformName() == "windows",
@@ -252,7 +268,8 @@ int main(int argc, char **argv)
             const Core::EventView event{0, data};
             core.render(256, {&event, 1}, left.data(), right.data());
         };
-        message({0x90, 60, 100});
+        check(core.activeResources() == 0 && core.preparedBytes() == 0,
+              "restored empty selection stays unloaded in the real window");
         QTest::qWait(200);
         auto *gain = gainControl(window, "synth-gain-0");
         auto *mute = window.findChild<QPushButton *>("synth-mute-0");
@@ -278,7 +295,11 @@ int main(int argc, char **argv)
         check(state.resources[1].program == 3, "mapping edit saved by stable resource ID");
         QTest::mouseClick(prefer, Qt::LeftButton);
         wait();
-        check(state.preferred == "fixture-sfz", "explicit preferred action");
+        check(state.preferred == "fixture-sfz" && core.activeResources() == 1,
+              "explicit selection loads exactly one resource");
+        message({0xc0, 3});
+        message({0x90, 60, 100});
+        QTest::qWait(200);
         editGain(*gain, "-6");
         wait();
         QTest::mouseClick(solo, Qt::LeftButton);
@@ -342,11 +363,21 @@ int main(int argc, char **argv)
         check(gain->value() == -6 && solo->isChecked(), "same composition state after reopening");
         check(!window.importFile(repository + "/Develop/MidiTools/fixtures/tone.sf2"),
               "duplicate import rejected atomically by the real UI import path");
+        const auto selectedState = state;
+        auto *remove = window.findChild<QPushButton *>("synth-remove");
+        QTest::mouseClick(remove, Qt::LeftButton);
+        wait();
+        check(state.preferred.empty() && state.resources.size() == 1 &&
+                  core.activeResources() == 0 && core.preparedBytes() == 0,
+              "deleting active resource releases its engine in the real window");
+        check(core.submit(selectedState), "restore selected directory after deletion check");
+        state = selectedState;
+        window.setSettings(state);
+        wait();
         check(window.importFile(repository + "/Develop/MidiTools/fixtures/missing.sf2"),
               "missing import has explicit failed metadata and keeps usable bank");
         wait();
         capture(window, output + "/synth-missing-ko-KR.png");
-        auto *remove = window.findChild<QPushButton *>("synth-remove");
         QTest::mouseClick(remove, Qt::LeftButton);
         wait();
         check(state.resources.size() == 2 &&
@@ -376,6 +407,8 @@ int main(int argc, char **argv)
         lease.reset();
         themeLease.reset();
         check(FreeLibrary(library), "production DLL released after editor destruction and lease");
+        check(windowCounter.shows <= 100, "real-window batch stays within the popup budget");
+        std::cout << "actualWindowShows=" << windowCounter.shows << "/100\n";
         std::cout
             << "PASS actual DLL standalone/persistence/reopen plus real-engine "
                "signal/mute/solo/master, "

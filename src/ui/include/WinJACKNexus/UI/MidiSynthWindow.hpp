@@ -68,6 +68,8 @@ class MidiSynthWindow final : public QWidget
     {
         switch (state)
         {
+        case ResourceState::unloaded:
+            return text("unloaded", "Not loaded");
         case ResourceState::ready:
             return text("ready", "Ready");
         case ResourceState::missing:
@@ -125,7 +127,7 @@ class MidiSynthWindow final : public QWidget
                 {
                     continue;
                 }
-                ResourceState state = ResourceState::pending;
+                ResourceState state = ResourceState::unloaded;
                 for (const auto &info : information_)
                 {
                     if (info.spec.id == resource.id)
@@ -165,7 +167,7 @@ class MidiSynthWindow final : public QWidget
             text("browseHelp", "Select a file to inspect it. Browsing does not change playback.");
         if (resource)
         {
-            QString state = stateName(ResourceState::pending);
+            QString state = stateName(ResourceState::unloaded);
             QString detail;
             size_t presets = 0;
             for (const auto &info : information_)
@@ -181,7 +183,7 @@ class MidiSynthWindow final : public QWidget
                 QString::fromStdString(resource->path) + "\n" +
                 QString::fromStdString(resource->format).toUpper() + " · " + state + "\n" +
                 text("presets", "Presets") + ": " + QString::number(presets) + "\n" +
-                text("preferred", "Preferred resource") + ": " +
+                text("preferred", "Active resource") + ": " +
                 (settings_.preferred == resource->id ? text("yes", "Yes") : text("no", "No")) +
                 (detail.isEmpty() ? QString() : "\n" + detail);
         }
@@ -510,7 +512,7 @@ class MidiSynthWindow final : public QWidget
         setWindowTitle(text("name", "SF2/SFZ loader"));
         import_->setText(text("import", "Import"));
         remove_->setText(text("remove", "Remove reference"));
-        prefer_->setText(text("usePreferred", "Use as preferred resource"));
+        prefer_->setText(text("usePreferred", "Load selected resource"));
         prefer_->setToolTip(
             text("browseHelp", "Select a file to inspect it. Browsing does not change playback."));
         help_->setAccessibleName(text("name", "SF2/SFZ loader") + " — " +

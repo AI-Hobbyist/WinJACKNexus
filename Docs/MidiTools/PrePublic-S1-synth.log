@@ -1,0 +1,6 @@
+Preparation sf2: 5
+Preparation sfz: 5
+fluidsynth: error: EOF while attempting to read 4 bytes
+fluidsynth: error: Failed to load SoundFont "D:/Temp/User/midi_tools_synth_tests-jKmxpa/bad.sf2"
+Removing the region with sample absent.wav
+FAIL bounded loader completion timeout

@@ -22,7 +22,7 @@ struct ChannelSettings
 struct SynthSettings
 {
     std::string clientName = "sf2_loader", preferred;
-    std::vector<ResourceSpec> resources; // Persistent order determines fallback priority.
+    std::vector<ResourceSpec> resources; // Catalog only; preferred is the explicit active ID.
     std::array<ChannelSettings, 16> channels{};
     double masterDb{};
     bool masterMute{};
@@ -33,7 +33,8 @@ enum class ResourceState : uint8_t
     ready,
     missing,
     failed,
-    budget
+    budget,
+    unloaded
 };
 struct ResourceInfo
 {
@@ -68,7 +69,7 @@ class SynthCore final
     SynthCore(const SynthCore &) = delete;
     SynthCore &operator=(const SynthCore &) = delete;
     // Latest-request-wins loader. false rejects malformed settings without mutation.
-    // preserveOnFailure keeps the currently playable bank on an import failure.
+    // The legacy preserveOnFailure argument is ignored: failed selections stay silent.
     bool submit(const SynthSettings &, bool preserveOnFailure = false);
     void setRequiredRate(double) noexcept; // Safe from JACK rate callback: atomic only.
     void render(uint32_t frames, std::span<const EventView>, float *left, float *right,
@@ -78,6 +79,8 @@ class SynthCore final
     std::vector<ResourceInfo> resources() const; // Control thread only.
     bool loading() const noexcept;
     uint64_t preparedBytes() const noexcept;
+    uint64_t activeResources() const noexcept;
+    uint64_t destroyedResources() const noexcept;
 
   private:
     struct Impl;

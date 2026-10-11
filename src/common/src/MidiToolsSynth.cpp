@@ -26,23 +26,27 @@ bool gain(double d)
 {
     return std::isfinite(d) && d >= -60 && d <= 12;
 }
-bool sameResources(const SynthSettings &a, const SynthSettings &b)
+const ResourceSpec *activeSpec(const SynthSettings &settings)
 {
-    if (a.resources.size() != b.resources.size())
+    for (const auto &spec : settings.resources)
     {
-        return false;
-    }
-    for (unsigned i = 0; i < a.resources.size(); ++i)
-    {
-        const auto &x = a.resources[i];
-        const auto &y = b.resources[i];
-        if (x.id != y.id || x.path != y.path || x.format != y.format || x.msb != y.msb ||
-            x.lsb != y.lsb || x.program != y.program)
+        if (spec.id == settings.preferred)
         {
-            return false;
+            return &spec;
         }
     }
-    return true;
+    return nullptr;
+}
+bool sameSelection(const SynthSettings &a, const SynthSettings &b)
+{
+    const auto *x = activeSpec(a);
+    const auto *y = activeSpec(b);
+    if (!x || !y)
+    {
+        return x == y;
+    }
+    return x->id == y->id && x->path == y->path && x->format == y->format && x->msb == y->msb &&
+           x->lsb == y->lsb && x->program == y->program;
 }
 bool integer(const QJsonValue &v, int low, int high, int &n)
 {
@@ -438,24 +442,43 @@ struct SynthCore::Impl
     std::atomic<bool> running{true}, busy{true};
     std::atomic<double> requiredRate{48000};
     std::atomic<double> completedRate{};
-    std::atomic<uint64_t> bytes{};
+    std::atomic<uint64_t> bytes{}, active{}, destroyed{};
+    // Render never waits. The worker acquires exclusive access between blocks,
+    // including when the JACK callback is stopped, then reclaims outside it.
+    std::atomic_flag processing = ATOMIC_FLAG_INIT;
+    std::atomic<bool> silenceRequested{};
+    struct ProcessingLease
+    {
+        std::atomic_flag &flag;
+        ~ProcessingLease()
+        {
+            flag.clear(std::memory_order_release);
+        }
+    };
+    bool acquireProcessing()
+    {
+        while (processing.test_and_set(std::memory_order_acquire))
+        {
+            if (!running)
+            {
+                return false;
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        }
+        return true;
+    }
     mutable std::mutex mutex;
     SynthSettings requested;
     uint64_t requestedBudget = configuredPreparedSampleBytes();
     uint64_t preparationBudget = requestedBudget; // Loader worker only.
-    bool preserve = false;
     uint64_t requestRevision = 1;
     std::atomic<uint64_t> wantedRevision{1};
     std::vector<ResourceInfo> information;
     std::unique_ptr<sfizz_synth_t, SfzDeleter> accountingSynth;
     std::thread worker;
-    LockFreeSpscQueue<Packet, 2> incoming;
-    LockFreeSpscQueue<Bank *, 8> retired;
     LockFreeSpscQueue<SynthStatus, 4> statuses;
     std::array<Bank *, 4> banks{};
     Bank *current{};
-    Packet pending{};
-    bool hasPending{};
     Controls controls{};
     SynthStatus status{};
     struct Generation
@@ -504,29 +527,23 @@ struct SynthCore::Impl
         {
             worker.join();
         }
-        Packet p;
-        while (incoming.try_pop(p))
-        {
-            deleteBank(p.bank);
-        }
-        if (hasPending)
-        {
-            deleteBank(pending.bank);
-        }
         for (auto *bank : banks)
         {
             deleteBank(bank);
-        }
-        Bank *b;
-        while (retired.try_pop(b))
-        {
-            deleteBank(b);
         }
     }
     void deleteBank(Bank *b)
     {
         if (b)
         {
+            for (const auto &resource : b->resources)
+            {
+                if (resource->info.state == ResourceState::ready)
+                {
+                    active.fetch_sub(1);
+                    destroyed.fetch_add(1);
+                }
+            }
             bytes.fetch_sub(b->bytes);
             delete b;
         }
@@ -697,6 +714,7 @@ struct SynthCore::Impl
                         : QString::fromStdWString(path.filename().wstring()).toStdString());
             }
             r->info.state = ResourceState::ready;
+            active.fetch_add(1);
         }
         catch (const std::exception &e)
         {
@@ -718,140 +736,105 @@ struct SynthCore::Impl
     void loadLoop()
     {
         SynthSettings built;
-        uint64_t revision = 0;
+        uint64_t revision = 0, builtBudget = 0;
         double rate = 0;
-        double attemptedRate = 0;
-        bool haveBank = false;
-        uint64_t builtBudget = 0;
+        bool haveAttempt = false, ready = false;
+        ResourceInfo residentInfo;
         while (running)
         {
-            Bank *old;
-            while (retired.try_pop(old))
-            {
-                deleteBank(old);
-            }
-            SynthSettings s;
+            SynthSettings settings;
             uint64_t next;
-            bool keep;
             {
                 std::lock_guard lock(mutex);
-                s = requested;
+                settings = requested;
                 next = requestRevision;
-                keep = preserve;
                 preparationBudget = requestedBudget;
             }
             const double nextRate = requiredRate.load();
-            if (next == revision && nextRate == attemptedRate)
+            if (next == revision && nextRate == rate)
             {
                 std::this_thread::sleep_for(std::chrono::milliseconds(2));
                 continue;
             }
             busy = true;
-            Packet packet;
-            packet.controls.channels = s.channels;
-            packet.controls.masterDb = s.masterDb;
-            packet.controls.mute = s.masterMute;
-            packet.controls.revision = next;
-            for (unsigned i = 0; i < s.resources.size(); ++i)
-            {
-                if (s.resources[i].id == s.preferred)
-                {
-                    packet.controls.preferred = int(i);
-                }
-            }
-            const bool rebuild = !haveBank || nextRate != rate || !sameResources(s, built) ||
-                                 preparationBudget != builtBudget;
+            const bool rebuild = !haveAttempt || !sameSelection(settings, built) ||
+                                 nextRate != rate || preparationBudget != builtBudget ||
+                                 (!ready && activeSpec(settings));
             if (rebuild)
             {
-                auto bank = std::make_unique<Bank>();
-                bank->rate = nextRate;
-                bank->revision = next;
-                bool failed = false;
-                for (const auto &spec : s.resources)
-                {
-                    bank->resources.push_back(prepare(spec, nextRate, *bank));
-                    failed |= bank->resources.back()->info.state != ResourceState::ready;
-                    bool cancel;
-                    {
-                        std::lock_guard lock(mutex);
-                        cancel = requestRevision != next;
-                    }
-                    if (cancel || !running)
-                    {
-                        deleteBank(bank.release());
-                        bank.reset();
-                        break;
-                    }
-                }
-                if (!bank)
-                {
-                    continue;
-                }
-                {
-                    std::lock_guard lock(mutex);
-                    information.clear();
-                    for (const auto &r : bank->resources)
-                    {
-                        information.push_back(r->info);
-                    }
-                }
-                if (failed && keep)
-                {
-                    deleteBank(bank.release());
-                    revision = next;
-                    attemptedRate = nextRate;
-                    completedRate = nextRate;
-                    {
-                        std::lock_guard lock(mutex);
-                        busy = requestRevision != next;
-                    }
-                    continue;
-                }
-                packet.bank = bank.release();
-            }
-            bool published = false;
-            while (running)
-            {
-                if (incoming.try_push(packet))
-                {
-                    published = true;
-                    break;
-                }
-                while (retired.try_pop(old))
-                {
-                    deleteBank(old);
-                }
-                bool cancel;
-                {
-                    std::lock_guard lock(mutex);
-                    cancel = requestRevision != next;
-                }
-                if (cancel)
+                if (!acquireProcessing())
                 {
                     break;
                 }
-                std::this_thread::sleep_for(std::chrono::milliseconds(2));
-            }
-            // If cancelled while the queue was full, the candidate never transferred.
-            if (!published)
-            {
-                deleteBank(packet.bank);
-                if (!running)
+                Bank *old = current;
                 {
-                    break;
+                    ProcessingLease lease{processing};
+                    silence();
+                    current = nullptr;
+                    banks.fill(nullptr);
+                    for (unsigned channel = 0; channel < 16; ++channel)
+                    {
+                        select(channel);
+                    }
                 }
-                continue;
+                deleteBank(old);
             }
-            built = std::move(s);
-            builtBudget = preparationBudget;
-            revision = next;
-            rate = nextRate;
-            attemptedRate = nextRate;
-            completedRate = nextRate;
-            haveBank = true;
+            auto candidate = std::unique_ptr<Bank>();
+            if (rebuild)
             {
+                candidate = std::make_unique<Bank>();
+                candidate->rate = nextRate;
+                candidate->revision = next;
+                ready = false;
+                if (const auto *spec = activeSpec(settings))
+                {
+                    candidate->resources.push_back(prepare(*spec, nextRate, *candidate));
+                    residentInfo = candidate->resources.front()->info;
+                    ready = residentInfo.state == ResourceState::ready;
+                }
+            }
+            if (!acquireProcessing())
+            {
+                deleteBank(candidate.release());
+                break;
+            }
+            {
+                ProcessingLease lease{processing};
                 std::lock_guard lock(mutex);
-                busy = requestRevision != next;
+                if (requestRevision != next || requiredRate.load() != nextRate || !running)
+                {
+                    // No audio callback has ever seen this superseded candidate.
+                    deleteBank(candidate.release());
+                    haveAttempt = false;
+                    continue;
+                }
+                Packet packet;
+                packet.controls.channels = settings.channels;
+                packet.controls.masterDb = settings.masterDb;
+                packet.controls.mute = settings.masterMute;
+                packet.controls.revision = next;
+                packet.controls.preferred = activeSpec(settings) ? 0 : -1;
+                packet.bank = candidate.release();
+                adopt(packet);
+                information.clear();
+                for (const auto &spec : settings.resources)
+                {
+                    if (spec.id == settings.preferred)
+                    {
+                        information.push_back(residentInfo);
+                    }
+                    else
+                    {
+                        information.push_back({spec, ResourceState::unloaded, {}, {}});
+                    }
+                }
+                built = std::move(settings);
+                builtBudget = preparationBudget;
+                revision = next;
+                rate = nextRate;
+                completedRate = nextRate;
+                haveAttempt = true;
+                busy = false;
             }
         }
     }
@@ -914,17 +897,6 @@ struct SynthCore::Impl
             current->resources[preferred]->matches(c, msb[c], lsb[c], program[c]))
         {
             match = preferred;
-        }
-        else
-        {
-            for (unsigned i = 0; i < current->resources.size(); ++i)
-            {
-                if (current->resources[i]->matches(c, msb[c], lsb[c], program[c]))
-                {
-                    match = int(i);
-                    break;
-                }
-            }
         }
         if (match < 0)
         {
@@ -989,94 +961,7 @@ struct SynthCore::Impl
     {
         if (p.bank)
         {
-            // Voices prepared at another rate cannot be mixed into the new-rate cycle.
-            for (auto *&old : banks)
-            {
-                if (!old || old->rate == p.bank->rate)
-                {
-                    continue;
-                }
-                if (retired.full())
-                {
-                    return false;
-                }
-                for (unsigned channel = 0; channel < 16; ++channel)
-                {
-                    for (unsigned generation = 0; generation < 4; ++generation)
-                    {
-                        if (generations[channel][generation].bank == old)
-                        {
-                            clearGeneration(channel, generation);
-                        }
-                    }
-                }
-                auto *removed = old;
-                if (current == removed)
-                {
-                    current = nullptr;
-                }
-                old = nullptr;
-                retired.try_push(removed);
-            }
-            unsigned slot = 4;
-            for (unsigned i = 0; i < 4; ++i)
-            {
-                if (!banks[i])
-                {
-                    slot = i;
-                    break;
-                }
-            }
-            if (slot == 4)
-            {
-                slot = 0;
-                for (unsigned i = 1; i < 4; ++i)
-                {
-                    if (banks[i]->revision < banks[slot]->revision)
-                    {
-                        slot = i;
-                    }
-                }
-                if (retired.full())
-                {
-                    return false;
-                }
-                for (unsigned c = 0; c < 16; ++c)
-                {
-                    for (unsigned g = 0; g < 4; ++g)
-                    {
-                        if (generations[c][g].bank == banks[slot])
-                        {
-                            clearGeneration(c, g);
-                            ++status.evicted;
-                        }
-                    }
-                }
-                auto *old = banks[slot];
-                banks[slot] = nullptr;
-                retired.try_push(old);
-            }
-            // Removed references fade and stop receiving new events; never delete
-            // user files. Their owning bank remains until render access is retired.
-            for (auto *old : banks)
-            {
-                if (old)
-                {
-                    for (auto &r : old->resources)
-                    {
-                        bool kept = false;
-                        for (const auto &next : p.bank->resources)
-                        {
-                            kept |= next->info.spec.id == r->info.spec.id;
-                        }
-                        if (!kept)
-                        {
-                            r->fading = true;
-                        }
-                    }
-                }
-            }
-            banks[slot] = p.bank;
+            banks[0] = p.bank;
             current = p.bank;
         }
         const auto previous = controls;
@@ -1349,6 +1234,19 @@ struct SynthCore::Impl
         }
         std::fill_n(left, frames, 0.f);
         std::fill_n(right, frames, 0.f);
+        if (processing.test_and_set(std::memory_order_acquire))
+        {
+            return;
+        }
+        ProcessingLease lease{processing};
+        if (silenceRequested.exchange(false))
+        {
+            silence();
+            for (unsigned channel = 0; channel < 16; ++channel)
+            {
+                select(channel);
+            }
+        }
         if (!frames || frames > maxFrames)
         {
             ++status.overflow;
@@ -1359,24 +1257,6 @@ struct SynthCore::Impl
             }
             statuses.try_push(status);
             return;
-        }
-        if (hasPending)
-        {
-            if (!adopt(pending))
-            {
-                return;
-            }
-            hasPending = false;
-        }
-        Packet p;
-        for (unsigned i = 0; i < 2 && incoming.try_pop(p); ++i)
-        {
-            if (!adopt(p))
-            {
-                pending = p;
-                hasPending = true;
-                break;
-            }
         }
         for (auto &c : status.channels)
         {
@@ -1438,49 +1318,6 @@ struct SynthCore::Impl
             position += n;
         }
         statuses.try_push(status);
-        for (auto *&bank : banks)
-        {
-            if (bank && bank != current && !retired.full())
-            {
-                bool sounding = false;
-                for (const auto &r : bank->resources)
-                {
-                    if (r->fading && r->used)
-                    {
-                        sounding = true;
-                    }
-                    else if (r->fluid)
-                    {
-                        sounding |= fluid_synth_get_active_voice_count(r->fluid.get()) > 0;
-                    }
-                    else
-                    {
-                        for (const auto &sfz : r->sfz)
-                        {
-                            if (sfz)
-                            {
-                                sounding |= sfizz_get_num_active_voices(sfz.get()) > 0;
-                            }
-                        }
-                    }
-                }
-                if (!sounding)
-                {
-                    for (unsigned c = 0; c < 16; ++c)
-                    {
-                        for (unsigned g = 0; g < 4; ++g)
-                        {
-                            if (generations[c][g].bank == bank)
-                            {
-                                clearGeneration(c, g);
-                            }
-                        }
-                    }
-                    retired.try_push(bank);
-                    bank = nullptr;
-                }
-            }
-        }
     }
 };
 SynthCore::SynthCore(double rate) : impl_(std::make_unique<Impl>(rate)) {}
@@ -1493,7 +1330,7 @@ bool SynthCore::submit(const SynthSettings &s, bool preserve)
     }
     std::lock_guard lock(impl_->mutex);
     impl_->requested = s;
-    impl_->preserve = preserve;
+    (void)preserve;
     impl_->requestedBudget = configuredPreparedSampleBytes();
     ++impl_->requestRevision;
     impl_->wantedRevision = impl_->requestRevision;
@@ -1514,6 +1351,13 @@ void SynthCore::render(uint32_t frames, std::span<const EventView> events, float
 }
 void SynthCore::silence() noexcept
 {
+    impl_->silenceRequested = true;
+    if (impl_->processing.test_and_set(std::memory_order_acquire))
+    {
+        return;
+    }
+    Impl::ProcessingLease lease{impl_->processing};
+    impl_->silenceRequested = false;
     impl_->silence();
     for (unsigned c = 0; c < 16; ++c)
     {
@@ -1541,5 +1385,13 @@ bool SynthCore::loading() const noexcept
 uint64_t SynthCore::preparedBytes() const noexcept
 {
     return impl_->bytes.load();
+}
+uint64_t SynthCore::activeResources() const noexcept
+{
+    return impl_->active.load();
+}
+uint64_t SynthCore::destroyedResources() const noexcept
+{
+    return impl_->destroyed.load();
 }
 } // namespace WinJACKNexus::Common::MidiTools
