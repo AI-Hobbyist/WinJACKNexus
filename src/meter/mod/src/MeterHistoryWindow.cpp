@@ -812,6 +812,57 @@ void MeterHistoryWindow::applyTheme()
                   meterCssColor("control-history-group-text", "#b8d7f6"));
     style.replace(QStringLiteral("%splitter%"),
                   meterCssColor("control-history-splitter-surface", "#122a42"));
+    using WinJACKNexus::UI::Controls::Palette;
+    const auto defaults = WinJACKNexus::UI::ThemePalette::darkRack();
+    const auto themed = [](const char *role, const QColor &fallback) {
+        return WinJACKNexus::UI::Controls::themeTokenColor(QStringLiteral("meter-bridge"),
+                                                           QString::fromLatin1(role), fallback);
+    };
+    Palette controls;
+    controls.background = themed("surface-page", defaults.color(QStringLiteral("window-bg")));
+    controls.panel =
+        themed("control-tab-surface-normal", defaults.color(QStringLiteral("panel-raised")));
+    controls.text = themed("text-history-control", defaults.color(QStringLiteral("text")));
+    controls.accent = themed("accent-primary", defaults.color(QStringLiteral("accent")));
+    controls.border = themed("control-tab-border-normal", defaults.color(QStringLiteral("border")));
+    const auto controlPalette = [&](const char *surface, const char *text, const char *border) {
+        auto colors = controls;
+        colors.panel = themed(surface, controls.panel);
+        colors.text = themed(text, controls.text);
+        colors.border = themed(border, controls.border);
+        return colors;
+    };
+    const auto choices =
+        controlPalette("control-preset-surface-normal", "control-preset-text-normal",
+                       "control-preset-border-normal");
+    const auto actions =
+        controlPalette("control-action-surface-normal", "control-action-text-normal",
+                       "control-action-border-normal");
+    const auto numbers =
+        controlPalette("control-number-surface", "control-number-text", "control-number-border");
+    // Own the properties used by the shared controls' custom painters. Ordinary
+    // background rules cannot override QApplication's qproperty assignments.
+    const auto paintedStyle = [](const QString &selector, const Palette &colors, bool hasText) {
+        auto rule =
+            QStringLiteral("%1 { qproperty-surfaceColor:%2; qproperty-borderColor:%3; "
+                           "qproperty-accentColor:%4; color:%5;")
+                .arg(selector, colors.panel.name(QColor::HexArgb),
+                     colors.border.name(QColor::HexArgb), colors.accent.name(QColor::HexArgb),
+                     colors.text.name(QColor::HexArgb));
+        if (hasText)
+            rule +=
+                QStringLiteral("qproperty-textColor:%1;").arg(colors.text.name(QColor::HexArgb));
+        return rule + QLatin1Char('}');
+    };
+    style += paintedStyle(QStringLiteral("QComboBox[wjnRole=\"choice\"]"), choices, true);
+    style += paintedStyle(QStringLiteral("QToolButton[wjnRole=\"iconAction\"]"), actions, true);
+    style += paintedStyle(
+        QStringLiteral("QSpinBox[wjnRole=\"number\"], QDoubleSpinBox[wjnRole=\"number\"]"), numbers,
+        false);
+    style += QStringLiteral("QSpinBox[wjnRole=\"number\"] QLineEdit, "
+                            "QDoubleSpinBox[wjnRole=\"number\"] QLineEdit { color:%1; }")
+                 .arg(numbers.text.name(QColor::HexArgb));
+    style += paintedStyle(QStringLiteral("QSlider[wjnRole=\"range\"]"), controls, false);
     setStyleSheet(style);
     const auto opacity =
         WinJACKNexus::UI::ThemeBackground::componentOpacity(QStringLiteral("meter-bridge"));
@@ -855,16 +906,15 @@ void MeterHistoryWindow::applyTheme()
     if (auto *title = findChild<QLabel *>(QStringLiteral("meterHistory.statisticsTitle")))
         title->setStyleSheet(QStringLiteral("color:%1; font-weight:600; padding:3px 0;")
                                  .arg(meterCssColor("control-history-group-text", "#b8d7f6")));
-    WinJACKNexus::UI::Controls::Palette controls;
-    controls.background = palette.color(QStringLiteral("window-bg"));
-    controls.panel = palette.color(QStringLiteral("panel-raised"));
-    controls.text = meterColor("text-history-control", "#cfe4ff");
-    controls.accent = palette.color(QStringLiteral("accent"));
-    controls.border = palette.color(QStringLiteral("border"));
     for (auto *widget : findChildren<QWidget *>())
     {
-        if (qobject_cast<QToolButton *>(widget) || qobject_cast<QComboBox *>(widget) ||
-            qobject_cast<QCheckBox *>(widget) || qobject_cast<QSlider *>(widget))
+        if (qobject_cast<QToolButton *>(widget))
+            WinJACKNexus::UI::Controls::applyPalette(widget, actions);
+        else if (qobject_cast<QComboBox *>(widget))
+            WinJACKNexus::UI::Controls::applyPalette(widget, choices);
+        else if (qobject_cast<QSpinBox *>(widget) || qobject_cast<QDoubleSpinBox *>(widget))
+            WinJACKNexus::UI::Controls::applyPalette(widget, numbers);
+        else if (qobject_cast<QCheckBox *>(widget) || qobject_cast<QSlider *>(widget))
             WinJACKNexus::UI::Controls::applyPalette(widget, controls);
         if (auto *combo = qobject_cast<QComboBox *>(widget))
         {

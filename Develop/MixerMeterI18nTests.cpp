@@ -16,6 +16,7 @@
 #include <WinJACKNexus/Meter/Mod/MeterCard.hpp>
 #include <WinJACKNexus/Meter/Mod/MeterSettingsWidget.hpp>
 #include <WinJACKNexus/Meter/MeterCsvWriter.hpp>
+#include "Node/WindowShowCounter.hpp"
 #include "../src/ui/src/LocalizedMixerErrors.hpp"
 #include <QApplication>
 #include <QAction>
@@ -331,6 +332,8 @@ Provider fixture()
     return provider;
 }
 }
+#include "MeterHistoryThemeChecks.inc"
+
 int main(int argc, char **argv)
 {
     QApplication app(argc, argv);
@@ -363,6 +366,8 @@ int main(int argc, char **argv)
     ThemeManager themes;
     themes.watchApplication(&app);
     auto provider = fixture();
+    if (arguments.contains(QStringLiteral("--theme-only")))
+        return meterHistoryThemeChecks(theme, host, provider, output);
     Common::DigitalMixerState model;
     const auto input = model.add(Common::MixerStripKind::input, Common::MixerLayout::stereo);
     model.add(Common::MixerStripKind::aux, Common::MixerLayout::stereo);
