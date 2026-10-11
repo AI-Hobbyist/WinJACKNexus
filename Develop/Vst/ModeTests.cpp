@@ -216,6 +216,23 @@ int main(int argc, char **argv)
                 const auto state = QJsonDocument(changed).toJson(QJsonDocument::Compact);
                 require(set(virt, state.constData()) == 1 && processUntil(0.548F),
                         "existing preset state restores independently into VIRT worker");
+                auto *independentJack = Node::createNodeForMode(library, WJN_NODE_MODE_JACK);
+                require(independentJack && set(independentJack, savedJack.constData()) == 1 &&
+                            independentJack->init(),
+                        "same plugin runs in independent simultaneous JACK sandbox");
+                const auto independentState =
+                    QJsonDocument::fromJson(QByteArray(get(independentJack))).object();
+                const auto independentPreset = QByteArray::fromBase64(
+                    independentState.value("presetData").toString().toLatin1());
+                float independentGain{};
+                require(independentPreset.size() >= 36, "independent JACK preset captured");
+                std::memcpy(&independentGain, independentPreset.data() + 32,
+                            sizeof(independentGain));
+                require(independentGain == 0.5F && processUntil(0.548F),
+                        "JACK and VIRT plugin parameter and DSP states remain independent");
+                independentJack->shutdown();
+                destroy(independentJack);
+                require(QFile::remove(recordPath), "remove independent JACK fixture record");
                 std::array<WjnNodeMidiEventV1, 1100> overflow;
                 overflow.fill(event);
                 midi.eventCount = overflow.size();

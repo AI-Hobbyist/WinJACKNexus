@@ -175,9 +175,24 @@ int main(int argc, char **argv)
                 require(contract.metadata.features == (hasGui ? WJN_NODE_HAS_GUI : 0u),
                         "actual modules describe custom GUI support before creation");
                 ++modules;
+                std::cout << "MODULE " << entry.path().lexically_relative(runtime).generic_string()
+                          << " JACK=" << bool(contract.metadata.capabilities & WJN_NODE_JACK_NODE)
+                          << " VIRT=" << bool(contract.metadata.capabilities & WJN_NODE_VIRT_NODE)
+                          << " GUI=" << bool(contract.metadata.features & WJN_NODE_HAS_GUI) << '\n';
             }
         }
-        require(modules >= 25, "all current built-in module families and example discovered");
+        {
+            Library meter(runtime / "mod_meterbrigde.dll");
+            Node::ModuleContract contract;
+            require(Node::inspectNodeModule(meter.handle, contract) == Node::ModuleError::none &&
+                        contract.metadata.capabilities == WJN_NODE_JACK_NODE &&
+                        contract.metadata.features == WJN_NODE_HAS_GUI &&
+                        !Node::createNodeForMode(meter.handle, WJN_NODE_MODE_VIRT),
+                    "root meter host is explicitly JACK-only with GUI");
+            ++modules;
+            std::cout << "MODULE mod_meterbrigde.dll JACK=1 VIRT=0 GUI=1\n";
+        }
+        require(modules == 28, "complete current built-in and SDK-example output inventory");
         std::cout << "PASS C/C++ Node v4 ABI, precreation scan, explicit modes and " << modules
                   << " actual modules and their migration matrix; no JACK server\n";
         return 0;

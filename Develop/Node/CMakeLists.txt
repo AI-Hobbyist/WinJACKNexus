@@ -57,3 +57,7 @@ target_link_libraries(wjn_subgraph_tests PRIVATE WinJACKNexus::UI WinJACKNexus::
     WinJACKNexus::Node WinJACKNexus::Common mod_patchbay patchbay_core Qt6::Widgets Qt6::Test Dbghelp)
 set_target_properties(wjn_subgraph_tests PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEASE "${WJN_OUTPUT_DIR}")
 add_dependencies(wjn_subgraph_tests wjn_subgraph_jack_fixture ${wjn_v4_fixture_targets} WinJACKNexus)
+
+# S6 discovers the actual VST fixtures through the Host scanner-entry call site.
+add_dependencies(wjn_subgraph_tests mod_vst_host vst_process64
+    wjn_vst2_block_fixture64 wjn_vst3_block_fixture64)

@@ -238,3 +238,7 @@ MIDI Split/Matrix 和八个 Native Fx、ExampleNativeFx 已迁移双模式。VIR
 ## VST 双模式（公开仓库前 S5，2026-10-11）
 
 VST Host 及继承其 metadata 的扫描插件条目已声明 JACK/VIRT 双能力。模式、内部块协议 v1、有界 MIDI、根时钟、异步延迟和失败清理见 [VST 处理契约](../Vst/Virtual-Processing.md)。Node v4 外部函数表未改变；Host 与 x86/x64 VSTProcess 必须同步替换。
+
+## 最终迁移清单（公开仓库前 S6，2026-10-11）
+
+能力与 GUI 的实际模块清单见 [S6 清单](../../Docs/Node/PrePublic-S6-inventory.md)。主图、子图各加载入口和工程恢复均按所属图选择固定模式；旧 v3/非法 ABI/缺失或不允许放置节点只保留工程记录与诊断，不创建处理实例。保存旧工程须由用户触发，恢复不静默覆写。Host、Node v4 模块、NativeFx boundary v2 和 VSTProcess IPC v1 必须按增量包清单同步替换。完整验证与未验证影响见 [S6 记录](../../Docs/Node/PrePublic-S6-results.md)。

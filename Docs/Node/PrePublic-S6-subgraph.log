@@ -1,0 +1,250 @@
+CHECK 1: windows platform only
+CHECK 2: runtime, boundary DLL and evidence supplied
+CHECK 3: host i18n initialized
+CHECK 4: actual dual-mode module loads for state isolation
+CHECK 5: actual module has settings round-trip exports
+CHECK 6: same module creates independent explicit modes
+CHECK 7: changing VIRT settings preserves simultaneous JACK instance state
+CHECK 8: actual dual-mode settings round-trip preserves independent values
+CHECK 9: actual dual-mode module loads for state isolation
+CHECK 10: actual module has settings round-trip exports
+CHECK 11: same module creates independent explicit modes
+CHECK 12: changing VIRT settings preserves simultaneous JACK instance state
+CHECK 13: actual dual-mode settings round-trip preserves independent values
+CHECK 14: actual dual-mode module loads for state isolation
+CHECK 15: actual module has settings round-trip exports
+CHECK 16: same module creates independent explicit modes
+CHECK 17: changing VIRT settings preserves simultaneous JACK instance state
+CHECK 18: actual dual-mode settings round-trip preserves independent values
+CHECK 19: actual dual-mode module loads for state isolation
+CHECK 20: actual module has settings round-trip exports
+CHECK 21: same module creates independent explicit modes
+CHECK 22: changing VIRT settings preserves simultaneous JACK instance state
+CHECK 23: actual dual-mode settings round-trip preserves independent values
+CHECK 24: actual dual-mode module loads for state isolation
+CHECK 25: actual module has settings round-trip exports
+CHECK 26: same module creates independent explicit modes
+CHECK 27: changing VIRT settings preserves simultaneous JACK instance state
+CHECK 28: actual dual-mode settings round-trip preserves independent values
+CHECK 29: actual dual-mode module loads for state isolation
+CHECK 30: actual module has settings round-trip exports
+CHECK 31: same module creates independent explicit modes
+CHECK 32: changing VIRT settings preserves simultaneous JACK instance state
+CHECK 33: actual dual-mode settings round-trip preserves independent values
+CHECK 34: actual dual-mode module loads for state isolation
+CHECK 35: actual module has settings round-trip exports
+CHECK 36: same module creates independent explicit modes
+CHECK 37: changing VIRT settings preserves simultaneous JACK instance state
+CHECK 38: actual dual-mode settings round-trip preserves independent values
+CHECK 39: actual dual-mode module loads for state isolation
+CHECK 40: actual module has settings round-trip exports
+CHECK 41: same module creates independent explicit modes
+CHECK 42: changing VIRT settings preserves simultaneous JACK instance state
+CHECK 43: actual dual-mode settings round-trip preserves independent values
+CHECK 44: actual dual-mode module loads for state isolation
+CHECK 45: actual module has settings round-trip exports
+CHECK 46: same module creates independent explicit modes
+CHECK 47: changing VIRT settings preserves simultaneous JACK instance state
+CHECK 48: actual dual-mode settings round-trip preserves independent values
+CHECK 49: actual dual-mode module loads for state isolation
+CHECK 50: actual module has settings round-trip exports
+CHECK 51: same module creates independent explicit modes
+CHECK 52: changing VIRT settings preserves simultaneous JACK instance state
+CHECK 53: actual dual-mode settings round-trip preserves independent values
+CHECK 54: actual dual-mode module loads for state isolation
+CHECK 55: actual module has settings round-trip exports
+CHECK 56: same module creates independent explicit modes
+CHECK 57: changing VIRT settings preserves simultaneous JACK instance state
+CHECK 58: actual dual-mode settings round-trip preserves independent values
+CHECK 59: all eleven built-in dual-mode modules checked individually
+CHECK 60: scanner fixture directory is new and test-owned
+CHECK 61: write architecture-specific scanner record
+CHECK 62: write architecture-specific scanner record
+CHECK 63: write architecture-specific scanner record
+CHECK 64: write architecture-specific scanner record
+CHECK 65: scanner entry inherits Host capabilities and persisted identity
+CHECK 66: scanner entry inherits Host capabilities and persisted identity
+CHECK 67: scanner entry inherits Host capabilities and persisted identity
+CHECK 68: scanner entry inherits Host capabilities and persisted identity
+CHECK 69: four scanned VST combinations appear in each graph context
+CHECK 70: scanner entry inherits Host capabilities and persisted identity
+CHECK 71: actual scanned plugin entry prepares correct VIRT worker and ports
+CHECK 72: scanner entry inherits Host capabilities and persisted identity
+CHECK 73: actual scanned plugin entry prepares correct VIRT worker and ports
+CHECK 74: scanner entry inherits Host capabilities and persisted identity
+CHECK 75: actual scanned plugin entry prepares correct VIRT worker and ports
+CHECK 76: scanner entry inherits Host capabilities and persisted identity
+CHECK 77: actual scanned plugin entry prepares correct VIRT worker and ports
+CHECK 78: four scanned VST combinations appear in each graph context
+CHECK 79: remove test-owned scanner record
+CHECK 80: remove test-owned scanner record
+CHECK 81: remove test-owned scanner record
+CHECK 82: remove test-owned scanner record
+CHECK 83: remove empty scanner fixture directory
+CHECK 84: load only offline JACK boundary substitute
+CHECK 85: boundary observation hooks
+CHECK 86: fixture directory must be test-owned and new
+CHECK 87: temporary discoverable fixtures
+CHECK 88: copy controlled ABI fixture
+CHECK 89: hold fixture lease for counters
+CHECK 90: copy controlled ABI fixture
+CHECK 91: hold fixture lease for counters
+CHECK 92: copy controlled ABI fixture
+CHECK 93: hold fixture lease for counters
+CHECK 94: direct child rejects JACK-only before init
+CHECK 95: direct main rejects VIRT-only before init
+CHECK 96: rejected creation has no factory or JACK side effects
+CHECK 97: direct VIRT creation
+CHECK 98: preallocated schedule
+CHECK 99: zero latency module cycle rejected transactionally
+CHECK 100: reversed port direction rejected
+CHECK 101: audio MIDI mismatch rejected
+CHECK 102: old valid state survives failed edits
+CHECK 103: unconnected output silence
+CHECK 2152: overflow drops newest with counter
+CHECK 2153: bounded MIDI forwarded
+CHECK 2154: actual host opens with offline boundary DLL
+CHECK 2155: host native widget found
+CHECK 2156: actual host controls
+CHECK 2157: main library matrix
+CHECK 2158: main search matrix
+CHECK 2159: native real context menu visible
+CHECK 2160: JACK-only add menu matrix
+CHECK 2161: VIRT-only add menu matrix
+CHECK 2162: dual add menu matrix
+CHECK 2163: add menu was inspected
+CHECK 2164: capture window remains alive
+CHECK 2165: real HWND visible
+CHECK 2166: 100 percent DPR
+CHECK 2167: real Windows capture
+CHECK 2168: context library exposes permitted node
+CHECK 2169: main dual uses only JACK init path
+CHECK 2170: one root registers one boundary client
+CHECK 2171: child library matrix
+CHECK 2172: child search matrix
+CHECK 2173: native real context menu visible
+CHECK 2174: JACK-only add menu matrix
+CHECK 2175: VIRT-only add menu matrix
+CHECK 2176: dual add menu matrix
+CHECK 2177: add menu was inspected
+CHECK 2178: context library exposes permitted node
+CHECK 2179: nested graph registers no client
+CHECK 2180: context library exposes permitted node
+CHECK 2181: third level registers no client
+CHECK 2182: context library exposes permitted node
+CHECK 2183: MIDI output interface
+CHECK 2184: MIDI output interface
+CHECK 2185: MIDI output interface
+CHECK 2186: only six immediate root interfaces register native ports
+CHECK 2187: restore route invokes real host gate
+CHECK 2188: all valid routes schedule
+CHECK 2189: restore route invokes real host gate
+CHECK 2190: all valid routes schedule
+CHECK 2191: restore route invokes real host gate
+CHECK 2192: all valid routes schedule
+CHECK 2193: restore route invokes real host gate
+CHECK 2194: all valid routes schedule
+CHECK 2195: restore route invokes real host gate
+CHECK 2196: all valid routes schedule
+CHECK 2197: restore route invokes real host gate
+CHECK 2198: all valid routes schedule
+CHECK 2199: restore route invokes real host gate
+CHECK 2200: all valid routes schedule
+CHECK 2201: restore route invokes real host gate
+CHECK 2202: all valid routes schedule
+CHECK 2203: restore route invokes real host gate
+CHECK 2204: all valid routes schedule
+CHECK 2205: restore route invokes real host gate
+CHECK 2206: all valid routes schedule
+CHECK 2207: restore route invokes real host gate
+CHECK 2208: all valid routes schedule
+CHECK 2209: restore route invokes real host gate
+CHECK 2210: all valid routes schedule
+CHECK 2211: restore route invokes real host gate
+CHECK 2212: all valid routes schedule
+CHECK 2213: restore route invokes real host gate
+CHECK 2214: all valid routes schedule
+CHECK 2215: restore route invokes real host gate
+CHECK 2216: all valid routes schedule
+CHECK 2217: restore route invokes real host gate
+CHECK 2218: all valid routes schedule
+CHECK 2219: root native boundary ports
+CHECK 2220: seed native MIDI boundary
+CHECK 2221: three-level audio roundtrip executes actual VIRT modules
+CHECK 2222: three-level MIDI roundtrip retains frame offset
+CHECK 2223: three child processors use only VIRT; JACK path unchanged
+CHECK 2224: four-language hot switch
+CHECK 2225: dual remains available during hot switch
+CHECK 2226: tooltip labels and values update through i18n
+CHECK 2275: real tooltip near mouse
+CHECK 2276: capture window remains alive
+CHECK 2277: real HWND visible
+CHECK 2278: 100 percent DPR
+CHECK 2279: real Windows capture
+CHECK 2280: four-language hot switch
+CHECK 2281: dual remains available during hot switch
+CHECK 2282: tooltip labels and values update through i18n
+CHECK 2367: real tooltip near mouse
+CHECK 2368: capture window remains alive
+CHECK 2369: real HWND visible
+CHECK 2370: 100 percent DPR
+CHECK 2371: real Windows capture
+CHECK 2372: four-language hot switch
+CHECK 2373: dual remains available during hot switch
+CHECK 2374: tooltip labels and values update through i18n
+CHECK 2436: real tooltip near mouse
+CHECK 2437: capture window remains alive
+CHECK 2438: real HWND visible
+CHECK 2439: 100 percent DPR
+CHECK 2440: real Windows capture
+CHECK 2441: four-language hot switch
+CHECK 2442: dual remains available during hot switch
+CHECK 2443: tooltip labels and values update through i18n
+CHECK 2504: real tooltip near mouse
+CHECK 2505: capture window remains alive
+CHECK 2506: real HWND visible
+CHECK 2507: 100 percent DPR
+CHECK 2508: real Windows capture
+CHECK 2509: GUI-no inspector button disabled
+CHECK 2510: actual node context menu visible
+CHECK 2511: GUI-no native menu action disabled
+CHECK 2512: disabled GUI menu inspected
+CHECK 2513: capture window remains alive
+CHECK 2514: real HWND visible
+CHECK 2515: 100 percent DPR
+CHECK 2516: real Windows capture
+CHECK 2517: unloadable legacy node route remains pending and serializable
+CHECK 2518: versioned project save
+CHECK 2519: project records retain rejected module state and nested routes
+CHECK 2520: two roots use separate boundary clients
+CHECK 2521: closing editor does not stop child DSP
+CHECK 2522: closing editor retains active root execution
+CHECK 2523: reopen editor using retained execution tree
+CHECK 2524: reopened root editor present
+CHECK 2525: nested deletion detaches only its processor subtree
+CHECK 2526: root deletion releases only that root boundary, leaving observer and second root
+CHECK 2527: offline main DSP instance
+CHECK 2528: dual processing contract
+CHECK 2529: main JACK DSP enters only JACK path, virtual path remains zero
+CHECK 2530: shutdown cleans only fixture clients and ports
+CHECK 2531: read original restoration project
+CHECK 2532: actual host restores saved project
+CHECK 2533: project restoration rejects child JACK-only before factory and uses VIRT only
+CHECK 2534: actual host restores deepest logical routes
+CHECK 2535: restored three-level DSP executes
+CHECK 2536: restoration never silently overwrites source project
+CHECK 2537: actual save action found
+CHECK 2538: host save retains unloadable module records
+CHECK 2539: host save preserves independent parameter state
+CHECK 2540: host save preserves independent parameter state
+CHECK 2541: host save preserves independent parameter state
+CHECK 2542: host save preserves independent parameter state
+CHECK 2543: host save preserves independent parameter state
+CHECK 2544: host save preserves independent parameter state
+CHECK 2545: restored host cleans fixture boundaries
+CHECK 2546: remove test-owned DLL
+CHECK 2547: remove test-owned DLL
+CHECK 2548: remove test-owned DLL
+CHECK 2549: remove empty test-only discovery directory
+CHECK 2550: bounded real-window batch
+S3 PASS checks=2550 realWindows=14 platform=windows DPR=1

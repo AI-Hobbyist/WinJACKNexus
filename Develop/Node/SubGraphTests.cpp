@@ -209,6 +209,8 @@ void graphChecks(const QString &path)
 }
 }
 
+#include "DeliveryChecks.inc"
+
 int main(int argc, char **argv)
 {
     std::setvbuf(stdout, nullptr, _IONBF, 0);
@@ -227,6 +229,7 @@ int main(int argc, char **argv)
     WinJACKNexus::UI::HostI18n host({settings.filePath("language.ini"), {"en-US"}, false});
     QString error;
     require(host.initialize(args[1], &error), "host i18n initialized");
+    deliveryChecks(args[1]);
     QDir().mkpath(args[3]);
     auto &api = WinJACKNexus::Audio::JackApi::instance();
     require(api.load(reinterpret_cast<const wchar_t *>(args[2].utf16())),
@@ -441,7 +444,11 @@ int main(int argc, char **argv)
         {paths[2], 0, thirdClient, "{\"gain\":2}", deep->sceneContext().id},
         {paths[0], 0, "rejected-old", "{\"keep\":true}", deep->sceneContext().id},
         {paths[2], 0, firstClient, "{\"gain\":3}", root->sceneContext().id},
-        {paths[2], 0, secondClient, "{\"gain\":4}", nested->sceneContext().id}};
+        {paths[2], 0, secondClient, "{\"gain\":4}", nested->sceneContext().id},
+        {QDir(args[1]).filePath("tests/node-v4/wjn_v4_fixture_old.dll"), 0, "old-v3",
+         "{\"keepVersion3\":true}", "main"},
+        {QDir(args[1]).filePath("nodes/missing-s6.dll"), 0, "missing-module",
+         "{\"keepMissing\":true}", deep->sceneContext().id}};
     std::vector<PatchbaySubGraphProject> graphs;
     for (auto *canvas : {main, root, nested, deep})
         graphs.push_back({canvas->sceneContext(), canvas->subGraphNodes(), canvas->interfaceNodes(),
@@ -449,7 +456,7 @@ int main(int argc, char **argv)
     require(main->saveProject(savedFile, records, graphs), "versioned project save");
     std::vector<PatchbayProjectModule> restored;
     std::vector<PatchbaySubGraphProject> restoredGraphs;
-    require(main->loadProject(savedFile, restored, restoredGraphs) && restored.size() == 4 &&
+    require(main->loadProject(savedFile, restored, restoredGraphs) && restored.size() == 6 &&
                 restored[1].settingsJson == records[1].settingsJson &&
                 restoredGraphs.back().connections.size() == deep->savedLogicalConnections().size(),
             "project records retain rejected module state and nested routes");
@@ -534,7 +541,7 @@ int main(int argc, char **argv)
     require(saveProject, "actual save action found");
     saveProject->trigger();
     main = context(window, "main");
-    require(main->loadProject(savedFile, restored, restoredGraphs) && restored.size() == 4,
+    require(main->loadProject(savedFile, restored, restoredGraphs) && restored.size() == 6,
             "host save retains unloadable module records");
     for (const auto &record : records)
     {

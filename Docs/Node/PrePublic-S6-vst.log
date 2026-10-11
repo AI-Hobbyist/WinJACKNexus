@@ -1,0 +1,10 @@
+Checking VST2 x32 actual JACK/VIRT workers
+PASS VST2 x32 JACK/VIRT actual workers, state, ports, clock/audio/MIDI, bounded overflow, cleanup
+Checking VST3 x32 actual JACK/VIRT workers
+PASS VST3 x32 JACK/VIRT actual workers, state, ports, clock/audio/MIDI, bounded overflow, cleanup
+Checking VST2 x64 actual JACK/VIRT workers
+PASS VST2 x64 JACK/VIRT actual workers, state, ports, clock/audio/MIDI, bounded overflow, cleanup
+Checking VST3 x64 actual JACK/VIRT workers
+Unable to start VIRT processing: Incompatible VST block transport v1
+PASS VST3 x64 JACK/VIRT actual workers, state, ports, clock/audio/MIDI, bounded overflow, cleanup
+PASS VST dual-mode matrix; private JACK fixture only, no real server and no visible test windows

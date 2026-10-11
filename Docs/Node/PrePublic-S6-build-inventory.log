@@ -1,0 +1,14 @@
+适用于 .NET Framework MSBuild 版本 18.10.1-1.26427.6+3cd27c13e
+
+  node.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\node.dll
+  wjn_example_node.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\examples\node\wjn_example_node.dll
+  wjn_v4_fixture_dual.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\tests\node-v4\wjn_v4_fixture_dual.dll
+  wjn_v4_fixture_incomplete.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\tests\node-v4\wjn_v4_fixture_incomplete.dll
+  wjn_v4_fixture_jack.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\tests\node-v4\wjn_v4_fixture_jack.dll
+  wjn_v4_fixture_missing.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\tests\node-v4\wjn_v4_fixture_missing.dll
+  wjn_v4_fixture_old.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\tests\node-v4\wjn_v4_fixture_old.dll
+  wjn_v4_fixture_unknown.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\tests\node-v4\wjn_v4_fixture_unknown.dll
+  wjn_v4_fixture_virt.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\tests\node-v4\wjn_v4_fixture_virt.dll
+  wjn_v4_fixture_zero.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\tests\node-v4\wjn_v4_fixture_zero.dll
+  NodeV4Tests.cpp
+  wjn_node_v4_tests.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\wjn_node_v4_tests.exe
