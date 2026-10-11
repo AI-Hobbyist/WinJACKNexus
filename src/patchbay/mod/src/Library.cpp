@@ -483,6 +483,10 @@ struct SubGraphPortSet final
     static int rateChanged(jack_nframes_t value, void *context) noexcept
     {
         auto &root = *static_cast<SubGraphPortSet *>(context);
+        // JACK also notifies the current clock when a client is activated.
+        // Treat only a changed value as a request to stop and prepare the graph.
+        if (root.requestedRate.load(std::memory_order_acquire) == value)
+            return 0;
         root.clockReady.store(false, std::memory_order_release);
         root.requestedRate.store(value, std::memory_order_release);
         return 0;
@@ -491,6 +495,8 @@ struct SubGraphPortSet final
     static int sizeChanged(jack_nframes_t value, void *context) noexcept
     {
         auto &root = *static_cast<SubGraphPortSet *>(context);
+        if (root.requestedFrames.load(std::memory_order_acquire) == value)
+            return 0;
         root.clockReady.store(false, std::memory_order_release);
         root.requestedFrames.store(value, std::memory_order_release);
         return 0;

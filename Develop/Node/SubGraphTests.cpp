@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 #include "../../src/patchbay/mod/src/Library.cpp"
+#include <QElapsedTimer>
 #include "WindowShowCounter.hpp"
 #include <WinJACKNexus/UI/HostI18n.hpp>
 #include <QFontDatabase>
@@ -239,7 +240,65 @@ int main(int argc, char **argv)
         reinterpret_cast<uint32_t (*)(uint32_t)>(GetProcAddress(boundary, "wjn_boundary_counter"));
     const auto process =
         reinterpret_cast<void (*)()>(GetProcAddress(boundary, "wjn_boundary_process"));
-    require(counter && process, "boundary observation hooks");
+    const auto setClock = reinterpret_cast<void (*)(jack_nframes_t, jack_nframes_t)>(
+        GetProcAddress(boundary, "wjn_boundary_set_clock"));
+    require(counter && process && setClock, "boundary observation hooks");
+    {
+        SubGraphPortSet clockRoot;
+        require(clockRoot.openBoundary("clock-regression"), "minimal root boundary opens");
+        for (const bool input : {true, false})
+        {
+            PatchbayInterfaceInfo description;
+            description.id = input ? "clock/in" : "clock/out";
+            description.portId = description.id + ":port";
+            description.kind = WinJACKNexus::Patchbay::Core::PortKind::audio;
+            clockRoot.interfaces.push_back(description);
+            clockRoot.ports.emplace_back();
+            auto &port = clockRoot.ports.back();
+            port.id = description.portId;
+            port.kind = description.kind;
+            port.isInput = input;
+            require(port.port.registerPort(clockRoot.client, input ? "in" : "out",
+                                           JACK_DEFAULT_AUDIO_TYPE,
+                                           input ? JackPortIsInput : JackPortIsOutput),
+                    "minimal root audio interface registers");
+        }
+        require(clockRoot.connect("clock/in:port", "clock/out:port"),
+                "minimal root audio passthrough route");
+        const auto activations = counter(5);
+        QElapsedTimer elapsed;
+        elapsed.start();
+        for (int index = 0; index < 20; ++index)
+            require(clockRoot.synchronizeClock(), "idle clock poll succeeds");
+        const auto repeatedActivations = counter(5) - activations;
+        auto *input = clockRoot.ports[0].port.audioBuffer(64);
+        std::fill_n(input, 64, 0.25f);
+        process();
+        const auto *output = clockRoot.ports[1].port.audioBuffer(64);
+        std::printf("CLOCK REGRESSION: idle polls=20, activations=%u, elapsed=%lld ms, "
+                    "output=%g, ready=%d\n",
+                    repeatedActivations, elapsed.elapsed(), output[0],
+                    int(clockRoot.clockReady.load()));
+        require(repeatedActivations == 0, "idle subgraph never deactivates or reactivates JACK");
+        require(std::all_of(output, output + 64, [](float value) { return value == 0.25f; }),
+                "audio survives activation-time clock notifications");
+        setClock(96000, 128);
+        require(!clockRoot.clockReady.load(), "actual clock change suspends old schedule");
+        process();
+        require(output[0] == 0.0f, "unprepared clock change emits silence");
+        require(clockRoot.synchronizeClock() && clockRoot.clockReady.load() &&
+                    clockRoot.sampleRate == 96000 && clockRoot.maxFrames == 128,
+                "actual rate and frame change prepares schedule once");
+        const auto changedActivations = counter(5);
+        require(clockRoot.synchronizeClock() && counter(5) == changedActivations,
+                "new clock remains stable after activation notifications");
+        std::fill_n(input, 128, 0.5f);
+        process();
+        require(std::all_of(output, output + 128, [](float value) { return value == 0.5f; }),
+                "changed clock passes the entire new audio block");
+        setClock(48000, 64);
+    }
+    const auto registeredBefore = counter(1);
     std::array<QString, 3> paths;
     std::array<HMODULE, 3> libraries{};
     std::array<uint32_t (*)(uint32_t), 3> counts{};
@@ -296,6 +355,12 @@ int main(int argc, char **argv)
     require(root && counter(0) == before + 1, "one root registers one boundary client");
     tabs->setCurrentWidget(root);
     settle();
+    const auto idleActivations = counter(5);
+    QTest::qWait(500);
+    std::printf("REAL WINDOW IDLE: 500 ms, repeated activations=%u\n",
+                counter(5) - idleActivations);
+    require(counter(5) == idleActivations,
+            "visible patchbay refresh does not stop or restart the root audio client");
     require(!findModule(tree, paths[0]) && findModule(tree, paths[1]) && findModule(tree, paths[2]),
             "child library matrix");
     applyNodeLibraryFilter(tree, "fixture");
@@ -321,7 +386,8 @@ int main(int argc, char **argv)
     const auto thirdClient = moduleClient(deep);
     for (auto *canvas : {root, nested, deep})
         require(canvas->addInterfaceNode("midi_out", {}), "MIDI output interface");
-    require(counter(1) == 6, "only six immediate root interfaces register native ports");
+    require(counter(1) == registeredBefore + 6,
+            "only six immediate root interfaces register native ports");
     const auto connectChain = [&](const char *inType, const char *outType, uint32_t inputId,
                                   uint32_t outputId) {
         const auto rin = interface(root, inType), rout = interface(root, outType);

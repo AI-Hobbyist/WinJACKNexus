@@ -16,6 +16,10 @@ struct _jack_client
     std::string name;
     JackProcessCallback process{};
     void *context{};
+    JackSampleRateCallback rateCallback{};
+    void *rateContext{};
+    JackBufferSizeCallback sizeCallback{};
+    void *sizeContext{};
     bool active{};
 };
 struct _jack_port
@@ -30,15 +34,31 @@ namespace
 {
 std::vector<std::unique_ptr<jack_client_t>> clients;
 std::vector<std::unique_ptr<jack_port_t>> ports;
-uint32_t opened{}, registered{}, callbacks{};
-}
+uint32_t opened{}, registered{}, callbacks{}, activations{}, deactivations{};
+jack_nframes_t sampleRate = 48000, blockFrames = 64;
+} // namespace
 extern "C"
 {
+    __declspec(dllexport) void wjn_boundary_set_clock(jack_nframes_t rate, jack_nframes_t frames)
+    {
+        sampleRate = rate;
+        blockFrames = frames;
+        for (const auto &client : clients)
+        {
+            if (!client->active)
+                continue;
+            if (client->rateCallback)
+                client->rateCallback(sampleRate, client->rateContext);
+            if (client->sizeCallback)
+                client->sizeCallback(blockFrames, client->sizeContext);
+        }
+    }
     __declspec(dllexport) uint32_t wjn_boundary_counter(uint32_t index)
     {
-        const uint32_t values[]{opened, registered, callbacks, uint32_t(clients.size()),
-                                uint32_t(ports.size())};
-        return index < 5 ? values[index] : 0;
+        const uint32_t values[]{
+            opened,      registered,   callbacks, uint32_t(clients.size()), uint32_t(ports.size()),
+            activations, deactivations};
+        return index < 7 ? values[index] : 0;
     }
     __declspec(dllexport) void wjn_boundary_process()
     {
@@ -47,7 +67,7 @@ extern "C"
             if (client->active && client->process)
             {
                 ++callbacks;
-                client->process(64, client->context);
+                client->process(blockFrames, client->context);
             }
         }
     }
@@ -82,15 +102,23 @@ extern "C"
     }
     int jack_activate(jack_client_t *client)
     {
+        ++activations;
+        if (client->rateCallback)
+            client->rateCallback(sampleRate, client->rateContext);
+        if (client->sizeCallback)
+            client->sizeCallback(blockFrames, client->sizeContext);
         client->active = true;
         return 0;
     }
     int jack_deactivate(jack_client_t *client)
     {
+        ++deactivations;
         client->active = false;
         return 0;
     }
-    void jack_on_shutdown(jack_client_t *, JackShutdownCallback, void *) {}
+    void jack_on_shutdown(jack_client_t *, JackShutdownCallback, void *)
+    {
+    }
     int jack_set_process_callback(jack_client_t *client, JackProcessCallback callback,
                                   void *context)
     {
@@ -98,12 +126,18 @@ extern "C"
         client->context = context;
         return 0;
     }
-    int jack_set_buffer_size_callback(jack_client_t *, JackBufferSizeCallback, void *)
+    int jack_set_buffer_size_callback(jack_client_t *client, JackBufferSizeCallback callback,
+                                      void *context)
     {
+        client->sizeCallback = callback;
+        client->sizeContext = context;
         return 0;
     }
-    int jack_set_sample_rate_callback(jack_client_t *, JackSampleRateCallback, void *)
+    int jack_set_sample_rate_callback(jack_client_t *client, JackSampleRateCallback callback,
+                                      void *context)
     {
+        client->rateCallback = callback;
+        client->rateContext = context;
         return 0;
     }
     int jack_set_graph_order_callback(jack_client_t *, JackGraphOrderCallback, void *)
@@ -116,11 +150,11 @@ extern "C"
     }
     jack_nframes_t jack_get_sample_rate(jack_client_t *)
     {
-        return 48000;
+        return sampleRate;
     }
     jack_nframes_t jack_get_buffer_size(jack_client_t *)
     {
-        return 64;
+        return blockFrames;
     }
     float jack_cpu_load(jack_client_t *)
     {
