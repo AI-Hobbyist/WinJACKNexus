@@ -214,25 +214,22 @@ class SynthNode final : public WinJACKNexus::Node::INode, public MT::ClientSetti
 };
 const char *wjn_get_node_api_version()
 {
-    return "2";
+    return "3";
 }
-uint32_t wjn_get_node_count()
+
+const char *wjn_get_node_name(void)
 {
-    return 1;
+    return "sf2_loader";
 }
-const char *wjn_get_node_name(uint32_t i)
+const char *wjn_get_node_category(void)
 {
-    return i == 0 ? "sf2_loader" : "";
+    return "Midi Tools";
 }
-const char *wjn_get_node_category(uint32_t i)
-{
-    return i == 0 ? "Midi Tools" : "";
-}
-WinJACKNexus::Node::INode *wjn_create_node(uint32_t i)
+WinJACKNexus::Node::INode *wjn_create_node(void)
 {
     try
     {
-        return i == 0 ? new SynthNode : nullptr;
+        return new SynthNode;
     }
     catch (...)
     {
@@ -289,19 +286,17 @@ uint32_t wjn_get_node_theme_api_version()
 {
     return WJN_NODE_THEME_API_VERSION;
 }
-const char *wjn_get_node_theme_namespace_json(uint32_t index)
+const char *wjn_get_node_theme_namespace_json(void)
 {
-    return index == 0 ? midiToolsThemeDescriptor : nullptr;
+    return midiToolsThemeDescriptor;
 }
 uint32_t wjn_get_node_i18n_api_version()
 {
-    return 1;
+    return WJN_NODE_I18N_API_VERSION;
 }
-const char *wjn_get_node_i18n_descriptor_json(uint32_t i)
+const char *wjn_get_node_i18n_descriptor_json(void)
 {
-    return i == 0
-               ? R"json({"descriptorVersion":1,"i18nApiVersion":1,"moduleId":"midi-tools-sf2_loader","domains":["midi.sf2_loader"],"locatePath":"locate","catalogVersion":1,"displayNameKey":{"domain":"midi.sf2_loader","key":"name"}})json"
-               : nullptr;
+    return R"json({"descriptorVersion":1,"i18nApiVersion":1,"moduleId":"midi-tools-sf2_loader","domains":["midi.sf2_loader"],"locatePath":"locate","catalogVersion":1,"displayNameKey":{"domain":"midi.sf2_loader","key":"name"}})json";
 }
 int32_t wjn_i18n_attach_host(const WjnI18nHostV1 *h)
 {

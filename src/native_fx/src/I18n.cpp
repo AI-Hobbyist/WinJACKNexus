@@ -115,7 +115,7 @@ extern "C"
     }
     uint32_t wjn_get_node_i18n_api_version(void)
     {
-        return WJN_I18N_API_VERSION;
+        return WJN_NODE_I18N_API_VERSION;
     }
     const char *wjn_fx_i18n_descriptor_json(uint32_t index)
     {
@@ -135,9 +135,9 @@ extern "C"
                 .toJson(QJsonDocument::Compact);
         return descriptor.constData();
     }
-    const char *wjn_get_node_i18n_descriptor_json(uint32_t index)
+    const char *wjn_get_node_i18n_descriptor_json(void)
     {
-        return (activeMeta.placements & WJN_FX_NODE) ? wjn_fx_i18n_descriptor_json(index) : nullptr;
+        return (activeMeta.placements & WJN_FX_NODE) ? wjn_fx_i18n_descriptor_json(0) : nullptr;
     }
     int32_t wjn_i18n_attach_host(const WjnI18nHostV1 *value)
     {

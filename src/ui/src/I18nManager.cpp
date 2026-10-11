@@ -1,3 +1,5 @@
+#include <WinJACKNexus/Node/NodeApi.h>
+#include <WinJACKNexus/Node/ModuleCompatibility.hpp>
 /* SPDX-License-Identifier: AGPL-3.0-only */
 #include <WinJACKNexus/UI/I18nManager.hpp>
 #include <WinJACKNexus/Common/I18nApi.h>
@@ -870,20 +872,21 @@ I18nDomainLease I18nManager::registerLibrary(const QString &path, Extension exte
     const auto version = reinterpret_cast<WjnI18nVersionFn>(
         GetProcAddress(library, extension == Extension::node ? "wjn_get_node_i18n_api_version"
                                                              : "wjn_fx_i18n_api_version"));
-    const auto descriptorFn = reinterpret_cast<WjnI18nDescriptorFn>(
+    const auto descriptorSymbol =
         GetProcAddress(library, extension == Extension::node ? "wjn_get_node_i18n_descriptor_json"
-                                                             : "wjn_fx_i18n_descriptor_json"));
-    if (!version && !descriptorFn)
-    {
-        fail(error, QStringLiteral("Module has no optional i18n extension"));
-        return {};
-    }
-    if (!version || !descriptorFn || version() != WJN_I18N_API_VERSION)
+                                                             : "wjn_fx_i18n_descriptor_json");
+    const auto expectedVersion =
+        extension == Extension::node ? WJN_NODE_I18N_API_VERSION : WJN_I18N_API_VERSION;
+    if (!version || !descriptorSymbol || version() != expectedVersion ||
+        (extension == Extension::node &&
+         (index != 0 || !WinJACKNexus::Node::isSingleNodeModule(library))))
     {
         fail(error, QStringLiteral("Unsupported i18n extension"));
         return {};
     }
-    const char *json = descriptorFn(index);
+    const char *json = extension == Extension::node
+                           ? reinterpret_cast<WjnNodeI18nDescriptorFn>(descriptorSymbol)()
+                           : reinterpret_cast<WjnI18nDescriptorFn>(descriptorSymbol)(index);
     if (!json || strnlen_s(json, packageLimit + 1) > packageLimit)
     {
         fail(error, QStringLiteral("Invalid i18n descriptor index/size"));

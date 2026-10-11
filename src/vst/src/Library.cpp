@@ -910,7 +910,7 @@ void SettingsWidget::refresh()
 
 const char* wjn_get_node_api_version(void)
 {
-    return "2";
+    return "3";
 }
 
 std::uint32_t wjn_get_node_theme_api_version(void)
@@ -918,7 +918,7 @@ std::uint32_t wjn_get_node_theme_api_version(void)
     return WJN_NODE_THEME_API_VERSION;
 }
 
-const char* wjn_get_node_theme_namespace_json(std::uint32_t index)
+const char *wjn_get_node_theme_namespace_json(void)
 {
     static constexpr char descriptor[] = R"json({
         "descriptorVersion":1,"themeApiVersion":1,
@@ -932,27 +932,22 @@ const char* wjn_get_node_theme_namespace_json(std::uint32_t index)
             "description":"Host-drawn card background for the VST Host node type"
         }]
     })json";
-    return index == 0 ? descriptor : nullptr;
+    return descriptor;
 }
 
-std::uint32_t wjn_get_node_count(void)
+const char *wjn_get_node_name(void)
 {
-    return 1;
+    return kNodeName;
 }
 
-const char* wjn_get_node_name(std::uint32_t index)
+const char *wjn_get_node_category(void)
 {
-    return index == 0 ? kNodeName : "";
+    return kNodeCategory;
 }
 
-const char* wjn_get_node_category(std::uint32_t index)
+WinJACKNexus::Node::INode *wjn_create_node(void)
 {
-    return index == 0 ? kNodeCategory : "";
-}
-
-WinJACKNexus::Node::INode* wjn_create_node(std::uint32_t index)
-{
-    return index == 0 ? new VstHostNode : nullptr;
+    return new VstHostNode;
 }
 
 void wjn_destroy_node(WinJACKNexus::Node::INode* node)

@@ -196,12 +196,12 @@ WinJACKNexus 的定位:
 | 基础库 `WinJACKNexus::UI` | `ui.dll` | ✅ 已完成 | [基础库计划](Docs/WinJACKNexus%20-%20基础库%20-%20开发计划.md) | ThemeManager/窗口嵌入/自绘控件 |
 | 基础库 `WinJACKNexus::Audio` | `audio.dll` | ✅ 已完成 | [基础库计划](Docs/WinJACKNexus%20-%20基础库%20-%20开发计划.md) | JACK 封装/WASAPI/系统 MIDI |
 | 基础库 `WinJACKNexus::Node` | `node.dll` | ✅ 已完成(接口桩) | [基础库计划](Docs/WinJACKNexus%20-%20基础库%20-%20开发计划.md) | INode + C-API + 示例节点 |
-| Audio Adapter | `nodes/adapter/mod_adapter.dll` | ✅ 已完成(A1–A6) | [Audio Adapter 计划](Docs/WinJACKNexus%20-%20Audio%20Adapter%20-%20开发计划.md) | WASAPI In/Out、MIDI In/Out、设置面板、设备互斥与刷新、电平/力度窗口 |
+| Audio Adapter | `nodes/adapter/*/mod_*.dll` | ✅ 已完成(A1–A6) | [Audio Adapter 计划](Docs/WinJACKNexus%20-%20Audio%20Adapter%20-%20开发计划.md) | WASAPI In/Out、MIDI In/Out、设置面板、设备互斥与刷新、电平/力度窗口 |
 | Interactive Patchbay | `mod_patchbay.dll`(主程序同级) | ✅ 已完成(B1–B8) | [接线盘计划](Docs/WinJACKNexus%20-%20接线盘%20-%20开发计划.md) | 实时 JACK 图、拖线连通/断开、工程保存恢复、自动保存、无限画布 |
 | Digital Mixer(调音台) | `nodes/mixer/mod_digital_mixer.dll` | ✅ 已完成 | — | 输入/AUX/主通道、FX 链、AUX 设置及工程保存恢复 |
 | Native Fx(自带效果器) | `nodes/native_fx/*/mod_*.dll` | ✅ 已完成 | [效果器完成记录](Native%20Effect/) | Gate、Graphic EQ、Parametric EQ、De-Esser、Compressor、Limiter、Delay、Reverb |
 | Native Fx API | `src/native_fx/include/WinJACKNexus/NativeFx/NativeFxApi.h` | ✅ 已完成 | [Native Fx API 文档](Develop/NativeFx/NativeFx-API.md) | 原生效果器模块接口、加载与控制 |
-| Meterbridge | `mod_meterbrigde.dll` + `nodes/meter/mod_meterbridge_probe.dll` | ✅ 已完成 | [电平表桥计划](Docs/电平表桥开发计划书.md) | 唯一桥窗口、Mono/Stereo/5.1/7.1/Custom Probe、BS.1770-5 计量、历史图表、CSV、工程恢复 |
+| Meterbridge | `mod_meterbrigde.dll` + `nodes/meter/*/mod_meter_*.dll` | ✅ 已完成 | [电平表桥计划](Docs/电平表桥开发计划书.md) | 唯一桥窗口、Mono/Stereo/5.1/7.1/Custom Probe、BS.1770-5 计量、历史图表、CSV、工程恢复 |
 | 主题系统 | `wjn_default_theme.dll` + `themes/template/` | ✅ 已完成 | [主题系统计划书](主题系统计划书.md) | S01–S12、默认主题 DLL、主题包/Dev 主题、Node 与 Native Fx 命名空间 |
 | Single VST Host | `nodes/vst/mod_vst_host.dll` + `VSTProcess32/64.exe` | ✅ 已完成 | [VST Support 计划](Docs/WinJACKNexus%20-%20VST%20Support%20-%20开发计划.md) | VST2/VST3 沙盒、分类栏、存档与旁通/重启 |
 | VST 效果器链 | Patchbay 子图 | ✅ 已完成 | [VST Support 计划](Docs/WinJACKNexus%20-%20VST%20Support%20-%20开发计划.md) | 子图内复用单 VST 节点 |
@@ -210,7 +210,7 @@ WinJACKNexus 的定位:
 | 16x16 MIDI Matrix（`midi matrix`） | `nodes/midi_tools/midi_matrix/mod_midi_matrix.dll` | ✅ 已完成（S3/S6） | [完成记录](Docs/MidiTools/midi-matrix-completion.md) | 独立公共按钮窗口、16×16 原通道路由、来源断路释放、默认主题 |
 | SF2/SFZ Loader（`sf2_loader`，SF2 加载器） | `nodes/midi_tools/sf2_loader/mod_sf2_loader.dll` | ✅ 已完成（S4～S6） | [完成记录](Docs/MidiTools/sf2_loader-completion.md) | 双引擎、16 通道及 Master；公共旋钮/电平表/卡片、独立模板 CSS 与四语言 |
 
-三个节点分类为 `Midi Tools`，各自独立 DLL；S0～S6 的实施、Release 编译、离线回归、部署依赖/许可及 100% Windows 可见实窗验证完成。人工验收 SKIPPED／已跳过（用户指令）；真实 JACK 音频、工程连线集成未验证。完整替换包在后续自维护源码格式整理、独立提交推送及全量 Release 重编后生成。
+三个节点分类为 `Midi Tools`，各自独立 DLL；S0～S6 的实施、Release 编译、离线回归、部署依赖/许可及 100% Windows 可见实窗验证完成。人工验收 SKIPPED／已跳过（用户指令）；真实 JACK 音频、工程连线集成未验证。自维护源码格式整理已独立提交并推送；Adapter/Probe 的 9 个独立 DLL 已完成拆分及实窗验证。Node SDK v3 单节点接口迁移、旧多合一加载支持移除及首次启动废弃提示已完成验证；最终推送及全量 Release 重编后生成完整替换包。
 
 未完成模块：
 

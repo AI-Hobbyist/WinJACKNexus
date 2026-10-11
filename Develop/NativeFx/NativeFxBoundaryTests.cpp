@@ -41,8 +41,8 @@ int main(int argc, char **argv)
         const auto count = reinterpret_cast<uint32_t (*)()>(library.resolve("wjn_fx_count"));
         const auto meta =
             reinterpret_cast<const WjnFxMeta *(*)(uint32_t)>(library.resolve("wjn_fx_meta"));
-        const auto nodeCount =
-            reinterpret_cast<uint32_t (*)()>(library.resolve("wjn_get_node_count"));
+        const auto nodeVersion =
+            reinterpret_cast<const char *(*)()>(library.resolve("wjn_get_node_api_version"));
         const auto boundaryVersion =
             reinterpret_cast<uint32_t (*)()>(library.resolve("wjn_fx_node_boundary_version"));
         const auto layout =
@@ -51,7 +51,7 @@ int main(int argc, char **argv)
             reinterpret_cast<const char *(*)(void *)>(library.resolve("wjn_fx_node_client_name"));
         const auto setClientName = reinterpret_cast<int (*)(void *, const char *)>(
             library.resolve("wjn_fx_node_set_client_name"));
-        const auto createNode = reinterpret_cast<WinJACKNexus::Node::INode *(*)(uint32_t)>(
+        const auto createNode = reinterpret_cast<WinJACKNexus::Node::INode *(*)(void)>(
             library.resolve("wjn_create_node"));
         const auto destroyNode = reinterpret_cast<void (*)(WinJACKNexus::Node::INode *)>(
             library.resolve("wjn_destroy_node"));
@@ -63,7 +63,7 @@ int main(int argc, char **argv)
             reinterpret_cast<void (*)(WjnFxInstance *)>(library.resolve("wjn_fx_destroy_mixer"));
         const auto editor = reinterpret_cast<QWidget *(*)(WjnFxInstance *, QWidget *)>(
             library.resolve("wjn_fx_create_mixer_editor"));
-        if (!check(version && count && meta && nodeCount && boundaryVersion && layout &&
+        if (!check(version && count && meta && nodeVersion && boundaryVersion && layout &&
                        clientName && setClientName && createNode && destroyNode && showGui &&
                        createMixer && destroyMixer && editor,
                    "required dual-placement exports exist"))
@@ -73,10 +73,12 @@ int main(int argc, char **argv)
         }
         const auto *info = meta(0);
         passed &= check(version() == WJN_FX_API_VERSION && count() == 1 && info &&
-                            info->placements == (WJN_FX_NODE | WJN_FX_MIXER) && nodeCount() == 1 &&
+                            info->placements == (WJN_FX_NODE | WJN_FX_MIXER) &&
+                            std::strcmp(nodeVersion(), "3") == 0 &&
+                            !library.resolve("wjn_get_node_count") &&
                             boundaryVersion() == WJN_FX_NODE_BOUNDARY_VERSION,
                         "placement and boundary versions agree");
-        auto *node = createNode(0);
+        auto *node = createNode();
         if (!check(node != nullptr, "node instance is created"))
         {
             passed = false;

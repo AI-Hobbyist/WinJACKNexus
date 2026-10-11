@@ -130,7 +130,7 @@ int main(int argc, char **argv)
             {"fixture-sfz", (repository + "/Develop/MidiTools/fixtures/tone.sfz").toStdString(),
              "sfz", 0, 0, 2}};
 
-        auto *node = create(0);
+        auto *node = create();
         check(node && set(node, Core::settingsJson(state).c_str()), "real DLL offline restore");
         const auto handle = node->createWindow(nullptr);
         auto *production = QWidget::find(reinterpret_cast<WId>(handle));

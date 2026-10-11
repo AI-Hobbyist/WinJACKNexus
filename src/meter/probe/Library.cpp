@@ -1311,7 +1311,7 @@ class MeterProbeNode final : public WinJACKNexus::Node::INode
 
 const char *wjn_get_node_api_version(void)
 {
-    return "2";
+    return "3";
 }
 
 std::uint32_t wjn_get_node_theme_api_version(void)
@@ -1319,7 +1319,7 @@ std::uint32_t wjn_get_node_theme_api_version(void)
     return WJN_NODE_THEME_API_VERSION;
 }
 
-const char *wjn_get_node_theme_namespace_json(std::uint32_t index)
+const char *wjn_get_node_theme_namespace_json(void)
 {
     static const std::array<QByteArray, 5> descriptors = [] {
         const std::array<const char *, 5> ids{
@@ -1347,53 +1347,25 @@ const char *wjn_get_node_theme_namespace_json(std::uint32_t index)
         }
         return result;
     }();
-#ifdef WJN_METER_PROBE_NODE_INDEX
-    return index == 0 ? descriptors[WJN_METER_PROBE_NODE_INDEX].constData() : nullptr;
-#else
-    return index < descriptors.size() ? descriptors[index].constData() : nullptr;
-#endif
+    return descriptors[WJN_METER_PROBE_NODE_INDEX].constData();
 }
 
-std::uint32_t wjn_get_node_count(void)
+const char *wjn_get_node_name(void)
 {
-#ifdef WJN_METER_PROBE_NODE_INDEX
-    return 1;
-#else
-    return static_cast<std::uint32_t>(probeDefinitions.size());
-#endif
+    return probeDefinitions[WJN_METER_PROBE_NODE_INDEX].name;
 }
 
-const char *wjn_get_node_name(std::uint32_t index)
+const char *wjn_get_node_category(void)
 {
-#ifdef WJN_METER_PROBE_NODE_INDEX
-    return index == 0 ? probeDefinitions[WJN_METER_PROBE_NODE_INDEX].name : "";
-#else
-    return index < probeDefinitions.size() ? probeDefinitions[index].name : "";
-#endif
+    return "Meter";
 }
 
-const char *wjn_get_node_category(std::uint32_t index)
+WinJACKNexus::Node::INode *wjn_create_node(void)
 {
-#ifdef WJN_METER_PROBE_NODE_INDEX
-    return index == 0 ? "Meter" : "";
-#else
-    return index < probeDefinitions.size() ? "Meter" : "";
-#endif
-}
 
-WinJACKNexus::Node::INode *wjn_create_node(std::uint32_t index)
-{
-#ifdef WJN_METER_PROBE_NODE_INDEX
-    if (index != 0)
-        return nullptr;
-    index = WJN_METER_PROBE_NODE_INDEX;
-#else
-    if (index >= probeDefinitions.size())
-        return nullptr;
-#endif
     try
     {
-        return new MeterProbeNode(index);
+        return new MeterProbeNode(WJN_METER_PROBE_NODE_INDEX);
     }
     catch (...)
     {

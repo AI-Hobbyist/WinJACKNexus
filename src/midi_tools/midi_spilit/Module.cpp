@@ -104,33 +104,30 @@ class SplitNode final : public WinJACKNexus::Node::INode, public MT::ClientSetti
 };
 const char *wjn_get_node_api_version()
 {
-    return "2";
+    return "3";
 }
-uint32_t wjn_get_node_count()
-{
-    return 1;
-}
+
 uint32_t wjn_get_node_theme_api_version()
 {
     return WJN_NODE_THEME_API_VERSION;
 }
-const char *wjn_get_node_theme_namespace_json(uint32_t index)
+const char *wjn_get_node_theme_namespace_json(void)
 {
-    return index == 0 ? midiToolsThemeDescriptor : nullptr;
+    return midiToolsThemeDescriptor;
 }
-const char *wjn_get_node_name(uint32_t i)
+const char *wjn_get_node_name(void)
 {
-    return i == 0 ? "midi_spilit" : "";
+    return "midi_spilit";
 }
-const char *wjn_get_node_category(uint32_t i)
+const char *wjn_get_node_category(void)
 {
-    return i == 0 ? "Midi Tools" : "";
+    return "Midi Tools";
 }
-WinJACKNexus::Node::INode *wjn_create_node(uint32_t i)
+WinJACKNexus::Node::INode *wjn_create_node(void)
 {
     try
     {
-        return i == 0 ? new SplitNode : nullptr;
+        return new SplitNode;
     }
     catch (...)
     {
@@ -181,13 +178,11 @@ extern "C" __declspec(dllexport) const char *wjn_get_node_client_id(WinJACKNexus
 }
 uint32_t wjn_get_node_i18n_api_version()
 {
-    return 1;
+    return WJN_NODE_I18N_API_VERSION;
 }
-const char *wjn_get_node_i18n_descriptor_json(uint32_t i)
+const char *wjn_get_node_i18n_descriptor_json(void)
 {
-    return i == 0
-               ? R"json({"descriptorVersion":1,"i18nApiVersion":1,"moduleId":"midi-tools-midi_spilit","domains":["midi.midi_spilit"],"locatePath":"locate","catalogVersion":1,"displayNameKey":{"domain":"midi.midi_spilit","key":"name"}})json"
-               : nullptr;
+    return R"json({"descriptorVersion":1,"i18nApiVersion":1,"moduleId":"midi-tools-midi_spilit","domains":["midi.midi_spilit"],"locatePath":"locate","catalogVersion":1,"displayNameKey":{"domain":"midi.midi_spilit","key":"name"}})json";
 }
 int32_t wjn_i18n_attach_host(const WjnI18nHostV1 *h)
 {

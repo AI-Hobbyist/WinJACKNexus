@@ -706,13 +706,13 @@ class DigitalMixerNode final : public WinJACKNexus::Node::INode
 
 const char *wjn_get_node_api_version(void)
 {
-    return "2";
+    return "3";
 }
 std::uint32_t wjn_get_node_theme_api_version(void)
 {
     return WJN_NODE_THEME_API_VERSION;
 }
-const char *wjn_get_node_theme_namespace_json(std::uint32_t index)
+const char *wjn_get_node_theme_namespace_json(void)
 {
     static constexpr char descriptor[] = R"json({
         "descriptorVersion":1,"themeApiVersion":1,
@@ -726,23 +726,20 @@ const char *wjn_get_node_theme_namespace_json(std::uint32_t index)
             "description":"Host-drawn card background for the Digital Mixer node type"
         }]
     })json";
-    return index == 0 ? descriptor : nullptr;
+    return descriptor;
 }
-std::uint32_t wjn_get_node_count(void)
+
+const char *wjn_get_node_name(void)
 {
-    return 1;
+    return "Digital Mixer";
 }
-const char *wjn_get_node_name(std::uint32_t index)
+const char *wjn_get_node_category(void)
 {
-    return index == 0 ? "Digital Mixer" : "";
+    return "Digital Mixer";
 }
-const char *wjn_get_node_category(std::uint32_t index)
+WinJACKNexus::Node::INode *wjn_create_node(void)
 {
-    return index == 0 ? "Digital Mixer" : "";
-}
-WinJACKNexus::Node::INode *wjn_create_node(std::uint32_t index)
-{
-    if (index != 0 || occupied.exchange(true, std::memory_order_acq_rel))
+    if (occupied.exchange(true, std::memory_order_acq_rel))
         return nullptr;
     try
     {

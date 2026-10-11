@@ -19,7 +19,7 @@ target_compile_features(WinJACKNexus PRIVATE cxx_std_20)
 target_compile_options(WinJACKNexus PRIVATE /utf-8)
 target_compile_definitions(WinJACKNexus PRIVATE WIN32_LEAN_AND_MEAN NOMINMAX)
 target_link_options(WinJACKNexus PRIVATE "/MANIFEST:EMBED" "/MANIFESTINPUT:${CMAKE_CURRENT_SOURCE_DIR}/WinJACKNexus.manifest")
-add_dependencies(WinJACKNexus mod_patchbay mod_digital_mixer mod_meterbrigde mod_meterbridge_probe mod_native_fx wjn_default_theme)
+add_dependencies(WinJACKNexus mod_patchbay mod_digital_mixer mod_meterbrigde mod_meter_mono mod_meter_stereo mod_meter_5_1 mod_meter_7_1 mod_meter_custom mod_native_fx wjn_default_theme)
 
 set_target_properties(WinJACKNexus PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${WJN_OUTPUT_DIR}"

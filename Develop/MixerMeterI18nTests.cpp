@@ -186,27 +186,27 @@ void capture(QWidget &widget, const QString &directory, const QString &file)
 void probeWindows(HostI18n &host, const QString &runtime, const QString &output,
                   const QString &language)
 {
-    QLibrary library(
-        QDir(runtime).filePath(QStringLiteral("nodes/meter/mod_meterbridge_probe.dll")));
-    check(library.load(), "actual meter probe DLL loads offline");
-    using Node = WinJACKNexus::Node::INode;
-    const auto count = reinterpret_cast<std::uint32_t (*)()>(library.resolve("wjn_get_node_count"));
-    const auto create =
-        reinterpret_cast<Node *(*)(std::uint32_t)>(library.resolve("wjn_create_node"));
-    const auto destroy = reinterpret_cast<void (*)(Node *)>(library.resolve("wjn_destroy_node"));
-    const auto settings =
-        reinterpret_cast<const char *(*)(Node *)>(library.resolve("wjn_get_node_settings_json"));
-    const auto widget = reinterpret_cast<QWidget *(*)(Node *, QWidget *)>(
-        library.resolve("wjn_create_settings_widget"));
-    const auto destroyWidget = reinterpret_cast<void (*)(Node *, QWidget *)>(
-        library.resolve("wjn_destroy_settings_widget"));
-    check(count && create && destroy && settings && widget && destroyWidget,
-          "actual probe exports available");
-    check(count() == 5, "all five probe kinds covered");
-    QString error;
-    for (std::uint32_t index = 0; index < count(); ++index)
+    const char *ids[]{"meter_mono", "meter_stereo", "meter_5_1", "meter_7_1", "meter_custom"};
+    for (std::uint32_t index = 0; index < 5; ++index)
     {
-        auto *node = create(index);
+        QLibrary library(QDir(runtime).filePath(QStringLiteral("nodes/meter/") + ids[index] +
+                                                "/mod_" + ids[index] + ".dll"));
+        check(library.load(), "actual meter probe DLL loads offline");
+        using Node = WinJACKNexus::Node::INode;
+        const auto create = reinterpret_cast<Node *(*)(void)>(library.resolve("wjn_create_node"));
+        const auto destroy =
+            reinterpret_cast<void (*)(Node *)>(library.resolve("wjn_destroy_node"));
+        const auto settings = reinterpret_cast<const char *(*)(Node *)>(
+            library.resolve("wjn_get_node_settings_json"));
+        const auto widget = reinterpret_cast<QWidget *(*)(Node *, QWidget *)>(
+            library.resolve("wjn_create_settings_widget"));
+        const auto destroyWidget = reinterpret_cast<void (*)(Node *, QWidget *)>(
+            library.resolve("wjn_destroy_settings_widget"));
+        check(create && destroy && settings && widget && destroyWidget,
+              "actual probe exports available");
+        QString error;
+
+        auto *node = create();
         check(node, "probe created without JACK initialization");
         const QByteArray before(settings(node));
         auto *panel = widget(node, nullptr);
@@ -263,8 +263,8 @@ void probeWindows(HostI18n &host, const QString &runtime, const QString &output,
         check(QByteArray(settings(node)) == before, "reopening probe preserves serialized state");
         destroyWidget(node, panel);
         destroy(node);
+        check(library.unload(), "probe DLL unloads after widget and node destruction");
     }
-    check(library.unload(), "probe DLL unloads after widget and node destruction");
 }
 struct Provider final : MeterViewDataProvider
 {

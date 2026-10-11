@@ -143,8 +143,8 @@ int main(int argc, char **argv)
     auto secondLease = language.manager().registerLibrary(
         path, WinJACKNexus::UI::I18nManager::Extension::node, 0, &error);
     require(bool(lease) && bool(secondLease), qPrintable(error));
-    const auto create = reinterpret_cast<WinJACKNexus::Node::INode *(*)(uint32_t)>(
-        library.resolve("wjn_create_node"));
+    const auto create =
+        reinterpret_cast<WinJACKNexus::Node::INode *(*)(void)>(library.resolve("wjn_create_node"));
     const auto destroy = reinterpret_cast<void (*)(WinJACKNexus::Node::INode *)>(
         library.resolve("wjn_destroy_node"));
     const auto widgetCreate =
@@ -155,7 +155,7 @@ int main(int argc, char **argv)
     const auto state = reinterpret_cast<const char *(*)(WinJACKNexus::Node::INode *)>(
         library.resolve("wjn_get_node_settings_json"));
     require(create && destroy && widgetCreate && widgetDestroy && state, "actual module exports");
-    auto *node = create(0);
+    auto *node = create();
     require(node && node->init(), "offline node with no plugin or JACK process");
     const QByteArray original(state(node));
     QWidget *window = widgetCreate(node, nullptr);

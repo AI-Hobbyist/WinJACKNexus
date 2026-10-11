@@ -13,6 +13,7 @@
  *
  * SPDX-License-Identifier: AGPL-3.0-only
  */
+#include <WinJACKNexus/Node/ModuleCompatibility.hpp>
 #include <WinJACKNexus/Node/NodeApi.h>
 #include <WinJACKNexus/NativeFx/NativeFxApi.h>
 #include <WinJACKNexus/Audio/JackApi.hpp>
@@ -324,22 +325,41 @@ struct ModuleNodeInfo final {
 	std::shared_ptr<WinJACKNexus::UI::I18nDomainLease> languageLease;
 };
 
-QVariantMap builtinNodeDisplay(const QString& path,std::uint32_t index,const QString& english) {
-	const auto file=QFileInfo(path).fileName();
-	if (file.compare(QStringLiteral("mod_adapter.dll"),Qt::CaseInsensitive)==0 && index<4) {
-		const char* keys[]={"node.wasapiIn","node.wasapiOut","node.midiIn","node.midiOut"};
-		const char* fallbacks[]={"WASAPI input","WASAPI output","System MIDI input","System MIDI output"};
-		const char* descriptions[]={"Routes a shared-mode WASAPI capture device into JACK.","Routes JACK audio to a shared-mode WASAPI render device.","Routes a system MIDI input device into JACK.","Routes JACK MIDI events to a system MIDI output device."};
-		return {{"domain",QByteArray("adapter")},{"key",QByteArray(keys[index])},{"english",QByteArray(fallbacks[index])},
-			{"descriptionKey",QByteArray(keys[index])+".description"},{"descriptionEnglish",QByteArray(descriptions[index])}};
-	}
-	if (file.compare(QStringLiteral("mod_meterbridge_probe.dll"),Qt::CaseInsensitive)==0 && index<5) {
-		const char* keys[]={"node.meterMono","node.meterStereo","node.meter51","node.meter71","node.meterCustom"};
-		const char* descriptions[]={"Single-channel Meterbridge probe.","Two-channel Meterbridge probe.","5.1-channel Meterbridge probe.","7.1-channel Meterbridge probe.","Custom-channel Meterbridge probe."};
-		return {{"domain",QByteArray("patchbay")},{"key",QByteArray(keys[index])},{"english",english.toUtf8()},
-			{"descriptionKey",QByteArray(keys[index])+".description"},{"descriptionEnglish",QByteArray(descriptions[index])}};
-	}
-	return {};
+QVariantMap builtinNodeDisplay(const QString &path, std::uint32_t, const QString &english)
+{
+    struct Display
+    {
+        const char *file;
+        const char *domain;
+        const char *key;
+        const char *description;
+    };
+    static constexpr Display displays[]{
+        {"mod_wasapi_in.dll", "adapter", "node.wasapiIn",
+         "Routes a shared-mode WASAPI capture device into JACK."},
+        {"mod_wasapi_out.dll", "adapter", "node.wasapiOut",
+         "Routes JACK audio to a shared-mode WASAPI render device."},
+        {"mod_system_midi_in.dll", "adapter", "node.midiIn",
+         "Routes a system MIDI input device into JACK."},
+        {"mod_system_midi_out.dll", "adapter", "node.midiOut",
+         "Routes JACK MIDI events to a system MIDI output device."},
+        {"mod_meter_mono.dll", "patchbay", "node.meterMono", "Single-channel Meterbridge probe."},
+        {"mod_meter_stereo.dll", "patchbay", "node.meterStereo", "Two-channel Meterbridge probe."},
+        {"mod_meter_5_1.dll", "patchbay", "node.meter51", "5.1-channel Meterbridge probe."},
+        {"mod_meter_7_1.dll", "patchbay", "node.meter71", "7.1-channel Meterbridge probe."},
+        {"mod_meter_custom.dll", "patchbay", "node.meterCustom",
+         "Custom-channel Meterbridge probe."}};
+    const auto file = QFileInfo(path).fileName();
+    for (const auto &display : displays)
+    {
+        if (file.compare(QString::fromLatin1(display.file), Qt::CaseInsensitive) == 0)
+            return {{"domain", QByteArray(display.domain)},
+                    {"key", QByteArray(display.key)},
+                    {"english", english.toUtf8()},
+                    {"descriptionKey", QByteArray(display.key) + ".description"},
+                    {"descriptionEnglish", QByteArray(display.description)}};
+    }
+    return {};
 }
 QString nodeDisplayText(const QVariantMap& display,const QString& original) {
 	return display.isEmpty()?original:WinJACKNexus::UI::localizedText(display.value("domain").toByteArray().constData(),
@@ -610,65 +630,58 @@ bool validNativeFxNodeModule(HMODULE library, const QString& path, bool* nativeF
 
 std::vector<ModuleNodeInfo> scanNodeModules()
 {
-	using ApiVersion = const char* (*)();
-	using NodeCount = std::uint32_t (*)();
-	using NodeName = const char* (*)(std::uint32_t index);
-	using NodeCategory = const char* (*)(std::uint32_t index);
-
-	std::vector<ModuleNodeInfo> nodes;
-	const QDir modulesDirectory(QCoreApplication::applicationDirPath() + QStringLiteral("/nodes"));
-	if (!modulesDirectory.exists())
-		return nodes;
-
-	QDirIterator iterator(modulesDirectory.absolutePath(), { QStringLiteral("*.dll") },
-	                     QDir::Files, QDirIterator::Subdirectories);
-	while (iterator.hasNext()) {
-		const auto modulePath = iterator.next();
-		const auto library = LoadLibraryW(reinterpret_cast<LPCWSTR>(modulePath.utf16()));
-		if (library == nullptr)
-			continue;
-
-		const auto apiVersion = reinterpret_cast<ApiVersion>(GetProcAddress(library, "wjn_get_node_api_version"));
-		const auto nodeCount = reinterpret_cast<NodeCount>(GetProcAddress(library, "wjn_get_node_count"));
-		const auto nodeName = reinterpret_cast<NodeName>(GetProcAddress(library, "wjn_get_node_name"));
-		const auto nodeCategory = reinterpret_cast<NodeCategory>(GetProcAddress(library, "wjn_get_node_category"));
-		bool nativeFx = false;
-		if (apiVersion != nullptr && nodeCount != nullptr && nodeName != nullptr
-			&& std::strcmp(apiVersion(), "2") == 0
-			&& validNativeFxNodeModule(library, modulePath, &nativeFx)) {
-			const auto moduleDirectory = QFileInfo(modulePath).dir();
-			auto category = modulesDirectory.relativeFilePath(moduleDirectory.absolutePath());
-			if (category.isEmpty() || category == QStringLiteral("."))
-				category = QStringLiteral("根目录");
-			else
-				category.replace(QDir::separator(), QStringLiteral(" / "));
-			for (std::uint32_t index = 0; index < nodeCount(); ++index) {
-				const auto* name = nodeName(index);
-				if (name == nullptr || name[0] == '\0')
-					continue;
-				const auto* exportedCategory = nodeCategory == nullptr ? nullptr : nodeCategory(index);
-				const auto nodeCategoryName = nativeFx ? QStringLiteral("Native Fx")
-					: categoryFromModuleOrFolder(exportedCategory, category);
-				ModuleNodeInfo info{nodeCategoryName,QString::fromUtf8(name),modulePath,index};
-				info.display=builtinNodeDisplay(modulePath,index,info.name);
-				using Descriptor=const char* (*)(std::uint32_t);
-				const auto descriptor=reinterpret_cast<Descriptor>(GetProcAddress(library,"wjn_get_node_i18n_descriptor_json"));
-				if (descriptor) {
-					info.languageLease=moduleLanguageLease(modulePath,index);
-					if (info.languageLease) {
-						const auto* json=descriptor(index);
-						const auto metadata=json?QJsonDocument::fromJson(QByteArray(json)).object():QJsonObject{};
-						const auto display=metadata.value(QStringLiteral("displayNameKey")).toObject();
-						if (!display.isEmpty()) info.display={{"domain",display.value("domain").toString().toUtf8()},
-							{"key",display.value("key").toString().toUtf8()},{"english",info.name.toUtf8()}};
-					}
-				}
-				nodes.push_back(std::move(info));
-			}
-		}
-		FreeLibrary(library);
-	}
-	return nodes;
+    using NodeName = const char *(*)(void);
+    std::vector<ModuleNodeInfo> nodes;
+    const QDir directory(QCoreApplication::applicationDirPath() + QStringLiteral("/nodes"));
+    QDirIterator files(directory.absolutePath(), {QStringLiteral("*.dll")}, QDir::Files,
+                       QDirIterator::Subdirectories);
+    while (files.hasNext())
+    {
+        const auto path = files.next();
+        const auto library = LoadLibraryW(reinterpret_cast<LPCWSTR>(path.utf16()));
+        if (!library)
+            continue;
+        const auto name = reinterpret_cast<NodeName>(GetProcAddress(library, "wjn_get_node_name"));
+        const auto category =
+            reinterpret_cast<NodeName>(GetProcAddress(library, "wjn_get_node_category"));
+        bool nativeFx = false;
+        if (WinJACKNexus::Node::isSingleNodeModule(library) && name &&
+            validNativeFxNodeModule(library, path, &nativeFx))
+        {
+            const auto *text = name();
+            if (text && *text)
+            {
+                auto folder = directory.relativeFilePath(QFileInfo(path).absolutePath());
+                if (folder.isEmpty() || folder == QStringLiteral("."))
+                    folder = QStringLiteral("根目录");
+                else
+                    folder.replace(QDir::separator(), QStringLiteral(" / "));
+                const auto categoryName =
+                    nativeFx ? QStringLiteral("Native Fx")
+                             : categoryFromModuleOrFolder(category ? category() : nullptr, folder);
+                ModuleNodeInfo info{categoryName, QString::fromUtf8(text), path, 0};
+                info.display = builtinNodeDisplay(path, 0, info.name);
+                info.languageLease = moduleLanguageLease(path, 0);
+                if (info.languageLease)
+                {
+                    using Descriptor = const char *(*)(void);
+                    const auto descriptor = reinterpret_cast<Descriptor>(
+                        GetProcAddress(library, "wjn_get_node_i18n_descriptor_json"));
+                    const auto *json = descriptor ? descriptor() : nullptr;
+                    const auto metadata =
+                        json ? QJsonDocument::fromJson(json).object() : QJsonObject{};
+                    const auto key = metadata.value("displayNameKey").toObject();
+                    if (!key.isEmpty())
+                        info.display = {{"domain", key.value("domain").toString().toUtf8()},
+                                        {"key", key.value("key").toString().toUtf8()},
+                                        {"english", info.name.toUtf8()}};
+                }
+                nodes.push_back(std::move(info));
+            }
+        }
+        FreeLibrary(library);
+    }
+    return nodes;
 }
 
 std::vector<VstPluginInfo> scanVstPlugins()
@@ -838,11 +851,10 @@ public:
 	                                               std::uint32_t index,
 	                                               const std::string& settingsJson = {}) noexcept
 	{
-		using ApiVersion = const char* (*)();
-		using NodeCount = std::uint32_t (*)();
-		using CreateNode = WinJACKNexus::Node::INode* (*)(std::uint32_t index);
-		using DestroyNode = void (*)(WinJACKNexus::Node::INode* node);
-		using SetNodeSettingsJson = int (*)(WinJACKNexus::Node::INode* node, const char* json);
+        using ApiVersion = const char *(*)();
+        using CreateNode = WinJACKNexus::Node::INode *(*)(void);
+        using DestroyNode = void (*)(WinJACKNexus::Node::INode *node);
+        using SetNodeSettingsJson = int (*)(WinJACKNexus::Node::INode* node, const char* json);
 		using PrepareNodeForCanvas = int (*)(WinJACKNexus::Node::INode* node);
 		using ShowNodeGui = int (*)(WinJACKNexus::Node::INode* node);
 		using GetNodeClientId = const char* (*)(WinJACKNexus::Node::INode* node);
@@ -854,10 +866,11 @@ public:
 		const auto library = LoadLibraryW(reinterpret_cast<LPCWSTR>(modulePath.utf16()));
 		if (library == nullptr)
 			return nullptr;
-		const auto apiVersion = reinterpret_cast<ApiVersion>(GetProcAddress(library, "wjn_get_node_api_version"));
-		const auto nodeCount = reinterpret_cast<NodeCount>(GetProcAddress(library, "wjn_get_node_count"));
-		const auto createNode = reinterpret_cast<CreateNode>(GetProcAddress(library, "wjn_create_node"));
-		const auto destroyNode = reinterpret_cast<DestroyNode>(GetProcAddress(library, "wjn_destroy_node"));
+        const auto apiVersion =
+            reinterpret_cast<ApiVersion>(GetProcAddress(library, "wjn_get_node_api_version"));
+        const auto createNode =
+            reinterpret_cast<CreateNode>(GetProcAddress(library, "wjn_create_node"));
+        const auto destroyNode = reinterpret_cast<DestroyNode>(GetProcAddress(library, "wjn_destroy_node"));
 		const auto setNodeSettingsJson = reinterpret_cast<SetNodeSettingsJson>(GetProcAddress(library, "wjn_set_node_settings_json"));
 		const auto prepareNodeForCanvas = reinterpret_cast<PrepareNodeForCanvas>(GetProcAddress(library, "wjn_prepare_node_for_canvas"));
 		const auto showNodeGui = reinterpret_cast<ShowNodeGui>(GetProcAddress(library, "wjn_show_node_gui"));
@@ -865,13 +878,15 @@ public:
 			const auto createSettingsWidget = reinterpret_cast<CreateSettingsWidget>(GetProcAddress(library, "wjn_create_settings_widget"));
 			const auto destroySettingsWidget = reinterpret_cast<DestroySettingsWidget>(GetProcAddress(library, "wjn_destroy_settings_widget"));
 			const auto createSettingsView = reinterpret_cast<CreateSettingsView>(GetProcAddress(library, "wjn_create_settings_view"));
-			const auto destroySettingsView = reinterpret_cast<DestroySettingsView>(GetProcAddress(library, "wjn_destroy_settings_view"));
-		if (apiVersion == nullptr || nodeCount == nullptr || createNode == nullptr || destroyNode == nullptr
-			|| std::strcmp(apiVersion(), "2") != 0 || index >= nodeCount()) {
-			FreeLibrary(library);
-			return nullptr;
-		}
-		bool nativeFx = false;
+            const auto destroySettingsView = reinterpret_cast<DestroySettingsView>(
+                GetProcAddress(library, "wjn_destroy_settings_view"));
+            if (apiVersion == nullptr || createNode == nullptr || destroyNode == nullptr ||
+                !WinJACKNexus::Node::isSingleNodeModule(library) || index != 0)
+            {
+                FreeLibrary(library);
+                return nullptr;
+            }
+        bool nativeFx = false;
 		if (!validNativeFxNodeModule(library, modulePath, &nativeFx)) {
 			FreeLibrary(library);
 			return nullptr;
@@ -885,12 +900,13 @@ public:
 			}, modulePath, &themeLease, &themeError);
 		if (!themeError.isEmpty()) qWarning().noquote() << "Node theme descriptor:" << themeError;
 
-		auto* node = createNode(index);
-		if (node == nullptr) {
-			FreeLibrary(library);
+        auto *node = createNode();
+        if (node == nullptr)
+        {
+            FreeLibrary(library);
 			return nullptr;
-		}
-		if (setNodeSettingsJson != nullptr && !settingsJson.empty()
+        }
+        if (setNodeSettingsJson != nullptr && !settingsJson.empty()
 			&& setNodeSettingsJson(node, settingsJson.c_str()) == 0) {
 			destroyNode(node);
 			FreeLibrary(library);
@@ -928,15 +944,21 @@ public:
 		QVariantMap display=builtinNodeDisplay(modulePath,index,QString::fromUtf8(info.name));
 		// A saved project may load a DLL outside the scanned node directory.
 		// Its validated optional descriptor must still provide the display key.
-		if (languageLease) {
-			using Descriptor=const char* (*)(std::uint32_t);
-			const auto descriptor=reinterpret_cast<Descriptor>(GetProcAddress(library,"wjn_get_node_i18n_descriptor_json"));
-			const auto* json=descriptor?descriptor(index):nullptr;
-			const auto nameKey=json?QJsonDocument::fromJson(QByteArray(json)).object().value("displayNameKey").toObject():QJsonObject{};
-			if (!nameKey.isEmpty()) display={{"domain",nameKey.value("domain").toString().toUtf8()},
+        if (languageLease)
+        {
+            using Descriptor = const char *(*)(void);
+            const auto descriptor = reinterpret_cast<Descriptor>(
+                GetProcAddress(library, "wjn_get_node_i18n_descriptor_json"));
+            const auto *json = descriptor ? descriptor() : nullptr;
+            const auto nameKey = json ? QJsonDocument::fromJson(QByteArray(json))
+                                            .object()
+                                            .value("displayNameKey")
+                                            .toObject()
+                                      : QJsonObject{};
+            if (!nameKey.isEmpty()) display={{"domain",nameKey.value("domain").toString().toUtf8()},
 				{"key",nameKey.value("key").toString().toUtf8()},{"english",QByteArray(info.name)}};
-		}
-		for (const auto& module : scanNodeModules()) {
+        }
+        for (const auto& module : scanNodeModules()) {
 			if (module.modulePath == modulePath && module.index == index) {
 				category = module.category;
 				display = module.display;
@@ -993,10 +1015,13 @@ public:
 		{
 			return showNodeGui_ != nullptr || QFileInfo(modulePath_).fileName().compare(QStringLiteral("mod_digital_mixer.dll"),Qt::CaseInsensitive)==0;
 		}
-		bool isMeterProbe() const noexcept {
-			return QFileInfo(modulePath_).fileName().compare(QStringLiteral("mod_meterbridge_probe.dll"),Qt::CaseInsensitive)==0;
-		}
-		QString displayName() const {return nodeDisplayText(display_,name_);}
+        bool isMeterProbe() const noexcept
+        {
+            const auto file = QFileInfo(modulePath_).fileName();
+            return file.startsWith(QStringLiteral("mod_meter_"), Qt::CaseInsensitive) &&
+                   file.endsWith(QStringLiteral(".dll"), Qt::CaseInsensitive);
+        }
+        QString displayName() const {return nodeDisplayText(display_,name_);}
 
 	std::uint32_t index() const noexcept
 	{
@@ -2985,7 +3010,7 @@ extern "C" WINJACK_NODE_API int wjn_patchbay_show_digital_mixer(void)
 
 const char* wjn_get_node_api_version(void)
 {
-	return "2";
+    return "3";
 }
 
 std::uint32_t wjn_get_node_theme_api_version(void)
@@ -2993,9 +3018,9 @@ std::uint32_t wjn_get_node_theme_api_version(void)
 	return WJN_NODE_THEME_API_VERSION;
 }
 
-const char* wjn_get_node_theme_namespace_json(std::uint32_t index)
+const char *wjn_get_node_theme_namespace_json(void)
 {
-	static constexpr char descriptor[] = R"json({
+    static constexpr char descriptor[] = R"json({
 		"descriptorVersion":1,"themeApiVersion":1,
 		"moduleId":"module-winjacknexus-patchbay",
 		"namespace":"--wjn-theme-module-winjacknexus-patchbay-",
@@ -3007,27 +3032,22 @@ const char* wjn_get_node_theme_namespace_json(std::uint32_t index)
 			"description":"Host-drawn card background for the Patchbay node type"
 		}]
 	})json";
-	return index == 0 ? descriptor : nullptr;
+    return descriptor;
 }
 
-std::uint32_t wjn_get_node_count(void)
+const char *wjn_get_node_name(void)
 {
-	return 1;
+    return "Patchbay";
 }
 
-const char* wjn_get_node_name(std::uint32_t index)
+const char *wjn_get_node_category(void)
 {
-	return index == 0 ? "Patchbay" : "";
+    return "Patchbay";
 }
 
-const char* wjn_get_node_category(std::uint32_t index)
+WinJACKNexus::Node::INode *wjn_create_node(void)
 {
-	return index == 0 ? "Patchbay" : "";
-}
-
-WinJACKNexus::Node::INode* wjn_create_node(std::uint32_t index)
-{
-	return index == 0 ? new PatchbayNode : nullptr;
+    return new PatchbayNode;
 }
 
 void wjn_destroy_node(WinJACKNexus::Node::INode* node)

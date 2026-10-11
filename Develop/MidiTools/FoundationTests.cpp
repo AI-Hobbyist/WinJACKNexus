@@ -71,27 +71,22 @@ int main(int argc, char **argv)
             const auto path = base + "/mod_" + kind + ".dll";
             const HMODULE dll = LoadLibraryW(reinterpret_cast<const wchar_t *>(path.utf16()));
             check(dll != nullptr, "load real node DLL without JACK");
-            const auto count =
-                reinterpret_cast<uint32_t (*)()>(GetProcAddress(dll, "wjn_get_node_count"));
             const auto version = reinterpret_cast<const char *(*)()>(
                 GetProcAddress(dll, "wjn_get_node_api_version"));
-            const auto category = reinterpret_cast<const char *(*)(uint32_t)>(
+            const auto category = reinterpret_cast<const char *(*)(void)>(
                 GetProcAddress(dll, "wjn_get_node_category"));
-            const auto descriptor = reinterpret_cast<const char *(*)(uint32_t)>(
+            const auto descriptor = reinterpret_cast<const char *(*)(void)>(
                 GetProcAddress(dll, "wjn_get_node_i18n_descriptor_json"));
-            const auto create = reinterpret_cast<WinJACKNexus::Node::INode *(*)(uint32_t)>(
+            const auto create = reinterpret_cast<WinJACKNexus::Node::INode *(*)(void)>(
                 GetProcAddress(dll, "wjn_create_node"));
             const auto destroy = reinterpret_cast<void (*)(WinJACKNexus::Node::INode *)>(
                 GetProcAddress(dll, "wjn_destroy_node"));
-            check(count && version && category && descriptor && create && destroy,
-                  "required exports");
-            check(count() == 1 && std::string(version()) == "2" &&
-                      std::string(category(0)) == "Midi Tools",
+            check(version && category && descriptor && create && destroy, "required exports");
+            check(std::string(version()) == "3" && std::string(category()) == "Midi Tools",
                   "identity");
-            check(create(1) == nullptr && descriptor(1) == nullptr &&
-                      std::string(category(1)).empty(),
-                  "index boundary");
-            const auto desc = QJsonDocument::fromJson(descriptor(0)).object();
+            check(GetProcAddress(dll, "wjn_get_node_count") == nullptr,
+                  "retired count export is absent");
+            const auto desc = QJsonDocument::fromJson(descriptor()).object();
             QFile manifest(base + "/locate/manifest.json");
             check(manifest.open(QIODevice::ReadOnly), "independent manifest path");
             check(QJsonDocument::fromJson(manifest.readAll()).object()["moduleId"] ==
@@ -106,8 +101,8 @@ int main(int argc, char **argv)
                           catalog["language"].toString() == lang,
                       "catalog identity");
             }
-            auto *a = create(0);
-            auto *b = create(0);
+            auto *a = create();
+            auto *b = create();
             check(a && b && a != b, "independent instances");
             // Do not initialize implemented JACK clients in offline loading tests.
             a->shutdown();

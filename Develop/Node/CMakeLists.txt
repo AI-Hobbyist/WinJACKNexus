@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 find_package(Qt6 REQUIRED COMPONENTS Test)
-add_executable(wjn_single_node_tests SingleNodeTests.cpp)
+add_executable(wjn_single_node_tests SingleNodeTests.cpp SingleNodeCAbi.c)
+set_property(TARGET wjn_single_node_tests PROPERTY C_STANDARD 11)
 target_link_libraries(wjn_single_node_tests PRIVATE WinJACKNexus::UI WinJACKNexus::Node Qt6::Test)
 target_compile_definitions(wjn_single_node_tests PRIVATE WIN32_LEAN_AND_MEAN NOMINMAX)
 set_target_properties(wjn_single_node_tests PROPERTIES

@@ -22,6 +22,8 @@
   },
   "requiredKeys": {
     "host": [
+      "nodes.deprecated.title",
+      "nodes.deprecated.message",
       "settings.global.title",
       "settings.application",
       "settings.language",

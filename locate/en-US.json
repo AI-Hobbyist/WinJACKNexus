@@ -5,6 +5,8 @@
   "language": "en-US",
   "domains": {
     "host": {
+      "nodes.deprecated.title": "Deprecated nodes",
+      "nodes.deprecated.message": "The following multi-node DLLs were ignored. Reason: deprecated.\n\n{paths}",
       "settings.global.title": "Global settings",
       "settings.application": "Application settings",
       "settings.language": "Language",

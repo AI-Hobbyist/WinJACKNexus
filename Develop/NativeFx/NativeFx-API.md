@@ -125,8 +125,10 @@ frame was available. The host resolves optional preset exports dynamically:
 
 ## Node placement
 
-Node-capable DLLs also expose the existing `NodeApi.h` entry points. Node index
-zero maps to the DLL's effect. The node adapter owns its JACK client and
+Node-capable DLLs expose [Node SDK v3](../Node/Node-API.md) entry points.
+`wjn_create_node(void)` creates the DLL's single effect node; no Node count
+or type index remains. Native Fx metadata/mixer indices are separate and retain
+the existing Native Fx ABI. The node adapter owns its JACK client and
 eight input/output ports, and its standalone editor retains its channel
 selector. The patchbay scans node DLLs recursively, so each DLL appears once.
 

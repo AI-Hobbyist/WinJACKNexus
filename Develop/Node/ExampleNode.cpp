@@ -56,19 +56,18 @@ class ExampleNode final : public WinJACKNexus::Node::INode
 
 const char *wjn_get_node_api_version(void)
 {
-    return "2";
+    return "3";
 }
 
 uint32_t wjn_get_node_i18n_api_version(void)
 {
-    return WJN_I18N_API_VERSION;
+    return WJN_NODE_I18N_API_VERSION;
 }
-const char *wjn_get_node_i18n_descriptor_json(uint32_t index)
+const char *wjn_get_node_i18n_descriptor_json(void)
 {
-    return index == 0 ? R"json({"descriptorVersion":1,"i18nApiVersion":1,
+    return R"json({"descriptorVersion":1,"i18nApiVersion":1,
         "moduleId":"example-node","domains":["example.node"],"locatePath":"locate","catalogVersion":1,
-        "displayNameKey":{"domain":"example.node","key":"name"}})json"
-                      : nullptr;
+        "displayNameKey":{"domain":"example.node","key":"name"}})json";
 }
 
 std::uint32_t wjn_get_node_theme_api_version(void)
@@ -76,7 +75,7 @@ std::uint32_t wjn_get_node_theme_api_version(void)
     return WJN_NODE_THEME_API_VERSION;
 }
 
-const char *wjn_get_node_theme_namespace_json(std::uint32_t index)
+const char *wjn_get_node_theme_namespace_json(void)
 {
     static constexpr char descriptor[] = R"json({
         "descriptorVersion": 1,
@@ -91,27 +90,22 @@ const char *wjn_get_node_theme_namespace_json(std::uint32_t index)
             "description": "Host-drawn node card background for this example node type"
         }]
     })json";
-    return index == 0 ? descriptor : nullptr;
+    return descriptor;
 }
 
-std::uint32_t wjn_get_node_count(void)
+const char *wjn_get_node_name(void)
 {
-    return 1;
+    return "Example Node";
 }
 
-const char *wjn_get_node_name(std::uint32_t index)
+const char *wjn_get_node_category(void)
 {
-    return index == 0 ? "Example Node" : "";
+    return "Tools";
 }
 
-const char *wjn_get_node_category(std::uint32_t index)
+WinJACKNexus::Node::INode *wjn_create_node(void)
 {
-    return index == 0 ? "Tools" : "";
-}
-
-WinJACKNexus::Node::INode *wjn_create_node(std::uint32_t index)
-{
-    return index == 0 ? new ExampleNode{} : nullptr;
+    return new ExampleNode{};
 }
 
 void wjn_destroy_node(WinJACKNexus::Node::INode *node)

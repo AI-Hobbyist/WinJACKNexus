@@ -1,137 +1,86 @@
-# Node module API (v2)
+# Node module API (v3)
 
-Node modules are Windows DLLs loaded by the patchbay. The exported interface is
-declared in [`NodeApi.h`](../../src/node/include/WinJACKNexus/Node/NodeApi.h), and
-an implementation example is in
-[`ExampleNode.cpp`](ExampleNode.cpp). The host looks up
-exports dynamically and accepts modules whose `wjn_get_node_api_version()`
-returns the string `"2"`.
+One Windows DLL advertises exactly one node type. All instances of that type
+are created through the same factory. The exported interface is declared in
+[`NodeApi.h`](../../src/node/include/WinJACKNexus/Node/NodeApi.h); the buildable
+[`ExampleNode.cpp`](ExampleNode.cpp) demonstrates the current contract.
 
 ## Discovery and lifetime
 
 | Export | Contract |
 | --- | --- |
-| `wjn_get_node_count()` | Number of nodes advertised by this DLL. A mixer-only Native Fx module returns zero. |
-| `wjn_get_node_name(index)` / `wjn_get_node_category(index)` | Display strings for an index below the count. Native effects use category `Native Fx`. |
-| `wjn_get_node_icon_glyph(index)` / `wjn_get_node_icon_color(index)` | Optional visual metadata; a host must tolerate missing exports. |
-| `wjn_create_node(index)` | Creates one independent `INode` owned by the caller. Return null on failure or invalid index. |
-| `wjn_destroy_node(node)` | Destroys an instance created by this same DLL. Destroy instances before unloading the DLL. |
+| `const char *wjn_get_node_api_version(void)` | Returns the string `"3"`. |
+| `const char *wjn_get_node_name(void)` / `const char *wjn_get_node_category(void)` | Display strings for this DLL's only type. Native effects use category `Native Fx`. |
+| `const char *wjn_get_node_icon_glyph(void)` / `const char *wjn_get_node_icon_color(void)` | Optional visual metadata; tolerate absent exports. |
+| `INode *wjn_create_node(void)` | Creates an independent instance; return null on failure or an existing module-specific instance limit. |
+| `void wjn_destroy_node(INode *node)` | Destroys an instance created by the same DLL. Release its instances and editors before unloading. |
 
-After creation, the host calls `INode::init()` and checks its boolean result.
-Before destruction, it calls `INode::shutdown()`. `info()` reports name,
-category, version, author and description through `NodeInfo`. The legacy
-native window hooks `createWindow(HWND parent)` and `destroyWindow(HWND)` are
-part of `INode`; a module without such a window returns null. Keep callbacks
-and strings valid while their owning module or node is alive.
+There is no `wjn_get_node_count` export, and none of these entry points takes
+an index. This is an ABI break from Node v2: rebuild SDK consumers and modules.
+The host checks version 3 before any changed call and rejects DLLs that still
+export the retired count symbol. Older single-type Node v2 DLLs are also rejected;
+they must be rebuilt against v3. No compatibility thunk or indexed factory remains.
+`INode` layout and audio callbacks are unchanged.
+
+After creation, call `INode::init()` and check its result. Before destruction,
+call `INode::shutdown()`. `info()` reports name, category, version, author and
+description. `createWindow(HWND parent)` / `destroyWindow(HWND)` remain native
+window hooks; a type without an editor returns null. Keep callbacks and borrowed
+strings valid for the lifetime documented by the owning module.
 
 ## Settings and editors
 
-The patchbay may ask a module to create a Qt `QWidget` editor with
-`wjn_create_settings_widget(node, parent)` and release it with
-`wjn_destroy_settings_widget(node, widget)`. The `parent` is the Qt owner of
-the editor. Native HWND settings views use `wjn_create_settings_view` and
-`wjn_destroy_settings_view`; a module can return null if it has no HWND view.
-The host checks whether these optional exports are present.
+Optional `wjn_create_settings_widget(node, parent)` and
+`wjn_destroy_settings_widget(node, widget)` manage Qt editors. Native HWND
+settings views use `wjn_create_settings_view` / `wjn_destroy_settings_view`.
+The host probes optional exports dynamically.
 
-For persistence, implement `wjn_get_node_settings_json(node)` to return a
-UTF-8 JSON object and `wjn_set_node_settings_json(node, json)` to restore it.
-The host copies the returned string immediately. Return nonzero from the
-setter on success and zero for malformed or incompatible state. A failed
-restore prevents the patchbay from creating that saved node. The main
-`.wjnproj` file packages non-VST settings as Base64 encoded JSON in
-`settingsBase64`; decoding must produce a JSON object. Legacy project files
-with a direct `settings` object remain readable. Keep the decoded JSON as the
-module's settings format; Base64 is only the outer project representation.
+`wjn_get_node_settings_json(node)` returns borrowed UTF-8 JSON, copied immediately
+by the host. `wjn_set_node_settings_json(node, json)` returns nonzero on success.
+Reject malformed or incompatible state without mutating the active settings.
+Projects retain `settingsBase64` containing the module JSON; legacy direct
+`settings` objects remain readable. The existing project-format index field is
+reserved at zero for single-node modules; nonzero values cannot load a v3 DLL.
+It is not an SDK type enumeration interface.
 
-The Digital Mixer stores input and AUX strips in visual left-to-right order
-in its settings arrays. Its JACK short port names are `<strip name>_<channel>`;
-the independent monitor ports remain `MONITOR_<channel>`. Reordering strips
-changes patchbay pin order without replacing their JACK ports. Renaming a
-strip renames its existing JACK ports in place so live connections remain
-attached to the same strip and channel.
+Host-specific optional exports such as `wjn_prepare_node_for_canvas`,
+`wjn_show_node_gui` and `wjn_get_node_client_id` remain instance-based.
 
-The patchbay also probes optional host-specific exports such as
-`wjn_prepare_node_for_canvas`, `wjn_show_node_gui` and
-`wjn_get_node_client_id`. Modules that do not provide them must still work
-through the required v2 discovery and lifetime exports.
+## Optional Node theme descriptor extension (v2)
 
-## Optional theme namespace exports (v1)
+`uint32_t wjn_get_node_theme_api_version(void)` returns
+`WJN_NODE_THEME_API_VERSION == 2`.
+`const char *wjn_get_node_theme_namespace_json(void)` returns this DLL's one
+borrowed UTF-8 descriptor. Copy it immediately. No type index or enumeration
+exists. Descriptor JSON and Theme Token semantics remain
+[Theme contract v1](../../Docs/Theme-v1-Contract.md); the entry-point version is
+separate from the JSON `themeApiVersion`. Missing optional exports keep a v3
+module loadable. Invalid theme data disables only that capability. Stable
+`moduleId` still deduplicates Node and Native Fx descriptors with independent
+leases; existing theme namespace IDs and colors are preserved.
 
-`NodeApi.h` declares `uint32_t wjn_get_node_theme_api_version(void)` and
-`const char* wjn_get_node_theme_namespace_json(uint32_t index)`. These are
-independent optional exports with version `WJN_NODE_THEME_API_VERSION == 1`;
-the required Node v2 ABI is unchanged. The index identifies a node type in
-`wjn_get_node_count()`, never a runtime instance, and an invalid index returns
-null. The host copies DLL-owned UTF-8 JSON immediately and checks the
-[descriptor contract](../../Docs/Theme-v1-Contract.md). Missing exports leave legacy
-modules loadable. Bad theme data disables only the theme capability. The
-descriptor's `moduleId` is stable and is used to deduplicate the same
-namespace exported through Native Fx and Node APIs, regardless of their
-different enumeration indices. Registration remains live until its host
-module lease is released. Existing Node DLL exports are added one module at
-a time after S12. The bundled `wjn_example_node.dll` now exports the optional
-v1 descriptor for `module-winjacknexus-example-node`. It declares its
-host-drawn node card background token, inherits the patchbay card default,
-and returns null for out-of-range type indices. `theme_namespace_tests` loads
-the real DLL, registers it without creating a node instance, and checks scope
-release.
-`mod_patchbay.dll` likewise exports `module-winjacknexus-patchbay` for its
-single Node type. Its host-drawn card background token inherits the patchbay
-default; the patchbay window's existing `patchbay` scope remains the source of
-its own UI colors. `theme_patchbay_node_namespace` tests the real DLL's
-version, index boundary, copied descriptor, scope, and unload.
-`mod_digital_mixer.dll` exports the same optional API for its single
-`module-winjacknexus-digital-mixer` Node type. Its host-drawn card background
-inherits the patchbay default; the mixer window keeps its built-in `mixer`
-theme scope. `theme_mixer_node_namespace` checks the real DLL without JACK.
-`mod_meterbrigde.dll` exports `module-winjacknexus-meterbridge` for its one
-Node type. The node card token inherits the patchbay default while its own
-window continues to use the built-in `meter-bridge` scope. The real DLL and
-UI model/window tests are run without JACK client connections.
-`mod_vst_host.dll` exports `module-winjacknexus-vst-host` for its one Node
-type. Its host-drawn card background inherits the patchbay default.
-`theme_vst_host_node_namespace` validates the real DLL independently of
-plug-in scanning or audio connections.
-`mod_adapter.dll` exports four independently indexed descriptors:
-`module-winjacknexus-wasapi-in`, `module-winjacknexus-wasapi-out`,
-`module-winjacknexus-system-midi-in`, and
-`module-winjacknexus-system-midi-out`. Each uses its own host-drawn card
-background token. The real DLL test verifies all four type-to-scope mappings
-without opening audio or MIDI devices.
-`mod_meterbridge_probe.dll` exports five independent type descriptors:
-`module-winjacknexus-meter-mono`, `module-winjacknexus-meter-stereo`,
-`module-winjacknexus-meter-5-1`, `module-winjacknexus-meter-7-1`, and
-`module-winjacknexus-meter-custom`. Their host card tokens inherit the
-patchbay default. The real DLL test checks every index without connecting
-JACK ports.
-The Gate Native Fx DLL now also exports the optional Node theme functions.
-Its Node type maps to the same `gate` descriptor as Native Fx metadata index
-zero; `theme_gate_native_fx` verifies the two registration leases share one
-scope and release independently.
-The Graphic EQ Native Fx DLL also exports the optional Node theme functions.
-Its Node type and Native Fx metadata index zero share the `graphic-eq`
-descriptor; `theme_graphic_eq_native_fx` verifies both registration leases,
-index bounds, shipped-default appearance, and live UI token changes.
-The De-Esser Native Fx DLL likewise exports the optional Node theme API.
-Its Node type and Native Fx metadata index zero use one `deesser` descriptor;
-`theme_deesser_native_fx` checks both leases and the real editor.
-The Compressor Native Fx DLL uses the same dual-entry pattern for its one
-Node type and Native Fx metadata index. `theme_compressor_native_fx` checks
-their shared `compressor` descriptor and real-window theme changes.
-The Limiter Native Fx DLL likewise exports the optional Node theme API for
-its one Node type. `theme_limiter_native_fx` validates the shared `limiter`
-descriptor and real editor without creating a JACK client.
-The Delay Native Fx DLL also exports the optional Node theme API for its
-single Node type. `theme_delay_native_fx` checks its shared `delay`
-descriptor and live editor recoloring without JACK connections.
-The Parametric EQ Native Fx DLL exports the optional Node theme functions
-for its single Node type. Its `parametric-eq` descriptor is shared with the
-Native Fx metadata entry; `theme_parametric_eq_native_fx` checks the leases
-and the actual Windows editor.
-The Reverb Native Fx DLL exports the optional Node theme functions for its
-single Node type, sharing `reverb` with the Native Fx metadata entry.
-`theme_reverb_native_fx` verifies the real DLL and editor. All eight existing
-Native Fx DLLs now have matching Node and Native Fx theme descriptors.
+## Independent built-in DLLs and retired modules
+
+| Former module | Independent DLLs |
+| --- | --- |
+| `mod_adapter.dll` | `mod_wasapi_in.dll`, `mod_wasapi_out.dll`, `mod_system_midi_in.dll`, `mod_system_midi_out.dll` under `nodes/adapter/<ID>/` |
+| `mod_meterbridge_probe.dll` | `mod_meter_mono.dll`, `mod_meter_stereo.dll`, `mod_meter_5_1.dll`, `mod_meter_7_1.dll`, `mod_meter_custom.dll` under `nodes/meter/<ID>/` |
+
+The aggregate targets and indexed Node SDK support are removed. Existing
+aggregate DLL files are left intact but ignored during discovery and project
+loading. On the first startup after this migration, one notice lists their
+complete paths and the reason `已废弃` in Chinese (localized in other languages).
+The application stores `nodes/deprecatedMultiNodeNoticeShown` in its normal
+application settings; later startups do not repeat the notice. User configuration
+and project files are not deleted or rewritten automatically. Replace old
+aggregate node references with the corresponding independent DLL, restore their
+saved settings and save the project; actual JACK reconnection remains unverified
+in the offline checks.
+
+[`SingleNodeTests.cpp`](SingleNodeTests.cpp) and [`SingleNodeCAbi.c`](SingleNodeCAbi.c)
+cover real DLL factories/state, absent retired exports, C/C++ no-index signatures,
+the nine actual Windows settings windows at 100%, and the persisted first-only
+notice. Manual hardware/installation acceptance is SKIPPED by user instruction.
 
 ## Native Fx nodes
 
@@ -163,19 +112,20 @@ SEL adds a Sub Mix tab for all strips except MAIN/Monitor. It reuses `AuxSetting
 
 ## Optional Digital Mixer view entry
 
-Digital Mixer exports `int wjn_digital_mixer_show_view(INode* node, int view)` through dynamic lookup. Views are 0=调音台, 1=通道详情, 2=通道总览. It opens only the requested view and returns 1 on success, 0 for an invalid/null node or unsupported view. Closing one view keeps the shared controller until `destroyWindow` or node shutdown. The required Node v2 ABI is unchanged; `createWindow` still opens view 0.
+Digital Mixer exports `int wjn_digital_mixer_show_view(INode* node, int view)` through dynamic lookup. Views are 0=调音台, 1=通道详情, 2=通道总览. It opens only the requested view and returns 1 on success, 0 for an invalid/null node or unsupported view. Closing one view keeps the shared controller until `destroyWindow` or node shutdown. The required Node v3 ABI is unchanged; `createWindow` still opens view 0.
 
 Patchbay exports `int wjn_patchbay_show_digital_mixer_view(int view)` for the host shortcut menu: 1=opened, 0=no loaded mixer, -1=invalid view or opening failure. The existing `wjn_patchbay_show_digital_mixer()` remains view 0. Older mixer modules without the optional export retain view-0 support through `createWindow`; unavailable detail/overview entries report failure.
-# Optional i18n v1 extension (S1)
+# Optional Node i18n descriptor extension (v2)
 
-Node v2 required exports and `INode` layout remain unchanged. Include
-`WinJACKNexus/Common/I18nApi.h` (also included by NodeApi.h); old modules need
-not implement the optional declarations. Hosts resolve
-`wjn_get_node_i18n_api_version()` and
-`wjn_get_node_i18n_descriptor_json(uint32_t index)` dynamically; version is 1,
-invalid index returns NULL. Lifecycle exports, when used, must include all
-three of `wjn_i18n_attach_host`, `wjn_i18n_language_changed` and
-`wjn_i18n_detach_host`.
+Node v3 DLLs may export `wjn_get_node_i18n_api_version()` returning
+`WJN_NODE_I18N_API_VERSION == 2`, and
+`const char *wjn_get_node_i18n_descriptor_json(void)`. No type index exists.
+The descriptor JSON schema, catalogs, `WjnI18nHostV1` service table and
+attach/change/detach lifecycle remain version 1. Native Fx's indexed i18n
+entry remains independent and unchanged. The host validates Node v3 and
+extension v2 before calling the unindexed descriptor function.
+Lifecycle exports, when used, include all three of `wjn_i18n_attach_host`,
+`wjn_i18n_language_changed` and `wjn_i18n_detach_host`.
 
 The exact signatures, UTF-8 buffer/status rules, path limits, English
 completeness, GUI-thread rules and lease/unload order are frozen in
@@ -191,14 +141,14 @@ without starting a JACK client. Example-only `wjn_example_i18n_events` and
 
 The S3 patchbay host consumes this extension in both its node-library scan
 and its actual instance loader, including project-loaded DLLs outside the
-scan directory. It shares a domain lease by canonical DLL path and node
-index, reads the validated displayNameKey, and preserves raw Node v2
+scan directory. It shares a domain lease by canonical DLL path (reserved
+project index zero), reads the validated displayNameKey, and preserves raw Node v3
 metadata for identity. Registration precedes createNode/init; destruction
 clears UI and destroys the node before releasing the lease and unloading
 the library. `patchbay_i18n_tests` exercises the actual nonaudio ExampleNode
 loader, late creation, language changes without instance recreation, and
 multiple lease consumers. This does not promise translations for old or
-untranslated community modules, and adds no required Node v2 export.
+untranslated community modules, and adds no required Node v3 export.
 # S5 built-in Native Fx language integration (implementation pending verification)
 
 Built-in Native Fx node descriptors use `nativefx.<Meta.id>` and the module-local `locate/` directory. Their node and mixer placements expose the same optional i18n v1 domain; retain independent host leases until their instances and windows have been destroyed. Releasing one placement must keep live windows in the other placement localized. SDK names, JACK client and port identities and settings JSON remain untranslated.
@@ -206,6 +156,6 @@ Built-in Native Fx node descriptors use `nativefx.<Meta.id>` and the module-loca
 Native Fx standalone titles refresh their translated effect name together with the current user client name. ExampleNativeFx demonstrates the same behavior with its existing `example.nativefx/name` key; no host or a detached host uses local English. `Develop/NativeFx/NativeFxI18nTests.cpp` exercises real DLLs and Windows node windows without calling INode::init or opening JACK clients. These additions have not yet passed S5 Release or real-window verification.
 
 
-### VST 宿主的 i18n v1 接入（2026-10-04）
+### VST 宿主的 Node i18n v2 描述符接入
 
-`mod_vst_host.dll` 实现既有可选 i18n v1 导出，模块 ID 为 `module-winjacknexus-vst-host`，域为 `vst`，固定目录为 DLL 所在目录的 `locate`，catalogVersion 为 1。Node v2 及其稳定插件/工程身份保持。显示状态保留 key 与参数，语言通知不重启 VSTProcess、不提交设置；最终租约释放后，仍存活的设置控件回退调用点 English。实际 DLL 单次 Windows 实窗调用点验证通过 77 项检查，见 `Docs/i18n/S6-vst-verification.json`；真实插件、进程和 JACK 集成不在该验证范围。
+`mod_vst_host.dll` 实现无索引 Node i18n v2 描述符导出及既有 v1 主机服务，模块 ID 为 `module-winjacknexus-vst-host`，域为 `vst`，固定目录为 DLL 所在目录的 `locate`，catalogVersion 为 1。Node v3 及其稳定插件/工程身份保持。显示状态保留 key 与参数，语言通知不重启 VSTProcess、不提交设置；最终租约释放后，仍存活的设置控件回退调用点 English。实际 DLL 单次 Windows 实窗调用点验证通过 77 项检查，见 `Docs/i18n/S6-vst-verification.json`；真实插件、进程和 JACK 集成不在该验证范围。

@@ -74,13 +74,13 @@ void property(QObject *owner, const char *property, const Text &value)
 
 uint32_t wjn_get_node_i18n_api_version(void)
 {
-    return WJN_I18N_API_VERSION;
+    return WJN_NODE_I18N_API_VERSION;
 }
-const char *wjn_get_node_i18n_descriptor_json(uint32_t index)
+const char *wjn_get_node_i18n_descriptor_json(void)
 {
     static constexpr char descriptor[] =
         R"({"descriptorVersion":1,"i18nApiVersion":1,"moduleId":"module-winjacknexus-vst-host","domains":["vst"],"locatePath":"locate","catalogVersion":1,"displayNameKey":{"domain":"vst","key":"module.name"}})";
-    return index == 0 ? descriptor : nullptr;
+    return descriptor;
 }
 int32_t wjn_i18n_attach_host(const WjnI18nHostV1 *value)
 {

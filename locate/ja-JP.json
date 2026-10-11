@@ -5,6 +5,8 @@
   "language": "ja-JP",
   "domains": {
     "host": {
+      "nodes.deprecated.title": "複数ノード DLL は廃止済み",
+      "nodes.deprecated.message": "以下の複数ノード DLL の読み込みを無視しました。理由：廃止済み。\n\n{paths}",
       "settings.global.title": "全体設定",
       "settings.application": "アプリケーション設定",
       "settings.language": "言語",

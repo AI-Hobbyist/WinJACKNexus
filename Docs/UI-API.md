@@ -528,3 +528,7 @@ and actual menu failures; Release and the single Windows run passed. Translation
 review and final S0 reconciliation remain pending.
 
 S6 supplemental display contract (2026-10-04): Meter settings role choices keep the original speaker role in item data and dispatch `currentData()`. The canonical `未分配` role displays `meterbridge/settings.unassigned`; hot language updates block signals and retain selection. Mixer polar legends reuse `mixer/label.input` and `label.output`. JACK port registration/mapping, AUX cycle and invalid FX sample-rate failures are adapted at the GUI boundary without rewriting model errors. Missing Native Fx notices format `warning.unavailableEffect` from original module IDs supplied by the internal EffectGraph, use plain text, and bind title/body to the current language; canonical warning deduplication and persisted IDs remain unchanged. Call-site checks in `Develop/MixerMeterI18nTests.cpp` were extended for role data/dispatch and error mappings. These supplemental checks are compiled only: the module has already run once, so new behavior is not claimed as runtime verified.
+
+## Node SDK v3 单节点迁移
+
+Node 模块的必需发现/工厂入口和可选 Node 主题、语言描述符均不再接收类型索引；数量入口已删除。主题与语言描述符入口版本均为 2，JSON/Theme Token/主机语言服务仍遵守原 v1 数据契约。`ThemeNamespaceRegistry::registerNodeModule` 每个 DLL 只注册一个描述符。`I18nManager::registerLibrary(..., Extension::node, index, ...)` 的共享注册接口仅允许保留参数值 0；非零拒绝，Native Fx 的独立元数据索引不变。宿主在变更后的入口调用前检查 Node v3。详见 [Node SDK](../Develop/Node/Node-API.md)。

@@ -563,7 +563,7 @@ extern "C"
     }
     const char *wjn_get_node_api_version(void)
     {
-        return "2";
+        return "3";
     }
     uint32_t wjn_fx_i18n_api_version(void)
     {
@@ -571,7 +571,7 @@ extern "C"
     }
     uint32_t wjn_get_node_i18n_api_version(void)
     {
-        return WJN_I18N_API_VERSION;
+        return WJN_NODE_I18N_API_VERSION;
     }
     const char *wjn_fx_i18n_descriptor_json(uint32_t index)
     {
@@ -580,25 +580,22 @@ extern "C"
         "displayNameKey":{"domain":"example.nativefx","key":"name"}})json"
                           : nullptr;
     }
-    const char *wjn_get_node_i18n_descriptor_json(uint32_t index)
+    const char *wjn_get_node_i18n_descriptor_json(void)
     {
-        return wjn_fx_i18n_descriptor_json(index);
+        return wjn_fx_i18n_descriptor_json(0);
     }
-    uint32_t wjn_get_node_count(void)
+
+    const char *wjn_get_node_name(void)
     {
-        return 1;
+        return "Example Gain";
     }
-    const char *wjn_get_node_name(uint32_t index)
+    const char *wjn_get_node_category(void)
     {
-        return index == 0 ? "Example Gain" : "";
+        return "Native Fx";
     }
-    const char *wjn_get_node_category(uint32_t index)
+    WinJACKNexus::Node::INode *wjn_create_node(void)
     {
-        return index == 0 ? "Native Fx" : "";
-    }
-    WinJACKNexus::Node::INode *wjn_create_node(uint32_t index)
-    {
-        return index == 0 ? new ExampleGainNode : nullptr;
+        return new ExampleGainNode;
     }
     void wjn_destroy_node(WinJACKNexus::Node::INode *node)
     {

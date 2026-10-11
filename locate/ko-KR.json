@@ -5,6 +5,8 @@
   "language": "ko-KR",
   "domains": {
     "host": {
+      "nodes.deprecated.title": "다중 노드 DLL 사용 중단",
+      "nodes.deprecated.message": "다음 다중 노드 DLL 로드를 무시했습니다. 사유: 폐기됨.\n\n{paths}",
       "settings.global.title": "전역 설정",
       "settings.application": "애플리케이션 설정",
       "settings.language": "언어",

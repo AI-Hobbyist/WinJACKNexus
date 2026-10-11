@@ -13,6 +13,8 @@
  *
  * SPDX-License-Identifier: AGPL-3.0-only
  */
+#include "DeprecatedNodeNotice.hpp"
+#include <WinJACKNexus/Node/ModuleCompatibility.hpp>
 #include <WinJACKNexus/UI/ApplicationSettings.hpp>
 #include <WinJACKNexus/UI/Controls.hpp>
 #include <WinJACKNexus/UI/HostI18n.hpp>
@@ -169,13 +171,15 @@ public:
             return false;
         }
 
-        const auto apiVersion = reinterpret_cast<ApiVersion>(GetProcAddress(library_, "wjn_get_node_api_version"));
-        const auto nodeCount = reinterpret_cast<NodeCount>(GetProcAddress(library_, "wjn_get_node_count"));
+        const auto apiVersion =
+            reinterpret_cast<ApiVersion>(GetProcAddress(library_, "wjn_get_node_api_version"));
         const auto create = reinterpret_cast<Create>(GetProcAddress(library_, "wjn_create_node"));
         destroy_ = reinterpret_cast<Destroy>(GetProcAddress(library_, "wjn_destroy_node"));
-        if (apiVersion == nullptr || nodeCount == nullptr || create == nullptr || destroy_ == nullptr
-            || std::strcmp(apiVersion(), "2") != 0 || nodeCount() == 0) {
-            WJN_LOG_ERROR("Node module API validation failed path=%s", filePath.toUtf8().constData());
+        if (apiVersion == nullptr || create == nullptr || destroy_ == nullptr ||
+            !WinJACKNexus::Node::isSingleNodeModule(library_))
+        {
+            WJN_LOG_ERROR("Node module API validation failed path=%s",
+                          filePath.toUtf8().constData());
             unload();
             return false;
         }
@@ -188,8 +192,9 @@ public:
         if (!themeError.isEmpty())
             qWarning().noquote() << "Node theme descriptor:" << themeError;
 
-        node_ = create(0);
-        if (node_ == nullptr || !node_->init()) {
+        node_ = create();
+        if (node_ == nullptr || !node_->init())
+        {
             WJN_LOG_ERROR("Node module initialization failed path=%s", filePath.toUtf8().constData());
             unload();
             return false;
@@ -206,24 +211,25 @@ public:
     HMODULE moduleHandle() const noexcept { return library_; }
 
 private:
-    using ApiVersion = const char* (*)();
-    using NodeCount = std::uint32_t (*)();
-    using Create = WinJACKNexus::Node::INode* (*)(std::uint32_t index);
-    using Destroy = void (*)(WinJACKNexus::Node::INode*);
+  using ApiVersion = const char *(*)();
+  using Create = WinJACKNexus::Node::INode *(*)(void);
+  using Destroy = void (*)(WinJACKNexus::Node::INode *);
 
-    void unload() noexcept
-    {
-        if (node_ != nullptr) {
-            node_->shutdown();
-            destroy_(node_);
-            node_ = nullptr;
-        }
-        destroy_ = nullptr;
-        themeLease_.reset();
-        if (library_ != nullptr) {
-            FreeLibrary(library_);
-            library_ = nullptr;
-        }
+  void unload() noexcept
+  {
+      if (node_ != nullptr)
+      {
+          node_->shutdown();
+          destroy_(node_);
+          node_ = nullptr;
+      }
+      destroy_ = nullptr;
+      themeLease_.reset();
+      if (library_ != nullptr)
+      {
+          FreeLibrary(library_);
+          library_ = nullptr;
+      }
     }
 
     HMODULE library_ = nullptr;
@@ -1079,6 +1085,9 @@ int main(int argc, char* argv[])
 
     WinJACKNexus::UI::ThemeManagementDialog themeManagementDialog(*themeCore);
     GlobalSettingsDialog globalSettingsDialog(themeManagementDialog);
+    WinJACKNexus::App::showDeprecatedNodeNoticeOnce(
+        QCoreApplication::applicationDirPath() + QStringLiteral("/nodes"), *applicationSettings);
+
     JackServerSettingsDialog jackServerSettingsDialog;
 #ifdef _DEBUG
     const auto arguments = application.arguments();

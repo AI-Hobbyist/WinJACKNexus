@@ -130,7 +130,7 @@ int main(int argc, char **argv)
             symbol("wjn_create_settings_widget"));
         const auto remove = reinterpret_cast<decltype(&wjn_destroy_settings_widget)>(
             symbol("wjn_destroy_settings_widget"));
-        auto *node = create(0);
+        auto *node = create();
         check(node, "real synthesizer instance without JACK init");
         SynthSettings state;
         state.clientName = "synth-offline";

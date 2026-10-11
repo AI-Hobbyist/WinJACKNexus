@@ -36,7 +36,7 @@ void verifyMeterbridgeOpen(QApplication &application, const QString &path, Check
     manager.watchApplication(&application);
     QLibrary library(path);
     check(library.load(), "load the runtime meterbridge DLL");
-    using Create = WinJACKNexus::Node::INode *(*)(std::uint32_t);
+    using Create = WinJACKNexus::Node::INode *(*)(void);
     using Destroy = void (*)(WinJACKNexus::Node::INode *);
     using Show = int (*)(const char *);
     auto create = reinterpret_cast<Create>(library.resolve("wjn_create_node"));
@@ -45,7 +45,7 @@ void verifyMeterbridgeOpen(QApplication &application, const QString &path, Check
     check(create && destroy && show, "resolve actual meterbridge menu and node entry points");
     if (create && destroy && show)
     {
-        auto *node = create(0);
+        auto *node = create();
         check(node && node->init(), "initialize the runtime meterbridge");
         if (node)
         {

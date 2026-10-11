@@ -177,63 +177,76 @@ QAction *action(QObject &root, const QString &identity)
 }
 struct AdapterPanels
 {
-    HMODULE library = nullptr;
-    using Create = WinJACKNexus::Node::INode *(*)(std::uint32_t);
-    using Destroy = void (*)(WinJACKNexus::Node::INode *);
-    using Settings = QWidget *(*)(WinJACKNexus::Node::INode *, QWidget *);
-    using DestroySettings = void (*)(WinJACKNexus::Node::INode *, QWidget *);
-    using GetSettings = const char *(*)(WinJACKNexus::Node::INode *);
-    GetSettings getSettings = nullptr;
-    Create create = nullptr;
-    Destroy destroy = nullptr;
-    Settings settings = nullptr;
-    DestroySettings destroySettings = nullptr;
-    std::array<WinJACKNexus::Node::INode *, 4> nodes{};
+    using Node = WinJACKNexus::Node::INode;
+    using Create = Node *(*)(void);
+    using Destroy = void (*)(Node *);
+    using Settings = QWidget *(*)(Node *, QWidget *);
+    using DestroySettings = void (*)(Node *, QWidget *);
+    using GetSettings = const char *(*)(Node *);
+    std::array<HMODULE, 4> libraries{};
+    std::array<Destroy, 4> destroy{};
+    std::array<DestroySettings, 4> destroySettings{};
+    std::array<GetSettings, 4> getters{};
+    std::array<Node *, 4> nodes{};
     std::array<QWidget *, 4> panels{};
     std::array<QWidget *, 4> meters{};
     std::array<QByteArray, 4> initialSettings{};
     explicit AdapterPanels(const QString &path, QWidget *parent)
     {
-        library = LoadLibraryW(reinterpret_cast<LPCWSTR>(path.utf16()));
-        require(library, "load actual adapter DLL");
-        create = reinterpret_cast<Create>(GetProcAddress(library, "wjn_create_node"));
-        destroy = reinterpret_cast<Destroy>(GetProcAddress(library, "wjn_destroy_node"));
-        settings =
-            reinterpret_cast<Settings>(GetProcAddress(library, "wjn_create_settings_widget"));
-        destroySettings = reinterpret_cast<DestroySettings>(
-            GetProcAddress(library, "wjn_destroy_settings_widget"));
-        getSettings =
-            reinterpret_cast<GetSettings>(GetProcAddress(library, "wjn_get_node_settings_json"));
-        require(create && destroy && settings && destroySettings && getSettings,
-                "actual adapter widget API is present");
-        for (std::uint32_t i = 0; i < 4; ++i)
+        const auto root = QFileInfo(path).dir().absoluteFilePath(QStringLiteral(".."));
+        const char *ids[]{"wasapi_in", "wasapi_out", "system_midi_in", "system_midi_out"};
+        for (std::size_t i = 0; i < nodes.size(); ++i)
         {
-            nodes[i] = create(i);
-            require(nodes[i], "create uninitialized adapter for UI only");
+            const auto dll =
+                QDir(root).filePath(QString::fromLatin1(ids[i]) + "/mod_" + ids[i] + ".dll");
+            libraries[i] = LoadLibraryW(reinterpret_cast<LPCWSTR>(dll.utf16()));
+            require(libraries[i], "load individual adapter DLL");
+            const auto create =
+                reinterpret_cast<Create>(GetProcAddress(libraries[i], "wjn_create_node"));
+            destroy[i] =
+                reinterpret_cast<Destroy>(GetProcAddress(libraries[i], "wjn_destroy_node"));
+            const auto settings = reinterpret_cast<Settings>(
+                GetProcAddress(libraries[i], "wjn_create_settings_widget"));
+            destroySettings[i] = reinterpret_cast<DestroySettings>(
+                GetProcAddress(libraries[i], "wjn_destroy_settings_widget"));
+            getters[i] = reinterpret_cast<GetSettings>(
+                GetProcAddress(libraries[i], "wjn_get_node_settings_json"));
+            require(create && destroy[i] && settings && destroySettings[i] && getters[i],
+                    "single adapter widget ABI");
+            nodes[i] = create();
+            require(nodes[i], "offline adapter creation");
             panels[i] = settings(nodes[i], parent);
-            require(panels[i], "create actual adapter settings without init/JACK");
-            initialSettings[i] = getSettings(nodes[i]);
+            require(panels[i], "actual settings without JACK or device initialization");
+            initialSettings[i] = getters[i](nodes[i]);
         }
+    }
+    const char *getSettings(Node *node) const
+    {
+        for (std::size_t i = 0; i < nodes.size(); ++i)
+            if (nodes[i] == node)
+                return getters[i](node);
+        return nullptr;
     }
     ~AdapterPanels()
     {
-        for (int i = 0; i < 4; ++i)
+        for (std::size_t i = 0; i < nodes.size(); ++i)
         {
             nodes[i]->destroyWindow(nullptr);
-            destroySettings(nodes[i], panels[i]);
-            destroy(nodes[i]);
+            destroySettings[i](nodes[i], panels[i]);
+            destroy[i](nodes[i]);
+            FreeLibrary(libraries[i]);
         }
-        FreeLibrary(library);
     }
     QWidget *openMeter(int index)
     {
         const auto handle = nodes[index]->createWindow(nullptr);
-        require(handle, "uninitialized adapter opens its real meter window without JACK");
+        require(handle, "actual offline adapter meter window");
         meters[index] = QWidget::find(reinterpret_cast<WId>(handle));
-        require(meters[index] && meters[index]->isVisible(), "actual adapter meter is visible");
+        require(meters[index] && meters[index]->isVisible(), "visible real adapter meter");
         return meters[index];
     }
 };
+
 void verifyModalWindows(HostI18n &host, QWidget *parent, const QString &language,
                         const QString &render)
 {
@@ -414,7 +427,7 @@ int main(int argc, char **argv)
         {
             auto *item = tree->topLevelItem(i)->child(j);
             if (QFileInfo(item->data(0, Qt::UserRole).toString()).fileName() ==
-                    QStringLiteral("mod_adapter.dll") &&
+                    QStringLiteral("mod_wasapi_in.dll") &&
                 item->data(0, Qt::UserRole + 1).toUInt() == 0)
                 selectedItem = item;
         }
@@ -484,13 +497,18 @@ int main(int argc, char **argv)
             for (int index = 0; index < group->childCount(); ++index)
             {
                 auto *item = group->child(index);
-                if (QFileInfo(item->data(0, Qt::UserRole).toString()).fileName() !=
-                    QStringLiteral("mod_meterbridge_probe.dll"))
+                if (!QFileInfo(item->data(0, Qt::UserRole).toString())
+                         .fileName()
+                         .startsWith(QStringLiteral("mod_meter_")))
                     continue;
-                const auto type = item->data(0, Qt::UserRole + 1).toUInt();
+                const QStringList probeFiles{"mod_meter_mono.dll", "mod_meter_stereo.dll",
+                                             "mod_meter_5_1.dll", "mod_meter_7_1.dll",
+                                             "mod_meter_custom.dll"};
+                const auto type = probeFiles.indexOf(
+                    QFileInfo(item->data(0, Qt::UserRole).toString()).fileName());
                 const char *keys[] = {"node.meterMono", "node.meterStereo", "node.meter51",
                                       "node.meter71", "node.meterCustom"};
-                require(type < 5 &&
+                require(type >= 0 && type < 5 &&
                             item->text(0) == localizedText("patchbay", keys[type], "missing"),
                         "each actual probe node retains its own translated type");
                 require(item->toolTip(0).startsWith(item->text(0) + QLatin1Char('\n')),

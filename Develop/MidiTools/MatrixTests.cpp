@@ -280,7 +280,7 @@ int main(int argc, char **argv)
             symbol("wjn_create_settings_widget"));
         const auto remove = reinterpret_cast<decltype(&wjn_destroy_settings_widget)>(
             symbol("wjn_destroy_settings_widget"));
-        auto *node = create(0);
+        auto *node = create();
         check(node, "matrix node");
         auto state = QJsonDocument::fromJson(get(node)).object();
         check(state["routes"].toArray().size() == 256, "256 persisted bits");
@@ -325,7 +325,7 @@ int main(int argc, char **argv)
         check(QJsonDocument::fromJson(get(node)).object()["routes"].toArray()[1].toBool(),
               "GUI route applied to persisted snapshot");
         const QByteArray routed = get(node);
-        auto *restored = create(0);
+        auto *restored = create();
         check(restored && set(restored, routed.constData()) && QByteArray(get(restored)) == routed,
               "nondefault256bit state roundtrip");
         destroy(restored);

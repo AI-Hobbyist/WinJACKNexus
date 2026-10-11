@@ -38,8 +38,6 @@ int main(int argc, char **argv)
                 check(result, "required host discovery/state export");
                 return result;
             };
-            const auto count =
-                reinterpret_cast<decltype(&wjn_get_node_count)>(symbol("wjn_get_node_count"));
             const auto version = reinterpret_cast<decltype(&wjn_get_node_api_version)>(
                 symbol("wjn_get_node_api_version"));
             const auto category =
@@ -52,8 +50,7 @@ int main(int argc, char **argv)
                 symbol("wjn_get_node_settings_json"));
             const auto set = reinterpret_cast<decltype(&wjn_set_node_settings_json)>(
                 symbol("wjn_set_node_settings_json"));
-            check(count() == 1 && std::string(version()) == "2" &&
-                      std::string(category(0)) == "Midi Tools",
+            check(std::string(version()) == "3" && std::string(category()) == "Midi Tools",
                   "host discovery identity");
             WinJACKNexus::UI::ThemeNamespaceRegistry::Lease lease;
             QString error;
@@ -64,7 +61,7 @@ int main(int argc, char **argv)
                       path, &lease, &error),
                   qPrintable(error));
             check(!lease.isEmpty(), "each DLL owns a valid independent theme descriptor");
-            auto *first = create(0);
+            auto *first = create();
             check(first, "create offline node without init");
             auto settings = QJsonDocument::fromJson(get(first)).object();
             settings["clientName"] = QStringLiteral("MIDI_恢复_日本語_한국어");
@@ -72,7 +69,7 @@ int main(int argc, char **argv)
             check(set(first, state.constData()), "restore Unicode name and full node state");
             const QByteArray saved(get(first));
             destroy(first);
-            auto *second = create(0);
+            auto *second = create();
             check(second && set(second, saved.constData()), "new instance restores saved state");
             check(QJsonDocument::fromJson(get(second)) == QJsonDocument::fromJson(saved),
                   "project payload round trip preserves all settings");

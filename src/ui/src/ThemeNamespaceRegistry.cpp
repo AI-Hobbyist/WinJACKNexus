@@ -352,7 +352,7 @@ bool ThemeNamespaceRegistry::registerNodeModule(const ThemeSymbolResolver &resol
     if (!resolve || !result || !result->isEmpty())
         return fail(error, "invalid registration target");
     using Count = uint32_t (*)();
-    using Json = const char *(*)(uint32_t);
+    using Json = const char *(*)(void);
     const auto version = reinterpret_cast<Count>(resolve("wjn_get_node_theme_api_version"));
     const auto json = reinterpret_cast<Json>(resolve("wjn_get_node_theme_namespace_json"));
     if (!version && !json)
@@ -363,22 +363,16 @@ bool ThemeNamespaceRegistry::registerNodeModule(const ThemeSymbolResolver &resol
     }
     if (!version || !json || version() != WJN_NODE_THEME_API_VERSION)
         return fail(error, "incomplete or unsupported Node theme exports");
-    const auto count = reinterpret_cast<Count>(resolve("wjn_get_node_count"));
-    if (!count || count() > maxTokens)
-        return fail(error, "invalid Node count export");
-    std::vector<Candidate> candidates;
-    for (uint32_t index = 0, length = count(); index < length; ++index)
-    {
-        const auto *raw = json(index);
-        if (!raw)
-            continue;
-        QSharedPointer<const ThemeNamespaceDescriptor> descriptor;
-        if (!descriptorFromJson(boundedJson(raw), ThemeModuleKind::node, &descriptor, error))
-            return false;
-        candidates.push_back({bindingKey(ThemeModuleKind::node, source, index), descriptor});
-    }
-    return registerCandidates(candidates, source, result, error);
+    const auto *raw = json();
+    if (!raw)
+        return fail(error, "missing Node theme descriptor");
+    QSharedPointer<const ThemeNamespaceDescriptor> descriptor;
+    if (!descriptorFromJson(boundedJson(raw), ThemeModuleKind::node, &descriptor, error))
+        return false;
+    return registerCandidates({{bindingKey(ThemeModuleKind::node, source, 0), descriptor}}, source,
+                              result, error);
 }
+
 bool ThemeNamespaceRegistry::registerInternal(const QByteArray &utf8Json, const QString &source,
                                               Lease *result, QString *error)
 {

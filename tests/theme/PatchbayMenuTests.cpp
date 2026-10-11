@@ -139,7 +139,7 @@ void verifyRestoredThemeStartup(QApplication &application)
         const auto savedStyle = application.styleSheet();
         check(savedStyle.contains(QStringLiteral("#243651")),
               "startup applies selected palette before patchbay opens");
-        auto *host = wjn_create_node(0);
+        auto *host = wjn_create_node();
         check(host && host->init(), "create offline host after asynchronous theme restore");
         if (host)
         {
@@ -249,7 +249,7 @@ int testMixerProjectRestore(QApplication &application, const QString &settingsPa
                        QStringLiteral("Patchbay"));
     settings.setValue(QStringLiteral("lastProjectPath"), projectPath);
     settings.setValue(QStringLiteral("residentMixerEnabled"), true);
-    auto *host = wjn_create_node(0);
+    auto *host = wjn_create_node();
     check(host && host->init(), "initialize patchbay for mixer project restore");
     if (!host)
         return 1;
@@ -315,7 +315,7 @@ int testMixerProjectRestore(QApplication &application, const QString &settingsPa
     observer.close();
     host->shutdown();
     wjn_destroy_node(host);
-    host = wjn_create_node(0);
+    host = wjn_create_node();
     check(host && host->init(), "restart patchbay host with saved project");
     if (host)
     {
@@ -879,7 +879,7 @@ int main(int argc, char **argv)
     verifyMixerLayout(application, check);
     verifyFxChainPresets(application, check);
     verifyRestoredThemeStartup(application);
-    auto *host = wjn_create_node(0);
+    auto *host = wjn_create_node();
     check(host && host->init(), "create patchbay host without a JACK client");
     if (!host)
         return 1;

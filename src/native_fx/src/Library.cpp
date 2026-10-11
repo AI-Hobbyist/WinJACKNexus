@@ -175,53 +175,39 @@ extern "C"
     }
     const char *wjn_get_node_api_version(void)
     {
-        return "2";
+        return "3";
     }
-    std::uint32_t wjn_get_node_count(void)
-    {
-        std::uint32_t count = 0;
-        for (std::uint32_t i = 0; i < wjn_fx_count(); ++i)
-            if (wjn_fx_meta(i)->placements & WJN_FX_NODE)
-                ++count;
-        return count;
-    }
-    static std::uint32_t nodeCatalogIndex(std::uint32_t nodeIndex)
-    {
-        for (std::uint32_t i = 0; i < wjn_fx_count(); ++i)
-            if ((wjn_fx_meta(i)->placements & WJN_FX_NODE) && nodeIndex-- == 0)
-                return i;
-        return wjn_fx_count();
-    }
+
 #if WJN_FX_MODULE_INDEX <= 7
     std::uint32_t wjn_get_node_theme_api_version(void)
     {
         return WJN_NODE_THEME_API_VERSION;
     }
-    const char *wjn_get_node_theme_namespace_json(std::uint32_t index)
+    const char *wjn_get_node_theme_namespace_json(void)
     {
-        return wjn_fx_theme_namespace_json(nodeCatalogIndex(index));
+        return wjn_fx_theme_namespace_json(0);
     }
 #endif
-    const char *wjn_get_node_name(std::uint32_t index)
+    const char *wjn_get_node_name(void)
     {
-        if (const auto *meta = wjn_fx_meta(nodeCatalogIndex(index)))
+        if (const auto *meta = wjn_fx_meta(0))
             return meta->name;
         return "";
     }
-    const char *wjn_get_node_category(std::uint32_t index)
+    const char *wjn_get_node_category(void)
     {
-        return nodeCatalogIndex(index) < wjn_fx_count() ? "Native Fx" : "";
+        return "Native Fx";
     }
     // Small visual identity supplied by the Native Fx module to chain hosts.
-    WINJACK_NODE_API const char *wjn_get_node_icon_glyph(std::uint32_t index)
+    WINJACK_NODE_API const char *wjn_get_node_icon_glyph(void)
     {
-        if (const auto *meta = wjn_fx_meta(nodeCatalogIndex(index)))
+        if (const auto *meta = wjn_fx_meta(0))
             return meta->iconGlyph;
         return "?";
     }
-    WINJACK_NODE_API const char *wjn_get_node_icon_color(std::uint32_t index)
+    WINJACK_NODE_API const char *wjn_get_node_icon_color(void)
     {
-        if (const auto *meta = wjn_fx_meta(nodeCatalogIndex(index)))
+        if (const auto *meta = wjn_fx_meta(0))
             return meta->iconColor;
         return "#607b99";
     }
@@ -237,10 +223,8 @@ extern "C"
             return effect->createEffectWidget(parent);
         return nullptr;
     }
-    WinJACKNexus::Node::INode *wjn_create_node(std::uint32_t index)
+    WinJACKNexus::Node::INode *wjn_create_node(void)
     {
-        if (nodeCatalogIndex(index) >= wjn_fx_count())
-            return nullptr;
         return new ActiveNode;
     }
     void wjn_destroy_node(WinJACKNexus::Node::INode *node)

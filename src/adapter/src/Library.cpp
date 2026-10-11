@@ -2476,20 +2476,16 @@ class MidiOutNode final : public WinJACKNexus::Node::INode, public AdapterNodeSe
     QPointer<SettingsPanel> settingsPanel_;
 };
 
-const AdapterNodeDefinition *definitionFor(std::uint32_t index) noexcept
+const AdapterNodeDefinition *definitionFor() noexcept
 {
-#ifdef WJN_ADAPTER_NODE_INDEX
-    return index == 0 ? &kAdapterNodes[WJN_ADAPTER_NODE_INDEX] : nullptr;
-#else
-    return index < kAdapterNodes.size() ? &kAdapterNodes[index] : nullptr;
-#endif
+    return &kAdapterNodes[WJN_ADAPTER_NODE_INDEX];
 }
 
 }
 
 const char *wjn_get_node_api_version(void)
 {
-    return "2";
+    return "3";
 }
 
 std::uint32_t wjn_get_node_theme_api_version(void)
@@ -2497,7 +2493,7 @@ std::uint32_t wjn_get_node_theme_api_version(void)
     return WJN_NODE_THEME_API_VERSION;
 }
 
-const char *wjn_get_node_theme_namespace_json(std::uint32_t index)
+const char *wjn_get_node_theme_namespace_json(void)
 {
     static const std::array<QByteArray, 4> descriptors = [] {
         const std::array<const char *, 4> ids{
@@ -2524,49 +2520,32 @@ const char *wjn_get_node_theme_namespace_json(std::uint32_t index)
         }
         return result;
     }();
-#ifdef WJN_ADAPTER_NODE_INDEX
-    return index == 0 ? descriptors[WJN_ADAPTER_NODE_INDEX].constData() : nullptr;
-#else
-    return index < descriptors.size() ? descriptors[index].constData() : nullptr;
-#endif
+    return descriptors[WJN_ADAPTER_NODE_INDEX].constData();
 }
 
-std::uint32_t wjn_get_node_count(void)
+const char *wjn_get_node_name(void)
 {
-#ifdef WJN_ADAPTER_NODE_INDEX
-    return 1;
-#else
-    return static_cast<std::uint32_t>(kAdapterNodes.size());
-#endif
+    return definitionFor()->name;
 }
 
-const char *wjn_get_node_name(std::uint32_t index)
+const char *wjn_get_node_category(void)
 {
-    const auto *definition = definitionFor(index);
-    return definition == nullptr ? "" : definition->name;
+    return definitionFor()->category;
 }
 
-const char *wjn_get_node_category(std::uint32_t index)
+WinJACKNexus::Node::INode *wjn_create_node(void)
 {
-    const auto *definition = definitionFor(index);
-    return definition == nullptr ? "" : definition->category;
-}
-
-WinJACKNexus::Node::INode *wjn_create_node(std::uint32_t index)
-{
-    const auto *definition = definitionFor(index);
-    if (definition == nullptr)
-        return nullptr;
-#ifdef WJN_ADAPTER_NODE_INDEX
-    index = WJN_ADAPTER_NODE_INDEX;
-#endif
-    if (index == 0)
-        return new WasapiInNode;
-    if (index == 1)
-        return new WasapiOutNode;
-    if (index == 2)
-        return new MidiInNode;
+#if WJN_ADAPTER_NODE_INDEX == 0
+    return new WasapiInNode;
+#elif WJN_ADAPTER_NODE_INDEX == 1
+    return new WasapiOutNode;
+#elif WJN_ADAPTER_NODE_INDEX == 2
+    return new MidiInNode;
+#elif WJN_ADAPTER_NODE_INDEX == 3
     return new MidiOutNode;
+#else
+#error Invalid adapter node selection
+#endif
 }
 
 void wjn_destroy_node(WinJACKNexus::Node::INode *node)

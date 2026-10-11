@@ -5,6 +5,8 @@
   "language": "zh-CN",
   "domains": {
     "host": {
+      "nodes.deprecated.title": "多合一节点已废弃",
+      "nodes.deprecated.message": "以下多合一节点已忽略加载，原因：已废弃。\n\n{paths}",
       "settings.global.title": "全局设置",
       "settings.application": "应用设置",
       "settings.language": "语言",

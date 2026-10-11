@@ -515,8 +515,8 @@ void module(HostI18n &host, const QString &runtime, const QString &output, const
           "both placements register actual shared language domain");
     check(host.manager().setLanguage(languages.front(), &error),
           "select initial language before creating module windows");
-    auto *instance = create(0);
-    auto *second = create(0);
+    auto *instance = create();
+    auto *second = create();
     check(instance && second, "independent offline mixer instances");
     QWidget *panel = editor(instance, nullptr);
     QWidget *secondPanel = editor(second, nullptr);
@@ -540,12 +540,12 @@ void module(HostI18n &host, const QString &runtime, const QString &output, const
               "seed independently masked channel parameters");
     }
     const auto before = snapshot(instance), secondBefore = snapshot(second);
-    auto createNode = resolve<Node::INode *(*)(uint32_t)>(library, "wjn_create_node");
+    auto createNode = resolve<Node::INode *(*)(void)>(library, "wjn_create_node");
     auto destroyNode = resolve<void (*)(Node::INode *)>(library, "wjn_destroy_node");
     auto setName = resolve<int (*)(void *, const char *)>(library, "wjn_fx_node_set_client_name");
     auto nodeSettings =
         resolve<const char *(*)(Node::INode *)>(library, "wjn_get_node_settings_json");
-    auto *node = createNode(0);
+    auto *node = createNode();
     check(node && setName(node, "S5_User_Name") == 1, "node exists without JACK init");
     const QByteArray nodeBefore(nodeSettings(node));
     auto hwnd = node->createWindow(nullptr);
@@ -1056,7 +1056,7 @@ void community(HostI18n &host, const QString &runtime, const QString &output,
     auto destroy = resolve<void (*)(WjnFxInstance *)>(library, "wjn_fx_destroy_mixer");
     auto editor =
         resolve<QWidget *(*)(WjnFxInstance *, QWidget *)>(library, "wjn_fx_create_mixer_editor");
-    auto createNode = resolve<Node::INode *(*)(uint32_t)>(library, "wjn_create_node");
+    auto createNode = resolve<Node::INode *(*)(void)>(library, "wjn_create_node");
     auto destroyNode = resolve<void (*)(Node::INode *)>(library, "wjn_destroy_node");
     auto setName = resolve<int (*)(void *, const char *)>(library, "wjn_fx_node_set_client_name");
     auto settings = resolve<const char *(*)(Node::INode *)>(library, "wjn_get_node_settings_json");
@@ -1066,9 +1066,9 @@ void community(HostI18n &host, const QString &runtime, const QString &output,
     auto nodeLease = host.manager().registerLibrary(path, I18nManager::Extension::node, 0, &error);
     check(bool(fxLease) && bool(nodeLease) && host.manager().setLanguage(languages.front(), &error),
           "example dual placement leases and initial language");
-    auto *instance = create(0);
+    auto *instance = create();
     auto *view = editor(instance, nullptr);
-    auto *node = createNode(0);
+    auto *node = createNode();
     check(instance && view && node && setName(node, "Example_User_Name") == 1,
           "example actual offline instances");
     auto hwnd = node->createWindow(nullptr);
