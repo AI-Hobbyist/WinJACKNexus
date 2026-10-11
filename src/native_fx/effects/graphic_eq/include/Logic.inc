@@ -50,12 +50,26 @@ bool fromJson(const QJsonObject& object, WinJACKNexus::Common::GraphicEqParamete
 class GraphicEqNode final : public WinJACKNexus::Node::INode {
     struct PortConnections final { std::vector<std::string> names; bool failed = false; };
 public:
-    ~GraphicEqNode() override { destroyWindow(nullptr); destroySettingsWidget(clientNameWidget_); shutdown(); }
+  explicit GraphicEqNode(uint32_t mode = WJN_NODE_MODE_JACK) : mode_(mode) {}
+
+  ~GraphicEqNode() override
+  {
+      destroyWindow(nullptr);
+      destroySettingsWidget(clientNameWidget_);
+      shutdown();
+  }
     WinJACKNexus::Node::NodeInfo info() const noexcept override {
         return {"Graphic EQ", "Native Fx", "0.1.0", "WinJACKNexus", "Eight-channel 31-band graphic equalizer."};
     }
-    bool init() noexcept override { return client_.isOpen() || openClient(); }
+    bool init() noexcept override
+    {
+        if (mode_ != WJN_NODE_MODE_JACK)
+            return false;
+        return client_.isOpen() || openClient();
+    }
     bool openClient() noexcept {
+        if (mode_ != WJN_NODE_MODE_JACK)
+            return false;
         if (!client_.open({clientName_.c_str(), true, false, nullptr})) return false;
         for (std::size_t i = 0; i < 8; ++i) {
             char inputName[16] {}, outputName[16] {};
@@ -74,6 +88,11 @@ public:
         return true;
     }
     void shutdown() noexcept override {
+        if (mode_ == WJN_NODE_MODE_VIRT)
+        {
+            virtualStop();
+            return;
+        }
         client_.deactivate();
         for (auto& port : inputs_) port.unregisterPort();
         for (auto& port : outputs_) port.unregisterPort();
@@ -228,37 +247,58 @@ public:
     }
     const char* clientId() const noexcept { return clientId_.c_str(); }
     const char* clientName() const noexcept { return clientName_.c_str(); }
+#include "../../../src/VirtualNode.inc"
     bool hasFixedPortLayout() const noexcept { return fixedNodePorts(inputs_, outputs_); }
 private:
-    static int process(jack_nframes_t frames, void* context) noexcept {
-        auto& self = *static_cast<GraphicEqNode*>(context);
-        std::array<const float*, 8> inputBuffers {};
-        std::array<float*, 8> outputBuffers {};
-        for (std::size_t c = 0; c < 8; ++c) {
-            const auto revision = self.atomic_[c].revision.load(std::memory_order_acquire);
-            if (revision != self.appliedRevisions_[c]) {
-                self.processors_[c].setParameters(self.atomic_[c].load());
-                self.appliedRevisions_[c] = revision;
-            }
-            inputBuffers[c] = self.inputs_[c].audioBuffer(frames);
-            outputBuffers[c] = self.outputs_[c].audioBuffer(frames);
-        }
-        for (jack_nframes_t frame = 0; frame < frames; ++frame) {
-            std::array<float, WinJACKNexus::Common::graphicEqSpectrumChannelCount> inputSamples {};
-            std::array<float, WinJACKNexus::Common::graphicEqSpectrumChannelCount> outputSamples {};
-            for (std::size_t c = 0; c < 8; ++c) {
-                const auto* input = inputBuffers[c];
-                const auto inputSample = input != nullptr ? input[frame] : 0.0F;
-                const auto outputSample = self.processors_[c].process(inputSample);
-                if (auto* output = outputBuffers[c])
-                    output[frame] = outputSample;
-                inputSamples[c] = inputSample;
-                outputSamples[c] = outputSample;
-            }
-            self.spectrumAnalyzer_->pushSamples(inputSamples, outputSamples);
-        }
-        return 0;
-    }
+  static int process(jack_nframes_t frames, void *context) noexcept
+  {
+      auto &self = *static_cast<GraphicEqNode *>(context);
+      if (self.mode_ != WJN_NODE_MODE_JACK)
+          return 0;
+      std::array<const float *, 8> inputs{};
+      std::array<float *, 8> outputs{};
+      for (std::size_t channel = 0; channel < 8; ++channel)
+      {
+          inputs[channel] = self.inputs_[channel].audioBuffer(frames);
+          outputs[channel] = self.outputs_[channel].audioBuffer(frames);
+      }
+      return processBuffers(frames, self, inputs, outputs);
+  }
+  static int processBuffers(jack_nframes_t frames, GraphicEqNode &self,
+                            const std::array<const float *, 8> &sourceInputs,
+                            const std::array<float *, 8> &sourceOutputs) noexcept
+  {
+      std::array<const float *, 8> inputBuffers{};
+      std::array<float *, 8> outputBuffers{};
+      for (std::size_t c = 0; c < 8; ++c)
+      {
+          const auto revision = self.atomic_[c].revision.load(std::memory_order_acquire);
+          if (revision != self.appliedRevisions_[c])
+          {
+              self.processors_[c].setParameters(self.atomic_[c].load());
+              self.appliedRevisions_[c] = revision;
+          }
+          inputBuffers[c] = sourceInputs[c];
+          outputBuffers[c] = sourceOutputs[c];
+      }
+      for (jack_nframes_t frame = 0; frame < frames; ++frame)
+      {
+          std::array<float, WinJACKNexus::Common::graphicEqSpectrumChannelCount> inputSamples{};
+          std::array<float, WinJACKNexus::Common::graphicEqSpectrumChannelCount> outputSamples{};
+          for (std::size_t c = 0; c < 8; ++c)
+          {
+              const auto *input = inputBuffers[c];
+              const auto inputSample = input != nullptr ? input[frame] : 0.0F;
+              const auto outputSample = self.processors_[c].process(inputSample);
+              if (auto *output = outputBuffers[c])
+                  output[frame] = outputSample;
+              inputSamples[c] = inputSample;
+              outputSamples[c] = outputSample;
+          }
+          self.spectrumAnalyzer_->pushSamples(inputSamples, outputSamples);
+      }
+      return 0;
+  }
     static int sampleRateChanged(jack_nframes_t rate, void* context) noexcept {
         auto& self = *static_cast<GraphicEqNode*>(context);
         for (auto& processor : self.processors_) processor.prepare(rate);

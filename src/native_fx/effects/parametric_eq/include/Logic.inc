@@ -92,13 +92,24 @@ bool fromJson(const QJsonObject& object,ParametricEqParameters& p) {
 class ParametricEqNode final : public WinJACKNexus::Node::INode {
     struct PortConnections final {std::vector<std::string> names;bool failed=false;};
 public:
-    ParametricEqNode() {for(std::size_t i=0;i<8;++i)atomic_[i].store(settings_[i]);}
+  explicit ParametricEqNode(uint32_t mode = WJN_NODE_MODE_JACK) : mode_(mode)
+  {
+      for (std::size_t i = 0; i < 8; ++i)
+          atomic_[i].store(settings_[i]);
+  }
     ~ParametricEqNode() override {destroyWindow(nullptr);destroySettingsWidget(clientNameWidget_);shutdown();}
     WinJACKNexus::Node::NodeInfo info() const noexcept override {
         return {"Parametric EQ","Native Fx","0.1.0","WinJACKNexus","Eight-channel four-band parametric equalizer."};
     }
-    bool init() noexcept override {return client_.isOpen() || openClient();}
+    bool init() noexcept override
+    {
+        if (mode_ != WJN_NODE_MODE_JACK)
+            return false;
+        return client_.isOpen() || openClient();
+    }
     bool openClient() noexcept {
+        if (mode_ != WJN_NODE_MODE_JACK)
+            return false;
         if(!client_.open({clientName_.c_str(),true,false,nullptr})) return false;
         for(std::size_t i=0;i<8;++i) {
             char inputName[16]{},outputName[16]{};
@@ -116,6 +127,11 @@ public:
         return true;
     }
     void shutdown() noexcept override {
+        if (mode_ == WJN_NODE_MODE_VIRT)
+        {
+            virtualStop();
+            return;
+        }
         client_.deactivate();for(auto& port:inputs_)port.unregisterPort();for(auto& port:outputs_)port.unregisterPort();client_.close();
     }
     HWND createWindow(HWND) noexcept override {
@@ -194,22 +210,54 @@ public:
     }
     const char* clientId() const noexcept {return clientId_.c_str();}
     const char* clientName() const noexcept { return clientName_.c_str(); }
+#include "../../../src/VirtualNode.inc"
     bool hasFixedPortLayout() const noexcept { return fixedNodePorts(inputs_, outputs_); }
 private:
-    static int process(jack_nframes_t frames,void* context) noexcept {
-        auto& self=*static_cast<ParametricEqNode*>(context);
-        std::array<const float*,8> inputs{};std::array<float*,8> outputs{};
-        for(std::size_t c=0;c<8;++c){
-            const auto revision=self.atomic_[c].revision.load(std::memory_order_acquire);
-            if(revision!=self.appliedRevisions_[c]){self.processors_[c].setParameters(self.atomic_[c].load());self.appliedRevisions_[c]=revision;}
-            inputs[c]=self.inputs_[c].audioBuffer(frames);outputs[c]=self.outputs_[c].audioBuffer(frames);
-        }
-        for(jack_nframes_t frame=0;frame<frames;++frame){
-            std::array<float,8> before{},after{};
-            for(std::size_t c=0;c<8;++c){before[c]=inputs[c]?inputs[c][frame]:0;after[c]=self.processors_[c].process(before[c]);if(outputs[c])outputs[c][frame]=after[c];}
-            self.analyzer_->pushSamples(before,after);
-        }return 0;
-    }
+  static int process(jack_nframes_t frames, void *context) noexcept
+  {
+      auto &self = *static_cast<ParametricEqNode *>(context);
+      if (self.mode_ != WJN_NODE_MODE_JACK)
+          return 0;
+      std::array<const float *, 8> inputs{};
+      std::array<float *, 8> outputs{};
+      for (std::size_t channel = 0; channel < 8; ++channel)
+      {
+          inputs[channel] = self.inputs_[channel].audioBuffer(frames);
+          outputs[channel] = self.outputs_[channel].audioBuffer(frames);
+      }
+      return processBuffers(frames, self, inputs, outputs);
+  }
+  static int processBuffers(jack_nframes_t frames, ParametricEqNode &self,
+                            const std::array<const float *, 8> &sourceInputs,
+                            const std::array<float *, 8> &sourceOutputs) noexcept
+  {
+      std::array<const float *, 8> inputs{};
+      std::array<float *, 8> outputs{};
+      for (std::size_t c = 0; c < 8; ++c)
+      {
+          const auto revision = self.atomic_[c].revision.load(std::memory_order_acquire);
+          if (revision != self.appliedRevisions_[c])
+          {
+              self.processors_[c].setParameters(self.atomic_[c].load());
+              self.appliedRevisions_[c] = revision;
+          }
+          inputs[c] = sourceInputs[c];
+          outputs[c] = sourceOutputs[c];
+      }
+      for (jack_nframes_t frame = 0; frame < frames; ++frame)
+      {
+          std::array<float, 8> before{}, after{};
+          for (std::size_t c = 0; c < 8; ++c)
+          {
+              before[c] = inputs[c] ? inputs[c][frame] : 0;
+              after[c] = self.processors_[c].process(before[c]);
+              if (outputs[c])
+                  outputs[c][frame] = after[c];
+          }
+          self.analyzer_->pushSamples(before, after);
+      }
+      return 0;
+  }
     static int sampleRateChanged(jack_nframes_t rate,void* context) noexcept {
         auto& self=*static_cast<ParametricEqNode*>(context);
         for(auto& processor:self.processors_)processor.prepare(rate);

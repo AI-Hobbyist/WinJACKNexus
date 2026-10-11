@@ -93,6 +93,10 @@ int main(int argc, char **argv)
             reinterpret_cast<uint32_t (*)()>(library.resolve("wjn_fx_node_boundary_version"));
         const auto layout =
             reinterpret_cast<int (*)(void *)>(library.resolve("wjn_fx_node_validate_layout"));
+        const auto modeLayout = reinterpret_cast<int (*)(void *, uint32_t)>(
+            library.resolve("wjn_fx_node_validate_layout_mode"));
+        const auto virtualApi = reinterpret_cast<decltype(&wjn_get_node_virtual_api_v1)>(
+            library.resolve("wjn_get_node_virtual_api_v1"));
         const auto clientName =
             reinterpret_cast<const char *(*)(void *)>(library.resolve("wjn_fx_node_client_name"));
         const auto setClientName = reinterpret_cast<int (*)(void *, const char *)>(
@@ -113,7 +117,8 @@ int main(int argc, char **argv)
             library.resolve("wjn_fx_create_mixer_editor"));
         if (!check(version && count && meta && nodeVersion && boundaryVersion && layout &&
                        clientName && setClientName && createNode && destroyNode && showGui &&
-                       createMixer && destroyMixer && editor && nodeMetadata,
+                       createMixer && destroyMixer && editor && nodeMetadata && modeLayout &&
+                       virtualApi,
                    "required dual-placement exports exist"))
         {
             passed = false;
@@ -128,11 +133,49 @@ int main(int argc, char **argv)
                         "placement and boundary versions agree");
         WjnNodeMetadataV4 capabilities{};
         capabilities.structSize = sizeof(capabilities);
-        passed &= check(nodeMetadata(&capabilities) == 1 &&
-                            capabilities.capabilities == WJN_NODE_JACK_NODE &&
-                            capabilities.features == WJN_NODE_HAS_GUI &&
-                            createNode(WJN_NODE_MODE_VIRT) == nullptr,
-                        "S2 Fx metadata exposes only implemented JACK mode");
+        passed &=
+            check(nodeMetadata(&capabilities) == 1 &&
+                      capabilities.capabilities == (WJN_NODE_JACK_NODE | WJN_NODE_VIRT_NODE) &&
+                      capabilities.features == WJN_NODE_HAS_GUI,
+                  "Fx metadata exposes implemented dual modes");
+        auto *virtualNode = createNode(WJN_NODE_MODE_VIRT);
+        const auto *processing = virtualApi();
+        WjnNodePrepareV1 preparation{sizeof(preparation), 64, 48000, nullptr};
+        passed &= check(virtualNode && processing && !virtualNode->init() &&
+                            modeLayout(virtualNode, WJN_NODE_MODE_VIRT) == 0 &&
+                            processing->prepare(virtualNode, &preparation) == 1 &&
+                            modeLayout(virtualNode, WJN_NODE_MODE_VIRT) == 1 &&
+                            modeLayout(virtualNode, WJN_NODE_MODE_JACK) == 0 &&
+                            layout(virtualNode) == 0 && processing->portCount(virtualNode) == 16,
+                        "virtual preparation has logical layout without JACK initialization");
+        if (virtualNode && processing)
+        {
+            static constexpr const char *channels[]{"L", "R", "C", "LFE", "Ls", "Rs", "Lrb", "Rrb"};
+            for (uint32_t index = 0; index < 16; ++index)
+            {
+                WjnNodePortV1 port{};
+                port.structSize = sizeof(port);
+                const auto expectedName =
+                    std::string(index < 8 ? "in_" : "out_") + channels[index % 8];
+                passed &= check(processing->port(virtualNode, index, &port) == 1 &&
+                                    port.id == index + 1 && port.type == WJN_NODE_PORT_AUDIO &&
+                                    port.channels == 1 && port.name == expectedName &&
+                                    port.direction ==
+                                        (index < 8 ? WJN_NODE_PORT_INPUT : WJN_NODE_PORT_OUTPUT),
+                                "logical eight-channel order and directions");
+            }
+            const auto virtualWindow = virtualNode->createWindow(nullptr);
+            passed &= check(virtualWindow &&
+                                capture(QWidget::find(reinterpret_cast<WId>(virtualWindow)),
+                                        captures + QStringLiteral("/virtual-node-%1.png").arg(i)),
+                            "virtual node standalone GUI in real Windows window");
+            ++displays;
+            virtualNode->destroyWindow(virtualWindow);
+            processing->stop(virtualNode);
+            passed &= check(modeLayout(virtualNode, WJN_NODE_MODE_VIRT) == 0,
+                            "stopped virtual layout is inactive");
+            destroyNode(virtualNode);
+        }
         auto *node = createNode(WJN_NODE_MODE_JACK);
         if (!check(node != nullptr, "node instance is created"))
         {

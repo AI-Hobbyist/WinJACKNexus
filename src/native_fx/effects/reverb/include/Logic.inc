@@ -26,12 +26,21 @@ struct AtomicReverbParameters final {
 };
 class ReverbNode final : public WinJACKNexus::Node::INode {
 public:
-    using Parameters=WinJACKNexus::Common::ReverbParameters;
-    ~ReverbNode() override {destroyWindow(nullptr);destroySettingsWidget(settingsWidget_);shutdown();}
+  explicit ReverbNode(uint32_t mode = WJN_NODE_MODE_JACK) : mode_(mode) {}
+
+  using Parameters = WinJACKNexus::Common::ReverbParameters;
+  ~ReverbNode() override
+  {
+      destroyWindow(nullptr);
+      destroySettingsWidget(settingsWidget_);
+      shutdown();
+  }
     WinJACKNexus::Node::NodeInfo info() const noexcept override {
         return {"Reverb","Native Fx","0.1.0","WinJACKNexus","Eight-channel native room reverb."};
     }
     bool init() noexcept override {
+        if (mode_ != WJN_NODE_MODE_JACK)
+            return false;
         if(client_.isOpen())return true;
         if(!client_.open({clientName_.c_str(),true,false,nullptr}))return false;
         try {clientId_=client_.name()==nullptr?clientName_:client_.name();}catch(...){shutdown();return false;}
@@ -46,7 +55,20 @@ public:
            ||!client_.activate()){shutdown();return false;}
         return true;
     }
-    void shutdown() noexcept override {client_.deactivate();for(auto& p:inputs_)p.unregisterPort();for(auto& p:outputs_)p.unregisterPort();client_.close();}
+    void shutdown() noexcept override
+    {
+        if (mode_ == WJN_NODE_MODE_VIRT)
+        {
+            virtualStop();
+            return;
+        }
+        client_.deactivate();
+        for (auto &p : inputs_)
+            p.unregisterPort();
+        for (auto &p : outputs_)
+            p.unregisterPort();
+        client_.close();
+    }
     HWND createWindow(HWND) noexcept override {
         auto* widget=createEffectWidget();if(!widget)return nullptr;
         widget->show();widget->raise();widget->activateWindow();
@@ -114,33 +136,64 @@ public:
     }
     const char* clientId() const noexcept {return clientId_.c_str();}
     const char* clientName() const noexcept { return clientName_.c_str(); }
+#include "../../../src/VirtualNode.inc"
     bool hasFixedPortLayout() const noexcept { return fixedNodePorts(inputs_, outputs_); }
 private:
-    static int process(jack_nframes_t frames,void* context) noexcept {
-        auto& self=*static_cast<ReverbNode*>(context);
-        std::array<float*,8> outputs{};std::array<const float*,8> inputs{};std::array<Parameters,8> settings{};
-        for(std::size_t c=0;c<8;++c){outputs[c]=self.outputs_[c].audioBuffer(frames);if(!outputs[c])continue;
-            inputs[c]=self.inputs_[c].audioBuffer(frames);settings[c]=self.atomic_[c].load();
-            self.processors_[c].process(inputs[c],outputs[c],frames,settings[c]);
-        }
-        constexpr std::size_t pairs[][2]={{0,1},{4,5},{6,7}};
-        for(const auto& pair:pairs){const auto a=pair[0],b=pair[1];
-            if(!outputs[a]||!outputs[b]||!settings[a].enabled||!settings[b].enabled)continue;
-            const float widthA=std::clamp(settings[a].width*.01F,0.0F,2.0F);
-            const float widthB=std::clamp(settings[b].width*.01F,0.0F,2.0F);
-            if(widthA==1&&widthB==1)continue;
-            const float dryA=std::pow(10.0F,(settings[a].dryDb+settings[a].outputDb)/20.0F);
-            const float dryB=std::pow(10.0F,(settings[b].dryDb+settings[b].outputDb)/20.0F);
-            for(unsigned n=0;n<frames;++n){
-                const float originalA=inputs[a]?inputs[a][n]:0.0F,originalB=inputs[b]?inputs[b][n]:0.0F;
-                const float wetA=outputs[a][n]-originalA*dryA,wetB=outputs[b][n]-originalB*dryB;
-                const float mid=(wetA+wetB)*.5F,side=(wetA-wetB)*.5F;
-                outputs[a][n]=originalA*dryA+mid+side*widthA;
-                outputs[b][n]=originalB*dryB+mid-side*widthB;
-            }
-        }
-        return 0;
-    }
+  static int process(jack_nframes_t frames, void *context) noexcept
+  {
+      auto &self = *static_cast<ReverbNode *>(context);
+      if (self.mode_ != WJN_NODE_MODE_JACK)
+          return 0;
+      std::array<const float *, 8> inputs{};
+      std::array<float *, 8> outputs{};
+      for (std::size_t channel = 0; channel < 8; ++channel)
+      {
+          inputs[channel] = self.inputs_[channel].audioBuffer(frames);
+          outputs[channel] = self.outputs_[channel].audioBuffer(frames);
+      }
+      return processBuffers(frames, self, inputs, outputs);
+  }
+  static int processBuffers(jack_nframes_t frames, ReverbNode &self,
+                            const std::array<const float *, 8> &sourceInputs,
+                            const std::array<float *, 8> &sourceOutputs) noexcept
+  {
+      std::array<float *, 8> outputs{};
+      std::array<const float *, 8> inputs{};
+      std::array<Parameters, 8> settings{};
+      for (std::size_t c = 0; c < 8; ++c)
+      {
+          outputs[c] = sourceOutputs[c];
+          if (!outputs[c])
+              continue;
+          inputs[c] = sourceInputs[c];
+          settings[c] = self.atomic_[c].load();
+          self.processors_[c].process(inputs[c], outputs[c], frames, settings[c]);
+      }
+      constexpr std::size_t pairs[][2] = {{0, 1}, {4, 5}, {6, 7}};
+      for (const auto &pair : pairs)
+      {
+          const auto a = pair[0], b = pair[1];
+          if (!outputs[a] || !outputs[b] || !settings[a].enabled || !settings[b].enabled)
+              continue;
+          const float widthA = std::clamp(settings[a].width * .01F, 0.0F, 2.0F);
+          const float widthB = std::clamp(settings[b].width * .01F, 0.0F, 2.0F);
+          if (widthA == 1 && widthB == 1)
+              continue;
+          const float dryA = std::pow(10.0F, (settings[a].dryDb + settings[a].outputDb) / 20.0F);
+          const float dryB = std::pow(10.0F, (settings[b].dryDb + settings[b].outputDb) / 20.0F);
+          for (unsigned n = 0; n < frames; ++n)
+          {
+              const float originalA = inputs[a] ? inputs[a][n] : 0.0F,
+                          originalB = inputs[b] ? inputs[b][n] : 0.0F;
+              const float wetA = outputs[a][n] - originalA * dryA,
+                          wetB = outputs[b][n] - originalB * dryB;
+              const float mid = (wetA + wetB) * .5F, side = (wetA - wetB) * .5F;
+              outputs[a][n] = originalA * dryA + mid + side * widthA;
+              outputs[b][n] = originalB * dryB + mid - side * widthB;
+          }
+      }
+      return 0;
+  }
     static int sampleRateChanged(jack_nframes_t rate,void* context) noexcept {
         auto& self=*static_cast<ReverbNode*>(context);
         try {for(auto& processor:self.processors_)processor.setSampleRate(rate);return 0;}catch(...){return 1;}

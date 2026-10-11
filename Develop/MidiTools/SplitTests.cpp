@@ -1,5 +1,6 @@
 // Offline processing + actual DLL settings, no JACK init/server/connection calls.
 // SPDX-License-Identifier: AGPL-3.0-only
+#include "VirtualModeChecks.hpp"
 #include "JackBackend.hpp"
 #include <QApplication>
 #include <QDir>
@@ -15,6 +16,8 @@
 #include <WinJACKNexus/Common/MidiToolsSplit.hpp>
 #include <WinJACKNexus/Node/NodeApi.h>
 #include <WinJACKNexus/UI/HostI18n.hpp>
+#include <WinJACKNexus/UI/LocalizedText.hpp>
+#include <cstring>
 #include <iostream>
 #include <stdexcept>
 using namespace WinJACKNexus::Common::MidiTools;
@@ -179,6 +182,7 @@ int main(int argc, char **argv)
             QString::fromUtf8(argv[1]) + "/midi_tools/midi_spilit/mod_midi_spilit.dll";
         const HMODULE dll = LoadLibraryW(reinterpret_cast<const wchar_t *>(dllPath.utf16()));
         check(dll, "real splitter DLL");
+        checkVirtualMidiMode(dll, false);
         auto symbol = [&](const char *name) {
             auto p = GetProcAddress(dll, name);
             check(p, "required export");
@@ -237,6 +241,16 @@ int main(int argc, char **argv)
         for (const auto locale : {"en-US", "zh-CN", "ja-JP", "ko-KR"})
         {
             check(host.manager().setLanguage(locale, &error), qPrintable(error));
+            const auto expectedName =
+                std::strcmp(locale, "zh-CN") == 0   ? QStringLiteral("MIDI 通道拆分")
+                : std::strcmp(locale, "ja-JP") == 0 ? QStringLiteral("MIDI チャンネル分割")
+                : std::strcmp(locale, "ko-KR") == 0 ? QStringLiteral("MIDI 채널 분할")
+                                                    : QStringLiteral("MIDI Split");
+            const auto displayName =
+                WinJACKNexus::UI::localizedText("midi.midi_spilit", "name", "MIDI Split");
+            check(displayName == expectedName,
+                  "corrected Split name follows four-language catalog");
+            w->setWindowTitle(displayName);
             QTest::qWait(450);
             check(edit->text() == "renamed-offline", "language preserves client state");
             for (auto *label : w->findChildren<QLabel *>())

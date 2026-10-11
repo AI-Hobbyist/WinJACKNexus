@@ -21,10 +21,13 @@ class ClientSettings
     QString detail_;
     QByteArray json_, actual_;
     std::vector<QPointer<QWidget>> widgets_;
+    const bool virtualMode_;
 
   public:
-    ClientSettings(JackBackend &backend, std::vector<Core::PortIdentity> ports, QString name)
-        : backend_(backend), ports_(std::move(ports)), name_(std::move(name))
+    ClientSettings(JackBackend &backend, std::vector<Core::PortIdentity> ports, QString name,
+                   bool virtualMode = false)
+        : backend_(backend), ports_(std::move(ports)), name_(std::move(name)),
+          virtualMode_(virtualMode)
     {
     }
     virtual ~ClientSettings()
@@ -40,6 +43,20 @@ class ClientSettings
     bool applyName(const QString &value)
     {
         const auto name = value.trimmed();
+        if (virtualMode_)
+        {
+            const auto utf8 = name.toUtf8();
+            if (utf8.isEmpty() || utf8.size() >= 64 ||
+                std::any_of(utf8.begin(), utf8.end(), [](unsigned char character) {
+                    return character < 32 || character == 127 || character == ':';
+                }))
+            {
+                return false;
+            }
+            name_ = name;
+            detail_.clear();
+            return true;
+        }
         if (!backend_.validName(name.toUtf8().toStdString()))
         {
             return false;

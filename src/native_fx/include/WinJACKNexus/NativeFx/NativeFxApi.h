@@ -26,13 +26,14 @@ extern "C"
         WJN_FX_API_VERSION = 1u
     };
     /* Required for WJN_FX_NODE placement. The void* is the INode* returned by
-   wjn_create_node. Validate layout only after INode::init succeeds. */
+   wjn_create_node_v4. Validate the layout after preparation in the chosen mode. */
     enum
     {
-        WJN_FX_NODE_BOUNDARY_VERSION = 1u
+        WJN_FX_NODE_BOUNDARY_VERSION = 2u
     };
     WJN_FX_API uint32_t wjn_fx_node_boundary_version(void);
     WJN_FX_API int wjn_fx_node_validate_layout(void *node);
+    WJN_FX_API int wjn_fx_node_validate_layout_mode(void *node, uint32_t mode);
     /* The returned UTF-8 name is owned by the node until its next mutation. */
     WJN_FX_API const char *wjn_fx_node_client_name(void *node);
     WJN_FX_API int wjn_fx_node_set_client_name(void *node, const char *utf8Name);

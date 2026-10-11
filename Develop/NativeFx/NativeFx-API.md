@@ -29,27 +29,37 @@ The mixer lists only modules with `WJN_FX_MIXER`. The patchbay's node API
 lists only modules with `WJN_FX_NODE`; a mixer-only DLL does not advertise a
 Node module and never appears in `Native Fx`. Node placement follows the
 [Node v4 contract](../Node/Node-API.md), with creation-free capability and GUI
-metadata and an explicit instance mode. S2 advertises JACK only; S4 adds VIRT
-after the internal processing path is implemented. Mixer placement remains
+metadata and an explicit instance mode. S4 implements JACK and VIRT for the
+eight built-in effects and Example Gain. Both adapters call the same existing
+effect processing core with independent instance parameters. Mixer placement remains
 independent of these graph capabilities. `id` is a stable ASCII key for
 presets; `name`, `iconGlyph` and `iconColor` are presentation metadata. Keep
 the metadata strings valid until the DLL unloads.
 
-### Required node boundary (v1)
+### Required node boundary (v2)
 
 For `WJN_FX_NODE`, the DLL must also export
-`wjn_fx_node_boundary_version() == WJN_FX_NODE_BOUNDARY_VERSION` (currently 1),
+`wjn_fx_node_boundary_version() == WJN_FX_NODE_BOUNDARY_VERSION` (currently 2),
 `wjn_fx_node_validate_layout(node)`, `wjn_fx_node_client_name(node)`,
 `wjn_fx_node_set_client_name(node, utf8Name)`, `wjn_get_node_client_id(node)`
 and `wjn_show_node_gui(node)`. `node` is the `INode*` from `wjn_create_node_v4`.
-The patchbay checks the exports before listing or creating the module. After
-`INode::init()`, it requires layout validation and a nonempty client name.
+The patchbay checks the exports before listing or creating the module. It also
+requires `int wjn_fx_node_validate_layout_mode(void *node, uint32_t mode)`.
+After JACK init or VIRT prepare, this v2 entry validates the selected instance
+mode and requires a nonempty display name. Wrong mode and inactive instances
+return zero. The old layout entry remains JACK-only; old boundary v1 modules
+must be rebuilt rather than inferred as supporting virtual layouts.
 
 The node owns one JACK client with exactly eight audio inputs `in_L`, `in_R`,
 `in_C`, `in_LFE`, `in_Ls`, `in_Rs`, `in_Lrb`, `in_Rrb` and matching `out_*` outputs
 in that order. `wjn_fx_node_validate_layout` checks the registered port names,
 directions and audio types, returning 1 only when they match. It returns 0
-before initialization or for a mismatched node.
+before initialization or for a mismatched node. VIRT uses 16 logical mono
+audio ports, IDs 1..8 for inputs and 9..16 for outputs, with those same names
+and channel order. It never registers a JACK client or native port, and uses
+the root host's sample rate, frame count and borrowed buffers through the
+Node v4 VIRT table. VIRT rejects INode::init. Its standalone editor and
+per-channel parameter state remain independent from other node/mixer instances.
 
 The patchbay creates the right-sidebar `ClientNameWidget` itself and calls the
 name getter/setter. Native Fx node settings widgets are not embedded there;

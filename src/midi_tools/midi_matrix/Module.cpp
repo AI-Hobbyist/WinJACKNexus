@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 #include "../ClientSettings.hpp"
+#include "../VirtualMidi.hpp"
+#include <cmath>
 #include "../ModuleI18n.hpp"
 #include "Theme.hpp"
 #include <QApplication>
@@ -32,9 +34,16 @@ class MatrixNode final : public WinJACKNexus::Node::INode, public MT::ClientSett
     MT::Core::MatrixRoutes routes_ = MT::Core::diagonalRoutes(), audioRoutes_ = routes_;
     QPointer<WinJACKNexus::UI::MidiMatrixWindow> window_;
     std::atomic<unsigned> stop_{};
+    const uint32_t mode_;
+    uint32_t maxFrames_{};
 
   public:
-    MatrixNode() : ClientSettings(jack_, MT::matrixPorts(), QStringLiteral("midi_matrix")) {}
+    explicit MatrixNode(uint32_t mode = WJN_NODE_MODE_JACK)
+        : ClientSettings(jack_, MT::matrixPorts(), QStringLiteral("midi_matrix"),
+                         mode == WJN_NODE_MODE_VIRT),
+          mode_(mode)
+    {
+    }
     ~MatrixNode()
     {
         shutdown();
@@ -46,6 +55,8 @@ class MatrixNode final : public WinJACKNexus::Node::INode, public MT::ClientSett
     }
     bool init() noexcept override
     {
+        if (mode_ != WJN_NODE_MODE_JACK)
+            return false;
         try
         {
             return jack_.active() || jack_.replace(name_.toUtf8().toStdString(), ports_);
@@ -57,8 +68,10 @@ class MatrixNode final : public WinJACKNexus::Node::INode, public MT::ClientSett
     }
     void shutdown() noexcept override
     {
-        jack_.close();
+        if (mode_ == WJN_NODE_MODE_JACK)
+            jack_.close();
         processor_.reset();
+        maxFrames_ = 0;
     }
     HWND createWindow(HWND) noexcept override
     {
@@ -176,12 +189,85 @@ class MatrixNode final : public WinJACKNexus::Node::INode, public MT::ClientSett
         }
         return true;
     }
+
+    uint32_t virtualPortCount() const noexcept
+    {
+        return static_cast<uint32_t>(ports_.size());
+    }
+    bool virtualPort(uint32_t index, WjnNodePortV1 *description) const noexcept
+    {
+        if (!description || description->structSize != sizeof(*description) ||
+            index >= ports_.size())
+            return false;
+        const auto &port = ports_[index];
+        *description = {
+            sizeof(*description),
+            index + 1,
+            static_cast<uint32_t>(port.input ? WJN_NODE_PORT_INPUT : WJN_NODE_PORT_OUTPUT),
+            WJN_NODE_PORT_MIDI,
+            0,
+            0,
+            port.shortName.c_str()};
+        return true;
+    }
+    bool virtualPrepare(const WjnNodePrepareV1 *context) noexcept
+    {
+        if (mode_ != WJN_NODE_MODE_VIRT || !context || context->structSize != sizeof(*context) ||
+            !std::isfinite(context->sampleRate) || context->sampleRate <= 0 ||
+            context->maxFrames == 0 || context->maxFrames > MT::Core::maxFrames)
+            return false;
+        maxFrames_ = context->maxFrames;
+        virtualReset();
+        return true;
+    }
+    void virtualReset() noexcept
+    {
+        if (mode_ == WJN_NODE_MODE_VIRT)
+            processor_.reset();
+    }
+    void virtualStop() noexcept
+    {
+        if (mode_ == WJN_NODE_MODE_VIRT)
+        {
+            processor_.reset();
+            maxFrames_ = 0;
+        }
+    }
+
+    void virtualProcess(WjnNodeProcessV1 *block) noexcept
+    {
+        if (mode_ != WJN_NODE_MODE_VIRT || !block || block->structSize != sizeof(*block))
+            return;
+        MT::clearVirtualMidi(*block);
+        if (!maxFrames_ || block->frames > maxFrames_)
+            return;
+        std::array<const WjnNodeMidiInputV1 *, 16> inputs{};
+        for (unsigned channel = 0; channel < 16; ++channel)
+            inputs[channel] = MT::virtualMidiInput(*block, channel + 1);
+        snapshot_.read(audioRoutes_);
+        processor_.process(
+            block->frames, audioRoutes_,
+            [&inputs](unsigned channel) {
+                const auto *input = inputs[channel];
+                return input && input->events ? input->eventCount : 0;
+            },
+            [&inputs](unsigned channel, unsigned index) {
+                const auto &event = inputs[channel]->events[index];
+                return MT::Core::EventView{event.frame, {event.data, event.size}};
+            },
+            [block](unsigned channel, MT::Core::EventView event) {
+                return MT::writeVirtualMidi(*block, channel + 17, event);
+            });
+    }
+
     static int processThunk(jack_nframes_t frames, void *owner) noexcept
     {
         return static_cast<MatrixNode *>(owner)->process(frames);
     }
     int process(jack_nframes_t frames) noexcept
     {
+        if (mode_ != WJN_NODE_MODE_JACK)
+            return 0;
         auto &api = WinJACKNexus::Audio::JackApi::instance();
         std::array<void *, 16> input{}, output{};
         for (unsigned c = 0; c < 16; ++c)
@@ -322,4 +408,5 @@ extern "C" WINJACK_NODE_API int wjn_show_node_gui(WinJACKNexus::Node::INode *n)
 }
 
 #define WJN_NODE_MODULE_FEATURES WJN_NODE_HAS_GUI
-#include <WinJACKNexus/Node/JackOnlyModuleV4.inc>
+#define WJN_NODE_MODULE_TYPE MatrixNode
+#include <WinJACKNexus/Node/DualModeModuleV4.inc>

@@ -18,11 +18,20 @@ struct AtomicDelayParameters final {
 };
 class DelayNode final : public WinJACKNexus::Node::INode {
 public:
-    ~DelayNode() override {destroyWindow(nullptr);destroySettingsWidget(settingsWidget_);shutdown();}
+  explicit DelayNode(uint32_t mode = WJN_NODE_MODE_JACK) : mode_(mode) {}
+
+  ~DelayNode() override
+  {
+      destroyWindow(nullptr);
+      destroySettingsWidget(settingsWidget_);
+      shutdown();
+  }
     WinJACKNexus::Node::NodeInfo info() const noexcept override {
         return {"Delay","Native Fx","0.1.0","WinJACKNexus","Eight-channel native delay interface."};
     }
     bool init() noexcept override {
+        if (mode_ != WJN_NODE_MODE_JACK)
+            return false;
         if(client_.isOpen())return true;
         if(!client_.open({clientName_.c_str(),true,false,nullptr}))return false;
         try {clientId_=client_.name()==nullptr?clientName_:client_.name();}catch(...){shutdown();return false;}
@@ -37,7 +46,20 @@ public:
            ||!client_.activate()){shutdown();return false;}
         return true;
     }
-    void shutdown() noexcept override {client_.deactivate();for(auto& p:inputs_)p.unregisterPort();for(auto& p:outputs_)p.unregisterPort();client_.close();}
+    void shutdown() noexcept override
+    {
+        if (mode_ == WJN_NODE_MODE_VIRT)
+        {
+            virtualStop();
+            return;
+        }
+        client_.deactivate();
+        for (auto &p : inputs_)
+            p.unregisterPort();
+        for (auto &p : outputs_)
+            p.unregisterPort();
+        client_.close();
+    }
     HWND createWindow(HWND) noexcept override {
         auto* widget=createEffectWidget();if(!widget)return nullptr;
         widget->show();widget->raise();widget->activateWindow();
@@ -101,15 +123,37 @@ public:
     }
     const char* clientId() const noexcept {return clientId_.c_str();}
     const char* clientName() const noexcept { return clientName_.c_str(); }
+#include "../../../src/VirtualNode.inc"
     bool hasFixedPortLayout() const noexcept { return fixedNodePorts(inputs_, outputs_); }
 private:
-    static int process(jack_nframes_t frames,void* context) noexcept {
-        auto& self=*static_cast<DelayNode*>(context);
-        for(std::size_t c=0;c<8;++c){auto* out=self.outputs_[c].audioBuffer(frames);if(!out)continue;
-            const auto* in=self.inputs_[c].audioBuffer(frames);
-            self.processors_[c].process(in,out,frames,self.atomic_[c].load());
-        }return 0;
-    }
+  static int process(jack_nframes_t frames, void *context) noexcept
+  {
+      auto &self = *static_cast<DelayNode *>(context);
+      if (self.mode_ != WJN_NODE_MODE_JACK)
+          return 0;
+      std::array<const float *, 8> inputs{};
+      std::array<float *, 8> outputs{};
+      for (std::size_t channel = 0; channel < 8; ++channel)
+      {
+          inputs[channel] = self.inputs_[channel].audioBuffer(frames);
+          outputs[channel] = self.outputs_[channel].audioBuffer(frames);
+      }
+      return processBuffers(frames, self, inputs, outputs);
+  }
+  static int processBuffers(jack_nframes_t frames, DelayNode &self,
+                            const std::array<const float *, 8> &sourceInputs,
+                            const std::array<float *, 8> &sourceOutputs) noexcept
+  {
+      for (std::size_t c = 0; c < 8; ++c)
+      {
+          auto *out = sourceOutputs[c];
+          if (!out)
+              continue;
+          const auto *in = sourceInputs[c];
+          self.processors_[c].process(in, out, frames, self.atomic_[c].load());
+      }
+      return 0;
+  }
     static int sampleRateChanged(jack_nframes_t rate,void* context) noexcept {
         auto& self=*static_cast<DelayNode*>(context);
         try {for(auto& processor:self.processors_)processor.setSampleRate(rate);return 0;}catch(...){return 1;}

@@ -22,17 +22,21 @@ class LimiterNode final : public WinJACKNexus::Node::INode {
         }
     };
 public:
-    LimiterNode() noexcept {
-        for(std::size_t i=0;i<8;++i){
-            atomic_[i].store(values_[i]);
-            processors_[i].setParameters(values_[i]);
-        }
-    }
+  explicit LimiterNode(uint32_t mode = WJN_NODE_MODE_JACK) : mode_(mode)
+  {
+      for (std::size_t i = 0; i < 8; ++i)
+      {
+          atomic_[i].store(values_[i]);
+          processors_[i].setParameters(values_[i]);
+      }
+  }
     ~LimiterNode() override {destroyWindow(nullptr);destroySettingsWidget(settingsWidget_);shutdown();}
     WinJACKNexus::Node::NodeInfo info() const noexcept override {
         return {"Limiter","Native Fx","0.1.0","WinJACKNexus","Eight-channel native limiter UI."};
     }
     bool init() noexcept override {
+        if (mode_ != WJN_NODE_MODE_JACK)
+            return false;
         if(client_.isOpen())return true;
         if(!client_.open({clientName_.c_str(),true,false,nullptr}))return false;
         try {clientId_=client_.name()==nullptr?clientName_:client_.name();}catch(...){shutdown();return false;}
@@ -48,7 +52,20 @@ public:
         appliedRevisions_.fill(atomic_[0].revision.load(std::memory_order_acquire));
         return true;
     }
-    void shutdown() noexcept override {client_.deactivate();for(auto& p:inputs_)p.unregisterPort();for(auto& p:outputs_)p.unregisterPort();client_.close();}
+    void shutdown() noexcept override
+    {
+        if (mode_ == WJN_NODE_MODE_VIRT)
+        {
+            virtualStop();
+            return;
+        }
+        client_.deactivate();
+        for (auto &p : inputs_)
+            p.unregisterPort();
+        for (auto &p : outputs_)
+            p.unregisterPort();
+        client_.close();
+    }
     HWND createWindow(HWND) noexcept override {
         auto* widget=createEffectWidget();if(!widget)return nullptr;
         widget->show();widget->raise();widget->activateWindow();
@@ -122,40 +139,68 @@ public:
     }
     const char* clientId() const noexcept {return clientId_.c_str();}
     const char* clientName() const noexcept { return clientName_.c_str(); }
+#include "../../../src/VirtualNode.inc"
     bool hasFixedPortLayout() const noexcept { return fixedNodePorts(inputs_, outputs_); }
 private:
-    static int process(jack_nframes_t frames,void* context) noexcept {
-        auto& self=*static_cast<LimiterNode*>(context);
-        for(std::size_t c=0;c<8;++c){
-            const auto revision=self.atomic_[c].revision.load(std::memory_order_acquire);
-            if(revision!=self.appliedRevisions_[c]){
-                self.processors_[c].setParameters(self.atomic_[c].load());self.appliedRevisions_[c]=revision;
-            }
-            auto* out=self.outputs_[c].audioBuffer(frames);
-            if(!out){
-                self.processors_[c].reset();
-                self.meterInputDb_[c].store(-120.0F,std::memory_order_relaxed);
-                self.meterOutputDb_[c].store(-120.0F,std::memory_order_relaxed);
-                self.meterGainReductionDb_[c].store(0.0F,std::memory_order_relaxed);
-                self.meterActive_[c].store(false,std::memory_order_release);continue;
-            }
-            const auto* in=self.inputs_[c].audioBuffer(frames);
-            if(!in){std::fill_n(out,frames,0.0F);self.processors_[c].reset();
-                self.meterInputDb_[c].store(-120.0F,std::memory_order_relaxed);
-                self.meterOutputDb_[c].store(-120.0F,std::memory_order_relaxed);
-                self.meterGainReductionDb_[c].store(0.0F,std::memory_order_relaxed);
-                self.meterActive_[c].store(false,std::memory_order_release);continue;}
-            for(jack_nframes_t frame=0;frame<frames;++frame){
-                out[frame]=self.processors_[c].process(in[frame]);
-            }
-            const auto meter=self.processors_[c].meter();
-            self.meterInputDb_[c].store(meter.inputDb,std::memory_order_relaxed);
-            self.meterOutputDb_[c].store(meter.outputDb,std::memory_order_relaxed);
-            self.meterGainReductionDb_[c].store(meter.gainReductionDb,std::memory_order_relaxed);
-            self.meterActive_[c].store(meter.active,std::memory_order_release);
-        }
-        return 0;
-    }
+  static int process(jack_nframes_t frames, void *context) noexcept
+  {
+      auto &self = *static_cast<LimiterNode *>(context);
+      if (self.mode_ != WJN_NODE_MODE_JACK)
+          return 0;
+      std::array<const float *, 8> inputs{};
+      std::array<float *, 8> outputs{};
+      for (std::size_t channel = 0; channel < 8; ++channel)
+      {
+          inputs[channel] = self.inputs_[channel].audioBuffer(frames);
+          outputs[channel] = self.outputs_[channel].audioBuffer(frames);
+      }
+      return processBuffers(frames, self, inputs, outputs);
+  }
+  static int processBuffers(jack_nframes_t frames, LimiterNode &self,
+                            const std::array<const float *, 8> &sourceInputs,
+                            const std::array<float *, 8> &sourceOutputs) noexcept
+  {
+      for (std::size_t c = 0; c < 8; ++c)
+      {
+          const auto revision = self.atomic_[c].revision.load(std::memory_order_acquire);
+          if (revision != self.appliedRevisions_[c])
+          {
+              self.processors_[c].setParameters(self.atomic_[c].load());
+              self.appliedRevisions_[c] = revision;
+          }
+          auto *out = sourceOutputs[c];
+          if (!out)
+          {
+              self.processors_[c].reset();
+              self.meterInputDb_[c].store(-120.0F, std::memory_order_relaxed);
+              self.meterOutputDb_[c].store(-120.0F, std::memory_order_relaxed);
+              self.meterGainReductionDb_[c].store(0.0F, std::memory_order_relaxed);
+              self.meterActive_[c].store(false, std::memory_order_release);
+              continue;
+          }
+          const auto *in = sourceInputs[c];
+          if (!in)
+          {
+              std::fill_n(out, frames, 0.0F);
+              self.processors_[c].reset();
+              self.meterInputDb_[c].store(-120.0F, std::memory_order_relaxed);
+              self.meterOutputDb_[c].store(-120.0F, std::memory_order_relaxed);
+              self.meterGainReductionDb_[c].store(0.0F, std::memory_order_relaxed);
+              self.meterActive_[c].store(false, std::memory_order_release);
+              continue;
+          }
+          for (jack_nframes_t frame = 0; frame < frames; ++frame)
+          {
+              out[frame] = self.processors_[c].process(in[frame]);
+          }
+          const auto meter = self.processors_[c].meter();
+          self.meterInputDb_[c].store(meter.inputDb, std::memory_order_relaxed);
+          self.meterOutputDb_[c].store(meter.outputDb, std::memory_order_relaxed);
+          self.meterGainReductionDb_[c].store(meter.gainReductionDb, std::memory_order_relaxed);
+          self.meterActive_[c].store(meter.active, std::memory_order_release);
+      }
+      return 0;
+  }
     static int sampleRateChanged(jack_nframes_t rate,void* context) noexcept {
         auto& self=*static_cast<LimiterNode*>(context);
         for(auto& processor:self.processors_)processor.prepare(static_cast<double>(rate));

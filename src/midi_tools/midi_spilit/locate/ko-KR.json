@@ -5,7 +5,7 @@
   "language": "ko-KR",
   "domains": {
     "midi.midi_spilit": {
-      "name": "midi_spilit",
+      "name": "MIDI 채널 분할",
       "description": "MIDI 도구 노드"
     }
   }

@@ -74,19 +74,25 @@ bool fromJson(const QJsonObject& object, DeEsserParameters& p) {
 class DeEsserNode final : public WinJACKNexus::Node::INode {
     struct PortConnections final { std::vector<std::string> names; bool failed = false; };
 public:
-    DeEsserNode() {
-        for (auto& buffer : spectrumBuffers_)
-            buffer = std::make_unique<WinJACKNexus::Common::AudioRingBuffer<
-                WinJACKNexus::Common::DeEsserSpectrumSample>>(8192);
-    }
+  explicit DeEsserNode(uint32_t mode = WJN_NODE_MODE_JACK) : mode_(mode)
+  {
+      for (auto &buffer : spectrumBuffers_)
+          buffer = std::make_unique<
+              WinJACKNexus::Common::AudioRingBuffer<WinJACKNexus::Common::DeEsserSpectrumSample>>(
+              8192);
+  }
     ~DeEsserNode() override { destroyWindow(nullptr); destroySettingsWidget(clientNameWidget_); shutdown(); }
     WinJACKNexus::Node::NodeInfo info() const noexcept override {
         return {"De-Esser", "Native Fx", "0.1.0", "WinJACKNexus", "Eight-channel native sibilance suppressor."};
     }
     bool init() noexcept override {
+        if (mode_ != WJN_NODE_MODE_JACK)
+            return false;
         return client_.isOpen() || openClient();
     }
     bool openClient() noexcept {
+        if (mode_ != WJN_NODE_MODE_JACK)
+            return false;
         if (!client_.open({clientName_.c_str(), true, false, nullptr})) return false;
         spectrumSampleRate_.store(client_.sampleRate(), std::memory_order_relaxed);
         for (std::size_t i = 0; i < 8; ++i) {
@@ -105,6 +111,11 @@ public:
         return true;
     }
     void shutdown() noexcept override {
+        if (mode_ == WJN_NODE_MODE_VIRT)
+        {
+            virtualStop();
+            return;
+        }
         client_.deactivate();
         for (auto& port : inputs_) port.unregisterPort();
         for (auto& port : outputs_) port.unregisterPort();
@@ -235,36 +246,58 @@ public:
     }
     const char* clientId() const noexcept { return clientId_.c_str(); }
     const char* clientName() const noexcept { return clientName_.c_str(); }
+#include "../../../src/VirtualNode.inc"
     bool hasFixedPortLayout() const noexcept { return fixedNodePorts(inputs_, outputs_); }
 private:
-    static int process(jack_nframes_t frames, void* context) noexcept {
-        auto& self = *static_cast<DeEsserNode*>(context);
-        for (std::size_t c = 0; c < 8; ++c) {
-            const auto revision = self.atomic_[c].revision.load(std::memory_order_acquire);
-            if (revision != self.appliedRevisions_[c]) {
-                self.processors_[c].setParameters(self.atomic_[c].load());
-                self.appliedRevisions_[c] = revision;
-            }
-            const auto* input = self.inputs_[c].audioBuffer(frames);
-            auto* output = self.outputs_[c].audioBuffer(frames);
-            if (!output) continue;
-            std::array<WinJACKNexus::Common::DeEsserSpectrumSample, 512> spectrumSamples {};
-            const auto totalFrames = static_cast<std::size_t>(frames);
-            for (std::size_t start = 0; start < totalFrames;) {
-                const auto count = std::min(spectrumSamples.size(), totalFrames - start);
-                for (std::size_t offset = 0; offset < count; ++offset) {
-                    const auto inputSample = input != nullptr ? input[start + offset] : 0.0F;
-                    const auto processedSample = input != nullptr
-                        ? self.processors_[c].process(inputSample) : 0.0F;
-                    output[start + offset] = processedSample;
-                    spectrumSamples[offset] = {inputSample, processedSample};
-                }
-                self.spectrumBuffers_[c]->write(spectrumSamples.data(), count);
-                start += count;
-            }
-        }
-        return 0;
-    }
+  static int process(jack_nframes_t frames, void *context) noexcept
+  {
+      auto &self = *static_cast<DeEsserNode *>(context);
+      if (self.mode_ != WJN_NODE_MODE_JACK)
+          return 0;
+      std::array<const float *, 8> inputs{};
+      std::array<float *, 8> outputs{};
+      for (std::size_t channel = 0; channel < 8; ++channel)
+      {
+          inputs[channel] = self.inputs_[channel].audioBuffer(frames);
+          outputs[channel] = self.outputs_[channel].audioBuffer(frames);
+      }
+      return processBuffers(frames, self, inputs, outputs);
+  }
+  static int processBuffers(jack_nframes_t frames, DeEsserNode &self,
+                            const std::array<const float *, 8> &sourceInputs,
+                            const std::array<float *, 8> &sourceOutputs) noexcept
+  {
+      for (std::size_t c = 0; c < 8; ++c)
+      {
+          const auto revision = self.atomic_[c].revision.load(std::memory_order_acquire);
+          if (revision != self.appliedRevisions_[c])
+          {
+              self.processors_[c].setParameters(self.atomic_[c].load());
+              self.appliedRevisions_[c] = revision;
+          }
+          const auto *input = sourceInputs[c];
+          auto *output = sourceOutputs[c];
+          if (!output)
+              continue;
+          std::array<WinJACKNexus::Common::DeEsserSpectrumSample, 512> spectrumSamples{};
+          const auto totalFrames = static_cast<std::size_t>(frames);
+          for (std::size_t start = 0; start < totalFrames;)
+          {
+              const auto count = std::min(spectrumSamples.size(), totalFrames - start);
+              for (std::size_t offset = 0; offset < count; ++offset)
+              {
+                  const auto inputSample = input != nullptr ? input[start + offset] : 0.0F;
+                  const auto processedSample =
+                      input != nullptr ? self.processors_[c].process(inputSample) : 0.0F;
+                  output[start + offset] = processedSample;
+                  spectrumSamples[offset] = {inputSample, processedSample};
+              }
+              self.spectrumBuffers_[c]->write(spectrumSamples.data(), count);
+              start += count;
+          }
+      }
+      return 0;
+  }
     static int sampleRateChanged(jack_nframes_t rate, void* context) noexcept {
         auto& self = *static_cast<DeEsserNode*>(context);
         self.spectrumSampleRate_.store(static_cast<double>(rate), std::memory_order_relaxed);

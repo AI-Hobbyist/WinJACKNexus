@@ -228,3 +228,9 @@ Native Fx standalone titles refresh their translated effect name together with t
 ### VST 宿主的 Node i18n v2 描述符接入
 
 `mod_vst_host.dll` 实现无索引 Node i18n v2 描述符导出及既有 v1 主机服务，模块 ID 为 `module-winjacknexus-vst-host`，域为 `vst`，固定目录为 DLL 所在目录的 `locate`，catalogVersion 为 1。Node v4 及其稳定插件/工程身份保持。显示状态保留 key 与参数，语言通知不重启 VSTProcess、不提交设置；最终租约释放后，仍存活的设置控件回退调用点 English。实际 DLL 单次 Windows 实窗调用点验证通过 77 项检查，见 `Docs/i18n/S6-vst-verification.json`；真实插件、进程和 JACK 集成不在该验证范围。
+
+## 双模式模块适配（公开仓库前 S4，2026-10-11）
+
+`DualModeModuleV4.inc` 以 WJN_NODE_MODULE_TYPE / WJN_NODE_MODULE_FEATURES 导出完整 v4 metadata、固定模式 factory 和 VIRT v1 函数表。实现类构造时接受模式，并提供 virtualPortCount/virtualPort/virtualPrepare/virtualProcess/virtualReset/virtualStop；表不承担 JACK 初始化或实例销毁。JACK-only 模块继续用 JackOnlyModuleV4.inc，不能以完整空实现提前宣称 VIRT。
+
+MIDI Split/Matrix 和八个 Native Fx、ExampleNativeFx 已迁移双模式。VIRT 的逻辑端口及事件数据借用遵循现有 v1 契约；宿主缓冲外不保存事件指针，超容量丢弃新事件并累计 dropped。Split 的显示名称翻译不更改 midi_spilit 稳定标识。Native Fx placement 的布局行为与边界 v2 见 NativeFx-API.md；其他尚未迁移节点保持 JACK-only。

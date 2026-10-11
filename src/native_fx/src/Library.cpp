@@ -154,6 +154,11 @@ extern "C"
         auto *effect = dynamic_cast<ActiveNode *>(static_cast<WinJACKNexus::Node::INode *>(node));
         return effect != nullptr && effect->hasFixedPortLayout() ? 1 : 0;
     }
+    int wjn_fx_node_validate_layout_mode(void *node, uint32_t mode)
+    {
+        auto *effect = dynamic_cast<ActiveNode *>(static_cast<WinJACKNexus::Node::INode *>(node));
+        return effect && effect->hasModeLayout(mode) ? 1 : 0;
+    }
     const char *wjn_fx_node_client_name(void *node)
     {
         auto *effect = dynamic_cast<ActiveNode *>(static_cast<WinJACKNexus::Node::INode *>(node));
@@ -272,4 +277,5 @@ extern "C"
 }
 
 #define WJN_NODE_MODULE_FEATURES WJN_NODE_HAS_GUI
-#include <WinJACKNexus/Node/JackOnlyModuleV4.inc>
+#define WJN_NODE_MODULE_TYPE ActiveNode
+#include <WinJACKNexus/Node/DualModeModuleV4.inc>

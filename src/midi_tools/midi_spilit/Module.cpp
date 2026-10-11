@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 #include "../ClientSettings.hpp"
+#include "../VirtualMidi.hpp"
+#include <cmath>
 #include "../ModuleI18n.hpp"
 #include "Theme.hpp"
 #include <QApplication>
@@ -27,19 +29,28 @@ class SplitNode final : public WinJACKNexus::Node::INode, public MT::ClientSetti
                           }};
     MT::Core::SplitProcessor processor_;
     std::atomic<unsigned> stop_{};
+    const uint32_t mode_;
+    uint32_t maxFrames_{};
 
   public:
-    SplitNode() : ClientSettings(jack_, MT::splitPorts(), QStringLiteral("midi_spilit")) {}
+    explicit SplitNode(uint32_t mode = WJN_NODE_MODE_JACK)
+        : ClientSettings(jack_, MT::splitPorts(), QStringLiteral("midi_spilit"),
+                         mode == WJN_NODE_MODE_VIRT),
+          mode_(mode)
+    {
+    }
     ~SplitNode()
     {
         shutdown();
     }
     WinJACKNexus::Node::NodeInfo info() const noexcept override
     {
-        return {"midi_spilit", "Midi Tools", "1.0.0", "WinJACKNexus", "16-channel MIDI splitter"};
+        return {"MIDI Split", "Midi Tools", "1.0.0", "WinJACKNexus", "16-channel MIDI splitter"};
     }
     bool init() noexcept override
     {
+        if (mode_ != WJN_NODE_MODE_JACK)
+            return false;
         try
         {
             return jack_.active() || jack_.replace(name_.toUtf8().toStdString(), ports_);
@@ -51,20 +62,88 @@ class SplitNode final : public WinJACKNexus::Node::INode, public MT::ClientSetti
     }
     void shutdown() noexcept override
     {
-        jack_.close();
+        if (mode_ == WJN_NODE_MODE_JACK)
+            jack_.close();
         processor_.reset();
+        maxFrames_ = 0;
     }
     HWND createWindow(HWND) noexcept override
     {
         return nullptr;
     }
     void destroyWindow(HWND) noexcept override {}
+
+    uint32_t virtualPortCount() const noexcept
+    {
+        return static_cast<uint32_t>(ports_.size());
+    }
+    bool virtualPort(uint32_t index, WjnNodePortV1 *description) const noexcept
+    {
+        if (!description || description->structSize != sizeof(*description) ||
+            index >= ports_.size())
+            return false;
+        const auto &port = ports_[index];
+        *description = {
+            sizeof(*description),
+            index + 1,
+            static_cast<uint32_t>(port.input ? WJN_NODE_PORT_INPUT : WJN_NODE_PORT_OUTPUT),
+            WJN_NODE_PORT_MIDI,
+            0,
+            0,
+            port.shortName.c_str()};
+        return true;
+    }
+    bool virtualPrepare(const WjnNodePrepareV1 *context) noexcept
+    {
+        if (mode_ != WJN_NODE_MODE_VIRT || !context || context->structSize != sizeof(*context) ||
+            !std::isfinite(context->sampleRate) || context->sampleRate <= 0 ||
+            context->maxFrames == 0 || context->maxFrames > MT::Core::maxFrames)
+            return false;
+        maxFrames_ = context->maxFrames;
+        virtualReset();
+        return true;
+    }
+    void virtualReset() noexcept
+    {
+        if (mode_ == WJN_NODE_MODE_VIRT)
+            processor_.reset();
+    }
+    void virtualStop() noexcept
+    {
+        if (mode_ == WJN_NODE_MODE_VIRT)
+        {
+            processor_.reset();
+            maxFrames_ = 0;
+        }
+    }
+
+    void virtualProcess(WjnNodeProcessV1 *block) noexcept
+    {
+        if (mode_ != WJN_NODE_MODE_VIRT || !block || block->structSize != sizeof(*block))
+            return;
+        MT::clearVirtualMidi(*block);
+        if (!maxFrames_ || block->frames > maxFrames_)
+            return;
+        const auto *input = MT::virtualMidiInput(*block, 1);
+        processor_.process(
+            block->frames, input && input->events ? input->eventCount : 0,
+            [input](unsigned index) {
+                const auto &event = input->events[index];
+                return MT::Core::EventView{event.frame, {event.data, event.size}};
+            },
+            [block](unsigned channel, MT::Core::EventView event) {
+                return MT::writeVirtualMidi(*block, channel + 2, event);
+            });
+    }
+
     static int processThunk(jack_nframes_t frames, void *owner) noexcept
     {
         return static_cast<SplitNode *>(owner)->process(frames);
     }
     int process(jack_nframes_t frames) noexcept
     {
+        if (mode_ != WJN_NODE_MODE_JACK)
+            return 0;
         auto &api = WinJACKNexus::Audio::JackApi::instance();
         std::array<void *, 16> output{};
         for (unsigned c = 0; c < 16; ++c)
@@ -117,7 +196,7 @@ const char *wjn_get_node_theme_namespace_json(void)
 }
 const char *wjn_get_node_name(void)
 {
-    return "midi_spilit";
+    return "MIDI Split";
 }
 const char *wjn_get_node_category(void)
 {
@@ -194,4 +273,6 @@ void wjn_i18n_detach_host()
     MT::I18n::detach();
 }
 
-#include <WinJACKNexus/Node/JackOnlyModuleV4.inc>
+#define WJN_NODE_MODULE_FEATURES 0u
+#define WJN_NODE_MODULE_TYPE SplitNode
+#include <WinJACKNexus/Node/DualModeModuleV4.inc>

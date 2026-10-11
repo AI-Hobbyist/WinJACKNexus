@@ -5,7 +5,7 @@
   "language": "en-US",
   "domains": {
     "midi.midi_spilit": {
-      "name": "midi_spilit",
+      "name": "MIDI Split",
       "description": "MIDI Tools node"
     }
   }

@@ -5,7 +5,7 @@
   "language": "zh-CN",
   "domains": {
     "midi.midi_spilit": {
-      "name": "midi_spilit",
+      "name": "MIDI 通道拆分",
       "description": "MIDI 工具节点"
     }
   }

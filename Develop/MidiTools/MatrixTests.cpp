@@ -1,5 +1,6 @@
 // Offline processing + actual DLL settings, no JACK init/server/connection calls.
 // SPDX-License-Identifier: AGPL-3.0-only
+#include "VirtualModeChecks.hpp"
 #include "JackBackend.hpp"
 #include <QApplication>
 #include <QDir>
@@ -255,6 +256,7 @@ int main(int argc, char **argv)
             QString::fromUtf8(argv[1]) + "/midi_tools/midi_matrix/mod_midi_matrix.dll";
         const HMODULE dll = LoadLibraryW(reinterpret_cast<const wchar_t *>(dllPath.utf16()));
         check(dll, "real matrix DLL");
+        checkVirtualMidiMode(dll, true);
         WinJACKNexus::UI::ThemeNamespaceRegistry::Lease themeLease;
         QString themeError;
         check(WinJACKNexus::UI::ThemeNamespaceRegistry::instance().registerNodeModule(

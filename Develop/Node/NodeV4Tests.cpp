@@ -152,11 +152,23 @@ int main(int argc, char **argv)
                 {
                     std::cerr << entry.path() << ": " << Node::moduleErrorText(error) << '\n';
                 }
+                const auto file = entry.path().filename().string();
+                const bool migrated =
+                    entry.path().generic_string().find("native_fx/") != std::string::npos ||
+                    file == "mod_midi_spilit.dll" || file == "mod_midi_matrix.dll";
+                const auto expected = WJN_NODE_JACK_NODE | (migrated ? WJN_NODE_VIRT_NODE : 0u);
                 require(error == Node::ModuleError::none &&
-                            contract.metadata.capabilities == WJN_NODE_JACK_NODE,
-                        "S2 built-ins expose only currently implemented JACK capability");
-                require(Node::createNodeForMode(library.handle, WJN_NODE_MODE_VIRT) == nullptr,
-                        "unmigrated built-ins cannot create VIRT instances");
+                            contract.metadata.capabilities == expected,
+                        "built-ins expose only implemented graph modes");
+                auto *virtualNode = Node::createNodeForMode(library.handle, WJN_NODE_MODE_VIRT);
+                require((virtualNode != nullptr) == migrated,
+                        "actual VIRT creation follows the declared migration matrix");
+                if (virtualNode)
+                {
+                    const auto destroy = reinterpret_cast<decltype(&wjn_destroy_node)>(
+                        GetProcAddress(library.handle, "wjn_destroy_node"));
+                    destroy(virtualNode);
+                }
                 const bool hasGui = entry.path().filename() != "mod_midi_spilit.dll" &&
                                     entry.path().filename() != "wjn_example_node.dll";
                 require(contract.metadata.features == (hasGui ? WJN_NODE_HAS_GUI : 0u),
@@ -166,7 +178,7 @@ int main(int argc, char **argv)
         }
         require(modules >= 25, "all current built-in module families and example discovered");
         std::cout << "PASS C/C++ Node v4 ABI, precreation scan, explicit modes and " << modules
-                  << " actual JACK-only modules; no JACK server\n";
+                  << " actual modules and their migration matrix; no JACK server\n";
         return 0;
     }
     catch (const std::exception &error)

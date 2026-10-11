@@ -103,7 +103,7 @@ struct PortConnections
 class ExampleGainNode final : public WinJACKNexus::Node::INode
 {
   public:
-    ExampleGainNode()
+    explicit ExampleGainNode(uint32_t mode = WJN_NODE_MODE_JACK) : mode_(mode)
     {
         for (auto &gain : gains_)
             gain.store(1.0F);
@@ -121,10 +121,15 @@ class ExampleGainNode final : public WinJACKNexus::Node::INode
 
     bool init() noexcept override
     {
-        return openClient();
+        return mode_ == WJN_NODE_MODE_JACK && openClient();
     }
     void shutdown() noexcept override
     {
+        if (mode_ == WJN_NODE_MODE_VIRT)
+        {
+            virtualStop();
+            return;
+        }
         client_.deactivate();
         for (auto &port : inputs_)
             port.unregisterPort();
@@ -316,9 +321,81 @@ class ExampleGainNode final : public WinJACKNexus::Node::INode
         }
     }
 
+    uint32_t virtualPortCount() const noexcept
+    {
+        return 16;
+    }
+    bool virtualPort(uint32_t index, WjnNodePortV1 *description) const noexcept
+    {
+        static constexpr const char *names[]{
+            "in_L",  "in_R",  "in_C",  "in_LFE",  "in_Ls",  "in_Rs",  "in_Lrb",  "in_Rrb",
+            "out_L", "out_R", "out_C", "out_LFE", "out_Ls", "out_Rs", "out_Lrb", "out_Rrb"};
+        if (!description || description->structSize != sizeof(*description) || index >= 16)
+        {
+            return false;
+        }
+        *description = {
+            sizeof(*description),
+            index + 1,
+            static_cast<uint32_t>(index < 8 ? WJN_NODE_PORT_INPUT : WJN_NODE_PORT_OUTPUT),
+            WJN_NODE_PORT_AUDIO,
+            1,
+            0,
+            names[index]};
+        return true;
+    }
+
+    bool virtualPrepare(const WjnNodePrepareV1 *context) noexcept
+    {
+        if (mode_ != WJN_NODE_MODE_VIRT || !context || context->structSize != sizeof(*context) ||
+            context->sampleRate <= 0 || !context->maxFrames || context->maxFrames > 65536)
+            return false;
+        virtualFrames_ = context->maxFrames;
+        return true;
+    }
+    void virtualProcess(WjnNodeProcessV1 *block) noexcept
+    {
+        if (mode_ != WJN_NODE_MODE_VIRT || !block || block->structSize != sizeof(*block))
+            return;
+        std::array<const float *, 8> inputs{};
+        for (uint32_t index = 0; block->audioInputs && index < block->audioInputCount; ++index)
+        {
+            const auto &port = block->audioInputs[index];
+            if (port.portId >= 1 && port.portId <= 8 && port.channels == 1 && port.samples)
+                inputs[port.portId - 1] = port.samples[0];
+        }
+        for (uint32_t index = 0; block->audioOutputs && index < block->audioOutputCount; ++index)
+        {
+            const auto &port = block->audioOutputs[index];
+            if (port.portId < 9 || port.portId > 16 || port.channels != 1 || !port.samples ||
+                !port.samples[0])
+                continue;
+            const auto channel = port.portId - 9;
+            const auto gain = gains_[channel].load(std::memory_order_relaxed);
+            const auto *input = inputs[channel];
+            for (uint32_t frame = 0; frame < block->frames; ++frame)
+                port.samples[0][frame] = virtualFrames_ && block->frames <= virtualFrames_ && input
+                                             ? input[frame] * gain
+                                             : 0.0f;
+        }
+    }
+    void virtualReset() noexcept {}
+    void virtualStop() noexcept
+    {
+        if (mode_ == WJN_NODE_MODE_VIRT)
+            virtualFrames_ = 0;
+    }
+    bool hasModeLayout(uint32_t mode) const noexcept
+    {
+        return mode == mode_ &&
+               (mode == WJN_NODE_MODE_VIRT ? virtualFrames_ != 0 : fixedPortLayout());
+    }
+
   private:
     bool openClient() noexcept
     {
+        if (mode_ != WJN_NODE_MODE_JACK)
+            return false;
         if (!client_.open({clientName_.c_str(), true, false, nullptr}))
             return false;
         try
@@ -386,6 +463,8 @@ class ExampleGainNode final : public WinJACKNexus::Node::INode
     }
 
     JackClient client_;
+    const uint32_t mode_;
+    uint32_t virtualFrames_{};
     std::array<JackPort, 8> inputs_, outputs_;
     std::array<std::atomic<float>, 8> gains_{};
     std::string clientName_ = "ExampleGain", clientId_ = "ExampleGain", json_;
@@ -543,6 +622,12 @@ extern "C"
     {
         return WJN_FX_NODE_BOUNDARY_VERSION;
     }
+    int wjn_fx_node_validate_layout_mode(void *node, uint32_t mode)
+    {
+        auto *effect =
+            dynamic_cast<ExampleGainNode *>(static_cast<WinJACKNexus::Node::INode *>(node));
+        return effect && effect->hasModeLayout(mode) ? 1 : 0;
+    }
     int wjn_fx_node_validate_layout(void *node)
     {
         auto *effect =
@@ -623,4 +708,5 @@ extern "C"
 }
 
 #define WJN_NODE_MODULE_FEATURES WJN_NODE_HAS_GUI
-#include <WinJACKNexus/Node/JackOnlyModuleV4.inc>
+#define WJN_NODE_MODULE_TYPE ExampleGainNode
+#include <WinJACKNexus/Node/DualModeModuleV4.inc>

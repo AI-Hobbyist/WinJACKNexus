@@ -61,3 +61,9 @@ mixer 窗口完成 windows 平台、100% 缩放、系统字体实窗验证，测
 mixer-7.png。阶段显示计数、命令和日志见
 [S2 证据](../Docs/Node/PrePublic-S2-results.md)。不运行 JACK 连接集成测试；
 人工界面、听音、硬件及安装验收已跳过（用户指令），不将跳过标为通过。
+
+## 公开仓库前 S4 双模式完成（2026-10-11）
+
+本效果 JACK_NODE/VIRT_NODE 实现及所需 Release 构建、离线模块加载、逻辑八通道布局和 100% Windows 实窗验证完成。两种实例模式固定且复用同一处理核心；VIRT 不初始化 JACK。Node boundary v2 区分实际 JACK 布局和 VIRT 逻辑布局，mixer placement 与参数/独立窗口语义保持。
+
+本模块实际 DLL 的 VIRT、未初始化 JACK 节点和 mixer 三个窗口均通过；截图为 [VIRT 窗口](../Docs/Node/PrePublic-S4-native-real-window/virtual-node-7.png)、node-7.png、mixer-7.png。整个批次 31/100 次显示，并非本模块独立计数。命令、日志及范围见 [S4 证据](../Docs/Node/PrePublic-S4-results.md)。不运行 JACK 连接集成或新增效果算法测试；听音、硬件、人工和安装验收已跳过（用户指令），未验证影响见阶段证据。

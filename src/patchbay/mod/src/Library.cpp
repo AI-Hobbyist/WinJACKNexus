@@ -913,15 +913,16 @@ bool validNativeFxNodeModule(HMODULE library, const QString& path, bool* nativeF
 	const auto count = reinterpret_cast<Count>(GetProcAddress(library, "wjn_fx_count"));
 	const auto meta = reinterpret_cast<Meta>(GetProcAddress(library, "wjn_fx_meta"));
 	const auto boundaryVersion = reinterpret_cast<Version>(GetProcAddress(library, "wjn_fx_node_boundary_version"));
-	return fxVersion != nullptr && fxVersion() == WJN_FX_API_VERSION
-		&& count != nullptr && count() == 1 && meta != nullptr
-		&& meta(0) != nullptr && (meta(0)->placements & WJN_FX_NODE)
-		&& boundaryVersion != nullptr && boundaryVersion() == WJN_FX_NODE_BOUNDARY_VERSION
-		&& GetProcAddress(library, "wjn_fx_node_validate_layout") != nullptr
-		&& GetProcAddress(library, "wjn_fx_node_client_name") != nullptr
-		&& GetProcAddress(library, "wjn_fx_node_set_client_name") != nullptr
-		&& GetProcAddress(library, "wjn_show_node_gui") != nullptr
-		&& GetProcAddress(library, "wjn_get_node_client_id") != nullptr;
+    return fxVersion != nullptr && fxVersion() == WJN_FX_API_VERSION && count != nullptr &&
+           count() == 1 && meta != nullptr && meta(0) != nullptr &&
+           (meta(0)->placements & WJN_FX_NODE) && boundaryVersion != nullptr &&
+           boundaryVersion() == WJN_FX_NODE_BOUNDARY_VERSION &&
+           GetProcAddress(library, "wjn_fx_node_validate_layout") != nullptr &&
+           GetProcAddress(library, "wjn_fx_node_validate_layout_mode") != nullptr &&
+           GetProcAddress(library, "wjn_fx_node_client_name") != nullptr &&
+           GetProcAddress(library, "wjn_fx_node_set_client_name") != nullptr &&
+           GetProcAddress(library, "wjn_show_node_gui") != nullptr &&
+           GetProcAddress(library, "wjn_get_node_client_id") != nullptr;
 }
 
 std::vector<ModuleNodeInfo> scanNodeModules()
@@ -1258,17 +1259,19 @@ public:
           FreeLibrary(library);
           return nullptr;
       }
-      if (nativeFx && mode == WJN_NODE_MODE_JACK)
+      if (nativeFx)
       {
-          using ValidateLayout = int (*)(void *);
+          using ValidateLayout = int (*)(void *, uint32_t);
           using ClientName = const char *(*)(void *);
           const auto validateLayout = reinterpret_cast<ValidateLayout>(
-              GetProcAddress(library, "wjn_fx_node_validate_layout"));
+              GetProcAddress(library, "wjn_fx_node_validate_layout_mode"));
           const auto clientName =
               reinterpret_cast<ClientName>(GetProcAddress(library, "wjn_fx_node_client_name"));
           const auto *name = clientName(node);
-          if (validateLayout(node) == 0 || name == nullptr || name[0] == '\0')
+          if (validateLayout(node, mode) == 0 || name == nullptr || name[0] == '\0')
           {
+              if (mode == WJN_NODE_MODE_VIRT)
+                  contract.processing->stop(node);
               node->shutdown();
               destroyNode(node);
               FreeLibrary(library);
