@@ -9,6 +9,8 @@
 #include <QTemporaryDir>
 #include <QTest>
 #include <QTextLayout>
+#include <QTextDocument>
+#include <QToolTip>
 #include <WinJACKNexus/Node/NodeApi.h>
 #include <WinJACKNexus/UI/HostI18n.hpp>
 #include <WinJACKNexus/UI/MidiSynthWindow.hpp>
@@ -75,6 +77,45 @@ void capture(QWidget &window, const QString &path)
     }
     check(screenshot.save(path), "real native surface capture");
 }
+void captureInformationTooltip(QWidget &window, const QString &path, const QString &expected)
+{
+    auto *help = window.findChild<QPushButton *>("synth-resource-info");
+    check(help && help->isVisible() && help->text() == "i", "visible shared information button");
+    QTextDocument description;
+    description.setHtml(help->toolTip());
+    check(description.toPlainText().contains(expected), "complete localized information tooltip");
+    window.raise();
+    window.activateWindow();
+    QTest::mouseMove(&window, QPoint(2, 2));
+    QTest::qWait(150);
+    QTest::mouseMove(help, help->rect().center());
+    QPointer<QWidget> tooltip;
+    check(QTest::qWaitFor(
+              [&] {
+                  for (auto *widget : QApplication::topLevelWidgets())
+                  {
+                      if (widget->windowType() == Qt::ToolTip && widget->isVisible() &&
+                      qobject_cast<QLabel *>(widget) &&
+                      IsWindowVisible(reinterpret_cast<HWND>(widget->winId())))
+                      {
+                          tooltip = widget;
+                          return true;
+                      }
+                  }
+                  return false;
+              },
+              3000),
+          "mouse hover opens the actual native tooltip");
+    QTest::qWait(150);
+    check(tooltip && IsWindowVisible(reinterpret_cast<HWND>(tooltip->winId())) &&
+              tooltip->devicePixelRatioF() == 1.0,
+          "visible Windows tooltip at 100 percent");
+    check(tooltip->screen()->grabWindow(tooltip->winId()).save(path),
+          "capture actual visible tooltip surface");
+    QToolTip::hideText();
+    QTest::mouseMove(&window, QPoint(2, 2));
+    QTest::qWait(350);
+}
 int main(int argc, char **argv)
 {
     QApplication app(argc, argv);
@@ -136,6 +177,8 @@ int main(int argc, char **argv)
         auto *production = QWidget::find(reinterpret_cast<WId>(handle));
         check(production && production->isWindow(), "standalone production window");
         capture(*production, output + "/synth-production-en-US.png");
+        captureInformationTooltip(*production, output + "/synth-production-info-en-US.png",
+                                  host.manager().text("midi.sf2_loader", "browseHelp", "missing"));
         auto *productionGain = gainControl(*production, "synth-gain-0");
         check(productionGain, "public production gain field");
         editGain(*productionGain, "-3");
@@ -246,6 +289,12 @@ int main(int argc, char **argv)
         {
             check(host.manager().setLanguage(language, &error), qPrintable(error));
             capture(window, output + "/synth-signal-" + language + ".png");
+            captureInformationTooltip(window, output + "/synth-info-" + language + ".png",
+                                      host.manager().text("midi.sf2_loader", "mapping", "missing"));
+            auto *help = window.findChild<QPushButton *>("synth-resource-info");
+            check(help->accessibleDescription().contains(
+                      QString::fromStdString(state.resources[1].path)),
+                  "resource details retain the complete selected path");
             check(Core::settingsJson(state) == beforeLanguage && edits == beforeEdits &&
                       formats->currentIndex() == 1 && sfz->currentRow() == 0,
                   "language preserves gain/solo/mapping/selection without edits");
@@ -333,7 +382,7 @@ int main(int argc, char **argv)
                "SFZ mapping/preference/browse/remove/import, four languages and30/60/120 FPS; "
                "platform=windows, DPR=1, systemFont="
             << QFontInfo(app.font()).family().toStdString()
-            << ", visible window displays=5/100; no JACK init\n";
+            << ", visible windows and hover tooltips bounded below 48/100; no JACK init\n";
         return 0;
     }
     catch (const std::exception &error)

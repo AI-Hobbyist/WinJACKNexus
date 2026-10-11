@@ -42,8 +42,8 @@ class MidiSynthWindow final : public QWidget
     std::vector<Common::MidiTools::ResourceInfo> information_;
     Controls::TabField *tabs_{};
     std::array<Controls::ListField *, 2> lists_{};
-    Controls::ActionButton *import_{}, *remove_{}, *prefer_{};
-    Controls::TextLabel *details_{}, *message_{}, *mappingLabel_{}, *diagnostics_{};
+    Controls::ActionButton *import_{}, *remove_{}, *prefer_{}, *help_{};
+    Controls::TextLabel *message_{}, *diagnostics_{};
     std::array<Controls::IntegerField *, 3> mapping_{};
     std::array<Controls::TextLabel *, 5> headings_{};
     std::array<Controls::TextLabel *, 16> instruments_{};
@@ -161,31 +161,33 @@ class MidiSynthWindow final : public QWidget
                                                           : resource->program)
                                           : 0);
         }
-        if (!resource)
+        QString details =
+            text("browseHelp", "Select a file to inspect it. Browsing does not change playback.");
+        if (resource)
         {
-            details_->setText(text(
-                "browseHelp", "Select a file to inspect it. Browsing does not change playback."));
-            return;
-        }
-        QString state = stateName(ResourceState::pending);
-        QString detail;
-        size_t presets = 0;
-        for (const auto &info : information_)
-        {
-            if (info.spec.id == resource->id)
+            QString state = stateName(ResourceState::pending);
+            QString detail;
+            size_t presets = 0;
+            for (const auto &info : information_)
             {
-                state = stateName(info.state);
-                detail = QString::fromStdString(info.detail);
-                presets = info.presets.size();
+                if (info.spec.id == resource->id)
+                {
+                    state = stateName(info.state);
+                    detail = QString::fromStdString(info.detail);
+                    presets = info.presets.size();
+                }
             }
+            details =
+                QString::fromStdString(resource->path) + "\n" +
+                QString::fromStdString(resource->format).toUpper() + " · " + state + "\n" +
+                text("presets", "Presets") + ": " + QString::number(presets) + "\n" +
+                text("preferred", "Preferred resource") + ": " +
+                (settings_.preferred == resource->id ? text("yes", "Yes") : text("no", "No")) +
+                (detail.isEmpty() ? QString() : "\n" + detail);
         }
-        details_->setText(
-            QString::fromStdString(resource->path) + "\n" +
-            QString::fromStdString(resource->format).toUpper() + " · " + state + "\n" +
-            text("presets", "Presets") + ": " + QString::number(presets) + "\n" +
-            text("preferred", "Preferred resource") + ": " +
-            (settings_.preferred == resource->id ? text("yes", "Yes") : text("no", "No")) +
-            (detail.isEmpty() ? QString() : "\n" + detail));
+        details += "\n\n" + text("mapping", "SFZ mapping: Bank MSB / LSB / Program (0–127)");
+        help_->setAccessibleDescription(details);
+        help_->setToolTip("<qt>" + details.toHtmlEscaped().replace("\n", "<br/>") + "</qt>");
     }
     bool commit(Settings candidate, bool preserve = false)
     {
@@ -307,13 +309,14 @@ class MidiSynthWindow final : public QWidget
         auto *informationCard = new Controls::GroupPanel({}, left);
         auto *informationLayout = new QVBoxLayout(informationCard);
         resources->addWidget(informationCard);
-        details_ = new Controls::TextLabel(left);
-        details_->setWordWrap(true);
-        details_->setTextFormat(Qt::PlainText);
-        informationLayout->addWidget(details_);
-        mappingLabel_ = new Controls::TextLabel(left);
-        mappingLabel_->setWordWrap(true);
-        informationLayout->addWidget(mappingLabel_);
+        auto *informationHeader = new QHBoxLayout;
+        informationHeader->addStretch();
+        help_ = new Controls::ActionButton(QStringLiteral("i"), informationCard);
+        help_->setObjectName("synth-resource-info");
+        const int helpSize = help_->fontMetrics().lineSpacing() + 12;
+        help_->setFixedSize(helpSize, helpSize);
+        informationHeader->addWidget(help_);
+        informationLayout->addLayout(informationHeader);
         auto *mapping = new QHBoxLayout;
         for (unsigned index = 0; index < 3; ++index)
         {
@@ -510,7 +513,8 @@ class MidiSynthWindow final : public QWidget
         prefer_->setText(text("usePreferred", "Use as preferred resource"));
         prefer_->setToolTip(
             text("browseHelp", "Select a file to inspect it. Browsing does not change playback."));
-        mappingLabel_->setText(text("mapping", "SFZ mapping: Bank MSB / LSB / Program (0–127)"));
+        help_->setAccessibleName(text("name", "SF2/SFZ loader") + " — " +
+                                 text("presets", "Presets"));
         for (unsigned index = 0; index < 3; ++index)
         {
             mapping_[index]->setAccessibleName(text(index == 0   ? "msb"
