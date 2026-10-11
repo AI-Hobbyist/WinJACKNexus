@@ -121,6 +121,7 @@ void modelTests()
         },
         writer);
     check(captured.size() == 1, "invalid bytes/frame rejected");
+    check(p.rejectedEvents() == 2, "malformed payload and frame diagnostics accumulate");
     p.process(
         256, 1, [&](unsigned) { return EventView{0, off}; },
         [](unsigned, EventView) { return false; });
@@ -132,6 +133,9 @@ void modelTests()
     captured.clear();
     p.process(256, 0, [](unsigned) { return EventView{}; }, writer);
     check(captured.size() == 48, "event overflow schedules all-channel release");
+    check(p.rejectedEvents() == 3, "event limit adds lifetime diagnostic");
+    p.reset();
+    check(p.rejectedEvents() == 3, "client restart retains diagnostics");
     const auto ports = WinJACKNexus::MidiTools::splitPorts();
     check(ports.size() == 17 && ports.front().input && ports.back().shortName == "MIDI_OUT_16",
           "fixed port layout");

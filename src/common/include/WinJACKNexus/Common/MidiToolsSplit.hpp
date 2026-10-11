@@ -8,8 +8,14 @@ namespace WinJACKNexus::Common::MidiTools
 class SplitProcessor final
 {
     uint16_t pending_{};
+    uint64_t rejectedEvents_{};
 
   public:
+    // Owned by the process thread; reset preserves lifetime diagnostics.
+    uint64_t rejectedEvents() const noexcept
+    {
+        return rejectedEvents_;
+    }
     void reset() noexcept
     {
         pending_ = 0;
@@ -23,6 +29,7 @@ class SplitProcessor final
     {
         if (!frames || frames > maxFrames)
         {
+            rejectedEvents_ += count;
             pending_ = 0xffff;
             return;
         }
@@ -45,6 +52,7 @@ class SplitProcessor final
         const unsigned limit = count < maxEvents ? count : maxEvents;
         if (count > maxEvents)
         {
+            rejectedEvents_ += count - maxEvents;
             pending_ = 0xffff;
         }
         for (unsigned i = 0; i < limit; ++i)
@@ -52,6 +60,7 @@ class SplitProcessor final
             const auto event = read(i);
             if (!validEvent(event, frames))
             {
+                ++rejectedEvents_;
                 continue;
             }
             const auto targets = splitTargets(event.bytes);
