@@ -92,7 +92,8 @@ WinJACKNexus 的定位:
 | **Single VST Host**(单效果器宿主) | 沙盒进程托管单个 VST2/VST3 插件,机架 In/Out 暴露为 JACK 端口 |
 | **VST 效果器链** | 由 Interactive Patchbay 的子图组合单 VST 节点,支持拖拽编排 |
 | **MIDI Splitter**(全通道 MIDI 拆分器) | Omni → 16 Ch,一路输入拆分 16 通道输出 |
-| **16x16 MIDI Matrix**(矩阵 MIDI 路由) | 16×16 通道级 MIDI 路由矩阵 |
+| **16x16 MIDI Matrix**(矩阵 MIDI 路由) | 16 输入端口 × 16 输出端口路由矩阵，保留原 MIDI 通道号 |
+| **SF2/SFZ Loader**(音色加载器) | SF2/SFZ 音源，1 MIDI 输入、L/R 音频输出、16 通道混音 |
 | **Signal Switch**(信号路由切换开关) | 多路切换,平滑 Crossfade 零爆音切换 |
 
 > 全部模块(包括 VST Host 机架与 DAW 桥)严格暴露标准 Native JACK Audio/MIDI Port,可被 Patchbay 全局接线。
@@ -206,13 +207,21 @@ WinJACKNexus 的定位:
 | VST 效果器链 | Patchbay 子图 | ✅ 已完成 | [VST Support 计划](Docs/WinJACKNexus%20-%20VST%20Support%20-%20开发计划.md) | 子图内复用单 VST 节点 |
 | 主程序外壳 | `WinJACKNexus.exe` | ✅ 已完成 | — | 节点模块加载与主窗口 |
 
+进行中模块：
+
+| 节点 | 计划形态 | 当前状态 | 计划书 | 备注 |
+| :--- | :--- | :--- | :--- | :--- |
+| MIDI Splitter（`midi_spilit`） | `nodes/midi_tools/midi_spilit/mod_midi_spilit.dll` | 🚧 进行中；S0 已完成，当前 S1 基础与引擎门槛 | [MIDI Tools 节点计划书](midi%20tools节点计划书.md) | 1 MIDI 输入、16 MIDI 输出；保留指定拼写；S2 分流与侧栏改名尚未验收 |
+| 16x16 MIDI Matrix（`midi matrix`） | `nodes/midi_tools/midi_matrix/mod_midi_matrix.dll` | 🚧 进行中；当前 S1，S3 尚未开始 | [MIDI Tools 节点计划书](midi%20tools节点计划书.md) | 独立窗口、16×16 端口路由；实现、编译及实窗验收未完成 |
+| SF2/SFZ Loader（`sf2_loader`，SF2 加载器） | `nodes/midi_tools/sf2_loader/mod_sf2_loader.dll` | 🚧 进行中；当前 S1 引擎验证，S4/S5 尚未开始 | [MIDI Tools 节点计划书](midi%20tools节点计划书.md) | SF2/SFZ、16 通道混音及 Master；核心与 GUI 完成状态均为未完成 |
+
+三个节点分类为 `Midi Tools`，各自独立 DLL；全部验证离线进行，GUI 只验证 100% Windows 可见实窗，禁止 offscreen。S6 实施、构建和规定测试完成后更新为已完成。
+
 未完成模块：
 
 | 模块与当前状态 |
 | :--- |
 | Signal Switch：📋 未开始；计划形态 `nodes/switch/mod_switch.dll`。 |
-| MIDI Splitter：📋 未开始；计划作为 Patchbay 节点。 |
-| 16x16 MIDI Matrix：📋 未开始；计划作为 Patchbay 节点。 |
 | DAW2JackMIDI VST3：📋 未开始。 |
 | DAW2JackAudio VST3：📋 未开始；计划支持 Mono/Stereo/5.1/7.1。 |
 
@@ -221,7 +230,7 @@ WinJACKNexus 的定位:
 - **P0 基础库(已完成)**:`Common` / `UI` / `Audio` 完整实现 + `Node` 接口桩 → 编译产物 `common.dll` / `ui.dll` / `audio.dll` / `node.dll`;
 - **P2 主程序 + Adapter + Patchbay**:主进程外壳、系统音频/ MIDI 接入、全局接线盘;
 - **P3 Mixer**:调音台已完成;
-- **P4 Meterbridge**:已完成；**Signal Switch + MIDI 工具**(Splitter / Matrix)待开发;
+- **P4 Meterbridge**:已完成；**Signal Switch** 待开发；**MIDI Tools**（Splitter / Matrix / SF2/SFZ Loader）进行中，见上表;
 - **P5 沙盒 VST Host + DAW 桥**:VST Host 已完成，DAW 桥待开发(VST3,含 5.1/7.1 多声道)。
 
 ---
