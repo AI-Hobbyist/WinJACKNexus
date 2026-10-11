@@ -987,7 +987,7 @@ std::string PatchbayCanvas::addSubGraph(const QString &name, const QPointF &posi
     projectDirty_ = true;
     if (subGraphNodeAddedHandler_)
         subGraphNodeAddedHandler_(id, displayName);
-    return id;
+    return isSubGraphNode(id) ? id : std::string{};
 }
 
 bool PatchbayCanvas::isSubGraphNode(const std::string &clientId) const noexcept
@@ -1055,6 +1055,14 @@ const std::vector<ConnectionInfo> &PatchbayCanvas::logicalConnections() const no
     return logicalConnections_;
 }
 
+std::vector<ConnectionInfo> PatchbayCanvas::savedLogicalConnections() const
+{
+    auto result = logicalConnections_;
+    result.insert(result.end(), pendingLogicalConnections_.begin(),
+                  pendingLogicalConnections_.end());
+    return result;
+}
+
 void PatchbayCanvas::restoreSubGraphNodes(std::vector<PatchbaySubGraphInfo> nodes)
 {
     subGraphNodes_ = std::move(nodes);
@@ -1068,7 +1076,14 @@ bool PatchbayCanvas::restoreInterfaceNodes(std::vector<PatchbayInterfaceInfo> no
     for (auto &node : nodes)
     {
         if (!interfaceNodeAddedHandler_ || !interfaceNodeAddedHandler_(node) || node.portId.empty())
+        {
+            for (auto iterator = restored.rbegin(); iterator != restored.rend(); ++iterator)
+            {
+                if (interfaceNodeRemovedHandler_)
+                    interfaceNodeRemovedHandler_(iterator->id);
+            }
             return false;
+        }
         restored.push_back(std::move(node));
     }
     interfaceNodes_ = std::move(restored);
@@ -1327,7 +1342,7 @@ bool PatchbayCanvas::saveProject(const QString &filePath,
                         {QStringLiteral("connections"), graphConnections}});
     }
 
-    auto root = QJsonObject{{QStringLiteral("version"), 1},
+    auto root = QJsonObject{{QStringLiteral("version"), 2},
                             {QStringLiteral("app"), QStringLiteral("WinJACKNexus")},
                             {QStringLiteral("clients"), clients},
                             {QStringLiteral("ports"), ports},
@@ -1376,7 +1391,8 @@ bool PatchbayCanvas::loadProject(const QString &filePath,
     QJsonParseError error;
     const auto document = QJsonDocument::fromJson(file.readAll(), &error);
     if (error.error != QJsonParseError::NoError || !document.isObject() ||
-        document.object().value(QStringLiteral("version")).toInt() != 1)
+        (document.object().value(QStringLiteral("version")).toInt() != 1 &&
+         document.object().value(QStringLiteral("version")).toInt() != 2))
     {
         return false;
     }
@@ -2314,6 +2330,11 @@ void PatchbayCanvas::setModuleNodeHandlers(
     pasteModuleNode_ = std::move(pasteModuleNode);
 }
 
+void PatchbayCanvas::setNodeAddMenuHandler(std::function<void(QMenu &, const QPointF &)> handler)
+{
+    nodeAddMenuHandler_ = std::move(handler);
+}
+
 void PatchbayCanvas::setModuleNodeDropHandler(
     std::function<bool(const QString &, std::uint32_t, const QPointF &)> handler)
 {
@@ -2810,8 +2831,11 @@ void PatchbayCanvas::contextMenuEvent(QContextMenuEvent *event)
             menu.addSeparator();
             copy = canvasAction(menu, "action.copy", "Copy node");
             remove = canvasAction(menu, "action.remove", "Delete node");
-            if (canShowModuleGui)
+            if (isModuleNode)
+            {
                 showGui = canvasAction(menu, "action.showGui", "Show module GUI");
+                showGui->setEnabled(canShowModuleGui);
+            }
         }
         const auto *selected = menu.exec(event->globalPos());
         if (selected == center)
@@ -3003,6 +3027,11 @@ void PatchbayCanvas::contextMenuEvent(QContextMenuEvent *event)
         return;
     }
 
+    if (nodeAddMenuHandler_)
+    {
+        auto *add = menu.addMenu(canvasText("action.addNode", "Add node"));
+        nodeAddMenuHandler_(*add, mapToScene(event->pos()));
+    }
     auto *fit = canvasAction(menu, "action.fitAll", "Fit all nodes");
     auto *reset = canvasAction(menu, "action.resetZoom", "Reset zoom");
     QAction *paste = nullptr;

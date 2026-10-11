@@ -38,6 +38,7 @@ class JackClient;
 #include <vector>
 
 class QGraphicsPathItem;
+class QMenu;
 
 struct PatchbayProjectModule final
 {
@@ -116,6 +117,8 @@ class MOD_PATCHBAY_API PatchbayCanvas final : public QGraphicsView
     const std::vector<PatchbayInterfaceInfo> &interfaceNodes() const noexcept;
     const std::vector<WinJACKNexus::Patchbay::Core::ConnectionInfo> &logicalConnections()
         const noexcept;
+    std::vector<WinJACKNexus::Patchbay::Core::ConnectionInfo> savedLogicalConnections() const;
+    void setNodeAddMenuHandler(std::function<void(QMenu &, const QPointF &)> handler);
     void restoreSubGraphNodes(std::vector<PatchbaySubGraphInfo> nodes);
     bool restoreInterfaceNodes(std::vector<PatchbayInterfaceInfo> nodes);
     bool restoreLogicalConnections(
@@ -286,6 +289,7 @@ class MOD_PATCHBAY_API PatchbayCanvas final : public QGraphicsView
     std::function<bool(const QString &, std::uint32_t, const QPointF &)> moduleNodeDropHandler_;
     std::function<bool(const QString &, std::uint32_t, const QString &, const QPointF &)>
         vstNodeDropHandler_;
+    std::function<void(QMenu &, const QPointF &)> nodeAddMenuHandler_;
     QString copiedSubGraphName_;
     QString copiedInterfaceType_;
     QPoint panOrigin_;

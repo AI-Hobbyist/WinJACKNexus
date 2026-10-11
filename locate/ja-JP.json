@@ -226,7 +226,13 @@
       "node.meter71": "7.1 メータープローブ",
       "node.meter71.description": "メーターブリッジ用の 7.1 チャンネルプローブ。",
       "node.meterCustom": "カスタムメータープローブ",
-      "node.meterCustom.description": "メーターブリッジ用のカスタムチャンネルプローブ。"
+      "node.meterCustom.description": "メーターブリッジ用のカスタムチャンネルプローブ。",
+      "capability.jack": "メイングラフ JACK ノード",
+      "capability.virt": "サブグラフ仮想ノード",
+      "capability.gui": "内蔵 GUI",
+      "capability.yes": "はい",
+      "capability.no": "いいえ",
+      "action.addNode": "ノードを追加"
     },
     "aux": {
       "layout.mono": "モノラル",

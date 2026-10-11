@@ -226,7 +226,13 @@
       "node.meter71": "Meter 7.1",
       "node.meter71.description": "7.1-channel Meterbridge probe.",
       "node.meterCustom": "Meter Custom",
-      "node.meterCustom.description": "Custom-channel Meterbridge probe."
+      "node.meterCustom.description": "Custom-channel Meterbridge probe.",
+      "capability.jack": "Main graph JACK node",
+      "capability.virt": "Subgraph virtual node",
+      "capability.gui": "Built-in GUI",
+      "capability.yes": "Yes",
+      "capability.no": "No",
+      "action.addNode": "Add node"
     },
     "aux": {
       "layout.mono": "Mono",

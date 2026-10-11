@@ -226,7 +226,13 @@
       "node.meter71": "7.1 미터 프로브",
       "node.meter71.description": "미터 브리지용 7.1채널 프로브입니다.",
       "node.meterCustom": "사용자 지정 미터 프로브",
-      "node.meterCustom.description": "미터 브리지용 사용자 지정 채널 프로브입니다."
+      "node.meterCustom.description": "미터 브리지용 사용자 지정 채널 프로브입니다.",
+      "capability.jack": "메인 그래프 JACK 노드",
+      "capability.virt": "하위 그래프 가상 노드",
+      "capability.gui": "내장 GUI",
+      "capability.yes": "예",
+      "capability.no": "아니요",
+      "action.addNode": "노드 추가"
     },
     "aux": {
       "layout.mono": "모노",

@@ -226,7 +226,13 @@
       "node.meter71": "7.1 电平探针",
       "node.meter71.description": "电平表桥的 7.1 声道探针。",
       "node.meterCustom": "自定义电平探针",
-      "node.meterCustom.description": "电平表桥的自定义声道探针。"
+      "node.meterCustom.description": "电平表桥的自定义声道探针。",
+      "capability.jack": "主图 JACK 节点",
+      "capability.virt": "子图虚拟节点",
+      "capability.gui": "自带 GUI",
+      "capability.yes": "是",
+      "capability.no": "否",
+      "action.addNode": "添加节点"
     },
     "aux": {
       "layout.mono": "单声道",

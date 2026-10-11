@@ -41,3 +41,19 @@ target_link_libraries(wjn_node_v4_tests PRIVATE WinJACKNexus::Node)
 target_compile_definitions(wjn_node_v4_tests PRIVATE WIN32_LEAN_AND_MEAN NOMINMAX)
 set_target_properties(wjn_node_v4_tests PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEASE "${WJN_OUTPUT_DIR}")
 add_dependencies(wjn_node_v4_tests ${wjn_v4_fixture_targets} wjn_example_node)
+
+add_library(wjn_subgraph_jack_fixture SHARED SubGraphJackFixture.cpp SubGraphJackFixture.def)
+target_include_directories(wjn_subgraph_jack_fixture PRIVATE ${JACK2_INCLUDE_DIR})
+target_compile_definitions(wjn_subgraph_jack_fixture PRIVATE WIN32_LEAN_AND_MEAN NOMINMAX)
+set_target_properties(wjn_subgraph_jack_fixture PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY_RELEASE "${WJN_OUTPUT_DIR}/tests/node-v4")
+
+add_executable(wjn_subgraph_tests SubGraphTests.cpp)
+target_include_directories(wjn_subgraph_tests PRIVATE
+    ${PROJECT_SOURCE_DIR}/src/patchbay/mod/include ${PROJECT_SOURCE_DIR}/src/native_fx/include)
+target_compile_definitions(wjn_subgraph_tests PRIVATE WJN_NODE_IMPLEMENTATION WIN32_LEAN_AND_MEAN NOMINMAX)
+target_compile_options(wjn_subgraph_tests PRIVATE $<$<CXX_COMPILER_ID:MSVC>:/utf-8>)
+target_link_libraries(wjn_subgraph_tests PRIVATE WinJACKNexus::UI WinJACKNexus::Audio
+    WinJACKNexus::Node WinJACKNexus::Common mod_patchbay patchbay_core Qt6::Widgets Qt6::Test Dbghelp)
+set_target_properties(wjn_subgraph_tests PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEASE "${WJN_OUTPUT_DIR}")
+add_dependencies(wjn_subgraph_tests wjn_subgraph_jack_fixture ${wjn_v4_fixture_targets} WinJACKNexus)

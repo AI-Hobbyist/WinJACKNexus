@@ -4,25 +4,33 @@
 #include <algorithm>
 #include <cmath>
 #include <cstring>
+#include <string>
 
 #ifndef WJN_FIXTURE_CAPABILITIES
 #define WJN_FIXTURE_CAPABILITIES 3
 #endif
+#define WJN_STRINGIFY_VALUE(value) #value
+#define WJN_STRINGIFY(value) WJN_STRINGIFY_VALUE(value)
+#define WJN_STRING_CAPABILITIES WJN_STRINGIFY(WJN_FIXTURE_CAPABILITIES)
 namespace
 {
-uint32_t creations{}, initialized{}, jackClients{}, calls{};
+uint32_t creations{}, initialized{}, jackClients{}, calls{}, jackCalls{};
 class FixtureNode final : public WinJACKNexus::Node::INode
 {
   public:
     const uint32_t mode;
     uint32_t maxFrames{};
+    std::string clientId;
+    std::string settings = "{}";
     explicit FixtureNode(uint32_t value) : mode(value)
     {
         ++creations;
+        clientId = "WJN-V4-Fixture-" WJN_STRING_CAPABILITIES "-" + std::to_string(creations);
     }
     WinJACKNexus::Node::NodeInfo info() const noexcept override
     {
-        return {"Node v4 fixture", "Tests", "1", "WJN", "Offline processing"};
+        return {"Node v4 fixture " WJN_STRING_CAPABILITIES, "Tests", "1", "WJN",
+                "Offline processing"};
     }
     bool init() noexcept override
     {
@@ -140,8 +148,31 @@ const WjnNodeVirtualApiV1 api{
 
 extern "C" WINJACK_NODE_API uint32_t wjn_fixture_counter(uint32_t index)
 {
-    const uint32_t counters[]{creations, initialized, jackClients, calls};
-    return index < 4 ? counters[index] : 0;
+    const uint32_t counters[]{creations, initialized, jackClients, calls, jackCalls};
+    return index < 5 ? counters[index] : 0;
+}
+extern "C" WINJACK_NODE_API void wjn_fixture_process_jack(WinJACKNexus::Node::INode *instance)
+{
+    if (static_cast<FixtureNode *>(instance)->mode == WJN_NODE_MODE_JACK)
+        ++jackCalls;
+}
+extern "C" WINJACK_NODE_API const char *wjn_get_node_client_id(WinJACKNexus::Node::INode *instance)
+{
+    auto *node = static_cast<FixtureNode *>(instance);
+    return node->mode == WJN_NODE_MODE_JACK ? node->clientId.c_str() : "";
+}
+extern "C" WINJACK_NODE_API const char *wjn_get_node_settings_json(
+    WinJACKNexus::Node::INode *instance)
+{
+    return static_cast<FixtureNode *>(instance)->settings.c_str();
+}
+extern "C" WINJACK_NODE_API int wjn_set_node_settings_json(WinJACKNexus::Node::INode *instance,
+                                                           const char *json)
+{
+    if (!json)
+        return 0;
+    static_cast<FixtureNode *>(instance)->settings = json;
+    return 1;
 }
 const char *wjn_get_node_api_version(void)
 {
@@ -164,7 +195,7 @@ int32_t wjn_get_node_metadata_v4(WjnNodeMetadataV4 *metadata)
 #endif
 const char *wjn_get_node_name(void)
 {
-    return "Node v4 fixture";
+    return "Node v4 fixture " WJN_STRING_CAPABILITIES;
 }
 const char *wjn_get_node_category(void)
 {

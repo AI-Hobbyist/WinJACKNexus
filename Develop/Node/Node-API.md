@@ -34,6 +34,25 @@ strings valid for the lifetime documented by the owning module.
 
 ## Metadata and virtual processing
 
+The S3 patchbay host checks the same contract for library/search/add menus,
+drag/drop, direct creation and project restoration. The main graph never
+dispatches the VIRT table. A root subgraph owns one JACK boundary client and
+all of its descendants share a preallocated virtual execution schedule;
+nested graphs and VIRT modules register no JACK clients or ports. Audio
+inputs sum incoming routes, missing inputs are zero, and MIDI events retain
+frame offsets with stable ordering and bounded drop-newest storage.
+Zero-latency cycles and incompatible port routes are rejected before replacing
+the running schedule. Interface IDs and instance IDs remain stable across
+display renames and saved projects. Closing an editor does not stop DSP.
+Deletion stops the affected schedule before destroying its instances.
+
+Project format 2 retains format 1 reading. Instance mode is inferred from the
+saved graph context, never from untrusted saved mode flags. Unloadable modules
+retain their parameter and pending connection records with diagnostics;
+loading does not silently overwrite the source project. Root clock changes
+stop/prepare its VIRT instances outside processing, and processing stays
+silent until buffers and clock are ready.
+
 [`ProcessingApi.h`](../../src/node/include/WinJACKNexus/Node/ProcessingApi.h)
 is a C-compatible ABI. `WjnNodeMetadataV4` is exactly six `uint32_t` fields
 (24 bytes): `structSize`, `version == 4`, `capabilities`, `features`, and two

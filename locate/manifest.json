@@ -243,7 +243,13 @@
       "node.meter71",
       "node.meter71.description",
       "node.meterCustom",
-      "node.meterCustom.description"
+      "node.meterCustom.description",
+      "capability.jack",
+      "capability.virt",
+      "capability.gui",
+      "capability.yes",
+      "capability.no",
+      "action.addNode"
     ],
     "aux": [
       "layout.mono",

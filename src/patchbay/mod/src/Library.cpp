@@ -34,8 +34,10 @@
 #include <WinJACKNexus/UI/ThemeNamespaceRegistry.hpp>
 
 #include <mod_patchbay/PatchbayCanvas.hpp>
+#include <mod_patchbay/VirtualGraph.hpp>
 #include <mod_patchbay/LocalizedDialogs.hpp>
 
+#include <cerrno>
 #include <QApplication>
 #include <QCheckBox>
 #include <QCoreApplication>
@@ -68,6 +70,7 @@
 #include <QToolBar>
 #include <QTimer>
 #include <QUrl>
+#include <QUuid>
 #include <QVBoxLayout>
 
 #include <Windows.h>
@@ -121,6 +124,31 @@ QString categoryDisplayName(const QString& identity) {
 	return identity;
 }
 constexpr int libraryIdentityRole=Qt::UserRole+20;
+constexpr int nodeCapabilitiesRole = Qt::UserRole + 23;
+constexpr int nodeFeaturesRole = Qt::UserRole + 24;
+constexpr int nodeTooltipBaseRole = Qt::UserRole + 25;
+
+QString capabilityTooltip(const QString &description, uint32_t capabilities, uint32_t features)
+{
+    const auto answer = [](bool value) {
+        return value ? patchText("capability.yes", "Yes") : patchText("capability.no", "No");
+    };
+    const QString lines = patchText("capability.jack", "Main graph JACK node") + ": " +
+                          answer(capabilities & WJN_NODE_JACK_NODE) + '\n' +
+                          patchText("capability.virt", "Subgraph virtual node") + ": " +
+                          answer(capabilities & WJN_NODE_VIRT_NODE) + '\n' +
+                          patchText("capability.gui", "Built-in GUI") + ": " +
+                          answer(features & WJN_NODE_HAS_GUI);
+    return description.isEmpty() ? lines : description + '\n' + lines;
+}
+
+void setItemCapabilities(QTreeWidgetItem *item, uint32_t capabilities, uint32_t features)
+{
+    item->setData(0, nodeCapabilitiesRole, capabilities);
+    item->setData(0, nodeFeaturesRole, features);
+    item->setData(0, nodeTooltipBaseRole, item->toolTip(0));
+    item->setToolTip(0, capabilityTooltip(item->toolTip(0), capabilities, features));
+}
 
 QString libraryItemIdentity(const QTreeWidgetItem* item) {
 	return item->data(0,libraryIdentityRole).toString();
@@ -271,6 +299,7 @@ void addSubGraphItem(QTreeWidgetItem* category)
 	auto* item = new QTreeWidgetItem(category, { patchText("graph.defaultName","Subgraph") });
 	item->setData(0,Qt::UserRole+21,QVariantMap{{"domain",QByteArray("patchbay")},{"key",QByteArray("graph.defaultName")},{"english",QByteArray("Subgraph")}});
 	item->setData(0, Qt::UserRole + 2, QStringLiteral("Sub Graph"));
+    setItemCapabilities(item, WJN_NODE_JACK_NODE | WJN_NODE_VIRT_NODE, 0);
 }
 
 void addInterfaceItem(QTreeWidgetItem* category, const QString& type, const QString& name)
@@ -280,6 +309,7 @@ void addInterfaceItem(QTreeWidgetItem* category, const QString& type, const QStr
 	auto* item = new QTreeWidgetItem(category, { WinJACKNexus::UI::localizedText("patchbay",key.constData(),name.toUtf8().constData()) });
 	item->setData(0,Qt::UserRole+21,display);
 	item->setData(0, Qt::UserRole + 3, type);
+    setItemCapabilities(item, WJN_NODE_VIRT_NODE, 0);
 }
 
 bool clientCanSplit(const WinJACKNexus::Patchbay::Core::Snapshot& snapshot, const std::string& clientId)
@@ -323,6 +353,8 @@ struct ModuleNodeInfo final {
 	std::uint32_t index = 0;
 	QVariantMap display;
 	std::shared_ptr<WinJACKNexus::UI::I18nDomainLease> languageLease;
+    uint32_t capabilities{};
+    uint32_t features{};
 };
 
 QVariantMap builtinNodeDisplay(const QString &path, std::uint32_t, const QString &english)
@@ -421,108 +453,372 @@ struct SubGraphInterfacePort final {
 	std::string id;
 	WinJACKNexus::Patchbay::Core::PortKind kind = WinJACKNexus::Patchbay::Core::PortKind::unknown;
 	bool isInput = false;
+    std::size_t graphSlot = WinJACKNexus::Patchbay::VirtualGraph::invalidSlot;
 };
 
-struct SubGraphPortSet final {
-	WinJACKNexus::Audio::JackClient client;
-	std::vector<SubGraphInterfacePort> ports;
-	std::vector<WinJACKNexus::Patchbay::Core::ConnectionInfo> routes;
-	std::vector<PatchbayInterfaceInfo> interfaces;
+struct SubGraphPortSet final
+{
+    using Graph = WinJACKNexus::Patchbay::VirtualGraph;
+    WinJACKNexus::Audio::JackClient client;
+    std::vector<SubGraphInterfacePort> ports;
+    std::vector<WinJACKNexus::Patchbay::Core::ConnectionInfo> routes;
+    std::vector<PatchbayInterfaceInfo> interfaces;
+    std::vector<Graph::Port> modulePorts;
+    std::vector<Graph::Processor> processors;
+    Graph graph;
+    struct BoundaryConnection
+    {
+        std::string ownedPort;
+        std::string source;
+        std::string destination;
+    };
+    std::vector<BoundaryConnection> suspendedConnections;
+    uint32_t maxFrames = 8192;
+    uint64_t samplePosition{};
+    double sampleRate = 48000.0;
+    std::atomic<uint32_t> requestedRate{48000};
+    std::atomic<uint32_t> requestedFrames{8192};
+    std::atomic_bool clockReady{true};
 
-	WinJACKNexus::Patchbay::Core::PortKind endpointKind(const std::string& id) const noexcept
-	{
-		const auto port = std::find_if(ports.cbegin(), ports.cend(), [&id](const auto& item) { return item.id == id; });
-		if (port != ports.cend())
-			return port->kind;
-		const auto interfaceNode = std::find_if(interfaces.cbegin(), interfaces.cend(), [&id](const auto& item) { return item.portId == id; });
-		return interfaceNode != interfaces.cend() ? interfaceNode->kind : WinJACKNexus::Patchbay::Core::PortKind::unknown;
-	}
+    static int rateChanged(jack_nframes_t value, void *context) noexcept
+    {
+        auto &root = *static_cast<SubGraphPortSet *>(context);
+        root.clockReady.store(false, std::memory_order_release);
+        root.requestedRate.store(value, std::memory_order_release);
+        return 0;
+    }
 
-	bool reaches(const std::string& sourcePortId, const std::string& destinationPortId, std::size_t remainingHops) const noexcept
-	{
-		if (sourcePortId == destinationPortId)
-			return true;
-		if (remainingHops == 0)
-			return false;
-		for (const auto& route : routes) {
-			if (route.sourcePortId == sourcePortId && reaches(route.destinationPortId, destinationPortId, remainingHops - 1))
-				return true;
-		}
-		return false;
-	}
+    static int sizeChanged(jack_nframes_t value, void *context) noexcept
+    {
+        auto &root = *static_cast<SubGraphPortSet *>(context);
+        root.clockReady.store(false, std::memory_order_release);
+        root.requestedFrames.store(value, std::memory_order_release);
+        return 0;
+    }
 
-	static int process(jack_nframes_t frames, void* userData) noexcept
-	{
-		auto* portSet = static_cast<SubGraphPortSet*>(userData);
-		if (portSet == nullptr)
-			return 0;
+    bool openBoundary(const std::string &name)
+    {
+        if (offline || client.isOpen())
+            return true;
+        if (!client.open({name.c_str(), false, false, nullptr}) ||
+            client.setProcessCallback(&SubGraphPortSet::process, this) != 0 ||
+            client.setSampleRateCallback(&SubGraphPortSet::rateChanged, this) != 0 ||
+            client.setBufferSizeCallback(&SubGraphPortSet::sizeChanged, this) != 0)
+        {
+            client.close();
+            return false;
+        }
+        sampleRate = client.sampleRate();
+        maxFrames = client.bufferSize();
+        requestedRate.store(uint32_t(sampleRate));
+        requestedFrames.store(maxFrames);
+        clockReady.store(false);
+        if (!synchronizeClock() || !client.activate())
+        {
+            client.close();
+            return false;
+        }
+        return true;
+    }
 
-		for (auto& item : portSet->ports) {
-			if (item.kind == WinJACKNexus::Patchbay::Core::PortKind::audio && !item.isInput) {
-				if (auto* output = item.port.audioBuffer(frames); output != nullptr)
-					std::memset(output, 0, static_cast<std::size_t>(frames) * sizeof(*output));
-			} else if (item.kind == WinJACKNexus::Patchbay::Core::PortKind::midi && !item.isInput) {
-				WinJACKNexus::Audio::JackMidiBuffer(item.port.midiBuffer(frames)).clear();
-			}
-		}
+    bool synchronizeClock()
+    {
+        if (clockReady.load(std::memory_order_acquire))
+            return true;
+        const bool active = client.isActive();
+        if (active && !pause())
+            return false;
+        const auto rate = requestedRate.load(std::memory_order_acquire);
+        const auto frames = requestedFrames.load(std::memory_order_acquire);
+        if (rate == 0 || frames == 0 || frames > 65536)
+            return resume(active) && false;
+        WjnNodePrepareV1 prepare{sizeof(prepare), frames, double(rate), nullptr};
+        bool prepared = true;
+        for (const auto &processor : processors)
+        {
+            processor.api->stop(processor.instance);
+            prepared = processor.api->prepare(processor.instance, &prepare) != 0 && prepared;
+        }
+        sampleRate = rate;
+        maxFrames = frames;
+        samplePosition = 0;
+        const bool valid = prepared && rebuild();
+        clockReady.store(valid, std::memory_order_release);
+        return resume(active) && valid;
+    }
+    bool offline{};
 
-		for (const auto& source : portSet->ports) {
-			if (!source.isInput)
-				continue;
-			for (auto& destination : portSet->ports) {
-				if (destination.isInput || source.kind != destination.kind
-					|| !portSet->reaches(source.id, destination.id, portSet->routes.size()))
-					continue;
-				if (source.kind == WinJACKNexus::Patchbay::Core::PortKind::audio) {
-					const auto* input = source.port.audioBuffer(frames);
-					auto* output = destination.port.audioBuffer(frames);
-					if (input != nullptr && output != nullptr)
-						std::memcpy(output, input, static_cast<std::size_t>(frames) * sizeof(*output));
-				} else if (source.kind == WinJACKNexus::Patchbay::Core::PortKind::midi) {
-					WinJACKNexus::Audio::JackMidiBuffer input(source.port.midiBuffer(frames));
-					WinJACKNexus::Audio::JackMidiBuffer output(destination.port.midiBuffer(frames));
-					for (std::uint32_t index = 0; index < input.eventCount(); ++index) {
-						WinJACKNexus::Audio::JackMidiEventView event;
-						if (input.event(index, event) && event.size != 0)
-							output.write(event.time, event.data, event.size);
-					}
-				}
-			}
-		}
-		return 0;
-	}
+    ~SubGraphPortSet()
+    {
+        client.close();
+    }
 
-	bool connect(const std::string& sourcePortId, const std::string& destinationPortId) noexcept
-	{
-		const auto sourceKind = endpointKind(sourcePortId);
-		const auto destinationKind = endpointKind(destinationPortId);
-		if (sourceKind == WinJACKNexus::Patchbay::Core::PortKind::unknown || sourceKind != destinationKind)
-			return false;
-		if (std::any_of(routes.cbegin(), routes.cend(), [&sourcePortId, &destinationPortId](const auto& route) {
-				return route.sourcePortId == sourcePortId && route.destinationPortId == destinationPortId;
-			}))
-			return true;
-		if (client.isActive() && !client.deactivate())
-			return false;
-		try {
-			routes.push_back({ sourcePortId, destinationPortId });
-		} catch (...) {
-			client.activate();
-			return false;
-		}
-		return client.activate();
-	}
+    std::vector<PatchbayInterfaceInfo> contextInterfaces(const std::string &context) const
+    {
+        std::vector<PatchbayInterfaceInfo> result;
+        for (const auto &port : interfaces)
+        {
+            if (port.id.substr(0, port.id.rfind('/')) == context)
+                result.push_back(port);
+        }
+        return result;
+    }
 
-	bool disconnect(const std::string& sourcePortId, const std::string& destinationPortId) noexcept
-	{
-		const bool wasActive = client.isActive();
-		if (wasActive && !client.deactivate())
-			return false;
-		const auto removed = std::erase_if(routes, [&sourcePortId, &destinationPortId](const auto& route) {
-			return route.sourcePortId == sourcePortId && route.destinationPortId == destinationPortId;
-		});
-		return removed != 0 && (!wasActive || client.activate());
-	}
+    Graph::Topology topology() const
+    {
+        Graph::Topology result;
+        result.ports = modulePorts;
+        result.processors = processors;
+        for (const auto &interfaceNode : interfaces)
+        {
+            const bool audio = interfaceNode.kind == WinJACKNexus::Patchbay::Core::PortKind::audio;
+            result.ports.push_back(
+                {interfaceNode.portId,
+                 {},
+                 0,
+                 static_cast<uint32_t>(audio ? WJN_NODE_PORT_AUDIO : WJN_NODE_PORT_MIDI),
+                 audio ? 1u : 0u,
+                 WJN_NODE_PORT_INPUT,
+                 true});
+        }
+        for (const auto &route : routes)
+        {
+            result.routes.push_back({route.sourcePortId, route.destinationPortId});
+        }
+        return result;
+    }
+
+    bool rebuild()
+    {
+        std::string error;
+        if (!graph.rebuild(topology(), maxFrames, error))
+        {
+            qWarning().noquote() << "Subgraph topology rejected:" << QString::fromStdString(error);
+            return false;
+        }
+        for (auto &port : ports)
+        {
+            port.graphSlot = graph.slot(port.id);
+        }
+        return true;
+    }
+
+    bool pause()
+    {
+        if (offline || !client.isActive())
+            return true;
+        auto &api = WinJACKNexus::Audio::JackApi::instance();
+        std::vector<BoundaryConnection> connections;
+        for (const auto &port : ports)
+        {
+            const auto *name = port.port.name();
+            const auto **peers = api.portGetConnections(port.port.nativeHandle());
+            if (name && peers)
+            {
+                for (size_t index = 0; peers[index]; ++index)
+                {
+                    connections.push_back({name, port.isInput ? peers[index] : name,
+                                           port.isInput ? name : peers[index]});
+                }
+            }
+            api.freeMemory(peers);
+        }
+        if (!client.deactivate())
+            return false;
+        suspendedConnections = std::move(connections);
+        return true;
+    }
+
+    bool resume(bool active)
+    {
+        if (!active || offline)
+            return true;
+        if (!client.activate())
+            return false;
+        auto &api = WinJACKNexus::Audio::JackApi::instance();
+        for (const auto &connection : suspendedConnections)
+        {
+            const bool retained = std::any_of(ports.begin(), ports.end(), [&](const auto &port) {
+                const auto *name = port.port.name();
+                return name && connection.ownedPort == name;
+            });
+            // Removed interfaces and clients that disappeared during the edit
+            // cannot be reconnected. Other boundary connections must survive.
+            if (!retained || !api.portByName(client.nativeHandle(), connection.source.c_str()) ||
+                !api.portByName(client.nativeHandle(), connection.destination.c_str()))
+                continue;
+            const auto result = api.connect(client.nativeHandle(), connection.source.c_str(),
+                                            connection.destination.c_str());
+            if (result != 0 && result != EEXIST)
+            {
+                client.deactivate();
+                return false;
+            }
+        }
+        suspendedConnections.clear();
+        return true;
+    }
+
+    bool connect(const std::string &source, const std::string &destination)
+    {
+        if (std::any_of(routes.begin(), routes.end(), [&](const auto &route) {
+                return route.sourcePortId == source && route.destinationPortId == destination;
+            }))
+        {
+            return true;
+        }
+        const bool active = client.isActive();
+        if (active && !pause())
+            return false;
+        routes.push_back({source, destination});
+        if (!rebuild())
+        {
+            routes.pop_back();
+            resume(active);
+            return false;
+        }
+        if (resume(active))
+            return true;
+        routes.pop_back();
+        rebuild();
+        resume(active);
+        return false;
+    }
+
+    bool disconnect(const std::string &source, const std::string &destination)
+    {
+        const bool active = client.isActive();
+        if (active && !pause())
+            return false;
+        const auto previous = routes;
+        const auto removed = std::erase_if(routes, [&](const auto &route) {
+            return route.sourcePortId == source && route.destinationPortId == destination;
+        });
+        if (removed && rebuild() && resume(active))
+            return true;
+        routes = previous;
+        rebuild();
+        resume(active);
+        return false;
+    }
+
+    bool attach(Graph::Processor processor, const std::vector<Graph::Port> &descriptions)
+    {
+        const bool active = client.isActive();
+        if (active && !pause())
+            return false;
+        const auto previousCount = modulePorts.size();
+        processors.push_back(std::move(processor));
+        modulePorts.insert(modulePorts.end(), descriptions.begin(), descriptions.end());
+        if (rebuild() && resume(active))
+            return true;
+        processors.pop_back();
+        modulePorts.resize(previousCount);
+        rebuild();
+        resume(active);
+        return false;
+    }
+
+    bool detach(const std::string &id)
+    {
+        const bool active = client.isActive();
+        if (active && !pause())
+            return false;
+        const auto previousRoutes = routes;
+        const auto previousPorts = modulePorts;
+        const auto previousProcessors = processors;
+        std::unordered_set<std::string> removed;
+        for (const auto &port : modulePorts)
+        {
+            if (port.owner == id)
+                removed.insert(port.id);
+        }
+        std::erase_if(routes, [&](const auto &route) {
+            return removed.contains(route.sourcePortId) ||
+                   removed.contains(route.destinationPortId);
+        });
+        std::erase_if(modulePorts, [&](const auto &port) { return port.owner == id; });
+        std::erase_if(processors, [&](const auto &processor) { return processor.id == id; });
+        if (rebuild() && resume(active))
+            return true;
+        routes = previousRoutes;
+        modulePorts = previousPorts;
+        processors = previousProcessors;
+        rebuild();
+        resume(active);
+        return false;
+    }
+
+    static int process(jack_nframes_t frames, void *context) noexcept
+    {
+        auto &root = *static_cast<SubGraphPortSet *>(context);
+        for (auto &port : root.ports)
+        {
+            if (port.isInput)
+                continue;
+            if (port.kind == WinJACKNexus::Patchbay::Core::PortKind::audio)
+            {
+                if (auto *output = port.port.audioBuffer(frames))
+                    std::fill_n(output, frames, 0.0f);
+            }
+            else
+            {
+                WinJACKNexus::Audio::JackMidiBuffer(port.port.midiBuffer(frames)).clear();
+            }
+        }
+        if (!root.clockReady.load(std::memory_order_acquire) || !root.graph.begin(frames))
+            return 0;
+        for (auto &port : root.ports)
+        {
+            if (!port.isInput)
+                continue;
+            if (port.kind == WinJACKNexus::Patchbay::Core::PortKind::audio)
+            {
+                const auto *input = port.port.audioBuffer(frames);
+                auto *buffer = root.graph.audio(port.graphSlot);
+                if (input && buffer)
+                    std::copy_n(input, frames, buffer);
+            }
+            else
+            {
+                WinJACKNexus::Audio::JackMidiBuffer input(port.port.midiBuffer(frames));
+                for (uint32_t index = 0; index < input.eventCount(); ++index)
+                {
+                    WinJACKNexus::Audio::JackMidiEventView event;
+                    if (input.event(index, event))
+                    {
+                        root.graph.appendMidi(
+                            port.graphSlot,
+                            {event.time, static_cast<uint32_t>(event.size), event.data}, frames);
+                    }
+                }
+            }
+        }
+        root.graph.process(frames, root.samplePosition);
+        root.samplePosition += frames;
+        for (auto &port : root.ports)
+        {
+            if (port.isInput)
+                continue;
+            if (port.kind == WinJACKNexus::Patchbay::Core::PortKind::audio)
+            {
+                const auto *buffer = root.graph.audio(port.graphSlot);
+                auto *output = port.port.audioBuffer(frames);
+                if (buffer && output)
+                    std::copy_n(buffer, frames, output);
+            }
+            else if (const auto *buffer = root.graph.midi(port.graphSlot))
+            {
+                WinJACKNexus::Audio::JackMidiBuffer output(port.port.midiBuffer(frames));
+                for (uint32_t index = 0; index < buffer->eventCount; ++index)
+                {
+                    const auto &event = buffer->events[index];
+                    output.write(event.frame, event.data, event.size);
+                }
+            }
+        }
+        return 0;
+    }
 };
 
 struct SubGraphInterfaceDefinition final {
@@ -645,8 +941,10 @@ std::vector<ModuleNodeInfo> scanNodeModules()
         const auto category =
             reinterpret_cast<NodeName>(GetProcAddress(library, "wjn_get_node_category"));
         bool nativeFx = false;
-        if (WinJACKNexus::Node::isSingleNodeModule(library) && name &&
-            validNativeFxNodeModule(library, path, &nativeFx))
+        WinJACKNexus::Node::ModuleContract contract;
+        if (WinJACKNexus::Node::inspectNodeModule(library, contract) ==
+                WinJACKNexus::Node::ModuleError::none &&
+            name && validNativeFxNodeModule(library, path, &nativeFx))
         {
             const auto *text = name();
             if (text && *text)
@@ -660,6 +958,8 @@ std::vector<ModuleNodeInfo> scanNodeModules()
                     nativeFx ? QStringLiteral("Native Fx")
                              : categoryFromModuleOrFolder(category ? category() : nullptr, folder);
                 ModuleNodeInfo info{categoryName, QString::fromUtf8(text), path, 0};
+                info.capabilities = contract.metadata.capabilities;
+                info.features = contract.metadata.features;
                 info.display = builtinNodeDisplay(path, 0, info.name);
                 info.languageLease = moduleLanguageLease(path, 0);
                 if (info.languageLease)
@@ -751,16 +1051,17 @@ QString vstPluginSettings(const VstPluginInfo& plugin)
 	}).toJson(QJsonDocument::Compact));
 }
 
-void addVstPluginItems(QTreeWidget* tree, const std::vector<ModuleNodeInfo>& modules)
+void addVstPluginItems(QTreeWidget *tree, const std::vector<ModuleNodeInfo> &modules, uint32_t mode)
 {
 	const auto vstHost = std::find_if(modules.cbegin(), modules.cend(), [](const auto& module) {
 		return QFileInfo(module.modulePath).fileName().compare(QStringLiteral("mod_vst_host.dll"),Qt::CaseInsensitive)==0;
 	});
-	if (vstHost == modules.cend())
-		return;
+    if (vstHost == modules.cend() || !(vstHost->capabilities & mode))
+        return;
 
-	const QDir pluginsDirectory(QCoreApplication::applicationDirPath() + QStringLiteral("/nodes/VSTPlugins"));
-	auto* vstCategory = addCategory(tree, QStringLiteral("VST Plugins"));
+    const QDir pluginsDirectory(QCoreApplication::applicationDirPath() +
+                                QStringLiteral("/nodes/VSTPlugins"));
+    auto* vstCategory = addCategory(tree, QStringLiteral("VST Plugins"));
 	vstCategory->setExpanded(false);
 	std::map<QString, QTreeWidgetItem*> categories { { QStringLiteral("VST Plugins"), vstCategory } };
 	for (const auto& plugin : scanVstPlugins()) {
@@ -793,9 +1094,10 @@ void addVstPluginItems(QTreeWidget* tree, const std::vector<ModuleNodeInfo>& mod
 		item->setData(0, Qt::UserRole + 4, vstPluginSettings(plugin));
 		item->setToolTip(0, QStringLiteral("%1\n%2\n%3 %4-bit\n%5")
 			.arg(plugin.vendor, plugin.version, plugin.type.toUpper(), QString::number(plugin.bits), plugin.path));
-		if (!plugin.verified)
-			item->setForeground(0, QColor(QStringLiteral("#8193a5")));
-	}
+        setItemCapabilities(item, vstHost->capabilities, vstHost->features);
+        if (!plugin.verified)
+            item->setForeground(0, QColor(QStringLiteral("#8193a5")));
+    }
 }
 
 void populateNodeLibrary(QTreeWidget* tree,
@@ -818,19 +1120,20 @@ void populateNodeLibrary(QTreeWidget* tree,
 		addInterfaceItem(interfaces, QStringLiteral("audio_out"), QStringLiteral("Sub Graph Audio Out"));
 		addInterfaceItem(interfaces, QStringLiteral("midi_in"), QStringLiteral("Sub Graph MIDI In"));
 		addInterfaceItem(interfaces, QStringLiteral("midi_out"), QStringLiteral("Sub Graph MIDI Out"));
-		addVstPluginItems(tree, modules);
-		applyNodeLibraryFilter(tree, filterQuery);
-		if (filterQuery.trimmed().isEmpty())
-			restoreExpandedCategories(tree, expandedCategories);
-		return;
 	}
 
-	std::map<QString, QTreeWidgetItem*> moduleCategories;
-	for (const auto& node : modules) {
-		if (QFileInfo(node.modulePath).fileName().compare(
-				QStringLiteral("mod_digital_mixer.dll"), Qt::CaseInsensitive) == 0)
-			continue;
-		auto [category, inserted] = moduleCategories.try_emplace(node.category, nullptr);
+    const uint32_t mode = subGraphContext ? WJN_NODE_MODE_VIRT : WJN_NODE_MODE_JACK;
+
+    std::map<QString, QTreeWidgetItem *> moduleCategories;
+    for (const auto &node : modules)
+    {
+        if (!(node.capabilities & mode))
+            continue;
+        if (QFileInfo(node.modulePath)
+                .fileName()
+                .compare(QStringLiteral("mod_digital_mixer.dll"), Qt::CaseInsensitive) == 0)
+            continue;
+        auto [category, inserted] = moduleCategories.try_emplace(node.category, nullptr);
 		if (inserted)
 			category->second = addCategory(tree, node.category);
 		auto* item = new QTreeWidgetItem(category->second, { nodeDisplayText(node.display,node.name) });
@@ -838,163 +1141,195 @@ void populateNodeLibrary(QTreeWidget* tree,
 		item->setToolTip(0,nodeDisplayTooltip(node.display,node.name));
 		item->setData(0, Qt::UserRole, node.modulePath);
 		item->setData(0, Qt::UserRole + 1, node.index);
-	}
-	addVstPluginItems(tree, modules);
-	applyNodeLibraryFilter(tree, filterQuery);
-	if (filterQuery.trimmed().isEmpty())
-		restoreExpandedCategories(tree, expandedCategories);
+        setItemCapabilities(item, node.capabilities, node.features);
+    }
+    addVstPluginItems(tree, modules, mode);
+    applyNodeLibraryFilter(tree, filterQuery);
+    if (filterQuery.trimmed().isEmpty())
+        restoreExpandedCategories(tree, expandedCategories);
 }
 
 class LoadedModuleNode final {
 public:
-	static std::unique_ptr<LoadedModuleNode> create(const QString& modulePath,
-	                                               std::uint32_t index,
-	                                               const std::string& settingsJson = {}) noexcept
-	{
-        using ApiVersion = const char *(*)();
-        using CreateNode = WinJACKNexus::Node::INode *(*)(uint32_t mode);
-        using DestroyNode = void (*)(WinJACKNexus::Node::INode *node);
-        using SetNodeSettingsJson = int (*)(WinJACKNexus::Node::INode* node, const char* json);
-		using PrepareNodeForCanvas = int (*)(WinJACKNexus::Node::INode* node);
-		using ShowNodeGui = int (*)(WinJACKNexus::Node::INode* node);
-		using GetNodeClientId = const char* (*)(WinJACKNexus::Node::INode* node);
-			using CreateSettingsWidget = QWidget* (*)(WinJACKNexus::Node::INode* node, QWidget* parent);
-			using DestroySettingsWidget = void (*)(WinJACKNexus::Node::INode* node, QWidget* widget);
-			using CreateSettingsView = void* (*)(WinJACKNexus::Node::INode* node, void* parentHwnd);
-			using DestroySettingsView = void (*)(WinJACKNexus::Node::INode* node, void* viewHwnd);
+  static std::unique_ptr<LoadedModuleNode> create(const QString &modulePath, std::uint32_t index,
+                                                  const std::string &settingsJson = {},
+                                                  uint32_t mode = WJN_NODE_MODE_JACK,
+                                                  double sampleRate = 48000.0,
+                                                  uint32_t maxFrames = 8192) noexcept
+  {
+      using ApiVersion = const char *(*)();
+      using CreateNode = WinJACKNexus::Node::INode *(*)(uint32_t mode);
+      using DestroyNode = void (*)(WinJACKNexus::Node::INode *node);
+      using SetNodeSettingsJson = int (*)(WinJACKNexus::Node::INode *node, const char *json);
+      using PrepareNodeForCanvas = int (*)(WinJACKNexus::Node::INode *node);
+      using ShowNodeGui = int (*)(WinJACKNexus::Node::INode *node);
+      using GetNodeClientId = const char *(*)(WinJACKNexus::Node::INode * node);
+      using CreateSettingsWidget = QWidget *(*)(WinJACKNexus::Node::INode * node, QWidget * parent);
+      using DestroySettingsWidget = void (*)(WinJACKNexus::Node::INode *node, QWidget *widget);
+      using CreateSettingsView = void *(*)(WinJACKNexus::Node::INode * node, void *parentHwnd);
+      using DestroySettingsView = void (*)(WinJACKNexus::Node::INode *node, void *viewHwnd);
 
-		const auto library = LoadLibraryW(reinterpret_cast<LPCWSTR>(modulePath.utf16()));
-		if (library == nullptr)
-			return nullptr;
-        const auto apiVersion =
-            reinterpret_cast<ApiVersion>(GetProcAddress(library, "wjn_get_node_api_version"));
-        const auto createNode =
-            reinterpret_cast<CreateNode>(GetProcAddress(library, "wjn_create_node_v4"));
-        const auto destroyNode = reinterpret_cast<DestroyNode>(GetProcAddress(library, "wjn_destroy_node"));
-		const auto setNodeSettingsJson = reinterpret_cast<SetNodeSettingsJson>(GetProcAddress(library, "wjn_set_node_settings_json"));
-		const auto prepareNodeForCanvas = reinterpret_cast<PrepareNodeForCanvas>(GetProcAddress(library, "wjn_prepare_node_for_canvas"));
-		const auto showNodeGui = reinterpret_cast<ShowNodeGui>(GetProcAddress(library, "wjn_show_node_gui"));
-		const auto getNodeClientId = reinterpret_cast<GetNodeClientId>(GetProcAddress(library, "wjn_get_node_client_id"));
-			const auto createSettingsWidget = reinterpret_cast<CreateSettingsWidget>(GetProcAddress(library, "wjn_create_settings_widget"));
-			const auto destroySettingsWidget = reinterpret_cast<DestroySettingsWidget>(GetProcAddress(library, "wjn_destroy_settings_widget"));
-			const auto createSettingsView = reinterpret_cast<CreateSettingsView>(GetProcAddress(library, "wjn_create_settings_view"));
-            const auto destroySettingsView = reinterpret_cast<DestroySettingsView>(
-                GetProcAddress(library, "wjn_destroy_settings_view"));
-            if (apiVersion == nullptr || createNode == nullptr || destroyNode == nullptr ||
-                !WinJACKNexus::Node::isSingleNodeModule(library) || index != 0)
-            {
-                WinJACKNexus::Node::ModuleContract contract;
-                const auto error = WinJACKNexus::Node::inspectNodeModule(library, contract);
-                qWarning().noquote() << modulePath << WinJACKNexus::Node::moduleErrorText(error);
-                FreeLibrary(library);
-                return nullptr;
-            }
-        bool nativeFx = false;
-		if (!validNativeFxNodeModule(library, modulePath, &nativeFx)) {
-			FreeLibrary(library);
-			return nullptr;
-		}
-		auto languageLease=moduleLanguageLease(modulePath,index);
-		WinJACKNexus::UI::ThemeNamespaceRegistry::Lease themeLease;
-		QString themeError;
-		WinJACKNexus::UI::ThemeNamespaceRegistry::instance().registerNodeModule(
-			[library](const char* name) -> QFunctionPointer {
-				return reinterpret_cast<QFunctionPointer>(GetProcAddress(library, name));
-			}, modulePath, &themeLease, &themeError);
-		if (!themeError.isEmpty()) qWarning().noquote() << "Node theme descriptor:" << themeError;
+      const auto library = LoadLibraryW(reinterpret_cast<LPCWSTR>(modulePath.utf16()));
+      if (library == nullptr)
+          return nullptr;
+      const auto apiVersion =
+          reinterpret_cast<ApiVersion>(GetProcAddress(library, "wjn_get_node_api_version"));
+      const auto createNode =
+          reinterpret_cast<CreateNode>(GetProcAddress(library, "wjn_create_node_v4"));
+      const auto destroyNode =
+          reinterpret_cast<DestroyNode>(GetProcAddress(library, "wjn_destroy_node"));
+      const auto setNodeSettingsJson = reinterpret_cast<SetNodeSettingsJson>(
+          GetProcAddress(library, "wjn_set_node_settings_json"));
+      const auto prepareNodeForCanvas = reinterpret_cast<PrepareNodeForCanvas>(
+          GetProcAddress(library, "wjn_prepare_node_for_canvas"));
+      const auto showNodeGui =
+          reinterpret_cast<ShowNodeGui>(GetProcAddress(library, "wjn_show_node_gui"));
+      const auto getNodeClientId =
+          reinterpret_cast<GetNodeClientId>(GetProcAddress(library, "wjn_get_node_client_id"));
+      const auto createSettingsWidget = reinterpret_cast<CreateSettingsWidget>(
+          GetProcAddress(library, "wjn_create_settings_widget"));
+      const auto destroySettingsWidget = reinterpret_cast<DestroySettingsWidget>(
+          GetProcAddress(library, "wjn_destroy_settings_widget"));
+      const auto createSettingsView =
+          reinterpret_cast<CreateSettingsView>(GetProcAddress(library, "wjn_create_settings_view"));
+      const auto destroySettingsView = reinterpret_cast<DestroySettingsView>(
+          GetProcAddress(library, "wjn_destroy_settings_view"));
+      WinJACKNexus::Node::ModuleContract contract;
+      const auto contractError = WinJACKNexus::Node::inspectNodeModule(library, contract);
+      if (apiVersion == nullptr || createNode == nullptr || destroyNode == nullptr ||
+          contractError != WinJACKNexus::Node::ModuleError::none || index != 0 ||
+          !WinJACKNexus::Node::supportsMode(contract, mode))
+      {
+          qWarning().noquote() << modulePath
+                               << (contractError == WinJACKNexus::Node::ModuleError::none
+                                       ? "Node mode is unsupported in this graph"
+                                       : WinJACKNexus::Node::moduleErrorText(contractError));
+          FreeLibrary(library);
+          return nullptr;
+      }
+      bool nativeFx = false;
+      if (!validNativeFxNodeModule(library, modulePath, &nativeFx))
+      {
+          FreeLibrary(library);
+          return nullptr;
+      }
+      auto languageLease = moduleLanguageLease(modulePath, index);
+      WinJACKNexus::UI::ThemeNamespaceRegistry::Lease themeLease;
+      QString themeError;
+      WinJACKNexus::UI::ThemeNamespaceRegistry::instance().registerNodeModule(
+          [library](const char *name) -> QFunctionPointer {
+              return reinterpret_cast<QFunctionPointer>(GetProcAddress(library, name));
+          },
+          modulePath, &themeLease, &themeError);
+      if (!themeError.isEmpty())
+          qWarning().noquote() << "Node theme descriptor:" << themeError;
 
-        auto *node = WinJACKNexus::Node::createNodeForMode(library, WJN_NODE_MODE_JACK);
-        if (node == nullptr)
-        {
-            FreeLibrary(library);
-			return nullptr;
-        }
-        if (setNodeSettingsJson != nullptr && !settingsJson.empty()
-			&& setNodeSettingsJson(node, settingsJson.c_str()) == 0) {
-			destroyNode(node);
-			FreeLibrary(library);
-			return nullptr;
-		}
-		if (prepareNodeForCanvas != nullptr && prepareNodeForCanvas(node) == 0) {
-			destroyNode(node);
-			FreeLibrary(library);
-			return nullptr;
-		}
-		if (!node->init()) {
-			if (node != nullptr)
-				destroyNode(node);
-			FreeLibrary(library);
-			return nullptr;
-		}
-		if (nativeFx) {
-			using ValidateLayout = int (*)(void*);
-			using ClientName = const char* (*)(void*);
-			const auto validateLayout = reinterpret_cast<ValidateLayout>(
-				GetProcAddress(library, "wjn_fx_node_validate_layout"));
-			const auto clientName = reinterpret_cast<ClientName>(
-				GetProcAddress(library, "wjn_fx_node_client_name"));
-			const auto* name = clientName(node);
-			if (validateLayout(node) == 0 || name == nullptr || name[0] == '\0') {
-				node->shutdown();
-				destroyNode(node);
-				FreeLibrary(library);
-				return nullptr;
-			}
-		}
-		const auto expectedClientId = getNodeClientId == nullptr ? nullptr : getNodeClientId(node);
-		const auto info = node->info();
-		QString category;
-		QVariantMap display=builtinNodeDisplay(modulePath,index,QString::fromUtf8(info.name));
-		// A saved project may load a DLL outside the scanned node directory.
-		// Its validated optional descriptor must still provide the display key.
-        if (languageLease)
-        {
-            using Descriptor = const char *(*)(void);
-            const auto descriptor = reinterpret_cast<Descriptor>(
-                GetProcAddress(library, "wjn_get_node_i18n_descriptor_json"));
-            const auto *json = descriptor ? descriptor() : nullptr;
-            const auto nameKey = json ? QJsonDocument::fromJson(QByteArray(json))
-                                            .object()
-                                            .value("displayNameKey")
-                                            .toObject()
-                                      : QJsonObject{};
-            if (!nameKey.isEmpty()) display={{"domain",nameKey.value("domain").toString().toUtf8()},
-				{"key",nameKey.value("key").toString().toUtf8()},{"english",QByteArray(info.name)}};
-        }
-        for (const auto& module : scanNodeModules()) {
-			if (module.modulePath == modulePath && module.index == index) {
-				category = module.category;
-				display = module.display;
-				break;
-			}
-		}
-			return std::unique_ptr<LoadedModuleNode>(new LoadedModuleNode(library,
-			                                                            node,
-			                                                            destroyNode,
-				                                                            createSettingsWidget,
-				                                                            destroySettingsWidget,
-			                                                            createSettingsView,
-			                                                            destroySettingsView,
-			                                                            showNodeGui,
-				                                                            nativeFx,
-				                                                            expectedClientId == nullptr ? std::string {} : std::string(expectedClientId),
-			                                                            modulePath,
-			                                                            index,
-				                                                            category,
-				                                                            QString::fromUtf8(info.name),
-			                                                            std::move(themeLease),std::move(languageLease),std::move(display)));
-	}
+      auto *node = WinJACKNexus::Node::createNodeForMode(library, mode);
+      if (node == nullptr)
+      {
+          FreeLibrary(library);
+          return nullptr;
+      }
+      if (setNodeSettingsJson != nullptr && !settingsJson.empty() &&
+          setNodeSettingsJson(node, settingsJson.c_str()) == 0)
+      {
+          destroyNode(node);
+          FreeLibrary(library);
+          return nullptr;
+      }
+      if (mode == WJN_NODE_MODE_JACK && prepareNodeForCanvas != nullptr &&
+          prepareNodeForCanvas(node) == 0)
+      {
+          destroyNode(node);
+          FreeLibrary(library);
+          return nullptr;
+      }
+      WjnNodePrepareV1 prepareContext{sizeof(prepareContext), maxFrames, sampleRate, nullptr};
+      const bool prepared = mode == WJN_NODE_MODE_JACK
+                                ? node->init()
+                                : contract.processing->prepare(node, &prepareContext) != 0;
+      if (!prepared)
+      {
+          if (mode == WJN_NODE_MODE_VIRT)
+              contract.processing->stop(node);
+          node->shutdown();
+          if (node != nullptr)
+              destroyNode(node);
+          FreeLibrary(library);
+          return nullptr;
+      }
+      if (nativeFx && mode == WJN_NODE_MODE_JACK)
+      {
+          using ValidateLayout = int (*)(void *);
+          using ClientName = const char *(*)(void *);
+          const auto validateLayout = reinterpret_cast<ValidateLayout>(
+              GetProcAddress(library, "wjn_fx_node_validate_layout"));
+          const auto clientName =
+              reinterpret_cast<ClientName>(GetProcAddress(library, "wjn_fx_node_client_name"));
+          const auto *name = clientName(node);
+          if (validateLayout(node) == 0 || name == nullptr || name[0] == '\0')
+          {
+              node->shutdown();
+              destroyNode(node);
+              FreeLibrary(library);
+              return nullptr;
+          }
+      }
+      const auto expectedClientId = mode != WJN_NODE_MODE_JACK || getNodeClientId == nullptr
+                                        ? nullptr
+                                        : getNodeClientId(node);
+      const auto info = node->info();
+      QString category;
+      QVariantMap display = builtinNodeDisplay(modulePath, index, QString::fromUtf8(info.name));
+      // A saved project may load a DLL outside the scanned node directory.
+      // Its validated optional descriptor must still provide the display key.
+      if (languageLease)
+      {
+          using Descriptor = const char *(*)(void);
+          const auto descriptor = reinterpret_cast<Descriptor>(
+              GetProcAddress(library, "wjn_get_node_i18n_descriptor_json"));
+          const auto *json = descriptor ? descriptor() : nullptr;
+          const auto nameKey = json ? QJsonDocument::fromJson(QByteArray(json))
+                                          .object()
+                                          .value("displayNameKey")
+                                          .toObject()
+                                    : QJsonObject{};
+          if (!nameKey.isEmpty())
+              display = {{"domain", nameKey.value("domain").toString().toUtf8()},
+                         {"key", nameKey.value("key").toString().toUtf8()},
+                         {"english", QByteArray(info.name)}};
+      }
+      for (const auto &module : scanNodeModules())
+      {
+          if (module.modulePath == modulePath && module.index == index)
+          {
+              category = module.category;
+              display = module.display;
+              break;
+          }
+      }
+      return std::unique_ptr<LoadedModuleNode>(new LoadedModuleNode(
+          library, node, destroyNode, createSettingsWidget, destroySettingsWidget,
+          createSettingsView, destroySettingsView, showNodeGui, nativeFx,
+          expectedClientId == nullptr ? std::string{} : std::string(expectedClientId), modulePath,
+          index, category, QString::fromUtf8(info.name), std::move(themeLease),
+          std::move(languageLease), std::move(display), mode, contract.processing));
+  }
 
-	~LoadedModuleNode()
-	{
-			clearSettingsView();
-		node_->destroyWindow(nullptr);
-		node_->shutdown();
-		destroyNode_(node_);
-		themeLease_.reset();
-			languageLease_.reset();
-		FreeLibrary(library_);
-	}
+  ~LoadedModuleNode()
+  {
+      clearSettingsView();
+      node_->destroyWindow(nullptr);
+      if (isVirtual())
+      {
+          processing_->stop(node_);
+      }
+      node_->shutdown();
+      destroyNode_(node_);
+      themeLease_.reset();
+      languageLease_.reset();
+      FreeLibrary(library_);
+  }
 
 	LoadedModuleNode(const LoadedModuleNode&) = delete;
 	LoadedModuleNode& operator=(const LoadedModuleNode&) = delete;
@@ -1016,8 +1351,11 @@ public:
 
 		bool hasCustomGui() const noexcept
 		{
-			return showNodeGui_ != nullptr || QFileInfo(modulePath_).fileName().compare(QStringLiteral("mod_digital_mixer.dll"),Qt::CaseInsensitive)==0;
-		}
+            WinJACKNexus::Node::ModuleContract contract;
+            return WinJACKNexus::Node::inspectNodeModule(library_, contract) ==
+                       WinJACKNexus::Node::ModuleError::none &&
+                   (contract.metadata.features & WJN_NODE_HAS_GUI);
+        }
         bool isMeterProbe() const noexcept
         {
             const auto file = QFileInfo(modulePath_).fileName();
@@ -1059,36 +1397,107 @@ public:
 
 		const std::string& clientId() const noexcept
 		{
-			if (getNodeClientId_ != nullptr) {
-				try {
-					const auto* current = getNodeClientId_(node_);
-					if (current != nullptr && clientId_ != current)
+            if (mode_ == WJN_NODE_MODE_JACK && getNodeClientId_ != nullptr)
+            {
+                try
+                {
+                    const auto *current = getNodeClientId_(node_);
+                    if (current != nullptr && clientId_ != current)
 						clientId_ = current;
-				} catch (...) {
-				}
-			}
-			return clientId_;
-		}
+                }
+                catch (...)
+                {
+                }
+            }
+            return clientId_;
+        }
 
-		void setContextId(std::string contextId)
+        void setContextId(std::string contextId)
 		{
 			contextId_ = std::move(contextId);
-		}
+            if (mode_ == WJN_NODE_MODE_VIRT && clientId_.empty())
+            {
+                clientId_ = contextId_ + "/node-" +
+                            QUuid::createUuid().toString(QUuid::WithoutBraces).toStdString();
+            }
+        }
 
-		const std::string& contextId() const noexcept
-		{
+        const std::string &contextId() const noexcept
+        {
 			return contextId_;
 		}
 
-		bool hasClient() const noexcept
-		{
-			return !clientId().empty();
-		}
+        bool isVirtual() const noexcept
+        {
+            return mode_ == WJN_NODE_MODE_VIRT;
+        }
 
-	bool ownsClient(const std::string& clientId) const noexcept
-	{
-		return this->clientId() == clientId;
-	}
+        WinJACKNexus::Patchbay::VirtualGraph::Processor virtualProcessor() const
+        {
+            return {clientId(), node_, processing_};
+        }
+
+        std::vector<WinJACKNexus::Patchbay::VirtualGraph::Port> virtualPorts() const
+        {
+            std::vector<WinJACKNexus::Patchbay::VirtualGraph::Port> result;
+            if (!isVirtual())
+                return result;
+            const auto count = processing_->portCount(node_);
+            if (count > 4096)
+                return result;
+            for (uint32_t index = 0; index < count; ++index)
+            {
+                WjnNodePortV1 port{};
+                port.structSize = sizeof(port);
+                if (!processing_->port(node_, index, &port) || port.reserved ||
+                    port.structSize != sizeof(port))
+                    return {};
+                result.push_back({clientId() + ":port-" + std::to_string(port.id), clientId(),
+                                  port.id, port.type, port.channels, port.direction, false});
+            }
+            return result;
+        }
+
+        void appendVirtualSnapshot(WinJACKNexus::Patchbay::Core::Snapshot &snapshot) const
+        {
+            if (!isVirtual())
+                return;
+            WinJACKNexus::Patchbay::Core::ClientInfo client;
+            client.id = clientId();
+            client.name = name_.toStdString();
+            snapshot.clients.push_back(std::move(client));
+            const auto descriptions = virtualPorts();
+            for (uint32_t index = 0; index < descriptions.size(); ++index)
+            {
+                const auto &description = descriptions[index];
+                WjnNodePortV1 port{};
+                port.structSize = sizeof(port);
+                if (!processing_->port(node_, index, &port))
+                    continue;
+                WinJACKNexus::Patchbay::Core::PortInfo item;
+                item.id = description.id;
+                item.clientId = clientId();
+                item.name = port.name ? port.name : "";
+                item.kind = port.type == WJN_NODE_PORT_AUDIO
+                                ? WinJACKNexus::Patchbay::Core::PortKind::audio
+                                : WinJACKNexus::Patchbay::Core::PortKind::midi;
+                item.direction = port.direction == WJN_NODE_PORT_INPUT
+                                     ? WinJACKNexus::Patchbay::Core::Direction::input
+                                     : WinJACKNexus::Patchbay::Core::Direction::output;
+                item.ordinal = index;
+                snapshot.ports.push_back(std::move(item));
+            }
+        }
+
+        bool hasClient() const noexcept
+        {
+            return !clientId().empty();
+        }
+
+        bool ownsClient(const std::string &clientId) const noexcept
+        {
+            return this->clientId() == clientId;
+        }
 
 	bool showMixerView(int view) noexcept
 	{
@@ -1099,9 +1508,11 @@ public:
 
 	bool showGui(QWidget* parent) noexcept
 	{
-		if (showNodeGui_ != nullptr)
-			return showNodeGui_(node_) != 0;
-		const auto parentWindow = parent == nullptr ? nullptr : reinterpret_cast<HWND>(static_cast<quintptr>(parent->winId()));
+        if (!hasCustomGui())
+            return false;
+        if (showNodeGui_ != nullptr)
+            return showNodeGui_(node_) != 0;
+        const auto parentWindow = parent == nullptr ? nullptr : reinterpret_cast<HWND>(static_cast<quintptr>(parent->winId()));
 		const auto window = node_->createWindow(parentWindow);
 		if (window == nullptr)
 			return false;
@@ -1186,48 +1597,39 @@ private:
 		using DestroySettingsView = void (*)(WinJACKNexus::Node::INode* node, void* viewHwnd);
 		using ShowNodeGui = int (*)(WinJACKNexus::Node::INode* node);
 
-		LoadedModuleNode(HMODULE library,
-		                 WinJACKNexus::Node::INode* node,
-		                 DestroyNode destroyNode,
-			                 CreateSettingsWidget createSettingsWidget,
-			                 DestroySettingsWidget destroySettingsWidget,
-		                 CreateSettingsView createSettingsView,
-		                 DestroySettingsView destroySettingsView,
-		                 ShowNodeGui showNodeGui,
-		                 bool nativeFx,
-						 std::string clientId,
-		                 const QString& modulePath,
-		                 std::uint32_t index,
-		                 const QString& category,
-		                 const QString& name,
-		                 WinJACKNexus::UI::ThemeNamespaceRegistry::Lease themeLease,
-		                 std::shared_ptr<WinJACKNexus::UI::I18nDomainLease> languageLease,QVariantMap display) noexcept
-		: library_(library)
-		, node_(node)
-		, destroyNode_(destroyNode)
-		, createSettingsWidget_(createSettingsWidget)
-		, destroySettingsWidget_(destroySettingsWidget)
-			, createSettingsView_(createSettingsView)
-			, destroySettingsView_(destroySettingsView)
-			, showNodeGui_(showNodeGui)
-			, nativeFx_(nativeFx)
-			, clientId_(std::move(clientId))
-			, getNodeClientId_(reinterpret_cast<GetNodeClientId>(GetProcAddress(library, "wjn_get_node_client_id")))
-			, getNodeSettingsJson_(reinterpret_cast<GetNodeSettingsJson>(GetProcAddress(library, "wjn_get_node_settings_json")))
-		, modulePath_(modulePath)
-		, index_(index)
-			, category_(category)
-			, name_(name)
-			, themeLease_(std::move(themeLease))
-			, languageLease_(std::move(languageLease)), display_(std::move(display))
-	{
-	}
+        LoadedModuleNode(HMODULE library, WinJACKNexus::Node::INode *node, DestroyNode destroyNode,
+                         CreateSettingsWidget createSettingsWidget,
+                         DestroySettingsWidget destroySettingsWidget,
+                         CreateSettingsView createSettingsView,
+                         DestroySettingsView destroySettingsView, ShowNodeGui showNodeGui,
+                         bool nativeFx, std::string clientId, const QString &modulePath,
+                         std::uint32_t index, const QString &category, const QString &name,
+                         WinJACKNexus::UI::ThemeNamespaceRegistry::Lease themeLease,
+                         std::shared_ptr<WinJACKNexus::UI::I18nDomainLease> languageLease,
+                         QVariantMap display, uint32_t mode,
+                         const WjnNodeVirtualApiV1 *processing) noexcept
+            : mode_(mode), processing_(processing), library_(library), node_(node),
+              destroyNode_(destroyNode), createSettingsWidget_(createSettingsWidget),
+              destroySettingsWidget_(destroySettingsWidget),
+              createSettingsView_(createSettingsView), destroySettingsView_(destroySettingsView),
+              showNodeGui_(showNodeGui), nativeFx_(nativeFx), clientId_(std::move(clientId)),
+              getNodeClientId_(reinterpret_cast<GetNodeClientId>(
+                  GetProcAddress(library, "wjn_get_node_client_id"))),
+              getNodeSettingsJson_(reinterpret_cast<GetNodeSettingsJson>(
+                  GetProcAddress(library, "wjn_get_node_settings_json"))),
+              modulePath_(modulePath), index_(index), category_(category), name_(name),
+              themeLease_(std::move(themeLease)), languageLease_(std::move(languageLease)),
+              display_(std::move(display))
+        {
+        }
 
-	HMODULE library_ = nullptr;
-	WinJACKNexus::Node::INode* node_ = nullptr;
-	DestroyNode destroyNode_ = nullptr;
-		CreateSettingsWidget createSettingsWidget_ = nullptr;
-		DestroySettingsWidget destroySettingsWidget_ = nullptr;
+        uint32_t mode_ = WJN_NODE_MODE_JACK;
+        const WjnNodeVirtualApiV1 *processing_{};
+        HMODULE library_ = nullptr;
+        WinJACKNexus::Node::INode *node_ = nullptr;
+        DestroyNode destroyNode_ = nullptr;
+        CreateSettingsWidget createSettingsWidget_ = nullptr;
+        DestroySettingsWidget destroySettingsWidget_ = nullptr;
 		CreateSettingsView createSettingsView_ = nullptr;
 		DestroySettingsView destroySettingsView_ = nullptr;
 		ShowNodeGui showNodeGui_ = nullptr;
@@ -1518,10 +1920,11 @@ public:
 		if (livePatchbayNode == this) livePatchbayNode = nullptr;
 		destroyWindow(nullptr);
 		WinJACKNexus::UI::TrayController::clearNodeGuiEntries();
-		loadedModuleNodes_.clear();
-		observedJackClients_.clear();
-		graphRefreshPending_.store(false, std::memory_order_release);
-		graphOrderCallbackRegistered_ = false;
+        subGraphPorts_->clear();
+        loadedModuleNodes_.clear();
+        observedJackClients_.clear();
+        graphRefreshPending_.store(false, std::memory_order_release);
+        graphOrderCallbackRegistered_ = false;
 		jackObserver_.close();
 		initialized_ = false;
 	}
@@ -1590,10 +1993,11 @@ public:
 			};
 			nodeTree->setProperty("filterQuery", nodeFilter->text());
 			auto subGraphCanvases = std::make_shared<std::map<std::string, QPointer<PatchbayCanvas>>>();
-			auto subGraphPorts = std::make_shared<std::map<std::string, std::shared_ptr<SubGraphPortSet>>>();
-			auto restoredSubGraphs = std::make_shared<std::map<std::string, PatchbaySubGraphProject>>();
-			auto refreshNodeLibrary = std::make_shared<std::function<void()>>();
-			*refreshNodeLibrary = [canvasTabs, nodeTree] {
+            auto subGraphPorts = subGraphPorts_;
+            auto restoredSubGraphs =
+                std::make_shared<std::map<std::string, PatchbaySubGraphProject>>();
+            auto refreshNodeLibrary = std::make_shared<std::function<void()>>();
+            *refreshNodeLibrary = [canvasTabs, nodeTree] {
 				auto* activeCanvas = dynamic_cast<PatchbayCanvas*>(canvasTabs->currentWidget());
 				if (activeCanvas == nullptr)
 					return;
@@ -1655,6 +2059,15 @@ public:
                     if (!display.isEmpty()) {
                         const auto full=nodeDisplayText(display,{}); item->setText(0,full); item->setToolTip(0,nodeDisplayTooltip(display,{}));
                     }
+                    if (item->data(0, nodeCapabilitiesRole).isValid())
+                    {
+                        const auto base = display.isEmpty()
+                                              ? item->data(0, nodeTooltipBaseRole).toString()
+                                              : nodeDisplayTooltip(display, {});
+                        item->setToolTip(
+                            0, capabilityTooltip(base, item->data(0, nodeCapabilitiesRole).toUInt(),
+                                                 item->data(0, nodeFeaturesRole).toUInt()));
+                    }
                     for (int i=0;i<item->childCount();++i) self(self,item->child(i));
                 };
                 for (int i=0;i<nodeTree->topLevelItemCount();++i) update(update,nodeTree->topLevelItem(i));
@@ -1681,73 +2094,113 @@ public:
 					canvasTabs->setTabText(tabIndex, name.isEmpty() ? patchText("graph.defaultName","Subgraph") : name);
 			};
 			auto removeSubGraph = std::make_shared<std::function<bool(PatchbayCanvas*, const std::string&)>>();
-			*removeSubGraph = [canvasTabs, subGraphCanvases, subGraphPorts](PatchbayCanvas* parentCanvas, const std::string& subGraphId) {
-				if (parentCanvas == nullptr)
-					return false;
-				const auto contextId = parentCanvas->sceneContext().id + "/" + subGraphId;
+            *removeSubGraph = [this, canvasTabs, subGraphCanvases, subGraphPorts](
+                                  PatchbayCanvas *parentCanvas, const std::string &subGraphId) {
+                if (parentCanvas == nullptr)
+                    return false;
+                const auto contextId = parentCanvas->sceneContext().id + "/" + subGraphId;
 				const auto rootContextId = rootSubGraphContext(contextId);
 				const auto belongsToSubTree = [&contextId](const std::string& value) {
 					return value == contextId || value.starts_with(contextId + "/");
 				};
 				std::unordered_set<std::string> removedPortIds;
-				for (const auto& [id, portSet] : *subGraphPorts) {
-					if (!belongsToSubTree(id) || portSet == nullptr)
-						continue;
+                for (const auto &[id, portSet] : *subGraphPorts)
+                {
+                    if (!belongsToSubTree(id) || portSet == nullptr)
+                        continue;
 					for (const auto& interfaceNode : portSet->interfaces)
 						removedPortIds.insert(interfaceNode.portId);
-				}
-				const auto root = subGraphPorts->find(rootContextId);
-				if (root != subGraphPorts->end() && root->second != nullptr) {
-					auto& portSet = *root->second;
-					const bool wasActive = portSet.client.isActive();
-					if (wasActive && !portSet.client.deactivate())
-						return false;
-					std::erase_if(portSet.routes, [&removedPortIds](const auto& route) {
-						return removedPortIds.contains(route.sourcePortId) || removedPortIds.contains(route.destinationPortId);
-					});
-					if (contextId == rootContextId) {
-						for (auto& port : portSet.ports)
-							port.port.unregisterPort();
-						portSet.ports.clear();
-						portSet.interfaces.clear();
-						portSet.client.close();
-					} else {
-						std::erase_if(portSet.interfaces, [&removedPortIds](const auto& interfaceNode) {
-							return removedPortIds.contains(interfaceNode.portId);
-						});
-						if (wasActive)
-							portSet.client.activate();
-					}
-				}
-				for (auto iterator = subGraphCanvases->begin(); iterator != subGraphCanvases->end();) {
-					if (!belongsToSubTree(iterator->first)) {
-						++iterator;
-						continue;
-					}
-					if (!iterator->second.isNull()) {
-						const auto tabIndex = canvasTabs->indexOf(iterator->second.data());
-						if (tabIndex >= 0)
+                }
+                const auto root = subGraphPorts->find(rootContextId);
+                if (root != subGraphPorts->end() && root->second)
+                {
+                    auto &portSet = *root->second;
+                    const bool active = portSet.client.isActive();
+                    if (active && !portSet.pause())
+                        return false;
+                    const auto previousRoutes = portSet.routes;
+                    const auto previousInterfaces = portSet.interfaces;
+                    const auto previousPorts = portSet.modulePorts;
+                    const auto previousProcessors = portSet.processors;
+                    std::unordered_set<std::string> removedNodes;
+                    for (const auto &node : loadedModuleNodes_)
+                    {
+                        if (belongsToSubTree(node->contextId()))
+                            removedNodes.insert(node->clientId());
+                    }
+                    for (const auto &port : portSet.modulePorts)
+                    {
+                        if (removedNodes.contains(port.owner))
+                            removedPortIds.insert(port.id);
+                    }
+                    std::erase_if(portSet.routes, [&](const auto &route) {
+                        return removedPortIds.contains(route.sourcePortId) ||
+                               removedPortIds.contains(route.destinationPortId);
+                    });
+                    std::erase_if(portSet.interfaces, [&](const auto &port) {
+                        return removedPortIds.contains(port.portId);
+                    });
+                    std::erase_if(portSet.modulePorts, [&](const auto &port) {
+                        return removedNodes.contains(port.owner);
+                    });
+                    std::erase_if(portSet.processors, [&](const auto &processor) {
+                        return removedNodes.contains(processor.id);
+                    });
+                    if (!portSet.rebuild() ||
+                        (contextId != rootContextId && !portSet.resume(active)))
+                    {
+                        portSet.routes = previousRoutes;
+                        portSet.interfaces = previousInterfaces;
+                        portSet.modulePorts = previousPorts;
+                        portSet.processors = previousProcessors;
+                        portSet.rebuild();
+                        portSet.resume(active);
+                        return false;
+                    }
+                    if (contextId == rootContextId)
+                        portSet.client.close();
+                }
+                std::erase_if(loadedModuleNodes_, [&](const auto &node) {
+                    return belongsToSubTree(node->contextId());
+                });
+                std::erase_if(unloadedModuleRecords_,
+                              [&](const auto &node) { return belongsToSubTree(node.contextId); });
+                for (auto iterator = subGraphCanvases->begin();
+                     iterator != subGraphCanvases->end();)
+                {
+                    if (!belongsToSubTree(iterator->first))
+                    {
+                        ++iterator;
+                        continue;
+                    }
+                    if (!iterator->second.isNull())
+                    {
+                        const auto tabIndex = canvasTabs->indexOf(iterator->second.data());
+                        if (tabIndex >= 0)
 							canvasTabs->removeTab(tabIndex);
 						iterator->second->deleteLater();
-					}
-					iterator = subGraphCanvases->erase(iterator);
-				}
-				for (auto iterator = subGraphPorts->begin(); iterator != subGraphPorts->end();) {
-					if (belongsToSubTree(iterator->first))
-						iterator = subGraphPorts->erase(iterator);
+                    }
+                    iterator = subGraphCanvases->erase(iterator);
+                }
+                for (auto iterator = subGraphPorts->begin(); iterator != subGraphPorts->end();)
+                {
+                    if (belongsToSubTree(iterator->first))
+                        iterator = subGraphPorts->erase(iterator);
 					else
 						++iterator;
-				}
-				return true;
-			};
-			auto clearSubGraphs = [canvas, removeSubGraph] {
-				const auto nodes = canvas->subGraphNodes();
-				for (const auto& node : nodes)
+                }
+                return true;
+            };
+            auto clearSubGraphs = [canvas, removeSubGraph] {
+                const auto nodes = canvas->subGraphNodes();
+                for (const auto& node : nodes)
 					(*removeSubGraph)(canvas, node.id);
 				canvas->restoreSubGraphNodes({});
-			};
-			using CreateModuleNode = std::function<bool(PatchbayCanvas*, const QString&, std::uint32_t, const QPointF&, const QString&)>;
-			auto createModuleNode = std::make_shared<CreateModuleNode>();
+            };
+            using CreateModuleNode =
+                std::function<bool(PatchbayCanvas *, const QString &, std::uint32_t,
+                                   const QPointF &, const QString &)>;
+            auto createModuleNode = std::make_shared<CreateModuleNode>();
 			auto configureCanvasInteractions = std::make_shared<std::function<void(PatchbayCanvas*)>>();
 			auto openSubGraph = std::make_shared<std::function<void(PatchbayCanvas*, const std::string&)>>();
 			const std::weak_ptr<std::function<void(PatchbayCanvas*, const std::string&)>> openSubGraphWeak = openSubGraph;
@@ -1781,130 +2234,198 @@ public:
 				QPointer<PatchbayCanvas> parentCanvasGuard(parentCanvas);
 				const bool isTopLevel = isTopLevelSubGraphContext(contextId);
 				const auto rootContextId = rootSubGraphContext(contextId);
-				childCanvas->setConnectionConnectHandler([subGraphPorts, rootContextId](const std::string& source, const std::string& destination) {
-					const auto portSet = subGraphPorts->find(rootContextId);
+                const bool hadBackend = subGraphPorts->contains(contextId);
+                auto &backend = (*subGraphPorts)[contextId];
+                if (!backend)
+                    backend = std::make_shared<SubGraphPortSet>();
+                backend->offline = offline_;
+                if (isTopLevel &&
+                    !backend->openBoundary("WinJACKNexus-SubGraph-" + jackSafeToken(contextId)))
+                {
+                    qWarning() << "Subgraph JACK boundary could not be created";
+                    subGraphPorts->erase(contextId);
+                    delete childCanvas;
+                    auto retained = parentCanvas->subGraphNodes();
+                    std::erase_if(retained, [&subGraphId](const auto &graph) {
+                        return graph.id == subGraphId;
+                    });
+                    parentCanvas->restoreSubGraphNodes(std::move(retained));
+                    return;
+                }
+
+                childCanvas->setConnectionConnectHandler([subGraphPorts, rootContextId](
+                                                             const std::string &source,
+                                                             const std::string &destination) {
+                    const auto portSet = subGraphPorts->find(rootContextId);
 					if (portSet != subGraphPorts->end() && portSet->second != nullptr
 						&& portSet->second->connect(source, destination))
 						return true;
 					return false;
-				});
-				childCanvas->setConnectionDisconnectHandler([subGraphPorts, rootContextId](const std::string& source, const std::string& destination) {
+                });
+                childCanvas->setConnectionDisconnectHandler([subGraphPorts, rootContextId](const std::string& source, const std::string& destination) {
 					const auto portSet = subGraphPorts->find(rootContextId);
 					return portSet != subGraphPorts->end() && portSet->second != nullptr
 						&& portSet->second->disconnect(source, destination);
 				});
-				childCanvas->setInterfaceNodeAddedHandler([this,subGraphPorts, contextId, rootContextId, isTopLevel, parentCanvasGuard, subGraphId](PatchbayInterfaceInfo& interfaceNode) {
-					if (offline_) return false;
-					const auto definition = std::find_if(subGraphInterfaceDefinitions().cbegin(), subGraphInterfaceDefinitions().cend(), [&interfaceNode](const auto& value) {
-						return interfaceNode.type == QString::fromLatin1(value.type);
-					});
-					if (definition == subGraphInterfaceDefinitions().cend())
-						return false;
-					auto& portSet = (*subGraphPorts)[contextId];
-					if (!isTopLevel) {
-						if (portSet == nullptr)
-							portSet = std::make_shared<SubGraphPortSet>();
-						const auto portName = std::string(definition->type) + "_" + std::to_string(portSet->interfaces.size() + 1);
-						interfaceNode.portId = contextId + ":" + portName;
-						interfaceNode.externalPortId = interfaceNode.portId;
-						portSet->interfaces.push_back(interfaceNode);
-						auto& rootPortSet = (*subGraphPorts)[rootContextId];
-						if (rootPortSet == nullptr)
-							rootPortSet = std::make_shared<SubGraphPortSet>();
-						rootPortSet->interfaces.push_back(interfaceNode);
-						if (!parentCanvasGuard.isNull())
-							parentCanvasGuard->setSubGraphInterfaces(subGraphId, portSet->interfaces);
-						return true;
-					}
-					if (portSet == nullptr)
-						portSet = std::make_shared<SubGraphPortSet>();
-					if (!portSet->client.isOpen()) {
-						const auto clientName = "WinJACKNexus-SubGraph-" + jackSafeToken(contextId);
-						if (!portSet->client.open({ clientName.c_str(), false, false, nullptr })
-							|| portSet->client.setProcessCallback(&SubGraphPortSet::process, portSet.get()) != 0) {
-							portSet = nullptr;
-							return false;
-						}
-					}
-					const bool wasActive = portSet->client.isActive();
-					if (wasActive && !portSet->client.deactivate())
-						return false;
-
-					const auto portName = interfaceNode.name.toUtf8().toStdString();
-					portSet->ports.emplace_back();
-					auto& port = portSet->ports.back();
-					port.kind = interfaceNode.kind;
-					port.isInput = definition->flags == JackPortIsInput;
-					if (!port.port.registerPort(portSet->client, portName.c_str(), definition->jackType, definition->flags)) {
-						portSet->ports.pop_back();
-						if (wasActive)
-							portSet->client.activate();
-						return false;
-					}
-					const auto* registeredPortName = port.port.name();
-					if (registeredPortName == nullptr || *registeredPortName == '\0') {
-						portSet->ports.pop_back();
-						if (wasActive)
-							portSet->client.activate();
-						return false;
-					}
-					port.id = registeredPortName;
-					interfaceNode.portId = port.id;
-					interfaceNode.externalPortId = port.id;
-					if (!portSet->client.activate())
-						return false;
-					portSet->interfaces.push_back(interfaceNode);
-					if (!parentCanvasGuard.isNull())
-						parentCanvasGuard->setSubGraphInterfaces(subGraphId, portSet->interfaces);
-					return true;
-				});
-				childCanvas->setInterfaceNodeRenamedHandler([subGraphPorts, contextId, rootContextId, isTopLevel, parentCanvasGuard, subGraphId](const std::string& interfaceId, const QString& name) {
-					const auto portSet = subGraphPorts->find(contextId);
-					if (portSet == subGraphPorts->end() || portSet->second == nullptr)
-						return;
+                childCanvas->setInterfaceNodeAddedHandler(
+                    [this, subGraphPorts, contextId, rootContextId, isTopLevel, parentCanvasGuard,
+                     subGraphId](PatchbayInterfaceInfo &interfaceNode) {
+                        const auto definition = std::find_if(
+                            subGraphInterfaceDefinitions().cbegin(),
+                            subGraphInterfaceDefinitions().cend(),
+                            [&interfaceNode](const auto &value) {
+                                return interfaceNode.type == QString::fromLatin1(value.type);
+                            });
+                        if (definition == subGraphInterfaceDefinitions().cend())
+                            return false;
+                        auto &portSet = (*subGraphPorts)[contextId];
+                        if (!portSet)
+                            portSet = std::make_shared<SubGraphPortSet>();
+                        portSet->offline = offline_;
+                        auto &rootPortSet = (*subGraphPorts)[rootContextId];
+                        if (!rootPortSet)
+                            rootPortSet = std::make_shared<SubGraphPortSet>();
+                        rootPortSet->offline = offline_;
+                        if (isTopLevel && !offline_ && !portSet->client.isOpen())
+                        {
+                            const auto clientName =
+                                "WinJACKNexus-SubGraph-" + jackSafeToken(contextId);
+                            if (!portSet->client.open(
+                                    {clientName.c_str(), false, false, nullptr}) ||
+                                portSet->client.setProcessCallback(&SubGraphPortSet::process,
+                                                                   portSet.get()) != 0)
+                            {
+                                portSet->client.close();
+                                return false;
+                            }
+                            portSet->sampleRate = portSet->client.sampleRate();
+                            portSet->requestedRate.store(uint32_t(portSet->sampleRate));
+                            portSet->maxFrames = portSet->client.bufferSize();
+                            portSet->requestedFrames.store(portSet->maxFrames);
+                            portSet->client.setSampleRateCallback(&SubGraphPortSet::rateChanged,
+                                                                  portSet.get());
+                            portSet->client.setBufferSizeCallback(&SubGraphPortSet::sizeChanged,
+                                                                  portSet.get());
+                        }
+                        const bool active = rootPortSet->client.isActive();
+                        if (active && !rootPortSet->pause())
+                            return false;
+                        interfaceNode.portId = interfaceNode.id + ":port";
+                        interfaceNode.externalPortId = interfaceNode.portId;
+                        if (isTopLevel && !offline_)
+                        {
+                            portSet->ports.emplace_back();
+                            auto &port = portSet->ports.back();
+                            port.kind = interfaceNode.kind;
+                            port.isInput = definition->flags == JackPortIsInput;
+                            port.id = interfaceNode.portId;
+                            const auto name = interfaceNode.name.toUtf8();
+                            if (!port.port.registerPort(portSet->client, name.constData(),
+                                                        definition->jackType, definition->flags))
+                            {
+                                portSet->ports.pop_back();
+                                rootPortSet->resume(active);
+                                return false;
+                            }
+                            const auto *external = port.port.name();
+                            if (!external || !*external)
+                            {
+                                portSet->ports.pop_back();
+                                rootPortSet->resume(active);
+                                return false;
+                            }
+                            interfaceNode.externalPortId = external;
+                        }
+                        portSet->interfaces.push_back(interfaceNode);
+                        if (!isTopLevel)
+                            rootPortSet->interfaces.push_back(interfaceNode);
+                        if (!rootPortSet->rebuild() || !rootPortSet->resume(active))
+                        {
+                            portSet->interfaces.pop_back();
+                            if (!isTopLevel)
+                                rootPortSet->interfaces.pop_back();
+                            if (isTopLevel && !offline_)
+                                portSet->ports.pop_back();
+                            rootPortSet->rebuild();
+                            rootPortSet->resume(active);
+                            return false;
+                        }
+                        if (!parentCanvasGuard.isNull())
+                            parentCanvasGuard->setSubGraphInterfaces(
+                                subGraphId, portSet->contextInterfaces(contextId));
+                        return true;
+                    });
+                childCanvas->setInterfaceNodeRenamedHandler([subGraphPorts, contextId,
+                                                             rootContextId, isTopLevel,
+                                                             parentCanvasGuard, childCanvasGuard,
+                                                             subGraphId](
+                                                                const std::string &interfaceId,
+                                                                const QString &name) {
+                    const auto portSet = subGraphPorts->find(contextId);
+                    if (portSet == subGraphPorts->end() || portSet->second == nullptr)
+                        return;
 					const auto interfaceNode = std::find_if(portSet->second->interfaces.begin(), portSet->second->interfaces.end(), [&interfaceId](const auto& value) {
 						return value.id == interfaceId;
 					});
-					if (interfaceNode != portSet->second->interfaces.end()) {
-						const auto oldPortId = interfaceNode->portId;
-						if (isTopLevel) {
-							const auto port = std::find_if(portSet->second->ports.begin(), portSet->second->ports.end(), [&oldPortId](const auto& value) {
-								return value.id == oldPortId;
-							});
-							const auto portName = name.toUtf8().toStdString();
-							if (port != portSet->second->ports.end()
-								&& WinJACKNexus::Audio::JackApi::instance().portRename(portSet->second->client.nativeHandle(), port->port.nativeHandle(), portName.c_str()) == 0) {
-								const auto* renamedPortId = port->port.name();
-								if (renamedPortId != nullptr) {
-									port->id = renamedPortId;
-									interfaceNode->portId = port->id;
-									interfaceNode->externalPortId = port->id;
-									for (auto& route : portSet->second->routes) {
-										if (route.sourcePortId == oldPortId)
-											route.sourcePortId = port->id;
-										if (route.destinationPortId == oldPortId)
-											route.destinationPortId = port->id;
-									}
-								}
-							}
-						}
-						interfaceNode->name = name;
-						if (!isTopLevel) {
-							if (const auto rootPortSet = subGraphPorts->find(rootContextId); rootPortSet != subGraphPorts->end() && rootPortSet->second != nullptr) {
-								const auto rootInterface = std::find_if(rootPortSet->second->interfaces.begin(), rootPortSet->second->interfaces.end(), [&interfaceId](const auto& value) {
-									return value.id == interfaceId;
-								});
-								if (rootInterface != rootPortSet->second->interfaces.end())
+                    if (interfaceNode != portSet->second->interfaces.end())
+                    {
+                        const auto oldPortId = interfaceNode->portId;
+                        if (isTopLevel)
+                        {
+                            const auto port = std::find_if(
+                                portSet->second->ports.begin(), portSet->second->ports.end(),
+                                [&oldPortId](const auto &value) { return value.id == oldPortId; });
+                            const auto portName = name.toUtf8().toStdString();
+                            if (port != portSet->second->ports.end() &&
+                                WinJACKNexus::Audio::JackApi::instance().portRename(
+                                    portSet->second->client.nativeHandle(),
+                                    port->port.nativeHandle(), portName.c_str()) == 0)
+                            {
+                                const auto *renamedPortId = port->port.name();
+                                if (renamedPortId)
+                                    interfaceNode->externalPortId = renamedPortId;
+                            }
+                            else if (!portSet->second->offline)
+                            {
+                                qWarning()
+                                    << "Native interface rename failed; stable mapping retained";
+                                if (!childCanvasGuard.isNull())
+                                    childCanvasGuard->setInterfaceNodes(
+                                        portSet->second->contextInterfaces(contextId));
+                                if (!parentCanvasGuard.isNull())
+                                    parentCanvasGuard->setSubGraphInterfaces(
+                                        subGraphId, portSet->second->contextInterfaces(contextId));
+                                return;
+                            }
+                        }
+                        interfaceNode->name = name;
+                        if (!isTopLevel)
+                        {
+                            if (const auto rootPortSet = subGraphPorts->find(rootContextId);
+                                rootPortSet != subGraphPorts->end() &&
+                                rootPortSet->second != nullptr)
+                            {
+                                const auto rootInterface =
+                                    std::find_if(rootPortSet->second->interfaces.begin(),
+                                                 rootPortSet->second->interfaces.end(),
+                                                 [&interfaceId](const auto &value) {
+                                                     return value.id == interfaceId;
+                                                 });
+                                if (rootInterface != rootPortSet->second->interfaces.end())
 									rootInterface->name = name;
-							}
-						}
-						if (!parentCanvasGuard.isNull())
-							parentCanvasGuard->setSubGraphInterfaces(subGraphId, portSet->second->interfaces);
-					}
-				});
-				childCanvas->setInterfaceNodeRemovedHandler([subGraphPorts, contextId, rootContextId, isTopLevel, parentCanvasGuard, subGraphId](const std::string& interfaceId) {
-					const auto contextPortSet = subGraphPorts->find(contextId);
-					if (contextPortSet == subGraphPorts->end() || contextPortSet->second == nullptr)
+                            }
+                        }
+                        if (!parentCanvasGuard.isNull())
+                            parentCanvasGuard->setSubGraphInterfaces(
+                                subGraphId, portSet->second->contextInterfaces(contextId));
+                    }
+                });
+                childCanvas->setInterfaceNodeRemovedHandler([subGraphPorts, contextId,
+                                                             rootContextId, isTopLevel,
+                                                             parentCanvasGuard, subGraphId](
+                                                                const std::string &interfaceId) {
+                    const auto contextPortSet = subGraphPorts->find(contextId);
+                    if (contextPortSet == subGraphPorts->end() || contextPortSet->second == nullptr)
 						return false;
 					auto& portSet = *contextPortSet->second;
 					const auto interfaceNode = std::find_if(portSet.interfaces.begin(), portSet.interfaces.end(), [&interfaceId](const auto& value) {
@@ -1913,48 +2434,103 @@ public:
 					if (interfaceNode == portSet.interfaces.end())
 						return false;
 					const auto portId = interfaceNode->portId;
-					if (isTopLevel) {
-						const bool wasActive = portSet.client.isActive();
-						if (wasActive && !portSet.client.deactivate())
-							return false;
-						const auto port = std::find_if(portSet.ports.begin(), portSet.ports.end(), [&portId](const auto& value) {
-							return value.id == portId;
-						});
-						if (port != portSet.ports.end()) {
-							port->port.unregisterPort();
-							portSet.ports.erase(port);
-						}
-						std::erase_if(portSet.routes, [&portId](const auto& route) {
-							return route.sourcePortId == portId || route.destinationPortId == portId;
-						});
-						if (wasActive)
-							portSet.client.activate();
-					}
-					portSet.interfaces.erase(interfaceNode);
-					if (!isTopLevel) {
-						const auto rootPortSet = subGraphPorts->find(rootContextId);
-						if (rootPortSet != subGraphPorts->end() && rootPortSet->second != nullptr) {
-							std::erase_if(rootPortSet->second->interfaces, [&interfaceId](const auto& value) {
-								return value.id == interfaceId;
-							});
-							std::erase_if(rootPortSet->second->routes, [&portId](const auto& route) {
-								return route.sourcePortId == portId || route.destinationPortId == portId;
-							});
-						}
-					}
-					if (!parentCanvasGuard.isNull())
-						parentCanvasGuard->setSubGraphInterfaces(subGraphId, portSet.interfaces);
-					return true;
-				});
-				childCanvas->setSubGraphNodeDoubleClickHandler([openSubGraphWeak, childCanvasGuard](const std::string& childId) {
-					if (childCanvasGuard.isNull())
+                    const auto root = subGraphPorts->find(rootContextId);
+                    if (root == subGraphPorts->end() || !root->second)
+                        return false;
+                    auto &rootSet = *root->second;
+                    const bool active = rootSet.client.isActive();
+                    if (active && !rootSet.pause())
+                        return false;
+                    const auto previousInterfaces = rootSet.interfaces;
+                    const auto previousRoutes = rootSet.routes;
+                    std::erase_if(rootSet.interfaces,
+                                  [&](const auto &value) { return value.id == interfaceId; });
+                    std::erase_if(rootSet.routes, [&](const auto &value) {
+                        return value.sourcePortId == portId || value.destinationPortId == portId;
+                    });
+                    if (!rootSet.rebuild())
+                    {
+                        rootSet.interfaces = previousInterfaces;
+                        rootSet.routes = previousRoutes;
+                        rootSet.resume(active);
+                        return false;
+                    }
+                    if (isTopLevel)
+                    {
+                        const auto port =
+                            std::find_if(portSet.ports.begin(), portSet.ports.end(),
+                                         [&](const auto &value) { return value.id == portId; });
+                        if (port != portSet.ports.end())
+                        {
+                            if (!port->port.unregisterPort())
+                            {
+                                rootSet.interfaces = previousInterfaces;
+                                rootSet.routes = previousRoutes;
+                                rootSet.rebuild();
+                                rootSet.resume(active);
+                                return false;
+                            }
+                            portSet.ports.erase(port);
+                        }
+                    }
+                    else
+                    {
+                        portSet.interfaces.erase(interfaceNode);
+                    }
+                    if (!rootSet.resume(active))
+                    {
+                        rootSet.interfaces = previousInterfaces;
+                        rootSet.routes = previousRoutes;
+                        if (isTopLevel && !rootSet.offline)
+                        {
+                            const auto previous = std::find_if(
+                                previousInterfaces.begin(), previousInterfaces.end(),
+                                [&](const auto &value) { return value.id == interfaceId; });
+                            if (previous != previousInterfaces.end())
+                            {
+                                const auto definition = std::find_if(
+                                    subGraphInterfaceDefinitions().begin(),
+                                    subGraphInterfaceDefinitions().end(), [&](const auto &value) {
+                                        return previous->type == QLatin1String(value.type);
+                                    });
+                                portSet.ports.emplace_back();
+                                auto &port = portSet.ports.back();
+                                port.id = previous->portId;
+                                port.kind = previous->kind;
+                                port.isInput = definition->flags == JackPortIsInput;
+                                if (!port.port.registerPort(
+                                        portSet.client, previous->name.toUtf8().constData(),
+                                        definition->jackType, definition->flags))
+                                {
+                                    portSet.ports.pop_back();
+                                    qWarning()
+                                        << "Failed to restore native interface after activation failure";
+                                }
+                            }
+                        }
+                        if (!isTopLevel)
+                            portSet.interfaces.push_back(*std::find_if(
+                                previousInterfaces.begin(), previousInterfaces.end(),
+                                [&](const auto &value) { return value.id == interfaceId; }));
+                        rootSet.rebuild();
+                        rootSet.resume(active);
+                        return false;
+                    }
+                    if (!parentCanvasGuard.isNull())
+                        parentCanvasGuard->setSubGraphInterfaces(
+                            subGraphId, portSet.contextInterfaces(contextId));
+                    return true;
+                });
+                childCanvas->setSubGraphNodeDoubleClickHandler([openSubGraphWeak, childCanvasGuard](
+                                                                   const std::string &childId) {
+                    if (childCanvasGuard.isNull())
 						return;
 					QTimer::singleShot(0, childCanvasGuard.data(), [openSubGraphWeak, childCanvasGuard, childId] {
 						if (const auto openSubGraph = openSubGraphWeak.lock(); openSubGraph != nullptr && !childCanvasGuard.isNull())
 							(*openSubGraph)(childCanvasGuard.data(), childId);
 					});
-				});
-				childCanvas->setSubGraphNodeRenamedHandler([updateSubGraphTabTitle, childCanvasGuard](const std::string& childId, const QString& name) {
+                });
+                childCanvas->setSubGraphNodeRenamedHandler([updateSubGraphTabTitle, childCanvasGuard](const std::string& childId, const QString& name) {
 					if (!childCanvasGuard.isNull())
 						(*updateSubGraphTabTitle)(childCanvasGuard.data(), childId, name);
 				});
@@ -1976,13 +2552,13 @@ public:
 					if (childCanvasGuard.isNull())
 						return;
 					const auto activeTab = canvasTabs->currentIndex();
-					QTimer::singleShot(0, childCanvasGuard.data(), [canvasTabs, openSubGraphWeak, childCanvasGuard, childId, activeTab] {
+
 						if (const auto openSubGraph = openSubGraphWeak.lock(); openSubGraph != nullptr && !childCanvasGuard.isNull()) {
 							(*openSubGraph)(childCanvasGuard.data(), childId);
 							if (activeTab >= 0)
 								canvasTabs->setCurrentIndex(activeTab);
 						}
-					});
+
 				});
 				childCanvas->setInterfaceNodeDropHandler([childCanvas](const QString& type, const QPointF& position) {
 					return childCanvas->addInterfaceNode(type, position);
@@ -1990,32 +2566,41 @@ public:
 				if (jackObserver_.isOpen())
 					childCanvas->setSnapshot(WinJACKNexus::Patchbay::Core::Snapshot::capture(jackObserver_));
 				const auto restoredSubGraph = restoredSubGraphs->find(contextId);
-				if (restoredSubGraph != restoredSubGraphs->end()) {
-					childCanvas->restoreSubGraphNodes(restoredSubGraph->second.nodes);
-					if (!childCanvas->restoreInterfaceNodes(restoredSubGraph->second.interfaces)) {
-						childCanvas->deleteLater();
+                if (restoredSubGraph != restoredSubGraphs->end())
+                    childCanvas->restoreSubGraphNodes(restoredSubGraph->second.nodes);
+                if (restoredSubGraph != restoredSubGraphs->end() && !hadBackend)
+                {
+                    childCanvas->restoreSubGraphNodes(restoredSubGraph->second.nodes);
+                    if (!childCanvas->restoreInterfaceNodes(restoredSubGraph->second.interfaces))
+                    {
+                        childCanvas->deleteLater();
 						return;
-					}
-				} else if (const auto savedPorts = subGraphPorts->find(contextId);
-				           savedPorts != subGraphPorts->end() && savedPorts->second != nullptr) {
-					std::vector<PatchbayInterfaceInfo> contextInterfaces;
-					const auto interfacePrefix = contextId + "/interface-";
-					std::copy_if(savedPorts->second->interfaces.cbegin(), savedPorts->second->interfaces.cend(),
+                    }
+                }
+                else if (const auto savedPorts = subGraphPorts->find(contextId);
+                         savedPorts != subGraphPorts->end() && savedPorts->second != nullptr)
+                {
+                    std::vector<PatchbayInterfaceInfo> contextInterfaces;
+                    const auto interfacePrefix = contextId + "/interface-";
+                    std::copy_if(savedPorts->second->interfaces.cbegin(), savedPorts->second->interfaces.cend(),
 					             std::back_inserter(contextInterfaces), [&interfacePrefix](const auto& interfaceNode) {
 						return interfaceNode.id.starts_with(interfacePrefix);
 					             });
 					childCanvas->setInterfaceNodes(contextInterfaces);
 					parentCanvas->setSubGraphInterfaces(subGraphId, std::move(contextInterfaces));
-				}
-				if (createDefaultInterfaces) {
-					childCanvas->addInterfaceNode(QStringLiteral("audio_in"), {});
-					childCanvas->addInterfaceNode(QStringLiteral("audio_in"), {});
+                }
+                if (createDefaultInterfaces)
+                {
+                    childCanvas->addInterfaceNode(QStringLiteral("audio_in"), {});
+                    childCanvas->addInterfaceNode(QStringLiteral("audio_in"), {});
 					childCanvas->addInterfaceNode(QStringLiteral("audio_out"), {});
 					childCanvas->addInterfaceNode(QStringLiteral("audio_out"), {});
 					childCanvas->addInterfaceNode(QStringLiteral("midi_in"), {});
-				}
-				const auto tabTitle = context.title.isEmpty() ? patchText("graph.defaultName","Subgraph") : context.title;
-				const auto tabIndex = canvasTabs->addTab(childCanvas, tabTitle);
+                }
+                const auto tabTitle = context.title.isEmpty()
+                                          ? patchText("graph.defaultName", "Subgraph")
+                                          : context.title;
+                const auto tabIndex = canvasTabs->addTab(childCanvas, tabTitle);
 				subGraphCanvases->emplace(contextId, childCanvas);
 				canvasTabs->setCurrentIndex(tabIndex);
 			};
@@ -2053,14 +2638,6 @@ public:
 					if (!subGraphCanvases->contains(project->context.id))
 						return false;
 				}
-				for (const auto* project : contexts) {
-					const auto child = subGraphCanvases->find(project->context.id);
-					if (child == subGraphCanvases->end() || child->second.isNull()
-						|| !child->second->restoreLogicalConnections(project->connections)) {
-						return false;
-					}
-				}
-				restoredSubGraphs->clear();
 				canvasTabs->setCurrentIndex(0);
 				return true;
 			};
@@ -2087,13 +2664,13 @@ public:
 				if (canvasGuard.isNull())
 					return;
 				const auto activeTab = canvasTabs->currentIndex();
-				QTimer::singleShot(0, canvasGuard.data(), [canvasTabs, openSubGraphWeak, canvasGuard, subGraphId, activeTab] {
+
 					if (const auto openSubGraph = openSubGraphWeak.lock(); openSubGraph != nullptr && !canvasGuard.isNull()) {
 						(*openSubGraph)(canvasGuard.data(), subGraphId);
 						if (activeTab >= 0)
 							canvasTabs->setCurrentIndex(activeTab);
 					}
-				});
+
 			});
 			QObject::connect(canvasTabs, &QTabWidget::tabCloseRequested, window_, [canvasTabs, refreshNodeLibrary](int index) {
 				if (index <= 0)
@@ -2160,9 +2737,21 @@ public:
 				}
 				for (const auto& client : snapshot.clients)
 					knownJackClients_.insert(client.name);
-				std::unordered_set<std::string> childModuleClients;
-				std::unordered_map<std::string, std::unordered_set<std::string>> modulesByContext;
-				std::unordered_map<std::string, QString> clientThemeScopes;
+                for (const auto &node : loadedModuleNodes_)
+                {
+                    if (!node->isVirtual())
+                        continue;
+                    std::erase_if(snapshot.clients, [&](const auto &client) {
+                        return client.id == node->clientId();
+                    });
+                    std::erase_if(snapshot.ports, [&](const auto &port) {
+                        return port.clientId == node->clientId();
+                    });
+                    node->appendVirtualSnapshot(snapshot);
+                }
+                std::unordered_set<std::string> childModuleClients;
+                std::unordered_map<std::string, std::unordered_set<std::string>> modulesByContext;
+                std::unordered_map<std::string, QString> clientThemeScopes;
 				for (const auto& node : loadedModuleNodes_) {
 					if (!node->hasClient())
 						continue;
@@ -2194,157 +2783,310 @@ public:
 				(*refreshNodeLibrary)();
 				return true;
 			};
-			auto refreshJackGraph = [this, canRefreshJackGraph, applyJackSnapshot] {
-				if (!jackObserver_.isOpen() || !canRefreshJackGraph())
-					return false;
-				auto snapshot = WinJACKNexus::Patchbay::Core::Snapshot::capture(jackObserver_);
-				ensureSystemClient(snapshot);
+            auto refreshJackGraph = [this, canRefreshJackGraph, applyJackSnapshot] {
+                if (offline_)
+                    return applyJackSnapshot(Snapshot{});
+                if (!jackObserver_.isOpen() || !canRefreshJackGraph())
+                    return false;
+                auto snapshot = WinJACKNexus::Patchbay::Core::Snapshot::capture(jackObserver_);
+                ensureSystemClient(snapshot);
 				return applyJackSnapshot(std::move(snapshot));
-			};
-			auto pollJackGraph = [this, canRefreshJackGraph, applyJackSnapshot, lastObservedJackGraph, hasObservedJackGraph] {
-				if (!jackObserver_.isOpen() || !canRefreshJackGraph())
-					return false;
+            };
+            auto pollJackGraph = [this, canRefreshJackGraph, applyJackSnapshot,
+                                  lastObservedJackGraph, hasObservedJackGraph] {
+                if (!jackObserver_.isOpen() || !canRefreshJackGraph())
+                    return false;
 				auto snapshot = WinJACKNexus::Patchbay::Core::Snapshot::capture(jackObserver_);
 				ensureSystemClient(snapshot);
 				if (*hasObservedJackGraph && hasSameObservedJackGraph(*lastObservedJackGraph, snapshot))
 					return true;
 				return applyJackSnapshot(std::move(snapshot));
-			};
-			auto lastMixerSettings = std::make_shared<std::unordered_map<std::string, std::string>>();
-			auto refreshPendingJackGraph = [this, refreshJackGraph, pollJackGraph, lastMixerSettings] {
-				std::unordered_map<std::string, std::string> currentMixerSettings;
-				for (const auto& node : loadedModuleNodes_) {
-					if (isDigitalMixerModule(node->modulePath()) && node->hasClient())
-						currentMixerSettings.emplace(node->clientId(), node->settingsJson());
-				}
-				if (currentMixerSettings != *lastMixerSettings) {
-					if (refreshJackGraph()) *lastMixerSettings = std::move(currentMixerSettings);
-					return;
-				}
-				if (!graphOrderCallbackRegistered_) {
-					pollJackGraph();
-					return;
-				}
-				if (graphRefreshPending_.exchange(false, std::memory_order_acq_rel)
-					&& !refreshJackGraph()) {
-					graphRefreshPending_.store(true, std::memory_order_release);
-				}
-			};
-			auto restoreModuleRecords = [this, refreshTrayNodeGuiEntries](const std::vector<PatchbayProjectModule>& modules) {
-				std::erase_if(loadedModuleNodes_, [](const auto& node) {
-					return !isDigitalMixerModule(node->modulePath());
-				});
-				for (const auto& module : modules) {
-					if (isDigitalMixerModule(module.modulePath)) {
-						const auto mixer = std::find_if(loadedModuleNodes_.begin(), loadedModuleNodes_.end(), [](const auto& node) {
-							return isDigitalMixerModule(node->modulePath()) && node->index() == 0;
-						});
-						if (mixer != loadedModuleNodes_.end() && !(*mixer)->restoreSettingsJson(module.settingsJson))
-							PatchbayDialogs::message(window_,QMessageBox::Warning,"error.mixerRestoreTitle","Mixer restore failed","error.mixerRestore","Unable to restore the mixer settings saved in the project.");
+            };
+            auto lastMixerSettings =
+                std::make_shared<std::unordered_map<std::string, std::string>>();
+            auto refreshPendingJackGraph = [this, subGraphPorts, refreshJackGraph, pollJackGraph,
+                                            lastMixerSettings] {
+                for (const auto &[id, root] : *subGraphPorts)
+                {
+                    if (root && isTopLevelSubGraphContext(id))
+                        root->synchronizeClock();
+                }
+                std::unordered_map<std::string, std::string> currentMixerSettings;
+                for (const auto &node : loadedModuleNodes_)
+                {
+                    if (isDigitalMixerModule(node->modulePath()) && node->hasClient())
+                        currentMixerSettings.emplace(node->clientId(), node->settingsJson());
+                }
+                if (currentMixerSettings != *lastMixerSettings)
+                {
+                    if (refreshJackGraph())
+                        *lastMixerSettings = std::move(currentMixerSettings);
+                    return;
+                }
+                if (!graphOrderCallbackRegistered_)
+                {
+                    pollJackGraph();
+                    return;
+                }
+                if (graphRefreshPending_.exchange(false, std::memory_order_acq_rel) &&
+                    !refreshJackGraph())
+                {
+                    graphRefreshPending_.store(true, std::memory_order_release);
+                }
+            };
+            auto restoreModuleRecords = [this, subGraphPorts, restoredSubGraphs, subGraphCanvases,
+                                         refreshTrayNodeGuiEntries](
+                                            const std::vector<PatchbayProjectModule> &modules) {
+                unloadedModuleRecords_.clear();
+                for (const auto &node : loadedModuleNodes_)
+                {
+                    if (!node->isVirtual())
+                        continue;
+                    const auto root = subGraphPorts->find(rootSubGraphContext(node->contextId()));
+                    if (root != subGraphPorts->end() && root->second &&
+                        !root->second->detach(node->clientId()))
+                        return;
+                }
+                std::erase_if(loadedModuleNodes_, [](const auto &node) {
+                    return !isDigitalMixerModule(node->modulePath());
+                });
+                for (const auto &module : modules)
+                {
+                    if (module.contextId == "main" && isDigitalMixerModule(module.modulePath))
+                    {
+                        const auto mixer =
+                            std::find_if(loadedModuleNodes_.begin(), loadedModuleNodes_.end(),
+                                         [](const auto &node) {
+                                             return isDigitalMixerModule(node->modulePath()) &&
+                                                    node->index() == 0;
+                                         });
+                        if (mixer != loadedModuleNodes_.end() &&
+                            !(*mixer)->restoreSettingsJson(module.settingsJson))
+                            PatchbayDialogs::message(window_,QMessageBox::Warning,"error.mixerRestoreTitle","Mixer restore failed","error.mixerRestore","Unable to restore the mixer settings saved in the project.");
 						continue;
-					}
-						std::set<std::string> existingClients;
-						if (jackObserver_.isOpen()) {
-							for (const auto& client : WinJACKNexus::Patchbay::Core::Snapshot::capture(jackObserver_).clients)
-								existingClients.insert(client.id);
-						}
-				auto node = LoadedModuleNode::create(module.modulePath, module.index, module.settingsJson);
-						if (node == nullptr)
-							continue;
-						if (jackObserver_.isOpen()) {
-							const auto snapshot = WinJACKNexus::Patchbay::Core::Snapshot::capture(jackObserver_);
-							const auto client = std::find_if(snapshot.clients.cbegin(), snapshot.clients.cend(), [&node, &existingClients](const auto& value) {
-								return node->hasClient() ? value.id == node->clientId() : !existingClients.contains(value.id);
-							});
-							if (client != snapshot.clients.cend())
-								node->setClientId(client->id);
-						}
-						if (!module.clientId.empty() && !node->hasClient())
-							node->setClientId(module.clientId);
-						node->setContextId(module.contextId);
-						loadedModuleNodes_.push_back(std::move(node));
-					}
-					(*refreshTrayNodeGuiEntries)();
-				};
-			*createModuleNode = [this, refreshJackGraph, refreshTrayNodeGuiEntries, window = window_.data()](PatchbayCanvas* targetCanvas, const QString& modulePath, std::uint32_t index, const QPointF& position, const QString& settingsJson) {
-				if (offline_) return false;
-			if (targetCanvas == nullptr)
-				return false;
-			if (isDigitalMixerModule(modulePath) && hasLoadedDigitalMixer())
-				return showLoadedDigitalMixer() > 0;
-				std::set<std::string> existingClients;
-				if (jackObserver_.isOpen()) {
-					for (const auto& client : WinJACKNexus::Patchbay::Core::Snapshot::capture(jackObserver_).clients)
-						existingClients.insert(client.id);
-				}
+                    }
+                    const auto mode =
+                        module.contextId == "main" ? WJN_NODE_MODE_JACK : WJN_NODE_MODE_VIRT;
+                    std::set<std::string> existingClients;
+                    if (mode == WJN_NODE_MODE_JACK && jackObserver_.isOpen())
+                    {
+                        for (const auto &client :
+                             WinJACKNexus::Patchbay::Core::Snapshot::capture(jackObserver_).clients)
+                            existingClients.insert(client.id);
+                    }
+                    std::shared_ptr<SubGraphPortSet> root;
+                    if (mode == WJN_NODE_MODE_VIRT)
+                    {
+                        const auto found =
+                            subGraphPorts->find(rootSubGraphContext(module.contextId));
+                        if (found != subGraphPorts->end())
+                            root = found->second;
+                    }
+                    auto node = mode == WJN_NODE_MODE_VIRT && !root
+                                    ? nullptr
+                                    : LoadedModuleNode::create(module.modulePath, module.index,
+                                                               module.settingsJson, mode,
+                                                               root ? root->sampleRate : 48000.0,
+                                                               root ? root->maxFrames : 8192);
+                    if (node == nullptr)
+                    {
+                        qWarning().noquote() << "Preserving unloadable node:" << module.modulePath
+                                             << QString::fromStdString(module.contextId);
+                        unloadedModuleRecords_.push_back(module);
+                        continue;
+                    }
+                    if (mode == WJN_NODE_MODE_JACK && jackObserver_.isOpen())
+                    {
+                        const auto snapshot =
+                            WinJACKNexus::Patchbay::Core::Snapshot::capture(jackObserver_);
+                        const auto client =
+                            std::find_if(snapshot.clients.cbegin(), snapshot.clients.cend(),
+                                         [&node, &existingClients](const auto &value) {
+                                             return node->hasClient()
+                                                        ? value.id == node->clientId()
+                                                        : !existingClients.contains(value.id);
+                                         });
+                        if (client != snapshot.clients.cend())
+                            node->setClientId(client->id);
+                    }
+                    if (!module.clientId.empty() && (node->isVirtual() || !node->hasClient()))
+                        node->setClientId(module.clientId);
+                    node->setContextId(module.contextId);
+                    if (root)
+                    {
+                        const auto ports = node->virtualPorts();
+                        if (ports.empty() || !root->attach(node->virtualProcessor(), ports))
+                        {
+                            unloadedModuleRecords_.push_back(module);
+                            continue;
+                        }
+                    }
+                    loadedModuleNodes_.push_back(std::move(node));
+                }
+                for (const auto &[id, project] : *restoredSubGraphs)
+                {
+                    const auto child = subGraphCanvases->find(id);
+                    if (child == subGraphCanvases->end() || child->second.isNull())
+                        continue;
+                    auto connections = project.connections;
+                    for (auto &connection : connections)
+                    {
+                        for (const auto &context : *restoredSubGraphs)
+                        {
+                            for (const auto &port : context.second.interfaces)
+                            {
+                                const auto stableId = port.id + ":port";
+                                if (connection.sourcePortId == port.portId ||
+                                    connection.sourcePortId == port.externalPortId)
+                                    connection.sourcePortId = stableId;
+                                if (connection.destinationPortId == port.portId ||
+                                    connection.destinationPortId == port.externalPortId)
+                                    connection.destinationPortId = stableId;
+                            }
+                        }
+                    }
+                    child->second->restoreLogicalConnections(std::move(connections));
+                }
+                restoredSubGraphs->clear();
+                (*refreshTrayNodeGuiEntries)();
+            };
+            *createModuleNode = [this, subGraphPorts, refreshJackGraph, refreshTrayNodeGuiEntries,
+                                 window = window_.data()](
+                                    PatchbayCanvas *targetCanvas, const QString &modulePath,
+                                    std::uint32_t index, const QPointF &position,
+                                    const QString &settingsJson) {
+                if (targetCanvas == nullptr)
+                    return false;
+                const auto contextId = targetCanvas->sceneContext().id;
+                const auto mode = contextId == "main" ? WJN_NODE_MODE_JACK : WJN_NODE_MODE_VIRT;
+                if (offline_ && mode == WJN_NODE_MODE_JACK)
+                    return false;
+                std::shared_ptr<SubGraphPortSet> root;
+                if (mode == WJN_NODE_MODE_VIRT)
+                {
+                    const auto found = subGraphPorts->find(rootSubGraphContext(contextId));
+                    if (found == subGraphPorts->end() || !found->second)
+                        return false;
+                    root = found->second;
+                }
+                if (mode == WJN_NODE_MODE_JACK && isDigitalMixerModule(modulePath) &&
+                    hasLoadedDigitalMixer())
+                    return showLoadedDigitalMixer() > 0;
+                std::set<std::string> existingClients;
+                if (mode == WJN_NODE_MODE_JACK && jackObserver_.isOpen())
+                {
+                    for (const auto &client :
+                         WinJACKNexus::Patchbay::Core::Snapshot::capture(jackObserver_).clients)
+                        existingClients.insert(client.id);
+                }
 
-				auto node = LoadedModuleNode::create(modulePath, index, settingsJson.toStdString());
-				if (node == nullptr) {
-					PatchbayDialogs::message(window,QMessageBox::Warning,"error.nodeStartTitle","Node startup failed","error.nodeStart","Unable to initialize the selected module node. Check that JACK and the system device are available.");
-					return false;
-				}
-				if (jackObserver_.isOpen()) {
-					const auto snapshot = WinJACKNexus::Patchbay::Core::Snapshot::capture(jackObserver_);
-					const auto client = std::find_if(snapshot.clients.cbegin(), snapshot.clients.cend(), [&node, &existingClients](const auto& value) {
-						return node->hasClient() ? value.id == node->clientId() : !existingClients.contains(value.id);
-					});
-					if (client != snapshot.clients.cend()) {
-						node->setClientId(client->id);
-						auto settings = patchbaySettings();
+                auto node = LoadedModuleNode::create(modulePath, index, settingsJson.toStdString(),
+                                                     mode, root ? root->sampleRate : 48000.0,
+                                                     root ? root->maxFrames : 8192);
+                if (node == nullptr)
+                {
+                    PatchbayDialogs::message(
+                        window, QMessageBox::Warning, "error.nodeStartTitle", "Node startup failed",
+                        "error.nodeStart",
+                        "Unable to initialize the selected module node. Check that JACK and the system device are available.");
+                    return false;
+                }
+                if (mode == WJN_NODE_MODE_JACK && jackObserver_.isOpen())
+                {
+                    const auto snapshot =
+                        WinJACKNexus::Patchbay::Core::Snapshot::capture(jackObserver_);
+                    const auto client =
+                        std::find_if(snapshot.clients.cbegin(), snapshot.clients.cend(),
+                                     [&node, &existingClients](const auto &value) {
+                                         return node->hasClient()
+                                                    ? value.id == node->clientId()
+                                                    : !existingClients.contains(value.id);
+                                     });
+                    if (client != snapshot.clients.cend())
+                    {
+                        node->setClientId(client->id);
+                        auto settings = patchbaySettings();
 						settings.setValue(QStringLiteral("layout/%1/x").arg(QString::fromStdString(client->id)), position.x());
 						settings.setValue(QStringLiteral("layout/%1/y").arg(QString::fromStdString(client->id)), position.y());
-					}
-				}
-				auto* createdNode = node.get();
-				node->setContextId(targetCanvas->sceneContext().id);
-				loadedModuleNodes_.push_back(std::move(node));
-				(*refreshTrayNodeGuiEntries)();
-				targetCanvas->markProjectDirty();
+                    }
+                }
+                auto *createdNode = node.get();
+                node->setContextId(contextId);
+                if (root)
+                {
+                    const auto ports = node->virtualPorts();
+                    if (ports.empty() || !root->attach(node->virtualProcessor(), ports))
+                        return false;
+                }
+                loadedModuleNodes_.push_back(std::move(node));
+                (*refreshTrayNodeGuiEntries)();
+                targetCanvas->markProjectDirty();
 				refreshJackGraph();
-				QTimer::singleShot(100, window, [this, createdNode, existingClients = std::move(existingClients), refreshJackGraph] {
-					if (!jackObserver_.isOpen())
-						return;
-					const auto node = std::find_if(loadedModuleNodes_.begin(), loadedModuleNodes_.end(), [createdNode](const auto& value) {
-						return value.get() == createdNode;
-					});
-					if (node == loadedModuleNodes_.end() || !(*node)->ownsClient({}))
-						return;
-					const auto snapshot = WinJACKNexus::Patchbay::Core::Snapshot::capture(jackObserver_);
-					const auto client = std::find_if(snapshot.clients.cbegin(), snapshot.clients.cend(), [this, &existingClients](const auto& value) {
-						return !existingClients.contains(value.id)
-							&& std::none_of(loadedModuleNodes_.cbegin(), loadedModuleNodes_.cend(), [&value](const auto& node) {
-								return node->ownsClient(value.id);
-							});
-					});
-					if (client != snapshot.clients.cend())
-						(*node)->setClientId(client->id);
-					refreshJackGraph();
-				});
-				return true;
-			};
-			QObject::connect(nodeTree, &QTreeWidget::itemDoubleClicked, window_, [canvasTabs, createModuleNode](QTreeWidgetItem* item) {
-				const auto interfaceType = item->data(0, Qt::UserRole + 3).toString();
-				if (!interfaceType.isEmpty()) {
-					if (auto* activeCanvas = dynamic_cast<PatchbayCanvas*>(canvasTabs->currentWidget()))
-						activeCanvas->addInterfaceNode(interfaceType, {});
-					return;
-				}
-				const auto subGraphName = item->data(0, Qt::UserRole + 2).toString();
-				if (!subGraphName.isEmpty()) {
-					if (auto* activeCanvas = dynamic_cast<PatchbayCanvas*>(canvasTabs->currentWidget()))
-						activeCanvas->addSubGraph(subGraphName, {});
-					return;
-				}
-				const auto modulePath = item->data(0, Qt::UserRole).toString();
-				if (modulePath.isEmpty())
-					return;
-				if (auto* activeCanvas = dynamic_cast<PatchbayCanvas*>(canvasTabs->currentWidget()))
-					(*createModuleNode)(activeCanvas, modulePath, item->data(0, Qt::UserRole + 1).toUInt(), {}, item->data(0, Qt::UserRole + 4).toString());
-			});
-			canvas->setModuleNodeDropHandler([canvas, createModuleNode](const QString& modulePath, std::uint32_t index, const QPointF& position) {
-				return (*createModuleNode)(canvas, modulePath, index, position, {});
-			});
-			canvas->setVstNodeDropHandler([canvas, createModuleNode](const QString& modulePath, std::uint32_t index, const QString& settingsJson, const QPointF& position) {
+                QTimer::singleShot(
+                    100, window,
+                    [this, mode, createdNode, existingClients = std::move(existingClients),
+                     refreshJackGraph] {
+                        if (!jackObserver_.isOpen() || mode == WJN_NODE_MODE_VIRT)
+                            return;
+                        const auto node =
+                            std::find_if(loadedModuleNodes_.begin(), loadedModuleNodes_.end(),
+                                         [createdNode](const auto &value) {
+                                             return value.get() == createdNode;
+                                         });
+                        if (node == loadedModuleNodes_.end() || !(*node)->ownsClient({}))
+                            return;
+                        const auto snapshot =
+                            WinJACKNexus::Patchbay::Core::Snapshot::capture(jackObserver_);
+                        const auto client = std::find_if(
+                            snapshot.clients.cbegin(), snapshot.clients.cend(),
+                            [this, &existingClients](const auto &value) {
+                                return !existingClients.contains(value.id) &&
+                                       std::none_of(loadedModuleNodes_.cbegin(),
+                                                    loadedModuleNodes_.cend(),
+                                                    [&value](const auto &node) {
+                                                        return node->ownsClient(value.id);
+                                                    });
+                            });
+                        if (client != snapshot.clients.cend())
+                            (*node)->setClientId(client->id);
+                        refreshJackGraph();
+                    });
+                return true;
+            };
+            QObject::connect(
+                nodeTree, &QTreeWidget::itemDoubleClicked, window_,
+                [canvasTabs, createModuleNode](QTreeWidgetItem *item) {
+                    const auto interfaceType = item->data(0, Qt::UserRole + 3).toString();
+                    if (!interfaceType.isEmpty())
+                    {
+                        if (auto *activeCanvas =
+                                dynamic_cast<PatchbayCanvas *>(canvasTabs->currentWidget()))
+                            activeCanvas->addInterfaceNode(interfaceType, {});
+                        return;
+                    }
+                    const auto subGraphName = item->data(0, Qt::UserRole + 2).toString();
+                    if (!subGraphName.isEmpty())
+                    {
+                        if (auto *activeCanvas =
+                                dynamic_cast<PatchbayCanvas *>(canvasTabs->currentWidget()))
+                            activeCanvas->addSubGraph(subGraphName, {});
+                        return;
+                    }
+                    const auto modulePath = item->data(0, Qt::UserRole).toString();
+                    if (modulePath.isEmpty())
+                        return;
+                    if (auto *activeCanvas =
+                            dynamic_cast<PatchbayCanvas *>(canvasTabs->currentWidget()))
+                        (*createModuleNode)(activeCanvas, modulePath,
+                                            item->data(0, Qt::UserRole + 1).toUInt(), {},
+                                            item->data(0, Qt::UserRole + 4).toString());
+                });
+            canvas->setModuleNodeDropHandler([canvas, createModuleNode](const QString &modulePath,
+                                                                        std::uint32_t index,
+                                                                        const QPointF &position) {
+                return (*createModuleNode)(canvas, modulePath, index, position, {});
+            });
+            canvas->setVstNodeDropHandler([canvas, createModuleNode](const QString& modulePath, std::uint32_t index, const QString& settingsJson, const QPointF& position) {
 				return (*createModuleNode)(canvas, modulePath, index, position, settingsJson);
 			});
 			auto selectedModuleNode = std::make_shared<LoadedModuleNode*>(nullptr);
@@ -2396,273 +3138,405 @@ public:
 
 				auto selectedClient = std::make_shared<std::string>();
 				auto selectedSettingsContainer = std::make_shared<QPointer<QWidget>>();
-			*configureCanvasInteractions = [this,
-			                                  canvasTabs,
-			                                  selectionTitle,
-			                                  categoryValue,
-			                                  splitCheck,
-			                                  propertyForm,
-			                                  properties,
-				                                  showGuiButton,
-			                                  selectedClient,
-			                                  selectedModuleNode,
-			                                  selectedSettingsContainer,
-			                                  inspector,
-			                                  inspectorLayout,
-			                                  createModuleNode,
-			                                  refreshJackGraph,
-			                                  refreshTrayNodeGuiEntries](PatchbayCanvas* targetCanvas) {
-				if (targetCanvas == nullptr)
-					return;
-				targetCanvas->setBoxSelectionExclusionHandler([this](const std::string& clientId) {
-					return std::any_of(loadedModuleNodes_.cbegin(), loadedModuleNodes_.cend(), [&clientId](const auto& node) {
-						return node->ownsClient(clientId) && isDigitalMixerModule(node->modulePath());
-					});
-				});
-				targetCanvas->setModuleNodeHandlers(
-					[this](const std::string& clientId) {
-						return std::any_of(loadedModuleNodes_.cbegin(), loadedModuleNodes_.cend(), [&clientId](const auto& node) {
-							return node->ownsClient(clientId);
-						});
-					},
-					[this](const std::string& clientId) {
-						const auto node = std::find_if(loadedModuleNodes_.cbegin(), loadedModuleNodes_.cend(), [&clientId](const auto& value) {
-							return value->ownsClient(clientId);
-						});
-						if (node == loadedModuleNodes_.cend() || isDigitalMixerModule((*node)->modulePath()))
-							return false;
-						copiedModuleNode_ = ModuleNodeInfo { {}, {}, (*node)->modulePath(), (*node)->index() };
-						return true;
-					},
-					[this, refreshJackGraph, refreshTrayNodeGuiEntries, selectedModuleNode](const std::string& clientId) {
-						if (std::any_of(loadedModuleNodes_.cbegin(), loadedModuleNodes_.cend(), [&clientId](const auto& node) {
-							return node->ownsClient(clientId) && isDigitalMixerModule(node->modulePath());
-						})) return false;
-						if (*selectedModuleNode != nullptr && (*selectedModuleNode)->ownsClient(clientId)) {
-							(*selectedModuleNode)->clearSettingsView();
-							*selectedModuleNode = nullptr;
-						}
-						const auto removed = std::erase_if(loadedModuleNodes_, [&clientId](const auto& node) {
-							return node->ownsClient(clientId);
-						});
-						if (removed != 0)
-							refreshJackGraph();
-						if (removed != 0)
-							(*refreshTrayNodeGuiEntries)();
-						return removed != 0;
-					},
-					[this](const std::string& clientId, QWidget* parent) {
-						const auto node = std::find_if(loadedModuleNodes_.cbegin(), loadedModuleNodes_.cend(), [&clientId](const auto& value) {
-							return value->ownsClient(clientId);
-						});
-						return node != loadedModuleNodes_.cend()
-							&& !(*node)->isMeterProbe()
-							&& (*node)->showGui(parent);
-					},
-					[this](const std::string& clientId) {
-						const auto node = std::find_if(loadedModuleNodes_.cbegin(), loadedModuleNodes_.cend(), [&clientId](const auto& value) {
-							return value->ownsClient(clientId);
-						});
-						return node != loadedModuleNodes_.cend()
-							&& !(*node)->isMeterProbe();
-					},
-					[targetCanvas, createModuleNode, this](const QPointF& position) {
-						return !copiedModuleNode_.modulePath.isEmpty()
-							&& (*createModuleNode)(targetCanvas, copiedModuleNode_.modulePath, copiedModuleNode_.index, position, {});
-					});
-				targetCanvas->setBatchModuleNodeHandlers(
-					[this](const std::string& clientId) -> std::optional<PatchbayModuleCopyInfo> {
-						const auto node = std::find_if(loadedModuleNodes_.cbegin(), loadedModuleNodes_.cend(), [&clientId](const auto& value) {
-							return value->ownsClient(clientId);
-						});
-						if (node == loadedModuleNodes_.cend() || isDigitalMixerModule((*node)->modulePath())) return std::nullopt;
-						return PatchbayModuleCopyInfo { (*node)->modulePath(), (*node)->index(),
-							QString::fromStdString((*node)->settingsJson()) };
-					},
-					[targetCanvas, createModuleNode](const PatchbayModuleCopyInfo& node, const QPointF& position) {
-						return (*createModuleNode)(targetCanvas, node.modulePath, node.index, position, node.settingsJson);
-					});
-				targetCanvas->setNodeSelectionHandler([this,
-			                                  canvasTabs,
-			                                  targetCanvas,
-			                                  selectionTitle,
-			                                  categoryValue,
-			                                  splitCheck,
-			                                  propertyForm,
-			                                  properties,
-			                                  showGuiButton,
-			                                  selectedClient,
-			                                  selectedModuleNode,
-			                                  selectedSettingsContainer,
-			                                  inspector,
-			                                  inspectorLayout](const std::string& clientId) {
-				if (canvasTabs->currentWidget() != targetCanvas)
-					return;
-				const auto sameSelection = *selectedClient == clientId;
-				if (!sameSelection) {
-					if (*selectedModuleNode != nullptr) {
-						(*selectedModuleNode)->clearSettingsView();
-						*selectedModuleNode = nullptr;
-					} else if (*selectedSettingsContainer != nullptr) {
-						WinJACKNexus::UI::NativeWindowUtils::detachNativeWindow(selectedSettingsContainer->data());
-						delete selectedSettingsContainer->data();
-					}
-					*selectedSettingsContainer = nullptr;
-				}
-				*selectedClient = clientId;
-				const auto client = std::find_if(targetCanvas->snapshot().clients.cbegin(), targetCanvas->snapshot().clients.cend(), [&clientId](const auto& value) {
-					return value.id == clientId;
-				});
-				const bool selected = client != targetCanvas->snapshot().clients.cend();
-				properties->setEnabled(selected);
-				showGuiButton->setVisible(true);
-				showGuiButton->setEnabled(false);
-				selectionTitle->setText(selected ? QString::fromStdString(client->name) : QString());
-				const auto module = selected ? std::find_if(loadedModuleNodes_.cbegin(), loadedModuleNodes_.cend(), [&clientId](const auto& value) {
-					return value->ownsClient(clientId);
-				}) : loadedModuleNodes_.cend();
-				QString category;
-				if (selected) {
-					category = targetCanvas->isSubGraphNode(clientId) ? QStringLiteral("Sub Graph")
-						: module != loadedModuleNodes_.cend() && !(*module)->category().isEmpty()
-							? (*module)->category()
-							: client->id == "system" ? QStringLiteral("system")
-							: client->id == "WinJACKNexus-Patchbay" ? QStringLiteral("Patchbay")
-							: QStringLiteral("jackclient");
-				}
-				categoryValue->setProperty("wjn.categoryIdentity",category);
-				categoryValue->setText(categoryDisplayName(category));
-				const auto canSplit = selected && clientCanSplit(targetCanvas->snapshot(), clientId);
-				propertyForm->setRowVisible(splitCheck, canSplit);
-				splitCheck->setChecked(canSplit && client->split);
-				if (!selected)
-					return;
-				if (module == loadedModuleNodes_.cend())
-					return;
-				const auto canShowModuleGui = !(*module)->isMeterProbe();
-				showGuiButton->setVisible(canShowModuleGui);
-				showGuiButton->setEnabled(canShowModuleGui);
-				if (sameSelection && *selectedSettingsContainer != nullptr)
-					return;
-				const auto settingsContainer = (*module)->showSettings(inspector);
-				if (settingsContainer == nullptr)
-					return;
-				*selectedModuleNode = module->get();
-				*selectedSettingsContainer = settingsContainer;
-				inspectorLayout->insertWidget(inspectorLayout->count() - 1, settingsContainer);
-			});
-			};
-			(*configureCanvasInteractions)(canvas);
-			for (const auto& [contextId, child] : *subGraphCanvases) {
-				if (!child.isNull())
-					(*configureCanvasInteractions)(child.data());
-			}
-			QObject::connect(showGuiButton, &QPushButton::clicked, window_, [this, selectedClient, showGuiButton] {
-				if (selectedClient->empty())
-					return;
-				const auto module = std::find_if(loadedModuleNodes_.cbegin(), loadedModuleNodes_.cend(), [selectedClient](const auto& value) {
-					return value->ownsClient(*selectedClient);
-				});
-				if (module == loadedModuleNodes_.cend()) {
-					showGuiButton->setEnabled(false);
-					return;
-				}
-				if ((*module)->isMeterProbe()) {
-					showGuiButton->setEnabled(false);
-					return;
-				}
-				(*module)->showGui(window_.data());
-			});
-			QObject::connect(splitCheck, &QCheckBox::toggled, canvas, [canvas, selectedClient](bool checked) {
-				if (!selectedClient->empty())
-					canvas->setClientSplit(*selectedClient, checked);
-			});
+                *configureCanvasInteractions = [this, canvasTabs, selectionTitle, categoryValue,
+                                                splitCheck, propertyForm, properties, showGuiButton,
+                                                selectedClient, selectedModuleNode,
+                                                selectedSettingsContainer, inspector,
+                                                inspectorLayout, createModuleNode, subGraphPorts,
+                                                refreshJackGraph, refreshTrayNodeGuiEntries](
+                                                   PatchbayCanvas *targetCanvas) {
+                    if (targetCanvas == nullptr)
+                        return;
+                    targetCanvas->setNodeAddMenuHandler([targetCanvas, createModuleNode](
+                                                            QMenu &menu, const QPointF &position) {
+                        QTreeWidget library;
+                        populateNodeLibrary(&library, {}, targetCanvas->sceneContext().isSubGraph);
+                        const auto append = [&](auto &&self, QMenu &parent,
+                                                QTreeWidgetItem *item) -> void {
+                            if (item->childCount())
+                            {
+                                auto *category = parent.addMenu(item->text(0));
+                                for (int index = 0; index < item->childCount(); ++index)
+                                    self(self, *category, item->child(index));
+                                return;
+                            }
+                            const auto module = item->data(0, Qt::UserRole).toString();
+                            const auto index = item->data(0, Qt::UserRole + 1).toUInt();
+                            const auto graph = item->data(0, Qt::UserRole + 2).toString();
+                            const auto interfaceType = item->data(0, Qt::UserRole + 3).toString();
+                            const auto settings = item->data(0, Qt::UserRole + 4).toString();
+                            if (module.isEmpty() && graph.isEmpty() && interfaceType.isEmpty())
+                                return;
+                            auto *action = parent.addAction(item->text(0));
+                            action->setToolTip(item->toolTip(0));
+                            action->setData(module);
+                            QObject::connect(action, &QAction::triggered, targetCanvas,
+                                             [targetCanvas, createModuleNode, position, module,
+                                              index, graph, interfaceType, settings] {
+                                                 if (!interfaceType.isEmpty())
+                                                     targetCanvas->addInterfaceNode(interfaceType,
+                                                                                    position);
+                                                 else if (!graph.isEmpty())
+                                                     targetCanvas->addSubGraph(graph, position);
+                                                 else
+                                                     (*createModuleNode)(targetCanvas, module,
+                                                                         index, position, settings);
+                                             });
+                        };
+                        for (int index = 0; index < library.topLevelItemCount(); ++index)
+                            append(append, menu, library.topLevelItem(index));
+                    });
+                    targetCanvas->setBoxSelectionExclusionHandler([this](
+                                                                      const std::string &clientId) {
+                        return std::any_of(loadedModuleNodes_.cbegin(), loadedModuleNodes_.cend(),
+                                           [&clientId](const auto &node) {
+                                               return node->ownsClient(clientId) &&
+                                                      isDigitalMixerModule(node->modulePath());
+                                           });
+                    });
+                    targetCanvas->setModuleNodeHandlers(
+                        [this](const std::string &clientId) {
+                            return std::any_of(loadedModuleNodes_.cbegin(),
+                                               loadedModuleNodes_.cend(),
+                                               [&clientId](const auto &node) {
+                                                   return node->ownsClient(clientId);
+                                               });
+                        },
+                        [this](const std::string &clientId) {
+                            const auto node =
+                                std::find_if(loadedModuleNodes_.cbegin(), loadedModuleNodes_.cend(),
+                                             [&clientId](const auto &value) {
+                                                 return value->ownsClient(clientId);
+                                             });
+                            if (node == loadedModuleNodes_.cend() ||
+                                isDigitalMixerModule((*node)->modulePath()))
+                                return false;
+                            copiedModuleNode_ =
+                                ModuleNodeInfo{{}, {}, (*node)->modulePath(), (*node)->index()};
+                            return true;
+                        },
+                        [this, subGraphPorts, refreshJackGraph, refreshTrayNodeGuiEntries,
+                         selectedModuleNode](const std::string &clientId) {
+                            if (std::any_of(loadedModuleNodes_.cbegin(), loadedModuleNodes_.cend(),
+                                            [&clientId](const auto &node) {
+                                                return node->ownsClient(clientId) &&
+                                                       isDigitalMixerModule(node->modulePath());
+                                            }))
+                                return false;
+                            for (const auto &node : loadedModuleNodes_)
+                            {
+                                if (!node->ownsClient(clientId) || !node->isVirtual())
+                                    continue;
+                                const auto root =
+                                    subGraphPorts->find(rootSubGraphContext(node->contextId()));
+                                if (root == subGraphPorts->end() || !root->second ||
+                                    !root->second->detach(clientId))
+                                    return false;
+                            }
+                            if (*selectedModuleNode != nullptr &&
+                                (*selectedModuleNode)->ownsClient(clientId))
+                            {
+                                (*selectedModuleNode)->clearSettingsView();
+                                *selectedModuleNode = nullptr;
+                            }
+                            const auto removed =
+                                std::erase_if(loadedModuleNodes_, [&clientId](const auto &node) {
+                                    return node->ownsClient(clientId);
+                                });
+                            if (removed != 0)
+                                refreshJackGraph();
+                            if (removed != 0)
+                                (*refreshTrayNodeGuiEntries)();
+                            return removed != 0;
+                        },
+                        [this](const std::string &clientId, QWidget *parent) {
+                            const auto node =
+                                std::find_if(loadedModuleNodes_.cbegin(), loadedModuleNodes_.cend(),
+                                             [&clientId](const auto &value) {
+                                                 return value->ownsClient(clientId);
+                                             });
+                            return node != loadedModuleNodes_.cend() && (*node)->hasCustomGui() &&
+                                   !(*node)->isMeterProbe() && (*node)->showGui(parent);
+                        },
+                        [this](const std::string &clientId) {
+                            const auto node =
+                                std::find_if(loadedModuleNodes_.cbegin(), loadedModuleNodes_.cend(),
+                                             [&clientId](const auto &value) {
+                                                 return value->ownsClient(clientId);
+                                             });
+                            return node != loadedModuleNodes_.cend() && (*node)->hasCustomGui() &&
+                                   !(*node)->isMeterProbe();
+                        },
+                        [targetCanvas, createModuleNode, this](const QPointF &position) {
+                            return !copiedModuleNode_.modulePath.isEmpty() &&
+                                   (*createModuleNode)(targetCanvas, copiedModuleNode_.modulePath,
+                                                       copiedModuleNode_.index, position, {});
+                        });
+                    targetCanvas->setBatchModuleNodeHandlers(
+                        [this](
+                            const std::string &clientId) -> std::optional<PatchbayModuleCopyInfo> {
+                            const auto node =
+                                std::find_if(loadedModuleNodes_.cbegin(), loadedModuleNodes_.cend(),
+                                             [&clientId](const auto &value) {
+                                                 return value->ownsClient(clientId);
+                                             });
+                            if (node == loadedModuleNodes_.cend() ||
+                                isDigitalMixerModule((*node)->modulePath()))
+                                return std::nullopt;
+                            return PatchbayModuleCopyInfo{
+                                (*node)->modulePath(), (*node)->index(),
+                                QString::fromStdString((*node)->settingsJson())};
+                        },
+                        [targetCanvas, createModuleNode](const PatchbayModuleCopyInfo &node,
+                                                         const QPointF &position) {
+                            return (*createModuleNode)(targetCanvas, node.modulePath, node.index,
+                                                       position, node.settingsJson);
+                        });
+                    targetCanvas->setNodeSelectionHandler(
+                        [this, canvasTabs, targetCanvas, selectionTitle, categoryValue, splitCheck,
+                         propertyForm, properties, showGuiButton, selectedClient,
+                         selectedModuleNode, selectedSettingsContainer, inspector,
+                         inspectorLayout](const std::string &clientId) {
+                            if (canvasTabs->currentWidget() != targetCanvas)
+                                return;
+                            const auto sameSelection = *selectedClient == clientId;
+                            if (!sameSelection)
+                            {
+                                if (*selectedModuleNode != nullptr)
+                                {
+                                    (*selectedModuleNode)->clearSettingsView();
+                                    *selectedModuleNode = nullptr;
+                                }
+                                else if (*selectedSettingsContainer != nullptr)
+                                {
+                                    WinJACKNexus::UI::NativeWindowUtils::detachNativeWindow(
+                                        selectedSettingsContainer->data());
+                                    delete selectedSettingsContainer->data();
+                                }
+                                *selectedSettingsContainer = nullptr;
+                            }
+                            *selectedClient = clientId;
+                            const auto client = std::find_if(
+                                targetCanvas->snapshot().clients.cbegin(),
+                                targetCanvas->snapshot().clients.cend(),
+                                [&clientId](const auto &value) { return value.id == clientId; });
+                            const bool selected = client != targetCanvas->snapshot().clients.cend();
+                            properties->setEnabled(selected);
+                            showGuiButton->setVisible(true);
+                            showGuiButton->setEnabled(false);
+                            selectionTitle->setText(selected ? QString::fromStdString(client->name)
+                                                             : QString());
+                            const auto module =
+                                selected ? std::find_if(loadedModuleNodes_.cbegin(),
+                                                        loadedModuleNodes_.cend(),
+                                                        [&clientId](const auto &value) {
+                                                            return value->ownsClient(clientId);
+                                                        })
+                                         : loadedModuleNodes_.cend();
+                            QString category;
+                            if (selected)
+                            {
+                                category = targetCanvas->isSubGraphNode(clientId)
+                                               ? QStringLiteral("Sub Graph")
+                                           : module != loadedModuleNodes_.cend() &&
+                                                   !(*module)->category().isEmpty()
+                                               ? (*module)->category()
+                                           : client->id == "system" ? QStringLiteral("system")
+                                           : client->id == "WinJACKNexus-Patchbay"
+                                               ? QStringLiteral("Patchbay")
+                                               : QStringLiteral("jackclient");
+                            }
+                            categoryValue->setProperty("wjn.categoryIdentity", category);
+                            categoryValue->setText(categoryDisplayName(category));
+                            const auto canSplit =
+                                selected && clientCanSplit(targetCanvas->snapshot(), clientId);
+                            propertyForm->setRowVisible(splitCheck, canSplit);
+                            splitCheck->setChecked(canSplit && client->split);
+                            if (!selected)
+                                return;
+                            if (module == loadedModuleNodes_.cend())
+                                return;
+                            const auto canShowModuleGui = !(*module)->isMeterProbe();
+                            showGuiButton->setVisible(canShowModuleGui);
+                            showGuiButton->setEnabled(canShowModuleGui &&
+                                                      (*module)->hasCustomGui());
+                            if (sameSelection && *selectedSettingsContainer != nullptr)
+                                return;
+                            const auto settingsContainer = (*module)->showSettings(inspector);
+                            if (settingsContainer == nullptr)
+                                return;
+                            *selectedModuleNode = module->get();
+                            *selectedSettingsContainer = settingsContainer;
+                            inspectorLayout->insertWidget(inspectorLayout->count() - 1,
+                                                          settingsContainer);
+                        });
+                };
+                (*configureCanvasInteractions)(canvas);
+                for (const auto &[contextId, child] : *subGraphCanvases)
+                {
+                    if (!child.isNull())
+                        (*configureCanvasInteractions)(child.data());
+                }
+                QObject::connect(showGuiButton, &QPushButton::clicked, window_,
+                                 [this, selectedClient, showGuiButton] {
+                                     if (selectedClient->empty())
+                                         return;
+                                     const auto module = std::find_if(
+                                         loadedModuleNodes_.cbegin(), loadedModuleNodes_.cend(),
+                                         [selectedClient](const auto &value) {
+                                             return value->ownsClient(*selectedClient);
+                                         });
+                                     if (module == loadedModuleNodes_.cend())
+                                     {
+                                         showGuiButton->setEnabled(false);
+                                         return;
+                                     }
+                                     if (!(*module)->hasCustomGui() || (*module)->isMeterProbe())
+                                     {
+                                         showGuiButton->setEnabled(false);
+                                         return;
+                                     }
+                                     (*module)->showGui(window_.data());
+                                 });
+                QObject::connect(splitCheck, &QCheckBox::toggled, canvas,
+                                 [canvas, selectedClient](bool checked) {
+                                     if (!selectedClient->empty())
+                                         canvas->setClientSplit(*selectedClient, checked);
+                                 });
 
-			QObject::connect(nodeFilter, &QLineEdit::textChanged, nodeTree, [nodeTree](const QString& query) {
-				nodeTree->setProperty("filterQuery", query);
-				applyNodeLibraryFilter(nodeTree, query);
-			});
-			auto* toolbar = window_->addToolBar(patchText("toolbar.title","Patchbay"));
-			bindPatchText(toolbar,"windowTitle","toolbar.title","Patchbay");
-			toolbar->setMovable(false);
-			auto* search = new WinJACKNexus::UI::Controls::SearchField(toolbar);
-			bindPatchText(search,"placeholderText","canvas.search","Search nodes or ports");
-			search->setMinimumWidth(190);
-			toolbar->addWidget(search);
-			toolbar->addSeparator();
-			auto* fitButton = patchButton("action.fit","Fit", toolbar);
-			fitButton->setObjectName(QStringLiteral("patchbayFitButton"));
-			fitButton->setFixedHeight(30);
-			const auto applyFitTheme = [fitButton] {
-				using WinJACKNexus::UI::Controls::themeTokenColor;
-				fitButton->setProperty("surfaceColor", themeTokenColor(QStringLiteral("patchbay"), QStringLiteral("toolbar-button-surface"), QColor("#173946")));
-				fitButton->setProperty("borderColor", themeTokenColor(QStringLiteral("patchbay"), QStringLiteral("toolbar-button-border"), QColor("#356b7a")));
-				fitButton->setProperty("accentColor", themeTokenColor(QStringLiteral("patchbay"), QStringLiteral("toolbar-button-accent"), QColor("#43c7a8")));
-				fitButton->setProperty("textColor", themeTokenColor(QStringLiteral("patchbay"), QStringLiteral("toolbar-button-text"), QColor("#e6eef4")));
-				fitButton->update();
-			};
-			applyFitTheme();
-			if (auto* core = WinJACKNexus::UI::ThemeManager::installedThemeCore())
-				QObject::connect(core, &WinJACKNexus::UI::ThemeCore::themeChanged, fitButton, applyFitTheme);
-			toolbar->addWidget(fitButton);
-			auto* zoomControl = new WinJACKNexus::UI::Controls::ZoomControl(toolbar);
-			toolbar->addWidget(zoomControl);
-			QObject::connect(search, &QLineEdit::textChanged, canvas, &PatchbayCanvas::setSearchQuery);
-			QObject::connect(fitButton, &QPushButton::clicked, canvas, &PatchbayCanvas::zoomFit);
-			QObject::connect(zoomControl, &WinJACKNexus::UI::Controls::ZoomControl::zoomInRequested, canvas, &PatchbayCanvas::zoomIn);
-			QObject::connect(zoomControl, &WinJACKNexus::UI::Controls::ZoomControl::zoomOutRequested, canvas, &PatchbayCanvas::zoomOut);
-			QObject::connect(zoomControl, &WinJACKNexus::UI::Controls::ZoomControl::zoomResetRequested, canvas, &PatchbayCanvas::zoomReset);
-			QObject::connect(canvas, &PatchbayCanvas::zoomChanged, zoomControl, &WinJACKNexus::UI::Controls::ZoomControl::setZoomFactor);
-			auto* scanVstAction = new QAction(window_);
-			bindPatchText(scanVstAction,"text","action.scanVst","Scan VST");
-			QObject::connect(scanVstAction, &QAction::triggered, window_, [refreshNodeLibrary, window = window_.data()] {
-				const auto scannerPath = QCoreApplication::applicationDirPath() + QStringLiteral("/VST Scanner.exe");
-				if (!QFileInfo::exists(scannerPath)) {
-					PatchbayDialogs::message(window,QMessageBox::Warning,"error.scannerMissingTitle","Scanner unavailable","error.scannerMissing","VST Scanner.exe was not found.");
-					return;
-				}
-				auto* scanner = new QProcess(window);
-				QObject::connect(scanner, qOverload<int, QProcess::ExitStatus>(&QProcess::finished), scanner, [scanner, refreshNodeLibrary](int, QProcess::ExitStatus) {
-					scanner->deleteLater();
-					(*refreshNodeLibrary)();
-				});
-				scanner->start(scannerPath, { QStringLiteral("--output"), QCoreApplication::applicationDirPath() + QStringLiteral("/nodes/VSTPlugins") });
-				if (!scanner->waitForStarted(1000)) {
-					scanner->deleteLater();
-					PatchbayDialogs::message(window,QMessageBox::Warning,"error.scannerStartTitle","Scanner startup failed","error.scannerStart","Unable to start VST Scanner.exe.");
-				}
-			});
-			auto* fileMenu = patchMenu(window_->menuBar(),"menu.file","File");
+                QObject::connect(nodeFilter, &QLineEdit::textChanged, nodeTree,
+                                 [nodeTree](const QString &query) {
+                                     nodeTree->setProperty("filterQuery", query);
+                                     applyNodeLibraryFilter(nodeTree, query);
+                                 });
+                auto *toolbar = window_->addToolBar(patchText("toolbar.title", "Patchbay"));
+                bindPatchText(toolbar, "windowTitle", "toolbar.title", "Patchbay");
+                toolbar->setMovable(false);
+                auto *search = new WinJACKNexus::UI::Controls::SearchField(toolbar);
+                bindPatchText(search, "placeholderText", "canvas.search", "Search nodes or ports");
+                search->setMinimumWidth(190);
+                toolbar->addWidget(search);
+                toolbar->addSeparator();
+                auto *fitButton = patchButton("action.fit", "Fit", toolbar);
+                fitButton->setObjectName(QStringLiteral("patchbayFitButton"));
+                fitButton->setFixedHeight(30);
+                const auto applyFitTheme = [fitButton] {
+                    using WinJACKNexus::UI::Controls::themeTokenColor;
+                    fitButton->setProperty("surfaceColor",
+                                           themeTokenColor(QStringLiteral("patchbay"),
+                                                           QStringLiteral("toolbar-button-surface"),
+                                                           QColor("#173946")));
+                    fitButton->setProperty("borderColor",
+                                           themeTokenColor(QStringLiteral("patchbay"),
+                                                           QStringLiteral("toolbar-button-border"),
+                                                           QColor("#356b7a")));
+                    fitButton->setProperty("accentColor",
+                                           themeTokenColor(QStringLiteral("patchbay"),
+                                                           QStringLiteral("toolbar-button-accent"),
+                                                           QColor("#43c7a8")));
+                    fitButton->setProperty("textColor",
+                                           themeTokenColor(QStringLiteral("patchbay"),
+                                                           QStringLiteral("toolbar-button-text"),
+                                                           QColor("#e6eef4")));
+                    fitButton->update();
+                };
+                applyFitTheme();
+                if (auto *core = WinJACKNexus::UI::ThemeManager::installedThemeCore())
+                    QObject::connect(core, &WinJACKNexus::UI::ThemeCore::themeChanged, fitButton,
+                                     applyFitTheme);
+                toolbar->addWidget(fitButton);
+                auto *zoomControl = new WinJACKNexus::UI::Controls::ZoomControl(toolbar);
+                toolbar->addWidget(zoomControl);
+                QObject::connect(search, &QLineEdit::textChanged, canvas,
+                                 &PatchbayCanvas::setSearchQuery);
+                QObject::connect(fitButton, &QPushButton::clicked, canvas,
+                                 &PatchbayCanvas::zoomFit);
+                QObject::connect(zoomControl,
+                                 &WinJACKNexus::UI::Controls::ZoomControl::zoomInRequested, canvas,
+                                 &PatchbayCanvas::zoomIn);
+                QObject::connect(zoomControl,
+                                 &WinJACKNexus::UI::Controls::ZoomControl::zoomOutRequested, canvas,
+                                 &PatchbayCanvas::zoomOut);
+                QObject::connect(zoomControl,
+                                 &WinJACKNexus::UI::Controls::ZoomControl::zoomResetRequested,
+                                 canvas, &PatchbayCanvas::zoomReset);
+                QObject::connect(canvas, &PatchbayCanvas::zoomChanged, zoomControl,
+                                 &WinJACKNexus::UI::Controls::ZoomControl::setZoomFactor);
+                auto *scanVstAction = new QAction(window_);
+                bindPatchText(scanVstAction, "text", "action.scanVst", "Scan VST");
+                QObject::connect(
+                    scanVstAction, &QAction::triggered, window_,
+                    [refreshNodeLibrary, window = window_.data()] {
+                        const auto scannerPath = QCoreApplication::applicationDirPath() +
+                                                 QStringLiteral("/VST Scanner.exe");
+                        if (!QFileInfo::exists(scannerPath))
+                        {
+                            PatchbayDialogs::message(window, QMessageBox::Warning,
+                                                     "error.scannerMissingTitle",
+                                                     "Scanner unavailable", "error.scannerMissing",
+                                                     "VST Scanner.exe was not found.");
+                            return;
+                        }
+                        auto *scanner = new QProcess(window);
+                        QObject::connect(
+                            scanner, qOverload<int, QProcess::ExitStatus>(&QProcess::finished),
+                            scanner, [scanner, refreshNodeLibrary](int, QProcess::ExitStatus) {
+                                scanner->deleteLater();
+                                (*refreshNodeLibrary)();
+                            });
+                        scanner->start(scannerPath, {QStringLiteral("--output"),
+                                                     QCoreApplication::applicationDirPath() +
+                                                         QStringLiteral("/nodes/VSTPlugins")});
+                        if (!scanner->waitForStarted(1000))
+                        {
+                            scanner->deleteLater();
+                            PatchbayDialogs::message(window, QMessageBox::Warning,
+                                                     "error.scannerStartTitle",
+                                                     "Scanner startup failed", "error.scannerStart",
+                                                     "Unable to start VST Scanner.exe.");
+                        }
+                    });
+                auto *fileMenu = patchMenu(window_->menuBar(), "menu.file", "File");
 				auto currentProject = std::make_shared<QString>();
 				auto collectSubGraphs = [canvas, subGraphCanvases] {
 					std::vector<PatchbaySubGraphProject> projects;
-					projects.push_back({ canvas->sceneContext(), canvas->subGraphNodes(), canvas->interfaceNodes(), canvas->logicalConnections() });
-					for (const auto& [contextId, child] : *subGraphCanvases) {
-						if (!child.isNull())
-							projects.push_back({ child->sceneContext(), child->subGraphNodes(), child->interfaceNodes(), child->logicalConnections() });
-					}
-					return projects;
+                    projects.push_back({canvas->sceneContext(), canvas->subGraphNodes(),
+                                        canvas->interfaceNodes(),
+                                        canvas->savedLogicalConnections()});
+                    for (const auto &[contextId, child] : *subGraphCanvases)
+                    {
+                        if (!child.isNull())
+                            projects.push_back({child->sceneContext(), child->subGraphNodes(),
+                                                child->interfaceNodes(),
+                                                child->savedLogicalConnections()});
+                    }
+                    return projects;
 				};
-				auto loadedModuleRecords = [this] {
-					std::vector<PatchbayProjectModule> modules;
-					modules.reserve(loadedModuleNodes_.size());
-					for (const auto& node : loadedModuleNodes_)
-						modules.push_back({ node->modulePath(), node->index(), node->clientId(), node->settingsJson(), node->contextId() });
+                saveEditorGraphs_ = [this, collectSubGraphs] {
+                    editorGraphRecords_ = collectSubGraphs();
+                };
+                auto loadedModuleRecords = [this] {
+                    std::vector<PatchbayProjectModule> modules = unloadedModuleRecords_;
+                    modules.reserve(loadedModuleNodes_.size());
+                    for (const auto &node : loadedModuleNodes_)
+                        modules.push_back({ node->modulePath(), node->index(), node->clientId(), node->settingsJson(), node->contextId() });
 					return modules;
-				};
-				auto syncModuleProjectState = [canvas, loadedModuleRecords, this] {
-					if (!moduleRecordsEqual(savedModuleRecords_, loadedModuleRecords()))
-						canvas->markProjectDirty();
-				};
-				auto syncSubGraphProjectState = [canvas, subGraphCanvases] {
-					for (const auto& [contextId, child] : *subGraphCanvases) {
-						if (!child.isNull() && child->isProjectDirty()) {
+                };
+                auto syncModuleProjectState = [canvas, loadedModuleRecords, this] {
+                    if (!moduleRecordsEqual(savedModuleRecords_, loadedModuleRecords()))
+                        canvas->markProjectDirty();
+                };
+                auto syncSubGraphProjectState = [canvas, subGraphCanvases] {
+                    for (const auto& [contextId, child] : *subGraphCanvases)
+                    {
+						if (!child.isNull() && child->isProjectDirty())
+                        {
 							canvas->markProjectDirty();
 							return;
 						}
 					}
-				};
-				auto saveProject = [canvas, currentProject, loadedModuleRecords, collectSubGraphs, subGraphCanvases, this](bool saveAs, bool showError) {
+                };
+                auto saveProject = [canvas, currentProject, loadedModuleRecords, collectSubGraphs, subGraphCanvases, this](bool saveAs, bool showError) {
 					if (saveAs || currentProject->isEmpty()) {
 						const auto path = PatchbayDialogs::projectFile(window_,true,*currentProject);
 						if (path.isEmpty())
@@ -2723,8 +3597,9 @@ public:
 					refreshJackGraph();
 					(*refreshNodeLibrary)();
 					savedModuleRecords_.clear();
-					currentProject->clear();
-					patchbaySettings().remove(QStringLiteral("lastProjectPath"));
+                    unloadedModuleRecords_.clear();
+                    currentProject->clear();
+                    patchbaySettings().remove(QStringLiteral("lastProjectPath"));
 				});
 			auto projectMixerAction = std::make_shared<QPointer<QAction>>();
 			const auto offerProjectMixer = [this, projectMixerAction](const std::vector<PatchbayProjectModule>& modules) {
@@ -2928,10 +3803,39 @@ public:
 			patchAction(helpMenu,"action.about","About", window_, [window = window_.data()] {
 				PatchbayDialogs::message(window,QMessageBox::Information,"about.title","About WinJACKNexus","about.text","WinJACKNexus\nJACK audio routing and mixing workstation\nAGPL-3.0-or-later");
 			});
-		}
+            if (!editorGraphRecords_.empty())
+            {
+                for (const auto &record : editorGraphRecords_)
+                    restoredSubGraphs->emplace(record.context.id, record);
+                const auto main = restoredSubGraphs->find("main");
+                if (main != restoredSubGraphs->end())
+                    canvas->restoreSubGraphNodes(main->second.nodes);
+                auto records = editorGraphRecords_;
+                std::sort(records.begin(), records.end(), [](const auto &left, const auto &right) {
+                    return left.context.id.size() < right.context.id.size();
+                });
+                for (const auto &record : records)
+                {
+                    if (record.context.id == "main")
+                        continue;
+                    const auto separator = record.context.id.rfind('/');
+                    const auto parentId = record.context.id.substr(0, separator);
+                    auto *parent =
+                        parentId == "main" ? canvas : (*subGraphCanvases)[parentId].data();
+                    if (parent)
+                        (*openSubGraph)(parent, record.context.id.substr(separator + 1));
+                    const auto child = subGraphCanvases->find(record.context.id);
+                    if (child != subGraphCanvases->end() && child->second)
+                        child->second->restoreLogicalConnections(record.connections);
+                }
+                restoredSubGraphs->clear();
+                canvasTabs->setCurrentIndex(0);
+                refreshJackGraph();
+            }
+        }
 
-		window_->showNormal();
-		window_->raise();
+        window_->showNormal();
+        window_->raise();
 		window_->activateWindow();
 		return reinterpret_cast<HWND>(static_cast<quintptr>(window_->winId()));
 	}
@@ -2939,9 +3843,22 @@ public:
 	void destroyWindow(HWND) noexcept override
 	{
 		if (window_ != nullptr) {
-			delete window_;
-			window_ = nullptr;
-		}
+            if (saveEditorGraphs_)
+                saveEditorGraphs_();
+            saveEditorGraphs_ = {};
+            // Releasing child language leases publishes a language update. Disconnect
+            // this editor before any widget begins destroying its internal model.
+            if (auto *manager = WinJACKNexus::UI::I18nManager::installed())
+            {
+                QObject::disconnect(manager, nullptr, window_, nullptr);
+                for (auto *child : window_->findChildren<QObject *>())
+                {
+                    QObject::disconnect(manager, nullptr, child, nullptr);
+                }
+            }
+            delete window_;
+            window_ = nullptr;
+        }
 	}
 
 private:
@@ -2969,14 +3886,15 @@ private:
 		                    observedJackClients_.cbegin(), observedJackClients_.cend(),
 		                    std::inserter(newClients, newClients.end()));
 		for (const auto& node : loadedModuleNodes_) {
-			if (node->hasClient() && liveClients.contains(node->clientId()))
-				continue;
-			const auto candidate = std::find_if(newClients.cbegin(), newClients.cend(), [this](const auto& clientId) {
-				return std::none_of(loadedModuleNodes_.cbegin(), loadedModuleNodes_.cend(), [&clientId](const auto& node) {
-					return node->ownsClient(clientId);
-				});
-			});
-			if (candidate != newClients.cend()) {
+            if (node->isVirtual() || (node->hasClient() && liveClients.contains(node->clientId())))
+                continue;
+            const auto candidate =
+                std::find_if(newClients.cbegin(), newClients.cend(), [this](const auto &clientId) {
+                    return std::none_of(
+                        loadedModuleNodes_.cbegin(), loadedModuleNodes_.cend(),
+                        [&clientId](const auto &node) { return node->ownsClient(clientId); });
+                });
+            if (candidate != newClients.cend()) {
 				if (node->hasClient())
 					reboundClients.emplace_back(node->clientId(), *candidate);
 				node->setClientId(*candidate);
@@ -2994,9 +3912,14 @@ private:
 	bool graphOrderCallbackRegistered_ = false;
 	std::set<std::string> knownJackClients_ { "External Audio Client", "DAW Bridge" };
 	std::set<std::string> observedJackClients_;
-	std::vector<std::unique_ptr<LoadedModuleNode>> loadedModuleNodes_;
-	std::vector<PatchbayProjectModule> savedModuleRecords_;
-	ModuleNodeInfo copiedModuleNode_;
+    std::shared_ptr<std::map<std::string, std::shared_ptr<SubGraphPortSet>>> subGraphPorts_ =
+        std::make_shared<std::map<std::string, std::shared_ptr<SubGraphPortSet>>>();
+    std::vector<std::unique_ptr<LoadedModuleNode>> loadedModuleNodes_;
+    std::vector<PatchbayProjectModule> savedModuleRecords_;
+    std::vector<PatchbayProjectModule> unloadedModuleRecords_;
+    std::vector<PatchbaySubGraphProject> editorGraphRecords_;
+    std::function<void()> saveEditorGraphs_;
+    ModuleNodeInfo copiedModuleNode_;
 };
 
 }
