@@ -93,3 +93,7 @@ if(BUILD_TESTING)
     set_tests_properties(native_fx_boundary_tests PROPERTIES ENVIRONMENT
         "QT_QPA_PLATFORM=windows;QT_QPA_PLATFORM_PLUGIN_PATH=${WJN_OUTPUT_DIR}/platforms;PATH=${WJN_OUTPUT_DIR}")
 endif()
+
+if(BUILD_TESTING)
+    add_subdirectory(Node)
+endif()

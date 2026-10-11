@@ -2478,7 +2478,11 @@ class MidiOutNode final : public WinJACKNexus::Node::INode, public AdapterNodeSe
 
 const AdapterNodeDefinition *definitionFor(std::uint32_t index) noexcept
 {
+#ifdef WJN_ADAPTER_NODE_INDEX
+    return index == 0 ? &kAdapterNodes[WJN_ADAPTER_NODE_INDEX] : nullptr;
+#else
     return index < kAdapterNodes.size() ? &kAdapterNodes[index] : nullptr;
+#endif
 }
 
 }
@@ -2520,12 +2524,20 @@ const char *wjn_get_node_theme_namespace_json(std::uint32_t index)
         }
         return result;
     }();
+#ifdef WJN_ADAPTER_NODE_INDEX
+    return index == 0 ? descriptors[WJN_ADAPTER_NODE_INDEX].constData() : nullptr;
+#else
     return index < descriptors.size() ? descriptors[index].constData() : nullptr;
+#endif
 }
 
 std::uint32_t wjn_get_node_count(void)
 {
+#ifdef WJN_ADAPTER_NODE_INDEX
+    return 1;
+#else
     return static_cast<std::uint32_t>(kAdapterNodes.size());
+#endif
 }
 
 const char *wjn_get_node_name(std::uint32_t index)
@@ -2545,6 +2557,9 @@ WinJACKNexus::Node::INode *wjn_create_node(std::uint32_t index)
     const auto *definition = definitionFor(index);
     if (definition == nullptr)
         return nullptr;
+#ifdef WJN_ADAPTER_NODE_INDEX
+    index = WJN_ADAPTER_NODE_INDEX;
+#endif
     if (index == 0)
         return new WasapiInNode;
     if (index == 1)

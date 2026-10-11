@@ -1347,28 +1347,50 @@ const char *wjn_get_node_theme_namespace_json(std::uint32_t index)
         }
         return result;
     }();
+#ifdef WJN_METER_PROBE_NODE_INDEX
+    return index == 0 ? descriptors[WJN_METER_PROBE_NODE_INDEX].constData() : nullptr;
+#else
     return index < descriptors.size() ? descriptors[index].constData() : nullptr;
+#endif
 }
 
 std::uint32_t wjn_get_node_count(void)
 {
+#ifdef WJN_METER_PROBE_NODE_INDEX
+    return 1;
+#else
     return static_cast<std::uint32_t>(probeDefinitions.size());
+#endif
 }
 
 const char *wjn_get_node_name(std::uint32_t index)
 {
+#ifdef WJN_METER_PROBE_NODE_INDEX
+    return index == 0 ? probeDefinitions[WJN_METER_PROBE_NODE_INDEX].name : "";
+#else
     return index < probeDefinitions.size() ? probeDefinitions[index].name : "";
+#endif
 }
 
 const char *wjn_get_node_category(std::uint32_t index)
 {
+#ifdef WJN_METER_PROBE_NODE_INDEX
+    return index == 0 ? "Meter" : "";
+#else
     return index < probeDefinitions.size() ? "Meter" : "";
+#endif
 }
 
 WinJACKNexus::Node::INode *wjn_create_node(std::uint32_t index)
 {
+#ifdef WJN_METER_PROBE_NODE_INDEX
+    if (index != 0)
+        return nullptr;
+    index = WJN_METER_PROBE_NODE_INDEX;
+#else
     if (index >= probeDefinitions.size())
         return nullptr;
+#endif
     try
     {
         return new MeterProbeNode(index);
