@@ -223,7 +223,7 @@ class MatrixNode final : public WinJACKNexus::Node::INode, public MT::ClientSett
 };
 const char *wjn_get_node_api_version()
 {
-    return "3";
+    return "4";
 }
 
 uint32_t wjn_get_node_theme_api_version()
@@ -320,3 +320,6 @@ extern "C" WINJACK_NODE_API int wjn_show_node_gui(WinJACKNexus::Node::INode *n)
 {
     return n && n->createWindow(nullptr) ? 1 : 0;
 }
+
+#define WJN_NODE_MODULE_FEATURES WJN_NODE_HAS_GUI
+#include <WinJACKNexus/Node/JackOnlyModuleV4.inc>

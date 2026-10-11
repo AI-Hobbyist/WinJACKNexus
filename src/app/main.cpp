@@ -174,13 +174,17 @@ public:
 
         const auto apiVersion =
             reinterpret_cast<ApiVersion>(GetProcAddress(library_, "wjn_get_node_api_version"));
-        const auto create = reinterpret_cast<Create>(GetProcAddress(library_, "wjn_create_node"));
+        const auto create =
+            reinterpret_cast<Create>(GetProcAddress(library_, "wjn_create_node_v4"));
         destroy_ = reinterpret_cast<Destroy>(GetProcAddress(library_, "wjn_destroy_node"));
         if (apiVersion == nullptr || create == nullptr || destroy_ == nullptr ||
             !WinJACKNexus::Node::isSingleNodeModule(library_))
         {
-            WJN_LOG_ERROR("Node module API validation failed path=%s",
-                          filePath.toUtf8().constData());
+            WinJACKNexus::Node::ModuleContract contract;
+            const auto error = WinJACKNexus::Node::inspectNodeModule(library_, contract);
+            WJN_LOG_ERROR("Node module API validation failed path=%s reason=%s",
+                          filePath.toUtf8().constData(),
+                          WinJACKNexus::Node::moduleErrorText(error));
             unload();
             return false;
         }
@@ -193,7 +197,7 @@ public:
         if (!themeError.isEmpty())
             qWarning().noquote() << "Node theme descriptor:" << themeError;
 
-        node_ = create();
+        node_ = WinJACKNexus::Node::createNodeForMode(library_, WJN_NODE_MODE_JACK);
         if (node_ == nullptr || !node_->init())
         {
             WJN_LOG_ERROR("Node module initialization failed path=%s", filePath.toUtf8().constData());
@@ -213,7 +217,7 @@ public:
 
 private:
   using ApiVersion = const char *(*)();
-  using Create = WinJACKNexus::Node::INode *(*)(void);
+  using Create = WinJACKNexus::Node::INode *(*)(uint32_t mode);
   using Destroy = void (*)(WinJACKNexus::Node::INode *);
 
   void unload() noexcept

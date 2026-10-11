@@ -1,0 +1,48 @@
+适用于 .NET Framework MSBuild 版本 18.10.1-1.26427.6+3cd27c13e
+
+  common.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\common.dll
+  audio.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\audio.dll
+  node.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\node.dll
+  Automatic MOC for target wjn_default_theme
+  wjn_default_theme.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\wjn_default_theme.dll
+  Automatic MOC for target ui
+  ui.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\ui.dll
+  mod_meter_5_1.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\nodes\meter\meter_5_1\mod_meter_5_1.dll
+  mod_meter_7_1.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\nodes\meter\meter_7_1\mod_meter_7_1.dll
+  mod_meter_custom.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\nodes\meter\meter_custom\mod_meter_custom.dll
+  mod_meter_mono.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\nodes\meter\meter_mono\mod_meter_mono.dll
+  mod_meter_stereo.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\nodes\meter\meter_stereo\mod_meter_stereo.dll
+  mod_system_midi_in.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\nodes\adapter\system_midi_in\mod_system_midi_in.dll
+  mod_system_midi_out.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\nodes\adapter\system_midi_out\mod_system_midi_out.dll
+  mod_wasapi_in.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\nodes\adapter\wasapi_in\mod_wasapi_in.dll
+  mod_wasapi_out.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\nodes\adapter\wasapi_out\mod_wasapi_out.dll
+  SingleNodeTests.cpp
+  wjn_single_node_tests.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\wjn_single_node_tests.exe
+适用于 .NET Framework MSBuild 版本 18.10.1-1.26427.6+3cd27c13e
+
+  common.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\common.dll
+  audio.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\audio.dll
+  node.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\node.dll
+  Automatic MOC for target wjn_default_theme
+  wjn_default_theme.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\wjn_default_theme.dll
+  Automatic MOC for target ui
+  ui.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\ui.dll
+  Deploy compressor i18n catalogs
+  mod_compressor.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\nodes\native_fx\compressor\mod_compressor.dll
+  Deploy deesser i18n catalogs
+  mod_deesser.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\nodes\native_fx\deesser\mod_deesser.dll
+  Deploy delay i18n catalogs
+  mod_delay.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\nodes\native_fx\delay\mod_delay.dll
+  Deploy gate i18n catalogs
+  mod_gate.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\nodes\native_fx\gate\mod_gate.dll
+  Deploy graphic_eq i18n catalogs
+  mod_graphic_eq.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\nodes\native_fx\graphic_eq\mod_graphic_eq.dll
+  Deploy limiter i18n catalogs
+  mod_limiter.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\nodes\native_fx\limiter\mod_limiter.dll
+  Deploy parametric_eq i18n catalogs
+  mod_parametric_eq.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\nodes\native_fx\parametric_eq\mod_parametric_eq.dll
+  Deploy reverb i18n catalogs
+  mod_reverb.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\nodes\native_fx\reverb\mod_reverb.dll
+  wjn_example_native_fx.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\examples\native_fx\wjn_example_native_fx.dll
+  NativeFxBoundaryTests.cpp
+  wjn_native_fx_boundary_tests.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\wjn_native_fx_boundary_tests.exe

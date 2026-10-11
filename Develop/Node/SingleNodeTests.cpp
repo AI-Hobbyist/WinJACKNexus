@@ -18,6 +18,7 @@
 #include <WinJACKNexus/UI/ThemeNamespaceRegistry.hpp>
 #include <iostream>
 #include <stdexcept>
+#include "WindowShowCounter.hpp"
 
 extern "C" int wjn_single_node_c_abi(void);
 
@@ -51,6 +52,8 @@ constexpr Module modules[]{
 int main(int argc, char **argv)
 {
     QApplication app(argc, argv);
+    WindowShowCounter windowCounter;
+    app.installEventFilter(&windowCounter);
     try
     {
         require(argc == 4 && app.platformName() == "windows",
@@ -66,7 +69,7 @@ int main(int argc, char **argv)
                                  module.id + ".dll";
             const HMODULE library = LoadLibraryW(reinterpret_cast<const wchar_t *>(path.utf16()));
             require(library, "independent node DLL load");
-            require(WinJACKNexus::Node::isSingleNodeModule(library), "Node v3 single-type ABI");
+            require(WinJACKNexus::Node::isSingleNodeModule(library), "Node v4 single-type ABI");
             const auto symbol = [library](const char *name) {
                 const auto result = GetProcAddress(library, name);
                 require(result, "required single-node export");
@@ -77,7 +80,7 @@ int main(int argc, char **argv)
             const auto category =
                 reinterpret_cast<decltype(&wjn_get_node_category)>(symbol("wjn_get_node_category"));
             const auto create =
-                reinterpret_cast<decltype(&wjn_create_node)>(symbol("wjn_create_node"));
+                reinterpret_cast<decltype(&wjn_create_node_v4)>(symbol("wjn_create_node_v4"));
             const auto destroy =
                 reinterpret_cast<decltype(&wjn_destroy_node)>(symbol("wjn_destroy_node"));
             const auto get = reinterpret_cast<decltype(&wjn_get_node_settings_json)>(
@@ -102,7 +105,7 @@ int main(int argc, char **argv)
                         path, &lease, &error) &&
                         !lease.isEmpty(),
                     qPrintable(error));
-            auto *node = create();
+            auto *node = create(WJN_NODE_MODE_JACK);
             require(node, "offline node creation");
             auto state = QJsonDocument::fromJson(get(node)).object();
             state["clientName"] = QStringLiteral("节点_日本語_한국어");
@@ -139,7 +142,7 @@ int main(int argc, char **argv)
             const QByteArray saved(get(node));
             node->shutdown();
             destroy(node);
-            node = create();
+            node = create(WJN_NODE_MODE_JACK);
             require(node && set(node, saved.constData()) &&
                         QJsonDocument::fromJson(get(node)) == QJsonDocument::fromJson(saved),
                     "state recreation round trip");
@@ -160,13 +163,13 @@ int main(int argc, char **argv)
             require(library, "deployed node module loads for ABI inspection");
             if (WinJACKNexus::Node::isSingleNodeModule(library))
             {
-                const auto create = reinterpret_cast<decltype(&wjn_create_node)>(
-                    GetProcAddress(library, "wjn_create_node"));
+                const auto create = reinterpret_cast<decltype(&wjn_create_node_v4)>(
+                    GetProcAddress(library, "wjn_create_node_v4"));
                 const auto destroy = reinterpret_cast<decltype(&wjn_destroy_node)>(
                     GetProcAddress(library, "wjn_destroy_node"));
                 require(create && destroy, "all deployed single-node factories migrated");
-                auto *node = create();
-                require(node, "each deployed Node v3 creates offline");
+                auto *node = create(WJN_NODE_MODE_JACK);
+                require(node, "each deployed Node v4 creates offline");
                 node->shutdown();
                 destroy(node);
                 ++accepted;
@@ -214,7 +217,9 @@ int main(int argc, char **argv)
         std::cout << "PASS 9 independent DLLs; Windows 100%, systemFont="
                   << QFontInfo(app.font()).family().toStdString()
                   << ", top-level displays=" << displays
-                  << "; total displays bounded below 100; no JACK/device initialization\n";
+                  << ", all window/popup/tooltip shows=" << windowCounter.shows
+                  << "/100; no JACK/device initialization\n";
+        require(windowCounter.shows <= 100, "bounded real-window show budget");
         return 0;
     }
     catch (const std::exception &error)

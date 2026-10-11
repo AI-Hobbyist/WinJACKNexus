@@ -4,7 +4,10 @@
 add_library(
     node SHARED
     src/NodeApi.cpp include/WinJACKNexus/Node/Export.hpp include/WinJACKNexus/Node/INode.hpp
-    include/WinJACKNexus/Node/NodeApi.h include/WinJACKNexus/Node/NodeInfo.hpp)
+    include/WinJACKNexus/Node/NodeApi.h include/WinJACKNexus/Node/NodeInfo.hpp
+    include/WinJACKNexus/Node/ProcessingApi.h
+    include/WinJACKNexus/Node/ModuleCompatibility.hpp
+    include/WinJACKNexus/Node/JackOnlyModuleV4.inc)
 
 target_include_directories(
     node

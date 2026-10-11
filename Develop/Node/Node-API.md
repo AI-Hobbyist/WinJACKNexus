@@ -1,4 +1,4 @@
-# Node module API (v3)
+# Node module API (v4)
 
 One Windows DLL advertises exactly one node type. All instances of that type
 are created through the same factory. The exported interface is declared in
@@ -9,24 +9,74 @@ are created through the same factory. The exported interface is declared in
 
 | Export | Contract |
 | --- | --- |
-| `const char *wjn_get_node_api_version(void)` | Returns the string `"3"`. |
+| `const char *wjn_get_node_api_version(void)` | Returns the string `"4"`. |
+| `int32_t wjn_get_node_metadata_v4(WjnNodeMetadataV4 *metadata)` | Creation-free capability query; caller sets `structSize`, module returns 1 on success. |
 | `const char *wjn_get_node_name(void)` / `const char *wjn_get_node_category(void)` | Display strings for this DLL's only type. Native effects use category `Native Fx`. |
 | `const char *wjn_get_node_icon_glyph(void)` / `const char *wjn_get_node_icon_color(void)` | Optional visual metadata; tolerate absent exports. |
-| `INode *wjn_create_node(void)` | Creates an independent instance; return null on failure or an existing module-specific instance limit. |
+| `INode *wjn_create_node_v4(uint32_t mode)` | Creates an independent instance in exactly `WJN_NODE_MODE_JACK` or `WJN_NODE_MODE_VIRT`; returns null for unsupported/invalid modes or failure. |
+| `INode *wjn_create_node(void)` | Historical direct SDK convenience factory for JACK mode; the host uses the explicit v4 factory. |
+| `const WjnNodeVirtualApiV1 *wjn_get_node_virtual_api_v1(void)` | Complete versioned processing table for VIRT-capable modules; null for JACK-only modules. |
 | `void wjn_destroy_node(INode *node)` | Destroys an instance created by the same DLL. Release its instances and editors before unloading. |
 
 There is no `wjn_get_node_count` export, and none of these entry points takes
-an index. This is an ABI break from Node v2: rebuild SDK consumers and modules.
-The host checks version 3 before any changed call and rejects DLLs that still
-export the retired count symbol. Older single-type Node v2 DLLs are also rejected;
-they must be rebuilt against v3. No compatibility thunk or indexed factory remains.
-`INode` layout and audio callbacks are unchanged.
+an index. Rebuild SDK consumers and modules against v4. Before creation, the host
+checks version, metadata, explicit factory, destroy export and the VIRT table.
+Old v3/v2, retired count exports, missing metadata, zero/unknown capabilities,
+unknown feature bits, nonzero reserved fields and incomplete processing tables
+are rejected with diagnostics. There is no capability fallback.
+`NodeInfo` and `INode` layouts remain unchanged.
 
-After creation, call `INode::init()` and check its result. Before destruction,
+After JACK creation, call `INode::init()` and check its result. Before destruction,
 call `INode::shutdown()`. `info()` reports name, category, version, author and
 description. `createWindow(HWND parent)` / `destroyWindow(HWND)` remain native
 window hooks; a type without an editor returns null. Keep callbacks and borrowed
 strings valid for the lifetime documented by the owning module.
+
+## Metadata and virtual processing
+
+[`ProcessingApi.h`](../../src/node/include/WinJACKNexus/Node/ProcessingApi.h)
+is a C-compatible ABI. `WjnNodeMetadataV4` is exactly six `uint32_t` fields
+(24 bytes): `structSize`, `version == 4`, `capabilities`, `features`, and two
+zero reserved fields. `JACK_NODE == 1` and `VIRT_NODE == 2` are independent
+support bits; a valid module declares 1, 2 or 3. `features` currently permits
+only `WJN_NODE_HAS_GUI == 1`, meaning a custom editor can be opened through
+the module's window hook or `wjn_show_node_gui`. Settings editors alone do not
+imply a custom GUI. Discovery must not create/init instances or call JACK.
+The host uses metadata for placement and GUI actions, including localized
+sidebar capability tooltips. A missing GUI feature disables custom GUI actions.
+
+The instance's mode is immutable. Main graphs choose JACK; subgraphs choose
+VIRT. Cross-context moves save state, destroy and recreate in the destination
+mode. Never call JACK registration from a VIRT factory, prepare or process.
+S2 built-ins advertise JACK only until their later migration is implemented.
+
+`WjnNodeVirtualApiV1` has `structSize`, `version == 1` and six required function
+pointers: `portCount`, `port`, `prepare`, `process`, `reset`, `stop`. Port IDs
+are stable within an instance and independent of display names. Port descriptions
+have direction, audio/MIDI type and audio channel count (zero for MIDI). UTF-8
+names remain module-owned until instance destruction. The caller sets each
+description's `structSize` before querying it.
+
+For VIRT, restore settings, call `prepare` with sample rate, maximum frames and
+host context, then call `process` with host-owned buffers. Sample position and
+frame count come from the root graph. `INode::init` is not the VIRT preparation
+entry. `reset` clears processing history while preserving parameters; `stop`
+releases processing resources and must precede shutdown/destruction. The host
+serializes lifecycle transitions with processing; prepare/stop never race a
+callback. Rate changes stop and prepare between blocks.
+
+Audio ports contain non-interleaved float channel pointers, with no buffers
+retained beyond the call. Missing input is silence. Every output is written each
+block. MIDI input records borrow payload pointers and preserve frame offsets.
+Output event and byte storage is supplied and bounded by the host; modules reset
+`eventCount`/`byteCount`, append fitting events, drop newest on overflow and
+increment `dropped`. Invalid offsets/payloads are dropped. Do not allocate, lock,
+access files, register JACK ports or invoke UI from process. Descriptions and
+processing topology changes are applied transactionally between callbacks.
+
+`NodeV4CAbi.c` and `NodeV4Tests.cpp` freeze layout/signatures and test creation-free
+inspection, malformed modules, explicit modes, audio/MIDI buffers and offline
+lifecycle. Third-party modules need recompilation before use with this host.
 
 ## Settings and editors
 
@@ -40,7 +90,7 @@ by the host. `wjn_set_node_settings_json(node, json)` returns nonzero on success
 Reject malformed or incompatible state without mutating the active settings.
 Projects retain `settingsBase64` containing the module JSON; legacy direct
 `settings` objects remain readable. The existing project-format index field is
-reserved at zero for single-node modules; nonzero values cannot load a v3 DLL.
+reserved at zero for single-node modules; nonzero values cannot load a v4 DLL.
 It is not an SDK type enumeration interface.
 
 Host-specific optional exports such as `wjn_prepare_node_for_canvas`,
@@ -54,7 +104,7 @@ Host-specific optional exports such as `wjn_prepare_node_for_canvas`,
 borrowed UTF-8 descriptor. Copy it immediately. No type index or enumeration
 exists. Descriptor JSON and Theme Token semantics remain
 [Theme contract v1](../../Docs/Theme-v1-Contract.md); the entry-point version is
-separate from the JSON `themeApiVersion`. Missing optional exports keep a v3
+separate from the JSON `themeApiVersion`. Missing optional exports keep a v4
 module loadable. Invalid theme data disables only that capability. Stable
 `moduleId` still deduplicates Node and Native Fx descriptors with independent
 leases; existing theme namespace IDs and colors are preserved.
@@ -112,17 +162,17 @@ SEL adds a Sub Mix tab for all strips except MAIN/Monitor. It reuses `AuxSetting
 
 ## Optional Digital Mixer view entry
 
-Digital Mixer exports `int wjn_digital_mixer_show_view(INode* node, int view)` through dynamic lookup. Views are 0=调音台, 1=通道详情, 2=通道总览. It opens only the requested view and returns 1 on success, 0 for an invalid/null node or unsupported view. Closing one view keeps the shared controller until `destroyWindow` or node shutdown. The required Node v3 ABI is unchanged; `createWindow` still opens view 0.
+Digital Mixer exports `int wjn_digital_mixer_show_view(INode* node, int view)` through dynamic lookup. Views are 0=调音台, 1=通道详情, 2=通道总览. It opens only the requested view and returns 1 on success, 0 for an invalid/null node or unsupported view. Closing one view keeps the shared controller until `destroyWindow` or node shutdown. The required Node v4 ABI is unchanged; `createWindow` still opens view 0.
 
 Patchbay exports `int wjn_patchbay_show_digital_mixer_view(int view)` for the host shortcut menu: 1=opened, 0=no loaded mixer, -1=invalid view or opening failure. The existing `wjn_patchbay_show_digital_mixer()` remains view 0. Older mixer modules without the optional export retain view-0 support through `createWindow`; unavailable detail/overview entries report failure.
 # Optional Node i18n descriptor extension (v2)
 
-Node v3 DLLs may export `wjn_get_node_i18n_api_version()` returning
+Node v4 DLLs may export `wjn_get_node_i18n_api_version()` returning
 `WJN_NODE_I18N_API_VERSION == 2`, and
 `const char *wjn_get_node_i18n_descriptor_json(void)`. No type index exists.
 The descriptor JSON schema, catalogs, `WjnI18nHostV1` service table and
 attach/change/detach lifecycle remain version 1. Native Fx's indexed i18n
-entry remains independent and unchanged. The host validates Node v3 and
+entry remains independent and unchanged. The host validates Node v4 and
 extension v2 before calling the unindexed descriptor function.
 Lifecycle exports, when used, include all three of `wjn_i18n_attach_host`,
 `wjn_i18n_language_changed` and `wjn_i18n_detach_host`.
@@ -142,13 +192,13 @@ without starting a JACK client. Example-only `wjn_example_i18n_events` and
 The S3 patchbay host consumes this extension in both its node-library scan
 and its actual instance loader, including project-loaded DLLs outside the
 scan directory. It shares a domain lease by canonical DLL path (reserved
-project index zero), reads the validated displayNameKey, and preserves raw Node v3
+project index zero), reads the validated displayNameKey, and preserves raw Node v4
 metadata for identity. Registration precedes createNode/init; destruction
 clears UI and destroys the node before releasing the lease and unloading
 the library. `patchbay_i18n_tests` exercises the actual nonaudio ExampleNode
 loader, late creation, language changes without instance recreation, and
 multiple lease consumers. This does not promise translations for old or
-untranslated community modules, and adds no required Node v3 export.
+untranslated community modules, and adds no required Node v4 export.
 # S5 built-in Native Fx language integration (implementation pending verification)
 
 Built-in Native Fx node descriptors use `nativefx.<Meta.id>` and the module-local `locate/` directory. Their node and mixer placements expose the same optional i18n v1 domain; retain independent host leases until their instances and windows have been destroyed. Releasing one placement must keep live windows in the other placement localized. SDK names, JACK client and port identities and settings JSON remain untranslated.
@@ -158,4 +208,4 @@ Native Fx standalone titles refresh their translated effect name together with t
 
 ### VST 宿主的 Node i18n v2 描述符接入
 
-`mod_vst_host.dll` 实现无索引 Node i18n v2 描述符导出及既有 v1 主机服务，模块 ID 为 `module-winjacknexus-vst-host`，域为 `vst`，固定目录为 DLL 所在目录的 `locate`，catalogVersion 为 1。Node v3 及其稳定插件/工程身份保持。显示状态保留 key 与参数，语言通知不重启 VSTProcess、不提交设置；最终租约释放后，仍存活的设置控件回退调用点 English。实际 DLL 单次 Windows 实窗调用点验证通过 77 项检查，见 `Docs/i18n/S6-vst-verification.json`；真实插件、进程和 JACK 集成不在该验证范围。
+`mod_vst_host.dll` 实现无索引 Node i18n v2 描述符导出及既有 v1 主机服务，模块 ID 为 `module-winjacknexus-vst-host`，域为 `vst`，固定目录为 DLL 所在目录的 `locate`，catalogVersion 为 1。Node v4 及其稳定插件/工程身份保持。显示状态保留 key 与参数，语言通知不重启 VSTProcess、不提交设置；最终租约释放后，仍存活的设置控件回退调用点 English。实际 DLL 单次 Windows 实窗调用点验证通过 77 项检查，见 `Docs/i18n/S6-vst-verification.json`；真实插件、进程和 JACK 集成不在该验证范围。

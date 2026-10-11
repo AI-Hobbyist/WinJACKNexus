@@ -852,7 +852,7 @@ public:
 	                                               const std::string& settingsJson = {}) noexcept
 	{
         using ApiVersion = const char *(*)();
-        using CreateNode = WinJACKNexus::Node::INode *(*)(void);
+        using CreateNode = WinJACKNexus::Node::INode *(*)(uint32_t mode);
         using DestroyNode = void (*)(WinJACKNexus::Node::INode *node);
         using SetNodeSettingsJson = int (*)(WinJACKNexus::Node::INode* node, const char* json);
 		using PrepareNodeForCanvas = int (*)(WinJACKNexus::Node::INode* node);
@@ -869,7 +869,7 @@ public:
         const auto apiVersion =
             reinterpret_cast<ApiVersion>(GetProcAddress(library, "wjn_get_node_api_version"));
         const auto createNode =
-            reinterpret_cast<CreateNode>(GetProcAddress(library, "wjn_create_node"));
+            reinterpret_cast<CreateNode>(GetProcAddress(library, "wjn_create_node_v4"));
         const auto destroyNode = reinterpret_cast<DestroyNode>(GetProcAddress(library, "wjn_destroy_node"));
 		const auto setNodeSettingsJson = reinterpret_cast<SetNodeSettingsJson>(GetProcAddress(library, "wjn_set_node_settings_json"));
 		const auto prepareNodeForCanvas = reinterpret_cast<PrepareNodeForCanvas>(GetProcAddress(library, "wjn_prepare_node_for_canvas"));
@@ -883,6 +883,9 @@ public:
             if (apiVersion == nullptr || createNode == nullptr || destroyNode == nullptr ||
                 !WinJACKNexus::Node::isSingleNodeModule(library) || index != 0)
             {
+                WinJACKNexus::Node::ModuleContract contract;
+                const auto error = WinJACKNexus::Node::inspectNodeModule(library, contract);
+                qWarning().noquote() << modulePath << WinJACKNexus::Node::moduleErrorText(error);
                 FreeLibrary(library);
                 return nullptr;
             }
@@ -900,7 +903,7 @@ public:
 			}, modulePath, &themeLease, &themeError);
 		if (!themeError.isEmpty()) qWarning().noquote() << "Node theme descriptor:" << themeError;
 
-        auto *node = createNode();
+        auto *node = WinJACKNexus::Node::createNodeForMode(library, WJN_NODE_MODE_JACK);
         if (node == nullptr)
         {
             FreeLibrary(library);
@@ -3010,7 +3013,7 @@ extern "C" WINJACK_NODE_API int wjn_patchbay_show_digital_mixer(void)
 
 const char* wjn_get_node_api_version(void)
 {
-    return "3";
+    return "4";
 }
 
 std::uint32_t wjn_get_node_theme_api_version(void)
@@ -3063,3 +3066,6 @@ void* wjn_create_settings_view(WinJACKNexus::Node::INode*, void*)
 void wjn_destroy_settings_view(WinJACKNexus::Node::INode*, void*)
 {
 }
+
+#define WJN_NODE_MODULE_FEATURES WJN_NODE_HAS_GUI
+#include <WinJACKNexus/Node/JackOnlyModuleV4.inc>

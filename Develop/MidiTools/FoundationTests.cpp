@@ -82,7 +82,7 @@ int main(int argc, char **argv)
             const auto destroy = reinterpret_cast<void (*)(WinJACKNexus::Node::INode *)>(
                 GetProcAddress(dll, "wjn_destroy_node"));
             check(version && category && descriptor && create && destroy, "required exports");
-            check(std::string(version()) == "3" && std::string(category()) == "Midi Tools",
+            check(std::string(version()) == "4" && std::string(category()) == "Midi Tools",
                   "identity");
             check(GetProcAddress(dll, "wjn_get_node_count") == nullptr,
                   "retired count export is absent");

@@ -50,7 +50,7 @@ int main(int argc, char **argv)
                 symbol("wjn_get_node_settings_json"));
             const auto set = reinterpret_cast<decltype(&wjn_set_node_settings_json)>(
                 symbol("wjn_set_node_settings_json"));
-            check(std::string(version()) == "3" && std::string(category()) == "Midi Tools",
+            check(std::string(version()) == "4" && std::string(category()) == "Midi Tools",
                   "host discovery identity");
             WinJACKNexus::UI::ThemeNamespaceRegistry::Lease lease;
             QString error;

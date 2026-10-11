@@ -73,7 +73,7 @@ class MeterbridgeNode final : public WinJACKNexus::Node::INode
 
 const char *wjn_get_node_api_version(void)
 {
-    return "3";
+    return "4";
 }
 
 std::uint32_t wjn_get_node_theme_api_version(void)
@@ -180,3 +180,6 @@ extern "C" WINJACK_NODE_API int wjn_meterbridge_restore_project_state_json(const
                ? 1
                : 0;
 }
+
+#define WJN_NODE_MODULE_FEATURES WJN_NODE_HAS_GUI
+#include <WinJACKNexus/Node/JackOnlyModuleV4.inc>

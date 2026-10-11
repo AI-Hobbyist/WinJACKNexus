@@ -56,7 +56,7 @@ class ExampleNode final : public WinJACKNexus::Node::INode
 
 const char *wjn_get_node_api_version(void)
 {
-    return "3";
+    return "4";
 }
 
 uint32_t wjn_get_node_i18n_api_version(void)
@@ -119,3 +119,5 @@ void *wjn_create_settings_view(WinJACKNexus::Node::INode *, void *)
 }
 
 void wjn_destroy_settings_view(WinJACKNexus::Node::INode *, void *) {}
+
+#include <WinJACKNexus/Node/JackOnlyModuleV4.inc>

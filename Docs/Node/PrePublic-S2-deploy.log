@@ -1,0 +1,2 @@
+cmake -E copy_directory build/release/bin/midi_tools build/release/bin/nodes/midi_tools
+Exit code: 0; command emitted no output.

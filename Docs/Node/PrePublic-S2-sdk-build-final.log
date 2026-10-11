@@ -1,0 +1,30 @@
+适用于 .NET Framework MSBuild 版本 18.10.1-1.26427.6+3cd27c13e
+
+  node.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\node.dll
+  wjn_example_node.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\examples\node\wjn_example_node.dll
+  NodeV4Fixture.cpp
+    正在创建库 D:/UserData/Desktop/Project/WinJACKNexus/build/lib/Release/wjn_v4_fixture_dual.lib 和对象 D:/UserData/Desktop/Project/WinJACKNexus/build/lib/Release/wjn_v4_fixture_dual.exp
+  wjn_v4_fixture_dual.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\tests\node-v4\wjn_v4_fixture_dual.dll
+  NodeV4Fixture.cpp
+    正在创建库 D:/UserData/Desktop/Project/WinJACKNexus/build/lib/Release/wjn_v4_fixture_incomplete.lib 和对象 D:/UserData/Desktop/Project/WinJACKNexus/build/lib/Release/wjn_v4_fixture_incomplete.exp
+  wjn_v4_fixture_incomplete.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\tests\node-v4\wjn_v4_fixture_incomplete.dll
+  NodeV4Fixture.cpp
+    正在创建库 D:/UserData/Desktop/Project/WinJACKNexus/build/lib/Release/wjn_v4_fixture_jack.lib 和对象 D:/UserData/Desktop/Project/WinJACKNexus/build/lib/Release/wjn_v4_fixture_jack.exp
+  wjn_v4_fixture_jack.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\tests\node-v4\wjn_v4_fixture_jack.dll
+  NodeV4Fixture.cpp
+    正在创建库 D:/UserData/Desktop/Project/WinJACKNexus/build/lib/Release/wjn_v4_fixture_missing.lib 和对象 D:/UserData/Desktop/Project/WinJACKNexus/build/lib/Release/wjn_v4_fixture_missing.exp
+  wjn_v4_fixture_missing.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\tests\node-v4\wjn_v4_fixture_missing.dll
+  NodeV4Fixture.cpp
+    正在创建库 D:/UserData/Desktop/Project/WinJACKNexus/build/lib/Release/wjn_v4_fixture_old.lib 和对象 D:/UserData/Desktop/Project/WinJACKNexus/build/lib/Release/wjn_v4_fixture_old.exp
+  wjn_v4_fixture_old.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\tests\node-v4\wjn_v4_fixture_old.dll
+  NodeV4Fixture.cpp
+    正在创建库 D:/UserData/Desktop/Project/WinJACKNexus/build/lib/Release/wjn_v4_fixture_unknown.lib 和对象 D:/UserData/Desktop/Project/WinJACKNexus/build/lib/Release/wjn_v4_fixture_unknown.exp
+  wjn_v4_fixture_unknown.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\tests\node-v4\wjn_v4_fixture_unknown.dll
+  NodeV4Fixture.cpp
+    正在创建库 D:/UserData/Desktop/Project/WinJACKNexus/build/lib/Release/wjn_v4_fixture_virt.lib 和对象 D:/UserData/Desktop/Project/WinJACKNexus/build/lib/Release/wjn_v4_fixture_virt.exp
+  wjn_v4_fixture_virt.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\tests\node-v4\wjn_v4_fixture_virt.dll
+  NodeV4Fixture.cpp
+    正在创建库 D:/UserData/Desktop/Project/WinJACKNexus/build/lib/Release/wjn_v4_fixture_zero.lib 和对象 D:/UserData/Desktop/Project/WinJACKNexus/build/lib/Release/wjn_v4_fixture_zero.exp
+  wjn_v4_fixture_zero.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\tests\node-v4\wjn_v4_fixture_zero.dll
+  NodeV4Tests.cpp
+  wjn_node_v4_tests.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\wjn_node_v4_tests.exe

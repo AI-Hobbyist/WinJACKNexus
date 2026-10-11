@@ -26,8 +26,12 @@ Each DLL currently exposes one record: `wjn_fx_count() == 1` and
 | Both bits | Both hosts may instantiate the effect independently. |
 
 The mixer lists only modules with `WJN_FX_MIXER`. The patchbay's node API
-enumerates only modules with `WJN_FX_NODE`; a mixer-only DLL exports a node
-count of zero and never appears in `Native Fx`. `id` is a stable ASCII key for
+lists only modules with `WJN_FX_NODE`; a mixer-only DLL does not advertise a
+Node module and never appears in `Native Fx`. Node placement follows the
+[Node v4 contract](../Node/Node-API.md), with creation-free capability and GUI
+metadata and an explicit instance mode. S2 advertises JACK only; S4 adds VIRT
+after the internal processing path is implemented. Mixer placement remains
+independent of these graph capabilities. `id` is a stable ASCII key for
 presets; `name`, `iconGlyph` and `iconColor` are presentation metadata. Keep
 the metadata strings valid until the DLL unloads.
 
@@ -37,7 +41,7 @@ For `WJN_FX_NODE`, the DLL must also export
 `wjn_fx_node_boundary_version() == WJN_FX_NODE_BOUNDARY_VERSION` (currently 1),
 `wjn_fx_node_validate_layout(node)`, `wjn_fx_node_client_name(node)`,
 `wjn_fx_node_set_client_name(node, utf8Name)`, `wjn_get_node_client_id(node)`
-and `wjn_show_node_gui(node)`. `node` is the `INode*` from `wjn_create_node`.
+and `wjn_show_node_gui(node)`. `node` is the `INode*` from `wjn_create_node_v4`.
 The patchbay checks the exports before listing or creating the module. After
 `INode::init()`, it requires layout validation and a nonempty client name.
 

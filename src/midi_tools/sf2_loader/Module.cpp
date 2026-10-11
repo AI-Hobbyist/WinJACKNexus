@@ -214,7 +214,7 @@ class SynthNode final : public WinJACKNexus::Node::INode, public MT::ClientSetti
 };
 const char *wjn_get_node_api_version()
 {
-    return "3";
+    return "4";
 }
 
 const char *wjn_get_node_name(void)
@@ -310,3 +310,6 @@ void wjn_i18n_detach_host()
 {
     MT::I18n::detach();
 }
+
+#define WJN_NODE_MODULE_FEATURES WJN_NODE_HAS_GUI
+#include <WinJACKNexus/Node/JackOnlyModuleV4.inc>

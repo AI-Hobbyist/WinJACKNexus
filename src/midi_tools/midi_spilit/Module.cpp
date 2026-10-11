@@ -104,7 +104,7 @@ class SplitNode final : public WinJACKNexus::Node::INode, public MT::ClientSetti
 };
 const char *wjn_get_node_api_version()
 {
-    return "3";
+    return "4";
 }
 
 uint32_t wjn_get_node_theme_api_version()
@@ -193,3 +193,5 @@ void wjn_i18n_detach_host()
 {
     MT::I18n::detach();
 }
+
+#include <WinJACKNexus/Node/JackOnlyModuleV4.inc>

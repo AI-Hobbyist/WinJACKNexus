@@ -5,12 +5,20 @@
 #include <QApplication>
 #include <QLibrary>
 #include <QWidget>
+#include <QDir>
+#include <QEventLoop>
+#include <QFontInfo>
+#include <QGlyphRun>
+#include <QScreen>
+#include <QTextLayout>
+#include <QTimer>
 
 #include <cmath>
 #include <cstdio>
 #include <cstring>
 #include <string>
 #include <vector>
+#include "../Node/WindowShowCounter.hpp"
 
 namespace
 {
@@ -20,15 +28,53 @@ bool check(bool result, const char *message)
         std::fprintf(stderr, "FAILED: %s\n", message);
     return result;
 }
+bool capture(QWidget *window, const QString &path)
+{
+    if (!window)
+    {
+        return false;
+    }
+    window->show();
+    window->raise();
+    window->activateWindow();
+    QEventLoop stable;
+    QTimer::singleShot(450, &stable, &QEventLoop::quit);
+    stable.exec();
+    QTextLayout text(QStringLiteral("节点_日本語_한국어"), QApplication::font());
+    text.beginLayout();
+    text.createLine();
+    text.endLayout();
+    for (const auto &run : text.glyphRuns())
+    {
+        for (const auto glyph : run.glyphIndexes())
+        {
+            if (!glyph)
+            {
+                return false;
+            }
+        }
+    }
+    return window->isVisible() && IsWindowVisible(reinterpret_cast<HWND>(window->winId())) &&
+           window->devicePixelRatioF() == 1.0 &&
+           window->screen()->grabWindow(window->winId()).save(path);
+}
 }
 
 int main(int argc, char **argv)
 {
     QApplication app(argc, argv);
-    if (!check(argc == 10, "example and eight built-in DLL paths supplied"))
+    WindowShowCounter windowCounter;
+    app.installEventFilter(&windowCounter);
+    if (!check((argc == 10 || argc == 11) && app.platformName() == "windows",
+               "Windows platform and example/eight built-in DLL paths supplied"))
         return 1;
+    const QString captures =
+        argc == 11 ? QString::fromUtf8(argv[10]) : QStringLiteral("NativeFxBoundary-real-window");
+    if (!check(QDir().mkpath(captures), "real-window screenshot directory"))
+        return 1;
+    unsigned displays = 0;
     bool passed = true;
-    for (int i = 1; i < argc; ++i)
+    for (int i = 1; i < 10; ++i)
     {
         QLibrary library(QString::fromLocal8Bit(argv[i]));
         if (!check(library.load(), "Native Fx DLL loads"))
@@ -51,8 +97,10 @@ int main(int argc, char **argv)
             reinterpret_cast<const char *(*)(void *)>(library.resolve("wjn_fx_node_client_name"));
         const auto setClientName = reinterpret_cast<int (*)(void *, const char *)>(
             library.resolve("wjn_fx_node_set_client_name"));
-        const auto createNode = reinterpret_cast<WinJACKNexus::Node::INode *(*)(void)>(
-            library.resolve("wjn_create_node"));
+        const auto createNode =
+            reinterpret_cast<decltype(&wjn_create_node_v4)>(library.resolve("wjn_create_node_v4"));
+        const auto nodeMetadata = reinterpret_cast<decltype(&wjn_get_node_metadata_v4)>(
+            library.resolve("wjn_get_node_metadata_v4"));
         const auto destroyNode = reinterpret_cast<void (*)(WinJACKNexus::Node::INode *)>(
             library.resolve("wjn_destroy_node"));
         const auto showGui = reinterpret_cast<int (*)(WinJACKNexus::Node::INode *)>(
@@ -65,7 +113,7 @@ int main(int argc, char **argv)
             library.resolve("wjn_fx_create_mixer_editor"));
         if (!check(version && count && meta && nodeVersion && boundaryVersion && layout &&
                        clientName && setClientName && createNode && destroyNode && showGui &&
-                       createMixer && destroyMixer && editor,
+                       createMixer && destroyMixer && editor && nodeMetadata,
                    "required dual-placement exports exist"))
         {
             passed = false;
@@ -74,11 +122,18 @@ int main(int argc, char **argv)
         const auto *info = meta(0);
         passed &= check(version() == WJN_FX_API_VERSION && count() == 1 && info &&
                             info->placements == (WJN_FX_NODE | WJN_FX_MIXER) &&
-                            std::strcmp(nodeVersion(), "3") == 0 &&
+                            std::strcmp(nodeVersion(), "4") == 0 &&
                             !library.resolve("wjn_get_node_count") &&
                             boundaryVersion() == WJN_FX_NODE_BOUNDARY_VERSION,
                         "placement and boundary versions agree");
-        auto *node = createNode();
+        WjnNodeMetadataV4 capabilities{};
+        capabilities.structSize = sizeof(capabilities);
+        passed &= check(nodeMetadata(&capabilities) == 1 &&
+                            capabilities.capabilities == WJN_NODE_JACK_NODE &&
+                            capabilities.features == WJN_NODE_HAS_GUI &&
+                            createNode(WJN_NODE_MODE_VIRT) == nullptr,
+                        "S2 Fx metadata exposes only implemented JACK mode");
+        auto *node = createNode(WJN_NODE_MODE_JACK);
         if (!check(node != nullptr, "node instance is created"))
         {
             passed = false;
@@ -96,6 +151,10 @@ int main(int argc, char **argv)
             check(setClientName(node, original.c_str()) == 1, "original client name is restored");
         const auto window = node->createWindow(nullptr);
         passed &= check(window != nullptr, "standalone GUI exists");
+        passed &= check(capture(QWidget::find(reinterpret_cast<WId>(window)),
+                                captures + QStringLiteral("/node-%1.png").arg(i)),
+                        "visible Windows node editor at 100% with system CJK fonts");
+        ++displays;
         node->destroyWindow(window);
         destroyNode(node);
         auto *mixer = createMixer(0);
@@ -106,6 +165,15 @@ int main(int argc, char **argv)
             auto *view = editor(mixer, &parent);
             passed &= check(view != nullptr && view->parentWidget() == &parent,
                             "mixer editor embeds under host ownership");
+            if (view)
+            {
+                parent.resize(view->sizeHint().expandedTo(QSize(800, 400)));
+                view->resize(parent.size());
+                passed &= check(capture(&parent, captures + QStringLiteral("/mixer-%1.png").arg(i)),
+                                "visible Windows mixer editor at 100%");
+                ++displays;
+                parent.close();
+            }
             if (i == 1)
             {
                 const auto snapshotSize = reinterpret_cast<uint32_t (*)()>(
@@ -145,5 +213,8 @@ int main(int argc, char **argv)
             destroyMixer(mixer);
         }
     }
-    return passed ? 0 : 1;
+    std::printf("Native Fx editors=%u, all window/popup/tooltip shows=%u/100, "
+                "platform=windows, DPR=1, systemFont=%s\n",
+                displays, windowCounter.shows, QFontInfo(app.font()).family().toUtf8().constData());
+    return passed && windowCounter.shows <= 100 ? 0 : 1;
 }

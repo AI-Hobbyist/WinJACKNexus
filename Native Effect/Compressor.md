@@ -51,3 +51,16 @@ GR 表现使用公共 `Controls::drawMeter` 的 `fillOriginDb=0`，从 0 dB 向�
 沿用实际 DLL 四语言热切换记录 [20261003T141857552Z-scale-2-compressor_reverb-hot](../Docs/i18n/S5-bounded-records/20261003T141857552Z-scale-2-compressor_reverb-hot.json)，覆盖多实例、双宿主、卸载/重新打开、English fallback、数字草稿及选区保持；组合批次检查数不能当作本模块独立检查数。平台为 windows，默认系统字体，使用原生窗口归属核对后的可见实窗截图，未运行 JACK 连接集成测试。
 
 最终资源及二进制一致性见 [S5 核对](../Docs/i18n/S5-verification.json)，范围、构建日志和未验证场景见 [完成记录](../Docs/i18n/S5-completion.md)。依用户要求不追加缩放或重复模块测试；未补齐的冷启动/缩放矩阵不标为通过。译文仍待 S6 用户人工审校。
+
+## 公开仓库前 S2 Node v4（2026-10-11）
+
+本模块 Node 导出升级 v4，声明当前已实现的 JACK_NODE 和自带 GUI；
+显式 VIRT 创建返回 null。S4 双模式迁移尚未完成，不提前声明 VIRT 能力。
+Mixer placement、DSP、八声道参数和独立窗口行为保持。
+
+Release 所需模块编译及离线模块加载/metadata 校验通过。独立节点窗口和
+mixer 窗口完成 windows 平台、100% 缩放、系统字体实窗验证，测试退出 0；
+截图为 Docs/Node/PrePublic-S2-native-fx-real-window/node-5.png 和
+mixer-5.png。阶段显示计数、命令和日志见
+[S2 证据](../Docs/Node/PrePublic-S2-results.md)。不运行 JACK 连接集成测试；
+人工界面、听音、硬件及安装验收已跳过（用户指令），不将跳过标为通过。

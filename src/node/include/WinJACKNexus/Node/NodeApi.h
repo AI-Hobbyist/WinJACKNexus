@@ -16,6 +16,7 @@
 #pragma once
 
 #include <WinJACKNexus/Node/Export.hpp>
+#include <WinJACKNexus/Node/ProcessingApi.h>
 
 #include <stdint.h>
 #include <WinJACKNexus/Common/I18nApi.h>
@@ -28,6 +29,8 @@ extern "C"
 #endif
 
     WINJACK_NODE_API const char *wjn_get_node_api_version(void);
+    WINJACK_NODE_API int32_t wjn_get_node_metadata_v4(WjnNodeMetadataV4 *metadata);
+    WINJACK_NODE_API const WjnNodeVirtualApiV1 *wjn_get_node_virtual_api_v1(void);
     /* Optional theme capability. Hosts use dynamic symbol lookup; old modules
    need not export either function. The returned UTF-8 JSON is DLL-owned. */
     enum
@@ -37,7 +40,7 @@ extern "C"
     };
     WINJACK_NODE_API uint32_t wjn_get_node_theme_api_version(void);
     WINJACK_NODE_API const char *wjn_get_node_theme_namespace_json(void);
-    /* Node v3: one type per DLL; optional descriptors take no type index. */
+    /* Node v4: one type per DLL; optional descriptors take no type index. */
     typedef const char *(*WjnNodeI18nDescriptorFn)(void);
     WINJACK_NODE_API uint32_t wjn_get_node_i18n_api_version(void);
     WINJACK_NODE_API const char *wjn_get_node_i18n_descriptor_json(void);
@@ -51,6 +54,7 @@ extern "C"
     WINJACK_NODE_API const char *wjn_get_node_icon_color(void);
 
 #ifdef __cplusplus
+    WINJACK_NODE_API WinJACKNexus::Node::INode *wjn_create_node_v4(uint32_t mode);
     WINJACK_NODE_API WinJACKNexus::Node::INode *wjn_create_node(void);
     WINJACK_NODE_API void wjn_destroy_node(WinJACKNexus::Node::INode *node);
     WINJACK_NODE_API void *wjn_create_settings_view(WinJACKNexus::Node::INode *node,
@@ -66,6 +70,7 @@ extern "C"
                                                     const char *json);
 #else
 typedef struct WjnNode WjnNode;
+WINJACK_NODE_API WjnNode *wjn_create_node_v4(uint32_t mode);
 WINJACK_NODE_API WjnNode *wjn_create_node(void);
 WINJACK_NODE_API void wjn_destroy_node(WjnNode *node);
 WINJACK_NODE_API void *wjn_create_settings_view(WjnNode *node, void *parentHwnd);

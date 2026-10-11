@@ -563,7 +563,7 @@ extern "C"
     }
     const char *wjn_get_node_api_version(void)
     {
-        return "3";
+        return "4";
     }
     uint32_t wjn_fx_i18n_api_version(void)
     {
@@ -621,3 +621,6 @@ extern "C"
         return effect && effect->restoreSettings(json) ? 1 : 0;
     }
 }
+
+#define WJN_NODE_MODULE_FEATURES WJN_NODE_HAS_GUI
+#include <WinJACKNexus/Node/JackOnlyModuleV4.inc>

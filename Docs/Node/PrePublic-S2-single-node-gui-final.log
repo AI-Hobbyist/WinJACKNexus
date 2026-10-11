@@ -1,0 +1,10 @@
+PASS wasapi_in
+PASS wasapi_out
+PASS system_midi_in
+PASS system_midi_out
+PASS meter_mono
+PASS meter_stereo
+PASS meter_5_1
+PASS meter_7_1
+PASS meter_custom
+PASS 9 independent DLLs; Windows 100%, systemFont=Microsoft YaHei UI, top-level displays=10, all window/popup/tooltip shows=14/100; no JACK/device initialization

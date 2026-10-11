@@ -17,7 +17,7 @@
 
 const char *wjn_get_node_api_version(void)
 {
-    return "3";
+    return "4";
 }
 
 const char *wjn_get_node_name(void)
@@ -60,3 +60,5 @@ int wjn_set_node_settings_json(WinJACKNexus::Node::INode *, const char *)
 {
     return 0;
 }
+
+#include <WinJACKNexus/Node/JackOnlyModuleV4.inc>

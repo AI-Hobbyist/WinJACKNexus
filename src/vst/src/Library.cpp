@@ -910,7 +910,7 @@ void SettingsWidget::refresh()
 
 const char* wjn_get_node_api_version(void)
 {
-    return "3";
+    return "4";
 }
 
 std::uint32_t wjn_get_node_theme_api_version(void)
@@ -1012,3 +1012,6 @@ extern "C" WINJACK_NODE_API const char* wjn_get_node_client_id(WinJACKNexus::Nod
     clientId = vstNode == nullptr ? QByteArray {} : vstNode->expectedClientId().toUtf8();
     return clientId.constData();
 }
+
+#define WJN_NODE_MODULE_FEATURES WJN_NODE_HAS_GUI
+#include <WinJACKNexus/Node/JackOnlyModuleV4.inc>

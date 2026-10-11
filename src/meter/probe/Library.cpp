@@ -1311,7 +1311,7 @@ class MeterProbeNode final : public WinJACKNexus::Node::INode
 
 const char *wjn_get_node_api_version(void)
 {
-    return "3";
+    return "4";
 }
 
 std::uint32_t wjn_get_node_theme_api_version(void)
@@ -1431,3 +1431,6 @@ extern "C" WINJACK_NODE_API const char *wjn_get_node_client_id(WinJACKNexus::Nod
     const auto *probe = dynamic_cast<const MeterProbeNode *>(node);
     return probe == nullptr ? "" : probe->clientId();
 }
+
+#define WJN_NODE_MODULE_FEATURES WJN_NODE_HAS_GUI
+#include <WinJACKNexus/Node/JackOnlyModuleV4.inc>
