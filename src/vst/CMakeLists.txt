@@ -53,6 +53,14 @@ add_custom_command(TARGET mod_vst_host POST_BUILD
     VERBATIM)
 
 if(BUILD_TESTING)
+    find_package(Qt6 6.10.3 EXACT REQUIRED COMPONENTS Test)
+    add_executable(wjn_vst_mode_tests "${PROJECT_SOURCE_DIR}/Develop/Vst/ModeTests.cpp")
+    target_link_libraries(wjn_vst_mode_tests PRIVATE WinJACKNexus::UI WinJACKNexus::Node Qt6::Test)
+    target_compile_features(wjn_vst_mode_tests PRIVATE cxx_std_20)
+    target_compile_definitions(wjn_vst_mode_tests PRIVATE WIN32_LEAN_AND_MEAN NOMINMAX)
+    set_target_properties(wjn_vst_mode_tests PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEASE "${WJN_OUTPUT_DIR}")
+    add_dependencies(wjn_vst_mode_tests mod_vst_host vst_process64
+                     wjn_vst2_block_fixture64 wjn_vst3_block_fixture64 wjn_vst_jack_fixture64)
     add_executable(wjn_vst_i18n_tests "${PROJECT_SOURCE_DIR}/Develop/VstI18nTests.cpp")
     target_link_libraries(wjn_vst_i18n_tests PRIVATE WinJACKNexus::UI WinJACKNexus::Node Qt6::Widgets)
     target_compile_features(wjn_vst_i18n_tests PRIVATE cxx_std_20)

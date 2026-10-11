@@ -1,0 +1,12 @@
+EXPORTS
+    jack_client_open
+    jack_client_close
+    jack_activate
+    jack_deactivate
+    jack_set_process_callback
+    jack_port_register
+    jack_port_get_buffer
+    jack_midi_get_event_count
+    jack_midi_event_get
+    jack_get_sample_rate
+    jack_get_buffer_size

@@ -234,3 +234,7 @@ Native Fx standalone titles refresh their translated effect name together with t
 `DualModeModuleV4.inc` 以 WJN_NODE_MODULE_TYPE / WJN_NODE_MODULE_FEATURES 导出完整 v4 metadata、固定模式 factory 和 VIRT v1 函数表。实现类构造时接受模式，并提供 virtualPortCount/virtualPort/virtualPrepare/virtualProcess/virtualReset/virtualStop；表不承担 JACK 初始化或实例销毁。JACK-only 模块继续用 JackOnlyModuleV4.inc，不能以完整空实现提前宣称 VIRT。
 
 MIDI Split/Matrix 和八个 Native Fx、ExampleNativeFx 已迁移双模式。VIRT 的逻辑端口及事件数据借用遵循现有 v1 契约；宿主缓冲外不保存事件指针，超容量丢弃新事件并累计 dropped。Split 的显示名称翻译不更改 midi_spilit 稳定标识。Native Fx placement 的布局行为与边界 v2 见 NativeFx-API.md；其他尚未迁移节点保持 JACK-only。
+
+## VST 双模式（公开仓库前 S5，2026-10-11）
+
+VST Host 及继承其 metadata 的扫描插件条目已声明 JACK/VIRT 双能力。模式、内部块协议 v1、有界 MIDI、根时钟、异步延迟和失败清理见 [VST 处理契约](../Vst/Virtual-Processing.md)。Node v4 外部函数表未改变；Host 与 x86/x64 VSTProcess 必须同步替换。

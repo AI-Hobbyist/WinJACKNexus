@@ -1238,8 +1238,7 @@ public:
           FreeLibrary(library);
           return nullptr;
       }
-      if (mode == WJN_NODE_MODE_JACK && prepareNodeForCanvas != nullptr &&
-          prepareNodeForCanvas(node) == 0)
+      if (prepareNodeForCanvas != nullptr && prepareNodeForCanvas(node) == 0)
       {
           destroyNode(node);
           FreeLibrary(library);

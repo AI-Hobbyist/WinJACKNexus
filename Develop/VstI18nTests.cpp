@@ -144,7 +144,9 @@ int main(int argc, char **argv)
         path, WinJACKNexus::UI::I18nManager::Extension::node, 0, &error);
     require(bool(lease) && bool(secondLease), qPrintable(error));
     const auto create =
-        reinterpret_cast<WinJACKNexus::Node::INode *(*)(void)>(library.resolve("wjn_create_node"));
+        reinterpret_cast<decltype(&wjn_create_node_v4)>(library.resolve("wjn_create_node_v4"));
+    const auto virtualApi = reinterpret_cast<decltype(&wjn_get_node_virtual_api_v1)>(
+        library.resolve("wjn_get_node_virtual_api_v1"));
     const auto destroy = reinterpret_cast<void (*)(WinJACKNexus::Node::INode *)>(
         library.resolve("wjn_destroy_node"));
     const auto widgetCreate =
@@ -155,8 +157,10 @@ int main(int argc, char **argv)
     const auto state = reinterpret_cast<const char *(*)(WinJACKNexus::Node::INode *)>(
         library.resolve("wjn_get_node_settings_json"));
     require(create && destroy && widgetCreate && widgetDestroy && state, "actual module exports");
-    auto *node = create();
-    require(node && node->init(), "offline node with no plugin or JACK process");
+    auto *node = create(WJN_NODE_MODE_VIRT);
+    WjnNodePrepareV1 preparation{sizeof(preparation), 64, 48000, nullptr};
+    require(node && !node->init() && virtualApi && virtualApi()->prepare(node, &preparation),
+            "offline virtual node with no plugin or JACK process");
     const QByteArray original(state(node));
     QWidget *window = widgetCreate(node, nullptr);
     require(window, "actual DLL settings widget");
@@ -168,6 +172,7 @@ int main(int argc, char **argv)
     window->activateWindow();
     settle();
     require(window->isVisible() && window->windowHandle()->isExposed(), "visible real DLL window");
+    require(window->devicePixelRatioF() == 1, "100% native window scale");
     const auto fields = window->findChildren<QLineEdit *>();
     const auto choices = window->findChildren<QComboBox *>();
     require(fields.size() == 3 && choices.size() == 2, "actual settings fields and choices");

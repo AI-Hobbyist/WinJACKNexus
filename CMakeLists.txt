@@ -67,6 +67,7 @@ function(wjn_add_win32_auxiliary_target target source_dir build_target)
         CMAKE_GENERATOR_PLATFORM Win32
         CMAKE_ARGS "-DWJN_OUTPUT_DIR:PATH=${WJN_OUTPUT_DIR}"
                    "-DWJN_ENABLE_VST2:BOOL=${WJN_ENABLE_VST2}"
+                   "-DBUILD_TESTING:BOOL=${BUILD_TESTING}"
         BUILD_COMMAND "${CMAKE_COMMAND}" --build <BINARY_DIR> --config $<CONFIG> --target
                       ${build_target}
         BUILD_ALWAYS TRUE

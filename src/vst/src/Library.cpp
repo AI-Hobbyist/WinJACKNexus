@@ -42,6 +42,9 @@
 
 #include <Windows.h>
 
+#include <WinJACKNexus/Common/VstBlockIpc.hpp>
+#include <cmath>
+#include <vector>
 #include <atomic>
 #include <cstdint>
 #include <memory>
@@ -52,6 +55,7 @@
 #endif
 
 namespace {
+namespace IPC = WinJACKNexus::Common::VstBlockIpc;
 using VstI18n::Text;
 using VstI18n::text;
 inline Text vstText(const char* key,const char* english) { return text(key,english); }
@@ -300,286 +304,370 @@ private:
 
 class VstHostNode final : public WinJACKNexus::Node::INode {
 public:
-    ~VstHostNode() override
-    {
-        shutdown();
-    }
+  explicit VstHostNode(uint32_t mode = WJN_NODE_MODE_JACK) : mode_(mode) {}
+#include "VirtualNode.inc"
+  ~VstHostNode() override
+  {
+      shutdown();
+  }
 
-    WinJACKNexus::Node::NodeInfo info() const noexcept override
-    {
-        return { kNodeName, kNodeCategory, "0.1.0", "WinJACKNexus",
-                 "Loads one VST plugin through a native VSTProcess sandbox." };
-    }
+  WinJACKNexus::Node::NodeInfo info() const noexcept override
+  {
+      return {kNodeName, kNodeCategory, "0.1.0", "WinJACKNexus",
+              "Loads one VST plugin through a native VSTProcess sandbox."};
+  }
 
-    bool init() noexcept override
-    {
-        initialized_ = true;
-        processWatcher_ = std::make_unique<QObject>();
-        return reload();
-    }
+  bool init() noexcept override
+  {
+      if (mode_ != WJN_NODE_MODE_JACK)
+          return false;
+      initialized_ = true;
+      processWatcher_ = std::make_unique<QObject>();
+      return reload();
+  }
 
-    void shutdown() noexcept override
-    {
-        stopProcess();
-        processWatcher_.reset();
-        initialized_ = false;
-    }
+  void shutdown() noexcept override
+  {
+      stopProcess();
+      mapping_.close();
+      processWatcher_.reset();
+      initialized_ = false;
+  }
 
-    HWND createWindow(HWND) noexcept override
-    {
-        return nullptr;
-    }
+  HWND createWindow(HWND) noexcept override
+  {
+      return nullptr;
+  }
 
-    void destroyWindow(HWND) noexcept override
-    {
-    }
+  void destroyWindow(HWND) noexcept override {}
 
-    bool applySettings(const QString& path, const QString& clientName, ProcessBits bits,
-                       PortDisplayMode portDisplayMode, const QString& internalPlugin = {},
-                       const QString& internalPluginName = {}) noexcept
-    {
-        const auto selectedPath = path.trimmed();
-        if (path_ != selectedPath) {
-            internalPlugin_.clear();
-            internalPluginName_.clear();
-            presetData_.clear();
-            presetPath_.clear();
-        }
-        path_ = selectedPath;
-        clientName_ = clientName.trimmed();
-        bits_ = bits;
-        portDisplayMode_ = portDisplayMode;
-        internalPlugin_ = internalPlugin.trimmed();
-        internalPluginName_ = internalPluginName.trimmed();
-        return !initialized_ || reload();
-    }
+  bool applySettings(const QString &path, const QString &clientName, ProcessBits bits,
+                     PortDisplayMode portDisplayMode, const QString &internalPlugin = {},
+                     const QString &internalPluginName = {}) noexcept
+  {
+      const auto selectedPath = path.trimmed();
+      if (path_ != selectedPath)
+      {
+          internalPlugin_.clear();
+          internalPluginName_.clear();
+          presetData_.clear();
+          presetPath_.clear();
+      }
+      path_ = selectedPath;
+      clientName_ = clientName.trimmed();
+      bits_ = bits;
+      portDisplayMode_ = portDisplayMode;
+      internalPlugin_ = internalPlugin.trimmed();
+      internalPluginName_ = internalPluginName.trimmed();
+      return !initialized_ || reload();
+  }
 
-    QString pluginPath() const { return path_; }
-    QString clientName() const { return clientName_; }
-    ProcessBits processBits() const noexcept { return bits_; }
-    PortDisplayMode portDisplayMode() const noexcept { return portDisplayMode_; }
-    QString internalPlugin() const { return internalPlugin_; }
-    QString internalPluginName() const { return internalPluginName_; }
-    QString presetPath() const { return presetPath_; }
-    QString status() const { return status_; }
-    bool restartPlugin() noexcept
-    {
-        bypassed_ = false;
-        return reload();
-    }
-    QString expectedClientId() const { return expectedClientId_; }
+  QString pluginPath() const
+  {
+      return path_;
+  }
+  QString clientName() const
+  {
+      return clientName_;
+  }
+  ProcessBits processBits() const noexcept
+  {
+      return bits_;
+  }
+  PortDisplayMode portDisplayMode() const noexcept
+  {
+      return portDisplayMode_;
+  }
+  QString internalPlugin() const
+  {
+      return internalPlugin_;
+  }
+  QString internalPluginName() const
+  {
+      return internalPluginName_;
+  }
+  QString presetPath() const
+  {
+      return presetPath_;
+  }
+  QString status() const
+  {
+      return status_;
+  }
+  bool restartPlugin() noexcept
+  {
+      bypassed_ = false;
+      return reload();
+  }
+  QString expectedClientId() const
+  {
+      return expectedClientId_;
+  }
 
-    bool savePreset(const QString& path) noexcept
-    {
-        const auto selectedPath = path.trimmed();
-        if (selectedPath.isEmpty())
-            return false;
-        const auto response = sendPipeCommand("save-preset " + selectedPath.toUtf8() + "\n");
-        if (!response.contains(QStringLiteral("\"ok\":true"))) {
-            status_ = response.isEmpty() ? vstText("error.savePreset", "Unable to save the VST preset.") : Text(response);
-            return false;
-        }
-        presetPath_ = selectedPath;
-        status_ = vstText("status.saved", "VST preset saved.");
-        return true;
-    }
+  bool savePreset(const QString &path) noexcept
+  {
+      const auto selectedPath = path.trimmed();
+      if (selectedPath.isEmpty())
+          return false;
+      const auto response = sendPipeCommand("save-preset " + selectedPath.toUtf8() + "\n");
+      if (!response.contains(QStringLiteral("\"ok\":true")))
+      {
+          status_ = response.isEmpty()
+                        ? vstText("error.savePreset", "Unable to save the VST preset.")
+                        : Text(response);
+          return false;
+      }
+      presetPath_ = selectedPath;
+      status_ = vstText("status.saved", "VST preset saved.");
+      return true;
+  }
 
-    bool loadPreset(const QString& path) noexcept
-    {
-        const auto selectedPath = path.trimmed();
-        if (selectedPath.isEmpty() || !QFileInfo::exists(selectedPath)) {
-            status_ = vstText("error.presetMissing", "The selected VST preset file does not exist.");
-            return false;
-        }
-        const auto response = sendPipeCommand("load-preset " + selectedPath.toUtf8() + "\n");
-        if (!response.contains(QStringLiteral("\"ok\":true"))) {
-            status_ = response.isEmpty() ? vstText("error.loadPreset", "Unable to load the VST preset.") : Text(response);
-            return false;
-        }
-        presetPath_ = selectedPath;
-        QFile file(selectedPath);
-        if (file.open(QIODevice::ReadOnly))
-            presetData_ = file.readAll();
-        status_ = vstText("status.loaded", "VST preset loaded.");
-        return true;
-    }
+  bool loadPreset(const QString &path) noexcept
+  {
+      const auto selectedPath = path.trimmed();
+      if (selectedPath.isEmpty() || !QFileInfo::exists(selectedPath))
+      {
+          status_ = vstText("error.presetMissing", "The selected VST preset file does not exist.");
+          return false;
+      }
+      const auto response = sendPipeCommand("load-preset " + selectedPath.toUtf8() + "\n");
+      if (!response.contains(QStringLiteral("\"ok\":true")))
+      {
+          status_ = response.isEmpty()
+                        ? vstText("error.loadPreset", "Unable to load the VST preset.")
+                        : Text(response);
+          return false;
+      }
+      presetPath_ = selectedPath;
+      QFile file(selectedPath);
+      if (file.open(QIODevice::ReadOnly))
+          presetData_ = file.readAll();
+      status_ = vstText("status.loaded", "VST preset loaded.");
+      return true;
+  }
 
-    QWidget* createSettingsWidget(QWidget* parent) noexcept
-    {
-        if (QApplication::instance() == nullptr)
-            return nullptr;
-        try {
-            auto* widget = new SettingsWidget(*this, parent);
-            widget->setAttribute(Qt::WA_DeleteOnClose, true);
-            return widget;
-        } catch (...) {
-            return nullptr;
-        }
-    }
+  QWidget *createSettingsWidget(QWidget *parent) noexcept
+  {
+      if (QApplication::instance() == nullptr)
+          return nullptr;
+      try
+      {
+          auto *widget = new SettingsWidget(*this, parent);
+          widget->setAttribute(Qt::WA_DeleteOnClose, true);
+          return widget;
+      }
+      catch (...)
+      {
+          return nullptr;
+      }
+  }
 
-    const char* settingsJson() noexcept
-    {
-        capturePresetState();
-        const auto bits = bits_ == ProcessBits::automatic ? QStringLiteral("auto")
-            : bits_ == ProcessBits::x86 ? QStringLiteral("32") : QStringLiteral("64");
-        serializedSettings_ = QJsonDocument(QJsonObject {
-            { QStringLiteral("path"), path_ },
-            { QStringLiteral("clientName"), clientName_ },
-            { QStringLiteral("bits"), bits },
-            { QStringLiteral("portDisplayMode"), static_cast<int>(portDisplayMode_) },
-            { QStringLiteral("internalPlugin"), internalPlugin_ },
-            { QStringLiteral("internalPluginName"), internalPluginName_ },
-            { QStringLiteral("presetData"), QString::fromLatin1(presetData_.toBase64()) },
-            { QStringLiteral("instanceId"), instanceId_ }
-        }).toJson(QJsonDocument::Compact).toStdString();
-        return serializedSettings_.c_str();
-    }
+  const char *settingsJson() noexcept
+  {
+      capturePresetState();
+      const auto bits = bits_ == ProcessBits::automatic ? QStringLiteral("auto")
+                        : bits_ == ProcessBits::x86     ? QStringLiteral("32")
+                                                        : QStringLiteral("64");
+      serializedSettings_ =
+          QJsonDocument(
+              QJsonObject{
+                  {QStringLiteral("path"), path_},
+                  {QStringLiteral("clientName"), clientName_},
+                  {QStringLiteral("bits"), bits},
+                  {QStringLiteral("portDisplayMode"), static_cast<int>(portDisplayMode_)},
+                  {QStringLiteral("internalPlugin"), internalPlugin_},
+                  {QStringLiteral("internalPluginName"), internalPluginName_},
+                  {QStringLiteral("presetData"), QString::fromLatin1(presetData_.toBase64())},
+                  {QStringLiteral("instanceId"), instanceId_}})
+              .toJson(QJsonDocument::Compact)
+              .toStdString();
+      return serializedSettings_.c_str();
+  }
 
-    int restoreSettingsJson(const char* json) noexcept
-    {
-        if (json == nullptr)
-            return 0;
-        QJsonParseError error;
-        const auto document = QJsonDocument::fromJson(QByteArray(json), &error);
-        if (error.error != QJsonParseError::NoError || !document.isObject())
-            return 0;
-        const auto values = document.object();
-        const auto bits = values.value(QStringLiteral("bits")).toString();
-        const auto selectedBits = bits == QStringLiteral("32") ? ProcessBits::x86
-            : bits == QStringLiteral("64") ? ProcessBits::x64 : ProcessBits::automatic;
-        const auto portDisplayMode = static_cast<PortDisplayMode>(std::clamp(
-            values.value(QStringLiteral("portDisplayMode")).toInt(static_cast<int>(PortDisplayMode::defaultNames)),
-            static_cast<int>(PortDisplayMode::defaultNames),
-            static_cast<int>(PortDisplayMode::jackDefault)));
-        const auto instanceId = values.value(QStringLiteral("instanceId")).toString();
-        if (!instanceId.isEmpty())
-            instanceId_ = instanceId;
-        const auto internalPlugin = values.value(QStringLiteral("internalPlugin")).toString().trimmed();
-        const auto presetData = QByteArray::fromBase64(values.value(QStringLiteral("presetData")).toString().toLatin1());
-        if (!applySettings(values.value(QStringLiteral("path")).toString(),
-                           values.value(QStringLiteral("clientName")).toString(),
-                           selectedBits, portDisplayMode,
-                           internalPlugin.isEmpty() ? values.value(QStringLiteral("internal_plugin")).toVariant().toString() : internalPlugin,
-                           values.value(QStringLiteral("internalPluginName")).toString())) {
-            return 0;
-        }
-        presetData_ = presetData;
-        const auto sandboxRunning = process_ && process_->state() != QProcess::NotRunning;
-        return (!sandboxRunning || presetData_.isEmpty() || restorePresetState()) ? 1 : 0;
-    }
+  int restoreSettingsJson(const char *json) noexcept
+  {
+      if (json == nullptr)
+          return 0;
+      QJsonParseError error;
+      const auto document = QJsonDocument::fromJson(QByteArray(json), &error);
+      if (error.error != QJsonParseError::NoError || !document.isObject())
+          return 0;
+      const auto values = document.object();
+      const auto bits = values.value(QStringLiteral("bits")).toString();
+      const auto selectedBits = bits == QStringLiteral("32")   ? ProcessBits::x86
+                                : bits == QStringLiteral("64") ? ProcessBits::x64
+                                                               : ProcessBits::automatic;
+      const auto portDisplayMode = static_cast<PortDisplayMode>(
+          std::clamp(values.value(QStringLiteral("portDisplayMode"))
+                         .toInt(static_cast<int>(PortDisplayMode::defaultNames)),
+                     static_cast<int>(PortDisplayMode::defaultNames),
+                     static_cast<int>(PortDisplayMode::jackDefault)));
+      const auto instanceId = values.value(QStringLiteral("instanceId")).toString();
+      if (!instanceId.isEmpty())
+          instanceId_ = instanceId;
+      const auto internalPlugin =
+          values.value(QStringLiteral("internalPlugin")).toString().trimmed();
+      const auto presetData =
+          QByteArray::fromBase64(values.value(QStringLiteral("presetData")).toString().toLatin1());
+      if (!applySettings(
+              values.value(QStringLiteral("path")).toString(),
+              values.value(QStringLiteral("clientName")).toString(), selectedBits, portDisplayMode,
+              internalPlugin.isEmpty()
+                  ? values.value(QStringLiteral("internal_plugin")).toVariant().toString()
+                  : internalPlugin,
+              values.value(QStringLiteral("internalPluginName")).toString()))
+      {
+          return 0;
+      }
+      presetData_ = presetData;
+      const auto sandboxRunning = process_ && process_->state() != QProcess::NotRunning;
+      return (!sandboxRunning || presetData_.isEmpty() || restorePresetState()) ? 1 : 0;
+  }
 
-    bool prepareForCanvas() noexcept
-    {
-        if (!path_.isEmpty())
-            return true;
-        if (QApplication::instance() == nullptr)
-            return false;
-        const auto path = vstFile(nullptr,
-                                                      vstText("choose.plugin", "Choose VST plugin"),
-                                                      {},
-                                                      vstText("filter.plugin", "VST plugins (*.vst3 *.dll)"));
-        if (path.isEmpty())
-            return false;
-        return applySettings(path, {}, ProcessBits::automatic, PortDisplayMode::defaultNames);
-    }
+  bool prepareForCanvas() noexcept
+  {
+      if (!path_.isEmpty())
+          return true;
+      if (QApplication::instance() == nullptr)
+          return false;
+      const auto path = vstFile(nullptr, vstText("choose.plugin", "Choose VST plugin"), {},
+                                vstText("filter.plugin", "VST plugins (*.vst3 *.dll)"));
+      if (path.isEmpty())
+          return false;
+      return applySettings(path, {}, ProcessBits::automatic, PortDisplayMode::defaultNames);
+  }
 
-    bool showPluginGui() noexcept
-    {
-        const auto response = sendPipeCommand("open-editor\n");
-        if (response.contains(QStringLiteral("\"ok\":true"))) {
-            status_ = vstText("status.editor", "The plugin editor is open in a separate window.");
-            return true;
-        }
-        status_ = response.isEmpty() ? vstText("error.contact", "Unable to contact VSTProcess.") : Text(response);
-        return false;
-    }
+  bool showPluginGui() noexcept
+  {
+      const auto response = sendPipeCommand("open-editor\n");
+      if (response.contains(QStringLiteral("\"ok\":true")))
+      {
+          status_ = vstText("status.editor", "The plugin editor is open in a separate window.");
+          return true;
+      }
+      status_ = response.isEmpty() ? vstText("error.contact", "Unable to contact VSTProcess.")
+                                   : Text(response);
+      return false;
+  }
 
-    bool reload() noexcept
-    {
-        stopProcess();
-        if (path_.isEmpty()) {
-            status_ = vstText("status.choose", "Choose a VST plugin to start its sandbox.");
-            return true;
-        }
-        if (!QFileInfo::exists(path_)) {
-            status_ = vstText("error.pathMissing", "The configured plugin path does not exist.");
-            return false;
-        }
+  bool reload() noexcept
+  {
+      stopProcess();
+      if (path_.isEmpty())
+      {
+          status_ = vstText("status.choose", "Choose a VST plugin to start its sandbox.");
+          return true;
+      }
+      if (!QFileInfo::exists(path_))
+      {
+          status_ = vstText("error.pathMissing", "The configured plugin path does not exist.");
+          return false;
+      }
 
-        const auto resolvedBits = bits_ == ProcessBits::automatic ? detectPluginBits(path_) : bits_;
-        const auto executable = QCoreApplication::applicationDirPath()
-            + QStringLiteral("/VSTProcess") + (resolvedBits == ProcessBits::x86 ? QStringLiteral("32.exe") : QStringLiteral("64.exe"));
-        if (!QFileInfo::exists(executable)) {
-            status_ = vstText("error.processMissing", "The required VSTProcess executable is not available.");
-            return false;
-        }
-        executable_ = executable;
+      const auto resolvedBits = bits_ == ProcessBits::automatic ? detectPluginBits(path_) : bits_;
+      const auto executable =
+          QCoreApplication::applicationDirPath() + QStringLiteral("/VSTProcess") +
+          (resolvedBits == ProcessBits::x86 ? QStringLiteral("32.exe") : QStringLiteral("64.exe"));
+      if (!QFileInfo::exists(executable))
+      {
+          status_ = vstText("error.processMissing",
+                            "The required VSTProcess executable is not available.");
+          return false;
+      }
+      executable_ = executable;
 
-        if (path_.endsWith(QStringLiteral(".vst3"), Qt::CaseInsensitive)) {
-            Text factoryError;
-            const auto plugins = vst3Plugins(path_, factoryError);
-            if (!factoryError.isEmpty()) {
-                status_ = factoryError;
-                return false;
-            }
-            const auto configuredPlugin = std::find_if(plugins.cbegin(), plugins.cend(), [this](const InternalPlugin& plugin) {
-                return plugin.id.compare(internalPlugin_, Qt::CaseInsensitive) == 0;
-            });
-            if (!internalPlugin_.isEmpty() && configuredPlugin == plugins.cend()) {
-                const auto configuredName = std::find_if(plugins.cbegin(), plugins.cend(), [this](const InternalPlugin& plugin) {
-                    return plugin.name.compare(internalPlugin_, Qt::CaseInsensitive) == 0;
-                });
-                if (configuredName == plugins.cend()) {
-                    status_ = vstText("error.vst3Name", "The configured VST3 plugin name is not exposed by this module.");
-                    return false;
-                }
-                internalPlugin_ = configuredName->id;
-                internalPluginName_ = configuredName->name;
-            }
-            if (internalPlugin_.isEmpty() && plugins.size() > 1) {
-                if (QApplication::instance() == nullptr) {
-                    status_ = vstText("status.chooseClass", "Choose a VST3 plugin class before starting this node.");
-                    return false;
-                }
-                internalPlugin_ = chooseInternalPlugin(vstText("choose.vst3", "Choose VST3 Plugin"),
-                                                        vstText("choose.vst3Description", "Choose a VST3 plugin class or enter its class ID."),
-                                                        plugins);
-                if (internalPlugin_.isEmpty()) {
-                    status_ = vstText("status.vst3Cancelled", "VST3 plugin class selection was cancelled.");
-                    return false;
-                }
-            }
-            if (!internalPlugin_.isEmpty() && internalPluginName_.isEmpty())
-                internalPluginName_ = displayNameForInternalPlugin(plugins, internalPlugin_);
-        }
+      if (resolvedBits != ProcessBits::x86 &&
+          path_.endsWith(QStringLiteral(".vst3"), Qt::CaseInsensitive))
+      {
+          Text factoryError;
+          const auto plugins = vst3Plugins(path_, factoryError);
+          if (!factoryError.isEmpty())
+          {
+              status_ = factoryError;
+              return false;
+          }
+          const auto configuredPlugin =
+              std::find_if(plugins.cbegin(), plugins.cend(), [this](const InternalPlugin &plugin) {
+                  return plugin.id.compare(internalPlugin_, Qt::CaseInsensitive) == 0;
+              });
+          if (!internalPlugin_.isEmpty() && configuredPlugin == plugins.cend())
+          {
+              const auto configuredName = std::find_if(
+                  plugins.cbegin(), plugins.cend(), [this](const InternalPlugin &plugin) {
+                      return plugin.name.compare(internalPlugin_, Qt::CaseInsensitive) == 0;
+                  });
+              if (configuredName == plugins.cend())
+              {
+                  status_ =
+                      vstText("error.vst3Name",
+                              "The configured VST3 plugin name is not exposed by this module.");
+                  return false;
+              }
+              internalPlugin_ = configuredName->id;
+              internalPluginName_ = configuredName->name;
+          }
+          if (internalPlugin_.isEmpty() && plugins.size() > 1)
+          {
+              if (QApplication::instance() == nullptr)
+              {
+                  status_ = vstText("status.chooseClass",
+                                    "Choose a VST3 plugin class before starting this node.");
+                  return false;
+              }
+              internalPlugin_ =
+                  chooseInternalPlugin(vstText("choose.vst3", "Choose VST3 Plugin"),
+                                       vstText("choose.vst3Description",
+                                               "Choose a VST3 plugin class or enter its class ID."),
+                                       plugins);
+              if (internalPlugin_.isEmpty())
+              {
+                  status_ =
+                      vstText("status.vst3Cancelled", "VST3 plugin class selection was cancelled.");
+                  return false;
+              }
+          }
+          if (!internalPlugin_.isEmpty() && internalPluginName_.isEmpty())
+              internalPluginName_ = displayNameForInternalPlugin(plugins, internalPlugin_);
+      }
 
 #if WJN_ENABLE_VST2
-        if (path_.endsWith(QStringLiteral(".dll"), Qt::CaseInsensitive) && internalPlugin_.isEmpty()) {
-            Text shellError;
-            const auto plugins = shellPlugins(path_, shellError);
-            if (!shellError.isEmpty()) {
-                status_ = shellError;
-                return false;
-            }
-            if (!plugins.isEmpty()) {
-                if (QApplication::instance() == nullptr) {
-                    status_ = vstText("status.chooseShell", "Choose an internal VST2 Shell plugin before starting this node.");
-                    return false;
-                }
-                internalPlugin_ = chooseInternalPlugin(vstText("choose.shell", "Choose VST2 Shell Plugin"),
-                                                        vstText("choose.shellDescription", "Choose an internal plugin or enter its name / numeric ID."),
-                                                        plugins);
-                if (internalPlugin_.isEmpty()) {
-                    status_ = vstText("status.shellCancelled", "VST2 Shell plugin selection was cancelled.");
-                    return false;
-                }
-                internalPluginName_ = displayNameForInternalPlugin(plugins, internalPlugin_);
-            }
-        }
+      if (resolvedBits != ProcessBits::x86 &&
+          path_.endsWith(QStringLiteral(".dll"), Qt::CaseInsensitive) && internalPlugin_.isEmpty())
+      {
+          Text shellError;
+          const auto plugins = shellPlugins(path_, shellError);
+          if (!shellError.isEmpty())
+          {
+              status_ = shellError;
+              return false;
+          }
+          if (!plugins.isEmpty())
+          {
+              if (QApplication::instance() == nullptr)
+              {
+                  status_ =
+                      vstText("status.chooseShell",
+                              "Choose an internal VST2 Shell plugin before starting this node.");
+                  return false;
+              }
+              internalPlugin_ = chooseInternalPlugin(
+                  vstText("choose.shell", "Choose VST2 Shell Plugin"),
+                  vstText("choose.shellDescription",
+                          "Choose an internal plugin or enter its name / numeric ID."),
+                  plugins);
+              if (internalPlugin_.isEmpty())
+              {
+                  status_ = vstText("status.shellCancelled",
+                                    "VST2 Shell plugin selection was cancelled.");
+                  return false;
+              }
+              internalPluginName_ = displayNameForInternalPlugin(plugins, internalPlugin_);
+          }
+      }
 #endif
 
         return startProcess(false);
-    }
+  }
 
 private:
     bool startProcess(bool bypass) noexcept
@@ -602,6 +690,18 @@ private:
                                 QStringLiteral("--parent-pid"), QString::number(QCoreApplication::applicationPid()),
                                 QStringLiteral("--client"), expectedClientId_,
                                 QStringLiteral("--port-display"), portDisplayModeArgument(portDisplayMode_) };
+        if (mode_ == WJN_NODE_MODE_VIRT)
+        {
+            if (!mapping_.block())
+            {
+                mappingName_ = pipeName_ + QStringLiteral(".blocks.v1");
+                if (!mapping_.create(mappingName_.toStdWString(), virtualMaxFrames_, virtualRate_))
+                    return false;
+            }
+            // Reuse the mapping during crash bypass; the real-time reader retains its address.
+            InterlockedExchange(&mapping_.block()->state, IPC::free);
+            arguments += {QStringLiteral("--virtual-blocks-v1"), mappingName_};
+        }
         if (!internalPlugin_.isEmpty())
             arguments += { QStringLiteral("--internal_plugin"), internalPlugin_ };
         if (bypass) {
@@ -667,6 +767,19 @@ private:
             for (const auto& label : details.value(QStringLiteral("outputLabels")).toArray())
                 outputLabels_.push_back(label.toString());
         }
+        if (mode_ == WJN_NODE_MODE_VIRT)
+        {
+            const auto details = document.object();
+            if (details.value(QStringLiteral("virtualProtocol")).toInt() != int(IPC::version) ||
+                inputCount_ < 0 || outputCount_ < 0 || midiInputCount_ < 0 ||
+                inputCount_ > int(IPC::maxChannels) || outputCount_ > int(IPC::maxChannels) ||
+                midiInputCount_ > int(IPC::maxChannels))
+            {
+                stopProcess();
+                return false;
+            }
+            refreshVirtualPorts();
+        }
         bypassed_ = bypass;
         if (!bypass && !presetData_.isEmpty() && !restorePresetState())
             return false;
@@ -680,32 +793,55 @@ private:
         sendPipeCommand("quit\n", 3000);
     }
 
-    QString sendPipeCommand(const QByteArray& command, DWORD waitMilliseconds = 0) noexcept
+    QString sendPipeCommand(const QByteArray &command, DWORD waitMilliseconds = 0) noexcept
     {
         if (pipeName_.isEmpty())
             return {};
-        const auto fullPipeName = QStringLiteral("\\\\.\\pipe\\") + pipeName_;
-        if (waitMilliseconds != 0 && !WaitNamedPipeW(reinterpret_cast<LPCWSTR>(fullPipeName.utf16()), waitMilliseconds))
+        const auto fullName = QStringLiteral("\\\\.\\pipe\\") + pipeName_;
+        if (waitMilliseconds &&
+            !WaitNamedPipeW(reinterpret_cast<LPCWSTR>(fullName.utf16()), waitMilliseconds))
             return {};
-        const auto pipe = CreateFileW(reinterpret_cast<LPCWSTR>(fullPipeName.utf16()),
-                                      GENERIC_READ | GENERIC_WRITE,
-                                      0,
-                                      nullptr,
-                                      OPEN_EXISTING,
-                                      0,
-                                      nullptr);
+        const auto pipe =
+            CreateFileW(reinterpret_cast<LPCWSTR>(fullName.utf16()), GENERIC_READ | GENERIC_WRITE,
+                        0, nullptr, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, nullptr);
         if (pipe == INVALID_HANDLE_VALUE)
             return {};
-        DWORD bytesWritten {};
-        if (!WriteFile(pipe, command.constData(), static_cast<DWORD>(command.size()), &bytesWritten, nullptr)) {
+        OVERLAPPED operation{};
+        operation.hEvent = CreateEventW(nullptr, TRUE, FALSE, nullptr);
+        if (!operation.hEvent)
+        {
             CloseHandle(pipe);
             return {};
         }
-        char response[512] {};
-        DWORD bytesRead {};
-        ReadFile(pipe, response, sizeof(response) - 1, &bytesRead, nullptr);
+        const auto finish = [&](BOOL immediate, DWORD &transferred) {
+            if (immediate)
+                return true;
+            if (GetLastError() != ERROR_IO_PENDING)
+                return false;
+            if (WaitForSingleObject(operation.hEvent, waitMilliseconds ? waitMilliseconds : 3000) ==
+                WAIT_OBJECT_0)
+                return GetOverlappedResult(pipe, &operation, &transferred, FALSE) != FALSE;
+            // Cancel and drain before releasing the borrowed request/response memory.
+            CancelIoEx(pipe, &operation);
+            GetOverlappedResult(pipe, &operation, &transferred, TRUE);
+            return false;
+        };
+        DWORD written{};
+        const auto write =
+            WriteFile(pipe, command.constData(), DWORD(command.size()), &written, &operation);
+        char response[8192]{};
+        DWORD read{};
+        bool received = false;
+        if (finish(write, written))
+        {
+            ResetEvent(operation.hEvent);
+            const auto pendingRead =
+                ReadFile(pipe, response, sizeof(response) - 1, &read, &operation);
+            received = finish(pendingRead, read);
+        }
+        CloseHandle(operation.hEvent);
         CloseHandle(pipe);
-        return QString::fromUtf8(response, static_cast<qsizetype>(bytesRead));
+        return received ? QString::fromUtf8(response, read) : QString{};
     }
 
     bool capturePresetState() noexcept
@@ -1014,4 +1150,12 @@ extern "C" WINJACK_NODE_API const char* wjn_get_node_client_id(WinJACKNexus::Nod
 }
 
 #define WJN_NODE_MODULE_FEATURES WJN_NODE_HAS_GUI
-#include <WinJACKNexus/Node/JackOnlyModuleV4.inc>
+#define WJN_NODE_MODULE_TYPE VstHostNode
+#include <WinJACKNexus/Node/DualModeModuleV4.inc>
+
+extern "C" WINJACK_NODE_API uint64_t wjn_vst_virtual_counter(WinJACKNexus::Node::INode *node,
+                                                             uint32_t index)
+{
+    const auto *vst = dynamic_cast<VstHostNode *>(node);
+    return vst ? vst->virtualCounter(index) : 0;
+}

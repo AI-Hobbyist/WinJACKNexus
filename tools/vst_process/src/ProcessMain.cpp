@@ -1,4 +1,6 @@
 #include <WinJACKNexus/Common/StandardChannelNames.hpp>
+#include <WinJACKNexus/Common/VstBlockIpc.hpp>
+#include <cmath>
 /*
  * This file is part of WinJACKNexus.
  *
@@ -63,6 +65,7 @@ using VstInt32 = std::int32_t;
 
 namespace
 {
+namespace IPC = WinJACKNexus::Common::VstBlockIpc;
 
 constexpr int kArgumentError = 1;
 constexpr int kPluginLoadError = 2;
@@ -84,6 +87,7 @@ VstIntPtr currentVst2UniqueId = 0;
 double currentVst2SampleRate = 48000.0;
 VstIntPtr currentVst2BlockSize = 512;
 std::atomic<HWND> currentVst2EditorWindow{};
+thread_local VstTimeInfo currentVst2Time{};
 
 bool resizeClientArea(HWND window, SIZE clientSize) noexcept;
 
@@ -94,6 +98,8 @@ VstIntPtr VSTCALLBACK vst2HostCallback(AEffect *, VstInt32 opcode, VstInt32 inde
         return 2400;
     if (opcode == audioMasterCurrentId)
         return currentVst2UniqueId;
+    if (opcode == audioMasterGetTime)
+        return reinterpret_cast<VstIntPtr>(&currentVst2Time);
     if (opcode == audioMasterGetSampleRate)
         return static_cast<VstIntPtr>(currentVst2SampleRate);
     if (opcode == audioMasterGetBlockSize)
@@ -117,6 +123,7 @@ struct Options final
     std::wstring path;
     std::wstring clientName{L"WinJACKNexus-VST"};
     std::wstring pipeName;
+    std::wstring virtualMapping;
     DWORD parentPid{};
     std::wstring internalPlugin;
     std::wstring portDisplayMode{L"default"};
@@ -163,6 +170,12 @@ bool parseOptions(int argc, wchar_t *argv[], Options &options)
         if (argument == L"--path")
         {
             if (!readOptionValue(index, argc, argv, options.path))
+                return false;
+            continue;
+        }
+        if (argument == L"--virtual-blocks-v1")
+        {
+            if (!readOptionValue(index, argc, argv, options.virtualMapping))
                 return false;
             continue;
         }
@@ -240,9 +253,10 @@ bool parseOptions(int argc, wchar_t *argv[], Options &options)
         }
         if (argument == L"--bypass-input-label" || argument == L"--bypass-output-label")
         {
-            std::wstring value;
-            if (!readOptionValue(index, argc, argv, value))
+            // Empty plugin labels are valid; preserve their channel positions in bypass.
+            if (++index >= argc)
                 return false;
+            const std::wstring value = argv[index];
             auto &labels = argument == L"--bypass-input-label" ? options.bypassInputLabels
                                                                : options.bypassOutputLabels;
             labels.push_back(utf8FromWide(value));
@@ -526,6 +540,7 @@ class AudioPlugin
 {
   public:
     virtual ~AudioPlugin() = default;
+    virtual void setSamplePosition(uint64_t) noexcept {}
     virtual bool prepare(double, VstInt32, std::string &)
     {
         return true;
@@ -1245,6 +1260,11 @@ class Vst3Plugin final : public AudioPlugin
             error);
     }
 
+    void setSamplePosition(uint64_t position) noexcept override
+    {
+        processedSamples_ = position;
+    }
+
     void process(float **inputs, float **outputs, VstInt32 frames, const MidiInputEvent *midiEvents,
                  VstInt32 midiEventCount) noexcept override
     {
@@ -1905,6 +1925,13 @@ class Vst2Plugin final : public AudioPlugin
         return true;
     }
 
+    void setSamplePosition(uint64_t position) noexcept override
+    {
+        currentVst2Time.samplePos = double(position);
+        currentVst2Time.sampleRate = currentVst2SampleRate;
+        currentVst2Time.flags = kVstTransportPlaying;
+    }
+
     void process(float **inputs, float **outputs, VstInt32 frames, const MidiInputEvent *midiEvents,
                  VstInt32 midiEventCount) noexcept override
     {
@@ -2160,6 +2187,8 @@ class Vst2Plugin final : public AudioPlugin
     EditorWindow editor_;
 };
 #endif
+
+#include "VirtualRuntime.inc"
 
 class JackRuntime final
 {
@@ -2444,13 +2473,18 @@ class JackRuntime final
                       });
         }
         if (runtime->plugin_ != nullptr)
+        {
+            runtime->plugin_->setSamplePosition(runtime->processedSamples_);
             runtime->plugin_->process(runtime->inputBuffers_.data(), runtime->outputBuffers_.data(),
                                       static_cast<VstInt32>(frames), runtime->midiEvents_.data(),
                                       runtime->midiEventCount_);
+            runtime->processedSamples_ += frames;
+        }
         return 0;
     }
 
     HMODULE library_{};
+    uint64_t processedSamples_{};
     jack_client_t *client_{};
     bool active_{};
     ClientOpen clientOpen_{};
@@ -2478,8 +2512,10 @@ class JackRuntime final
 class PipeServer final
 {
   public:
-    PipeServer(const std::wstring &name, JackRuntime &jack, AudioPlugin &plugin)
-        : name_(normalizedPipeName(name)), jack_(jack), plugin_(plugin)
+    PipeServer(const std::wstring &name, JackRuntime &jack, AudioPlugin &plugin,
+               VirtualRuntime *virtualRuntime = nullptr)
+        : name_(normalizedPipeName(name)), jack_(jack), plugin_(plugin),
+          virtualRuntime_(virtualRuntime)
     {
     }
 
@@ -2584,20 +2620,33 @@ class PipeServer final
         if (!ReadFile(pipe, request, sizeof(request) - 1, &bytesRead, nullptr))
             return;
         const std::string_view command(request, bytesRead);
+        std::unique_lock<std::mutex> control;
+        if (virtualRuntime_)
+            control = std::unique_lock<std::mutex>(virtualRuntime_->controlMutex());
         const char *response = "{\"ok\":false,\"error\":\"unknown command\"}\n";
         if (command.find("ping") != std::string_view::npos)
             response = "{\"ok\":true,\"reply\":\"pong\"}\n";
         else if (command.find("status") != std::string_view::npos)
         {
             responseStorage_ =
-                jack_.isActive()
+                (virtualRuntime_ ? virtualRuntime_->isActive() : jack_.isActive())
                     ? "{\"ok\":true,\"active\":true,\"inputs\":" +
                           std::to_string(plugin_.inputCount()) +
                           ",\"outputs\":" + std::to_string(plugin_.outputCount()) +
                           ",\"midiInputs\":" + std::to_string(plugin_.midiInputCount()) +
                           ",\"inputLabels\":" + jsonArray(plugin_.inputBusNames()) +
-                          ",\"outputLabels\":" + jsonArray(plugin_.outputBusNames()) + "}\n"
+                          ",\"outputLabels\":" + jsonArray(plugin_.outputBusNames()) +
+                          ",\"virtualProtocol\":" +
+                          std::to_string(virtualRuntime_ ? IPC::version : 0) + "}\n"
                     : "{\"ok\":true,\"active\":false}\n";
+            response = responseStorage_.c_str();
+        }
+        else if (command.find("reset-blocks") != std::string_view::npos && virtualRuntime_)
+        {
+            std::string error;
+            responseStorage_ = virtualRuntime_->reset(error)
+                                   ? "{\"ok\":true}\n"
+                                   : "{\"ok\":false,\"error\":" + jsonString(error) + "}\n";
             response = responseStorage_.c_str();
         }
         else if (command.find("open-editor") != std::string_view::npos)
@@ -2655,6 +2704,7 @@ class PipeServer final
     std::wstring name_;
     JackRuntime &jack_;
     AudioPlugin &plugin_;
+    VirtualRuntime *virtualRuntime_{};
     std::atomic<bool> stop_{};
     std::string responseStorage_;
 };
@@ -2736,13 +2786,25 @@ int wmain(int argc, wchar_t *argv[])
     }
 
     JackRuntime jack;
-    if (!jack.open(options.clientName, options.portDisplayMode, *plugin, error))
+    VirtualRuntime virtualRuntime;
+    if (!options.virtualMapping.empty())
+    {
+        if (!virtualRuntime.start(options.virtualMapping, *plugin, error))
+        {
+            std::cerr << "Unable to start VIRT processing: " << error << '\n';
+            return kPluginLoadError;
+        }
+    }
+    else if (!jack.open(options.clientName, options.portDisplayMode, *plugin, error))
     {
         std::cerr << "Unable to start JACK client: " << error << '\n';
         return kJackError;
     }
 
-    const auto exitCode = PipeServer(options.pipeName, jack, *plugin).run();
+    const auto exitCode = PipeServer(options.pipeName, jack, *plugin,
+                                     options.virtualMapping.empty() ? nullptr : &virtualRuntime)
+                              .run();
+    virtualRuntime.stop();
     jack.deactivate();
     plugin->closeEditor();
     jack.close();

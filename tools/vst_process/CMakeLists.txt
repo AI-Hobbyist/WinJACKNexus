@@ -5,6 +5,11 @@ cmake_minimum_required(VERSION 3.25)
 
 set(WJN_VST3SDK_ROOT "${PROJECT_SOURCE_DIR}/third_party/vst3sdk")
 
+if(BUILD_TESTING)
+    include("${PROJECT_SOURCE_DIR}/Develop/Vst/Fixtures.cmake")
+    wjn_add_vst_block_fixtures(64 "${PROJECT_SOURCE_DIR}" "${WJN_OUTPUT_DIR}")
+endif()
+
 set(WJN_VST_PROCESS_SOURCES
     src/ProcessMain.cpp
     "${WJN_VST3SDK_ROOT}/pluginterfaces/base/funknown.cpp"

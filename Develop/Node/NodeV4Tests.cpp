@@ -155,7 +155,8 @@ int main(int argc, char **argv)
                 const auto file = entry.path().filename().string();
                 const bool migrated =
                     entry.path().generic_string().find("native_fx/") != std::string::npos ||
-                    file == "mod_midi_spilit.dll" || file == "mod_midi_matrix.dll";
+                    file == "mod_midi_spilit.dll" || file == "mod_midi_matrix.dll" ||
+                    file == "mod_vst_host.dll";
                 const auto expected = WJN_NODE_JACK_NODE | (migrated ? WJN_NODE_VIRT_NODE : 0u);
                 require(error == Node::ModuleError::none &&
                             contract.metadata.capabilities == expected,

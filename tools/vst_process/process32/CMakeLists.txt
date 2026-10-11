@@ -21,6 +21,11 @@ set(WJN_OUTPUT_DIR
     "${CMAKE_CURRENT_LIST_DIR}/../../../build/release/bin"
     CACHE PATH "VSTProcess output directory")
 option(WJN_ENABLE_VST2 "Enable VST2 hosting (licensed use only)" ON)
+option(BUILD_TESTING "Build offline VST fixtures" OFF)
+if(BUILD_TESTING)
+    include("${CMAKE_CURRENT_LIST_DIR}/../../../Develop/Vst/Fixtures.cmake")
+    wjn_add_vst_block_fixtures(32 "${CMAKE_CURRENT_LIST_DIR}/../../.." "${WJN_OUTPUT_DIR}")
+endif()
 
 add_executable(
     vst_process32
@@ -52,6 +57,10 @@ if(WJN_ENABLE_VST2)
 endif()
 target_compile_options(vst_process32 PRIVATE $<$<CXX_COMPILER_ID:MSVC>:/utf-8>)
 target_link_libraries(vst_process32 PRIVATE Ole32 Shell32)
+if(BUILD_TESTING)
+    add_dependencies(vst_process32 wjn_vst2_block_fixture32 wjn_vst3_block_fixture32
+                                  wjn_vst_jack_fixture32)
+endif()
 set_target_properties(
     vst_process32
     PROPERTIES CXX_STANDARD 17

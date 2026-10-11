@@ -1,0 +1,9 @@
+PASS jack: Node v4 module accepted
+PASS virt: Node v4 module accepted
+PASS dual: Node v4 module accepted
+PASS zero: Node capabilities/features contain invalid bits or nonzero reserved fields
+PASS unknown: Node capabilities/features contain invalid bits or nonzero reserved fields
+PASS old: Node v4 required; rebuild old modules against v4
+PASS missing: Missing or incompatible Node v4 metadata
+PASS incomplete: Node capabilities and complete VIRT processing interface disagree
+PASS C/C++ Node v4 ABI, precreation scan, explicit modes and 27 actual modules and their migration matrix; no JACK server
