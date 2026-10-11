@@ -515,8 +515,8 @@ void module(HostI18n &host, const QString &runtime, const QString &output, const
           "both placements register actual shared language domain");
     check(host.manager().setLanguage(languages.front(), &error),
           "select initial language before creating module windows");
-    auto *instance = create();
-    auto *second = create();
+    auto *instance = create(0);
+    auto *second = create(0);
     check(instance && second, "independent offline mixer instances");
     QWidget *panel = editor(instance, nullptr);
     QWidget *secondPanel = editor(second, nullptr);
@@ -1066,7 +1066,7 @@ void community(HostI18n &host, const QString &runtime, const QString &output,
     auto nodeLease = host.manager().registerLibrary(path, I18nManager::Extension::node, 0, &error);
     check(bool(fxLease) && bool(nodeLease) && host.manager().setLanguage(languages.front(), &error),
           "example dual placement leases and initial language");
-    auto *instance = create();
+    auto *instance = create(0);
     auto *view = editor(instance, nullptr);
     auto *node = createNode();
     check(instance && view && node && setName(node, "Example_User_Name") == 1,
