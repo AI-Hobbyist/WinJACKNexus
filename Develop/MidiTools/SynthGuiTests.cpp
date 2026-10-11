@@ -95,8 +95,8 @@ void captureInformationTooltip(QWidget &window, const QString &path, const QStri
                   for (auto *widget : QApplication::topLevelWidgets())
                   {
                       if (widget->windowType() == Qt::ToolTip && widget->isVisible() &&
-                      qobject_cast<QLabel *>(widget) &&
-                      IsWindowVisible(reinterpret_cast<HWND>(widget->winId())))
+                          qobject_cast<QLabel *>(widget) &&
+                          IsWindowVisible(reinterpret_cast<HWND>(widget->winId())))
                       {
                           tooltip = widget;
                           return true;
