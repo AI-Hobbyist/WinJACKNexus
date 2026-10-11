@@ -50,7 +50,8 @@ int main(int argc, char** argv) {
             check(catalog["moduleId"]==desc["moduleId"] && catalog["language"].toString()==lang,"catalog identity");
         }
         auto* a = create(0); auto* b = create(0);check(a && b && a != b,"independent instances");
-        check(!a->init(),"foundation cannot pretend to be ready before processing stage");
+        // Do not initialize implemented JACK clients in offline loading tests.
+        if(std::string(kind)!="midi_spilit")check(!a->init(),"foundation is not yet enabled");
         a->shutdown();b->shutdown();destroy(a);destroy(b);check(FreeLibrary(dll),"unload");
         std::cout << "PASS real DLL foundation " << kind << '\n';
     }
