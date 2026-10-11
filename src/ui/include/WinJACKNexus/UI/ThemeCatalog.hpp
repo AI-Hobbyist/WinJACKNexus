@@ -12,10 +12,12 @@ class QSettings;
 class QMenu;
 class QWidget;
 
-namespace WinJACKNexus::UI {
+namespace WinJACKNexus::UI
+{
 class ThemeCore;
 
-struct WINJACK_UI_API ThemeCatalogEntry final {
+struct WINJACK_UI_API ThemeCatalogEntry final
+{
     QString id;
     QString name;
     QString author;
@@ -25,26 +27,28 @@ struct WINJACK_UI_API ThemeCatalogEntry final {
 };
 
 // Scans only EXE-adjacent themes/*.wjnskin; keeps per-theme user overrides in settings.
-class WINJACK_UI_API ThemeCatalog final : public QObject {
-public:
-    ThemeCatalog(ThemeCore& core, QSettings& settings, QString directory = {}, QObject* parent = nullptr);
+class WINJACK_UI_API ThemeCatalog final : public QObject
+{
+  public:
+    ThemeCatalog(ThemeCore &core, QSettings &settings, QString directory = {},
+                 QObject *parent = nullptr);
 
-    bool refresh(QString* error = nullptr);
-    bool restoreSaved(QString* error = nullptr);
-    bool activate(const QString& id, QString* error = nullptr);
+    bool refresh(QString *error = nullptr);
+    bool restoreSaved(QString *error = nullptr);
+    bool activate(const QString &id, QString *error = nullptr);
     QVector<ThemeCatalogEntry> entries() const;
     QStringList diagnostics() const;
     QString selectedId() const;
     QString directory() const;
-    QMenu* createMenu(QWidget* parent, std::function<void()> openManagement,
-                      std::function<void(const QString&)> reportError);
+    QMenu *createMenu(QWidget *parent, std::function<void()> openManagement,
+                      std::function<void(const QString &)> reportError);
 
-private:
+  private:
     void saveCurrentOverrides();
     void synchronizeExternalSelection();
 
-    ThemeCore& core_;
-    QSettings& settings_;
+    ThemeCore &core_;
+    QSettings &settings_;
     QString directory_;
     QVector<ThemeCatalogEntry> entries_;
     QStringList diagnostics_;

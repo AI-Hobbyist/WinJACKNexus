@@ -1,7 +1,8 @@
 # This file is part of WinJACKNexus.
 # Licensed under the GNU Affero General Public License, version 3.
 # SPDX-License-Identifier: AGPL-3.0-only
-add_library(ui SHARED
+add_library(
+    ui SHARED
     src/Library.cpp
     src/ApplicationSettings.cpp
     src/I18nManager.cpp
@@ -61,24 +62,28 @@ add_library(ui SHARED
     include/WinJACKNexus/UI/ThemePackage.hpp
     include/WinJACKNexus/UI/ThemePalette.hpp
     include/WinJACKNexus/UI/TrayController.hpp
-    resources/ui.qrc
-)
+    resources/ui.qrc)
 
-target_include_directories(ui
-    PUBLIC
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-        $<INSTALL_INTERFACE:include>
-    PRIVATE ${PROJECT_SOURCE_DIR}/src/native_fx/include
-)
+target_include_directories(
+    ui
+    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> $<INSTALL_INTERFACE:include>
+    PRIVATE ${PROJECT_SOURCE_DIR}/src/native_fx/include)
 
-target_link_libraries(ui
+target_link_libraries(
+    ui
     PUBLIC Qt6::Widgets WinJACKNexus::Common
-    PRIVATE WinJACKNexus::Node
-)
+    PRIVATE WinJACKNexus::Node)
 add_dependencies(ui wjn_default_theme)
 
-find_package(Qt6ZlibPrivate 6.10.3 EXACT CONFIG REQUIRED
-    PATHS "${WJN_QT6_DIR}/../Qt6ZlibPrivate" NO_DEFAULT_PATH)
+find_package(
+    Qt6ZlibPrivate
+    6.10.3
+    EXACT
+    CONFIG
+    REQUIRED
+    PATHS
+    "${WJN_QT6_DIR}/../Qt6ZlibPrivate"
+    NO_DEFAULT_PATH)
 target_link_libraries(ui PRIVATE Qt6::ZlibPrivate)
 
 wjn_configure_shared_target(ui WJN_UI_BUILD)
@@ -87,20 +92,25 @@ set_target_properties(ui PROPERTIES AUTOMOC ON AUTORCC ON)
 set(WJN_QT_TRANSLATIONS_DIR "${WJN_QT6_DIR}/../../../translations")
 set(WJN_QT_ZH_CN_CATALOG "${PROJECT_BINARY_DIR}/qtbase_zh_CN.qm")
 set(WJN_QT_ZH_CN_OVERRIDES "${CMAKE_CURRENT_SOURCE_DIR}/resources/qt-overrides-zh_CN.ts")
-set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
-    "${WJN_QT_ZH_CN_OVERRIDES}" "${WJN_QT_TRANSLATIONS_DIR}/qtbase_zh_CN.qm")
+set_property(
+    DIRECTORY
+    APPEND
+    PROPERTY CMAKE_CONFIGURE_DEPENDS "${WJN_QT_ZH_CN_OVERRIDES}"
+             "${WJN_QT_TRANSLATIONS_DIR}/qtbase_zh_CN.qm")
 # Merge reviewed application terminology after the SDK catalog. Keep the SDK
 # intact and use the same corrected catalog for bundled fallback and deployment.
 execute_process(
-    COMMAND "${WJN_QT6_DIR}/../../../bin/lconvert.exe"
-        -i "${WJN_QT_TRANSLATIONS_DIR}/qtbase_zh_CN.qm"
+    COMMAND
+        "${WJN_QT6_DIR}/../../../bin/lconvert.exe" -i "${WJN_QT_TRANSLATIONS_DIR}/qtbase_zh_CN.qm"
         -i "${WJN_QT_ZH_CN_OVERRIDES}" -o "${WJN_QT_ZH_CN_CATALOG}"
     RESULT_VARIABLE WJN_QT_CATALOG_RESULT)
 if(NOT WJN_QT_CATALOG_RESULT EQUAL 0)
     message(FATAL_ERROR "Unable to merge reviewed Qt Chinese translations")
 endif()
-set(WJN_QT_ZH_CN_CATALOG "${WJN_QT_ZH_CN_CATALOG}" PARENT_SCOPE)
-configure_file(resources/qt-translations.qrc.in
-    "${CMAKE_CURRENT_BINARY_DIR}/qt-translations.qrc" @ONLY)
+set(WJN_QT_ZH_CN_CATALOG
+    "${WJN_QT_ZH_CN_CATALOG}"
+    PARENT_SCOPE)
+configure_file(resources/qt-translations.qrc.in "${CMAKE_CURRENT_BINARY_DIR}/qt-translations.qrc"
+               @ONLY)
 target_sources(ui PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/qt-translations.qrc")
 add_library(WinJACKNexus::UI ALIAS ui)

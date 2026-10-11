@@ -22,9 +22,11 @@
 #include <QStringList>
 #include <QVector>
 
-namespace WinJACKNexus::VstScanner {
+namespace WinJACKNexus::VstScanner
+{
 
-struct PluginInfo final {
+struct PluginInfo final
+{
     QString name;
     QString vendor;
     QString version;
@@ -32,45 +34,50 @@ struct PluginInfo final {
     QString path;
     QString category;
     QString subcategory;
-    int bits {};
-    bool isInstrument {};
-    bool verified {};
-    int vst2ProbeVersion {};
+    int bits{};
+    bool isInstrument{};
+    bool verified{};
+    int vst2ProbeVersion{};
     QString internalPlugin;
     QString infoFile;
 };
 
-using ScanProgressCallback = std::function<void(int completed, int total, const QString& currentPath)>;
-using ScanInfoWrittenCallback = std::function<void(const PluginInfo& info)>;
+using ScanProgressCallback =
+    std::function<void(int completed, int total, const QString &currentPath)>;
+using ScanInfoWrittenCallback = std::function<void(const PluginInfo &info)>;
 // Display-only translation; keys and English fallbacks never affect probing,
 // plug-in identity, output paths or serialized catalog fields.
-using ScanTextCallback = std::function<QString(const char* key, const char* english)>;
+using ScanTextCallback = std::function<QString(const char *key, const char *english)>;
 
-struct ScanOptions final {
+struct ScanOptions final
+{
     QStringList searchPaths;
     QString outputDirectory;
     ScanProgressCallback progressCallback;
     ScanInfoWrittenCallback infoWrittenCallback;
-    bool rescanVerifiedPlugins {};
+    bool rescanVerifiedPlugins{};
     ScanTextCallback textCallback;
 };
 
-struct ScanMessage final {
+struct ScanMessage final
+{
     QString path;
     QString text;
-    bool error {};
+    bool error{};
 };
 
-struct ScanReport final {
+struct ScanReport final
+{
     QVector<PluginInfo> plugins;
     QVector<ScanMessage> messages;
 };
 
-class Scanner final {
-public:
-    ScanReport scan(const ScanOptions& options) const;
+class Scanner final
+{
+  public:
+    ScanReport scan(const ScanOptions &options) const;
 
-    static std::optional<PluginInfo> loadInfoFile(const QString& infoFile);
+    static std::optional<PluginInfo> loadInfoFile(const QString &infoFile);
 };
 
 }

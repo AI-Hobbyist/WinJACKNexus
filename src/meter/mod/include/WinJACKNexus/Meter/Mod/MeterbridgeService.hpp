@@ -20,33 +20,36 @@
 
 class QWidget;
 
-namespace WinJACKNexus::Meter {
+namespace WinJACKNexus::Meter
+{
 class LiveMeterDataProvider;
 }
 
-namespace WinJACKNexus::Meter::Mod {
+namespace WinJACKNexus::Meter::Mod
+{
 
 class MeterbridgeWindow;
 
-class MeterbridgeService final {
-public:
+class MeterbridgeService final
+{
+  public:
     MeterbridgeService() = default;
     ~MeterbridgeService();
 
-    MeterbridgeService(const MeterbridgeService&) = delete;
-    MeterbridgeService& operator=(const MeterbridgeService&) = delete;
+    MeterbridgeService(const MeterbridgeService &) = delete;
+    MeterbridgeService &operator=(const MeterbridgeService &) = delete;
 
     bool initialize();
     void shutdown() noexcept;
     void destroyWindow() noexcept;
-    QWidget* showWindow(const QString& instanceId = {});
+    QWidget *showWindow(const QString &instanceId = {});
     void reloadGlobalSettings();
     QJsonObject projectState() const;
-    bool restoreProjectState(const QJsonObject& state);
+    bool restoreProjectState(const QJsonObject &state);
 
-private:
-    WinJACKNexus::Meter::LiveMeterDataProvider* provider_ = nullptr;
-    MeterbridgeWindow* window_ = nullptr;
+  private:
+    WinJACKNexus::Meter::LiveMeterDataProvider *provider_ = nullptr;
+    MeterbridgeWindow *window_ = nullptr;
     QJsonObject pendingWindowState_;
 };
 

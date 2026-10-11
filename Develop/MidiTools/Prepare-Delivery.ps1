@@ -33,10 +33,10 @@ foreach ($entry in $taskSources.GetEnumerator()) {
 Copy-Item -LiteralPath (Join-Path $taskRoot 'Docs/MidiTools/DEPENDENCIES.md') -Destination $taskNotices
 Copy-Item -LiteralPath (Join-Path $taskRoot 'src/midi_tools/Engines.cmake') -Destination $taskNotices
 foreach ($entry in @{
-    'fluidsynth-2.5.7.tar.gz' = 'build/_deps/wjn_fluid-subbuild/wjn_fluid-populate-prefix/src/v2.5.7.tar.gz'
-    'sfizz-1.2.3.tar.gz' = 'build/_deps/wjn_sfizz-subbuild/wjn_sfizz-populate-prefix/src/sfizz-1.2.3.tar.gz'
-    'gcem.zip' = 'build/_deps/wjn_fluid-build/gcem.zip'
-}.GetEnumerator()) {
+        'fluidsynth-2.5.7.tar.gz' = 'build/_deps/wjn_fluid-subbuild/wjn_fluid-populate-prefix/src/v2.5.7.tar.gz'
+        'sfizz-1.2.3.tar.gz' = 'build/_deps/wjn_sfizz-subbuild/wjn_sfizz-populate-prefix/src/sfizz-1.2.3.tar.gz'
+        'gcem.zip' = 'build/_deps/wjn_fluid-build/gcem.zip'
+    }.GetEnumerator()) {
     Copy-Item -LiteralPath (Join-Path $taskRoot $entry.Value) -Destination (Join-Path $taskNotices $entry.Key)
     Write-Output "Corresponding source: $($entry.Key)"
 }

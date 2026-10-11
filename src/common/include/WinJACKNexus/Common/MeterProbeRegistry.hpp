@@ -29,33 +29,38 @@
 #include <string_view>
 #include <vector>
 
-namespace WinJACKNexus::Common {
+namespace WinJACKNexus::Common
+{
 
-struct MeterProbeChannelDescriptor final {
+struct MeterProbeChannelDescriptor final
+{
     std::string name;
-    MeterChannelRole role { MeterChannelRole::unassigned };
-    bool lfe {};
+    MeterChannelRole role{MeterChannelRole::unassigned};
+    bool lfe{};
 };
 
-struct MeterProbeDescriptor final {
+struct MeterProbeDescriptor final
+{
     std::string instanceId;
     std::string clientName;
-    std::string presetId { "ebu-r128" };
-    std::array<MeterProbeChannelDescriptor, MeterChannelLayout::maximumChannelCount> channels {};
-    std::size_t channelCount {};
-    double sampleRate { 48000.0 };
-    bool channelLayoutEditable {};
-    bool followGlobalPreset { true };
-    float silenceThresholdDbfs { -70.0F };
+    std::string presetId{"ebu-r128"};
+    std::array<MeterProbeChannelDescriptor, MeterChannelLayout::maximumChannelCount> channels{};
+    std::size_t channelCount{};
+    double sampleRate{48000.0};
+    bool channelLayoutEditable{};
+    bool followGlobalPreset{true};
+    float silenceThresholdDbfs{-70.0F};
 };
 
-struct MeterProbeRealtimeFrame final {
+struct MeterProbeRealtimeFrame final
+{
     MeterSnapshot meter;
 };
 
-class WINJACK_COMMON_API MeterProbeRealtimeState final {
-public:
-    void publish(const MeterSnapshot& snapshot) noexcept;
+class WINJACK_COMMON_API MeterProbeRealtimeState final
+{
+  public:
+    void publish(const MeterSnapshot &snapshot) noexcept;
     MeterProbeRealtimeFrame frame() const noexcept;
 
     void setOnline(bool online) noexcept;
@@ -69,31 +74,34 @@ public:
     float silenceDurationSeconds() const noexcept;
 
     void requestLoudnessReset() noexcept;
-    bool consumeLoudnessResetRequest(std::uint64_t& observedGeneration) noexcept;
+    bool consumeLoudnessResetRequest(std::uint64_t &observedGeneration) noexcept;
 
     void notifyLoudnessReset() noexcept;
     std::uint64_t loudnessResetGeneration() const noexcept;
 
-private:
+  private:
     mutable RealtimeObject<MeterProbeRealtimeFrame> frame_;
-    std::atomic_bool online_ { false };
-    std::atomic_bool automaticResetEnabled_ { true };
-    std::atomic<float> silenceThresholdDbfs_ { -70.0F };
-    std::atomic<float> silenceDurationSeconds_ { 3.0F };
-    std::atomic_uint64_t resetGeneration_ { 0 };
-    std::atomic_uint64_t completedResetGeneration_ { 0 };
+    std::atomic_bool online_{false};
+    std::atomic_bool automaticResetEnabled_{true};
+    std::atomic<float> silenceThresholdDbfs_{-70.0F};
+    std::atomic<float> silenceDurationSeconds_{3.0F};
+    std::atomic_uint64_t resetGeneration_{0};
+    std::atomic_uint64_t completedResetGeneration_{0};
 };
 
-struct MeterProbeRegistration final {
+struct MeterProbeRegistration final
+{
     MeterProbeDescriptor descriptor;
     std::shared_ptr<MeterProbeRealtimeState> realtimeState;
-    std::uint64_t nameRevision {};
+    std::uint64_t nameRevision{};
 };
 
-WINJACK_COMMON_API bool registerMeterProbe(MeterProbeDescriptor descriptor,
-                                           std::shared_ptr<MeterProbeRealtimeState> realtimeState) noexcept;
-WINJACK_COMMON_API void unregisterMeterProbe(std::string_view instanceId,
-                                             const std::shared_ptr<MeterProbeRealtimeState>& realtimeState) noexcept;
+WINJACK_COMMON_API bool registerMeterProbe(
+    MeterProbeDescriptor descriptor,
+    std::shared_ptr<MeterProbeRealtimeState> realtimeState) noexcept;
+WINJACK_COMMON_API void unregisterMeterProbe(
+    std::string_view instanceId,
+    const std::shared_ptr<MeterProbeRealtimeState> &realtimeState) noexcept;
 WINJACK_COMMON_API std::vector<MeterProbeRegistration> meterProbeRegistrations();
 
 }

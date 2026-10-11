@@ -27,21 +27,25 @@
 #include <mutex>
 #include <thread>
 
-namespace WinJACKNexus::Meter {
+namespace WinJACKNexus::Meter
+{
 
-class MeterCsvWriter final {
-public:
-    struct Record final {
+class MeterCsvWriter final
+{
+  public:
+    struct Record final
+    {
         QString instanceId;
         QString clientName;
         QString logRootDirectory;
         MeterHistoryPoint point;
     };
 
-    struct Status final {
+    struct Status final
+    {
         QString activeFilePath;
         QString rotationStatus;
-        std::size_t droppedRecordCount {};
+        std::size_t droppedRecordCount{};
         MeterCsvStatusKind statusKind = MeterCsvStatusKind::unspecified;
         QString statusDetail;
     };
@@ -49,17 +53,19 @@ public:
     MeterCsvWriter();
     ~MeterCsvWriter();
 
-    MeterCsvWriter(const MeterCsvWriter&) = delete;
-    MeterCsvWriter& operator=(const MeterCsvWriter&) = delete;
+    MeterCsvWriter(const MeterCsvWriter &) = delete;
+    MeterCsvWriter &operator=(const MeterCsvWriter &) = delete;
 
     void enqueue(Record record);
-    void closeSession(const QString& instanceId);
-    Status status(const QString& instanceId) const;
+    void closeSession(const QString &instanceId);
+    Status status(const QString &instanceId) const;
     bool waitForIdle(int timeoutMilliseconds);
 
-private:
-    struct QueueEvent final {
-        enum class Type {
+  private:
+    struct QueueEvent final
+    {
+        enum class Type
+        {
             write,
             close
         };
@@ -72,10 +78,11 @@ private:
     struct Session;
 
     void workerLoop();
-    void process(const QueueEvent& event);
-    void writeRecord(const Record& record);
-    void closeSessionInWorker(const QString& instanceId, const QString& status, MeterCsvStatusKind kind);
-    void setStatus(const QString& instanceId, Status status);
+    void process(const QueueEvent &event);
+    void writeRecord(const Record &record);
+    void closeSessionInWorker(const QString &instanceId, const QString &status,
+                              MeterCsvStatusKind kind);
+    void setStatus(const QString &instanceId, Status status);
 
     mutable std::mutex queueMutex_;
     std::condition_variable queueCondition_;

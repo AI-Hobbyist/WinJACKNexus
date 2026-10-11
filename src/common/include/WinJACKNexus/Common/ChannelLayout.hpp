@@ -19,9 +19,11 @@
 #include <cstddef>
 #include <cstdint>
 
-namespace WinJACKNexus::Common {
+namespace WinJACKNexus::Common
+{
 
-enum class MeterChannelRole : std::uint8_t {
+enum class MeterChannelRole : std::uint8_t
+{
     unassigned,
     mono,
     frontLeft,
@@ -38,13 +40,15 @@ enum class MeterChannelRole : std::uint8_t {
     lfe
 };
 
-struct MeterChannel final {
-    MeterChannelRole role { MeterChannelRole::unassigned };
-    bool lfe {};
+struct MeterChannel final
+{
+    MeterChannelRole role{MeterChannelRole::unassigned};
+    bool lfe{};
 };
 
-class MeterChannelLayout final {
-public:
+class MeterChannelLayout final
+{
+  public:
     static constexpr std::size_t maximumChannelCount = 16;
     static constexpr double sideChannelWeight = 1.4142135623730950488;
 
@@ -112,7 +116,7 @@ public:
         if (index >= channelCount_)
             return false;
 
-        channels_[index] = MeterChannel { role, lfe || role == MeterChannelRole::lfe };
+        channels_[index] = MeterChannel{role, lfe || role == MeterChannelRole::lfe};
         return true;
     }
 
@@ -121,24 +125,25 @@ public:
         return channelCount_;
     }
 
-    const MeterChannel* channel(std::size_t index) const noexcept
+    const MeterChannel *channel(std::size_t index) const noexcept
     {
         return index < channelCount_ ? &channels_[index] : nullptr;
     }
 
     bool isLfe(std::size_t index) const noexcept
     {
-        const auto* meterChannel = channel(index);
+        const auto *meterChannel = channel(index);
         return meterChannel != nullptr && meterChannel->lfe;
     }
 
     double measurementWeight(std::size_t index) const noexcept
     {
-        const auto* meterChannel = channel(index);
+        const auto *meterChannel = channel(index);
         if (meterChannel == nullptr || meterChannel->lfe)
             return 0.0;
 
-        switch (meterChannel->role) {
+        switch (meterChannel->role)
+        {
         case MeterChannelRole::sideLeft:
         case MeterChannelRole::sideRight:
             return sideChannelWeight;
@@ -149,16 +154,17 @@ public:
 
     bool hasMeasuredChannels() const noexcept
     {
-        for (std::size_t index = 0; index < channelCount_; ++index) {
+        for (std::size_t index = 0; index < channelCount_; ++index)
+        {
             if (measurementWeight(index) > 0.0)
                 return true;
         }
         return false;
     }
 
-private:
-    std::array<MeterChannel, maximumChannelCount> channels_ {};
-    std::size_t channelCount_ {};
+  private:
+    std::array<MeterChannel, maximumChannelCount> channels_{};
+    std::size_t channelCount_{};
 };
 
 }

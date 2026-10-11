@@ -21,49 +21,53 @@
 
 #include <cstddef>
 
-namespace WinJACKNexus::Common {
+namespace WinJACKNexus::Common
+{
 
-struct BiquadCoefficients final {
-    double b0 {};
-    double b1 {};
-    double b2 {};
-    double a1 {};
-    double a2 {};
+struct BiquadCoefficients final
+{
+    double b0{};
+    double b1{};
+    double b2{};
+    double a1{};
+    double a2{};
 };
 
-struct KWeightingCoefficients final {
+struct KWeightingCoefficients final
+{
     BiquadCoefficients shelf;
     BiquadCoefficients highPass;
-    bool valid {};
+    bool valid{};
 };
 
 WINJACK_COMMON_API KWeightingCoefficients kWeightingCoefficients(double sampleRate) noexcept;
 
-struct LoudnessEngineConfiguration final {
-    double sampleRate { 48000.0 };
-    bool enableTruePeak { true };
+struct LoudnessEngineConfiguration final
+{
+    double sampleRate{48000.0};
+    bool enableTruePeak{true};
 };
 
-class WINJACK_COMMON_API LoudnessEngine final {
-public:
+class WINJACK_COMMON_API LoudnessEngine final
+{
+  public:
     LoudnessEngine();
     ~LoudnessEngine();
 
-    LoudnessEngine(const LoudnessEngine&) = delete;
-    LoudnessEngine& operator=(const LoudnessEngine&) = delete;
+    LoudnessEngine(const LoudnessEngine &) = delete;
+    LoudnessEngine &operator=(const LoudnessEngine &) = delete;
 
-    bool prepare(const LoudnessEngineConfiguration& configuration,
-                 const MeterChannelLayout& layout) noexcept;
+    bool prepare(const LoudnessEngineConfiguration &configuration,
+                 const MeterChannelLayout &layout) noexcept;
     bool isPrepared() const noexcept;
     void reset() noexcept;
-    void process(const float* const* channels,
-                 std::size_t channelCount,
+    void process(const float *const *channels, std::size_t channelCount,
                  std::size_t frames) noexcept;
     MeterSnapshot snapshot() const noexcept;
 
-private:
+  private:
     struct Impl;
-    Impl* impl_ {};
+    Impl *impl_{};
 };
 
 }

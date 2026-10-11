@@ -22,9 +22,11 @@
 #include <optional>
 #include <vector>
 
-namespace WinJACKNexus::Meter {
+namespace WinJACKNexus::Meter
+{
 
-enum class MockMeterScenario : std::uint8_t {
+enum class MockMeterScenario : std::uint8_t
+{
     silence,
     normalProgram,
     overload,
@@ -38,8 +40,9 @@ enum class MockMeterScenario : std::uint8_t {
     longHistory
 };
 
-class MockMeterDataProvider final : public MeterViewDataProvider {
-public:
+class MockMeterDataProvider final : public MeterViewDataProvider
+{
+  public:
     MockMeterDataProvider() = default;
 
     std::vector<MockMeterScenario> availableScenarios() const;
@@ -53,36 +56,29 @@ public:
     std::uint16_t previewProbeCount() const noexcept;
 
     std::vector<MeterViewSnapshot> snapshots() const override;
-    bool dispatch(const MeterViewCommand& command) override;
+    bool dispatch(const MeterViewCommand &command) override;
 
-private:
-    struct PreviewProbeState final {
+  private:
+    struct PreviewProbeState final
+    {
         bool automaticResetEnabled = true;
         bool recordingEnabled = false;
         bool resetRequested = false;
         bool historyCleared = false;
         QString presetId = QStringLiteral("ebu-r128");
-        MeterHistoryViewSettings historyView {
+        MeterHistoryViewSettings historyView{
             MeterHistoryViewMode::realtimeScroll,
             defaultMeterHistoryWindowMilliseconds,
             false,
-            {
-                QStringLiteral("peak"),
-                QStringLiteral("rms"),
-                QStringLiteral("lfe"),
-                QStringLiteral("true-peak"),
-                QStringLiteral("momentary"),
-                QStringLiteral("short-term"),
-                QStringLiteral("integrated"),
-                QStringLiteral("lra")
-            }
-        };
+            {QStringLiteral("peak"), QStringLiteral("rms"), QStringLiteral("lfe"),
+             QStringLiteral("true-peak"), QStringLiteral("momentary"), QStringLiteral("short-term"),
+             QStringLiteral("integrated"), QStringLiteral("lra")}};
         std::vector<MeterChannelView> customChannels;
     };
 
     static QString instanceIdFor(std::uint16_t index);
-    std::optional<std::uint16_t> previewIndexForId(const QString& instanceId) const;
-    void ensureCustomChannels(PreviewProbeState& state);
+    std::optional<std::uint16_t> previewIndexForId(const QString &instanceId) const;
+    void ensureCustomChannels(PreviewProbeState &state);
     MeterViewSnapshot makeSnapshot(std::uint16_t previewIndex) const;
 
     MockMeterScenario scenario_ = MockMeterScenario::normalProgram;

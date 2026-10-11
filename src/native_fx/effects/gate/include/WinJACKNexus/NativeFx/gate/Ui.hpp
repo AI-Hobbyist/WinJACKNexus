@@ -8,31 +8,46 @@
 #include <array>
 #include <functional>
 
-namespace WinJACKNexus::UI {
-class WJN_FX_API GateEffectWidget final : public QWidget {
-public:
+namespace WinJACKNexus::UI
+{
+class WJN_FX_API GateEffectWidget final : public QWidget
+{
+  public:
     using Parameters = WinJACKNexus::Common::GateParameters;
-    using ChangeHandler = std::function<void(std::size_t, const Parameters&)>;
-    explicit GateEffectWidget(QWidget* parent = nullptr);
-    void setParameters(const std::array<Parameters, 8>& parameters);
+    using ChangeHandler = std::function<void(std::size_t, const Parameters &)>;
+    explicit GateEffectWidget(QWidget *parent = nullptr);
+    void setParameters(const std::array<Parameters, 8> &parameters);
     void setChangeHandler(ChangeHandler handler);
-    void setSelectedChannel(int channel) { selectedChannel_ = std::clamp(channel, -1, 7); update(); }
-    int hostPresetIndex() const noexcept { return selectedPreset_ < 0 ? 3 : selectedPreset_; }
-    void chooseHostPreset(int index) { if (index < 3) applyPreset(index); }
-protected:
-    void paintEvent(QPaintEvent*) override;
-    void mousePressEvent(QMouseEvent*) override;
-    void mouseDoubleClickEvent(QMouseEvent*) override;
-    void mouseMoveEvent(QMouseEvent*) override;
-    void mouseReleaseEvent(QMouseEvent*) override;
-    void wheelEvent(QWheelEvent*) override;
-private:
+    void setSelectedChannel(int channel)
+    {
+        selectedChannel_ = std::clamp(channel, -1, 7);
+        update();
+    }
+    int hostPresetIndex() const noexcept
+    {
+        return selectedPreset_ < 0 ? 3 : selectedPreset_;
+    }
+    void chooseHostPreset(int index)
+    {
+        if (index < 3)
+            applyPreset(index);
+    }
+
+  protected:
+    void paintEvent(QPaintEvent *) override;
+    void mousePressEvent(QMouseEvent *) override;
+    void mouseDoubleClickEvent(QMouseEvent *) override;
+    void mouseMoveEvent(QMouseEvent *) override;
+    void mouseReleaseEvent(QMouseEvent *) override;
+    void wheelEvent(QWheelEvent *) override;
+
+  private:
     Parameters displayed() const noexcept;
-    void apply(const std::function<void(Parameters&)>& edit);
+    void apply(const std::function<void(Parameters &)> &edit);
     void adjustDial(int index, float steps);
-    int dialAt(const QPointF& point) const noexcept;
+    int dialAt(const QPointF &point) const noexcept;
     void applyPreset(int index);
-    std::array<Parameters, 8> parameters_ {};
+    std::array<Parameters, 8> parameters_{};
     ChangeHandler changeHandler_;
     int selectedChannel_ = -1;
     int selectedPreset_ = 0;

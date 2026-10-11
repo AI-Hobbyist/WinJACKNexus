@@ -6,7 +6,6 @@ import json
 import zipfile
 from pathlib import Path
 
-
 TEMPLATE = Path(__file__).resolve().parent
 ALLOWED_ASSETS = {".png", ".jpg", ".jpeg", ".webp", ".ttf", ".otf"}
 
@@ -23,15 +22,26 @@ def main() -> None:
     metadata_bytes = (TEMPLATE / "meta.json").read_bytes()
     metadata = json.loads(metadata_bytes.decode("utf-8"))
     theme_id = metadata["id"]
-    if not isinstance(theme_id, str) or not theme_id or any(
-        character not in "abcdefghijklmnopqrstuvwxyz0123456789.-" for character in theme_id
+    if (
+        not isinstance(theme_id, str)
+        or not theme_id
+        or any(
+            character not in "abcdefghijklmnopqrstuvwxyz0123456789.-"
+            for character in theme_id
+        )
     ):
         raise ValueError("meta.json id must be a lowercase DNS-style name")
     style = (TEMPLATE / "style.css").read_bytes()
-    modules = sorted(path for folder in ("host", "node", "native_fx")
-                     for path in (TEMPLATE / folder).glob("*.css"))
-    assets = sorted(path for path in (TEMPLATE / "assets").rglob("*")
-                    if path.is_file() and path.name != ".gitkeep")
+    modules = sorted(
+        path
+        for folder in ("host", "node", "native_fx")
+        for path in (TEMPLATE / folder).glob("*.css")
+    )
+    assets = sorted(
+        path
+        for path in (TEMPLATE / "assets").rglob("*")
+        if path.is_file() and path.name != ".gitkeep"
+    )
     for asset in assets:
         if asset.suffix.lower() not in ALLOWED_ASSETS:
             raise ValueError(f"unsupported asset: {asset}")
@@ -45,7 +55,9 @@ def main() -> None:
         for folder in ("host", "node", "native_fx"):
             archive.writestr(entry(folder + "/", directory=True), b"")
         for path in modules:
-            archive.writestr(entry(path.relative_to(TEMPLATE).as_posix()), path.read_bytes())
+            archive.writestr(
+                entry(path.relative_to(TEMPLATE).as_posix()), path.read_bytes()
+            )
         for path in assets:
             name = "assets/" + path.relative_to(TEMPLATE / "assets").as_posix()
             archive.writestr(entry(name), path.read_bytes())

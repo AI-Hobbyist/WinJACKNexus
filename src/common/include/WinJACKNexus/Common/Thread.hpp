@@ -19,17 +19,19 @@
 
 #include <Windows.h>
 
-namespace WinJACKNexus::Common {
+namespace WinJACKNexus::Common
+{
 
-class WINJACK_COMMON_API Thread final {
-public:
-    using EntryPoint = void (*)(Thread&) noexcept;
+class WINJACK_COMMON_API Thread final
+{
+  public:
+    using EntryPoint = void (*)(Thread &) noexcept;
 
-    explicit Thread(const wchar_t* name = nullptr);
+    explicit Thread(const wchar_t *name = nullptr);
     ~Thread() noexcept;
 
-    Thread(const Thread&) = delete;
-    Thread& operator=(const Thread&) = delete;
+    Thread(const Thread &) = delete;
+    Thread &operator=(const Thread &) = delete;
 
     bool start(EntryPoint entryPoint) noexcept;
     void requestStop() noexcept;
@@ -41,11 +43,11 @@ public:
     HANDLE nativeHandle() const noexcept;
     DWORD threadId() const noexcept;
 
-private:
-    static DWORD WINAPI threadEntry(void* parameter) noexcept;
+  private:
+    static DWORD WINAPI threadEntry(void *parameter) noexcept;
 
     struct Impl;
-    Impl* impl_;
+    Impl *impl_;
 };
 
 }

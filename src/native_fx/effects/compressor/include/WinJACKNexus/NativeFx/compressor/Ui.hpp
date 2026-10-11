@@ -9,44 +9,60 @@
 #include <array>
 #include <cstdint>
 
-namespace WinJACKNexus::UI {
+namespace WinJACKNexus::UI
+{
 using CompressorParameters = WinJACKNexus::Common::CompressorParameters;
 
-struct CompressorMeter final {
+struct CompressorMeter final
+{
     float inputDb = -120.0F;
     float outputDb = -120.0F;
     bool active = false;
     float gainReductionDb = 0.0F;
 };
 
-class WJN_FX_API CompressorWidget final : public QWidget {
-public:
-    using ChangeHandler = std::function<void(std::size_t, const CompressorParameters&)>;
+class WJN_FX_API CompressorWidget final : public QWidget
+{
+  public:
+    using ChangeHandler = std::function<void(std::size_t, const CompressorParameters &)>;
     using MeterReader = std::function<std::array<CompressorMeter, 8>()>;
-    explicit CompressorWidget(QWidget* parent = nullptr);
-    void setParameters(const std::array<CompressorParameters, 8>& values);
+    explicit CompressorWidget(QWidget *parent = nullptr);
+    void setParameters(const std::array<CompressorParameters, 8> &values);
     void setChangeHandler(ChangeHandler handler);
-    void setSelectedChannel(int channel) { selectedChannel_ = std::clamp(channel, -1, 7); update(); }
-    int hostPresetIndex() const noexcept { return selectedPreset_ < 0 ? 3 : selectedPreset_; }
-    void chooseHostPreset(int index) { if (index < 3) applyPreset(index); }
+    void setSelectedChannel(int channel)
+    {
+        selectedChannel_ = std::clamp(channel, -1, 7);
+        update();
+    }
+    int hostPresetIndex() const noexcept
+    {
+        return selectedPreset_ < 0 ? 3 : selectedPreset_;
+    }
+    void chooseHostPreset(int index)
+    {
+        if (index < 3)
+            applyPreset(index);
+    }
     void setMeterReader(MeterReader reader);
-    void setMeters(const std::array<CompressorMeter, 8>& meters);
-protected:
-    void paintEvent(QPaintEvent*) override;
-    void mousePressEvent(QMouseEvent*) override;
-    void mouseDoubleClickEvent(QMouseEvent*) override;
-    void mouseMoveEvent(QMouseEvent*) override;
-    void mouseReleaseEvent(QMouseEvent*) override;
-    void wheelEvent(QWheelEvent*) override;
-private:
+    void setMeters(const std::array<CompressorMeter, 8> &meters);
+
+  protected:
+    void paintEvent(QPaintEvent *) override;
+    void mousePressEvent(QMouseEvent *) override;
+    void mouseDoubleClickEvent(QMouseEvent *) override;
+    void mouseMoveEvent(QMouseEvent *) override;
+    void mouseReleaseEvent(QMouseEvent *) override;
+    void wheelEvent(QWheelEvent *) override;
+
+  private:
     CompressorParameters displayed() const noexcept;
-    void apply(const std::function<void(CompressorParameters&)>& edit);
+    void apply(const std::function<void(CompressorParameters &)> &edit);
     int dialAt(QPointF point) const noexcept;
     void changeDial(int index, float amount);
     void applyPreset(int index);
     void pollMeters();
-    std::array<CompressorParameters, 8> parameters_ {};
-    std::array<CompressorMeter, 8> meters_ {};
+    std::array<CompressorParameters, 8> parameters_{};
+    std::array<CompressorMeter, 8> meters_{};
     ChangeHandler changeHandler_;
     MeterReader meterReader_;
     QTimer meterTimer_;

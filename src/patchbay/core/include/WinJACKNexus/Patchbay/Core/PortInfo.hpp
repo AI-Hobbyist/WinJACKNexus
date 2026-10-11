@@ -20,9 +20,11 @@
 
 #include <string>
 
-namespace WinJACKNexus::Patchbay::Core {
+namespace WinJACKNexus::Patchbay::Core
+{
 
-struct WINJACK_PATCHBAY_API PortInfo final {
+struct WINJACK_PATCHBAY_API PortInfo final
+{
     std::string id;
     std::string clientId;
     std::string name;

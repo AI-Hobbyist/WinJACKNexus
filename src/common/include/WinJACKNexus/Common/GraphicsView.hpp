@@ -19,8 +19,9 @@
 
 class QGraphicsView;
 
-namespace WinJACKNexus::Common {
+namespace WinJACKNexus::Common
+{
 
-WINJACK_COMMON_API void configureAcceleratedGraphicsView(QGraphicsView& view);
+WINJACK_COMMON_API void configureAcceleratedGraphicsView(QGraphicsView &view);
 
 }

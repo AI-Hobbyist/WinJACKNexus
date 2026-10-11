@@ -31,19 +31,23 @@ class QEvent;
 class QFontMetrics;
 class QMouseEvent;
 
-namespace WinJACKNexus::UI {
+namespace WinJACKNexus::UI
+{
 
-struct HistoryChartPoint final {
+struct HistoryChartPoint final
+{
     std::int64_t timestampMilliseconds = 0;
     std::optional<double> value;
 };
 
-enum class HistoryChartAxis : std::uint8_t {
+enum class HistoryChartAxis : std::uint8_t
+{
     left,
     right
 };
 
-struct HistoryChartSeries final {
+struct HistoryChartSeries final
+{
     QString id;
     QString label;
     QColor color;
@@ -53,7 +57,8 @@ struct HistoryChartSeries final {
     bool preservePointOrder = false;
 };
 
-struct HistoryChartReferenceLine final {
+struct HistoryChartReferenceLine final
+{
     double value = 0.0;
     QString label;
     QColor color;
@@ -62,7 +67,8 @@ struct HistoryChartReferenceLine final {
     HistoryChartAxis axis = HistoryChartAxis::left;
 };
 
-struct HistoryChartHoverEntry final {
+struct HistoryChartHoverEntry final
+{
     QString id;
     QString label;
     QString unit;
@@ -71,9 +77,10 @@ struct HistoryChartHoverEntry final {
     HistoryChartAxis axis = HistoryChartAxis::left;
 };
 
-class WINJACK_UI_API HistoryChartWidget final : public PaintableWidget {
-public:
-    explicit HistoryChartWidget(QWidget* parent = nullptr);
+class WINJACK_UI_API HistoryChartWidget final : public PaintableWidget
+{
+  public:
+    explicit HistoryChartWidget(QWidget *parent = nullptr);
     ~HistoryChartWidget() override = default;
 
     void setTimeRange(std::int64_t startMilliseconds, std::int64_t endMilliseconds);
@@ -87,42 +94,40 @@ public:
     void setRightValueRange(double minimum, double maximum);
     double rightMinimumValue() const noexcept;
     double rightMaximumValue() const noexcept;
-    void setVerticalAxisLabel(const QString& label);
+    void setVerticalAxisLabel(const QString &label);
     QString verticalAxisLabel() const;
-    void setRightVerticalAxisLabel(const QString& label);
+    void setRightVerticalAxisLabel(const QString &label);
     QString rightVerticalAxisLabel() const;
-    void setHorizontalAxisLabel(const QString& label);
+    void setHorizontalAxisLabel(const QString &label);
     QString horizontalAxisLabel() const;
     void setTimeCursorMilliseconds(std::optional<std::int64_t> timestampMilliseconds);
     std::optional<std::int64_t> timeCursorMilliseconds() const noexcept;
     std::optional<std::int64_t> hoverTimeMilliseconds() const noexcept;
-    const std::vector<HistoryChartHoverEntry>& hoverEntries() const noexcept;
+    const std::vector<HistoryChartHoverEntry> &hoverEntries() const noexcept;
     void setSeries(std::vector<HistoryChartSeries> series);
-    const std::vector<HistoryChartSeries>& series() const noexcept;
+    const std::vector<HistoryChartSeries> &series() const noexcept;
     void setReferenceLines(std::vector<HistoryChartReferenceLine> lines);
-    const std::vector<HistoryChartReferenceLine>& referenceLines() const noexcept;
-    void setThemePalette(const ThemePalette& palette);
+    const std::vector<HistoryChartReferenceLine> &referenceLines() const noexcept;
+    void setThemePalette(const ThemePalette &palette);
     ThemePalette themePalette() const;
 
     QSize sizeHint() const override;
 
-protected:
-    void paintContent(QPainter& painter) override;
-    void mouseMoveEvent(QMouseEvent* event) override;
-    void leaveEvent(QEvent* event) override;
+  protected:
+    void paintContent(QPainter &painter) override;
+    void mouseMoveEvent(QMouseEvent *event) override;
+    void leaveEvent(QEvent *event) override;
 
-private:
-    QColor seriesColor(std::size_t index, const HistoryChartSeries& series) const;
-    QRectF chartRect(const QFontMetrics& metrics) const;
+  private:
+    QColor seriesColor(std::size_t index, const HistoryChartSeries &series) const;
+    QRectF chartRect(const QFontMetrics &metrics) const;
     bool hasRightAxis() const noexcept;
-    QPointF pointPosition(const QRectF& chartRect,
-                          std::int64_t timestampMilliseconds,
-                          double value,
+    QPointF pointPosition(const QRectF &chartRect, std::int64_t timestampMilliseconds, double value,
                           HistoryChartAxis axis) const;
     std::optional<std::int64_t> nearestTimestamp(std::int64_t timestampMilliseconds) const;
-    std::optional<double> valueAtTimestamp(const HistoryChartSeries& series,
+    std::optional<double> valueAtTimestamp(const HistoryChartSeries &series,
                                            std::int64_t timestampMilliseconds) const;
-    void updateHover(const QPointF& position);
+    void updateHover(const QPointF &position);
     void clearHover();
     double minimumValueForAxis(HistoryChartAxis axis) const noexcept;
     double maximumValueForAxis(HistoryChartAxis axis) const noexcept;

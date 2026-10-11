@@ -27,33 +27,34 @@ class QLineEdit;
 class QSpinBox;
 class QTableWidget;
 
-namespace WinJACKNexus::Meter::Mod {
+namespace WinJACKNexus::Meter::Mod
+{
 
-class MeterSettingsWidget final : public QFrame {
-public:
-    explicit MeterSettingsWidget(MeterViewDataProvider& provider,
-                                 std::function<void()> requestRefresh,
-                                 QWidget* parent = nullptr);
+class MeterSettingsWidget final : public QFrame
+{
+  public:
+    explicit MeterSettingsWidget(MeterViewDataProvider &provider,
+                                 std::function<void()> requestRefresh, QWidget *parent = nullptr);
     ~MeterSettingsWidget() override = default;
 
-    void setSnapshot(const MeterViewSnapshot& snapshot);
+    void setSnapshot(const MeterViewSnapshot &snapshot);
     QString instanceId() const;
     bool channelLayoutEditable() const noexcept;
 
-private:
+  private:
     void dispatch(MeterViewCommand command);
-    void rebuildChannelTable(const MeterViewSnapshot& snapshot);
+    void rebuildChannelTable(const MeterViewSnapshot &snapshot);
 
-    MeterViewDataProvider& provider_;
+    MeterViewDataProvider &provider_;
     std::function<void()> requestRefresh_;
     QString instanceId_;
     bool channelLayoutEditable_ = false;
-    QDoubleSpinBox* silenceThresholdSpinBox_ = nullptr;
-    QDoubleSpinBox* silenceDurationSpinBox_ = nullptr;
-    QLineEdit* logRootDirectoryEdit_ = nullptr;
-    QGroupBox* customChannelsGroup_ = nullptr;
-    QSpinBox* customChannelCountSpinBox_ = nullptr;
-    QTableWidget* channelTable_ = nullptr;
+    QDoubleSpinBox *silenceThresholdSpinBox_ = nullptr;
+    QDoubleSpinBox *silenceDurationSpinBox_ = nullptr;
+    QLineEdit *logRootDirectoryEdit_ = nullptr;
+    QGroupBox *customChannelsGroup_ = nullptr;
+    QSpinBox *customChannelCountSpinBox_ = nullptr;
+    QTableWidget *channelTable_ = nullptr;
 };
 
 }

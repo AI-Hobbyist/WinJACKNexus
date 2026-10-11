@@ -17,125 +17,170 @@
 #include <cmath>
 #include <utility>
 
-namespace WinJACKNexus::UI {
-namespace {
+namespace WinJACKNexus::UI
+{
+namespace
+{
 const QColor background(9, 23, 39), panel(13, 29, 47), border(36, 102, 157);
 const QColor text(222, 235, 249), muted(143, 166, 189), purple(165, 91, 255);
 const auto channels = WinJACKNexus::Common::standardChannelChoices();
 
-const std::array<QPointF, 6> knobs { QPointF(480, 142), QPointF(587, 142), QPointF(694, 142),
-    QPointF(480, 273), QPointF(587, 273), QPointF(694, 273) };
-float knobValue(const Common::DeEsserParameters& p, int index) noexcept {
-    switch(index) {
-    case 0: return p.centerFrequencyHz;
-    case 1: return p.bandwidthHz;
-    case 2: return p.thresholdDb;
-    case 3: return p.attackMs;
-    case 4: return p.releaseMs;
-    default: return p.outputGainDb;
-    }
-}
-void setKnobValue(Common::DeEsserParameters& p, int index, float value) noexcept {
-    switch(index) {
-    case 0: p.centerFrequencyHz=value; break;
-    case 1: p.bandwidthHz=value; break;
-    case 2: p.thresholdDb=value; break;
-    case 3: p.attackMs=value; break;
-    case 4: p.releaseMs=value; break;
-    default: p.outputGainDb=value; break;
-    }
-}
-Controls::NumericControlSpec knobSpec(int index) noexcept {
-    constexpr double minimum[] {1.0,0.25,-60.0,0.0,5.0,-24.0};
-    constexpr double maximum[] {12.0,12.0,0.0,100.0,1000.0,12.0};
-    const double scale=index<2?1000.0:1.0;
-    return {minimum[index],maximum[index],knobValue(Common::DeEsserParameters{},index)/scale,
-            index==3||index==4?0:1};
-}
-
-void rounded(QPainter& p, const QRectF& r, qreal radius, const QColor& fill,
-             const QColor& outline = Qt::transparent)
+const std::array<QPointF, 6> knobs{QPointF(480, 142), QPointF(587, 142), QPointF(694, 142),
+                                   QPointF(480, 273), QPointF(587, 273), QPointF(694, 273)};
+float knobValue(const Common::DeEsserParameters &p, int index) noexcept
 {
-    Controls::drawSurface(p,r,fill,outline,radius);
+    switch (index)
+    {
+    case 0:
+        return p.centerFrequencyHz;
+    case 1:
+        return p.bandwidthHz;
+    case 2:
+        return p.thresholdDb;
+    case 3:
+        return p.attackMs;
+    case 4:
+        return p.releaseMs;
+    default:
+        return p.outputGainDb;
+    }
+}
+void setKnobValue(Common::DeEsserParameters &p, int index, float value) noexcept
+{
+    switch (index)
+    {
+    case 0:
+        p.centerFrequencyHz = value;
+        break;
+    case 1:
+        p.bandwidthHz = value;
+        break;
+    case 2:
+        p.thresholdDb = value;
+        break;
+    case 3:
+        p.attackMs = value;
+        break;
+    case 4:
+        p.releaseMs = value;
+        break;
+    default:
+        p.outputGainDb = value;
+        break;
+    }
+}
+Controls::NumericControlSpec knobSpec(int index) noexcept
+{
+    constexpr double minimum[]{1.0, 0.25, -60.0, 0.0, 5.0, -24.0};
+    constexpr double maximum[]{12.0, 12.0, 0.0, 100.0, 1000.0, 12.0};
+    const double scale = index < 2 ? 1000.0 : 1.0;
+    return {minimum[index], maximum[index], knobValue(Common::DeEsserParameters{}, index) / scale,
+            index == 3 || index == 4 ? 0 : 1};
 }
 
-void textAt(QPainter& p, const QRectF& r, const QString& s, int px, const QColor& color,
+void rounded(QPainter &p, const QRectF &r, qreal radius, const QColor &fill,
+             const QColor &outline = Qt::transparent)
+{
+    Controls::drawSurface(p, r, fill, outline, radius);
+}
+
+void textAt(QPainter &p, const QRectF &r, const QString &s, int px, const QColor &color,
             Qt::Alignment alignment = Qt::AlignCenter, bool bold = false)
 {
-    auto f = p.font(); f.setPixelSize(px); f.setBold(bold);
-    const auto themed = color == text
-        ? Controls::themeTokenColor("native-fx-deesser", "text-primary", color)
-        : color == muted
-            ? Controls::themeTokenColor("native-fx-deesser", "text-muted", color) : color;
-    Controls::drawElidedText(p,r,s,f,themed,alignment);
+    auto f = p.font();
+    f.setPixelSize(px);
+    f.setBold(bold);
+    const auto themed =
+        color == text    ? Controls::themeTokenColor("native-fx-deesser", "text-primary", color)
+        : color == muted ? Controls::themeTokenColor("native-fx-deesser", "text-muted", color)
+                         : color;
+    Controls::drawElidedText(p, r, s, f, themed, alignment);
 }
 
-QString valueText(const std::array<float, 6>& v, int i)
+QString valueText(const std::array<float, 6> &v, int i)
 {
-    switch (i) {
-    case 0: return QStringLiteral("%1 kHz").arg(v[0] / 1000.0F, 0, 'f', 1);
-    case 1: return QStringLiteral("%1 kHz").arg(v[1] / 1000.0F, 0, 'f', 1);
-    case 2: return QStringLiteral("%1 dB").arg(v[2], 0, 'f', 1);
-    case 3: return QStringLiteral("%1 ms").arg(v[3], 0, 'f', 0);
-    case 4: return QStringLiteral("%1 ms").arg(v[4], 0, 'f', 0);
-    default: return QStringLiteral("%1 dB").arg(v[5], 0, 'f', 1);
+    switch (i)
+    {
+    case 0:
+        return QStringLiteral("%1 kHz").arg(v[0] / 1000.0F, 0, 'f', 1);
+    case 1:
+        return QStringLiteral("%1 kHz").arg(v[1] / 1000.0F, 0, 'f', 1);
+    case 2:
+        return QStringLiteral("%1 dB").arg(v[2], 0, 'f', 1);
+    case 3:
+        return QStringLiteral("%1 ms").arg(v[3], 0, 'f', 0);
+    case 4:
+        return QStringLiteral("%1 ms").arg(v[4], 0, 'f', 0);
+    default:
+        return QStringLiteral("%1 dB").arg(v[5], 0, 'f', 1);
     }
 }
 
-float normalized(const std::array<float, 6>& v, int i)
+float normalized(const std::array<float, 6> &v, int i)
 {
-    const std::array<float, 6> low { 1000.0F, 250.0F, -60.0F, 0.0F, 5.0F, -24.0F };
-    const std::array<float, 6> high { 12000.0F, 12000.0F, 0.0F, 100.0F, 1000.0F, 12.0F };
-    if (i == 3 || i == 4) return std::clamp(std::log1p(v[i] - low[i]) / std::log1p(high[i] - low[i]), 0.0F, 1.0F);
+    const std::array<float, 6> low{1000.0F, 250.0F, -60.0F, 0.0F, 5.0F, -24.0F};
+    const std::array<float, 6> high{12000.0F, 12000.0F, 0.0F, 100.0F, 1000.0F, 12.0F};
+    if (i == 3 || i == 4)
+        return std::clamp(std::log1p(v[i] - low[i]) / std::log1p(high[i] - low[i]), 0.0F, 1.0F);
     return std::clamp((v[i] - low[i]) / (high[i] - low[i]), 0.0F, 1.0F);
 }
 
-void button(QPainter& p, QRectF r, const QString& label, bool selected, int size = 13)
+void button(QPainter &p, QRectF r, const QString &label, bool selected, int size = 13)
 {
     rounded(p, r, 5, selected ? QColor(0, 119, 191) : QColor(19, 40, 61),
             selected ? QColor(26, 204, 255) : QColor(54, 84, 111));
-    if (selected) {
-        Controls::drawSurface(p,r.adjusted(1,1,-1,-1),Qt::NoBrush,
-            QColor(29,206,255,100),4,3);
+    if (selected)
+    {
+        Controls::drawSurface(p, r.adjusted(1, 1, -1, -1), Qt::NoBrush, QColor(29, 206, 255, 100),
+                              4, 3);
     }
     textAt(p, r, label, size, selected ? QColor(218, 250, 255) : text, Qt::AlignCenter, selected);
 }
 }
 
-DeEsserWidget::DeEsserWidget(QWidget* parent) : QWidget(parent, parent ? Qt::Widget : Qt::Window)
+DeEsserWidget::DeEsserWidget(QWidget *parent) : QWidget(parent, parent ? Qt::Widget : Qt::Window)
 {
-    if (!parent) setAttribute(Qt::WA_NativeWindow, true);
+    if (!parent)
+        setAttribute(Qt::WA_NativeWindow, true);
     setWindowTitle(NativeFx::I18n::text("module.name", "De-Esser"));
     setFixedSize(768, 650);
     setMouseTracking(true);
-    for (std::size_t i = 0; i < spectrumFftSize_; ++i) {
-        const auto phase = 2.0 * 3.14159265358979323846 * static_cast<double>(i)
-            / static_cast<double>(spectrumFftSize_ - 1);
+    for (std::size_t i = 0; i < spectrumFftSize_; ++i)
+    {
+        const auto phase = 2.0 * 3.14159265358979323846 * static_cast<double>(i) /
+                           static_cast<double>(spectrumFftSize_ - 1);
         window_[i] = static_cast<float>(0.5 - 0.5 * std::cos(phase));
     }
     inputSpectrumDb_.fill(-120.0F);
     spectrumDb_.fill(-120.0F);
     connect(&spectrumTimer_, &QTimer::timeout, this, [this] {
         refreshSpectrum();
-        if (draggingKnob_ >= 0) update();
+        if (draggingKnob_ >= 0)
+            update();
     });
     bindRefreshTimer(spectrumTimer_, this);
     spectrumTimer_.start();
     NativeFx::I18n::bind(this, [this] {
-        setAccessibleDescription(NativeFx::I18n::text("module.description", "Eight-channel native sibilance suppressor.")); setWindowTitle(NativeFx::I18n::text("module.name", "De-Esser")); update(); });
+        setAccessibleDescription(NativeFx::I18n::text(
+            "module.description", "Eight-channel native sibilance suppressor."));
+        setWindowTitle(NativeFx::I18n::text("module.name", "De-Esser"));
+        update();
+    });
 }
 
 void DeEsserWidget::setSpectrumSources(
-    const std::array<WinJACKNexus::Common::AudioRingBuffer<
-        WinJACKNexus::Common::DeEsserSpectrumSample>*, 8>& sources,
-    const std::atomic<double>* sampleRate) noexcept
+    const std::array<
+        WinJACKNexus::Common::AudioRingBuffer<WinJACKNexus::Common::DeEsserSpectrumSample> *, 8>
+        &sources,
+    const std::atomic<double> *sampleRate) noexcept
 {
     spectrumSources_ = sources;
     spectrumSampleRate_ = sampleRate;
     // A closed effect window has no UI consumer, so its SPSC queues may contain
     // old audio (or be full). Start the analyzer at the live signal position.
-    for (auto* source : spectrumSources_)
-        if (source != nullptr) source->clear();
+    for (auto *source : spectrumSources_)
+        if (source != nullptr)
+            source->clear();
     historyWrite_.fill(0);
     historyCount_.fill(0);
     spectrumReady_ = false;
@@ -148,15 +193,16 @@ void DeEsserWidget::setSpectrumFrameReader(SpectrumFrameReader reader)
     spectrumFrameReader_ = std::move(reader);
 }
 
-void DeEsserWidget::addSpectrumSamples(
-    std::size_t channel, const WinJACKNexus::Common::DeEsserSpectrumSample* samples,
-    std::size_t count) noexcept
+void DeEsserWidget::addSpectrumSamples(std::size_t channel,
+                                       const WinJACKNexus::Common::DeEsserSpectrumSample *samples,
+                                       std::size_t count) noexcept
 {
-    auto& inputHistory = inputSpectrumHistory_[channel];
-    auto& processedHistory = processedSpectrumHistory_[channel];
-    auto& write = historyWrite_[channel];
-    auto& available = historyCount_[channel];
-    for (std::size_t i = 0; i < count; ++i) {
+    auto &inputHistory = inputSpectrumHistory_[channel];
+    auto &processedHistory = processedSpectrumHistory_[channel];
+    auto &write = historyWrite_[channel];
+    auto &available = historyCount_[channel];
+    for (std::size_t i = 0; i < count; ++i)
+    {
         inputHistory[write] = samples[i].input;
         processedHistory[write] = samples[i].processed;
         write = (write + 1) % spectrumFftSize_;
@@ -166,9 +212,11 @@ void DeEsserWidget::addSpectrumSamples(
 
 void DeEsserWidget::refreshSpectrum()
 {
-    if (spectrumFrameReader_) {
-        WinJACKNexus::Common::DeEsserLiveSpectrumFrame frame {};
-        if (spectrumFrameReader_(frame)) {
+    if (spectrumFrameReader_)
+    {
+        WinJACKNexus::Common::DeEsserLiveSpectrumFrame frame{};
+        if (spectrumFrameReader_(frame))
+        {
             lastSpectrumSampleRate_ = frame.sampleRate;
             for (std::size_t channel = 0; channel < 8; ++channel)
                 addSpectrumSamples(channel, frame.samples[channel].data(), frame.counts[channel]);
@@ -176,12 +224,16 @@ void DeEsserWidget::refreshSpectrum()
         }
         return;
     }
-    const auto sampleRate = spectrumSampleRate_ == nullptr
-        ? 48000.0 : std::max(8000.0, spectrumSampleRate_->load(std::memory_order_relaxed));
-    if (sampleRate != lastSpectrumSampleRate_) {
+    const auto sampleRate =
+        spectrumSampleRate_ == nullptr
+            ? 48000.0
+            : std::max(8000.0, spectrumSampleRate_->load(std::memory_order_relaxed));
+    if (sampleRate != lastSpectrumSampleRate_)
+    {
         lastSpectrumSampleRate_ = sampleRate;
-        for (auto* source : spectrumSources_)
-            if (source != nullptr) source->clear();
+        for (auto *source : spectrumSources_)
+            if (source != nullptr)
+                source->clear();
         historyWrite_.fill(0);
         historyCount_.fill(0);
         spectrumReady_ = false;
@@ -189,13 +241,15 @@ void DeEsserWidget::refreshSpectrum()
         spectrumDb_.fill(-120.0F);
         update();
     }
-    std::array<WinJACKNexus::Common::DeEsserSpectrumSample, 512> samples {};
+    std::array<WinJACKNexus::Common::DeEsserSpectrumSample, 512> samples{};
     bool receivedSamples = false;
-    for (std::size_t channel = 0; channel < spectrumSources_.size(); ++channel) {
-        auto* source = spectrumSources_[channel];
+    for (std::size_t channel = 0; channel < spectrumSources_.size(); ++channel)
+    {
+        auto *source = spectrumSources_[channel];
         if (source == nullptr)
             continue;
-        while (const auto count = source->read(samples.data(), samples.size())) {
+        while (const auto count = source->read(samples.data(), samples.size()))
+        {
             addSpectrumSamples(channel, samples.data(), count);
             receivedSamples = true;
         }
@@ -204,10 +258,11 @@ void DeEsserWidget::refreshSpectrum()
         calculateSpectrum();
 }
 
-void DeEsserWidget::transform(std::array<std::complex<float>, spectrumFftSize_>& values) noexcept
+void DeEsserWidget::transform(std::array<std::complex<float>, spectrumFftSize_> &values) noexcept
 {
     constexpr std::size_t size = spectrumFftSize_;
-    for (std::size_t i = 1, reversed = 0; i < size; ++i) {
+    for (std::size_t i = 1, reversed = 0; i < size; ++i)
+    {
         std::size_t bit = size >> 1;
         for (; reversed & bit; bit >>= 1)
             reversed ^= bit;
@@ -217,13 +272,16 @@ void DeEsserWidget::transform(std::array<std::complex<float>, spectrumFftSize_>&
     }
 
     constexpr float twoPi = 6.28318530717958647692F;
-    for (std::size_t length = 2; length <= size; length <<= 1) {
+    for (std::size_t length = 2; length <= size; length <<= 1)
+    {
         const auto angle = -twoPi / static_cast<float>(length);
         const std::complex<float> step(std::cos(angle), std::sin(angle));
-        for (std::size_t base = 0; base < size; base += length) {
+        for (std::size_t base = 0; base < size; base += length)
+        {
             std::complex<float> phase(1.0F, 0.0F);
             const auto half = length >> 1;
-            for (std::size_t offset = 0; offset < half; ++offset) {
+            for (std::size_t offset = 0; offset < half; ++offset)
+            {
                 const auto even = values[base + offset];
                 const auto odd = values[base + offset + half] * phase;
                 values[base + offset] = even + odd;
@@ -239,11 +297,12 @@ void DeEsserWidget::calculateSpectrum()
     spectrumReady_ = false;
     inputSpectrumDb_.fill(-120.0F);
     spectrumDb_.fill(-120.0F);
-    const auto sampleRate = spectrumSampleRate_ == nullptr
-        ? (spectrumFrameReader_ ? std::max(8000.0, lastSpectrumSampleRate_) : 48000.0)
-        : std::max(8000.0, spectrumSampleRate_->load(std::memory_order_relaxed));
-    std::array<double, spectrumBinCount_> inputPower {};
-    std::array<double, spectrumBinCount_> processedPower {};
+    const auto sampleRate =
+        spectrumSampleRate_ == nullptr
+            ? (spectrumFrameReader_ ? std::max(8000.0, lastSpectrumSampleRate_) : 48000.0)
+            : std::max(8000.0, spectrumSampleRate_->load(std::memory_order_relaxed));
+    std::array<double, spectrumBinCount_> inputPower{};
+    std::array<double, spectrumBinCount_> processedPower{};
     std::size_t channels = 0;
     double windowSum = 0.0;
     for (const auto coefficient : window_)
@@ -251,19 +310,21 @@ void DeEsserWidget::calculateSpectrum()
     const auto scale = 1.0 / windowSum;
     constexpr double minimumActiveInputRms = 1.0e-5; // -100 dBFS
 
-    const auto accumulate = [this, scale](
-        const std::array<float, spectrumFftSize_>& history, std::size_t channel,
-        std::array<double, spectrumBinCount_>& power) {
-        std::array<std::complex<float>, spectrumFftSize_> values {};
+    const auto accumulate = [this, scale](const std::array<float, spectrumFftSize_> &history,
+                                          std::size_t channel,
+                                          std::array<double, spectrumBinCount_> &power) {
+        std::array<std::complex<float>, spectrumFftSize_> values{};
         const auto oldest = historyWrite_[channel];
-        for (std::size_t i = 0; i < spectrumFftSize_; ++i) {
+        for (std::size_t i = 0; i < spectrumFftSize_; ++i)
+        {
             const auto sample = history[(oldest + i) % spectrumFftSize_];
             values[i] = std::complex<float>(sample * window_[i], 0.0F);
         }
         transform(values);
-        for (std::size_t bin = 0; bin < spectrumBinCount_; ++bin) {
-            const auto oneSidedScale = (bin == 0 || bin == spectrumFftSize_ / 2)
-                ? scale : scale * 2.0;
+        for (std::size_t bin = 0; bin < spectrumBinCount_; ++bin)
+        {
+            const auto oneSidedScale =
+                (bin == 0 || bin == spectrumFftSize_ / 2) ? scale : scale * 2.0;
             const auto magnitude = static_cast<double>(std::abs(values[bin])) * oneSidedScale;
             power[bin] += magnitude * magnitude;
         }
@@ -271,14 +332,17 @@ void DeEsserWidget::calculateSpectrum()
 
     const auto first = selectedChannel_ < 0 ? 0 : selectedChannel_;
     const auto last = selectedChannel_ < 0 ? 8 : selectedChannel_ + 1;
-    for (int channel = first; channel < last; ++channel) {
+    for (int channel = first; channel < last; ++channel)
+    {
         const auto index = static_cast<std::size_t>(channel);
         if (historyCount_[index] < spectrumFftSize_)
             continue;
-        if (selectedChannel_ < 0) {
+        if (selectedChannel_ < 0)
+        {
             double inputSquareSum = 0.0;
             const auto oldest = historyWrite_[index];
-            for (std::size_t i = 0; i < spectrumFftSize_; ++i) {
+            for (std::size_t i = 0; i < spectrumFftSize_; ++i)
+            {
                 const auto sample = inputSpectrumHistory_[index][(oldest + i) % spectrumFftSize_];
                 inputSquareSum += static_cast<double>(sample) * sample;
             }
@@ -290,35 +354,41 @@ void DeEsserWidget::calculateSpectrum()
         accumulate(processedSpectrumHistory_[index], index, processedPower);
         ++channels;
     }
-    if (channels == 0) {
+    if (channels == 0)
+    {
         update();
         return;
     }
 
     spectrumReady_ = true;
-    for (std::size_t bin = 0; bin < spectrumBinCount_; ++bin) {
+    for (std::size_t bin = 0; bin < spectrumBinCount_; ++bin)
+    {
         const auto inputMagnitude = std::sqrt(inputPower[bin] / static_cast<double>(channels));
-        const auto processedMagnitude = std::sqrt(processedPower[bin] / static_cast<double>(channels));
-        inputSpectrumDb_[bin] = static_cast<float>(20.0 * std::log10(std::max(inputMagnitude, 1.0e-6)));
-        spectrumDb_[bin] = static_cast<float>(20.0 * std::log10(std::max(processedMagnitude, 1.0e-6)));
+        const auto processedMagnitude =
+            std::sqrt(processedPower[bin] / static_cast<double>(channels));
+        inputSpectrumDb_[bin] =
+            static_cast<float>(20.0 * std::log10(std::max(inputMagnitude, 1.0e-6)));
+        spectrumDb_[bin] =
+            static_cast<float>(20.0 * std::log10(std::max(processedMagnitude, 1.0e-6)));
     }
     update();
 }
 
-void DeEsserWidget::setParameters(const std::array<Parameters, 8>& parameters)
+void DeEsserWidget::setParameters(const std::array<Parameters, 8> &parameters)
 {
     parameters_ = parameters;
-    const auto isDefault = [](const Parameters& p) {
+    const auto isDefault = [](const Parameters &p) {
         const Parameters defaults;
-        return p.centerFrequencyHz == defaults.centerFrequencyHz
-            && p.bandwidthHz == defaults.bandwidthHz && p.thresholdDb == defaults.thresholdDb
-            && p.attackMs == defaults.attackMs && p.releaseMs == defaults.releaseMs
-            && p.outputGainDb == defaults.outputGainDb && p.mode == defaults.mode
-            && p.detector == defaults.detector && p.listen == defaults.listen
-            && p.enabled == defaults.enabled;
+        return p.centerFrequencyHz == defaults.centerFrequencyHz &&
+               p.bandwidthHz == defaults.bandwidthHz && p.thresholdDb == defaults.thresholdDb &&
+               p.attackMs == defaults.attackMs && p.releaseMs == defaults.releaseMs &&
+               p.outputGainDb == defaults.outputGainDb && p.mode == defaults.mode &&
+               p.detector == defaults.detector && p.listen == defaults.listen &&
+               p.enabled == defaults.enabled;
     };
     selectedPreset_ = std::all_of(parameters_.begin(), parameters_.end(), isDefault) ? 0 : 3;
-    if (draggingKnob_ < 0) update();
+    if (draggingKnob_ < 0)
+        update();
 }
 
 void DeEsserWidget::setChangeHandler(ChangeHandler handler)
@@ -334,7 +404,8 @@ DeEsserWidget::Parameters DeEsserWidget::displayed() const noexcept
     result.centerFrequencyHz = result.bandwidthHz = result.thresholdDb = 0.0F;
     result.attackMs = result.releaseMs = result.outputGainDb = 0.0F;
     result.enabled = true;
-    for (const auto& item : parameters_) {
+    for (const auto &item : parameters_)
+    {
         result.centerFrequencyHz += item.centerFrequencyHz / 8.0F;
         result.bandwidthHz += item.bandwidthHz / 8.0F;
         result.thresholdDb += item.thresholdDb / 8.0F;
@@ -346,88 +417,134 @@ DeEsserWidget::Parameters DeEsserWidget::displayed() const noexcept
     return result;
 }
 
-void DeEsserWidget::apply(const std::function<void(Parameters&)>& edit)
+void DeEsserWidget::apply(const std::function<void(Parameters &)> &edit)
 {
     const int first = selectedChannel_ < 0 ? 0 : selectedChannel_;
     const int last = selectedChannel_ < 0 ? 8 : selectedChannel_ + 1;
-    for (int i = first; i < last; ++i) {
-        auto& parameters = parameters_[static_cast<std::size_t>(i)];
+    for (int i = first; i < last; ++i)
+    {
+        auto &parameters = parameters_[static_cast<std::size_t>(i)];
         edit(parameters);
-        if (changeHandler_) changeHandler_(static_cast<std::size_t>(i), parameters);
+        if (changeHandler_)
+            changeHandler_(static_cast<std::size_t>(i), parameters);
     }
     selectedPreset_ = 3;
-    if (draggingKnob_ < 0) update();
+    if (draggingKnob_ < 0)
+        update();
 }
 
 void DeEsserWidget::selectPreset(int index)
 {
     const int preset = std::clamp(index, 0, 2);
-    apply([index](Parameters& p) {
-        p = Parameters {};
-        if (index == 1) { p.centerFrequencyHz = 7200.0F; p.bandwidthHz = 3000.0F; p.thresholdDb = -16.0F; }
-        if (index == 2) { p.centerFrequencyHz = 5000.0F; p.bandwidthHz = 4500.0F; p.thresholdDb = -14.0F; }
+    apply([index](Parameters &p) {
+        p = Parameters{};
+        if (index == 1)
+        {
+            p.centerFrequencyHz = 7200.0F;
+            p.bandwidthHz = 3000.0F;
+            p.thresholdDb = -16.0F;
+        }
+        if (index == 2)
+        {
+            p.centerFrequencyHz = 5000.0F;
+            p.bandwidthHz = 4500.0F;
+            p.thresholdDb = -14.0F;
+        }
     });
     selectedPreset_ = preset;
     update();
 }
 
-void DeEsserWidget::paintEvent(QPaintEvent*)
+void DeEsserWidget::paintEvent(QPaintEvent *)
 {
-    const std::array<QString, 6> captions { NativeFx::I18n::text("control.centerFrequency", "Center frequency"), NativeFx::I18n::text("control.bandwidth", "Bandwidth"),
-    NativeFx::I18n::text("control.threshold", "Threshold"), NativeFx::I18n::text("control.attack", "Attack"), NativeFx::I18n::text("control.release", "Release"), NativeFx::I18n::text("control.outputGain", "Output gain") };
+    const std::array<QString, 6> captions{
+        NativeFx::I18n::text("control.centerFrequency", "Center frequency"),
+        NativeFx::I18n::text("control.bandwidth", "Bandwidth"),
+        NativeFx::I18n::text("control.threshold", "Threshold"),
+        NativeFx::I18n::text("control.attack", "Attack"),
+        NativeFx::I18n::text("control.release", "Release"),
+        NativeFx::I18n::text("control.outputGain", "Output gain")};
     const auto shown = displayed();
-    const std::array<float, 6> values {shown.centerFrequencyHz, shown.bandwidthHz,
-        shown.thresholdDb, shown.attackMs, shown.releaseMs, shown.outputGainDb};
-    QPainter p(this); p.setRenderHint(QPainter::Antialiasing);
-    p.fillRect(rect(), Controls::themeColor(*this, "fxBackground",
-        Controls::themeTokenColor("native-fx-deesser", "surface-window", background)));
-    p.save(); p.scale(width() / 768.0, height() / 650.0);
+    const std::array<float, 6> values{shown.centerFrequencyHz, shown.bandwidthHz,
+                                      shown.thresholdDb,       shown.attackMs,
+                                      shown.releaseMs,         shown.outputGainDb};
+    QPainter p(this);
+    p.setRenderHint(QPainter::Antialiasing);
+    p.fillRect(rect(),
+               Controls::themeColor(
+                   *this, "fxBackground",
+                   Controls::themeTokenColor("native-fx-deesser", "surface-window", background)));
+    p.save();
+    p.scale(width() / 768.0, height() / 650.0);
 
     // Nine channel buttons keep the reference's dark, inset selector style while
     // exposing All plus all eight native-effect channels.
     rounded(p, {7, 8, 754, 128}, 11, QColor(21, 39, 59), QColor(47, 75, 104));
-    textAt(p, {22, 18, 150, 34}, NativeFx::I18n::text("control.targetChannels", "Channel"), 20, text, Qt::AlignLeft, true);
-    for (int i = 0; i < 9; ++i) {
+    textAt(p, {22, 18, 150, 34}, NativeFx::I18n::text("control.targetChannels", "Channel"), 20,
+           text, Qt::AlignLeft, true);
+    for (int i = 0; i < 9; ++i)
+    {
         const QRectF r(22 + i * 80, 68, 72, 40);
         const bool selected = i == (selectedChannel_ < 0 ? 0 : selectedChannel_ + 1);
         rounded(p, r, 6, selected ? QColor(17, 58, 86) : QColor(26, 44, 63),
                 selected ? QColor(18, 192, 255) : QColor(65, 91, 117));
-        if (selected) {
-            Controls::drawSurface(p,r.adjusted(1,1,-1,-1),Qt::NoBrush,
-                QColor(0,162,255,35),5,5);
+        if (selected)
+        {
+            Controls::drawSurface(p, r.adjusted(1, 1, -1, -1), Qt::NoBrush, QColor(0, 162, 255, 35),
+                                  5, 5);
         }
-        textAt(p, r, (i == 0 ? NativeFx::I18n::text("control.all", "All") : channels[static_cast<std::size_t>(i)]), 16,
-               selected ? QColor(91, 222, 255) : QColor(168, 194, 229));
+        textAt(p, r,
+               (i == 0 ? NativeFx::I18n::text("control.all", "All")
+                       : channels[static_cast<std::size_t>(i)]),
+               16, selected ? QColor(91, 222, 255) : QColor(168, 194, 229));
     }
 
     p.translate(0, 145);
     rounded(p, {10, 9, 747, 481}, 10,
-        Controls::themeTokenColor("native-fx-deesser", "surface-panel", QColor(11, 26, 43)),
-        QColor(92, 65, 135));
+            Controls::themeTokenColor("native-fx-deesser", "surface-panel", QColor(11, 26, 43)),
+            QColor(92, 65, 135));
     rounded(p, {9, 9, 750, 72}, 10, QColor(20, 38, 58));
     rounded(p, {21, 15, 56, 57}, 7, QColor(65, 34, 114));
     p.setPen(QPen(QColor(218, 182, 255), 2.4));
-    QPainterPath logo; logo.moveTo(63, 33); logo.lineTo(57, 33); logo.cubicTo(53, 24, 42, 24, 40, 32);
-    logo.cubicTo(38, 41, 54, 43, 54, 50); logo.cubicTo(54, 57, 44, 59, 39, 52); logo.lineTo(34, 52);
-    p.drawPath(logo); p.drawLine(QPointF(28, 42), QPointF(34, 42)); p.drawLine(QPointF(62, 42), QPointF(68, 42));
-    textAt(p, {95, 13, 240, 37}, NativeFx::I18n::text("module.name", "De-Esser"), 26, text, Qt::AlignLeft, true);
-    textAt(p, {95, 48, 220, 22}, NativeFx::I18n::text("description.deesser", "Detect and reduce sibilance (S, SH)"), 14, muted, Qt::AlignLeft);
+    QPainterPath logo;
+    logo.moveTo(63, 33);
+    logo.lineTo(57, 33);
+    logo.cubicTo(53, 24, 42, 24, 40, 32);
+    logo.cubicTo(38, 41, 54, 43, 54, 50);
+    logo.cubicTo(54, 57, 44, 59, 39, 52);
+    logo.lineTo(34, 52);
+    p.drawPath(logo);
+    p.drawLine(QPointF(28, 42), QPointF(34, 42));
+    p.drawLine(QPointF(62, 42), QPointF(68, 42));
+    textAt(p, {95, 13, 240, 37}, NativeFx::I18n::text("module.name", "De-Esser"), 26, text,
+           Qt::AlignLeft, true);
+    textAt(p, {95, 48, 220, 22},
+           NativeFx::I18n::text("description.deesser", "Detect and reduce sibilance (S, SH)"), 14,
+           muted, Qt::AlignLeft);
     rounded(p, {326, 15, 58, 58}, 10, QColor(25, 42, 62));
-    Controls::drawToggle(p, {337, 32, 37, 20}, shown.enabled,
-        Controls::themeTokenColor("native-fx-deesser", "control-toggle-indicator-on", QColor(0, 137, 220)),
-        Controls::themeTokenColor("native-fx-deesser", "control-toggle-indicator-off", QColor(57, 71, 89)));
+    Controls::drawToggle(
+        p, {337, 32, 37, 20}, shown.enabled,
+        Controls::themeTokenColor("native-fx-deesser", "control-toggle-indicator-on",
+                                  QColor(0, 137, 220)),
+        Controls::themeTokenColor("native-fx-deesser", "control-toggle-indicator-off",
+                                  QColor(57, 71, 89)));
     textAt(p, {400, 26, 43, 34}, NativeFx::I18n::text("label.preset", "Preset:"), 13, muted,
            Qt::AlignLeft | Qt::AlignVCenter);
     rounded(p, {453, 26, 166, 34}, 5, QColor(13, 28, 46), QColor(52, 82, 112));
-    const std::array<QString, 4> presets { NativeFx::I18n::text("preset.default", "Default"),
-        NativeFx::I18n::text("preset.brightVocal", "Bright Vocal"), NativeFx::I18n::text("preset.softVoice", "Soft Voice"), NativeFx::I18n::text("preset.custom", "Custom") };
+    const std::array<QString, 4> presets{NativeFx::I18n::text("preset.default", "Default"),
+                                         NativeFx::I18n::text("preset.brightVocal", "Bright Vocal"),
+                                         NativeFx::I18n::text("preset.softVoice", "Soft Voice"),
+                                         NativeFx::I18n::text("preset.custom", "Custom")};
     textAt(p, {463, 26, 135, 34}, presets[static_cast<std::size_t>(selectedPreset_)], 14, text);
     textAt(p, {597, 26, 18, 34}, QStringLiteral("⌄"), 17, muted);
-    for (int i = 0; i < 2; ++i) {
-        const QRectF r(631 + i * 38, 27, 30, 32); rounded(p, r, 5, QColor(18, 40, 60), QColor(53, 83, 111));
+    for (int i = 0; i < 2; ++i)
+    {
+        const QRectF r(631 + i * 38, 27, 30, 32);
+        rounded(p, r, 5, QColor(18, 40, 60), QColor(53, 83, 111));
         textAt(p, r, i == 0 ? QStringLiteral("‹") : QStringLiteral("›"), 23, muted);
     }
-    const QRectF more(709, 27, 31, 32); rounded(p, more, 5, QColor(18, 40, 60), QColor(53, 83, 111));
+    const QRectF more(709, 27, 31, 32);
+    rounded(p, more, 5, QColor(18, 40, 60), QColor(53, 83, 111));
     textAt(p, more, QStringLiteral("•••"), 11, muted);
 
     // Analyzer: frequency/dB grid, the processed-output spectrum, and the purple
@@ -435,42 +552,51 @@ void DeEsserWidget::paintEvent(QPaintEvent*)
     const QRectF graph(70, 116, 339, 216);
     constexpr qreal pixelsPerOctave = 79.0;
     const auto frequencyToX = [&graph, pixelsPerOctave](double frequency) {
-        return graph.left() + std::log2(std::max(frequency, 1000.0) / 1000.0)
-            * pixelsPerOctave;
+        return graph.left() + std::log2(std::max(frequency, 1000.0) / 1000.0) * pixelsPerOctave;
     };
     const auto xToFrequency = [&graph, pixelsPerOctave](qreal x) {
         return 1000.0 * std::exp2((x - graph.left()) / pixelsPerOctave);
     };
     rounded(p, graph, 2,
-        Controls::themeTokenColor("native-fx-deesser", "chart-background", QColor(8, 22, 38)),
-        QColor(47, 77, 104));
+            Controls::themeTokenColor("native-fx-deesser", "chart-background", QColor(8, 22, 38)),
+            QColor(47, 77, 104));
     Controls::ChartGridStyle octaveGrid;
     Controls::ChartGridStyle halfOctaveGrid;
-    octaveGrid.grid=Controls::themeTokenColor("native-fx-deesser", "chart-grid-major", QColor(37,60,83));
-    halfOctaveGrid.grid=Controls::themeTokenColor("native-fx-deesser", "chart-grid-minor", QColor(25,46,67));
-    for (int halfOctave = 0; halfOctave <= 8; ++halfOctave) {
+    octaveGrid.grid =
+        Controls::themeTokenColor("native-fx-deesser", "chart-grid-major", QColor(37, 60, 83));
+    halfOctaveGrid.grid =
+        Controls::themeTokenColor("native-fx-deesser", "chart-grid-minor", QColor(25, 46, 67));
+    for (int halfOctave = 0; halfOctave <= 8; ++halfOctave)
+    {
         const auto x = frequencyToX(1000.0 * std::exp2(halfOctave * 0.5));
-        auto& positions=halfOctave % 2 == 0
-            ? octaveGrid.verticalFractions : halfOctaveGrid.verticalFractions;
-        positions.push_back((x-graph.left())/graph.width());
+        auto &positions =
+            halfOctave % 2 == 0 ? octaveGrid.verticalFractions : halfOctaveGrid.verticalFractions;
+        positions.push_back((x - graph.left()) / graph.width());
     }
-    Controls::drawChartGrid(p,graph,octaveGrid);
-    Controls::drawChartGrid(p,graph,halfOctaveGrid);
+    Controls::drawChartGrid(p, graph, octaveGrid);
+    Controls::drawChartGrid(p, graph, halfOctaveGrid);
     Controls::ChartGridStyle levelGrid;
-    levelGrid.grid=Controls::themeTokenColor("native-fx-deesser", "chart-grid-level", QColor(30,51,72));
-    levelGrid.rows=5;
-    Controls::drawChartGrid(p,graph,levelGrid);
-    for (int i = 0; i <= 5; ++i) {
+    levelGrid.grid =
+        Controls::themeTokenColor("native-fx-deesser", "chart-grid-level", QColor(30, 51, 72));
+    levelGrid.rows = 5;
+    Controls::drawChartGrid(p, graph, levelGrid);
+    for (int i = 0; i <= 5; ++i)
+    {
         const auto y = graph.top() + graph.height() * i / 5.0;
-        textAt(p, {21, y - 10, 39, 20}, i == 0 ? QStringLiteral("0") : QStringLiteral("-%1").arg(i * 12),
-               14, muted, Qt::AlignRight | Qt::AlignVCenter);
+        textAt(p, {21, y - 10, 39, 20},
+               i == 0 ? QStringLiteral("0") : QStringLiteral("-%1").arg(i * 12), 14, muted,
+               Qt::AlignRight | Qt::AlignVCenter);
     }
-    const std::array<QString, 5> hz { QStringLiteral("1k"), QStringLiteral("2k"), QStringLiteral("4k"), QStringLiteral("8k"), QStringLiteral("16k") };
-    for (int i = 0; i < 5; ++i) {
+    const std::array<QString, 5> hz{QStringLiteral("1k"), QStringLiteral("2k"),
+                                    QStringLiteral("4k"), QStringLiteral("8k"),
+                                    QStringLiteral("16k")};
+    for (int i = 0; i < 5; ++i)
+    {
         const auto x = frequencyToX(1000.0 * std::exp2(i));
         textAt(p, {x - 21, 336, 42, 19}, hz[i], 14, muted);
     }
-    p.save(); p.setClipRect(graph.adjusted(1, 1, -1, -1));
+    p.save();
+    p.setClipRect(graph.adjusted(1, 1, -1, -1));
     p.setBrush(Qt::NoBrush);
     const qreal centerX = frequencyToX(shown.centerFrequencyHz);
     const qreal widthScale = std::clamp(shown.bandwidthHz / 4000.0F, 0.5F, 2.0F);
@@ -478,25 +604,30 @@ void DeEsserWidget::paintEvent(QPaintEvent*)
     constexpr qreal bellPeakY = 181.0;
     QPainterPath bell;
     bell.moveTo(centerX - 120.0 * widthScale, bellBaselineY);
-    bell.cubicTo(centerX - 75.0 * widthScale, bellBaselineY,
-                 centerX - 48.0 * widthScale, bellPeakY, centerX, bellPeakY);
-    bell.cubicTo(centerX + 48.0 * widthScale, bellPeakY,
-                 centerX + 75.0 * widthScale, bellBaselineY,
+    bell.cubicTo(centerX - 75.0 * widthScale, bellBaselineY, centerX - 48.0 * widthScale, bellPeakY,
+                 centerX, bellPeakY);
+    bell.cubicTo(centerX + 48.0 * widthScale, bellPeakY, centerX + 75.0 * widthScale, bellBaselineY,
                  centerX + 120.0 * widthScale, bellBaselineY);
     Controls::CurveStyle bellStyle;
-    bellStyle.stroke=Controls::themeTokenColor("native-fx-deesser", "chart-series-response-bell-stroke", purple);
-    bellStyle.width=2;
-    Controls::drawCurvePath(p,bell,bellStyle);
-    if (spectrumReady_) {
-        const auto sampleRate = spectrumSampleRate_ == nullptr
-            ? 48000.0 : std::max(8000.0, spectrumSampleRate_->load(std::memory_order_relaxed));
-        const auto drawSpectrum = [&](const std::array<float, spectrumBinCount_>& db,
-                                      const QColor& color) {
+    bellStyle.stroke =
+        Controls::themeTokenColor("native-fx-deesser", "chart-series-response-bell-stroke", purple);
+    bellStyle.width = 2;
+    Controls::drawCurvePath(p, bell, bellStyle);
+    if (spectrumReady_)
+    {
+        const auto sampleRate =
+            spectrumSampleRate_ == nullptr
+                ? 48000.0
+                : std::max(8000.0, spectrumSampleRate_->load(std::memory_order_relaxed));
+        const auto drawSpectrum = [&](const std::array<float, spectrumBinCount_> &db,
+                                      const QColor &color) {
             QPainterPath spectrum;
             bool segmentActive = false;
-            for (int x = qRound(graph.left()); x <= qRound(graph.right()); ++x) {
+            for (int x = qRound(graph.left()); x <= qRound(graph.right()); ++x)
+            {
                 const auto frequency = xToFrequency(x);
-                if (frequency > sampleRate * 0.5) {
+                if (frequency > sampleRate * 0.5)
+                {
                     segmentActive = false;
                     continue;
                 }
@@ -507,49 +638,65 @@ void DeEsserWidget::paintEvent(QPaintEvent*)
                 const auto levelDb = db[lowerBin] * (1.0 - fraction) + db[upperBin] * fraction;
                 const auto level = std::clamp((levelDb + 60.0) / 60.0, 0.0, 1.0);
                 const auto y = graph.bottom() - level * graph.height();
-                if (segmentActive) spectrum.lineTo(x, y); else spectrum.moveTo(x, y);
+                if (segmentActive)
+                    spectrum.lineTo(x, y);
+                else
+                    spectrum.moveTo(x, y);
                 segmentActive = true;
             }
             Controls::CurveStyle spectrumStyle;
-            spectrumStyle.stroke=color;
-            spectrumStyle.width=1.0;
-            Controls::drawCurvePath(p,spectrum,spectrumStyle);
+            spectrumStyle.stroke = color;
+            spectrumStyle.width = 1.0;
+            Controls::drawCurvePath(p, spectrum, spectrumStyle);
         };
-        drawSpectrum(inputSpectrumDb_, Controls::themeTokenColor(
-            "native-fx-deesser", "chart-series-input-spectrum-stroke", QColor(67, 207, 224, 205)));
-        drawSpectrum(spectrumDb_, Controls::themeTokenColor(
-            "native-fx-deesser", "chart-series-output-spectrum-stroke", QColor(127, 83, 184, 205)));
+        drawSpectrum(inputSpectrumDb_,
+                     Controls::themeTokenColor("native-fx-deesser",
+                                               "chart-series-input-spectrum-stroke",
+                                               QColor(67, 207, 224, 205)));
+        drawSpectrum(spectrumDb_, Controls::themeTokenColor("native-fx-deesser",
+                                                            "chart-series-output-spectrum-stroke",
+                                                            QColor(127, 83, 184, 205)));
         rounded(p, {76, 119, 127, 19}, 4, QColor(8, 22, 38, 225));
         const auto inputLegend = Controls::themeTokenColor(
             "native-fx-deesser", "chart-series-input-spectrum-stroke", QColor(67, 207, 224, 205));
-        p.setPen(QPen(QColor(inputLegend.red(), inputLegend.green(), inputLegend.blue(), 230), 1.4));
+        p.setPen(
+            QPen(QColor(inputLegend.red(), inputLegend.green(), inputLegend.blue(), 230), 1.4));
         p.drawLine(QPointF(82, 128), QPointF(94, 128));
         textAt(p, {97, 119, 30, 18}, NativeFx::I18n::text("label.input", "Input"), 10, text);
         const auto outputLegend = Controls::themeTokenColor(
             "native-fx-deesser", "chart-series-output-spectrum-stroke", QColor(127, 83, 184, 205));
-        p.setPen(QPen(QColor(outputLegend.red(), outputLegend.green(), outputLegend.blue(), 230), 1.4));
+        p.setPen(
+            QPen(QColor(outputLegend.red(), outputLegend.green(), outputLegend.blue(), 230), 1.4));
         p.drawLine(QPointF(131, 128), QPointF(143, 128));
-        textAt(p, {146, 119, 54, 18}, NativeFx::I18n::text("label.processed", "Processed"), 10, text);
+        textAt(p, {146, 119, 54, 18}, NativeFx::I18n::text("label.processed", "Processed"), 10,
+               text);
     }
-    p.setPen(QPen(Controls::themeTokenColor("native-fx-deesser", "chart-center-guide", QColor(174, 100, 255)),
+    p.setPen(QPen(
+        Controls::themeTokenColor("native-fx-deesser", "chart-center-guide", QColor(174, 100, 255)),
         1.4, Qt::DashLine));
     p.drawLine(QPointF(centerX, 157), QPointF(centerX, 332));
-    Controls::drawMarker(p,QPointF(centerX,181),5.5,QColor(228,207,255),
-        Controls::themeTokenColor("native-fx-deesser", "chart-series-response-bell-stroke", purple),2);
+    Controls::drawMarker(
+        p, QPointF(centerX, 181), 5.5, QColor(228, 207, 255),
+        Controls::themeTokenColor("native-fx-deesser", "chart-series-response-bell-stroke", purple),
+        2);
     p.restore();
     const qreal tooltipX = std::clamp(centerX - 36, graph.left(), graph.right() - 73);
     rounded(p, {tooltipX, 111, 73, 47}, 6, QColor(32, 34, 63), QColor(88, 64, 133));
-    textAt(p, {tooltipX + 4, 113, 65, 20}, NativeFx::I18n::text("control.centerFrequency", "Center frequency"), 12, text);
+    textAt(p, {tooltipX + 4, 113, 65, 20},
+           NativeFx::I18n::text("control.centerFrequency", "Center frequency"), 12, text);
     textAt(p, {tooltipX + 4, 132, 65, 20}, valueText(values, 0), 13, text);
 
     rounded(p, {429, 94, 314, 274}, 11, QColor(19, 36, 56), QColor(39, 66, 94));
-    const auto knobColors=Controls::paletteFor(*this,
+    const auto knobColors = Controls::paletteFor(
+        *this,
         {Controls::themeTokenColor("native-fx-deesser", "control-knob-background-base", background),
-         QColor(19,36,56), text,
+         QColor(19, 36, 56), text,
          Controls::themeTokenColor("native-fx-deesser", "control-knob-indicator-normal", purple),
-         Controls::themeTokenColor("native-fx-deesser", "control-knob-track", QColor(48,34,87))});
-    for (int i = 0; i < 6; ++i) {
-        Controls::drawKnob(p, knobs[static_cast<std::size_t>(i)], normalized(values, i),32,knobColors);
+         Controls::themeTokenColor("native-fx-deesser", "control-knob-track", QColor(48, 34, 87))});
+    for (int i = 0; i < 6; ++i)
+    {
+        Controls::drawKnob(p, knobs[static_cast<std::size_t>(i)], normalized(values, i), 32,
+                           knobColors);
         textAt(p, {knobs[i].x() - 48, knobs[i].y() + 34, 96, 23}, valueText(values, i), 16, text);
         textAt(p, {knobs[i].x() - 49, knobs[i].y() + 56, 98, 22}, captions[i], 15, muted);
     }
@@ -557,48 +704,72 @@ void DeEsserWidget::paintEvent(QPaintEvent*)
     rounded(p, {20, 376, 389, 99}, 8, QColor(13, 31, 50), QColor(40, 75, 105));
     textAt(p, {30, 409, 52, 34}, NativeFx::I18n::text("control.mode", "Mode:"), 14, muted,
            Qt::AlignLeft | Qt::AlignVCenter);
-    const std::array<QString, 3> modes { NativeFx::I18n::text("mode.wideband", "Wideband"), NativeFx::I18n::text("mode.splitBand", "Split band"), NativeFx::I18n::text("mode.dynamicEq", "Dynamic EQ") };
-    for (int i = 0; i < 3; ++i) button(p, {85.0 + i * 87.0, 409, 84, 34}, modes[i], static_cast<int>(shown.mode) == i, 14);
+    const std::array<QString, 3> modes{NativeFx::I18n::text("mode.wideband", "Wideband"),
+                                       NativeFx::I18n::text("mode.splitBand", "Split band"),
+                                       NativeFx::I18n::text("mode.dynamicEq", "Dynamic EQ")};
+    for (int i = 0; i < 3; ++i)
+        button(p, {85.0 + i * 87.0, 409, 84, 34}, modes[i], static_cast<int>(shown.mode) == i, 14);
     rounded(p, {429, 376, 312, 99}, 8, QColor(13, 31, 50), QColor(40, 75, 105));
-    textAt(p, {443, 382, 70, 34}, NativeFx::I18n::text("control.detectorMode", "Detector:"), 14, muted,
-           Qt::AlignLeft | Qt::AlignVCenter);
-    button(p, {521, 382, 84, 34}, QStringLiteral("RMS"), shown.detector == Common::DeEsserDetector::Rms, 14);
-    button(p, {611, 382, 86, 34}, NativeFx::I18n::text("meter.peak", "Peak"), shown.detector == Common::DeEsserDetector::Peak, 14);
+    textAt(p, {443, 382, 70, 34}, NativeFx::I18n::text("control.detectorMode", "Detector:"), 14,
+           muted, Qt::AlignLeft | Qt::AlignVCenter);
+    button(p, {521, 382, 84, 34}, QStringLiteral("RMS"),
+           shown.detector == Common::DeEsserDetector::Rms, 14);
+    button(p, {611, 382, 86, 34}, NativeFx::I18n::text("meter.peak", "Peak"),
+           shown.detector == Common::DeEsserDetector::Peak, 14);
     button(p, {702, 382, 29, 34}, QStringLiteral("i"), false, 13);
     textAt(p, {443, 423, 67, 34}, NativeFx::I18n::text("control.monitor", "Monitor:"), 14, muted,
            Qt::AlignLeft | Qt::AlignVCenter);
-    button(p, {521, 423, 65, 34}, NativeFx::I18n::text("control.off", "Off"), shown.listen == Common::DeEsserListen::Off, 14);
-    button(p, {592, 423, 65, 34}, NativeFx::I18n::text("listen.sibilance", "Sibilance"), shown.listen == Common::DeEsserListen::Sibilance, 13);
-    button(p, {663, 423, 70, 34}, NativeFx::I18n::text("listen.original", "Original"), shown.listen == Common::DeEsserListen::Original, 13);
+    button(p, {521, 423, 65, 34}, NativeFx::I18n::text("control.off", "Off"),
+           shown.listen == Common::DeEsserListen::Off, 14);
+    button(p, {592, 423, 65, 34}, NativeFx::I18n::text("listen.sibilance", "Sibilance"),
+           shown.listen == Common::DeEsserListen::Sibilance, 13);
+    button(p, {663, 423, 70, 34}, NativeFx::I18n::text("listen.original", "Original"),
+           shown.listen == Common::DeEsserListen::Original, 13);
     p.restore();
 }
 
 void DeEsserWidget::setKnobFromY(int index, qreal y)
 {
-    const float n = static_cast<float>(std::clamp(dragStartNormalized_ + (dragStartY_ - y) / 120.0, 0.0, 1.0));
-    const std::array<float, 6> low { 1000, 250, -60, 0, 5, -24 }, high { 12000, 12000, 0, 100, 1000, 12 };
+    const float n =
+        static_cast<float>(std::clamp(dragStartNormalized_ + (dragStartY_ - y) / 120.0, 0.0, 1.0));
+    const std::array<float, 6> low{1000, 250, -60, 0, 5, -24}, high{12000, 12000, 0, 100, 1000, 12};
     const float value = (index == 3 || index == 4)
-        ? low[index] + std::expm1(n * std::log1p(high[index] - low[index]))
-        : low[index] + n * (high[index] - low[index]);
-    apply([index, value](Parameters& p) {
-        switch (index) {
-        case 0: p.centerFrequencyHz = value; break;
-        case 1: p.bandwidthHz = value; break;
-        case 2: p.thresholdDb = value; break;
-        case 3: p.attackMs = value; break;
-        case 4: p.releaseMs = value; break;
-        default: p.outputGainDb = value; break;
+                            ? low[index] + std::expm1(n * std::log1p(high[index] - low[index]))
+                            : low[index] + n * (high[index] - low[index]);
+    apply([index, value](Parameters &p) {
+        switch (index)
+        {
+        case 0:
+            p.centerFrequencyHz = value;
+            break;
+        case 1:
+            p.bandwidthHz = value;
+            break;
+        case 2:
+            p.thresholdDb = value;
+            break;
+        case 3:
+            p.attackMs = value;
+            break;
+        case 4:
+            p.releaseMs = value;
+            break;
+        default:
+            p.outputGainDb = value;
+            break;
         }
     });
 }
 
-void DeEsserWidget::mousePressEvent(QMouseEvent* event)
+void DeEsserWidget::mousePressEvent(QMouseEvent *event)
 {
     const QPointF pt = event->position();
     const QPointF local(pt.x() * 768.0 / width(), pt.y() * 650.0 / height());
-    if (local.y() < 136) {
+    if (local.y() < 136)
+    {
         const int channel = qRound((local.x() - 58) / 80.0);
-        if (channel >= 0 && channel < 9 && QRectF(22 + channel * 80, 68, 72, 40).contains(local)) {
+        if (channel >= 0 && channel < 9 && QRectF(22 + channel * 80, 68, 72, 40).contains(local))
+        {
             selectedChannel_ = channel == 0 ? -1 : channel - 1;
             calculateSpectrum();
             update();
@@ -606,38 +777,54 @@ void DeEsserWidget::mousePressEvent(QMouseEvent* event)
         }
     }
     const QPointF main(local.x(), local.y() - 145);
-    for(int i=0;i<6;++i) {
-        const auto& center=knobs[static_cast<std::size_t>(i)];
-        const QRect readout(qRound(center.x()-48),qRound(center.y()+145+34),96,23);
-        if(!readout.contains(event->pos()))continue;
-        const double scale=i<2?1000.0:1.0;
-        Controls::editNumericValue(this,readout,knobValue(displayed(),i)/scale,knobSpec(i),
-            [this,i,scale](double target){
-                apply([i,target,scale](Parameters& parameters){
-                    setKnobValue(parameters,i,static_cast<float>(target*scale));
-                });
-            });
+    for (int i = 0; i < 6; ++i)
+    {
+        const auto &center = knobs[static_cast<std::size_t>(i)];
+        const QRect readout(qRound(center.x() - 48), qRound(center.y() + 145 + 34), 96, 23);
+        if (!readout.contains(event->pos()))
+            continue;
+        const double scale = i < 2 ? 1000.0 : 1.0;
+        Controls::editNumericValue(this, readout, knobValue(displayed(), i) / scale, knobSpec(i),
+                                   [this, i, scale](double target) {
+                                       apply([i, target, scale](Parameters &parameters) {
+                                           setKnobValue(parameters, i,
+                                                        static_cast<float>(target * scale));
+                                       });
+                                   });
         return;
     }
     for (int i = 0; i < 6; ++i)
-        if (QLineF(main, knobs[static_cast<std::size_t>(i)]).length() <= 35) {
+        if (QLineF(main, knobs[static_cast<std::size_t>(i)]).length() <= 35)
+        {
             const auto shown = displayed();
-            const std::array<float, 6> values {shown.centerFrequencyHz, shown.bandwidthHz,
-                shown.thresholdDb, shown.attackMs, shown.releaseMs, shown.outputGainDb};
+            const std::array<float, 6> values{shown.centerFrequencyHz, shown.bandwidthHz,
+                                              shown.thresholdDb,       shown.attackMs,
+                                              shown.releaseMs,         shown.outputGainDb};
             draggingKnob_ = i;
             dragStartY_ = main.y();
             dragStartNormalized_ = normalized(values, i);
             return;
         }
-    if (QRectF(326, 15, 58, 58).contains(main)) { const bool enabled = !displayed().enabled; apply([enabled](Parameters& p) { p.enabled = enabled; }); return; }
-    if (QRectF(453, 26, 166, 34).contains(main)) {
+    if (QRectF(326, 15, 58, 58).contains(main))
+    {
+        const bool enabled = !displayed().enabled;
+        apply([enabled](Parameters &p) { p.enabled = enabled; });
+        return;
+    }
+    if (QRectF(453, 26, 166, 34).contains(main))
+    {
         QMenu menu(this);
-        const std::array<QString, 3> presets {NativeFx::I18n::text("preset.default", "Default"), NativeFx::I18n::text("preset.brightVocal", "Bright Vocal"), NativeFx::I18n::text("preset.softVoice", "Soft Voice")};
-        for (int i = 0; i < 3; ++i) {
-            auto* action = menu.addAction(presets[static_cast<std::size_t>(i)]);
+        const std::array<QString, 3> presets{
+            NativeFx::I18n::text("preset.default", "Default"),
+            NativeFx::I18n::text("preset.brightVocal", "Bright Vocal"),
+            NativeFx::I18n::text("preset.softVoice", "Soft Voice")};
+        for (int i = 0; i < 3; ++i)
+        {
+            auto *action = menu.addAction(presets[static_cast<std::size_t>(i)]);
             NativeFx::I18n::bind(action, [action, i] {
-                constexpr const char* keys[] = {"preset.default", "preset.brightVocal", "preset.softVoice"};
-                constexpr const char* english[] = {"Default", "Bright Vocal", "Soft Voice"};
+                constexpr const char *keys[] = {"preset.default", "preset.brightVocal",
+                                                "preset.softVoice"};
+                constexpr const char *english[] = {"Default", "Bright Vocal", "Soft Voice"};
                 action->setText(NativeFx::I18n::text(keys[i], english[i]));
             });
             connect(action, &QAction::triggered, this, [this, i] { selectPreset(i); });
@@ -645,52 +832,102 @@ void DeEsserWidget::mousePressEvent(QMouseEvent* event)
         menu.exec(mapToGlobal(QPoint(453, 205)));
         return;
     }
-    if (QRectF(631, 27, 30, 32).contains(main)) { selectPreset((selectedPreset_ + 2) % 3); return; }
-    if (QRectF(669, 27, 30, 32).contains(main)) { selectPreset((selectedPreset_ + 1) % 3); return; }
-    if (QRectF(709, 27, 31, 32).contains(main)) {
+    if (QRectF(631, 27, 30, 32).contains(main))
+    {
+        selectPreset((selectedPreset_ + 2) % 3);
+        return;
+    }
+    if (QRectF(669, 27, 30, 32).contains(main))
+    {
+        selectPreset((selectedPreset_ + 1) % 3);
+        return;
+    }
+    if (QRectF(709, 27, 31, 32).contains(main))
+    {
         QMenu menu(this);
-        auto* reset = menu.addAction(NativeFx::I18n::text("action.restoreDefaults", "Restore defaults"));
-        NativeFx::I18n::bind(reset, [reset] { reset->setText(NativeFx::I18n::text("action.restoreDefaults", "Restore defaults")); });
+        auto *reset =
+            menu.addAction(NativeFx::I18n::text("action.restoreDefaults", "Restore defaults"));
+        NativeFx::I18n::bind(reset, [reset] {
+            reset->setText(NativeFx::I18n::text("action.restoreDefaults", "Restore defaults"));
+        });
         connect(reset, &QAction::triggered, this, [this] { selectPreset(0); });
         menu.exec(mapToGlobal(QPoint(709, 205)));
         return;
     }
-    for (int i = 0; i < 3; ++i) if (QRectF(85 + i * 87, 409, 84, 34).contains(main)) { apply([i](Parameters& p) { p.mode = static_cast<Common::DeEsserMode>(i); }); return; }
-    if (QRectF(521, 382, 84, 34).contains(main)) { apply([](Parameters& p) { p.detector = Common::DeEsserDetector::Rms; }); return; }
-    if (QRectF(611, 382, 86, 34).contains(main)) { apply([](Parameters& p) { p.detector = Common::DeEsserDetector::Peak; }); return; }
-    if (QRectF(702, 382, 29, 34).contains(main)) {
-        QToolTip::showText(mapToGlobal(pt.toPoint()),
-                           NativeFx::I18n::text("help.detector", "RMS detects average energy; Peak responds to instantaneous sibilance."), this);
+    for (int i = 0; i < 3; ++i)
+        if (QRectF(85 + i * 87, 409, 84, 34).contains(main))
+        {
+            apply([i](Parameters &p) { p.mode = static_cast<Common::DeEsserMode>(i); });
+            return;
+        }
+    if (QRectF(521, 382, 84, 34).contains(main))
+    {
+        apply([](Parameters &p) { p.detector = Common::DeEsserDetector::Rms; });
         return;
     }
-    if (QRectF(521, 423, 65, 34).contains(main)) { apply([](Parameters& p) { p.listen = Common::DeEsserListen::Off; }); return; }
-    if (QRectF(592, 423, 65, 34).contains(main)) { apply([](Parameters& p) { p.listen = Common::DeEsserListen::Sibilance; }); return; }
-    if (QRectF(663, 423, 70, 34).contains(main)) { apply([](Parameters& p) { p.listen = Common::DeEsserListen::Original; }); }
+    if (QRectF(611, 382, 86, 34).contains(main))
+    {
+        apply([](Parameters &p) { p.detector = Common::DeEsserDetector::Peak; });
+        return;
+    }
+    if (QRectF(702, 382, 29, 34).contains(main))
+    {
+        QToolTip::showText(
+            mapToGlobal(pt.toPoint()),
+            NativeFx::I18n::text(
+                "help.detector",
+                "RMS detects average energy; Peak responds to instantaneous sibilance."),
+            this);
+        return;
+    }
+    if (QRectF(521, 423, 65, 34).contains(main))
+    {
+        apply([](Parameters &p) { p.listen = Common::DeEsserListen::Off; });
+        return;
+    }
+    if (QRectF(592, 423, 65, 34).contains(main))
+    {
+        apply([](Parameters &p) { p.listen = Common::DeEsserListen::Sibilance; });
+        return;
+    }
+    if (QRectF(663, 423, 70, 34).contains(main))
+    {
+        apply([](Parameters &p) { p.listen = Common::DeEsserListen::Original; });
+    }
 }
 
-void DeEsserWidget::mouseDoubleClickEvent(QMouseEvent* event) {
-    if(event->button()!=Qt::LeftButton)return;
-    const QPointF main=event->position()-QPointF(0,145);
-    for(int i=0;i<6;++i) {
-        if(QLineF(main,knobs[static_cast<std::size_t>(i)]).length()>35)continue;
-        draggingKnob_=-1;
-        const double scale=i<2?1000.0:1.0;
-        Controls::resetNumericValue(knobSpec(i),[this,i,scale](double target){
-            apply([i,target,scale](Parameters& parameters){
-                setKnobValue(parameters,i,static_cast<float>(target*scale));
+void DeEsserWidget::mouseDoubleClickEvent(QMouseEvent *event)
+{
+    if (event->button() != Qt::LeftButton)
+        return;
+    const QPointF main = event->position() - QPointF(0, 145);
+    for (int i = 0; i < 6; ++i)
+    {
+        if (QLineF(main, knobs[static_cast<std::size_t>(i)]).length() > 35)
+            continue;
+        draggingKnob_ = -1;
+        const double scale = i < 2 ? 1000.0 : 1.0;
+        Controls::resetNumericValue(knobSpec(i), [this, i, scale](double target) {
+            apply([i, target, scale](Parameters &parameters) {
+                setKnobValue(parameters, i, static_cast<float>(target * scale));
             });
         });
         return;
     }
 }
 
-void DeEsserWidget::mouseMoveEvent(QMouseEvent* event)
+void DeEsserWidget::mouseMoveEvent(QMouseEvent *event)
 {
-    if (draggingKnob_ < 0 || !(event->buttons() & Qt::LeftButton)) return;
+    if (draggingKnob_ < 0 || !(event->buttons() & Qt::LeftButton))
+        return;
     const qreal y = event->position().y() * 650.0 / height() - 145;
     setKnobFromY(draggingKnob_, y);
 }
 
-void DeEsserWidget::mouseReleaseEvent(QMouseEvent*) { draggingKnob_ = -1; update(); }
+void DeEsserWidget::mouseReleaseEvent(QMouseEvent *)
+{
+    draggingKnob_ = -1;
+    update();
+}
 
 }

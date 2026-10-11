@@ -22,26 +22,30 @@
 #include <optional>
 #include <vector>
 
-namespace WinJACKNexus::Meter {
+namespace WinJACKNexus::Meter
+{
 
 inline constexpr std::uint16_t maximumMeterChannelCount = 16;
 inline constexpr std::int64_t minimumMeterHistoryWindowMilliseconds = 10'000;
 inline constexpr std::int64_t defaultMeterHistoryWindowMilliseconds = 30'000;
 inline constexpr std::int64_t maximumMeterHistoryWindowMilliseconds = 3'600'000;
 
-enum class MeterProbeState : std::uint8_t {
+enum class MeterProbeState : std::uint8_t
+{
     silent,
     active,
     overload,
     offline
 };
 
-enum class MeterHistoryViewMode : std::uint8_t {
+enum class MeterHistoryViewMode : std::uint8_t
+{
     realtimeScroll,
     scanning
 };
 
-enum class MeterViewCommandType : std::uint8_t {
+enum class MeterViewCommandType : std::uint8_t
+{
     resetLoudness,
     setAutomaticReset,
     setRecording,
@@ -63,7 +67,8 @@ enum class MeterViewCommandType : std::uint8_t {
     setGlobalLogRootDirectory
 };
 
-struct MeterViewCommand final {
+struct MeterViewCommand final
+{
     MeterViewCommandType type = MeterViewCommandType::resetLoudness;
     QString instanceId;
     std::optional<bool> enabled;
@@ -77,15 +82,17 @@ struct MeterViewCommand final {
     std::optional<float> numericValue;
 };
 
-struct MeterChannelView final {
+struct MeterChannelView final
+{
     QString displayName;
     QString speakerRole;
     bool isLfe = false;
 
-    bool operator==(const MeterChannelView&) const = default;
+    bool operator==(const MeterChannelView &) const = default;
 };
 
-struct MeterMetrics final {
+struct MeterMetrics final
+{
     std::optional<float> peakDbfs;
     std::optional<float> rmsDbfs;
     std::optional<float> truePeakDbtp;
@@ -94,34 +101,49 @@ struct MeterMetrics final {
     std::optional<float> integratedLufs;
     std::optional<float> lraLu;
 
-    bool operator==(const MeterMetrics&) const = default;
+    bool operator==(const MeterMetrics &) const = default;
 };
 
-struct MeterHistoryPoint final {
+struct MeterHistoryPoint final
+{
     std::int64_t elapsedMilliseconds = 0;
     std::optional<std::int64_t> systemTimeMilliseconds;
     MeterMetrics metrics;
     std::optional<float> lfePeakDbfs;
     bool discontinuity = false;
 
-    bool operator==(const MeterHistoryPoint&) const = default;
+    bool operator==(const MeterHistoryPoint &) const = default;
 };
 
-struct MeterHistoryViewSettings final {
+struct MeterHistoryViewSettings final
+{
     MeterHistoryViewMode mode = MeterHistoryViewMode::realtimeScroll;
     std::int64_t timeWindowMilliseconds = defaultMeterHistoryWindowMilliseconds;
     bool paused = false;
     std::vector<QString> visibleSeriesIds;
 
-    bool operator==(const MeterHistoryViewSettings&) const = default;
+    bool operator==(const MeterHistoryViewSettings &) const = default;
 };
 
-enum class MeterCsvStatusKind {
-    unspecified, waiting, stopped, recording, queueFull, writerClosed, sessionClosed,
-    noDirectory, directoryFailure, openFailure, writeFailure, previewRecording, previewIdle
+enum class MeterCsvStatusKind
+{
+    unspecified,
+    waiting,
+    stopped,
+    recording,
+    queueFull,
+    writerClosed,
+    sessionClosed,
+    noDirectory,
+    directoryFailure,
+    openFailure,
+    writeFailure,
+    previewRecording,
+    previewIdle
 };
 
-struct MeterCsvPreviewState final {
+struct MeterCsvPreviewState final
+{
     QString logRootDirectory;
     QString activeFilePath;
     QString rotationStatus;
@@ -129,19 +151,21 @@ struct MeterCsvPreviewState final {
     QString statusDetail;
     std::size_t droppedRecordCount = 0;
 
-    bool operator==(const MeterCsvPreviewState&) const = default;
+    bool operator==(const MeterCsvPreviewState &) const = default;
 };
 
-struct MeterGlobalSettingsView final {
+struct MeterGlobalSettingsView final
+{
     QString defaultPresetId = QStringLiteral("ebu-r128");
     float silenceThresholdDbfs = -70.0F;
     float silenceDurationSeconds = 3.0F;
     QString logRootDirectory;
 
-    bool operator==(const MeterGlobalSettingsView&) const = default;
+    bool operator==(const MeterGlobalSettingsView &) const = default;
 };
 
-struct MeterViewSnapshot final {
+struct MeterViewSnapshot final
+{
     QString instanceId;
     QString clientName;
     std::uint64_t nameRevision = 0;

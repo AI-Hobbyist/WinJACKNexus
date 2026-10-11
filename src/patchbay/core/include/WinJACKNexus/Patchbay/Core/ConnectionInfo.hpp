@@ -19,9 +19,11 @@
 
 #include <string>
 
-namespace WinJACKNexus::Patchbay::Core {
+namespace WinJACKNexus::Patchbay::Core
+{
 
-struct WINJACK_PATCHBAY_API ConnectionInfo final {
+struct WINJACK_PATCHBAY_API ConnectionInfo final
+{
     std::string sourcePortId;
     std::string destinationPortId;
     bool alive = true;

@@ -22,7 +22,8 @@
 #include <QJsonArray>
 #include <QWidget>
 
-namespace WinJACKNexus::Meter::Mod {
+namespace WinJACKNexus::Meter::Mod
+{
 
 MeterbridgeService::~MeterbridgeService()
 {
@@ -33,10 +34,13 @@ bool MeterbridgeService::initialize()
 {
     if (provider_ != nullptr)
         return true;
-    try {
+    try
+    {
         provider_ = new LiveMeterDataProvider;
         return true;
-    } catch (...) {
+    }
+    catch (...)
+    {
         provider_ = nullptr;
         return false;
     }
@@ -55,11 +59,12 @@ void MeterbridgeService::destroyWindow() noexcept
     window_ = nullptr;
 }
 
-QWidget* MeterbridgeService::showWindow(const QString& instanceId)
+QWidget *MeterbridgeService::showWindow(const QString &instanceId)
 {
     if (!initialize())
         return nullptr;
-    if (window_ == nullptr) {
+    if (window_ == nullptr)
+    {
         window_ = new MeterbridgeWindow(*provider_);
         window_->setAttribute(Qt::WA_DeleteOnClose, false);
         WinJACKNexus::UI::ThemeManager().applyToWidget(window_);
@@ -91,7 +96,7 @@ QJsonObject MeterbridgeService::projectState() const
     return result;
 }
 
-bool MeterbridgeService::restoreProjectState(const QJsonObject& state)
+bool MeterbridgeService::restoreProjectState(const QJsonObject &state)
 {
     if (!initialize())
         return false;
@@ -99,7 +104,7 @@ bool MeterbridgeService::restoreProjectState(const QJsonObject& state)
     if (meters.isArray())
         provider_->restoreProjectMeters(meters.toArray());
     const auto windowState = state.value(QStringLiteral("meterbridgeWindow"));
-    pendingWindowState_ = windowState.isObject() ? windowState.toObject() : QJsonObject {};
+    pendingWindowState_ = windowState.isObject() ? windowState.toObject() : QJsonObject{};
     if (window_ != nullptr && !pendingWindowState_.isEmpty())
         window_->restoreProjectState(pendingWindowState_);
     return true;

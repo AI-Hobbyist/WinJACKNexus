@@ -22,9 +22,11 @@
 #include <string_view>
 #include <vector>
 
-namespace WinJACKNexus::Common {
+namespace WinJACKNexus::Common
+{
 
-struct WINJACK_COMMON_API ModuleMetadata final {
+struct WINJACK_COMMON_API ModuleMetadata final
+{
     std::string name;
     std::string category;
     std::string version;

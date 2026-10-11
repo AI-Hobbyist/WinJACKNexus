@@ -1,4 +1,5 @@
 """Validate the MIDI deployment without JACK or launching a host window."""
+
 # SPDX-License-Identifier: AGPL-3.0-only
 import hashlib
 import json
@@ -11,7 +12,7 @@ def imports(path):
     """Read standard PE import names without loading executable code."""
     data = path.read_bytes()
     pe = struct.unpack_from("<I", data, 0x3C)[0]
-    if data[pe:pe + 4] != b"PE\0\0":
+    if data[pe : pe + 4] != b"PE\0\0":
         raise ValueError(f"Not a PE image: {path}")
     sections, optional_size = struct.unpack_from("<H12xH", data, pe + 6)
     optional = pe + 24
@@ -32,10 +33,10 @@ def imports(path):
         return []
     cursor = offset(import_rva)
     names = []
-    while any(data[cursor:cursor + 20]):
+    while any(data[cursor : cursor + 20]):
         name_rva = struct.unpack_from("<I", data, cursor + 12)[0]
         start = offset(name_rva)
-        names.append(data[start:data.index(0, start)].decode("ascii").lower())
+        names.append(data[start : data.index(0, start)].decode("ascii").lower())
         cursor += 20
     return names
 
@@ -56,8 +57,12 @@ def main():
             json.loads(path.read_text(encoding="utf-8"))
             required.append(path)
         for template in ("template", "template-simple-dev"):
-            css = repository / "themes" / template / "node" / (
-                f"module-midi-tools-{kind.replace('_', '-')}.css"
+            css = (
+                repository
+                / "themes"
+                / template
+                / "node"
+                / (f"module-midi-tools-{kind.replace('_', '-')}.css")
             )
             if not css.is_file():
                 raise ValueError(f"Missing node theme: {css}")
@@ -98,8 +103,12 @@ def main():
         "boundary": "offline; actual JACK and manual deployment acceptance unverified/SKIPPED",
     }
     output = repository / "build/MidiTools-S6-deployment-manifest.json"
-    output.write_text(json.dumps(manifest, indent=2, ensure_ascii=False), encoding="utf-8")
-    print(f"PASS {len(required)} deployment/license/source entries; {len(checked)} recursive DLLs")
+    output.write_text(
+        json.dumps(manifest, indent=2, ensure_ascii=False), encoding="utf-8"
+    )
+    print(
+        f"PASS {len(required)} deployment/license/source entries; {len(checked)} recursive DLLs"
+    )
     print(output)
 
 

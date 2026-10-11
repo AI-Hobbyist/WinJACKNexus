@@ -24,11 +24,13 @@
 #include <algorithm>
 #include <cmath>
 
-namespace WinJACKNexus::UI {
+namespace WinJACKNexus::UI
+{
 
-namespace {
+namespace
+{
 
-QColor themeColor(const ThemePalette& palette, const char* key, const QColor& fallback)
+QColor themeColor(const ThemePalette &palette, const char *key, const QColor &fallback)
 {
     const auto color = palette.color(QString::fromLatin1(key));
     return color.isValid() ? color : fallback;
@@ -36,14 +38,13 @@ QColor themeColor(const ThemePalette& palette, const char* key, const QColor& fa
 
 }
 
-MetricReadout::MetricReadout(QWidget* parent)
-    : QWidget(parent)
+MetricReadout::MetricReadout(QWidget *parent) : QWidget(parent)
 {
     setMinimumSize(124, 72);
     setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
 }
 
-void MetricReadout::setLabel(const QString& label)
+void MetricReadout::setLabel(const QString &label)
 {
     if (label_ == label)
         return;
@@ -58,18 +59,20 @@ QString MetricReadout::label() const
 
 void MetricReadout::setValue(std::optional<double> value)
 {
-    if (!value.has_value() || !std::isfinite(*value)) {
+    if (!value.has_value() || !std::isfinite(*value))
+    {
         clearValue();
         return;
     }
     if (value_ == value)
         return;
-    if (peakValueRefreshEnabled_ && value_.has_value() && valueRefreshClock_.isValid()
-        && valueRefreshClock_.elapsed()
-            < ApplicationSettings::instance().peakValueRefreshMilliseconds())
+    if (peakValueRefreshEnabled_ && value_.has_value() && valueRefreshClock_.isValid() &&
+        valueRefreshClock_.elapsed() <
+            ApplicationSettings::instance().peakValueRefreshMilliseconds())
         return;
     value_ = value;
-    if (peakValueRefreshEnabled_) valueRefreshClock_.start();
+    if (peakValueRefreshEnabled_)
+        valueRefreshClock_.start();
     update();
 }
 
@@ -89,7 +92,8 @@ std::optional<double> MetricReadout::value() const noexcept
 
 void MetricReadout::setPeakValueRefreshEnabled(bool enabled)
 {
-    if (peakValueRefreshEnabled_ == enabled) return;
+    if (peakValueRefreshEnabled_ == enabled)
+        return;
     peakValueRefreshEnabled_ = enabled;
     valueRefreshClock_.invalidate();
 }
@@ -99,7 +103,7 @@ bool MetricReadout::peakValueRefreshEnabled() const noexcept
     return peakValueRefreshEnabled_;
 }
 
-void MetricReadout::setUnit(const QString& unit)
+void MetricReadout::setUnit(const QString &unit)
 {
     if (unit_ == unit)
         return;
@@ -131,7 +135,7 @@ QString MetricReadout::displayText() const
     return value_.has_value() ? QString::number(*value_, 'f', precision_) : QStringLiteral("--");
 }
 
-void MetricReadout::setAccentColor(const QColor& color)
+void MetricReadout::setAccentColor(const QColor &color)
 {
     if (accentColor_ == color)
         return;
@@ -159,7 +163,7 @@ bool MetricReadout::showSurface() const noexcept
     return showSurface_;
 }
 
-void MetricReadout::setThemePalette(const ThemePalette& palette)
+void MetricReadout::setThemePalette(const ThemePalette &palette)
 {
     if (!palette.isValid())
         return;
@@ -177,33 +181,39 @@ QSize MetricReadout::sizeHint() const
     return showSurface_ ? QSize(148, 78) : QSize(104, 60);
 }
 
-void MetricReadout::paintEvent(QPaintEvent*)
+void MetricReadout::paintEvent(QPaintEvent *)
 {
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing, true);
-    const auto panelBackground = themeColor(themePalette_, "panel-bg", palette().color(QPalette::Window));
-    const auto panelRaised = themeColor(themePalette_, "panel-raised", palette().color(QPalette::Base));
+    const auto panelBackground =
+        themeColor(themePalette_, "panel-bg", palette().color(QPalette::Window));
+    const auto panelRaised =
+        themeColor(themePalette_, "panel-raised", palette().color(QPalette::Base));
     const auto border = themeColor(themePalette_, "border", palette().color(QPalette::Mid));
     const auto text = themeColor(themePalette_, "text", palette().color(QPalette::WindowText));
     const auto muted = themeColor(themePalette_, "text-muted", palette().color(QPalette::Mid));
     const auto accent = resolvedAccentColor();
 
     const QRectF bounds = QRectF(rect()).adjusted(0.5, 0.5, -0.5, -0.5);
-    if (showSurface_) {
+    if (showSurface_)
+    {
         painter.setPen(QPen(border, 1.0));
         painter.setBrush(panelBackground);
         painter.drawRoundedRect(bounds, 4.0, 4.0);
-        const QRectF labelBand(bounds.left() + 1.0,
-                               bounds.top() + 1.0,
+        const QRectF labelBand(bounds.left() + 1.0, bounds.top() + 1.0,
                                std::max(1.0, bounds.width() - 2.0),
                                std::min(24.0, std::max(1.0, bounds.height() - 2.0)));
         painter.fillRect(labelBand, panelRaised);
-        painter.fillRect(QRectF(labelBand.left(), labelBand.bottom() - 1.0, labelBand.width(), 1.0), accent);
-        painter.fillRect(QRectF(bounds.left() + 1.0, bounds.top() + 6.0, 3.0, std::max(1.0, bounds.height() - 12.0)), accent);
+        painter.fillRect(QRectF(labelBand.left(), labelBand.bottom() - 1.0, labelBand.width(), 1.0),
+                         accent);
+        painter.fillRect(QRectF(bounds.left() + 1.0, bounds.top() + 6.0, 3.0,
+                                std::max(1.0, bounds.height() - 12.0)),
+                         accent);
     }
 
     const QFontMetrics metrics(painter.font());
-    const auto content = showSurface_ ? bounds.adjusted(12.0, 8.0, -10.0, -8.0) : bounds.adjusted(0.0, 2.0, 0.0, -2.0);
+    const auto content = showSurface_ ? bounds.adjusted(12.0, 8.0, -10.0, -8.0)
+                                      : bounds.adjusted(0.0, 2.0, 0.0, -2.0);
     QFont valueFont = painter.font();
     valueFont.setPointSizeF(std::max(11.0, valueFont.pointSizeF() + 5.0));
     valueFont.setBold(true);
@@ -215,30 +225,27 @@ void MetricReadout::paintEvent(QPaintEvent*)
     const auto groupHeight = metrics.height() + 3.0 + valueMetrics.height();
     const auto groupTop = content.top() + std::max(0.0, (content.height() - groupHeight) / 2.0);
     const QRectF labelRect(content.left(), groupTop, content.width(), metrics.height());
-    const QRectF valueRect(content.left(), groupTop + metrics.height() + 3.0, content.width(), valueMetrics.height());
+    const QRectF valueRect(content.left(), groupTop + metrics.height() + 3.0, content.width(),
+                           valueMetrics.height());
 
     painter.setPen(muted);
-    painter.drawText(labelRect,
-                     Qt::AlignLeft | Qt::AlignVCenter,
+    painter.drawText(labelRect, Qt::AlignLeft | Qt::AlignVCenter,
                      metrics.elidedText(label_, Qt::ElideRight, static_cast<int>(content.width())));
 
     painter.setFont(valueFont);
     painter.setPen(showSurface_ ? text : accent);
-    painter.drawText(valueRect,
-                     Qt::AlignLeft | Qt::AlignVCenter,
-                     displayText());
+    painter.drawText(valueRect, Qt::AlignLeft | Qt::AlignVCenter, displayText());
 
-    if (!unit_.isEmpty()) {
+    if (!unit_.isEmpty())
+    {
         painter.setFont(unitFont);
         painter.setPen(muted);
-        painter.drawText(QRectF(valueRect.left(),
-                                valueRect.center().y() - unitMetrics.height() / 2.0,
-                                valueRect.width(),
-                                unitMetrics.height()),
-                         Qt::AlignRight | Qt::AlignVCenter,
-                         metrics.elidedText(unit_, Qt::ElideLeft, static_cast<int>(content.width() / 2.0)));
+        painter.drawText(
+            QRectF(valueRect.left(), valueRect.center().y() - unitMetrics.height() / 2.0,
+                   valueRect.width(), unitMetrics.height()),
+            Qt::AlignRight | Qt::AlignVCenter,
+            metrics.elidedText(unit_, Qt::ElideLeft, static_cast<int>(content.width() / 2.0)));
     }
-
 }
 
 QColor MetricReadout::resolvedAccentColor() const

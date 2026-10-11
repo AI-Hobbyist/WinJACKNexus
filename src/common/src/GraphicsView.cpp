@@ -18,11 +18,12 @@
 #include <QGraphicsView>
 #include <QOpenGLWidget>
 
-namespace WinJACKNexus::Common {
-
-void configureAcceleratedGraphicsView(QGraphicsView& view)
+namespace WinJACKNexus::Common
 {
-    auto* viewport = new QOpenGLWidget;
+
+void configureAcceleratedGraphicsView(QGraphicsView &view)
+{
+    auto *viewport = new QOpenGLWidget;
     viewport->setUpdateBehavior(QOpenGLWidget::PartialUpdate);
     view.setViewport(viewport);
     view.setViewportUpdateMode(QGraphicsView::FullViewportUpdate);

@@ -3,13 +3,22 @@
 #include <WinJACKNexus/NativeFx/deesser/Processor.hpp>
 #include <cstdint>
 
-struct DeEsserDsp final {
+struct DeEsserDsp final
+{
     using Processor = WinJACKNexus::Common::DeEsserProcessor;
     using Parameters = WinJACKNexus::Common::DeEsserParameters;
-    static void prepare(Processor& processor, double rate) { processor.prepare(rate); }
-    static void setParameters(Processor& processor, const Parameters& values) { processor.setParameters(values); }
-    static void process(Processor& processor, const Parameters& values,
-                        const float* input, float* output, std::uint32_t frames) {
-        for (std::uint32_t frame = 0; frame < frames; ++frame) output[frame] = processor.process(input[frame]);
+    static void prepare(Processor &processor, double rate)
+    {
+        processor.prepare(rate);
+    }
+    static void setParameters(Processor &processor, const Parameters &values)
+    {
+        processor.setParameters(values);
+    }
+    static void process(Processor &processor, const Parameters &values, const float *input,
+                        float *output, std::uint32_t frames)
+    {
+        for (std::uint32_t frame = 0; frame < frames; ++frame)
+            output[frame] = processor.process(input[frame]);
     }
 };

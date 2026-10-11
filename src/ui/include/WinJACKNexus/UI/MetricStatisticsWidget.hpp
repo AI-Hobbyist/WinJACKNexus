@@ -25,9 +25,11 @@
 #include <optional>
 #include <vector>
 
-namespace WinJACKNexus::UI {
+namespace WinJACKNexus::UI
+{
 
-struct MetricStatisticEntry final {
+struct MetricStatisticEntry final
+{
     QString id;
     QString label;
     QString unit;
@@ -37,27 +39,28 @@ struct MetricStatisticEntry final {
     QColor color;
 };
 
-class WINJACK_UI_API MetricStatisticsWidget final : public QWidget {
-public:
-    explicit MetricStatisticsWidget(QWidget* parent = nullptr);
+class WINJACK_UI_API MetricStatisticsWidget final : public QWidget
+{
+  public:
+    explicit MetricStatisticsWidget(QWidget *parent = nullptr);
     ~MetricStatisticsWidget() override = default;
 
     void setEntries(std::vector<MetricStatisticEntry> entries);
-    const std::vector<MetricStatisticEntry>& entries() const noexcept;
+    const std::vector<MetricStatisticEntry> &entries() const noexcept;
     void setPrecision(int precision);
     int precision() const noexcept;
-    void setThemePalette(const ThemePalette& palette);
+    void setThemePalette(const ThemePalette &palette);
     ThemePalette themePalette() const;
 
     QSize sizeHint() const override;
 
-protected:
-    bool event(QEvent* event) override;
-    void paintEvent(QPaintEvent* event) override;
+  protected:
+    bool event(QEvent *event) override;
+    void paintEvent(QPaintEvent *event) override;
 
-private:
-    QString displayValue(const std::optional<double>& value) const;
-    QColor entryColor(std::size_t index, const MetricStatisticEntry& entry) const;
+  private:
+    QString displayValue(const std::optional<double> &value) const;
+    QColor entryColor(std::size_t index, const MetricStatisticEntry &entry) const;
     int columnCount() const noexcept;
     QRect entryRect(int index) const;
 

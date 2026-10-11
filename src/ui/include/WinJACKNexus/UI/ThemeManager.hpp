@@ -28,51 +28,53 @@
 class QApplication;
 class QWidget;
 
-namespace WinJACKNexus::UI {
+namespace WinJACKNexus::UI
+{
 
 class ThemeCore;
 
-class WINJACK_UI_API ThemeManager final : public QObject {
+class WINJACK_UI_API ThemeManager final : public QObject
+{
     Q_OBJECT
 
-public:
-    explicit ThemeManager(QObject* parent = nullptr);
+  public:
+    explicit ThemeManager(QObject *parent = nullptr);
     ~ThemeManager() override;
 
     // New legacy adapters created by other modules follow this process theme core.
-    static void installThemeCore(ThemeCore* core);
-    static ThemeCore* installedThemeCore();
+    static void installThemeCore(ThemeCore *core);
+    static ThemeCore *installedThemeCore();
 
-    bool setTheme(const QString& name);
-    bool loadBuiltInTheme(const QString& name);
-    bool loadTheme(const QString& path);
+    bool setTheme(const QString &name);
+    bool loadBuiltInTheme(const QString &name);
+    bool loadTheme(const QString &path);
     bool reload();
 
-    bool applyToApp(QApplication* application = nullptr) const;
-    bool applyToWidget(QWidget* widget) const;
-    void watchApplication(QApplication* application);
+    bool applyToApp(QApplication *application = nullptr) const;
+    bool applyToWidget(QWidget *widget) const;
+    void watchApplication(QApplication *application);
 
     // Bridge the legacy palette/QSS API to the active v1 theme snapshot.
-    void bindThemeCore(ThemeCore* core);
+    void bindThemeCore(ThemeCore *core);
     QString fontDiagnostic() const;
 
     QString themeName() const;
     QString styleSheet() const;
     ThemePalette palette() const;
 
-    bool setVariable(const QString& key, const QString& value);
-    bool removeVariable(const QString& key);
+    bool setVariable(const QString &key, const QString &value);
+    bool removeVariable(const QString &key);
 
     bool saveSettings() const;
     bool loadSettings();
 
-Q_SIGNALS:
-    void themeChanged(const ThemePalette& palette);
-    void onThemeChanged(const ThemePalette& palette);
+  Q_SIGNALS:
+    void themeChanged(const ThemePalette &palette);
+    void onThemeChanged(const ThemePalette &palette);
 
-private:
+  private:
     struct FontState;
-    void applyFontToApp(QApplication* application) const;
+    void applyFontToApp(QApplication *application) const;
     void resetVariables();
     void rebuildStyleSheet();
     void notifyThemeChanged();

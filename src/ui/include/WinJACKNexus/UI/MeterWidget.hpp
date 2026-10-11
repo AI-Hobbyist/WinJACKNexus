@@ -28,34 +28,36 @@
 
 class QHBoxLayout;
 
-namespace WinJACKNexus::UI {
+namespace WinJACKNexus::UI
+{
 
 class MeterArrayWidget;
 
-class WINJACK_UI_API MeterWidget : public AnimatedWidget {
+class WINJACK_UI_API MeterWidget : public AnimatedWidget
+{
     Q_OBJECT
 
-public:
-    explicit MeterWidget(QWidget* parent = nullptr);
+  public:
+    explicit MeterWidget(QWidget *parent = nullptr);
     ~MeterWidget() override = default;
 
     void setRange(float minimum, float maximum);
     void setThresholds(float warning, float danger);
-    void setScaleMarks(const std::vector<float>& marks);
+    void setScaleMarks(const std::vector<float> &marks);
     void setValue(float value);
     void clearValue();
-    void setChannelLabel(const QString& label);
+    void setChannelLabel(const QString &label);
     void setShowScaleLabels(bool show);
 
     float value() const noexcept;
     float peakValue() const noexcept;
     QSize sizeHint() const override;
 
-protected:
-    void paintContent(QPainter& painter) override;
+  protected:
+    void paintContent(QPainter &painter) override;
     void advanceFrame() override;
 
-private:
+  private:
     friend class MeterArrayWidget;
 
     bool advanceFromArray();
@@ -77,46 +79,48 @@ private:
     bool showScaleLabels_ = false;
 };
 
-class WINJACK_UI_API PeakMeterWidget final : public MeterWidget {
+class WINJACK_UI_API PeakMeterWidget final : public MeterWidget
+{
     Q_OBJECT
 
-public:
-    explicit PeakMeterWidget(QWidget* parent = nullptr);
+  public:
+    explicit PeakMeterWidget(QWidget *parent = nullptr);
     ~PeakMeterWidget() override = default;
 };
 
-class WINJACK_UI_API MeterArrayWidget : public QWidget {
-public:
-    explicit MeterArrayWidget(QWidget* parent = nullptr);
+class WINJACK_UI_API MeterArrayWidget : public QWidget
+{
+  public:
+    explicit MeterArrayWidget(QWidget *parent = nullptr);
     ~MeterArrayWidget() override = default;
 
     void setChannelCount(std::uint16_t count);
     std::uint16_t channelCount() const noexcept;
     void setRange(float minimum, float maximum);
     void setThresholds(float warning, float danger);
-    void setScaleMarks(const std::vector<float>& marks);
+    void setScaleMarks(const std::vector<float> &marks);
     void setShowScaleLabels(bool show);
     void setFrameRate(int framesPerSecond);
     int frameRate() const noexcept;
-    void setValues(const std::array<float, 16>& values, std::uint16_t count);
+    void setValues(const std::array<float, 16> &values, std::uint16_t count);
     void setValue(std::uint16_t channel, float value);
     void clear();
     QSize sizeHint() const override;
 
-protected:
-    void showEvent(QShowEvent* event) override;
-    void hideEvent(QHideEvent* event) override;
-    void changeEvent(QEvent* event) override;
+  protected:
+    void showEvent(QShowEvent *event) override;
+    void hideEvent(QHideEvent *event) override;
+    void changeEvent(QEvent *event) override;
 
-private:
+  private:
     void applyFrameRate(int framesPerSecond);
     void synchronizeAnimationTimer();
     void advanceMeters();
-    void configureMeter(MeterWidget& meter, std::size_t index);
+    void configureMeter(MeterWidget &meter, std::size_t index);
 
-    QHBoxLayout* layout_ = nullptr;
+    QHBoxLayout *layout_ = nullptr;
     QTimer animationTimer_;
-    std::vector<MeterWidget*> meters_;
+    std::vector<MeterWidget *> meters_;
     std::uint16_t channelCount_ = 0;
     float minimum_ = 0.0f;
     float maximum_ = 1.0f;
@@ -125,14 +129,15 @@ private:
     std::vector<float> scaleMarks_;
     bool showScaleLabels_ = false;
     int frameRate_ = 60;
-    QWidget* scaleWidget_ = nullptr;
+    QWidget *scaleWidget_ = nullptr;
 };
 
-class WINJACK_UI_API MidiVelocityWidget final : public MeterArrayWidget {
+class WINJACK_UI_API MidiVelocityWidget final : public MeterArrayWidget
+{
     Q_OBJECT
 
-public:
-    explicit MidiVelocityWidget(QWidget* parent = nullptr);
+  public:
+    explicit MidiVelocityWidget(QWidget *parent = nullptr);
     ~MidiVelocityWidget() override = default;
 };
 

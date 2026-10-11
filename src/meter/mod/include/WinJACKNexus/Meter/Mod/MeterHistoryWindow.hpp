@@ -36,47 +36,51 @@ class QSpinBox;
 class QTimer;
 class QShowEvent;
 
-namespace WinJACKNexus::UI {
+namespace WinJACKNexus::UI
+{
 class HistoryChartWidget;
 class HistoryLegendWidget;
 class MetricStatisticsWidget;
 }
 
-namespace WinJACKNexus::Meter::Mod {
+namespace WinJACKNexus::Meter::Mod
+{
 
 class MeterSettingsWidget;
 
-class MeterHistoryWindow final : public QWidget {
-public:
-    explicit MeterHistoryWindow(MeterViewDataProvider& provider,
+class MeterHistoryWindow final : public QWidget
+{
+  public:
+    explicit MeterHistoryWindow(MeterViewDataProvider &provider,
                                 std::function<void()> requestRefresh,
-                                std::function<void()> returnToBridge,
-                                QWidget* parent = nullptr);
+                                std::function<void()> returnToBridge, QWidget *parent = nullptr);
     ~MeterHistoryWindow() override = default;
 
     int refreshRate() const noexcept;
     int refreshIntervalMilliseconds() const noexcept;
     void setRefreshRate(int framesPerSecond);
-    void setSnapshots(const std::vector<MeterViewSnapshot>& snapshots, const QString& preferredInstanceId = {});
-    void setLiveSnapshots(const std::vector<MeterViewSnapshot>& snapshots);
-    void setSnapshot(const MeterViewSnapshot& snapshot);
+    void setSnapshots(const std::vector<MeterViewSnapshot> &snapshots,
+                      const QString &preferredInstanceId = {});
+    void setLiveSnapshots(const std::vector<MeterViewSnapshot> &snapshots);
+    void setSnapshot(const MeterViewSnapshot &snapshot);
     QString instanceId() const;
-    WinJACKNexus::UI::HistoryChartWidget* chart() const noexcept;
-    WinJACKNexus::UI::HistoryLegendWidget* legend() const noexcept;
-    WinJACKNexus::UI::MetricStatisticsWidget* statistics() const noexcept;
-    MeterSettingsWidget* settingsWidget() const noexcept;
+    WinJACKNexus::UI::HistoryChartWidget *chart() const noexcept;
+    WinJACKNexus::UI::HistoryLegendWidget *legend() const noexcept;
+    WinJACKNexus::UI::MetricStatisticsWidget *statistics() const noexcept;
+    MeterSettingsWidget *settingsWidget() const noexcept;
 
-protected:
-    void paintEvent(QPaintEvent* event) override;
-    void showEvent(QShowEvent* event) override;
-    void hideEvent(QHideEvent* event) override;
+  protected:
+    void paintEvent(QPaintEvent *event) override;
+    void showEvent(QShowEvent *event) override;
+    void hideEvent(QHideEvent *event) override;
 
-private:
+  private:
     void applyTheme();
     void refreshLocalizedDisplay();
     void refreshExportStatus();
     void applyRefreshRate(int framesPerSecond);
-    struct ScanOverwritePoint final {
+    struct ScanOverwritePoint final
+    {
         std::int64_t timestampMilliseconds = 0;
         std::optional<double> value;
         bool discontinuity = false;
@@ -91,7 +95,7 @@ private:
     void updateCsvPreview();
     void updateReferenceLines();
 
-    MeterViewDataProvider& provider_;
+    MeterViewDataProvider &provider_;
     std::function<void()> requestRefresh_;
     std::function<void()> returnToBridge_;
     MeterViewSnapshot snapshot_;
@@ -105,25 +109,25 @@ private:
     std::int64_t lastHistoryDataRefreshMilliseconds_ = -1;
     QHash<QString, bool> referenceLineVisibility_;
     quint64 presetRevision_ = 0;
-    std::array<QCheckBox*, 8> seriesVisibilityCheckBoxes_ {};
-    std::array<QCheckBox*, 2> referenceLineCheckBoxes_ {};
-    QComboBox* channelSelector_ = nullptr;
-    QComboBox* viewModeSelector_ = nullptr;
-    QSpinBox* timeWindowSpinBox_ = nullptr;
-    QSlider* scanCursorSlider_ = nullptr;
-    QTimer* scanTimer_ = nullptr;
-    QAction* pauseAction_ = nullptr;
-    QAction* clearAction_ = nullptr;
-    QAction* recordingAction_ = nullptr;
-    QAction* exportAction_ = nullptr;
-    WinJACKNexus::UI::HistoryChartWidget* chart_ = nullptr;
-    WinJACKNexus::UI::HistoryLegendWidget* legend_ = nullptr;
-    WinJACKNexus::UI::MetricStatisticsWidget* statistics_ = nullptr;
-    MeterSettingsWidget* settingsWidget_ = nullptr;
-    QCheckBox* recordingCheckBox_ = nullptr;
-    QLabel* csvPathLabel_ = nullptr;
-    QLabel* csvStatusLabel_ = nullptr;
-    QLabel* exportStatusLabel_ = nullptr;
+    std::array<QCheckBox *, 8> seriesVisibilityCheckBoxes_{};
+    std::array<QCheckBox *, 2> referenceLineCheckBoxes_{};
+    QComboBox *channelSelector_ = nullptr;
+    QComboBox *viewModeSelector_ = nullptr;
+    QSpinBox *timeWindowSpinBox_ = nullptr;
+    QSlider *scanCursorSlider_ = nullptr;
+    QTimer *scanTimer_ = nullptr;
+    QAction *pauseAction_ = nullptr;
+    QAction *clearAction_ = nullptr;
+    QAction *recordingAction_ = nullptr;
+    QAction *exportAction_ = nullptr;
+    WinJACKNexus::UI::HistoryChartWidget *chart_ = nullptr;
+    WinJACKNexus::UI::HistoryLegendWidget *legend_ = nullptr;
+    WinJACKNexus::UI::MetricStatisticsWidget *statistics_ = nullptr;
+    MeterSettingsWidget *settingsWidget_ = nullptr;
+    QCheckBox *recordingCheckBox_ = nullptr;
+    QLabel *csvPathLabel_ = nullptr;
+    QLabel *csvStatusLabel_ = nullptr;
+    QLabel *exportStatusLabel_ = nullptr;
     int refreshRate_ = 60;
     int exportStatus_ = 0;
     QString exportDetail_;

@@ -19,10 +19,12 @@
 
 #include <vector>
 
-namespace WinJACKNexus::Meter {
+namespace WinJACKNexus::Meter
+{
 
-class MeterViewDataProvider {
-public:
+class MeterViewDataProvider
+{
+  public:
     virtual ~MeterViewDataProvider() = default;
 
     virtual std::vector<MeterViewSnapshot> snapshots() const = 0;
@@ -31,7 +33,7 @@ public:
         static_cast<void>(includeHistory);
         return snapshots();
     }
-    virtual bool dispatch(const MeterViewCommand& command) = 0;
+    virtual bool dispatch(const MeterViewCommand &command) = 0;
 };
 
 }

@@ -33,53 +33,55 @@ class QTabWidget;
 class QTimer;
 class QHBoxLayout;
 
-namespace WinJACKNexus::Meter::Mod {
+namespace WinJACKNexus::Meter::Mod
+{
 
 class MeterCard;
 class MeterHistoryWindow;
 
-class MeterbridgeWindow final : public QMainWindow {
-public:
-    explicit MeterbridgeWindow(MeterViewDataProvider& provider, QWidget* parent = nullptr);
+class MeterbridgeWindow final : public QMainWindow
+{
+  public:
+    explicit MeterbridgeWindow(MeterViewDataProvider &provider, QWidget *parent = nullptr);
     ~MeterbridgeWindow() override = default;
 
     void refresh();
     int cardCount() const noexcept;
-    MeterCard* cardForInstanceId(const QString& instanceId) const;
-    MeterHistoryWindow* historyWindowForInstanceId(const QString& instanceId) const;
-    void openHistoryForInstanceId(const QString& instanceId);
-    void selectInstance(const QString& instanceId);
+    MeterCard *cardForInstanceId(const QString &instanceId) const;
+    MeterHistoryWindow *historyWindowForInstanceId(const QString &instanceId) const;
+    void openHistoryForInstanceId(const QString &instanceId);
+    void selectInstance(const QString &instanceId);
     int refreshRate() const noexcept;
     int refreshIntervalMilliseconds() const noexcept;
     void setRefreshRate(int framesPerSecond);
     QJsonObject projectState() const;
-    void restoreProjectState(const QJsonObject& state);
+    void restoreProjectState(const QJsonObject &state);
     bool isEmptyStateVisible() const noexcept;
 
-protected:
-    void resizeEvent(QResizeEvent* event) override;
-    void showEvent(QShowEvent* event) override;
-    void hideEvent(QHideEvent* event) override;
+  protected:
+    void resizeEvent(QResizeEvent *event) override;
+    void showEvent(QShowEvent *event) override;
+    void hideEvent(QHideEvent *event) override;
 
-private:
+  private:
     void applyTheme();
     void applyRefreshRate(int framesPerSecond);
-    void addCard(const MeterViewSnapshot& snapshot);
-    void removeCard(const QString& instanceId);
-    void reorderCards(const std::vector<MeterViewSnapshot>& snapshots);
+    void addCard(const MeterViewSnapshot &snapshot);
+    void removeCard(const QString &instanceId);
+    void reorderCards(const std::vector<MeterViewSnapshot> &snapshots);
     void updateCardContainerGeometry();
 
-    MeterViewDataProvider& provider_;
-    QWidget* surface_ = nullptr;
-    QTabWidget* tabs_ = nullptr;
-    QScrollArea* cardScrollArea_ = nullptr;
-    QWidget* cardContainer_ = nullptr;
-    QHBoxLayout* cardLayout_ = nullptr;
-    QLabel* emptyState_ = nullptr;
-    QHash<QString, MeterCard*> cards_;
-    MeterHistoryWindow* historyPage_ = nullptr;
+    MeterViewDataProvider &provider_;
+    QWidget *surface_ = nullptr;
+    QTabWidget *tabs_ = nullptr;
+    QScrollArea *cardScrollArea_ = nullptr;
+    QWidget *cardContainer_ = nullptr;
+    QHBoxLayout *cardLayout_ = nullptr;
+    QLabel *emptyState_ = nullptr;
+    QHash<QString, MeterCard *> cards_;
+    MeterHistoryWindow *historyPage_ = nullptr;
     int historyTabIndex_ = -1;
-    QTimer* refreshTimer_ = nullptr;
+    QTimer *refreshTimer_ = nullptr;
     QStringList cardOrder_;
     QStringList renderedCardOrder_;
     QString selectedInstanceId_;

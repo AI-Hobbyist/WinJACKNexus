@@ -18,9 +18,11 @@
 #include <algorithm>
 #include <cctype>
 
-namespace WinJACKNexus::Patchbay::Core {
+namespace WinJACKNexus::Patchbay::Core
+{
 
-namespace {
+namespace
+{
 
 std::string lowerCase(std::string value)
 {
@@ -30,30 +32,36 @@ std::string lowerCase(std::string value)
     return value;
 }
 
-bool matches(const std::string& value, const std::string& query)
+bool matches(const std::string &value, const std::string &query)
 {
     return lowerCase(value).find(query) != std::string::npos;
 }
 
 }
 
-std::vector<std::string> SearchModel::matchingClientIds(const GraphModel& model, const std::string& query)
+std::vector<std::string> SearchModel::matchingClientIds(const GraphModel &model,
+                                                        const std::string &query)
 {
     const auto normalizedQuery = lowerCase(query);
     std::vector<std::string> results;
-    for (const auto& client : model.snapshot().clients) {
-        if (normalizedQuery.empty() || matches(client.name, normalizedQuery) || matches(client.alias, normalizedQuery))
+    for (const auto &client : model.snapshot().clients)
+    {
+        if (normalizedQuery.empty() || matches(client.name, normalizedQuery) ||
+            matches(client.alias, normalizedQuery))
             results.push_back(client.id);
     }
     return results;
 }
 
-std::vector<std::string> SearchModel::matchingPortIds(const GraphModel& model, const std::string& query)
+std::vector<std::string> SearchModel::matchingPortIds(const GraphModel &model,
+                                                      const std::string &query)
 {
     const auto normalizedQuery = lowerCase(query);
     std::vector<std::string> results;
-    for (const auto& port : model.snapshot().ports) {
-        if (normalizedQuery.empty() || matches(port.name, normalizedQuery) || matches(port.alias, normalizedQuery))
+    for (const auto &port : model.snapshot().ports)
+    {
+        if (normalizedQuery.empty() || matches(port.name, normalizedQuery) ||
+            matches(port.alias, normalizedQuery))
             results.push_back(port.id);
     }
     return results;

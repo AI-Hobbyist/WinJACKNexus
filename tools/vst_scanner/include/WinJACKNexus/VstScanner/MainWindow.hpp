@@ -29,18 +29,21 @@ class QProgressBar;
 class QPushButton;
 class QTableWidget;
 
-namespace WinJACKNexus::VstScanner {
+namespace WinJACKNexus::VstScanner
+{
 
-class MainWindow final : public QMainWindow {
-public:
-    explicit MainWindow(const QStringList& initialPaths = {}, const QString& initialOutputDirectory = {});
+class MainWindow final : public QMainWindow
+{
+  public:
+    explicit MainWindow(const QStringList &initialPaths = {},
+                        const QString &initialOutputDirectory = {});
     ~MainWindow() override;
 
     void scanNow();
 
-private:
+  private:
     void createUi();
-    void loadSettings(const QStringList& initialPaths, const QString& initialOutputDirectory);
+    void loadSettings(const QStringList &initialPaths, const QString &initialOutputDirectory);
     void saveSettings() const;
     void loadCatalog();
     void refreshPluginTable();
@@ -50,22 +53,22 @@ private:
     void removeMissingPlugins();
     void openSelectedPluginLocation();
     void openOutputDirectory();
-    void appendMessage(const ScanMessage& message);
+    void appendMessage(const ScanMessage &message);
     QStringList searchPaths() const;
     QString selectedInfoFile() const;
 
-    QListWidget* searchPathList_ {};
-    QLineEdit* outputDirectoryEdit_ {};
-    QLineEdit* filterEdit_ {};
-    QComboBox* typeFilter_ {};
-    QComboBox* categoryFilter_ {};
-    QCheckBox* rescanVerifiedPlugins_ {};
-    QTableWidget* pluginTable_ {};
-    QPlainTextEdit* logView_ {};
-    QProgressBar* progressBar_ {};
-    QPushButton* scanButton_ {};
-    QLabel* progressLabel_ {};
-    QLabel* statusLabel_ {};
+    QListWidget *searchPathList_{};
+    QLineEdit *outputDirectoryEdit_{};
+    QLineEdit *filterEdit_{};
+    QComboBox *typeFilter_{};
+    QComboBox *categoryFilter_{};
+    QCheckBox *rescanVerifiedPlugins_{};
+    QTableWidget *pluginTable_{};
+    QPlainTextEdit *logView_{};
+    QProgressBar *progressBar_{};
+    QPushButton *scanButton_{};
+    QLabel *progressLabel_{};
+    QLabel *statusLabel_{};
     QVector<PluginInfo> plugins_;
 };
 

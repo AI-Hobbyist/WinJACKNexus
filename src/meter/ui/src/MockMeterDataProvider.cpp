@@ -22,27 +22,16 @@
 #include <array>
 #include <cmath>
 
-namespace WinJACKNexus::Meter {
-
-namespace {
-
-MeterMetrics metrics(float peak,
-                      float rms,
-                      float truePeak,
-                      float momentary,
-                      float shortTerm,
-                      float integrated,
-                      float lra)
+namespace WinJACKNexus::Meter
 {
-    return {
-        peak,
-        rms,
-        truePeak,
-        momentary,
-        shortTerm,
-        integrated,
-        lra
-    };
+
+namespace
+{
+
+MeterMetrics metrics(float peak, float rms, float truePeak, float momentary, float shortTerm,
+                     float integrated, float lra)
+{
+    return {peak, rms, truePeak, momentary, shortTerm, integrated, lra};
 }
 
 MeterMetrics resetMetrics(float peak, float rms, float truePeak)
@@ -54,50 +43,51 @@ MeterMetrics resetMetrics(float peak, float rms, float truePeak)
     return value;
 }
 
-std::vector<MeterChannelView> makeChannels(std::uint16_t count, bool includeLfe, bool includeMultipleLfe)
+std::vector<MeterChannelView> makeChannels(std::uint16_t count, bool includeLfe,
+                                           bool includeMultipleLfe)
 {
-    static const std::array<std::pair<const char*, const char*>, maximumMeterChannelCount> channelNames {
-        std::pair { WinJACKNexus::Common::surroundChannelNames[0], "M+030" },
-        std::pair { WinJACKNexus::Common::surroundChannelNames[1], "M-030" },
-        std::pair { WinJACKNexus::Common::surroundChannelNames[2], "M+000" },
-        std::pair { WinJACKNexus::Common::surroundChannelNames[3], "LFE" },
-        std::pair { WinJACKNexus::Common::surroundChannelNames[4], "M+110" },
-        std::pair { WinJACKNexus::Common::surroundChannelNames[5], "M-110" },
-        std::pair { WinJACKNexus::Common::surroundChannelNames[6], "M+135" },
-        std::pair { WinJACKNexus::Common::surroundChannelNames[7], "M-135" },
-        std::pair { "Ch 9", "M+180" },
-        std::pair { "Ch 10", "M-180" },
-        std::pair { "Ch 11", "U+030" },
-        std::pair { "Ch 12", "U-030" },
-        std::pair { "Ch 13", "U+000" },
-        std::pair { "Ch 14", "T+030" },
-        std::pair { "Ch 15", "T-030" },
-        std::pair { "Ch 16", "T+000" }
-    };
+    static const std::array<std::pair<const char *, const char *>, maximumMeterChannelCount>
+        channelNames{std::pair{WinJACKNexus::Common::surroundChannelNames[0], "M+030"},
+                     std::pair{WinJACKNexus::Common::surroundChannelNames[1], "M-030"},
+                     std::pair{WinJACKNexus::Common::surroundChannelNames[2], "M+000"},
+                     std::pair{WinJACKNexus::Common::surroundChannelNames[3], "LFE"},
+                     std::pair{WinJACKNexus::Common::surroundChannelNames[4], "M+110"},
+                     std::pair{WinJACKNexus::Common::surroundChannelNames[5], "M-110"},
+                     std::pair{WinJACKNexus::Common::surroundChannelNames[6], "M+135"},
+                     std::pair{WinJACKNexus::Common::surroundChannelNames[7], "M-135"},
+                     std::pair{"Ch 9", "M+180"},
+                     std::pair{"Ch 10", "M-180"},
+                     std::pair{"Ch 11", "U+030"},
+                     std::pair{"Ch 12", "U-030"},
+                     std::pair{"Ch 13", "U+000"},
+                     std::pair{"Ch 14", "T+030"},
+                     std::pair{"Ch 15", "T-030"},
+                     std::pair{"Ch 16", "T+000"}};
 
     const auto boundedCount = std::clamp<std::uint16_t>(count, 1, maximumMeterChannelCount);
     std::vector<MeterChannelView> channels;
     channels.reserve(boundedCount);
-    for (std::uint16_t index = 0; index < boundedCount; ++index) {
+    for (std::uint16_t index = 0; index < boundedCount; ++index)
+    {
         const auto lfe = includeLfe && (index == 3 || (includeMultipleLfe && index == 7));
-        channels.push_back({
-            QString::fromStdString(WinJACKNexus::Common::standardChannelName(index, boundedCount)),
-            QString::fromLatin1(lfe ? "LFE" : channelNames[index].second),
-            lfe
-        });
+        channels.push_back(
+            {QString::fromStdString(WinJACKNexus::Common::standardChannelName(index, boundedCount)),
+             QString::fromLatin1(lfe ? "LFE" : channelNames[index].second), lfe});
     }
     return channels;
 }
 
-void appendLongHistory(MeterViewSnapshot& snapshot)
+void appendLongHistory(MeterViewSnapshot &snapshot)
 {
     constexpr std::int64_t intervalMilliseconds = 100;
     constexpr std::size_t pointCount = 6000;
     const auto systemTimeAtLatestPoint = QDateTime::currentMSecsSinceEpoch();
     snapshot.history.reserve(pointCount);
-    for (std::size_t index = 0; index < pointCount; ++index) {
+    for (std::size_t index = 0; index < pointCount; ++index)
+    {
         const auto position = static_cast<float>(index);
-        const auto peak = -7.0f + std::sin(position * 0.043f) * 2.5f + std::sin(position * 0.17f) * 0.75f;
+        const auto peak =
+            -7.0f + std::sin(position * 0.043f) * 2.5f + std::sin(position * 0.17f) * 0.75f;
         const auto rms = peak - 15.5f - std::cos(position * 0.031f) * 1.5f;
         const auto truePeak = peak + 0.8f + std::sin(position * 0.071f) * 0.2f;
         const auto momentary = rms - 1.2f + std::sin(position * 0.019f) * 1.8f;
@@ -106,8 +96,9 @@ void appendLongHistory(MeterViewSnapshot& snapshot)
         const auto lra = 6.2f + std::sin(position * 0.004f) * 1.3f;
         MeterHistoryPoint point;
         point.elapsedMilliseconds = static_cast<std::int64_t>(index) * intervalMilliseconds;
-        point.systemTimeMilliseconds = systemTimeAtLatestPoint
-            - static_cast<std::int64_t>(pointCount - 1 - index) * intervalMilliseconds;
+        point.systemTimeMilliseconds =
+            systemTimeAtLatestPoint -
+            static_cast<std::int64_t>(pointCount - 1 - index) * intervalMilliseconds;
         point.metrics = metrics(peak, rms, truePeak, momentary, shortTerm, integrated, lra);
         point.lfePeakDbfs = -18.0f + std::sin(position * 0.053f) * 3.0f;
         snapshot.history.push_back(std::move(point));
@@ -116,26 +107,29 @@ void appendLongHistory(MeterViewSnapshot& snapshot)
     snapshot.lfePeakDbfs = snapshot.history.back().lfePeakDbfs;
 }
 
-void appendPreviewHistory(MeterViewSnapshot& snapshot, std::uint16_t previewIndex)
+void appendPreviewHistory(MeterViewSnapshot &snapshot, std::uint16_t previewIndex)
 {
     constexpr std::int64_t intervalMilliseconds = 100;
     constexpr std::size_t pointCount = 600;
     const auto systemTimeAtLatestPoint = QDateTime::currentMSecsSinceEpoch();
     const auto baseline = snapshot.currentMetrics;
     const auto seed = static_cast<float>(previewIndex) * 0.37F;
-    const auto varyingValue = [seed](const std::optional<float>& value, float position, float amplitude) -> std::optional<float> {
+    const auto varyingValue = [seed](const std::optional<float> &value, float position,
+                                     float amplitude) -> std::optional<float> {
         if (!value.has_value())
             return std::nullopt;
         return *value + std::sin(position * 0.047F + seed) * amplitude;
     };
 
     snapshot.history.reserve(pointCount);
-    for (std::size_t index = 0; index < pointCount; ++index) {
+    for (std::size_t index = 0; index < pointCount; ++index)
+    {
         const auto position = static_cast<float>(index);
         MeterHistoryPoint point;
         point.elapsedMilliseconds = static_cast<std::int64_t>(index) * intervalMilliseconds;
-        point.systemTimeMilliseconds = systemTimeAtLatestPoint
-            - static_cast<std::int64_t>(pointCount - 1 - index) * intervalMilliseconds;
+        point.systemTimeMilliseconds =
+            systemTimeAtLatestPoint -
+            static_cast<std::int64_t>(pointCount - 1 - index) * intervalMilliseconds;
         point.metrics.peakDbfs = varyingValue(baseline.peakDbfs, position, 2.4F);
         point.metrics.rmsDbfs = varyingValue(baseline.rmsDbfs, position, 1.7F);
         point.metrics.truePeakDbtp = varyingValue(baseline.truePeakDbtp, position, 2.1F);
@@ -153,24 +147,18 @@ void appendPreviewHistory(MeterViewSnapshot& snapshot, std::uint16_t previewInde
 
 std::vector<MockMeterScenario> MockMeterDataProvider::availableScenarios() const
 {
-    return {
-        MockMeterScenario::silence,
-        MockMeterScenario::normalProgram,
-        MockMeterScenario::overload,
-        MockMeterScenario::monoWithoutLfe,
-        MockMeterScenario::surroundWithLfe,
-        MockMeterScenario::multipleLfe,
-        MockMeterScenario::renamed,
-        MockMeterScenario::offline,
-        MockMeterScenario::reset,
-        MockMeterScenario::customChannels,
-        MockMeterScenario::longHistory
-    };
+    return {MockMeterScenario::silence,         MockMeterScenario::normalProgram,
+            MockMeterScenario::overload,        MockMeterScenario::monoWithoutLfe,
+            MockMeterScenario::surroundWithLfe, MockMeterScenario::multipleLfe,
+            MockMeterScenario::renamed,         MockMeterScenario::offline,
+            MockMeterScenario::reset,           MockMeterScenario::customChannels,
+            MockMeterScenario::longHistory};
 }
 
 QString MockMeterDataProvider::scenarioDisplayName(MockMeterScenario scenario)
 {
-    switch (scenario) {
+    switch (scenario)
+    {
     case MockMeterScenario::silence:
         return QStringLiteral("静音");
     case MockMeterScenario::normalProgram:
@@ -200,7 +188,7 @@ QString MockMeterDataProvider::scenarioDisplayName(MockMeterScenario scenario)
 void MockMeterDataProvider::setScenario(MockMeterScenario scenario) noexcept
 {
     scenario_ = scenario;
-    for (auto& state : previewProbeStates_)
+    for (auto &state : previewProbeStates_)
         state.resetRequested = false;
 }
 
@@ -238,15 +226,16 @@ std::vector<MeterViewSnapshot> MockMeterDataProvider::snapshots() const
     return result;
 }
 
-bool MockMeterDataProvider::dispatch(const MeterViewCommand& command)
+bool MockMeterDataProvider::dispatch(const MeterViewCommand &command)
 {
     const auto index = previewIndexForId(command.instanceId);
     if (!index.has_value())
         return false;
 
-    auto& state = previewProbeStates_[*index];
+    auto &state = previewProbeStates_[*index];
 
-    switch (command.type) {
+    switch (command.type)
+    {
     case MeterViewCommandType::resetLoudness:
         state.resetRequested = true;
         return true;
@@ -274,11 +263,12 @@ bool MockMeterDataProvider::dispatch(const MeterViewCommand& command)
         state.historyView.mode = *command.historyViewMode;
         return true;
     case MeterViewCommandType::setHistoryTimeWindow:
-        if (!command.historyTimeWindowMilliseconds.has_value() || *command.historyTimeWindowMilliseconds <= 0)
+        if (!command.historyTimeWindowMilliseconds.has_value() ||
+            *command.historyTimeWindowMilliseconds <= 0)
             return false;
-        state.historyView.timeWindowMilliseconds = std::clamp(*command.historyTimeWindowMilliseconds,
-                                                               minimumMeterHistoryWindowMilliseconds,
-                                                               maximumMeterHistoryWindowMilliseconds);
+        state.historyView.timeWindowMilliseconds = std::clamp(
+            *command.historyTimeWindowMilliseconds, minimumMeterHistoryWindowMilliseconds,
+            maximumMeterHistoryWindowMilliseconds);
         return true;
     case MeterViewCommandType::setHistoryPaused:
         if (!command.enabled.has_value())
@@ -288,7 +278,9 @@ bool MockMeterDataProvider::dispatch(const MeterViewCommand& command)
     case MeterViewCommandType::setHistorySeriesVisible: {
         if (!command.enabled.has_value() || command.seriesId.isEmpty())
             return false;
-        const auto existing = std::find(state.historyView.visibleSeriesIds.cbegin(), state.historyView.visibleSeriesIds.cend(), command.seriesId);
+        const auto existing =
+            std::find(state.historyView.visibleSeriesIds.cbegin(),
+                      state.historyView.visibleSeriesIds.cend(), command.seriesId);
         if (*command.enabled && existing == state.historyView.visibleSeriesIds.cend())
             state.historyView.visibleSeriesIds.push_back(command.seriesId);
         else if (!*command.enabled && existing != state.historyView.visibleSeriesIds.cend())
@@ -301,11 +293,13 @@ bool MockMeterDataProvider::dispatch(const MeterViewCommand& command)
     case MeterViewCommandType::setCustomChannelCount:
         if (!command.channelCount.has_value())
             return false;
-        customChannelCount_ = std::clamp<std::uint16_t>(*command.channelCount, 1, maximumMeterChannelCount);
+        customChannelCount_ =
+            std::clamp<std::uint16_t>(*command.channelCount, 1, maximumMeterChannelCount);
         ensureCustomChannels(state);
         return true;
     case MeterViewCommandType::setChannelDisplayName:
-        if (scenario_ != MockMeterScenario::customChannels || !command.channelIndex.has_value() || command.textValue.isEmpty())
+        if (scenario_ != MockMeterScenario::customChannels || !command.channelIndex.has_value() ||
+            command.textValue.isEmpty())
             return false;
         ensureCustomChannels(state);
         if (*command.channelIndex >= state.customChannels.size())
@@ -313,7 +307,8 @@ bool MockMeterDataProvider::dispatch(const MeterViewCommand& command)
         state.customChannels[*command.channelIndex].displayName = command.textValue;
         return true;
     case MeterViewCommandType::setChannelRole:
-        if (scenario_ != MockMeterScenario::customChannels || !command.channelIndex.has_value() || command.textValue.isEmpty())
+        if (scenario_ != MockMeterScenario::customChannels || !command.channelIndex.has_value() ||
+            command.textValue.isEmpty())
             return false;
         ensureCustomChannels(state);
         if (*command.channelIndex >= state.customChannels.size())
@@ -321,7 +316,8 @@ bool MockMeterDataProvider::dispatch(const MeterViewCommand& command)
         state.customChannels[*command.channelIndex].speakerRole = command.textValue;
         return true;
     case MeterViewCommandType::setChannelLfe:
-        if (scenario_ != MockMeterScenario::customChannels || !command.channelIndex.has_value() || !command.enabled.has_value())
+        if (scenario_ != MockMeterScenario::customChannels || !command.channelIndex.has_value() ||
+            !command.enabled.has_value())
             return false;
         ensureCustomChannels(state);
         if (*command.channelIndex >= state.customChannels.size())
@@ -357,16 +353,18 @@ QString MockMeterDataProvider::instanceIdFor(std::uint16_t index)
     return QStringLiteral("meter-preview-%1").arg(index + 1);
 }
 
-std::optional<std::uint16_t> MockMeterDataProvider::previewIndexForId(const QString& instanceId) const
+std::optional<std::uint16_t> MockMeterDataProvider::previewIndexForId(
+    const QString &instanceId) const
 {
-    for (std::uint16_t index = 0; index < previewProbeCount_; ++index) {
+    for (std::uint16_t index = 0; index < previewProbeCount_; ++index)
+    {
         if (instanceId == instanceIdFor(index))
             return index;
     }
     return std::nullopt;
 }
 
-void MockMeterDataProvider::ensureCustomChannels(PreviewProbeState& state)
+void MockMeterDataProvider::ensureCustomChannels(PreviewProbeState &state)
 {
     const auto defaults = makeChannels(customChannelCount_, customChannelCount_ >= 4, false);
     if (state.customChannels.size() == defaults.size())
@@ -382,7 +380,7 @@ void MockMeterDataProvider::ensureCustomChannels(PreviewProbeState& state)
 MeterViewSnapshot MockMeterDataProvider::makeSnapshot(std::uint16_t previewIndex) const
 {
     MeterViewSnapshot snapshot;
-    const auto& state = previewProbeStates_[previewIndex];
+    const auto &state = previewProbeStates_[previewIndex];
     snapshot.instanceId = instanceIdFor(previewIndex);
     snapshot.clientName = QStringLiteral("话筒 %1").arg(previewIndex + 1);
     snapshot.nameRevision = 1;
@@ -396,29 +394,39 @@ MeterViewSnapshot MockMeterDataProvider::makeSnapshot(std::uint16_t previewIndex
     snapshot.historyView = state.historyView;
     snapshot.globalSettings = globalSettings_;
     snapshot.csvPreview.logRootDirectory = globalSettings_.logRootDirectory;
-    snapshot.csvPreview.activeFilePath = QStringLiteral("%1/%2-preview.csv").arg(globalSettings_.logRootDirectory, snapshot.instanceId);
-    snapshot.csvPreview.statusKind = snapshot.recordingEnabled ? MeterCsvStatusKind::previewRecording : MeterCsvStatusKind::previewIdle;
+    snapshot.csvPreview.activeFilePath =
+        QStringLiteral("%1/%2-preview.csv")
+            .arg(globalSettings_.logRootDirectory, snapshot.instanceId);
+    snapshot.csvPreview.statusKind = snapshot.recordingEnabled
+                                         ? MeterCsvStatusKind::previewRecording
+                                         : MeterCsvStatusKind::previewIdle;
     snapshot.csvPreview.rotationStatus = snapshot.recordingEnabled
-        ? QStringLiteral("预览记录已启用；轮换间隔：60 分钟")
-        : QStringLiteral("预览记录空闲；不会写入文件");
+                                             ? QStringLiteral("预览记录已启用；轮换间隔：60 分钟")
+                                             : QStringLiteral("预览记录空闲；不会写入文件");
 
-    if (previewIndex % 4 == 1) {
-        snapshot.clientName = QStringLiteral("音乐底" );
+    if (previewIndex % 4 == 1)
+    {
+        snapshot.clientName = QStringLiteral("音乐底");
         snapshot.currentMetrics = metrics(-3.8f, -21.7f, -3.1f, -20.4f, -21.5f, -22.4f, 5.2f);
-    } else if (previewIndex % 4 == 2) {
+    }
+    else if (previewIndex % 4 == 2)
+    {
         snapshot.clientName = QStringLiteral("节目 5.1");
         snapshot.layoutLabel = QStringLiteral("5.1");
         snapshot.channels = makeChannels(6, true, false);
         snapshot.currentMetrics = metrics(-1.8f, -20.4f, -1.3f, -18.0f, -19.1f, -22.7f, 7.0f);
         snapshot.lfePeakDbfs = -6.2f;
-    } else if (previewIndex % 4 == 3) {
+    }
+    else if (previewIndex % 4 == 3)
+    {
         snapshot.clientName = QStringLiteral("旁白");
         snapshot.layoutLabel = QStringLiteral("单声道");
         snapshot.channels = makeChannels(1, false, false);
         snapshot.currentMetrics = metrics(-5.2f, -24.8f, -4.8f, -21.1f, -22.4f, -23.0f, 4.1f);
     }
 
-    switch (scenario_) {
+    switch (scenario_)
+    {
     case MockMeterScenario::silence:
         snapshot.state = MeterProbeState::silent;
         snapshot.currentMetrics = resetMetrics(-96.0f, -102.0f, -95.5f);
@@ -482,9 +490,11 @@ MeterViewSnapshot MockMeterDataProvider::makeSnapshot(std::uint16_t previewIndex
         break;
     }
 
-    if (scenario_ != MockMeterScenario::offline && scenario_ != MockMeterScenario::reset && scenario_ != MockMeterScenario::longHistory)
+    if (scenario_ != MockMeterScenario::offline && scenario_ != MockMeterScenario::reset &&
+        scenario_ != MockMeterScenario::longHistory)
         appendPreviewHistory(snapshot, previewIndex);
-    if (state.resetRequested) {
+    if (state.resetRequested)
+    {
         snapshot.currentMetrics.integratedLufs.reset();
         snapshot.currentMetrics.lraLu.reset();
         snapshot.history.clear();

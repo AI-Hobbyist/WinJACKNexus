@@ -19,15 +19,18 @@
 
 #include <Windows.h>
 
-namespace WinJACKNexus::Node {
+namespace WinJACKNexus::Node
+{
 
-enum class NodeLifecycle {
+enum class NodeLifecycle
+{
     init,
     shutdown
 };
 
-class WINJACK_NODE_API INode {
-public:
+class WINJACK_NODE_API INode
+{
+  public:
     virtual ~INode() = default;
 
     virtual NodeInfo info() const noexcept = 0;

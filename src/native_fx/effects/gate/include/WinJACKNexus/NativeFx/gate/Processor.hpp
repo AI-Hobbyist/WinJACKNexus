@@ -6,9 +6,11 @@
 
 #include <WinJACKNexus/NativeFx/NativeFxApi.h>
 
-namespace WinJACKNexus::Common {
+namespace WinJACKNexus::Common
+{
 
-struct GateParameters final {
+struct GateParameters final
+{
     float thresholdDb = -32.0F;
     float ratio = 4.0F;
     float attackMs = 10.0F;
@@ -22,15 +24,16 @@ struct GateParameters final {
 };
 
 // A single mono downward expander. Call setParameters outside the audio callback.
-class WJN_FX_API GateProcessor final {
-public:
+class WJN_FX_API GateProcessor final
+{
+  public:
     void prepare(double sampleRate) noexcept;
     void reset() noexcept;
-    void setParameters(const GateParameters& parameters) noexcept;
+    void setParameters(const GateParameters &parameters) noexcept;
     float process(float sample) noexcept;
     float currentGainDb() const noexcept;
 
-private:
+  private:
     GateParameters parameters_;
     double sampleRate_ = 48000.0;
     float highPassAlpha_ = 0.0F;

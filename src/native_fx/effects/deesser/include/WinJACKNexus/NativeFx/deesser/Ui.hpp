@@ -16,59 +16,78 @@
 #include <cstddef>
 #include <functional>
 
-namespace WinJACKNexus::UI {
+namespace WinJACKNexus::UI
+{
 
-class WJN_FX_API DeEsserWidget final : public QWidget {
-public:
+class WJN_FX_API DeEsserWidget final : public QWidget
+{
+  public:
     using Parameters = WinJACKNexus::Common::DeEsserParameters;
-    using ChangeHandler = std::function<void(std::size_t, const Parameters&)>;
-    using SpectrumFrameReader = std::function<bool(WinJACKNexus::Common::DeEsserLiveSpectrumFrame&)>;
-    explicit DeEsserWidget(QWidget* parent = nullptr);
-    void setParameters(const std::array<Parameters, 8>& parameters);
+    using ChangeHandler = std::function<void(std::size_t, const Parameters &)>;
+    using SpectrumFrameReader =
+        std::function<bool(WinJACKNexus::Common::DeEsserLiveSpectrumFrame &)>;
+    explicit DeEsserWidget(QWidget *parent = nullptr);
+    void setParameters(const std::array<Parameters, 8> &parameters);
     void setChangeHandler(ChangeHandler handler);
-    void setSelectedChannel(int channel) { selectedChannel_ = std::clamp(channel, -1, 7); update(); }
-    int hostPresetIndex() const noexcept { return selectedPreset_; }
-    void chooseHostPreset(int index) { if (index < 3) selectPreset(index); }
+    void setSelectedChannel(int channel)
+    {
+        selectedChannel_ = std::clamp(channel, -1, 7);
+        update();
+    }
+    int hostPresetIndex() const noexcept
+    {
+        return selectedPreset_;
+    }
+    void chooseHostPreset(int index)
+    {
+        if (index < 3)
+            selectPreset(index);
+    }
     void setSpectrumSources(
-        const std::array<WinJACKNexus::Common::AudioRingBuffer<
-            WinJACKNexus::Common::DeEsserSpectrumSample>*, 8>& sources,
-        const std::atomic<double>* sampleRate) noexcept;
+        const std::array<
+            WinJACKNexus::Common::AudioRingBuffer<WinJACKNexus::Common::DeEsserSpectrumSample> *, 8>
+            &sources,
+        const std::atomic<double> *sampleRate) noexcept;
     void setSpectrumFrameReader(SpectrumFrameReader reader);
-    bool hasSpectrumFrame() const noexcept { return spectrumReady_; }
+    bool hasSpectrumFrame() const noexcept
+    {
+        return spectrumReady_;
+    }
 
-protected:
-    void paintEvent(QPaintEvent*) override;
-    void mousePressEvent(QMouseEvent*) override;
-    void mouseDoubleClickEvent(QMouseEvent*) override;
-    void mouseMoveEvent(QMouseEvent*) override;
-    void mouseReleaseEvent(QMouseEvent*) override;
+  protected:
+    void paintEvent(QPaintEvent *) override;
+    void mousePressEvent(QMouseEvent *) override;
+    void mouseDoubleClickEvent(QMouseEvent *) override;
+    void mouseMoveEvent(QMouseEvent *) override;
+    void mouseReleaseEvent(QMouseEvent *) override;
 
-private:
+  private:
     Parameters displayed() const noexcept;
-    void apply(const std::function<void(Parameters&)>& edit);
+    void apply(const std::function<void(Parameters &)> &edit);
     void selectPreset(int index);
     void setKnobFromY(int index, qreal y);
     void refreshSpectrum();
     void addSpectrumSamples(std::size_t channel,
-                            const WinJACKNexus::Common::DeEsserSpectrumSample* samples,
+                            const WinJACKNexus::Common::DeEsserSpectrumSample *samples,
                             std::size_t count) noexcept;
     void calculateSpectrum();
-    static void transform(std::array<std::complex<float>, 1024>& values) noexcept;
+    static void transform(std::array<std::complex<float>, 1024> &values) noexcept;
     static constexpr std::size_t spectrumFftSize_ = 1024;
     static constexpr std::size_t spectrumBinCount_ = spectrumFftSize_ / 2 + 1;
-    std::array<Parameters, 8> parameters_ {};
+    std::array<Parameters, 8> parameters_{};
     ChangeHandler changeHandler_;
-    std::array<WinJACKNexus::Common::AudioRingBuffer<
-        WinJACKNexus::Common::DeEsserSpectrumSample>*, 8> spectrumSources_ {};
-    const std::atomic<double>* spectrumSampleRate_ = nullptr;
+    std::array<WinJACKNexus::Common::AudioRingBuffer<WinJACKNexus::Common::DeEsserSpectrumSample> *,
+               8>
+        spectrumSources_{};
+    const std::atomic<double> *spectrumSampleRate_ = nullptr;
     SpectrumFrameReader spectrumFrameReader_;
-    std::array<std::array<float, spectrumFftSize_>, 8> inputSpectrumHistory_ {};
-    std::array<std::array<float, spectrumFftSize_>, 8> processedSpectrumHistory_ {};
-    std::array<std::size_t, 8> historyWrite_ {};
-    std::array<std::size_t, 8> historyCount_ {};
-    std::array<float, spectrumFftSize_> window_ {};
-    std::array<float, spectrumBinCount_> inputSpectrumDb_ {};
-    std::array<float, spectrumBinCount_> spectrumDb_ {};
+    std::array<std::array<float, spectrumFftSize_>, 8> inputSpectrumHistory_{};
+    std::array<std::array<float, spectrumFftSize_>, 8> processedSpectrumHistory_{};
+    std::array<std::size_t, 8> historyWrite_{};
+    std::array<std::size_t, 8> historyCount_{};
+    std::array<float, spectrumFftSize_> window_{};
+    std::array<float, spectrumBinCount_> inputSpectrumDb_{};
+    std::array<float, spectrumBinCount_> spectrumDb_{};
     bool spectrumReady_ = false;
     double lastSpectrumSampleRate_ = 0.0;
     QTimer spectrumTimer_;

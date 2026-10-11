@@ -5,8 +5,10 @@
 #include <QString>
 #include <optional>
 
-namespace WinJACKNexus::Common {
-struct MeterCustomLoudnessPreset final {
+namespace WinJACKNexus::Common
+{
+struct MeterCustomLoudnessPreset final
+{
     QString id;
     QString displayName;
     double targetIntegratedLufs = -23.0;
@@ -14,8 +16,10 @@ struct MeterCustomLoudnessPreset final {
     double maximumTruePeakDbtp = -1.0;
 };
 WINJACK_COMMON_API QList<MeterCustomLoudnessPreset> customMeterLoudnessPresets();
-WINJACK_COMMON_API std::optional<MeterCustomLoudnessPreset> findCustomMeterLoudnessPreset(const QString& id);
+WINJACK_COMMON_API std::optional<MeterCustomLoudnessPreset> findCustomMeterLoudnessPreset(
+    const QString &id);
 WINJACK_COMMON_API quint64 customMeterLoudnessPresetRevision();
 WINJACK_COMMON_API void refreshCustomMeterLoudnessPresets();
-WINJACK_COMMON_API bool saveCustomMeterLoudnessPreset(MeterCustomLoudnessPreset& preset, QString* error = nullptr);
+WINJACK_COMMON_API bool saveCustomMeterLoudnessPreset(MeterCustomLoudnessPreset &preset,
+                                                      QString *error = nullptr);
 }

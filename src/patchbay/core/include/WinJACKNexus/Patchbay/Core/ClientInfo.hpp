@@ -19,9 +19,11 @@
 
 #include <string>
 
-namespace WinJACKNexus::Patchbay::Core {
+namespace WinJACKNexus::Patchbay::Core
+{
 
-struct WINJACK_PATCHBAY_API ClientInfo final {
+struct WINJACK_PATCHBAY_API ClientInfo final
+{
     std::string id;
     std::string name;
     std::string alias;

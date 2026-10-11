@@ -27,17 +27,20 @@
 #include <iterator>
 #include <string>
 
-namespace WinJACKNexus::Audio {
+namespace WinJACKNexus::Audio
+{
 
-namespace {
+namespace
+{
 
 using Microsoft::WRL::ComPtr;
 
-class ComScope final {
-public:
+class ComScope final
+{
+  public:
     ComScope() noexcept
-        : result_(CoInitializeEx(nullptr, COINIT_MULTITHREADED))
-        , ownsInitialization_(result_ == S_OK || result_ == S_FALSE)
+        : result_(CoInitializeEx(nullptr, COINIT_MULTITHREADED)),
+          ownsInitialization_(result_ == S_OK || result_ == S_FALSE)
     {
     }
 
@@ -57,12 +60,12 @@ public:
         return result_;
     }
 
-private:
+  private:
     HRESULT result_ = E_FAIL;
     bool ownsInitialization_ = false;
 };
 
-void copyString(wchar_t* destination, std::size_t capacity, const wchar_t* source) noexcept
+void copyString(wchar_t *destination, std::size_t capacity, const wchar_t *source) noexcept
 {
     if (destination == nullptr || capacity == 0)
         return;
@@ -76,11 +79,8 @@ EDataFlow dataFlow(WasapiStreamDirection direction) noexcept
     return direction == WasapiStreamDirection::capture ? eCapture : eRender;
 }
 
-bool makeDeviceInfo(IMMDevice* device,
-                    std::uint32_t index,
-                    bool isDefault,
-                    WasapiStreamDirection direction,
-                    WasapiDeviceInfo& result) noexcept
+bool makeDeviceInfo(IMMDevice *device, std::uint32_t index, bool isDefault,
+                    WasapiStreamDirection direction, WasapiDeviceInfo &result) noexcept
 {
     if (device == nullptr)
         return false;
@@ -97,10 +97,12 @@ bool makeDeviceInfo(IMMDevice* device,
     CoTaskMemFree(deviceId);
 
     ComPtr<IPropertyStore> propertyStore;
-    if (SUCCEEDED(device->OpenPropertyStore(STGM_READ, &propertyStore))) {
+    if (SUCCEEDED(device->OpenPropertyStore(STGM_READ, &propertyStore)))
+    {
         PROPVARIANT value;
         PropVariantInit(&value);
-        if (SUCCEEDED(propertyStore->GetValue(PKEY_Device_FriendlyName, &value))) {
+        if (SUCCEEDED(propertyStore->GetValue(PKEY_Device_FriendlyName, &value)))
+        {
             if (value.vt == VT_LPWSTR)
                 copyString(result.name, std::size(result.name), value.pwszVal);
             else if (value.vt == VT_BSTR)
@@ -111,14 +113,15 @@ bool makeDeviceInfo(IMMDevice* device,
     return result.id[0] != L'\0';
 }
 
-struct DefaultDeviceContext final {
-    WasapiDeviceInfo* result = nullptr;
+struct DefaultDeviceContext final
+{
+    WasapiDeviceInfo *result = nullptr;
     bool found = false;
 };
 
-bool selectDefault(const WasapiDeviceInfo& device, void* userData) noexcept
+bool selectDefault(const WasapiDeviceInfo &device, void *userData) noexcept
 {
-    auto* context = static_cast<DefaultDeviceContext*>(userData);
+    auto *context = static_cast<DefaultDeviceContext *>(userData);
     if (context == nullptr || context->result == nullptr)
         return false;
     if (!device.isDefault)
@@ -131,53 +134,60 @@ bool selectDefault(const WasapiDeviceInfo& device, void* userData) noexcept
 }
 
 std::size_t WasapiDeviceEnumerator::enumerate(WasapiStreamDirection direction,
-                                              WasapiDeviceVisitor visitor,
-                                              void* userData) noexcept
+                                              WasapiDeviceVisitor visitor, void *userData) noexcept
 {
     lastError_ = S_OK;
-    try {
+    try
+    {
         ComScope com;
-        if (!com.isUsable()) {
+        if (!com.isUsable())
+        {
             lastError_ = static_cast<std::int32_t>(com.result());
             return 0;
         }
 
         ComPtr<IMMDeviceEnumerator> enumerator;
-        auto result = CoCreateInstance(__uuidof(MMDeviceEnumerator),
-                                       nullptr,
-                                       CLSCTX_ALL,
+        auto result = CoCreateInstance(__uuidof(MMDeviceEnumerator), nullptr, CLSCTX_ALL,
                                        IID_PPV_ARGS(&enumerator));
-        if (FAILED(result)) {
+        if (FAILED(result))
+        {
             lastError_ = static_cast<std::int32_t>(result);
             return 0;
         }
 
         ComPtr<IMMDevice> defaultDevice;
         std::wstring defaultId;
-        if (SUCCEEDED(enumerator->GetDefaultAudioEndpoint(dataFlow(direction), eConsole, &defaultDevice))) {
+        if (SUCCEEDED(
+                enumerator->GetDefaultAudioEndpoint(dataFlow(direction), eConsole, &defaultDevice)))
+        {
             LPWSTR defaultIdBuffer = nullptr;
-            if (SUCCEEDED(defaultDevice->GetId(&defaultIdBuffer))) {
+            if (SUCCEEDED(defaultDevice->GetId(&defaultIdBuffer)))
+            {
                 defaultId = defaultIdBuffer;
                 CoTaskMemFree(defaultIdBuffer);
             }
         }
 
         ComPtr<IMMDeviceCollection> collection;
-        result = enumerator->EnumAudioEndpoints(dataFlow(direction), DEVICE_STATE_ACTIVE, &collection);
-        if (FAILED(result)) {
+        result =
+            enumerator->EnumAudioEndpoints(dataFlow(direction), DEVICE_STATE_ACTIVE, &collection);
+        if (FAILED(result))
+        {
             lastError_ = static_cast<std::int32_t>(result);
             return 0;
         }
 
         UINT count = 0;
         result = collection->GetCount(&count);
-        if (FAILED(result)) {
+        if (FAILED(result))
+        {
             lastError_ = static_cast<std::int32_t>(result);
             return 0;
         }
 
         std::size_t visited = 0;
-        for (UINT index = 0; index < count; ++index) {
+        for (UINT index = 0; index < count; ++index)
+        {
             ComPtr<IMMDevice> device;
             if (FAILED(collection->Item(index, &device)))
                 continue;
@@ -190,17 +200,19 @@ std::size_t WasapiDeviceEnumerator::enumerate(WasapiStreamDirection direction,
                 break;
         }
         return visited;
-    } catch (...) {
+    }
+    catch (...)
+    {
         lastError_ = static_cast<std::int32_t>(E_OUTOFMEMORY);
         return 0;
     }
 }
 
 bool WasapiDeviceEnumerator::defaultDevice(WasapiStreamDirection direction,
-                                            WasapiDeviceInfo& result) noexcept
+                                           WasapiDeviceInfo &result) noexcept
 {
     result = {};
-    DefaultDeviceContext context { &result, false };
+    DefaultDeviceContext context{&result, false};
     enumerate(direction, selectDefault, &context);
     return context.found;
 }

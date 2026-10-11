@@ -21,18 +21,19 @@
 #include <type_traits>
 #include <utility>
 
-namespace WinJACKNexus::Common {
+namespace WinJACKNexus::Common
+{
 
-template <typename T, std::size_t Capacity>
-class LockFreeSpscQueue final {
+template <typename T, std::size_t Capacity> class LockFreeSpscQueue final
+{
     static_assert(Capacity > 0);
 
-public:
+  public:
     LockFreeSpscQueue() noexcept = default;
-    LockFreeSpscQueue(const LockFreeSpscQueue&) = delete;
-    LockFreeSpscQueue& operator=(const LockFreeSpscQueue&) = delete;
+    LockFreeSpscQueue(const LockFreeSpscQueue &) = delete;
+    LockFreeSpscQueue &operator=(const LockFreeSpscQueue &) = delete;
 
-    bool try_push(const T& value) noexcept(std::is_nothrow_copy_assignable_v<T>)
+    bool try_push(const T &value) noexcept(std::is_nothrow_copy_assignable_v<T>)
     {
         const auto writeIndex = writeIndex_.load(std::memory_order_relaxed);
         const auto readIndex = readIndex_.load(std::memory_order_acquire);
@@ -44,7 +45,7 @@ public:
         return true;
     }
 
-    bool try_push(T&& value) noexcept(std::is_nothrow_move_assignable_v<T>)
+    bool try_push(T &&value) noexcept(std::is_nothrow_move_assignable_v<T>)
     {
         const auto writeIndex = writeIndex_.load(std::memory_order_relaxed);
         const auto readIndex = readIndex_.load(std::memory_order_acquire);
@@ -56,7 +57,7 @@ public:
         return true;
     }
 
-    bool try_pop(T& value) noexcept(std::is_nothrow_move_assignable_v<T>)
+    bool try_pop(T &value) noexcept(std::is_nothrow_move_assignable_v<T>)
     {
         const auto readIndex = readIndex_.load(std::memory_order_relaxed);
         const auto writeIndex = writeIndex_.load(std::memory_order_acquire);
@@ -99,10 +100,10 @@ public:
         return size() == Capacity;
     }
 
-private:
-    std::array<T, Capacity> storage_ {};
-    alignas(64) std::atomic<std::size_t> writeIndex_ { 0 };
-    alignas(64) std::atomic<std::size_t> readIndex_ { 0 };
+  private:
+    std::array<T, Capacity> storage_{};
+    alignas(64) std::atomic<std::size_t> writeIndex_{0};
+    alignas(64) std::atomic<std::size_t> readIndex_{0};
 };
 
 }

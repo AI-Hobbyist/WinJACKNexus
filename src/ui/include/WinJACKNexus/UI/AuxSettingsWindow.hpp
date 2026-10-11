@@ -9,17 +9,20 @@
 #include <functional>
 #include <memory>
 
-namespace WinJACKNexus::UI {
+namespace WinJACKNexus::UI
+{
 
-class WINJACK_UI_API AuxSettingsWindow final : public QWidget {
-public:
-    explicit AuxSettingsWindow(std::shared_ptr<Common::AuxMixerState> state, QWidget* parent = nullptr);
+class WINJACK_UI_API AuxSettingsWindow final : public QWidget
+{
+  public:
+    explicit AuxSettingsWindow(std::shared_ptr<Common::AuxMixerState> state,
+                               QWidget *parent = nullptr);
     ~AuxSettingsWindow() override;
 
     void setSubMixMode(bool enabled);
-    void setSource(const QString& sourceKey, const QString& sourceName, std::uint32_t selfAuxId = 0,
+    void setSource(const QString &sourceKey, const QString &sourceName, std::uint32_t selfAuxId = 0,
                    Common::AuxChannelLayout layout = Common::AuxChannelLayout::stereo,
-                   const QString& sourceNumber = {});
+                   const QString &sourceNumber = {});
     void selectBus(std::uint32_t id);
     void addBus(Common::AuxChannelLayout layout);
     std::uint32_t selectedBusId() const;
@@ -27,24 +30,24 @@ public:
     void setStateCommitCallback(std::function<bool()> callback);
     void setMeterReadCallback(std::function<float(bool)> callback);
     void setChannelMeterReadCallback(std::function<float(bool, std::size_t)> callback);
-    void setPolarReadCallback(std::function<bool(std::uint32_t,
-                               Common::MixerPolarSnapshot&)> callback);
+    void setPolarReadCallback(
+        std::function<bool(std::uint32_t, Common::MixerPolarSnapshot &)> callback);
     void acceptExternalState();
     void setChainEnabled(bool enabled);
     bool chainEnabled() const;
     void setChainEnabledHandler(std::function<void(bool)> handler);
     void setChainCommitHandler(std::function<bool(bool)> handler);
 
-protected:
-    bool event(QEvent* event) override;
-    void paintEvent(QPaintEvent* event) override;
-    void mousePressEvent(QMouseEvent* event) override;
-    void mouseDoubleClickEvent(QMouseEvent* event) override;
-    void mouseMoveEvent(QMouseEvent* event) override;
-    void mouseReleaseEvent(QMouseEvent* event) override;
-    void wheelEvent(QWheelEvent* event) override;
+  protected:
+    bool event(QEvent *event) override;
+    void paintEvent(QPaintEvent *event) override;
+    void mousePressEvent(QMouseEvent *event) override;
+    void mouseDoubleClickEvent(QMouseEvent *event) override;
+    void mouseMoveEvent(QMouseEvent *event) override;
+    void mouseReleaseEvent(QMouseEvent *event) override;
+    void wheelEvent(QWheelEvent *event) override;
 
-private:
+  private:
     class Impl;
     std::unique_ptr<Impl> impl_;
 };

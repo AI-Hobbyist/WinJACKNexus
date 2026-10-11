@@ -28,52 +28,52 @@
 
 #include <algorithm>
 
-namespace WinJACKNexus::UI {
+namespace WinJACKNexus::UI
+{
 
-namespace {
+namespace
+{
 
 QPointer<ThemeCore> processThemeCore;
 
-constexpr const char* paletteKeys[] {
-    "window-bg",
-    "panel-bg",
-    "panel-raised",
-    "text",
-    "text-muted",
-    "accent",
-    "accent-alt",
-    "border",
-    "danger",
-    "success"
-};
+constexpr const char *paletteKeys[]{"window-bg",  "panel-bg", "panel-raised", "text",
+                                    "text-muted", "accent",   "accent-alt",   "border",
+                                    "danger",     "success"};
 
-struct PaletteToken { const char* oldKey; const char* token; };
-constexpr PaletteToken paletteTokens[] {
-    {"window-bg", "--wjn-theme-global-surface-window"},
-    {"panel-bg", "--wjn-theme-global-surface-panel"},
-    {"panel-raised", "--wjn-theme-global-surface-raised"},
-    {"text", "--wjn-theme-global-text-primary"},
-    {"text-muted", "--wjn-theme-global-text-muted"},
-    {"accent", "--wjn-theme-global-accent-primary"},
-    {"accent-alt", "--wjn-theme-global-accent-secondary"},
-    {"border", "--wjn-theme-global-border-normal"},
-    {"danger", "--wjn-theme-global-state-danger"},
-    {"success", "--wjn-theme-global-state-success"}
+struct PaletteToken
+{
+    const char *oldKey;
+    const char *token;
 };
+constexpr PaletteToken paletteTokens[]{{"window-bg", "--wjn-theme-global-surface-window"},
+                                       {"panel-bg", "--wjn-theme-global-surface-panel"},
+                                       {"panel-raised", "--wjn-theme-global-surface-raised"},
+                                       {"text", "--wjn-theme-global-text-primary"},
+                                       {"text-muted", "--wjn-theme-global-text-muted"},
+                                       {"accent", "--wjn-theme-global-accent-primary"},
+                                       {"accent-alt", "--wjn-theme-global-accent-secondary"},
+                                       {"border", "--wjn-theme-global-border-normal"},
+                                       {"danger", "--wjn-theme-global-state-danger"},
+                                       {"success", "--wjn-theme-global-state-success"}};
 
-QString tokenForLegacyKey(const QString& key) {
-    for (const auto& mapping : paletteTokens)
+QString tokenForLegacyKey(const QString &key)
+{
+    for (const auto &mapping : paletteTokens)
         if (key == QString::fromLatin1(mapping.oldKey))
             return QString::fromLatin1(mapping.token);
     return {};
 }
 
-QColor colorFromThemeValue(const QString& value) {
-    if (value == QStringLiteral("transparent")) return QColor(0, 0, 0, 0);
-    if (value.startsWith(QStringLiteral("rgb(")) || value.startsWith(QStringLiteral("rgba("))) {
+QColor colorFromThemeValue(const QString &value)
+{
+    if (value == QStringLiteral("transparent"))
+        return QColor(0, 0, 0, 0);
+    if (value.startsWith(QStringLiteral("rgb(")) || value.startsWith(QStringLiteral("rgba(")))
+    {
         const bool alpha = value.startsWith(QStringLiteral("rgba("));
         const auto fields = value.mid(alpha ? 5 : 4, value.size() - (alpha ? 6 : 5)).split(',');
-        if (fields.size() == (alpha ? 4 : 3)) {
+        if (fields.size() == (alpha ? 4 : 3))
+        {
             const auto opacity = alpha ? fields[3].trimmed().toDouble() : 1.0;
             return QColor(fields[0].trimmed().toInt(), fields[1].trimmed().toInt(),
                           fields[2].trimmed().toInt(), qRound(opacity * 255.0));
@@ -82,52 +82,71 @@ QColor colorFromThemeValue(const QString& value) {
     return QColor(value);
 }
 
-QString colorForStyleSheet(const QColor& color) {
-    if (color.alpha() == 255) return color.name(QColor::HexRgb);
+QString colorForStyleSheet(const QColor &color)
+{
+    if (color.alpha() == 255)
+        return color.name(QColor::HexRgb);
     return QStringLiteral("rgba(%1, %2, %3, %4)")
-        .arg(color.red()).arg(color.green()).arg(color.blue())
+        .arg(color.red())
+        .arg(color.green())
+        .arg(color.blue())
         .arg(QString::number(color.alphaF(), 'f', 3));
 }
 
-QString builtInResourcePath(const QString& name) {
+QString builtInResourcePath(const QString &name)
+{
     return QStringLiteral(":/WinJACKNexus/UI/themes/") + name + QStringLiteral(".qss");
 }
 
-QSettings settings() {
-    return QSettings(QSettings::IniFormat,
-                     QSettings::UserScope,
-                     QStringLiteral("WinJACKNexus"),
+QSettings settings()
+{
+    return QSettings(QSettings::IniFormat, QSettings::UserScope, QStringLiteral("WinJACKNexus"),
                      QStringLiteral("WinJACKNexus"));
 }
 
 }
 
-struct ThemeManager::FontState {
-    struct ApplicationStyleState {
+struct ThemeManager::FontState
+{
+    struct ApplicationStyleState
+    {
         bool applied = false;
         QString lastStyleSheet;
     };
     // Keep per-manager bookkeeping behind the existing pointer. Modules allocate
     // ThemeManager by value, so appending fields to the exported class breaks ABI.
-    QHash<const ThemeManager*, ApplicationStyleState> applicationStyles;
-    struct LoadedFont { QByteArray hash; int id = -1; QString family; };
-    ~FontState() {
-        for (const auto& font : loaded) QFontDatabase::removeApplicationFont(font.id);
+    QHash<const ThemeManager *, ApplicationStyleState> applicationStyles;
+    struct LoadedFont
+    {
+        QByteArray hash;
+        int id = -1;
+        QString family;
+    };
+    ~FontState()
+    {
+        for (const auto &font : loaded)
+            QFontDatabase::removeApplicationFont(font.id);
     }
 
-    void releaseUnused(const QByteArray& pinnedHash) {
-        for (qsizetype index = loaded.size(); index > 0; --index) {
-            const auto& font = loaded[index - 1];
-            if (font.hash == currentHash || font.hash == pinnedHash) continue;
+    void releaseUnused(const QByteArray &pinnedHash)
+    {
+        for (qsizetype index = loaded.size(); index > 0; --index)
+        {
+            const auto &font = loaded[index - 1];
+            if (font.hash == currentHash || font.hash == pinnedHash)
+                continue;
             QFontDatabase::removeApplicationFont(font.id);
             loaded.removeAt(index - 1);
         }
     }
 
-    void apply(QApplication* application, const ThemeSnapshot& snapshot,
-               const QByteArray& pinnedHash) {
-        if (!application) return;
-        if (!capturedSystemFont) {
+    void apply(QApplication *application, const ThemeSnapshot &snapshot,
+               const QByteArray &pinnedHash)
+    {
+        if (!application)
+            return;
+        if (!capturedSystemFont)
+        {
             systemFont = QFontDatabase::systemFont(QFontDatabase::GeneralFont);
             currentFamily = application->font().family();
             capturedSystemFont = true;
@@ -136,29 +155,45 @@ struct ThemeManager::FontState {
         QString desiredFamily = systemFont.family();
         QByteArray activeHash;
         diagnostic.clear();
-        if (source != QStringLiteral("system")) {
-            const auto resource = snapshot.resource(QStringLiteral("--wjn-theme-global-font-source"));
+        if (source != QStringLiteral("system"))
+        {
+            const auto resource =
+                snapshot.resource(QStringLiteral("--wjn-theme-global-font-source"));
             const auto bytes = resource.bytes();
-            if (bytes.isEmpty()) {
+            if (bytes.isEmpty())
+            {
                 diagnostic = QStringLiteral("Theme font resource is missing; using system font");
-            } else {
+            }
+            else
+            {
                 activeHash = QCryptographicHash::hash(bytes, QCryptographicHash::Sha256);
-                const auto found = std::find_if(loaded.cbegin(), loaded.cend(),
-                    [&](const LoadedFont& font) { return font.hash == activeHash; });
-                if (found != loaded.cend()) {
+                const auto found =
+                    std::find_if(loaded.cbegin(), loaded.cend(),
+                                 [&](const LoadedFont &font) { return font.hash == activeHash; });
+                if (found != loaded.cend())
+                {
                     desiredFamily = found->family;
-                } else {
+                }
+                else
+                {
                     const int id = QFontDatabase::addApplicationFontFromData(bytes);
-                    const auto families = id < 0 ? QStringList {} : QFontDatabase::applicationFontFamilies(id);
-                    if (families.isEmpty() || families.first().isEmpty()) {
-                        if (id >= 0) QFontDatabase::removeApplicationFont(id);
-                        diagnostic = QStringLiteral("Theme font registration failed; using system font");
+                    const auto families =
+                        id < 0 ? QStringList{} : QFontDatabase::applicationFontFamilies(id);
+                    if (families.isEmpty() || families.first().isEmpty())
+                    {
+                        if (id >= 0)
+                            QFontDatabase::removeApplicationFont(id);
+                        diagnostic =
+                            QStringLiteral("Theme font registration failed; using system font");
                         activeHash.clear();
-                    } else {
+                    }
+                    else
+                    {
                         desiredFamily = families.first();
                         loaded.append({activeHash, id, desiredFamily});
                         if (families.size() > 1)
-                            diagnostic = QStringLiteral("Theme font contains multiple families; using the first");
+                            diagnostic = QStringLiteral(
+                                "Theme font contains multiple families; using the first");
                     }
                 }
             }
@@ -167,21 +202,25 @@ struct ThemeManager::FontState {
         if (desiredFamily != systemFont.family())
             applicationFont.setFamilies({desiredFamily, systemFont.family()});
         // Namespace registration can refresh the theme while an FX editor is being built.
-        if (applicationFontInitialized && desiredFamily == currentFamily && activeHash == currentHash
-            && application->font() == applicationFont) {
+        if (applicationFontInitialized && desiredFamily == currentFamily &&
+            activeHash == currentHash && application->font() == applicationFont)
+        {
             releaseUnused(pinnedHash);
             return;
         }
         application->setFont(applicationFont);
-        for (auto* widget : QApplication::allWidgets()) {
-            if (widget->property("wjnPreserveFontFamily").toBool()) continue;
+        for (auto *widget : QApplication::allWidgets())
+        {
+            if (widget->property("wjnPreserveFontFamily").toBool())
+                continue;
             auto widgetFont = widget->font();
             const auto family = widgetFont.family();
-            if (family != currentFamily && family != systemFont.family()
-                && family != desiredFamily) continue;
+            if (family != currentFamily && family != systemFont.family() && family != desiredFamily)
+                continue;
             if (desiredFamily != systemFont.family())
                 widgetFont.setFamilies({desiredFamily, systemFont.family()});
-            else widgetFont.setFamily(systemFont.family());
+            else
+                widgetFont.setFamily(systemFont.family());
             widget->setFont(widgetFont);
             widget->updateGeometry();
             widget->update();
@@ -202,42 +241,51 @@ struct ThemeManager::FontState {
     QPointer<QApplication> application;
 };
 
-ThemeManager::ThemeManager(QObject* parent)
-    : QObject(parent)
-    , basePalette_(ThemePalette::darkRack())
-    , palette_(basePalette_)
-    , themeName_(QStringLiteral("dark-rack"))
-    , fontState_([] {
-        static std::weak_ptr<FontState> shared;
-        auto active = shared.lock();
-        if (!active) {
-            active = std::make_shared<FontState>();
-            shared = active;
-        }
-        return active;
-    }()) {
+ThemeManager::ThemeManager(QObject *parent)
+    : QObject(parent), basePalette_(ThemePalette::darkRack()), palette_(basePalette_),
+      themeName_(QStringLiteral("dark-rack")), fontState_([] {
+          static std::weak_ptr<FontState> shared;
+          auto active = shared.lock();
+          if (!active)
+          {
+              active = std::make_shared<FontState>();
+              shared = active;
+          }
+          return active;
+      }())
+{
     resetVariables();
     loadBuiltInTheme(themeName_);
-    if (processThemeCore) bindThemeCore(processThemeCore);
+    if (processThemeCore)
+        bindThemeCore(processThemeCore);
 }
 
-ThemeManager::~ThemeManager() {
+ThemeManager::~ThemeManager()
+{
     fontState_->applicationStyles.remove(this);
 }
 
-void ThemeManager::installThemeCore(ThemeCore* core) {
+void ThemeManager::installThemeCore(ThemeCore *core)
+{
     processThemeCore = core;
-    if (core) core->refreshRegisteredNamespaces();
+    if (core)
+        core->refreshRegisteredNamespaces();
 }
-ThemeCore* ThemeManager::installedThemeCore() { return processThemeCore; }
+ThemeCore *ThemeManager::installedThemeCore()
+{
+    return processThemeCore;
+}
 
-bool ThemeManager::setTheme(const QString& name) {
+bool ThemeManager::setTheme(const QString &name)
+{
     return loadBuiltInTheme(name);
 }
 
-bool ThemeManager::loadBuiltInTheme(const QString& name) {
+bool ThemeManager::loadBuiltInTheme(const QString &name)
+{
     const auto normalizedName = name.trimmed();
-    if (normalizedName != QStringLiteral("dark-rack") && normalizedName != QStringLiteral("light-console"))
+    if (normalizedName != QStringLiteral("dark-rack") &&
+        normalizedName != QStringLiteral("light-console"))
         return false;
 
     QFile file(builtInResourcePath(normalizedName));
@@ -247,9 +295,8 @@ bool ThemeManager::loadBuiltInTheme(const QString& name) {
     sourceText_ = QString::fromUtf8(file.readAll());
     sourcePath_.clear();
     themeName_ = normalizedName;
-    basePalette_ = normalizedName == QStringLiteral("light-console")
-        ? ThemePalette::lightConsole()
-        : ThemePalette::darkRack();
+    basePalette_ = normalizedName == QStringLiteral("light-console") ? ThemePalette::lightConsole()
+                                                                     : ThemePalette::darkRack();
     palette_ = basePalette_;
     resetVariables();
     rebuildStyleSheet();
@@ -257,7 +304,8 @@ bool ThemeManager::loadBuiltInTheme(const QString& name) {
     return true;
 }
 
-bool ThemeManager::loadTheme(const QString& path) {
+bool ThemeManager::loadTheme(const QString &path)
+{
     QFile file(path);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
         return false;
@@ -270,11 +318,13 @@ bool ThemeManager::loadTheme(const QString& path) {
     return true;
 }
 
-bool ThemeManager::reload() {
+bool ThemeManager::reload()
+{
     return sourcePath_.isEmpty() ? loadBuiltInTheme(themeName_) : loadTheme(sourcePath_);
 }
 
-bool ThemeManager::applyToApp(QApplication* application) const {
+bool ThemeManager::applyToApp(QApplication *application) const
+{
     if (application == nullptr)
         application = qApp;
     if (application == nullptr)
@@ -286,23 +336,29 @@ bool ThemeManager::applyToApp(QApplication* application) const {
     return true;
 }
 
-void ThemeManager::applyFontToApp(QApplication* application) const {
+void ThemeManager::applyFontToApp(QApplication *application) const
+{
     fontState_->application = application;
-    if (core_ && core_->snapshot()) {
+    if (core_ && core_->snapshot())
+    {
         const auto base = core_->previewBaseSnapshot();
-        const auto pinned = base ? base->resource(QStringLiteral("--wjn-theme-global-font-source")).bytes()
-            : QByteArray {};
+        const auto pinned =
+            base ? base->resource(QStringLiteral("--wjn-theme-global-font-source")).bytes()
+                 : QByteArray{};
         fontState_->apply(application, *core_->snapshot(),
-            pinned.isEmpty() ? QByteArray {} : QCryptographicHash::hash(pinned, QCryptographicHash::Sha256));
+                          pinned.isEmpty()
+                              ? QByteArray{}
+                              : QCryptographicHash::hash(pinned, QCryptographicHash::Sha256));
     }
 }
 
-bool ThemeManager::applyToWidget(QWidget* widget) const {
+bool ThemeManager::applyToWidget(QWidget *widget) const
+{
     if (widget == nullptr)
         return false;
     widget->setStyleSheet(styleSheet_);
-    if (core_ && fontState_->application
-        && !widget->property("wjnPreserveFontFamily").toBool()) {
+    if (core_ && fontState_->application && !widget->property("wjnPreserveFontFamily").toBool())
+    {
         auto widgetFont = widget->font();
         widgetFont.setFamilies(fontState_->application->font().families());
         widget->setFont(widgetFont);
@@ -311,7 +367,8 @@ bool ThemeManager::applyToWidget(QWidget* widget) const {
     return true;
 }
 
-void ThemeManager::watchApplication(QApplication* application) {
+void ThemeManager::watchApplication(QApplication *application)
+{
     fontState_->application = application;
     applicationOwner_ = application != nullptr;
     fontState_->applicationStyles.remove(this);
@@ -319,35 +376,46 @@ void ThemeManager::watchApplication(QApplication* application) {
     syncSnapshot(true);
 }
 
-void ThemeManager::bindThemeCore(ThemeCore* core) {
+void ThemeManager::bindThemeCore(ThemeCore *core)
+{
     QObject::disconnect(coreConnection_);
     QObject::disconnect(previewConnection_);
     core_ = core;
-    if (core_) {
-        coreConnection_ = QObject::connect(core_, &ThemeCore::themeChanged,
-                                           this, [this] { syncSnapshot(true); });
-        previewConnection_ = QObject::connect(core_, &ThemeCore::previewCompleted,
-                                              this, [this] { fontState_->releaseUnused({}); });
+    if (core_)
+    {
+        coreConnection_ =
+            QObject::connect(core_, &ThemeCore::themeChanged, this, [this] { syncSnapshot(true); });
+        previewConnection_ = QObject::connect(core_, &ThemeCore::previewCompleted, this,
+                                              [this] { fontState_->releaseUnused({}); });
         syncSnapshot(false);
     }
 }
 
-QString ThemeManager::fontDiagnostic() const { return fontState_->diagnostic; }
+QString ThemeManager::fontDiagnostic() const
+{
+    return fontState_->diagnostic;
+}
 
-void ThemeManager::syncSnapshot(bool applyApplication) {
-    if (!core_ || !core_->snapshot()) return;
+void ThemeManager::syncSnapshot(bool applyApplication)
+{
+    if (!core_ || !core_->snapshot())
+        return;
     const auto snapshot = core_->snapshot();
     ThemePalette mapped = ThemePalette::darkRack();
-    for (const auto& mapping : paletteTokens) {
-        const QColor color = colorFromThemeValue(snapshot->value(QString::fromLatin1(mapping.token)));
-        if (color.isValid()) mapped.setColor(QString::fromLatin1(mapping.oldKey), color);
+    for (const auto &mapping : paletteTokens)
+    {
+        const QColor color =
+            colorFromThemeValue(snapshot->value(QString::fromLatin1(mapping.token)));
+        if (color.isValid())
+            mapped.setColor(QString::fromLatin1(mapping.oldKey), color);
     }
     basePalette_ = mapped;
     palette_ = mapped;
     themeName_ = snapshot->themeId();
     resetVariables();
     rebuildStyleSheet();
-    if (applyApplication && applicationOwner_ && fontState_->application) {
+    if (applyApplication && applicationOwner_ && fontState_->application)
+    {
         // Other modules may own the current QApplication QSS; compare our own last applied value.
         const auto previousStyle = fontState_->applicationStyles.value(this);
         if (!previousStyle.applied || styleSheet_ != previousStyle.lastStyleSheet)
@@ -358,25 +426,31 @@ void ThemeManager::syncSnapshot(bool applyApplication) {
     notifyThemeChanged();
 }
 
-QString ThemeManager::themeName() const {
+QString ThemeManager::themeName() const
+{
     return themeName_;
 }
 
-QString ThemeManager::styleSheet() const {
+QString ThemeManager::styleSheet() const
+{
     return styleSheet_;
 }
 
-ThemePalette ThemeManager::palette() const {
+ThemePalette ThemeManager::palette() const
+{
     return palette_;
 }
 
-bool ThemeManager::setVariable(const QString& key, const QString& value) {
+bool ThemeManager::setVariable(const QString &key, const QString &value)
+{
     const auto normalizedKey = key.trimmed();
     if (normalizedKey.isEmpty() || value.isEmpty())
         return false;
-    if (core_) {
+    if (core_)
+    {
         const auto token = tokenForLegacyKey(normalizedKey);
-        if (!token.isEmpty()) return core_->setOverride(token, value);
+        if (!token.isEmpty())
+            return core_->setOverride(token, value);
     }
     variables_.insert(normalizedKey, value);
     const QColor colorValue(value);
@@ -387,11 +461,14 @@ bool ThemeManager::setVariable(const QString& key, const QString& value) {
     return true;
 }
 
-bool ThemeManager::removeVariable(const QString& key) {
+bool ThemeManager::removeVariable(const QString &key)
+{
     const auto normalizedKey = key.trimmed();
-    if (core_) {
+    if (core_)
+    {
         const auto token = tokenForLegacyKey(normalizedKey);
-        if (!token.isEmpty()) return core_->removeOverride(token);
+        if (!token.isEmpty())
+            return core_->removeOverride(token);
     }
     if (!variables_.contains(normalizedKey))
         return false;
@@ -404,13 +481,15 @@ bool ThemeManager::removeVariable(const QString& key) {
     return true;
 }
 
-bool ThemeManager::saveSettings() const {
+bool ThemeManager::saveSettings() const
+{
     auto store = settings();
     store.setValue(QStringLiteral("theme/name"), themeName_);
     store.setValue(QStringLiteral("theme/source"), sourcePath_);
     store.beginWriteArray(QStringLiteral("variables"));
     int index = 0;
-    for (auto iterator = variables_.cbegin(); iterator != variables_.cend(); ++iterator) {
+    for (auto iterator = variables_.cbegin(); iterator != variables_.cend(); ++iterator)
+    {
         store.setArrayIndex(index++);
         store.setValue(QStringLiteral("key"), iterator.key());
         store.setValue(QStringLiteral("value"), iterator.value());
@@ -420,7 +499,8 @@ bool ThemeManager::saveSettings() const {
     return store.status() == QSettings::NoError;
 }
 
-bool ThemeManager::loadSettings() {
+bool ThemeManager::loadSettings()
+{
     auto store = settings();
     const auto storedName = store.value(QStringLiteral("theme/name"), themeName_).toString();
     const auto storedSource = store.value(QStringLiteral("theme/source")).toString();
@@ -433,7 +513,8 @@ bool ThemeManager::loadSettings() {
         return false;
 
     const auto count = store.beginReadArray(QStringLiteral("variables"));
-    for (int index = 0; index < count; ++index) {
+    for (int index = 0; index < count; ++index)
+    {
         store.setArrayIndex(index);
         setVariable(store.value(QStringLiteral("key")).toString(),
                     store.value(QStringLiteral("value")).toString());
@@ -442,23 +523,28 @@ bool ThemeManager::loadSettings() {
     return true;
 }
 
-void ThemeManager::resetVariables() {
+void ThemeManager::resetVariables()
+{
     variables_.clear();
-    for (const auto* key : paletteKeys) {
+    for (const auto *key : paletteKeys)
+    {
         const auto colorValue = palette_.color(QString::fromLatin1(key));
         if (colorValue.isValid())
             variables_.insert(QString::fromLatin1(key), colorForStyleSheet(colorValue));
     }
 }
 
-void ThemeManager::rebuildStyleSheet() {
+void ThemeManager::rebuildStyleSheet()
+{
     QString resolved = sourceText_;
     for (auto iterator = variables_.cbegin(); iterator != variables_.cend(); ++iterator)
-        resolved.replace(QStringLiteral("${") + iterator.key() + QStringLiteral("}"), iterator.value());
+        resolved.replace(QStringLiteral("${") + iterator.key() + QStringLiteral("}"),
+                         iterator.value());
     styleSheet_ = palette_.resolveVariables(resolved);
 }
 
-void ThemeManager::notifyThemeChanged() {
+void ThemeManager::notifyThemeChanged()
+{
     emit themeChanged(palette_);
     emit onThemeChanged(palette_);
 }

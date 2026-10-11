@@ -24,9 +24,11 @@
 
 #include <vector>
 
-namespace WinJACKNexus::UI {
+namespace WinJACKNexus::UI
+{
 
-struct HistoryLegendEntry final {
+struct HistoryLegendEntry final
+{
     QString id;
     QString label;
     QColor color;
@@ -34,30 +36,31 @@ struct HistoryLegendEntry final {
     bool enabled = true;
 };
 
-class WINJACK_UI_API HistoryLegendWidget final : public QWidget {
+class WINJACK_UI_API HistoryLegendWidget final : public QWidget
+{
     Q_OBJECT
 
-public:
-    explicit HistoryLegendWidget(QWidget* parent = nullptr);
+  public:
+    explicit HistoryLegendWidget(QWidget *parent = nullptr);
     ~HistoryLegendWidget() override = default;
 
     void setEntries(std::vector<HistoryLegendEntry> entries);
-    const std::vector<HistoryLegendEntry>& entries() const noexcept;
-    bool setEntryVisible(const QString& id, bool visible);
-    void setThemePalette(const ThemePalette& palette);
+    const std::vector<HistoryLegendEntry> &entries() const noexcept;
+    bool setEntryVisible(const QString &id, bool visible);
+    void setThemePalette(const ThemePalette &palette);
     ThemePalette themePalette() const;
 
     QSize sizeHint() const override;
 
-Q_SIGNALS:
-    void entryVisibilityChanged(const QString& id, bool visible);
+  Q_SIGNALS:
+    void entryVisibilityChanged(const QString &id, bool visible);
 
-protected:
-    bool event(QEvent* event) override;
-    void paintEvent(QPaintEvent* event) override;
-    void mouseReleaseEvent(QMouseEvent* event) override;
+  protected:
+    bool event(QEvent *event) override;
+    void paintEvent(QPaintEvent *event) override;
+    void mouseReleaseEvent(QMouseEvent *event) override;
 
-private:
+  private:
     int columnCount() const noexcept;
     QRect entryRect(int index) const;
 

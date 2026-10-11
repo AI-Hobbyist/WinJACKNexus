@@ -17,20 +17,34 @@
 
 #include <cctype>
 
-namespace WinJACKNexus::Common {
+namespace WinJACKNexus::Common
+{
 
-namespace {
+namespace
+{
 
-void appendEscaped(std::string& output, std::string_view value)
+void appendEscaped(std::string &output, std::string_view value)
 {
     output.push_back('"');
-    for (const auto character : value) {
-        switch (character) {
-        case '\\': output += "\\\\"; break;
-        case '"': output += "\\\""; break;
-        case '\n': output += "\\n"; break;
-        case '\r': output += "\\r"; break;
-        case '\t': output += "\\t"; break;
+    for (const auto character : value)
+    {
+        switch (character)
+        {
+        case '\\':
+            output += "\\\\";
+            break;
+        case '"':
+            output += "\\\"";
+            break;
+        case '\n':
+            output += "\\n";
+            break;
+        case '\r':
+            output += "\\r";
+            break;
+        case '\t':
+            output += "\\t";
+            break;
         default:
             if (static_cast<unsigned char>(character) < 0x20)
                 output += "?";
@@ -42,12 +56,10 @@ void appendEscaped(std::string& output, std::string_view value)
     output.push_back('"');
 }
 
-class Parser final {
-public:
-    explicit Parser(std::string_view input)
-        : input_(input)
-    {
-    }
+class Parser final
+{
+  public:
+    explicit Parser(std::string_view input) : input_(input) {}
 
     std::optional<ModuleMetadata> parse()
     {
@@ -57,58 +69,83 @@ public:
             return std::nullopt;
 
         skipWhitespace();
-        if (consume('}')) {
+        if (consume('}'))
+        {
             skipWhitespace();
-            return position_ == input_.size() ? std::optional<ModuleMetadata>(metadata) : std::nullopt;
+            return position_ == input_.size() ? std::optional<ModuleMetadata>(metadata)
+                                              : std::nullopt;
         }
 
-        for (;;) {
+        for (;;)
+        {
             const auto key = parseString();
             if (!key || !consume(':'))
                 return std::nullopt;
 
-            if (*key == "name") {
+            if (*key == "name")
+            {
                 const auto value = parseString();
-                if (!value) return std::nullopt;
+                if (!value)
+                    return std::nullopt;
                 metadata.name = *value;
-            } else if (*key == "category") {
+            }
+            else if (*key == "category")
+            {
                 const auto value = parseString();
-                if (!value) return std::nullopt;
+                if (!value)
+                    return std::nullopt;
                 metadata.category = *value;
-            } else if (*key == "version") {
+            }
+            else if (*key == "version")
+            {
                 const auto value = parseString();
-                if (!value) return std::nullopt;
+                if (!value)
+                    return std::nullopt;
                 metadata.version = *value;
-            } else if (*key == "author") {
+            }
+            else if (*key == "author")
+            {
                 const auto value = parseString();
-                if (!value) return std::nullopt;
+                if (!value)
+                    return std::nullopt;
                 metadata.author = *value;
-            } else if (*key == "description") {
+            }
+            else if (*key == "description")
+            {
                 const auto value = parseString();
-                if (!value) return std::nullopt;
+                if (!value)
+                    return std::nullopt;
                 metadata.description = *value;
-            } else if (*key == "dependencies") {
+            }
+            else if (*key == "dependencies")
+            {
                 const auto values = parseStringArray();
-                if (!values) return std::nullopt;
+                if (!values)
+                    return std::nullopt;
                 metadata.dependencies = *values;
-            } else if (!skipValue()) {
+            }
+            else if (!skipValue())
+            {
                 return std::nullopt;
             }
 
             skipWhitespace();
-            if (consume('}')) {
+            if (consume('}'))
+            {
                 skipWhitespace();
-                return position_ == input_.size() ? std::optional<ModuleMetadata>(metadata) : std::nullopt;
+                return position_ == input_.size() ? std::optional<ModuleMetadata>(metadata)
+                                                  : std::nullopt;
             }
             if (!consume(','))
                 return std::nullopt;
         }
     }
 
-private:
+  private:
     void skipWhitespace()
     {
-        while (position_ < input_.size() && std::isspace(static_cast<unsigned char>(input_[position_])) != 0)
+        while (position_ < input_.size() &&
+               std::isspace(static_cast<unsigned char>(input_[position_])) != 0)
             ++position_;
     }
 
@@ -129,23 +166,37 @@ private:
         ++position_;
 
         std::string result;
-        while (position_ < input_.size()) {
+        while (position_ < input_.size())
+        {
             const char character = input_[position_++];
             if (character == '"')
                 return result;
-            if (character != '\\') {
+            if (character != '\\')
+            {
                 result.push_back(character);
                 continue;
             }
             if (position_ >= input_.size())
                 return std::nullopt;
-            switch (input_[position_++]) {
-            case '\\': result.push_back('\\'); break;
-            case '"': result.push_back('"'); break;
-            case 'n': result.push_back('\n'); break;
-            case 'r': result.push_back('\r'); break;
-            case 't': result.push_back('\t'); break;
-            default: return std::nullopt;
+            switch (input_[position_++])
+            {
+            case '\\':
+                result.push_back('\\');
+                break;
+            case '"':
+                result.push_back('"');
+                break;
+            case 'n':
+                result.push_back('\n');
+                break;
+            case 'r':
+                result.push_back('\r');
+                break;
+            case 't':
+                result.push_back('\t');
+                break;
+            default:
+                return std::nullopt;
             }
         }
         return std::nullopt;
@@ -160,7 +211,8 @@ private:
         if (consume(']'))
             return result;
 
-        for (;;) {
+        for (;;)
+        {
             const auto value = parseString();
             if (!value)
                 return std::nullopt;
@@ -180,11 +232,15 @@ private:
             return false;
         if (input_[position_] == '"')
             return parseString().has_value();
-        if (input_[position_] == '[') {
+        if (input_[position_] == '[')
+        {
             int depth = 0;
-            do {
-                if (input_[position_] == '[') ++depth;
-                if (input_[position_] == ']') --depth;
+            do
+            {
+                if (input_[position_] == '[')
+                    ++depth;
+                if (input_[position_] == ']')
+                    --depth;
                 ++position_;
             } while (position_ < input_.size() && depth > 0);
             return depth == 0;
@@ -196,7 +252,7 @@ private:
     }
 
     std::string_view input_;
-    std::size_t position_ {};
+    std::size_t position_{};
 };
 
 }
@@ -214,7 +270,8 @@ std::string ModuleMetadata::toJson() const
     result += ",\"description\":";
     appendEscaped(result, description);
     result += ",\"dependencies\":[";
-    for (std::size_t index = 0; index < dependencies.size(); ++index) {
+    for (std::size_t index = 0; index < dependencies.size(); ++index)
+    {
         if (index != 0)
             result.push_back(',');
         appendEscaped(result, dependencies[index]);

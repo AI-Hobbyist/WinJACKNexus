@@ -19,33 +19,35 @@
 
 #include <memory>
 
-namespace WinJACKNexus::Common {
+namespace WinJACKNexus::Common
+{
 
-struct Thread::Impl final {
-    Thread* owner {};
-    HANDLE handle {};
-    DWORD id {};
-    HANDLE stopEvent {};
-    EntryPoint entryPoint {};
-    HANDLE avrtHandle {};
-    wchar_t name[64] {};
+struct Thread::Impl final
+{
+    Thread *owner{};
+    HANDLE handle{};
+    DWORD id{};
+    HANDLE stopEvent{};
+    EntryPoint entryPoint{};
+    HANDLE avrtHandle{};
+    wchar_t name[64]{};
 };
 
-DWORD WINAPI Thread::threadEntry(void* parameter) noexcept
+DWORD WINAPI Thread::threadEntry(void *parameter) noexcept
 {
-    auto& impl = *static_cast<Thread::Impl*>(parameter);
+    auto &impl = *static_cast<Thread::Impl *>(parameter);
     if (impl.name[0] != L'\0')
         SetThreadDescription(GetCurrentThread(), impl.name);
     impl.entryPoint(*impl.owner);
-    if (impl.avrtHandle != nullptr) {
+    if (impl.avrtHandle != nullptr)
+    {
         AvRevertMmThreadCharacteristics(impl.avrtHandle);
         impl.avrtHandle = nullptr;
     }
     return 0;
 }
 
-Thread::Thread(const wchar_t* name)
-    : impl_(new Impl { this })
+Thread::Thread(const wchar_t *name) : impl_(new Impl{this})
 {
     impl_->stopEvent = CreateEventW(nullptr, TRUE, FALSE, nullptr);
     if (name != nullptr)
@@ -109,9 +111,11 @@ bool Thread::setRealtimePriority() noexcept
     if (impl_->handle == nullptr)
         return false;
 
-    const bool priorityConfigured = SetThreadPriority(impl_->handle, THREAD_PRIORITY_TIME_CRITICAL) != FALSE;
+    const bool priorityConfigured =
+        SetThreadPriority(impl_->handle, THREAD_PRIORITY_TIME_CRITICAL) != FALSE;
     bool avrtConfigured = false;
-    if (GetCurrentThreadId() == impl_->id && impl_->avrtHandle == nullptr) {
+    if (GetCurrentThreadId() == impl_->id && impl_->avrtHandle == nullptr)
+    {
         DWORD taskIndex = 0;
         impl_->avrtHandle = AvSetMmThreadCharacteristicsW(L"Pro Audio", &taskIndex);
         avrtConfigured = impl_->avrtHandle != nullptr;

@@ -15,9 +15,10 @@
  */
 #include <WinJACKNexus/Common/Version.hpp>
 
-namespace WinJACKNexus::Common {
+namespace WinJACKNexus::Common
+{
 
-const char* libraryVersion() noexcept
+const char *libraryVersion() noexcept
 {
     return "0.1.0";
 }

@@ -19,25 +19,28 @@
 
 #include <cmath>
 
-namespace WinJACKNexus::Common {
+namespace WinJACKNexus::Common
+{
 
-enum class SilenceResetState {
+enum class SilenceResetState
+{
     active,
     pendingSilence,
     resetArmed
 };
 
-class SilenceResetController final {
-public:
-    SilenceResetController(double thresholdDbfs = -70.0,
-                           double durationSeconds = 3.0) noexcept
+class SilenceResetController final
+{
+  public:
+    SilenceResetController(double thresholdDbfs = -70.0, double durationSeconds = 3.0) noexcept
     {
         configure(thresholdDbfs, durationSeconds);
     }
 
     bool configure(double thresholdDbfs, double durationSeconds) noexcept
     {
-        if (!std::isfinite(thresholdDbfs) || !std::isfinite(durationSeconds) || durationSeconds < 0.0)
+        if (!std::isfinite(thresholdDbfs) || !std::isfinite(durationSeconds) ||
+            durationSeconds < 0.0)
             return false;
 
         thresholdDbfs_ = thresholdDbfs;
@@ -52,16 +55,15 @@ public:
         silentSeconds_ = 0.0;
     }
 
-    bool update(const MeterValue& peakDbfs, double elapsedSeconds) noexcept
+    bool update(const MeterValue &peakDbfs, double elapsedSeconds) noexcept
     {
-        const auto active = peakDbfs.valid
-            && std::isfinite(peakDbfs.value)
-            && peakDbfs.value > thresholdDbfs_;
-        const auto elapsed = std::isfinite(elapsedSeconds) && elapsedSeconds > 0.0
-            ? elapsedSeconds
-            : 0.0;
+        const auto active =
+            peakDbfs.valid && std::isfinite(peakDbfs.value) && peakDbfs.value > thresholdDbfs_;
+        const auto elapsed =
+            std::isfinite(elapsedSeconds) && elapsedSeconds > 0.0 ? elapsedSeconds : 0.0;
 
-        if (active) {
+        if (active)
+        {
             const auto shouldReset = state_ == SilenceResetState::resetArmed;
             state_ = SilenceResetState::active;
             silentSeconds_ = 0.0;
@@ -70,7 +72,8 @@ public:
 
         if (state_ == SilenceResetState::active)
             state_ = SilenceResetState::pendingSilence;
-        if (state_ == SilenceResetState::pendingSilence) {
+        if (state_ == SilenceResetState::pendingSilence)
+        {
             silentSeconds_ += elapsed;
             if (silentSeconds_ >= durationSeconds_)
                 state_ = SilenceResetState::resetArmed;
@@ -88,11 +91,11 @@ public:
         return silentSeconds_;
     }
 
-private:
-    double thresholdDbfs_ { -70.0 };
-    double durationSeconds_ { 3.0 };
-    double silentSeconds_ {};
-    SilenceResetState state_ { SilenceResetState::active };
+  private:
+    double thresholdDbfs_{-70.0};
+    double durationSeconds_{3.0};
+    double silentSeconds_{};
+    SilenceResetState state_{SilenceResetState::active};
 };
 
 }

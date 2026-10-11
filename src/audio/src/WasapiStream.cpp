@@ -30,17 +30,20 @@
 #include <thread>
 #include <vector>
 
-namespace WinJACKNexus::Audio {
+namespace WinJACKNexus::Audio
+{
 
-namespace {
+namespace
+{
 
 using Microsoft::WRL::ComPtr;
 
-class ComScope final {
-public:
+class ComScope final
+{
+  public:
     ComScope() noexcept
-        : result_(CoInitializeEx(nullptr, COINIT_MULTITHREADED))
-        , ownsInitialization_(result_ == S_OK || result_ == S_FALSE)
+        : result_(CoInitializeEx(nullptr, COINIT_MULTITHREADED)),
+          ownsInitialization_(result_ == S_OK || result_ == S_FALSE)
     {
     }
 
@@ -60,55 +63,63 @@ public:
         return result_;
     }
 
-private:
+  private:
     HRESULT result_ = E_FAIL;
     bool ownsInitialization_ = false;
 };
 
-bool isFloatFormat(const WAVEFORMATEX* format) noexcept
+bool isFloatFormat(const WAVEFORMATEX *format) noexcept
 {
     if (format == nullptr)
         return false;
     if (format->wFormatTag == WAVE_FORMAT_IEEE_FLOAT)
         return true;
-    if (format->wFormatTag != WAVE_FORMAT_EXTENSIBLE || format->cbSize < sizeof(WAVEFORMATEXTENSIBLE) - sizeof(WAVEFORMATEX))
+    if (format->wFormatTag != WAVE_FORMAT_EXTENSIBLE ||
+        format->cbSize < sizeof(WAVEFORMATEXTENSIBLE) - sizeof(WAVEFORMATEX))
         return false;
-    const auto* extensible = reinterpret_cast<const WAVEFORMATEXTENSIBLE*>(format);
+    const auto *extensible = reinterpret_cast<const WAVEFORMATEXTENSIBLE *>(format);
     return IsEqualGUID(extensible->SubFormat, KSDATAFORMAT_SUBTYPE_IEEE_FLOAT) != FALSE;
 }
 
-bool isPcmFormat(const WAVEFORMATEX* format) noexcept
+bool isPcmFormat(const WAVEFORMATEX *format) noexcept
 {
     if (format == nullptr)
         return false;
     if (format->wFormatTag == WAVE_FORMAT_PCM)
         return true;
-    if (format->wFormatTag != WAVE_FORMAT_EXTENSIBLE || format->cbSize < sizeof(WAVEFORMATEXTENSIBLE) - sizeof(WAVEFORMATEX))
+    if (format->wFormatTag != WAVE_FORMAT_EXTENSIBLE ||
+        format->cbSize < sizeof(WAVEFORMATEXTENSIBLE) - sizeof(WAVEFORMATEX))
         return false;
-    const auto* extensible = reinterpret_cast<const WAVEFORMATEXTENSIBLE*>(format);
+    const auto *extensible = reinterpret_cast<const WAVEFORMATEXTENSIBLE *>(format);
     return IsEqualGUID(extensible->SubFormat, KSDATAFORMAT_SUBTYPE_PCM) != FALSE;
 }
 
-float sampleToFloat(const std::byte* sample, std::uint16_t bitsPerSample, bool floatingPoint) noexcept
+float sampleToFloat(const std::byte *sample, std::uint16_t bitsPerSample,
+                    bool floatingPoint) noexcept
 {
-    if (floatingPoint && bitsPerSample == 32) {
+    if (floatingPoint && bitsPerSample == 32)
+    {
         float value = 0.0f;
         std::memcpy(&value, sample, sizeof(value));
         return value;
     }
-    if (bitsPerSample == 16) {
+    if (bitsPerSample == 16)
+    {
         std::int16_t value = 0;
         std::memcpy(&value, sample, sizeof(value));
         return static_cast<float>(value) / 32768.0f;
     }
-    if (bitsPerSample == 24) {
-        const auto value = static_cast<std::int32_t>(static_cast<std::uint32_t>(sample[0])
-                                                     | (static_cast<std::uint32_t>(sample[1]) << 8)
-                                                     | (static_cast<std::uint32_t>(sample[2]) << 16));
-        const auto signedValue = (value & 0x00800000) != 0 ? value | static_cast<std::int32_t>(0xff000000) : value;
+    if (bitsPerSample == 24)
+    {
+        const auto value = static_cast<std::int32_t>(static_cast<std::uint32_t>(sample[0]) |
+                                                     (static_cast<std::uint32_t>(sample[1]) << 8) |
+                                                     (static_cast<std::uint32_t>(sample[2]) << 16));
+        const auto signedValue =
+            (value & 0x00800000) != 0 ? value | static_cast<std::int32_t>(0xff000000) : value;
         return static_cast<float>(signedValue) / 8388608.0f;
     }
-    if (bitsPerSample == 32) {
+    if (bitsPerSample == 32)
+    {
         std::int32_t value = 0;
         std::memcpy(&value, sample, sizeof(value));
         return static_cast<float>(value) / 2147483648.0f;
@@ -116,39 +127,43 @@ float sampleToFloat(const std::byte* sample, std::uint16_t bitsPerSample, bool f
     return 0.0f;
 }
 
-void floatToSample(float value,
-                  std::byte* sample,
-                  std::uint16_t bitsPerSample,
-                  bool floatingPoint) noexcept
+void floatToSample(float value, std::byte *sample, std::uint16_t bitsPerSample,
+                   bool floatingPoint) noexcept
 {
     value = std::clamp(value, -1.0f, 1.0f);
-    if (floatingPoint && bitsPerSample == 32) {
+    if (floatingPoint && bitsPerSample == 32)
+    {
         std::memcpy(sample, &value, sizeof(value));
         return;
     }
-    if (bitsPerSample == 16) {
+    if (bitsPerSample == 16)
+    {
         const auto converted = static_cast<std::int16_t>(std::lrint(value * 32767.0f));
         std::memcpy(sample, &converted, sizeof(converted));
         return;
     }
-    if (bitsPerSample == 24) {
+    if (bitsPerSample == 24)
+    {
         const auto converted = static_cast<std::int32_t>(std::lrint(value * 8388607.0f));
         sample[0] = static_cast<std::byte>(converted & 0xff);
         sample[1] = static_cast<std::byte>((converted >> 8) & 0xff);
         sample[2] = static_cast<std::byte>((converted >> 16) & 0xff);
         return;
     }
-    if (bitsPerSample == 32) {
-        const auto converted = static_cast<std::int32_t>(std::llrint(static_cast<double>(value) * 2147483647.0));
+    if (bitsPerSample == 32)
+    {
+        const auto converted =
+            static_cast<std::int32_t>(std::llrint(static_cast<double>(value) * 2147483647.0));
         std::memcpy(sample, &converted, sizeof(converted));
     }
 }
 
 }
 
-struct WasapiStream::Impl final {
+struct WasapiStream::Impl final
+{
     WasapiStreamDirection direction = WasapiStreamDirection::render;
-    WasapiStreamFormat streamFormat {};
+    WasapiStreamFormat streamFormat{};
     std::uint32_t bufferFrameCount = 0;
     std::uint16_t bytesPerFrame = 0;
     bool floatingPoint = false;
@@ -161,10 +176,10 @@ struct WasapiStream::Impl final {
     std::vector<float> scratch;
     WasapiRenderCallback renderCallback = nullptr;
     WasapiCaptureCallback captureCallback = nullptr;
-    void* callbackData = nullptr;
+    void *callbackData = nullptr;
     std::thread worker;
-    std::atomic<bool> running { false };
-    std::atomic<std::int32_t> error { 0 };
+    std::atomic<bool> running{false};
+    std::atomic<std::int32_t> error{0};
     bool comOwned = false;
     bool started = false;
 
@@ -175,11 +190,13 @@ struct WasapiStream::Impl final {
 
     void closeHandles() noexcept
     {
-        if (audioEvent != nullptr) {
+        if (audioEvent != nullptr)
+        {
             CloseHandle(audioEvent);
             audioEvent = nullptr;
         }
-        if (stopEvent != nullptr) {
+        if (stopEvent != nullptr)
+        {
             CloseHandle(stopEvent);
             stopEvent = nullptr;
         }
@@ -191,16 +208,18 @@ struct WasapiStream::Impl final {
         renderClient.Reset();
         audioClient.Reset();
         device.Reset();
-        if (comOwned) {
+        if (comOwned)
+        {
             CoUninitialize();
             comOwned = false;
         }
     }
 };
 
-namespace {
+namespace
+{
 
-void processRender(WasapiStream::Impl& impl) noexcept
+void processRender(WasapiStream::Impl &impl) noexcept
 {
     if (impl.audioClient == nullptr || impl.renderClient == nullptr)
         return;
@@ -211,22 +230,26 @@ void processRender(WasapiStream::Impl& impl) noexcept
     if (available == 0)
         return;
 
-    BYTE* nativeBuffer = nullptr;
+    BYTE *nativeBuffer = nullptr;
     const auto result = impl.renderClient->GetBuffer(available, &nativeBuffer);
-    if (FAILED(result)) {
+    if (FAILED(result))
+    {
         impl.setError(result);
         return;
     }
 
     const auto sampleCount = static_cast<std::size_t>(available) * impl.streamFormat.channels;
-    if (impl.renderCallback != nullptr) {
+    if (impl.renderCallback != nullptr)
+    {
         impl.renderCallback(impl.scratch.data(), available, impl.callbackData);
         for (std::size_t index = 0; index < sampleCount; ++index)
             floatToSample(impl.scratch[index],
-                          reinterpret_cast<std::byte*>(nativeBuffer) + index * (impl.bytesPerFrame / impl.streamFormat.channels),
-                          impl.streamFormat.bitsPerSample,
-                          impl.floatingPoint);
-    } else {
+                          reinterpret_cast<std::byte *>(nativeBuffer) +
+                              index * (impl.bytesPerFrame / impl.streamFormat.channels),
+                          impl.streamFormat.bitsPerSample, impl.floatingPoint);
+    }
+    else
+    {
         std::memset(nativeBuffer, 0, static_cast<std::size_t>(available) * impl.bytesPerFrame);
     }
     const auto releaseResult = impl.renderClient->ReleaseBuffer(available, 0);
@@ -234,61 +257,67 @@ void processRender(WasapiStream::Impl& impl) noexcept
         impl.setError(releaseResult);
 }
 
-void processCapture(WasapiStream::Impl& impl) noexcept
+void processCapture(WasapiStream::Impl &impl) noexcept
 {
     if (impl.captureClient == nullptr)
         return;
     UINT32 packetFrames = 0;
-    while (SUCCEEDED(impl.captureClient->GetNextPacketSize(&packetFrames)) && packetFrames != 0) {
-        BYTE* nativeBuffer = nullptr;
+    while (SUCCEEDED(impl.captureClient->GetNextPacketSize(&packetFrames)) && packetFrames != 0)
+    {
+        BYTE *nativeBuffer = nullptr;
         DWORD flags = 0;
         UINT64 devicePosition = 0;
         UINT64 performanceCounter = 0;
-        const auto result = impl.captureClient->GetBuffer(&nativeBuffer,
-                                                          &packetFrames,
-                                                          &flags,
-                                                          &devicePosition,
-                                                          &performanceCounter);
-        if (FAILED(result)) {
+        const auto result = impl.captureClient->GetBuffer(&nativeBuffer, &packetFrames, &flags,
+                                                          &devicePosition, &performanceCounter);
+        if (FAILED(result))
+        {
             impl.setError(result);
             return;
         }
 
-        const auto sampleCount = static_cast<std::size_t>(packetFrames) * impl.streamFormat.channels;
-        if ((flags & AUDCLNT_BUFFERFLAGS_SILENT) != 0 || nativeBuffer == nullptr) {
+        const auto sampleCount =
+            static_cast<std::size_t>(packetFrames) * impl.streamFormat.channels;
+        if ((flags & AUDCLNT_BUFFERFLAGS_SILENT) != 0 || nativeBuffer == nullptr)
+        {
             std::fill_n(impl.scratch.data(), sampleCount, 0.0f);
-        } else {
+        }
+        else
+        {
             for (std::size_t index = 0; index < sampleCount; ++index)
-                impl.scratch[index] = sampleToFloat(reinterpret_cast<const std::byte*>(nativeBuffer)
-                                                        + index * (impl.bytesPerFrame / impl.streamFormat.channels),
-                                                    impl.streamFormat.bitsPerSample,
-                                                    impl.floatingPoint);
+                impl.scratch[index] =
+                    sampleToFloat(reinterpret_cast<const std::byte *>(nativeBuffer) +
+                                      index * (impl.bytesPerFrame / impl.streamFormat.channels),
+                                  impl.streamFormat.bitsPerSample, impl.floatingPoint);
         }
         if (impl.captureCallback != nullptr)
             impl.captureCallback(impl.scratch.data(), packetFrames, impl.callbackData);
 
         const auto releaseResult = impl.captureClient->ReleaseBuffer(packetFrames);
-        if (FAILED(releaseResult)) {
+        if (FAILED(releaseResult))
+        {
             impl.setError(releaseResult);
             return;
         }
     }
 }
 
-void runStream(WasapiStream::Impl* impl) noexcept
+void runStream(WasapiStream::Impl *impl) noexcept
 {
     if (impl == nullptr)
         return;
     HRESULT comResult = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
     const bool ownsCom = comResult == S_OK || comResult == S_FALSE;
     DWORD taskIndex = 0;
-    auto* avrtTask = AvSetMmThreadCharacteristicsW(L"Pro Audio", &taskIndex);
-    HANDLE handles[] = { impl->stopEvent, impl->audioEvent };
-    while (impl->running.load(std::memory_order_acquire)) {
+    auto *avrtTask = AvSetMmThreadCharacteristicsW(L"Pro Audio", &taskIndex);
+    HANDLE handles[] = {impl->stopEvent, impl->audioEvent};
+    while (impl->running.load(std::memory_order_acquire))
+    {
         const auto waitResult = WaitForMultipleObjects(2, handles, FALSE, INFINITE);
         if (waitResult == WAIT_OBJECT_0)
             break;
-        if (waitResult != WAIT_OBJECT_0 + 1) {
+        if (waitResult != WAIT_OBJECT_0 + 1)
+        {
             impl->setError(HRESULT_FROM_WIN32(GetLastError()));
             break;
         }
@@ -306,10 +335,7 @@ void runStream(WasapiStream::Impl* impl) noexcept
 
 }
 
-WasapiStream::WasapiStream() noexcept
-    : impl_(new (std::nothrow) Impl {})
-{
-}
+WasapiStream::WasapiStream() noexcept : impl_(new (std::nothrow) Impl{}) {}
 
 WasapiStream::~WasapiStream() noexcept
 {
@@ -317,13 +343,12 @@ WasapiStream::~WasapiStream() noexcept
     delete impl_;
 }
 
-WasapiStream::WasapiStream(WasapiStream&& other) noexcept
-    : impl_(other.impl_)
+WasapiStream::WasapiStream(WasapiStream &&other) noexcept : impl_(other.impl_)
 {
     other.impl_ = nullptr;
 }
 
-WasapiStream& WasapiStream::operator=(WasapiStream&& other) noexcept
+WasapiStream &WasapiStream::operator=(WasapiStream &&other) noexcept
 {
     if (this == &other)
         return *this;
@@ -335,31 +360,32 @@ WasapiStream& WasapiStream::operator=(WasapiStream&& other) noexcept
 }
 
 bool WasapiStream::open(WasapiStreamDirection direction,
-                        const WasapiStreamOptions& options) noexcept
+                        const WasapiStreamOptions &options) noexcept
 {
     if (impl_ == nullptr)
-        impl_ = new (std::nothrow) Impl {};
+        impl_ = new (std::nothrow) Impl{};
     if (impl_ == nullptr)
         return false;
     close();
     impl_->error.store(0, std::memory_order_release);
     impl_->direction = direction;
 
-    try {
+    try
+    {
         const auto comResult = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
         if (comResult == S_OK || comResult == S_FALSE)
             impl_->comOwned = true;
-        else if (comResult != RPC_E_CHANGED_MODE) {
+        else if (comResult != RPC_E_CHANGED_MODE)
+        {
             impl_->setError(comResult);
             return false;
         }
 
         ComPtr<IMMDeviceEnumerator> enumerator;
-        auto result = CoCreateInstance(__uuidof(MMDeviceEnumerator),
-                                       nullptr,
-                                       CLSCTX_ALL,
+        auto result = CoCreateInstance(__uuidof(MMDeviceEnumerator), nullptr, CLSCTX_ALL,
                                        IID_PPV_ARGS(&enumerator));
-        if (FAILED(result)) {
+        if (FAILED(result))
+        {
             impl_->setError(result);
             impl_->releaseCom();
             return false;
@@ -368,25 +394,29 @@ bool WasapiStream::open(WasapiStreamDirection direction,
         if (options.deviceId != nullptr && *options.deviceId != L'\0')
             result = enumerator->GetDevice(options.deviceId, &impl_->device);
         else
-            result = enumerator->GetDefaultAudioEndpoint(direction == WasapiStreamDirection::capture ? eCapture : eRender,
-                                                         eConsole,
-                                                         &impl_->device);
-        if (FAILED(result)) {
+            result = enumerator->GetDefaultAudioEndpoint(
+                direction == WasapiStreamDirection::capture ? eCapture : eRender, eConsole,
+                &impl_->device);
+        if (FAILED(result))
+        {
             impl_->setError(result);
             impl_->releaseCom();
             return false;
         }
 
-        result = impl_->device->Activate(__uuidof(IAudioClient), CLSCTX_ALL, nullptr, &impl_->audioClient);
-        if (FAILED(result)) {
+        result = impl_->device->Activate(__uuidof(IAudioClient), CLSCTX_ALL, nullptr,
+                                         &impl_->audioClient);
+        if (FAILED(result))
+        {
             impl_->setError(result);
             impl_->releaseCom();
             return false;
         }
 
-        WAVEFORMATEX* mixFormat = nullptr;
+        WAVEFORMATEX *mixFormat = nullptr;
         result = impl_->audioClient->GetMixFormat(&mixFormat);
-        if (FAILED(result) || mixFormat == nullptr) {
+        if (FAILED(result) || mixFormat == nullptr)
+        {
             impl_->setError(FAILED(result) ? result : E_FAIL);
             if (mixFormat != nullptr)
                 CoTaskMemFree(mixFormat);
@@ -401,41 +431,42 @@ bool WasapiStream::open(WasapiStreamDirection direction,
         impl_->streamFormat.bitsPerSample = mixFormat->wBitsPerSample;
         impl_->streamFormat.floatingPoint = impl_->floatingPoint;
         impl_->bytesPerFrame = mixFormat->nBlockAlign;
-        if (!pcm && !impl_->floatingPoint) {
+        if (!pcm && !impl_->floatingPoint)
+        {
             CoTaskMemFree(mixFormat);
             impl_->setError(E_NOTIMPL);
             impl_->releaseCom();
             return false;
         }
-        result = impl_->audioClient->Initialize(AUDCLNT_SHAREMODE_SHARED,
-                                                 AUDCLNT_STREAMFLAGS_EVENTCALLBACK,
-                                                 0,
-                                                 0,
-                                                 mixFormat,
-                                                 nullptr);
+        result = impl_->audioClient->Initialize(
+            AUDCLNT_SHAREMODE_SHARED, AUDCLNT_STREAMFLAGS_EVENTCALLBACK, 0, 0, mixFormat, nullptr);
         CoTaskMemFree(mixFormat);
-        if (FAILED(result)) {
+        if (FAILED(result))
+        {
             impl_->setError(result);
             impl_->releaseCom();
             return false;
         }
 
         result = impl_->audioClient->GetBufferSize(&impl_->bufferFrameCount);
-        if (FAILED(result)) {
+        if (FAILED(result))
+        {
             impl_->setError(result);
             impl_->releaseCom();
             return false;
         }
         impl_->audioEvent = CreateEventW(nullptr, FALSE, FALSE, nullptr);
         impl_->stopEvent = CreateEventW(nullptr, TRUE, FALSE, nullptr);
-        if (impl_->audioEvent == nullptr || impl_->stopEvent == nullptr) {
+        if (impl_->audioEvent == nullptr || impl_->stopEvent == nullptr)
+        {
             impl_->setError(HRESULT_FROM_WIN32(GetLastError()));
             impl_->closeHandles();
             impl_->releaseCom();
             return false;
         }
         result = impl_->audioClient->SetEventHandle(impl_->audioEvent);
-        if (FAILED(result)) {
+        if (FAILED(result))
+        {
             impl_->setError(result);
             impl_->closeHandles();
             impl_->releaseCom();
@@ -445,15 +476,19 @@ bool WasapiStream::open(WasapiStreamDirection direction,
             result = impl_->audioClient->GetService(IID_PPV_ARGS(&impl_->renderClient));
         else
             result = impl_->audioClient->GetService(IID_PPV_ARGS(&impl_->captureClient));
-        if (FAILED(result)) {
+        if (FAILED(result))
+        {
             impl_->setError(result);
             impl_->closeHandles();
             impl_->releaseCom();
             return false;
         }
-        impl_->scratch.resize(static_cast<std::size_t>(impl_->bufferFrameCount) * impl_->streamFormat.channels);
+        impl_->scratch.resize(static_cast<std::size_t>(impl_->bufferFrameCount) *
+                              impl_->streamFormat.channels);
         return true;
-    } catch (...) {
+    }
+    catch (...)
+    {
         impl_->setError(E_OUTOFMEMORY);
         impl_->closeHandles();
         impl_->releaseCom();
@@ -461,23 +496,28 @@ bool WasapiStream::open(WasapiStreamDirection direction,
     }
 }
 
-bool WasapiStream::start(WasapiRenderCallback callback, void* userData) noexcept
+bool WasapiStream::start(WasapiRenderCallback callback, void *userData) noexcept
 {
-    if (impl_ == nullptr || !isOpen() || impl_->direction != WasapiStreamDirection::render || isRunning())
+    if (impl_ == nullptr || !isOpen() || impl_->direction != WasapiStreamDirection::render ||
+        isRunning())
         return false;
     impl_->renderCallback = callback;
     impl_->callbackData = userData;
     ResetEvent(impl_->stopEvent);
     const auto result = impl_->audioClient->Start();
-    if (FAILED(result)) {
+    if (FAILED(result))
+    {
         impl_->setError(result);
         return false;
     }
     impl_->started = true;
     impl_->running.store(true, std::memory_order_release);
-    try {
+    try
+    {
         impl_->worker = std::thread(runStream, impl_);
-    } catch (...) {
+    }
+    catch (...)
+    {
         impl_->running.store(false, std::memory_order_release);
         impl_->audioClient->Stop();
         impl_->started = false;
@@ -487,23 +527,28 @@ bool WasapiStream::start(WasapiRenderCallback callback, void* userData) noexcept
     return true;
 }
 
-bool WasapiStream::start(WasapiCaptureCallback callback, void* userData) noexcept
+bool WasapiStream::start(WasapiCaptureCallback callback, void *userData) noexcept
 {
-    if (impl_ == nullptr || !isOpen() || impl_->direction != WasapiStreamDirection::capture || isRunning())
+    if (impl_ == nullptr || !isOpen() || impl_->direction != WasapiStreamDirection::capture ||
+        isRunning())
         return false;
     impl_->captureCallback = callback;
     impl_->callbackData = userData;
     ResetEvent(impl_->stopEvent);
     const auto result = impl_->audioClient->Start();
-    if (FAILED(result)) {
+    if (FAILED(result))
+    {
         impl_->setError(result);
         return false;
     }
     impl_->started = true;
     impl_->running.store(true, std::memory_order_release);
-    try {
+    try
+    {
         impl_->worker = std::thread(runStream, impl_);
-    } catch (...) {
+    }
+    catch (...)
+    {
         impl_->running.store(false, std::memory_order_release);
         impl_->audioClient->Stop();
         impl_->started = false;
@@ -521,7 +566,8 @@ bool WasapiStream::stop() noexcept
         SetEvent(impl_->stopEvent);
     if (impl_->worker.joinable())
         impl_->worker.join();
-    if (impl_->started && impl_->audioClient != nullptr) {
+    if (impl_->started && impl_->audioClient != nullptr)
+    {
         const auto result = impl_->audioClient->Stop();
         if (FAILED(result))
             impl_->setError(result);
@@ -563,7 +609,7 @@ WasapiStreamDirection WasapiStream::direction() const noexcept
 
 WasapiStreamFormat WasapiStream::format() const noexcept
 {
-    return impl_ != nullptr ? impl_->streamFormat : WasapiStreamFormat {};
+    return impl_ != nullptr ? impl_->streamFormat : WasapiStreamFormat{};
 }
 
 std::uint32_t WasapiStream::bufferFrames() const noexcept
@@ -573,7 +619,8 @@ std::uint32_t WasapiStream::bufferFrames() const noexcept
 
 std::int32_t WasapiStream::lastError() const noexcept
 {
-    return impl_ != nullptr ? impl_->error.load(std::memory_order_acquire) : static_cast<std::int32_t>(E_FAIL);
+    return impl_ != nullptr ? impl_->error.load(std::memory_order_acquire)
+                            : static_cast<std::int32_t>(E_FAIL);
 }
 
 }

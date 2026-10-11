@@ -22,21 +22,18 @@
 #include <QJsonDocument>
 #include <QJsonParseError>
 
-namespace {
+namespace
+{
 
-WinJACKNexus::Meter::Mod::MeterbridgeService* activeService = nullptr;
+WinJACKNexus::Meter::Mod::MeterbridgeService *activeService = nullptr;
 
-class MeterbridgeNode final : public WinJACKNexus::Node::INode {
-public:
+class MeterbridgeNode final : public WinJACKNexus::Node::INode
+{
+  public:
     WinJACKNexus::Node::NodeInfo info() const noexcept override
     {
-        return {
-            "Meterbridge",
-            "Meter",
-            "0.1.0",
-            "WinJACKNexus",
-            "Top-level Meterbridge window module."
-        };
+        return {"Meterbridge", "Meter", "0.1.0", "WinJACKNexus",
+                "Top-level Meterbridge window module."};
     }
 
     bool init() noexcept override
@@ -57,8 +54,9 @@ public:
 
     HWND createWindow(HWND) noexcept override
     {
-        auto* window = initialized_ ? service_.showWindow() : nullptr;
-        return window == nullptr ? nullptr : reinterpret_cast<HWND>(static_cast<quintptr>(window->winId()));
+        auto *window = initialized_ ? service_.showWindow() : nullptr;
+        return window == nullptr ? nullptr
+                                 : reinterpret_cast<HWND>(static_cast<quintptr>(window->winId()));
     }
 
     void destroyWindow(HWND) noexcept override
@@ -66,14 +64,14 @@ public:
         service_.destroyWindow();
     }
 
-private:
+  private:
     bool initialized_ = false;
     WinJACKNexus::Meter::Mod::MeterbridgeService service_;
 };
 
 }
 
-const char* wjn_get_node_api_version(void)
+const char *wjn_get_node_api_version(void)
 {
     return "2";
 }
@@ -83,7 +81,7 @@ std::uint32_t wjn_get_node_theme_api_version(void)
     return WJN_NODE_THEME_API_VERSION;
 }
 
-const char* wjn_get_node_theme_namespace_json(std::uint32_t index)
+const char *wjn_get_node_theme_namespace_json(std::uint32_t index)
 {
     static constexpr char descriptor[] = R"json({
         "descriptorVersion":1,"themeApiVersion":1,
@@ -105,50 +103,46 @@ std::uint32_t wjn_get_node_count(void)
     return 1;
 }
 
-const char* wjn_get_node_name(std::uint32_t index)
+const char *wjn_get_node_name(std::uint32_t index)
 {
     return index == 0 ? "Meterbridge" : "";
 }
 
-const char* wjn_get_node_category(std::uint32_t index)
+const char *wjn_get_node_category(std::uint32_t index)
 {
     return index == 0 ? "Meter" : "";
 }
 
-WinJACKNexus::Node::INode* wjn_create_node(std::uint32_t index)
+WinJACKNexus::Node::INode *wjn_create_node(std::uint32_t index)
 {
     return index == 0 ? new MeterbridgeNode : nullptr;
 }
 
-void wjn_destroy_node(WinJACKNexus::Node::INode* node)
+void wjn_destroy_node(WinJACKNexus::Node::INode *node)
 {
     delete node;
 }
 
-void* wjn_create_settings_view(WinJACKNexus::Node::INode*, void*)
+void *wjn_create_settings_view(WinJACKNexus::Node::INode *, void *)
 {
     return nullptr;
 }
 
-void wjn_destroy_settings_view(WinJACKNexus::Node::INode*, void*)
-{
-}
+void wjn_destroy_settings_view(WinJACKNexus::Node::INode *, void *) {}
 
-QWidget* wjn_create_settings_widget(WinJACKNexus::Node::INode*, QWidget*)
+QWidget *wjn_create_settings_widget(WinJACKNexus::Node::INode *, QWidget *)
 {
     return nullptr;
 }
 
-void wjn_destroy_settings_widget(WinJACKNexus::Node::INode*, QWidget*)
-{
-}
+void wjn_destroy_settings_widget(WinJACKNexus::Node::INode *, QWidget *) {}
 
-const char* wjn_get_node_settings_json(WinJACKNexus::Node::INode*)
+const char *wjn_get_node_settings_json(WinJACKNexus::Node::INode *)
 {
     return "";
 }
 
-int wjn_set_node_settings_json(WinJACKNexus::Node::INode*, const char*)
+int wjn_set_node_settings_json(WinJACKNexus::Node::INode *, const char *)
 {
     return 0;
 }
@@ -159,18 +153,20 @@ extern "C" WINJACK_NODE_API void wjn_meterbridge_reload_global_settings()
         activeService->reloadGlobalSettings();
 }
 
-extern "C" WINJACK_NODE_API int wjn_meterbridge_show_for_instance(const char* instanceId)
+extern "C" WINJACK_NODE_API int wjn_meterbridge_show_for_instance(const char *instanceId)
 {
     if (activeService == nullptr)
         return 0;
-    const auto* window = activeService->showWindow(instanceId == nullptr ? QString() : QString::fromUtf8(instanceId));
+    const auto *window = activeService->showWindow(
+        instanceId == nullptr ? QString() : QString::fromUtf8(instanceId));
     return window == nullptr ? 0 : 1;
 }
 
-extern "C" WINJACK_NODE_API const char* wjn_meterbridge_project_state_json()
+extern "C" WINJACK_NODE_API const char *wjn_meterbridge_project_state_json()
 {
     static QByteArray serializedState;
-    if (activeService == nullptr) {
+    if (activeService == nullptr)
+    {
         serializedState = "{}";
         return serializedState.constData();
     }
@@ -178,12 +174,14 @@ extern "C" WINJACK_NODE_API const char* wjn_meterbridge_project_state_json()
     return serializedState.constData();
 }
 
-extern "C" WINJACK_NODE_API int wjn_meterbridge_restore_project_state_json(const char* json)
+extern "C" WINJACK_NODE_API int wjn_meterbridge_restore_project_state_json(const char *json)
 {
     if (activeService == nullptr || json == nullptr)
         return 0;
     QJsonParseError error;
     const auto document = QJsonDocument::fromJson(QByteArray(json), &error);
-    return error.error == QJsonParseError::NoError && document.isObject()
-        && activeService->restoreProjectState(document.object()) ? 1 : 0;
+    return error.error == QJsonParseError::NoError && document.isObject() &&
+                   activeService->restoreProjectState(document.object())
+               ? 1
+               : 0;
 }

@@ -26,55 +26,50 @@
 #include <unordered_map>
 #include <vector>
 
-namespace WinJACKNexus::Meter {
+namespace WinJACKNexus::Meter
+{
 
 class MeterCsvWriter;
 
-class LiveMeterDataProvider final : public MeterViewDataProvider {
-public:
+class LiveMeterDataProvider final : public MeterViewDataProvider
+{
+  public:
     LiveMeterDataProvider();
     ~LiveMeterDataProvider() override;
 
     std::vector<MeterViewSnapshot> snapshots() const override;
     std::vector<MeterViewSnapshot> snapshots(bool includeHistory) const override;
-    bool dispatch(const MeterViewCommand& command) override;
+    bool dispatch(const MeterViewCommand &command) override;
     void reloadGlobalSettings();
     QJsonArray projectMeters() const;
-    void restoreProjectMeters(const QJsonArray& meters);
+    void restoreProjectMeters(const QJsonArray &meters);
 
-private:
-    struct ProbeViewState final {
-        MeterHistoryViewSettings historyView {
+  private:
+    struct ProbeViewState final
+    {
+        MeterHistoryViewSettings historyView{
             MeterHistoryViewMode::realtimeScroll,
             defaultMeterHistoryWindowMilliseconds,
             false,
-            {
-                QStringLiteral("peak"),
-                QStringLiteral("rms"),
-                QStringLiteral("lfe"),
-                QStringLiteral("true-peak"),
-                QStringLiteral("momentary"),
-                QStringLiteral("short-term"),
-                QStringLiteral("integrated"),
-                QStringLiteral("lra")
-            }
-        };
+            {QStringLiteral("peak"), QStringLiteral("rms"), QStringLiteral("lfe"),
+             QStringLiteral("true-peak"), QStringLiteral("momentary"), QStringLiteral("short-term"),
+             QStringLiteral("integrated"), QStringLiteral("lra")}};
         std::vector<MeterHistoryPoint> history;
         QString presetId = QStringLiteral("ebu-r128");
         QString preservedUnknownPresetId;
-        std::uint64_t firstProcessedFrames {};
-        std::uint64_t lastProcessedFrames {};
-        std::uint64_t lastHistoryProcessedFrames {};
-        bool hasFrame {};
-        bool recordingEnabled {};
-        bool configurationInitialized {};
-        std::uint64_t observedLoudnessResetGeneration {};
+        std::uint64_t firstProcessedFrames{};
+        std::uint64_t lastProcessedFrames{};
+        std::uint64_t lastHistoryProcessedFrames{};
+        bool hasFrame{};
+        bool recordingEnabled{};
+        bool configurationInitialized{};
+        std::uint64_t observedLoudnessResetGeneration{};
     };
 
-    ProbeViewState& stateFor(const std::string& instanceId) const;
+    ProbeViewState &stateFor(const std::string &instanceId) const;
     static MeterGlobalSettingsView loadGlobalSettings();
-    static void saveGlobalSettings(const MeterGlobalSettingsView& settings);
-    bool dispatchGlobalSetting(const MeterViewCommand& command);
+    static void saveGlobalSettings(const MeterGlobalSettingsView &settings);
+    bool dispatchGlobalSetting(const MeterViewCommand &command);
 
     mutable std::mutex mutex_;
     mutable std::unordered_map<std::string, ProbeViewState> probeStates_;

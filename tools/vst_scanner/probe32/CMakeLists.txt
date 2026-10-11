@@ -21,7 +21,8 @@ set(WJN_OUTPUT_DIR
     "${CMAKE_CURRENT_LIST_DIR}/../../../build/release/bin"
     CACHE PATH "Probe output directory")
 
-add_executable(vst_scanner_probe32
+add_executable(
+    vst_scanner_probe32
     "${CMAKE_CURRENT_LIST_DIR}/../src/ProbeMain.cpp"
     "${WJN_VST3SDK_ROOT}/pluginterfaces/base/funknown.cpp"
     "${WJN_VST3SDK_ROOT}/pluginterfaces/base/coreiids.cpp"
@@ -31,54 +32,37 @@ add_executable(vst_scanner_probe32
     "${WJN_VST3SDK_ROOT}/public.sdk/source/vst/hosting/pluginterfacesupport.cpp"
     "${WJN_VST3SDK_ROOT}/public.sdk/source/vst/utility/stringconvert.cpp"
     "${WJN_VST3SDK_ROOT}/public.sdk/source/vst/vstinitiids.cpp"
-    "${WJN_VST3SDK_ROOT}/public.sdk/source/common/commonstringconvert.cpp"
-)
+    "${WJN_VST3SDK_ROOT}/public.sdk/source/common/commonstringconvert.cpp")
 
-target_include_directories(vst_scanner_probe32
-    PRIVATE
-        "${WJN_VST3SDK_ROOT}"
-        "${WJN_VST2SDK_ROOT}"
-)
+target_include_directories(vst_scanner_probe32 PRIVATE "${WJN_VST3SDK_ROOT}" "${WJN_VST2SDK_ROOT}")
 target_compile_features(vst_scanner_probe32 PRIVATE cxx_std_17)
-target_compile_definitions(vst_scanner_probe32
-    PRIVATE
-        WIN32_LEAN_AND_MEAN
-        NOMINMAX
-        WJN_ENABLE_VST2=1
-)
+target_compile_definitions(vst_scanner_probe32 PRIVATE WIN32_LEAN_AND_MEAN NOMINMAX
+                                                       WJN_ENABLE_VST2=1)
 target_compile_options(vst_scanner_probe32 PRIVATE $<$<CXX_COMPILER_ID:MSVC>:/utf-8>)
 target_link_libraries(vst_scanner_probe32 PRIVATE Shell32)
 
 set_target_properties(
     vst_scanner_probe32
-    PROPERTIES
-        CXX_STANDARD 17
-        CXX_STANDARD_REQUIRED YES
-        OUTPUT_NAME "Vst Scanner Probe32"
-        RUNTIME_OUTPUT_DIRECTORY "${WJN_OUTPUT_DIR}"
-        RUNTIME_OUTPUT_DIRECTORY_DEBUG "${WJN_OUTPUT_DIR}"
-        RUNTIME_OUTPUT_DIRECTORY_RELEASE "${WJN_OUTPUT_DIR}"
-        RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO "${WJN_OUTPUT_DIR}"
-        RUNTIME_OUTPUT_DIRECTORY_MINSIZEREL "${WJN_OUTPUT_DIR}"
-)
+    PROPERTIES CXX_STANDARD 17
+               CXX_STANDARD_REQUIRED YES
+               OUTPUT_NAME "Vst Scanner Probe32"
+               RUNTIME_OUTPUT_DIRECTORY "${WJN_OUTPUT_DIR}"
+               RUNTIME_OUTPUT_DIRECTORY_DEBUG "${WJN_OUTPUT_DIR}"
+               RUNTIME_OUTPUT_DIRECTORY_RELEASE "${WJN_OUTPUT_DIR}"
+               RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO "${WJN_OUTPUT_DIR}"
+               RUNTIME_OUTPUT_DIRECTORY_MINSIZEREL "${WJN_OUTPUT_DIR}")
 
 if(EXISTS "${CMAKE_CURRENT_LIST_DIR}/../../../tests/vst_scanner/Vst2ShellFixture.cpp")
-add_library(wjn_vst_scanner_vst2_shell_fixture32 SHARED
-    "${CMAKE_CURRENT_LIST_DIR}/../../../tests/vst_scanner/Vst2ShellFixture.cpp"
-)
-target_include_directories(wjn_vst_scanner_vst2_shell_fixture32
-    PRIVATE
-        "${WJN_VST2SDK_ROOT}"
-)
-target_compile_features(wjn_vst_scanner_vst2_shell_fixture32 PRIVATE cxx_std_20)
-set_target_properties(
-    wjn_vst_scanner_vst2_shell_fixture32
-    PROPERTIES
-        OUTPUT_NAME "Vst2 Shell Fixture32"
-        RUNTIME_OUTPUT_DIRECTORY "${WJN_OUTPUT_DIR}"
-        RUNTIME_OUTPUT_DIRECTORY_DEBUG "${WJN_OUTPUT_DIR}"
-        RUNTIME_OUTPUT_DIRECTORY_RELEASE "${WJN_OUTPUT_DIR}"
-        RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO "${WJN_OUTPUT_DIR}"
-        RUNTIME_OUTPUT_DIRECTORY_MINSIZEREL "${WJN_OUTPUT_DIR}"
-)
+    add_library(wjn_vst_scanner_vst2_shell_fixture32 SHARED
+                "${CMAKE_CURRENT_LIST_DIR}/../../../tests/vst_scanner/Vst2ShellFixture.cpp")
+    target_include_directories(wjn_vst_scanner_vst2_shell_fixture32 PRIVATE "${WJN_VST2SDK_ROOT}")
+    target_compile_features(wjn_vst_scanner_vst2_shell_fixture32 PRIVATE cxx_std_20)
+    set_target_properties(
+        wjn_vst_scanner_vst2_shell_fixture32
+        PROPERTIES OUTPUT_NAME "Vst2 Shell Fixture32"
+                   RUNTIME_OUTPUT_DIRECTORY "${WJN_OUTPUT_DIR}"
+                   RUNTIME_OUTPUT_DIRECTORY_DEBUG "${WJN_OUTPUT_DIR}"
+                   RUNTIME_OUTPUT_DIRECTORY_RELEASE "${WJN_OUTPUT_DIR}"
+                   RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO "${WJN_OUTPUT_DIR}"
+                   RUNTIME_OUTPUT_DIRECTORY_MINSIZEREL "${WJN_OUTPUT_DIR}")
 endif()

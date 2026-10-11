@@ -5,19 +5,22 @@
 #include <cstddef>
 #include <cstdint>
 
-namespace WinJACKNexus::Common {
+namespace WinJACKNexus::Common
+{
 
 // Kept as a pair in the SPSC queue so input and processed spectra always use
 // samples from the same audio frames.
-struct DeEsserSpectrumSample final {
+struct DeEsserSpectrumSample final
+{
     float input = 0.0F;
     float processed = 0.0F;
 };
 
-struct DeEsserLiveSpectrumFrame final {
-    std::array<std::array<DeEsserSpectrumSample, 512>, 8> samples {};
-    std::array<std::size_t, 8> counts {};
-    std::uint32_t sampleRate { 48000 };
+struct DeEsserLiveSpectrumFrame final
+{
+    std::array<std::array<DeEsserSpectrumSample, 512>, 8> samples{};
+    std::array<std::size_t, 8> counts{};
+    std::uint32_t sampleRate{48000};
 };
 
 }

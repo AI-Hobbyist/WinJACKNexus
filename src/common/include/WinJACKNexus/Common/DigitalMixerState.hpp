@@ -12,121 +12,178 @@
 #include <cstdint>
 #include <vector>
 
-namespace WinJACKNexus::Common {
+namespace WinJACKNexus::Common
+{
 inline constexpr double mixerUnityFaderPosition = .95 * 12.0 / 84.0;
 
-enum class MixerLayout : int { mono = 1, stereo = 2, surround51 = 6, surround71 = 8 };
-enum class MixerStripKind : int { input = 0, aux = 1, main = 2, subMix = 3 };
-enum class MixerPanMode : int { spatial = 0, classic = 1 };
-enum class MixerPortDirection : int { input = 0, output = 1 };
-
-struct WINJACK_COMMON_API MixerSourcePoint final {
-    double x {};
-    double y {};
-    double influenceRadius { .1 };
-    double levelDb {};
-    bool mute {};
-    bool solo {};
+enum class MixerLayout : int
+{
+    mono = 1,
+    stereo = 2,
+    surround51 = 6,
+    surround71 = 8
+};
+enum class MixerStripKind : int
+{
+    input = 0,
+    aux = 1,
+    main = 2,
+    subMix = 3
+};
+enum class MixerPanMode : int
+{
+    spatial = 0,
+    classic = 1
+};
+enum class MixerPortDirection : int
+{
+    input = 0,
+    output = 1
 };
 
-struct WINJACK_COMMON_API MixerPanner final {
-    MixerPanMode mode { MixerPanMode::classic };
-    double classicPan {};
-    double width { 1.0 };
-    double angleDegrees {};
-    bool linked {};
-    bool showPolarCurves { true };
-    bool showInputCurve { true };
-    bool showOutputCurve { true };
+struct WINJACK_COMMON_API MixerSourcePoint final
+{
+    double x{};
+    double y{};
+    double influenceRadius{.1};
+    double levelDb{};
+    bool mute{};
+    bool solo{};
+};
+
+struct WINJACK_COMMON_API MixerPanner final
+{
+    MixerPanMode mode{MixerPanMode::classic};
+    double classicPan{};
+    double width{1.0};
+    double angleDegrees{};
+    bool linked{};
+    bool showPolarCurves{true};
+    bool showInputCurve{true};
+    bool showOutputCurve{true};
     std::vector<MixerSourcePoint> points;
 };
 
-struct WINJACK_COMMON_API MixerAuxSend final {
-    std::uint64_t targetId {};
-    bool enabled {};
-    bool preFader { true };
+struct WINJACK_COMMON_API MixerAuxSend final
+{
+    std::uint64_t targetId{};
+    bool enabled{};
+    bool preFader{true};
     MixerPanner panner;
 };
 
-struct WINJACK_COMMON_API MixerEffectState final {
+struct WINJACK_COMMON_API MixerEffectState final
+{
     QString moduleId;
-    bool enabled { true };
-    int preset { -1 };
+    bool enabled{true};
+    int preset{-1};
     // Module-owned per-channel parameters are saved verbatim for M5's bridge.
     QJsonObject parameters;
 };
 
-enum class MixerListenMode : int { off, pfl, afl };
+enum class MixerListenMode : int
+{
+    off,
+    pfl,
+    afl
+};
 
-struct WINJACK_COMMON_API MixerStripState final {
-    std::uint64_t id {};
-    std::uint32_t number {};
-    MixerStripKind kind { MixerStripKind::input };
-    MixerLayout layout { MixerLayout::stereo };
+struct WINJACK_COMMON_API MixerStripState final
+{
+    std::uint64_t id{};
+    std::uint32_t number{};
+    MixerStripKind kind{MixerStripKind::input};
+    MixerLayout layout{MixerLayout::stereo};
     QString name;
     QString comment;
-    QColor color { "#9aa8b7" };
-    bool customColor {};
-    double inputGainDb {};
-    double faderPosition { mixerUnityFaderPosition };
-    bool mute {};
-    bool solo {};
-    MixerListenMode listenMode { MixerListenMode::off };
-    bool mixToMain { true };
-    bool auxSendsEnabled {};
-    bool fxChainEnabled {};
+    QColor color{"#9aa8b7"};
+    bool customColor{};
+    double inputGainDb{};
+    double faderPosition{mixerUnityFaderPosition};
+    bool mute{};
+    bool solo{};
+    MixerListenMode listenMode{MixerListenMode::off};
+    bool mixToMain{true};
+    bool auxSendsEnabled{};
+    bool fxChainEnabled{};
     MixerPanner mainPanner;
     std::vector<MixerAuxSend> sends;
     std::vector<MixerEffectState> effects;
 };
 
-struct WINJACK_COMMON_API MixerPortDescriptor final {
-    std::uint64_t stripId {};
+struct WINJACK_COMMON_API MixerPortDescriptor final
+{
+    std::uint64_t stripId{};
     QString name;
-    MixerPortDirection direction { MixerPortDirection::input };
-    int channelIndex {};
+    MixerPortDirection direction{MixerPortDirection::input};
+    int channelIndex{};
 };
 
-class WINJACK_COMMON_API DigitalMixerState final {
-public:
+class WINJACK_COMMON_API DigitalMixerState final
+{
+  public:
     DigitalMixerState();
 
-    const std::vector<MixerStripState>& inputs() const noexcept { return inputs_; }
-    const std::vector<MixerStripState>& auxiliaries() const noexcept { return auxiliaries_; }
-    const std::vector<MixerStripState>& subMixes() const noexcept { return subMixes_; }
-    const MixerStripState& main() const noexcept { return main_; }
-    double monitorFaderPosition() const noexcept { return monitorFaderPosition_; }
-    void setMonitorFaderPosition(double position) noexcept { monitorFaderPosition_ = position; }
-    MixerLayout monitorLayout() const noexcept { return monitorLayout_; }
-    void setMonitorLayout(MixerLayout layout) noexcept { monitorLayout_ = layout; }
-    const MixerStripState* strip(std::uint64_t id) const noexcept;
-    MixerStripState* strip(std::uint64_t id) noexcept;
+    const std::vector<MixerStripState> &inputs() const noexcept
+    {
+        return inputs_;
+    }
+    const std::vector<MixerStripState> &auxiliaries() const noexcept
+    {
+        return auxiliaries_;
+    }
+    const std::vector<MixerStripState> &subMixes() const noexcept
+    {
+        return subMixes_;
+    }
+    const MixerStripState &main() const noexcept
+    {
+        return main_;
+    }
+    double monitorFaderPosition() const noexcept
+    {
+        return monitorFaderPosition_;
+    }
+    void setMonitorFaderPosition(double position) noexcept
+    {
+        monitorFaderPosition_ = position;
+    }
+    MixerLayout monitorLayout() const noexcept
+    {
+        return monitorLayout_;
+    }
+    void setMonitorLayout(MixerLayout layout) noexcept
+    {
+        monitorLayout_ = layout;
+    }
+    const MixerStripState *strip(std::uint64_t id) const noexcept;
+    MixerStripState *strip(std::uint64_t id) noexcept;
 
     std::uint64_t add(MixerStripKind kind, MixerLayout layout);
     std::uint64_t clone(std::uint64_t id);
     bool remove(std::uint64_t id);
     bool move(std::uint64_t id, std::size_t targetIndex);
     bool setLayout(std::uint64_t id, MixerLayout layout);
-    bool setSubMix(std::uint64_t sourceId, std::uint64_t targetId, QString* error = nullptr);
+    bool setSubMix(std::uint64_t sourceId, std::uint64_t targetId, QString *error = nullptr);
     bool hasSubMix(std::uint64_t sourceId) const noexcept;
-    bool setSend(std::uint64_t sourceId, const MixerAuxSend& send, QString* error = nullptr);
+    bool setSend(std::uint64_t sourceId, const MixerAuxSend &send, QString *error = nullptr);
     std::vector<MixerPortDescriptor> ports() const;
-    bool validate(QString* error = nullptr) const;
+    bool validate(QString *error = nullptr) const;
 
     QByteArray toJson() const;
-    bool loadJson(const QByteArray& json, QString* error = nullptr);
+    bool loadJson(const QByteArray &json, QString *error = nullptr);
 
-private:
+  private:
     std::vector<MixerStripState> inputs_;
     std::vector<MixerStripState> auxiliaries_;
     std::vector<MixerStripState> subMixes_;
     MixerStripState main_;
-    double monitorFaderPosition_ { mixerUnityFaderPosition };
-    MixerLayout monitorLayout_ { MixerLayout::stereo };
-    std::uint64_t nextId_ { 2 };
-    std::uint32_t nextInputNumber_ { 1 };
-    std::uint32_t nextAuxNumber_ { 1 };
-    std::uint32_t nextSubMixNumber_ { 1 };
+    double monitorFaderPosition_{mixerUnityFaderPosition};
+    MixerLayout monitorLayout_{MixerLayout::stereo};
+    std::uint64_t nextId_{2};
+    std::uint32_t nextInputNumber_{1};
+    std::uint32_t nextAuxNumber_{1};
+    std::uint32_t nextSubMixNumber_{1};
 };
 
 WINJACK_COMMON_API bool isMixerLayout(MixerLayout layout) noexcept;

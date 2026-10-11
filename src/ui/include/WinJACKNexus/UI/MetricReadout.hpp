@@ -25,38 +25,40 @@
 
 #include <optional>
 
-namespace WinJACKNexus::UI {
+namespace WinJACKNexus::UI
+{
 
-class WINJACK_UI_API MetricReadout final : public QWidget {
-public:
-    explicit MetricReadout(QWidget* parent = nullptr);
+class WINJACK_UI_API MetricReadout final : public QWidget
+{
+  public:
+    explicit MetricReadout(QWidget *parent = nullptr);
     ~MetricReadout() override = default;
 
-    void setLabel(const QString& label);
+    void setLabel(const QString &label);
     QString label() const;
     void setValue(std::optional<double> value);
     void clearValue();
     std::optional<double> value() const noexcept;
     void setPeakValueRefreshEnabled(bool enabled);
     bool peakValueRefreshEnabled() const noexcept;
-    void setUnit(const QString& unit);
+    void setUnit(const QString &unit);
     QString unit() const;
     void setPrecision(int precision);
     int precision() const noexcept;
     QString displayText() const;
-    void setAccentColor(const QColor& color);
+    void setAccentColor(const QColor &color);
     QColor accentColor() const;
     void setShowSurface(bool visible);
     bool showSurface() const noexcept;
-    void setThemePalette(const ThemePalette& palette);
+    void setThemePalette(const ThemePalette &palette);
     ThemePalette themePalette() const;
 
     QSize sizeHint() const override;
 
-protected:
-    void paintEvent(QPaintEvent* event) override;
+  protected:
+    void paintEvent(QPaintEvent *event) override;
 
-private:
+  private:
     QColor resolvedAccentColor() const;
 
     QString label_;

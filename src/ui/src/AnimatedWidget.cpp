@@ -18,18 +18,17 @@
 
 #include <algorithm>
 
-namespace WinJACKNexus::UI {
-
-AnimatedWidget::AnimatedWidget(QWidget* parent)
-    : PaintableWidget(parent)
-    , timer_(this)
+namespace WinJACKNexus::UI
 {
-    auto& settings = ApplicationSettings::instance();
+
+AnimatedWidget::AnimatedWidget(QWidget *parent) : PaintableWidget(parent), timer_(this)
+{
+    auto &settings = ApplicationSettings::instance();
     frameRate_ = settings.frameRate();
     timer_.setTimerType(Qt::PreciseTimer);
     timer_.setInterval(1000 / frameRate_);
-    connect(&settings, &ApplicationSettings::frameRateChanged,
-            this, &AnimatedWidget::applyFrameRate);
+    connect(&settings, &ApplicationSettings::frameRateChanged, this,
+            &AnimatedWidget::applyFrameRate);
     connect(&timer_, &QTimer::timeout, this, &AnimatedWidget::onAnimationTick);
 }
 
@@ -83,13 +82,12 @@ void AnimatedWidget::renderingStateChanged() noexcept
     synchronizeTimer();
 }
 
-void AnimatedWidget::advanceFrame()
-{
-}
+void AnimatedWidget::advanceFrame() {}
 
 void AnimatedWidget::onAnimationTick()
 {
-    if (!isRenderingAllowed()) {
+    if (!isRenderingAllowed())
+    {
         synchronizeTimer();
         return;
     }
@@ -102,10 +100,13 @@ void AnimatedWidget::onAnimationTick()
 void AnimatedWidget::synchronizeTimer()
 {
     const auto shouldRun = animationRequested_ && isRenderingAllowed();
-    if (shouldRun) {
+    if (shouldRun)
+    {
         if (!timer_.isActive())
             timer_.start(std::max(1, 1000 / frameRate_));
-    } else {
+    }
+    else
+    {
         timer_.stop();
     }
 }

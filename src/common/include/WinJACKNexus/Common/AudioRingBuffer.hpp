@@ -23,28 +23,29 @@
 #include <stdexcept>
 #include <type_traits>
 
-namespace WinJACKNexus::Common {
+namespace WinJACKNexus::Common
+{
 
-template <typename SampleType>
-class AudioRingBuffer final {
+template <typename SampleType> class AudioRingBuffer final
+{
     static_assert(std::is_trivially_copyable_v<SampleType>);
 
-public:
+  public:
     explicit AudioRingBuffer(std::size_t capacity)
-        : storage_(capacity == 0 ? nullptr : std::make_unique<SampleType[]>(capacity))
-        , capacity_(capacity)
+        : storage_(capacity == 0 ? nullptr : std::make_unique<SampleType[]>(capacity)),
+          capacity_(capacity)
     {
         if (capacity == 0)
             throw std::invalid_argument("AudioRingBuffer capacity must be greater than zero");
     }
 
     ~AudioRingBuffer() = default;
-    AudioRingBuffer(const AudioRingBuffer&) = delete;
-    AudioRingBuffer& operator=(const AudioRingBuffer&) = delete;
-    AudioRingBuffer(AudioRingBuffer&&) = delete;
-    AudioRingBuffer& operator=(AudioRingBuffer&&) = delete;
+    AudioRingBuffer(const AudioRingBuffer &) = delete;
+    AudioRingBuffer &operator=(const AudioRingBuffer &) = delete;
+    AudioRingBuffer(AudioRingBuffer &&) = delete;
+    AudioRingBuffer &operator=(AudioRingBuffer &&) = delete;
 
-    std::size_t write(const SampleType* input, std::size_t count) noexcept
+    std::size_t write(const SampleType *input, std::size_t count) noexcept
     {
         if (input == nullptr || count == 0)
             return 0;
@@ -59,7 +60,7 @@ public:
         return countToWrite;
     }
 
-    std::size_t read(SampleType* output, std::size_t count) noexcept
+    std::size_t read(SampleType *output, std::size_t count) noexcept
     {
         if (output == nullptr || count == 0)
             return 0;
@@ -96,29 +97,31 @@ public:
         readIndex_.store(writeIndex_.load(std::memory_order_acquire), std::memory_order_release);
     }
 
-private:
-    void copyIn(const SampleType* input, std::size_t writeIndex, std::size_t count) noexcept
+  private:
+    void copyIn(const SampleType *input, std::size_t writeIndex, std::size_t count) noexcept
     {
         const auto offset = writeIndex % capacity_;
         const auto firstCount = std::min(count, capacity_ - offset);
         std::memcpy(storage_.get() + offset, input, firstCount * sizeof(SampleType));
         if (firstCount < count)
-            std::memcpy(storage_.get(), input + firstCount, (count - firstCount) * sizeof(SampleType));
+            std::memcpy(storage_.get(), input + firstCount,
+                        (count - firstCount) * sizeof(SampleType));
     }
 
-    void copyOut(SampleType* output, std::size_t readIndex, std::size_t count) noexcept
+    void copyOut(SampleType *output, std::size_t readIndex, std::size_t count) noexcept
     {
         const auto offset = readIndex % capacity_;
         const auto firstCount = std::min(count, capacity_ - offset);
         std::memcpy(output, storage_.get() + offset, firstCount * sizeof(SampleType));
         if (firstCount < count)
-            std::memcpy(output + firstCount, storage_.get(), (count - firstCount) * sizeof(SampleType));
+            std::memcpy(output + firstCount, storage_.get(),
+                        (count - firstCount) * sizeof(SampleType));
     }
 
     std::unique_ptr<SampleType[]> storage_;
     const std::size_t capacity_;
-    alignas(64) std::atomic<std::size_t> writeIndex_ { 0 };
-    alignas(64) std::atomic<std::size_t> readIndex_ { 0 };
+    alignas(64) std::atomic<std::size_t> writeIndex_{0};
+    alignas(64) std::atomic<std::size_t> readIndex_{0};
 };
 
 }

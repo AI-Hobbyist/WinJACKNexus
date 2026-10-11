@@ -21,15 +21,18 @@
 
 class QPainter;
 
-namespace WinJACKNexus::UI {
+namespace WinJACKNexus::UI
+{
 
-class WINJACK_UI_API PaintableWidget : public QWidget {
+class WINJACK_UI_API PaintableWidget : public QWidget
+{
     Q_OBJECT
-    Q_PROPERTY(bool renderingActive READ renderingActive WRITE setRenderingActive NOTIFY renderingActiveChanged)
+    Q_PROPERTY(bool renderingActive READ renderingActive WRITE setRenderingActive NOTIFY
+                   renderingActiveChanged)
     Q_PROPERTY(QString wjnRole READ wjnRole WRITE setWjnRole)
 
-public:
-    explicit PaintableWidget(QWidget* parent = nullptr);
+  public:
+    explicit PaintableWidget(QWidget *parent = nullptr);
     ~PaintableWidget() override;
 
     bool renderingActive() const noexcept;
@@ -37,25 +40,25 @@ public:
     void setRenderingActive(bool active);
 
     QString wjnRole() const;
-    void setWjnRole(const QString& role);
+    void setWjnRole(const QString &role);
 
     void requestRepaint();
 
-Q_SIGNALS:
+  Q_SIGNALS:
     void renderingActiveChanged(bool active);
     void repaintRequested();
 
-protected:
-    void paintEvent(QPaintEvent* event) override;
-    void showEvent(QShowEvent* event) override;
-    void hideEvent(QHideEvent* event) override;
-    void changeEvent(QEvent* event) override;
+  protected:
+    void paintEvent(QPaintEvent *event) override;
+    void showEvent(QShowEvent *event) override;
+    void hideEvent(QHideEvent *event) override;
+    void changeEvent(QEvent *event) override;
 
-    virtual void paintContent(QPainter& painter) = 0;
+    virtual void paintContent(QPainter &painter) = 0;
     bool isRenderingAllowed() const noexcept;
     virtual void renderingStateChanged() noexcept;
 
-private:
+  private:
     bool renderingActive_ = true;
     QString wjnRole_;
 };

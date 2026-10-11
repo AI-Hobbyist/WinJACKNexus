@@ -18,19 +18,16 @@
 
 #include <cstdint>
 
-namespace {
+namespace
+{
 
-class ExampleNode final : public WinJACKNexus::Node::INode {
-public:
+class ExampleNode final : public WinJACKNexus::Node::INode
+{
+  public:
     WinJACKNexus::Node::NodeInfo info() const noexcept override
     {
-        return {
-            "Example Node",
-            "Tools",
-            "1.0.0",
-            "WinJACKNexus",
-            "Minimal Node API implementation for integration validation."
-        };
+        return {"Example Node", "Tools", "1.0.0", "WinJACKNexus",
+                "Minimal Node API implementation for integration validation."};
     }
 
     bool init() noexcept override
@@ -49,26 +46,29 @@ public:
         return nullptr;
     }
 
-    void destroyWindow(HWND) noexcept override
-    {
-    }
+    void destroyWindow(HWND) noexcept override {}
 
-private:
+  private:
     bool initialized_ = false;
 };
 
 }
 
-const char* wjn_get_node_api_version(void)
+const char *wjn_get_node_api_version(void)
 {
     return "2";
 }
 
-uint32_t wjn_get_node_i18n_api_version(void) { return WJN_I18N_API_VERSION; }
-const char* wjn_get_node_i18n_descriptor_json(uint32_t index) {
-    return index==0 ? R"json({"descriptorVersion":1,"i18nApiVersion":1,
+uint32_t wjn_get_node_i18n_api_version(void)
+{
+    return WJN_I18N_API_VERSION;
+}
+const char *wjn_get_node_i18n_descriptor_json(uint32_t index)
+{
+    return index == 0 ? R"json({"descriptorVersion":1,"i18nApiVersion":1,
         "moduleId":"example-node","domains":["example.node"],"locatePath":"locate","catalogVersion":1,
-        "displayNameKey":{"domain":"example.node","key":"name"}})json" : nullptr;
+        "displayNameKey":{"domain":"example.node","key":"name"}})json"
+                      : nullptr;
 }
 
 std::uint32_t wjn_get_node_theme_api_version(void)
@@ -76,7 +76,7 @@ std::uint32_t wjn_get_node_theme_api_version(void)
     return WJN_NODE_THEME_API_VERSION;
 }
 
-const char* wjn_get_node_theme_namespace_json(std::uint32_t index)
+const char *wjn_get_node_theme_namespace_json(std::uint32_t index)
 {
     static constexpr char descriptor[] = R"json({
         "descriptorVersion": 1,
@@ -99,31 +99,29 @@ std::uint32_t wjn_get_node_count(void)
     return 1;
 }
 
-const char* wjn_get_node_name(std::uint32_t index)
+const char *wjn_get_node_name(std::uint32_t index)
 {
     return index == 0 ? "Example Node" : "";
 }
 
-const char* wjn_get_node_category(std::uint32_t index)
+const char *wjn_get_node_category(std::uint32_t index)
 {
     return index == 0 ? "Tools" : "";
 }
 
-WinJACKNexus::Node::INode* wjn_create_node(std::uint32_t index)
+WinJACKNexus::Node::INode *wjn_create_node(std::uint32_t index)
 {
-    return index == 0 ? new ExampleNode {} : nullptr;
+    return index == 0 ? new ExampleNode{} : nullptr;
 }
 
-void wjn_destroy_node(WinJACKNexus::Node::INode* node)
+void wjn_destroy_node(WinJACKNexus::Node::INode *node)
 {
     delete node;
 }
 
-void* wjn_create_settings_view(WinJACKNexus::Node::INode*, void*)
+void *wjn_create_settings_view(WinJACKNexus::Node::INode *, void *)
 {
     return nullptr;
 }
 
-void wjn_destroy_settings_view(WinJACKNexus::Node::INode*, void*)
-{
-}
+void wjn_destroy_settings_view(WinJACKNexus::Node::INode *, void *) {}

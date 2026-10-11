@@ -19,11 +19,11 @@
 #include "public.sdk/source/vst/hosting/module.h"
 
 #ifndef WJN_ENABLE_VST2
-#    define WJN_ENABLE_VST2 0
+#define WJN_ENABLE_VST2 0
 #endif
 
 #if WJN_ENABLE_VST2
-#    include "pluginterfaces/vst2.x/aeffectx.h"
+#include "pluginterfaces/vst2.x/aeffectx.h"
 #endif
 
 #include <Windows.h>
@@ -42,7 +42,8 @@
 #include <utility>
 #include <vector>
 
-namespace {
+namespace
+{
 
 namespace fs = std::filesystem;
 
@@ -50,21 +51,13 @@ std::wstring wideFromUtf8(std::string_view value)
 {
     if (value.empty())
         return {};
-    const auto length = MultiByteToWideChar(CP_UTF8,
-                                            MB_ERR_INVALID_CHARS,
-                                            value.data(),
-                                            static_cast<int>(value.size()),
-                                            nullptr,
-                                            0);
+    const auto length = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, value.data(),
+                                            static_cast<int>(value.size()), nullptr, 0);
     if (length <= 0)
         return {};
     std::wstring result(static_cast<std::size_t>(length), L'\0');
-    MultiByteToWideChar(CP_UTF8,
-                        MB_ERR_INVALID_CHARS,
-                        value.data(),
-                        static_cast<int>(value.size()),
-                        result.data(),
-                        length);
+    MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, value.data(), static_cast<int>(value.size()),
+                        result.data(), length);
     return result;
 }
 
@@ -72,38 +65,22 @@ std::string utf8FromWide(std::wstring_view value)
 {
     if (value.empty())
         return {};
-    const auto length = WideCharToMultiByte(CP_UTF8,
-                                            WC_ERR_INVALID_CHARS,
-                                            value.data(),
-                                            static_cast<int>(value.size()),
-                                            nullptr,
-                                            0,
-                                            nullptr,
-                                            nullptr);
+    const auto length =
+        WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, value.data(),
+                            static_cast<int>(value.size()), nullptr, 0, nullptr, nullptr);
     if (length <= 0)
         return {};
     std::string result(static_cast<std::size_t>(length), '\0');
-    WideCharToMultiByte(CP_UTF8,
-                        WC_ERR_INVALID_CHARS,
-                        value.data(),
-                        static_cast<int>(value.size()),
-                        result.data(),
-                        length,
-                        nullptr,
-                        nullptr);
+    WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, value.data(), static_cast<int>(value.size()),
+                        result.data(), length, nullptr, nullptr);
     return result;
 }
 
-std::string utf8FromLocal(const char* value)
+std::string utf8FromLocal(const char *value)
 {
     if (value == nullptr || *value == '\0')
         return {};
-    const auto wideLength = MultiByteToWideChar(CP_ACP,
-                                                0,
-                                                value,
-                                                -1,
-                                                nullptr,
-                                                0);
+    const auto wideLength = MultiByteToWideChar(CP_ACP, 0, value, -1, nullptr, 0);
     if (wideLength <= 1)
         return {};
     std::wstring wide(static_cast<std::size_t>(wideLength), L'\0');
@@ -112,20 +89,20 @@ std::string utf8FromLocal(const char* value)
     return utf8FromWide(wide);
 }
 
-std::string pathString(const fs::path& path)
+std::string pathString(const fs::path &path)
 {
     return utf8FromWide(path.wstring());
 }
 
 std::string lowerAscii(std::string value)
 {
-    std::transform(value.begin(), value.end(), value.begin(), [] (unsigned char character) {
+    std::transform(value.begin(), value.end(), value.begin(), [](unsigned char character) {
         return static_cast<char>(std::tolower(character));
     });
     return value;
 }
 
-std::string firstSubcategory(const std::string& value)
+std::string firstSubcategory(const std::string &value)
 {
     const auto separator = value.find('|');
     return value.substr(0, separator);
@@ -137,9 +114,11 @@ std::string jsonString(std::string_view value)
     std::string result;
     result.reserve(value.size() + 2);
     result.push_back('"');
-    for (const auto character : value) {
+    for (const auto character : value)
+    {
         const auto byte = static_cast<unsigned char>(character);
-        switch (byte) {
+        switch (byte)
+        {
         case '"':
             result += "\\\"";
             break;
@@ -162,11 +141,14 @@ std::string jsonString(std::string_view value)
             result += "\\t";
             break;
         default:
-            if (byte < 0x20) {
+            if (byte < 0x20)
+            {
                 result += "\\u00";
                 result.push_back(hex[byte >> 4]);
                 result.push_back(hex[byte & 0x0f]);
-            } else {
+            }
+            else
+            {
                 result.push_back(static_cast<char>(byte));
             }
             break;
@@ -186,11 +168,12 @@ std::string jsonInteger(std::int64_t value)
     return std::to_string(value);
 }
 
-std::string jsonObject(const std::vector<std::pair<std::string, std::string>>& fields)
+std::string jsonObject(const std::vector<std::pair<std::string, std::string>> &fields)
 {
     std::string result = "{";
     bool first = true;
-    for (const auto& [key, value] : fields) {
+    for (const auto &[key, value] : fields)
+    {
         if (!first)
             result.push_back(',');
         first = false;
@@ -202,10 +185,11 @@ std::string jsonObject(const std::vector<std::pair<std::string, std::string>>& f
     return result;
 }
 
-std::string jsonArray(const std::vector<std::string>& values)
+std::string jsonArray(const std::vector<std::string> &values)
 {
     std::string result = "[";
-    for (std::size_t index = 0; index < values.size(); ++index) {
+    for (std::size_t index = 0; index < values.size(); ++index)
+    {
         if (index != 0)
             result.push_back(',');
         result += values[index];
@@ -214,28 +198,24 @@ std::string jsonArray(const std::vector<std::string>& values)
     return result;
 }
 
-bool writeFileAtomically(const fs::path& outputPath, std::string_view content)
+bool writeFileAtomically(const fs::path &outputPath, std::string_view content)
 {
-    const auto temporaryPath = fs::path(outputPath.wstring()
-                                        + L".tmp-"
-                                        + std::to_wstring(GetCurrentProcessId()));
-    const auto handle = CreateFileW(temporaryPath.wstring().c_str(),
-                                    GENERIC_WRITE,
-                                    FILE_SHARE_READ,
-                                    nullptr,
-                                    CREATE_ALWAYS,
-                                    FILE_ATTRIBUTE_TEMPORARY,
-                                    nullptr);
+    const auto temporaryPath =
+        fs::path(outputPath.wstring() + L".tmp-" + std::to_wstring(GetCurrentProcessId()));
+    const auto handle = CreateFileW(temporaryPath.wstring().c_str(), GENERIC_WRITE, FILE_SHARE_READ,
+                                    nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_TEMPORARY, nullptr);
     if (handle == INVALID_HANDLE_VALUE)
         return false;
 
     bool success = true;
-    const auto* data = content.data();
+    const auto *data = content.data();
     auto remaining = content.size();
-    while (remaining > 0) {
+    while (remaining > 0)
+    {
         const auto chunkSize = static_cast<DWORD>(std::min<std::size_t>(remaining, 1024 * 1024));
         DWORD written = 0;
-        if (!WriteFile(handle, data, chunkSize, &written, nullptr) || written != chunkSize) {
+        if (!WriteFile(handle, data, chunkSize, &written, nullptr) || written != chunkSize)
+        {
             success = false;
             break;
         }
@@ -245,25 +225,25 @@ bool writeFileAtomically(const fs::path& outputPath, std::string_view content)
     if (success)
         success = FlushFileBuffers(handle) != FALSE;
     CloseHandle(handle);
-    if (!success) {
+    if (!success)
+    {
         DeleteFileW(temporaryPath.wstring().c_str());
         return false;
     }
 
-    if (MoveFileExW(temporaryPath.wstring().c_str(),
-                    outputPath.wstring().c_str(),
+    if (MoveFileExW(temporaryPath.wstring().c_str(), outputPath.wstring().c_str(),
                     MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH))
         return true;
     DeleteFileW(temporaryPath.wstring().c_str());
     return false;
 }
 
-std::string classIdString(const VST3::UID& classId)
+std::string classIdString(const VST3::UID &classId)
 {
     return classId.toString(false);
 }
 
-bool parseClassId(const std::string& value, VST3::UID& classId)
+bool parseClassId(const std::string &value, VST3::UID &classId)
 {
     const auto parsed = VST3::UID::fromString(value, false);
     if (!parsed)
@@ -273,31 +253,37 @@ bool parseClassId(const std::string& value, VST3::UID& classId)
 }
 
 // Display metadata is additive; ok/skippable/classes retain their protocol meaning.
-struct ProbeError final {
+struct ProbeError final
+{
     std::string text;
     std::string key;
     std::vector<std::string> args;
-    bool empty() const { return text.empty(); }
+    bool empty() const
+    {
+        return text.empty();
+    }
 };
 
-void appendErrorFields(std::vector<std::pair<std::string, std::string>>& fields,
-                       std::string_view prefix, const ProbeError& error)
+void appendErrorFields(std::vector<std::pair<std::string, std::string>> &fields,
+                       std::string_view prefix, const ProbeError &error)
 {
     if (error.empty())
         return;
     const auto name = std::string(prefix);
     fields.emplace_back(name, jsonString(error.text));
-    if (!error.key.empty()) {
+    if (!error.key.empty())
+    {
         fields.emplace_back(name + "_key", jsonString(error.key));
         std::vector<std::string> args;
-        for (const auto& value : error.args)
+        for (const auto &value : error.args)
             args.push_back(jsonString(value));
         fields.emplace_back(name + "_args", jsonArray(args));
     }
 }
 
-struct Vst3ClassDescriptor final {
-    VST3::UID classId {};
+struct Vst3ClassDescriptor final
+{
+    VST3::UID classId{};
     std::string name;
     std::string vendor;
     std::string version;
@@ -305,9 +291,10 @@ struct Vst3ClassDescriptor final {
     std::string subcategory;
 };
 
-class Vst3Module final {
-public:
-    bool open(const fs::path& path, ProbeError& error)
+class Vst3Module final
+{
+  public:
+    bool open(const fs::path &path, ProbeError &error)
     {
         module = VST3::Hosting::Module::create(pathString(path), error.text);
         if (module == nullptr)
@@ -316,12 +303,13 @@ public:
         return true;
     }
 
-    std::vector<Vst3ClassDescriptor> classes(ProbeError& error) const
+    std::vector<Vst3ClassDescriptor> classes(ProbeError &error) const
     {
         if (module == nullptr)
             return {};
         std::vector<Vst3ClassDescriptor> result;
-        for (const auto& classInfo : module->getFactory().classInfos()) {
+        for (const auto &classInfo : module->getFactory().classInfos())
+        {
             Vst3ClassDescriptor descriptor;
             descriptor.classId = classInfo.ID();
             descriptor.name = classInfo.name();
@@ -331,14 +319,14 @@ public:
             descriptor.subcategory = firstSubcategory(classInfo.subCategoriesString());
 
             const auto categoryLower = lowerAscii(descriptor.category);
-            if (categoryLower.find("controller") != std::string::npos
-                || categoryLower.find("service") != std::string::npos
-                || categoryLower.find("compatibility") != std::string::npos)
+            if (categoryLower.find("controller") != std::string::npos ||
+                categoryLower.find("service") != std::string::npos ||
+                categoryLower.find("compatibility") != std::string::npos)
                 continue;
             result.push_back(std::move(descriptor));
         }
         if (result.empty())
-            error = { "VST3 factory returned no usable component class", "probe.noComponent", {  } };
+            error = {"VST3 factory returned no usable component class", "probe.noComponent", {}};
         return result;
     }
 
@@ -346,7 +334,8 @@ public:
     Steinberg::Vst::HostApplication hostApplication;
 };
 
-struct PluginInfo final {
+struct PluginInfo final
+{
     std::string name;
     std::string vendor;
     std::string version;
@@ -354,27 +343,27 @@ struct PluginInfo final {
     std::string subcategory;
     std::string internalPlugin;
     std::string classId;
-    bool hasUniqueId {};
-    std::int64_t uniqueId {};
+    bool hasUniqueId{};
+    std::int64_t uniqueId{};
 };
 
-std::string pluginJson(const PluginInfo& plugin)
+std::string pluginJson(const PluginInfo &plugin)
 {
-    std::vector<std::pair<std::string, std::string>> fields {
-        { "name", jsonString(plugin.name) },
-        { "vendor", jsonString(plugin.vendor) },
-        { "version", jsonString(plugin.version) },
-        { "category", jsonString(plugin.category) },
-        { "subcategory", jsonString(plugin.subcategory) },
-        { "internal_plugin", jsonString(plugin.internalPlugin) }
-    };
+    std::vector<std::pair<std::string, std::string>> fields{
+        {"name", jsonString(plugin.name)},
+        {"vendor", jsonString(plugin.vendor)},
+        {"version", jsonString(plugin.version)},
+        {"category", jsonString(plugin.category)},
+        {"subcategory", jsonString(plugin.subcategory)},
+        {"internal_plugin", jsonString(plugin.internalPlugin)}};
     if (!plugin.classId.empty())
         fields.emplace_back("class_id", jsonString(plugin.classId));
     if (plugin.hasUniqueId)
         fields.emplace_back("unique_id", jsonInteger(plugin.uniqueId));
 
     std::string result = "{";
-    for (std::size_t index = 0; index < fields.size(); ++index) {
+    for (std::size_t index = 0; index < fields.size(); ++index)
+    {
         if (index != 0)
             result.push_back(',');
         result += jsonString(fields[index].first);
@@ -385,34 +374,29 @@ std::string pluginJson(const PluginInfo& plugin)
     return result;
 }
 
-std::string descriptorJson(const Vst3ClassDescriptor& descriptor)
+std::string descriptorJson(const Vst3ClassDescriptor &descriptor)
 {
-    return jsonObject({
-        { "class_id", jsonString(classIdString(descriptor.classId)) },
-        { "name", jsonString(descriptor.name) },
-        { "vendor", jsonString(descriptor.vendor) },
-        { "version", jsonString(descriptor.version) },
-        { "category", jsonString(descriptor.category) },
-        { "subcategory", jsonString(descriptor.subcategory) }
-    });
+    return jsonObject({{"class_id", jsonString(classIdString(descriptor.classId))},
+                       {"name", jsonString(descriptor.name)},
+                       {"vendor", jsonString(descriptor.vendor)},
+                       {"version", jsonString(descriptor.version)},
+                       {"category", jsonString(descriptor.category)},
+                       {"subcategory", jsonString(descriptor.subcategory)}});
 }
 
-std::string probeResult(const char* type,
-                        const std::vector<std::string>& classes,
-                        bool isShell,
-                        const ProbeError& probeError = {})
+std::string probeResult(const char *type, const std::vector<std::string> &classes, bool isShell,
+                        const ProbeError &probeError = {})
 {
-    std::vector<std::pair<std::string, std::string>> fields {
-        { "ok", "true" },
-        { "type", jsonString(type) }
-    };
+    std::vector<std::pair<std::string, std::string>> fields{{"ok", "true"},
+                                                            {"type", jsonString(type)}};
     if (isShell)
         fields.emplace_back("is_shell", "true");
     fields.emplace_back("classes", jsonArray(classes));
     appendErrorFields(fields, "probe_error", probeError);
 
     std::string result = "{";
-    for (std::size_t index = 0; index < fields.size(); ++index) {
+    for (std::size_t index = 0; index < fields.size(); ++index)
+    {
         if (index != 0)
             result.push_back(',');
         result += jsonString(fields[index].first);
@@ -423,7 +407,7 @@ std::string probeResult(const char* type,
     return result;
 }
 
-PluginInfo makeVst3ClassInfo(const Vst3ClassDescriptor& descriptor, const std::string& classId)
+PluginInfo makeVst3ClassInfo(const Vst3ClassDescriptor &descriptor, const std::string &classId)
 {
     PluginInfo plugin;
     plugin.name = descriptor.name;
@@ -435,7 +419,7 @@ PluginInfo makeVst3ClassInfo(const Vst3ClassDescriptor& descriptor, const std::s
     return plugin;
 }
 
-bool probeVst3Factory(const fs::path& path, std::string& output, ProbeError& error)
+bool probeVst3Factory(const fs::path &path, std::string &output, ProbeError &error)
 {
     Vst3Module module;
     if (!module.open(path, error))
@@ -443,7 +427,7 @@ bool probeVst3Factory(const fs::path& path, std::string& output, ProbeError& err
     const auto descriptors = module.classes(error);
     std::vector<std::string> classes;
     classes.reserve(descriptors.size());
-    for (const auto& descriptor : descriptors)
+    for (const auto &descriptor : descriptors)
         classes.push_back(descriptorJson(descriptor));
     if (classes.empty())
         return false;
@@ -451,53 +435,63 @@ bool probeVst3Factory(const fs::path& path, std::string& output, ProbeError& err
     return true;
 }
 
-bool probeVst3Class(const fs::path& path,
-                    const std::string& classIdText,
-                    std::string& output,
-                    ProbeError& error)
+bool probeVst3Class(const fs::path &path, const std::string &classIdText, std::string &output,
+                    ProbeError &error)
 {
     Vst3Module module;
     if (!module.open(path, error))
         return false;
-    VST3::UID requestedId {};
-    if (!parseClassId(classIdText, requestedId)) {
-        error = { "Invalid VST3 class ID: " + classIdText, "probe.invalidClassId", { classIdText } };
+    VST3::UID requestedId{};
+    if (!parseClassId(classIdText, requestedId))
+    {
+        error = {"Invalid VST3 class ID: " + classIdText, "probe.invalidClassId", {classIdText}};
         return false;
     }
 
     const auto descriptors = module.classes(error);
-    const auto descriptor = std::find_if(descriptors.cbegin(),
-                                         descriptors.cend(),
-                                         [&] (const Vst3ClassDescriptor& value) {
-                                             return value.classId == requestedId;
-                                         });
-    if (descriptor == descriptors.cend()) {
-        error = { "VST3 factory cannot find class ID: " + classIdText, "probe.missingClassId", { classIdText } };
+    const auto descriptor = std::find_if(
+        descriptors.cbegin(), descriptors.cend(),
+        [&](const Vst3ClassDescriptor &value) { return value.classId == requestedId; });
+    if (descriptor == descriptors.cend())
+    {
+        error = {"VST3 factory cannot find class ID: " + classIdText,
+                 "probe.missingClassId",
+                 {classIdText}};
         return false;
     }
 
     auto plugin = makeVst3ClassInfo(*descriptor, classIdText);
-    auto component = module.module->getFactory().createInstance<Steinberg::Vst::IComponent>(descriptor->classId);
-    if (!component) {
-        error = { "Cannot create VST3 component class: " + descriptor->name, "probe.createComponent", { descriptor->name } };
-        output = probeResult("vst3", { pluginJson(plugin) }, false, error);
+    auto component =
+        module.module->getFactory().createInstance<Steinberg::Vst::IComponent>(descriptor->classId);
+    if (!component)
+    {
+        error = {"Cannot create VST3 component class: " + descriptor->name,
+                 "probe.createComponent",
+                 {descriptor->name}};
+        output = probeResult("vst3", {pluginJson(plugin)}, false, error);
         return true;
     }
 
     const auto initialized = component->initialize(&module.hostApplication) == Steinberg::kResultOk;
-    if (!initialized) {
-        error = { "Cannot initialize VST3 component: " + descriptor->name, "probe.initializeComponent", { descriptor->name } };
-    } else {
+    if (!initialized)
+    {
+        error = {"Cannot initialize VST3 component: " + descriptor->name,
+                 "probe.initializeComponent",
+                 {descriptor->name}};
+    }
+    else
+    {
         component->terminate();
     }
-    output = probeResult("vst3", { pluginJson(plugin) }, false, error);
+    output = probeResult("vst3", {pluginJson(plugin)}, false, error);
     return true;
 }
 
 #if WJN_ENABLE_VST2
 VstIntPtr currentVst2UniqueId = 0;
 
-VstIntPtr VSTCALLBACK vst2HostCallback(AEffect*, VstInt32 opcode, VstInt32, VstIntPtr, void*, float)
+VstIntPtr VSTCALLBACK vst2HostCallback(AEffect *, VstInt32 opcode, VstInt32, VstIntPtr, void *,
+                                       float)
 {
     if (opcode == audioMasterVersion)
         return 2400;
@@ -506,9 +500,9 @@ VstIntPtr VSTCALLBACK vst2HostCallback(AEffect*, VstInt32 opcode, VstInt32, VstI
     return 0;
 }
 
-using Vst2EntryProc = AEffect* (VSTCALLBACK*)(audioMasterCallback);
+using Vst2EntryProc = AEffect *(VSTCALLBACK *)(audioMasterCallback);
 
-std::string readVst2String(AEffect* effect, AEffectOpcodes opcode, int maxLength)
+std::string readVst2String(AEffect *effect, AEffectOpcodes opcode, int maxLength)
 {
     if (effect == nullptr || effect->dispatcher == nullptr)
         return {};
@@ -517,11 +511,8 @@ std::string readVst2String(AEffect* effect, AEffectOpcodes opcode, int maxLength
     return utf8FromLocal(buffer.data());
 }
 
-PluginInfo makeVst2Info(const std::string& name,
-                        const std::string& vendor,
-                        int version,
-                        bool isInstrument,
-                        const std::string& internalPlugin,
+PluginInfo makeVst2Info(const std::string &name, const std::string &vendor, int version,
+                        bool isInstrument, const std::string &internalPlugin,
                         VstIntPtr uniqueId = 0)
 {
     PluginInfo result;
@@ -530,43 +521,45 @@ PluginInfo makeVst2Info(const std::string& name,
     result.version = std::to_string(version);
     result.category = isInstrument ? "instrument" : "effect";
     result.internalPlugin = internalPlugin;
-    if (uniqueId != 0) {
+    if (uniqueId != 0)
+    {
         result.hasUniqueId = true;
         result.uniqueId = static_cast<std::int64_t>(uniqueId);
     }
     return result;
 }
 
-bool probeVst2(const fs::path& path,
-               const std::string& internalId,
-               std::string& output,
-               ProbeError& error,
-               bool& skippable)
+bool probeVst2(const fs::path &path, const std::string &internalId, std::string &output,
+               ProbeError &error, bool &skippable)
 {
     skippable = false;
-    const auto module = LoadLibraryExW(path.wstring().c_str(), nullptr, LOAD_WITH_ALTERED_SEARCH_PATH);
-    if (module == nullptr) {
-        error = { "LoadLibraryExW failed", "probe.loadLibrary", {  } };
+    const auto module =
+        LoadLibraryExW(path.wstring().c_str(), nullptr, LOAD_WITH_ALTERED_SEARCH_PATH);
+    if (module == nullptr)
+    {
+        error = {"LoadLibraryExW failed", "probe.loadLibrary", {}};
         return false;
     }
     auto entry = reinterpret_cast<Vst2EntryProc>(GetProcAddress(module, "VSTPluginMain"));
     if (entry == nullptr)
         entry = reinterpret_cast<Vst2EntryProc>(GetProcAddress(module, "main"));
-    if (entry == nullptr) {
-        error = { "VST2 module has no VSTPluginMain/main entry point", "probe.missingEntry", {  } };
+    if (entry == nullptr)
+    {
+        error = {"VST2 module has no VSTPluginMain/main entry point", "probe.missingEntry", {}};
         FreeLibrary(module);
         return false;
     }
 
     bool idOk = false;
-    char* end = nullptr;
+    char *end = nullptr;
     const auto requestedId = std::strtoll(internalId.c_str(), &end, 10);
     idOk = !internalId.empty() && end != internalId.c_str() && *end == '\0';
     currentVst2UniqueId = idOk ? static_cast<VstIntPtr>(requestedId) : 0;
-    auto* effect = entry(vst2HostCallback);
+    auto *effect = entry(vst2HostCallback);
     currentVst2UniqueId = 0;
-    if (effect == nullptr || effect->magic != kEffectMagic || effect->dispatcher == nullptr) {
-        error = { "VST2 module returned an invalid AEffect", "probe.invalidEffect", {  } };
+    if (effect == nullptr || effect->magic != kEffectMagic || effect->dispatcher == nullptr)
+    {
+        error = {"VST2 module returned an invalid AEffect", "probe.invalidEffect", {}};
         skippable = true;
         FreeLibrary(module);
         return false;
@@ -574,83 +567,70 @@ bool probeVst2(const fs::path& path,
     if (effect->dispatcher != nullptr)
         effect->dispatcher(effect, effOpen, 0, 0, nullptr, 0.0F);
 
-    const auto product = readVst2String(effect,
-                                        static_cast<AEffectOpcodes>(effGetProductString),
+    const auto product = readVst2String(effect, static_cast<AEffectOpcodes>(effGetProductString),
                                         kVstMaxProductStrLen);
     const auto productName = product.empty() ? utf8FromWide(path.stem().wstring()) : product;
-    const auto vendor = readVst2String(effect,
-                                       static_cast<AEffectOpcodes>(effGetVendorString),
+    const auto vendor = readVst2String(effect, static_cast<AEffectOpcodes>(effGetVendorString),
                                        kVstMaxVendorStrLen);
     std::vector<std::string> plugins;
-    const auto category = effect->dispatcher == nullptr
-        ? kPlugCategUnknown
-        : effect->dispatcher(effect, static_cast<AEffectOpcodes>(effGetPlugCategory), 0, 0, nullptr, 0.0F);
-    const auto isInstrument = (effect->flags & effFlagsIsSynth) != 0
-        || category == kPlugCategSynth;
-    if (category == kPlugCategShell && effect->dispatcher != nullptr && !idOk) {
-        char internalName[kVstMaxProductStrLen + 1] {};
-        while (true) {
+    const auto category =
+        effect->dispatcher == nullptr
+            ? kPlugCategUnknown
+            : effect->dispatcher(effect, static_cast<AEffectOpcodes>(effGetPlugCategory), 0, 0,
+                                 nullptr, 0.0F);
+    const auto isInstrument = (effect->flags & effFlagsIsSynth) != 0 || category == kPlugCategSynth;
+    if (category == kPlugCategShell && effect->dispatcher != nullptr && !idOk)
+    {
+        char internalName[kVstMaxProductStrLen + 1]{};
+        while (true)
+        {
             std::memset(internalName, 0, sizeof(internalName));
-            const auto uniqueId = effect->dispatcher(effect,
-                                                     static_cast<AEffectOpcodes>(effShellGetNextPlugin),
-                                                     0,
-                                                     0,
-                                                     internalName,
-                                                     0.0F);
+            const auto uniqueId =
+                effect->dispatcher(effect, static_cast<AEffectOpcodes>(effShellGetNextPlugin), 0, 0,
+                                   internalName, 0.0F);
             if (uniqueId == 0)
                 break;
             const auto name = utf8FromLocal(internalName);
             if (name.empty())
                 break;
-            plugins.push_back(pluginJson(makeVst2Info(name,
-                                                       vendor,
-                                                       effect->version,
-                                                       isInstrument,
-                                                       name,
-                                                       uniqueId)));
+            plugins.push_back(pluginJson(
+                makeVst2Info(name, vendor, effect->version, isInstrument, name, uniqueId)));
         }
     }
     if (plugins.empty())
-        plugins.push_back(pluginJson(makeVst2Info(productName,
-                                                   vendor,
-                                                   effect->version,
-                                                   isInstrument,
-                                                   {},
-                                                   idOk ? static_cast<VstIntPtr>(requestedId) : 0)));
+        plugins.push_back(
+            pluginJson(makeVst2Info(productName, vendor, effect->version, isInstrument, {},
+                                    idOk ? static_cast<VstIntPtr>(requestedId) : 0)));
     if (effect->dispatcher != nullptr)
         effect->dispatcher(effect, effClose, 0, 0, nullptr, 0.0F);
     FreeLibrary(module);
-    output = probeResult("vst2",
-                         plugins,
-                         category == kPlugCategShell && !idOk);
+    output = probeResult("vst2", plugins, category == kPlugCategShell && !idOk);
     return true;
 }
 #endif
 
-std::string failure(const ProbeError& error, bool skippable)
+std::string failure(const ProbeError &error, bool skippable)
 {
-    std::vector<std::pair<std::string, std::string>> fields {
-        { "ok", "false" },
-        { "skippable", jsonBool(skippable) }
-    };
+    std::vector<std::pair<std::string, std::string>> fields{{"ok", "false"},
+                                                            {"skippable", jsonBool(skippable)}};
     appendErrorFields(fields, "error", error);
     return jsonObject(fields);
 }
 
 }
 
-int wmain(int argc, wchar_t* argv[])
+int wmain(int argc, wchar_t *argv[])
 {
     const auto comInitialized = SUCCEEDED(CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED));
-    const auto validType = argc >= 2
-        && (std::wstring_view(argv[1]) == L"--vst3"
-            || std::wstring_view(argv[1]) == L"--vst2");
+    const auto validType = argc >= 2 && (std::wstring_view(argv[1]) == L"--vst3" ||
+                                         std::wstring_view(argv[1]) == L"--vst2");
     const auto listMode = argc == 5 && std::wstring_view(argv[3]) == L"--output";
-    const auto classMode = argc == 7
-        && (std::wstring_view(argv[3]) == L"--class-id"
-            || std::wstring_view(argv[3]) == L"--internal-id")
-        && std::wstring_view(argv[5]) == L"--output";
-    if (!validType || (!listMode && !classMode)) {
+    const auto classMode = argc == 7 &&
+                           (std::wstring_view(argv[3]) == L"--class-id" ||
+                            std::wstring_view(argv[3]) == L"--internal-id") &&
+                           std::wstring_view(argv[5]) == L"--output";
+    if (!validType || (!listMode && !classMode))
+    {
         if (comInitialized)
             CoUninitialize();
         return 2;
@@ -664,24 +644,23 @@ int wmain(int argc, wchar_t* argv[])
     std::string output;
     bool skippable = false;
     bool success = false;
-    if (format == L"--vst3") {
-        success = classMode
-            ? probeVst3Class(path, selectedId, output, error)
-            : probeVst3Factory(path, output, error);
-    } else {
+    if (format == L"--vst3")
+    {
+        success = classMode ? probeVst3Class(path, selectedId, output, error)
+                            : probeVst3Factory(path, output, error);
+    }
+    else
+    {
 #if WJN_ENABLE_VST2
-        success = probeVst2(path,
-                    classMode ? selectedId : std::string(),
-                    output,
-                    error,
-                    skippable);
+        success = probeVst2(path, classMode ? selectedId : std::string(), output, error, skippable);
 #else
-        error = { "VST2 probing is disabled", "probe.vst2Disabled", {  } };
+        error = {"VST2 probing is disabled", "probe.vst2Disabled", {}};
 #endif
     }
-    if (!success) {
+    if (!success)
+    {
         if (error.empty())
-            error = { "Plug-in probe failed", "probe.failed", {} };
+            error = {"Plug-in probe failed", "probe.failed", {}};
         output = failure(error, skippable);
     }
     const auto outputSuccess = writeFileAtomically(outputPath, output);

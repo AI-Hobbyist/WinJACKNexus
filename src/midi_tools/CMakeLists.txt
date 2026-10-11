@@ -3,14 +3,19 @@ include(Engines.cmake)
 foreach(kind sf2_loader midi_spilit midi_matrix)
     add_library(mod_${kind} SHARED ${kind}/Module.cpp)
     wjn_configure_shared_target(mod_${kind} WJN_NODE_IMPLEMENTATION)
-    target_include_directories(mod_${kind} PRIVATE ${PROJECT_SOURCE_DIR}/src/node/include ${PROJECT_SOURCE_DIR}/src/common/include)
+    target_include_directories(mod_${kind} PRIVATE ${PROJECT_SOURCE_DIR}/src/node/include
+                                                   ${PROJECT_SOURCE_DIR}/src/common/include)
     target_link_libraries(mod_${kind} PRIVATE Qt6::Core)
     foreach(config Debug Release RelWithDebInfo MinSizeRel)
         string(TOUPPER "${config}" upper)
-        set_target_properties(mod_${kind} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_${upper} "${WJN_OUTPUT_DIR}/midi_tools/${kind}")
+        set_target_properties(mod_${kind} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_${upper}
+                                                     "${WJN_OUTPUT_DIR}/midi_tools/${kind}")
     endforeach()
-    add_custom_command(TARGET mod_${kind} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory
-        "${CMAKE_CURRENT_SOURCE_DIR}/${kind}/locate" "$<TARGET_FILE_DIR:mod_${kind}>/locate")
+    add_custom_command(
+        TARGET mod_${kind}
+        POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/${kind}/locate"
+                "$<TARGET_FILE_DIR:mod_${kind}>/locate")
 endforeach()
 target_link_libraries(mod_midi_spilit PRIVATE WinJACKNexus::Audio WinJACKNexus::UI)
 target_compile_options(mod_midi_spilit PRIVATE /utf-8)
@@ -18,34 +23,52 @@ target_link_libraries(mod_midi_matrix PRIVATE WinJACKNexus::Audio WinJACKNexus::
 target_compile_options(mod_midi_matrix PRIVATE /utf-8)
 add_library(midi_tools_synthcore STATIC ${PROJECT_SOURCE_DIR}/src/common/src/MidiToolsSynth.cpp)
 target_include_directories(midi_tools_synthcore PUBLIC ${PROJECT_SOURCE_DIR}/src/common/include)
-target_link_libraries(midi_tools_synthcore PUBLIC Qt6::Core PRIVATE libfluidsynth sfizz_shared)
+target_link_libraries(
+    midi_tools_synthcore
+    PUBLIC Qt6::Core
+    PRIVATE libfluidsynth sfizz_shared)
 target_compile_options(midi_tools_synthcore PRIVATE /utf-8)
 target_compile_definitions(midi_tools_synthcore PRIVATE NOMINMAX WIN32_LEAN_AND_MEAN)
-target_link_libraries(mod_sf2_loader PRIVATE midi_tools_synthcore WinJACKNexus::Audio WinJACKNexus::UI)
+target_link_libraries(mod_sf2_loader PRIVATE midi_tools_synthcore WinJACKNexus::Audio
+                                             WinJACKNexus::UI)
 target_compile_options(mod_sf2_loader PRIVATE /utf-8)
 target_compile_definitions(mod_sf2_loader PRIVATE NOMINMAX WIN32_LEAN_AND_MEAN)
 if(BUILD_TESTING)
     find_package(Qt6 6.10.3 EXACT REQUIRED COMPONENTS Test)
-    add_executable(midi_tools_delivery_tests ${PROJECT_SOURCE_DIR}/Develop/MidiTools/DeliveryTests.cpp)
-    target_include_directories(midi_tools_delivery_tests PRIVATE ${PROJECT_SOURCE_DIR}/src/node/include)
+    add_executable(midi_tools_delivery_tests
+                   ${PROJECT_SOURCE_DIR}/Develop/MidiTools/DeliveryTests.cpp)
+    target_include_directories(midi_tools_delivery_tests
+                               PRIVATE ${PROJECT_SOURCE_DIR}/src/node/include)
     target_link_libraries(midi_tools_delivery_tests PRIVATE WinJACKNexus::UI Qt6::Core)
     target_compile_options(midi_tools_delivery_tests PRIVATE /utf-8)
     add_dependencies(midi_tools_delivery_tests mod_sf2_loader mod_midi_spilit mod_midi_matrix)
-    set_target_properties(midi_tools_delivery_tests PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEASE "${WJN_OUTPUT_DIR}")
-    add_executable(midi_tools_foundation_tests ${PROJECT_SOURCE_DIR}/Develop/MidiTools/FoundationTests.cpp)
-    target_include_directories(midi_tools_foundation_tests PRIVATE ${PROJECT_SOURCE_DIR}/src/node/include ${PROJECT_SOURCE_DIR}/src/common/include)
+    set_target_properties(midi_tools_delivery_tests PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEASE
+                                                               "${WJN_OUTPUT_DIR}")
+    add_executable(midi_tools_foundation_tests
+                   ${PROJECT_SOURCE_DIR}/Develop/MidiTools/FoundationTests.cpp)
+    target_include_directories(
+        midi_tools_foundation_tests PRIVATE ${PROJECT_SOURCE_DIR}/src/node/include
+                                            ${PROJECT_SOURCE_DIR}/src/common/include)
     target_link_libraries(midi_tools_foundation_tests PRIVATE Qt6::Core)
     add_dependencies(midi_tools_foundation_tests mod_sf2_loader mod_midi_spilit mod_midi_matrix)
     add_executable(midi_tools_engine_probe ${PROJECT_SOURCE_DIR}/Develop/MidiTools/EngineProbe.cpp)
     target_link_libraries(midi_tools_engine_probe PRIVATE libfluidsynth sfizz_shared)
     add_executable(midi_tools_split_tests ${PROJECT_SOURCE_DIR}/Develop/MidiTools/SplitTests.cpp)
-    target_include_directories(midi_tools_split_tests PRIVATE ${PROJECT_SOURCE_DIR}/src/node/include ${PROJECT_SOURCE_DIR}/src/common/include ${PROJECT_SOURCE_DIR}/src/midi_tools)
-    target_link_libraries(midi_tools_split_tests PRIVATE WinJACKNexus::UI WinJACKNexus::Audio Qt6::Test)
+    target_include_directories(
+        midi_tools_split_tests
+        PRIVATE ${PROJECT_SOURCE_DIR}/src/node/include ${PROJECT_SOURCE_DIR}/src/common/include
+                ${PROJECT_SOURCE_DIR}/src/midi_tools)
+    target_link_libraries(midi_tools_split_tests PRIVATE WinJACKNexus::UI WinJACKNexus::Audio
+                                                         Qt6::Test)
     target_compile_options(midi_tools_split_tests PRIVATE /utf-8)
     add_dependencies(midi_tools_split_tests mod_midi_spilit)
     add_executable(midi_tools_matrix_tests ${PROJECT_SOURCE_DIR}/Develop/MidiTools/MatrixTests.cpp)
-    target_include_directories(midi_tools_matrix_tests PRIVATE ${PROJECT_SOURCE_DIR}/src/node/include ${PROJECT_SOURCE_DIR}/src/common/include ${PROJECT_SOURCE_DIR}/src/midi_tools)
-    target_link_libraries(midi_tools_matrix_tests PRIVATE WinJACKNexus::UI WinJACKNexus::Audio Qt6::Test)
+    target_include_directories(
+        midi_tools_matrix_tests
+        PRIVATE ${PROJECT_SOURCE_DIR}/src/node/include ${PROJECT_SOURCE_DIR}/src/common/include
+                ${PROJECT_SOURCE_DIR}/src/midi_tools)
+    target_link_libraries(midi_tools_matrix_tests PRIVATE WinJACKNexus::UI WinJACKNexus::Audio
+                                                          Qt6::Test)
     target_compile_options(midi_tools_matrix_tests PRIVATE /utf-8)
     add_dependencies(midi_tools_matrix_tests mod_midi_matrix)
     add_executable(midi_tools_synth_tests ${PROJECT_SOURCE_DIR}/Develop/MidiTools/SynthTests.cpp)
@@ -53,23 +76,33 @@ if(BUILD_TESTING)
     target_compile_options(midi_tools_synth_tests PRIVATE /utf-8)
     target_compile_definitions(midi_tools_synth_tests PRIVATE NOMINMAX WIN32_LEAN_AND_MEAN)
     add_executable(midi_tools_synth_sidebar_tests
-        ${PROJECT_SOURCE_DIR}/Develop/MidiTools/SynthSidebarTests.cpp)
-    target_include_directories(midi_tools_synth_sidebar_tests PRIVATE
-        ${PROJECT_SOURCE_DIR}/src/node/include
-        ${PROJECT_SOURCE_DIR}/src/midi_tools)
-    target_link_libraries(midi_tools_synth_sidebar_tests PRIVATE
-        midi_tools_synthcore WinJACKNexus::UI WinJACKNexus::Audio Qt6::Test)
+                   ${PROJECT_SOURCE_DIR}/Develop/MidiTools/SynthSidebarTests.cpp)
+    target_include_directories(
+        midi_tools_synth_sidebar_tests PRIVATE ${PROJECT_SOURCE_DIR}/src/node/include
+                                               ${PROJECT_SOURCE_DIR}/src/midi_tools)
+    target_link_libraries(
+        midi_tools_synth_sidebar_tests PRIVATE midi_tools_synthcore WinJACKNexus::UI
+                                               WinJACKNexus::Audio Qt6::Test)
     target_compile_options(midi_tools_synth_sidebar_tests PRIVATE /utf-8)
     add_dependencies(midi_tools_synth_sidebar_tests mod_sf2_loader)
     add_executable(midi_tools_synth_gui_tests
-        ${PROJECT_SOURCE_DIR}/Develop/MidiTools/SynthGuiTests.cpp)
-    target_include_directories(midi_tools_synth_gui_tests PRIVATE
-        ${PROJECT_SOURCE_DIR}/src/node/include)
-    target_link_libraries(midi_tools_synth_gui_tests PRIVATE
-        midi_tools_synthcore WinJACKNexus::UI Qt6::Test)
+                   ${PROJECT_SOURCE_DIR}/Develop/MidiTools/SynthGuiTests.cpp)
+    target_include_directories(midi_tools_synth_gui_tests
+                               PRIVATE ${PROJECT_SOURCE_DIR}/src/node/include)
+    target_link_libraries(midi_tools_synth_gui_tests PRIVATE midi_tools_synthcore WinJACKNexus::UI
+                                                             Qt6::Test)
     target_compile_options(midi_tools_synth_gui_tests PRIVATE /utf-8)
     add_dependencies(midi_tools_synth_gui_tests mod_sf2_loader)
-    foreach(target midi_tools_foundation_tests midi_tools_engine_probe midi_tools_split_tests midi_tools_matrix_tests midi_tools_synth_tests midi_tools_synth_sidebar_tests midi_tools_synth_gui_tests)
-        set_target_properties(${target} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEASE "${WJN_OUTPUT_DIR}")
+    foreach(
+        target
+        midi_tools_foundation_tests
+        midi_tools_engine_probe
+        midi_tools_split_tests
+        midi_tools_matrix_tests
+        midi_tools_synth_tests
+        midi_tools_synth_sidebar_tests
+        midi_tools_synth_gui_tests)
+        set_target_properties(${target} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEASE
+                                                   "${WJN_OUTPUT_DIR}")
     endforeach()
 endif()

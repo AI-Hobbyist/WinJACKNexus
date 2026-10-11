@@ -17,18 +17,19 @@
 
 #include <Windows.h>
 
-namespace WinJACKNexus::Common {
+namespace WinJACKNexus::Common
+{
 
 Timestamp CpuClock::now() noexcept
 {
-    LARGE_INTEGER counter {};
+    LARGE_INTEGER counter{};
     QueryPerformanceCounter(&counter);
-    return { counter.QuadPart };
+    return {counter.QuadPart};
 }
 
 double CpuClock::frequency() noexcept
 {
-    LARGE_INTEGER frequencyValue {};
+    LARGE_INTEGER frequencyValue{};
     QueryPerformanceFrequency(&frequencyValue);
     return static_cast<double>(frequencyValue.QuadPart);
 }
@@ -41,9 +42,7 @@ double CpuClock::secondsBetween(Timestamp start, Timestamp end) noexcept
     return static_cast<double>(end.ticks - start.ticks) / clockFrequency;
 }
 
-double CpuClock::cpuLoad(Timestamp start,
-                         Timestamp end,
-                         std::size_t frames,
+double CpuClock::cpuLoad(Timestamp start, Timestamp end, std::size_t frames,
                          double sampleRate) noexcept
 {
     if (frames == 0 || sampleRate <= 0.0)

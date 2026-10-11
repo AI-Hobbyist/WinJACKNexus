@@ -22,7 +22,8 @@ set(WJN_OUTPUT_DIR
     CACHE PATH "VSTProcess output directory")
 option(WJN_ENABLE_VST2 "Enable VST2 hosting (licensed use only)" ON)
 
-add_executable(vst_process32
+add_executable(
+    vst_process32
     "${CMAKE_CURRENT_LIST_DIR}/../src/ProcessMain.cpp"
     "${WJN_VST3SDK_ROOT}/pluginterfaces/base/funknown.cpp"
     "${WJN_VST3SDK_ROOT}/pluginterfaces/base/coreiids.cpp"
@@ -37,32 +38,27 @@ add_executable(vst_process32
     "${WJN_VST3SDK_ROOT}/public.sdk/source/vst/utility/stringconvert.cpp"
     "${WJN_VST3SDK_ROOT}/public.sdk/source/vst/vstinitiids.cpp"
     "${WJN_VST3SDK_ROOT}/public.sdk/source/common/commonstringconvert.cpp"
-    "${WJN_VST3SDK_ROOT}/public.sdk/source/common/threadchecker_win32.cpp"
-)
+    "${WJN_VST3SDK_ROOT}/public.sdk/source/common/threadchecker_win32.cpp")
 
-target_include_directories(vst_process32
-    PRIVATE
-        "${CMAKE_CURRENT_LIST_DIR}/../../../src/common/include"
-        "${WJN_VST3SDK_ROOT}"
-        "${WJN_JACK2_ROOT}/include"
-)
+target_include_directories(
+    vst_process32 PRIVATE "${CMAKE_CURRENT_LIST_DIR}/../../../src/common/include"
+                          "${WJN_VST3SDK_ROOT}" "${WJN_JACK2_ROOT}/include")
 target_compile_features(vst_process32 PRIVATE cxx_std_17)
 target_compile_definitions(vst_process32 PRIVATE WIN32_LEAN_AND_MEAN NOMINMAX)
 if(WJN_ENABLE_VST2)
-    target_include_directories(vst_process32 PRIVATE "${CMAKE_CURRENT_LIST_DIR}/../../../third_party/vst2sdk")
+    target_include_directories(vst_process32
+                               PRIVATE "${CMAKE_CURRENT_LIST_DIR}/../../../third_party/vst2sdk")
     target_compile_definitions(vst_process32 PRIVATE WJN_ENABLE_VST2=1)
 endif()
 target_compile_options(vst_process32 PRIVATE $<$<CXX_COMPILER_ID:MSVC>:/utf-8>)
 target_link_libraries(vst_process32 PRIVATE Ole32 Shell32)
 set_target_properties(
     vst_process32
-    PROPERTIES
-        CXX_STANDARD 17
-        CXX_STANDARD_REQUIRED YES
-        OUTPUT_NAME "VSTProcess32"
-        RUNTIME_OUTPUT_DIRECTORY "${WJN_OUTPUT_DIR}"
-        RUNTIME_OUTPUT_DIRECTORY_DEBUG "${WJN_OUTPUT_DIR}"
-        RUNTIME_OUTPUT_DIRECTORY_RELEASE "${WJN_OUTPUT_DIR}"
-        RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO "${WJN_OUTPUT_DIR}"
-        RUNTIME_OUTPUT_DIRECTORY_MINSIZEREL "${WJN_OUTPUT_DIR}"
-)
+    PROPERTIES CXX_STANDARD 17
+               CXX_STANDARD_REQUIRED YES
+               OUTPUT_NAME "VSTProcess32"
+               RUNTIME_OUTPUT_DIRECTORY "${WJN_OUTPUT_DIR}"
+               RUNTIME_OUTPUT_DIRECTORY_DEBUG "${WJN_OUTPUT_DIR}"
+               RUNTIME_OUTPUT_DIRECTORY_RELEASE "${WJN_OUTPUT_DIR}"
+               RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO "${WJN_OUTPUT_DIR}"
+               RUNTIME_OUTPUT_DIRECTORY_MINSIZEREL "${WJN_OUTPUT_DIR}")

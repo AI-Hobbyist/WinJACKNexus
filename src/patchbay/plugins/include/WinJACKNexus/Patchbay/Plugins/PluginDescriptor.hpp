@@ -19,15 +19,18 @@
 
 #include <string>
 
-namespace WinJACKNexus::Patchbay::Plugins {
+namespace WinJACKNexus::Patchbay::Plugins
+{
 
-enum class PluginKind : unsigned char {
+enum class PluginKind : unsigned char
+{
     internal,
     vst2,
     vst3
 };
 
-struct WINJACK_PATCHBAY_PLUGINS_API PluginDescriptor final {
+struct WINJACK_PATCHBAY_PLUGINS_API PluginDescriptor final
+{
     PluginKind kind = PluginKind::internal;
     std::string identifier;
     std::string name;

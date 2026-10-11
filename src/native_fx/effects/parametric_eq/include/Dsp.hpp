@@ -3,13 +3,22 @@
 #include <WinJACKNexus/NativeFx/parametric_eq/Processor.hpp>
 #include <cstdint>
 
-struct ParametricEqDsp final {
+struct ParametricEqDsp final
+{
     using Processor = WinJACKNexus::Common::ParametricEqProcessor;
     using Parameters = WinJACKNexus::Common::ParametricEqParameters;
-    static void prepare(Processor& processor, double rate) { processor.prepare(rate); }
-    static void setParameters(Processor& processor, const Parameters& values) { processor.setParameters(values); }
-    static void process(Processor& processor, const Parameters& values,
-                        const float* input, float* output, std::uint32_t frames) {
-        for (std::uint32_t frame = 0; frame < frames; ++frame) output[frame] = processor.process(input[frame]);
+    static void prepare(Processor &processor, double rate)
+    {
+        processor.prepare(rate);
+    }
+    static void setParameters(Processor &processor, const Parameters &values)
+    {
+        processor.setParameters(values);
+    }
+    static void process(Processor &processor, const Parameters &values, const float *input,
+                        float *output, std::uint32_t frames)
+    {
+        for (std::uint32_t frame = 0; frame < frames; ++frame)
+            output[frame] = processor.process(input[frame]);
     }
 };

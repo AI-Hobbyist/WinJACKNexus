@@ -19,18 +19,17 @@
 
 #include <new>
 
-namespace WinJACKNexus::Audio {
+namespace WinJACKNexus::Audio
+{
 
-struct JackClient::Impl final {
-    jack_client_t* handle = nullptr;
+struct JackClient::Impl final
+{
+    jack_client_t *handle = nullptr;
     jack_status_t status = JackFailure;
     bool active = false;
 };
 
-JackClient::JackClient() noexcept
-    : impl_(new (std::nothrow) Impl {})
-{
-}
+JackClient::JackClient() noexcept : impl_(new (std::nothrow) Impl{}) {}
 
 JackClient::~JackClient() noexcept
 {
@@ -38,13 +37,12 @@ JackClient::~JackClient() noexcept
     delete impl_;
 }
 
-JackClient::JackClient(JackClient&& other) noexcept
-    : impl_(other.impl_)
+JackClient::JackClient(JackClient &&other) noexcept : impl_(other.impl_)
 {
     other.impl_ = nullptr;
 }
 
-JackClient& JackClient::operator=(JackClient&& other) noexcept
+JackClient &JackClient::operator=(JackClient &&other) noexcept
 {
     if (this == &other)
         return *this;
@@ -55,16 +53,16 @@ JackClient& JackClient::operator=(JackClient&& other) noexcept
     return *this;
 }
 
-bool JackClient::open(const JackClientOptions& options) noexcept
+bool JackClient::open(const JackClientOptions &options) noexcept
 {
     if (impl_ == nullptr)
-        impl_ = new (std::nothrow) Impl {};
+        impl_ = new (std::nothrow) Impl{};
     if (impl_ == nullptr)
         return false;
     if (impl_->handle != nullptr)
         return true;
 
-    auto& api = JackApi::instance();
+    auto &api = JackApi::instance();
     if (!api.load())
         return false;
 
@@ -74,11 +72,14 @@ bool JackClient::open(const JackClientOptions& options) noexcept
     if (options.useExactName)
         jackOptions = static_cast<jack_options_t>(jackOptions | JackUseExactName);
 
-    const char* clientName = options.name != nullptr && *options.name != '\0' ? options.name : "WinJACKNexus";
+    const char *clientName =
+        options.name != nullptr && *options.name != '\0' ? options.name : "WinJACKNexus";
     impl_->status = JackFailure;
     impl_->handle = api.clientOpen(clientName, jackOptions, &impl_->status, options.serverName);
-    if (impl_->handle == nullptr) {
-        WJN_LOG_WARN("Unable to open JACK client, status=0x%lx", static_cast<unsigned long>(impl_->status));
+    if (impl_->handle == nullptr)
+    {
+        WJN_LOG_WARN("Unable to open JACK client, status=0x%lx",
+                     static_cast<unsigned long>(impl_->status));
         return false;
     }
     impl_->active = false;
@@ -90,8 +91,9 @@ bool JackClient::close() noexcept
     if (impl_ == nullptr || impl_->handle == nullptr)
         return true;
 
-    auto& api = JackApi::instance();
-    if (impl_->active) {
+    auto &api = JackApi::instance();
+    if (impl_->active)
+    {
         api.deactivate(impl_->handle);
         impl_->active = false;
     }
@@ -133,16 +135,16 @@ bool JackClient::isActive() const noexcept
     return impl_ != nullptr && impl_->active;
 }
 
-jack_client_t* JackClient::nativeHandle() const noexcept
+jack_client_t *JackClient::nativeHandle() const noexcept
 {
     return impl_ != nullptr ? impl_->handle : nullptr;
 }
 
-const char* JackClient::name() const noexcept
+const char *JackClient::name() const noexcept
 {
     return impl_ != nullptr && impl_->handle != nullptr
-        ? JackApi::instance().clientName(impl_->handle)
-        : nullptr;
+               ? JackApi::instance().clientName(impl_->handle)
+               : nullptr;
 }
 
 jack_status_t JackClient::lastStatus() const noexcept
@@ -150,66 +152,65 @@ jack_status_t JackClient::lastStatus() const noexcept
     return impl_ != nullptr ? impl_->status : JackFailure;
 }
 
-void JackClient::setShutdownCallback(JackShutdownCallback callback, void* argument) noexcept
+void JackClient::setShutdownCallback(JackShutdownCallback callback, void *argument) noexcept
 {
     if (impl_ != nullptr && impl_->handle != nullptr)
         JackApi::instance().setShutdownCallback(impl_->handle, callback, argument);
 }
 
-int JackClient::setProcessCallback(JackProcessCallback callback, void* argument) noexcept
+int JackClient::setProcessCallback(JackProcessCallback callback, void *argument) noexcept
 {
     return impl_ != nullptr && impl_->handle != nullptr
-        ? JackApi::instance().setProcessCallback(impl_->handle, callback, argument)
-        : -1;
+               ? JackApi::instance().setProcessCallback(impl_->handle, callback, argument)
+               : -1;
 }
 
-int JackClient::setBufferSizeCallback(JackBufferSizeCallback callback, void* argument) noexcept
+int JackClient::setBufferSizeCallback(JackBufferSizeCallback callback, void *argument) noexcept
 {
     return impl_ != nullptr && impl_->handle != nullptr
-        ? JackApi::instance().setBufferSizeCallback(impl_->handle, callback, argument)
-        : -1;
+               ? JackApi::instance().setBufferSizeCallback(impl_->handle, callback, argument)
+               : -1;
 }
 
-int JackClient::setSampleRateCallback(JackSampleRateCallback callback, void* argument) noexcept
+int JackClient::setSampleRateCallback(JackSampleRateCallback callback, void *argument) noexcept
 {
     return impl_ != nullptr && impl_->handle != nullptr
-        ? JackApi::instance().setSampleRateCallback(impl_->handle, callback, argument)
-        : -1;
+               ? JackApi::instance().setSampleRateCallback(impl_->handle, callback, argument)
+               : -1;
 }
 
-int JackClient::setGraphOrderCallback(JackGraphOrderCallback callback, void* argument) noexcept
+int JackClient::setGraphOrderCallback(JackGraphOrderCallback callback, void *argument) noexcept
 {
     return impl_ != nullptr && impl_->handle != nullptr
-        ? JackApi::instance().setGraphOrderCallback(impl_->handle, callback, argument)
-        : -1;
+               ? JackApi::instance().setGraphOrderCallback(impl_->handle, callback, argument)
+               : -1;
 }
 
-    int JackClient::setXRunCallback(JackXRunCallback callback, void* argument) noexcept
-    {
-        return impl_ != nullptr && impl_->handle != nullptr
-        ? JackApi::instance().setXRunCallback(impl_->handle, callback, argument)
-        : -1;
-    }
+int JackClient::setXRunCallback(JackXRunCallback callback, void *argument) noexcept
+{
+    return impl_ != nullptr && impl_->handle != nullptr
+               ? JackApi::instance().setXRunCallback(impl_->handle, callback, argument)
+               : -1;
+}
 
 jack_nframes_t JackClient::sampleRate() const noexcept
 {
     return impl_ != nullptr && impl_->handle != nullptr
-        ? JackApi::instance().sampleRate(impl_->handle)
-        : 0;
+               ? JackApi::instance().sampleRate(impl_->handle)
+               : 0;
 }
 
 jack_nframes_t JackClient::bufferSize() const noexcept
 {
     return impl_ != nullptr && impl_->handle != nullptr
-        ? JackApi::instance().bufferSize(impl_->handle)
-        : 0;
+               ? JackApi::instance().bufferSize(impl_->handle)
+               : 0;
 }
 
 float JackClient::cpuLoad() const noexcept
 {
-    return impl_ != nullptr && impl_->handle != nullptr
-        ? JackApi::instance().cpuLoad(impl_->handle)
-        : 0.0f;
+    return impl_ != nullptr && impl_->handle != nullptr ? JackApi::instance().cpuLoad(impl_->handle)
+                                                        : 0.0f;
 }
 
 }

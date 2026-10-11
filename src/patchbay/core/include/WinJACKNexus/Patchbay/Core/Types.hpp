@@ -17,9 +17,11 @@
 
 #include <cstdint>
 
-namespace WinJACKNexus::Patchbay::Core {
+namespace WinJACKNexus::Patchbay::Core
+{
 
-enum class PortKind : std::uint8_t {
+enum class PortKind : std::uint8_t
+{
     audio,
     midi,
     cv,
@@ -27,13 +29,15 @@ enum class PortKind : std::uint8_t {
     unknown
 };
 
-enum class Direction : std::uint8_t {
+enum class Direction : std::uint8_t
+{
     input,
     output,
     unknown
 };
 
-enum class PortGroupHint : std::uint32_t {
+enum class PortGroupHint : std::uint32_t
+{
     none = 0,
     mainInput = 1u << 0,
     mainOutput = 1u << 1,
@@ -43,7 +47,8 @@ enum class PortGroupHint : std::uint32_t {
 
 constexpr PortGroupHint operator|(PortGroupHint left, PortGroupHint right) noexcept
 {
-    return static_cast<PortGroupHint>(static_cast<std::uint32_t>(left) | static_cast<std::uint32_t>(right));
+    return static_cast<PortGroupHint>(static_cast<std::uint32_t>(left) |
+                                      static_cast<std::uint32_t>(right));
 }
 
 constexpr bool hasHint(PortGroupHint value, PortGroupHint hint) noexcept

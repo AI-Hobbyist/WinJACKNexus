@@ -12,7 +12,6 @@ from pathlib import Path
 
 from PIL import Image
 
-
 ICON_SIZES = (16, 20, 24, 32, 40, 48, 64, 96, 128, 256)
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_SOURCE = PROJECT_ROOT / "ico" / "vst_scan.png"
@@ -59,8 +58,15 @@ def generate_icon(source: Path, output: Path) -> None:
 
 def parse_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--source", type=Path, default=DEFAULT_SOURCE, help="PNG artwork to crop.")
-    parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT, help="Generated Windows ICO file.")
+    parser.add_argument(
+        "--source", type=Path, default=DEFAULT_SOURCE, help="PNG artwork to crop."
+    )
+    parser.add_argument(
+        "--output",
+        type=Path,
+        default=DEFAULT_OUTPUT,
+        help="Generated Windows ICO file.",
+    )
     return parser.parse_args()
 
 

@@ -12,46 +12,54 @@
 #include <span>
 #include <vector>
 
-namespace WinJACKNexus::Common {
+namespace WinJACKNexus::Common
+{
 
-enum class AuxChannelLayout : std::uint8_t {
+enum class AuxChannelLayout : std::uint8_t
+{
     mono,
     stereo,
     surround51,
     surround71
 };
 
-enum class AuxPanMode : std::uint8_t { spatial, classic };
-
-struct AuxSendChannel final {
-    QString label;
-    QString name;
-    double levelDb {};
-    double meterDb { -72.0 };
-    bool mute {};
-    bool solo {};
+enum class AuxPanMode : std::uint8_t
+{
+    spatial,
+    classic
 };
 
-struct AuxBusState final {
-    std::uint32_t id {};
-    std::uint32_t cloneSourceId {};
+struct AuxSendChannel final
+{
+    QString label;
+    QString name;
+    double levelDb{};
+    double meterDb{-72.0};
+    bool mute{};
+    bool solo{};
+};
+
+struct AuxBusState final
+{
+    std::uint32_t id{};
+    std::uint32_t cloneSourceId{};
     QString name;
     QColor accent;
-    bool enabled { true };
-    bool selfRoute {};
-    bool preFader { true };
-    bool sendsLinked { true };
-    bool linked {};
+    bool enabled{true};
+    bool selfRoute{};
+    bool preFader{true};
+    bool sendsLinked{true};
+    bool linked{};
     // Display-only switch for the input/output polar curve overlay.
-    bool showPolarCurves { true };
-    bool showInputCurve { true };
-    bool showOutputCurve { true };
-    AuxPanMode panMode { AuxPanMode::spatial };
-    double classicPan {};
-    AuxChannelLayout sourceLayout { AuxChannelLayout::stereo };
-    AuxChannelLayout targetLayout { AuxChannelLayout::stereo };
-    double width { 1.0 };
-    double angleDegrees {};
+    bool showPolarCurves{true};
+    bool showInputCurve{true};
+    bool showOutputCurve{true};
+    AuxPanMode panMode{AuxPanMode::spatial};
+    double classicPan{};
+    AuxChannelLayout sourceLayout{AuxChannelLayout::stereo};
+    AuxChannelLayout targetLayout{AuxChannelLayout::stereo};
+    double width{1.0};
+    double angleDegrees{};
     std::vector<QPointF> adjustablePoints;
     // Per-source-point radius in normalized panner coordinates (0.1 to 0.75).
     std::vector<double> pointInfluenceRadii;
@@ -64,56 +72,60 @@ WINJACK_COMMON_API std::vector<QPointF> auxLayoutReferencePoints(AuxChannelLayou
 WINJACK_COMMON_API bool auxHasSpatialPoint(AuxChannelLayout layout, int channelIndex);
 WINJACK_COMMON_API bool auxSupportsClassicPan(AuxChannelLayout source, AuxChannelLayout target);
 WINJACK_COMMON_API QPointF auxClampPannerPoint(QPointF point);
-WINJACK_COMMON_API void auxSetPannerAngle(AuxBusState& bus, double angleDegrees);
+WINJACK_COMMON_API void auxSetPannerAngle(AuxBusState &bus, double angleDegrees);
 WINJACK_COMMON_API double auxInfluencePixelRadius(double influenceRadius);
 WINJACK_COMMON_API double auxInfluenceRadiusForPixels(double pixels);
-WINJACK_COMMON_API void auxSetPointInfluenceRadius(AuxBusState& bus, int index, double radius);
+WINJACK_COMMON_API void auxSetPointInfluenceRadius(AuxBusState &bus, int index, double radius);
 // Constant-power gains: the nearest outputs pan by distance; a wider influence
 // radius adds nearby outputs without sending the channel across the whole layout.
-WINJACK_COMMON_API std::vector<double> auxSpatialOutputGains(const AuxBusState& bus, int sourceIndex);
+WINJACK_COMMON_API std::vector<double> auxSpatialOutputGains(const AuxBusState &bus,
+                                                             int sourceIndex);
 // Adds enabled spatial sends to output buffers; each pointer holds `frames` samples.
-WINJACK_COMMON_API void auxMixSpatialBlock(const AuxBusState& bus,
-    std::span<const float* const> inputs, std::span<float* const> outputs, std::size_t frames);
+WINJACK_COMMON_API void auxMixSpatialBlock(const AuxBusState &bus,
+                                           std::span<const float *const> inputs,
+                                           std::span<float *const> outputs, std::size_t frames);
 
-class WINJACK_COMMON_API AuxMixerState final {
-public:
+class WINJACK_COMMON_API AuxMixerState final
+{
+  public:
     AuxMixerState();
 
-    const std::vector<AuxBusState>& buses() const noexcept;
-    std::vector<AuxBusState>& buses() noexcept;
-    AuxBusState* bus(std::uint32_t id) noexcept;
-    const AuxBusState* bus(std::uint32_t id) const noexcept;
+    const std::vector<AuxBusState> &buses() const noexcept;
+    std::vector<AuxBusState> &buses() noexcept;
+    AuxBusState *bus(std::uint32_t id) noexcept;
+    const AuxBusState *bus(std::uint32_t id) const noexcept;
 
-    std::vector<AuxBusState>& busesForSource(const QString& sourceKey, std::uint32_t selfAuxId = 0);
-    AuxBusState* busForSource(const QString& sourceKey, std::uint32_t id,
+    std::vector<AuxBusState> &busesForSource(const QString &sourceKey, std::uint32_t selfAuxId = 0);
+    AuxBusState *busForSource(const QString &sourceKey, std::uint32_t id,
                               std::uint32_t selfAuxId = 0);
 
-    AuxBusState& addBus(AuxChannelLayout layout = AuxChannelLayout::stereo);
-    AuxBusState* cloneBus(std::uint32_t id);
+    AuxBusState &addBus(AuxChannelLayout layout = AuxChannelLayout::stereo);
+    AuxBusState *cloneBus(std::uint32_t id);
     bool removeBus(std::uint32_t id, bool allowEmpty = false);
     void clearBuses();
     bool setBusLayout(std::uint32_t id, AuxChannelLayout layout);
-    void setBusAccent(std::uint32_t id, const QColor& accent);
-    void resetBus(const QString& sourceKey, std::uint32_t id, std::uint32_t selfAuxId = 0);
-    void setLayouts(const QString& sourceKey, std::uint32_t id, AuxChannelLayout source,
+    void setBusAccent(std::uint32_t id, const QColor &accent);
+    void resetBus(const QString &sourceKey, std::uint32_t id, std::uint32_t selfAuxId = 0);
+    void setLayouts(const QString &sourceKey, std::uint32_t id, AuxChannelLayout source,
                     AuxChannelLayout target, std::uint32_t selfAuxId = 0);
 
-private:
-    struct SourceState final {
+  private:
+    struct SourceState final
+    {
         QString key;
-        std::uint32_t selfAuxId {};
+        std::uint32_t selfAuxId{};
         std::vector<AuxBusState> buses;
     };
 
-    AuxBusState makeBus(std::uint32_t id, const QString& name,
-                        AuxChannelLayout source, AuxChannelLayout target) const;
-    SourceState& sourceState(const QString& sourceKey, std::uint32_t selfAuxId);
-    void applySelfRoute(AuxBusState& bus, std::uint32_t selfAuxId) const;
-    void rebuildChannels(AuxBusState& bus) const;
+    AuxBusState makeBus(std::uint32_t id, const QString &name, AuxChannelLayout source,
+                        AuxChannelLayout target) const;
+    SourceState &sourceState(const QString &sourceKey, std::uint32_t selfAuxId);
+    void applySelfRoute(AuxBusState &bus, std::uint32_t selfAuxId) const;
+    void rebuildChannels(AuxBusState &bus) const;
 
     std::vector<AuxBusState> buses_;
     std::vector<SourceState> sourceStates_;
-    std::uint32_t nextId_ { 1 };
+    std::uint32_t nextId_{1};
 };
 
 }

@@ -20,17 +20,13 @@ set(WJN_VST_PROCESS_SOURCES
     "${WJN_VST3SDK_ROOT}/public.sdk/source/vst/utility/stringconvert.cpp"
     "${WJN_VST3SDK_ROOT}/public.sdk/source/vst/vstinitiids.cpp"
     "${WJN_VST3SDK_ROOT}/public.sdk/source/common/commonstringconvert.cpp"
-    "${WJN_VST3SDK_ROOT}/public.sdk/source/common/threadchecker_win32.cpp"
-)
+    "${WJN_VST3SDK_ROOT}/public.sdk/source/common/threadchecker_win32.cpp")
 
 add_executable(vst_process64 ${WJN_VST_PROCESS_SOURCES})
 
-target_include_directories(vst_process64
-    PRIVATE
-        "${PROJECT_SOURCE_DIR}/src/common/include"
-        "${WJN_VST3SDK_ROOT}"
-        "${PROJECT_SOURCE_DIR}/third_party/JACK2/include"
-)
+target_include_directories(
+    vst_process64 PRIVATE "${PROJECT_SOURCE_DIR}/src/common/include" "${WJN_VST3SDK_ROOT}"
+                          "${PROJECT_SOURCE_DIR}/third_party/JACK2/include")
 target_compile_features(vst_process64 PRIVATE cxx_std_17)
 target_compile_definitions(vst_process64 PRIVATE WIN32_LEAN_AND_MEAN NOMINMAX)
 if(WJN_ENABLE_VST2)
@@ -41,13 +37,11 @@ target_compile_options(vst_process64 PRIVATE $<$<CXX_COMPILER_ID:MSVC>:/utf-8>)
 target_link_libraries(vst_process64 PRIVATE Ole32 Shell32)
 set_target_properties(
     vst_process64
-    PROPERTIES
-        CXX_STANDARD 17
-        CXX_STANDARD_REQUIRED YES
-        OUTPUT_NAME "VSTProcess64"
-        RUNTIME_OUTPUT_DIRECTORY "${WJN_OUTPUT_DIR}"
-        RUNTIME_OUTPUT_DIRECTORY_DEBUG "${WJN_OUTPUT_DIR}"
-        RUNTIME_OUTPUT_DIRECTORY_RELEASE "${WJN_OUTPUT_DIR}"
-        RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO "${WJN_OUTPUT_DIR}"
-        RUNTIME_OUTPUT_DIRECTORY_MINSIZEREL "${WJN_OUTPUT_DIR}"
-)
+    PROPERTIES CXX_STANDARD 17
+               CXX_STANDARD_REQUIRED YES
+               OUTPUT_NAME "VSTProcess64"
+               RUNTIME_OUTPUT_DIRECTORY "${WJN_OUTPUT_DIR}"
+               RUNTIME_OUTPUT_DIRECTORY_DEBUG "${WJN_OUTPUT_DIR}"
+               RUNTIME_OUTPUT_DIRECTORY_RELEASE "${WJN_OUTPUT_DIR}"
+               RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO "${WJN_OUTPUT_DIR}"
+               RUNTIME_OUTPUT_DIRECTORY_MINSIZEREL "${WJN_OUTPUT_DIR}")

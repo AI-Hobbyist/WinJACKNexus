@@ -24,16 +24,19 @@
 #include <optional>
 #include <vector>
 
-namespace WinJACKNexus::UI {
+namespace WinJACKNexus::UI
+{
 
-struct MeterLevelMark final {
+struct MeterLevelMark final
+{
     float value = 0.0F;
     QString label;
 };
 
-class WINJACK_UI_API MeterLevelBar final : public AnimatedWidget {
-public:
-    explicit MeterLevelBar(QWidget* parent = nullptr);
+class WINJACK_UI_API MeterLevelBar final : public AnimatedWidget
+{
+  public:
+    explicit MeterLevelBar(QWidget *parent = nullptr);
     ~MeterLevelBar() override = default;
 
     void setRange(float minimum, float maximum);
@@ -41,8 +44,8 @@ public:
     float maximum() const noexcept;
     void setThresholds(float warning, float danger);
     void setMarks(std::vector<MeterLevelMark> marks);
-    const std::vector<MeterLevelMark>& marks() const noexcept;
-    void setUnit(const QString& unit);
+    const std::vector<MeterLevelMark> &marks() const noexcept;
+    void setUnit(const QString &unit);
     QString unit() const;
     void setShowScaleLabels(bool show);
     bool showScaleLabels() const noexcept;
@@ -54,19 +57,19 @@ public:
     std::optional<float> peakValue() const noexcept;
     void advanceAnimation();
 
-    void setThemePalette(const ThemePalette& palette);
+    void setThemePalette(const ThemePalette &palette);
     ThemePalette themePalette() const;
 
     QSize sizeHint() const override;
 
-protected:
-    void paintContent(QPainter& painter) override;
+  protected:
+    void paintContent(QPainter &painter) override;
     void advanceFrame() override;
 
-private:
+  private:
     float normalize(float value) const noexcept;
     float denormalize(float value) const noexcept;
-    QString markLabel(const MeterLevelMark& mark) const;
+    QString markLabel(const MeterLevelMark &mark) const;
 
     float minimum_ = -72.0F;
     float maximum_ = 12.0F;

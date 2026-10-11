@@ -27,24 +27,27 @@
 #include <string>
 #include <vector>
 
-namespace WinJACKNexus::Audio {
+namespace WinJACKNexus::Audio
+{
 
-namespace {
+namespace
+{
 
 template <typename Function>
-bool loadFunction(HMODULE module, const char* name, Function& function) noexcept
+bool loadFunction(HMODULE module, const char *name, Function &function) noexcept
 {
     function = reinterpret_cast<Function>(GetProcAddress(module, name));
     return function != nullptr;
 }
 
-std::vector<std::wstring> candidatePaths(const wchar_t* explicitPath)
+std::vector<std::wstring> candidatePaths(const wchar_t *explicitPath)
 {
     std::vector<std::wstring> candidates;
     if (explicitPath != nullptr && *explicitPath != L'\0')
         candidates.emplace_back(explicitPath);
 
-    if (const auto* environmentPath = _wgetenv(L"WJN_JACK_DLL"); environmentPath != nullptr && *environmentPath != L'\0')
+    if (const auto *environmentPath = _wgetenv(L"WJN_JACK_DLL");
+        environmentPath != nullptr && *environmentPath != L'\0')
         candidates.emplace_back(environmentPath);
 
     candidates.emplace_back(L"libjack64.dll");
@@ -52,14 +55,18 @@ std::vector<std::wstring> candidatePaths(const wchar_t* explicitPath)
     const auto moduleDirectory = Common::PathUtils::moduleDirectory();
     candidates.emplace_back((moduleDirectory / L"libjack64.dll").wstring());
     candidates.emplace_back((moduleDirectory / L"lib" / L"libjack64.dll").wstring());
-    candidates.emplace_back((moduleDirectory / L".." / L"libjack64.dll").lexically_normal().wstring());
+    candidates.emplace_back(
+        (moduleDirectory / L".." / L"libjack64.dll").lexically_normal().wstring());
 
-    if (const auto* programFiles = _wgetenv(L"ProgramFiles"); programFiles != nullptr && *programFiles != L'\0') {
+    if (const auto *programFiles = _wgetenv(L"ProgramFiles");
+        programFiles != nullptr && *programFiles != L'\0')
+    {
         const auto jackDirectory = std::filesystem::path(programFiles) / L"JACK2";
         candidates.emplace_back((jackDirectory / L"lib" / L"libjack64.dll").wstring());
         candidates.emplace_back((jackDirectory / L"libjack64.dll").wstring());
     }
-    if (const auto* systemRoot = _wgetenv(L"SystemRoot"); systemRoot != nullptr && *systemRoot != L'\0')
+    if (const auto *systemRoot = _wgetenv(L"SystemRoot");
+        systemRoot != nullptr && *systemRoot != L'\0')
         candidates.emplace_back(std::filesystem::path(systemRoot) / L"libjack64.dll");
 
     return candidates;
@@ -67,7 +74,8 @@ std::vector<std::wstring> candidatePaths(const wchar_t* explicitPath)
 
 }
 
-struct JackApi::Impl final {
+struct JackApi::Impl final
+{
     using ClientOpen = decltype(&jack_client_open);
     using ClientClose = decltype(&jack_client_close);
     using ClientNameSize = decltype(&jack_client_name_size);
@@ -118,7 +126,8 @@ struct JackApi::Impl final {
     using RingbufferWriteAdvance = decltype(&jack_ringbuffer_write_advance);
     using RingbufferWriteSpace = decltype(&jack_ringbuffer_write_space);
 
-    struct Functions final {
+    struct Functions final
+    {
         decltype(&jack_get_version_string) getVersionString = nullptr;
         ClientOpen clientOpen = nullptr;
         ClientClose clientClose = nullptr;
@@ -176,16 +185,13 @@ struct JackApi::Impl final {
     std::mutex mutex;
 };
 
-JackApi& JackApi::instance() noexcept
+JackApi &JackApi::instance() noexcept
 {
     static JackApi api;
     return api;
 }
 
-JackApi::JackApi()
-    : impl_(new Impl {})
-{
-}
+JackApi::JackApi() : impl_(new Impl{}) {}
 
 JackApi::~JackApi() noexcept
 {
@@ -193,24 +199,27 @@ JackApi::~JackApi() noexcept
     delete impl_;
 }
 
-bool JackApi::load(const wchar_t* explicitPath) noexcept
+bool JackApi::load(const wchar_t *explicitPath) noexcept
 {
     std::lock_guard lock(impl_->mutex);
     if (impl_->module != nullptr)
         return true;
 
-    try {
-        for (const auto& candidate : candidatePaths(explicitPath)) {
+    try
+    {
+        for (const auto &candidate : candidatePaths(explicitPath))
+        {
             const auto module = LoadLibraryW(candidate.c_str());
             if (module == nullptr)
                 continue;
 
             Impl::Functions functions;
-#define WJN_LOAD_JACK_FUNCTION(field, symbol) \
-    if (!loadFunction(module, symbol, functions.field)) { \
-        FreeLibrary(module); \
-        WJN_LOG_ERROR("JACK runtime is missing symbol %s", symbol); \
-        continue; \
+#define WJN_LOAD_JACK_FUNCTION(field, symbol)                                                      \
+    if (!loadFunction(module, symbol, functions.field))                                            \
+    {                                                                                              \
+        FreeLibrary(module);                                                                       \
+        WJN_LOG_ERROR("JACK runtime is missing symbol %s", symbol);                                \
+        continue;                                                                                  \
     }
             WJN_LOAD_JACK_FUNCTION(getVersionString, "jack_get_version_string");
             WJN_LOAD_JACK_FUNCTION(clientOpen, "jack_client_open");
@@ -266,13 +275,16 @@ bool JackApi::load(const wchar_t* explicitPath) noexcept
 
             impl_->functions = functions;
             impl_->module = module;
-            wchar_t loadedPath[32768] {};
-            const auto pathLength = GetModuleFileNameW(module, loadedPath, static_cast<DWORD>(std::size(loadedPath)));
+            wchar_t loadedPath[32768]{};
+            const auto pathLength =
+                GetModuleFileNameW(module, loadedPath, static_cast<DWORD>(std::size(loadedPath)));
             impl_->path.assign(loadedPath, pathLength);
             WJN_LOG_INFO("Loaded JACK runtime");
             return true;
         }
-    } catch (...) {
+    }
+    catch (...)
+    {
     }
 
     WJN_LOG_WARN("JACK runtime could not be loaded");
@@ -295,31 +307,31 @@ bool JackApi::isLoaded() const noexcept
     return impl_->module != nullptr;
 }
 
-const wchar_t* JackApi::loadedPath() const noexcept
+const wchar_t *JackApi::loadedPath() const noexcept
 {
     return impl_->path.empty() ? nullptr : impl_->path.c_str();
 }
 
-const char* JackApi::versionString() const noexcept
+const char *JackApi::versionString() const noexcept
 {
-    return impl_->functions.getVersionString != nullptr ? impl_->functions.getVersionString() : nullptr;
+    return impl_->functions.getVersionString != nullptr ? impl_->functions.getVersionString()
+                                                        : nullptr;
 }
 
-jack_client_t* JackApi::clientOpen(const char* clientName,
-                                   jack_options_t options,
-                                   jack_status_t* status,
-                                   const char* serverName) const noexcept
+jack_client_t *JackApi::clientOpen(const char *clientName, jack_options_t options,
+                                   jack_status_t *status, const char *serverName) const noexcept
 {
     if (impl_->functions.clientOpen == nullptr)
         return nullptr;
-    if (serverName != nullptr) {
+    if (serverName != nullptr)
+    {
         options = static_cast<jack_options_t>(options | JackServerName);
         return impl_->functions.clientOpen(clientName, options, status, serverName);
     }
     return impl_->functions.clientOpen(clientName, options, status);
 }
 
-int JackApi::clientClose(jack_client_t* client) const noexcept
+int JackApi::clientClose(jack_client_t *client) const noexcept
 {
     return impl_->functions.clientClose != nullptr ? impl_->functions.clientClose(client) : -1;
 }
@@ -329,305 +341,316 @@ int JackApi::clientNameSize() const noexcept
     return impl_->functions.clientNameSize != nullptr ? impl_->functions.clientNameSize() : 0;
 }
 
-char* JackApi::clientName(jack_client_t* client) const noexcept
+char *JackApi::clientName(jack_client_t *client) const noexcept
 {
-    return impl_->functions.getClientName != nullptr ? impl_->functions.getClientName(client) : nullptr;
+    return impl_->functions.getClientName != nullptr ? impl_->functions.getClientName(client)
+                                                     : nullptr;
 }
 
-int JackApi::activate(jack_client_t* client) const noexcept
+int JackApi::activate(jack_client_t *client) const noexcept
 {
     return impl_->functions.activate != nullptr ? impl_->functions.activate(client) : -1;
 }
 
-int JackApi::deactivate(jack_client_t* client) const noexcept
+int JackApi::deactivate(jack_client_t *client) const noexcept
 {
     return impl_->functions.deactivate != nullptr ? impl_->functions.deactivate(client) : -1;
 }
 
-void JackApi::setShutdownCallback(jack_client_t* client,
-                                  JackShutdownCallback callback,
-                                  void* argument) const noexcept
+void JackApi::setShutdownCallback(jack_client_t *client, JackShutdownCallback callback,
+                                  void *argument) const noexcept
 {
     if (impl_->functions.setShutdownCallback != nullptr)
         impl_->functions.setShutdownCallback(client, callback, argument);
 }
 
-int JackApi::setProcessCallback(jack_client_t* client,
-                                JackProcessCallback callback,
-                                void* argument) const noexcept
+int JackApi::setProcessCallback(jack_client_t *client, JackProcessCallback callback,
+                                void *argument) const noexcept
 {
     return impl_->functions.setProcessCallback != nullptr
-        ? impl_->functions.setProcessCallback(client, callback, argument)
-        : -1;
+               ? impl_->functions.setProcessCallback(client, callback, argument)
+               : -1;
 }
 
-int JackApi::setBufferSizeCallback(jack_client_t* client,
-                                   JackBufferSizeCallback callback,
-                                   void* argument) const noexcept
+int JackApi::setBufferSizeCallback(jack_client_t *client, JackBufferSizeCallback callback,
+                                   void *argument) const noexcept
 {
     return impl_->functions.setBufferSizeCallback != nullptr
-        ? impl_->functions.setBufferSizeCallback(client, callback, argument)
-        : -1;
+               ? impl_->functions.setBufferSizeCallback(client, callback, argument)
+               : -1;
 }
 
-int JackApi::setSampleRateCallback(jack_client_t* client,
-                                   JackSampleRateCallback callback,
-                                   void* argument) const noexcept
+int JackApi::setSampleRateCallback(jack_client_t *client, JackSampleRateCallback callback,
+                                   void *argument) const noexcept
 {
     return impl_->functions.setSampleRateCallback != nullptr
-        ? impl_->functions.setSampleRateCallback(client, callback, argument)
-        : -1;
+               ? impl_->functions.setSampleRateCallback(client, callback, argument)
+               : -1;
 }
 
-int JackApi::setGraphOrderCallback(jack_client_t* client,
-                                   JackGraphOrderCallback callback,
-                                   void* argument) const noexcept
+int JackApi::setGraphOrderCallback(jack_client_t *client, JackGraphOrderCallback callback,
+                                   void *argument) const noexcept
 {
     return impl_->functions.setGraphOrderCallback != nullptr
-        ? impl_->functions.setGraphOrderCallback(client, callback, argument)
-        : -1;
+               ? impl_->functions.setGraphOrderCallback(client, callback, argument)
+               : -1;
 }
 
-    int JackApi::setXRunCallback(jack_client_t* client,
-                     JackXRunCallback callback,
-                     void* argument) const noexcept
-    {
-        return impl_->functions.setXRunCallback != nullptr
-        ? impl_->functions.setXRunCallback(client, callback, argument)
-        : -1;
-    }
+int JackApi::setXRunCallback(jack_client_t *client, JackXRunCallback callback,
+                             void *argument) const noexcept
+{
+    return impl_->functions.setXRunCallback != nullptr
+               ? impl_->functions.setXRunCallback(client, callback, argument)
+               : -1;
+}
 
-jack_nframes_t JackApi::sampleRate(jack_client_t* client) const noexcept
+jack_nframes_t JackApi::sampleRate(jack_client_t *client) const noexcept
 {
     return impl_->functions.getSampleRate != nullptr ? impl_->functions.getSampleRate(client) : 0;
 }
 
-jack_nframes_t JackApi::bufferSize(jack_client_t* client) const noexcept
+jack_nframes_t JackApi::bufferSize(jack_client_t *client) const noexcept
 {
     return impl_->functions.getBufferSize != nullptr ? impl_->functions.getBufferSize(client) : 0;
 }
 
-float JackApi::cpuLoad(jack_client_t* client) const noexcept
+float JackApi::cpuLoad(jack_client_t *client) const noexcept
 {
     return impl_->functions.cpuLoad != nullptr ? impl_->functions.cpuLoad(client) : 0.0f;
 }
 
-jack_port_t* JackApi::portRegister(jack_client_t* client,
-                                   const char* portName,
-                                   const char* portType,
-                                   unsigned long flags,
+jack_port_t *JackApi::portRegister(jack_client_t *client, const char *portName,
+                                   const char *portType, unsigned long flags,
                                    unsigned long bufferSize) const noexcept
 {
     return impl_->functions.portRegister != nullptr
-        ? impl_->functions.portRegister(client, portName, portType, flags, bufferSize)
-        : nullptr;
+               ? impl_->functions.portRegister(client, portName, portType, flags, bufferSize)
+               : nullptr;
 }
 
-int JackApi::portRename(jack_client_t* client, jack_port_t* port, const char* portName) const noexcept
+int JackApi::portRename(jack_client_t *client, jack_port_t *port,
+                        const char *portName) const noexcept
 {
     return impl_->functions.portRename != nullptr
-        ? impl_->functions.portRename(client, port, portName)
-        : -1;
+               ? impl_->functions.portRename(client, port, portName)
+               : -1;
 }
 
-int JackApi::portUnregister(jack_client_t* client, jack_port_t* port) const noexcept
+int JackApi::portUnregister(jack_client_t *client, jack_port_t *port) const noexcept
 {
-    return impl_->functions.portUnregister != nullptr ? impl_->functions.portUnregister(client, port) : -1;
+    return impl_->functions.portUnregister != nullptr
+               ? impl_->functions.portUnregister(client, port)
+               : -1;
 }
 
-void* JackApi::portGetBuffer(jack_port_t* port, jack_nframes_t frames) const noexcept
+void *JackApi::portGetBuffer(jack_port_t *port, jack_nframes_t frames) const noexcept
 {
-    return impl_->functions.portGetBuffer != nullptr ? impl_->functions.portGetBuffer(port, frames) : nullptr;
+    return impl_->functions.portGetBuffer != nullptr ? impl_->functions.portGetBuffer(port, frames)
+                                                     : nullptr;
 }
 
-const char* JackApi::portName(const jack_port_t* port) const noexcept
+const char *JackApi::portName(const jack_port_t *port) const noexcept
 {
     return impl_->functions.portName != nullptr ? impl_->functions.portName(port) : nullptr;
 }
 
-const char* JackApi::portShortName(const jack_port_t* port) const noexcept
+const char *JackApi::portShortName(const jack_port_t *port) const noexcept
 {
-    return impl_->functions.portShortName != nullptr ? impl_->functions.portShortName(port) : nullptr;
+    return impl_->functions.portShortName != nullptr ? impl_->functions.portShortName(port)
+                                                     : nullptr;
 }
 
-int JackApi::portFlags(const jack_port_t* port) const noexcept
+int JackApi::portFlags(const jack_port_t *port) const noexcept
 {
     return impl_->functions.portFlags != nullptr ? impl_->functions.portFlags(port) : 0;
 }
 
-const char* JackApi::portType(const jack_port_t* port) const noexcept
+const char *JackApi::portType(const jack_port_t *port) const noexcept
 {
     return impl_->functions.portType != nullptr ? impl_->functions.portType(port) : nullptr;
 }
 
-const char** JackApi::portGetConnections(const jack_port_t* port) const noexcept
+const char **JackApi::portGetConnections(const jack_port_t *port) const noexcept
 {
-    return impl_->functions.portGetConnections != nullptr ? impl_->functions.portGetConnections(port) : nullptr;
+    return impl_->functions.portGetConnections != nullptr
+               ? impl_->functions.portGetConnections(port)
+               : nullptr;
 }
 
-jack_port_t* JackApi::portByName(jack_client_t* client, const char* portName) const noexcept
+jack_port_t *JackApi::portByName(jack_client_t *client, const char *portName) const noexcept
 {
-    return impl_->functions.portByName != nullptr ? impl_->functions.portByName(client, portName) : nullptr;
+    return impl_->functions.portByName != nullptr ? impl_->functions.portByName(client, portName)
+                                                  : nullptr;
 }
 
-const char** JackApi::getPorts(jack_client_t* client,
-                               const char* portNamePattern,
-                               const char* typeNamePattern,
-                               unsigned long flags) const noexcept
+const char **JackApi::getPorts(jack_client_t *client, const char *portNamePattern,
+                               const char *typeNamePattern, unsigned long flags) const noexcept
 {
     return impl_->functions.getPorts != nullptr
-        ? impl_->functions.getPorts(client, portNamePattern, typeNamePattern, flags)
-        : nullptr;
+               ? impl_->functions.getPorts(client, portNamePattern, typeNamePattern, flags)
+               : nullptr;
 }
 
-int JackApi::connect(jack_client_t* client,
-                     const char* sourcePort,
-                     const char* destinationPort) const noexcept
+int JackApi::connect(jack_client_t *client, const char *sourcePort,
+                     const char *destinationPort) const noexcept
 {
-    return impl_->functions.connect != nullptr ? impl_->functions.connect(client, sourcePort, destinationPort) : -1;
+    return impl_->functions.connect != nullptr
+               ? impl_->functions.connect(client, sourcePort, destinationPort)
+               : -1;
 }
 
-int JackApi::disconnect(jack_client_t* client,
-                        const char* sourcePort,
-                        const char* destinationPort) const noexcept
+int JackApi::disconnect(jack_client_t *client, const char *sourcePort,
+                        const char *destinationPort) const noexcept
 {
     return impl_->functions.disconnect != nullptr
-        ? impl_->functions.disconnect(client, sourcePort, destinationPort)
-        : -1;
+               ? impl_->functions.disconnect(client, sourcePort, destinationPort)
+               : -1;
 }
 
-void JackApi::freeMemory(void* memory) const noexcept
+void JackApi::freeMemory(void *memory) const noexcept
 {
     if (impl_->functions.free != nullptr && memory != nullptr)
         impl_->functions.free(memory);
 }
 
-std::uint32_t JackApi::midiEventCount(void* portBuffer) const noexcept
+std::uint32_t JackApi::midiEventCount(void *portBuffer) const noexcept
 {
-    return impl_->functions.midiEventCount != nullptr ? impl_->functions.midiEventCount(portBuffer) : 0;
+    return impl_->functions.midiEventCount != nullptr ? impl_->functions.midiEventCount(portBuffer)
+                                                      : 0;
 }
 
-int JackApi::midiEventGet(jack_midi_event_t* event,
-                          void* portBuffer,
+int JackApi::midiEventGet(jack_midi_event_t *event, void *portBuffer,
                           std::uint32_t eventIndex) const noexcept
 {
     return impl_->functions.midiEventGet != nullptr
-        ? impl_->functions.midiEventGet(event, portBuffer, eventIndex)
-        : -1;
+               ? impl_->functions.midiEventGet(event, portBuffer, eventIndex)
+               : -1;
 }
 
-void JackApi::midiClearBuffer(void* portBuffer) const noexcept
+void JackApi::midiClearBuffer(void *portBuffer) const noexcept
 {
     if (impl_->functions.midiClearBuffer != nullptr)
         impl_->functions.midiClearBuffer(portBuffer);
 }
 
-std::size_t JackApi::midiMaxEventSize(void* portBuffer) const noexcept
+std::size_t JackApi::midiMaxEventSize(void *portBuffer) const noexcept
 {
-    return impl_->functions.midiMaxEventSize != nullptr ? impl_->functions.midiMaxEventSize(portBuffer) : 0;
+    return impl_->functions.midiMaxEventSize != nullptr
+               ? impl_->functions.midiMaxEventSize(portBuffer)
+               : 0;
 }
 
-jack_midi_data_t* JackApi::midiEventReserve(void* portBuffer,
-                                            jack_nframes_t time,
+jack_midi_data_t *JackApi::midiEventReserve(void *portBuffer, jack_nframes_t time,
                                             std::size_t dataSize) const noexcept
 {
     return impl_->functions.midiEventReserve != nullptr
-        ? impl_->functions.midiEventReserve(portBuffer, time, dataSize)
-        : nullptr;
+               ? impl_->functions.midiEventReserve(portBuffer, time, dataSize)
+               : nullptr;
 }
 
-int JackApi::midiEventWrite(void* portBuffer,
-                            jack_nframes_t time,
-                            const jack_midi_data_t* data,
+int JackApi::midiEventWrite(void *portBuffer, jack_nframes_t time, const jack_midi_data_t *data,
                             std::size_t dataSize) const noexcept
 {
     return impl_->functions.midiEventWrite != nullptr
-        ? impl_->functions.midiEventWrite(portBuffer, time, data, dataSize)
-        : -1;
+               ? impl_->functions.midiEventWrite(portBuffer, time, data, dataSize)
+               : -1;
 }
 
-std::uint32_t JackApi::midiLostEventCount(void* portBuffer) const noexcept
+std::uint32_t JackApi::midiLostEventCount(void *portBuffer) const noexcept
 {
-    return impl_->functions.midiLostEventCount != nullptr ? impl_->functions.midiLostEventCount(portBuffer) : 0;
+    return impl_->functions.midiLostEventCount != nullptr
+               ? impl_->functions.midiLostEventCount(portBuffer)
+               : 0;
 }
 
-jack_ringbuffer_t* JackApi::ringbufferCreate(std::size_t size) const noexcept
+jack_ringbuffer_t *JackApi::ringbufferCreate(std::size_t size) const noexcept
 {
-    return impl_->functions.ringbufferCreate != nullptr ? impl_->functions.ringbufferCreate(size) : nullptr;
+    return impl_->functions.ringbufferCreate != nullptr ? impl_->functions.ringbufferCreate(size)
+                                                        : nullptr;
 }
 
-void JackApi::ringbufferFree(jack_ringbuffer_t* ringbuffer) const noexcept
+void JackApi::ringbufferFree(jack_ringbuffer_t *ringbuffer) const noexcept
 {
     if (impl_->functions.ringbufferFree != nullptr && ringbuffer != nullptr)
         impl_->functions.ringbufferFree(ringbuffer);
 }
 
-void JackApi::ringbufferGetReadVector(const jack_ringbuffer_t* ringbuffer,
+void JackApi::ringbufferGetReadVector(const jack_ringbuffer_t *ringbuffer,
                                       jack_ringbuffer_data_t vectors[2]) const noexcept
 {
     if (impl_->functions.ringbufferGetReadVector != nullptr)
         impl_->functions.ringbufferGetReadVector(ringbuffer, vectors);
 }
 
-void JackApi::ringbufferGetWriteVector(const jack_ringbuffer_t* ringbuffer,
+void JackApi::ringbufferGetWriteVector(const jack_ringbuffer_t *ringbuffer,
                                        jack_ringbuffer_data_t vectors[2]) const noexcept
 {
     if (impl_->functions.ringbufferGetWriteVector != nullptr)
         impl_->functions.ringbufferGetWriteVector(ringbuffer, vectors);
 }
 
-std::size_t JackApi::ringbufferRead(jack_ringbuffer_t* ringbuffer,
-                                    char* destination,
+std::size_t JackApi::ringbufferRead(jack_ringbuffer_t *ringbuffer, char *destination,
                                     std::size_t count) const noexcept
 {
-    return impl_->functions.ringbufferRead != nullptr ? impl_->functions.ringbufferRead(ringbuffer, destination, count) : 0;
+    return impl_->functions.ringbufferRead != nullptr
+               ? impl_->functions.ringbufferRead(ringbuffer, destination, count)
+               : 0;
 }
 
-std::size_t JackApi::ringbufferPeek(jack_ringbuffer_t* ringbuffer,
-                                    char* destination,
+std::size_t JackApi::ringbufferPeek(jack_ringbuffer_t *ringbuffer, char *destination,
                                     std::size_t count) const noexcept
 {
-    return impl_->functions.ringbufferPeek != nullptr ? impl_->functions.ringbufferPeek(ringbuffer, destination, count) : 0;
+    return impl_->functions.ringbufferPeek != nullptr
+               ? impl_->functions.ringbufferPeek(ringbuffer, destination, count)
+               : 0;
 }
 
-void JackApi::ringbufferReadAdvance(jack_ringbuffer_t* ringbuffer, std::size_t count) const noexcept
+void JackApi::ringbufferReadAdvance(jack_ringbuffer_t *ringbuffer, std::size_t count) const noexcept
 {
     if (impl_->functions.ringbufferReadAdvance != nullptr)
         impl_->functions.ringbufferReadAdvance(ringbuffer, count);
 }
 
-std::size_t JackApi::ringbufferReadSpace(const jack_ringbuffer_t* ringbuffer) const noexcept
+std::size_t JackApi::ringbufferReadSpace(const jack_ringbuffer_t *ringbuffer) const noexcept
 {
-    return impl_->functions.ringbufferReadSpace != nullptr ? impl_->functions.ringbufferReadSpace(ringbuffer) : 0;
+    return impl_->functions.ringbufferReadSpace != nullptr
+               ? impl_->functions.ringbufferReadSpace(ringbuffer)
+               : 0;
 }
 
-int JackApi::ringbufferMlock(jack_ringbuffer_t* ringbuffer) const noexcept
+int JackApi::ringbufferMlock(jack_ringbuffer_t *ringbuffer) const noexcept
 {
-    return impl_->functions.ringbufferMlock != nullptr ? impl_->functions.ringbufferMlock(ringbuffer) : -1;
+    return impl_->functions.ringbufferMlock != nullptr
+               ? impl_->functions.ringbufferMlock(ringbuffer)
+               : -1;
 }
 
-void JackApi::ringbufferReset(jack_ringbuffer_t* ringbuffer) const noexcept
+void JackApi::ringbufferReset(jack_ringbuffer_t *ringbuffer) const noexcept
 {
     if (impl_->functions.ringbufferReset != nullptr)
         impl_->functions.ringbufferReset(ringbuffer);
 }
 
-std::size_t JackApi::ringbufferWrite(jack_ringbuffer_t* ringbuffer,
-                                     const char* source,
+std::size_t JackApi::ringbufferWrite(jack_ringbuffer_t *ringbuffer, const char *source,
                                      std::size_t count) const noexcept
 {
-    return impl_->functions.ringbufferWrite != nullptr ? impl_->functions.ringbufferWrite(ringbuffer, source, count) : 0;
+    return impl_->functions.ringbufferWrite != nullptr
+               ? impl_->functions.ringbufferWrite(ringbuffer, source, count)
+               : 0;
 }
 
-void JackApi::ringbufferWriteAdvance(jack_ringbuffer_t* ringbuffer, std::size_t count) const noexcept
+void JackApi::ringbufferWriteAdvance(jack_ringbuffer_t *ringbuffer,
+                                     std::size_t count) const noexcept
 {
     if (impl_->functions.ringbufferWriteAdvance != nullptr)
         impl_->functions.ringbufferWriteAdvance(ringbuffer, count);
 }
 
-std::size_t JackApi::ringbufferWriteSpace(const jack_ringbuffer_t* ringbuffer) const noexcept
+std::size_t JackApi::ringbufferWriteSpace(const jack_ringbuffer_t *ringbuffer) const noexcept
 {
-    return impl_->functions.ringbufferWriteSpace != nullptr ? impl_->functions.ringbufferWriteSpace(ringbuffer) : 0;
+    return impl_->functions.ringbufferWriteSpace != nullptr
+               ? impl_->functions.ringbufferWriteSpace(ringbuffer)
+               : 0;
 }
 
 }

@@ -56,16 +56,18 @@
 #include <algorithm>
 #include <filesystem>
 
-namespace WinJACKNexus::VstScanner {
-namespace {
-
-QString scannerText(const char* key, const char* english)
+namespace WinJACKNexus::VstScanner
 {
-    if (auto* manager = UI::I18nManager::installed())
-        return manager->text(QStringLiteral("vstscanner"), QString::fromUtf8(key), QString::fromUtf8(english));
+namespace
+{
+
+QString scannerText(const char *key, const char *english)
+{
+    if (auto *manager = UI::I18nManager::installed())
+        return manager->text(QStringLiteral("vstscanner"), QString::fromUtf8(key),
+                             QString::fromUtf8(english));
     return QString::fromUtf8(english);
 }
-
 
 QString defaultOutputDirectory()
 {
@@ -75,44 +77,43 @@ QString defaultOutputDirectory()
 
 QStringList defaultSearchPaths()
 {
-    QStringList candidates {
-        qEnvironmentVariable("CommonProgramW6432") + QStringLiteral("/VST3"),
-        qEnvironmentVariable("CommonProgramFiles") + QStringLiteral("/VST3"),
-        qEnvironmentVariable("ProgramW6432") + QStringLiteral("/VstPlugins"),
-        qEnvironmentVariable("ProgramFiles") + QStringLiteral("/VstPlugins"),
-        qEnvironmentVariable("ProgramFiles(x86)") + QStringLiteral("/VstPlugins")
-    };
+    QStringList candidates{qEnvironmentVariable("CommonProgramW6432") + QStringLiteral("/VST3"),
+                           qEnvironmentVariable("CommonProgramFiles") + QStringLiteral("/VST3"),
+                           qEnvironmentVariable("ProgramW6432") + QStringLiteral("/VstPlugins"),
+                           qEnvironmentVariable("ProgramFiles") + QStringLiteral("/VstPlugins"),
+                           qEnvironmentVariable("ProgramFiles(x86)") +
+                               QStringLiteral("/VstPlugins")};
     candidates.removeAll(QString());
     candidates.removeDuplicates();
-    candidates.erase(std::remove_if(candidates.begin(),
-                                    candidates.end(),
-                                    [] (const QString& path) { return !QFileInfo::exists(path); }),
+    candidates.erase(std::remove_if(candidates.begin(), candidates.end(),
+                                    [](const QString &path) { return !QFileInfo::exists(path); }),
                      candidates.end());
     return candidates;
 }
 
-QTableWidgetItem* tableItem(const QString& text)
+QTableWidgetItem *tableItem(const QString &text)
 {
-    auto* item = new QTableWidgetItem(text);
+    auto *item = new QTableWidgetItem(text);
     item->setFlags(item->flags() & ~Qt::ItemIsEditable);
     return item;
 }
 
-QString pluginFormat(const PluginInfo& plugin)
+QString pluginFormat(const PluginInfo &plugin)
 {
     return plugin.type.compare(QStringLiteral("vst3"), Qt::CaseInsensitive) == 0
-        ? QStringLiteral("VST3")
-        : QStringLiteral("VST2");
+               ? QStringLiteral("VST3")
+               : QStringLiteral("VST2");
 }
 
-QString pluginCategory(const PluginInfo& plugin)
+QString pluginCategory(const PluginInfo &plugin)
 {
-    return plugin.isInstrument ? scannerText("instrument", "Instrument") : scannerText("effect", "Effect");
+    return plugin.isInstrument ? scannerText("instrument", "Instrument")
+                               : scannerText("effect", "Effect");
 }
 
 }
 
-MainWindow::MainWindow(const QStringList& initialPaths, const QString& initialOutputDirectory)
+MainWindow::MainWindow(const QStringList &initialPaths, const QString &initialOutputDirectory)
 {
     createUi();
     loadSettings(initialPaths, initialOutputDirectory);
@@ -131,33 +132,38 @@ void MainWindow::createUi()
     resize(1240, 780);
     setMinimumSize(960, 620);
 
-    auto* centralWidget = new QWidget(this);
-    auto* rootLayout = new QVBoxLayout(centralWidget);
+    auto *centralWidget = new QWidget(this);
+    auto *rootLayout = new QVBoxLayout(centralWidget);
     rootLayout->setContentsMargins(12, 12, 12, 12);
     rootLayout->setSpacing(10);
 
-    auto* actionLayout = new QHBoxLayout;
-    scanButton_ = new UI::Controls::ActionButton(scannerText("scan", "Scan plug-ins"), centralWidget);
+    auto *actionLayout = new QHBoxLayout;
+    scanButton_ =
+        new UI::Controls::ActionButton(scannerText("scan", "Scan plug-ins"), centralWidget);
     scanButton_->setIcon(style()->standardIcon(QStyle::SP_BrowserReload));
     scanButton_->setDefault(true);
     connect(scanButton_, &QPushButton::clicked, this, &MainWindow::scanNow);
     actionLayout->addWidget(scanButton_);
 
-    rescanVerifiedPlugins_ = new UI::Controls::ToggleField(scannerText("rescan", "Rescan verified plug-ins"), centralWidget);
-    rescanVerifiedPlugins_->setToolTip(scannerText("incrementalHint", "Only scan new or unverified plug-ins by default"));
+    rescanVerifiedPlugins_ = new UI::Controls::ToggleField(
+        scannerText("rescan", "Rescan verified plug-ins"), centralWidget);
+    rescanVerifiedPlugins_->setToolTip(
+        scannerText("incrementalHint", "Only scan new or unverified plug-ins by default"));
     actionLayout->addWidget(rescanVerifiedPlugins_);
 
-    auto* openOutputButton = new UI::Controls::ActionButton(scannerText("openOutput", "Open output directory"), centralWidget);
+    auto *openOutputButton = new UI::Controls::ActionButton(
+        scannerText("openOutput", "Open output directory"), centralWidget);
     openOutputButton->setIcon(style()->standardIcon(QStyle::SP_DirOpenIcon));
     connect(openOutputButton, &QPushButton::clicked, this, &MainWindow::openOutputDirectory);
     actionLayout->addWidget(openOutputButton);
     actionLayout->addStretch();
 
-    auto* statusHint = new UI::Controls::TextLabel(scannerText("locationHint", "Double-click a plug-in to open its location"), centralWidget);
+    auto *statusHint = new UI::Controls::TextLabel(
+        scannerText("locationHint", "Double-click a plug-in to open its location"), centralWidget);
     actionLayout->addWidget(statusHint);
     rootLayout->addLayout(actionLayout);
 
-    auto* progressLayout = new QHBoxLayout;
+    auto *progressLayout = new QHBoxLayout;
     progressLabel_ = new UI::Controls::TextLabel(scannerText("ready", "Ready"), centralWidget);
     progressLabel_->setMinimumWidth(260);
     progressLayout->addWidget(progressLabel_);
@@ -168,60 +174,64 @@ void MainWindow::createUi()
     progressLayout->addWidget(progressBar_, 1);
     rootLayout->addLayout(progressLayout);
 
-    auto* splitter = new UI::Controls::SplitField(Qt::Horizontal, centralWidget);
+    auto *splitter = new UI::Controls::SplitField(Qt::Horizontal, centralWidget);
     splitter->setChildrenCollapsible(false);
 
-    auto* pathGroup = new UI::Controls::GroupPanel(scannerText("paths", "Scan paths"), splitter);
+    auto *pathGroup = new UI::Controls::GroupPanel(scannerText("paths", "Scan paths"), splitter);
     pathGroup->setMinimumWidth(260);
-    auto* pathLayout = new QVBoxLayout(pathGroup);
+    auto *pathLayout = new QVBoxLayout(pathGroup);
     searchPathList_ = new UI::Controls::ListField(pathGroup);
     searchPathList_->setSelectionMode(QAbstractItemView::SingleSelection);
     searchPathList_->setAlternatingRowColors(true);
     pathLayout->addWidget(searchPathList_);
 
-    auto* pathButtonLayout = new QHBoxLayout;
-    auto* addPathButton = new UI::Controls::ActionButton(scannerText("add", "Add"), pathGroup);
+    auto *pathButtonLayout = new QHBoxLayout;
+    auto *addPathButton = new UI::Controls::ActionButton(scannerText("add", "Add"), pathGroup);
     addPathButton->setIcon(style()->standardIcon(QStyle::SP_DirOpenIcon));
     connect(addPathButton, &QPushButton::clicked, this, &MainWindow::addSearchPath);
     pathButtonLayout->addWidget(addPathButton);
-    auto* removePathButton = new UI::Controls::ActionButton(scannerText("remove", "Remove"), pathGroup);
+    auto *removePathButton =
+        new UI::Controls::ActionButton(scannerText("remove", "Remove"), pathGroup);
     removePathButton->setIcon(style()->standardIcon(QStyle::SP_DialogCloseButton));
     connect(removePathButton, &QPushButton::clicked, this, &MainWindow::removeSearchPath);
     pathButtonLayout->addWidget(removePathButton);
     pathLayout->addLayout(pathButtonLayout);
     splitter->addWidget(pathGroup);
 
-    auto* catalogWidget = new QWidget(splitter);
-    auto* catalogLayout = new QVBoxLayout(catalogWidget);
+    auto *catalogWidget = new QWidget(splitter);
+    auto *catalogLayout = new QVBoxLayout(catalogWidget);
     catalogLayout->setContentsMargins(0, 0, 0, 0);
     catalogLayout->setSpacing(8);
 
-    auto* outputLayout = new QHBoxLayout;
-    outputLayout->addWidget(new UI::Controls::TextLabel(scannerText("output", "Output directory"), catalogWidget));
+    auto *outputLayout = new QHBoxLayout;
+    outputLayout->addWidget(
+        new UI::Controls::TextLabel(scannerText("output", "Output directory"), catalogWidget));
     outputDirectoryEdit_ = new UI::Controls::TextField(catalogWidget);
     outputDirectoryEdit_->setClearButtonEnabled(true);
     outputLayout->addWidget(outputDirectoryEdit_, 1);
-    auto* chooseOutputButton = new UI::Controls::IconActionButton(catalogWidget);
+    auto *chooseOutputButton = new UI::Controls::IconActionButton(catalogWidget);
     chooseOutputButton->setIcon(style()->standardIcon(QStyle::SP_DirOpenIcon));
     chooseOutputButton->setToolTip(scannerText("chooseOutput", "Choose output directory"));
     connect(chooseOutputButton, &QToolButton::clicked, this, [this] {
-        const auto directory = QFileDialog::getExistingDirectory(this,
-                                                                 scannerText("chooseOutput", "Choose output directory"),
-                                                                 outputDirectoryEdit_->text());
+        const auto directory = QFileDialog::getExistingDirectory(
+            this, scannerText("chooseOutput", "Choose output directory"),
+            outputDirectoryEdit_->text());
         if (!directory.isEmpty())
             outputDirectoryEdit_->setText(QDir::cleanPath(directory));
     });
     outputLayout->addWidget(chooseOutputButton);
     catalogLayout->addLayout(outputLayout);
 
-    auto* filterLayout = new QHBoxLayout;
-    filterLayout->addWidget(new UI::Controls::TextLabel(scannerText("format", "Format"), catalogWidget));
+    auto *filterLayout = new QHBoxLayout;
+    filterLayout->addWidget(
+        new UI::Controls::TextLabel(scannerText("format", "Format"), catalogWidget));
     typeFilter_ = new UI::Controls::ChoiceField(catalogWidget);
     typeFilter_->addItem(scannerText("all", "All"), QString());
     typeFilter_->addItem(QStringLiteral("VST2"), QStringLiteral("vst2"));
     typeFilter_->addItem(QStringLiteral("VST3"), QStringLiteral("vst3"));
     filterLayout->addWidget(typeFilter_);
-    filterLayout->addWidget(new UI::Controls::TextLabel(scannerText("category", "Category"), catalogWidget));
+    filterLayout->addWidget(
+        new UI::Controls::TextLabel(scannerText("category", "Category"), catalogWidget));
     categoryFilter_ = new UI::Controls::ChoiceField(catalogWidget);
     categoryFilter_->addItem(scannerText("all", "All"), QString());
     categoryFilter_->addItem(scannerText("effect", "Effect"), QStringLiteral("effect"));
@@ -235,12 +245,10 @@ void MainWindow::createUi()
 
     pluginTable_ = new UI::Controls::TableField(catalogWidget);
     pluginTable_->setColumnCount(6);
-    pluginTable_->setHorizontalHeaderLabels({ scannerText("name", "Name"),
-                                              scannerText("vendor", "Vendor"),
-                                              scannerText("format", "Format"),
-                                              scannerText("bits", "Bit depth"),
-                                              scannerText("category", "Category"),
-                                              scannerText("version", "Version") });
+    pluginTable_->setHorizontalHeaderLabels(
+        {scannerText("name", "Name"), scannerText("vendor", "Vendor"),
+         scannerText("format", "Format"), scannerText("bits", "Bit depth"),
+         scannerText("category", "Category"), scannerText("version", "Version")});
     pluginTable_->setSelectionBehavior(QAbstractItemView::SelectRows);
     pluginTable_->setSelectionMode(QAbstractItemView::SingleSelection);
     pluginTable_->setEditTriggers(QAbstractItemView::NoEditTriggers);
@@ -251,29 +259,32 @@ void MainWindow::createUi()
     pluginTable_->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
     pluginTable_->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
     pluginTable_->horizontalHeader()->setSectionResizeMode(5, QHeaderView::Stretch);
-    connect(pluginTable_, &QTableWidget::cellDoubleClicked, this, [this] {
-        openSelectedPluginLocation();
-    });
+    connect(pluginTable_, &QTableWidget::cellDoubleClicked, this,
+            [this] { openSelectedPluginLocation(); });
     catalogLayout->addWidget(pluginTable_, 1);
 
-    auto* catalogActions = new QHBoxLayout;
-    auto* openLocationButton = new UI::Controls::ActionButton(scannerText("openLocation", "Open plug-in location"), catalogWidget);
+    auto *catalogActions = new QHBoxLayout;
+    auto *openLocationButton = new UI::Controls::ActionButton(
+        scannerText("openLocation", "Open plug-in location"), catalogWidget);
     openLocationButton->setIcon(style()->standardIcon(QStyle::SP_DirOpenIcon));
-    connect(openLocationButton, &QPushButton::clicked, this, &MainWindow::openSelectedPluginLocation);
+    connect(openLocationButton, &QPushButton::clicked, this,
+            &MainWindow::openSelectedPluginLocation);
     catalogActions->addWidget(openLocationButton);
-    auto* removePluginButton = new UI::Controls::ActionButton(scannerText("removeEntry", "Delete entry"), catalogWidget);
+    auto *removePluginButton =
+        new UI::Controls::ActionButton(scannerText("removeEntry", "Delete entry"), catalogWidget);
     removePluginButton->setIcon(style()->standardIcon(QStyle::SP_TrashIcon));
     connect(removePluginButton, &QPushButton::clicked, this, &MainWindow::removeSelectedPlugin);
     catalogActions->addWidget(removePluginButton);
-    auto* removeMissingButton = new UI::Controls::ActionButton(scannerText("removeMissing", "Remove missing entries"), catalogWidget);
+    auto *removeMissingButton = new UI::Controls::ActionButton(
+        scannerText("removeMissing", "Remove missing entries"), catalogWidget);
     removeMissingButton->setIcon(style()->standardIcon(QStyle::SP_TrashIcon));
     connect(removeMissingButton, &QPushButton::clicked, this, &MainWindow::removeMissingPlugins);
     catalogActions->addWidget(removeMissingButton);
     catalogActions->addStretch();
     catalogLayout->addLayout(catalogActions);
 
-    auto* logGroup = new UI::Controls::GroupPanel(scannerText("log", "Scan log"), catalogWidget);
-    auto* logLayout = new QVBoxLayout(logGroup);
+    auto *logGroup = new UI::Controls::GroupPanel(scannerText("log", "Scan log"), catalogWidget);
+    auto *logLayout = new QVBoxLayout(logGroup);
     logView_ = new UI::Controls::LogField(logGroup);
     logView_->setReadOnly(true);
     logView_->setMaximumBlockCount(2000);
@@ -291,12 +302,12 @@ void MainWindow::createUi()
 
     connect(filterEdit_, &QLineEdit::textChanged, this, &MainWindow::refreshPluginTable);
     connect(typeFilter_, &QComboBox::currentIndexChanged, this, &MainWindow::refreshPluginTable);
-    connect(categoryFilter_, &QComboBox::currentIndexChanged, this, &MainWindow::refreshPluginTable);
-
-
+    connect(categoryFilter_, &QComboBox::currentIndexChanged, this,
+            &MainWindow::refreshPluginTable);
 }
 
-void MainWindow::loadSettings(const QStringList& initialPaths, const QString& initialOutputDirectory)
+void MainWindow::loadSettings(const QStringList &initialPaths,
+                              const QString &initialOutputDirectory)
 {
     QSettings settings(QStringLiteral("WinJACKNexus"), scannerText("title", "VST Scanner"));
     auto paths = initialPaths;
@@ -305,7 +316,8 @@ void MainWindow::loadSettings(const QStringList& initialPaths, const QString& in
     if (paths.isEmpty())
         paths = defaultSearchPaths();
 
-    for (const auto& path : paths) {
+    for (const auto &path : paths)
+    {
         const auto normalized = QDir::cleanPath(path);
         if (!normalized.isEmpty() && !searchPaths().contains(normalized, Qt::CaseInsensitive))
             searchPathList_->addItem(normalized);
@@ -317,7 +329,8 @@ void MainWindow::loadSettings(const QStringList& initialPaths, const QString& in
     if (output.isEmpty())
         output = defaultOutputDirectory();
     outputDirectoryEdit_->setText(QDir::cleanPath(output));
-    rescanVerifiedPlugins_->setChecked(settings.value(QStringLiteral("rescanVerifiedPlugins"), false).toBool());
+    rescanVerifiedPlugins_->setChecked(
+        settings.value(QStringLiteral("rescanVerifiedPlugins"), false).toBool());
 }
 
 void MainWindow::saveSettings() const
@@ -337,10 +350,10 @@ void MainWindow::loadCatalog()
 
     QSet<QString> loadedFiles;
     QDirIterator iterator(outputDirectory,
-                          { QStringLiteral("*.vstinfo"), QStringLiteral("*.vst3info") },
-                          QDir::Files,
+                          {QStringLiteral("*.vstinfo"), QStringLiteral("*.vst3info")}, QDir::Files,
                           QDirIterator::Subdirectories);
-    while (iterator.hasNext()) {
+    while (iterator.hasNext())
+    {
         const auto infoFile = iterator.next();
         const auto key = QDir::cleanPath(infoFile).toLower();
         if (loadedFiles.contains(key))
@@ -361,13 +374,11 @@ void MainWindow::refreshPluginTable()
     const auto category = categoryFilter_->currentData().toString();
     pluginTable_->setSortingEnabled(false);
     pluginTable_->setRowCount(0);
-    for (const auto& plugin : plugins_) {
-        const auto searchable = QStringList { plugin.name,
-                                              plugin.vendor,
-                                              plugin.path,
-                                              plugin.subcategory,
-                                              plugin.internalPlugin }
-                                   .join(QLatin1Char(' '));
+    for (const auto &plugin : plugins_)
+    {
+        const auto searchable = QStringList{plugin.name, plugin.vendor, plugin.path,
+                                            plugin.subcategory, plugin.internalPlugin}
+                                    .join(QLatin1Char(' '));
         if (!text.isEmpty() && !searchable.contains(text, Qt::CaseInsensitive))
             continue;
         if (!type.isEmpty() && plugin.type.compare(type, Qt::CaseInsensitive) != 0)
@@ -392,7 +403,8 @@ void MainWindow::refreshPluginTable()
 
 void MainWindow::addSearchPath()
 {
-    const auto directory = QFileDialog::getExistingDirectory(this, scannerText("choosePath", "Choose VST scan path"));
+    const auto directory =
+        QFileDialog::getExistingDirectory(this, scannerText("choosePath", "Choose VST scan path"));
     if (directory.isEmpty())
         return;
     const auto normalized = QDir::cleanPath(directory);
@@ -413,13 +425,16 @@ void MainWindow::removeSelectedPlugin()
     const auto infoFile = selectedInfoFile();
     if (infoFile.isEmpty())
         return;
-    const auto answer = QMessageBox::question(this,
-                                              scannerText("deleteTitle", "Delete plug-in entry"),
-                                              scannerText("deleteQuestion", "Delete the selected scan entry?\nThe plug-in file will be kept."));
+    const auto answer = QMessageBox::question(
+        this, scannerText("deleteTitle", "Delete plug-in entry"),
+        scannerText("deleteQuestion",
+                    "Delete the selected scan entry?\nThe plug-in file will be kept."));
     if (answer != QMessageBox::Yes)
         return;
-    if (!QFile::remove(infoFile)) {
-        QMessageBox::warning(this, scannerText("deleteFailed", "Deletion failed"), scannerText("cannotDeleteInfo", "Cannot delete the info file."));
+    if (!QFile::remove(infoFile))
+    {
+        QMessageBox::warning(this, scannerText("deleteFailed", "Deletion failed"),
+                             scannerText("cannotDeleteInfo", "Cannot delete the info file."));
         return;
     }
     loadCatalog();
@@ -430,7 +445,8 @@ void MainWindow::removeMissingPlugins()
 {
     int removed = 0;
     const auto currentPlugins = plugins_;
-    for (const auto& plugin : currentPlugins) {
+    for (const auto &plugin : currentPlugins)
+    {
         if (QFileInfo::exists(plugin.path))
             continue;
         if (QFile::remove(plugin.infoFile))
@@ -438,7 +454,8 @@ void MainWindow::removeMissingPlugins()
     }
     loadCatalog();
     refreshPluginTable();
-    logView_->appendPlainText(scannerText("removedCount", "Removed missing entries: %1").arg(removed));
+    logView_->appendPlainText(
+        scannerText("removedCount", "Removed missing entries: %1").arg(removed));
 }
 
 void MainWindow::openSelectedPluginLocation()
@@ -464,9 +481,10 @@ void MainWindow::openOutputDirectory()
     QDesktopServices::openUrl(QUrl::fromLocalFile(QFileInfo(outputDirectory).absoluteFilePath()));
 }
 
-void MainWindow::appendMessage(const ScanMessage& message)
+void MainWindow::appendMessage(const ScanMessage &message)
 {
-    const auto prefix = message.error ? scannerText("errorPrefix", "[Error]") : scannerText("infoPrefix", "[Info]");
+    const auto prefix =
+        message.error ? scannerText("errorPrefix", "[Error]") : scannerText("infoPrefix", "[Info]");
     logView_->appendPlainText(QStringLiteral("%1 %2: %3").arg(prefix, message.path, message.text));
 }
 
@@ -506,22 +524,25 @@ void MainWindow::scanNow()
     options.searchPaths = searchPaths();
     options.outputDirectory = outputDirectoryEdit_->text().trimmed();
     options.rescanVerifiedPlugins = rescanVerifiedPlugins_->isChecked();
-    options.infoWrittenCallback = [this] (const PluginInfo&) {
+    options.infoWrittenCallback = [this](const PluginInfo &) {
         loadCatalog();
         refreshPluginTable();
         QCoreApplication::processEvents(QEventLoop::AllEvents, 20);
     };
-    options.progressCallback = [this] (int completed, int total, const QString& currentPath) {
+    options.progressCallback = [this](int completed, int total, const QString &currentPath) {
         const auto range = std::max(1, total);
         progressBar_->setRange(0, range);
         progressBar_->setValue(std::min(completed, range));
-        if (currentPath.isEmpty()) {
-            progressLabel_->setText(total == 0
-                                        ? scannerText("noCandidates", "No plug-in candidates found")
-                                        : completed >= total ? scannerText("complete", "Scan complete")
-                                                             : scannerText("preparing", "Preparing scan..."));
+        if (currentPath.isEmpty())
+        {
+            progressLabel_->setText(
+                total == 0           ? scannerText("noCandidates", "No plug-in candidates found")
+                : completed >= total ? scannerText("complete", "Scan complete")
+                                     : scannerText("preparing", "Preparing scan..."));
             progressLabel_->setToolTip({});
-        } else {
+        }
+        else
+        {
             const auto fileName = QFileInfo(currentPath).fileName();
             progressLabel_->setText(scannerText("scanning", "Scanning: %1 (%2/%3)")
                                         .arg(fileName.isEmpty() ? currentPath : fileName)
@@ -533,18 +554,20 @@ void MainWindow::scanNow()
     };
 
     const auto report = Scanner().scan(options);
-    for (const auto& message : report.messages)
+    for (const auto &message : report.messages)
         appendMessage(message);
     loadCatalog();
     refreshPluginTable();
-    logView_->appendPlainText(scannerText("summary", "Scan complete: %1 entries written, %2 entries in the directory.")
-                                  .arg(report.plugins.size())
-                                  .arg(plugins_.size()));
+    logView_->appendPlainText(
+        scannerText("summary", "Scan complete: %1 entries written, %2 entries in the directory.")
+            .arg(report.plugins.size())
+            .arg(plugins_.size()));
     progressBar_->setRange(0, std::max(1, progressBar_->maximum()));
     progressBar_->setValue(progressBar_->maximum());
     progressLabel_->setText(report.plugins.isEmpty() && report.messages.isEmpty()
                                 ? scannerText("noPlugins", "No plug-ins found")
-                                : scannerText("written", "Scan complete: %1 entries written").arg(report.plugins.size()));
+                                : scannerText("written", "Scan complete: %1 entries written")
+                                      .arg(report.plugins.size()));
     scanButton_->setEnabled(true);
     rescanVerifiedPlugins_->setEnabled(true);
     QApplication::restoreOverrideCursor();

@@ -3,7 +3,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 find_package(JACK2 REQUIRED)
 
-add_library(audio SHARED
+add_library(
+    audio SHARED
     src/Library.cpp
     src/JackApi.cpp
     src/JackClient.cpp
@@ -30,15 +31,10 @@ add_library(audio SHARED
     include/WinJACKNexus/Audio/WasapiDevice.hpp
     include/WinJACKNexus/Audio/WasapiFormat.hpp
     include/WinJACKNexus/Audio/WasapiStream.hpp
-    include/WinJACKNexus/Audio/JackVersion.hpp
-)
+    include/WinJACKNexus/Audio/JackVersion.hpp)
 
-target_include_directories(audio
-    PUBLIC
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-        $<INSTALL_INTERFACE:include>
-        "${JACK2_INCLUDE_DIR}"
-)
+target_include_directories(audio PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+                                        $<INSTALL_INTERFACE:include> "${JACK2_INCLUDE_DIR}")
 
 target_link_libraries(audio PRIVATE WinJACKNexus::Common)
 target_compile_definitions(audio PRIVATE WIN32_LEAN_AND_MEAN NOMINMAX)

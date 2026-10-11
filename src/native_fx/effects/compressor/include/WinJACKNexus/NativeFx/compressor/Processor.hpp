@@ -3,9 +3,11 @@
 
 #include <WinJACKNexus/NativeFx/NativeFxApi.h>
 
-namespace WinJACKNexus::Common {
+namespace WinJACKNexus::Common
+{
 
-struct CompressorParameters final {
+struct CompressorParameters final
+{
     float thresholdDb = -18.0F;
     float ratio = 3.0F;
     float kneeDb = 3.0F;
@@ -22,11 +24,12 @@ struct CompressorParameters final {
 
 // Stateful mono compressor. Use one instance per independent audio channel.
 // Parameter changes may be applied between blocks, never concurrently with process().
-class WJN_FX_API CompressorProcessor final {
-public:
+class WJN_FX_API CompressorProcessor final
+{
+  public:
     void prepare(double sampleRate) noexcept;
     void reset() noexcept;
-    void setParameters(const CompressorParameters& parameters) noexcept;
+    void setParameters(const CompressorParameters &parameters) noexcept;
     float process(float sample) noexcept;
 
     float inputLevelDb() const noexcept;
@@ -34,10 +37,10 @@ public:
     float detectorLevelDb() const noexcept;
     float gainReductionDb() const noexcept;
 
-private:
+  private:
     void updateDetectorCoefficients() noexcept;
     float transferOutputDb(float inputDb) const noexcept;
-    CompressorParameters parameters_ {};
+    CompressorParameters parameters_{};
     double sampleRate_ = 48000.0;
     float highPassAlpha_ = 0.0F;
     float lowPassAlpha_ = 0.0F;

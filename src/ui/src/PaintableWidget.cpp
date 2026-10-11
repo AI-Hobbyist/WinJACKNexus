@@ -20,13 +20,13 @@
 #include <QPainter>
 #include <QStyle>
 
-namespace WinJACKNexus::UI {
+namespace WinJACKNexus::UI
+{
 
-PaintableWidget::PaintableWidget(QWidget* parent)
-    : QWidget(parent)
+PaintableWidget::PaintableWidget(QWidget *parent) : QWidget(parent)
 {
     setAttribute(Qt::WA_OpaquePaintEvent, false);
-    setProperty("wjnRole", QString {});
+    setProperty("wjnRole", QString{});
 }
 
 PaintableWidget::~PaintableWidget() = default;
@@ -56,13 +56,14 @@ QString PaintableWidget::wjnRole() const
     return wjnRole_;
 }
 
-void PaintableWidget::setWjnRole(const QString& role)
+void PaintableWidget::setWjnRole(const QString &role)
 {
     if (wjnRole_ == role)
         return;
     wjnRole_ = role;
     setProperty("wjnRole", wjnRole_);
-    if (style() != nullptr) {
+    if (style() != nullptr)
+    {
         style()->unpolish(this);
         style()->polish(this);
     }
@@ -75,9 +76,10 @@ void PaintableWidget::requestRepaint()
     emit repaintRequested();
 }
 
-void PaintableWidget::paintEvent(QPaintEvent* event)
+void PaintableWidget::paintEvent(QPaintEvent *event)
 {
-    if (!isRenderingAllowed()) {
+    if (!isRenderingAllowed())
+    {
         event->accept();
         return;
     }
@@ -86,19 +88,19 @@ void PaintableWidget::paintEvent(QPaintEvent* event)
     paintContent(painter);
 }
 
-void PaintableWidget::showEvent(QShowEvent* event)
+void PaintableWidget::showEvent(QShowEvent *event)
 {
     QWidget::showEvent(event);
     renderingStateChanged();
 }
 
-void PaintableWidget::hideEvent(QHideEvent* event)
+void PaintableWidget::hideEvent(QHideEvent *event)
 {
     QWidget::hideEvent(event);
     renderingStateChanged();
 }
 
-void PaintableWidget::changeEvent(QEvent* event)
+void PaintableWidget::changeEvent(QEvent *event)
 {
     QWidget::changeEvent(event);
     if (event->type() == QEvent::WindowStateChange)
@@ -110,8 +112,6 @@ bool PaintableWidget::isRenderingAllowed() const noexcept
     return renderingActive_ && isVisible() && !isMinimized();
 }
 
-void PaintableWidget::renderingStateChanged() noexcept
-{
-}
+void PaintableWidget::renderingStateChanged() noexcept {}
 
 }

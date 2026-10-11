@@ -21,17 +21,19 @@
 
 #include <string>
 
-namespace WinJACKNexus::Common::win32 {
+namespace WinJACKNexus::Common::win32
+{
 
-class WINJACK_COMMON_API Window final {
-public:
+class WINJACK_COMMON_API Window final
+{
+  public:
     explicit Window(HWND handle = nullptr) noexcept;
 
     HWND handle() const noexcept;
     bool isValid() const noexcept;
     std::wstring title() const;
 
-private:
+  private:
     HWND handle_;
 };
 

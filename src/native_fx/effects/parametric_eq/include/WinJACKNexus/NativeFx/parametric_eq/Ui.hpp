@@ -10,41 +10,60 @@
 #include <array>
 #include <functional>
 
-namespace WinJACKNexus::UI {
-class WJN_FX_API ParametricEqWidget final : public QWidget {
-public:
+namespace WinJACKNexus::UI
+{
+class WJN_FX_API ParametricEqWidget final : public QWidget
+{
+  public:
     using Parameters = WinJACKNexus::Common::ParametricEqParameters;
-    using ChangeHandler = std::function<void(std::size_t, const Parameters&)>;
-    using SpectrumFrameReader = std::function<bool(WinJACKNexus::Common::GraphicEqSpectrumFrame&)>;
-    explicit ParametricEqWidget(QWidget* parent = nullptr);
-    void setParameters(const std::array<Parameters, 8>& parameters);
+    using ChangeHandler = std::function<void(std::size_t, const Parameters &)>;
+    using SpectrumFrameReader = std::function<bool(WinJACKNexus::Common::GraphicEqSpectrumFrame &)>;
+    explicit ParametricEqWidget(QWidget *parent = nullptr);
+    void setParameters(const std::array<Parameters, 8> &parameters);
     void setChangeHandler(ChangeHandler handler);
-    void setSelectedChannel(int channel) { selectedChannel_ = std::clamp(channel, -1, 7); refreshPresetSelection(); update(); }
+    void setSelectedChannel(int channel)
+    {
+        selectedChannel_ = std::clamp(channel, -1, 7);
+        refreshPresetSelection();
+        update();
+    }
     void setSpectrumFrameReader(SpectrumFrameReader reader);
-    int selectedChannel() const noexcept { return selectedChannel_; }
-    int hostPresetIndex() const noexcept { return selectedPreset_; }
-    void chooseHostPreset(int index) { if (index < 5) selectPreset(index); }
-protected:
-    void paintEvent(QPaintEvent*) override;
-    void mousePressEvent(QMouseEvent*) override;
-    void mouseMoveEvent(QMouseEvent*) override;
-    void mouseReleaseEvent(QMouseEvent*) override;
-    void mouseDoubleClickEvent(QMouseEvent*) override;
-private:
+    int selectedChannel() const noexcept
+    {
+        return selectedChannel_;
+    }
+    int hostPresetIndex() const noexcept
+    {
+        return selectedPreset_;
+    }
+    void chooseHostPreset(int index)
+    {
+        if (index < 5)
+            selectPreset(index);
+    }
+
+  protected:
+    void paintEvent(QPaintEvent *) override;
+    void mousePressEvent(QMouseEvent *) override;
+    void mouseMoveEvent(QMouseEvent *) override;
+    void mouseReleaseEvent(QMouseEvent *) override;
+    void mouseDoubleClickEvent(QMouseEvent *) override;
+
+  private:
     Parameters displayed() const noexcept;
-    void apply(const std::function<void(Parameters&)>& edit);
+    void apply(const std::function<void(Parameters &)> &edit);
     void selectPreset(int index);
     void refreshPresetSelection();
     void applyKnobValue(int index, float value);
     void pollSpectrum();
-    void editGraph(const QPointF& pos);
-    void editKnob(const QPointF& pos);
-    QPointF designPoint(const QPointF& pos) const;
-    std::array<Parameters, 8> parameters_ {};
+    void editGraph(const QPointF &pos);
+    void editKnob(const QPointF &pos);
+    QPointF designPoint(const QPointF &pos) const;
+    std::array<Parameters, 8> parameters_{};
     ChangeHandler changeHandler_;
     SpectrumFrameReader spectrumFrameReader_;
-    WinJACKNexus::Common::GraphicEqSpectrumFrame spectrumFrame_ {};
-    WinJACKNexus::Common::GraphicEqSpectrumPair spectrum_ {};
+    WinJACKNexus::Common::GraphicEqSpectrumFrame spectrumFrame_{};
+    WinJACKNexus::Common::GraphicEqSpectrumPair spectrum_{};
     QTimer spectrumTimer_;
     QElapsedTimer spectrumClock_;
     int selectedChannel_ = -1;

@@ -21,13 +21,16 @@
 
 #include <vector>
 
-namespace WinJACKNexus::Audio {
+namespace WinJACKNexus::Audio
+{
 class JackClient;
 }
 
-namespace WinJACKNexus::Patchbay::Core {
+namespace WinJACKNexus::Patchbay::Core
+{
 
-enum class SnapshotEventType : unsigned char {
+enum class SnapshotEventType : unsigned char
+{
     clientAdded,
     clientRemoved,
     clientRenamed,
@@ -38,19 +41,21 @@ enum class SnapshotEventType : unsigned char {
     connectionRemoved
 };
 
-struct WINJACK_PATCHBAY_API SnapshotEvent final {
+struct WINJACK_PATCHBAY_API SnapshotEvent final
+{
     SnapshotEventType type = SnapshotEventType::clientAdded;
     std::string subjectId;
     std::string relatedId;
 };
 
-struct WINJACK_PATCHBAY_API Snapshot final {
+struct WINJACK_PATCHBAY_API Snapshot final
+{
     std::vector<ClientInfo> clients;
     std::vector<PortInfo> ports;
     std::vector<ConnectionInfo> connections;
     std::vector<SnapshotEvent> events;
 
-    static Snapshot capture(Audio::JackClient& client);
+    static Snapshot capture(Audio::JackClient &client);
 };
 
 }

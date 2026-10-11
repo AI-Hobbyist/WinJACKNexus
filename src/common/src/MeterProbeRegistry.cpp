@@ -19,36 +19,37 @@
 #include <mutex>
 #include <utility>
 
-namespace WinJACKNexus::Common {
+namespace WinJACKNexus::Common
+{
 
-namespace {
+namespace
+{
 
-struct MeterProbeRegistryStorage final {
+struct MeterProbeRegistryStorage final
+{
     std::mutex mutex;
     std::vector<MeterProbeRegistration> registrations;
 };
 
-MeterProbeRegistryStorage& registryStorage()
+MeterProbeRegistryStorage &registryStorage()
 {
     static MeterProbeRegistryStorage storage;
     return storage;
 }
 
-bool isValidDescriptor(const MeterProbeDescriptor& descriptor,
-                       const std::shared_ptr<MeterProbeRealtimeState>& realtimeState) noexcept
+bool isValidDescriptor(const MeterProbeDescriptor &descriptor,
+                       const std::shared_ptr<MeterProbeRealtimeState> &realtimeState) noexcept
 {
-    return realtimeState != nullptr
-        && !descriptor.instanceId.empty()
-        && !descriptor.clientName.empty()
-        && descriptor.channelCount > 0
-        && descriptor.channelCount <= MeterChannelLayout::maximumChannelCount;
+    return realtimeState != nullptr && !descriptor.instanceId.empty() &&
+           !descriptor.clientName.empty() && descriptor.channelCount > 0 &&
+           descriptor.channelCount <= MeterChannelLayout::maximumChannelCount;
 }
 
 }
 
-void MeterProbeRealtimeState::publish(const MeterSnapshot& snapshot) noexcept
+void MeterProbeRealtimeState::publish(const MeterSnapshot &snapshot) noexcept
 {
-    frame_.set(MeterProbeRealtimeFrame { snapshot });
+    frame_.set(MeterProbeRealtimeFrame{snapshot});
 }
 
 MeterProbeRealtimeFrame MeterProbeRealtimeState::frame() const noexcept
@@ -76,7 +77,8 @@ bool MeterProbeRealtimeState::automaticResetEnabled() const noexcept
     return automaticResetEnabled_.load(std::memory_order_acquire);
 }
 
-void MeterProbeRealtimeState::setSilenceResetConfiguration(float thresholdDbfs, float durationSeconds) noexcept
+void MeterProbeRealtimeState::setSilenceResetConfiguration(float thresholdDbfs,
+                                                           float durationSeconds) noexcept
 {
     silenceThresholdDbfs_.store(thresholdDbfs, std::memory_order_release);
     silenceDurationSeconds_.store(durationSeconds, std::memory_order_release);
@@ -97,7 +99,8 @@ void MeterProbeRealtimeState::requestLoudnessReset() noexcept
     resetGeneration_.fetch_add(1, std::memory_order_release);
 }
 
-bool MeterProbeRealtimeState::consumeLoudnessResetRequest(std::uint64_t& observedGeneration) noexcept
+bool MeterProbeRealtimeState::consumeLoudnessResetRequest(
+    std::uint64_t &observedGeneration) noexcept
 {
     const auto requestedGeneration = resetGeneration_.load(std::memory_order_acquire);
     if (requestedGeneration == observedGeneration)
@@ -122,14 +125,18 @@ bool registerMeterProbe(MeterProbeDescriptor descriptor,
     if (!isValidDescriptor(descriptor, realtimeState))
         return false;
 
-    try {
-        auto& storage = registryStorage();
+    try
+    {
+        auto &storage = registryStorage();
         std::lock_guard lock(storage.mutex);
-        const auto existing = std::find_if(storage.registrations.begin(), storage.registrations.end(), [&descriptor](const auto& registration) {
-            return registration.descriptor.instanceId == descriptor.instanceId;
-        });
-        if (existing == storage.registrations.end()) {
-            storage.registrations.push_back({ std::move(descriptor), std::move(realtimeState), 1 });
+        const auto existing =
+            std::find_if(storage.registrations.begin(), storage.registrations.end(),
+                         [&descriptor](const auto &registration) {
+                             return registration.descriptor.instanceId == descriptor.instanceId;
+                         });
+        if (existing == storage.registrations.end())
+        {
+            storage.registrations.push_back({std::move(descriptor), std::move(realtimeState), 1});
             return true;
         }
 
@@ -138,28 +145,30 @@ bool registerMeterProbe(MeterProbeDescriptor descriptor,
         existing->descriptor = std::move(descriptor);
         existing->realtimeState = std::move(realtimeState);
         return true;
-    } catch (...) {
+    }
+    catch (...)
+    {
         return false;
     }
 }
 
 void unregisterMeterProbe(std::string_view instanceId,
-                          const std::shared_ptr<MeterProbeRealtimeState>& realtimeState) noexcept
+                          const std::shared_ptr<MeterProbeRealtimeState> &realtimeState) noexcept
 {
     if (instanceId.empty() || realtimeState == nullptr)
         return;
 
-    auto& storage = registryStorage();
+    auto &storage = registryStorage();
     std::lock_guard lock(storage.mutex);
-    std::erase_if(storage.registrations, [&instanceId, &realtimeState](const auto& registration) {
-        return registration.descriptor.instanceId == instanceId
-            && registration.realtimeState == realtimeState;
+    std::erase_if(storage.registrations, [&instanceId, &realtimeState](const auto &registration) {
+        return registration.descriptor.instanceId == instanceId &&
+               registration.realtimeState == realtimeState;
     });
 }
 
 std::vector<MeterProbeRegistration> meterProbeRegistrations()
 {
-    auto& storage = registryStorage();
+    auto &storage = registryStorage();
     std::lock_guard lock(storage.mutex);
     return storage.registrations;
 }

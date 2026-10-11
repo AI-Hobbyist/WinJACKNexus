@@ -44,47 +44,50 @@
 #include <cstdint>
 #include <unordered_set>
 
-namespace WinJACKNexus::Meter::Mod {
+namespace WinJACKNexus::Meter::Mod
+{
 
-namespace {
+namespace
+{
 
 int intervalForRefreshRate(int framesPerSecond) noexcept
 {
     return std::max(1, 1000 / framesPerSecond);
 }
 
-class MeterBackgroundSurface final : public QWidget {
-public:
+class MeterBackgroundSurface final : public QWidget
+{
+  public:
     using QWidget::QWidget;
 
-protected:
-    void paintEvent(QPaintEvent*) override {
+  protected:
+    void paintEvent(QPaintEvent *) override
+    {
         QPainter painter(this);
         QStyleOption option;
         option.initFrom(this);
         style()->drawPrimitive(QStyle::PE_Widget, &option, &painter, this);
-        WinJACKNexus::UI::ThemeBackground::paint(
-            painter, rect(), QStringLiteral("meter-bridge"));
+        WinJACKNexus::UI::ThemeBackground::paint(painter, rect(), QStringLiteral("meter-bridge"));
     }
 };
 
 }
 
-MeterbridgeWindow::MeterbridgeWindow(MeterViewDataProvider& provider, QWidget* parent)
-    : QMainWindow(parent)
-    , provider_(provider)
+MeterbridgeWindow::MeterbridgeWindow(MeterViewDataProvider &provider, QWidget *parent)
+    : QMainWindow(parent), provider_(provider)
 {
     setObjectName(QStringLiteral("meterbridge.window"));
-    WinJACKNexus::UI::bindLocalizedText(this,"windowTitle","meterbridge","window.title","WinJACKNexus - Meter bridge");
+    WinJACKNexus::UI::bindLocalizedText(this, "windowTitle", "meterbridge", "window.title",
+                                        "WinJACKNexus - Meter bridge");
     resize(1080, 740);
 
     tabs_ = new QTabWidget(this);
     tabs_->setObjectName(QStringLiteral("meterbridge.tabs"));
     tabs_->setDocumentMode(true);
-    auto* central = new MeterBackgroundSurface(tabs_);
+    auto *central = new MeterBackgroundSurface(tabs_);
     surface_ = central;
     central->setObjectName(QStringLiteral("meterbridge.surface"));
-    auto* rootLayout = new QVBoxLayout(central);
+    auto *rootLayout = new QVBoxLayout(central);
     rootLayout->setContentsMargins(14, 14, 14, 14);
     rootLayout->setSpacing(10);
 
@@ -106,50 +109,57 @@ MeterbridgeWindow::MeterbridgeWindow(MeterViewDataProvider& provider, QWidget* p
     rootLayout->addWidget(cardScrollArea_, 1);
 
     emptyState_ = new WinJACKNexus::UI::Controls::TextLabel({}, central);
-    WinJACKNexus::UI::bindLocalizedText(emptyState_,"text","meterbridge","status.noProbes","No meter probes");
+    WinJACKNexus::UI::bindLocalizedText(emptyState_, "text", "meterbridge", "status.noProbes",
+                                        "No meter probes");
     emptyState_->setObjectName(QStringLiteral("meterbridge.emptyState"));
     emptyState_->setAlignment(Qt::AlignCenter);
     emptyState_->setMinimumHeight(180);
     rootLayout->addWidget(emptyState_, 1);
-    tabs_->addTab(central, WinJACKNexus::UI::localizedText("meterbridge","view.bridge","Meter bridge"));
-    historyPage_ = new MeterHistoryWindow(provider_,
-                                          [this] { refresh(); },
-                                          [this] { tabs_->setCurrentIndex(0); },
-                                          tabs_);
-    historyTabIndex_ = tabs_->addTab(historyPage_, WinJACKNexus::UI::localizedText("meterbridge","view.history","History chart"));
-    if (auto* manager=WinJACKNexus::UI::I18nManager::installed()) manager->bind(tabs_,[this] {
-        tabs_->setTabText(0,WinJACKNexus::UI::localizedText("meterbridge","view.bridge","Meter bridge"));
-        tabs_->setTabText(historyTabIndex_,WinJACKNexus::UI::localizedText("meterbridge","view.history","History chart"));
-    });
+    tabs_->addTab(central,
+                  WinJACKNexus::UI::localizedText("meterbridge", "view.bridge", "Meter bridge"));
+    historyPage_ = new MeterHistoryWindow(
+        provider_, [this] { refresh(); }, [this] { tabs_->setCurrentIndex(0); }, tabs_);
+    historyTabIndex_ =
+        tabs_->addTab(historyPage_, WinJACKNexus::UI::localizedText("meterbridge", "view.history",
+                                                                    "History chart"));
+    if (auto *manager = WinJACKNexus::UI::I18nManager::installed())
+        manager->bind(tabs_, [this] {
+            tabs_->setTabText(
+                0, WinJACKNexus::UI::localizedText("meterbridge", "view.bridge", "Meter bridge"));
+            tabs_->setTabText(
+                historyTabIndex_,
+                WinJACKNexus::UI::localizedText("meterbridge", "view.history", "History chart"));
+        });
     tabs_->setTabEnabled(historyTabIndex_, false);
     setCentralWidget(tabs_);
     new WinJACKNexus::UI::ThemeBackgroundOverlay(QStringLiteral("meter-bridge"), central);
     applyTheme();
-    if (auto* core = WinJACKNexus::UI::ThemeManager::installedThemeCore())
-        connect(core, &WinJACKNexus::UI::ThemeCore::themeChanged,
-                this, [this] { applyTheme(); });
+    if (auto *core = WinJACKNexus::UI::ThemeManager::installedThemeCore())
+        connect(core, &WinJACKNexus::UI::ThemeCore::themeChanged, this, [this] { applyTheme(); });
 
     refreshTimer_ = new QTimer(this);
     refreshTimer_->setInterval(intervalForRefreshRate(refreshRate_));
     connect(refreshTimer_, &QTimer::timeout, this, [this] { refresh(); });
-        auto& applicationSettings = WinJACKNexus::UI::ApplicationSettings::instance();
-        connect(&applicationSettings,
-            &WinJACKNexus::UI::ApplicationSettings::frameRateChanged,
-            this,
+    auto &applicationSettings = WinJACKNexus::UI::ApplicationSettings::instance();
+    connect(&applicationSettings, &WinJACKNexus::UI::ApplicationSettings::frameRateChanged, this,
             [this](int framesPerSecond) { applyRefreshRate(framesPerSecond); });
-        applyRefreshRate(applicationSettings.frameRate());
+    applyRefreshRate(applicationSettings.frameRate());
 
     refresh();
 }
 
 void MeterbridgeWindow::applyTheme()
 {
-    const auto themed = [](const char* role, const char* fallback) {
+    const auto themed = [](const char *role, const char *fallback) {
         const auto value = WinJACKNexus::UI::Controls::themeTokenColor(
             QStringLiteral("meter-bridge"), QString::fromLatin1(role), QColor(fallback));
-        if (value.alpha() == 255) return value.name();
+        if (value.alpha() == 255)
+            return value.name();
         return QStringLiteral("rgba(%1,%2,%3,%4)")
-            .arg(value.red()).arg(value.green()).arg(value.blue()).arg(value.alphaF());
+            .arg(value.red())
+            .arg(value.green())
+            .arg(value.blue())
+            .arg(value.alphaF());
     };
     QString tabsStyle = QStringLiteral(
         "QTabWidget::pane { border: 0; background-color: %page%; }"
@@ -161,32 +171,49 @@ void MeterbridgeWindow::applyTheme()
         "QTabBar::tab:selected { background-color: %selected-surface%; color: %selected-text%; border-color: %selected-border%; }"
         "QTabBar::tab:disabled { color: %disabled-text%; background-color: %disabled-surface%; }");
     tabsStyle.replace(QStringLiteral("%page%"), themed("surface-page", "#061523"));
-    tabsStyle.replace(QStringLiteral("%tab-border%"), themed("control-tab-border-normal", "#244b6b"));
-    tabsStyle.replace(QStringLiteral("%tab-surface%"), themed("control-tab-surface-normal", "#102742"));
+    tabsStyle.replace(QStringLiteral("%tab-border%"),
+                      themed("control-tab-border-normal", "#244b6b"));
+    tabsStyle.replace(QStringLiteral("%tab-surface%"),
+                      themed("control-tab-surface-normal", "#102742"));
     tabsStyle.replace(QStringLiteral("%tab-text%"), themed("control-tab-text-normal", "#b8d7f6"));
-    tabsStyle.replace(QStringLiteral("%selected-surface%"), themed("control-tab-surface-selected", "#176092"));
-    tabsStyle.replace(QStringLiteral("%selected-text%"), themed("control-tab-text-selected", "#ffffff"));
-    tabsStyle.replace(QStringLiteral("%selected-border%"), themed("control-tab-border-selected", "#31c6ff"));
-    tabsStyle.replace(QStringLiteral("%disabled-text%"), themed("control-tab-text-disabled", "#607a94"));
-    tabsStyle.replace(QStringLiteral("%disabled-surface%"), themed("control-tab-surface-disabled", "#0a1d30"));
+    tabsStyle.replace(QStringLiteral("%selected-surface%"),
+                      themed("control-tab-surface-selected", "#176092"));
+    tabsStyle.replace(QStringLiteral("%selected-text%"),
+                      themed("control-tab-text-selected", "#ffffff"));
+    tabsStyle.replace(QStringLiteral("%selected-border%"),
+                      themed("control-tab-border-selected", "#31c6ff"));
+    tabsStyle.replace(QStringLiteral("%disabled-text%"),
+                      themed("control-tab-text-disabled", "#607a94"));
+    tabsStyle.replace(QStringLiteral("%disabled-surface%"),
+                      themed("control-tab-surface-disabled", "#0a1d30"));
     tabs_->setStyleSheet(tabsStyle);
 
-    QString pageStyle = QStringLiteral(
-        "QWidget#meterbridge.surface { background-color: %page%; color: %text%; }"
-        "QScrollArea#meterbridge.cardScroll { background: transparent; border: 0; }"
-        "QWidget#meterbridge.cards { background: transparent; }"
-        "QLabel#meterbridge.emptyState { color: %empty-text%; }");
+    QString pageStyle =
+        QStringLiteral("QWidget#meterbridge.surface { background-color: %page%; color: %text%; }"
+                       "QScrollArea#meterbridge.cardScroll { background: transparent; border: 0; }"
+                       "QWidget#meterbridge.cards { background: transparent; }"
+                       "QLabel#meterbridge.emptyState { color: %empty-text%; }");
     pageStyle.replace(QStringLiteral("%page%"), themed("surface-page", "#061523"));
     pageStyle.replace(QStringLiteral("%text%"), themed("text-page", "#d8e9ff"));
     pageStyle.replace(QStringLiteral("%empty-text%"), themed("text-empty", "#93b7db"));
     tabs_->widget(0)->setStyleSheet(pageStyle);
-    const auto opacity = WinJACKNexus::UI::ThemeBackground::componentOpacity(QStringLiteral("meter-bridge"));
-    for (auto* child : {static_cast<QWidget*>(cardScrollArea_), static_cast<QWidget*>(emptyState_)}) {
-        if (opacity < 1.0) {
-            auto* effect = qobject_cast<QGraphicsOpacityEffect*>(child->graphicsEffect());
-            if (!effect) { effect = new QGraphicsOpacityEffect(child); child->setGraphicsEffect(effect); }
+    const auto opacity =
+        WinJACKNexus::UI::ThemeBackground::componentOpacity(QStringLiteral("meter-bridge"));
+    for (auto *child :
+         {static_cast<QWidget *>(cardScrollArea_), static_cast<QWidget *>(emptyState_)})
+    {
+        if (opacity < 1.0)
+        {
+            auto *effect = qobject_cast<QGraphicsOpacityEffect *>(child->graphicsEffect());
+            if (!effect)
+            {
+                effect = new QGraphicsOpacityEffect(child);
+                child->setGraphicsEffect(effect);
+            }
             effect->setOpacity(opacity);
-        } else if (child->graphicsEffect()) {
+        }
+        else if (child->graphicsEffect())
+        {
             child->setGraphicsEffect(nullptr);
         }
     }
@@ -199,33 +226,39 @@ void MeterbridgeWindow::refresh()
     std::unordered_set<QString> expectedIds;
     expectedIds.reserve(snapshots.size());
     bool cardStructureChanged = false;
-    for (const auto& snapshot : snapshots) {
+    for (const auto &snapshot : snapshots)
+    {
         expectedIds.insert(snapshot.instanceId);
-        if (!cards_.contains(snapshot.instanceId)) {
+        if (!cards_.contains(snapshot.instanceId))
+        {
             addCard(snapshot);
             cardStructureChanged = true;
         }
-        auto* card = cards_.value(snapshot.instanceId);
+        auto *card = cards_.value(snapshot.instanceId);
         card->setSnapshot(snapshot);
     }
 
     std::vector<QString> removedIds;
     removedIds.reserve(static_cast<std::size_t>(cards_.size()));
-    for (auto iterator = cards_.cbegin(); iterator != cards_.cend(); ++iterator) {
+    for (auto iterator = cards_.cbegin(); iterator != cards_.cend(); ++iterator)
+    {
         if (!expectedIds.contains(iterator.key()))
             removedIds.push_back(iterator.key());
     }
-    for (const auto& instanceId : removedIds) {
+    for (const auto &instanceId : removedIds)
+    {
         removeCard(instanceId);
         cardStructureChanged = true;
     }
 
-    if (cardStructureChanged || cardOrder_ != renderedCardOrder_) {
+    if (cardStructureChanged || cardOrder_ != renderedCardOrder_)
+    {
         reorderCards(snapshots);
         renderedCardOrder_ = cardOrder_;
         int displayIndex = 1;
-        for (const auto& instanceId : cardOrder_) {
-            if (auto* card = cards_.value(instanceId, nullptr); card != nullptr)
+        for (const auto &instanceId : cardOrder_)
+        {
+            if (auto *card = cards_.value(instanceId, nullptr); card != nullptr)
                 card->setDisplayIndex(displayIndex++);
         }
         updateCardContainerGeometry();
@@ -239,7 +272,8 @@ void MeterbridgeWindow::refresh()
         historyPage_->setLiveSnapshots(snapshots);
     if (!hasCards && tabs_->currentIndex() == historyTabIndex_)
         tabs_->setCurrentIndex(0);
-    if (hasCards && pendingRestoredHistorySelection_ && !selectedInstanceId_.isEmpty()) {
+    if (hasCards && pendingRestoredHistorySelection_ && !selectedInstanceId_.isEmpty())
+    {
         pendingRestoredHistorySelection_ = false;
         openHistoryForInstanceId(selectedInstanceId_);
     }
@@ -250,22 +284,23 @@ int MeterbridgeWindow::cardCount() const noexcept
     return cards_.size();
 }
 
-MeterCard* MeterbridgeWindow::cardForInstanceId(const QString& instanceId) const
+MeterCard *MeterbridgeWindow::cardForInstanceId(const QString &instanceId) const
 {
     return cards_.value(instanceId, nullptr);
 }
 
-MeterHistoryWindow* MeterbridgeWindow::historyWindowForInstanceId(const QString& instanceId) const
+MeterHistoryWindow *MeterbridgeWindow::historyWindowForInstanceId(const QString &instanceId) const
 {
     return cards_.contains(instanceId) ? historyPage_ : nullptr;
 }
 
-void MeterbridgeWindow::openHistoryForInstanceId(const QString& instanceId)
+void MeterbridgeWindow::openHistoryForInstanceId(const QString &instanceId)
 {
     const auto snapshots = provider_.snapshots();
-    const auto target = std::find_if(snapshots.cbegin(), snapshots.cend(), [&instanceId](const MeterViewSnapshot& snapshot) {
-        return snapshot.instanceId == instanceId;
-    });
+    const auto target = std::find_if(snapshots.cbegin(), snapshots.cend(),
+                                     [&instanceId](const MeterViewSnapshot &snapshot) {
+                                         return snapshot.instanceId == instanceId;
+                                     });
     if (target == snapshots.cend())
         return;
     historyPage_->setSnapshots(snapshots, instanceId);
@@ -276,11 +311,11 @@ void MeterbridgeWindow::openHistoryForInstanceId(const QString& instanceId)
     historyPage_->setFocus(Qt::OtherFocusReason);
 }
 
-void MeterbridgeWindow::selectInstance(const QString& instanceId)
+void MeterbridgeWindow::selectInstance(const QString &instanceId)
 {
     selectedInstanceId_ = instanceId;
     restoredTabIndex_ = tabs_->currentIndex();
-    auto* card = cardForInstanceId(instanceId);
+    auto *card = cardForInstanceId(instanceId);
     if (card != nullptr)
         cardScrollArea_->ensureWidgetVisible(card, 12, 12);
 }
@@ -306,7 +341,7 @@ void MeterbridgeWindow::applyRefreshRate(int framesPerSecond)
         return;
     refreshRate_ = framesPerSecond;
     refreshTimer_->setInterval(intervalForRefreshRate(refreshRate_));
-    for (auto* card : cards_)
+    for (auto *card : cards_)
         card->setRefreshRate(refreshRate_);
     historyPage_->setRefreshRate(refreshRate_);
 }
@@ -314,23 +349,23 @@ void MeterbridgeWindow::applyRefreshRate(int framesPerSecond)
 QJsonObject MeterbridgeWindow::projectState() const
 {
     QJsonArray order;
-    for (const auto& instanceId : cardOrder_)
+    for (const auto &instanceId : cardOrder_)
         order.append(instanceId);
-    return {
-        { QStringLiteral("geometry"), QString::fromLatin1(saveGeometry().toBase64()) },
-        { QStringLiteral("cardOrder"), order },
-        { QStringLiteral("selectedMeter"), selectedInstanceId_ },
-        { QStringLiteral("currentTab"), tabs_->currentIndex() }
-    };
+    return {{QStringLiteral("geometry"), QString::fromLatin1(saveGeometry().toBase64())},
+            {QStringLiteral("cardOrder"), order},
+            {QStringLiteral("selectedMeter"), selectedInstanceId_},
+            {QStringLiteral("currentTab"), tabs_->currentIndex()}};
 }
 
-void MeterbridgeWindow::restoreProjectState(const QJsonObject& state)
+void MeterbridgeWindow::restoreProjectState(const QJsonObject &state)
 {
-    const auto geometry = QByteArray::fromBase64(state.value(QStringLiteral("geometry")).toString().toLatin1());
+    const auto geometry =
+        QByteArray::fromBase64(state.value(QStringLiteral("geometry")).toString().toLatin1());
     if (!geometry.isEmpty())
         restoreGeometry(geometry);
     cardOrder_.clear();
-    for (const auto& value : state.value(QStringLiteral("cardOrder")).toArray()) {
+    for (const auto &value : state.value(QStringLiteral("cardOrder")).toArray())
+    {
         const auto instanceId = value.toString();
         if (!instanceId.isEmpty() && !cardOrder_.contains(instanceId))
             cardOrder_.append(instanceId);
@@ -346,13 +381,13 @@ bool MeterbridgeWindow::isEmptyStateVisible() const noexcept
     return emptyState_->isVisible();
 }
 
-void MeterbridgeWindow::resizeEvent(QResizeEvent* event)
+void MeterbridgeWindow::resizeEvent(QResizeEvent *event)
 {
     QMainWindow::resizeEvent(event);
     QTimer::singleShot(0, this, [this] { updateCardContainerGeometry(); });
 }
 
-void MeterbridgeWindow::showEvent(QShowEvent* event)
+void MeterbridgeWindow::showEvent(QShowEvent *event)
 {
     QMainWindow::showEvent(event);
     if (refreshTimer_ != nullptr)
@@ -360,19 +395,19 @@ void MeterbridgeWindow::showEvent(QShowEvent* event)
     QTimer::singleShot(0, this, [this] { updateCardContainerGeometry(); });
 }
 
-void MeterbridgeWindow::hideEvent(QHideEvent* event)
+void MeterbridgeWindow::hideEvent(QHideEvent *event)
 {
     if (refreshTimer_ != nullptr)
         refreshTimer_->stop();
     QMainWindow::hideEvent(event);
 }
 
-void MeterbridgeWindow::addCard(const MeterViewSnapshot& snapshot)
+void MeterbridgeWindow::addCard(const MeterViewSnapshot &snapshot)
 {
-    auto* card = new MeterCard(provider_,
-                               [this] { refresh(); },
-                               [this](const QString& instanceId) { openHistoryForInstanceId(instanceId); },
-                               cardContainer_);
+    auto *card = new MeterCard(
+        provider_, [this] { refresh(); },
+        [this](const QString &instanceId) { openHistoryForInstanceId(instanceId); },
+        cardContainer_);
     card->setRefreshRate(refreshRate_);
     cards_.insert(snapshot.instanceId, card);
     if (!cardOrder_.contains(snapshot.instanceId))
@@ -380,9 +415,9 @@ void MeterbridgeWindow::addCard(const MeterViewSnapshot& snapshot)
     cardLayout_->addWidget(card);
 }
 
-void MeterbridgeWindow::removeCard(const QString& instanceId)
+void MeterbridgeWindow::removeCard(const QString &instanceId)
 {
-    auto* card = cards_.take(instanceId);
+    auto *card = cards_.take(instanceId);
     if (card == nullptr)
         return;
     cardLayout_->removeWidget(card);
@@ -392,20 +427,23 @@ void MeterbridgeWindow::removeCard(const QString& instanceId)
     delete card;
 }
 
-void MeterbridgeWindow::reorderCards(const std::vector<MeterViewSnapshot>& snapshots)
+void MeterbridgeWindow::reorderCards(const std::vector<MeterViewSnapshot> &snapshots)
 {
-    for (const auto& snapshot : snapshots) {
+    for (const auto &snapshot : snapshots)
+    {
         if (!cardOrder_.contains(snapshot.instanceId))
             cardOrder_.append(snapshot.instanceId);
     }
-    for (auto iterator = cardOrder_.begin(); iterator != cardOrder_.end();) {
+    for (auto iterator = cardOrder_.begin(); iterator != cardOrder_.end();)
+    {
         if (!cards_.contains(*iterator))
             iterator = cardOrder_.erase(iterator);
         else
             ++iterator;
     }
-    for (const auto& instanceId : cardOrder_) {
-        auto* card = cards_.value(instanceId, nullptr);
+    for (const auto &instanceId : cardOrder_)
+    {
+        auto *card = cards_.value(instanceId, nullptr);
         if (card == nullptr)
             continue;
         cardLayout_->removeWidget(card);
@@ -416,11 +454,13 @@ void MeterbridgeWindow::reorderCards(const std::vector<MeterViewSnapshot>& snaps
 void MeterbridgeWindow::updateCardContainerGeometry()
 {
     const auto viewportHeight = cardScrollArea_->viewport()->height();
-    if (viewportHeight > 0) {
-        for (auto* card : cards_)
+    if (viewportHeight > 0)
+    {
+        for (auto *card : cards_)
             card->setAvailableHeight(viewportHeight);
     }
-    cardContainer_->setMinimumWidth(std::max(cardScrollArea_->viewport()->width(), cardLayout_->sizeHint().width()));
+    cardContainer_->setMinimumWidth(
+        std::max(cardScrollArea_->viewport()->width(), cardLayout_->sizeHint().width()));
     cardContainer_->updateGeometry();
 }
 

@@ -17,14 +17,17 @@
 
 #include <cstdint>
 
-namespace WinJACKNexus::Common {
+namespace WinJACKNexus::Common
+{
 
-struct MeterValue final {
-    double value {};
-    bool valid {};
+struct MeterValue final
+{
+    double value{};
+    bool valid{};
 };
 
-struct MeterSnapshot final {
+struct MeterSnapshot final
+{
     MeterValue samplePeakDbfs;
     MeterValue rmsDbfs;
     MeterValue truePeakDbtp;
@@ -33,8 +36,8 @@ struct MeterSnapshot final {
     MeterValue shortTermLufs;
     MeterValue integratedLufs;
     MeterValue loudnessRangeLu;
-    std::uint64_t processedFrames {};
-    std::uint64_t invalidSampleCount {};
+    std::uint64_t processedFrames{};
+    std::uint64_t invalidSampleCount{};
 };
 
 }

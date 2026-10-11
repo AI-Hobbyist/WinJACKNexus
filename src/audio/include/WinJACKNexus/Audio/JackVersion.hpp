@@ -17,8 +17,9 @@
 
 #include <WinJACKNexus/Audio/Export.hpp>
 
-namespace WinJACKNexus::Audio {
+namespace WinJACKNexus::Audio
+{
 
-WINJACK_AUDIO_API const char* libraryVersion() noexcept;
+WINJACK_AUDIO_API const char *libraryVersion() noexcept;
 
 }

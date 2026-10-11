@@ -15,9 +15,10 @@
  */
 #include <WinJACKNexus/Audio/JackVersion.hpp>
 
-namespace WinJACKNexus::Audio {
+namespace WinJACKNexus::Audio
+{
 
-const char* libraryVersion() noexcept
+const char *libraryVersion() noexcept
 {
     return "0.1.0";
 }

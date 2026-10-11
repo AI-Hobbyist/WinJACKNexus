@@ -24,18 +24,20 @@
 #include <QString>
 class QAbstractButton;
 
-namespace WinJACKNexus::UI {
+namespace WinJACKNexus::UI
+{
 
-class WINJACK_UI_API IconManager final {
-public:
-    static QIcon icon(const QString& name);
-    static QIcon icon(const QString& name, const QSize& size);
-    static QPixmap pixmap(const QString& name, const QSize& size, const QColor& tint = {});
-    static bool hasIcon(const QString& name);
-    static QString resourcePath(const QString& name);
+class WINJACK_UI_API IconManager final
+{
+  public:
+    static QIcon icon(const QString &name);
+    static QIcon icon(const QString &name, const QSize &size);
+    static QPixmap pixmap(const QString &name, const QSize &size, const QColor &tint = {});
+    static bool hasIcon(const QString &name);
+    static QString resourcePath(const QString &name);
     // Reuses the button's shared textColor/palette, including live theme changes.
-    static void bindThemedIcon(QAbstractButton* button, const QString& name,
-        const QSize& size = QSize(20, 20));
+    static void bindThemedIcon(QAbstractButton *button, const QString &name,
+                               const QSize &size = QSize(20, 20));
 };
 
 }

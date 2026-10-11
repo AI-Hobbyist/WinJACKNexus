@@ -10,16 +10,19 @@
 #include <QSharedPointer>
 #include <QStringList>
 
-namespace WinJACKNexus::UI {
+namespace WinJACKNexus::UI
+{
 
-struct WINJACK_UI_API ThemeDiagnostic final {
+struct WINJACK_UI_API ThemeDiagnostic final
+{
     QString code;
     QString token;
     QString message;
     int line = 0;
 };
 
-struct WINJACK_UI_API ThemeToken final {
+struct WINJACK_UI_API ThemeToken final
+{
     QString name;
     QString ownerScope;
     QString type;
@@ -29,79 +32,86 @@ struct WINJACK_UI_API ThemeToken final {
     QString description;
 };
 
-class WINJACK_UI_API ThemeRegistry final {
-public:
-    static bool fromJson(const QByteArray& json, ThemeRegistry* result, QString* error = nullptr);
-    static bool builtIn(ThemeRegistry* result, QString* error = nullptr);
-    static bool valueMatchesType(const QString& type, const QString& value);
+class WINJACK_UI_API ThemeRegistry final
+{
+  public:
+    static bool fromJson(const QByteArray &json, ThemeRegistry *result, QString *error = nullptr);
+    static bool builtIn(ThemeRegistry *result, QString *error = nullptr);
+    static bool valueMatchesType(const QString &type, const QString &value);
 
-    bool contains(const QString& token) const;
-    ThemeToken token(const QString& name) const;
+    bool contains(const QString &token) const;
+    ThemeToken token(const QString &name) const;
     QStringList names() const;
-    bool withTokens(const QList<ThemeToken>& additions, ThemeRegistry* result,
-                    QString* error = nullptr) const;
+    bool withTokens(const QList<ThemeToken> &additions, ThemeRegistry *result,
+                    QString *error = nullptr) const;
 
-private:
+  private:
     QHash<QString, ThemeToken> tokens_;
 };
 
-class WINJACK_UI_API ThemeSnapshot final {
-public:
+class WINJACK_UI_API ThemeSnapshot final
+{
+  public:
     QString themeId() const;
-    bool hasValue(const QString& token) const;
-    QString value(const QString& token) const;
-    ThemePackage::ResourceRef resource(const QString& token) const;
+    bool hasValue(const QString &token) const;
+    QString value(const QString &token) const;
+    ThemePackage::ResourceRef resource(const QString &token) const;
     QList<ThemeDiagnostic> diagnostics() const;
 
-private:
+  private:
     friend class ThemeCore;
-    struct Entry { QString value; ThemePackage::ResourceRef resource; };
+    struct Entry
+    {
+        QString value;
+        ThemePackage::ResourceRef resource;
+    };
     QString themeId_;
     QHash<QString, Entry> entries_;
     QList<ThemeDiagnostic> diagnostics_;
 };
 
 // S04 data core. Painting and legacy ThemeManager adaptation follow in S05/S07.
-class WINJACK_UI_API ThemeCore final : public QObject {
+class WINJACK_UI_API ThemeCore final : public QObject
+{
     Q_OBJECT
-public:
-    explicit ThemeCore(QObject* parent = nullptr);
-    explicit ThemeCore(ThemeRegistry registry, QObject* parent = nullptr);
+  public:
+    explicit ThemeCore(QObject *parent = nullptr);
+    explicit ThemeCore(ThemeRegistry registry, QObject *parent = nullptr);
 
     bool isValid() const noexcept;
     QString initializationError() const;
     ThemePackage defaultTheme() const;
     QSharedPointer<const ThemeSnapshot> snapshot() const;
     QSharedPointer<const ThemeSnapshot> previewBaseSnapshot() const;
-    bool setFullTheme(const ThemePackage& package, QString* error = nullptr);
-    bool applyFragment(const ThemePackage& package, QString* error = nullptr);
-    bool setOverride(const QString& token, const QString& value,
-                     const ThemePackage& resourceOwner = {}, QString* error = nullptr);
-    bool removeOverride(const QString& token);
-    bool beginPreview(const ThemePackage& package, QString* error = nullptr);
+    bool setFullTheme(const ThemePackage &package, QString *error = nullptr);
+    bool applyFragment(const ThemePackage &package, QString *error = nullptr);
+    bool setOverride(const QString &token, const QString &value,
+                     const ThemePackage &resourceOwner = {}, QString *error = nullptr);
+    bool removeOverride(const QString &token);
+    bool beginPreview(const ThemePackage &package, QString *error = nullptr);
     bool cancelPreview();
     bool commitPreview();
     void restoreDefault();
-    bool refreshRegisteredNamespaces(QString* error = nullptr);
+    bool refreshRegisteredNamespaces(QString *error = nullptr);
     ThemePackage activeFullTheme() const;
-    QString declaredValue(const QString& token) const;
-    bool exportFullTheme(const QJsonObject& metadata, ThemePackage* result,
-                         QString* error = nullptr) const;
-    bool exportFragment(const QString& namespacePrefix, const QJsonObject& metadata,
-                        ThemePackage* result, QString* error = nullptr) const;
+    QString declaredValue(const QString &token) const;
+    bool exportFullTheme(const QJsonObject &metadata, ThemePackage *result,
+                         QString *error = nullptr) const;
+    bool exportFragment(const QString &namespacePrefix, const QJsonObject &metadata,
+                        ThemePackage *result, QString *error = nullptr) const;
     bool hasUserOverrides() const;
-    bool exportUserOverrides(ThemePackage* result, QString* error = nullptr) const;
-    bool restoreUserOverrides(const ThemePackage& package, QString* error = nullptr);
+    bool exportUserOverrides(ThemePackage *result, QString *error = nullptr) const;
+    bool restoreUserOverrides(const ThemePackage &package, QString *error = nullptr);
 
-Q_SIGNALS:
+  Q_SIGNALS:
     void themeChanged();
     void previewCompleted();
 
-private:
+  private:
     struct State;
-    bool activate(State state, QString* error);
-    bool exportPackage(const QString& namespacePrefix, const QJsonObject& metadata,
-                       ThemePackage* result, QString* error) const;
+    bool activate(State state, QString *error);
+    bool exportPackage(const QString &namespacePrefix, const QJsonObject &metadata,
+                       ThemePackage *result, QString *error) const;
     ThemeRegistry registry_;
     ThemeRegistry baseRegistry_;
     ThemePackage defaultTheme_;

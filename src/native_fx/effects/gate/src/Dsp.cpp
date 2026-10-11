@@ -8,13 +8,16 @@
 #include <cmath>
 #include <limits>
 
-namespace WinJACKNexus::Common {
-namespace {
+namespace WinJACKNexus::Common
+{
+namespace
+{
 constexpr double pi = 3.14159265358979323846;
 
 float timeAlpha(float milliseconds, double sampleRate) noexcept
 {
-    return static_cast<float>(std::exp(-1.0 / (std::max(0.01F, milliseconds) * 0.001 * sampleRate)));
+    return static_cast<float>(
+        std::exp(-1.0 / (std::max(0.01F, milliseconds) * 0.001 * sampleRate)));
 }
 }
 
@@ -32,7 +35,7 @@ void GateProcessor::reset() noexcept
     gateOpen_ = false;
 }
 
-void GateProcessor::setParameters(const GateParameters& values) noexcept
+void GateProcessor::setParameters(const GateParameters &values) noexcept
 {
     parameters_ = values;
     parameters_.thresholdDb = std::clamp(parameters_.thresholdDb, -60.0F, 0.0F);
@@ -46,7 +49,8 @@ void GateProcessor::setParameters(const GateParameters& values) noexcept
 
     const auto hp = static_cast<float>(std::exp(-2.0 * pi * parameters_.highPassHz / sampleRate_));
     highPassAlpha_ = hp;
-    lowPassAlpha_ = 1.0F - static_cast<float>(std::exp(-2.0 * pi * parameters_.lowPassHz / sampleRate_));
+    lowPassAlpha_ =
+        1.0F - static_cast<float>(std::exp(-2.0 * pi * parameters_.lowPassHz / sampleRate_));
     attackAlpha_ = timeAlpha(parameters_.attackMs, sampleRate_);
     releaseAlpha_ = timeAlpha(parameters_.releaseMs, sampleRate_);
     detectorAlpha_ = timeAlpha(5.0F, sampleRate_);
@@ -60,7 +64,8 @@ float GateProcessor::process(float sample) noexcept
         return sample;
 
     float detector = sample;
-    if (parameters_.sidechainFilter) {
+    if (parameters_.sidechainFilter)
+    {
         highPassOutput_ = highPassAlpha_ * (highPassOutput_ + sample - highPassInput_);
         highPassInput_ = sample;
         lowPassOutput_ += lowPassAlpha_ * (highPassOutput_ - lowPassOutput_);
@@ -75,7 +80,8 @@ float GateProcessor::process(float sample) noexcept
         gateOpen_ = true;
     else if (levelDb <= parameters_.thresholdDb - parameters_.holdDb)
         gateOpen_ = false;
-    if (!gateOpen_) {
+    if (!gateOpen_)
+    {
         desiredDb = std::max(parameters_.floorDb,
                              (levelDb - parameters_.thresholdDb) * (parameters_.ratio - 1.0F));
     }

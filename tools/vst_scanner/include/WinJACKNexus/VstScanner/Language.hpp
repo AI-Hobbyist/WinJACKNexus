@@ -6,29 +6,32 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 
-namespace WinJACKNexus::VstScanner {
-inline UI::I18nDomainLease initializeLanguage(UI::HostI18n& language,
-    const QString& root, QString* error = nullptr)
+namespace WinJACKNexus::VstScanner
 {
-    if (!language.initialize(root, error)) return {};
+inline UI::I18nDomainLease initializeLanguage(UI::HostI18n &language, const QString &root,
+                                              QString *error = nullptr)
+{
+    if (!language.initialize(root, error))
+        return {};
     QFile manifestFile(QStringLiteral(":/WinJACKNexus/VstScanner/i18n/manifest.json"));
     QFile englishFile(QStringLiteral(":/WinJACKNexus/VstScanner/i18n/en-US.json"));
-    if (!manifestFile.open(QIODevice::ReadOnly) || !englishFile.open(QIODevice::ReadOnly)) {
-        if (error) *error = QStringLiteral("Bundled scanner language resources are unavailable");
+    if (!manifestFile.open(QIODevice::ReadOnly) || !englishFile.open(QIODevice::ReadOnly))
+    {
+        if (error)
+            *error = QStringLiteral("Bundled scanner language resources are unavailable");
         return {};
     }
     const auto manifestBytes = manifestFile.readAll();
     const auto manifest = QJsonDocument::fromJson(manifestBytes).object();
-    const QJsonObject descriptor {
+    const QJsonObject descriptor{
         {QStringLiteral("descriptorVersion"), 1},
         {QStringLiteral("i18nApiVersion"), 1},
         {QStringLiteral("moduleId"), manifest[QStringLiteral("moduleId")]},
         {QStringLiteral("domains"), manifest[QStringLiteral("domains")]},
         {QStringLiteral("catalogVersion"), manifest[QStringLiteral("catalogVersion")]},
-        {QStringLiteral("locatePath"), QStringLiteral("locate")}
-    };
-    return language.manager().registerBundledModule(descriptor,
-        QDir(root).filePath(QStringLiteral("vstscanner")), manifestBytes,
+        {QStringLiteral("locatePath"), QStringLiteral("locate")}};
+    return language.manager().registerBundledModule(
+        descriptor, QDir(root).filePath(QStringLiteral("vstscanner")), manifestBytes,
         englishFile.readAll(), error);
 }
 }

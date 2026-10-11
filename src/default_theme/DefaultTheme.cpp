@@ -10,13 +10,14 @@ extern "C" __declspec(dllexport) std::uint32_t wjn_default_theme_api_version()
     return 1;
 }
 
-extern "C" __declspec(dllexport) const char* wjn_default_theme_package_data(std::uint32_t* size)
+extern "C" __declspec(dllexport) const char *wjn_default_theme_package_data(std::uint32_t *size)
 {
-    if (!size) return nullptr;
+    if (!size)
+        return nullptr;
     static const QByteArray package = [] {
         Q_INIT_RESOURCE(default_theme);
         QFile file(QStringLiteral(":/WinJACKNexus/DefaultTheme/default.wjnskin"));
-        return file.open(QIODevice::ReadOnly) ? file.readAll() : QByteArray {};
+        return file.open(QIODevice::ReadOnly) ? file.readAll() : QByteArray{};
     }();
     *size = std::uint32_t(package.size());
     return package.isEmpty() ? nullptr : package.constData();

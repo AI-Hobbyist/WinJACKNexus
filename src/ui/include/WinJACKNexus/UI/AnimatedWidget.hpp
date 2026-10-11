@@ -21,15 +21,17 @@
 
 #include <cstdint>
 
-namespace WinJACKNexus::UI {
+namespace WinJACKNexus::UI
+{
 
-class WINJACK_UI_API AnimatedWidget : public PaintableWidget {
+class WINJACK_UI_API AnimatedWidget : public PaintableWidget
+{
     Q_OBJECT
     Q_PROPERTY(int frameRate READ frameRate WRITE setFrameRate)
     Q_PROPERTY(bool animationRunning READ animationRunning)
 
-public:
-    explicit AnimatedWidget(QWidget* parent = nullptr);
+  public:
+    explicit AnimatedWidget(QWidget *parent = nullptr);
     ~AnimatedWidget() override;
 
     int frameRate() const noexcept;
@@ -40,17 +42,17 @@ public:
     bool animationRunning() const noexcept;
     std::uint64_t frameNumber() const noexcept;
 
-Q_SIGNALS:
+  Q_SIGNALS:
     void animationFrameChanged(qulonglong frameNumber);
 
-protected:
+  protected:
     void renderingStateChanged() noexcept override;
     virtual void advanceFrame();
 
-private Q_SLOTS:
+  private Q_SLOTS:
     void onAnimationTick();
 
-private:
+  private:
     void applyFrameRate(int framesPerSecond);
     void synchronizeTimer();
 

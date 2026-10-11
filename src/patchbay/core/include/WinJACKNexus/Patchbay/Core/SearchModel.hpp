@@ -20,12 +20,16 @@
 #include <string>
 #include <vector>
 
-namespace WinJACKNexus::Patchbay::Core {
+namespace WinJACKNexus::Patchbay::Core
+{
 
-class WINJACK_PATCHBAY_API SearchModel final {
-public:
-    static std::vector<std::string> matchingClientIds(const GraphModel& model, const std::string& query);
-    static std::vector<std::string> matchingPortIds(const GraphModel& model, const std::string& query);
+class WINJACK_PATCHBAY_API SearchModel final
+{
+  public:
+    static std::vector<std::string> matchingClientIds(const GraphModel &model,
+                                                      const std::string &query);
+    static std::vector<std::string> matchingPortIds(const GraphModel &model,
+                                                    const std::string &query);
 };
 
 }

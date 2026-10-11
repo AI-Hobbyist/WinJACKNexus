@@ -26,22 +26,23 @@ class QComboBox;
 class QLabel;
 class QToolButton;
 
-namespace WinJACKNexus::UI {
+namespace WinJACKNexus::UI
+{
 class MeterLevelBar;
 class MetricReadout;
 }
 
-namespace WinJACKNexus::Meter::Mod {
+namespace WinJACKNexus::Meter::Mod
+{
 
-class MeterCard final : public QFrame {
-public:
-    explicit MeterCard(MeterViewDataProvider& provider,
-                       std::function<void()> requestRefresh,
-                       std::function<void(const QString&)> openHistory,
-                       QWidget* parent = nullptr);
+class MeterCard final : public QFrame
+{
+  public:
+    explicit MeterCard(MeterViewDataProvider &provider, std::function<void()> requestRefresh,
+                       std::function<void(const QString &)> openHistory, QWidget *parent = nullptr);
     ~MeterCard() override = default;
 
-    void setSnapshot(const MeterViewSnapshot& snapshot);
+    void setSnapshot(const MeterViewSnapshot &snapshot);
     void setDisplayIndex(int index);
     void setAvailableHeight(int height);
     void setRefreshRate(int framesPerSecond);
@@ -49,19 +50,20 @@ public:
     QString clientName() const;
     QString presetId() const;
 
-protected:
-    void contextMenuEvent(QContextMenuEvent* event) override;
+  protected:
+    void contextMenuEvent(QContextMenuEvent *event) override;
 
-private:
+  private:
     void applyTheme();
     void refreshLocalizedDisplay();
-    void dispatch(MeterViewCommandType type, std::optional<bool> enabled = std::nullopt, const QString& presetId = {});
+    void dispatch(MeterViewCommandType type, std::optional<bool> enabled = std::nullopt,
+                  const QString &presetId = {});
     void configurePresetSelector();
     void createCustomPreset();
 
-    MeterViewDataProvider& provider_;
+    MeterViewDataProvider &provider_;
     std::function<void()> requestRefresh_;
-    std::function<void(const QString&)> openHistory_;
+    std::function<void(const QString &)> openHistory_;
     QString instanceId_;
     QString clientName_;
     QString presetId_;
@@ -70,29 +72,29 @@ private:
     QString layoutFallback_;
     std::size_t displayChannelCount_ = 0;
     bool displayCustomLayout_ = false;
-    QLabel* numberLabel_ = nullptr;
-    QLabel* titleLabel_ = nullptr;
-    QLabel* layoutLabel_ = nullptr;
-    QLabel* stateLabel_ = nullptr;
-    QComboBox* presetSelector_ = nullptr;
-    QToolButton* presetRefreshButton_ = nullptr;
+    QLabel *numberLabel_ = nullptr;
+    QLabel *titleLabel_ = nullptr;
+    QLabel *layoutLabel_ = nullptr;
+    QLabel *stateLabel_ = nullptr;
+    QComboBox *presetSelector_ = nullptr;
+    QToolButton *presetRefreshButton_ = nullptr;
     quint64 presetRevision_ = 0;
-    WinJACKNexus::UI::MeterLevelBar* levelBar_ = nullptr;
-    WinJACKNexus::UI::MetricReadout* peakReadout_ = nullptr;
-    WinJACKNexus::UI::MetricReadout* rmsReadout_ = nullptr;
-    WinJACKNexus::UI::MetricReadout* truePeakReadout_ = nullptr;
-    WinJACKNexus::UI::MetricReadout* momentaryReadout_ = nullptr;
-    WinJACKNexus::UI::MetricReadout* shortTermReadout_ = nullptr;
-    WinJACKNexus::UI::MetricReadout* integratedReadout_ = nullptr;
-    WinJACKNexus::UI::MetricReadout* lraReadout_ = nullptr;
-    QAction* resetAction_ = nullptr;
-    QAction* recordingAction_ = nullptr;
-    QAction* historyAction_ = nullptr;
-    QAction* automaticResetAction_ = nullptr;
-    QAction* locateAction_ = nullptr;
-    QToolButton* resetButton_ = nullptr;
-    QToolButton* recordingButton_ = nullptr;
-    QToolButton* historyButton_ = nullptr;
+    WinJACKNexus::UI::MeterLevelBar *levelBar_ = nullptr;
+    WinJACKNexus::UI::MetricReadout *peakReadout_ = nullptr;
+    WinJACKNexus::UI::MetricReadout *rmsReadout_ = nullptr;
+    WinJACKNexus::UI::MetricReadout *truePeakReadout_ = nullptr;
+    WinJACKNexus::UI::MetricReadout *momentaryReadout_ = nullptr;
+    WinJACKNexus::UI::MetricReadout *shortTermReadout_ = nullptr;
+    WinJACKNexus::UI::MetricReadout *integratedReadout_ = nullptr;
+    WinJACKNexus::UI::MetricReadout *lraReadout_ = nullptr;
+    QAction *resetAction_ = nullptr;
+    QAction *recordingAction_ = nullptr;
+    QAction *historyAction_ = nullptr;
+    QAction *automaticResetAction_ = nullptr;
+    QAction *locateAction_ = nullptr;
+    QToolButton *resetButton_ = nullptr;
+    QToolButton *recordingButton_ = nullptr;
+    QToolButton *historyButton_ = nullptr;
 };
 
 }

@@ -15,12 +15,10 @@
  */
 #include <WinJACKNexus/Common/Window.hpp>
 
-namespace WinJACKNexus::Common::win32 {
-
-Window::Window(HWND handle) noexcept
-    : handle_(handle)
+namespace WinJACKNexus::Common::win32
 {
-}
+
+Window::Window(HWND handle) noexcept : handle_(handle) {}
 
 HWND Window::handle() const noexcept
 {

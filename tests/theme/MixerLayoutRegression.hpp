@@ -8,18 +8,18 @@
 #include <QDir>
 #include <QMouseEvent>
 
-template<class Check>
-void verifyMixerLayout(QApplication& app, Check check)
+template <class Check> void verifyMixerLayout(QApplication &app, Check check)
 {
     using namespace WinJACKNexus;
     UI::ThemeCore core;
-    for (const auto* kind : {"input", "aux", "master"})
-        check(!core.snapshot()->hasValue(QStringLiteral("--wjn-theme-mixer-group-%1-accent").arg(kind)),
+    for (const auto *kind : {"input", "aux", "master"})
+        check(!core.snapshot()->hasValue(
+                  QStringLiteral("--wjn-theme-mixer-group-%1-accent").arg(kind)),
               "removed mixer card tokens are absent from the registry and default theme");
-    for (const auto* role : {"monitor-surface", "monitor-border"})
+    for (const auto *role : {"monitor-surface", "monitor-border"})
         check(!core.snapshot()->hasValue(QStringLiteral("--wjn-theme-mixer-%1").arg(role)),
               "removed monitor card tokens are absent");
-    for (const auto* role : {"resize-handle", "category-divider"})
+    for (const auto *role : {"resize-handle", "category-divider"})
         check(core.snapshot()->hasValue(QStringLiteral("--wjn-theme-mixer-%1").arg(role)),
               "new mixer separator tokens are registered");
     UI::ThemeManager::installThemeCore(&core);
@@ -30,7 +30,10 @@ void verifyMixerLayout(QApplication& app, Check check)
     state.strip(first)->name = QStringLiteral("声卡输入");
     state.add(Common::MixerStripKind::input, Common::MixerLayout::stereo);
     state.add(Common::MixerStripKind::aux, Common::MixerLayout::surround71);
-    UI::MixerWindow mixer(&state, [&state](const auto& next, QString*) { state = next; return true; });
+    UI::MixerWindow mixer(&state, [&state](const auto &next, QString *) {
+        state = next;
+        return true;
+    });
     mixer.resize(1024, 768);
     mixer.show();
     app.processEvents();
@@ -38,18 +41,25 @@ void verifyMixerLayout(QApplication& app, Check check)
     const QColor fixedDivider("#00ffff");
     check(core.setOverride(QStringLiteral("--wjn-theme-mixer-resize-handle"), divider.name()),
           "resize handle token styles the draggable boundary");
-    check(core.setOverride(QStringLiteral("--wjn-theme-mixer-category-divider"), fixedDivider.name()),
-          "category divider token independently styles the fixed boundary");
-    const auto image = [&] { app.processEvents(); return mixer.grab().toImage(); };
-    const auto boundary = [&](int x, const QColor& expected) {
+    check(
+        core.setOverride(QStringLiteral("--wjn-theme-mixer-category-divider"), fixedDivider.name()),
+        "category divider token independently styles the fixed boundary");
+    const auto image = [&] {
+        app.processEvents();
+        return mixer.grab().toImage();
+    };
+    const auto boundary = [&](int x, const QColor &expected) {
         const auto pixels = image();
         const qreal scale = pixels.devicePixelRatio();
-        return pixels.pixelColor(qRound(x * scale), qRound(200 * scale)) == expected
-            && pixels.pixelColor(qRound(x * scale), qRound(700 * scale)) == expected;
+        return pixels.pixelColor(qRound(x * scale), qRound(200 * scale)) == expected &&
+               pixels.pixelColor(qRound(x * scale), qRound(700 * scale)) == expected;
     };
-    check(boundary(472, divider) && boundary(795, fixedDivider), "Input/AUX and AUX/Listen boundaries span the channel area");
-    const auto mouse = [&](QEvent::Type type, QPoint point, Qt::MouseButton button, Qt::MouseButtons buttons) {
-        QMouseEvent event(type, QPointF(point), QPointF(mixer.mapToGlobal(point)), button, buttons, Qt::NoModifier);
+    check(boundary(472, divider) && boundary(795, fixedDivider),
+          "Input/AUX and AUX/Listen boundaries span the channel area");
+    const auto mouse = [&](QEvent::Type type, QPoint point, Qt::MouseButton button,
+                           Qt::MouseButtons buttons) {
+        QMouseEvent event(type, QPointF(point), QPointF(mixer.mapToGlobal(point)), button, buttons,
+                          Qt::NoModifier);
         QApplication::sendEvent(&mixer, &event);
     };
     const auto drag = [&](int from, int to) {
@@ -58,17 +68,22 @@ void verifyMixerLayout(QApplication& app, Check check)
         mouse(QEvent::MouseButtonRelease, {to, 200}, Qt::LeftButton, Qt::NoButton);
     };
     drag(472, 360);
-    check(boundary(360, divider) && boundary(795, fixedDivider), "dragging left shrinks Input and grows AUX without moving Listen/Master");
+    check(boundary(360, divider) && boundary(795, fixedDivider),
+          "dragging left shrinks Input and grows AUX without moving Listen/Master");
     drag(360, 550);
-    check(boundary(550, divider) && boundary(795, fixedDivider), "dragging right grows Input and shrinks AUX while retaining Sub Mix minimum width");
+    check(boundary(550, divider) && boundary(795, fixedDivider),
+          "dragging right grows Input and shrinks AUX while retaining Sub Mix minimum width");
     mouse(QEvent::MouseButtonPress, {35, 428}, Qt::LeftButton, Qt::LeftButton);
     mouse(QEvent::MouseButtonRelease, {35, 428}, Qt::LeftButton, Qt::NoButton);
     check(state.strip(first)->listenMode == Common::MixerListenMode::pfl,
           "PFL hit area follows the reclaimed header space");
-    check(core.removeOverride(QStringLiteral("--wjn-theme-mixer-resize-handle")), "restore divider color");
-    check(core.removeOverride(QStringLiteral("--wjn-theme-mixer-category-divider")), "restore fixed divider color");
+    check(core.removeOverride(QStringLiteral("--wjn-theme-mixer-resize-handle")),
+          "restore divider color");
+    check(core.removeOverride(QStringLiteral("--wjn-theme-mixer-category-divider")),
+          "restore fixed divider color");
     QDir().mkpath(QStringLiteral("tests/preview/PrePush"));
-    check(image().save(QStringLiteral("tests/preview/PrePush/mixer-without-group-cards-modified.png")),
+    check(image().save(
+              QStringLiteral("tests/preview/PrePush/mixer-without-group-cards-modified.png")),
           "capture the mixer without group cards for human review");
     UI::ThemeManager::installThemeCore(nullptr);
 }

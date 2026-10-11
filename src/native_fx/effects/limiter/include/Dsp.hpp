@@ -3,13 +3,22 @@
 #include <WinJACKNexus/NativeFx/limiter/Processor.hpp>
 #include <cstdint>
 
-struct LimiterDsp final {
+struct LimiterDsp final
+{
     using Processor = WinJACKNexus::Common::LimiterProcessor;
     using Parameters = WinJACKNexus::Common::LimiterParameters;
-    static void prepare(Processor& processor, double rate) { processor.prepare(rate); }
-    static void setParameters(Processor& processor, const Parameters& values) { processor.setParameters(values); }
-    static void process(Processor& processor, const Parameters& values,
-                        const float* input, float* output, std::uint32_t frames) {
-        for (std::uint32_t frame = 0; frame < frames; ++frame) output[frame] = processor.process(input[frame]);
+    static void prepare(Processor &processor, double rate)
+    {
+        processor.prepare(rate);
+    }
+    static void setParameters(Processor &processor, const Parameters &values)
+    {
+        processor.setParameters(values);
+    }
+    static void process(Processor &processor, const Parameters &values, const float *input,
+                        float *output, std::uint32_t frames)
+    {
+        for (std::uint32_t frame = 0; frame < frames; ++frame)
+            output[frame] = processor.process(input[frame]);
     }
 };
