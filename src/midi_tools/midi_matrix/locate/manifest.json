@@ -1,0 +1,21 @@
+{
+  "formatVersion": 1,
+  "moduleId": "midi-tools-midi_matrix",
+  "domains": [
+    "midi.midi_matrix"
+  ],
+  "defaultLanguage": "en-US",
+  "catalogVersion": 1,
+  "languages": {
+    "en-US": "en-US.json",
+    "zh-CN": "zh-CN.json",
+    "ja-JP": "ja-JP.json",
+    "ko-KR": "ko-KR.json"
+  },
+  "requiredKeys": {
+    "midi.midi_matrix": [
+      "name",
+      "description"
+    ]
+  }
+}

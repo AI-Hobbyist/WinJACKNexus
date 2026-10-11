@@ -1,0 +1,21 @@
+{
+  "formatVersion": 1,
+  "moduleId": "midi-tools-midi_spilit",
+  "domains": [
+    "midi.midi_spilit"
+  ],
+  "defaultLanguage": "en-US",
+  "catalogVersion": 1,
+  "languages": {
+    "en-US": "en-US.json",
+    "zh-CN": "zh-CN.json",
+    "ja-JP": "ja-JP.json",
+    "ko-KR": "ko-KR.json"
+  },
+  "requiredKeys": {
+    "midi.midi_spilit": [
+      "name",
+      "description"
+    ]
+  }
+}

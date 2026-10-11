@@ -1,0 +1,12 @@
+{
+  "formatVersion": 1,
+  "catalogVersion": 1,
+  "moduleId": "midi-tools-sf2_loader",
+  "language": "en-US",
+  "domains": {
+    "midi.sf2_loader": {
+      "name": "sf2_loader",
+      "description": "MIDI Tools node"
+    }
+  }
+}

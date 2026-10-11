@@ -1,0 +1,12 @@
+{
+  "formatVersion": 1,
+  "catalogVersion": 1,
+  "moduleId": "midi-tools-midi_matrix",
+  "language": "zh-CN",
+  "domains": {
+    "midi.midi_matrix": {
+      "name": "midi matrix",
+      "description": "MIDI 工具节点"
+    }
+  }
+}

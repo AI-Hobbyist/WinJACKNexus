@@ -1,0 +1,21 @@
+{
+  "formatVersion": 1,
+  "moduleId": "midi-tools-sf2_loader",
+  "domains": [
+    "midi.sf2_loader"
+  ],
+  "defaultLanguage": "en-US",
+  "catalogVersion": 1,
+  "languages": {
+    "en-US": "en-US.json",
+    "zh-CN": "zh-CN.json",
+    "ja-JP": "ja-JP.json",
+    "ko-KR": "ko-KR.json"
+  },
+  "requiredKeys": {
+    "midi.sf2_loader": [
+      "name",
+      "description"
+    ]
+  }
+}

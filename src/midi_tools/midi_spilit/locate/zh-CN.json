@@ -1,0 +1,12 @@
+{
+  "formatVersion": 1,
+  "catalogVersion": 1,
+  "moduleId": "midi-tools-midi_spilit",
+  "language": "zh-CN",
+  "domains": {
+    "midi.midi_spilit": {
+      "name": "midi_spilit",
+      "description": "MIDI 工具节点"
+    }
+  }
+}

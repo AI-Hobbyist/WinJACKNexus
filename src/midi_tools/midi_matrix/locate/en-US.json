@@ -1,0 +1,12 @@
+{
+  "formatVersion": 1,
+  "catalogVersion": 1,
+  "moduleId": "midi-tools-midi_matrix",
+  "language": "en-US",
+  "domains": {
+    "midi.midi_matrix": {
+      "name": "midi matrix",
+      "description": "MIDI Tools node"
+    }
+  }
+}

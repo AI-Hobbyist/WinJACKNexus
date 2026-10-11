@@ -1,0 +1,12 @@
+{
+  "formatVersion": 1,
+  "catalogVersion": 1,
+  "moduleId": "midi-tools-sf2_loader",
+  "language": "ko-KR",
+  "domains": {
+    "midi.sf2_loader": {
+      "name": "sf2_loader",
+      "description": "MIDI 도구 노드"
+    }
+  }
+}

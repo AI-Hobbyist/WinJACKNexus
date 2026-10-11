@@ -1,0 +1,1 @@
+These test fixtures were generated for WinJACKNexus using a mathematical sine wave. No third-party samples. Dedicated to the public domain under CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/).

@@ -1,0 +1,12 @@
+{
+  "formatVersion": 1,
+  "catalogVersion": 1,
+  "moduleId": "midi-tools-sf2_loader",
+  "language": "zh-CN",
+  "domains": {
+    "midi.sf2_loader": {
+      "name": "sf2_loader",
+      "description": "MIDI 工具节点"
+    }
+  }
+}
