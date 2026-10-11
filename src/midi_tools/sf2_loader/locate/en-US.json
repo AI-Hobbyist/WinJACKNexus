@@ -34,7 +34,9 @@
       "rejected": "Invalid or duplicate resource/settings.",
       "unmatched": "No matching instrument",
       "overload": "Overload",
-      "diagnostics": "Dropped / overflow / evicted / unsupported"
+      "diagnostics": "Dropped / overflow / evicted / unsupported",
+      "globalBudget": "Resource budget (SF2 equivalent)",
+      "globalBudgetHelp": "Default: 64 MiB. SF2 files reserve eight times their file size; this value sets the shared sample budget to eight times the selected amount, also used by SFZ. Applies on the next resource load. Existing sounds keep playing."
     }
   }
 }

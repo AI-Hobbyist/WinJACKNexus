@@ -5,6 +5,7 @@
 #include <QStringDecoder>
 #include <WinJACKNexus/Common/LockFreeSpscQueue.hpp>
 #include <WinJACKNexus/Common/MidiToolsSynth.hpp>
+#include <WinJACKNexus/Common/SynthResourceBudget.hpp>
 #include <algorithm>
 #include <atomic>
 #include <chrono>
@@ -440,6 +441,8 @@ struct SynthCore::Impl
     std::atomic<uint64_t> bytes{};
     mutable std::mutex mutex;
     SynthSettings requested;
+    uint64_t requestedBudget = configuredPreparedSampleBytes();
+    uint64_t preparationBudget = requestedBudget; // Loader worker only.
     bool preserve = false;
     uint64_t requestRevision = 1;
     std::atomic<uint64_t> wantedRevision{1};
@@ -531,7 +534,7 @@ struct SynthCore::Impl
     bool reserve(uint64_t n)
     {
         const auto used = bytes.load();
-        if (n > maxPreparedSampleBytes || used > maxPreparedSampleBytes - n)
+        if (n > preparationBudget || used > preparationBudget - n)
         {
             return false;
         }
@@ -557,11 +560,16 @@ struct SynthCore::Impl
             {
                 // Conservative SF2 prepared-sample bound (including 24-bit planes).
                 const uint64_t budget =
-                    size > maxPreparedSampleBytes / 8 ? maxPreparedSampleBytes + 1 : size * 8;
+                    size > preparationBudget / sf2PreparedExpansion
+                        ? preparationBudget + 1
+                        : size * sf2PreparedExpansion;
                 if (!reserve(budget))
                 {
                     r->info.state = ResourceState::budget;
-                    r->info.detail = "sample budget exceeded";
+                    r->info.detail = "SF2 file: " + std::to_string(size) +
+                                     " bytes; sample budget: " + std::to_string(preparationBudget) +
+                                     " bytes; already reserved: " + std::to_string(bytes.load()) +
+                                     " bytes (SF2 reserves file size x8)";
                     return r;
                 }
                 bank.bytes += budget;
@@ -714,6 +722,7 @@ struct SynthCore::Impl
         double rate = 0;
         double attemptedRate = 0;
         bool haveBank = false;
+        uint64_t builtBudget = 0;
         while (running)
         {
             Bank *old;
@@ -729,6 +738,7 @@ struct SynthCore::Impl
                 s = requested;
                 next = requestRevision;
                 keep = preserve;
+                preparationBudget = requestedBudget;
             }
             const double nextRate = requiredRate.load();
             if (next == revision && nextRate == attemptedRate)
@@ -749,7 +759,8 @@ struct SynthCore::Impl
                     packet.controls.preferred = int(i);
                 }
             }
-            const bool rebuild = !haveBank || nextRate != rate || !sameResources(s, built);
+            const bool rebuild = !haveBank || nextRate != rate || !sameResources(s, built) ||
+                                 preparationBudget != builtBudget;
             if (rebuild)
             {
                 auto bank = std::make_unique<Bank>();
@@ -832,6 +843,7 @@ struct SynthCore::Impl
                 continue;
             }
             built = std::move(s);
+            builtBudget = preparationBudget;
             revision = next;
             rate = nextRate;
             attemptedRate = nextRate;
@@ -1482,6 +1494,7 @@ bool SynthCore::submit(const SynthSettings &s, bool preserve)
     std::lock_guard lock(impl_->mutex);
     impl_->requested = s;
     impl_->preserve = preserve;
+    impl_->requestedBudget = configuredPreparedSampleBytes();
     ++impl_->requestRevision;
     impl_->wantedRevision = impl_->requestRevision;
     impl_->busy = true;

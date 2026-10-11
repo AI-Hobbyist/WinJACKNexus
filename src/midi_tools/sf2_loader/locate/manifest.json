@@ -21,6 +21,8 @@
       "diagnostics",
       "failed",
       "gain",
+      "globalBudget",
+      "globalBudgetHelp",
       "import",
       "instrument",
       "level",

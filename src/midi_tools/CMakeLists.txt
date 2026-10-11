@@ -93,6 +93,17 @@ if(BUILD_TESTING)
                                                              Qt6::Test)
     target_compile_options(midi_tools_synth_gui_tests PRIVATE /utf-8)
     add_dependencies(midi_tools_synth_gui_tests mod_sf2_loader)
+    add_executable(midi_tools_synth_budget_settings_tests
+                   ${PROJECT_SOURCE_DIR}/Develop/MidiTools/SynthBudgetSettingsTests.cpp)
+    target_include_directories(midi_tools_synth_budget_settings_tests
+                               PRIVATE ${PROJECT_SOURCE_DIR}/src/node/include)
+    target_link_libraries(midi_tools_synth_budget_settings_tests
+                         PRIVATE WinJACKNexus::UI WinJACKNexus::Audio WinJACKNexus::Common
+                                 WinJACKNexus::Node Qt6::Test)
+    target_compile_options(midi_tools_synth_budget_settings_tests PRIVATE /utf-8)
+    target_compile_definitions(midi_tools_synth_budget_settings_tests
+                               PRIVATE WIN32_LEAN_AND_MEAN NOMINMAX)
+    add_dependencies(midi_tools_synth_budget_settings_tests WinJACKNexus mod_sf2_loader)
     foreach(
         target
         midi_tools_foundation_tests
@@ -101,7 +112,8 @@ if(BUILD_TESTING)
         midi_tools_matrix_tests
         midi_tools_synth_tests
         midi_tools_synth_sidebar_tests
-        midi_tools_synth_gui_tests)
+        midi_tools_synth_gui_tests
+        midi_tools_synth_budget_settings_tests)
         set_target_properties(${target} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEASE
                                                    "${WJN_OUTPUT_DIR}")
     endforeach()

@@ -6,7 +6,9 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QTemporaryDir>
+#include <QtEndian>
 #include <WinJACKNexus/Common/MidiToolsSynth.hpp>
+#include <WinJACKNexus/Common/SynthResourceBudget.hpp>
 #include <array>
 #include <chrono>
 #include <cmath>
@@ -71,6 +73,13 @@ int main(int argc, char **argv)
     QCoreApplication app(argc, argv);
     try
     {
+        QTemporaryDir settingsRoot;
+        check(settingsRoot.isValid(), "isolated global loader settings");
+        QSettings::setDefaultFormat(QSettings::IniFormat);
+        QSettings::setPath(QSettings::IniFormat, QSettings::UserScope, settingsRoot.path());
+        check(resourceBudgetMiB() == 64 &&
+                  configuredPreparedSampleBytes() == maxPreparedSampleBytes,
+              "default 64 MiB preserves existing 512 MiB sample budget");
         check(argc == 2, "fixture root required");
         const std::string root = argv[1];
         SynthSettings state;
@@ -328,6 +337,62 @@ int main(int argc, char **argv)
         p.wait(1);
         check(p.core.resources()[0].state == ResourceState::budget,
               "sample budget rejects asset before allocating its engine");
+
+        // Extend the SF2 sample chunk with silence and retain the playable preset.
+        // Keep RIFF/LIST/chunk sizes valid; FluidSynth rejects trailing padding.
+        const auto paddedPath = temp.filePath("padded-valid.sf2");
+        QFile source(QString::fromStdString(root + "/tone.sf2"));
+        check(source.open(QIODevice::ReadOnly), "read valid SF2 fixture");
+        auto original = source.readAll();
+        const auto sampleHeader = original.indexOf("smpl");
+        const auto sampleList = original.indexOf("sdta") - 8;
+        check(sampleHeader > 0 && sampleList >= 12, "fixture sample chunk structure");
+        const auto oldSamples = qFromLittleEndian<quint32>(original.constData() + sampleHeader + 4);
+        constexpr quint32 newSamples = 65 * 1024 * 1024;
+        const auto expansion = newSamples - oldSamples;
+        qToLittleEndian<quint32>(quint32(original.size() - 8) + expansion,
+                                original.data() + 4);
+        const auto oldList = qFromLittleEndian<quint32>(original.constData() + sampleList + 4);
+        qToLittleEndian<quint32>(oldList + expansion, original.data() + sampleList + 4);
+        qToLittleEndian<quint32>(newSamples, original.data() + sampleHeader + 4);
+        QFile padded(paddedPath);
+        const auto prefixBytes = sampleHeader + 8 + oldSamples;
+        const auto tail = original.mid(prefixBytes);
+        check(padded.open(QIODevice::WriteOnly) &&
+                  padded.write(original.constData(), prefixBytes) == prefixBytes &&
+                  padded.resize(prefixBytes + expansion) &&
+                  padded.seek(prefixBytes + expansion) && padded.write(tail) == tail.size(),
+              "valid SF2 sample data above the 64 MiB default");
+        padded.close();
+        {
+            Probe budgetProbe;
+            SynthSettings budgetState;
+            budgetState.resources = {{"padded", paddedPath.toStdString(), "sf2"}};
+            check(budgetProbe.core.submit(budgetState), "default budget request");
+            budgetProbe.wait(1);
+            check(budgetProbe.core.resources()[0].state == ResourceState::budget,
+                  "default budget rejects a 65 MiB SF2");
+            setResourceBudgetMiB(128);
+            check(resourceBudgetMiB() == 128, "global budget persists independently of projects");
+            check(budgetProbe.core.submit(budgetState), "same resource after budget increase");
+            budgetProbe.wait(1);
+            check(budgetProbe.core.resources()[0].state == ResourceState::ready,
+                  "higher global limit rebuilds and loads the identical SF2");
+            budgetProbe.message({0x90, 60, 100});
+            check(budgetProbe.peak() > 0, "raised-budget resource genuinely plays");
+            setResourceBudgetMiB(64);
+            check(budgetProbe.core.submit(budgetState, true), "lower budget preserved import");
+            budgetProbe.wait(1);
+            check(budgetProbe.core.resources()[0].state == ResourceState::budget,
+                  "lower limit applies to the next preparation");
+            budgetProbe.message({0x90, 62, 100});
+            check(budgetProbe.peak() > 0, "failed preparation preserves existing playable bank");
+        }
+        setResourceBudgetMiB(0);
+        check(resourceBudgetMiB() == 1, "budget lower bound");
+        setResourceBudgetMiB(99999);
+        check(resourceBudgetMiB() == maximumResourceBudgetMiB, "budget upper bound");
+        setResourceBudgetMiB(64);
 
         // Five playable resource owners exceed the four-generation channel bound.
         SynthSettings generations;

@@ -34,7 +34,9 @@
       "rejected": "资源或设置无效，或重复导入。",
       "unmatched": "没有匹配音色",
       "overload": "过载",
-      "diagnostics": "丢弃 / 溢出 / 淘汰 / 不支持"
+      "diagnostics": "丢弃 / 溢出 / 淘汰 / 不支持",
+      "globalBudget": "资源预算（SF2 等效大小）",
+      "globalBudgetHelp": "默认 64 MiB。SF2 按文件大小的 8 倍预留内存；共享采样预算为设置值的 8 倍，SFZ 也使用此预算。下次资源加载时生效，已有音色继续播放。"
     }
   }
 }

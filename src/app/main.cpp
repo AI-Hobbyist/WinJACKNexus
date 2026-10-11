@@ -14,6 +14,7 @@
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 #include "DeprecatedNodeNotice.hpp"
+#include "SynthResourceSettings.hpp"
 #include <WinJACKNexus/Node/ModuleCompatibility.hpp>
 #include <WinJACKNexus/UI/ApplicationSettings.hpp>
 #include <WinJACKNexus/UI/Controls.hpp>
@@ -770,6 +771,9 @@ public:
         applicationForm->addRow(hostLabel("settings.opacity","Quick access bar opacity",this), opacityLayout);
         layout->addWidget(applicationGroup);
 
+        synthResourceSettings_ = new WinJACKNexus::App::SynthResourceSettings(this);
+        layout->addWidget(synthResourceSettings_);
+
         auto* meterbridgeGroup = hostGroup("view.meterbridge","Meter bridge",this);
         auto* meterbridgeForm = new QFormLayout(meterbridgeGroup);
         meterbridgeForm->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
@@ -873,6 +877,14 @@ public:
         connect(buttons, &QDialogButtonBox::rejected, this, &QWidget::hide);
     }
 
+protected:
+    void showEvent(QShowEvent* event) override
+    {
+        synthResourceSettings_->refreshAvailability(
+            QCoreApplication::applicationDirPath() + QStringLiteral("/nodes"));
+        QDialog::showEvent(event);
+    }
+
 private:
     void saveApplicationSettings() const
     {
@@ -890,6 +902,7 @@ private:
     }
 
     QComboBox* frameRate_ = nullptr;
+    WinJACKNexus::App::SynthResourceSettings* synthResourceSettings_ = nullptr;
     QSpinBox* peakValueRefresh_ = nullptr;
     QDoubleSpinBox* peakHold_ = nullptr;
     QCheckBox* logTracing_ = nullptr;
