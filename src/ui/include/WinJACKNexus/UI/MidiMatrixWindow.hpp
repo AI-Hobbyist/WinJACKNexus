@@ -6,6 +6,7 @@
 #include <QVBoxLayout>
 #include <WinJACKNexus/Common/MidiToolsMatrix.hpp>
 #include <WinJACKNexus/UI/Controls.hpp>
+#include <WinJACKNexus/UI/MidiToolsTheme.hpp>
 #include <functional>
 namespace WinJACKNexus::UI
 {
@@ -49,6 +50,7 @@ class MidiMatrixWindow final : public QWidget
                 connect(b, &QPushButton::toggled, this, [edit, r, c](bool on) { edit(r, c, on); });
             }
         }
+        bindMidiToolsTheme(this, "module-midi-tools-midi-matrix");
         resize(sizeHint());
     }
     void language(const QString &title, const QString &help, const QString &input,

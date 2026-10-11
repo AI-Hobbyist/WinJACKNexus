@@ -1,9 +1,11 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 #include "../ClientSettings.hpp"
 #include "../ModuleI18n.hpp"
+#include "Theme.hpp"
 #include <QApplication>
 #include <WinJACKNexus/Common/MidiToolsSynth.hpp>
 #include <WinJACKNexus/Node/NodeApi.h>
+#include <WinJACKNexus/UI/MidiSynthWindow.hpp>
 #include <array>
 #include <atomic>
 #include <chrono>
@@ -28,6 +30,7 @@ class SynthNode final : public WinJACKNexus::Node::INode, public MT::ClientSetti
     std::array<MT::Core::EventView, MT::Core::maxEvents> events_{};
     MT::Core::SynthSettings state_;
     MT::Core::SynthStatus lastStatus_;
+    QPointer<WinJACKNexus::UI::MidiSynthWindow> window_;
     uint64_t submitted_ = 1;
     std::atomic<unsigned> stop_{};
 
@@ -39,6 +42,7 @@ class SynthNode final : public WinJACKNexus::Node::INode, public MT::ClientSetti
     ~SynthNode()
     {
         shutdown();
+        delete window_;
     }
     WinJACKNexus::Node::NodeInfo info() const noexcept override
     {
@@ -62,9 +66,72 @@ class SynthNode final : public WinJACKNexus::Node::INode, public MT::ClientSetti
     }
     HWND createWindow(HWND) noexcept override
     {
-        return nullptr;
+        try
+        {
+            if (!QApplication::instance())
+            {
+                return nullptr;
+            }
+            if (!window_)
+            {
+                WinJACKNexus::UI::MidiSynthBindings bindings;
+                bindings.edit = [this](const auto &value, bool preserve) {
+                    auto candidate = value;
+                    core_.status(lastStatus_);
+                    if (lastStatus_.revision >= submitted_)
+                    {
+                        for (unsigned channel = 0; channel < 16; ++channel)
+                        {
+                            candidate.channels[channel].msb = lastStatus_.channels[channel].msb;
+                            candidate.channels[channel].lsb = lastStatus_.channels[channel].lsb;
+                            candidate.channels[channel].program =
+                                lastStatus_.channels[channel].program;
+                        }
+                    }
+                    candidate.clientName = actualName();
+                    if (!core_.submit(candidate, preserve))
+                    {
+                        return false;
+                    }
+                    state_ = std::move(candidate);
+                    ++submitted_;
+                    return true;
+                };
+                bindings.status = [this] {
+                    core_.status(lastStatus_);
+                    return lastStatus_;
+                };
+                bindings.resources = [this] { return core_.resources(); };
+                bindings.loading = [this] { return core_.loading(); };
+                bindings.text = [](const char *key, const char *fallback) {
+                    return MT::I18n::text("midi.sf2_loader", key, fallback);
+                };
+                window_ = new WinJACKNexus::UI::MidiSynthWindow(state_, std::move(bindings));
+                const QPointer<WinJACKNexus::UI::MidiSynthWindow> weak = window_;
+                MT::I18n::bind(window_, [weak] {
+                    if (weak)
+                    {
+                        weak->language();
+                    }
+                });
+            }
+            window_->show();
+            window_->raise();
+            window_->activateWindow();
+            return reinterpret_cast<HWND>(window_->winId());
+        }
+        catch (...)
+        {
+            return nullptr;
+        }
     }
-    void destroyWindow(HWND) noexcept override {}
+    void destroyWindow(HWND) noexcept override
+    {
+        if (window_)
+        {
+            window_->close();
+        }
+    }
     static int processThunk(jack_nframes_t frames, void *owner) noexcept
     {
         return static_cast<SynthNode *>(owner)->process(frames);
@@ -109,6 +176,10 @@ class SynthNode final : public WinJACKNexus::Node::INode, public MT::ClientSetti
         }
         state_ = std::move(candidate);
         ++submitted_;
+        if (window_)
+        {
+            window_->setSettings(state_);
+        }
         return true;
     }
     int process(jack_nframes_t frames) noexcept
@@ -209,6 +280,18 @@ int wjn_set_node_settings_json(WinJACKNexus::Node::INode *n, const char *json)
 extern "C" __declspec(dllexport) const char *wjn_get_node_client_id(WinJACKNexus::Node::INode *n)
 {
     return n ? static_cast<SynthNode *>(n)->actualName() : nullptr;
+}
+extern "C" __declspec(dllexport) int wjn_show_node_gui(WinJACKNexus::Node::INode *node)
+{
+    return node && node->createWindow(nullptr) ? 1 : 0;
+}
+uint32_t wjn_get_node_theme_api_version()
+{
+    return WJN_NODE_THEME_API_VERSION;
+}
+const char *wjn_get_node_theme_namespace_json(uint32_t index)
+{
+    return index == 0 ? midiToolsThemeDescriptor : nullptr;
 }
 uint32_t wjn_get_node_i18n_api_version()
 {

@@ -26,6 +26,9 @@
     "--wjn-theme-sel-aux-",
     "--wjn-theme-sel-fx-",
     "--wjn-theme-sel-main-",
-    "--wjn-theme-sel-monitor-"
+    "--wjn-theme-sel-monitor-",
+    "--wjn-theme-module-midi-tools-sf2-loader-",
+    "--wjn-theme-module-midi-tools-midi-spilit-",
+    "--wjn-theme-module-midi-tools-midi-matrix-"
   ]
 }

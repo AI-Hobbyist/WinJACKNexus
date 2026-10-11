@@ -5,8 +5,36 @@
   "language": "en-US",
   "domains": {
     "midi.sf2_loader": {
-      "name": "sf2_loader",
-      "description": "MIDI Tools node"
+      "name": "SF2/SFZ loader",
+      "description": "16-channel SF2 and SFZ synthesizer",
+      "import": "Import",
+      "remove": "Remove reference",
+      "usePreferred": "Use as preferred resource",
+      "preferred": "Preferred resource",
+      "browseHelp": "Select a file to inspect it. Browsing does not change playback.",
+      "mapping": "SFZ mapping: Bank MSB / LSB / Program (0–127)",
+      "msb": "Bank MSB",
+      "lsb": "Bank LSB",
+      "program": "Program (0–127)",
+      "channel": "Ch",
+      "instrument": "Current instrument",
+      "gain": "Gain",
+      "mute": "Mute",
+      "solo": "Solo",
+      "level": "Level",
+      "master": "Master",
+      "ready": "Ready",
+      "missing": "Missing file",
+      "failed": "Load failed",
+      "budget": "Resource budget exceeded",
+      "pending": "Preparing",
+      "presets": "Presets",
+      "yes": "Yes",
+      "no": "No",
+      "rejected": "Invalid or duplicate resource/settings.",
+      "unmatched": "No matching instrument",
+      "overload": "Overload",
+      "diagnostics": "Dropped / overflow / evicted / unsupported"
     }
   }
 }

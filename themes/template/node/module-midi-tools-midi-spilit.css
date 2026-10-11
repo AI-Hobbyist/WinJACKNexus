@@ -1,0 +1,23 @@
+/* MIDI Tools: inherited defaults preserve the active shared theme. */
+:root {
+  --wjn-theme-module-midi-tools-midi-spilit-surface-window: var(--wjn-theme-global-surface-window);
+  --wjn-theme-module-midi-tools-midi-spilit-surface-panel: var(--wjn-theme-global-surface-panel);
+  --wjn-theme-module-midi-tools-midi-spilit-surface-raised: var(--wjn-theme-global-surface-raised);
+  --wjn-theme-module-midi-tools-midi-spilit-text-primary: var(--wjn-theme-global-text-primary);
+  --wjn-theme-module-midi-tools-midi-spilit-text-muted: var(--wjn-theme-global-text-muted);
+  --wjn-theme-module-midi-tools-midi-spilit-accent-primary: var(--wjn-theme-global-accent-primary);
+  --wjn-theme-module-midi-tools-midi-spilit-accent-secondary: var(--wjn-theme-global-accent-secondary);
+  --wjn-theme-module-midi-tools-midi-spilit-border-normal: var(--wjn-theme-global-border-normal);
+  --wjn-theme-module-midi-tools-midi-spilit-control-button-surface-normal: var(--wjn-theme-global-control-button-surface-normal);
+  --wjn-theme-module-midi-tools-midi-spilit-control-button-surface-selected: var(--wjn-theme-global-control-button-surface-selected);
+  --wjn-theme-module-midi-tools-midi-spilit-control-button-border-normal: var(--wjn-theme-global-control-button-border-normal);
+  --wjn-theme-module-midi-tools-midi-spilit-control-button-border-selected: var(--wjn-theme-global-control-button-border-selected);
+  --wjn-theme-module-midi-tools-midi-spilit-control-button-text-normal: var(--wjn-theme-global-control-button-text-normal);
+  --wjn-theme-module-midi-tools-midi-spilit-control-button-text-selected: var(--wjn-theme-global-control-button-text-selected);
+  --wjn-theme-module-midi-tools-midi-spilit-control-button-surface-hover: var(--wjn-theme-global-control-button-surface-hover);
+  --wjn-theme-module-midi-tools-midi-spilit-control-button-text-hover: var(--wjn-theme-global-control-button-text-hover);
+  --wjn-theme-module-midi-tools-midi-spilit-control-input-surface-normal: var(--wjn-theme-global-control-input-surface-normal);
+  --wjn-theme-module-midi-tools-midi-spilit-control-input-text-normal: var(--wjn-theme-global-control-input-text-normal);
+  --wjn-theme-module-midi-tools-midi-spilit-control-input-border-normal: var(--wjn-theme-global-control-input-border-normal);
+  --wjn-theme-module-midi-tools-midi-spilit-control-input-border-focus: var(--wjn-theme-global-control-input-border-focus);
+}

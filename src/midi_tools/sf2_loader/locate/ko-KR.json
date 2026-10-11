@@ -5,8 +5,36 @@
   "language": "ko-KR",
   "domains": {
     "midi.sf2_loader": {
-      "name": "sf2_loader",
-      "description": "MIDI 도구 노드"
+      "name": "SF2/SFZ 로더",
+      "description": "16채널 SF2 및 SFZ 신시사이저",
+      "import": "가져오기",
+      "remove": "참조 제거",
+      "usePreferred": "우선 연주 리소스로 설정",
+      "preferred": "우선 연주 리소스",
+      "browseHelp": "파일을 선택하여 정보를 확인합니다. 목록 탐색은 연주 음색을 변경하지 않습니다.",
+      "mapping": "SFZ 매핑: Bank MSB / LSB / Program (0–127)",
+      "msb": "Bank MSB",
+      "lsb": "Bank LSB",
+      "program": "Program (0–127)",
+      "channel": "채널",
+      "instrument": "현재 연주 음색",
+      "gain": "게인",
+      "mute": "음소거",
+      "solo": "솔로",
+      "level": "레벨",
+      "master": "마스터",
+      "ready": "준비 완료",
+      "missing": "파일 없음",
+      "failed": "로드 실패",
+      "budget": "리소스 한도 초과",
+      "pending": "준비 중",
+      "presets": "음색 수",
+      "yes": "예",
+      "no": "아니요",
+      "rejected": "리소스 또는 설정이 잘못되었거나 중복되었습니다.",
+      "unmatched": "일치하는 음색 없음",
+      "overload": "과부하",
+      "diagnostics": "삭제 / 초과 / 해제 / 미지원"
     }
   }
 }

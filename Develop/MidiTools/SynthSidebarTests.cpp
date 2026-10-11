@@ -131,7 +131,7 @@ int main(int argc, char **argv)
         const auto remove = reinterpret_cast<decltype(&wjn_destroy_settings_widget)>(
             symbol("wjn_destroy_settings_widget"));
         auto *node = create(0);
-        check(node && !node->createWindow(nullptr), "S4 does not introduce the S5 business window");
+        check(node, "real synthesizer instance without JACK init");
         SynthSettings state;
         state.clientName = "synth-offline";
         state.resources = {

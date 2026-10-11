@@ -17,7 +17,11 @@
 #include <QTextLayout>
 #include <WinJACKNexus/Common/MidiToolsMatrix.hpp>
 #include <WinJACKNexus/Node/NodeApi.h>
+#include <WinJACKNexus/UI/Controls.hpp>
 #include <WinJACKNexus/UI/HostI18n.hpp>
+#include <WinJACKNexus/UI/ThemeCore.hpp>
+#include <WinJACKNexus/UI/ThemeManager.hpp>
+#include <WinJACKNexus/UI/ThemeNamespaceRegistry.hpp>
 #include <atomic>
 #include <iostream>
 #include <memory>
@@ -241,11 +245,25 @@ int main(int argc, char **argv)
     {
         check(argc == 4, "runtime root, repository root, screenshot dir required");
         check(app.platformName() == "windows", "normal Windows QPA required");
+        WinJACKNexus::UI::ThemeCore themeCore;
+        check(themeCore.isValid(), qPrintable(themeCore.initializationError()));
+        WinJACKNexus::UI::ThemeManager::installThemeCore(&themeCore);
+        WinJACKNexus::UI::ThemeManager theme;
+        theme.watchApplication(&app);
         modelTests();
         const auto dllPath =
             QString::fromUtf8(argv[1]) + "/midi_tools/midi_matrix/mod_midi_matrix.dll";
         const HMODULE dll = LoadLibraryW(reinterpret_cast<const wchar_t *>(dllPath.utf16()));
         check(dll, "real matrix DLL");
+        WinJACKNexus::UI::ThemeNamespaceRegistry::Lease themeLease;
+        QString themeError;
+        check(WinJACKNexus::UI::ThemeNamespaceRegistry::instance().registerNodeModule(
+                  [dll](const char *name) {
+                      return reinterpret_cast<QFunctionPointer>(GetProcAddress(dll, name));
+                  },
+                  dllPath, &themeLease, &themeError),
+              qPrintable(themeError));
+        check(themeCore.refreshRegisteredNamespaces(&themeError), qPrintable(themeError));
         auto symbol = [&](const char *name) {
             auto p = GetProcAddress(dll, name);
             check(p, "required export");
@@ -299,6 +317,10 @@ int main(int argc, char **argv)
               "default diagonal capture");
         auto *cross = matrix->findChild<QPushButton *>("route-0-1");
         check(cross && !cross->isChecked(), "offdiagonal default");
+        check(cross->property("surfaceColor").value<QColor>() ==
+                  WinJACKNexus::UI::Controls::themeTokenColor(
+                      "global", "control-button-surface-normal", QColor()),
+              "matrix buttons inherit the actual default theme");
         QTest::mouseClick(cross, Qt::LeftButton);
         check(QJsonDocument::fromJson(get(node)).object()["routes"].toArray()[1].toBool(),
               "GUI route applied to persisted snapshot");
@@ -391,6 +413,7 @@ int main(int argc, char **argv)
         lease.reset();
         node->shutdown();
         destroy(node);
+        themeLease.reset();
         check(FreeLibrary(dll), "DLL unload after UI/lease");
         std::cout << "PASS matrix DLL/routes and sidebar, four-language100% Windows captures, "
                      "close/reopen, no JACK init\n";

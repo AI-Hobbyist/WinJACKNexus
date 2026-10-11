@@ -1499,10 +1499,16 @@ void GroupPanel::paintEvent(QPaintEvent*) {
     const auto colors = inheritedPalette(*this);
     drawSurface(painter, QRectF(rect()).adjusted(1, 8, -1, -1),
                 colors.panel, colors.border, 6);
-    const QRectF titleBounds(10, 0, std::max(0, width() - 20), 22);
-    painter.fillRect(titleBounds.adjusted(0, 1, 0, -1), colors.background);
+    if (title().isEmpty()) {
+        return;
+    }
     auto titleFont = font();
     titleFont.setBold(true);
+    const QFontMetrics titleMetrics(titleFont);
+    const QRectF titleBounds(10, 0,
+                            std::min(std::max(0, width() - 20),
+                                     titleMetrics.horizontalAdvance(title()) + 8), 22);
+    painter.fillRect(titleBounds.adjusted(0, 1, 0, -1), colors.background);
     drawText(painter, titleBounds, title(), titleFont, colors.text,
              Qt::AlignLeft | Qt::AlignVCenter);
 }

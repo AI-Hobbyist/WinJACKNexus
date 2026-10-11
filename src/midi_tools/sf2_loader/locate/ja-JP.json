@@ -5,8 +5,36 @@
   "language": "ja-JP",
   "domains": {
     "midi.sf2_loader": {
-      "name": "sf2_loader",
-      "description": "MIDI ツールノード"
+      "name": "SF2/SFZ ローダー",
+      "description": "16 チャンネル SF2・SFZ シンセサイザー",
+      "import": "読み込み",
+      "remove": "参照を削除",
+      "usePreferred": "優先演奏リソースに設定",
+      "preferred": "優先演奏リソース",
+      "browseHelp": "ファイルを選択して情報を確認します。閲覧しても演奏音色は変わりません。",
+      "mapping": "SFZ マッピング：Bank MSB / LSB / Program（0–127）",
+      "msb": "Bank MSB",
+      "lsb": "Bank LSB",
+      "program": "Program（0–127）",
+      "channel": "Ch",
+      "instrument": "現在の演奏音色",
+      "gain": "ゲイン",
+      "mute": "ミュート",
+      "solo": "ソロ",
+      "level": "レベル",
+      "master": "マスター",
+      "ready": "準備完了",
+      "missing": "ファイルなし",
+      "failed": "読み込み失敗",
+      "budget": "リソース上限超過",
+      "pending": "準備中",
+      "presets": "音色数",
+      "yes": "はい",
+      "no": "いいえ",
+      "rejected": "リソースまたは設定が無効、もしくは重複しています。",
+      "unmatched": "一致する音色なし",
+      "overload": "過負荷",
+      "diagnostics": "破棄 / 超過 / 解放 / 非対応"
     }
   }
 }

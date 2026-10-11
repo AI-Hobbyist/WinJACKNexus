@@ -55,7 +55,15 @@ if(BUILD_TESTING)
         midi_tools_synthcore WinJACKNexus::UI WinJACKNexus::Audio Qt6::Test)
     target_compile_options(midi_tools_synth_sidebar_tests PRIVATE /utf-8)
     add_dependencies(midi_tools_synth_sidebar_tests mod_sf2_loader)
-    foreach(target midi_tools_foundation_tests midi_tools_engine_probe midi_tools_split_tests midi_tools_matrix_tests midi_tools_synth_tests midi_tools_synth_sidebar_tests)
+    add_executable(midi_tools_synth_gui_tests
+        ${PROJECT_SOURCE_DIR}/Develop/MidiTools/SynthGuiTests.cpp)
+    target_include_directories(midi_tools_synth_gui_tests PRIVATE
+        ${PROJECT_SOURCE_DIR}/src/node/include)
+    target_link_libraries(midi_tools_synth_gui_tests PRIVATE
+        midi_tools_synthcore WinJACKNexus::UI Qt6::Test)
+    target_compile_options(midi_tools_synth_gui_tests PRIVATE /utf-8)
+    add_dependencies(midi_tools_synth_gui_tests mod_sf2_loader)
+    foreach(target midi_tools_foundation_tests midi_tools_engine_probe midi_tools_split_tests midi_tools_matrix_tests midi_tools_synth_tests midi_tools_synth_sidebar_tests midi_tools_synth_gui_tests)
         set_target_properties(${target} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEASE "${WJN_OUTPUT_DIR}")
     endforeach()
 endif()

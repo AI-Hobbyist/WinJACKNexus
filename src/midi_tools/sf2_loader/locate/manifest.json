@@ -14,8 +14,36 @@
   },
   "requiredKeys": {
     "midi.sf2_loader": [
+      "browseHelp",
+      "budget",
+      "channel",
+      "description",
+      "diagnostics",
+      "failed",
+      "gain",
+      "import",
+      "instrument",
+      "level",
+      "lsb",
+      "mapping",
+      "master",
+      "missing",
+      "msb",
+      "mute",
       "name",
-      "description"
+      "no",
+      "overload",
+      "pending",
+      "preferred",
+      "presets",
+      "program",
+      "ready",
+      "rejected",
+      "remove",
+      "solo",
+      "unmatched",
+      "usePreferred",
+      "yes"
     ]
   }
 }

@@ -444,6 +444,7 @@ struct SynthCore::Impl
     uint64_t requestRevision = 1;
     std::atomic<uint64_t> wantedRevision{1};
     std::vector<ResourceInfo> information;
+    std::unique_ptr<sfizz_synth_t, SfzDeleter> accountingSynth;
     std::thread worker;
     LockFreeSpscQueue<Packet, 2> incoming;
     LockFreeSpscQueue<Bank *, 8> retired;
@@ -618,18 +619,27 @@ struct SynthCore::Impl
                     throw std::runtime_error("SFZ text budget exceeded");
                 }
                 uint64_t perInstance = 0;
+                if (!accountingSynth)
+                {
+                    accountingSynth.reset(sfizz_create_synth());
+                    if (!accountingSynth)
+                    {
+                        throw std::runtime_error("sfizz accounting allocation");
+                    }
+                    sfizz_set_num_voices(accountingSynth.get(), 1);
+                    sfizz_set_samples_per_block(accountingSynth.get(), 1);
+                    sfizz_set_preload_size(accountingSynth.get(), 1);
+                }
                 for (unsigned c = 0; c < 16; ++c)
                 {
                     if (!running || wantedRevision.load() != bank.revision)
                     {
                         throw std::runtime_error("loading cancelled");
                     }
-                    // The upstream counter is global, rather than per synth. The first
-                    // snapshot conservatively includes other live instances; subsequent
-                    // snapshots reserve only growth across creation and preparation.
+                    // A worker-owned empty synth exposes the global upstream counter,
+                    // allowing a before/after increment even for the first instance.
                     const uint64_t beforeBytes =
-                        c == 0 ? 0
-                               : uint64_t((std::max)(0, sfizz_get_num_bytes(r->sfz[c - 1].get())));
+                        uint64_t((std::max)(0, sfizz_get_num_bytes(accountingSynth.get())));
                     r->sfz[c].reset(sfizz_create_synth());
                     if (!r->sfz[c])
                     {

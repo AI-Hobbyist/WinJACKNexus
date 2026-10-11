@@ -1,0 +1,44 @@
+/* MIDI Tools: inherited defaults preserve the active shared theme. */
+:root {
+  --wjn-theme-module-midi-tools-sf2-loader-surface-window: var(--wjn-theme-global-surface-window);
+  --wjn-theme-module-midi-tools-sf2-loader-surface-panel: var(--wjn-theme-global-surface-panel);
+  --wjn-theme-module-midi-tools-sf2-loader-surface-raised: var(--wjn-theme-global-surface-raised);
+  --wjn-theme-module-midi-tools-sf2-loader-text-primary: var(--wjn-theme-global-text-primary);
+  --wjn-theme-module-midi-tools-sf2-loader-text-muted: var(--wjn-theme-global-text-muted);
+  --wjn-theme-module-midi-tools-sf2-loader-accent-primary: var(--wjn-theme-global-accent-primary);
+  --wjn-theme-module-midi-tools-sf2-loader-accent-secondary: var(--wjn-theme-global-accent-secondary);
+  --wjn-theme-module-midi-tools-sf2-loader-border-normal: var(--wjn-theme-global-border-normal);
+  --wjn-theme-module-midi-tools-sf2-loader-control-button-surface-normal: var(--wjn-theme-global-control-button-surface-normal);
+  --wjn-theme-module-midi-tools-sf2-loader-control-button-surface-selected: var(--wjn-theme-global-control-button-surface-selected);
+  --wjn-theme-module-midi-tools-sf2-loader-control-button-border-normal: var(--wjn-theme-global-control-button-border-normal);
+  --wjn-theme-module-midi-tools-sf2-loader-control-button-border-selected: var(--wjn-theme-global-control-button-border-selected);
+  --wjn-theme-module-midi-tools-sf2-loader-control-button-text-normal: var(--wjn-theme-global-control-button-text-normal);
+  --wjn-theme-module-midi-tools-sf2-loader-control-button-text-selected: var(--wjn-theme-global-control-button-text-selected);
+  --wjn-theme-module-midi-tools-sf2-loader-control-button-surface-hover: var(--wjn-theme-global-control-button-surface-hover);
+  --wjn-theme-module-midi-tools-sf2-loader-control-button-text-hover: var(--wjn-theme-global-control-button-text-hover);
+  --wjn-theme-module-midi-tools-sf2-loader-control-input-surface-normal: var(--wjn-theme-global-control-input-surface-normal);
+  --wjn-theme-module-midi-tools-sf2-loader-control-input-text-normal: var(--wjn-theme-global-control-input-text-normal);
+  --wjn-theme-module-midi-tools-sf2-loader-control-input-border-normal: var(--wjn-theme-global-control-input-border-normal);
+  --wjn-theme-module-midi-tools-sf2-loader-control-input-border-focus: var(--wjn-theme-global-control-input-border-focus);
+  --wjn-theme-module-midi-tools-sf2-loader-control-select-surface-normal: var(--wjn-theme-global-control-select-surface-normal);
+  --wjn-theme-module-midi-tools-sf2-loader-control-select-text-normal: var(--wjn-theme-global-control-select-text-normal);
+  --wjn-theme-module-midi-tools-sf2-loader-control-select-border-normal: var(--wjn-theme-global-control-select-border-normal);
+  --wjn-theme-module-midi-tools-sf2-loader-control-list-surface-normal: var(--wjn-theme-global-control-list-surface-normal);
+  --wjn-theme-module-midi-tools-sf2-loader-control-list-text-normal: var(--wjn-theme-global-control-list-text-normal);
+  --wjn-theme-module-midi-tools-sf2-loader-control-list-border-normal: var(--wjn-theme-global-control-list-border-normal);
+  --wjn-theme-module-midi-tools-sf2-loader-control-list-surface-selected: var(--wjn-theme-global-control-list-surface-selected);
+  --wjn-theme-module-midi-tools-sf2-loader-control-list-text-selected: var(--wjn-theme-global-control-list-text-selected);
+  --wjn-theme-module-midi-tools-sf2-loader-control-knob-indicator-normal: var(--wjn-theme-global-control-knob-indicator-normal);
+  --wjn-theme-module-midi-tools-sf2-loader-meter-level-zone-low-active: var(--wjn-theme-global-meter-level-zone-low-active);
+  --wjn-theme-module-midi-tools-sf2-loader-meter-level-zone-low-inactive: var(--wjn-theme-global-meter-level-zone-low-inactive);
+  --wjn-theme-module-midi-tools-sf2-loader-meter-level-zone-mid-active: var(--wjn-theme-global-meter-level-zone-mid-active);
+  --wjn-theme-module-midi-tools-sf2-loader-meter-level-zone-mid-inactive: var(--wjn-theme-global-meter-level-zone-mid-inactive);
+  --wjn-theme-module-midi-tools-sf2-loader-meter-level-zone-high-active: var(--wjn-theme-global-meter-level-zone-high-active);
+  --wjn-theme-module-midi-tools-sf2-loader-meter-level-zone-high-inactive: var(--wjn-theme-global-meter-level-zone-high-inactive);
+  --wjn-theme-module-midi-tools-sf2-loader-meter-level-border: var(--wjn-theme-global-meter-level-border);
+  --wjn-theme-module-midi-tools-sf2-loader-meter-level-peak: var(--wjn-theme-global-meter-level-peak);
+  --wjn-theme-module-midi-tools-sf2-loader-meter-level-label: var(--wjn-theme-global-meter-level-label);
+  --wjn-theme-module-midi-tools-sf2-loader-meter-level-tick: var(--wjn-theme-global-meter-level-tick);
+  --wjn-theme-module-midi-tools-sf2-loader-control-knob-background-base: var(--wjn-theme-global-control-knob-background-base);
+  --wjn-theme-module-midi-tools-sf2-loader-control-knob-track: var(--wjn-theme-global-control-knob-track);
+}

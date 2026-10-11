@@ -211,9 +211,9 @@ WinJACKNexus 的定位:
 
 | 节点 | 计划形态 | 当前状态 | 计划书 | 备注 |
 | :--- | :--- | :--- | :--- | :--- |
-| MIDI Splitter（`midi_spilit`） | `nodes/midi_tools/midi_spilit/mod_midi_spilit.dll` | 🚧 进行中；S0 已完成，当前 S1 基础与引擎门槛 | [MIDI Tools 节点计划书](midi%20tools节点计划书.md) | 1 MIDI 输入、16 MIDI 输出；保留指定拼写；S2 分流与侧栏改名尚未验收 |
-| 16x16 MIDI Matrix（`midi matrix`） | `nodes/midi_tools/midi_matrix/mod_midi_matrix.dll` | 🚧 进行中；当前 S1，S3 尚未开始 | [MIDI Tools 节点计划书](midi%20tools节点计划书.md) | 独立窗口、16×16 端口路由；实现、编译及实窗验收未完成 |
-| SF2/SFZ Loader（`sf2_loader`，SF2 加载器） | `nodes/midi_tools/sf2_loader/mod_sf2_loader.dll` | 🚧 进行中；当前 S1 引擎验证，S4/S5 尚未开始 | [MIDI Tools 节点计划书](midi%20tools节点计划书.md) | SF2/SFZ、16 通道混音及 Master；核心与 GUI 完成状态均为未完成 |
+| MIDI Splitter（`midi_spilit`） | `nodes/midi_tools/midi_spilit/mod_midi_spilit.dll` | 🚧 进行中；S2 实施与离线验证完成，待 S6 集成交付 | [MIDI Tools 节点计划书](midi%20tools节点计划书.md) | 1 MIDI 输入、16 MIDI 输出；保留指定拼写；分流、公共改名侧栏及实窗验证完成；真实 JACK 集成未验证 |
+| 16x16 MIDI Matrix（`midi matrix`） | `nodes/midi_tools/midi_matrix/mod_midi_matrix.dll` | 🚧 进行中；S3 实施与离线验证完成，待 S6 集成交付 | [MIDI Tools 节点计划书](midi%20tools节点计划书.md) | 独立窗口、16×16 端口路由；实现、Release 编译及 100% 实窗自动验证完成；人工验收已跳过（用户指令） |
+| SF2/SFZ Loader（`sf2_loader`，SF2 加载器） | `nodes/midi_tools/sf2_loader/mod_sf2_loader.dll` | 🚧 进行中；S4 核心、S5 GUI 完成，待 S6 集成交付 | [MIDI Tools 节点计划书](midi%20tools节点计划书.md) | SF2/SFZ、16 通道混音及 Master；核心与 GUI 的实施、Release 编译及离线/100% 实窗自动验证完成；公共旋钮/电平表/卡片及独立模板 CSS 已接入 |
 
 三个节点分类为 `Midi Tools`，各自独立 DLL；全部验证离线进行，GUI 只验证 100% Windows 可见实窗，禁止 offscreen。S6 实施、构建和规定测试完成后更新为已完成。
 

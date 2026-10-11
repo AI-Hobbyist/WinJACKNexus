@@ -9,3 +9,11 @@
 3. 在此目录运行 `python build_theme.py`。生成的 `<id>.wjnskin` 位于上一级 `themes/`，可在主题管理页导入预览。
 
 完整格式、各模块语义与背景叠层详见本目录的 [`Theme-Customization.md`](Theme-Customization.md)。本目录的 [`Theme-v1-Registry.json`](Theme-v1-Registry.json) 列出所有 Token 的类型、模块、默认值和继承关系，仅供开发参考。此目录可直接放在主程序同级 `themes/` 下作为 Dev 主题使用，托盘名称显示为 `My Theme (Dev)`；修改 CSS 后使用托盘“刷新当前 Dev 主题”即可加载新值。`meta.json`、`style.css`、三个分类文件夹下的 CSS 和 `assets/` 会进入打包主题；README、开发文档、构建脚本、AGENTS.md 和 Registry JSON 留在 Dev 文件夹中。目录里的 `winjacknexus-default.wjnskin` 只供对照；程序运行所必需的默认主题由主 EXE 同级 `wjn_default_theme.dll` 提供。
+
+## MIDI Tools 节点模板
+
+三个新增节点分别使用 `node/module-midi-tools-sf2-loader.css`、`node/module-midi-tools-midi-spilit.css`、`node/module-midi-tools-midi-matrix.css`。各文件只设置对应节点的命名空间，默认通过 `var(--wjn-theme-global-...)` 继承公共主题；修改节点 CSS 不会改变其他模块。字体继续使用全局系统字体。
+
+SF2/SFZ 加载器复用公共旋钮、数值编辑、按钮和电平表；16 通道与 Master 左右电平范围均为 −72～+12 dB。旋钮内底、轨道、指示和电平三段 active/inactive、边框、峰值可单独定制。通道分隔线使用本节点 `border-normal`。分流节点只有公共客户端设置侧栏；矩阵节点使用公共可切换按钮。
+
+这些扩展 Token 随节点 DLL 的可选主题描述符注册，不修改冻结的内置注册表。原有 Token 数量说明指基础模板，新节点 CSS 是额外模块。模块未安装时主题数据仍会保留。人工主题审阅已跳过（用户指令），自动实窗验证不代表人工视觉验收通过。

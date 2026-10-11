@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 #include "../ClientSettings.hpp"
 #include "../ModuleI18n.hpp"
+#include "Theme.hpp"
 #include <QApplication>
 #include <WinJACKNexus/Common/MidiToolsSplit.hpp>
 #include <WinJACKNexus/Node/NodeApi.h>
@@ -108,6 +109,14 @@ const char *wjn_get_node_api_version()
 uint32_t wjn_get_node_count()
 {
     return 1;
+}
+uint32_t wjn_get_node_theme_api_version()
+{
+    return WJN_NODE_THEME_API_VERSION;
+}
+const char *wjn_get_node_theme_namespace_json(uint32_t index)
+{
+    return index == 0 ? midiToolsThemeDescriptor : nullptr;
 }
 const char *wjn_get_node_name(uint32_t i)
 {

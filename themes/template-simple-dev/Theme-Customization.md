@@ -61,3 +61,11 @@ SEL 空间声像图和 FX 链箭头在图表 Token 保持内置默认值时，�
 ## 验证与限制
 
 导入前先按 [`Theme-v1-Contract.md`](../../Docs/Theme-v1-Contract.md) 校验元数据、CSS、图片/字体大小、扩展名与资源路径。诊断在主题管理页展示；无效值会回退并给出行号，结构错误不会替换正在使用的主题。主页只在用户点击按钮时打开。`tests/preview/<阶段>/` 保存实际 Windows 弹窗截图；改过 token 的截图以 `-modified` 结尾。截图可供人工审阅，自动像素变化通过不等于人工观感已验收。
+
+## MIDI Tools 节点模板
+
+三个新增节点分别使用 `node/module-midi-tools-sf2-loader.css`、`node/module-midi-tools-midi-spilit.css`、`node/module-midi-tools-midi-matrix.css`。各文件只设置对应节点的命名空间，默认通过 `var(--wjn-theme-global-...)` 继承公共主题；修改节点 CSS 不会改变其他模块。字体继续使用全局系统字体。
+
+SF2/SFZ 加载器复用公共旋钮、数值编辑、按钮和电平表；16 通道与 Master 左右电平范围均为 −72～+12 dB。旋钮内底、轨道、指示和电平三段 active/inactive、边框、峰值可单独定制。通道分隔线使用本节点 `border-normal`。分流节点只有公共客户端设置侧栏；矩阵节点使用公共可切换按钮。
+
+这些扩展 Token 随节点 DLL 的可选主题描述符注册，不修改冻结的内置注册表。原有 Token 数量说明指基础模板，新节点 CSS 是额外模块。模块未安装时主题数据仍会保留。人工主题审阅已跳过（用户指令），自动实窗验证不代表人工视觉验收通过。

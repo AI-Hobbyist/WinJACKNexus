@@ -5,8 +5,36 @@
   "language": "zh-CN",
   "domains": {
     "midi.sf2_loader": {
-      "name": "sf2_loader",
-      "description": "MIDI 工具节点"
+      "name": "SF2/SFZ 加载器",
+      "description": "16 通道 SF2 和 SFZ 合成音源",
+      "import": "导入",
+      "remove": "移除引用",
+      "usePreferred": "设为首选演奏资源",
+      "preferred": "首选演奏资源",
+      "browseHelp": "选择文件以查看信息。浏览列表不会切换演奏音色。",
+      "mapping": "SFZ 映射：Bank MSB / LSB / Program（0–127）",
+      "msb": "Bank MSB",
+      "lsb": "Bank LSB",
+      "program": "Program（0–127）",
+      "channel": "通道",
+      "instrument": "当前演奏音色",
+      "gain": "增益",
+      "mute": "静音",
+      "solo": "独奏",
+      "level": "电平",
+      "master": "主输出",
+      "ready": "就绪",
+      "missing": "文件缺失",
+      "failed": "加载失败",
+      "budget": "超出资源预算",
+      "pending": "准备中",
+      "presets": "音色数",
+      "yes": "是",
+      "no": "否",
+      "rejected": "资源或设置无效，或重复导入。",
+      "unmatched": "没有匹配音色",
+      "overload": "过载",
+      "diagnostics": "丢弃 / 溢出 / 淘汰 / 不支持"
     }
   }
 }

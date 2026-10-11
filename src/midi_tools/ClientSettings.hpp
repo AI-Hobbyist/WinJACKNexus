@@ -9,6 +9,7 @@
 #include <QVBoxLayout>
 #include <WinJACKNexus/UI/Controls.hpp>
 #include <WinJACKNexus/UI/LocalizedText.hpp>
+#include <WinJACKNexus/UI/MidiToolsTheme.hpp>
 namespace WinJACKNexus::MidiTools
 {
 class ClientSettings
@@ -126,6 +127,10 @@ class ClientSettings
             root);
         layout->addWidget(control);
         layout->addWidget(detail);
+        const auto scope = ports_.size() == 3    ? "module-midi-tools-sf2-loader"
+                           : ports_.size() == 17 ? "module-midi-tools-midi-spilit"
+                                                 : "module-midi-tools-midi-matrix";
+        UI::bindMidiToolsTheme(root, scope);
         return root;
     }
     void destroySettings(QWidget *widget)
