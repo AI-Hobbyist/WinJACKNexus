@@ -116,6 +116,10 @@ class ClassicMixerNode final : public WinJACKNexus::Node::INode, public CM::Port
         return UI::ClassicMixerWindow::chooseLayout(candidate) && apply(candidate, name_);
     }
 
+    uint64_t stateRevision() const noexcept
+    {
+        return revision_;
+    }
     const CM::State &state() const
     {
         return state_;
@@ -219,6 +223,7 @@ class ClassicMixerNode final : public WinJACKNexus::Node::INode, public CM::Port
         else
             name_ = requestedName;
         state_ = candidate;
+        ++revision_;
         updateDescriptions();
         if (prepared_)
             configurations_.try_push(CM::configuration(state_, sampleRate_));
@@ -349,6 +354,7 @@ class ClassicMixerNode final : public WinJACKNexus::Node::INode, public CM::Port
 
   private:
     const uint32_t mode_;
+    uint64_t revision_ = 1;
     CM::State state_ = CM::State::create(16);
     CM::Processor processor_;
     Audio::JackClient client_;
@@ -629,6 +635,11 @@ extern "C" WINJACK_NODE_API const char *wjn_get_node_client_id(WinJACKNexus::Nod
     return node ? static_cast<ClassicMixerNode *>(node)->clientId() : nullptr;
 }
 
+extern "C" WINJACK_NODE_API uint64_t
+wjn_classic_mixer_state_revision(WinJACKNexus::Node::INode *node)
+{
+    return node ? static_cast<ClassicMixerNode *>(node)->stateRevision() : 0;
+}
 extern "C" WINJACK_NODE_API int wjn_prepare_node_for_canvas(WinJACKNexus::Node::INode *node)
 {
     try

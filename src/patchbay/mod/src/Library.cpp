@@ -1468,6 +1468,14 @@ public:
             return result;
         }
 
+        std::string classicMixerRevision() const
+        {
+            using ReadRevision = uint64_t (*)(WinJACKNexus::Node::INode *);
+            const auto read = reinterpret_cast<ReadRevision>(
+                GetProcAddress(library_, "wjn_classic_mixer_state_revision"));
+            return read ? std::to_string(read(node_)) : std::string{};
+        }
+
         void appendVirtualSnapshot(WinJACKNexus::Patchbay::Core::Snapshot &snapshot) const
         {
             if (!isVirtual())
@@ -1475,6 +1483,14 @@ public:
             WinJACKNexus::Patchbay::Core::ClientInfo client;
             client.id = clientId();
             client.name = name_.toStdString();
+            if (QFileInfo(modulePath_).fileName().compare(
+                    QStringLiteral("mod_classic_mixer.dll"), Qt::CaseInsensitive) == 0 &&
+                getNodeClientId_ != nullptr)
+            {
+                const auto *displayName = getNodeClientId_(node_);
+                if (displayName != nullptr && displayName[0] != '\0')
+                    client.name = displayName;
+            }
             snapshot.clients.push_back(std::move(client));
             const auto descriptions = virtualPorts();
             for (uint32_t index = 0; index < descriptions.size(); ++index)
@@ -2826,6 +2842,10 @@ public:
                 {
                     if (isDigitalMixerModule(node->modulePath()) && node->hasClient())
                         currentMixerSettings.emplace(node->clientId(), node->settingsJson());
+                    else if (QFileInfo(node->modulePath()).fileName().compare(
+                                 QStringLiteral("mod_classic_mixer.dll"), Qt::CaseInsensitive) == 0 &&
+                             node->hasClient())
+                        currentMixerSettings.emplace(node->clientId(), node->classicMixerRevision());
                 }
                 if (currentMixerSettings != *lastMixerSettings)
                 {
@@ -3359,7 +3379,8 @@ public:
                             categoryValue->setProperty("wjn.categoryIdentity", category);
                             categoryValue->setText(categoryDisplayName(category));
                             const auto canSplit =
-                                selected && clientCanSplit(targetCanvas->snapshot(), clientId);
+                                selected && category != QStringLiteral("Classic Mixer") &&
+                                clientCanSplit(targetCanvas->snapshot(), clientId);
                             propertyForm->setRowVisible(splitCheck, canSplit);
                             splitCheck->setChecked(canSplit && client->split);
                             if (!selected)

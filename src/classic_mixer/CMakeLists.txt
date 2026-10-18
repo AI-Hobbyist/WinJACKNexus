@@ -13,6 +13,32 @@ add_custom_command(TARGET mod_classic_mixer POST_BUILD
 
 if(BUILD_TESTING)
     find_package(Qt6 6.10.3 EXACT REQUIRED COMPONENTS Test)
+    add_library(classic_mixer_jack_fixture SHARED
+        ${PROJECT_SOURCE_DIR}/Develop/Node/ClassicMixerJackFixture.cpp
+        ${PROJECT_SOURCE_DIR}/Develop/Node/SubGraphJackFixture.def)
+    target_include_directories(classic_mixer_jack_fixture PRIVATE ${JACK2_INCLUDE_DIR})
+    target_compile_definitions(classic_mixer_jack_fixture PRIVATE WIN32_LEAN_AND_MEAN NOMINMAX)
+    target_compile_features(classic_mixer_jack_fixture PRIVATE cxx_std_20)
+    set_target_properties(classic_mixer_jack_fixture PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY_RELEASE "${WJN_OUTPUT_DIR}/tests/classic_mixer")
+    add_executable(classic_mixer_host_tests
+        ${PROJECT_SOURCE_DIR}/Develop/Node/ClassicMixerHostTests.cpp)
+    target_link_libraries(classic_mixer_host_tests PRIVATE classic_mixer_core
+        WinJACKNexus::UI WinJACKNexus::Audio WinJACKNexus::Node
+        mod_patchbay patchbay_core Qt6::Test)
+    target_include_directories(classic_mixer_host_tests PRIVATE
+        ${PROJECT_SOURCE_DIR}/src/patchbay/mod/include
+        ${PROJECT_SOURCE_DIR}/src/native_fx/include)
+    target_compile_definitions(classic_mixer_host_tests PRIVATE WJN_NODE_IMPLEMENTATION
+        CLASSIC_MIXER_DLL="$<TARGET_FILE:mod_classic_mixer>"
+        CLASSIC_MIXER_BOUNDARY="$<TARGET_FILE:classic_mixer_jack_fixture>")
+    target_compile_options(classic_mixer_host_tests PRIVATE /utf-8)
+    set_target_properties(classic_mixer_host_tests PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY_RELEASE "${WJN_OUTPUT_DIR}")
+    add_dependencies(classic_mixer_host_tests mod_classic_mixer classic_mixer_jack_fixture)
+    add_test(NAME classic_mixer_host COMMAND classic_mixer_host_tests)
+    set_tests_properties(classic_mixer_host PROPERTIES ENVIRONMENT
+        "QT_QPA_PLATFORM=windows;QT_SCALE_FACTOR=1")
     add_executable(classic_mixer_gui_tests
         ${PROJECT_SOURCE_DIR}/Develop/Node/ClassicMixerGuiTests.cpp)
     target_link_libraries(classic_mixer_gui_tests PRIVATE classic_mixer_core
