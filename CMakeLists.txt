@@ -41,6 +41,7 @@ list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 include(WJNMacros)
 
 add_subdirectory(src/common)
+include(src/common/ClassicMixer.cmake)
 add_subdirectory(src/default_theme)
 add_subdirectory(src/ui)
 add_subdirectory(src/audio)
