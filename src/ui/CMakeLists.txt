@@ -13,6 +13,8 @@ add_library(
     src/FxLevelMeterWidget.cpp
     src/HistoryChartWidget.cpp
     src/Controls.cpp
+    src/ConsoleControls.cpp
+    src/ClassicMixerWindow.cpp
     src/HistoryLegendWidget.cpp
     src/MetricReadout.cpp
     src/MetricStatisticsWidget.cpp
@@ -43,6 +45,8 @@ add_library(
     include/WinJACKNexus/UI/FxLevelMeterWidget.hpp
     include/WinJACKNexus/UI/HistoryChartWidget.hpp
     include/WinJACKNexus/UI/Controls.hpp
+    include/WinJACKNexus/UI/ConsoleControls.hpp
+    include/WinJACKNexus/UI/ClassicMixerWindow.hpp
     include/WinJACKNexus/UI/HistoryLegendWidget.hpp
     include/WinJACKNexus/UI/MetricReadout.hpp
     include/WinJACKNexus/UI/MetricStatisticsWidget.hpp
@@ -74,6 +78,7 @@ target_link_libraries(
     PUBLIC Qt6::Widgets WinJACKNexus::Common
     PRIVATE WinJACKNexus::Node)
 add_dependencies(ui wjn_default_theme)
+target_link_libraries(ui PRIVATE classic_mixer_core)
 
 find_package(
     Qt6ZlibPrivate

@@ -117,6 +117,8 @@ QString categoryDisplayName(const QString& identity) {
 	if (identity==QStringLiteral("Sub Graph Interface")) return patchText("category.interface","Subgraph interfaces");
 	if (identity==QStringLiteral("Meter")) return patchText("category.meter","Meters");
 	if (identity==QStringLiteral("Digital Mixer")) return patchText("category.mixer","Mixer");
+    if (identity == QStringLiteral("Classic Mixer"))
+        return WinJACKNexus::UI::localizedText("classicMixer", "name", "Classic Mixer");
 	if (identity==QStringLiteral("Patchbay")) return patchText("category.patchbay","Patchbay");
 	if (identity==QStringLiteral("jackclient")) return patchText("category.jackClient","JACK client");
 	if (identity==QStringLiteral("根目录")) return patchText("category.root","Root directory");

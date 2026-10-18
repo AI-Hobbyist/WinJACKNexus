@@ -242,3 +242,7 @@ VST Host 及继承其 metadata 的扫描插件条目已声明 JACK/VIRT 双能�
 ## 最终迁移清单（公开仓库前 S6，2026-10-11）
 
 能力与 GUI 的实际模块清单见 [S6 清单](../../Docs/Node/PrePublic-S6-inventory.md)。主图、子图各加载入口和工程恢复均按所属图选择固定模式；旧 v3/非法 ABI/缺失或不允许放置节点只保留工程记录与诊断，不创建处理实例。保存旧工程须由用户触发，恢复不静默覆写。Host、Node v4 模块、NativeFx boundary v2 和 VSTProcess IPC v1 必须按增量包清单同步替换。完整验证与未验证影响见 [S6 记录](../../Docs/Node/PrePublic-S6-results.md)。
+
+## Classic Mixer node
+
+`mod_classic_mixer.dll` is one reusable `Classic Mixer` type with independent JACK/VIRT instances, fixed 8/16/24 input-channel layouts and GUI feature. Its `wjn_prepare_node_for_canvas` chooses the layout with shared controls before preparation. The sidebar exports only the shared node-name editor; `createWindow`/`wjn_show_node_gui` opens its independent console. VIRT exposes individual channels (`channels=1`), input IDs `2*stripIndex+1` (+1 for stereo R), output IDs 101..108 ordered Master L/R, AUX1 L/R, AUX2 L/R, Monitor L/R. Names change without changing these IDs. Settings schema version 1 embeds preset records with `payloadBase64`; the existing host wraps settings JSON in project `settingsBase64`. Theme/i18n use optional unindexed v2 Node descriptors, v1 payloads and domain `classicMixer`. GUI/module call-site checks live in Develop/Node/ClassicMixer*Tests.cpp.

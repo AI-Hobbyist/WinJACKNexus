@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-only
+#include "Theme.hpp"
 #include <QApplication>
 #include <QJsonDocument>
 #include <QPointer>
@@ -8,9 +9,12 @@
 #include <WinJACKNexus/Audio/JackPort.hpp>
 #include <WinJACKNexus/Common/ClassicMixer.hpp>
 #include <WinJACKNexus/Common/ClassicMixerRouting.hpp>
+#include <WinJACKNexus/Common/I18nApi.h>
 #include <WinJACKNexus/Common/LockFreeSpscQueue.hpp>
 #include <WinJACKNexus/Node/NodeApi.h>
 #include <WinJACKNexus/UI/ApplicationSettings.hpp>
+#include <WinJACKNexus/UI/ClassicMixerWindow.hpp>
+#include <WinJACKNexus/UI/ConsoleControls.hpp>
 #include <WinJACKNexus/UI/Controls.hpp>
 #include <algorithm>
 #include <atomic>
@@ -35,6 +39,7 @@ class ClassicMixerNode final : public WinJACKNexus::Node::INode, public CM::Port
     ~ClassicMixerNode() override
     {
         shutdown();
+        delete window_;
         for (auto &widget : sidebars_)
             delete widget;
     }
@@ -70,10 +75,45 @@ class ClassicMixerNode final : public WinJACKNexus::Node::INode, public CM::Port
     }
     HWND createWindow(HWND) noexcept override
     {
-        return nullptr;
-    } // S3 supplies the editor.
+        try
+        {
+            if (!QApplication::instance())
+                return nullptr;
+            if (!window_)
+                window_ = new UI::ClassicMixerWindow(
+                    state_,
+                    [this](const CM::State &candidate, QString *error) {
+                        const bool ok = apply(candidate, name_);
+                        if (!ok && error)
+                            *error = error_;
+                        return ok;
+                    },
+                    [this] {
+                        CM::Levels next;
+                        while (measurements_.try_pop(next))
+                            lastLevels_ = next;
+                        return lastLevels_;
+                    });
+            window_->setClientName(name_);
+            window_->show();
+            window_->raise();
+            window_->activateWindow();
+            return reinterpret_cast<HWND>(window_->winId());
+        }
+        catch (...)
+        {
+            return nullptr;
+        }
+    }
     void destroyWindow(HWND) noexcept override
     {
+        if (window_)
+            window_->close();
+    }
+    bool prepareForCanvas()
+    {
+        auto candidate = state_;
+        return UI::ClassicMixerWindow::chooseLayout(candidate) && apply(candidate, name_);
     }
 
     const CM::State &state() const
@@ -183,6 +223,11 @@ class ClassicMixerNode final : public WinJACKNexus::Node::INode, public CM::Port
         if (prepared_)
             configurations_.try_push(CM::configuration(state_, sampleRate_));
         error_.clear();
+        if (window_)
+        {
+            window_->setState(state_);
+            window_->setClientName(name_);
+        }
         return true;
     }
     const char *settingsJson()
@@ -211,6 +256,7 @@ class ClassicMixerNode final : public WinJACKNexus::Node::INode, public CM::Port
     {
         auto *widget = new UI::Controls::ClientNameWidget(
             name_, [this](const QString &name) { return apply(state_, name.trimmed()); }, parent);
+        UI::Controls::bindConsoleTheme(widget, "module-winjacknexus-classic-mixer");
         sidebars_.push_back(widget);
         return widget;
     }
@@ -314,6 +360,8 @@ class ClassicMixerNode final : public WinJACKNexus::Node::INode, public CM::Port
     QString error_;
     QByteArray nameBytes_, json_;
     std::vector<QPointer<QWidget>> sidebars_;
+    QPointer<UI::ClassicMixerWindow> window_;
+    CM::Levels lastLevels_{};
     QTimer maintenance_;
     LockFreeSpscQueue<CM::Configuration, 32> configurations_;
     LockFreeSpscQueue<CM::Levels, 16> measurements_;
@@ -581,6 +629,56 @@ extern "C" WINJACK_NODE_API const char *wjn_get_node_client_id(WinJACKNexus::Nod
     return node ? static_cast<ClassicMixerNode *>(node)->clientId() : nullptr;
 }
 
-#define WJN_NODE_MODULE_FEATURES 0
+extern "C" WINJACK_NODE_API int wjn_prepare_node_for_canvas(WinJACKNexus::Node::INode *node)
+{
+    try
+    {
+        return node && static_cast<ClassicMixerNode *>(node)->prepareForCanvas();
+    }
+    catch (...)
+    {
+        return 0;
+    }
+}
+extern "C" WINJACK_NODE_API int wjn_show_node_gui(WinJACKNexus::Node::INode *node)
+{
+    return node && node->createWindow(nullptr) ? 1 : 0;
+}
+extern "C" WINJACK_NODE_API uint32_t wjn_get_node_theme_api_version()
+{
+    return 2;
+}
+extern "C" WINJACK_NODE_API const char *wjn_get_node_theme_namespace_json()
+{
+    return classicMixerTheme;
+}
+extern "C" WINJACK_NODE_API uint32_t wjn_get_node_i18n_api_version()
+{
+    return 2;
+}
+extern "C" WINJACK_NODE_API const char *wjn_get_node_i18n_descriptor_json()
+{
+    return R"json({"descriptorVersion":1,"i18nApiVersion":1,"moduleId":"winjacknexus-classic-mixer","domains":["classicMixer"],"locatePath":"locate","catalogVersion":1,"displayNameKey":{"domain":"classicMixer","key":"name"}})json";
+}
+namespace
+{
+const WjnI18nHostV1 *languageHost = nullptr;
+}
+extern "C" WINJACK_NODE_API int32_t wjn_i18n_attach_host(const WjnI18nHostV1 *host)
+{
+    if (!host || host->structSize < sizeof(*host) || host->apiVersion != 1 || !host->text ||
+        (languageHost && languageHost != host))
+        return WJN_I18N_INVALID_ARGUMENT;
+    languageHost = host;
+    return WJN_I18N_OK;
+}
+extern "C" WINJACK_NODE_API void wjn_i18n_language_changed(const char *, uint64_t)
+{
+}
+extern "C" WINJACK_NODE_API void wjn_i18n_detach_host()
+{
+    languageHost = nullptr;
+}
+#define WJN_NODE_MODULE_FEATURES WJN_NODE_HAS_GUI
 #define WJN_NODE_MODULE_TYPE ClassicMixerNode
 #include <WinJACKNexus/Node/DualModeModuleV4.inc>
