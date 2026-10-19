@@ -10,7 +10,9 @@ S1，2026-10-19。实现范围以根目录 Signal Switch 计划书为准。
 
 ## 工程状态
 
-`signalSwitchStateBase64` 为 UTF-8 JSON 的标准 Base64 编码，JSON `version` 为 1。状态包括 cards、groups、exclusive、locked、grid、gridX、gridY、window；窗口包含展开 geometry、frameless、topmost、autoHide、opacity、screen、edge。geometry 为逻辑像素 `[x,y,width,height]`。卡片存绝对坐标，组拖动对成员应用同一偏移；这与组锚点加局部坐标等价，避免双份坐标漂移。
+`signalSwitchStateBase64` 为 UTF-8 JSON 的标准 Base64 编码，JSON `version` 为 1。状态包括 cards、groups、exclusive、locked、grid、gridX、gridY、window；window 包含编辑器 geometry、clickThrough、按钮 opacity、screen、scroll 和 overlayOrigin。geometry 为逻辑像素 `[x,y,width,height]`；两种位置为 `[x,y]`。卡片存画布绝对坐标，组拖动对成员应用同一偏移；这与组锚点加局部坐标等价，避免双份坐标漂移。
+
+锁定隐藏编辑器背景，仅将已排列的按钮原位呈现在其他普通应用窗口前。overlayOrigin 为画布坐标原点映射的屏幕位置，保持锁定前布局；解锁回编辑器。取消无边框及贴边隐藏设置，不保留其运行路径。透明度仅作用按钮。穿透仅用于锁定展示，Alt＋左键命中按钮时只切换该按钮；快捷栏始终提供锁定、解锁、穿透和打开编辑器入口。此为 S1 之后的用户方向调整，原 S1 日志仅证明当时基线；更新后状态的往返由 S2 重新验证。
 
 卡片 ID 使用工程稳定节点实例 ID；不复制节点名称及通断的权威状态。通断放节点已有 `settingsBase64` 中。组 ID、互斥关系 ID 独立，成员各自最多归属一个组及一个互斥集合。移除节点清理两类引用；互斥不足两成员时解散，空布局组删除，单成员布局组保留。
 

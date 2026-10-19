@@ -1,0 +1,343 @@
+/* SPDX-License-Identifier: AGPL-3.0-only */
+#include "Service.hpp"
+#include <QJsonDocument>
+#include <QUuid>
+#include <WinJACKNexus/Audio/JackClient.hpp>
+#include <WinJACKNexus/Audio/JackPort.hpp>
+#include <WinJACKNexus/Node/NodeApi.h>
+#include <array>
+#include <vector>
+
+namespace SS = WinJACKNexus::SignalSwitch;
+namespace DSP = WinJACKNexus::Common::SignalSwitch;
+namespace Audio = WinJACKNexus::Audio;
+
+namespace
+{
+constexpr unsigned channels = WJN_SWITCH_CHANNELS;
+constexpr bool isMidi = channels == 0;
+constexpr const char *labels[]{"L", "R", "C", "LFE", "Ls", "Rs", "Lrb", "Rrb"};
+constexpr const char *modelName = WJN_SWITCH_NAME;
+
+class SwitchNode final : public WinJACKNexus::Node::INode
+{
+  public:
+    explicit SwitchNode(uint32_t mode) : mode_(mode)
+    {
+        for (unsigned direction = 0; direction < 2; ++direction)
+        {
+            for (unsigned channel = 0; channel < (isMidi ? 1 : channels); ++channel)
+            {
+                names_.push_back(QByteArray(direction ? "OUT_" : "IN_") + (isMidi          ? "MIDI"
+                                                                           : channels == 1 ? "MONO"
+                                                                                           : labels[channel]));
+            }
+        }
+        SS::Endpoint endpoint;
+        endpoint.id = QUuid::createUuid().toString(QUuid::WithoutBraces);
+        endpoint.name = name_;
+        endpoint.version = modelName;
+        endpoint.gate = &gate_;
+        endpoint.rename = [this](const QString &name) { return rename(name); };
+        SS::Service::instance().attach(this, std::move(endpoint));
+    }
+    ~SwitchNode() override
+    {
+        shutdown();
+        SS::Service::instance().detach(this);
+    }
+    WinJACKNexus::Node::NodeInfo info() const noexcept override
+    {
+        return {modelName, "Signal Switch", "1.0.0", "WinJACKNexus", "Signal on/off gate"};
+    }
+    bool init() noexcept override
+    {
+        if (mode_ != WJN_NODE_MODE_JACK)
+            return false;
+        try
+        {
+            if (client_.isActive())
+                return true;
+            if (!client_.open({name_.toUtf8().constData(), false, false, nullptr}))
+                return false;
+            name_ = QString::fromUtf8(client_.name());
+            ports_.resize(names_.size());
+            for (unsigned index = 0; index < names_.size(); ++index)
+            {
+                if (!ports_[index].registerPort(client_, names_[index].constData(),
+                                                isMidi ? JACK_DEFAULT_MIDI_TYPE : JACK_DEFAULT_AUDIO_TYPE,
+                                                index < names_.size() / 2 ? JackPortIsInput : JackPortIsOutput))
+                {
+                    shutdown();
+                    return false;
+                }
+            }
+            if (client_.setProcessCallback(&jackProcess, this) || !client_.activate())
+            {
+                shutdown();
+                return false;
+            }
+            gate_.running.store(true, std::memory_order_release);
+            return true;
+        }
+        catch (...)
+        {
+            shutdown();
+            return false;
+        }
+    }
+    void shutdown() noexcept override
+    {
+        client_.deactivate();
+        ports_.clear();
+        client_.close();
+        gate_.running.store(false, std::memory_order_release);
+        midi_.reset();
+        prepared_ = false;
+    }
+    HWND createWindow(HWND) noexcept override
+    {
+        return nullptr;
+    }
+    void destroyWindow(HWND) noexcept override
+    {
+    }
+    uint32_t virtualPortCount() const noexcept
+    {
+        return unsigned(names_.size());
+    }
+    bool virtualPort(uint32_t index, WjnNodePortV1 *description) const noexcept
+    {
+        if (!description || description->structSize != sizeof(*description) || index >= names_.size())
+            return false;
+        *description = {sizeof(*description),
+                        index + 1,
+                        uint32_t(index < names_.size() / 2 ? WJN_NODE_PORT_INPUT : WJN_NODE_PORT_OUTPUT),
+                        uint32_t(isMidi ? WJN_NODE_PORT_MIDI : WJN_NODE_PORT_AUDIO),
+                        isMidi ? 0u : 1u,
+                        0,
+                        names_[index].constData()};
+        return true;
+    }
+    bool virtualPrepare(const WjnNodePrepareV1 *context) noexcept
+    {
+        if (mode_ != WJN_NODE_MODE_VIRT || !context || context->structSize != sizeof(*context) || !context->maxFrames ||
+            context->maxFrames > 65536 || !(context->sampleRate > 0))
+            return false;
+        maxFrames_ = context->maxFrames;
+        prepared_ = true;
+        midi_.reset();
+        gate_.running.store(true, std::memory_order_release);
+        return true;
+    }
+    void virtualReset() noexcept
+    {
+        midi_.reset();
+    }
+    void virtualStop() noexcept
+    {
+        prepared_ = false;
+        midi_.reset();
+        gate_.running.store(false, std::memory_order_release);
+    }
+    void virtualProcess(WjnNodeProcessV1 *block) noexcept
+    {
+        if (!block || !prepared_ || block->frames > maxFrames_)
+            return;
+        const auto command = gate_.command.load(std::memory_order_acquire);
+        if constexpr (isMidi)
+        {
+            WjnNodeMidiOutputV1 *output = nullptr;
+            const WjnNodeMidiInputV1 *input = nullptr;
+            for (unsigned i = 0; i < block->midiInputCount; ++i)
+            {
+                if (block->midiInputs[i].portId == 1)
+                    input = &block->midiInputs[i];
+            }
+            for (unsigned i = 0; i < block->midiOutputCount; ++i)
+            {
+                auto &candidate = block->midiOutputs[i];
+                candidate.eventCount = candidate.byteCount = 0;
+                if (candidate.portId == 2)
+                    output = &candidate;
+            }
+            const bool quiet = midi_.process(
+                command & 1, block->frames, input && input->events ? input->eventCount : 0,
+                [input](unsigned index) {
+                    const auto &event = input->events[index];
+                    return DSP::Event{event.frame,
+                                      event.data ? std::span(event.data, event.size) : std::span<const uint8_t>{}};
+                },
+                [output](DSP::Event event) {
+                    if (!output)
+                        return false;
+                    if (!output->events || !output->bytes || output->eventCount >= output->eventCapacity ||
+                        event.bytes.size() > output->byteCapacity - output->byteCount)
+                    {
+                        ++output->dropped;
+                        return false;
+                    }
+                    auto *target = output->bytes + output->byteCount;
+                    std::copy(event.bytes.begin(), event.bytes.end(), target);
+                    output->events[output->eventCount++] = {event.frame, unsigned(event.bytes.size()), target};
+                    output->byteCount += unsigned(event.bytes.size());
+                    return true;
+                });
+            if ((command & 1) || quiet)
+                gate_.acknowledged.store(command, std::memory_order_release);
+        }
+        else
+        {
+            std::array<const float *, 8> inputs{};
+            std::array<float *, 8> outputs{};
+            for (unsigned i = 0; i < block->audioInputCount; ++i)
+            {
+                const auto &port = block->audioInputs[i];
+                if (port.portId >= 1 && port.portId <= channels && port.channels && port.samples)
+                    inputs[port.portId - 1] = port.samples[0];
+            }
+            for (unsigned i = 0; i < block->audioOutputCount; ++i)
+            {
+                const auto &port = block->audioOutputs[i];
+                if (port.portId > channels && port.portId <= channels * 2 && port.channels && port.samples)
+                    outputs[port.portId - channels - 1] = port.samples[0];
+            }
+            DSP::audio(command & 1, inputs.data(), outputs.data(), channels, block->frames);
+            gate_.acknowledged.store(command, std::memory_order_release);
+        }
+    }
+    const char *settings()
+    {
+        const auto &endpoint = SS::Service::instance().endpoints[this];
+        json_ = QJsonDocument(QJsonObject{{"version", 1}, {"clientName", name_}, {"enabled", endpoint.desired}})
+                    .toJson(QJsonDocument::Compact);
+        return json_.constData();
+    }
+    bool restore(const char *json)
+    {
+        if (!json)
+            return false;
+        QJsonParseError error;
+        const auto document = QJsonDocument::fromJson(QByteArray(json), &error);
+        if (error.error != QJsonParseError::NoError || !document.isObject())
+            return false;
+        const auto object = document.object();
+        if (object["version"] != 1 || !object["clientName"].isString() || !object["enabled"].isBool() ||
+            !rename(object["clientName"].toString()))
+            return false;
+        return SS::Service::instance().restoreDesired(this, object["enabled"].toBool());
+    }
+    const char *clientId()
+    {
+        nameBytes_ = name_.toUtf8();
+        return nameBytes_.constData();
+    }
+
+  private:
+    uint32_t mode_;
+    QString name_{QString::fromLatin1(modelName)};
+    QByteArray nameBytes_, json_;
+    std::vector<QByteArray> names_;
+    std::vector<Audio::JackPort> ports_;
+    Audio::JackClient client_;
+    DSP::Gate gate_;
+    DSP::Midi midi_;
+    bool prepared_{};
+    unsigned maxFrames_{};
+
+    bool rename(const QString &name)
+    {
+        const auto trimmed = name.trimmed();
+        if (trimmed.isEmpty() || trimmed.toUtf8().size() >= 64 || trimmed.contains(':'))
+            return false;
+        for (const auto character : trimmed)
+        {
+            if (character.unicode() < 32 || character.unicode() == 127)
+                return false;
+        }
+        // Display renames never recreate a running JACK client or its connections.
+        if (!client_.isActive())
+            name_ = trimmed;
+        auto &endpoint = SS::Service::instance().endpoints[this];
+        endpoint.name = trimmed;
+        SS::Service::instance().notify(true);
+        return true;
+    }
+    static int jackProcess(jack_nframes_t frames, void *context) noexcept
+    {
+        auto &node = *static_cast<SwitchNode *>(context);
+        const auto command = node.gate_.command.load(std::memory_order_acquire);
+        if constexpr (isMidi)
+        {
+            auto &api = Audio::JackApi::instance();
+            auto *input = node.ports_[0].midiBuffer(frames);
+            auto *output = node.ports_[1].midiBuffer(frames);
+            if (output)
+                api.midiClearBuffer(output);
+            const bool quiet = node.midi_.process(
+                command & 1, frames, input ? api.midiEventCount(input) : 0,
+                [&](unsigned index) {
+                    jack_midi_event_t event{};
+                    if (api.midiEventGet(&event, input, index))
+                        return DSP::Event{};
+                    return DSP::Event{event.time, {event.buffer, event.size}};
+                },
+                [&](DSP::Event event) {
+                    return output &&
+                           api.midiEventWrite(output, event.frame, event.bytes.data(), event.bytes.size()) == 0;
+                });
+            if ((command & 1) || quiet)
+                node.gate_.acknowledged.store(command, std::memory_order_release);
+        }
+        else
+        {
+            std::array<const float *, 8> inputs{};
+            std::array<float *, 8> outputs{};
+            for (unsigned channel = 0; channel < channels; ++channel)
+            {
+                inputs[channel] = node.ports_[channel].audioBuffer(frames);
+                outputs[channel] = node.ports_[channels + channel].audioBuffer(frames);
+            }
+            DSP::audio(command & 1, inputs.data(), outputs.data(), channels, frames);
+            node.gate_.acknowledged.store(command, std::memory_order_release);
+        }
+        return 0;
+    }
+};
+} // namespace
+
+const char *wjn_get_node_api_version()
+{
+    return "4";
+}
+const char *wjn_get_node_name()
+{
+    return modelName;
+}
+const char *wjn_get_node_category()
+{
+    return "Signal Switch";
+}
+WinJACKNexus::Node::INode *wjn_create_node()
+{
+    return new SwitchNode(WJN_NODE_MODE_JACK);
+}
+void wjn_destroy_node(WinJACKNexus::Node::INode *node)
+{
+    delete node;
+}
+const char *wjn_get_node_settings_json(WinJACKNexus::Node::INode *node)
+{
+    return node ? static_cast<SwitchNode *>(node)->settings() : nullptr;
+}
+int wjn_set_node_settings_json(WinJACKNexus::Node::INode *node, const char *json)
+{
+    return node && static_cast<SwitchNode *>(node)->restore(json);
+}
+extern "C" WINJACK_NODE_API const char *wjn_get_node_client_id(WinJACKNexus::Node::INode *node)
+{
+    return node ? static_cast<SwitchNode *>(node)->clientId() : nullptr;
+}
+#define WJN_NODE_MODULE_TYPE SwitchNode
+#define WJN_NODE_MODULE_FEATURES 0
+#include <WinJACKNexus/Node/DualModeModuleV4.inc>

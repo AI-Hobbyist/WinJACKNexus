@@ -31,9 +31,9 @@ int main(int argc, char **argv)
     check(state.setGroup("group", QString::fromUtf8("演奏组"), {"main/a", "sub/c"}),
           "layout group independent of exclusive relation");
     state.window.geometry = {321, 234, 777, 555};
-    state.window.frameless = true;
-    state.window.autoHide = true;
-    state.window.edge = "right";
+    state.window.clickThrough = true;
+    state.window.scroll = {15, 40};
+    state.window.overlayOrigin = {230, 190};
     state.window.opacity = 65;
     state.cards["main/a"].color = QColor("#ff123456");
     state.cards["sub/b"].geometry = {123, 456, 210, 60};

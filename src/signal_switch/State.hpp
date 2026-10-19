@@ -24,12 +24,11 @@ struct Group
 struct WindowSettings
 {
     QRect geometry{100, 100, 640, 400};
-    bool frameless{};
-    bool topmost{};
-    bool autoHide{};
+    bool clickThrough{};
     int opacity{100};
     QString screen;
-    QString edge;
+    QPoint scroll;
+    QPoint overlayOrigin{100, 100};
 };
 
 // GUI-thread value model. Names and gate states remain owned by graph nodes.

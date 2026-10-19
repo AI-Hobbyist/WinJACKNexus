@@ -160,7 +160,7 @@ bool State::validate(QString *error) const
 {
     if (gridX < 1 || gridY < 1 || gridX > 4096 || gridY > 4096 || window.opacity < 10 || window.opacity > 100 ||
         window.geometry.width() < 160 || window.geometry.height() < 100 || window.geometry.width() > 1000000 ||
-        window.geometry.height() > 1000000 || !QStringList{"", "left", "right", "top", "bottom"}.contains(window.edge))
+        window.geometry.height() > 1000000)
         return fail(error, "Invalid window or grid settings");
     for (auto it = cards.begin(); it != cards.end(); ++it)
     {
@@ -218,12 +218,11 @@ QJsonObject State::toJson() const
             {"gridX", gridX},
             {"gridY", gridY},
             {"window", QJsonObject{{"geometry", rectangle(window.geometry)},
-                                   {"frameless", window.frameless},
-                                   {"topmost", window.topmost},
-                                   {"autoHide", window.autoHide},
+                                   {"clickThrough", window.clickThrough},
                                    {"opacity", window.opacity},
                                    {"screen", window.screen},
-                                   {"edge", window.edge}}}};
+                                   {"scroll", QJsonArray{window.scroll.x(), window.scroll.y()}},
+                                   {"overlayOrigin", QJsonArray{window.overlayOrigin.x(), window.overlayOrigin.y()}}}}};
 }
 
 QString State::toBase64() const
@@ -287,16 +286,27 @@ bool State::fromBase64(const QString &encoded, State *result, QString *error)
         next.exclusive[it.key()] = members;
     }
     const auto window = object["window"].toObject();
-    if (!readRectangle(window["geometry"], &next.window.geometry) || !window["frameless"].isBool() ||
-        !window["topmost"].isBool() || !window["autoHide"].isBool() || !window["opacity"].isDouble() ||
-        !window["screen"].isString() || !window["edge"].isString())
+    if (!readRectangle(window["geometry"], &next.window.geometry) || !window["clickThrough"].isBool() ||
+        !window["opacity"].isDouble() || !window["screen"].isString())
         return fail(error, "Invalid window");
-    next.window.frameless = window["frameless"].toBool();
-    next.window.topmost = window["topmost"].toBool();
-    next.window.autoHide = window["autoHide"].toBool();
+    next.window.clickThrough = window["clickThrough"].toBool();
     next.window.opacity = window["opacity"].toInt();
     next.window.screen = window["screen"].toString();
-    next.window.edge = window["edge"].toString();
+    const auto readPoint = [](const QJsonValue &value, QPoint *result) {
+        if (!value.isArray() || value.toArray().size() != 2)
+            return false;
+        const auto array = value.toArray();
+        for (const auto &item : array)
+        {
+            if (!item.isDouble() || item.toDouble() != item.toInt() || std::abs(item.toDouble()) > 1000000)
+                return false;
+        }
+        *result = QPoint(array[0].toInt(), array[1].toInt());
+        return true;
+    };
+    if (!readPoint(window["scroll"], &next.window.scroll) ||
+        !readPoint(window["overlayOrigin"], &next.window.overlayOrigin))
+        return fail(error, "Invalid editor scroll or desktop origin");
     if (window["opacity"].toDouble() != next.window.opacity || !next.validate(error))
         return fail(error, "Invalid Signal Switch values");
     *result = std::move(next);
