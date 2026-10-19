@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 #include <QCoreApplication>
+#include <QFileInfo>
 #include <QJsonDocument>
 #include <QLibrary>
 #include <WinJACKNexus/Common/ClassicMixer.hpp>
@@ -13,6 +14,18 @@
 
 namespace CM = WinJACKNexus::Common::ClassicMixer;
 namespace Node = WinJACKNexus::Node;
+QString mixerModule(int layout)
+{
+    switch (layout)
+    {
+    case 8:
+        return QString::fromUtf8(CLASSIC_MIXER_DLL_8);
+    case 16:
+        return QString::fromUtf8(CLASSIC_MIXER_DLL_16);
+    default:
+        return QString::fromUtf8(CLASSIC_MIXER_DLL_24);
+    }
+}
 int checks = 0;
 void check(bool value, const char *message)
 {
@@ -55,35 +68,46 @@ int main(int argc, char **argv)
     QCoreApplication app(argc, argv);
     try
     {
-        QLibrary library(QString::fromUtf8(CLASSIC_MIXER_DLL));
-        check(library.load(), "actual module loads without JACK");
-        Node::ModuleContract contract;
-        std::string reason;
-        check(Node::inspectNodeModule(GetModuleHandleW(L"mod_classic_mixer.dll"), contract) ==
-                  Node::ModuleError::none,
-              "actual v4 contract validates");
-        check(contract.metadata.capabilities == (WJN_NODE_JACK_NODE | WJN_NODE_VIRT_NODE),
-              "dual-mode capability");
-        const auto create =
-            reinterpret_cast<decltype(&wjn_create_node_v4)>(library.resolve("wjn_create_node_v4"));
-        const auto destroy =
-            reinterpret_cast<decltype(&wjn_destroy_node)>(library.resolve("wjn_destroy_node"));
-        const auto get = reinterpret_cast<decltype(&wjn_get_node_settings_json)>(
-            library.resolve("wjn_get_node_settings_json"));
-        const auto set = reinterpret_cast<decltype(&wjn_set_node_settings_json)>(
-            library.resolve("wjn_set_node_settings_json"));
-        check(create && destroy && get && set, "required factories/settings");
-        check(!create(0) && !create(3), "invalid modes rejected");
-        auto *jack = create(WJN_NODE_MODE_JACK);
-        check(jack != nullptr && std::string(jack->info().category) == "Classic Mixer",
-              "JACK instance creation is offline");
-        // Deliberately do not call JACK init in an offline test.
-        destroy(jack);
         for (int layout : {8, 16, 24})
         {
+            const auto path = mixerModule(layout);
+            QLibrary library(path);
+            check(library.load(), "actual module loads without JACK");
+            Node::ModuleContract contract;
+            std::string reason;
+            check(Node::inspectNodeModule(GetModuleHandleW(reinterpret_cast<LPCWSTR>(
+                                              QFileInfo(path).fileName().utf16())),
+                                          contract) == Node::ModuleError::none,
+                  "actual v4 contract validates");
+            check(contract.metadata.capabilities == (WJN_NODE_JACK_NODE | WJN_NODE_VIRT_NODE),
+                  "dual-mode capability");
+            const auto create = reinterpret_cast<decltype(&wjn_create_node_v4)>(
+                library.resolve("wjn_create_node_v4"));
+            const auto destroy =
+                reinterpret_cast<decltype(&wjn_destroy_node)>(library.resolve("wjn_destroy_node"));
+            const auto get = reinterpret_cast<decltype(&wjn_get_node_settings_json)>(
+                library.resolve("wjn_get_node_settings_json"));
+            const auto set = reinterpret_cast<decltype(&wjn_set_node_settings_json)>(
+                library.resolve("wjn_set_node_settings_json"));
+            check(create && destroy && get && set, "required factories/settings");
+            check(!create(0) && !create(3), "invalid modes rejected");
+            auto *jack = create(WJN_NODE_MODE_JACK);
+            check(jack != nullptr && std::string(jack->info().category) == "Classic Mixer",
+                  "JACK instance creation is offline");
+            // Deliberately do not call JACK init in an offline test.
+            destroy(jack);
             auto *first = create(WJN_NODE_MODE_VIRT);
             auto *second = create(WJN_NODE_MODE_VIRT);
             check(first && second && first != second, "independent instances");
+            const auto initial = QByteArray(get(first));
+            auto wrong = CM::State::create(layout == 8 ? 16 : 8);
+            auto wrongJson = wrong.toJson();
+            wrongJson.insert("clientName", "Wrong");
+            check(!set(first, QJsonDocument(wrongJson).toJson().constData()) &&
+                      QByteArray(get(first)) == initial,
+                  "fixed DLL rejects another layout atomically before prepare");
+            check(QJsonDocument::fromJson(initial).object().value("layoutChosen").toBool(),
+                  "new fixed-layout instance requires no chooser");
             auto state = CM::State::create(layout);
             state.layoutChosen = true;
             state.inputs[0].pan = -1;
@@ -95,7 +119,8 @@ int main(int argc, char **argv)
             check(set(first, bytes.constData()), "restore before virtual prepare");
             check(QJsonDocument::fromJson(get(first)).object() == json,
                   "real DLL settings round trip");
-            check(QJsonDocument::fromJson(get(second)).object().value("layoutId") == QJsonValue(16),
+            check(QJsonDocument::fromJson(get(second)).object().value("layoutId") ==
+                      QJsonValue(layout),
                   "other instance unchanged");
             WjnNodePrepareV1 prepare{sizeof(prepare), 256, 48000, nullptr};
             check(contract.processing->prepare(first, &prepare), "actual virtual prepare");
@@ -154,6 +179,7 @@ int main(int argc, char **argv)
             check(QJsonDocument::fromJson(get(reopened)).object() == renamed,
                   "recreated full state");
             destroy(reopened);
+            check(library.unload(), "module unload");
         }
         auto before = CM::ports(CM::State::create(8));
         auto after = before;
@@ -187,7 +213,6 @@ int main(int argc, char **argv)
         const auto partial = CM::renamePorts(backend, after, before);
         check(!partial.success && !partial.rollbackComplete && !partial.failedConnections.empty(),
               "partial reconnection reported");
-        check(library.unload(), "module unload");
         std::cout << "PASS " << checks << " offline module/routing checks\n";
     }
     catch (const std::exception &error)

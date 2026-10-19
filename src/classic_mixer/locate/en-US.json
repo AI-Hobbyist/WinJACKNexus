@@ -78,7 +78,8 @@
       "diagnostic.snapshot": "Connection snapshot failed",
       "diagnostic.rename": "Port rename or reconnection failed",
       "diagnostic.rollback": "rollback incomplete",
-      "diagnostic.presetName": "Enter a valid preset name."
+      "diagnostic.presetName": "Enter a valid preset name.",
+      "modelName": "Classic Mixer @LAYOUT@"
     }
   }
 }

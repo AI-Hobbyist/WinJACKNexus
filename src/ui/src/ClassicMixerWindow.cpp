@@ -54,6 +54,19 @@ struct ClassicMixerWindow::Impl
     std::vector<std::function<void()>> valueBindings;
     bool synchronizing = false;
 
+    QByteArray domain() const
+    {
+        return "classicMixer" + QByteArray::number(state.layout);
+    }
+    QString text(const char *key, const char *english) const
+    {
+        return localizedText(domain().constData(), key, english);
+    }
+    void bind(QObject *object, const char *property, const char *key, const char *english)
+    {
+        bindLocalizedText(object, property, domain().constData(), key, english);
+    }
+
     Impl(ClassicMixerWindow &window, const State &initial, Commit handler, MeterReader reader)
         : owner(window), state(initial), commit(std::move(handler)), meterReader(std::move(reader))
     {
@@ -212,7 +225,7 @@ struct ClassicMixerWindow::Impl
     {
         lastError = error;
         status->setText(text("error.apply", "Unable to apply mixer settings.") + ' ' +
-                        classicMixerDiagnostic(error));
+                        classicMixerDiagnostic(error, domain().constData()));
     }
     bool apply(const State &candidate)
     {
@@ -272,7 +285,7 @@ struct ClassicMixerWindow::Impl
             presetChoice->setItemText(0, text("preset.none", "No preset"));
         if (!lastError.isEmpty())
             status->setText(text("error.apply", "Unable to apply mixer settings.") + ' ' +
-                            classicMixerDiagnostic(lastError));
+                            classicMixerDiagnostic(lastError, domain().constData()));
     }
 
     QWidget *slot(QWidget *strip, int row)
@@ -447,7 +460,7 @@ struct ClassicMixerWindow::Impl
                 {
                     auto *choice = new C::ChoiceField(rows[3]);
                     choice->setObjectName(prefix + QStringLiteral("pre%1").arg(bus));
-                    const auto language = [choice] {
+                    const auto language = [this, choice] {
                         const auto selected = choice->currentIndex();
                         const QSignalBlocker blocker(choice);
                         choice->clear();

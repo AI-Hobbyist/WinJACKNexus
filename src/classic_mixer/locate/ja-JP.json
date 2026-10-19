@@ -78,7 +78,8 @@
       "diagnostic.snapshot": "接続状態の取得に失敗",
       "diagnostic.rename": "ポート名変更または再接続に失敗",
       "diagnostic.rollback": "復元が完了しませんでした",
-      "diagnostic.presetName": "有効なプリセット名を入力してください。"
+      "diagnostic.presetName": "有効なプリセット名を入力してください。",
+      "modelName": "クラシックミキサー @LAYOUT@"
     }
   }
 }

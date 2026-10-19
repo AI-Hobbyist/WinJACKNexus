@@ -21,6 +21,13 @@
 #include <cerrno>
 #include <deque>
 
+#define WJN_STRINGIFY_IMPL(value) #value
+#define WJN_STRINGIFY(value) WJN_STRINGIFY_IMPL(value)
+static_assert(WJN_CLASSIC_MIXER_LAYOUT == 8 || WJN_CLASSIC_MIXER_LAYOUT == 16 ||
+              WJN_CLASSIC_MIXER_LAYOUT == 24);
+constexpr int fixedLayout = WJN_CLASSIC_MIXER_LAYOUT;
+constexpr const char *modelName = "Classic Mixer " WJN_STRINGIFY(WJN_CLASSIC_MIXER_LAYOUT);
+
 namespace CM = WinJACKNexus::Common::ClassicMixer;
 namespace Audio = WinJACKNexus::Audio;
 namespace UI = WinJACKNexus::UI;
@@ -31,6 +38,7 @@ class ClassicMixerNode final : public WinJACKNexus::Node::INode, public CM::Port
   public:
     explicit ClassicMixerNode(uint32_t mode = WJN_NODE_MODE_JACK) : mode_(mode)
     {
+        state_.layoutChosen = true;
         updateDescriptions();
         UI::bindRefreshTimer(maintenance_, &maintenance_);
         QObject::connect(&maintenance_, &QTimer::timeout, &maintenance_,
@@ -45,7 +53,7 @@ class ClassicMixerNode final : public WinJACKNexus::Node::INode, public CM::Port
     }
     WinJACKNexus::Node::NodeInfo info() const noexcept override
     {
-        return {"Classic Mixer", "Classic Mixer", "1.0.0", "WinJACKNexus",
+        return {modelName, "Classic Mixer", "1.0.0", "WinJACKNexus",
                 "Reusable classic mixing console"};
     }
     bool init() noexcept override
@@ -112,8 +120,7 @@ class ClassicMixerNode final : public WinJACKNexus::Node::INode, public CM::Port
     }
     bool prepareForCanvas()
     {
-        auto candidate = state_;
-        return UI::ClassicMixerWindow::chooseLayout(candidate) && apply(candidate, name_);
+        return state_.layout == fixedLayout;
     }
 
     uint64_t stateRevision() const noexcept
@@ -188,7 +195,7 @@ class ClassicMixerNode final : public WinJACKNexus::Node::INode, public CM::Port
     {
         if (!candidate.validate(&error_) || !validClientName(requestedName))
             return false;
-        if (prepared_ && candidate.layout != state_.layout)
+        if (candidate.layout != fixedLayout)
         {
             error_ = "Layout is fixed after preparation";
             return false;
@@ -355,14 +362,14 @@ class ClassicMixerNode final : public WinJACKNexus::Node::INode, public CM::Port
   private:
     const uint32_t mode_;
     uint64_t revision_ = 1;
-    CM::State state_ = CM::State::create(16);
+    CM::State state_ = CM::State::create(fixedLayout);
     CM::Processor processor_;
     Audio::JackClient client_;
     std::vector<Audio::JackPort> jackPorts_;
     std::vector<CM::Port> descriptions_;
     std::deque<QByteArray> nameStorage_;
     std::vector<const char *> descriptionNames_;
-    QString name_ = "ClassicMixer";
+    QString name_ = "ClassicMixer" WJN_STRINGIFY(WJN_CLASSIC_MIXER_LAYOUT);
     QString error_;
     QByteArray nameBytes_, json_;
     std::vector<QPointer<QWidget>> sidebars_;
@@ -372,7 +379,7 @@ class ClassicMixerNode final : public WinJACKNexus::Node::INode, public CM::Port
     LockFreeSpscQueue<CM::Configuration, 32> configurations_;
     LockFreeSpscQueue<CM::Levels, 16> measurements_;
     std::array<uint32_t, CM::maximumAudioInputs> inputIds_{};
-    int audioInputs_ = 16;
+    int audioInputs_ = fixedLayout;
     double sampleRate_ = 48000;
     uint32_t maximumFrames_ = 0;
     bool prepared_ = false;
@@ -576,7 +583,7 @@ const char *wjn_get_node_api_version()
 }
 const char *wjn_get_node_name()
 {
-    return "Classic Mixer";
+    return modelName;
 }
 const char *wjn_get_node_category()
 {
@@ -669,7 +676,11 @@ extern "C" WINJACK_NODE_API uint32_t wjn_get_node_i18n_api_version()
 }
 extern "C" WINJACK_NODE_API const char *wjn_get_node_i18n_descriptor_json()
 {
-    return R"json({"descriptorVersion":1,"i18nApiVersion":1,"moduleId":"winjacknexus-classic-mixer","domains":["classicMixer"],"locatePath":"locate","catalogVersion":1,"displayNameKey":{"domain":"classicMixer","key":"name"}})json";
+    return "{\"descriptorVersion\":1,\"i18nApiVersion\":1,"
+           "\"moduleId\":\"winjacknexus-classic-mixer-" WJN_STRINGIFY(
+               WJN_CLASSIC_MIXER_LAYOUT) "\",\"domains\":[\"classicMixer" WJN_STRINGIFY(WJN_CLASSIC_MIXER_LAYOUT) "\"],\"locatePath\":\"locate\",\"catalogVersion\":1,"
+                                                                                                                  "\"displayNameKey\":{\"domain\":\"classicMixer" WJN_STRINGIFY(
+                                                                                                                      WJN_CLASSIC_MIXER_LAYOUT) "\",\"key\":\"modelName\"}}";
 }
 namespace
 {

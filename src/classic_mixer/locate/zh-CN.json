@@ -78,7 +78,8 @@
       "diagnostic.snapshot": "连接快照失败",
       "diagnostic.rename": "端口改名或重连失败",
       "diagnostic.rollback": "回滚未完成",
-      "diagnostic.presetName": "请输入有效的预设名。"
+      "diagnostic.presetName": "请输入有效的预设名。",
+      "modelName": "经典调音台 @LAYOUT@"
     }
   }
 }

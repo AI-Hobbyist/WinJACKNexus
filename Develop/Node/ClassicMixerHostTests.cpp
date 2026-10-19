@@ -17,6 +17,18 @@
 namespace CM = WinJACKNexus::Common::ClassicMixer;
 namespace UI = WinJACKNexus::UI;
 namespace C = UI::Controls;
+QString mixerModule(int layout)
+{
+    switch (layout)
+    {
+    case 8:
+        return QString::fromUtf8(CLASSIC_MIXER_DLL_8);
+    case 16:
+        return QString::fromUtf8(CLASSIC_MIXER_DLL_16);
+    default:
+        return QString::fromUtf8(CLASSIC_MIXER_DLL_24);
+    }
+}
 int checks = 0;
 void check(bool value, const char *message)
 {
@@ -118,31 +130,43 @@ int main(int argc, char **argv)
         const auto failRename =
             reinterpret_cast<void (*)(int)>(GetProcAddress(fixture, "wjn_classic_fail_rename"));
         check(process && count && failRename, "offline observation/failure hooks");
-        const QString module = QString::fromUtf8(CLASSIC_MIXER_DLL);
-        bool layoutDialogObserved = false;
-        QTimer::singleShot(100, [&] {
-            auto *dialog = qobject_cast<QDialog *>(QApplication::activeModalWidget());
-            if (!dialog)
-                return;
-            auto *choice = dialog->findChild<QComboBox *>();
-            layoutDialogObserved = dialog->isVisible() && choice && choice->count() == 3 &&
-                                   choice->currentData().toInt() == 16;
-            if (choice)
-                choice->setCurrentIndex(choice->findData(24));
-            dialog->accept();
-        });
-        QTimer::singleShot(3000, [&] {
-            if (auto *dialog = qobject_cast<QDialog *>(QApplication::activeModalWidget()))
-                dialog->reject();
-        });
-        auto newlyCreated = LoadedModuleNode::create(module, 0, {}, WJN_NODE_MODE_VIRT);
-        check(layoutDialogObserved && newlyCreated &&
-                  QJsonDocument::fromJson(QByteArray::fromStdString(newlyCreated->settingsJson()))
-                          .object()
-                          .value("layoutId")
-                          .toInt() == 24,
-              "new-node loader uses visible public layout chooser before preparation");
-        newlyCreated.reset();
+        for (int layout : {8, 16, 24})
+        {
+            auto newlyCreated =
+                LoadedModuleNode::create(mixerModule(layout), 0, {}, WJN_NODE_MODE_VIRT);
+            check(
+                newlyCreated &&
+                    QJsonDocument::fromJson(QByteArray::fromStdString(newlyCreated->settingsJson()))
+                            .object()
+                            .value("layoutId")
+                            .toInt() == layout &&
+                    QApplication::activeModalWidget() == nullptr,
+                "fixed DLL creates correct layout without modal chooser");
+            const auto legacy = QFileInfo(mixerModule(layout))
+                                    .dir()
+                                    .absoluteFilePath("../classic_mixer/mod_classic_mixer.dll");
+            auto migrated = LoadedModuleNode::create(legacy, 0, mixerSettings(layout, "Migrated"),
+                                                     WJN_NODE_MODE_VIRT);
+            check(migrated && migrated->modulePath() == mixerModule(layout),
+                  "legacy module path migrates to matching fixed DLL");
+        }
+        check(!LoadedModuleNode::create(mixerModule(8), 0, mixerSettings(24, "Mismatch"),
+                                        WJN_NODE_MODE_VIRT),
+              "host refuses mismatched fixed module state");
+        const auto available = scanNodeModules();
+        for (int layout : {8, 16, 24})
+            check(std::count_if(available.begin(), available.end(),
+                                [&](const auto &entry) {
+                                    return entry.modulePath == mixerModule(layout) &&
+                                           entry.category == "Classic Mixer";
+                                }) == 1,
+                  "each fixed model appears once under Classic Mixer");
+        check(std::none_of(available.begin(), available.end(),
+                           [](const auto &entry) {
+                               return QFileInfo(entry.modulePath).fileName() ==
+                                      "mod_classic_mixer.dll";
+                           }),
+              "obsolete chooser DLL excluded from node menu");
         const QString project = temporary.filePath("classic.wjn");
         std::string rootContext, nestedContext;
         std::vector<PatchbayProjectModule> expected;
@@ -172,9 +196,10 @@ int main(int argc, char **argv)
             const auto rin = boundary(root, "audio_in"), rout = boundary(root, "audio_out");
             const auto nin = boundary(nested, "audio_in"), nout = boundary(nested, "audio_out");
             expected = {
-                {module, 0, "ClassicMain", mixerSettings(8, "ClassicMain"), "main"},
-                {module, 0, rootClient, mixerSettings(16, "Root mixer"), rootContext},
-                {module, 0, nestedClient, mixerSettings(24, "Nested mixer"), nestedContext}};
+                {mixerModule(8), 0, "ClassicMain", mixerSettings(8, "ClassicMain"), "main"},
+                {mixerModule(16), 0, rootClient, mixerSettings(16, "Root mixer"), rootContext},
+                {mixerModule(24), 0, nestedClient, mixerSettings(24, "Nested mixer"),
+                 nestedContext}};
             std::vector<PatchbaySubGraphProject> graphs;
             for (auto *canvas : {main, root, nested})
                 graphs.push_back({canvas->sceneContext(),
@@ -186,7 +211,12 @@ int main(int argc, char **argv)
                                      {nout.portId, rout.portId}};
             graphs[2].connections = {{nin.portId, nestedClient + ":port-1"},
                                      {nestedClient + ":port-101", nout.portId}};
-            check(main->saveProject(project, expected, graphs),
+            auto legacyRecords = expected;
+            for (auto &record : legacyRecords)
+                record.modulePath = QFileInfo(record.modulePath)
+                                        .dir()
+                                        .absoluteFilePath("../classic_mixer/mod_classic_mixer.dll");
+            check(main->saveProject(project, legacyRecords, graphs),
                   "production project writer saves three layouts and nested routes");
             scaffold.shutdown();
         }
@@ -339,6 +369,9 @@ int main(int argc, char **argv)
         saveAction->trigger();
         settle();
         loaded = readModuleRecords(project);
+        for (const auto &record : loaded)
+            check(QFileInfo(record.modulePath).fileName() != "mod_classic_mixer.dll",
+                  "explicit save persists migrated module paths");
         const auto nestedRecord =
             std::find_if(loaded.begin(), loaded.end(), [&](const auto &record) {
                 return record.clientId == expected[2].clientId;
@@ -368,7 +401,7 @@ int main(int argc, char **argv)
         check(saved.open(QIODevice::ReadOnly) && saved.readAll() == finalBytes,
               "restoration never overwrites source project");
         saved.close();
-        QDir().mkpath("build/classic-mixer-s4-evidence");
+        QDir().mkpath("build/classic-mixer-split-evidence");
         window->resize(1200, 800);
         window->findChild<QTabWidget *>()->setCurrentWidget(main);
         main->zoomFit();
@@ -377,7 +410,7 @@ int main(int argc, char **argv)
         settle();
         check(window->screen()
                   ->grabWindow(window->winId())
-                  .save("build/classic-mixer-s4-evidence/restored-host.png"),
+                  .save("build/classic-mixer-split-evidence/restored-host.png"),
               "capture actual restored host window");
         reopened.shutdown();
         check(shows.shows <= 100, "bounded 100-window batch");

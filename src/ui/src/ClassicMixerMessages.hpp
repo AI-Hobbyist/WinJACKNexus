@@ -3,7 +3,7 @@
 #include <WinJACKNexus/UI/LocalizedText.hpp>
 namespace WinJACKNexus::UI
 {
-inline QString classicMixerDiagnostic(const QString &message)
+inline QString classicMixerDiagnostic(const QString &message, const char *domain = "classicMixer")
 {
     struct Entry
     {
@@ -48,7 +48,7 @@ inline QString classicMixerDiagnostic(const QString &message)
     for (const auto &entry : entries)
     {
         if (first == QLatin1String(entry.source))
-            return localizedText("classicMixer", entry.key, entry.source) +
+            return localizedText(domain, entry.key, entry.source) +
                    (newline < 0 ? QString() : message.mid(newline));
     }
     return message;

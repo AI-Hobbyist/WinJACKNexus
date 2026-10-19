@@ -78,7 +78,8 @@
       "diagnostic.snapshot": "연결 상태 저장 실패",
       "diagnostic.rename": "포트 이름 변경 또는 재연결 실패",
       "diagnostic.rollback": "복원이 완료되지 않았습니다",
-      "diagnostic.presetName": "유효한 프리셋 이름을 입력하세요."
+      "diagnostic.presetName": "유효한 프리셋 이름을 입력하세요.",
+      "modelName": "클래식 믹서 @LAYOUT@"
     }
   }
 }

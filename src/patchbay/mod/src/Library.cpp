@@ -933,6 +933,15 @@ bool validNativeFxNodeModule(HMODULE library, const QString& path, bool* nativeF
            GetProcAddress(library, "wjn_get_node_client_id") != nullptr;
 }
 
+bool isClassicMixerModule(const QString &path)
+{
+    const auto file = QFileInfo(path).fileName().toLower();
+    return file == QStringLiteral("mod_classic_mixer.dll") ||
+           file == QStringLiteral("mod_classic_mixer_8.dll") ||
+           file == QStringLiteral("mod_classic_mixer_16.dll") ||
+           file == QStringLiteral("mod_classic_mixer_24.dll");
+}
+
 std::vector<ModuleNodeInfo> scanNodeModules()
 {
     using NodeName = const char *(*)(void);
@@ -943,6 +952,10 @@ std::vector<ModuleNodeInfo> scanNodeModules()
     while (files.hasNext())
     {
         const auto path = files.next();
+        // The legacy chooser DLL is superseded by the three fixed-layout modules.
+        if (QFileInfo(path).fileName().compare(QStringLiteral("mod_classic_mixer.dll"),
+                                             Qt::CaseInsensitive) == 0)
+            continue;
         const auto library = LoadLibraryW(reinterpret_cast<LPCWSTR>(path.utf16()));
         if (!library)
             continue;
@@ -1160,7 +1173,7 @@ void populateNodeLibrary(QTreeWidget* tree,
 
 class LoadedModuleNode final {
 public:
-  static std::unique_ptr<LoadedModuleNode> create(const QString &modulePath, std::uint32_t index,
+  static std::unique_ptr<LoadedModuleNode> create(QString modulePath, std::uint32_t index,
                                                   const std::string &settingsJson = {},
                                                   uint32_t mode = WJN_NODE_MODE_JACK,
                                                   double sampleRate = 48000.0,
@@ -1177,6 +1190,19 @@ public:
       using DestroySettingsWidget = void (*)(WinJACKNexus::Node::INode *node, QWidget *widget);
       using CreateSettingsView = void *(*)(WinJACKNexus::Node::INode * node, void *parentHwnd);
       using DestroySettingsView = void (*)(WinJACKNexus::Node::INode *node, void *viewHwnd);
+
+      if (QFileInfo(modulePath).fileName().compare(QStringLiteral("mod_classic_mixer.dll"),
+                                                  Qt::CaseInsensitive) == 0)
+      {
+          const auto saved = QJsonDocument::fromJson(QByteArray::fromStdString(settingsJson)).object();
+          const auto layout = saved.value("layoutId").toDouble(-1);
+          if (layout != 8 && layout != 16 && layout != 24)
+              return nullptr;
+          const auto folder = QStringLiteral("classic_mixer_%1").arg(static_cast<int>(layout));
+          modulePath = QFileInfo(modulePath).dir().absoluteFilePath(
+              QStringLiteral("../%1/mod_%1.dll").arg(folder));
+          modulePath = QDir::cleanPath(modulePath);
+      }
 
       const auto library = LoadLibraryW(reinterpret_cast<LPCWSTR>(modulePath.utf16()));
       if (library == nullptr)
@@ -1483,8 +1509,7 @@ public:
             WinJACKNexus::Patchbay::Core::ClientInfo client;
             client.id = clientId();
             client.name = name_.toStdString();
-            if (QFileInfo(modulePath_).fileName().compare(
-                    QStringLiteral("mod_classic_mixer.dll"), Qt::CaseInsensitive) == 0 &&
+            if (isClassicMixerModule(modulePath_) &&
                 getNodeClientId_ != nullptr)
             {
                 const auto *displayName = getNodeClientId_(node_);
@@ -2842,8 +2867,7 @@ public:
                 {
                     if (isDigitalMixerModule(node->modulePath()) && node->hasClient())
                         currentMixerSettings.emplace(node->clientId(), node->settingsJson());
-                    else if (QFileInfo(node->modulePath()).fileName().compare(
-                                 QStringLiteral("mod_classic_mixer.dll"), Qt::CaseInsensitive) == 0 &&
+                    else if (isClassicMixerModule(node->modulePath()) &&
                              node->hasClient())
                         currentMixerSettings.emplace(node->clientId(), node->classicMixerRevision());
                 }

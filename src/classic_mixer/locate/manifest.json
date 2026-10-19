@@ -87,7 +87,8 @@
       "diagnostic.snapshot",
       "diagnostic.rename",
       "diagnostic.rollback",
-      "diagnostic.presetName"
+      "diagnostic.presetName",
+      "modelName"
     ]
   }
 }

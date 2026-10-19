@@ -28,6 +28,18 @@
 namespace CM = WinJACKNexus::Common::ClassicMixer;
 namespace UI = WinJACKNexus::UI;
 namespace C = UI::Controls;
+QString mixerModule(int layout)
+{
+    switch (layout)
+    {
+    case 8:
+        return QString::fromUtf8(CLASSIC_MIXER_DLL_8);
+    case 16:
+        return QString::fromUtf8(CLASSIC_MIXER_DLL_16);
+    default:
+        return QString::fromUtf8(CLASSIC_MIXER_DLL_24);
+    }
+}
 int checks = 0;
 void check(bool value, const char *message)
 {
@@ -94,45 +106,46 @@ int main(int argc, char **argv)
         UI::ThemeManager theme;
         theme.bindThemeCore(&core);
         theme.applyToApp(&app);
-        const QString path = QString::fromUtf8(CLASSIC_MIXER_DLL);
-        QLibrary library(path);
-        check(library.load(), "actual GUI DLL loads");
-        UI::ThemeNamespaceRegistry::Lease themeLease;
-        if (!UI::ThemeNamespaceRegistry::instance().registerNodeModule(
-                [&library](const char *name) { return library.resolve(name); }, path, &themeLease,
-                &error))
-            std::cerr << error.toStdString() << '\n';
-        check(!themeLease.isEmpty(), "actual node theme descriptor registers");
-        auto languageLease =
-            languages.registerLibrary(path, UI::I18nManager::Extension::node, 0, &error);
-        if (!languageLease)
-            std::cerr << error.toStdString() << '\n';
-        check(bool(languageLease), "actual node catalogs register");
-        const auto create =
-            reinterpret_cast<decltype(&wjn_create_node_v4)>(library.resolve("wjn_create_node_v4"));
-        const auto destroy =
-            reinterpret_cast<decltype(&wjn_destroy_node)>(library.resolve("wjn_destroy_node"));
-        const auto get = reinterpret_cast<decltype(&wjn_get_node_settings_json)>(
-            library.resolve("wjn_get_node_settings_json"));
-        const auto set = reinterpret_cast<decltype(&wjn_set_node_settings_json)>(
-            library.resolve("wjn_set_node_settings_json"));
-        const auto api = reinterpret_cast<decltype(&wjn_get_node_virtual_api_v1)>(
-            library.resolve("wjn_get_node_virtual_api_v1"))();
-        const auto sidebar = reinterpret_cast<decltype(&wjn_create_settings_widget)>(
-            library.resolve("wjn_create_settings_widget"));
-        const auto destroySidebar = reinterpret_cast<decltype(&wjn_destroy_settings_widget)>(
-            library.resolve("wjn_destroy_settings_widget"));
-        const auto evidence = QDir::current().absoluteFilePath("build/classic-mixer-s3-evidence");
-        QDir().mkpath(evidence);
-        const QString prefix = "--wjn-theme-module-winjacknexus-classic-mixer-";
-        check(core.snapshot()->value(prefix + "fader-input-thumb") == "#a6adb4",
-              "gray input default");
-        check(core.snapshot()->value(prefix + "fader-master-thumb") == "#e35252",
-              "red master default");
-        check(core.snapshot()->value(prefix + "fader-monitor-thumb") == "#e4c44c",
-              "yellow monitor default");
         for (int layout : {8, 16, 24})
         {
+            const QString path = mixerModule(layout);
+            QLibrary library(path);
+            check(library.load(), "actual GUI DLL loads");
+            UI::ThemeNamespaceRegistry::Lease themeLease;
+            if (!UI::ThemeNamespaceRegistry::instance().registerNodeModule(
+                    [&library](const char *name) { return library.resolve(name); }, path,
+                    &themeLease, &error))
+                std::cerr << error.toStdString() << '\n';
+            check(!themeLease.isEmpty(), "actual node theme descriptor registers");
+            auto languageLease =
+                languages.registerLibrary(path, UI::I18nManager::Extension::node, 0, &error);
+            if (!languageLease)
+                std::cerr << error.toStdString() << '\n';
+            check(bool(languageLease), "actual node catalogs register");
+            const auto create = reinterpret_cast<decltype(&wjn_create_node_v4)>(
+                library.resolve("wjn_create_node_v4"));
+            const auto destroy =
+                reinterpret_cast<decltype(&wjn_destroy_node)>(library.resolve("wjn_destroy_node"));
+            const auto get = reinterpret_cast<decltype(&wjn_get_node_settings_json)>(
+                library.resolve("wjn_get_node_settings_json"));
+            const auto set = reinterpret_cast<decltype(&wjn_set_node_settings_json)>(
+                library.resolve("wjn_set_node_settings_json"));
+            const auto api = reinterpret_cast<decltype(&wjn_get_node_virtual_api_v1)>(
+                library.resolve("wjn_get_node_virtual_api_v1"))();
+            const auto sidebar = reinterpret_cast<decltype(&wjn_create_settings_widget)>(
+                library.resolve("wjn_create_settings_widget"));
+            const auto destroySidebar = reinterpret_cast<decltype(&wjn_destroy_settings_widget)>(
+                library.resolve("wjn_destroy_settings_widget"));
+            const auto evidence =
+                QDir::current().absoluteFilePath("build/classic-mixer-split-evidence");
+            QDir().mkpath(evidence);
+            const QString prefix = "--wjn-theme-module-winjacknexus-classic-mixer-";
+            check(core.snapshot()->value(prefix + "fader-input-thumb") == "#a6adb4",
+                  "gray input default");
+            check(core.snapshot()->value(prefix + "fader-master-thumb") == "#e35252",
+                  "red master default");
+            check(core.snapshot()->value(prefix + "fader-monitor-thumb") == "#e4c44c",
+                  "yellow monitor default");
             auto *node = create(WJN_NODE_MODE_VIRT);
             auto state = CM::State::create(layout);
             state.layoutChosen = true;
@@ -347,11 +360,11 @@ int main(int argc, char **argv)
             signal.stop();
             api->stop(node);
             destroy(node);
+            check(shows.count <= 100, "bounded real window batch");
+            languageLease.reset();
+            themeLease.reset();
+            check(library.unload(), "GUI module unload after windows and leases");
         }
-        check(shows.count <= 100, "bounded real window batch");
-        languageLease.reset();
-        themeLease.reset();
-        check(library.unload(), "GUI module unload after windows and leases");
         UI::ThemeManager::installThemeCore(nullptr);
         std::cout << "PASS " << checks << " Windows 100% GUI checks; window shows=" << shows.count
                   << '\n';
