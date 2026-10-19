@@ -30,7 +30,8 @@ void bind(QObject *object, const char *property, const char *key, const char *en
 {
     bindLocalizedText(object, property, "classicMixer", key, english);
 }
-const std::array<int, 6> rowHeights{32, 84, 192, 112, 84, 88};
+constexpr int stripWidth = 200;
+const std::array<int, 5> rowHeights{32, 96, 200, 124, 96};
 } // namespace
 
 struct ClassicMixerWindow::Impl
@@ -158,7 +159,7 @@ struct ClassicMixerWindow::Impl
         inputsScroll->setWidgetResizable(true);
         inputsScroll->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
         inputsScroll->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
-        inputsScroll->setMinimumWidth(190);
+        inputsScroll->setMinimumWidth(stripWidth + 6);
         auto *inputs = new QWidget;
         auto *inputLayout = new QHBoxLayout(inputs);
         inputLayout->setContentsMargins(0, 0, 0, 0);
@@ -184,7 +185,7 @@ struct ClassicMixerWindow::Impl
             scrollbarSpace->setFixedHeight(
                 inputsScroll->horizontalScrollBar()->sizeHint().height());
             layout->addWidget(scrollbarSpace);
-            fixed->setFixedWidth(184);
+            fixed->setFixedWidth(stripWidth);
             strips->addWidget(fixed);
             if (!index)
                 strips->addWidget(separator(stripArea));
@@ -288,9 +289,9 @@ struct ClassicMixerWindow::Impl
                             classicMixerDiagnostic(lastError, domain().constData()));
     }
 
-    QWidget *slot(QWidget *strip, int row)
+    QWidget *slot(QWidget *strip, int row, bool card)
     {
-        auto *widget = new QWidget(strip);
+        QWidget *widget = card ? new C::GroupPanel({}, strip) : new QWidget(strip);
         widget->setFixedHeight(rowHeights[row]);
         return widget;
     }
@@ -352,14 +353,16 @@ struct ClassicMixerWindow::Impl
         const auto prefix = QStringLiteral("classicMixer.strip.%1.").arg(index);
         auto *strip = new QWidget(parent);
         strip->setObjectName(prefix + "panel");
-        strip->setFixedWidth(184);
+        strip->setFixedWidth(stripWidth);
         auto *stack = new QVBoxLayout(strip);
         stack->setContentsMargins(4, 0, 4, 0);
         stack->setSpacing(0);
-        std::array<QWidget *, 6> rows{};
-        for (int row = 0; row < 6; ++row)
+        std::array<QWidget *, 5> rows{};
+        const char *sections[]{"title", "gain", "eq", "aux", "pan"};
+        for (int row = 0; row < 5; ++row)
         {
-            rows[row] = slot(strip, row);
+            rows[row] = slot(strip, row, (input && row > 0) || (master && (row == 2 || row == 3)));
+            rows[row]->setObjectName(prefix + sections[row] + "Section");
             stack->addWidget(rows[row]);
         }
         auto *titleLayout = new QVBoxLayout(rows[0]);
@@ -369,6 +372,7 @@ struct ClassicMixerWindow::Impl
             auto *name = new C::TextField(rows[0]);
             name->setObjectName(prefix + "name");
             name->setMaxLength(96);
+            name->setAlignment(Qt::AlignCenter);
             bind(name, "accessibleName", "channel.name", "Channel name");
             titleLayout->addWidget(name);
             valueBindings.push_back([this, name, index] {
@@ -388,7 +392,7 @@ struct ClassicMixerWindow::Impl
         if (input)
         {
             auto *gain = new QGridLayout(rows[1]);
-            gain->setContentsMargins(0, 0, 0, 0);
+            gain->setContentsMargins(4, 12, 4, 4);
             knob(
                 rows[1], gain, 0, 0, prefix + "gain", "gain", "Gain", {-12, 12, 0, 1},
                 [index](const State &s) { return s.inputs[index].gain; },
@@ -397,7 +401,7 @@ struct ClassicMixerWindow::Impl
         if (input || master)
         {
             auto *eqLayout = new QGridLayout(rows[2]);
-            eqLayout->setContentsMargins(0, 0, 0, 0);
+            eqLayout->setContentsMargins(4, 12, 4, 4);
             eqLayout->setSpacing(0);
             const auto getEq = [index, input](State &s) -> CM::Equalizer & {
                 return input ? s.inputs[index].eq : s.masterEq;
@@ -439,7 +443,7 @@ struct ClassicMixerWindow::Impl
                      read, write, band == 3);
             }
             auto *auxLayout = new QGridLayout(rows[3]);
-            auxLayout->setContentsMargins(0, 0, 0, 0);
+            auxLayout->setContentsMargins(4, 12, 4, 4);
             auxLayout->setSpacing(0);
             for (int bus = 0; bus < 2; ++bus)
             {
@@ -487,17 +491,45 @@ struct ClassicMixerWindow::Impl
                 }
             }
         }
+        auto *faderPanel = new C::GroupPanel({}, strip);
+        faderPanel->setObjectName(prefix + "faderSection");
+        auto *faderLayout = new QVBoxLayout(faderPanel);
+        faderLayout->setContentsMargins(4, 12, 4, 4);
+        auto *fader = new C::ConsoleFader(scope,
+                                          input    ? "input"
+                                          : master ? "master"
+                                                   : "monitor",
+                                          input && !state.inputs[index].stereo ? 1 : 2, faderPanel);
+        fader->setObjectName(prefix + "fader");
+        bind(fader, "accessibleName", "fader", "Fader");
+        valueBindings.push_back([this, fader, index, input, master] {
+            fader->setValue(input    ? state.inputs[index].fader
+                            : master ? state.masterFader
+                                     : state.monitorFader);
+        });
+        fader->onChanged([this, index, input, master](double value) {
+            mutate([&](State &s) {
+                if (input)
+                    s.inputs[index].fader = value;
+                else if (master)
+                    s.masterFader = value;
+                else
+                    s.monitorFader = value;
+            });
+        });
+        fader->setMinimumHeight(272);
+        faderLayout->addWidget(fader);
         if (input)
         {
             auto *panLayout = new QGridLayout(rows[4]);
-            panLayout->setContentsMargins(0, 0, 0, 0);
+            panLayout->setContentsMargins(4, 12, 4, 4);
             knob(
                 rows[4], panLayout, 0, 0, prefix + "pan", "pan", "Pan", {-1, 1, 0, 2},
                 [index](const State &s) { return s.inputs[index].pan; },
                 [index](State &s, double value) { s.inputs[index].pan = value; });
-            auto *buttons = new QGridLayout(rows[5]);
-            buttons->setContentsMargins(0, 0, 0, 0);
-            buttons->setSpacing(2);
+            auto *buttons = new QVBoxLayout(fader);
+            buttons->setContentsMargins(124, 16, 0, 36);
+            buttons->setSpacing(4);
             const char *keys[]{"mix", "afl", "pfl", "a1", "a2", "mute", "solo"};
             const char *english[]{"MIX", "AFL", "PFL", "A1", "A2", "M", "S"};
             const char *help[]{"help.mix", "help.afl",  "help.pfl", "help.a1",
@@ -558,47 +590,28 @@ struct ClassicMixerWindow::Impl
                         break;
                     }
                 };
-                auto *control = toggle(rows[5], prefix + keys[button], keys[button],
-                                       english[button], read, write);
+                auto *control = toggle(fader, prefix + keys[button], keys[button], english[button],
+                                       read, write);
                 bind(control, "toolTip", help[button], helpEnglish[button]);
                 bind(control, "accessibleName", help[button], helpEnglish[button]);
-                buttons->addWidget(control, button / 4, button % 4);
+                control->setFixedSize(44, 28);
+                buttons->addWidget(control);
             }
+            buttons->addStretch();
         }
         else if (master)
         {
-            auto *buttons = new QVBoxLayout(rows[5]);
-            buttons->setContentsMargins(0, 0, 0, 0);
-            buttons->addStretch();
+            auto *buttons = new QVBoxLayout(fader);
+            buttons->setContentsMargins(124, 16, 0, 36);
             auto *mute = toggle(
-                rows[5], prefix + "mute", "mute", "M", [](const State &s) { return s.masterMute; },
+                fader, prefix + "mute", "mute", "M", [](const State &s) { return s.masterMute; },
                 [](State &s, bool on) { s.masterMute = on; });
             bind(mute, "toolTip", "help.masterMute", "Mute Master output");
+            mute->setFixedSize(44, 28);
             buttons->addWidget(mute);
+            buttons->addStretch();
         }
-        auto *fader = new C::ConsoleFader(scope,
-                                          input    ? "input"
-                                          : master ? "master"
-                                                   : "monitor",
-                                          input && !state.inputs[index].stereo ? 1 : 2, strip);
-        fader->setObjectName(prefix + "fader");
-        bind(fader, "accessibleName", "fader", "Fader");
-        valueBindings.push_back([this, fader, index, input, master] {
-            fader->setValue(input    ? state.inputs[index].fader
-                            : master ? state.masterFader
-                                     : state.monitorFader);
-        });
-        fader->onChanged([this, index, input, master](double value) {
-            mutate([&](State &s) {
-                if (input)
-                    s.inputs[index].fader = value;
-                else if (master)
-                    s.masterFader = value;
-                else
-                    s.monitorFader = value;
-            });
-        });
-        stack->addWidget(fader, 1);
+        stack->addWidget(faderPanel, 1);
         faders.push_back(fader);
         return strip;
     }
