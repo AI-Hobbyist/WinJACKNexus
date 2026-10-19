@@ -88,6 +88,7 @@ WinJACKNexus 的定位:
 | **Audio Adapter**(物理/虚拟音频适配器) | 将 WASAPI(共享)系统音频设备与系统 MIDI 接入 JACK,导出 `system:capture_*` / `system:playback_*` 端口 |
 | **Interactive Patchbay**(模块化虚拟插线板) | 全局接线盘中枢,对系统中所有模块的 JACK 端口进行可视化连线/断开/拓扑管理 |
 | **Pure Mixer**(调音台) | 通道 Gain/Mute/Solo,全部通道抽象为标准 JACK 端口 |
+| **Classic Mixer**(经典调音台) | 8/16/24 三个固定布局节点，支持主图/子图、多实例、独立控制窗口、三段 EQ、立体声 AUX 与监听 |
 | **Meterbridge**(多通道电平桥监控) | Peak/RMS/dBTP/LUFS/LRA 监控、历史图表与 CSV 记录,SPSC 无锁管道直通音频线程 |
 | **Single VST Host**(单效果器宿主) | 沙盒进程托管单个 VST2/VST3 插件,机架 In/Out 暴露为 JACK 端口 |
 | **VST 效果器链** | 由 Interactive Patchbay 的子图组合单 VST 节点,支持拖拽编排 |
@@ -199,6 +200,9 @@ WinJACKNexus 的定位:
 | Audio Adapter | `nodes/adapter/*/mod_*.dll` | ✅ 已完成(A1–A6) | [Audio Adapter 计划](Docs/WinJACKNexus%20-%20Audio%20Adapter%20-%20开发计划.md) | WASAPI In/Out、MIDI In/Out、设置面板、设备互斥与刷新、电平/力度窗口 |
 | Interactive Patchbay | `mod_patchbay.dll`(主程序同级) | ✅ 已完成(B1–B8) | [接线盘计划](Docs/WinJACKNexus%20-%20接线盘%20-%20开发计划.md) | 实时 JACK 图、拖线连通/断开、工程保存恢复、自动保存、无限画布 |
 | Digital Mixer(调音台) | `nodes/mixer/mod_digital_mixer.dll` | ✅ 已完成 | — | 输入/AUX/主通道、FX 链、AUX 设置及工程保存恢复 |
+| Classic Mixer 8 | `nodes/classic_mixer_8/mod_classic_mixer_8.dll` | ✅ 已实现，离线验证通过 | [经典调音台计划书](经典调音台节点计划书.md) | 6 Mono + 1 Stereo 输入，另有 Master、Monitor |
+| Classic Mixer 16 | `nodes/classic_mixer_16/mod_classic_mixer_16.dll` | ✅ 已实现，离线验证通过 | [经典调音台计划书](经典调音台节点计划书.md) | 8 Mono + 4 Stereo 输入，另有 Master、Monitor |
+| Classic Mixer 24 | `nodes/classic_mixer_24/mod_classic_mixer_24.dll` | ✅ 已实现，离线验证通过 | [经典调音台计划书](经典调音台节点计划书.md) | 16 Mono + 4 Stereo 输入，另有 Master、Monitor |
 | Native Fx(自带效果器) | `nodes/native_fx/*/mod_*.dll` | ✅ 已完成 | [效果器完成记录](Native%20Effect/) | Gate、Graphic EQ、Parametric EQ、De-Esser、Compressor、Limiter、Delay、Reverb |
 | Native Fx API | `src/native_fx/include/WinJACKNexus/NativeFx/NativeFxApi.h` | ✅ 已完成 | [Native Fx API 文档](Develop/NativeFx/NativeFx-API.md) | 原生效果器模块接口、加载与控制 |
 | Meterbridge | `mod_meterbrigde.dll` + `nodes/meter/*/mod_meter_*.dll` | ✅ 已完成 | [电平表桥计划](Docs/电平表桥开发计划书.md) | 唯一桥窗口、Mono/Stereo/5.1/7.1/Custom Probe、BS.1770-5 计量、历史图表、CSV、工程恢复 |
@@ -211,6 +215,10 @@ WinJACKNexus 的定位:
 | SF2/SFZ Loader（`sf2_loader`，SF2 加载器） | `nodes/midi_tools/sf2_loader/mod_sf2_loader.dll` | ✅ 已完成（S4～S6） | [完成记录](Docs/MidiTools/sf2_loader-completion.md) | 双引擎、16 通道及 Master；公共旋钮/电平表/卡片、独立模板 CSS 与四语言 |
 
 三个节点分类为 `Midi Tools`，各自独立 DLL；S0～S6 的实施、Release 编译、离线回归、部署依赖/许可及 100% Windows 可见实窗验证完成。人工验收 SKIPPED／已跳过（用户指令）；真实 JACK 音频、工程连线集成未验证。自维护源码格式整理已独立提交并推送；Adapter/Probe 的 9 个独立 DLL 已完成拆分及实窗验证。Node SDK v3 单节点接口迁移、旧多合一加载支持移除及首次启动废弃提示已完成验证；最终推送及全量 Release 重编后生成完整替换包。
+
+Classic Mixer 三个型号均归类为 `Classic Mixer`，各自独立 DLL、固定布局，支持主图 JACK/子图 VIRT 和多个独立实例。独立窗口复用公共卡片、旋钮、推子和电平表，接入 Theme Token、四语言 i18n 及应用统一帧率；通道名居中、路由按钮位于推子右侧，Monitor 为窄条，声像使用公共声像旋钮并显示 `L100% / C0% / R100%`。侧栏仅修改节点名；通道改名自动恢复连接，状态及 Base64 预设随主工程保存。旧单 DLL 工程按保存的布局迁移到对应型号，显式保存后记录新路径。
+
+Classic Mixer 已通过 Release 构建、离线 DSP/实际 DLL 检查、100% Windows 可见实窗检查及使用显式 JACK 替身的实际宿主工程恢复检查；最新界面检查 658 项、离线宿主检查 78 项通过。真实 JACK server/硬件集成未验证；人工审校、安装/部署验收已跳过（用户指令），不视为通过。详见[三 DLL 完成记录](Docs/ClassicMixer-split-results.md)与[界面调整及验证记录](Docs/ClassicMixer-layout-results.md)。
 
 未完成模块：
 
