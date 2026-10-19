@@ -31,6 +31,7 @@ void bind(QObject *object, const char *property, const char *key, const char *en
     bindLocalizedText(object, property, "classicMixer", key, english);
 }
 constexpr int stripWidth = 200;
+constexpr int monitorStripWidth = 152;
 const std::array<int, 5> rowHeights{32, 96, 200, 124, 96};
 } // namespace
 
@@ -185,7 +186,7 @@ struct ClassicMixerWindow::Impl
             scrollbarSpace->setFixedHeight(
                 inputsScroll->horizontalScrollBar()->sizeHint().height());
             layout->addWidget(scrollbarSpace);
-            fixed->setFixedWidth(stripWidth);
+            fixed->setFixedWidth(index == 0 ? stripWidth : monitorStripWidth);
             strips->addWidget(fixed);
             if (!index)
                 strips->addWidget(separator(stripArea));
@@ -353,7 +354,7 @@ struct ClassicMixerWindow::Impl
         const auto prefix = QStringLiteral("classicMixer.strip.%1.").arg(index);
         auto *strip = new QWidget(parent);
         strip->setObjectName(prefix + "panel");
-        strip->setFixedWidth(stripWidth);
+        strip->setFixedWidth(input || master ? stripWidth : monitorStripWidth);
         auto *stack = new QVBoxLayout(strip);
         stack->setContentsMargins(4, 0, 4, 0);
         stack->setSpacing(0);
