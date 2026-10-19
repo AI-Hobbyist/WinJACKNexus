@@ -17,3 +17,13 @@ Release 定向构建通过。前台 PowerShell 输出经 Tee-Object 保存并检
 按用户“监听那轨窄一些”的要求，仅将 Monitor 条及其固定外层宽度从 200 改为 152 逻辑像素。输入和 Master 仍为 200，所有纵向槽位及推子行程保持，Monitor 双电平表和刻度完整。
 
 Release 定向构建及现有三型号/四语言 GUI 实窗检查 PASS 646 项，窗口显示 6 次。实际 24 通道中文截图已检查双表、刻度、名称及推子对齐，证据位于 `build/classic-mixer-monitor-width-evidence`；日志为 `build/classic-mixer-monitor-width-build.log` 与 `build/classic-mixer-monitor-width-gui-tests.log`。本次只改宽度，未重跑 DSP、模块或宿主集成检查。真实 JACK 未测试；人工审校、安装/部署验收已跳过（用户指令）。现有 Release 增量包已更新。
+
+## 公共声像旋钮追加调整（2026-10-19）
+
+按用户要求直接复用公共 drawPanKnob 绘制。公共 ConsoleKnob 增加显式 setPanMode(bool) 模式；ClassicMixerWindow 对输入 Pan 启用该模式。旋钮弧线从中心向 L/R 偏移，读数显示 L100%、L50%、C0%、R100% 等整百分比，舍入到零时显示 C0%。颜色继续通过既有主题 Token 解析，业务窗口没有新增私有绘制或样式。普通 Gain/EQ/AUX 旋钮继续原样。
+
+Pan 数值编辑显示有符号百分比（-100～100），提交时除以 100；setValue/value/onChanged、工程状态和 DSP 继续使用原 -1～1。公共 API 文档已更新。GUI 调用点检查将前三条分别恢复为 L100%、C0%、R100%，在实际模块窗口输入 -50 并确认实际 DLL 设置为 -0.5，再恢复到 L100% 供四语言截图检查。
+
+现有 build 目录 Release 定向构建通过；GUI 实窗检查 PASS 658 项（6 次窗口显示），离线实际宿主检查 PASS 78 项（5 次窗口显示）。日志为 `build/classic-mixer-pan-build.log` 与 `build/classic-mixer-pan-{gui,host}-tests.log`，证据为 `build/classic-mixer-pan-evidence`。已检查最终 24 通道中文截图：公共声像旋钮样式、左右端点/中心读数、卡片、窄 Monitor 和推子对齐正常。windows QPA、100% 缩放、系统字体，无 offscreen。
+
+未修改 DSP 或工程 schema，本次未额外重跑其单测。真实 JACK server/硬件未测试；人工审校、安装/部署验收已跳过（用户指令）。现有 Release 增量包已更新，CRC/SHA-256 校验通过；包清单增加公共 ConsoleControls.hpp 源码哈希。部署仍使用兼容基线，共享 DLL 的既有工作区改动说明继续适用。

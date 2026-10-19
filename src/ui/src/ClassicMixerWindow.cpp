@@ -524,10 +524,11 @@ struct ClassicMixerWindow::Impl
         {
             auto *panLayout = new QGridLayout(rows[4]);
             panLayout->setContentsMargins(4, 12, 4, 4);
-            knob(
+            auto *pan = knob(
                 rows[4], panLayout, 0, 0, prefix + "pan", "pan", "Pan", {-1, 1, 0, 2},
                 [index](const State &s) { return s.inputs[index].pan; },
                 [index](State &s, double value) { s.inputs[index].pan = value; });
+            pan->setPanMode(true);
             auto *buttons = new QVBoxLayout(fader);
             buttons->setContentsMargins(124, 16, 0, 36);
             buttons->setSpacing(4);

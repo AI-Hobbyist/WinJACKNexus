@@ -149,6 +149,8 @@ int main(int argc, char **argv)
             auto *node = create(WJN_NODE_MODE_VIRT);
             auto state = CM::State::create(layout);
             state.layoutChosen = true;
+            state.inputs[0].pan = -1;
+            state.inputs[2].pan = 1;
             auto json = state.toJson();
             json.insert("clientName", "VisibleMixer");
             check(set(node, QJsonDocument(json).toJson().constData()),
@@ -236,6 +238,29 @@ int main(int argc, char **argv)
                           .value("gain")
                           .toDouble() > 0,
                   "knob keyboard commits production parameters");
+            auto *pan = control<C::ConsoleKnob>(window, "classicMixer.strip.0.pan");
+            pan->setFocus();
+            QTest::keyClick(pan, Qt::Key_Return);
+            auto *panEditor = pan->findChild<QLineEdit *>("numericValueEditor");
+            check(panEditor && panEditor->isVisible() && panEditor->text().toDouble() == -100,
+                  "shared pan editor displays signed percent");
+            panEditor->setText("-50");
+            QTest::keyClick(panEditor, Qt::Key_Return);
+            check(QJsonDocument::fromJson(get(node))
+                          .object()
+                          .value("inputs")
+                          .toArray()[0]
+                          .toObject()
+                          .value("pan")
+                          .toDouble() == -0.5,
+                  "shared percent edit commits normalized pan to real DLL");
+            QTest::qWait(20);
+            QTest::keyClick(pan, Qt::Key_Return);
+            panEditor = pan->findChild<QLineEdit *>("numericValueEditor");
+            check(panEditor && panEditor->isVisible(), "shared pan editor reopens");
+            panEditor->setText("-100");
+            QTest::keyClick(panEditor, Qt::Key_Return);
+            QTest::qWait(20);
             auto *afl = control<C::ActionButton>(window, "classicMixer.strip.0.afl");
             auto *pfl = control<C::ActionButton>(window, "classicMixer.strip.0.pfl");
             afl->click();

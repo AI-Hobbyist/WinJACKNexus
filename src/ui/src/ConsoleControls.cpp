@@ -54,6 +54,11 @@ void ConsoleKnob::setUnit(const QString &unit)
     unit_ = unit;
     update();
 }
+void ConsoleKnob::setPanMode(bool enabled)
+{
+    panMode_ = enabled;
+    update();
+}
 void ConsoleKnob::onChanged(std::function<void(double)> callback)
 {
     changed_ = std::move(callback);
@@ -82,7 +87,11 @@ QRect ConsoleKnob::readout() const
 }
 void ConsoleKnob::edit()
 {
-    editNumericValue(this, readout(), value_, spec_, [this](double value) { apply(value); });
+    if (panMode_)
+        editNumericValue(this, readout(), value_ * 100, {-100, 100, 0, 0},
+                         [this](double percent) { apply(percent / 100); });
+    else
+        editNumericValue(this, readout(), value_, spec_, [this](double value) { apply(value); });
 }
 void ConsoleKnob::paintEvent(QPaintEvent *)
 {
@@ -93,10 +102,22 @@ void ConsoleKnob::paintEvent(QPaintEvent *)
     colors.border = color(*this, scope_, "control-knob-track", QPalette::Mid);
     colors.accent = color(*this, scope_, "control-knob-indicator-normal", QPalette::Highlight);
     colors.text = color(*this, scope_, "text-primary", QPalette::WindowText);
-    drawKnob(painter, {width() / 2.0, 23}, normalized(value_), 21, colors);
-    const auto text = spec_.minimum == CM::silenceDb && value_ <= CM::silenceDb
-                          ? QString::fromUtf8("−∞")
-                          : QString::number(value_, 'f', spec_.decimals) + unit_;
+    QString text;
+    if (panMode_)
+    {
+        colors.panel = color(*this, scope_, "control-knob-panel", QPalette::Base);
+        drawPanKnob(painter, {width() / 2.0, 23}, value_, 21, colors);
+        const int percent = qRound(std::abs(value_) * 100);
+        const auto direction = percent == 0 ? "C" : (value_ < 0 ? "L" : "R");
+        text = QString::fromLatin1(direction) + QString::number(percent) + '%';
+    }
+    else
+    {
+        drawKnob(painter, {width() / 2.0, 23}, normalized(value_), 21, colors);
+        text = spec_.minimum == CM::silenceDb && value_ <= CM::silenceDb
+                   ? QString::fromUtf8("−∞")
+                   : QString::number(value_, 'f', spec_.decimals) + unit_;
+    }
     drawText(painter, readout(), text, font(), colors.text);
     focusOutline(painter, *this, scope_);
 }

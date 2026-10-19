@@ -19,6 +19,7 @@ class WINJACK_UI_API ConsoleKnob final : public QWidget
         return value_;
     }
     void setUnit(const QString &unit);
+    void setPanMode(bool enabled);
     void onChanged(std::function<void(double)> callback);
 
   protected:
@@ -34,6 +35,7 @@ class WINJACK_UI_API ConsoleKnob final : public QWidget
     QString scope_, unit_;
     NumericControlSpec spec_;
     bool logarithmic_;
+    bool panMode_ = false;
     double value_ = 0, dragValue_ = 0;
     QPoint dragStart_;
     bool dragging_ = false;

@@ -55,6 +55,7 @@ def main() -> None:
         "src/ui/src/ClassicMixerWindow.cpp",
         "src/ui/src/ClassicMixerMessages.hpp",
         "src/ui/src/ConsoleControls.cpp",
+        "src/ui/include/WinJACKNexus/UI/ConsoleControls.hpp",
         "src/patchbay/mod/src/Library.cpp",
         "src/ui/src/ApplicationSettings.cpp",
         "src/ui/include/WinJACKNexus/UI/ApplicationSettings.hpp",
