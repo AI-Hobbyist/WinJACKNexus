@@ -901,9 +901,21 @@ bool moduleRecordsEqual(const std::vector<PatchbayProjectModule>& left,
 	});
 }
 
-QString categoryFromModuleOrFolder(const char* exportedCategory, const QString& folderCategory)
+QString controlDeckModulePath(const QString &path)
 {
-	if (exportedCategory == nullptr)
+    auto normalized = QDir::fromNativeSeparators(path);
+    const QString legacyDirectory = QStringLiteral("/nodes/signal_switch/");
+    const auto position = normalized.indexOf(legacyDirectory, 0, Qt::CaseInsensitive);
+    if (position < 0 ||
+        !QFileInfo(normalized).fileName().startsWith(QStringLiteral("wjn_signal_switch_"), Qt::CaseInsensitive))
+        return path;
+    normalized.replace(position, legacyDirectory.size(), QStringLiteral("/nodes/control_deck/"));
+    return QFileInfo::exists(normalized) ? normalized : path;
+}
+
+QString categoryFromModuleOrFolder(const char *exportedCategory, const QString &folderCategory)
+{
+    if (exportedCategory == nullptr)
 		return folderCategory;
 
 	const auto category = QString::fromUtf8(exportedCategory).trimmed();
@@ -954,6 +966,9 @@ std::vector<ModuleNodeInfo> scanNodeModules()
     while (files.hasNext())
     {
         const auto path = files.next();
+        // An overlay may leave old DLLs behind. Discover only their new counterparts.
+        if (controlDeckModulePath(path) != path)
+            continue;
         // The legacy chooser DLL is superseded by the three fixed-layout modules.
         if (QFileInfo(path).fileName().compare(QStringLiteral("mod_classic_mixer.dll"),
                                              Qt::CaseInsensitive) == 0)
@@ -1193,6 +1208,7 @@ public:
       using CreateSettingsView = void *(*)(WinJACKNexus::Node::INode * node, void *parentHwnd);
       using DestroySettingsView = void (*)(WinJACKNexus::Node::INode *node, void *viewHwnd);
 
+      modulePath = controlDeckModulePath(modulePath);
       if (QFileInfo(modulePath).fileName().compare(QStringLiteral("mod_classic_mixer.dll"),
                                                   Qt::CaseInsensitive) == 0)
       {

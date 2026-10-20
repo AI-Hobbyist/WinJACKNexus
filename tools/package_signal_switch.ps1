@@ -20,9 +20,9 @@ foreach ($name in $catalogFiles) {
 }
 foreach ($kind in @('mono', 'stereo', '5_1', '7_1', 'midi', 'sound', 'peak',
                     'gain_mono', 'gain_stereo', 'gain_5_1', 'gain_7_1')) {
-    $runtimePaths.Add("nodes/signal_switch/$kind/wjn_signal_switch_$kind.dll")
+    $runtimePaths.Add("nodes/control_deck/$kind/wjn_signal_switch_$kind.dll")
     foreach ($name in $catalogFiles) {
-        $runtimePaths.Add("nodes/signal_switch/$kind/locate/$name")
+        $runtimePaths.Add("nodes/control_deck/$kind/locate/$name")
     }
 }
 
@@ -55,7 +55,7 @@ Control Deck incremental replacement package
 
 Extract into the existing WinJACKNexus executable directory, preserving paths.
 control_deck.dll belongs beside the EXE. The eleven node DLLs belong under
-nodes/signal_switch, each with its locate directory.
+nodes/control_deck, each with its locate directory.
 The main module keeps signal_switch/locate for compatibility. manifest.json lists SHA256 hashes.
 
 This is not a full application distribution. Keep the existing EXE, Qt 6.10.3,
@@ -83,7 +83,7 @@ hold Alt and left-click to operate a button without clicking the lower app.
 Sound buttons trigger once; another trigger restarts playback. All loaded BASS
 file formats are detected by content, including tracker music via BASS_MusicLoad.
 Sound files remain external; their paths and shortcuts are saved in the project.
-Mono peak meters pass audio through. Gain knobs provide 1/2/6/8-channel versions,
+Mono peak meters have one input and no output. Gain knobs provide 1/2/6/8-channel versions,
 with independent saved dB ranges; one knob controls all channels of its node.
 
 Validation is offline plus visible Windows GUI at 100% scale. Live JACK chains,

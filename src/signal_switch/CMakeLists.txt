@@ -72,7 +72,7 @@ foreach(kind mono stereo 5_1 7_1 midi sound peak gain_mono gain_stereo gain_5_1 
     foreach(config Debug Release RelWithDebInfo MinSizeRel)
         string(TOUPPER "${config}" upper)
         set_target_properties(${target} PROPERTIES
-            RUNTIME_OUTPUT_DIRECTORY_${upper} "${WJN_OUTPUT_DIR}/nodes/signal_switch/${kind}")
+            RUNTIME_OUTPUT_DIRECTORY_${upper} "${WJN_OUTPUT_DIR}/nodes/control_deck/${kind}")
     endforeach()
     add_custom_command(TARGET ${target} POST_BUILD
         COMMAND "${CMAKE_COMMAND}" -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/${kind}/locate"

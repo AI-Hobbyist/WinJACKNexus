@@ -182,14 +182,27 @@ int main(int argc, char **argv)
         adapter.applyToApp(&app);
         auto &service = SS::Service::instance();
         check(service.installUI(&error), "Control Deck resource contracts install");
+        const auto discovered = scanNodeModules();
+        check(std::count_if(discovered.begin(), discovered.end(),
+                            [](const auto &node) {
+                                return node.category == "Control Deck" &&
+                                       node.modulePath.contains("/nodes/control_deck/");
+                            }) == 11 &&
+                  std::none_of(discovered.begin(), discovered.end(),
+                               [](const auto &node) { return node.modulePath.contains("/nodes/signal_switch/"); }),
+              "discovery shows eleven Control Deck nodes without legacy folder duplicates");
         std::map<QString, std::unique_ptr<LoadedModuleNode>> nodes;
         QMap<QString, QString> ids;
         for (const auto *kind : {"mono", "sound", "peak", "gain_mono", "gain_stereo", "gain_5_1", "gain_7_1"})
         {
-            const auto path = QCoreApplication::applicationDirPath() + "/nodes/signal_switch/" + kind +
+            const auto path = QCoreApplication::applicationDirPath() + "/nodes/control_deck/" + kind +
                               "/wjn_signal_switch_" + kind + ".dll";
-            auto node = LoadedModuleNode::create(path, 0, {}, WJN_NODE_MODE_VIRT, 48000, 64);
+            auto legacyPath = path;
+            legacyPath.replace("/nodes/control_deck/", "/nodes/signal_switch/");
+            auto node = LoadedModuleNode::create(legacyPath, 0, {}, WJN_NODE_MODE_VIRT, 48000, 64);
             check(bool(node), "actual host loads headless dual-mode module offline");
+            check(node->modulePath() == path && node->category() == "Control Deck",
+                  "legacy project path resolves to renamed Control Deck module");
             node->setContextId("main/sub");
             const auto processor = node->virtualProcessor();
             QLibrary module(path);
@@ -236,12 +249,20 @@ int main(int argc, char **argv)
                   "reject invalid range or out-of-range gain");
         }
         const auto peakProcessor = nodes["peak"]->virtualProcessor();
-        check(peakProcessor.api->portCount(peakProcessor.instance) == 2, "meter is mono input plus mono output only");
+        check(peakProcessor.api->portCount(peakProcessor.instance) == 1, "meter exposes exactly one input port");
+        WjnNodePortV1 meterPort{sizeof(meterPort)};
+        check(peakProcessor.api->port(peakProcessor.instance, 0, &meterPort) && meterPort.id == 1 &&
+                  meterPort.direction == WJN_NODE_PORT_INPUT && meterPort.type == WJN_NODE_PORT_AUDIO &&
+                  meterPort.channels == 1 && QByteArray(meterPort.name) == "IN_MONO" &&
+                  !peakProcessor.api->port(peakProcessor.instance, 1, &meterPort),
+              "mono meter descriptor has no output port");
         AudioBlock meterAudio(1);
+        meterAudio.block.audioOutputCount = 0;
+        meterAudio.block.audioOutputs = nullptr;
         meterAudio.input[0].fill(4);
         peakProcessor.api->process(peakProcessor.instance, &meterAudio.block);
-        check(meterAudio.input[0] == meterAudio.output[0] && service.find(ids["peak"])->peak->load() == 4,
-              "mono meter passes original audio and captures sample peak including above 0 dBFS");
+        check(meterAudio.input[0][0] == 4 && service.find(ids["peak"])->peak->load() == 4,
+              "input-only mono meter captures peaks without requiring an output buffer");
         auto *editor = service.showEditor();
         editor->setGeometry(60, 110, 900, 650);
         service.state.cards[ids["mono"]].geometry = QRect(20, 30, 280, 48);
@@ -302,6 +323,8 @@ int main(int argc, char **argv)
             check(until([&] { return childWindow(DWORD(lower.process.processId())) != nullptr; }),
                   "independent lower window is visible");
             const auto window = childWindow(DWORD(lower.process.processId()));
+            check(SetWindowPos(window, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE),
+                  "keep owned foreground helper exposed for native input");
             SetForegroundWindow(window);
             settle();
             if (GetForegroundWindow() != window)

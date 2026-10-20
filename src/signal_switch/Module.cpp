@@ -25,6 +25,7 @@ constexpr bool isMidi = channels == 0;
 constexpr bool isSound = WJN_SWITCH_CONTROL == 1;
 constexpr bool isPeak = WJN_SWITCH_CONTROL == 2;
 constexpr bool isGain = WJN_SWITCH_CONTROL == 3;
+constexpr unsigned inputPortCount = isSound ? 0 : (isMidi ? 1 : channels);
 constexpr const char *labels[]{"L", "R", "C", "LFE", "Ls", "Rs", "Lrb", "Rrb"};
 constexpr const char *modelName = WJN_SWITCH_NAME;
 
@@ -35,7 +36,7 @@ class SwitchNode final : public WinJACKNexus::Node::INode
     {
         for (unsigned direction = 0; direction < 2; ++direction)
         {
-            if (isSound && !direction)
+            if ((isSound && !direction) || (isPeak && direction))
                 continue;
             for (unsigned channel = 0; channel < (isMidi ? 1 : channels); ++channel)
             {
@@ -70,8 +71,7 @@ class SwitchNode final : public WinJACKNexus::Node::INode
     }
     WinJACKNexus::Node::NodeInfo info() const noexcept override
     {
-        return {modelName, isSound || isPeak || isGain ? "Control Deck" : "Signal Switch", "1.0.0", "WinJACKNexus",
-                "Control Deck node"};
+        return {modelName, "Control Deck", "1.0.0", "WinJACKNexus", "Control Deck node"};
     }
     bool init() noexcept override
     {
@@ -87,9 +87,9 @@ class SwitchNode final : public WinJACKNexus::Node::INode
             ports_.resize(names_.size());
             for (unsigned index = 0; index < names_.size(); ++index)
             {
-                if (!ports_[index].registerPort(
-                        client_, names_[index].constData(), isMidi ? JACK_DEFAULT_MIDI_TYPE : JACK_DEFAULT_AUDIO_TYPE,
-                        !isSound && index < names_.size() / 2 ? JackPortIsInput : JackPortIsOutput))
+                if (!ports_[index].registerPort(client_, names_[index].constData(),
+                                                isMidi ? JACK_DEFAULT_MIDI_TYPE : JACK_DEFAULT_AUDIO_TYPE,
+                                                index < inputPortCount ? JackPortIsInput : JackPortIsOutput))
                 {
                     shutdown();
                     return false;
@@ -140,7 +140,7 @@ class SwitchNode final : public WinJACKNexus::Node::INode
             return false;
         *description = {sizeof(*description),
                         index + 1,
-                        uint32_t(!isSound && index < names_.size() / 2 ? WJN_NODE_PORT_INPUT : WJN_NODE_PORT_OUTPUT),
+                        uint32_t(index < inputPortCount ? WJN_NODE_PORT_INPUT : WJN_NODE_PORT_OUTPUT),
                         uint32_t(isMidi ? WJN_NODE_PORT_MIDI : WJN_NODE_PORT_AUDIO),
                         isMidi ? 0u : 1u,
                         0,
@@ -188,6 +188,17 @@ class SwitchNode final : public WinJACKNexus::Node::INode
                     outputs[port.portId - 1] = port.samples[0];
             }
             sound_->render(outputs[0], outputs[1], block->frames, rate_.load());
+        }
+        else if constexpr (isPeak)
+        {
+            const float *input = nullptr;
+            for (unsigned index = 0; index < block->audioInputCount; ++index)
+            {
+                const auto &port = block->audioInputs[index];
+                if (port.portId == 1 && port.channels && port.samples)
+                    input = port.samples[0];
+            }
+            DSP::capturePeak(input, block->frames, peak_);
         }
         else if constexpr (isMidi)
         {
@@ -389,9 +400,7 @@ class SwitchNode final : public WinJACKNexus::Node::INode
         }
         else
         {
-            DSP::audio(isPeak || enabled, inputs, outputs, channels, frames);
-            if constexpr (isPeak)
-                DSP::capturePeak(inputs[0], frames, peak_);
+            DSP::audio(enabled, inputs, outputs, channels, frames);
         }
     }
 
@@ -422,6 +431,10 @@ class SwitchNode final : public WinJACKNexus::Node::INode
         {
             node.sound_->render(node.ports_[0].audioBuffer(frames), node.ports_[1].audioBuffer(frames), frames,
                                 node.rate_.load());
+        }
+        else if constexpr (isPeak)
+        {
+            DSP::capturePeak(node.ports_[0].audioBuffer(frames), frames, node.peak_);
         }
         else if constexpr (isMidi)
         {
@@ -472,7 +485,7 @@ const char *wjn_get_node_name()
 }
 const char *wjn_get_node_category()
 {
-    return isSound || isPeak || isGain ? "Control Deck" : "Signal Switch";
+    return "Control Deck";
 }
 
 uint32_t wjn_get_node_i18n_api_version()

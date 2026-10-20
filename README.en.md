@@ -26,7 +26,7 @@ Every version is a separate DLL and supports both main graphs and subgraphs. Nod
 | --- | --- |
 | Signal switch | Mono, stereo, 5.1, 7.1 and MIDI; new switches are enabled and pass signals by default |
 | Sound button | Stereo output only; a click or global shortcut plays once, and retriggering restarts playback |
-| Peak meter | Mono passthrough, −72 to +12 dBFS; right-click to select horizontal or vertical orientation |
+| Peak meter | Mono input only, no output port; −72 to +12 dBFS; right-click to select horizontal or vertical orientation |
 | Gain knob | Mono, stereo, 5.1 and 7.1; one knob controls all channels of its node, with an adjustable dB range |
 
 - Drag controls in the editor. Ctrl-click or drag a selection, then use the context menu for size, color, grouping and free/grid alignment. Groups can be named and dragged together. Signal switches may be mutually exclusive or independent.
@@ -36,7 +36,7 @@ Every version is a separate DLL and supports both main graphs and subgraphs. Nod
 - Right-click a sound button to load a file or assign a global shortcut. It works while another application is foreground; conflicts preserve the previous assignment. Supported formats depend on BASS/BASSmix and installed compatible decoders. WAV, AIFF, MP3, OGG and MOD have been checked. Put extra x64 BASS decoder DLLs in `signal_switch/bass_plugins/` and restart.
 - Projects store Control Deck layout, window size/position, groups, relations, colors, dimensions, control opacity, click-through and node settings as Base64. Sound paths and shortcuts are saved, while sound files remain external. Loading a project never starts playback automatically.
 
-Place `control_deck.dll` beside the application EXE. Existing `nodes/signal_switch/` and `signal_switch/locate/` paths remain for project compatibility.
+All control nodes use the `Control Deck` category and `nodes/control_deck/` directory. Place `control_deck.dll` beside the EXE; panel translations remain in `signal_switch/locate/`. Old project paths under `nodes/signal_switch/` resolve to the installed new directory, retaining node DLL names and saved identities. Feed the peak meter from a signal branch rather than inserting it in series.
 
 ## Download and run
 

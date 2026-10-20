@@ -25,7 +25,7 @@ $requiredPaths = @('WinJACKNexus.exe', 'Vst Scanner.exe', 'VSTProcess32.exe', 'V
                    'prerequisites/vc_redist.x64.exe', 'prerequisites/vc_redist.x86.exe')
 foreach ($kind in @('mono', 'stereo', '5_1', '7_1', 'midi', 'sound', 'peak',
                     'gain_mono', 'gain_stereo', 'gain_5_1', 'gain_7_1')) {
-    $requiredPaths += "nodes/signal_switch/$kind/wjn_signal_switch_$kind.dll"
+    $requiredPaths += "nodes/control_deck/$kind/wjn_signal_switch_$kind.dll"
 }
 foreach ($relative in $requiredPaths) {
     if (-not (Test-Path -LiteralPath (Join-Path $runtimeRoot $relative) -PathType Leaf)) {

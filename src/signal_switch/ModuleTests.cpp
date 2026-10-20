@@ -22,7 +22,7 @@ int main(int argc, char **argv)
     for (const auto &kind : {"mono", "stereo", "5_1", "7_1", "midi"})
     {
         std::printf("MODULE %s\n", kind);
-        QLibrary library(QCoreApplication::applicationDirPath() + "/nodes/signal_switch/" + kind +
+        QLibrary library(QCoreApplication::applicationDirPath() + "/nodes/control_deck/" + kind +
                          "/wjn_signal_switch_" + kind + ".dll");
         check(library.load(), "load module");
         if (!library.isLoaded())
@@ -47,6 +47,10 @@ int main(int argc, char **argv)
         check(!create(0) && !create(3), "invalid factory mode rejected");
         auto *jack = create(WJN_NODE_MODE_JACK);
         check(jack && !jack->createWindow(nullptr), "JACK instance creation without server or GUI");
+        const auto category = reinterpret_cast<const char *(*)()>(library.resolve("wjn_get_node_category"));
+        check(category && QByteArray(category()) == "Control Deck" &&
+                  QByteArray(jack->info().category) == "Control Deck",
+              "signal switches share the Control Deck category in discovery and instances");
         destroy(jack);
         auto *node = create(WJN_NODE_MODE_VIRT);
         auto *api = getApi();

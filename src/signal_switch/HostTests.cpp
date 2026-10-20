@@ -63,10 +63,11 @@ int main(int argc, char **argv)
         unsigned discovered = 0;
         for (const auto &node : library)
         {
-            if (node.category == "Signal Switch" && node.capabilities == 3 && node.features == 0)
+            if (node.category == "Control Deck" && node.name.startsWith("Signal Switch ") &&
+                node.capabilities == 3 && node.features == 0)
                 ++discovered;
         }
-        check(discovered == 5, "production node library discovers five headless dual-mode DLLs");
+        check(discovered == 5, "production node library discovers five signal switches in Control Deck");
         QWidget graphWindow;
         auto *layout = new QVBoxLayout(&graphWindow);
         auto *graph = new PatchbayCanvas(PatchbaySceneContext{"main/sub", "Subgraph", true}, &graphWindow);
@@ -77,7 +78,7 @@ int main(int argc, char **argv)
         std::vector<std::unique_ptr<LoadedModuleNode>> nodes;
         for (const auto *kind : {"stereo", "midi"})
         {
-            const auto path = QCoreApplication::applicationDirPath() + "/nodes/signal_switch/" + kind +
+            const auto path = QCoreApplication::applicationDirPath() + "/nodes/control_deck/" + kind +
                               "/wjn_signal_switch_" + kind + ".dll";
             auto node = LoadedModuleNode::create(path, 0, {}, WJN_NODE_MODE_VIRT, 48000, 64);
             check(bool(node), "production host loads and prepares VIRT switch without JACK server");
