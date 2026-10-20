@@ -5,12 +5,15 @@ target_include_directories(signal_switch_state PUBLIC "${CMAKE_CURRENT_SOURCE_DI
 target_compile_options(signal_switch_state PRIVATE /utf-8)
 
 add_library(signal_switch SHARED Service.cpp Service.hpp Editor.hpp
-    "${PROJECT_SOURCE_DIR}/src/ui/src/SignalSwitchEditor.cpp")
+    "${PROJECT_SOURCE_DIR}/src/ui/src/SignalSwitchEditor.cpp"
+    "${PROJECT_SOURCE_DIR}/src/ui/src/SignalSwitchLayout.cpp"
+    "${PROJECT_SOURCE_DIR}/src/ui/src/SignalSwitchOverlay.cpp")
 wjn_configure_shared_target(signal_switch WJN_SIGNAL_SWITCH_BUILD)
 target_include_directories(signal_switch PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}"
     "${PROJECT_SOURCE_DIR}/src/common/include")
 target_link_libraries(signal_switch PRIVATE signal_switch_state WinJACKNexus::UI PUBLIC Qt6::Widgets)
 target_compile_options(signal_switch PRIVATE /utf-8)
+target_compile_definitions(signal_switch PRIVATE WIN32_LEAN_AND_MEAN NOMINMAX)
 
 foreach(kind mono stereo 5_1 7_1 midi)
     if(kind STREQUAL "mono")
@@ -79,4 +82,12 @@ if(BUILD_TESTING)
     set_target_properties(wjn_signal_switch_host_tests PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY_RELEASE "${WJN_OUTPUT_DIR}")
     add_dependencies(wjn_signal_switch_host_tests wjn_signal_switch_module_tests)
+    add_executable(wjn_signal_switch_layout_tests LayoutTests.cpp)
+    target_link_libraries(wjn_signal_switch_layout_tests PRIVATE signal_switch signal_switch_state
+        WinJACKNexus::UI Qt6::Test)
+    target_compile_definitions(wjn_signal_switch_layout_tests PRIVATE WIN32_LEAN_AND_MEAN NOMINMAX
+        "SWITCH_SOURCE_DIR=\"${PROJECT_SOURCE_DIR}\"")
+    target_compile_options(wjn_signal_switch_layout_tests PRIVATE /utf-8)
+    set_target_properties(wjn_signal_switch_layout_tests PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY_RELEASE "${WJN_OUTPUT_DIR}")
 endif()

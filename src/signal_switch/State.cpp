@@ -4,6 +4,7 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QSet>
+#include <algorithm>
 #include <cmath>
 
 namespace WinJACKNexus::SignalSwitch
@@ -56,7 +57,10 @@ void State::add(const QString &id)
     if (cards.contains(id))
         return;
     Card card;
-    card.geometry.moveTopLeft(QPoint(16, 16 + cards.size() * 64));
+    card.geometry.moveTopLeft(QPoint(16, 16));
+    while (std::any_of(cards.begin(), cards.end(),
+                       [&](const Card &existing) { return existing.geometry.intersects(card.geometry); }))
+        card.geometry.translate(0, card.geometry.height() + 16);
     cards.insert(id, card);
 }
 

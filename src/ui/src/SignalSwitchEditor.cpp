@@ -43,26 +43,41 @@ Editor::Editor(Service &service) : service_(service)
     scroll_->setWidgetResizable(false);
     canvas_ = new QWidget;
     canvas_->setObjectName("signalSwitchCanvas");
+    canvas_->installEventFilter(this);
+    canvas_->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(canvas_, &QWidget::customContextMenuRequested, this,
+            [this](QPoint point) { showCanvasMenu(canvas_->mapToGlobal(point)); });
     scroll_->setWidget(canvas_);
     layout->addWidget(scroll_);
     empty_ = new UI::Controls::TextLabel(canvas_);
     empty_->setWordWrap(true);
+    status_ = new UI::Controls::TextLabel(this);
+    status_->setWordWrap(true);
+    status_->hide();
+    layout->addWidget(status_);
+    rubber_ = new QRubberBand(QRubberBand::Rectangle, canvas_);
     menu_ = new QMenu(this);
     menu_->setObjectName("signalSwitchQuickMenu");
     auto *open = menu_->addAction(QString());
     open->setObjectName("signalSwitchOpenEditor");
     connect(open, &QAction::triggered, this, [this] { service_.showEditor(); });
-    // Full lock/overlay and pointer behavior is added at the S4 checkpoint.
     auto *lock = menu_->addAction(QString());
+    lockAction_ = lock;
     lock->setObjectName("signalSwitchLock");
-    lock->setEnabled(false);
+    connect(lock, &QAction::triggered, this, [this] { setLocked(true); });
     auto *unlock = menu_->addAction(QString());
+    unlockAction_ = unlock;
     unlock->setObjectName("signalSwitchUnlock");
-    unlock->setEnabled(false);
+    connect(unlock, &QAction::triggered, this, [this] { service_.showEditor(); });
     auto *through = menu_->addAction(QString());
+    throughAction_ = through;
     through->setObjectName("signalSwitchClickThrough");
     through->setCheckable(true);
-    through->setEnabled(false);
+    connect(through, &QAction::triggered, this, [this](bool enabled) {
+        service_.state.window.clickThrough = enabled;
+        refreshPresentation();
+        service_.notify(true);
+    });
     const auto retranslate = [this, open, lock, unlock, through] {
         setWindowTitle(text("title", "Signal Switch"));
         menu_->setTitle(text("title", "Signal Switch"));
@@ -78,6 +93,9 @@ Editor::Editor(Service &service) : service_(service)
     else
         retranslate();
     UI::bindMidiToolsTheme(this, "signal-switch");
+    if (auto *core = UI::ThemeManager::installedThemeCore())
+        connect(core, &UI::ThemeCore::themeChanged, this,
+                [this] { QTimer::singleShot(0, this, [this] { refresh(); }); });
     UI::bindRefreshTimer(maintenance_, this);
     connect(&maintenance_, &QTimer::timeout, this, [this] {
         if (service_.synchronize)
@@ -91,7 +109,12 @@ Editor::Editor(Service &service) : service_(service)
     restoreGeometryFromState();
 }
 
-Editor::~Editor() = default;
+Editor::~Editor()
+{
+    releaseMouseHook();
+    for (auto *overlay : overlays_)
+        delete overlay;
+}
 
 void Editor::refresh()
 {
@@ -107,6 +130,7 @@ void Editor::refresh()
             button->setObjectName("signalSwitchButton." + endpoint.id);
             button->setProperty("signalSwitchId", endpoint.id);
             button->setCheckable(true);
+            button->installEventFilter(this);
             button->setContextMenuPolicy(Qt::CustomContextMenu);
             buttons_[endpoint.id] = button;
             connect(button, &QPushButton::clicked, this, [this, id = endpoint.id] {
@@ -114,14 +138,13 @@ void Editor::refresh()
                     service_.setEnabled({id}, !endpoint->desired);
             });
             connect(button, &QWidget::customContextMenuRequested, this, [this, id = endpoint.id, button](QPoint pos) {
-                QMenu menu(this);
-                auto *action = menu.addAction(text("rename", "Rename"));
-                connect(action, &QAction::triggered, this, [this, id] { rename(id); });
-                menu.exec(button->mapToGlobal(pos));
+                if (!service_.state.locked)
+                    showCardMenu(id, button->mapToGlobal(pos));
             });
             button->show();
         }
-        const bool pending = endpoint.desired && !(endpoint.gate->command.load(std::memory_order_acquire) & 1);
+        const bool pending =
+            endpoint.desired ? !(endpoint.gate->command.load(std::memory_order_acquire) & 1) : !endpoint.gate->quiet();
         const auto state = pending            ? text("waiting", "Waiting")
                            : endpoint.desired ? text("on", "On")
                                               : text("off", "Off");
@@ -130,7 +153,9 @@ void Editor::refresh()
         button->setAccessibleName(endpoint.name + " · " + state);
         button->setToolTip(endpoint.name + "\n" + endpoint.context + "\n" + endpoint.version);
         const auto rect = service_.state.cards.value(endpoint.id).geometry;
-        button->setGeometry(rect);
+        if (!service_.state.locked)
+            button->setGeometry(rect);
+        styleButton(button, endpoint.id);
         extent = extent.expandedTo(QSize(rect.right() + 20, rect.bottom() + 20));
     }
     for (auto it = buttons_.begin(); it != buttons_.end();)
@@ -138,6 +163,8 @@ void Editor::refresh()
         if (!live.contains(it.key()))
         {
             delete it.value();
+            delete overlays_.take(it.key());
+            selected_.remove(it.key());
             it = buttons_.erase(it);
         }
         else
@@ -146,6 +173,8 @@ void Editor::refresh()
     canvas_->resize(extent);
     empty_->setVisible(live.isEmpty());
     empty_->setGeometry(20, 20, 280, 100);
+    refreshGroups();
+    refreshPresentation();
 }
 
 void Editor::rename(const QString &id)
@@ -207,12 +236,24 @@ void Editor::restoreGeometryFromState()
         rect.setSize(rect.size().boundedTo(available.size()));
         rect.moveLeft(std::clamp(rect.left(), available.left(), available.right() - rect.width() + 1));
         rect.moveTop(std::clamp(rect.top(), available.top(), available.bottom() - rect.height() + 1));
+        if (service_.state.locked && !service_.state.cards.isEmpty())
+        {
+            QRect bounds;
+            for (const auto &card : service_.state.cards)
+                bounds = bounds.united(card.geometry.translated(service_.state.window.overlayOrigin));
+            bool onScreen = false;
+            for (auto *screen : QGuiApplication::screens())
+                onScreen |= screen->availableGeometry().intersects(bounds);
+            if (!onScreen)
+                service_.state.window.overlayOrigin += available.topLeft() - bounds.topLeft();
+        }
     }
     setGeometry(rect);
     refresh();
     scroll_->horizontalScrollBar()->setValue(service_.state.window.scroll.x());
     scroll_->verticalScrollBar()->setValue(service_.state.window.scroll.y());
     applying_ = false;
+    refreshPresentation();
 }
 
 bool Service::installUI(QString *error)
@@ -277,6 +318,8 @@ QWidget *Service::showEditor()
     if (!installUI())
         return nullptr;
     auto *editor = static_cast<Editor *>(editor_.data());
+    if (state.locked)
+        editor->setLocked(false, false);
     editor->restoreGeometryFromState();
     editor->show();
     editor->raise();
