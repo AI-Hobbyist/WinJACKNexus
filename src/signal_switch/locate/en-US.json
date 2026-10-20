@@ -1,0 +1,20 @@
+{
+  "formatVersion": 1,
+  "catalogVersion": 1,
+  "moduleId": "winjacknexus-signal-switch",
+  "language": "en-US",
+  "domains": {
+    "signalSwitch": {
+      "title": "Signal Switch",
+      "openEditor": "Open editor",
+      "lock": "Lock layout",
+      "unlock": "Unlock layout",
+      "clickThrough": "Mouse click-through",
+      "empty": "Add Signal Switch nodes in the graph to create buttons here.",
+      "rename": "Rename",
+      "waiting": "Waiting",
+      "on": "On",
+      "off": "Off"
+    }
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "formatVersion": 1,
+  "catalogVersion": 1,
+  "moduleId": "winjacknexus-signal-switch",
+  "language": "zh-CN",
+  "domains": {
+    "signalSwitch": {
+      "title": "Signal Switch",
+      "openEditor": "打开编辑器",
+      "lock": "锁定布局",
+      "unlock": "解锁布局",
+      "clickThrough": "鼠标穿透",
+      "empty": "在图中添加 Signal Switch 节点，即可在此创建对应按钮。",
+      "rename": "重命名",
+      "waiting": "等待切换",
+      "on": "开启",
+      "off": "关闭"
+    }
+  }
+}

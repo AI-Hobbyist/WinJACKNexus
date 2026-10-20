@@ -1,0 +1,20 @@
+{
+  "formatVersion": 1,
+  "catalogVersion": 1,
+  "moduleId": "winjacknexus-signal-switch",
+  "language": "ko-KR",
+  "domains": {
+    "signalSwitch": {
+      "title": "Signal Switch",
+      "openEditor": "편집기 열기",
+      "lock": "레이아웃 잠금",
+      "unlock": "레이아웃 잠금 해제",
+      "clickThrough": "마우스 통과",
+      "empty": "그래프에 Signal Switch 노드를 추가하면 여기에 버튼이 표시됩니다.",
+      "rename": "이름 변경",
+      "waiting": "전환 대기",
+      "on": "켜짐",
+      "off": "꺼짐"
+    }
+  }
+}

@@ -134,6 +134,7 @@ class MOD_PATCHBAY_API PatchbayCanvas final : public QGraphicsView
     bool loadProject(const QString &filePath, std::vector<PatchbayProjectModule> &modules,
                      std::vector<PatchbaySubGraphProject> &subGraphs);
     QJsonObject meterbridgeProjectState() const;
+    QString signalSwitchProjectState() const { return signalSwitchProjectState_; }
     bool restoreJackConnections(WinJACKNexus::Audio::JackClient &client);
     bool isProjectDirty() const noexcept;
     void markProjectDirty() noexcept;
@@ -235,6 +236,7 @@ class MOD_PATCHBAY_API PatchbayCanvas final : public QGraphicsView
     WinJACKNexus::Patchbay::Core::Snapshot snapshot_;
     WinJACKNexus::Patchbay::Core::Snapshot renderedSnapshot_;
     PatchbaySceneContext sceneContext_;
+    QString signalSwitchProjectState_;
     std::vector<PatchbaySubGraphInfo> subGraphNodes_;
     std::vector<PatchbayInterfaceInfo> interfaceNodes_;
     std::unordered_set<std::string> visibleModuleClientIds_;

@@ -61,6 +61,13 @@ File menu to every quick access bar, sharing its existing project actions.
 Call it from the GUI thread; ownership stays with the caller. A null or
 destroyed menu disables the entry, and newly created bars retain the binding.
 
+`TrayController::setQuickAccessSwitchMenu(QMenu*)` binds Signal Switch's native
+dropdown to all quick access bars, including bars created afterwards. Call it
+on the GUI thread. The caller retains menu ownership and clears the binding
+before destroying it. Null disables the button. `switchAction()` returns the
+bound menu's borrowed `menuAction()`, or null when no menu is bound. The module
+owns editor and layout commands; the UI library only presents their menu.
+
 The SEL MAIN polar legend uses Input and Output. Input measures the selected
 strip after gain and before FX; Output measures that strip after FX and its
 fader, before the MAIN routing matrix and MIX switch. Both measurements retain

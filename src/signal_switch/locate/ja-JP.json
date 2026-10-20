@@ -1,0 +1,20 @@
+{
+  "formatVersion": 1,
+  "catalogVersion": 1,
+  "moduleId": "winjacknexus-signal-switch",
+  "language": "ja-JP",
+  "domains": {
+    "signalSwitch": {
+      "title": "Signal Switch",
+      "openEditor": "エディターを開く",
+      "lock": "レイアウトをロック",
+      "unlock": "レイアウトのロックを解除",
+      "clickThrough": "マウスを透過",
+      "empty": "グラフに Signal Switch ノードを追加すると、ここにボタンが表示されます。",
+      "rename": "名前を変更",
+      "waiting": "切り替え待ち",
+      "on": "オン",
+      "off": "オフ"
+    }
+  }
+}

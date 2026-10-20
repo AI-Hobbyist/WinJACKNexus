@@ -53,6 +53,7 @@ QString entryDisplayName(const TrayNodeGuiEntry &entry)
 }
 QString quickAccessStatus;
 QPointer<QMenu> quickAccessFileMenu;
+QPointer<QMenu> quickAccessSwitchMenu;
 QMetaObject::Connection quickAccessFileMenuDestroyed;
 constexpr int quickAccessSideRegionWidth = 128;
 constexpr int quickAccessTopEdgeHeight = 2;
@@ -123,6 +124,12 @@ class QuickAccessBar final : public QFrame
         meterbridgeButton_->setText(hostText("view.meterbridge", "Meter bridge"));
         meterbridgeButton_->setToolTip(hostText("quick.meterbridge.help", "Open meter bridge"));
         layout->addWidget(meterbridgeButton_);
+
+        switchButton_ = new Controls::IconActionButton(this);
+        switchButton_->setObjectName(QStringLiteral("quickAccessSignalSwitchButton"));
+        switchButton_->setPopupMode(QToolButton::InstantPopup);
+        layout->addWidget(switchButton_);
+        setSwitchMenu(quickAccessSwitchMenu);
 
         mixerButton_ = new Controls::IconActionButton(this);
         mixerButton_->setObjectName(QStringLiteral("quickAccessMixerButton"));
@@ -237,6 +244,13 @@ class QuickAccessBar final : public QFrame
     {
         themeButton_->setMenu(menu);
         themeButton_->setEnabled(menu != nullptr);
+    }
+
+    void setSwitchMenu(QMenu *menu)
+    {
+        switchButton_->setMenu(menu);
+        switchButton_->setEnabled(menu != nullptr);
+        switchButton_->setText(menu ? menu->title() : QStringLiteral("Signal Switch"));
     }
 
     void setSettingsAction(QAction *action)
@@ -608,6 +622,7 @@ class QuickAccessBar final : public QFrame
     QHBoxLayout *contentLayout_ = nullptr;
     QToolButton *patchbayButton_ = nullptr;
     QToolButton *meterbridgeButton_ = nullptr;
+    QToolButton *switchButton_ = nullptr;
     QToolButton *mixerButton_ = nullptr;
     QToolButton *themeButton_ = nullptr;
     QToolButton *systemDevicesButton_ = nullptr;
@@ -929,6 +944,7 @@ void TrayController::rebuildQuickAccessBar()
     impl_->quickAccessBar->setPatchbayAction(impl_->placeholderPatchbay);
     impl_->quickAccessBar->setMixerAction(impl_->placeholderMixer);
     impl_->quickAccessBar->setMeterbridgeAction(impl_->placeholderMeterbridge);
+    impl_->quickAccessBar->setSwitchMenu(quickAccessSwitchMenu);
     impl_->quickAccessBar->setThemeMenu(impl_->quickAccessThemeMenu);
     impl_->quickAccessBar->setFileMenu(quickAccessFileMenu);
     impl_->quickAccessBar->setSettingsAction(impl_->settingsAction);
@@ -963,7 +979,17 @@ QAction *TrayController::meterbridgeAction() const
 
 QAction *TrayController::switchAction() const
 {
-    return nullptr;
+    return quickAccessSwitchMenu ? quickAccessSwitchMenu->menuAction() : nullptr;
+}
+
+void TrayController::setQuickAccessSwitchMenu(QMenu *menu)
+{
+    quickAccessSwitchMenu = menu;
+    for (auto *controller : trayControllers)
+    {
+        if (controller->impl_->quickAccessBar)
+            controller->impl_->quickAccessBar->setSwitchMenu(menu);
+    }
 }
 
 void TrayController::setQuickAccessThemeMenu(QMenu *menu)

@@ -34,10 +34,11 @@ class SwitchNode final : public WinJACKNexus::Node::INode
             }
         }
         SS::Endpoint endpoint;
-        endpoint.id = QUuid::createUuid().toString(QUuid::WithoutBraces);
+        endpoint.id = switchId_;
         endpoint.name = name_;
         endpoint.version = modelName;
         endpoint.gate = &gate_;
+        endpoint.desired = true;
         endpoint.rename = [this](const QString &name) { return rename(name); };
         SS::Service::instance().attach(this, std::move(endpoint));
     }
@@ -209,7 +210,11 @@ class SwitchNode final : public WinJACKNexus::Node::INode
     const char *settings()
     {
         const auto &endpoint = SS::Service::instance().endpoints[this];
-        json_ = QJsonDocument(QJsonObject{{"version", 1}, {"clientName", name_}, {"enabled", endpoint.desired}})
+        json_ = QJsonDocument(QJsonObject{{"version", 1},
+                                          {"clientName", name_},
+                                          {"switchId", switchId_},
+                                          {"displayName", endpoint.name},
+                                          {"enabled", endpoint.desired}})
                     .toJson(QJsonDocument::Compact);
         return json_.constData();
     }
@@ -222,10 +227,33 @@ class SwitchNode final : public WinJACKNexus::Node::INode
         if (error.error != QJsonParseError::NoError || !document.isObject())
             return false;
         const auto object = document.object();
-        if (object["version"] != 1 || !object["clientName"].isString() || !object["enabled"].isBool() ||
-            !rename(object["clientName"].toString()))
+        if (object["version"] != 1 || !object["clientName"].isString() || !object["enabled"].isBool())
             return false;
-        return SS::Service::instance().restoreDesired(this, object["enabled"].toBool());
+        if (object.contains("switchId") &&
+            (!object["switchId"].isString() || QUuid(object["switchId"].toString()).isNull()))
+            return false;
+        if (object.contains("displayName") &&
+            (!object["displayName"].isString() || object["displayName"].toString().trimmed().isEmpty()))
+            return false;
+        if (!rename(object["clientName"].toString()))
+            return false;
+        auto &service = SS::Service::instance();
+        bool copy = false;
+        if (object.contains("switchId"))
+        {
+            const auto savedId = object["switchId"].toString();
+            const auto *existing = service.find(savedId);
+            copy = existing && existing != &service.endpoints[this];
+            // A copy receives a fresh identity; a destroyed/recreated instance restores its ID.
+            if (!existing || existing == &service.endpoints[this])
+            {
+                switchId_ = savedId;
+                service.bind(this, savedId, service.endpoints[this].name, service.endpoints[this].context);
+            }
+        }
+        if (object["displayName"].isString())
+            service.endpoints[this].name = object["displayName"].toString();
+        return service.restoreDesired(this, copy || object["enabled"].toBool());
     }
     const char *clientId()
     {
@@ -235,6 +263,7 @@ class SwitchNode final : public WinJACKNexus::Node::INode
 
   private:
     uint32_t mode_;
+    QString switchId_{QUuid::createUuid().toString(QUuid::WithoutBraces)};
     QString name_{QString::fromLatin1(modelName)};
     QByteArray nameBytes_, json_;
     std::vector<QByteArray> names_;

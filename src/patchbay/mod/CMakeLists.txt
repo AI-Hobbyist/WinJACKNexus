@@ -11,7 +11,7 @@ target_include_directories(mod_patchbay PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/incl
                                                 ${PROJECT_SOURCE_DIR}/src/native_fx/include)
 
 target_link_libraries(mod_patchbay PRIVATE WinJACKNexus::Common WinJACKNexus::UI WinJACKNexus::Node
-                                           WinJACKNexus::Audio patchbay_core)
+                                           WinJACKNexus::Audio patchbay_core signal_switch signal_switch_state)
 
 wjn_configure_shared_target(mod_patchbay WJN_PATCHBAY_MOD_BUILD)
 target_compile_definitions(mod_patchbay PRIVATE WJN_NODE_IMPLEMENTATION)

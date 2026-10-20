@@ -13,6 +13,7 @@ void Service::attach(void *node, Endpoint endpoint)
 {
     state.add(endpoint.id);
     endpoints.insert(node, std::move(endpoint));
+    reconcile();
     notify();
 }
 
@@ -21,7 +22,8 @@ void Service::detach(void *node)
     auto it = endpoints.find(node);
     if (it == endpoints.end())
         return;
-    state.remove(it->id);
+    if (!restoring_)
+        state.remove(it->id);
     endpoints.erase(it);
     reconcile();
     notify();
@@ -71,11 +73,22 @@ bool Service::setEnabled(const QStringList &ids, bool enabled, QString *error)
 bool Service::restoreDesired(void *node, bool enabled)
 {
     auto it = endpoints.find(node);
+    if (it != endpoints.end() && restoring_)
+    {
+        it->desired = enabled;
+        return true;
+    }
     return it != endpoints.end() && setEnabled({it->id}, enabled);
 }
 
 void Service::reconcile()
 {
+    if (restoring_)
+    {
+        for (auto &endpoint : endpoints)
+            endpoint.gate->request(false);
+        return;
+    }
     // First publish every close. Opening is permitted only after all peers confirm quiet.
     for (auto &endpoint : endpoints)
     {
@@ -106,7 +119,7 @@ void Service::notify(bool edit)
 {
     if (changed)
         changed();
-    if (edit && edited)
+    if (edit && !restoring_ && edited)
         edited();
 }
 
@@ -134,13 +147,16 @@ bool Service::restore(const QString &base64, QString *error)
     state = std::move(candidate);
     for (const auto &endpoint : endpoints)
         state.add(endpoint.id);
+    restoring_ = false;
     reconcile();
+    refreshUIState();
     notify();
     return true;
 }
 
 void Service::reset()
 {
+    restoring_ = false;
     for (auto &endpoint : endpoints)
     {
         endpoint.desired = false;
@@ -149,6 +165,13 @@ void Service::reset()
     state = {};
     for (const auto &endpoint : endpoints)
         state.add(endpoint.id);
+    refreshUIState();
     notify();
+}
+
+void Service::beginRestore()
+{
+    restoring_ = true;
+    reconcile();
 }
 } // namespace WinJACKNexus::SignalSwitch

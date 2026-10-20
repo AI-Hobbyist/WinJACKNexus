@@ -22,8 +22,8 @@ int main(int argc, char **argv)
     for (const auto &kind : {"mono", "stereo", "5_1", "7_1", "midi"})
     {
         std::printf("MODULE %s\n", kind);
-        QLibrary library(QCoreApplication::applicationDirPath() + "/signal_switch/" + kind + "/wjn_signal_switch_" +
-                         kind + ".dll");
+        QLibrary library(QCoreApplication::applicationDirPath() + "/nodes/signal_switch/" + kind +
+                         "/wjn_signal_switch_" + kind + ".dll");
         check(library.load(), "load module");
         if (!library.isLoaded())
         {
@@ -53,7 +53,8 @@ int main(int argc, char **argv)
         check(node && api && service.endpoints.contains(node), "shared main module registry");
         if (!node || !api)
             continue;
-        check(!service.endpoints[node].desired, "new switch defaults off");
+        check(service.endpoints[node].desired && (service.endpoints[node].gate->command.load() & 1),
+              "new switch defaults enabled");
         WjnNodePrepareV1 prepare{sizeof(prepare), 64, 48000, nullptr};
         check(api->prepare(node, &prepare), "offline prepare");
         const unsigned portCount = api->portCount(node);
@@ -88,6 +89,12 @@ int main(int argc, char **argv)
             block.audioInputs = inputs.data();
             block.audioOutputs = outputs.data();
             api->process(node, &block);
+            bool defaultCopied = true;
+            for (unsigned channel = 0; channel < channels; ++channel)
+                defaultCopied &= input[channel] == output[channel];
+            check(defaultCopied, "new audio node passes signal without a control command");
+            service.setEnabled({id}, false);
+            api->process(node, &block);
             bool silent = true;
             for (unsigned channel = 0; channel < channels; ++channel)
                 for (float value : output[channel])
@@ -118,6 +125,10 @@ int main(int argc, char **argv)
             block.midiInputCount = block.midiOutputCount = 1;
             block.midiInputs = &input;
             block.midiOutputs = &output;
+            api->process(node, &block);
+            check(output.eventCount == 3, "new MIDI node passes events without a control command");
+            service.setEnabled({id}, false);
+            api->process(node, &block);
             api->process(node, &block);
             check(output.eventCount == 0, "closed MIDI blocks input");
             service.setEnabled({id}, true);
@@ -151,7 +162,9 @@ int main(int argc, char **argv)
                   "velocity-zero Note On releases tracked note");
         }
         const auto saved = QByteArray(settings(node));
-        check(restore(node, saved.constData()) && !restore(node, "{\"version\":99}"),
+        service.setEnabled({id}, true);
+        check(restore(node, saved.constData()) && !service.endpoints[node].desired &&
+                  !restore(node, "{\"version\":99}"),
               "node settings restore and reject malformed");
         api->reset(node);
         api->stop(node);

@@ -89,6 +89,8 @@
 #include <unordered_set>
 #include <vector>
 
+#include "Service.hpp"
+
 namespace {
 
 QString patchText(const char* key,const char* english,const QVariantMap& arguments={}) {
@@ -1429,6 +1431,9 @@ public:
 	void setClientId(std::string clientId)
 	{
 		clientId_ = std::move(clientId);
+            auto &endpoints = WinJACKNexus::SignalSwitch::Service::instance().endpoints;
+            if (auto endpoint = endpoints.find(node_); endpoint != endpoints.end())
+                endpoint->graphClient = QString::fromStdString(clientId_);
 	}
 
 		const std::string& clientId() const noexcept
@@ -1456,6 +1461,12 @@ public:
                 clientId_ = contextId_ + "/node-" +
                             QUuid::createUuid().toString(QUuid::WithoutBraces).toStdString();
             }
+            auto &endpoints = WinJACKNexus::SignalSwitch::Service::instance().endpoints;
+            if (auto endpoint = endpoints.find(node_); endpoint != endpoints.end())
+            {
+                endpoint->context = QString::fromStdString(contextId_);
+                endpoint->graphClient = QString::fromStdString(clientId());
+            }
         }
 
         const std::string &contextId() const noexcept
@@ -1466,6 +1477,38 @@ public:
         bool isVirtual() const noexcept
         {
             return mode_ == WJN_NODE_MODE_VIRT;
+        }
+
+        void synchronizeSignalSwitch(PatchbayCanvas *canvas) const
+        {
+            auto &service = WinJACKNexus::SignalSwitch::Service::instance();
+            auto endpoint = service.endpoints.find(node_);
+            if (endpoint == service.endpoints.end() || !canvas)
+                return;
+            endpoint->context = QString::fromStdString(contextId_);
+            const auto &clients = canvas->snapshot().clients;
+            const auto client = std::find_if(clients.begin(), clients.end(), [this](const auto &value) {
+                return value.id == clientId();
+            });
+            if (client != clients.end() && !client->alias.empty())
+                endpoint->name = QString::fromStdString(client->alias);
+            const QPointer<PatchbayCanvas> owner(canvas);
+            const auto identity = clientId();
+            const auto switchId = endpoint->id;
+            endpoint->rename = [owner, identity, switchId](const QString &value) {
+                if (!owner || value.trimmed().isEmpty())
+                    return false;
+                const auto &clients = owner->snapshot().clients;
+                if (std::none_of(clients.begin(), clients.end(), [&](const auto &client) {
+                        return client.id == identity;
+                    }))
+                    return false;
+                owner->setClientAlias(identity, value);
+                auto &service = WinJACKNexus::SignalSwitch::Service::instance();
+                if (auto *endpoint = service.find(switchId))
+                    endpoint->name = value.trimmed();
+                return true;
+            };
         }
 
         WinJACKNexus::Patchbay::VirtualGraph::Processor virtualProcessor() const
@@ -1509,6 +1552,9 @@ public:
             WinJACKNexus::Patchbay::Core::ClientInfo client;
             client.id = clientId();
             client.name = name_.toStdString();
+            const auto &switchEndpoints = WinJACKNexus::SignalSwitch::Service::instance().endpoints;
+            if (const auto endpoint = switchEndpoints.constFind(node_); endpoint != switchEndpoints.cend())
+                client.alias = endpoint->name.toStdString();
             if (isClassicMixerModule(modulePath_) &&
                 getNodeClientId_ != nullptr)
             {
@@ -1963,6 +2009,9 @@ public:
 	{
 		initialized_ = true;
 		livePatchbayNode = this;
+        QString switchError;
+        if (!WinJACKNexus::SignalSwitch::Service::instance().installUI(&switchError))
+            qWarning().noquote() << "Signal Switch:" << switchError;
 		return true;
 	}
 
@@ -1973,6 +2022,7 @@ public:
 		WinJACKNexus::UI::TrayController::clearNodeGuiEntries();
         subGraphPorts_->clear();
         loadedModuleNodes_.clear();
+        WinJACKNexus::SignalSwitch::Service::instance().shutdownUI();
         observedJackClients_.clear();
         graphRefreshPending_.store(false, std::memory_order_release);
         graphOrderCallbackRegistered_ = false;
@@ -2001,6 +2051,10 @@ public:
 					WinJACKNexus::Audio::JackApi::instance().disconnect(jackObserver_.nativeHandle(), source.c_str(), destination.c_str());
 			};
 			auto* canvas = new PatchbayCanvas(window_);
+            WinJACKNexus::SignalSwitch::Service::instance().edited = [owner = QPointer<PatchbayCanvas>(canvas)] {
+                if (owner)
+                    owner->markProjectDirty();
+            };
 			canvas->setConnectionConnectHandler(connectJackPort);
 			canvas->setConnectionDisconnectHandler([this](const std::string& source, const std::string& destination) {
 				return jackObserver_.isOpen()
@@ -2048,6 +2102,17 @@ public:
             auto restoredSubGraphs =
                 std::make_shared<std::map<std::string, PatchbaySubGraphProject>>();
             auto refreshNodeLibrary = std::make_shared<std::function<void()>>();
+            WinJACKNexus::SignalSwitch::Service::instance().synchronize =
+                [this, canvas, subGraphCanvases] {
+                    for (const auto &node : loadedModuleNodes_)
+                    {
+                        auto *owner = canvas;
+                        const auto child = subGraphCanvases->find(node->contextId());
+                        if (child != subGraphCanvases->end() && child->second)
+                            owner = child->second;
+                        node->synchronizeSignalSwitch(owner);
+                    }
+                };
             *refreshNodeLibrary = [canvasTabs, nodeTree] {
 				auto* activeCanvas = dynamic_cast<PatchbayCanvas*>(canvasTabs->currentWidget());
 				if (activeCanvas == nullptr)
@@ -3635,6 +3700,7 @@ public:
 						return;
 					clearSubGraphs();
 					canvas->newProject();
+                    WinJACKNexus::SignalSwitch::Service::instance().reset();
 					restoreMeterbridgeProjectState({});
 					if (*selectedModuleNode != nullptr) {
 						(*selectedModuleNode)->clearSettingsView();
@@ -3682,7 +3748,10 @@ public:
 						offerProjectMixer(modules);
 						*currentProject = path;
 						patchbaySettings().setValue(QStringLiteral("lastProjectPath"), path);
-						restoreModuleRecords(modules);
+						WinJACKNexus::SignalSwitch::Service::instance().beginRestore();
+                        restoreModuleRecords(modules);
+                        if (!WinJACKNexus::SignalSwitch::Service::instance().restore(canvas->signalSwitchProjectState()))
+                            qWarning() << "Signal Switch: invalid saved relation state; gates remain closed";
 						restoreMeterbridgeProjectState(canvas->meterbridgeProjectState());
 						savedModuleRecords_ = loadedModuleRecords();
 						refreshJackGraph();
@@ -3746,7 +3815,10 @@ public:
 					&& restoreSubGraphs(subGraphs)) {
 					offerProjectMixer(modules);
 					*currentProject = lastProject;
-					restoreModuleRecords(modules);
+					WinJACKNexus::SignalSwitch::Service::instance().beginRestore();
+                    restoreModuleRecords(modules);
+                    if (!WinJACKNexus::SignalSwitch::Service::instance().restore(canvas->signalSwitchProjectState()))
+                        qWarning() << "Signal Switch: invalid saved relation state; gates remain closed";
 					restoreMeterbridgeProjectState(canvas->meterbridgeProjectState());
 					savedModuleRecords_ = loadedModuleRecords();
 					canvas->restoreJackConnections(jackObserver_);
@@ -3897,6 +3969,8 @@ public:
 
 	void destroyWindow(HWND) noexcept override
 	{
+        WinJACKNexus::SignalSwitch::Service::instance().synchronize = {};
+        WinJACKNexus::SignalSwitch::Service::instance().edited = {};
 		if (window_ != nullptr) {
             if (saveEditorGraphs_)
                 saveEditorGraphs_();

@@ -1,0 +1,36 @@
+PASS 1 normal Windows Qt backend
+PASS 2 isolated language manager
+PASS 3 production theme core
+PASS 4 module language and theme registration
+PASS 5 quick access native menu bound to actual switch action
+PASS 6 production node library discovers five headless dual-mode DLLs
+PASS 7 production host loads and prepares VIRT switch without JACK server
+PASS 8 production host loads and prepares VIRT switch without JACK server
+PASS 9 independent editor opens
+PASS 10 real visible Windows editor
+PASS 11 100 percent scale only
+PASS 12 one shared button per live node
+PASS 13 new node button reflects enabled default
+PASS 14 button closes signal and marks project dirty
+PASS 15 graph rename synchronizes editor button identity
+PASS 16 button rename uses host graph alias path
+PASS 17 rename remains after host resynchronization
+PASS 18 production project writer saves switch presets
+PASS 19 read saved project
+PASS 20 all module presets encoded as Base64 in project
+PASS 21 production project reader restores node records
+PASS 22 restore module settings before processing
+PASS 23 restore module settings before processing
+PASS 24 restore complete module state after node identities
+PASS 25 saved disabled state survives enabled factory default
+PASS 26 editor position size and button presets restored
+PASS 27 closing editor preserves nodes and signal state
+PASS 28 explicit open editor dropdown entry
+PASS 29 quick access command reopens editor
+PASS 30 module language hot switch
+PASS 31 native menu text follows installed i18n API
+PASS 32 system font fallback resolves CJK glyphs without tofu
+PASS 33 capture actual visible editor window
+PASS 34 deleting node removes corresponding button
+PASS 35 bounded real-window batch
+WINDOW_SHOWS 4

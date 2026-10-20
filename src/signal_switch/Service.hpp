@@ -2,8 +2,12 @@
 #pragma once
 
 #include "State.hpp"
+#include <QPointer>
 #include <WinJACKNexus/Common/SignalSwitchProcessor.hpp>
 #include <functional>
+
+class QWidget;
+class QMenu;
 
 #ifdef WJN_SIGNAL_SWITCH_BUILD
 #define WJN_SWITCH_API __declspec(dllexport)
@@ -22,6 +26,7 @@ struct Endpoint
     Common::SignalSwitch::Gate *gate{};
     bool desired{};
     std::function<bool(const QString &)> rename;
+    QString graphClient;
 };
 
 // One service in signal_switch.dll, shared by every node DLL and the host.
@@ -33,6 +38,7 @@ class WJN_SWITCH_API Service
     QMap<void *, Endpoint> endpoints;
     std::function<void()> changed;
     std::function<void()> edited;
+    std::function<void()> synchronize;
 
     void attach(void *node, Endpoint endpoint);
     void detach(void *node);
@@ -44,5 +50,19 @@ class WJN_SWITCH_API Service
     bool restore(const QString &base64, QString *error = nullptr);
     void reset();
     Endpoint *find(const QString &id);
+    void beginRestore();
+    bool restoring() const
+    {
+        return restoring_;
+    }
+    bool installUI(QString *error = nullptr);
+    void shutdownUI();
+    QWidget *showEditor();
+    QMenu *quickMenu();
+    void refreshUIState();
+
+  private:
+    bool restoring_{};
+    QPointer<QWidget> editor_;
 };
 } // namespace WinJACKNexus::SignalSwitch
