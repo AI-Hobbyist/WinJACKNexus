@@ -30,7 +30,8 @@ void dialogButtons(QDialog &dialog, QVBoxLayout *layout)
 
 QAction *action(QMenu &menu, const char *key, const char *english, std::function<void()> apply)
 {
-    auto *item = menu.addAction(text(key, english));
+    auto *item = menu.addAction(QString());
+    UI::bindLocalizedText(item, "text", "signalSwitch", key, english);
     item->setObjectName(QString("signalSwitch.") + key);
     QObject::connect(item, &QAction::triggered, &menu, std::move(apply));
     return item;
@@ -194,10 +195,10 @@ void Editor::refreshGroups()
     }
 }
 
-bool Editor::editText(const QString &title, QString *value)
+bool Editor::editText(const char *key, const char *english, QString *value)
 {
     QDialog dialog(this);
-    dialog.setWindowTitle(title);
+    UI::bindLocalizedText(&dialog, "windowTitle", "signalSwitch", key, english);
     auto *layout = new QVBoxLayout(&dialog);
     auto *field = new C::TextField(&dialog);
     field->setObjectName("signalSwitch.textInput");
@@ -212,9 +213,9 @@ bool Editor::editText(const QString &title, QString *value)
 
 void Editor::reportConflict()
 {
-    status_->setText(
-        text("conflict",
-             "The selection conflicts with an existing group or relation. Remove the previous membership first."));
+    UI::bindLocalizedText(
+        status_, "text", "signalSwitch", "conflict",
+        "The selection conflicts with an existing group or relation. Remove the previous membership first.");
     status_->show();
 }
 
@@ -250,6 +251,7 @@ void Editor::showCardMenu(const QString &id, const QPoint &global)
     });
     action(menu, "newGroup", "Create group", [this] { createGroup(); })->setEnabled(members.size() >= 2);
     auto *groups = menu.addMenu(text("addToGroup", "Move to group"));
+    UI::bindLocalizedText(groups, "title", "signalSwitch", "addToGroup", "Move to group");
     for (auto it = service_.state.groups.begin(); it != service_.state.groups.end(); ++it)
     {
         auto *item = groups->addAction(it->name);
@@ -282,7 +284,7 @@ void Editor::showGroupMenu(const QString &id, const QPoint &global)
     QMenu menu(this);
     action(menu, "renameGroup", "Rename group", [this, id] {
         auto name = service_.state.groups[id].name;
-        if (editText(text("renameGroup", "Rename group"), &name))
+        if (editText("renameGroup", "Rename group", &name))
         {
             service_.state.groups[id].name = name;
             service_.notify(true);
@@ -327,7 +329,7 @@ void Editor::editSize()
     if (selected_.isEmpty())
         return;
     QDialog dialog(this);
-    dialog.setWindowTitle(text("size", "Width and height"));
+    UI::bindLocalizedText(&dialog, "windowTitle", "signalSwitch", "size", "Width and height");
     auto *layout = new QVBoxLayout(&dialog);
     auto *form = new QFormLayout;
     layout->addLayout(form);
@@ -336,7 +338,7 @@ void Editor::editSize()
         auto *field = new C::IntegerField(&dialog);
         field->setObjectName(QString("signalSwitch.") + key);
         field->setRange(C::sidebarControlHeight - 1, 1000000);
-        field->setSpecialValueText(text("multiple", "Multiple values"));
+        UI::bindLocalizedText(field, "specialValueText", "signalSwitch", "multiple", "Multiple values");
         const int value = width ? first.width() : first.height();
         bool mixed = false;
         for (const auto &id : selected_)
@@ -345,7 +347,9 @@ void Editor::editSize()
             mixed |= (width ? size.width() : size.height()) != value;
         }
         field->setValue(mixed ? C::sidebarControlHeight - 1 : value);
-        form->addRow(new C::TextLabel(text(key, english), &dialog), field);
+        auto *label = new C::TextLabel(&dialog);
+        UI::bindLocalizedText(label, "text", "signalSwitch", key, english);
+        form->addRow(label, field);
         return field;
     };
     auto *width = addDimension("width", "Width", true);
@@ -369,12 +373,12 @@ void Editor::editColor()
     if (selected_.isEmpty())
         return;
     auto value = service_.state.cards.value(*selected_.begin()).color.name(QColor::HexArgb);
-    if (!editText(text("colorPrompt", "Button color (#RRGGBB or #AARRGGBB)"), &value))
+    if (!editText("colorPrompt", "Button color (#RRGGBB or #AARRGGBB)", &value))
         return;
     const QColor color(value);
     if (!color.isValid())
     {
-        status_->setText(text("invalidColor", "Enter a valid color value."));
+        UI::bindLocalizedText(status_, "text", "signalSwitch", "invalidColor", "Enter a valid color value.");
         status_->show();
         return;
     }
@@ -386,7 +390,7 @@ void Editor::editColor()
 void Editor::editGrid()
 {
     QDialog dialog(this);
-    dialog.setWindowTitle(text("gridSize", "Grid spacing"));
+    UI::bindLocalizedText(&dialog, "windowTitle", "signalSwitch", "gridSize", "Grid spacing");
     auto *layout = new QVBoxLayout(&dialog);
     auto *x = new C::IntegerField(&dialog);
     auto *y = new C::IntegerField(&dialog);
@@ -397,8 +401,12 @@ void Editor::editGrid()
     x->setValue(service_.state.gridX);
     y->setValue(service_.state.gridY);
     auto *form = new QFormLayout;
-    form->addRow(new C::TextLabel(text("horizontal", "Horizontal"), &dialog), x);
-    form->addRow(new C::TextLabel(text("vertical", "Vertical"), &dialog), y);
+    auto *horizontal = new C::TextLabel(&dialog);
+    auto *vertical = new C::TextLabel(&dialog);
+    UI::bindLocalizedText(horizontal, "text", "signalSwitch", "horizontal", "Horizontal");
+    UI::bindLocalizedText(vertical, "text", "signalSwitch", "vertical", "Vertical");
+    form->addRow(horizontal, x);
+    form->addRow(vertical, y);
     layout->addLayout(form);
     dialogButtons(dialog, layout);
     if (dialog.exec() == QDialog::Accepted)
@@ -412,7 +420,7 @@ void Editor::editGrid()
 void Editor::editOpacity()
 {
     QDialog dialog(this);
-    dialog.setWindowTitle(text("opacity", "Button opacity"));
+    UI::bindLocalizedText(&dialog, "windowTitle", "signalSwitch", "opacity", "Button opacity");
     auto *layout = new QVBoxLayout(&dialog);
     auto *value = new C::IntegerField(&dialog);
     value->setObjectName("signalSwitch.opacity");
@@ -431,7 +439,7 @@ void Editor::editOpacity()
 void Editor::createGroup()
 {
     QString name;
-    if (!editText(text("newGroup", "Create group"), &name))
+    if (!editText("newGroup", "Create group", &name))
         return;
     if (!service_.state.setGroup(freshId(), name, selected_.values()))
     {
@@ -462,14 +470,22 @@ void Editor::createRelation()
     if (enabled > 1)
     {
         QDialog dialog(this);
-        dialog.setWindowTitle(text("keepEnabled", "Choose the switch to keep enabled"));
+        UI::bindLocalizedText(&dialog, "windowTitle", "signalSwitch", "keepEnabled",
+                              "Choose the switch to keep enabled");
         auto *layout = new QVBoxLayout(&dialog);
         auto *choice = new C::ChoiceField(&dialog);
         choice->setObjectName("signalSwitch.exclusiveWinner");
         choice->addItem(text("allOff", "All off"), QString());
         for (const auto &id : members)
             if (const auto *endpoint = service_.find(id))
-                choice->addItem(endpoint->name, id);
+                choice->addItem(service_.label(*endpoint), id);
+        if (auto *manager = UI::I18nManager::installed())
+            manager->bind(choice, [this, choice] {
+                choice->setItemText(0, text("allOff", "All off"));
+                for (int index = 1; index < choice->count(); ++index)
+                    if (const auto *endpoint = service_.find(choice->itemData(index).toString()))
+                        choice->setItemText(index, service_.label(*endpoint));
+            });
         layout->addWidget(choice);
         dialogButtons(dialog, layout);
         if (dialog.exec() != QDialog::Accepted)

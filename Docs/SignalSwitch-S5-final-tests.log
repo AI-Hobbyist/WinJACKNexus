@@ -1,0 +1,81 @@
+PASS 1 normal Windows platform
+PASS 2 isolated production language API
+PASS 3 production theme core
+PASS 4 main module registers language and theme contracts
+PASS 5 actual host loads VIRT node with optional language and theme contracts
+PASS 6 actual host loads VIRT node with optional language and theme contracts
+PASS 7 actual host loads VIRT node with optional language and theme contracts
+PASS 8 actual host loads VIRT node with optional language and theme contracts
+PASS 9 actual host loads VIRT node with optional language and theme contracts
+PASS 10 all five node identities reach shared registry
+PASS 11 real visible editor at 100 percent scale
+PASS 12 factory enabled state agrees with each visible button
+PASS 13 factory enabled state agrees with each visible button
+PASS 14 factory enabled state agrees with each visible button
+PASS 15 factory enabled state agrees with each visible button
+PASS 16 factory enabled state agrees with each visible button
+PASS 17 graph rename records user ownership of name
+PASS 18 custom group name accepted
+PASS 19 four language hot switch through installed API
+PASS 20 unedited node default name follows language in editor
+PASS 21 user node and group names survive language changes
+PASS 22 system fallback resolves visible CJK text without missing glyphs
+PASS 23 capture real editor for language inspection
+PASS 24 four language hot switch through installed API
+PASS 25 unedited node default name follows language in editor
+PASS 26 user node and group names survive language changes
+PASS 27 system fallback resolves visible CJK text without missing glyphs
+PASS 28 capture real editor for language inspection
+PASS 29 four language hot switch through installed API
+PASS 30 unedited node default name follows language in editor
+PASS 31 user node and group names survive language changes
+PASS 32 system fallback resolves visible CJK text without missing glyphs
+PASS 33 capture real editor for language inspection
+PASS 34 four language hot switch through installed API
+PASS 35 unedited node default name follows language in editor
+PASS 36 user node and group names survive language changes
+PASS 37 system fallback resolves visible CJK text without missing glyphs
+PASS 38 capture real editor for language inspection
+PASS 39 long name elides while accessibility and tooltip keep full name
+PASS 40 module theme token override accepted
+PASS 41 module token hot refresh preserves explicit instance color
+PASS 42 capture actual theme token and instance color presentation
+PASS 43 full theme reload through production API
+PASS 44 full theme refresh updates inherited button and preserves instance override
+PASS 45 removing instance override restores theme inheritance
+PASS 46 saved exclusive relationship has one enabled member
+PASS 47 project A saved in locked presentation
+PASS 48 production writer saves full project A
+PASS 49 new project uses independent defaults
+PASS 50 production writer saves distinct empty project B
+PASS 51 production reader loads project
+PASS 52 host reconstructs saved VIRT node
+PASS 53 host reconstructs saved VIRT node
+PASS 54 host reconstructs saved VIRT node
+PASS 55 host reconstructs saved VIRT node
+PASS 56 host reconstructs saved VIRT node
+PASS 57 apply complete project preset
+PASS 58 A restores every serialized preset without mutation
+PASS 59 saved off overrides factory default and exclusive state is retained
+PASS 60 custom node name persists through actual module reconstruction
+PASS 61 restored locked buttons keep saved desktop position size and native topmost style
+PASS 62 restored locked buttons keep saved desktop position size and native topmost style
+PASS 63 restored locked buttons keep saved desktop position size and native topmost style
+PASS 64 restored locked buttons keep saved desktop position size and native topmost style
+PASS 65 restored locked buttons keep saved desktop position size and native topmost style
+PASS 66 corrupt Base64 rejected without partial preset application
+PASS 67 unknown state version rejected without partial application
+PASS 68 production reader loads project
+PASS 69 apply complete project preset
+PASS 70 B restores own editor size position and settings with no A presets
+PASS 71 switching to empty project removes all pinned buttons
+PASS 72 production reader loads project
+PASS 73 host reconstructs saved VIRT node
+PASS 74 host reconstructs saved VIRT node
+PASS 75 host reconstructs saved VIRT node
+PASS 76 host reconstructs saved VIRT node
+PASS 77 host reconstructs saved VIRT node
+PASS 78 apply complete project preset
+PASS 79 second A restore preserves all fields again
+PASS 80 bounded real Windows batch
+WINDOW_SHOWS 17

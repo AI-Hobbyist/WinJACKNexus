@@ -1,0 +1,11 @@
+{
+  "formatVersion": 1,
+  "catalogVersion": 1,
+  "moduleId": "winjacknexus-signal-switch-stereo",
+  "language": "zh-CN",
+  "domains": {
+    "signalSwitch.stereo": {
+      "name": "Signal Switch 立体声"
+    }
+  }
+}

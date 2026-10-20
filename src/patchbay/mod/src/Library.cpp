@@ -1490,7 +1490,7 @@ public:
             const auto client = std::find_if(clients.begin(), clients.end(), [this](const auto &value) {
                 return value.id == clientId();
             });
-            if (client != clients.end() && !client->alias.empty())
+            if (endpoint->userNamed && client != clients.end() && !client->alias.empty())
                 endpoint->name = QString::fromStdString(client->alias);
             const QPointer<PatchbayCanvas> owner(canvas);
             const auto identity = clientId();
@@ -1554,7 +1554,7 @@ public:
             client.name = name_.toStdString();
             const auto &switchEndpoints = WinJACKNexus::SignalSwitch::Service::instance().endpoints;
             if (const auto endpoint = switchEndpoints.constFind(node_); endpoint != switchEndpoints.cend())
-                client.alias = endpoint->name.toStdString();
+                client.alias = WinJACKNexus::SignalSwitch::Service::instance().label(*endpoint).toStdString();
             if (isClassicMixerModule(modulePath_) &&
                 getNodeClientId_ != nullptr)
             {

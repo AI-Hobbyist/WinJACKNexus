@@ -37,6 +37,7 @@ class SwitchNode final : public WinJACKNexus::Node::INode
         endpoint.id = switchId_;
         endpoint.name = name_;
         endpoint.version = modelName;
+        endpoint.domain = "signalSwitch." WJN_SWITCH_KIND;
         endpoint.gate = &gate_;
         endpoint.desired = true;
         endpoint.rename = [this](const QString &name) { return rename(name); };
@@ -214,6 +215,7 @@ class SwitchNode final : public WinJACKNexus::Node::INode
                                           {"clientName", name_},
                                           {"switchId", switchId_},
                                           {"displayName", endpoint.name},
+                                          {"customName", endpoint.userNamed},
                                           {"enabled", endpoint.desired}})
                     .toJson(QJsonDocument::Compact);
         return json_.constData();
@@ -235,6 +237,8 @@ class SwitchNode final : public WinJACKNexus::Node::INode
         if (object.contains("displayName") &&
             (!object["displayName"].isString() || object["displayName"].toString().trimmed().isEmpty()))
             return false;
+        if (object.contains("customName") && !object["customName"].isBool())
+            return false;
         if (!rename(object["clientName"].toString()))
             return false;
         auto &service = SS::Service::instance();
@@ -253,6 +257,8 @@ class SwitchNode final : public WinJACKNexus::Node::INode
         }
         if (object["displayName"].isString())
             service.endpoints[this].name = object["displayName"].toString();
+        service.endpoints[this].userNamed = object["customName"].toBool(object["displayName"].isString() &&
+                                                                        object["displayName"].toString() != modelName);
         return service.restoreDesired(this, copy || object["enabled"].toBool());
     }
     const char *clientId()
@@ -289,6 +295,7 @@ class SwitchNode final : public WinJACKNexus::Node::INode
             name_ = trimmed;
         auto &endpoint = SS::Service::instance().endpoints[this];
         endpoint.name = trimmed;
+        endpoint.userNamed = true;
         SS::Service::instance().notify(true);
         return true;
     }
@@ -346,6 +353,51 @@ const char *wjn_get_node_name()
 const char *wjn_get_node_category()
 {
     return "Signal Switch";
+}
+
+uint32_t wjn_get_node_i18n_api_version()
+{
+    return WJN_NODE_I18N_API_VERSION;
+}
+const char *wjn_get_node_i18n_descriptor_json()
+{
+    return "{\"descriptorVersion\":1,\"i18nApiVersion\":1,"
+           "\"moduleId\":\"winjacknexus-signal-switch-" WJN_SWITCH_KIND "\","
+           "\"domains\":[\"signalSwitch." WJN_SWITCH_KIND "\"],\"locatePath\":\"locate\",\"catalogVersion\":1,"
+           "\"displayNameKey\":{\"domain\":\"signalSwitch." WJN_SWITCH_KIND "\",\"key\":\"name\"}}";
+}
+namespace
+{
+const WjnI18nHostV1 *languageHost{};
+}
+int32_t wjn_i18n_attach_host(const WjnI18nHostV1 *host)
+{
+    if (!host || host->structSize < sizeof(*host) || host->apiVersion != 1 || !host->text ||
+        (languageHost && languageHost != host))
+        return WJN_I18N_INVALID_ARGUMENT;
+    languageHost = host;
+    return WJN_I18N_OK;
+}
+void wjn_i18n_language_changed(const char *, uint64_t)
+{
+}
+void wjn_i18n_detach_host()
+{
+    languageHost = nullptr;
+}
+uint32_t wjn_get_node_theme_api_version()
+{
+    return WJN_NODE_THEME_API_VERSION;
+}
+const char *wjn_get_node_theme_namespace_json()
+{
+    return "{\"descriptorVersion\":1,\"themeApiVersion\":1,"
+           "\"moduleId\":\"module-winjacknexus-signal-switch-" WJN_SWITCH_KIND "\","
+           "\"namespace\":\"--wjn-theme-module-winjacknexus-signal-switch-" WJN_SWITCH_KIND "-\","
+           "\"displayName\":\"" WJN_SWITCH_NAME "\",\"tokens\":[{"
+           "\"name\":\"--wjn-theme-module-winjacknexus-signal-switch-" WJN_SWITCH_KIND "-node-card-background\","
+           "\"type\":\"color\",\"default\":\"var(--wjn-theme-patchbay-node-card-background)\","
+           "\"description\":\"Signal Switch graph node background\"}]}";
 }
 WinJACKNexus::Node::INode *wjn_create_node()
 {

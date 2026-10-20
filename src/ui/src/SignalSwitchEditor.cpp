@@ -148,11 +148,16 @@ void Editor::refresh()
         const auto state = pending            ? text("waiting", "Waiting")
                            : endpoint.desired ? text("on", "On")
                                               : text("off", "Off");
-        button->setText(endpoint.name + " · " + state);
-        button->setChecked(endpoint.desired);
-        button->setAccessibleName(endpoint.name + " · " + state);
-        button->setToolTip(endpoint.name + "\n" + endpoint.context + "\n" + endpoint.version);
+        const auto name = service_.label(endpoint);
         const auto rect = service_.state.cards.value(endpoint.id).geometry;
+        const auto suffix = QStringLiteral(" · ") + state;
+        const QFontMetrics metrics(button->font());
+        const int margin = style()->pixelMetric(QStyle::PM_ButtonMargin);
+        const int available = std::max(0, rect.width() - margin - metrics.horizontalAdvance(suffix));
+        button->setText(metrics.elidedText(name, Qt::ElideRight, available) + suffix);
+        button->setChecked(endpoint.desired);
+        button->setAccessibleName(name + " · " + state);
+        button->setToolTip(name + "\n" + endpoint.context + "\n" + endpoint.version);
         if (!service_.state.locked)
             button->setGeometry(rect);
         styleButton(button, endpoint.id);
@@ -182,19 +187,10 @@ void Editor::rename(const QString &id)
     const auto *endpoint = service_.find(id);
     if (!endpoint)
         return;
-    QDialog dialog(this);
-    dialog.setWindowTitle(text("rename", "Rename"));
-    auto *layout = new QVBoxLayout(&dialog);
-    auto *field = new UI::Controls::TextField(&dialog);
-    field->setText(endpoint->name);
-    layout->addWidget(field);
-    auto *buttons = new UI::Controls::DialogButtonBar(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, &dialog);
-    layout->addWidget(buttons);
-    connect(buttons, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
-    connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
-    if (dialog.exec() != QDialog::Accepted || field->text().trimmed().isEmpty())
+    auto name = service_.label(*endpoint);
+    if (!editText("rename", "Rename", &name))
         return;
-    if (auto *current = service_.find(id); current && current->rename && current->rename(field->text()))
+    if (auto *current = service_.find(id); current && current->rename && current->rename(name))
         service_.notify(true);
 }
 
@@ -311,6 +307,13 @@ bool Service::installUI(QString *error)
     changed = [editor] { editor->refresh(); };
     UI::TrayController::setQuickAccessSwitchMenu(editor->menu());
     return true;
+}
+
+QString Service::label(const Endpoint &endpoint) const
+{
+    return endpoint.userNamed || endpoint.domain.isEmpty()
+               ? endpoint.name
+               : UI::localizedText(endpoint.domain.toUtf8().constData(), "name", endpoint.version.toUtf8().constData());
 }
 
 QWidget *Service::showEditor()

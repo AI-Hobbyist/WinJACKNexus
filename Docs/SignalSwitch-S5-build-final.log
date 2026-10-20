@@ -1,0 +1,41 @@
+适用于 .NET Framework MSBuild 版本 18.10.1-1.26427.6+3cd27c13e
+
+  node.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\node.dll
+  common.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\common.dll
+  signal_switch_state.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\lib\Release\signal_switch_state.lib
+  Automatic MOC for target wjn_default_theme
+  classic_mixer_core.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\lib\Release\classic_mixer_core.lib
+  wjn_default_theme.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\wjn_default_theme.dll
+  Automatic MOC for target ui
+  audio.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\audio.dll
+  ui.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\ui.dll
+  patchbay_core.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\patchbay_core.dll
+  SignalSwitchEditor.cpp
+    正在创建库 D:/UserData/Desktop/Project/WinJACKNexus/build/lib/signal_switch.lib 和对象 D:/UserData/Desktop/Project/WinJACKNexus/build/lib/signal_switch.exp
+  signal_switch.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\signal_switch.dll
+  wjn_signal_switch_stereo.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\nodes\signal_switch\stereo\wjn_signal_switch_stereo.dll
+  wjn_signal_switch_mono.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\nodes\signal_switch\mono\wjn_signal_switch_mono.dll
+  wjn_signal_switch_midi.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\nodes\signal_switch\midi\wjn_signal_switch_midi.dll
+  wjn_signal_switch_5_1.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\nodes\signal_switch\5_1\wjn_signal_switch_5_1.dll
+  Automatic MOC for target mod_patchbay
+  wjn_signal_switch_7_1.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\nodes\signal_switch\7_1\wjn_signal_switch_7_1.dll
+  mod_patchbay.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\mod_patchbay.dll
+  wjn_signal_switch_module_tests.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\wjn_signal_switch_module_tests.exe
+  FinalTests.cpp
+D:\UserData\Desktop\Project\WinJACKNexus\src\native_fx\include\WinJACKNexus\NativeFx\NativeFxApi.h(89,24): warning C4273: “wjn_i18n_attach_host”: dll 链接不一致 [D:\UserData\Desktop\Project\WinJACKNexus\build\src\signal_switch\wjn_signal_switch_final_tests.vcxproj]
+  (编译源文件“../../../src/signal_switch/FinalTests.cpp”)
+      D:\UserData\Desktop\Project\WinJACKNexus\src\node\include\WinJACKNexus\Node\NodeApi.h(47,30):
+      参见“wjn_i18n_attach_host”的前一个定义
+
+D:\UserData\Desktop\Project\WinJACKNexus\src\native_fx\include\WinJACKNexus\NativeFx\NativeFxApi.h(90,21): warning C4273: “wjn_i18n_language_changed”: dll 链接不一致 [D:\UserData\Desktop\Project\WinJACKNexus\build\src\signal_switch\wjn_signal_switch_final_tests.vcxproj]
+  (编译源文件“../../../src/signal_switch/FinalTests.cpp”)
+      D:\UserData\Desktop\Project\WinJACKNexus\src\node\include\WinJACKNexus\Node\NodeApi.h(48,27):
+      参见“wjn_i18n_language_changed”的前一个定义
+
+D:\UserData\Desktop\Project\WinJACKNexus\src\native_fx\include\WinJACKNexus\NativeFx\NativeFxApi.h(91,21): warning C4273: “wjn_i18n_detach_host”: dll 链接不一致 [D:\UserData\Desktop\Project\WinJACKNexus\build\src\signal_switch\wjn_signal_switch_final_tests.vcxproj]
+  (编译源文件“../../../src/signal_switch/FinalTests.cpp”)
+      D:\UserData\Desktop\Project\WinJACKNexus\src\node\include\WinJACKNexus\Node\NodeApi.h(49,27):
+      参见“wjn_i18n_detach_host”的前一个定义
+
+    正在创建库 D:/UserData/Desktop/Project/WinJACKNexus/build/lib/Release/wjn_signal_switch_final_tests.lib 和对象 D:/UserData/Desktop/Project/WinJACKNexus/build/lib/Release/wjn_signal_switch_final_tests.exp
+  wjn_signal_switch_final_tests.vcxproj -> D:\UserData\Desktop\Project\WinJACKNexus\build\release\bin\wjn_signal_switch_final_tests.exe

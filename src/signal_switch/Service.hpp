@@ -27,6 +27,8 @@ struct Endpoint
     bool desired{};
     std::function<bool(const QString &)> rename;
     QString graphClient;
+    QString domain;
+    bool userNamed{};
 };
 
 // One service in signal_switch.dll, shared by every node DLL and the host.
@@ -50,6 +52,7 @@ class WJN_SWITCH_API Service
     bool restore(const QString &base64, QString *error = nullptr);
     void reset();
     Endpoint *find(const QString &id);
+    QString label(const Endpoint &endpoint) const;
     void beginRestore();
     bool restoring() const
     {

@@ -33,9 +33,11 @@ foreach(kind mono stereo 5_1 7_1 midi)
         set(display "Signal Switch MIDI")
     endif()
     set(target wjn_signal_switch_${kind})
+    string(REPLACE "_" "-" module_kind "${kind}")
     add_library(${target} SHARED Module.cpp)
     wjn_configure_shared_target(${target} WJN_NODE_IMPLEMENTATION)
     target_compile_definitions(${target} PRIVATE WJN_SWITCH_CHANNELS=${channels}
+        "WJN_SWITCH_KIND=\"${module_kind}\""
         "WJN_SWITCH_NAME=\"${display}\"" WIN32_LEAN_AND_MEAN NOMINMAX)
     target_compile_options(${target} PRIVATE /utf-8)
     target_include_directories(${target} PRIVATE "${PROJECT_SOURCE_DIR}/src/node/include")
@@ -45,6 +47,9 @@ foreach(kind mono stereo 5_1 7_1 midi)
         set_target_properties(${target} PROPERTIES
             RUNTIME_OUTPUT_DIRECTORY_${upper} "${WJN_OUTPUT_DIR}/nodes/signal_switch/${kind}")
     endforeach()
+    add_custom_command(TARGET ${target} POST_BUILD
+        COMMAND "${CMAKE_COMMAND}" -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/${kind}/locate"
+            "$<TARGET_FILE_DIR:${target}>/locate")
 endforeach()
 
 add_custom_command(TARGET signal_switch POST_BUILD
@@ -82,6 +87,18 @@ if(BUILD_TESTING)
     set_target_properties(wjn_signal_switch_host_tests PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY_RELEASE "${WJN_OUTPUT_DIR}")
     add_dependencies(wjn_signal_switch_host_tests wjn_signal_switch_module_tests)
+    add_executable(wjn_signal_switch_final_tests FinalTests.cpp)
+    target_include_directories(wjn_signal_switch_final_tests PRIVATE
+        "${PROJECT_SOURCE_DIR}/src/patchbay/mod/include"
+        "${PROJECT_SOURCE_DIR}/src/native_fx/include")
+    target_link_libraries(wjn_signal_switch_final_tests PRIVATE signal_switch signal_switch_state
+        mod_patchbay patchbay_core WinJACKNexus::UI WinJACKNexus::Node WinJACKNexus::Audio Qt6::Test)
+    target_compile_definitions(wjn_signal_switch_final_tests PRIVATE WJN_NODE_IMPLEMENTATION
+        WIN32_LEAN_AND_MEAN NOMINMAX "SWITCH_SOURCE_DIR=\"${PROJECT_SOURCE_DIR}\"")
+    target_compile_options(wjn_signal_switch_final_tests PRIVATE /utf-8)
+    set_target_properties(wjn_signal_switch_final_tests PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY_RELEASE "${WJN_OUTPUT_DIR}")
+    add_dependencies(wjn_signal_switch_final_tests wjn_signal_switch_module_tests)
     add_executable(wjn_signal_switch_layout_tests LayoutTests.cpp)
     target_link_libraries(wjn_signal_switch_layout_tests PRIVATE signal_switch signal_switch_state
         WinJACKNexus::UI Qt6::Test)

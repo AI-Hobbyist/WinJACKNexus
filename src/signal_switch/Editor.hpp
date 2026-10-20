@@ -68,7 +68,7 @@ class Editor : public QWidget
     void editOpacity();
     void createGroup();
     void createRelation();
-    bool editText(const QString &title, QString *value);
+    bool editText(const char *key, const char *english, QString *value);
     void reportConflict();
     void updateMouseHook();
     void releaseMouseHook();

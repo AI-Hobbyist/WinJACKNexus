@@ -2204,7 +2204,10 @@ void PatchbayCanvas::setClientAlias(const std::string &clientId, const QString &
     for (auto &endpoint : switchService.endpoints)
     {
         if (endpoint.context.toStdString() == sceneContext_.id && endpoint.graphClient.toStdString() == clientId)
+        {
             endpoint.name = alias.trimmed().isEmpty() ? QString::fromStdString(client->name) : alias.trimmed();
+            endpoint.userNamed = !alias.trimmed().isEmpty();
+        }
     }
     switchService.notify();
     setSnapshot(snapshot_);
