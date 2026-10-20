@@ -1,3 +1,0 @@
-S5 scope: effects=gate,graphic_eq,deesser,compressor,limiter,delay,parametric_eq,reverb host=0 community=0 shared=0 cold=ja-JP
-S5 module Windows checks PASS: 2726; platform=windows font=Microsoft YaHei UI scale=2
-S5 popup budget: 48 / 100

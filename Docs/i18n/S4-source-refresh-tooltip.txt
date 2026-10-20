@@ -1,2 +1,0 @@
-{"changed_files": ["src/ui/include/WinJACKNexus/UI/HistoryLegendWidget.hpp", "src/ui/include/WinJACKNexus/UI/MetricStatisticsWidget.hpp", "src/ui/src/Controls.cpp", "src/ui/src/HistoryLegendWidget.cpp", "src/ui/src/MetricStatisticsWidget.cpp", "src/ui/src/MixerWindow.cpp"], "resource_changes": [], "added": 0, "removed": 0, "relocated_groups": 487, "usage_changed_groups": 3, "before": 9012, "after": 9015}
-Scanned 270 files; 9015 literal occurrences; 5990 source IDs.

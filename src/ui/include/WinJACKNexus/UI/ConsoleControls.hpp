@@ -14,6 +14,8 @@ class WINJACK_UI_API ConsoleKnob final : public QWidget
     ConsoleKnob(QString scope, NumericControlSpec spec, bool logarithmic = false,
                 QWidget *parent = nullptr);
     void setValue(double value);
+    bool setRange(double minimum, double maximum);
+    void setMinimumIsSilence(bool enabled);
     double value() const noexcept
     {
         return value_;

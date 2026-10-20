@@ -1,0 +1,11 @@
+{
+  "formatVersion": 1,
+  "catalogVersion": 1,
+  "moduleId": "winjacknexus-signal-switch-sound",
+  "language": "zh-CN",
+  "domains": {
+    "signalSwitch.sound": {
+      "name": "音效按钮"
+    }
+  }
+}

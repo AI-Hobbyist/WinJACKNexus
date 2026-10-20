@@ -70,6 +70,11 @@ class Editor : public QWidget
     void createRelation();
     bool editText(const char *key, const char *english, QString *value);
     void reportConflict();
+    bool refreshControl(UI::Controls::ActionButton *card, const Endpoint &endpoint);
+    void loadSound(const QString &id);
+    void editShortcut(const QString &id);
+    void editGainRange(const QString &id);
+    void editGainValue(const QString &id);
     void updateMouseHook();
     void releaseMouseHook();
     static LRESULT CALLBACK mouseHook(int code, WPARAM message, LPARAM data);

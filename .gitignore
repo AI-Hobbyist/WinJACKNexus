@@ -27,3 +27,31 @@ third_party/
 __pycache__/
 *.pyc
 tests/
+
+# Local development plans, reports and generated verification evidence
+/build-release/
+/Docs/*
+!/Docs/I18n-API.md
+!/Docs/UI-API.md
+!/Docs/LUFS参考表.md
+!/Docs/MidiTools/
+/Docs/MidiTools/*
+!/Docs/MidiTools/DEPENDENCIES.md
+!/Docs/Theme-Customization.md
+!/Docs/Theme-v1-Contract.md
+!/Docs/Theme-v1-Defaults.css
+!/Docs/Theme-v1-Registry.json
+!/Docs/WinJACKNexus 开发规范.md
+/Native Effect/
+*.dmp
+*.pdb
+/Signal Switch计划书.md
+/i18n国际化.md
+/i18n翻译核对.md
+/midi tools节点计划书.md
+/主题系统计划书.md
+/经典调音台节点计划书.md
+/调音台逻辑和算法实现计划书.md
+!/Docs/i18n/
+/Docs/i18n/*
+!/Docs/i18n/schema/

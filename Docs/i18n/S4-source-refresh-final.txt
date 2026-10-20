@@ -1,6 +1,0 @@
-{"changed_files": ["src/ui/src/AuxSettingsWindow.cpp", "src/ui/src/MixerWindow.cpp"], "resource_changes": ["locate/en-US.json", "locate/ja-JP.json", "locate/ko-KR.json", "locate/manifest.json", "locate/zh-CN.json"], "added": 4, "removed": 0, "relocated_groups": 155, "usage_changed_groups": 11, "before": 9002, "after": 9012}
-ADDED src/ui/src/AuxSettingsWindow.cpp:639 'label.subMix' | text(painter, impl_->scaled(26, 12, 172, 38), impl_->subMixMode ? auxText("label.subMix","Sub Mix") : QStringLiteral("AUX"), label, 18 * sy,
-ADDED src/ui/src/MixerWindow.cpp:2638 'section.subMix' | if(i==3) bindLocalizedText(tab,"text","mixer","section.subMix","Sub Mix");
-ADDED src/ui/src/MixerWindow.cpp:2676 'section.subMix' | const std::array names{mixerText("section.inputs","Inputs"),QStringLiteral("AUX"),mixerText("section.subMix","Sub Mix"),mixerText("section.listenMaster","Monitor/Master")};
-ADDED src/ui/src/MixerWindow.cpp:2681 'section.subMix' | if (group == 2) bindLocalizedText(category, "title", "mixer", "section.subMix", "Sub Mix");
-Scanned 270 files; 9012 literal occurrences; 5990 source IDs.

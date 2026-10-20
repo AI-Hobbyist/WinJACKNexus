@@ -5,6 +5,7 @@
 
 #include <QPainter>
 #include <QFontMetrics>
+#include <QStyle>
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -88,6 +89,12 @@ void FxLevelMeterWidget::setLevels(double inputDb, double outputDb)
 {
     inputDb_ = std::clamp(inputDb, minimumDb, maximumDb);
     outputDb_ = std::clamp(outputDb, minimumDb, maximumDb);
+    if (property("wjn.singleChannel").toBool() && inputDb_ >= peakDb_[0])
+    {
+        peakDb_[0] = inputDb_;
+        peakHoldUntilMs_[0] = peakClock_.elapsed() +
+            static_cast<qint64>(ApplicationSettings::instance().peakHoldSeconds() * 1000.0);
+    }
     if (!initialized_)
     {
         displayInputDb_ = readoutInputDb_ = inputDb_;
@@ -99,23 +106,54 @@ void FxLevelMeterWidget::setLevels(double inputDb, double outputDb)
     }
 }
 
+void FxLevelMeterWidget::setSingleChannel(bool enabled, const QString &label)
+{
+    setProperty("wjn.singleChannel", enabled);
+    setProperty("wjn.singleChannelLabel", label);
+    update();
+}
+
+void FxLevelMeterWidget::setVertical(bool enabled)
+{
+    setProperty("wjn.vertical", enabled);
+    update();
+}
+
+void FxLevelMeterWidget::setSurfaceVisible(bool visible)
+{
+    setProperty("wjn.hideMeterSurface", !visible);
+    setAutoFillBackground(false);
+    setAttribute(Qt::WA_StyledBackground, false);
+    update();
+}
+
 QRectF FxLevelMeterWidget::barRect(int row) const noexcept
 {
+    if (property("wjn.singleChannel").toBool() && property("wjn.vertical").toBool())
+    {
+        const qreal margin = style()->pixelMetric(QStyle::PM_LayoutLeftMargin);
+        const qreal labelHeight = fontMetrics().height();
+        return {margin, labelHeight + margin, std::max(1.0, width() - 2 * margin - 24),
+                std::max(1.0, height() - labelHeight - 2 * margin)};
+    }
     const QFontMetrics metrics(font());
     const auto labelWidth =
-        std::max(metrics.horizontalAdvance(localizedText("fxhost", "endpoint.input", "Input")),
-                 metrics.horizontalAdvance(localizedText("fxhost", "endpoint.output", "Output"))) +
-        5;
+        property("wjn.singleChannel").toBool()
+            ? metrics.horizontalAdvance(property("wjn.singleChannelLabel").toString()) + 5
+            : std::max(metrics.horizontalAdvance(localizedText("fxhost", "endpoint.input", "Input")),
+                       metrics.horizontalAdvance(localizedText("fxhost", "endpoint.output", "Output"))) +
+                  5;
     const auto left = std::max(34, labelWidth);
-    return {static_cast<qreal>(left), row == 0 ? 7.0 : 34.0, std::max(1.0, width() - left - 9.0),
-            17.0};
+    return {static_cast<qreal>(left), row == 0 ? 7.0 : 34.0, std::max(1.0, width() - left - 9.0), 17.0};
 }
 
 qreal FxLevelMeterWidget::positionForDb(double db) const noexcept
 {
     const auto bar = barRect(0);
-    return bar.left() + (std::clamp(db, minimumDb, maximumDb) - minimumDb) /
-                            (maximumDb - minimumDb) * bar.width();
+    if (property("wjn.singleChannel").toBool() && property("wjn.vertical").toBool())
+        return bar.bottom() -
+               (std::clamp(db, minimumDb, maximumDb) - minimumDb) / (maximumDb - minimumDb) * bar.height();
+    return bar.left() + (std::clamp(db, minimumDb, maximumDb) - minimumDb) / (maximumDb - minimumDb) * bar.width();
 }
 
 void FxLevelMeterWidget::paintEvent(QPaintEvent *)
@@ -126,20 +164,26 @@ void FxLevelMeterWidget::paintEvent(QPaintEvent *)
     };
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing, false);
-    painter.fillRect(rect(), themed("meter-level-surface", QColor("#14283e")));
+    if (!property("wjn.hideMeterSurface").toBool())
+        painter.fillRect(rect(), themed("meter-level-surface", QColor("#14283e")));
     QFont font = painter.font();
     font.setPixelSize(11);
     painter.setFont(font);
-    for (int row = 0; row < 2; ++row)
+    const bool singleChannel = property("wjn.singleChannel").toBool();
+    const bool vertical = singleChannel && property("wjn.vertical").toBool();
+    for (int row = 0; row < (singleChannel ? 1 : 2); ++row)
     {
         const QRectF bar = barRect(row);
         painter.setPen(themed("meter-level-label", QColor("#afc7e5")));
-        painter.drawText(QRectF(0, bar.top(), bar.left() - 5, bar.height()),
-                         Qt::AlignVCenter | Qt::AlignLeft,
-                         row == 0 ? localizedText("fxhost", "endpoint.input", "Input")
-                                  : localizedText("fxhost", "endpoint.output", "Output"));
+        painter.drawText(vertical ? QRectF(0, 0, width(), bar.top())
+                                  : QRectF(0, bar.top(), bar.left() - 5, bar.height()),
+                         vertical ? Qt::AlignCenter : Qt::AlignVCenter | Qt::AlignLeft,
+                         singleChannel ? property("wjn.singleChannelLabel").toString()
+                         : row == 0    ? localizedText("fxhost", "endpoint.input", "Input")
+                                       : localizedText("fxhost", "endpoint.output", "Output"));
         const double value = row == 0 ? displayInputDb_ : displayOutputDb_;
         Controls::MeterStyle style;
+        style.vertical = vertical;
         style.minimumDb = minimumDb;
         style.maximumDb = maximumDb;
         style.zones = {{-12.0, themed("meter-level-zone-low-active", QColor("#2bce75")),
@@ -152,24 +196,25 @@ void FxLevelMeterWidget::paintEvent(QPaintEvent *)
         style.peakColor = themed("meter-level-peak", QColor("#f7fbff"));
         style.tickColor = themed("meter-level-tick", QColor("#526763"));
         QRectF meterBounds = bar;
-        if (row == 1)
+        if (row == 1 || singleChannel)
         {
-            style.ticks = {{-72, QStringLiteral("-72")}, {-48, QStringLiteral("-48")},
-                           {-24, QStringLiteral("-24")}, {-12, QStringLiteral("-12")},
-                           {0, QStringLiteral("0")},     {12, QStringLiteral("+12")}};
+            style.ticks = {{-72, QStringLiteral("-72")}, {-48, QStringLiteral("-48")}, {-24, QStringLiteral("-24")},
+                           {-12, QStringLiteral("-12")}, {0, QStringLiteral("0")},     {12, QStringLiteral("+12")}};
             style.tickBandPixels = 24;
             style.tickFontPixelSize = 9;
             style.labelColor = themed("meter-level-tick-label", QColor("#89a8c9"));
-            meterBounds.setHeight(bar.height() + style.tickBandPixels);
+            if (vertical)
+                meterBounds.setWidth(bar.width() + style.tickBandPixels);
+            else
+                meterBounds.setHeight(bar.height() + style.tickBandPixels);
         }
-        Controls::drawMeter(painter, meterBounds, value, peakDb_[static_cast<std::size_t>(row)],
-                            style);
+        Controls::drawMeter(painter, meterBounds, value, peakDb_[static_cast<std::size_t>(row)], style);
         painter.setPen(themed("meter-level-readout", QColor("#f3f8ff")));
         const double readout = row == 0 ? readoutInputDb_ : readoutOutputDb_;
-        painter.drawText(bar.adjusted(4, 0, -4, 0), Qt::AlignRight | Qt::AlignVCenter,
-                         readout <= minimumDb + .05
-                             ? QStringLiteral("−∞")
-                             : QStringLiteral("%1 dB").arg(QString::number(readout, 'f', 0)));
+        painter.drawText(bar.adjusted(4, 0, -4, 0),
+                         vertical ? Qt::AlignHCenter | Qt::AlignBottom : Qt::AlignRight | Qt::AlignVCenter,
+                         readout <= minimumDb + .05 ? QStringLiteral("−∞")
+                                                    : QStringLiteral("%1 dB").arg(QString::number(readout, 'f', 0)));
     }
 }
 

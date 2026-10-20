@@ -1,6 +1,0 @@
-domain	key	en-US	zh-CN	ja-JP	ko-KR	review
-ui	clientName.label	Client name	客户端名称	クライアント名	클라이언트 이름	待母语/领域审校
-ui	clientName.apply	Apply	应用	適用	적용	待母语/领域审校
-ui	clientName.empty	Name cannot be empty	名称不能为空	名前を空にすることはできません	이름을 비워 둘 수 없습니다	待母语/领域审校
-ui	clientName.applied	Applied	已应用	適用しました	적용됨	待母语/领域审校
-ui	clientName.rejected	Unable to apply name	无法应用名称	名前を適用できません	이름을 적용할 수 없습니다	待母语/领域审校

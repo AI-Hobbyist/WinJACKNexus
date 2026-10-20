@@ -1,4 +1,0 @@
-S5 scope: effects= host=0 community=1 shared=0 cold=hot
-S5 module Windows checks PASS: 374; platform=windows font=Microsoft YaHei UI scale=2
-S5 popup budget: 2 / 100
-S5 capture protocol: native-window-ownership-v2

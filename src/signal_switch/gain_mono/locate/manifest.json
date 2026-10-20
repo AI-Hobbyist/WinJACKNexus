@@ -1,0 +1,20 @@
+{
+  "formatVersion": 1,
+  "moduleId": "winjacknexus-signal-switch-gain-mono",
+  "domains": [
+    "signalSwitch.gain-mono"
+  ],
+  "defaultLanguage": "en-US",
+  "catalogVersion": 1,
+  "languages": {
+    "zh-CN": "zh-CN.json",
+    "en-US": "en-US.json",
+    "ja-JP": "ja-JP.json",
+    "ko-KR": "ko-KR.json"
+  },
+  "requiredKeys": {
+    "signalSwitch.gain-mono": [
+      "name"
+    ]
+  }
+}

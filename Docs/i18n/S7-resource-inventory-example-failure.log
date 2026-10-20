@@ -1,7 +1,0 @@
-Traceback (most recent call last):
-  File "D:\UserData\Desktop\Project\WinJACKNexus\Docs\i18n\prepare_s7_resources.py", line 113, in <module>
-    main()
-  File "D:\UserData\Desktop\Project\WinJACKNexus\Docs\i18n\prepare_s7_resources.py", line 60, in main
-    assert {(d, k) for d, entries in values.items() for k in entries} == required
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-AssertionError

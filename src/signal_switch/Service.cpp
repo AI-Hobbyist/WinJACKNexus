@@ -1,5 +1,8 @@
 /* SPDX-License-Identifier: AGPL-3.0-only */
 #include "Service.hpp"
+#include "Sound.hpp"
+#include <algorithm>
+#include <cmath>
 
 namespace WinJACKNexus::SignalSwitch
 {
@@ -11,7 +14,10 @@ Service &Service::instance()
 
 void Service::attach(void *node, Endpoint endpoint)
 {
+    const bool added = !state.cards.contains(endpoint.id);
     state.add(endpoint.id);
+    if (added && (endpoint.peak || endpoint.gainLinear))
+        state.cards[endpoint.id].geometry.setSize(endpoint.peak ? QSize(300, 120) : QSize(180, 120));
     endpoints.insert(node, std::move(endpoint));
     reconcile();
     notify();
@@ -57,6 +63,11 @@ Endpoint *Service::find(const QString &id)
 
 bool Service::setEnabled(const QStringList &ids, bool enabled, QString *error)
 {
+    for (const auto &id : ids)
+    {
+        if (const auto *endpoint = find(id); endpoint && (endpoint->sound || endpoint->peak || endpoint->gainLinear))
+            return false;
+    }
     QMap<QString, bool> current;
     for (const auto &endpoint : endpoints)
         current[endpoint.id] = endpoint.desired;
@@ -68,6 +79,52 @@ bool Service::setEnabled(const QStringList &ids, bool enabled, QString *error)
     reconcile();
     notify(true);
     return true;
+}
+
+void Service::activate(const QString &id)
+{
+    if (auto *endpoint = find(id))
+    {
+        if (endpoint->sound)
+            endpoint->sound->trigger();
+        else if (endpoint->gainLinear && endpoint->editValue)
+            endpoint->editValue();
+        else if (!endpoint->peak && !endpoint->gainLinear)
+            setEnabled({id}, !endpoint->desired);
+    }
+}
+
+bool Service::setGain(const QString &id, double db)
+{
+    auto *endpoint = find(id);
+    if (!endpoint || !endpoint->gainLinear || !std::isfinite(db) || db < endpoint->gainMinimum ||
+        db > endpoint->gainMaximum)
+        return false;
+    endpoint->gainDb = db;
+    endpoint->gainLinear->store(float(std::pow(10.0, db / 20.0)), std::memory_order_relaxed);
+    notify(true);
+    return true;
+}
+
+bool Service::setGainRange(const QString &id, double minimum, double maximum)
+{
+    auto *endpoint = find(id);
+    if (!endpoint || !endpoint->gainLinear || !std::isfinite(minimum) || !std::isfinite(maximum) || minimum < -720 ||
+        maximum > 720 || minimum >= maximum)
+        return false;
+    endpoint->gainMinimum = minimum;
+    endpoint->gainMaximum = maximum;
+    return setGain(id, std::clamp(endpoint->gainDb, minimum, maximum));
+}
+
+void Service::pollSounds()
+{
+    bool edited = false;
+    for (const auto &endpoint : endpoints)
+        if (endpoint.sound)
+            edited |= endpoint.sound->poll();
+    if (edited)
+        notify(true);
 }
 
 bool Service::restoreDesired(void *node, bool enabled)
@@ -135,6 +192,12 @@ bool Service::restore(const QString &base64, QString *error)
         for (const auto &id : members)
         {
             const auto *endpoint = find(id);
+            if (endpoint && (endpoint->sound || endpoint->peak || endpoint->gainLinear))
+            {
+                if (error)
+                    *error = QStringLiteral("Sound buttons cannot use switch exclusivity");
+                return false;
+            }
             enabled += endpoint && endpoint->desired;
         }
         if (enabled > 1)
@@ -160,6 +223,8 @@ void Service::reset()
     for (auto &endpoint : endpoints)
     {
         endpoint.desired = false;
+        if (endpoint.sound)
+            endpoint.sound->stop();
         endpoint.gate->request(false);
     }
     state = {};

@@ -1,3 +1,0 @@
-PASS matrix deterministic merge/fanout, source ledger disconnect/failed release/overflow, coherent snapshot and32port rename
-platform=windows, visible=1, DPR=1, system font=Microsoft YaHei UI, window budget=3/100
-PASS matrix DLL/routes and sidebar, four-language100% Windows captures, close/reopen, no JACK init

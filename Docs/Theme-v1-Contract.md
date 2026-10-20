@@ -1,6 +1,6 @@
 # 主题数据契约 v1（S02）
 
-本文件是 `主题系统计划书.md` 第 3～7 节的可实现约束。`Theme-v1-Registry.json` 逐项固定 token 的完整名称、显式 `ownerScope`、类型、原始默认值、有序继承链和说明；`Theme-v1-Defaults.css` 是有值 token 的可编辑基线。两文件目前是数据契约，并不代表运行时已经接入。基线以 `Theme-S01-Baseline.md` 和 `Theme-S01-Color-Literals.csv` 为准。`tests/theme/BuildRegistry.py` 检查两文件同步、继承目标/类型/环、样例声明及 Compressor 描述符；运行时必须读取注册表字段，不按字符串前缀推断归属。
+本文件规定主题系统的数据契约。`Theme-v1-Registry.json` 逐项固定 token 的完整名称、显式 `ownerScope`、类型、原始默认值、有序继承链和说明；`Theme-v1-Defaults.css` 是有值 token 的可编辑基线。两文件目前是数据契约，并不代表运行时已经接入。`tests/theme/BuildRegistry.py` 检查两文件同步、继承目标/类型/环、样例声明及 Compressor 描述符；运行时必须读取注册表字段，不按字符串前缀推断归属。
 
 ## 容器和能力版本
 

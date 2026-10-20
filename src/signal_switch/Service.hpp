@@ -17,6 +17,7 @@ class QMenu;
 
 namespace WinJACKNexus::SignalSwitch
 {
+class Sound;
 struct Endpoint
 {
     QString id;
@@ -29,9 +30,19 @@ struct Endpoint
     QString graphClient;
     QString domain;
     bool userNamed{};
+    Sound *sound{};
+    QString shortcut;
+    QString shortcutError;
+    std::atomic<float> *peak{};
+    bool peakVertical{};
+    std::atomic<float> *gainLinear{};
+    double gainDb{};
+    double gainMinimum{-72};
+    double gainMaximum{12};
+    std::function<void()> editValue;
 };
 
-// One service in signal_switch.dll, shared by every node DLL and the host.
+// One service in control_deck.dll, shared by every node DLL and the host.
 class WJN_SWITCH_API Service
 {
   public:
@@ -46,6 +57,12 @@ class WJN_SWITCH_API Service
     void detach(void *node);
     void bind(void *node, const QString &id, const QString &name, const QString &context);
     bool setEnabled(const QStringList &ids, bool enabled, QString *error = nullptr);
+    void activate(const QString &id);
+    bool setShortcut(const QString &id, const QString &sequence, QString *error = nullptr);
+    void updateShortcuts();
+    void pollSounds();
+    bool setGain(const QString &id, double db);
+    bool setGainRange(const QString &id, double minimum, double maximum);
     bool restoreDesired(void *node, bool enabled);
     void reconcile();
     void notify(bool edit = false);

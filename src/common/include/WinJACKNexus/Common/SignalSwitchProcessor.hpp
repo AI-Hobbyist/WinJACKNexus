@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <array>
 #include <atomic>
+#include <cmath>
 #include <cstdint>
 #include <span>
 
@@ -41,6 +42,27 @@ inline void audio(bool enabled, const float *const *inputs, float *const *output
             std::copy_n(inputs[channel], frames, output);
         else
             std::fill_n(output, frames, 0.0f);
+    }
+}
+
+inline void audioGain(float gain, const float *const *inputs, float *const *outputs, unsigned channels,
+                      unsigned frames) noexcept
+{
+    for (unsigned channel = 0; channel < channels; ++channel)
+        if (outputs[channel])
+            for (unsigned frame = 0; frame < frames; ++frame)
+                outputs[channel][frame] = inputs[channel] ? inputs[channel][frame] * gain : 0;
+}
+
+inline void capturePeak(const float *input, unsigned frames, std::atomic<float> &target) noexcept
+{
+    float peak{};
+    if (input)
+        for (unsigned frame = 0; frame < frames; ++frame)
+            peak = std::max(peak, std::abs(input[frame]));
+    auto previous = target.load(std::memory_order_relaxed);
+    while (peak > previous && !target.compare_exchange_weak(previous, peak, std::memory_order_relaxed))
+    {
     }
 }
 

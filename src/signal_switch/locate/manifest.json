@@ -49,7 +49,24 @@
       "conflict",
       "keepEnabled",
       "allOff",
-      "hookFailure"
+      "hookFailure",
+      "loadSound",
+      "shortcut",
+      "shortcutHint",
+      "shortcutConflict",
+      "loading",
+      "playing",
+      "trigger",
+      "unloaded",
+      "soundError",
+      "allFiles",
+      "peakLevel",
+      "gainRange",
+      "minimum",
+      "maximum",
+      "gainValue",
+      "invalidRange",
+      "meterDirection"
     ]
   }
 }

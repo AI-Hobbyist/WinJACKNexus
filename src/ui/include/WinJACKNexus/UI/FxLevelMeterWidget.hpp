@@ -14,6 +14,9 @@ class WINJACK_UI_API FxLevelMeterWidget final : public QWidget
   public:
     explicit FxLevelMeterWidget(QWidget *parent = nullptr);
     void setLevels(double inputDb, double outputDb);
+    void setSingleChannel(bool enabled, const QString &label = {});
+    void setVertical(bool enabled);
+    void setSurfaceVisible(bool visible);
     double inputDb() const noexcept
     {
         return inputDb_;

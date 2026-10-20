@@ -1,7 +1,0 @@
-Traceback (most recent call last):
-  File "D:\UserData\Desktop\Project\WinJACKNexus\Docs\i18n\prepare_s7_resources.py", line 109, in <module>
-    main()
-  File "D:\UserData\Desktop\Project\WinJACKNexus\Docs\i18n\prepare_s7_resources.py", line 63, in main
-    assert isinstance(value, str) and value.strip() and placeholder(value) == placeholder(fallback)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-AssertionError

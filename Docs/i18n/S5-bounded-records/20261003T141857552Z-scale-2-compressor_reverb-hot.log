@@ -1,4 +1,0 @@
-S5 scope: effects=compressor,reverb host=0 community=0 shared=0 cold=hot
-S5 module Windows checks PASS: 2419; platform=windows font=Microsoft YaHei UI scale=2
-S5 popup budget: 20 / 100
-S5 capture protocol: native-window-ownership-v2

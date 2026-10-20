@@ -49,9 +49,25 @@ void ConsoleKnob::setValue(double value)
     value_ = std::clamp(value, spec_.minimum, spec_.maximum);
     update();
 }
+bool ConsoleKnob::setRange(double minimum, double maximum)
+{
+    if (!std::isfinite(minimum) || !std::isfinite(maximum) || minimum >= maximum ||
+        (logarithmic_ && minimum <= 0))
+        return false;
+    spec_.minimum = minimum;
+    spec_.maximum = maximum;
+    spec_.defaultValue = std::clamp(spec_.defaultValue, minimum, maximum);
+    setValue(value_);
+    return true;
+}
 void ConsoleKnob::setUnit(const QString &unit)
 {
     unit_ = unit;
+    update();
+}
+void ConsoleKnob::setMinimumIsSilence(bool enabled)
+{
+    setProperty("wjn.finiteMinimum", !enabled);
     update();
 }
 void ConsoleKnob::setPanMode(bool enabled)
@@ -114,7 +130,7 @@ void ConsoleKnob::paintEvent(QPaintEvent *)
     else
     {
         drawKnob(painter, {width() / 2.0, 23}, normalized(value_), 21, colors);
-        text = spec_.minimum == CM::silenceDb && value_ <= CM::silenceDb
+        text = !property("wjn.finiteMinimum").toBool() && spec_.minimum == CM::silenceDb && value_ <= CM::silenceDb
                    ? QString::fromUtf8("−∞")
                    : QString::number(value_, 'f', spec_.decimals) + unit_;
     }

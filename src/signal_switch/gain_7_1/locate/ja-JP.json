@@ -1,0 +1,11 @@
+{
+  "formatVersion": 1,
+  "catalogVersion": 1,
+  "moduleId": "winjacknexus-signal-switch-gain-7-1",
+  "language": "ja-JP",
+  "domains": {
+    "signalSwitch.gain-7-1": {
+      "name": "ゲインノブ・7.1"
+    }
+  }
+}

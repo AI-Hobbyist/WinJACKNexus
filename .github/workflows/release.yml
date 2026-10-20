@@ -1,0 +1,81 @@
+name: Build full Release package
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    runs-on: windows-2022
+    timeout-minutes: 120
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.10.3'
+          arch: win64_msvc2022_64
+          modules: qttools
+          cache: true
+
+      - name: Fetch build and runtime dependencies
+        run: |
+          & ./tools/prepare_release_dependencies.ps1 2>&1 | Tee-Object -FilePath build.log
+          $buildExitCode = $LASTEXITCODE
+          if ($buildExitCode -ne 0) { Get-Content build.log -Tail 80; exit $buildExitCode }
+
+      - name: Configure Release with VST3
+        run: |
+          & cmake -S . -B build -G 'Visual Studio 17 2022' -A x64 `
+            "-DWJN_QT6_DIR=$env:QT_ROOT_DIR/lib/cmake/Qt6" `
+            "-DWJN_OUTPUT_DIR=$env:GITHUB_WORKSPACE/build/release/bin" `
+            -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DBUILD_TESTING=OFF `
+            -DWJN_LINK_JACK=OFF -DWJN_ENABLE_VST2=OFF 2>&1 | Tee-Object -FilePath build.log
+          $buildExitCode = $LASTEXITCODE
+          Copy-Item build.log build/configure.log
+          if ($buildExitCode -ne 0) { Get-Content build.log -Tail 80; exit $buildExitCode }
+
+      - name: Build all Release targets
+        run: |
+          & cmake --build build --config Release --target ALL_BUILD --clean-first --parallel 4 `
+            2>&1 | Tee-Object -FilePath build.log
+          $buildExitCode = $LASTEXITCODE
+          Copy-Item build.log build/compile.log
+          if ($buildExitCode -ne 0) { Get-Content build.log -Tail 80; exit $buildExitCode }
+          @{ commit = $env:GITHUB_SHA; configuration = 'Release'; target = 'ALL_BUILD'; vst2 = $false } |
+            ConvertTo-Json | Set-Content build/full-release-build.json -Encoding utf8
+
+      - name: Package full Release
+        run: |
+          & ./tools/package_release.ps1 2>&1 | Tee-Object -FilePath build.log
+          $buildExitCode = $LASTEXITCODE
+          Copy-Item build.log build/package.log
+          if ($buildExitCode -ne 0) { Get-Content build.log -Tail 80; exit $buildExitCode }
+
+      - name: Upload full package
+        uses: actions/upload-artifact@v4
+        with:
+          name: WinJACKNexus-Release-x64-VST3
+          path: |
+            build/WinJACKNexus-Release-x64-*.zip
+            build/WinJACKNexus-Release-x64-*.zip.sha256
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 30
+
+      - name: Upload build logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-build-logs
+          path: |
+            build.log
+            build/*.log
+          if-no-files-found: ignore
+          retention-days: 14

@@ -1,8 +1,0 @@
-Traceback (most recent call last):
-  File "D:\UserData\Desktop\Project\WinJACKNexus\Docs\i18n\verify_s6_supplement.py", line 95, in <module>
-    main()
-  File "D:\UserData\Desktop\Project\WinJACKNexus\Docs\i18n\verify_s6_supplement.py", line 77, in main
-    check(path.is_file() and path.stat().st_size > 0 and path.name in log, 'required Release output linked: ' + output)
-  File "D:\UserData\Desktop\Project\WinJACKNexus\Docs\i18n\verify_s6_supplement.py", line 18, in check
-    raise AssertionError(description)
-AssertionError: required Release output linked: nodes/meter/mod_meterbrigde.dll

@@ -248,9 +248,16 @@ class QuickAccessBar final : public QFrame
 
     void setSwitchMenu(QMenu *menu)
     {
+        disconnect(switchMenuChanged_);
         switchButton_->setMenu(menu);
         switchButton_->setEnabled(menu != nullptr);
-        switchButton_->setText(menu ? menu->title() : QStringLiteral("Signal Switch"));
+        switchButton_->setText(menu ? menu->title() : QStringLiteral("Control Deck"));
+        switchButton_->setAccessibleName(switchButton_->text());
+        if (menu)
+            switchMenuChanged_ = connect(menu->menuAction(), &QAction::changed, switchButton_, [this, menu] {
+                switchButton_->setText(menu->title());
+                switchButton_->setAccessibleName(menu->title());
+            });
     }
 
     void setSettingsAction(QAction *action)
@@ -623,6 +630,7 @@ class QuickAccessBar final : public QFrame
     QToolButton *patchbayButton_ = nullptr;
     QToolButton *meterbridgeButton_ = nullptr;
     QToolButton *switchButton_ = nullptr;
+    QMetaObject::Connection switchMenuChanged_;
     QToolButton *mixerButton_ = nullptr;
     QToolButton *themeButton_ = nullptr;
     QToolButton *systemDevicesButton_ = nullptr;

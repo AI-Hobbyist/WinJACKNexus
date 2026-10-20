@@ -1,2 +1,0 @@
-{"changed_files": ["src/ui/src/Controls.cpp"], "resource_changes": [], "added": 0, "removed": 0, "relocated_groups": 0, "usage_changed_groups": 0, "before": 9015, "after": 9015}
-Scanned 270 files; 9015 literal occurrences; 5990 source IDs.

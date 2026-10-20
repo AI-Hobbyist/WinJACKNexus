@@ -1,3 +1,0 @@
-PASS synthesizer MIDI/stereo rename model without JACK
-platform=windows, visible=1, DPR=1, system font=Microsoft YaHei UI, window budget=1/100
-PASS synth DLL state/client rename preserves resources/mix and100% four-language Windows sidebar, no JACK init

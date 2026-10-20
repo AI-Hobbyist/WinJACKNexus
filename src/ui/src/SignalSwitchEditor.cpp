@@ -1,5 +1,6 @@
 /* SPDX-License-Identifier: AGPL-3.0-only */
 #include "Editor.hpp"
+#include "Sound.hpp"
 #include <QApplication>
 #include <QDialog>
 #include <QGuiApplication>
@@ -79,8 +80,8 @@ Editor::Editor(Service &service) : service_(service)
         service_.notify(true);
     });
     const auto retranslate = [this, open, lock, unlock, through] {
-        setWindowTitle(text("title", "Signal Switch"));
-        menu_->setTitle(text("title", "Signal Switch"));
+        setWindowTitle(text("title", "Control Deck"));
+        menu_->setTitle(text("title", "Control Deck"));
         open->setText(text("openEditor", "Open editor"));
         lock->setText(text("lock", "Lock layout"));
         unlock->setText(text("unlock", "Unlock layout"));
@@ -101,6 +102,7 @@ Editor::Editor(Service &service) : service_(service)
         if (service_.synchronize)
             service_.synchronize();
         service_.reconcile();
+        service_.pollSounds();
         refresh();
     });
     maintenance_.start();
@@ -118,6 +120,7 @@ Editor::~Editor()
 
 void Editor::refresh()
 {
+    service_.updateShortcuts();
     QSet<QString> live;
     QSize extent(320, 200);
     for (const auto &endpoint : service_.endpoints)
@@ -129,14 +132,11 @@ void Editor::refresh()
             button = new UI::Controls::ActionButton({}, canvas_);
             button->setObjectName("signalSwitchButton." + endpoint.id);
             button->setProperty("signalSwitchId", endpoint.id);
-            button->setCheckable(true);
+            button->setCheckable(!endpoint.sound && !endpoint.peak && !endpoint.gainLinear);
             button->installEventFilter(this);
             button->setContextMenuPolicy(Qt::CustomContextMenu);
             buttons_[endpoint.id] = button;
-            connect(button, &QPushButton::clicked, this, [this, id = endpoint.id] {
-                if (auto *endpoint = service_.find(id))
-                    service_.setEnabled({id}, !endpoint->desired);
-            });
+            connect(button, &QPushButton::clicked, this, [this, id = endpoint.id] { service_.activate(id); });
             connect(button, &QWidget::customContextMenuRequested, this, [this, id = endpoint.id, button](QPoint pos) {
                 if (!service_.state.locked)
                     showCardMenu(id, button->mapToGlobal(pos));
@@ -145,7 +145,11 @@ void Editor::refresh()
         }
         const bool pending =
             endpoint.desired ? !(endpoint.gate->command.load(std::memory_order_acquire) & 1) : !endpoint.gate->quiet();
-        const auto state = pending            ? text("waiting", "Waiting")
+        const auto state = endpoint.sound     ? (endpoint.sound->loading()   ? text("loading", "Loading")
+                                                 : endpoint.sound->playing() ? text("playing", "Playing")
+                                                 : endpoint.sound->ready()   ? text("trigger", "Play")
+                                                                             : text("unloaded", "No sound loaded"))
+                           : pending          ? text("waiting", "Waiting")
                            : endpoint.desired ? text("on", "On")
                                               : text("off", "Off");
         const auto name = service_.label(endpoint);
@@ -158,6 +162,16 @@ void Editor::refresh()
         button->setChecked(endpoint.desired);
         button->setAccessibleName(name + " · " + state);
         button->setToolTip(name + "\n" + endpoint.context + "\n" + endpoint.version);
+        if (endpoint.sound)
+        {
+            button->setToolTip(button->toolTip() + "\n" + endpoint.sound->path() + "\n" + endpoint.shortcut);
+            const auto error = endpoint.sound->error().isEmpty() ? endpoint.shortcutError : endpoint.sound->error();
+            if (!error.isEmpty())
+                button->setToolTip(button->toolTip() + "\n" +
+                                   UI::localizedText("signalSwitch", "soundError",
+                                                     "Sound or shortcut unavailable: {detail}", {{"detail", error}}));
+        }
+        refreshControl(button, endpoint);
         if (!service_.state.locked)
             button->setGeometry(rect);
         styleButton(button, endpoint.id);
@@ -276,7 +290,7 @@ bool Service::installUI(QString *error)
                                                           {"themeApiVersion", 1},
                                                           {"moduleId", "signal-switch"},
                                                           {"namespace", "--wjn-theme-signal-switch-"},
-                                                          {"displayName", "Signal Switch"},
+                                                          {"displayName", "Control Deck"},
                                                           {"tokens", tokens}})
                                     .toJson(QJsonDocument::Compact);
         if (!UI::ThemeNamespaceRegistry::instance().registerInternal(descriptor, "signal-switch", &resources->theme,

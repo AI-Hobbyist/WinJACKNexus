@@ -230,9 +230,46 @@ void Editor::showCardMenu(const QString &id, const QPoint &global)
     QMap<QString, bool> current, proposed;
     for (const auto &endpoint : service_.endpoints)
         current[endpoint.id] = endpoint.desired;
-    auto *on = action(menu, "on", "On", [this, members] { service_.setEnabled(members, true); });
-    on->setEnabled(service_.state.resolve(current, members, true, &proposed));
-    action(menu, "off", "Off", [this, members] { service_.setEnabled(members, false); });
+    const bool switchesOnly = std::all_of(members.begin(), members.end(), [this](const auto &member) {
+        const auto *endpoint = service_.find(member);
+        return endpoint && !endpoint->sound && !endpoint->peak && !endpoint->gainLinear;
+    });
+    if (switchesOnly)
+    {
+        auto *on = action(menu, "on", "On", [this, members] { service_.setEnabled(members, true); });
+        on->setEnabled(service_.state.resolve(current, members, true, &proposed));
+        action(menu, "off", "Off", [this, members] { service_.setEnabled(members, false); });
+    }
+    if (members.size() == 1)
+    {
+        const auto *endpoint = service_.find(id);
+        if (endpoint && endpoint->sound)
+        {
+            action(menu, "trigger", "Play", [this, id] { service_.activate(id); });
+            action(menu, "loadSound", "Load sound…", [this, id] { loadSound(id); });
+            action(menu, "shortcut", "Global shortcut…", [this, id] { editShortcut(id); });
+        }
+        if (endpoint && endpoint->gainLinear)
+            action(menu, "gainRange", "Gain range…", [this, id] { editGainRange(id); });
+        if (endpoint && endpoint->peak)
+        {
+            auto *direction = menu.addMenu(QString());
+            UI::bindLocalizedText(direction, "title", "signalSwitch", "meterDirection", "Meter direction");
+            for (const bool vertical : {false, true})
+            {
+                auto *item = action(*direction, vertical ? "vertical" : "horizontal", vertical ? "Vertical" : "Horizontal",
+                                    [this, id, vertical] {
+                    if (auto *current = service_.find(id))
+                    {
+                        current->peakVertical = vertical;
+                        service_.notify(true);
+                    }
+                });
+                item->setCheckable(true);
+                item->setChecked(endpoint->peakVertical == vertical);
+            }
+        }
+    }
     if (members.size() == 1)
         action(menu, "rename", "Rename", [this, id] { rename(id); });
     menu.addSeparator();
@@ -244,7 +281,9 @@ void Editor::showCardMenu(const QString &id, const QPoint &global)
         service_.notify(true);
     });
     menu.addSeparator();
-    action(menu, "exclusive", "Set mutually exclusive", [this] { createRelation(); })->setEnabled(members.size() >= 2);
+    action(menu, "exclusive", "Set mutually exclusive", [this] {
+        createRelation();
+    })->setEnabled(switchesOnly && members.size() >= 2);
     action(menu, "independent", "Make independent", [this, members] {
         service_.state.makeIndependent(members);
         service_.notify(true);
@@ -420,7 +459,7 @@ void Editor::editGrid()
 void Editor::editOpacity()
 {
     QDialog dialog(this);
-    UI::bindLocalizedText(&dialog, "windowTitle", "signalSwitch", "opacity", "Button opacity");
+    UI::bindLocalizedText(&dialog, "windowTitle", "signalSwitch", "opacity", "Control opacity");
     auto *layout = new QVBoxLayout(&dialog);
     auto *value = new C::IntegerField(&dialog);
     value->setObjectName("signalSwitch.opacity");

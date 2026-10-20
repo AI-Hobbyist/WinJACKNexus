@@ -5,12 +5,12 @@
   "language": "zh-CN",
   "domains": {
     "signalSwitch": {
-      "title": "Signal Switch",
+      "title": "控制面板",
       "openEditor": "打开编辑器",
       "lock": "锁定布局",
       "unlock": "解锁布局",
       "clickThrough": "鼠标穿透",
-      "empty": "在图中添加 Signal Switch 节点，即可在此创建对应按钮。",
+      "empty": "在图中添加控制面板节点，即可在此创建对应控件。",
       "rename": "重命名",
       "waiting": "等待切换",
       "on": "开启",
@@ -28,7 +28,7 @@
       "dissolveGroup": "取消分组",
       "grid": "网格对齐",
       "gridSize": "网格间距",
-      "opacity": "按钮不透明度",
+      "opacity": "控件透明度",
       "closeEditor": "关闭编辑器",
       "multiple": "多个值",
       "width": "宽度",
@@ -40,7 +40,24 @@
       "conflict": "所选按钮与现有分组或关系冲突，请先解除原有归属。",
       "keepEnabled": "选择保持启用的开关",
       "allOff": "全部关闭",
-      "hookFailure": "无法启用鼠标穿透，按钮仍可直接点击。"
+      "hookFailure": "无法启用鼠标穿透，按钮仍可直接点击。",
+      "loadSound": "载入音效…",
+      "shortcut": "全局快捷键…",
+      "shortcutHint": "例如 Ctrl+Alt+1，留空则清除快捷键。",
+      "shortcutConflict": "快捷键无效、被系统保留或已被占用，请选择其他组合。",
+      "loading": "载入中",
+      "playing": "播放中",
+      "trigger": "播放",
+      "unloaded": "未载入音效",
+      "soundError": "音效或快捷键不可用：{detail}",
+      "allFiles": "所有文件 (*)",
+      "peakLevel": "峰值",
+      "gainRange": "增益范围…",
+      "minimum": "最小值",
+      "maximum": "最大值",
+      "gainValue": "增益",
+      "invalidRange": "最小值必须小于最大值。",
+      "meterDirection": "电平表方向"
     }
   }
 }

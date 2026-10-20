@@ -4,18 +4,21 @@ target_link_libraries(signal_switch_state PUBLIC Qt6::Gui)
 target_include_directories(signal_switch_state PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
 target_compile_options(signal_switch_state PRIVATE /utf-8)
 
-add_library(signal_switch SHARED Service.cpp Service.hpp Editor.hpp
+add_library(control_deck SHARED Service.cpp Service.hpp Editor.hpp Sound.cpp Sound.hpp Hotkeys.cpp
+    "${PROJECT_SOURCE_DIR}/src/ui/src/ControlDeckControls.cpp"
     "${PROJECT_SOURCE_DIR}/src/ui/src/SignalSwitchEditor.cpp"
     "${PROJECT_SOURCE_DIR}/src/ui/src/SignalSwitchLayout.cpp"
     "${PROJECT_SOURCE_DIR}/src/ui/src/SignalSwitchOverlay.cpp")
-wjn_configure_shared_target(signal_switch WJN_SIGNAL_SWITCH_BUILD)
-target_include_directories(signal_switch PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}"
+add_library(signal_switch ALIAS control_deck)
+wjn_configure_shared_target(control_deck WJN_SIGNAL_SWITCH_BUILD)
+target_include_directories(control_deck PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}"
     "${PROJECT_SOURCE_DIR}/src/common/include")
-target_link_libraries(signal_switch PRIVATE signal_switch_state WinJACKNexus::UI PUBLIC Qt6::Widgets)
-target_compile_options(signal_switch PRIVATE /utf-8)
-target_compile_definitions(signal_switch PRIVATE WIN32_LEAN_AND_MEAN NOMINMAX)
+target_link_libraries(control_deck PRIVATE signal_switch_state WinJACKNexus::UI PUBLIC Qt6::Widgets)
+target_compile_options(control_deck PRIVATE /utf-8)
+target_compile_definitions(control_deck PRIVATE WIN32_LEAN_AND_MEAN NOMINMAX)
 
-foreach(kind mono stereo 5_1 7_1 midi)
+foreach(kind mono stereo 5_1 7_1 midi sound peak gain_mono gain_stereo gain_5_1 gain_7_1)
+    set(control 0)
     if(kind STREQUAL "mono")
         set(channels 1)
         set(display "Signal Switch Mono")
@@ -28,15 +31,39 @@ foreach(kind mono stereo 5_1 7_1 midi)
     elseif(kind STREQUAL "7_1")
         set(channels 8)
         set(display "Signal Switch 7.1")
-    else()
+    elseif(kind STREQUAL "midi")
         set(channels 0)
         set(display "Signal Switch MIDI")
+    elseif(kind STREQUAL "sound")
+        set(channels 2)
+        set(control 1)
+        set(display "WJN Control Deck Sound")
+    elseif(kind STREQUAL "peak")
+        set(channels 1)
+        set(control 2)
+        set(display "WJN Control Deck Peak Meter")
+    else()
+        set(control 3)
+        if(kind STREQUAL "gain_mono")
+            set(channels 1)
+            set(display "WJN Control Deck Gain Mono")
+        elseif(kind STREQUAL "gain_stereo")
+            set(channels 2)
+            set(display "WJN Control Deck Gain Stereo")
+        elseif(kind STREQUAL "gain_5_1")
+            set(channels 6)
+            set(display "WJN Control Deck Gain 5.1")
+        else()
+            set(channels 8)
+            set(display "WJN Control Deck Gain 7.1")
+        endif()
     endif()
     set(target wjn_signal_switch_${kind})
     string(REPLACE "_" "-" module_kind "${kind}")
     add_library(${target} SHARED Module.cpp)
     wjn_configure_shared_target(${target} WJN_NODE_IMPLEMENTATION)
     target_compile_definitions(${target} PRIVATE WJN_SWITCH_CHANNELS=${channels}
+        WJN_SWITCH_CONTROL=${control}
         "WJN_SWITCH_KIND=\"${module_kind}\""
         "WJN_SWITCH_NAME=\"${display}\"" WIN32_LEAN_AND_MEAN NOMINMAX)
     target_compile_options(${target} PRIVATE /utf-8)
@@ -52,7 +79,7 @@ foreach(kind mono stereo 5_1 7_1 midi)
             "$<TARGET_FILE_DIR:${target}>/locate")
 endforeach()
 
-add_custom_command(TARGET signal_switch POST_BUILD
+add_custom_command(TARGET control_deck POST_BUILD
     COMMAND "${CMAKE_COMMAND}" -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/locate"
         "${WJN_OUTPUT_DIR}/signal_switch/locate")
 
@@ -99,6 +126,18 @@ if(BUILD_TESTING)
     set_target_properties(wjn_signal_switch_final_tests PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY_RELEASE "${WJN_OUTPUT_DIR}")
     add_dependencies(wjn_signal_switch_final_tests wjn_signal_switch_module_tests)
+    add_executable(wjn_control_deck_tests ControlDeckTests.cpp)
+    target_include_directories(wjn_control_deck_tests PRIVATE
+        "${PROJECT_SOURCE_DIR}/src/patchbay/mod/include" "${PROJECT_SOURCE_DIR}/src/native_fx/include")
+    target_link_libraries(wjn_control_deck_tests PRIVATE signal_switch signal_switch_state mod_patchbay
+        patchbay_core WinJACKNexus::UI WinJACKNexus::Node WinJACKNexus::Audio Qt6::Test)
+    target_compile_definitions(wjn_control_deck_tests PRIVATE WJN_NODE_IMPLEMENTATION
+        WIN32_LEAN_AND_MEAN NOMINMAX "SWITCH_SOURCE_DIR=\"${PROJECT_SOURCE_DIR}\"")
+    target_compile_options(wjn_control_deck_tests PRIVATE /utf-8)
+    set_target_properties(wjn_control_deck_tests PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEASE "${WJN_OUTPUT_DIR}")
+    add_dependencies(wjn_control_deck_tests wjn_signal_switch_module_tests wjn_signal_switch_sound
+        wjn_signal_switch_peak wjn_signal_switch_gain_mono wjn_signal_switch_gain_stereo
+        wjn_signal_switch_gain_5_1 wjn_signal_switch_gain_7_1 wjn_signal_switch_layout_tests)
     add_executable(wjn_signal_switch_layout_tests LayoutTests.cpp)
     target_link_libraries(wjn_signal_switch_layout_tests PRIVATE signal_switch signal_switch_state
         WinJACKNexus::UI Qt6::Test)

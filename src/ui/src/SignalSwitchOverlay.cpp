@@ -178,13 +178,7 @@ LRESULT CALLBACK Editor::mouseHook(int code, WPARAM message, LPARAM data)
         owner->hookPressed_.clear();
         if (hit == id)
         {
-            QMetaObject::invokeMethod(
-                owner,
-                [owner, id] {
-                    if (auto *endpoint = owner->service_.find(id))
-                        owner->service_.setEnabled({id}, !endpoint->desired);
-                },
-                Qt::QueuedConnection);
+            QMetaObject::invokeMethod(owner, [owner, id] { owner->service_.activate(id); }, Qt::QueuedConnection);
         }
         return 1;
     }

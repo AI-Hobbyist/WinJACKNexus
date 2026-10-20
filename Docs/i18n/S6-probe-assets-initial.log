@@ -1,7 +1,0 @@
-Traceback (most recent call last):
-  File "D:\UserData\Desktop\Project\WinJACKNexus\Docs\i18n\verify_s6_scanner_assets.py", line 83, in <module>
-    main()
-  File "D:\UserData\Desktop\Project\WinJACKNexus\Docs\i18n\verify_s6_scanner_assets.py", line 52, in main
-    assert probe_keys == {key for key in keys if key.startswith('probe.')}
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-AssertionError

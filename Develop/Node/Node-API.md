@@ -227,7 +227,7 @@ Native Fx standalone titles refresh their translated effect name together with t
 
 ### VST 宿主的 Node i18n v2 描述符接入
 
-`mod_vst_host.dll` 实现无索引 Node i18n v2 描述符导出及既有 v1 主机服务，模块 ID 为 `module-winjacknexus-vst-host`，域为 `vst`，固定目录为 DLL 所在目录的 `locate`，catalogVersion 为 1。Node v4 及其稳定插件/工程身份保持。显示状态保留 key 与参数，语言通知不重启 VSTProcess、不提交设置；最终租约释放后，仍存活的设置控件回退调用点 English。实际 DLL 单次 Windows 实窗调用点验证通过 77 项检查，见 `Docs/i18n/S6-vst-verification.json`；真实插件、进程和 JACK 集成不在该验证范围。
+`mod_vst_host.dll` 实现无索引 Node i18n v2 描述符导出及既有 v1 主机服务，模块 ID 为 `module-winjacknexus-vst-host`，域为 `vst`，固定目录为 DLL 所在目录的 `locate`，catalogVersion 为 1。Node v4 及其稳定插件/工程身份保持。显示状态保留 key 与参数，语言通知不重启 VSTProcess、不提交设置；最终租约释放后，仍存活的设置控件回退调用点 English。实际 DLL 单次 Windows 实窗调用点验证通过 77 项检查；真实插件、进程和 JACK 集成不在该验证范围。
 
 ## 双模式模块适配（公开仓库前 S4，2026-10-11）
 
