@@ -45,6 +45,8 @@
 #include <vector>
 #include <utility>
 
+#include <Windows.h>
+
 #include "SelThemeAccent.hpp"
 #include "MixerPolarAccent.hpp"
 
@@ -52,6 +54,13 @@ namespace WinJACKNexus::UI
 {
 namespace
 {
+// Owned top-level windows are hidden from the taskbar by default; give them their own button.
+void showInTaskbar(QWidget *window)
+{
+    const auto handle = reinterpret_cast<HWND>(window->winId());
+    const auto exStyle = GetWindowLongPtrW(handle, GWL_EXSTYLE);
+    SetWindowLongPtrW(handle, GWL_EXSTYLE, exStyle | WS_EX_APPWINDOW);
+}
 
 QString mixerText(const char *key, const char *english)
 {
@@ -3458,6 +3467,7 @@ class MixerWindow::Impl
         {
             overviewWindow = new MixerOverviewScreen(&owner);
             overviewWindow->setAttribute(Qt::WA_DeleteOnClose);
+            showInTaskbar(overviewWindow);
             overviewWindow->setObjectName(QStringLiteral("mixerChannelOverview"));
             bindLocalizedText(overviewWindow, "windowTitle", "mixer", "view.overview",
                               "Channel overview");
@@ -3566,6 +3576,7 @@ class MixerWindow::Impl
         {
             selWindow = new QWidget(&owner, Qt::Window);
             selWindow->setAttribute(Qt::WA_DeleteOnClose);
+            showInTaskbar(selWindow);
             selWindow->setObjectName(QStringLiteral("selLargeScreen"));
             bindLocalizedText(selWindow, "windowTitle", "mixer", "view.details", "Channel details");
             selWindow->resize(1394, 885);
