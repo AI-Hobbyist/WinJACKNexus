@@ -9,13 +9,13 @@
 1. 四语 README 补充：启动前 JACK 检查、进程优先级、调音台窗口行为（主仓库 `bf6d5fb`）。
 2. Wiki 建立并扩展：安装流程、全部模块使用方法、主题自定义、术语表与常见问题。
 
-代码未改动，上一轮功能状态不变。后续事项见第 6 节。
+代码合并已提交并推送（`8e6d38a`），本轮文档未改代码。后续事项见第 6 节。
 
 ## 2. Git 状态
 
 ### 主仓库
 
-- 分支 `main`，已与 `origin/main` 同步；本手册提交前的最新功能/文档提交为 `bf6d5fb`。
+- 分支 `main`，已与 `origin/main` 同步；最新代码合并提交为 `8e6d38a`（signal_switch → control_deck）。
 - 工作区没有未提交的代码改动。
 - 以下未跟踪内容按用户指令**不提交**：`.omc/`、`midi_tools_node_ref/`、`themes/Furina/`、`themes/org.eryth.furina.wjnskin`。
 
@@ -54,13 +54,13 @@
 
 ### 3.3 安装流程
 
-整合包计划包含三个文件，Wiki 已按此编写：
+整合包已发布到 [GitHub Releases](https://github.com/AI-Hobbyist/WinJACKNexus/releases)，资产为 `WJN_Release.7z`，解压后包含三个文件：
 
 `1_安装JACK.exe` → `2_安装VAC.exe` → `3_解压WinJACKNexus.7z`
 
 注意：
 
-- 整合包**尚未打包**，Wiki 安装页明确标注「准备中」；发布前仍按 README 的现有方式安装。
+- Wiki 安装页和四语 README 已加入 Releases 下载入口。
 - VAC 同一条线的播放端点和录音端点内部连通，同一条线只能用于录制或播放其中之一。例如系统播放使用 `Line 1` 时，WASAPI 输入应选择 `Line 2`。
 - 三文件清单里没有 VC++ 运行库安装程序，而应用依赖它；干净系统可能缺少 `VCRUNTIME140.dll` / `MSVCP140.dll`。
 
@@ -82,7 +82,7 @@
 
 ## 6. 后续事项
 
-1. **整合包**：打包完成后更新 Wiki 安装页——去掉「准备中」、补下载入口、核对三个文件名；同时确认是否需要增加 VC++ 运行库步骤，或把安装程序放进 `3_解压WinJACKNexus.7z`。
+1. **整合包**：`1.0.0` 已发布（`WJN_Release.7z`）；后续版本更新时同步 Wiki/README 的下载入口，并确认是否需要增加 VC++ 运行库步骤或把安装程序放进 `3_解压WinJACKNexus.7z`。
 2. **VAC 再分发**：把 VAC 安装程序放进公开整合包前，确认其许可与再分发条款。
 3. **Wiki 完善**：目前只有简体中文，没有截图或录屏；`Development` 页的构建环境与测试流程仍是「待补充」；可补主题 Token 参考页。
 4. **旧文档核对（未做）**：`Docs/UI-API.md` 是否完整覆盖进程优先级接口；`Docs/` 下的调音台文档；计划书中的启动流程描述。用户把本轮文档范围限定为主 README 与 Wiki，这些未执行。
@@ -96,7 +96,7 @@
 - 如果后面需要构建：只用现有 `build` 目录，只编 Release，用 VS18 自带的 CMake，在前台运行并通过 `2>&1 | Tee-Object -FilePath build.log` 记录完整输出，然后检查 `$LASTEXITCODE`（`build.log` 是 UTF-16 编码）。不要使用 offscreen 模式。
 - 提交和推送需要用户批准。
 
-## 8. 2026-10-31 17:05 追加：signal_switch 并入 control_deck（未提交）
+## 8. 2026-10-31 17:05 追加：signal_switch 并入 control_deck（已提交 `8e6d38a`）
 
 - 源码 `src/signal_switch/` → `src/control_deck/`；命名空间 `SignalSwitch` → `ControlDeck`（含 `Common::ControlDeck`、`ControlDeckProcessor.hpp`）；UI 文件 `ControlDeck{Editor,Layout,Overlay}.cpp`；CMake 目标 `control_deck_state`、测试 `wjn_control_deck_*_tests`；对象名/属性 `controlDeck*`；打包脚本 `tools/package_control_deck.ps1`。
 - 主面板 `signalSwitch` 域并入主语言目录 `locate/`，不再有 `signal_switch/locate`；BASS 插件目录改为 `control_deck/bass_plugins/`，仍兼容读取旧的 `signal_switch/bass_plugins/`。

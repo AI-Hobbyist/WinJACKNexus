@@ -48,6 +48,8 @@
 
 需要 Windows x64、JACK2 和 Microsoft Visual C++ 运行库。解压后保留目录结构，运行 `WinJACKNexus.exe`。连接实际设备前先检查 JACK 配置与接线。
 
+整合包发布在 [GitHub Releases](https://github.com/AI-Hobbyist/WinJACKNexus/releases)。下载 `WJN_Release.7z`，解压后按顺序运行 `1_安装JACK.exe`、`2_安装VAC.exe`，再解压 `3_解压WinJACKNexus.7z` 并运行 `WinJACKNexus.exe`。
+
 启动时会先确认 JACK 服务器是否可用。没有可用服务器时，若启用了「JACK 服务器设置」中的自动启动，会先用该设置尝试启动；仍未就绪就显示模态的「JACK 服务器设置」窗口，服务器就绪后该窗口自动关闭并继续启动。直接关闭这个窗口会退出应用。
 
 「全局设置 → Windows 进程优先级」提供低、低于正常、正常、高于正常、高和实时六档。修改会立即应用到本程序，并用于此后启动的子进程（jackd、VST 宿主进程和 VST 扫描器）；已经在运行的子进程保持原有优先级。实时优先级可能影响整个系统的响应，并且需要额外的 Windows 权限；Windows 拒绝该优先级时会恢复原值并提示失败。

@@ -48,6 +48,8 @@ Switching channels in Channel details (Monitor included) updates the highlight i
 
 Windows x64, JACK2 and Microsoft Visual C++ runtimes are required. Extract with the directory structure intact and run `WinJACKNexus.exe`. Check JACK configuration and routing before connecting real devices.
 
+The integrated package is published on [GitHub Releases](https://github.com/AI-Hobbyist/WinJACKNexus/releases). Download `WJN_Release.7z`, extract it, run `1_安装JACK.exe` and `2_安装VAC.exe` in order, then extract `3_解压WinJACKNexus.7z` and run `WinJACKNexus.exe`.
+
 At startup the application first checks for a usable JACK server. If none is available and auto-start is enabled in JACK server settings, it tries to start one with those settings; if the server is still not ready, a modal JACK server settings window appears, closes automatically once the server is ready and then startup continues. Closing that window directly exits the application.
 
 Global settings → Windows process priority offers Low, Below normal, Normal, Above normal, High and Realtime. A change applies immediately to this application and to child processes started afterwards (jackd, the VST host process and the VST scanner); child processes that are already running keep their previous priority. Realtime priority can affect system responsiveness and requires additional Windows privileges; when Windows rejects it, the previous priority is restored and a failure message is shown.
