@@ -3576,6 +3576,9 @@ class MixerWindow::Impl
             auto *header = new QWidget(selWindow);
             header->setObjectName(QStringLiteral("selHeader"));
             selHeader = header;
+            // The previous window was deleted on close; force the new header to receive its style.
+            lastHeaderColor = {};
+            lastHeaderTextColor = {};
             header->setFixedHeight(64);
             auto *headerLayout = new QHBoxLayout(header);
             headerLayout->setContentsMargins(24, 5, 16, 5);
