@@ -46,6 +46,8 @@
 #include <vector>
 #include <utility>
 
+#include <Windows.h>
+
 #include "SelThemeAccent.hpp"
 #include "MixerPolarAccent.hpp"
 
@@ -56,11 +58,20 @@ namespace
 // Keep the QObject parent for lifetime and lookup, but drop the native owner:
 // owned windows are hidden from the taskbar and always stay above the mixer,
 // so the mixer could not be brought to the front from its taskbar thumbnail.
+// Call before show(): the taskbar decides whether a window gets a button when it is shown.
+void showInTaskbar(QWidget *window)
+{
+    const auto handle = reinterpret_cast<HWND>(window->winId());
+    const auto exStyle = GetWindowLongPtrW(handle, GWL_EXSTYLE);
+    SetWindowLongPtrW(handle, GWL_EXSTYLE, exStyle | WS_EX_APPWINDOW);
+}
+
+// Call after show(): Qt assigns the native owner while showing the window.
 void detachFromOwnerWindow(QWidget *window)
 {
-    window->winId();
     if (auto *handle = window->windowHandle())
         handle->setTransientParent(nullptr);
+    SetWindowLongPtrW(reinterpret_cast<HWND>(window->winId()), GWLP_HWNDPARENT, 0);
 }
 
 QString mixerText(const char *key, const char *english)
@@ -3468,6 +3479,7 @@ class MixerWindow::Impl
         {
             overviewWindow = new MixerOverviewScreen(&owner);
             overviewWindow->setAttribute(Qt::WA_DeleteOnClose);
+            showInTaskbar(overviewWindow);
             overviewWindow->setObjectName(QStringLiteral("mixerChannelOverview"));
             bindLocalizedText(overviewWindow, "windowTitle", "mixer", "view.overview",
                               "Channel overview");
@@ -3577,6 +3589,7 @@ class MixerWindow::Impl
         {
             selWindow = new QWidget(&owner, Qt::Window);
             selWindow->setAttribute(Qt::WA_DeleteOnClose);
+            showInTaskbar(selWindow);
             selWindow->setObjectName(QStringLiteral("selLargeScreen"));
             bindLocalizedText(selWindow, "windowTitle", "mixer", "view.details", "Channel details");
             selWindow->resize(1394, 885);
