@@ -38,9 +38,19 @@ Every version is a separate DLL and supports both main graphs and subgraphs. Nod
 
 All control nodes use the `Control Deck` category and `nodes/control_deck/` directory. Place `control_deck.dll` beside the EXE; panel translations remain in `signal_switch/locate/`. Old project paths under `nodes/signal_switch/` resolve to the installed new directory, retaining node DLL names and saved identities. Feed the peak meter from a signal branch rather than inserting it in series.
 
+## Mixer windows
+
+The digital mixer's Channel overview and Channel details are independent top-level windows, each with its own taskbar thumbnail. They can be brought to the foreground on their own, and they no longer minimize together with the main mixer.
+
+Switching channels in Channel details (Monitor included) updates the highlight in Channel overview and the main mixer's scroll position. Selecting a channel in the overview opens that channel's details and keeps the main mixer in sync in the same way.
+
 ## Download and run
 
 Windows x64, JACK2 and Microsoft Visual C++ runtimes are required. Extract with the directory structure intact and run `WinJACKNexus.exe`. Check JACK configuration and routing before connecting real devices.
+
+At startup the application first checks for a usable JACK server. If none is available and auto-start is enabled in JACK server settings, it tries to start one with those settings; if the server is still not ready, a modal JACK server settings window appears, closes automatically once the server is ready and then startup continues. Closing that window directly exits the application.
+
+Global settings → Windows process priority offers Low, Below normal, Normal, Above normal, High and Realtime. A change applies immediately to this application and to child processes started afterwards (jackd, the VST host process and the VST scanner); child processes that are already running keep their previous priority. Realtime priority can affect system responsiveness and requires additional Windows privileges; when Windows rejects it, the previous priority is restored and a failure message is shown.
 
 Use **Actions → Build full Release package → Run workflow** on GitHub for a full Release build. After success, download the `WinJACKNexus-Release-x64-VST3` artifact. It contains the full application ZIP, SHA256 checksum, Qt runtime, all current modules, and JACK2 plus VC++ x64/x86 installers under `prerequisites/`. Install these prerequisites first. This Action disables VST2 and keeps VST3. The first cloud build remains subject to its actual Actions result.
 
@@ -49,6 +59,8 @@ An incremental overlay requires an existing matching version. Close the applicat
 ## Completion and previews
 
 Control Deck switches, sound playback, peak meters, all four gain knobs, layout operations and project restore are implemented. Release builds, offline processing and visible Windows automated checks passed, including global sound shortcuts with another foreground process and four-language display. Physical devices, live JACK connections, installation and human acceptance remain unverified.
+
+The pre-start JACK server check, the process priority setting and the independent taskbar and synchronized behavior of Channel overview and Channel details are implemented.
 
 **Preview:** DAW Bridge, Carla integration and unfinished main-session audio-device management workflows remain planned or in development. They are not delivered features.
 
