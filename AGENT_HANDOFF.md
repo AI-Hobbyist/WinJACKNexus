@@ -15,14 +15,14 @@
 
 ### 主仓库
 
-- 分支 `main`，已与 `origin/main` 同步，最新提交 `bf6d5fb`。
+- 分支 `main`，已与 `origin/main` 同步；本手册提交前的最新功能/文档提交为 `bf6d5fb`。
 - 工作区没有未提交的代码改动。
 - 以下未跟踪内容按用户指令**不提交**：`.omc/`、`midi_tools_node_ref/`、`themes/Furina/`、`themes/org.eryth.furina.wjnskin`。
 
 ### Wiki 仓库
 
 - 独立仓库：`https://github.com/AI-Hobbyist/WinJACKNexus.wiki.git`（`master`）。
-- 本地克隆：`D:\Temp\wjn-wiki-probe`，远端最新 `24d0c20`，工作区干净。
+- 本地克隆：`D:\Temp\wjn-wiki-probe`，远端最新 `24d0c20`，工作区干净。若该临时目录已被清理，重新 clone 上面的地址即可。
 - 共 18 个内容页面，首页、侧边栏和页脚已接好导航。
 - 主要提交：`0884a19` 骨架、`ab090ca` / `8459a27` 安装流程、`89000df` 起各模块页面、`2ae6440` 术语表与导航、`8e984dc` 第一个信号链、`b743896` / `24d0c20` 主题自定义。
 
