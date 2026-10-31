@@ -503,6 +503,26 @@ public:
         return waitForServerReady();
     }
 
+    // Blocks startup with this dialog until a JACK server is ready.
+    // Returns false when the user closes the dialog without a running server.
+    bool requireServerReady()
+    {
+        if (offline_ || WinJACKNexus::Audio::JackServerGuard::isServerReady())
+            return true;
+
+        QTimer readyPoll(this);
+        readyPoll.setInterval(250);
+        connect(&readyPoll, &QTimer::timeout, this, [this] {
+            if (WinJACKNexus::Audio::JackServerGuard::isServerReady())
+                accept();
+        });
+        readyPoll.start();
+        const auto result = exec();
+        readyPoll.stop();
+        return result == QDialog::Accepted
+            || WinJACKNexus::Audio::JackServerGuard::isServerReady();
+    }
+
 private:
     static QString quotedCommandArgument(const QString& argument)
     {
@@ -1161,6 +1181,11 @@ int main(int argc, char* argv[])
         WJN_LOG_WARN("Configured JACK server startup failed");
         QMessageBox::warning(nullptr, application.applicationName(),
                              hostText("jack.autoStartFailed","Unable to start or connect to jackd using the JACK server settings."));
+    }
+    if (!jackServerSettingsDialog.requireServerReady()) {
+        WJN_LOG_INFO("JACK server settings closed without a running server; exiting");
+        logger.flush();
+        return 0;
     }
     if (tray.contextMenu()) {
         auto* themeAction = tray.addMenuAction(hostText("menu.theme","Theme"));
