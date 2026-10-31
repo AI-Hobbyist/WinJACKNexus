@@ -4,7 +4,7 @@
 #include <QSignalBlocker>
 #include <WinJACKNexus/UI/LocalizedText.hpp>
 
-namespace WinJACKNexus::SignalSwitch
+namespace WinJACKNexus::ControlDeck
 {
 namespace
 {
@@ -75,7 +75,7 @@ void Editor::refreshPresentation()
             {
                 overlay = new QWidget(nullptr, Qt::Tool | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint |
                                                    Qt::WindowDoesNotAcceptFocus);
-                overlay->setObjectName("signalSwitchOverlay." + it.key());
+                overlay->setObjectName("controlDeckOverlay." + it.key());
                 overlay->setAttribute(Qt::WA_TranslucentBackground);
                 overlay->setAttribute(Qt::WA_ShowWithoutActivating);
                 overlays_[it.key()] = overlay;
@@ -184,4 +184,4 @@ LRESULT CALLBACK Editor::mouseHook(int code, WPARAM message, LPARAM data)
     }
     return CallNextHookEx(nullptr, code, message, data);
 }
-} // namespace WinJACKNexus::SignalSwitch
+} // namespace WinJACKNexus::ControlDeck

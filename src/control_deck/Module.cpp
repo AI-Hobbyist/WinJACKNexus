@@ -14,8 +14,8 @@
 #define WJN_SWITCH_CONTROL 0
 #endif
 
-namespace SS = WinJACKNexus::SignalSwitch;
-namespace DSP = WinJACKNexus::Common::SignalSwitch;
+namespace SS = WinJACKNexus::ControlDeck;
+namespace DSP = WinJACKNexus::Common::ControlDeck;
 namespace Audio = WinJACKNexus::Audio;
 
 namespace

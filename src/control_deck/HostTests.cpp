@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: AGPL-3.0-only */
 #include "../../Develop/Node/WindowShowCounter.hpp"
 #include "../patchbay/mod/src/Library.cpp"
+#include <WinJACKNexus/UI/HostI18n.hpp>
 #include <QFontDatabase>
 #include <QScreen>
 #include <QTemporaryDir>
@@ -9,7 +10,7 @@
 #include <iostream>
 #include <stdexcept>
 
-namespace SS = WinJACKNexus::SignalSwitch;
+namespace SS = WinJACKNexus::ControlDeck;
 namespace UI = WinJACKNexus::UI;
 namespace C = UI::Controls;
 
@@ -43,9 +44,10 @@ int main(int argc, char **argv)
         QTemporaryDir temporary;
         QSettings::setDefaultFormat(QSettings::IniFormat);
         QSettings::setPath(QSettings::IniFormat, QSettings::UserScope, temporary.path());
-        UI::I18nManager language({temporary.filePath("language.ini"), {"en-US"}, false});
+        UI::HostI18n host({temporary.filePath("language.ini"), {"en-US"}, false});
+        auto &language = host.manager();
         QString error;
-        check(language.install(&error), "isolated language manager");
+        check(host.initialize(QCoreApplication::applicationDirPath(), &error), "isolated language manager");
         UI::ThemeCore theme;
         check(theme.isValid(), "production theme core");
         UI::ThemeManager::installThemeCore(&theme);
@@ -96,7 +98,7 @@ int main(int argc, char **argv)
         graph->setSnapshot(snapshot);
         service.synchronize = [&] {
             for (const auto &node : nodes)
-                node->synchronizeSignalSwitch(graph);
+                node->synchronizeControlDeck(graph);
         };
         service.edited = [graph] { graph->markProjectDirty(); };
         auto *editor = service.showEditor();
@@ -109,13 +111,13 @@ int main(int argc, char **argv)
         check(qAbs(editor->devicePixelRatioF() - 1.0) < 0.001, "100 percent scale only");
         check(editor->findChildren<C::ActionButton *>().size() == 2, "one shared button per live node");
         const auto id = service.endpoints.begin()->id;
-        auto *button = editor->findChild<C::ActionButton *>("signalSwitchButton." + id);
+        auto *button = editor->findChild<C::ActionButton *>("controlDeckButton." + id);
         check(button && button->isChecked(), "new node button reflects enabled default");
         QTest::mouseClick(button, Qt::LeftButton);
         settle();
         check(!service.find(id)->desired && graph->isProjectDirty(), "button closes signal and marks project dirty");
         graph->setClientAlias(nodes.front()->clientId(), QString::fromUtf8("话筒 마이크"));
-        nodes.front()->synchronizeSignalSwitch(graph);
+        nodes.front()->synchronizeControlDeck(graph);
         settle();
         const auto renamed = QString::fromUtf8("话筒 마이크");
         bool synchronized = false;
@@ -156,7 +158,7 @@ int main(int argc, char **argv)
             node->setContextId(record.contextId);
             nodes.push_back(std::move(node));
         }
-        check(service.restore(graph->signalSwitchProjectState(), &error),
+        check(service.restore(graph->controlDeckProjectState(), &error),
               "restore complete module state after node identities");
         settle();
         check(service.find(id) && !service.find(id)->desired, "saved disabled state survives enabled factory default");
@@ -164,7 +166,7 @@ int main(int argc, char **argv)
               "editor position size and button presets restored");
         editor->close();
         check(!editor->isVisible() && service.endpoints.size() == 2, "closing editor preserves nodes and signal state");
-        auto *open = service.quickMenu()->findChild<QAction *>("signalSwitchOpenEditor");
+        auto *open = service.quickMenu()->findChild<QAction *>("controlDeckOpenEditor");
         check(open != nullptr, "explicit open editor dropdown entry");
         open->trigger();
         settle();
@@ -181,10 +183,10 @@ int main(int argc, char **argv)
             for (auto glyph : run.glyphIndexes())
                 rendered &= glyph != 0;
         check(rendered, "system font fallback resolves CJK glyphs without tofu");
-        QDir().mkpath(QString::fromUtf8(SWITCH_SOURCE_DIR) + "/Docs/SignalSwitch/S3");
+        QDir().mkpath(QString::fromUtf8(SWITCH_SOURCE_DIR) + "/Docs/ControlDeck/S3");
         const auto capture = editor->screen()->grabWindow(editor->winId());
         check(!capture.isNull() &&
-                  capture.save(QString::fromUtf8(SWITCH_SOURCE_DIR) + "/Docs/SignalSwitch/S3/editor.png"),
+                  capture.save(QString::fromUtf8(SWITCH_SOURCE_DIR) + "/Docs/ControlDeck/S3/editor.png"),
               "capture actual visible editor window");
         nodes.pop_back();
         settle();

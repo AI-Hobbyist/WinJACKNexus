@@ -44,7 +44,7 @@ if(BUILD_TESTING)
         ${PROJECT_SOURCE_DIR}/Develop/Node/ClassicMixerHostTests.cpp)
     target_link_libraries(classic_mixer_host_tests PRIVATE classic_mixer_core
         WinJACKNexus::UI WinJACKNexus::Audio WinJACKNexus::Node
-        mod_patchbay patchbay_core Qt6::Test)
+        mod_patchbay patchbay_core control_deck control_deck_state Qt6::Test)
     target_include_directories(classic_mixer_host_tests PRIVATE
         ${PROJECT_SOURCE_DIR}/src/patchbay/mod/include
         ${PROJECT_SOURCE_DIR}/src/native_fx/include)

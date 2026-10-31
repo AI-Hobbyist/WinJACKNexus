@@ -16,7 +16,7 @@ foreach ($name in @('control_deck.dll', 'ui.dll', 'mod_patchbay.dll', 'common.dl
 }
 $catalogFiles = @('manifest.json', 'en-US.json', 'zh-CN.json', 'ja-JP.json', 'ko-KR.json')
 foreach ($name in $catalogFiles) {
-    $runtimePaths.Add("signal_switch/locate/$name")
+    $runtimePaths.Add("locate/$name")
 }
 foreach ($kind in @('mono', 'stereo', '5_1', '7_1', 'midi', 'sound', 'peak',
                     'gain_mono', 'gain_stereo', 'gain_5_1', 'gain_7_1')) {
@@ -56,7 +56,7 @@ Control Deck incremental replacement package
 Extract into the existing WinJACKNexus executable directory, preserving paths.
 control_deck.dll belongs beside the EXE. The eleven node DLLs belong under
 nodes/control_deck, each with its locate directory.
-The main module keeps signal_switch/locate for compatibility. manifest.json lists SHA256 hashes.
+Main panel translations are part of the host catalog in locate/. manifest.json lists SHA256 hashes.
 
 This is not a full application distribution. Keep the existing EXE, Qt 6.10.3,
 audio.dll, node.dll, patchbay_core.dll, default theme and other runtime files.
@@ -69,7 +69,7 @@ BASS and BASSmix are third-party runtime libraries with their own terms in
 licenses/bass.txt and licenses/bassmix.txt. Their presence does not relicense
 those libraries under this repository's source licence. SDKs are fetched from
 the official vendor into ref by tools/fetch_control_deck_bass.ps1.
-Extra compatible x64 BASS decoder plugins can be placed in signal_switch/bass_plugins.
+Extra compatible x64 BASS decoder plugins can be placed in control_deck/bass_plugins (signal_switch/bass_plugins is still read).
 
 Do not replace DLLs while the application is using them. Close the application
 yourself when convenient, then extract and restart. The packaging process does

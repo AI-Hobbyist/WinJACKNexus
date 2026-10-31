@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: AGPL-3.0-only */
 #include "../../Develop/Node/WindowShowCounter.hpp"
 #include "../patchbay/mod/src/Library.cpp"
+#include <WinJACKNexus/UI/HostI18n.hpp>
 #include <QFontDatabase>
 #include <QGraphicsOpacityEffect>
 #include <QScreen>
@@ -11,7 +12,7 @@
 #include <iostream>
 #include <stdexcept>
 
-namespace SS = WinJACKNexus::SignalSwitch;
+namespace SS = WinJACKNexus::ControlDeck;
 namespace UI = WinJACKNexus::UI;
 namespace C = UI::Controls;
 
@@ -58,9 +59,10 @@ int main(int argc, char **argv)
         QTemporaryDir temporary;
         QSettings::setDefaultFormat(QSettings::IniFormat);
         QSettings::setPath(QSettings::IniFormat, QSettings::UserScope, temporary.path());
-        UI::I18nManager language({temporary.filePath("language.ini"), {"en-US"}, false});
+        UI::HostI18n host({temporary.filePath("language.ini"), {"en-US"}, false});
+        auto &language = host.manager();
         QString error;
-        check(language.install(&error), "isolated production language API");
+        check(host.initialize(QCoreApplication::applicationDirPath(), &error), "isolated production language API");
         UI::ThemeCore theme;
         check(theme.isValid(), "production theme core");
         UI::ThemeManager::installThemeCore(&theme);
@@ -112,7 +114,7 @@ int main(int argc, char **argv)
               "real visible editor at 100 percent scale");
         auto button = [&](const QString &id) {
             for (auto *widget : QApplication::allWidgets())
-                if (widget->objectName() == "signalSwitchButton." + id)
+                if (widget->objectName() == "controlDeckButton." + id)
                     return qobject_cast<C::ActionButton *>(widget);
             return static_cast<C::ActionButton *>(nullptr);
         };
@@ -120,7 +122,7 @@ int main(int argc, char **argv)
             check(endpoint.desired && button(endpoint.id) && button(endpoint.id)->isChecked(),
                   "factory enabled state agrees with each visible button");
         graph.setClientAlias(nodes.back()->clientId(), QString::fromUtf8("演奏 마이크 日本語"));
-        nodes.back()->synchronizeSignalSwitch(&graph);
+        nodes.back()->synchronizeControlDeck(&graph);
         check(service.find(midiId)->userNamed, "graph rename records user ownership of name");
         int row = 200;
         for (auto it = service.state.cards.begin(); it != service.state.cards.end(); ++it)
@@ -134,7 +136,7 @@ int main(int argc, char **argv)
         service.state.cards[stereoId].geometry = QRect(24, 112, 310, 48);
         check(service.state.setGroup("stage", QString::fromUtf8("舞台 그룹"), {monoId, stereoId}),
               "custom group name accepted");
-        const QString captureRoot = QString::fromUtf8(SWITCH_SOURCE_DIR) + "/Docs/SignalSwitch/S5";
+        const QString captureRoot = QString::fromUtf8(SWITCH_SOURCE_DIR) + "/Docs/ControlDeck/S5";
         QDir().mkpath(captureRoot);
         const QList<QPair<QString, QString>> names{{"zh-CN", QString::fromUtf8("Signal Switch 单声道")},
                                                    {"en-US", "Signal Switch Mono"},
@@ -189,7 +191,7 @@ int main(int argc, char **argv)
         scroll->horizontalScrollBar()->setValue(40);
         scroll->verticalScrollBar()->setValue(50);
         settle();
-        service.quickMenu()->findChild<QAction *>("signalSwitchLock")->trigger();
+        service.quickMenu()->findChild<QAction *>("controlDeckLock")->trigger();
         settle();
         check(!editor->isVisible() && service.state.locked, "project A saved in locked presentation");
         const auto stateA = service.state.toBase64();
@@ -216,7 +218,7 @@ int main(int argc, char **argv)
                 node->setContextId(record.contextId);
                 nodes.push_back(std::move(node));
             }
-            check(service.restore(graph.signalSwitchProjectState(), &error), "apply complete project preset");
+            check(service.restore(graph.controlDeckProjectState(), &error), "apply complete project preset");
             settle();
         };
         service.beginRestore();
@@ -256,7 +258,7 @@ int main(int argc, char **argv)
               "B restores own editor size position and settings with no A presets");
         unsigned overlays{};
         for (auto *widget : QApplication::topLevelWidgets())
-            overlays += widget->objectName().startsWith("signalSwitchOverlay.");
+            overlays += widget->objectName().startsWith("controlDeckOverlay.");
         check(overlays == 0, "switching to empty project removes all pinned buttons");
         restore(projectA);
         check(service.state.toBase64() == stateA, "second A restore preserves all fields again");

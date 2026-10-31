@@ -7,7 +7,7 @@
 #include <QRect>
 #include <QStringList>
 
-namespace WinJACKNexus::SignalSwitch
+namespace WinJACKNexus::ControlDeck
 {
 struct Card
 {
@@ -58,4 +58,4 @@ class State
     QString toBase64() const;
     static bool fromBase64(const QString &encoded, State *result, QString *error = nullptr);
 };
-} // namespace WinJACKNexus::SignalSwitch
+} // namespace WinJACKNexus::ControlDeck

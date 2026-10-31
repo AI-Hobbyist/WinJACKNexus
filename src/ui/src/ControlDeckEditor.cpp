@@ -16,7 +16,7 @@
 #include <WinJACKNexus/UI/TrayController.hpp>
 #include <algorithm>
 
-namespace WinJACKNexus::SignalSwitch
+namespace WinJACKNexus::ControlDeck
 {
 namespace
 {
@@ -27,7 +27,6 @@ QString text(const char *key, const char *english)
 
 struct Resources : QObject
 {
-    UI::I18nDomainLease language;
     UI::ThemeNamespaceRegistry::Lease theme;
 };
 QPointer<Resources> resources;
@@ -35,7 +34,7 @@ QPointer<Resources> resources;
 
 Editor::Editor(Service &service) : service_(service)
 {
-    setObjectName("signalSwitchEditor");
+    setObjectName("controlDeckEditor");
     setAttribute(Qt::WA_DeleteOnClose, false);
     setMinimumSize(320, 200);
     auto *layout = new QVBoxLayout(this);
@@ -43,7 +42,7 @@ Editor::Editor(Service &service) : service_(service)
     scroll_ = new UI::Controls::ScrollField(this);
     scroll_->setWidgetResizable(false);
     canvas_ = new QWidget;
-    canvas_->setObjectName("signalSwitchCanvas");
+    canvas_->setObjectName("controlDeckCanvas");
     canvas_->installEventFilter(this);
     canvas_->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(canvas_, &QWidget::customContextMenuRequested, this,
@@ -58,21 +57,21 @@ Editor::Editor(Service &service) : service_(service)
     layout->addWidget(status_);
     rubber_ = new QRubberBand(QRubberBand::Rectangle, canvas_);
     menu_ = new QMenu(this);
-    menu_->setObjectName("signalSwitchQuickMenu");
+    menu_->setObjectName("controlDeckQuickMenu");
     auto *open = menu_->addAction(QString());
-    open->setObjectName("signalSwitchOpenEditor");
+    open->setObjectName("controlDeckOpenEditor");
     connect(open, &QAction::triggered, this, [this] { service_.showEditor(); });
     auto *lock = menu_->addAction(QString());
     lockAction_ = lock;
-    lock->setObjectName("signalSwitchLock");
+    lock->setObjectName("controlDeckLock");
     connect(lock, &QAction::triggered, this, [this] { setLocked(true); });
     auto *unlock = menu_->addAction(QString());
     unlockAction_ = unlock;
-    unlock->setObjectName("signalSwitchUnlock");
+    unlock->setObjectName("controlDeckUnlock");
     connect(unlock, &QAction::triggered, this, [this] { service_.showEditor(); });
     auto *through = menu_->addAction(QString());
     throughAction_ = through;
-    through->setObjectName("signalSwitchClickThrough");
+    through->setObjectName("controlDeckClickThrough");
     through->setCheckable(true);
     connect(through, &QAction::triggered, this, [this](bool enabled) {
         service_.state.window.clickThrough = enabled;
@@ -130,8 +129,8 @@ void Editor::refresh()
         if (!button)
         {
             button = new UI::Controls::ActionButton({}, canvas_);
-            button->setObjectName("signalSwitchButton." + endpoint.id);
-            button->setProperty("signalSwitchId", endpoint.id);
+            button->setObjectName("controlDeckButton." + endpoint.id);
+            button->setProperty("controlDeckId", endpoint.id);
             button->setCheckable(!endpoint.sound && !endpoint.peak && !endpoint.gainLinear);
             button->installEventFilter(this);
             button->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -299,22 +298,7 @@ bool Service::installUI(QString *error)
             delete resources;
             return false;
         }
-        if (auto *manager = UI::I18nManager::installed())
-        {
-            const QJsonObject descriptor{{"descriptorVersion", 1},
-                                         {"i18nApiVersion", 1},
-                                         {"moduleId", "winjacknexus-signal-switch"},
-                                         {"domains", QJsonArray{"signalSwitch"}},
-                                         {"locatePath", "locate"},
-                                         {"catalogVersion", 1}};
-            resources->language = manager->registerModule(
-                descriptor, QCoreApplication::applicationDirPath() + "/signal_switch", {}, error);
-            if (!resources->language)
-            {
-                delete resources;
-                return false;
-            }
-        }
+        // The main panel's "signalSwitch" domain ships in the host catalog (locate/).
     }
     auto *editor = new Editor(*this);
     editor_ = editor;
@@ -364,4 +348,4 @@ void Service::shutdownUI()
     delete editor_.data();
     delete resources;
 }
-} // namespace WinJACKNexus::SignalSwitch
+} // namespace WinJACKNexus::ControlDeck

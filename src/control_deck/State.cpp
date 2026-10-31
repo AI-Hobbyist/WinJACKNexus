@@ -7,7 +7,7 @@
 #include <algorithm>
 #include <cmath>
 
-namespace WinJACKNexus::SignalSwitch
+namespace WinJACKNexus::ControlDeck
 {
 namespace
 {
@@ -316,4 +316,4 @@ bool State::fromBase64(const QString &encoded, State *result, QString *error)
     *result = std::move(next);
     return true;
 }
-} // namespace WinJACKNexus::SignalSwitch
+} // namespace WinJACKNexus::ControlDeck

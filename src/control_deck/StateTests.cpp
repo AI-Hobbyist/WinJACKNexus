@@ -4,7 +4,7 @@
 #include <QJsonDocument>
 #include <cstdio>
 
-using namespace WinJACKNexus::SignalSwitch;
+using namespace WinJACKNexus::ControlDeck;
 int main(int argc, char **argv)
 {
     QCoreApplication application(argc, argv);

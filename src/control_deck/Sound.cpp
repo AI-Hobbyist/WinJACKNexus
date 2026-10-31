@@ -10,9 +10,9 @@
 #include <future>
 #include <mutex>
 
-namespace WinJACKNexus::SignalSwitch
+namespace WinJACKNexus::ControlDeck
 {
-namespace DSP = Common::SignalSwitch;
+namespace DSP = Common::ControlDeck;
 namespace
 {
 constexpr DWORD floatingPoint = 0x100;
@@ -79,9 +79,13 @@ struct Bass
             failure = QString("BASS_Init: %1").arg(errorCode());
             return;
         }
-        const QDir plugins(QCoreApplication::applicationDirPath() + "/signal_switch/bass_plugins");
-        for (const auto &file : plugins.entryList({"*.dll"}, QDir::Files, QDir::Name))
-            pluginLoad(reinterpret_cast<const char *>(plugins.absoluteFilePath(file).utf16()), unicodePath);
+        // control_deck/ is current; signal_switch/ is kept so existing installs keep their plugins.
+        for (const auto *directory : {"/control_deck/bass_plugins", "/signal_switch/bass_plugins"})
+        {
+            const QDir plugins(QCoreApplication::applicationDirPath() + directory);
+            for (const auto &file : plugins.entryList({"*.dll"}, QDir::Files, QDir::Name))
+                pluginLoad(reinterpret_cast<const char *>(plugins.absoluteFilePath(file).utf16()), unicodePath);
+        }
     }
     ~Bass()
     {
@@ -252,4 +256,4 @@ void Sound::render(float *left, float *right, unsigned frames, double rate) noex
 {
     impl_->player.render(left, right, frames, rate);
 }
-} // namespace WinJACKNexus::SignalSwitch
+} // namespace WinJACKNexus::ControlDeck

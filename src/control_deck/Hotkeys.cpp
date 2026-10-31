@@ -7,7 +7,7 @@
 #include <Windows.h>
 #include <algorithm>
 
-namespace WinJACKNexus::SignalSwitch
+namespace WinJACKNexus::ControlDeck
 {
 namespace
 {
@@ -220,4 +220,4 @@ void Service::updateShortcuts()
         if (!live.contains(id))
             registry.replace(id, {}, nullptr);
 }
-} // namespace WinJACKNexus::SignalSwitch
+} // namespace WinJACKNexus::ControlDeck

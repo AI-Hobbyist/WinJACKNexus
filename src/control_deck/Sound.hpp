@@ -3,7 +3,7 @@
 #include "Service.hpp"
 #include <memory>
 
-namespace WinJACKNexus::SignalSwitch
+namespace WinJACKNexus::ControlDeck
 {
 class WJN_SWITCH_API Sound
 {
@@ -25,4 +25,4 @@ class WJN_SWITCH_API Sound
     struct Impl;
     std::unique_ptr<Impl> impl_;
 };
-} // namespace WinJACKNexus::SignalSwitch
+} // namespace WinJACKNexus::ControlDeck

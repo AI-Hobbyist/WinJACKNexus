@@ -95,3 +95,12 @@
 - Wiki 修改在 `D:\Temp\wjn-wiki-probe` 进行，提交并推送 wiki 的 `master`；页面用简体中文，链接到主仓库 Docs/源码时先确认路径存在。
 - 如果后面需要构建：只用现有 `build` 目录，只编 Release，用 VS18 自带的 CMake，在前台运行并通过 `2>&1 | Tee-Object -FilePath build.log` 记录完整输出，然后检查 `$LASTEXITCODE`（`build.log` 是 UTF-16 编码）。不要使用 offscreen 模式。
 - 提交和推送需要用户批准。
+
+## 8. 2026-10-31 17:05 追加：signal_switch 并入 control_deck（未提交）
+
+- 源码 `src/signal_switch/` → `src/control_deck/`；命名空间 `SignalSwitch` → `ControlDeck`（含 `Common::ControlDeck`、`ControlDeckProcessor.hpp`）；UI 文件 `ControlDeck{Editor,Layout,Overlay}.cpp`；CMake 目标 `control_deck_state`、测试 `wjn_control_deck_*_tests`；对象名/属性 `controlDeck*`；打包脚本 `tools/package_control_deck.ps1`。
+- 主面板 `signalSwitch` 域并入主语言目录 `locate/`，不再有 `signal_switch/locate`；BASS 插件目录改为 `control_deck/bass_plugins/`，仍兼容读取旧的 `signal_switch/bass_plugins/`。
+- **刻意保留**（持久化或 API 合同）：节点 DLL 名 `wjn_signal_switch_<kind>`、`moduleId` `winjacknexus-signal-switch*`、i18n 域 `signalSwitch` / `signalSwitch.<kind>`、主题命名空间 `signal-switch` 及其 Token、工程字段 `signalSwitchStateBase64`、旧路径 `nodes/signal_switch/` 的映射。
+- 发布目录 `D:\UserData\Desktop\WJN_Release\WinJACKNexus` 的 `signal_switch/locate` 已合并到它的 `locate/` 并删除；原文件备份在 `D:\Temp\wjn-merge\backup`。该目录里仍是旧版二进制，主面板会回退成英文，直到换成新包。
+- 验证：VST2=ON 的 Release `ALL_BUILD`（clean-first）通过；`host_i18n_tests`、`i18n_contract_tests`、`control_deck_state/module/final` 通过（实窗，弹窗 17 次）。`patchbay_i18n_tests` 失败于「four audio/MIDI interface types exist」：该测试在 HEAD 上就编译不过（缺 `Service.hpp` 的包含路径），这次只补了链接依赖，断言失败记为后续事项。
+- 完整包：`build/WinJACKNexus-Release-x64-VST2-Full-20261031-170354.zip`（含 `.sha256`；打包脚本 `D:\Temp\wjn-merge\package-full-vst2.ps1`）。没有附带 JACK2 安装程序。

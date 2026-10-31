@@ -3,19 +3,19 @@
 
 #include "State.hpp"
 #include <QPointer>
-#include <WinJACKNexus/Common/SignalSwitchProcessor.hpp>
+#include <WinJACKNexus/Common/ControlDeckProcessor.hpp>
 #include <functional>
 
 class QWidget;
 class QMenu;
 
-#ifdef WJN_SIGNAL_SWITCH_BUILD
+#ifdef WJN_CONTROL_DECK_BUILD
 #define WJN_SWITCH_API __declspec(dllexport)
 #else
 #define WJN_SWITCH_API __declspec(dllimport)
 #endif
 
-namespace WinJACKNexus::SignalSwitch
+namespace WinJACKNexus::ControlDeck
 {
 class Sound;
 struct Endpoint
@@ -24,7 +24,7 @@ struct Endpoint
     QString name;
     QString context;
     QString version;
-    Common::SignalSwitch::Gate *gate{};
+    Common::ControlDeck::Gate *gate{};
     bool desired{};
     std::function<bool(const QString &)> rename;
     QString graphClient;
@@ -85,4 +85,4 @@ class WJN_SWITCH_API Service
     bool restoring_{};
     QPointer<QWidget> editor_;
 };
-} // namespace WinJACKNexus::SignalSwitch
+} // namespace WinJACKNexus::ControlDeck

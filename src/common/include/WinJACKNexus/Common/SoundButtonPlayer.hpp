@@ -7,7 +7,7 @@
 #include <cstdint>
 #include <vector>
 
-namespace WinJACKNexus::Common::SignalSwitch
+namespace WinJACKNexus::Common::ControlDeck
 {
 struct SoundClip
 {
@@ -98,4 +98,4 @@ class SoundButtonPlayer
     double cursor_{};
     bool active_{};
 };
-} // namespace WinJACKNexus::Common::SignalSwitch
+} // namespace WinJACKNexus::Common::ControlDeck

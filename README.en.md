@@ -33,10 +33,10 @@ Every version is a separate DLL and supports both main graphs and subgraphs. Nod
 - Names follow graph node names. Colors inherit the theme unless overridden per control.
 - Locking hides the editor background and keeps the arranged controls at their existing positions above ordinary application windows. The quick-access dropdown provides lock, unlock, mouse click-through and Open editor.
 - Control opacity affects controls only. With click-through enabled, use Alt+left-click to operate a control; for a gain knob this opens numeric entry.
-- Right-click a sound button to load a file or assign a global shortcut. It works while another application is foreground; conflicts preserve the previous assignment. Supported formats depend on BASS/BASSmix and installed compatible decoders. WAV, AIFF, MP3, OGG and MOD have been checked. Put extra x64 BASS decoder DLLs in `signal_switch/bass_plugins/` and restart.
+- Right-click a sound button to load a file or assign a global shortcut. It works while another application is foreground; conflicts preserve the previous assignment. Supported formats depend on BASS/BASSmix and installed compatible decoders. WAV, AIFF, MP3, OGG and MOD have been checked. Put extra x64 BASS decoder DLLs in `control_deck/bass_plugins/` and restart.
 - Projects store Control Deck layout, window size/position, groups, relations, colors, dimensions, control opacity, click-through and node settings as Base64. Sound paths and shortcuts are saved, while sound files remain external. Loading a project never starts playback automatically.
 
-All control nodes use the `Control Deck` category and `nodes/control_deck/` directory. Place `control_deck.dll` beside the EXE; panel translations remain in `signal_switch/locate/`. Old project paths under `nodes/signal_switch/` resolve to the installed new directory, retaining node DLL names and saved identities. Feed the peak meter from a signal branch rather than inserting it in series.
+All control nodes use the `Control Deck` category and `nodes/control_deck/` directory. Place `control_deck.dll` beside the EXE; panel translations are part of the application `locate/` catalog. Old project paths under `nodes/signal_switch/` resolve to the installed new directory, retaining node DLL names and saved identities. Feed the peak meter from a signal branch rather than inserting it in series.
 
 ## Mixer windows
 

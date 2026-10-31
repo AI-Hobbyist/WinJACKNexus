@@ -4,7 +4,7 @@
 #include <algorithm>
 #include <cmath>
 
-namespace WinJACKNexus::SignalSwitch
+namespace WinJACKNexus::ControlDeck
 {
 Service &Service::instance()
 {
@@ -239,4 +239,4 @@ void Service::beginRestore()
     restoring_ = true;
     reconcile();
 }
-} // namespace WinJACKNexus::SignalSwitch
+} // namespace WinJACKNexus::ControlDeck

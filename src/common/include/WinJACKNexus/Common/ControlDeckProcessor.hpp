@@ -8,7 +8,7 @@
 #include <cstdint>
 #include <span>
 
-namespace WinJACKNexus::Common::SignalSwitch
+namespace WinJACKNexus::Common::ControlDeck
 {
 struct Gate
 {
@@ -156,4 +156,4 @@ class Midi
         return true;
     }
 };
-} // namespace WinJACKNexus::Common::SignalSwitch
+} // namespace WinJACKNexus::Common::ControlDeck

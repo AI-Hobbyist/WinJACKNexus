@@ -16,6 +16,7 @@
 #include <QTimer>
 #include <QUuid>
 #include <WinJACKNexus/UI/Controls.hpp>
+#include <WinJACKNexus/UI/HostI18n.hpp>
 #include <WinJACKNexus/UI/I18nManager.hpp>
 #include <WinJACKNexus/UI/ThemeCore.hpp>
 #include <WinJACKNexus/UI/ThemeManager.hpp>
@@ -23,8 +24,8 @@
 #include <iostream>
 #include <stdexcept>
 
-namespace SS = WinJACKNexus::SignalSwitch;
-namespace DSP = WinJACKNexus::Common::SignalSwitch;
+namespace SS = WinJACKNexus::ControlDeck;
+namespace DSP = WinJACKNexus::Common::ControlDeck;
 namespace UI = WinJACKNexus::UI;
 namespace C = UI::Controls;
 
@@ -50,7 +51,7 @@ void menuCommand(QWidget *widget, const QString &key, std::function<void(QDialog
         auto *menu = qobject_cast<QMenu *>(QApplication::activePopupWidget());
         if (!menu)
             return;
-        auto *action = menu->findChild<QAction *>("signalSwitch." + key);
+        auto *action = menu->findChild<QAction *>("controlDeck." + key);
         found = action && action->isEnabled() && IsWindowVisible(reinterpret_cast<HWND>(menu->winId()));
         if (found)
         {
@@ -229,9 +230,10 @@ int main(int argc, char **argv)
         check(app.platformName() == "windows", "real Windows Qt platform");
         app.setFont(QFontDatabase::systemFont(QFontDatabase::GeneralFont));
         QTemporaryDir temporary;
-        UI::I18nManager language({temporary.filePath("language.ini"), {"en-US"}, false});
+        UI::HostI18n host({temporary.filePath("language.ini"), {"en-US"}, false});
+        auto &language = host.manager();
         QString error;
-        check(language.install(&error), "isolated i18n manager");
+        check(host.initialize(QCoreApplication::applicationDirPath(), &error), "isolated i18n manager");
         UI::ThemeCore theme;
         UI::ThemeManager::installThemeCore(&theme);
         UI::ThemeManager adapter;
@@ -251,17 +253,17 @@ int main(int argc, char **argv)
         editor->resize(900, 420);
         settle();
         check(editor->isVisible() && qAbs(editor->devicePixelRatioF() - 1) < .001, "visible editor at 100 percent");
-        auto *first = editor->findChild<C::ActionButton *>("signalSwitchButton.a");
-        auto *second = editor->findChild<C::ActionButton *>("signalSwitchButton.b");
-        auto *third = editor->findChild<C::ActionButton *>("signalSwitchButton.c");
-        auto *canvas = editor->findChild<QWidget *>("signalSwitchCanvas");
+        auto *first = editor->findChild<C::ActionButton *>("controlDeckButton.a");
+        auto *second = editor->findChild<C::ActionButton *>("controlDeckButton.b");
+        auto *third = editor->findChild<C::ActionButton *>("controlDeckButton.c");
+        auto *canvas = editor->findChild<QWidget *>("controlDeckCanvas");
         check(first && second && third && canvas, "shared controls available");
         QTest::mouseClick(first, Qt::LeftButton, Qt::ControlModifier);
         QTest::mouseClick(second, Qt::LeftButton, Qt::ControlModifier);
         check(service.find("a")->desired && service.find("b")->desired, "Ctrl multiselection does not toggle signal");
         menuCommand(first, "size", [](QDialog *dialog) {
-            dialog->findChild<C::IntegerField *>("signalSwitch.width")->setValue(220);
-            dialog->findChild<C::IntegerField *>("signalSwitch.height")->setValue(60);
+            dialog->findChild<C::IntegerField *>("controlDeck.width")->setValue(220);
+            dialog->findChild<C::IntegerField *>("controlDeck.height")->setValue(60);
         });
         check(service.state.cards["a"].geometry.size() == QSize(220, 60) &&
                   service.state.cards["b"].geometry.size() == QSize(220, 60) &&
@@ -275,15 +277,15 @@ int main(int argc, char **argv)
         check(!service.find("a")->desired && service.find("b")->desired && service.find("c")->desired,
               "exclusive clicks leave independent member unchanged");
         menuCommand(first, "newGroup", [](QDialog *dialog) {
-            dialog->findChild<QLineEdit *>("signalSwitch.textInput")->setText(QString::fromUtf8("演奏组"));
+            dialog->findChild<QLineEdit *>("controlDeck.textInput")->setText(QString::fromUtf8("演奏组"));
         });
         check(service.state.groups.size() == 1 && service.state.exclusive.size() == 1,
               "layout grouping preserves separate exclusive relation");
         const auto groupId = service.state.groups.firstKey();
-        auto *group = editor->findChild<QGroupBox *>("signalSwitchGroup." + groupId);
+        auto *group = editor->findChild<QGroupBox *>("controlDeckGroup." + groupId);
         check(group && group->isVisible(), "shared group card visible in editor");
         menuCommand(group, "renameGroup", [](QDialog *dialog) {
-            dialog->findChild<QLineEdit *>("signalSwitch.textInput")->setText(QString::fromUtf8("舞台 무대"));
+            dialog->findChild<QLineEdit *>("controlDeck.textInput")->setText(QString::fromUtf8("舞台 무대"));
         });
         check(service.state.groups[groupId].name == QString::fromUtf8("舞台 무대"), "group card name editable");
         const auto beforeA = service.state.cards["a"].geometry.topLeft();
@@ -294,8 +296,8 @@ int main(int argc, char **argv)
               "group drag preserves member offsets");
         check(!service.find("a")->desired && service.find("b")->desired, "dragging does not toggle buttons");
         menuCommand(canvas, "gridSize", [](QDialog *dialog) {
-            dialog->findChild<C::IntegerField *>("signalSwitch.gridX")->setValue(20);
-            dialog->findChild<C::IntegerField *>("signalSwitch.gridY")->setValue(20);
+            dialog->findChild<C::IntegerField *>("controlDeck.gridX")->setValue(20);
+            dialog->findChild<C::IntegerField *>("controlDeck.gridY")->setValue(20);
         });
         menuCommand(canvas, "grid");
         const auto offset = service.state.cards["b"].geometry.topLeft() - service.state.cards["a"].geometry.topLeft();
@@ -304,7 +306,7 @@ int main(int argc, char **argv)
                   service.state.cards["b"].geometry.topLeft() - service.state.cards["a"].geometry.topLeft() == offset,
               "grid snaps group anchor without distorting member layout");
         menuCommand(first, "color", [](QDialog *dialog) {
-            dialog->findChild<QLineEdit *>("signalSwitch.textInput")->setText("#ff336699");
+            dialog->findChild<QLineEdit *>("controlDeck.textInput")->setText("#ff336699");
         });
         check(service.state.cards["a"].color == QColor("#ff336699") &&
                   first->property("surfaceColor").value<QColor>() == QColor("#ff336699"),
@@ -312,7 +314,7 @@ int main(int argc, char **argv)
         menuCommand(first, "themeColor");
         check(!service.state.cards["a"].color.isValid(), "theme inheritance deletes instance color override");
         menuCommand(canvas, "opacity", [](QDialog *dialog) {
-            dialog->findChild<C::IntegerField *>("signalSwitch.opacity")->setValue(70);
+            dialog->findChild<C::IntegerField *>("controlDeck.opacity")->setValue(70);
         });
         check(editor->windowOpacity() == 1 &&
                   qobject_cast<QGraphicsOpacityEffect *>(first->graphicsEffect())->opacity() == .7,
@@ -321,7 +323,7 @@ int main(int argc, char **argv)
         const auto firstRect = QRect(first->mapToGlobal(QPoint()), first->size());
         const auto secondRect = QRect(second->mapToGlobal(QPoint()), second->size());
         const auto allLayout = service.state.toJson().value("cards");
-        auto *lock = service.quickMenu()->findChild<QAction *>("signalSwitchLock");
+        auto *lock = service.quickMenu()->findChild<QAction *>("controlDeckLock");
         lock->trigger();
         settle();
         check(service.state.locked && !editor->isVisible(), "lock hides editor background");
@@ -338,7 +340,7 @@ int main(int argc, char **argv)
         nativeClick(firstRect.center());
         check(service.find("a")->desired != previous && lower.read().clicks == 0,
               "overlay remains operable above foreground ordinary window");
-        auto *through = service.quickMenu()->findChild<QAction *>("signalSwitchClickThrough");
+        auto *through = service.quickMenu()->findChild<QAction *>("controlDeckClickThrough");
         through->trigger();
         settle();
         check(service.state.window.clickThrough && through->isChecked(), "quick menu enables native click-through");
@@ -357,14 +359,14 @@ int main(int argc, char **argv)
                   restored.window.clickThrough && restored.window.opacity == 70 &&
                   restored.groups[groupId].name == QString::fromUtf8("舞台 무대"),
               "locked presentation and named groups persist as Base64");
-        QDir().mkpath(QString::fromUtf8(SWITCH_SOURCE_DIR) + "/Docs/SignalSwitch/S4");
+        QDir().mkpath(QString::fromUtf8(SWITCH_SOURCE_DIR) + "/Docs/ControlDeck/S4");
         const auto lowerRect = lower.geometry();
         const auto capture =
             firstOverlay->screen()->grabWindow(0, lowerRect.x(), lowerRect.y(), lowerRect.width(), lowerRect.height());
         check(!capture.isNull() &&
-                  capture.save(QString::fromUtf8(SWITCH_SOURCE_DIR) + "/Docs/SignalSwitch/S4/overlays.png"),
+                  capture.save(QString::fromUtf8(SWITCH_SOURCE_DIR) + "/Docs/ControlDeck/S4/overlays.png"),
               "capture real desktop composition with foreground test window");
-        auto *open = service.quickMenu()->findChild<QAction *>("signalSwitchOpenEditor");
+        auto *open = service.quickMenu()->findChild<QAction *>("controlDeckOpenEditor");
         open->trigger();
         settle();
         check(!service.state.locked && editor->isVisible() && first->window() == editor,

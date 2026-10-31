@@ -1362,7 +1362,7 @@ bool PatchbayCanvas::saveProject(const QString &filePath,
                     meterbridgeState.value(QStringLiteral("meterbridgeWindow")).toObject());
 
     root.insert(QStringLiteral("signalSwitchStateBase64"),
-                WinJACKNexus::SignalSwitch::Service::instance().state.toBase64());
+                WinJACKNexus::ControlDeck::Service::instance().state.toBase64());
     const QJsonDocument document(root);
 
     QSaveFile file(filePath);
@@ -1403,10 +1403,10 @@ bool PatchbayCanvas::loadProject(const QString &filePath,
     Snapshot project;
     const auto root = document.object();
     const auto switchValue = root.value(QStringLiteral("signalSwitchStateBase64"));
-    WinJACKNexus::SignalSwitch::State switchState;
+    WinJACKNexus::ControlDeck::State switchState;
     if (!switchValue.isUndefined() &&
         (!switchValue.isString() ||
-         !WinJACKNexus::SignalSwitch::State::fromBase64(switchValue.toString(), &switchState)))
+         !WinJACKNexus::ControlDeck::State::fromBase64(switchValue.toString(), &switchState)))
         return false;
     meterbridgeProjectState_ = {
         {QStringLiteral("meters"), root.value(QStringLiteral("meters")).toArray()},
@@ -1590,7 +1590,7 @@ bool PatchbayCanvas::loadProject(const QString &filePath,
     setSnapshot(project);
     modules = std::move(loadedModules);
     subGraphs = std::move(loadedSubGraphs);
-    signalSwitchProjectState_ = switchValue.toString();
+    controlDeckProjectState_ = switchValue.toString();
     projectDirty_ = false;
     return true;
 }
@@ -2184,7 +2184,7 @@ void PatchbayCanvas::newProject()
     jackConnectionRestoreRetries_ = 0;
     pendingPortId_.clear();
     meterbridgeProjectState_ = {};
-    signalSwitchProjectState_.clear();
+    controlDeckProjectState_.clear();
     setSnapshot(snapshot_);
     projectDirty_ = false;
 }
@@ -2200,7 +2200,7 @@ void PatchbayCanvas::setClientAlias(const std::string &clientId, const QString &
     if (client->alias == newAlias)
         return;
     client->alias = newAlias;
-    auto &switchService = WinJACKNexus::SignalSwitch::Service::instance();
+    auto &switchService = WinJACKNexus::ControlDeck::Service::instance();
     for (auto &endpoint : switchService.endpoints)
     {
         if (endpoint.context.toStdString() == sceneContext_.id && endpoint.graphClient.toStdString() == clientId)

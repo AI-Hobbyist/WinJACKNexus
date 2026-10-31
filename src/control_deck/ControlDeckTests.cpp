@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: AGPL-3.0-only */
 #include "../../Develop/Node/WindowShowCounter.hpp"
 #include "../patchbay/mod/src/Library.cpp"
+#include <WinJACKNexus/UI/HostI18n.hpp>
 #include "Sound.hpp"
 #include <QFontDatabase>
 #include <QGraphicsOpacityEffect>
@@ -13,7 +14,7 @@
 #include <iostream>
 #include <stdexcept>
 
-namespace SS = WinJACKNexus::SignalSwitch;
+namespace SS = WinJACKNexus::ControlDeck;
 namespace UI = WinJACKNexus::UI;
 namespace C = UI::Controls;
 namespace
@@ -125,7 +126,7 @@ int main(int argc, char **argv)
         check(window.isVisible() && window.devicePixelRatioF() == 1, "visible 100 percent regression window");
         SS::Sound sound;
         SS::Service &service = SS::Service::instance();
-        WinJACKNexus::Common::SignalSwitch::Gate gate;
+        WinJACKNexus::Common::ControlDeck::Gate gate;
         SS::Endpoint endpoint;
         endpoint.id = "native-shortcut-regression";
         endpoint.gate = &gate;
@@ -172,9 +173,10 @@ int main(int argc, char **argv)
         QTemporaryDir temporary;
         QSettings::setDefaultFormat(QSettings::IniFormat);
         QSettings::setPath(QSettings::IniFormat, QSettings::UserScope, temporary.path());
-        UI::I18nManager language({temporary.filePath("language.ini"), {"en-US"}, false});
+        UI::HostI18n host({temporary.filePath("language.ini"), {"en-US"}, false});
+        auto &language = host.manager();
         QString error;
-        check(language.install(&error), "production i18n API installs");
+        check(host.initialize(QCoreApplication::applicationDirPath(), &error), "production i18n API installs");
         UI::ThemeCore theme;
         UI::ThemeManager::installThemeCore(&theme);
         UI::ThemeManager adapter;
@@ -405,7 +407,7 @@ int main(int argc, char **argv)
                 auto *menu = qobject_cast<QMenu *>(QApplication::activePopupWidget());
                 if (!menu)
                     return;
-                if (auto *item = menu->findChild<QAction *>(QString("signalSwitch.") + key))
+                if (auto *item = menu->findChild<QAction *>(QString("controlDeck.") + key))
                 {
                     item->trigger();
                     triggered = true;
@@ -413,7 +415,7 @@ int main(int argc, char **argv)
                 menu->close();
             });
             action.start(100);
-            auto *card = editor->findChild<C::ActionButton *>("signalSwitchButton." + ids["peak"]);
+            auto *card = editor->findChild<C::ActionButton *>("controlDeckButton." + ids["peak"]);
             QMetaObject::invokeMethod(card, "customContextMenuRequested", Qt::DirectConnection,
                                       Q_ARG(QPoint, QPoint(5, 5)));
             check(triggered, "real context menu routes meter orientation command");
@@ -455,7 +457,7 @@ int main(int argc, char **argv)
             node->setContextId(record.contextId);
             nodes[record.modulePath] = std::move(node);
         }
-        check(service.restore(graph.signalSwitchProjectState(), &error) && service.state.toBase64() == state,
+        check(service.restore(graph.controlDeckProjectState(), &error) && service.state.toBase64() == state,
               "layout and control opacity restore from project Base64");
         check(service.find(ids["gain_7_1"])->gainMinimum == -30 && service.find(ids["gain_7_1"])->gainMaximum == 18 &&
                   std::abs(service.find(ids["gain_7_1"])->gainDb - 6.020599913) < 1e-8,

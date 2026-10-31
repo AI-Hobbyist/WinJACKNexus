@@ -54,7 +54,8 @@ target_include_directories(wjn_subgraph_tests PRIVATE
 target_compile_definitions(wjn_subgraph_tests PRIVATE WJN_NODE_IMPLEMENTATION WIN32_LEAN_AND_MEAN NOMINMAX)
 target_compile_options(wjn_subgraph_tests PRIVATE $<$<CXX_COMPILER_ID:MSVC>:/utf-8>)
 target_link_libraries(wjn_subgraph_tests PRIVATE WinJACKNexus::UI WinJACKNexus::Audio
-    WinJACKNexus::Node WinJACKNexus::Common mod_patchbay patchbay_core Qt6::Widgets Qt6::Test Dbghelp)
+    WinJACKNexus::Node WinJACKNexus::Common mod_patchbay patchbay_core control_deck control_deck_state
+    Qt6::Widgets Qt6::Test Dbghelp)
 set_target_properties(wjn_subgraph_tests PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEASE "${WJN_OUTPUT_DIR}")
 add_dependencies(wjn_subgraph_tests wjn_subgraph_jack_fixture ${wjn_v4_fixture_targets} WinJACKNexus)
 

@@ -7,8 +7,8 @@
 #include <cstdio>
 #include <vector>
 
-namespace SS = WinJACKNexus::SignalSwitch;
-namespace DSP = WinJACKNexus::Common::SignalSwitch;
+namespace SS = WinJACKNexus::ControlDeck;
+namespace DSP = WinJACKNexus::Common::ControlDeck;
 
 int main(int argc, char **argv)
 {

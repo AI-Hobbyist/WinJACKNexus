@@ -126,7 +126,7 @@ class QuickAccessBar final : public QFrame
         layout->addWidget(meterbridgeButton_);
 
         switchButton_ = new Controls::IconActionButton(this);
-        switchButton_->setObjectName(QStringLiteral("quickAccessSignalSwitchButton"));
+        switchButton_->setObjectName(QStringLiteral("quickAccessControlDeckButton"));
         switchButton_->setPopupMode(QToolButton::InstantPopup);
         layout->addWidget(switchButton_);
         setSwitchMenu(quickAccessSwitchMenu);

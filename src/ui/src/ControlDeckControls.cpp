@@ -11,7 +11,7 @@
 #include <WinJACKNexus/UI/LocalizedText.hpp>
 #include <cmath>
 
-namespace WinJACKNexus::SignalSwitch
+namespace WinJACKNexus::ControlDeck
 {
 namespace C = UI::Controls;
 namespace
@@ -207,4 +207,4 @@ void Editor::editGainValue(const QString &id)
     if (dialog.exec() == QDialog::Accepted)
         service_.setGain(id, value->value());
 }
-} // namespace WinJACKNexus::SignalSwitch
+} // namespace WinJACKNexus::ControlDeck

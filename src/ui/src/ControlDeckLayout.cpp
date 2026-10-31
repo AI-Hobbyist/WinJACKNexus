@@ -10,7 +10,7 @@
 #include <WinJACKNexus/UI/LocalizedText.hpp>
 #include <algorithm>
 
-namespace WinJACKNexus::SignalSwitch
+namespace WinJACKNexus::ControlDeck
 {
 namespace
 {
@@ -32,7 +32,7 @@ QAction *action(QMenu &menu, const char *key, const char *english, std::function
 {
     auto *item = menu.addAction(QString());
     UI::bindLocalizedText(item, "text", "signalSwitch", key, english);
-    item->setObjectName(QString("signalSwitch.") + key);
+    item->setObjectName(QString("controlDeck.") + key);
     QObject::connect(item, &QAction::triggered, &menu, std::move(apply));
     return item;
 }
@@ -50,8 +50,8 @@ bool Editor::eventFilter(QObject *object, QEvent *event)
     auto *widget = qobject_cast<QWidget *>(object);
     if (!widget)
         return false;
-    const auto id = widget->property("signalSwitchId").toString();
-    const auto group = widget->property("signalSwitchGroup").toString();
+    const auto id = widget->property("controlDeckId").toString();
+    const auto group = widget->property("controlDeckGroup").toString();
     const bool canvas = widget == canvas_;
     if (event->type() == QEvent::MouseButtonPress)
     {
@@ -177,8 +177,8 @@ void Editor::refreshGroups()
         if (!panel)
         {
             panel = new C::GroupPanel({}, canvas_);
-            panel->setObjectName("signalSwitchGroup." + it.key());
-            panel->setProperty("signalSwitchGroup", it.key());
+            panel->setObjectName("controlDeckGroup." + it.key());
+            panel->setProperty("controlDeckGroup", it.key());
             panel->installEventFilter(this);
             panel->setContextMenuPolicy(Qt::CustomContextMenu);
             connect(panel, &QWidget::customContextMenuRequested, this,
@@ -201,7 +201,7 @@ bool Editor::editText(const char *key, const char *english, QString *value)
     UI::bindLocalizedText(&dialog, "windowTitle", "signalSwitch", key, english);
     auto *layout = new QVBoxLayout(&dialog);
     auto *field = new C::TextField(&dialog);
-    field->setObjectName("signalSwitch.textInput");
+    field->setObjectName("controlDeck.textInput");
     field->setText(*value);
     layout->addWidget(field);
     dialogButtons(dialog, layout);
@@ -225,7 +225,7 @@ void Editor::showCardMenu(const QString &id, const QPoint &global)
         selected_ = {id};
     refresh();
     QMenu menu(this);
-    menu.setObjectName("signalSwitchCardMenu");
+    menu.setObjectName("controlDeckCardMenu");
     const auto members = selected_.values();
     QMap<QString, bool> current, proposed;
     for (const auto &endpoint : service_.endpoints)
@@ -375,7 +375,7 @@ void Editor::editSize()
     const auto first = service_.state.cards.value(*selected_.begin()).geometry.size();
     auto addDimension = [&](const char *key, const char *english, bool width) {
         auto *field = new C::IntegerField(&dialog);
-        field->setObjectName(QString("signalSwitch.") + key);
+        field->setObjectName(QString("controlDeck.") + key);
         field->setRange(C::sidebarControlHeight - 1, 1000000);
         UI::bindLocalizedText(field, "specialValueText", "signalSwitch", "multiple", "Multiple values");
         const int value = width ? first.width() : first.height();
@@ -433,8 +433,8 @@ void Editor::editGrid()
     auto *layout = new QVBoxLayout(&dialog);
     auto *x = new C::IntegerField(&dialog);
     auto *y = new C::IntegerField(&dialog);
-    x->setObjectName("signalSwitch.gridX");
-    y->setObjectName("signalSwitch.gridY");
+    x->setObjectName("controlDeck.gridX");
+    y->setObjectName("controlDeck.gridY");
     x->setRange(1, 4096);
     y->setRange(1, 4096);
     x->setValue(service_.state.gridX);
@@ -462,7 +462,7 @@ void Editor::editOpacity()
     UI::bindLocalizedText(&dialog, "windowTitle", "signalSwitch", "opacity", "Control opacity");
     auto *layout = new QVBoxLayout(&dialog);
     auto *value = new C::IntegerField(&dialog);
-    value->setObjectName("signalSwitch.opacity");
+    value->setObjectName("controlDeck.opacity");
     value->setRange(10, 100);
     value->setSuffix("%");
     value->setValue(service_.state.window.opacity);
@@ -513,7 +513,7 @@ void Editor::createRelation()
                               "Choose the switch to keep enabled");
         auto *layout = new QVBoxLayout(&dialog);
         auto *choice = new C::ChoiceField(&dialog);
-        choice->setObjectName("signalSwitch.exclusiveWinner");
+        choice->setObjectName("controlDeck.exclusiveWinner");
         choice->addItem(text("allOff", "All off"), QString());
         for (const auto &id : members)
             if (const auto *endpoint = service_.find(id))
@@ -540,4 +540,4 @@ void Editor::createRelation()
     }
     service_.notify(true);
 }
-} // namespace WinJACKNexus::SignalSwitch
+} // namespace WinJACKNexus::ControlDeck

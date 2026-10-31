@@ -10,7 +10,7 @@
 #include <WinJACKNexus/UI/ThemeNamespaceRegistry.hpp>
 #include <Windows.h>
 
-namespace WinJACKNexus::SignalSwitch
+namespace WinJACKNexus::ControlDeck
 {
 class Editor : public QWidget
 {
@@ -79,4 +79,4 @@ class Editor : public QWidget
     void releaseMouseHook();
     static LRESULT CALLBACK mouseHook(int code, WPARAM message, LPARAM data);
 };
-} // namespace WinJACKNexus::SignalSwitch
+} // namespace WinJACKNexus::ControlDeck
