@@ -3447,11 +3447,17 @@ class MixerWindow::Impl
                                         [id](const auto &channel) { return channel.id == id; });
         if (found == channels.end())
             return;
-        const int index = static_cast<int>(std::distance(channels.begin(), found));
+        focusChannel(static_cast<int>(std::distance(channels.begin(), found)));
+        showLargeScreen();
+    }
+
+    // Selects a channel and keeps the main mixer and the overview in sync with it.
+    void focusChannel(int index)
+    {
+        const auto found = channels.begin() + index;
         if (index == masterIndex())
         {
             selectChannel(index);
-            showLargeScreen();
             updateOverview();
             return;
         }
@@ -3466,7 +3472,6 @@ class MixerWindow::Impl
         else
             subMixScrollOffset = offset;
         selectChannel(index);
-        showLargeScreen();
         updateOverview();
         owner.setProperty("mixerFocusedStripId", QVariant::fromValue<qulonglong>(found->modelId));
         owner.setProperty("mixerFocusLeadingOffset",
@@ -3877,7 +3882,7 @@ class MixerWindow::Impl
                         std::find_if(channels.begin(), channels.end(),
                                      [id](const auto &channel) { return channel.id == id; });
                     if (found != channels.end())
-                        selectChannel(static_cast<int>(std::distance(channels.begin(), found)));
+                        focusChannel(static_cast<int>(std::distance(channels.begin(), found)));
                 });
             }
             if (group == 3)
@@ -3890,7 +3895,11 @@ class MixerWindow::Impl
                 action->setData(QVariant::fromValue<qulonglong>(0));
                 action->setCheckable(true);
                 action->setChecked(selectedMonitor);
-                connect(action, &QAction::triggered, selWindow, [this] { showMonitorSel(); });
+                connect(action, &QAction::triggered, selWindow, [this] {
+                    showMonitorSel();
+                    updateOverview();
+                    owner.update();
+                });
             }
             category->setEnabled(!category->actions().empty());
         }
