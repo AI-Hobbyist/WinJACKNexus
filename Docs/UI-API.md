@@ -325,6 +325,24 @@ sample at the former interval while their bars animate every display
 frame. Peak markers use the latter duration. These preferences are stored in
 the application's `QSettings` entry.
 
+`processPriorityClass()` returns the applied Windows process priority class
+(default `ABOVE_NORMAL_PRIORITY_CLASS`; also used for invalid saved values).
+`setProcessPriorityClass(quint32, QString*)`
+accepts Idle, Below Normal, Normal, Above Normal, High and Realtime; it applies
+the class immediately, persists it and emits `processPriorityClassChanged`
+only on a change. Invalid values, OS failures and silent OS downgrades return
+false with an error and preserve the prior setting. Initialization restores
+the saved class; if Windows rejects it, the effective class is logged and
+saved instead. The main application and standalone scanner initialize this
+before starting work. Existing child processes retain their current class.
+`Common::configureChildProcessPriority(QProcess&)` reads the global preference
+at each launch and sets explicit Windows creation flags, preserving unrelated
+flags. JACK's native launch path uses the same preference. This covers VST
+hosts (32/64 bit), scanner and isolated probes (including grandchildren),
+JACK startup and device discovery. `process_priority_tests` exercises the
+public settings interface, persistence, real process creation and the visible
+global settings dialog without a JACK server.
+
 [`PaintableWidget`](../src/ui/include/WinJACKNexus/UI/PaintableWidget.hpp)
 gates painting by visibility and rendering state. A subclass implements
 `paintContent`; `requestRepaint` schedules a repaint when allowed.

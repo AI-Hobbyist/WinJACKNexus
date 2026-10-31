@@ -17,6 +17,7 @@
 #include "SynthResourceSettings.hpp"
 #include <WinJACKNexus/Node/ModuleCompatibility.hpp>
 #include <WinJACKNexus/UI/ApplicationSettings.hpp>
+#include <WinJACKNexus/Common/ProcessPriority.hpp>
 #include <WinJACKNexus/UI/Controls.hpp>
 #include <WinJACKNexus/UI/HostI18n.hpp>
 #include <WinJACKNexus/UI/IconManager.hpp>
@@ -472,6 +473,8 @@ public:
         connect(restartButton_, &QPushButton::clicked, this, [this] { restartJackd(); });
         connect(stopButton_, &QPushButton::clicked, this, [this] { stopJackd(); });
         connect(buttons, &QDialogButtonBox::rejected, this, &QWidget::hide);
+        WinJACKNexus::Common::configureChildProcessPriority(process_);
+        WinJACKNexus::Common::configureChildProcessPriority(deviceProbe_);
         connect(&process_, &QProcess::readyReadStandardOutput, this, [this] { process_.readAllStandardOutput(); });
         connect(&process_, &QProcess::readyReadStandardError, this, [this] { process_.readAllStandardError(); });
         connect(&process_, &QProcess::stateChanged, this, [this](QProcess::ProcessState) {
@@ -759,6 +762,29 @@ public:
         frameRate_->setCurrentIndex(frameRateIndex >= 0 ? frameRateIndex : 1);
         applicationForm->addRow(hostLabel("settings.frameRate","UI frame rate",this), frameRate_);
 
+        processPriority_ = new Controls::ChoiceField(applicationGroup);
+        processPriority_->setFixedHeight(Controls::sidebarControlHeight);
+        processPriority_->setObjectName(QStringLiteral("application.processPriorityClass"));
+        const auto updatePriorityChoices = [this] {
+            const QSignalBlocker blocker(processPriority_);
+            processPriority_->clear();
+            processPriority_->addItem(hostText("settings.priority.idle", "Low"), IDLE_PRIORITY_CLASS);
+            processPriority_->addItem(hostText("settings.priority.belowNormal", "Below normal"), BELOW_NORMAL_PRIORITY_CLASS);
+            processPriority_->addItem(hostText("settings.priority.normal", "Normal"), NORMAL_PRIORITY_CLASS);
+            processPriority_->addItem(hostText("settings.priority.aboveNormal", "Above normal"), ABOVE_NORMAL_PRIORITY_CLASS);
+            processPriority_->addItem(hostText("settings.priority.high", "High"), HIGH_PRIORITY_CLASS);
+            processPriority_->addItem(hostText("settings.priority.realtime", "Realtime"), REALTIME_PRIORITY_CLASS);
+            processPriority_->setCurrentIndex(processPriority_->findData(
+                WinJACKNexus::UI::ApplicationSettings::instance().processPriorityClass()));
+        };
+        if (auto* manager = WinJACKNexus::UI::I18nManager::installed())
+            manager->bind(processPriority_, updatePriorityChoices);
+        else
+            updatePriorityChoices();
+        bindHostText(processPriority_, "toolTip", "settings.priority.help",
+            "Applies immediately to this application and to processes started afterwards. Realtime may require additional Windows privileges.");
+        applicationForm->addRow(hostLabel("settings.priority", "Windows process priority", this), processPriority_);
+
         peakValueRefresh_ = new Controls::IntegerField(applicationGroup);
         peakValueRefresh_->setFixedHeight(Controls::sidebarControlHeight);
         peakValueRefresh_->setObjectName(QStringLiteral("application.peakValueRefreshMilliseconds"));
@@ -860,6 +886,24 @@ public:
             ? QString()
             : QDir::fromNativeSeparators(QDir::cleanPath(QFileInfo(logRootDirectory).absoluteFilePath())));
 
+        auto& globalSettings = WinJACKNexus::UI::ApplicationSettings::instance();
+        connect(&globalSettings, &WinJACKNexus::UI::ApplicationSettings::processPriorityClassChanged,
+            this, [this](quint32 priorityClass) {
+                const QSignalBlocker blocker(processPriority_);
+                processPriority_->setCurrentIndex(processPriority_->findData(priorityClass));
+            });
+        connect(processPriority_, qOverload<int>(&QComboBox::currentIndexChanged), this, [this](int index) {
+            if (index < 0) return;
+            auto& settings = WinJACKNexus::UI::ApplicationSettings::instance();
+            QString error;
+            if (!settings.setProcessPriorityClass(processPriority_->itemData(index).toUInt(), &error)) {
+                const QSignalBlocker blocker(processPriority_);
+                processPriority_->setCurrentIndex(processPriority_->findData(settings.processPriorityClass()));
+                QMessageBox::warning(this, hostText("settings.priority.failureTitle", "Unable to change process priority"),
+                    hostText("settings.priority.failure", "Windows could not apply this priority: {detail}",
+                        {{QStringLiteral("detail"), error}}));
+            }
+        });
         connect(frameRate_, qOverload<int>(&QComboBox::currentIndexChanged), this, [this](int index) {
             WinJACKNexus::UI::ApplicationSettings::instance().setFrameRate(frameRate_->itemData(index).toInt());
         });
@@ -927,6 +971,7 @@ private:
 
     QComboBox* frameRate_ = nullptr;
     WinJACKNexus::App::SynthResourceSettings* synthResourceSettings_ = nullptr;
+    QComboBox* processPriority_ = nullptr;
     QSpinBox* peakValueRefresh_ = nullptr;
     QDoubleSpinBox* peakHold_ = nullptr;
     QCheckBox* logTracing_ = nullptr;
@@ -1001,6 +1046,7 @@ int main(int argc, char* argv[])
     wcsncpy_s(crashDumpDirectory, dumpDirectory.c_str(), _TRUNCATE);
     SetUnhandledExceptionFilter(&writeCrashDump);
     QApplication application(argc, argv);
+    WinJACKNexus::UI::ApplicationSettings::instance();
     application.setApplicationName(QStringLiteral("WinJACKNexus"));
     application.setQuitOnLastWindowClosed(false);
     WinJACKNexus::UI::HostI18n hostI18n;

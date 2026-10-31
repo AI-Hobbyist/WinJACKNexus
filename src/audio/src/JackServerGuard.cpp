@@ -18,6 +18,7 @@
 #include <WinJACKNexus/Audio/JackApi.hpp>
 #include <WinJACKNexus/Common/Logger.hpp>
 #include <WinJACKNexus/Common/PathUtils.hpp>
+#include <WinJACKNexus/Common/ProcessPriority.hpp>
 
 #include <Windows.h>
 
@@ -164,7 +165,7 @@ bool JackServerGuard::start(const JackServerOptions& options) noexcept
                         nullptr,
                         nullptr,
                         FALSE,
-                        CREATE_NO_WINDOW,
+                        CREATE_NO_WINDOW | WinJACKNexus::Common::configuredProcessPriorityClass(),
                         nullptr,
                         nullptr,
                         &startupInfo,

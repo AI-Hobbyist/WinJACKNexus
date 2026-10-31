@@ -33,6 +33,7 @@
 #include <QListWidget>
 #include <QPointer>
 #include <QProcess>
+#include <WinJACKNexus/Common/ProcessPriority.hpp>
 #include <QPushButton>
 #include <QTemporaryFile>
 #include <QTimer>
@@ -680,6 +681,7 @@ private:
         const auto instance = nextInstance_.fetch_add(1, std::memory_order_relaxed);
         pipeName_ = QStringLiteral("WinJACKNexus.VST.%1.%2").arg(QCoreApplication::applicationPid()).arg(instance);
         process_ = std::make_unique<QProcess>();
+        WinJACKNexus::Common::configureChildProcessPriority(*process_);
         process_->setProgram(executable_);
         const auto pluginName = clientName_.isEmpty()
             ? (internalPluginName_.isEmpty() ? QFileInfo(path_).completeBaseName() : internalPluginName_)

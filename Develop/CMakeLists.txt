@@ -1,4 +1,13 @@
 # Buildable API examples and boundary checks.
+if(BUILD_TESTING)
+    add_executable(wjn_main_session_probe MainSessionProbe.cpp)
+    target_compile_definitions(wjn_main_session_probe PRIVATE WIN32_LEAN_AND_MEAN NOMINMAX)
+    target_compile_options(wjn_main_session_probe PRIVATE /utf-8)
+    target_link_libraries(wjn_main_session_probe PRIVATE ole32 uuid mmdevapi)
+    set_target_properties(wjn_main_session_probe PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY_RELEASE "${WJN_OUTPUT_DIR}")
+endif()
+
 add_library(wjn_example_native_fx SHARED NativeFx/ExampleNativeFx.cpp)
 target_include_directories(wjn_example_native_fx PRIVATE
     ${PROJECT_SOURCE_DIR}/src/native_fx/include)

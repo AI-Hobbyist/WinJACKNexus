@@ -14,9 +14,12 @@
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 #include <WinJACKNexus/UI/ApplicationSettings.hpp>
+#include <WinJACKNexus/Common/ProcessPriority.hpp>
 
 #include <QSettings>
 #include <QTimer>
+#include <QDebug>
+#include <Windows.h>
 #include <algorithm>
 #include <cmath>
 
@@ -54,6 +57,13 @@ ApplicationSettings::ApplicationSettings()
         settings.value(QStringLiteral("peakValueRefreshMilliseconds"), 50).toInt(), 8, 1000);
     const auto hold = settings.value(QStringLiteral("peakHoldSeconds"), 1.0).toDouble();
     peakHoldSeconds_ = std::isfinite(hold) ? std::clamp(hold, 0.0, 10.0) : 1.0;
+    const auto requested = Common::configuredProcessPriorityClass();
+    QString error;
+    if (!Common::applyProcessPriorityClass(requested, &error))
+        qWarning().noquote() << "Saved process priority:" << error;
+    processPriorityClass_ = GetPriorityClass(GetCurrentProcess());
+    // Do not launch children with a priority that the OS rejected at startup.
+    settings.setValue(QStringLiteral("processPriorityClass"), processPriorityClass_);
 }
 
 int ApplicationSettings::frameRate() const noexcept
@@ -100,6 +110,25 @@ void ApplicationSettings::setPeakHoldSeconds(double seconds)
     QSettings(QSettings::defaultFormat(), QSettings::UserScope, QStringLiteral("WinJACKNexus"), QStringLiteral("Application"))
         .setValue(QStringLiteral("peakHoldSeconds"), normalized);
     Q_EMIT peakHoldSecondsChanged(normalized);
+}
+
+quint32 ApplicationSettings::processPriorityClass() const noexcept
+{
+    return processPriorityClass_;
+}
+
+bool ApplicationSettings::setProcessPriorityClass(quint32 priorityClass, QString* error)
+{
+    if (!Common::applyProcessPriorityClass(priorityClass, error))
+        return false;
+    QSettings(QSettings::defaultFormat(), QSettings::UserScope,
+        QStringLiteral("WinJACKNexus"), QStringLiteral("Application"))
+        .setValue(QStringLiteral("processPriorityClass"), priorityClass);
+    if (processPriorityClass_ != priorityClass) {
+        processPriorityClass_ = priorityClass;
+        Q_EMIT processPriorityClassChanged(priorityClass);
+    }
+    return true;
 }
 
 void bindRefreshTimer(QTimer& timer, QObject* owner)

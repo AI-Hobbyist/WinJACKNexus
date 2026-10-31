@@ -49,31 +49,31 @@
   /* sel-aux / 分控旋钮重置 button text selected; type=color */
   --wjn-theme-sel-aux-control-panner-reset-button-text-selected: var(--wjn-theme-global-control-button-text-selected);
   /* sel-aux / surface empty; type=color */
-  --wjn-theme-sel-aux-surface-empty: #0b1a2b;
+  --wjn-theme-sel-aux-surface-empty: var(--wjn-theme-sel-main-surface-empty);
   /* sel-aux / surface panel; type=color */
-  --wjn-theme-sel-aux-surface-panel: #102235;
+  --wjn-theme-sel-aux-surface-panel: var(--wjn-theme-sel-main-surface-panel);
   /* sel-aux / text primary; type=color */
-  --wjn-theme-sel-aux-text-primary: #e8f2ff;
+  --wjn-theme-sel-aux-text-primary: var(--wjn-theme-sel-main-text-primary);
   /* sel-aux / text muted; type=color */
-  --wjn-theme-sel-aux-text-muted: #aec7eb;
+  --wjn-theme-sel-aux-text-muted: var(--wjn-theme-sel-main-text-muted);
   /* sel-aux / control knob indicator normal; type=color */
-  --wjn-theme-sel-aux-control-knob-indicator-normal: #26bfff;
+  --wjn-theme-sel-aux-control-knob-indicator-normal: var(--wjn-theme-sel-main-control-knob-indicator-normal);
   /* sel-aux / control knob background base; type=color */
-  --wjn-theme-sel-aux-control-knob-background-base: #0b1a2b;
+  --wjn-theme-sel-aux-control-knob-background-base: var(--wjn-theme-sel-aux-surface-empty);
   /* sel-aux / control knob track; type=color */
-  --wjn-theme-sel-aux-control-knob-track: #254762;
+  --wjn-theme-sel-aux-control-knob-track: var(--wjn-theme-sel-main-control-knob-track);
   /* sel-aux / control toggle indicator on; type=color */
-  --wjn-theme-sel-aux-control-toggle-indicator-on: #168dff;
+  --wjn-theme-sel-aux-control-toggle-indicator-on: var(--wjn-theme-sel-main-control-toggle-indicator-on);
   /* sel-aux / control toggle indicator off; type=color */
-  --wjn-theme-sel-aux-control-toggle-indicator-off: #263e53;
+  --wjn-theme-sel-aux-control-toggle-indicator-off: var(--wjn-theme-sel-main-control-toggle-indicator-off);
   /* sel-aux / control knob panel; type=color */
-  --wjn-theme-sel-aux-control-knob-panel: #1b3b57;
+  --wjn-theme-sel-aux-control-knob-panel: var(--wjn-theme-sel-aux-control-knob-background-base);
   /* sel-aux / control knob text; type=color */
-  --wjn-theme-sel-aux-control-knob-text: #d9f4ff;
+  --wjn-theme-sel-aux-control-knob-text: var(--wjn-theme-sel-main-control-knob-text);
   /* sel-aux / control knob panel self route; type=color */
   --wjn-theme-sel-aux-control-knob-panel-self-route: #385064;
   /* sel-aux / border panel; type=color */
-  --wjn-theme-sel-aux-border-panel: #2b4662;
+  --wjn-theme-sel-aux-border-panel: var(--wjn-theme-sel-main-border-panel);
   /* sel-aux / control add surface; type=color */
   --wjn-theme-sel-aux-control-add-surface: #073158;
   /* sel-aux / control add border; type=color */
@@ -117,13 +117,13 @@
   /* sel-aux / control scrollbar thumb normal; type=color */
   --wjn-theme-sel-aux-control-scrollbar-thumb-normal: #258fc3;
   /* sel-aux / control mute solo text; type=color */
-  --wjn-theme-sel-aux-control-mute-solo-text: #f7f8ff;
+  --wjn-theme-sel-aux-control-mute-solo-text: var(--wjn-theme-sel-main-control-mute-solo-text);
   /* sel-aux / control mute accent; type=color */
-  --wjn-theme-sel-aux-control-mute-accent: #ff4b62;
+  --wjn-theme-sel-aux-control-mute-accent: var(--wjn-theme-sel-main-control-mute-accent);
   /* sel-aux / control solo accent; type=color */
-  --wjn-theme-sel-aux-control-solo-accent: #ffae2d;
+  --wjn-theme-sel-aux-control-solo-accent: var(--wjn-theme-sel-main-control-solo-accent);
   /* sel-aux / control pan border; type=color */
-  --wjn-theme-sel-aux-control-pan-border: #254762;
+  --wjn-theme-sel-aux-control-pan-border: var(--wjn-theme-sel-main-control-pan-border);
   /* sel-aux / meter aux send border; type=color */
   --wjn-theme-sel-aux-meter-aux-send-border: #06131f;
   /* sel-aux / chart series polar input stroke; type=color */

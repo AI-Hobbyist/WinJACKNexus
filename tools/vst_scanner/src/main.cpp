@@ -14,6 +14,7 @@
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 #include <QApplication>
+#include <WinJACKNexus/UI/ApplicationSettings.hpp>
 #include <QIcon>
 #include <WinJACKNexus/VstScanner/Language.hpp>
 
@@ -22,6 +23,7 @@
 int main(int argc, char* argv[])
 {
     QApplication application(argc, argv);
+    WinJACKNexus::UI::ApplicationSettings::instance();
     // Restore the application's saved selection before constructing any UI.
     // Scanner settings remain separate; no language selection is written here.
     WinJACKNexus::UI::HostI18n language;

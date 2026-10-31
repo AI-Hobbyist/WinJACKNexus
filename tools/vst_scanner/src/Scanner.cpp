@@ -36,6 +36,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QProcess>
+#include <WinJACKNexus/Common/ProcessPriority.hpp>
 #include <QRegularExpression>
 #include <QSaveFile>
 #include <QSet>
@@ -447,6 +448,7 @@ bool executeIsolatedProbe(const fs::path& path,
         + QUuid::createUuid().toString(QUuid::WithoutBraces)
         + QStringLiteral(".json");
     QProcess process;
+    WinJACKNexus::Common::configureChildProcessPriority(process);
     process.setProgram(pathString(probePath));
     auto processArguments = arguments;
     processArguments.insert(1, pathString(path));

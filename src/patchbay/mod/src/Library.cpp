@@ -59,6 +59,7 @@
 #include <QMimeData>
 #include <QPointer>
 #include <QProcess>
+#include <WinJACKNexus/Common/ProcessPriority.hpp>
 #include <QPushButton>
 #include <QDirIterator>
 #include <QSettings>
@@ -3614,6 +3615,7 @@ public:
                             return;
                         }
                         auto *scanner = new QProcess(window);
+                        WinJACKNexus::Common::configureChildProcessPriority(*scanner);
                         QObject::connect(
                             scanner, qOverload<int, QProcess::ExitStatus>(&QProcess::finished),
                             scanner, [scanner, refreshNodeLibrary](int, QProcess::ExitStatus) {

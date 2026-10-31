@@ -25,9 +25,9 @@
   /* mixer / fader monitor thumb; type=color */
   --wjn-theme-mixer-fader-monitor-thumb: #ffe15a;
   /* mixer / fader monitor track; type=color */
-  --wjn-theme-mixer-fader-monitor-track: #0a0f15;
+  --wjn-theme-mixer-fader-monitor-track: var(--wjn-theme-global-fader-generic-track);
   /* mixer / fader monitor grip; type=color */
-  --wjn-theme-mixer-fader-monitor-grip: #07131f;
+  --wjn-theme-mixer-fader-monitor-grip: var(--wjn-theme-global-fader-generic-grip);
   /* mixer / control button pfl accent; type=color */
   --wjn-theme-mixer-control-button-pfl-accent: #ffe15a;
   /* mixer / control button afl accent; type=color */
@@ -63,21 +63,21 @@
   /* mixer / fader input thumb; type=color */
   --wjn-theme-mixer-fader-input-thumb: #9aa8b7;
   /* mixer / fader aux thumb; type=color */
-  --wjn-theme-mixer-fader-aux-thumb: #33b6ff;
+  --wjn-theme-mixer-fader-aux-thumb: var(--wjn-theme-global-fader-generic-thumb);
   /* mixer / fader master thumb; type=color */
   --wjn-theme-mixer-fader-master-thumb: #ff5353;
   /* mixer / fader input track; type=color */
-  --wjn-theme-mixer-fader-input-track: #0a0f15;
+  --wjn-theme-mixer-fader-input-track: var(--wjn-theme-global-fader-generic-track);
   /* mixer / fader aux track; type=color */
-  --wjn-theme-mixer-fader-aux-track: #0a0f15;
+  --wjn-theme-mixer-fader-aux-track: var(--wjn-theme-global-fader-generic-track);
   /* mixer / fader master track; type=color */
-  --wjn-theme-mixer-fader-master-track: #0a0f15;
+  --wjn-theme-mixer-fader-master-track: var(--wjn-theme-global-fader-generic-track);
   /* mixer / fader input grip; type=color */
-  --wjn-theme-mixer-fader-input-grip: #07131f;
+  --wjn-theme-mixer-fader-input-grip: var(--wjn-theme-global-fader-generic-grip);
   /* mixer / fader aux grip; type=color */
-  --wjn-theme-mixer-fader-aux-grip: #07131f;
+  --wjn-theme-mixer-fader-aux-grip: var(--wjn-theme-global-fader-generic-grip);
   /* mixer / fader master grip; type=color */
-  --wjn-theme-mixer-fader-master-grip: #07131f;
+  --wjn-theme-mixer-fader-master-grip: var(--wjn-theme-global-fader-generic-grip);
   /* mixer / control button surface normal; type=color */
   --wjn-theme-mixer-control-button-surface-normal: #16283a;
   /* mixer / control button text normal; type=color */
@@ -139,9 +139,9 @@
   /* mixer / fader-submix-thumb; type=color */
   --wjn-theme-mixer-fader-submix-thumb: #37d879;
   /* mixer / fader-submix-track; type=color */
-  --wjn-theme-mixer-fader-submix-track: #0a0f15;
+  --wjn-theme-mixer-fader-submix-track: var(--wjn-theme-global-fader-generic-track);
   /* mixer / fader-submix-grip; type=color */
-  --wjn-theme-mixer-fader-submix-grip: #07131f;
+  --wjn-theme-mixer-fader-submix-grip: var(--wjn-theme-global-fader-generic-grip);
   /* mixer / control-scrollbar-submix-thumb; type=color */
   --wjn-theme-mixer-control-scrollbar-submix-thumb: #37d879;
   /* mixer / resize-submix-handle; type=color */

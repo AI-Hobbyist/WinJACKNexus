@@ -14,6 +14,7 @@ add_library(common SHARED
     src/MeterProbeRegistry.cpp
     src/Metadata.cpp
     src/PathUtils.cpp
+    src/ProcessPriority.cpp
     src/Thread.cpp
     src/Timer.cpp
     src/Version.cpp
@@ -38,6 +39,7 @@ add_library(common SHARED
     include/WinJACKNexus/Common/MeterProbeRegistry.hpp
     include/WinJACKNexus/Common/Metadata.hpp
     include/WinJACKNexus/Common/PathUtils.hpp
+    include/WinJACKNexus/Common/ProcessPriority.hpp
     include/WinJACKNexus/Common/RealtimeObject.hpp
     include/WinJACKNexus/Common/ScopedGuard.hpp
     include/WinJACKNexus/Common/SilenceResetController.hpp

@@ -87,7 +87,7 @@
   /* sel-main / control knob indicator normal; type=color */
   --wjn-theme-sel-main-control-knob-indicator-normal: #26bfff;
   /* sel-main / control knob background base; type=color */
-  --wjn-theme-sel-main-control-knob-background-base: #0b1a2b;
+  --wjn-theme-sel-main-control-knob-background-base: var(--wjn-theme-sel-main-surface-empty);
   /* sel-main / control knob track; type=color */
   --wjn-theme-sel-main-control-knob-track: #254762;
   /* sel-main / control toggle indicator on; type=color */
@@ -97,7 +97,7 @@
   /* sel-main / border panel; type=color */
   --wjn-theme-sel-main-border-panel: #2b4662;
   /* sel-main / control knob panel; type=color */
-  --wjn-theme-sel-main-control-knob-panel: #1b3b57;
+  --wjn-theme-sel-main-control-knob-panel: var(--wjn-theme-sel-main-control-knob-background-base);
   /* sel-main / control knob text; type=color */
   --wjn-theme-sel-main-control-knob-text: #d9f4ff;
   /* sel-main / control pan border; type=color */

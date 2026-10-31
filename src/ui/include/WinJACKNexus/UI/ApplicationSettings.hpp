@@ -35,11 +35,14 @@ public:
     void setPeakValueRefreshMilliseconds(int milliseconds);
     double peakHoldSeconds() const noexcept;
     void setPeakHoldSeconds(double seconds);
+    quint32 processPriorityClass() const noexcept;
+    bool setProcessPriorityClass(quint32 priorityClass, QString* error = nullptr);
 
 Q_SIGNALS:
     void frameRateChanged(int framesPerSecond);
     void peakValueRefreshMillisecondsChanged(int milliseconds);
     void peakHoldSecondsChanged(double seconds);
+    void processPriorityClassChanged(quint32 priorityClass);
 
 private:
     ApplicationSettings();
@@ -47,6 +50,7 @@ private:
     int frameRate_ = 60;
     int peakValueRefreshMilliseconds_ = 50;
     double peakHoldSeconds_ = 1.0;
+    quint32 processPriorityClass_ = 0x8000; // ABOVE_NORMAL_PRIORITY_CLASS
 };
 
 // Keep continuously refreshed views in step with the application FPS setting.
