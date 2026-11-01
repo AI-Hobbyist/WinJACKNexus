@@ -1,106 +1,66 @@
 # Agent 交接手册
 
-更新时间：2026-10-31 16:30
+更新时间：2026-11-01（Asia/Seoul）
 
-## 1. 当前任务与阶段
+## 当前任务与最终状态
 
-本轮只做文档，已完成：
+WinJACKNexus 1.0.1 调音台修复已完成：实现、Release 构建、限定回归、提交推送和增量打包均已完成。无剩余实施任务，不创建下一开发阶段。
 
-1. 四语 README 补充：启动前 JACK 检查、进程优先级、调音台窗口行为（主仓库 `bf6d5fb`）。
-2. Wiki 建立并扩展：安装流程、全部模块使用方法、主题自定义、术语表与常见问题。
+本轮用户确认的最终范围：
 
-代码合并已提交并推送（`8e6d38a`），本轮文档未改代码。后续事项见第 6 节。
+1. 修复 AUX/Sub Mix 经典 Pan 模式下分控旋钮拖动，包含独立及联动调整。
+2. Input/AUX 的路径为：输入 → 输入增益 → FX → Pre → MAIN 分控电平、声道 Mute/Solo → 总推子及整体 Mute/Solo → Post → Master 分支。
+3. 普通通道 MAIN Pan 保留现有独立分支，不进入 AUX Post；声道布局不变。Sub Mix 保留原有同布局输出 Pan。
+4. MIX 仅控制 Master 汇总，不影响 AUX Post。Sub Mix 本身不支持 AUX 发送，回归验证其实际输出口。
 
-## 2. Git 状态
+上一轮“只写文档”的任务已结束，不再限制本轮已获授权的代码修改。历史交接原文可通过 `git show 739a33e:AGENT_HANDOFF.md` 查看。
 
-### 主仓库
+## Git 与文件状态
 
-- 分支 `main`，已与 `origin/main` 同步；最新代码合并提交为 `8e6d38a`（signal_switch → control_deck）。
-- 工作区没有未提交的代码改动。
-- 以下未跟踪内容按用户指令**不提交**：`.omc/`、`midi_tools_node_ref/`、`themes/Furina/`、`themes/org.eryth.furina.wjnskin`。
+- 分支：`main`。
+- 实现、回归与更新日志提交：`739a33e4ea13abf2822c94d425cb775308c8bd9a`，已成功推送 `origin/main`。
+- 本交接文档作为本轮收尾单独提交并推送；只改交付记录，不改变增量包的代码来源提交。
+- 本次修改：`CMakeLists.txt`、`Develop/CMakeLists.txt`、`Develop/MixerPostRegressionTests.cpp`、`Docs/CHANGELOG-1.0.1.md`、`Docs/UI-API.md`、`src/app/WinJACKNexus.rc`、`src/common/src/DigitalMixerProcessor.cpp`、`src/common/src/Library.cpp`、`src/ui/src/AuxSettingsWindow.cpp`。
+- 没有待继续修改的代码。原有未跟踪内容保持原状且未提交：`.omc/`、`midi_tools_node_ref/`、`themes/Furina/`、`themes/org.eryth.furina.wjnskin`。
+- 本地 `tests/` 被仓库忽略；本轮正式回归源码放在已提交的 `Develop/MixerPostRegressionTests.cpp`。
 
-### Wiki 仓库
+## 已完成的实现
 
-- 独立仓库：`https://github.com/AI-Hobbyist/WinJACKNexus.wiki.git`（`master`）。
-- 本地克隆：`D:\Temp\wjn-wiki-probe`，远端最新 `24d0c20`，工作区干净。若该临时目录已被清理，重新 clone 上面的地址即可。
-- 共 18 个内容页面，首页、侧边栏和页脚已接好导航。
-- 主要提交：`0884a19` 骨架、`ab090ca` / `8459a27` 安装流程、`89000df` 起各模块页面、`2ae6440` 术语表与导航、`8e984dc` 第一个信号链、`b743896` / `24d0c20` 主题自定义。
+- `AuxSettingsWindow::mouseMoveEvent()` 先处理分控拖动，再限制经典模式下的空间参数拖动。
+- `DigitalMixerProcessor` 在 Pre 缓冲区保持不变的情况下，将分控应用到 Post。普通通道送 Master 的矩阵仅保留 Pan，避免分控增益重复应用。
+- Sub Mix 原输出矩阵在总推子前执行，保留原有同布局输出处理。
+- CMake 项目及公共库版本为 1.0.1；主程序文件版本为 1.0.1.0，产品版本为 1.0.1。
+- UI 行为契约及更新日志已更新。没有变更公开函数签名或工程序列化格式。
 
-## 3. 本轮文档完成内容
+## 已验证
 
-### 3.1 四语 README（`bf6d5fb`）
+- 现有 `build/release` 构建树，VS18 自带 CMake；`WJN_ENABLE_VST2=ON`。
+- Release 目标 `WinJACKNexus`、`wjn_mixer_post_regression_tests`、`wjn_digital_mixer_tests` 构建成功；没有执行 ALL_BUILD 或全量清理重编。
+- CTest 限定运行 3 项，全部通过：`digital_mixer_offline_tests`、`mixer_main_post_tests`、`mixer_classic_pan_drag_tests`。
+- 新音频回归覆盖 Input/AUX 的 Pre/Post、Sub Mix 输出、Mono/立体声/5.1/7.1，验证分控/Mute/Solo、MIX 独立性、Master 单次增益与普通通道 Pan 分支保留。
+- GUI 使用 Windows Qt 后端和系统字体，实际显示 2 次窗口；独立拖动得到 L=4/R=0 dB，随后联动拖动得到 L=8/R=4 dB，经典 Pan 值不变。窗口已关闭。
+- 原生窗口截图已检查，中文“分控”正常显示，无方框：`build/release/aux-classic-1.0.1.png`、`build/release/submix-classic-1.0.1.png`。
+- scoped clang-format 已应用；`git diff --check` 通过。
+- 日志：`build/release/1.0.1-configure.log`、`1.0.1-build.log`、`1.0.1-tests.log`、`1.0.1-package.log`；逐项测试输出见 `build/release/Testing/Temporary/LastTest.log`。
 
-`README.md`、`README.en.md`、`README.ja.md`、`README.ko.md` 同步补充：
+## 增量包
 
-- 启动时检查 JACK 服务器；无服务器时按自动启动设置尝试，仍未就绪则显示模态「JACK 服务器设置」，就绪后继续；直接关窗退出。
-- 「全局设置 → Windows 进程优先级」的六档、作用范围（应用自身和之后启动的 jackd、VST 宿主进程、VST 扫描器）以及实时档的风险。
-- 数字调音台总览/详情窗口的独立任务栏缩略图、不随主调音台最小化，以及切换通道联动。
+- 路径：`build/release/WinJACKNexus-1.0.1-Release-x64-Overlay.zip`。
+- 大小：1,349,269 字节。
+- SHA-256：`e214e66c6a2882ab1a939f417d48876b9ee75e6a46d57e84a28f303d14e9b779`；同目录有 `.zip.sha256`。
+- 运行文件仅包含 `WinJACKNexus.exe`、`common.dll`、`ui.dll`，另附 `Docs/CHANGELOG-1.0.1.md` 和 `overlay-manifest.json`。清单记录代码提交、文件大小及 SHA-256，ZIP 内容逐文件校验通过。
+- 本地打包脚本：`build/release/package-1.0.1.ps1`。未上传 GitHub Release；用户本轮要求的是提交推送和生成增量包。
+- 这是增量包，不是完整包。关闭应用后覆盖现有完整安装；原工程 MAIN 分控非默认时，AUX Post 电平可能因新路径而变化。
 
-### 3.2 Wiki 页面
+## 未验证、警告及范围外事项
 
-| 页面 | 内容 |
-| --- | --- |
-| 首页 / 安装与首次启动 | 三步安装、JACK/VAC 说明、首次启动与进程优先级 |
-| 接线盘 | 节点、连线、子图、工程与自动保存 |
-| 设备节点 | WASAPI/MIDI 节点、设备配置、VAC 同名线规则 |
-| 数字调音台 / Classic Mixer | 通道、SEL、AUX、Sub Mix、FX、监听、预设 |
-| Native Fx | 8 个效果、节点/调音台两种用法、All 声道规则 |
-| 电平桥 | 探针、响度指标、历史图表、CSV |
-| VST 宿主 | 扫描、加载、沙盒、端口、预设 |
-| MIDI Tools | 通道拆分、矩阵、SF2/SFZ |
-| Control Deck | 开关、音效、峰值表、增益，布局/锁定/穿透 |
-| 主题与自定义 / 制作主题包 | 主题切换、颜色/字体/背景、导出、包结构与校验 |
-| 术语表 / 常见问题 / 开发 | 名词、FAQ、构建与接口入口 |
+- 现场 JACK/端口连接、真实音频设备流未运行测试；未将离线回归声称为现场端到端验证。
+- 人工界面及安装验收：已跳过（用户指令），不代表通过。
+- 本次构建没有失败项；日志包含未修改的 i18n API 声明 C4273 警告，以及 windeployqt 的 `VCINSTALLDIR` 未设置警告；均未导致构建失败，未扩展范围处理。
+- 截图中既有英文标题/标签存在裁切，属于本轮之外的布局事项，未修改。
 
-### 3.3 安装流程
+## 下一步与约束
 
-整合包已发布到 [GitHub Releases](https://github.com/AI-Hobbyist/WinJACKNexus/releases)，资产为 `WJN_Release.7z`，解压后包含三个文件：
+无剩余实施任务。若用户反馈实际音频行为，再按具体症状及日志定位；不自动扩大范围。
 
-`1_安装JACK.exe` → `2_安装VAC.exe` → `3_解压WinJACKNexus.7z`
-
-注意：
-
-- Wiki 安装页和四语 README 已加入 Releases 下载入口。
-- VAC 同一条线的播放端点和录音端点内部连通，同一条线只能用于录制或播放其中之一。例如系统播放使用 `Line 1` 时，WASAPI 输入应选择 `Line 2`。
-- 三文件清单里没有 VC++ 运行库安装程序，而应用依赖它；干净系统可能缺少 `VCRUNTIME140.dll` / `MSVCP140.dll`。
-
-## 4. 历史功能（代码未变）
-
-| 提交 | 内容 | 验证状态 |
-| --- | --- | --- |
-| `7ce3adb` | 启动时没有检测到可用的 JACK 服务器：先按原设置尝试自动启动；仍未就绪就以模态方式弹出「JACK 服务器设置」，服务器就绪后自动关闭并继续启动；不启动服务器直接关窗口，应用退出。离线模式跳过这一步 | Release 编译通过；实窗验证已跳过（用户指令） |
-| `55f3f7e` | 进程优先级设置：全局设置里新增「进程优先级」（低～实时），并应用到 jackd 和 VST 扫描器子进程；新增 `wjn_main_session_probe` 工具；四语本地化；补充了 `Docs/UI-API.md`；更新 theme template 样式 | WinJACKNexus 目标编译通过；VST 扫描器和 probe 目标没有单独编译；未实测 |
-| `54fdc07` | 修复：通道详情（SEL）窗口关闭后再打开时，标题栏背景和类型图标丢失（原因是标题栏颜色缓存没有随窗口销毁一起清空） | 编译通过；未实测 |
-| `e926ec8` / `8e5a6da` / `4006338` | 通道总览和通道详情窗口在任务栏里有独立的缩略图；点调音台缩略图能把调音台提到最前面（显示前设置 `WS_EX_APPWINDOW`，显示后清除原生 owner；QObject 父对象保留，所以 `findChild` 和窗口生命周期不变） | **用户实测正常** |
-| `be328ae` | 在通道详情里切换通道（包括 Monitor）时，总览高亮和主调音台的滚动位置会同步跟随 | **用户实测正常** |
-
-行为变化提醒：总览和详情窗口不再从属于调音台，所以最小化调音台时它们**不会**再跟着一起最小化。
-
-## 5. 增量包
-
-都在 `build/release/` 下。最新的 `WinJACKNexus-Release-Overlay-SelLink-20261031-153037.zip` 里的 `ui.dll` 包含上一轮所有界面改动。`WinJACKNexus.exe` 的改动在 `WinJACKNexus-Release-Overlay-JackStartup-20261031-144848.zip` 里。两个都是增量包，不是完整包。本轮文档工作没有产生新包。
-
-## 6. 后续事项
-
-1. **整合包**：`1.0.0` 已发布（`WJN_Release.7z`）；后续版本更新时同步 Wiki/README 的下载入口，并确认是否需要增加 VC++ 运行库步骤或把安装程序放进 `3_解压WinJACKNexus.7z`。
-2. **VAC 再分发**：把 VAC 安装程序放进公开整合包前，确认其许可与再分发条款。
-3. **Wiki 完善**：目前只有简体中文，没有截图或录屏；`Development` 页的构建环境与测试流程仍是「待补充」；可补主题 Token 参考页。
-4. **旧文档核对（未做）**：`Docs/UI-API.md` 是否完整覆盖进程优先级接口；`Docs/` 下的调音台文档；计划书中的启动流程描述。用户把本轮文档范围限定为主 README 与 Wiki，这些未执行。
-
-## 7. 必须遵守的约束
-
-- 只写文档，不改代码。发现代码问题就记为后续事项，不要扩大范围。
-- 文档只描述已经验证或已经实现的行为；未实测的功能不要写成已验证。
-- 四语 README 的内容要保持一致。
-- Wiki 修改在 `D:\Temp\wjn-wiki-probe` 进行，提交并推送 wiki 的 `master`；页面用简体中文，链接到主仓库 Docs/源码时先确认路径存在。
-- 如果后面需要构建：只用现有 `build` 目录，只编 Release，用 VS18 自带的 CMake，在前台运行并通过 `2>&1 | Tee-Object -FilePath build.log` 记录完整输出，然后检查 `$LASTEXITCODE`（`build.log` 是 UTF-16 编码）。不要使用 offscreen 模式。
-- 提交和推送需要用户批准。
-
-## 8. 2026-10-31 17:05 追加：signal_switch 并入 control_deck（已提交 `8e6d38a`）
-
-- 源码 `src/signal_switch/` → `src/control_deck/`；命名空间 `SignalSwitch` → `ControlDeck`（含 `Common::ControlDeck`、`ControlDeckProcessor.hpp`）；UI 文件 `ControlDeck{Editor,Layout,Overlay}.cpp`；CMake 目标 `control_deck_state`、测试 `wjn_control_deck_*_tests`；对象名/属性 `controlDeck*`；打包脚本 `tools/package_control_deck.ps1`。
-- 主面板 `signalSwitch` 域并入主语言目录 `locate/`，不再有 `signal_switch/locate`；BASS 插件目录改为 `control_deck/bass_plugins/`，仍兼容读取旧的 `signal_switch/bass_plugins/`。
-- **刻意保留**（持久化或 API 合同）：节点 DLL 名 `wjn_signal_switch_<kind>`、`moduleId` `winjacknexus-signal-switch*`、i18n 域 `signalSwitch` / `signalSwitch.<kind>`、主题命名空间 `signal-switch` 及其 Token、工程字段 `signalSwitchStateBase64`、旧路径 `nodes/signal_switch/` 的映射。
-- 发布目录 `D:\UserData\Desktop\WJN_Release\WinJACKNexus` 的 `signal_switch/locate` 已合并到它的 `locate/` 并删除；原文件备份在 `D:\Temp\wjn-merge\backup`。该目录里仍是旧版二进制，主面板会回退成英文，直到换成新包。
-- 验证：VST2=ON 的 Release `ALL_BUILD`（clean-first）通过；`host_i18n_tests`、`i18n_contract_tests`、`control_deck_state/module/final` 通过（实窗，弹窗 17 次）。`patchbay_i18n_tests` 失败于「four audio/MIDI interface types exist」：该测试在 HEAD 上就编译不过（缺 `Service.hpp` 的包含路径），这次只补了链接依赖，断言失败记为后续事项。
-- 完整包：`build/WinJACKNexus-Release-x64-VST2-Full-20261031-170354.zip`（含 `.sha256`；打包脚本 `D:\Temp\wjn-merge\package-full-vst2.ps1`）。没有附带 JACK2 安装程序。
+继续遵守：先读 `AGENTS.md`；有 `.codegraph/` 时先用 CodeGraph；仅用现有 build 构建树与 Release；构建/测试/打包必须前台 PowerShell 经 Tee-Object 写 build.log 并立即检查退出码；Qt 禁用 offscreen，实窗每批显示上限 100；不停止正在运行的应用或音频进程；保留用户未跟踪文件。当前无外部多阶段计划，范围以本次用户指令及后续澄清为准。
