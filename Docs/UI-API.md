@@ -582,3 +582,11 @@ Control Deck shared control additions (2026-10-20):
 - `FxLevelMeterWidget::setVertical(bool)` selects bottom-to-top -72..+12 dBFS display in single-channel mode; false retains the horizontal scale. Default two-row meters remain horizontal. Control Deck persists this option per meter node.
 
 - `FxLevelMeterWidget::setSurfaceVisible(bool)` controls only its outer rectangular surface (visible by default); the meter bars, ticks and readout remain. Control Deck disables that surface and lets the card show through.
+
+### Digital Mixer 1.0.1: MAIN 分控与发送采样点
+
+通道处理顺序为：输入 → 输入增益 → FX → Pre 采样点 → MAIN 分控电平、声道 Mute/Solo → 通道总推子及整体 Mute/Solo → Post 采样点。MAIN 分控保持原声道布局，作用于 Input、AUX 和 Sub Mix 的 Post 路径；Pre 不受这些分控影响。AUX 发送仍有独立的 Pan、分控及开关。
+
+普通通道 MAIN Pan 保留在 Post 到 Master 的独立分支中，不作用于 AUX Post；Sub Mix 保留原有的同布局输出 Pan。分控增益在 Master 汇总时不会再次叠加。MIX 仅控制是否汇入 Master，不影响 AUX Pre/Post。通道整体 Mute、Solo 和 AUX 开关继续按原有发送门控规则工作。
+
+`AuxSettingsWindow` 的经典 Pan 模式支持分控旋钮独立及联动拖动；空间参数仍仅在空间 Pan 模式下可调。公开函数签名及工程序列化格式不变。对应回归为 `mixer_main_post_tests` 和 `mixer_classic_pan_drag_tests`；后者必须使用 Windows 实窗及系统字体。

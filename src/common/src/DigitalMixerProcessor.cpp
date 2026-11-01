@@ -250,14 +250,33 @@ bool DigitalMixerProcessor::configure(const DigitalMixerState &state, std::size_
         strip.exposeOutput = source.kind != MixerStripKind::aux || !state.hasSubMix(source.id);
         strip.auxSendsEnabled = source.auxSendsEnabled;
         strip.subMix = source.kind == MixerStripKind::subMix;
-        strip.mainMatrix =
-            pannerMatrix(strip.subMix ? defaultMixerPanner(source.layout, MixerLayout::stereo)
-                                      : source.mainPanner,
-                         source.layout, MixerLayout::stereo);
+        // MAIN channel levels belong to the shared post path. Keep only Pan in
+        // the MAIN summation matrix so Post sends receive those levels once.
+        auto panOnly = source.mainPanner;
+        for (auto &point : panOnly.points)
+        {
+            point.levelDb = 0.0;
+            point.mute = false;
+            point.solo = false;
+        }
+        strip.mainMatrix = pannerMatrix(
+            strip.subMix ? defaultMixerPanner(source.layout, MixerLayout::stereo) : panOnly,
+            source.layout, MixerLayout::stereo);
         if (strip.subMix)
         {
             strip.outputMatrix = pannerMatrix(source.mainPanner, source.layout, source.layout);
-            strip.outputProcessed.resize(strip.channels * maxFrames);
+        }
+        else
+        {
+            const bool anyChannelSolo =
+                std::any_of(source.mainPanner.points.cbegin(), source.mainPanner.points.cend(),
+                            [](const auto &point) { return point.solo && !point.mute; });
+            for (std::size_t channel = 0; channel < strip.channels; ++channel)
+            {
+                const auto &point = source.mainPanner.points[channel];
+                strip.outputMatrix[channel][channel] =
+                    point.mute || (anyChannelSolo && !point.solo) ? 0.0F : dbGain(point.levelDb);
+            }
         }
         strip.monitorMatrix = pannerMatrix(defaultMixerPanner(source.layout, state.monitorLayout()),
                                            source.layout, state.monitorLayout());
@@ -462,6 +481,21 @@ bool DigitalMixerProcessor::process(std::span<const float *const> inputs,
                                 std::span(outputPointers.data(), target.channels), frames);
         }
     };
+    const auto preparePost = [this, frames](Strip &strip) noexcept {
+        for (std::size_t channel = 0; channel < strip.channels; ++channel)
+            std::fill_n(strip.post.data() + channel * maxFrames_, frames, 0.0F);
+        addMatrix(strip.pre, strip.channels, strip.post, strip.channels, strip.outputMatrix,
+                  maxFrames_, frames);
+        for (std::size_t channel = 0; channel < strip.channels; ++channel)
+        {
+            auto *post = strip.post.data() + channel * maxFrames_;
+            for (std::size_t frame = 0; frame < frames; ++frame)
+                post[frame] = strip.soloAudible
+                                  ? post[frame] * rampValue(strip.currentFaderGain, strip.faderGain,
+                                                            strip.faderRampRemaining, frame)
+                                  : 0.0F;
+        }
+    };
     for (auto &strip : inputs_)
     {
         for (std::size_t channel = 0; channel < strip.channels; ++channel)
@@ -478,13 +512,8 @@ bool DigitalMixerProcessor::process(std::span<const float *const> inputs,
             if (effectProcess_)
                 effectProcess_(effectContext_, strip.id, static_cast<std::uint32_t>(channel), pre,
                                frames);
-            auto *post = strip.post.data() + channel * maxFrames_;
-            for (std::size_t frame = 0; frame < frames; ++frame)
-                post[frame] = strip.soloAudible
-                                  ? pre[frame] * rampValue(strip.currentFaderGain, strip.faderGain,
-                                                           strip.faderRampRemaining, frame)
-                                  : 0.0F;
         }
+        preparePost(strip);
         advanceRamp(strip.currentInputGain, strip.inputGain, strip.inputRampRemaining, frames);
         advanceRamp(strip.currentFaderGain, strip.faderGain, strip.faderRampRemaining, frames);
         levels_[strip.levelIndex].inputPeak =
@@ -504,8 +533,6 @@ bool DigitalMixerProcessor::process(std::span<const float *const> inputs,
         for (std::size_t channel = 0; channel < strip.channels; ++channel)
         {
             auto *pre = strip.pre.data() + channel * maxFrames_;
-            auto *post = strip.post.data() + channel * maxFrames_;
-
             for (std::size_t frame = 0; frame < frames; ++frame)
                 pre[frame] *= rampValue(strip.currentInputGain, strip.inputGain,
                                         strip.inputRampRemaining, frame);
@@ -514,22 +541,8 @@ bool DigitalMixerProcessor::process(std::span<const float *const> inputs,
             if (effectProcess_)
                 effectProcess_(effectContext_, strip.id, static_cast<std::uint32_t>(channel), pre,
                                frames);
-            for (std::size_t frame = 0; frame < frames; ++frame)
-            {
-                post[frame] = strip.soloAudible
-                                  ? pre[frame] * rampValue(strip.currentFaderGain, strip.faderGain,
-                                                           strip.faderRampRemaining, frame)
-                                  : 0.0F;
-            }
         }
-        if (strip.subMix)
-        {
-            for (std::size_t channel = 0; channel < strip.channels; ++channel)
-                std::fill_n(strip.outputProcessed.data() + channel * maxFrames_, frames, 0.F);
-            addMatrix(strip.post, strip.channels, strip.outputProcessed, strip.channels,
-                      strip.outputMatrix, maxFrames_, frames);
-            strip.post.swap(strip.outputProcessed);
-        }
+        preparePost(strip);
         if (strip.exposeOutput)
             for (std::size_t channel = 0; channel < strip.channels; ++channel)
                 if (auto *output = outputs[strip.portOffset + channel])
@@ -550,7 +563,7 @@ bool DigitalMixerProcessor::process(std::span<const float *const> inputs,
     const auto mixToMain = [this, frames](Strip &strip) noexcept {
         std::fill_n(strip.mainContribution.data(), frames, 0.0F);
         std::fill_n(strip.mainContribution.data() + maxFrames_, frames, 0.0F);
-        // Keep MAIN audio routing separate from the strip's post-fader polar tap.
+        // Pan remains on the MAIN branch; channel levels are already in post.
         addMatrix(strip.post, strip.channels, strip.mainContribution, 2, strip.mainMatrix,
                   maxFrames_, frames);
         if (strip.mixToMain && strip.soloAudible)

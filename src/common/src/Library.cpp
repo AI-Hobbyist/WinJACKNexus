@@ -20,7 +20,7 @@ namespace WinJACKNexus::Common
 
 const char *libraryVersion() noexcept
 {
-    return "0.1.0";
+    return "1.0.1";
 }
 
 }

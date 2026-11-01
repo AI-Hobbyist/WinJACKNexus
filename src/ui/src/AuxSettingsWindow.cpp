@@ -1650,26 +1650,6 @@ void AuxSettingsWindow::mouseMoveEvent(QMouseEvent *event)
         impl_->changed();
         return;
     }
-    if (bus->panMode == Common::AuxPanMode::classic)
-        return;
-    if (impl_->draggedInfluencePoint >= 0 &&
-        impl_->draggedInfluencePoint < static_cast<int>(bus->adjustablePoints.size()))
-    {
-        const auto point =
-            impl_->pointToScreen(bus->adjustablePoints[impl_->draggedInfluencePoint]);
-        const auto radius = QLineF(event->position(), point).length() / impl_->contentScale();
-        impl_->setPointInfluence(*bus, impl_->draggedInfluencePoint,
-                                 Common::auxInfluenceRadiusForPixels(radius));
-        impl_->changed();
-        return;
-    }
-    if (impl_->draggedPoint >= 0 &&
-        impl_->draggedPoint < static_cast<int>(bus->adjustablePoints.size()))
-    {
-        bus->adjustablePoints[impl_->draggedPoint] = impl_->screenToPoint(event->position());
-        impl_->changed();
-        return;
-    }
     if (impl_->draggedSend >= 0 && impl_->draggedSend < impl_->activeSendCount(*bus))
     {
         const auto targetLevel =
@@ -1695,6 +1675,26 @@ void AuxSettingsWindow::mouseMoveEvent(QMouseEvent *event)
         {
             bus->sends[impl_->draggedSend].levelDb = targetLevel;
         }
+        impl_->changed();
+        return;
+    }
+    if (bus->panMode == Common::AuxPanMode::classic)
+        return;
+    if (impl_->draggedInfluencePoint >= 0 &&
+        impl_->draggedInfluencePoint < static_cast<int>(bus->adjustablePoints.size()))
+    {
+        const auto point =
+            impl_->pointToScreen(bus->adjustablePoints[impl_->draggedInfluencePoint]);
+        const auto radius = QLineF(event->position(), point).length() / impl_->contentScale();
+        impl_->setPointInfluence(*bus, impl_->draggedInfluencePoint,
+                                 Common::auxInfluenceRadiusForPixels(radius));
+        impl_->changed();
+        return;
+    }
+    if (impl_->draggedPoint >= 0 &&
+        impl_->draggedPoint < static_cast<int>(bus->adjustablePoints.size()))
+    {
+        bus->adjustablePoints[impl_->draggedPoint] = impl_->screenToPoint(event->position());
         impl_->changed();
         return;
     }

@@ -106,3 +106,22 @@ endif()
 if(BUILD_TESTING)
     add_subdirectory(Node)
 endif()
+
+if(BUILD_TESTING)
+    add_executable(wjn_mixer_post_regression_tests MixerPostRegressionTests.cpp)
+    target_compile_definitions(wjn_mixer_post_regression_tests PRIVATE WIN32_LEAN_AND_MEAN NOMINMAX)
+    target_compile_options(wjn_mixer_post_regression_tests PRIVATE /utf-8)
+    target_link_libraries(wjn_mixer_post_regression_tests PRIVATE
+        WinJACKNexus::Common WinJACKNexus::UI Qt6::Widgets)
+    set_target_properties(wjn_mixer_post_regression_tests PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY_RELEASE "${WJN_OUTPUT_DIR}")
+    add_test(NAME mixer_main_post_tests COMMAND wjn_mixer_post_regression_tests audio)
+    add_test(NAME mixer_classic_pan_drag_tests COMMAND wjn_mixer_post_regression_tests gui)
+    set_tests_properties(mixer_main_post_tests mixer_classic_pan_drag_tests PROPERTIES
+        WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
+        ENVIRONMENT "QT_QPA_PLATFORM=windows")
+    set_property(TEST mixer_main_post_tests mixer_classic_pan_drag_tests
+        PROPERTY ENVIRONMENT_MODIFICATION
+        "PATH=path_list_prepend:${WJN_OUTPUT_DIR}"
+        "PATH=path_list_prepend:C:/Qt/6.10.3/msvc2022_64/bin")
+endif()
