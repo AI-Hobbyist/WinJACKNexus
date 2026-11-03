@@ -2,7 +2,7 @@
 
 ## S0 — 协议与挂接点（2026-11-03）
 
-状态：协议与调查完成，待本阶段提交/推送检查点。
+状态：完成并提交推送，`72aec5521599ce033795b734e062b077eac7e09f`，远端分支哈希已确认一致。
 
 用户已授权实施整个 S0—S5，并新增 UDP 上行、HTTP 参数收听、浏览器原生播放和 WAV/Opus 双格式要求。当前有效协议为 [Protocol-v1.md](Protocol-v1.md)，替代旧 WSS 媒体草稿。
 
@@ -24,11 +24,29 @@
 
 已知环境事项：新的 PowerShell PATH 中 python 指向 Windows Store alias；使用现有 `D:/ProgramData/miniconda3/python.exe`，无需安装另一个解释器。
 
+## S1 — 独立 Rust 转发核心（2026-11-04）
+
+状态：实现与验证完成，进入阶段提交/推送检查点。只有远端确认后才能开始 S2。
+
+- 独立 Rust CLI：Tokio UDP、Axum 控制及 HTTP body、rustls TLS；发布 Token 在升级前验证。绑定 UDP 会话 HMAC，限制尺寸/重组/重放窗口和每轨容量。
+- HTTP WAV 和 Ogg Opus，正确标准音频头；四布局、分声道字节路由；服务器不解码、不编码、不调用 JACK/Qt。支持每次新听众的 Ogg 头、CRC 和直播时间戳。
+- 共享发布会话、注册/更新/删除/离线及格式代次。无效 requestId 在任何状态修改之前拒绝。
+- 每响应有界队列，物理 HTTP/TLS 流增加两秒写阻塞超时；一条慢连接不阻塞 UDP 及其他流。
+- `wjn_bc_server` CMake 显式目标已接入现有 build/release，使用 Cargo Release/locked，非默认全量 C++ 目标。
+
+RED → GREEN 证据：缺少服务端程序 → 未鉴权发布拒绝；400 升级失败 → 有效会话/防抢占；注册无响应 → UDP/WAV；Opus 501 → Ogg 音频响应；乱序丢早期块 → 正确时间排序；缺 requestId 仍删除流 → 先校验再提交；TLS 无启动地址 → 实际证书校验连通；旧离线记录污染删除结果 → 重发布清理。逐项日志在 build/bc-s1-*-red.log 和相应 green/final 日志。
+
+最终覆盖：独立进程、真实 UDP socket、真实 HTTP/WS/TLS；四布局 WAV 全部/末声道双听众，四布局 Opus 全部有效声道；分包倒序/重复、伪造/旧代次/重放/迟到、缺口静音、HTTP 参数及离线、慢听众及其他流保持实时。Opus 夹具由现有 FFmpeg 8.1.2/libopus 生成，数据与生成参数见 Develop/Broadcast/OpusFixtures.json；测试核对编码字节不变。S2 再验证标准解码器与浏览器实际播放，S1 没有声称浏览器已 PASS。
+
+构建记录：build/bc-s1-cmake-configure.log、bc-s1-cmake-build-green.log；首次 locked 构建因移除直接依赖后锁文件未同步失败（bc-s1-cmake-build.log），已用 offline Release 构建同步并重跑 locked 成功。未清理或全量重编，未停止现有应用。配置包含既有 FluidSynth/sfizz/Vulkan 等提示，未扩展范围修复。
+
+格式化：Rust cargo fmt，两个 Python 协议/进程测试使用 Black（110 列）；最终检查 git diff --check。额度检查点已完成 S0 后读取：周窗口剩余 68%，未达到交接阈值；S1 推送后再次查询。
+
 ## 后续阶段
 
 | 阶段 | 状态 | 下一个最小步骤 |
 | --- | --- | --- |
-| S1 Rust relay | 未开始 | 真实进程控制鉴权/UDP/HTTP 的首条 RED 测试，逐条实现 |
+| S1 Rust relay | 实现及验证完成，待提交/推送确认 | 完成检查点并查额度 |
 | S2 CLI/通用播放 | 未开始 | S1 检查点后执行；两种格式及浏览器原生控件证据 |
 | S3 JACK-only node | 未开始 | S2 检查点后执行；模块/离线音频/发布会话 |
 | S4 独立 GUI | 未开始 | S3 检查点后执行；Windows 实窗、系统字体及显示次数预算 |
