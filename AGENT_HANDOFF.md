@@ -1,64 +1,50 @@
 # Agent 交接手册
 
-更新时间：2026-11-04（Asia/Seoul）
+更新：2026-11-07（Asia/Seoul）
 
-## 目标与当前阶段
+## 当前目标与阶段
 
-执行 Docs/广播推流系统实施计划书.md 的 S0—S5，每阶段 RED/GREEN、验证、提交、推送并核对远端，查额度，最终交付增量替换包。目标仍未完成。
+目标ACTIVE：执行 Docs/广播推流系统实施计划书.md S0—S5，逐阶段RED/GREEN、Release验证、记录、提交、推送、远端核对、查额度，最后打包增量替换包。
 
-S0 已完成，提交 72aec5521599ce033795b734e062b077eac7e09f，已推送 origin/codex/broadcast-system 并核对哈希一致。
-S1 已完成实现及自动验证，当前进入提交推送检查点；当前记录随 S1 提交，后续先核对 git log/远端确认检查点，再开始 S2。S2—S5 尚未开始，不将服务器完成算作整个系统交付。
+S0已完成：72aec5521599ce033795b734e062b077eac7e09f。
+S1已完成：05da24f8013c1dc9b133a32228e4d4846199f7f1。
+两者均已推送。当前分支 broadcast-system，跟踪 origin/broadcast-system；用户要求禁止codex/前缀，旧远端已按指令删除。
+S2实现及自动验证完成，本次进入提交/推送检查点；检查点成功前不开始S3。S3—S5未开始，无最终增量包。以git实际提交/远端状态核对本手册的提交前快照。
 
-## 最新有效需求
+## S2交付与证据
 
-- 广播节点仅 JACK，不支持 VIRT；多流、多级分类，输入为源，每轨同布局监听输出，监听默认关闭。M 影响广播与监听，S 只作用于该实例本地监听。
-- 每轨单总体峰值表、M/S、旋钮、监听开关；独立 GUI，公共控件及 Theme Token，统一 FPS。
-- 节点部署 nodes/bc；进程全局服务器配置与共享会话。
-- 发送音频用 UDP，上行发布控制校验 Bearer Token；匿名 HTTP GET + publisher/stream/channel/format 参数收听。
-- WAV/PCM 和 Ogg Opus 双格式，真实 audio/wav 或 audio/ogg; codecs=opus。浏览器直接导航显示原生音频控件并可点击收听，不以专用 CLI、网页、私有 MIME 或下载响应替代。
-- Opus 编码及单声道变体由发送端负责；Rust 服务端独立、只做注册、重组、容器及字节转发，不解码/转码、不依赖 JACK/Qt。
-- 当前定位经常使用 CodeGraph。minecraft-dev-mcp 只适用于未来真正对接 Minecraft 服务端插件/模组，当前不用。
+新增bc/listen，reqwest HTTP、ogg流读取、libopus multistream解码、CPAL共享设备输出、rtrb整帧有界队列。支持WAV/Opus四布局/分声道，设备枚举/选择，检查/float32le样本导出、显式退避重连。CLI说明在bc/listen/README.md。CMake显式wjn_bc_listen，非默认ALL_BUILD。
 
-## 文件及 Git
+- 既有build/release显式目标Release构建通过：build/bc-s2-final-build.log。
+- 最终26项测试通过，21.398秒：build/bc-s2-final-tests.log。契约1、relay13、listener12，真实独立进程/socket，无JACK服务要求。
+- WAV四布局/所有分声道逐样本核验；Opus四布局/所有分声道独立频率身份、pre-skip/gain/Windows顺序及granule丢包PLC。PCM缺480帧精确补静音，Opus缺960帧保留时间轴。
+- WAV/Opus静音各经HTTP到共享设备实际回调，9600帧、19回调。输出队列100ms、预缓冲目标40ms；整帧避免欠载声道旋转，读取块至多20ms，8kHz不先填满队列再启动。
+- FFmpeg8.1.2分别解码真实7.1 HTTP两种持续响应，各96000帧；不冒称多小时/所有播放器已验证。
+- RED/GREEN日志build/bc-s2-*-red/green.log，覆盖缺程序/双格式解码/PLC/枚举/播放/设备选择/重连/样本导出。新增GenerateListenSignals.py与ListenSignals.json记录可复现独立频率夹具，LFE60Hz；FFmpeg的5.1 BL/BR对应项目六声道Ls/Rs位置。
+- Rust fmt、Black workers1、git diff --check通过。Black默认并行挂起：核实唯一自身python进程命令后结束PID11904，原会话85965返回-1；单worker重跑成功。没有构建/格式会话等待，不要继续轮询旧句柄。此前g2:37已stale，34339已unknown。
 
-分支 codex/broadcast-system；S0 基线 72aec55。S1 修改 CMakeLists.txt、新增 bc/CMakeLists.txt、bc/Cargo.toml/lock、bc/server/**、Develop/Broadcast/RelayTests.py、OpusFixtures.json，更新契约测试格式、计划、Progress 及本手册。S1 提交哈希以 git log 为准，检查远端相同后继续。
+## 未验证与用户决定
 
-计划和 Docs/Broadcast 下文件受原 /Docs/* 忽略规则影响，但 S0 已显式加入版本控制；后续新增该目录文件仍需显式暂存。未修改全局忽略规则。
+不使用Computer Use。浏览器原生控件、点击播放、人工界面观察/听音/安装验收：已跳过（用户指令），未记PASS，不阻塞里程碑。不得换UI自动化绕过。真实JACK连线及5.1/7.1物理硬件输出未执行，MANUAL/PENDING；离线或立体声回调不是现场环绕声PASS。后续Qt程序化测试仍正常Windows可见实窗、系统字体、每批最多100次显示，严禁offscreen。
 
-原有未跟踪内容保留且不暂存：.omc/、midi_tools_node_ref/、themes/Furina/、themes/org.eryth.furina.wjnskin。历史调音台 1.0.1 交付可查 git show 66a0387:AGENT_HANDOFF.md，本轮未修改其业务代码和包。
+## 下一步（严格顺序）
 
-## 已验证证据
+1. 核对本次S2 diff/status，精确暂存本阶段文件，提交并推送broadcast-system，核对远端哈希，查额度。不要把原有未跟踪目录加入提交。
+2. 检查点完成才进入S3：按Protocol-v1冻结契约实现JACK-only广播节点、离线处理及共享全局WSS/UDP发布、凭据存储。使用CodeGraph与现有Node API调用点，先RED后GREEN。
+3. S4独立GUI复用公共控件/Theme Token/FPS；S5实际DLL离线输入→UDP→独立relay→HTTP→CLI及增量包。
 
-- S0 新 UDP 协议夹具 RED→GREEN；Docs/Broadcast/Protocol-v1.md 为有效冻结契约，旧 56 字节/WSS 音频草稿撤销。
-- S1 现有 build/release 的 wjn_bc_server 目标 Release 构建成功（build/bc-s1-cmake-build-green.log），无 ALL_BUILD。
-- 最终契约 1 项通过（build/bc-s1-contract-final.log），真实服务进程网络测试 13 项通过（build/bc-s1-final.log，5.815 秒）。测试启动/回收自己的 relay，不要求 JACK。
-- 覆盖鉴权/会话冲突、UDP HMAC/重放/旧代次/迟到、分包倒序和重复、四布局 WAV 双听众及声道顺序、所有 Opus 布局/声道编码包不变、Ogg CRC及时间戳、HTTP 参数/离线、慢听众不拖住其他流、证书校验 HTTPS/WSS。
-- RED 修复：乱序时后位置抢先输出；无 requestId 仍执行删除；重发布后旧 offline 记录使删除仍报 503。各 red/green 日志保存于 build/bc-s1-*。
-- TLS 初次验证缺启动地址而 RED，补齐实际端口输出后通过；测试临时证书仅在测试内信任，没有安装系统证书。
-- 现有 FFmpeg 8.1.2/libopus 生成并保存真实 1/2/6/8 声道 Opus 测试夹具，JSON 记录来源参数；FFmpeg 是测试工具，不是 relay 运行依赖。
-- Rust cargo fmt、Python Black（110 列），交付前检查 git diff --check。
+## 必守需求
 
-## 失败处理及未验证边界
+仅JACK、无VIRT。节点nodes/bc，多流/多级分类、稳定身份、1/2/6/8输入及同布局本地监听输出。Listen默认关闭，M广播与监听，S仅本实例本地监听。每轨单总体峰值/M/S/旋钮/Listen，独立GUI公共控件。全进程共享服务器配置/连接，凭据Windows Credential Manager，项目JSON无Token。
+发布音频UDP，会话可靠WSS控制Bearer鉴权；匿名GET publisher/stream/channel/format，两种真实audio/*响应。发送端编码/重采样及Opus单声道变体；Rust relay不解码/编码/重采样，不依赖JACK/Qt。规范Docs/Broadcast/Protocol-v1.md；minecraft-dev-mcp仅未来实际Minecraft插件/模组对接，本项目不用。
 
-首次 CMake locked 构建因移除直接依赖后 Cargo.lock 未同步失败（bc-s1-cmake-build.log）；offline Release 同步后 locked CMake 构建通过。配置有既有 FluidSynth/sfizz/Vulkan 提示，未扩展处理。
+## 工作区与工具
 
-S1 证明真实 UDP/HTTP 字节及容器转发，尚未验证浏览器原生播放器、实际解码播放、长期 WAV 直播、CLI、生产 JACK 节点及 GUI。它们是 S2—S5 的工作，不能报告 PASS。真实 JACK/硬件连线未执行，人工听音/审校/安装验收已跳过（用户指令），不代表通过。没有增量包。
+保留原有未跟踪.omc/、midi_tools_node_ref/、themes/Furina/、themes/org.eryth.furina.wjnskin，不暂存。其他人的改动不回退。Docs受忽略，新增/修改文档使用精确git add -f。S2文件：bc/CMakeLists.txt、Cargo.toml/lock、listen/**，Develop/Broadcast/{ListenTests.py,GenerateListenSignals.py,ListenSignals.json}，计划/Protocol/Progress及本手册。
 
-## 下一步
+CodeGraph先于源码查找/读取；没有索引的文档/配置可直接读。现有build树、Release、必要目标，不创建额外工作区，不ALL_BUILD，不停止运行音频应用。每次构建/测试/打包前台PowerShell 2>&1 | Tee-Object -FilePath build.log，立即检查LASTEXITCODE、失败读log。不要并发覆盖日志。
+VS18 CMake：D:/Program Files/Microsoft Visual Studio/18/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/bin/cmake.exe；树build/release；Rust target build/bc-target。Python D:/ProgramData/miniconda3/python.exe；FFmpeg D:/Program Files/ffmpeg/bin。测试TEMP/TMP设为现有build，网络测试需获准的沙箱外localhost访问。默认pwsh会话有启动/权限问题时可用系统WindowsPowerShell，仍遵守前台日志规则。
 
-1. 确认 S1 提交推送成功并查额度。
-2. S2 按真实 HTTP URL 做最小 CLI 标准 WAV/Opus 接收和播放；先 RED，再实现；验证四布局/分声道及设备布局不支持报错。
-3. 使用真实可见浏览器，直接导航 URL，核对原生控件、点击播放和时间推进、暂停恢复；不能做自建网页替代。Safari 环境缺失则记录 MANUAL/PENDING，不虚构结果。
-4. S2 达到既定门槛后更新记录、提交推送再开始 S3；最终 S5 完成实际链路及增量包。
+## 额度
 
-## 工具与额度
-
-Python 使用 D:/ProgramData/miniconda3/python.exe，PATH 中 python 可能是 Windows Store 别名。Cargo/Rust 1.95 可用。已有 FFmpeg 位于 D:/Program Files/ffmpeg/bin。不要新装数据库或建立额外工作区/构建树。
-
-最新可靠额度读数：codex 10080 分钟窗口已用 32%，剩余 68%，没有达到预警/交接阈值。未启动 Luna。阶段检查点后继续查询；仅额度交接阈值触发时把手册编写交给 gpt-6-luna，先安全完成原子操作并核对事实。
-
-## 强制约束
-
-先读 AGENTS.md、本手册及计划，CodeGraph 优先；范围严格按计划。仅现有 build、Release、必要目标；所有构建/测试/打包前台 PowerShell 经 2>&1 | Tee-Object -FilePath build.log，并立即检查 LASTEXITCODE，失败读日志。不要让并发命令写同一个 build.log。
-
-Qt 禁 offscreen，只可见 Windows 实窗、系统字体、每批显示不超过 100 次，遵循应用 FPS。不停止任何现有 WinJACKNexus/音频进程；输出占用就报告文件。公共 UI/Theme Token 优先。仅无 JACK 服务测试，离线证据不能当现场端到端。每阶段检查点未完成不可开始下一阶段，完成任务时更新本手册。
+最近可靠接口：10080分钟窗口已用17%、剩余83%，重置1794405624。未达到阈值，无Luna委派。阶段推送后再查；只在<=2%额度交接时委派gpt-6-luna编写手册，不擅自猜测额度/订阅。历史调音台交付可查git show 66a0387:AGENT_HANDOFF.md。

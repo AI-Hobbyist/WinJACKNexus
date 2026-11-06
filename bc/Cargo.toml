@@ -1,5 +1,5 @@
 [workspace]
-members = ["server"]
+members = ["server", "listen"]
 resolver = "2"
 
 [workspace.package]

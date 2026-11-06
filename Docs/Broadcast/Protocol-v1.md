@@ -63,6 +63,8 @@ Use libopus multistream surround mapping family 1 for 5.1/7.1, family 0 for 1/2 
 
 ## Standard HTTP live audio
 
+Execution amendment, 2026-11-04: 用户要求不使用 Computer Use；浏览器控件、点击播放及界面观察验收已跳过（用户指令），不算 PASS、不阻塞阶段。保留标准 audio/* 与原生播放的产品契约；自动 HTTP/容器/解码/声道验证继续，不能冒称验证了浏览器界面。
+
 **浏览器直接打开带参数 URL 必须出现原生音频播放控件，点击能够持续收听**。No application HTML, JS decoder, plugin or special client prerequisite. Autoplay without user gesture is not required.
 
 | Request | Successful Content-Type | Body |
