@@ -1,10 +1,10 @@
 # Agent 交接手册
 
-更新：2026-11-07（Asia/Seoul）。目标ACTIVE：完成计划书S0—S5，逐阶段RED/GREEN、记录、提交推送/远端核对/额度查询，最后交付增量替换包。
+更新：2026-11-07（Asia/Seoul）。目标已完成：计划书S0—S5均完成，逐阶段RED/GREEN、提交推送/远端核对及额度查询已执行，三个交付包已生成并验证。
 
 ## 当前检查点
 
-分支broadcast-system，跟踪origin/broadcast-system，禁止codex/前缀。S0 72aec55、S1 05da24f、S2 723273d、S3 85808b05a6f73fafdffe98cc9d8add4dd96f69c4均已提交推送，S3远端一致。S4已提交推送4a2008f62c24e459d0293ea0ea717ff4d867653b，远端核对一致。S5限定联调、自动验证及三个交付包现已完成，待最终提交推送核对。
+分支broadcast-system，跟踪origin/broadcast-system，禁止codex/前缀。S0 72aec55、S1 05da24f、S2 723273d、S3 85808b05a6f73fafdffe98cc9d8add4dd96f69c4均已提交推送，S3远端一致。S4已提交推送4a2008f62c24e459d0293ea0ea717ff4d867653b，远端核对一致。S5限定联调、自动验证及三个交付包已完成，提交a3fe7cebc4ab5fbdbe8f3a29e3a009cf0227333a已推送origin/broadcast-system，ls-remote与本地一致。本文后续收尾提交仅记录该已核实结果。
 
 ## 已实现和验证
 
@@ -23,7 +23,7 @@
 - S5隔离部署TLS实际使用包内Schannel，Qt插件目录及PATH不借用SDK；拒绝未信任证书、仅进程信任临时CA后成功。既有环境实际OpenSSL；临时测试CA改用setCaCertificates的封闭信任集，证书校验保持，没有系统CA安装或生产策略变化。额外证书插件实验撤销，临时诊断已移除。RelayTests只扩展TLS夹具函数，已撤回其余无关Black格式差异。
 - 前50ms Opus峰值不适合作精确幅值证据；250ms样本后100ms稳态以同一误差限通过，未修改生产编码/增益。WAV精确样本与独立声道频率继续验证。
 - 交付文件：build/Broadcast-Client-Overlay-20261107.zip（2693206字节）、Broadcast-Server-20261107.zip（1799157）、Broadcast-Listener-20261107.zip（1727845），均有.zip.sha256。精确清单/x64 PE/JSON/CRC/逐文件及ZIP SHA-256通过，build/bc-s5-package.log。哈希详见Docs/Broadcast/S5交付记录.md，运行说明Docs/Broadcast/运行与替换说明.md。客户端是兼容安装增量包，不是完整包；Rust两包独立，不依赖Qt/JACK。未终止应用或覆盖运行目录。
-- 当前仅剩最终S5提交推送/远端核对和记录收尾；没有剩余产品实施阶段，不新增阶段。核对后将目标标记complete并交付三个包路径。无需等待人工验收。
+- 没有剩余产品实施或自动验证任务，不新增阶段。最终交付复核build/bc-s5-delivery-verification.log再次确认三包清单/CRC/哈希一致；运行源码自S4检查点未变，包内manifest记录该源码检查点。没有部署到用户运行目录，无需等待人工验收。
 
 ## 未验证与用户决定
 
@@ -39,4 +39,4 @@
 
 ## 额度
 
-最近可靠接口10080分钟窗口已用21%、剩余79%，重置1794405624；未达到阈值，不猜订阅类型。最终推送后再查。不因额度充足省略完成时手册。
+最近可靠接口10080分钟窗口已用21%、剩余79%，重置1794405624；未达到阈值，不猜订阅类型。S5推送后已查询。不因额度充足省略完成时手册。
