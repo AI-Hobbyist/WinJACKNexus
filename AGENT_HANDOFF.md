@@ -55,3 +55,11 @@
 ## 额度
 
 最近可靠接口10080分钟窗口已用21%、剩余79%，重置1794405624；未达到阈值，不猜订阅类型。S5推送后已查询。不因额度充足省略完成时手册。
+
+## 2026-11-07 LAN & Remote Audio follow-up checkpoint
+
+- Current branch: broadcast-system, upstream origin/broadcast-system. Config/optional TLS checkpoint d27722f is pushed. New runtime folder is nodes/lan_remote_audio, category is exactly LAN & Remote Audio. Source src/bc, mod_broadcast.dll, stable IDs and /bc endpoints are unchanged.
+- Host maps legacy nodes/bc/mod_broadcast.dll project paths when the new DLL exists, suppresses old discovery duplicates, and escapes literal ampersands in category menus. Overlay must include mod_patchbay.dll.
+- Release build passed for mod_broadcast, mod_patchbay, module/gui tests and node probe. Module test: 13 checks, including relocated DLL/category. Real Windows Qt GUI: 95 checks, 3 top-level shows; ctest 2/2 passed in 2.52 s. Logs build/bc-lan-remote-{build,host-build,tests}.log. Legacy saved-project migration was statically inspected, not exercised in a running project. Manual install/listening/NGINX/hardware acceptance SKIPPED per user instruction.
+- Main README in four languages, Node API, runtime instructions and Wiki source updated. Actual Wiki master 31054495d649439cfd6e8f396d1340ccfc79f04f pushed and remote verified. No Computer Use.
+- Next minimal work: generate and verify final labeled incremental client/server/config ZIPs, update this handoff with results, commit/push delivery record. Do not overwrite old S5 ZIPs. Private generated token stays only under ignored build; never add it to Git or public Actions.

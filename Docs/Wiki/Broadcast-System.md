@@ -8,7 +8,7 @@
 
 ## 客户端使用
 
-1. 添加`nodes/bc/`中的Broadcast Sender节点并打开独立窗口。
+1. 添加`nodes/lan_remote_audio/`中的Broadcast Sender节点并打开独立窗口。
 2. 建立分类或多级子分类，添加Mono、Stereo、5.1或7.1流，设置名称。
 3. 将要广播的源连接到该流输入。每条流有同布局的本地监听输出，Listen默认关闭。
 4. 填写全局服务器地址、发布者ID、Token，保存服务器后显式开始推流。所有广播窗口共用一组连接配置，Token仅存Windows Credential Manager，不写工程。
@@ -75,3 +75,5 @@ https://stream.example.com/bc/listen?publisher=station&stream=流UUID&channel=al
 - [NGINX示例](https://github.com/AI-Hobbyist/WinJACKNexus/blob/broadcast-system/bc/server/nginx.example.conf)
 - [独立收听工具](https://github.com/AI-Hobbyist/WinJACKNexus/blob/broadcast-system/bc/listen/README.md)
 - [主仓库](https://github.com/AI-Hobbyist/WinJACKNexus)
+
+远程音频节点统一归类为 `LAN & Remote Audio`，安装目录为 `nodes/lan_remote_audio/`。旧工程中的 `nodes/bc/mod_broadcast.dll` 在新模块存在时自动迁移；覆盖安装遗留的旧模块不重复列出。网络端点继续使用 `/bc`。

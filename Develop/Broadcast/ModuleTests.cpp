@@ -18,8 +18,8 @@ int main(int argc, char **argv)
         std::printf("%s %s\n", passed ? "PASS" : "FAIL", message);
         failures += !passed;
     };
-    QLibrary library(application.applicationDirPath() + "/nodes/bc/mod_broadcast.dll");
-    check(library.load(), "load actual broadcast node DLL from nodes/bc");
+    QLibrary library(application.applicationDirPath() + "/nodes/lan_remote_audio/mod_broadcast.dll");
+    check(library.load(), "load actual broadcast node DLL from nodes/lan_remote_audio");
     if (!library.isLoaded())
     {
         std::printf("%s\n", library.errorString().toUtf8().constData());
@@ -37,6 +37,10 @@ int main(int argc, char **argv)
     check(metadata && create && destroy && virtualApi && get && set, "required Node v4 and state exports");
     if (!metadata || !create || !destroy || !virtualApi || !get || !set)
         return 1;
+    const auto exportedCategory =
+        reinterpret_cast<const char *(*)()>(library.resolve("wjn_get_node_category"));
+    check(exportedCategory && QByteArray(exportedCategory()) == "LAN & Remote Audio",
+          "remote audio category exported by relocated node");
     WjnNodeMetadataV4 info{sizeof(info)};
     check(metadata(&info) && info.version == 4 && info.capabilities == WJN_NODE_JACK_NODE,
           "creation-free metadata advertises JACK only");

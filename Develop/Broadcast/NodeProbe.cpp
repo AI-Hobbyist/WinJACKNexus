@@ -35,7 +35,7 @@ int main(int argc, char **argv)
     if (!process || !clock || !counter)
         return 2;
     clock(48000, 480);
-    QLibrary module(application.applicationDirPath() + "/nodes/bc/mod_broadcast.dll");
+    QLibrary module(application.applicationDirPath() + "/nodes/lan_remote_audio/mod_broadcast.dll");
     if (!module.load())
         return 2;
     const auto create = reinterpret_cast<Node *(*)(std::uint32_t)>(module.resolve("wjn_create_node_v4"));

@@ -914,6 +914,18 @@ QString controlDeckModulePath(const QString &path)
     return QFileInfo::exists(normalized) ? normalized : path;
 }
 
+QString remoteAudioModulePath(const QString &path)
+{
+    auto normalized = QDir::fromNativeSeparators(path);
+    const QString legacyDirectory = QStringLiteral("/nodes/bc/");
+    const auto position = normalized.indexOf(legacyDirectory, 0, Qt::CaseInsensitive);
+    if (position < 0 || QFileInfo(normalized).fileName().compare(
+                            QStringLiteral("mod_broadcast.dll"), Qt::CaseInsensitive) != 0)
+        return path;
+    normalized.replace(position, legacyDirectory.size(), QStringLiteral("/nodes/lan_remote_audio/"));
+    return QFileInfo::exists(normalized) ? normalized : path;
+}
+
 QString categoryFromModuleOrFolder(const char *exportedCategory, const QString &folderCategory)
 {
     if (exportedCategory == nullptr)
@@ -968,7 +980,7 @@ std::vector<ModuleNodeInfo> scanNodeModules()
     {
         const auto path = files.next();
         // An overlay may leave old DLLs behind. Discover only their new counterparts.
-        if (controlDeckModulePath(path) != path)
+        if (controlDeckModulePath(path) != path || remoteAudioModulePath(path) != path)
             continue;
         // The legacy chooser DLL is superseded by the three fixed-layout modules.
         if (QFileInfo(path).fileName().compare(QStringLiteral("mod_classic_mixer.dll"),
@@ -1209,7 +1221,7 @@ public:
       using CreateSettingsView = void *(*)(WinJACKNexus::Node::INode * node, void *parentHwnd);
       using DestroySettingsView = void (*)(WinJACKNexus::Node::INode *node, void *viewHwnd);
 
-      modulePath = controlDeckModulePath(modulePath);
+      modulePath = remoteAudioModulePath(controlDeckModulePath(modulePath));
       if (QFileInfo(modulePath).fileName().compare(QStringLiteral("mod_classic_mixer.dll"),
                                                   Qt::CaseInsensitive) == 0)
       {
@@ -3291,7 +3303,8 @@ public:
                                                 QTreeWidgetItem *item) -> void {
                             if (item->childCount())
                             {
-                                auto *category = parent.addMenu(item->text(0));
+                                auto *category = parent.addMenu(
+                                    QString(item->text(0)).replace(QLatin1Char('&'), QStringLiteral("&&")));
                                 for (int index = 0; index < item->childCount(); ++index)
                                     self(self, *category, item->child(index));
                                 return;

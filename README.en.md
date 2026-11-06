@@ -21,7 +21,7 @@ A modular audio and MIDI routing application for Windows x64. Connect JACK ports
 
 ## Broadcast and the independent remote audio server
 
-The JACK-only node in `nodes/bc/` manages multiple mono/stereo/5.1/7.1 streams and nested categories in its own window. Each stream has one overall peak meter, M/S, gain and a local monitoring switch that defaults off. Inputs receive broadcast sources; outputs provide matching local monitoring. Closing the window keeps processing active.
+The JACK-only node in `nodes/lan_remote_audio/` (`LAN & Remote Audio`) manages multiple mono/stereo/5.1/7.1 streams and nested categories in its own window. Each stream has one overall peak meter, M/S, gain and a local monitoring switch that defaults off. Inputs receive broadcast sources; outputs provide matching local monitoring. Closing the window keeps processing active.
 
 The independent Rust server is intended as the shared backend for remote audio features. Broadcast publishing and relay are the first implemented capabilities; other remote audio functions are planned and are not yet available. The executable remains `bc-server` and requires no WinJACKNexus, Qt, JACK or audio device.
 

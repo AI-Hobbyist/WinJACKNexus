@@ -85,7 +85,7 @@ int main(int argc, char **argv)
         UI::ThemeManager::installThemeCore(&theme);
         UI::ThemeManager themeManager;
         check(themeManager.applyToApp(&application), "shared theme applied to real app");
-        const auto modulePath = application.applicationDirPath() + "/nodes/bc/mod_broadcast.dll";
+        const auto modulePath = application.applicationDirPath() + "/nodes/lan_remote_audio/mod_broadcast.dll";
         QLibrary module(modulePath);
         check(module.load(), "actual broadcast DLL loaded");
         const auto metadata =

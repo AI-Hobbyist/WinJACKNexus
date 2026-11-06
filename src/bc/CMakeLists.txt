@@ -45,7 +45,7 @@ target_compile_options(mod_broadcast PRIVATE /utf-8)
 foreach(config Debug Release RelWithDebInfo MinSizeRel)
     string(TOUPPER "${config}" upper)
     set_target_properties(mod_broadcast PROPERTIES
-        RUNTIME_OUTPUT_DIRECTORY_${upper} "${WJN_OUTPUT_DIR}/nodes/bc")
+        RUNTIME_OUTPUT_DIRECTORY_${upper} "${WJN_OUTPUT_DIR}/nodes/lan_remote_audio")
 endforeach()
 add_custom_command(TARGET mod_broadcast POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/locate"

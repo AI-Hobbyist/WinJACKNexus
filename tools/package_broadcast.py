@@ -85,10 +85,14 @@ def main() -> None:
     }
     codec_license = ROOT / "build/release/_deps/bc_opus-src/COPYING"
     overlay = dict(common)
-    for path in ["broadcast_runtime.dll", "nodes/bc/mod_broadcast.dll"]:
+    for path in [
+        "broadcast_runtime.dll",
+        "mod_patchbay.dll",
+        "nodes/lan_remote_audio/mod_broadcast.dll",
+    ]:
         overlay[path] = RUNTIME / path
     for language in ["manifest", "en-US", "zh-CN", "ja-JP", "ko-KR"]:
-        path = f"nodes/bc/locate/{language}.json"
+        path = f"nodes/lan_remote_audio/locate/{language}.json"
         overlay[path] = RUNTIME / path
     overlay.update(
         {

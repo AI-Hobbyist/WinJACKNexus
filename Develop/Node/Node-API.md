@@ -101,7 +101,10 @@ lifecycle. Third-party modules need recompilation before use with this host.
 
 ### Broadcast sender (S3 audio/publishing boundary)
 
-`nodes/bc/mod_broadcast.dll` advertises only `JACK_NODE`; VIRT creation is
+`nodes/lan_remote_audio/mod_broadcast.dll` uses category `LAN & Remote Audio`.
+The host resolves saved `nodes/bc/mod_broadcast.dll` paths to this module when
+installed, and omits the superseded DLL from discovery. Network endpoints retain `/bc`.
+It advertises only `JACK_NODE`; VIRT creation is
 rejected and its virtual API is null. Its state schema version 1 contains
 clientName, categories and streams. Stream IDs are canonical UUIDs; stable
 JACK input/monitor names derive from these IDs and speaker roles, independently
@@ -115,7 +118,7 @@ monitor selection. S4 adds the standalone editor and `HAS_GUI` together;
 `createWindow`/`wjn_show_node_gui` opens or raises the same independent window,
 and `destroyWindow` hides it without changing audio/session controls. The
 unindexed Node i18n v2 descriptor owns module `winjacknexus-broadcast`, domain
-`broadcast` and the four catalogs in `nodes/bc/locate`. Window controls use
+`broadcast` and the four catalogs in `nodes/lan_remote_audio/locate`. Window controls use
 shared global Theme Tokens; no private stylesheet or control is introduced.
 The JACK callback uses a preallocated 100ms SPSC queue and
 5ms gain smoothing. The shared `broadcast_runtime.dll` owns one publishing

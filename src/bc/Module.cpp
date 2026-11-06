@@ -15,7 +15,7 @@ const char *wjn_get_node_name()
 }
 const char *wjn_get_node_category()
 {
-    return "Broadcast";
+    return "LAN & Remote Audio";
 }
 INode *wjn_create_node()
 {

@@ -59,7 +59,7 @@ BroadcastNode::~BroadcastNode()
 
 Node::NodeInfo BroadcastNode::info() const noexcept
 {
-    return {"Broadcast Sender", "Broadcast", "1.0.0", "WinJACKNexus",
+    return {"Broadcast Sender", "LAN & Remote Audio", "1.0.0", "WinJACKNexus",
             "JACK broadcast inputs and local monitor outputs"};
 }
 
