@@ -16,7 +16,21 @@ A modular audio and MIDI routing application for Windows x64. Connect JACK ports
 | VST hosting | VST3; local builds also support VST2 with a separately supplied SDK |
 | MIDI Tools | Channel splitter, 16×16 matrix and SF2/SFZ instrument loading |
 | Control Deck | Signal switches, sound buttons, mono peak meters and multichannel gain knobs |
+| Broadcast and remote audio | JACK-only publishing node, independent remote audio server, UDP uplink and HTTP WAV/Opus listening |
 | Appearance and language | Theme tokens and custom themes; Chinese, Japanese, English and Korean |
+
+## Broadcast and the independent remote audio server
+
+The JACK-only node in `nodes/bc/` manages multiple mono/stereo/5.1/7.1 streams and nested categories in its own window. Each stream has one overall peak meter, M/S, gain and a local monitoring switch that defaults off. Inputs receive broadcast sources; outputs provide matching local monitoring. Closing the window keeps processing active.
+
+The independent Rust server is intended as the shared backend for remote audio features. Broadcast publishing and relay are the first implemented capabilities; other remote audio functions are planned and are not yet available. The executable remains `bc-server` and requires no WinJACKNexus, Qt, JACK or audio device.
+
+- Bearer-authenticated publishing control, UDP audio uplink and anonymous HTTP GET listening with stream/channel and WAV/Opus selection; responses use standard `audio/*`. The server does not transcode.
+- `--config server.json` supplies startup options. Explicit CLI options override JSON; configured file paths resolve relative to the configuration file for portable deployment.
+- TLS is optional: omit both certificate/key for HTTP/WS behind NGINX, or configure both for direct HTTPS/WSS. The HTTP proxy does not forward UDP: independently route the audio port on the same public host. TLS does not encrypt the current UDP payload; session authentication and HMAC provide integrity.
+- **Build standalone broadcast server** provides native Windows x64, Linux x64 and Linux ARM64 builds with archives/SHA-256. Actual workflow runs establish platform build results.
+
+See the [server and NGINX guide](bc/server/README.md), [CLI listener](bc/listen/README.md) and [broadcast Wiki](https://github.com/AI-Hobbyist/WinJACKNexus/wiki/Broadcast-System). Browser playback, human listening/installation and physical JACK/surround hardware acceptance are not reported as passed.
 
 ## Control Deck
 

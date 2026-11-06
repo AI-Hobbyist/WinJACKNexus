@@ -6,6 +6,15 @@
 
 分支broadcast-system，跟踪origin/broadcast-system，禁止codex/前缀。S0 72aec55、S1 05da24f、S2 723273d、S3 85808b05a6f73fafdffe98cc9d8add4dd96f69c4均已提交推送，S3远端一致。S4已提交推送4a2008f62c24e459d0293ea0ea717ff4d867653b，远端核对一致。S5限定联调、自动验证及三个交付包已完成，提交a3fe7cebc4ab5fbdbe8f3a29e3a009cf0227333a已推送origin/broadcast-system，ls-remote与本地一致。本文后续收尾提交仅记录该已核实结果。
 
+## 后续任务：配置文件、可选TLS、README/Wiki及重新打包（2026-11-07）
+
+- 用户先要求本地TLS证书，后明确为NGINX反代将TLS改为可选；本次不生成生产证书。服务端未配置证书/key即HTTP/WS，同时配置则HTTPS/WSS，仅一项报错；既有insecure-loopback仍限制双回环绑定。UDP上行仍为会话/HMAC保护、未加密，不经过HTTP反代。
+- 新增bc/server/src/config.rs与--config JSON，全部六项配置均支持；CLI覆盖JSON且不受顺序影响，JSON文件路径相对于配置文件目录，CLI路径相对于cwd；未知字段/重复参数/缺值拒绝。无新Cargo依赖。新增server.example.json及nginx.example.conf，服务端Action产物附两示例。
+- 验证：原生Release及Action同target Windows x64构建通过，3项Rust单元测试通过；ConfigTests/RelayTests/SessionTests共23项真实进程/socket回归通过6.999秒，含无TLS HTTP/WS、配置TLS HTTPS/WSS、相对路径与CLI覆盖。实际节点DLL12项回归通过，主程序增量所需mod_broadcast Release构建通过。日志build/bc-config-{build,rust-tests,process-tests,network-regression,actionlint,action-windows-build,action-windows-tests,client-release-build,client-module-tests}.log。MSBuild因测试TEMP指向build出现MSB8029提示，构建成功，不改变应用或音频进程。
+- 已更新四语言主README、服务端README、Protocol-v1和运行说明。服务端定位为独立远程音频公共后端，目前实现广播，其他远程音频能力仅为后续规划，未扩展实现或重命名程序。Wiki新增Broadcast-System页及Home/Features/User-Guide/_Sidebar导航；本地正文Docs/Wiki/Broadcast-System.md，待发布。
+- Wiki使用Git独立仓库https://github.com/AI-Hobbyist/WinJACKNexus.wiki.git，原master/HEAD为29e43df3aa52a7dea0b6e8937ac2835b7dff79c3。仅在现有build下建立bare元数据build/broadcast-wiki.git，不创建代码工作区；五页草稿build/bc-wiki-pages，保留既有页面和行尾。用户已明确授权更新Wiki，可正常快进push，禁止force覆盖。
+- 当前源代码与测试已完成；后续仅需按用户要求生成主程序增量包、服务端程序/通用配置部署包，使用package_broadcast.py --component client|server --label 20261107-Config避免覆盖旧S5哈希包。本地复制部署所需发布Token只能生成到build下私有部署目录，绝不入Git/公共Action。Linux二进制由对应Action取得，本机不冒称已构建Linux。实际NGINX/人工安装按指令跳过，不阻塞。
+
 ## 后续任务：独立服务端 GitHub Action（2026-11-07）
 
 - 新增.github/workflows/broadcast-server.yml，手动workflow_dispatch，独立于桌面release.yml。原生runner矩阵Windows x64/MSVC、Linux x64/GNU、Linux ARM64/aarch64/GNU；ARM64已由用户明确确认，不含ARMv7。仅构建/测试bc-server，不安装Qt/JACK/收听端依赖。产物Windows ZIP、Linux tar.gz，附README/LICENSE/Cargo.lock/build-info.json及SHA-256，失败也上传日志。

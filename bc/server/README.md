@@ -1,4 +1,9 @@
-# Broadcast relay
+# Remote audio server — current broadcast relay
+
+This is the independent server for WinJACKNexus remote audio features. Broadcast
+publishing and relay are its first implemented capabilities; other remote audio
+functions are planned for future extensions and are not yet available. The
+current executable/package name remains `bc-server`.
 
 Independent Rust executable. No WinJACKNexus, Qt, JACK, audio device, decoder or
 encoder is required on the relay host. The relay accepts authenticated UDP media
@@ -32,7 +37,8 @@ and tests only `bc-server`, independently of the desktop Release workflow:
 | Linux ARM64 | `aarch64-unknown-linux-gnu` | `bc-server-linux-arm64.tar.gz` |
 
 Each native runner uploads an archive and its `.sha256` file, including the
-server binary, this README, project license, Cargo.lock and source-commit/target
+server binary, this README, example JSON/NGINX configurations, project license,
+Cargo.lock and source-commit/target
 metadata. Build/test logs are uploaded even on failure. No Qt, JACK, receiver or
 audio-device dependencies are installed. Linux packages use Ubuntu 24.04's
 native GNU/glibc environment; they are not static musl packages. Platform build
@@ -45,20 +51,65 @@ select the desired source branch in **Run workflow**.
 
 ## Run
 
-Put a strong publishing token in a protected UTF-8 file. Never put the token in
-URLs or command-line arguments. Configure your normal TLS certificate and key:
+Copy `server.example.json` to `server.json`, put a strong publishing token in
+`publish.token` beside it, then run:
+
+```powershell
+& ./bc-server.exe --config ./server.json
+```
+
+On Linux use `./bc-server --config ./server.json`. No Python, Qt or JACK is
+needed on the server. Never put the token in URLs or command-line arguments.
+
+All existing startup settings can be supplied in JSON:
+
+```json
+{
+  "bind": "127.0.0.1:9443",
+  "udp_bind": "0.0.0.0:9444",
+  "publish_token_file": "publish.token",
+  "tls_cert": null,
+  "tls_key": null,
+  "insecure_loopback": false
+}
+```
+
+File paths in JSON are relative to the configuration file's directory, so the
+working directory does not affect certificate/token discovery. Explicit CLI
+options override JSON regardless of their order; CLI file paths remain relative
+to the working directory. Unknown JSON fields, duplicate CLI options and missing
+option values are errors. Unspecified addresses retain the CLI defaults
+`0.0.0.0:9443` and `0.0.0.0:9444`; `publish_token_file` remains required.
+
+TLS is optional. Omit both certificate fields (or use null) for HTTP/WS behind
+NGINX. Configure both `tls_cert` and `tls_key` for direct HTTPS/WSS; specifying
+only one is an error, and invalid certificate files do not fall back to HTTP.
+For direct TLS the existing command line still works:
 
 ```powershell
 & build/bc-target/release/bc-server.exe --bind 0.0.0.0:9443 --udp-bind 0.0.0.0:9444 --publish-token-file C:/Secure/bc.token --tls-cert C:/Secure/server.pem --tls-key C:/Secure/server-key.pem
 ```
 
-Allow TCP 9443 and inbound UDP 9444 on the server firewall. The publisher opens
-its own outgoing control and UDP connections. HTTP listeners need only TCP.
-There is no UDP destination specified by anonymous HTTP listeners.
+The packaged `nginx.example.conf` terminates HTTPS/WSS at NGINX and forwards
+HTTP/WS to `127.0.0.1:9443`, preserving `/bc/`, WebSocket Upgrade and streaming
+responses without proxy buffering. Adapt its domain and NGINX certificate paths
+inside your existing NGINX http configuration. The publisher and listeners use
+the public NGINX HTTPS address, e.g. `https://stream.example.com/bc`.
+References: [NGINX WebSocket proxying](https://nginx.org/en/docs/http/websocket.html)
+and [proxy buffering](https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_buffering).
 
-For **explicit local development only**, use both loopback binds and
-`--insecure-loopback`. Cleartext non-loopback binds are rejected. The one JSON
-startup line reports the actual bound addresses (including ephemeral port 0).
+UDP 9444 must independently reach the relay on the same public host used for
+control. The HTTP reverse proxy does not carry UDP. If NGINX is on another host,
+separately forward that UDP port to the relay. With same-host NGINX, expose TCP
+443 and UDP 9444; the example keeps backend TCP 9443 on loopback. For direct TLS,
+expose TCP 9443 and UDP 9444. UDP payloads use session/HMAC authentication and
+integrity checks but are not TLS-encrypted. HTTP listeners need only TCP and do
+not select an arbitrary UDP destination.
+
+The legacy `--insecure-loopback` development flag still requires both binds to
+be loopback. It also accepts explicit `true`/`false` to override a JSON flag.
+Ordinary certificate-free HTTP/WS mode does not require this development flag.
+The one JSON startup line reports the actual bound addresses (including port 0).
 Credentials/session keys are never included in that line.
 
 ## Listen

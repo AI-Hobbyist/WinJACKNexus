@@ -5,7 +5,7 @@
 ## Interfaces and trust boundary
 
 - Shared base URL: `https://host:9443/bc`. One process shares one publisher control connection and UDP socket across node instances.
-- Publishing control: WebSocket Upgrade at `/bc/publish?publisher=<id>`, with `Authorization: Bearer <token>` validated **before** upgrade. WSS in production; WS/HTTP allowed only with explicit loopback development mode. No continuous audio on this connection.
+- Publishing control: WebSocket Upgrade at `/bc/publish?publisher=<id>`, with `Authorization: Bearer <token>` validated **before** upgrade. Public clients use WSS, terminated by the relay itself or by a reverse proxy. Per the 2026-11-07 user revision, relay TLS is optional: no certificate/key means HTTP/WS backend mode; both means HTTPS/WSS; a partial pair is rejected. The legacy explicit loopback development flag retains its loopback-only guard. No continuous audio on this connection.
 - Audio publishing: UDP at the negotiated host/port. Default bind port 9444. Long-lived Bearer tokens are never in UDP packets.
 - Anonymous listening: `GET /bc/listen?publisher=<id>&stream=<id>&channel=all&format=opus`. No cookies, login, JS, separate subscription call, WebSocket or UDP listener required.
 - `channel` defaults to `all`; individual values are M/L/R/C/LFE/Ls/Rs/Lrb/Rrb, case-sensitive and valid only for the stream layout. `format=wav` and `format=opus` are required capabilities; default opus. Reject missing publisher/stream, duplicate, unknown or invalid query parameters (400). IDs are 1–64 ASCII letters/digits/hyphens/underscores; GUI uses UUIDs.

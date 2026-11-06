@@ -76,6 +76,8 @@ jobs:
           $binary = Join-Path $env:CARGO_TARGET_DIR "$env:RUST_TARGET/release/$env:SERVER_BINARY"
           Copy-Item -LiteralPath $binary -Destination $stage
           Copy-Item -LiteralPath bc/server/README.md -Destination $stage
+          Copy-Item -LiteralPath bc/server/server.example.json -Destination $stage
+          Copy-Item -LiteralPath bc/server/nginx.example.conf -Destination $stage
           Copy-Item -LiteralPath LICENSE -Destination $stage
           Copy-Item -LiteralPath bc/Cargo.lock -Destination $stage
           @{

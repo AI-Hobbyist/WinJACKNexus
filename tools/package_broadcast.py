@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import argparse
 import json
 from pathlib import Path
 import subprocess
@@ -72,6 +73,12 @@ def make_archive(name: str, kind: str, sources: dict[str, Path]) -> None:
 
 
 def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--label", default="20261107")
+    parser.add_argument(
+        "--component", choices=["all", "client", "server", "listener"], default="all"
+    )
+    arguments = parser.parse_args()
     common = {
         "运行与替换说明.md": ROOT / "Docs/Broadcast/运行与替换说明.md",
         "licenses/WinJACKNexus-AGPL-3.0.txt": ROOT / "LICENSE",
@@ -99,30 +106,37 @@ def main() -> None:
             / "Docs/Broadcast/Third-party-notices.txt",
         }
     )
-    make_archive(
-        "Broadcast-Client-Overlay-20261107.zip", "incremental-client-overlay", overlay
-    )
+    if arguments.component in {"all", "client"}:
+        make_archive(
+            f"Broadcast-Client-Overlay-{arguments.label}.zip",
+            "incremental-client-overlay",
+            overlay,
+        )
     service_common = dict(common)
     service_common["Cargo.lock"] = ROOT / "bc/Cargo.lock"
-    make_archive(
-        "Broadcast-Server-20261107.zip",
-        "independent-relay",
-        {
-            **service_common,
-            "bc-server.exe": ROOT / "build/bc-target/release/bc-server.exe",
-            "README.md": ROOT / "bc/server/README.md",
-        },
-    )
-    make_archive(
-        "Broadcast-Listener-20261107.zip",
-        "independent-listener",
-        {
-            **service_common,
-            "bc-listen.exe": ROOT / "build/bc-target/release/bc-listen.exe",
-            "README.md": ROOT / "bc/listen/README.md",
-            "licenses/libopus-COPYING.txt": codec_license,
-        },
-    )
+    if arguments.component in {"all", "server"}:
+        make_archive(
+            f"Broadcast-Server-{arguments.label}.zip",
+            "independent-relay",
+            {
+                **service_common,
+                "bc-server.exe": ROOT / "build/bc-target/release/bc-server.exe",
+                "README.md": ROOT / "bc/server/README.md",
+                "server.example.json": ROOT / "bc/server/server.example.json",
+                "nginx.example.conf": ROOT / "bc/server/nginx.example.conf",
+            },
+        )
+    if arguments.component in {"all", "listener"}:
+        make_archive(
+            f"Broadcast-Listener-{arguments.label}.zip",
+            "independent-listener",
+            {
+                **service_common,
+                "bc-listen.exe": ROOT / "build/bc-target/release/bc-listen.exe",
+                "README.md": ROOT / "bc/listen/README.md",
+                "licenses/libopus-COPYING.txt": codec_license,
+            },
+        )
 
 
 if __name__ == "__main__":

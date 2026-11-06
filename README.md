@@ -16,7 +16,21 @@
 | VST 宿主 | VST3；本地配置也支持 VST2，需自行准备相应 SDK |
 | MIDI Tools | 通道拆分、16×16 矩阵、SF2/SFZ 音源加载 |
 | Control Deck（控制面板） | 信号开关、音效按钮、单声道峰值表、多声道增益旋钮 |
+| 广播与远程音频 | JACK-only 广播节点、独立远程音频服务端、UDP 上行及 HTTP WAV/Opus 收听 |
 | 外观和语言 | 主题 Token、自定义主题；简体中文、日语、英语、韩语 |
+
+## 广播与独立远程音频服务端
+
+广播发送节点位于 `nodes/bc/`，仅支持 JACK。一个实例可管理多条 Mono、Stereo、5.1、7.1 流及多级分类，使用独立窗口；每轨提供总体峰值表、M/S、增益旋钮及默认关闭的本地实时监听。输入用于广播源，输出用于同布局本地监听；关闭窗口不会停止处理。
+
+独立 Rust 服务端定位为远程音频功能的公共后端，广播发布和转发是当前已实现的第一组能力，后续计划扩展其他涉及远程音频的功能；这些后续能力尚未提供。当前程序名为 `bc-server`，不依赖 WinJACKNexus、Qt、JACK 或音频设备。
+
+- 发布控制需要 Bearer Token，音频上行走 UDP；听众匿名 HTTP GET 选择流/声道与 WAV 或 Opus 格式，成功响应为标准 `audio/*`。服务端不转码。
+- 服务端支持 `--config server.json`，显式命令行参数覆盖 JSON；配置中的证书/Token 路径按配置文件目录解析，便于复制部署。
+- TLS 可选：证书和私钥均不设置时提供 HTTP/WS，适合 NGINX 反代；两者同时设置时直接提供 HTTPS/WSS。NGINX 的 HTTP 反代不承载 UDP，推流端口需单独到达同一公网主机。TLS 不加密当前 UDP 载荷，其保护为会话鉴权与 HMAC 完整性校验。
+- 独立 **Build standalone broadcast server** Action 提供 Windows x64、Linux x64、Linux ARM64 原生构建及归档/SHA-256，具体平台成功状态以实际 Actions 运行为准。
+
+部署和 NGINX 示例见 [服务端说明](bc/server/README.md)，收听参数见 [CLI 收听工具](bc/listen/README.md)，操作入口见 [广播与远程音频 Wiki](https://github.com/AI-Hobbyist/WinJACKNexus/wiki/Broadcast-System)。浏览器原生播放、人工听音/安装及真实 JACK/环绕声硬件验收未记为通过。
 
 ## Control Deck
 

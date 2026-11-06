@@ -1,0 +1,8 @@
+{
+  "bind": "127.0.0.1:9443",
+  "udp_bind": "0.0.0.0:9444",
+  "publish_token_file": "publish.token",
+  "tls_cert": null,
+  "tls_key": null,
+  "insecure_loopback": false
+}

@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-only
+mod config;
 mod listen;
 mod ogg;
 mod registry;
@@ -20,7 +21,6 @@ use std::{
     collections::BTreeMap,
     error::Error,
     io::Write,
-    net::SocketAddr,
     sync::{Arc, Mutex},
     time::Duration,
 };
@@ -193,45 +193,13 @@ fn control_message(text: &str, app: &App, session_id: &[u8; 16]) -> serde_json::
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
-    let mut arguments = std::env::args().skip(1);
-    let mut options = BTreeMap::new();
-    let mut insecure = false;
-    while let Some(name) = arguments.next() {
-        if name == "--insecure-loopback" {
-            insecure = true;
-        } else if matches!(
-            name.as_str(),
-            "--bind" | "--udp-bind" | "--publish-token-file" | "--tls-cert" | "--tls-key"
-        ) {
-            let value = arguments.next().ok_or("missing option value")?;
-            if options.insert(name, value).is_some() {
-                return Err("duplicate option".into());
-            }
-        } else {
-            return Err(format!("unknown option {name}").into());
-        }
-    }
-    let bind: SocketAddr = options
-        .get("--bind")
-        .map(String::as_str)
-        .unwrap_or("0.0.0.0:9443")
-        .parse()?;
-    let udp_bind: SocketAddr = options
-        .get("--udp-bind")
-        .map(String::as_str)
-        .unwrap_or("0.0.0.0:9444")
-        .parse()?;
-    let token = std::fs::read_to_string(
-        options
-            .get("--publish-token-file")
-            .ok_or("--publish-token-file required")?,
-    )?;
+    let settings = config::Settings::from_args(std::env::args().skip(1))?;
+    let bind = settings.bind;
+    let udp_bind = settings.udp_bind;
+    let token = std::fs::read_to_string(&settings.publish_token_file)?;
     let token = token.trim().to_owned();
     if token.is_empty() {
         return Err("empty publish token".into());
-    }
-    if insecure && (!bind.ip().is_loopback() || !udp_bind.ip().is_loopback()) {
-        return Err("insecure mode requires loopback HTTP and UDP binds".into());
     }
     let udp = Arc::new(UdpSocket::bind(udp_bind).await?);
     let state = Arc::new(App {
@@ -244,7 +212,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .route("/bc/publish", get(publish))
         .route("/bc/listen", get(listen::listen))
         .with_state(state);
-    if insecure {
+    if settings.insecure_loopback || settings.tls_cert.is_none() {
         let listener = TcpListener::bind(bind).await?;
         println!(
             "{}",
@@ -261,12 +229,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
         rustls::crypto::ring::default_provider()
             .install_default()
             .map_err(|_| "TLS provider already installed")?;
-        let cert = options
-            .get("--tls-cert")
-            .ok_or("--tls-cert required outside loopback mode")?;
-        let key = options
-            .get("--tls-key")
-            .ok_or("--tls-key required outside loopback mode")?;
+        let cert = settings.tls_cert.as_ref().unwrap();
+        let key = settings.tls_key.as_ref().unwrap();
         let tls = axum_server::tls_rustls::RustlsConfig::from_pem_file(cert, key).await?;
         let listener = TcpListener::bind(bind).await?;
         println!(
