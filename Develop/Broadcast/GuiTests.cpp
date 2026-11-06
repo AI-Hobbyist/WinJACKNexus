@@ -4,6 +4,7 @@
 #include <QClipboard>
 #include <QComboBox>
 #include <QGlyphRun>
+#include <QJsonArray>
 #include <QJsonDocument>
 #include <QKeyEvent>
 #include <QLibrary>
@@ -85,7 +86,8 @@ int main(int argc, char **argv)
         UI::ThemeManager::installThemeCore(&theme);
         UI::ThemeManager themeManager;
         check(themeManager.applyToApp(&application), "shared theme applied to real app");
-        const auto modulePath = application.applicationDirPath() + "/nodes/lan_remote_audio/mod_broadcast.dll";
+        const auto modulePath =
+            application.applicationDirPath() + "/nodes/lan_remote_audio/mod_broadcast.dll";
         QLibrary module(modulePath);
         check(module.load(), "actual broadcast DLL loaded");
         const auto metadata =
@@ -105,6 +107,15 @@ int main(int argc, char **argv)
         check(create && destroy && get && set, "node factories and state exports exist");
         auto *node = create(WJN_NODE_MODE_JACK);
         check(node != nullptr, "node created without a running JACK server");
+        Model::State initial;
+        check(Model::State::fromJson(QJsonDocument::fromJson(get(node)).object(), initial) &&
+                  initial.streams.size() == 1 && initial.streams[0].layout == Model::Layout::stereo &&
+                  !initial.streams[0].listen && !initial.streams[0].solo,
+              "new node reserves one stereo stream with monitoring disabled");
+        const auto empty = QJsonDocument(Model::State{}.toJson()).toJson(QJsonDocument::Compact);
+        check(set(node, empty.constData()) &&
+                  QJsonDocument::fromJson(get(node)).object().value("streams").toArray().size() == 1,
+              "legacy empty project restores a default stream");
         auto *window = QWidget::find(reinterpret_cast<WId>(node->createWindow(nullptr)));
         check(window && window->isWindow() && window->parentWidget() == nullptr,
               "independent top-level production window");
@@ -139,13 +150,22 @@ int main(int argc, char **argv)
         const auto child = state().categories.at(1).id;
         check(state().categoryPath(child) == QStringList{QStringLiteral("节目"), QStringLiteral("新闻")},
               "GUI creates nested categories");
+        const auto first = state().streams.at(0).id;
+        auto *initialTree = control<QTreeWidget>(window, "bcTree");
+        for (QTreeWidgetItemIterator item(initialTree); *item; ++item)
+            if ((*item)->data(0, Qt::UserRole).toString() == first)
+                initialTree->setCurrentItem(*item);
+        check(!control<QPushButton>(window, "bcRemoveItem")->isEnabled(), "only stream cannot be deleted");
+        const auto beforeDelete = QByteArray(get(node));
+        QMetaObject::invokeMethod(control<QPushButton>(window, "bcRemoveItem"), "clicked",
+                                  Qt::DirectConnection);
+        check(QByteArray(get(node)) == beforeDelete, "delete handler also protects the final stream");
         parent->setCurrentIndex(parent->findData(child));
         name->setText(QStringLiteral("主输出"));
         layout->setCurrentIndex(layout->findData(8u));
-        click("bcAddStream");
-        const auto first = state().streams.at(0).id;
+        click("bcApplyItem");
         check(state().streams[0].layout == Model::Layout::surround71 && state().streams[0].category == child,
-              "GUI adds a named 7.1 stream in a nested category");
+              "GUI renames default stream and changes it to 7.1 in a nested category");
         name->setText(QStringLiteral("备用"));
         parent->setCurrentIndex(0);
         layout->setCurrentIndex(layout->findData(2u));
@@ -269,7 +289,10 @@ int main(int argc, char **argv)
         check(state().categories.size() == 1, "GUI deletes empty category");
         select(first);
         click("bcRemoveItem");
-        check(state().streams.size() == 1, "GUI deletes selected stream");
+        check(state().streams.size() == 1, "GUI deletes selected stream when another remains");
+        select(state().streams[0].id);
+        check(!control<QPushButton>(window, "bcRemoveItem")->isEnabled(),
+              "delete becomes disabled again for the remaining stream");
         destroy(node);
         check(shows.count <= 100, "real-window batch remains below 100 shows");
         std::printf("PASS %u checks; native window shows: %u; platform: windows; no JACK initialization\n",

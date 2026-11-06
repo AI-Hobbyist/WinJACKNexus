@@ -104,6 +104,10 @@ lifecycle. Third-party modules need recompilation before use with this host.
 `nodes/lan_remote_audio/mod_broadcast.dll` uses category `LAN & Remote Audio`.
 The host resolves saved `nodes/bc/mod_broadcast.dll` paths to this module when
 installed, and omits the superseded DLL from discovery. Network endpoints retain `/bc`.
+New instances reserve one stereo stream (two source inputs and two local monitor
+outputs, Listen/Solo off). The final stream cannot be removed by the editor or
+`BroadcastNode::apply`; a legacy empty serialized node restores one default
+stream. Restoring nonempty state retains its stream IDs and does not append a default.
 It advertises only `JACK_NODE`; VIRT creation is
 rejected and its virtual API is null. Its state schema version 1 contains
 clientName, categories and streams. Stream IDs are canonical UUIDs; stable

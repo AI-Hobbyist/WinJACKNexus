@@ -77,7 +77,7 @@ class BroadcastWindow::Impl
     C::DragTreeWidget *tree;
     C::ChoiceField *parent, *layout, *channel, *encoding;
     C::TextLabel *status, *metrics, *diagnostic;
-    C::ActionButton *publish;
+    C::ActionButton *publish, *remove;
     QWidget *strips;
     QHBoxLayout *stripLayout;
     std::vector<Strip> cards;
@@ -146,7 +146,7 @@ class BroadcastWindow::Impl
         auto *addCategory = button(management, "bcAddCategory", "category.add", "Add category");
         auto *addStream = button(management, "bcAddStream", "stream.add", "Add stream");
         auto *apply = button(management, "bcApplyItem", "item.apply", "Apply name / category / layout");
-        auto *remove = button(management, "bcRemoveItem", "item.remove", "Delete selected item");
+        remove = button(management, "bcRemoveItem", "item.remove", "Delete selected item");
         for (auto *action : {addCategory, addStream, apply, remove})
             sidebar->addWidget(action);
         body->addWidget(management);
@@ -289,7 +289,11 @@ class BroadcastWindow::Impl
                                   [this](const auto &item) { return item.id == selection; });
                 }
                 else
+                {
+                    if (state.streams.size() <= 1)
+                        return;
                     std::erase_if(state.streams, [this](const auto &item) { return item.id == selection; });
+                }
                 selection.clear();
                 commit(std::move(state));
             });
@@ -360,6 +364,7 @@ class BroadcastWindow::Impl
 
     void selectItem()
     {
+        remove->setEnabled(!selection.isEmpty() && (selectedCategory || node.state().streams.size() > 1));
         const QSignalBlocker block(parent);
         channel->clear();
         channel->addItem(QStringLiteral("all"), QStringLiteral("all"));

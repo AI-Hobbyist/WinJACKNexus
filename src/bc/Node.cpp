@@ -8,6 +8,7 @@
 #include <QSet>
 #include <QUuid>
 #include <mutex>
+#include <stdexcept>
 
 namespace WinJACKNexus::Broadcast
 {
@@ -19,6 +20,11 @@ QHash<QString, BroadcastNode *> liveIdentities;
 
 BroadcastNode::BroadcastNode()
 {
+    Model::State initial;
+    initial.addStream(QStringLiteral("Stream 1"), Model::Layout::stereo);
+    if (!apply(std::move(initial)))
+        throw std::runtime_error("Unable to reserve the default broadcast stream");
+
     // Control polling only: never drives a GUI refresh. JACK's rate callback
     // only publishes an atomic value; preparation stays outside realtime code.
     clockCheck_.setInterval(20);
@@ -152,7 +158,7 @@ const Model::State &BroadcastNode::state() const noexcept
 
 bool BroadcastNode::apply(Model::State candidate)
 {
-    if (!candidate.validate())
+    if (candidate.streams.empty() || !candidate.validate())
         return false;
     const std::lock_guard lock(identityMutex);
     auto identities = liveIdentities;
@@ -327,8 +333,14 @@ bool BroadcastNode::restore(const char *json)
     QJsonParseError error;
     const auto document = QJsonDocument::fromJson(QByteArray(json), &error);
     Model::State candidate;
-    return error.error == QJsonParseError::NoError && document.isObject() &&
-           Model::State::fromJson(document.object(), candidate) && apply(std::move(candidate));
+    if (error.error != QJsonParseError::NoError || !document.isObject() ||
+        !Model::State::fromJson(document.object(), candidate))
+        return false;
+    // Older projects could save an empty node. Give it the same usable ports
+    // as a newly created node rather than restoring an invisible client.
+    if (candidate.streams.empty())
+        candidate.addStream(QStringLiteral("Stream 1"), Model::Layout::stereo);
+    return apply(std::move(candidate));
 }
 
 const char *BroadcastNode::clientId()
