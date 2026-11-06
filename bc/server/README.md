@@ -19,6 +19,30 @@ The existing CMake tree also exposes the explicit `wjn_bc_server` target. It is
 not part of the default C++ target set. Output: `build/bc-target/release/bc-server.exe`
 on Windows. The crate is portable Rust; non-Windows builds have not been verified.
 
+## GitHub Actions
+
+Run **Build standalone broadcast server** from the Actions tab
+(`.github/workflows/broadcast-server.yml`, manual `workflow_dispatch`). It builds
+and tests only `bc-server`, independently of the desktop Release workflow:
+
+| Platform | Rust target | Download |
+| --- | --- | --- |
+| Windows x64 | `x86_64-pc-windows-msvc` | `bc-server-windows-x64.zip` |
+| Linux x64 | `x86_64-unknown-linux-gnu` | `bc-server-linux-x64.tar.gz` |
+| Linux ARM64 | `aarch64-unknown-linux-gnu` | `bc-server-linux-arm64.tar.gz` |
+
+Each native runner uploads an archive and its `.sha256` file, including the
+server binary, this README, project license, Cargo.lock and source-commit/target
+metadata. Build/test logs are uploaded even on failure. No Qt, JACK, receiver or
+audio-device dependencies are installed. Linux packages use Ubuntu 24.04's
+native GNU/glibc environment; they are not static musl packages. Platform build
+results are established by the corresponding workflow run, not by local YAML
+validation.
+
+GitHub requires a manually dispatched workflow to exist on the repository's
+default branch before it can be run from the Actions UI. Once merged there,
+select the desired source branch in **Run workflow**.
+
 ## Run
 
 Put a strong publishing token in a protected UTF-8 file. Never put the token in

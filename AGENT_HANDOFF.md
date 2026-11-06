@@ -6,6 +6,12 @@
 
 分支broadcast-system，跟踪origin/broadcast-system，禁止codex/前缀。S0 72aec55、S1 05da24f、S2 723273d、S3 85808b05a6f73fafdffe98cc9d8add4dd96f69c4均已提交推送，S3远端一致。S4已提交推送4a2008f62c24e459d0293ea0ea717ff4d867653b，远端核对一致。S5限定联调、自动验证及三个交付包已完成，提交a3fe7cebc4ab5fbdbe8f3a29e3a009cf0227333a已推送origin/broadcast-system，ls-remote与本地一致。本文后续收尾提交仅记录该已核实结果。
 
+## 后续任务：独立服务端 GitHub Action（2026-11-07）
+
+- 新增.github/workflows/broadcast-server.yml，手动workflow_dispatch，独立于桌面release.yml。原生runner矩阵Windows x64/MSVC、Linux x64/GNU、Linux ARM64/aarch64/GNU；ARM64已由用户明确确认，不含ARMv7。仅构建/测试bc-server，不安装Qt/JACK/收听端依赖。产物Windows ZIP、Linux tar.gz，附README/LICENSE/Cargo.lock/build-info.json及SHA-256，失败也上传日志。
+- actionlint与git diff --check通过；按同一目标/锁文件本地Windows Release构建成功，Cargo test执行成功但当前Rust crate为0项测试，不冒称运行了功能单元测试。复用workflow原文打包步骤实测ZIP，五文件清单、CRC、target元数据、SHA-256通过。日志build/bc-server-action-{lint,windows-build,windows-tests,windows-package,package-verification}.log。
+- Linux x64/ARM64和GitHub托管执行尚未实际运行；不将静态验证视为跨平台构建PASS。新Action为手动触发，按GitHub规则需先进入默认分支后才能在Actions UI中Run workflow。本次不合并默认分支、不触发云构建。bc/server/README.md已记录平台、产物与操作说明。没有未完成实现；提交推送状态以本记录所属提交及远端核对为准。
+
 ## 已实现和验证
 
 - Rust relay bc/server独立于Qt/JACK，WSS Bearer控制+认证分片UDP上行，匿名HTTP GET参数返回WAV PCM16及Ogg Opus，服务器不转码。bc/listen实际CLI解码、CPAL设备播放、全/分声道、重连及检查导出。Protocol-v1固定。
