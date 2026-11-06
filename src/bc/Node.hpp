@@ -17,6 +17,7 @@
 namespace WinJACKNexus::Broadcast
 {
 namespace Model = Common::Broadcast;
+class BroadcastWindow;
 
 class BroadcastNode final : public QObject, public Node::INode
 {
@@ -35,6 +36,10 @@ class BroadcastNode final : public QObject, public Node::INode
     bool restore(const char *json);
     const char *clientId();
     float takePeak(unsigned stream) noexcept;
+    quint64 stateRevision() const noexcept
+    {
+        return revision_;
+    }
 
   private:
     struct Configuration
@@ -60,6 +65,8 @@ class BroadcastNode final : public QObject, public Node::INode
     QByteArray settingsCache_, clientIdCache_;
     QTimer clockCheck_;
     std::atomic<jack_nframes_t> sourceRate_{0};
+    std::unique_ptr<BroadcastWindow> window_;
+    quint64 revision_ = 0;
 
     bool rebuildPorts(const Model::State &candidate);
     void publishConfiguration();

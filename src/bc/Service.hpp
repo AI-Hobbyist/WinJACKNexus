@@ -46,9 +46,12 @@ class WJN_BC_API Service final : public QObject
     bool start(QString *error = nullptr);
     void stop();
     ServiceStatus status() const;
+    ConnectionSettings connection() const;
+    bool configure(const ConnectionSettings &settings, const QByteArray &newToken, QString *error = nullptr);
 
   signals:
     void statusChanged();
+    void configurationChanged();
 
   private:
     Service();

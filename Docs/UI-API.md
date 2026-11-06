@@ -590,3 +590,11 @@ Control Deck shared control additions (2026-10-20):
 普通通道 MAIN Pan 保留在 Post 到 Master 的独立分支中，不作用于 AUX Post；Sub Mix 保留原有的同布局输出 Pan。分控增益在 Master 汇总时不会再次叠加。MIX 仅控制是否汇入 Master，不影响 AUX Pre/Post。通道整体 Mute、Solo 和 AUX 开关继续按原有发送门控规则工作。
 
 `AuxSettingsWindow` 的经典 Pan 模式支持分控旋钮独立及联动拖动；空间参数仍仅在空间 Pan 模式下可调。公开函数签名及工程序列化格式不变。对应回归为 `mixer_main_post_tests` 和 `mixer_classic_pan_drag_tests`；后者必须使用 Windows 实窗及系统字体。
+
+### Broadcast Sender composition (S4)
+
+The independent node window composes existing DragTreeWidget (outward dragging disabled), GroupPanel/ScrollField, TextField/ChoiceField/ActionButton/ToggleField, ConsoleKnob and one vertical single-channel FxLevelMeterWidget per stream. There is no new exported shared-control signature or private visual stylesheet. bindConsoleTheme uses existing global tokens; global FPS controls the visible window refresh and shared meter animations. The hidden view stops sampling while node processing continues. Category moves/names/layout edits commit a validated model transaction; deleting a nonempty category asks the user to move/delete its contents first.
+
+Saving server settings updates the process-global service and all windows, stops publishing, and requires explicit Start to resume. A blank token field keeps the saved Credential Manager entry; a supplied token replaces it and is cleared from the editor after successful save. Listening URL copy uses stable publisher/stream/channel/format parameters, with no credential. Displayed UDP counters are sender-side OS-accepted counts; control RTT is not audio latency or server reception evidence.
+
+Production-DLL Windows tests passed 95 checks with 3 top-level shows, Microsoft YaHei UI system font, DPI 96 and scale 1.00. Tests covered Chinese glyph fallback, actual window exposure/capture, four-language and theme changes, controls, model identities and isolated global configuration synchronization. Human visual/listening acceptance remains skipped by user instruction; actual JACK is not initialized by these tests.

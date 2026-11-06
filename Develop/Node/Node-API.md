@@ -111,8 +111,13 @@ the reservations. Global server settings and credentials are not project state.
 
 Listen/S are session controls and are disarmed by restore. M and gain affect
 both publishing audio and local monitoring; Solo affects only this instance's
-monitor selection. The standalone editor and `HAS_GUI` declaration are added
-together in S4. The JACK callback uses a preallocated 100ms SPSC queue and
+monitor selection. S4 adds the standalone editor and `HAS_GUI` together;
+`createWindow`/`wjn_show_node_gui` opens or raises the same independent window,
+and `destroyWindow` hides it without changing audio/session controls. The
+unindexed Node i18n v2 descriptor owns module `winjacknexus-broadcast`, domain
+`broadcast` and the four catalogs in `nodes/bc/locate`. Window controls use
+shared global Theme Tokens; no private stylesheet or control is introduced.
+The JACK callback uses a preallocated 100ms SPSC queue and
 5ms gain smoothing. The shared `broadcast_runtime.dll` owns one publishing
 event thread/control session for all node instances; source-rate changes replace
 the audio stream/encoder epoch on the control thread. UDP/encoding never run in

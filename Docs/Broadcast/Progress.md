@@ -2,7 +2,16 @@
 
 ## 当前检查点（2026-11-07）
 
-S0/S1/S2 已提交推送，S2 为 `723273d306f18d9bda904235b56e3dbab933d4eb`。S3 自动验收通过，本次提交记录 S3；须完成推送及远端核对后开始 S4。S4/S5 未开始，最终增量包未生成。以下旧状态只保留为过程记录。
+S0/S1/S2 已提交推送，S2 为 `723273d306f18d9bda904235b56e3dbab933d4eb`。S3已提交推送85808b05a6f73fafdffe98cc9d8add4dd96f69c4，远端一致，额度剩余80%。S4实现及自动验收通过，本次提交记录S4，推送核对后进入S5；最终增量包未生成。以下旧状态只保留为过程记录。
+
+### S4 — 独立窗口及分类管理
+
+- 完成独立顶层窗口、HAS_GUI与show入口；关闭只隐藏，重开保留Listen/S与处理状态。左侧多级分类树及名称/父分类/布局编辑，右侧横向轨道卡片；每轨单列总体峰值、M/S、默认关闭的实时监听及共享dB旋钮。分类非空时拒绝直接删除，支持先移动子项。
+- 顶部全局服务器/发布者/密码遮蔽Token编辑；保存统一同步所有窗口并停止推流，需显式Start恢复。空Token保留既有凭据；新Token仅交给Credential Manager，保存成功清空编辑器。下方复制匿名完整/分声道WAV/Opus地址；分类改名不改变订阅身份。
+- 仅复用公共控件与全局Theme Token，没有业务QSS/硬编码颜色或新增公共控件。四语言外置catalog、Node i18n v2描述符，模型和未提交名称草稿不随语言/主题变化。可见刷新及meter动画跟随全局FPS，隐藏停绘。
+- RED：真实DLL未声明GUI，build/bc-s4-red.log。GREEN：build/bc-s4-final-build.log；6/6 C++测试通过2.29秒（含真实Windows GUI95检查），build/bc-s4-final-cpp-tests.log；受影响Service网络回归4/4通过21.360秒，build/bc-s4-final-service-tests.log。
+- GUI本批3次顶层显示，预算<=10、上限100；windows平台、native HWND可见/已exposed、Microsoft YaHei UI、96DPI/1.00倍率，CJK glyph无缺失索引。实际窗口截图build/bc-s4-window.png；完整GUI日志在build/release/Testing/Temporary/LastTest.log。未进行Computer Use/替代外部UI自动化/offscreen；人工观察和听音已跳过（用户指令），不以自动glyph检查冒称人工审校。
+- 发送字节/报文及丢帧为客户端计数，RTT明确为控制连接指标；当前冻结协议没有服务端UDP统计，未显示虚构收包/丢包率或端到端音频延迟。真实JACK/硬件仍未验证。S5尚未开始，无增量包。
 
 ### S3 — JACK-only 音频与进程共享发布
 

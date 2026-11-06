@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 #include "Node.hpp"
 #include "Service.hpp"
+#include "Window.hpp"
+#include <QApplication>
 #include <QHash>
 #include <QJsonDocument>
 #include <QSet>
@@ -45,6 +47,7 @@ BroadcastNode::BroadcastNode()
 
 BroadcastNode::~BroadcastNode()
 {
+    window_.reset();
     shutdown();
     const std::lock_guard lock(identityMutex);
     for (auto entry = liveIdentities.begin(); entry != liveIdentities.end();)
@@ -119,12 +122,27 @@ void BroadcastNode::shutdown() noexcept
 
 HWND BroadcastNode::createWindow(HWND) noexcept
 {
-    // S4 adds the actual standalone editor together with HAS_GUI metadata.
-    return nullptr;
+    try
+    {
+        if (!qobject_cast<QApplication *>(QApplication::instance()))
+            return nullptr;
+        if (!window_)
+            window_ = std::make_unique<BroadcastWindow>(*this);
+        window_->show();
+        window_->raise();
+        window_->activateWindow();
+        return reinterpret_cast<HWND>(window_->winId());
+    }
+    catch (...)
+    {
+        return nullptr;
+    }
 }
 
 void BroadcastNode::destroyWindow(HWND) noexcept
 {
+    if (window_)
+        window_->close();
 }
 
 const Model::State &BroadcastNode::state() const noexcept
@@ -178,6 +196,7 @@ bool BroadcastNode::apply(Model::State candidate)
         }
     }
     state_ = std::move(candidate);
+    ++revision_;
     liveIdentities.swap(identities);
     publishConfiguration();
     if (topologyChanged && active)

@@ -36,10 +36,10 @@ target_compile_definitions(broadcast_runtime PRIVATE WJN_BROADCAST_RUNTIME_BUILD
 target_compile_options(broadcast_runtime PRIVATE /utf-8)
 target_link_libraries(broadcast_runtime PUBLIC bc_state bc_connection PRIVATE bc_udp bc_encoder)
 
-add_library(mod_broadcast SHARED Module.cpp Node.cpp Node.hpp)
+add_library(mod_broadcast SHARED Module.cpp Node.cpp Node.hpp Window.cpp Window.hpp)
 wjn_configure_shared_target(mod_broadcast WJN_NODE_IMPLEMENTATION)
 target_include_directories(mod_broadcast PRIVATE "${PROJECT_SOURCE_DIR}/src/node/include")
-target_link_libraries(mod_broadcast PRIVATE broadcast_runtime WinJACKNexus::Audio)
+target_link_libraries(mod_broadcast PRIVATE broadcast_runtime WinJACKNexus::Audio WinJACKNexus::UI)
 target_compile_definitions(mod_broadcast PRIVATE WIN32_LEAN_AND_MEAN NOMINMAX)
 target_compile_options(mod_broadcast PRIVATE /utf-8)
 foreach(config Debug Release RelWithDebInfo MinSizeRel)
@@ -47,3 +47,6 @@ foreach(config Debug Release RelWithDebInfo MinSizeRel)
     set_target_properties(mod_broadcast PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY_${upper} "${WJN_OUTPUT_DIR}/nodes/bc")
 endforeach()
+add_custom_command(TARGET mod_broadcast POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/locate"
+        "$<TARGET_FILE_DIR:mod_broadcast>/locate")

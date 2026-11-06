@@ -1,0 +1,59 @@
+{
+  "formatVersion": 1,
+  "moduleId": "winjacknexus-broadcast",
+  "domains": [
+    "broadcast"
+  ],
+  "defaultLanguage": "en-US",
+  "catalogVersion": 1,
+  "languages": {
+    "en-US": "en-US.json",
+    "zh-CN": "zh-CN.json",
+    "ja-JP": "ja-JP.json",
+    "ko-KR": "ko-KR.json"
+  },
+  "requiredKeys": {
+    "broadcast": [
+      "name",
+      "server",
+      "publisher",
+      "token.placeholder",
+      "server.save",
+      "server.saved",
+      "publish.start",
+      "publish.stop",
+      "streams",
+      "item.name",
+      "category",
+      "layout",
+      "layout.mono",
+      "layout.stereo",
+      "category.add",
+      "stream.add",
+      "item.apply",
+      "item.remove",
+      "category.new",
+      "stream.new",
+      "category.root",
+      "category.notEmpty",
+      "item.failed",
+      "listen.address",
+      "listen.copy",
+      "listen.copied",
+      "mute.help",
+      "solo.help",
+      "monitor",
+      "meter.peak",
+      "status",
+      "metrics",
+      "state.stopped",
+      "state.connecting",
+      "state.online",
+      "state.publishing",
+      "state.retrying",
+      "state.error",
+      "state.authentication-error",
+      "state.identity-conflict"
+    ]
+  }
+}

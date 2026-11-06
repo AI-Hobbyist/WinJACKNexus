@@ -266,6 +266,7 @@ class Service::Impl
     QObject *context = nullptr;
     Worker *worker = nullptr;
     ServiceStatus status;
+    ConnectionSettings connection = loadGlobalConnection();
     quint64 generation = 0;
 
     std::vector<Publication> publications() const
@@ -338,7 +339,7 @@ void Service::detach(const void *owner)
 
 bool Service::start(QString *error)
 {
-    return start(loadGlobalConnection(), error);
+    return start(impl_->connection, error);
 }
 
 bool Service::start(const ConnectionSettings &settings, QString *error)
@@ -409,5 +410,24 @@ void Service::stop()
 ServiceStatus Service::status() const
 {
     return impl_->status;
+}
+
+ConnectionSettings Service::connection() const
+{
+    return impl_->connection;
+}
+
+bool Service::configure(const ConnectionSettings &settings, const QByteArray &newToken, QString *error)
+{
+    if (!settings.validate(error))
+        return false;
+    if (!newToken.isEmpty() && !Credentials::write(settings.credentialTarget, newToken, error))
+        return false;
+    if (!saveGlobalConnection(settings, error))
+        return false;
+    stop();
+    impl_->connection = settings;
+    emit configurationChanged();
+    return true;
 }
 } // namespace WinJACKNexus::Broadcast
