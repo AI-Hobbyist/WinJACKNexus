@@ -99,6 +99,30 @@ lifecycle. Third-party modules need recompilation before use with this host.
 
 ## Settings and editors
 
+### Broadcast sender (S3 audio/publishing boundary)
+
+`nodes/bc/mod_broadcast.dll` advertises only `JACK_NODE`; VIRT creation is
+rejected and its virtual API is null. Its state schema version 1 contains
+clientName, categories and streams. Stream IDs are canonical UUIDs; stable
+JACK input/monitor names derive from these IDs and speaker roles, independently
+of user display names. Restoring a live instance retains its IDs; a second live
+instance restoring occupied IDs receives new stream IDs. Destruction releases
+the reservations. Global server settings and credentials are not project state.
+
+Listen/S are session controls and are disarmed by restore. M and gain affect
+both publishing audio and local monitoring; Solo affects only this instance's
+monitor selection. The standalone editor and `HAS_GUI` declaration are added
+together in S4. The JACK callback uses a preallocated 100ms SPSC queue and
+5ms gain smoothing. The shared `broadcast_runtime.dll` owns one publishing
+event thread/control session for all node instances; source-rate changes replace
+the audio stream/encoder epoch on the control thread. UDP/encoding never run in
+the JACK callback. Stopping or losing publishing leaves local monitoring active.
+
+S3 discovery/state tests load the real node DLL; offline audio and shared-worker
+tests separately exercise signals and actual UDP/HTTP publication. They do not
+initialize JACK or prove physical port connections. See
+`Docs/Broadcast/Progress.md` for the actual implementation checkpoint.
+
 Optional `wjn_create_settings_widget(node, parent)` and
 `wjn_destroy_settings_widget(node, widget)` manage Qt editors. Native HWND
 settings views use `wjn_create_settings_view` / `wjn_destroy_settings_view`.

@@ -2,7 +2,30 @@
 
 ## 当前检查点（2026-11-07）
 
-S0/S1 已提交推送。S2 实现与自动验证完成，等待本阶段提交、推送及远端核对；S3—S5 未开始。下文暂停及旧状态条目仅为历史记录，以此检查点为准。
+S0/S1/S2 已提交推送，S2 为 `723273d306f18d9bda904235b56e3dbab933d4eb`。S3 自动验收通过，本次提交记录 S3；须完成推送及远端核对后开始 S4。S4/S5 未开始，最终增量包未生成。以下旧状态只保留为过程记录。
+
+### S3 — JACK-only 音频与进程共享发布
+
+- 实际节点 `nodes/bc/mod_broadcast.dll`，仅 JACK_NODE，VIRT 拒绝；GUI/HAS_GUI 留至 S4 一起实现。支持多流、多级分类、稳定 UUID 端口、同布局监听输出及克隆身份保护。
+- 回调使用预分配 AudioStream 队列（100ms）、5ms 平滑增益、M/Listen/S 与单总体峰值；没有编码/网络/等待锁。进程共享 `broadcast_runtime.dll` 的独立 QThread 统一负责控制会话、编码/带限重采样、分片认证和 UDP 发送。凭据仅 Windows Credential Manager，普通设置仅保存全局地址/身份/凭据引用。
+- 停止/断网时解挂发送队列，保留本地处理；重新推流用 generation 丢弃旧在途块，格式重建增加 epoch。工作线程拒发超过100ms的旧样本；发现源时间轴不连续时明确停止发布并要求重启，保留本地监听，不拼接错误编码状态。尚未宣称自动恢复所有过载。
+- Release 必要目标通过：`build/bc-s3-final-build.log`；补齐断网探针的最后增量构建 `build/bc-s3-service-fault-build.log`。C++ 五项测试全部通过（71项断言），`build/bc-s3-final-cpp-tests.log`；Python 39项全部通过50.807秒，`build/bc-s3-final-network-tests.log`（含 S0/S1/S2 回归）。
+- 新增真实共享线程测试：两个音源/两个owner共享一个鉴权会话；1/2/6/8完整流及每个声道均经实际编码→UDP→独立Rust→HTTP WAV/Opus→CLI解码并核对频率/布局；停止再启动保留ID且本地监听继续；移除owner后该流404、另一流继续；杀死relay后进入retrying，本地输出仍非零。无JACK服务依赖，不伪称物理端口/现场端到端已通过。
+- 原生编码的独立137帧块/8k、44.1k、192k测试及96k下采样抗混叠通过；官方libopus1.6.1/libsamplerate0.2.2源码固定SHA256，S5增量包须附其COPYING。
+- 实窗、浏览器控件、人工听音/安装验收：已跳过（用户指令）；真实JACK/环绕声硬件未验证。未使用Computer Use、替代UI自动化或offscreen。
+- 变更已按仓库规则格式化，git diff --check通过。阶段推送/远端核对后再查额度，不因人工项等待。
+
+### S3 实施过程（历史状态）
+
+Common离线处理及状态模型已RED→GREEN。四布局验证gain/M一次处理、默认Listen关闭、Solo仅监控及末声道过载总峰值；多级分类、稳定端口名、状态往返/事务、监听恢复关闭及规范URL-safe UUID通过。Release构建wjn_bc_core_tests/wjn_bc_state_tests，28+9项断言通过；证据build/bc-s3-core-{red,green}.log、bc-s3-state-red.log、bc-s3-state-id-{red,green}.log、bc-s3-core-state-build.log。这尚不是实际DLL/JACK/网络发布的验证，S3检查点未完成。
+
+实际DLL发现/工厂/身份恢复也已RED→GREEN，12项断言通过，日志bc-s3-module-{red,green}.log，Release构建bc-s3-module-build.log。mod_broadcast仅JACK、无VIRT、当前feature=0，独立实例与克隆冲突身份保护通过。测试未调用JACK init，不证明实际端口连线/回调。节点回调已挂Common核心，本轮尚无发送队列或发布网络；S3未完成，未提交。安全检查点额度剩余82%。
+
+连接配置/Windows Credential Manager隔离测试12项GREEN，bc-s3-connection-green.log；临时凭据已删除，普通配置无Token。新增实际Qt可靠控制会话，真实relay的4项WS/WSS鉴权/hello/身份冲突/证书验证通过（bc-s3-session-green.log，0.530秒）。Qt Bearer挑战不返回数字401的误分类已用实际RED修复；未跳过TLS校验，测试CA只限probe进程。全局Service、节点发送队列、UDP与编码仍待实现，不代表音频发布已通过。
+
+UDP格式及传输组件已RED→GREEN。C++与S0认证数据报字面夹具完全一致，分片/量化/预算五项通过（bc-s3-wire-green.log）。真实C++控制+UDP发送→独立Rust relay→HTTP CLI的7.1 WAV、Opus完整流及Rrb单声道通过（bc-s3-udp-green.log，0.571秒）。此次Opus来源是已有编码夹具，节点回调/发送端编码/重采样/全局Service尚未接入；S3未完成，不提前提交。
+
+原生编码/重采样现已实现并验证：libopus1.6.1完整/mono变体与libsamplerate0.2.2持久sinc状态，源码版本/SHA256固定，现有build树静态Release构建。137帧源块→实际编码→UDP/Rust/HTTP→CLI独立解码的四项测试通过（7.328秒，bc-s3-encoder-formats.log），覆盖四布局及8k/44.1k/192k输入；WAV保留源时钟，Opus48k，96k源30kHz抗混叠稳态峰值0.00000522。尚未接入Node队列与全局Service，不当作节点最终链路PASS；S3仍未完成、未提交，额度剩余81%。
 
 ### S2 — HTTP 双格式收听工具
 
