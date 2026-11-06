@@ -1,5 +1,20 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 if(BUILD_TESTING)
+    add_library(bc_jack_fixture SHARED
+        "${PROJECT_SOURCE_DIR}/Develop/Node/SubGraphJackFixture.cpp"
+        "${PROJECT_SOURCE_DIR}/Develop/Node/SubGraphJackFixture.def")
+    target_include_directories(bc_jack_fixture PRIVATE ${JACK2_INCLUDE_DIR})
+    target_compile_definitions(bc_jack_fixture PRIVATE WIN32_LEAN_AND_MEAN NOMINMAX)
+    set_target_properties(bc_jack_fixture PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY_RELEASE "${WJN_OUTPUT_DIR}/tests/bc")
+    add_executable(wjn_bc_node_probe NodeProbe.cpp)
+    target_link_libraries(wjn_bc_node_probe PRIVATE broadcast_runtime WinJACKNexus::Audio)
+    target_include_directories(wjn_bc_node_probe PRIVATE "${PROJECT_SOURCE_DIR}/src/node/include")
+    target_compile_definitions(wjn_bc_node_probe PRIVATE WIN32_LEAN_AND_MEAN NOMINMAX
+        WJN_BC_BOUNDARY="$<TARGET_FILE:bc_jack_fixture>")
+    target_compile_options(wjn_bc_node_probe PRIVATE /utf-8)
+    set_target_properties(wjn_bc_node_probe PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEASE "${WJN_OUTPUT_DIR}")
+    add_dependencies(wjn_bc_node_probe bc_jack_fixture mod_broadcast)
     find_package(Qt6 6.10.3 EXACT REQUIRED COMPONENTS Test)
     add_executable(wjn_bc_gui_tests GuiTests.cpp)
     target_link_libraries(wjn_bc_gui_tests PRIVATE WinJACKNexus::UI bc_state Qt6::Test)

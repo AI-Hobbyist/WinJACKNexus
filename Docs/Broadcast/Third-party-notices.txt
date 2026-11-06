@@ -1,0 +1,27 @@
+WinJACKNexus Broadcast incremental delivery
+
+WinJACKNexus: GNU Affero General Public License v3, see accompanying LICENSE.
+Source: https://github.com/AI-Hobbyist/WinJACKNexus (broadcast-system branch).
+
+Client native libopus 1.6.1: BSD-style license, see libopus-COPYING.txt.
+Source: https://downloads.xiph.org/releases/opus/opus-1.6.1.tar.gz
+SHA-256: 6ffcb593207be92584df15b32466ed64bbec99109f007c82205f0194572411a1
+
+Client libsamplerate 0.2.2: BSD 2-Clause license, see libsamplerate-COPYING.txt.
+Source: https://github.com/libsndfile/libsamplerate/releases/tag/0.2.2
+Source archive SHA-256: 3258da280511d24b49d6b08615bbe824d0cacc9842b0e4caf11c52cf2b043893
+
+Qt Network, Qt WebSockets and Windows Schannel TLS plugin: Qt 6.10.3,
+dynamically linked. Copyright The Qt Company Ltd. and contributors.
+The Qt libraries remain replaceable DLLs. The client overlay requires an
+existing compatible Qt 6.10.3 WinJACKNexus installation, including its notices.
+License texts: Qt-LGPL-3.0.txt and Qt-GPL-3.0.txt in this directory.
+Source: https://download.qt.io/archive/qt/6.10/6.10.3/submodules/
+Relevant modules: qtbase-everywhere-src-6.10.3.tar.xz and
+qtwebsockets-everywhere-src-6.10.3.tar.xz.
+Official license information: https://doc.qt.io/qt-6/licensing.html
+
+Independent Rust relay and listener dependency versions are recorded in the
+included Cargo.lock; package source and dependency manifests are in bc/.
+They do not depend on Qt, JACK or the WinJACKNexus process. Windows x64 and
+the Microsoft Visual C++ runtime are prerequisites; system DLLs are not bundled.

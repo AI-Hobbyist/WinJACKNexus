@@ -48,21 +48,75 @@ class RelayTests(unittest.TestCase):
             from cryptography.hazmat.primitives.asymmetric import rsa
 
             key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
-            name = x509.Name([x509.NameAttribute(x509.NameOID.COMMON_NAME, "localhost")])
+            name = x509.Name(
+                [x509.NameAttribute(x509.NameOID.COMMON_NAME, "localhost")]
+            )
             now = datetime.datetime.now(datetime.timezone.utc)
+            issuer = name
+            signing_key = key
+            ca_path = None
+            if tls == "ca-signed":
+                signing_key = rsa.generate_private_key(
+                    public_exponent=65537, key_size=2048
+                )
+                issuer = x509.Name(
+                    [
+                        x509.NameAttribute(
+                            x509.NameOID.COMMON_NAME, "Broadcast test root"
+                        )
+                    ]
+                )
+                ca = (
+                    x509.CertificateBuilder()
+                    .subject_name(issuer)
+                    .issuer_name(issuer)
+                    .public_key(signing_key.public_key())
+                    .serial_number(x509.random_serial_number())
+                    .not_valid_before(now - datetime.timedelta(minutes=1))
+                    .not_valid_after(now + datetime.timedelta(days=1))
+                    .add_extension(
+                        x509.BasicConstraints(ca=True, path_length=0), critical=True
+                    )
+                    .add_extension(
+                        x509.KeyUsage(
+                            digital_signature=True,
+                            content_commitment=False,
+                            key_encipherment=False,
+                            data_encipherment=False,
+                            key_agreement=False,
+                            key_cert_sign=True,
+                            crl_sign=True,
+                            encipher_only=False,
+                            decipher_only=False,
+                        ),
+                        critical=True,
+                    )
+                    .sign(signing_key, hashes.SHA256())
+                )
+                ca_path = Path(self.temporary.name) / "ca.pem"
+                ca_path.write_bytes(ca.public_bytes(serialization.Encoding.PEM))
             certificate = (
                 x509.CertificateBuilder()
                 .subject_name(name)
-                .issuer_name(name)
+                .issuer_name(issuer)
                 .public_key(key.public_key())
                 .serial_number(x509.random_serial_number())
                 .not_valid_before(now - datetime.timedelta(minutes=1))
                 .not_valid_after(now + datetime.timedelta(days=1))
                 .add_extension(
-                    x509.SubjectAlternativeName([x509.IPAddress(ipaddress.ip_address("127.0.0.1"))]),
+                    x509.SubjectAlternativeName(
+                        [x509.IPAddress(ipaddress.ip_address("127.0.0.1"))]
+                    ),
                     critical=False,
                 )
-                .sign(key, hashes.SHA256())
+                .add_extension(
+                    x509.BasicConstraints(ca=False, path_length=None), critical=True
+                )
+                .add_extension(
+                    x509.ExtendedKeyUsage([x509.ExtendedKeyUsageOID.SERVER_AUTH]),
+                    critical=False,
+                )
+                .sign(signing_key, hashes.SHA256())
             )
             cert_path = Path(self.temporary.name) / "test.pem"
             key_path = Path(self.temporary.name) / "test-key.pem"
@@ -74,7 +128,9 @@ class RelayTests(unittest.TestCase):
                     serialization.NoEncryption(),
                 )
             )
-            self.tls_context = ssl.create_default_context(cafile=str(cert_path))
+            self.tls_context = ssl.create_default_context(
+                cafile=str(ca_path or cert_path)
+            )
             arguments.extend(["--tls-cert", str(cert_path), "--tls-key", str(key_path)])
         else:
             arguments.append("--insecure-loopback")

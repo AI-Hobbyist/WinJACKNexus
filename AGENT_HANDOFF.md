@@ -4,7 +4,7 @@
 
 ## 当前检查点
 
-分支broadcast-system，跟踪origin/broadcast-system，禁止codex/前缀。S0 72aec55、S1 05da24f、S2 723273d、S3 85808b05a6f73fafdffe98cc9d8add4dd96f69c4均已提交推送，S3远端一致。S4现已实现且自动验收通过，待本次提交推送核对。S5尚未开始，未生成增量包。
+分支broadcast-system，跟踪origin/broadcast-system，禁止codex/前缀。S0 72aec55、S1 05da24f、S2 723273d、S3 85808b05a6f73fafdffe98cc9d8add4dd96f69c4均已提交推送，S3远端一致。S4已提交推送4a2008f62c24e459d0293ea0ea717ff4d867653b，远端核对一致。S5限定联调、自动验证及三个交付包现已完成，待最终提交推送核对。
 
 ## 已实现和验证
 
@@ -16,11 +16,14 @@
 - S4 Window.hpp/cpp独立窗口，左侧共享DragTreeWidget+父分类/名字/布局事务编辑，右侧每轨GroupPanel/单列FxLevelMeterWidget/ConsoleKnob/M/S/Listen。顶端全局服务器/发布者/Token保存及Start/Stop；保存停止全局发布，空Token保留旧凭据。匿名完整或分声道URL复制。关闭隐藏不销毁节点。共享global Theme Token，无业务QSS/硬编码颜色；四语言Node i18n v2域broadcast、locate目录；刷新遵循全局FPS。
 - S4 RED真实DLL未声明GUI：bc-s4-red.log。最终Release bc-s4-final-build.log；C++6/6通过2.29秒，含实际Windows GUI95检查；Service网络4/4通过21.360秒。日志bc-s4-final-cpp-tests.log、bc-s4-final-service-tests.log。GUI3次顶层显示；windows、真实HWND可见/exposed、系统Microsoft YaHei UI、96DPI/1.00、CJK glyph无缺失；截图build/bc-s4-window.png。完整GUI输出build/release/Testing/Temporary/LastTest.log。测试通过临时INI隔离全局设置，未写用户现有凭据；所有自建窗口/进程已关闭，无在途构建句柄。
 
-## 下一步（严格顺序）
+## S5最终状态与收尾
 
-1. 完成S4文档/diff检查、提交推送、ls-remote核对和额度查询，完成前不开始S5。
-2. S5限定实际Node DLL离线处理→UDP→独立relay→HTTP→CLI四布局与分声道联调。可调查现有Develop/Node/ClassicMixerJackFixture.cpp和其宿主调用点：已有离线JACK边界fixture，不要新增VIRT或伪称真实JACK。复用已实现编码/队列/Service，不扩展产品架构。
-3. 必要Release目标及限定回归通过后，写运行部署说明、依赖清单，交付增量覆盖包（非全量包）和独立server/listener包，清单及SHA256核对。包含QtNetwork/WebSockets/TLS实际依赖、新codec COPYΙNG；不纳入无关文件。S5提交推送核对后更新手册、完成目标。
+- 实际Node DLL回调由显式离线JACK fixture驱动（复用现有SubGraphJackFixture.cpp，不改生产API、不增加VIRT），4流/34端口。四布局完整/所有分声道经真实UDP/Rust/HTTP/CLI双格式核验，WAV证明一次-6.0206dB增益，默认全部监听输出全零，销毁后端口和客户端清零。不是实际JACK服务/硬件验证。
+- 最终Release build/bc-s5-final-build.log，加移除TLS诊断后的bc-s5-tls-final-build.log。C++6/6通过2.54秒（GUI仍95检查/3次显示）；Python41/41通过69.141秒。bc-s5-final-cpp-tests.log、bc-s5-final-network-tests.log，无在途句柄。
+- S5隔离部署TLS实际使用包内Schannel，Qt插件目录及PATH不借用SDK；拒绝未信任证书、仅进程信任临时CA后成功。既有环境实际OpenSSL；临时测试CA改用setCaCertificates的封闭信任集，证书校验保持，没有系统CA安装或生产策略变化。额外证书插件实验撤销，临时诊断已移除。RelayTests只扩展TLS夹具函数，已撤回其余无关Black格式差异。
+- 前50ms Opus峰值不适合作精确幅值证据；250ms样本后100ms稳态以同一误差限通过，未修改生产编码/增益。WAV精确样本与独立声道频率继续验证。
+- 交付文件：build/Broadcast-Client-Overlay-20261107.zip（2693206字节）、Broadcast-Server-20261107.zip（1799157）、Broadcast-Listener-20261107.zip（1727845），均有.zip.sha256。精确清单/x64 PE/JSON/CRC/逐文件及ZIP SHA-256通过，build/bc-s5-package.log。哈希详见Docs/Broadcast/S5交付记录.md，运行说明Docs/Broadcast/运行与替换说明.md。客户端是兼容安装增量包，不是完整包；Rust两包独立，不依赖Qt/JACK。未终止应用或覆盖运行目录。
+- 当前仅剩最终S5提交推送/远端核对和记录收尾；没有剩余产品实施阶段，不新增阶段。核对后将目标标记complete并交付三个包路径。无需等待人工验收。
 
 ## 未验证与用户决定
 
@@ -36,4 +39,4 @@
 
 ## 额度
 
-最近可靠接口10080分钟窗口已用20%、剩余80%，重置1794405624；未达到阈值，不猜订阅类型。S4推送后再查。不因额度充足省略完成时手册。
+最近可靠接口10080分钟窗口已用21%、剩余79%，重置1794405624；未达到阈值，不猜订阅类型。最终推送后再查。不因额度充足省略完成时手册。

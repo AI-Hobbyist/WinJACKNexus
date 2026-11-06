@@ -4,6 +4,7 @@
 #include <QJsonDocument>
 #include <QSslCertificate>
 #include <QSslConfiguration>
+#include <QSslSocket>
 #include <QTextStream>
 #include <QTimer>
 #include <cstdio>
@@ -16,11 +17,13 @@ int main(int argc, char **argv)
     if (argc == 4)
     {
         // Only this test process trusts the fixture CA; verification stays on.
+        // Use a closed test trust set instead of exporting the system CA list
+        // into Schannel's temporary certificate store.
         const auto certificates = QSslCertificate::fromPath(QString::fromUtf8(argv[3]));
         if (certificates.isEmpty())
             return 1;
         auto tls = QSslConfiguration::defaultConfiguration();
-        tls.addCaCertificates(certificates);
+        tls.setCaCertificates(certificates);
         QSslConfiguration::setDefaultConfiguration(tls);
     }
     WinJACKNexus::Broadcast::ConnectionSettings settings;
@@ -33,6 +36,9 @@ int main(int argc, char **argv)
         if (session.state() == QStringLiteral("connecting") || session.state() == QStringLiteral("stopped"))
             return;
         const QJsonObject report{{QStringLiteral("state"), session.state()},
+                                 {QStringLiteral("tlsBackend"), settings.serverBaseUrl.scheme() == "https"
+                                                                    ? QSslSocket::activeBackend()
+                                                                    : QString()},
                                  {QStringLiteral("udpPort"), session.udpPort()},
                                  {QStringLiteral("maxDatagram"), 1200}};
         std::printf("%s\n", QJsonDocument(report).toJson(QJsonDocument::Compact).constData());
