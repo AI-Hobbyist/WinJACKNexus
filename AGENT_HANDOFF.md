@@ -8,7 +8,9 @@
 - 现场 GUI 线程两次采样位于 Windows UI Automation/COM；仅短暂暂停 GUI 线程，音频线程未暂停，未终止进程。安装41 DLL 与上一交付包相符。测试 RED 证明折叠后 Analysis 第13行反向索引为0，退出码4。具体记录 Docs/ControlDeck/分类展开修复.md。
 - 最终必要 Release 构建通过；公共树及离线真实 Patchbay 宿主实窗回归均通过，覆盖三级分类、辅助功能缓存、0/16/100ms 快速切换、GUI 心跳和38模块迁移；广播 GUI 回归通过。日志 build/control-deck-tree-cache-{final-build,shared-tests,host-tests,broadcast-tests}.log。旧主题诊断回归也通过；最终测试不读取安装主题或用户设置。
 - 正常 Windows Qt 平台、系统字体，实窗截图已检查；无 offscreen/Computer Use。现场安装后人工复测、JACK/硬件/听音验收 SKIPPED（用户指令），不作为受阻条件。没有覆盖安装目录或启动/停止用户应用。
-- 当前 broadcast-system 跟踪 origin/broadcast-system；待提交推送本修复检查点，然后生成仅 ui.dll 的增量修复包并核验、记录包哈希，完成收尾提交推送。保留全部旧归档及无关未跟踪文件。没有新增功能阶段。
+- 修复检查点 a74b76294b1239d3ca0a7070d8c78046e37abaa4 已提交推送，ls-remote 核对一致。broadcast-system 跟踪 origin/broadcast-system；本次收尾提交仅记录交付结果，不改变运行源码。
+- 已交付 build/Control-Deck-Tree-Fix-20261107.zip，1060982 字节，3个文件加 manifest，仅 ui.dll/修复说明/许可证；SHA-256 6ab861a39938f7929acd91b0d3dd333d3ce5714a5cf9dd82eea69a3ed1cc58da，附 .zip.sha256。x64 PE、精确清单、CRC、逐文件/归档哈希通过，日志 build/control-deck-tree-cache-package.log。包内源码检查点为 a74b762，旧功能归档未改动。
+- 本任务实施、自动验证和增量交付全部完成，没有剩余实施阶段；用户可自行退出应用后替换 ui.dll。现场安装后复测按人工项跳过，不记 PASS。保留无关未跟踪 .omc/、midi_tools_node_ref/、themes/Furina/、themes/org.eryth.furina.wjnskin；诊断脚本与线程日志仅在被忽略的 build/ 下。
 - 最近可靠额度：10080分钟池已用29%，剩余71%，重置1794405624；未触发额度交接。当前文档按 writing-for-agents 技能整理。
 
 ## 当前检查点
