@@ -34,6 +34,18 @@ int main(int argc, char **argv)
     QByteArray restored;
     check(BC::Credentials::read(config.credentialTarget, restored, &error) && restored == token,
           "retrieve exact credential bytes without printing them");
+    check(BC::Credentials::write(config.credentialTarget, token + "\r\n", &error),
+          "token copied from CRLF file is accepted like the server token file");
+    check(BC::Credentials::read(config.credentialTarget, restored, &error) && restored == token,
+          "file line ending is not stored in the bearer token");
+    check(!BC::Credentials::write(config.credentialTarget, "\r\n \t", &error),
+          "whitespace-only token is rejected");
+    check(!BC::Credentials::write(config.credentialTarget, "first\nsecond", &error),
+          "embedded newline is rejected");
+    check(!BC::Credentials::write(config.credentialTarget, QByteArray("first\0second", 12), &error),
+          "embedded NUL is rejected");
+    check(BC::Credentials::read(config.credentialTarget, restored, &error) && restored == token,
+          "rejected updates preserve the previous credential");
     const auto loaded = BC::loadConnection(settings);
     check(loaded.serverBaseUrl == config.serverBaseUrl && loaded.publisherId == config.publisherId &&
               loaded.credentialTarget == config.credentialTarget,

@@ -1,8 +1,29 @@
 # Agent 交接手册
 
-更新：2026-11-07（Asia/Seoul）。最新任务为极坐标填充能量轮廓与独立 LFE 圈；本节为当前状态，后文为历史。
+更新：2026-11-07（Asia/Seoul）。最新任务为推流队列积压停止及stream_unavailable；本节为当前状态，后文为历史。
 
-## 当前任务：极坐标轮廓模式
+## 当前任务：广播发送队列积压
+
+- 用户截图源丢2048/过期288并报超队列预算停止，收听stream_unavailable。发现Worker每次唤醒仅读每流10ms，延迟调度下消费速率不足。生产Worker的离线真实网络RED（48kHz/256帧、20ms唤醒）丢43520/过期43200；未测量现场实际定时器间隔，不宣称现场必定20ms。
+- 最小修复src/bc/Service.cpp：每流每次唤醒最多10批，每批10ms，读空提前停；不变更100ms队列/时效、generation/连续性策略，不改JACK回调。新Develop/Broadcast/PumpProbe.cpp直接包含生产Worker实现，测试中设20ms，生产不加测试接口；CMake仅新增该探针目标，PumpTests.py经真实Rust/UDP/HTTP回归。
+- 必要Release构建通过build/bc-pump-final-build.log；PumpTests+ServiceTests共5项通过23.605秒，build/bc-pump-final-tests.log。延迟唤醒零丢/零过期且HTTP取到WAV；四布局完整及所有分声道WAV/Opus、两个owner、停止重启/移除和断网本地监听继续均通过。测试直接运行Python，不冒称CTest枚举。
+- 初始测试构建缺numbers头、Python缺模块路径均已修正。最终diff已检查/格式化，无offscreen或Computer Use，未启动/停止用户应用或JACK进程。真实现场JACK/域名WS-UDP/听音和人工安装验收SKIPPED（用户指令），未向远端发布测试音频。
+- 用户明确要求不要反复询问；优先从日志/源码/离线测试自主排查。原回复“4800/256”作为参考，回归采用48k/256，不再追问。继续保留无关未跟踪文件及旧包。文档Docs/Broadcast/推流队列积压修复.md。
+- 修复检查点e83cc0f9c52dc26873dcaa23762e50bc12535104已提交推送，远端核对一致。交付build/Broadcast-Queue-Fix-20261107.zip：1600588字节，3个payload加manifest，只含broadcast_runtime.dll、说明、许可证；SHA-256 f91d305d9a782aea45d40a598edc9f615d6e1da2c943a59df896e6b560525949，附.zip.sha256。x64 PE、清单、CRC、逐文件/归档哈希通过，build/bc-pump-package.log。已包含Token行尾修复，无需替换服务端或其他运行DLL。
+- 本任务实施、自动验证和增量交付完成，无剩余实施阶段。此收尾提交仅记录交付，运行源码保持e83cc0f；用户正常退出后自行覆盖DLL并重新开始推流。现场验收按用户指令跳过，不记PASS、不作为受阻条件。
+- 最近可靠额度10080分钟池已用33%、剩余67%，重置1794405624，未触发交接阈值。
+
+## 历史任务：广播Token行尾修复
+
+- 用户从 build/Remote-Audio-Config-20261107.zip 的publish.token复制后保存失败。仅检查字节元数据：64正文+CRLF=66字节，无BOM/NUL，未输出Token。服务端trim文件而旧客户端拒绝行尾；隔离RED复现同一错误。
+- 已在 src/bc/Connection.cpp 的 Credentials::write 规范化首尾ASCII空白，保留正文长度/中间CRLF/NUL校验，空白正文仍拒绝，失败不覆盖旧凭据。Develop/Broadcast/ConnectionTests.cpp新增6个回归检查。没有改变服务端协议或凭据存储位置。
+- 必要Release构建通过 build/bc-token-crlf-final-build.log；凭据与真实Windows广播GUI测试2/2通过（3.40秒），build/bc-token-crlf-final-tests.log。测试仅临时设置和唯一虚构凭据，无用户凭据访问/写入。无offscreen/Computer Use，未覆盖安装目录或启动/停止用户应用。
+- 匿名HTTPS检查已确认该域名DNS/TLS及/bc/publish(401 unauthorized)、/bc/listen(400 invalid_publisher)反代可达。带真实Token的检查首次被自动审批拒绝且未执行，已告知用户。用户随后明确“授权验证”，重新请求指定域名/bc/publish返回400 websocket_required，按服务端先认证后校验升级的路径证明该Token通过认证。没有显示Token、建立WS会话或发布流；实际WS/UDP音频仍未验证。
+- 修复源码98993c0c7e331837689c2e5c62e76dc353e490f9已提交推送，远端核对一致。文档 Docs/Broadcast/Token行尾修复.md；当前收尾记录远端认证结果和最终两包哈希，运行源码未再变动。保持broadcast-system及同名上游，保留所有旧包及无关未跟踪文件。
+- 最终交付 build/Broadcast-Token-Fix-20261107.zip，1600411字节，3个payload加manifest；SHA-256 1c8d93b3b4ce3bc3ffe1dcddeb57957aabf00190739ac06411aefe0f565dff8b。仅broadcast_runtime.dll、说明、许可证；x64 PE/CRC/精确清单/哈希通过，源码检查点98993c0。配置副本 build/Remote-Audio-Config-20261107-No-CRLF.zip，1382字节，SHA-256 25b29dd7e505ff691fff7f63508df2a3b59fdabd7ed12c60f22bb7e9dcf53bd5；仅删除publish.token尾部CRLF，正文及其他三个文件字节不变。原配置包保持不变，含Token的副本只在忽略的build目录，未入Git。两包均附.zip.sha256，日志build/bc-token-crlf-package.log。
+- 本任务实施、回归、授权远端认证检查和增量交付均完成，没有剩余实施。未自动安装或启动用户应用；真实WS/UDP/听音与人工现场安装验收SKIPPED（用户指令），不记PASS。最近可靠额度10080分钟池已用32%，剩余68%，重置1794405624，无额度交接。
+
+## 历史任务：极坐标轮廓模式
 
 - 实施及自动验证完成。新增右键显示模式“声道射线”（保留默认）/“填充能量轮廓”，支持1/2/6/8声道；复用 common/MixerPolarCurve 功率域插值、时间平滑和公共 drawPolarCurve，无新增算法或音频回调工作。5.1/7.1 中 LFE 独立颜色的中心强度圈按自身 RMS 缩放，不参与空间方位插值。
 - 只修改公共 ui 的 AudioAnalysisWidget.cpp 和 ControlDeckLayout.cpp；沿用现有 AnalysisCapture.overlay 和 JSON analysisOverlay，无公共结构/模块 ABI 改动。新增3个全局 Token analysis-polar-stroke/fill/lfe-stroke，16个极坐标四语言 catalog。文档规范、组件指南、UI API、Wiki源及极坐标轮廓替换说明已同步。
