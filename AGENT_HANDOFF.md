@@ -8,7 +8,9 @@
 - 只修改公共 ui 的 AudioAnalysisWidget.cpp 和 ControlDeckLayout.cpp；沿用现有 AnalysisCapture.overlay 和 JSON analysisOverlay，无公共结构/模块 ABI 改动。新增3个全局 Token analysis-polar-stroke/fill/lfe-stroke，16个极坐标四语言 catalog。文档规范、组件指南、UI API、Wiki源及极坐标轮廓替换说明已同步。
 - 必要 Release 构建及24分析/响度布局最终实窗回归全部通过，21次窗口/菜单显示；覆盖菜单默认与切换、保存恢复、旧JSON缺省、填充透明度、LFE token改色和LFE独立静音圈消失（其他声道仍有信号）、既有分析/响度功能。日志 build/control-deck-polar-contour-final-{build,tests}.log；四种轮廓截图在 build 下，7.1已检查。16个运行catalog与源码字节一致。
 - 初次实窗检查发现填充 Token 使用了主题系统不支持的8位HEX，已改成受支持的 rgba(67,199,168,0.18)，增加 alpha 检查，重新构建和完整回归通过。没有改动主题解析器或现有主题行为。
-- 当前待完成：检查点提交推送，发布实际 Wiki，再生成只含 ui.dll、control_deck.dll、16个catalog及说明/许可证的增量包；校验后记录包哈希并完成收尾提交。Wiki远端 Control-Deck.md 已读取并核对与原基线相符，保留原文追加本功能说明。
+- 源码检查点 be0cdbe64601aea418fb5d668b5083bf06b365a0 已提交推送并核对远端一致。实际 Wiki master 6ad9e7d1b68dda4eeac4f6093474ed0f464b6a4b 已发布并核对；保留原文追加新模式、LFE 和主题说明，页面 https://github.com/AI-Hobbyist/WinJACKNexus/wiki/Control-Deck 。
+- 已交付 build/Control-Deck-Polar-Contour-20261107.zip，1232453字节，20个payload加manifest；ui.dll、control_deck.dll、16个catalog及说明/许可证。SHA-256 8e0d7bf5a18bdc8a08957b97945f464b4759ef64f90f6edaa645c1cebd9c45ef，附.zip.sha256；x64 PE、catalog源码一致性、精确清单、CRC、逐文件及归档SHA-256通过。日志 build/control-deck-polar-contour-{package,wiki}.log。包内源码检查点为be0cdbe；未修改旧归档。
+- 本任务实施、自动验证、Wiki发布和增量交付全部完成，无剩余实施阶段。当前收尾提交只记录交付结果；用户可自行正常退出后按包内说明覆盖。人工现场验收按指令跳过，不作为受阻条件。
 - 未覆盖安装目录、未启动/停止用户应用或音频进程，无 Computer Use/offscreen。正常Windows Qt实窗、系统字体；人工安装、JACK/硬件/听音验收 SKIPPED（用户指令）。broadcast-system 跟踪 origin/broadcast-system，禁止codex/前缀；保留旧归档及无关未跟踪文件。
 - 最近可靠额度10080分钟池已用30%、剩余70%，重置1794405624；未触发交接阈值。
 
