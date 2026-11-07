@@ -26,6 +26,9 @@ int main(int argc, char **argv)
     const auto ports = state.ports();
     check(ports.size() == 16 && ports.front().input && !ports.back().input,
           "7.1 has eight input and eight same-layout monitor ports");
+    check(ports.front().name == QStringLiteral("节目分区-新闻-主输出-in-L") &&
+              ports.back().name == QStringLiteral("节目分区-新闻-主输出-out-Rrb"),
+          "port names include nested categories, stream name, direction and speaker");
     state.streams[0].name = QStringLiteral("改名");
     state.streams[0].gainDb = -6;
     state.streams[0].mute = true;
@@ -38,8 +41,20 @@ int main(int argc, char **argv)
     check(restored.streams[0].id == stream && restored.streams[0].gainDb == -6 && restored.streams[0].mute &&
               !restored.streams[0].listen && !restored.streams[0].solo,
           "restore retains broadcast controls and always disarms Listen/S");
-    check(restored.ports() == ports && !restored.toJson().contains(QStringLiteral("serverBaseUrl")),
-          "display rename preserves port identity; project cannot persist global connection");
+    check(restored.ports().front().name == QStringLiteral("节目分区-新闻-改名-in-L") &&
+              restored.ports().front().streamId == ports.front().streamId &&
+              !restored.toJson().contains(QStringLiteral("serverBaseUrl")),
+          "display rename updates port name while retaining stream identity");
+    auto duplicateNames = restored;
+    duplicateNames.addStream(duplicateNames.streams[0].name, BC::Layout::stereo, child);
+    const auto duplicatePorts = duplicateNames.ports();
+    check(duplicatePorts.front().name != duplicatePorts[16].name,
+          "duplicate stream paths have distinct JACK names");
+    auto longNames = restored;
+    longNames.streams[0].name = QString(200, QChar(0x97f3));
+    check(longNames.ports().front().name.toUtf8().size() < 190 &&
+              !longNames.ports().front().name.contains(QChar::ReplacementCharacter),
+          "long Unicode port names fit JACK limits without broken UTF-8");
     auto invalid = restored;
     invalid.categories[0].parent = child;
     check(!invalid.validate(), "category cycle rejected");

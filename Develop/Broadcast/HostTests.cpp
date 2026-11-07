@@ -47,6 +47,23 @@ int main(int argc, char **argv)
         return 1;
     }
     std::puts("PASS default stereo broadcast node present in canvas snapshot with four ports");
+    auto &api = WinJACKNexus::Audio::JackApi::instance();
+    auto *original = api.portByName(observer.nativeHandle(), (id + ":Stream 1-in-L").c_str());
+    WinJACKNexus::Common::Broadcast::State state;
+    if (!WinJACKNexus::Common::Broadcast::State::fromJson(settings, state) || !original)
+        return 1;
+    const auto parent = state.addCategory(QStringLiteral("节目"));
+    const auto child = state.addCategory(QStringLiteral("新闻"), parent);
+    state.streams[0].category = child;
+    state.streams[0].name = QStringLiteral("主输出");
+    if (!nodes[0]->restoreSettingsJson(
+            QJsonDocument(state.toJson()).toJson(QJsonDocument::Compact).toStdString()))
+        return 1;
+    const auto renamed = (QString::fromStdString(id) + QStringLiteral(":节目-新闻-主输出-in-L")).toUtf8();
+    if (api.portByName(observer.nativeHandle(), renamed.constData()) != original)
+        return 1;
+    std::puts("PASS category/name edit renames the existing JACK port without replacing its handle");
+    snapshot = Snapshot::capture(observer);
     PatchbayCanvas canvas;
     canvas.resize(640, 480);
     canvas.setSnapshot(snapshot);

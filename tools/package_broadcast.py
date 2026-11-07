@@ -87,6 +87,7 @@ def main() -> None:
     overlay = dict(common)
     for path in [
         "broadcast_runtime.dll",
+        "ui.dll",
         "mod_patchbay.dll",
         "nodes/lan_remote_audio/mod_broadcast.dll",
     ]:

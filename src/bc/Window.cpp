@@ -16,6 +16,7 @@
 #include <WinJACKNexus/UI/ConsoleControls.hpp>
 #include <WinJACKNexus/UI/FxLevelMeterWidget.hpp>
 #include <WinJACKNexus/UI/LocalizedText.hpp>
+#include <WinJACKNexus/UI/MidiToolsTheme.hpp>
 #include <algorithm>
 #include <cmath>
 #include <limits>
@@ -67,7 +68,7 @@ class BroadcastWindow::Impl
         QString id;
         UI::FxLevelMeterWidget *meter;
         C::ConsoleKnob *gain;
-        C::ToggleField *mute, *solo, *listen;
+        C::ActionButton *mute, *solo, *listen;
     };
 
     BroadcastWindow &window;
@@ -318,7 +319,7 @@ class BroadcastWindow::Impl
         UI::bindRefreshTimer(refreshTimer, &window);
         refreshTimer.setObjectName(QStringLiteral("bcRefreshTimer"));
         QObject::connect(&refreshTimer, &QTimer::timeout, &window, [this] { refresh(); });
-        C::bindConsoleTheme(&window, QString::fromLatin1(scope));
+        UI::bindMidiToolsTheme(&window, QString::fromLatin1(scope));
         const auto language = [this]
         {
             layout->setItemText(0, text("layout.mono", "Mono"));
@@ -431,15 +432,23 @@ class BroadcastWindow::Impl
         }
         for (const auto &stream : state.streams)
         {
-            auto *panel = new C::GroupPanel(stream.name, strips);
+            auto *panel = new C::GroupPanel({}, strips);
             panel->setObjectName(QStringLiteral("bcStrip_") + stream.id);
-            panel->setFixedWidth(180);
+            panel->setFixedWidth(124);
             auto *column = new QVBoxLayout(panel);
+            auto *title = new C::TextLabel(stream.name, panel);
+            title->setObjectName(QStringLiteral("bcStreamName_") + stream.id);
+            title->setAlignment(Qt::AlignCenter);
+            title->setToolTip(stream.name);
+            column->addWidget(title);
             auto *path =
                 new C::TextLabel(state.categoryPath(stream.category).join(QStringLiteral(" / ")), panel);
-            path->setWordWrap(true);
+            path->setObjectName(QStringLiteral("bcCategoryPath_") + stream.id);
+            path->setAlignment(Qt::AlignCenter);
+            path->setToolTip(path->text());
             column->addWidget(path);
             auto *layoutLabel = new C::TextLabel(Model::layoutName(stream.layout), panel);
+            layoutLabel->setAlignment(Qt::AlignCenter);
             if (stream.layout == Model::Layout::mono)
                 bind(layoutLabel, "text", "layout.mono", "Mono");
             else if (stream.layout == Model::Layout::stereo)
@@ -450,11 +459,17 @@ class BroadcastWindow::Impl
             if (auto *manager = UI::I18nManager::installed())
                 manager->bind(meter, [meter] { meter->setSingleChannel(true, text("meter.peak", "Peak")); });
             meter->setVertical(true);
+            meter->setSurfaceVisible(false);
+            meter->setReadoutBelow(true);
+            meter->setProperty("midiToolsPassiveSurface", true);
+            meter->setFixedWidth(64);
             meter->setMinimumHeight(240);
-            column->addWidget(meter, 1);
+            column->addWidget(meter, 1, Qt::AlignHCenter);
             auto *switches = new QHBoxLayout;
-            auto *mute = new C::ToggleField(QStringLiteral("M"), panel);
-            auto *solo = new C::ToggleField(QStringLiteral("S"), panel);
+            auto *mute = new C::ActionButton(QStringLiteral("M"), panel);
+            auto *solo = new C::ActionButton(QStringLiteral("S"), panel);
+            mute->setCheckable(true);
+            solo->setCheckable(true);
             mute->setObjectName(QStringLiteral("bcMute_") + stream.id);
             solo->setObjectName(QStringLiteral("bcSolo_") + stream.id);
             bind(mute, "toolTip", "mute.help", "Mute broadcast and local monitor");
@@ -462,26 +477,28 @@ class BroadcastWindow::Impl
             switches->addWidget(mute);
             switches->addWidget(solo);
             column->addLayout(switches);
-            auto *listen = new C::ToggleField({}, panel);
+            auto *listen = new C::ActionButton({}, panel);
+            listen->setCheckable(true);
             listen->setObjectName(QStringLiteral("bcMonitor_") + stream.id);
             bind(listen, "text", "monitor", "Live monitor");
             column->addWidget(listen);
             auto *gain = new C::ConsoleKnob(QString::fromLatin1(scope), {-96, 12, 0, 1}, false, panel);
+            gain->setProperty("midiToolsPassiveSurface", true);
             gain->setObjectName(QStringLiteral("bcGain_") + stream.id);
             gain->setMinimumIsSilence(false);
             gain->setUnit(QStringLiteral("dB"));
             column->addWidget(gain, 0, Qt::AlignHCenter);
             cards.push_back({stream.id, meter, gain, mute, solo, listen});
-            QObject::connect(mute, &QCheckBox::toggled, &window, [this, id = stream.id](bool value)
+            QObject::connect(mute, &QPushButton::toggled, &window, [this, id = stream.id](bool value)
                              { changeStream(id, [value](auto &item) { item.mute = value; }); });
-            QObject::connect(solo, &QCheckBox::toggled, &window, [this, id = stream.id](bool value)
+            QObject::connect(solo, &QPushButton::toggled, &window, [this, id = stream.id](bool value)
                              { changeStream(id, [value](auto &item) { item.solo = value; }); });
-            QObject::connect(listen, &QCheckBox::toggled, &window, [this, id = stream.id](bool value)
+            QObject::connect(listen, &QPushButton::toggled, &window, [this, id = stream.id](bool value)
                              { changeStream(id, [value](auto &item) { item.listen = value; }); });
             gain->onChanged([this, id = stream.id](double value)
                             { changeStream(id, [value](auto &item) { item.gainDb = value; }); });
             stripLayout->addWidget(panel);
-            C::bindConsoleTheme(panel, QString::fromLatin1(scope));
+            UI::bindMidiToolsTheme(panel, QString::fromLatin1(scope));
         }
         selectItem();
     }
@@ -509,7 +526,8 @@ class BroadcastWindow::Impl
             card.listen->setChecked(stream.listen);
             card.gain->setValue(stream.gainDb);
             const auto peak = node.takePeak(unsigned(index));
-            card.meter->setLevels(peak > 0 ? 20 * std::log10(peak) : -60, -60);
+            card.meter->setLevels(peak > 0 ? 20 * std::log10(peak) : -std::numeric_limits<double>::infinity(),
+                                  -std::numeric_limits<double>::infinity());
         }
         const auto currentStatus = Service::instance().status();
         status->setText(text("status", "Publishing: {state} | streams: {count}",

@@ -121,14 +121,28 @@ QStringList State::categoryPath(const QString &category) const
 std::vector<Port> State::ports() const
 {
     std::vector<Port> result;
+    QSet<QString> usedPrefixes;
     for (const auto &stream : streams)
     {
-        auto prefix = stream.id;
-        prefix.remove(QLatin1Char('-'));
+        auto parts = categoryPath(stream.category);
+        parts.push_back(stream.name);
+        auto prefix = parts.join(QLatin1Char('-'));
+        prefix.replace(QLatin1Char(':'), QLatin1Char('-'));
+        // Leave room for the client name and speaker suffix within JACK's
+        // 256-byte full port name. Disambiguate duplicate or shortened paths.
+        if (prefix.toUtf8().size() > 136 || usedPrefixes.contains(prefix))
+        {
+            while (prefix.toUtf8().size() > 100)
+                prefix.chop(1);
+            if (!prefix.isEmpty() && prefix.back().isHighSurrogate())
+                prefix.chop(1);
+            prefix += QLatin1Char('-') + stream.id;
+        }
+        usedPrefixes.insert(prefix);
         for (const bool input : {true, false})
             for (const auto &role : channelNames(stream.layout))
                 result.push_back(
-                    {QStringLiteral("bc_%1_%2_%3")
+                    {QStringLiteral("%1-%2-%3")
                          .arg(prefix, input ? QStringLiteral("in") : QStringLiteral("out"), role),
                      stream.id, role, input});
     }

@@ -217,19 +217,24 @@ bool BroadcastNode::apply(Model::State candidate)
 
 bool BroadcastNode::rebuildPorts(const Model::State &candidate)
 {
+    const auto keyFor = [](const Model::Port &port)
+    { return port.streamId + (port.input ? QStringLiteral("/in/") : QStringLiteral("/out/")) + port.role; };
+    const auto temporaryName = []
+    { return QStringLiteral("bc_tmp_") + QUuid::createUuid().toString(QUuid::WithoutBraces); };
     std::map<QString, std::unique_ptr<Audio::JackPort>> additions;
     const auto descriptions = candidate.ports();
     QSet<QString> retained;
     for (const auto &description : descriptions)
     {
-        retained.insert(description.name);
-        if (ports_.contains(description.name))
+        const auto key = keyFor(description);
+        retained.insert(key);
+        if (ports_.contains(key))
             continue;
         auto port = std::make_unique<Audio::JackPort>();
-        if (!port->registerPort(client_, description.name.toUtf8().constData(), JACK_DEFAULT_AUDIO_TYPE,
+        if (!port->registerPort(client_, temporaryName().toUtf8().constData(), JACK_DEFAULT_AUDIO_TYPE,
                                 description.input ? JackPortIsInput : JackPortIsOutput))
             return false;
-        additions.emplace(description.name, std::move(port));
+        additions.emplace(key, std::move(port));
     }
     std::vector<Runtime> next(candidate.streams.size());
     for (std::size_t index = 0; index < candidate.streams.size(); ++index)
@@ -243,18 +248,57 @@ bool BroadcastNode::rebuildPorts(const Model::State &candidate)
         if (!next[index].audio)
             next[index].audio = std::make_shared<Model::AudioStream>(client_.sampleRate(), stream.controls());
     }
+    struct Rename
+    {
+        Audio::JackPort *port;
+        QString original, temporary, desired;
+    };
+    std::vector<Rename> renames;
     std::size_t portIndex = 0;
     for (std::size_t stream = 0; stream < candidate.streams.size(); ++stream)
         for (const bool input : {true, false})
             for (unsigned channel = 0; channel < Model::channelCount(candidate.streams[stream].layout);
                  ++channel)
             {
-                const auto &name = descriptions[portIndex++].name;
-                auto *port = ports_.contains(name) ? ports_.at(name).get() : additions.at(name).get();
+                const auto &description = descriptions[portIndex++];
+                const auto key = keyFor(description);
+                auto *port = ports_.contains(key) ? ports_.at(key).get() : additions.at(key).get();
                 (input ? next[stream].inputs : next[stream].outputs)[channel] = port;
+                const auto current = QString::fromUtf8(port->shortName());
+                if (current != description.name)
+                    renames.push_back({port, current, temporaryName(), description.name});
             }
-    // All allocations and registrations succeeded. Retain existing JackPort
-    // objects/connections; only genuinely removed ports are unregistered.
+    // Removed ports may still own a name required by a retained stream.
+    for (const auto &[key, port] : ports_)
+        if (!retained.contains(key))
+        {
+            const auto temporary = temporaryName();
+            renames.push_back({port.get(), QString::fromUtf8(port->shortName()), temporary, temporary});
+        }
+    // Temporary names allow simultaneous path/name swaps without replacing
+    // existing JACK ports or dropping their connections.
+    std::size_t staged = 0;
+    for (auto &rename : renames)
+    {
+        if (!rename.port->rename(rename.temporary.toUtf8().constData()))
+        {
+            for (std::size_t index = 0; index < staged; ++index)
+                renames[index].port->rename(renames[index].original.toUtf8().constData());
+            return false;
+        }
+        ++staged;
+    }
+    for (auto &rename : renames)
+        if (rename.desired != rename.temporary && !rename.port->rename(rename.desired.toUtf8().constData()))
+        {
+            for (auto &entry : renames)
+                entry.port->rename(entry.temporary.toUtf8().constData());
+            for (auto &entry : renames)
+                entry.port->rename(entry.original.toUtf8().constData());
+            return false;
+        }
+    // All allocations, registrations and renames succeeded. Stable stream/role
+    // keys retain port objects even when their user-facing path changes.
     ports_.merge(additions);
     for (auto entry = ports_.begin(); entry != ports_.end();)
         if (!retained.contains(entry->first))

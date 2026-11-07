@@ -110,9 +110,13 @@ outputs, Listen/Solo off). The final stream cannot be removed by the editor or
 stream. Restoring nonempty state retains its stream IDs and does not append a default.
 It advertises only `JACK_NODE`; VIRT creation is
 rejected and its virtual API is null. Its state schema version 1 contains
-clientName, categories and streams. Stream IDs are canonical UUIDs; stable
-JACK input/monitor names derive from these IDs and speaker roles, independently
-of user display names. Restoring a live instance retains its IDs; a second live
+clientName, categories and streams. Stream IDs are canonical UUIDs. JACK port
+names follow category-subcategory-stream-in/out-speaker (for example
+News-Interview-Main-in-L). Duplicate/long paths receive a UUID suffix and are
+bounded to JACK name limits. Internal UUID/direction/speaker keys retain existing
+JACK port objects across category or name edits; the public names are renamed in
+place. Older projects with saved UUID-based JACK connections require reconnecting
+the renamed ports and saving the project. Restoring a live instance retains its IDs; a second live
 instance restoring occupied IDs receives new stream IDs. Destruction releases
 the reservations. Global server settings and credentials are not project state.
 

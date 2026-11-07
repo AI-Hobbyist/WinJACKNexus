@@ -180,11 +180,11 @@ int main(int argc, char **argv)
                       "one overall meter per multichannel stream");
             }
         check(meters == 2, "exactly two overall meters for two streams");
-        auto *monitor = control<QCheckBox>(window, "bcMonitor_" + first);
+        auto *monitor = control<QPushButton>(window, "bcMonitor_" + first);
         check(!monitor->isChecked(), "new monitor defaults off");
         monitor->setChecked(true);
-        control<QCheckBox>(window, "bcSolo_" + first)->setChecked(true);
-        control<QCheckBox>(window, "bcMute_" + first)->setChecked(true);
+        control<QPushButton>(window, "bcSolo_" + first)->setChecked(true);
+        control<QPushButton>(window, "bcMute_" + first)->setChecked(true);
         auto *gain = control<UI::Controls::ConsoleKnob>(window, "bcGain_" + first);
         QKeyEvent key(QEvent::KeyPress, Qt::Key_Right, Qt::NoModifier);
         QApplication::sendEvent(gain, &key);
@@ -195,12 +195,12 @@ int main(int argc, char **argv)
         check(QWidget::find(reinterpret_cast<WId>(node->createWindow(nullptr))) == window,
               "reopening reuses independent window");
         check(QTest::qWaitForWindowExposed(window), "reopened real window exposed");
-        check(monitor->isChecked() && control<QCheckBox>(window, "bcSolo_" + first)->isChecked(),
+        check(monitor->isChecked() && control<QPushButton>(window, "bcSolo_" + first)->isChecked(),
               "closing and reopening preserves live Listen and Solo");
         const auto saved = QByteArray(get(node));
         check(set(node, saved.constData()), "restore current project through real DLL");
         QTest::qWait(40);
-        check(!monitor->isChecked() && !control<QCheckBox>(window, "bcSolo_" + first)->isChecked(),
+        check(!monitor->isChecked() && !control<QPushButton>(window, "bcSolo_" + first)->isChecked(),
               "project restore safely resets Listen and Solo");
         auto *tree = control<QTreeWidget>(window, "bcTree");
         auto select = [&](const QString &id)
@@ -210,12 +210,37 @@ int main(int argc, char **argv)
                     tree->setCurrentItem(*item);
         };
         select(first);
-        name->setText(QStringLiteral("改名后的主输出"));
+        const auto longName = QStringLiteral("改名后的主输出") + QString(24, QChar(0x97f3));
+        name->setText(longName);
         parent->setCurrentIndex(parent->findData(root));
         click("bcApplyItem");
         check(state().streams[0].id == first && state().streams[0].category == root &&
-                  state().streams[0].name == QStringLiteral("改名后的主输出"),
+                  state().streams[0].name == longName,
               "rename and move retain stream identity");
+        auto *strip = control<UI::Controls::GroupPanel>(window, "bcStrip_" + first);
+        auto *title = control<UI::Controls::TextLabel>(window, "bcStreamName_" + first);
+        auto *pathLabel = control<UI::Controls::TextLabel>(window, "bcCategoryPath_" + first);
+        check(strip->width() == 124 && title->alignment() == Qt::AlignCenter &&
+                  pathLabel->alignment() == Qt::AlignCenter && !title->wordWrap() &&
+                  title->toolTip() == longName &&
+                  title->fontMetrics().horizontalAdvance(longName) > title->width(),
+              "compact strip centers names/categories and retains full long-name tooltip for elision");
+        check(!title->autoFillBackground() && !title->testAttribute(Qt::WA_StyledBackground) &&
+                  !control<UI::Controls::ConsoleKnob>(window, "bcGain_" + first)->autoFillBackground() &&
+                  !control<UI::Controls::ConsoleKnob>(window, "bcGain_" + first)
+                       ->testAttribute(Qt::WA_StyledBackground),
+              "shared passive surfaces have no opaque black rectangles");
+        for (auto *widget : strip->findChildren<QWidget *>())
+            if (auto *meter = dynamic_cast<UI::FxLevelMeterWidget *>(widget))
+                check(meter->width() == 64 && meter->property("wjn.hideMeterSurface").toBool() &&
+                          meter->property("wjn.readoutBelow").toBool() && meter->inputDb() == -72,
+                      "narrow silent meter displays negative infinity below its transparent bar");
+        check(
+            dynamic_cast<UI::Controls::ActionButton *>(control<QPushButton>(window, "bcMute_" + first)) &&
+                dynamic_cast<UI::Controls::ActionButton *>(control<QPushButton>(window, "bcSolo_" + first)) &&
+                dynamic_cast<UI::Controls::ActionButton *>(
+                    control<QPushButton>(window, "bcMonitor_" + first)),
+            "M/S/monitor are shared checkable action buttons");
         auto *channels = control<QComboBox>(window, "bcListenChannel");
         channels->setCurrentIndex(channels->findData(QStringLiteral("Rrb")));
         click("bcCopyUrl");
@@ -264,7 +289,7 @@ int main(int argc, char **argv)
         QTest::qWait(150);
         const auto screenshot = window->screen()->grabWindow(window->winId());
         check(!screenshot.isNull() &&
-                  screenshot.save(application.applicationDirPath() + "/../../bc-s4-window.png"),
+                  screenshot.save(application.applicationDirPath() + "/../../bc-compact-window.png"),
               "captured actual stable visible Windows window");
         auto *other = create(WJN_NODE_MODE_JACK);
         auto *otherWindow = QWidget::find(reinterpret_cast<WId>(other->createWindow(nullptr)));

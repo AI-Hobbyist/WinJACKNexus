@@ -127,14 +127,21 @@ void FxLevelMeterWidget::setSurfaceVisible(bool visible)
     update();
 }
 
+void FxLevelMeterWidget::setReadoutBelow(bool enabled)
+{
+    setProperty("wjn.readoutBelow", enabled);
+    update();
+}
+
 QRectF FxLevelMeterWidget::barRect(int row) const noexcept
 {
     if (property("wjn.singleChannel").toBool() && property("wjn.vertical").toBool())
     {
         const qreal margin = style()->pixelMetric(QStyle::PM_LayoutLeftMargin);
         const qreal labelHeight = fontMetrics().height();
+        const qreal readoutHeight = property("wjn.readoutBelow").toBool() ? labelHeight + margin : 0;
         return {margin, labelHeight + margin, std::max(1.0, width() - 2 * margin - 24),
-                std::max(1.0, height() - labelHeight - 2 * margin)};
+                std::max(1.0, height() - labelHeight - 2 * margin - readoutHeight)};
     }
     const QFontMetrics metrics(font());
     const auto labelWidth =
@@ -211,10 +218,18 @@ void FxLevelMeterWidget::paintEvent(QPaintEvent *)
         Controls::drawMeter(painter, meterBounds, value, peakDb_[static_cast<std::size_t>(row)], style);
         painter.setPen(themed("meter-level-readout", QColor("#f3f8ff")));
         const double readout = row == 0 ? readoutInputDb_ : readoutOutputDb_;
-        painter.drawText(bar.adjusted(4, 0, -4, 0),
-                         vertical ? Qt::AlignHCenter | Qt::AlignBottom : Qt::AlignRight | Qt::AlignVCenter,
-                         readout <= minimumDb + .05 ? QStringLiteral("−∞")
-                                                    : QStringLiteral("%1 dB").arg(QString::number(readout, 'f', 0)));
+        const bool readoutBelow = vertical && property("wjn.readoutBelow").toBool();
+        const qreal margin = this->style()->pixelMetric(QStyle::PM_LayoutLeftMargin);
+        const QRectF readoutBounds =
+            readoutBelow ? QRectF(margin, bar.bottom() + margin, width() - 2 * margin, fontMetrics().height())
+                         : bar.adjusted(4, 0, -4, 0);
+        painter.drawText(
+            readoutBounds,
+            readoutBelow
+                ? Qt::AlignCenter
+                : (vertical ? Qt::AlignHCenter | Qt::AlignBottom : Qt::AlignRight | Qt::AlignVCenter),
+            readout <= minimumDb + .05 ? QStringLiteral("−∞")
+                                       : QStringLiteral("%1 dB").arg(QString::number(readout, 'f', 0)));
     }
 }
 
