@@ -1,6 +1,15 @@
 # Agent 交接手册
 
-更新：2026-11-07（Asia/Seoul）。当前 Control Deck 全部需求已完成并交付；最终包与提交状态见文末。前文检查点和广播记录保留为历史。
+更新：2026-11-07（Asia/Seoul）。最新任务为 Control Deck 分类折叠后展开无响应修复；本节为当前状态，后文为历史。
+
+## 当前任务：分类展开卡死修复
+
+- 实施及自动验证完成：公共 DragTreeWidget 在折叠/展开信号中同步发送辅助功能 ModelReset，修正 Qt 6.10.3 过期行缓存；动画、UIA 和音频行为保持。修改 src/ui/src/Controls.cpp、src/control_deck/CategoryTests.cpp；公共行为已写入 Docs/UI-API.md。
+- 现场 GUI 线程两次采样位于 Windows UI Automation/COM；仅短暂暂停 GUI 线程，音频线程未暂停，未终止进程。安装41 DLL 与上一交付包相符。测试 RED 证明折叠后 Analysis 第13行反向索引为0，退出码4。具体记录 Docs/ControlDeck/分类展开修复.md。
+- 最终必要 Release 构建通过；公共树及离线真实 Patchbay 宿主实窗回归均通过，覆盖三级分类、辅助功能缓存、0/16/100ms 快速切换、GUI 心跳和38模块迁移；广播 GUI 回归通过。日志 build/control-deck-tree-cache-{final-build,shared-tests,host-tests,broadcast-tests}.log。旧主题诊断回归也通过；最终测试不读取安装主题或用户设置。
+- 正常 Windows Qt 平台、系统字体，实窗截图已检查；无 offscreen/Computer Use。现场安装后人工复测、JACK/硬件/听音验收 SKIPPED（用户指令），不作为受阻条件。没有覆盖安装目录或启动/停止用户应用。
+- 当前 broadcast-system 跟踪 origin/broadcast-system；待提交推送本修复检查点，然后生成仅 ui.dll 的增量修复包并核验、记录包哈希，完成收尾提交推送。保留全部旧归档及无关未跟踪文件。没有新增功能阶段。
+- 最近可靠额度：10080分钟池已用29%，剩余71%，重置1794405624；未触发额度交接。当前文档按 writing-for-agents 技能整理。
 
 ## 当前检查点
 
