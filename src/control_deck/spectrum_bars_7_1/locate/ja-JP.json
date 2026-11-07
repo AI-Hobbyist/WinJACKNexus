@@ -1,0 +1,17 @@
+{
+  "formatVersion": 1,
+  "catalogVersion": 1,
+  "moduleId": "winjacknexus-signal-switch-spectrum-bars-7-1",
+  "language": "ja-JP",
+  "domains": {
+    "signalSwitch.spectrum-bars-7-1": {
+      "name": "スペクトル棒グラフ 7.1",
+      "analysisCombined": "総合表示",
+      "analysisSeparate": "チャンネル別",
+      "analysisLinear": "線形周波数",
+      "analysisLog": "対数周波数",
+      "analysisMode": "表示モード",
+      "analysisScale": "周波数スケール"
+    }
+  }
+}

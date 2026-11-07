@@ -1,0 +1,17 @@
+{
+  "formatVersion": 1,
+  "catalogVersion": 1,
+  "moduleId": "winjacknexus-signal-switch-oscilloscope-mono",
+  "language": "en-US",
+  "domains": {
+    "signalSwitch.oscilloscope-mono": {
+      "name": "Oscilloscope mono",
+      "analysisCombined": "Combined",
+      "analysisSeparate": "Per channel",
+      "analysisLinear": "Linear frequency",
+      "analysisLog": "Log frequency",
+      "analysisMode": "Display mode",
+      "analysisScale": "Frequency scale"
+    }
+  }
+}

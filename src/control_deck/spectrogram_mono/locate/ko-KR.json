@@ -1,0 +1,17 @@
+{
+  "formatVersion": 1,
+  "catalogVersion": 1,
+  "moduleId": "winjacknexus-signal-switch-spectrogram-mono",
+  "language": "ko-KR",
+  "domains": {
+    "signalSwitch.spectrogram-mono": {
+      "name": "스펙트로그램 mono",
+      "analysisCombined": "통합 모드",
+      "analysisSeparate": "채널별 모드",
+      "analysisLinear": "선형 주파수",
+      "analysisLog": "로그 주파수",
+      "analysisMode": "표시 모드",
+      "analysisScale": "주파수 눈금"
+    }
+  }
+}

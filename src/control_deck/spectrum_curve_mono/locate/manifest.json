@@ -1,0 +1,26 @@
+{
+  "formatVersion": 1,
+  "moduleId": "winjacknexus-signal-switch-spectrum-curve-mono",
+  "domains": [
+    "signalSwitch.spectrum-curve-mono"
+  ],
+  "defaultLanguage": "en-US",
+  "catalogVersion": 1,
+  "languages": {
+    "zh-CN": "zh-CN.json",
+    "en-US": "en-US.json",
+    "ja-JP": "ja-JP.json",
+    "ko-KR": "ko-KR.json"
+  },
+  "requiredKeys": {
+    "signalSwitch.spectrum-curve-mono": [
+      "name",
+      "analysisCombined",
+      "analysisSeparate",
+      "analysisLinear",
+      "analysisLog",
+      "analysisMode",
+      "analysisScale"
+    ]
+  }
+}

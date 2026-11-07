@@ -1,0 +1,17 @@
+{
+  "formatVersion": 1,
+  "catalogVersion": 1,
+  "moduleId": "winjacknexus-signal-switch-spectrum-curve-mono",
+  "language": "en-US",
+  "domains": {
+    "signalSwitch.spectrum-curve-mono": {
+      "name": "Spectrum Curve mono",
+      "analysisCombined": "Combined",
+      "analysisSeparate": "Per channel",
+      "analysisLinear": "Linear frequency",
+      "analysisLog": "Log frequency",
+      "analysisMode": "Display mode",
+      "analysisScale": "Frequency scale"
+    }
+  }
+}

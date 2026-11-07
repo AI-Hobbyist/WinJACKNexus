@@ -1,0 +1,28 @@
+{
+  "formatVersion": 1,
+  "catalogVersion": 1,
+  "moduleId": "winjacknexus-signal-switch-loudness-7-1",
+  "language": "ja-JP",
+  "domains": {
+    "signalSwitch.loudness-7-1": {
+      "name": "ラウドネスメーター 7.1",
+      "analysisCombined": "総合表示",
+      "analysisSeparate": "チャンネル別",
+      "analysisLinear": "線形周波数",
+      "analysisLog": "対数周波数",
+      "analysisNumbers": "数値表示",
+      "analysisMeters": "メーター表示",
+      "analysisPreset": "ラウドネスプリセット",
+      "analysisReference": "基準",
+      "analysisReferenceHigh": "上限",
+      "analysisReferencePeak": "真ピーク",
+      "csvSave": "CSV 記録を保存",
+      "csvSettings": "CSV 設定…",
+      "csvUseGlobal": "全体の CSV 保存先を使用",
+      "csvBrowse": "個別の保存先を選択…",
+      "metricDisplay": "指標表示",
+      "analysisMode": "表示モード",
+      "analysisScale": "周波数スケール"
+    }
+  }
+}

@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-only
+#include "NodePaths.hpp"
 #include "Service.hpp"
 #include <QApplication>
 #include <QFontDatabase>
@@ -32,8 +33,8 @@ int main(int argc, char **argv)
     {
         const auto kind = QString::fromLatin1(kinds[variant]);
         const auto count = counts[variant];
-        QLibrary library(app.applicationDirPath() + "/nodes/control_deck/" + kind + "/wjn_signal_switch_" +
-                         kind + ".dll");
+        QLibrary library(app.applicationDirPath() + "/nodes/control_deck/" + SS::moduleRelativeFolder(kind) +
+                         "/wjn_signal_switch_" + kind + ".dll");
         if (!library.load())
             return 1;
         const auto create =

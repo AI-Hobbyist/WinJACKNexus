@@ -1,3 +1,4 @@
+#include "NodePaths.hpp"
 /* SPDX-License-Identifier: AGPL-3.0-only */
 #include "../../Develop/Node/WindowShowCounter.hpp"
 #include "../patchbay/mod/src/Library.cpp"
@@ -80,8 +81,8 @@ int main(int argc, char **argv)
         std::vector<std::unique_ptr<LoadedModuleNode>> nodes;
         for (const auto *kind : {"stereo", "midi"})
         {
-            const auto path = QCoreApplication::applicationDirPath() + "/nodes/control_deck/" + kind +
-                              "/wjn_signal_switch_" + kind + ".dll";
+            const auto path = QCoreApplication::applicationDirPath() + "/nodes/control_deck/" +
+                              SS::moduleRelativeFolder(kind) + "/wjn_signal_switch_" + kind + ".dll";
             auto node = LoadedModuleNode::create(path, 0, {}, WJN_NODE_MODE_VIRT, 48000, 64);
             check(bool(node), "production host loads and prepares VIRT switch without JACK server");
             node->setContextId("main/sub");

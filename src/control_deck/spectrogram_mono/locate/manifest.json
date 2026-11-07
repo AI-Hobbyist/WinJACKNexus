@@ -1,0 +1,26 @@
+{
+  "formatVersion": 1,
+  "moduleId": "winjacknexus-signal-switch-spectrogram-mono",
+  "domains": [
+    "signalSwitch.spectrogram-mono"
+  ],
+  "defaultLanguage": "en-US",
+  "catalogVersion": 1,
+  "languages": {
+    "zh-CN": "zh-CN.json",
+    "en-US": "en-US.json",
+    "ja-JP": "ja-JP.json",
+    "ko-KR": "ko-KR.json"
+  },
+  "requiredKeys": {
+    "signalSwitch.spectrogram-mono": [
+      "name",
+      "analysisCombined",
+      "analysisSeparate",
+      "analysisLinear",
+      "analysisLog",
+      "analysisMode",
+      "analysisScale"
+    ]
+  }
+}

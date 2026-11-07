@@ -7308,6 +7308,118 @@
         "--wjn-theme-patchbay-background-image"
       ],
       "description": "sel-monitor content background image; null means undefined and inherits the patchbay image"
+    },
+    {
+      "name": "--wjn-theme-global-analysis-channel-1",
+      "ownerScope": "global",
+      "type": "color",
+      "default": "#32b8e9",
+      "inherits": [],
+      "description": "Shared audio analysis analysis-channel-1"
+    },
+    {
+      "name": "--wjn-theme-global-analysis-channel-2",
+      "ownerScope": "global",
+      "type": "color",
+      "default": "#ef8655",
+      "inherits": [],
+      "description": "Shared audio analysis analysis-channel-2"
+    },
+    {
+      "name": "--wjn-theme-global-analysis-channel-3",
+      "ownerScope": "global",
+      "type": "color",
+      "default": "#9d7de0",
+      "inherits": [],
+      "description": "Shared audio analysis analysis-channel-3"
+    },
+    {
+      "name": "--wjn-theme-global-analysis-channel-4",
+      "ownerScope": "global",
+      "type": "color",
+      "default": "#dfc54a",
+      "inherits": [],
+      "description": "Shared audio analysis analysis-channel-4"
+    },
+    {
+      "name": "--wjn-theme-global-analysis-channel-5",
+      "ownerScope": "global",
+      "type": "color",
+      "default": "#53bd84",
+      "inherits": [],
+      "description": "Shared audio analysis analysis-channel-5"
+    },
+    {
+      "name": "--wjn-theme-global-analysis-channel-6",
+      "ownerScope": "global",
+      "type": "color",
+      "default": "#e66da4",
+      "inherits": [],
+      "description": "Shared audio analysis analysis-channel-6"
+    },
+    {
+      "name": "--wjn-theme-global-analysis-channel-7",
+      "ownerScope": "global",
+      "type": "color",
+      "default": "#7cbcdf",
+      "inherits": [],
+      "description": "Shared audio analysis analysis-channel-7"
+    },
+    {
+      "name": "--wjn-theme-global-analysis-channel-8",
+      "ownerScope": "global",
+      "type": "color",
+      "default": "#ca9c6a",
+      "inherits": [],
+      "description": "Shared audio analysis analysis-channel-8"
+    },
+    {
+      "name": "--wjn-theme-global-analysis-spectrum-floor",
+      "ownerScope": "global",
+      "type": "color",
+      "default": "#11181a",
+      "inherits": [],
+      "description": "Shared audio analysis analysis-spectrum-floor"
+    },
+    {
+      "name": "--wjn-theme-global-analysis-spectrum-mid",
+      "ownerScope": "global",
+      "type": "color",
+      "default": "#2269d2",
+      "inherits": [],
+      "description": "Shared audio analysis analysis-spectrum-mid"
+    },
+    {
+      "name": "--wjn-theme-global-analysis-spectrum-hot",
+      "ownerScope": "global",
+      "type": "color",
+      "default": "#f5d949",
+      "inherits": [],
+      "description": "Shared audio analysis analysis-spectrum-hot"
+    },
+    {
+      "name": "--wjn-theme-global-analysis-reference-target",
+      "ownerScope": "global",
+      "type": "color",
+      "default": "#43c7a8",
+      "inherits": [],
+      "description": "Loudness reference line analysis-reference-target"
+    },
+    {
+      "name": "--wjn-theme-global-analysis-reference-upper",
+      "ownerScope": "global",
+      "type": "color",
+      "default": "#e0a04a",
+      "inherits": [],
+      "description": "Loudness reference line analysis-reference-upper"
+    },
+    {
+      "name": "--wjn-theme-global-analysis-reference-peak",
+      "ownerScope": "global",
+      "type": "color",
+      "default": "#df665b",
+      "inherits": [],
+      "description": "Loudness reference line analysis-reference-peak"
     }
   ]
 }

@@ -1,5 +1,6 @@
 /* SPDX-License-Identifier: AGPL-3.0-only */
 #include "Editor.hpp"
+#include <QActionGroup>
 #include <QApplication>
 #include <QDialog>
 #include <QFormLayout>
@@ -7,6 +8,8 @@
 #include <QStyle>
 #include <QUuid>
 #include <QVBoxLayout>
+#include <WinJACKNexus/Common/MeterCustomLoudnessPresets.hpp>
+#include <WinJACKNexus/Common/MeterLoudnessPresetCatalog.hpp>
 #include <WinJACKNexus/UI/LocalizedText.hpp>
 #include <algorithm>
 
@@ -232,7 +235,8 @@ void Editor::showCardMenu(const QString &id, const QPoint &global)
         current[endpoint.id] = endpoint.desired;
     const bool switchesOnly = std::all_of(members.begin(), members.end(), [this](const auto &member) {
         const auto *endpoint = service_.find(member);
-        return endpoint && !endpoint->sound && !endpoint->peak && !endpoint->gainLinear;
+        return endpoint && !endpoint->sound && !endpoint->peak && !endpoint->gainLinear &&
+               !service_.analysis(member);
     });
     if (switchesOnly)
     {
@@ -248,6 +252,127 @@ void Editor::showCardMenu(const QString &id, const QPoint &global)
             action(menu, "trigger", "Play", [this, id] { service_.activate(id); });
             action(menu, "loadSound", "Load sound…", [this, id] { loadSound(id); });
             action(menu, "shortcut", "Global shortcut…", [this, id] { editShortcut(id); });
+        }
+        const auto source = service_.analysis(id);
+        if (source && source->kind != Common::AnalysisKind::polar)
+        {
+            auto *mode = menu.addMenu(QString());
+            mode->setObjectName("controlDeck.analysisModeMenu");
+            UI::bindLocalizedText(mode, "title", endpoint->domain.toUtf8().constData(), "analysisMode",
+                                  "Display mode");
+            auto *group = new QActionGroup(mode);
+            const bool loudness = source->kind == Common::AnalysisKind::loudness;
+            for (unsigned index = 0; index < 2; ++index)
+            {
+                auto *choice = mode->addAction(QString());
+                choice->setObjectName(QStringLiteral("controlDeck.analysisMode.%1").arg(index));
+                UI::bindLocalizedText(choice, "text", endpoint->domain.toUtf8().constData(),
+                                      loudness ? (index ? "analysisMeters" : "analysisNumbers")
+                                               : (index ? "analysisSeparate" : "analysisCombined"),
+                                      loudness ? (index ? "Meters" : "Numbers")
+                                               : (index ? "Per channel" : "Combined"));
+                choice->setCheckable(true);
+                choice->setChecked(loudness ? source->numeric.load() == (index == 0)
+                                            : source->separate.load() == (index == 1));
+                group->addAction(choice);
+                connect(choice, &QAction::triggered, &menu,
+                        [this, source, loudness, index]
+                        {
+                            if (loudness)
+                                source->numeric.store(index == 0);
+                            else
+                                source->separate.store(index == 1);
+                            service_.notify(true);
+                        });
+            }
+        }
+        if (source && source->kind == Common::AnalysisKind::spectrogram)
+        {
+            auto *scale = menu.addMenu(QString());
+            scale->setObjectName("controlDeck.analysisScaleMenu");
+            UI::bindLocalizedText(scale, "title", endpoint->domain.toUtf8().constData(), "analysisScale",
+                                  "Frequency scale");
+            auto *group = new QActionGroup(scale);
+            for (unsigned index = 0; index < 2; ++index)
+            {
+                auto *choice = scale->addAction(QString());
+                choice->setObjectName(QStringLiteral("controlDeck.analysisScale.%1").arg(index));
+                UI::bindLocalizedText(choice, "text", endpoint->domain.toUtf8().constData(),
+                                      index ? "analysisLog" : "analysisLinear",
+                                      index ? "Log frequency" : "Linear frequency");
+                choice->setCheckable(true);
+                choice->setChecked(source->logarithmic.load() == (index == 1));
+                group->addAction(choice);
+                connect(choice, &QAction::triggered, &menu,
+                        [this, source, index]
+                        {
+                            source->logarithmic.store(index == 1);
+                            service_.notify(true);
+                        });
+            }
+        }
+        if (source && source->kind == Common::AnalysisKind::loudness)
+        {
+            auto *presets = menu.addMenu(QString());
+            presets->setObjectName("controlDeck.loudnessPresetMenu");
+            UI::bindLocalizedText(presets, "title", endpoint->domain.toUtf8().constData(), "analysisPreset",
+                                  "Loudness preset");
+            auto *presetGroup = new QActionGroup(presets);
+            const auto addPreset = [&](const QString &name, const QString &presetId)
+            {
+                auto *choice = presets->addAction(name);
+                choice->setCheckable(true);
+                choice->setChecked(source->loudnessPreset == presetId);
+                presetGroup->addAction(choice);
+                connect(choice, &QAction::triggered, &menu,
+                        [this, source, presetId]
+                        {
+                            source->loudnessPreset = presetId;
+                            service_.notify(true);
+                        });
+            };
+            for (const auto &preset : Common::meterLoudnessPresetCatalog)
+                addPreset(QString::fromUtf8(preset.displayName), QString::fromUtf8(preset.id));
+            for (const auto &preset : Common::customMeterLoudnessPresets())
+                addPreset(preset.displayName, preset.id);
+            auto *metrics = menu.addMenu(QString());
+            metrics->setObjectName("controlDeck.metricDisplay");
+            UI::bindLocalizedText(metrics, "title", endpoint->domain.toUtf8().constData(), "metricDisplay",
+                                  "Metric display");
+            const char *names[]{"M", "S", "I", "LRA", "dBTP", "Sample Peak", "RMS", "LFE Peak"};
+            for (unsigned index = 0; index < 8; ++index)
+            {
+                auto *metric = metrics->addAction(QString::fromLatin1(names[index]));
+                metric->setObjectName(QStringLiteral("controlDeck.metric.%1").arg(index));
+                metric->setCheckable(true);
+                metric->setChecked(source->metricMask.load() & (1u << index));
+                connect(metric, &QAction::toggled, &menu,
+                        [this, source, index](bool checked)
+                        {
+                            if (checked)
+                                source->metricMask.fetch_or(1u << index);
+                            else
+                                source->metricMask.fetch_and(~(1u << index));
+                            service_.notify(true);
+                        });
+            }
+            auto *record = menu.addAction(QString());
+            record->setObjectName("controlDeck.csvEnabled");
+            UI::bindLocalizedText(record, "text", endpoint->domain.toUtf8().constData(), "csvSave",
+                                  "Save CSV records");
+            record->setCheckable(true);
+            record->setChecked(source->csvEnabled);
+            connect(record, &QAction::toggled, &menu,
+                    [this, source](bool enabled)
+                    {
+                        source->csvEnabled = enabled;
+                        service_.notify(true);
+                    });
+            auto *settings = menu.addAction(QString());
+            settings->setObjectName("controlDeck.csvSettings");
+            UI::bindLocalizedText(settings, "text", endpoint->domain.toUtf8().constData(), "csvSettings",
+                                  "CSV settings…");
+            connect(settings, &QAction::triggered, &menu, [this, id] { editAnalysisCsv(id); });
         }
         if (endpoint && endpoint->gainLinear)
             action(menu, "gainRange", "Gain range…", [this, id] { editGainRange(id); });
@@ -281,13 +406,17 @@ void Editor::showCardMenu(const QString &id, const QPoint &global)
         service_.notify(true);
     });
     menu.addSeparator();
-    action(menu, "exclusive", "Set mutually exclusive", [this] {
-        createRelation();
-    })->setEnabled(switchesOnly && members.size() >= 2);
-    action(menu, "independent", "Make independent", [this, members] {
-        service_.state.makeIndependent(members);
-        service_.notify(true);
-    });
+    if (switchesOnly)
+    {
+        action(menu, "exclusive", "Set mutually exclusive", [this] { createRelation(); })
+            ->setEnabled(switchesOnly && members.size() >= 2);
+        action(menu, "independent", "Make independent",
+               [this, members]
+               {
+                   service_.state.makeIndependent(members);
+                   service_.notify(true);
+               });
+    }
     action(menu, "newGroup", "Create group", [this] { createGroup(); })->setEnabled(members.size() >= 2);
     auto *groups = menu.addMenu(text("addToGroup", "Move to group"));
     UI::bindLocalizedText(groups, "title", "signalSwitch", "addToGroup", "Move to group");

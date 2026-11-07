@@ -1,0 +1,28 @@
+{
+  "formatVersion": 1,
+  "catalogVersion": 1,
+  "moduleId": "winjacknexus-signal-switch-loudness-mono",
+  "language": "ko-KR",
+  "domains": {
+    "signalSwitch.loudness-mono": {
+      "name": "라우드니스 미터 mono",
+      "analysisCombined": "통합 모드",
+      "analysisSeparate": "채널별 모드",
+      "analysisLinear": "선형 주파수",
+      "analysisLog": "로그 주파수",
+      "analysisNumbers": "숫자 모드",
+      "analysisMeters": "미터 모드",
+      "analysisPreset": "라우드니스 프리셋",
+      "analysisReference": "기준값",
+      "analysisReferenceHigh": "상한",
+      "analysisReferencePeak": "트루 피크",
+      "csvSave": "CSV 기록 저장",
+      "csvSettings": "CSV 설정…",
+      "csvUseGlobal": "전역 CSV 폴더 사용",
+      "csvBrowse": "개별 폴더 선택…",
+      "metricDisplay": "표시 지표",
+      "analysisMode": "표시 모드",
+      "analysisScale": "주파수 눈금"
+    }
+  }
+}

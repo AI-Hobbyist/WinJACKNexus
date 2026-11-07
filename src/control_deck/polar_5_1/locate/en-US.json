@@ -1,0 +1,17 @@
+{
+  "formatVersion": 1,
+  "catalogVersion": 1,
+  "moduleId": "winjacknexus-signal-switch-polar-5-1",
+  "language": "en-US",
+  "domains": {
+    "signalSwitch.polar-5-1": {
+      "name": "Polar Energy 5.1",
+      "analysisCombined": "Combined",
+      "analysisSeparate": "Per channel",
+      "analysisLinear": "Linear frequency",
+      "analysisLog": "Log frequency",
+      "analysisMode": "Display mode",
+      "analysisScale": "Frequency scale"
+    }
+  }
+}

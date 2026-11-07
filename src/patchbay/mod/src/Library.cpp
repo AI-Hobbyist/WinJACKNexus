@@ -13,25 +13,26 @@
  *
  * SPDX-License-Identifier: AGPL-3.0-only
  */
-#include <WinJACKNexus/Node/ModuleCompatibility.hpp>
-#include <WinJACKNexus/Node/NodeApi.h>
-#include <WinJACKNexus/NativeFx/NativeFxApi.h>
+#include "NodePaths.hpp"
 #include <WinJACKNexus/Audio/JackApi.hpp>
 #include <WinJACKNexus/Audio/JackClient.hpp>
 #include <WinJACKNexus/Audio/JackMidiBuffer.hpp>
 #include <WinJACKNexus/Audio/JackPort.hpp>
+#include <WinJACKNexus/Common/DigitalMixerState.hpp>
 #include <WinJACKNexus/Common/Logger.hpp>
 #include <WinJACKNexus/Common/PathUtils.hpp>
-#include <WinJACKNexus/Common/DigitalMixerState.hpp>
+#include <WinJACKNexus/NativeFx/NativeFxApi.h>
+#include <WinJACKNexus/Node/ModuleCompatibility.hpp>
+#include <WinJACKNexus/Node/NodeApi.h>
 #include <WinJACKNexus/Patchbay/Core/Snapshot.hpp>
 #include <WinJACKNexus/UI/ApplicationSettings.hpp>
 #include <WinJACKNexus/UI/Controls.hpp>
 #include <WinJACKNexus/UI/LocalizedText.hpp>
 #include <WinJACKNexus/UI/NativeWindowUtils.hpp>
-#include <WinJACKNexus/UI/TrayController.hpp>
 #include <WinJACKNexus/UI/ThemeManagementDialog.hpp>
 #include <WinJACKNexus/UI/ThemeManager.hpp>
 #include <WinJACKNexus/UI/ThemeNamespaceRegistry.hpp>
+#include <WinJACKNexus/UI/TrayController.hpp>
 
 #include <mod_patchbay/PatchbayCanvas.hpp>
 #include <mod_patchbay/VirtualGraph.hpp>
@@ -904,14 +905,20 @@ bool moduleRecordsEqual(const std::vector<PatchbayProjectModule>& left,
 
 QString controlDeckModulePath(const QString &path)
 {
-    auto normalized = QDir::fromNativeSeparators(path);
-    const QString legacyDirectory = QStringLiteral("/nodes/signal_switch/");
-    const auto position = normalized.indexOf(legacyDirectory, 0, Qt::CaseInsensitive);
-    if (position < 0 ||
-        !QFileInfo(normalized).fileName().startsWith(QStringLiteral("wjn_signal_switch_"), Qt::CaseInsensitive))
+    const auto normalized = QDir::fromNativeSeparators(path);
+    const auto file = QFileInfo(normalized).fileName();
+    const QString prefix = QStringLiteral("wjn_signal_switch_");
+    if (!file.startsWith(prefix, Qt::CaseInsensitive) || !file.endsWith(".dll", Qt::CaseInsensitive))
         return path;
-    normalized.replace(position, legacyDirectory.size(), QStringLiteral("/nodes/control_deck/"));
-    return QFileInfo::exists(normalized) ? normalized : path;
+    auto position = normalized.indexOf(QStringLiteral("/nodes/control_deck/"), 0, Qt::CaseInsensitive);
+    if (position < 0)
+        position = normalized.indexOf(QStringLiteral("/nodes/signal_switch/"), 0, Qt::CaseInsensitive);
+    if (position < 0)
+        return path;
+    const auto kind = file.mid(prefix.size(), file.size() - prefix.size() - 4);
+    const auto replacement = normalized.left(position) + QStringLiteral("/nodes/control_deck/") +
+                             WinJACKNexus::ControlDeck::moduleRelativeFolder(kind) + '/' + file;
+    return QFileInfo::exists(replacement) ? replacement : path;
 }
 
 QString remoteAudioModulePath(const QString &path)
@@ -1185,14 +1192,25 @@ void populateNodeLibrary(QTreeWidget* tree,
                 .fileName()
                 .compare(QStringLiteral("mod_digital_mixer.dll"), Qt::CaseInsensitive) == 0)
             continue;
-        auto [category, inserted] = moduleCategories.try_emplace(node.category, nullptr);
-		if (inserted)
-			category->second = addCategory(tree, node.category);
-		auto* item = new QTreeWidgetItem(category->second, { nodeDisplayText(node.display,node.name) });
-		item->setData(0,Qt::UserRole+21,node.display);
-		item->setToolTip(0,nodeDisplayTooltip(node.display,node.name));
-		item->setData(0, Qt::UserRole, node.modulePath);
-		item->setData(0, Qt::UserRole + 1, node.index);
+        QTreeWidgetItem *moduleCategory = nullptr;
+        const auto parts = node.category.startsWith(QStringLiteral("Control Deck / "))
+                               ? node.category.split(QStringLiteral(" / "), Qt::SkipEmptyParts)
+                               : QStringList{node.category};
+        QString categoryPath;
+        for (const auto &part : parts)
+        {
+            categoryPath += '/' + part;
+            auto [category, inserted] = moduleCategories.try_emplace(categoryPath, nullptr);
+            if (inserted)
+                category->second =
+                    moduleCategory ? addCategory(moduleCategory, part) : addCategory(tree, part);
+            moduleCategory = category->second;
+        }
+        auto *item = new QTreeWidgetItem(moduleCategory, {nodeDisplayText(node.display, node.name)});
+        item->setData(0, Qt::UserRole + 21, node.display);
+        item->setToolTip(0, nodeDisplayTooltip(node.display, node.name));
+        item->setData(0, Qt::UserRole, node.modulePath);
+        item->setData(0, Qt::UserRole + 1, node.index);
         setItemCapabilities(item, node.capabilities, node.features);
     }
     addVstPluginItems(tree, modules, mode);

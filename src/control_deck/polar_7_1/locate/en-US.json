@@ -1,0 +1,17 @@
+{
+  "formatVersion": 1,
+  "catalogVersion": 1,
+  "moduleId": "winjacknexus-signal-switch-polar-7-1",
+  "language": "en-US",
+  "domains": {
+    "signalSwitch.polar-7-1": {
+      "name": "Polar Energy 7.1",
+      "analysisCombined": "Combined",
+      "analysisSeparate": "Per channel",
+      "analysisLinear": "Linear frequency",
+      "analysisLog": "Log frequency",
+      "analysisMode": "Display mode",
+      "analysisScale": "Frequency scale"
+    }
+  }
+}

@@ -6,6 +6,9 @@
 #include <QFormLayout>
 #include <QSignalBlocker>
 #include <QVBoxLayout>
+#include <WinJACKNexus/Common/MeterCustomLoudnessPresets.hpp>
+#include <WinJACKNexus/Common/MeterLoudnessPresetCatalog.hpp>
+#include <WinJACKNexus/UI/AudioAnalysisWidget.hpp>
 #include <WinJACKNexus/UI/ConsoleControls.hpp>
 #include <WinJACKNexus/UI/FxLevelMeterWidget.hpp>
 #include <WinJACKNexus/UI/LocalizedText.hpp>
@@ -42,7 +45,8 @@ C::DecimalField *number(QDialog &dialog, QFormLayout *form, const char *key, con
 
 bool Editor::refreshControl(C::ActionButton *card, const Endpoint &endpoint)
 {
-    if (!endpoint.peak && !endpoint.gainLinear)
+    const auto analysis = service_.analysis(endpoint.id);
+    if (!endpoint.peak && !endpoint.gainLinear && !analysis)
         return false;
     card->setText({});
     auto *title = card->findChild<QLabel *>("controlDeck.controlTitle");
@@ -55,7 +59,13 @@ bool Editor::refreshControl(C::ActionButton *card, const Endpoint &endpoint)
         title->setAttribute(Qt::WA_TransparentForMouseEvents);
         layout->addWidget(title);
         QWidget *control;
-        if (endpoint.peak)
+        if (analysis)
+        {
+            auto *plot = new UI::AudioAnalysisWidget(analysis, card, endpoint.domain);
+            plot->setObjectName("controlDeck.analysisPlot");
+            control = plot;
+        }
+        else if (endpoint.peak)
         {
             auto *meters = new QWidget(card);
             meters->setObjectName("controlDeck.peakMeters");
@@ -108,12 +118,16 @@ bool Editor::refreshControl(C::ActionButton *card, const Endpoint &endpoint)
             if (!service_.state.locked)
                 showCardMenu(id, card->mapToGlobal(card->rect().center()));
         });
-        layout->addWidget(control, 1, endpoint.peak ? Qt::Alignment() : Qt::AlignHCenter);
+        layout->addWidget(control, 1, (endpoint.peak || analysis) ? Qt::Alignment() : Qt::AlignHCenter);
     }
     const auto name = service_.label(endpoint);
     title->setText(name);
     card->setAccessibleName(name);
-    if (endpoint.peak)
+    if (analysis)
+    {
+        card->setToolTip(name + "\n" + analysis->recordingStatus());
+    }
+    else if (endpoint.peak)
     {
         auto *meters = card->findChild<QWidget *>("controlDeck.peakMeters");
         auto *rows = static_cast<QBoxLayout *>(meters->layout());
@@ -241,5 +255,51 @@ void Editor::editGainValue(const QString &id)
     buttons(dialog, layout);
     if (dialog.exec() == QDialog::Accepted)
         service_.setGain(id, value->value());
+}
+void Editor::editAnalysisCsv(const QString &id)
+{
+    const auto source = service_.analysis(id);
+    const auto *endpoint = service_.find(id);
+    if (!source || !endpoint)
+        return;
+    QDialog dialog(this);
+    UI::bindLocalizedText(&dialog, "windowTitle", endpoint->domain.toUtf8().constData(), "csvSettings",
+                          "CSV settings");
+    auto *layout = new QVBoxLayout(&dialog);
+    auto *global = new C::ToggleField({}, &dialog);
+    UI::bindLocalizedText(global, "text", endpoint->domain.toUtf8().constData(), "csvUseGlobal",
+                          "Use global CSV directory");
+    global->setObjectName("controlDeck.csvUseGlobal");
+    global->setChecked(source->csvUseGlobal);
+    layout->addWidget(global);
+    auto *directory = new C::TextField(&dialog);
+    directory->setObjectName("controlDeck.csvDirectory");
+    directory->setText(source->csvDirectory);
+    directory->setEnabled(!global->isChecked());
+    layout->addWidget(directory);
+    auto *browse = new C::ActionButton({}, &dialog);
+    UI::bindLocalizedText(browse, "text", endpoint->domain.toUtf8().constData(), "csvBrowse",
+                          "Choose independent directory…");
+    layout->addWidget(browse);
+    connect(global, &QCheckBox::toggled, &dialog,
+            [directory](bool checked) { directory->setEnabled(!checked); });
+    connect(browse, &QPushButton::clicked, &dialog,
+            [&, directory, global]
+            {
+                const auto path =
+                    QFileDialog::getExistingDirectory(&dialog, directory->text(), directory->text());
+                if (!path.isEmpty())
+                {
+                    global->setChecked(false);
+                    directory->setText(path);
+                }
+            });
+    buttons(dialog, layout);
+    if (dialog.exec() == QDialog::Accepted)
+    {
+        source->csvUseGlobal = global->isChecked();
+        source->csvDirectory = directory->text().trimmed();
+        service_.notify(true);
+    }
 }
 } // namespace WinJACKNexus::ControlDeck

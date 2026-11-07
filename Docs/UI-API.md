@@ -602,3 +602,9 @@ Production-DLL Windows tests passed 95 checks with 3 top-level shows, Microsoft 
 - `FxLevelMeterWidget::setReadoutBelow(bool)` (default false) reserves a separate centered readout below a vertical single-channel bar. Horizontal/two-row meters retain existing rendering. This option uses an object property and adds no instance fields. Broadcast strips opt in with a 64 px meter; zero peak is passed as negative infinity and clamped to the existing -72 dB floor, whose readout is `−∞`. Call-site regression: `Develop/Broadcast/GuiTests.cpp`.
 
 - `FxLevelMeterWidget::setReadoutOutside(bool)` (default false) reserves a right-hand readout beside horizontal bars and a bottom readout below vertical single-channel bars. Opt-in only; existing callers retain their layout. Control Deck mono/stereo/5.1/7.1 meters use it per channel and keep the existing orientation setting. Endpoint keeps its existing layout: `peak` points to one atomic for the legacy peak domain, or a contiguous 2/6/8-atomic array for `signalSwitch.peak-stereo`, `signalSwitch.peak-5-1`, `signalSwitch.peak-7-1`. Call-site regression: `src/control_deck/PeakTests.cpp`.
+
+### Control Deck 公共分析控件（2026-11-07）
+
+`<WinJACKNexus/UI/AudioAnalysisWidget.hpp>` 导出 `AudioAnalysisWidget(std::shared_ptr<Common::AnalysisCapture>, QWidget* parent=nullptr, const QString& domain="ui")`。使用 PImpl，公开 `rmsLevels()`、`dominantFrequency(unsigned)`、`loudnessSnapshot()`。普通分析控件是其 capture 的唯一消费者；响度控件只读取后台快照，不消费队列。响度数字模式组合现有公共 `MetricReadout`，引用 Meterbridge 指标强调色 Token；没有复制其绘制实现。控件隐藏时停止 UI 定时器，后台响度与 CSV 不停止。刷新遵守应用 FPS。设置由拥有者的右键菜单提供，控件表面不含设置下拉框或按钮。
+
+公共 common `ControlDeckAnalysis.hpp` 提供固定 1/2/6/8 声道的有界采集、RMS、Hann FFT 和声道功率平均。绘图支持示波器、声谱图、声道能量极坐标、频谱直方图、频谱曲线及综合响度。主题使用 `analysis-channel-1..8`、`analysis-spectrum-floor/mid/hot` 和 `analysis-reference-target/upper/peak`，默认值及注册表属于公共主题系统。开发规则见 [组件开发指南](ControlDeck/组件开发指南.md)，实际模块回调与调用点测试位于 `src/control_deck/AnalysisTests.cpp`。
