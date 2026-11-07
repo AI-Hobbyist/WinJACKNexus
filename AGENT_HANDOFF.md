@@ -8,7 +8,9 @@
 - 最小修复src/bc/Service.cpp：每流每次唤醒最多10批，每批10ms，读空提前停；不变更100ms队列/时效、generation/连续性策略，不改JACK回调。新Develop/Broadcast/PumpProbe.cpp直接包含生产Worker实现，测试中设20ms，生产不加测试接口；CMake仅新增该探针目标，PumpTests.py经真实Rust/UDP/HTTP回归。
 - 必要Release构建通过build/bc-pump-final-build.log；PumpTests+ServiceTests共5项通过23.605秒，build/bc-pump-final-tests.log。延迟唤醒零丢/零过期且HTTP取到WAV；四布局完整及所有分声道WAV/Opus、两个owner、停止重启/移除和断网本地监听继续均通过。测试直接运行Python，不冒称CTest枚举。
 - 初始测试构建缺numbers头、Python缺模块路径均已修正。最终diff已检查/格式化，无offscreen或Computer Use，未启动/停止用户应用或JACK进程。真实现场JACK/域名WS-UDP/听音和人工安装验收SKIPPED（用户指令），未向远端发布测试音频。
-- 用户明确要求不要反复询问；优先从日志/源码/离线测试自主排查。原回复“4800/256”作为参考，回归采用48k/256，不再追问。继续保留无关未跟踪文件及旧包。当前待提交推送检查点，生成仅broadcast_runtime.dll及说明/许可证的增量包，记录哈希并收尾提交。文档Docs/Broadcast/推流队列积压修复.md。
+- 用户明确要求不要反复询问；优先从日志/源码/离线测试自主排查。原回复“4800/256”作为参考，回归采用48k/256，不再追问。继续保留无关未跟踪文件及旧包。文档Docs/Broadcast/推流队列积压修复.md。
+- 修复检查点e83cc0f9c52dc26873dcaa23762e50bc12535104已提交推送，远端核对一致。交付build/Broadcast-Queue-Fix-20261107.zip：1600588字节，3个payload加manifest，只含broadcast_runtime.dll、说明、许可证；SHA-256 f91d305d9a782aea45d40a598edc9f615d6e1da2c943a59df896e6b560525949，附.zip.sha256。x64 PE、清单、CRC、逐文件/归档哈希通过，build/bc-pump-package.log。已包含Token行尾修复，无需替换服务端或其他运行DLL。
+- 本任务实施、自动验证和增量交付完成，无剩余实施阶段。此收尾提交仅记录交付，运行源码保持e83cc0f；用户正常退出后自行覆盖DLL并重新开始推流。现场验收按用户指令跳过，不记PASS、不作为受阻条件。
 - 最近可靠额度10080分钟池已用33%、剩余67%，重置1794405624，未触发交接阈值。
 
 ## 历史任务：广播Token行尾修复
