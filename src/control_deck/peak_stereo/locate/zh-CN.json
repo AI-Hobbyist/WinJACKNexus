@@ -1,0 +1,11 @@
+{
+  "formatVersion": 1,
+  "catalogVersion": 1,
+  "moduleId": "winjacknexus-signal-switch-peak-stereo",
+  "language": "zh-CN",
+  "domains": {
+    "signalSwitch.peak-stereo": {
+      "name": "峰值电平表 立体声"
+    }
+  }
+}

@@ -17,7 +17,8 @@ void Service::attach(void *node, Endpoint endpoint)
     const bool added = !state.cards.contains(endpoint.id);
     state.add(endpoint.id);
     if (added && (endpoint.peak || endpoint.gainLinear))
-        state.cards[endpoint.id].geometry.setSize(endpoint.peak ? QSize(300, 120) : QSize(180, 120));
+        state.cards[endpoint.id].geometry.setSize(
+            endpoint.peak ? QSize(300, 82 * int(peakChannelCount(endpoint)) + 40) : QSize(180, 120));
     endpoints.insert(node, std::move(endpoint));
     reconcile();
     notify();

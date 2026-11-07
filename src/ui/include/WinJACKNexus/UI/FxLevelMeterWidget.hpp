@@ -18,6 +18,7 @@ class WINJACK_UI_API FxLevelMeterWidget final : public QWidget
     void setVertical(bool enabled);
     void setSurfaceVisible(bool visible);
     void setReadoutBelow(bool enabled);
+    void setReadoutOutside(bool enabled);
     double inputDb() const noexcept
     {
         return inputDb_;

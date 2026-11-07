@@ -58,7 +58,7 @@ class SwitchNode final : public WinJACKNexus::Node::INode
             endpoint.sound = sound_.get();
         }
         if constexpr (isPeak)
-            endpoint.peak = &peak_;
+            endpoint.peak = peak_.data();
         if constexpr (isGain)
             endpoint.gainLinear = &gain_;
         endpoint.rename = [this](const QString &name) { return rename(name); };
@@ -120,7 +120,8 @@ class SwitchNode final : public WinJACKNexus::Node::INode
         midi_.reset();
         if (sound_)
             sound_->stop();
-        peak_ = 0;
+        for (auto &peak : peak_)
+            peak.store(0, std::memory_order_relaxed);
         prepared_ = false;
     }
     HWND createWindow(HWND) noexcept override
@@ -164,7 +165,8 @@ class SwitchNode final : public WinJACKNexus::Node::INode
         midi_.reset();
         if (sound_)
             sound_->stop();
-        peak_ = 0;
+        for (auto &peak : peak_)
+            peak.store(0, std::memory_order_relaxed);
     }
     void virtualStop() noexcept
     {
@@ -191,14 +193,15 @@ class SwitchNode final : public WinJACKNexus::Node::INode
         }
         else if constexpr (isPeak)
         {
-            const float *input = nullptr;
+            std::array<const float *, channels> inputs{};
             for (unsigned index = 0; index < block->audioInputCount; ++index)
             {
                 const auto &port = block->audioInputs[index];
-                if (port.portId == 1 && port.channels && port.samples)
-                    input = port.samples[0];
+                if (port.portId >= 1 && port.portId <= channels && port.channels && port.samples)
+                    inputs[port.portId - 1] = port.samples[0];
             }
-            DSP::capturePeak(input, block->frames, peak_);
+            for (unsigned channel = 0; channel < channels; ++channel)
+                DSP::capturePeak(inputs[channel], block->frames, peak_[channel]);
         }
         else if constexpr (isMidi)
         {
@@ -380,7 +383,7 @@ class SwitchNode final : public WinJACKNexus::Node::INode
     DSP::Gate gate_;
     DSP::Midi midi_;
     std::unique_ptr<SS::Sound> sound_;
-    std::atomic<float> peak_{};
+    std::array<std::atomic<float>, channels> peak_{};
     std::atomic<float> gain_{1};
     std::atomic<double> rate_{48000};
     bool prepared_{};
@@ -434,7 +437,8 @@ class SwitchNode final : public WinJACKNexus::Node::INode
         }
         else if constexpr (isPeak)
         {
-            DSP::capturePeak(node.ports_[0].audioBuffer(frames), frames, node.peak_);
+            for (unsigned channel = 0; channel < channels; ++channel)
+                DSP::capturePeak(node.ports_[channel].audioBuffer(frames), frames, node.peak_[channel]);
         }
         else if constexpr (isMidi)
         {

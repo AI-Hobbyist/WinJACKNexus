@@ -42,6 +42,19 @@ struct Endpoint
     std::function<void()> editValue;
 };
 
+// New multichannel peak endpoints expose a contiguous atomic array. The
+// established mono domain still points to a single atomic; Endpoint ABI stays unchanged.
+inline unsigned peakChannelCount(const Endpoint &endpoint)
+{
+    if (endpoint.domain == QStringLiteral("signalSwitch.peak-stereo"))
+        return 2;
+    if (endpoint.domain == QStringLiteral("signalSwitch.peak-5-1"))
+        return 6;
+    if (endpoint.domain == QStringLiteral("signalSwitch.peak-7-1"))
+        return 8;
+    return 1;
+}
+
 // One service in control_deck.dll, shared by every node DLL and the host.
 class WJN_SWITCH_API Service
 {

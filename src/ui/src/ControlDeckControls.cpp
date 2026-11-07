@@ -57,11 +57,29 @@ bool Editor::refreshControl(C::ActionButton *card, const Endpoint &endpoint)
         QWidget *control;
         if (endpoint.peak)
         {
-            auto *meter = new UI::FxLevelMeterWidget(card);
-            meter->setSurfaceVisible(false);
-            meter->setProperty("midiToolsPassiveSurface", true);
-            control = meter;
-            control->setObjectName("controlDeck.peakMeter");
+            auto *meters = new QWidget(card);
+            meters->setObjectName("controlDeck.peakMeters");
+            meters->setProperty("midiToolsPassiveSurface", true);
+            auto *rows = new QBoxLayout(QBoxLayout::TopToBottom, meters);
+            rows->setContentsMargins(0, 0, 0, 0);
+            for (unsigned channel = 0; channel < peakChannelCount(endpoint); ++channel)
+            {
+                auto *meter = new UI::FxLevelMeterWidget(meters);
+                meter->setSurfaceVisible(false);
+                meter->setReadoutOutside(true);
+                meter->setProperty("midiToolsPassiveSurface", true);
+                meter->setObjectName(channel == 0 ? QStringLiteral("controlDeck.peakMeter")
+                                                  : QStringLiteral("controlDeck.peakMeter.%1").arg(channel));
+                meter->setContextMenuPolicy(Qt::CustomContextMenu);
+                connect(meter, &QWidget::customContextMenuRequested, this,
+                        [this, card, id = endpoint.id](QPoint)
+                        {
+                            if (!service_.state.locked)
+                                showCardMenu(id, card->mapToGlobal(card->rect().center()));
+                        });
+                rows->addWidget(meter, 1);
+            }
+            control = meters;
         }
         else
         {
@@ -97,13 +115,30 @@ bool Editor::refreshControl(C::ActionButton *card, const Endpoint &endpoint)
     card->setAccessibleName(name);
     if (endpoint.peak)
     {
-        auto *meter = dynamic_cast<UI::FxLevelMeterWidget *>(card->findChild<QWidget *>("controlDeck.peakMeter"));
-        const float amplitude = endpoint.peak->exchange(0, std::memory_order_relaxed);
-        const double db = amplitude > 0 ? 20.0 * std::log10(double(amplitude)) : -72;
-        meter->setSingleChannel(true, UI::localizedText("signalSwitch", "peakLevel", "Peak"));
-        meter->setVertical(endpoint.peakVertical);
-        meter->setLevels(db, db);
-        card->setToolTip(name + "\n" + QString::number(std::clamp(db, -72.0, 12.0), 'f', 1) + " dB");
+        auto *meters = card->findChild<QWidget *>("controlDeck.peakMeters");
+        auto *rows = static_cast<QBoxLayout *>(meters->layout());
+        rows->setDirection(endpoint.peakVertical ? QBoxLayout::LeftToRight : QBoxLayout::TopToBottom);
+        const unsigned count = peakChannelCount(endpoint);
+        const char *roles[]{"L", "R", "C", "LFE", "Ls", "Rs", "Lrb", "Rrb"};
+        QStringList values;
+        for (unsigned channel = 0; channel < count; ++channel)
+        {
+            const auto objectName = channel == 0 ? QStringLiteral("controlDeck.peakMeter")
+                                                 : QStringLiteral("controlDeck.peakMeter.%1").arg(channel);
+            auto *meter = dynamic_cast<UI::FxLevelMeterWidget *>(card->findChild<QWidget *>(objectName));
+            const float amplitude = endpoint.peak[channel].exchange(0, std::memory_order_relaxed);
+            const double db = amplitude > 0 ? 20.0 * std::log10(double(amplitude)) : -72;
+            const auto label = count == 1 ? UI::localizedText("signalSwitch", "peakLevel", "Peak")
+                                          : QString::fromLatin1(roles[channel]);
+            meter->setSingleChannel(true, label);
+            meter->setVertical(endpoint.peakVertical);
+            meter->setMinimumWidth(endpoint.peakVertical ? 64 : 0);
+            meter->setLevels(db, db);
+            values.push_back(label + ": " +
+                             (amplitude > 0 ? QString::number(std::clamp(db, -72.0, 12.0), 'f', 1) + " dB"
+                                            : QString::fromUtf8("−∞")));
+        }
+        card->setToolTip(name + "\n" + values.join('\n'));
     }
     else
     {
