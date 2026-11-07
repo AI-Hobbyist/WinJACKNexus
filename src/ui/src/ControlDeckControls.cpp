@@ -57,7 +57,20 @@ bool Editor::refreshControl(C::ActionButton *card, const Endpoint &endpoint)
         title = new C::TextLabel(card);
         title->setObjectName("controlDeck.controlTitle");
         title->setAttribute(Qt::WA_TransparentForMouseEvents);
-        layout->addWidget(title);
+        if (analysis && analysis->kind == Common::AnalysisKind::spectrogram)
+        {
+            auto *header = new QHBoxLayout;
+            header->addWidget(title);
+            auto *badge = new C::TextLabel(card);
+            badge->setObjectName("controlDeck.overloadBadge");
+            badge->setAttribute(Qt::WA_TransparentForMouseEvents);
+            badge->hide();
+            header->addWidget(badge);
+            header->addStretch();
+            layout->addLayout(header);
+        }
+        else
+            layout->addWidget(title);
         QWidget *control;
         if (analysis)
         {
@@ -126,6 +139,25 @@ bool Editor::refreshControl(C::ActionButton *card, const Endpoint &endpoint)
     if (analysis)
     {
         card->setToolTip(name + "\n" + analysis->recordingStatus());
+        if (auto *badge = card->findChild<QLabel *>("controlDeck.overloadBadge"))
+        {
+            auto *plot = dynamic_cast<UI::AudioAnalysisWidget *>(
+                card->findChild<QWidget *>("controlDeck.analysisPlot"));
+            const double overload = plot->overloadDb();
+            badge->setText(UI::localizedText(endpoint.domain.toUtf8().constData(), "analysisOverload",
+                                             "Over +{value} dB",
+                                             {{"value", QString::number(overload, 'f', 1)}}));
+            C::Palette colors;
+            colors.background = card->palette().color(QPalette::Window);
+            colors.panel = card->palette().color(QPalette::Base);
+            colors.accent = card->palette().color(QPalette::Highlight);
+            colors.border =
+                C::themeTokenColor("global", "border-normal", card->palette().color(QPalette::Mid));
+            colors.text = C::themeTokenColor("global", "analysis-overload-text",
+                                             card->palette().color(QPalette::BrightText));
+            C::applyPalette(badge, colors);
+            badge->setVisible(overload > 0);
+        }
     }
     else if (endpoint.peak)
     {

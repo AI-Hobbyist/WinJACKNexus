@@ -18,7 +18,9 @@
       "analysisCustomGrid": "自定义行列…",
       "analysisRows": "行数",
       "analysisColumns": "列数",
-      "analysisGridHint": "格数不足时自动增加行数，确保所有分区均显示。"
+      "analysisGridHint": "格数不足时自动增加行数，确保所有分区均显示。",
+      "analysisPalette": "光谱预设",
+      "analysisOverload": "超限 +{value} dB"
     }
   }
 }

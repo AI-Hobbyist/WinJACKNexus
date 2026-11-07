@@ -18,7 +18,9 @@
       "analysisCustomGrid": "Custom rows and columns…",
       "analysisRows": "Rows",
       "analysisColumns": "Columns",
-      "analysisGridHint": "Rows expand automatically when needed to show every panel."
+      "analysisGridHint": "Rows expand automatically when needed to show every panel.",
+      "analysisPalette": "Spectrum palette",
+      "analysisOverload": "Over +{value} dB"
     }
   }
 }

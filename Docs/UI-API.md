@@ -615,4 +615,12 @@ Control Deck 数字卡片及多声道分区排列支持默认垂直、水平和�
 
 公共分析控件为分声道图表绘制独立卡片，复用 drawSurface 和全局 surface-raised/border-normal/声道色 Token。频谱两轴为频率与 dBFS，声谱两轴为相对时间与频率。横纵轴依据字体度量和各分区尺寸独立自动隐藏/恢复。声谱每512样本写入历史列，时间刻度依照采样率而非 UI 刷新频率。
 
-声谱图默认彩虹能量渐变另使用 analysis-spectrum-violet/cyan/green/red，与既有 floor/mid/hot 一起组成七个色阶；新增项在主题注册表和默认 CSS 中统一声明。新建分析图表默认 separate=false、overlay=false，保存的模式按工程恢复。
+声谱图 Custom 色板使用 analysis-spectrum-violet/cyan/green/red，与既有 floor/mid/hot 一起组成七个色阶；新增项在主题注册表和默认 CSS 中统一声明。新建分析图表默认 separate=false、overlay=false，保存的模式按工程恢复。
+
+声谱图右键光谱预设为 Rainbow（默认）、Fire、Blue Cyan、Grayscale、Custom。前四个使用 common/SpectrogramPalette.hpp 中的固定 LUT 数据，不读取主题光谱颜色；只有 Custom 从公共主题色阶构造 LUT。预设序号 0–4 保存为节点 JSON 的 spectrogramPalette，旧工程缺省为 Rainbow。切换色板清空旧光谱历史，避免混用颜色。坐标、文字和卡片仍由常规 UI 主题控制。
+
+声谱图右侧显示共享的强度色带和 与电平表相同的 −72/−48/−24/−12/0/+12 dBFS 刻度，低能量在下、高能量在上；色带随所选光谱预设实时变化，多声道分区共用该强度标尺。空间不足时隐藏色带以保留图形，横纵坐标轴仍各自独立判断是否显示。
+
+声谱强度标尺范围为 −72 至 +12 dBFS，复用公共 drawMeterScale；颜色只在 −72 至 0 dBFS 变化，0 dBFS 及以上一律使用所选色带最高点。common 的 spectrogramColorAmount 统一执行该饱和映射。
+
+声谱图标题旁在强度超过 0 dBFS 时显示“超限 +X.X dB”，默认红色，使用公共 Token analysis-overload-text；恢复正常后自动隐藏。超限数值按当前显示模式的最高频谱格计算：综合模式先按声道功率平均，分声道模式取各声道最高值。公共 AudioAnalysisWidget::overloadDb() 提供这一实时只读值，common analysisOverloadDb 复用相同聚合算法。

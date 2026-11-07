@@ -8,6 +8,7 @@
 #include <QDirIterator>
 #include <QFontDatabase>
 #include <QJsonDocument>
+#include <QLabel>
 #include <QLibrary>
 #include <QMenu>
 #include <QScreen>
@@ -86,6 +87,19 @@ int main(int argc, char **argv)
         if (capture->samples.size() != 8192 || capture->revision.load() != 0)
             return fail(__LINE__);
         std::puts("PASS common FFT, anti-phase power aggregation and supported 8192-frame capture");
+        const auto gray = Common::spectrogramPaletteColor(Common::SpectrogramPalette::grayscale, 0.25);
+        const auto fire = Common::spectrogramPaletteColor(Common::SpectrogramPalette::fire, 0.75);
+        const auto rainbow = Common::spectrogramPaletteColor(Common::SpectrogramPalette::rainbow, 0);
+        if (gray != std::array{0.25, 0.25, 0.25} || fire[0] <= fire[1] || fire[1] <= fire[2] ||
+            std::abs(rainbow[0] - 23.0 / 255) > 1e-12 || Common::spectrogramColorAmount(-72) != 0 ||
+            Common::spectrogramColorAmount(-36) != 0.5 || Common::spectrogramColorAmount(0) != 1 ||
+            Common::spectrogramColorAmount(12) != 1)
+            return fail(__LINE__);
+        std::array<std::array<double, 512>, 8> overloaded{};
+        overloaded[0][8] = 4;
+        if (std::abs(Common::analysisOverloadDb(overloaded, 2, false) - 10 * std::log10(2)) > 1e-12 ||
+            std::abs(Common::analysisOverloadDb(overloaded, 2, true) - 10 * std::log10(4)) > 1e-12)
+            return fail(__LINE__);
     }
     for (const auto *type :
          {"oscilloscope", "spectrogram", "polar", "spectrum_bars", "spectrum_curve", "loudness"})
@@ -129,7 +143,9 @@ int main(int argc, char **argv)
                     return fail(__LINE__);
             }
             auto source = service.analysis(service.endpoints[node].id);
-            if (!source || source->channels != channels || source->separate.load() || source->overlay.load())
+            if (!source || source->channels != channels || source->separate.load() ||
+                source->overlay.load() ||
+                source->spectrogramPalette.load() != Common::SpectrogramPalette::rainbow)
                 return fail(__LINE__);
             auto *editor = service.showEditor();
             editor->resize(1000, 800);
@@ -166,7 +182,7 @@ int main(int argc, char **argv)
                 if (!reference->prepare({48000, true}, referenceLayout))
                     return fail(__LINE__);
             }
-            const auto feed = [&](unsigned blocks, bool silent = false)
+            const auto feed = [&](unsigned blocks, bool silent = false, double amplitude = 0.25)
             {
                 for (unsigned count = 0; count < blocks; ++count)
                 {
@@ -174,8 +190,8 @@ int main(int argc, char **argv)
                         for (unsigned index = 0; index < 256; ++index)
                             samples[channel][index] =
                                 silent ? 0
-                                       : float(0.25 * std::sin(2 * std::numbers::pi * (channel + 1) * 375 *
-                                                               (time + index) / 48000));
+                                       : float(amplitude * std::sin(2 * std::numbers::pi * (channel + 1) *
+                                                                    375 * (time + index) / 48000));
                     api->process(node, &block);
                     if (reference)
                     {
@@ -275,6 +291,8 @@ int main(int argc, char **argv)
                                        auto *menu = qobject_cast<QMenu *>(QApplication::activePopupWidget());
                                        if (!menu)
                                            return;
+                                       while (auto *parent = qobject_cast<QMenu *>(menu->parentWidget()))
+                                           menu = parent;
                                        menuChecked = true;
                                        auto *vertical =
                                            menu->findChild<QAction *>("controlDeck.arrangement.0");
@@ -298,8 +316,13 @@ int main(int argc, char **argv)
                                    });
                 QMetaObject::invokeMethod(plot, "customContextMenuRequested", Qt::DirectConnection,
                                           Q_ARG(QPoint, QPoint(5, 5)));
+                QTest::qWait(200);
                 if (!menuChecked || source->metricMask.load() != 0x3f || source->verticalArrangement.load())
+                {
+                    std::printf("MENU checked=%d mask=%u vertical=%d\n", menuChecked,
+                                source->metricMask.load(), source->verticalArrangement.load());
                     return fail(__LINE__);
+                }
             }
             else
             {
@@ -363,6 +386,44 @@ int main(int argc, char **argv)
                     source->layoutColumns.store(4);
                 }
             }
+            if (source->kind == Common::AnalysisKind::spectrogram)
+            {
+                bool paletteChosen = false;
+                QTimer::singleShot(40, editor,
+                                   [&]
+                                   {
+                                       auto *menu = qobject_cast<QMenu *>(QApplication::activePopupWidget());
+                                       if (!menu)
+                                           return;
+                                       while (auto *parent = qobject_cast<QMenu *>(menu->parentWidget()))
+                                           menu = parent;
+                                       auto *rainbow =
+                                           menu->findChild<QAction *>("controlDeck.spectrogramPalette.0");
+                                       auto *custom =
+                                           menu->findChild<QAction *>("controlDeck.spectrogramPalette.4");
+                                       paletteChosen = rainbow && rainbow->isChecked() && custom;
+                                       if (custom)
+                                           custom->trigger();
+                                       menu->close();
+                                   });
+                QMetaObject::invokeMethod(plot, "customContextMenuRequested", Qt::DirectConnection,
+                                          Q_ARG(QPoint, QPoint(5, 5)));
+                QTest::qWait(200);
+                if (!paletteChosen || source->spectrogramPalette.load() != Common::SpectrogramPalette::custom)
+                    return fail(__LINE__);
+                if (channels == 8)
+                    for (unsigned palette = 0; palette < 5; ++palette)
+                    {
+                        source->separate.store(false);
+                        source->spectrogramPalette.store(static_cast<Common::SpectrogramPalette>(palette));
+                        feed(20);
+                        if (!editor->screen()
+                                 ->grabWindow(editor->winId())
+                                 .save(app.applicationDirPath() + "/../../control-deck-spectrogram-palette-" +
+                                       QString::number(palette) + ".png"))
+                            return fail(__LINE__);
+                    }
+            }
             if (source->kind == Common::AnalysisKind::spectrumCurve)
             {
                 bool overlayChosen = false;
@@ -372,6 +433,8 @@ int main(int argc, char **argv)
                                        auto *menu = qobject_cast<QMenu *>(QApplication::activePopupWidget());
                                        if (!menu)
                                            return;
+                                       while (auto *parent = qobject_cast<QMenu *>(menu->parentWidget()))
+                                           menu = parent;
                                        if (auto *action =
                                                menu->findChild<QAction *>("controlDeck.analysisMode.2"))
                                        {
@@ -382,6 +445,7 @@ int main(int argc, char **argv)
                                    });
                 QMetaObject::invokeMethod(plot, "customContextMenuRequested", Qt::DirectConnection,
                                           Q_ARG(QPoint, QPoint(5, 5)));
+                QTest::qWait(200);
                 if (!overlayChosen || !source->overlay.load() || source->separate.load())
                     return fail(__LINE__);
                 feed(20);
@@ -391,9 +455,36 @@ int main(int argc, char **argv)
                          .save(app.applicationDirPath() + "/../../control-deck-spectrum-curve-overlay.png"))
                     return fail(__LINE__);
             }
+            if (source->kind == Common::AnalysisKind::spectrogram)
+            {
+                auto *badge = editor->findChild<QLabel *>("controlDeck.overloadBadge");
+                feed(8, false, 4.0);
+                if (!badge || !wait([&] { return plot->overloadDb() > 2 && badge->isVisible(); }))
+                    return fail(__LINE__);
+                if (badge->palette().color(QPalette::WindowText) != QColor("#f04452"))
+                    return fail(__LINE__);
+                if (channels == 8 &&
+                    !editor->screen()
+                         ->grabWindow(editor->winId())
+                         .save(app.applicationDirPath() + "/../../control-deck-spectrogram-overload.png"))
+                    return fail(__LINE__);
+                if (channels == 8)
+                {
+                    const QString token = "--wjn-theme-global-analysis-overload-text";
+                    if (!theme.setOverride(token, "#00ff00", {}, nullptr) ||
+                        !wait([&]
+                              { return badge->palette().color(QPalette::WindowText) == QColor("#00ff00"); }))
+                        return fail(__LINE__);
+                    theme.removeOverride(token);
+                }
+                feed(8);
+                if (!wait([&] { return plot->overloadDb() == 0 && !badge->isVisible(); }))
+                    return fail(__LINE__);
+            }
             const auto saved = QByteArray(get(node));
             const auto savedSeparate = source->separate.load();
             const auto savedOverlay = source->overlay.load();
+            const auto savedPalette = source->spectrogramPalette.load();
             const auto savedRows = source->layoutRows.load();
             const auto savedColumns = source->layoutColumns.load();
             const auto savedVertical = source->verticalArrangement.load();
@@ -402,13 +493,14 @@ int main(int argc, char **argv)
             source->verticalArrangement.store(!savedVertical);
             source->overlay.store(!savedOverlay);
             source->separate.store(!savedSeparate);
+            source->spectrogramPalette.store(Common::SpectrogramPalette::fire);
             if (!set(node, saved.constData()))
                 return fail(__LINE__);
             if (source->layoutRows.load() != savedRows || source->layoutColumns.load() != savedColumns ||
                 source->verticalArrangement.load() != savedVertical)
                 return fail(__LINE__);
             if (source->separate.load() != savedSeparate || source->overlay.load() != savedOverlay ||
-                !source->logarithmic.load())
+                !source->logarithmic.load() || source->spectrogramPalette.load() != savedPalette)
                 return fail(__LINE__);
             if (source->kind == Common::AnalysisKind::loudness &&
                 (!source->csvEnabled || source->csvUseGlobal || source->numeric.load() ||

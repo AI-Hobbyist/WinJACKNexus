@@ -335,6 +335,26 @@ void Editor::showCardMenu(const QString &id, const QPoint &global)
         }
         if (source && source->kind == Common::AnalysisKind::spectrogram)
         {
+            auto *palettes = menu.addMenu(QString());
+            palettes->setObjectName("controlDeck.spectrogramPaletteMenu");
+            UI::bindLocalizedText(palettes, "title", endpoint->domain.toUtf8().constData(), "analysisPalette",
+                                  "Spectrum palette");
+            auto *paletteGroup = new QActionGroup(palettes);
+            const char *names[]{"Rainbow", "Fire", "Blue Cyan", "Grayscale", "Custom"};
+            for (unsigned index = 0; index < 5; ++index)
+            {
+                auto *choice = palettes->addAction(QString::fromLatin1(names[index]));
+                choice->setObjectName(QStringLiteral("controlDeck.spectrogramPalette.%1").arg(index));
+                choice->setCheckable(true);
+                choice->setChecked(unsigned(source->spectrogramPalette.load()) == index);
+                paletteGroup->addAction(choice);
+                connect(choice, &QAction::triggered, &menu,
+                        [this, source, index]
+                        {
+                            source->spectrogramPalette.store(static_cast<Common::SpectrogramPalette>(index));
+                            service_.notify(true);
+                        });
+            }
             auto *scale = menu.addMenu(QString());
             scale->setObjectName("controlDeck.analysisScaleMenu");
             UI::bindLocalizedText(scale, "title", endpoint->domain.toUtf8().constData(), "analysisScale",

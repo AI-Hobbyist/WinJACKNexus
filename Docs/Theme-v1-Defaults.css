@@ -899,3 +899,7 @@
   --wjn-theme-global-analysis-spectrum-green: #35d05b;
   --wjn-theme-global-analysis-spectrum-red: #f04a3a;
 }
+
+:root {
+  --wjn-theme-global-analysis-overload-text: #f04452;
+}

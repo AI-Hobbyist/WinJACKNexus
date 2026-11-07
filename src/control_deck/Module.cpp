@@ -320,6 +320,7 @@ class SwitchNode final : public WinJACKNexus::Node::INode
         {
             object["analysisSeparate"] = analysis_->separate.load();
             object["analysisOverlay"] = analysis_->overlay.load();
+            object["spectrogramPalette"] = int(analysis_->spectrogramPalette.load());
             object["analysisVerticalArrangement"] = analysis_->verticalArrangement.load();
             object["analysisLayoutRows"] = int(analysis_->layoutRows.load());
             object["analysisLayoutColumns"] = int(analysis_->layoutColumns.load());
@@ -413,6 +414,8 @@ class SwitchNode final : public WinJACKNexus::Node::INode
         {
             analysis_->separate.store(object["analysisSeparate"].toBool());
             analysis_->overlay.store(object["analysisOverlay"].toBool());
+            analysis_->spectrogramPalette.store(static_cast<WinJACKNexus::Common::SpectrogramPalette>(
+                std::clamp(object["spectrogramPalette"].toInt(), 0, 4)));
             analysis_->verticalArrangement.store(object["analysisVerticalArrangement"].toBool(true));
             analysis_->layoutRows.store(unsigned(std::clamp(object["analysisLayoutRows"].toInt(), 0, 8)));
             analysis_->layoutColumns.store(

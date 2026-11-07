@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 #include <QImage>
+#include <QLinearGradient>
 #include <QPainter>
 #include <QPainterPath>
 #include <QStyle>
@@ -60,6 +61,7 @@ class AudioAnalysisWidget::Impl
     unsigned position{}, pending{}, rate{48000};
     std::uint64_t revision{};
     bool lastSeparate{}, lastLog{};
+    Common::SpectrogramPalette lastPalette = Common::SpectrogramPalette::rainbow;
 
     Impl(AudioAnalysisWidget &widget, std::shared_ptr<Common::AnalysisCapture> capture, QString domain)
         : owner(widget), source(std::move(capture)), domain(std::move(domain))
@@ -71,7 +73,7 @@ class AudioAnalysisWidget::Impl
             for (unsigned channel = 0; channel < source->channels; ++channel)
             {
                 history[channel] = QImage(256, 128, QImage::Format_RGB32);
-                history[channel].fill(color(owner, "analysis-spectrum-floor", QPalette::Base));
+                history[channel].fill(spectrumColor(0));
             }
         owner.setMinimumSize(200, 120);
         if (source->kind == Kind::loudness)
@@ -152,7 +154,7 @@ class AudioAnalysisWidget::Impl
         rms = {};
         position = pending = 0;
         for (auto &image : history)
-            image.fill(color(owner, "analysis-spectrum-floor", QPalette::Base));
+            image.fill(spectrumColor(0));
     }
     void analyzeWindow()
     {
@@ -187,12 +189,14 @@ class AudioAnalysisWidget::Impl
         }
         const bool separate = source->separate.load();
         const bool logarithmic = source->logarithmic.load();
-        if (lastSeparate != separate || lastLog != logarithmic)
+        const auto palette = source->spectrogramPalette.load();
+        if (lastSeparate != separate || lastLog != logarithmic || lastPalette != palette)
         {
             for (auto &image : history)
-                image.fill(color(owner, "analysis-spectrum-floor", QPalette::Base));
+                image.fill(spectrumColor(0));
             lastSeparate = separate;
             lastLog = logarithmic;
+            lastPalette = palette;
         }
         Common::AnalysisFrame frame;
         unsigned read = 0;
@@ -230,7 +234,14 @@ class AudioAnalysisWidget::Impl
     QColor spectrumColor(double power) const
     {
         const double db = power > 0 ? 10 * std::log10(power) : -90;
-        const double amount = std::clamp((db + 90) / 90, 0.0, 1.0);
+        const double amount = source->kind == Kind::spectrogram ? Common::spectrogramColorAmount(db)
+                                                                : std::clamp((db + 90) / 90, 0.0, 1.0);
+        const auto palette = source->spectrogramPalette.load();
+        if (source->kind == Kind::spectrogram && palette != Common::SpectrogramPalette::custom)
+        {
+            const auto rgb = Common::spectrogramPaletteColor(palette, amount);
+            return QColor::fromRgbF(rgb[0], rgb[1], rgb[2]);
+        }
         const auto low = color(owner, "analysis-spectrum-floor", QPalette::Base);
         const auto middle = color(owner, "analysis-spectrum-mid", QPalette::Highlight);
         const auto high = color(owner, "analysis-spectrum-hot", QPalette::BrightText);
@@ -325,12 +336,44 @@ class AudioAnalysisWidget::Impl
         }
         return plot;
     }
+    void drawIntensityScale(QPainter &painter, const QRectF &bounds)
+    {
+        const auto metrics = owner.fontMetrics();
+        const qreal height = metrics.height();
+        const QRectF bar(bounds.left(), bounds.top() + height / 2, height / 2, bounds.height() - height);
+        QLinearGradient gradient(bar.bottomLeft(), bar.topLeft());
+        for (unsigned stop = 0; stop <= 64; ++stop)
+        {
+            const double fraction = stop / 64.0;
+            const double db = Common::spectrogramMinimumDb +
+                              fraction * (Common::spectrogramMaximumDb - Common::spectrogramMinimumDb);
+            gradient.setColorAt(fraction, spectrumColor(std::pow(10.0, db / 10)));
+        }
+        gradient.setColorAt(-Common::spectrogramMinimumDb /
+                                (Common::spectrogramMaximumDb - Common::spectrogramMinimumDb),
+                            spectrumColor(1));
+        painter.fillRect(bar, gradient);
+        painter.setPen(color(owner, "border-normal", QPalette::Mid));
+        painter.setBrush(Qt::NoBrush);
+        painter.drawRect(bar);
+        Controls::MeterStyle style;
+        style.vertical = true;
+        style.minimumDb = Common::spectrogramMinimumDb;
+        style.maximumDb = Common::spectrogramMaximumDb;
+        style.tickBandPixels = bounds.right() - bar.right();
+        style.tickColor = color(owner, "border-normal", QPalette::Mid);
+        style.labelColor = color(owner, "text-muted", QPalette::WindowText);
+        style.ticks = {{-72, "-72 dBFS"}, {-48, "-48 dBFS"}, {-24, "-24 dBFS"},
+                       {-12, "-12 dBFS"}, {0, "0 dBFS"},     {12, "+12 dBFS"}};
+        Controls::drawMeterScale(
+            painter, QRectF(bar.right(), bar.top(), bounds.right() - bar.right(), bar.height()), style);
+    }
     void paint(QPainter &painter)
     {
         painter.fillRect(owner.rect(), color(owner, "surface-panel", QPalette::Base));
         painter.setRenderHint(QPainter::Antialiasing);
         const int margin = owner.style()->pixelMetric(QStyle::PM_LayoutLeftMargin);
-        const QRectF area = QRectF(owner.rect()).adjusted(margin, margin, -margin, -margin);
+        QRectF area = QRectF(owner.rect()).adjusted(margin, margin, -margin, -margin);
         if (source->kind == Kind::loudness)
         {
             paintLoudness(painter, area);
@@ -340,6 +383,18 @@ class AudioAnalysisWidget::Impl
         {
             polar(painter, area);
             return;
+        }
+        if (source->kind == Kind::spectrogram)
+        {
+            const auto metrics = owner.fontMetrics();
+            const qreal scaleWidth = metrics.horizontalAdvance("-90 dBFS") + metrics.height();
+            if (area.width() >= scaleWidth + metrics.horizontalAdvance("24 kHz") * 4 &&
+                area.height() >= metrics.height() * 9)
+            {
+                drawIntensityScale(painter,
+                                   QRectF(area.right() - scaleWidth, area.top(), scaleWidth, area.height()));
+                area.adjust(0, 0, -scaleWidth - margin / 2, 0);
+            }
         }
         const bool separate = source->separate.load();
         const unsigned panels = separate ? source->channels : 1;
@@ -598,6 +653,13 @@ double AudioAnalysisWidget::dominantFrequency(unsigned channel) const
 Common::MeterSnapshot AudioAnalysisWidget::loudnessSnapshot() const
 {
     return impl_->source->loudnessSnapshot();
+}
+double AudioAnalysisWidget::overloadDb() const
+{
+    return impl_->source->kind == Kind::spectrogram
+               ? Common::analysisOverloadDb(impl_->powers, impl_->source->channels,
+                                            impl_->source->separate.load())
+               : 0;
 }
 void AudioAnalysisWidget::paintEvent(QPaintEvent *)
 {

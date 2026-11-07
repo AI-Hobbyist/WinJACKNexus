@@ -18,7 +18,9 @@
       "analysisCustomGrid": "行と列を指定…",
       "analysisRows": "行数",
       "analysisColumns": "列数",
-      "analysisGridHint": "すべてのパネルを表示するため必要に応じて行数を増やします。"
+      "analysisGridHint": "すべてのパネルを表示するため必要に応じて行数を増やします。",
+      "analysisPalette": "スペクトル配色",
+      "analysisOverload": "超過 +{value} dB"
     }
   }
 }

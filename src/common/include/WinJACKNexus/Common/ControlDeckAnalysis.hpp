@@ -3,6 +3,7 @@
 #include <QString>
 #include <WinJACKNexus/Common/LockFreeSpscQueue.hpp>
 #include <WinJACKNexus/Common/MeterSnapshot.hpp>
+#include <WinJACKNexus/Common/SpectrogramPalette.hpp>
 #include <algorithm>
 #include <array>
 #include <atomic>
@@ -40,6 +41,7 @@ class AnalysisCapture final
     const unsigned channels;
     std::atomic<bool> separate{};
     std::atomic<bool> overlay{};
+    std::atomic<SpectrogramPalette> spectrogramPalette{SpectrogramPalette::rainbow};
     std::atomic<bool> verticalArrangement{true};
     std::atomic<unsigned> layoutRows{}, layoutColumns{};
     std::atomic<bool> logarithmic{};
@@ -118,6 +120,22 @@ inline double analysisMeanPower(const std::array<std::array<double, 512>, 8> &po
     for (unsigned channel = 0; channel < channels; ++channel)
         sum += powers[channel][bin];
     return sum / channels;
+}
+
+// Highest displayed spectral-bin level above 0 dBFS, in the selected aggregation mode.
+inline double analysisOverloadDb(const std::array<std::array<double, 512>, 8> &powers, unsigned channels,
+                                 bool separate)
+{
+    double peak = 0;
+    for (unsigned bin = 0; bin < powers[0].size(); ++bin)
+    {
+        if (separate)
+            for (unsigned channel = 0; channel < channels; ++channel)
+                peak = std::max(peak, powers[channel][bin]);
+        else
+            peak = std::max(peak, analysisMeanPower(powers, channels, bin));
+    }
+    return peak > 1 ? 10 * std::log10(peak) : 0;
 }
 
 // Hann-windowed radix-2 FFT. Runs only on the consumer/UI side. Values are

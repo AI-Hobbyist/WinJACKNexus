@@ -34,7 +34,7 @@ def main() -> None:
         files[f"ControlDeck/{name}"] = ROOT / "Docs/ControlDeck" / name
     files["licenses/WinJACKNexus-AGPL-3.0.txt"] = ROOT / "LICENSE"
     make_archive(
-        "Control-Deck-Overlay-20261107-Axes-Cards-Rainbow.zip",
+        "Control-Deck-Overlay-20261107-Palettes.zip",
         "incremental Control Deck peak, analysis and loudness overlay",
         files,
     )

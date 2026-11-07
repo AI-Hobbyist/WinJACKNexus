@@ -18,6 +18,7 @@ class WINJACK_UI_API AudioAnalysisWidget final : public QWidget
     ~AudioAnalysisWidget() override;
     std::array<double, 8> rmsLevels() const;
     double dominantFrequency(unsigned channel) const;
+    double overloadDb() const;
     Common::MeterSnapshot loudnessSnapshot() const;
 
   protected:

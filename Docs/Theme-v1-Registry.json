@@ -7427,7 +7427,7 @@
       "type": "color",
       "default": "#8b3ff2",
       "inherits": [],
-      "description": "Spectrogram rainbow violet energy stop"
+      "description": "Custom spectrogram violet energy stop"
     },
     {
       "name": "--wjn-theme-global-analysis-spectrum-cyan",
@@ -7435,7 +7435,7 @@
       "type": "color",
       "default": "#24d8e8",
       "inherits": [],
-      "description": "Spectrogram rainbow cyan energy stop"
+      "description": "Custom spectrogram cyan energy stop"
     },
     {
       "name": "--wjn-theme-global-analysis-spectrum-green",
@@ -7443,7 +7443,7 @@
       "type": "color",
       "default": "#35d05b",
       "inherits": [],
-      "description": "Spectrogram rainbow green energy stop"
+      "description": "Custom spectrogram green energy stop"
     },
     {
       "name": "--wjn-theme-global-analysis-spectrum-red",
@@ -7451,7 +7451,15 @@
       "type": "color",
       "default": "#f04a3a",
       "inherits": [],
-      "description": "Spectrogram rainbow red energy stop"
+      "description": "Custom spectrogram red energy stop"
+    },
+    {
+      "name": "--wjn-theme-global-analysis-overload-text",
+      "ownerScope": "global",
+      "type": "color",
+      "default": "#f04452",
+      "inherits": [],
+      "description": "Spectrogram title over-zero excess text"
     }
   ]
 }
