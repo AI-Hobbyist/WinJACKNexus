@@ -186,47 +186,56 @@ class Worker final : public QObject
             if (!entry.generation)
                 continue;
             const auto channels = Model::channelCount(entry.publication.stream.layout);
-            const auto count =
-                entry.publication.audio->read(std::span(frames).first(entry.publication.audio->rate() / 100));
-            std::size_t valid = 0;
-            const auto now = Model::AudioStream::nowNanoseconds();
-            for (std::size_t index = 0; index < count; ++index)
+            // Timer delivery can be delayed beyond one 10 ms chunk. Drain a
+            // bounded 100 ms budget per stream rather than falling behind on
+            // every wake; the existing age/continuity checks still apply.
+            for (unsigned batch = 0; batch < 10; ++batch)
             {
-                const auto &frame = frames[index];
-                if (frame.generation != entry.generation)
-                    continue;
-                if (now - frame.createdNanoseconds > 100000000)
+                const auto count = entry.publication.audio->read(
+                    std::span(frames).first(entry.publication.audio->rate() / 100));
+                if (!count)
+                    break;
+                std::size_t valid = 0;
+                const auto now = Model::AudioStream::nowNanoseconds();
+                for (std::size_t index = 0; index < count; ++index)
                 {
-                    ++staleFrames;
-                    continue;
-                }
-                if (!entry.origin)
-                    entry.origin = frame.position;
-                if (frame.position - *entry.origin != entry.cursor + valid)
-                {
-                    fail(QStringLiteral("Audio source exceeded publishing queue budget; restart publishing"));
-                    return;
-                }
-                std::copy_n(frame.samples.data(), channels, samples.data() + valid * channels);
-                ++valid;
-            }
-            if (!valid)
-                continue;
-            try
-            {
-                for (const auto &block :
-                     entry.encoder->push(std::span(samples).first(valid * channels), entry.cursor))
-                    if (!transport.send(block))
+                    const auto &frame = frames[index];
+                    if (frame.generation != entry.generation)
+                        continue;
+                    if (now - frame.createdNanoseconds > 100000000)
                     {
-                        fail(transport.error());
+                        ++staleFrames;
+                        continue;
+                    }
+                    if (!entry.origin)
+                        entry.origin = frame.position;
+                    if (frame.position - *entry.origin != entry.cursor + valid)
+                    {
+                        fail(QStringLiteral(
+                            "Audio source exceeded publishing queue budget; restart publishing"));
                         return;
                     }
-                entry.cursor += valid;
-            }
-            catch (const std::exception &)
-            {
-                fail(QStringLiteral("Audio encoding failed"));
-                return;
+                    std::copy_n(frame.samples.data(), channels, samples.data() + valid * channels);
+                    ++valid;
+                }
+                if (!valid)
+                    continue;
+                try
+                {
+                    for (const auto &block :
+                         entry.encoder->push(std::span(samples).first(valid * channels), entry.cursor))
+                        if (!transport.send(block))
+                        {
+                            fail(transport.error());
+                            return;
+                        }
+                    entry.cursor += valid;
+                }
+                catch (const std::exception &)
+                {
+                    fail(QStringLiteral("Audio encoding failed"));
+                    return;
+                }
             }
         }
         if (reporting.elapsed() >= 100)

@@ -40,6 +40,12 @@ if(BUILD_TESTING)
     add_test(NAME broadcast_gui_tests COMMAND wjn_bc_gui_tests)
     set_tests_properties(broadcast_gui_tests PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=windows")
     add_executable(wjn_bc_service_probe ServiceProbe.cpp)
+    add_executable(wjn_bc_pump_probe PumpProbe.cpp "${PROJECT_SOURCE_DIR}/src/bc/Service.hpp")
+    set_target_properties(wjn_bc_pump_probe PROPERTIES AUTOMOC ON
+        RUNTIME_OUTPUT_DIRECTORY_RELEASE "${WJN_OUTPUT_DIR}")
+    target_compile_definitions(wjn_bc_pump_probe PRIVATE WJN_BROADCAST_RUNTIME_BUILD)
+    target_compile_options(wjn_bc_pump_probe PRIVATE /utf-8)
+    target_link_libraries(wjn_bc_pump_probe PRIVATE bc_state bc_connection bc_udp bc_encoder)
     target_link_libraries(wjn_bc_service_probe PRIVATE broadcast_runtime)
     target_compile_options(wjn_bc_service_probe PRIVATE /utf-8)
     set_target_properties(wjn_bc_service_probe PROPERTIES

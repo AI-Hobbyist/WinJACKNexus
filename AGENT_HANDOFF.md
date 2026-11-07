@@ -1,8 +1,17 @@
 # Agent 交接手册
 
-更新：2026-11-07（Asia/Seoul）。最新任务为配置包Token行尾导致广播保存失败；本节为当前状态，后文为历史。
+更新：2026-11-07（Asia/Seoul）。最新任务为推流队列积压停止及stream_unavailable；本节为当前状态，后文为历史。
 
-## 当前任务：广播Token行尾修复
+## 当前任务：广播发送队列积压
+
+- 用户截图源丢2048/过期288并报超队列预算停止，收听stream_unavailable。发现Worker每次唤醒仅读每流10ms，延迟调度下消费速率不足。生产Worker的离线真实网络RED（48kHz/256帧、20ms唤醒）丢43520/过期43200；未测量现场实际定时器间隔，不宣称现场必定20ms。
+- 最小修复src/bc/Service.cpp：每流每次唤醒最多10批，每批10ms，读空提前停；不变更100ms队列/时效、generation/连续性策略，不改JACK回调。新Develop/Broadcast/PumpProbe.cpp直接包含生产Worker实现，测试中设20ms，生产不加测试接口；CMake仅新增该探针目标，PumpTests.py经真实Rust/UDP/HTTP回归。
+- 必要Release构建通过build/bc-pump-final-build.log；PumpTests+ServiceTests共5项通过23.605秒，build/bc-pump-final-tests.log。延迟唤醒零丢/零过期且HTTP取到WAV；四布局完整及所有分声道WAV/Opus、两个owner、停止重启/移除和断网本地监听继续均通过。测试直接运行Python，不冒称CTest枚举。
+- 初始测试构建缺numbers头、Python缺模块路径均已修正。最终diff已检查/格式化，无offscreen或Computer Use，未启动/停止用户应用或JACK进程。真实现场JACK/域名WS-UDP/听音和人工安装验收SKIPPED（用户指令），未向远端发布测试音频。
+- 用户明确要求不要反复询问；优先从日志/源码/离线测试自主排查。原回复“4800/256”作为参考，回归采用48k/256，不再追问。继续保留无关未跟踪文件及旧包。当前待提交推送检查点，生成仅broadcast_runtime.dll及说明/许可证的增量包，记录哈希并收尾提交。文档Docs/Broadcast/推流队列积压修复.md。
+- 最近可靠额度10080分钟池已用33%、剩余67%，重置1794405624，未触发交接阈值。
+
+## 历史任务：广播Token行尾修复
 
 - 用户从 build/Remote-Audio-Config-20261107.zip 的publish.token复制后保存失败。仅检查字节元数据：64正文+CRLF=66字节，无BOM/NUL，未输出Token。服务端trim文件而旧客户端拒绝行尾；隔离RED复现同一错误。
 - 已在 src/bc/Connection.cpp 的 Credentials::write 规范化首尾ASCII空白，保留正文长度/中间CRLF/NUL校验，空白正文仍拒绝，失败不覆盖旧凭据。Develop/Broadcast/ConnectionTests.cpp新增6个回归检查。没有改变服务端协议或凭据存储位置。
