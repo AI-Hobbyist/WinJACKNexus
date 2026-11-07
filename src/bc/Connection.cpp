@@ -92,8 +92,11 @@ bool saveGlobalConnection(const ConnectionSettings &connection, QString *error)
     return saveConnection(settings, connection, error);
 }
 
-bool Credentials::write(const QString &target, const QByteArray &token, QString *error)
+bool Credentials::write(const QString &target, const QByteArray &rawToken, QString *error)
 {
+    // Match the server's token-file trimming so copying a line ending does not
+    // change the bearer credential. Interior control characters remain invalid.
+    const auto token = rawToken.trimmed();
     if (!validCredentialTarget(target) || token.isEmpty() || token.size() > CRED_MAX_CREDENTIAL_BLOB_SIZE ||
         token.contains('\r') || token.contains('\n') || token.contains('\0'))
         return fail(error, QStringLiteral("Invalid broadcast credential target or token"));

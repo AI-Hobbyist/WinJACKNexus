@@ -1,8 +1,16 @@
 # Agent 交接手册
 
-更新：2026-11-07（Asia/Seoul）。最新任务为极坐标填充能量轮廓与独立 LFE 圈；本节为当前状态，后文为历史。
+更新：2026-11-07（Asia/Seoul）。最新任务为配置包Token行尾导致广播保存失败；本节为当前状态，后文为历史。
 
-## 当前任务：极坐标轮廓模式
+## 当前任务：广播Token行尾修复
+
+- 用户从 build/Remote-Audio-Config-20261107.zip 的publish.token复制后保存失败。仅检查字节元数据：64正文+CRLF=66字节，无BOM/NUL，未输出Token。服务端trim文件而旧客户端拒绝行尾；隔离RED复现同一错误。
+- 已在 src/bc/Connection.cpp 的 Credentials::write 规范化首尾ASCII空白，保留正文长度/中间CRLF/NUL校验，空白正文仍拒绝，失败不覆盖旧凭据。Develop/Broadcast/ConnectionTests.cpp新增6个回归检查。没有改变服务端协议或凭据存储位置。
+- 必要Release构建通过 build/bc-token-crlf-final-build.log；凭据与真实Windows广播GUI测试2/2通过（3.40秒），build/bc-token-crlf-final-tests.log。测试仅临时设置和唯一虚构凭据，无用户凭据访问/写入。无offscreen/Computer Use，未覆盖安装目录或启动/停止用户应用。
+- 匿名HTTPS检查已确认该域名DNS/TLS及/bc/publish(401 unauthorized)、/bc/listen(400 invalid_publisher)反代可达。带真实Token的远端检查被自动审批拒绝，未执行；只有用户明确授权将指定包内Token发送到 https://wjn.acgnai.top 后才可重试。没有远端认证/实际UDP音频的PASS，不能通过间接脚本绕过拒绝；可选检查不阻塞本地交付。
+- 文档 Docs/Broadcast/Token行尾修复.md。当前待完成：提交推送修复，生成仅broadcast_runtime.dll及说明/许可证的增量包，以及原配置包的无CRLF副本（正文不变，其余文件字节一致；不入Git）；核验后记录交付并收尾提交推送。保持broadcast-system及同名上游，保留所有旧包及无关未跟踪文件。
+
+## 历史任务：极坐标轮廓模式
 
 - 实施及自动验证完成。新增右键显示模式“声道射线”（保留默认）/“填充能量轮廓”，支持1/2/6/8声道；复用 common/MixerPolarCurve 功率域插值、时间平滑和公共 drawPolarCurve，无新增算法或音频回调工作。5.1/7.1 中 LFE 独立颜色的中心强度圈按自身 RMS 缩放，不参与空间方位插值。
 - 只修改公共 ui 的 AudioAnalysisWidget.cpp 和 ControlDeckLayout.cpp；沿用现有 AnalysisCapture.overlay 和 JSON analysisOverlay，无公共结构/模块 ABI 改动。新增3个全局 Token analysis-polar-stroke/fill/lfe-stroke，16个极坐标四语言 catalog。文档规范、组件指南、UI API、Wiki源及极坐标轮廓替换说明已同步。
