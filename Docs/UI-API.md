@@ -36,7 +36,7 @@ coordinates; it does not own a widget or schedule repainting.
 | `CurveStyle`, `drawCurvePath`, `drawPolarCurve`, `drawChart`, `ChartGridStyle`, `drawChartGrid` | Configurable stroke/fill and common plot geometry. Grid divisions or normalized tick positions, color, pen style, width and background are configurable. |
 | `NumericControlSpec`, `editNumericValue`, `resetNumericValue` | Exact numeric entry on readout click and default restoration on double-click. |
 | `ControlRegistry` | Instance-local factory map for module-specific widgets. |
-| `DragTreeWidget` | Reusable sidebar tree drag source. Its caller supplies a MIME-data factory for the selected item; the tree owns the drag and transfers the data to `QDrag`. Patchbay keeps its node payload format outside the UI library. |
+| `DragTreeWidget` | Reusable sidebar tree drag source. Its caller supplies a MIME-data factory for the selected item; the tree owns the drag and transfers the data to `QDrag`. Patchbay keeps its node payload format outside the UI library. On expand/collapse, the control synchronously invalidates accessible row indexes before animation and UIA sibling navigation; callers do not need their own cache workaround. |
 | `TextField`, `SearchField`, `ReadOnlyField`, `ChoiceField`, `ActionButton` | Shared settings controls. Text fields draw their surface while Qt retains text editing; search enables clearing and disables predictive input; read-only fields reject edits. `ChoiceField` draws its surface with `drawDropdown`, leaving an editable field to draw its text once, and `ActionButton` uses `drawButton`. Dark and light themes supply their colors. `ChoiceField::setManualFilterEnabled(true)` enables case-insensitive contains filtering by typing; it is disabled by default. Its default filter placeholder follows the installed i18n manager without changing draft text or selection; an explicitly replaced placeholder belongs to the caller and stops receiving default updates. |
 | `IntegerField`, `DecimalField` | Self-drawn themed numeric surfaces and step arrows with Qt numeric editing and step behavior. Callers supply their own range, step, suffix, value and commit behavior. |
 | `ToggleField`, `RangeSlider` | Self-drawn settings checkbox and horizontal or vertical slider, using Qt only for input, focus and accessibility behavior. Callers configure label, range, orientation and value; the shared theme supplies painted indicator, track and handle colors. |
@@ -590,3 +590,43 @@ Control Deck shared control additions (2026-10-20):
 普通通道 MAIN Pan 保留在 Post 到 Master 的独立分支中，不作用于 AUX Post；Sub Mix 保留原有的同布局输出 Pan。分控增益在 Master 汇总时不会再次叠加。MIX 仅控制是否汇入 Master，不影响 AUX Pre/Post。通道整体 Mute、Solo 和 AUX 开关继续按原有发送门控规则工作。
 
 `AuxSettingsWindow` 的经典 Pan 模式支持分控旋钮独立及联动拖动；空间参数仍仅在空间 Pan 模式下可调。公开函数签名及工程序列化格式不变。对应回归为 `mixer_main_post_tests` 和 `mixer_classic_pan_drag_tests`；后者必须使用 Windows 实窗及系统字体。
+
+### Broadcast Sender composition (S4)
+
+The independent node window composes existing DragTreeWidget (outward dragging disabled), GroupPanel/ScrollField, TextField/ChoiceField/checkable ActionButton, ConsoleKnob and one vertical single-channel FxLevelMeterWidget per stream. There is no new exported shared-control signature or private visual stylesheet. bindMidiToolsTheme uses existing global tokens and passive surfaces; global FPS controls the visible window refresh and shared meter animations. The hidden view stops sampling while node processing continues. Category moves/names/layout edits commit a validated model transaction; deleting a nonempty category asks the user to move/delete its contents first.
+
+Saving server settings updates the process-global service and all windows, stops publishing, and requires explicit Start to resume. A blank token field keeps the saved Credential Manager entry; a supplied token replaces it and is cleared from the editor after successful save. Listening URL copy uses stable publisher/stream/channel/format parameters, with no credential. Displayed UDP counters are sender-side OS-accepted counts; control RTT is not audio latency or server reception evidence.
+
+Production-DLL Windows tests passed 95 checks with 3 top-level shows, Microsoft YaHei UI system font, DPI 96 and scale 1.00. Tests covered Chinese glyph fallback, actual window exposure/capture, four-language and theme changes, controls, model identities and isolated global configuration synchronization. Human visual/listening acceptance remains skipped by user instruction; actual JACK is not initialized by these tests.
+
+- `FxLevelMeterWidget::setReadoutBelow(bool)` (default false) reserves a separate centered readout below a vertical single-channel bar. Horizontal/two-row meters retain existing rendering. This option uses an object property and adds no instance fields. Broadcast strips opt in with a 64 px meter; zero peak is passed as negative infinity and clamped to the existing -72 dB floor, whose readout is `−∞`. Call-site regression: `Develop/Broadcast/GuiTests.cpp`.
+
+- `FxLevelMeterWidget::setReadoutOutside(bool)` (default false) reserves a right-hand readout beside horizontal bars and a bottom readout below vertical single-channel bars. Opt-in only; existing callers retain their layout. Control Deck mono/stereo/5.1/7.1 meters use it per channel and keep the existing orientation setting. Endpoint keeps its existing layout: `peak` points to one atomic for the legacy peak domain, or a contiguous 2/6/8-atomic array for `signalSwitch.peak-stereo`, `signalSwitch.peak-5-1`, `signalSwitch.peak-7-1`. Call-site regression: `src/control_deck/PeakTests.cpp`.
+
+### Control Deck 公共分析控件（2026-11-07）
+
+`<WinJACKNexus/UI/AudioAnalysisWidget.hpp>` 导出 `AudioAnalysisWidget(std::shared_ptr<Common::AnalysisCapture>, QWidget* parent=nullptr, const QString& domain="ui")`。使用 PImpl，公开 `rmsLevels()`、`dominantFrequency(unsigned)`、`loudnessSnapshot()`。普通分析控件是其 capture 的唯一消费者；响度控件只读取后台快照，不消费队列。响度数字模式组合现有公共 `MetricReadout`，引用 Meterbridge 指标强调色 Token；没有复制其绘制实现。控件隐藏时停止 UI 定时器，后台响度与 CSV 不停止。刷新遵守应用 FPS。设置由拥有者的右键菜单提供，控件表面不含设置下拉框或按钮。
+
+公共 common `ControlDeckAnalysis.hpp` 提供固定 1/2/6/8 声道的有界采集、RMS、Hann FFT 和声道功率平均。绘图支持示波器、声谱图、声道能量极坐标、频谱直方图、频谱曲线及综合响度。主题使用 `analysis-channel-1..8`、`analysis-spectrum-floor/mid/hot` 和 `analysis-reference-target/upper/peak`，默认值及注册表属于公共主题系统。开发规则见 [组件开发指南](ControlDeck/组件开发指南.md)，实际模块回调与调用点测试位于 `src/control_deck/AnalysisTests.cpp`。
+
+Control Deck 数字卡片及多声道分区排列支持默认垂直、水平和自定义行列。`AnalysisCapture` 的 `verticalArrangement`、`layoutRows`、`layoutColumns` 由控制线程写入，绘图线程读取；自定义尺寸为零时使用方向，非零时按行列布局并在容量不足时扩展行数。节点 JSON 对应 `analysisVerticalArrangement`、`analysisLayoutRows`、`analysisLayoutColumns`，旧状态缺省为垂直排列。响度电平模式始终为单排垂直表条。
+
+频谱曲线另支持 `AnalysisCapture::overlay`，节点 JSON 为 `analysisOverlay`，缺省 false。彩色叠加模式按声道独立功率曲线绘制并显示匹配图例，继续复用 `analysis-channel-1..8`；综合功率模式和分声道模式保持独立。
+
+公共分析控件为分声道图表绘制独立卡片，复用 drawSurface 和全局 surface-raised/border-normal/声道色 Token。频谱两轴为频率与 dBFS，声谱两轴为相对时间与频率。横纵轴依据字体度量和各分区尺寸独立自动隐藏/恢复。声谱每512样本写入历史列，时间刻度依照采样率而非 UI 刷新频率。
+
+声谱图 Custom 色板使用 analysis-spectrum-violet/cyan/green/red，与既有 floor/mid/hot 一起组成七个色阶；新增项在主题注册表和默认 CSS 中统一声明。新建分析图表默认 separate=false、overlay=false，保存的模式按工程恢复。
+
+声谱图右键光谱预设为 Rainbow（默认）、Fire、Blue Cyan、Grayscale、Custom。前四个使用 common/SpectrogramPalette.hpp 中的固定 LUT 数据，不读取主题光谱颜色；只有 Custom 从公共主题色阶构造 LUT。预设序号 0–4 保存为节点 JSON 的 spectrogramPalette，旧工程缺省为 Rainbow。切换色板清空旧光谱历史，避免混用颜色。坐标、文字和卡片仍由常规 UI 主题控制。
+
+声谱图右侧显示共享的强度色带和 与电平表相同的 −72/−48/−24/−12/0/+12 dBFS 刻度，低能量在下、高能量在上；色带随所选光谱预设实时变化，多声道分区共用该强度标尺。空间不足时隐藏色带以保留图形，横纵坐标轴仍各自独立判断是否显示。
+
+声谱强度标尺范围为 −72 至 +12 dBFS，复用公共 drawMeterScale；颜色只在 −72 至 0 dBFS 变化，0 dBFS 及以上一律使用所选色带最高点。common 的 spectrogramColorAmount 统一执行该饱和映射。
+
+声谱图标题旁在强度超过 0 dBFS 时显示“超限 +X.X dB”，默认红色，使用公共 Token analysis-overload-text；恢复正常后自动隐藏。超限数值按当前显示模式的最高频谱格计算：综合模式先按声道功率平均，分声道模式取各声道最高值。公共 AudioAnalysisWidget::overloadDb() 提供这一实时只读值，common analysisOverloadDb 复用相同聚合算法。
+
+## 极坐标填充能量轮廓
+
+极坐标图的右键“显示模式”提供“声道射线”（默认，兼容旧工程）和“填充能量轮廓”。新模式复用 common/MixerPolarCurve 的功率域插值与时间平滑，以及公共 UI 的 drawPolarCurve；显示半透明闭合空间能量轮廓、固定声道方位圆点及标签。半径沿用 −72 至 +12 dBFS，虚线环标记 0 dBFS；无信号时轮廓回到中心，不归一化放大微弱信号。单声道、立体声、5.1、7.1 均支持，模式保存在既有 analysisOverlay 字段（极坐标下 true 表示填充轮廓），缺省 false 保持射线模式。
+
+5.1/7.1 的 LFE 在中心另绘不同颜色的圆形强度轮廓，半径按 LFE 自身 RMS 映射；不参与空间轮廓插值，不赋予方位。LFE 静音时强度圈收至中心，保留中心标记及 LFE 标签。主题 Token 为全局 analysis-polar-stroke（空间轮廓/方位点）、analysis-polar-fill（含透明度的填充色）、analysis-polar-lfe-stroke（独立 LFE 圈/标记）。颜色、网格和文字均来自公共主题系统。

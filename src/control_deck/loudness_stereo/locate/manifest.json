@@ -1,0 +1,37 @@
+{
+  "formatVersion": 1,
+  "moduleId": "winjacknexus-signal-switch-loudness-stereo",
+  "domains": [
+    "signalSwitch.loudness-stereo"
+  ],
+  "defaultLanguage": "en-US",
+  "catalogVersion": 1,
+  "languages": {
+    "zh-CN": "zh-CN.json",
+    "en-US": "en-US.json",
+    "ja-JP": "ja-JP.json",
+    "ko-KR": "ko-KR.json"
+  },
+  "requiredKeys": {
+    "signalSwitch.loudness-stereo": [
+      "name",
+      "analysisCombined",
+      "analysisSeparate",
+      "analysisLinear",
+      "analysisLog",
+      "analysisNumbers",
+      "analysisMeters",
+      "analysisPreset",
+      "analysisReference",
+      "analysisReferenceHigh",
+      "analysisReferencePeak",
+      "csvSave",
+      "csvSettings",
+      "csvUseGlobal",
+      "csvBrowse",
+      "metricDisplay",
+      "analysisMode",
+      "analysisScale"
+    ]
+  }
+}

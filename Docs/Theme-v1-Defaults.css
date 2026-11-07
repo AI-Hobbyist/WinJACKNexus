@@ -872,3 +872,40 @@
   /* sel-main / Monitor control accent; type=color */
   --wjn-theme-sel-main-control-accent-monitor: var(--wjn-theme-mixer-fader-monitor-thumb);
 }
+
+:root {
+  --wjn-theme-global-analysis-channel-1: #32b8e9;
+  --wjn-theme-global-analysis-channel-2: #ef8655;
+  --wjn-theme-global-analysis-channel-3: #9d7de0;
+  --wjn-theme-global-analysis-channel-4: #dfc54a;
+  --wjn-theme-global-analysis-channel-5: #53bd84;
+  --wjn-theme-global-analysis-channel-6: #e66da4;
+  --wjn-theme-global-analysis-channel-7: #7cbcdf;
+  --wjn-theme-global-analysis-channel-8: #ca9c6a;
+  --wjn-theme-global-analysis-spectrum-floor: #11181a;
+  --wjn-theme-global-analysis-spectrum-mid: #2269d2;
+  --wjn-theme-global-analysis-spectrum-hot: #f5d949;
+}
+
+:root {
+  --wjn-theme-global-analysis-reference-target: #43c7a8;
+  --wjn-theme-global-analysis-reference-upper: #e0a04a;
+  --wjn-theme-global-analysis-reference-peak: #df665b;
+}
+
+:root {
+  --wjn-theme-global-analysis-spectrum-violet: #8b3ff2;
+  --wjn-theme-global-analysis-spectrum-cyan: #24d8e8;
+  --wjn-theme-global-analysis-spectrum-green: #35d05b;
+  --wjn-theme-global-analysis-spectrum-red: #f04a3a;
+}
+
+:root {
+  --wjn-theme-global-analysis-overload-text: #f04452;
+}
+
+:root {
+  --wjn-theme-global-analysis-polar-stroke: #43c7a8;
+  --wjn-theme-global-analysis-polar-fill: rgba(67,199,168,0.18);
+  --wjn-theme-global-analysis-polar-lfe-stroke: #e66da4;
+}

@@ -1,0 +1,26 @@
+{
+  "formatVersion": 1,
+  "catalogVersion": 1,
+  "moduleId": "winjacknexus-signal-switch-spectrogram-mono",
+  "language": "zh-CN",
+  "domains": {
+    "signalSwitch.spectrogram-mono": {
+      "name": "声谱图 mono",
+      "analysisCombined": "综合模式",
+      "analysisSeparate": "分声道模式",
+      "analysisLinear": "线性频率",
+      "analysisLog": "对数频率",
+      "analysisMode": "显示模式",
+      "analysisScale": "频率刻度",
+      "analysisArrangement": "排列布局",
+      "analysisVertical": "垂直排列",
+      "analysisHorizontal": "水平排列",
+      "analysisCustomGrid": "自定义行列…",
+      "analysisRows": "行数",
+      "analysisColumns": "列数",
+      "analysisGridHint": "格数不足时自动增加行数，确保所有分区均显示。",
+      "analysisPalette": "光谱预设",
+      "analysisOverload": "超限 +{value} dB"
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "formatVersion": 1,
+  "catalogVersion": 1,
+  "moduleId": "winjacknexus-signal-switch-spectrogram-7-1",
+  "language": "ja-JP",
+  "domains": {
+    "signalSwitch.spectrogram-7-1": {
+      "name": "スペクトログラム 7.1",
+      "analysisCombined": "総合表示",
+      "analysisSeparate": "チャンネル別",
+      "analysisLinear": "線形周波数",
+      "analysisLog": "対数周波数",
+      "analysisMode": "表示モード",
+      "analysisScale": "周波数スケール",
+      "analysisArrangement": "パネル配置",
+      "analysisVertical": "縦に配置",
+      "analysisHorizontal": "横に配置",
+      "analysisCustomGrid": "行と列を指定…",
+      "analysisRows": "行数",
+      "analysisColumns": "列数",
+      "analysisGridHint": "すべてのパネルを表示するため必要に応じて行数を増やします。",
+      "analysisPalette": "スペクトル配色",
+      "analysisOverload": "超過 +{value} dB"
+    }
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "formatVersion": 1,
+  "catalogVersion": 1,
+  "moduleId": "winjacknexus-signal-switch-loudness-stereo",
+  "language": "en-US",
+  "domains": {
+    "signalSwitch.loudness-stereo": {
+      "name": "Loudness stereo",
+      "analysisCombined": "Combined",
+      "analysisSeparate": "Per channel",
+      "analysisLinear": "Linear frequency",
+      "analysisLog": "Log frequency",
+      "analysisNumbers": "Numbers",
+      "analysisMeters": "Meters",
+      "analysisPreset": "Loudness preset",
+      "analysisReference": "Ref",
+      "analysisReferenceHigh": "High",
+      "analysisReferencePeak": "TP Max",
+      "csvSave": "Save CSV records",
+      "csvSettings": "CSV settings…",
+      "csvUseGlobal": "Use global CSV directory",
+      "csvBrowse": "Choose independent directory…",
+      "metricDisplay": "Metric display",
+      "analysisMode": "Display mode",
+      "analysisScale": "Frequency scale",
+      "analysisArrangement": "Panel arrangement",
+      "analysisVertical": "Vertical",
+      "analysisHorizontal": "Horizontal",
+      "analysisCustomGrid": "Custom rows and columns…",
+      "analysisRows": "Rows",
+      "analysisColumns": "Columns",
+      "analysisGridHint": "Rows expand automatically when needed to show every panel."
+    }
+  }
+}

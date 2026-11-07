@@ -1,0 +1,37 @@
+{
+  "formatVersion": 1,
+  "moduleId": "winjacknexus-signal-switch-loudness-mono",
+  "domains": [
+    "signalSwitch.loudness-mono"
+  ],
+  "defaultLanguage": "en-US",
+  "catalogVersion": 1,
+  "languages": {
+    "zh-CN": "zh-CN.json",
+    "en-US": "en-US.json",
+    "ja-JP": "ja-JP.json",
+    "ko-KR": "ko-KR.json"
+  },
+  "requiredKeys": {
+    "signalSwitch.loudness-mono": [
+      "name",
+      "analysisCombined",
+      "analysisSeparate",
+      "analysisLinear",
+      "analysisLog",
+      "analysisNumbers",
+      "analysisMeters",
+      "analysisPreset",
+      "analysisReference",
+      "analysisReferenceHigh",
+      "analysisReferencePeak",
+      "csvSave",
+      "csvSettings",
+      "csvUseGlobal",
+      "csvBrowse",
+      "metricDisplay",
+      "analysisMode",
+      "analysisScale"
+    ]
+  }
+}

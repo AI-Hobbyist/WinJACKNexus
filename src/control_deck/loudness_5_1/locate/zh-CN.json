@@ -1,0 +1,35 @@
+{
+  "formatVersion": 1,
+  "catalogVersion": 1,
+  "moduleId": "winjacknexus-signal-switch-loudness-5-1",
+  "language": "zh-CN",
+  "domains": {
+    "signalSwitch.loudness-5-1": {
+      "name": "响度表组 5.1",
+      "analysisCombined": "综合模式",
+      "analysisSeparate": "分声道模式",
+      "analysisLinear": "线性频率",
+      "analysisLog": "对数频率",
+      "analysisNumbers": "数字模式",
+      "analysisMeters": "电平表模式",
+      "analysisPreset": "响度预设",
+      "analysisReference": "参考值",
+      "analysisReferenceHigh": "上限",
+      "analysisReferencePeak": "真峰值",
+      "csvSave": "保存 CSV 记录",
+      "csvSettings": "CSV 设置…",
+      "csvUseGlobal": "复用全局 CSV 目录",
+      "csvBrowse": "选择独立目录…",
+      "metricDisplay": "指标显示",
+      "analysisMode": "显示模式",
+      "analysisScale": "频率刻度",
+      "analysisArrangement": "排列布局",
+      "analysisVertical": "垂直排列",
+      "analysisHorizontal": "水平排列",
+      "analysisCustomGrid": "自定义行列…",
+      "analysisRows": "行数",
+      "analysisColumns": "列数",
+      "analysisGridHint": "格数不足时自动增加行数，确保所有分区均显示。"
+    }
+  }
+}

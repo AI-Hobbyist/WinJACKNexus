@@ -131,7 +131,8 @@ void Editor::refresh()
             button = new UI::Controls::ActionButton({}, canvas_);
             button->setObjectName("controlDeckButton." + endpoint.id);
             button->setProperty("controlDeckId", endpoint.id);
-            button->setCheckable(!endpoint.sound && !endpoint.peak && !endpoint.gainLinear);
+            button->setCheckable(!endpoint.sound && !endpoint.peak && !endpoint.gainLinear &&
+                                 !service_.analysis(endpoint.id));
             button->installEventFilter(this);
             button->setContextMenuPolicy(Qt::CustomContextMenu);
             buttons_[endpoint.id] = button;

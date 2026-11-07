@@ -6,6 +6,9 @@
 #include <QFormLayout>
 #include <QSignalBlocker>
 #include <QVBoxLayout>
+#include <WinJACKNexus/Common/MeterCustomLoudnessPresets.hpp>
+#include <WinJACKNexus/Common/MeterLoudnessPresetCatalog.hpp>
+#include <WinJACKNexus/UI/AudioAnalysisWidget.hpp>
 #include <WinJACKNexus/UI/ConsoleControls.hpp>
 #include <WinJACKNexus/UI/FxLevelMeterWidget.hpp>
 #include <WinJACKNexus/UI/LocalizedText.hpp>
@@ -42,7 +45,8 @@ C::DecimalField *number(QDialog &dialog, QFormLayout *form, const char *key, con
 
 bool Editor::refreshControl(C::ActionButton *card, const Endpoint &endpoint)
 {
-    if (!endpoint.peak && !endpoint.gainLinear)
+    const auto analysis = service_.analysis(endpoint.id);
+    if (!endpoint.peak && !endpoint.gainLinear && !analysis)
         return false;
     card->setText({});
     auto *title = card->findChild<QLabel *>("controlDeck.controlTitle");
@@ -53,15 +57,52 @@ bool Editor::refreshControl(C::ActionButton *card, const Endpoint &endpoint)
         title = new C::TextLabel(card);
         title->setObjectName("controlDeck.controlTitle");
         title->setAttribute(Qt::WA_TransparentForMouseEvents);
-        layout->addWidget(title);
-        QWidget *control;
-        if (endpoint.peak)
+        if (analysis && analysis->kind == Common::AnalysisKind::spectrogram)
         {
-            auto *meter = new UI::FxLevelMeterWidget(card);
-            meter->setSurfaceVisible(false);
-            meter->setProperty("midiToolsPassiveSurface", true);
-            control = meter;
-            control->setObjectName("controlDeck.peakMeter");
+            auto *header = new QHBoxLayout;
+            header->addWidget(title);
+            auto *badge = new C::TextLabel(card);
+            badge->setObjectName("controlDeck.overloadBadge");
+            badge->setAttribute(Qt::WA_TransparentForMouseEvents);
+            badge->hide();
+            header->addWidget(badge);
+            header->addStretch();
+            layout->addLayout(header);
+        }
+        else
+            layout->addWidget(title);
+        QWidget *control;
+        if (analysis)
+        {
+            auto *plot = new UI::AudioAnalysisWidget(analysis, card, endpoint.domain);
+            plot->setObjectName("controlDeck.analysisPlot");
+            control = plot;
+        }
+        else if (endpoint.peak)
+        {
+            auto *meters = new QWidget(card);
+            meters->setObjectName("controlDeck.peakMeters");
+            meters->setProperty("midiToolsPassiveSurface", true);
+            auto *rows = new QBoxLayout(QBoxLayout::TopToBottom, meters);
+            rows->setContentsMargins(0, 0, 0, 0);
+            for (unsigned channel = 0; channel < peakChannelCount(endpoint); ++channel)
+            {
+                auto *meter = new UI::FxLevelMeterWidget(meters);
+                meter->setSurfaceVisible(false);
+                meter->setReadoutOutside(true);
+                meter->setProperty("midiToolsPassiveSurface", true);
+                meter->setObjectName(channel == 0 ? QStringLiteral("controlDeck.peakMeter")
+                                                  : QStringLiteral("controlDeck.peakMeter.%1").arg(channel));
+                meter->setContextMenuPolicy(Qt::CustomContextMenu);
+                connect(meter, &QWidget::customContextMenuRequested, this,
+                        [this, card, id = endpoint.id](QPoint)
+                        {
+                            if (!service_.state.locked)
+                                showCardMenu(id, card->mapToGlobal(card->rect().center()));
+                        });
+                rows->addWidget(meter, 1);
+            }
+            control = meters;
         }
         else
         {
@@ -90,20 +131,60 @@ bool Editor::refreshControl(C::ActionButton *card, const Endpoint &endpoint)
             if (!service_.state.locked)
                 showCardMenu(id, card->mapToGlobal(card->rect().center()));
         });
-        layout->addWidget(control, 1, endpoint.peak ? Qt::Alignment() : Qt::AlignHCenter);
+        layout->addWidget(control, 1, (endpoint.peak || analysis) ? Qt::Alignment() : Qt::AlignHCenter);
     }
     const auto name = service_.label(endpoint);
     title->setText(name);
     card->setAccessibleName(name);
-    if (endpoint.peak)
+    if (analysis)
     {
-        auto *meter = dynamic_cast<UI::FxLevelMeterWidget *>(card->findChild<QWidget *>("controlDeck.peakMeter"));
-        const float amplitude = endpoint.peak->exchange(0, std::memory_order_relaxed);
-        const double db = amplitude > 0 ? 20.0 * std::log10(double(amplitude)) : -72;
-        meter->setSingleChannel(true, UI::localizedText("signalSwitch", "peakLevel", "Peak"));
-        meter->setVertical(endpoint.peakVertical);
-        meter->setLevels(db, db);
-        card->setToolTip(name + "\n" + QString::number(std::clamp(db, -72.0, 12.0), 'f', 1) + " dB");
+        card->setToolTip(name + "\n" + analysis->recordingStatus());
+        if (auto *badge = card->findChild<QLabel *>("controlDeck.overloadBadge"))
+        {
+            auto *plot = dynamic_cast<UI::AudioAnalysisWidget *>(
+                card->findChild<QWidget *>("controlDeck.analysisPlot"));
+            const double overload = plot->overloadDb();
+            badge->setText(UI::localizedText(endpoint.domain.toUtf8().constData(), "analysisOverload",
+                                             "Over +{value} dB",
+                                             {{"value", QString::number(overload, 'f', 1)}}));
+            C::Palette colors;
+            colors.background = card->palette().color(QPalette::Window);
+            colors.panel = card->palette().color(QPalette::Base);
+            colors.accent = card->palette().color(QPalette::Highlight);
+            colors.border =
+                C::themeTokenColor("global", "border-normal", card->palette().color(QPalette::Mid));
+            colors.text = C::themeTokenColor("global", "analysis-overload-text",
+                                             card->palette().color(QPalette::BrightText));
+            C::applyPalette(badge, colors);
+            badge->setVisible(overload > 0);
+        }
+    }
+    else if (endpoint.peak)
+    {
+        auto *meters = card->findChild<QWidget *>("controlDeck.peakMeters");
+        auto *rows = static_cast<QBoxLayout *>(meters->layout());
+        rows->setDirection(endpoint.peakVertical ? QBoxLayout::LeftToRight : QBoxLayout::TopToBottom);
+        const unsigned count = peakChannelCount(endpoint);
+        const char *roles[]{"L", "R", "C", "LFE", "Ls", "Rs", "Lrb", "Rrb"};
+        QStringList values;
+        for (unsigned channel = 0; channel < count; ++channel)
+        {
+            const auto objectName = channel == 0 ? QStringLiteral("controlDeck.peakMeter")
+                                                 : QStringLiteral("controlDeck.peakMeter.%1").arg(channel);
+            auto *meter = dynamic_cast<UI::FxLevelMeterWidget *>(card->findChild<QWidget *>(objectName));
+            const float amplitude = endpoint.peak[channel].exchange(0, std::memory_order_relaxed);
+            const double db = amplitude > 0 ? 20.0 * std::log10(double(amplitude)) : -72;
+            const auto label = count == 1 ? UI::localizedText("signalSwitch", "peakLevel", "Peak")
+                                          : QString::fromLatin1(roles[channel]);
+            meter->setSingleChannel(true, label);
+            meter->setVertical(endpoint.peakVertical);
+            meter->setMinimumWidth(endpoint.peakVertical ? 64 : 0);
+            meter->setLevels(db, db);
+            values.push_back(label + ": " +
+                             (amplitude > 0 ? QString::number(std::clamp(db, -72.0, 12.0), 'f', 1) + " dB"
+                                            : QString::fromUtf8("−∞")));
+        }
+        card->setToolTip(name + "\n" + values.join('\n'));
     }
     else
     {
@@ -206,5 +287,90 @@ void Editor::editGainValue(const QString &id)
     buttons(dialog, layout);
     if (dialog.exec() == QDialog::Accepted)
         service_.setGain(id, value->value());
+}
+void Editor::editAnalysisLayout(const QString &id)
+{
+    const auto source = service_.analysis(id);
+    const auto *endpoint = service_.find(id);
+    if (!source || !endpoint)
+        return;
+    QDialog dialog(this);
+    UI::bindLocalizedText(&dialog, "windowTitle", endpoint->domain.toUtf8().constData(), "analysisCustomGrid",
+                          "Custom rows and columns");
+    auto *layout = new QVBoxLayout(&dialog);
+    auto *form = new QFormLayout;
+    layout->addLayout(form);
+    const auto addField = [&](const char *key, const char *english, unsigned value)
+    {
+        auto *field = new C::IntegerField(&dialog);
+        field->setObjectName(QStringLiteral("controlDeck.") + key);
+        field->setRange(1, 8);
+        field->setValue(int(std::max(1u, value)));
+        auto *label = new C::TextLabel(&dialog);
+        UI::bindLocalizedText(label, "text", endpoint->domain.toUtf8().constData(), key, english);
+        form->addRow(label, field);
+        return field;
+    };
+    auto *rows = addField("analysisRows", "Rows", source->layoutRows.load());
+    auto *columns = addField("analysisColumns", "Columns", source->layoutColumns.load());
+    auto *hint = new C::TextLabel(&dialog);
+    UI::bindLocalizedText(hint, "text", endpoint->domain.toUtf8().constData(), "analysisGridHint",
+                          "Rows expand automatically when needed to show every panel.");
+    hint->setWordWrap(true);
+    layout->addWidget(hint);
+    buttons(dialog, layout);
+    if (dialog.exec() == QDialog::Accepted)
+    {
+        source->layoutRows.store(unsigned(rows->value()));
+        source->layoutColumns.store(unsigned(columns->value()));
+        service_.notify(true);
+    }
+}
+
+void Editor::editAnalysisCsv(const QString &id)
+{
+    const auto source = service_.analysis(id);
+    const auto *endpoint = service_.find(id);
+    if (!source || !endpoint)
+        return;
+    QDialog dialog(this);
+    UI::bindLocalizedText(&dialog, "windowTitle", endpoint->domain.toUtf8().constData(), "csvSettings",
+                          "CSV settings");
+    auto *layout = new QVBoxLayout(&dialog);
+    auto *global = new C::ToggleField({}, &dialog);
+    UI::bindLocalizedText(global, "text", endpoint->domain.toUtf8().constData(), "csvUseGlobal",
+                          "Use global CSV directory");
+    global->setObjectName("controlDeck.csvUseGlobal");
+    global->setChecked(source->csvUseGlobal);
+    layout->addWidget(global);
+    auto *directory = new C::TextField(&dialog);
+    directory->setObjectName("controlDeck.csvDirectory");
+    directory->setText(source->csvDirectory);
+    directory->setEnabled(!global->isChecked());
+    layout->addWidget(directory);
+    auto *browse = new C::ActionButton({}, &dialog);
+    UI::bindLocalizedText(browse, "text", endpoint->domain.toUtf8().constData(), "csvBrowse",
+                          "Choose independent directory…");
+    layout->addWidget(browse);
+    connect(global, &QCheckBox::toggled, &dialog,
+            [directory](bool checked) { directory->setEnabled(!checked); });
+    connect(browse, &QPushButton::clicked, &dialog,
+            [&, directory, global]
+            {
+                const auto path =
+                    QFileDialog::getExistingDirectory(&dialog, directory->text(), directory->text());
+                if (!path.isEmpty())
+                {
+                    global->setChecked(false);
+                    directory->setText(path);
+                }
+            });
+    buttons(dialog, layout);
+    if (dialog.exec() == QDialog::Accepted)
+    {
+        source->csvUseGlobal = global->isChecked();
+        source->csvDirectory = directory->text().trimmed();
+        service_.notify(true);
+    }
 }
 } // namespace WinJACKNexus::ControlDeck

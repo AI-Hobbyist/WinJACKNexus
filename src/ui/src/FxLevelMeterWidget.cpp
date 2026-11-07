@@ -127,14 +127,28 @@ void FxLevelMeterWidget::setSurfaceVisible(bool visible)
     update();
 }
 
+void FxLevelMeterWidget::setReadoutBelow(bool enabled)
+{
+    setProperty("wjn.readoutBelow", enabled);
+    update();
+}
+
+void FxLevelMeterWidget::setReadoutOutside(bool enabled)
+{
+    setProperty("wjn.readoutOutside", enabled);
+    update();
+}
+
 QRectF FxLevelMeterWidget::barRect(int row) const noexcept
 {
     if (property("wjn.singleChannel").toBool() && property("wjn.vertical").toBool())
     {
         const qreal margin = style()->pixelMetric(QStyle::PM_LayoutLeftMargin);
         const qreal labelHeight = fontMetrics().height();
+        const bool below = property("wjn.readoutBelow").toBool() || property("wjn.readoutOutside").toBool();
+        const qreal readoutHeight = below ? labelHeight + margin : 0;
         return {margin, labelHeight + margin, std::max(1.0, width() - 2 * margin - 24),
-                std::max(1.0, height() - labelHeight - 2 * margin)};
+                std::max(1.0, height() - labelHeight - 2 * margin - readoutHeight)};
     }
     const QFontMetrics metrics(font());
     const auto labelWidth =
@@ -144,7 +158,11 @@ QRectF FxLevelMeterWidget::barRect(int row) const noexcept
                        metrics.horizontalAdvance(localizedText("fxhost", "endpoint.output", "Output"))) +
                   5;
     const auto left = std::max(34, labelWidth);
-    return {static_cast<qreal>(left), row == 0 ? 7.0 : 34.0, std::max(1.0, width() - left - 9.0), 17.0};
+    const qreal readoutWidth = property("wjn.readoutOutside").toBool()
+                                   ? metrics.horizontalAdvance(QStringLiteral("-72 dB")) + 12.0
+                                   : 0.0;
+    return {static_cast<qreal>(left), row == 0 ? 7.0 : 34.0,
+            std::max(1.0, width() - left - 9.0 - readoutWidth), 17.0};
 }
 
 qreal FxLevelMeterWidget::positionForDb(double db) const noexcept
@@ -209,12 +227,26 @@ void FxLevelMeterWidget::paintEvent(QPaintEvent *)
                 meterBounds.setHeight(bar.height() + style.tickBandPixels);
         }
         Controls::drawMeter(painter, meterBounds, value, peakDb_[static_cast<std::size_t>(row)], style);
-        painter.setPen(themed("meter-level-readout", QColor("#f3f8ff")));
         const double readout = row == 0 ? readoutInputDb_ : readoutOutputDb_;
-        painter.drawText(bar.adjusted(4, 0, -4, 0),
-                         vertical ? Qt::AlignHCenter | Qt::AlignBottom : Qt::AlignRight | Qt::AlignVCenter,
-                         readout <= minimumDb + .05 ? QStringLiteral("−∞")
-                                                    : QStringLiteral("%1 dB").arg(QString::number(readout, 'f', 0)));
+        const bool readoutOutside = property("wjn.readoutOutside").toBool();
+        const bool readoutBelow = vertical && (property("wjn.readoutBelow").toBool() || readoutOutside);
+        painter.setPen(
+            readoutOutside || readoutBelow
+                ? Controls::themeTokenColor("global", "text-primary", palette().color(QPalette::WindowText))
+                : themed("meter-level-readout", QColor("#f3f8ff")));
+        const qreal margin = this->style()->pixelMetric(QStyle::PM_LayoutLeftMargin);
+        const QRectF readoutBounds =
+            readoutBelow ? QRectF(margin, bar.bottom() + margin, width() - 2 * margin, fontMetrics().height())
+                         : (readoutOutside
+                                ? QRectF(bar.right() + 6, bar.top(), width() - bar.right() - 9, bar.height())
+                                : bar.adjusted(4, 0, -4, 0));
+        painter.drawText(
+            readoutBounds,
+            readoutBelow
+                ? Qt::AlignCenter
+                : (vertical ? Qt::AlignHCenter | Qt::AlignBottom : Qt::AlignRight | Qt::AlignVCenter),
+            readout <= minimumDb + .05 ? QStringLiteral("−∞")
+                                       : QStringLiteral("%1 dB").arg(QString::number(readout, 'f', 0)));
     }
 }
 

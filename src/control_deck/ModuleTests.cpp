@@ -1,4 +1,5 @@
 /* SPDX-License-Identifier: AGPL-3.0-only */
+#include "NodePaths.hpp"
 #include "Service.hpp"
 #include <QCoreApplication>
 #include <QLibrary>
@@ -22,8 +23,8 @@ int main(int argc, char **argv)
     for (const auto &kind : {"mono", "stereo", "5_1", "7_1", "midi"})
     {
         std::printf("MODULE %s\n", kind);
-        QLibrary library(QCoreApplication::applicationDirPath() + "/nodes/control_deck/" + kind +
-                         "/wjn_signal_switch_" + kind + ".dll");
+        QLibrary library(QCoreApplication::applicationDirPath() + "/nodes/control_deck/" +
+                         SS::moduleRelativeFolder(kind) + "/wjn_signal_switch_" + kind + ".dll");
         check(library.load(), "load module");
         if (!library.isLoaded())
         {
@@ -48,8 +49,8 @@ int main(int argc, char **argv)
         auto *jack = create(WJN_NODE_MODE_JACK);
         check(jack && !jack->createWindow(nullptr), "JACK instance creation without server or GUI");
         const auto category = reinterpret_cast<const char *(*)()>(library.resolve("wjn_get_node_category"));
-        check(category && QByteArray(category()) == "Control Deck" &&
-                  QByteArray(jack->info().category) == "Control Deck",
+        check(category && QByteArray(category()) == "Control Deck / Routing" &&
+                  QByteArray(jack->info().category) == QByteArray(category()),
               "signal switches share the Control Deck category in discovery and instances");
         destroy(jack);
         auto *node = create(WJN_NODE_MODE_VIRT);

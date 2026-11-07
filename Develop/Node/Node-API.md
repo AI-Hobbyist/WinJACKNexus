@@ -99,6 +99,46 @@ lifecycle. Third-party modules need recompilation before use with this host.
 
 ## Settings and editors
 
+### Broadcast sender (S3 audio/publishing boundary)
+
+`nodes/lan_remote_audio/mod_broadcast.dll` uses category `LAN & Remote Audio`.
+The host resolves saved `nodes/bc/mod_broadcast.dll` paths to this module when
+installed, and omits the superseded DLL from discovery. Network endpoints retain `/bc`.
+New instances reserve one stereo stream (two source inputs and two local monitor
+outputs, Listen/Solo off). The final stream cannot be removed by the editor or
+`BroadcastNode::apply`; a legacy empty serialized node restores one default
+stream. Restoring nonempty state retains its stream IDs and does not append a default.
+It advertises only `JACK_NODE`; VIRT creation is
+rejected and its virtual API is null. Its state schema version 1 contains
+clientName, categories and streams. Stream IDs are canonical UUIDs. JACK port
+names follow category-subcategory-stream-in/out-speaker (for example
+News-Interview-Main-in-L). Duplicate/long paths receive a UUID suffix and are
+bounded to JACK name limits. Internal UUID/direction/speaker keys retain existing
+JACK port objects across category or name edits; the public names are renamed in
+place. Older projects with saved UUID-based JACK connections require reconnecting
+the renamed ports and saving the project. Restoring a live instance retains its IDs; a second live
+instance restoring occupied IDs receives new stream IDs. Destruction releases
+the reservations. Global server settings and credentials are not project state.
+
+Listen/S are session controls and are disarmed by restore. M and gain affect
+both publishing audio and local monitoring; Solo affects only this instance's
+monitor selection. S4 adds the standalone editor and `HAS_GUI` together;
+`createWindow`/`wjn_show_node_gui` opens or raises the same independent window,
+and `destroyWindow` hides it without changing audio/session controls. The
+unindexed Node i18n v2 descriptor owns module `winjacknexus-broadcast`, domain
+`broadcast` and the four catalogs in `nodes/lan_remote_audio/locate`. Window controls use
+shared global Theme Tokens; no private stylesheet or control is introduced.
+The JACK callback uses a preallocated 100ms SPSC queue and
+5ms gain smoothing. The shared `broadcast_runtime.dll` owns one publishing
+event thread/control session for all node instances; source-rate changes replace
+the audio stream/encoder epoch on the control thread. UDP/encoding never run in
+the JACK callback. Stopping or losing publishing leaves local monitoring active.
+
+S3 discovery/state tests load the real node DLL; offline audio and shared-worker
+tests separately exercise signals and actual UDP/HTTP publication. They do not
+initialize JACK or prove physical port connections. See
+`Docs/Broadcast/Progress.md` for the actual implementation checkpoint.
+
 Optional `wjn_create_settings_widget(node, parent)` and
 `wjn_destroy_settings_widget(node, widget)` manage Qt editors. Native HWND
 settings views use `wjn_create_settings_view` / `wjn_destroy_settings_view`.
@@ -251,6 +291,16 @@ Classic Mixer additionally exports optional `uint64_t wjn_classic_mixer_state_re
 
 ## Control Deck nodes
 
-All eleven Control Deck node DLLs export category `Control Deck`, advertise JACK and VIRT capabilities, and have no node-owned GUI. Their runtime directory is `nodes/control_deck/<kind>/`; DLL filenames, module/domain IDs and project identities remain stable. Patchbay resolves legacy `nodes/signal_switch/` module paths to an existing new counterpart before loading and omits superseded legacy copies from discovery. The new path is persisted only on explicit project save.
+All 38 Control Deck node DLLs advertise JACK and VIRT capabilities and have no node-owned GUI. Categories use `Control Deck / <function> / <type>` and runtime folders use `nodes/control_deck/{routing,playback,gain,meters,analysis}/...`. DLL filenames, existing module/domain IDs and project identities remain stable. Patchbay resolves legacy `nodes/signal_switch/` and flat `nodes/control_deck/<kind>/` paths to an existing functional counterpart before loading and omits superseded copies from discovery. The new path is persisted only on explicit project save.
 
 The mono peak meter exposes exactly one audio input: port ID 1, name `IN_MONO`, `channels=1`. It has no output ports and is a measurement sink, not a passthrough processor. VIRT processing accepts zero audio outputs; JACK processing only reads its registered input. Branch the measured source to this node. Meter orientation and other node settings retain the existing Base64 project persistence. Call-site coverage lives in `src/control_deck/ControlDeckTests.cpp` and `ModuleTests.cpp`.
+
+### Control Deck peak-meter variants (2026-11-07)
+
+`nodes/control_deck/meters/peak/mono` retains the mono input-only meter. Additional modules `peak_stereo`, `peak_5_1`, `peak_7_1` expose 2/6/8 input-only audio ports in JACK and VIRT modes. Port order is L, R, C, LFE, Ls, Rs, Lrb, Rrb (as applicable). Each input has its own peak accumulator; no audio output or cross-channel aggregation. Both horizontal and vertical Control Deck orientations show per-channel numeric readouts outside the bars. The existing vertical JSON setting and legacy mono module path remain compatible through host migration.
+
+### Control Deck analysis and loudness (2026-11-07)
+
+Five plot kinds (`oscilloscope`, `spectrogram`, `polar`, `spectrum_bars`, `spectrum_curve`) and `loudness` each provide mono/stereo/5_1/7_1 modules. All are input-only measurement sinks. JACK and VIRT write to a bounded preallocated analysis capture; processing never waits for UI or CSV. Plot controls live in the public UI library. All mode/settings controls are in component context menus; exclusivity actions appear only for routing switches.
+
+Loudness modules aggregate the entire selected layout through common Meterbridge algorithms, with global silence reset and optional background CSV. Numeric/meter mode, preset ID, visible metric mask (default M/S/I/LRA/dBTP), analysis modes and CSV settings persist in node JSON. Display selection does not affect measurement or CSV. Detailed ownership, tokens and extension steps are in [Control Deck component guide](../../Docs/ControlDeck/组件开发指南.md); module callbacks, real-window menus and state round trips are covered by `src/control_deck/AnalysisTests.cpp`, runtime discovery/migration by `CategoryTests.cpp`.

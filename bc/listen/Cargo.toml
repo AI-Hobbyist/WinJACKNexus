@@ -1,0 +1,13 @@
+[package]
+name = "bc-listen"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+reqwest = { version = "0.12", default-features = false, features = ["blocking", "rustls-tls-native-roots"] }
+serde_json = "1"
+opus = "0.4"
+ogg = "0.9"
+cpal = "0.18"
+rtrb = "0.4"

@@ -11,6 +11,7 @@ add_library(
     src/AuxSettingsWindow.cpp
     src/FxSettingsWindow.cpp
     src/FxLevelMeterWidget.cpp
+    src/AudioAnalysisWidget.cpp
     src/HistoryChartWidget.cpp
     src/Controls.cpp
     src/ConsoleControls.cpp

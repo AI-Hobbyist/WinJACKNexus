@@ -1,0 +1,35 @@
+{
+  "sessionKeyHex": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+  "udpPcmStereoHex": "574a424301010000000102030405060708090a0b0c0d0e0f07000000010000001100000000000000c003000000000000020000000100000008000000000000000020006000c00080fd2f95f5a07f129549a9f9b1fb6c01dcccdd07d9cf1ac33e8ba47cadd2a77351",
+  "formats": {
+    "wav": "audio/wav",
+    "opus": "audio/ogg; codecs=opus"
+  },
+  "layouts": {
+    "mono": [
+      "M"
+    ],
+    "stereo": [
+      "L",
+      "R"
+    ],
+    "5.1": [
+      "L",
+      "R",
+      "C",
+      "LFE",
+      "Ls",
+      "Rs"
+    ],
+    "7.1": [
+      "L",
+      "R",
+      "C",
+      "LFE",
+      "Ls",
+      "Rs",
+      "Lrb",
+      "Rrb"
+    ]
+  }
+}

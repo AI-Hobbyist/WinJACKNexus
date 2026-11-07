@@ -1,5 +1,6 @@
 /* SPDX-License-Identifier: AGPL-3.0-only */
 #include "Service.hpp"
+#include "LoudnessSession.hpp"
 #include "Sound.hpp"
 #include <algorithm>
 #include <cmath>
@@ -12,12 +13,32 @@ Service &Service::instance()
     return service;
 }
 
+void Service::setAnalysis(void *node, std::shared_ptr<Common::AnalysisCapture> source)
+{
+    if (source->kind == Common::AnalysisKind::loudness)
+        loudnessSessions_[node] = std::make_shared<LoudnessSession>(source);
+    analyses_[node] = std::move(source);
+}
+
+std::shared_ptr<Common::AnalysisCapture> Service::analysis(const QString &id) const
+{
+    for (auto it = endpoints.cbegin(); it != endpoints.cend(); ++it)
+        if (it->id == id)
+            return analyses_.value(it.key());
+    return {};
+}
+
 void Service::attach(void *node, Endpoint endpoint)
 {
     const bool added = !state.cards.contains(endpoint.id);
     state.add(endpoint.id);
     if (added && (endpoint.peak || endpoint.gainLinear))
-        state.cards[endpoint.id].geometry.setSize(endpoint.peak ? QSize(300, 120) : QSize(180, 120));
+        state.cards[endpoint.id].geometry.setSize(
+            endpoint.peak ? QSize(300, 82 * int(peakChannelCount(endpoint)) + 40) : QSize(180, 120));
+    if (added && analyses_.contains(node))
+        state.cards[endpoint.id].geometry.setSize(
+            analyses_.value(node)->kind == Common::AnalysisKind::loudness ? QSize(520, 480)
+                                                                          : QSize(420, 280));
     endpoints.insert(node, std::move(endpoint));
     reconcile();
     notify();
@@ -30,6 +51,8 @@ void Service::detach(void *node)
         return;
     if (!restoring_)
         state.remove(it->id);
+    loudnessSessions_.remove(node);
+    analyses_.remove(node);
     endpoints.erase(it);
     reconcile();
     notify();
@@ -65,7 +88,8 @@ bool Service::setEnabled(const QStringList &ids, bool enabled, QString *error)
 {
     for (const auto &id : ids)
     {
-        if (const auto *endpoint = find(id); endpoint && (endpoint->sound || endpoint->peak || endpoint->gainLinear))
+        if (const auto *endpoint = find(id);
+            endpoint && (endpoint->sound || endpoint->peak || endpoint->gainLinear || analysis(endpoint->id)))
             return false;
     }
     QMap<QString, bool> current;
@@ -89,7 +113,7 @@ void Service::activate(const QString &id)
             endpoint->sound->trigger();
         else if (endpoint->gainLinear && endpoint->editValue)
             endpoint->editValue();
-        else if (!endpoint->peak && !endpoint->gainLinear)
+        else if (!endpoint->peak && !endpoint->gainLinear && !analysis(endpoint->id))
             setEnabled({id}, !endpoint->desired);
     }
 }
@@ -174,6 +198,8 @@ void Service::reconcile()
 
 void Service::notify(bool edit)
 {
+    for (const auto &session : loudnessSessions_)
+        session->configure();
     if (changed)
         changed();
     if (edit && !restoring_ && edited)
@@ -192,7 +218,8 @@ bool Service::restore(const QString &base64, QString *error)
         for (const auto &id : members)
         {
             const auto *endpoint = find(id);
-            if (endpoint && (endpoint->sound || endpoint->peak || endpoint->gainLinear))
+            if (endpoint &&
+                (endpoint->sound || endpoint->peak || endpoint->gainLinear || analysis(endpoint->id)))
             {
                 if (error)
                     *error = QStringLiteral("Sound buttons cannot use switch exclusivity");

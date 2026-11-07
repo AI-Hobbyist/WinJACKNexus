@@ -1,0 +1,26 @@
+{
+  "formatVersion": 1,
+  "moduleId": "winjacknexus-signal-switch-spectrum-bars-5-1",
+  "domains": [
+    "signalSwitch.spectrum-bars-5-1"
+  ],
+  "defaultLanguage": "en-US",
+  "catalogVersion": 1,
+  "languages": {
+    "zh-CN": "zh-CN.json",
+    "en-US": "en-US.json",
+    "ja-JP": "ja-JP.json",
+    "ko-KR": "ko-KR.json"
+  },
+  "requiredKeys": {
+    "signalSwitch.spectrum-bars-5-1": [
+      "name",
+      "analysisCombined",
+      "analysisSeparate",
+      "analysisLinear",
+      "analysisLog",
+      "analysisMode",
+      "analysisScale"
+    ]
+  }
+}

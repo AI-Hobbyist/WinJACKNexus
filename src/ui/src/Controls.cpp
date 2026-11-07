@@ -3,6 +3,7 @@
 #include <WinJACKNexus/UI/LocalizedText.hpp>
 #include <WinJACKNexus/UI/ThemeCore.hpp>
 #include <WinJACKNexus/UI/ThemeManager.hpp>
+#include <QAccessible>
 #include <QPalette>
 #include <QPainter>
 #include <QPainterPath>
@@ -931,6 +932,18 @@ DragTreeWidget::DragTreeWidget(QWidget *parent) : QTreeWidget(parent)
     setVerticalScrollBar(new ScrollBarField(Qt::Vertical, this));
     setHorizontalScrollBar(new ScrollBarField(Qt::Horizontal, this));
     setViewportMargins(8, 0, 0, 0);
+    const auto resetAccessibleRows = [this]
+    {
+        if (!QAccessible::isActive())
+            return;
+        // Qt 6.10's tree collapse removes visible rows without invalidating its
+        // accessibility row cache. Reset it before animation or UIA navigation
+        // can use stale row indexes (which can make sibling traversal cycle).
+        QAccessibleTableModelChangeEvent event(this, QAccessibleTableModelChangeEvent::ModelReset);
+        QAccessible::updateAccessibility(&event);
+    };
+    connect(this, &QTreeView::collapsed, this, resetAccessibleRows);
+    connect(this, &QTreeView::expanded, this, resetAccessibleRows);
 }
 
 void DragTreeWidget::setMimeDataFactory(MimeDataFactory factory)

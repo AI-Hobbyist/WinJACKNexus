@@ -1,3 +1,4 @@
+#include "NodePaths.hpp"
 /* SPDX-License-Identifier: AGPL-3.0-only */
 #include "../../Develop/Node/WindowShowCounter.hpp"
 #include "../patchbay/mod/src/Library.cpp"
@@ -76,8 +77,8 @@ int main(int argc, char **argv)
         QString monoId, stereoId, midiId;
         for (const auto *kind : {"mono", "stereo", "5_1", "7_1", "midi"})
         {
-            const auto path = QCoreApplication::applicationDirPath() + "/nodes/control_deck/" + kind +
-                              "/wjn_signal_switch_" + kind + ".dll";
+            const auto path = QCoreApplication::applicationDirPath() + "/nodes/control_deck/" +
+                              SS::moduleRelativeFolder(kind) + "/wjn_signal_switch_" + kind + ".dll";
             auto node = LoadedModuleNode::create(path, 0, {}, WJN_NODE_MODE_VIRT, 48000, 64);
             check(bool(node), "actual host loads VIRT node with optional language and theme contracts");
             node->setContextId("main/sub");

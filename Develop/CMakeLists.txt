@@ -1,4 +1,5 @@
 # Buildable API examples and boundary checks.
+add_subdirectory(Broadcast)
 if(BUILD_TESTING)
     add_executable(wjn_main_session_probe MainSessionProbe.cpp)
     target_compile_definitions(wjn_main_session_probe PRIVATE WIN32_LEAN_AND_MEAN NOMINMAX)

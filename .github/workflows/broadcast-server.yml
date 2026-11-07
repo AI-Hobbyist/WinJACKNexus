@@ -1,0 +1,116 @@
+name: Build standalone broadcast server
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  server:
+    name: Server (${{ matrix.platform }})
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: windows-x64
+            runner: windows-2022
+            target: x86_64-pc-windows-msvc
+            binary: bc-server.exe
+            archive: zip
+          - platform: linux-x64
+            runner: ubuntu-24.04
+            target: x86_64-unknown-linux-gnu
+            binary: bc-server
+            archive: tar.gz
+          - platform: linux-arm64
+            runner: ubuntu-24.04-arm
+            target: aarch64-unknown-linux-gnu
+            binary: bc-server
+            archive: tar.gz
+    defaults:
+      run:
+        shell: pwsh
+    env:
+      CARGO_TARGET_DIR: ${{ github.workspace }}/build/bc-target
+      RUST_TARGET: ${{ matrix.target }}
+      SERVER_BINARY: ${{ matrix.binary }}
+      PACKAGE_NAME: bc-server-${{ matrix.platform }}
+      ARCHIVE_EXTENSION: ${{ matrix.archive }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust stable
+        run: |
+          New-Item -ItemType Directory -Force -Path build | Out-Null
+          & rustup toolchain install stable --profile minimal --target $env:RUST_TARGET `
+            2>&1 | Tee-Object -FilePath build.log
+          $buildExitCode = $LASTEXITCODE
+          Copy-Item build.log build/toolchain.log
+          if ($buildExitCode -ne 0) { Get-Content build.log -Tail 80; exit $buildExitCode }
+
+      - name: Build standalone Release server
+        run: |
+          & cargo +stable build --manifest-path bc/Cargo.toml --package bc-server --bin bc-server `
+            --release --locked --target $env:RUST_TARGET 2>&1 | Tee-Object -FilePath build.log
+          $buildExitCode = $LASTEXITCODE
+          Copy-Item build.log build/server-build.log
+          if ($buildExitCode -ne 0) { Get-Content build.log -Tail 80; exit $buildExitCode }
+
+      - name: Test server
+        run: |
+          & cargo +stable test --manifest-path bc/Cargo.toml --package bc-server `
+            --release --locked --target $env:RUST_TARGET 2>&1 | Tee-Object -FilePath build.log
+          $buildExitCode = $LASTEXITCODE
+          Copy-Item build.log build/server-test.log
+          if ($buildExitCode -ne 0) { Get-Content build.log -Tail 80; exit $buildExitCode }
+
+      - name: Package server
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $stage = Join-Path 'build/server-package' $env:PACKAGE_NAME
+          New-Item -ItemType Directory -Force -Path $stage, build/server-dist | Out-Null
+          $binary = Join-Path $env:CARGO_TARGET_DIR "$env:RUST_TARGET/release/$env:SERVER_BINARY"
+          Copy-Item -LiteralPath $binary -Destination $stage
+          Copy-Item -LiteralPath bc/server/README.md -Destination $stage
+          Copy-Item -LiteralPath bc/server/server.example.json -Destination $stage
+          Copy-Item -LiteralPath bc/server/nginx.example.conf -Destination $stage
+          Copy-Item -LiteralPath LICENSE -Destination $stage
+          Copy-Item -LiteralPath bc/Cargo.lock -Destination $stage
+          @{
+            commit = $env:GITHUB_SHA
+            target = $env:RUST_TARGET
+            configuration = 'Release'
+          } | ConvertTo-Json | Set-Content (Join-Path $stage 'build-info.json') -Encoding utf8
+          $archive = Join-Path 'build/server-dist' "$env:PACKAGE_NAME.$env:ARCHIVE_EXTENSION"
+          & tar -caf $archive -C build/server-package $env:PACKAGE_NAME `
+            2>&1 | Tee-Object -FilePath build.log
+          $buildExitCode = $LASTEXITCODE
+          Copy-Item build.log build/server-package.log
+          if ($buildExitCode -ne 0) { Get-Content build.log -Tail 80; exit $buildExitCode }
+          $hash = (Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$hash  $([IO.Path]::GetFileName($archive))" |
+            Set-Content "$archive.sha256" -Encoding ascii
+
+      - name: Upload server package
+        uses: actions/upload-artifact@v4
+        with:
+          name: bc-server-${{ matrix.platform }}
+          path: build/server-dist/*
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 30
+
+      - name: Upload logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bc-server-logs-${{ matrix.platform }}
+          path: |
+            build.log
+            build/*.log
+          if-no-files-found: ignore
+          retention-days: 14

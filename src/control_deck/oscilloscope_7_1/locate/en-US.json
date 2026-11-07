@@ -1,0 +1,24 @@
+{
+  "formatVersion": 1,
+  "catalogVersion": 1,
+  "moduleId": "winjacknexus-signal-switch-oscilloscope-7-1",
+  "language": "en-US",
+  "domains": {
+    "signalSwitch.oscilloscope-7-1": {
+      "name": "Oscilloscope 7.1",
+      "analysisCombined": "Combined",
+      "analysisSeparate": "Per channel",
+      "analysisLinear": "Linear frequency",
+      "analysisLog": "Log frequency",
+      "analysisMode": "Display mode",
+      "analysisScale": "Frequency scale",
+      "analysisArrangement": "Panel arrangement",
+      "analysisVertical": "Vertical",
+      "analysisHorizontal": "Horizontal",
+      "analysisCustomGrid": "Custom rows and columns…",
+      "analysisRows": "Rows",
+      "analysisColumns": "Columns",
+      "analysisGridHint": "Rows expand automatically when needed to show every panel."
+    }
+  }
+}

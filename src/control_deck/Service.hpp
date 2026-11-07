@@ -3,8 +3,10 @@
 
 #include "State.hpp"
 #include <QPointer>
+#include <WinJACKNexus/Common/ControlDeckAnalysis.hpp>
 #include <WinJACKNexus/Common/ControlDeckProcessor.hpp>
 #include <functional>
+#include <memory>
 
 class QWidget;
 class QMenu;
@@ -18,6 +20,7 @@ class QMenu;
 namespace WinJACKNexus::ControlDeck
 {
 class Sound;
+class LoudnessSession;
 struct Endpoint
 {
     QString id;
@@ -42,6 +45,19 @@ struct Endpoint
     std::function<void()> editValue;
 };
 
+// New multichannel peak endpoints expose a contiguous atomic array. The
+// established mono domain still points to a single atomic; Endpoint ABI stays unchanged.
+inline unsigned peakChannelCount(const Endpoint &endpoint)
+{
+    if (endpoint.domain == QStringLiteral("signalSwitch.peak-stereo"))
+        return 2;
+    if (endpoint.domain == QStringLiteral("signalSwitch.peak-5-1"))
+        return 6;
+    if (endpoint.domain == QStringLiteral("signalSwitch.peak-7-1"))
+        return 8;
+    return 1;
+}
+
 // One service in control_deck.dll, shared by every node DLL and the host.
 class WJN_SWITCH_API Service
 {
@@ -54,6 +70,8 @@ class WJN_SWITCH_API Service
     std::function<void()> synchronize;
 
     void attach(void *node, Endpoint endpoint);
+    void setAnalysis(void *node, std::shared_ptr<Common::AnalysisCapture> source);
+    std::shared_ptr<Common::AnalysisCapture> analysis(const QString &id) const;
     void detach(void *node);
     void bind(void *node, const QString &id, const QString &name, const QString &context);
     bool setEnabled(const QStringList &ids, bool enabled, QString *error = nullptr);
@@ -84,5 +102,7 @@ class WJN_SWITCH_API Service
   private:
     bool restoring_{};
     QPointer<QWidget> editor_;
+    QMap<void *, std::shared_ptr<Common::AnalysisCapture>> analyses_;
+    QMap<void *, std::shared_ptr<LoudnessSession>> loudnessSessions_;
 };
 } // namespace WinJACKNexus::ControlDeck

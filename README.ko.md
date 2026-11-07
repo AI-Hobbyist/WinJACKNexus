@@ -16,7 +16,21 @@ Windows x64용 모듈식 오디오 및 MIDI 라우팅 앱입니다. 그래픽 �
 | VST 호스트 | VST3. 로컬 빌드에서는 별도 SDK로 VST2도 지원 |
 | MIDI Tools | 채널 분리, 16×16 매트릭스, SF2/SFZ 음원 로딩 |
 | 컨트롤 덱 | 신호 스위치, 효과음 버튼, 모노 피크 미터, 다채널 게인 노브 |
+| 방송 및 원격 오디오 | JACK 전용 송출 노드, 독립 원격 오디오 서버, UDP 업링크와 HTTP WAV/Opus 수신 |
 | 외관 및 언어 | 테마 토큰과 사용자 테마, 중국어·일본어·영어·한국어 |
+
+## 방송 및 독립 원격 오디오 서버
+
+`nodes/lan_remote_audio/` (`LAN & Remote Audio`)의 JACK 전용 노드는 독립 창에서 여러 모노/스테레오/5.1/7.1 스트림과 다단계 분류를 관리합니다. 스트림마다 전체 피크 미터 하나, M/S, 게인, 기본적으로 꺼진 로컬 모니터 스위치를 제공합니다. 입력은 방송 소스, 출력은 같은 채널 구성의 로컬 모니터이며 창을 닫아도 처리가 계속됩니다.
+
+독립 Rust 서버는 원격 오디오 기능의 공통 백엔드로 확장할 예정입니다. 현재 구현된 기능은 방송 송출 및 중계이며, 다른 원격 오디오 기능은 향후 계획으로 아직 제공되지 않습니다. 실행 파일 이름은 `bc-server`이며 WinJACKNexus, Qt, JACK 또는 오디오 장치에 의존하지 않습니다.
+
+- 제어 연결은 Bearer 인증, 오디오 업링크는 UDP, 수신은 인증 없는 HTTP GET을 사용합니다. 스트림/채널과 WAV/Opus를 선택하며 표준 `audio/*` 응답을 반환합니다. 서버는 트랜스코딩하지 않습니다.
+- `--config server.json`을 지원하고 명시적 CLI 값이 JSON보다 우선합니다. 설정의 파일 경로는 설정 파일 디렉터리를 기준으로 하므로 복사 배포할 수 있습니다.
+- TLS는 선택 사항입니다. 인증서와 키를 모두 생략하면 NGINX 뒤에서 HTTP/WS로 동작하고, 둘 다 지정하면 직접 HTTPS/WSS를 제공합니다. HTTP 프록시와 별도로 같은 공개 호스트의 UDP 포트를 연결해야 합니다. 현재 UDP 데이터는 TLS로 암호화되지 않으며 세션 인증과 HMAC으로 무결성을 보호합니다.
+- **Build standalone broadcast server** Action은 Windows x64, Linux x64, Linux ARM64 네이티브 빌드와 아카이브/SHA-256을 제공합니다. 플랫폼 빌드 성공 여부는 실제 Actions 실행 결과를 기준으로 합니다.
+
+[서버 및 NGINX 안내](bc/server/README.md), [CLI 수신 도구](bc/listen/README.md), [방송 Wiki](https://github.com/AI-Hobbyist/WinJACKNexus/wiki/Broadcast-System)를 참고하세요. 브라우저 재생, 수동 청음/설치, 실제 JACK 및 서라운드 하드웨어 검증은 통과로 기록하지 않았습니다.
 
 ## 컨트롤 덱
 

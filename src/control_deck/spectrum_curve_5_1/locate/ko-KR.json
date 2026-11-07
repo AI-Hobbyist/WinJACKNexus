@@ -1,0 +1,25 @@
+{
+  "formatVersion": 1,
+  "catalogVersion": 1,
+  "moduleId": "winjacknexus-signal-switch-spectrum-curve-5-1",
+  "language": "ko-KR",
+  "domains": {
+    "signalSwitch.spectrum-curve-5-1": {
+      "name": "주파수 곡선 5.1",
+      "analysisCombined": "통합 모드",
+      "analysisSeparate": "채널별 모드",
+      "analysisLinear": "선형 주파수",
+      "analysisLog": "로그 주파수",
+      "analysisMode": "표시 모드",
+      "analysisScale": "주파수 눈금",
+      "analysisArrangement": "패널 배치",
+      "analysisVertical": "세로 배치",
+      "analysisHorizontal": "가로 배치",
+      "analysisCustomGrid": "행과 열 지정…",
+      "analysisRows": "행 수",
+      "analysisColumns": "열 수",
+      "analysisGridHint": "모든 패널을 표시하도록 필요한 경우 행 수를 늘립니다.",
+      "analysisOverlay": "채널 색상 오버레이"
+    }
+  }
+}

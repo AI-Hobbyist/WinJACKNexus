@@ -2,6 +2,7 @@
 #include "Service.hpp"
 #include "Sound.hpp"
 #include <QJsonDocument>
+#include <QSettings>
 #include <QUuid>
 #include <WinJACKNexus/Audio/JackClient.hpp>
 #include <WinJACKNexus/Audio/JackPort.hpp>
@@ -25,6 +26,7 @@ constexpr bool isMidi = channels == 0;
 constexpr bool isSound = WJN_SWITCH_CONTROL == 1;
 constexpr bool isPeak = WJN_SWITCH_CONTROL == 2;
 constexpr bool isGain = WJN_SWITCH_CONTROL == 3;
+constexpr bool isAnalysis = WJN_SWITCH_CONTROL >= 4;
 constexpr unsigned inputPortCount = isSound ? 0 : (isMidi ? 1 : channels);
 constexpr const char *labels[]{"L", "R", "C", "LFE", "Ls", "Rs", "Lrb", "Rrb"};
 constexpr const char *modelName = WJN_SWITCH_NAME;
@@ -36,7 +38,7 @@ class SwitchNode final : public WinJACKNexus::Node::INode
     {
         for (unsigned direction = 0; direction < 2; ++direction)
         {
-            if ((isSound && !direction) || (isPeak && direction))
+            if ((isSound && !direction) || ((isPeak || isAnalysis) && direction))
                 continue;
             for (unsigned channel = 0; channel < (isMidi ? 1 : channels); ++channel)
             {
@@ -51,17 +53,30 @@ class SwitchNode final : public WinJACKNexus::Node::INode
         endpoint.version = modelName;
         endpoint.domain = "signalSwitch." WJN_SWITCH_KIND;
         endpoint.gate = &gate_;
-        endpoint.desired = !(isSound || isPeak || isGain);
+        endpoint.desired = !(isSound || isPeak || isGain || isAnalysis);
         if constexpr (isSound)
         {
             sound_ = std::make_unique<SS::Sound>();
             endpoint.sound = sound_.get();
         }
         if constexpr (isPeak)
-            endpoint.peak = &peak_;
+            endpoint.peak = peak_.data();
         if constexpr (isGain)
             endpoint.gainLinear = &gain_;
         endpoint.rename = [this](const QString &name) { return rename(name); };
+        if constexpr (isAnalysis)
+        {
+            analysis_ = std::make_shared<WinJACKNexus::Common::AnalysisCapture>(
+                static_cast<WinJACKNexus::Common::AnalysisKind>(WJN_SWITCH_CONTROL - 4), channels);
+            analysis_->instanceId = switchId_;
+            analysis_->clientName = name_;
+            if (analysis_->kind == WinJACKNexus::Common::AnalysisKind::loudness)
+                analysis_->loudnessPreset =
+                    QSettings(QSettings::defaultFormat(), QSettings::UserScope, "WinJACKNexus", "Meterbridge")
+                        .value("defaultPresetId", "ebu-r128")
+                        .toString();
+            SS::Service::instance().setAnalysis(this, analysis_);
+        }
         SS::Service::instance().attach(this, std::move(endpoint));
     }
     ~SwitchNode() override
@@ -71,7 +86,7 @@ class SwitchNode final : public WinJACKNexus::Node::INode
     }
     WinJACKNexus::Node::NodeInfo info() const noexcept override
     {
-        return {modelName, "Control Deck", "1.0.0", "WinJACKNexus", "Control Deck node"};
+        return {modelName, WJN_SWITCH_CATEGORY, "1.0.0", "WinJACKNexus", "Control Deck node"};
     }
     bool init() noexcept override
     {
@@ -120,7 +135,10 @@ class SwitchNode final : public WinJACKNexus::Node::INode
         midi_.reset();
         if (sound_)
             sound_->stop();
-        peak_ = 0;
+        for (auto &peak : peak_)
+            peak.store(0, std::memory_order_relaxed);
+        if (analysis_)
+            analysis_->reset();
         prepared_ = false;
     }
     HWND createWindow(HWND) noexcept override
@@ -164,7 +182,10 @@ class SwitchNode final : public WinJACKNexus::Node::INode
         midi_.reset();
         if (sound_)
             sound_->stop();
-        peak_ = 0;
+        for (auto &peak : peak_)
+            peak.store(0, std::memory_order_relaxed);
+        if (analysis_)
+            analysis_->reset();
     }
     void virtualStop() noexcept
     {
@@ -191,14 +212,26 @@ class SwitchNode final : public WinJACKNexus::Node::INode
         }
         else if constexpr (isPeak)
         {
-            const float *input = nullptr;
+            std::array<const float *, channels> inputs{};
             for (unsigned index = 0; index < block->audioInputCount; ++index)
             {
                 const auto &port = block->audioInputs[index];
-                if (port.portId == 1 && port.channels && port.samples)
-                    input = port.samples[0];
+                if (port.portId >= 1 && port.portId <= channels && port.channels && port.samples)
+                    inputs[port.portId - 1] = port.samples[0];
             }
-            DSP::capturePeak(input, block->frames, peak_);
+            for (unsigned channel = 0; channel < channels; ++channel)
+                DSP::capturePeak(inputs[channel], block->frames, peak_[channel]);
+        }
+        else if constexpr (isAnalysis)
+        {
+            std::array<const float *, channels> inputs{};
+            for (unsigned index = 0; index < block->audioInputCount; ++index)
+            {
+                const auto &port = block->audioInputs[index];
+                if (port.portId >= 1 && port.portId <= channels && port.channels && port.samples)
+                    inputs[port.portId - 1] = port.samples[0];
+            }
+            analysis_->push(inputs.data(), block->frames, rate_.load());
         }
         else if constexpr (isMidi)
         {
@@ -283,6 +316,22 @@ class SwitchNode final : public WinJACKNexus::Node::INode
         }
         if constexpr (isPeak)
             object["vertical"] = endpoint.peakVertical;
+        if (analysis_)
+        {
+            object["analysisSeparate"] = analysis_->separate.load();
+            object["analysisOverlay"] = analysis_->overlay.load();
+            object["spectrogramPalette"] = int(analysis_->spectrogramPalette.load());
+            object["analysisVerticalArrangement"] = analysis_->verticalArrangement.load();
+            object["analysisLayoutRows"] = int(analysis_->layoutRows.load());
+            object["analysisLayoutColumns"] = int(analysis_->layoutColumns.load());
+            object["analysisLogFrequency"] = analysis_->logarithmic.load();
+            object["analysisNumeric"] = analysis_->numeric.load();
+            object["loudnessMetrics"] = int(analysis_->metricMask.load());
+            object["loudnessPreset"] = analysis_->loudnessPreset;
+            object["csvEnabled"] = analysis_->csvEnabled;
+            object["csvUseGlobal"] = analysis_->csvUseGlobal;
+            object["csvDirectory"] = analysis_->csvDirectory;
+        }
         json_ = QJsonDocument(object).toJson(QJsonDocument::Compact);
         return json_.constData();
     }
@@ -361,6 +410,28 @@ class SwitchNode final : public WinJACKNexus::Node::INode
             service.notify();
             return true;
         }
+        if constexpr (isAnalysis)
+        {
+            analysis_->separate.store(object["analysisSeparate"].toBool());
+            analysis_->overlay.store(object["analysisOverlay"].toBool());
+            analysis_->spectrogramPalette.store(static_cast<WinJACKNexus::Common::SpectrogramPalette>(
+                std::clamp(object["spectrogramPalette"].toInt(), 0, 4)));
+            analysis_->verticalArrangement.store(object["analysisVerticalArrangement"].toBool(true));
+            analysis_->layoutRows.store(unsigned(std::clamp(object["analysisLayoutRows"].toInt(), 0, 8)));
+            analysis_->layoutColumns.store(
+                unsigned(std::clamp(object["analysisLayoutColumns"].toInt(), 0, 8)));
+            analysis_->logarithmic.store(object["analysisLogFrequency"].toBool());
+            analysis_->numeric.store(object["analysisNumeric"].toBool(true));
+            analysis_->metricMask.store(unsigned(object["loudnessMetrics"].toInt(0x1f)) & 0xff);
+            analysis_->loudnessPreset = object["loudnessPreset"].toString(QStringLiteral("ebu-r128"));
+            analysis_->csvEnabled = object["csvEnabled"].toBool();
+            analysis_->csvUseGlobal = object["csvUseGlobal"].toBool(true);
+            analysis_->csvDirectory = object["csvDirectory"].toString();
+            analysis_->instanceId = service.endpoints[this].id;
+            analysis_->clientName = name_;
+            service.notify();
+            return true;
+        }
         return service.restoreDesired(this, copy || object["enabled"].toBool());
     }
     const char *clientId()
@@ -380,7 +451,8 @@ class SwitchNode final : public WinJACKNexus::Node::INode
     DSP::Gate gate_;
     DSP::Midi midi_;
     std::unique_ptr<SS::Sound> sound_;
-    std::atomic<float> peak_{};
+    std::array<std::atomic<float>, channels> peak_{};
+    std::shared_ptr<WinJACKNexus::Common::AnalysisCapture> analysis_;
     std::atomic<float> gain_{1};
     std::atomic<double> rate_{48000};
     bool prepared_{};
@@ -419,6 +491,8 @@ class SwitchNode final : public WinJACKNexus::Node::INode
             name_ = trimmed;
         auto &endpoint = SS::Service::instance().endpoints[this];
         endpoint.name = trimmed;
+        if (analysis_)
+            analysis_->clientName = trimmed;
         endpoint.userNamed = true;
         SS::Service::instance().notify(true);
         return true;
@@ -434,7 +508,15 @@ class SwitchNode final : public WinJACKNexus::Node::INode
         }
         else if constexpr (isPeak)
         {
-            DSP::capturePeak(node.ports_[0].audioBuffer(frames), frames, node.peak_);
+            for (unsigned channel = 0; channel < channels; ++channel)
+                DSP::capturePeak(node.ports_[channel].audioBuffer(frames), frames, node.peak_[channel]);
+        }
+        else if constexpr (isAnalysis)
+        {
+            std::array<const float *, channels> inputs{};
+            for (unsigned channel = 0; channel < channels; ++channel)
+                inputs[channel] = node.ports_[channel].audioBuffer(frames);
+            node.analysis_->push(inputs.data(), frames, node.rate_.load());
         }
         else if constexpr (isMidi)
         {
@@ -485,7 +567,7 @@ const char *wjn_get_node_name()
 }
 const char *wjn_get_node_category()
 {
-    return "Control Deck";
+    return WJN_SWITCH_CATEGORY;
 }
 
 uint32_t wjn_get_node_i18n_api_version()

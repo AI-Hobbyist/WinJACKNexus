@@ -1,0 +1,98 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+if(BUILD_TESTING)
+    add_library(bc_jack_fixture SHARED
+        "${PROJECT_SOURCE_DIR}/Develop/Node/SubGraphJackFixture.cpp"
+        "${PROJECT_SOURCE_DIR}/Develop/Node/SubGraphJackFixture.def")
+    target_include_directories(bc_jack_fixture PRIVATE ${JACK2_INCLUDE_DIR})
+    target_compile_definitions(bc_jack_fixture PRIVATE WIN32_LEAN_AND_MEAN NOMINMAX)
+    set_target_properties(bc_jack_fixture PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY_RELEASE "${WJN_OUTPUT_DIR}/tests/bc")
+    add_executable(wjn_bc_node_probe NodeProbe.cpp)
+    target_link_libraries(wjn_bc_node_probe PRIVATE broadcast_runtime WinJACKNexus::Audio)
+    target_include_directories(wjn_bc_node_probe PRIVATE "${PROJECT_SOURCE_DIR}/src/node/include")
+    target_compile_definitions(wjn_bc_node_probe PRIVATE WIN32_LEAN_AND_MEAN NOMINMAX
+        WJN_BC_BOUNDARY="$<TARGET_FILE:bc_jack_fixture>")
+    target_compile_options(wjn_bc_node_probe PRIVATE /utf-8)
+    set_target_properties(wjn_bc_node_probe PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEASE "${WJN_OUTPUT_DIR}")
+    add_dependencies(wjn_bc_node_probe bc_jack_fixture mod_broadcast)
+    find_package(Qt6 6.10.3 EXACT REQUIRED COMPONENTS Test)
+    add_executable(wjn_bc_host_tests HostTests.cpp)
+    target_link_libraries(wjn_bc_host_tests PRIVATE bc_state Qt6::Test WinJACKNexus::UI WinJACKNexus::Audio
+        WinJACKNexus::Node mod_patchbay patchbay_core control_deck control_deck_state)
+    target_include_directories(wjn_bc_host_tests PRIVATE
+        "${PROJECT_SOURCE_DIR}/src/patchbay/mod/include"
+        "${PROJECT_SOURCE_DIR}/src/native_fx/include")
+    target_compile_definitions(wjn_bc_host_tests PRIVATE WJN_NODE_IMPLEMENTATION
+        WJN_BC_BOUNDARY="$<TARGET_FILE:bc_jack_fixture>")
+    target_compile_options(wjn_bc_host_tests PRIVATE /utf-8)
+    set_target_properties(wjn_bc_host_tests PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY_RELEASE "${WJN_OUTPUT_DIR}")
+    add_dependencies(wjn_bc_host_tests mod_broadcast bc_jack_fixture)
+    add_test(NAME broadcast_host_tests COMMAND wjn_bc_host_tests)
+    set_tests_properties(broadcast_host_tests PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=windows")
+    add_executable(wjn_bc_gui_tests GuiTests.cpp)
+    target_link_libraries(wjn_bc_gui_tests PRIVATE WinJACKNexus::UI bc_state Qt6::Test)
+    target_include_directories(wjn_bc_gui_tests PRIVATE "${PROJECT_SOURCE_DIR}/src/node/include")
+    target_compile_definitions(wjn_bc_gui_tests PRIVATE WIN32_LEAN_AND_MEAN NOMINMAX)
+    target_compile_options(wjn_bc_gui_tests PRIVATE /utf-8)
+    set_target_properties(wjn_bc_gui_tests PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEASE "${WJN_OUTPUT_DIR}")
+    add_dependencies(wjn_bc_gui_tests mod_broadcast)
+    add_test(NAME broadcast_gui_tests COMMAND wjn_bc_gui_tests)
+    set_tests_properties(broadcast_gui_tests PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=windows")
+    add_executable(wjn_bc_service_probe ServiceProbe.cpp)
+    target_link_libraries(wjn_bc_service_probe PRIVATE broadcast_runtime)
+    target_compile_options(wjn_bc_service_probe PRIVATE /utf-8)
+    set_target_properties(wjn_bc_service_probe PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY_RELEASE "${WJN_OUTPUT_DIR}")
+    add_executable(wjn_bc_core_tests CoreTests.cpp)
+    target_include_directories(wjn_bc_core_tests PRIVATE "${PROJECT_SOURCE_DIR}/src/common/include")
+    target_compile_options(wjn_bc_core_tests PRIVATE /utf-8)
+    set_target_properties(wjn_bc_core_tests PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY_RELEASE "${WJN_OUTPUT_DIR}")
+    add_test(NAME broadcast_core_tests COMMAND wjn_bc_core_tests)
+    add_executable(wjn_bc_state_tests StateTests.cpp)
+    target_include_directories(wjn_bc_state_tests PRIVATE "${PROJECT_SOURCE_DIR}/src/common/include")
+    target_link_libraries(wjn_bc_state_tests PRIVATE bc_state)
+    target_compile_options(wjn_bc_state_tests PRIVATE /utf-8)
+    set_target_properties(wjn_bc_state_tests PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY_RELEASE "${WJN_OUTPUT_DIR}")
+    add_test(NAME broadcast_state_tests COMMAND wjn_bc_state_tests)
+    add_executable(wjn_bc_module_tests ModuleTests.cpp)
+    target_include_directories(wjn_bc_module_tests PRIVATE "${PROJECT_SOURCE_DIR}/src/node/include")
+    target_link_libraries(wjn_bc_module_tests PRIVATE bc_state)
+    target_compile_definitions(wjn_bc_module_tests PRIVATE WIN32_LEAN_AND_MEAN NOMINMAX)
+    target_compile_options(wjn_bc_module_tests PRIVATE /utf-8)
+    set_target_properties(wjn_bc_module_tests PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY_RELEASE "${WJN_OUTPUT_DIR}")
+    add_test(NAME broadcast_module_tests COMMAND wjn_bc_module_tests)
+    add_dependencies(wjn_bc_module_tests mod_broadcast)
+    add_executable(wjn_bc_connection_tests ConnectionTests.cpp)
+    target_include_directories(wjn_bc_connection_tests PRIVATE "${PROJECT_SOURCE_DIR}/src/bc")
+    target_link_libraries(wjn_bc_connection_tests PRIVATE bc_connection)
+    target_compile_options(wjn_bc_connection_tests PRIVATE /utf-8)
+    set_target_properties(wjn_bc_connection_tests PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY_RELEASE "${WJN_OUTPUT_DIR}")
+    add_test(NAME broadcast_connection_tests COMMAND wjn_bc_connection_tests)
+    add_executable(wjn_bc_session_probe SessionProbe.cpp)
+    target_link_libraries(wjn_bc_session_probe PRIVATE bc_session)
+    target_compile_options(wjn_bc_session_probe PRIVATE /utf-8)
+    set_target_properties(wjn_bc_session_probe PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY_RELEASE "${WJN_OUTPUT_DIR}")
+    add_executable(wjn_bc_wire_tests WireTests.cpp)
+    target_include_directories(wjn_bc_wire_tests PRIVATE "${PROJECT_SOURCE_DIR}/src/bc")
+    target_link_libraries(wjn_bc_wire_tests PRIVATE bc_wire)
+    target_compile_options(wjn_bc_wire_tests PRIVATE /utf-8)
+    set_target_properties(wjn_bc_wire_tests PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY_RELEASE "${WJN_OUTPUT_DIR}")
+    add_test(NAME broadcast_wire_tests COMMAND wjn_bc_wire_tests "${PROJECT_SOURCE_DIR}/Docs/Broadcast/protocol-fixture.json")
+    add_executable(wjn_bc_sender_probe SenderProbe.cpp)
+    target_link_libraries(wjn_bc_sender_probe PRIVATE bc_udp)
+    target_compile_options(wjn_bc_sender_probe PRIVATE /utf-8)
+    set_target_properties(wjn_bc_sender_probe PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY_RELEASE "${WJN_OUTPUT_DIR}")
+    add_executable(wjn_bc_encoder_probe EncoderProbe.cpp)
+    target_link_libraries(wjn_bc_encoder_probe PRIVATE bc_encoder)
+    target_compile_options(wjn_bc_encoder_probe PRIVATE /utf-8)
+    set_target_properties(wjn_bc_encoder_probe PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY_RELEASE "${WJN_OUTPUT_DIR}")
+endif()

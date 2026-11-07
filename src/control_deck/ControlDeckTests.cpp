@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: AGPL-3.0-only */
 #include "../../Develop/Node/WindowShowCounter.hpp"
 #include "../patchbay/mod/src/Library.cpp"
-#include <WinJACKNexus/UI/HostI18n.hpp>
+#include "NodePaths.hpp"
 #include "Sound.hpp"
 #include <QFontDatabase>
 #include <QGraphicsOpacityEffect>
@@ -11,6 +11,7 @@
 #include <QTextLayout>
 #include <WinJACKNexus/UI/ConsoleControls.hpp>
 #include <WinJACKNexus/UI/FxLevelMeterWidget.hpp>
+#include <WinJACKNexus/UI/HostI18n.hpp>
 #include <iostream>
 #include <stdexcept>
 
@@ -197,8 +198,8 @@ int main(int argc, char **argv)
         QMap<QString, QString> ids;
         for (const auto *kind : {"mono", "sound", "peak", "gain_mono", "gain_stereo", "gain_5_1", "gain_7_1"})
         {
-            const auto path = QCoreApplication::applicationDirPath() + "/nodes/control_deck/" + kind +
-                              "/wjn_signal_switch_" + kind + ".dll";
+            const auto path = QCoreApplication::applicationDirPath() + "/nodes/control_deck/" +
+                              SS::moduleRelativeFolder(kind) + "/wjn_signal_switch_" + kind + ".dll";
             auto legacyPath = path;
             legacyPath.replace("/nodes/control_deck/", "/nodes/signal_switch/");
             auto node = LoadedModuleNode::create(legacyPath, 0, {}, WJN_NODE_MODE_VIRT, 48000, 64);

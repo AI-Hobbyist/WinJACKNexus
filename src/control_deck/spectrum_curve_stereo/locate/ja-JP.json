@@ -1,0 +1,25 @@
+{
+  "formatVersion": 1,
+  "catalogVersion": 1,
+  "moduleId": "winjacknexus-signal-switch-spectrum-curve-stereo",
+  "language": "ja-JP",
+  "domains": {
+    "signalSwitch.spectrum-curve-stereo": {
+      "name": "スペクトル曲線 stereo",
+      "analysisCombined": "総合表示",
+      "analysisSeparate": "チャンネル別",
+      "analysisLinear": "線形周波数",
+      "analysisLog": "対数周波数",
+      "analysisMode": "表示モード",
+      "analysisScale": "周波数スケール",
+      "analysisArrangement": "パネル配置",
+      "analysisVertical": "縦に配置",
+      "analysisHorizontal": "横に配置",
+      "analysisCustomGrid": "行と列を指定…",
+      "analysisRows": "行数",
+      "analysisColumns": "列数",
+      "analysisGridHint": "すべてのパネルを表示するため必要に応じて行数を増やします。",
+      "analysisOverlay": "チャンネルを色分けして重ねる"
+    }
+  }
+}
