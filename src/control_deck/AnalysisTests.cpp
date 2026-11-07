@@ -19,6 +19,7 @@
 #include <WinJACKNexus/Common/LoudnessEngine.hpp>
 #include <WinJACKNexus/Node/NodeApi.h>
 #include <WinJACKNexus/UI/AudioAnalysisWidget.hpp>
+#include <WinJACKNexus/UI/Controls.hpp>
 #include <WinJACKNexus/UI/MetricReadout.hpp>
 #include <WinJACKNexus/UI/ThemeCore.hpp>
 #include <WinJACKNexus/UI/ThemeManager.hpp>
@@ -67,6 +68,9 @@ int main(int argc, char **argv)
     UI::ThemeManager::installThemeCore(&theme);
     UI::ThemeManager manager;
     manager.applyToApp(&app);
+    const auto polarFill = UI::Controls::themeTokenColor("global", "analysis-polar-fill", QColor());
+    if (!polarFill.isValid() || polarFill.alpha() <= 0 || polarFill.alpha() >= 255)
+        return fail(__LINE__);
     auto &service = SS::Service::instance();
     {
         std::array<float, 1024> tone{}, inverted{};
@@ -182,7 +186,8 @@ int main(int argc, char **argv)
                 if (!reference->prepare({48000, true}, referenceLayout))
                     return fail(__LINE__);
             }
-            const auto feed = [&](unsigned blocks, bool silent = false, double amplitude = 0.25)
+            const auto feed =
+                [&](unsigned blocks, bool silent = false, double amplitude = 0.25, double lfeGain = 1.0)
             {
                 for (unsigned count = 0; count < blocks; ++count)
                 {
@@ -190,8 +195,13 @@ int main(int argc, char **argv)
                         for (unsigned index = 0; index < 256; ++index)
                             samples[channel][index] =
                                 silent ? 0
-                                       : float(amplitude * std::sin(2 * std::numbers::pi * (channel + 1) *
-                                                                    375 * (time + index) / 48000));
+                                       : float(amplitude * (channel == 3 ? lfeGain : 1.0) *
+                                               (source->kind == Common::AnalysisKind::polar &&
+                                                        source->overlay.load()
+                                                    ? 1.0 - channel * 0.08
+                                                    : 1.0) *
+                                               std::sin(2 * std::numbers::pi * (channel + 1) * 375 *
+                                                        (time + index) / 48000));
                     api->process(node, &block);
                     if (reference)
                     {
@@ -424,6 +434,63 @@ int main(int argc, char **argv)
                             return fail(__LINE__);
                     }
             }
+            if (source->kind == Common::AnalysisKind::polar)
+            {
+                bool contourChosen = false;
+                QTimer::singleShot(40, editor,
+                                   [&]
+                                   {
+                                       auto *menu = qobject_cast<QMenu *>(QApplication::activePopupWidget());
+                                       if (!menu)
+                                           return;
+                                       while (auto *parent = qobject_cast<QMenu *>(menu->parentWidget()))
+                                           menu = parent;
+                                       auto *rays = menu->findChild<QAction *>("controlDeck.analysisMode.0");
+                                       auto *contour =
+                                           menu->findChild<QAction *>("controlDeck.analysisMode.1");
+                                       if (rays && contour && rays->isChecked() && !contour->isChecked())
+                                       {
+                                           contour->trigger();
+                                           contourChosen = true;
+                                       }
+                                       menu->close();
+                                   });
+                QMetaObject::invokeMethod(plot, "customContextMenuRequested", Qt::DirectConnection,
+                                          Q_ARG(QPoint, QPoint(5, 5)));
+                QTest::qWait(200);
+                if (!contourChosen || !source->overlay.load())
+                    return fail(__LINE__);
+                feed(30, false, 0.25, 0.35);
+                if (!editor->screen()
+                         ->grabWindow(editor->winId())
+                         .save(app.applicationDirPath() + "/../../control-deck-polar-contour-" + layout +
+                               ".png"))
+                    return fail(__LINE__);
+                if (channels >= 6)
+                {
+                    const QString token = "--wjn-theme-global-analysis-polar-lfe-stroke";
+                    if (!theme.setOverride(token, "#ff00ff", {}, nullptr))
+                        return fail(__LINE__);
+                    QTest::qWait(100);
+                    const auto lfePixels = [&]
+                    {
+                        const auto image = editor->screen()->grabWindow(editor->winId()).toImage();
+                        unsigned count = 0;
+                        for (int y = 0; y < image.height(); ++y)
+                            for (int x = 0; x < image.width(); ++x)
+                                if (image.pixelColor(x, y) == QColor("#ff00ff"))
+                                    ++count;
+                        return count;
+                    };
+                    const auto active = lfePixels();
+                    feed(30, false, 0.25, 0.0);
+                    QTest::qWait(100);
+                    if (active <= lfePixels() + 50 || plot->rmsLevels()[3] != 0 || plot->rmsLevels()[0] <= 0)
+                        return fail(__LINE__);
+                    theme.removeOverride(token);
+                    feed(30);
+                }
+            }
             if (source->kind == Common::AnalysisKind::spectrumCurve)
             {
                 bool overlayChosen = false;
@@ -502,6 +569,15 @@ int main(int argc, char **argv)
             if (source->separate.load() != savedSeparate || source->overlay.load() != savedOverlay ||
                 !source->logarithmic.load() || source->spectrogramPalette.load() != savedPalette)
                 return fail(__LINE__);
+            if (source->kind == Common::AnalysisKind::polar)
+            {
+                auto legacy = QJsonDocument::fromJson(saved).object();
+                legacy.remove("analysisOverlay");
+                const auto legacyJson = QJsonDocument(legacy).toJson(QJsonDocument::Compact);
+                if (!set(node, legacyJson.constData()) || source->overlay.load() ||
+                    !set(node, saved.constData()) || !source->overlay.load())
+                    return fail(__LINE__);
+            }
             if (source->kind == Common::AnalysisKind::loudness &&
                 (!source->csvEnabled || source->csvUseGlobal || source->numeric.load() ||
                  source->loudnessPreset != "netease-cloud-music" || source->metricMask.load() != 0x3f))

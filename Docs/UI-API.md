@@ -624,3 +624,9 @@ Control Deck 数字卡片及多声道分区排列支持默认垂直、水平和�
 声谱强度标尺范围为 −72 至 +12 dBFS，复用公共 drawMeterScale；颜色只在 −72 至 0 dBFS 变化，0 dBFS 及以上一律使用所选色带最高点。common 的 spectrogramColorAmount 统一执行该饱和映射。
 
 声谱图标题旁在强度超过 0 dBFS 时显示“超限 +X.X dB”，默认红色，使用公共 Token analysis-overload-text；恢复正常后自动隐藏。超限数值按当前显示模式的最高频谱格计算：综合模式先按声道功率平均，分声道模式取各声道最高值。公共 AudioAnalysisWidget::overloadDb() 提供这一实时只读值，common analysisOverloadDb 复用相同聚合算法。
+
+## 极坐标填充能量轮廓
+
+极坐标图的右键“显示模式”提供“声道射线”（默认，兼容旧工程）和“填充能量轮廓”。新模式复用 common/MixerPolarCurve 的功率域插值与时间平滑，以及公共 UI 的 drawPolarCurve；显示半透明闭合空间能量轮廓、固定声道方位圆点及标签。半径沿用 −72 至 +12 dBFS，虚线环标记 0 dBFS；无信号时轮廓回到中心，不归一化放大微弱信号。单声道、立体声、5.1、7.1 均支持，模式保存在既有 analysisOverlay 字段（极坐标下 true 表示填充轮廓），缺省 false 保持射线模式。
+
+5.1/7.1 的 LFE 在中心另绘不同颜色的圆形强度轮廓，半径按 LFE 自身 RMS 映射；不参与空间轮廓插值，不赋予方位。LFE 静音时强度圈收至中心，保留中心标记及 LFE 标签。主题 Token 为全局 analysis-polar-stroke（空间轮廓/方位点）、analysis-polar-fill（含透明度的填充色）、analysis-polar-lfe-stroke（独立 LFE 圈/标记）。颜色、网格和文字均来自公共主题系统。

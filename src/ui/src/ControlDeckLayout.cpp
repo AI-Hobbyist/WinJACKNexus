@@ -290,7 +290,7 @@ void Editor::showCardMenu(const QString &id, const QPoint &global)
                         });
             }
         }
-        if (source && source->kind != Common::AnalysisKind::polar)
+        if (source)
         {
             auto *mode = menu.addMenu(QString());
             mode->setObjectName("controlDeck.analysisModeMenu");
@@ -298,10 +298,21 @@ void Editor::showCardMenu(const QString &id, const QPoint &global)
                                   "Display mode");
             auto *group = new QActionGroup(mode);
             const bool loudness = source->kind == Common::AnalysisKind::loudness;
+            const bool polar = source->kind == Common::AnalysisKind::polar;
             const unsigned modeCount = source->kind == Common::AnalysisKind::spectrumCurve ? 3 : 2;
-            const char *keys[]{loudness ? "analysisNumbers" : "analysisCombined",
-                               loudness ? "analysisMeters" : "analysisSeparate", "analysisOverlay"};
-            const char *labels[]{loudness ? "Numbers" : "Combined", loudness ? "Meters" : "Per channel",
+            const char *keys[]{polar      ? "analysisPolarRays"
+                               : loudness ? "analysisNumbers"
+                                          : "analysisCombined",
+                               polar      ? "analysisPolarContour"
+                               : loudness ? "analysisMeters"
+                                          : "analysisSeparate",
+                               "analysisOverlay"};
+            const char *labels[]{polar      ? "Channel rays"
+                                 : loudness ? "Numbers"
+                                            : "Combined",
+                                 polar      ? "Filled energy contour"
+                                 : loudness ? "Meters"
+                                            : "Per channel",
                                  "Colored channel overlay"};
             for (unsigned index = 0; index < modeCount; ++index)
             {
@@ -311,7 +322,9 @@ void Editor::showCardMenu(const QString &id, const QPoint &global)
                                       labels[index]);
                 choice->setCheckable(true);
                 bool selected;
-                if (loudness)
+                if (polar)
+                    selected = source->overlay.load() == (index == 1);
+                else if (loudness)
                     selected = source->numeric.load() == (index == 0);
                 else if (index == 2)
                     selected = source->overlay.load();
@@ -320,9 +333,11 @@ void Editor::showCardMenu(const QString &id, const QPoint &global)
                 choice->setChecked(selected);
                 group->addAction(choice);
                 connect(choice, &QAction::triggered, &menu,
-                        [this, source, loudness, index]
+                        [this, source, loudness, polar, index]
                         {
-                            if (loudness)
+                            if (polar)
+                                source->overlay.store(index == 1);
+                            else if (loudness)
                                 source->numeric.store(index == 0);
                             else
                             {

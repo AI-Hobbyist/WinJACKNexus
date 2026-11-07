@@ -56,6 +56,8 @@ class AudioAnalysisWidget::Impl
     std::array<std::array<float, 1024>, 8> wave{};
     std::array<std::array<double, 512>, 8> powers{};
     std::array<double, 8> rms{};
+    Common::MixerPolarCurve polarCurve;
+    std::uint64_t polarSamples{};
     std::array<QImage, 8> history;
     std::array<MetricReadout *, 8> readouts{};
     unsigned position{}, pending{}, rate{48000};
@@ -152,6 +154,8 @@ class AudioAnalysisWidget::Impl
         wave = {};
         powers = {};
         rms = {};
+        polarCurve.clear();
+        polarSamples = 0;
         position = pending = 0;
         for (auto &image : history)
             image.fill(spectrumColor(0));
@@ -166,6 +170,23 @@ class AudioAnalysisWidget::Impl
             rms[channel] = Common::analysisRms(ordered);
             if (source->kind != Kind::oscilloscope && source->kind != Kind::polar)
                 powers[channel] = Common::analysisSpectrum(ordered);
+        }
+        if (source->kind == Kind::polar)
+        {
+            Common::MixerPolarSnapshot snapshot;
+            snapshot.sampleRate = rate;
+            snapshot.sampleCount = pending;
+            snapshot.firstSample = polarSamples;
+            polarSamples += pending;
+            snapshot.endSample = polarSamples;
+            snapshot.sourceLayout = source->channels == 1   ? Common::MixerLayout::mono
+                                    : source->channels == 2 ? Common::MixerLayout::stereo
+                                    : source->channels == 6 ? Common::MixerLayout::surround51
+                                                            : Common::MixerLayout::surround71;
+            snapshot.targetLayout = snapshot.sourceLayout;
+            for (unsigned channel = 0; channel < source->channels; ++channel)
+                snapshot.inputSumSquares[channel] = rms[channel] * rms[channel] * pending;
+            polarCurve.accept(snapshot);
         }
         if (source->kind == Kind::spectrogram)
             addSpectrum();
@@ -605,6 +626,11 @@ class AudioAnalysisWidget::Impl
         const double radius =
             std::max(1.0, std::min(area.width(), area.height()) / 2 - owner.fontMetrics().height());
         drawMixerPolarGrid(painter, center, radius, "sel-main");
+        if (source->overlay.load())
+        {
+            polarContour(painter, area, center, radius);
+            return;
+        }
         const std::array<double, 8> angles{-30, 30, 0, 0, -110, 110, -150, 150};
         for (unsigned channel = 0; channel < source->channels; ++channel)
         {
@@ -629,6 +655,52 @@ class AudioAnalysisWidget::Impl
                                         owner.fontMetrics().height()),
                                  Qt::AlignCenter, role(channel, source->channels));
             }
+        }
+    }
+    void polarContour(QPainter &painter, const QRectF &area, QPointF center, double radius)
+    {
+        const auto contour = polarCurve.contour();
+        const auto stroke = color(owner, "analysis-polar-stroke", QPalette::Highlight);
+        if (contour.valid)
+        {
+            Controls::CurveStyle style;
+            style.stroke = stroke;
+            style.fill = color(owner, "analysis-polar-fill", QPalette::Highlight);
+            style.showFill = true;
+            Controls::drawPolarCurve(painter, center, radius, contour.inputRadius, style);
+        }
+        painter.setBrush(Qt::NoBrush);
+        painter.setPen(QPen(color(owner, "border-normal", QPalette::Mid), 1, Qt::DotLine));
+        const double zeroRadius = Common::MixerPolarCurve::radiusForPower(1) * radius;
+        painter.drawEllipse(center, zeroRadius, zeroRadius);
+        painter.setPen(color(owner, "text-muted", QPalette::WindowText));
+        painter.drawText(area, Qt::AlignTop | Qt::AlignLeft, "0 dBFS");
+        const auto labelHeight = owner.fontMetrics().height();
+        const double marker = labelHeight / 3.0;
+        const std::array<double, 8> angles{-30, 30, 0, 0, -110, 110, -150, 150};
+        for (unsigned channel = 0; channel < source->channels; ++channel)
+        {
+            const bool lfe = source->channels >= 6 && channel == 3;
+            const double angle = (source->channels == 1 ? 0 : angles[channel]) * std::numbers::pi / 180;
+            const QPointF point =
+                lfe ? center : center + QPointF(std::sin(angle), -std::cos(angle)) * zeroRadius;
+            const auto ink = lfe ? color(owner, "analysis-polar-lfe-stroke", QPalette::BrightText) : stroke;
+            painter.setPen(QPen(ink, 2));
+            painter.setBrush(Qt::NoBrush);
+            if (lfe)
+            {
+                const double lfeRadius =
+                    Common::MixerPolarCurve::radiusForPower(rms[channel] * rms[channel]) * radius;
+                if (lfeRadius > 0)
+                    painter.drawEllipse(center, lfeRadius, lfeRadius);
+            }
+            painter.setBrush(ink);
+            painter.drawEllipse(point, marker, marker);
+            painter.setPen(lfe ? ink : color(owner, "text-primary", QPalette::WindowText));
+            const QString name = role(channel, source->channels);
+            const double width = owner.fontMetrics().horizontalAdvance(name) + marker * 2;
+            painter.drawText(QRectF(point.x() - width / 2, point.y() + marker, width, labelHeight),
+                             Qt::AlignHCenter | Qt::AlignTop, name);
         }
     }
 };

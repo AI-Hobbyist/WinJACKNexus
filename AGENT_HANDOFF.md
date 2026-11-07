@@ -1,8 +1,18 @@
 # Agent 交接手册
 
-更新：2026-11-07（Asia/Seoul）。最新任务为 Control Deck 分类折叠后展开无响应修复；本节为当前状态，后文为历史。
+更新：2026-11-07（Asia/Seoul）。最新任务为极坐标填充能量轮廓与独立 LFE 圈；本节为当前状态，后文为历史。
 
-## 当前任务：分类展开卡死修复
+## 当前任务：极坐标轮廓模式
+
+- 实施及自动验证完成。新增右键显示模式“声道射线”（保留默认）/“填充能量轮廓”，支持1/2/6/8声道；复用 common/MixerPolarCurve 功率域插值、时间平滑和公共 drawPolarCurve，无新增算法或音频回调工作。5.1/7.1 中 LFE 独立颜色的中心强度圈按自身 RMS 缩放，不参与空间方位插值。
+- 只修改公共 ui 的 AudioAnalysisWidget.cpp 和 ControlDeckLayout.cpp；沿用现有 AnalysisCapture.overlay 和 JSON analysisOverlay，无公共结构/模块 ABI 改动。新增3个全局 Token analysis-polar-stroke/fill/lfe-stroke，16个极坐标四语言 catalog。文档规范、组件指南、UI API、Wiki源及极坐标轮廓替换说明已同步。
+- 必要 Release 构建及24分析/响度布局最终实窗回归全部通过，21次窗口/菜单显示；覆盖菜单默认与切换、保存恢复、旧JSON缺省、填充透明度、LFE token改色和LFE独立静音圈消失（其他声道仍有信号）、既有分析/响度功能。日志 build/control-deck-polar-contour-final-{build,tests}.log；四种轮廓截图在 build 下，7.1已检查。16个运行catalog与源码字节一致。
+- 初次实窗检查发现填充 Token 使用了主题系统不支持的8位HEX，已改成受支持的 rgba(67,199,168,0.18)，增加 alpha 检查，重新构建和完整回归通过。没有改动主题解析器或现有主题行为。
+- 当前待完成：检查点提交推送，发布实际 Wiki，再生成只含 ui.dll、control_deck.dll、16个catalog及说明/许可证的增量包；校验后记录包哈希并完成收尾提交。Wiki远端 Control-Deck.md 已读取并核对与原基线相符，保留原文追加本功能说明。
+- 未覆盖安装目录、未启动/停止用户应用或音频进程，无 Computer Use/offscreen。正常Windows Qt实窗、系统字体；人工安装、JACK/硬件/听音验收 SKIPPED（用户指令）。broadcast-system 跟踪 origin/broadcast-system，禁止codex/前缀；保留旧归档及无关未跟踪文件。
+- 最近可靠额度10080分钟池已用30%、剩余70%，重置1794405624；未触发交接阈值。
+
+## 历史任务：分类展开卡死修复
 
 - 实施及自动验证完成：公共 DragTreeWidget 在折叠/展开信号中同步发送辅助功能 ModelReset，修正 Qt 6.10.3 过期行缓存；动画、UIA 和音频行为保持。修改 src/ui/src/Controls.cpp、src/control_deck/CategoryTests.cpp；公共行为已写入 Docs/UI-API.md。
 - 现场 GUI 线程两次采样位于 Windows UI Automation/COM；仅短暂暂停 GUI 线程，音频线程未暂停，未终止进程。安装41 DLL 与上一交付包相符。测试 RED 证明折叠后 Analysis 第13行反向索引为0，退出码4。具体记录 Docs/ControlDeck/分类展开修复.md。

@@ -903,3 +903,9 @@
 :root {
   --wjn-theme-global-analysis-overload-text: #f04452;
 }
+
+:root {
+  --wjn-theme-global-analysis-polar-stroke: #43c7a8;
+  --wjn-theme-global-analysis-polar-fill: rgba(67,199,168,0.18);
+  --wjn-theme-global-analysis-polar-lfe-stroke: #e66da4;
+}

@@ -18,7 +18,9 @@
       "analysisCustomGrid": "행과 열 지정…",
       "analysisRows": "행 수",
       "analysisColumns": "열 수",
-      "analysisGridHint": "모든 패널을 표시하도록 필요한 경우 행 수를 늘립니다."
+      "analysisGridHint": "모든 패널을 표시하도록 필요한 경우 행 수를 늘립니다.",
+      "analysisPolarRays": "채널 방사선",
+      "analysisPolarContour": "채워진 에너지 윤곽"
     }
   }
 }

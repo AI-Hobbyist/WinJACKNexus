@@ -7460,6 +7460,30 @@
       "default": "#f04452",
       "inherits": [],
       "description": "Spectrogram title over-zero excess text"
+    },
+    {
+      "name": "--wjn-theme-global-analysis-polar-stroke",
+      "ownerScope": "global",
+      "type": "color",
+      "default": "#43c7a8",
+      "inherits": [],
+      "description": "Control Deck spatial energy contour and speaker markers"
+    },
+    {
+      "name": "--wjn-theme-global-analysis-polar-fill",
+      "ownerScope": "global",
+      "type": "color",
+      "default": "rgba(67,199,168,0.18)",
+      "inherits": [],
+      "description": "Control Deck translucent spatial energy contour fill"
+    },
+    {
+      "name": "--wjn-theme-global-analysis-polar-lfe-stroke",
+      "ownerScope": "global",
+      "type": "color",
+      "default": "#e66da4",
+      "inherits": [],
+      "description": "Control Deck independent central LFE intensity contour"
     }
   ]
 }
