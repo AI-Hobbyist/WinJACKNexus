@@ -22,7 +22,14 @@
       "csvBrowse": "Choose independent directory…",
       "metricDisplay": "Metric display",
       "analysisMode": "Display mode",
-      "analysisScale": "Frequency scale"
+      "analysisScale": "Frequency scale",
+      "analysisArrangement": "Panel arrangement",
+      "analysisVertical": "Vertical",
+      "analysisHorizontal": "Horizontal",
+      "analysisCustomGrid": "Custom rows and columns…",
+      "analysisRows": "Rows",
+      "analysisColumns": "Columns",
+      "analysisGridHint": "Rows expand automatically when needed to show every panel."
     }
   }
 }

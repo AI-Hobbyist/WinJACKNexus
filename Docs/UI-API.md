@@ -608,3 +608,5 @@ Production-DLL Windows tests passed 95 checks with 3 top-level shows, Microsoft 
 `<WinJACKNexus/UI/AudioAnalysisWidget.hpp>` 导出 `AudioAnalysisWidget(std::shared_ptr<Common::AnalysisCapture>, QWidget* parent=nullptr, const QString& domain="ui")`。使用 PImpl，公开 `rmsLevels()`、`dominantFrequency(unsigned)`、`loudnessSnapshot()`。普通分析控件是其 capture 的唯一消费者；响度控件只读取后台快照，不消费队列。响度数字模式组合现有公共 `MetricReadout`，引用 Meterbridge 指标强调色 Token；没有复制其绘制实现。控件隐藏时停止 UI 定时器，后台响度与 CSV 不停止。刷新遵守应用 FPS。设置由拥有者的右键菜单提供，控件表面不含设置下拉框或按钮。
 
 公共 common `ControlDeckAnalysis.hpp` 提供固定 1/2/6/8 声道的有界采集、RMS、Hann FFT 和声道功率平均。绘图支持示波器、声谱图、声道能量极坐标、频谱直方图、频谱曲线及综合响度。主题使用 `analysis-channel-1..8`、`analysis-spectrum-floor/mid/hot` 和 `analysis-reference-target/upper/peak`，默认值及注册表属于公共主题系统。开发规则见 [组件开发指南](ControlDeck/组件开发指南.md)，实际模块回调与调用点测试位于 `src/control_deck/AnalysisTests.cpp`。
+
+Control Deck 数字卡片及多声道分区排列支持默认垂直、水平和自定义行列。`AnalysisCapture` 的 `verticalArrangement`、`layoutRows`、`layoutColumns` 由控制线程写入，绘图线程读取；自定义尺寸为零时使用方向，非零时按行列布局并在容量不足时扩展行数。节点 JSON 对应 `analysisVerticalArrangement`、`analysisLayoutRows`、`analysisLayoutColumns`，旧状态缺省为垂直排列。响度电平模式始终为单排垂直表条。

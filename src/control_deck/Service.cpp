@@ -37,7 +37,7 @@ void Service::attach(void *node, Endpoint endpoint)
             endpoint.peak ? QSize(300, 82 * int(peakChannelCount(endpoint)) + 40) : QSize(180, 120));
     if (added && analyses_.contains(node))
         state.cards[endpoint.id].geometry.setSize(
-            analyses_.value(node)->kind == Common::AnalysisKind::loudness ? QSize(520, 360)
+            analyses_.value(node)->kind == Common::AnalysisKind::loudness ? QSize(520, 480)
                                                                           : QSize(420, 280));
     endpoints.insert(node, std::move(endpoint));
     reconcile();

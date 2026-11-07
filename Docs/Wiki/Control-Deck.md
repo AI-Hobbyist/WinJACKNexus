@@ -96,3 +96,7 @@ Control Deck 是节点的统一控制面板：把信号开关、音效按钮、�
 ## 开发资料
 
 公共 UI 控件使用主题 Token 和全局 FPS；算法放在 common。组件规范与开发指南见主仓库 [Control Deck 规范](https://github.com/AI-Hobbyist/WinJACKNexus/blob/broadcast-system/Docs/ControlDeck/规范.md) 和 [组件开发指南](https://github.com/AI-Hobbyist/WinJACKNexus/blob/broadcast-system/Docs/ControlDeck/组件开发指南.md)。
+
+## 分区排列
+
+数字模式响度卡片及多声道示波器、声谱图、频谱曲线和频谱直方图支持右键选择垂直、水平或自定义行列，默认垂直排列。多声道图表在分声道模式下应用排列。自定义行列各为 1–8；格数不足时自动增加行数，保证所有指标/声道可见。排列随节点工程设置保存。响度电平表模式仍保持单排垂直表条。频谱直方图以 64 个更粗的实心频带柱显示，common 按各频带最大功率汇总，避免窄带峰值被漏过。

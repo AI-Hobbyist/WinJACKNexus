@@ -76,6 +76,7 @@ class Editor : public QWidget
     void editGainRange(const QString &id);
     void editGainValue(const QString &id);
     void editAnalysisCsv(const QString &id);
+    void editAnalysisLayout(const QString &id);
     void updateMouseHook();
     void releaseMouseHook();
     static LRESULT CALLBACK mouseHook(int code, WPARAM message, LPARAM data);

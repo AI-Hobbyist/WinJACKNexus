@@ -254,6 +254,42 @@ void Editor::showCardMenu(const QString &id, const QPoint &global)
             action(menu, "shortcut", "Global shortcut…", [this, id] { editShortcut(id); });
         }
         const auto source = service_.analysis(id);
+        if (source && source->kind != Common::AnalysisKind::polar &&
+            (source->channels > 1 || source->kind == Common::AnalysisKind::loudness))
+        {
+            auto *arrangement = menu.addMenu(QString());
+            arrangement->setObjectName("controlDeck.arrangementMenu");
+            UI::bindLocalizedText(arrangement, "title", endpoint->domain.toUtf8().constData(),
+                                  "analysisArrangement", "Panel arrangement");
+            auto *group = new QActionGroup(arrangement);
+            const bool custom = source->layoutRows.load() && source->layoutColumns.load();
+            for (unsigned index = 0; index < 3; ++index)
+            {
+                const char *keys[]{"analysisVertical", "analysisHorizontal", "analysisCustomGrid"};
+                const char *labels[]{"Vertical", "Horizontal", "Custom rows and columns…"};
+                auto *choice = arrangement->addAction(QString());
+                choice->setObjectName(QStringLiteral("controlDeck.arrangement.%1").arg(index));
+                UI::bindLocalizedText(choice, "text", endpoint->domain.toUtf8().constData(), keys[index],
+                                      labels[index]);
+                choice->setCheckable(true);
+                choice->setChecked(
+                    index == 2 ? custom : !custom && source->verticalArrangement.load() == (index == 0));
+                group->addAction(choice);
+                connect(choice, &QAction::triggered, &menu,
+                        [this, source, id, index]
+                        {
+                            if (index == 2)
+                            {
+                                editAnalysisLayout(id);
+                                return;
+                            }
+                            source->layoutRows.store(0);
+                            source->layoutColumns.store(0);
+                            source->verticalArrangement.store(index == 0);
+                            service_.notify(true);
+                        });
+            }
+        }
         if (source && source->kind != Common::AnalysisKind::polar)
         {
             auto *mode = menu.addMenu(QString());

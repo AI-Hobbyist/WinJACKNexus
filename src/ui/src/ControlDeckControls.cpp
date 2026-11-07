@@ -256,6 +256,45 @@ void Editor::editGainValue(const QString &id)
     if (dialog.exec() == QDialog::Accepted)
         service_.setGain(id, value->value());
 }
+void Editor::editAnalysisLayout(const QString &id)
+{
+    const auto source = service_.analysis(id);
+    const auto *endpoint = service_.find(id);
+    if (!source || !endpoint)
+        return;
+    QDialog dialog(this);
+    UI::bindLocalizedText(&dialog, "windowTitle", endpoint->domain.toUtf8().constData(), "analysisCustomGrid",
+                          "Custom rows and columns");
+    auto *layout = new QVBoxLayout(&dialog);
+    auto *form = new QFormLayout;
+    layout->addLayout(form);
+    const auto addField = [&](const char *key, const char *english, unsigned value)
+    {
+        auto *field = new C::IntegerField(&dialog);
+        field->setObjectName(QStringLiteral("controlDeck.") + key);
+        field->setRange(1, 8);
+        field->setValue(int(std::max(1u, value)));
+        auto *label = new C::TextLabel(&dialog);
+        UI::bindLocalizedText(label, "text", endpoint->domain.toUtf8().constData(), key, english);
+        form->addRow(label, field);
+        return field;
+    };
+    auto *rows = addField("analysisRows", "Rows", source->layoutRows.load());
+    auto *columns = addField("analysisColumns", "Columns", source->layoutColumns.load());
+    auto *hint = new C::TextLabel(&dialog);
+    UI::bindLocalizedText(hint, "text", endpoint->domain.toUtf8().constData(), "analysisGridHint",
+                          "Rows expand automatically when needed to show every panel.");
+    hint->setWordWrap(true);
+    layout->addWidget(hint);
+    buttons(dialog, layout);
+    if (dialog.exec() == QDialog::Accepted)
+    {
+        source->layoutRows.store(unsigned(rows->value()));
+        source->layoutColumns.store(unsigned(columns->value()));
+        service_.notify(true);
+    }
+}
+
 void Editor::editAnalysisCsv(const QString &id)
 {
     const auto source = service_.analysis(id);

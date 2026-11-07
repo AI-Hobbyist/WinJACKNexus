@@ -276,6 +276,13 @@ int main(int argc, char **argv)
                                        if (!menu)
                                            return;
                                        menuChecked = true;
+                                       auto *vertical =
+                                           menu->findChild<QAction *>("controlDeck.arrangement.0");
+                                       auto *horizontal =
+                                           menu->findChild<QAction *>("controlDeck.arrangement.1");
+                                       menuChecked &= vertical && vertical->isChecked() && horizontal;
+                                       if (horizontal)
+                                           horizontal->trigger();
                                        for (unsigned index = 0; index < 8; ++index)
                                        {
                                            auto *action = menu->findChild<QAction *>(
@@ -291,7 +298,7 @@ int main(int argc, char **argv)
                                    });
                 QMetaObject::invokeMethod(plot, "customContextMenuRequested", Qt::DirectConnection,
                                           Q_ARG(QPoint, QPoint(5, 5)));
-                if (!menuChecked || source->metricMask.load() != 0x3f)
+                if (!menuChecked || source->metricMask.load() != 0x3f || source->verticalArrangement.load())
                     return fail(__LINE__);
             }
             else
@@ -317,8 +324,38 @@ int main(int argc, char **argv)
                         return fail(__LINE__);
                 }
             }
+            if (QString(layout) == "7_1" && source->kind != Common::AnalysisKind::polar)
+            {
+                source->separate.store(true);
+                if (source->kind == Common::AnalysisKind::loudness)
+                    source->numeric.store(true);
+                for (unsigned arrangement = 0; arrangement < 3; ++arrangement)
+                {
+                    source->verticalArrangement.store(arrangement == 0);
+                    source->layoutRows.store(arrangement == 2 ? 2 : 0);
+                    source->layoutColumns.store(arrangement == 2 ? 4 : 0);
+                    feed(20);
+                    if (!editor->screen()
+                             ->grabWindow(editor->winId())
+                             .save(app.applicationDirPath() + "/../../control-deck-" +
+                                   QString::fromLatin1(type) + "-arrangement-" +
+                                   QString::number(arrangement) + ".png"))
+                        return fail(__LINE__);
+                }
+                if (source->kind == Common::AnalysisKind::loudness)
+                    source->numeric.store(false);
+            }
             const auto saved = QByteArray(get(node));
+            const auto savedRows = source->layoutRows.load();
+            const auto savedColumns = source->layoutColumns.load();
+            const auto savedVertical = source->verticalArrangement.load();
+            source->layoutRows.store(0);
+            source->layoutColumns.store(0);
+            source->verticalArrangement.store(!savedVertical);
             if (!set(node, saved.constData()))
+                return fail(__LINE__);
+            if (source->layoutRows.load() != savedRows || source->layoutColumns.load() != savedColumns ||
+                source->verticalArrangement.load() != savedVertical)
                 return fail(__LINE__);
             if (!source->separate.load() || !source->logarithmic.load())
                 return fail(__LINE__);

@@ -3,6 +3,7 @@
 #include <QString>
 #include <WinJACKNexus/Common/LockFreeSpscQueue.hpp>
 #include <WinJACKNexus/Common/MeterSnapshot.hpp>
+#include <algorithm>
 #include <array>
 #include <atomic>
 #include <cmath>
@@ -38,6 +39,8 @@ class AnalysisCapture final
     const AnalysisKind kind;
     const unsigned channels;
     std::atomic<bool> separate{};
+    std::atomic<bool> verticalArrangement{true};
+    std::atomic<unsigned> layoutRows{}, layoutColumns{};
     std::atomic<bool> logarithmic{};
     std::atomic<bool> numeric{true};
     std::atomic<unsigned> metricMask{0x1f};
@@ -91,6 +94,14 @@ class AnalysisCapture final
     MeterSnapshot loudnessSnapshot_;
     QString recordingStatus_;
 };
+
+inline std::array<double, 64> analysisSpectrumBands(const std::array<double, 512> &powers)
+{
+    std::array<double, 64> bands{};
+    for (unsigned bin = 1; bin < powers.size(); ++bin)
+        bands[bin / 8] = std::max(bands[bin / 8], powers[bin]);
+    return bands;
+}
 
 inline double analysisRms(const std::array<float, 1024> &samples)
 {

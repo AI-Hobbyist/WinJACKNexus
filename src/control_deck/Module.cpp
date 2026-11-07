@@ -319,6 +319,9 @@ class SwitchNode final : public WinJACKNexus::Node::INode
         if (analysis_)
         {
             object["analysisSeparate"] = analysis_->separate.load();
+            object["analysisVerticalArrangement"] = analysis_->verticalArrangement.load();
+            object["analysisLayoutRows"] = int(analysis_->layoutRows.load());
+            object["analysisLayoutColumns"] = int(analysis_->layoutColumns.load());
             object["analysisLogFrequency"] = analysis_->logarithmic.load();
             object["analysisNumeric"] = analysis_->numeric.load();
             object["loudnessMetrics"] = int(analysis_->metricMask.load());
@@ -408,6 +411,10 @@ class SwitchNode final : public WinJACKNexus::Node::INode
         if constexpr (isAnalysis)
         {
             analysis_->separate.store(object["analysisSeparate"].toBool());
+            analysis_->verticalArrangement.store(object["analysisVerticalArrangement"].toBool(true));
+            analysis_->layoutRows.store(unsigned(std::clamp(object["analysisLayoutRows"].toInt(), 0, 8)));
+            analysis_->layoutColumns.store(
+                unsigned(std::clamp(object["analysisLayoutColumns"].toInt(), 0, 8)));
             analysis_->logarithmic.store(object["analysisLogFrequency"].toBool());
             analysis_->numeric.store(object["analysisNumeric"].toBool(true));
             analysis_->metricMask.store(unsigned(object["loudnessMetrics"].toInt(0x1f)) & 0xff);

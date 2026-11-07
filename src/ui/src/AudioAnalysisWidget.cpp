@@ -86,11 +86,22 @@ class AudioAnalysisWidget::Impl
                 readout->setUnit(QString::fromLatin1(units[index]));
                 readout->setPrecision(1);
                 readout->setShowSurface(true);
+                readout->setMinimumSize(0, 0);
                 readout->setAttribute(Qt::WA_TransparentForMouseEvents);
                 readout->hide();
                 readouts[index] = readout;
             }
         }
+    }
+    std::pair<unsigned, unsigned> grid(unsigned count) const
+    {
+        const unsigned customColumns = source->layoutColumns.load();
+        const unsigned customRows = source->layoutRows.load();
+        const unsigned columns = customColumns && customRows          ? customColumns
+                                 : source->verticalArrangement.load() ? 1
+                                                                      : std::max(1u, count);
+        const unsigned rows = std::max(1u, (count + columns - 1) / columns);
+        return {columns, customColumns && customRows ? std::max(customRows, rows) : rows};
     }
     void refreshLoudnessReadouts()
     {
@@ -112,8 +123,7 @@ class AudioAnalysisWidget::Impl
         const QRect area = owner.rect().adjusted(margin, margin, -margin, -margin);
         const auto mask = source->metricMask.load();
         const unsigned count = std::popcount(mask & 0xffu);
-        const unsigned columns = std::min(2u, std::max(1u, count));
-        const unsigned rows = std::max(1u, (count + columns - 1) / columns);
+        const auto [columns, rows] = grid(count);
         unsigned cell = 0;
         for (unsigned index = 0; index < readouts.size(); ++index)
         {
@@ -254,8 +264,7 @@ class AudioAnalysisWidget::Impl
         }
         const bool separate = source->separate.load();
         const unsigned panels = separate ? source->channels : 1;
-        const unsigned columns = panels >= 4 ? 2 : 1;
-        const unsigned rows = (panels + columns - 1) / columns;
+        const auto [columns, rows] = grid(panels);
         for (unsigned panel = 0; panel < panels; ++panel)
         {
             QRectF bounds(area.left() + (panel % columns) * area.width() / columns,
@@ -316,6 +325,23 @@ class AudioAnalysisWidget::Impl
                     painter.drawPath(path);
                 }
             }
+            else if (source->kind == Kind::spectrumBars)
+            {
+                std::array<double, 512> spectrum{};
+                for (unsigned bin = 0; bin < spectrum.size(); ++bin)
+                    spectrum[bin] = power(panel, bin);
+                const auto bands = Common::analysisSpectrumBands(spectrum);
+                const double width = bounds.width() / bands.size();
+                for (unsigned band = 0; band < bands.size(); ++band)
+                {
+                    const double value = bands[band];
+                    const double db = value > 0 ? 10 * std::log10(value) : -90;
+                    const double height = std::clamp((db + 90) / 90, 0.0, 1.0) * bounds.height();
+                    painter.fillRect(QRectF(bounds.left() + (band + 0.1) * width, bounds.bottom() - height,
+                                            width * 0.8, height),
+                                     spectrumColor(value));
+                }
+            }
             else
             {
                 QPainterPath path;
@@ -326,18 +352,10 @@ class AudioAnalysisWidget::Impl
                     const QPointF point(bounds.left() + bin * bounds.width() / 255,
                                         bounds.bottom() -
                                             std::clamp((db + 90) / 90, 0.0, 1.0) * bounds.height());
-                    if (source->kind == Kind::spectrumBars)
-                    {
-                        painter.setPen(spectrumColor(value));
-                        painter.drawLine(QPointF(point.x(), bounds.bottom()), point);
-                    }
+                    if (bin == 1)
+                        path.moveTo(point);
                     else
-                    {
-                        if (bin == 1)
-                            path.moveTo(point);
-                        else
-                            path.lineTo(point);
-                    }
+                        path.lineTo(point);
                 }
                 if (source->kind == Kind::spectrumCurve)
                 {
