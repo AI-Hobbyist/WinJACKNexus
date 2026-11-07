@@ -7420,6 +7420,38 @@
       "default": "#df665b",
       "inherits": [],
       "description": "Loudness reference line analysis-reference-peak"
+    },
+    {
+      "name": "--wjn-theme-global-analysis-spectrum-violet",
+      "ownerScope": "global",
+      "type": "color",
+      "default": "#8b3ff2",
+      "inherits": [],
+      "description": "Spectrogram rainbow violet energy stop"
+    },
+    {
+      "name": "--wjn-theme-global-analysis-spectrum-cyan",
+      "ownerScope": "global",
+      "type": "color",
+      "default": "#24d8e8",
+      "inherits": [],
+      "description": "Spectrogram rainbow cyan energy stop"
+    },
+    {
+      "name": "--wjn-theme-global-analysis-spectrum-green",
+      "ownerScope": "global",
+      "type": "color",
+      "default": "#35d05b",
+      "inherits": [],
+      "description": "Spectrogram rainbow green energy stop"
+    },
+    {
+      "name": "--wjn-theme-global-analysis-spectrum-red",
+      "ownerScope": "global",
+      "type": "color",
+      "default": "#f04a3a",
+      "inherits": [],
+      "description": "Spectrogram rainbow red energy stop"
     }
   ]
 }

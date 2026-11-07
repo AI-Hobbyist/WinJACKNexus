@@ -612,3 +612,7 @@ Production-DLL Windows tests passed 95 checks with 3 top-level shows, Microsoft 
 Control Deck 数字卡片及多声道分区排列支持默认垂直、水平和自定义行列。`AnalysisCapture` 的 `verticalArrangement`、`layoutRows`、`layoutColumns` 由控制线程写入，绘图线程读取；自定义尺寸为零时使用方向，非零时按行列布局并在容量不足时扩展行数。节点 JSON 对应 `analysisVerticalArrangement`、`analysisLayoutRows`、`analysisLayoutColumns`，旧状态缺省为垂直排列。响度电平模式始终为单排垂直表条。
 
 频谱曲线另支持 `AnalysisCapture::overlay`，节点 JSON 为 `analysisOverlay`，缺省 false。彩色叠加模式按声道独立功率曲线绘制并显示匹配图例，继续复用 `analysis-channel-1..8`；综合功率模式和分声道模式保持独立。
+
+公共分析控件为分声道图表绘制独立卡片，复用 drawSurface 和全局 surface-raised/border-normal/声道色 Token。频谱两轴为频率与 dBFS，声谱两轴为相对时间与频率。横纵轴依据字体度量和各分区尺寸独立自动隐藏/恢复。声谱每512样本写入历史列，时间刻度依照采样率而非 UI 刷新频率。
+
+声谱图默认彩虹能量渐变另使用 analysis-spectrum-violet/cyan/green/red，与既有 floor/mid/hot 一起组成七个色阶；新增项在主题注册表和默认 CSS 中统一声明。新建分析图表默认 separate=false、overlay=false，保存的模式按工程恢复。

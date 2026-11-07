@@ -129,7 +129,7 @@ int main(int argc, char **argv)
                     return fail(__LINE__);
             }
             auto source = service.analysis(service.endpoints[node].id);
-            if (!source || source->channels != channels)
+            if (!source || source->channels != channels || source->separate.load() || source->overlay.load())
                 return fail(__LINE__);
             auto *editor = service.showEditor();
             editor->resize(1000, 800);
@@ -331,6 +331,9 @@ int main(int argc, char **argv)
                     source->numeric.store(true);
                 for (unsigned arrangement = 0; arrangement < 3; ++arrangement)
                 {
+                    service.state.cards[service.endpoints[node].id].geometry.setWidth(arrangement == 1 ? 880
+                                                                                                       : 800);
+                    service.notify();
                     source->verticalArrangement.store(arrangement == 0);
                     source->layoutRows.store(arrangement == 2 ? 2 : 0);
                     source->layoutColumns.store(arrangement == 2 ? 4 : 0);
@@ -344,6 +347,21 @@ int main(int argc, char **argv)
                 }
                 if (source->kind == Common::AnalysisKind::loudness)
                     source->numeric.store(false);
+                if (source->kind == Common::AnalysisKind::spectrogram ||
+                    source->kind == Common::AnalysisKind::spectrumBars ||
+                    source->kind == Common::AnalysisKind::spectrumCurve)
+                {
+                    source->layoutRows.store(8);
+                    source->layoutColumns.store(8);
+                    feed(6);
+                    if (!editor->screen()
+                             ->grabWindow(editor->winId())
+                             .save(app.applicationDirPath() + "/../../control-deck-" +
+                                   QString::fromLatin1(type) + "-compact-axes-hidden.png"))
+                        return fail(__LINE__);
+                    source->layoutRows.store(2);
+                    source->layoutColumns.store(4);
+                }
             }
             if (source->kind == Common::AnalysisKind::spectrumCurve)
             {

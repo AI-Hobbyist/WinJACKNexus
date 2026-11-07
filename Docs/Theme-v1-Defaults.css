@@ -892,3 +892,10 @@
   --wjn-theme-global-analysis-reference-upper: #e0a04a;
   --wjn-theme-global-analysis-reference-peak: #df665b;
 }
+
+:root {
+  --wjn-theme-global-analysis-spectrum-violet: #8b3ff2;
+  --wjn-theme-global-analysis-spectrum-cyan: #24d8e8;
+  --wjn-theme-global-analysis-spectrum-green: #35d05b;
+  --wjn-theme-global-analysis-spectrum-red: #f04a3a;
+}

@@ -154,6 +154,21 @@ class AudioAnalysisWidget::Impl
         for (auto &image : history)
             image.fill(color(owner, "analysis-spectrum-floor", QPalette::Base));
     }
+    void analyzeWindow()
+    {
+        for (unsigned channel = 0; channel < source->channels; ++channel)
+        {
+            std::array<float, 1024> ordered{};
+            for (unsigned sample = 0; sample < 1024; ++sample)
+                ordered[sample] = wave[channel][(position + sample) % 1024];
+            rms[channel] = Common::analysisRms(ordered);
+            if (source->kind != Kind::oscilloscope && source->kind != Kind::polar)
+                powers[channel] = Common::analysisSpectrum(ordered);
+        }
+        if (source->kind == Kind::spectrogram)
+            addSpectrum();
+        pending = 0;
+    }
     void refresh()
     {
         if (source->kind == Kind::loudness)
@@ -192,25 +207,11 @@ class AudioAnalysisWidget::Impl
                 wave[channel][position] = frame.samples[channel];
             position = (position + 1) % 1024;
             ++pending;
+            if (source->kind == Kind::spectrogram && pending >= 512)
+                analyzeWindow();
         }
         if (pending >= 512)
-        {
-            for (unsigned channel = 0; channel < source->channels; ++channel)
-            {
-                std::array<float, 1024> ordered{};
-                for (unsigned sample = 0; sample < 1024; ++sample)
-                {
-                    ordered[sample] = wave[channel][(position + sample) % 1024];
-                }
-                rms[channel] = Common::analysisRms(ordered);
-                if (source->kind != Kind::oscilloscope && source->kind != Kind::polar &&
-                    source->kind != Kind::loudness)
-                    powers[channel] = Common::analysisSpectrum(ordered);
-            }
-            if (source->kind == Kind::spectrogram)
-                addSpectrum();
-            pending = 0;
-        }
+            analyzeWindow();
         owner.update();
     }
     double power(unsigned panel, unsigned bin) const
@@ -233,6 +234,19 @@ class AudioAnalysisWidget::Impl
         const auto low = color(owner, "analysis-spectrum-floor", QPalette::Base);
         const auto middle = color(owner, "analysis-spectrum-mid", QPalette::Highlight);
         const auto high = color(owner, "analysis-spectrum-hot", QPalette::BrightText);
+        if (source->kind == Kind::spectrogram)
+        {
+            const std::array stops{low,
+                                   color(owner, "analysis-spectrum-violet", QPalette::Highlight),
+                                   middle,
+                                   color(owner, "analysis-spectrum-cyan", QPalette::Highlight),
+                                   color(owner, "analysis-spectrum-green", QPalette::Highlight),
+                                   high,
+                                   color(owner, "analysis-spectrum-red", QPalette::BrightText)};
+            const double position = amount * (stops.size() - 1);
+            const auto index = std::min(unsigned(position), unsigned(stops.size() - 2));
+            return blend(stops[index], stops[index + 1], position - index);
+        }
         return amount < 0.5 ? blend(low, middle, amount * 2) : blend(middle, high, amount * 2 - 1);
     }
     void addSpectrum()
@@ -245,6 +259,71 @@ class AudioAnalysisWidget::Impl
                 std::memmove(pixels, pixels + 1, 255 * sizeof(QRgb));
                 pixels[255] = spectrumColor(power(panel, binFor(1 - row / 127.0))).rgb();
             }
+    }
+    QRectF drawAxes(QPainter &painter, const QRectF &bounds)
+    {
+        const bool spectrogram = source->kind == Kind::spectrogram;
+        const auto metrics = owner.fontMetrics();
+        const qreal labelHeight = metrics.height();
+        const qreal labelWidth = metrics.horizontalAdvance("-90 dBFS") + 4;
+        const bool showVertical =
+            bounds.width() >= labelWidth + labelHeight * 3 && bounds.height() >= labelHeight * 2;
+        const qreal leftMargin = showVertical ? labelWidth : 0;
+        const bool showHorizontal =
+            bounds.height() >= labelHeight * 3 &&
+            bounds.width() - leftMargin - labelHeight / 2 >= metrics.horizontalAdvance("-2.73 s") * 2;
+        if (!showHorizontal && !showVertical)
+            return bounds;
+        const QRectF plot =
+            bounds.adjusted(leftMargin, showVertical ? labelHeight / 2 : 0,
+                            showHorizontal ? -labelHeight / 2 : 0, showHorizontal ? -labelHeight - 4 : 0);
+        painter.setPen(color(owner, "border-normal", QPalette::Mid));
+        if (showHorizontal)
+            painter.drawLine(plot.bottomLeft(), plot.bottomRight());
+        if (showVertical)
+            painter.drawLine(plot.bottomLeft(), plot.topLeft());
+        const auto frequencyText = [](double frequency)
+        {
+            return frequency >= 1000 ? QString::number(frequency / 1000, 'g', 3) + " kHz"
+                                     : QString::number(frequency, 'f', 0) + " Hz";
+        };
+        for (unsigned tick = 0; showVertical && tick < 3; ++tick)
+        {
+            const double fraction = tick / 2.0;
+            if (tick == 1 && plot.height() < labelHeight * 3)
+                continue;
+            const double frequency = source->logarithmic.load()
+                                         ? 20 * std::pow(std::max(1.0, rate / 40.0), fraction)
+                                         : fraction * rate / 2;
+            const auto text = spectrogram ? frequencyText(frequency)
+                                          : QString::number(-90 + fraction * 90, 'f', 0) + " dBFS";
+            const double y = plot.bottom() - fraction * plot.height();
+            painter.setPen(color(owner, "border-normal", QPalette::Mid));
+            painter.drawLine(QPointF(plot.left() - 3, y), QPointF(plot.left(), y));
+            painter.setPen(color(owner, "text-muted", QPalette::WindowText));
+            painter.drawText(QRectF(bounds.left(), y - labelHeight / 2, labelWidth - 4, labelHeight),
+                             Qt::AlignRight | Qt::AlignVCenter,
+                             metrics.elidedText(text, Qt::ElideRight, int(labelWidth - 4)));
+        }
+        for (unsigned tick = 0; showHorizontal && tick < 3; ++tick)
+        {
+            const double fraction = tick / 2.0;
+            if (tick == 1 && plot.width() < metrics.horizontalAdvance("12 kHz") * 3)
+                continue;
+            const double x = plot.left() + fraction * plot.width();
+            const auto text = spectrogram ? QString::number((fraction - 1) * 256 * 512 / rate, 'f', 2) + " s"
+                                          : frequencyText(fraction * rate / 2);
+            painter.setPen(color(owner, "border-normal", QPalette::Mid));
+            painter.drawLine(QPointF(x, plot.bottom()), QPointF(x, plot.bottom() + 3));
+            const qreal width = plot.width() / 2;
+            const qreal left = std::clamp(x - width / 2, plot.left(), plot.right() - width);
+            const auto alignment = tick == 0 ? Qt::AlignLeft : tick == 2 ? Qt::AlignRight : Qt::AlignHCenter;
+            painter.setPen(color(owner, "text-muted", QPalette::WindowText));
+            painter.drawText(QRectF(left, plot.bottom() + 4, width, labelHeight),
+                             alignment | Qt::AlignVCenter,
+                             metrics.elidedText(text, Qt::ElideRight, int(width)));
+        }
+        return plot;
     }
     void paint(QPainter &painter)
     {
@@ -271,8 +350,18 @@ class AudioAnalysisWidget::Impl
             QRectF bounds(area.left() + (panel % columns) * area.width() / columns,
                           area.top() + (panel / columns) * area.height() / rows, area.width() / columns,
                           area.height() / rows);
+            if (separate)
+            {
+                const qreal padding = std::min({margin / 2.0, bounds.width() / 8, bounds.height() / 8});
+                bounds.adjust(padding / 2, padding / 2, -padding / 2, -padding / 2);
+                Controls::drawSurface(painter, bounds, color(owner, "surface-raised", QPalette::Window),
+                                      color(owner, "border-normal", QPalette::Mid),
+                                      owner.style()->pixelMetric(QStyle::PM_DefaultFrameWidth));
+                bounds.adjust(padding, padding, -padding, -padding);
+            }
             const QString caption = separate ? role(panel, source->channels) : QStringLiteral("Σ/N");
-            painter.setPen(color(owner, "text-primary", QPalette::WindowText));
+            painter.setPen(separate ? channelColor(owner, panel)
+                                    : color(owner, "text-primary", QPalette::WindowText));
             if (!separate && (source->kind == Kind::oscilloscope || overlay))
             {
                 qreal left = bounds.left();
@@ -289,18 +378,20 @@ class AudioAnalysisWidget::Impl
             else
                 painter.drawText(bounds, Qt::AlignLeft | Qt::AlignTop, caption);
             bounds.adjust(0, owner.fontMetrics().height(), 0, -margin);
+            if (source->kind == Kind::spectrogram || source->kind == Kind::spectrumBars ||
+                source->kind == Kind::spectrumCurve)
+                bounds = drawAxes(painter, bounds);
             painter.setPen(color(owner, "border-normal", QPalette::Mid));
             painter.setBrush(Qt::NoBrush);
             painter.drawRect(bounds);
             if (source->kind == Kind::spectrogram)
             {
                 painter.drawImage(bounds, history[panel]);
-                painter.setPen(color(owner, "text-primary", QPalette::WindowText));
-                painter.drawText(bounds, Qt::AlignRight | Qt::AlignTop, QString::number(rate / 2) + " Hz");
                 continue;
             }
             painter.save();
             painter.setClipRect(bounds);
+            painter.fillRect(bounds, color(owner, "surface-panel", QPalette::Base));
             if (source->kind == Kind::oscilloscope)
             {
                 painter.setPen(color(owner, "border-normal", QPalette::Mid));
