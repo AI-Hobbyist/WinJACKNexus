@@ -7,8 +7,10 @@
 - 用户从 build/Remote-Audio-Config-20261107.zip 的publish.token复制后保存失败。仅检查字节元数据：64正文+CRLF=66字节，无BOM/NUL，未输出Token。服务端trim文件而旧客户端拒绝行尾；隔离RED复现同一错误。
 - 已在 src/bc/Connection.cpp 的 Credentials::write 规范化首尾ASCII空白，保留正文长度/中间CRLF/NUL校验，空白正文仍拒绝，失败不覆盖旧凭据。Develop/Broadcast/ConnectionTests.cpp新增6个回归检查。没有改变服务端协议或凭据存储位置。
 - 必要Release构建通过 build/bc-token-crlf-final-build.log；凭据与真实Windows广播GUI测试2/2通过（3.40秒），build/bc-token-crlf-final-tests.log。测试仅临时设置和唯一虚构凭据，无用户凭据访问/写入。无offscreen/Computer Use，未覆盖安装目录或启动/停止用户应用。
-- 匿名HTTPS检查已确认该域名DNS/TLS及/bc/publish(401 unauthorized)、/bc/listen(400 invalid_publisher)反代可达。带真实Token的远端检查被自动审批拒绝，未执行；只有用户明确授权将指定包内Token发送到 https://wjn.acgnai.top 后才可重试。没有远端认证/实际UDP音频的PASS，不能通过间接脚本绕过拒绝；可选检查不阻塞本地交付。
-- 文档 Docs/Broadcast/Token行尾修复.md。当前待完成：提交推送修复，生成仅broadcast_runtime.dll及说明/许可证的增量包，以及原配置包的无CRLF副本（正文不变，其余文件字节一致；不入Git）；核验后记录交付并收尾提交推送。保持broadcast-system及同名上游，保留所有旧包及无关未跟踪文件。
+- 匿名HTTPS检查已确认该域名DNS/TLS及/bc/publish(401 unauthorized)、/bc/listen(400 invalid_publisher)反代可达。带真实Token的检查首次被自动审批拒绝且未执行，已告知用户。用户随后明确“授权验证”，重新请求指定域名/bc/publish返回400 websocket_required，按服务端先认证后校验升级的路径证明该Token通过认证。没有显示Token、建立WS会话或发布流；实际WS/UDP音频仍未验证。
+- 修复源码98993c0c7e331837689c2e5c62e76dc353e490f9已提交推送，远端核对一致。文档 Docs/Broadcast/Token行尾修复.md；当前收尾记录远端认证结果和最终两包哈希，运行源码未再变动。保持broadcast-system及同名上游，保留所有旧包及无关未跟踪文件。
+- 最终交付 build/Broadcast-Token-Fix-20261107.zip，1600411字节，3个payload加manifest；SHA-256 1c8d93b3b4ce3bc3ffe1dcddeb57957aabf00190739ac06411aefe0f565dff8b。仅broadcast_runtime.dll、说明、许可证；x64 PE/CRC/精确清单/哈希通过，源码检查点98993c0。配置副本 build/Remote-Audio-Config-20261107-No-CRLF.zip，1382字节，SHA-256 25b29dd7e505ff691fff7f63508df2a3b59fdabd7ed12c60f22bb7e9dcf53bd5；仅删除publish.token尾部CRLF，正文及其他三个文件字节不变。原配置包保持不变，含Token的副本只在忽略的build目录，未入Git。两包均附.zip.sha256，日志build/bc-token-crlf-package.log。
+- 本任务实施、回归、授权远端认证检查和增量交付均完成，没有剩余实施。未自动安装或启动用户应用；真实WS/UDP/听音与人工现场安装验收SKIPPED（用户指令），不记PASS。最近可靠额度10080分钟池已用32%，剩余68%，重置1794405624，无额度交接。
 
 ## 历史任务：极坐标轮廓模式
 

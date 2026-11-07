@@ -12,7 +12,7 @@ Rust服务端读取Token文件时调用 `trim()`，旧客户端保存凭据时�
 - Release必要构建：`build/bc-token-crlf-final-build.log`。
 - GREEN：`build/bc-token-crlf-final-tests.log`，凭据与广播GUI测试2/2通过，3.40秒。使用临时设置及唯一测试凭据，未读写用户实际凭据；GUI为正常Windows Qt实窗，无offscreen/Computer Use。
 - 匿名网络检查：`https://wjn.acgnai.top/bc/publish?publisher=diagnostic` 返回401和 `unauthorized`，`/bc/listen` 返回400和 `invalid_publisher`；DNS/HTTPS及这两个路由的反代可达。`/bc` 本身返回404不表示控制端点不可用。
-- 带真实Token的远端认证检查未执行：自动审批拒绝将包内凭据发送到该域名，要求明确授权。未经认证检查或真实UDP推流，不宣称远端认证/音频端到端通过。此可选检查不阻塞本地修复交付。
+- 带真实Token的远端检查首次被自动审批拒绝，未执行；用户随后明确授权后重新执行。对指定域名 `/bc/publish` 的非WebSocket请求返回400和 `websocket_required`，证明去掉行尾的包内Token通过认证。只输出状态与协议错误码，未显示Token、建立会话或发布流。真实WebSocket升级/UDP音频端到端尚未验证。
 
 ## 替换与使用
 
