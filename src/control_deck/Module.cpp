@@ -319,6 +319,7 @@ class SwitchNode final : public WinJACKNexus::Node::INode
         if (analysis_)
         {
             object["analysisSeparate"] = analysis_->separate.load();
+            object["analysisOverlay"] = analysis_->overlay.load();
             object["analysisVerticalArrangement"] = analysis_->verticalArrangement.load();
             object["analysisLayoutRows"] = int(analysis_->layoutRows.load());
             object["analysisLayoutColumns"] = int(analysis_->layoutColumns.load());
@@ -411,6 +412,7 @@ class SwitchNode final : public WinJACKNexus::Node::INode
         if constexpr (isAnalysis)
         {
             analysis_->separate.store(object["analysisSeparate"].toBool());
+            analysis_->overlay.store(object["analysisOverlay"].toBool());
             analysis_->verticalArrangement.store(object["analysisVerticalArrangement"].toBool(true));
             analysis_->layoutRows.store(unsigned(std::clamp(object["analysisLayoutRows"].toInt(), 0, 8)));
             analysis_->layoutColumns.store(

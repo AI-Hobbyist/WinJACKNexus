@@ -39,6 +39,7 @@ class AnalysisCapture final
     const AnalysisKind kind;
     const unsigned channels;
     std::atomic<bool> separate{};
+    std::atomic<bool> overlay{};
     std::atomic<bool> verticalArrangement{true};
     std::atomic<unsigned> layoutRows{}, layoutColumns{};
     std::atomic<bool> logarithmic{};

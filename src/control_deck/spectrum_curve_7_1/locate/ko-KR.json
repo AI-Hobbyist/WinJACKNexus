@@ -18,7 +18,8 @@
       "analysisCustomGrid": "행과 열 지정…",
       "analysisRows": "행 수",
       "analysisColumns": "열 수",
-      "analysisGridHint": "모든 패널을 표시하도록 필요한 경우 행 수를 늘립니다."
+      "analysisGridHint": "모든 패널을 표시하도록 필요한 경우 행 수를 늘립니다.",
+      "analysisOverlay": "채널 색상 오버레이"
     }
   }
 }

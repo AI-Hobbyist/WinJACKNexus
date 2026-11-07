@@ -610,3 +610,5 @@ Production-DLL Windows tests passed 95 checks with 3 top-level shows, Microsoft 
 公共 common `ControlDeckAnalysis.hpp` 提供固定 1/2/6/8 声道的有界采集、RMS、Hann FFT 和声道功率平均。绘图支持示波器、声谱图、声道能量极坐标、频谱直方图、频谱曲线及综合响度。主题使用 `analysis-channel-1..8`、`analysis-spectrum-floor/mid/hot` 和 `analysis-reference-target/upper/peak`，默认值及注册表属于公共主题系统。开发规则见 [组件开发指南](ControlDeck/组件开发指南.md)，实际模块回调与调用点测试位于 `src/control_deck/AnalysisTests.cpp`。
 
 Control Deck 数字卡片及多声道分区排列支持默认垂直、水平和自定义行列。`AnalysisCapture` 的 `verticalArrangement`、`layoutRows`、`layoutColumns` 由控制线程写入，绘图线程读取；自定义尺寸为零时使用方向，非零时按行列布局并在容量不足时扩展行数。节点 JSON 对应 `analysisVerticalArrangement`、`analysisLayoutRows`、`analysisLayoutColumns`，旧状态缺省为垂直排列。响度电平模式始终为单排垂直表条。
+
+频谱曲线另支持 `AnalysisCapture::overlay`，节点 JSON 为 `analysisOverlay`，缺省 false。彩色叠加模式按声道独立功率曲线绘制并显示匹配图例，继续复用 `analysis-channel-1..8`；综合功率模式和分声道模式保持独立。

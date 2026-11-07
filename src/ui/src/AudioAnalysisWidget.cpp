@@ -264,7 +264,8 @@ class AudioAnalysisWidget::Impl
         }
         const bool separate = source->separate.load();
         const unsigned panels = separate ? source->channels : 1;
-        const auto [columns, rows] = grid(panels);
+        const bool overlay = !separate && source->kind == Kind::spectrumCurve && source->overlay.load();
+        const auto [columns, rows] = panels == 1 ? std::pair{1u, 1u} : grid(panels);
         for (unsigned panel = 0; panel < panels; ++panel)
         {
             QRectF bounds(area.left() + (panel % columns) * area.width() / columns,
@@ -272,7 +273,7 @@ class AudioAnalysisWidget::Impl
                           area.height() / rows);
             const QString caption = separate ? role(panel, source->channels) : QStringLiteral("Σ/N");
             painter.setPen(color(owner, "text-primary", QPalette::WindowText));
-            if (!separate && source->kind == Kind::oscilloscope)
+            if (!separate && (source->kind == Kind::oscilloscope || overlay))
             {
                 qreal left = bounds.left();
                 for (unsigned channel = 0; channel < source->channels; ++channel)
@@ -344,22 +345,23 @@ class AudioAnalysisWidget::Impl
             }
             else
             {
-                QPainterPath path;
-                for (unsigned bin = 1; bin < 256; ++bin)
+                const unsigned curves = overlay ? source->channels : 1;
+                for (unsigned curve = 0; curve < curves; ++curve)
                 {
-                    const double value = power(panel, bin * 2);
-                    const double db = value > 0 ? 10 * std::log10(value) : -90;
-                    const QPointF point(bounds.left() + bin * bounds.width() / 255,
-                                        bounds.bottom() -
-                                            std::clamp((db + 90) / 90, 0.0, 1.0) * bounds.height());
-                    if (bin == 1)
-                        path.moveTo(point);
-                    else
-                        path.lineTo(point);
-                }
-                if (source->kind == Kind::spectrumCurve)
-                {
-                    painter.setPen(channelColor(owner, panel));
+                    QPainterPath path;
+                    for (unsigned bin = 1; bin < 256; ++bin)
+                    {
+                        const double value = overlay ? powers[curve][bin * 2] : power(panel, bin * 2);
+                        const double db = value > 0 ? 10 * std::log10(value) : -90;
+                        const QPointF point(bounds.left() + bin * bounds.width() / 255,
+                                            bounds.bottom() -
+                                                std::clamp((db + 90) / 90, 0.0, 1.0) * bounds.height());
+                        if (bin == 1)
+                            path.moveTo(point);
+                        else
+                            path.lineTo(point);
+                    }
+                    painter.setPen(channelColor(owner, overlay ? curve : panel));
                     painter.setBrush(Qt::NoBrush);
                     painter.drawPath(path);
                 }

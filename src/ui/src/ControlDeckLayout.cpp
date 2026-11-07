@@ -298,18 +298,26 @@ void Editor::showCardMenu(const QString &id, const QPoint &global)
                                   "Display mode");
             auto *group = new QActionGroup(mode);
             const bool loudness = source->kind == Common::AnalysisKind::loudness;
-            for (unsigned index = 0; index < 2; ++index)
+            const unsigned modeCount = source->kind == Common::AnalysisKind::spectrumCurve ? 3 : 2;
+            const char *keys[]{loudness ? "analysisNumbers" : "analysisCombined",
+                               loudness ? "analysisMeters" : "analysisSeparate", "analysisOverlay"};
+            const char *labels[]{loudness ? "Numbers" : "Combined", loudness ? "Meters" : "Per channel",
+                                 "Colored channel overlay"};
+            for (unsigned index = 0; index < modeCount; ++index)
             {
                 auto *choice = mode->addAction(QString());
                 choice->setObjectName(QStringLiteral("controlDeck.analysisMode.%1").arg(index));
-                UI::bindLocalizedText(choice, "text", endpoint->domain.toUtf8().constData(),
-                                      loudness ? (index ? "analysisMeters" : "analysisNumbers")
-                                               : (index ? "analysisSeparate" : "analysisCombined"),
-                                      loudness ? (index ? "Meters" : "Numbers")
-                                               : (index ? "Per channel" : "Combined"));
+                UI::bindLocalizedText(choice, "text", endpoint->domain.toUtf8().constData(), keys[index],
+                                      labels[index]);
                 choice->setCheckable(true);
-                choice->setChecked(loudness ? source->numeric.load() == (index == 0)
-                                            : source->separate.load() == (index == 1));
+                bool selected;
+                if (loudness)
+                    selected = source->numeric.load() == (index == 0);
+                else if (index == 2)
+                    selected = source->overlay.load();
+                else
+                    selected = !source->overlay.load() && source->separate.load() == (index == 1);
+                choice->setChecked(selected);
                 group->addAction(choice);
                 connect(choice, &QAction::triggered, &menu,
                         [this, source, loudness, index]
@@ -317,7 +325,10 @@ void Editor::showCardMenu(const QString &id, const QPoint &global)
                             if (loudness)
                                 source->numeric.store(index == 0);
                             else
+                            {
                                 source->separate.store(index == 1);
+                                source->overlay.store(index == 2);
+                            }
                             service_.notify(true);
                         });
             }

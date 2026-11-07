@@ -345,19 +345,52 @@ int main(int argc, char **argv)
                 if (source->kind == Common::AnalysisKind::loudness)
                     source->numeric.store(false);
             }
+            if (source->kind == Common::AnalysisKind::spectrumCurve)
+            {
+                bool overlayChosen = false;
+                QTimer::singleShot(40, editor,
+                                   [&]
+                                   {
+                                       auto *menu = qobject_cast<QMenu *>(QApplication::activePopupWidget());
+                                       if (!menu)
+                                           return;
+                                       if (auto *action =
+                                               menu->findChild<QAction *>("controlDeck.analysisMode.2"))
+                                       {
+                                           action->trigger();
+                                           overlayChosen = true;
+                                       }
+                                       menu->close();
+                                   });
+                QMetaObject::invokeMethod(plot, "customContextMenuRequested", Qt::DirectConnection,
+                                          Q_ARG(QPoint, QPoint(5, 5)));
+                if (!overlayChosen || !source->overlay.load() || source->separate.load())
+                    return fail(__LINE__);
+                feed(20);
+                if (channels == 8 &&
+                    !editor->screen()
+                         ->grabWindow(editor->winId())
+                         .save(app.applicationDirPath() + "/../../control-deck-spectrum-curve-overlay.png"))
+                    return fail(__LINE__);
+            }
             const auto saved = QByteArray(get(node));
+            const auto savedSeparate = source->separate.load();
+            const auto savedOverlay = source->overlay.load();
             const auto savedRows = source->layoutRows.load();
             const auto savedColumns = source->layoutColumns.load();
             const auto savedVertical = source->verticalArrangement.load();
             source->layoutRows.store(0);
             source->layoutColumns.store(0);
             source->verticalArrangement.store(!savedVertical);
+            source->overlay.store(!savedOverlay);
+            source->separate.store(!savedSeparate);
             if (!set(node, saved.constData()))
                 return fail(__LINE__);
             if (source->layoutRows.load() != savedRows || source->layoutColumns.load() != savedColumns ||
                 source->verticalArrangement.load() != savedVertical)
                 return fail(__LINE__);
-            if (!source->separate.load() || !source->logarithmic.load())
+            if (source->separate.load() != savedSeparate || source->overlay.load() != savedOverlay ||
+                !source->logarithmic.load())
                 return fail(__LINE__);
             if (source->kind == Common::AnalysisKind::loudness &&
                 (!source->csvEnabled || source->csvUseGlobal || source->numeric.load() ||
