@@ -1,6 +1,6 @@
 # Agent 交接手册
 
-更新：2026-11-07（Asia/Seoul）。当前 Control Deck 任务状态以文末最新检查点为准；前文广播记录为历史交付。
+更新：2026-11-07（Asia/Seoul）。当前 Control Deck 全部需求已完成并交付；最终包与提交状态见文末。前文检查点和广播记录保留为历史。
 
 ## 当前检查点
 
@@ -153,3 +153,12 @@
 - Release final build passed build/control-deck-overload-final-build.log. Final24 analyzer/loudness cases passed;17 window/menu shows, real windows/system fonts. Pure LUT/interpolation, -72/0/+12 saturation, combined/per-channel excess calculation, actual palette menus/defaultRainbow, five palette captures, persistence after mutation, excess show/hide and red->green token override passed. build/control-deck-palettes-overload-tests.log. Installed dependency exports38 nodes+3 shared DLLs passed, including new UI getter import.
 - Initial palette run failed one loudness-menu assertion (AnalysisTests.cpp:310). Test now finds the root native menu even when a submenu is active and waits for native close animation before capture; final full pass succeeded. No production UI workaround/offscreen/Computer Use. Final reference palette/colorbar/title screenshots inspected; live JACK/hardware/listening/manual install SKIPPED by user instruction. No installed files changed or user process started/stopped.
 - Four-language catalogs, spec/guide/UI contract and Wiki source updated. Next only: source checkpoint commit/push, Wiki publish, final235-file incremental package and hashes, completion record/handoff plus closing commit/push. Reliable usage28% used of10080-minute pool, no quota handoff.
+
+## FINAL Control Deck delivery completed (2026-11-07)
+
+- All requested feature implementation and autonomous validation/delivery complete. Final source a13390ea0ceb369dd6f32ee23e464b936c52bf48 pushed and remote verified on broadcast-system; upstream origin/broadcast-system. Closing record commit contains documentation only; package source checkpoint stays a13390ea0ceb369dd6f32ee23e464b936c52bf48.
+- Final unified incremental archive build/Control-Deck-Overlay-20261107-Palettes.zip: 2497024 bytes, 235 payloads plus manifest; SHA-256 92a6571729970a511e094c0388843563c4135d3a366dcee5ead300da367425c6. Sidecar .zip.sha256 present. Exact paths, source/runtime catalog equality, PE/JSON/CRC and per-file/archive hashes passed. Only three root DLLs plus all38 functional node/catalog folders and required docs/license; not a full rebuild/package. Preserve all earlier intermediate archives.
+- Actual Control Deck Wiki master 2d3488912892293dc691df3a7193220c8f77a328 pushed/remote verified. Public Node/UI contracts, specification, component developer guide,19 theme tokens and docs updated. Delivery record Docs/ControlDeck/交付记录.md, replacement instructions Docs/ControlDeck/增量替换说明.md.
+- Final Release build/24 analyzer-loudness cases passed,17 real-window/menu shows. Excess default red, theme override, five LUT palettes/defaultRainbow, onlyCustom theme data, -72..+12 scale/0 saturation, modes/grids, reference DSP, auto silence reset and background CSV verified. Dependency exports38+3 DLLs passed. Peak/category/routing/broadcast GUI regressions remain passing as detailed in delivery record.
+- Manual JACK/hardware/hearing/install acceptance SKIPPED by user instruction, never PASS. No app/audio processes started/stopped, no installed files overwritten. No remaining implementation or automatic delivery work; user may apply overlay following instructions. No quota handoff (latest reliable28% used/10080-minute pool).
+- Preserve unrelated .omc/, midi_tools_node_ref/, themes/Furina/, themes/org.eryth.furina.wjnskin. No new stages are implied.
